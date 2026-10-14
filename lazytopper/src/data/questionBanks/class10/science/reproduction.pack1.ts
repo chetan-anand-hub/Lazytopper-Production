@@ -3,23 +3,17 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
   { id: "REP-E01", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Binary fission is observed in:", options: ["Hydra", "Amoeba", "Yeast", "Planaria"], answer: "Amoeba", explanation: "The correct answer is Amoeba. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Amoeba" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall different modes of asexual reproduction in organisms.",
-      "Identify budding as a process where a small outgrowth (bud) forms and detaches to grow into a new individual.",
-      "Yeast is a common example of a single-celled organism that reproduces by budding.",
+      "Correct answer: Amoeba. Amoeba is a unicellular organism that reproduces by binary fission, in which the cell divides into two equal halves, and it can split in any plane.",
     ],
   },
   { id: "REP-E02", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Budding is a method of asexual reproduction seen in:", options: ["Amoeba", "Hydra", "Planaria", "Spirogyra"], answer: "Hydra", explanation: "The correct answer is Hydra. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Hydra" , isCompetencyBased: false,
     solutionSteps: [
-      "Understand regeneration as the ability of an organism to regrow lost body parts or an entire organism from a fragment.",
-      "Recall examples of organisms known for their high regenerative capacity.",
-      "Hydra and Planaria are well-known examples of organisms that reproduce or repair themselves through regeneration.",
+      "Correct answer: Hydra. In Hydra, a bud develops as an outgrowth due to repeated cell division at one specific site; it grows into a tiny individual that detaches from the parent when mature.",
     ],
   },
   { id: "REP-E03", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Plants", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The male reproductive part of a flower is:", options: ["Pistil", "Stamen", "Petal", "Sepal"], answer: "Stamen", explanation: "The correct answer is Stamen. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Stamen" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall the structure of a flower and the process of fertilization in plants.",
-      "After fertilization, the ovules inside the ovary develop into seeds.",
-      "The ovary, which contains the ovules, matures and develops into the fruit.",
+      "Correct answer: Stamen. The stamen (made of filament and anther) is the male reproductive part of a flower; its anther produces pollen grains that contain the male germ-cells.",
     ],
   },
   { id: "REP-E04", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Fertilisation in humans occurs in the:", options: ["Uterus", "Ovary", "Fallopian tube", "Vagina"], answer: "Fallopian tube", explanation: "The correct answer is Fallopian tube. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Fallopian tube" , isCompetencyBased: false,
@@ -31,16 +25,12 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
   },
   { id: "REP-E05", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Vegetative propagation by leaves is seen in:", options: ["Potato", "Rose", "Bryophyllum", "Banana"], answer: "Bryophyllum", explanation: "The correct answer is Bryophyllum. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Bryophyllum" , isCompetencyBased: false,
     solutionSteps: [
-      "Budding is a form of asexual reproduction where a new organism develops from an outgrowth or bud due to cell division at one particular site.",
-      "Amoeba reproduces by binary fission, Plasmodium by multiple fission, and Planaria by fragmentation/regeneration.",
-      "Hydra reproduces primarily by budding, where a small bud grows and detaches to form a new individual.",
+      "Correct answer: Bryophyllum. Buds produced in the notches along the leaf margin of Bryophyllum fall on the soil and develop into new plants, which is vegetative propagation by leaves.",
     ],
   },
   { id: "REP-E06", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Plants", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Flowers are the reproductive organs of a plant.\nReason (R): Flowers contain stamens and pistils for reproduction.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A) states that self-pollination ensures genetic variation. This is false, as self-pollination leads to less genetic variation due to the involvement of gametes from the same parent.",
-      "Reason (R) correctly defines self-pollination as the transfer of pollen from anther to stigma of the same flower or another flower on the same plant. This statement is true.",
-      "Since Assertion (A) is false and Reason (R) is true, the correct option is D.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: flowers are the reproductive parts of flowering plants. R is true: a flower contains stamens (male part, producing pollen) and pistils (female part, containing ovules), and it is because it bears these reproductive parts that the flower is the reproductive organ, so R explains A.",
     ],
   },
   { id: "REP-E07", subject: "Science", topicKey: "heredity", subtopic: "Sex Determination", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sex of a child is determined by the:", options: ["Mother's chromosomes", "Father's chromosomes", "Both parents equally", "Environmental factors"], answer: "Father's chromosomes", explanation: "The correct answer is Father's chromosomes. The mother contributes only an X chromosome, while the father's sperm carries either X or Y; an X-sperm gives a girl (XX) and a Y-sperm gives a boy (XY), so the father's chromosome decides the sex of the child.", finalAnswer: "Father's chromosomes" , isCompetencyBased: false,
@@ -51,9 +41,7 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
   },
   { id: "REP-E08", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Regeneration is the ability shown by:", options: ["Humans", "Planaria", "Dogs", "Frogs"], answer: "Planaria", explanation: "The correct answer is Planaria. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Planaria" , isCompetencyBased: false,
     solutionSteps: [
-      "Define budding as an asexual reproduction method where a new organism develops from an outgrowth or bud.",
-      "Recall common examples of organisms that reproduce by budding.",
-      "Identify Yeast as an organism that reproduces through budding.",
+      "Correct answer: Planaria. Planaria can be cut into many pieces and each piece grows into a complete organism using specialised cells that proliferate and differentiate; this is regeneration.",
     ],
   },
   { id: "REP-E09", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Plants", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is pollination? Name its two types.", solutionSteps: [
@@ -63,16 +51,12 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Transfer of pollen to stigma; self-pollination and cross-pollination" , isCompetencyBased: false },
   { id: "REP-E10", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The inner lining of the uterus is called:", options: ["Endometrium", "Myometrium", "Perimetrium", "Mesoderm"], answer: "Endometrium", explanation: "The correct answer is Endometrium. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Endometrium" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify the question as asking about the hormone responsible for male secondary sexual characteristics.",
-      "Recall that testosterone is the primary male sex hormone.",
-      "Conclude that Testosterone is responsible for the development of secondary sexual characteristics in males.",
+      "Correct answer: Endometrium. The inner lining of the uterus is the endometrium; every month it thickens and is richly supplied with blood to nourish an embryo, and it breaks down as menstruation if fertilisation does not occur.",
     ],
   },
   { id: "REP-E11", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Spore formation is a method of asexual reproduction.\nReason (R): Spores are covered by thick walls to survive unfavourable conditions.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, but R is not the correct explanation of A.", explanation: "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.", finalAnswer: "Both A and R are true, but R is not the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assume the question is: Assertion (A): Spore formation is a method of asexual reproduction in fungi. Reason (R): Spores are thick-walled structures that can survive unfavorable conditions and germinate to form new individuals.",
-      "Analyze Assertion (A): Spore formation is a common asexual reproduction method in fungi. (True)",
-      "Analyze Reason (R): Spores are indeed resistant, thick-walled structures that aid survival and dispersal. (True) Reason (R) correctly explains why spore formation is an effective method of asexual reproduction.",
+      "Both A and R are true, but R is not the correct explanation of A. A is true: spore formation (as in Rhizopus) produces new individuals from a single parent without gametes, so it is asexual reproduction. R is true: spores have thick walls that protect them until they reach a moist surface. But the thick wall explains how spores survive, not why spore formation is asexual, so R does not explain A.",
     ],
   },
   { id: "REP-E12", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Plants", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The part of the flower that develops into a fruit is:", options: ["Stigma", "Ovary", "Style", "Anther"], answer: "Ovary", explanation: "The correct answer is Ovary. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Ovary" , isCompetencyBased: false,
@@ -89,16 +73,12 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Breast development, body hair, menstruation, hip widening" , isCompetencyBased: false },
   { id: "REP-E14", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Yeast reproduces asexually by:", options: ["Binary fission", "Budding", "Fragmentation", "Spore formation"], answer: "Budding", explanation: "The correct answer is Budding. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Budding" , isCompetencyBased: false,
     solutionSteps: [
-      "Assume the question is: Which of the following organisms reproduces by budding?",
-      "Recall different methods of asexual reproduction and the organisms that exhibit them.",
-      "Identify that budding is a characteristic method of asexual reproduction in Yeast.",
+      "Correct answer: Budding. Yeast is a unicellular fungus that reproduces asexually by budding, in which a small bud grows out of the parent cell and later separates.",
     ],
   },
   { id: "REP-E15", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The gestation period in humans is approximately:", options: ["7 months", "9 months", "12 months", "6 months"], answer: "9 months", explanation: "The correct answer is 9 months. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "9 months" , isCompetencyBased: false,
     solutionSteps: [
-      "Fertilization is the fusion of male and female gametes (sperm and egg).",
-      "In humans, this fusion typically occurs in the oviduct, also known as the fallopian tube.",
-      "Therefore, the fallopian tube is the primary site of fertilization.",
+      "Correct answer: 9 months. The development of the child inside the mother's body (gestation) takes approximately nine months in humans.",
     ],
   },
   { id: "REP-M01", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Plants", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Draw a labelled diagram of a flower and describe the functions of: (i) Anther (ii) Stigma (iii) Ovary.", solutionSteps: [
@@ -130,9 +110,7 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Pollen→stigma→pollen tube→ovule→fusion→zygote→embryo→seed" , isCompetencyBased: false },
   { id: "REP-M07", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Which of the following is an advantage of vegetative propagation?", options: ["Genetic variation", "Plants grown are genetically identical to parent", "Seeds are produced", "Cross-pollination occurs"], answer: "Plants grown are genetically identical to parent", explanation: "The correct answer is Plants grown are genetically identical to parent. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Plants grown are genetically identical to parent" , isCompetencyBased: false,
     solutionSteps: [
-      "Budding is a form of asexual reproduction where a new organism develops from an outgrowth or bud.",
-      "This process involves cell division at a specific site, leading to the formation of a new individual.",
-      "Yeast is a well-known example of an organism that reproduces primarily through budding.",
+      "Correct answer: Plants grown are genetically identical to parent. Vegetative propagation does not involve gametes or fertilisation, so all the plants produced are genetically similar to the parent plant and keep its desirable characters.",
     ],
   },
   { id: "REP-M08", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Describe the female reproductive system with a labelled diagram.", solutionSteps: [
@@ -142,9 +120,7 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Ovaries→fallopian tubes→uterus→vagina; with labelled diagram" , visualExplainerId: "science-reproduction-human-reproductive-system", isCompetencyBased: false },
   { id: "REP-M09", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Plants", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "A flower that contains both stamens and pistils is called:", options: ["Unisexual", "Bisexual", "Incomplete", "Imperfect"], answer: "Bisexual", explanation: "The correct answer is Bisexual. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Bisexual" , isCompetencyBased: false,
     solutionSteps: [
-      "After fertilization in plants, the ovules develop into seeds.",
-      "The ovary, which encloses the ovules, matures and develops into the fruit.",
-      "Therefore, the ovary is the part that develops into a fruit.",
+      "Correct answer: Bisexual. A flower that contains both stamens (male part) and pistil (female part), such as Hibiscus or mustard, is called a bisexual flower; a flower with only one of them is unisexual.",
     ],
   },
   { id: "REP-M10", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "What happens to the egg if it is not fertilised? Explain the menstrual cycle briefly.", solutionSteps: [
@@ -160,10 +136,7 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "(i) Binary fission-Amoeba (ii) Budding-Hydra (iii) Yes, single parent (iv) Spore formation" , isCompetencyBased: true },
   { id: "REP-M12", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Placenta is an important structure because it:", options: ["Produces sperms", "Nourishes the embryo", "Produces eggs", "Prevents menstruation only"], answer: "Nourishes the embryo", explanation: "The correct answer is Nourishes the embryo. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Nourishes the embryo" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify the function and location of each organ listed.",
-      "Uterus, Ovary, and Fallopian tube are components of the female reproductive system.",
-      "The Testis is the primary male reproductive organ responsible for sperm production.",
-      "Therefore, Testis is the correct answer.",
+      "Correct answer: Nourishes the embryo. The placenta is a disc embedded in the uterine wall with villi on the embryo's side that provide a large surface for glucose and oxygen to pass from the mother's blood to the embryo, and for wastes to be removed.",
     ],
   },
   { id: "REP-M13", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Plants", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Seeds are formed after fertilisation.\nReason (R): The ovule develops into a seed after the zygote is formed.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
@@ -178,9 +151,7 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Exchange of nutrients/O₂/waste between mother and embryo; no blood mixing" , isCompetencyBased: false },
   { id: "REP-M15", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Rhizopus reproduces asexually by:", options: ["Budding", "Binary fission", "Spore formation", "Fragmentation"], answer: "Spore formation", explanation: "The correct answer is Spore formation. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Spore formation" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify the mode of reproduction for each organism listed.",
-      "Amoeba and Leishmania reproduce by binary fission; Yeast reproduces by budding.",
-      "Plasmodium reproduces by multiple fission, where the parent cell divides into many daughter cells simultaneously.",
+      "Correct answer: Spore formation. Rhizopus (bread mould) bears sporangia on its hyphae that contain spores; the spores, covered by thick walls, germinate into new Rhizopus plants on a moist surface.",
     ],
   },
   { id: "REP-H01", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction in Humans", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Draw a neat labelled diagram of the human female reproductive system. Explain the process from ovulation to implantation.", solutionSteps: [
@@ -238,9 +209,7 @@ export const REPRODUCTION_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "28-day cycle: menstruation→follicular→ovulation→luteal; fertilised = pregnancy" , isCompetencyBased: true },
   { id: "REP-AR05", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Organisms produced by asexual reproduction are genetically identical to the parent.\nReason (R): Asexual reproduction involves only mitosis and no meiosis, so DNA is copied exactly.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Evaluate Assertion (A): Spore formation is a common asexual reproduction method in fungi like Rhizopus. This statement is true.",
-      "Evaluate Reason (R): Spores are covered by thick walls that protect them from harsh conditions and allow germination on moist surfaces. This statement is also true.",
-      "Reason (R) correctly explains the adaptive advantage and mechanism of spore formation, thus explaining Assertion (A).",
+      "Both A and R are true, and R is the correct explanation of A. A is true: offspring of asexual reproduction come from a single parent and are genetically identical (clones), apart from rare copying errors. R is true: asexual reproduction involves only mitotic cell division with no meiosis or fusion of gametes, so the DNA is copied and passed on as it is, which explains A.",
     ],
   },
   { id: "REP-B05", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "What is vegetative propagation? Give two examples of plants that reproduce this way.", answer: "Vegetative propagation = new plant from vegetative part; e.g. potato (eyes), rose (cuttings)", solutionSteps: [

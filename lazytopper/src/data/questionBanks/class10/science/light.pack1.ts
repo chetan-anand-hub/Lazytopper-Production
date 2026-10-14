@@ -24,30 +24,22 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
   },
   { id: "LT-E04", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The image formed by a plane mirror is:", options: ["Real and inverted", "Virtual and erect", "Real and erect", "Virtual and inverted"], answer: "Virtual and erect", explanation: "The correct answer is Virtual and erect. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Virtual and erect" , isCompetencyBased: false,
     solutionSteps: [
-      "The question asks which mirror always forms a virtual, erect, and diminished image.",
-      "A convex mirror always produces a virtual, erect, and diminished image, regardless of the object's position.",
-      "Plane mirrors form virtual, erect, and same-sized images. Concave mirrors form various types of images, but not always virtual, erect, and diminished.",
+      "Correct answer: Virtual and erect. A plane mirror forms an image that is virtual, erect, of the same size as the object, and as far behind the mirror as the object is in front of it.",
     ],
   },
   { id: "LT-E05", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The refractive index of glass is approximately:", options: ["1.0", "1.33", "1.5", "2.42"], answer: "1.5", explanation: "The correct answer is 1.5. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1.5" , isCompetencyBased: false,
     solutionSteps: [
-      "The question describes a ray of light passing from a rarer medium to a denser medium.",
-      "When light travels from a rarer medium (e.g., air) to a denser medium (e.g., water or glass), its speed decreases.",
-      "This decrease in speed causes the light ray to bend towards the normal drawn at the point of incidence.",
+      "Correct answer: 1.5. The refractive index of crown glass is about 1.52, so the refractive index of glass is approximately 1.5.",
     ],
   },
   { id: "LT-E06", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Convex mirrors are used as rear-view mirrors in vehicles.\nReason (R): Convex mirrors always form erect, diminished images and have a wider field of view.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): A concave mirror is used as a shaving mirror. This statement is true, as concave mirrors can produce magnified images.",
-      "Reason (R): When the face is held within the principal focus of a concave mirror, it forms a virtual, erect, and magnified image. This statement is also true.",
-      "The magnified, virtual, and erect image formed when the object is between the pole and principal focus is precisely why a concave mirror is suitable for shaving. Therefore, Reason R correctly explains Assertion A.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: convex mirrors are used as rear-view (wing) mirrors in vehicles. R is true: a convex mirror always forms an erect, diminished image, and being curved outwards it gives a wider field of view, so the driver can see a large area behind; this explains A.",
     ],
   },
   { id: "LT-E07", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A convex lens is also known as:", options: ["Diverging lens", "Converging lens", "Plano lens", "Concavo-convex lens"], answer: "Converging lens", explanation: "The correct answer is Converging lens. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Converging lens" , isCompetencyBased: false,
     solutionSteps: [
-      "When a ray of light passes from a rarer medium (e.g., air) to a denser medium (e.g., glass or water), its speed decreases.",
-      "Due to the change in speed, the light ray bends towards the normal at the interface.",
-      "Therefore, the correct option is (B) Bends towards the normal.",
+      "Correct answer: Converging lens. A convex lens is thicker in the middle and bends parallel rays of light so that they converge (meet) at its principal focus, so it is called a converging lens.",
     ],
   },
   { id: "LT-E08", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The focal length of a concave mirror is 15 cm. Its radius of curvature is:", options: ["7.5 cm", "15 cm", "30 cm", "45 cm"], answer: "30 cm", explanation: "R = 2f = 2 × 15 = 30 cm. Therefore, the correct answer is 30 cm.", solutionSteps: ["R = 2f = 2 × 15 = 30 cm"], finalAnswer: "30 cm" , isCompetencyBased: false },
@@ -57,9 +49,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "sin i / sin r = constant = refractive index" , isCompetencyBased: false },
   { id: "LT-E10", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mirror formula is:", options: ["1/v + 1/u = 1/f", "1/v − 1/u = 1/f", "v + u = f", "v − u = f"], answer: "1/v + 1/u = 1/f", explanation: "The correct answer is 1/v + 1/u = 1/f. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1/v + 1/u = 1/f" , isCompetencyBased: false,
     solutionSteps: [
-      "A plane mirror always forms an image that is virtual, meaning it cannot be obtained on a screen.",
-      "The image formed by a plane mirror is always erect, meaning it is upright with respect to the object.",
-      "Thus, the image formed by a plane mirror is virtual and erect.",
+      "Correct answer: 1/v + 1/u = 1/f. The mirror formula relates the object distance u, the image distance v and the focal length f of a spherical mirror as 1/v + 1/u = 1/f.",
     ],
   },
   { id: "LT-E11", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): A pencil partly immersed in water appears bent at the surface.\nReason (R): Light bends when it passes from water to air (refraction).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
@@ -72,9 +62,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
   },
   { id: "LT-E12", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For a concave mirror, the centre of curvature lies:", options: ["Behind the mirror", "In front of the mirror", "At the pole", "At infinity"], answer: "In front of the mirror", explanation: "The correct answer is In front of the mirror. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "In front of the mirror" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall the properties of an image formed by a plane mirror.",
-      "A plane mirror always forms a virtual, erect, and laterally inverted image.",
-      "Therefore, the correct statement is that the image is virtual and erect.",
+      "Correct answer: In front of the mirror. The reflecting surface of a concave mirror faces towards the centre of the sphere of which it is a part, so its centre of curvature C lies in front of the mirror.",
     ],
   },
   { id: "LT-E13", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Define the terms: (i) Focal length of a lens (ii) Principal axis.", solutionSteps: [
@@ -83,16 +71,12 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "(i) Distance from optical centre to focus (ii) Line through optical centre ⊥ to lens" , isCompetencyBased: false },
   { id: "LT-E14", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "When an object is placed between the pole and focus of a concave mirror, the image is:", options: ["Real, inverted, magnified", "Virtual, erect, magnified", "Real, inverted, diminished", "Virtual, erect, diminished"], answer: "Virtual, erect, magnified", explanation: "The correct answer is Virtual, erect, magnified. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Virtual, erect, magnified" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify the position of the object relative to the concave mirror.",
-      "When an object is placed at the principal focus (F) of a concave mirror, the reflected rays become parallel.",
-      "Parallel rays are considered to meet at infinity, forming a real, inverted, and highly magnified image.",
+      "Correct answer: Virtual, erect, magnified. When the object is between the pole P and the focus F of a concave mirror, the reflected rays diverge and appear to meet behind the mirror, so the image is virtual, erect and enlarged (magnified).",
     ],
   },
   { id: "LT-E15", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The lens formula is:", options: ["1/v − 1/u = 1/f", "1/v + 1/u = 1/f", "v/u = f", "v − u = 2f"], answer: "1/v − 1/u = 1/f", explanation: "The correct answer is 1/v − 1/u = 1/f. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1/v − 1/u = 1/f" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall the phenomenon of refraction of light.",
-      "When light passes from a rarer medium (e.g., air) to a denser medium (e.g., glass), its speed decreases.",
-      "This decrease in speed causes the light ray to bend towards the normal at the interface.",
+      "Correct answer: 1/v − 1/u = 1/f. The lens formula relates the object distance u, the image distance v and the focal length f of a spherical lens as 1/v − 1/u = 1/f.",
     ],
   },
   { id: "LT-M01", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "An object is placed 30 cm in front of a concave mirror of focal length 15 cm. Find the position, nature, and magnification of the image using the mirror formula.", solutionSteps: [
@@ -112,9 +96,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "(i) At C: real, inverted, same size (ii) Between F & C: beyond C, real, inverted, magnified" , visualExplainerId: "science-light-reflection-of-light", isCompetencyBased: false },
   { id: "LT-M04", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Light travels slower in glass than in air.\nReason (R): The refractive index of glass is greater than 1.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion states that a ray of light bends away from the normal when passing from a denser to a rarer medium, which is a correct phenomenon of refraction.",
-      "Reason states that the speed of light increases when it goes from a denser medium to a rarer medium, which is also a correct physical principle.",
-      "The increase in the speed of light in the rarer medium causes the light ray to bend away from the normal. Therefore, Reason correctly explains Assertion.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: the speed of light in glass (about 2 × 10⁸ m/s) is less than in air (about 3 × 10⁸ m/s). R is true: the refractive index of glass (about 1.5) is greater than 1. Since refractive index n = speed of light in air / speed of light in the medium, n > 1 means light is slower in glass, so R explains A.",
     ],
   },
   { id: "LT-M05", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A dentist uses a small mirror to examine teeth.\n(i) What type of mirror does the dentist use?\n(ii) Why is this type preferred?\n(iii) Where is the tooth placed relative to the mirror?\n(iv) What is the nature of the image formed?", solutionSteps: [
@@ -130,9 +112,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "P = +1 D; f = 100 cm (converging)" , isCompetencyBased: true },
   { id: "LT-M07", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "An object placed at the centre of curvature of a concave mirror will form an image that is:", options: ["At focus, diminished", "At C, same size, inverted", "At infinity", "Between F and C, magnified"], answer: "At C, same size, inverted", explanation: "The correct answer is At C, same size, inverted. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "At C, same size, inverted" , isCompetencyBased: true,
     solutionSteps: [
-      "Recall the image formation properties of different types of mirrors.",
-      "A plane mirror forms virtual, erect, and same-sized images. A concave mirror can form various types of images (real/virtual, inverted/erect, magnified/diminished/same size).",
-      "A convex mirror, regardless of the object's position, always forms a virtual, erect, and diminished image behind the mirror.",
+      "Correct answer: At C, same size, inverted. When the object is at the centre of curvature C of a concave mirror, the reflected rays meet at C, so the image is formed at C, is real and inverted, and is of the same size as the object.",
     ],
   },
   { id: "LT-M08", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A student performed an experiment with a glass slab and observed that the emergent ray is parallel to the incident ray but shifted.\n(i) What is this shift called?\n(ii) Why does the ray bend at the first surface?\n(iii) Why does it bend again at the second surface?\n(iv) Does the glass slab change the direction of the emergent ray compared to the incident ray?", solutionSteps: [
@@ -149,9 +129,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
   { id: "LT-M10", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the power of a lens is −2.5 D, its focal length is:", options: ["+40 cm", "−40 cm", "+25 cm", "−25 cm"], answer: "−40 cm", explanation: "f = 1/P = 1/(−2.5) = −0.4 m = −40 cm. Therefore, the correct answer is −40 cm.", solutionSteps: ["f = 1/P = 1/(−2.5) = −0.4 m = −40 cm"], finalAnswer: "−40 cm" , isCompetencyBased: true },
   { id: "LT-M11", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A concave mirror can form both real and virtual images.\nReason (R): The image formed depends on the position of the object relative to the focal point.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion states that a concave mirror is used as a shaving mirror, which is a common application.",
-      "Reason states that when the face (object) is held within the principal focus of a concave mirror, it forms a virtual, erect, and magnified image. This is a correct ray diagram property.",
-      "The magnified, erect image formed by a concave mirror when the object is close to it is ideal for shaving, as it provides a larger view of the face. Thus, Reason correctly explains Assertion.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: a concave mirror forms real, inverted images when the object is beyond F, and a virtual, erect image when the object is between P and F. R is true: the nature of the image depends on where the object is placed relative to the focus, which is exactly why the same mirror can give both kinds of image, so R explains A.",
     ],
   },
   { id: "LT-M12", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The refractive index of water is 1.33. If the speed of light in vacuum is 3 × 10⁸ m/s, find the speed of light in water.", solutionSteps: [
@@ -160,9 +138,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "v ≈ 2.26 × 10⁸ m/s" , isCompetencyBased: true },
   { id: "LT-M13", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "When light passes from a denser to a rarer medium, it bends:", options: ["Towards the normal", "Away from the normal", "Does not bend", "Along the normal"], answer: "Away from the normal", explanation: "The correct answer is Away from the normal. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Away from the normal" , isCompetencyBased: false,
     solutionSteps: [
-      "The question text for this Multiple Choice Question (MCQ) is not provided.",
-      "Without the actual question, it is impossible to determine the correct solution steps or the answer.",
-      "As per the input, the final answer must be an empty string.",
+      "Correct answer: Away from the normal. When a ray of light goes from an optically denser medium to a rarer medium, its speed increases and it bends away from the normal.",
     ],
   },
   { id: "LT-M14", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "State two differences between real and virtual images.", solutionSteps: [
@@ -172,9 +148,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Real: converge, on screen, inverted; Virtual: diverge, not on screen, erect" , isCompetencyBased: false },
   { id: "LT-M15", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "An object is placed at 2F₁ of a convex lens. The image formed is:", options: ["At F₂, real, diminished", "At 2F₂, real, same size", "Beyond 2F₂, real, magnified", "Virtual, erect, magnified"], answer: "At 2F₂, real, same size", explanation: "The correct answer is At 2F₂, real, same size. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "At 2F₂, real, same size" , isCompetencyBased: true,
     solutionSteps: [
-      "The question text for this Multiple Choice Question (MCQ) is not provided.",
-      "Without the actual question, it is impossible to determine the correct solution steps or the answer.",
-      "As per the input, the final answer must be an empty string.",
+      "Correct answer: At 2F₂, real, same size. For an object at 2F₁ of a convex lens, the refracted rays meet at 2F₂ on the other side, so the image is formed at 2F₂, is real and inverted, and is of the same size as the object.",
     ],
   },
   { id: "LT-H01", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Draw ray diagrams for the following positions of an object in front of a concave mirror and state the nature of the image in each case: (i) At infinity (ii) Beyond C (iii) At C (iv) Between F and C (v) At F.", solutionSteps: [
@@ -215,9 +189,9 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
       "[1 mark] (iii) Object at infinity: image at focus F₂, real, inverted, point-sized (highly diminished).",
     ], finalAnswer: "Three ray diagrams with image positions and characteristics" , visualExplainerId: "science-light-lens-formula-and-ray-diagrams", isCompetencyBased: true },
   { id: "LT-H07", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Why does a swimming pool appear shallower than it actually is? Explain with a ray diagram.", solutionSteps: [
-      "Ray Diagram: Draw a concave mirror. Mark the pole P, focus F, and centre of curvature C in front of the mirror. Draw standard rays to construct the image for the given object position.; Light from the bottom of the pool travels from water (denser) to air (rarer) [1]",
-      "It bends away from the normal at the water surface; When extended back, the refracted rays appear to come from a point above the actual bottom [1]",
-      "The apparent depth is less than the real depth; Apparent depth = real depth / refractive index [1]",
+      "Light from the bottom of the pool travels from water (optically denser) into air (optically rarer), so at the water surface it bends away from the normal. [1]",
+      "Diagram: Point O on the pool bottom; two rays from O meet the water surface and bend away from the normal into air; the refracted rays, extended backwards as dotted lines, meet at point I above O; mark the real depth (surface to O) and the apparent depth (surface to I). [1]",
+      "The refracted rays appear to come from I, which is above the actual bottom, so the apparent depth is less than the real depth and the pool appears shallower than it actually is. [1]",
     ], finalAnswer: "Refraction from denser to rarer; rays bend away → apparent depth < real depth" , visualExplainerId: "science-light-reflection-of-light", isCompetencyBased: true },
   { id: "LT-H08", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A solar cooker uses a concave mirror to concentrate sunlight.\n(i) Why is a concave mirror used instead of a convex mirror?\n(ii) Where should the container be placed for maximum heating?\n(iii) What type of image is formed of the sun by the mirror?\n(iv) Calculate the radius of curvature if the focal length is 25 cm.", solutionSteps: [
       "(i) Concave mirror converges parallel rays; convex diverges them [1]",
@@ -237,9 +211,7 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Cartesian convention: object side negative, image side positive; ensures formula consistency" , isCompetencyBased: true },
   { id: "LT-AR05", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Mirrors", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A concave mirror is used as a shaving mirror.\nReason (R): When an object is placed between the pole and focus of a concave mirror, a virtual, erect and magnified image is formed.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "The Assertion and Reason statements for this question are not provided.",
-      "Without the statements, it is impossible to analyze their truth value or the relationship between them.",
-      "As per the input, the final answer must be an empty string.",
+      "Both A and R are true, and R is the correct explanation of A. A is true: concave mirrors are used as shaving mirrors. R is true: when an object is placed between the pole and the focus of a concave mirror, the image is virtual, erect and magnified. A face held close to the mirror (within F) therefore gives an enlarged, upright image, so R explains A.",
     ],
   },
   { id: "LT-D04", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Lenses", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain with ray diagrams the image formation by a convex lens when the object is placed (i) beyond 2F, (ii) at 2F, (iii) between F and 2F, (iv) at F, and (v) between O and F.", solutionSteps: [
