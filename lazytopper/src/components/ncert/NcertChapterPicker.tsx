@@ -27,6 +27,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   NCERT_CLASS10_CHAPTERS,
   ncertCode,
+  ncertReadPath,
   type NcertBookChapter,
 } from "../../config/ncertBooks";
 import "./ncertChapterPicker.css";
@@ -48,13 +49,8 @@ export function ncertPickerChapters(subject: NcertPickSubject, branch: NcertScie
   );
 }
 
-/** Where "Read the chapter" lands: the page, with that chapter's reader open. */
-export function ncertReadPath(row: NcertBookChapter): string {
-  const sp = new URLSearchParams();
-  sp.set("subject", row.book === "Maths" ? "maths" : "science");
-  sp.set("read", ncertCode(row));
-  return `/ncert-class-10?${sp.toString()}`;
-}
+/** Where "Read the chapter" lands: the page, with that chapter's reader open (defined in config). */
+export { ncertReadPath };
 
 export interface NcertChapterPickerProps {
   open: boolean;

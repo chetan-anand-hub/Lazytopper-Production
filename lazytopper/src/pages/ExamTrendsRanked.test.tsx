@@ -482,3 +482,51 @@ describe("ExamTrendsRanked — SEO-5 PR-4 guide link", () => {
     expect(link.closest(".lt-et-hero")).not.toBeNull();
   });
 });
+
+describe("ExamTrendsRanked — NCERT-ENTRY-1: every chapter opens its NCERT book in the reader", () => {
+  const ncertHref = (subject: "maths" | "science", code: string) =>
+    `/ncert-class-10?subject=${subject}&read=${code}&returnTo=%2Fexam-trends&backLabel=Exam+Trends`;
+
+  it("All chapters: each row links its NCERT chapter(s); 27 in total, trigonometry Ch 8 + Ch 9", async () => {
+    await renderPage();
+    const list = screen.getByRole("navigation", { name: "All chapters" });
+    const links = Array.from(list.querySelectorAll<HTMLAnchorElement>('a[href^="/ncert-class-10?"]'));
+    expect(links.length).toBe(27);
+    const trig = Array.from(list.querySelectorAll("li")).find((li) => li.textContent?.includes("Trigonometry"))!;
+    expect(
+      Array.from(trig.querySelectorAll<HTMLAnchorElement>('a[href^="/ncert-class-10?"]')).map((a) => [
+        a.textContent,
+        a.getAttribute("href"),
+      ]),
+    ).toEqual([
+      ["NCERT Ch 8", ncertHref("maths", "jemh108")],
+      ["NCERT Ch 9", ncertHref("maths", "jemh109")],
+    ]);
+    const electricity = within(list).getByRole("link", { name: "Electricity: read NCERT Chapter 11" });
+    expect(electricity).toHaveAttribute("href", ncertHref("science", "jesc111"));
+    expect(electricity).toHaveTextContent(/^NCERT$/);
+  });
+
+  it("every ranked card carries ONE short NCERT link beside Notes (fits at 390px); trigonometry opens Ch 8", async () => {
+    await renderPage();
+    const cards = Array.from(document.querySelectorAll<HTMLElement>("article[data-topic-slug]"));
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) {
+      const slug = card.getAttribute("data-topic-slug") as string;
+      const links = Array.from(card.querySelectorAll<HTMLAnchorElement>('a[href^="/ncert-class-10?"]'));
+      expect(links.length, slug).toBe(1);
+      expect(links[0]).toHaveTextContent(/^NCERT$/);
+    }
+    const trig = document.querySelector<HTMLElement>('article[data-topic-slug="trigonometry"]')!;
+    expect(trig.querySelector('a[href^="/ncert-class-10?"]')).toHaveAttribute("href", ncertHref("maths", "jemh108"));
+  });
+
+  it("CONTROL — a click routes in-app to the reader URL, with the return ticket", async () => {
+    await renderPage();
+    const list = screen.getByRole("navigation", { name: "All chapters" });
+    await act(async () => {
+      fireEvent.click(within(list).getByRole("link", { name: "Electricity: read NCERT Chapter 11" }));
+    });
+    expect(screen.getByTestId("probe").getAttribute("data-url")).toBe(ncertHref("science", "jesc111"));
+  });
+});

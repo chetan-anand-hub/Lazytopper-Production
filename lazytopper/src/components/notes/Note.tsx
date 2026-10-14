@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { useHref } from "react-router-dom";
+import { Link, useHref, useLocation } from "react-router-dom";
 import type {
   NoteConcept,
   NoteExample,
@@ -28,6 +28,7 @@ import NcertPageModal, { type NcertPageRef } from "./NcertPageModal";
 import { NoteFigureLightbox } from "./NoteFigureLightbox";
 import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncertFileCode";
+import { ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -429,6 +430,9 @@ const NOTE_CSS = `
 .lt-note__ledger-details { margin-top: 14px; }
 .lt-note__ncert-pdf { margin: 14px 0 0; font-size: 12.5px; font-weight: 600; }
 .lt-note__ncert-pdf a { color: var(--lt-note-green-deep); text-decoration: underline; }
+.lt-note__ncert-read { margin: 14px 0 0; font-size: 13.5px; font-weight: 700; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.lt-note__ncert-read a { color: var(--lt-note-green-deep); text-decoration: underline; }
+.lt-note__ncert-read + .lt-note__ncert-pdf { margin-top: 6px; font-weight: 500; }
 .lt-note__ledger-summary {
   cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--lt-note-green-deep);
   padding: 8px 0; list-style-position: inside;
@@ -1386,6 +1390,9 @@ export function Note({ spec, initialTab }: NoteProps) {
   const { meta, figures } = spec;
   // SEO-LLM-1 — null when the spec resolves no NCERT file code (no link is then shown).
   const ncertCode = useMemo(() => tryNcertFileCode(spec, `notes/specs/${spec.meta.topic_key}.json`), [spec]);
+  // NCERT-ENTRY-1 — the chapter(s) this note covers, read ON LazyTopper (Maths Ch 8 + 9 share one note).
+  const ncertRows = useMemo(() => ncertRowsForSlug(spec.meta.topic_key), [spec]);
+  const { pathname: herePath } = useLocation();
   const headlineDefs = spec.definitions.filter((d) => d.tier !== "key-term");
   const keyTerms = spec.definitions.filter((d) => d.tier === "key-term");
   const hasBigIdea = !!(spec.big_idea?.tagline || spec.big_idea?.body);
@@ -1691,6 +1698,18 @@ export function Note({ spec, initialTab }: NoteProps) {
           and in the prerendered HTML. The code is resolved from this note's own spec by the
           same module the page <title>/<meta description> use (src/lib/ncertFileCode.ts);
           a spec that resolves no code gets no link — never a guessed one. */}
+      {/* NCERT-ENTRY-1 (owner 14 Oct) — read the chapter here, in the /ncert-class-10 reader, with a
+          return ticket back to this page. Internal links: the notes pages now point students (and link
+          equity) at our own NCERT page; the official ncert.nic.in link below stays as the credit. */}
+      {ncertCode && ncertRows.length > 0 && (
+        <p className="lt-note__ncert-read" data-testid="note-ncert-read">
+          {ncertRows.map((r, i) => (
+            <Link key={r.chapter} to={ncertReadPath(r, herePath)}>
+              {i === 0 ? `Read NCERT Chapter ${r.chapter} on LazyTopper (${ncertCode})` : `Chapter ${r.chapter}`}
+            </Link>
+          ))}
+        </p>
+      )}
       {ncertCode && (
         <p className="lt-note__ncert-pdf">
           <a href={ncertPdfHref(ncertCode)} target="_blank" rel="noopener">
