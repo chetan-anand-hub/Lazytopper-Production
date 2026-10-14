@@ -1,3 +1,13 @@
+## ★ 2026-10-14 — AFTER UPLOAD-SHRINK-1 (`#1126`) AND PYTHAGORAS-HUB-1/-2 (`#1174` `#1178`) (written by C1b under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner live-verify of `#1126` (needs a real scanned PDF over 7 MB, e.g. 8–10 MB, 3–5 scanned pages, no text layer), on Check & Improve (single) and Worksheet:** (1) it shows "Optimising your PDF for upload… page n of N" (with Skip) and is then GRADED (before this change: "too large"); (2) control, a scanned PDF under 7 MB: no "Optimising", no request for `shrinkPdf-*.js` / `pdf-*.js` / `pdf.worker.min-*.mjs`; (3) control, a typed (text-layer) PDF over 7 MB: the existing "PDF is too large. Max size is 7 MB." message. The lane is PARTIAL on §4a until this runs.
+- **Owner re-check of `#1175` (Check & Improve with the owner's paper CI-M-POLY-03; and a Worksheet or Chapter Test graded sheet):** Q4 reads conceptual 2.5 with NO "Marks lost, reason not recorded"; steps 3 and 4 show an arrow and "follows from step 2"; the downloaded graded PDF draws the arrow as an arrow, not "Ⅰ,". The lane is PARTIAL on §4a until it runs.
+- **Owner glance, Triangles topic hub (after `#1178`):** no Pythagoras / area-ratio / angle-bisector item; BPT, similarity and the worked example "Finding a missing side with a² + b² = c²" still render.
+- **WORKSHEET-FIX-2 `#1179` (draft, slot 17):** update-branch at its slot, the Opus delta re-check was not done after the verifier fixes (`940fdcd7`), AUDIT-REQUEST, then the owner live-verify in its PR body (a board-mix worksheet PDF and its answer key at 390 px and 1366 px).
+- **Open follow-ups to schedule (see OPEN_QUESTIONS):** `[FU-TRIANGLES-ORPHANS]` (the `Area Ratio` question family + `gArea` tutor id, `trianglesGrindMindmap` AREAS_SIMILAR, three `public/visuals/maths/triangles/*.html`), HPQ `trig-comp-02` (owner ruling on whether stating the Pythagorean theorem as a Reason in a trig context is tool use), stale policy strings (`scopePolicy.ts:69`, `trianglesTutorPath.ts:216`), `[FU-SERVER-IMAGE-3MB-CAP]`, `[FU-NO-REAL-HANDWRITING-EVAL]`, `[FU-GRADER-SELF-CONSISTENCY]`, `[FU-SYN08-HARD-SHEET]`, `[FU-MULTIPAGE-REAL-ANSWER]`.
+
 ## ★ 2026-10-14 — AFTER BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER (`#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`) (written by A2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
