@@ -1,5 +1,12 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — UPLOAD-SHRINK-1 (`#1126`) · PYTHAGORAS-HUB-1/-2 (`#1174` `#1178`) — ✅ MERGED (owner live-verify owed for `#1126`)
+
+- ✅ A scanned PDF over the 7 MiB ceiling is shrunk on the device instead of refused; anything at or under it is untouched (owner rule: never degrade grading quality). ⏳ owner live-verify on 2 surfaces.
+- ✅ The Triangles hub no longer teaches Pythagoras / its converse, the area-of-similar-triangles theorem or the Angle Bisector Theorem (owner ruling 1, D245). ⏳ `[FU-TRIANGLES-ORPHANS]` and the HPQ `trig-comp-02` ruling.
+- ✅ A consequential mark loss carries its origin's type on all six grading surfaces and the graded PDF arrow draws (`#1175`, B2). ⏳ owner re-check.
+- ⏳ WORKSHEET-FIX-2 `#1179` (draft).
+
 ## 2026-10-14 — BANK-STEPS-1 REPAIR (`#1142` `#1143` `#1144`, B's `#1145`) · GARBLE-1 PAUSE (`#1146` `#1149` `#1153`) · GARBLE-1 REWRITE-1/2 (`#1156` `#1164`) · MATH-RENDER-1/1b/2/3 (`#1150` `#1155` `#1152` `#1162`) — ✅ MERGED · REPAIR / REWRITE QUEUE STILL OPEN · OWNER DRAWS OWED
 
 - ✅ NO-ANSWER fills: 10 Science + 9 Maths curated rows carry their own final result (`#1142` `#1143`). ✅ 19 Maths MISPAIRED rows (`#1144`) and 53 Science rows (`#1145`) served again with steps for their own stem.

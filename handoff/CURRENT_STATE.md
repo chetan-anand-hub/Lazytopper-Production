@@ -1,5 +1,22 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-14 · UPLOAD-SHRINK-1 (C1/C1b) + PYTHAGORAS-HUB-1/-2 (C1b)] `#1126` `#1174` `#1175` `#1178`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by C1b under §10 (one combined docs PR) from `#973` (the LIVE, MERGE-SLOT, AUDIT-REQUEST and DECISION posts; D183, D199, D212, D219, D222, D223, D229, D233, D235–D237, D245, D249, D251), `COORD\C1-STATE.md`, `gh pr view` and `git log`. Facts only; nothing here changes a ruling. Written at trunk `9e668184` (`#1178`).
+
+★ **TRUNK at writing:** `9e668184` (`#1178`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1126` UPLOAD-SHRINK-1 | `cdfb6fea` | 10-14 08:58:32 | on-device PDF shrink for scanned PDFs **over the 7 MiB upload ceiling only** (gentlest rung first: 3000 px/q0.95 → … → 2400/0.90, stepping down until it fits); a PDF ≤ ceiling goes up as the same `File` and fetches no pdf.js; typed PDFs never rasterised; pdf.js is a lazy chunk (entry `index-*.js` has 0 references); a second pick aborts the first; 96 MB source-bytes cap → original; a "Skip — upload as it is" button |
+| `#1174` PYTHAGORAS-HUB-1 | `ba797dca` | 10-14 10:04:30 | Triangles hub pack: theorem/converse cards, converse formula card, mind-map n6/n7 and the theorem video removed; numeric a² + b² = c² kept as a tool |
+| `#1175` GRADER-CONSEQUENTIAL-1 (B2) | `31f9f426` | 10-14 11:01:30 | a deducting step with no type inherits the nearest earlier typed lost step's type in the same part (`consequentialOf`, v2 only; `presentation` never an origin; a `missing` step only with no credited step in between); marks unchanged; inline-SVG verdict-coloured arrow with "follows from step N" in the three graded renderers |
+| `#1178` PYTHAGORAS-HUB-2 | `9e668184` | 10-14 11:37:45 | the rendering hub files (content, V2 Full, V2 Enrichment, guided mind map, visual registry, pack): no Pythagoras/converse concept, no area-of-similar-triangles, no Angle Bisector Theorem; `findVisualForQuestion` returns null below the threshold; guard test with controls |
+
+★ **Production grading model (D183):** `gemini-3.8-flash` (`server/grading/modelConfig.cjs:24`, "the code default is what production runs"); 2.5-flash is only the fallback. `/api/health` reports the chat/route model, NOT the grader.
+★ **Upload sizes today:** image ceiling 3 MB (server `mentorImageSupport.cjs:1`, client `uploadLimits.ts:57`; photos are prepared at 2000 px/q0.85 ≈ 200–250 KB), PDF ceiling 7 MiB (both sides), request body 10 MiB; a > 7 MiB scanned PDF is now shrunk instead of refused.
+★ **In flight, not merged:** `#1179` WORKSHEET-FIX-2 (draft). **Owed (NEEDS-OWNER):** the #1126 live-verify (above); a glance at the Triangles hub after #1178.
+
 ## [CURRENT · 2026-10-14 · BANK-STEPS-1 REPAIR (D, B) + GARBLE-1 PAUSE / REWRITE (A, A2) + MATH-RENDER-1/1b/2/3 (D, A2, D2)] `#1142` `#1143` `#1144` `#1145` `#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164` MERGED — repaired questions are served again, wrong or garbled ones are withheld, and maths shorthand in questions and in grader feedback renders as maths
 
 *(Adds to the blocks below, which stay current for everything this block does not name. Written by A2 under §10 (D243 §1) from `#973` (D178, D179, D184–D186, D188, D189, D191–D194, D197, D203, D206, D209, D218–D244), `COORD\D-STATE.md`, `D2-STATE.md`, `A-STATE.md`, `A2-STATE.md`, `gh pr view` and `git log`. `#1145` is lane B's PR (its body: "lane B, Science"); D243 put it in this update. No grading prompt, mark logic or server file changed in any of the 13.)*
