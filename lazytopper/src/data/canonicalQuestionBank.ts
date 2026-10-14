@@ -1182,7 +1182,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
   "PYQ-M-2024-QE-001",            // garbled-extraction: exponent flattened (x2 + x - p(p+1) = 0)
-  "PYQ-M-2024-QE-002",            // garbled-extraction: exponent flattened (5x2 - 6x + 21 = 0)
   "PYQ-M-2024-QE-005a",           // garbled-extraction: exponent flattened ((k+1)x2)
   "PYQ-M-2026-QE-001",            // garbled-extraction: exponent flattened ((p-q)x2)
   "PYQ-M-2025-SAV-005",           // garbled-extraction: pi symbol dropped (Take = 3.14)
@@ -1196,8 +1195,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2026-TRI-003",           // garbled-extraction: triangle/angle/product symbols lost
   "PYQ-M-2026-TRI-005",           // garbled-extraction: angle symbols lost
   "PYQ-M-TRIG-010",               // garbled-extraction: degree signs lost
-  "PYQ-M-2024-QE-004b",           // garbled-extraction: not-equal sign damaged (c ¹ -1)
-  "PYQ-M-2024-QE-006a",           // garbled-extraction: not-equal sign damaged (k ¹ -1)
   "PYQ-M-RN-004",                 // garbled-extraction: exponent lost (4n for 4^n)
   "PYQ-M-2025-POLY-002",          // garbled-extraction: exponents flattened (12a2 = 49b ambiguous)
   "PYQ-S-2025-ACID-010",          // garbled-extraction: parts (b)/(c) reduced to residue
