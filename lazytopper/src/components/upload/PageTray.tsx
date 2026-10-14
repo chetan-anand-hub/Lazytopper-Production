@@ -140,13 +140,9 @@ async function defaultShrink(
   const { SHRINK_TRIGGER_BYTES, shrinkPdf } = await import("../../services/shrinkPdf");
   if (file.size <= SHRINK_TRIGGER_BYTES) return file;
   const { trackUxEvent } = await import("../../services/uxTelemetry");
-  // D150: the budget weighs the shrink against the upload time it saves, so it needs the link speed where the
-  // browser reports one (Chrome/Android: navigator.connection.downlink in Mbps); absent, shrinkPdf assumes 1 Mbps.
-  const conn = (typeof navigator !== "undefined" ? (navigator as { connection?: { downlink?: number } }).connection : undefined);
   const { file: out } = await shrinkPdf(file, {
     onProgress,
     signal,
-    downlinkMbps: conn && typeof conn.downlink === "number" ? conn.downlink : null,
     onReport: (r) => {
       trackUxEvent(r.outcome === "timeout" ? "shrink_timeout" : "pdf_shrink", "upload", {
         outcome: r.outcome,
@@ -154,7 +150,6 @@ async function defaultShrink(
         after: r.afterBytes,
         pages: r.pages,
         ms: r.ms,
-        textLayerDropped: r.textLayerDropped,
       });
     },
   });

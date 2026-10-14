@@ -7,26 +7,24 @@
 // here NEVER blocks an upload.
 //
 // WHAT IT DOES
-//   - Only a picked PDF larger than SHRINK_TRIGGER_BYTES is considered. Everything else returns untouched.
-//   - A TYPED PDF (it has a real text layer) is left alone: detect reads that layer on the server and it is
-//     exact (checkSolution.cjs `extractPdfText`). The one exception is a typed PDF over the 7 MB ceiling, which
-//     is rasterised rather than refused (telemetry says the text layer was dropped).
+//   - Only a picked PDF larger than SHRINK_TRIGGER_BYTES (the 7 MiB upload ceiling) is considered: it would otherwise be
+//     REFUSED. Everything at or under the ceiling returns untouched, byte-for-byte (D223 / owner rule: never degrade grading).
+//   - A TYPED PDF (it has a real text layer) is left alone, even over the ceiling (D223): detect reads that layer on the
+//     server and it is exact (checkSolution.cjs `extractPdfText`); rasterising would drop it. It goes up as it is and the
+//     student sees the existing honest over-limit message.
 //   - A SCANNED PDF is rendered page by page with pdf.js, then re-encoded through the EXISTING
-//     `assemblePagesPdf` pipeline on a stricter ladder (2400 px, JPEG q0.92 then q0.90; the floor was RAISED from
-//     the spec's 2000 px / 0.75 by the live eval, see SHRINK_RUNGS), only until the file is under SHRINK_TARGET_BYTES.
+//     `assemblePagesPdf` pipeline on a ladder that starts at the GENTLEST rung (3000 px, q0.95) and steps down only until
+//     the file is under SHRINK_TARGET_BYTES (= the ceiling); the lowest rung is the measured floor, see SHRINK_RUNGS.
 //   - Floor reached and still over the target: the floor version is sent only if it is SMALLER than the
 //     original, otherwise the original (the picker guard still enforces the 7 MB ceiling on it).
-//   - The time rule (D150, see shrinkBudgetMs): the shrink may take at most 0.8 x the upload time it saves
-//     (hard ceiling 60 s). A projection after page 1 that exceeds it, or a quick link, sends the original;
-//     telemetry records `shrink_timeout`. The student can always tap "Skip — upload as it is" (AbortSignal).
+//   - The time rule: the shrink may take at most SHRINK_HARD_CEILING_MS (60 s). A projection after page 1 that exceeds it
+//     sends the original (the picker guard then refuses it honestly); telemetry records `shrink_timeout`. The student can
+//     always tap "Skip — upload as it is" (AbortSignal).
 //
-// ★ WHY THE TRIGGER IS 3.5 MB (cofounder D144: the shrink must save more bytes than it costs).
-// pdf.js is fetched only on this path. Measured transfer sizes of the LEGACY build (the one that runs on old
-// Android WebViews): core 523,774 B raw / 151,438 B gzip / 126,707 B brotli, worker 1,321,307 B raw /
-// 392,144 B gzip / 322,590 B brotli — about 0.54 MB gzip (0.45 MB brotli) before jsPDF, which the page tray
-// already lazy-loads. A shrunk file lands near SHRINK_TARGET_BYTES (2.3 MB), so the saving is about
-// (size - 2.3 MB). For that to beat ~0.6 MB of code the file must be over ~2.9 MB; 3.5 MB leaves a 2x margin. The
-// arithmetic is pinned in shrinkPdf.test.ts.
+// ★ WHY THE TRIGGER IS THE CEILING (cofounder D223). Below it nothing is refused, so nothing is touched: the original goes
+// up unchanged and no grading-quality change is possible. The first design (shrink from 3.5 MB) changed what the grader
+// saw on a consistently-read hard sheet (SYN-08, 3 -> 2 on 3/3 reads at 2400 px / q0.90); a file over the ceiling has no
+// original alternative (HTTP 400), so a shrunk file that grades is strictly better than a refusal.
 //
 // ★ THE TEXT-LAYER PROBE NEEDS THE WORKER. pdf.js parses in its worker, so `getTextContent` cannot run without
 // it. To keep typed PDFs from fetching 1.3 MB at all in the common case, `classifyPdfBytes` first scans the raw
@@ -43,11 +41,13 @@ import {
   type PdfPageInput,
 } from "./assemblePagesPdf";
 
-/** Below this a picked PDF is not touched: the code to shrink it costs more to download than the bytes saved. */
-export const SHRINK_TRIGGER_BYTES = 3.5 * 1024 * 1024;
-/** The size the shrink aims under. A scan whose pages will not fit under it at the quality floor still ships the floor
- *  version when that is smaller than the original (see shrinkPdf). */
-export const SHRINK_TARGET_BYTES = 2.3 * 1024 * 1024;
+/** D223: the shrink fires ONLY when the upload would otherwise be refused. At or under the ceiling (the same 7 MiB the
+ *  server enforces, mentorImageSupport.cjs MAX_MENTOR_PDF_BYTES) the picked file goes up byte-for-byte unchanged, so no
+ *  grading-quality change is possible for it. */
+export const SHRINK_TRIGGER_BYTES = MAX_UPLOAD_PDF_BYTES;
+/** The size the shrink aims under: the ceiling. A scan whose pages will not fit under it at the quality floor still ships the
+ *  floor version when that is smaller than the original (see shrinkPdf). */
+export const SHRINK_TARGET_BYTES = MAX_UPLOAD_PDF_BYTES;
 
 // ── THE QUALITY FLOOR (measured, UPLOAD-SHRINK-1 eval, 13 Oct 2026) ───────────────────────────────────────────────
 // The spec's floor was 2000 px / q0.75. The live grader A/B (original vs shrunk, same model and prompt, the 6 hardest
@@ -66,48 +66,31 @@ export const SHRINK_TARGET_BYTES = 2.3 * 1024 * 1024;
 export const SHRINK_FLOOR_LONG_EDGE = 2400;
 export const SHRINK_FLOOR_QUALITY = 0.9;
 export const SHRINK_RUNGS: ReadonlyArray<readonly [number, number]> = [
+  [3000, 0.95],
+  [2800, 0.92],
   [2400, 0.92],
   [2400, 0.9],
 ];
 /** Pages are rendered once at this edge and quality, then the ladder re-encodes from them. */
-const SOURCE_LONG_EDGE = 2400;
-const SOURCE_QUALITY = 0.92;
+const SOURCE_LONG_EDGE = 3000;
+const SOURCE_QUALITY = 0.95;
 /** A paper longer than this is not shrunk (memory on a cheap phone): the original is sent. */
 export const SHRINK_MAX_PAGES = 40;
 /** How many leading pages are probed for a text layer (cofounder D148). */
 export const TEXT_PROBE_PAGES = 3;
 
-// ── THE TIME RULE (cofounder D150) ────────────────────────────────────────────────────────────────────────────
-// A flat 20 s cap timed out on almost every real paper on a phone, so the feature never helped the student it is for.
-// The budget now weighs the shrink against the upload time it SAVES:
-//   expected saving = (original - ~2.3 MB) / link speed        (navigator.connection.downlink, else assume 1 Mbps)
-//   shrink only while the projected shrink time < 0.8 x that saving, with a hard ceiling of 60 s.
-// A fast link therefore saves too little to bother (no shrink, pdf.js is never fetched); a slow one earns a long budget.
-export const SHRINK_KEEP_BYTES = 2.3 * 1024 * 1024; // what a shrunk scan weighs (the target)
-export const SHRINK_ASSUMED_MBPS = 1;
-export const SHRINK_TIME_SHARE = 0.8;
+// ── THE TIME RULE ──────────────────────────────────────────────────────────────────────────────────────────────
+// Only a file the server would refuse is ever shrunk, so the alternative to waiting is a refusal: it gets the full budget.
 export const SHRINK_HARD_CEILING_MS = 60_000;
-/** Below this the whole job is not worth starting (loading pdf.js alone costs more). */
-export const SHRINK_MIN_BUDGET_MS = 3_000;
 /** The ladder re-encodes every page once per rung it tries: projected total = page-1 render x pages x this. */
 export const SHRINK_PROJECTION_FACTOR = 1.4;
 
-/** How long the shrink may take for a file of `size` bytes on a link of `downlinkMbps` (absent/0 = assume 1 Mbps). */
-export function shrinkBudgetMs(size: number, downlinkMbps?: number | null): number {
-  const mbps = downlinkMbps && downlinkMbps > 0 ? downlinkMbps : SHRINK_ASSUMED_MBPS;
-  const savingBytes = Math.max(0, size - SHRINK_KEEP_BYTES);
-  const savingMs = ((savingBytes * 8) / (mbps * 1_000_000)) * 1000;
-  return Math.min(SHRINK_HARD_CEILING_MS, SHRINK_TIME_SHARE * savingMs);
-}
-
 export type ShrinkOutcome =
   | "small" // not a PDF over the trigger: untouched
-  | "typed" // has a text layer: untouched, the server reads the layer
-  | "typed-rasterised" // typed but over the ceiling: rasterised, text layer dropped
+  | "typed" // has a text layer: untouched even over the ceiling (D223), the server reads the layer and the guard refuses it honestly
   | "shrunk" // under the target on the ladder
   | "floor" // the floor version, smaller than the original but still over the target
   | "kept-original" // nothing smaller was found
-  | "fast-link" // the upload is quick enough that the shrink would cost more than it saves: original
   | "timeout" // budget hit or projected: original
   | "skipped" // the student tapped "Skip — upload as it is": original
   | "error"; // anything went wrong: original
@@ -118,8 +101,6 @@ export interface ShrinkReport {
   afterBytes: number;
   pages: number;
   ms: number;
-  /** True when a typed PDF's text layer was dropped (only "typed-rasterised"). */
-  textLayerDropped: boolean;
   /** Why a shrink fell back to the original (outcome "error" only): a short message, never file content. */
   error?: string;
   /** The ladder rung that was kept, when one was. */
@@ -143,10 +124,8 @@ export interface ShrinkOptions {
   reencode?: PageReencoder;
   assemble?: typeof assemblePagesPdf;
   now?: () => number;
-  /** Overrides the computed budget (the eval harness). Absent: `shrinkBudgetMs(size, downlinkMbps)`. */
+  /** Overrides the budget (the eval harness). Absent: SHRINK_HARD_CEILING_MS. */
   budgetMs?: number;
-  /** `navigator.connection.downlink` in Mbps where the browser has it; absent = assume 1 Mbps. */
-  downlinkMbps?: number | null;
   /** EVAL HOOKS (never set by the app): a different source resolution / ladder / target, to find the safe setting. */
   sourceLongEdge?: number;
   rungs?: ReadonlyArray<readonly [number, number]>;
@@ -259,7 +238,6 @@ export async function shrinkPdf(file: File, opts: ShrinkOptions = {}): Promise<S
     afterBytes: file.size,
     pages: 0,
     ms: 0,
-    textLayerDropped: false,
   };
   const finish = (outcome: ShrinkOutcome, out: File, extra: Partial<ShrinkReport> = {}): ShrinkResult => {
     const report: ShrinkReport = { ...base, ...extra, outcome, afterBytes: out.size, ms: now() - started };
@@ -277,22 +255,16 @@ export async function shrinkPdf(file: File, opts: ShrinkOptions = {}): Promise<S
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const klass = classifyPdfBytes(bytes);
-    const overCeiling = file.size > MAX_UPLOAD_PDF_BYTES;
-    if (klass === "typed" && !overCeiling) return finish("typed", file);
+    if (klass === "typed") return finish("typed", file);
 
-    // The time rule (D150). A file over the 7 MB ceiling is the exception: the alternative to shrinking it is a
-    // refusal, so it always gets the full ceiling. Otherwise a quick link means the shrink costs more than it saves.
-    const budget = opts.budgetMs ?? (overCeiling ? SHRINK_HARD_CEILING_MS : shrinkBudgetMs(file.size, opts.downlinkMbps));
-    if (!overCeiling && budget < SHRINK_MIN_BUDGET_MS) return finish("fast-link", file);
+    const budget = opts.budgetMs ?? SHRINK_HARD_CEILING_MS;
     if (opts.signal?.aborted) throw new ShrinkSkipped();
 
     handle = await (opts.open ?? openWithPdfjs)(bytes);
     base.pages = handle.numPages;
     if (handle.numPages < 1 || handle.numPages > SHRINK_MAX_PAGES) return finish("kept-original", file);
 
-    let typed = klass === "typed";
-    if (!typed) typed = await handle.pagesHaveText(Math.min(TEXT_PROBE_PAGES, handle.numPages));
-    if (typed && !overCeiling) return finish("typed", file);
+    if (await handle.pagesHaveText(Math.min(TEXT_PROBE_PAGES, handle.numPages))) return finish("typed", file);
 
     const deadline = started + budget;
     const check = () => {
@@ -324,7 +296,6 @@ export async function shrinkPdf(file: File, opts: ShrinkOptions = {}): Promise<S
     const assemble = opts.assemble ?? assemblePagesPdf;
     const common = { reencode, maxPages: SHRINK_MAX_PAGES } as const;
     const name = file.name;
-    const dropped = typed;
 
     let chosen: { bytes: Uint8Array; outcome: ShrinkOutcome; rung: { longEdge: number; quality: number } | null } | null = null;
     try {
@@ -344,11 +315,6 @@ export async function shrinkPdf(file: File, opts: ShrinkOptions = {}): Promise<S
     }
 
     if (!chosen || chosen.bytes.byteLength >= file.size) return finish("kept-original", file);
-    if (dropped) {
-      // A typed PDF is rasterised only to fit the ceiling: if it still does not, send the original (the guard refuses it).
-      if (chosen.bytes.byteLength > MAX_UPLOAD_PDF_BYTES) return finish("kept-original", file);
-      return finish("typed-rasterised", toPdfFile(chosen.bytes, name), { textLayerDropped: true, rung: chosen.rung });
-    }
     return finish(chosen.outcome, toPdfFile(chosen.bytes, name), { rung: chosen.rung });
   } catch (err) {
     if (err instanceof ShrinkSkipped) return finish("skipped", file);
