@@ -1,3 +1,17 @@
+## 2026-10-14 — NOTES-FORMULA-3a / PERF-3a (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1160` `#1161` and PERF-3a, plus C2's own decisions, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **204 / 208** | Second tab "Formulae & Tricks" in the order Formulae → Shortcuts & Tricks → Memory Tricks → Mindmap; optional `id/heading/tip`, `shortcuts[]`, diagram `{id,heading,alt}`; section anchors and `#<id>` open the tab and scroll; ids lower-kebab, page-unique, stable (pinned by a guard) | the cards are an SEO surface: students search "formulas", "table", "theorem", "diagram"; a stable link per card |
+| **217** | PERF-3a steps 0–2 accepted; the < 600 ms target is MET at the median; Option A parked, B/C closed; 3a before everything else | the measurement showed the "~4 s" was an intermittent outlier, not the steady cost; hydration cannot succeed on a DOM-capture prerender |
+| **221 / 227** | Only heading / body / tip / trick text renders; `source` and mapping are internal and never reach the student DOM | provenance is for reviewers, not students |
+| **228** | `#1160` APPROVED; label "Formulae & Tricks" only when tricks exist; the safe-use tag stays | a "Tricks" tab with no tricks is a false label; the tag protects step marks (CLAUDE.md §13) |
+| **C2 (no D)** | Split the validator + schema doc into docs PR `#1161` | `scope:guard` classes `notes/` as the docs lane; a product PR must contain zero docs files (§8) |
+| **C2 (no D)** | The in-page tricks link does NOT write the URL (no `pushState`) | the verifier found a stale Back tab and Topic Hub URL pollution when `<Note>` is inside `NoteModal` |
+| **C2 (no D)** | ids/section anchors live only on the canonical copy (second-tab Formulae, diagrams-tab figure) | 5 diagrams chapters reuse body figures; a duplicate id makes an anchor ambiguous |
+
 ## 2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1148` `#1151` `#1154`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.
