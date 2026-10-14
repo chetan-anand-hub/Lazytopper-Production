@@ -200,10 +200,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["[All India 2016] In human female, ovary contains thousands of eggs. One egg is produced every month one of the ovaries. Ovary also secretes estrogens hormone for development of sexual characteristics at puberty."],
     ncertRef: "cbjesccq08 Q5", isCompetencyBased: false },
   // cbjesccq08 Q6 (Section A, 1mk)
+  // REPR-026 repaired (SCI-BACKLOG-1, 14 Oct, D244): Booklet cbjesccq08 Q6 [All India 2016]; key checked against NCERT Class 10 Science 2026-27 jesc107, section 7.3.2 'Sexual Reproduction in Flowering Plants' (unisexual vs bisexual flowers)
   { id: "SCQ-S-REPR-026", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What are those organisms called which bear both sex organs in the same individual. Give one example of such organism.",
-    answer: "[All India 2016] Bisexual. For example: earthworm, leech, starfish, hibiscus, mustard. (Any one)",
-    solutionSteps: ["[All India 2016] Bisexual. For example: earthworm, leech, starfish, hibiscus, mustard. (Any one)"],
+    answer: "[All India 2016] Such organisms are called bisexual. Example: Hibiscus or mustard (any one).",
+    solutionSteps: ["[1 mark] Organisms that bear both the male and the female sex organs in the same individual are called bisexual.","[1 mark] Example (any one): Hibiscus or mustard, whose flowers contain both stamens (male) and pistil (female)."],
+    finalAnswer: "Bisexual; e.g. Hibiscus or mustard.",
     ncertRef: "cbjesccq08 Q6", isCompetencyBased: false },
   // cbjesccq08 Q31 (Section B, 2mk)
   { id: "SCQ-S-REPR-027", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -298,16 +300,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "a. Regeneration into three Planaria; b. Leaf-notch buds form new plantlets (vegetative propagation); c. Spores released germinate into new Rhizopus.",
     sourceOverride: "others", },
   // cbjesccq08 Q118 (Section D, 5mk)
+  // REPR-039 repaired (SCI-BACKLOG-1, 14 Oct, D244): Booklet cbjesccq08 Q118 [All India 2016-17]; key checked against NCERT Class 10 Science 2026-27 jesc107, sections 7.2.1 Fission, 7.2.2 Fragmentation, 7.2.3 Regeneration, 7.2.5 Vegetative Propagation, 7.2.6 Spore Formation
   { id: "SCQ-S-REPR-039", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Name the type of asexual reproduction demonstrated by the following organisms: a. Amoeba b. Rhizopus c. Planaria d. Plasmodium e. Bryophyllum",
-    answer: "[All India 2016-17] a. Binary fission b. Spore formation c. Fragmentation d. Multiple fission e. Vegetative propagation",
-    solutionSteps: [
-      "[1 mark] a. Amoeba — Binary fission: the parent cell divides into two equal daughter cells.",
-      "[1 mark] b. Rhizopus — Spore formation: sporangia produce and release spores that germinate into new individuals.",
-      "[1 mark] c. Planaria — Fragmentation (regeneration): the body breaks into pieces, each of which regenerates into a complete organism.",
-      "[1 mark] d. Plasmodium — Multiple fission: the parent nucleus divides repeatedly, forming many daughter cells simultaneously.",
-      "[1 mark] e. Bryophyllum — Vegetative propagation: adventitious buds on the leaf margins grow into new plants."
-    ],
+    answer: "[All India 2016-17] a. Binary fission b. Spore formation c. Regeneration d. Multiple fission e. Vegetative propagation",
+    solutionSteps: ["[1 mark] a. Amoeba — Binary fission: the cell splits into two daughter cells, and the splitting can take place in any plane.","[1 mark] b. Rhizopus — Spore formation: the sporangia contain spores that, on reaching a moist surface, develop into new Rhizopus individuals.","[1 mark] c. Planaria — Regeneration: if the body is cut into any number of pieces, each piece grows into a complete organism.","[1 mark] d. Plasmodium — Multiple fission: the cell divides into many daughter cells simultaneously.","[1 mark] e. Bryophyllum — Vegetative propagation: buds produced in the notches along the leaf margin fall on the soil and develop into new plants."],
+    finalAnswer: "a. Binary fission; b. Spore formation; c. Regeneration; d. Multiple fission; e. Vegetative propagation.",
     ncertRef: "cbjesccq08 Q118", isCompetencyBased: false },
   // cbjesccq08 Q119 (Section D, 5mk)
   { id: "SCQ-S-REPR-040", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
