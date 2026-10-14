@@ -366,7 +366,7 @@
     },
     {
       "label": "Consistent and Inconsistent Pair: Graph vs Ratios",
-      "math": "$\\begin{array}{l|l|l|l} \\text{Lines} & \\text{Solutions} & \\text{The pair is} & \\text{Ratios} \\\\ \\hline \\text{intersecting} & \\text{exactly one} & \\text{consistent} & \\tfrac{a_1}{a_2}\\neq\\tfrac{b_1}{b_2} \\\\ \\text{parallel} & \\text{none} & \\text{inconsistent} & \\tfrac{a_1}{a_2}=\\tfrac{b_1}{b_2}\\neq\\tfrac{c_1}{c_2} \\\\ \\text{coincident} & \\text{infinitely many} & \\text{dependent (consistent)} & \\tfrac{a_1}{a_2}=\\tfrac{b_1}{b_2}=\\tfrac{c_1}{c_2} \\end{array}$",
+      "math": "Intersecting lines: exactly one solution; the pair is consistent; $\\tfrac{a_1}{a_2}\\neq\\tfrac{b_1}{b_2}$.<br>Parallel lines: no solution; the pair is inconsistent; $\\tfrac{a_1}{a_2}=\\tfrac{b_1}{b_2}\\neq\\tfrac{c_1}{c_2}$.<br>Coincident lines: infinitely many solutions; the pair is dependent (consistent); $\\tfrac{a_1}{a_2}=\\tfrac{b_1}{b_2}=\\tfrac{c_1}{c_2}$.",
       "id": "consistency-table"
     },
     {
