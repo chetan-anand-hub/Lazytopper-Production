@@ -138,6 +138,29 @@ export interface NoteFormulaItem {
   label: string;
   math: string;
   source?: NoteSource | null;
+  /** NOTES-FORMULA-3a: a stable, lower-kebab, page-unique anchor (`#<id>`); never renamed once shipped. */
+  id?: string;
+  /** NOTES-FORMULA-3a: a visible <h3> above the item, in the words students search ("Trigonometry Table (0° to 90°)"). */
+  heading?: string;
+  /** NOTES-FORMULA-3a: one short, correct exam tip for this formula (may hold `$…$`). */
+  tip?: string;
+}
+
+/** Where a shortcut is SAFE (CLAUDE.md §13: a shortcut must never teach a student to skip a step the scheme pays for). */
+export type NoteShortcutUse = "mcq-check" | "written-ok" | "memory-aid";
+
+/** NOTES-FORMULA-3a: one item of the "Shortcuts & Tricks" card (mcq-check / written-ok) or the "Memory Tricks" card (memory-aid). */
+export interface NoteShortcut {
+  /** Stable, lower-kebab, page-unique anchor (`#<id>`). */
+  id: string;
+  heading?: string;
+  /** The trick (may hold `$…$`). For a memory-aid: the Hinglish line first (D204/D205). */
+  text: string;
+  /** A second line (an English gloss for a Hinglish trick). */
+  gloss?: string;
+  use: NoteShortcutUse;
+  /** NCERT section, CBSE scheme, or a PYQ/SQP id. Required: no unsourced tricks. */
+  source: string;
 }
 
 /** Mindmap tree. `_TODO` marks a spec whose tree has not been lifted yet. */
@@ -232,6 +255,10 @@ export interface NoteFigure {
   legend?: string | null;
   /** Required (non-empty) for bucket "ncert" — makes the crop reproducible. */
   source?: NoteSource | null;
+  /** NOTES-FORMULA-3a (diagrams): stable lower-kebab anchor, a visible heading and the image alt. */
+  id?: string;
+  heading?: string;
+  alt?: string | null;
   /** App-target asset path relative to notes/assets/ (e.g. "light/fig_99.webp"). */
   asset?: string | null;
   /** bucket "authored_svg" only. */
@@ -258,6 +285,8 @@ export interface NoteSpec {
   strategies: NoteStrategy[];
   pitfalls: NotePitfall[];
   formula_strip: NoteFormulaItem[];
+  /** NOTES-FORMULA-3a: optional; absent or empty renders nothing (no empty card, no "Tricks" tab label). */
+  shortcuts?: NoteShortcut[];
   mindmap: NoteMindmap;
   third_tab_content: ThirdTabContent;
   figures: Record<string, NoteFigure>;
