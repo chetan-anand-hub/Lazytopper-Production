@@ -208,7 +208,7 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   // CARB-026 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 section 4.2.3 (structural isomers, Fig. 4.8), section 4.2.4 Table 4.3 and section 4.2.5 Table 4.4
   { id: "SCQ-S-CARB-026", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Draw the structural formulae of the possible isomers for the compound with molecular formula C3H6O.",
-    answer: "C3H6O has two isomers: propanal, CH3–CH2–CHO (an aldehyde), and propanone, CH3–CO–CH3 (a ketone).",
+    answer: "At Class 10 level, C3H6O has two isomers: propanal, CH3–CH2–CHO (an aldehyde), and propanone, CH3–CO–CH3 (a ketone).",
     solutionSteps: ["[1 mark] Isomer 1 — propanal (aldehyde): CH3–CH2–CHO, i.e. H3C–CH2–C(=O)–H, with the C=O group at the end of the chain.","[1 mark] Isomer 2 — propanone (ketone): CH3–CO–CH3, i.e. H3C–C(=O)–CH3, with the C=O group on the middle carbon. Both have the formula C3H6O but different structures, so they are structural isomers."],
     finalAnswer: "Propanal, CH3CH2CHO, and propanone, CH3COCH3.",
     ncertRef: "cbjesccq04 Q71", isCompetencyBased: false },
@@ -241,7 +241,7 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CARB-031", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What is homologous series? Write the name and draw the structure of the second member of alkene series.",
     answer: "a. A homologous series is a series of carbon compounds in which the same functional group substitutes for hydrogen in a carbon chain; successive members differ by a –CH2– unit and have similar chemical properties. b. The second member of the alkene series is propene, C3H6: CH3–CH=CH2.",
-    solutionSteps: ["[1 mark] a. Homologous series: a series of carbon compounds in which the same functional group substitutes for hydrogen in a carbon chain; successive members differ by a –CH2– unit, and they show similar chemical properties with a gradation in physical properties.","[1 mark] b. Second member of the alkene series (after ethene, C2H4): propene, C3H6; structure CH3–CH=CH2, i.e. H3C–CH=CH2 with a double bond between the second and third carbon atoms."],
+    solutionSteps: ["[1 mark] a. Homologous series: a series of carbon compounds in which the same functional group substitutes for hydrogen in a carbon chain; successive members differ by a –CH2– unit, and they show similar chemical properties with a gradation in physical properties.","[1 mark] b. Second member of the alkene series (after ethene, C2H4): propene, C3H6; structure CH3–CH=CH2, i.e. H3C–CH=CH2, with the C=C double bond at the end of the three-carbon chain."],
     finalAnswer: "Homologous series = same functional group on carbon chains, successive members differing by –CH2–; second alkene is propene, CH3–CH=CH2 (C3H6).",
     ncertRef: "cbjesccq04 Q77", isCompetencyBased: false },
   // cbjesccq04 Q99 (Section C, 3mk)
