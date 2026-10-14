@@ -1,3 +1,25 @@
+## 2026-10-14 — NCERT-BOOKS-1 (`#1171` `9f04eb02`), NCERT-BOOKS-1b (`#1182` `1afc7020`), NCERT-ENTRY-1 (`#1184` `2da27ae4`) — LIVE (lane G)
+
+★ **PROVENANCE.** Written by G under §10 from `#973` (the CLAIM / AUDIT-REQUEST / MERGE-SLOT / LIVE posts; D195, D196, D210, D211, D213, D221, D232, D234, D235, D258), `gh pr view`, `git log` and `claude/GROWTH_LOG.md`. Facts only; nothing here changes a ruling. Written at trunk `2da27ae4`. All three merge commits verified ancestors of trunk (`git merge-base --is-ancestor`, exit 0).
+
+### NCERT-BOOKS-1 `#1171` (08:43:57Z → `9f04eb02`)
+- **Lane G's first PR** (D195/D196). Plan D210, amended by D211 (read on site) and D213 (serve our stored copies; 2026-27 list; edition check). Built as `#1159`, APPROVED D221 @ `6474d825`; closed by the cofounder (D232/D234) to clear `lane-overlap` for `#1169` while G was silent; reopened as `#1171` at slot 3 (D235) with the identical 14 lane files plus trunk `85cdc8a9`.
+- **Page:** 27 rows (Maths 14, Science 13); "Read the chapter" opens our stored copy in an on-site reader loaded on click (official link if missing); Notes / Practice / Check my answer; the credit line. 26/26 stored files byte-identical to the live 2026-27 files; Maths Ch 9 missing then (official link).
+- **CI:** 21 success, 2 skipped (one 2030-clock flake re-run green). LIVE: 5/5 version reads; curl 200, H1, self-canonical, `index,follow`, 27 rows in the served HTML, 0 iframes; `/ncert-class-10/x` 404; in the sitemap and llms.txt. CLS 0 at 390 and 1366 px (0.46 at 1366 before the CSS inline).
+
+### NCERT-BOOKS-1b `#1182` (12:56:06Z → `1afc7020`, merged by the cofounder, D258)
+- **Owner direction 14 Oct 15:00–15:45 IST:** the page in the desktop shell and self-chromed on mobile (App.tsx 2 exact-path matchers, as `/cbse/class-10`); a Maths | Science tablist with `?subject=`; a return-ticket back link; a per-row Formulae link; an "NCERT Books" rail item (DesktopShell.tsx) that stays a real link while a plain click opens a subject → chapter picker; a pdf.js in-page reader drawing pages on canvas (Android had opened a new tab), freeing the document through the loading task (pdf.js 6 has no `document.destroy`; calling it crashed the page). Maths Ch 9 stored (206).
+- **D258:** AUDIT APPROVED; independent Opus review APPROVE-WITH-NITS (5 follow-ups, OPEN_QUESTIONS). Head = the approved `5bd4a6d3` + an update-branch merge-in (lane files byte-identical) + the CI prerender artifact. LIVE: 4/4 version reads; curl 200 and the rail in the HTML; Storage Ch 9 206.
+
+### NCERT-ENTRY-1 `#1184` (13:55:39Z → `2da27ae4`)
+- **Why:** the rail item is desktop-only and the owner rejected a footer link, so mobile had no way in (owner 18:47–18:52 IST: Exam Trends + notes pages; do `[FU-NOTES-PDF-LINK-TO-READER]` here).
+- **What:** an "NCERT" link on each Exam Trends card and in All chapters (`returnTo=/exam-trends`; Trigonometry offers Ch 8 and Ch 9); notes pages show "Read NCERT Chapter N on LazyTopper (code)" above the official credit; `ncertReadPath` moved to `config/ncertBooks.ts`. No protected file (tier 1 per D195). Mobile action rows measured at 320/360/390 px (a 4th link overflowed until the gaps were tightened).
+- **CI** all green incl. prerender-capture (head `5af05199` takes the `prerendered-1184` artifact: exam-trends + 26 notes in both variants, lastmod and sitemap only). Owner yes 19:22 IST; squash pinned to the tested head. LIVE: 3/3 version reads; 32 reader links on `/exam-trends`; the notes links present.
+
+### Indexing and measurement (G)
+- GSC "Request indexing": `/ncert-class-10` (18:42 IST), `/exam-trends` and 11 notes pages (14 Oct), probability (14 Oct ~20:12); then "Quota exceeded". Sitemap resubmitted. Bing: all 27 URLs. IndexNow `search-ping` succeeded on `2da27ae4`.
+- NCERT-BOOKS-2 (per-chapter pages): NO (D259 §3): per-chapter "ncert pdf" demand is 20–390 a month, and GSC's `jemh` queries (142 impressions, 0 clicks, position 7.1) already land on `/notes/<chapter>`.
+
 ## 2026-10-14 — UPLOAD-SHRINK-1 (`#1126` `cdfb6fea`), PYTHAGORAS-HUB-1/-2 (`#1174` `ba797dca`, `#1178` `9e668184`) — LIVE (C1 → C1b)
 
 ★ **PROVENANCE.** Written by C1b under §10 (one combined docs PR) from `#973` (the LIVE, MERGE-SLOT, AUDIT-REQUEST and DECISION posts; D183, D199, D212, D219, D222, D223, D229, D233, D235–D237, D245, D249, D251), `COORD\C1-STATE.md`, `gh pr view` and `git log`. Facts only; nothing here changes a ruling. Written at trunk `9e668184` (`#1178`).

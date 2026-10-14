@@ -1,5 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (G, §10 for `#1171` `#1182` `#1184`).** Scope: one new public surface (`/ncert-class-10`) and two new entry points to it. No grading behaviour, bank row or student data changed.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/ncert-class-10` (NEW public page, desktop shell + mobile self-chrome) | the 27 NCERT Class 10 chapters read on site, with notes / formulae / practice / check links and a credit line (`#1171`); shell, tablist, back link, in-page pdf.js reader (`#1182`) | 🟢 live (`1afc7020`) | owner Android "Read the chapter" check; 5 D258 follow-ups |
+| Desktop rail | "NCERT Books" item: a real link; a plain click opens the subject → chapter picker (`#1182`) | 🟢 live | `[FU-NCERT-PICKER-FOCUS-TRAP]` |
+| Exam Trends + every notes page | an "NCERT" / "Read NCERT Chapter N on LazyTopper" link into the reader (`#1184`) | 🟢 live (`2da27ae4`) | owner tap check on a phone |
+
 > **2026-10-14 — UPLOAD-SHRINK-1 / PYTHAGORAS-HUB-1/-2 (C1b, §10 for `#1126` `#1174` `#1178`).** Scope: the Triangles hub lost three OUT topics (owner ruling 1; area theorem; Angle Bisector Theorem, D245). No grading behaviour changed for any upload ≤ 7 MiB (byte-identical file); above 7 MiB the only reachable change is "refused" → "graded", on every surface whose picker is `PageTray`.
 
 | surface | what moved (PR) | state | owed |

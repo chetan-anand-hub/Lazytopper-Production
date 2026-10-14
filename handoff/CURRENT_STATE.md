@@ -1,5 +1,21 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-14 · NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (lane G)] `#1171` `#1182` `#1184`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by G under §10 (D195 §6, one docs PR for G's NCERT wave) from `#973` (the CLAIM / AUDIT-REQUEST / MERGE-SLOT / LIVE posts; D195, D196, D210, D211, D213, D221, D232, D234, D235, D258), `gh pr view`, `git log` and `claude/GROWTH_LOG.md`. Facts only; nothing here changes a ruling. Written at trunk `2da27ae4` (`#1184`).
+
+★ **TRUNK at writing:** `2da27ae4` (`#1184`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1171` NCERT-BOOKS-1 (reopens closed `#1159`, D232/D234/D235) | `9f04eb02` | 10-14 08:43:57 | new public page `/ncert-class-10`: the 2026-27 NCERT Class 10 books, Maths 14 + Science 13 = 27 rows; each row "Read the chapter" (our stored copy, D211/D213), Notes, Practice, Check my answer and a credit line "NCERT Class 10 <Book>, Chapter N (jemh/jescNNN) · official copy ncert.nic.in"; full public-page wiring (App.tsx one route, canonical, head, rewrite, llms.txt, sitemap, prerender, inlined route CSS) |
+| `#1182` NCERT-BOOKS-1b (merged by the cofounder, D258) | `1afc7020` | 10-14 12:56:06 | the page joins the desktop shell / mobile self-chrome (App.tsx: 2 exact-path matchers); Maths \| Science tablist with `?subject=`; return-ticket back link; per-row Formulae link; **"NCERT Books" rail item** (DesktopShell.tsx: a real link, a plain click opens a subject → chapter picker); **pdf.js in-page reader** (Android no longer opens a new tab); Maths Ch 9 now stored |
+| `#1184` NCERT-ENTRY-1 | `2da27ae4` | 10-14 13:55:39 | the mobile entry point: an "NCERT" link on every Exam Trends chapter card and in its All-chapters list; every notes page shows "Read NCERT Chapter N on LazyTopper (code)" above the official credit; `ncertReadPath` moved to `config/ncertBooks.ts`. Closes `[FU-NOTES-PDF-LINK-TO-READER]`. No protected file |
+
+★ **Content facts (D213, D221):** the 26 stored chapter PDFs were byte-identical to the live 2026-27 ncert.nic.in files at `#1159`; Maths Ch 9 (`ncert/maths/ch9.pdf`) was uploaded by the owner and returns 206 (`#1182`). Maths Ch 8 and Ch 9 are two rows sharing `/notes/trigonometry`.
+★ **Indexing (G, 14 Oct):** GSC "Request indexing" done for `/ncert-class-10`, `/exam-trends` and 12 notes pages; Bing has all 27; sitemap resubmitted; IndexNow `search-ping` succeeded on `2da27ae4`. 14 notes pages are still to request in GSC (daily quota).
+★ **In flight, not merged:** SOLUTIONS-1 (G, D259–D261), branch `feat/growth-solutions-1` @ `3403492`, no PR yet. **Owed (NEEDS-OWNER):** an Android "Read the chapter" check; tapping NCERT on Exam Trends and on a notes page.
+
 ## [CURRENT · 2026-10-14 · UPLOAD-SHRINK-1 (C1/C1b) + PYTHAGORAS-HUB-1/-2 (C1b)] `#1126` `#1174` `#1175` `#1178`
 
 *(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by C1b under §10 (one combined docs PR) from `#973` (the LIVE, MERGE-SLOT, AUDIT-REQUEST and DECISION posts; D183, D199, D212, D219, D222, D223, D229, D233, D235–D237, D245, D249, D251), `COORD\C1-STATE.md`, `gh pr view` and `git log`. Facts only; nothing here changes a ruling. Written at trunk `9e668184` (`#1178`).

@@ -23,6 +23,18 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — NCERT WAVE (LANE G) FOLLOW-UPS (recorded by G under §10)
+
+### [FU-NCERT-PICKER-FOCUS-TRAP] — OPEN (G, one small PR): the rail picker has no focus trap and does not return focus to the rail link on close (D258 nit)
+### [FU-NCERT-READER-DOUBLE-RENDER] — OPEN (G): in `NcertChapterReader`'s `PageCanvas`, a re-intersect while a page is still loading can start two renders (D258 nit)
+### [FU-NCERT-SCIENCE-PANEL-HIDDEN] — OPEN (G, measure first): the Science panel is `hidden` in the prerendered HTML of `/ncert-class-10`; still indexed, possibly weighted lower (D258 nit)
+### [FU-NCERT-READ-PARAM-UNTESTED] — OPEN (G): no test asserts that `?read=<code>` opens the reader (D258 nit)
+### [FU-PKG-DUPLICATE-MATRIX-KEY] — OPEN (owner of `lazytopper/package.json`): `test:matrix:all` is defined twice in `lazytopper/package.json` (D258 nit); a JSON object keeps only the last
+### [FU-NOTES-PDF-LINK-TO-READER] — CLOSED by `#1184` (`2da27ae4`): notes pages link "Read NCERT Chapter N on LazyTopper" to the reader, above the official credit
+### [FU-TRI-SOLUTIONS-HOLD-5] — OPEN (bank lane): 5 Triangles NCERT/Exemplar rows held off the solutions page for their written solution (keys correct): NCERT-6-LA-002, NCERT-6-SA-004, EXMPLR-6-MCQ-001, EXMPLR-6-SA-004, EXMPLR-6-SA-009 (D261 lists each defect)
+### [FU-TRI-OUT-OF-SYLLABUS-SERVED] — OPEN (bank lane): 12 Triangles rows excluded from the solutions page by the syllabus screen are not withheld and are still served in practice (D261 lists them); re-verify against owner ruling 1 / D245
+### [FU-OUR-ENVIRONMENT-NO-NCERT-FILE] — OPEN (bank lane): Our Environment has no NCERT question file, so it cannot get an NCERT solutions page
+
 ## 2026-10-14 — UPLOAD-SHRINK-1 / PYTHAGORAS-HUB FOLLOW-UPS (recorded by C1b under §10)
 
 ### [FU-SERVER-IMAGE-3MB-CAP] — the server refuses any image over 3 MB before the model (owner: PHOTO-QUALITY lane when opened)
