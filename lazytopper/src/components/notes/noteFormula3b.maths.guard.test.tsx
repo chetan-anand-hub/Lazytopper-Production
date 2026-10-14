@@ -88,6 +88,20 @@ describe("NOTES-FORMULA-3b MATHS — what a student can see", () => {
     expect(OUT_BY_RULING.filter((re) => re.test(text)).map(String)).toEqual([]);
   });
 
+  it("(b2) the WHOLE spec text (concepts, examples, proofs, not just the new fields) holds nothing the owner ruled out", () => {
+    // Narrower than the fields scan: NCERT-style derivations may USE Pythagoras as a tool (ruling 1); what is OUT is the general-prime
+    // irrationality statement (R1), stating the converse of Pythagoras, and complementary-angle ratios.
+    const whole = [/\\sqrt\{p\}|for any prime|square root of every prime/i, /converse of (the )?Pythagoras/i, /complementary angle|sin ?\(90/i];
+    const strings = (v: unknown, out: string[] = []): string[] => {
+      if (typeof v === "string") out.push(v);
+      else if (Array.isArray(v)) v.forEach((x) => strings(x, out));
+      else if (v && typeof v === "object") Object.values(v as Record<string, unknown>).forEach((x) => strings(x, out));
+      return out;
+    };
+    const bad = MATHS.flatMap((slug) => strings(spec(slug)).filter((s) => whole.some((re) => re.test(s))).map((s) => `${slug}: ${s.slice(0, 60)}`));
+    expect(bad).toEqual([]);
+  });
+
   it("(d) the source column never reaches the student DOM", () => {
     const s = spec("trigonometry");
     const { container } = render(

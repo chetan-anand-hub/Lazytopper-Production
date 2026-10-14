@@ -153,7 +153,7 @@
     {
       "id": "c4",
       "title": "Proving irrationality by contradiction",
-      "body": "To prove $\\sqrt{p}$ irrational: assume it is rational, $\\sqrt{p} = a/b$ with $a,b$ coprime. Square and rearrange to get $p \\mid a^2$, so (by Theorem 1.2) $p \\mid a$; substitute back to force $p \\mid b$ too. Now $a$ and $b$ share the factor $p$ — contradicting 'coprime'. Hence $\\sqrt{p}$ is irrational.",
+      "body": "To prove $\\sqrt{2}$ irrational: assume it is rational, $\\sqrt{2} = a/b$ with $a,b$ coprime. Square and rearrange to get $2 \\mid a^2$, so (by Theorem 1.2) $2 \\mid a$; substitute back to force $2 \\mid b$ too. Now $a$ and $b$ share the factor $2$ — contradicting 'coprime'. Hence $\\sqrt{2}$ is irrational. The same steps prove it for $\\sqrt{3}$ and $\\sqrt{5}$.",
       "tested": "3-mark 'prove that √2 / √3 / √5 is irrational'",
       "figure_ref": null,
       "source": {

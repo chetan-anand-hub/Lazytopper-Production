@@ -170,13 +170,13 @@
         },
         {
           "lead": "Name the type.",
-          "text": "$PQ^2+PR^2=50+2=52=QR^2$, so by the converse of the Pythagoras theorem $\\angle P=90°$ — it is a <b>right triangle</b>.",
-          "concept_tag": "converse of Pythagoras",
+          "text": "$PQ^2+PR^2=50+2=52=QR^2$, so the check $a^2+b^2=c^2$ holds numerically and $\\angle P=90°$ — it is a <b>right triangle</b>.",
+          "concept_tag": "right-angle check (numeric)",
           "mark": 1
         }
       ],
       "marks_total": 3,
-      "mark_logic": "3-mark shape: 1½ for the three side-lengths via the distance formula, ½ for the triangle-inequality conclusion, 1 for naming it a right triangle by the converse of Pythagoras ($PQ^2+PR^2=QR^2$).",
+      "mark_logic": "3-mark shape: 1½ for the three side-lengths via the distance formula, ½ for the triangle-inequality conclusion, 1 for naming it a right triangle by checking $PQ^2+PR^2=QR^2$ numerically.",
       "source": {
         "ncert_example": "1",
         "ncert_page": 102,
