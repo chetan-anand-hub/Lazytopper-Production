@@ -1,5 +1,20 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-14 · NOTES-FORMULA-3a] `#1160` MERGED (+ docs `#1161`) — notes pages have a "Formulae & Tricks" tab (when tricks exist), stable anchors that open the tab, and the optional shortcuts/id/heading/tip schema
+
+*(Adds to the blocks below, which stay current for everything this block does not name. Written by C2 under §10 from `#973` (D208, D221, D228), `gh pr view` and `git log`.)*
+
+★ **TRUNK at writing:** `6c1908a5` (`#1160`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1160` NOTES-FORMULA-3a | `6c1908a5` | 10-14 06:27:47 | optional `id/heading/tip` on formula items, `shortcuts[]`, diagram `{id,heading,alt}`; `ShortcutsCard`; anchors `#formulae #shortcuts #memory-tricks #mindmap #diagrams` and `#<id>` open the tab and scroll; tab label "Formulae & Tricks" only when the chapter has shortcuts; second-tab Formulae copy and the tricks link hidden in print; `source` never renders |
+| `#1161` docs | `efd8b542` | 10-14 05:42:23 | validator rule 11 + schema doc |
+
+- **With no shortcuts in any spec yet, nothing visible changes** except the section ids and the print fix. NOTES-FORMULA-3b (E) builds the content on this schema; it must append every shipped id to `lazytopper/src/components/notes/noteAnchorIds.pinned.json` (an id is added, never renamed or removed).
+- **Six grading surfaces:** untouched (notes only).
+- **PERF-3a (accepted D217):** the < 600 ms notes-TBT target is MET at the median (415 / 328 / 145 ms); Option A parked, B/C closed; the "~4 s" was an intermittent outlier not reproduced in 12 idle traces.
+
 ## [CURRENT · 2026-10-14 · NOTES-FORMULA-1/2 + SAVE-SYNC-1] `#1148` `#1151` `#1154` MERGED — the Formulae card is in two places and shows chemistry as chemistry; a graded result is no longer silently lost on a bad connection
 
 *(Adds to the blocks below, which stay current for everything this block does not name. Written by C2 under §10 from `#973` (D189, D190, D192, D198, D200, D206, D214), `gh pr view` and `git log`. No grading, marks or prompt change; `firestore.rules` and `firebase.json` untouched.)*

@@ -23,6 +23,23 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — NOTES-FORMULA-3a / PERF-3a FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-NOTES-ANCHOR-FOCUS]
+Following an in-page anchor (the Note-tab "Shortcuts & memory tricks →" link, a hash) opens the tab and scrolls, but keyboard focus stays on the link / body. Move focus to the target (`tabIndex=-1` + `focus()`) so a screen-reader or keyboard user lands on the card. Polish.
+
+### [FU-NOTES-HASH-CLS]
+On my LOCAL production build a load WITH a hash shifted 0–0.14 CLS (the static default view is replaced by the anchored tab on mount; worst: acids `#mindmap` 0.14). On www the same 12 cases measured 0. Not reproduced on the shipped build; re-measure when 3b content lands (a long Shortcuts card is a bigger swap), and consider a pre-paint hash read if it recurs.
+
+### [FU-NOTES-PIN-VACUOUS]
+`noteAnchorIds.pinned.json` is `{}` until 3b ships ids, so the "pinned ids still exist" test passes vacuously today; its CONTROL proves `missingPinned` works. Becomes real when E appends ids; check the pin file in every 3b PR review.
+
+### [FU-PERF3A-OUTLIER]
+An intermittent single 4–5 s task in `index-*.js` (Script Evaluation 4.7–5.7 s vs 0.65 s) appeared in 2 of 15 clean Lighthouse runs on a shared machine; 0 of 12 idle traces reproduced it (longest real task 189–248 ms). Likely contention; unproven. If a trace ever captures it, name the owning function and report it (D217: auth / Firebase init / a store hydrate would be persistence territory, spec'd by the cofounder).
+
+### [FU-PRERENDER-HYDRATE-418]
+`hydrateRoot` throws React #418 on every prerendered route because the prerender is `outerHTML` of a client render: React's `<Suspense>` boundary comment markers are absent (first mismatch at `<main>`: expected `<Suspense>`, found `<template data-lt-route="start">`), and `style` attributes are serialised computed styles (warnings only). Option C = render the notes routes with `renderToString` in the capture. Closed for now (D217).
+
 ## 2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 FOLLOW-UPS (recorded by C2 under §10)
 
 ### [FU-SAVE-SYNC-QUOTA]
