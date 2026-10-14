@@ -27,16 +27,6 @@ export const trianglesTopicHubPack = {
       "examTip": "Mention the ratio condition first and then conclude the line is parallel."
     },
     {
-      "title": "Pythagoras Theorem",
-      "detail": "In a right‑angled triangle, the square of the hypotenuse equals the sum of the squares of the other two sides.",
-      "examTip": "Identify the hypotenuse correctly and state that the triangle is right angled."
-    },
-    {
-      "title": "Converse of Pythagoras",
-      "detail": "If the square of one side of a triangle equals the sum of the squares of the other two sides, then the triangle is right angled with the right angle opposite the longest side.",
-      "examTip": "Write the equality first and then conclude that the triangle is right angled."
-    },
-    {
       "title": "Similarity Criteria",
       "detail": "Triangles are similar if any of the following holds: two angles are equal (AA), the ratios of all three pairs of corresponding sides are equal (SSS), or the ratios of two pairs of sides are equal and the included angles are equal (SAS).",
       "examTip": "State which criterion (AA, SSS or SAS) you are using when proving similarity."
@@ -61,9 +51,9 @@ export const trianglesTopicHubPack = {
       "examTip": "In ΔABC, DE ∥ BC with AD = 3 cm, DB = 2 cm and AE = 4 cm. Find EC."
     },
     {
-      "title": "Apply the Pythagoras theorem and its converse",
-      "detail": "1. Identify the longest side and check whether the triangle is right angled or needs verification.\n2. Use a² + b² = c² for right‑angled triangles to find missing sides.\n3. For the converse, square all sides and compare sums to verify a right angle.\n4. State your conclusion clearly after calculation.",
-      "examTip": "ΔPQR has PQ = 6 cm, PR = 8 cm and QR = 10 cm. Determine whether it is right angled."
+      "title": "Use a² + b² = c² as a numeric tool",
+      "detail": "1. Mark the right angle and the longest side (the hypotenuse) from the figure.\n2. Write a² + b² = c² with the known sides substituted.\n3. Solve for the unknown side.\n4. Give the answer with its unit.",
+      "examTip": "A 10 m ladder reaches 8 m up a wall. Find the distance of its foot from the wall."
     },
     {
       "title": "Construct logical geometric proofs",
@@ -127,21 +117,20 @@ export const trianglesTopicHubPack = {
     },
     {
       "id": "we3",
-      "title": "Applying Pythagoras to classify a triangle",
+      "title": "Finding a missing side with a² + b² = c²",
       "difficulty": "Medium",
       "marks": 3,
-      "question": "Triangle ABC has sides 7 cm, 24 cm and 25 cm. Show whether the triangle is right angled and identify the right angle.",
+      "question": "In ΔABC, ∠B = 90°, AB = 7 cm and BC = 24 cm. Find AC.",
       "solutionSteps": [
-        "Assume the longest side, 25 cm, is the hypotenuse.",
-        "Calculate 7² + 24² = 49 + 576 = 625.",
-        "Calculate 25² = 625.",
-        "Since 49 + 576 = 625 equals 25², the triangle satisfies the Pythagoras theorem.",
-        "Therefore, ΔABC is right angled at the vertex opposite the side of length 25 cm."
+        "The right angle is at B, so AC is the longest side (the hypotenuse).",
+        "Write AC² = AB² + BC².",
+        "Substitute: AC² = 7² + 24² = 49 + 576 = 625.",
+        "Take the square root: AC = 25 cm."
       ],
-      "finalAnswer": "Yes, it is right angled at the vertex opposite the 25 cm side.",
+      "finalAnswer": "AC = 25 cm.",
       "examinerNotes": [
-        "Identify the largest side as the potential hypotenuse.",
-        "Show the calculation of squares explicitly before concluding."
+        "Identify the hypotenuse before substituting.",
+        "Show the squares explicitly and give the unit in the final answer."
       ]
     },
     {
@@ -261,16 +250,6 @@ export const trianglesTopicHubPack = {
         "description": "Proportional division implies parallel lines."
       },
       {
-        "id": "n6",
-        "label": "Pythagoras",
-        "description": "Relation among sides in a right‑angled triangle."
-      },
-      {
-        "id": "n7",
-        "label": "Converse Pythagoras",
-        "description": "Tests whether a triangle is right angled."
-      },
-      {
         "id": "n8",
         "label": "Angle Bisector",
         "description": "Relates the bisected angle to side segments."
@@ -336,16 +315,6 @@ export const trianglesTopicHubPack = {
         "from": "n5",
         "to": "n4",
         "label": "requires"
-      },
-      {
-        "from": "n6",
-        "to": "n7",
-        "label": "converse of"
-      },
-      {
-        "from": "n2",
-        "to": "n6",
-        "label": "extends"
       },
       {
         "from": "n8",
@@ -427,15 +396,9 @@ export const trianglesTopicHubPack = {
     },
     {
       "id": "for_pyth",
-      "title": "Pythagoras Theorem",
-      "formula": "In a right‑angled triangle, a² + b² = c² where c is the hypotenuse.",
-      "whenToUse": "To relate the sides of a right‑angled triangle."
-    },
-    {
-      "id": "for_converse_pyth",
-      "title": "Converse of Pythagoras",
-      "formula": "If a² + b² = c² in a triangle, then the triangle is right angled opposite the side c.",
-      "whenToUse": "To check whether a given triangle is right angled."
+      "title": "Right-angled triangle relation (numeric tool)",
+      "formula": "a² + b² = c², where c is the hypotenuse.",
+      "whenToUse": "To find a missing side in a right-angled triangle in height, distance and tangent-length problems."
     },
     {
       "id": "for_angle_bisector",
@@ -462,12 +425,6 @@ export const trianglesTopicHubPack = {
       "title": "Similarity Criteria of Triangles | AA, SSS, SAS",
       "url": "https://www.youtube.com/watch?v=XX0P1dP7X6s",
       "whyThis": "It explains the three criteria for triangle similarity with worked examples, making it easier to remember when to use each."
-    },
-    {
-      "id": "vid3",
-      "title": "Pythagoras Theorem and Its Converse | CBSE Class 10",
-      "url": "https://www.youtube.com/watch?v=Q4KFA18PYow",
-      "whyThis": "This video illustrates both the Pythagoras theorem and its converse and shows how to apply them in exam‑style problems."
     },
     {
       "id": "vid4",
