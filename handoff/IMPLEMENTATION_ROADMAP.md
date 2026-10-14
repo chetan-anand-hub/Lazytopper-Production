@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — FU-SAVE-SYNC-QUOTA + FU-SAVESTATUS-INLINE-STYLE (`#1168` `85cdc8a9`) — ✅ COMPLETE (owner round-trip owed)
+
+- ✅ Outbox capped; a result that cannot be queued says so (D234 copy) and keeps `beforeunload` armed; the `gradedAt` stamp guards the mirror fallback; the toast CSS is a file.
+- ⏳ Owner: the SAVE-SYNC-1 persistence round-trip. ⏳ `[FU-SAVE-SYNC-FIRESTORE-PERSISTENCE]` (PERF-3b).
+
+## 2026-10-14 — NOTES-FORMULA-3a (`#1160` `6c1908a5`) + PERF-3a (steps 0–2, outlier hunt) — ✅ 3a COMPLETE · PERF-3a PARKED (target met) · 3b CONTENT NEXT
+
+- ✅ Schema, `ShortcutsCard`, "Formulae & Tricks" tab (when tricks exist), stable anchors that open the tab and scroll, validator rule 11.
+- ✅ PERF-3a measured: notes TBT median 415 / 328 / 145 ms (< 600 ms); the 4–5 s outlier not reproduced; hydration impossible on a DOM-capture prerender.
+- ⏳ NOTES-FORMULA-3b content (E): Maths → Physics → Biology → Chemistry.
+
 ## 2026-10-14 — NOTES-FORMULA-1 (`#1148` `9ed656ec`) · SAVE-SYNC-1 (`#1151` `168e47a9`) · NOTES-FORMULA-2 (`#1154` `a2927d28`) — ✅ COMPLETE (owner round-trip and phone glance owed)
 
 - ✅ The Formulae card sits after The Big Idea and atop the "Formulae & Mindmap" tab; an empty strip shows no card.

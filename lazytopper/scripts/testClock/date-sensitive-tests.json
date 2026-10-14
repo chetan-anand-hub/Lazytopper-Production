@@ -358,6 +358,7 @@
     "src/services/sessionRecords.additive.contract.test.ts",
     "src/services/sessionRecords.regradeReplace.test.ts",
     "src/services/sessionRecords.test.ts",
+    "src/services/sessionRecordsOutbox.quota.test.ts",
     "src/services/sessionRecordsOutbox.test.ts",
     "src/services/studentProgressStore.uidOnly.test.ts",
     "src/services/subscriptionService.entitlement.test.ts",

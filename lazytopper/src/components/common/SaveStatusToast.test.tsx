@@ -78,10 +78,56 @@ describe("SaveStatusToast", () => {
     expect(screen.queryByTestId("save-status")).toBeNull();
   });
 
+  it("the CSS lives in a file, not in a <style> block inside the component (D206, §7)", async () => {
+    h.mode = "hang";
+    const { container } = render(<SaveStatusToast />);
+    await act(async () => { writeSessionRecord(user, rec); });
+    expect(screen.getByTestId("save-status")).toBeTruthy();
+    expect(container.querySelector("style")).toBeNull();
+  });
+
+  it("the outbox cannot store the result: the calm keep-open line (never the 'next time you're online' promise), then the manual line when the attempts end", async () => {
+    const real = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, k: string, v: string) {
+      if (k.includes("sessionOutbox")) throw new DOMException("quota", "QuotaExceededError");
+      return real.call(this, k, v);
+    });
+    h.mode = "hang";
+    const { container } = render(<SaveStatusToast />);
+    await act(async () => { writeSessionRecord(user, rec); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(13_000); });
+    expect(screen.getByText(SAVE_STATUS_COPY.keepOpen)).toBeTruthy();
+    expect(container.textContent).not.toContain("next time you're online");
+    expect(/lost|error|failed|couldn't read/i.test(container.textContent || "")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "OK" }));
+    expect(screen.queryByTestId("save-status")).toBeNull();
+  });
+
+  it("the manual line, when an unqueued write ends in a final failure: explains, never says lost, an OK button", async () => {
+    const real = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, k: string, v: string) {
+      if (k.includes("sessionOutbox")) throw new DOMException("quota", "QuotaExceededError");
+      return real.call(this, k, v);
+    });
+    h.mode = "fail";
+    const { container } = render(<SaveStatusToast />);
+    await act(async () => { writeSessionRecord(user, rec); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(20_000); });
+    await flush();
+    expect(screen.getByText(SAVE_STATUS_COPY.deviceOnlyManual)).toBeTruthy();
+    expect(/\blost\b|error/i.test(container.textContent || "")).toBe(false);
+    expect(screen.getByRole("button", { name: "OK" })).toBeTruthy();
+  });
+
   it("copy is exactly the owner's wording (D190 §3)", () => {
     expect(SAVE_STATUS_COPY.saving).toBe("Saving your result to your account…");
     expect(SAVE_STATUS_COPY.saved).toBe("Saved to your account ✓");
     expect(SAVE_STATUS_COPY.deviceOnly).toBe("Saved on this device. We'll add it to your account automatically next time you're online.");
+    // D234: the two lines for a result that could NOT be queued do not claim it is saved on this device (storage may have refused it)
+    expect(SAVE_STATUS_COPY.keepOpen).toBe("Please keep LazyTopper open a little longer while we add this result to your account.");
+    expect(SAVE_STATUS_COPY.deviceOnlyManual).toBe("We couldn't add this result to your account automatically. Please open LazyTopper again when you're online and check your history.");
+    expect(SAVE_STATUS_COPY.keepOpen).not.toMatch(/Saved on this device/);
+    expect(SAVE_STATUS_COPY.deviceOnlyManual).not.toMatch(/Saved on this device/);
     expect(SAVE_STATUS_COPY.savingHint).toBe("Saving takes a few seconds. If you close now, your marks stay on this device but won't appear on your other devices or in your progress until you open LazyTopper here again.");
   });
 });

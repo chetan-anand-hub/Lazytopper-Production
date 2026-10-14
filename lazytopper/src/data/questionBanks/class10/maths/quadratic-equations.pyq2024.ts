@@ -18,10 +18,11 @@ export const QUADRATIC_EQUATIONS_PYQ_2024: CanonicalQuestion[] = [
     ncertRef: "PYQ 30(B) Q4", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-M-2024-QE-002", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "The ratio of the sum and product of the roots of the quadratic equation 5x2 – 6x + 21 = 0 is :",
+    // REWRITE-2 (A2): stem restored from the row's own key + options + Vedantu reproduction of CBSE 2024 set 30/5/1 Q5; official PDF not available to the controller.
+    questionText: "The ratio of the sum and product of the roots of the quadratic equation 5x² – 6x + 21 = 0 is :",
     options: ["5 : 21", "2 : 7", "21 : 5", "7 : 2"],
     answer: "2 : 7",
-    solutionSteps: ["Correct option: (b) 2 : 7."],
+    solutionSteps: ["[1 mark] Sum of roots = 6/5 and product of roots = 21/5, so the ratio is (6/5) : (21/5) = 6 : 21 = 2 : 7. Correct option: (b) 2 : 7."],
     finalAnswer: "(b) 2 : 7",
     ncertRef: "PYQ 30/5/1 Q5", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
@@ -36,8 +37,9 @@ export const QUADRATIC_EQUATIONS_PYQ_2024: CanonicalQuestion[] = [
   },
   { id: "PYQ-M-2024-QE-004b", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     // answer recovered from Marking scheme 30 4 1 (2023-24), p.15.
-    questionText: "Find the value of 'c' for which the quadratic equation (c + 1) x2 – 6 (c + 1) x + 3 (c + 9) = 0; c ¹ –1 has real and equal roots.",
-    answer: "For real and equal roots, {−6(c + 1)}2 − 4(c + 1) × 3(c + 9) = 0 ⇒ 12(c + 1) (2c – 6) = 0. c ≠ –1, So, c = 3.",
+    // REWRITE-2 (A2): stem restored from the row's own key + Vedantu reproduction of CBSE 2024 set 30/4/1 Q34(b); official PDF not available to the controller.
+    questionText: "Find the value of 'c' for which the quadratic equation (c + 1)x² – 6(c + 1)x + 3(c + 9) = 0; c ≠ –1 has real and equal roots.",
+    answer: "For real and equal roots, {−6(c + 1)}² − 4(c + 1) × 3(c + 9) = 0 ⇒ 12(c + 1)(2c – 6) = 0. c ≠ –1, So, c = 3.",
     solutionSteps: ["[1 mark] For real and equal roots, discriminant D = b² – 4ac = 0.", "[1 mark] Here a = (c + 1), b = –6(c + 1), c-term = 3(c + 9). So {–6(c + 1)}² – 4(c + 1) × 3(c + 9) = 0.", "[1 mark] 36(c + 1)² – 12(c + 1)(c + 9) = 0 → 12(c + 1)[3(c + 1) – (c + 9)] = 0 → 12(c + 1)(2c – 6) = 0.", "[1 mark] So c = –1 or c = 3; since c ≠ –1 (given), c = 3.", "[1 mark] Verification: for c = 3 the equation becomes 4x² – 24x + 36 = 0, i.e. x² – 6x + 9 = (x – 3)² = 0, giving equal roots x = 3, 3. Hence c = 3."],
     finalAnswer: "c = 3 (rejecting c = –1); the equal roots are x = 3, 3.",
     ncertRef: "PYQ 30/4/1 Q34(b)", isCompetencyBased: true,
@@ -52,9 +54,10 @@ export const QUADRATIC_EQUATIONS_PYQ_2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "2" },
   { id: "PYQ-M-2024-QE-006a", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     // answer recovered from MS 041_30-5-1 Mathematics 2023-24, p.12.
-    questionText: "Find the value of 'k' for which the quadratic equation (k + 1)x2 – 6(k + 1)x + 3(k + 9) = 0, k ¹ – 1 has real and equal roots.",
-    answer: "For real and equal roots, D = b2 – 4ac = 0 ⇒ 36 (k + 1)2 – 4 (k + 1) × 3 (k + 9) = 0 ⇒ k2 – 2k – 3 = 0 ⇒ (k – 3) (k + 1) = 0. k ≠ – 1, So, k = 3.",
-    solutionSteps: ["[1 mark] For real and equal roots, discriminant D = b² – 4ac = 0.", "[1 mark] Here a = (k + 1), b = –6(k + 1), c-term = 3(k + 9). So 36(k + 1)² – 4(k + 1) × 3(k + 9) = 0.", "[1 mark] Dividing by 12: 3(k + 1)² – (k + 1)(k + 9) = 0 → (k + 1)(2k – 6) = 0, i.e. k² – 2k – 3 = 0.", "[1 mark] (k – 3)(k + 1) = 0; since k ≠ –1, k = 3.", "[1 mark] Verification: for k = 3 the equation becomes 4x² – 24x + 36 = 0, i.e. (x – 3)² = 0, equal roots x = 3, 3. Hence k = 3."],
+    // REWRITE-2 (A2): stem restored from the row's own key + Vedantu reproduction of CBSE 2024 set 30/5/1 Q32(a); official PDF not available to the controller. The condition 'k ≠ –1' is kept: the original verbatim extraction (#147) read 'k ¹ – 1' (a symbol-font garble of ≠) and the marking scheme answer rejects k = –1; the Vedantu reproduction omits it.
+    questionText: "Find the value of 'k' for which the quadratic equation (k + 1)x² – 6(k + 1)x + 3(k + 9) = 0, k ≠ –1 has real and equal roots.",
+    answer: "For real and equal roots, D = b² – 4ac = 0 ⇒ 36(k + 1)² – 4(k + 1) × 3(k + 9) = 0 ⇒ k² – 2k – 3 = 0 ⇒ (k – 3)(k + 1) = 0. k ≠ –1, So, k = 3.",
+    solutionSteps: ["[1 mark] For real and equal roots, discriminant D = b² – 4ac = 0.", "[1 mark] Here a = (k + 1), b = –6(k + 1), c-term = 3(k + 9). So 36(k + 1)² – 4(k + 1) × 3(k + 9) = 0.", "[1 mark] Dividing by 12: 3(k + 1)² – (k + 1)(k + 9) = 0 → (k + 1)(2k – 6) = 0, i.e. k² – 2k – 3 = 0 after dividing by 2.", "[1 mark] (k – 3)(k + 1) = 0; since k ≠ –1, k = 3.", "[1 mark] Verification: for k = 3 the equation becomes 4x² – 24x + 36 = 0, i.e. (x – 3)² = 0, equal roots x = 3, 3. Hence k = 3."],
     finalAnswer: "k = 3 (rejecting k = –1); the equal roots are x = 3, 3.",
     ncertRef: "PYQ 30/5/1 Q32(a)", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
