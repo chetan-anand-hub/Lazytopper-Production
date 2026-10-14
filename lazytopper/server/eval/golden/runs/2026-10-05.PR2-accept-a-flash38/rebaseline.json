@@ -206,8 +206,8 @@
   },
   "run1:V2.W.CIM.OA-01": {
    "from": "6377c733ab2fe559c9885fcea61541741eec4f4061c9ed783254096f360ed9d4",
-   "to": "35cc90615c73dd01c79c6674b55a715bc202f49bd6a864aba83cb3c4f97c1426",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units",
+   "to": "a10c92d13e23ec611bacf9a7eb5fad9a7c42ed5eafb664881d2a7fd0a7a45f20",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units+g-conseq-1",
    "a17": {
     "base": "78fc549ec82ade7e893c8fc0af9779500fb3b17eb6fe7af1b49e3509ff75efa5",
     "delta": [
@@ -243,6 +243,207 @@
       ],
       "I = V/R = 6/1 = 6 A",
       null
+     ]
+    ]
+   },
+   "conseq": {
+    "base": "35cc90615c73dd01c79c6674b55a715bc202f49bd6a864aba83cb3c4f97c1426",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       1
+      ],
+      {
+       "stepNumber": 2,
+       "description": "Finding tan A using quotient relation",
+       "studentWork": "tan A = sin A / cos A = (3/5) / (2/5) = 3/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct quotient formula tan A = sin A / cos A applied to wrong cos A",
+       "mistakeType": null,
+       "correctedWorking": "tan A = sin A / cos A = (3/5) / (4/5) = 3/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 2,
+       "description": "Finding tan A using quotient relation",
+       "studentWork": "tan A = sin A / cos A = (3/5) / (2/5) = 3/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct quotient formula tan A = sin A / cos A applied to wrong cos A",
+       "mistakeType": null,
+       "correctedWorking": "tan A = sin A / cos A = (3/5) / (4/5) = 3/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       2
+      ],
+      {
+       "stepNumber": 3,
+       "description": "Finding sec A using reciprocal relation",
+       "studentWork": "sec A = 1 / cos A = 5/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct reciprocal relation sec A = 1 / cos A applied to wrong cos A",
+       "mistakeType": null,
+       "correctedWorking": "sec A = 1 / cos A = 5/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 3,
+       "description": "Finding sec A using reciprocal relation",
+       "studentWork": "sec A = 1 / cos A = 5/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct reciprocal relation sec A = 1 / cos A applied to wrong cos A",
+       "mistakeType": null,
+       "correctedWorking": "sec A = 1 / cos A = 5/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       3,
+       "marksLostByType",
+       "conceptual"
+      ],
+      1,
+      2
+     ],
+     [
+      [
+       "results",
+       3,
+       "marksLostByType",
+       "untyped"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       9,
+       "annotatedSteps",
+       1
+      ],
+      {
+       "stepNumber": 2,
+       "description": "Substitution into mirror formula",
+       "studentWork": "1/v = 1/f − 1/u = −1/15 − 1/20\n= (−4 − 3)/60 = −7/60",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 1,
+       "teacherAnnotation": "× Evaluating incorrect conceptual substitution",
+       "mistakeType": null,
+       "correctedWorking": "1/v = 1/f − 1/u = −1/15 − (−1/20) = −1/15 + 1/20 = −1/60",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 2,
+       "description": "Substitution into mirror formula",
+       "studentWork": "1/v = 1/f − 1/u = −1/15 − 1/20\n= (−4 − 3)/60 = −7/60",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 1,
+       "teacherAnnotation": "× Evaluating incorrect conceptual substitution",
+       "mistakeType": null,
+       "correctedWorking": "1/v = 1/f − 1/u = −1/15 − (−1/20) = −1/15 + 1/20 = −1/60",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       9,
+       "annotatedSteps",
+       2
+      ],
+      {
+       "stepNumber": 3,
+       "description": "Calculation of image distance and final position",
+       "studentWork": "v = −60/7 = −8.57 cm\nImage is 8.57 cm in front of the mirror.",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 1,
+       "teacherAnnotation": "× Final image distance incorrect due to sign convention error",
+       "mistakeType": null,
+       "correctedWorking": "v = −60 cm; Image is formed 60 cm in front of the mirror.",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 3,
+       "description": "Calculation of image distance and final position",
+       "studentWork": "v = −60/7 = −8.57 cm\nImage is 8.57 cm in front of the mirror.",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 1,
+       "teacherAnnotation": "× Final image distance incorrect due to sign convention error",
+       "mistakeType": null,
+       "correctedWorking": "v = −60 cm; Image is formed 60 cm in front of the mirror.",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       9,
+       "marksLostByType",
+       "conceptual"
+      ],
+      0.5,
+      2.5
+     ],
+     [
+      [
+       "results",
+       9,
+       "marksLostByType",
+       "untyped"
+      ],
+      2,
+      0
      ]
     ]
    }
@@ -363,8 +564,8 @@
   },
   "run2:V2.W.CIM.OA-01": {
    "from": "03c1b72dffee0af39ddfbbfce5ad3b85221562397d4810a1813eeb62e1b1bb8c",
-   "to": "1ce03d67844aa75a228ca5a87ec6d17e1e256338cab94dc0e33685c1d02f972d",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units",
+   "to": "ed34bd03ea24e4cca65f1fbafb69dd1905f474712b945ba3e11f8f9fedc7d6b3",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units+g-conseq-1",
    "a17": {
     "base": "f911114b020f4bd4b97a821cfc730363794fc6ef2067361ea9227aee4bf1c43a",
     "delta": [
@@ -378,6 +579,207 @@
       ],
       "½ Numerical work correct, but unit Ω is missing",
       "−½: write the unit (Ω) with your final answer."
+     ]
+    ]
+   },
+   "conseq": {
+    "base": "1ce03d67844aa75a228ca5a87ec6d17e1e256338cab94dc0e33685c1d02f972d",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       1
+      ],
+      {
+       "stepNumber": 2,
+       "description": "Finding tan A using quotient ratio",
+       "studentWork": "tan A = sin A / cos A = (3/5) / (2/5) = 3/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct formula tan A = sin A / cos A applied to wrong value",
+       "mistakeType": null,
+       "correctedWorking": "tan A = (3/5) / (4/5) = 3/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 2,
+       "description": "Finding tan A using quotient ratio",
+       "studentWork": "tan A = sin A / cos A = (3/5) / (2/5) = 3/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct formula tan A = sin A / cos A applied to wrong value",
+       "mistakeType": null,
+       "correctedWorking": "tan A = (3/5) / (4/5) = 3/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       2
+      ],
+      {
+       "stepNumber": 3,
+       "description": "Finding sec A using reciprocal ratio",
+       "studentWork": "sec A = 1 / cos A = 5/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct reciprocal relation applied to wrong value",
+       "mistakeType": null,
+       "correctedWorking": "sec A = 1 / (4/5) = 5/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 3,
+       "description": "Finding sec A using reciprocal ratio",
+       "studentWork": "sec A = 1 / cos A = 5/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct reciprocal relation applied to wrong value",
+       "mistakeType": null,
+       "correctedWorking": "sec A = 1 / (4/5) = 5/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       3,
+       "marksLostByType",
+       "conceptual"
+      ],
+      1,
+      2
+     ],
+     [
+      [
+       "results",
+       3,
+       "marksLostByType",
+       "untyped"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       9,
+       "annotatedSteps",
+       1
+      ],
+      {
+       "stepNumber": 2,
+       "description": "Substitution and evaluation of v from wrong sign",
+       "studentWork": "1/v = 1/f - 1/u = -1/15 - 1/20\n= (-4 - 3)/60 = -7/60\nv = -60/7 = -8.57 cm",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 1.5,
+       "teacherAnnotation": "× Evaluating incorrect sign convention",
+       "mistakeType": null,
+       "correctedWorking": "1/v = 1/(-15) - 1/(-20) = -1/15 + 1/20 = -1/60 ⇒ v = -60 cm",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1.5
+      },
+      {
+       "stepNumber": 2,
+       "description": "Substitution and evaluation of v from wrong sign",
+       "studentWork": "1/v = 1/f - 1/u = -1/15 - 1/20\n= (-4 - 3)/60 = -7/60\nv = -60/7 = -8.57 cm",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 1.5,
+       "teacherAnnotation": "× Evaluating incorrect sign convention",
+       "mistakeType": null,
+       "correctedWorking": "1/v = 1/(-15) - 1/(-20) = -1/15 + 1/20 = -1/60 ⇒ v = -60 cm",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1.5,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       9,
+       "annotatedSteps",
+       2
+      ],
+      {
+       "stepNumber": 3,
+       "description": "Final statement of image position",
+       "studentWork": "Image is 8.57 cm in front of the mirror.",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "× Incorrect image position",
+       "mistakeType": null,
+       "correctedWorking": "The image is formed at a distance of 60 cm in front of the mirror.",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 0.5
+      },
+      {
+       "stepNumber": 3,
+       "description": "Final statement of image position",
+       "studentWork": "Image is 8.57 cm in front of the mirror.",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "× Incorrect image position",
+       "mistakeType": null,
+       "correctedWorking": "The image is formed at a distance of 60 cm in front of the mirror.",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 0.5,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       9,
+       "marksLostByType",
+       "conceptual"
+      ],
+      0.5,
+      2.5
+     ],
+     [
+      [
+       "results",
+       9,
+       "marksLostByType",
+       "untyped"
+      ],
+      2,
+      0
      ]
     ]
    }
@@ -728,8 +1130,8 @@
   },
   "run3:V2.W.CIM.OA-01": {
    "from": "ccefba4ac9e8618a57b1fc2bfd7790be7b6775a9bb7a7c50b1fd3958113b9894",
-   "to": "fcd51490f5bb09fea33063ac7aa78f53e993d5a51d38bd20e59b9f044f7652c1",
-   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units",
+   "to": "abcdf9643f4ae3dea6270419fd8e9a6869131d65cb21c97a4747bd7c31c9bb91",
+   "class": "v2-notGraded-field+d38-blank-slot-unattempted+a17-r1-units+g-conseq-1",
    "a17": {
     "base": "38723842823ee7cb1a91f08bf701120478946f6f5a1c2510f1ff05f13d6a59d4",
     "delta": [
@@ -765,6 +1167,246 @@
       ],
       "I = 6 A",
       null
+     ]
+    ]
+   },
+   "conseq": {
+    "base": "fcd51490f5bb09fea33063ac7aa78f53e993d5a51d38bd20e59b9f044f7652c1",
+    "delta": [
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       1
+      ],
+      {
+       "stepNumber": 2,
+       "description": "Finding tan A using tan A = sin A / cos A",
+       "studentWork": "tan A = sin A / cos A = (3/5) / (2/5) = 3/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct relationship used with incorrect cos A",
+       "mistakeType": null,
+       "correctedWorking": "tan A = (3/5) / (4/5) = 3/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 2,
+       "description": "Finding tan A using tan A = sin A / cos A",
+       "studentWork": "tan A = sin A / cos A = (3/5) / (2/5) = 3/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct relationship used with incorrect cos A",
+       "mistakeType": null,
+       "correctedWorking": "tan A = (3/5) / (4/5) = 3/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       3,
+       "annotatedSteps",
+       2
+      ],
+      {
+       "stepNumber": 3,
+       "description": "Finding sec A using sec A = 1 / cos A",
+       "studentWork": "sec A = 1 / cos A = 5/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct reciprocal definition applied to incorrect cos A",
+       "mistakeType": null,
+       "correctedWorking": "sec A = 1 / (4/5) = 5/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 3,
+       "description": "Finding sec A using sec A = 1 / cos A",
+       "studentWork": "sec A = 1 / cos A = 5/2",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct reciprocal definition applied to incorrect cos A",
+       "mistakeType": null,
+       "correctedWorking": "sec A = 1 / (4/5) = 5/4",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       3,
+       "marksLostByType",
+       "conceptual"
+      ],
+      1,
+      2
+     ],
+     [
+      [
+       "results",
+       3,
+       "marksLostByType",
+       "untyped"
+      ],
+      1,
+      0
+     ],
+     [
+      [
+       "results",
+       9,
+       "annotatedSteps",
+       1
+      ],
+      {
+       "stepNumber": 2,
+       "description": "Mirror formula statement and rearrangement",
+       "studentWork": "1/v + 1/u = 1/f\n1/v = 1/f − 1/u = −1/15 − 1/20",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct mirror formula stated, but evaluated with incorrect sign convention",
+       "mistakeType": null,
+       "correctedWorking": "1/v = 1/f − 1/u = −1/15 − (−1/20) = −1/15 + 1/20",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 2,
+       "description": "Mirror formula statement and rearrangement",
+       "studentWork": "1/v + 1/u = 1/f\n1/v = 1/f − 1/u = −1/15 − 1/20",
+       "status": "partial",
+       "marksAwarded": 0.5,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "½ Correct mirror formula stated, but evaluated with incorrect sign convention",
+       "mistakeType": null,
+       "correctedWorking": "1/v = 1/f − 1/u = −1/15 − (−1/20) = −1/15 + 1/20",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       9,
+       "annotatedSteps",
+       2
+      ],
+      {
+       "stepNumber": 3,
+       "description": "Computation of v",
+       "studentWork": "= (−4 − 3)/60 = −7/60\nv = −60/7 = −8.57 cm",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 1,
+       "teacherAnnotation": "× Calculation resulting directly from incorrect sign convention",
+       "mistakeType": null,
+       "correctedWorking": "1/v = (−4 + 3)/60 = −1/60 ⇒ v = −60 cm",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1
+      },
+      {
+       "stepNumber": 3,
+       "description": "Computation of v",
+       "studentWork": "= (−4 − 3)/60 = −7/60\nv = −60/7 = −8.57 cm",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 1,
+       "teacherAnnotation": "× Calculation resulting directly from incorrect sign convention",
+       "mistakeType": null,
+       "correctedWorking": "1/v = (−4 + 3)/60 = −1/60 ⇒ v = −60 cm",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 1,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       9,
+       "annotatedSteps",
+       3
+      ],
+      {
+       "stepNumber": 4,
+       "description": "Final statement of image position",
+       "studentWork": "Image is 8.57 cm in front of the mirror.",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "× Position value is incorrect",
+       "mistakeType": null,
+       "correctedWorking": "The image is formed at a distance of 60 cm in front of the mirror.",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 0.5
+      },
+      {
+       "stepNumber": 4,
+       "description": "Final statement of image position",
+       "studentWork": "Image is 8.57 cm in front of the mirror.",
+       "status": "incorrect",
+       "marksAwarded": 0,
+       "marksDeducted": 0.5,
+       "teacherAnnotation": "× Position value is incorrect",
+       "mistakeType": null,
+       "correctedWorking": "The image is formed at a distance of 60 cm in front of the mirror.",
+       "isDeparture": false,
+       "isReturn": false,
+       "part": null,
+       "marksAvailable": 0.5,
+       "consequentialOf": 1
+      }
+     ],
+     [
+      [
+       "results",
+       9,
+       "marksLostByType",
+       "conceptual"
+      ],
+      0.5,
+      2.5
+     ],
+     [
+      [
+       "results",
+       9,
+       "marksLostByType",
+       "untyped"
+      ],
+      2,
+      0
      ]
     ]
    }
@@ -2481,5 +3123,11 @@
    "a17-r1-units": 24
   },
   "about": "A17 owner rulings change these bodies ON PURPOSE. a17-r1-units: a unit deduction carries the one fixed unit comment, or is given back once already charged / on a pure number. a17-r2-not-attempted: a question with no attempt (blank / \"Don't know\") is NOT ATTEMPTED (0, no type, not charged) instead of a graded 0. a17-r3-medium: a Hinglish answer loses exactly one half once with the fixed medium comment; any other language deduction is given back. Each entry carries a17.base (the trunk digest) and a17.delta (every changed node); golden.test section 11 undoes the delta to a17.base and checks it against lib/rebaselineClasses.cjs."
+ },
+ "conseq": {
+  "pr": "GRADER-CONSEQUENTIAL-1 (D242)",
+  "generator": "server/eval/golden/goldenRebaselineConseq.cjs",
+  "count": 3,
+  "about": "g-conseq-1: a loss that follows from an earlier typed error moves from \"untyped\" to that error's type, and the step records consequentialOf. No mark, status, type, note or annotation changes (lib/rebaselineClasses.cjs conseqViolations)."
  }
 }

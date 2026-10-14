@@ -24,6 +24,14 @@
 //   a17-rb-cap            (FIXUP-2, owner ruling B) only exam-technique steps that end carrying the cap
 //                         line give marks back; the mark moves by exactly what those steps moved.
 //   Paper totals (gradedMarksAwarded) move by exactly the sum of the question marks that moved.
+//
+//   g-conseq-1            (GRADER-CONSEQUENTIAL-1, D242; NOT an A17 class: it is checked on its own, an
+//                         entry carries `conseq: { base, delta }` beside any `a17`). A loss that follows
+//                         from an earlier typed error moves from "untyped" to that error's type. ONLY:
+//                         (1) `marksLostByType` buckets move, the total unchanged, "untyped" never up and
+//                         no typed bucket down; (2) a step node gains the single new key `consequentialOf`
+//                         (an integer pointing at an EARLIER step) and nothing else about it changes.
+//                         No mark, status, type, note or annotation changes anywhere.
 
 const R = require('../../../grading/rules.cjs');
 
@@ -56,6 +64,43 @@ function undoDelta(body, delta) {
     getAt(c, p.slice(0, -1))[p[p.length - 1]] = from;
   }
   return c;
+}
+
+const CONSEQ_CLASS = 'g-conseq-1';
+const BUCKETS = ['conceptual', 'calculation', 'silly', 'presentation', 'unattempted', 'untyped'];
+/** g-conseq-1 rule violations for ONE delta (see the header). Independent of the A17 classes. */
+function conseqViolations(delta, toBody) {
+  const out = [];
+  const perResult = new Map(); // result key -> { buckets: {bucket: move}, steps: n }
+  for (const [p, from, to] of delta) {
+    const at = p[0] === 'results' && Number.isInteger(p[1]) ? { key: JSON.stringify(p.slice(0, 2)), rest: p.slice(2) } : { key: '[]', rest: p };
+    if (!perResult.has(at.key)) perResult.set(at.key, { buckets: {}, steps: 0 });
+    const pr = perResult.get(at.key);
+    if (at.rest[0] === 'marksLostByType' && at.rest.length === 2 && BUCKETS.includes(at.rest[1])) {
+      pr.buckets[at.rest[1]] = (Number(to) || 0) - (Number(from) || 0);
+      continue;
+    }
+    if (at.rest[0] === 'annotatedSteps' && Number.isInteger(at.rest[1]) && at.rest.length === 2 && isObj(from) && isObj(to)) {
+      const k = at.rest[1];
+      const { consequentialOf, ...toRest } = to;
+      if (from.consequentialOf !== undefined) { out.push(p.join('.') + ': the step already carried consequentialOf'); continue; }
+      if (!Number.isInteger(consequentialOf) || consequentialOf < 1 || consequentialOf > k) { out.push(p.join('.') + ': consequentialOf must name an EARLIER step'); continue; }
+      if (JSON.stringify(from) !== JSON.stringify(toRest)) { out.push(p.join('.') + ': the step changed by more than the new consequentialOf key'); continue; }
+      pr.steps += 1;
+      continue;
+    }
+    out.push(p.join('.') + ': outside the ' + CONSEQ_CLASS + ' rules');
+  }
+  for (const [key, pr] of perResult) {
+    const moves = BUCKETS.map((b) => pr.buckets[b] || 0);
+    const sum = moves.reduce((a, b) => a + b, 0);
+    if (Math.abs(sum) > 1e-9) out.push(key + ': the loss total moved by ' + sum);
+    if ((pr.buckets.untyped || 0) > 1e-9) out.push(key + ': "untyped" went up');
+    for (const b of BUCKETS) if (b !== 'untyped' && (pr.buckets[b] || 0) < -1e-9) out.push(key + ': ' + b + ' went down');
+    if (pr.steps === 0 && moves.some((m) => Math.abs(m) > 1e-9)) out.push(key + ': buckets moved but no step carries consequentialOf');
+    if (pr.steps > 0 && !(pr.buckets.untyped < -1e-9)) out.push(key + ': a step is consequential but no untyped loss moved');
+  }
+  return out;
 }
 
 /** Rule violations of `classes` (array) for one entry's delta; [] = accepted. */
@@ -122,4 +167,4 @@ function classesFor(delta, toBody) {
   return null;
 }
 
-module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES };
+module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations };

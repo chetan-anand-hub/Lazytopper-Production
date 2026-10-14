@@ -1300,6 +1300,21 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       const t = Math.min(left, half(amt));
       if (t > 0) { marksLostByType[bucket] = half(marksLostByType[bucket] + t); left = half(left - t); }
     };
+    // GRADER-CONSEQUENTIAL-1 (D242, owner-ruled; deterministic, no prompt change): a deducting step
+    // with no type that is not a departure's zeroed work inherits the type of the NEAREST EARLIER
+    // typed step of the same part that lost marks — the loss is that error's cost, never an invented
+    // type (CLAUDE.md 13). Only the bucket attribution moves; no mark changes. The origin is recorded
+    // on the step (`_consequentialOrigin`, emitted as `consequentialOf` on the v2 shape). A step's own
+    // `mistakeType` is NOT rewritten, so the mistake counts and Mistake Intelligence's per-step
+    // entries (built from steps that carry a type) are exactly what they were: one per error.
+    const isTypedOrigin = (t, j) => Boolean(t.mistakeType) && t.marksDeducted > 0 && !zeroedBy.has(j) && !t._ecf
+      && t.status !== 'unattempted' && t.status !== 'withdrawn';
+    steps.forEach((s, i) => {
+      if (zeroedBy.has(i) || s._ecf || s.mistakeType || !(s.marksDeducted > 0) || s.status === 'unattempted' || s.status === 'withdrawn') return;
+      for (let j = i - 1; j >= 0; j -= 1) {
+        if (partKey(steps[j].part) === partKey(s.part) && isTypedOrigin(steps[j], j)) { s._consequentialOrigin = steps[j]; break; }
+      }
+    });
     steps.forEach((s, i) => {
       if (zeroedBy.has(i)) {
         const dep = steps[zeroedBy.get(i)];
@@ -1307,9 +1322,14 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         return;
       }
       if (s.status === 'unattempted') { put('unattempted', s.marksDeducted); return; }
-      put(s.mistakeType || 'untyped', s.marksDeducted);
+      put(s.mistakeType || (s._consequentialOrigin && s._consequentialOrigin.mistakeType) || 'untyped', s.marksDeducted);
     });
-    if (left > 0) put('untyped', left);
+    // a remainder with no step to carry it goes to the question's typed origin when the question has
+    // exactly one such type; with none (or with several different ones: ambiguous) it stays untyped
+    if (left > 0) {
+      const originTypes = [...new Set(steps.filter(isTypedOrigin).map((t) => t.mistakeType))];
+      put(originTypes.length === 1 ? originTypes[0] : 'untyped', left);
+    }
   }
   const lostSum = half(Object.values(marksLostByType).reduce((a, b) => a + b, 0));
   if (Math.abs(lostSum - lost) > 1e-9) {
@@ -1337,6 +1357,11 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     if (v2) {
       base.part = s.part;
       base.marksAvailable = s.status === 'withdrawn' ? 0 : s._available;
+      // GRADER-CONSEQUENTIAL-1: the step number (1-based, as shown) of the error this loss follows from.
+      if (s._consequentialOrigin) {
+        const at = emitted.indexOf(s._consequentialOrigin);
+        if (at >= 0) base.consequentialOf = at + 1;
+      }
     }
     return base;
   });
