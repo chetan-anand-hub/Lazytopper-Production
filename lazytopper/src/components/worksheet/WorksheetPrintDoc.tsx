@@ -1,4 +1,5 @@
 import { MathText } from "../question/MathText";
+import { stripOptionLabel, stripSourceTag } from "./worksheetPrintText";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 
@@ -186,7 +187,7 @@ function QuestionBlock({ q }: { q: PersistedWorksheetQuestion }) {
       <span className="lt-wsp__qn">Q{q.qNumber}.</span>
       <div className="lt-wsp__qbody">
         <div className="lt-wsp__qtext">
-          <MathText text={q.questionText} />
+          <MathText text={stripSourceTag(q.questionText)} />
           <span className="lt-wsp__qmarks">[{marks}]</span>
         </div>
         <PrintQuestionFigures questionId={q.id} />
@@ -195,7 +196,7 @@ function QuestionBlock({ q }: { q: PersistedWorksheetQuestion }) {
             {q.options!.map((opt, oi) => (
               <li key={oi}>
                 <span className="lt-wsp__optl">({OPTION_LETTERS[oi] ?? oi + 1})</span>{" "}
-                <MathText text={opt} />
+                <MathText text={stripOptionLabel(opt, oi)} />
               </li>
             ))}
           </ol>

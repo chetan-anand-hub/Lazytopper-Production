@@ -46,9 +46,11 @@ import { isAiGeneratedBankId } from "../../data/bankChapters/loader";
 import { isCbq } from "../../lib/cbq/cbqClassification";
 import {
   SECTION_LETTERS,
+  aiCapFor,
   drawFromSpec,
   isShaped,
   planDraw,
+  stemKey,
   type DrawSpec,
 } from "./worksheetShape";
 
@@ -454,17 +456,22 @@ const MIN_FOCUS_POOL = 4;
  * sheet). Matches on `subtopic` (two-way includes) with a question-text word fallback,
  * since `concept` is empty in the bank today (predictionTypes Phase 0).
  */
-function narrowToConcept(pool: PracticeQuestion[], focus?: string): PracticeQuestion[] {
+export function narrowToConcept(pool: PracticeQuestion[], focus?: string): PracticeQuestion[] {
   const f = (focus || "").toLowerCase().trim();
   if (!f) return pool;
   const words = f.split(/[^a-z0-9]+/).filter((w) => w.length >= 4);
+  // WORKSHEET-FIX-2 (c): a row matches the concept by its OWN subtopic (two-way includes). Only a row with NO subtopic
+  // falls back to its text, and then it must contain EVERY focus word (it used to need just one, which let 62% of the
+  // rows in through an unrelated word). A focus that matches nothing keeps the full pool (never an empty sheet); one that
+  // matches a few rows gives that honestly short sheet (the preview says how many are available).
   const matches = pool.filter((q) => {
     const sub = String(q.subtopic || "").toLowerCase();
-    if (sub && (sub.includes(f) || f.includes(sub))) return true;
+    if (sub) return sub.includes(f) || f.includes(sub);
+    if (words.length === 0) return false;
     const qt = String(q.questionText || "").toLowerCase();
-    return words.some((w) => sub.includes(w) || qt.includes(w));
+    return words.every((w) => qt.includes(w));
   });
-  return matches.length >= MIN_FOCUS_POOL ? matches : pool;
+  return matches.length >= MIN_FOCUS_POOL ? matches : matches.length > 0 ? matches : pool;
 }
 
 /** Build the unique, filter-scoped pool for every in-scope topic (no repeats). */
@@ -703,6 +710,16 @@ export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
       return drawFromSpec(replanned.spec, plan.pools, DRAW_TOOLS);
     }
   }
+  // WORKSHEET-FIX-2 (e): an un-shaped sheet with an MI section boost (planWorksheet gives it NO draw spec: it takes this
+  // original skewed draw) now honours the same AI cap and stem dedupe as drawFromSpec. A plan with neither a draw spec nor
+  // a skew (older callers, hand-built plans) is byte-identical to before.
+  const legacySkew = hasSkewIn(boostsFor(plan.rows.map((r) => r.key), plan.topicSectionBoosts, plan.sectionBoosts));
+  const guarded = Boolean(plan.draw) || legacySkew;
+  const guardTotal = guarded ? plan.rows.reduce((a, r) => a + Math.max(0, r.allocated), 0) : 0;
+  const aiLimit = guarded ? aiCapFor(guardTotal) : Number.POSITIVE_INFINITY;
+  let aiUsed = 0;
+  const seenStems = new Set<string>();
+  const overCap: PracticeQuestion[] = [];
   const seen = new Set<string>();
   // NO REPEATS IN A SET (BANK-SPLIT-1): the id check stays; the questionKey check
   // catches the same question filed under two ids.
@@ -720,10 +737,37 @@ export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
       if (taken >= row.allocated) break;
       const key = questionKey(q);
       if (seen.has(q.id) || seenKeys.has(key)) continue;
+      if (guarded) {
+        const st = stemKey(q);
+        if (st && seenStems.has(st)) continue;
+        if (DRAW_TOOLS.isAi(q)) {
+          if (aiUsed >= aiLimit) {
+            overCap.push(q);
+            continue;
+          }
+          aiUsed += 1;
+        }
+        if (st) seenStems.add(st);
+      }
       seen.add(q.id);
       seenKeys.add(key);
       collected.push(q);
       taken += 1;
+    }
+  }
+  if (guarded && collected.length < guardTotal) {
+    // a row skipped for the cap or a repeated stem can leave the sheet short: fill it, verified rows first, then (only if
+    // the pools hold nothing else) the AI rows that were over the cap, so the count stays exact.
+    const rest: PracticeQuestion[] = shuffleInPlace([...plan.pools.values()].flat());
+    for (const q of [...rest.filter((x) => !DRAW_TOOLS.isAi(x)), ...overCap]) {
+      if (collected.length >= guardTotal) break;
+      const key = questionKey(q);
+      const st = stemKey(q);
+      if (seen.has(q.id) || seenKeys.has(key) || (st && seenStems.has(st))) continue;
+      seen.add(q.id);
+      seenKeys.add(key);
+      if (st) seenStems.add(st);
+      collected.push(q);
     }
   }
   return shuffleInPlace(collected);

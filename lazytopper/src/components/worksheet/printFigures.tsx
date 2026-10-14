@@ -41,5 +41,6 @@ export const PRINT_FIGURE_CSS = `
 .lt-pfig__fig { margin: 0 0 6px; text-align: center; }
 .lt-pfig__img { max-width: 100%; max-height: 260px; width: auto; height: auto; border: 1px solid #d8d8d8; background: #ffffff; }
 .lt-pfig__fig svg { display: block; margin: 0 auto; width: 100%; max-width: 340px; height: auto; }
+.lt-pfig__svgimg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
 .lt-pfig__cap { font-size: 10px; color: #555; margin-top: 2px; }
 `;
