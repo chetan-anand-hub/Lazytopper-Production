@@ -4,14 +4,12 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
   { id: "STAT-E01", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mean of first 10 natural numbers is:", options: ["5", "5.5", "6", "10"], answer: "5.5", explanation: "Mean = (1+2+..+10)/10 = 55/10 = 5.5. Therefore, the correct answer is 5.5.", solutionSteps: ["Mean = (1+2+...+10)/10 = 55/10 = 5.5"], finalAnswer: "5.5" , isCompetencyBased: false },
   { id: "STAT-E02", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mode of the data 2, 3, 4, 4, 5, 5, 5, 6, 7 is:", options: ["4", "5", "6", "3"], answer: "5", explanation: "The correct answer is 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "5" , isCompetencyBased: false,
     solutionSteps: [
-      "The question text is missing, so specific solution steps cannot be provided.",
-      "The 'answer' field is empty, so the final answer will also be empty.",
+      "[1 mark] Option (b) 5 is correct: the mode is the most frequent value; 5 occurs 3 times, more than any other value (4 occurs twice, the rest once).",
     ],
   },
   { id: "STAT-E03", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The median class is the class whose cumulative frequency is just greater than or equal to:", options: ["n", "n/2", "n/4", "n/3"], answer: "n/2", explanation: "The correct answer is n/2. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "n/2" , isCompetencyBased: false,
     solutionSteps: [
-      "The question text is missing, so specific solution steps cannot be provided.",
-      "The 'answer' field is empty, so the final answer will also be empty.",
+      "[1 mark] Option (b) n/2 is correct: the median is the middle observation, so the median class is the class whose cumulative frequency is just greater than or equal to n/2, where n is the total frequency.",
     ],
   },
   { id: "STAT-E05", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the mean of the following distribution: Class: 10–20, 20–30, 30–40; Frequency: 5, 8, 7.", solutionSteps: [
@@ -59,8 +57,7 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
   },
   { id: "STAT-E15", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The class mark of the class 15–35 is:", options: ["25", "20", "30", "15"], answer: "25", explanation: "The correct answer is 25. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "25" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall the formula for the step-deviation method for calculating the mean of grouped data: Mean (x̄) = a + (Σfiui / Σfi) * h.",
-      "In this formula, 'ui' represents the step deviation, which is calculated as (xi - a) / h, where 'xi' is the class mark, 'a' is the assumed mean, and 'h' is the class size.",
+      "[1 mark] Option (a) 25 is correct: class mark = (lower limit + upper limit)/2 = (15 + 35)/2 = 50/2 = 25.",
     ],
   },
   { id: "STAT-E16", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the median of: 3, 5, 7, 9, 11, 13, 15.", solutionSteps: [
@@ -71,15 +68,12 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "9" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-E17", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If Σfᵢ = 20 and Σfᵢxᵢ = 300, then the mean is:", options: ["15", "20", "10", "30"], answer: "15", explanation: "The correct answer is 15. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "15" , isCompetencyBased: true,
     solutionSteps: [
-      "Recall the complete formula for calculating the mean using the step-deviation method for grouped data.",
-      "The step-deviation method formula is: Mean (x̄) = a + (Σfiui / Σfi) * h, where 'a' is the assumed mean, 'fi' is the frequency, 'ui' is the step deviation, and 'h' is the class size.",
+      "[1 mark] Option (a) 15 is correct: mean = (sum of f_i x_i)/(sum of f_i) = 300/20 = 15.",
     ],
   },
   { id: "STAT-E18", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "In the mode formula, f₁ represents:", options: ["Frequency of modal class", "Frequency before modal class", "Frequency after modal class", "Total frequency"], answer: "Frequency of modal class", explanation: "The correct answer is Frequency of modal class. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Frequency of modal class" , isCompetencyBased: false,
     solutionSteps: [
-      "The question text for STAT-E18 is missing, so a specific solution cannot be provided.",
-      "For a 1-mark MCQ on Mode of Grouped Data, one would typically identify the modal class from given data.",
-      "Then, apply the correct formula for mode of grouped data: Mode = L + [(f1-f0)/(2f1-f0-f2)]*h, where L is lower limit of modal class, f1 is frequency of modal class, f0 is frequency of preceding class, f2 is frequency of succeeding class, and h is class size.",
+      "[1 mark] Option (a) is correct: in Mode = l + [(f1 - f0)/(2f1 - f0 - f2)] * h, f1 is the frequency of the modal class, f0 that of the class before it and f2 that of the class after it.",
     ],
   },
   { id: "STAT-E20", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "The median of an ungrouped data is 25 and mean is 28. Find the mode using the empirical formula.", solutionSteps: [

@@ -40,6 +40,7 @@ import {
 import type { AssembledPdf, PdfPageInput } from "../../services/assemblePagesPdf";
 import {
   MAX_UPLOAD_PAGES,
+  MAX_UPLOAD_PDF_BYTES,
   TOO_MANY_PAGES_MESSAGE,
   type UploadCheck,
 } from "../../services/uploadLimits";
@@ -85,6 +86,8 @@ export interface UsePageTrayOptions {
   prepare?: (photo: DecodedPhoto, opts: PreparePhotoOptions) => Promise<PreparedPhoto>;
   thumb?: (photo: DecodedPhoto, opts: { crop?: CropFraction; rotation?: PhotoRotation }) => string;
   assemble?: (pages: PdfPageInput[]) => Promise<AssembledPdf>;
+  /** UPLOAD-SHRINK-1: shrink a picked PDF before the guard sees it. Default: `shrinkPdf` (loaded lazily). */
+  shrink?: (file: File, onProgress: (done: number, total: number) => void, signal: AbortSignal) => Promise<File>;
   renderPreview?: (photo: DecodedPhoto, rotation: PhotoRotation) => { url: string };
 }
 
@@ -93,6 +96,9 @@ export interface PageTrayApi {
   cropSession: CropSession | null;
   /** Decoding / preparing / assembling. */
   busy: boolean;
+  /** UPLOAD-SHRINK-1: a big PDF is being shrunk; `skipOptimise` sends it as it is, at once. */
+  optimising: boolean;
+  skipOptimise: () => void;
   /** The 9th-page line, or an assembly refusal / "Preparing your pages…". */
   notice: string | null;
   allowMultiPage: boolean;
@@ -125,6 +131,33 @@ async function readFileBase64(file: File): Promise<string> {
   });
 }
 
+/** UPLOAD-SHRINK-1: the shrink module (and, behind it, pdf.js) is fetched only when a picked PDF is over the upload
+ *  ceiling: any other PDF never downloads any of it. */
+async function defaultShrink(
+  file: File,
+  onProgress: (done: number, total: number) => void,
+  signal: AbortSignal,
+): Promise<File> {
+  // D223: only a file the server would refuse is ever shrunk, so a PDF at or under the ceiling must not even fetch the module.
+  if (file.size <= MAX_UPLOAD_PDF_BYTES) return file;
+  const { shrinkPdf } = await import("../../services/shrinkPdf");
+  const { trackUxEvent } = await import("../../services/uxTelemetry");
+  const { file: out } = await shrinkPdf(file, {
+    onProgress,
+    signal,
+    onReport: (r) => {
+      trackUxEvent(r.outcome === "timeout" ? "shrink_timeout" : "pdf_shrink", "upload", {
+        outcome: r.outcome,
+        before: r.beforeBytes,
+        after: r.afterBytes,
+        pages: r.pages,
+        ms: r.ms,
+      });
+    },
+  });
+  return out;
+}
+
 async function defaultAssemble(pages: PdfPageInput[]): Promise<AssembledPdf> {
   // The module (and with it jspdf) is fetched only when a SECOND page exists.
   const { assemblePagesPdf } = await import("../../services/assemblePagesPdf");
@@ -149,6 +182,11 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
   const [assembling, setAssembling] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [assemblyNote, setAssemblyNote] = useState<string | null>(null);
+  /** "Optimising your PDF for upload… page n of N" while a big scanned PDF is being shrunk (UPLOAD-SHRINK-1). */
+  const [optimiseNote, setOptimiseNote] = useState<string | null>(null);
+  const shrinkSeqRef = useRef(0);
+  /** The student's "Skip — upload as it is": set while a shrink is running, null otherwise. */
+  const skipRef = useRef<(() => void) | null>(null);
   const hadPagesRef = useRef(false);
   const generationRef = useRef(0);
   const mountedRef = useRef(true);
@@ -178,7 +216,44 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
   );
 
   /** Send a file through the guard UNCHANGED — a PDF, or the honest-degrade original. */
-  const sendAsIs = useCallback(async (file: File) => {
+  const sendAsIs = useCallback(async (original: File) => {
+    let file = original;
+    if (isPdf(original)) {
+      // UPLOAD-SHRINK-1: a big SCANNED PDF is shrunk on the device first; anything else (small, typed, a failure)
+      // comes back as the very same file, and the guard below runs on whatever will actually be sent.
+      const seq = (shrinkSeqRef.current += 1);
+      // A second pick while a shrink runs: stop the first one (its result is ignored by the seq check), never two renders at once.
+      skipRef.current?.();
+      const ctl = new AbortController();
+      // The student is always in control: "Skip" resolves THIS promise at once with the original, so the upload
+      // goes ahead without waiting for a page that pdf.js is still drawing (its late result is ignored).
+      const skipped = new Promise<File>((resolve) => {
+        skipRef.current = () => {
+          ctl.abort();
+          resolve(original);
+        };
+      });
+      try {
+        file = await Promise.race([
+          (optsRef.current.shrink ?? defaultShrink)(
+            original,
+            (done, total) => {
+              if (mountedRef.current && seq === shrinkSeqRef.current) {
+                setOptimiseNote(`Optimising your PDF for upload… page ${done} of ${total}`);
+              }
+            },
+            ctl.signal,
+          ),
+          skipped,
+        ]);
+      } catch {
+        file = original;
+      } finally {
+        if (seq === shrinkSeqRef.current) skipRef.current = null;
+        if (mountedRef.current && seq === shrinkSeqRef.current) setOptimiseNote(null);
+      }
+      if (!mountedRef.current || seq !== shrinkSeqRef.current) return;
+    }
     const check = optsRef.current.check(file);
     if (!check.ok) {
       optsRef.current.onError(check.message);
@@ -390,6 +465,10 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
     setNotice(null);
     hadPagesRef.current = false;
     generationRef.current += 1;
+    shrinkSeqRef.current += 1;
+    skipRef.current?.();
+    skipRef.current = null;
+    setOptimiseNote(null);
     setPages([]);
   }, []);
 
@@ -472,8 +551,10 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
   return {
     pages,
     cropSession,
-    busy: working || assembling,
-    notice: notice ?? assemblyNote,
+    busy: working || assembling || optimiseNote !== null,
+    optimising: optimiseNote !== null,
+    skipOptimise: () => skipRef.current?.(),
+    notice: notice ?? assemblyNote ?? optimiseNote,
     allowMultiPage,
     addFiles,
     canAddPage,
@@ -633,7 +714,7 @@ export interface PageTrayProps {
 export default function PageTray({ tray, disabled = false, inlineCrop = false }: PageTrayProps) {
   const addInputRef = useRef<HTMLInputElement>(null);
   const coarse = useCoarsePointer();
-  const { pages, cropSession, busy, notice, allowMultiPage } = tray;
+  const { pages, cropSession, busy, notice, allowMultiPage, optimising, skipOptimise } = tray;
 
   const cropStep = cropSession ? (
     <PhotoCropStep
@@ -681,8 +762,17 @@ export default function PageTray({ tray, disabled = false, inlineCrop = false }:
               document.body,
             ))}
 
-      {busy && !cropSession && pages.length === 0 && (
-        <p className="lt-pt__status" role="status">Preparing your photo…</p>
+      {busy && !cropSession && pages.length === 0 && !optimising && (
+        <p className="lt-pt__status" role="status">{notice ?? "Preparing your photo…"}</p>
+      )}
+
+      {optimising && (
+        <div className="lt-pt lt-pt__optimise" data-testid="pdf-optimise">
+          <p className="lt-pt__status" role="status">{notice}</p>
+          <button type="button" className="lt-pt__skip" onClick={skipOptimise} data-testid="pdf-optimise-skip">
+            Skip — upload as it is
+          </button>
+        </div>
       )}
 
       {pages.length > 0 && (
@@ -834,6 +924,13 @@ const PT_CSS = `
   font: 700 14px "Inter", system-ui, sans-serif; cursor: pointer;
 }
 .lt-pt__add:disabled { opacity: 0.5; cursor: default; }
+.lt-pt__optimise { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.lt-pt__optimise .lt-pt__status { margin: 0; }
+.lt-pt__skip {
+  min-height: 44px; padding: 0 14px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--pt-green); background: #fff; color: var(--pt-green-d);
+  font: 700 13px "Inter", system-ui, sans-serif;
+}
 .lt-pt__status { font-size: 12.5px; color: var(--pt-muted); margin: 8px 0 0; line-height: 1.45; }
 .lt-pt__file { display: none; }
 

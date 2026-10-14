@@ -1807,6 +1807,146 @@ test('§D43.1 ★ a chunked paper\'s page inventory is the UNION of every chunk\
   assert.deepEqual([none.results[N - 1].couldNotRead, none.results[N - 1].note], [true, grading.NOT_FOUND_ON_PAGE_NOTE]);
 });
 
+/* ══ GRADER-CONSEQUENTIAL-1 (D242) · a loss that follows from an earlier typed error carries that error's type ══
+   The owner's live paper, CI-M-POLY-03 Q4: step 2 used the wrong AP-sum formula (conceptual); steps 3 and 4
+   lost 1.5 + 0.5 only because of it but carried no type, so the scorecard said "Marks lost, reason not
+   recorded · 2 marks". Deterministic (postprocess §10); marks never change, only which bucket they sit in.
+   Both endpoints go through the ONE post-processing path, so both are asserted. */
+
+const Q4_STEPS = () => [
+  S({ description: 'Writes a, d and n', studentWork: 'a = 3, d = 5, n = 20', marksAwarded: 2, marksDeducted: 0 }),
+  S({ description: 'Applies the AP sum formula', studentWork: 'S = n(a + l)', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'conceptual', teacherAnnotation: '× Used the wrong AP-sum formula.' }),
+  S({ description: 'Substitutes into the formula', studentWork: 'S = 20(3 + 98)', status: 'incorrect', marksAwarded: 0, marksDeducted: 1.5, teacherAnnotation: '× Lost because of step 2.' }),
+  S({ description: 'States the sum', studentWork: 'S = 2020', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5, teacherAnnotation: '× Lost because of step 2.' }),
+];
+const BUCKETS = (o) => ({ ...grading.zeroLost(), ...o });
+
+test('§CONSEQ.1 ★ the owner\'s Q4: the two dependent losses (1.5 + 0.5) join the conceptual origin, on BOTH endpoints (v2); no "reason not recorded"', async () => {
+  const reply = REPLY(R(1, Q4_STEPS()));
+  const a = (await harness({ replies: [reply] }).single(single({ marks: 5, acceptsV2: true }))).body;
+  const b = (await harness({ replies: [reply] }).sheet(sheet([sq(1, { marks: 5 })], { acceptsV2: true }))).body.results[0];
+  for (const r of [a, b]) {
+    assert.equal(r.marksAwarded, 2.5, 'marks never change');
+    assert.deepEqual(r.marksLostByType, BUCKETS({ conceptual: 2.5 }), 'was { conceptual: 0.5, untyped: 2 }');
+    assert.equal(r.marksLostByType.untyped, 0, 'no "Marks lost, reason not recorded"');
+    assert.deepEqual(r.annotatedSteps.map((s) => s.consequentialOf), [undefined, undefined, 2, 2], 'both follow from step 2');
+    assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), [null, 'conceptual', null, null], 'a step\'s own type is never rewritten');
+    assert.equal(r.mistakeSummary.conceptual, 1, 'ONE conceptual mistake, not three (Mistake Intelligence counts the error once)');
+    assert.equal(lostSum(r.marksLostByType), r.totalMarks - r.marksAwarded);
+  }
+  assert.deepEqual(a.annotatedSteps, b.annotatedSteps, 'single and structured agree step for step');
+  assert.deepEqual(a.marksLostByType, b.marksLostByType);
+});
+
+test('§CONSEQ.2 the legacy (non-v2) shape is untouched: no consequentialOf key, same step keys as before', async () => {
+  const r = (await harness({ replies: [REPLY(R(1, Q4_STEPS()))] }).single(single({ marks: 5 }))).body;
+  assert.equal(r.marksAwarded, 2.5);
+  assert.ok(r.annotatedSteps.every((s) => !('consequentialOf' in s)), 'legacy clients never see the new field');
+  assert.equal(r.marksLostByType, undefined, 'legacy has no marksLostByType at all');
+});
+
+test('§CONSEQ.3 CONTROL: a question with NO typed step anywhere stays honestly untyped (rare, honest)', async () => {
+  const steps = [
+    S({ description: 'Setup', marksAwarded: 2, marksDeducted: 0 }),
+    S({ description: 'Working', status: 'incorrect', marksAwarded: 0, marksDeducted: 1.5 }),
+    S({ description: 'Answer', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5 }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 4, acceptsV2: true }))).body;
+  assert.deepEqual(r.marksLostByType, BUCKETS({ untyped: 2 }));
+  assert.ok(r.annotatedSteps.every((s) => s.consequentialOf === undefined));
+});
+
+test('§CONSEQ.4 CONTROL: an error in part (i) never types an untyped loss in part (ii) (the nearest earlier step of the SAME part)', async () => {
+  const steps = [
+    S({ part: '(i)', description: 'Formula', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'calculation' }),
+    S({ part: '(ii)', description: 'Different part', status: 'incorrect', marksAwarded: 0, marksDeducted: 1 }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 2, acceptsV2: true }))).body;
+  assert.deepEqual(r.marksLostByType, BUCKETS({ calculation: 0.5, untyped: 1 }));
+  assert.ok(r.annotatedSteps.every((s) => s.consequentialOf === undefined));
+});
+
+test('§CONSEQ.5 CONTROL: ECF-credited steps are untouched (CBSE 11: a silly slip is carried forward, so the later steps keep their marks and are never "consequential")', async () => {
+  const steps = [
+    S({ description: 'A slip', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'silly' }),
+    S({ description: 'Carried on correctly', marksAwarded: 1, marksDeducted: 0 }),
+    S({ description: 'And on', marksAwarded: 1, marksDeducted: 0 }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  assert.equal(r.marksAwarded, 2.5);
+  assert.deepEqual(r.annotatedSteps.map((x) => x.marksAwarded), [0.5, 1, 1]);
+  assert.ok(r.annotatedSteps.every((x) => x.consequentialOf === undefined), 'a credited step is never marked consequential');
+  assert.deepEqual(r.marksLostByType, BUCKETS({ silly: 0.5 }));
+});
+
+test('§CONSEQ.5b the origin is the NEAREST EARLIER typed step of the part: step 4 follows step 3, not step 1', async () => {
+  const steps = [
+    S({ description: 'First error', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'conceptual' }),
+    S({ description: 'Follows the first', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5 }),
+    S({ description: 'Second error', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'conceptual' }),
+    S({ description: 'Follows the second', status: 'incorrect', marksAwarded: 0, marksDeducted: 1 }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 4, acceptsV2: true }))).body;
+  assert.deepEqual(r.annotatedSteps.map((x) => x.consequentialOf), [undefined, 1, undefined, 3]);
+  assert.deepEqual(r.marksLostByType, BUCKETS({ conceptual: 3 }));
+  assert.equal(r.mistakeSummary.conceptual, 2, 'the two ERRORS are counted, not the four losses');
+});
+
+test('§CONSEQ.6 CONTROL: an objective question is unchanged (0 or full on the answer alone; type from the answer, never from steps)', async () => {
+  const wrong = REPLY(R(1, [S({ description: 'Picks an option', studentWork: 'TTWW', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual' })]));
+  const r = (await harness({ replies: [wrong] }).sheet(sheet([MCQ({ textAnswer: 'TTWW' })], { acceptsV2: true }))).body.results[0];
+  assert.equal(r.marksAwarded, 0);
+  assert.equal(lostSum(r.marksLostByType), 1);
+  assert.ok(r.annotatedSteps.every((s) => s.consequentialOf === undefined), 'objective: no consequential attribution');
+});
+
+test('§CONSEQ.7 the ledger always sums to the loss, and a remainder the model did not itemise lands on a typed step, not "reason not recorded"', async () => {
+  const one = [
+    S({ description: 'A', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'conceptual' }),
+    S({ description: 'B', marksAwarded: 1, marksDeducted: 0 }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, one))] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  assert.equal(lostSum(r.marksLostByType), r.totalMarks - r.marksAwarded);
+  assert.deepEqual(r.marksLostByType, BUCKETS({ conceptual: 1.5 }));
+});
+
+test('§CONSEQ.8 CONTROL: a PRESENTATION step is never an origin - later untyped losses are not filed as presentation (A17 ruling B cap, CLAUDE.md 13)', async () => {
+  const steps = [
+    S({ description: 'Format slip', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', studentWork: 'x = 5' }),
+    S({ description: 'Later loss', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, studentWork: 'y = 7' }),
+    S({ description: 'Another later loss', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, studentWork: 'z = 9' }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  assert.ok(r.annotatedSteps.every((x) => x.consequentialOf === undefined), 'nothing follows from a format slip');
+  assert.ok(r.marksLostByType.presentation <= 1, 'the exam-technique cap still holds: ' + JSON.stringify(r.marksLostByType));
+  assert.equal(lostSum(r.marksLostByType), r.totalMarks - r.marksAwarded);
+  // the same later losses DO follow a conceptual error
+  const typed = [{ ...steps[0], mistakeType: 'conceptual' }, steps[1], steps[2]];
+  const t2 = (await harness({ replies: [REPLY(R(1, typed))] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  assert.deepEqual(t2.annotatedSteps.map((x) => x.consequentialOf), [undefined, 1, 1]);
+  assert.equal(t2.marksLostByType.untyped, 0);
+});
+
+test('§CONSEQ.9 (D248) a `missing` step inherits ONLY if no fully-credited step lies between it and the origin; lost working steps keep the nearest-earlier rule', async () => {
+  const origin = S({ description: 'Wrong method', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'conceptual' });
+  const credited = S({ description: 'Correct working', marksAwarded: 1, marksDeducted: 0 });
+  const omitted = S({ description: 'Omitted line', studentWork: '', status: 'missing', marksAwarded: 0, marksDeducted: 1 });
+  const lostWorking = S({ description: 'Lost working', status: 'incorrect', marksAwarded: 0, marksDeducted: 1 });
+  const run = async (steps) => (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  // [error][correct][omitted]: a separate loss - NOT consequential
+  const a = await run([origin, credited, omitted]);
+  assert.equal(a.annotatedSteps[2].consequentialOf, undefined);
+  assert.equal(a.marksLostByType.untyped, 1, 'stays untyped (honest), not filed under conceptual');
+  // CONTROL: [error][omitted] with nothing credited between: consequential
+  const b = await run([origin, S({ ...omitted, marksDeducted: 1 })]);
+  assert.equal(b.annotatedSteps[1].consequentialOf, 1);
+  assert.equal(b.marksLostByType.untyped, 0);
+  // CONTROL: ordinary lost working after correct working still follows the error (consequential error carries through working)
+  const c = await run([origin, credited, lostWorking]);
+  assert.equal(c.annotatedSteps[2].consequentialOf, 1);
+  assert.equal(c.marksLostByType.untyped, 0);
+});
+
 /* ══ A17 OWNER RULINGS 1-5 ON EVERY GRADING SURFACE (GRADING-JOBS-1 J0) ══════════════
    The per-surface proofs live beside this file; loading them here runs them in CI under
    test:server:grading-core (package.json is outside the J0 lane). */

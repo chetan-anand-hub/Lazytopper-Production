@@ -13,11 +13,7 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "2310 cm³" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-E06", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The slant height of a cone with radius r and height h is:", options: ["√(r²+h²)", "r+h", "√(r²−h²)", "rh"], answer: "√(r²+h²)", explanation: "The correct answer is √(r²+h²). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "√(r²+h²)" , isCompetencyBased: false,
     solutionSteps: [
-      "Let V1, V2 be the volumes, r1, r2 be the radii, and h1, h2 be the heights of the two cones.",
-      "Given V1/V2 = 1/4 and r1/r2 = 4/5. The formula for the volume of a cone is V = (1/3)πr^2h.",
-      "So, V1/V2 = [(1/3)πr1^2h1] / [(1/3)πr2^2h2] = (r1/r2)^2 * (h1/h2).",
-      "Substitute the given ratios: 1/4 = (4/5)^2 * (h1/h2) => 1/4 = (16/25) * (h1/h2).",
-      "Solve for h1/h2: h1/h2 = (1/4) * (25/16) = 25/64. Thus, the ratio of their heights is 25:64.",
+      "[1 mark] Option (a) sqrt(r^2 + h^2) is correct: the radius, height and slant height form a right triangle with the slant height as hypotenuse, so l^2 = r^2 + h^2 by Pythagoras.",
     ],
   },
   { id: "SAV-E07", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The volume of a hemisphere of radius 7 cm is 718.67 cm³.\nReason (R): Volume of hemisphere = (2/3)πr³.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["V = (2/3)(22/7)(343) = 718.67 ✓"], finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true },
@@ -30,10 +26,7 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
   { id: "SAV-E09", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "A sphere of radius 3 cm is melted to form a cylinder of radius 3 cm. The height of the cylinder is:", options: ["4 cm", "3 cm", "2 cm", "6 cm"], answer: "4 cm", explanation: "(4/3)π(27) = π(9)h → h = 4. Therefore, the correct answer is 4 cm.", solutionSteps: ["(4/3)π(27) = π(9)h → h = 4"], finalAnswer: "4 cm" , isCompetencyBased: true },
   { id: "SAV-E10", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The CSA of a sphere of radius r is:", options: ["4πr²", "2πr²", "πr²", "3πr²"], answer: "4πr²", explanation: "The correct answer is 4πr². This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "4πr²" , isCompetencyBased: false,
     solutionSteps: [
-      "Let the original radius of the sphere be 'r'. Its original volume V1 = (4/3)πr^3.",
-      "If the radius is doubled, the new radius becomes '2r'.",
-      "The new volume V2 = (4/3)π(2r)^3 = (4/3)π(8r^3) = 8 * (4/3)πr^3.",
-      "Therefore, V2 = 8 * V1. The ratio of its new volume to its original volume is V2/V1 = 8/1.",
+      "[1 mark] Option (a) 4*pi*r^2 is correct: the curved (whole) surface area of a sphere of radius r is 4*pi*r^2 (NCERT formula); 2*pi*r^2 is the CSA of a hemisphere only.",
     ],
   },
   { id: "SAV-E11", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the volume and surface area of a sphere of diameter 14 cm.", solutionSteps: [

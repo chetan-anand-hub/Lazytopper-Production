@@ -25,6 +25,7 @@ import {
   type MistakeTypeCounts,
 } from "../../lib/mistakeDisplay";
 import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
+import { StepAnnotation } from "../results/StepAnnotation";
 import type {
   CheckSolutionAnnotatedStep,
   CheckSolutionMistakeSummary,
@@ -357,7 +358,7 @@ export function CheckImproveGradedPrintDoc({
                           <div className="lt-cigp__stwork"><MathText text={s.studentWork} /></div>
                         )}
                         {s.teacherAnnotation && (
-                          <div className="lt-cigp__stann">↳ <MathText text={s.teacherAnnotation} /></div>
+                          <StepAnnotation tone={sd.tone} consequentialOf={s.consequentialOf} className="lt-cigp__stann"><MathText text={s.teacherAnnotation} /></StepAnnotation>
                         )}
                         {s.correctedWorking && (
                           <div className="lt-cigp__stfix">✓ <MathText text={s.correctedWorking} /></div>

@@ -1,5 +1,49 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-14 · BANK-STEPS-1 REPAIR (D, B) + GARBLE-1 PAUSE / REWRITE (A, A2) + MATH-RENDER-1/1b/2/3 (D, A2, D2)] `#1142` `#1143` `#1144` `#1145` `#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164` MERGED — repaired questions are served again, wrong or garbled ones are withheld, and maths shorthand in questions and in grader feedback renders as maths
+
+*(Adds to the blocks below, which stay current for everything this block does not name. Written by A2 under §10 (D243 §1) from `#973` (D178, D179, D184–D186, D188, D189, D191–D194, D197, D203, D206, D209, D218–D244), `COORD\D-STATE.md`, `D2-STATE.md`, `A-STATE.md`, `A2-STATE.md`, `gh pr view` and `git log`. `#1145` is lane B's PR (its body: "lane B, Science"); D243 put it in this update. No grading prompt, mark logic or server file changed in any of the 13.)*
+
+★ **TRUNK at writing:** `cdfb6fea` (`#1126`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1142` D PR-1 | `da5e3f58` | 10-13 22:12:52 | 10 Science NO-ANSWER curated rows (`curatedInline.ts`) get `answer`/`finalAnswer` restated from their own final step; ledger `found → repaired`; rows were already served |
+| `#1143` D PR-2 | `db47f8b8` | 10-13 22:32:46 | 9 Maths NO-ANSWER curated rows, the same way; each result re-derived by hand from the stem. `2026-STAT-SA-03` excluded (f = 25/3, unsolvable as printed) |
+| `#1144` D PR-3 | `9670e9b5` | 10-13 23:34:31 | 19 paused Maths MCQ / A-R rows whose steps belonged to another question get one justified step for their OWN stem (§13 Section A) and are served again; keys unchanged (all 19 blind solves agreed); SAV2-R18's `PAUSED_LABELS` entry dropped |
+| `#1146` A wrong-content PAUSE | `21f89c6e` | 10-14 00:13:12 | 5 `SCQ-S-*` rows with wrong or garbled answers (CHEM-033, METAL-036, CARB-032, ENV-037, CARB-036) withheld; ledger `paused` (D186: not `dropped`) |
+| `#1149` A `#1146b` | `76338343` | 10-14 01:04:44 | the 19 FIND-3 WRONG `SCQ-S-*` rows withheld in the `BANK-STEPS-1 PAUSE` block (17 new `WRONG-CONTENT` + 2 SINGLE-STEP flipped); the 34 UNSURE + 3 lost-arrow rows ledger-only `found / TEXT-FAULT`, still served (26 new entries; 11 were already ledgered SINGLE-STEP and are not duplicated); verdicts `WRONG-CONTENT`, `TEXT-FAULT` added |
+| `#1145` B REPAIR PR-3 | `aecac294` | 10-14 01:56:52 | 53 paused Science rows (carbon, life processes, heredity, human eye + CARB-E07, CR-M04, ABS-E06) get new steps from their own stem and key and are served again; CR-M04 and ABS-E06 keys changed to option (b) per D170 |
+| `#1150` D MATH-RENDER-1 | `fdf48353` | 10-14 02:06:10 | `MathText.tsx` promotes `sqrt(..)`, `x^(n-1)`, `x^{2}`, `10^-8`, `a_n`, `>= <= != =>`, bare `theta`, guarded `pi` and `*` (display only); `$…$` NOT promoted (D189) |
+| `#1153` A2 METAL PAUSE | `9cee824d` | 10-14 02:18:35 | `SCQ-S-METAL-040` and `-041` (stems start with the previous answer's text) withheld; ledger `TEXT-FAULT/found → WRONG-CONTENT/paused` (D197) |
+| `#1155` D MATH-RENDER-1b | `2234c5da` | 10-14 02:41:10 | `MathText` renders a non-string value as text instead of throwing (D203 condition 1 for `#1152`) |
+| `#1156` A2 REWRITE-1 | `d826beb8` | 10-14 03:26:59 | `PYQ-M-2024-TRIG-018` (30/4/1 Q26) and `-020` (30/5/1 Q29) stems rewritten, 3 `[1 mark]` steps each, served again; `TRIG-014` stays paused; "Trigonometric Identity Proofs" `PAUSED_LABELS` entry removed |
+| `#1152` MATH-RENDER-2 (D's, merged by A2, D221) | `d6fb22a0` | 10-14 05:12:44 | grader feedback strings (verdict, lostDetail, teacherNote, summary, Examiner notes, Exam tip, "Where you lost marks") render through `MathText` in 8 product files, incl. both graded print docs |
+| `#1162` D2 MATH-RENDER-3 | `660258d2` | 10-14 06:18:25 | word subscripts `X_yyy` (one capital + 2–9 lowercase letters) render as upright subscripts (`V_cyl`, `R_eq`); a doubled-letter subscript (`R_yy`, genotype notation) is left as written (D225) |
+| `#1164` A2 REWRITE-2 | `79b3f32f` | 10-14 06:50:22 | `PYQ-M-2024-QE-002`, `-004b`, `-006a` stems restored (x² and ≠ were flattened) and served again; keys unchanged; `QE-005a` and `QE-001` stay paused |
+
+- **Where a bank change reaches.** A withhold or un-withhold reaches Worksheet, Chapter Test, Full Mock and Quick Practice (`#1145` body; the BANK-STEPS-1 block below records the single withhold point). `#1142`/`#1143` change only the stored model answer of rows that were already served.
+- **Served-row counts, as each source quotes them (read them off a run, do not copy):** `#1144` 10,281 → 10,300; `#1146` body 10,281 → 10,276 but its LIVE post 10,300 → 10,295 (the body predates the reopen and trunk merge-in; the body also still says "their SINGLE-STEP ledger entries become `dropped`", while the D186 fix at `e0dc286b`, in the approved head `8a6f5911`, made them `paused`); `#1149` 10,295 → 10,276; after `#1145` "10,329 served" (D203); `#1156` 10,327 → 10,329; `#1164` 10,380 → 10,383 "at the PR's base".
+- **MATH-RENDER is display only** and cannot change a mark. `#1150` census: 574 fields in 191 rows changed, 0 of 76,563 non-target fields changed. `#1162` census (body and D228): 66 fields in 35 rows, 0 non-target, 0 heredity genotype fields; its PR **title** still says "census 36 fields / 22 rows" (the earlier `{2,4}` run), the body and D228 say 66 / 35.
+- **Six grading surfaces (§4a):** `#1152` names C&I single + multi (`DesktopCheckImprovePage`, graded PDF), Worksheet (preview, grade panel, graded PDF), Chapter Test / Full Mock / Quick Practice (`ResultsScorecard`, `PracticeQuestionCard`, `SolutionChecker`). No server, prompt, data or mark logic touched.
+- **Live-verify.** Each PR has a LIVE post on `#973` quoting cold reads of www `/version.json` at its merge SHA (read the count off each post). No controller drew a repaired or withheld row on a deployed surface: `#1153`, `#1156`, `#1152` and `#1164` are recorded **PARTIAL** because the controller cannot sign in and an owner / human draw is owed; the LIVE posts of `#1142`, `#1143`, `#1146` and `#1149` record the live structured-surface draw as not measured (the `#1144` and `#1145` posts were not checked for that statement by this block); `#1150` and `#1162` list owner eye-checks; `#1155` (a guard line) names none. **D236 §3 (owner, 14:02 IST): "Owner eye-checks for #1152, #1162, #1160 and #1164: PASSED".** `D2-STATE.md`'s 08:40Z update still lists the `#1162` eye-checks as owed; the two sources disagree and this block does not pick.
+- **`#1135`** (GARBLE-1 FIND-2 pause, 35 ids) is NOT in this update's list but has merged: `8742eb45`, 10-13 21:51:58Z (LIVE post on `#973`; `A-STATE.md` §6). The BANK-STEPS-1 block below lists it as "not yet merged"; that was true at `f713f558`.
+- **Still withheld from A's pauses (`A2-STATE.md`):** `TRIG-014`, `2024-QE-001`, `2024-QE-005a` (REWRITE-4 branch, approved D241, not merged), the other FIND-2 rows, the 5 + 19 wrong-content rows, `METAL-040/041`. `2026-STAT-SA-03` stays `dropped` (authored template, no printed source).
+- **Owner-visible:** nothing new to do beyond the draws above.
+
+## [CURRENT · 2026-10-14 · FU-SAVE-SYNC-QUOTA] `#1168` MERGED — the outbox is capped and a result that cannot be queued is never silent
+
+*(Adds to the blocks below. Written by C2 under §10 from `#973` (D206, D231, D234), `gh pr view` and `git log`.)*
+
+★ **TRUNK at writing:** `85cdc8a9` (`#1168`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1168` FU-SAVE-SYNC-QUOTA | `85cdc8a9` | 10-14 08:24:35 | outbox cap (1,000,000 chars / 500 entries; oldest `record` bodies stripped, never per-question or the new entry's body); `unpersisted` results keep `beforeunload` armed and show the `keep-open` / `device-only-manual` lines (D234 copy); `gradedAt` stamp guards the mirror fallback; toast CSS in `SaveStatusToast.css` |
+
+- **Six grading surfaces:** persistence + status line only; no grading behaviour changed.
+- **Owed (owner, later):** the SAVE-SYNC-1 round-trip (offline grade → device-only line → online → saved → second device; offline grade + close tab + reopen). The storage-full path is covered by tests only.
+
 ## [CURRENT · 2026-10-14 · NOTES-FORMULA-3a] `#1160` MERGED (+ docs `#1161`) — notes pages have a "Formulae & Tricks" tab (when tricks exist), stable anchors that open the tab, and the optional shortcuts/id/heading/tip schema
 
 *(Adds to the blocks below, which stay current for everything this block does not name. Written by C2 under §10 from `#973` (D208, D221, D228), `gh pr view` and `git log`.)*

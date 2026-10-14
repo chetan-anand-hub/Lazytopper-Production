@@ -1,3 +1,72 @@
+## 2026-10-14 (D217–D244) — BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER (DECISIONS AS THEY BEAR ON IT; RECORDED BY A2 UNDER §10)
+
+> ⚠ **SCOPE.** D243 §1 asks `DECISION_LOG.md` to record D217–D243 with their reasons. This table records those of D217–D244 that bear on the D, D2, A and A2 lanes and on `#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`. Decisions that concern only another lane (C2's notes and saving work, E's formula content, G's NCERT page, C1b's upload shrink, B2's own repair PRs) are left to those lanes' §10, except the follow-ups D243 lists. Where a decision gives no reason, the cell says so. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **218** | After B2's `#1157` is LIVE: D's `#1152`, then A2 REWRITE-2 | D was at ~74% context: "merge then hand over" |
+| **221** | `#1152` (approved D203/D206) is transferred to A2: `update-branch`, prove the 9 lane files byte-identical to `dfdc6355` (trunk's `MathText.tsx` + test excluded), CI, MERGE-SLOT, LIVE, before REWRITE-2. MATH-RENDER-3 waits for a fresh D2 | HANDOVER D accepted; D162: the healthiest controller takes it |
+| **222** | A2 to ACK D221 now; D closed, D2 takes MATH-RENDER-3; every controller heartbeats every 20 min, silence > 30 min counts as idle and the lane is reassigned | A2's last post was 03:38Z |
+| **223 §2** | `[FU-SYN08-HARD-SHEET]` logged; `[FU-MULTIPAGE-REAL-ANSWER]` still open (inside C1b's `#1126` ruling) | SYN-08 is a consistent 3 → 2 shift (3/3 reads), "a real loss, not noise"; a genuine multi-page answer set is needed |
+| **224** | Slot reorder: A2 takes the slot for `#1152` now; G's `#1159` after | G silent 32 min with `#1159` unmerged; "under D222 the queue does not wait" |
+| **225** | `#1162` @ `a3674635` CHANGES REQUESTED: reject a subscript that is one lowercase letter doubled; controls `R_yy`, `G_vv`, `(A_bb)`, `9 R_Y_ : 3 R_yy : 3 rrY_ : 1 rryy` stay as written; widen the capital-base form to `{2,9}`; re-census with 0 heredity genotype fields; `[FU-MATHTEXT-LOWERCASE-BASE-SUBSCRIPT]` stays open | `R_yy` in genetics means "R-blank-yy"; typesetting it as R subscript yy "would teach the notation wrong" |
+| **226** | Test rules re-issued (owner): locally only the tests for changed files + both typechecks + premise gate + `scope:guard` + `git diff --check`; CI is the gate; re-run only failed jobs, once, for a known flake; quote CI's own result lines; one-off whole-bank censuses are scripts whose output goes in the PR body. For `#1162`: move the whole-bank `it(…)` out of CI | the 78k-field jsdom census with a 120 s timeout "adds minutes to every CI run forever" |
+| **227** | `#1152` LIVE; the owner's eye-check is owed (a graded worksheet PDF, a C&I result, a Chapter Test scorecard); look at `[FU-PDF-KATEX-FONT-TIMING]` | the owner is back ~12:35 IST |
+| **228 §2** | `#1162` @ `d93bdabe` APPROVED | the guard `^([a-z])\1+$` is correct (also covers `yyy`); re-census 66 fields / 35 rows, 0 non-target, 0 heredity; every listed token is a physical quantity; the census is out of CI (D226) |
+| **228 §3** | **Standing rule:** any step-repair PR checks `answer` / `finalAnswer` for the same flattening and fixes them in the same PR | on `#1163`, flattened `answer` text (√ lost) was "mathematically wrong text on screen" |
+| **228 §4** | D2's queue: `#1163` fix → re-pair PR for the 28 + 8 named-owner rows → text-clean PR → unknown-owner rows (66 + 17), blind-solve first, unconfirmed rows stay paused, ≤ 60 rows per PR | — (ordering; the re-pair is "the fastest restore") |
+| **229 §1** | `#1164` @ `c81097de` APPROVED; keeping `≠ −1` was right; QE-002 unchanged, `[FU-QE-002-NO-REAL-ROOTS]` logged; QE-001 / QE-005a stay paused; A2 takes the slot after C2 `#1160`, ahead of G | the cofounder re-did the maths (ratio 2 : 7; c = 3 once c ≠ −1, matching the marking scheme); the extraction's "¹" is the symbol-font ≠ and the marking scheme rejects −1; Vedantu is not trusted where it differs; D209 provenance met; QE-002 is CBSE's printed question; G silent since 04:59Z and `#1164` shares no file with `#1159` |
+| **230** | Order: A2 `#1164` → B2 PR-5 → … ; G `#1159` takes the first free slot after G posts | G silent since 04:59Z |
+| **231** | `[FU-EL-EXPLANATION-FILLER]` and `[FU-MATHS-FINALANSWER-WORKING]` logged; **the `syllabus2026-27.ts` owner rulings bind as much as `syllabusGuard.ts`**; every content lane checks both | E's syllabus catch: removals under R1, R5, R6 and ruling 1 (stating the Pythagoras converse) were correct |
+| **232** | **Standing rule: bank / shared-artifact PRs open only at their slot**; D2 closes `#1163` / `#1167` and reopens as new PRs at its slot (approvals carry if lane files are byte-identical); A2 takes over the `#1159` merge | `#1169` was red on `lane-overlap` against early-opened `#1163`/`#1167` and `#1159`: a deadlock |
+| **233 §2** | A2 REWRITE-3 @ `ab8f7a78` APPROVED once CG-003 step 2 stops citing the converse of Pythagoras (exact replacement text given); SHOULD: tidy STAT-008's `answer` | all four keys re-derived; owner ruling 1: stating Pythagoras or its converse is OUT |
+| **234** | `#1159` closed by the cofounder; A2 to post a heartbeat or HANDOVER | A2 had not acted after 45 min and the queue was blocked; A2 silent since 07:25Z |
+| **235** | G holds slot 3 (A2 leaves `feat/growth-ncert-books-1` alone); REWRITE-3 @ `6533ce78` approved; **A2: SOURCE-HUNT-1 scout** (a readable second source for the 18 still-withheld FIND-2 Maths rows, edit nothing); D2 rewords 4 converse rows + 3 A/R stems in text-clean; the 58 Pythagoras tool citations stay | "parallel work so nobody idles"; ruling 1 covers stating or proving, not numeric use |
+| **236** | Owner: Pythagoras confirms D235; **"Owner eye-checks for #1152, #1162, #1160 and #1164: PASSED"** | owner rulings 14:02 IST |
+| **237** | D2's two approved, slot-ready branches go to A2 (new PRs at the slot, byte-identical proof); the TEXT-CLEAN branch and the 83 unknown-owner rows go to a fresh D3 | HANDOVER D2; D162: healthiest; A2 already waits in the slot queue |
+| **238** | `[FU-SCI-STEM-GARBLE-3]` logged (CHEM-034, ENV-034, ENV-035) | for a later stem-garble lane, not B2's PR-6 |
+| **239** | **The official CBSE board-paper ZIPs (cbse.gov.in) are the primary source for every FIND-2 rewrite**, replacing the Vedantu reproductions; plan REWRITE-4 for the 18 still-withheld rows (verbatim stems, provenance naming ZIP and file); re-check REWRITE-2/-3 stems against the official PDFs, report only | A2's SOURCE-HUNT-1 find ("excellent find") |
+| **241** | A2 REWRITE-4 @ `df61dcfb` APPROVED; optional: unify −/– in QE-005a `answer`; `[FU-SUBTOPIC-TAGS-REWRITE4]` for a later lane | an independent Opus review downloaded the official ZIP and matched every stem against the printed page; the label change needs a concept-map check |
+| **242 §1** | `[FU-PDF-ARROW-GLYPH]`: replace `↳` with an inline SVG arrow in the two graded print docs and `DesktopCheckImprovePage`, inside B2's GRADER-CONSEQUENTIAL-1 | `↳` prints as "Ⅰ," because the html2canvas capture font has no glyph for it; the owner wants it prominent |
+| **243** | §10 docs are behind; A2 writes one combined docs PR for these 13 PRs; every follow-up gets its own heading; `[FU-PDF-KATEX-FONT-TIMING]` recorded as closed; the Science bank backlog has no owner | the last §10 entries covered only C2's lanes; "the owner's graded PDF shows KaTeX glyphs rendered" |
+| **244** | SCI-BACKLOG-1 goes to A2 (B2 stays on GRADER-CONSEQUENTIAL-1): WRONG-CONTENT rows first, "correct, don't discard"; source order official CBSE ZIPs → NCERT 2026-27 body → SQP / marking schemes; at ≤ ~35% context, do the docs PR and merges and hand over to a fresh F | owner 14:54 IST; A2's remaining slot items are merges of approved branches, "so you have the capacity" |
+| **A2 (no D)** | `#1152` merged only after proving the 9 lane files byte-identical to `dfdc6355` and the PR diff against trunk equal to those 9 files | an approval covers the approved bytes, not a later head (D221 recipe) |
+| **A2 (no D)** | Each `#1156` / `#1164` row says in its provenance comment that a Vedantu reproduction was used | the official PDFs were not reachable to A2 at the time; D209 asked for the source "as written" |
+
+## 2026-10-13 / 14 (D178–D216) — THE SAME LANES, EARLIER RULINGS (RECORDED BY A2 UNDER §10)
+
+> ⚠ **SCOPE.** The approvals and rulings that shaped the same 13 PRs before D217. A's `#1138` block below stops at D171.
+
+| D | decision | the reason given |
+|---|---|---|
+| **178 §1–2** | `#1142` APPROVED at `440efea9`; ENV-037 and CARB-036 join A's wrong-content PAUSE with CHEM-033, METAL-036, CARB-032; B's other 11 single-step rows stay served until the source is found | all 10 answers are correct science traced to the row's own steps; "38 ATP" is beyond NCERT Class 10, keep answers to NCERT content (§13) |
+| **179 §1–2** | `#1143` APPROVED at `7dd0cd06`; A opens the wrong-content PAUSE PR, then FIND-3: a correctness pass over every served `SCQ-S-*` / `SCQ-M-*` row with an Opus judge plus a blind solve | the 9 results check out and the blind solves agree; B found 5 scientifically WRONG rows in the `SCQ-S-*` booklet set, so it needs correctness, not just readability |
+| **184** | `#1144` APPROVED at `2e281a01`; CIR-M09's soft A-R key logged for a FIND-3-style pass | 11 of 19 steps byte-read; each answers its OWN stem; keys unchanged |
+| **185** | `#1145` content APPROVED at `445ce210`; merge after `#1144`, no force-push, repair rows byte-identical to `445ce210` | D170 honoured for CR-M04 / ABS-E06; ~20 steps spot-read; no Evolution sub-topic introduced |
+| **186** | `#1146`: ledger `dropped` → `paused`; delete the self-contradicting evidence sentence; A owns the rewrite of these 5 + the 38 GARBLE-1 rows | owner ruling "correct the questions, don't discard them": `dropped` would tell every reader nobody will fix them |
+| **188** | Fold the FIND-3 19 WRONG into the pause; the 34 UNSURE stay served as `found` / text-fault; rewrites go `paused → repaired` only after a blind re-solve | the 19 are served to students now; the UNSURE faults are text, the science is right |
+| **189** | `#1146` APPROVED at `8a6f5911`; open `#1146b` (became `#1149`) right after, ahead of `#1145`; MATH-RENDER option (i): PR-1 widen `MathText` with a whole-bank census gate, PR-2 wrap the feedback call sites; no `$…$` promotion; no prompt change | wrong content outranks repairs; display-only cannot change a mark; the `$` rows are a PDF-extraction defect |
+| **191** | A writes `A-STATE.md` and finishes only `#1146` + `#1146b`; the rewrite lane moves to a fresh A2 | A past the 60% context checkpoint |
+| **192** | `#1149` APPROVED at `ab1afb6e`; HERED-026 / HERED-040 stay paused | each of the 19 is a real student-facing defect; "pausing is the safe direction" |
+| **193** | A2: CLAIM / HEARTBEAT / AUDIT-REQUEST / RESULT need no further confirmation; **TRIG-014 ships only if verbatim from the official CBSE 2024 paper (paper, set, question number, quoted line) and a blind re-solve matches**; `#1150` approved on the verifier's PASS plus a gap list for the ~85 unchanged targets | "never ship an inferred stem"; a gap must be accounted for, not lost |
+| **197** | METAL-040 / -041: PAUSE, A2's first PR, ahead of REWRITE-1 | same garbled-stem defect as the withheld LIFE-030/042, and they are served now |
+| **203** | `#1150` FULLY APPROVED; multi-letter subscripts become MATH-RENDER-3 (`[FU-MATHTEXT-MULTILETTER-SUBSCRIPT]` until then); `#1152` approved on two conditions (null guard; `[FU-PDF-KATEX-FONT-TIMING]` posted first); `#1153` APPROVED; order `#1150` → `#1153` → `#1152` | the gap list closes D193; MATH-RENDER-3 needs its own census gate; the owner's PDF eye-check is the live-verify |
+| **206** | `#1155` APPROVED | one guard line: every string comes back identical, a non-string renders as text; closes D203 condition 1 |
+| **209** | `#1156` APPROVED at `bb0fab90`: **a reconstruction ships when the row's own original key, a second source and a correct proof agree**, with that source written in the row's provenance comment; TRIG-014 stays on the cannot-fix list; `[FU-TRIG-IDENTITY-SUBTOPIC-LABEL]` accepted | the rows' own original answers already end "= 1 sec θ−tan θ = R.H.S" and "= 1 + sec A cosec A = RHS", so only the stem's symbols were in doubt; a third-party reproduction of 30/4/1 Q26 and 30/5/1 Q29; both identities true (the cofounder checked the algebra) |
+
+## 2026-10-14 — FU-SAVE-SYNC-QUOTA (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1168`, plus C2's own decisions, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **206** | `[FU-SAVE-SYNC-QUOTA]` is priority next for whoever touches saving; add `[FU-SAVESTATUS-INLINE-STYLE]` | a closed tab loses a result when the outbox write hits the quota; §7 says no inline styling |
+| **231 / 234** | `#1168` approved WITH a copy condition: `keepOpen` / `deviceOnlyManual` must not start "Saved on this device" (the unpersisted path is exactly when storage refused the write); exact strings given; "you logged it as a follow-up, but it is a condition" | the line must not claim a copy that may not exist |
+| **C2 (no D)** | Never strip the NEW entry's body, only OLDER `record` bodies; per-question bodies are never stripped | under a real quota failure the mirror write fails too, so an ids-only stand-in later settles as "no copy": a silent loss (verifier round 1) |
+| **C2 (no D)** | A body-less entry re-sends from the mirror only if `gradedAt` matches; the stamp is kept through every re-write | the cloud-wins read can put an older grade back; re-sending it stamped with the new queued time would overwrite a re-grade (verifier round 2) |
+| **C2 (no D)** | A graded result whose copy is gone (`no-local-copy`) is surfaced (manual line), not settled quietly | a quiet settle is a silent loss |
+| **C2 (no D)** | `+5` lines in `resendOutboxEntry` (`sessionRecords.ts`) despite the claim saying I would not touch it | the `gradedAt` guard lives where the mirror fallback is read; outside the additive-only frozen set; the 3 ops gates exit 0 |
+
 ## 2026-10-14 — NOTES-FORMULA-3a / PERF-3a (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1160` `#1161` and PERF-3a, plus C2's own decisions, with reasons. Read the numbered posts on `#973` for the full text.
