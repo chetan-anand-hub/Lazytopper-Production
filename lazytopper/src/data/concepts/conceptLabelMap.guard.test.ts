@@ -78,9 +78,7 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 const MIN_MAPPED_LABELS = 1850;
 /** Labels whose every row is paused by BANK-STEPS-1: allowed to be mapped while served by nothing. Pinned both ways in the tests below. */
 const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
-  // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3, 71 more paused rows): every row of these four mapped labels is now paused (same D143 shape).
-  { chapter: "polynomials", label: "Degree of Polynomial" },
-  { chapter: "surface-areas-and-volumes", label: "Total Surface Area" },
+  // 14 Oct MATHS-UNKNOWN-OWNER-1 PR B (D3): PL2-R14 and SAV2-R16 serve again, so "Degree of Polynomial" and "Total Surface Area" have carriers and leave this list.
   // 17 Oct WITHHOLD-TRI-GDR-1 (#1222): the label's only row, LIGHT-EXMPLR-9-LA-002, is paused (object at F: NCERT 2026-27 Table 9.4
   // "Image would not be formed"). Its repair PR serves the row again and drops this entry.
   { chapter: "light-reflection-and-refraction", label: "Convex Lens — All Object Positions" },
@@ -238,9 +236,9 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
   });
 
   it("a paused label that is served again is RED (paused-but-served): the cue to remove it from PAUSED_LABELS", () => {
-    const s = new Map([...SERVED].map(([k, v]) => [k, new Map(v)]));
-    s.get("polynomials")!.set("Degree of Polynomial", 1);
-    expect(auditMap(s, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED).map((p) => p.kind)).toEqual(["paused-but-served"]);
+    // The control supplies its own paused entry for a label the served bank carries (PAUSED_LABELS holds no served label).
+    const paused = [{ chapter: "polynomials", label: "Degree of Polynomial" }];
+    expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED, paused).map((p) => p.kind)).toEqual(["paused-but-served"]);
   });
 
   const clone = (s: Served): Served => new Map([...s].map(([k, v]) => [k, new Map(v)]));

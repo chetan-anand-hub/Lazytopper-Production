@@ -1018,12 +1018,9 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 7.1, Ex 7.2"
   },
-  { id: "CG2-049", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between the points (a, 0) and (0, b) is:", options: ["√(a²+b²)","a+b","|a−b|","√(a²−b²)"], answer: "√(a²+b²)", explanation: "The correct answer is √(a²+b²). d = √((a−0)²+(0−b)²) = √(a²+b²).", finalAnswer: "d = √((a−0)²+(0−b)²) = √(a²+b²).", isCompetencyBased: false,
+  { id: "CG2-049", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between the points (a, 0) and (0, b) is:", options: ["√(a²+b²)","a+b","|a−b|","√(a²−b²)"], answer: "√(a²+b²)", explanation: "The correct answer is √(a²+b²). d = √((a−0)²+(0−b)²) = √(a²+b²).", finalAnswer: "√(a² + b²)", isCompetencyBased: false,
     solutionSteps: [
-      "Identify the coordinates: (x1, y1) = (2, 3) and (x2, y2) = (4, 1).",
-      "Apply the distance formula: d = sqrt[(x2-x1)^2 + (y2-y1)^2].",
-      "Substitute values: d = sqrt[(4-2)^2 + (1-3)^2] = sqrt[2^2 + (-2)^2] = sqrt[4+4] = sqrt[8].",
-      "Simplify: d = 2sqrt(2) units. This matches option (B).",
+      "[1 mark] Distance = √[(0 − a)² + (b − 0)²] = √(a² + b²).",
     ],
   },
   { id: "CG2-050", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The point which divides the segment joining (1, 3) and (4, 6) in ratio 1:2 internally is:", options: ["(2, 4)","(3, 5)","(2.5, 4.5)","(1.5, 3.5)"], answer: "(2, 4)", explanation: "The correct answer is (2, 4). P = ((1×4+2×1)/3, (1×6+2×3)/3) = (6/3, 12/3) = (2, 4).", finalAnswer: "(2, 4)", isCompetencyBased: false,
@@ -1059,10 +1056,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
   },
   { id: "CG2-055", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The distance of the point (3, 4) from the origin is 5.\nReason (R): The distance formula between (x₁, y₁) and (x₂, y₂) is √((x₂−x₁)²+(y₂−y₁)²).", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "d = √(3²+4²) = √25 = 5. R gives the formula used to compute A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "To check Assertion (A): The distance of P(3, -4) from the origin (0, 0) is calculated using the distance formula.",
-      "Distance = sqrt((3-0)^2 + (-4-0)^2) = sqrt(3^2 + (-4)^2) = sqrt(9 + 16) = sqrt(25) = 5 units. So, Assertion (A) is true.",
-      "To check Reason (R): The distance of a point (x, y) from the origin is given by sqrt(x^2 + y^2), which is a standard formula. So, Reason (R) is true.",
-      "Since Reason (R) provides the correct formula used to verify Assertion (A), R is the correct explanation for A.",
+      "[1 mark] R states the correct distance formula; applying it to (0, 0) and (3, 4) gives √(3² + 4²) = √25 = 5, so A is true and R is the correct explanation of A.",
     ],
   },
   { id: "CG2-056", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the coordinates of the point P which divides the join of A(−1, 7) and B(4, −3) in the ratio 2:3. Also find the distance AP.", solutionSteps: [

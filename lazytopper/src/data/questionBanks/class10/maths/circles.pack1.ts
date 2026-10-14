@@ -253,9 +253,9 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
       "AB = PB − PA = 9 − 4 = 5 cm [1]",
     ], finalAnswer: "AB = 5 cm" , isCompetencyBased: true },
   { id: "CIR-H12", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that the intercept of a tangent between two parallel tangents to a circle subtends a right angle at the centre.", solutionSteps: [
-      "Construction: Draw a circle with centre O and point P on the circle. Draw the tangent l at P and radius OP. Assume l is not perpendicular to OP and derive a contradiction.; Let l₁ and l₂ be parallel tangents at A and B; Let l be a transversal tangent touching at C, meeting l₁ at P and l₂ at Q [1]",
-      "PA = PC (tangent from P), so △OPA ≅ △OPC → ∠POA = ∠POC; QB = QC (tangent from Q), so △OQB ≅ △OQC → ∠QOB = ∠QOC [1]",
-      "∠AOC + ∠COB = ∠AOB = 180° (since A, O, B are collinear — diameter); ∠POC + ∠QOC = 90° → ∠POQ = 90° [1]",
+      "[1 mark] Given: a circle with centre O; parallel tangents l and m touch it at A and B; a third tangent touches it at C and meets l at P and m at Q. To prove ∠POQ = 90°. Join OA, OB, OC, OP, OQ. Since OA ⊥ l, OB ⊥ m and l ∥ m, A, O, B are collinear (AB is a diameter), so ∠AOC + ∠BOC = 180°.",
+      "[1 mark] In △OAP and △OCP: OA = OC (radii), PA = PC (tangents from an external point), OP common, so △OAP ≅ △OCP (SSS) and ∠AOP = ∠COP, i.e. ∠AOC = 2∠COP. Similarly △OBQ ≅ △OCQ, so ∠BOC = 2∠COQ.",
+      "[1 mark] Substituting: 2∠COP + 2∠COQ = 180° ⇒ ∠COP + ∠COQ = 90° ⇒ ∠POQ = 90°. Hence the intercept PQ subtends a right angle at the centre.",
     ], finalAnswer: "∠POQ = 90° (proved)" , visualExplainerId: "maths-circles-tangent-properties", isCompetencyBased: true },
   { id: "CIR-H13", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "An isosceles triangle ABC with AB = AC circumscribes a circle. Prove that the point of contact D of BC with the circle bisects BC.", solutionSteps: [
       "Construction: Draw a circle with centre O and mark the point of tangency. Draw the tangent line at that point.; Let the incircle touch AB at E, AC at F, BC at D [1]",
