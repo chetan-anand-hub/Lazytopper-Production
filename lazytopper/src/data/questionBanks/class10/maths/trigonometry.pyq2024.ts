@@ -150,6 +150,7 @@ export const TRIGONOMETRY_PYQ_2024: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/3/2 Q27", isCompetencyBased: true,
     sourceOverride: "others",
   },
+  // REWRITE-1 (A2, D209): stem restored from the row's own key + Vedantu reproduction of CBSE 2024 set 30/4/1 Q26; official PDF not available to the controller.
   { id: "PYQ-M-2024-TRIG-018", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Ratios of Specific Angles", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that: (sin θ − cos θ + 1)/(sin θ + cos θ − 1) = 1/(sec θ − tan θ).",
     answer: "LHS = (tan θ − 1 + sec θ)/(tan θ + 1 − sec θ) = (sec θ + tan θ − 1)/[(sec θ − tan θ)(sec θ + tan θ − 1)] = 1/(sec θ − tan θ) = RHS",
@@ -164,6 +165,7 @@ export const TRIGONOMETRY_PYQ_2024: CanonicalQuestion[] = [
     finalAnswer: "L.H.S = √𝑠𝑒𝑐2𝜃+ 𝑐𝑜𝑠𝑒𝑐2𝜃 = √1 + 𝑡𝑎𝑛2𝜃+ 1 + 𝑐𝑜𝑡2𝜃 = √(𝑡𝑎𝑛𝜃+ 𝑐𝑜𝑡𝜃)2 = tan 𝜃 + cot 𝜃 = R.H.S",
     ncertRef: "PYQ 30/4/3 Q31", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "3" },
+  // REWRITE-1 (A2, D209): stem restored from the row's own key + Vedantu reproduction of CBSE 2024 set 30/5/1 Q29; official PDF not available to the controller.
   { id: "PYQ-M-2024-TRIG-020", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identity Proofs", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that: tan A/(1 − cot A) + cot A/(1 − tan A) = 1 + sec A cosec A.",
     answer: "LHS = tan²A/(tan A − 1) − 1/[tan A (tan A − 1)] = (tan³A − 1)/[tan A (tan A − 1)] = (tan²A + tan A + 1)/tan A = tan A + 1 + cot A = 1 + sec A cosec A = RHS",
