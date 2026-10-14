@@ -83,7 +83,7 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   // "Image would not be formed"). Its repair PR serves the row again and drops this entry.
   { chapter: "light-reflection-and-refraction", label: "Convex Lens — All Object Positions" },
 ];
-const MAX_REVIEWED_LABELS = 137; // 14 Oct SCI-BACKLOG-1 batch 4 (F): +1 reviewed generic label "Statistics" (2026-STAT-SA-02 serves again)
+const MAX_REVIEWED_LABELS = 138; // 14 Oct SCI-BACKLOG-1 batch 4 (F): +2 reviewed generic labels "Statistics" and "Pair of Linear Equations in Two Variables" (2026-STAT-SA-02, 2026-PLE-SA-02 serve again)
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
 // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3): 10268 served rows, measured 0.91858 -> pin 0.9189 -> 0.9185 (each REPAIR PR re-measures and raises it back).
 // 14 Oct GARBLE-1 REWRITE-1 (A2): PYQ-M-2024-TRIG-018 and -020 serve again (label 'Trigonometric Identity Proofs' has a carrier, its PAUSED_LABELS entry is gone). Re-measured on the merged tree by runtime import: 10329 served, 0.92264 (this includes the rows #1145 restored) -> pin 0.9185 -> 0.9226.
