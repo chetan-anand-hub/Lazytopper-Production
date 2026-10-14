@@ -69,8 +69,7 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Pencil = ₹3, Pen = ₹5" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
   { id: "PLE-E17", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Solutions/Nature", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The pair 2x + 3y = 5, 4x + 6y = 15 has no solution.\nReason (R): The lines are parallel (a₁/a₂ = b₁/b₂ ≠ c₁/c₂).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "The question text for this Assertion-Reasoning type question is missing.",
-      "Without the Assertion and Reason statements, it is not possible to determine the correct solution or reasoning.",
+      "[1 mark] a₁/a₂ = 2/4 = 1/2, b₁/b₂ = 3/6 = 1/2, c₁/c₂ = 5/15 = 1/3; so a₁/a₂ = b₁/b₂ ≠ c₁/c₂, the lines are parallel and the pair has no solution. A and R are both true, and R (parallel lines) is exactly why A holds.",
     ],
   },
   { id: "PLE-E18", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: x/2 + y/3 = 2 and x/4 + y/6 = 1.", solutionSteps: [
