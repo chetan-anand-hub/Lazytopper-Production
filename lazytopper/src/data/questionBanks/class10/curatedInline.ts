@@ -272,20 +272,14 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Using the median formula for grouped data, find the median of the distribution: Class: 0–5, 5–10, 10–15, 15–20, 20–25; Frequency: 4, 10, 12, 8, 6.",
     "options": [],
-    "answer": "",
+    "answer": "Median = 12.5",
     "explanation": "",
     "solutionSteps": [
-      "Write the given distribution: Class: 0–10, 10–20, 20–30, 30–40, 40–50; Frequency (f): 5, 9, 14, 8, 4.",
-      "Find total frequency n by adding all f: n = 5 + 9 + 14 + 8 + 4 = 40.",
-      "Compute n/2: n/2 = 40/2 = 20.",
-      "Prepare the cumulative frequency (cf) column.",
-      "Identify the median class as the class where cf first becomes ≥ 20, which is 20–30.",
-      "From the median class, note L = 20, f = 14, cf_prev = 14, and class width h = 10.",
-      "Use the median formula: Median = L + [(n/2 − cf_prev) / f] × h.",
-      "Substitute values: Median = 20 + [(20 − 14) / 14] × 10 = 20 + (6/14) × 10.",
-      "Simplify to get Median ≈ 24.3."
+      "[1 mark] Total frequency n = 4 + 10 + 12 + 8 + 6 = 40, so n/2 = 20. Cumulative frequencies: 4, 14, 26, 34, 40. The first cumulative frequency that is at least 20 is 26, so the median class is 10–15.",
+      "[1 mark] From the median class: L = 10, class width h = 5, frequency f = 12, cumulative frequency of the class before it cf = 14. Median = L + [(n/2 − cf) / f] × h.",
+      "[1 mark] Median = 10 + [(20 − 14) / 12] × 5 = 10 + (6/12) × 5 = 10 + 2.5 = 12.5."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Median = 12.5",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false

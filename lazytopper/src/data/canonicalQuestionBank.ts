@@ -2161,12 +2161,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "FND-L-SPM-026",                // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror match-the-column; key pairs "At F" with "(a) At infinity, highly magnified"
   // SCI-BACKLOG-1 batch 1 (F, 14 Oct, D244): 19 WRONG-CONTENT Science rows corrected from NCERT 2026-27 / the board booklet answers and served again (ids leave this block)
   // SCI-BACKLOG-1 batch 2 (F, 14 Oct, D244): 6 SINGLE-STEP Science rows rewritten from NCERT 2026-27 and served again (ids leave this block)
+  // SCI-BACKLOG-1 batch 4 (F, 14 Oct, D253): 2026-STAT-SA-02 repaired (steps rewritten for its own stem) and served again; 2026-PLE-SA-02 stays withheld, see its ledger row
   // BANK-STEPS-1 REPAIR PR-5 (lane B, 14 Oct): 36 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-4 (lane B, 14 Oct): 50 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-3 (lane B, 14 Oct; CR-M04 + ABS-E06 keys changed per D170): 53 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-2 (lane B, 13 Oct): 49 Science rows repaired (new steps from each row's own stem + key) and served again
   // EL-AR05, HEY-D04: over-paused (D153), steps repaired and served again by BANK-STEPS-1 REPAIR PR-1 (13 Oct)
-  "2026-STAT-SA-02",              // spliced-solution: the steps answer another question (different numbers)
   "2026-PLE-SA-02",               // spliced-solution: the steps answer another question (different numbers)
   "PLE2-037",                     // spliced-solution: part of the steps answer another question
   // wrong-content rows (D178/D179, found by B while splitting single-step rows; rewrite owner: A, from NCERT)
