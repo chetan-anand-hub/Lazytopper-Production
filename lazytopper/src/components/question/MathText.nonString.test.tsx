@@ -28,7 +28,7 @@ describe("MathText — non-string input (FU-MATHTEXT-OBJECT)", () => {
     rerender(<MathText text={{ b: 2 }} />);
     render(<MathText text={{ c: 3 }} />);
     expect(warn).toHaveBeenCalledTimes(1);
-    expect(String(warn.mock.calls[0][0])).toContain("plain object");
+    expect(String(warn.mock.calls[0][0])).toContain("non-array object");
   });
 
   it("(b) a string, a number, an array and null/undefined are unchanged", async () => {

@@ -5,7 +5,7 @@
  *
  *   (a) a commonMistakes line and the examTip carry a `.katex` node (rendered maths);
  *   (b) the literal shorthand ("x^2", "sqrt(") is no longer in the notes' text as plain text;
- *   (c) CONTROL: a note with no maths still renders as plain text (no katex node, text intact), and an objective question shows neither block.
+ *   (c) CONTROL: a note with no maths still renders as plain text (no katex node, text intact).
  */
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";

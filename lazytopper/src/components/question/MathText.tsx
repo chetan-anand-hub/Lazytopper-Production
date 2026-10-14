@@ -682,14 +682,14 @@ function parseTextToSegments(text: string): Segment[] {
 
 let warnedPlainObject = false;
 /**
- * MATHTEXT-OBJECT (FU-MATHTEXT-OBJECT): a number or an array still renders as text ("42", "a,b"); a PLAIN OBJECT (`{ a: 1 }`, a stored
- * or model-produced structure that is not text) must not show "[object Object]" to a student: it renders nothing and warns once.
+ * MATHTEXT-OBJECT (FU-MATHTEXT-OBJECT): a number or an array still renders as text ("42", "a,b"); a NON-ARRAY OBJECT (`{ a: 1 }`; a Date, Map or
+ * class instance is caught too, none of which JSON can produce; an ARRAY of objects still stringifies: `[FU-MATHTEXT-OBJECT-ARRAY]`) must not show "[object Object]" to a student: it renders nothing and warns once.
  */
 function textOfNonString(value: unknown): string {
   if (typeof value === "object" && !Array.isArray(value)) {
     if (!warnedPlainObject) {
       warnedPlainObject = true;
-      console.warn("[MathText] a plain object was passed as text; rendering nothing instead of \"[object Object]\"");
+      console.warn("[MathText] a non-array object was passed as text; rendering nothing instead of \"[object Object]\"");
     }
     return "";
   }
