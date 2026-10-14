@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "how-do-organisms-reproduce" (Science): 501 served rows from 21 source arrays, 29 withheld.
+// Chapter "how-do-organisms-reproduce" (Science): 514 served rows from 21 source arrays, 16 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -51,29 +51,16 @@ export default defineChapter("how-do-organisms-reproduce", [
   [421, REPRODUCTION_CBQ_LT_GENERATED, false],
   [446, REPRODUCTION_CBQ_B1_LT_GENERATED, false],
 ], [
-  "REP-E01",
-  "REP-E02",
-  "REP-E03",
-  "REP-E05",
-  "REP-E06",
-  "REP-E08",
-  "REP-E10",
-  "REP-E11",
   "REP-E13",
-  "REP-E14",
-  "REP-E15",
-  "REP-M07",
-  "REP-M09",
-  "REP-M12",
-  "REP-M15",
   "REP-H10",
-  "REP-AR05",
   "REP2-022",
   "REP2-046",
   "SCO-S-REPR-009",
   "SCO-S-REPR-014",
   "SCO-S-REPR-015",
   "SCO-S-REPR-018",
+  "SCQ-S-REPR-026",
+  "SCQ-S-REPR-039",
   "SCQ-S-REPR-041",
   "PYQ-S-2026-REPR-005",
   "PYQ-S-2025-REPR-006",

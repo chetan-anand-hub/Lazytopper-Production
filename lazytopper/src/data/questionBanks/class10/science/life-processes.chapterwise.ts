@@ -271,7 +271,7 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq06 Q66 (Section C, 3mk)
   { id: "SCQ-S-LIFE-036", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. What is the role of mucus in stomach? b. What are the two vital functions of human kidney?",
-    answer: "[Foreign 2017] a. To protect the stomach lining from the action of acid and pepsin. b. The two vital functions of human kidney are: (i) Excretion - Removal of toxic wastes like urea, uric acid. (ii) Osmoregulation - The process of maintaining the right amount of water and proper ",
+    answer: "a. Mucus protects the stomach lining from the action of acid and pepsin. b. (i) Excretion - Removal of toxic wastes like urea, uric acid. b. (ii) Osmoregulation - The process of maintaining the right amount of water and proper ionic balance in body. It is done by controlling the amount of water and salts reabsorbed by nephron - tubules.",
     solutionSteps: [
       "[1 mark] a. Mucus protects the stomach lining from the action of acid and pepsin.",
       "[1 mark] b. (i) Excretion - Removal of toxic wastes like urea, uric acid.",
@@ -288,7 +288,7 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq06 Q68 (Section C, 3mk)
   { id: "SCQ-S-LIFE-038", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What are the important features of all respiratory structures in animals? or How are alveoli designed to maximize the exchange of gases? [Delhi 2016]",
-    answer: "All respiratory system have some important features. a. Large surface area. b. Thin and delicate surface for diffusion and exchange of gases. It is generally located in protected inner part of body. c. Rich blood supply to respiratory organ. Since all of them are present in alveo",
+    answer: "a. Large surface area. b. Thin and delicate surface for diffusion and exchange of gases. It is generally located in protected inner part of body. c. Rich blood supply to respiratory organ. Since all of them are present in alveoli, hence it is perfectly designed for exchange of gases.",
     solutionSteps: [
       "[1 mark] a. Large surface area.",
       "[1 mark] b. Thin and delicate surface for diffusion and exchange of gases. It is generally located in protected inner part of body.",

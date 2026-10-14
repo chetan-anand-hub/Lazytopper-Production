@@ -248,7 +248,7 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq02 Q90 (Section C, 3mk)
   { id: "SCQ-S-ACID-033", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "2 mL of sodium hydroxide solution is added to a few pieces of granulated zinc metal taken in a test tube. When the contents are warmed, a gas evolves which is bubbled through a soap solution before testing. Write the equation for the chemical reaction involved and the test to detect the gas. Name the gas which will be evolved when the same metal reacts with dilute solution of a strong acid.",
-    answer: "Zn(s) + 2NaOH —warm→ Na2ZnO2 (sodium zincate) + H2. Test: Bring a burning splinter near the gas. If it burns with 'pop' sound, the gas liberated is hydrogen. Zn + H2SO4(dil) → ZnSO4(aq) + H2 Hydrogen gas will be evolved by reaction of the same metal with dilute H2SO4, stro",
+    answer: "Zn(s) + 2NaOH → Na₂ZnO₂ (sodium zincate) + H₂ (warm) Test: Bring a burning splinter near the gas. If it burns with 'pop' sound, the gas liberated is hydrogen. Zn + H₂SO₄(dil) → ZnSO₄(aq) + H₂. Hydrogen gas will be evolved by reaction of the same metal with dilute H₂SO₄, strong acid.",
     solutionSteps: [
       "[1 mark] Zn(s) + 2NaOH → Na₂ZnO₂ (sodium zincate) + H₂ (warm)",
       "[1 mark] Test: Bring a burning splinter near the gas. If it burns with 'pop' sound, the gas liberated is hydrogen.",
@@ -264,7 +264,7 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq02 Q92 (Section C, 3mk)
   { id: "SCQ-S-ACID-035", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Why does aqueous solution of an acid conduct electricity? (b) How does the concentration of H3O+ ions change when a solution of an acid is diluted? (c) Which one has a higher pH, a concentrated or a dilute solution of hydrochloric acid? (d) What would to be the gas evolved on adding dilute to hydrochloric acid to (i) Solid sodium carbonate placed in a test tube? (ii) Zinc metal in a test tube?",
-    answer: "a. It contains ions which carry current. b. H3O+ ions will decrease when it is diluted. c. Dilute solution has higher pH than concentrated. d. (i) CO2 gas will be formed: Na2CO3 + 2HCl → 2NaCl + H2O + CO2 (ii) Hydrogen gas will be formed: Zn + 2HCl → ZnCl2 + H2",
+    answer: "a. It contains ions which carry current. b. H₃O⁺ ions will decrease when it is diluted. c. Dilute solution has higher pH than concentrated. d. (i) CO₂ gas will be formed: Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂ (ii) Hydrogen gas will be formed: Zn + 2HCl → ZnCl₂ + H₂",
     solutionSteps: [
       "[1 mark] a. It contains ions which carry current.",
       "[1 mark] b. H₃O⁺ ions will decrease when it is diluted. c. Dilute solution has higher pH than concentrated.",
@@ -284,7 +284,7 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq02 Q94 (Section C, 3mk)
   { id: "SCQ-S-ACID-037", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Answer the following questions: a. State the colour of phenolphthalein in soap solution. b. Name the by-product of chlor-alkali process which is used for the manufacture of bleaching powder. c. Name one indicator which specifies the various levels of H+ ion concentration.",
-    answer: "a. Phenolphthalein will turn pink in soap solution. b. Chlorine is the by-product of chlor-alkali process which is used in the manufacture of bleaching powder. c. Universal indicator specifies the various levels of H+ ion concentration.",
+    answer: "a. Phenolphthalein will turn pink in soap solution. b. Chlorine is the by-product of chlor-alkali process which is used in the manufacture of bleaching powder. c. Universal indicator specifies the various levels of H⁺ ion concentration.",
     solutionSteps: [
       "[1 mark] a. Phenolphthalein will turn pink in soap solution.",
       "[1 mark] b. Chlorine is the by-product of chlor-alkali process which is used in the manufacture of bleaching powder.",

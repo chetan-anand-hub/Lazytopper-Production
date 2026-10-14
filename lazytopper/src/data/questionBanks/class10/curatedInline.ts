@@ -20,7 +20,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "From the top of a 20 m high building, the angle of depression of a car on the road is 30°. Find the distance of the car from the foot of the building. (Use √3 ≈ 1.732.)",
     "options": [],
-    "answer": "",
+    "answer": "The car is approximately 34.6 m from the foot of the building.",
     "explanation": "",
     "solutionSteps": [
       "Let the height of the building be AB = 20 m and the car be at point C on the road, with B as the foot of the building.",
@@ -32,7 +32,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Use √3 ≈ 1.732 to get BC ≈ 20 × 1.732 = 34.64 m.",
       "Therefore, the car is approximately 34.6 m from the foot of the building."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The car is approximately 34.6 m from the foot of the building.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": true
@@ -49,7 +49,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the area of a sector of a circle of radius 7 cm and central angle 90°. Use π = 22/7.",
     "options": [],
-    "answer": "",
+    "answer": "Area of the sector = 38.5 cm²",
     "explanation": "",
     "solutionSteps": [
       "Recall the formula for the area of a sector with angle θ (in degrees): Area = (θ/360°) × πr².",
@@ -60,7 +60,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Compute (22/7) × 49 = 22 × 7 = 154.",
       "Hence Area = (1/4) × 154 = 38.5 cm²."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Area of the sector = 38.5 cm²",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -77,7 +77,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The sum of the first 20 terms of an AP is 210 and the first term is 3. Find the 20th term of the AP.",
     "options": [],
-    "answer": "",
+    "answer": "The 20th term of the AP is 18.",
     "explanation": "",
     "solutionSteps": [
       "Let the AP have first term a and common difference d.",
@@ -88,7 +88,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Use the nth term formula aₙ = a + (n − 1)d with n = 20: a₂₀ = 3 + 19(d) = 3 + 19×(15/19) = 3 + 15 = 18.",
       "Hence, the 20th term of the AP is 18."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The 20th term of the AP is 18.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -105,7 +105,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Two tangents PA and PB are drawn from an external point P to a circle with centre O, touching the circle at A and B respectively. Prove that PA = PB.",
     "options": [],
-    "answer": "",
+    "answer": "PA = PB (corresponding sides of congruent triangles ΔOPA and ΔOPB).",
     "explanation": "",
     "solutionSteps": [
       "Draw circle with centre O and tangents PA and PB from external point P touching at A and B.",
@@ -116,7 +116,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Thus, triangles ΔOPA and ΔOPB are congruent by RHS congruence criterion.",
       "Hence, PA = PB as corresponding sides of congruent triangles."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "PA = PB (corresponding sides of congruent triangles ΔOPA and ΔOPB).",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -133,7 +133,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the distance between the points A(3, 4) and B(7, 1). Also find the coordinates of the midpoint of the line segment AB.",
     "options": [],
-    "answer": "",
+    "answer": "AB = 5 units; midpoint M = (5, 2.5)",
     "explanation": "",
     "solutionSteps": [
       "Write the coordinates of A and B as A(x₁, y₁) = (3, 4) and B(x₂, y₂) = (7, 1).",
@@ -144,7 +144,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Substitute to get M = ((3 + 7)/2, (4 + 1)/2) = (10/2, 5/2) = (5, 2.5).",
       "Thus, the distance AB is 5 units and midpoint M is (5, 2.5)."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "AB = 5 units; midpoint M = (5, 2.5)",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -161,7 +161,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "If sin θ = 3/5 and θ is acute, find cos θ and tan θ.",
     "options": [],
-    "answer": "",
+    "answer": "cos θ = 4/5 and tan θ = 3/4",
     "explanation": "",
     "solutionSteps": [
       "Given sin θ = 3/5, interpret this as opposite side / hypotenuse = 3/5.",
@@ -172,7 +172,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "tan θ = perpendicular / base = 3k / 4k = 3/4.",
       "Thus, cos θ = 4/5 and tan θ = 3/4."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "cos θ = 4/5 and tan θ = 3/4",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -219,7 +219,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A card is drawn at random from a well-shuffled deck of 52 playing cards. Find the probability that the card drawn is:\n(i) a king of red colour\n(ii) a card which is not a face card.",
     "options": [],
-    "answer": "",
+    "answer": "(i) P(king of red colour) = 1/26; (ii) P(not a face card) = 10/13",
     "explanation": "",
     "solutionSteps": [
       "Recall that probability of an event = (number of favourable outcomes) / (total number of outcomes).",
@@ -228,7 +228,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "(ii) There are 12 face cards in a deck (J, Q, K of each suit). So non-face cards = 52 − 12 = 40.",
       "Therefore P(not a face card) = 40/52 = 10/13."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(i) P(king of red colour) = 1/26; (ii) P(not a face card) = 10/13",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -245,7 +245,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Solve the quadratic equation 2x² − 5x + 3 = 0 using the quadratic formula.",
     "options": [],
-    "answer": "",
+    "answer": "x = 3/2 and x = 1",
     "explanation": "",
     "solutionSteps": [
       "Write the given equation 2x² − 5x + 3 = 0 in standard form ax² + bx + c = 0, so a = 2, b = −5, c = 3.",
@@ -255,7 +255,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Find the two roots: x₁ = (5 + 1)/4 = 6/4 = 3/2 and x₂ = (5 − 1)/4 = 4/4 = 1.",
       "Conclude that the roots of the equation are x = 3/2 and x = 1."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "x = 3/2 and x = 1",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -332,7 +332,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A cylindrical tank has radius 3.5 m and height 10 m. Find the volume of the tank. (Use π = 22/7.)",
     "options": [],
-    "answer": "",
+    "answer": "The volume of the tank is 385 m³.",
     "explanation": "",
     "solutionSteps": [
       "Write the formula for the volume of a cylinder: V = πr²h.",
@@ -343,7 +343,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Simplify: (22/7) × 49 = 22 × 7 = 154, so V = 154 × 10 / 4 = 1540 / 4 = 385.",
       "Therefore, the volume of the tank is 385 m³."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The volume of the tank is 385 m³.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -360,15 +360,13 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "A few drops of universal indicator are added to solution Y and it turns deep purple.\n(a) What does this tell you about the nature of solution Y?\n(b) Predict the approximate pH range of Y.",
     "options": [],
-    "answer": "",
-    "explanation": "",
+    "answer": "(a) Solution Y is strongly basic (alkaline). (b) The pH of Y is well above 7 (towards the basic end of the pH scale).",
+    "explanation": "(a) Solution Y is strongly basic (alkaline). (b) The pH of Y is well above 7 (towards the basic end of the pH scale).",
     "solutionSteps": [
-      "[0.5 mark] Recall the universal indicator colour scale for strong acids, weak acids, neutral solutions, weak bases, and strong bases.",
-      "[0.5 mark] Red colour indicates a strongly acidic solution.",
-      "[0.5 mark] Strong acids typically have pH values between 1 and 3.",
-      "[0.5 mark] Therefore, solution X is a strong acid with approximate pH between 1 and 3."
+      "[1 mark] (a) From the universal indicator colour chart, deep purple is the colour of a strongly basic (alkaline) solution, so solution Y is strongly basic.",
+      "[1 mark] (b) A basic solution has a pH above 7, and a strongly basic one is well above 7 (towards the basic end of the scale)."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(a) Solution Y is strongly basic (alkaline). (b) The pH of Y is well above 7 (towards the basic end of the pH scale).",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -385,7 +383,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is a homologous series? State any two characteristics of a homologous series of carbon compounds with an example.",
     "options": [],
-    "answer": "",
+    "answer": "A homologous series is a group of organic compounds with the same functional group and similar chemical properties, in which successive members differ by a –CH₂– group (14 u). Characteristics: successive members differ by 14 u and have similar chemical properties. Example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀.",
     "explanation": "",
     "solutionSteps": [
       "Define homologous series as a group of organic compounds having the same functional group and similar chemical properties, in which any two successive members differ by a –CH₂– group.",
@@ -394,7 +392,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Mention that they show a gradual change in physical properties such as boiling point as molecular mass increases.",
       "Give an example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀, etc. form a homologous series."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "A homologous series is a group of organic compounds with the same functional group and similar chemical properties, in which successive members differ by a –CH₂– group (14 u). Characteristics: successive members differ by 14 u and have similar chemical properties. Example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -433,7 +431,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is a reflex action? Describe the pathway of a reflex arc in humans with the help of a labelled diagram.",
     "options": [],
-    "answer": "",
+    "answer": "A reflex action is an automatic, rapid response to a stimulus that is not under conscious control. Reflex arc: receptor → sensory neuron → spinal cord (relay neuron) → motor neuron → effector (muscle or gland), giving a quick response without conscious thinking.",
     "explanation": "",
     "solutionSteps": [
       "Define reflex action as an automatic, rapid response to a stimulus that is not under conscious control.",
@@ -444,7 +442,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "The effector responds (e.g., withdrawing hand from a hot object).",
       "Mention that this pathway allows quick response without waiting for conscious thinking."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "A reflex action is an automatic, rapid response to a stimulus that is not under conscious control. Reflex arc: receptor → sensory neuron → spinal cord (relay neuron) → motor neuron → effector (muscle or gland), giving a quick response without conscious thinking.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -487,7 +485,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In pea plants, the trait of tallness (T) is dominant over dwarfness (t). Draw a cross between two heterozygous tall plants (Tt × Tt). Find the phenotypic ratio of tall and dwarf plants in the F₂ generation.",
     "options": [],
-    "answer": "",
+    "answer": "The phenotypic ratio in F₂ is 3 tall : 1 dwarf.",
     "explanation": "",
     "solutionSteps": [
       "State that tallness (T) is dominant and dwarfness (t) is recessive.",
@@ -498,7 +496,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Determine phenotypes: TT and Tt are tall, tt is dwarf.",
       "So the phenotypic ratio in F₂ is 3 tall : 1 dwarf."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The phenotypic ratio in F₂ is 3 tall : 1 dwarf.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -515,7 +513,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain the process of binary fission in Amoeba with the help of labelled diagrams.",
     "options": [],
-    "answer": "",
+    "answer": "In binary fission of Amoeba the nucleus first elongates and divides into two, the cytoplasm then constricts in the middle, and the parent splits into two similar-sized daughter Amoebae, each with one nucleus.",
     "explanation": "",
     "solutionSteps": [
       "State that binary fission is a type of asexual reproduction in which a single parent cell divides into two daughter cells.",
@@ -524,7 +522,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Finally, the parent cell splits into two separate, similar-sized daughter Amoebae, each with one nucleus.",
       "Mention that binary fission usually occurs in favourable conditions such as sufficient food and optimum temperature."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "In binary fission of Amoeba the nucleus first elongates and divides into two, the cytoplasm then constricts in the middle, and the parent splits into two similar-sized daughter Amoebae, each with one nucleus.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -541,7 +539,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is myopia? State its two causes. Draw a ray diagram to show how myopia is corrected using a suitable lens.",
     "options": [],
-    "answer": "",
+    "answer": "Myopia (short-sightedness) is the defect in which nearby objects are seen clearly but distant objects are not. Causes: the eyeball becomes too long, or the focal length of the eye lens decreases. It is corrected by a concave (diverging) lens of suitable focal length.",
     "explanation": "",
     "solutionSteps": [
       "Define myopia (short-sightedness) as the defect in which a person can see nearby objects clearly but cannot see distant objects distinctly.",
@@ -551,7 +549,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "The concave lens diverges the incoming parallel rays so that after refraction by the eye lens, the image forms exactly on the retina.",
       "Draw a labelled ray diagram showing a distant object, concave lens in front of the myopic eye, and the final image on the retina."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Myopia (short-sightedness) is the defect in which nearby objects are seen clearly but distant objects are not. Causes: the eyeball becomes too long, or the focal length of the eye lens decreases. It is corrected by a concave (diverging) lens of suitable focal length.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -568,7 +566,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain the process of aerobic respiration in humans. Why is it considered more efficient than anaerobic respiration?",
     "options": [],
-    "answer": "",
+    "answer": "In aerobic respiration glucose is completely oxidised in the presence of oxygen (C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy), mainly in the mitochondria, releasing about 38 ATP; anaerobic respiration only partially breaks glucose down (lactic acid or ethanol) and releases about 2 ATP, so aerobic respiration is more efficient.",
     "explanation": "",
     "solutionSteps": [
       "State that respiration is the process of releasing energy from food (glucose) in cells.",
@@ -579,7 +577,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "In anaerobic respiration, glucose is only partially broken down, producing lactic acid or ethanol and much less energy (about 2 ATP).",
       "Therefore, aerobic respiration is considered more efficient than anaerobic respiration."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "In aerobic respiration glucose is completely oxidised in the presence of oxygen (C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy), mainly in the mitochondria, releasing about 38 ATP; anaerobic respiration only partially breaks glucose down (lactic acid or ethanol) and releases about 2 ATP, so aerobic respiration is more efficient.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -596,7 +594,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An object is placed 30 cm in front of a concave mirror of focal length 15 cm. Using the mirror formula, find the position and nature of the image formed.",
     "options": [],
-    "answer": "",
+    "answer": "v = −30 cm: the image is real, inverted and equal in size to the object, formed 30 cm in front of the mirror.",
     "explanation": "",
     "solutionSteps": [
       "Write the mirror formula: 1/f = 1/v + 1/u.",
@@ -606,7 +604,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Thus, v = −30 cm, meaning the image is formed 30 cm in front of the mirror (on the same side as the object).",
       "Since v is negative and the image is formed in front of the mirror, it is real and inverted; here its size is equal to the object (because |u| = |v|)."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "v = −30 cm: the image is real, inverted and equal in size to the object, formed 30 cm in front of the mirror.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -623,7 +621,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "State Fleming’s left-hand rule. Explain how it is used to find the direction of force on a current-carrying conductor placed in a magnetic field.",
     "options": [],
-    "answer": "",
+    "answer": "Fleming’s left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; the forefinger shows the direction of the magnetic field, the middle finger the direction of current, and the thumb the direction of force (motion) on the conductor.",
     "explanation": "",
     "solutionSteps": [
       "State Fleming’s left-hand rule: If the thumb, forefinger and middle finger of the left hand are stretched mutually perpendicular, then the forefinger indicates the direction of magnetic field, the middle finger the direction of current, and the thumb gives the direction of force (motion) on the conductor.",
@@ -631,7 +629,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "To use the rule, align the forefinger along the magnetic field direction and the middle finger along the current direction.",
       "The thumb then automatically points in the direction of motion or force on the conductor."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Fleming’s left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; the forefinger shows the direction of the magnetic field, the middle finger the direction of current, and the thumb the direction of force (motion) on the conductor.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -672,7 +670,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain the term corrosion. How can rusting of iron be prevented? State any two methods.",
     "options": [],
-    "answer": "",
+    "answer": "Corrosion is the slow eating up of metals by the action of air, moisture or chemicals on their surface. Rusting of iron is prevented by (i) painting or coating with oil/grease and (ii) galvanisation (coating with a thin layer of zinc).",
     "explanation": "",
     "solutionSteps": [
       "[1 mark] Define corrosion as the slow eating up of metals by the action of air, moisture or chemicals on their surface.",
@@ -681,7 +679,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "[0.5 mark] (ii) Galvanisation: coating iron with a thin layer of zinc to protect it.",
       "[0.5 mark] Other accepted methods: alloying iron to form stainless steel or using plastic coating."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "Corrosion is the slow eating up of metals by the action of air, moisture or chemicals on their surface. Rusting of iron is prevented by (i) painting or coating with oil/grease and (ii) galvanisation (coating with a thin layer of zinc).",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -698,7 +696,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is a food chain? Explain why the flow of energy in an ecosystem is unidirectional, using a simple food chain as an example.",
     "options": [],
-    "answer": "",
+    "answer": "A food chain is a sequence of organisms in which each feeds on the previous one (e.g. grass → grasshopper → frog → snake → eagle). Only about 10% of the energy passes to the next trophic level and the rest is lost as heat, so energy cannot flow back and its flow is unidirectional—from the sun to producers and then to consumers.",
     "explanation": "",
     "solutionSteps": [
       "Define a food chain as a sequence of organisms in which each organism feeds on the previous one and provides food for the next.",
@@ -708,7 +706,7 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
       "Due to this continuous loss, energy cannot flow back from consumers to producers.",
       "Therefore, the flow of energy in an ecosystem is unidirectional—from the sun to producers and then to various levels of consumers, not in reverse."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "A food chain is a sequence of organisms in which each feeds on the previous one (e.g. grass → grasshopper → frog → snake → eagle). Only about 10% of the energy passes to the next trophic level and the rest is lost as heat, so energy cannot flow back and its flow is unidirectional—from the sun to producers and then to consumers.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false

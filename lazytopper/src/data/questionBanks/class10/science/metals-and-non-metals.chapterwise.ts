@@ -277,7 +277,7 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq03 Q97 (Section C, 3mk)
   { id: "SCQ-S-METAL-037", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Aluminium oxide and zinc oxide react with both acids and bases to produce salt and water. What are these oxides called? Write chemical equations in each case.",
-    answer: "These are called amphoteric oxides: Al2O3 + 2NaOH → 2NaAlO2 + H2O ZnO + 2NaOH → Na2ZnO2 + H2O ZnO + 2HCl → ZnCl2 + H2O Al2O3 + 6HCl → 2AlCl3 + 3H2O",
+    answer: "These are called amphoteric oxides. Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O; Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O ZnO + 2NaOH → Na₂ZnO₂ + H₂O; ZnO + 2HCl → ZnCl₂ + H₂O",
     solutionSteps: [
       "[1 mark] These are called amphoteric oxides.",
       "[1 mark] Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O; Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O",

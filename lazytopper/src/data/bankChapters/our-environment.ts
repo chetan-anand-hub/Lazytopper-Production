@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "our-environment" (Science): 340 served rows from 18 source arrays, 31 withheld.
+// Chapter "our-environment" (Science): 355 served rows from 18 source arrays, 16 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -45,23 +45,6 @@ export default defineChapter("our-environment", [
   [450, ENVIRONMENT_CBQ_B1_LT_GENERATED, false],
   [458, OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED, false],
 ], [
-  "OE-E01",
-  "OE-E03",
-  "OE-E04",
-  "OE-E05",
-  "OE-E08",
-  "OE-E09",
-  "OE-E10",
-  "OE-E11",
-  "OE-E12",
-  "OE-M01",
-  "OE-M02",
-  "OE-M03",
-  "OE-M04",
-  "OE-M05",
-  "OE-M06",
-  "OE-M07",
-  "OE-H01",
   "OEX-A-005",
   "SCO-S-ENV-002",
   "SCO-S-ENV-003",
@@ -72,6 +55,8 @@ export default defineChapter("our-environment", [
   "SCO-S-ENV-016",
   "SCO-S-ENV-017",
   "SCO-S-ENV-019",
+  "SCQ-S-ENV-028",
+  "SCQ-S-ENV-037",
   "PYQ-S-ENV-003",
   "PYQ-S-ENV-004",
   "PYQ-S-2026-ENV-001",

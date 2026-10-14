@@ -249,7 +249,7 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq09 Q63 (Section C, 3mk)
   { id: "SCQ-S-HERED-033", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Explain how gene expresses itself in a cell? Why are we somewhat similar to our parents yet not identical to them?",
-    answer: "Genes are functional segments of DNA. They are units of heredity that gets passed on through reproduction from parents to progeny. It is the blue print of life. DNA expresses itself through synthesis of proteins. Proteins make structures in our body and also controls the function",
+    answer: "Genes are functional segments of DNA. They are units of heredity that get passed on through reproduction from parents to progeny; it is the blue print of life. DNA expresses itself through synthesis of proteins. Proteins make structures in our body and also control the functioning; cells, tissues, organs and hence a living body express the traits inherited as genes/DNA. Since we inherit the DNA half from one and half from the other parent, we somewhat resemble them. At the same time we show mixed traits of both, so we cannot be identical to either of them.",
     solutionSteps: [
       "[1 mark] Genes are functional segments of DNA. They are units of heredity that get passed on through reproduction from parents to progeny; it is the blue print of life.",
       "[1 mark] DNA expresses itself through synthesis of proteins. Proteins make structures in our body and also control the functioning; cells, tissues, organs and hence a living body express the traits inherited as genes/DNA.",

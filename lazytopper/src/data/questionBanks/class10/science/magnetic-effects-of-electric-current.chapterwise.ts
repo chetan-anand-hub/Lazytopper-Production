@@ -275,7 +275,7 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq13 Q77 (Section C, 3mk)
   { id: "SCQ-S-MAG-037", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Can a freely suspended current carrying solenoid stay in any direction? Justify your answer. What will happen when the direction of current in the solenoid is reversed? Explain.",
-    answer: "No, current carrying solenoid behaves like a bar magnet and will stay only geographical N and S direction. If the direction of current is reversed then the polarity of the magnet will change and hence will rotate through an angle of 180°. Chap 13 : Magnetice Effect of Electric Cu",
+    answer: "No, a current carrying solenoid behaves like a bar magnet. So it will stay only in the geographical N and S direction. If the direction of current is reversed then the polarity of the magnet will change and hence it will rotate through an angle of 180°.",
     solutionSteps: [
       "[1 mark] No, a current carrying solenoid behaves like a bar magnet.",
       "[1 mark] So it will stay only in the geographical N and S direction.",

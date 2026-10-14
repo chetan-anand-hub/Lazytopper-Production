@@ -1,5 +1,21 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — NOTES-FORMULA-3a (C2, §10 for `#1160` `#1161`) and PERF-3a.** One surface moved: the NOTES pages (26 chapters). Scope did not change. The six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) were not touched. With no shortcuts in any spec yet the visible change is only the section anchors, the print fix and the (empty) schema.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Notes pages | optional shortcuts/id/heading/tip schema; "Formulae & Tricks" tab when tricks exist; stable anchors that open the tab and scroll; second-tab Formulae copy hidden in print (`#1160`) | 🟢 live | 3b content (E); a phone glance when content lands |
+
+> **2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 (C2, §10 for `#1148` `#1151` `#1154`).** Scope did not change. **One cross-cutting thing moved: PERSISTENCE of a graded result on all six grading surfaces** (Check & Improve single, Check & Improve multi, Worksheet, Chapter Test, Full Mock, Quick Practice) through the single writer `services/sessionRecords.ts` (`#1151`): outbox, retry, re-send on next load / `online`, a status line mounted once by `AuthProvider`; no grading, marks or prompt change. The notes surface moved too (`#1148`: the Formulae card in two places; `#1154`: chemistry as chemistry on 7 Science chapters).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| All six grading surfaces (persistence only) | a result is queued in a per-uid outbox before the cloud write, retried, re-sent on next load / `online`, never over a newer cloud copy; "Saving…" / "Saved ✓" / "Saved on this device…" (`#1151`) | 🟢 live | the owner's signed-in round-trip, ≥ 2 surfaces: offline grade → device-only line → online → saved → history on a second device; offline grade + close tab + reopen |
+| Notes pages (26 chapters) | the Formulae card after The Big Idea and atop "Formulae & Mindmap" (`#1148`) | 🟢 live | a phone glance; the print duplicate (`[FU-NOTES-FORMULA-PRINT-DUPLICATE]`) |
+| Notes pages (7 Science chapters) | formula cards as TeX with state symbols (`#1154`) | 🟢 live | `[FU-NOTES-FORMULA-3-PLAIN-CHEMISTRY]` (the fields outside the strips) |
+
+> **2026-10-14 — PERF-1 PR-3 + PERF-2 (C2, §10 for `#1139` `#1140` `#1141`).** No surface moved and Scope did not change. Presentation only: the Practice Hub cards and the Check & Improve link text colour (`#1139`), the home brand images and the wordmark's height (`#1140`), and where the QR library loads from (`#1141`). The six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) were not touched. Owed: the owner's wordmark glance and one desktop QR draw.
+
 > **2026-10-14 — BANK-STEPS-1 + GARBLE-1 (A, §10 for `#1116` `#1123` `#1125` `#1130` `#1136`, with B's `#1131`).** Content only; no surface's code or Scope changed. **Scope WAS discovered:** a second bank-defect class, PDF-extraction garble (a stem unreadable or unsolvable as printed), found after a student saw it live in a Chapter Test. It is logged in DECISION_LOG (D152/D154/D169) and tracked here; the six grading surfaces are untouched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |
