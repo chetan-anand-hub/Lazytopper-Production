@@ -123,6 +123,11 @@ describe("SaveStatusToast", () => {
     expect(SAVE_STATUS_COPY.saving).toBe("Saving your result to your account…");
     expect(SAVE_STATUS_COPY.saved).toBe("Saved to your account ✓");
     expect(SAVE_STATUS_COPY.deviceOnly).toBe("Saved on this device. We'll add it to your account automatically next time you're online.");
+    // D234: the two lines for a result that could NOT be queued do not claim it is saved on this device (storage may have refused it)
+    expect(SAVE_STATUS_COPY.keepOpen).toBe("Please keep LazyTopper open a little longer while we add this result to your account.");
+    expect(SAVE_STATUS_COPY.deviceOnlyManual).toBe("We couldn't add this result to your account automatically. Please open LazyTopper again when you're online and check your history.");
+    expect(SAVE_STATUS_COPY.keepOpen).not.toMatch(/Saved on this device/);
+    expect(SAVE_STATUS_COPY.deviceOnlyManual).not.toMatch(/Saved on this device/);
     expect(SAVE_STATUS_COPY.savingHint).toBe("Saving takes a few seconds. If you close now, your marks stay on this device but won't appear on your other devices or in your progress until you open LazyTopper here again.");
   });
 });

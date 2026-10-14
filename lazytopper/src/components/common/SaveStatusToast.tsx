@@ -24,9 +24,9 @@ export const SAVE_STATUS_COPY = {
   saved: "Saved to your account ✓",
   deviceOnly: "Saved on this device. We'll add it to your account automatically next time you're online.",
   /** the outbox could not store this result (storage full): the add only happens while the tab stays open */
-  keepOpen: "Saved on this device. Please keep LazyTopper open a little longer while we add it to your account.",
+  keepOpen: "Please keep LazyTopper open a little longer while we add this result to your account.",
   /** the add could not be queued AND the in-session attempts ended: nothing will retry by itself */
-  deviceOnlyManual: "Saved on this device. We couldn't set up the automatic add this time, so please open LazyTopper again when you're online and check your history.",
+  deviceOnlyManual: "We couldn't add this result to your account automatically. Please open LazyTopper again when you're online and check your history.",
 } as const;
 
 const SAVED_VISIBLE_MS = 4000;
