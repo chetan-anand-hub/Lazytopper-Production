@@ -26,7 +26,7 @@ import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncer
  * Visual gold standard: the locked v2 note prototypes in `notes/`
  * (esp. `light_note_ENRICHED_v2_2026-06-21.html`) — 3 tabs
  * (Note / Mindmap / [third]), the 7-part spine (Big Idea → Definitions →
- * Concepts → Worked examples → Strategies → Pitfalls → Formula strip),
+ * Concepts → Worked examples → Strategies → Pitfalls; the Formulae card (NOTES-FORMULA-1) follows Big Idea and heads the Mindmap tab),
  * Fraunces + Inter, brand green hsl(152,55%,45%), KaTeX math. This component
  * reproduces that grammar; it does NOT redesign it.
  *

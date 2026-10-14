@@ -100,17 +100,25 @@ describe("NOTES-FORMULA-1 — all 26 notes", () => {
     const { container } = mount(s);
     const ps = panels(container);
     expect(ps).toHaveLength(4);
+    // the Mindmap panel opens with the card, for every chapter
+    expect(labelsIn(ps[1])[0]).toBe("Formulae");
     expect(s.formula_strip.length).toBeGreaterThan(0);
+    const seen: string[][] = [[], []];
     for (const idx of [0, 1]) {
       const card = Array.from(ps[idx].querySelectorAll(".lt-note__block")).find(
         (b) => (b.querySelector(".lt-note__sec-label")?.textContent || "").trim() === "Formulae",
       );
       expect(card, `panel ${idx}`).toBeTruthy();
       expect(card!.querySelectorAll(".lt-note__fitem")).toHaveLength(s.formula_strip.length);
+      seen[idx] = Array.from(card!.querySelectorAll(".lt-note__flabel")).map((n) => (n.textContent || "").trim());
       if (s.formula_strip.some((f) => f.math.includes("$"))) {
         expect(card!.querySelector(".katex"), `panel ${idx} math`).toBeTruthy();
       }
     }
+    // both cards show the same, non-empty labels
+    expect(seen[0].length).toBe(s.formula_strip.length);
+    expect(seen[0].every((l) => l.length > 0)).toBe(true);
+    expect(seen[1]).toEqual(seen[0]);
   });
 });
 
