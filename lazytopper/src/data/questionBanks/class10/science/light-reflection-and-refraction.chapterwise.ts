@@ -347,15 +347,11 @@ export const LIGHT_REFLECTION_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq10 Q69", isCompetencyBased: true, },
   // cbjesccq10 Q70 (Section D, 5mk)
+  // LIGHT-044 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science (2026-27) Ch 9, Sec 9.3.3 (optical centre), Sec 9.3.4 Table 9.4 (convex lens image positions), Sec 9.3.6 lens formula
   { id: "SCQ-S-LIGHT-044", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Chapter Practice — Light - Reflection and Refraction", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "(a) Define optical centre of a spherical lens. (b) You are given a convex lens of focal length 30 cm. Where would you place an object to get a real, inverted and highly enlarged image of the object? Draw a ray diagram showing the image formation, (c) A concave lens has a focal length of 20 cm. At what distance an object should be placed so that it forms an image at 15 cm away from the lens?",
-    answer: "[All India 2011] a. Mid point of a lens through which a ray of light passes undeviated. b. At f 30 =+ cm, because when object is kept at fin case of a convex lens then its real, inverted and highly enlarged image is formed c. f 20 =- cm, v 15 =- cm, ? u = Lens formula v u 1 1 - f",
-    solutionSteps: [
-      "[1 mark] (a) Optical centre: the central point of a lens through which a ray of light passes without any deviation.",
-      "[1 mark] (b) For a real, inverted and highly enlarged image with a convex lens of f = 30 cm, place the object just beyond the focus F (a little beyond 30 cm from the lens). Draw the ray diagram.",
-      "[1 mark] (c) Given: f = −20 cm (concave lens), v = −15 cm. Lens formula: 1/v − 1/u = 1/f.",
-      "[1 mark] (c) 1/u = 1/v − 1/f = 1/(−15) − 1/(−20) = −1/15 + 1/20 = (−4 + 3)/60 = −1/60.",
-      "[1 mark] (c) u = −60 cm — the object must be placed 60 cm in front of the concave lens."
-    ],
+    answer: "[All India 2011] (a) Optical centre: the central point of a lens, through which a ray of light passes without any deviation. (b) Place the object just beyond the focus F, between F and 2F (a little more than 30 cm from the lens); a real, inverted and highly enlarged image is formed beyond 2F on the other side. (c) f = -20 cm, v = -15 cm; by the lens formula 1/v - 1/u = 1/f, 1/u = -1/15 + 1/20 = -1/60, so u = -60 cm: the object should be placed 60 cm in front of the concave lens.",
+    solutionSteps: ["[1 mark] (a) Optical centre: the central point of a lens through which a ray of light passes without any deviation.","[1 mark] (b) For a real, inverted and highly enlarged image with a convex lens of f = 30 cm, place the object just beyond the focus F, between F and 2F (a little more than 30 cm from the lens). Ray diagram: a ray parallel to the principal axis passes through F2 after refraction, and a ray through the optical centre goes undeviated; they meet beyond 2F2, forming a real, inverted, enlarged image.","[1 mark] (c) Given: f = −20 cm (concave lens), v = −15 cm. Lens formula: 1/v − 1/u = 1/f.","[1 mark] (c) 1/u = 1/v − 1/f = 1/(−15) − 1/(−20) = −1/15 + 1/20 = (−4 + 3)/60 = −1/60.","[1 mark] (c) u = −60 cm: the object must be placed 60 cm in front of the concave lens."],
+    finalAnswer: "(a) Optical centre is the central point of a lens through which light passes undeviated; (b) object just beyond F, between F and 2F (a little more than 30 cm); (c) u = −60 cm, i.e. 60 cm in front of the concave lens.",
     ncertRef: "cbjesccq10 Q70", isCompetencyBased: false, },
 ];

@@ -160,10 +160,12 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "Extraction of metals from their oxides by reduction, e.g. ZnO(s) + C(s) → Zn(s) + CO(g) on heating.",
     ncertRef: "cbjesccq01 Q3", isCompetencyBased: false },
   // cbjesccq01 Q4 (Section A, 1mk)
+  // CHEM-020 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 1 (jesc101) introduction, physical and chemical changes
   { id: "SCQ-S-CHEM-020", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Which one of the following is a chemical change? Give reason also. (a) Burning of wax (b) Melting of wax",
-    answer: "Burning of gas is a chemical change because new products with new properties will be formed on burning.",
-    solutionSteps: ["[2 marks] Burning of gas is a chemical change because new products with new properties will be formed on burning."],
+    answer: "(a) Burning of wax is a chemical change because new substances with new properties (carbon dioxide and water vapour) are formed, and the change cannot be reversed.",
+    solutionSteps: ["[1 mark] Burning of wax (option a) is a chemical change.","[1 mark] Reason: on burning, wax forms new substances with new properties (carbon dioxide and water vapour) and the change cannot be reversed; melting of wax only changes its state, so it is a physical change."],
+    finalAnswer: "(a) Burning of wax is a chemical change, because new products with new properties are formed.",
     ncertRef: "cbjesccq01 Q4", isCompetencyBased: true },
   // cbjesccq01 Q5 (Section A, 1mk)
   { id: "SCQ-S-CHEM-021", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -264,14 +266,12 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "a. 2H2(g) + O2(g) → 2H2O(l); b. CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g); c. CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + heat.",
     ncertRef: "cbjesccq01 Q89", isCompetencyBased: false },
   // cbjesccq01 Q90 (Section C, 3mk)
+  // CHEM-034 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 1 (jesc101) sec 1.2.1 Combination, 1.2.2 Decomposition, 1.2.4 Double Displacement
   { id: "SCQ-S-CHEM-034", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
-    questionText: "Name the type of reactions represented by the following equations: a. CaO + H2O $ Ca(OH)2 b. 3BaCl2 + Al2(SO4) $ 3BaSO4 + 2AlCl3 c. 2FeSO4 Heat Fe2O3 + SO2 + SO3",
-    answer: "a. Combination reaction. b. Double displacement reaction. c. Decomposition reaction.",
-    solutionSteps: [
-      "[1 mark] a. Combination reaction.",
-      "[1 mark] b. Double displacement reaction.",
-      "[1 mark] c. Decomposition reaction.",
-    ],
+    questionText: "Name the type of reactions represented by the following equations: a. CaO + H2O → Ca(OH)2 b. 3BaCl2 + Al2(SO4)3 → 3BaSO4 + 2AlCl3 c. 2FeSO4 →(heat) Fe2O3 + SO2 + SO3",
+    answer: "a. Combination reaction, b. Double displacement reaction, c. Decomposition reaction.",
+    solutionSteps: ["[1 mark] a. CaO + H2O → Ca(OH)2: two reactants form a single product, so it is a combination reaction.","[1 mark] b. 3BaCl2 + Al2(SO4)3 → 3BaSO4 + 2AlCl3: the reactants exchange ions (a white precipitate of BaSO4 forms), so it is a double displacement reaction.","[1 mark] c. 2FeSO4 →(heat) Fe2O3 + SO2 + SO3: a single reactant breaks down on heating into simpler products, so it is a (thermal) decomposition reaction."],
+    finalAnswer: "a. Combination reaction; b. double displacement reaction; c. decomposition reaction.",
     ncertRef: "cbjesccq01 Q90", isCompetencyBased: false },
   // cbjesccq01 Q105 (Section D, 5mk)
   { id: "SCQ-S-CHEM-035", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
