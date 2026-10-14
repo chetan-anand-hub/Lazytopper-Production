@@ -233,6 +233,46 @@ describe("FU-SAVE-SYNC-QUOTA — a result that could not be queued is never sile
     expect(askUnload()).toBe(false); // nothing alive to protect
   });
 
+  it("(j) the grade stamp SURVIVES a failed drain: a stripped entry whose first re-send attempt failed still refuses a different-grade mirror copy on the next drain", async () => {
+    h.mode = "hang";
+    const pad = Math.floor(MAX_OUTBOX_BYTES / 4);
+    for (let i = 0; i < 6; i++) writeSessionRecord(user, mk(i, pad));
+    expect(readOutbox(UID)[0].body).toBeUndefined();
+    const stamp = readOutbox(UID)[0].gradedAt;
+    expect(stamp).toBe(mk(0).gradedAt); // stamped when the body was stripped
+    __resetOutboxForTests();
+    // 1st drain while still offline: the re-sends fail (the usual case at load)
+    h.mode = "fail";
+    await drainOutbox(UID);
+    await vi.advanceTimersByTimeAsync(20_000);
+    await flush();
+    expect(readOutbox(UID)[0].gradedAt).toBe(stamp); // the re-upsert did not erase it
+    // the mirror is then replaced by an older grade (a cloud-wins read), and the network returns
+    const key = `lazytopper.user.${UID}.sessionRecords.v1`;
+    const mirror = JSON.parse(localStorage.getItem(key)!) as SessionRecord[];
+    localStorage.setItem(key, JSON.stringify(mirror.map((r) => (r.id === mk(0).id ? { ...r, gradedAt: 1 } : r))));
+    __resetOutboxForTests();
+    h.mode = "ok";
+    h.sends.length = 0;
+    await drainOutbox(UID);
+    await vi.waitFor(() => expect(h.sends.length).toBe(5));
+    expect(h.store.has(`sessionRecords/${UID}/records/${mk(0).id}`)).toBe(false);
+  });
+
+  it("(j2) an entry written BEFORE this change (no gradedAt) is stamped from its body when it is stripped", () => {
+    h.mode = "hang";
+    const pad = Math.floor(MAX_OUTBOX_BYTES / 4);
+    const legacy = mk(90, pad);
+    localStorage.setItem(
+      `lazytopper.sessionOutbox.v1:${UID}`,
+      JSON.stringify([{ kind: "record", id: legacy.id, queuedAt: new Date().toISOString(), body: legacy }]), // no gradedAt field
+    );
+    for (let i = 0; i < 5; i++) writeSessionRecord(user, mk(i, pad)); // pressure: the legacy entry is the oldest
+    const e = readOutbox(UID).find((x) => x.id === legacy.id)!;
+    expect(e.body).toBeUndefined();
+    expect(e.gradedAt).toBe(legacy.gradedAt);
+  });
+
   it("(g) CONTROL: a persisted entry keeps the normal offline line (device-only), never keep-open / manual", async () => {
     h.mode = "hang";
     writeSessionRecord(user, mk(3));

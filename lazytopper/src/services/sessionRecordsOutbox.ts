@@ -108,7 +108,8 @@ function writeOutbox(uid: string, list: OutboxEntry[]): boolean {
 }
 
 const withoutBody = (e: OutboxEntry): OutboxEntry => {
-  const copy: OutboxEntry = { ...e };
+  // keep the grade stamp of the body being dropped: the mirror fallback is only trusted when its gradedAt matches
+  const copy: OutboxEntry = { ...e, gradedAt: e.gradedAt ?? gradedAtOf(e.body) };
   delete copy.body;
   return copy;
 };
@@ -232,10 +233,10 @@ let generation = 0;
  * on failure, and settle the outbox entry on success. `send` must be a full-replace write that
  * is safe to repeat. Never throws.
  */
-const gradedAtOf = (body: unknown): number | undefined => {
+function gradedAtOf(body: unknown): number | undefined {
   const g = body && typeof body === "object" ? (body as { gradedAt?: unknown }).gradedAt : undefined;
   return typeof g === "number" ? g : undefined;
-};
+}
 
 export function trackCloudWrite(
   uid: string,
@@ -243,11 +244,11 @@ export function trackCloudWrite(
   id: string,
   queuedAt: string,
   send: (isCurrent: () => boolean) => Promise<unknown>,
-  opts: { body?: unknown; quiet?: boolean } = {},
+  opts: { body?: unknown; quiet?: boolean; gradedAt?: number } = {},
 ): void {
   const key = keyOf(kind, id);
   const gen = ++generation;
-  if (upsertEntry(uid, { kind, id, queuedAt, body: opts.body, gradedAt: gradedAtOf(opts.body), quiet: opts.quiet })) unpersisted.delete(key);
+  if (upsertEntry(uid, { kind, id, queuedAt, body: opts.body, gradedAt: gradedAtOf(opts.body) ?? opts.gradedAt, quiet: opts.quiet })) unpersisted.delete(key);
   else unpersisted.add(key);
   if (opts.quiet) quiet.add(key);
   else quiet.delete(key);
@@ -342,7 +343,7 @@ export async function drainOutbox(uid: string): Promise<void> {
           const outcome: ResendOutcome = await resendOutboxEntry(uid, entry, isCurrent);
           return outcome;
         },
-        { body: entry.body, quiet: entry.quiet },
+        { body: entry.body, quiet: entry.quiet, gradedAt: entry.gradedAt },
       );
     }
   } catch (error) {
