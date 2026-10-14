@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useHref } from "react-router-dom";
 import type {
   NoteConcept,
@@ -6,6 +6,7 @@ import type {
   NoteFigure,
   NoteMindmap,
   NoteSource,
+  NoteShortcut,
   NoteSpec,
   NoteSubject,
   RulesBlock,
@@ -14,6 +15,14 @@ import type {
 import { getNoteAssetSize, getNoteAssetUrl } from "./noteSpecRegistry";
 import { NoteRichText } from "./NoteRichText";
 import { NoteMindmapTree } from "./NoteMindmapTree";
+import {
+  SECTION_ANCHORS,
+  anchorFromHash,
+  anchorTabs,
+  hasTricks,
+  memoryTricksOf,
+  shortcutsOf,
+} from "./noteAnchors";
 import { NoteGeneratedFigure, hasGeneratedRenderer } from "./NoteGeneratedFigure";
 import NcertPageModal, { type NcertPageRef } from "./NcertPageModal";
 import { NoteFigureLightbox } from "./NoteFigureLightbox";
@@ -587,8 +596,23 @@ button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a
   .lt-note__gcol:last-child { border-bottom: none; }
 }
 
+/* ── NOTES-FORMULA-3a: headings, tips, shortcuts, anchors ───────────── */
+.lt-note__block, .lt-note__fitem, .lt-note__tcard, .lt-note__figure { scroll-margin-top: 72px; }
+.lt-note__h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--lt-note-navy, #0b1f3a); }
+.lt-note__ftip { margin-top: 6px; font-size: 13px; line-height: 1.45; color: #2a3b52; }
+.lt-note__ftip-k { font-weight: 700; color: #1d7a4c; }
+.lt-note__tcard { padding: 10px 12px; margin-top: 8px; border: 1px solid #d3eadf; border-radius: 12px; background: #fbfdfc; }
+.lt-note__ttext { font-size: 15px; line-height: 1.5; }
+.lt-note__tgloss { margin-top: 4px; font-size: 13px; line-height: 1.45; color: #4a5b72; font-style: italic; }
+.lt-note__tmeta { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 8px; font-size: 12px; color: #4a5b72; }
+.lt-note__tuse { padding: 1px 8px; border-radius: 999px; font-weight: 600; background: #e8f4ee; color: #1d6a43; }
+.lt-note__tuse--mcq-check { background: #fff4dd; color: #7a5200; }
+.lt-note__tricks-link { margin: 10px 0 0; font-size: 14px; font-weight: 600; }
+.lt-note__tricks-link a { color: #1d7a4c; text-decoration: none; }
+
 /* ── print: isolate the note, show every tab, drop app chrome (Part 3) ── */
 @media print {
+  .lt-note__fcard--second, .lt-note__tricks-link { display: none !important; }
   @page { margin: 14mm; }
   body { background: #fff !important; }
   body * { visibility: hidden !important; }
@@ -735,14 +759,16 @@ function LedgerSource({
   );
 }
 
-function FigureCard({ figure }: { figure: NoteFigure }) {
+/** `canonical` = the diagrams-tab copy: it alone carries the anchor id and the heading (a concept in the Note tab may reuse the same figure). */
+function FigureCard({ figure, canonical = false }: { figure: NoteFigure; canonical?: boolean }) {
   const assetUrl = getNoteAssetUrl(figure.asset);
   const size = getNoteAssetSize(figure.asset);
   const generated = hasGeneratedRenderer(figure);
   const [enlarged, setEnlarged] = useState(false);
-  const alt = figure.caption || figure.tag || "Note figure";
+  const alt = figure.alt || figure.caption || figure.tag || "Note figure";
   return (
-    <figure className="lt-note__figure">
+    <figure id={canonical ? figure.id : undefined} className="lt-note__figure">
+      {canonical && figure.heading && <h3 className="lt-note__h3"><NoteRichText text={figure.heading} /></h3>}
       {(figure.tag || figure.caption) && (
         <figcaption className="lt-note__fcap">
           {figure.tag && <span className="lt-note__ft"><NoteRichText text={figure.tag} /></span>}
@@ -915,21 +941,71 @@ function ExampleCard({
  * always in the DOM (and the prerendered HTML), so the text is present twice. An empty strip renders
  * nothing — no empty card.
  */
-function FormulaeCard({ items }: { items: NoteSpec["formula_strip"] }) {
+/**
+ * `canonical` = the copy in the second tab ("Formulae & Tricks"). It alone carries the anchors (`#formulae`
+ * and each item's `#<id>`): the same card is also shown after The Big Idea in the Note tab, and a duplicate
+ * id would make an anchor ambiguous. The canonical copy is hidden in print (the Note-tab copy prints), so
+ * the PDF no longer shows the card twice ([FU-NOTES-FORMULA-PRINT-DUPLICATE]).
+ */
+function FormulaeCard({ items, canonical = false }: { items: NoteSpec["formula_strip"]; canonical?: boolean }) {
   if (!items || items.length === 0) return null;
   return (
-    <section className="lt-note__block">
+    <section
+      id={canonical ? SECTION_ANCHORS.formulae : undefined}
+      className={"lt-note__block" + (canonical ? " lt-note__fcard--second" : "")}
+    >
       <div className="lt-note__sec-label">Formulae</div>
       <div className="lt-note__frow">
         {items.map((item, i) => (
-          <div key={i} className="lt-note__fitem">
+          <div key={i} id={canonical ? item.id : undefined} className="lt-note__fitem">
+            {item.heading && <h3 className="lt-note__h3"><NoteRichText text={item.heading} /></h3>}
             <div className="lt-note__flabel"><NoteRichText text={item.label} /></div>
             <div className="lt-note__fval">
               <NoteRichText text={item.math} />
             </div>
+            {item.tip && (
+              <div className="lt-note__ftip">
+                <span className="lt-note__ftip-k">Tip: </span>
+                <NoteRichText text={item.tip} />
+              </div>
+            )}
           </div>
         ))}
       </div>
+    </section>
+  );
+}
+
+const USE_LABEL: Record<NoteShortcut["use"], string | null> = {
+  "mcq-check": "MCQ / check only: don't write this as working",
+  "written-ok": "Safe in written answers",
+  "memory-aid": null,
+};
+
+/**
+ * NOTES-FORMULA-3a — the "Shortcuts & Tricks" card (mcq-check / written-ok) and the "Memory Tricks" card
+ * (memory-aid). Nothing renders when the chapter has none (honest empty state).
+ *
+ * STANDING BUILD RULE (D221): only heading / body (`text`) / `gloss` / `tip` and the safe-use tag render. `source` (and any
+ * mapping column) is INTERNAL provenance and must never reach the student DOM; `Note.anchors.test.tsx` pins it.
+ */
+function ShortcutsCard({ items, section, label }: { items: NoteShortcut[]; section: string; label: string }) {
+  if (items.length === 0) return null;
+  return (
+    <section id={section} className="lt-note__block">
+      <div className="lt-note__sec-label">{label}</div>
+      {items.map((s) => (
+        <div key={s.id} id={s.id} className="lt-note__tcard">
+          {s.heading && <h3 className="lt-note__h3"><NoteRichText text={s.heading} /></h3>}
+          <div className="lt-note__ttext"><NoteRichText text={s.text} /></div>
+          {s.gloss && <div className="lt-note__tgloss"><NoteRichText text={s.gloss} /></div>}
+          {USE_LABEL[s.use] && (
+            <div className="lt-note__tmeta">
+              <span className={"lt-note__tuse lt-note__tuse--" + s.use}>{USE_LABEL[s.use]}</span>
+            </div>
+          )}
+        </div>
+      ))}
     </section>
   );
 }
@@ -939,7 +1015,7 @@ function MindmapPanel({ mindmap }: { mindmap: NoteMindmap }) {
     !!mindmap && !mindmap._TODO && !!mindmap.root && Array.isArray(mindmap.branches) &&
     mindmap.branches.length > 0;
   return (
-    <section className="lt-note__block">
+    <section id={SECTION_ANCHORS.mindmap} className="lt-note__block">
       <div className="lt-note__sec-label">Mindmap</div>
       {hasTree ? (
         <NoteMindmapTree mindmap={mindmap} />
@@ -1116,10 +1192,10 @@ function ThirdTabPanel({
       );
     case "diagrams":
       return (
-        <section className="lt-note__block">
+        <section id={SECTION_ANCHORS.diagrams} className="lt-note__block">
           {intro}
           {content.diagrams.map((ref) =>
-            figures[ref] ? <FigureCard key={ref} figure={figures[ref]} /> : null,
+            figures[ref] ? <FigureCard key={ref} figure={figures[ref]} canonical /> : null,
           )}
         </section>
       );
@@ -1275,7 +1351,34 @@ export interface NoteProps {
 }
 
 export function Note({ spec, initialTab }: NoteProps) {
-  const [tab, setTab] = useState<NoteTab>(initialTab ?? "note");
+  // NOTES-FORMULA-3a: a hash link (`#shortcuts`, `#<id>`) names an anchor on one of the tabs; it wins over `?tab=`.
+  const anchors = useMemo(() => anchorTabs(spec), [spec]);
+  const [tab, setTab] = useState<NoteTab>(() => {
+    const fromHash = typeof window !== "undefined" ? anchors.get(anchorFromHash(window.location.hash)) : undefined;
+    return fromHash ?? initialTab ?? "note";
+  });
+  const [scrollTo, setScrollTo] = useState<string | null>(() =>
+    typeof window !== "undefined" && anchors.has(anchorFromHash(window.location.hash)) ? anchorFromHash(window.location.hash) : null,
+  );
+  /** Open the tab that holds `anchor` and scroll to it (a no-op for an anchor this page does not have). */
+  const openAnchor = (anchor: string) => {
+    const t = anchors.get(anchor);
+    if (!t) return;
+    setTab(t);
+    setScrollTo(anchor);
+  };
+  useEffect(() => {
+    const onHash = () => openAnchor(anchorFromHash(window.location.hash));
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anchors]);
+  useEffect(() => {
+    if (!scrollTo) return;
+    const el = document.getElementById(scrollTo);
+    if (el && typeof el.scrollIntoView === "function") el.scrollIntoView({ block: "start" });
+    setScrollTo(null);
+  }, [scrollTo, tab]);
   // C4 — the NCERT page-ref whose popup is open (null = closed). Set by any
   // clickable "p.N" cite (CiteLine); rendered by <NcertPageModal> below.
   const [pageRef, setPageRef] = useState<NcertPageRef | null>(null);
@@ -1337,7 +1440,7 @@ export function Note({ spec, initialTab }: NoteProps) {
           className={`lt-note__tab${tab === "mind" ? " lt-note__tab--active" : ""}`}
           onClick={() => setTab("mind")}
         >
-          {spec.formula_strip.length > 0 ? "Formulae & Mindmap" : "Mindmap"}
+          {hasTricks(spec) ? "Formulae & Tricks" : spec.formula_strip.length > 0 ? "Formulae & Mindmap" : "Mindmap"}
         </button>
         <button
           type="button"
@@ -1393,6 +1496,21 @@ export function Note({ spec, initialTab }: NoteProps) {
           )}
 
           <FormulaeCard items={spec.formula_strip} />
+          {hasTricks(spec) && (
+            <p className="lt-note__tricks-link">
+              <a
+                href={"#" + (shortcutsOf(spec).length > 0 ? SECTION_ANCHORS.shortcuts : SECTION_ANCHORS.memoryTricks)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const id = shortcutsOf(spec).length > 0 ? SECTION_ANCHORS.shortcuts : SECTION_ANCHORS.memoryTricks;
+                  // no URL write: pushState left Back on a stale tab and polluted the Topic Hub URL when <Note> is in NoteModal
+                  openAnchor(id);
+                }}
+              >
+                Shortcuts &amp; memory tricks &rarr;
+              </a>
+            </p>
+          )}
 
           {spec.definitions.length > 0 && (
             <section className="lt-note__block">
@@ -1546,7 +1664,9 @@ export function Note({ spec, initialTab }: NoteProps) {
 
       {/* ── Mindmap tab ── */}
       <div className={"lt-note__panel" + (tab === "mind" ? " lt-note__panel--active" : "")}>
-        <FormulaeCard items={spec.formula_strip} />
+        <FormulaeCard items={spec.formula_strip} canonical />
+        <ShortcutsCard items={shortcutsOf(spec)} section={SECTION_ANCHORS.shortcuts} label="Shortcuts & Tricks" />
+        <ShortcutsCard items={memoryTricksOf(spec)} section={SECTION_ANCHORS.memoryTricks} label="Memory Tricks" />
         <MindmapPanel mindmap={spec.mindmap} />
       </div>
 
