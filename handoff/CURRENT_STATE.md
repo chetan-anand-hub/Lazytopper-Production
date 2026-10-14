@@ -1,5 +1,21 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-14 · PERF-1 PR-3 + PERF-2] `#1139` `#1140` `#1141` MERGED — brand images are WebP with true dimensions (wordmark aspect ratio fixed); `qrcode` loads on demand
+
+*(Adds to the blocks below, which stay current for everything this block does not name. Written by C2 under §10 from `#973` (D175, D179, D182, D185), `gh pr view` and `git log`. No grading code, route, prompt, data or auth file changed.)*
+
+★ **TRUNK at writing:** `bb853239` (`#1141`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1139` PERF-1 PR-3 | `66a68ef1` | 10-13 21:23:21 | contrast guard pins every occurrence (54 cases); Practice Hub card CTA/hint ink and the Check & Improve link reach 4.5:1. Colour only |
+| `#1140` PERF-2 PR-A | `1e5119d9` | 10-13 23:02:01 | four home brand PNGs get lossless WebP twins in `<picture>`; true width/height on each; the wordmark keeps its width and takes its true height (was drawn 4.33:1 from a 3.5:1 file). `Welcome.tsx` by owner grant, D175 |
+| `#1141` PERF-2 PR-B2 | `bb853239` | 10-13 23:45:43 | `generateQRDataUrl` does `await import("qrcode")`; entry chunk gz9 −10.4 KB; `qrcode` is its own chunk; the lazy `/login` `/sign-up` half was DROPPED (D179 §3) |
+
+- **Surfaces.** None of the six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) changed behaviour.
+- **Owed (owner):** a glance at the wordmark before/after (`Desktop\diff\perf2a-shots\`; revert = one CSS rule); one real desktop QR draw (phone-upload handoff); the www Lighthouse/axe table is still unmeasured.
+- **PERF-2's 150 KB target for `/` and `/check-your-answer`** is NOT met: only the Firestore removal reaches it (PERF-3, waits for the owner's ruling).
+
 ## [CURRENT · 2026-10-14 · BANK-STEPS-1 + GARBLE-1] QUESTIONS WHOSE WORKED STEPS ANSWER ANOTHER QUESTION, OR WHOSE STEM WAS DAMAGED AT PDF EXTRACTION, ARE WITHHELD UNTIL REPAIRED — `#1116` `#1123` `#1125` `#1130` `#1131` `#1136` MERGED
 
 *(Adds to the blocks directly below, which stay current for everything this block does not name. Written by A under §10 from `#973` (DECISIONS 126, 131, 143, 152–154, 156–157, 159, 165, 169–171), `gh pr view` and `git log`. Content only: no grading code, route or prompt changed.)*

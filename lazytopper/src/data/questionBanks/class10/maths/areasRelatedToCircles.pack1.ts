@@ -25,9 +25,7 @@ export const AREAS_RELATED_TO_CIRCLES_PACK1: CanonicalQuestion[] = [
   { id: "ARC-E10", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The area of the shaded region when a circle of radius 7 cm is inscribed in a square is:", options: ["42 cm²", "196 − 154 = 42 cm²", "154 cm²", "196 cm²"], answer: "196 − 154 = 42 cm²", explanation: "Square area = 14² = 196. Circle area = 154. Shaded = 42 cm². Therefore, the correct answer is 196 − 154 = 42 cm².", solutionSteps: ["Square area = 14² = 196", "Circle area = 154", "Shaded = 42 cm²"], finalAnswer: "42 cm²" , isCompetencyBased: false },
   { id: "ARC-E11", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sectors and Segments", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Area of a sector = (θ/360) × πr². The formula for arc length is:", options: ["(θ/360) × 2πr", "(θ/180) × πr", "θ × πr", "(θ/360) × πr²"], answer: "(θ/360) × 2πr", explanation: "The correct answer is (θ/360) × 2πr. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "(θ/360) × 2πr" , isCompetencyBased: false,
     solutionSteps: [
-      "Formula for area of a sector: Area = (theta/360) * pi * r^2.",
-      "Substitute given values: r = 6 cm, theta = 60 degrees, pi = 3.14.",
-      "Calculate: Area = (60/360) * 3.14 * 6^2 = (1/6) * 3.14 * 36 = 6 * 3.14 = 18.84 cm^2.",
+      "The length of an arc of a sector of angle θ is (θ/360) × 2πr. [1]",
     ],
   },
   { id: "ARC-E12", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sectors and Segments", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "The minute hand of a clock is 12 cm long. Find the area swept by it in 20 minutes.", solutionSteps: [
@@ -55,10 +53,7 @@ export const AREAS_RELATED_TO_CIRCLES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "25π cm²" , isCompetencyBased: true },
   { id: "ARC-E17", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sectors and Segments", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The ratio of the area of a circle to the area of a semicircle with the same radius is:", options: ["2:1", "1:2", "1:1", "4:1"], answer: "2:1", explanation: "The correct answer is 2:1. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "2:1" , isCompetencyBased: false,
     solutionSteps: [
-      "Given circumference = 22 cm. Formula for circumference is 2 * pi * r. So, 2 * (22/7) * r = 22.",
-      "Solving for r: r = (22 * 7) / (2 * 22) = 7/2 cm.",
-      "Area of a quadrant = (1/4) * pi * r^2 = (1/4) * (22/7) * (7/2)^2 = (1/4) * (22/7) * (49/4).",
-      "Calculate the area: = (1/4) * 22 * (7/4) = 11 * (7/8) = 77/8 cm^2.",
+      "Area of the circle = πr² and area of the semicircle = ½πr², so the ratio is πr² : ½πr² = 2 : 1. [1]",
     ],
   },
   { id: "ARC-E18", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sectors and Segments", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the area of a sector whose arc length is 22 cm and radius is 21 cm.", solutionSteps: [

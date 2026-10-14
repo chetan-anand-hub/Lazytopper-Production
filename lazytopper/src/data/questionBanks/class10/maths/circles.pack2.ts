@@ -1350,11 +1350,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   },
   { id: "CI2-053", subject: "Maths", topicKey: "circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA = 5 cm is a tangent to a circle of radius 3 cm, the distance OP (O = centre) is:", options: ["√34 cm","4 cm","√5 cm","8 cm"], answer: "√34 cm", explanation: "The correct answer is √34 cm. OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", finalAnswer: "OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", isCompetencyBased: false,
     solutionSteps: [
-      "Let the radius be 'r'. The radius is perpendicular to the tangent at the point of contact.",
-      "This forms a right-angled triangle with the radius, tangent, and distance from Q to the centre.",
-      "Using Pythagoras theorem: (distance from Q to centre)^2 = (tangent length)^2 + r^2.",
-      "25^2 = 24^2 + r^2 => 625 = 576 + r^2.",
-      "r^2 = 625 - 576 = 49. Therefore, r = sqrt(49) = 7 cm.",
+      "The tangent is perpendicular to the radius at the point of contact, so OP² = OA² + PA² = 3² + 5² = 34, hence OP = √34 cm. [1]",
     ],
   },
   { id: "CI2-054", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of tangents that can be drawn from a point inside a circle is:", options: ["0","1","2","Infinite"], answer: "0", explanation: "The correct answer is 0. No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", finalAnswer: "No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", isCompetencyBased: false,

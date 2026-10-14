@@ -1240,9 +1240,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
   },
   { id: "ARC2-052", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a semicircle with diameter 28 cm is:", options: ["308 cm²","154 cm²","616 cm²","77 cm²"], answer: "308 cm²", explanation: "The correct answer is 308 cm². r = 14. Semicircle area = (1/2)πr² = (1/2) × (22/7) × 196 = 308 cm².", finalAnswer: "r = 14. Semicircle area = (1/2)πr² = (1/2) × (22/7) × 196 = 308 cm².", isCompetencyBased: false,
     solutionSteps: [
-      "The formula for the area of a sector is A = (theta/360) * pi * r^2.",
-      "Given radius r = 6 cm and angle theta = 60°. Substitute pi = 22/7.",
-      "Area = (60/360) * (22/7) * 6^2 = (1/6) * (22/7) * 36 = (22/7) * 6 = 132/7 cm^2.",
+      "Diameter 28 cm gives r = 14 cm, so the area of the semicircle = ½πr² = ½ × (22/7) × 14² = 308 cm². [1]",
     ],
   },
   { id: "ARC2-053", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The perimeter of a sector with radius 7 cm and angle 60° is:", options: ["21.33 cm","14 cm","22 cm","28 cm"], answer: "21.33 cm", explanation: "The correct answer is 21.33 cm. Perimeter = 2r + arc = 2(7) + (60/360)×2π×7 = 14 + 22/3 ≈ 14 + 7.33 = 21.33 cm.", finalAnswer: "Perimeter = 2r + arc = 2(7) + (60/360)×2π×7 = 14 + 22/3 ≈ 14 + 7.33 = 21.33 cm.", isCompetencyBased: false,
