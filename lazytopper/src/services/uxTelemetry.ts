@@ -34,7 +34,9 @@ type UxEventName =
   | "onboarding_start"
   | "onboarding_complete"
   | "first_practice_start"
-  | "first_practice_complete";
+  | "first_practice_complete"
+  | "pdf_shrink"
+  | "shrink_timeout";
 
 export type UxTelemetryEvent = {
   name: UxEventName;

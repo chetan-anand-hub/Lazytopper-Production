@@ -27,24 +27,9 @@ export const trianglesTopicHubPack = {
       "examTip": "Mention the ratio condition first and then conclude the line is parallel."
     },
     {
-      "title": "Pythagoras Theorem",
-      "detail": "In a right‑angled triangle, the square of the hypotenuse equals the sum of the squares of the other two sides.",
-      "examTip": "Identify the hypotenuse correctly and state that the triangle is right angled."
-    },
-    {
-      "title": "Converse of Pythagoras",
-      "detail": "If the square of one side of a triangle equals the sum of the squares of the other two sides, then the triangle is right angled with the right angle opposite the longest side.",
-      "examTip": "Write the equality first and then conclude that the triangle is right angled."
-    },
-    {
       "title": "Similarity Criteria",
       "detail": "Triangles are similar if any of the following holds: two angles are equal (AA), the ratios of all three pairs of corresponding sides are equal (SSS), or the ratios of two pairs of sides are equal and the included angles are equal (SAS).",
       "examTip": "State which criterion (AA, SSS or SAS) you are using when proving similarity."
-    },
-    {
-      "title": "Angle Bisector Theorem",
-      "detail": "In a triangle, the internal bisector of an angle divides the opposite side internally in the ratio of the adjacent sides.",
-      "examTip": "Mention that the segment is the angle bisector and write the ratio of adjacent sides correctly."
     }
   ],
   "examPatterns": [],
@@ -61,19 +46,14 @@ export const trianglesTopicHubPack = {
       "examTip": "In ΔABC, DE ∥ BC with AD = 3 cm, DB = 2 cm and AE = 4 cm. Find EC."
     },
     {
-      "title": "Apply the Pythagoras theorem and its converse",
-      "detail": "1. Identify the longest side and check whether the triangle is right angled or needs verification.\n2. Use a² + b² = c² for right‑angled triangles to find missing sides.\n3. For the converse, square all sides and compare sums to verify a right angle.\n4. State your conclusion clearly after calculation.",
-      "examTip": "ΔPQR has PQ = 6 cm, PR = 8 cm and QR = 10 cm. Determine whether it is right angled."
+      "title": "Use a² + b² = c² as a numeric tool",
+      "detail": "1. Mark the right angle and the longest side (the hypotenuse) from the figure.\n2. Write a² + b² = c² with the known sides substituted.\n3. Solve for the unknown side.\n4. Give the answer with its unit.",
+      "examTip": "A 10 m ladder reaches 8 m up a wall. Find the distance of its foot from the wall."
     },
     {
       "title": "Construct logical geometric proofs",
       "detail": "1. Draw a neat figure and label all known quantities.\n2. Write down the ‘given’ and ‘to prove’ statements.\n3. Use appropriate theorems like BPT or similarity criteria with justification.\n4. Sequence your steps logically and cite reasons for each.\n5. Conclude with a clear statement of what has been proven.",
-      "examTip": "Prove that the ratio of the areas of two similar triangles equals the square of the ratio of their corresponding sides."
-    },
-    {
-      "title": "Use the Angle Bisector theorem",
-      "detail": "1. Identify the bisected angle and draw the bisector.\n2. Apply BD/DC = AB/AC to relate side segments.\n3. Represent unknown segments as multiples of a common variable if needed.\n4. Solve for the unknowns and check your ratio.",
-      "examTip": "In ΔABC, AD bisects ∠A with AB = 8 cm, AC = 6 cm and BD = 4 cm. Find DC."
+      "examTip": "Prove that a line drawn parallel to one side of a triangle divides the other two sides in the same ratio."
     }
   ],
   "markingTips": [
@@ -127,43 +107,20 @@ export const trianglesTopicHubPack = {
     },
     {
       "id": "we3",
-      "title": "Applying Pythagoras to classify a triangle",
+      "title": "Finding a missing side with a² + b² = c²",
       "difficulty": "Medium",
       "marks": 3,
-      "question": "Triangle ABC has sides 7 cm, 24 cm and 25 cm. Show whether the triangle is right angled and identify the right angle.",
+      "question": "In ΔABC, ∠B = 90°, AB = 7 cm and BC = 24 cm. Find AC.",
       "solutionSteps": [
-        "Assume the longest side, 25 cm, is the hypotenuse.",
-        "Calculate 7² + 24² = 49 + 576 = 625.",
-        "Calculate 25² = 625.",
-        "Since 49 + 576 = 625 equals 25², the triangle satisfies the Pythagoras theorem.",
-        "Therefore, ΔABC is right angled at the vertex opposite the side of length 25 cm."
+        "The right angle is at B, so AC is the longest side (the hypotenuse).",
+        "Write AC² = AB² + BC².",
+        "Substitute: AC² = 7² + 24² = 49 + 576 = 625.",
+        "Take the square root: AC = 25 cm."
       ],
-      "finalAnswer": "Yes, it is right angled at the vertex opposite the 25 cm side.",
+      "finalAnswer": "AC = 25 cm.",
       "examinerNotes": [
-        "Identify the largest side as the potential hypotenuse.",
-        "Show the calculation of squares explicitly before concluding."
-      ]
-    },
-    {
-      "id": "we4",
-      "title": "Using the Angle Bisector theorem to find segment lengths",
-      "difficulty": "Hard",
-      "marks": 5,
-      "question": "In ΔABC, AB = 9 cm and AC = 6 cm. The bisector of ∠A meets BC at D. Prove that BD/DC = AB/AC and find BD and DC if BC = 15 cm.",
-      "solutionSteps": [
-        "Draw ΔABC and the angle bisector AD.",
-        "By the Angle Bisector theorem, BD/DC = AB/AC.",
-        "Substitute the given side lengths: BD/DC = 9/6 = 3/2.",
-        "Let BD = 3k and DC = 2k (a common multiple for the 3:2 ratio).",
-        "Since BD + DC = BC, write 3k + 2k = 15 cm.",
-        "Combine like terms: 5k = 15, so k = 3.",
-        "Calculate BD = 3 × 3 = 9 cm and DC = 2 × 3 = 6 cm."
-      ],
-      "finalAnswer": "BD = 9 cm and DC = 6 cm.",
-      "examinerNotes": [
-        "State the Angle Bisector theorem clearly before using it.",
-        "Introduce a common variable for the ratio to avoid arithmetic errors.",
-        "Check that the sum of BD and DC matches the given BC."
+        "Identify the hypotenuse before substituting.",
+        "Show the squares explicitly and give the unit in the final answer."
       ]
     }
   ],
@@ -261,26 +218,6 @@ export const trianglesTopicHubPack = {
         "description": "Proportional division implies parallel lines."
       },
       {
-        "id": "n6",
-        "label": "Pythagoras",
-        "description": "Relation among sides in a right‑angled triangle."
-      },
-      {
-        "id": "n7",
-        "label": "Converse Pythagoras",
-        "description": "Tests whether a triangle is right angled."
-      },
-      {
-        "id": "n8",
-        "label": "Angle Bisector",
-        "description": "Relates the bisected angle to side segments."
-      },
-      {
-        "id": "n9",
-        "label": "Area Ratio",
-        "description": "Area comparison of similar triangles."
-      },
-      {
         "id": "n10",
         "label": "Applications",
         "description": "Real‑life uses like measuring heights and distances."
@@ -323,11 +260,6 @@ export const trianglesTopicHubPack = {
         "label": "converse of"
       },
       {
-        "from": "n2",
-        "to": "n9",
-        "label": "implies"
-      },
-      {
         "from": "n4",
         "to": "n2",
         "label": "used to show"
@@ -336,26 +268,6 @@ export const trianglesTopicHubPack = {
         "from": "n5",
         "to": "n4",
         "label": "requires"
-      },
-      {
-        "from": "n6",
-        "to": "n7",
-        "label": "converse of"
-      },
-      {
-        "from": "n2",
-        "to": "n6",
-        "label": "extends"
-      },
-      {
-        "from": "n8",
-        "to": "n2",
-        "label": "used in"
-      },
-      {
-        "from": "n8",
-        "to": "n5",
-        "label": "similar to"
       },
       {
         "from": "n2",
@@ -371,11 +283,6 @@ export const trianglesTopicHubPack = {
         "from": "n11",
         "to": "n13",
         "label": "leads to"
-      },
-      {
-        "from": "n9",
-        "to": "n10",
-        "label": "applied in"
       },
       {
         "from": "n3",
@@ -427,27 +334,9 @@ export const trianglesTopicHubPack = {
     },
     {
       "id": "for_pyth",
-      "title": "Pythagoras Theorem",
-      "formula": "In a right‑angled triangle, a² + b² = c² where c is the hypotenuse.",
-      "whenToUse": "To relate the sides of a right‑angled triangle."
-    },
-    {
-      "id": "for_converse_pyth",
-      "title": "Converse of Pythagoras",
-      "formula": "If a² + b² = c² in a triangle, then the triangle is right angled opposite the side c.",
-      "whenToUse": "To check whether a given triangle is right angled."
-    },
-    {
-      "id": "for_angle_bisector",
-      "title": "Angle Bisector Theorem",
-      "formula": "In ΔABC, if AD bisects ∠A, then BD/DC = AB/AC.",
-      "whenToUse": "To relate segments created by an angle bisector to the adjacent sides."
-    },
-    {
-      "id": "for_area_ratio",
-      "title": "Area Ratio of Similar Triangles",
-      "formula": "Area(ΔABC) / Area(ΔDEF) = (AB/DE)².",
-      "whenToUse": "To compare areas of two similar triangles based on side ratios."
+      "title": "Right-angled triangle relation (numeric tool)",
+      "formula": "a² + b² = c², where c is the hypotenuse.",
+      "whenToUse": "To find a missing side in a right-angled triangle in height, distance and tangent-length problems."
     }
   ],
   "videos": [
@@ -462,18 +351,6 @@ export const trianglesTopicHubPack = {
       "title": "Similarity Criteria of Triangles | AA, SSS, SAS",
       "url": "https://www.youtube.com/watch?v=XX0P1dP7X6s",
       "whyThis": "It explains the three criteria for triangle similarity with worked examples, making it easier to remember when to use each."
-    },
-    {
-      "id": "vid3",
-      "title": "Pythagoras Theorem and Its Converse | CBSE Class 10",
-      "url": "https://www.youtube.com/watch?v=Q4KFA18PYow",
-      "whyThis": "This video illustrates both the Pythagoras theorem and its converse and shows how to apply them in exam‑style problems."
-    },
-    {
-      "id": "vid4",
-      "title": "Angle Bisector Theorem | Proof and Applications",
-      "url": "https://www.youtube.com/watch?v=hrJUgV5CLz8",
-      "whyThis": "It demonstrates the angle bisector theorem step by step and shows how to use it to solve side‑segment problems."
     }
   ]
 } as const;

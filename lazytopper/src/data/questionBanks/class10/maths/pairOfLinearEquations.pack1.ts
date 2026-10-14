@@ -43,10 +43,7 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
   },
   { id: "PLE-E11", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Solutions/Nature", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Two intersecting lines represent a pair of equations with:", options: ["No solution", "Infinitely many solutions", "Exactly one solution", "Exactly two solutions"], answer: "Exactly one solution", explanation: "The correct answer is Exactly one solution. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Exactly one solution" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify coefficients: a1=1, b1=2, c1=5; a2=-3, b2=-6, c2=1.",
-      "Calculate ratios: a1/a2 = 1/-3; b1/b2 = 2/-6 = 1/-3; c1/c2 = 5/1.",
-      "Compare ratios: a1/a2 = b1/b2 (both -1/3), but a1/a2 != c1/c2 (since -1/3 != 5).",
-      "This condition (a1/a2 = b1/b2 != c1/c2) indicates that the lines are parallel and have no solution.",
+      "[1 mark] Option (C) Exactly one solution: two intersecting lines meet at exactly one point (a1/a2 ≠ b1/b2), so the pair is consistent with a unique solution.",
     ],
   },
   { id: "PLE-E12", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: 3x + 4y = 10 and x − y = 1.", solutionSteps: [
@@ -57,14 +54,12 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
   { id: "PLE-E13", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word & Application Problems", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The sum of two numbers is 35 and their difference is 13. The numbers are:", options: ["24 and 11", "20 and 15", "22 and 13", "25 and 10"], answer: "24 and 11", explanation: "x + y = 35, x − y = 13. 2x = 48, x = 24, y = 11. Therefore, the correct answer is 24 and 11.", solutionSteps: ["x + y = 35, x − y = 13", "2x = 48, x = 24, y = 11"], finalAnswer: "24 and 11" , isCompetencyBased: false },
   { id: "PLE-E14", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Solutions/Nature", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The condition for a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0 to have a unique solution is:", options: ["a₁/a₂ = b₁/b₂", "a₁/a₂ ≠ b₁/b₂", "a₁/a₂ = b₁/b₂ = c₁/c₂", "a₁b₂ = a₂b₁"], answer: "a₁/a₂ ≠ b₁/b₂", explanation: "The correct answer is a₁/a₂ ≠ b₁/b₂. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "a₁/a₂ ≠ b₁/b₂" , isCompetencyBased: false,
     solutionSteps: [
-      "The question text for this MCQ is missing. Therefore, the problem cannot be analyzed.",
-      "Please provide the complete question text to generate the appropriate solution steps and final answer.",
+      "[1 mark] Option (B) a1/a2 ≠ b1/b2: when the coefficient ratios of x and y differ, the lines are not parallel, so they intersect at exactly one point (unique solution).",
     ],
   },
   { id: "PLE-E15", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Algebraic Solution Methods", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: 2x − 3y = 0, 3x − 8y = 0. The solution is:", options: ["x = 0, y = 0", "x = 3, y = 2", "x = 8, y = 3", "No solution"], answer: "x = 0, y = 0", explanation: "The correct answer is x = 0, y = 0. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "x = 0, y = 0" , isCompetencyBased: true,
     solutionSteps: [
-      "The question text for this MCQ is missing. Therefore, the problem cannot be analyzed.",
-      "Please provide the complete question text to generate the appropriate solution steps and final answer.",
+      "[1 mark] Option (A) x = 0, y = 0: from 2x − 3y = 0, x = 3y/2; substituting in 3x − 8y = 0 gives 9y/2 − 8y = −7y/2 = 0, so y = 0 and x = 0 (a1/a2 = 2/3 ≠ b1/b2 = 3/8, so this is the only solution).",
     ],
   },
   { id: "PLE-E16", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word & Application Problems", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "5 pencils and 7 pens cost ₹50. 7 pencils and 5 pens cost ₹46. Find the cost of each.", solutionSteps: [

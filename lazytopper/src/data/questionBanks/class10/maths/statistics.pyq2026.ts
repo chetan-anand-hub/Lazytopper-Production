@@ -11,9 +11,9 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const STATISTICS_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-STAT-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the mean of the following distribution : Class 30 – 40 40 – 50 50 – 60 60 – 70 70 – 80 Frequency 6 13 8 12 11",
-    answer: "Class Frequency (𝑓𝑖) 𝑥𝑖 𝑓𝑖𝑥𝑖 30 – 40 6 35 210 40 – 50 13 45 585 50 – 60 8 55 440 60 – 70 12 65 780 70 – 80 11 75 825 Total 50 2840 Correct table Mean = 2840 50 = 56.8",
-    solutionSteps: ["Class Frequency (𝑓𝑖) 𝑥𝑖 𝑓𝑖𝑥𝑖 30 – 40 6 35 210 40 – 50 13 45 585 50 – 60 8 55 440 60 – 70 12 65 780 70 – 80 11 75 825 Total 50 2840 Correct table Mean = 2840 50 = 56.8"],
-    finalAnswer: "Class Frequency (𝑓𝑖) 𝑥𝑖 𝑓𝑖𝑥𝑖 30 – 40 6 35 210 40 – 50 13 45 585 50 – 60 8 55 440 60 – 70 12 65 780 70 – 80 11 75 825 Total 50 2840 Correct table Mean = 2840 50 = 56.8",
+    answer: "Class marks x_i = 35, 45, 55, 65, 75 for f_i = 6, 13, 8, 12, 11; Σf_i = 50. f_i × x_i = 210, 585, 440, 780, 825; Σ(f_i × x_i) = 2840. Mean = Σ(f_i × x_i) / Σf_i = 2840/50 = 56.8.",
+    solutionSteps: ["[1 mark] Class marks x_i = 35, 45, 55, 65, 75 for f_i = 6, 13, 8, 12, 11; Σf_i = 50.", "[1 mark] f_i × x_i = 210, 585, 440, 780, 825; Σ(f_i × x_i) = 2840.", "[1 mark] Mean = Σ(f_i × x_i) / Σf_i = 2840/50 = 56.8."],
+    finalAnswer: "Mean = 56.8.",
     ncertRef: "PYQ 30(B) Q31", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },
   { id: "PYQ-M-2026-STAT-002", subject: "Maths", topicKey: "statistics", subtopic: "Median", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

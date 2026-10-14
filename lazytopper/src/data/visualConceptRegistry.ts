@@ -108,8 +108,6 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
     concepts: [
       c("maths", "triangles", "Similar Triangles and Criteria", ["similar", "AA", "SSS", "SAS", "criteria"]),
       c("maths", "triangles", "Basic Proportionality Theorem", ["BPT", "thales", "parallel", "ratio", "proportionality"]),
-      c("maths", "triangles", "Pythagoras Theorem Visual Proof", ["pythagoras", "right", "triangle", "hypotenuse", "proof"]),
-      c("maths", "triangles", "Areas of Similar Triangles", ["area", "ratio", "square", "sides", "similar"]),
     ],
   },
   {
@@ -465,7 +463,9 @@ export function findVisualForQuestion(
         }
       }
       if (bestMatch && bestScore > 2) return bestMatch;
-      return chapterVisuals[0];
+      // Nothing in the chapter matches well enough: show no visual (a wrong visual is worse than none; same rule as
+      // findVisualForConcept). Bank rows can still point at visual ids that no longer exist (PYTHAGORAS-HUB-2).
+      return null;
     }
   }
 

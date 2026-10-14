@@ -110,6 +110,7 @@ import {
   toSessionSubject,
 } from "../../services/checkImproveGradeService";
 import ResultsScorecard from "../../components/results/ResultsScorecard";
+import { StepAnnotation } from "../../components/results/StepAnnotation";
 import {
   checkImproveScorecardVariant,
   ciPaperMixLabel,
@@ -767,17 +768,9 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?:
       )}
 
       {step.teacherAnnotation && (
-        <div
-          style={{
-            fontFamily: FONT_SANS,
-            fontStyle: "italic",
-            fontSize: 12,
-            color: meta.fg,
-            lineHeight: 1.5,
-          }}
-        >
-          ↳ <EquationRender text={step.teacherAnnotation} />
-        </div>
+        <StepAnnotation tone={display.tone} consequentialOf={step.consequentialOf} className="lt-stann--screen">
+          <EquationRender text={step.teacherAnnotation} />
+        </StepAnnotation>
       )}
 
       {step.correctedWorking && (

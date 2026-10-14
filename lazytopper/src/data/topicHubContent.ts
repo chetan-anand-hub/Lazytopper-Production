@@ -270,35 +270,30 @@ export const topicHubContent: TopicHubBlock[] = [
     coreIdeas: [
       'Similar triangles (SSS, SAS, AA criteria).',
       'Basic proportionality theorem (Thales theorem) and converse.',
-      'Pythagoras theorem and converse.',
-      'Properties of similar triangles: ratio of corresponding sides = ratio of perimeters = ratio of areas (squared).',
+      'Properties of similar triangles: ratio of corresponding sides = ratio of perimeters.',
+      'Using a² + b² = c² as a numeric tool to find a missing side.',
       'Applying similarity to problems involving heights and lengths.',
     ],
     commonMistakes: [
       'Incorrect matching of corresponding vertices (A ↔ A\', B ↔ B\', etc.).',
       'Not writing the correct order of triangles when stating similarity.',
       'Skipping “hence proved” connection after ratio equality.',
-      'Mixing up area ratio with side ratio (forgetting square).',
       'Weak, unlabelled or messy diagrams leading to confusion.',
     ],
     examPatterns: [
       '1 mark (Similarity Criterion): identify the applicable criterion (AA, SSS, SAS) or state a theorem name.',
       '2–3 marks (Similarity Proof): prove two triangles similar and hence derive a ratio or length.',
-      '4–5 marks (BPT/Pythagoras): complex geometry application using Basic Proportionality Theorem or Pythagoras.',
+      '4–5 marks (BPT): complex geometry application using the Basic Proportionality Theorem.',
       'Short Proof (Proportionality): structured proof with given, to prove, and construction — e.g. show AD/DB = AE/EC.',
     ],
     howToScore95Plus: [
-      'Memorise statement + rough idea of proof of BPT, its converse, and Pythagoras theorem.',
+      'Memorise the statement of BPT and its converse, and the proof of BPT.',
       'Practise diagram labelling: always write given, to prove, and construction where needed.',
       'Do 10–15 similarity problems where you explicitly write the side correspondence.',
       'In exam, always write theorem name when used; examiners look for that.',
       'Leave some margin space to draw neat diagrams with labels and arrows.',
     ],
     microExamples: [
-      {
-        question: 'If triangles are similar with side ratio 2:3, what is area ratio?',
-        hint: 'Square the ratio → 4:9.',
-      },
       {
         question: 'State the basic proportionality theorem.',
         hint: 'A line parallel to one side of a triangle divides the other two sides proportionally.',
