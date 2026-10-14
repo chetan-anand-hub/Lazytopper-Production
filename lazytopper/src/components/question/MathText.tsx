@@ -667,7 +667,10 @@ function parseTextToSegments(text: string): Segment[] {
   return segments;
 }
 
-export function MathText({ text, style, className }: MathTextProps) {
+export function MathText({ text: rawText, style, className }: MathTextProps) {
+  // MATH-RENDER-1b: a stored or model-produced value that is not a string (a number, an array) must render as
+  // text, never throw inside the string rules and white-screen a result page. Typed `string`; guarded anyway.
+  const text = typeof rawText === "string" ? rawText : rawText == null ? "" : String(rawText);
   // LOW-END-1 (L6): wait for KaTeX only when this text can contain maths.
   const needsKatex = !!text && textNeedsKatex(text);
   const ready = !needsKatex || katex !== null;

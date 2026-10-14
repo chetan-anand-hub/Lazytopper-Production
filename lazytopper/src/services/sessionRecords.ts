@@ -40,8 +40,9 @@
 // This module is the STORE + durable #NN + per-question payload only. Reading it at
 // altitudes (recent strip, per-surface history, rolled-up progress) is progressStore.
 
-import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { firestoreDb } from "./firebaseClient";
+import { trackCloudWrite, type OutboxEntry, type ResendOutcome } from "./sessionRecordsOutbox";
 import { getActiveProgressUser } from "./studentProgressStore";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import type { AuthUser } from "../context/AuthContext";
@@ -414,10 +415,25 @@ export function writeSessionRecord(
     // marks, its per-question topics, `notGradedAllUnread`) must not inherit the earlier write's
     // value, or the tutor's opener and the history card read a stale grade. This is the only
     // writer of the doc, and it always writes the whole record (the local mirror already replaces).
-    void setDoc(
-      doc(firestoreDb, "sessionRecords", uid, "records", sanitizeDocId(record.id)),
-      stripUndefined({ ...record, updatedAt: new Date().toISOString() }),
-    ).catch((error) => console.warn("[sessionRecords] record write failed", { id: record.id, error }));
+    // SAVE-SYNC-1 (D190): the same full-replace write, but TRACKED — queued in the per-uid outbox
+    // first, retried with backoff, re-sent on the next load / `online` if the tab closed or the
+    // network stayed down. The first attempt still runs synchronously, as before.
+    const db = firestoreDb;
+    const queuedAt = new Date().toISOString();
+    trackCloudWrite(
+      uid,
+      "record",
+      record.id,
+      queuedAt,
+      () =>
+        setDoc(
+          doc(db, "sessionRecords", uid, "records", sanitizeDocId(record.id)),
+          stripUndefined({ ...record, updatedAt: queuedAt }),
+        ),
+      // the body travels WITH the entry (the mirror is capped and cloud-wins on read); a record that is
+      // not yet a graded result (a worksheet download, status "pending-upload") is tracked but never announced
+      { body: record, quiet: record.status === "pending-upload" },
+    );
   }
   return "recorded";
 }
@@ -463,11 +479,59 @@ export function writeSessionPerQuestion(
   if (firestoreDb && uid !== "anonymous") {
     // N5 — the same full replace for the payload a re-grade rewrites (Firestore merges nested maps,
     // so a stale `response` field would otherwise survive under the new grade).
-    void setDoc(
-      doc(firestoreDb, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)),
-      stripUndefined({ ...payload, updatedAt: new Date().toISOString() }),
-    ).catch((error) => console.warn("[sessionRecords] perQuestion write failed", { ref: payload.ref, error }));
+    // SAVE-SYNC-1 (D190): tracked like the record write above.
+    const db = firestoreDb;
+    const queuedAt = new Date().toISOString();
+    trackCloudWrite(
+      uid,
+      "perQuestion",
+      payload.ref,
+      queuedAt,
+      () =>
+        setDoc(
+          doc(db, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)),
+          stripUndefined({ ...payload, updatedAt: queuedAt }),
+        ),
+      { body: payload },
+    );
   }
+}
+
+/**
+ * SAVE-SYNC-1 (D190) — re-send ONE outbox entry from the localStorage mirror (next load, or the
+ * browser `online` event). Same full-replace write as the first attempt, carrying the ORIGINAL
+ * queued time as `updatedAt`. It NEVER overwrites a cloud copy that is newer than that time
+ * (another device re-graded the same id meanwhile). Throws on a network failure so the outbox
+ * keeps the entry.
+ */
+export async function resendOutboxEntry(
+  uid: string,
+  entry: OutboxEntry,
+  isCurrent: () => boolean = () => true,
+): Promise<ResendOutcome> {
+  if (!firestoreDb || !uid || uid === "anonymous") return "no-cloud";
+  // The queued body first (it is exactly what was graded when the write was queued); the mirror only
+  // for an entry that carries none. A re-grade that overwrote the mirror, a trimmed mirror, or a cloud
+  // read that put an older copy back can no longer change what is re-sent.
+  const body = (entry.body ??
+    (entry.kind === "record"
+      ? loadLocalSessionRecords(uid).find((r) => r.id === entry.id)
+      : readLocalPayloads(uid)[entry.id])) as SessionRecord | SessionPerQuestionPayload | undefined;
+  if (!body) return "no-local-copy";
+  const ref = doc(
+    firestoreDb,
+    "sessionRecords",
+    uid,
+    entry.kind === "record" ? "records" : "perQuestion",
+    sanitizeDocId(entry.id),
+  );
+  const existing = await getDoc(ref);
+  const cloudAt = existing.exists() ? (existing.data() as { updatedAt?: unknown } | undefined)?.updatedAt : undefined;
+  if (typeof cloudAt === "string" && cloudAt > entry.queuedAt) return "cloud-newer";
+  // a re-grade of this id may have been queued while we awaited the read: its chain owns the id now
+  if (!isCurrent()) return "superseded";
+  await setDoc(ref, stripUndefined({ ...body, updatedAt: entry.queuedAt }));
+  return "sent";
 }
 
 /** Read a stored per-question payload by ref — local-first, then cloud (§1b reader). */
