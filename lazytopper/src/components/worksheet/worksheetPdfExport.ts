@@ -77,11 +77,13 @@ export async function waitForImages(host: HTMLElement, timeoutMs = 8000): Promis
 }
 
 /** html2canvas mis-places an inline <svg> that is sized only by CSS (width:100% + auto margins): the solution figures came
- *  out shifted right and cropped. A plain <img> it places correctly (the question figures are <img>s), so every <svg> in
- *  the host is swapped for an <img> of its own serialised markup at the size the browser laid it out at. A figure that
+ *  out shifted right and cropped. A plain <img> it places correctly (the question figures are <img>s), so every figure <svg>
+ *  in the host is swapped for an <img> of its own serialised markup at the size the browser laid it out at. A figure that
  *  cannot be converted is left as it is (never blocks the PDF). */
 export async function svgsToImages(host: HTMLElement): Promise<void> {
-  const svgs = Array.from(host.querySelectorAll("svg"));
+  // Only the figures: KaTeX draws square roots and vector arrows as inline SVG that relies on its own CSS (absolute
+  // position, 100% width), so those are left alone.
+  const svgs = Array.from(host.querySelectorAll(".lt-pfig__fig svg"));
   await Promise.all(
     svgs.map(async (svg) => {
       try {
@@ -111,8 +113,9 @@ export async function svgsToImages(host: HTMLElement): Promise<void> {
 }
 
 /** Units a page cut must not split: a question line, an option, a step, a figure, a heading. Class names are the print
- *  document's own; a document without them (the graded sheets) simply has no atoms and is cut as before. A heading is glued
- *  to the first line after it so it is never stranded at the foot of a page. */
+ *  document's own (.lt-wsp__*) plus the shared figure class (.lt-pfig__fig). A sheet with none of them (the Check & Improve graded
+ *  sheet) has no atoms and is cut exactly as before; a graded worksheet / test sheet that has figures gets those figures kept whole.
+ *  A heading is glued to the first line after it so it is never stranded at the foot of a page. */
 const ATOM_SELECTOR = ".lt-wsp__qtext, .lt-wsp__opts li, .lt-wsp__step, .lt-wsp__final, .lt-wsp__solhead, .lt-wsp__sechead, .lt-wsp__instr, .lt-wsp__titlerow, .lt-pfig__fig";
 
 export function collectPrintAtoms(host: HTMLElement): Span[] {
@@ -227,8 +230,10 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
     const totalPages = Math.max(1, slices.length);
 
     for (let page = 0; page < totalPages; page += 1) {
-      const yPx = Math.round(slices[page].y);
-      const hPx = Math.max(1, Math.min(Math.round(slices[page].h), canvas.height - yPx));
+      // integer page edges taken from ONE rounding of each cut, so a page never drops or repeats a canvas pixel
+      const yPx = page === 0 ? 0 : Math.round(slices[page].y);
+      const nextY = page + 1 < slices.length ? Math.round(slices[page + 1].y) : canvas.height;
+      const hPx = Math.max(1, Math.min(nextY, canvas.height) - yPx);
       const slice = document.createElement("canvas");
       slice.width = canvas.width;
       slice.height = hPx;

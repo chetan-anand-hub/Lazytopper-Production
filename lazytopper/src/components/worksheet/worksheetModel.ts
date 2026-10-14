@@ -759,16 +759,21 @@ export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
     // a row skipped for the cap or a repeated stem can leave the sheet short: fill it, verified rows first, then (only if
     // the pools hold nothing else) the AI rows that were over the cap, so the count stays exact.
     const rest: PracticeQuestion[] = shuffleInPlace([...plan.pools.values()].flat());
-    for (const q of [...rest.filter((x) => !DRAW_TOOLS.isAi(x)), ...overCap]) {
-      if (collected.length >= guardTotal) break;
+    const tryAdd = (q: PracticeQuestion): void => {
+      if (collected.length >= guardTotal) return;
       const key = questionKey(q);
       const st = stemKey(q);
-      if (seen.has(q.id) || seenKeys.has(key) || (st && seenStems.has(st))) continue;
+      if (seen.has(q.id) || seenKeys.has(key) || (st && seenStems.has(st))) return;
       seen.add(q.id);
       seenKeys.add(key);
       if (st) seenStems.add(st);
+      if (DRAW_TOOLS.isAi(q)) aiUsed += 1;
       collected.push(q);
-    }
+    };
+    // verified rows first; then AI rows while the cap allows (including ones never visited); only then the AI rows over the cap
+    for (const q of rest) if (!DRAW_TOOLS.isAi(q)) tryAdd(q);
+    for (const q of rest) if (DRAW_TOOLS.isAi(q) && aiUsed < aiLimit) tryAdd(q);
+    for (const q of [...overCap, ...rest.filter((x) => DRAW_TOOLS.isAi(x))]) tryAdd(q);
   }
   return shuffleInPlace(collected);
 }
