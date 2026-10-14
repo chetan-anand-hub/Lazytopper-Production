@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LEGAL_SLUGS, type LegalSlug } from "./legalSlugs";
+import { LEGAL_ENTITY_NAME } from "../config/legalEntity";
 
 /**
  * LegalPage (`/legal/:slug`) — Privacy, Terms and Refund policies.
@@ -300,11 +301,12 @@ const PAGES: Record<LegalSlug, PageDef> = {
   },
   terms: {
     title: "Terms of Service",
-    updated: "Last updated: April 2026",
+    // LEGAL-ENTITY-1 (L3, owner ruling 2026-10-14): the date and the first paragraph.
+    updated: "Last updated: October 2026",
     body: (
       <>
         <h2>Acceptance of Terms</h2>
-        <p>By using LazyTopper, you agree to these terms. LazyTopper is an educational tool for CBSE Class 10 exam preparation.</p>
+        <p>{`By using LazyTopper, you agree to these terms. LazyTopper is a service of ${LEGAL_ENTITY_NAME}, a company registered in India, and is an educational tool for CBSE Class 10 exam preparation.`}</p>
         <h2>Service Description</h2>
         <p>LazyTopper provides AI-powered exam preparation including trend analysis, important questions, mock tests, and AI tutoring based on 10 years of CBSE board exam data.</p>
         <h2>Disclaimer</h2>
@@ -453,13 +455,15 @@ const LegalPage = () => {
           {page.body}
           <div className="lt-legal-contact">
             <div className="lt-legal-contact-title">Contact us</div>
+            {/* LEGAL-ENTITY-1 (L2) — on every legal page, above the per-page contact line. */}
+            <p data-testid="legal-operator">{`LazyTopper is operated by ${LEGAL_ENTITY_NAME}.`}</p>
             {page.contact}
           </div>
         </div>
       </div>
 
       <div className="lt-legal-foot">
-        <span>&copy; 2026 LazyTopper</span>
+        <span>{`© 2026 ${LEGAL_ENTITY_NAME}`}</span>
         {TABS.filter((tab) => tab.slug !== slug).map((tab) => (
           <Link key={tab.slug} to={`/legal/${tab.slug}`}>
             {tab.label}
