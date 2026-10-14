@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 526,
-   "sha256": "55c74f9974238fdc3c660170b2a55cf7bc565a1a5d8f6978646d4a748770f0f6",
+   "n": 524,
+   "sha256": "3eee56daa5cdd65883295dd82dd7a716dca66db39fe57a74bc631c119604e4f5",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 520,
-   "sha256": "4da60fdb87fbdfd93b1fed1883f1401af51cbf29686d7ffb7400df3573d564f7",
+   "n": 517,
+   "sha256": "e1b9abe11a5b63cf06e86b0eb75a3d9a48cafee116733ff66741fb2abc9d97ee",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -146,8 +146,8 @@
    ]
   },
   "carbon-and-its-compounds": {
-   "n": 347,
-   "sha256": "fcc972f5a4a68346853f7f2ca671e9e5650303bc45aac273d7fea0dd6bc628ba",
+   "n": 341,
+   "sha256": "fd90103417c04d4bc00f367700a44a6f60850b6d21c7b83f34f353a5c7fc2a57",
    "head": [
     "LTG-S-CARB-274",
     "LTG-S-CARB-273",
@@ -191,8 +191,8 @@
    ]
   },
   "life-processes": {
-   "n": 571,
-   "sha256": "03432358310c650c509fbac47f075767bf92f5b7e6b2ea7569c596cd05296946",
+   "n": 566,
+   "sha256": "339e4409da210eaa16e168945e21316e7faf087c7ccf9f3c762415a5623f2b63",
    "head": [
     "LTG-S-LIFE-257",
     "LTG-S-LIFE-216",
@@ -200,8 +200,8 @@
    ]
   },
   "control-and-coordination": {
-   "n": 359,
-   "sha256": "69583b45b3120551aa7279845772d320c9e5671494841a5a0a0d960baeab9d94",
+   "n": 357,
+   "sha256": "85def0b0c3dcfb4eff1b7e8b770ab65c6cdafd212f0c11f04a796d6a1a77db86",
    "head": [
     "LTG-S-CTRL-213",
     "LTG-S-CTRL-255",
@@ -209,8 +209,8 @@
    ]
   },
   "how-do-organisms-reproduce": {
-   "n": 507,
-   "sha256": "e68ae6ad260fe3996d93c2493b2ae23d91c70bdc9e4c3235deea799a45d5c9d6",
+   "n": 505,
+   "sha256": "576d7da484b10002317b36a44751f8b7d591b0d536b3530373de77bd0a6816bc",
    "head": [
     "LTG-S-REPR-254",
     "LTG-S-REPR-256",
@@ -218,8 +218,8 @@
    ]
   },
   "heredity": {
-   "n": 310,
-   "sha256": "f716031f27ec894a797e7294ebc91a3b487229ef02b03d928ae4ad0e04ed2b7c",
+   "n": 308,
+   "sha256": "c8c950a40fc3dd0b3c50fb9600ccaa6d9a4c1aaea63c5559d54790c8c0cb7eb5",
    "head": [
     "LTG-S-HERED-234",
     "LTG-S-HERED-225",
@@ -227,8 +227,8 @@
    ]
   },
   "our-environment": {
-   "n": 340,
-   "sha256": "9bf50855a9567ef133f81d99fea75e163be2fcf8c961a1680eafd163569695b3",
+   "n": 338,
+   "sha256": "b8a5f7098db717eb75e534751406b290375d3571afee62e7aaec113d28624665",
    "head": [
     "LTG-S-ENV-235",
     "LTG-S-ENV-236",
@@ -356,7 +356,7 @@
   },
   "chemical-reactions-and-equations": {
    "n": 73,
-   "sha256": "69504ce26ff67ae51e66db8fa9af729d62e99399f89aed17c8df8319463b5549",
+   "sha256": "29c90647d15873c91286a7beff82b34184a036cc105efe83fca0dcfdadf4bfbe",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -374,7 +374,7 @@
   },
   "metals-and-non-metals": {
    "n": 113,
-   "sha256": "4329f673c9cbf0358a589d5aa51c349291c8c0efe16037aca9d853a6e98dd309",
+   "sha256": "81a74b4d98f09f2fb711067794b7c1e00d4d0af7ae51afe133ac2eaaa7aa226e",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -383,7 +383,7 @@
   },
   "carbon-and-its-compounds": {
    "n": 111,
-   "sha256": "269c933e67ec1a37ae1d151315faa42bea61b3973de2a8baf86f504259746a72",
+   "sha256": "abf9b0c68c8d5187078709e595c967bf93dd19fc46f5a7f522213a4277879baa",
    "head": [
     "Acid Properties\tCARB-EXMPLR-4-LONG-001",
     "Action of Soap in Hard Water\tCBE-S-CARB-C-005",
@@ -428,7 +428,7 @@
   },
   "life-processes": {
    "n": 133,
-   "sha256": "9c1161007850ca5cc13f386db8a150af5c965bdf7e32de77b8c6f34c1059ef0a",
+   "sha256": "903294bd2841d79c8cc25e40d7435ce8b51c366fd66ae3e042b99636b19b5997",
    "head": [
     "ATP\tLIFE-EXMPLR-5-SA-026",
     "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",
@@ -437,7 +437,7 @@
   },
   "control-and-coordination": {
    "n": 102,
-   "sha256": "d37a39c7eb2c15b4d4eb42cb6e4604828fa48fb090f2f1a4169edf0d02ed0d3b",
+   "sha256": "6d32f328739d66b5e2c891eb2156e6953acfec875a74018b4d8fee407081bb0b",
    "head": [
     "Abscisic Acid\tCFPQ-S-CTRL-011,CFPQ-S-CTRL-006,CTRL-EXMPLR-6-MCQ-011,CTRL-EXMPLR-6-MCQ-020",
     "Adrenaline\tCFPQ-S-CTRL-010,CBE-S-CTRL-A-008,CTRL-NCERT-6-SA-009,APQ-S-CTRL-005",
@@ -446,7 +446,7 @@
   },
   "how-do-organisms-reproduce": {
    "n": 151,
-   "sha256": "f17483a001c1e0a1ba26d05dfceb63f9c5312899548af437c7837189372c86e4",
+   "sha256": "84d217540b7168ba5bed416a55b85d8f12af364ca136c78de9ca0afd9a4158de",
    "head": [
     "Artificial Vegetative Propagation\tLTG-S-REPR-102,LTG-S-REPR-233,LTG-S-REPR-235,LTG-S-REPR-236,LTG-S-REPR-225,CFPQ-S-REPR-008,LTG-S-REPR-222,PYQ-S-2025-REPR-002,PYQ-S-2024-REPR-001,LTG-S-REPR-107,LTG-S-REPR-221,LTG-S-REPR-224,LTG-S-REPR-239,BX-REP-EX-A-005,REPR-EXMPLR-7-MCQ-013,LTG-S-REPR-229,LTG-S-REPR-231,LTG-S-REPR-232,LTG-S-REPR-230,CFPQ-S-REPR-009,LTG-S-REPR-227,LTG-S-REPR-228,LTG-S-REPR-238,BX-REP-EX-A-004,PYQ-S-REPR-004,BX-REP-EX-B-013,BX-REP-EX-C-009,BX-REP-EX-B-001,REPR-NCERT-7-SA-006,BX-REP-D-023,BX-REP-D-002",
     "Asexual Modes\tREPR-EXMPLR-7-LA-001,REPR-EXMPLR-7-MCQ-001",
@@ -455,16 +455,16 @@
   },
   "heredity": {
    "n": 65,
-   "sha256": "0ebefa0e5b7275495bd7951ec997eee295a5d68f4bbb96aac6381edab67616f7",
+   "sha256": "d1649d02a53fa41db90492656d37950cfa8fad8c1973ada76c0bc298f4d3dc4d",
    "head": [
     "Alleles\tBX-HER-EX-A-002,CBE-S-HERD-A-002",
     "Case-Based — Monohybrid Inheritance of Earlobe Type\tSQP-S-HER-003,HERED-NCERT-8-SA-007,HERED-NCERT-8-SA-005,HERED-EXMPLR-8-MCQ-011,HERED-EXMPLR-8-LA-004",
-    "Chapter Practice — Heredity\tLTG-S-HERED-216,SCO-S-HERED-006,SCO-S-HERED-007,SCO-S-HERED-010,SCO-S-HERED-011,SCO-S-HERED-012,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-015,SCO-S-HERED-016,SCO-S-HERED-017,SCO-S-HERED-020,LTG-S-HERED-204,LTG-S-HERED-219,SCQ-S-HERED-023,SCQ-S-HERED-025,SCQ-S-HERED-026,SCQ-S-HERED-030,SCQ-S-HERED-032,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-033,SCQ-S-HERED-034,SCQ-S-HERED-035,SCQ-S-HERED-036,LTG-S-HERED-208,SCQ-S-HERED-039,SCQ-S-HERED-040,SCQ-S-HERED-021,SCQ-S-HERED-022,SCQ-S-HERED-024,SCQ-S-HERED-027,SCQ-S-HERED-028,SCQ-S-HERED-031,SCQ-S-HERED-038"
+    "Chapter Practice — Heredity\tLTG-S-HERED-216,SCO-S-HERED-006,SCO-S-HERED-007,SCO-S-HERED-010,SCO-S-HERED-011,SCO-S-HERED-012,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-015,SCO-S-HERED-016,SCO-S-HERED-017,SCO-S-HERED-020,LTG-S-HERED-204,LTG-S-HERED-219,SCQ-S-HERED-023,SCQ-S-HERED-025,SCQ-S-HERED-030,SCQ-S-HERED-032,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-033,SCQ-S-HERED-034,SCQ-S-HERED-035,SCQ-S-HERED-036,LTG-S-HERED-208,SCQ-S-HERED-039,SCQ-S-HERED-021,SCQ-S-HERED-022,SCQ-S-HERED-024,SCQ-S-HERED-027,SCQ-S-HERED-028,SCQ-S-HERED-031,SCQ-S-HERED-038"
    ]
   },
   "our-environment": {
    "n": 71,
-   "sha256": "c8b9c4d1d7f1c58f2fe2e58379ac3fdaa984f767096a88f9418dea27abb23f75",
+   "sha256": "83ab6f5237c928ea6891652380e4da91aa82e411c27a525521477b9b0eb294bc",
    "head": [
     "Biodegradability\tOE-E01a,OE2-036,OE2-011,OE2-017,OE2-030,OE-E06,OE-E07,OE2-005,OE2-007,OE-D03,OE2-034,OE-B04,OE2-028,OE-B01,OE2-021",
     "Biodegradable and Non-biodegradable\tLTG-S-ENV-296,LTG-S-ENV-297,LTG-S-ENV-109,LTG-S-ENV-293,LTG-S-ENV-295,OEX-A-033,LTG-S-ENV-281,PYQ-S-2026-ENV-005,PYQ-S-2026-ENV-007,CFPQ-S-ENV-006,PYQ-S-2024-ENV-001,LTG-S-ENV-282,LTG-S-ENV-287,LTG-S-ENV-290,PYQ-S-ENV-006,PYQ-S-2024-ENV-003,OEX-A-001,OEX-A-024,LTG-S-ENV-283,LTG-S-ENV-299,LTG-S-ENV-288,LTG-S-ENV-292,OESE-024,OESE-009,OESE-017,OESE-020",
