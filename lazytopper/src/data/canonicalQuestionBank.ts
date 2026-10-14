@@ -2423,6 +2423,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CARB-M07",                     // spliced-solution: part of the steps answer another question
   "OE-M04",                       // spliced-solution: part of the steps answer another question
   "LP-AR05",                      // spliced-solution: the steps answer another question
+  // wrong-content rows (D178/D179, found by B while splitting single-step rows; rewrite owner: A, from NCERT)
+  "SCQ-S-CHEM-033",               // wrong-content (D178): the 'change in state' example is a precipitate reaction, not a change of state
+  "SCQ-S-METAL-036",              // wrong-content (D178): silver, the best heat conductor, is missing and the answer text is garbled ('...of heat copper') - NCERT does name lead as a poor conductor
+  "SCQ-S-CARB-032",               // wrong-content (D178): the stored equations and key text are garbled at extraction (C H OH CH CH H O K Conc H SO ...)
+  "SCQ-S-ENV-037",                // wrong-content (D178): ozone 'height from the equator 10 to 16 km' is not the NCERT figure; 'Global wanning' is not the effect of depletion
+  "SCQ-S-CARB-036",               // wrong-content (D178): C4H3 is not a possible hydrocarbon formula; no addition equation given
   // FIND-3 (D179, D189): SCQ-S booklet rows judged WRONG (scientific error, empty or mismatched key, garbled stem); rewrite owner A, from NCERT
   "SCQ-S-CHEM-019",               // wrong-content (FIND-3, D179): 'ZnO(s) + C(s) Heat Zn(s) + CO2(g)' is unbalanced (O 1 vs 2); NCERT equation is ZnO + C -> Zn + CO.
   "SCQ-S-METAL-030",              // wrong-content (FIND-3, D179): Stem says 'formation of HgCl2 from magnesium' - should be MgCl2. Key/steps part (b) is empty: '(b)' with no electron-transfer answer.
