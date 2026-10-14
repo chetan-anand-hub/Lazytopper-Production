@@ -101,6 +101,7 @@ export default defineChapter("trigonometry", [
   "PYQ-M-TRIG-005",
   "PYQ-M-TRIG-006",
   "PYQ-M-TRIG-007",
+  "PYQ-M-TRIG-010",
   "PYQ-M-2026-TRIG-002",
   "PYQ-M-2024-TRIG-010a",
   "PYQ-M-2024-TRIG-010b",
@@ -108,9 +109,8 @@ export default defineChapter("trigonometry", [
   "PYQ-M-2024-TRIG-012",
   "PYQ-M-2024-TRIG-013",
   "PYQ-M-2024-TRIG-014",
-  "PYQ-M-2024-TRIG-018",
   "PYQ-M-2024-TRIG-019",
-  "PYQ-M-2024-TRIG-020",
   "PYQ-M-2025-TRIG-001",
   "PYQ-M-2025-TRIG-004",
+  "PYQ-M-2025-TRIG-005",
 ]);

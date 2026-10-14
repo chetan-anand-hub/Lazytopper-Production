@@ -36,6 +36,8 @@ import { restoreFromDB } from "../services/dbSyncService";
 import { trackSignUp, trackSignUpIfNew } from "../analytics/analytics";
 import { sendVisitSourceIfNewUser, sendVisitSourceOnSignUp } from "../analytics/visitSource";
 import { startTrialForNewAccount, startTrialIfNewAccount } from "../services/newAccountTrial";
+import { startOutboxSync } from "../services/sessionRecordsOutbox";
+import SaveStatusToast from "../components/common/SaveStatusToast";
 
 export type AuthUser = {
   uid: string;
@@ -599,6 +601,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setFirebaseUser(null);
   }, [resetPhone]);
 
+  // SAVE-SYNC-1 (D190): re-send any graded result that never reached the cloud (a closed tab, bad
+  // mobile data), now and on every `online`. Signed-in, non-local, non-anonymous uids only.
+  const outboxUid = user && user.uid && !user.isLocalSession && user.uid !== "anonymous" ? user.uid : null;
+  useEffect(() => (outboxUid ? startOutboxSync(outboxUid) : undefined), [outboxUid]);
+
   // Tear down any live reCAPTCHA widget when the provider unmounts.
   useEffect(() => resetPhone, [resetPhone]);
 
@@ -622,7 +629,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      <SaveStatusToast />
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

@@ -33,13 +33,12 @@ const PATTERNS: ReadonlyArray<readonly [string, RegExp]> = [
   ["flattened-operator-order", /θ θ\s+[–-]|\+\s+=|\bA tan\s+[–-]|\b(?:tan|cot|sin|cos|sec|cosec)\s+[–-]\s+\d\s+[A-Za-zθ]\b/],
 ];
 
-/** Every id here is a reviewed, deliberate match. Empty today: add `{ id, reason }` only after reading the row. */
+/** Every id here is a reviewed, deliberate match. Add `{ id, reason }` only after reading the row. PYQ-M-CG-003 left this list when GARBLE-1 withheld it (its stem lost a minus). */
 const GARBLE_REVIEWED_EXCEPTIONS: ReadonlyArray<{ id: string; reason: string }> = [
   // Found by this guard's first run (GARBLE-1 PR-2): the STEM and options are clean, the stored WORKED STEP was flattened at extraction.
   // The question and key are right, so a student sees nothing wrong; the step text feeds the marking scheme, so each is queued for the Maths
   // repair queue (rewrite the step, keep the content). The exception is removed in that repair PR and the guard then covers the row.
   { id: "PYQ-M-RN-003", reason: "clean stem; step 1 is a flattened fraction chain ('q q 2 – p p'): queued for step repair" },
-  { id: "PYQ-M-CG-003", reason: "clean stem; step 1 is a flattened distance working ('4 + = 20'): queued for step repair" },
 ];
 
 /** Mathematical-italic Unicode is how the extractor writes a symbol font: legible in a worked step (`𝑥+ 2𝑦= 4`), unreadable only when it replaces a stem. */
@@ -75,7 +74,7 @@ describe("GARBLE-1 · no served row matches a garble pattern", () => {
 
 describe("GARBLE-1 · controls (each pattern can fail)", () => {
   // Rows that were garbled and are WITHHELD: the detector must fire on every one of them, or it is a decoration.
-  const KNOWN_GARBLED = ["PYQ-M-2024-TRIG-014", "PYQ-M-2024-TRIG-018", "PYQ-M-2024-TRIG-020", "PYQ-M-2024-TRIG-013", "PYQ-M-2024-TRIG-019"];
+  const KNOWN_GARBLED = ["PYQ-M-2024-TRIG-014","PYQ-M-2024-TRIG-013", "PYQ-M-2024-TRIG-019"];
   it.each(KNOWN_GARBLED)("%s is withheld and the detector fires on it", (id) => {
     expect(WITHHELD_QUESTION_IDS.has(id)).toBe(true);
     const q = byId.get(id);

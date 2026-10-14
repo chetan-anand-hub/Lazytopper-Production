@@ -1,5 +1,37 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-14 · NOTES-FORMULA-1/2 + SAVE-SYNC-1] `#1148` `#1151` `#1154` MERGED — the Formulae card is in two places and shows chemistry as chemistry; a graded result is no longer silently lost on a bad connection
+
+*(Adds to the blocks below, which stay current for everything this block does not name. Written by C2 under §10 from `#973` (D189, D190, D192, D198, D200, D206, D214), `gh pr view` and `git log`. No grading, marks or prompt change; `firestore.rules` and `firebase.json` untouched.)*
+
+★ **TRUNK at writing:** `a2927d28` (`#1154`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1148` NOTES-FORMULA-1 | `9ed656ec` | 10-14 01:16:11 | `FormulaeCard` after "The Big Idea" (Note tab) and first in the Mindmap panel; tab "Formulae & Mindmap" (empty strip: "Mindmap", no card); all 26 prerendered notes pages carry the card twice |
+| `#1151` SAVE-SYNC-1 | `168e47a9` | 10-14 02:53:49 | per-uid outbox in localStorage (with the queued body), retry 1 s / 3 s / 8 s, a 12 s "never answered" watchdog (offline writes never reject), re-send on next load and `online`, never over a newer cloud copy, `beforeunload` only while pending, one status line mounted by `AuthProvider` |
+| `#1154` NOTES-FORMULA-2 | `a2927d28` | 10-14 03:48:55 | 33 Science formula items as TeX with state symbols and conditions over the arrow; atom + charge balance guard; life-processes author note removed; no `katex-*.js` on notes pages |
+
+- **The six grading surfaces (§4a).** `#1151` changes PERSISTENCE for all six (Chapter Test, Check & Improve single and multi, Full Mock, Quick Practice, Worksheet) through the single writer in `sessionRecords.ts`; no grading behaviour changed. `#1148` and `#1154` touch only the notes pages.
+- **Owed (owner, later):** the SAVE-SYNC-1 round-trip (offline grade → "Saved on this device…" → online → "Saved to your account ✓" → second device; offline grade + close tab + reopen); a phone glance at the Formulae cards (`/notes/life-processes`, `/notes/acids-bases-and-salts`) in both tabs.
+- **Known and open:** the Formulae card prints twice (PDF/print shows every panel); `/notes/probability` card item is 300 px in a 258 px card on www; `/notes/real-numbers` shows literal `\textbf{…}`; the rest-of-spec plain chemistry (examples, mindmap, third tab) is NOTES-FORMULA-3.
+
+## [CURRENT · 2026-10-14 · PERF-1 PR-3 + PERF-2] `#1139` `#1140` `#1141` MERGED — brand images are WebP with true dimensions (wordmark aspect ratio fixed); `qrcode` loads on demand
+
+*(Adds to the blocks below, which stay current for everything this block does not name. Written by C2 under §10 from `#973` (D175, D179, D182, D185), `gh pr view` and `git log`. No grading code, route, prompt, data or auth file changed.)*
+
+★ **TRUNK at writing:** `bb853239` (`#1141`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1139` PERF-1 PR-3 | `66a68ef1` | 10-13 21:23:21 | contrast guard pins every occurrence (54 cases); Practice Hub card CTA/hint ink and the Check & Improve link reach 4.5:1. Colour only |
+| `#1140` PERF-2 PR-A | `1e5119d9` | 10-13 23:02:01 | four home brand PNGs get lossless WebP twins in `<picture>`; true width/height on each; the wordmark keeps its width and takes its true height (was drawn 4.33:1 from a 3.5:1 file). `Welcome.tsx` by owner grant, D175 |
+| `#1141` PERF-2 PR-B2 | `bb853239` | 10-13 23:45:43 | `generateQRDataUrl` does `await import("qrcode")`; entry chunk gz9 −10.4 KB; `qrcode` is its own chunk; the lazy `/login` `/sign-up` half was DROPPED (D179 §3) |
+
+- **Surfaces.** None of the six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) changed behaviour.
+- **Owed (owner):** a glance at the wordmark before/after (`Desktop\diff\perf2a-shots\`; revert = one CSS rule); one real desktop QR draw (phone-upload handoff); the www Lighthouse/axe table is still unmeasured.
+- **PERF-2's 150 KB target for `/` and `/check-your-answer`** is NOT met: only the Firestore removal reaches it (PERF-3, waits for the owner's ruling).
+
 ## [CURRENT · 2026-10-14 · BANK-STEPS-1 + GARBLE-1] QUESTIONS WHOSE WORKED STEPS ANSWER ANOTHER QUESTION, OR WHOSE STEM WAS DAMAGED AT PDF EXTRACTION, ARE WITHHELD UNTIL REPAIRED — `#1116` `#1123` `#1125` `#1130` `#1131` `#1136` MERGED
 
 *(Adds to the blocks directly below, which stay current for everything this block does not name. Written by A under §10 from `#973` (DECISIONS 126, 131, 143, 152–154, 156–157, 159, 165, 169–171), `gh pr view` and `git log`. Content only: no grading code, route or prompt changed.)*

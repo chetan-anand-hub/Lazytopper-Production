@@ -1,5 +1,20 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — NOTES-FORMULA-1 (`#1148` `9ed656ec`) · SAVE-SYNC-1 (`#1151` `168e47a9`) · NOTES-FORMULA-2 (`#1154` `a2927d28`) — ✅ COMPLETE (owner round-trip and phone glance owed)
+
+- ✅ The Formulae card sits after The Big Idea and atop the "Formulae & Mindmap" tab; an empty strip shows no card.
+- ✅ A graded result is tracked from the moment it is queued: outbox, retry, a 12 s offline watchdog, re-send on next load / `online`, never over a newer cloud copy, an honest status line.
+- ✅ 33 Science formula items are TeX with state symbols and conditions; an atom + charge balance guard keeps them right.
+- ⏳ Owner: the SAVE-SYNC-1 persistence round-trip; a phone glance at the Formulae cards.
+- ⏳ `[FU-SAVE-SYNC-QUOTA]` (priority), PERF-3a, NOTES-FORMULA-3 (the cards as an SEO surface; the rest-of-spec chemistry).
+
+## 2026-10-14 — PERF-1 PR-3 (`#1139` `66a68ef1`) + PERF-2 (`#1140` `1e5119d9`, `#1141` `bb853239`) — ✅ COMPLETE AS SCOPED · PERF-2 TARGET NOT MET · PERF-3 WAITS FOR THE OWNER
+
+- ✅ PERF-1 PR-3: contrast guard pins every occurrence; Practice Hub card text and the Check & Improve link reach 4.5:1.
+- ✅ PERF-2 PR-A: home brand images as lossless WebP twins with true dimensions; the stretched wordmark fixed (owner glance owed).
+- ✅ PERF-2 PR-B2 (reduced): `qrcode` on demand, entry gz −10.4 KB. The lazy `/login` `/sign-up` half was dropped (it made the sign-in form later).
+- ⏳ PERF-3: Firestore lazy (the only route to ≤150 KB gz for `/` and `/check-your-answer`) waits for the owner's ruling; `[FU-NOTES-TBT-MOUNT]` (`hydrateRoot` #418) is a separate investigation.
+
 ## 2026-10-14 — BANK-STEPS-1 PAUSE (`#1116` `#1123` `#1125`) + GARBLE-1 PR-1/PR-2 (`#1130` `#1136`) — ✅ FIND COMPLETE · PAUSE IN PROGRESS · REPAIR QUEUE OPEN
 
 - ✅ FIND complete: 3,163 rows judged for step↔stem pairing, 171 bad; 333 paused across `#1116/#1123/#1125`, 331 after `#1131` restored two.

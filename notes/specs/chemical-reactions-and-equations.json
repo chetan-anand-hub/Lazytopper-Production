@@ -487,19 +487,19 @@
   "formula_strip": [
     {
       "label": "Combination",
-      "math": "A + B -> AB  (two or more reactants -> a single product)"
+      "math": "$\\text{A} + \\text{B} \\rightarrow \\text{AB}$  (two or more reactants $\\rightarrow$ a single product)"
     },
     {
       "label": "Decomposition",
-      "math": "AB -> A + B  (one reactant -> two or more products)"
+      "math": "$\\text{AB} \\rightarrow \\text{A} + \\text{B}$  (one reactant $\\rightarrow$ two or more products)"
     },
     {
       "label": "Displacement",
-      "math": "A + BC -> AC + B  (A more reactive than B)"
+      "math": "$\\text{A} + \\text{BC} \\rightarrow \\text{AC} + \\text{B}$  (A more reactive than B)"
     },
     {
       "label": "Double displacement",
-      "math": "AB + CD -> AD + CB  (ions exchanged)"
+      "math": "$\\text{AB} + \\text{CD} \\rightarrow \\text{AD} + \\text{CB}$  (ions exchanged)"
     },
     {
       "label": "Oxidation / Reduction",

@@ -70,10 +70,10 @@ export default defineChapter("surface-areas-and-volumes", [
   "SAV2-R14",
   "SAV2-R16",
   "SAV2-R17",
-  "SAV2-R18",
   "SAV2-R19",
   "SAV-N-EXMPLR-12-MCQ-005",
   "SAV-N-EXMPLR-12-CB-001",
   "SAV-N-EXEM2-12-LA-008",
   "CBE-M-SAV-D-001",
+  "PYQ-M-2025-SAV-005",
 ]);

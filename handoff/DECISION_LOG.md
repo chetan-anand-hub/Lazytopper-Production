@@ -1,3 +1,34 @@
+## 2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1148` `#1151` `#1154`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **189 §1** | NOTES-FORMULA-1: render the existing `formula_strip` card after The Big Idea (Note tab) and at the top of the Mindmap tab, rename the tab "Formulae & Mindmap" and the label "Formulae"; an empty strip keeps "Mindmap" with no card; all four panels stay in the prerendered HTML; layout only | owner: "keep in both"; the card is the formula answer students search for |
+| **190** | SAVE-SYNC-1: an outbox so a graded result is never silently lost; retry; re-send on next load / `online`; honest wording (explain, never force, never alarm, never "lost"); no new Firestore path, no rules/schema change | owner: "losing a student's test result is the worst thing that can happen to trust"; the writer only `console.warn`ed a failed `setDoc` and nothing ever re-sent a local-only record |
+| **192 / 206** | `#1148` and `#1151` APPROVED; `[FU-SAVE-SYNC-QUOTA]` is priority next for whoever touches saving; add `[FU-SAVESTATUS-INLINE-STYLE]`; the owner round-trip is the merge's closing step | the verifier + mutation evidence cover `sessionRecordsOutbox.ts`; the copy matches the owner's rules word for word |
+| **193** | PERF-3a plan approved in outline: reproduce the baseline with Lighthouse 12.2.1 mobile (3 pages × 5 runs, median), option A first (`Note.tsx` only, inactive panels mounted after first paint), B/C only if A misses; steps 0–2 only after SAVE-SYNC-1 reached AUDIT-REQUEST | the growth workspace's ~4.0 s notes TBT is a Lighthouse number; grader quality and trust outrank speed |
+| **198 / 200** | NOTES-FORMULA-2: rewrite the plain-text chemistry/unit formula items as TeX; remove the author note; correctness gate = every equation balanced atom by atom with its atom count listed; **D200: state symbols (s)/(l)/(g)/(aq) on every element-formula equation, conditions over the arrow, none on generic templates** | CLAUDE.md §13: the CBSE scheme pays 0.5 for the balanced equation and 0.5 for state symbols/conditions, so the card must model the full-marks form |
+| **214 / 215** | `#1154` moved up the slot order and pre-approved on four conditions (green CI, the atom-count table, no `katex-*.js` on three notes pages, before/after screenshots); the owner is away: keep merging in order, park owner checks as NEEDS-OWNER (later) | the owner saw the cards still plain text on www |
+| **C2 (no D)** | After the verifier's FAIL on `#1151`, treat an offline write that never answers as device-only after 12 s (keep the chain and the entry alive) rather than wait for a rejection | the Firestore web SDK queues an offline write and never rejects; waiting for a rejection leaves "Saving…" up for the whole outage |
+| **C2 (no D)** | Store the queued BODY inside the outbox entry instead of trusting the localStorage mirror | the mirror is capped (25 payloads / 200 records) and the cloud-wins read rewrites it, so a queued re-grade could be replaced by an older copy |
+| **C2 (no D)** | A re-send that had nothing to send, a superseded re-send, and a quiet (`pending-upload` download) write never earn the "Saved ✓" tick | a status line that claims "saved" when nothing was written is exactly the false comfort this lane exists to remove |
+| **C2 (no D)** | The acids "Metal carbonate / hydrogencarbonate + Acid → …" item is plain text with `&rarr;`, not TeX; the guard caps `\text{}` runs at 30 chars on Science cards | KaTeX cannot wrap inside `\text{}`: the item was 325 px in a 258 px card at 390 and 360 px; an element screenshot had hidden the overflow |
+| **C2 (no D)** | `#1154` leaves the rest-of-spec plain chemistry (counts per chapter) for NOTES-FORMULA-3 | D198 §5: report, do not fix in the same PR |
+
+## 2026-10-14 — PERF-1 PR-3 / PERF-2 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1139` `#1140` `#1141`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **175** | `#1140` APPROVED at `6423da0c`: (1) fixing the wordmark stretch (same width, true height); (2) lossless WebP twins only. Merge on green, then LIVE with 5 cold reads and a `/` check. The owner glances at the before/after sheet; if he prefers the old look the revert is one CSS rule | The spec says "keep the true aspect ratio"; a logo drawn at 4.33:1 from a 3.5:1 file was a distortion, so correcting it restores the brand. Lossless twins are zero pixel change; a resized variant is a follow-up behind a screenshot gate (`[FU-PERF2-WEBP-RESIZE]`) |
+| **179 §3** | `#1141`: drop the lazy Login/SignUp, keep only the on-demand QR code | The door to `/login` and `/sign-up` arrived +150–270 ms later; sign-in is the conversion step and the owner's condition is "no quality degradation" (D161). A slower login is a regression even though the 29.5 KB entry saving is real. The qrcode half reaches no door, so its cost is zero |
+| **182** | The new C2 does NOT run the photo-quality grid; C1 keeps it. C2's queue: `#1140`, then `#1141` qrcode-only + AUDIT-REQUEST, then idle-heartbeat. PERF-3 waits for the owner | C1 is alive; the D173 transfer was superseded. The 3.8-flash grid is DEV evidence only; the saved key cannot call `gemini-2.5-flash` (`[FU-GEMINI-25-FLASH-AVAILABILITY]`) |
+| **185** | `#1141` APPROVED at `a944933a`, conditional on the fresh Opus verifier posting PASS. Slot order: `#1144` (D), then `#1141` (C2), then `#1145` (B after rebase). The size-comment nit is not blocking | The diff is one already-async function plus a guard with a CONTROL; no protected file. The cofounder asked that the measured number go in the LIVE post and the comment fix go in the next PR (no head change) |
+| **C2 (no D)** | After `#1144` went LIVE, `update-branch` once on `#1141`, then proved the 2 lane files byte-identical to `a944933a` and waited for CI again | The branch was BEHIND trunk and a green result on a stale base is not evidence about the merged tree; the cofounder allowed either the approved head or the update-branch head with the lane files proven byte-identical |
+| **C2 (no D)** | Launched a FRESH Opus verifier for `#1141` | The old C2's verifier reported to its own (ending) session and no VERDICT was on the board when the new C2 took over (the old C2's PASS arrived later, so there are two) |
+
 ## 2026-10-14 — BANK-STEPS-1 + GARBLE-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY A UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1116` `#1123` `#1125` `#1130` `#1131` `#1136`, plus the decisions A itself made, with reasons. Read the numbered posts on `#973` for the full text.

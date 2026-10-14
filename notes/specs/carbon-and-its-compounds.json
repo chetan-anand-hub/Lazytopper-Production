@@ -484,31 +484,31 @@
     },
     {
       "label": "General formulae",
-      "math": "Alkanes CnH2n+2  .  Alkenes CnH2n  .  Alkynes CnH2n-2"
+      "math": "Alkanes $\\text{C}_n\\text{H}_{2n+2}$  .  Alkenes $\\text{C}_n\\text{H}_{2n}$  .  Alkynes $\\text{C}_n\\text{H}_{2n-2}$"
     },
     {
       "label": "Homologous series",
-      "math": "successive members differ by a -CH2- unit (14 u)"
+      "math": "successive members differ by a $-\\text{CH}_2-$ unit (14 u)"
     },
     {
       "label": "Combustion",
-      "math": "carbon compound + O2 -> CO2 + H2O + heat and light"
+      "math": "$\\text{carbon compound} + \\text{O}_2 \\rightarrow \\text{CO}_2 + \\text{H}_2\\text{O} + \\text{heat and light}$"
     },
     {
       "label": "Oxidation",
-      "math": "ethanol --[O]--> ethanoic acid  (alcohol -> carboxylic acid)"
+      "math": "ethanol $\\xrightarrow{[\\text{O}]}$ ethanoic acid  (alcohol $\\rightarrow$ carboxylic acid)"
     },
     {
       "label": "Addition (hydrogenation)",
-      "math": "unsaturated + H2 --Ni--> saturated"
+      "math": "unsaturated + $\\text{H}_2 \\xrightarrow{\\text{Ni}}$ saturated"
     },
     {
       "label": "Substitution",
-      "math": "CH4 + Cl2 --sunlight--> CH3Cl + HCl"
+      "math": "$\\text{CH}_4(g) + \\text{Cl}_2(g) \\xrightarrow{\\text{sunlight}} \\text{CH}_3\\text{Cl}(g) + \\text{HCl}(g)$"
     },
     {
       "label": "Esterification / saponification",
-      "math": "acid + alcohol --Acid--> ester + water ;  ester + NaOH -> soap + alcohol"
+      "math": "acid + alcohol $\\xrightarrow{\\text{Acid}}$ ester + water ;  ester + $\\text{NaOH} \\rightarrow$ soap + alcohol"
     }
   ],
   "mindmap": {
