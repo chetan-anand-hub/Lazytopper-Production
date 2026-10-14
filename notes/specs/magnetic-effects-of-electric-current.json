@@ -466,7 +466,7 @@
       "tip": "220 V (NCERT 12.4); 50 Hz appears in the NCERT chapter summary and the CBSE syllabus line \"frequency of AC\"."
     },
     {
-      "label": "Current produces a magnetic field",
+      "label": "Oersted's Experiment",
       "math": "A compass needle placed near a wire carrying a current is deflected, so a current produces a magnetic field. When the direction of the current is reversed, the deflection reverses.",
       "id": "oersted-experiment"
     },
