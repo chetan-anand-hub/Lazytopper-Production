@@ -271,8 +271,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq04 Q106 (Section C, 3mk)
   { id: "SCQ-S-CARB-037", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Two carbon compounds 'X' and 'Y' have the molecular formula C3H6 and C4H10 respectively. Which one of the two is most likely to show addition reaction? Justify your answer. Also give chemical equation to explain the process of addition in this case.",
-    answer: "C3H6 will undergo addition reaction because it has double bond. CH2=CH—CH3 + H2 Heat Ni CH3—CH2—CH3 Propene Propane",
-    solutionSteps: ["C3H6 will undergo addition reaction because it has double bond. CH2=CH—CH3 + H2 Heat Ni CH3—CH2—CH3 Propene Propane"],
+    answer: "C₃H₆ will undergo addition reaction. It is because it has a double bond. CH₂=CH—CH₃ + H₂ → CH₃—CH₂—CH₃ (Ni, heat); Propene → Propane.",
+    solutionSteps: [
+      "[1 mark] C₃H₆ will undergo addition reaction.",
+      "[1 mark] It is because it has a double bond.",
+      "[1 mark] CH₂=CH—CH₃ + H₂ → CH₃—CH₂—CH₃ (Ni, heat); Propene → Propane.",
+    ],
     ncertRef: "cbjesccq04 Q106", isCompetencyBased: true },
   // cbjesccq04 Q155 (Section D, 5mk)
   { id: "SCQ-S-CARB-038", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",

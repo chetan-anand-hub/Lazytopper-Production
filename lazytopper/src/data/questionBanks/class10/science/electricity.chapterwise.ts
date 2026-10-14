@@ -239,8 +239,12 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq12 Q66 (Section C, 3mk)
   { id: "SCQ-S-ELEC-033", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What is meant by \"electrical resistance\" of a conductor? State how resistance of a conductor is affected when a. a low current passes through it for a short duration; b. a heavy current passes through it for about 30 seconds.",
-    answer: "Electrical resistance is the property of a conductor by virtue of which it opposes the flow of current through it. It is equal to the ratio of the potential difference applied across its ends to the current flowing through it. R I V = a. When a low current is passed for a short d",
-    solutionSteps: ["[3 marks] Electrical resistance is the property of a conductor by virtue of which it opposes the flow of current through it. It is equal to the ratio of the potential difference applied across its ends to the current flowing through it. R I V = a. When a low current is passed for a short duration, through a conductor, heat produced is almost negligible and hence no appreciable change in its resistance. b. When heavy current is passed through the conductor for 30 s. Conductor may be get heated and its resistance and resistivity change."],
+    answer: "Electrical resistance is the property of a conductor by virtue of which it opposes the flow of current through it. It is equal to the ratio of the potential difference applied across its ends to the current flowing through it: R = V/I. a. When a low current is passed through a conductor for a short duration, heat produced is almost negligible and hence there is no appreciable change in its resistance. b. When heavy current is passed through the conductor for 30 s, the conductor may get heated and its resistance and resistivity change.",
+    solutionSteps: [
+      "[1 mark] Electrical resistance is the property of a conductor by virtue of which it opposes the flow of current through it. It is equal to the ratio of the potential difference applied across its ends to the current flowing through it: R = V/I.",
+      "[1 mark] a. When a low current is passed through a conductor for a short duration, heat produced is almost negligible and hence there is no appreciable change in its resistance.",
+      "[1 mark] b. When heavy current is passed through the conductor for 30 s, the conductor may get heated and its resistance and resistivity change.",
+    ],
     ncertRef: "cbjesccq12 Q66", isCompetencyBased: true },
   // cbjesccq12 Q67 (Section C, 3mk)
   { id: "SCQ-S-ELEC-034", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -251,8 +255,12 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq12 Q68 (Section C, 3mk)
   { id: "SCQ-S-ELEC-035", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Electric current flows through three lamps when arranged in (a) a series (b) a parallel. If the filament of one lamp breaks. Explain what happens to the other two lamps in both the cases.",
-    answer: "a. In series combination if the filament of one lamp breaks then the circuit will be broken and hence other lamps stops glowing. Chap 12 : Electricity b. In parallel combination of lamps if the element of one lamp breaks then other two will continue to glow.",
-    solutionSteps: ["[3 marks] a. In series combination if the filament of one lamp breaks then the circuit will be broken and hence other lamps stops glowing. Chap 12 : Electricity b. In parallel combination of lamps if the element of one lamp breaks then other two will continue to glow."],
+    answer: "a. In series combination, if the filament of one lamp breaks then the circuit will be broken. Hence the other lamps stop glowing. b. In parallel combination of lamps, if the filament of one lamp breaks then the other two will continue to glow.",
+    solutionSteps: [
+      "[1 mark] a. In series combination, if the filament of one lamp breaks then the circuit will be broken.",
+      "[1 mark] Hence the other lamps stop glowing.",
+      "[1 mark] b. In parallel combination of lamps, if the filament of one lamp breaks then the other two will continue to glow.",
+    ],
     ncertRef: "cbjesccq12 Q68", isCompetencyBased: true },
   // cbjesccq12 Q95 (Section D, 5mk)
   { id: "SCQ-S-ELEC-036", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
