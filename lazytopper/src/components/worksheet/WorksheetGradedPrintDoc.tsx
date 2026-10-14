@@ -26,6 +26,7 @@ import {
 import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
+import { StepAnnotation } from "../results/StepAnnotation";
 import type {
   CheckSolutionAnnotatedStep,
   WorksheetGradeResponse,
@@ -328,7 +329,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                                     <div className="lt-gp__stwork"><MathText text={s.studentWork} /></div>
                                   )}
                                   {s.teacherAnnotation && (
-                                    <div className="lt-gp__stann">↳ <MathText text={s.teacherAnnotation} /></div>
+                                    <StepAnnotation tone={stepDisplay(s.status, s.mistakeType).tone} consequentialOf={s.consequentialOf} className="lt-gp__stann"><MathText text={s.teacherAnnotation} /></StepAnnotation>
                                   )}
                                   {s.correctedWorking && (
                                     <div className="lt-gp__stfix">✓ <MathText text={s.correctedWorking} /></div>
@@ -373,7 +374,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                                   <div className="lt-gp__stwork"><MathText text={s.studentWork} /></div>
                                 )}
                                 {s.teacherAnnotation && (
-                                  <div className="lt-gp__stann">↳ <MathText text={s.teacherAnnotation} /></div>
+                                  <StepAnnotation tone={sd.tone} consequentialOf={s.consequentialOf} className="lt-gp__stann"><MathText text={s.teacherAnnotation} /></StepAnnotation>
                                 )}
                                 {s.correctedWorking && (
                                   <div className="lt-gp__stfix">✓ <MathText text={s.correctedWorking} /></div>
