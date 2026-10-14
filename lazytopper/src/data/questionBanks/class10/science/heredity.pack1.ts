@@ -42,9 +42,9 @@ export const HEREDITY_PACK1: CanonicalQuestion[] = [
       "(iv) Males have only one X; one defective X = colour-blind. Females need both X defective [1]",
     ], finalAnswer: "(i) 50% (ii) 50% (iii) Yes (iv) Males have single X; one defective = affected" , visualExplainerId: "science-heredity-evolution-mendels-laws-of-inheritance", isCompetencyBased: true },
   { id: "HE-H08", subject: "Science", topicKey: "heredity", subtopic: "Mendel's Laws", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "State the law of independent assortment. How does a dihybrid cross demonstrate it?", solutionSteps: [
-      "Punnett Square: Set up a 2×2 grid. Write the two parental gametes along the top and left side. Fill all four cells to obtain offspring genotypes. State the genotypic ratio and phenotypic ratio.; Law: when two pairs of traits are combined in a hybrid, segregation of one pair is independent of the other [1]",
-      "In a dihybrid cross RrYy × RrYy, each parent produces 4 gamete types: RY, Ry, rY, ry; All combinations are equally likely → 9:3:3:1 ratio in F₂ [1]",
-      "This shows R/r pair segregates independently of Y/y pair [1]",
+      "Law of independent assortment: during gamete formation, the alleles of different traits separate (assort) independently of each other. [1]",
+      "Dihybrid cross: round yellow (RRYY) × wrinkled green (rryy) gives F₁ all round yellow (RrYy); F₁ selfing (RrYy × RrYy) produces four types of gametes, RY, Ry, rY and ry, in equal proportion, giving 16 combinations in F₂. [1]",
+      "F₂ phenotypic ratio = 9 round yellow : 3 round green : 3 wrinkled yellow : 1 wrinkled green; the new combinations round green and wrinkled yellow show that seed shape and seed colour are inherited independently, proving the law. [1]",
     ], finalAnswer: "Alleles of different traits segregate independently; shown by 9:3:3:1 F₂ ratio" , visualExplainerId: "science-heredity-evolution-mendels-laws-of-inheritance", isCompetencyBased: true },
   { id: "HE-B02", subject: "Science", topicKey: "heredity", subtopic: "Mendel's Laws", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is the law of segregation? State when it applies.", solutionSteps: [
       "Law of Segregation: the two alleles of a gene separate (segregate) during gamete formation, each gamete receiving only one allele [½]",
