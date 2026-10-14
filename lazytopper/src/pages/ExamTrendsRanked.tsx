@@ -22,6 +22,28 @@ import {
 } from "../data/highlyProbableQuestions";
 import MobileShell from "../components/mobile/MobileShell";
 import { notesHref } from "../seo/notesLinks";
+import { ncertReadPath, ncertRowsForSlug } from "../config/ncertBooks";
+
+/**
+ * NCERT-ENTRY-1 (owner 14 Oct) — a chapter card's NCERT book, opened in the /ncert-class-10 reader with
+ * a return ticket back here (the page had no mobile entry point; this list is chapter-indexed and has a
+ * bottom-tab entry). ONE short link per card, so the action row fits at 390px; a topic covering two
+ * NCERT chapters (trigonometry = Ch 8 + 9) opens the first, and the reader's page lists the second
+ * right below it. The All-chapters directory links both.
+ */
+function NcertLink({ slug, name }: { slug: string; name: string }) {
+  const first = ncertRowsForSlug(slug)[0];
+  if (!first) return null;
+  return (
+    <Link
+      to={ncertReadPath(first, "/exam-trends", "Exam Trends")}
+      className="lt-et-notes"
+      aria-label={`${name}: read NCERT Chapter ${first.chapter}`}
+    >
+      NCERT
+    </Link>
+  );
+}
 import { useIsDesktop } from "../hooks/useIsDesktop";
 
 /**
@@ -950,6 +972,12 @@ const STYLES = `
   .lt-et-actions { width: 100%; margin-top: 10px; }
   .lt-et-actions .lt-et-btn--primary { flex: 1; }
   .lt-et-menu { min-width: 186px; }
+  /* NCERT-ENTRY-1 — the row now carries a 4th action (NCERT). Tighter gaps, and Learn may give up
+     its spare width (min-width:0) so the ⋯ button stays inside the card down to 360px. Learn keeps
+     its height and stays the widest control. */
+  .lt-et-actions { gap: 5px; }
+  .lt-et-actions .lt-et-btn--primary { min-width: 0; padding-left: 10px; padding-right: 10px; }
+  .lt-et-actions .lt-et-notes { padding: 0 4px; }
 }
 @media (max-width: 520px) {
   .lt-et-card { padding: 11px 12px; border-radius: 13px; }
@@ -1244,6 +1272,7 @@ function TopicCard({
               Notes
             </Link>
           )}
+          <NcertLink slug={topic.slug} name={topic.name} />
           {/* position:relative wrapper — without it the absolute menu falls back
               to its static position, i.e. below the whole card (§5 cause 2). */}
           <span className="lt-et-mwrap" data-lt-et-menu-wrap="">
@@ -1399,6 +1428,16 @@ function AllChapters() {
                       Notes
                     </Link>
                   )}
+                  {ncertRowsForSlug(t.slug).map((r, _i, all) => (
+                    <Link
+                      key={r.chapter}
+                      to={ncertReadPath(r, "/exam-trends", "Exam Trends")}
+                      className="lt-et-all-notes"
+                      aria-label={`${t.name}: read NCERT Chapter ${r.chapter}`}
+                    >
+                      {all.length > 1 ? `NCERT Ch ${r.chapter}` : "NCERT"}
+                    </Link>
+                  ))}
                 </li>
               );
             })}

@@ -108,3 +108,25 @@ export function ncertPracticePath(row: NcertBookChapter): string {
     `&backLabel=${encodeURIComponent("Back to NCERT books")}`
   );
 }
+
+/**
+ * NCERT-BOOKS-1b / NCERT-ENTRY-1 — the link that opens ONE chapter in the on-site reader:
+ * `/ncert-class-10?subject=<maths|science>&read=<code>`, optionally with a return ticket so the
+ * page's back link names where the student came from (Exam Trends, a notes page). The query never
+ * forms a second canonical (`canonicalPathFor` drops it).
+ */
+export function ncertReadPath(row: NcertBookChapter, returnTo?: string, backLabel?: string): string {
+  const sp = new URLSearchParams();
+  sp.set("subject", row.book === "Maths" ? "maths" : "science");
+  sp.set("read", ncertCode(row));
+  if (returnTo) {
+    sp.set("returnTo", returnTo);
+    if (backLabel) sp.set("backLabel", backLabel);
+  }
+  return `/ncert-class-10?${sp.toString()}`;
+}
+
+/** The NCERT chapters a notes / topic slug covers, in book order (Maths Ch 8 + Ch 9 share "trigonometry"). */
+export function ncertRowsForSlug(slug: string): NcertBookChapter[] {
+  return NCERT_CLASS10_CHAPTERS.filter((r) => r.slug === slug);
+}
