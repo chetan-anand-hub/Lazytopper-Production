@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 404,
-   "sha256": "b11d89dc62ecbcb8deaf04952ca50bae9152c7b5e14bc549c6d7336bade12539",
+   "n": 403,
+   "sha256": "74488cba0f933a6a6a7dc96ac7bf6d6a261c7ca3574d10a712cd23fad2606fd2",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -410,7 +410,7 @@
   },
   "electricity": {
    "n": 148,
-   "sha256": "1822748bfb344343c5ebb914eff7f5b128f40dab3a43d39cc2037a144d1f33f3",
+   "sha256": "06b1c0e184acab8c2e34a933c936f087b132048e51c7fcddcb666e136a018f09",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
