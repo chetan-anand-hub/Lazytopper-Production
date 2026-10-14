@@ -23,6 +23,75 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER FOLLOW-UPS AND STANDING RULES (recorded by A2 under §10)
+
+*(For `#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`. D243 §1 names the follow-ups that must each have their own heading here. Where D243 assigns a follow-up's PR to another lane's §10 (C1b, B2), A2 writes first under rule 2 and that lane should not duplicate it.)*
+
+### Standing rule — PYTHAGORAS (owner ruling 1, `syllabus2026-27.ts`)
+**Stating or proving the Pythagoras theorem or its converse is OUT of the 2026-27 syllabus; numeric use (a² + b² = c² as a tool) is IN** (D233 §2–3, D235, confirmed by the owner in D236 §2). Steps must not cite "by the converse of Pythagoras' theorem"; write the numeric check instead, e.g. "Since AB² = BC² + AC² (100 = 20 + 80), the angle at C is a right angle" (D233 MUST on REWRITE-3 CG-003). The 58 "Pythagoras theorem" tool citations in the bank stay (D235, D236). D231: the `syllabus2026-27.ts` owner rulings bind as much as `syllabusGuard.ts`; every content lane checks both. Open work: C1b PYTHAGORAS-HUB-1 (`trianglesTopicHubPack.ts`, D235/D242) and D3's text-clean rewording of 4 converse rows and 3 A/R stems (D235/D237).
+
+### Standing rule — BANK-STEPS-1 / GARBLE-1 REPAIR RULES (`A-STATE.md` §1, D186/D189, CLAUDE.md §13)
+- **The stem stays the stem.** Rewrite a stem only when it is the damaged part (GARBLE rows), from the OFFICIAL source, never from memory; if the source cannot be confirmed the row STAYS PAUSED on the cannot-fix list.
+- **Blind re-solve:** a row moves `paused → repaired` only after a fresh Opus agent, given the stem (+ options) only, answers it and the answer equals the stored key. A disagreement keeps the row paused; a key is never edited without a cofounder ruling (D170 did that for two A-R keys).
+- Steps per §13 (A=1, B=2, C=3, D=5, E=4; `[mark]` tags; units; exact CBSE terms; chemistry balanced equation and state symbols / conditions as separate steps; NCERT Class 10 content only). `answer` and `finalAnswer` agree with the last step; objective rows keep their key.
+- In the SAME PR: delete the id from `WITHHELD_QUESTION_IDS` and from `bankFix/garble1Withholds.ts`; ledger `paused → repaired`; restore any label / `PAUSED_LABELS` entry and move the coverage pin; put back any `RESTORE_ON_REPAIR` entry; drop a `bankGarble.guard.test.ts` exception for a fixed row. Regenerate (`gen:bank-chapters`, then the order-parity fixture); never hand-merge generated files.
+- **D228 §3 (standing):** any step-repair PR also checks `answer` / `finalAnswer` for the same flattening and fixes it in the same PR.
+- Live check names ≥ 2 surfaces, one structured (§4a).
+
+### Standing rule — D209 PROVENANCE STANDARD for a reconstructed stem
+A reconstruction ships only when three things agree: **the row's own original key, a second source, and a correct proof**, with a provenance comment on each row naming the source as written (e.g. "stem restored from the row's own key + Vedantu reproduction of CBSE 2024 set 30/4/1 Q26; official PDF not available to the controller"). A stem with none of the three stays paused (D209). D229 confirmed `#1164` met it. D193 (TRIG-014) asks more where only a reconstruction exists: verbatim from the official paper, cited by paper, set code and question number, plus a matching blind re-solve.
+
+### Standing rule — D232: bank / shared-artifact PRs open only at their slot
+Bank files, `sitemap.xml`, `lastmod.json` and prerender PRs open **only when their slot comes**; until then push the branch and post the AUDIT-REQUEST with the branch SHA. Reason (D232): the next PR, B2's `#1169`, was red on `lane-overlap` against D2's early-opened `#1163` + `#1167` (same bank files) and G's `#1159` (`sitemap.xml`); D2 closed `#1163`/`#1167` (branches kept) to reopen as new PRs at their slot, and `#1159` was closed by the cofounder (D234) and re-opened as `#1171`. An approval carries to the new PR when the lane files are byte-identical to the approved SHA.
+
+### Standing rule — SOURCE-HUNT-1: official CBSE papers are downloadable; read them by eye (D235, D239)
+The official board-paper ZIPs on `https://www.cbse.gov.in/cbsenew/question-paper.html` download over curl with a browser User-Agent (WebFetch got 403), e.g. `…/question-paper/2024/X/MATHEMATICS_STANDARD.zip` (incl. `30(B) Mathematics.pdf`), `…/2025/X/041_Mathematics_Standard.zip`. **Their PDFs' text layer is damaged** (minus, θ, √, fractions, superscripts), very likely how the bank stems were garbled: render each page to an image and read it BY EYE; check the footer code (e.g. `14-30(B)`, `15-30/5/1`) and the question number. **D239: these ZIPs are now the primary source for every FIND-2 rewrite, replacing the Vedantu reproductions**; D244 puts them first in SCI-BACKLOG-1's source order. Vedantu dropped `k ≠ –1` on 30/5/1 Q32(a); the official page confirms it (`A2-STATE.md` §1).
+
+### [FU-PDF-KATEX-FONT-TIMING] — CLOSED (D243 §1)
+Posted by D as D203 condition 2 for `#1152` (comment 6159298232): `renderElementToPdf` (`worksheetPdfExport.ts`) awaited `document.fonts.ready` once after `root.render`, so the PDF capture might run before the KaTeX font files load. **D243 records it as closed: "the owner's graded PDF shows KaTeX glyphs rendered."** No code change was made for it.
+
+### [FU-MATHTEXT-MULTILETTER-SUBSCRIPT] — CLOSED by `#1162`
+Logged by D203 for the 44 rows left unchanged by `#1150` (e.g. `V_cyl`, `R_total`). `#1162` (`660258d2`) renders `X_yyy` (one capital + 2–9 lowercase letters, whole token, guarded against file names and snake_case) as an upright subscript; D225 kept genotype notation (`R_yy`, `G_vv`, `A_bb`) as written. Census 66 fields / 35 rows, 0 non-target (D228).
+
+### [FU-MATHTEXT-LOWERCASE-BASE-SUBSCRIPT]
+Lowercase-base subscripts (`n_air`, `n_glass`, `h_cone`, `v_a`) stay as written after `#1162`; D225 keeps this open.
+
+### [FU-TRIG-IDENTITY-SUBTOPIC-LABEL]
+`PYQ-M-2024-TRIG-018` and `-014` are labelled "Specific Angles" ("Trigonometric Ratios of Specific Angles") but are identity proofs. Accepted by D209; fix in a later label PR.
+
+### [FU-SUBTOPIC-TAGS-REWRITE4]
+From D241 (REWRITE-4 approval): `TRIG-014` → "Trigonometric Identities", `2024-QE-001` → "Solution by Factorisation". It needs a concept-map check, so it goes in a later lane, not in REWRITE-4. Overlaps `[FU-TRIG-IDENTITY-SUBTOPIC-LABEL]` for TRIG-014.
+
+### [FU-QE-002-NO-REAL-ROOTS]
+`PYQ-M-2024-QE-002` (5x² – 6x + 21 = 0) has no real roots (D = –384). It is CBSE's printed question and the ratio of sum to product is still defined, so it is unchanged (D229). Logged for a later "note to student" line, not a change to the paper.
+
+### [FU-MATHS-FINALANSWER-WORKING]
+D231 (on `#1167`): untouched neighbours `CI2-053`, `CG2-051`, `CG2-054`, `PL2-R17`, `PR2-048` still carry working text in `finalAnswer`; they go in the Maths text-clean PR (D2's, now D3's per D237). Separately, `#1144`'s body names five rows that store a worked sentence in `finalAnswer` (`QE2-048`, `PR2-046`, `ARC2-052`, `CI2-053`, `SAV2-R18`; "flagged on #973"); only `CI2-053` is on both lists.
+
+### [FU-SCI-STEM-GARBLE-3]
+D238 (on B2's PR-6): `SCQ-S-CHEM-034` (`$` for arrows, Al₂(SO₄)₃), `SCQ-S-ENV-034` (garbled stem; its answer covers only part a), `SCQ-S-ENV-035`, for a later stem-garble lane. D244 puts them in SCI-BACKLOG-1 step 3 (owner A2, or controller F per D244). B2 also flagged served `SCQ-S-REPR-044` (a step calls variations "the basis of evolution") for this list or a later bank PR.
+
+### [FU-EL-EXPLANATION-FILLER]
+D231 (on B2's `#1169`): the generic `explanation` text on EL-E01…E15 and M13 is for a later lane. *(B2 records `#1169`; do not duplicate.)*
+
+### [FU-PDF-ARROW-GLYPH]
+D243 names it "(now in D242)". D242 §1: `↳` prints as "Ⅰ," in the graded PDF because the html2canvas capture font has no glyph for it; replace it in `CheckImproveGradedPrintDoc.tsx`, `WorksheetGradedPrintDoc.tsx` and `DesktopCheckImprovePage.tsx` with an inline SVG arrow coloured by verdict, CSS class, no inline style. Owner: B2, inside GRADER-CONSEQUENTIAL-1 (D242).
+
+### [FU-SYN08-HARD-SHEET]
+D223 §2 (C1b's `#1126` ruling): sheet SYN-08 shows a consistent 3 → 2 shift on the shrunk file (3/3 reads, mistake type none → conceptual), "a real loss, not noise"; that is why the shrink fires only above the 7 MB ceiling. Logged by D223. *(C1b records `#1126`; do not duplicate.)*
+
+### [FU-MULTIPAGE-REAL-ANSWER]
+D223 §2: "still open, a genuine multi-page answer set is needed (NEEDS-OWNER material)". C1b's control used synthetic sheets with blank filler pages; no > 7 MB real multi-page answer exists (C1b post on `#973`). *(C1b records `#1126`; do not duplicate.)*
+
+### [FU-MATHTEXT-OBJECT]
+D235: `MathText` given `{a:1}` shows "[object Object]"; render "" and warn instead. In C2's `#1172` MATHTEXT-HPQ-1 (with HPQ `commonMistakes` / `examTip` through `MathText`), approved D239; not merged at `cdfb6fea`.
+
+### Untagged items from these lanes (no FU id was assigned; recorded so they are not lost)
+- `#1152`: 4 of the 8 product files have no mounted test (D's LIVE follow-up list).
+- `#1150` verifier, low: `sqrt(x^-2)` and nested `sqrt(a*sqrt(2))` only partly promoted; `Mg^(2+)` / `kg m^-3` render unit letters in maths italic; `a^(` / `sqrt(` repeated thousands of times costs ~0.4–0.5 s on a 20k-char string; `=>` inside HTML-like text.
+- D184: `CIR-M09`'s A-R key is "soft"; logged for a FIND-3-style correctness pass.
+- `A-STATE.md` §5: A's scan finds 6 served `$`-for-arrow rows (CHEM-034, CARB-027, CARB-029, CARB-041, ENV-024, ENV-036) and asks D for "the 7th"; D's gap list (comment 6158720188) names the same six plus `SCQ-S-CARB-032`, which `#1146` withholds.
+
 ## 2026-10-14 — FU-SAVE-SYNC-QUOTA FOLLOW-UPS (recorded by C2 under §10)
 
 ### [FU-SAVE-SYNC-QUOTA] — CLOSED by `#1168`
