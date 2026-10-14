@@ -1,5 +1,11 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — SOLUTIONS-1 (`#1186`) · LEGAL-ENTITY-1 (`#1187`) — ✅ MERGED (lane G)
+
+- ✅ Triangles NCERT (13) + Exemplar (16) solutions pages, attempt-first. ⏳ More chapters: one publish-safe list per chapter (D261 method), then a data entry each.
+- ✅ The legal pages and footers name P&CGOLDDUST_TECH PRIVATE LIMITED (Razorpay KYC). ⏳ `[FU-ORG-LEGALNAME]`; then the Razorpay go-live steps (owner, no code).
+- ⏳ After go-live: PASS-STATUS-1 ("Your pass" box; "Extend your pass" buttons).
+
 ## 2026-10-14 — NCERT-BOOKS-1 (`#1171`) · NCERT-BOOKS-1b (`#1182`) · NCERT-ENTRY-1 (`#1184`) — ✅ MERGED (lane G; owner checks owed)
 
 - ✅ `/ncert-class-10`: the 27 NCERT Class 10 chapters (2026-27), each read on LazyTopper, with notes, formulae, practice and Check my answer. ⏳ owner Android check.

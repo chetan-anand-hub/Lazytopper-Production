@@ -1,5 +1,19 @@
 # LazyTopper — Current State
 
+## [CURRENT · 2026-10-14 · SOLUTIONS-1 + LEGAL-ENTITY-1 (lane G)] `#1186` `#1187`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by G under §10 (one docs PR for both) from `#973` (CLAIM / AUDIT / LIVE posts; D259–D261), `gh pr view`, `git log` and `claude/GROWTH_LOG.md`. Facts only; nothing here changes a ruling. Written at trunk `294e472a` (`#1187`).
+
+★ **TRUNK at writing:** `294e472a` (`#1187`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (IST) | what it changed |
+|---|---|---|---|
+| `#1186` SOLUTIONS-1 (D259–D261) | `3cdbed4b` | 10-14 ~22:58 | two new public pages, `/ncert-solutions/triangles` (13) and `/ncert-exemplar/triangles` (16): D261 allowlist ∩ the chapter loader's served rows; attempt-first (hint = step 1; any MCQ pick / typed answer unlocks the full solution, which is in the pre-built HTML, hidden); MCQ ✓/✗ plus 5 typed rows via `lib/solutions/compareAnswer.ts` (never wrong for a correct equivalent); every ✗ ends in "Check my answer"; real urgency only; BreadcrumbList JSON-LD; 7 `sol_*` events in all four allowlists; a "Solutions" link on the `/ncert-class-10` Triangles row. App.tsx: 1 lazy import + 2 shell matchers + 2 Routes. `vercel.json` regenerated from the router (one-segment wildcard, as `/notes`) |
+| `#1187` LEGAL-ENTITY-1 | `294e472a` | 10-14 ~23:39 | names the operating company **P&CGOLDDUST_TECH PRIVATE LIMITED** (one constant `src/config/legalEntity.ts`) on `/legal/privacy`, `/legal/terms`, `/legal/refund` (operator line in the contact block), in the Terms' first paragraph ("Last updated: October 2026"), and in both copyright lines (legal-page foot + `PublicLegalFooter`). For Razorpay KYC. No payment code or config |
+
+★ **Owner rulings in this pair:** `#1186` merged on the owner's "I approve, merge on green CI" (22:3x IST), overriding the tier-2 cofounder audit before merge; then "we dont need cofounders audit, you audit it" (23:07 IST): G's audit APPROVED (`#973` issuecomment-6174761591). The company name was confirmed exactly as in the spec (cofounder relay, 23:00 IST).
+★ **LIVE checks (curl, static HTML):** `#1186`: www `3cdbed4b`, both pages 200, self-canonical, 13/13 and 16/16 cards with solutions, a two-segment path 404. `#1187`: www `294e472a` (3/3), the operator line on all three legal pages, the Terms paragraph and date, the © line on `/` and `/pricing`.
+★ **Known deviation:** an unknown chapter (`/ncert-solutions/<other>`) is served the shell (200, home canonical) and redirects in-app to `/ncert-class-10`, not a server 404 (`[FU-SOLUTIONS-UNKNOWN-CHAPTER-404]`).
 ## [CURRENT · 2026-10-14 · NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (lane G)] `#1171` `#1182` `#1184`
 
 *(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by G under §10 (D195 §6, one docs PR for G's NCERT wave) from `#973` (the CLAIM / AUDIT-REQUEST / MERGE-SLOT / LIVE posts; D195, D196, D210, D211, D213, D221, D232, D234, D235, D258), `gh pr view`, `git log` and `claude/GROWTH_LOG.md`. Facts only; nothing here changes a ruling. Written at trunk `2da27ae4` (`#1184`).

@@ -1,5 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — SOLUTIONS-1 / LEGAL-ENTITY-1 (G, §10 for `#1186` `#1187`).** Scope: two new public pages and the company name on the legal pages and public footer. No grading behaviour, bank row or student data changed.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/ncert-solutions/triangles`, `/ncert-exemplar/triangles` (NEW public pages, desktop shell + mobile self-chrome) | attempt-first solutions, 13 + 16 rows (`#1186`) | 🟢 live (`3cdbed4b`) | owner phone check; `[FU-SOLUTIONS-UNKNOWN-CHAPTER-404]` |
+| `/ncert-class-10` | a "Solutions" link on the Triangles row (`#1186`) | 🟢 live | — |
+| `/legal/*` + public footer (`/`, `/pricing`, …) | "operated by" line, Terms paragraph + October 2026, © P&CGOLDDUST_TECH PRIVATE LIMITED (`#1187`) | 🟢 live (`294e472a`) | owner §4 check; `[FU-ORG-LEGALNAME]` |
+
 > **2026-10-14 — NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (G, §10 for `#1171` `#1182` `#1184`).** Scope: one new public surface (`/ncert-class-10`) and two new entry points to it. No grading behaviour, bank row or student data changed.
 
 | surface | what moved (PR) | state | owed |
