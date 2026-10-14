@@ -480,35 +480,180 @@
   "formula_strip": [
     {
       "label": "Covalent bond",
-      "math": "shared electron pair between two atoms = 1 covalent bond (2 pairs = double, 3 pairs = triple)"
+      "math": "shared electron pair between two atoms = 1 covalent bond (2 pairs = double, 3 pairs = triple)",
+      "id": "covalent-bond",
+      "tip": "Shared electron PAIR = one bond."
     },
     {
       "label": "General formulae",
-      "math": "Alkanes $\\text{C}_n\\text{H}_{2n+2}$  .  Alkenes $\\text{C}_n\\text{H}_{2n}$  .  Alkynes $\\text{C}_n\\text{H}_{2n-2}$"
+      "math": "Alkanes $\\text{C}_n\\text{H}_{2n+2}$  .  Alkenes $\\text{C}_n\\text{H}_{2n}$  .  Alkynes $\\text{C}_n\\text{H}_{2n-2}$",
+      "id": "general-formulae-of-hydrocarbons",
+      "tip": "Check by putting n = 2: C₂H₆, C₂H₄, C₂H₂."
     },
     {
       "label": "Homologous series",
-      "math": "successive members differ by a $-\\text{CH}_2-$ unit (14 u)"
+      "math": "successive members differ by a $-\\text{CH}_2-$ unit (14 u)",
+      "id": "homologous-series",
+      "tip": "Successive members differ by CH₂ (14 u)."
     },
     {
       "label": "Combustion",
-      "math": "$\\text{carbon compound} + \\text{O}_2 \\rightarrow \\text{CO}_2 + \\text{H}_2\\text{O} + \\text{heat and light}$"
+      "math": "$\\text{carbon compound} + \\text{O}_2 \\rightarrow \\text{CO}_2 + \\text{H}_2\\text{O} + \\text{heat and light}$",
+      "id": "combustion-of-carbon-compounds",
+      "tip": "Saturated hydrocarbons burn with a clean flame; unsaturated give sooty flame."
     },
     {
       "label": "Oxidation",
-      "math": "ethanol $\\xrightarrow{[\\text{O}]}$ ethanoic acid  (alcohol $\\rightarrow$ carboxylic acid)"
+      "math": "ethanol $\\xrightarrow{[\\text{O}]}$ ethanoic acid  (alcohol $\\rightarrow$ carboxylic acid)",
+      "id": "oxidation-of-ethanol",
+      "tip": "Ethanol → ethanoic acid with an oxidising agent."
     },
     {
       "label": "Addition (hydrogenation)",
-      "math": "unsaturated + $\\text{H}_2 \\xrightarrow{\\text{Ni}}$ saturated"
+      "math": "unsaturated + $\\text{H}_2 \\xrightarrow{\\text{Ni}}$ saturated",
+      "id": "addition-reaction",
+      "tip": "Only unsaturated compounds; Ni catalyst."
     },
     {
       "label": "Substitution",
-      "math": "$\\text{CH}_4(g) + \\text{Cl}_2(g) \\xrightarrow{\\text{sunlight}} \\text{CH}_3\\text{Cl}(g) + \\text{HCl}(g)$"
+      "math": "$\\text{CH}_4(g) + \\text{Cl}_2(g) \\xrightarrow{\\text{sunlight}} \\text{CH}_3\\text{Cl}(g) + \\text{HCl}(g)$",
+      "id": "substitution-reaction",
+      "tip": "Needs sunlight; replaces H by Cl."
     },
     {
       "label": "Esterification / saponification",
-      "math": "acid + alcohol $\\xrightarrow{\\text{Acid}}$ ester + water ;  ester + $\\text{NaOH} \\rightarrow$ soap + alcohol"
+      "math": "acid + alcohol $\\xrightarrow{\\text{Acid}}$ ester + water ;  ester + $\\text{NaOH} \\rightarrow$ soap + alcohol",
+      "id": "esterification-and-saponification",
+      "tip": "Ester is sweet-smelling; saponification gives soap."
+    },
+    {
+      "label": "Name and formula by number of carbons",
+      "math": "1 carbon: methane $\\text{CH}_4$<br>2 carbons: ethane $\\text{C}_2\\text{H}_6$<br>3 carbons: propane $\\text{C}_3\\text{H}_8$<br>4 carbons: butane $\\text{C}_4\\text{H}_{10}$<br>5 carbons: pentane $\\text{C}_5\\text{H}_{12}$<br>6 carbons: hexane $\\text{C}_6\\text{H}_{14}$",
+      "id": "alkanes-table",
+      "heading": "Alkanes (Table)"
+    },
+    {
+      "label": "Group and its formula",
+      "math": "Halogen (halo): –Cl, –Br<br>Alcohol: –OH<br>Aldehyde: –CHO<br>Ketone: >C=O<br>Carboxylic acid: –COOH",
+      "id": "functional-groups-table",
+      "heading": "Functional Groups (Table)"
+    },
+    {
+      "label": "Nomenclature of Carbon Compounds (Steps and Table)",
+      "math": "(1) Count the carbon atoms and use the root word: meth (1), eth (2), prop (3), but (4), pent (5), hex (6). (2) Show the functional group as a prefix or a suffix: halo → prefix chloro-, bromo-; alcohol → suffix –ol; aldehyde → –al; ketone → –one; carboxylic acid → –oic acid. (3) If the suffix begins with a vowel, drop the final 'e' of the chain name (propane + ol → propanol). (4) A double bond is shown by –ene and a triple bond by –yne.",
+      "id": "nomenclature-of-carbon-compounds"
+    },
+    {
+      "label": "Electron Dot Structures",
+      "math": "In a hydrogen molecule two atoms share one pair of electrons (a single bond); in oxygen they share two pairs (a double bond); in nitrogen three pairs (a triple bond). In methane, carbon shares four pairs, one with each of four hydrogen atoms. Valency: carbon 4, hydrogen 1, oxygen 2, nitrogen 3.",
+      "id": "covalent-bonding-electron-dot"
+    },
+    {
+      "label": "Properties of Covalent Compounds",
+      "math": "Covalent compounds have low melting and boiling points and are poor conductors of electricity, because no ions are formed.",
+      "id": "properties-of-covalent-compounds"
+    },
+    {
+      "label": "Soaps and Detergents: Cleansing Action",
+      "math": "Soap is the sodium or potassium salt of a long-chain carboxylic acid. One end (ionic) is attracted to water; the long carbon chain is attracted to oil. In water the molecules form clusters called micelles, with the oily dirt collected in the middle, so the dirt is rinsed away. With hard water, soap reacts with calcium and magnesium salts to form an insoluble scum, so more soap is needed; detergents do not form scum.",
+      "id": "soaps-and-detergents"
+    },
+    {
+      "label": "Ethanol and Ethanoic Acid: Properties and Uses",
+      "math": "Ethanol is a liquid at room temperature, dissolves in water, reacts with sodium and, heated with hot concentrated sulphuric acid, gives ethene. It is a good solvent, used in medicines such as tincture of iodine and cough syrups. Ethanoic acid reacts with bases, carbonates and hydrogencarbonates (releasing carbon dioxide). A 5–8% solution of ethanoic acid in water is vinegar, used as a preservative in pickles.",
+      "id": "properties-and-uses-of-ethanol-and-ethanoic-acid"
+    },
+    {
+      "label": "Allotropes of Carbon",
+      "math": "Diamond and graphite are both forms (allotropes) of carbon. Diamond is the hardest natural substance known; graphite conducts electricity.",
+      "id": "allotropes-of-carbon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "formula-by-n",
+      "text": "Alkane CₙH₂ₙ₊₂, alkene CₙH₂ₙ, alkyne CₙH₂ₙ₋₂; test with n = 2: C₂H₆, C₂H₄, C₂H₂.",
+      "use": "mcq-check",
+      "source": "NCERT 4.2.1"
+    },
+    {
+      "id": "name-from-suffix",
+      "text": "–ol alcohol, –al aldehyde, –one ketone, –oic acid carboxylic acid; –ene double bond, –yne triple bond.",
+      "use": "mcq-check",
+      "source": "NCERT Table 4.4"
+    },
+    {
+      "id": "sooty-flame-means-unsaturated",
+      "text": "Yellow sooty flame ⇒ unsaturated; clean blue flame ⇒ saturated (with enough air).",
+      "use": "mcq-check",
+      "source": "NCERT 4.3.1"
+    },
+    {
+      "id": "addition-needs-double-bond",
+      "text": "Addition reaction only for unsaturated compounds (double/triple bond).",
+      "use": "mcq-check",
+      "source": "NCERT 4.3.3"
+    },
+    {
+      "id": "ethanoic-acid-test",
+      "text": "Ethanoic acid + sodium hydrogencarbonate fizzes (CO₂); ethanol does not.",
+      "use": "mcq-check",
+      "source": "NCERT 4.4.2"
+    },
+    {
+      "id": "soap-hard-water",
+      "text": "Soap forms scum with hard water; detergents lather.",
+      "use": "written-ok",
+      "source": "NCERT 4.4.3"
+    },
+    {
+      "id": "alkane-names-trick",
+      "text": "<b>M</b>ummy <b>E</b>k <b>P</b>yaara <b>B</b>ada <b>P</b>arantha <b>H</b>ai.",
+      "gloss": "First six alkanes in order. M = Methane (C₁) · E = Ethane (C₂) · P = Propane (C₃) · B = Butane (C₄) · P = Pentane (C₅) · H = Hexane (C₆).",
+      "use": "memory-aid",
+      "source": "NCERT Table 4.2"
+    },
+    {
+      "id": "cnh2n-trick",
+      "text": "<b>Ane pe do zyada, Ene pe seedha 2n, Yne pe do kam.</b>",
+      "gloss": "General formulae. alkane CₙH₂ₙ₊₂ · alkene CₙH₂ₙ · alkyne CₙH₂ₙ₋₂.",
+      "use": "memory-aid",
+      "source": "NCERT 4.2.1"
+    },
+    {
+      "id": "suffix-trick",
+      "text": "<b>Alcohol ka ol, Aldehyde ka al, Ketone ka one, Carboxylic ka oic.</b>",
+      "gloss": "Suffixes. –ol, –al, –one, –oic acid.",
+      "use": "memory-aid",
+      "source": "NCERT Table 4.4"
+    },
+    {
+      "id": "homologous-trick",
+      "text": "<b>Agla sadasya = pichhla + CH₂ (14 u).</b>",
+      "gloss": "Successive members. each member differs by one CH₂.",
+      "use": "memory-aid",
+      "source": "NCERT 4.2.4"
+    },
+    {
+      "id": "valency-trick",
+      "text": "<b>Carbon chaar haath, Oxygen do, Nitrogen teen, Hydrogen ek.</b>",
+      "gloss": "Valencies. C 4 · O 2 · N 3 · H 1.",
+      "use": "memory-aid",
+      "source": "NCERT 4.1"
+    },
+    {
+      "id": "covalent-properties-trick",
+      "text": "<b>Covalent: kam pighle, bijli nahi.</b>",
+      "gloss": "Properties. low melting/boiling points; poor conductors.",
+      "use": "memory-aid",
+      "source": "NCERT 4.1"
+    },
+    {
+      "id": "micelle-trick",
+      "text": "<b>Soap ka sir paani mein, poonchh tel mein.</b>",
+      "gloss": "Soap micelle. ionic end in water; hydrocarbon tail in oil.",
+      "use": "memory-aid",
+      "source": "NCERT 4.4.3"
     }
   ],
   "mindmap": {

@@ -559,31 +559,181 @@
   "formula_strip": [
     {
       "label": "Metal + Oxygen",
-      "math": "$\\text{Metal} + \\text{Oxygen} \\rightarrow \\text{Metal oxide}$  (mostly basic; $\\text{Al}_2\\text{O}_3$ and $\\text{ZnO}$ are amphoteric)"
+      "math": "$\\text{Metal} + \\text{Oxygen} \\rightarrow \\text{Metal oxide}$  (mostly basic; $\\text{Al}_2\\text{O}_3$ and $\\text{ZnO}$ are amphoteric)",
+      "id": "metal-oxygen-reaction",
+      "tip": "Metal oxides are mostly basic; Al₂O₃, ZnO amphoteric."
     },
     {
       "label": "Metal + Water",
-      "math": "$\\text{Metal} + \\text{Water} \\rightarrow \\text{Metal oxide} + \\text{Hydrogen}$  .  $\\text{Metal oxide} + \\text{Water} \\rightarrow \\text{Metal hydroxide}$"
+      "math": "$\\text{Metal} + \\text{Water} \\rightarrow \\text{Metal oxide} + \\text{Hydrogen}$  .  $\\text{Metal oxide} + \\text{Water} \\rightarrow \\text{Metal hydroxide}$",
+      "id": "metal-water-reaction",
+      "tip": "Reactivity decides cold water, hot water, steam, none."
     },
     {
       "label": "Metal + Acid",
-      "math": "$\\text{Metal} + \\text{Dilute acid} \\rightarrow \\text{Salt} + \\text{Hydrogen}$"
+      "math": "$\\text{Metal} + \\text{Dilute acid} \\rightarrow \\text{Salt} + \\text{Hydrogen}$",
+      "id": "metal-acid-reaction",
+      "tip": "Cu, Hg, Ag, Au do not release hydrogen."
     },
     {
       "label": "Displacement",
-      "math": "$\\text{Metal A} + \\text{Salt solution of B} \\rightarrow \\text{Salt solution of A} + \\text{Metal B}$  (A more reactive than B)"
+      "math": "$\\text{Metal A} + \\text{Salt solution of B} \\rightarrow \\text{Salt solution of A} + \\text{Metal B}$  (A more reactive than B)",
+      "id": "metal-displacement-reaction",
+      "tip": "More reactive displaces less reactive."
     },
     {
       "label": "Activity series",
-      "math": "K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au"
+      "math": "K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au",
+      "id": "reactivity-series",
+      "heading": "Reactivity Series of Metals (Activity Series)",
+      "tip": "K Na Ca Mg Al Zn Fe Pb H Cu Hg Ag Au (top most reactive)."
     },
     {
       "label": "Roasting / Calcination",
-      "math": "Roasting: sulphide ore + excess air $\\rightarrow$ oxide  .  Calcination: carbonate ore + limited air $\\rightarrow$ oxide"
+      "math": "Roasting: sulphide ore + excess air $\\rightarrow$ oxide  .  Calcination: carbonate ore + limited air $\\rightarrow$ oxide",
+      "id": "roasting-and-calcination",
+      "tip": "Roasting: sulphide ore, excess air. Calcination: carbonate ore, limited air."
     },
     {
       "label": "Thermit reaction",
-      "math": "$\\text{Fe}_2\\text{O}_3(s) + 2\\text{Al}(s) \\rightarrow 2\\text{Fe}(l) + \\text{Al}_2\\text{O}_3(s) + \\text{Heat}$  (aluminium reduces iron(III) oxide; the iron is molten)"
+      "math": "$\\text{Fe}_2\\text{O}_3(s) + 2\\text{Al}(s) \\rightarrow 2\\text{Fe}(l) + \\text{Al}_2\\text{O}_3(s) + \\text{Heat}$  (aluminium reduces iron(III) oxide; the iron is molten)",
+      "id": "thermit-reaction",
+      "tip": "Aluminium reduces iron(III) oxide; used to join rails."
+    },
+    {
+      "label": "Physical Properties of Metals and Non-metals (with Exceptions)",
+      "math": "Metals are lustrous, malleable, ductile, sonorous and good conductors of heat and electricity; non-metals are brittle and poor conductors. Exceptions: mercury is a liquid metal; gallium and caesium melt at very low temperatures; iodine is a lustrous non-metal; diamond is the hardest natural substance; graphite conducts electricity; the alkali metals (lithium, sodium, potassium) are so soft that they can be cut with a knife; lead and mercury are poor conductors of heat; non-metals are solids or gases except bromine, which is a liquid.",
+      "id": "physical-properties-of-metals-and-non-metals"
+    },
+    {
+      "label": "Properties of Ionic Compounds",
+      "math": "Ionic compounds are solids, somewhat hard and brittle; they have high melting and boiling points; they dissolve in water; they conduct electricity in solution and in the molten state but not as solids.",
+      "id": "properties-of-ionic-compounds"
+    },
+    {
+      "label": "Extraction of Metals by Position in the Reactivity Series",
+      "math": "Top of the series (K, Na, Ca, Mg, Al): electrolysis of the molten chloride; the metal is deposited at the cathode. Middle (Zn, Fe, Pb): roast or calcine the ore to the oxide, then reduce with carbon. Bottom: mercury from cinnabar (HgS) and copper from Cu₂S are obtained by heating in air alone; silver and gold are found free.",
+      "id": "extraction-of-metals-by-reactivity"
+    },
+    {
+      "label": "Electrolytic Refining of Copper",
+      "math": "The impure metal is made the anode and a thin strip of pure metal the cathode, in a solution of acidified copper sulphate. On passing current, pure copper deposits on the cathode.",
+      "id": "electrolytic-refining"
+    },
+    {
+      "label": "Prevention of Corrosion",
+      "math": "Painting, oiling, greasing, galvanising, chrome plating, anodising and making alloys. Galvanising is coating iron or steel with a thin layer of zinc; the article stays protected even if the zinc coating is broken.",
+      "id": "corrosion-prevention-methods"
+    },
+    {
+      "label": "Alloys",
+      "math": "An alloy is a homogeneous mixture of two or more metals, or of a metal and a non-metal. Pure iron is soft; with a little carbon (about 0.05%) it becomes hard and strong; with nickel and chromium it gives stainless steel. Brass is copper and zinc; bronze is copper and tin. An alloy with mercury is an amalgam. The conductivity and melting point of an alloy are lower than those of the pure metals.",
+      "id": "alloys"
+    },
+    {
+      "label": "Metals and Water: Who Reacts How",
+      "math": "Potassium and sodium react violently with cold water. Calcium reacts less violently. Magnesium reacts only with hot water. Aluminium, iron and zinc react only with steam, giving the metal oxide and hydrogen. Lead, copper, silver and gold do not react with water at all.",
+      "id": "metals-and-water-detail"
+    },
+    {
+      "label": "Formation of an Ionic Compound (NaCl)",
+      "math": "A metal atom loses electrons to form a positive ion; a non-metal atom gains electrons to form a negative ion; the opposite charges attract. $\\text{Na}\\rightarrow\\text{Na}^++e^-$ and $\\text{Cl}+e^-\\rightarrow\\text{Cl}^-$, giving $\\text{NaCl}$.",
+      "id": "formation-of-ionic-compound"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "displacement-by-series-position",
+      "text": "A metal displaces any metal BELOW it in the reactivity series from its salt solution.",
+      "use": "mcq-check",
+      "source": "NCERT 3.2.4, 3.2.5"
+    },
+    {
+      "id": "above-hydrogen-releases-hydrogen",
+      "text": "Only metals above hydrogen displace H₂ from dilute acids; Cu, Hg, Ag, Au do not.",
+      "use": "mcq-check",
+      "source": "NCERT 3.2.3"
+    },
+    {
+      "id": "extraction-follows-reactivity",
+      "text": "Top: electrolysis. Middle: carbon reduction (after roasting/calcination). Bottom: heat alone.",
+      "use": "written-ok",
+      "source": "NCERT 3.4"
+    },
+    {
+      "id": "oxide-nature",
+      "text": "Metal oxides are basic; non-metal oxides acidic; aluminium and zinc oxides are amphoteric.",
+      "use": "mcq-check",
+      "source": "NCERT 3.2.1"
+    },
+    {
+      "id": "roast-vs-calcine",
+      "text": "Sulphide ore ⇒ roasting (excess air). Carbonate ore ⇒ calcination (limited air).",
+      "use": "written-ok",
+      "source": "NCERT 3.4.4"
+    },
+    {
+      "id": "refining-electrodes",
+      "text": "Refining: impure metal at the anode, pure metal at the cathode.",
+      "use": "written-ok",
+      "source": "NCERT 3.4.6"
+    },
+    {
+      "id": "reactivity-series-trick",
+      "text": "<b>K</b>al <b>N</b>aani <b>Ca</b>r <b>M</b>ein <b>Al</b>oo <b>Z</b>eera <b>F</b>ry <b>P</b>aka <b>H</b>ain, <b>Cu</b>pboard <b>H</b>i <b>Ag</b>le <b>Au</b>nty.",
+      "gloss": "Most reactive → least reactive, 13 members, hydrogen in position 9. Kal = <b>K</b> · Naani = <b>Na</b> · Car = <b>Ca</b> · Mein = <b>Mg</b> · Aloo = <b>Al</b> · Zeera = <b>Zn</b> · Fry = <b>Fe</b> · Paka = <b>Pb</b> · Hain = <b>H</b> (hydrogen) · Cupboard = <b>Cu</b> · Hi = <b>Hg</b> · Agle = <b>Ag</b> · Aunty = <b>Au</b>. The five words that share a first letter (Ca, Al, Cu, Ag, Au) now carry the whole symbol (Car, Aloo, Cupboard, Agle, Aunty).2 exactly, including Pb, H and Hg.",
+      "use": "memory-aid",
+      "source": "NCERT 3.2.5 Table 3.2",
+      "heading": "Reactivity Series Trick (K to Au)"
+    },
+    {
+      "id": "anode-cathode-trick",
+      "text": "<b>Anode = Ashuddh, Cathode = Chokha.</b>",
+      "gloss": "Electrolytic refining. anode: impure metal · cathode: pure metal strip.",
+      "use": "memory-aid",
+      "source": "NCERT 3.4.6"
+    },
+    {
+      "id": "metal-water-trick",
+      "text": "<b>K, Na bhadak jaate; Ca kam bhadakta aur tairta hai; Mg sirf garam paani; Al-Zn-Fe sirf bhaap; Pb se Au kuch nahi.</b>",
+      "gloss": "Metals and water. K, Na violent · Ca less violent · Mg hot water · Al, Fe, Zn steam · Pb, Cu, Ag, Au nothing.",
+      "use": "memory-aid",
+      "source": "NCERT 3.2.2"
+    },
+    {
+      "id": "extraction-trick",
+      "text": "<b>Upar: Bijli. Beech: Bhatti. Neeche: Aanch.</b>",
+      "gloss": "Extraction method by position. top: electrolysis · middle: carbon reduction (furnace) · bottom: heat alone (Hg, Cu) or found free (Ag, Au).",
+      "use": "memory-aid",
+      "source": "NCERT 3.4.3–3.4.5"
+    },
+    {
+      "id": "oxide-trick",
+      "text": "<b>Metal ka oxide Base; non-metal ka oxide Acid; Aluminium-Zinc dono taraf.</b>",
+      "gloss": "Nature of oxides. basic · acidic · amphoteric (Al₂O₃, ZnO).",
+      "use": "memory-aid",
+      "source": "NCERT 3.2.1"
+    },
+    {
+      "id": "corrosion-prevention-trick",
+      "text": "<b>P</b>intu <b>O</b>ye <b>G</b>aya <b>G</b>aon <b>C</b>hhodke <b>A</b>aj <b>A</b>aya.",
+      "gloss": "Seven prevention methods, NCERT order. P = painting · O = oiling · G = greasing · G = galvanising · C = chrome plating · A = anodising · A = alloying (making alloys).",
+      "use": "memory-aid",
+      "source": "NCERT 3.5.1"
+    },
+    {
+      "id": "ionic-bond-trick",
+      "text": "<b>Metal de, non-metal le.</b>",
+      "gloss": "Ionic bond formation. metal loses electrons (cation); non-metal gains (anion).",
+      "use": "memory-aid",
+      "source": "NCERT 3.3"
+    },
+    {
+      "id": "alloy-trick",
+      "text": "<b>Pital = Cu + Zn; Kaansa = Cu + Sn.</b>",
+      "gloss": "Brass and bronze. brass: copper + zinc · bronze: copper + tin.",
+      "use": "memory-aid",
+      "source": "NCERT 3.5.1"
     }
   ],
   "mindmap": {
