@@ -909,6 +909,31 @@ function ExampleCard({
   );
 }
 
+/**
+ * NOTES-FORMULA-1 — the formula strip as ONE card, rendered in two places (owner: "keep in both"):
+ * directly after "The Big Idea" in the Note tab, and at the top of the Mindmap tab. Both panels are
+ * always in the DOM (and the prerendered HTML), so the text is present twice. An empty strip renders
+ * nothing — no empty card.
+ */
+function FormulaeCard({ items }: { items: NoteSpec["formula_strip"] }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <section className="lt-note__block">
+      <div className="lt-note__sec-label">Formulae</div>
+      <div className="lt-note__frow">
+        {items.map((item, i) => (
+          <div key={i} className="lt-note__fitem">
+            <div className="lt-note__flabel"><NoteRichText text={item.label} /></div>
+            <div className="lt-note__fval">
+              <NoteRichText text={item.math} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function MindmapPanel({ mindmap }: { mindmap: NoteMindmap }) {
   const hasTree =
     !!mindmap && !mindmap._TODO && !!mindmap.root && Array.isArray(mindmap.branches) &&
@@ -1312,7 +1337,7 @@ export function Note({ spec, initialTab }: NoteProps) {
           className={`lt-note__tab${tab === "mind" ? " lt-note__tab--active" : ""}`}
           onClick={() => setTab("mind")}
         >
-          Mindmap
+          {spec.formula_strip.length > 0 ? "Formulae & Mindmap" : "Mindmap"}
         </button>
         <button
           type="button"
@@ -1366,6 +1391,8 @@ export function Note({ spec, initialTab }: NoteProps) {
               )}
             </section>
           )}
+
+          <FormulaeCard items={spec.formula_strip} />
 
           {spec.definitions.length > 0 && (
             <section className="lt-note__block">
@@ -1514,27 +1541,12 @@ export function Note({ spec, initialTab }: NoteProps) {
               ))}
             </section>
           )}
-
-          {spec.formula_strip.length > 0 && (
-            <section className="lt-note__block">
-              <div className="lt-note__sec-label">Formula strip</div>
-              <div className="lt-note__frow">
-                {spec.formula_strip.map((item, i) => (
-                  <div key={i} className="lt-note__fitem">
-                    <div className="lt-note__flabel"><NoteRichText text={item.label} /></div>
-                    <div className="lt-note__fval">
-                      <NoteRichText text={item.math} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
         </div>
       </div>
 
       {/* ── Mindmap tab ── */}
       <div className={"lt-note__panel" + (tab === "mind" ? " lt-note__panel--active" : "")}>
+        <FormulaeCard items={spec.formula_strip} />
         <MindmapPanel mindmap={spec.mindmap} />
       </div>
 

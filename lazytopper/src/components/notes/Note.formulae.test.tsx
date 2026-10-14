@@ -1,0 +1,126 @@
+/**
+ * GUARD — NOTES-FORMULA-1: the formula strip is ONE card shown in TWO places.
+ *
+ *   (a) Note tab: the "Formulae" card sits directly after "The Big Idea" and is no longer at the
+ *       end of the tab;
+ *   (b) Mindmap tab: the same card is the first thing in the panel, above the mind-map;
+ *   (c) the tab is labelled "Formulae & Mindmap"; the section label is "Formulae" (not
+ *       "Formula strip");
+ *   (d) all 26 specs: both panels carry every formula label (so the prerendered HTML carries the
+ *       text twice) and all four panels are still in the DOM;
+ *   (e) the formulas render as math in BOTH places from the precomputed map (`.katex`, no fetch);
+ *   (f) honest empty state: a spec with an empty strip keeps the tab name "Mindmap" and renders
+ *       no "Formulae" card anywhere;
+ *   (g) CONTROL: the position check fails on a card placed at the end (the old layout).
+ */
+
+import { describe, it, expect, afterEach } from "vitest";
+import { render, screen, cleanup } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+
+import { Note } from "./Note";
+import { ensureAllNoteSpecs, getNoteSpecForTopic, noteSpecSlugs } from "./noteSpecRegistry";
+import type { NoteSpec } from "./noteSpec.types";
+
+await ensureAllNoteSpecs();
+
+afterEach(cleanup);
+
+const mount = (spec: NoteSpec) =>
+  render(
+    <MemoryRouter>
+      <Note spec={spec} />
+    </MemoryRouter>,
+  );
+
+const panels = (c: HTMLElement) => Array.from(c.querySelectorAll<HTMLElement>(".lt-note__panel"));
+const labelsIn = (el: Element) =>
+  Array.from(el.querySelectorAll(".lt-note__sec-label")).map((n) => (n.textContent || "").trim());
+
+/** Index of the "Formulae" label among the section labels of a panel, and of the Big Idea label. */
+function order(panel: HTMLElement): { formulae: number; bigIdea: number; last: number } {
+  const labels = labelsIn(panel);
+  return {
+    formulae: labels.findIndex((l) => l === "Formulae"),
+    bigIdea: labels.findIndex((l) => l.startsWith("The Big Idea")),
+    last: labels.length - 1,
+  };
+}
+
+const spec = (slug: string): NoteSpec => {
+  const s = getNoteSpecForTopic(slug);
+  if (!s) throw new Error("no spec " + slug);
+  return s;
+};
+
+describe("NOTES-FORMULA-1 — placement", () => {
+  it("(a) Note tab: Formulae directly after The Big Idea, not at the end", () => {
+    const { container } = mount(spec("trigonometry"));
+    const o = order(panels(container)[0]);
+    expect(o.bigIdea).toBeGreaterThanOrEqual(0);
+    expect(o.formulae).toBe(o.bigIdea + 1);
+    expect(o.formulae).not.toBe(o.last);
+  });
+
+  it("(b) Mindmap tab: the same card is first, above the mind-map", () => {
+    const { container } = mount(spec("trigonometry"));
+    const mind = panels(container)[1];
+    expect(labelsIn(mind)).toEqual(["Formulae", "Mindmap"]);
+  });
+
+  it("(c) labels: tab 'Formulae & Mindmap', no 'Formula strip' anywhere", () => {
+    const { container } = mount(spec("trigonometry"));
+    const tabs = screen.getAllByRole("tab").map((t) => (t.textContent || "").trim());
+    expect(tabs[1]).toBe("Formulae & Mindmap");
+    expect(container.textContent).not.toContain("Formula strip");
+  });
+
+  it("(g) CONTROL: the position check fails on the old layout (card last)", () => {
+    const { container } = mount(spec("trigonometry"));
+    const note = panels(container)[0];
+    const card = Array.from(note.querySelectorAll(".lt-note__block")).find(
+      (b) => (b.querySelector(".lt-note__sec-label")?.textContent || "").trim() === "Formulae",
+    )!;
+    note.firstElementChild!.appendChild(card); // move it to the end, as before this lane
+    const o = order(note);
+    expect(o.formulae).toBe(o.last);
+    expect(o.formulae).not.toBe(o.bigIdea + 1);
+  });
+});
+
+describe("NOTES-FORMULA-1 — all 26 notes", () => {
+  const slugs = noteSpecSlugs();
+
+  it("covers 26 specs", () => {
+    expect(slugs).toHaveLength(26);
+  });
+
+  it.each(slugs)("(d)(e) %s: formula text twice, as math, four panels", (slug) => {
+    const s = spec(slug);
+    const { container } = mount(s);
+    const ps = panels(container);
+    expect(ps).toHaveLength(4);
+    expect(s.formula_strip.length).toBeGreaterThan(0);
+    for (const idx of [0, 1]) {
+      const card = Array.from(ps[idx].querySelectorAll(".lt-note__block")).find(
+        (b) => (b.querySelector(".lt-note__sec-label")?.textContent || "").trim() === "Formulae",
+      );
+      expect(card, `panel ${idx}`).toBeTruthy();
+      expect(card!.querySelectorAll(".lt-note__fitem")).toHaveLength(s.formula_strip.length);
+      if (s.formula_strip.some((f) => f.math.includes("$"))) {
+        expect(card!.querySelector(".katex"), `panel ${idx} math`).toBeTruthy();
+      }
+    }
+  });
+});
+
+describe("NOTES-FORMULA-1 — honest empty state", () => {
+  it("(f) empty strip: tab stays 'Mindmap', no Formulae card", () => {
+    const s: NoteSpec = { ...spec("trigonometry"), formula_strip: [] };
+    const { container } = mount(s);
+    const tabs = screen.getAllByRole("tab").map((t) => (t.textContent || "").trim());
+    expect(tabs[1]).toBe("Mindmap");
+    expect(labelsIn(container)).not.toContain("Formulae");
+    expect(labelsIn(panels(container)[1])).toEqual(["Mindmap"]);
+  });
+});
