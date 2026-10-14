@@ -187,6 +187,22 @@ describe("NOTES-FORMULA-2 — chemistry on the formula cards", () => {
     expect(left).toEqual([]);
   });
 
+  it("(b2) no TeX \\text{} run on a card is too long to wrap (KaTeX cannot break inside \\text{}: it overflowed a 390 px card)", () => {
+    const LIMIT = 30; // over-arrow conditions ("sunlight, chlorophyll", 21) sit above the arrow and are shorter than this
+    const long: string[] = [];
+    // The Science chapters this lane rewrote. (probability#0 has two such runs inside a \frac and already overflows a
+    // 390 px card on www: a separate Maths follow-up, [FU-NOTES-PROBABILITY-FRAC-OVERFLOW], not widened into this guard.)
+    const SCIENCE = new Set(["acids-bases-and-salts", "metals-and-non-metals", "carbon-and-its-compounds", "chemical-reactions-and-equations", "heredity", "life-processes", "our-environment", "control-and-coordination", "how-do-organisms-reproduce", "human-eye-and-colourful-world", "electricity", "light-reflection-and-refraction", "magnetic-effects-of-electric-current"]);
+    for (const s of strips.filter((x) => SCIENCE.has(x.slug))) {
+      for (const m of s.math.matchAll(NOTE_MATH_RE)) {
+        for (const t of m[1].matchAll(/\\text\{([^{}]*)\}/g)) if (t[1].length > LIMIT) long.push(`${s.slug}#${s.i}: ${t[1]}`);
+      }
+    }
+    expect(long).toEqual([]);
+    // CONTROL: the old acids item has exactly such a run
+    expect("\\text{Metal carbonate / hydrogencarbonate}".match(/\\text\{([^{}]*)\}/)![1].length).toBeGreaterThan(LIMIT);
+  });
+
   it("(c) the life-processes photosynthesis card carries no author note", () => {
     const p = strips.find((s) => s.slug === "life-processes" && s.i === 0)!;
     expect(p.math).not.toMatch(/standard CBSE equation|NCERT states/i);

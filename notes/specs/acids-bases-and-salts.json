@@ -378,7 +378,7 @@
     },
     {
       "label": "Carbonate / bicarbonate + Acid",
-      "math": "$\\text{Metal carbonate / hydrogencarbonate} + \\text{Acid} \\rightarrow \\text{Salt} + \\text{Carbon dioxide} + \\text{Water}$"
+      "math": "Metal carbonate / hydrogencarbonate + Acid &rarr; Salt + Carbon dioxide + Water"
     },
     {
       "label": "Neutralisation",
