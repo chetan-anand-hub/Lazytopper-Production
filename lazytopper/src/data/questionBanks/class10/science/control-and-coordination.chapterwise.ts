@@ -192,10 +192,12 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["Motor areas of the brain control the movement of voluntary muscles."],
     ncertRef: "cbjesccq07 Q3", isCompetencyBased: false },
   // cbjesccq07 Q4 (Section A, 1mk)
+  // CTRL-024 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc106, section 6.1.2 'Human Brain' (fore-brain areas for sight; medulla in the hind-brain controls salivation)
   { id: "SCQ-S-CTRL-024", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Give the scientific names of the following regions of the human brain: a. Region for sight. b. Region which controls salivation.",
-    answer: "a. Temporal lobe (of the forebrain) b. Medulla (of the hindbrain)",
-    solutionSteps: ["a. Temporal lobe (of the forebrain) b. Medulla (of the hindbrain)"],
+    answer: "a. The visual area of the fore-brain (cerebrum), i.e. the occipital lobe. b. The medulla of the hind-brain.",
+    solutionSteps: ["[1 mark] a. Region for sight: the area of the fore-brain (cerebrum) specialised for sight, the occipital lobe; it receives sensory impulses from the eyes.","[1 mark] b. Region which controls salivation: the medulla of the hind-brain, which controls involuntary actions such as blood pressure, salivation and vomiting."],
+    finalAnswer: "a. Fore-brain (occipital lobe, the visual area); b. Medulla (hind-brain).",
     ncertRef: "cbjesccq07 Q4", isCompetencyBased: false },
   // cbjesccq07 Q5 (Section A, 1mk)
   { id: "SCQ-S-CTRL-025", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -229,10 +231,12 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["Plants Animals"],
     ncertRef: "cbjesccq07 Q28", isCompetencyBased: false },
   // cbjesccq07 Q1 (Section B, 2mk)
+  // CTRL-030 repaired (SCI-BACKLOG-1, 14 Oct, D244): Booklet cbjesccq07 Q30 [CBSE 2014], recovered from the stored key; answer checked against NCERT Class 10 Science 2026-27 jesc106, section 6.3 'Hormones in Animals' (feedback mechanism, insulin example)
   { id: "SCQ-S-CTRL-030", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "No specific or specialized tissue present for conduction of information. Specialised tissues are present in the body for conduction of information. 2. Plant cells change shape by changing the amount of water in them. Specialised proteins are found in muscle cells which help in changing the shape. 29. Trace the sequences of events through a reflex arc which occur when a bright light is focused on your eyes.",
-    answer: "30. How does feedback mechanism regulate the hormone Chap 7 : Control and Coordination secretion? Ans : [CBSE 2014] The feedback mechanism regulates the timing and amount of hormone to be secreted, e.g., if a person has more sugar in his blood, this is detected by the cells of th",
-    solutionSteps: ["30. How does feedback mechanism regulate the hormone Chap 7 : Control and Coordination secretion? Ans : [CBSE 2014] The feedback mechanism regulates the timing and amount of hormone to be secreted, e.g., if a person has more sugar in his blood, this is detected by the cells of the pancreas. As a result, more insulin will be secreted to oxidise the sugar. In a reverse situation, the secretion of insulin will be reduced."],
+    questionText: "How does feedback mechanism regulate the hormone secretion?",
+    answer: "The timing and amount of hormone released are regulated by feedback mechanisms. For example, when the blood sugar level rises it is detected by the cells of the pancreas, which produce more insulin; as the blood sugar level falls, insulin secretion is reduced.",
+    solutionSteps: ["[1 mark] Hormones must be secreted in precise quantities; the timing and amount of hormone released are regulated by a feedback mechanism.","[1 mark] Example: if the sugar level in blood rises, it is detected by the cells of the pancreas, which respond by producing more insulin; as the blood sugar level falls, insulin secretion is reduced."],
+    finalAnswer: "Feedback mechanism regulates the timing and amount of hormone released, e.g. high blood sugar → pancreas secretes more insulin; falling blood sugar → less insulin.",
     ncertRef: "cbjesccq07 Q1", isCompetencyBased: false },
   // cbjesccq07 Q31 (Section B, 2mk)
   { id: "SCQ-S-CTRL-031", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",

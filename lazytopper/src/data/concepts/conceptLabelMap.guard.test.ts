@@ -88,7 +88,8 @@ const MAX_REVIEWED_LABELS = 136;
 // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3): 10268 served rows, measured 0.91858 -> pin 0.9189 -> 0.9185 (each REPAIR PR re-measures and raises it back).
 // 14 Oct GARBLE-1 REWRITE-1 (A2): PYQ-M-2024-TRIG-018 and -020 serve again (label 'Trigonometric Identity Proofs' has a carrier, its PAUSED_LABELS entry is gone). Re-measured on the merged tree by runtime import: 10329 served, 0.92264 (this includes the rows #1145 restored) -> pin 0.9185 -> 0.9226.
 // 14 Oct GARBLE-1 REWRITE-2 (A2): PYQ-M-2024-QE-002, -004b and -006a serve again (10329 -> 10332). Two carry a mapped concept ('Nature of Roots'); QE-002's label 'Sum and Product of Roots' is a reviewed unmapped label (other-chapter: polynomials), so it has none: 9530 of 10329 -> 9532 of 10332 (0.92257), and the pin moves 0.9226 -> 0.9225 by exactly that one row.
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9225;
+// 14 Oct SCI-BACKLOG-1 batch 1 (F): 19 Science rows serve again (+19, 10438 served), all with the unmapped "Chapter Practice" echo label, so none gains a concept: measured 9618 of 10438 = 0.92144 -> pin 0.9225 -> 0.9214 (the dilution by exactly those 19 rows; AUDIT-REQUEST names it for the cofounder).
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9214;
 
 const isChapterEchoSubtopic = echoFromShape;
 

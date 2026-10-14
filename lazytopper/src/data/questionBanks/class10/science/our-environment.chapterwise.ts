@@ -206,10 +206,12 @@ export const OUR_ENVIRONMENT_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq15 Q5", isCompetencyBased: false,
     sourceOverride: "others" },
   // cbjesccq15 Q62 (Section B, 2mk)
+  // ENV-028 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc113 (Our Environment), section 13.2.1 'Ozone Layer and How it is Getting Depleted' (CFC-chlorine mechanism per ledger correction FIND-3/D179)
   { id: "SCQ-S-ENV-028", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What are ozone holes? How do they form?",
-    answer: "[Delhi 2016] The coolants of Refrigerators and A/Cs use CFCs which release fluorine which react with ozone gas and break it into oxygen and a very reactive form of atomic oxygen which in turn can break another ozone molecule. Thus a chain reaction starts and layer of ozone become",
-    solutionSteps: ["[Delhi 2016] The coolants of Refrigerators and A/Cs use CFCs which release fluorine which react with ozone gas and break it into oxygen and a very reactive form of atomic oxygen which in turn can break another ozone molecule. Thus a chain reaction starts and layer of ozone becomes thinner at some places in upper atmosphere. These are called ozone holes."],
+    answer: "[Delhi 2016] Ozone holes are regions of the upper atmosphere where the ozone layer has become very thin, so more harmful UV radiation from the Sun reaches the earth. They form mainly because of synthetic chemicals like chlorofluorocarbons (CFCs), used as refrigerants and in fire extinguishers; in the upper atmosphere UV radiation breaks CFCs and releases chlorine atoms, which break down ozone (O₃) molecules, thinning the ozone layer.",
+    solutionSteps: ["[1 mark] Ozone holes: regions of the upper atmosphere where the ozone layer has become very thin (depleted), so it no longer shields the earth well and more harmful ultraviolet (UV) radiation from the Sun reaches the surface.","[1 mark] Formation: synthetic chemicals like chlorofluorocarbons (CFCs), used as refrigerants and in fire extinguishers, rise to the upper atmosphere; there UV radiation breaks them down, releasing chlorine atoms, which break down ozone (O₃) molecules, so the ozone layer becomes thinner."],
+    finalAnswer: "Ozone holes are thinned regions of the ozone layer in the upper atmosphere. They form when CFCs (used as refrigerants and in fire extinguishers) reach the upper atmosphere, are broken down by UV radiation and release chlorine atoms that break down ozone (O₃).",
     ncertRef: "cbjesccq15 Q62", isCompetencyBased: true },
   // cbjesccq15 Q63 (Section B, 2mk)
   { id: "SCQ-S-ENV-029", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
