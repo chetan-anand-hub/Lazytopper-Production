@@ -1,0 +1,58 @@
+/* GRADER-CONSEQUENTIAL-1 — the teacher-annotation line of a graded step (StepAnnotation.tsx).
+   The arrow is an inline SVG drawn with `currentColor`, so it needs no font glyph and prints the
+   same in the html2canvas PDF capture. Its colour is the step's verdict; the text is medium weight. */
+.lt-stann {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.lt-stann__arrow {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lt-stann__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lt-stann__text {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.lt-stann__follows {
+  font-size: 0.86em;
+  font-weight: 500;
+  font-style: normal;
+  opacity: 0.85;
+}
+
+/* the arrow takes the verdict colour in every host */
+.lt-stann--ok .lt-stann__arrow { color: hsl(152, 55%, 33%); }
+.lt-stann--part .lt-stann__arrow { color: hsl(35, 85%, 40%); }
+.lt-stann--bad .lt-stann__arrow { color: hsl(0, 70%, 45%); }
+.lt-stann--na .lt-stann__arrow,
+.lt-stann--struck .lt-stann__arrow,
+.lt-stann--unk .lt-stann__arrow { color: hsl(220, 15%, 42%); }
+
+/* on-screen Check & Improve step row (DesktopCheckImprovePage): the text takes the verdict colour too */
+.lt-stann--screen {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.lt-stann--screen.lt-stann--ok .lt-stann__text { color: hsl(152, 55%, 33%); }
+.lt-stann--screen.lt-stann--part .lt-stann__text { color: hsl(35, 85%, 36%); }
+.lt-stann--screen.lt-stann--bad .lt-stann__text { color: hsl(0, 70%, 45%); }
+.lt-stann--screen.lt-stann--na .lt-stann__text,
+.lt-stann--screen.lt-stann--struck .lt-stann__text,
+.lt-stann--screen.lt-stann--unk .lt-stann__text { color: hsl(220, 15%, 42%); }
+.lt-stann--screen .lt-stann__follows { color: hsl(220, 15%, 42%); }
