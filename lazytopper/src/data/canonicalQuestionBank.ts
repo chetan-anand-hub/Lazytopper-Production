@@ -2160,6 +2160,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LT2-043",                      // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror, part (iii) u = -20 cm = f (object at F); key says "image at infinity, highly magnified"
   "FND-L-SPM-026",                // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror match-the-column; key pairs "At F" with "(a) At infinity, highly magnified"
   // SCI-BACKLOG-1 batch 1 (F, 14 Oct, D244): 19 WRONG-CONTENT Science rows corrected from NCERT 2026-27 / the board booklet answers and served again (ids leave this block)
+  // SCI-BACKLOG-1 batch 2 (F, 14 Oct, D244): 6 SINGLE-STEP Science rows rewritten from NCERT 2026-27 and served again (ids leave this block)
   // BANK-STEPS-1 REPAIR PR-5 (lane B, 14 Oct): 36 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-4 (lane B, 14 Oct): 50 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-3 (lane B, 14 Oct; CR-M04 + ABS-E06 keys changed per D170): 53 Science rows repaired (new steps from each row's own stem + key) and served again
@@ -2169,14 +2170,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "2026-PLE-SA-02",               // spliced-solution: the steps answer another question (different numbers)
   "PLE2-037",                     // spliced-solution: part of the steps answer another question
   // wrong-content rows (D178/D179, found by B while splitting single-step rows; rewrite owner: A, from NCERT)
-  "SCQ-S-CHEM-033",               // wrong-content (D178): the 'change in state' example is a precipitate reaction, not a change of state
-  "SCQ-S-METAL-036",              // wrong-content (D178): silver, the best heat conductor, is missing and the answer text is garbled ('...of heat copper') - NCERT does name lead as a poor conductor
-  "SCQ-S-CARB-032",               // wrong-content (D178): the stored equations and key text are garbled at extraction (C H OH CH CH H O K Conc H SO ...)
   "SCQ-S-ENV-037",                // wrong-content (D178): ozone 'height from the equator 10 to 16 km' is not the NCERT figure; 'Global wanning' is not the effect of depletion
-  "SCQ-S-CARB-036",               // wrong-content (D178): C4H3 is not a possible hydrocarbon formula; no addition equation given
   // FIND-3 (D179, D189): SCQ-S booklet rows judged WRONG (scientific error, empty or mismatched key, garbled stem); rewrite owner A, from NCERT
-  "SCQ-S-METAL-038",              // wrong-content (FIND-3, D179): Key/steps are only the title 'Activity: To show metals are good conductors of electricity.' - no activity (circuit, bulb glows) described; no answer f
-  "SCQ-S-CARB-034",               // wrong-content (FIND-3, D179): Key/steps are only a chapter header 'Chap 4 : Carbon and Its Compounds' - no isomers or structures. Should be propanal and propanone.
 ]);
 
 /**

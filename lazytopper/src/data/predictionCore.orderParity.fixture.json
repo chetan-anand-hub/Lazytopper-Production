@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 526,
-   "sha256": "e99746175707526a3b4df395a138bbdc54e01911e842fa4e4c1616ef03714659",
+   "n": 527,
+   "sha256": "bdcb566b7d7a222c7abbb45565035985f342139eb6ec94055f58e0eea1171eee",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 518,
-   "sha256": "984d06acf237d4dc2f4f3bae9602a021853aa082001efda2120f2de89689f201",
+   "n": 520,
+   "sha256": "4da60fdb87fbdfd93b1fed1883f1401af51cbf29686d7ffb7400df3573d564f7",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -146,8 +146,8 @@
    ]
   },
   "carbon-and-its-compounds": {
-   "n": 364,
-   "sha256": "df26e6c42205a09912cc32c4cf6de989679a6a37f69ee46909a917b334f6d3c9",
+   "n": 367,
+   "sha256": "ede0c330e4623293bc89dbf1e56c0a1a9305f8744f22ef7682e90474c1851ea7",
    "head": [
     "LTG-S-CARB-274",
     "LTG-S-CARB-273",
@@ -356,7 +356,7 @@
   },
   "chemical-reactions-and-equations": {
    "n": 73,
-   "sha256": "8e9effd8278b14c79bf1bfa445bf4a674ba11192382e81b7ad30bb1d1aa40be0",
+   "sha256": "531d10a8c2e332511d2c2b3cc52e2810b2ef94758cca5c679d11d22a25a27f90",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -374,7 +374,7 @@
   },
   "metals-and-non-metals": {
    "n": 113,
-   "sha256": "a31e7048cb0c1e021d66c203f4e52b734422ac1b292608ca1b400be70d90c74a",
+   "sha256": "4329f673c9cbf0358a589d5aa51c349291c8c0efe16037aca9d853a6e98dd309",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -383,7 +383,7 @@
   },
   "carbon-and-its-compounds": {
    "n": 111,
-   "sha256": "90b3db2f76d74d9983a111d5043ede1875c0dabfefa6a43f61c7e67bbe490332",
+   "sha256": "7b7e8868f9a6805bbe2c8fec3065803da2047c8b178963b62bea9282021e045c",
    "head": [
     "Acid Properties\tCARB-EXMPLR-4-LONG-001",
     "Action of Soap in Hard Water\tCBE-S-CARB-C-005",

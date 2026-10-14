@@ -271,10 +271,12 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq03 Q95", isCompetencyBased: true },
   // cbjesccq03 Q96 (Section C, 3mk)
+  // METAL-036 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc103 section 3.1.1: gold and silver are the most malleable metals; the best conductors of heat are silver and copper, lead and mercury are comparatively poor conductors; gallium and caesium have very low melting points. Tungsten (highest melting point) and mercury (lowest, liquid at room temperature) are the standard board answers kept from the booklet key. Stem quote mark and the duplicated word 'copper' removed
   { id: "SCQ-S-METAL-036", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
-    questionText: "Write one example of each of the following: a. Most malleable and most ductile metal. b. The best conductor of heat and poorest conductor of heat. c. 'A metal with highest melting point and a metal with lowest melting point.",
-    answer: "a. Gold is most malleable and ductile. b. Copper is the best conductor and lead is a poor conductor of heat copper. c. Tungsten has highest melting point, mercury has lowest melting point.",
-    solutionSteps: ["[3 marks] a. Gold is most malleable and ductile. b. Copper is the best conductor and lead is a poor conductor of heat copper. c. Tungsten has highest melting point, mercury has lowest melting point."],
+    questionText: "Write one example of each of the following: a. Most malleable and most ductile metal. b. The best conductor of heat and poorest conductor of heat. c. A metal with highest melting point and a metal with lowest melting point.",
+    answer: "a. Gold is the most malleable and ductile metal. b. Silver (copper also) is the best conductor of heat and lead is a poor conductor of heat. c. Tungsten has the highest melting point and mercury has the lowest melting point.",
+    solutionSteps: ["[1 mark] a. Gold is the most malleable and most ductile metal.","[1 mark] b. Silver (copper is also an excellent one) is the best conductor of heat, and lead is a comparatively poor conductor of heat.","[1 mark] c. Tungsten has the highest melting point and mercury (a liquid at room temperature) has the lowest melting point."],
+    finalAnswer: "Gold; silver (best) and lead (poor); tungsten (highest melting point) and mercury (lowest melting point).",
     ncertRef: "cbjesccq03 Q96", isCompetencyBased: false },
   // cbjesccq03 Q97 (Section C, 3mk)
   { id: "SCQ-S-METAL-037", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
@@ -287,10 +289,12 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq03 Q97", isCompetencyBased: false },
   // cbjesccq03 Q98 (Section C, 3mk)
+  // METAL-038 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc103 Activity 3.6 (circuit of Fig. 3.2: the metal placed between terminals A and B; the bulb glows, so metals are good conductors of electricity); the stored key was only the heading
   { id: "SCQ-S-METAL-038", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Describe an activity to show that metals are good conductors of electricity.",
-    answer: "Activity: To show metals are good conductors of electricity.",
-    solutionSteps: ["[3 marks] Activity: To show metals are good conductors of electricity."],
+    answer: "Set up an electric circuit with a cell, a bulb and a switch, leaving a gap between two terminals A and B. Place the metal to be tested (for example a copper or aluminium wire) between A and B. The bulb glows, which shows that the metal conducts electricity; metals are good conductors of electricity.",
+    solutionSteps: ["[1 mark] Set up an electric circuit with a cell (battery), a bulb and a switch connected by wires, leaving a gap between two terminals A and B.","[1 mark] Place the metal to be tested (for example a copper, aluminium or iron wire or strip) in the circuit between terminals A and B and close the switch.","[1 mark] Observation and conclusion: the bulb glows, which shows that current passes through the metal; so metals are good conductors of electricity."],
+    finalAnswer: "With the metal placed between terminals A and B of a cell-bulb circuit, the bulb glows, showing that metals are good conductors of electricity.",
     ncertRef: "cbjesccq03 Q98", isCompetencyBased: true },
   // cbjesccq03 Q130 (Section D, 5mk)
   { id: "SCQ-S-METAL-039", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
