@@ -10,7 +10,7 @@ import { topicHubV2Content } from "./topicHubV2Full";
 import { topicHubV2Enrichment } from "./topicHubV2Enrichment";
 import { trianglesGuidedMindmap } from "./trianglesGuidedMindmap";
 import { trianglesTopicHubPack } from "./geminiTopicHubPacks/trianglesTopicHubPack";
-import { MATHS_VISUALS } from "./visualConceptRegistry";
+import { MATHS_VISUALS, findVisualForQuestion } from "./visualConceptRegistry";
 
 function strings(v: unknown, acc: string[] = []): string[] {
   if (typeof v === "string") acc.push(v);
@@ -89,5 +89,17 @@ describe("PYTHAGORAS-HUB-2: the Triangles hub shows nothing ruled OUT", () => {
     expect(trianglesGuidedMindmap.recommendedOrder.filter((i) => !gids.has(i))).toEqual([]);
     expect([...gids].filter((i) => !(i in trianglesGuidedMindmap.coreByNodeId))).toEqual([]);
     expect([...gids].filter((i) => !(i in trianglesGuidedMindmap.coreIdByNodeId))).toEqual([]);
+  });
+
+  it("findVisualForQuestion returns NO visual (not the chapter's first one) when nothing in Triangles matches, so a bank row pointing at a removed visual id gets none", () => {
+    // a question about the Pythagoras relation or area ratio: the removed visuals must not come back through the fallback
+    expect(findVisualForQuestion("Find hypotenuse for legs six eight.", "triangles", "Maths")).toBeNull();
+    expect(findVisualForQuestion("What is the ratio of the areas of two similar triangles?", "triangles", "Maths")?.title ?? null).not.toMatch(/pythag|areas of similar/i);
+    expect(findVisualForQuestion("Prove something unrelated xyzzy plugh", "triangles", "Maths")).toBeNull();
+    expect(findVisualForQuestion("What is the ratio of the areas of two similar triangles?", "triangles", "Maths")?.title).not.toBe("Areas of Similar Triangles");
+  });
+
+  it("CONTROL: a Basic Proportionality Theorem question still gets the BPT visual", () => {
+    expect(findVisualForQuestion("State and use the basic proportionality theorem thales for a line parallel to BC", "triangles", "Maths")?.title).toBe("Basic Proportionality Theorem");
   });
 });

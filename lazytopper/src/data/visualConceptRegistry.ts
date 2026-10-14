@@ -463,7 +463,9 @@ export function findVisualForQuestion(
         }
       }
       if (bestMatch && bestScore > 2) return bestMatch;
-      return chapterVisuals[0];
+      // Nothing in the chapter matches well enough: show no visual (a wrong visual is worse than none; same rule as
+      // findVisualForConcept). Bank rows can still point at visual ids that no longer exist (PYTHAGORAS-HUB-2).
+      return null;
     }
   }
 
