@@ -374,7 +374,7 @@ export function CheckImproveGradedPrintDoc({
               {q.teacherNote && (
                 <div className="lt-cigp__note">
                   <span className="lt-cigp__notel">Examiner note</span>
-                  <span className="lt-cigp__notet">{q.teacherNote}</span>
+                  <span className="lt-cigp__notet"><MathText text={q.teacherNote} /></span>
                 </div>
               )}
             </div>

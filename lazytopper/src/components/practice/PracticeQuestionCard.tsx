@@ -818,7 +818,7 @@ export function PracticeQuestionCard({
                   </div>
                   {solutionData.commonMistakes.map((m, i) => (
                     <div key={i} style={{ fontSize: "0.75rem", color: TEXT_MUTED, marginBottom: 2 }}>
-                      {"\u2022"} {m}
+                      {"\u2022"} <MathText text={m} />
                     </div>
                   ))}
                 </div>
@@ -829,7 +829,7 @@ export function PracticeQuestionCard({
                   background: CARD_BG, borderRadius: 10, border: `1px solid ${BORDER}`,
                   fontSize: "0.75rem", color: TEXT_MUTED,
                 }}>
-                  <strong>Exam tip:</strong> {solutionData.examTip}
+                  <strong>Exam tip:</strong> <MathText text={solutionData.examTip} />
                 </div>
               )}
 
