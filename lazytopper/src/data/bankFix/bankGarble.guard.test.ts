@@ -74,7 +74,7 @@ describe("GARBLE-1 · no served row matches a garble pattern", () => {
 
 describe("GARBLE-1 · controls (each pattern can fail)", () => {
   // Rows that were garbled and are WITHHELD: the detector must fire on every one of them, or it is a decoration.
-  const KNOWN_GARBLED = ["PYQ-M-2024-TRIG-014", "PYQ-M-2024-TRIG-018", "PYQ-M-2024-TRIG-020", "PYQ-M-2024-TRIG-013", "PYQ-M-2024-TRIG-019"];
+  const KNOWN_GARBLED = ["PYQ-M-2024-TRIG-014","PYQ-M-2024-TRIG-013", "PYQ-M-2024-TRIG-019"];
   it.each(KNOWN_GARBLED)("%s is withheld and the detector fires on it", (id) => {
     expect(WITHHELD_QUESTION_IDS.has(id)).toBe(true);
     const q = byId.get(id);
