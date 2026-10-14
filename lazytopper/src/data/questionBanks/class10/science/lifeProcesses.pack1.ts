@@ -11,23 +11,17 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
   },
   { id: "LP-E02", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which pigment absorbs sunlight for photosynthesis?", options: ["Haemoglobin", "Chlorophyll", "Melanin", "Carotene"], answer: "Chlorophyll", explanation: "The correct answer is Chlorophyll. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Chlorophyll" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify that pepsin is a digestive enzyme responsible for the breakdown of proteins.",
-      "Recall that pepsin is secreted by the gastric glands present in the wall of the stomach.",
-      "Thus, pepsin acts on proteins in the stomach.",
+      "Correct answer: Chlorophyll. Chlorophyll, the green pigment present in chloroplasts of leaf cells, absorbs light energy, which is the first event of photosynthesis.",
     ],
   },
   { id: "LP-E03", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The raw materials for photosynthesis are:", options: ["CO₂ and H₂O", "O₂ and glucose", "CO₂ and O₂", "H₂O and minerals"], answer: "CO₂ and H₂O", explanation: "The correct answer is CO₂ and H₂O. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "CO₂ and H₂O" , isCompetencyBased: false,
     solutionSteps: [
-      "Define saprophytic nutrition as the mode of nutrition in which organisms obtain nutrients from dead and decaying organic matter.",
-      "Recall that green plants are autotrophic, Amoeba is holozoic, and Deer is holozoic (herbivorous).",
-      "Mushrooms are fungi that obtain their nutrition by secreting digestive enzymes onto dead organic matter and absorbing the digested nutrients, which is saprophytic nutrition.",
+      "Correct answer: CO₂ and H₂O. Plants take in carbon dioxide from the air through stomata and water from the soil through roots; these are the raw materials converted into glucose in the presence of sunlight and chlorophyll (6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂).",
     ],
   },
   { id: "LP-E04", subject: "Science", topicKey: "life-processes", subtopic: "Respiration", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Anaerobic respiration in yeast produces:", options: ["Lactic acid", "Ethanol and CO₂", "Water and CO₂", "Pyruvate only"], answer: "Ethanol and CO₂", explanation: "The correct answer is Ethanol and CO₂. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Ethanol and CO₂" , isCompetencyBased: false,
     solutionSteps: [
-      "Aerobic respiration is the process where glucose is completely broken down in the presence of oxygen.",
-      "In eukaryotic cells, the initial breakdown of glucose (glycolysis) occurs in the cytoplasm, but the subsequent complete oxidation (Krebs cycle and electron transport chain) takes place in the mitochondria.",
-      "Therefore, mitochondria are the primary site for aerobic respiration in eukaryotic cells.",
+      "Correct answer: Ethanol and CO₂. In yeast, glucose is first broken into pyruvate in the cytoplasm; in the absence of oxygen (fermentation) pyruvate is converted into ethanol and carbon dioxide, releasing a small amount of energy.",
     ],
   },
   { id: "LP-E05", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which component of blood carries oxygen?", options: ["WBC", "Platelets", "Plasma", "RBC"], answer: "RBC", explanation: "The correct answer is RBC. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "RBC" , isCompetencyBased: false,
@@ -39,24 +33,17 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
   },
   { id: "LP-E06", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The stomach lining is protected by mucus.\nReason (R): HCl in gastric juice can damage the stomach wall.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Evaluate Assertion (A): Green plants synthesize their own food using simple inorganic substances, hence they are classified as autotrophs. This statement is true.",
-      "Evaluate Reason (R): Green plants perform photosynthesis, utilizing sunlight, water, and carbon dioxide to produce glucose (food). This statement is also true.",
-      "Determine if R explains A: The ability of green plants to synthesize their own food through photosynthesis (as described in R) is the defining characteristic of autotrophs (as stated in A). Thus, R correctly explains A.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: the inner lining of the stomach is protected by mucus. R is true: the hydrochloric acid in gastric juice can damage the stomach wall. The mucus is secreted precisely to protect the lining from this acid, so R explains A.",
     ],
   },
   { id: "LP-E07", subject: "Science", topicKey: "life-processes", subtopic: "Excretion", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The basic filtration unit of the kidney is:", options: ["Neuron", "Nephron", "Ureter", "Bowman's capsule"], answer: "Nephron", explanation: "The correct answer is Nephron. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Nephron" , isCompetencyBased: false,
     solutionSteps: [
-      "Humans are ureotelic organisms, meaning their primary nitrogenous waste product is urea.",
-      "Ammonia, a highly toxic substance, is converted into less toxic urea in the liver.",
-      "Therefore, urea is the main nitrogenous excretory product in humans.",
+      "Correct answer: Nephron. Each kidney contains a large number of nephrons; each nephron has a Bowman's capsule with a glomerulus where blood is filtered, so the nephron is the basic filtration unit of the kidney.",
     ],
   },
   { id: "LP-E08", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Arteries carry blood:", options: ["Away from the heart", "Towards the heart", "Only deoxygenated blood", "Only to the brain"], answer: "Away from the heart", explanation: "The correct answer is Away from the heart. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Away from the heart" , isCompetencyBased: false,
     solutionSteps: [
-      "Xylem is one of the two main transport tissues in vascular plants.",
-      "Its primary function is to transport water and dissolved minerals from the roots upwards to the rest of the plant.",
-      "Phloem is responsible for the transport of food (sugars).",
-      "Therefore, xylem is responsible for the transport of water.",
+      "Correct answer: Away from the heart. Arteries are thick-walled, elastic vessels that carry blood under high pressure from the heart to the organs of the body.",
     ],
   },
   { id: "LP-E09", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Write the balanced equation for photosynthesis.", solutionSteps: [
@@ -65,24 +52,17 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂" , visualExplainerId: "science-life-processes-photosynthesis", isCompetencyBased: false },
   { id: "LP-E10", subject: "Science", topicKey: "life-processes", subtopic: "Respiration", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "During aerobic respiration, glucose is completely broken down into:", options: ["Ethanol and CO₂", "CO₂ and H₂O", "Lactic acid", "Pyruvate"], answer: "CO₂ and H₂O", explanation: "The correct answer is CO₂ and H₂O. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "CO₂ and H₂O" , isCompetencyBased: false,
     solutionSteps: [
-      "Glycolysis is the initial metabolic pathway in cellular respiration that breaks down glucose.",
-      "This process occurs in the cytoplasm of the cell.",
-      "It does not require oxygen and is common to both aerobic and anaerobic respiration.",
-      "Therefore, glycolysis occurs in the cytoplasm.",
+      "Correct answer: CO₂ and H₂O. In aerobic respiration, pyruvate formed from glucose is broken down in the mitochondria in the presence of oxygen into carbon dioxide and water, releasing a large amount of energy.",
     ],
   },
   { id: "LP-E11", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): Veins have valves.\nReason (R): Valves prevent the backward flow of blood.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Identify that Assertion (A) is true: Lymph is formed from tissue fluid that enters lymphatic capillaries.",
-      "Identify that Reason (R) is true: Lymphatic system transports digested fats and drains excess fluid from extracellular spaces.",
-      "Conclude that R correctly explains A, as lymph is the tissue fluid that enters the lymphatic system to perform these functions.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: veins have valves. R is true: valves allow blood to flow only in one direction and prevent its backward flow. Since blood in veins is under low pressure and moves towards the heart, valves are needed to stop backflow, so R explains A.",
     ],
   },
   { id: "LP-E12", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The enzyme pepsin works in which medium?", options: ["Alkaline", "Acidic", "Neutral", "Both acidic and alkaline"], answer: "Acidic", explanation: "The correct answer is Acidic. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Acidic" , isCompetencyBased: false,
     solutionSteps: [
-      "Recall the correct order of organs through which food passes in the human digestive system.",
-      "The sequence is mouth, oesophagus, stomach, small intestine, large intestine, and anus.",
-      "Match this correct sequence with the given options to identify the right answer.",
+      "Correct answer: Acidic. Pepsin is a protein-digesting enzyme in gastric juice; the hydrochloric acid in the stomach creates the acidic medium needed for pepsin to act.",
     ],
   },
   { id: "LP-E13", subject: "Science", topicKey: "life-processes", subtopic: "Excretion", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Name the excretory unit of the kidney. What are its main parts?", solutionSteps: [
@@ -91,16 +71,12 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Nephron; Bowman's capsule, glomerulus, tubules, loop of Henle, collecting duct" , isCompetencyBased: false },
   { id: "LP-E14", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which blood vessel has the thinnest walls?", options: ["Artery", "Vein", "Capillary", "Aorta"], answer: "Capillary", explanation: "The correct answer is Capillary. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Capillary" , isCompetencyBased: false,
     solutionSteps: [
-      "Evaluate each statement regarding the human circulatory system.",
-      "Statements (A), (B), and (C) correctly describe the functions/characteristics of arteries, veins, and capillaries.",
-      "Statement (D) is incorrect because the pulmonary artery carries deoxygenated blood from the heart to the lungs.",
+      "Correct answer: Capillary. Capillaries are the smallest blood vessels with walls only one cell thick, which allows exchange of materials between the blood and the surrounding cells.",
     ],
   },
   { id: "LP-E15", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Bile juice is produced by:", options: ["Pancreas", "Stomach", "Liver", "Small intestine"], answer: "Liver", explanation: "The correct answer is Liver. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Liver" , isCompetencyBased: false,
     solutionSteps: [
-      "The human alimentary canal starts from the mouth.",
-      "Food then passes through the oesophagus, stomach, small intestine, and finally the large intestine.",
-      "Therefore, the correct sequence is Mouth -> Oesophagus -> Stomach -> Small intestine -> Large intestine.",
+      "Correct answer: Liver. Bile juice is secreted by the liver (and stored in the gall bladder); it makes the food in the small intestine alkaline and emulsifies fats into small globules.",
     ],
   },
   { id: "LP-M01", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Describe the process of nutrition in Amoeba.", solutionSteps: [
@@ -145,16 +121,12 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Prevents mixing of blood; efficient O₂ supply for warm-blooded metabolism" , isCompetencyBased: false },
   { id: "LP-M09", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Which of the following is NOT a function of the large intestine?", options: ["Absorption of water", "Absorption of vitamins", "Digestion of proteins", "Formation of faeces"], answer: "Digestion of proteins", explanation: "The correct answer is Digestion of proteins. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Digestion of proteins" , isCompetencyBased: false,
     solutionSteps: [
-      "Protein digestion begins in the stomach.",
-      "The enzyme responsible for breaking down proteins in the acidic environment of the stomach is pepsin.",
-      "Amylase digests carbohydrates, lipase digests fats, and trypsin acts in the small intestine.",
+      "Correct answer: Digestion of proteins. The large intestine absorbs excess water from undigested food and the remaining waste is removed through the anus; protein digestion takes place in the stomach (pepsin) and small intestine (trypsin), not the large intestine.",
     ],
   },
   { id: "LP-M10", subject: "Science", topicKey: "life-processes", subtopic: "Respiration", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Lungs have a large surface area for gas exchange.\nReason (R): Lungs contain millions of tiny sac-like structures called alveoli.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): Anaerobic respiration produces only 2 ATP, while aerobic respiration produces 36-38 ATP. Therefore, A is false.",
-      "Reason (R): Anaerobic respiration is defined as the breakdown of glucose in the absence of oxygen. Therefore, R is true.",
-      "Conclusion: Assertion is false, but Reason is true.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: the lungs provide a very large surface area for exchange of gases. R is true: the bronchioles end in millions of balloon-like sacs called alveoli. These alveoli together create that large surface area, so R explains A.",
     ],
   },
   { id: "LP-M11", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Study the diagram of the human heart and answer:\n(i) Name the chamber that receives deoxygenated blood from the body.\n(ii) Which blood vessel carries oxygenated blood from lungs to heart?\n(iii) Why is the wall of the left ventricle thicker than the right?\n(iv) Name the valve between left atrium and left ventricle.", solutionSteps: [
@@ -165,9 +137,7 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "(i) Right atrium (ii) Pulmonary veins (iii) Pumps to whole body (iv) Bicuspid valve" , visualExplainerId: "science-life-processes-human-heart-and-blood-circulation", isCompetencyBased: true },
   { id: "LP-M12", subject: "Science", topicKey: "life-processes", subtopic: "Excretion", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Artificial kidney works on the principle of:", options: ["Osmosis", "Dialysis", "Diffusion", "Active transport"], answer: "Dialysis", explanation: "The correct answer is Dialysis. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Dialysis" , isCompetencyBased: false,
     solutionSteps: [
-      "The question asks for the organ primarily responsible for filtering blood and producing urine.",
-      "Lungs remove CO2, Heart pumps blood, and Stomach digests food.",
-      "Kidneys are the main excretory organs that filter blood to remove nitrogenous waste and form urine.",
+      "Correct answer: Dialysis. An artificial kidney (haemodialysis) passes the patient's blood through long tubes lined with a semi-permeable membrane in a tank of dialysing fluid; nitrogenous wastes diffuse out of the blood into the fluid, which is the principle of dialysis.",
     ],
   },
   { id: "LP-M13", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Why do herbivores have longer small intestines than carnivores?", solutionSteps: [
@@ -181,9 +151,7 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Loss of water from leaves; creates suction for water transport, cools plant" , isCompetencyBased: false },
   { id: "LP-M15", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Villi in the small intestine are important because they:", options: ["Secrete enzymes", "Increase surface area for absorption", "Produce bile", "Store undigested food"], answer: "Increase surface area for absorption", explanation: "The correct answer is Increase surface area for absorption. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Increase surface area for absorption" , isCompetencyBased: false,
     solutionSteps: [
-      "The question asks for the process by which green plants make their own food.",
-      "Respiration, Transpiration, and Digestion are different biological processes.",
-      "Photosynthesis is the specific process where green plants use sunlight, water, and CO2 to synthesize food.",
+      "Correct answer: Increase surface area for absorption. The inner wall of the small intestine has numerous finger-like projections called villi, richly supplied with blood vessels, which increase the surface area for absorption of digested food.",
     ],
   },
   { id: "LP-H01", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Describe the process of digestion in the human alimentary canal from mouth to small intestine, mentioning the enzymes and their actions at each stage.", solutionSteps: [
@@ -246,9 +214,7 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Kidneys filter blood, maintain homeostasis; dialysis uses semipermeable membrane for waste removal" , isCompetencyBased: true },
   { id: "LP-AR05", subject: "Science", topicKey: "life-processes", subtopic: "Respiration", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Aerobic respiration produces more energy than anaerobic respiration.\nReason (R): In aerobic respiration, glucose is completely broken down into CO₂ and H₂O, releasing 38 ATP molecules.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A) is true: The trachea walls are indeed supported by C-shaped cartilaginous rings.",
-      "Reason (R) is true: These rings provide structural support to prevent the trachea from collapsing.",
-      "Reason (R) correctly explains Assertion (A) as the function of these rings is precisely to maintain the airway's open structure.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: aerobic respiration releases much more energy than anaerobic respiration. R is true: in aerobic respiration glucose is completely broken down into CO₂ and H₂O, releasing about 38 ATP, whereas anaerobic respiration breaks glucose down only partly and gives just 2 ATP. Complete breakdown is the reason more energy is released, so R explains A.",
     ],
   },
   { id: "LP-D04", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Describe the double circulation in humans. What are its components and what is its advantage?", solutionSteps: [
