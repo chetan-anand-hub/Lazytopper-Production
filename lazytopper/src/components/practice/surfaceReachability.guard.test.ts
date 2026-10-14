@@ -186,7 +186,6 @@ const KNOWN_GAP_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-STAT-002",
   "PYQ-M-STAT-004",
   "PYQ-M-2024-QE-001",
-  "PYQ-M-2024-QE-002",
   "PYQ-M-2024-CIRC-004",
   "PYQ-M-2024-CIRC-005",
   "PYQ-S-2024-METAL-002",

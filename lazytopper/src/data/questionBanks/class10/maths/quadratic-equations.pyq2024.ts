@@ -54,10 +54,10 @@ export const QUADRATIC_EQUATIONS_PYQ_2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "2" },
   { id: "PYQ-M-2024-QE-006a", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     // answer recovered from MS 041_30-5-1 Mathematics 2023-24, p.12.
-    // REWRITE-2 (A2): stem restored from the Vedantu reproduction of CBSE 2024 set 30/5/1 Q32(a); official PDF not available to the controller. That reproduction prints no 'k ≠ –1' condition (the earlier bank stem had added one), so the step that rejects k = –1 now gives its reason.
-    questionText: "Find the value of 'k' for which the quadratic equation (k + 1)x² – 6(k + 1)x + 3(k + 9) = 0 has real and equal roots.",
+    // REWRITE-2 (A2): stem restored from the row's own key + Vedantu reproduction of CBSE 2024 set 30/5/1 Q32(a); official PDF not available to the controller. The condition 'k ≠ –1' is kept: the original verbatim extraction (#147) read 'k ¹ – 1' (a symbol-font garble of ≠) and the marking scheme answer rejects k = –1; the Vedantu reproduction omits it.
+    questionText: "Find the value of 'k' for which the quadratic equation (k + 1)x² – 6(k + 1)x + 3(k + 9) = 0, k ≠ –1 has real and equal roots.",
     answer: "For real and equal roots, D = b² – 4ac = 0 ⇒ 36(k + 1)² – 4(k + 1) × 3(k + 9) = 0 ⇒ k² – 2k – 3 = 0 ⇒ (k – 3)(k + 1) = 0. k ≠ –1, So, k = 3.",
-    solutionSteps: ["[1 mark] For real and equal roots, discriminant D = b² – 4ac = 0.", "[1 mark] Here a = (k + 1), b = –6(k + 1), c-term = 3(k + 9). So 36(k + 1)² – 4(k + 1) × 3(k + 9) = 0.", "[1 mark] Dividing by 12: 3(k + 1)² – (k + 1)(k + 9) = 0 → (k + 1)(2k – 6) = 0, i.e. k² – 2k – 3 = 0 after dividing by 2.", "[1 mark] (k – 3)(k + 1) = 0; k = –1 makes the coefficient of x² zero, so the equation would not be quadratic; k ≠ –1 and k = 3.", "[1 mark] Verification: for k = 3 the equation becomes 4x² – 24x + 36 = 0, i.e. (x – 3)² = 0, equal roots x = 3, 3. Hence k = 3."],
+    solutionSteps: ["[1 mark] For real and equal roots, discriminant D = b² – 4ac = 0.", "[1 mark] Here a = (k + 1), b = –6(k + 1), c-term = 3(k + 9). So 36(k + 1)² – 4(k + 1) × 3(k + 9) = 0.", "[1 mark] Dividing by 12: 3(k + 1)² – (k + 1)(k + 9) = 0 → (k + 1)(2k – 6) = 0, i.e. k² – 2k – 3 = 0 after dividing by 2.", "[1 mark] (k – 3)(k + 1) = 0; since k ≠ –1, k = 3.", "[1 mark] Verification: for k = 3 the equation becomes 4x² – 24x + 36 = 0, i.e. (x – 3)² = 0, equal roots x = 3, 3. Hence k = 3."],
     finalAnswer: "k = 3 (rejecting k = –1); the equal roots are x = 3, 3.",
     ncertRef: "PYQ 30/5/1 Q32(a)", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
