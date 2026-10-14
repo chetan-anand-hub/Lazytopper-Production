@@ -84,9 +84,7 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "x = (2 ± √39)/5" , isCompetencyBased: true },
   { id: "QE-E18", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If D > 0 for a quadratic equation, the roots are:", options: ["Real and distinct", "Real and equal", "Imaginary", "Cannot determine"], answer: "Real and distinct", explanation: "The correct answer is Real and distinct. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Real and distinct" , isCompetencyBased: false,
     solutionSteps: [
-      "For a quadratic equation ax^2 + bx + c = 0 to have real and equal roots, its discriminant (D) must be zero.",
-      "The discriminant D = b^2 - 4ac. For the equation 2x^2 - kx + 1 = 0, a=2, b=-k, c=1.",
-      "Set D = (-k)^2 - 4(2)(1) = k^2 - 8 = 0. This gives k^2 = 8, so k = +/- sqrt(8) = +/- 2sqrt(2). From the options, k = 2sqrt(2).",
+      "[1 mark] Option (A) Real and distinct: roots are (−b ± sqrt(D))/2a; if D > 0, sqrt(D) is a positive real number, giving two different real roots.",
     ],
   },
   { id: "QE-E19", subject: "Maths", topicKey: "polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The product of roots of 3x² − 11x + 10 = 0 is:", options: ["10/3", "11/3", "−10/3", "−11/3"], answer: "10/3", explanation: "Product of roots = c/a. For 3x² − 11x + 10 = 0, a = 3 and c = 10, so the product is 10/3.", finalAnswer: "10/3" , isCompetencyBased: true,
@@ -121,9 +119,7 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "x = 3/2 or x = −5/2" , isCompetencyBased: true },
   { id: "QE-M05", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The roots of 9x² − 6x + 1 = 0 are real and equal.\nReason (R): D = 36 − 36 = 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): For the equation x^2 + 4x + 5 = 0, the discriminant D = b^2 - 4ac = (4)^2 - 4(1)(5) = 16 - 20 = -4.",
-      "Since D = -4 < 0, the equation has no real roots. So, Assertion (A) is true.",
-      "Reason (R): The discriminant of ax^2 + bx + c = 0 is D = b^2 - 4ac. If D < 0, the equation has no real roots. This statement is true and correctly explains Assertion (A).",
+      "[1 mark] Option (A): for 9x^2 − 6x + 1 = 0, D = b^2 − 4ac = (−6)^2 − 4(9)(1) = 36 − 36 = 0, so R is true; D = 0 means the roots are real and equal (x = 1/3, 1/3), so A is true and R is the correct explanation of A.",
     ],
   },
   { id: "QE-M06", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less for the same journey. Find the speed of the train.", solutionSteps: [

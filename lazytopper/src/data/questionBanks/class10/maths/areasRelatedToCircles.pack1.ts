@@ -34,16 +34,12 @@ export const AREAS_RELATED_TO_CIRCLES_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "48π cm²" , isCompetencyBased: true },
   { id: "ARC-E13", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Composite Figures", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "If a wire of length 44 cm is bent into a circle, the radius of the circle is:", options: ["7 cm", "14 cm", "22 cm", "11 cm"], answer: "7 cm", explanation: "The correct answer is 7 cm. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "7 cm" , isCompetencyBased: false,
     solutionSteps: [
-      "Side of square = 14 cm. Diameter of each circle = 14/2 = 7 cm. Radius r = 3.5 cm.",
-      "Area of square = 14^2 = 196 cm^2. Area of four circles = 4 * pi * (3.5)^2 = 4 * (22/7) * (7/2)^2 = 154 cm^2.",
-      "Area of unshaded region = Area of square - Area of four circles = 196 - 154 = 42 cm^2.",
+      "[1 mark] Option (a) 7 cm is correct: the wire length is the circumference, so 2*pi*r = 44 gives 2 * (22/7) * r = 44, r = 44 * 7/44 = 7 cm.",
     ],
   },
   { id: "ARC-E14", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sectors and Segments", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The area of a segment = area of sector − area of triangle.\nReason (R): A segment is the region between a chord and the arc.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): Given radius r = 7 cm, angle theta = 60 degrees. Area of sector = (theta/360) * pi * r^2 = (60/360) * (22/7) * 7 * 7 = (1/6) * 22 * 7 = 154/6 = 77/3 cm^2. So, Assertion (A) is true.",
-      "Reason (R): The formula for the area of a sector of a circle with radius r and angle theta (in degrees) is (theta/360) * pi * r^2. So, Reason (R) is true.",
-      "Reason (R) provides the correct formula used to calculate the area in Assertion (A). Therefore, Reason (R) is the correct explanation of Assertion (A).",
+      "[1 mark] Option (a) is correct: a segment is the region between a chord and its arc (R true); the sector OAB is made of the triangle OAB plus that segment, so area of segment = area of sector - area of triangle (A true), and R explains A.",
     ],
   },
   { id: "ARC-E15", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sectors and Segments", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The area of a sector of angle 120° with radius 21 cm is:", options: ["462 cm²", "231 cm²", "693 cm²", "1386 cm²"], answer: "462 cm²", explanation: "(120/360) × 22/7 × 441 = 1/3 × 1386 = 462. Therefore, the correct answer is 462 cm².", solutionSteps: ["(120/360) × 22/7 × 441 = 1/3 × 1386 = 462"], finalAnswer: "462 cm²" , isCompetencyBased: true },

@@ -1211,11 +1211,9 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "DE is parallel to BC by converse of Basic Proportionality Theorem",
     "solutionSteps": [
-      "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.",
-      "Given: AD/DB = AE/EC = 2/3",
-      "This means AD/AB = AE/AC (by rearranging)",
-      "By converse of Basic Proportionality Theorem, if a line divides two sides of a triangle in the same ratio, then it is parallel to the third side",
-      "Therefore, DE || BC"
+      "[1 mark] Given: in △ABC, D on AB and E on AC with AD/DB = 2/3 and AE/EC = 2/3.",
+      "[1 mark] Hence AD/DB = AE/EC, i.e. the line DE divides the two sides AB and AC of △ABC in the same ratio.",
+      "[1 mark] By the converse of the Basic Proportionality Theorem, a line dividing two sides of a triangle in the same ratio is parallel to the third side. Therefore DE ∥ BC. Hence proved.",
     ],
     "finalAnswer": "DE is parallel to BC by converse of Basic Proportionality Theorem",
     "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
