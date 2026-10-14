@@ -612,7 +612,7 @@ button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a
 
 /* ── print: isolate the note, show every tab, drop app chrome (Part 3) ── */
 @media print {
-  .lt-note__fcard--second { display: none !important; }
+  .lt-note__fcard--second, .lt-note__tricks-link { display: none !important; }
   @page { margin: 14mm; }
   body { background: #fff !important; }
   body * { visibility: hidden !important; }
@@ -985,6 +985,9 @@ const USE_LABEL: Record<NoteShortcut["use"], string | null> = {
 /**
  * NOTES-FORMULA-3a — the "Shortcuts & Tricks" card (mcq-check / written-ok) and the "Memory Tricks" card
  * (memory-aid). Nothing renders when the chapter has none (honest empty state).
+ *
+ * STANDING BUILD RULE (D221): only heading / body (`text`) / `gloss` / `tip` and the safe-use tag render. `source` (and any
+ * mapping column) is INTERNAL provenance and must never reach the student DOM; `Note.anchors.test.tsx` pins it.
  */
 function ShortcutsCard({ items, section, label }: { items: NoteShortcut[]; section: string; label: string }) {
   if (items.length === 0) return null;
@@ -996,10 +999,11 @@ function ShortcutsCard({ items, section, label }: { items: NoteShortcut[]; secti
           {s.heading && <h3 className="lt-note__h3"><NoteRichText text={s.heading} /></h3>}
           <div className="lt-note__ttext"><NoteRichText text={s.text} /></div>
           {s.gloss && <div className="lt-note__tgloss"><NoteRichText text={s.gloss} /></div>}
-          <div className="lt-note__tmeta">
-            {USE_LABEL[s.use] && <span className={"lt-note__tuse lt-note__tuse--" + s.use}>{USE_LABEL[s.use]}</span>}
-            <span>Source: {s.source}</span>
-          </div>
+          {USE_LABEL[s.use] && (
+            <div className="lt-note__tmeta">
+              <span className={"lt-note__tuse lt-note__tuse--" + s.use}>{USE_LABEL[s.use]}</span>
+            </div>
+          )}
         </div>
       ))}
     </section>
@@ -1499,7 +1503,7 @@ export function Note({ spec, initialTab }: NoteProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   const id = shortcutsOf(spec).length > 0 ? SECTION_ANCHORS.shortcuts : SECTION_ANCHORS.memoryTricks;
-                  window.history.pushState(null, "", "#" + id);
+                  // no URL write: pushState left Back on a stale tab and polluted the Topic Hub URL when <Note> is in NoteModal
                   openAnchor(id);
                 }}
               >

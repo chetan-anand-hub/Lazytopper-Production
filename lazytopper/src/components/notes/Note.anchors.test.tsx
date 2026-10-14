@@ -94,7 +94,9 @@ describe("NOTES-FORMULA-3a — with shortcuts", () => {
     const text = mind.textContent || "";
     expect(text).toContain("MCQ / check only: don't write this as working");
     expect(text).toContain("Safe in written answers");
-    expect(text).toContain("Source: NCERT 8.2");
+    // STANDING BUILD RULE (D221): the source column is internal and never reaches the student DOM
+    expect(text).not.toMatch(/Source:/);
+    for (const s of SHORTCUTS) expect(text).not.toContain(s.source);
     expect(text).toContain("Sin is opposite over hypotenuse");
     // a memory aid has no safe-use tag
     expect(mind.querySelector("#sab-ka-sin")!.querySelector(".lt-note__tuse")).toBeNull();
@@ -118,7 +120,7 @@ describe("NOTES-FORMULA-3a — with shortcuts", () => {
     fireEvent.click(screen.getByText(/Shortcuts & memory tricks/));
     expect(selected()).toBe(1);
     expect(scrolled).toContain("shortcuts");
-    expect(window.location.hash).toBe("#shortcuts");
+    expect(window.location.hash).toBe(""); // the link opens the tab without writing the URL (no stale Back entry, no hub URL pollution)
   });
 
   it("(e) every anchor is in the DOM while its tab is INACTIVE; ids are unique; section anchors are where the spec says", () => {
@@ -140,7 +142,7 @@ describe("NOTES-FORMULA-3a — with shortcuts", () => {
     expect(panels(container)[1].querySelector("section.lt-note__fcard--second")).not.toBeNull();
     expect(panels(container)[0].querySelector(".lt-note__fcard--second")).toBeNull();
     const css = container.querySelector("style")!.textContent || "";
-    expect(css).toMatch(/@media print \{[\s\S]*?\.lt-note__fcard--second \{ display: none !important; \}/);
+    expect(css).toMatch(/@media print \{[\s\S]*?\.lt-note__fcard--second, \.lt-note__tricks-link \{ display: none !important; \}/);
   });
 });
 
@@ -206,6 +208,9 @@ describe("NOTES-FORMULA-3a — diagrams", () => {
     expect(container.querySelectorAll("#human-heart-diagram")).toHaveLength(1);
     expect(container.querySelector("#human-heart-diagram h3.lt-note__h3")!.textContent).toBe("Human Heart Diagram");
     expect(container.querySelector("#diagrams")).not.toBeNull();
+    const img = container.querySelector("#human-heart-diagram img");
+    expect(img, "the figure renders an <img> (it has an asset)").not.toBeNull();
+    expect(img!.getAttribute("alt")).toBe("Labelled diagram of the human heart");
     expect(panels(container)[2].contains(container.querySelector("#human-heart-diagram"))).toBe(true);
     cleanup();
     window.history.replaceState(null, "", "/#human-heart-diagram");
