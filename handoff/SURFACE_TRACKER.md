@@ -1,5 +1,7 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — PERF-1 PR-3 + PERF-2 (C2, §10 for `#1139` `#1140` `#1141`).** No surface moved and Scope did not change. Presentation only: the Practice Hub cards and the Check & Improve link text colour (`#1139`), the home brand images and the wordmark's height (`#1140`), and where the QR library loads from (`#1141`). The six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) were not touched. Owed: the owner's wordmark glance and one desktop QR draw.
+
 > **2026-10-14 — BANK-STEPS-1 + GARBLE-1 (A, §10 for `#1116` `#1123` `#1125` `#1130` `#1136`, with B's `#1131`).** Content only; no surface's code or Scope changed. **Scope WAS discovered:** a second bank-defect class, PDF-extraction garble (a stem unreadable or unsolvable as printed), found after a student saw it live in a Chapter Test. It is logged in DECISION_LOG (D152/D154/D169) and tracked here; the six grading surfaces are untouched: C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice.
 
 | surface | what moved (PR) | state | owed |
