@@ -455,7 +455,7 @@
     {
       "id": "criteria-trick",
       "text": "<b>AA</b> = <b>A</b>am-<b>A</b>am · <b>SSS</b> = <b>S</b>amosa-<b>S</b>amosa-<b>S</b>amosa (teeno bhujayein anupaat mein) · <b>SAS</b> = <b>S</b>amosa-<b>A</b>am-<b>S</b>amosa (Aam = beech ka angle).",
-      "gloss": "Similarity criteria. AA = two angles; SSS = three sides proportional; SAS = side, INCLUDED angle, side.",
+      "gloss": "Similarity criteria. Aam = angle, Samosa = side. AA = two angles; SSS = three sides proportional; SAS = side, INCLUDED angle, side.",
       "use": "memory-aid",
       "source": "NCERT Thm 6.3–6.5"
     },

@@ -398,7 +398,7 @@
     },
     {
       "label": "Identifying Shapes using Distances",
-      "math": "Triangle: three equal sides is equilateral; two equal sides is isosceles; if the squares of two sides add up to the square of the third it is right-angled. Quadrilateral: <b>square</b> = four equal sides and equal diagonals; <b>rhombus</b> = four equal sides but unequal diagonals; <b>rectangle</b> = opposite sides equal and equal diagonals; <b>parallelogram</b> = opposite sides equal (its diagonals share the same mid-point).",
+      "math": "Triangle: three equal sides is equilateral; two equal sides is isosceles; to test for a right angle, check $a^2+b^2=c^2$ numerically on the three distances. Quadrilateral: <b>square</b> = four equal sides and equal diagonals; <b>rhombus</b> = four equal sides but unequal diagonals; <b>rectangle</b> = opposite sides equal and equal diagonals; <b>parallelogram</b> = opposite sides equal (its diagonals share the same mid-point).",
       "id": "shapes-from-distances"
     },
     {
@@ -440,7 +440,7 @@
     {
       "id": "diagonals-share-midpoint",
       "text": "In a parallelogram the diagonals have the same mid-point.",
-      "use": "mcq-check",
+      "use": "written-ok",
       "source": "NCERT 7.3 Example 10"
     },
     {

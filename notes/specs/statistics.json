@@ -499,7 +499,7 @@
     {
       "id": "empirical-quick-mode",
       "text": "Mode = 3 Median − 2 Mean.",
-      "use": "mcq-check",
+      "use": "written-ok",
       "source": "PYQ-M-STAT-003, -005"
     },
     {

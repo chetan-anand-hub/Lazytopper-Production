@@ -37,6 +37,12 @@ const GUARD = readFileSync(resolve(__dirname, "../../../../scripts/src/syllabusG
 const BANNED = [...new Set([...GUARD.matchAll(/^\s*"([^"]{3,80})",?\s*$/gm)].map((m) => m[1]))];
 const bannedHits = (text: string): string[] =>
   BANNED.filter((b) => new RegExp("(?<![A-Za-z])" + b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/'/g, "['\u2019]") + "(?![A-Za-z])", "i").test(text));
+/** Things the owner has ruled OUT in src/config/syllabus2026-27.ts that the exact-string guard does not carry (R1, ruling 1). */
+const OUT_BY_RULING = [
+  /\\sqrt\{p\}|for any prime|square root of every prime/i, // R1: the general-prime irrationality statement
+  /converse of (the )?Pythagoras|Pythagoras(’|')? theorem/i, // ruling 1: stating Pythagoras or its converse (numeric use as a tool is IN)
+  /complementary angle|sin ?\(90|\sin ?\(90/i, // trigonometric ratios of complementary angles
+];
 const INTERNAL = /PYQ-|SQP-|\bSP-[MS]-|CLAUDE|\b[BCP]-F\d|\bD2\d\d\b|\bE\d–E\d/;
 
 const visible = (s: NoteSpec): string[] => [
@@ -79,6 +85,7 @@ describe("NOTES-FORMULA-3b MATHS — what a student can see", () => {
     const text = visible(spec(slug)).join("\n");
     expect(bannedHits(text)).toEqual([]);
     expect(INTERNAL.test(text)).toBe(false);
+    expect(OUT_BY_RULING.filter((re) => re.test(text)).map(String)).toEqual([]);
   });
 
   it("(d) the source column never reaches the student DOM", () => {
@@ -104,5 +111,8 @@ describe("NOTES-FORMULA-3b MATHS — what a student can see", () => {
     expect(INTERNAL.test("see PYQ-M-2024-TRI-001")).toBe(true);
     expect(bannedHits("Volume of a cone")).toEqual([]);
     expect(INTERNAL.test("Sa-Sa-Sa")).toBe(false);
+    expect(OUT_BY_RULING.some((re) => re.test("works for \\sqrt{p} for any prime p"))).toBe(true);
+    expect(OUT_BY_RULING.some((re) => re.test("the converse of Pythagoras theorem"))).toBe(true);
+    expect(OUT_BY_RULING.some((re) => re.test("check a^2+b^2=c^2 numerically"))).toBe(false);
   });
 });

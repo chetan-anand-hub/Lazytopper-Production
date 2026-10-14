@@ -433,7 +433,7 @@
     {
       "id": "consistent-trick",
       "text": "Consistent = kam se kam ek hal; Inconsistent = koi hal nahi.",
-      "gloss": "Consistent: at least one solution",
+      "gloss": "Consistent: at least one solution. Inconsistent: no solution.",
       "use": "memory-aid",
       "source": "NCERT 3.1"
     }

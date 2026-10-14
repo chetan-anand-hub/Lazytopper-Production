@@ -441,7 +441,7 @@
     },
     {
       "label": "Area of △OAB for 60°, 90°, 120°",
-      "math": "For a written answer, draw $OM\\perp AB$ and show $OM=\\dfrac{r}{2}$, $AM=\\dfrac{\\sqrt3}{2}r$ (for $120^\\circ$, $\\angle AOM=60^\\circ$). For $60^\\circ$ say that $\\triangle OAB$ is equilateral; for $90^\\circ$ the two sides are both $r$. Values to check against: $60^\\circ$: $\\dfrac{\\sqrt3}{4}r^2$; $90^\\circ$: $\\dfrac12 r^2$; $120^\\circ$: $\\dfrac{\\sqrt3}{4}r^2$.",
+      "math": "For $120^\\circ$: draw $OM\\perp AB$; $\\angle AOM=60^\\circ$, so $OM=\\dfrac{r}{2}$ and $AM=\\dfrac{\\sqrt3}{2}r$. For $60^\\circ$ say that $\\triangle OAB$ is equilateral; for $90^\\circ$ the two sides are both $r$. Values to check against: $60^\\circ$: $\\dfrac{\\sqrt3}{4}r^2$; $90^\\circ$: $\\dfrac12 r^2$; $120^\\circ$: $\\dfrac{\\sqrt3}{4}r^2$.",
       "id": "triangle-oab-by-angle"
     }
   ],

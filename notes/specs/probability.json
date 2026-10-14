@@ -469,7 +469,7 @@
     {
       "id": "use-complement",
       "text": "\"not E\" → 1 − P(E); \"at least one\" → 1 − P(none).",
-      "use": "mcq-check",
+      "use": "written-ok",
       "source": "PYQ-M-PROB-006"
     },
     {

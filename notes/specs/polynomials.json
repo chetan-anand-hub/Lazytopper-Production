@@ -401,7 +401,7 @@
     {
       "id": "sum-product-trick",
       "text": "<b>Jod</b> = minus <b>Bhai</b> upon <b>Aloo</b>. <b>Gunaa</b> = <b>Chacha</b> upon <b>Aloo</b>.",
-      "gloss": "Sum = −b/a, product = c/a. Jod = sum; Bhai = <b>b</b>, Aloo = <b>a</b>, Chacha = <b>c</b>; minus applies to the sum only.",
+      "gloss": "Sum = −b/a, product = c/a. Jod = sum, Gunaa = product; Bhai = <b>b</b>, Aloo = <b>a</b>, Chacha = <b>c</b>; minus applies to the sum only.",
       "use": "memory-aid",
       "source": "NCERT 2.3"
     },
