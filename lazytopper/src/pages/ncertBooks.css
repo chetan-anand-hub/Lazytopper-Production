@@ -1,0 +1,291 @@
+/*
+ * NcertBooksPage (`/ncert-class-10`, NCERT-BOOKS-1) — the /for-parents treatment, copied:
+ * mobile-first, responsive by CSS alone, EVERY selector scoped under `.lt-nb` (a stylesheet
+ * imported by a lazy route is global once loaded). House grammar: deep navy hero, soft white
+ * page, green accent — the same token values as `.lt-fp`, scoped under their own names.
+ */
+.lt-nb {
+  --nb-bg: #f4f7fb;
+  --nb-card: #fff;
+  --nb-ink: #0f2038;
+  --nb-ink2: #4d647e;
+  --nb-ink3: #71879f;
+  --nb-line: #dde5ef;
+  --nb-g: #0b8f50;
+  --nb-gt: #06663a;
+  --nb-gw: #e6f4ec;
+  --nb-navy: #132c4d;
+  --nb-serif: Fraunces, Georgia, serif;
+  --nb-sans: Inter, system-ui, -apple-system, sans-serif;
+  --nb-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
+  display: block;
+  background: var(--nb-bg);
+  color: var(--nb-ink);
+  font-family: var(--nb-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.lt-nb * {
+  box-sizing: border-box;
+}
+.lt-nb h1,
+.lt-nb h2,
+.lt-nb h3 {
+  font-family: var(--nb-serif);
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.lt-nb a {
+  color: var(--nb-gt);
+}
+.lt-nb :focus-visible {
+  outline: 2px solid var(--nb-g);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.lt-nb__w {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* HERO */
+.lt-nb__hero {
+  background: var(--nb-navy);
+  color: #eaf2fb;
+  padding: 28px 0 24px;
+}
+.lt-nb__eyebrow {
+  font-size: 12px;
+  color: #8fb3d9;
+  margin: 0 0 10px;
+}
+.lt-nb__hero h1 {
+  font-size: 26px;
+  line-height: 1.22;
+  color: #fff;
+}
+.lt-nb__sub {
+  margin: 12px 0 0;
+  color: #c9d9ea;
+  max-width: 640px;
+}
+.lt-nb__jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 0;
+}
+.lt-nb__hero .lt-nb__jump a {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+/* BODY */
+.lt-nb__body {
+  padding-top: 22px;
+  padding-bottom: 28px;
+}
+.lt-nb__book {
+  margin-bottom: 26px;
+  scroll-margin-top: 16px;
+}
+.lt-nb__book h2 {
+  font-size: 21px;
+  margin-bottom: 12px;
+}
+.lt-nb__count {
+  font-family: var(--nb-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nb-ink3);
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+.lt-nb__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.lt-nb__row {
+  background: var(--nb-card);
+  border: 1px solid var(--nb-line);
+  border-radius: 14px;
+  box-shadow: var(--nb-sh);
+  padding: 14px 16px;
+}
+.lt-nb__rowhead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.lt-nb__num {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nb-gt);
+  background: var(--nb-gw);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+.lt-nb__title {
+  font-size: 17px;
+  line-height: 1.3;
+}
+.lt-nb__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.lt-nb__read {
+  display: inline-block;
+  background: var(--nb-g);
+  color: #fff !important;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.lt-nb__read:hover {
+  background: var(--nb-gt);
+}
+.lt-nb__credit {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--nb-ink3);
+}
+.lt-nb__about h2 {
+  font-size: 19px;
+  margin-bottom: 8px;
+}
+.lt-nb__about p {
+  margin: 0;
+  color: var(--nb-ink2);
+}
+.lt-nb__fine {
+  margin: 22px 0 0;
+  font-size: 12px;
+  color: var(--nb-ink3);
+}
+
+@media (min-width: 900px) {
+  .lt-nb__hero {
+    padding: 40px 0 34px;
+  }
+  .lt-nb__hero h1 {
+    font-size: 34px;
+  }
+  .lt-nb__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 18px;
+  }
+  .lt-nb__actions {
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+  .lt-nb__credit {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+  }
+}
+
+/* READER OVERLAY (NcertChapterReader) — the NcertPageModal grammar */
+.lt-nb__dim {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  background: rgba(15, 36, 68, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: Inter, system-ui, sans-serif;
+}
+.lt-nb__card {
+  background: #fff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 900px;
+  height: min(90vh, 1000px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(15, 36, 68, 0.5);
+}
+.lt-nb__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e7ebf0;
+  flex-shrink: 0;
+}
+.lt-nb__htitle {
+  font-weight: 700;
+  font-size: 15px;
+  color: #0f2444;
+}
+.lt-nb__hsub {
+  font-size: 12px;
+  color: #8b94a3;
+  margin-top: 2px;
+}
+.lt-nb__x {
+  background: #f6f8fa;
+  border: 1px solid #e7ebf0;
+  border-radius: 999px;
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+  color: #566173;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.lt-nb__msg {
+  margin: auto;
+  padding: 28px;
+  text-align: center;
+  color: #566173;
+}
+.lt-nb__rbody {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  padding: 0;
+  background: #f6f8fa;
+}
+.lt-nb__frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff;
+}
+@media (max-width: 640px) {
+  .lt-nb__dim {
+    align-items: stretch;
+    padding: 0;
+  }
+  .lt-nb__card {
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}

@@ -37,6 +37,8 @@ export interface OutboxEntry {
    * holds by then. Absent only on an entry written without one.
    */
   body?: unknown;
+  /** `gradedAt` of the queued body: a body-less entry re-sends from the mirror ONLY if the mirror copy has the same `gradedAt`. */
+  gradedAt?: number;
   /** True for a write that is not a graded result (a worksheet download): tracked, never announced. */
   quiet?: boolean;
 }
@@ -44,7 +46,7 @@ export interface OutboxEntry {
 /** What `sessionRecords.ts` reports for a re-send. Every outcome but a throw settles the entry. */
 export type ResendOutcome = "sent" | "cloud-newer" | "no-local-copy" | "no-cloud" | "superseded";
 
-export type SavePhase = "idle" | "saving" | "saved" | "device-only";
+export type SavePhase = "idle" | "saving" | "saved" | "device-only" | "keep-open" | "device-only-manual";
 export interface SaveStatusSnapshot {
   phase: SavePhase;
 }
@@ -57,6 +59,16 @@ export interface SaveStatusSnapshot {
  * entry stays, so a closed tab is still covered by the next load.
  */
 export const SLOW_AFTER_MS = 12000;
+
+/**
+ * FU-SAVE-SYNC-QUOTA (D206): the outbox shares localStorage's ~5 MB with the records mirror, so it is capped. Over the byte cap the
+ * OLDEST `record` entries lose their BODY (the entry, and so the result, stays: a re-send falls back to the mirror, which keeps 200
+ * records; per-question payloads are mirrored only 25 deep, so THEIR bodies are never stripped, and the NEW entry's own body is never
+ * stripped: if it does not fit it is refused). Past the entry cap a new entry is refused. A refusal or a failed write is never
+ * silent: the student is told (see `unpersisted`).
+ */
+export const MAX_OUTBOX_BYTES = 1_000_000;
+export const MAX_OUTBOX_ENTRIES = 500;
 
 /** In-session retries after the first attempt. */
 export const RETRY_DELAYS_MS: readonly number[] = [1000, 3000, 8000];
@@ -95,8 +107,38 @@ function writeOutbox(uid: string, list: OutboxEntry[]): boolean {
   }
 }
 
-function upsertEntry(uid: string, entry: OutboxEntry): void {
-  void writeOutbox(uid, [...readOutbox(uid).filter((e) => keyOf(e.kind, e.id) !== keyOf(entry.kind, entry.id)), entry]);
+const withoutBody = (e: OutboxEntry): OutboxEntry => {
+  // keep the grade stamp of the body being dropped: the mirror fallback is only trusted when its gradedAt matches
+  const copy: OutboxEntry = { ...e, gradedAt: e.gradedAt ?? gradedAtOf(e.body) };
+  delete copy.body;
+  return copy;
+};
+const sizeOf = (list: OutboxEntry[]): number => JSON.stringify(list).length;
+
+/** Persist `entry` (newest last). Returns false when it could NOT be stored WITH its body: the caller must tell the student. */
+function upsertEntry(uid: string, entry: OutboxEntry): boolean {
+  const others = readOutbox(uid).filter((e) => keyOf(e.kind, e.id) !== keyOf(entry.kind, entry.id));
+  if (others.length + 1 > MAX_OUTBOX_ENTRIES) {
+    console.warn("[sessionRecords] outbox is full; this result is only retried while the tab stays open");
+    return false;
+  }
+  const list = [...others, entry];
+  let total = sizeOf(list); // measured once; each strip subtracts what it removed (no re-stringify per step)
+  // over the byte cap: strip the OLDEST record bodies first (never a per-question body, never the new entry's own)
+  for (let i = 0; i < list.length - 1 && total > MAX_OUTBOX_BYTES; i++) {
+    const e = list[i];
+    if (e.kind === "record" && e.body !== undefined) {
+      const stripped = withoutBody(e);
+      total -= JSON.stringify(e).length - JSON.stringify(stripped).length;
+      list[i] = stripped;
+    }
+  }
+  if (total > MAX_OUTBOX_BYTES) return false; // the new entry (with its body) does not fit: refuse, never strip it
+  if (writeOutbox(uid, list)) return true;
+  // storage refused (quota shared with the mirror): one more try with the OTHER records' bodies stripped; the new entry keeps its
+  // body, because under a real quota failure its mirror copy may have failed too and an ids-only entry would later settle as "no copy"
+  const retry = list.map((e, i) => (i < list.length - 1 && e.kind === "record" ? withoutBody(e) : e));
+  return writeOutbox(uid, retry);
 }
 
 function removeEntry(uid: string, kind: OutboxKind, id: string): void {
@@ -109,6 +151,7 @@ const inflight = new Map<string, number>(); // key -> generation of the live att
 const failed = new Set<string>(); // keys whose last chain ended in a failure (entry stays queued)
 const quiet = new Set<string>(); // keys of writes that are not graded results: never announced
 const slow = new Set<string>(); // keys still unanswered after SLOW_AFTER_MS (alive, but not "saving" any more)
+const unpersisted = new Set<string>(); // keys whose outbox entry could NOT be stored: a closed tab would lose them
 let savedFlash = false;
 let failedAcknowledged = false; // the student pressed OK on the device-only line
 let snapshot: SaveStatusSnapshot = { phase: "idle" };
@@ -123,8 +166,12 @@ function activeCount(): number {
 
 function computePhase(): SavePhase {
   if (activeCount() > 0) return "saving";
-  const loud = (s: Set<string>) => Array.from(s).some((k) => !quiet.has(k));
-  if ((loud(failed) || loud(slow)) && !failedAcknowledged) return "device-only";
+  const loudKeys = [...Array.from(failed), ...Array.from(slow)].filter((k) => !quiet.has(k));
+  if (loudKeys.length > 0 && !failedAcknowledged) {
+    // an entry that was never stored cannot be re-sent on the next load: say so, calmly, instead of the automatic-add promise
+    if (loudKeys.some((k) => unpersisted.has(k))) return loudKeys.some((k) => slow.has(k) && unpersisted.has(k)) ? "keep-open" : "device-only-manual";
+    return "device-only";
+  }
   return savedFlash ? "saved" : "idle";
 }
 
@@ -166,7 +213,8 @@ function onBeforeUnload(e: BeforeUnloadEvent): void {
 }
 function syncBeforeUnload(): void {
   if (typeof window === "undefined") return;
-  const want = activeCount() > 0;
+  // armed while a write is pending, AND while a live chain has no outbox entry behind it (closing the tab would lose it)
+  const want = activeCount() > 0 || Array.from(inflight.keys()).some((k) => unpersisted.has(k) && !quiet.has(k));
   if (want && !unloadAttached) {
     window.addEventListener("beforeunload", onBeforeUnload);
     unloadAttached = true;
@@ -185,17 +233,23 @@ let generation = 0;
  * on failure, and settle the outbox entry on success. `send` must be a full-replace write that
  * is safe to repeat. Never throws.
  */
+function gradedAtOf(body: unknown): number | undefined {
+  const g = body && typeof body === "object" ? (body as { gradedAt?: unknown }).gradedAt : undefined;
+  return typeof g === "number" ? g : undefined;
+}
+
 export function trackCloudWrite(
   uid: string,
   kind: OutboxKind,
   id: string,
   queuedAt: string,
   send: (isCurrent: () => boolean) => Promise<unknown>,
-  opts: { body?: unknown; quiet?: boolean } = {},
+  opts: { body?: unknown; quiet?: boolean; gradedAt?: number } = {},
 ): void {
   const key = keyOf(kind, id);
   const gen = ++generation;
-  upsertEntry(uid, { kind, id, queuedAt, body: opts.body, quiet: opts.quiet });
+  if (upsertEntry(uid, { kind, id, queuedAt, body: opts.body, gradedAt: gradedAtOf(opts.body) ?? opts.gradedAt, quiet: opts.quiet })) unpersisted.delete(key);
+  else unpersisted.add(key);
   if (opts.quiet) quiet.add(key);
   else quiet.delete(key);
   inflight.set(key, gen);
@@ -218,9 +272,17 @@ export function trackCloudWrite(
         inflight.delete(key);
         slow.delete(key);
         quiet.delete(key);
+        unpersisted.delete(key);
         removeEntry(uid, kind, id);
         // Only a write that really reached the cloud (or found it already there, newer) earns the tick:
         // a re-send that had nothing to send must not claim "Saved to your account".
+        // a stripped entry whose mirror copy is gone (or is a different grade) cannot be re-sent and nothing will retry: say so
+        // (the manual line) instead of settling it quietly
+        if (value === "no-local-copy" && !opts.quiet) {
+          failed.add(key);
+          unpersisted.add(key);
+          failedAcknowledged = false;
+        }
         const sentNothing = value === "no-local-copy" || value === "no-cloud" || value === "superseded" || opts.quiet === true;
         // "all done" is about the writes the student is told about: a quiet download in flight, or a
         // quiet failure, must not silence the tick for a graded result that really landed
@@ -281,7 +343,7 @@ export async function drainOutbox(uid: string): Promise<void> {
           const outcome: ResendOutcome = await resendOutboxEntry(uid, entry, isCurrent);
           return outcome;
         },
-        { body: entry.body, quiet: entry.quiet },
+        { body: entry.body, quiet: entry.quiet, gradedAt: entry.gradedAt },
       );
     }
   } catch (error) {
@@ -302,6 +364,7 @@ export function resetOutboxSession(): void {
   failed.clear();
   slow.clear();
   quiet.clear();
+  unpersisted.clear();
   savedFlash = false;
   failedAcknowledged = false;
   publish();
@@ -325,6 +388,7 @@ export function __resetOutboxForTests(): void {
   failed.clear();
   slow.clear();
   quiet.clear();
+  unpersisted.clear();
   savedFlash = false;
   failedAcknowledged = false;
   snapshot = { phase: "idle" };

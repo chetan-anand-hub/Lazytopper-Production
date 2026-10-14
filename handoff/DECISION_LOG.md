@@ -1,3 +1,16 @@
+## 2026-10-14 — FU-SAVE-SYNC-QUOTA (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1168`, plus C2's own decisions, with reasons.
+
+| D | decision | the reason given |
+|---|---|---|
+| **206** | `[FU-SAVE-SYNC-QUOTA]` is priority next for whoever touches saving; add `[FU-SAVESTATUS-INLINE-STYLE]` | a closed tab loses a result when the outbox write hits the quota; §7 says no inline styling |
+| **231 / 234** | `#1168` approved WITH a copy condition: `keepOpen` / `deviceOnlyManual` must not start "Saved on this device" (the unpersisted path is exactly when storage refused the write); exact strings given; "you logged it as a follow-up, but it is a condition" | the line must not claim a copy that may not exist |
+| **C2 (no D)** | Never strip the NEW entry's body, only OLDER `record` bodies; per-question bodies are never stripped | under a real quota failure the mirror write fails too, so an ids-only stand-in later settles as "no copy": a silent loss (verifier round 1) |
+| **C2 (no D)** | A body-less entry re-sends from the mirror only if `gradedAt` matches; the stamp is kept through every re-write | the cloud-wins read can put an older grade back; re-sending it stamped with the new queued time would overwrite a re-grade (verifier round 2) |
+| **C2 (no D)** | A graded result whose copy is gone (`no-local-copy`) is surfaced (manual line), not settled quietly | a quiet settle is a silent loss |
+| **C2 (no D)** | `+5` lines in `resendOutboxEntry` (`sessionRecords.ts`) despite the claim saying I would not touch it | the `gradedAt` guard lives where the mirror fallback is read; outside the additive-only frozen set; the 3 ops gates exit 0 |
+
 ## 2026-10-14 — NOTES-FORMULA-3a / PERF-3a (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1160` `#1161` and PERF-3a, plus C2's own decisions, with reasons. Read the numbered posts on `#973` for the full text.

@@ -150,6 +150,14 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Your child photographs a written answer; LazyTopper marks every step the way a CBSE " +
       "examiner does and shows what to fix. First check free.",
   },
+  // NCERT-BOOKS-1 (lane G, D210/D213) — the NCERT Class 10 books, chapter-wise. Both strings
+  // restate the page's own h1 and sub-line (src/pages/NcertBooksPage.tsx). Title <= 60 chars.
+  "/ncert-class-10": {
+    title: "NCERT Class 10 Maths & Science Books PDF | LazyTopper",
+    description:
+      "Read every chapter of the 2026-27 NCERT Class 10 Mathematics and Science textbooks, " +
+      "then go to that chapter's notes, practice and step-marked answer check.",
+  },
   "/legal/privacy": {
     title: "Privacy Policy | LazyTopper",
     description:
@@ -204,6 +212,7 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/cbse/class-10", exact: true, modules: ["Cbse2027Page"] },
   { prefix: "/check-your-answer", exact: true, modules: ["CheckYourAnswerPage"] },
   { prefix: "/for-parents", exact: true, modules: ["ForParentsPage"] },
+  { prefix: "/ncert-class-10", exact: true, modules: ["NcertBooksPage"] },
   { prefix: "/highly-probable/", exact: false, modules: ["HighlyProbableQuestions"] },
   { prefix: "/legal/", exact: false, modules: ["LegalPage"] },
   { prefix: "/topic-hub/", exact: false, modules: ["DesktopTopicHubPage"] },
