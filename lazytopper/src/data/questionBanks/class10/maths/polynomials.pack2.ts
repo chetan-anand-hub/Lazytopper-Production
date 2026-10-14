@@ -1133,11 +1133,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
   },
   { id: "PL2-R17", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic polynomial whose zeros are 3 and −2 is:", options: ["x²−x−6","x²+x−6","x²−x+6","x²+x+6"], answer: "x²−x−6", explanation: "The correct answer is x²−x−6. Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", finalAnswer: "x² − x − 6", isCompetencyBased: false,
     solutionSteps: [
-      "To find the zero of the polynomial P(x) = 5x - 10, set P(x) = 0.",
-      "So, 5x - 10 = 0.",
-      "Add 10 to both sides: 5x = 10.",
-      "Divide by 5: x = 10/5 = 2.",
-      "Therefore, the zero of the polynomial P(x) = 5x - 10 is 2.",
+      "[1 mark] Sum of zeros = 3 + (−2) = 1 and product = 3 × (−2) = −6. The polynomial is x² − (sum)x + (product) = x² − x − 6.",
     ],
   },
   { id: "PL2-R18", subject: "Maths", topicKey: "polynomials", subtopic: "Polynomial Division", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If p(x) = q(x)·g(x) + r(x), then:", options: ["degree r < degree g","degree r = degree g","degree r > degree g","degree r = degree p"], answer: "degree r < degree g", explanation: "The correct answer is degree r < degree g. The Division Algorithm for polynomials requires the degree of remainder to be less than the degree of divisor.", finalAnswer: "The Division Algorithm for polynomials requires the degree of remainder to be less than the degree of divisor.", isCompetencyBased: false,
