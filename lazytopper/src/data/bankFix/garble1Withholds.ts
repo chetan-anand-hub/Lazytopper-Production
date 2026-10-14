@@ -7,7 +7,6 @@
  * REPAIR-GARBLE PR that serves it again.
  */
 export const GARBLE_1_WITHHOLD_CATEGORY: ReadonlyMap<string, "garbled"> = new Map<string, "garbled">([
-  ["PYQ-M-2024-TRIG-014", "garbled"],
   ["PYQ-M-CG-003", "garbled"],
   ["PYQ-M-2026-REALNUM-005", "garbled"],
   ["PYQ-M-STAT-009", "garbled"],
@@ -30,8 +29,6 @@ export const GARBLE_1_WITHHOLD_CATEGORY: ReadonlyMap<string, "garbled"> = new Ma
   ["PYQ-M-QE-003", "garbled"],
   ["PYQ-M-QE-004", "garbled"],
   ["PYQ-M-QE-008", "garbled"],
-  ["PYQ-M-2024-QE-001", "garbled"],
-  ["PYQ-M-2024-QE-005a", "garbled"],
   ["PYQ-M-2026-QE-001", "garbled"],
   ["PYQ-M-2025-SAV-005", "garbled"],
   ["PYQ-S-CHEM-010", "garbled"],

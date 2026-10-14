@@ -10,11 +10,12 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const QUADRATIC_EQUATIONS_PYQ_2024: CanonicalQuestion[] = [
   { id: "PYQ-M-2024-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "The roots of the quadratic equation x2 + x – p (p + 1) = 0 are :",
-    options: ["p, p + 1", "– p, p + 1", "– p, – (p + 1)", "p, – ( p + 1)"],
-    answer: "p, – ( p + 1)",
-    solutionSteps: ["Correct option: (d) p, – ( p + 1)."],
-    finalAnswer: "(d) p, – ( p + 1)",
+    // REWRITE-4 (A2): stem and options restored verbatim from the OFFICIAL CBSE 2024 Mathematics (Standard) paper 30(B), Q4 (cbse.gov.in, MATHEMATICS_STANDARD.zip, '30(B) Mathematics.pdf', p.5, footer 14-30(B)), read from the rendered page image; printed options (A) p, p + 1  (B) – p, p + 1  (C) – p, – (p + 1)  (D) p, – ( p + 1).
+    questionText: "The roots of the quadratic equation x² + x – p (p + 1) = 0 are :",
+    options: ["p, p + 1", "– p, p + 1", "– p, – (p + 1)", "p, – (p + 1)"],
+    answer: "p, – (p + 1)",
+    solutionSteps: ["[1 mark] x² + x – p(p + 1) = (x – p)(x + p + 1) = 0, so the roots are p and –(p + 1). Correct option: (d) p, – (p + 1)."],
+    finalAnswer: "(d) p, – (p + 1)",
     ncertRef: "PYQ 30(B) Q4", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-M-2024-QE-002", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
@@ -46,8 +47,9 @@ export const QUADRATIC_EQUATIONS_PYQ_2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-M-2024-QE-005a", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     // answer recovered from Marking scheme 30 4 2 (2023-24), pp.13-14.
-    questionText: "Find the value of 'k' for which the quadratic equation (k + 1) x2 – 2 (3k + 1) x + (8k + 1) = 0 has real and equal roots.",
-    answer: "For real and equal roots, [−2(3k + 1)]2 – 4(k + 1)(8k + 1) = 0 ⇒ k2 – 3k = 0 ∴ k = 0, k = 3.",
+    // REWRITE-4 (A2): stem restored from the OFFICIAL CBSE 2024 Mathematics (Standard) paper 30/4/2, Q32(a) (cbse.gov.in, MATHEMATICS_STANDARD.zip, '30-4-2(Mathematics Standard).pdf', p.17, footer 14-30/4/2), read from the rendered page image; only the superscripts were damaged.
+    questionText: "Find the value of 'k' for which the quadratic equation (k + 1) x² – 2 (3k + 1) x + (8k + 1) = 0 has real and equal roots.",
+    answer: "For real and equal roots, [−2(3k + 1)]² – 4(k + 1)(8k + 1) = 0 ⇒ k² – 3k = 0 ∴ k = 0, k = 3.",
     solutionSteps: ["[1 mark] For real and equal roots, discriminant D = b² – 4ac = 0.", "[1 mark] Here a = (k + 1), b = –2(3k + 1), c = (8k + 1). So [–2(3k + 1)]² – 4(k + 1)(8k + 1) = 0.", "[1 mark] 4(9k² + 6k + 1) – 4(8k² + 9k + 1) = 0 → 4(k² – 3k) = 0 → k² – 3k = 0.", "[1 mark] k(k – 3) = 0, so k = 0 or k = 3 (both valid, since k + 1 ≠ 0 in each case).", "[1 mark] Verification: k = 0 gives x² – 2x + 1 = (x – 1)² = 0 (equal roots x = 1); k = 3 gives 4x² – 20x + 25 = (2x – 5)² = 0 (equal roots x = 5/2). Hence k = 0 or k = 3."],
     finalAnswer: "k = 0 or k = 3.",
     ncertRef: "PYQ 30/4/2 Q32(a)", isCompetencyBased: true,

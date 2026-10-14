@@ -1171,7 +1171,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-013",     // mojibake
   "PYQ-M-2024-TRIG-019",     // mojibake
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
-  "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
   "PYQ-M-AP-004",                 // garbled-extraction: operator lost in the statement (p + q n)
   "PYQ-M-STAT-008",               // garbled-extraction: class-interval dashes lost in the table
@@ -1181,8 +1180,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-QE-003",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
-  "PYQ-M-2024-QE-001",            // garbled-extraction: exponent flattened (x2 + x - p(p+1) = 0)
-  "PYQ-M-2024-QE-005a",           // garbled-extraction: exponent flattened ((k+1)x2)
   "PYQ-M-2026-QE-001",            // garbled-extraction: exponent flattened ((p-q)x2)
   "PYQ-M-2025-SAV-005",           // garbled-extraction: pi symbol dropped (Take = 3.14)
   "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
