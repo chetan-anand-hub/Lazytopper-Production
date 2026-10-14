@@ -201,7 +201,7 @@ function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestio
         </ul>
       )}
       <WithdrawnWorkBlock steps={g.annotatedSteps} />
-      {g.teacherNote && <div className="lt-wg__qexaminer">{g.teacherNote}</div>}
+      {g.teacherNote && <div className="lt-wg__qexaminer"><MathText text={g.teacherNote} /></div>}
       <RubricBlock rubric={g.rubric} />
       {qMarks && <MarksLostLines marks={qMarks} />}
     </div>
@@ -624,7 +624,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
 
           {/* Summary — suppressed when it is model meta-prose (§A6, display-only) */}
           {!isLeakySummary(response.summary, response.gradedCount) && (
-            <div className="lt-wg__summary">{response.summary}</div>
+            <div className="lt-wg__summary"><MathText text={response.summary ?? ""} /></div>
           )}
 
           {/* Tap-to-reveal per-section question list */}
