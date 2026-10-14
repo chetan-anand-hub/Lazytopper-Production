@@ -1,5 +1,13 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — NOTES-FORMULA-1 (`#1148` `9ed656ec`) · SAVE-SYNC-1 (`#1151` `168e47a9`) · NOTES-FORMULA-2 (`#1154` `a2927d28`) — ✅ COMPLETE (owner round-trip and phone glance owed)
+
+- ✅ The Formulae card sits after The Big Idea and atop the "Formulae & Mindmap" tab; an empty strip shows no card.
+- ✅ A graded result is tracked from the moment it is queued: outbox, retry, a 12 s offline watchdog, re-send on next load / `online`, never over a newer cloud copy, an honest status line.
+- ✅ 33 Science formula items are TeX with state symbols and conditions; an atom + charge balance guard keeps them right.
+- ⏳ Owner: the SAVE-SYNC-1 persistence round-trip; a phone glance at the Formulae cards.
+- ⏳ `[FU-SAVE-SYNC-QUOTA]` (priority), PERF-3a, NOTES-FORMULA-3 (the cards as an SEO surface; the rest-of-spec chemistry).
+
 ## 2026-10-14 — PERF-1 PR-3 (`#1139` `66a68ef1`) + PERF-2 (`#1140` `1e5119d9`, `#1141` `bb853239`) — ✅ COMPLETE AS SCOPED · PERF-2 TARGET NOT MET · PERF-3 WAITS FOR THE OWNER
 
 - ✅ PERF-1 PR-3: contrast guard pins every occurrence; Practice Hub card text and the Check & Improve link reach 4.5:1.

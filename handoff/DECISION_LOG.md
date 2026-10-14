@@ -1,3 +1,21 @@
+## 2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
+
+> ⚠ **SCOPE.** The rulings that shaped `#1148` `#1151` `#1154`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.
+
+| D | decision | the reason given |
+|---|---|---|
+| **189 §1** | NOTES-FORMULA-1: render the existing `formula_strip` card after The Big Idea (Note tab) and at the top of the Mindmap tab, rename the tab "Formulae & Mindmap" and the label "Formulae"; an empty strip keeps "Mindmap" with no card; all four panels stay in the prerendered HTML; layout only | owner: "keep in both"; the card is the formula answer students search for |
+| **190** | SAVE-SYNC-1: an outbox so a graded result is never silently lost; retry; re-send on next load / `online`; honest wording (explain, never force, never alarm, never "lost"); no new Firestore path, no rules/schema change | owner: "losing a student's test result is the worst thing that can happen to trust"; the writer only `console.warn`ed a failed `setDoc` and nothing ever re-sent a local-only record |
+| **192 / 206** | `#1148` and `#1151` APPROVED; `[FU-SAVE-SYNC-QUOTA]` is priority next for whoever touches saving; add `[FU-SAVESTATUS-INLINE-STYLE]`; the owner round-trip is the merge's closing step | the verifier + mutation evidence cover `sessionRecordsOutbox.ts`; the copy matches the owner's rules word for word |
+| **193** | PERF-3a plan approved in outline: reproduce the baseline with Lighthouse 12.2.1 mobile (3 pages × 5 runs, median), option A first (`Note.tsx` only, inactive panels mounted after first paint), B/C only if A misses; steps 0–2 only after SAVE-SYNC-1 reached AUDIT-REQUEST | the growth workspace's ~4.0 s notes TBT is a Lighthouse number; grader quality and trust outrank speed |
+| **198 / 200** | NOTES-FORMULA-2: rewrite the plain-text chemistry/unit formula items as TeX; remove the author note; correctness gate = every equation balanced atom by atom with its atom count listed; **D200: state symbols (s)/(l)/(g)/(aq) on every element-formula equation, conditions over the arrow, none on generic templates** | CLAUDE.md §13: the CBSE scheme pays 0.5 for the balanced equation and 0.5 for state symbols/conditions, so the card must model the full-marks form |
+| **214 / 215** | `#1154` moved up the slot order and pre-approved on four conditions (green CI, the atom-count table, no `katex-*.js` on three notes pages, before/after screenshots); the owner is away: keep merging in order, park owner checks as NEEDS-OWNER (later) | the owner saw the cards still plain text on www |
+| **C2 (no D)** | After the verifier's FAIL on `#1151`, treat an offline write that never answers as device-only after 12 s (keep the chain and the entry alive) rather than wait for a rejection | the Firestore web SDK queues an offline write and never rejects; waiting for a rejection leaves "Saving…" up for the whole outage |
+| **C2 (no D)** | Store the queued BODY inside the outbox entry instead of trusting the localStorage mirror | the mirror is capped (25 payloads / 200 records) and the cloud-wins read rewrites it, so a queued re-grade could be replaced by an older copy |
+| **C2 (no D)** | A re-send that had nothing to send, a superseded re-send, and a quiet (`pending-upload` download) write never earn the "Saved ✓" tick | a status line that claims "saved" when nothing was written is exactly the false comfort this lane exists to remove |
+| **C2 (no D)** | The acids "Metal carbonate / hydrogencarbonate + Acid → …" item is plain text with `&rarr;`, not TeX; the guard caps `\text{}` runs at 30 chars on Science cards | KaTeX cannot wrap inside `\text{}`: the item was 325 px in a 258 px card at 390 and 360 px; an element screenshot had hidden the overflow |
+| **C2 (no D)** | `#1154` leaves the rest-of-spec plain chemistry (counts per chapter) for NOTES-FORMULA-3 | D198 §5: report, do not fix in the same PR |
+
 ## 2026-10-14 — PERF-1 PR-3 / PERF-2 (DECISIONS AS THEY BEAR ON IT; RECORDED BY C2 UNDER §10)
 
 > ⚠ **SCOPE.** The rulings that shaped `#1139` `#1140` `#1141`, plus the decisions C2 itself made, with reasons. Read the numbered posts on `#973` for the full text.
