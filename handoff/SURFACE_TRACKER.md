@@ -1,5 +1,7 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — FU-SAVE-SYNC-QUOTA (C2, §10 for `#1168`).** No surface moved and Scope did not change. PERSISTENCE of a graded result on all six grading surfaces (through the single writer `services/sessionRecords.ts`) is more robust: the outbox is capped and a result that cannot be queued tells the student (`keep-open` / `device-only-manual` lines) and keeps `beforeunload` armed; no grading behaviour changed. Owed: the owner's signed-in round-trip (≥ 2 surfaces).
+
 > **2026-10-14 — NOTES-FORMULA-3a (C2, §10 for `#1160` `#1161`) and PERF-3a.** One surface moved: the NOTES pages (26 chapters). Scope did not change. The six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) were not touched. With no shortcuts in any spec yet the visible change is only the section anchors, the print fix and the (empty) schema.
 
 | surface | what moved (PR) | state | owed |
