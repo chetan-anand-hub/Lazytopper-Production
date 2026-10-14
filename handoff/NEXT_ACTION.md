@@ -1,3 +1,12 @@
+## ★ 2026-10-14 — AFTER NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (`#1171` `#1182` `#1184`) (written by G under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner check (phone):** open `/ncert-class-10` on an Android phone, tap "Read the chapter" on any chapter: the pages draw inside LazyTopper (no new tab, no download prompt). Then tap "NCERT" on an Exam Trends chapter card, and "Read NCERT Chapter N on LazyTopper" on a notes page: both open the reader and the back link returns to where you were.
+- **G next, in order (cofounder, 14 Oct 20:54 IST):** the NCERT wave's final audit request to the owner → SOLUTIONS-1 PR (tier 2: AUDIT-REQUEST for `App.tsx` and the additive `server/routes/studentActivity.cjs` allowlist) → its docs PR → LEGAL-ENTITY-1.
+- **GSC:** request indexing for the remaining 14 notes pages (about 10 a day; G scheduled 15 Oct 19:00 IST). Re-measure `/ncert-class-10`, `/exam-trends` and the notes pages at +7 / +14 / +28 days (21 Oct, 28 Oct, 11 Nov).
+- **Open follow-ups to schedule (see OPEN_QUESTIONS):** the five D258 nits, `[FU-TRI-SOLUTIONS-HOLD-5]`, `[FU-TRI-OUT-OF-SYLLABUS-SERVED]`, `[FU-OUR-ENVIRONMENT-NO-NCERT-FILE]`.
+
 ## ★ 2026-10-14 — AFTER UPLOAD-SHRINK-1 (`#1126`) AND PYTHAGORAS-HUB-1/-2 (`#1174` `#1178`) (written by C1b under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

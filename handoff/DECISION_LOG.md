@@ -1,3 +1,22 @@
+## 2026-10-14 (D195–D261) — LANE G AND THE NCERT WAVE (DECISIONS AS THEY BEAR ON IT; RECORDED BY G UNDER §10)
+
+> ⚠ **SCOPE.** Only the decisions that bear on lane G, `#1171`, `#1182`, `#1184` and the SOLUTIONS-1 lane that follows. Others are recorded by the lanes they bear on.
+
+| D | decision | the reason given |
+|---|---|---|
+| **195** | The growth session is engineering lane **G**: own worktree, `CLAIM G`, `MERGE-SLOT G`, `LIVE G`; tier 1 (content/marketing only) merges on an Opus verifier PASS; tier 2 (routing, App.tsx, analytics wiring, server, shared runtime) needs AUDIT-REQUEST + cofounder APPROVE; owner yes before commit/push, spend or platform settings; G may write its own §10 docs PR after the handoff lock | owner ruling 14 Oct 06:33 IST |
+| **196** | G takes NEW work only; it never takes over a lane already in flight | owner clarification 06:51 IST |
+| **210** | NCERT-BOOKS-1 plan approved, tier 2, `App.tsx` owner-scoped for one route line; no "Solutions" link until `/ncert-solutions/*` ships; full public-page wiring; guard + curl + CLS ≤ 0.1 gates | keep the page honest and fully registered (each wiring item had been missed before) |
+| **211** | Amends D210 §1: "Read the chapter" opens OUR stored copy in an on-site reader, loaded on click; notes/practice/check links always visible; attribution always visible; a missing object shows the official link only | keep students on LazyTopper (owner 08:32 IST) |
+| **213** | Owner: NCERT books are publicly available, so our stored copies are served, with a source credit as a trust signal; 2026-27 rationalised list (Maths 14, Science 13); verify each stored PDF is the current edition; per-chapter pages approved as NCERT-BOOKS-2 after demand sizing | latest edition for the 2027 boards; an old reprint is a real risk (E found 2026-27 text differences) |
+| **221** | `#1159` @ `6474d825` APPROVED: 27 correct rows, one lazy import + one route, reader on click with fallback, 26/26 stored files byte-identical to live 2026-27 NCERT, CLS 0/0 | audit of the protected-file diff and the content checks |
+| **232 / 234** | `#1159` closed (G silent 2 h 45 m) to clear `lane-overlap` for `#1169`; branch untouched; the 3-line CI-fix delta approved | the bank queue was deadlocked on shared generated files |
+| **235** | G holds slot 3 with a NEW PR from `feat/growth-ncert-books-1` (→ `#1171`) | G was back; redistribution reversed |
+| **258** | The cofounder takes `#1182` to merge at the owner's direction; AUDIT APPROVED (App.tsx 2 exact-path matchers; DesktopShell one rail item that stays a real link, picker at the shell root); 5 nits logged as follow-ups | owner direction 18:07 IST |
+| **259** | Solutions pages CONFIRMED: free, attempt-first (hint = first step; any MCQ pick / non-empty typed answer / photo check is an attempt; full step-marking needs no account); the full solution is in the pre-built HTML, hidden; NCERT-BOOKS-2: NO; G builds `/ncert-solutions/:chapter` + `/ncert-exemplar/:chapter` as one route family with an App.tsx audit; the cofounder supplies the publish-safe list | owner ruling "free, attempt-first"; same HTML for users and crawlers |
+| **260** | Supersedes D259 §2 conditions: mark MCQs ✓/✗; typed answers get a verdict only where reliably comparable; never mark a correct student wrong; every ✗ ends in "Check my answer"; real urgency only (no invented scarcity, resetting timers or invented counts) | owner: "we want them to see where they went wrong"; CLAUDE.md §5 and the CCPA 2023 dark-pattern guidelines |
+| **261** | Triangles publish-safe list: 29 rows (NCERT 13, Exemplar 16); 5 HOLD (`[FU-TRI-SOLUTIONS-HOLD-5]`), 12 excluded by the syllabus screen (`[FU-TRI-OUT-OF-SYLLABUS-SERVED]`); the page reads allowlist ∩ NOT `WITHHELD_QUESTION_IDS` at build time | two independent blind verifiers per row (key, steps, 2026-27 syllabus, figures, options, clean text) |
+
 ## 2026-10-14 (D183–D251) — UPLOAD-SHRINK-1 / PYTHAGORAS-HUB (DECISIONS AS THEY BEAR ON THEM; RECORDED BY C1b UNDER §10)
 
 > ⚠ **SCOPE.** Only the decisions that bear on `#1126`, `#1174`, `#1178` and the C1/C1b lanes. Others are recorded by the lanes they bear on.
