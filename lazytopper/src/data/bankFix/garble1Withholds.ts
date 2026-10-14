@@ -8,8 +8,6 @@
  */
 export const GARBLE_1_WITHHOLD_CATEGORY: ReadonlyMap<string, "garbled"> = new Map<string, "garbled">([
   ["PYQ-M-2024-TRIG-014", "garbled"],
-  ["PYQ-M-2024-TRIG-018", "garbled"],
-  ["PYQ-M-2024-TRIG-020", "garbled"],
   ["PYQ-M-CG-003", "garbled"],
   ["PYQ-M-2026-REALNUM-005", "garbled"],
   ["PYQ-M-STAT-009", "garbled"],

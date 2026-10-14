@@ -23,6 +23,41 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-14 — NOTES-FORMULA-1/2 + SAVE-SYNC-1 FOLLOW-UPS (recorded by C2 under §10)
+
+### [FU-SAVE-SYNC-QUOTA]
+Pending bodies are stored twice (the localStorage mirror and the outbox entry) and one JSON key per uid is rewritten on every upsert. When the outbox write hits the quota the entry is NOT stored: today that is a `console.warn` only, and a CLOSED tab then loses that result. Priority next for whoever touches saving again (D206): cap the outbox by count/size and show the device-only line when the outbox write fails. CLOSED when both are in and tested.
+
+### [FU-SAVE-SYNC-REMOUNT]
+`resetOutboxSession()` runs on ANY change of the signed-in uid (also a StrictMode remount or a brief null uid). Harmless: the fresh drain may repeat a write the SDK is still flushing, which is an identical full replace guarded by the newer-cloud check. Noted so a future change does not make it destructive.
+
+### [FU-SAVE-SYNC-FIRESTORE-PERSISTENCE]
+Firestore's own persistent cache would make an offline write survive a reload by itself. It is a client-config change in `firebaseClient.ts` (PERF-3b territory), not done in `#1151`; the outbox covers the reload case meanwhile.
+
+### [FU-SAVESTATUS-INLINE-STYLE]
+`SaveStatusToast.tsx` carries its CSS in a `<style>` block inside the component (D206, §7: no inline styling in new components). Move it to a CSS file.
+
+### [FU-NOTES-FORMULA-PRINT-DUPLICATE]
+The PDF/print shows every panel (`.lt-note__panel{display:block!important}`), so the Formulae card prints TWICE per note (after The Big Idea and again above the mind-map). It follows the owner's "keep in both"; hiding the Mindmap-panel copy in print is a one-class change. Waits for the cofounder's word.
+
+### [FU-NOTES-PROBABILITY-FRAC-OVERFLOW]
+`/notes/probability` formula item 0 contains two long `\text{…}` runs inside a `\frac` ("Number of outcomes favourable to E", "Number of all possible outcomes") and measures 300 px in a 258 px card on www at 390 and 360 px (found while measuring `#1154`; pre-existing). KaTeX cannot wrap inside `\text{}`: shorten the words or stack them.
+
+### [FU-NOTES-REALNUMBERS-TEXTBF]
+`notes/specs/real-numbers.json` items 1 and 2 hold `\textbf{smallest}`, `\textbf{common}`, `\textbf{greatest}`, `\textbf{every}` OUTSIDE `$…$`; `NoteRichText` puts non-math text straight into HTML, so the literal backslash text is on the page and in `prerendered/notes/real-numbers.html`. Use `<b>` or `$…$`. Maths lane.
+
+### [FU-NOTES-MATH-ARIA]
+Note math renders with `output:"html"` (no MathML), so the formula HTML is `aria-hidden` and a screen reader hears nothing for a formula; the two heredity labels that became `$\text{F}_2$` now read as "Monohybrid  ratio". True of all note math already; `#1154` extends it to Science and to a label.
+
+### [FU-NOTES-FORMULA-SEPARATOR]
+Two equations on one card are separated by a spaced " . " (D214 nit). Use " · " (U+00B7) or a line break in a later touch.
+
+### [FU-NOTES-FORMULA-3-PLAIN-CHEMISTRY]
+Plain-text chemistry/unit patterns OUTSIDE the formula strips, counted per field (scan: capital+digit subscripts, ASCII arrows, flat unit powers, over `examples`, `mindmap`, `third_tab_content`, `concepts`, `definitions`, `figures` alt text): acids-bases-and-salts 57, metals-and-non-metals 51, chemical-reactions-and-equations 46, carbon-and-its-compounds 35, heredity 35, our-environment 5, life-processes 2; other Science chapters: electricity 5, magnetic-effects 6, how-do-organisms-reproduce 4, human-eye 2, light 1, control-and-coordination 0. Some are false positives (alt text, figure ids). Example: carbon `examples[]` `equation` `CH4 + 2O2 -> CO2 + 2H2O + heat and light`. This is NOTES-FORMULA-3 material (D198 §5: report, do not fix in `#1154`).
+
+### [FU-NOTES-OXIDATION-AGENT]
+The carbon oxidation card keeps `[O]` over the arrow; a CBSE answer names the agent (alkaline KMnO₄ or acidified K₂Cr₂O₇, with heat). A long `\text{}` would overflow a 258 px card (see the `\text{}` ≤ 30 chars guard): needs a short form or a line break. Optional.
+
 ## 2026-10-14 — PERF-1 PR-3 / PERF-2 FOLLOW-UPS (recorded by C2 under §10)
 
 ### [FU-QR-BUNDLE-PROOF]

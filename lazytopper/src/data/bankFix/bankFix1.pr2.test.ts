@@ -327,7 +327,7 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
     (STEPS1_PAUSED_BY_CHAPTER[chapter] ??= []).push(e.id);
   }
   const LATER_WITHHOLDS_BASE: Record<string, readonly string[]> = {
-    "trigonometry": ["APQ-M-TRIG-011", "APQ-M-TRIG-016", "PYQ-M-2024-TRIG-014", "PYQ-M-2024-TRIG-018", "PYQ-M-2024-TRIG-020"],
+    "trigonometry": ["APQ-M-TRIG-011", "APQ-M-TRIG-016", "PYQ-M-2024-TRIG-014"],
     "quadratic-equations": ["LTG-M-QE-284"],
     "control-and-coordination": ["SCQ-S-CTRL-029", "SCQ-S-CTRL-037", "SCO-S-CTRL-011", "SCQ-S-CTRL-042"],
     "light-reflection-and-refraction": ["SCO-S-LIGHT-005"],
