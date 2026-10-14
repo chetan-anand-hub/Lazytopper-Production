@@ -37,6 +37,7 @@ import {
   type MistakeSection,
 } from "./worksheetMiSelector";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
+import { MathText } from "../question/MathText";
 import WorksheetGradePanel from "./WorksheetGradePanel";
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
 import {
@@ -1250,7 +1251,7 @@ function WorksheetGeneratorInner() {
                   <span>Q{q.qNumber} · Section {q.section}</span>
                   <span>{q.marks} mark{q.marks === 1 ? "" : "s"}</span>
                 </div>
-                <div className="lt-ws__qprevtext">{q.questionText}</div>
+                <div className="lt-ws__qprevtext"><MathText text={q.questionText} /></div>
               </div>
             ))}
             {totalCount > previewSamples.length && (

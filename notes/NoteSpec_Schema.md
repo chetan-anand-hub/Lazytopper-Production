@@ -84,6 +84,13 @@ Two discriminators drive all subject-adaptivity, so the renderer/component never
 ```
 For `kind:"reaction"` a step may carry `equation` instead of `math`; for `kind:"process"` steps are stages of a process walkthrough. Same shape, different reading.
 
+### NOTES-FORMULA-3a additions (all OPTIONAL; validator rule 11)
+
+- `formula_strip[i]` may carry `{ id, heading, tip }`: `id` = a stable lower-kebab anchor (`#<id>`, unique on the page, never renamed once shipped, never one of `formulae shortcuts memory-tricks mindmap diagrams`); `heading` = a visible `<h3>` in the words students search; `tip` = one short correct exam tip (may hold `$…$`).
+- `shortcuts[]` (spec top level, optional): `{ id, heading?, text, gloss?, use, source }` with `use` ∈ `"mcq-check"` (never write it as working) | `"written-ok"` (CBSE accepts it as a step) | `"memory-aid"` (Memory Tricks card; Hinglish first, D204/D205). `source` is required (NCERT section, CBSE scheme, or a PYQ/SQP id). An absent or empty list renders nothing and the second tab stays "Formulae & Mindmap"; with ≥ 1 shortcut it is "Formulae & Tricks".
+- a diagram in the diagrams tab may carry `{ id, heading, alt }` on its `figures{}` entry (heading and alt required when an id is present).
+- Anchors: section anchors `#formulae #shortcuts #memory-tricks #mindmap` (second tab) and `#diagrams` (third tab); `/notes/<chapter>#<anchor>` opens the tab that holds it and scrolls to it. Shipped ids are pinned in `lazytopper/src/components/notes/noteAnchorIds.pinned.json` (guard `noteAnchors.guard.test.ts`).
+
 ### `formula_strip[]` / `pitfalls[]` / `strategies[]`
 ```jsonc
 "formula_strip": [ { "label": "Mirror formula", "math": "$\\frac1v+\\frac1u=\\frac1f$",
