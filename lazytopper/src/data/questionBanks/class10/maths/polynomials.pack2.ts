@@ -1127,7 +1127,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "[1 mark] Option (a) 3 is correct: for ax^2 + bx + c, product of zeros αβ = c/a; here a = 1, c = 3, so αβ = 3/1 = 3 (check: x^2 - 4x + 3 = (x - 1)(x - 3), zeros 1 and 3).",
     ],
   },
-  { id: "PL2-R17", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic polynomial whose zeros are 3 and −2 is:", options: ["x²−x−6","x²+x−6","x²−x+6","x²+x+6"], answer: "x²−x−6", explanation: "The correct answer is x²−x−6. Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", finalAnswer: "Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", isCompetencyBased: false,
+  { id: "PL2-R17", subject: "Maths", topicKey: "polynomials", subtopic: "Zeros of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A quadratic polynomial whose zeros are 3 and −2 is:", options: ["x²−x−6","x²+x−6","x²−x+6","x²+x+6"], answer: "x²−x−6", explanation: "The correct answer is x²−x−6. Sum = 3+(−2)=1, Product=−6. Polynomial = x²−(sum)x+(product) = x²−x−6.", finalAnswer: "x² − x − 6", isCompetencyBased: false,
     solutionSteps: [
       "To find the zero of the polynomial P(x) = 5x - 10, set P(x) = 0.",
       "So, 5x - 10 = 0.",

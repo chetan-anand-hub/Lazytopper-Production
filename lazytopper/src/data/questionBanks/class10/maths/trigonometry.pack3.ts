@@ -355,7 +355,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): sin²θ + cos²θ = 1 for all values of θ. Reason (R): This is derived from the Pythagorean theorem applied to a right triangle.",
+    "questionText": "Assertion (A): sin²θ + cos²θ = 1 for all values of θ. Reason (R): This follows from opposite² + adjacent² = hypotenuse² for the sides of a right triangle, divided by hypotenuse².",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
