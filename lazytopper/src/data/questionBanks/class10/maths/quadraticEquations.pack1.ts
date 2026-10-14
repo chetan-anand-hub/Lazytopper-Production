@@ -38,7 +38,7 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "D = −8; roots are not real" , isCompetencyBased: true },
   { id: "QE-E08", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The quadratic formula gives roots as:", options: ["x = (−b ± √D)/(2a)", "x = (b ± √D)/(2a)", "x = (−b ± D)/(2a)", "x = (−b ± √D)/a"], answer: "x = (−b ± √D)/(2a)", explanation: "The correct answer is x = (−b ± √D)/(2a). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "x = (−b ± √D)/(2a), where D = b² − 4ac" , isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] For ax² + bx + c = 0 (a ≠ 0, D = b² − 4ac ≥ 0), completing the square gives x = (−b ± √D)/(2a); the other options have the wrong sign of b, omit the square root, or drop the factor 2.",
+      "[1 mark] For ax² + bx + c = 0 (a ≠ 0, D = b² − 4ac ≥ 0), the quadratic formula is x = (−b ± √D)/(2a); the other options have the wrong sign of b, omit the square root, or drop the factor 2.",
     ],
   },
   { id: "QE-E09", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "One root of x² − 5x + k = 0 is 2. The value of k is:", options: ["6", "3", "5", "10"], answer: "6", explanation: "4 − 10 + k = 0 → k = 6. Therefore, the correct answer is 6.", solutionSteps: ["4 − 10 + k = 0 → k = 6"], finalAnswer: "6" , isCompetencyBased: true },
