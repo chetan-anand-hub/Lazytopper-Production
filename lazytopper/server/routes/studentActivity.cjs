@@ -100,6 +100,14 @@ const ACTIVITY_EVENTS = Object.freeze([
   'practice_graded',
   'testimonial_play',
   'parent_share_click',
+  // SOLUTIONS-1 (lane G, D260) - the public solutions pages. Additive only.
+  'sol_hint',
+  'sol_attempt_mcq',
+  'sol_attempt_typed_right',
+  'sol_attempt_typed_wrong',
+  'sol_attempt_no_verdict',
+  'sol_unlock',
+  'sol_check_start',
 ]);
 
 /**

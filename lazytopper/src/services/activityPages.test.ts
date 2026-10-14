@@ -97,6 +97,9 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   "/check-your-answer": [["/check-your-answer", null]],
   "/for-parents": [["/for-parents", null]], // PARENTS-1 — public, like the guide: not an activity page
   "/ncert-class-10": [["/ncert-class-10", null]], // NCERT-BOOKS-1 (G) — public books page: not an activity page
+  // SOLUTIONS-1 (G) — public solutions pages: not activity pages (their attempts travel as sol_* events).
+  "/ncert-solutions/:chapter": [["/ncert-solutions/triangles", null]],
+  "/ncert-exemplar/:chapter": [["/ncert-exemplar/triangles", null]],
   "/admin/funnel": [["/admin/funnel", null]],
   // 2026-10-11 HARDEN-1 PR-2 (D81a): /admin/diagram-compare and /admin/diagram-quality removed
   // from App.tsx together with their pages.

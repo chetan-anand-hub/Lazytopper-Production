@@ -570,7 +570,18 @@ export type NamedAnalyticsEvent =
   | "check_graded"
   | "practice_graded"
   | "testimonial_play"
-  | "parent_share_click";
+  | "parent_share_click"
+  // SOLUTIONS-1 (lane G, D260) — the public NCERT / Exemplar solutions pages: a hint opened, an
+  // attempt (an MCQ pick, or a typed answer judged right, wrong or not comparable), the solution
+  // unlocked, and a tap on "Check my answer". Bare names, no id, no text, no answer.
+  // (No semicolon in this comment: activityClient.test.ts reads this union up to the first one.)
+  | "sol_hint"
+  | "sol_attempt_mcq"
+  | "sol_attempt_typed_right"
+  | "sol_attempt_typed_wrong"
+  | "sol_attempt_no_verdict"
+  | "sol_unlock"
+  | "sol_check_start";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });

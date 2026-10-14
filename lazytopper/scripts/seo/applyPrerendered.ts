@@ -436,7 +436,13 @@ export function dynamicImportCssOf(entryCode: string, chunkFile: string): string
  * +0.02–0.08 s). /check-your-answer (#963 §4.5) and /for-parents are the pages whose layout shifts
  * without their route CSS, so they are the pages that get it.
  */
-export const INLINE_ROUTE_CSS_MODULES: readonly string[] = ["CheckYourAnswerPage", "ForParentsPage", "NcertBooksPage"];
+// SOLUTIONS-1 (G) adds `SolutionsPage`: the same hero + card layout as NcertBooksPage.
+export const INLINE_ROUTE_CSS_MODULES: readonly string[] = [
+  "CheckYourAnswerPage",
+  "ForParentsPage",
+  "NcertBooksPage",
+  "SolutionsPage",
+];
 
 /** The allowlisted route's own CSS files (never shared deps such as KaTeX) for `path`, in order. */
 export function routeCssFor(
