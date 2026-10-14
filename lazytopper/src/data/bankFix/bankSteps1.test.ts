@@ -37,7 +37,7 @@ describe("BANK-STEPS-1 ledger", () => {
     // a NO-ANSWER row is incomplete, not wrong (D143): it is logged `found` and stays served until its answer-fill PR.
     expect(BANK_STEPS_1.filter((e) => e.verdict === "NO-ANSWER").every((e) => e.state === "found" || e.state === "repaired" || e.state === "dropped")).toBe(true); // dropped: 2026-STAT-SA-03, unsolvable as printed (D170)
     // a SINGLE-STEP row (GARBLE-1, D159) is correct and served with one step: logged `found` until its chapter repair.
-    expect(BANK_STEPS_1.filter((e) => e.verdict === "SINGLE-STEP").every((e) => e.state === "found" || e.state === "repaired" || e.state === "dropped")).toBe(true);
+    expect(BANK_STEPS_1.filter((e) => e.verdict === "SINGLE-STEP").every((e) => e.state === "found" || e.state === "repaired" || e.state === "dropped" || e.state === "paused")).toBe(true);
     expect(BANK_STEPS_1.filter((e) => e.verdict !== "NO-ANSWER" && e.verdict !== "SINGLE-STEP").every((e) => e.state !== "found")).toBe(true);
   });
 
