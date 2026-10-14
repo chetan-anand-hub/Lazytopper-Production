@@ -86,6 +86,39 @@ describe("MathText extended shorthand — everything else is byte-identical", ()
   });
 });
 
+describe("MathText extended shorthand — review findings (adversarial verifier, #1150)", () => {
+  it("SO_4^(2-) keeps the old, correct rendering (the new ^( rule must not take the 4 as its base)", () => {
+    const out = preprocessBarePatterns("SO_4^(2-)");
+    expect(out).toBe("S\\(O_{4}\\)^(2-)");
+  });
+
+  it("a span that KaTeX cannot render is never minted: the text stays readable, no error box", () => {
+    for (const t of ["sqrt(50%)", "x^(5%)", "sqrt(a & b)", "sqrt(#)", "sqrt(a{b)"]) {
+      const r = shown(t);
+      expect(r.html, t).not.toContain("katex-error");
+    }
+  });
+
+  it("no span is ever nested inside another (sqrt(frac1/2), sqrt(sqrt2), x^(sqrt2))", () => {
+    for (const t of ["sqrt(frac1/2)", "sqrt(sqrt2)", "sqrt(sqrt{3})", "x^(sqrt2)"]) {
+      const out = preprocessBarePatterns(t);
+      expect(out.match(/\\\(/g)?.length ?? 0, t).toBeLessThanOrEqual(1);
+      expect(shown(t).html, t).not.toContain("katex-error");
+    }
+  });
+
+  it("the cue and the pi rule agree on a boundary: `2pi r` and `pi2` are handled the same before and after KaTeX loads", () => {
+    for (const t of ["Circumference = 2pi r", "pi2 is not a word"]) {
+      expect(textNeedsKatex(t) || preprocessBarePatterns(t) === t, t).toBe(true);
+    }
+  });
+
+  it("a 20k-character run of letters is processed and returned unchanged (the base lookbehind removes the quadratic scan; no clock reads in tests)", () => {
+    const input = "a".repeat(20000) + "^";
+    expect(preprocessBarePatterns(input)).toBe(input);
+  });
+});
+
 describe("MathText extended shorthand — the KaTeX cue stays a superset", () => {
   it("every rule that emits \\(..\\) is covered by textNeedsKatex", () => {
     for (const t of ["sqrt(4)", "a^(n-1)", "x^{2}", "10^-8", "m^-1", "a_n", "a_{12}"]) {

@@ -87,7 +87,7 @@ export function prefetchKatexWhenIdle(): void {
 // four alternatives are the glyph-only rules (>=, theta, pi, 2*pi): they need no KaTeX, but the whole-bank
 // proof in MathText.katexOnDemand.test.tsx (d) requires that text the cue rejects is returned unchanged.
 const MATH_CUE =
-  /\\|sqrt|frac|[A-Za-z0-9][\^_]\d|[A-Za-z0-9]\^[({-]|[A-Za-z]_[a-z{]|>=|<=|!=|=>|theta|\bpi\b|[A-Za-z0-9)\]πθ²³°] ?\* ?[A-Za-z0-9(\[πθ]/;
+  /\\|sqrt|frac|[A-Za-z0-9][\^_]\d|[A-Za-z0-9]\^[({-]|[A-Za-z]_[a-z{]|>=|<=|!=|=>|theta|(?<![A-Za-z\\])pi(?![A-Za-z])|[A-Za-z0-9)\]πθ²³°] ?\* ?[A-Za-z0-9(\[πθ]/;
 
 /** Whether `text` can produce any maths at all (a superset of every path into KaTeX). */
 export function textNeedsKatex(text: string): boolean {
@@ -320,23 +320,30 @@ function outsideSpans(text: string, fn: (part: string) => string): string {
 /** x^(..), x^{..}, x^-n and single-letter subscripts. Each rule runs outside the spans the previous rules made. */
 function promotePowersAndSubscripts(text: string): string {
   // The base is one alphanumeric token (a unit like cm keeps its letters).
-  const wrapPower = (base: string, exp: string) => `\\(${base}^{${exp}}\\)`;
-  const wrapSub = (base: string, sub: string) => `\\(${base}_{${sub}}\\)`;
+  // A promoted span must PROVE it renders (KaTeX throwOnError) or the original text is left exactly as written.
+  const wrapPower = (base: string, exp: string, orig: string) => {
+    const latex = `${base}^{${exp}}`;
+    return katexCanRender(latex) ? `\\(${latex}\\)` : orig;
+  };
+  const wrapSub = (base: string, sub: string, orig: string) => {
+    const latex = `${base}_{${sub}}`;
+    return katexCanRender(latex) ? `\\(${latex}\\)` : orig;
+  };
   let result = outsideSpans(text, (p) =>
-    p.replace(/([A-Za-z]+|\d+)\^-(\d+)(?!\d)/g, (_m, b: string, e: string) => wrapPower(b, `-${e}`)),
+    p.replace(/(?<![A-Za-z0-9_])([A-Za-z]+|\d+)\^-(\d+)(?!\d)/g, (m, b: string, e: string) => wrapPower(b, `-${e}`, m)),
   );
   result = outsideSpans(result, (p) =>
-    p.replace(/([A-Za-z0-9])\^\{([^{}]+)\}/g, (_m, b: string, e: string) => wrapPower(b, e)),
+    p.replace(/(?<!_)([A-Za-z0-9])\^\{([^{}]+)\}/g, (m, b: string, e: string) => wrapPower(b, e, m)),
   );
   result = outsideSpans(result, (p) => {
     let rebuilt = "";
     let pos = 0;
-    const re = /([A-Za-z0-9])\^\(/g;
+    const re = /(?<!_)([A-Za-z0-9])\^\(/g;
     for (let m = re.exec(p); m; m = re.exec(p)) {
       const open = m.index + m[0].length - 1;
       const close = consumeBalancedParens(p, open);
       if (close === -1) continue;
-      rebuilt += p.slice(pos, m.index) + wrapPower(m[1], p.slice(open + 1, close - 1));
+      rebuilt += p.slice(pos, m.index) + wrapPower(m[1], p.slice(open + 1, close - 1), p.slice(m.index, close));
       pos = close;
       re.lastIndex = close;
     }
@@ -344,10 +351,10 @@ function promotePowersAndSubscripts(text: string): string {
   });
   // a_n, a_{12}: never snake_case (R_total stays as written).
   result = outsideSpans(result, (p) =>
-    p.replace(/([A-Za-z])_\{([^{}]+)\}/g, (_m, b: string, sub: string) => wrapSub(b, sub)),
+    p.replace(/([A-Za-z])_\{([^{}]+)\}/g, (m, b: string, sub: string) => wrapSub(b, sub, m)),
   );
   result = outsideSpans(result, (p) =>
-    p.replace(/(?<![A-Za-z_])([A-Za-z])_([a-z])(?![A-Za-z_])/g, (_m, b: string, sub: string) => wrapSub(b, sub)),
+    p.replace(/(?<![A-Za-z_])([A-Za-z])_([a-z])(?![A-Za-z_])/g, (m, b: string, sub: string) => wrapSub(b, sub, m)),
   );
   return result;
 }
@@ -397,7 +404,8 @@ function promoteExtendedShorthand(text: string): string {
       i = at + 5;
       continue;
     }
-    out += `${result.slice(i, at)}\\(\\sqrt{${result.slice(at + 5, close - 1)}}\\)`;
+    const inner = result.slice(at + 5, close - 1).replace(/\^\(([^()]*)\)/g, "^{$1}");
+    out += result.slice(i, at) + (katexCanRender(`\\sqrt{${inner}}`) ? `\\(\\sqrt{${inner}}\\)` : result.slice(at, close));
     i = close;
   }
   result = out + result.slice(i);
@@ -421,11 +429,12 @@ function promoteExtendedShorthand(text: string): string {
 function promoteShorthandInGap(text: string): string {
   let result = promoteExtendedShorthand(text);
 
-  result = result.replace(/(?<![\\a-zA-Z])sqrt(\d+)/g, (_m, num) => `\\(\\sqrt{${num}}\\)`);
-  result = result.replace(/(?<![\\a-zA-Z])sqrt\{([^}]+)\}/g, (_m, inner) => `\\(\\sqrt{${inner}}\\)`);
+  // MATH-RENDER-1: these four run outside any span the extended rules just minted (no \(..\) inside \(..\)).
+  result = outsideSpans(result, (p) => p.replace(/(?<![\\a-zA-Z])sqrt(\d+)/g, (_m, num) => `\\(\\sqrt{${num}}\\)`));
+  result = outsideSpans(result, (p) => p.replace(/(?<![\\a-zA-Z])sqrt\{([^}]+)\}/g, (_m, inner) => `\\(\\sqrt{${inner}}\\)`));
 
-  result = result.replace(/(?<![\\a-zA-Z])frac(\d+)\/(\d+)/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`);
-  result = result.replace(/(?<![\\a-zA-Z])frac\{([^}]+)\}\{([^}]+)\}/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`);
+  result = outsideSpans(result, (p) => p.replace(/(?<![\\a-zA-Z])frac(\d+)\/(\d+)/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`));
+  result = outsideSpans(result, (p) => p.replace(/(?<![\\a-zA-Z])frac\{([^}]+)\}\{([^}]+)\}/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`));
 
   // The sqrt/frac rules above just emitted \(...\); the ^/_ rules below must not
   // fire inside what they created. A gap holds no pre-existing delimiters, so
