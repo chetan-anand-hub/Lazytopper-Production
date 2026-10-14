@@ -1242,11 +1242,9 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "The prime numbers on a die are 2, 3 and 5, so P(prime) = 3/6 = 1/2. [1]",
     ],
   },
-  { id: "PR2-047", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A card is drawn from a pack of 52 cards. The probability of drawing a spade is:", options: ["1/4","1/13","1/52","3/4"], answer: "1/4", explanation: "The correct answer is 1/4. There are 13 spades in 52 cards. P = 13/52 = 1/4.", finalAnswer: "There are 13 spades in 52 cards. P = 13/52 = 1/4.", isCompetencyBased: false,
+  { id: "PR2-047", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A card is drawn from a pack of 52 cards. The probability of drawing a spade is:", options: ["1/4","1/13","1/52","3/4"], answer: "1/4", explanation: "The correct answer is 1/4. There are 13 spades in 52 cards. P = 13/52 = 1/4.", finalAnswer: "1/4", isCompetencyBased: false,
     solutionSteps: [
-      "List all possible outcomes when a die is thrown: {1, 2, 3, 4, 5, 6}. Total outcomes = 6.",
-      "List favorable outcomes (even numbers): {2, 4, 6}. Number of favorable outcomes = 3.",
-      "Calculate the probability: P(even number) = (Favorable outcomes) / (Total outcomes) = 3/6 = 1/2.",
+      "[1 mark] Option (a) 1/4 is correct: a pack has 13 spades out of 52 cards, so P(spade) = 13/52 = 1/4.",
     ],
   },
   { id: "PR2-048", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If P(E) = 0.3, then P(Ē) is:", options: ["0.7","0.3","0","1"], answer: "0.7", explanation: "The correct answer is 0.7. P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", finalAnswer: "P(Ē) = 1 − P(E) = 1 − 0.3 = 0.7.", isCompetencyBased: false,

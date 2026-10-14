@@ -6,8 +6,6 @@ export const trianglesGuidedMindmap = {
     "gSSS",
     "gBPT",
     "gCPST",
-    "gArea",
-    "gPyth",
     "gEnd",
   ],
   nodes: [
@@ -46,18 +44,6 @@ export const trianglesGuidedMindmap = {
       type: "application",
       title: "CPST usage",
       text: "Use corresponding parts after proving triangles similar.",
-    },
-    {
-      id: "gArea",
-      type: "application",
-      title: "Area ratio in similar triangles",
-      text: "Area ratio equals square of side ratio.",
-    },
-    {
-      id: "gPyth",
-      type: "theorem",
-      title: "Pythagoras (right triangles)",
-      text: "Use only when the right angle is shown or stated.",
     },
     {
       id: "gEnd",
@@ -109,20 +95,6 @@ export const trianglesGuidedMindmap = {
       exam: "From triangle ABC ~ triangle PQR, AB/PQ = BC/QR = AC/PR (CPST).",
       trap: "Using CPST before proving similarity.",
     },
-    gArea: {
-      title: "Area ratio property",
-      means: "For similar triangles, the ratio of areas equals the square of the ratio of corresponding sides.",
-      when: ["You have side ratio and need area ratio, or vice versa."],
-      exam: "Area(ABC)/Area(PQR) = (AB/PQ)^2 for similar triangles.",
-      trap: "Forgetting to square the side ratio.",
-    },
-    gPyth: {
-      title: "Pythagoras theorem",
-      means: "In a right triangle, hypotenuse^2 = sum of squares of the other two sides.",
-      when: ["A right angle is given or proved."],
-      exam: "In right triangle ABC, BC^2 = AB^2 + AC^2 by Pythagoras.",
-      trap: "Using Pythagoras without a right angle.",
-    },
     gEnd: {
       title: "Self-check",
       means: "Verify theorem choice, correspondence order, and final conclusion.",
@@ -138,8 +110,6 @@ export const trianglesGuidedMindmap = {
     gSSS: "N4",
     gBPT: "N5",
     gCPST: "N7",
-    gArea: "N8",
-    gPyth: "N9",
     gEnd: "N11",
   },
 };

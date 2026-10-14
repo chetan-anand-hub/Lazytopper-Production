@@ -304,7 +304,7 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     // A17 owner rulings 1 and 2 (GRADING-JOBS-1 J0) add two declared classes: the one fixed unit comment,
     // and a subjective non-attempt that is now NOT ATTEMPTED instead of a graded 0; ruling 3 as changed by the
     // owner 2026-10-06 adds the medium class (a Hinglish answer: ½ once, one fixed comment).
-    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap'];
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1'];
     assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
     // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
     // slot → unattempted) or an A17 owner ruling (1: the unit comment; 2: not attempted); the v2 field
@@ -340,7 +340,7 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     const R = loadRun(runDir);
     const rb = R.rebaseline;
     const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
-    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class));
+    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class) || rb.entries[k].conseq);
     assert.ok(keys.length > 0, 'CONTROL: there are A17 entries to verify');
     const byKey = {};
     for (const run of Object.keys(R.runs)) for (const rec of R.runs[run]) byKey['run' + run + ':' + rec.jobKey] = rec;
@@ -348,12 +348,29 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     let sample = null;
     for (const k of keys) {
       const e = rb.entries[k];
+      if (!/(^|\+)a17-/.test(e.class)) {
+        // a g-conseq-1-ONLY entry (no A17 part): it replays to the pinned digest, undoing the delta lands on conseq.base, the rules hold
+        const rep0 = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
+        assert.strictEqual(digest(rep0.body), e.to, k + ': the replayed body is the pinned one');
+        const prior = undoDelta(rep0.body, e.conseq.delta);
+        assert.ok(prior && digest(prior) === e.conseq.base, k + ': undoing the g-conseq-1 delta must land exactly on conseq.base');
+        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').conseqViolations(e.conseq.delta, rep0.body), [], k + ' (g-conseq-1)');
+        checked += 1;
+        continue;
+      }
       assert.ok(e.a17 && Array.isArray(e.a17.delta) && e.a17.delta.length > 0, k + ': an A17 entry carries its base and delta');
       const classes = e.class.split('+').filter((c) => c.startsWith('a17-'));
       if (!e.class.split('+').some((c) => !c.startsWith('a17-'))) assert.strictEqual(e.a17.base, e.from, k + ': an A17-only entry starts from the stored body');
       const rep = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
       assert.strictEqual(digest(rep.body), e.to, k + ': the replayed body is the pinned one');
-      const before = undoDelta(rep.body, e.a17.delta);
+      // GRADER-CONSEQUENTIAL-1: an entry may carry a g-conseq-1 change on top of its A17 one; peel it first.
+      let a17Body = rep.body;
+      if (e.conseq) {
+        a17Body = undoDelta(rep.body, e.conseq.delta);
+        assert.ok(a17Body && digest(a17Body) === e.conseq.base, k + ': undoing the g-conseq-1 delta must land exactly on conseq.base');
+        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').conseqViolations(e.conseq.delta, rep.body), [], k + ' (g-conseq-1)');
+      }
+      const before = undoDelta(a17Body, e.a17.delta);
       assert.ok(before && digest(before) === e.a17.base, k + ': undoing the delta must land exactly on a17.base (nothing changed outside it)');
       assert.deepStrictEqual(classViolations(classes, e.a17.delta, rep.body), [], k + ' (' + classes.join('+') + ')');
       if (!sample && classes.length === 1 && classes[0] === 'a17-r1-units' && Array.isArray(rep.body.results)) sample = { k, e, body: rep.body, before };
@@ -447,4 +464,32 @@ test('§J1 GOLDEN JOB CASE — job final body == sync body for every stored pape
   assert.ok(n('flipParts') > 1 && n('flipProvisionalChanged') >= 1, 'the synthetic flip must be multi-chunk and really flip: ' + line);
   assert.match(line, / verdict=PASS$/, line);
   assert.strictEqual(r.status, 0);
+});
+
+// ── §11c GRADER-CONSEQUENTIAL-1: the g-conseq-1 class can FAIL ───────────────
+test('§11c ★ g-conseq-1 accepts exactly the consequential change and REFUSES anything else (a mark moved, a total moved, a forward pointer, a rewritten type, a bucket that is not the pointed-to step type)', async () => {
+  const { conseqViolations } = require('./lib/rebaselineClasses.cjs');
+  const rb = JSON.parse(fs.readFileSync(path.join(GOLDEN, 'runs', floor.runId, 'rebaseline.json'), 'utf8'));
+  const keys = Object.keys(rb.entries).filter((k) => rb.entries[k].conseq);
+  assert.ok(keys.length > 0, 'CONTROL: the owner anomaly paper (V2.W.CIM.OA-01, Q4) is re-baselined under g-conseq-1');
+  const delta = rb.entries[keys[0]].conseq.delta;
+  const { loadRun, replayJob } = require('./lib/replay.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const R = loadRun(path.join(GOLDEN, 'runs', floor.runId));
+  const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
+  const byKey = {};
+  for (const run of Object.keys(R.runs)) for (const rec of R.runs[run]) byKey['run' + run + ':' + rec.jobKey] = rec;
+  const body = (await replayJob(plan[byKey[keys[0]].jobKey], byKey[keys[0]], { config: R.manifest && R.manifest.config })).body;
+  const stepIdx = delta.findIndex(([p]) => p.includes('annotatedSteps'));
+  const bucketIdx = delta.findIndex(([p]) => p.includes('marksLostByType'));
+  assert.ok(stepIdx >= 0 && bucketIdx >= 0);
+  assert.deepStrictEqual(conseqViolations(delta, body), [], 'the real delta is accepted');
+  const mut = (fn) => { const d = JSON.parse(JSON.stringify(delta)); fn(d); return conseqViolations(d, body); };
+  assert.ok(mut((d) => { d[bucketIdx][2] = d[bucketIdx][2] + 0.5; }).some((v) => /total moved/.test(v)), 'a moved total is refused');
+  assert.ok(mut((d) => { d[stepIdx][2].marksAwarded = (d[stepIdx][2].marksAwarded || 0) + 0.5; }).some((v) => /more than the new consequentialOf/.test(v)), 'a mark moved on a step is refused');
+  assert.ok(mut((d) => { d[stepIdx][2].mistakeType = 'silly'; }).some((v) => /more than the new consequentialOf/.test(v)), 'a rewritten type is refused');
+  assert.ok(mut((d) => { d[stepIdx][2].consequentialOf = 99; }).some((v) => /EARLIER step/.test(v)), 'a forward pointer is refused');
+  assert.ok(mut((d) => { d.push([['results', 3, 'marksAwarded'], 2, 3]); }).some((v) => /outside the g-conseq-1 rules/.test(v)), 'any other node is refused');
+  // D248: the bucket that gained must be the pointed-to step's type (here conceptual); moving the gain to silly is refused
+  assert.ok(mut((d) => { d[bucketIdx][0] = d[bucketIdx][0].slice(0, -1).concat(['silly']); }).length > 0, 'a gain in a bucket other than the pointed-to step type is refused');
 });

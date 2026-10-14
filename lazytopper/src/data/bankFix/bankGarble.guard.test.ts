@@ -35,10 +35,7 @@ const PATTERNS: ReadonlyArray<readonly [string, RegExp]> = [
 
 /** Every id here is a reviewed, deliberate match. Add `{ id, reason }` only after reading the row. PYQ-M-CG-003 left this list when GARBLE-1 withheld it (its stem lost a minus). */
 const GARBLE_REVIEWED_EXCEPTIONS: ReadonlyArray<{ id: string; reason: string }> = [
-  // Found by this guard's first run (GARBLE-1 PR-2): the STEM and options are clean, the stored WORKED STEP was flattened at extraction.
-  // The question and key are right, so a student sees nothing wrong; the step text feeds the marking scheme, so each is queued for the Maths
-  // repair queue (rewrite the step, keep the content). The exception is removed in that repair PR and the guard then covers the row.
-  { id: "PYQ-M-RN-003", reason: "clean stem; step 1 is a flattened fraction chain ('q q 2 – p p'): queued for step repair" },
+  // PYQ-M-RN-003 (clean stem, flattened worked step) left this list when its steps were rewritten into two [1 mark] steps (MATHS-SINGLE-STEP-1).
 ];
 
 /** Mathematical-italic Unicode is how the extractor writes a symbol font: legible in a worked step (`𝑥+ 2𝑦= 4`), unreadable only when it replaces a stem. */
@@ -103,10 +100,10 @@ describe("GARBLE-1 · controls (each pattern can fail)", () => {
 });
 
 describe("GARBLE-1 · single-step ratchet (D159)", () => {
-  const SINGLE_STEP_PIN = 55;
+  const SINGLE_STEP_PIN = 45;
   const singleStep = served.filter((q) => (q.marks ?? 0) >= 3 && Array.isArray(q.solutionSteps) && q.solutionSteps.length === 1);
   const ledgered = new Set(BANK_STEPS_1.filter((e) => e.verdict === "SINGLE-STEP").map((e) => e.id));
-  it("the count of served >=3-mark one-step rows may only fall (pin 55)", () => {
+  it("the count of served >=3-mark one-step rows may only fall (pin 45)", () => {
     expect(singleStep.length).toBeLessThanOrEqual(SINGLE_STEP_PIN);
   });
   it("every such row is ledgered found/SINGLE-STEP: no NEW one may appear", () => {

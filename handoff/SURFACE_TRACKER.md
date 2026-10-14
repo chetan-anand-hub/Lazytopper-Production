@@ -1,5 +1,15 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-14 — BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER (A2, §10 for `#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`).** Scope did not change and no grading behaviour changed. Two things moved: the bank CONTENT drawn by Worksheet, Chapter Test, Full Mock and Quick Practice (rows restored, rows withheld), and the DISPLAY of maths in question text and in grader feedback on all six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice). The BANK-STEPS-1 block below lists the FIND-2 pause `#1135` as 🟡 not merged; it merged at `8742eb45` (10-13 21:51:58Z), before this window.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Chapter Test, Worksheet, Full Mock, Quick Practice (draw) | 19 Maths + 53 Science rows served again with steps for their own stem (`#1144` `#1145`); 5 + 19 + 2 wrong / garbled `SCQ-S-*` rows withheld (`#1146` `#1149` `#1153`); 5 PYQ-2024 rows rewritten and served again (`#1156` `#1164`) | 🟢 live | an owner / human draw on a structured surface + one more (`#1153` `#1156` `#1164` recorded PARTIAL) |
+| Solution reveal of already-served rows | 19 NO-ANSWER curated rows carry a model answer (`#1142` `#1143`) | 🟢 live | open one id on a structured surface and read the reveal |
+| Question / solution text (every surface that uses `MathText`) | shorthand and word subscripts render as maths; genotype notation left as written (`#1150` `#1162`); non-string safe (`#1155`) | 🟢 live | `#1150` owner checks; `[FU-MATHTEXT-LOWERCASE-BASE-SUBSCRIPT]` |
+| Grader feedback on all six grading surfaces + both graded PDFs | verdict, lostDetail, teacherNote, summary, examiner notes, exam tip through `MathText` (`#1152`) | 🟢 live | D236 §3: owner eye-check PASSED; `[FU-PDF-ARROW-GLYPH]` (B2, D242) |
+| Garble FIND-2 pause | 35 ids withheld (`#1135`, `8742eb45`) | 🟢 live | REWRITE from the official CBSE ZIPs (D239) |
+
 > **2026-10-14 — FU-SAVE-SYNC-QUOTA (C2, §10 for `#1168`).** No surface moved and Scope did not change. PERSISTENCE of a graded result on all six grading surfaces (through the single writer `services/sessionRecords.ts`) is more robust: the outbox is capped and a result that cannot be queued tells the student (`keep-open` / `device-only-manual` lines) and keeps `beforeunload` armed; no grading behaviour changed. Owed: the owner's signed-in round-trip (≥ 2 surfaces).
 
 > **2026-10-14 — NOTES-FORMULA-3a (C2, §10 for `#1160` `#1161`) and PERF-3a.** One surface moved: the NOTES pages (26 chapters). Scope did not change. The six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice) were not touched. With no shortcuts in any spec yet the visible change is only the section anchors, the print fix and the (empty) schema.

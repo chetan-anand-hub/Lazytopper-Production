@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { buildCiCoaching } from "./CheckImproveGradedPrintDoc";
+import { render } from "@testing-library/react";
+import { buildCiCoaching, CheckImproveGradedPrintDoc } from "./CheckImproveGradedPrintDoc";
 
 /**
  * SHEET-1v4 Step 7 — the aggregate coaching line must NAME a departure, and must never
@@ -150,5 +151,48 @@ describe("buildCiCoaching — the pre-ruling two-bucket input is gone (H2)", () 
     });
     expect(line).not.toMatch(/clean (work|sheet)/i);
     expect(line).toContain("You lost 3 marks");
+  });
+});
+
+/* GRADER-CONSEQUENTIAL-1 (D242) — the Check & Improve graded PDF: inline SVG arrow, no "↳" / "Ⅰ" text,
+ * "follows from step N" on a consequential step. */
+describe("CheckImproveGradedPrintDoc — the annotation arrow and 'follows from step N'", () => {
+  const stepOf = (n: number, o: Record<string, unknown>) => ({
+    stepNumber: n, description: "Step " + n, studentWork: "work " + n, status: "incorrect", marksAwarded: 0, marksDeducted: 1,
+    teacherAnnotation: "note " + n, mistakeType: null, correctedWorking: null, ...o,
+  });
+  const q4 = (withPointers = true) => ({
+    qNumber: 4, questionText: "Find the sum of the first 20 terms of the AP.", totalMarks: 5, marksAwarded: 2.5,
+    annotatedSteps: [
+      stepOf(1, { status: "correct", marksAwarded: 2, marksDeducted: 0 }),
+      stepOf(2, { status: "partial", marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: "conceptual" }),
+      stepOf(3, { marksDeducted: 1.5, ...(withPointers ? { consequentialOf: 2 } : {}) }),
+      stepOf(4, { marksDeducted: 0.5, ...(withPointers ? { consequentialOf: 2 } : {}) }),
+    ],
+  });
+  const paint = (q: unknown) => render(
+    <CheckImproveGradedPrintDoc
+      code="CI-M-POLY-03" name="Polynomials · Check & Improve" questions={[q as never]}
+      gradedMarksAwarded={2.5} gradedMarksTotal={5} pendingCount={0} coaching="Coaching."
+    />,
+  );
+
+  it("★ inline SVG arrows, coloured by verdict, and no '↳' or 'Ⅰ' anywhere in the document", () => {
+    paint(q4());
+    const text = document.body.textContent ?? "";
+    expect(text).not.toContain("↳");
+    expect(text).not.toContain("Ⅰ");
+    expect(document.querySelectorAll("svg.lt-stann__arrow")).toHaveLength(4);
+    expect(document.querySelectorAll(".lt-stann--ok")).toHaveLength(1);
+    expect(document.querySelectorAll(".lt-stann--part")).toHaveLength(1);
+    expect(document.querySelectorAll(".lt-stann--bad")).toHaveLength(2);
+  });
+
+  it("★ the two consequential steps say 'follows from step 2'; CONTROL: without the pointers nothing does", () => {
+    const { unmount } = paint(q4());
+    expect([...document.querySelectorAll(".lt-stann__follows")].map((e) => e.textContent)).toEqual(["follows from step 2", "follows from step 2"]);
+    unmount();
+    paint(q4(false));
+    expect(document.querySelectorAll(".lt-stann__follows")).toHaveLength(0);
   });
 });

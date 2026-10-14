@@ -176,3 +176,48 @@ describe("WorksheetGradedPrintDoc — backwards compatibility", () => {
     expect(screen.getByText("Graded against the marking scheme.")).toBeInTheDocument();
   });
 });
+
+/* GRADER-CONSEQUENTIAL-1 (D242) — the annotation arrow is an inline SVG, never the "↳" glyph (it printed
+ * as "Ⅰ," in the PDF capture), coloured by verdict, and a consequential step says what it follows from. */
+describe("WorksheetGradedPrintDoc — the annotation arrow and 'follows from step N'", () => {
+  const q4 = () => ({
+    qNumber: 1,
+    couldNotRead: false,
+    totalMarks: 5,
+    marksAwarded: 2.5,
+    annotatedSteps: [
+      step({ stepNumber: 1, status: "correct", marksAwarded: 2, marksDeducted: 0, mistakeType: null, teacherAnnotation: "Good start.", correctedWorking: null }),
+      step({ stepNumber: 2, status: "partial", marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: "conceptual", teacherAnnotation: "Wrong AP-sum formula." }),
+      step({ stepNumber: 3, status: "incorrect", marksAwarded: 0, marksDeducted: 1.5, mistakeType: null, teacherAnnotation: "Lost because of step 2.", consequentialOf: 2 }),
+      step({ stepNumber: 4, status: "incorrect", marksAwarded: 0, marksDeducted: 0.5, mistakeType: null, teacherAnnotation: "Lost because of step 2.", consequentialOf: 2 }),
+    ] as never,
+  });
+
+  it("★ one inline SVG arrow per annotation, coloured by verdict; no '↳' and no 'Ⅰ' in the document", () => {
+    paint(q4() as never, 5);
+    const text = document.body.textContent ?? "";
+    expect(text).not.toContain("↳");
+    expect(text).not.toContain("Ⅰ");
+    const arrows = document.querySelectorAll("svg.lt-stann__arrow");
+    expect(arrows).toHaveLength(4);
+    expect(document.querySelectorAll(".lt-stann--ok")).toHaveLength(1);
+    expect(document.querySelectorAll(".lt-stann--part")).toHaveLength(1);
+    expect(document.querySelectorAll(".lt-stann--bad")).toHaveLength(2);
+  });
+
+  it("★ a consequential step says 'follows from step 2'; the origin and the credited step do not", () => {
+    paint(q4() as never, 5);
+    const lines = [...document.querySelectorAll(".lt-stann")].map((el) => el.textContent ?? "");
+    expect(lines.filter((t) => t.includes("follows from step 2"))).toHaveLength(2);
+    expect(lines[0]).not.toContain("follows from");
+    expect(lines[1]).not.toContain("follows from");
+  });
+
+  it("CONTROL — with no consequentialOf, no line says 'follows from' (an old payload renders as before)", () => {
+    const plain = q4();
+    for (const s of plain.annotatedSteps as unknown as Array<Record<string, unknown>>) delete s.consequentialOf;
+    paint(plain as never, 5);
+    expect(document.body.textContent).not.toContain("follows from");
+    expect(document.querySelectorAll("svg.lt-stann__arrow")).toHaveLength(4);
+  });
+});

@@ -699,6 +699,10 @@ export interface CheckSolutionAnnotatedStep {
   part?: string | null;
   /** v2 · what this step could earn (0 on a withdrawn step). */
   marksAvailable?: number;
+  /** v2 · GRADER-CONSEQUENTIAL-1: the 1-based `stepNumber` of the earlier typed error this step's lost marks
+   *  follow from. Present only on a step that lost marks with no type of its own; the loss is counted under
+   *  that error's type in `marksLostByType`, and this step's own `mistakeType` stays null. */
+  consequentialOf?: number;
 }
 
 /** v2 (`acceptsV2: true`) · every lost mark of one question, in exactly one bucket; the six sum
