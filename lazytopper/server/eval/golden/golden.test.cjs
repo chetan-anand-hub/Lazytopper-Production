@@ -340,7 +340,7 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     const R = loadRun(runDir);
     const rb = R.rebaseline;
     const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
-    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class));
+    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class) || rb.entries[k].conseq);
     assert.ok(keys.length > 0, 'CONTROL: there are A17 entries to verify');
     const byKey = {};
     for (const run of Object.keys(R.runs)) for (const rec of R.runs[run]) byKey['run' + run + ':' + rec.jobKey] = rec;
@@ -348,6 +348,16 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     let sample = null;
     for (const k of keys) {
       const e = rb.entries[k];
+      if (!/(^|\+)a17-/.test(e.class)) {
+        // a g-conseq-1-ONLY entry (no A17 part): it replays to the pinned digest, undoing the delta lands on conseq.base, the rules hold
+        const rep0 = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
+        assert.strictEqual(digest(rep0.body), e.to, k + ': the replayed body is the pinned one');
+        const prior = undoDelta(rep0.body, e.conseq.delta);
+        assert.ok(prior && digest(prior) === e.conseq.base, k + ': undoing the g-conseq-1 delta must land exactly on conseq.base');
+        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').conseqViolations(e.conseq.delta, rep0.body), [], k + ' (g-conseq-1)');
+        checked += 1;
+        continue;
+      }
       assert.ok(e.a17 && Array.isArray(e.a17.delta) && e.a17.delta.length > 0, k + ': an A17 entry carries its base and delta');
       const classes = e.class.split('+').filter((c) => c.startsWith('a17-'));
       if (!e.class.split('+').some((c) => !c.startsWith('a17-'))) assert.strictEqual(e.a17.base, e.from, k + ': an A17-only entry starts from the stored body');
@@ -461,7 +471,7 @@ test('§11c ★ g-conseq-1 accepts exactly the consequential change and REFUSES 
   const { conseqViolations } = require('./lib/rebaselineClasses.cjs');
   const rb = JSON.parse(fs.readFileSync(path.join(GOLDEN, 'runs', floor.runId, 'rebaseline.json'), 'utf8'));
   const keys = Object.keys(rb.entries).filter((k) => rb.entries[k].conseq);
-  assert.ok(keys.length > 0, 'CONTROL: the owner paper (CI-M-POLY-03 Q4) is re-baselined under g-conseq-1');
+  assert.ok(keys.length > 0, 'CONTROL: the owner anomaly paper (V2.W.CIM.OA-01, Q4) is re-baselined under g-conseq-1');
   const delta = rb.entries[keys[0]].conseq.delta;
   const stepIdx = delta.findIndex(([p]) => p.includes('annotatedSteps'));
   const bucketIdx = delta.findIndex(([p]) => p.includes('marksLostByType'));

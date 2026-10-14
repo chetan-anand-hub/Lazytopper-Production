@@ -1307,7 +1307,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     // on the step (`_consequentialOrigin`, emitted as `consequentialOf` on the v2 shape). A step's own
     // `mistakeType` is NOT rewritten, so the mistake counts and Mistake Intelligence's per-step
     // entries (built from steps that carry a type) are exactly what they were: one per error.
-    const isTypedOrigin = (t, j) => Boolean(t.mistakeType) && t.marksDeducted > 0 && !zeroedBy.has(j) && !t._ecf
+    // 'presentation' is never an origin: a format slip cannot make LATER working wrong (CLAUDE.md 13: anything that changes
+    // whether the maths is right is not presentation) and A17 ruling B caps all presentation losses of one answer at 1.
+    const isTypedOrigin = (t, j) => Boolean(t.mistakeType) && t.mistakeType !== 'presentation' && t.marksDeducted > 0 && !zeroedBy.has(j) && !t._ecf
       && t.status !== 'unattempted' && t.status !== 'withdrawn';
     steps.forEach((s, i) => {
       if (zeroedBy.has(i) || s._ecf || s.mistakeType || !(s.marksDeducted > 0) || s.status === 'unattempted' || s.status === 'withdrawn') return;

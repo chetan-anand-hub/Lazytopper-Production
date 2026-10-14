@@ -1910,6 +1910,23 @@ test('§CONSEQ.7 the ledger always sums to the loss, and a remainder the model d
   assert.deepEqual(r.marksLostByType, BUCKETS({ conceptual: 1.5 }));
 });
 
+test('§CONSEQ.8 CONTROL: a PRESENTATION step is never an origin - later untyped losses are not filed as presentation (A17 ruling B cap, CLAUDE.md 13)', async () => {
+  const steps = [
+    S({ description: 'Format slip', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', studentWork: 'x = 5' }),
+    S({ description: 'Later loss', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, studentWork: 'y = 7' }),
+    S({ description: 'Another later loss', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, studentWork: 'z = 9' }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, steps))] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  assert.ok(r.annotatedSteps.every((x) => x.consequentialOf === undefined), 'nothing follows from a format slip');
+  assert.ok(r.marksLostByType.presentation <= 1, 'the exam-technique cap still holds: ' + JSON.stringify(r.marksLostByType));
+  assert.equal(lostSum(r.marksLostByType), r.totalMarks - r.marksAwarded);
+  // the same later losses DO follow a conceptual error
+  const typed = [{ ...steps[0], mistakeType: 'conceptual' }, steps[1], steps[2]];
+  const t2 = (await harness({ replies: [REPLY(R(1, typed))] }).single(single({ marks: 3, acceptsV2: true }))).body;
+  assert.deepEqual(t2.annotatedSteps.map((x) => x.consequentialOf), [undefined, 1, 1]);
+  assert.equal(t2.marksLostByType.untyped, 0);
+});
+
 /* ══ A17 OWNER RULINGS 1-5 ON EVERY GRADING SURFACE (GRADING-JOBS-1 J0) ══════════════
    The per-surface proofs live beside this file; loading them here runs them in CI under
    test:server:grading-core (package.json is outside the J0 lane). */
