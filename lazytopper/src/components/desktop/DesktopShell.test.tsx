@@ -68,8 +68,8 @@ function railEntries(): Array<[string, string | null]> {
   ]);
 }
 
-describe("DesktopShell rail — the five routed destinations (anti-regression)", () => {
-  it("renders the five existing items, in order, with their existing destinations", () => {
+describe("DesktopShell rail — the six routed destinations (anti-regression)", () => {
+  it("renders the six items, in order, with their existing destinations", () => {
     signIn();
     renderShell();
 
@@ -78,6 +78,7 @@ describe("DesktopShell rail — the five routed destinations (anti-regression)",
       ["Home", "/"],
       ["Exam Trends", "/exam-trends"],
       ["Practice", "/practice-hub"],
+      ["NCERT Books", "/ncert-class-10"],
       ["Check & Improve", "/check-improve"],
       ["Me / Progress", "/me"],
     ]);
@@ -88,13 +89,58 @@ describe("DesktopShell rail — the five routed destinations (anti-regression)",
 
     const routed = railEntries().filter(([, href]) => href !== null);
     expect(routed[0]).toEqual(["Home", "/browse"]);
-    // The other four are unaffected by auth state.
+    // The other five are unaffected by auth state.
     expect(routed.slice(1).map(([, href]) => href)).toEqual([
       "/exam-trends",
       "/practice-hub",
+      "/ncert-class-10",
       "/check-improve",
       "/me",
     ]);
+  });
+});
+
+describe("DesktopShell rail — the NCERT Books picker (NCERT-BOOKS-1b)", () => {
+  it("stays a real link to /ncert-class-10 (crawlable; new-tab works) and a plain click opens the picker", () => {
+    renderShell();
+    const link = screen.getByRole("link", { name: "NCERT Books" });
+    expect(link.getAttribute("href")).toBe("/ncert-class-10");
+    expect(screen.queryByTestId("ncert-picker")).toBeNull();
+
+    // A modified click is left alone (the browser opens the page in a new tab).
+    fireEvent.click(link, { ctrlKey: true });
+    expect(screen.queryByTestId("ncert-picker")).toBeNull();
+
+    fireEvent.click(link);
+    expect(screen.getByTestId("ncert-picker")).toBeTruthy();
+  });
+
+  it("Maths → chapter; Science → Chemistry / Biology / Physics → chapter", () => {
+    renderShell();
+    fireEvent.click(screen.getByRole("link", { name: "NCERT Books" }));
+    const chapterOptions = () =>
+      Array.from((screen.getByTestId("ncert-picker-chapter") as HTMLSelectElement).options).map((o) => o.text);
+
+    expect(screen.queryByTestId("ncert-picker-branch")).toBeNull();
+    expect(chapterOptions()).toHaveLength(14);
+    expect(chapterOptions()[8]).toBe("Ch 9 · Some Applications of Trigonometry");
+
+    fireEvent.change(screen.getByTestId("ncert-picker-subject"), { target: { value: "science" } });
+    const branch = screen.getByTestId("ncert-picker-branch") as HTMLSelectElement;
+    expect(Array.from(branch.options).map((o) => o.text)).toEqual(["Chemistry", "Biology", "Physics"]);
+    expect(chapterOptions()[0]).toBe("Ch 1 · Chemical Reactions and Equations");
+
+    fireEvent.change(branch, { target: { value: "physics" } });
+    expect(chapterOptions()).toEqual([
+      "Ch 9 · Light – Reflection and Refraction",
+      "Ch 10 · The Human Eye and the Colourful World",
+      "Ch 11 · Electricity",
+      "Ch 12 · Magnetic Effects of Electric Current",
+    ]);
+
+    // Go closes the picker (and navigates to the page with that chapter's reader).
+    fireEvent.click(screen.getByTestId("ncert-picker-open"));
+    expect(screen.queryByTestId("ncert-picker")).toBeNull();
   });
 });
 

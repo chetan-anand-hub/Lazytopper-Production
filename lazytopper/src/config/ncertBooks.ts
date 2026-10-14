@@ -77,8 +77,9 @@ export const NCERT_CLASS10_CHAPTERS: readonly NcertBookChapter[] = [
   m(6, "Triangles", "triangles"),
   m(7, "Coordinate Geometry", "coordinate-geometry"),
   m(8, "Introduction to Trigonometry", "trigonometry"),
-  // Not in Storage (ncert/maths/ch9.pdf → 404, 14 Oct 2026): the official copy only.
-  m(9, "Some Applications of Trigonometry", "trigonometry", false),
+  // In Storage since 14 Oct 2026 (NCERT-BOOKS-1b: ncert/maths/ch9.pdf → 206, page 1 reads "Some
+  // Applications of Trigonometry … 133 · 9.1 Heights and Distances", 11 pages).
+  m(9, "Some Applications of Trigonometry", "trigonometry"),
   m(10, "Circles", "circles"),
   m(11, "Areas Related to Circles", "areas-related-to-circles"),
   m(12, "Surface Areas and Volumes", "surface-areas-and-volumes"),
