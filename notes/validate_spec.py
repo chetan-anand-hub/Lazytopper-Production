@@ -352,9 +352,10 @@ def validate(spec, banned_phrases, topic_keys):
     def take_id(val, path):
         if val is None:
             return
-        if not isinstance(val, str) or not id_re.match(val):
+        if not isinstance(val, str) or not id_re.fullmatch(val):
             fail(11, path, f"id {val!r} must be lower-kebab (a-z, 0-9, single hyphens)")
-        elif val in reserved:
+            return
+        if val in reserved:
             fail(11, path, f"id {val!r} is a reserved section anchor")
         elif val in seen_ids:
             fail(11, path, f"id {val!r} duplicates {seen_ids[val]} (ids are unique per page)")
@@ -372,6 +373,9 @@ def validate(spec, banned_phrases, topic_keys):
 
     for i, item in enumerate(spec.get("formula_strip") or []):
         p = f"$.formula_strip[{i}]"
+        if not isinstance(item, dict):
+            fail(11, p, "formula_strip item must be an object")
+            continue
         take_id(item.get("id"), f"{p}.id")
         need_text(item, "heading", p)
         need_text(item, "tip", p)
@@ -382,19 +386,27 @@ def validate(spec, banned_phrases, topic_keys):
         shortcuts = []
     for i, s in enumerate(shortcuts or []):
         p = f"$.shortcuts[{i}]"
+        if not isinstance(s, dict):
+            fail(11, p, "shortcut must be an object")
+            continue
         need_text(s, "id", p, required=True)
         take_id(s.get("id"), f"{p}.id")
         need_text(s, "text", p, required=True)
         need_text(s, "heading", p)
         need_text(s, "gloss", p)
         need_text(s, "source", p, required=True)
-        if s.get("use") not in VALID_SHORTCUT_USES:
+        if not isinstance(s.get("use"), str) or s.get("use") not in VALID_SHORTCUT_USES:
             fail(11, f"{p}.use", f"use must be one of {sorted(VALID_SHORTCUT_USES)}, got {s.get('use')!r}")
 
     tt = spec.get("third_tab_content") or {}
-    diagram_refs = (tt.get("diagrams") or []) if tt.get("kind") == "diagrams" else []
+    diagram_refs = (tt.get("diagrams") or []) if isinstance(tt, dict) and tt.get("kind") == "diagrams" else []
+    if not isinstance(diagram_refs, list):
+        fail(11, "$.third_tab_content.diagrams", "diagrams must be a list of figure refs")
+        diagram_refs = []
     for ref in diagram_refs:
-        fig = figures.get(ref) or {}
+        fig = figures.get(ref) if isinstance(ref, str) else None
+        if not isinstance(fig, dict):
+            fig = {}
         if "id" in fig:
             take_id(fig.get("id"), f"$.figures.{ref}.id")
             need_text(fig, "heading", f"$.figures.{ref}", required=True)
