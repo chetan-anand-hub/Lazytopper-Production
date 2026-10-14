@@ -28,7 +28,7 @@ export const COORDINATE_GEOMETRY_PYQ: CanonicalQuestion[] = [
     // REWRITE-3 (A2): stem restored from the row's own key + Vedantu reproduction of CBSE 2023 set 30/2/1 Q23; official PDF not available to the controller. The vertex (–2, 3) lost its minus at extraction; steps rewritten from the row's own working (distance formula).
     questionText: "Show that the points (–2, 3), (8, 3) and (6, 7) are the vertices of a right-angled triangle.",
     answer: "Let A(–2, 3), B(8, 3), C(6, 7). AB = 10, BC = √20, AC = √80. AB² = 100 = 20 + 80 = BC² + AC², so the given points are the vertices of a right-angled triangle.",
-    solutionSteps: ["[1 mark] Let A(–2, 3), B(8, 3) and C(6, 7). AB = √[(8 + 2)² + (3 – 3)²] = 10, BC = √[(6 – 8)² + (7 – 3)²] = √20 and AC = √[(6 + 2)² + (7 – 3)²] = √80.", "[1 mark] AB² = 100 and BC² + AC² = 20 + 80 = 100, so AB² = BC² + AC². By the converse of Pythagoras' theorem the triangle is right-angled at C, so the given points are the vertices of a right-angled triangle."],
+    solutionSteps: ["[1 mark] Let A(–2, 3), B(8, 3) and C(6, 7). AB = √[(8 + 2)² + (3 – 3)²] = 10, BC = √[(6 – 8)² + (7 – 3)²] = √20 and AC = √[(6 + 2)² + (7 – 3)²] = √80.", "[1 mark] Since AB² = BC² + AC² (100 = 20 + 80), the angle at C is a right angle, so the points form a right-angled triangle."],
     finalAnswer: "AB² = BC² + AC² (100 = 20 + 80), so ABC is right-angled at C.",
     ncertRef: "PYQ 30/2/1 Q23", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
