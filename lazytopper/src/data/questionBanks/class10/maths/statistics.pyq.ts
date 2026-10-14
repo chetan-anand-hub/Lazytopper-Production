@@ -66,8 +66,9 @@ export const STATISTICS_PYQ: CanonicalQuestion[] = [
     pyqYear: "2023", pyqSet: "2" },
   { id: "PYQ-M-STAT-008", subject: "Maths", topicKey: "statistics", subtopic: "Median", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     // UNSOLVABLE-AS-PRINTED FIX: questionText listed 8 classes but only 7 frequencies; the 70-80 frequency 8 is restored from MS 041_30-2-1 Mathematics 2022-23, p.15. answer recovered from the same page (Median = 42).
-    questionText: "A student noted the number of cars passing through a spot on a road for 100 periods each of 3 minutes and summarised it in the table given below. Find the mean and median of the following data. Number of cars 0 10 10 20 20 30 30 40 40 50 50 60 60 70 70 80 Frequency (periods) 7 14 13 12 20 11 15 8",
-    answer: "Number of cars xi fi xifi c.f. 0 – 10 5 7 35 7; 10 – 20 15 14 210 21; 20 – 30 25 13 325 34; 30 – 40 35 12 420 46; 40 – 50 45 20 900 66; 50 – 60 55 11 605 77; 60 – 70 65 15 975 92; 70 – 80 75 8 600 100; Total 100 4070. Mean = Σxifi/Σfi = 4070/100 = 40·7. Median class : 40 – 50. Median = 40 + ((50 – 46)/20) × 10 = 42.",
+    // REWRITE-3 (A2): the table is written with its class-interval dashes; classes and frequencies (sum 100, mean 40.7) agree with the Vedantu reproduction of CBSE 2023 set 30/2/1 Q34, the bound figure and the row's own marking-scheme working. The comment above cites the original extraction source; for this rewrite the official PDF was not available to the controller.
+    questionText: "A student noted the number of cars passing through a spot on a road for 100 periods each of 3 minutes and summarised it in the table given below. Find the mean and median of the following data. Number of cars: 0 – 10, 10 – 20, 20 – 30, 30 – 40, 40 – 50, 50 – 60, 60 – 70, 70 – 80. Frequency (periods): 7, 14, 13, 12, 20, 11, 15, 8.",
+    answer: "Σfᵢ = 100, Σfᵢxᵢ = 4070; mean = 40.7; median = 42.",
     solutionSteps: [
       "[1 mark] Table — class marks xi: 5, 15, 25, 35, 45, 55, 65, 75; fi: 7, 14, 13, 12, 20, 11, 15, 8; fixi: 35, 210, 325, 420, 900, 605, 975, 600; cumulative frequency: 7, 21, 34, 46, 66, 77, 92, 100. Σfi = 100, Σfixi = 4070.",
       "[1 mark] Mean = Σfixi / Σfi = 4070/100 = 40.7 cars.",

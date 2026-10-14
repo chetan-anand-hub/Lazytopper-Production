@@ -84,7 +84,8 @@ const BANK_FIX_6_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-TRIG-011", "APQ
 // B (2026-10-10, BANK-UNWITHHOLD-1): 10 of the 11 are served again; APQ-M-ARC-001 stays withheld (its official stem is blank).
 const C3_D1_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-ARC-001"];
 // GARBLE-1 (D171, 14 Oct 2026): two statistics rows whose stem lost its class-interval dashes are withheld; their figure bindings are kept and declared.
-const GARBLE_1_BOUND_BUT_WITHHELD: readonly string[] = ["PYQ-M-STAT-008", "PYQ-M-2025-STAT-006"];
+// REWRITE-3 (A2): PYQ-M-STAT-008 is served again (table rewritten from the paper), so only PYQ-M-2025-STAT-006 stays declared.
+const GARBLE_1_BOUND_BUT_WITHHELD: readonly string[] = ["PYQ-M-2025-STAT-006"];
 
 // Census 2026-10-07 Appendix 3: bound figures BANK-FIX-1 PR-2 found WRONG. PR-1 must never bind any of them.
 const CENSUS_WRONG_IDS = [
