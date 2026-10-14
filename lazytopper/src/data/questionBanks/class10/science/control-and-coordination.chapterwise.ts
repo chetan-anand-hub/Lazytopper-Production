@@ -195,9 +195,9 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
   // CTRL-024 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc106, section 6.1.2 'Human Brain' (fore-brain areas for sight; medulla in the hind-brain controls salivation)
   { id: "SCQ-S-CTRL-024", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Give the scientific names of the following regions of the human brain: a. Region for sight. b. Region which controls salivation.",
-    answer: "a. The visual area of the fore-brain (cerebrum), i.e. the occipital lobe. b. The medulla of the hind-brain.",
-    solutionSteps: ["[1 mark] a. Region for sight: the area of the fore-brain (cerebrum) specialised for sight, the occipital lobe; it receives sensory impulses from the eyes.","[1 mark] b. Region which controls salivation: the medulla of the hind-brain, which controls involuntary actions such as blood pressure, salivation and vomiting."],
-    finalAnswer: "a. Fore-brain (occipital lobe, the visual area); b. Medulla (hind-brain).",
+    answer: "a. The visual area of the fore-brain (cerebrum) (the occipital lobe is also accepted). b. The medulla of the hind-brain.",
+    solutionSteps: ["[1 mark] a. Region for sight: the visual area of the fore-brain (cerebrum), which is specialised for sight (the occipital lobe is also accepted); it receives sensory impulses from the eyes.","[1 mark] b. Region which controls salivation: the medulla of the hind-brain, which controls involuntary actions such as blood pressure, salivation and vomiting."],
+    finalAnswer: "a. Fore-brain (cerebrum), visual area; b. Medulla (hind-brain).",
     ncertRef: "cbjesccq07 Q4", isCompetencyBased: false },
   // cbjesccq07 Q5 (Section A, 1mk)
   { id: "SCQ-S-CTRL-025", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
