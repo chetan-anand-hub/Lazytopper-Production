@@ -24,9 +24,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
   },
   { id: "HEY-E04", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The least distance of distinct vision for a normal human eye is:", options: ["15 cm", "25 cm", "50 cm", "Infinity"], answer: "25 cm", explanation: "The correct answer is 25 cm. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "25 cm" , isCompetencyBased: false,
     solutionSteps: [
-      "Identify the function of controlling the amount of light entering the eye.",
-      "Recall that the iris is a muscular diaphragm that regulates the size of the pupil.",
-      "The pupil is the opening through which light enters, and its size is controlled by the iris.",
+      "Correct answer: 25 cm. The near point of a normal eye, the minimum distance at which objects can be seen most distinctly without strain, is about 25 cm; this is called the least distance of distinct vision.",
     ],
   },
   { id: "HEY-E05", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Scattering", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The sky appears blue because of:", options: ["Reflection of light", "Refraction of light", "Scattering of light", "Dispersion of light"], answer: "Scattering of light", explanation: "The correct answer is Scattering of light. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Scattering of light" , isCompetencyBased: false,
@@ -38,23 +36,17 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
   },
   { id: "HEY-E06", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The image formed on the retina is real and inverted.\nReason (R): The eye lens is a convex lens.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Evaluate Assertion (A): The ciliary muscles are responsible for changing the focal length of the eye lens. This statement is true.",
-      "Evaluate Reason (R): The ciliary muscles contract or relax to change the curvature of the eye lens. This statement is also true.",
-      "Determine if R explains A: Changing the curvature of the eye lens directly alters its focal length. Thus, R is the correct explanation for A.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: the eye lens forms a real, inverted image of an object on the retina. R is true: the eye lens is a convex (converging) lens. A convex lens forms a real, inverted image of an object placed beyond its focus, so R explains A.",
     ],
   },
   { id: "HEY-E07", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Defects of Vision", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Hypermetropia (far-sightedness) is corrected using:", options: ["Concave lens", "Convex lens", "Plano-convex lens", "Cylindrical lens"], answer: "Convex lens", explanation: "The correct answer is Convex lens. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Convex lens" , isCompetencyBased: false,
     solutionSteps: [
-      "The inability to see distant objects clearly is a characteristic symptom of Myopia (nearsightedness).",
-      "Myopia occurs when light rays from distant objects converge in front of the retina.",
-      "A concave lens is used to correct myopia as it diverges the light rays before they enter the eye, ensuring the image forms correctly on the retina.",
+      "Correct answer: Convex lens. In hypermetropia the image of a nearby object is formed behind the retina; a convex (converging) lens of suitable power provides the extra converging power needed to bring the image onto the retina.",
     ],
   },
   { id: "HEY-E08", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Dispersion", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A rainbow is formed due to:", options: ["Reflection only", "Refraction only", "Dispersion, refraction and internal reflection", "Scattering only"], answer: "Dispersion, refraction and internal reflection", explanation: "The correct answer is Dispersion, refraction and internal reflection. Raindrops act like tiny prisms: sunlight is refracted and dispersed on entering a drop, reflected internally at the back of the drop, and refracted again as it comes out, giving the spectrum of colours we see as a rainbow.", finalAnswer: "Dispersion, refraction and internal reflection", isCompetencyBased: false,
     solutionSteps: [
-      "Dispersion is the phenomenon where white light splits into its constituent colours when passing through a prism.",
-      "The deviation of light depends on its wavelength and the refractive index of the medium.",
-      "Violet light has the shortest wavelength and highest refractive index, causing it to deviate the most. Red light has the longest wavelength and lowest refractive index, causing it to deviate the least.",
+      "Correct answer: Dispersion, refraction and internal reflection. Sunlight is refracted and dispersed on entering a raindrop, internally reflected at the back of the drop, and refracted again on leaving it, so the different colours reach the observer's eye at different angles and form a rainbow.",
     ],
   },
   { id: "HEY-E09", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is the function of the iris in the human eye?", solutionSteps: [
@@ -77,9 +69,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
   },
   { id: "HEY-E12", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The part of the eye that is sensitive to light is:", options: ["Cornea", "Iris", "Retina", "Pupil"], answer: "Retina", explanation: "The correct answer is Retina. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Retina" , isCompetencyBased: false,
     solutionSteps: [
-      "The question asks about the part of the human eye that regulates the amount of light entering.",
-      "The pupil is the opening through which light enters the eye.",
-      "The iris is a muscular diaphragm that controls the size of the pupil, thereby regulating the amount of light.",
+      "Correct answer: Retina. The retina is a delicate membrane with a large number of light-sensitive cells (rods and cones); they produce electrical signals when illuminated, which the optic nerves carry to the brain.",
     ],
   },
   { id: "HEY-E13", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Defects of Vision", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is presbyopia? How is it corrected?", solutionSteps: [
@@ -96,9 +86,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
   },
   { id: "HEY-E15", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The transparent front part of the eye is called:", options: ["Retina", "Cornea", "Iris", "Lens"], answer: "Cornea", explanation: "The correct answer is Cornea. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Cornea" , isCompetencyBased: false,
     solutionSteps: [
-      "The iris is the muscular diaphragm that controls the size of the pupil.",
-      "By adjusting the pupil's size, the iris regulates the amount of light entering the eye.",
-      "Therefore, the iris controls the amount of light.",
+      "Correct answer: Cornea. The cornea is the thin transparent membrane forming a bulge on the front surface of the eyeball; light enters the eye through it and most of the refraction occurs at its outer surface.",
     ],
   },
   { id: "HEY-M01", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Defects of Vision", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Explain myopia with the help of a ray diagram. How is it corrected?", solutionSteps: [
@@ -118,9 +106,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Tyndall: scattering by particles (dust/fog); Rayleigh: by molecules (sky colour)" , isCompetencyBased: false },
   { id: "HEY-M04", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Stars appear to twinkle at night.\nReason (R): The refractive index of the atmosphere changes continuously due to varying density layers.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A) is true: Ciliary muscles contract or relax to change the curvature and hence the focal length of the eye lens.",
-      "Reason (R) is true: The eye lens is a convex lens, and its ability to adjust focal length (accommodation) allows focusing on objects at various distances.",
-      "Reason (R) correctly explains Assertion (A) as the mechanism by which ciliary muscles enable the eye to focus on objects at different distances.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: stars appear to twinkle. R is true: the physical conditions of the atmosphere keep changing, so its refractive index changes continuously. Because of this, starlight undergoes continuously changing atmospheric refraction, so the apparent position and brightness of the star flicker, which is twinkling; R explains A.",
     ],
   },
   { id: "HEY-M05", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Defects of Vision", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Ravi's grandfather cannot read a newspaper without spectacles but can see distant objects clearly.\n(i) Name the defect of vision.\n(ii) What type of lens is used to correct this?\n(iii) What is the cause of this defect?\n(iv) If the near point has shifted to 50 cm, what should be the power of the corrective lens?", solutionSteps: [
@@ -136,9 +122,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Non-parallel surfaces cause increasing separation; slab's parallel surfaces recombine light" , isCompetencyBased: false },
   { id: "HEY-M07", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Scattering", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "If the Earth had no atmosphere, the sky would appear:", options: ["Blue", "White", "Black", "Red"], answer: "Black", explanation: "The correct answer is Black. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Black" , isCompetencyBased: false,
     solutionSteps: [
-      "The Earth's atmosphere contains tiny particles (molecules of air, dust).",
-      "These particles scatter shorter wavelengths of light (like blue and violet) more effectively than longer wavelengths (like red).",
-      "This phenomenon, known as Rayleigh scattering, causes blue light to be scattered in all directions, making the sky appear blue.",
+      "Correct answer: Black. The sky looks blue because air molecules scatter blue light; without an atmosphere there would be no scattering, so no scattered light would reach the eye and the sky would appear dark (black), as it does to astronauts at very high altitudes.",
     ],
   },
   { id: "HEY-M08", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "During sunset, the sun appears larger and reddish.\n(i) Why does the sun appear red?\n(ii) Does the sun actually change colour? Explain.\n(iii) Why does the sun appear slightly above the horizon when it is actually below?\n(iv) What phenomenon causes this apparent shift?", solutionSteps: [
@@ -162,9 +146,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Stars=point sources, twinkle; Planets=extended sources, averaging prevents twinkling" , isCompetencyBased: false },
   { id: "HEY-M12", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Scattering", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Danger signals are red in colour.\nReason (R): Red light has the longest wavelength and is scattered the least, so it can be seen from far away.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion: The sky appears blue during the day. This statement is true.",
-      "Reason: Blue light is scattered more strongly than red light by the atmosphere. This statement is also true.",
-      "According to Rayleigh scattering, shorter wavelengths (like blue) are scattered much more effectively than longer wavelengths (like red) by atmospheric particles. This explains why the sky appears blue. Thus, Reason correctly explains Assertion.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: danger signal lights are red. R is true: red light has the longest wavelength in the visible spectrum and is scattered the least by fog or smoke, so it travels farthest and can be seen from a distance; this is why red is chosen, so R explains A.",
     ],
   },
   { id: "HEY-M13", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Defects of Vision", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "What is astigmatism? How is it corrected?", solutionSteps: [
@@ -181,9 +163,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
   },
   { id: "HEY-M15", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "The phenomenon of persistence of vision is used in:", options: ["Microscopes", "Cameras", "Cinema/movies", "Telescopes"], answer: "Cinema/movies", explanation: "The correct answer is Cinema/movies. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Cinema/movies" , isCompetencyBased: false,
     solutionSteps: [
-      "The amount of light entering the eye is controlled by the size of the pupil.",
-      "The iris is the muscular diaphragm that regulates and controls the size of the pupil.",
-      "Therefore, the iris controls the amount of light entering the eye.",
+      "Correct answer: Cinema/movies. The impression of an image stays on the retina for about 1/16th of a second after the object is removed; in cinema, still pictures are shown in quick succession (about 24 per second), so the eye merges them and sees continuous motion.",
     ],
   },
   { id: "HEY-H01", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Human Eye", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Draw a neat labelled diagram of the human eye. Explain the function of: (i) Cornea (ii) Iris (iii) Eye lens (iv) Retina (v) Optic nerve.", solutionSteps: [
@@ -246,9 +226,7 @@ export const HUMAN_EYE_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "Ciliary muscles change lens thickness/focal length; relaxed=thin (far), contracted=thick (near)" , isCompetencyBased: true },
   { id: "HEY-AR05", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Dispersion", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A rainbow is formed due to dispersion of light by water droplets.\nReason (R): White light splits into its component colours when it passes through a prism or water droplets due to different speeds of different wavelengths.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): White light splitting into its constituent colours when passing through a prism is known as dispersion, which is a true phenomenon.",
-      "Reason (R): Different colours (wavelengths) of light have different speeds in a medium like glass, leading to different refractive indices and thus different angles of deviation. This statement is true.",
-      "Reason (R) correctly explains why white light splits (disperses) into its constituent colours when passing through a prism, as the varying deviations cause the separation.",
+      "Correct answer: Both A and R are true, and R is the correct explanation of A. A is true: a rainbow is formed by dispersion of sunlight by tiny water droplets in the atmosphere. R is true: different colours (wavelengths) of white light travel at different speeds in a medium, so they bend through different angles and white light splits into its colours. This splitting is the dispersion that produces a rainbow, so R explains A.",
     ],
   },
   { id: "HEY-D04", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Defects of Vision", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain myopia and hypermetropia. What causes each? How are they corrected? Include ray diagrams description.", solutionSteps: [

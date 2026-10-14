@@ -81,7 +81,13 @@ export function prefetchKatexWhenIdle(): void {
   else window.setTimeout(prefetch, 3000);
 }
 
-const MATH_CUE = /\\|sqrt|frac|[A-Za-z0-9][\^_]\d/;
+// MATH-RENDER-1: the last two alternatives cover the shorthand promoteExtendedShorthand turns into KaTeX
+// (x^(n-1), x^{2}, 10^-8, a_n, a_{12}). The cue must stay a superset of every rule that emits \(..\):
+// a promoted span reaching renderKatexToHtml before KaTeX has loaded would print its LaTeX source. The final
+// four alternatives are the glyph-only rules (>=, theta, pi, 2*pi): they need no KaTeX, but the whole-bank
+// proof in MathText.katexOnDemand.test.tsx (d) requires that text the cue rejects is returned unchanged.
+const MATH_CUE =
+  /\\|sqrt|frac|[A-Za-z0-9][\^_]\d|[A-Za-z0-9]\^[({-]|[A-Za-z]_[a-z{]|>=|<=|!=|=>|theta|(?<![A-Za-z\\])pi(?![A-Za-z])|[A-Za-z0-9)\]πθ²³°] ?\* ?[A-Za-z0-9(\[πθ]/;
 
 /** Whether `text` can produce any maths at all (a superset of every path into KaTeX). */
 export function textNeedsKatex(text: string): boolean {
@@ -289,6 +295,131 @@ function scanProtectedSpans(text: string): ProtectedSpan[] {
   return spans;
 }
 
+/** Index just past the `)` closing the balanced group opened at `open`, or -1. */
+function consumeBalancedParens(text: string, open: number): number {
+  if (text[open] !== "(") return -1;
+  let depth = 0;
+  for (let i = open; i < text.length; i++) {
+    if (text[i] === "(") depth++;
+    else if (text[i] === ")") {
+      depth--;
+      if (depth === 0) return i + 1;
+    }
+  }
+  return -1;
+}
+
+/** Apply `fn` to the text OUTSIDE every \(..\) span, so a rule can never match inside what an earlier rule minted. */
+function outsideSpans(text: string, fn: (part: string) => string): string {
+  return text
+    .split(/(\\\(.*?\\\))/s)
+    .map((part, k) => (k % 2 === 1 ? part : fn(part)))
+    .join("");
+}
+
+/** x^(..), x^{..}, x^-n and single-letter subscripts. Each rule runs outside the spans the previous rules made. */
+function promotePowersAndSubscripts(text: string): string {
+  // The base is one alphanumeric token (a unit like cm keeps its letters).
+  // A promoted span must PROVE it renders (KaTeX throwOnError) or the original text is left exactly as written.
+  const wrapPower = (base: string, exp: string, orig: string) => {
+    const latex = `${base}^{${exp}}`;
+    return katexCanRender(latex) ? `\\(${latex}\\)` : orig;
+  };
+  const wrapSub = (base: string, sub: string, orig: string) => {
+    const latex = `${base}_{${sub}}`;
+    return katexCanRender(latex) ? `\\(${latex}\\)` : orig;
+  };
+  let result = outsideSpans(text, (p) =>
+    p.replace(/(?<![A-Za-z0-9_])([A-Za-z]+|\d+)\^-(\d+)(?!\d)/g, (m, b: string, e: string) => wrapPower(b, `-${e}`, m)),
+  );
+  result = outsideSpans(result, (p) =>
+    p.replace(/(?<!_)([A-Za-z0-9])\^\{([^{}]+)\}/g, (m, b: string, e: string) => wrapPower(b, e, m)),
+  );
+  result = outsideSpans(result, (p) => {
+    let rebuilt = "";
+    let pos = 0;
+    const re = /(?<!_)([A-Za-z0-9])\^\(/g;
+    for (let m = re.exec(p); m; m = re.exec(p)) {
+      const open = m.index + m[0].length - 1;
+      const close = consumeBalancedParens(p, open);
+      if (close === -1) continue;
+      rebuilt += p.slice(pos, m.index) + wrapPower(m[1], p.slice(open + 1, close - 1), p.slice(m.index, close));
+      pos = close;
+      re.lastIndex = close;
+    }
+    return rebuilt + p.slice(pos);
+  });
+  // a_n, a_{12}: never snake_case (R_total stays as written).
+  result = outsideSpans(result, (p) =>
+    p.replace(/([A-Za-z])_\{([^{}]+)\}/g, (m, b: string, sub: string) => wrapSub(b, sub, m)),
+  );
+  result = outsideSpans(result, (p) =>
+    p.replace(/(?<![A-Za-z_])([A-Za-z])_([a-z])(?![A-Za-z_])/g, (m, b: string, sub: string) => wrapSub(b, sub, m)),
+  );
+  return result;
+}
+
+/**
+ * MATH-RENDER-1: shorthand the bank and the tutor write that the original rules do not reach
+ * (sqrt(..), x^(n-1), x^{2}, 10^-8, a_n, >=, theta, pi, 2*pi*r). Display only. Every rule needs a
+ * marker that ordinary prose does not carry and runs on GAP text only (never inside \(..\) or a
+ * LaTeX command), so text without these markers comes back byte-identical. `$..$` is deliberately
+ * NOT promoted: the stored `$` rows are a PDF-extraction defect (an arrow became `$`).
+ */
+function promoteExtendedShorthand(text: string): string {
+  let result = text;
+
+  // Comparison / implication stand-ins -> the glyph (plain text, no KaTeX).
+  result = result.replace(/>=/g, "≥");
+  result = result.replace(/<=(?!>)/g, "≤");
+  result = result.replace(/!=/g, "≠");
+  result = result.replace(/(?<![<>=!≤≥])=>/g, "⇒");
+
+  // theta / pi as bare words; pi needs a maths neighbour so prose is untouched.
+  result = result.replace(/(?<![A-Za-z\\])theta(?![A-Za-z])/g, "θ");
+  result = result.replace(/(?<![A-Za-z\\])pi(?![A-Za-z])/g, (m: string, offset: number, whole: string) => {
+    const before = whole.slice(0, offset).trimEnd().slice(-1);
+    const after = whole.slice(offset + m.length).trimStart().charAt(0);
+    const mathBefore = before !== "" && /[0-9*=/(+\-×^]/.test(before);
+    const mathAfter = after !== "" && /[0-9*=/)^×]/.test(after);
+    return mathBefore || mathAfter ? "π" : m;
+  });
+
+  // `*` between two operands is a times sign (never `**`, never a footnote star).
+  // Operand = a number, a closing bracket, π/θ, or ONE letter (so `Note* this` and `my*file` stay as written).
+  result = result.replace(
+    /(?<=(?:(?<![A-Za-z])[A-Za-z]|[0-9)\]πθ²³°]))(?<!\*)\*(?!\*)(?=(?:[0-9(\[πθ]|[A-Za-z](?![A-Za-z])))|(?<=(?:(?<![A-Za-z])[A-Za-z]|[0-9)\]πθ²³°])) \* (?=(?:[0-9(\[πθ]|[A-Za-z](?![A-Za-z])))/g,
+    (m: string) => (m === "*" ? "×" : " × "),
+  );
+
+  // sqrt(..) with balanced brackets -> KaTeX. Unbalanced input is left alone.
+  let out = "";
+  let i = 0;
+  for (;;) {
+    const at = result.indexOf("sqrt(", i);
+    if (at === -1) break;
+    const close = at > 0 && /[A-Za-z\\]/.test(result[at - 1]) ? -1 : consumeBalancedParens(result, at + 4);
+    if (close === -1) {
+      out += result.slice(i, at + 5);
+      i = at + 5;
+      continue;
+    }
+    const inner = result.slice(at + 5, close - 1).replace(/\^\(([^()]*)\)/g, "^{$1}");
+    out += result.slice(i, at) + (katexCanRender(`\\sqrt{${inner}}`) ? `\\(\\sqrt{${inner}}\\)` : result.slice(at, close));
+    i = close;
+  }
+  result = out + result.slice(i);
+
+  // The sqrt step just minted \(..\) spans; the rules below run OUTSIDE them only (no nesting), and a
+  // power written x^(n+1) inside a sqrt becomes valid LaTeX x^{n+1}.
+  result = result.replace(/\\\(\\sqrt\{(.*?)\}\\\)/gs, (_m: string, inner: string) =>
+    `\\(\\sqrt{${inner.replace(/\^\(([^()]*)\)/g, "^{$1}")}}\\)`,
+  );
+  result = promotePowersAndSubscripts(result);
+
+  return result;
+}
+
 /**
  * Promote readable shorthand. Applied ONLY to gap text -- the substrings outside
  * every protected span -- so it can never see a command name or a delimiter.
@@ -296,13 +427,14 @@ function scanProtectedSpans(text: string): ProtectedSpan[] {
  * which is what keeps `AB^2`, `CO_2`, `cm^2` and friends byte-identical.
  */
 function promoteShorthandInGap(text: string): string {
-  let result = text;
+  let result = promoteExtendedShorthand(text);
 
-  result = result.replace(/(?<![\\a-zA-Z])sqrt(\d+)/g, (_m, num) => `\\(\\sqrt{${num}}\\)`);
-  result = result.replace(/(?<![\\a-zA-Z])sqrt\{([^}]+)\}/g, (_m, inner) => `\\(\\sqrt{${inner}}\\)`);
+  // MATH-RENDER-1: these four run outside any span the extended rules just minted (no \(..\) inside \(..\)).
+  result = outsideSpans(result, (p) => p.replace(/(?<![\\a-zA-Z])sqrt(\d+)/g, (_m, num) => `\\(\\sqrt{${num}}\\)`));
+  result = outsideSpans(result, (p) => p.replace(/(?<![\\a-zA-Z])sqrt\{([^}]+)\}/g, (_m, inner) => `\\(\\sqrt{${inner}}\\)`));
 
-  result = result.replace(/(?<![\\a-zA-Z])frac(\d+)\/(\d+)/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`);
-  result = result.replace(/(?<![\\a-zA-Z])frac\{([^}]+)\}\{([^}]+)\}/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`);
+  result = outsideSpans(result, (p) => p.replace(/(?<![\\a-zA-Z])frac(\d+)\/(\d+)/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`));
+  result = outsideSpans(result, (p) => p.replace(/(?<![\\a-zA-Z])frac\{([^}]+)\}\{([^}]+)\}/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`));
 
   // The sqrt/frac rules above just emitted \(...\); the ^/_ rules below must not
   // fire inside what they created. A gap holds no pre-existing delimiters, so
@@ -535,7 +667,10 @@ function parseTextToSegments(text: string): Segment[] {
   return segments;
 }
 
-export function MathText({ text, style, className }: MathTextProps) {
+export function MathText({ text: rawText, style, className }: MathTextProps) {
+  // MATH-RENDER-1b: a stored or model-produced value that is not a string (a number, an array) must render as
+  // text, never throw inside the string rules and white-screen a result page. Typed `string`; guarded anyway.
+  const text = typeof rawText === "string" ? rawText : rawText == null ? "" : String(rawText);
   // LOW-END-1 (L6): wait for KaTeX only when this text can contain maths.
   const needsKatex = !!text && textNeedsKatex(text);
   const ready = !needsKatex || katex !== null;
