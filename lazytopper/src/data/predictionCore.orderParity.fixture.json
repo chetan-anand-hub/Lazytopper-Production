@@ -20,8 +20,8 @@
    ]
   },
   "pair-of-linear-equations": {
-   "n": 438,
-   "sha256": "bbb84d605173010cd0c1ef43f60db6a92c4a337736b6efd877fac4b595f7a93b",
+   "n": 439,
+   "sha256": "a472196b4c5007c1d81f2ce594627f10759a8ab97e357d2dbef7e03505d7e6c8",
    "head": [
     "BX-PLE-E-022",
     "BX-PLE-E-023",
@@ -256,8 +256,8 @@
    ]
   },
   "pair-of-linear-equations": {
-   "n": 67,
-   "sha256": "9aefdb54077520275b0fa5ef211ca86a91c7e1b6b17f77c1f8b2d80d96ef3fb8",
+   "n": 68,
+   "sha256": "aeafd2195d8d685fa162e56ecf0107f8117763cce44fb62a8d00b8a8255992f5",
    "head": [
     "Algebraic Methods — Substitution\tCBE-M-PLE-B-003",
     "Algebraic Solution\tBX-PLE-EX-A-013,BX-PLE-EX-A-011,BX-PLE-EX-C-018,2026-PLE-MCQ-01,2026-PLE-MCQ-08,PLE-M15,2026-PLE-SA-03,2026-PLE-SA-10,PLE-M13,PLE-E20,PLE-M01,PLE-M09,PLE-M18,PLE-H03,PLE-H12,PLE-M07,PLE-E05,PLE-E08,PLE-E12,PLE-E18,PLE-E03,PLE-E06,PLE-E10",

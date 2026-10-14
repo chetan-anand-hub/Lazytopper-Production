@@ -2038,6 +2038,7 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
   "polynomials": {
   },
   "pair-of-linear-equations": {
+    "Pair of Linear Equations in Two Variables": { reason: "generic", note: "generic: chapter-name / format label, carries no concept - re-tag per row (curatedInline 2026-PLE-SA-02, served again by SCI-BACKLOG-1 batch 4)" },
   },
   "quadratic-equations": {
     "Assertion-Reasoning": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },

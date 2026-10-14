@@ -187,22 +187,16 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "The sum of two numbers is 50. Three times the larger number exceeds the smaller number by 30. Form a pair of linear equations in two variables and find the numbers using the elimination method.",
+    "questionText": "The sum of two numbers is 50. Three times the smaller number exceeds the larger number by 30. Form a pair of linear equations in two variables and find the numbers using the elimination method.",
     "options": [],
-    "answer": "",
+    "answer": "The numbers are 30 and 20.",
     "explanation": "",
     "solutionSteps": [
-      "Let the larger number be x and the smaller number be y.",
-      "From 'sum is 70', write the first equation: x + y = 70.",
-      "From 'three times the smaller exceeds the larger by 10', write: 3y = x + 10.",
-      "Rearrange the second equation as: 3y − x = 10.",
-      "To use elimination, rewrite the first equation as x + y = 70 and second as −x + 3y = 10.",
-      "Add the two equations: (x − x) + (y + 3y) = 70 + 10 ⇒ 4y = 80.",
-      "Solve for y: y = 80 ÷ 4 = 20.",
-      "Substitute y = 20 in x + y = 70 ⇒ x + 20 = 70 ⇒ x = 50.",
-      "So the larger number is 50 and the smaller number is 20."
+      "[1 mark] Let the larger number be x and the smaller number y. The sum is 50, so x + y = 50. Three times the smaller exceeds the larger by 30, so 3y − x = 30, i.e. −x + 3y = 30.",
+      "[1 mark] Eliminate x by adding the two equations: (x + y) + (−x + 3y) = 50 + 30, so 4y = 80.",
+      "[1 mark] y = 20, so x = 50 − 20 = 30. Check: 20 + 30 = 50 and 3 × 20 − 30 = 30. The numbers are 30 and 20."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "The numbers are 30 and 20.",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
