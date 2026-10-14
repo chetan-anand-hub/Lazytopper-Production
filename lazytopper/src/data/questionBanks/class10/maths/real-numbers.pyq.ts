@@ -28,7 +28,7 @@ export const REAL_NUMBERS_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-RN-003", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrationality Proof", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that 2 + √3 is an irrational number, given that √3 is an irrational number.",
     answer: "Let us assume that 2 + 3 is rational Let 2 + 3 = q p ; q ≠ 0 and p, q are integers ⇒ 3 = q q 2 – p p and q are integers, ∴ p – 2q is an integer ⇒ q q 2 – p is a rational number ⇒ 3 is a rational number which contradicts our assumption that 3 is an irrational number. ⇒ 2 + 3 is an irrational number",
-    solutionSteps: ["Let us assume that 2 + 3 is rational Let 2 + 3 = q p ; q ≠ 0 and p, q are integers ⇒ 3 = q q 2 – p p and q are integers, ∴ p – 2q is an integer ⇒ q q 2 – p is a rational number ⇒ 3 is a rational number which contradicts our assumption that 3 is an irrational number. ⇒ 2 + 3 is an irrational number"],
+    solutionSteps: ["[1 mark] Assume, to the contrary, that 2 + √3 is rational. Then 2 + √3 = p/q, where p and q are integers and q ≠ 0, so √3 = p/q − 2 = (p − 2q)/q.", "[1 mark] p − 2q and q are integers, so (p − 2q)/q is a rational number, which makes √3 rational. This contradicts the given fact that √3 is irrational, so 2 + √3 is irrational."],
     finalAnswer: "Let us assume that 2 + 3 is rational Let 2 + 3 = q p ; q ≠ 0 and p, q are integers ⇒ 3 = q q 2 – p p and q are integers, ∴ p – 2q is an integer ⇒ q q 2 – p is a rational number ⇒ 3 is a rational number which contradicts our assumption that 3 is an irrational number. ⇒ 2 + 3 is an irrational number",
     ncertRef: "PYQ 30/2/1 Q21", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
