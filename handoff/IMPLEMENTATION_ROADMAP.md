@@ -1,5 +1,12 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-14 — NCERT-BOOKS-1 (`#1171`) · NCERT-BOOKS-1b (`#1182`) · NCERT-ENTRY-1 (`#1184`) — ✅ MERGED (lane G; owner checks owed)
+
+- ✅ `/ncert-class-10`: the 27 NCERT Class 10 chapters (2026-27), each read on LazyTopper, with notes, formulae, practice and Check my answer. ⏳ owner Android check.
+- ✅ Desktop: an "NCERT Books" rail item with a subject → chapter picker. Mobile: entry from Exam Trends and every notes page. ⏳ owner tap check.
+- ⏳ SOLUTIONS-1 (Triangles NCERT + Exemplar solutions, D259–D261): built, branch only; PR after this docs PR.
+- ⏳ The five D258 follow-ups (one small G PR later).
+
 ## 2026-10-14 — UPLOAD-SHRINK-1 (`#1126`) · PYTHAGORAS-HUB-1/-2 (`#1174` `#1178`) — ✅ MERGED (owner live-verify owed for `#1126`)
 
 - ✅ A scanned PDF over the 7 MiB ceiling is shrunk on the device instead of refused; anything at or under it is untouched (owner rule: never degrade grading quality). ⏳ owner live-verify on 2 surfaces.
