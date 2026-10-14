@@ -337,7 +337,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                               ))}
                             </div>
                           )}
-                          {r.teacherNote && <span className="lt-gp__fb">{r.teacherNote}</span>}
+                          {r.teacherNote && <span className="lt-gp__fb"><MathText text={r.teacherNote} /></span>}
                           {/* ★ RENDERING 2 ends here deliberately: NO step block and NO
                               placeholder. A bare correct click was never asked for working,
                               so implying it was missing would be dishonest. */}
@@ -381,13 +381,13 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                               </div>
                             );
                           })}
-                          {r.teacherNote && <span className="lt-gp__fb">{r.teacherNote}</span>}
+                          {r.teacherNote && <span className="lt-gp__fb"><MathText text={r.teacherNote} /></span>}
                         </div>
                       ) : (
                         /* A written-response question with NO stored step annotation (older
                            attempts, or a grader that returned none). Unchanged behaviour —
                            the teacher note, exactly as before this lane. */
-                        <span className="lt-gp__fb">{r.teacherNote || "Graded against the marking scheme."}</span>
+                        <span className="lt-gp__fb"><MathText text={r.teacherNote || "Graded against the marking scheme."} /></span>
                       )}
                       <WithdrawnWorkBlock steps={withdrawn} />
                       <RubricBlock rubric={r.rubric} />

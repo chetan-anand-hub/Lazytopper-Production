@@ -351,7 +351,7 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
           </span>
         )}
       </div>
-      {answer.verdict && <p className="lt-sc__ga-verdict">{answer.verdict}</p>}
+      {answer.verdict && <p className="lt-sc__ga-verdict"><MathText text={answer.verdict} /></p>}
       {answer.ungraded && (
         <div className="lt-sc__ga-ungraded">
           <b>{answer.ungraded.title}</b> {answer.ungraded.detail}
@@ -361,7 +361,7 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
         <div className="lt-sc__ga-lost">
           {answer.lostLabel && <b>{answer.lostLabel}</b>}
           {answer.lostLabel ? " " : ""}
-          {answer.lostDetail}
+          <MathText text={answer.lostDetail} />
         </div>
       )}
       <GradedStepBlock answer={answer} />
