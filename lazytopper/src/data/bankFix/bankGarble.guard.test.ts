@@ -12,7 +12,7 @@
  * Nothing is allowlisted silently: a legitimate match goes in GARBLE_REVIEWED_EXCEPTIONS with a reason.
  *
  * Controls (a guard that cannot fail is not a guard): the same detector MUST fire on rows that were garbled and are withheld,
- * and the mutation "re-serve PYQ-M-2024-TRIG-014" is RED.
+ * and the mutation "re-serve PYQ-M-2024-TRIG-013" is RED (it was TRIG-014 until REWRITE-4 repaired that row).
  *
  * Single-step ratchet (D159): a served row worth >= 3 marks with ONE solution step has no step marking on the structured
  * grading path. Those rows are ledgered `found / SINGLE-STEP` (BANK_STEPS_1); the count may only fall, and no NEW one may appear.
@@ -71,7 +71,7 @@ describe("GARBLE-1 · no served row matches a garble pattern", () => {
 
 describe("GARBLE-1 · controls (each pattern can fail)", () => {
   // Rows that were garbled and are WITHHELD: the detector must fire on every one of them, or it is a decoration.
-  const KNOWN_GARBLED = ["PYQ-M-2024-TRIG-014","PYQ-M-2024-TRIG-013", "PYQ-M-2024-TRIG-019"];
+  const KNOWN_GARBLED = ["PYQ-M-2024-TRIG-013", "PYQ-M-2024-TRIG-019"];
   it.each(KNOWN_GARBLED)("%s is withheld and the detector fires on it", (id) => {
     expect(WITHHELD_QUESTION_IDS.has(id)).toBe(true);
     const q = byId.get(id);
@@ -89,10 +89,10 @@ describe("GARBLE-1 · controls (each pattern can fail)", () => {
     };
     for (const [name] of PATTERNS) expect(garbleHits({ id: "x", questionText: sample[name] })).toContain(name);
   });
-  it("mutation: re-serving PYQ-M-2024-TRIG-014 would be RED", () => {
-    const q = byId.get("PYQ-M-2024-TRIG-014") as Row;
+  it("mutation: re-serving PYQ-M-2024-TRIG-013 would be RED", () => {
+    const q = byId.get("PYQ-M-2024-TRIG-013") as Row;
     const mutated = [...served, q].filter((r) => !excepted.has(r.id)).map((r) => ({ id: r.id, hits: garbleHits(r) })).filter((x) => x.hits.length);
-    expect(mutated.map((x) => x.id)).toEqual(["PYQ-M-2024-TRIG-014"]);
+    expect(mutated.map((x) => x.id)).toEqual(["PYQ-M-2024-TRIG-013"]);
   });
   it("legitimate maths does not trip the detector (no false positive on a clean stem)", () => {
     expect(garbleHits({ id: "x", questionText: "If sin (A − B) = 1/2 and cos (A + B) = 1/2, find ∠A and ∠B. Assertion (A): ... Reason (R): ..." })).toEqual([]);

@@ -327,7 +327,7 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
     (STEPS1_PAUSED_BY_CHAPTER[chapter] ??= []).push(e.id);
   }
   const LATER_WITHHOLDS_BASE: Record<string, readonly string[]> = {
-    "trigonometry": ["APQ-M-TRIG-011", "APQ-M-TRIG-016", "PYQ-M-2024-TRIG-014"],
+    "trigonometry": ["APQ-M-TRIG-011", "APQ-M-TRIG-016"],
     "quadratic-equations": ["LTG-M-QE-284"],
     "control-and-coordination": ["SCQ-S-CTRL-029", "SCQ-S-CTRL-037", "SCO-S-CTRL-011", "SCQ-S-CTRL-042"],
     "light-reflection-and-refraction": ["SCO-S-LIGHT-005"],
@@ -344,7 +344,7 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
     "statistics": ["PYQ-M-STAT-009", "PYQ-M-2025-STAT-003", "PYQ-M-2025-STAT-006"],
     "triangles": ["PYQ-M-2026-TRI-003", "PYQ-M-2026-TRI-005"],
     "trigonometry": ["PYQ-M-TRIG-010", "PYQ-M-2025-TRIG-005"],
-    "quadratic-equations": ["PYQ-M-QE-004", "PYQ-M-QE-008", "PYQ-M-2024-QE-001", "PYQ-M-2024-QE-005a", "PYQ-M-2026-QE-001"],
+    "quadratic-equations": ["PYQ-M-QE-004", "PYQ-M-QE-008", "PYQ-M-2026-QE-001"],
     "polynomials": ["PYQ-M-2025-POLY-002"],
     "acids-bases-and-salts": ["PYQ-S-2025-ACID-010", "PYQ-S-2026-ACID-019"],
     "carbon-and-its-compounds": ["PYQ-S-2024-CARB-002", "PYQ-S-2025-CARB-001"],
