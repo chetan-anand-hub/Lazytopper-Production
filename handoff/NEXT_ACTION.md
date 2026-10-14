@@ -1,3 +1,13 @@
+## ★ 2026-10-14 — AFTER NOTES-FORMULA-1/2 + SAVE-SYNC-1 (`#1148` `#1151` `#1154`) (written by C2 under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner (later):** (1) **SAVE-SYNC-1 round-trip, two surfaces minimum (§4a):** DevTools Offline → grade a short Chapter Test → wait 12 s → "Saved on this device. We'll add it to your account automatically next time you're online." → go Online → "Saved to your account ✓" → the result is in history on a second device; then offline grade, CLOSE the tab, reopen online → the result reaches the account; then one normal Check & Improve save ("Saving…" then "Saved ✓"). (2) A phone glance at `/notes/life-processes` and `/notes/acids-bases-and-salts`: the Formulae card in both tabs, chemistry with subscripts and state symbols, nothing cut off at 360–390 px.
+- **Next saving work (D206, priority):** `[FU-SAVE-SYNC-QUOTA]`: cap the outbox (count/size) and show the device-only line when the outbox write itself fails (today: a `console.warn`, and a closed tab loses that result).
+- **PERF-3a (D193, approved in outline):** step 0 baseline with Lighthouse 12.2.1 mobile (simulated throttling), 3 notes pages × 5 runs, median, target notes TBT < 600 ms; step 1 re-derive the React #418 mismatch; step 2 interactivity audit of `Note.tsx` panels; step 3 option A first (inactive panels mounted after first paint, `Note.tsx` only), B/C only if A misses. Hard gates: prerendered HTML byte-identical, CLS ≤ today's on the 3 pages at 390 and 1366, print shows all panels, every tab and deep link works, `sessionRecords.ts` zero diff. Not started.
+- **NOTES-FORMULA-3 (D200/D201/D204/D208):** the cards are an SEO surface: a completeness scout per chapter, per-formula tips, a "Shortcuts & Tricks" and "Memory Tricks" card, the tab becomes "Formulae & Tricks"; Indianised memory tricks first (D205). It starts from the fixed cards. The plain-chemistry fields outside the strips (examples `equation`s such as `CH4 + 2O2 -> CO2 + 2H2O + heat and light`, mindmap, third tab): acids 57, metals 51, chem-rx 46, carbon 35, heredity 35, env 5, life 2.
+- **Do not make a new KaTeX formula wide:** KaTeX cannot wrap inside `\text{}`; a long all-words equation overflows a 258 px card. Keep `\text{}` runs ≤ 30 chars or write the item as plain text with `&rarr;` (the guard enforces it on Science cards).
+
 ## ★ 2026-10-14 — AFTER PERF-1 PR-3 / PERF-2 (`#1139` `#1140` `#1141`) (written by C2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
