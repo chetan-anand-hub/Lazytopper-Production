@@ -108,3 +108,12 @@ describe("buildTutorPath carries the hop as ids only", () => {
     );
   });
 });
+
+describe("positional hop id (Check & Improve: no bank identity)", () => {
+  const ci = { ...record, id: "CI-M-1", questionIds: [], dedupKey: "u1::CI-M-1" } as unknown as SessionRecord;
+  it("qn:<n> finds that stored result; a number with no stored result is null", () => {
+    expect(findScorecardQuestion(ci, payload, "qn:3")).toEqual({ qNumber: 3, result: written });
+    expect(findScorecardQuestion(ci, payload, "qn:9")).toBeNull();
+    expect(findScorecardQuestion(ci, null, "qn:1")).toBeNull();
+  });
+});

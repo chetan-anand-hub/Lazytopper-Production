@@ -145,7 +145,10 @@ import {
 import { wasTrialStartedAtSignUp } from "../../services/newAccountTrial";
 import { useSubscription } from "../../hooks/useSubscription";
 import { useFreeCheckReturn } from "../../hooks/useFreeCheckReturn";
-import { trackNamedEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
+import { trackNamedEvent, trackOnboardingEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
+import { buildTutorPath } from "../tutor/tutorPath";
+import { positionalQuestionId } from "../tutor/tutorRoundTrip";
+import type { ScorecardTutorAsk } from "../../components/results/scorecardVariants";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
 // Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
@@ -2320,6 +2323,28 @@ const DesktopCheckImprovePageInner: React.FC<{
   // C&I PR-1: the scorecard's "Practise {topic}" deep-link for the multi-question
   // path (no resultCtx there) — the same worksheet-builder link the single path's
   // gotoWorksheetForResult produces. Only offered when a single topic resolved.
+  // START-HERE-1 (spec 2.5) — "Ask the tutor why I lost this mark" on a question that lost marks.
+  // The tutor reads the student's OWN saved record (`from` = the paper's code, `q` = the question's
+  // position: a C&I paper has no bank identity). So: only for a SAVED paper, never inside the
+  // tutor's own overlay, and only when a single chapter is known for that question.
+  function ciTutorAsk(subject: DesktopSubject, topicSlug: string | null | undefined, qNumber: number): ScorecardTutorAsk | null {
+    if (overlay || !ciSaved || !ciCode || !topicSlug) return null;
+    return {
+      onAsk: () => {
+        trackOnboardingEvent("tutor_from_scorecard", { surface: "check_improve" });
+        navigate(
+          buildTutorPath({
+            subject,
+            topicKey: topicSlug,
+            source: "scorecard",
+            returnTo: "/check-improve",
+            questionId: positionalQuestionId(qNumber),
+            from: ciCode,
+          }),
+        );
+      },
+    };
+  }
   function gotoWorksheetForTopic(subject: DesktopSubject, topicSlug: string) {
     navigate(
       buildDesktopWorksheetPath({
@@ -3369,6 +3394,11 @@ const DesktopCheckImprovePageInner: React.FC<{
                       gotoWorksheetForTopic(confirmed.subject, confirmed.topicSlug),
                   }
                 : {}),
+              // START-HERE-1 — each question's OWN chapter when the paper resolved one, else the confirmed one.
+              tutorAskFor: (n) => {
+                const r = ws.results.find((x) => x.qNumber === n);
+                return ciTutorAsk(r?.topicSubject ?? confirmed.subject, r?.topicSlug || confirmed.topicSlug, n);
+              },
             })}
             onClose={() => setScorecardOpen(false)}
           />
@@ -3715,6 +3745,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             onReadSheet: () => setScorecardOpen(false),
             onDownloadGraded: () => void downloadGraded(buildSinglePrintProps()),
             ...(resultCtx.topicSlug ? { onPractiseTopic: gotoWorksheetForResult } : {}),
+            tutorAskFor: (n) => ciTutorAsk(resultCtx.subject, resultCtx.topicSlug, n),
           })}
           onClose={() => setScorecardOpen(false)}
         />
