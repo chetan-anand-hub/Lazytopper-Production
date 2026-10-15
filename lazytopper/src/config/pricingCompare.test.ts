@@ -6,6 +6,8 @@
 // order, every cell) is pinned in src/pages/PricingPage.pricing.test.tsx.
 
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 import {
   BASIC_FOOTNOTE,
@@ -29,7 +31,7 @@ describe("L4 · the Basic card", () => {
     expect(BASIC_INCLUDES.map((i) => i.label)).toEqual([
       "Exam Trends — chapters ranked from ten years of papers",
       "Notes, formulae, NCERT books and solutions",
-      "Limited practice and worksheet generation",
+      "Practice sets and worksheet generation",
       "Open or download 3 chapter tests or mocks a day (1 when signed out)",
       "Your first answer check free",
       "Basic topic insights",
@@ -98,5 +100,79 @@ describe("L4 · the compare table data", () => {
   it("no cell, label or title carries a rupee figure (prices live only in the headers)", () => {
     const text = JSON.stringify(compareSections({ freeCheck: true }));
     expect(text).not.toMatch(/₹/);
+  });
+});
+
+/* ── Owner ruling on #1190 (Oct 2026): no unbacked "Limited" on Basic ─────────────
+ * P20 found no enforced free limit on practice or worksheet generation, so "Limited"
+ * there was a claim the product does not keep. From now on a Basic item or Basic cell
+ * may say "limited" ONLY when it also states a number, and that number comes from an
+ * interpolated constant (`${SOME_LIMIT}`) in this module's source — never a bare word,
+ * never a retyped digit.
+ */
+
+const COMPARE_SOURCE = readFileSync(resolve(process.cwd(), "src/config/pricingCompare.ts"), "utf8");
+
+/** Every Basic-side text: the card rows, and the Basic column of the table (both free-check states). */
+function basicTexts(): string[] {
+  const cells = [true, false].flatMap((freeCheck) =>
+    compareSections({ freeCheck }).flatMap((s) => s.rows.map((r) => r.basic)),
+  );
+  return [
+    ...BASIC_INCLUDES.map((i) => i.label),
+    ...cells.flatMap((c) => (c.kind === "text" ? [c.text] : c.kind === "yes" && c.note ? [c.note] : [])),
+  ];
+}
+
+/**
+ * Each text that says "limited" without being backed: it must carry a digit, AND the
+ * source must hold a template literal for it whose figure is an interpolated CONSTANT.
+ */
+function unbackedLimited(texts: readonly string[], source: string): string[] {
+  const templates = [...source.matchAll(/`([^`]*)`/g)].map((m) => m[1]);
+  return texts.filter((t) => {
+    if (!/limited/i.test(t)) return false;
+    if (!/\d/.test(t)) return true;
+    const backed = templates.some((tpl) => {
+      if (!/limited/i.test(tpl) || !/\$\{[A-Z][A-Z0-9_]*\}/.test(tpl)) return false;
+      // The rendered text must be this template with each ${CONST} replaced by a number.
+      const pattern = tpl
+        .split(/\$\{[A-Z][A-Z0-9_]*\}/)
+        .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+        .join("\\d+");
+      return new RegExp(`^${pattern}$`).test(t);
+    });
+    return !backed;
+  });
+}
+
+describe("Owner ruling — 'Limited' on Basic only when backed by a constant", () => {
+  it("no Basic item or Basic cell says 'limited' without an enforced, interpolated number", () => {
+    const texts = basicTexts();
+    expect(texts.length).toBeGreaterThanOrEqual(BASIC_INCLUDES.length);
+    expect(unbackedLimited(texts, COMPARE_SOURCE)).toEqual([]);
+  });
+
+  it("the two rows the ruling changed: practice and worksheets are ticks for both plans", () => {
+    const rows = compareSections({ freeCheck: true }).flatMap((s) => s.rows);
+    for (const label of ["Practice sets with model answers", "Worksheets built from your chosen topics"]) {
+      const row = rows.find((r) => r.label === label);
+      expect(row, label).toEqual({ label, basic: { kind: "yes" }, premium: { kind: "yes" } });
+    }
+    expect(BASIC_INCLUDES.find((i) => i.id === "practice")?.label).toBe("Practice sets and worksheet generation");
+  });
+
+  it("CONTROL — an unbacked 'Limited' (bare, or with a retyped digit) is caught", () => {
+    expect(unbackedLimited(["Limited"], COMPARE_SOURCE)).toEqual(["Limited"]);
+    expect(unbackedLimited(["Limited practice and worksheet generation"], COMPARE_SOURCE)).toHaveLength(1);
+    const retyped = "const ROW = `Limited to 10 a day`;";
+    expect(unbackedLimited(["Limited to 10 a day"], retyped)).toEqual(["Limited to 10 a day"]);
+  });
+
+  it("CONTROL — a 'Limited' whose number is interpolated from a constant passes", () => {
+    const backed = "const ROW = `Limited to ${FREE_DAILY_PRACTICE_LIMIT} a day`;";
+    expect(unbackedLimited(["Limited to 10 a day"], backed)).toEqual([]);
+    // ...but not when the rendered text does not match that template.
+    expect(unbackedLimited(["Limited practice, 10 a day"], backed)).toHaveLength(1);
   });
 });

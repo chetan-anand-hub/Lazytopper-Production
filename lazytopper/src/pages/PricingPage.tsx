@@ -1061,7 +1061,7 @@ const FAQ_ITEMS = [
   {
     q: "Are there any usage limits?",
     // PRICING-LIGHT-1 · L5 (owner, Oct 2026) — the limits are shown on the page now.
-    a: "Basic has daily limits on opening tests and mocks, and limited practice. Premium has generous fair use: your usage bars show what is left and when it resets. The 7-day trial has daily and weekly limits, listed above.",
+    a: "Basic has daily limits on opening tests and mocks. Premium has generous fair use: your usage bars show what is left and when it resets. The 7-day trial has daily and weekly limits, listed above.",
   },
   {
     q: "What happens after the trial ends?",

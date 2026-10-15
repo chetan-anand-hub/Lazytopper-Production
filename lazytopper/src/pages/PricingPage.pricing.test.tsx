@@ -559,7 +559,7 @@ describe("PricingPage — PRICING-LIGHT-1 · L4 the Premium card (owner ruling, 
     const items = Array.from(inner.querySelectorAll(".lt-pricing-faq-item"));
     const usage = items.find(i => flat(i.querySelector(".lt-pricing-faq-q")) === "Are there any usage limits?");
     expect(flat(usage?.querySelector(".lt-pricing-faq-a"))).toBe(
-      "Basic has daily limits on opening tests and mocks, and limited practice. Premium has generous fair use: your usage bars show what is left and when it resets. The 7-day trial has daily and weekly limits, listed above.",
+      "Basic has daily limits on opening tests and mocks. Premium has generous fair use: your usage bars show what is left and when it resets. The 7-day trial has daily and weekly limits, listed above.",
     );
     // The card list itself still carries no quota wording.
     expect(flat(inner.querySelector('ul[aria-label="Premium plan features"]'))).not.toMatch(/quota/i);
@@ -575,7 +575,7 @@ describe("PricingPage — PRICING-LIGHT-1 · L4 the Basic card", () => {
     expect(rows).toEqual([
       "✓Exam Trends — chapters ranked from ten years of papers",
       "✓Notes, formulae, NCERT books and solutions",
-      "✓Limited practice and worksheet generation",
+      "✓Practice sets and worksheet generation",
       "✓Open or download 3 chapter tests or mocks a day (1 when signed out)",
       "✓Basic topic insights",
     ]);
@@ -629,8 +629,9 @@ const L4_TABLE = [
   {
     title: "Practice",
     rows: [
-      ["Practice sets with model answers", "Limited", "✓ Full"],
-      ["Worksheets built from your chosen topics", "Limited", "✓ Full"],
+      // Owner ruling on #1190: no unbacked "Limited" — P20 found no enforced free limit.
+      ["Practice sets with model answers", "✓", "✓"],
+      ["Worksheets built from your chosen topics", "✓", "✓"],
       ["New questions like the one you got wrong", "—", "✓"],
     ],
   },

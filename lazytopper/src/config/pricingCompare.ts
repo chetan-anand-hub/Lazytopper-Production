@@ -15,8 +15,10 @@
  *     bundle must not import. `pricingCompare.parity.test.ts` re-reads the server values
  *     and turns red when the two disagree.
  *
- * ★ "LIMITED" IS NOT A NUMBER (P20). Basic practice and worksheet generation have no
- * enforced fixed count today, so the cells say "Limited" and never invent a figure.
+ * ★ NO UNBACKED "LIMITED" (owner ruling on #1190, Oct 2026). P20 found no enforced free
+ * limit on practice or worksheet generation, so Basic does not claim one: those rows are
+ * ticks for both plans. A Basic "Limited" may only come back with a NUMBER interpolated
+ * from a real, enforced constant (pinned by pricingCompare.test.ts).
  *
  * ⚠ NO RUPEE FIGURE IN THE FAIR-USE COPY, EVER. The server's premium windows are
  * measured in rupees of model cost; the student sees usage bars, never that unit.
@@ -87,7 +89,7 @@ export const BASIC_INCLUDES_HEAD = "Basic includes:";
 export const BASIC_INCLUDES: readonly PlanItem[] = [
   { id: "trends", label: "Exam Trends — chapters ranked from ten years of papers" },
   { id: "notes", label: "Notes, formulae, NCERT books and solutions" },
-  { id: "practice", label: "Limited practice and worksheet generation" },
+  { id: "practice", label: "Practice sets and worksheet generation" },
   {
     id: "papers",
     label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out)`,
@@ -175,8 +177,8 @@ export function compareSections({ freeCheck }: { freeCheck: boolean }): readonly
     {
       title: "Practice",
       rows: [
-        { label: "Practice sets with model answers", basic: text("Limited"), premium: yesNote("Full") },
-        { label: "Worksheets built from your chosen topics", basic: text("Limited"), premium: yesNote("Full") },
+        { label: "Practice sets with model answers", basic: YES, premium: YES },
+        { label: "Worksheets built from your chosen topics", basic: YES, premium: YES },
         { label: "New questions like the one you got wrong", basic: NO, premium: YES },
       ],
     },
