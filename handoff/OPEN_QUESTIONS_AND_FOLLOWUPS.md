@@ -23,6 +23,13 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-15 — PRICING-LIGHT-1 (`#1190`) FOLLOW-UPS (recorded by the controller under §10)
+
+### [FU-LOCK-LIST-LIMITED-PRACTICE] — OPEN (owner ruling 2026-10-15; this docs PR is the record, the fix is its own lane): the Premium locks' "Free on Basic" list (`FREE_FEATURES` in `BasicFreeList.tsx`, shared across the app per P7) still says "Practice picker and limited practice". P20 found no enforced free practice limit (`PracticeLimitGate.tsx` FREE_DAILY_LIMIT=10 is unexported and its counter has 0 callers), so the claim is unbacked, as the pricing page's was. PRICING-LIGHT-1 was forbidden from touching it. Fix: reword `FREE_FEATURES` and update its pins (`BasicFreeList.test.tsx`).
+### [FU-VERCEL-IGNORE-OVERRIDE] — OPEN: an env override so a settings-only production redeploy is never cancelled as docs-only. Scope and mechanism to be decided in its own lane.
+### [PASS-STATUS-1] — OPEN (after Razorpay go-live). **Do not duplicate: the full entry is recorded below under 2026-10-14 (SOLUTIONS-1 / LEGAL-ENTITY-1 follow-ups).** PRICING-LIGHT-1 did not build it; its pass tiles are the natural home for the "Your pass" box and the "Extend your pass" labels.
+### [AUTORENEW-1] — OPEN: follow-up named by the PRICING-LIGHT-1 spec with no detail given there. Scope to be written when the owner commissions it.
+
 ## 2026-10-14 — SOLUTIONS-1 / LEGAL-ENTITY-1 (LANE G) FOLLOW-UPS (recorded by G under §10)
 
 ### [FU-SOLUTIONS-UNKNOWN-CHAPTER-404] — OPEN (G): `/ncert-solutions/<chapter>` and `/ncert-exemplar/<chapter>` for a chapter not yet published get the shell (200, home canonical) and redirect in-app to `/ncert-class-10`; the spec asked for a server 404. Cause: `vercel.json` is generated from the router (`soft404Routes.guard`), which emits a one-segment wildcard for a param route, as for `/notes/:topicSlug`. Fix options: a per-chapter exact rewrite list in the generator, or static routes per published chapter

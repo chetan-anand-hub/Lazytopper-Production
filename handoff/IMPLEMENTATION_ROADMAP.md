@@ -1,3 +1,8 @@
+## 2026-10-15 — PRICING-LIGHT-1 (`#1190`) — ✅ MERGED
+
+- ✅ Light pricing page, Basic and Premium, full compare table, payments-ON prerender. ⏳ owner live-verify (§4).
+- ⏳ `[FU-LOCK-LIST-LIMITED-PRACTICE]` (the Premium locks' "Free on Basic" list), `[FU-VERCEL-IGNORE-OVERRIDE]`, `[PASS-STATUS-1]`, `[AUTORENEW-1]`.
+
 # LazyTopper Implementation Roadmap
 
 ## 2026-10-14 — SOLUTIONS-1 (`#1186`) · LEGAL-ENTITY-1 (`#1187`) — ✅ MERGED (lane G)

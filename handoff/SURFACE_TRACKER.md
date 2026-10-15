@@ -1,3 +1,9 @@
+> **2026-10-15 — PRICING-LIGHT-1 (controller, §10 for `#1190`).** Scope: one public surface, `/pricing`, plus its prerendered capture. No grading behaviour, bank row or student data changed.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/pricing` (+ `__desktop/pricing` prerender) | light theme, Basic and Premium columns, compare table, two pass tiles, payments-ON prerender (`#1190`) | 🟢 live (`566b3379`) | owner §4 live-verify; `[FU-LOCK-LIST-LIMITED-PRACTICE]`; `[PASS-STATUS-1]` |
+
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
 > **2026-10-14 — SOLUTIONS-1 / LEGAL-ENTITY-1 (G, §10 for `#1186` `#1187`).** Scope: two new public pages and the company name on the legal pages and public footer. No grading behaviour, bank row or student data changed.

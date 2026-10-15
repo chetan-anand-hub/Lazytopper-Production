@@ -1,3 +1,13 @@
+## [CURRENT · 2026-10-15 · PRICING-LIGHT-1] `#1190`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by the controller under §10 from `gh pr view 1190` and `git log`. Facts only. Written at trunk `566b3379`; re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1190` PRICING-LIGHT-1 (head `5054f57e`) | `566b3379` | 10-15 10:28 | `/pricing` is a light page, Basic and Premium side by side with a full compare table, two pass tiles (Month pass / Till your boards), navy and deep-green Pay buttons (contrast-tested); content from `src/config/pricingCompare.ts`; the prerendered `/pricing` is captured with payments ON (`VITE_PAYMENTS_ENABLED: "1"` in `prerender-capture.yml`); no unbacked "Limited" claim on Basic (guarded); trunk tree == head tree `b6ce2a89` |
+
+Owner live-verify owed (see the SESSION_LOG entry). No grading behaviour, bank row, server file or `services/checkout.ts` changed.
+
 # LazyTopper — Current State
 
 ## [CURRENT · 2026-10-14 · SOLUTIONS-1 + LEGAL-ENTITY-1 (lane G)] `#1186` `#1187`

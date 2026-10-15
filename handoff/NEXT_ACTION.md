@@ -1,3 +1,10 @@
+## ★ 2026-10-15 — AFTER PRICING-LIGHT-1 (`#1190`) (written by the controller under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner check (PRICING-LIGHT-1 §4, on www once the build is Ready):** /pricing is light, Basic left and Premium right, both Pay buttons clearly visible and opening the Razorpay popup; the compare table scrolls sideways inside its own box on a phone; Ctrl+U on /pricing has no "Not yet. Payment checkout" and no "Manual activation during beta"; Railway → Variables: none of `FAIR_USE_TRIAL_*` is set (if any is, tell the cofounder: the page's trial numbers would differ from what is enforced).
+- **Follow-ups opened:** `[FU-LOCK-LIST-LIMITED-PRACTICE]`, `[FU-VERCEL-IGNORE-OVERRIDE]`, `[AUTORENEW-1]`; `[PASS-STATUS-1]` was already open (OPEN_QUESTIONS).
+
 ## ★ 2026-10-14 — AFTER SOLUTIONS-1 (`#1186`) AND LEGAL-ENTITY-1 (`#1187`) (written by G under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*
