@@ -167,6 +167,9 @@ function TutorSession() {
     concept,
     language,
     selfHref,
+    // START-HERE-1 — a scorecard hop opens on the question that lost marks.
+    fromRecordId: searchParams.get("from") || undefined,
+    fromQuestionId: questionId,
   });
 
   const streamRef = useRef<HTMLDivElement | null>(null);

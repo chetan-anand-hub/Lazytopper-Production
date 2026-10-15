@@ -42,8 +42,13 @@ import {
   matchReturningAttempts,
   matchReturningPracticeRecord,
   RETURNED_WORK_DIGEST_ENABLED,
+  buildScorecardReturnedWork,
+  composeScorecardQuestionOpener,
+  findScorecardQuestion,
+  recordBelongsToUid,
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
+import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
 import { catalogueFiguresForTopic } from "./conceptVisualCatalogue";
 
@@ -68,6 +73,10 @@ export interface UseTutorSessionArgs {
   language: string;
   /** The tutor's own URL — passed as returnTo so the round-trip comes back here. */
   selfHref: string;
+  /** START-HERE-1 — a scorecard hop: the student's own SessionRecord id and the question
+   *  (`q`) that lost marks. Both must be present; either missing opens the normal tutor. */
+  fromRecordId?: string;
+  fromQuestionId?: string;
 }
 
 export interface UseTutorSession {
@@ -146,6 +155,8 @@ export function useTutorSession({
   concept,
   language,
   selfHref,
+  fromRecordId,
+  fromQuestionId,
 }: UseTutorSessionArgs): UseTutorSession {
   const uid = user?.uid ?? null;
 
@@ -348,6 +359,55 @@ export function useTutorSession({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, topicKey]);
+
+  // START-HERE-1 (spec 2.5) — arrived from a scorecard's "Ask the tutor why I lost this mark":
+  // `from` = the student's OWN SessionRecord id, `q` = the question. Read the record through the
+  // uid-scoped stores the round trip already reads, build the SAME one-shot returnedWork and the
+  // same reframed opener the overlay path uses. ONE-SHOT (the opener is never added twice to a
+  // thread). No new grading, no new store. A record that is missing, another account's, or that
+  // does not hold the question opens the normal tutor, silently.
+  useEffect(() => {
+    if (!uid || !fromRecordId || !fromQuestionId) return;
+    let live = true;
+    void (async () => {
+      try {
+        const records = await getSessionRecordsFromCloud(uid);
+        const record = records.find((r) => r.id === fromRecordId && recordBelongsToUid(r, uid));
+        if (!live || !record) return;
+        const payload = await getSessionPerQuestion(uid, record.perQuestionRef);
+        const hit = findScorecardQuestion(record, payload, fromQuestionId);
+        if (!live || !hit) return;
+        let questionText = "";
+        try {
+          await ensureBankChapters([topicKey]);
+          const row = selectBankQuestions({
+            subject: subject === "maths" ? "Maths" : subject === "science" ? "Science" : undefined,
+            topicKeys: [topicKey],
+          }).find((q) => String((q as { id?: unknown }).id ?? "") === fromQuestionId);
+          questionText = row ? String(row.questionText || "") : "";
+        } catch {
+          /* no bank text: the opener and the digest still stand on the record */
+        }
+        if (!live) return;
+        returnedWorkRef.current = buildScorecardReturnedWork(questionText, hit.result);
+        const opener = composeScorecardQuestionOpener(hit.qNumber, hit.result, topicLabel);
+        updatePending(null);
+        setMessages((prev) => {
+          if (prev.some((m) => m.kind === "return-result" && m.content === opener.text)) return prev;
+          const next: TutorTurn[] = [...prev, { role: "tutor", content: opener.text, kind: "return-result" }];
+          persist(next, null);
+          return next;
+        });
+        setReturnFollow(opener.follow ?? null);
+      } catch {
+        /* honest-or-silent: the normal tutor stays */
+      }
+    })();
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, fromRecordId, fromQuestionId, topicKey]);
 
   // Assemble the MI/progress brief once (read-only). Honest-or-silent on failure.
   useEffect(() => {

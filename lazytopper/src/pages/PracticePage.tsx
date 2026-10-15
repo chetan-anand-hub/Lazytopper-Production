@@ -496,7 +496,15 @@ import { toSessionSubject } from "../services/checkImproveGradeService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
-import { trackPracticeGraded } from "../analytics/analytics";
+import { trackOnboardingEvent, trackPracticeGraded } from "../analytics/analytics";
+import { quickPracticeCode } from "../services/sessionRecords";
+import { resolveCorrectOptionIndex } from "../lib/objectiveScoring";
+import {
+  START_HERE_SRC,
+  analyticsSubject,
+  startHerePracticePath,
+  type StartHereQType,
+} from "../components/startHere/startHereModel";
 import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
@@ -556,6 +564,8 @@ import {
   quickPracticeGradedScorecardVariant,
   quickPracticeScorecardVariant,
   type ScorecardGradedAnswer,
+  type ScorecardTutorAsk,
+  type ScorecardWrongAnswer,
   type ScorecardSplitRow,
 } from "../components/results/scorecardVariants";
 import type { SolutionCheckerSavedWorking } from "../components/question/SolutionChecker";
@@ -2727,6 +2737,36 @@ const packTopicKey = useMemo(() => {
     batchResult, batchSelection.batch.length, scoredBatchEntries, reviewSavedIds, reviewMcqIds,
   ]);
 
+  // ── START-HERE-1 ────────────────────────────────────────────────────────────────────
+  // (a) The id of THIS set's session record — the very code the write above derives
+  // (quickPracticeCode of the same identity) — so a scorecard question can hand the tutor
+  // `from=<record id>`. Single-topic sets only: a mixed set has no one topic to open the tutor on.
+  const sessionRecordId = useMemo(() => {
+    const displayed = committedPoolSelection.displayed;
+    if (isMultiTopic || displayed.length === 0) return null;
+    return quickPracticeCode(toSessionSubject(subjectKey), {
+      topicSlug: canonicalTopicKey || topicParam,
+      filterSignature,
+      questionIds: displayed.map((q) => String(q.id)),
+      startedAt: sessionStartedAt,
+    });
+  }, [committedPoolSelection.displayed, isMultiTopic, subjectKey, canonicalTopicKey, topicParam, filterSignature, sessionStartedAt]);
+
+  // (b) `start_here_graded`, ONCE per Start-here set, when its scorecard first shows with at
+  // least one counted answer. Counts only — no id, no text.
+  const startHereSet = qp.get("src") === START_HERE_SRC;
+  const startHereGradedRef = useRef(false);
+  useEffect(() => {
+    if (!startHereSet || !showScorecard || startHereGradedRef.current) return;
+    if (sessionStats.attemptedInSet <= 0) return;
+    startHereGradedRef.current = true;
+    trackOnboardingEvent("start_here_graded", {
+      subject: analyticsSubject(subjectKey),
+      correct: sessionStats.localMcqCorrect,
+      total: filteredQuestions.length,
+    });
+  }, [startHereSet, showScorecard, sessionStats.attemptedInSet, sessionStats.localMcqCorrect, filteredQuestions.length, subjectKey]);
+
   const activeQuestionStrategyDetails = useMemo(
     () => getQuestionStrategyDetails(activeQuestion),
     [getQuestionStrategyDetails, activeQuestion]
@@ -3218,6 +3258,29 @@ const packTopicKey = useMemo(() => {
     setSignInToGrade(false);
   };
 
+  /* START-HERE-1 \u00b7 the scorecard's tutor hop. The tutor reads the student's OWN stored record
+     (`from`) and the question (`q`), so nothing about the answer travels in the URL. Only for a
+     signed-in student whose set has a record id, and never inside the tutor's own overlay. */
+  const tutorAskFor = (q: PracticeQuestion): ScorecardTutorAsk | null => {
+    if (overlay || !sessionRecordId || !authUserForJourney?.uid || authUserForJourney.isLocalSession) return null;
+    return {
+      onAsk: () => {
+        trackOnboardingEvent("tutor_from_scorecard", { surface: "quick_practice" });
+        navigate(
+          buildTutorPath({
+            subject: subjectKey,
+            topicKey: q.topicKey || canonicalTopicKey || topicParam,
+            grade: String(grade),
+            source: "scorecard",
+            returnTo: location.pathname + location.search,
+            questionId: String(q.id),
+            from: sessionRecordId,
+          }),
+        );
+      },
+    };
+  };
+
   /* \u2550\u2550 1 \u00b7 THE GRADED ANSWER SHEET (RESULTS-1's surface, now reachable) \u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
   if (batchResult && batchResult.outcome === "graded") {
     // PRACTICE-REVIEW-HONEST-1 — the totals exclude review attempts; their rows still show.
@@ -3312,6 +3375,12 @@ const packTopicKey = useMemo(() => {
       ));
     }
     sortGradedAnswers(answers);
+    // START-HERE-1 — "Ask the tutor why I lost this mark" on every answer that lost marks.
+    for (const a of answers) {
+      const n = Number(/^Question (\d+)/.exec(a.label)?.[1]);
+      const q = Number.isInteger(n) && n > 0 ? filteredQuestions[n - 1] : undefined;
+      if (q) a.tutorAsk = tutorAskFor(q);
+    }
 
     return (
       <ResultsScorecard
@@ -3494,6 +3563,52 @@ const packTopicKey = useMemo(() => {
         overlayMode: !!overlay,
         returnTicket: overlay
           ? { label: "Back to your tutor", onReturn: overlay.onClose }
+          : undefined,
+        // START-HERE-1 — the MCQs got wrong: what the student picked, the right option, and the
+        // bank's own solution steps; each with the tutor hop. Picks made after the steps were
+        // seen (review mode) were never scored, so they are not listed.
+        wrongAnswers: filteredQuestions.flatMap((q, i): ScorecardWrongAnswer[] => {
+          const id = String(q.id);
+          // A signed-out visitor, a local session and the tutor overlay see the scorecard exactly as before.
+          if (overlay || !authUserForJourney?.uid || authUserForJourney.isLocalSession) return [];
+          if (mcqResults[id] !== "wrong" || reviewMcqIds[id]) return [];
+          const opts = Array.isArray(q.options) ? q.options.map(String) : [];
+          const picked = mcqSelections[id];
+          const correct = resolveCorrectOptionIndex(
+            (q as PracticeQuestion & { correctOption?: string }).correctOption,
+            q.answer,
+            opts,
+          );
+          return [{
+            label: `Question ${i + 1}`,
+            yourAnswer: typeof picked === "number" && opts[picked] ? opts[picked] : null,
+            correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
+            steps: (Array.isArray(q.solutionSteps) ? q.solutionSteps : []).map(String).filter((s) => s.trim()),
+            tutorAsk: tutorAskFor(q),
+          }];
+        }),
+        extraActions: startHereSet
+          ? [
+              {
+                label: "Try 5 more in this chapter",
+                tag: "New",
+                tone: "secondary",
+                onClick: () => {
+                  const ft = (qp.get("qt") === "ar" ? "ar" : "mcq") as StartHereQType;
+                  void import("../components/startHere/startHereBank")
+                    .then((m) => m.pickStartHereSet({ subject: subjectKey, chapter: topicK, qtype: ft, rotation: Date.now() }))
+                    .then((ids) => {
+                      if (ids.length >= 5) {
+                        navigate(startHerePracticePath({ subject: subjectKey, chapter: topicK, ids, qtype: ft, returnTo: qp.get("returnTo") || "/practice-hub" }));
+                      } else {
+                        buildFreshSet();
+                      }
+                    })
+                    .catch(() => buildFreshSet());
+                },
+              },
+              { label: "See all your progress", tag: "Me", tone: "secondary", onClick: () => navigate("/me") },
+            ]
           : undefined,
       })}
       onClose={closeScorecard}

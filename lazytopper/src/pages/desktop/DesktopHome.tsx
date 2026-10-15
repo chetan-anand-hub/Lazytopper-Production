@@ -19,6 +19,7 @@ import {
 import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
+import { StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
 
 /**
@@ -307,6 +308,9 @@ const HOME_CSS = `
 // ── COMPONENT ──────────────────────────────────────────────────
 export default function DesktopHome() {
   const { user } = useAuth();
+  // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
+  // while it is up (two start cards for the same student is noise).
+  const startHere = useStartHere(user?.uid ?? null);
   const isSignedIn = !!user;
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
@@ -406,6 +410,8 @@ export default function DesktopHome() {
 
         <LinkPhoneNudge />
 
+        <StartHereView surface="home" returnTo="/" state={startHere} />
+
         {/* ── Start here — 4 hero cards ──────────────────────────
             AUTH-2-FU §4: the heroes now come BEFORE the merged card, so a new
             student sees WHAT THE PRODUCT DOES before being told what to do. */}
@@ -477,10 +483,12 @@ export default function DesktopHome() {
             The old "Your mistakes, understood" section label is gone with it: a
             label cannot be right for both states, and each card already carries
             its own kicker ("Mistake Intelligence" / "First session"). */}
-        <FirstSession
-          uid={user?.uid ?? null}
-          fallback={<MistakeIntelligenceCard buckets={buckets} />}
-        />
+        {startHere.visible ? null : (
+          <FirstSession
+            uid={user?.uid ?? null}
+            fallback={<MistakeIntelligenceCard buckets={buckets} />}
+          />
+        )}
 
         {/* ── Memory strip (honest — only when meaningful) ─────── */}
         {isSignedIn && meaningfulMemory && memory && (

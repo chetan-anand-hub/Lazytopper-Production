@@ -27,6 +27,8 @@ import type {
   ScorecardMistakeKind,
   ScorecardSplit,
   ScorecardSplitRow,
+  ScorecardTutorAsk,
+  ScorecardWrongAnswer,
 } from "./scorecardVariants";
 
 /**
@@ -378,7 +380,60 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
           {answer.mistakeType}
         </div>
       )}
+      {/* START-HERE-1 — only on an answer that lost marks. */}
+      {answer.tutorAsk && hasMark && (answer.awarded as number) < (answer.available as number) && (
+        <TutorAskButton ask={answer.tutorAsk} />
+      )}
     </div>
+  );
+}
+
+/** START-HERE-1 — "Ask the tutor why I lost this mark". The host owns the hop. */
+export const TUTOR_ASK_LABEL = "Ask the tutor why I lost this mark";
+function TutorAskButton({ ask }: { ask: ScorecardTutorAsk }) {
+  return (
+    <button type="button" className="lt-sc__tutorask" data-testid="sc-tutor-ask" onClick={ask.onAsk}>
+      {TUTOR_ASK_LABEL}
+    </button>
+  );
+}
+
+/** START-HERE-1 — the wrong MCQs: what the student picked, the right option, and the bank's
+ *  own solution steps. Nothing is generated; an absent option is left out, never guessed. */
+function WrongAnswersBlock({ answers }: { answers: ScorecardWrongAnswer[] }) {
+  return (
+    <>
+      <div className="lt-sc__mbk" data-testid="sc-wrong-heading">Where marks slipped</div>
+      <div className="lt-sc__galist">
+        {answers.map((a) => (
+          <div className="lt-sc__ga" key={a.label} data-testid="sc-wrong-answer">
+            <div className="lt-sc__ga-top">
+              <span className="lt-sc__ga-n">{a.label}</span>
+            </div>
+            {a.yourAnswer && (
+              <div className="lt-sc__ga-lost">
+                <b>Your answer:</b> <MathText text={a.yourAnswer} />
+              </div>
+            )}
+            {a.correctAnswer && (
+              <div className="lt-sc__wr-right">
+                <b>Correct answer:</b> <MathText text={a.correctAnswer} />
+              </div>
+            )}
+            {a.steps.length > 0 && (
+              <ol className="lt-sc__wr-steps">
+                {a.steps.map((s, i) => (
+                  <li key={i}>
+                    <MathText text={s} />
+                  </li>
+                ))}
+              </ol>
+            )}
+            {a.tutorAsk && <TutorAskButton ask={a.tutorAsk} />}
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -630,6 +685,9 @@ export default function ResultsScorecard({ variant, onClose, belowScore }: Resul
               ) : variant.marksLost ? null : (
                 variant.fourType && <FourTypeBlock ft={variant.fourType} />
               )}
+              {variant.wrongAnswers && variant.wrongAnswers.length > 0 && (
+                <WrongAnswersBlock answers={variant.wrongAnswers} />
+              )}
               {variant.gradedAnswers && variant.gradedAnswers.length > 0 && (
                 <GradedSheetBlock answers={variant.gradedAnswers} />
               )}
@@ -831,6 +889,19 @@ const SC_CSS = `
 .lt-sc__ga-mtype--technique { background: rgba(59, 130, 246, 0.16); color: #b6d2ff; }
 .lt-sc__ga-mtype--careless { background: rgba(232, 147, 12, 0.16); color: #ffd28a; }
 .lt-sc__gst-state { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 10px; background: rgba(148, 163, 184, 0.18); color: #c9d4e3; }
+.lt-sc__wr-right {
+  background: rgba(61, 170, 110, 0.12); border-left: 3px solid #3daa6e; border-radius: 0 8px 8px 0;
+  padding: 9px 12px; margin-top: 9px; font-size: 12.5px; color: #cfeedd; line-height: 1.55;
+}
+.lt-sc__wr-right b { color: #8fe0b2; }
+.lt-sc__wr-steps { margin: 9px 0 0; padding-left: 20px; font-size: 12.5px; color: #d6dee9; line-height: 1.55; }
+.lt-sc__wr-steps li { margin-bottom: 4px; }
+.lt-sc__tutorask {
+  display: block; width: 100%; margin-top: 11px; padding: 11px 14px; border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28); background: transparent; color: #fff;
+  font-size: 13.5px; font-weight: 700; cursor: pointer; text-align: center;
+}
+.lt-sc__tutorask:hover { border-color: rgba(255, 255, 255, 0.6); }
 .lt-sc__ga-carenote { font-size: 11.5px; color: #8695ac; font-style: italic; margin: 4px 0 0; line-height: 1.5; }
 /* GRADED-STEP-BLOCK - the student's own marked working inside a graded answer card.
    Tones mirror the worksheet panel's step states so one truth reads the same everywhere.

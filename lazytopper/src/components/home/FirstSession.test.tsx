@@ -27,6 +27,10 @@ vi.mock("../../services/sessionRecords", () => ({
     if (sessions.gate) return sessions.gate.promise;
     return sessions.records;
   }),
+  // START-HERE-1: Home asks the Start-here card first. This file pins FirstSession, so the card
+  // is held down here (a local row = a returning student) and FirstSession renders as before.
+  loadLocalSessionRecords: () => [{ id: "local-row" }],
+  cloudHasAnySessionRecord: async () => true,
 }));
 
 // Home pages read auth + subscription via context hooks.
