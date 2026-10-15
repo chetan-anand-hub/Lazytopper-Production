@@ -201,12 +201,17 @@ describe("START-HERE-1 · Ask the tutor why I lost this mark (Quick Practice sco
     expect(startHereCalls("tutor_from_scorecard")).toEqual([["tutor_from_scorecard", { surface: "quick_practice" }]]);
   });
 
-  it("★ a signed-in local session (no durable record) gets no tutor button; the wrong list still shows", async () => {
-    authUser.current = { uid: "local-1", isLocalSession: true };
-    await buildSet("", [mkItem(1)]);
-    fireEvent.click(screen.getByText("q1-wrong"));
-    expect(await screen.findAllByTestId("sc-wrong-answer")).toHaveLength(1);
-    expect(screen.queryByTestId("sc-tutor-ask")).toBeNull();
+  it("★★ a local session or a signed-out visitor sees the scorecard exactly as before: no rows, no button", async () => {
+    for (const who of [{ uid: "local-1", isLocalSession: true }, null]) {
+      authUser.current = who;
+      await buildSet("&src=start_here", [mkItem(1)]);
+      fireEvent.click(screen.getByText("q1-wrong"));
+      await screen.findByText(/Session scorecard/);
+      expect(screen.queryAllByTestId("sc-wrong-answer")).toHaveLength(0);
+      expect(screen.queryByTestId("sc-wrong-heading")).toBeNull();
+      expect(screen.queryByTestId("sc-tutor-ask")).toBeNull();
+      cleanup();
+    }
     authUser.current = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
   });
 

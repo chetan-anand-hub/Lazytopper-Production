@@ -3569,6 +3569,8 @@ const packTopicKey = useMemo(() => {
         // seen (review mode) were never scored, so they are not listed.
         wrongAnswers: filteredQuestions.flatMap((q, i): ScorecardWrongAnswer[] => {
           const id = String(q.id);
+          // A signed-out visitor, a local session and the tutor overlay see the scorecard exactly as before.
+          if (overlay || !authUserForJourney?.uid || authUserForJourney.isLocalSession) return [];
           if (mcqResults[id] !== "wrong" || reviewMcqIds[id]) return [];
           const opts = Array.isArray(q.options) ? q.options.map(String) : [];
           const picked = mcqSelections[id];
