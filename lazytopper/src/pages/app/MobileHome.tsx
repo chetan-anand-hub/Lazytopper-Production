@@ -18,6 +18,7 @@ import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
+import { StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
 import {
   BORDER,
@@ -528,6 +529,9 @@ function MistakeIntelligenceCard() {
 
 export default function MobileHome() {
   const { user } = useAuth();
+  // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
+  // while it is up (two start cards for the same student is noise).
+  const startHere = useStartHere(user?.uid ?? null);
   const { isTrialActive, isPremium, isTrialExpired } = useSubscription();
   const isSignedIn = !!user;
 
@@ -715,6 +719,8 @@ export default function MobileHome() {
             null. */}
         <LinkPhoneNudge spaced />
 
+        <StartHereView surface="home" returnTo="/browse" state={startHere} spaced />
+
         {/* ── Hero carousel — the SHARED four cards ─────────────── */}
         <div style={sectionLabelStyle()}>Start here</div>
         <div
@@ -812,10 +818,12 @@ export default function MobileHome() {
             it is safe here (unlike `spaced`) because something ALWAYS renders in
             this slot. */}
         <div style={{ marginTop: 20 }}>
-          <FirstSession
-            uid={user?.uid ?? null}
-            fallback={isSignedIn ? <MistakeIntelligenceCard /> : <SampleMistakeCard />}
-          />
+          {startHere.visible ? null : (
+            <FirstSession
+              uid={user?.uid ?? null}
+              fallback={isSignedIn ? <MistakeIntelligenceCard /> : <SampleMistakeCard />}
+            />
+          )}
         </div>
 
         {/* Returning / signed-in: resume strip (real memory only). AUTH-2-FU §4

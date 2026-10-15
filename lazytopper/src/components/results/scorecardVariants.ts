@@ -195,9 +195,30 @@ export interface ScorecardSplit {
   nothingSavedNote?: string | null;
 }
 
+/** START-HERE-1 · "Ask the tutor why I lost this mark". The host owns the hop (it builds the
+ *  tutor path from the stored record and fires `tutor_from_scorecard`); the shell only draws
+ *  the button, and only on a question that lost marks. */
+export interface ScorecardTutorAsk {
+  onAsk: () => void;
+}
+
+/** START-HERE-1 · one MCQ the student got wrong. `yourAnswer` / `correctAnswer` are the option
+ *  texts; `steps` are the bank's `solutionSteps` verbatim. Either answer may be null when the
+ *  bank row has no readable option — it is then left out, never guessed. */
+export interface ScorecardWrongAnswer {
+  /** "Question 3" — also the row's stable key. */
+  label: string;
+  yourAnswer: string | null;
+  correctAnswer: string | null;
+  steps: string[];
+  tutorAsk?: ScorecardTutorAsk | null;
+}
+
 /** One answer on the graded sheet — marks awarded over available, what the working
  *  shows, where the mark went, and the mistake type. */
 export interface ScorecardGradedAnswer {
+  /** START-HERE-1 · the tutor button for this answer; rendered only when it lost marks. */
+  tutorAsk?: ScorecardTutorAsk | null;
   /** "Question 5" — also the row's stable key. */
   label: string;
   /** "MCQ · 1 mark" / "3 marks". Omitted → the head line is the label alone. */
@@ -295,6 +316,9 @@ export interface ScorecardVariant {
   /** BATCH-2 · the graded answer sheet — per-answer board-style depth, rendered
    *  under the summary. Absent everywhere else. */
   gradedAnswers?: ScorecardGradedAnswer[] | null;
+  /** START-HERE-1 · the MCQs the student got wrong, with what they picked, the right option
+   *  and the bank's own solution steps (never generated text). Absent everywhere else. */
+  wrongAnswers?: ScorecardWrongAnswer[] | null;
   /** Optional footer heading for the stacked what-next menu (QP: "What next?"). */
   actionsHeading?: string;
   /** Render actions as a stacked what-next menu (QP) rather than the worksheet 2-up row. */
@@ -456,9 +480,15 @@ export interface QuickPracticeVariantInput {
    *  never has to infer that the bare ✕ is the return. Omitted (a direct / hub visit) ⇒ the
    *  what-next menu is byte-identical to today. */
   returnTicket?: { label: string; onReturn: () => void };
+  /** START-HERE-1 — the wrong MCQs of this set, with the stored answer and bank steps. Only
+   *  honoured on an attempted (MCQ-only) session; omitted ⇒ the scorecard is unchanged. */
+  wrongAnswers?: ScorecardWrongAnswer[] | null;
+  /** START-HERE-1 — extra what-next rows ("Try 5 more in this chapter", "See all your
+   *  progress"), placed under the review action. Omitted ⇒ the menu is unchanged. */
+  extraActions?: ScorecardAction[];
 }
 
-type MenuId = "keep" | "fresh" | "chapter" | "predicted" | "study";
+type MenuId ="keep" | "fresh" | "chapter" | "predicted" | "study";
 
 /** PRACTICE-HONESTY-1 — the owner's label for the review action, shared by both Quick
  *  Practice variants so the two cannot drift. */
@@ -490,6 +520,8 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     onStudy,
     overlayMode = false,
     returnTicket,
+    wrongAnswers,
+    extraActions,
   } = input;
 
   // ── PRACTICE-HONESTY-1 · an ATTEMPTED session reaching this variant is MCQ-only (any
@@ -517,6 +549,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
       fourType: fourType && (fourType.conceptual || fourType.calculation || fourType.silly || fourType.presentation) ? fourType : null,
       pending: null,
       allPending: null,
+      wrongAnswers: wrongAnswers && wrongAnswers.length > 0 ? wrongAnswers : null,
       actionsHeading: "What next?",
       stackActions: true,
       footnote:
@@ -529,6 +562,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
           onClick: review ?? (() => {}),
           disabled: !review,
         },
+        ...(extraActions ?? []),
         ...(returnTicket ? [returnTicketAction(returnTicket)] : []),
       ],
     };
@@ -1506,6 +1540,28 @@ export interface CheckImproveVariantInput {
    *  `line` the honest free-plan sentence shown as the scorecard's message. Omitted —
    *  every whole-paper grade — the variant is byte-identical to before. */
   trialPaper?: { total: number; line: string };
+  /** START-HERE-1 (optional, additive): the tutor hop for a question that lost marks. Given a
+   *  question's number it returns the button's handler, or null when that question has no honest
+   *  hop (no single topic, or the paper was not saved). Omitted — a direct / overlay / signed-out
+   *  grade — the variant is byte-identical to before. */
+  tutorAskFor?: (qNumber: number) => ScorecardTutorAsk | null;
+}
+
+/** START-HERE-1 · one "Where marks slipped" row per GRADED question that lost marks and has a
+ *  hop. A Check & Improve paper has no bank identity, so the row is the question number and the
+ *  button only: nothing about the answer is invented. Empty → null (the shell omits the block). */
+function ciTutorRows(
+  response: WorksheetGradeResponse,
+  tutorAskFor: ((qNumber: number) => ScorecardTutorAsk | null) | undefined,
+): ScorecardWrongAnswer[] | null {
+  if (!tutorAskFor) return null;
+  const rows: ScorecardWrongAnswer[] = [];
+  for (const r of [...response.results].sort((a, b) => a.qNumber - b.qNumber)) {
+    if (!isGradedQuestion(r) || (Number(r.totalMarks) || 0) <= (Number(r.marksAwarded) || 0)) continue;
+    const ask = tutorAskFor(r.qNumber);
+    if (ask) rows.push({ label: `Question ${r.qNumber}`, yourAnswer: null, correctAnswer: null, steps: [], tutorAsk: ask });
+  }
+  return rows.length > 0 ? rows : null;
 }
 
 /** The return-ticket row. `tone: "secondary"` deliberately: the what-next menu's
@@ -1625,6 +1681,7 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
     marksLost: aggregateMarksLost(response),
     pending: pendingStrip(response),
     allPending: null,
+    wrongAnswers: ciTutorRows(response, input.tutorAskFor),
     actionsHeading: "What next?",
     stackActions: true,
     ...(input.signUpToSave

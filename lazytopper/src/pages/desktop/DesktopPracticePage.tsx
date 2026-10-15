@@ -29,6 +29,7 @@ import {
 } from "../../services/mistakeLogService";
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
 import { ChapterTestPicker, CT_HUB_PARAM } from "../../components/practice/ChapterTestPicker";
+import StartHereCard from "../../components/startHere/StartHereCard";
 import { appendFullSubjectScope } from "../../components/practice/fullSubjectPractice";
 // BANK-LEAN-1 (P18): `import type`, NOT `import { type … }`. Under this repo's
 // `verbatimModuleSyntax`, the inline form is emitted as `import {} from "…"` — a
@@ -2258,6 +2259,10 @@ export default function DesktopPracticePage() {
             important questions, or a full paper.
           </p>
         </div>
+
+        {/* START-HERE-1 — a signed-in student with no graded result yet; renders nothing for
+            anyone else (signed-out, any graded result, or "Not now" this session). */}
+        <StartHereCard uid={user?.uid ?? null} surface="practice_hub" returnTo="/practice-hub" />
 
         {/* CBQ-ENTRY-1 (E1) — straight to a chapter's competency-based questions. Above
             the scope card so it is in view without scrolling at 390px and on desktop.

@@ -121,6 +121,7 @@ import {
 // student has a free result waiting to be saved); with the flag off none of it renders.
 import { clearCiDraft, saveCiDraft, sweepExpiredCiDraftImages, takeCiDraft } from "../../services/checkImproveDraft";
 import EmailVerifyReminder from "../../components/auth/EmailVerifyReminder";
+import StartHereCard from "../../components/startHere/StartHereCard";
 import {
   FREE_CHECK_COPY,
   FREE_CHECK_SIGNIN_PATH,
@@ -2430,6 +2431,9 @@ const DesktopCheckImprovePageInner: React.FC<{
         {/* The return ticket's contextual strip (Section C) — a quiet line, never a
             modal, never blocking. Renders nothing on a direct visit. */}
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
+        {/* START-HERE-1 — a signed-in student with no graded result yet; nothing for anyone
+            else. Never inside the tutor overlay. */}
+        {!overlay && <StartHereCard uid={user?.uid ?? null} surface="check_improve" returnTo="/check-improve" />}
         {/* No lede here — deleted at both widths (owner-decided). Every clause it
             carried already ships better elsewhere: "How it works" step 3 says the same
             with the D4 noun ("image", not "photo"), step 4 names annotated steps, and
