@@ -40,7 +40,7 @@
 // This module is the STORE + durable #NN + per-question payload only. Reading it at
 // altitudes (recent strip, per-surface history, rolled-up progress) is progressStore.
 
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, limit, query, setDoc } from "firebase/firestore";
 import { firestoreDb } from "./firebaseClient";
 import { trackCloudWrite, type OutboxEntry, type ResendOutcome } from "./sessionRecordsOutbox";
 import { getActiveProgressUser } from "./studentProgressStore";
@@ -381,6 +381,25 @@ export async function getSessionRecordsFromCloud(uid?: string | null): Promise<S
   } catch (error) {
     console.warn("[sessionRecords] cloud read failed", { uid: id, error });
     return local;
+  }
+}
+
+/**
+ * START-HERE-1 — does the durable store hold AT LEAST ONE record for this uid? One document
+ * read (`limit(1)`), not the collection. `true` / `false` are answers; `null` is "could not
+ * tell" (no uid, no Firestore, or ANY error) and is never folded into `false`: the caller treats
+ * it as silence, because an unreadable history is not evidence of a first session.
+ * `getSessionRecordsFromCloud` is deliberately untouched (it degrades to local on error, which
+ * is right for history but wrong for "is this a brand-new account").
+ */
+export async function cloudHasAnySessionRecord(uid?: string | null): Promise<boolean | null> {
+  const id = readableUid(uid);
+  if (!id || !firestoreDb) return null;
+  try {
+    const snap = await getDocs(query(collection(firestoreDb, "sessionRecords", id, "records"), limit(1)));
+    return !snap.empty;
+  } catch {
+    return null;
   }
 }
 

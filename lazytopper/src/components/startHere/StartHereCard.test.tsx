@@ -2,15 +2,16 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
-const { getRecords, onboarding, bank } = vi.hoisted(() => ({
-  getRecords: vi.fn(),
+const { cloudHas, localRows, onboarding, bank } = vi.hoisted(() => ({
+  cloudHas: vi.fn(),
+  localRows: vi.fn(),
   onboarding: vi.fn(),
   bank: {
     startHereAvailability: vi.fn(),
     pickStartHereSet: vi.fn(),
   },
 }));
-vi.mock("../../services/sessionRecords", () => ({ getSessionRecordsFromCloud: getRecords }));
+vi.mock("../../services/sessionRecords", () => ({ cloudHasAnySessionRecord: cloudHas, loadLocalSessionRecords: localRows }));
 vi.mock("../../analytics/analytics", () => ({ trackOnboardingEvent: onboarding }));
 vi.mock("./startHereBank", () => bank);
 
@@ -47,7 +48,8 @@ const card = () => screen.queryByTestId("start-here-card");
 
 beforeEach(() => {
   window.sessionStorage.clear();
-  getRecords.mockReset();
+  cloudHas.mockReset();
+  localRows.mockReset().mockReturnValue([]);
   onboarding.mockReset();
   bank.startHereAvailability.mockReset();
   bank.pickStartHereSet.mockReset();
@@ -59,7 +61,7 @@ afterEach(cleanup);
 
 describe("START-HERE-1 · who sees the card (§2.1)", () => {
   it("★★ a signed-in account with ZERO graded results sees it, with the owner's copy", async () => {
-    getRecords.mockResolvedValue([]);
+    cloudHas.mockResolvedValue(false);
     mount();
     await waitFor(() => expect(card()).not.toBeNull());
     expect(card()!.textContent).toContain(START_HERE_COPY.kicker);
@@ -68,10 +70,27 @@ describe("START-HERE-1 · who sees the card (§2.1)", () => {
     expect(screen.getByTestId("start-here-not-now").textContent).toBe("Not now");
   });
 
-  it("★★ it hides once there is a graded result (any record), and never shows to an existing student", async () => {
-    getRecords.mockResolvedValue([{ id: "r1" }]);
+  it("★★ it hides once there is a graded result: local rows answer at once with NO cloud call", async () => {
+    localRows.mockReturnValue([{ id: "r1" }]);
     mount();
-    await waitFor(() => expect(getRecords).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 0));
+    expect(card()).toBeNull();
+    expect(cloudHas).not.toHaveBeenCalled();
+    expect(calls("start_here_shown")).toHaveLength(0);
+  });
+
+  it("★★ no local rows but the cloud holds one (a returning student on a fresh device): no card", async () => {
+    cloudHas.mockResolvedValue(true);
+    mount();
+    await waitFor(() => expect(cloudHas).toHaveBeenCalledWith("u1"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(card()).toBeNull();
+  });
+
+  it("★★ BLOCKER GUARD: a cloud read that cannot tell (null) on an empty device is silence, never the card", async () => {
+    cloudHas.mockResolvedValue(null);
+    mount();
+    await waitFor(() => expect(cloudHas).toHaveBeenCalled());
     await new Promise((r) => setTimeout(r, 0));
     expect(card()).toBeNull();
     expect(calls("start_here_shown")).toHaveLength(0);
@@ -82,19 +101,20 @@ describe("START-HERE-1 · who sees the card (§2.1)", () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(card()).toBeNull();
     expect(container.innerHTML).toBe("");
-    expect(getRecords).not.toHaveBeenCalled();
+    expect(cloudHas).not.toHaveBeenCalled();
+    expect(localRows).not.toHaveBeenCalled();
   });
 
   it("★ hydration is a third state: nothing renders while the read is in flight, and a failed read is silence", async () => {
-    let resolve: (v: unknown[]) => void = () => undefined;
-    getRecords.mockReturnValue(new Promise((r) => (resolve = r)));
+    let resolve: (v: boolean | null) => void = () => undefined;
+    cloudHas.mockReturnValue(new Promise((r) => (resolve = r)));
     mount();
     await new Promise((r) => setTimeout(r, 0));
     expect(card()).toBeNull(); // in flight: not the card
-    resolve([]);
+    resolve(false);
     await waitFor(() => expect(card()).not.toBeNull());
     cleanup();
-    getRecords.mockRejectedValue(new Error("offline"));
+    cloudHas.mockRejectedValue(new Error("offline"));
     mount();
     await new Promise((r) => setTimeout(r, 0));
     expect(card()).toBeNull(); // an unreadable history is not evidence of a first session
@@ -103,7 +123,7 @@ describe("START-HERE-1 · who sees the card (§2.1)", () => {
 
 describe("START-HERE-1 · \"Not now\" is session-scoped (§2.1)", () => {
   it("★★ hides it for the rest of the session, fires start_here_dismissed once, and it returns on the next visit", async () => {
-    getRecords.mockResolvedValue([]);
+    cloudHas.mockResolvedValue(false);
     mount();
     await waitFor(() => expect(card()).not.toBeNull());
     fireEvent.click(screen.getByTestId("start-here-not-now"));
@@ -123,7 +143,7 @@ describe("START-HERE-1 · \"Not now\" is session-scoped (§2.1)", () => {
   });
 
   it("start_here_shown fires once per mount, however many times it re-renders", async () => {
-    getRecords.mockResolvedValue([]);
+    cloudHas.mockResolvedValue(false);
     const { rerender } = mount();
     await waitFor(() => expect(card()).not.toBeNull());
     rerender(tree());
@@ -135,7 +155,7 @@ describe("START-HERE-1 · \"Not now\" is session-scoped (§2.1)", () => {
 
 describe("START-HERE-1 · the picker (§2.2)", () => {
   async function open() {
-    getRecords.mockResolvedValue([]);
+    cloudHas.mockResolvedValue(false);
     mount();
     await waitFor(() => expect(card()).not.toBeNull());
     fireEvent.click(screen.getByTestId("start-here-start"));

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSessionRecordsFromCloud } from "../../services/sessionRecords";
+import { cloudHasAnySessionRecord, loadLocalSessionRecords } from "../../services/sessionRecords";
 import { trackOnboardingEvent, type StartHereSurface } from "../../analytics/analytics";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
@@ -96,16 +96,24 @@ export function useStartHere(uid?: string | null): StartHereState {
     // Re-enter "loading" on a uid change so a sign-in can never inherit the previous verdict.
     setGraded("loading");
     if (!uid) return;
+    // Local first: any record on this device is the answer, and costs no network call.
+    if (loadLocalSessionRecords(uid).length > 0) {
+      setGraded("some");
+      return;
+    }
     let cancelled = false;
     void (async () => {
+      // Only a device with no local rows asks the cloud, and only whether ONE record exists.
+      // `true` -> a returning student; `null` (could not tell: offline, no Firestore, any error)
+      // -> silence, never the card; only a real `false` is a first session.
+      let has: boolean | null = null;
       try {
-        const records = await getSessionRecordsFromCloud(uid);
-        if (cancelled) return;
-        setGraded(Array.isArray(records) && records.length > 0 ? "some" : "none");
+        has = await cloudHasAnySessionRecord(uid);
       } catch {
-        // An unreadable history is NOT evidence of a first session: stay silent.
-        if (!cancelled) setGraded("some");
+        has = null;
       }
+      if (cancelled) return;
+      setGraded(has === false ? "none" : "some");
     })();
     return () => {
       cancelled = true;
