@@ -18,7 +18,7 @@ const base = {
 
 describe("checkImproveScorecardVariant · tutorAskFor", () => {
   it("★ one row per graded question that lost marks; full-mark and unreadable ones get none", () => {
-    const ask = vi.fn(() => ({ onAsk: () => undefined }));
+    const ask = vi.fn((_n: number) => ({ onAsk: () => undefined }));
     const v = checkImproveScorecardVariant({ ...base, tutorAskFor: ask });
     expect(v.wrongAnswers?.map((r) => r.label)).toEqual(["Question 2", "Question 3"]);
     expect(ask.mock.calls.map((c) => c[0])).toEqual([2, 3]);
