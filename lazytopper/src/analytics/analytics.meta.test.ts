@@ -224,8 +224,8 @@ describe("Meta — before the library loads", () => {
 });
 
 describe("Meta — named events", () => {
-  it("maps exactly the two PR-1 events", () => {
-    expect(Object.keys(META_EVENTS).sort()).toEqual(["sign_up", "trial_start"]);
+  it("maps exactly the PR-1 events plus TRACK-2's two checkout events", () => {
+    expect(Object.keys(META_EVENTS).sort()).toEqual(["begin_checkout", "purchase", "sign_up", "trial_start"]);
   });
 
   it.each(Object.entries(META_EVENTS))("fires %s as one two-argument entry", (name, [method, metaName]) => {

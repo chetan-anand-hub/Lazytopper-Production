@@ -21,8 +21,18 @@ import { withSigninRedirect } from "../../services/freeCheckClient";
 import {
   FOUNDING_OFFER_OPEN,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_DISPLAY,
+  PRICE_MONTHLY_LIST_INR,
+  tillBoardsQuote,
 } from "../../config/pricing";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
+import {
+  newCheckoutAttemptId,
+  trackBeginCheckout,
+  trackPurchase,
+  type CheckoutDetails,
+} from "../../analytics/analytics";
 import {
   buyPass,
   formatPassDate,
@@ -43,6 +53,24 @@ export function monthButtonLabel(offerOpen: boolean): string {
 }
 
 export const TILL_BOARDS_BUTTON_LABEL = "Pay once till your boards";
+
+/**
+ * TRACK-2 — what the checkout events say was bought. The price is the SAME pricing-module
+ * quote the server charges (month: the founding or list price; till boards: tillBoardsQuote
+ * for today and the predicted board date). If the quote is unavailable the event carries no
+ * value rather than an invented one.
+ */
+function checkoutEventDetails(passType: PassType, offerOpen: boolean): CheckoutDetails {
+  if (passType === "month") {
+    return {
+      passType,
+      itemName: "Premium pass for a month",
+      valueInr: offerOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR,
+    };
+  }
+  const quote = tillBoardsQuote(new Date(), predictCbseExamDate("10"), offerOpen);
+  return { passType, itemName: "Premium pass till your boards", valueInr: quote ? quote.priceInr : null };
+}
 
 export interface PassCheckoutViewProps {
   signedIn: boolean;
@@ -77,9 +105,14 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
     }
     setBusy(passType);
     setFailed(false);
+    const details = checkoutEventDetails(passType, offerOpen);
+    const attemptId = newCheckoutAttemptId();
+    trackBeginCheckout(details);
     const outcome = await onBuy(passType);
     setBusy(null);
     if (outcome.status === "paid") {
+      // TRACK-2: the ONLY `purchase` call site — the server has verified this payment.
+      trackPurchase({ ...details, transactionId: attemptId });
       const label = formatPassDate(outcome.passEnd);
       if (label) setPaidUntil(label);
       else setFailed(true);

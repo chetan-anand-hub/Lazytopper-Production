@@ -18,6 +18,13 @@ import { rememberVisitSourceOnce } from "./visitSource";
  * ⚠ DO NOT add an `identify()` call here. That is not a feature request, it is a
  * different legal posture, and it belongs to a lane with a consent design.
  *
+ * ★ TRACK-2 — TWO DEVICE-LOCAL MARKERS, NEITHER AN IDENTITY, BOTH REGISTERED IN
+ * studentDataMap.ts: `lazytopper.internal` (localStorage, the single character 1, set when
+ * this device opens /admin so the owner's own browsing can be tagged `traffic_type:
+ * "internal"` for GA4's filter) and `lazytopper.purchaseSent` (THIS TAB's sessionStorage, up
+ * to 20 random per-attempt checkout ids, so one payment is never counted twice). Neither is a
+ * uid, an email or anything that links a visit to a person, and neither is sent anywhere.
+ *
  * ★★ A NARROW EXCEPTION TO "NO localStorage KEY" — SOURCE-1 (owner ruling 12 Oct 2026,
  * 13:16 IST, "Source capture yes allowed"; DECISION 107c): a SINGLE-VISIT SOURCE CAPTURE
  * is allowed as a narrow exception to the cookieless rule. Tab-scoped `sessionStorage`
@@ -203,26 +210,67 @@ function resolveVendor(): VendorSend | null {
  * page-view count. It never throws, and it never logs in production either: a blocked
  * vendor is the NORMAL case, not an error, and a console full of warnings is its own
  * kind of breakage.
+ *
+ * (TRACK-2: the three vendor sends live in `sendToVendors`, each in its own guard, and
+ * `send` skips them on an admin page.)
  */
-function send(kind: "pageview" | "event", payload: Record<string, unknown>): void {
+/**
+ * TRACK-2 — the parameters an event carries to GA4 and Meta, kept OUT of the Vercel
+ * payload (which is sent as-is, `{ name, data }`). Only the TRACK-2 events have any.
+ */
+interface VendorParams {
+  ga4?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+}
+
+/**
+ * ★ TRACK-2 §1.3 — THE OWNER'S ADMIN VISITS ARE NOT TRAFFIC.
+ *
+ * On `/admin` (and anything under it) NO page view and NO event goes to Vercel, GA4 or
+ * Meta. The first-party activity log below is unchanged. A page view is judged by the
+ * path it carries (the page being entered), an event by the address it happened on.
+ * Any admin visit also marks the device (`lazytopper.internal`, studentDataMap.ts), so
+ * the owner's ordinary browsing from that device reaches GA4 as `traffic_type:
+ * "internal"` — GA4's internal-traffic filter can then drop it, once the owner says so.
+ */
+const ADMIN_PATH = /^\/admin(?:\/|$)/;
+export const INTERNAL_DEVICE_KEY = "lazytopper.internal";
+
+function isAdminHit(kind: "pageview" | "event", payload: Record<string, unknown>): boolean {
+  const routerPath =
+    kind === "pageview" && typeof payload.path === "string"
+      ? payload.path
+      : routerPathOf(window.location.pathname);
+  return ADMIN_PATH.test(routerPath);
+}
+
+function markInternalDevice(): void {
+  try {
+    window.localStorage.setItem(INTERNAL_DEVICE_KEY, "1");
+  } catch {
+    /* a blocked storage costs only the internal tag */
+  }
+}
+
+export function isInternalDevice(): boolean {
+  try {
+    return window.localStorage.getItem(INTERNAL_DEVICE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function send(kind: "pageview" | "event", payload: Record<string, unknown>, params: VendorParams = {}): void {
   if (!analyticsEnabled()) return;
+  let adminHit = false;
   try {
-    const vendor = resolveVendor();
-    if (vendor) vendor(kind, payload);
+    adminHit = isAdminHit(kind, payload);
+    if (adminHit) markInternalDevice();
   } catch {
-    /* analytics must never break the page */
+    // Unreadable address: treat as admin, so nothing leaves for a vendor by accident.
+    adminHit = true;
   }
-  // A separate guard, so one vendor failing can never cost the other its hit.
-  try {
-    sendToGa4(kind, payload);
-  } catch {
-    /* analytics must never break the page */
-  }
-  try {
-    sendToMeta(kind, payload);
-  } catch {
-    /* analytics must never break the page */
-  }
+  if (!adminHit) sendToVendors(kind, payload, params);
   // ★ STUDENT-ACTIVITY-1 (owner ruling 2026-10-01) — the FIRST-PARTY activity log, and
   // the one place this module deals with a signed-in student. It is NOT a vendor and
   // NOT an identify(): nothing is added to what GA4 or Vercel receive (above, unchanged).
@@ -232,6 +280,26 @@ function send(kind: "pageview" | "event", payload: Record<string, unknown>): voi
   // guard, so it can never cost either vendor its hit.
   try {
     recordActivity(kind, payload);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+function sendToVendors(kind: "pageview" | "event", payload: Record<string, unknown>, params: VendorParams): void {
+  try {
+    const vendor = resolveVendor();
+    if (vendor) vendor(kind, payload);
+  } catch {
+    /* analytics must never break the page */
+  }
+  // A separate guard, so one vendor failing can never cost the other its hit.
+  try {
+    sendToGa4(kind, payload, params.ga4);
+  } catch {
+    /* analytics must never break the page */
+  }
+  try {
+    sendToMeta(kind, payload, params.meta);
   } catch {
     /* analytics must never break the page */
   }
@@ -322,7 +390,11 @@ export function ga4PageReferrer(referrer: string): string {
  * `set` on every later hit, and every page view would be filed against the landing page.
  * Both values are the same redacted string; nothing new is sent.
  */
-function sendToGa4(kind: "pageview" | "event", payload: Record<string, unknown>): void {
+function sendToGa4(
+  kind: "pageview" | "event",
+  payload: Record<string, unknown>,
+  eventParams?: Record<string, unknown>,
+): void {
   const gtag = resolveGtag();
   if (!gtag) return;
   const name = kind === "pageview" ? "page_view" : payload.name;
@@ -332,12 +404,18 @@ function sendToGa4(kind: "pageview" | "event", payload: Record<string, unknown>)
     kind === "pageview" && typeof payload.path === "string"
       ? payload.path
       : routerPathOf(loc.pathname);
-  const page = {
+  const page: Record<string, string> = {
     page_location: ga4PageLocation(routerPath, loc.search, loc.origin),
     page_referrer: ga4PageReferrer(document.referrer),
   };
+  // TRACK-2 §1.3 — a device that has opened /admin is the owner's: tag it, so GA4's
+  // internal-traffic filter can drop it once the owner switches that filter on.
+  if (isInternalDevice()) page.traffic_type = "internal";
   gtag("set", page);
-  gtag("event", name, { ...page });
+  // TRACK-2 — only the checkout and onboarding events carry params (built and sanitised
+  // by their own track functions below). The address keys are spread LAST so a param
+  // can never overwrite the redacted address.
+  gtag("event", name, { ...(eventParams ?? {}), ...page });
 }
 
 /* ------------------------------------------------------------------------- *
@@ -371,11 +449,22 @@ function resolveFbq(): Fbq | null {
   return typeof w.fbq === "function" ? w.fbq : null;
 }
 
-type MetaCall = readonly ["track" | "trackCustom", string];
+/**
+ * A Meta call: method and standard event name, plus — for the two TRACK-2 checkout
+ * events only — a third argument carrying `{ value, currency }` (and nothing else).
+ */
+type MetaCall =
+  | readonly ["track" | "trackCustom", string]
+  | readonly ["track" | "trackCustom", string, Record<string, unknown>];
 
-export const META_EVENTS: Readonly<Partial<Record<"sign_up" | NamedAnalyticsEvent, MetaCall>>> = {
+export const META_EVENTS: Readonly<
+  Partial<Record<"sign_up" | NamedAnalyticsEvent, readonly ["track" | "trackCustom", string]>>
+> = {
   sign_up: ["track", "CompleteRegistration"],
   trial_start: ["track", "StartTrial"],
+  // TRACK-2 — the checkout funnel. Value + currency travel as the third argument.
+  begin_checkout: ["track", "InitiateCheckout"],
+  purchase: ["track", "Purchase"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
@@ -458,7 +547,7 @@ function flushMetaPending(): void {
   try {
     const fbq = resolveFbq();
     if (!fbq || !metaAddressIsClean(window.location, document.referrer)) return;
-    for (const call of calls) fbq(call[0], call[1]);
+    for (const call of calls) fbq(...call);
   } catch {
     /* analytics must never break the page */
   }
@@ -473,7 +562,11 @@ function holdMetaCall(call: MetaCall): void {
   }
 }
 
-function sendToMeta(kind: "pageview" | "event", payload: Record<string, unknown>): void {
+function sendToMeta(
+  kind: "pageview" | "event",
+  payload: Record<string, unknown>,
+  eventParams?: Record<string, unknown>,
+): void {
   const fbq = resolveFbq();
   if (!fbq) return;
   if (!metaAddressIsClean(window.location, document.referrer)) {
@@ -482,14 +575,15 @@ function sendToMeta(kind: "pageview" | "event", payload: Record<string, unknown>
     return;
   }
   const name = payload.name;
-  const call =
+  const mapped =
     kind === "pageview"
       ? META_PAGEVIEW
       : typeof name === "string" && Object.prototype.hasOwnProperty.call(META_EVENTS, name)
         ? META_EVENTS[name as keyof typeof META_EVENTS]
         : undefined;
-  if (!call) return;
-  if (metaLibraryLoaded(fbq)) fbq(call[0], call[1]);
+  if (!mapped) return;
+  const call: MetaCall = kind === "event" && eventParams ? [mapped[0], mapped[1], eventParams] : mapped;
+  if (metaLibraryLoaded(fbq)) fbq(...call);
   else holdMetaCall(call);
 }
 
@@ -581,10 +675,174 @@ export type NamedAnalyticsEvent =
   | "sol_attempt_typed_wrong"
   | "sol_attempt_no_verdict"
   | "sol_unlock"
-  | "sol_check_start";
+  | "sol_check_start"
+  // TRACK-2 — the checkout funnel. Sent with their params by trackBeginCheckout and
+  // trackPurchase below, never bare. purchase fires ONLY from PassCheckout's
+  // server-verified paid branch.
+  | "begin_checkout"
+  | "purchase"
+  // TRACK-2 — onboarding (Start here) and the scorecard-to-tutor hop, sent with coarse
+  // params by trackOnboardingEvent below. No id, no text, no PII.
+  | "start_here_shown"
+  | "start_here_start"
+  | "start_here_graded"
+  | "start_here_dismissed"
+  | "tutor_from_scorecard";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
+}
+
+/* ------------------------------------------------------------------------- *
+ * TRACK-2 §1.1 — THE CHECKOUT FUNNEL.
+ *
+ * `begin_checkout` on a signed-in pay tap, before Razorpay opens. `purchase` ONLY from
+ * the server-verified `outcome.status === "paid"` branch in PassCheckout.tsx — never on
+ * the tap, on Razorpay's callback before verify, on failure, on dismiss, or on an
+ * "already active" pass. Once per transaction: a fired id is remembered in memory and
+ * in THIS TAB's sessionStorage (`lazytopper.purchaseSent`, studentDataMap.ts), so a
+ * reload of the same tab can never count it twice.
+ *
+ * GA4 gets its recommended ecommerce shape (`currency`, `value`, `items`, and on
+ * purchase `transaction_id`); Meta gets `{ value, currency }` only; Vercel gets a flat
+ * `{ currency, value, pass }` (custom-event data must be flat) — no transaction id.
+ * ------------------------------------------------------------------------- */
+
+export type CheckoutPassType = "month" | "till_boards";
+
+export interface CheckoutDetails {
+  passType: CheckoutPassType;
+  itemName: string;
+  /** Rupees. null when the price cannot be known on the client: the event is sent without a value. */
+  valueInr: number | null;
+}
+
+const CHECKOUT_CURRENCY = "INR";
+
+function checkoutParams(d: CheckoutDetails): { vercel: Record<string, unknown>; ga4: Record<string, unknown>; meta: Record<string, unknown> } {
+  const value = typeof d.valueInr === "number" && Number.isFinite(d.valueInr) && d.valueInr > 0 ? d.valueInr : null;
+  const money: Record<string, unknown> = value === null ? { currency: CHECKOUT_CURRENCY } : { currency: CHECKOUT_CURRENCY, value };
+  return {
+    vercel: { ...money, pass: d.passType },
+    ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName }] },
+    meta: money,
+  };
+}
+
+export function trackBeginCheckout(details: CheckoutDetails): void {
+  try {
+    const p = checkoutParams(details);
+    send("event", { name: "begin_checkout", data: p.vercel }, { ga4: p.ga4, meta: p.meta });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+export const PURCHASE_SENT_KEY = "lazytopper.purchaseSent";
+const PURCHASE_SENT_CAP = 20;
+const purchaseSentMemory = new Set<string>();
+
+function readPurchaseSent(): string[] {
+  try {
+    const raw = window.sessionStorage.getItem(PURCHASE_SENT_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function rememberPurchaseSent(transactionId: string): void {
+  purchaseSentMemory.add(transactionId);
+  try {
+    const ids = readPurchaseSent().filter((id) => id !== transactionId);
+    ids.push(transactionId);
+    window.sessionStorage.setItem(PURCHASE_SENT_KEY, JSON.stringify(ids.slice(-PURCHASE_SENT_CAP)));
+  } catch {
+    /* the in-memory set still dedupes this page load */
+  }
+}
+
+/** Once per `transactionId`, ever in this tab. Call ONLY from the server-verified paid branch. */
+export function trackPurchase(details: CheckoutDetails & { transactionId: string }): void {
+  try {
+    const id = details.transactionId;
+    if (!id || purchaseSentMemory.has(id) || readPurchaseSent().includes(id)) return;
+    rememberPurchaseSent(id);
+    const p = checkoutParams(details);
+    send("event", { name: "purchase", data: p.vercel }, { ga4: { transaction_id: id, ...p.ga4 }, meta: p.meta });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/** Test seam: forget this page load's fired purchases (sessionStorage is left as it is, as a reload leaves it). */
+export function __resetPurchaseMemoryForTests(): void {
+  purchaseSentMemory.clear();
+}
+
+/**
+ * A fresh id for one checkout attempt, made at the pay tap and used as `purchase`'s
+ * `transaction_id` if that attempt is verified paid. (BuyOutcome in services/checkout.ts
+ * carries neither the Razorpay payment id nor the order id, and that file is outside
+ * this lane, so the id is minted here: unique per attempt, so it dedupes exactly.)
+ */
+export function newCheckoutAttemptId(): string {
+  try {
+    const c = globalThis.crypto;
+    if (c && typeof c.randomUUID === "function") return `lt_${c.randomUUID()}`;
+    if (c && typeof c.getRandomValues === "function") {
+      const bytes = c.getRandomValues(new Uint8Array(16));
+      return `lt_${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
+    }
+  } catch {
+    /* fall through */
+  }
+  return `lt_${Date.now().toString(36)}`;
+}
+
+/* ------------------------------------------------------------------------- *
+ * TRACK-2 §1.2 — ONBOARDING EVENTS (the Start-here lane builds on these names).
+ *
+ * Coarse params only: a surface, a subject, a board chapter slug, a question type, and
+ * two small counts. No id, no text, no PII. Every string is checked against a short
+ * slug pattern and dropped if it does not fit, so free text cannot ride along.
+ * ------------------------------------------------------------------------- */
+
+export type StartHereSurface = "home" | "practice_hub" | "check_improve";
+export type ScorecardSurface = "quick_practice" | "check_improve" | "chapter_test" | "full_mock" | "worksheet";
+
+export interface OnboardingEventParams {
+  start_here_shown: { surface: StartHereSurface };
+  start_here_start: { subject: string; chapter: string; qtype: string };
+  start_here_graded: { subject: string; correct: number; total: number };
+  start_here_dismissed: { surface: StartHereSurface };
+  tutor_from_scorecard: { surface: ScorecardSurface };
+}
+
+export type OnboardingEvent = keyof OnboardingEventParams;
+
+const ONBOARDING_SLUG = /^[a-z0-9][a-z0-9_-]{0,63}$/i;
+const ONBOARDING_MAX_COUNT = 1000;
+
+function onboardingData(params: Record<string, unknown>): Record<string, string | number> {
+  const out: Record<string, string | number> = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (typeof value === "string" && ONBOARDING_SLUG.test(value)) out[key] = value;
+    else if (typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= ONBOARDING_MAX_COUNT) {
+      out[key] = value;
+    }
+  }
+  return out;
+}
+
+export function trackOnboardingEvent<E extends OnboardingEvent>(name: E, params: OnboardingEventParams[E]): void {
+  try {
+    const data = onboardingData(params as unknown as Record<string, unknown>);
+    send("event", { name, data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
 }
 
 /** Where on /for-parents the share button was tapped. */

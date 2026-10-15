@@ -108,6 +108,14 @@ const ACTIVITY_EVENTS = Object.freeze([
   'sol_attempt_no_verdict',
   'sol_unlock',
   'sol_check_start',
+  // TRACK-2 - checkout and onboarding. Additive only.
+  'begin_checkout',
+  'purchase',
+  'start_here_shown',
+  'start_here_start',
+  'start_here_graded',
+  'start_here_dismissed',
+  'tutor_from_scorecard',
 ]);
 
 /**
