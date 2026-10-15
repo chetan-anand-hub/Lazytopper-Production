@@ -94,6 +94,14 @@ const EVENT_LABELS: Record<string, string> = {
   sol_attempt_no_verdict: "Typed an answer (solutions, no verdict)",
   sol_unlock: "Unlocked a solution",
   sol_check_start: "Tapped Check my answer (solutions)",
+  // TRACK-2 — checkout and onboarding.
+  begin_checkout: "Opened checkout",
+  purchase: "Paid for Premium",
+  start_here_shown: "Saw Start here",
+  start_here_start: "Started Start here",
+  start_here_graded: "Finished Start here",
+  start_here_dismissed: "Dismissed Start here",
+  tutor_from_scorecard: "Opened the tutor from a scorecard",
 };
 
 /** A recorded event name in plain words, e.g. "check_graded" -> "Checked an answer". */

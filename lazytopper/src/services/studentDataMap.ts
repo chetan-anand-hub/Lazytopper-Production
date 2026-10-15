@@ -600,7 +600,11 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "expiry, and never sent to any server before the student submits. Plus, in THIS TAB's " +
       "sessionStorage only (`lazytopper.visitSource`, SOURCE-1): the coarse source of the " +
       "current visit, held until sign-up sends it once to our server and deletes it, or until " +
-      "the tab closes.",
+      "the tab closes. TRACK-2: plus localStorage `lazytopper.internal` (the single character 1, " +
+      "set when this device opens /admin, so analytics can tag the owner's own browsing as " +
+      "internal traffic; it holds no id and never leaves the device) and, in THIS TAB's " +
+      "sessionStorage, `lazytopper.purchaseSent` (up to 20 random per-attempt checkout ids, so a " +
+      "reload cannot count one payment twice).",
     mechanism: "client-local",
     exportable: true,
     notes:
