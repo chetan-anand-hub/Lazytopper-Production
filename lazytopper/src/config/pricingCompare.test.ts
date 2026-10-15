@@ -146,11 +146,67 @@ function unbackedLimited(texts: readonly string[], source: string): string[] {
   });
 }
 
+/* Owner ruling 2 on #1190 — the guard also covers the Basic card's description and EVERY
+ * FAQ answer, which live in PricingPage.tsx. They are read from the source (this suite runs
+ * in node); PricingPage.pricing.test.tsx pins the same strings as rendered. */
+const PAGE_SOURCE = readFileSync(resolve(process.cwd(), "src/pages/PricingPage.tsx"), "utf8");
+
+const stripComments = (src: string) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, "");
+
+/** The Basic card's description paragraph, whitespace-collapsed. */
+function basicDescriptionFrom(src: string): string {
+  const m = /lt-pricing-card--basic">[\s\S]*?<p className="lt-pricing-plan-desc">([\s\S]*?)<\/p>/.exec(src);
+  if (!m) throw new Error("Basic description not found");
+  return m[1].replace(/\s+/g, " ").trim();
+}
+
+/** Every FAQ answer the page can render: each `a:` in FAQ_ITEMS, plus the payments-ON pay answer. */
+function faqAnswersFrom(src: string): { questions: number; answers: string[] } {
+  const start = src.indexOf("const FAQ_ITEMS = [");
+  const end = src.indexOf("\n];\n", start);
+  if (start < 0 || end < 0) throw new Error("FAQ_ITEMS not found");
+  const block = stripComments(src.slice(start, end));
+  const answers = [...block.matchAll(/\ba:\s*("(?:[^"\\]|\\.)*"|`[^`]*`)/g)].map((m) => m[1].slice(1, -1));
+  const on = /const FAQ_CAN_I_PAY_ANSWER_PAYMENTS_ON =\s*"([^"]*)"/.exec(src);
+  if (!on) throw new Error("FAQ_CAN_I_PAY_ANSWER_PAYMENTS_ON not found");
+  return { questions: (block.match(/\bq:\s*["`]/g) ?? []).length, answers: [...answers, on[1]] };
+}
+
 describe("Owner ruling — 'Limited' on Basic only when backed by a constant", () => {
   it("no Basic item or Basic cell says 'limited' without an enforced, interpolated number", () => {
     const texts = basicTexts();
     expect(texts.length).toBeGreaterThanOrEqual(BASIC_INCLUDES.length);
     expect(unbackedLimited(texts, COMPARE_SOURCE)).toEqual([]);
+  });
+
+  it("neither does the Basic card description, nor ANY FAQ answer (owner ruling 2)", () => {
+    const desc = basicDescriptionFrom(PAGE_SOURCE);
+    const { questions, answers } = faqAnswersFrom(PAGE_SOURCE);
+    // CONTROL — the extractor really reads the page: the ruled strings, and one answer per question.
+    expect(desc).toBe("For browsing, revising and practising on your own.");
+    expect(questions).toBeGreaterThanOrEqual(7);
+    expect(answers).toHaveLength(questions + 1);
+    expect(answers).toContain(
+      "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with Premium.",
+    );
+    expect(unbackedLimited([desc, ...answers], PAGE_SOURCE + COMPARE_SOURCE)).toEqual([]);
+  });
+
+  it("CONTROL — the guard catches the OLD wording of both strings", () => {
+    const oldDesc = "Browse the product and use limited learning tools without paid access.";
+    const oldFaq = "Yes. Basic keeps browse-first access and limited practice tools available without paid activation.";
+    expect(unbackedLimited([oldDesc, oldFaq], PAGE_SOURCE + COMPARE_SOURCE)).toEqual([oldDesc, oldFaq]);
+    // ...and through the same extractors, on a fixture page carrying the old wording.
+    const oldPage = [
+      '<div className="lt-pricing-card lt-pricing-card--basic">',
+      `<p className="lt-pricing-plan-desc">\n  ${oldDesc}\n</p>`,
+      "const FAQ_ITEMS = [",
+      `  { q: "Is Basic really free?", a: "${oldFaq}" },`,
+      "];",
+      'const FAQ_CAN_I_PAY_ANSWER_PAYMENTS_ON = "Yes.";',
+    ].join("\n");
+    const found = unbackedLimited([basicDescriptionFrom(oldPage), ...faqAnswersFrom(oldPage).answers], oldPage);
+    expect(found).toEqual([oldDesc, oldFaq]);
   });
 
   it("the two rows the ruling changed: practice and worksheets are ticks for both plans", () => {

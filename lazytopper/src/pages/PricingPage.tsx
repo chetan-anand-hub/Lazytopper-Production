@@ -1029,7 +1029,8 @@ const PRICING_CSS = `
 const FAQ_ITEMS = [
   {
     q: "Is Basic really free?",
-    a: "Yes. Basic keeps browse-first access and limited practice tools available without paid activation.",
+    // Owner ruling on #1190 (Oct 2026): no unbacked "limited" — P20 found no enforced free limit.
+    a: "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with Premium.",
   },
   {
     // PRICING-TB-1 (owner ruling): NO FIGURE HERE. The till-boards price
@@ -1440,9 +1441,7 @@ export default function PricingPage() {
                 <span className="lt-pricing-amount">{PRICE_FREE_DISPLAY}</span>
                 <span className="lt-pricing-period">{PERIOD_FREE_LABEL}</span>
               </div>
-              <p className="lt-pricing-plan-desc">
-                Browse the product and use limited learning tools without paid access.
-              </p>
+              <p className="lt-pricing-plan-desc">For browsing, revising and practising on your own.</p>
               <button
                 type="button"
                 className="lt-pricing-cta lt-pricing-cta--secondary"

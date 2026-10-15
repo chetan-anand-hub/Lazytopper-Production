@@ -517,6 +517,30 @@ describe("PricingPage — R6 FAQ copy", () => {
     expect(flat(basic.querySelector(".lt-pricing-amount"))).toBe("₹0");
     expect(flat(basic.querySelector(".lt-pricing-period"))).toBe("/ forever");
   });
+
+  // Owner ruling on #1190 (Oct 2026): the two sentences that still said "limited" are
+  // reworded, word for word. Pinned as rendered; the guard in pricingCompare.test.ts keeps
+  // "limited" out of them for good.
+  it("the Basic description and the 'Is Basic really free?' answer, word for word", () => {
+    const { inner } = renderPricing();
+    const basic = inner.querySelectorAll(".lt-pricing-card")[0];
+    expect(flat(basic.querySelector(".lt-pricing-plan-desc"))).toBe(
+      "For browsing, revising and practising on your own.",
+    );
+    const free = Array.from(inner.querySelectorAll(".lt-pricing-faq-item")).find(
+      i => flat(i.querySelector(".lt-pricing-faq-q")) === "Is Basic really free?",
+    );
+    expect(flat(free?.querySelector(".lt-pricing-faq-a"))).toBe(
+      "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with Premium.",
+    );
+    // CONTROL — no rendered FAQ answer or Basic description says "limited" any more.
+    const texts = [
+      flat(basic.querySelector(".lt-pricing-plan-desc")),
+      ...Array.from(inner.querySelectorAll(".lt-pricing-faq-a")).map(a => flat(a)),
+    ];
+    expect(texts.length).toBeGreaterThanOrEqual(8);
+    expect(texts.filter(t => /limited/i.test(t))).toEqual([]);
+  });
 });
 
 describe("PricingPage — PRICING-LIGHT-1 · L4 the Premium card (owner ruling, Oct 2026)", () => {
