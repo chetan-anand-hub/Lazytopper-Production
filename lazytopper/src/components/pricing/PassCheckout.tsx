@@ -53,7 +53,15 @@ export interface PassCheckoutViewProps {
   onBuy: (passType: PassType) => Promise<BuyOutcome>;
 }
 
-/** Presentational half — every state the buy area can be in. */
+/**
+ * Presentational half — every state the buy area can be in.
+ *
+ * PRICING-LIGHT-1 (P23): class names only. PricingPage lays the buy area out as two pass
+ * tiles by making `.lt-pricing-checkout` `display: contents` inside its tile grid; these
+ * class names place each child. Month button -> Month pass tile; till-boards button ->
+ * Till-your-boards tile; the paid / already-active notices -> a full-width row above the
+ * tiles; the failure alert -> a full-width row below. Nothing here decides a state.
+ */
 export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn, onBuy }: PassCheckoutViewProps) {
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<string | null>(null);
@@ -83,7 +91,7 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
   if (paidUntil) {
     return (
       <div className="lt-pricing-checkout" data-testid="pass-checkout">
-        <p className="lt-pricing-plan-desc" role="status" data-testid="pass-checkout-paid">
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-paid">
           {premiumActiveUntilCopy(paidUntil)}
         </p>
       </div>
@@ -93,13 +101,13 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
   return (
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
       {activeLabel && (
-        <p className="lt-pricing-plan-desc" data-testid="pass-checkout-already-active">
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" data-testid="pass-checkout-already-active">
           {premiumAlreadyActiveCopy(activeLabel)}
         </p>
       )}
       <button
         type="button"
-        className="lt-pricing-cta lt-pricing-cta--primary"
+        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
         disabled={busy !== null}
         onClick={() => void handleBuy("month")}
       >
@@ -107,14 +115,14 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
       </button>
       <button
         type="button"
-        className="lt-pricing-cta lt-pricing-cta--secondary"
+        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
         disabled={busy !== null}
         onClick={() => void handleBuy("till_boards")}
       >
         {TILL_BOARDS_BUTTON_LABEL}
       </button>
       {failed && (
-        <p className="lt-pricing-plan-desc" role="alert" data-testid="pass-checkout-failed">
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="alert" data-testid="pass-checkout-failed">
           {PAYMENT_FAILED_COPY}
         </p>
       )}

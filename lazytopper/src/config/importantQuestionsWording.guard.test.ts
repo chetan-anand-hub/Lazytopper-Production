@@ -152,7 +152,13 @@ describe("★ IMPQ-RENAME-1 — the feature is 'Important Questions' in every st
   it("the new names are in place where the owner named them", () => {
     const read = (f: string) => readFileSync(join(SRC, f), "utf8");
     expect(read("pages/HighlyProbableQuestions.tsx")).toContain("Class {grade} · {subjectKey} · Important Questions");
-    expect(read("pages/PricingPage.tsx")).toContain("Full mocks and important-question sets — real board blueprint");
+    // PRICING-LIGHT-1 (owner ruling L4, Oct 2026) replaced the pricing page's Premium list,
+    // retiring the "Full mocks and important-question sets" row. The page is still in the
+    // scan above; the plan copy it now reads lives in config/pricingCompare.ts, outside the
+    // scanned directories, so that file is held to the same OLD_NAMES here.
+    expect(read("pages/PricingPage.tsx")).not.toContain("Full mocks and important-question sets");
+    const compare = read("config/pricingCompare.ts");
+    expect(OLD_NAMES.filter((r) => r.test(compare)).map(String)).toEqual([]);
     expect(read("pages/desktop/DesktopPracticePage.tsx")).toContain(
       "Chapter-wise important questions from ${EVIDENCE_BASE_YEARS} years of CBSE papers.",
     );
