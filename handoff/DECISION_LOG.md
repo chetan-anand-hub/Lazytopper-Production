@@ -1,3 +1,17 @@
+## 2026-10-15 — PRICING-LIGHT-1 (`#1190`): OWNER RULINGS AS THEY BEAR ON IT (RECORDED BY THE CONTROLLER UNDER §10)
+
+> ⚠ **SCOPE.** No D number is minted here; these are owner rulings given in chat and relayed to the controller.
+
+| ruling | what it says | the reason given |
+|---|---|---|
+| **Owner, 2026-10-15 (spec v1.0)** | Design "D" locked: light /pricing, Basic left and Premium right, compare table, fair-use box; supersedes PAY-BUTTONS-1 (not built) | the Pay buttons were navy on navy (1.04:1) and the page did not say what each plan gives |
+| **Owner, 2026-10-15** | **P5 superseded**: cards and table state what each plan gives, from `pricingCompare.ts` (the "quota wording belongs in the FAQ" rule is lifted for this page) | the page must explain the plans |
+| **Owner, 2026-10-15** | "Unlimited" allowlist — exactly two strings, in `pricingCompare.ts` only — APPROVED as built | true for Premium (`MockViewGate.tsx`: "Premium is unlimited"); the no-"unlimited" guard still fails any other use |
+| **Owner, 2026-10-15** | "Limited" REJECTED: Basic item 3 "Practice sets and worksheet generation"; the practice and worksheet rows are ✓ | ✓; the usage-limits FAQ reworded; guard "'Limited' needs a constant" added | P20 found no enforced free limit, so claiming one is inaccurate |
+| **Owner, 2026-10-15** | Basic card description "For browsing, revising and practising on your own."; FAQ "Is Basic really free?" reworded word for word; the guard extended to the card description and every FAQ answer | the two leftover sentences made the same unbacked "limited practice" claim |
+| **Owner, 2026-10-15** | Three builder extras APPROVED: trial note hidden for Premium or used-trial students; free-check table cell narrowed to the card line's conditions; tiles kept when payments are off | each is more honest than the literal spec |
+| **Owner, 2026-10-15** | `[FU-LOCK-LIST-LIMITED-PRACTICE]` logged, fix NOT in this lane (docs PR only) | `FREE_FEATURES` is shared by the Premium locks (P7) |
+
 ## 2026-10-14 — SOLUTIONS-1 (`#1186`) AND LEGAL-ENTITY-1 (`#1187`): OWNER RULINGS AS THEY BEAR ON THEM (RECORDED BY G UNDER §10)
 
 > ⚠ **SCOPE.** No new D number is minted here; these are owner rulings given in chat and relayed on `#973`. D259–D261 (the solutions rulings) are recorded in the block below.
