@@ -36,7 +36,7 @@ describe.each(CHAPTERS)("the five for $subject / $chapter", ({ subject, chapter 
     for (const id of ids) {
       const row = byId.get(id);
       expect(row, `${id} is a row of ${chapter}`).toBeDefined();
-      expect(isCbq(row as { competencyVerified?: unknown })).toBe(true);
+      expect(isCbq(row as never)).toBe(true);
       expect(String(row!.subject).toLowerCase()).toBe(subject.toLowerCase());
       const opts = (row!.options as string[]).map(String);
       expect(opts).toHaveLength(4);
@@ -50,7 +50,7 @@ describe.each(CHAPTERS)("the five for $subject / $chapter", ({ subject, chapter 
     const ids = await pickStartHereSet({ subject, chapter, qtype: "mcq", rotation: 1 });
     const rows = startHereChapterRows(subject, chapter) as Row[];
     const chosen = rows.filter((r) => ids.includes(String(r.id)));
-    const pool = rows.filter((r) => isFourOptionMcq(r) && isCbq(r as { competencyVerified?: unknown }) && !isAssertionReasonRow(r));
+    const pool = rows.filter((r) => isFourOptionMcq(r) && isCbq(r as never) && !isAssertionReasonRow(r));
     const worstChosen = Math.max(...chosen.map(rank));
     expect(worstChosen).toBeLessThan(2); // never Easy: the chapter has plenty of others
     for (const r of pool) {

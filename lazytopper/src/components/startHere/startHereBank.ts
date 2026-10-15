@@ -23,7 +23,7 @@ import type { DesktopSubject } from "../../lib/desktop/navigation";
 interface BankRowLike {
   id?: unknown;
   subject?: unknown;
-  competencyVerified?: unknown;
+  [key: string]: unknown;
   options?: unknown;
   answer?: unknown;
   correctOption?: unknown;
@@ -60,7 +60,7 @@ export function isFourOptionMcq(row: BankRowLike): boolean {
 }
 
 function rowQType(row: BankRowLike): StartHereQType | null {
-  if (!isCbq(row as { competencyVerified?: unknown }) || !isFourOptionMcq(row)) return null;
+  if (!isCbq(row as never) || !isFourOptionMcq(row)) return null;
   return isAssertionReasonRow(row) ? "ar" : "mcq";
 }
 
