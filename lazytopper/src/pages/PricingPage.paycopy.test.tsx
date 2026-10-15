@@ -167,7 +167,8 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for wo
       // React escapes the apostrophe in "Razorpay's" in static markup.
       `<div class="lt-pricing-faq-q">Can I pay here?</div><div class="lt-pricing-faq-a">${K2.replace(/'/g, "&#x27;")}</div></div>`,
     );
-    for (const piece of [subtitle, fine, payFaq]) expect(baked).toContain(piece);
+    // ...whereas the browser capture serialises it as a plain apostrophe.
+    for (const piece of [subtitle, fine, payFaq.replace(/&#x27;/g, "'")]) expect(baked).toContain(piece);
     // CONTROL — none of the OFF sentences survived in the committed page.
     for (const off of [P1_OFF, P2_OFF, P3_OFF]) expect(baked).not.toContain(off);
   });
