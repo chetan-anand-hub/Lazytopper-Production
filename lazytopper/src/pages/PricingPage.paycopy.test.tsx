@@ -129,20 +129,6 @@ describe("PAYCOPY-1 · K4 — payments OFF (VITE_PAYMENTS_ENABLED unset): today'
     }
   });
 
-  it("the committed prerendered/pricing.html carries the SAME markup for all three (prerender unchanged)", () => {
-    const baked = readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8");
-    const html = staticPricing("");
-    const subtitle = fragment(html, '<p class="lt-pricing-subtitle">', "</p>");
-    const fine = fragment(html, '<p class="lt-pricing-fine-print">', "</p>");
-    const payFaq = fragment(html, '<div class="lt-pricing-faq-q">Can I pay here?</div>', "</div></div>");
-
-    expect(subtitle).toBe(`<p class="lt-pricing-subtitle">${P1_OFF}</p>`);
-    expect(fine).toBe(`<p class="lt-pricing-fine-print">${P3_OFF}</p>`);
-    expect(payFaq).toBe(
-      `<div class="lt-pricing-faq-q">Can I pay here?</div><div class="lt-pricing-faq-a">${P2_OFF}</div></div>`,
-    );
-    for (const piece of [subtitle, fine, payFaq]) expect(baked).toContain(piece);
-  });
 });
 
 describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for word", () => {
@@ -160,6 +146,31 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for wo
     expect(html).not.toContain("Payment checkout is not automated yet.");
     expect(html).not.toContain("Payment checkout is not connected in this build");
     expect(html).not.toContain(P3_OFF);
+  });
+
+  /**
+   * PRICING-LIGHT-1 · L6 — the prerender capture now builds with VITE_PAYMENTS_ENABLED=1,
+   * as production does, so the committed page carries the ON markup for all three. (Before
+   * this lane it pinned the OFF markup — which is exactly the live bug: the static page
+   * said checkout was not automated while the live page took payments.)
+   */
+  it("the committed prerendered/pricing.html carries the ON markup for all three", () => {
+    const baked = readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8");
+    const html = staticPricing("1");
+    const subtitle = fragment(html, '<p class="lt-pricing-subtitle">', "</p>");
+    const fine = fragment(html, '<p class="lt-pricing-fine-print">', "</p>");
+    const payFaq = fragment(html, '<div class="lt-pricing-faq-q">Can I pay here?</div>', "</div></div>");
+
+    expect(subtitle).toBe(`<p class="lt-pricing-subtitle">${K1}</p>`);
+    expect(fine).toBe(`<p class="lt-pricing-fine-print">${K3}</p>`);
+    expect(payFaq).toBe(
+      // React escapes the apostrophe in "Razorpay's" in static markup.
+      `<div class="lt-pricing-faq-q">Can I pay here?</div><div class="lt-pricing-faq-a">${K2.replace(/'/g, "&#x27;")}</div></div>`,
+    );
+    // ...whereas the browser capture serialises it as a plain apostrophe.
+    for (const piece of [subtitle, fine, payFaq.replace(/&#x27;/g, "'")]) expect(baked).toContain(piece);
+    // CONTROL — none of the OFF sentences survived in the committed page.
+    for (const off of [P1_OFF, P2_OFF, P3_OFF]) expect(baked).not.toContain(off);
   });
 
   it("only the pay answer changes — every FAQ question, their order, and the other answers are untouched", () => {
@@ -191,7 +202,9 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for wo
  * - the payments-OFF copy is unchanged with the line present.
  */
 describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
-  const FREE_CHECK_LINE = "Not signed in? Your first answer check on Check & Improve is free.";
+  // PRICING-LIGHT-1 · L4: the line is now Basic's fifth row, "Your first answer check free",
+  // under the SAME condition, keeping its test id and its /check-improve link.
+  const FREE_CHECK_LINE = "✓Your first answer check free";
 
   function freeCheckLine(opts: { freeCheck: string; signedIn: boolean; authLoading?: boolean }): Element | null {
     vi.stubEnv("VITE_FREE_CHECK_ENABLED", opts.freeCheck);
@@ -211,7 +224,27 @@ describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
     const el = freeCheckLine({ freeCheck: "1", signedIn: false });
     expect(el?.textContent).toBe(FREE_CHECK_LINE);
     expect(el?.querySelector("a")?.getAttribute("href")).toBe("/check-improve");
+    expect(el?.querySelector("a")?.textContent).toBe("answer check");
     expect(el?.closest(".lt-pricing-card")?.querySelector(".lt-pricing-plan-label")?.textContent).toBe("Basic");
+  });
+
+  /** The compare table's Basic answer-checking cell, visible text only. */
+  function tableFreeCheckCell(opts: { freeCheck: string; signedIn: boolean }): string {
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", opts.freeCheck);
+    auth.user = opts.signedIn ? { uid: "u1" } : null;
+    const row = Array.from(pricingDom("").querySelectorAll(".lt-pricing-compare-row")).find(
+      tr => tr.querySelector("th")?.textContent === "Photograph your handwritten answer and get it marked",
+    );
+    const cell = row?.querySelectorAll("td")[0]?.cloneNode(true) as Element | undefined;
+    cell?.querySelectorAll(".lt-pricing-sr").forEach(n => n.remove());
+    return cell?.textContent ?? "(missing)";
+  }
+
+  it("PRICING-LIGHT-1 — the table's Basic answer-checking cell follows the SAME condition", () => {
+    expect(tableFreeCheckCell({ freeCheck: "1", signedIn: false })).toBe("First check free");
+    // CONTROLS — signed in, or the free check off: a dash, never a promise they cannot use.
+    expect(tableFreeCheckCell({ freeCheck: "1", signedIn: true })).toBe("—");
+    expect(tableFreeCheckCell({ freeCheck: "", signedIn: false })).toBe("—");
   });
 
   it("CONTROL — a signed-in student does not see it", () => {
