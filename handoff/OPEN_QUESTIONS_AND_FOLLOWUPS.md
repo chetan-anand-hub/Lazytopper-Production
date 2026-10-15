@@ -23,6 +23,16 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-16 — TRACK-2 / START-HERE-1 FOLLOW-UPS (recorded by the Session-1 builder under §10)
+
+**[FU-PURCHASE-TXN-ID-RAZORPAY]** `BuyOutcome` (services/checkout.ts) carries no Razorpay payment id or order id, so `purchase`'s `transaction_id` is a per-attempt random id minted at the tap and `value` is the config quote (month: founding/list; till-boards: `tillBoardsQuote().priceInr`). A payment-owned lane should expose the Razorpay payment id and the server's `amountPaise` from `buyPass`. Owner: payment lane.
+
+**[FU-SCORECARD-TUTOR-REST]** "Ask the tutor why I lost this mark" is wired on Quick Practice and saved Check & Improve scorecards. Chapter Test, Full Mock and Worksheet use the same shell (`ResultsScorecard`, `ScorecardGradedAnswer.tutorAsk`); each only needs its call site to pass a `tutorAsk` for a question that lost marks. Multi-topic Quick Practice sets have no single topic and get no hop.
+
+**[FU-START-HERE-WRITTEN]** The Start-here set is MCQ / Assertion–Reason only. A written or case-study type needs the free check (the grader), so it is a separate lane.
+
+**[FU-LOCK-COPY-PAID-EXPIRED]** An expired paid pass also has `isTrialExpired`, so the scorecard lock line says "Your free week has ended". Fine while no external payer exists; revisit when one does.
+
 ## 2026-10-15 — PRICING-LIGHT-1 (`#1190`) FOLLOW-UPS (recorded by the controller under §10)
 
 ### [FU-LOCK-LIST-LIMITED-PRACTICE] — OPEN (owner ruling 2026-10-15; this docs PR is the record, the fix is its own lane): the Premium locks' "Free on Basic" list (`FREE_FEATURES` in `BasicFreeList.tsx`, shared across the app per P7) still says "Practice picker and limited practice". P20 found no enforced free practice limit (`PracticeLimitGate.tsx` FREE_DAILY_LIMIT=10 is unexported and its counter has 0 callers), so the claim is unbacked, as the pricing page's was. PRICING-LIGHT-1 was forbidden from touching it. Fix: reword `FREE_FEATURES` and update its pins (`BasicFreeList.test.tsx`).

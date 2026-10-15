@@ -1,3 +1,18 @@
+## 2026-10-16 — TRACK-2 / START-HERE-1 (`#1192` `#1193`): DECISIONS THIS WAVE MADE (RECORDED BY THE SESSION-1 BUILDER UNDER §10)
+
+> ⚠ **SCOPE.** No D number is minted here. Decisions of the builder and controller inside the pack's specs, each with its reason.
+
+| decision | what it says | the reason |
+|---|---|---|
+| `purchase` uses a per-attempt id and the config quote | `transaction_id` is minted at the tap; `value` comes from `config/pricing` | `BuyOutcome` has no Razorpay ids and `services/checkout.ts` is forbidden; logged as `[FU-PURCHASE-TXN-ID-RAZORPAY]` |
+| the client activity allowlist is edited with the server's | `activityClient.ts` gains the same 7 names | a test pins client = server = `analytics.ts`; outside the CLAIM but required |
+| the Start-here set rides the exact-set QP path | `focusBankIds` + `strictFocus` + `count=5` + `src=start_here` | the path is already proven to serve exactly the requested ids in order; no new engine, no grading difference |
+| zero-graded signal | local first; one `limit(1)` cloud document; null = could not tell; one retry; then account age ≤ 7 days | the earlier read never throws and degrades to local, which would have shown the card to existing students; weak networks must not hide it from new ones |
+| StartHere replaces FirstSession on Home while visible | one start card, not two | both say the same to a zero-graded student |
+| the ad's subject hint has its own tab key | `lazytopper.startHereSubject` | the visit source is deleted at sign-up and its landing is path-only |
+| C&I hop uses `q=qn:<n>` | position, not bank id | an uploaded paper has no bank identity |
+| wrong-answer rows need a real signed-in account | signed-out / local / overlay scorecards unchanged | the owner's additive-only rule for the live product |
+
 ## 2026-10-15 — PRICING-LIGHT-1 (`#1190`): OWNER RULINGS AS THEY BEAR ON IT (RECORDED BY THE CONTROLLER UNDER §10)
 
 > ⚠ **SCOPE.** No D number is minted here; these are owner rulings given in chat and relayed to the controller.

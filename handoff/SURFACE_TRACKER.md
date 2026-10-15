@@ -1,3 +1,11 @@
+> **2026-10-16 — TRACK-2 / START-HERE-1 (§10 for `#1192` `#1193`).** Scope: analytics events, one onboarding card on three pages, and a scorecard button. **No grading behaviour changed** (all six surfaces untouched).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| analytics (GA4 / Vercel / Meta / first-party feed) | checkout + onboarding events; /admin silent (`#1192`) | 🟢 live (`9ad6630c`) | owner GA4 Realtime check |
+| Home (desktop + mobile), `/practice-hub`, `/check-improve` | "Start here · 2 minutes" card for zero-graded signed-in accounts (`#1193`) | 🟢 live once `#1193` merged | owner phone + 390/1280 px check |
+| Quick Practice scorecard, saved Check & Improve scorecard, Tutor | wrong-MCQ rows + "Ask the tutor why I lost this mark" (`#1193`) | 🟢 live once `#1193` merged | `[FU-SCORECARD-TUTOR-REST]` for CT / FM / Worksheet |
+
 > **2026-10-15 — PRICING-LIGHT-1 (controller, §10 for `#1190`).** Scope: one public surface, `/pricing`, plus its prerendered capture. No grading behaviour, bank row or student data changed.
 
 | surface | what moved (PR) | state | owed |

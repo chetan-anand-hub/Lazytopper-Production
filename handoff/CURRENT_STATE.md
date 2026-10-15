@@ -1,3 +1,15 @@
+## [CURRENT · 2026-10-16 · DISPATCH-PACK_FIRST-WIN Parts 1+2 · TRACK-2 + START-HERE-1] `#1192` `#1193`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by the Session-1 builder under §10 from `gh pr view`, `git log`, the mailbox verdicts and `#973`. Facts only; nothing here changes a ruling. Written at trunk `__SHA__`; re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | what it changed |
+|---|---|---|
+| `#1192` TRACK-2 | `9ad6630c` | `begin_checkout` on a signed-in pay tap; `purchase` ONLY in PassCheckout's server-verified `outcome.status === "paid"` branch, once per transaction id; Meta InitiateCheckout / Purchase; the onboarding events (`start_here_shown|start|graded|dismissed`, `tutor_from_scorecard`) in all four allowlists + admin labels; `/admin` sends nothing to GA4 / Vercel / Meta (activity log unchanged); device flag `lazytopper.internal` tags later GA4 hits `traffic_type: "internal"`. `transaction_id` is a per-attempt id and `value` the config quote until `[FU-PURCHASE-TXN-ID-RAZORPAY]` |
+| `#1193` START-HERE-1 | `__SH1__` | the "Start here · 2 minutes" card (zero-graded signed-in accounts; Home desktop + mobile, `/practice-hub`, `/check-improve`); a 5-question CBQ-MCQ set through the existing exact-set Quick Practice path; wrong MCQs on the QP scorecard with pick, right option and bank steps; "Ask the tutor why I lost this mark" on QP and saved C&I scorecards (`from=<own record id>&q=<question>`, uid-scoped); the expired-trial lock line on `source=scorecard`; the ad's subject hint kept past sign-up. **No grading surface changed** (all six untouched) |
+
+★ **Zero-graded signal:** local session records first (no network); an empty device asks ONE document (`cloudHasAnySessionRecord`, `limit(1)`); a cached or failed answer is "could not tell": one retry after 3 s, then an account created within 7 days still sees the card, an older or unknown one does not.
+Owner live-verify owed: see NEXT_ACTION. Session 2 starts next (Part 4 then Part 3 of the pack).
+
 ## [CURRENT · 2026-10-15 · PRICING-LIGHT-1] `#1190`
 
 *(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by the controller under §10 from `gh pr view 1190` and `git log`. Facts only. Written at trunk `566b3379`; re-derive with `git rev-parse origin/base/approved-thru-437`.

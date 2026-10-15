@@ -1,3 +1,9 @@
+## 2026-10-16 — TRACK-2 (`#1192`) · START-HERE-1 (`#1193`) — ✅ MERGED
+
+- ✅ Purchase + onboarding events, admin traffic out of analytics. ⏳ owner live-verify (GA4 Realtime); `[FU-PURCHASE-TXN-ID-RAZORPAY]`.
+- ✅ Start-here card + Quick 5 + traps + tutor hop on QP and saved C&I scorecards. ⏳ owner phone check; `[FU-SCORECARD-TUTOR-REST]` (Chapter Test / Full Mock / Worksheet), `[FU-START-HERE-WRITTEN]`.
+- ⏳ **Session 2:** Part 4 (growth) then Part 3 (tutor honesty) of DISPATCH-PACK_FIRST-WIN.
+
 ## 2026-10-15 — PRICING-LIGHT-1 (`#1190`) — ✅ MERGED
 
 - ✅ Light pricing page, Basic and Premium, full compare table, payments-ON prerender. ⏳ owner live-verify (§4).
