@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { cloudHasAnySessionRecord, loadLocalSessionRecords } from "../../services/sessionRecords";
+import { authClient } from "../../services/firebaseClient";
 import { trackOnboardingEvent, type StartHereSurface } from "../../analytics/analytics";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
@@ -38,6 +39,26 @@ import {
  */
 
 type Tri = "loading" | "none" | "some";
+
+/** One more ask after this long when the cloud could not answer. */
+export const START_HERE_RETRY_MS = 3000;
+/** An account created within this many days counts as new when the network cannot say. */
+export const START_HERE_NEW_ACCOUNT_DAYS = 7;
+
+/** The signed-in user's Firebase Auth `metadata.creationTime`, already on the device. Missing,
+ *  unparseable, a different user, or in the future -> false (never guess "new"). */
+export function accountIsNew(uid: string, now: number = Date.now()): boolean {
+  try {
+    const user = authClient?.currentUser;
+    if (!user || user.uid !== uid) return false;
+    const created = Date.parse(user.metadata?.creationTime ?? "");
+    if (!Number.isFinite(created)) return false;
+    const age = now - created;
+    return age >= 0 && age <= START_HERE_NEW_ACCOUNT_DAYS * 24 * 60 * 60 * 1000;
+  } catch {
+    return false;
+  }
+}
 type Availability = Record<string, Record<StartHereQType, number>>;
 
 const CSS = `
@@ -104,15 +125,31 @@ export function useStartHere(uid?: string | null): StartHereState {
     let cancelled = false;
     void (async () => {
       // Only a device with no local rows asks the cloud, and only whether ONE record exists.
-      // `true` -> a returning student; `null` (could not tell: offline, no Firestore, any error)
-      // -> silence, never the card; only a real `false` is a first session.
-      let has: boolean | null = null;
-      try {
-        has = await cloudHasAnySessionRecord(uid);
-      } catch {
-        has = null;
-      }
+      // `true` -> a returning student; `false` -> a first session. `null` is "could not tell"
+      // (offline, no Firestore, a cached answer, any error): ask ONCE more after a few seconds,
+      // and if the network still cannot answer, decide from the account's age (known on the
+      // device, no network) so a weak connection never hides the card from a NEW student.
+      const ask = async (): Promise<boolean | null> => {
+        try {
+          return await cloudHasAnySessionRecord(uid);
+        } catch {
+          return null;
+        }
+      };
+      let has = await ask();
       if (cancelled) return;
+      if (has === null) {
+        await new Promise((r) => setTimeout(r, START_HERE_RETRY_MS));
+        if (cancelled) return;
+        has = await ask();
+        if (cancelled) return;
+      }
+      if (has === null) {
+        // Still cannot tell: a young account with no local rows is almost certainly new; an older
+        // or unknown one is never shown the card on a failed read.
+        setGraded(accountIsNew(uid) ? "none" : "some");
+        return;
+      }
       setGraded(has === false ? "none" : "some");
     })();
     return () => {

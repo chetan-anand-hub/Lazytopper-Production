@@ -2,7 +2,8 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
-const { cloudHas, localRows, onboarding, bank } = vi.hoisted(() => ({
+const { cloudHas, localRows, onboarding, bank, auth } = vi.hoisted(() => ({
+  auth: { currentUser: null as null | { uid: string; metadata: { creationTime?: string } } },
   cloudHas: vi.fn(),
   localRows: vi.fn(),
   onboarding: vi.fn(),
@@ -14,8 +15,9 @@ const { cloudHas, localRows, onboarding, bank } = vi.hoisted(() => ({
 vi.mock("../../services/sessionRecords", () => ({ cloudHasAnySessionRecord: cloudHas, loadLocalSessionRecords: localRows }));
 vi.mock("../../analytics/analytics", () => ({ trackOnboardingEvent: onboarding }));
 vi.mock("./startHereBank", () => bank);
+vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
-import StartHereCard from "./StartHereCard";
+import StartHereCard, { START_HERE_RETRY_MS, accountIsNew } from "./StartHereCard";
 import { START_HERE_COPY, START_HERE_DISMISSED_KEY, START_HERE_SUBJECT_HINT_KEY } from "./startHereModel";
 
 /**
@@ -43,12 +45,14 @@ const tree = (uid: string | null = "u1") => (
     </MemoryRouter>
 );
 const mount = (uid: string | null = "u1") => render(tree(uid));
+const daysAgo = (n: number): string => new Date(Date.now() - n * 24 * 60 * 60 * 1000).toUTCString();
 const calls = (name: string) => onboarding.mock.calls.filter((c) => c[0] === name);
 const card = () => screen.queryByTestId("start-here-card");
 
 beforeEach(() => {
   window.sessionStorage.clear();
   cloudHas.mockReset();
+  auth.currentUser = null;
   localRows.mockReset().mockReturnValue([]);
   onboarding.mockReset();
   bank.startHereAvailability.mockReset();
@@ -87,13 +91,69 @@ describe("START-HERE-1 · who sees the card (§2.1)", () => {
     expect(card()).toBeNull();
   });
 
-  it("★★ BLOCKER GUARD: a cloud read that cannot tell (null) on an empty device is silence, never the card", async () => {
-    cloudHas.mockResolvedValue(null);
-    mount();
-    await waitFor(() => expect(cloudHas).toHaveBeenCalled());
-    await new Promise((r) => setTimeout(r, 0));
-    expect(card()).toBeNull();
-    expect(calls("start_here_shown")).toHaveLength(0);
+  it("★★ the cloud cannot tell (null) and the account is unknown or old: hidden, never the card", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      cloudHas.mockResolvedValue(null);
+      for (const created of [undefined, daysAgo(60)]) {
+        auth.currentUser = { uid: "u1", metadata: { creationTime: created } };
+        cloudHas.mockClear();
+        mount();
+        await vi.advanceTimersByTimeAsync(START_HERE_RETRY_MS + 50);
+        expect(cloudHas).toHaveBeenCalledTimes(2); // asked, waited, asked ONCE more
+        expect(card()).toBeNull();
+        cleanup();
+      }
+      expect(calls("start_here_shown")).toHaveLength(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("★★ a weak network must not hide the card from a NEW student: null twice + an account made 2 days ago -> shows", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      cloudHas.mockResolvedValue(null);
+      auth.currentUser = { uid: "u1", metadata: { creationTime: daysAgo(2) } };
+      mount();
+      await vi.advanceTimersByTimeAsync(START_HERE_RETRY_MS + 50);
+      await waitFor(() => expect(card()).not.toBeNull());
+      expect(cloudHas).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("the retry can settle it: null, then a real false -> shows; null, then true -> hidden", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      auth.currentUser = { uid: "u1", metadata: { creationTime: daysAgo(60) } };
+      cloudHas.mockResolvedValueOnce(null).mockResolvedValueOnce(false);
+      mount();
+      await vi.advanceTimersByTimeAsync(START_HERE_RETRY_MS + 50);
+      await waitFor(() => expect(card()).not.toBeNull());
+      cleanup();
+      cloudHas.mockReset().mockResolvedValueOnce(null).mockResolvedValueOnce(true);
+      mount();
+      await vi.advanceTimersByTimeAsync(START_HERE_RETRY_MS + 50);
+      expect(card()).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("accountIsNew: only the signed-in uid, within 7 days, never a future or unparseable date", () => {
+    auth.currentUser = { uid: "u1", metadata: { creationTime: daysAgo(6) } };
+    expect(accountIsNew("u1")).toBe(true);
+    expect(accountIsNew("someone-else")).toBe(false);
+    auth.currentUser = { uid: "u1", metadata: { creationTime: daysAgo(8) } };
+    expect(accountIsNew("u1")).toBe(false);
+    auth.currentUser = { uid: "u1", metadata: { creationTime: daysAgo(-3) } };
+    expect(accountIsNew("u1")).toBe(false);
+    auth.currentUser = { uid: "u1", metadata: { creationTime: "not a date" } };
+    expect(accountIsNew("u1")).toBe(false);
+    auth.currentUser = null;
+    expect(accountIsNew("u1")).toBe(false);
   });
 
   it("★ signed-out: nothing renders and nothing is read (signed-out pages are unchanged)", async () => {

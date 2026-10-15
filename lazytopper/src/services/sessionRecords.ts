@@ -397,6 +397,9 @@ export async function cloudHasAnySessionRecord(uid?: string | null): Promise<boo
   if (!id || !firestoreDb) return null;
   try {
     const snap = await getDocs(query(collection(firestoreDb, "sessionRecords", id, "records"), limit(1)));
+    // Offline, the SDK may answer from its cache instead of throwing: an empty CACHED snapshot is
+    // not "this account has no records". Only a SERVER answer is an answer.
+    if (snap.metadata?.fromCache) return null;
     return !snap.empty;
   } catch {
     return null;

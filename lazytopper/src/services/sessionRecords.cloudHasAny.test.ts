@@ -33,6 +33,12 @@ describe("cloudHasAnySessionRecord", () => {
     getDocs.mockResolvedValue({ empty: true });
     expect(await cloudHasAnySessionRecord("u1")).toBe(false);
   });
+  it("★ a CACHED answer (offline) is not an answer: fromCache -> null even when the snapshot is empty", async () => {
+    getDocs.mockResolvedValue({ empty: true, metadata: { fromCache: true } });
+    expect(await cloudHasAnySessionRecord("u1")).toBeNull();
+    getDocs.mockResolvedValue({ empty: true, metadata: { fromCache: false } });
+    expect(await cloudHasAnySessionRecord("u1")).toBe(false);
+  });
   it("★ any error is null (could not tell), never false", async () => {
     getDocs.mockRejectedValue(new Error("permission-denied"));
     expect(await cloudHasAnySessionRecord("u1")).toBeNull();
