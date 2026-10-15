@@ -18,6 +18,13 @@ import { rememberVisitSourceOnce } from "./visitSource";
  * ⚠ DO NOT add an `identify()` call here. That is not a feature request, it is a
  * different legal posture, and it belongs to a lane with a consent design.
  *
+ * ★ TRACK-2 — TWO DEVICE-LOCAL MARKERS, NEITHER AN IDENTITY, BOTH REGISTERED IN
+ * studentDataMap.ts: `lazytopper.internal` (localStorage, the single character 1, set when
+ * this device opens /admin so the owner's own browsing can be tagged `traffic_type:
+ * "internal"` for GA4's filter) and `lazytopper.purchaseSent` (THIS TAB's sessionStorage, up
+ * to 20 random per-attempt checkout ids, so one payment is never counted twice). Neither is a
+ * uid, an email or anything that links a visit to a person, and neither is sent anywhere.
+ *
  * ★★ A NARROW EXCEPTION TO "NO localStorage KEY" — SOURCE-1 (owner ruling 12 Oct 2026,
  * 13:16 IST, "Source capture yes allowed"; DECISION 107c): a SINGLE-VISIT SOURCE CAPTURE
  * is allowed as a narrow exception to the cookieless rule. Tab-scoped `sessionStorage`
