@@ -190,12 +190,14 @@ function mixedValue(side) {
 // A typed line that begins a NEW statement ("404 = …", "LCM = …"); a line that begins with "="
 // CONTINUES the one above ("x = 2 × 3" / "= 7" is one statement, and its slip is the student's).
 const NEW_STATEMENT = /^(?:[A-Za-z][A-Za-z0-9]*|\d+(?:\.\d+)?)=/;
+/** null, or the student's own TYPED lines a quoted equality was made from by joining new-statement lines. */
 function spansSourceLines(leftRaw, rightRaw, source) {
   const src = String(source == null ? '' : source);
-  if (!src.trim()) return false;
-  const lines = src.split(/\n/).map((l) => normaliseExpr(l).replace(/\s+/g, '')).filter((l) => l.length > 0);
+  if (!src.trim()) return null;
+  const raw = src.split(/\n/).filter((l) => normaliseExpr(l).replace(/\s+/g, '').length > 0);
+  const lines = raw.map((l) => normaliseExpr(l).replace(/\s+/g, ''));
   const target = compactExpr(leftRaw) + '=' + compactExpr(rightRaw);
-  if (lines.some((l) => l.includes(target))) return false;
+  if (lines.some((l) => l.includes(target))) return null;
   const joined = lines.join('');
   const starts = [];
   let p = 0;
@@ -204,9 +206,13 @@ function spansSourceLines(leftRaw, rightRaw, source) {
     const end = at + target.length;
     const crossed = starts.map((s, i) => ({ s, i })).filter(({ s, i }) => i > 0 && s > at && s < end);
     // only a join across lines that each START A NEW STATEMENT is the quote's doing, not the student's
-    if (crossed.length && crossed.every(({ i }) => NEW_STATEMENT.test(lines[i]))) return true;
+    if (crossed.length && crossed.every(({ i }) => NEW_STATEMENT.test(lines[i]))) {
+      const first = starts.reduce((acc, s, i) => (s <= at ? i : acc), 0);
+      const last = starts.reduce((acc, s, i) => (s < end ? i : acc), 0);
+      return raw.slice(first, last + 1);
+    }
   }
-  return false;
+  return null;
 }
 
 /**
@@ -219,8 +225,12 @@ function spansSourceLines(leftRaw, rightRaw, source) {
  */
 function falseEqualities(text, opts = {}) {
   const out = [];
+  // Review 2 (#1207): with the student's TYPED words known, spaced numbers are the student's own
+  // writing ("1 000 + 500 = 1600" is charged) — only the line check (guard 3) applies there; the
+  // line-boundary split and the spaced-number skip (guards 1–2) are for photo/OCR quotes only.
+  const typedSource = String(opts.source == null ? '' : opts.source).trim().length > 0;
   const clauses = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i)
-    .flatMap((c) => c.split(LINE_JOIN));
+    .flatMap((c) => (typedSource ? [c] : c.split(LINE_JOIN)));
   for (const clause of clauses) {
     if (!/[=≈]/.test(clause)) continue;
     if (/[,:%±∓°<>≤≥≠]/.test(clause)) continue; // lists, ratios, percentages, inequalities: not plain
@@ -236,7 +246,7 @@ function falseEqualities(text, opts = {}) {
       if (!na || !nb || !PLAIN.test(na) || !PLAIN.test(nb)) continue;
       const ma = mixedValue(na);
       const mb = mixedValue(nb);
-      if ((ma === null && SPACED_NUMBERS.test(na)) || (mb === null && SPACED_NUMBERS.test(nb))) continue;
+      if (!typedSource && ((ma === null && SPACED_NUMBERS.test(na)) || (mb === null && SPACED_NUMBERS.test(nb)))) continue;
       if (!hasOperator(na) && !hasOperator(nb)) continue; // "8 = 8" — nothing computed
       // A RADICAL WITHOUT BRACKETS beside a + or − has an unknowable scope: the student's
       // vinculum over "196 + 110.25" is quoted as "√196 + 110.25" (live, 2026-10-05, CP03-Q08).
@@ -266,7 +276,17 @@ function falseEqualities(text, opts = {}) {
       if (Math.abs(va - vb) > tol) {
         const signOnly = scale > 1e-12 && Math.abs(va + vb) <= tol;
         if (signOnly && opts.quoted === true && !quotedInSource(a.raw, b.raw, opts.source)) continue;
-        if (opts.quoted === true && spansSourceLines(a.raw, b.raw, opts.source)) continue;
+        const covered = opts.quoted === true ? spansSourceLines(a.raw, b.raw, opts.source) : null;
+        if (covered) {
+          // the joined equality is not the student's — but each typed line it was made from is, and
+          // a slip on one of them ("96 = 2^4 x 3") is still charged, as written
+          for (const line of covered) {
+            for (const e of falseEqualities(line, { source: line })) {
+              if (!out.some((o) => o.left === e.left && o.right === e.right)) out.push(e);
+            }
+          }
+          continue;
+        }
         out.push({ left: a.raw.trim(), right: b.raw.trim(), leftValue: va, rightValue: vb });
       }
     }
@@ -414,13 +434,16 @@ function compareFinalAnswer(studentText, keyText) {
   // Review (#1207): only the FINAL VALUE (right of the last "=" on the last line) is re-read, so a
   // power or a grouped number in the WORKING ("HCF = 2^2 x 3 = 12", "x = 1,000 - 100 = 900") never
   // supplies the key's number; a final value that is still an expression is not re-read at all.
+  // Review 2 (#1207): the retry is for a ONE-VALUE key and ONE student final value only — a key with
+  // several values ("HCF = 4, LCM = 9696", "x = 4, y = 8") keeps the original comparison, so every
+  // one of its values must still appear as written.
   const stu = finalValueOf(studentText);
-  const key = finalValueOf(keyText);
-  const tuple = hasTuple(stu) || hasTuple(key);
+  const tuple = hasTuple(stu) || hasTuple(keyText);
   // A single comma ("2,300") in the KEY may be a pair; only unambiguous grouping (2+ commas) is read there.
   const s = valueForm(stu, { grouping: !tuple, minCommas: 1 });
-  const k = valueForm(key, { grouping: !tuple, minCommas: 2 });
+  const k = valueForm(keyText, { grouping: !tuple, minCommas: 2 });
   if (isExpression(s) || isExpression(k)) return first;
+  if (numbersIn(k).length !== 1 || numbersIn(s).length !== 1) return first;
   return compareFinalAnswerRaw(s, k) === 'match' ? 'match' : first;
 }
 function finalValueOf(text) {

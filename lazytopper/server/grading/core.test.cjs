@@ -2038,3 +2038,24 @@ test('GRD.5 ★ review controls: the value re-check never turns a WRONG answer r
   // the live case (a NEW statement on the next line) stays uncharged
   assert.deepEqual(falseEqualities('96 = 2^5 x 3404 = 2^2 x 101', { quoted: true, source: HCF_TYPED }), []);
 });
+
+test('GRD.6 ★ review 2 controls: a multi-value key is never matched by re-reading one value; typed spaced numbers stay charged', async () => {
+  const mm = [
+    ['HCF = 6\nLCM = 9,696', 'HCF = 4\nLCM = 9696'],
+    ['HCF = 6, LCM = 9,696', 'HCF = 4, LCM = 9696'],
+    ['x = 5\ny = 2^3', 'x = 4\ny = 8'],
+    ['x = 5, y = 2^3', 'x = 4, y = 8'],
+    ['x = 5; y = 2^3', 'x = 4; y = 8'],
+    ['x = 5 and y = 2^3', 'x = 4 and y = 8'],
+    ['p = 1/2, q = 2^2', 'p = 3, q = 4'],
+    ['l = 7 cm, b = 10^2 cm', 'l = 5 cm, b = 100 cm'],
+  ];
+  for (const [stu, key] of mm) assert.equal(compareFinalAnswer(stu, key), 'mismatch', stu + ' vs ' + key);
+  // typed answers: spaced numbers are the student's own writing — no split, no skip; the line check alone decides
+  for (const line of ['1 000 + 500 = 1600', '2 + 3 7 = 5', '2 x 3 = 1 2']) {
+    assert.equal(falseEqualities(line, { quoted: true, source: line }).length, 1, line);
+  }
+  // the photo path keeps the split/skip; the live typed case stays uncharged through the line check
+  assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true }), []);
+  assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true, source: HCF_TYPED }), []);
+});
