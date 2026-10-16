@@ -207,11 +207,13 @@ describe("PRACTICE-HONESTY-1 §2 + §5 · Finish → scorecard → Back to this 
     fireEvent.click(screen.getByText("q2-wrong"));
     finish();
     const back = await screen.findByRole("button", { name: (n: string) => n.includes(BACK_TO_SET) });
-    // Just the marks + the review button: no confirm card, no CTA to check written answers,
-    // no Chapter Test / fresh-set menu.
+    // The marks + the review button: no confirm card, no CTA to check written answers.
     expect(screen.queryByTestId("qp-confirm")).toBeNull();
     expect(screen.queryByRole("button", { name: CHECK_CTA })).toBeNull();
-    expect(screen.queryByText("Chapter Test")).toBeNull();
+    // AMENDED (owner ruling Oct 2026 05:00 (QP-SCORECARD-2 A)) — was
+    // `expect(screen.queryByText("Chapter Test")).toBeNull()` ("no Chapter Test / fresh-set
+    // menu"). The graded scorecard now carries the full menu AFTER the review action.
+    expect(screen.getByText("Chapter Test")).toBeInTheDocument();
     fireEvent.click(back);
     await waitFor(() => expect(cards()).toHaveLength(3));
     expectAllUnlocked();

@@ -289,6 +289,22 @@ describe("quickPracticeScorecardVariant", () => {
     for (const nav of ["Chapter Test", "Important Questions", "Study this chapter"]) expect(labels).not.toContain(nav);
   });
 
+  it("A ★ the written-answer GRADED sheet carries the floor's app-navigation items too (not in the overlay)", () => {
+    const nav = { onChapterTest: noop, onPredicted: noop, onStudy: noop };
+    const g = { marksAwarded: 3, marksTotal: 5, gradedCount: 2, totalQuestions: 3, onKeepPracticing: noop, onFreshSet: noop };
+    expect(quickPracticeGradedScorecardVariant({ ...g, appNav: nav }).actions.map((a) => a.label)).toEqual([
+      "Back to this set (see the steps)",
+      "Build a fresh set",
+      "Chapter Test",
+      "Important Questions",
+      "Study this chapter",
+    ]);
+    // CONTROL — overlay, or no appNav: byte-identical to before.
+    const before = ["Back to this set (see the steps)", "Build a fresh set"];
+    expect(quickPracticeGradedScorecardVariant({ ...g, appNav: { ...nav, overlayMode: true } }).actions.map((a) => a.label)).toEqual(before);
+    expect(quickPracticeGradedScorecardVariant(g).actions.map((a) => a.label)).toEqual(before);
+  });
+
   it("A · CONTROL: the empty state (0 attempted) menu is unchanged", () => {
     const v = quickPracticeScorecardVariant({ ...base, attempted: 0, totalInSet: 6, mcqAnswered: 0, mcqCorrect: 0, allDone: false });
     expect(v.actions.map((a) => [a.label, a.tag, a.tone])).toEqual([

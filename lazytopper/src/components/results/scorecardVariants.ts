@@ -732,6 +732,11 @@ export interface QuickPracticeGradedVariantInput {
   /** The way home from the tutor overlay — the SAME `returnTicketAction` machinery C&I
    *  and the existing Quick Practice variant use. Omitted on a direct visit. */
   returnTicket?: { label: string; onReturn: () => void };
+  /** QP-SCORECARD-2 A (owner ruling Oct 2026 05:00) — the rest of the what-next floor (Chapter
+   *  Test / Important Questions / Study this chapter), after "Build a fresh set". Omitted, or
+   *  `overlayMode` (inside the tutor panel these would leave the thread) ⇒ the menu is
+   *  byte-identical to before. */
+  appNav?: { onChapterTest: () => void; onPredicted: () => void; onStudy: () => void; overlayMode?: boolean };
 }
 
 /** Thrown when an OBJECTIVE answer carries a mark that a 1-marker cannot have.
@@ -772,6 +777,7 @@ export function quickPracticeGradedScorecardVariant(
     onKeepPracticing,
     onFreshSet,
     returnTicket,
+    appNav,
   } = input;
 
   for (const a of answers) {
@@ -805,6 +811,13 @@ export function quickPracticeGradedScorecardVariant(
             onClick: onFreshSet,
           } as ScorecardAction,
         ]
+      : []),
+    // QP-SCORECARD-2 A — the floor's app-navigation items, the SAME rows (labels, tags) the
+    // MCQ-only scorecard and the empty state use; never inside the tutor overlay.
+    ...(appNav && !appNav.overlayMode
+      ? (["chapter", "predicted", "study"] as MenuId[]).map((id) =>
+          quickPracticeFloorAction(id, "secondary", { allDone: true, onFreshSet: () => {}, ...appNav }),
+        )
       : []),
     // The way home LAST, as the "Back"-tagged secondary row — the same placement and tone
     // C&I and the existing Quick Practice menu use, so the session's own next step keeps

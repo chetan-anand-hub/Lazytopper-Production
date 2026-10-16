@@ -446,7 +446,7 @@ export const shouldResetBuiltOnPop = (
 type StrategyResolver = typeof import("../services/questionTypeFirstResolver");
 import { trackUxEvent } from "../services/uxTelemetry";
 import { stashGuestScore, takeGuestScore, type GuestScore } from "../services/guestScoreStash";
-import { mistakeTypeLabel } from "../lib/mistakeDisplay";
+import { isGradedQuestion, mistakeTypeLabel } from "../lib/mistakeDisplay";
 import {
   MISTAKE_KIND_LABEL,
   buildGradedAnswer,
@@ -497,7 +497,20 @@ import { toSessionSubject } from "../services/checkImproveGradeService";
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import { trackOnboardingEvent, trackPracticeGraded } from "../analytics/analytics";
-import { quickPracticeCode } from "../services/sessionRecords";
+import {
+  getSessionPerQuestion,
+  getSessionRecordsFromCloud,
+  loadLocalSessionRecords,
+  quickPracticeCode,
+  type SessionPerQuestionPayload,
+  type SessionRecord,
+} from "../services/sessionRecords";
+import SurfaceHistory from "../components/results/SurfaceHistory";
+import {
+  SCORECARD_REVIEW_PARAM,
+  recordBelongsToUid,
+  withScorecardReviewParam,
+} from "./tutor/tutorRoundTrip";
 import { resolveCorrectOptionIndex } from "../lib/objectiveScoring";
 import {
   START_HERE_SRC,
@@ -546,7 +559,7 @@ import {
   resolveFullSubjectChapterKeys,
 } from "../components/practice/fullSubjectPractice";
 import { buildTutorPath } from "./tutor/tutorPath";
-import { ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
+import { bankChaptersFor, ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import { PracticeControls } from "../components/practice/PracticeControls";
 import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
@@ -563,6 +576,8 @@ import {
   aggregateMarksLost,
   quickPracticeGradedScorecardVariant,
   quickPracticeScorecardVariant,
+  reopenedQuickPracticeScorecardVariant,
+  type ScorecardAction,
   type ScorecardGradedAnswer,
   type ScorecardTutorAsk,
   type ScorecardWrongAnswer,
@@ -671,7 +686,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
   const params = useParams<{ grade?: string; subject?: string }>();
-  const { user: authUserForJourney } = useAuth();
+  const { user: authUserForJourney, loading: authLoading } = useAuth();
 
   useEffect(() => {
     try {
@@ -2767,6 +2782,94 @@ const packTopicKey = useMemo(() => {
     });
   }, [startHereSet, showScorecard, sessionStats.attemptedInSet, sessionStats.localMcqCorrect, filteredQuestions.length, subjectKey]);
 
+  // ── QP-SCORECARD-2 B + C ─────────────────────────────────────────────────────────────
+  // A SAVED session's scorecard, reopened READ-ONLY from the student's own stored record +
+  // perQuestion payload (+ the bank's own rows for the right option and the steps). Reached
+  // from "Your past sessions" (this page, or the hub via `review=<id>`) and from the tutor's
+  // back arrow (C: the scorecard's tutor hop carries `returnTo=<this page>&review=<id>`).
+  // ★ READ-ONLY: nothing here writes a record, an attempt or a mistake, or fires an event —
+  //   `persistQuickPracticeSession` / `recordAttempt` / `recordMistake` / `trackPracticeGraded`
+  //   / `start_here_graded` are unreachable from it (the effects above key off the LIVE set).
+  // ★ Local-first (works offline on this device), then the cloud. An unreadable record, a
+  //   record of another account, or another surface's record → the plain page, silently.
+  type BankRow = ReturnType<typeof getBankRows>[number];
+  const [qpReopen, setQpReopen] = useState<{
+    record: SessionRecord;
+    payload: SessionPerQuestionPayload | null;
+    bank: Map<string, BankRow>;
+  } | null>(null);
+  const reopenSeqRef = useRef(0);
+  const reopenUid = !overlay && authUserForJourney?.uid && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null;
+  const openSavedSession = useCallback(async (recordId: string) => {
+    if (!reopenUid || !recordId) return;
+    const seq = ++reopenSeqRef.current;
+    try {
+      let record = loadLocalSessionRecords(reopenUid).find((r) => r.id === recordId) ?? null;
+      if (!record) record = (await getSessionRecordsFromCloud(reopenUid)).find((r) => r.id === recordId) ?? null;
+      if (!record || record.surface !== "quick-practice" || !recordBelongsToUid(record, reopenUid)) return;
+      const payload = await getSessionPerQuestion(reopenUid, record.perQuestionRef).catch(() => null);
+      const bank = new Map<string, BankRow>();
+      try {
+        const slugs = bankChaptersFor(record.topicKeys || []);
+        await ensureBankChapters(slugs);
+        for (const row of getBankRows(slugs)) bank.set(String(row.id), row);
+      } catch {
+        /* the bank chapter could not load (offline, not cached): the rows show what the record holds */
+      }
+      if (seq !== reopenSeqRef.current) return;
+      setQpReopen({ record, payload, bank });
+    } catch {
+      /* honest fallback: the plain page */
+    }
+  }, [reopenUid]);
+
+  // C — ONE reopen per return: the `review` param is consumed once, then stripped with
+  // `replace` (no extra history entry). Waits for auth to resolve; signed-out / overlay → just
+  // stripped (the page is otherwise unchanged).
+  const reviewParam = qp.get(SCORECARD_REVIEW_PARAM);
+  const reviewConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!reviewParam || authLoading) return;
+    if (reviewConsumedRef.current === reviewParam) return;
+    reviewConsumedRef.current = reviewParam;
+    const sp = new URLSearchParams(location.search);
+    sp.delete(SCORECARD_REVIEW_PARAM);
+    const search = sp.toString();
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : "" }, { replace: true, state: location.state });
+    void openSavedSession(reviewParam);
+  }, [reviewParam, authLoading, location.pathname, location.search, location.state, navigate, openSavedSession]);
+
+  /* START-HERE-1 - the Start-here next steps (src=start_here graded scorecards only).
+     QP-SCORECARD-2 E4 - "Explore LazyTopper" first, PRIMARY: the natural exit after the tutor
+     round trip, to the app's Home ("/": DesktopHome on desktop; RootEntry sends a phone to
+     /browse, MobileHome). Nothing is stored: the first graded record already ends Start-here. */
+  function startHereExtras(chapter: string): ScorecardAction[] | undefined {
+    if (!startHereSet) return undefined;
+    return [
+      { label: "Explore LazyTopper", tag: "Home", tone: "primary", onClick: () => navigate("/") },
+      {
+        label: "Try 5 more in this chapter",
+        tag: "New",
+        tone: "secondary",
+        onClick: () => {
+          const ft = (qp.get("qt") === "ar" ? "ar" : "mcq") as StartHereQType;
+          void import("../components/startHere/startHereBank")
+            .then((m) => m.pickStartHereSet({ subject: subjectKey, chapter, qtype: ft, rotation: Date.now() }))
+            .then((ids) => {
+              if (ids.length >= 5) {
+                navigate(startHerePracticePath({ subject: subjectKey, chapter, ids, qtype: ft, returnTo: qp.get("returnTo") || "/practice-hub" }));
+              } else {
+                buildFreshSet();
+              }
+            })
+            .catch(() => buildFreshSet());
+        },
+      },
+      { label: "See all your progress", tag: "Me", tone: "secondary", onClick: () => navigate("/me") },
+    ];
+  }
+
+
   const activeQuestionStrategyDetails = useMemo(
     () => getQuestionStrategyDetails(activeQuestion),
     [getQuestionStrategyDetails, activeQuestion]
@@ -3272,7 +3375,9 @@ const packTopicKey = useMemo(() => {
             topicKey: q.topicKey || canonicalTopicKey || topicParam,
             grade: String(grade),
             source: "scorecard",
-            returnTo: location.pathname + location.search,
+            // QP-SCORECARD-2 C - the back arrow reopens THIS record's scorecard (the live
+            // defect: it used to land on a fresh practice page, the scorecard gone).
+            returnTo: withScorecardReviewParam(location.pathname + location.search, sessionRecordId),
             questionId: String(q.id),
             from: sessionRecordId,
           }),
@@ -3399,6 +3504,13 @@ const packTopicKey = useMemo(() => {
           marksLost: aggregateMarksLost(response),
           onKeepPracticing: () => { setBatchResult(null); backToSetForReview(); },
           onFreshSet: () => buildFreshSet(),
+          // QP-SCORECARD-2 A - the rest of the what-next floor (hidden in the tutor overlay).
+          appNav: {
+            onChapterTest: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, back),
+            onPredicted: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, back),
+            onStudy: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, back),
+            overlayMode: !!overlay,
+          },
           returnTicket: overlay
             ? { label: "Back to your tutor", onReturn: overlay.onClose }
             : undefined,
@@ -3587,29 +3699,7 @@ const packTopicKey = useMemo(() => {
             tutorAsk: tutorAskFor(q),
           }];
         }),
-        extraActions: startHereSet
-          ? [
-              {
-                label: "Try 5 more in this chapter",
-                tag: "New",
-                tone: "secondary",
-                onClick: () => {
-                  const ft = (qp.get("qt") === "ar" ? "ar" : "mcq") as StartHereQType;
-                  void import("../components/startHere/startHereBank")
-                    .then((m) => m.pickStartHereSet({ subject: subjectKey, chapter: topicK, qtype: ft, rotation: Date.now() }))
-                    .then((ids) => {
-                      if (ids.length >= 5) {
-                        navigate(startHerePracticePath({ subject: subjectKey, chapter: topicK, ids, qtype: ft, returnTo: qp.get("returnTo") || "/practice-hub" }));
-                      } else {
-                        buildFreshSet();
-                      }
-                    })
-                    .catch(() => buildFreshSet());
-                },
-              },
-              { label: "See all your progress", tag: "Me", tone: "secondary", onClick: () => navigate("/me") },
-            ]
-          : undefined,
+        extraActions: startHereExtras(topicK),
       })}
       onClose={closeScorecard}
       belowScore={
@@ -3650,6 +3740,79 @@ const packTopicKey = useMemo(() => {
     />
   );
 })()}
+
+{/* QP-SCORECARD-2 B + C - a SAVED session's scorecard, reopened READ-ONLY (see `openSavedSession`). */}
+{qpReopen && (() => {
+  const { record, payload, bank } = qpReopen;
+  const here = location.pathname + location.search;
+  const recTopic = (record.topicKeys || []).find((k) => k && !k.startsWith("mixed:")) || canonicalTopicKey || topicParam;
+  const recSubject: "Maths" | "Science" = record.subject === "science" ? "Science" : "Maths";
+  const navBack = { state: { back: here, backLabel: "Back to practice" } };
+  const close = () => setQpReopen(null);
+  // "Where marks slipped": every stored result that lost marks, with the bank's right option and
+  // steps. The pick itself is not stored on the record, so "Your answer" is honestly left out.
+  const rows: ScorecardWrongAnswer[] = [];
+  for (const r of payload?.response?.results ?? []) {
+    if (!isGradedQuestion(r)) continue;
+    const total = Number(r.totalMarks) || 0;
+    if (!(total > 0 && (Number(r.marksAwarded) || 0) < total)) continue;
+    const qid = (record.questionIds || [])[r.qNumber - 1];
+    const row = qid ? bank.get(qid) : undefined;
+    const opts = Array.isArray(row?.options) ? row!.options!.map(String) : [];
+    const correct = row
+      ? resolveCorrectOptionIndex((row as { correctOption?: string }).correctOption, row.answer, opts)
+      : -1;
+    rows.push({
+      label: `Question ${r.qNumber}`,
+      yourAnswer: null,
+      correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
+      steps: (Array.isArray(row?.solutionSteps) ? row!.solutionSteps! : []).map(String).filter((t) => t.trim()),
+      tutorAsk: qid
+        ? {
+            onAsk: () => {
+              trackOnboardingEvent("tutor_from_scorecard", { surface: "quick_practice" });
+              navigate(
+                buildTutorPath({
+                  subject: recSubject,
+                  topicKey: row?.topicKey || recTopic,
+                  grade: String(grade),
+                  source: "scorecard",
+                  returnTo: withScorecardReviewParam(here, record.id),
+                  questionId: qid,
+                  from: record.id,
+                }),
+              );
+            },
+          }
+        : null,
+    });
+  }
+  return (
+    <ResultsScorecard
+      variant={reopenedQuickPracticeScorecardVariant(record, {
+        gradedDateLabel: new Date(record.gradedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+        gradedCount: typeof payload?.response?.gradedCount === "number" ? payload.response.gradedCount : undefined,
+        wrongAnswers: rows,
+        menu: {
+          onFreshSet: () => { close(); buildFreshSet(); },
+          onChapterTest: () => navigate(`/chapter-test/${grade}/${recSubject}/${recTopic}`, navBack),
+          onPredicted: () => navigate(`/highly-probable/${grade}/${recSubject}?topic=${encodeURIComponent(recTopic)}`, navBack),
+          onStudy: () => navigate(`/topic-hub/${grade}/${recSubject}/${recTopic}`, navBack),
+        },
+        extraActions: startHereExtras(recTopic),
+      })}
+      onClose={close}
+    />
+  );
+})()}
+
+{/* QP-SCORECARD-2 B - "Your past sessions": this student's saved Quick Practice sessions,
+    newest first (signed-in only; never in the tutor overlay). A row reopens its scorecard. */}
+{reopenUid && (
+  <div data-testid="qp-past-sessions">
+    <SurfaceHistory surface="quick-practice" uid={reopenUid} cloud onOpen={(r) => void openSavedSession(r.id)} />
+  </div>
+)}
 
 {/* \u2605\u2605 \u00a74b \u00b7 THE 402 REACHES THE STUDENT. GATE-2's sheet \u2014 the SAME component
     SolutionChecker opens \u2014 mounted ONLY while blocked (it calls router hooks). Nothing
