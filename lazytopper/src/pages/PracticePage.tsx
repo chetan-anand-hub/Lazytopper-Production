@@ -559,6 +559,8 @@ import {
   resolveFullSubjectChapterKeys,
 } from "../components/practice/fullSubjectPractice";
 import { buildTutorPath } from "./tutor/tutorPath";
+import { signedOutTutorPath, stashSignedOutAsk } from "./tutor/signedOutScorecardAsk";
+import TutorSignupPrompt from "../components/auth/TutorSignupPrompt";
 import { bankChaptersFor, ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import { PracticeControls } from "../components/practice/PracticeControls";
@@ -1330,6 +1332,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
    *  `premiumBlock`, never the same state: one needs an upgrade, the other needs the door
    *  and may be fully entitled once through it. */
   const [signInToGrade, setSignInToGrade] = useState(false);
+  // TUTOR-FIX-2 T12 — the signed-out scorecard's tutor tap: the sign-up prompt's target and the
+  // one-shot it stores ONLY if the visitor chooses Sign up. Null = no prompt.
+  const [signupAsk, setSignupAsk] = useState<
+    { to: string; q: string; qNumber: number; pick: string | null } | null
+  >(null);
   /** ★ QP-GUEST-SIGNIN-1 · a signed-out student who answered only MCQs reaches the scorecard
    *  and, before this, was never asked to sign in (663 CBQ ad clicks, 0 sign-ups). A
    *  non-blocking card under the score asks once per set; "Not now" hides it for THIS set
@@ -3369,12 +3376,32 @@ const packTopicKey = useMemo(() => {
     setScorecardDismissed(true);
     setSessionFinished(false);
     setSignInToGrade(false);
+    setSignupAsk(null);
   };
+  // TUTOR-FIX-2 T12 - a visitor with no account at all (a local session is not "signed out").
+  const signedOutVisitor = !authLoading && !authUserForJourney?.uid;
 
   /* START-HERE-1 \u00b7 the scorecard's tutor hop. The tutor reads the student's OWN stored record
      (`from`) and the question (`q`), so nothing about the answer travels in the URL. Only for a
      signed-in student whose set has a record id, and never inside the tutor's own overlay. */
-  const tutorAskFor = (q: PracticeQuestion): ScorecardTutorAsk | null => {
+  // TUTOR-FIX-2 T12 - a SIGNED-OUT visitor (with `signedOut` = the row's position + pick) gets the
+  // same button; the tap only opens the sign-up prompt: no navigation, no network, nothing stored.
+  const tutorAskFor = (
+    q: PracticeQuestion,
+    signedOut?: { qNumber: number; pick: string | null },
+  ): ScorecardTutorAsk | null => {
+    if (!overlay && signedOutVisitor && signedOut) {
+      const to = signedOutTutorPath({
+        subject: subjectKey,
+        topicKey: q.topicKey || canonicalTopicKey || topicParam,
+        grade: String(grade),
+        questionId: String(q.id),
+      });
+      if (!to) return null;
+      return {
+        onAsk: () => setSignupAsk({ to, q: String(q.id), qNumber: signedOut.qNumber, pick: signedOut.pick }),
+      };
+    }
     if (overlay || !sessionRecordId || !authUserForJourney?.uid || authUserForJourney.isLocalSession) return null;
     return {
       onAsk: () => {
@@ -3691,11 +3718,14 @@ const packTopicKey = useMemo(() => {
         // seen (review mode) were never scored, so they are not listed.
         wrongAnswers: filteredQuestions.flatMap((q, i): ScorecardWrongAnswer[] => {
           const id = String(q.id);
-          // A signed-out visitor and a local session see the scorecard exactly as before.
+          // A local session sees the scorecard exactly as before.
           // TUTOR-FIX-2 (v3 small): the tutor overlay now shows the SAME rows as standalone QP, so
           // the tutor's "Go through them" matches what the student saw. Display only: the rows'
           // tutor hop is already null in the overlay (tutorAskFor), nothing is recorded.
-          if (!authUserForJourney?.uid || authUserForJourney.isLocalSession) return [];
+          // TUTOR-FIX-2 T12 (owner ruling) - a SIGNED-OUT visitor now sees these rows too (display
+          // only, from the set on screen: nothing is persisted or graded), each with the tutor button
+          // that opens the sign-up prompt.
+          if (!signedOutVisitor && (!authUserForJourney?.uid || authUserForJourney.isLocalSession)) return [];
           if (mcqResults[id] !== "wrong" || reviewMcqIds[id]) return [];
           const opts = Array.isArray(q.options) ? q.options.map(String) : [];
           const picked = mcqSelections[id];
@@ -3704,12 +3734,13 @@ const packTopicKey = useMemo(() => {
             q.answer,
             opts,
           );
+          const yourAnswer = typeof picked === "number" && opts[picked] ? opts[picked] : null;
           return [{
             label: `Question ${i + 1}`,
-            yourAnswer: typeof picked === "number" && opts[picked] ? opts[picked] : null,
+            yourAnswer,
             correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
             steps: (Array.isArray(q.solutionSteps) ? q.solutionSteps : []).map(String).filter((s) => s.trim()),
-            tutorAsk: tutorAskFor(q),
+            tutorAsk: tutorAskFor(q, { qNumber: i + 1, pick: yourAnswer }),
           }];
         }),
         extraActions: startHereExtras(topicK),
@@ -3866,6 +3897,17 @@ const packTopicKey = useMemo(() => {
       Not now
     </button>
   </div>
+)}
+
+{/* TUTOR-FIX-2 T12 - the signed-out scorecard's "Ask the tutor why I lost this mark": the sign-up
+    prompt. Only Sign up stores the one-shot (q + pick, never the uid) and goes to /login, which
+    returns to /tutor/<grade>/<Subject>/<chapter>?source=scorecard&q=<id>. */}
+{signupAsk && (
+  <TutorSignupPrompt
+    to={signupAsk.to}
+    onSignUp={() => stashSignedOutAsk({ q: signupAsk.q, qNumber: signupAsk.qNumber, pick: signupAsk.pick })}
+    onDismiss={() => setSignupAsk(null)}
+  />
 )}
 
 

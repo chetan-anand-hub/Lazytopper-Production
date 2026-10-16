@@ -5,11 +5,23 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
+import { isSafeInternalPath } from "../../utils/safeInternalPath";
 
 /** START-HERE-1 — the lock line for a student who came from a scorecard's tutor button. */
 export const SCORECARD_LOCK_COPY = "Your free week has ended — upgrade to ask the tutor why you lost this mark.";
 /** FOLLOWUPS-1 A3 — the same lock line for a student whose PAID pass has ended (not the trial). */
 export const SCORECARD_LOCK_COPY_PAID = "Your Premium pass has ended — renew to ask the tutor why you lost this mark.";
+
+/**
+ * TUTOR-FIX-2 T12 — where /login returns a signed-out visitor: the protected page's pathname
+ * AND query (a /tutor deep link's q / from / source / returnTo used to be dropped here). If the
+ * full target would fail Login's same-origin guard (`isSafeInternalPath`), the pathname alone is
+ * kept — exactly the old value — so this can never turn a working redirect into "/".
+ */
+export function loginFromFor(location: { pathname: string; search?: string }): string {
+  const full = `${location.pathname}${location.search || ""}`;
+  return isSafeInternalPath(full) ? full : location.pathname;
+}
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -27,7 +39,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: loginFromFor(location) }} />;
   }
 
   return <>{children}</>;
@@ -51,7 +63,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
   }
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: loginFromFor(location) }} />;
   }
 
   if (!isPremium) {

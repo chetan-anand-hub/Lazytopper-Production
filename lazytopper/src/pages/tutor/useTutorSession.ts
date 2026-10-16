@@ -48,6 +48,7 @@ import {
   recordBelongsToUid,
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
+import { composeSignedOutAskOpener, takeSignedOutAsk, type SignedOutAsk } from "./signedOutScorecardAsk";
 import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
 import { renderableFiguresForTopic } from "./tutorFigures";
@@ -457,6 +458,50 @@ export function useTutorSession({
       } catch {
         /* honest-or-silent: the normal tutor stays */
       }
+    })();
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, fromRecordId, fromQuestionId, topicKey]);
+
+  // TUTOR-FIX-2 T12 — arrived from a SIGNED-OUT scorecard's "Ask the tutor why I lost this mark"
+  // after signing up: `q` with NO `from` (a signed-out result is never persisted, so there is no
+  // record). The question id + the student's pick wait in a sessionStorage one-shot
+  // (signedOutScorecardAsk.ts); it is taken ONCE for this `q` (a ref keeps it across a StrictMode
+  // effect re-run), the bank text becomes the one-shot returnedWork, and the opener names the
+  // question and the pick. No record read, no grading. No one-shot -> the normal tutor, unchanged.
+  const signedOutAskRef = useRef<SignedOutAsk | null | undefined>(undefined);
+  useEffect(() => {
+    if (!uid || fromRecordId || !fromQuestionId) return;
+    if (signedOutAskRef.current === undefined) signedOutAskRef.current = takeSignedOutAsk(fromQuestionId);
+    const ask = signedOutAskRef.current;
+    if (!ask) return;
+    let live = true;
+    void (async () => {
+      let questionText = "";
+      try {
+        await ensureBankChapters([topicKey]);
+        const row = selectBankQuestions({
+          subject: subject === "maths" ? "Maths" : subject === "science" ? "Science" : undefined,
+          topicKeys: [topicKey],
+        }).find((q) => String((q as { id?: unknown }).id ?? "") === ask.q);
+        questionText = row ? String(row.questionText || "") : "";
+      } catch {
+        /* no bank text: the opener still names the question and the pick */
+      }
+      if (!live) return;
+      signedOutAskRef.current = null;
+      returnedWorkRef.current = buildScorecardReturnedWork(questionText, null);
+      const opener = composeSignedOutAskOpener(ask, topicLabel, questionText);
+      updatePending(null);
+      setMessages((prev) => {
+        if (prev.some((m) => m.kind === "return-result" && m.content === opener.text)) return prev;
+        const next: TutorTurn[] = [...prev, { role: "tutor", content: opener.text, kind: "return-result" }];
+        persist(next, null);
+        return next;
+      });
+      setReturnFollow(opener.follow);
     })();
     return () => {
       live = false;
