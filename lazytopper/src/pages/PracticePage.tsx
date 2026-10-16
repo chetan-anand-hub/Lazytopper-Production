@@ -515,6 +515,7 @@ import { resolveCorrectOptionIndex } from "../lib/objectiveScoring";
 import {
   START_HERE_SRC,
   analyticsSubject,
+  startHereCountFloor,
   startHerePracticePath,
   type StartHereQType,
 } from "../components/startHere/startHereModel";
@@ -830,7 +831,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
 
     const recommendedCount = queryRecommendedCount ?? navRecommendedCount ?? 10;
     const clampedCount = Math.max(
-      MIN_QUESTION_COUNT,
+      // START-HERE-WRITTEN: a Start-here written link is ONE question (exact set); every other link keeps the floor.
+      startHereCountFloor(qp.get("src"), qp.get("qt"), MIN_QUESTION_COUNT),
       Math.min(COUNT_SOFT_MAX, Math.min(MAX_QUESTION_COUNT, recommendedCount))
     );
 
@@ -2783,14 +2785,16 @@ const packTopicKey = useMemo(() => {
   const startHereGradedRef = useRef(false);
   useEffect(() => {
     if (!startHereSet || !showScorecard || startHereGradedRef.current) return;
-    if (sessionStats.attemptedInSet <= 0) return;
+    // START-HERE-WRITTEN: a written answer is graded in the batch at Finish (it never lands in
+    // `gradedResults`), so a graded batch also counts as the set's first graded result.
+    if (sessionStats.attemptedInSet <= 0 && batchResult?.outcome !== "graded") return;
     startHereGradedRef.current = true;
     trackOnboardingEvent("start_here_graded", {
       subject: analyticsSubject(subjectKey),
       correct: sessionStats.localMcqCorrect,
       total: filteredQuestions.length,
     });
-  }, [startHereSet, showScorecard, sessionStats.attemptedInSet, sessionStats.localMcqCorrect, filteredQuestions.length, subjectKey]);
+  }, [startHereSet, showScorecard, sessionStats.attemptedInSet, sessionStats.localMcqCorrect, filteredQuestions.length, subjectKey, batchResult?.outcome]);
 
   // ── QP-SCORECARD-2 B + C ─────────────────────────────────────────────────────────────
   // A SAVED session's scorecard, reopened READ-ONLY from the student's own stored record +

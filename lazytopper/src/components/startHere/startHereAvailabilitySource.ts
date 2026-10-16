@@ -37,17 +37,19 @@ export function renderStartHereAvailabilityFile(map: StartHereAvailabilityMap): 
     "// QP-SCORECARD-2 D3: per subject -> chapter slug -> how many isCbq four-option MCQs (mcq) and",
     "// Assertion-Reason items (ar) the chapter has, so the Start-here card lists chapters and",
     "// question types with NO bank download. The bank is fetched only on Start.",
+    "// START-HERE-WRITTEN: `written` = Science isCbq short-answer (Short / VSA) items with bank steps",
+    "// (startHereBank.ts isWrittenRow); always 0 for Maths, so the written type is Science-only.",
     "",
     "export const START_HERE_AVAILABILITY = {",
   ];
   for (const subject of START_HERE_SUBJECTS) {
     lines.push(`  ${subject}: {`);
     for (const [slug, c] of Object.entries(map[subject])) {
-      lines.push(`    ${JSON.stringify(slug)}: { mcq: ${c.mcq}, ar: ${c.ar} },`);
+      lines.push(`    ${JSON.stringify(slug)}: { mcq: ${c.mcq}, ar: ${c.ar}, written: ${c.written} },`);
     }
     lines.push("  },");
   }
-  lines.push("} as const satisfies Record<\"Maths\" | \"Science\", Record<string, { mcq: number; ar: number }>>;");
+  lines.push("} as const satisfies Record<\"Maths\" | \"Science\", Record<string, { mcq: number; ar: number; written: number }>>;");
   lines.push("");
   return lines.join("\n");
 }

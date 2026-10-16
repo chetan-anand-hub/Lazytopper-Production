@@ -11,9 +11,9 @@ import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import {
   START_HERE_COPY,
-  START_HERE_COUNT,
   START_HERE_QTYPE_LABEL,
   analyticsSubject,
+  startHereSetSize,
   dismissForSession,
   focusAllowed,
   recordFocusNotNow,
@@ -270,8 +270,14 @@ export function StartHereView({
 
 /* ── the shared content: copy, the three-tap picker, Start ─────────────────────────────── */
 
-const QTYPES: readonly StartHereQType[] = ["mcq", "ar"];
-type ChapterCounts = Record<StartHereQType, number>;
+const QTYPES: readonly StartHereQType[] = ["mcq", "ar", "written"];
+/** `written` may be absent from an older map; a missing count is 0 (the type is not offered). */
+type ChapterCounts = Partial<Record<StartHereQType, number>>;
+/** START-HERE-WRITTEN: the written type is Science only (owner ruling, 16 Oct: typed maths is hard). */
+const WRITTEN_SUBJECT: DesktopSubject = "Science";
+
+/** START-HERE-WRITTEN: the honest state while the ONE written question is fetched. */
+export const START_HERE_GETTING_ONE = "Getting your question…";
 
 /** D3: the honest state while the five questions are fetched (the only bank download). */
 export const START_HERE_GETTING = "Getting your 5 questions…";
@@ -317,7 +323,9 @@ function StartHerePanel({
   // once, with NO network call.
   const topics = useMemo(() => (subject ? desktopTopicsBySubject(subject) : []), [subject]);
   const offered = (slug: string, t: StartHereQType): boolean =>
-    !!subject && (chapterCounts(subject, slug)?.[t] ?? 0) >= START_HERE_COUNT;
+    !!subject &&
+    (t !== "written" || subject === WRITTEN_SUBJECT) &&
+    (chapterCounts(subject, slug)?.[t] ?? 0) >= startHereSetSize(t);
   const chapterOk = (slug: string): boolean => QTYPES.some((t) => offered(slug, t));
   const selected = chapter && chapterOk(chapter) ? chapter : (topics.find((t) => chapterOk(t.slug))?.slug ?? "");
   const types = QTYPES.filter((t) => selected && offered(selected, t));
@@ -345,7 +353,7 @@ function StartHerePanel({
       // D3: the bank is reached HERE, on Start, and nowhere earlier.
       const bank = await import("./startHereBank");
       const ids = await bank.pickStartHereSet({ subject, chapter: selected, qtype: activeType, rotation: Date.now() });
-      if (ids.length < START_HERE_COUNT) {
+      if (ids.length < startHereSetSize(activeType)) {
         setFailed(true);
         setBusy(false);
         return;
@@ -461,7 +469,9 @@ function StartHerePanel({
           )}
           {failed && (
             <p className="lt-shc-note" role="alert">
-              We couldn&apos;t line up five questions for that chapter just now. Try another chapter.
+              {activeType === "written"
+                ? "We couldn't line up a written question for that chapter just now. Try another chapter."
+                : "We couldn't line up five questions for that chapter just now. Try another chapter."}
             </p>
           )}
           <div className="lt-shc-ctas">
@@ -473,7 +483,13 @@ function StartHerePanel({
               disabled={!subject || !selected || busy}
               onClick={() => void onGo()}
             >
-              {busy ? START_HERE_GETTING : "Start 5 questions"}
+              {activeType === "written"
+                ? busy
+                  ? START_HERE_GETTING_ONE
+                  : "Start the question"
+                : busy
+                  ? START_HERE_GETTING
+                  : "Start 5 questions"}
             </button>
             <button type="button" className="lt-shc-later" data-testid={tid("not-now")} onClick={onNotNow}>
               {START_HERE_COPY.notNow}
