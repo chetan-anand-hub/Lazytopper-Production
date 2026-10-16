@@ -19,7 +19,7 @@ import {
 import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
-import { StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
+import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
 
 /**
@@ -411,6 +411,9 @@ export default function DesktopHome() {
         <LinkPhoneNudge />
 
         <StartHereView surface="home" returnTo="/" state={startHere} />
+        {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
+            renders nothing for a signed-out visitor or an existing student. */}
+        {user ? <StartHereFocusView uid={user.uid} surface="home" returnTo="/" state={startHere} /> : null}
 
         {/* ── Start here — 4 hero cards ──────────────────────────
             AUTH-2-FU §4: the heroes now come BEFORE the merged card, so a new
