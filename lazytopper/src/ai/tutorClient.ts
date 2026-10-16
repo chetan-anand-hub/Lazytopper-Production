@@ -75,6 +75,24 @@ export interface TutorBrief {
     topType?: string;
     marksLostRecent?: number;
   };
+  /** TUTOR-FIX-2 (T2) — the window the figures cover, derived from the window read ("last 30 days"). */
+  windowLabel?: string;
+  /** TUTOR-FIX-2 (T2) — the opened chapter, chapter-scoped: the same numbers Me shows. */
+  chapter?: TutorBriefChapter;
+  /** TUTOR-FIX-2 (T2) — the subject (paper) total; `mistakes.marksLostRecent` stays for old servers. */
+  subject?: { marksLost?: number };
+}
+
+/** TUTOR-FIX-2 (T2) — the chapter block of the brief (BUILDER_R2 brief contract; all optional). */
+export interface TutorBriefChapter {
+  name?: string;
+  marksLost?: number;
+  byGroup?: { knowledge?: number; careless?: number; examTechnique?: number; notAttempted?: number; unrecorded?: number };
+  topGroup?: "knowledge" | "careless" | "examTechnique" | "notAttempted";
+  /** Max 3, in Me's chapter concept-row order (most marks lost first). */
+  concepts?: Array<{ name: string; marksLost: number }>;
+  /** Max 3 most recent graded questions with lost marks in the chapter. No student text. */
+  recent?: Array<{ id: string; marksLost: number; group?: string; surface: string; date?: string }>;
 }
 
 export interface TutorRequest {

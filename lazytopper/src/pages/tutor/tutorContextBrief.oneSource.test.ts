@@ -23,8 +23,12 @@ const strip = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"
 const read = (rel: string) => strip(readFileSync(path.join(SRC, rel), "utf8"));
 const brief = read("pages/tutor/tutorContextBrief.ts");
 const me = read("pages/MeProgressPage.tsx");
+// TUTOR-FIX-2 (T2) — Me's pure marks derivations (lostMarksOf / splitPaperMarks / viewRowsFrom) were
+// MOVED verbatim to services/meSplit.ts, which Me imports and re-exports; Me's gate and group-split
+// lines are pinned there now, and Me must still take them from there (never a local copy).
+const meSplit = read("services/meSplit.ts");
 const importBlock = (src: string) =>
-  (src.match(/import\s*\{([\s\S]*?)\}\s*from\s*"\.\.\/(?:\.\.\/)?services\/progressReadModel";/) ?? [])[1] ?? "";
+  (src.match(/import\s*\{([\s\S]*?)\}\s*from\s*"(?:\.\/|\.\.\/(?:\.\.\/)?services\/)progressReadModel";/) ?? [])[1] ?? "";
 
 describe("the Tutor brief uses Me's window, groups and threshold — imported, not copied", () => {
   it("★ window: both import ME_DEFAULT_WINDOW; neither declares its own window literal", () => {
@@ -41,8 +45,11 @@ describe("the Tutor brief uses Me's window, groups and threshold — imported, n
     expect(importBlock(brief)).toMatch(/\bweaknessNamingRung\b/);
     expect(brief).toMatch(/weaknessNamingRung\(model\)/);
     expect(importBlock(me)).toMatch(/\brungNamesWeakness\b/);
-    expect(me).toMatch(/if \(!rungNamesWeakness\(rung\)\) return null;/);
-    for (const src of [brief, me]) {
+    expect(importBlock(meSplit)).toMatch(/\brungNamesWeakness\b/);
+    expect(meSplit).toMatch(/if \(!rungNamesWeakness\(rung\)\) return null;/);
+    expect(me).toMatch(/import \{[^}]*\bsplitPaperMarks\b[^}]*\} from "\.\.\/services\/meSplit";/);
+    expect(me).not.toMatch(/function splitPaperMarks\b/);
+    for (const src of [brief, me, meSplit]) {
       expect(src).not.toMatch(/available\s*<=\s*0/);
       expect(src).not.toMatch(/\bsubjectRungOf\(/);
     }
@@ -51,7 +58,10 @@ describe("the Tutor brief uses Me's window, groups and threshold — imported, n
   it("★ groups: the brief's top group is the read model's ONE split (topLossGroup over model.mistakes.byGroup)", () => {
     expect(importBlock(brief)).toMatch(/\btopLossGroup\b/);
     expect(brief).toMatch(/topLossGroup\(model\.mistakes\.byGroup\)/);
-    expect(importBlock(me)).toMatch(/\bmistakeLossByGroup\b/);
-    expect(brief).not.toMatch(/GROUP_ORDER|mistakeLossByGroup\(|groupMarks\(/);
+    expect(importBlock(meSplit)).toMatch(/\bmistakeLossByGroup\b/);
+    // TUTOR-FIX-2 (T2) — the brief's ONE use of the split: a single recent mistake's group, through
+    // the same split and `topLossGroup` (never its own order or loop).
+    expect(brief).toMatch(/const split = mistakeLossByGroup\(\[e\]\);\s*const top = topLossGroup\(split\);/);
+    expect(brief.replace(/mistakeLossByGroup\(\[e\]\)/, "")).not.toMatch(/GROUP_ORDER|mistakeLossByGroup\(|groupMarks\(/);
   });
 });
