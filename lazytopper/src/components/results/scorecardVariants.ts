@@ -44,6 +44,7 @@ import {
   type MarksLostByType,
   type PaperMarksLost,
   type RubricPoint,
+  UNTYPED_MARKS_NOTE,
 } from "../../lib/mistakeDisplay";
 
 export type ScorecardSurface =
@@ -603,22 +604,29 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
   // to the shipped menu, unchanged.
   if (attempted > 0) {
     const review = onReviewSet ?? onKeepPracticing;
+    const typedFourType =
+      fourType && (fourType.conceptual || fourType.calculation || fourType.silly || fourType.presentation) ? fourType : null;
+    const marksAwarded = mcqMarksAwarded ?? mcqCorrect;
+    const marksTotal = mcqMarksTotal ?? mcqAnswered;
     return {
       surface: "quick-practice",
       title: "Session scorecard",
       subtitle: "Quick practice",
       score: {
         kind: "marks",
-        awarded: mcqMarksAwarded ?? mcqCorrect,
-        total: mcqMarksTotal ?? mcqAnswered,
+        awarded: marksAwarded,
+        total: marksTotal,
         gradedCount: mcqAnswered,
         totalQuestions: totalInSet,
       },
       message: null,
-      note: null,
+      // MI-COPY (owner ask, 16 Oct 2026) — ONE note per scorecard (never per row) when MCQ marks
+      // were lost and no typed mistake is shown: why there is no mistake type, in the shared
+      // sentence (lib/mistakeDisplay). Display only; the score and recording are unchanged.
+      note: marksTotal - marksAwarded > 0 && !typedFourType ? UNTYPED_MARKS_NOTE : null,
       // The MI block stays honest-or-silent exactly as before: shown only when typed
       // mistakes are supplied (none are today), never invented.
-      fourType: fourType && (fourType.conceptual || fourType.calculation || fourType.silly || fourType.presentation) ? fourType : null,
+      fourType: typedFourType,
       pending: null,
       allPending: null,
       wrongAnswers: wrongAnswers && wrongAnswers.length > 0 ? wrongAnswers : null,

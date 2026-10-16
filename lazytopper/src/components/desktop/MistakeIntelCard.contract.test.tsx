@@ -46,7 +46,7 @@ vi.mock("../../services/sessionRecords", async (importOriginal) => ({
 }));
 
 import { MistakeIntelCard, computeMiCardSummary } from "./MistakeIntelCard";
-import { mistakeGroupByKey } from "../../lib/mistakeDisplay";
+import { mistakeGroupByKey, UNTYPED_MARKS_WHY } from "../../lib/mistakeDisplay";
 import type { MistakeLogEntry } from "../../services/mistakeLogService";
 import type { PracticeAttempt } from "../../services/practiceInsights";
 import { buildMistakeView, buildStudyActivity, type StudyReadModel } from "../../services/progressReadModel";
@@ -191,5 +191,29 @@ describe("MI-HOME-SYNC — MCQ-only marks on the table (owner's live case) are n
     expect(screen.getByTestId("mi-card-untyped-top").textContent).toBe("Real Numbers");
     expect(screen.getByTestId("mi-card-check").getAttribute("href")).toBe("/check-improve");
     expect(screen.queryByText(/No mistake patterns yet/)).toBeNull();
+  });
+
+  // MI-COPY (owner ask, 16 Oct 2026) — the untyped state says WHY there is no mistake type,
+  // in the shared tap-the-answer sentence, and the action names a written answer.
+  it("★ MI-COPY — untyped: the short honest line (shared sentence) + 'Check a written answer →'", async () => {
+    h.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((hr) => attempt("mcq", hr * 60 * 60 * 1000));
+    renderCard();
+    const why = await screen.findByTestId("mi-card-untyped-why");
+    expect(why.textContent).toBe(UNTYPED_MARKS_WHY);
+    expect(screen.getByTestId("mi-card-check").textContent).toBe("Check a written answer →");
+    expect(screen.getByTestId("mi-card-check").getAttribute("href")).toBe("/check-improve");
+  });
+
+  it("MI-COPY CONTROL — the no-data and with-data states carry no untyped line", async () => {
+    renderCard();
+    expect(await screen.findByText(/No mistake patterns yet/)).toBeTruthy();
+    expect(screen.queryByTestId("mi-card-untyped-why")).toBeNull();
+    h.entries = [entry(1, { silly: 1 }, v2({ silly: 1 }))];
+    h.attempts = [attempt("graded"), attempt("graded"), attempt("graded")];
+    resetMeHomeMemo();
+    h.user = { uid: "u2" };
+    renderCard();
+    await waitFor(() => expect(screen.getByTestId("mi-card-checked").textContent).toBe("3 checked answers"));
+    expect(screen.queryByTestId("mi-card-untyped-why")).toBeNull();
   });
 });

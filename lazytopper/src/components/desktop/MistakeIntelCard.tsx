@@ -15,6 +15,7 @@ import {
   marksWithUnit,
   countWithUnit,
   mistakeGroupByKey,
+  UNTYPED_MARKS_WHY,
   type MistakeGroupKey,
 } from "../../lib/mistakeDisplay";
 
@@ -337,8 +338,13 @@ export function MistakeIntelCard() {
             })()}
             .
           </p>
+          {/* MI-COPY (owner ask, 16 Oct 2026) — why these marks carry no mistake type, in the
+              shared sentence (lib/mistakeDisplay); the action names a written answer. */}
+          <p style={{ ...BODY_STYLE, fontSize: 12, color: "rgba(255,255,255,0.7)" }} data-testid="mi-card-untyped-why">
+            {UNTYPED_MARKS_WHY}
+          </p>
           <Link to="/check-improve" style={CTA_STYLE} data-testid="mi-card-check">
-            Check an answer →
+            Check a written answer →
           </Link>
         </>
       )}

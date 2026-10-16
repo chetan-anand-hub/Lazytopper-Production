@@ -2283,8 +2283,12 @@ export default function DesktopPracticePage() {
             </span>
             <span className="lt-cbq-text">
               <span className="lt-cbq-title">Competency-based questions (CBQs)</span>
+              {/* MI-COPY C (owner ask, 16 Oct 2026) — was "Case-based questions like the board
+                  paper's Section E": the chooser opens preset=comp (style "cbq"), i.e.
+                  buildCbqPracticePool — EVERY isCbq row of the chapter at every mark value
+                  (1-mark MCQ / assertion-reason through 5-mark), interleaved by mark. */}
               <span className="lt-cbq-line">
-                Case-based questions like the board paper's Section E — pick a chapter
+                Board-style competency questions at every mark value — MCQs, assertion-reason, short answers and case studies. Pick a chapter.
               </span>
               <span className="lt-entry-short">Pick a chapter</span>
             </span>

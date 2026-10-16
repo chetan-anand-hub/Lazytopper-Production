@@ -49,6 +49,10 @@ import {
   countWithUnit,
   mistakeGroupByKey,
   mistakeGroupOf,
+  UNTYPED_MARKS_ACTION,
+  UNTYPED_MARKS_HOW_LEAD,
+  UNTYPED_MARKS_NOTE,
+  UNTYPED_MARKS_WHY,
 } from "../lib/mistakeDisplay";
 import { planMistakeRetry, retryCopyFor } from "../services/mistakeRetry";
 import { buildActionableDesktopTopicHubContent } from "../lib/desktop/topicHubContent";
@@ -256,9 +260,13 @@ const round1 = (n: number): number => Math.round(n * 10) / 10;
  */
 export function remainderSentence(split: Pick<PaperSplit, "splitKnown">): string {
   return split.splitKnown
-    ? "No mistake type is recorded for these marks — some may be questions you did not attempt — so we will not guess one."
+    ? `${REMAINDER_KNOWN_LEAD} ${UNTYPED_MARKS_NOTE}`
     : "We can see which marks went, but not yet why, so we are not going to guess.";
 }
+
+/** MI-COPY (owner ask, 16 Oct 2026) — the known-split remainder's own first sentence; the shared
+ *  tap-the-answer sentence (lib/mistakeDisplay) follows it, "check a written answer" a link. */
+const REMAINDER_KNOWN_LEAD = "No mistake type is recorded for these marks — some may be questions you did not attempt.";
 
 /**
  * ME-CONCEPT-1 — the small note on a concept row: its live mistakes by type (COUNTS, as the
@@ -930,8 +938,19 @@ export default function MeProgressPage() {
                       </b>
                       {/* P8 + OR-LIVE L5 — only what is true: no mistake type is on record for
                           these marks (some may not have been attempted), or the two streams
-                          disagree. Never "the grader took these marks". */}
-                      {remainderSentence(split)}
+                          disagree. Never "the grader took these marks". MI-COPY: the known
+                          split's text is remainderSentence's, with the action words a link. */}
+                      {split.splitKnown ? (
+                        <>
+                          {REMAINDER_KNOWN_LEAD} {UNTYPED_MARKS_WHY} {UNTYPED_MARKS_HOW_LEAD}{" "}
+                          <Link to={withMeQuery("/check-improve")} data-testid="me-remainder-check">
+                            {UNTYPED_MARKS_ACTION}
+                          </Link>
+                          .
+                        </>
+                      ) : (
+                        remainderSentence(split)
+                      )}
                     </span>
                   </li>
                 </ul>

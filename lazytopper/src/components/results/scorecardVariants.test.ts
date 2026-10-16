@@ -28,7 +28,7 @@ import {
   deriveChapterTestConceptLens,
   storedFullMockScorecardVariant,
 } from "./scorecardBankLenses";
-import { COULD_NOT_READ_COPY } from "../../lib/mistakeDisplay";
+import { COULD_NOT_READ_COPY, UNTYPED_MARKS_NOTE } from "../../lib/mistakeDisplay";
 
 // A minimal grade-response fixture. `couldNotRead` questions carry NO grade and must
 // never be folded into the four-type or a 0 (honest-failure contract).
@@ -225,11 +225,44 @@ describe("quickPracticeScorecardVariant", () => {
   // PRACTICE-HONESTY-1 (owner spec §5) — "MCQ-only sessions: just the marks + the review
   // button". These two pinned the OLD personalised menu (framing line, MCQ nudge, Chapter
   // Test / Study elevation); the owner's spec replaces that menu, so they now pin the new one.
-  it("partial MCQ-only session: just the marks — no framing line, no nudge", () => {
+  // AMENDED (MI-COPY, owner ask 16 Oct 2026) — was `note` null: an MCQ-only set that LOST marks
+  // now carries ONE note saying why no mistake type is shown (the shared sentence).
+  it("partial MCQ-only session: just the marks — no framing line; the one untyped-marks note", () => {
     const v = quickPracticeScorecardVariant({ ...base, attempted: 3, totalInSet: 10, mcqAnswered: 2, mcqCorrect: 1, allDone: false });
     expect(v.message).toBeNull();
-    expect(v.note).toBeNull();
+    expect(v.note).toBe(UNTYPED_MARKS_NOTE);
     expect(v.score).toEqual({ kind: "marks", awarded: 1, total: 2, gradedCount: 2, totalQuestions: 10 });
+  });
+
+  // ── MI-COPY (owner ask, 16 Oct 2026) — the untyped-marks note: once per scorecard, only when
+  // marks were lost and no typed mistake is on the scorecard ──
+  it("★ MI-COPY — marks lost on MCQs, nothing typed → the shared note (exact owner sentence)", () => {
+    const v = quickPracticeScorecardVariant({
+      ...base, attempted: 5, totalInSet: 5, mcqAnswered: 5, mcqCorrect: 3, allDone: true,
+      mcqMarksAwarded: 3, mcqMarksTotal: 5,
+    });
+    expect(v.note).toBe(
+      "Tap-the-answer questions record which option you chose, not why. To see whether a lost mark was a concept gap or a slip, check a written answer.",
+    );
+  });
+
+  it("MI-COPY CONTROL — no note when nothing was lost, when typed mistakes are present, or on the empty state", () => {
+    const allRight = quickPracticeScorecardVariant({ ...base, attempted: 4, totalInSet: 4, mcqAnswered: 4, mcqCorrect: 4, allDone: true });
+    expect(allRight.note).toBeNull();
+    const marksAllRight = quickPracticeScorecardVariant({
+      ...base, attempted: 4, totalInSet: 4, mcqAnswered: 4, mcqCorrect: 4, allDone: true, mcqMarksAwarded: 4, mcqMarksTotal: 4,
+    });
+    expect(marksAllRight.note).toBeNull();
+    const typed = quickPracticeScorecardVariant({
+      ...base, attempted: 4, totalInSet: 4, mcqAnswered: 4, mcqCorrect: 2, allDone: true,
+      fourType: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 },
+    });
+    expect(typed.note).toBeNull();
+    const empty = quickPracticeScorecardVariant({ ...base, attempted: 0, totalInSet: 4, mcqAnswered: 0, mcqCorrect: 0, allDone: false });
+    expect(empty.note).toBeNull();
+    // Attempted but no MCQ checked (0 / 0): nothing lost, no note.
+    const noMcq = quickPracticeScorecardVariant({ ...base, attempted: 2, totalInSet: 4, mcqAnswered: 0, mcqCorrect: 0, allDone: false });
+    expect(noMcq.note).toBeNull();
   });
 
   it("★ 'Back to this set (see the steps)' is ALWAYS offered — even when every question was attempted", () => {
