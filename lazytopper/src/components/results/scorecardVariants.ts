@@ -582,7 +582,14 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
   // The fixed floor menu (Keep / Fresh set / Chapter Test / Important Qs / Study) — the ONE
   // builder both the empty state below and the graded scorecard here use (no second copy).
   const menu: QuickPracticeMenuHandlers = { allDone, onKeepPracticing, onFreshSet, onChapterTest, onPredicted, onStudy, overlayMode };
-  const floor = quickPracticeFloorIds(menu);
+  // (Kept literal here — the overlay acceptance guard pins this shape; `quickPracticeFloorIds`
+  // is the same rule for the stored reopen.)
+  const floor: MenuId[] = [
+    ...(!allDone && onKeepPracticing ? (["keep"] as MenuId[]) : []),
+    "fresh",
+    // Overlay (tutor panel) omits the app-navigation items — they would leave the tutor thread.
+    ...(overlayMode ? [] : (["chapter", "predicted", "study"] as MenuId[])),
+  ];
 
   // ── PRACTICE-HONESTY-1 · an ATTEMPTED session reaching this variant is MCQ-only (any
   // saved written answer routes the host to the confirm card instead). On the Chapter Test /
