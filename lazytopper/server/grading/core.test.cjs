@@ -2017,3 +2017,24 @@ test('GRD.4 ★ the final answer is compared by VALUE: "1,21,000" / "9,696" / "2
   const r = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true, studentFinalAnswer: '1,21,000' }))] }).single(single({ marks: 2, finalAnswer: '121000' }))).body;
   assert.equal(r.marksAwarded, 2, 'the right population in Indian digit grouping keeps full marks');
 });
+
+test('GRD.5 ★ review controls: the value re-check never turns a WRONG answer right, and typed continuation lines are still charged', async () => {
+  // (a) only the student's FINAL value is re-read — powers/commas in the working never create a match
+  assert.equal(compareFinalAnswer('HCF = 2^2 x 3 = 12', '4'), 'mismatch');
+  assert.equal(compareFinalAnswer('Area = 5^2 - 4 = 21', '25'), 'mismatch');
+  assert.equal(compareFinalAnswer('n = 2^10 = 1000', '1024'), 'mismatch');
+  assert.equal(compareFinalAnswer('x = 1,000 - 100 = 900', '1000'), 'mismatch');
+  // (b) commas in a bracket / pair / ambiguous key are not digit grouping
+  assert.equal(compareFinalAnswer('(4,100)', '4100'), 'mismatch');
+  assert.equal(compareFinalAnswer('x = 4100', '(4,100)'), 'mismatch');
+  assert.equal(compareFinalAnswer('x = 2300', 'x = 2,300'), 'mismatch', 'trunk: mismatch; kept');
+  // (c) a typed line CONTINUED on the next ("…\n= 7") is one statement: its false equality is charged
+  assert.equal(falseEqualities('2 × 3 = 7', { quoted: true, source: 'x = 2 × 3\n= 7' }).length, 1);
+  assert.equal(falseEqualities('4 x 9696 = 38748', { quoted: true, source: 'HCF x LCM = 4 x 9696\n= 38748' }).length, 1);
+  const typed = HCF_TYPED.replace('HCF x LCM = 4 x 9696 = 38784', 'HCF x LCM = 4 x 9696\n= 38748');
+  const steps = HCF_STEPS();
+  steps[2] = S({ description: 'Verification', studentWork: 'HCF x LCM = 4 x 9696 = 38748' });
+  assert.equal((await gradeTyped(steps, typed)).marksAwarded, 2.5);
+  // the live case (a NEW statement on the next line) stays uncharged
+  assert.deepEqual(falseEqualities('96 = 2^5 x 3404 = 2^2 x 101', { quoted: true, source: HCF_TYPED }), []);
+});

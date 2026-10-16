@@ -187,13 +187,26 @@ function mixedValue(side) {
   const v = Number(m[2]) + Number(m[3]) / Number(m[4]);
   return m[1] ? -v : v;
 }
+// A typed line that begins a NEW statement ("404 = …", "LCM = …"); a line that begins with "="
+// CONTINUES the one above ("x = 2 × 3" / "= 7" is one statement, and its slip is the student's).
+const NEW_STATEMENT = /^(?:[A-Za-z][A-Za-z0-9]*|\d+(?:\.\d+)?)=/;
 function spansSourceLines(leftRaw, rightRaw, source) {
   const src = String(source == null ? '' : source);
   if (!src.trim()) return false;
-  const lines = src.split(/\n/).map((l) => normaliseExpr(l).replace(/\s+/g, ''));
+  const lines = src.split(/\n/).map((l) => normaliseExpr(l).replace(/\s+/g, '')).filter((l) => l.length > 0);
   const target = compactExpr(leftRaw) + '=' + compactExpr(rightRaw);
   if (lines.some((l) => l.includes(target))) return false;
-  return lines.join('').includes(target);
+  const joined = lines.join('');
+  const starts = [];
+  let p = 0;
+  for (const l of lines) { starts.push(p); p += l.length; }
+  for (let at = joined.indexOf(target); at !== -1; at = joined.indexOf(target, at + 1)) {
+    const end = at + target.length;
+    const crossed = starts.map((s, i) => ({ s, i })).filter(({ s, i }) => i > 0 && s > at && s < end);
+    // only a join across lines that each START A NEW STATEMENT is the quote's doing, not the student's
+    if (crossed.length && crossed.every(({ i }) => NEW_STATEMENT.test(lines[i]))) return true;
+  }
+  return false;
 }
 
 /**
@@ -398,7 +411,34 @@ function compareFinalAnswer(studentText, keyText) {
   // digit grouping ("1,21,000" / "9,696" for 121000 / 9696) and powers ("2 × 10^8", "2^2" for
   // 200000000, 4) — before half a mark goes. Only a mismatch is retried and only a 'match' replaces
   // it, so this can never take a mark the old comparison gave.
-  return compareFinalAnswerRaw(valueForm(studentText), valueForm(keyText)) === 'match' ? 'match' : first;
+  // Review (#1207): only the FINAL VALUE (right of the last "=" on the last line) is re-read, so a
+  // power or a grouped number in the WORKING ("HCF = 2^2 x 3 = 12", "x = 1,000 - 100 = 900") never
+  // supplies the key's number; a final value that is still an expression is not re-read at all.
+  const stu = finalValueOf(studentText);
+  const key = finalValueOf(keyText);
+  const tuple = hasTuple(stu) || hasTuple(key);
+  // A single comma ("2,300") in the KEY may be a pair; only unambiguous grouping (2+ commas) is read there.
+  const s = valueForm(stu, { grouping: !tuple, minCommas: 1 });
+  const k = valueForm(key, { grouping: !tuple, minCommas: 2 });
+  if (isExpression(s) || isExpression(k)) return first;
+  return compareFinalAnswerRaw(s, k) === 'match' ? 'match' : first;
+}
+function finalValueOf(text) {
+  const lines = String(text == null ? '' : text).split(/\n/).map((l) => l.trim()).filter(Boolean);
+  const last = lines.length ? lines[lines.length - 1] : '';
+  const parts = last.split(/=|≈/);
+  return parts[parts.length - 1].trim();
+}
+const GROUPED = /(?<![\d.,])(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})+,\d{3})(?![\d,])/g;
+/** A comma that is not digit grouping, or any comma inside brackets: a pair/tuple/list, never one number. */
+function hasTuple(text) {
+  const t = String(text == null ? '' : text);
+  if (/[([{][^)\]}]*,/.test(t)) return true;
+  return t.replace(GROUPED, '').includes(',');
+}
+/** Still an arithmetic expression after the value form (a binary + − × between numbers). */
+function isExpression(text) {
+  return /\d\s*[-+×xX*·÷]\s*\d/.test(String(text == null ? '' : text).replace(/[−–—]/g, '-'));
 }
 const SUPERSCRIPT_RUN = /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+/g;
 function plainNumber(v) {
@@ -406,11 +446,13 @@ function plainNumber(v) {
   if (Number.isInteger(v) && Math.abs(v) < 1e21) return v.toFixed(0);
   return String(Number(v.toPrecision(12))).includes('e') ? null : String(Number(v.toPrecision(12)));
 }
-function valueForm(text) {
+function valueForm(text, opts = {}) {
   let t = String(text == null ? '' : text).replace(/[−–—]/g, '-');
   t = t.replace(SUPERSCRIPT_RUN, (m) => '^(' + m.split('').map((c) => SUPERSCRIPT[c]).join('') + ')');
-  // digit grouping — western 9,696 / 1,000,000 and Indian 1,21,000 — never a list "2, 3" (space)
-  t = t.replace(/(?<![\d.,])\d{1,3}(?:(?:,\d{3})+|(?:,\d{2})+,\d{3})(?![\d,])/g, (m) => m.replace(/,/g, ''));
+  // digit grouping — western 9,696 / 1,000,000 and Indian 1,21,000 — only when no tuple is in play
+  if (opts.grouping) {
+    t = t.replace(GROUPED, (m) => ((m.match(/,/g) || []).length >= (opts.minCommas || 1) ? m.replace(/,/g, '') : m));
+  }
   const pow = (base, exp) => plainNumber(Math.pow(Number(base), Number(exp)));
   t = t.replace(/(?<![A-Za-z\d.])(\d+(?:\.\d+)?)\s*[×xX*·]\s*10\s*\^\s*\(?\s*(-?\d+)\s*\)?/g, (m, a, e) => {
     const p = pow(10, e);
