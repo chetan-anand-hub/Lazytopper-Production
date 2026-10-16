@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -32,10 +32,12 @@ export type { PaperSplit, ViewRow };
 // services/meHomeSummary (moved verbatim) so Home, the sidebar and Quick Practice show exactly
 // Me's numbers and hrefs; re-exported so every existing import is unchanged.
 import {
+  ME_CONCEPT_CTX,
   ME_ROUTE_CTX,
   buildChapters,
   meChapterPractisePath,
   meConceptPractisePath,
+  meConceptRowsFrom,
   mePaperOf,
 } from "../services/meHomeSummary";
 // eslint-disable-next-line react-refresh/only-export-components
@@ -65,6 +67,7 @@ import {
   type DesktopRouteContext,
   type DesktopSubject,
 } from "../lib/desktop/navigation";
+import { conceptSetClick, type ConceptSetContext } from "../lib/desktop/conceptSetPath";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 // DPDP (SETTINGS-1). /me is the account surface - /settings was retired and /profile
 // redirects here - so the student's export and erasure rights live on the one routed
@@ -129,6 +132,9 @@ import UsageCard from "../components/usage/UsageCard";
 const ROUTE_CTX: DesktopRouteContext = ME_ROUTE_CTX;
 const BACK_LABEL = "Back to Me / Progress";
 const BACK_STATE = { back: "/me", backLabel: BACK_LABEL } as const;
+// WEAK-AREA-DIRECT: a concept row's Practise also carries `?backLabel=` (as the Topic Hub's concept
+// rows do), so Back reads right even where nav-state is lost (a reload, a shared link).
+const CONCEPT_CTX: ConceptSetContext = ME_CONCEPT_CTX;
 
 const WINDOWS: Array<{ value: ProgressWindow; label: string }> = [
   { value: "week", label: "Week" },
@@ -443,8 +449,18 @@ const NavCta = ({
 );
 
 /** A quiet in-row action - the ONE action a deeper-analysis row is allowed. */
-const RowCta = ({ to, label, testId }: { to: string; label: string; testId?: string }) => (
-  <Link to={to} state={BACK_STATE} data-testid={testId} className="lt-me__rowcta">
+const RowCta = ({
+  to,
+  label,
+  testId,
+  onClick,
+}: {
+  to: string;
+  label: string;
+  testId?: string;
+  onClick?: (e: ReactMouseEvent<HTMLAnchorElement>) => void;
+}) => (
+  <Link to={to} state={BACK_STATE} data-testid={testId} className="lt-me__rowcta" onClick={onClick}>
     {label}
   </Link>
 );
@@ -626,7 +642,8 @@ export default function MeProgressPage() {
     [mistakeRungs],
   );
 
-  const conceptRows = useMemo(() => viewRowsFrom(data?.concepts ?? []), [data]);
+  // WEAK-AREA-DIRECT — the same rows, each with its chapter, so its Practise opens the concept's set.
+  const conceptRows = useMemo(() => meConceptRowsFrom(data?.concepts ?? []), [data]);
   // ME-CONCEPT-1 — the per-concept mistakes the read model put on the SAME rows (above Me's
   // weakness gate only; below it no row carries any, and no note is printed).
   const conceptNotes = useMemo(() => {
@@ -1216,7 +1233,8 @@ export default function MeProgressPage() {
                         <MarksWord value={row.lost} />
                       </span>
                       <RowCta
-                        to={meConceptPractisePath(paper, row.label, ROUTE_CTX)}
+                        to={meConceptPractisePath(paper, row, CONCEPT_CTX)}
+                        onClick={conceptSetClick(navigate, paper, row, CONCEPT_CTX, BACK_STATE)}
                         label="Practise"
                         testId={`me-practise-concept-${row.key}`}
                       />
