@@ -189,9 +189,11 @@ check(
 );
 // The close composes the RICH opener when the graded response is in hand, with the EXISTING
 // (byte-identical) thin composeReturnOpener as the honest floor (the tutor never grades; poll-free).
+// TUTOR-FIX-2 T6: both openers now take `label` = the RETURNED record's own chapter
+// (recordLabel(record)), not the tutor's topicLabel, when they differ.
 check(
   "RETURN: closeCheckImprove composes the RICH opener with the thin composeReturnOpener as the floor",
-  /const rich = gradedResponse\s*\?\s*composeCheckImproveRichReturnOpener\(record, gradedResponse, topicLabel\)\s*:\s*null;[\s\S]*?injectReturn\(rich \?\? composeReturnOpener\(record, topicLabel, "check-improve"\)\);/.test(hook),
+  /const label = recordLabel\(record\);[\s\S]*?const rich = gradedResponse\s*\?\s*composeCheckImproveRichReturnOpener\(record, gradedResponse, label\)\s*:\s*null;[\s\S]*?injectReturn\(rich \?\? composeReturnOpener\(record, label, "check-improve"\)\);/.test(hook),
 );
 // The graded question + eval-gated digest are assembled into one-shot returnedWork model context.
 check(
@@ -237,7 +239,8 @@ check(
 );
 check(
   "FLOOR: the thin composeReturnOpener honest-floor line is byte-identical (no marks → generic opener)",
-  /You're back with your graded \$\{topicLabel\} \$\{source\}\. Want to go through where it slipped, together\?/.test(roundTrip),
+  // TUTOR-FIX-2 T6: same words; an empty label (no honest chapter) drops the chapter, never "  sheet".
+  /You're back with your graded \$\{topicLabel \? `\$\{topicLabel\} ` : ""\}\$\{source\}\. Want to go through where it slipped, together\?/.test(roundTrip),
 );
 check(
   "BESIDE: composeCheckImproveRichReturnOpener is added as a SEPARATE export (never replaces the thin one)",

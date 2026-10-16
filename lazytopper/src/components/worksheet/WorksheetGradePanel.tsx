@@ -6,7 +6,7 @@ import { getWorksheetGrade, listStoredWorksheetsLite } from "../../services/work
 import { worksheetNomenclature } from "./worksheetModel";
 import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
 import ResultsScorecard from "../results/ResultsScorecard";
-import { worksheetScorecardVariant } from "../results/scorecardVariants";
+import { withPaperTutorAsks, worksheetScorecardVariant, type ScorecardTutorAsk } from "../results/scorecardVariants";
 import {
   MISTAKE_TYPE_LABEL,
   coachingLine,
@@ -208,7 +208,26 @@ function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestio
   );
 }
 
-export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) {
+/** TUTOR-FIX-2 T9 — the tutor's back arrow (`review=<code>`) reopened THIS worksheet's saved record:
+ *  its stored grade (the record's own payload; null when it could not be read) and a token that
+ *  changes per reopen. Display only — nothing is graded or recorded. */
+export interface WorksheetReopenGrade {
+  response: WorksheetGradeResponse | null;
+  nonce: number;
+}
+
+export default function WorksheetGradePanel({
+  ws,
+  reopen,
+  tutorAskFor,
+}: {
+  ws: PersistedWorksheet;
+  /** TUTOR-FIX-2 T9 (optional, additive): show the saved scorecard on a review= reopen. */
+  reopen?: WorksheetReopenGrade | null;
+  /** TUTOR-FIX-2 T9 (optional, additive): the "Ask the tutor why I lost this mark" hop for a
+   *  graded worksheet with this code + grade, or undefined when it has none (signed out, unsaved). */
+  tutorAskFor?: (code: string, response: WorksheetGradeResponse) => ((qNumber: number) => ScorecardTutorAsk | null) | undefined;
+}) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
@@ -244,6 +263,21 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
       setFromCache(true);
     }
   }, [ws.worksheetId]);
+
+  // TUTOR-FIX-2 T9 — a review= reopen (the tutor's back arrow) shows THAT record's saved grade and
+  // opens its scorecard. The record's payload is the grade the tutor read; this device's cached grade
+  // is the fallback. No grade at all -> the panel stays exactly as the restore above left it.
+  useEffect(() => {
+    if (!reopen) return;
+    const cached = getWorksheetGrade<WorksheetGradeResponse>(ws.worksheetId);
+    const grade = reopen.response && reopen.response.ok ? reopen.response : cached && cached.ok ? cached : null;
+    if (!grade) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot restore per review= nonce, same shape as the restore above
+    setOutcome({ response: grade, miOutcomes: [] });
+    setFromCache(true);
+    setScorecardOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reopen?.nonce, ws.worksheetId]);
 
   const response = outcome?.response ?? null;
   const miBanner = useMemo(() => miBannerFrom(outcome), [outcome]);
@@ -537,17 +571,21 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
              worksheet variant (behaviour-identical to the shipped WorksheetScorecard) ── */}
       {response && response.ok && scorecardOpen && (
         <ResultsScorecard
-          variant={worksheetScorecardVariant({
-            name: nomen.name,
-            code: nomen.code,
+          variant={withPaperTutorAsks(
+            worksheetScorecardVariant({
+              name: nomen.name,
+              code: nomen.code,
+              response,
+              downloading,
+              onRead: () => setScorecardOpen(false),
+              onDownload: () => {
+                setScorecardOpen(false);
+                void handleDownload();
+              },
+            }),
             response,
-            downloading,
-            onRead: () => setScorecardOpen(false),
-            onDownload: () => {
-              setScorecardOpen(false);
-              void handleDownload();
-            },
-          })}
+            tutorAskFor?.(nomen.code, response),
+          )}
           onClose={() => setScorecardOpen(false)}
         />
       )}

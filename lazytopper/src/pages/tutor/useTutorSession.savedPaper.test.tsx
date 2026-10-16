@@ -40,6 +40,8 @@ const record = (surface: string, over: Record<string, unknown> = {}) => ({
   id: "P-1",
   surface,
   questionIds: ["q-a", "q-b"],
+  // TUTOR-FIX-2 T6 — the opener names the RECORD's own chapter (an empty set is neutral).
+  topicKeys: ["real-numbers"],
   dedupKey: "u1::P-1",
   perQuestionRef: "x:P-1",
   ...over,

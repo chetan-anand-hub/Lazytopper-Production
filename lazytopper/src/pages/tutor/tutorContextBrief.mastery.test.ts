@@ -129,7 +129,9 @@ describe("ruling 6 + ME-ENGINE-1 PR-2 — no mastery or percentage field reaches
     h.attempts = [attempt(1, 0, 3)];
     h.mistakes = [mistake("quick-practice::B::q1", 1)];
     const brief = await assembleTutorBrief({ uid: "u-1", topicKey: "real-numbers", subject: "maths", window: "week", nowMs: NOW });
-    expect(brief).toEqual({ hasData: false, topic: {}, mistakes: {} });
+    // TUTOR-FIX-2 (T2) — the window the (empty) read covered is said, so the tutor can say
+    // "I don't see graded work ... in the last 7 days"; no figure, no chapter block.
+    expect(brief).toEqual({ hasData: false, topic: {}, mistakes: {}, windowLabel: "last 7 days" });
   });
 
   it("signed out → the empty brief, nothing read", async () => {

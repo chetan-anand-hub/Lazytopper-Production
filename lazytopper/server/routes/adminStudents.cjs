@@ -57,6 +57,7 @@ const {
   TRIAL_COUNTER_FIELDS,
   LEDGER_SPEND_FIELD,
 } = require('../services/usageLedger.cjs');
+const { AI_TRIAL_COUNTER_FIELDS } = require('../services/fairUse.cjs');
 const { SIGNUP_SOURCES_COLLECTION } = require('./signupSource.cjs');
 
 const ADMIN_STUDENTS_PATH = '/api/admin/students';
@@ -285,9 +286,43 @@ function createAdminStudentsRoutes(deps = {}) {
 
   const db = () => adminFirestore;
 
-  function documentIdPath() {
-    const fs = firebaseAdmin && firebaseAdmin.firestore;
-    return fs && fs.FieldPath && typeof fs.FieldPath.documentId === 'function' ? fs.FieldPath.documentId() : null;
+  /**
+   * TUTOR-FIX-2 T8 — one student's usage-ledger days, read by DAY KEY.
+   *
+   * ★ WHY NOT A QUERY. The detail used to run
+   *   usageLedger/{uid}/days .orderBy(documentId,'desc').limit(120).select(...)
+   * and production answered "usageLedger: could not be read" for students — safeDocs returns null
+   * ONLY when the query rejects, so that query rejected there (the exact server error was never
+   * logged; the in-repo Firestore fake cannot reproduce it). Fair use already reads these SAME
+   * day documents by key on every metered call (usageLedger.cjs readDays), so a keyed read is the
+   * proven path. The window is the IST days from max(sign-up day, ledger start, today-119) to
+   * today: a new account costs a handful of reads, and a day that has no document is simply
+   * absent — an empty ledger is [] ("No tutor use yet"), never "unavailable".
+   * Returns { docs, capped } or null when a read genuinely fails (logged, never thrown).
+   */
+  async function readUsageDays(uid, nowMs, createdMs) {
+    const today = istDayKey(nowMs);
+    const windowStart = addIstDays(today, -(DETAIL_LIMITS.usageDays - 1));
+    const floors = [DATA_SOURCES.usageLedger.since];
+    if (createdMs !== null && Number.isFinite(createdMs)) floors.push(istDayKey(createdMs));
+    const floor = floors.sort()[floors.length - 1];
+    const capped = floor < windowStart;
+    const first = capped ? windowStart : floor;
+    const keys = [];
+    for (let k = first; k <= today && keys.length < DETAIL_LIMITS.usageDays; k = addIstDays(k, 1)) keys.push(k);
+    try {
+      const daysRef = db().collection(USAGE_LEDGER_COLLECTION).doc(uid).collection(LEDGER_SEGMENTS.days);
+      const docs = [];
+      for (let i = 0; i < keys.length; i += GET_ALL_CHUNK) {
+        const refs = keys.slice(i, i + GET_ALL_CHUNK).map((k) => daysRef.doc(k));
+        const snaps = await db().getAll(...refs);
+        for (const s of snaps) if (s && s.exists) docs.push({ id: s.id, data: () => (typeof s.data === 'function' ? s.data() : null) });
+      }
+      return { docs, capped };
+    } catch (err) {
+      console.warn('[adminStudents] usage ledger read failed:', err && (err.code || err.message));
+      return null;
+    }
   }
 
   async function safeCount(query) {
@@ -577,7 +612,6 @@ function createAdminStudentsRoutes(deps = {}) {
     }
     const profile = authRow(user);
     const studentDoc = (name) => db().collection(name).doc(uid);
-    const docId = documentIdPath();
 
     const [subSnap, payments, actDays, usageDays, sessions, attempts, mocks] = await Promise.all([
       studentDoc(SUBSCRIPTIONS_COLLECTION).get().then((s) => (s && s.exists ? s.data() || {} : undefined)).catch(() => null),
@@ -585,13 +619,8 @@ function createAdminStudentsRoutes(deps = {}) {
         .orderBy('grantedAt', 'desc').limit(DETAIL_LIMITS.payments).select('passType', 'pricePaidInr', 'grantedAt')),
       safeDocs(activityDays(uid).orderBy('firstSeenMs', 'desc').limit(DETAIL_LIMITS.activityDays)
         .select('firstSeenMs', 'lastSeenMs', 'sections', 'events', 'pages', 'feed', 'feedTruncated')),
-      safeDocs(
-        (docId
-          ? studentDoc(USAGE_LEDGER_COLLECTION).collection(LEDGER_SEGMENTS.days).orderBy(docId, 'desc')
-          : studentDoc(USAGE_LEDGER_COLLECTION).collection(LEDGER_SEGMENTS.days))
-          .limit(DETAIL_LIMITS.usageDays)
-          .select('calls', 'costMicroInr', LEDGER_SPEND_FIELD, ...Object.values(TRIAL_COUNTER_FIELDS))
-      ),
+      // TUTOR-FIX-2 T8: by DAY KEY, not a query (see readUsageDays).
+      readUsageDays(uid, nowMs, profile.createdMs),
       safeDocs(sessionRecords(uid).orderBy('gradedAt', 'desc').limit(DETAIL_LIMITS.sessions)
         .select('surface', 'subject', 'topicKeys', 'marksAwarded', 'marksTotal', 'status', 'gradedAt')),
       safeDocs(studentDoc(PRACTICE_INSIGHTS_COLLECTION).collection(READ_SEGMENTS.attempts)
@@ -643,7 +672,7 @@ function createAdminStudentsRoutes(deps = {}) {
       };
     }
 
-    for (const d of usageDays || []) {
+    for (const d of (usageDays && usageDays.docs) || []) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(d.id)) continue;
       const v = d.data() || {};
       // HARDEN-1 PR-2 (FU-A17-ADMIN-SPEND-FIELD): TWO separate numbers, never one copied into
@@ -658,6 +687,11 @@ function createAdminStudentsRoutes(deps = {}) {
           : null;
       const ai = { calls: countOf(v.calls), costInr: Math.round(countOf(v.costMicroInr) / 10000) / 100, providerSpendInr };
       for (const [name, field] of Object.entries(TRIAL_COUNTER_FIELDS)) ai[name] = countOf(v[field]);
+      // TUTOR-FIX-2 T8: tutor messages that day, from the same document (fair use's trial tutor
+      // counter). Written for trial-tier calls only, so a day without it is null = not recorded,
+      // never 0 (a Premium student's tutor calls are inside `calls`).
+      const tutorRaw = v[AI_TRIAL_COUNTER_FIELDS.tutor];
+      ai.tutorMessages = typeof tutorRaw === 'number' && Number.isFinite(tutorRaw) && tutorRaw >= 0 ? countOf(tutorRaw) : null;
       dayOf(d.id).ai = ai;
     }
 
@@ -755,7 +789,7 @@ function createAdminStudentsRoutes(deps = {}) {
       sources: DATA_SOURCES,
       reads: {
         activityLog: truncatedSource(actDays, DETAIL_LIMITS.activityDays),
-        usageLedger: truncatedSource(usageDays, DETAIL_LIMITS.usageDays),
+        usageLedger: usageDays === null ? 'unavailable' : usageDays.capped ? 'truncated' : 'complete',
         sessionRecords: truncatedSource(sessions, DETAIL_LIMITS.sessions),
         practiceAttempts: truncatedSource(attempts, DETAIL_LIMITS.attempts),
         mockEntries: truncatedSource(mocks, DETAIL_LIMITS.mockEntries),

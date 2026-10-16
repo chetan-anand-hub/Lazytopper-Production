@@ -25,6 +25,7 @@ describe("ruling 6 — no mastery line in the tutor prompt", () => {
       brief: { hasData: true, topic: { weakConcepts: ["Euclid's division lemma"] }, mistakes: { topType: "careless (silly slip)" } },
     });
     expect(prompt).toContain("- Sub-topics that have cost marks: Euclid's division lemma.");
-    expect(prompt).toContain("- Most common recent slip: careless (silly slip) mistakes.");
+    // TUTOR-FIX-2 T1: topType is subject-wide, and the line now says so.
+    expect(prompt).toContain("- Most common mistake type across the whole subject: careless (silly slip).");
   });
 });

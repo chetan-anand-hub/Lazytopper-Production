@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { AuthUser } from "../context/AuthContext";
@@ -93,10 +93,17 @@ function renderDoor(entry: { pathname: string; state?: unknown } = { pathname: "
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/check-improve" element={<div>LANDED ON CHECK AND IMPROVE</div>} />
+        <Route path="/tutor/:grade/:subject/:topicKey" element={<TutorLanding />} />
         <Route path="/" element={<div>LANDED ON HOME</div>} />
       </Routes>
     </MemoryRouter>,
   );
+}
+
+/** TUTOR-FIX-2 T12 — echoes where the door sent the student, query included. */
+function TutorLanding() {
+  const l = useLocation();
+  return <div>{`LANDED ON TUTOR ${l.pathname}${l.search}`}</div>;
 }
 
 /**
@@ -495,6 +502,30 @@ describe("the `from` round-trip survives the redesign", () => {
       emailVerified: true,
     });
     renderDoor({ pathname: "/login", state: { from: "https://evil.example.com/steal" } });
+
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+  });
+
+  it("TUTOR-FIX-2 T12 — a `from` with a query (the signed-out scorecard's tutor hop) lands with the query intact", async () => {
+    authState.user = user({
+      email: "ananya@example.com",
+      providerIds: ["password"],
+      emailVerified: true,
+    });
+    renderDoor({ pathname: "/login", state: { from: "/tutor/10/Maths/real-numbers?q=qn%3A3&source=scorecard" } });
+
+    expect(
+      await screen.findByText("LANDED ON TUTOR /tutor/10/Maths/real-numbers?q=qn%3A3&source=scorecard"),
+    ).toBeTruthy();
+  });
+
+  it("TUTOR-FIX-2 T12 — a protocol-relative `from` is still refused", async () => {
+    authState.user = user({
+      email: "ananya@example.com",
+      providerIds: ["password"],
+      emailVerified: true,
+    });
+    renderDoor({ pathname: "/login", state: { from: "//evil.example.com/tutor/10/Maths/x?q=1" } });
 
     expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
   });

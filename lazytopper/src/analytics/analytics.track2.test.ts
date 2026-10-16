@@ -107,6 +107,8 @@ describe("TRACK-2 · every new event name reaches the sender", () => {
     ["start_here_graded", { subject: "science", correct: 3, total: 5 }],
     ["start_here_dismissed", { surface: "practice_hub" }],
     ["tutor_from_scorecard", { surface: "quick_practice" }],
+    // TUTOR-FIX-2 T13.
+    ["tutor_first_message", { subject: "maths", chapter: "trigonometry" }],
   ];
   it.each(onboarding)("%s -> GA4, Vercel and the activity log, with its params", (name, params) => {
     trackOnboardingEvent(name, params as never);

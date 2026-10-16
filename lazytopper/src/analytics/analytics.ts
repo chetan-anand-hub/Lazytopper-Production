@@ -687,7 +687,9 @@ export type NamedAnalyticsEvent =
   | "start_here_start"
   | "start_here_graded"
   | "start_here_dismissed"
-  | "tutor_from_scorecard";
+  | "tutor_from_scorecard"
+  // TUTOR-FIX-2 T13 — the first message a student sends in a tutor thread (once per thread).
+  | "tutor_first_message";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -820,6 +822,8 @@ export interface OnboardingEventParams {
   start_here_graded: { subject: string; correct: number; total: number };
   start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface };
   tutor_from_scorecard: { surface: ScorecardSurface };
+  /** TUTOR-FIX-2 T13 — once per tutor thread: the subject and the board chapter slug only. */
+  tutor_first_message: { subject: string; chapter: string };
 }
 
 export type OnboardingEvent = keyof OnboardingEventParams;
