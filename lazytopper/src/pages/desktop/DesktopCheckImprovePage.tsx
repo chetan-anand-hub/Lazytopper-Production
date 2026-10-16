@@ -1594,6 +1594,11 @@ const DesktopCheckImprovePageInner: React.FC<{
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
       setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
+      // FU-CI-TYPEFIRST-MULTI: a WHOLE PAPER grades from the answer PHOTO, so a type-first default
+      // (SHW-2) moves to "Upload image" - never when the student picked a tab or typed an answer.
+      if ((d.questions?.length ?? 0) > 1 && tab === "type" && !ciAnswerTouchedRef.current && textAnswer.trim().length === 0) {
+        setTab("upload");
+      }
       // UPLOAD-READ-1: a cut-off read keeps every complete question and says how many it got.
       setDetectPartialCount(d.partial === true && d.questions && d.questions.length > 0 ? d.questions.length : null);
     } catch (e) {
