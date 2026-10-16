@@ -70,8 +70,8 @@ describe.each(PAGES)("$name · a zero-graded signed-in account", ({ el, desktop,
     const focus = await screen.findByTestId("start-here-focus");
     expect(focus.getAttribute("data-layout")).toBe(desktop ? "overlay" : "full");
     expect(screen.getByRole("dialog").getAttribute("aria-modal")).toBe("true");
-    expect(onboarding.mock.calls).toContainEqual(["start_here_shown", { surface: "home_focus" }]);
-    expect(onboarding.mock.calls).toContainEqual(["start_here_shown", { surface: "home" }]);
+    await waitFor(() => expect(onboarding.mock.calls).toContainEqual(["start_here_shown", { surface: "home_focus" }]));
+    await waitFor(() => expect(onboarding.mock.calls).toContainEqual(["start_here_shown", { surface: "home" }]));
   });
 
   it("★★ CONTROL: an existing student (a graded record) sees neither the card nor the focused surface", async () => {

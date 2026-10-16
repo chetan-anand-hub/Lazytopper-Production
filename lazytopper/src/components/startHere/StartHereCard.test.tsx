@@ -415,9 +415,10 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     expect(heading?.textContent).toBe(START_HERE_COPY.body);
     // The picker is open straight away (the focused surface IS the first step).
     expect(screen.getByTestId("start-here-focus-subject-maths")).toBeInTheDocument();
-    expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub_focus" }]);
+    // Passive effects can land after the async eligibility read settles: wait for the events.
+    await waitFor(() => expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub_focus" }]));
     // The inline card's own event and param are unchanged.
-    expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub" }]);
+    await waitFor(() => expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub" }]));
   });
 
   it("★★ focus off (the default): byte-unchanged — no overlay, no focus storage read, no focus event", async () => {
@@ -428,7 +429,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
       expect(focusEl()).toBeNull();
       const keys = getItem.mock.calls.map((c) => String(c[0]));
       expect(keys.some((k) => k.startsWith(START_HERE_FOCUS_NOT_NOW_PREFIX) || k === START_HERE_FOCUS_CLOSED_KEY)).toBe(false);
-      expect(calls("start_here_shown")).toEqual([["start_here_shown", { surface: "practice_hub" }]]);
+      await waitFor(() => expect(calls("start_here_shown")).toEqual([["start_here_shown", { surface: "practice_hub" }]]));
     } finally {
       getItem.mockRestore();
     }
