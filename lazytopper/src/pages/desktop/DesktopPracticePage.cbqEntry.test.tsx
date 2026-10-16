@@ -53,7 +53,12 @@ function renderHub(entry: string) {
 }
 
 const TITLE = "Competency-based questions (CBQs)";
-const LINE = "Case-based questions like the board paper's Section E — pick a chapter";
+// AMENDED (MI-COPY C, owner ask 16 Oct 2026) — was "Case-based questions like the board paper's
+// Section E — pick a chapter": the card opens a chapter's CBQs of EVERY mark value (preset=comp →
+// style "cbq" → buildCbqPracticePool, all isCbq rows interleaved by mark), not Section E only.
+const LINE =
+  "Board-style competency questions at every mark value — MCQs, assertion-reason, short answers and case studies. Pick a chapter.";
+const OLD_LINE = /Section E/;
 const card = () => screen.getByRole("button", { name: (name) => name.startsWith(TITLE) });
 
 beforeEach(() => {
@@ -72,6 +77,7 @@ describe("CBQ-ENTRY-1 (E1) — the card", () => {
     const c = card();
     expect(c).toHaveTextContent(TITLE);
     expect(c).toHaveTextContent(LINE);
+    expect(c.textContent).not.toMatch(OLD_LINE);
     // Above Step 1 ("What to work on") in document order — the top of the page.
     const step1 = screen.getByText("What to work on");
     expect(c.compareDocumentPosition(step1) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
