@@ -12,6 +12,7 @@
 
 import { bankIndexEntries } from "../../data/bankChapters/bankIdIndex";
 import { conceptForSubtopic } from "../../data/concepts/conceptLabelMap";
+import { canonicalSlugMatches } from "../../data/syllabus/canonicalTopicSlug";
 import {
   CONCEPT_PRACTISE_MAX_COUNT,
   MIN_CONCEPT_PRACTISE_ROWS,
@@ -25,9 +26,10 @@ export function unmappedSubtopicBankIds(chapterSlug: string, label: string): str
   if (!want) return [];
   const ids: string[] = [];
   for (const [id, meta] of bankIndexEntries()) {
-    if (meta.topicKey !== chapterSlug) continue;
     const sub = meta.subtopic.trim();
     if (sub !== want) continue;
+    // Chapter match through the ONE canonical topic-key authority (topickey Guard B).
+    if (!canonicalSlugMatches(meta.topicKey, chapterSlug)) continue;
     if (conceptForSubtopic(chapterSlug, sub) !== undefined) continue;
     ids.push(id);
   }

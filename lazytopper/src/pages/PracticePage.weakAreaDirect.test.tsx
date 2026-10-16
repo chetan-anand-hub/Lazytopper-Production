@@ -121,7 +121,7 @@ describe("the concept URL serves EXACTLY the concept on the real page", () => {
     const served = await displayedIds(url);
     expect(served.length).toBeGreaterThan(0);
     expect(served.filter((id) => !isConcept(id)), `served ids outside ${CONCEPT}`).toEqual([]);
-    expect(screen.getAllByText(new RegExp(ME_BACK.replace(/[/]/g, "\\/"))).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(ME_BACK, { exact: false }).length).toBeGreaterThan(0);
   }, 180000);
 });
 
