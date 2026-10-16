@@ -1380,7 +1380,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     subjectKey,
     Number(mistakeLogsHydratedForQp) || 0,
   );
-  const weakAreasCard: WeakAreasCard = weakAreasCardFrom(!isGuest, weakAreasRows.rows);
+  // WEAK-AREA-DIRECT — the card opens the top concept's own set (Me's builder); Back returns here.
+  const weakAreasCard: WeakAreasCard = weakAreasCardFrom(!isGuest, weakAreasRows.rows, {
+    paper: subjectKey,
+    returnTo: location.pathname + location.search,
+  });
   /** ALL-AI-METERING-1 - the More-like-this limit panel (the AI top-up was refused). */
   const [moreLikeThisLimit, setMoreLikeThisLimit] = useState<LimitState | null>(null);
   /** DECISION 29d - a FREE student's 402 premium_required: a plan note with a trial link, not a limit. */
@@ -3980,4 +3984,27 @@ const QP_SIGNIN_CSS = `
   .lt-qp-signin--restored .lt-qp-signin__p { font-size: 0.85rem; font-weight: 600; color: #0f2743; }
 `;
 
-export default PracticePage;
+/**
+ * WEAK-AREA-DIRECT — a NEW arrival on the same route opens fresh. The page reads its URL into
+ * state ONCE per mount (`didInitFromUrlRef`), so a link from the page to another set on this
+ * route (the "My weak areas" card on the chooser, Back from that set to the chooser) used to keep
+ * the old screen. The route element is keyed by the arrival: the search minus the page's own
+ * history markers (`built`, which a hub-flow build pushes, and the scorecard `review` param, which
+ * the page strips) - so those never remount it, and a different topic / focus / source always
+ * does, exactly as an arrival from another route. Inside the Tutor overlay nothing is keyed.
+ */
+export const practiceArrivalKey = (search: string): string => {
+  const sp = new URLSearchParams(search);
+  sp.delete(QP_BUILT_PARAM);
+  sp.delete(SCORECARD_REVIEW_PARAM);
+  sp.sort();
+  return sp.toString();
+};
+
+const PracticePageRoute: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay }) => {
+  const location = useLocation();
+  if (overlay) return <PracticePage overlay={overlay} />;
+  return <PracticePage key={practiceArrivalKey(location.search)} />;
+};
+
+export default PracticePageRoute;
