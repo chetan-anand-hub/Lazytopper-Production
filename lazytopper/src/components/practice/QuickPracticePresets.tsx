@@ -12,9 +12,10 @@
 // "all" | "case" ...), verified against its MARKS/STYLE/SOURCE/DIFFICULTY options and the
 // STYLE_COMPAT / DIFF_COMPAT_BY_MARKS matrices — never an invented mode.
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import type { DifficultyChoice } from "./practiceQuestionBuilder";
+import { conceptSetClick } from "../../lib/desktop/conceptSetPath";
 import { PAPER_DESIGN } from "../../config/syllabus2026-27";
 import { WEAK_AREAS_LOCKED_COPY, type WeakAreasCard } from "./weakAreasCard";
 
@@ -168,6 +169,22 @@ export interface QuickPracticePresetsProps {
   weakAreas?: WeakAreasCard;
 }
 
+/** WEAK-AREA-DIRECT: the live card's Link. Its click resolves the concept's EXACT set (lazy bank
+ *  index) and navigates; `to` is the honest fallback. Its own component so useNavigate is only
+ *  called where a Link (and so a router) already is. */
+function WeakAreasLink({
+  open,
+  ...props
+}: ComponentProps<typeof Link> & { open?: Extract<WeakAreasCard, { kind: "live" }>["open"] }) {
+  const navigate = useNavigate();
+  return (
+    <Link
+      {...props}
+      onClick={open ? conceptSetClick(navigate, open.paper, open.concept, open.ctx) : undefined}
+    />
+  );
+}
+
 export function QuickPracticePresets({
   presets: allPresets,
   selectedKey,
@@ -216,11 +233,13 @@ export function QuickPracticePresets({
         {presets.map((p) => {
           if (p.key === "weak" && weakAreas.kind === "live") {
             // MI-HOME-SYNC (B) — LIVE: Me's own concept-row Practise href for the top concept.
+            // WEAK-AREA-DIRECT: the click resolves the concept's EXACT set (lazy bank index).
             const [top, ...rest] = weakAreas.concepts;
             return (
-              <Link
+              <WeakAreasLink
                 key={p.key}
                 to={weakAreas.href}
+                open={weakAreas.open}
                 className={`qp-preset ${p.accentClass}`}
                 data-testid="qp-weak-live"
               >
@@ -240,7 +259,7 @@ export function QuickPracticePresets({
                 <div className="qp-cbse">
                   One concept per set: your top one, from Me / Progress.
                 </div>
-              </Link>
+              </WeakAreasLink>
             );
           }
           const gated = isGated(p);
