@@ -3691,8 +3691,11 @@ const packTopicKey = useMemo(() => {
         // seen (review mode) were never scored, so they are not listed.
         wrongAnswers: filteredQuestions.flatMap((q, i): ScorecardWrongAnswer[] => {
           const id = String(q.id);
-          // A signed-out visitor, a local session and the tutor overlay see the scorecard exactly as before.
-          if (overlay || !authUserForJourney?.uid || authUserForJourney.isLocalSession) return [];
+          // A signed-out visitor and a local session see the scorecard exactly as before.
+          // TUTOR-FIX-2 (v3 small): the tutor overlay now shows the SAME rows as standalone QP, so
+          // the tutor's "Go through them" matches what the student saw. Display only: the rows'
+          // tutor hop is already null in the overlay (tutorAskFor), nothing is recorded.
+          if (!authUserForJourney?.uid || authUserForJourney.isLocalSession) return [];
           if (mcqResults[id] !== "wrong" || reviewMcqIds[id]) return [];
           const opts = Array.isArray(q.options) ? q.options.map(String) : [];
           const picked = mcqSelections[id];
