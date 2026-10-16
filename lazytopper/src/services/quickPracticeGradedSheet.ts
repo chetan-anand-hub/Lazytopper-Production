@@ -171,6 +171,9 @@ export function buildQuickPracticeGradedSheet(args: {
     note ?? "",
   ].filter((s) => s.trim()).join(" ");
 
+  // Re-review nit — ONE total for the sheet: the header and the pending line's "worth N marks"
+  // both use the marks of the questions ON the sheet, never the whole displayed set's.
+  const sheetTotalMarks = wsQuestions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
   return {
     ws: {
       worksheetId: `qp:${code}`,
@@ -179,12 +182,12 @@ export function buildQuickPracticeGradedSheet(args: {
       subject,
       grade,
       sectionFilter: "All",
-      totalMarks: wsQuestions.reduce((s, q) => s + (Number(q.marks) || 0), 0),
+      totalMarks: sheetTotalMarks,
       questions: wsQuestions,
       code,
       name,
     },
-    response,
+    response: { ...response, worksheetTotalMarks: sheetTotalMarks },
     name,
     code,
     coaching,

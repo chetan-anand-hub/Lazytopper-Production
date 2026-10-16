@@ -184,6 +184,25 @@ describe("QP-GRADED-SHEET-1 · the shared print doc renders the QP sheet", () =>
     expect(container.textContent).toContain("not graded, not scored 0");
   });
 
+  it("★ re-review — the pending line's 'worth N marks' is the SHEET's total (= header), not the set's", () => {
+    // Set: Q1-Q4 + an unattempted Q5 (3 marks) ⇒ set total 9; Q4 unreadable ⇒ on the sheet; Q5 not.
+    const setEntries: QuickPracticeEntry[] = [...entries, { questionId: "q-5", marks: 3 }];
+    expect(buildQuickPracticeResponse(setEntries).worksheetTotalMarks).toBe(9);
+    const s = buildQuickPracticeGradedSheet({
+      questions: [...questions, q(5, 3, "C")],
+      response: withQuickPracticeUngradedRows(buildQuickPracticeResponse(setEntries), [
+        { qNumber: 4, totalMarks: 1, state: "could-not-read" },
+      ]),
+      name: "n", code: "c", subject: "Maths", createdAt: "2026-10-17T00:00:00Z",
+    })!;
+    expect(s.ws.totalMarks).toBe(6);
+    expect(s.response.worksheetTotalMarks).toBe(6);
+    const { container } = render(<WorksheetGradedPrintDoc {...s} />);
+    expect(container.querySelector(".lt-gp__meta")!.textContent).toContain("Quick Practice · 4 questions · 6 marks");
+    expect(container.textContent).toContain("Quick Practice is worth 6 marks in total.");
+    expect(container.textContent).not.toContain("worth 9 marks");
+  });
+
   it("CONTROL: a result with no stored pick (every other surface) renders no 'Your answer' line", () => {
     const s = sheet()!;
     const response: WorksheetGradeResponse = buildQuickPracticeResponse(entries); // no picks joined
