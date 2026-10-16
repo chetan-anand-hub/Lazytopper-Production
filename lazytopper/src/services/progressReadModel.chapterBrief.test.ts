@@ -235,17 +235,19 @@ describe("TUTOR-FIX-2 integration — the client brief survives the server sanit
     const pTrig = buildTutorSystemPrompt({ topicLabel: "Trigonometry", subject: "maths", brief: cleanTrig });
     expect(pTrig).toContain("- Window: the last 30 days.");
     expect(pTrig).toContain("- This chapter (Trigonometry): 9 marks lost in the last 30 days.");
+    // TUTOR-FIX-3: only typed groups with marks > 0; the unrecorded marks on their own line.
     expect(pTrig).toContain(
-      "- Where those chapter marks went: concept/knowledge gaps 1, careless slips 0, exam technique (presentation, steps, units) 2, not attempted 0, no reason recorded 6.",
+      "- Recorded mistake types for these chapter marks: concept/knowledge gaps 1, exam technique (presentation, steps, units) 2.",
     );
-    expect(pTrig).toContain("- Biggest loss group in this chapter: exam technique (presentation, steps, units).");
+    expect(pTrig).toContain("- 6 marks: no mistake type recorded (tap-the-answer questions record which option was picked, not why)");
+    expect(pTrig).toContain("- Biggest loss group among the marks with a recorded type: exam technique (presentation, steps, units).");
     expect(pTrig).toMatch(/Most recent graded questions in this chapter[^\n]*question Q4, worksheet, 2 marks lost, exam technique/);
     expect(pTrig).toMatch(/question trig-bank-7, quick-practice, 1 mark lost, concept\/knowledge gaps/);
     expect(pTrig).toContain("- Whole Maths subject (ALL chapters together, not just this one): 15 marks lost in the last 30 days.");
 
     const pRn = buildTutorSystemPrompt({ topicLabel: "Real Numbers", subject: "maths", brief: normalizeBrief(JSON.parse(JSON.stringify(rn))) });
     expect(pRn).toContain("- This chapter (Real Numbers): 6 marks lost in the last 30 days.");
-    expect(pRn).toContain("- Concepts in this chapter that cost marks: Fundamental Theorem of Arithmetic (6 marks).");
+    expect(pRn).toContain("- Concepts in this chapter where marks were lost: Fundamental Theorem of Arithmetic (6 marks).");
     expect(pRn).not.toMatch(/student's own words/);
   });
 });
