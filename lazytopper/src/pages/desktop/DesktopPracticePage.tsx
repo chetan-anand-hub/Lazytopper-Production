@@ -2264,7 +2264,7 @@ export default function DesktopPracticePage() {
 
         {/* START-HERE-1 — a signed-in student with no graded result yet; renders nothing for
             anyone else (signed-out, any graded result, or "Not now" this session). */}
-        <StartHereCard uid={user?.uid ?? null} surface="practice_hub" returnTo="/practice-hub" />
+        <StartHereCard uid={user?.uid ?? null} surface="practice_hub" returnTo="/practice-hub" focus />
 
         {/* CBQ-ENTRY-1 (E1) — straight to a chapter's competency-based questions. Above
             the scope card so it is in view without scrolling at 390px and on desktop.

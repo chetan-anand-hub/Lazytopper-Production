@@ -1166,11 +1166,19 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     void sweepExpiredCiDraftImages();
   }, []);
+  // QP-SCORECARD-2 E2 — whether the ACTIVATION-1 draft restore below has SETTLED, and whether it
+  // restored anything: the Start-here focused surface waits for it (never flashes over a draft).
+  const [ciDraftCheck, setCiDraftCheck] = useState<"pending" | "none" | "restored">("pending");
   useEffect(() => {
     if (!user || funnelOff) return;
     let cancelled = false;
-    void takeCiDraft(undefined, { keep: true }).then((d) => {
-      if (cancelled || !d) return;
+    setCiDraftCheck("pending");
+    void takeCiDraft(undefined, { keep: true })
+      .catch(() => null)
+      .then((d) => {
+      if (cancelled) return;
+      setCiDraftCheck(d ? "restored" : "none");
+      if (!d) return;
       pendingDraftSave.current = null;
       clearCiDraft();
       setQuestionTab(d.fields.questionTab);
@@ -1185,7 +1193,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setImageName(d.fields.imageName);
       setDetected(d.fields.detected);
       setConfirmed(d.fields.confirmed);
-    });
+      });
     return () => {
       cancelled = true;
     };
@@ -1365,6 +1373,23 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (record) void openReopen(record);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ciReviewCode, ciRecordsLoading, ciRecords, user?.uid, user?.isLocalSession]);
+
+  // QP-SCORECARD-2 E2 — the student has something in progress here, so the Start-here FOCUSED
+  // surface is not offered (the inline card is unaffected): a return-path / deep-link ticket, the
+  // ACTIVATION-1 draft restore still pending or having restored work, a grade under way or
+  // interrupted, a read paper, a saved-paper reopen, or any question / answer / image entered.
+  const ciInProgress =
+    returnTicket !== null ||
+    ciDraftCheck !== "none" ||
+    status !== "idle" ||
+    (detectedQuestions?.length ?? 0) > 0 ||
+    !!ciJob.interrupted ||
+    !!ciReviewCode ||
+    reopen !== null ||
+    question.trim() !== "" ||
+    !!qImageBase64 ||
+    textAnswer.trim() !== "" ||
+    !!imageBase64;
 
   // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
   const [downloading, setDownloading] = useState(false);
@@ -2488,7 +2513,15 @@ const DesktopCheckImprovePageInner: React.FC<{
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
         {/* START-HERE-1 — a signed-in student with no graded result yet; nothing for anyone
             else. Never inside the tutor overlay. */}
-        {!overlay && <StartHereCard uid={user?.uid ?? null} surface="check_improve" returnTo="/check-improve" />}
+        {!overlay && (
+          <StartHereCard
+            uid={user?.uid ?? null}
+            surface="check_improve"
+            returnTo="/check-improve"
+            focus
+            inProgress={ciInProgress}
+          />
+        )}
         {/* No lede here — deleted at both widths (owner-decided). Every clause it
             carried already ships better elsewhere: "How it works" step 3 says the same
             with the D4 noun ("image", not "photo"), step 4 names annotated steps, and
