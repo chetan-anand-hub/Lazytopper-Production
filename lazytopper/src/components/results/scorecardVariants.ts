@@ -490,6 +490,61 @@ export interface QuickPracticeVariantInput {
 
 type MenuId ="keep" | "fresh" | "chapter" | "predicted" | "study";
 
+/** The handlers of Quick Practice's fixed what-next floor (both QP variants and the stored
+ *  re-open). */
+export interface QuickPracticeMenuHandlers {
+  allDone: boolean;
+  onKeepPracticing?: () => void;
+  onFreshSet: () => void;
+  onChapterTest: () => void;
+  onPredicted: () => void;
+  onStudy: () => void;
+  overlayMode?: boolean;
+}
+
+const QP_FLOOR_LABELS: Record<MenuId, string> = {
+  keep: "Keep practicing this set",
+  fresh: "Build a fresh set",
+  chapter: "Chapter Test",
+  predicted: "Important Questions",
+  study: "Study this chapter",
+};
+const QP_FLOOR_TAGS: Record<MenuId, string> = {
+  keep: "Back",
+  fresh: "New",
+  chapter: "Test",
+  predicted: "Important Qs",
+  study: "Hub",
+};
+
+/** The floor order (Keep only when there is a partial set to return to — matches the
+ *  shipped menu, which omits it on the allDone auto-offer). The overlay (tutor panel) omits
+ *  the app-navigation items — they would leave the tutor thread. */
+function quickPracticeFloorIds(h: QuickPracticeMenuHandlers): MenuId[] {
+  return [
+    ...(!h.allDone && h.onKeepPracticing ? (["keep"] as MenuId[]) : []),
+    "fresh",
+    ...(h.overlayMode ? [] : (["chapter", "predicted", "study"] as MenuId[])),
+  ];
+}
+
+function quickPracticeFloorAction(id: MenuId, tone: ScorecardAction["tone"], h: QuickPracticeMenuHandlers): ScorecardAction {
+  const handlers: Record<MenuId, (() => void) | undefined> = {
+    keep: h.onKeepPracticing,
+    fresh: h.onFreshSet,
+    chapter: h.onChapterTest,
+    predicted: h.onPredicted,
+    study: h.onStudy,
+  };
+  return {
+    label: QP_FLOOR_LABELS[id],
+    tag: QP_FLOOR_TAGS[id],
+    tone,
+    onClick: handlers[id] ?? (() => {}),
+    disabled: !handlers[id],
+  };
+}
+
 /** PRACTICE-HONESTY-1 — the owner's label for the review action, shared by both Quick
  *  Practice variants so the two cannot drift. */
 export const QUICK_PRACTICE_REVIEW_LABEL = "Back to this set (see the steps)";
@@ -524,11 +579,28 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     extraActions,
   } = input;
 
+  // The fixed floor menu (Keep / Fresh set / Chapter Test / Important Qs / Study) — the ONE
+  // builder both the empty state below and the graded scorecard here use (no second copy).
+  const menu: QuickPracticeMenuHandlers = { allDone, onKeepPracticing, onFreshSet, onChapterTest, onPredicted, onStudy, overlayMode };
+  // (Kept literal here — the overlay acceptance guard pins this shape; `quickPracticeFloorIds`
+  // is the same rule for the stored reopen.)
+  const floor: MenuId[] = [
+    ...(!allDone && onKeepPracticing ? (["keep"] as MenuId[]) : []),
+    "fresh",
+    // Overlay (tutor panel) omits the app-navigation items — they would leave the tutor thread.
+    ...(overlayMode ? [] : (["chapter", "predicted", "study"] as MenuId[])),
+  ];
+
   // ── PRACTICE-HONESTY-1 · an ATTEMPTED session reaching this variant is MCQ-only (any
   // saved written answer routes the host to the confirm card instead). On the Chapter Test /
-  // Full Mock model it shows JUST the MCQ marks scored and ONE action: "Back to this set
-  // (see the steps)" — ALWAYS offered, even when every question was attempted. The empty
-  // state (0 attempted) falls through to the shipped menu, unchanged.
+  // Full Mock model it shows JUST the MCQ marks scored, with "Back to this set (see the
+  // steps)" FIRST and primary — ALWAYS offered, even when every question was attempted.
+  // QP-SCORECARD-2 A (owner ruling Oct 2026 05:00) reverses the "ONE action" part: the full
+  // what-next menu follows it (the SAME floor the empty state uses, every item secondary so
+  // the review keeps the primary slot), then the Start-here extras, then the return ticket.
+  // The overlay rule is the empty state's own: inside the tutor panel the app-navigation
+  // items are omitted (`quickPracticeFloorIds`). The empty state (0 attempted) falls through
+  // to the shipped menu, unchanged.
   if (attempted > 0) {
     const review = onReviewSet ?? onKeepPracticing;
     return {
@@ -562,6 +634,12 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
           onClick: review ?? (() => {}),
           disabled: !review,
         },
+        // "Keep practicing this set" is offered on a partial set ONLY when it is a different
+        // action from the review row above (an older caller that passes no `onReviewSet`
+        // gets the review row wired to `onKeepPracticing` — never the same action twice).
+        ...floor
+          .filter((id) => !(id === "keep" && !onReviewSet))
+          .map((id) => quickPracticeFloorAction(id, "secondary", menu)),
         ...(extraActions ?? []),
         ...(returnTicket ? [returnTicketAction(returnTicket)] : []),
       ],
@@ -587,38 +665,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
         ? `All ${mcqAnswered} MCQ${mcqAnswered === 1 ? "" : "s"} correct this session.`
         : null;
 
-  // ── flex-point 3: the fixed floor menu, with ONE item elevated to primary ──
-  const floorLabels: Record<MenuId, string> = {
-    keep: "Keep practicing this set",
-    fresh: "Build a fresh set",
-    chapter: "Chapter Test",
-    predicted: "Important Questions",
-    study: "Study this chapter",
-  };
-  const floorTags: Record<MenuId, string> = {
-    keep: "Back",
-    fresh: "New",
-    chapter: "Test",
-    predicted: "Important Qs",
-    study: "Hub",
-  };
-  const handlers: Record<MenuId, (() => void) | undefined> = {
-    keep: onKeepPracticing,
-    fresh: onFreshSet,
-    chapter: onChapterTest,
-    predicted: onPredicted,
-    study: onStudy,
-  };
-
-  // The floor order (Keep only when there is a partial set to return to — matches the
-  // shipped menu, which omits it on the allDone auto-offer).
-  const floor: MenuId[] = [
-    ...(!allDone && onKeepPracticing ? (["keep"] as MenuId[]) : []),
-    "fresh",
-    // Overlay (tutor panel) omits the app-navigation items — they would leave the tutor thread.
-    ...(overlayMode ? [] : (["chapter", "predicted", "study"] as MenuId[])),
-  ];
-
+  // ── flex-point 3: the fixed floor menu (`floor`, above), with ONE item elevated to primary ──
   // Personalized primary, from the REAL signal only:
   //   strong (≥3 MCQs, ≥80%)  → elevate the Chapter Test (ready to be tested)
   //   dipping (≥3 MCQs, <50%) → elevate Study this chapter (revise first)
@@ -630,13 +677,8 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     else if (accuracy < 0.5) primaryId = "study";
   }
 
-  const toAction = (id: MenuId, tone: ScorecardAction["tone"]): ScorecardAction => ({
-    label: floorLabels[id],
-    tag: floorTags[id],
-    tone,
-    onClick: handlers[id] ?? (() => {}),
-    disabled: !handlers[id],
-  });
+  const toAction = (id: MenuId, tone: ScorecardAction["tone"]): ScorecardAction =>
+    quickPracticeFloorAction(id, tone, menu);
 
   const actions: ScorecardAction[] = [
     toAction(primaryId, "primary"),
@@ -697,6 +739,11 @@ export interface QuickPracticeGradedVariantInput {
   /** The way home from the tutor overlay — the SAME `returnTicketAction` machinery C&I
    *  and the existing Quick Practice variant use. Omitted on a direct visit. */
   returnTicket?: { label: string; onReturn: () => void };
+  /** QP-SCORECARD-2 A (owner ruling Oct 2026 05:00) — the rest of the what-next floor (Chapter
+   *  Test / Important Questions / Study this chapter), after "Build a fresh set". Omitted, or
+   *  `overlayMode` (inside the tutor panel these would leave the thread) ⇒ the menu is
+   *  byte-identical to before. */
+  appNav?: { onChapterTest: () => void; onPredicted: () => void; onStudy: () => void; overlayMode?: boolean };
 }
 
 /** Thrown when an OBJECTIVE answer carries a mark that a 1-marker cannot have.
@@ -737,6 +784,7 @@ export function quickPracticeGradedScorecardVariant(
     onKeepPracticing,
     onFreshSet,
     returnTicket,
+    appNav,
   } = input;
 
   for (const a of answers) {
@@ -770,6 +818,13 @@ export function quickPracticeGradedScorecardVariant(
             onClick: onFreshSet,
           } as ScorecardAction,
         ]
+      : []),
+    // QP-SCORECARD-2 A — the floor's app-navigation items, the SAME rows (labels, tags) the
+    // MCQ-only scorecard and the empty state use; never inside the tutor overlay.
+    ...(appNav && !appNav.overlayMode
+      ? (["chapter", "predicted", "study"] as MenuId[]).map((id) =>
+          quickPracticeFloorAction(id, "secondary", { allDone: true, onFreshSet: () => {}, ...appNav }),
+        )
       : []),
     // The way home LAST, as the "Back"-tagged secondary row — the same placement and tone
     // C&I and the existing Quick Practice menu use, so the session's own next step keeps
@@ -1865,5 +1920,72 @@ export function storedQuickPracticeScorecardVariant(
     pending: null,
     allPending: null,
     actions,
+  };
+}
+
+// ── QP-SCORECARD-2 B · a SAVED Quick Practice session, reopened read-only ─────────────
+
+export interface ReopenedQuickPracticeVariantInput {
+  /** A pre-formatted date label (the host formats `gradedAt`; keeps this builder pure). */
+  gradedDateLabel: string;
+  /** How many of the record's questions were graded — from the stored perQuestion payload's
+   *  `gradedCount`. Absent ⇒ no graded count is claimed (see `storedQuickPracticeScorecardVariant`). */
+  gradedCount?: number;
+  /** "Where marks slipped" — the rows the host rebuilt from the stored results + the bank. */
+  wrongAnswers?: ScorecardWrongAnswer[] | null;
+  /** The SAME floor menu the live scorecard carries (A). A reopened session has no live set
+   *  behind it, so "Keep practicing this set" never appears (`allDone` is forced). */
+  menu: Omit<QuickPracticeMenuHandlers, "allDone" | "onKeepPracticing">;
+  /** Start-here extras (E4 "Explore LazyTopper", …) — placed after the menu, as on A. */
+  extraActions?: ScorecardAction[];
+}
+
+/**
+ * QP-SCORECARD-2 B — reopen a SAVED Quick Practice session read-only, from the stored record
+ * and its perQuestion payload: the record's own name + code + date, its stored marks, the
+ * four-type, the "Where marks slipped" rows the host rebuilt, and A's what-next menu.
+ *
+ * ★ "Back to this set (see the steps)" is NOT offered here. It reopens the LIVE set with its
+ *   answers in review mode; a saved session has no live set (the picks are not stored), so the
+ *   label would promise something the reopen cannot do. The bank's steps are on the rows.
+ * ★ Pure: it records nothing and grades nothing. Every number comes from the stored record.
+ */
+export function reopenedQuickPracticeScorecardVariant(
+  record: SessionRecord,
+  input: ReopenedQuickPracticeVariantInput,
+): ScorecardVariant {
+  const menu: QuickPracticeMenuHandlers = { ...input.menu, allDone: true };
+  const floor = quickPracticeFloorIds(menu);
+  const totalQuestions = record.questionIds?.length ?? 0;
+  const hasHonestCount = typeof input.gradedCount === "number" && Number.isFinite(input.gradedCount);
+  const rows = input.wrongAnswers && input.wrongAnswers.length > 0 ? input.wrongAnswers : null;
+  return {
+    surface: "quick-practice",
+    title: record.title,
+    subtitle: `${record.id} · ${input.gradedDateLabel}`,
+    score: {
+      kind: "marks",
+      awarded: record.marksAwarded,
+      total: record.marksTotal,
+      ...(totalQuestions > 0
+        ? hasHonestCount
+          ? { gradedCount: input.gradedCount, totalQuestions }
+          : { totalQuestions }
+        : {}),
+    },
+    message: null,
+    note: null,
+    fourType: record.fourType && (record.fourType.conceptual || record.fourType.calculation || record.fourType.silly || record.fourType.presentation)
+      ? record.fourType
+      : null,
+    pending: null,
+    allPending: null,
+    wrongAnswers: rows,
+    actionsHeading: "What next?",
+    stackActions: true,
+    actions: [
+      ...floor.map((id, i) => quickPracticeFloorAction(id, i === 0 ? "primary" : "secondary", menu)),
+      ...(input.extraActions ?? []),
+    ],
   };
 }

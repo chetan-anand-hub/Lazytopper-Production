@@ -43,6 +43,7 @@ export const ALLOWED_ORPHANS: Record<string, string> = {
   // Retire both together with those readers: [FU-WEAKAREA-AGGREGATOR-RETIRE].
   "src/services/weakAreaAggregator.ts": "orphaned by ME-CONCEPT-1 PR-B (no live importer; tests + ops guards still read it); retire with [FU-WEAKAREA-AGGREGATOR-RETIRE]",
   "src/services/attemptOutcome.ts": "its only live importer was weakAreaAggregator (orphaned by ME-CONCEPT-1 PR-B); retire with [FU-WEAKAREA-AGGREGATOR-RETIRE]",
+  "src/components/startHere/startHereAvailabilitySource.ts": "QP-SCORECARD-2 D3: build-time source of startHereAvailability.generated.ts - read only by scripts/generateStartHereAvailability.mjs and the drift guard in startHereBank.test.ts; the live app imports the generated file",
 };
 
 const SKIP_DIRS = new Set(["node_modules", "dist", ".git"]);

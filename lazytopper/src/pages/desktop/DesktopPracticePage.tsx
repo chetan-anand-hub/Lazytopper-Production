@@ -30,6 +30,8 @@ import {
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
 import { ChapterTestPicker, CT_HUB_PARAM } from "../../components/practice/ChapterTestPicker";
 import StartHereCard from "../../components/startHere/StartHereCard";
+import SurfaceHistory from "../../components/results/SurfaceHistory";
+import { buildQuickPracticeReviewHref } from "../tutor/tutorRoundTrip";
 import { appendFullSubjectScope } from "../../components/practice/fullSubjectPractice";
 // BANK-LEAN-1 (P18): `import type`, NOT `import { type … }`. Under this repo's
 // `verbatimModuleSyntax`, the inline form is emitted as `import {} from "…"` — a
@@ -2262,7 +2264,7 @@ export default function DesktopPracticePage() {
 
         {/* START-HERE-1 — a signed-in student with no graded result yet; renders nothing for
             anyone else (signed-out, any graded result, or "Not now" this session). */}
-        <StartHereCard uid={user?.uid ?? null} surface="practice_hub" returnTo="/practice-hub" />
+        <StartHereCard uid={user?.uid ?? null} surface="practice_hub" returnTo="/practice-hub" focus />
 
         {/* CBQ-ENTRY-1 (E1) — straight to a chapter's competency-based questions. Above
             the scope card so it is in view without scrolling at 390px and on desktop.
@@ -3089,6 +3091,18 @@ export default function DesktopPracticePage() {
               </section>
             ) : null}
 
+            {/* QP-SCORECARD-2 B - "Your past sessions": this student's saved Quick Practice
+                sessions (name, date, score), newest first, local-first then the cloud. A row
+                reopens THAT scorecard read-only on the Quick Practice page (`review=<id>`).
+                Signed-in only: a signed-out / browse visitor sees the hub exactly as before. */}
+            {user?.uid && !user.isLocalSession ? (
+              <SurfaceHistory
+                surface="quick-practice"
+                uid={user.uid}
+                cloud
+                onOpen={(r) => navigate(buildQuickPracticeReviewHref(r))}
+              />
+            ) : null}
           </div>
 
           {/* ───────────────────── ASIDE COLUMN ───────────────────── */}

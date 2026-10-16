@@ -18,7 +18,7 @@ import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
-import { StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
+import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
 import {
   BORDER,
@@ -720,6 +720,9 @@ export default function MobileHome() {
         <LinkPhoneNudge spaced />
 
         <StartHereView surface="home" returnTo="/browse" state={startHere} spaced />
+        {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
+            renders nothing for a signed-out visitor or an existing student. */}
+        {user ? <StartHereFocusView uid={user.uid} surface="home" returnTo="/browse" state={startHere} /> : null}
 
         {/* ── Hero carousel — the SHARED four cards ─────────────── */}
         <div style={sectionLabelStyle()}>Start here</div>

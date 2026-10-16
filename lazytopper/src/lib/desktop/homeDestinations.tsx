@@ -330,6 +330,20 @@ export interface ChapterPickerModalProps {
   onSubjectChange?: (subject: DesktopSubject) => void;
   /** A chapter marked here is listed with " — coming soon" and cannot be chosen. */
   isComingSoon?: (subject: DesktopSubject, topicKey: string) => boolean;
+  /**
+   * QP-SCORECARD-2 D2 (additive) — the subject the picker opens on. Omitted → "Maths", as before.
+   * Read when the picker first mounts (a caller that changes it re-keys the picker).
+   */
+  initialSubject?: DesktopSubject;
+  /** QP-SCORECARD-2 D2 (additive) — the chapter pre-selected on open (ignored if "coming soon"). */
+  initialTopicKey?: string;
+  /**
+   * QP-SCORECARD-2 D2 (additive) — the caller already chose the subject: the Subject field is not
+   * shown, so only that subject's chapters are listed. Omitted → false, as before.
+   */
+  lockSubject?: boolean;
+  /** QP-SCORECARD-2 D2 (additive) — an extra overlay class (to stack above a caller's own overlay). */
+  overlayClassName?: string;
 }
 
 export function ChapterPickerModal({
@@ -344,9 +358,13 @@ export function ChapterPickerModal({
   foot,
   onSubjectChange,
   isComingSoon,
+  initialSubject,
+  initialTopicKey,
+  lockSubject = false,
+  overlayClassName,
 }: ChapterPickerModalProps) {
-  const [subject, setSubject] = useState<DesktopSubject>("Maths");
-  const [topicKey, setTopicKey] = useState<string>("");
+  const [subject, setSubject] = useState<DesktopSubject>(initialSubject ?? "Maths");
+  const [topicKey, setTopicKey] = useState<string>(initialTopicKey ?? "");
 
   const topics = useMemo(() => desktopTopicsBySubject(subject), [subject]);
   const soon = (slug: string) => Boolean(isComingSoon?.(subject, slug));
@@ -373,7 +391,7 @@ export function ChapterPickerModal({
   // containing block again. Same trap, same fix as AccountDataControls and MeProgressPage.
   return createPortal(
     <div
-      className="lt-tutor-ov"
+      className={overlayClassName ? `lt-tutor-ov ${overlayClassName}` : "lt-tutor-ov"}
       data-testid={testId}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -395,21 +413,23 @@ export function ChapterPickerModal({
         <h2>{title}</h2>
         <p className="lt-tutor-sub">{sub}</p>
 
-        <div className="lt-tutor-fld">
-          <label htmlFor={`${idPrefix}-subject`}>Subject</label>
-          <select
-            id={`${idPrefix}-subject`}
-            value={subject}
-            onChange={(e) => {
-              const next = e.target.value as DesktopSubject;
-              setSubject(next);
-              onSubjectChange?.(next);
-            }}
-          >
-            <option value="Maths">Maths</option>
-            <option value="Science">Science</option>
-          </select>
-        </div>
+        {!lockSubject && (
+          <div className="lt-tutor-fld">
+            <label htmlFor={`${idPrefix}-subject`}>Subject</label>
+            <select
+              id={`${idPrefix}-subject`}
+              value={subject}
+              onChange={(e) => {
+                const next = e.target.value as DesktopSubject;
+                setSubject(next);
+                onSubjectChange?.(next);
+              }}
+            >
+              <option value="Maths">Maths</option>
+              <option value="Science">Science</option>
+            </select>
+          </div>
+        )}
 
         <div className="lt-tutor-fld">
           <label htmlFor={`${idPrefix}-chapter`}>Chapter</label>

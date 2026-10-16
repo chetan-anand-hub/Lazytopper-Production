@@ -693,3 +693,40 @@ export function buildScorecardReturnedWork(
     includeDigest: RETURNED_WORK_DIGEST_ENABLED,
   });
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   QP-SCORECARD-2 C · the tutor round trip returns to the SAME scorecard
+   ══════════════════════════════════════════════════════════════════════════════
+   A scorecard's "Ask the tutor why I lost this mark" hands the tutor a `returnTo` that names
+   the student's OWN saved record (`review=<record id>`), so the tutor's back arrow lands on the
+   page that reopens THAT scorecard read-only (Quick Practice: the practice page; Check &
+   Improve: /check-improve). The id only — never an answer. The host reopens once and strips the
+   param with `replace`; an unreadable record leaves the plain page, silently. */
+
+/** The query param that names the saved scorecard to reopen. */
+export const SCORECARD_REVIEW_PARAM = "review";
+
+/** `pathWithSearch` with `review=<recordId>` set (any earlier `review` replaced). */
+export function withScorecardReviewParam(pathWithSearch: string, recordId: string): string {
+  const at = pathWithSearch.indexOf("?");
+  const path = at < 0 ? pathWithSearch : pathWithSearch.slice(0, at);
+  const sp = new URLSearchParams(at < 0 ? "" : pathWithSearch.slice(at + 1));
+  sp.set(SCORECARD_REVIEW_PARAM, recordId);
+  return `${path}?${sp.toString()}`;
+}
+
+/** The Quick Practice page that reopens a saved session (the "Your past sessions" row on the
+ *  Practice hub): the record's own subject and first topic, plus `review=<id>`. */
+export function buildQuickPracticeReviewHref(record: Pick<SessionRecord, "id" | "subject" | "topicKeys">): string {
+  const subject = record.subject === "science" ? "Science" : "Maths";
+  const sp = new URLSearchParams();
+  const topic = (record.topicKeys || []).find((k) => k && !k.startsWith("mixed:"));
+  if (topic) sp.set("topic", topic);
+  sp.set(SCORECARD_REVIEW_PARAM, record.id);
+  return `/practice/10/${subject}?${sp.toString()}`;
+}
+
+/** The Check & Improve page that reopens a saved checked paper by its code. */
+export function buildCheckImproveReviewHref(code: string): string {
+  return `/check-improve${query({ [SCORECARD_REVIEW_PARAM]: code })}`;
+}
