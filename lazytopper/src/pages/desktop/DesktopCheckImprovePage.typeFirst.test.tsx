@@ -8,7 +8,7 @@
  *   · the zero-graded signal is the Start-here card's ONE read (no second cloud read on this page).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, waitFor, act } from "@testing-library/react";
+import { render, screen, cleanup, waitFor, act, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 
@@ -116,6 +116,20 @@ describe("SHW-2 · Check & Improve answer area - type-first for a new student", 
     render(page());
     expect(await screen.findByRole("button", { name: "Upload image" })).toBeInTheDocument();
     await act(async () => {});
+    expect(typeBox()).toBeNull();
+  });
+
+  it("★★ SHW-4: the signal arriving AFTER the student started the question never moves the answer tab", async () => {
+    // A slow network: the zero-graded answer lands after the student has typed (or uploaded) the
+    // question - possibly a whole paper whose multi grade needs the answer PHOTO. The tab stays put.
+    let answer: (has: boolean) => void = () => {};
+    H.cloudHas.mockReturnValue(new Promise<boolean>((r) => (answer = r)));
+    render(page());
+    fireEvent.change(await screen.findByLabelText("Type the question"), { target: { value: "Whole question paper" } });
+    await act(async () => answer(false));
+    await act(async () => {});
+    await act(async () => {});
+    expect(H.cloudHas).toHaveBeenCalledTimes(1);
     expect(typeBox()).toBeNull();
   });
 });

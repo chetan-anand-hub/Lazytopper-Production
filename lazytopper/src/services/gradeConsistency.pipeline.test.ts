@@ -147,6 +147,14 @@ vi.mock("./usageClient", async (importOriginal) => {
 vi.mock("../context/AuthContext", () => ({ useAuth: () => H.auth }));
 vi.mock("../hooks/useSubscription", () => ({ useSubscription: () => H.sub }));
 vi.mock("../hooks/useFreeCheckReturn", () => ({ useFreeCheckReturn: () => "none" }));
+// SHW-4: these tests drive the GRADING pipelines, not onboarding. The signed-in student here has no
+// session records, so the SHW-2 type-first default (zero graded -> "Type answer") would start the
+// answer area on Type once the file's earlier tests leave a kept "no records" answer for UID. Treat
+// the student as one with graded work so the answer area keeps its upload default.
+vi.mock("../components/startHere/zeroGraded", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../components/startHere/zeroGraded")>();
+  return { ...actual, useZeroGraded: () => "some" as const };
+});
 vi.mock("../ai/aiClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../ai/aiClient")>();
   return {

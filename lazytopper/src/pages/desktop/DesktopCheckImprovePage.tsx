@@ -1056,14 +1056,6 @@ const DesktopCheckImprovePageInner: React.FC<{
   );
   /** The student picked a tab / a draft or paste filled the box: the default never moves it after. */
   const ciAnswerTouchedRef = useRef(false);
-  useEffect(() => {
-    if (typeFirstAnswerMode(ciZeroGraded) !== "type" || ciAnswerTouchedRef.current) return;
-    if (textAnswer.length > 0 || imageBase64 !== null) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot move when the zero-graded signal arrives, guarded by the touched ref above
-    setTab("type");
-    // Only the signal's arrival may move the tab; the box's own state is read, not watched.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ciZeroGraded]);
 
   // Detect-then-confirm: `detected` is the AI's read (immutable record for the
   // override log); `confirmed` is what grading runs against (the student may
@@ -1130,6 +1122,21 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Every question read from the upload. `length > 1` switches the UI to the
   // multi-question grade path (grade ALL via the worksheet structured grader).
   const [detectedQuestions, setDetectedQuestions] = useState<DetectedQuestion[] | null>(null);
+
+  // SHW-2 type-first move (see ciZeroGraded above). SHW-4: it happens only on a page nobody has
+  // started - once the student typed / uploaded a question, a read is running or done (a whole paper
+  // detected as multi grades from the answer PHOTO), or any answer exists, a late signal (slow
+  // network) never moves the tab under them.
+  useEffect(() => {
+    if (typeFirstAnswerMode(ciZeroGraded) !== "type" || ciAnswerTouchedRef.current) return;
+    if (textAnswer.length > 0 || imageBase64 !== null) return;
+    if (question.length > 0 || qImageBase64 !== null) return;
+    if (detecting || detected !== null || confirmed !== null || detectedQuestions !== null) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot move when the zero-graded signal arrives, guarded by the touched ref above
+    setTab("type");
+    // Only the signal's arrival may move the tab; the page's own state is read, not watched.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ciZeroGraded]);
 
   // ── ACTIVATION-1 · L2 — the in-progress question + answer survive sign-in (THIS TAB only) ──
   // A signed-out visitor's input is autosaved (debounced) to the tab's sessionStorage + IndexedDB
