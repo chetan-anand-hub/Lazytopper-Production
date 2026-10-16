@@ -178,6 +178,11 @@ function TrendChip({ subject, trend }: { subject: SessionSubject; trend: Progres
   );
 }
 
+/** Tab-session memory for the `cloud` refresh (module-level, shared by every mount):
+ *  uids whose one cloud read has completed, and the read in flight per uid. */
+const cloudRefreshedUids = new Set<string>();
+const cloudRefreshInFlight = new Map<string, Promise<void>>();
+
 export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, onUpload, onOpen, cloud }: SurfaceHistoryProps) {
   const [reopen, setReopen] = useState<SessionRecord | null>(null);
   const [downloading, setDownloading] = useState(false);
@@ -186,12 +191,24 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
   const [cloudNonce, setCloudNonce] = useState(0);
   useEffect(() => {
     if (!cloud || !uid) return;
+    // At most ONE cloud refresh per uid per tab session, across every SurfaceHistory mount:
+    // later mounts skip the read and list from the local mirror that read already refreshed;
+    // a mount that lands while the read is in flight waits on it instead of starting another.
+    if (cloudRefreshedUids.has(uid)) return;
+    let refresh = cloudRefreshInFlight.get(uid);
+    if (!refresh) {
+      refresh = getSessionRecordsFromCloud(uid)
+        .catch(() => [])
+        .then(() => {
+          cloudRefreshedUids.add(uid);
+          cloudRefreshInFlight.delete(uid);
+        });
+      cloudRefreshInFlight.set(uid, refresh);
+    }
     let live = true;
-    void getSessionRecordsFromCloud(uid)
-      .catch(() => [])
-      .then(() => {
-        if (live) setCloudNonce((n) => n + 1);
-      });
+    void refresh.then(() => {
+      if (live) setCloudNonce((n) => n + 1);
+    });
     return () => {
       live = false;
     };

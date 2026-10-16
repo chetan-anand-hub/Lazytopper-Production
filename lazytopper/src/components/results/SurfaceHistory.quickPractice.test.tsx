@@ -15,6 +15,19 @@ vi.mock("../../services/progressStore", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/progressStore")>();
   return { ...actual, getSubjectProgress: () => null };
 });
+// The real record store, with the cloud read wrapped in a spy (it still calls through) so the
+// once-per-uid-per-tab cloud refresh can be counted.
+const cloudReads = vi.hoisted(() => ({ uids: [] as string[] }));
+vi.mock("../../services/sessionRecords", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/sessionRecords")>();
+  return {
+    ...actual,
+    getSessionRecordsFromCloud: (uid: string) => {
+      cloudReads.uids.push(uid);
+      return actual.getSessionRecordsFromCloud(uid);
+    },
+  };
+});
 
 import SurfaceHistory from "./SurfaceHistory";
 import type { SessionRecord } from "../../services/sessionRecords";
@@ -87,5 +100,53 @@ describe("SurfaceHistory · quick-practice (QP-SCORECARD-2 B)", () => {
     render(<SurfaceHistory surface="quick-practice" uid={null} cloud onOpen={() => {}} />);
     expect(screen.queryAllByRole("button", { name: /Re-open/ })).toHaveLength(0);
     expect(screen.getByText("Your finished practice sessions will appear here.")).toBeInTheDocument();
+  });
+});
+
+// Decision pin (verifier verdict): `cloud` reads the student's WHOLE sessionRecords collection,
+// and SurfaceHistory is mounted on the Practice Hub AND under every practice page — so the cloud
+// refresh runs at most ONCE per uid per tab session, across all mounts (sequential or concurrent).
+// Each case uses its own uid because the once-per-tab memory is module-level by design.
+describe("SurfaceHistory · cloud refresh at most once per uid per tab session", () => {
+  const readsFor = (uid: string) => cloudReads.uids.filter((u) => u === uid).length;
+  const flush = () => new Promise<void>((r) => setTimeout(r, 0));
+
+  it("★★ sequential cloud mounts for the same uid → one cloud read; later mounts use the local mirror", async () => {
+    seed("uid-seq", [rec("uid-seq", "QP-M-REAL-00000001", "Real Numbers · Practice set", 1_000)]);
+    render(<SurfaceHistory surface="quick-practice" uid="uid-seq" cloud onOpen={() => {}} />);
+    await flush();
+    cleanup();
+    render(<SurfaceHistory surface="quick-practice" uid="uid-seq" cloud onOpen={() => {}} />);
+    await flush();
+    expect(readsFor("uid-seq")).toBe(1);
+    // The later mount still lists from the (already refreshed) local mirror.
+    expect(screen.getByRole("button", { name: /Re-open the Real Numbers · Practice set scorecard/ })).toBeInTheDocument();
+  });
+
+  it("★★ concurrent cloud mounts (hub + page) for the same uid → one in-flight read, not two", async () => {
+    render(
+      <>
+        <SurfaceHistory surface="quick-practice" uid="uid-conc" cloud onOpen={() => {}} />
+        <SurfaceHistory surface="quick-practice" uid="uid-conc" cloud onOpen={() => {}} />
+      </>,
+    );
+    expect(readsFor("uid-conc")).toBe(1);
+    await flush();
+    render(<SurfaceHistory surface="quick-practice" uid="uid-conc" cloud onOpen={() => {}} />);
+    await flush();
+    expect(readsFor("uid-conc")).toBe(1);
+  });
+
+  it("a different uid gets its own one read; a mount without `cloud` never reads the cloud", async () => {
+    render(<SurfaceHistory surface="quick-practice" uid="uid-x1" cloud onOpen={() => {}} />);
+    await flush();
+    const before = cloudReads.uids.length;
+    render(<SurfaceHistory surface="quick-practice" uid="uid-x2" cloud onOpen={() => {}} />);
+    await flush();
+    expect(cloudReads.uids.length).toBe(before + 1);
+    expect(readsFor("uid-x2")).toBe(1);
+    render(<SurfaceHistory surface="quick-practice" uid="uid-nocloud" onOpen={() => {}} />);
+    await flush();
+    expect(readsFor("uid-nocloud")).toBe(0);
   });
 });
