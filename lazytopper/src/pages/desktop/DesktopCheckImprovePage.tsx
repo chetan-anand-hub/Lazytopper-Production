@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ReturnTicketStrip, useReturnTicket } from "../../components/navigation/ReturnTicket";
 import {
   checkSolutionImage,
@@ -121,6 +121,7 @@ import {
 // student has a free result waiting to be saved); with the flag off none of it renders.
 import { clearCiDraft, saveCiDraft, sweepExpiredCiDraftImages, takeCiDraft } from "../../services/checkImproveDraft";
 import EmailVerifyReminder from "../../components/auth/EmailVerifyReminder";
+import StartHereCard from "../../components/startHere/StartHereCard";
 import {
   FREE_CHECK_COPY,
   FREE_CHECK_SIGNIN_PATH,
@@ -144,7 +145,15 @@ import {
 import { wasTrialStartedAtSignUp } from "../../services/newAccountTrial";
 import { useSubscription } from "../../hooks/useSubscription";
 import { useFreeCheckReturn } from "../../hooks/useFreeCheckReturn";
-import { trackNamedEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
+import { trackNamedEvent, trackOnboardingEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
+import { buildTutorPath } from "../tutor/tutorPath";
+import {
+  SCORECARD_REVIEW_PARAM,
+  buildCheckImproveReviewHref,
+  positionalQuestionId,
+  recordBelongsToUid,
+} from "../tutor/tutorRoundTrip";
+import type { ScorecardTutorAsk } from "../../components/results/scorecardVariants";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
 // Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
@@ -1157,11 +1166,19 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     void sweepExpiredCiDraftImages();
   }, []);
+  // QP-SCORECARD-2 E2 — whether the ACTIVATION-1 draft restore below has SETTLED, and whether it
+  // restored anything: the Start-here focused surface waits for it (never flashes over a draft).
+  const [ciDraftCheck, setCiDraftCheck] = useState<"pending" | "none" | "restored">("pending");
   useEffect(() => {
     if (!user || funnelOff) return;
     let cancelled = false;
-    void takeCiDraft(undefined, { keep: true }).then((d) => {
-      if (cancelled || !d) return;
+    setCiDraftCheck("pending");
+    void takeCiDraft(undefined, { keep: true })
+      .catch(() => null)
+      .then((d) => {
+      if (cancelled) return;
+      setCiDraftCheck(d ? "restored" : "none");
+      if (!d) return;
       pendingDraftSave.current = null;
       clearCiDraft();
       setQuestionTab(d.fields.questionTab);
@@ -1176,7 +1193,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setImageName(d.fields.imageName);
       setDetected(d.fields.detected);
       setConfirmed(d.fields.confirmed);
-    });
+      });
     return () => {
       cancelled = true;
     };
@@ -1333,6 +1350,46 @@ const DesktopCheckImprovePageInner: React.FC<{
     setCiRecordsLoading(true);
     void loadCiRecords();
   }, [loadCiRecords]);
+
+  // QP-SCORECARD-2 C (law 6, Check & Improve) — the tutor's back arrow from a SAVED paper's
+  // "Ask the tutor why I lost this mark" lands on `/check-improve?review=<paper code>`: reopen
+  // THAT paper read-only through the page's existing reopen-by-record (`openReopen`, the same
+  // one "Your checked papers" uses), ONCE, and strip the param with `replace`. The record is the
+  // student's own (uid-scoped, local-first then cloud via `loadCiRecords`); an unreadable one, or
+  // a signed-out / overlay visit, leaves the plain page, silently.
+  const ciLocation = useLocation();
+  const ciReviewCode = overlay ? null : new URLSearchParams(ciLocation.search).get(SCORECARD_REVIEW_PARAM);
+  const ciReviewConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!ciReviewCode || ciRecordsLoading) return;
+    if (ciReviewConsumedRef.current === ciReviewCode) return;
+    ciReviewConsumedRef.current = ciReviewCode;
+    const sp = new URLSearchParams(ciLocation.search);
+    sp.delete(SCORECARD_REVIEW_PARAM);
+    const search = sp.toString();
+    navigate({ pathname: ciLocation.pathname, search: search ? `?${search}` : "" }, { replace: true, state: ciLocation.state });
+    const uid = user?.uid && !user.isLocalSession ? user.uid : null;
+    const record = uid ? ciRecords.find((r) => r.id === ciReviewCode && recordBelongsToUid(r, uid)) : undefined;
+    if (record) void openReopen(record);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ciReviewCode, ciRecordsLoading, ciRecords, user?.uid, user?.isLocalSession]);
+
+  // QP-SCORECARD-2 E2 — the student has something in progress here, so the Start-here FOCUSED
+  // surface is not offered (the inline card is unaffected): a return-path / deep-link ticket, the
+  // ACTIVATION-1 draft restore still pending or having restored work, a grade under way or
+  // interrupted, a read paper, a saved-paper reopen, or any question / answer / image entered.
+  const ciInProgress =
+    returnTicket !== null ||
+    ciDraftCheck !== "none" ||
+    status !== "idle" ||
+    (detectedQuestions?.length ?? 0) > 0 ||
+    !!ciJob.interrupted ||
+    !!ciReviewCode ||
+    reopen !== null ||
+    question.trim() !== "" ||
+    !!qImageBase64 ||
+    textAnswer.trim() !== "" ||
+    !!imageBase64;
 
   // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
   const [downloading, setDownloading] = useState(false);
@@ -2319,6 +2376,30 @@ const DesktopCheckImprovePageInner: React.FC<{
   // C&I PR-1: the scorecard's "Practise {topic}" deep-link for the multi-question
   // path (no resultCtx there) — the same worksheet-builder link the single path's
   // gotoWorksheetForResult produces. Only offered when a single topic resolved.
+  // START-HERE-1 (spec 2.5) — "Ask the tutor why I lost this mark" on a question that lost marks.
+  // The tutor reads the student's OWN saved record (`from` = the paper's code, `q` = the question's
+  // position: a C&I paper has no bank identity). So: only for a SAVED paper, never inside the
+  // tutor's own overlay, and only when a single chapter is known for that question.
+  function ciTutorAsk(subject: DesktopSubject, topicSlug: string | null | undefined, qNumber: number): ScorecardTutorAsk | null {
+    if (overlay || !ciSaved || !ciCode || !topicSlug) return null;
+    return {
+      onAsk: () => {
+        trackOnboardingEvent("tutor_from_scorecard", { surface: "check_improve" });
+        navigate(
+          buildTutorPath({
+            subject,
+            topicKey: topicSlug,
+            source: "scorecard",
+            // QP-SCORECARD-2 C — the back arrow reopens THIS saved paper (was "/check-improve":
+            // a fresh upload page, the graded paper gone).
+            returnTo: buildCheckImproveReviewHref(ciCode),
+            questionId: positionalQuestionId(qNumber),
+            from: ciCode,
+          }),
+        );
+      },
+    };
+  }
   function gotoWorksheetForTopic(subject: DesktopSubject, topicSlug: string) {
     navigate(
       buildDesktopWorksheetPath({
@@ -2430,6 +2511,17 @@ const DesktopCheckImprovePageInner: React.FC<{
         {/* The return ticket's contextual strip (Section C) — a quiet line, never a
             modal, never blocking. Renders nothing on a direct visit. */}
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
+        {/* START-HERE-1 — a signed-in student with no graded result yet; nothing for anyone
+            else. Never inside the tutor overlay. */}
+        {!overlay && (
+          <StartHereCard
+            uid={user?.uid ?? null}
+            surface="check_improve"
+            returnTo="/check-improve"
+            focus
+            inProgress={ciInProgress}
+          />
+        )}
         {/* No lede here — deleted at both widths (owner-decided). Every clause it
             carried already ships better elsewhere: "How it works" step 3 says the same
             with the D4 noun ("image", not "photo"), step 4 names annotated steps, and
@@ -3365,6 +3457,11 @@ const DesktopCheckImprovePageInner: React.FC<{
                       gotoWorksheetForTopic(confirmed.subject, confirmed.topicSlug),
                   }
                 : {}),
+              // START-HERE-1 — each question's OWN chapter when the paper resolved one, else the confirmed one.
+              tutorAskFor: (n) => {
+                const r = ws.results.find((x) => x.qNumber === n);
+                return ciTutorAsk(r?.topicSubject ?? confirmed.subject, r?.topicSlug || confirmed.topicSlug, n);
+              },
             })}
             onClose={() => setScorecardOpen(false)}
           />
@@ -3711,6 +3808,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             onReadSheet: () => setScorecardOpen(false),
             onDownloadGraded: () => void downloadGraded(buildSinglePrintProps()),
             ...(resultCtx.topicSlug ? { onPractiseTopic: gotoWorksheetForResult } : {}),
+            tutorAskFor: (n) => ciTutorAsk(resultCtx.subject, resultCtx.topicSlug, n),
           })}
           onClose={() => setScorecardOpen(false)}
         />

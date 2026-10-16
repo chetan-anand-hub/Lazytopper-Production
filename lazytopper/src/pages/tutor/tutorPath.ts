@@ -27,6 +27,12 @@ export interface TutorPathInput {
   source?: string;
   /** Safe in-app URL to return to on "back" (validated by the caller). */
   returnTo?: string;
+  /**
+   * START-HERE-1 — the id of the student's OWN SessionRecord a scorecard hop came from
+   * (with `questionId` as `q`). The tutor reads that record to open on the question that lost
+   * marks. An id only: never an answer, never text.
+   */
+  from?: string;
 }
 
 export function buildTutorPath(input: TutorPathInput): string {
@@ -36,6 +42,7 @@ export function buildTutorPath(input: TutorPathInput): string {
   if (input.questionId) params.set("q", input.questionId);
   if (input.source) params.set("source", input.source);
   if (input.returnTo) params.set("returnTo", input.returnTo);
+  if (input.from) params.set("from", input.from);
   const query = params.toString();
   const path = `/tutor/${grade}/${encodeURIComponent(input.subject)}/${encodeURIComponent(input.topicKey)}`;
   return query ? `${path}?${query}` : path;

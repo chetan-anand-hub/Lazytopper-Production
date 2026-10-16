@@ -6,6 +6,9 @@ import { UpgradeModal } from "../UpgradeModal";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
 
+/** START-HERE-1 — the lock line for a student who came from a scorecard's tutor button. */
+export const SCORECARD_LOCK_COPY = "Your free week has ended — upgrade to ask the tutor why you lost this mark.";
+
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -62,7 +65,12 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
           Premium Feature
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
-          {featureLabel || "This feature"} is part of Premium.
+          {/* START-HERE-1 (spec 2.5) — the lock is the conversion moment for a student who tapped
+              "Ask the tutor" on a scorecard whose free week has ended. Copy only: the gate above
+              is unchanged. */}
+          {!neverTrialled && new URLSearchParams(location.search).get("source") === "scorecard"
+            ? SCORECARD_LOCK_COPY
+            : <>{featureLabel || "This feature"} is part of Premium.</>}
           {neverTrialled ? (
             <>
               <br />Try everything free for 7 days.

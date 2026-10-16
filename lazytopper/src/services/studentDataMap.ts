@@ -604,7 +604,15 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "set when this device opens /admin, so analytics can tag the owner's own browsing as " +
       "internal traffic; it holds no id and never leaves the device) and, in THIS TAB's " +
       "sessionStorage, `lazytopper.purchaseSent` (up to 20 random per-attempt checkout ids, so a " +
-      "reload cannot count one payment twice).",
+      "reload cannot count one payment twice). START-HERE-1: plus, in THIS TAB's sessionStorage, " +
+      "`lazytopper.startHereSubject` (one word, Maths or Science, read from the landing's ad tag so " +
+      "the Start-here card can pre-pick a subject; never sent anywhere) and " +
+      "`lazytopper.startHereDismissed` (the single character 1 after Not now, so the card stays " +
+      "hidden for the rest of the session). QP-SCORECARD-2 E3: plus localStorage " +
+      "`lazytopper.startHereFocusNotNow.<uid>` (1 or 2: how many times Not now was tapped on the " +
+      "focused first-run Start-here surface, so it is offered at most twice) and, in THIS TAB's " +
+      "sessionStorage, `lazytopper.startHereFocusClosed` (the single character 1 once the focused " +
+      "surface was closed this visit; never the uid); neither is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
     notes:

@@ -195,9 +195,30 @@ export interface ScorecardSplit {
   nothingSavedNote?: string | null;
 }
 
+/** START-HERE-1 · "Ask the tutor why I lost this mark". The host owns the hop (it builds the
+ *  tutor path from the stored record and fires `tutor_from_scorecard`); the shell only draws
+ *  the button, and only on a question that lost marks. */
+export interface ScorecardTutorAsk {
+  onAsk: () => void;
+}
+
+/** START-HERE-1 · one MCQ the student got wrong. `yourAnswer` / `correctAnswer` are the option
+ *  texts; `steps` are the bank's `solutionSteps` verbatim. Either answer may be null when the
+ *  bank row has no readable option — it is then left out, never guessed. */
+export interface ScorecardWrongAnswer {
+  /** "Question 3" — also the row's stable key. */
+  label: string;
+  yourAnswer: string | null;
+  correctAnswer: string | null;
+  steps: string[];
+  tutorAsk?: ScorecardTutorAsk | null;
+}
+
 /** One answer on the graded sheet — marks awarded over available, what the working
  *  shows, where the mark went, and the mistake type. */
 export interface ScorecardGradedAnswer {
+  /** START-HERE-1 · the tutor button for this answer; rendered only when it lost marks. */
+  tutorAsk?: ScorecardTutorAsk | null;
   /** "Question 5" — also the row's stable key. */
   label: string;
   /** "MCQ · 1 mark" / "3 marks". Omitted → the head line is the label alone. */
@@ -295,6 +316,9 @@ export interface ScorecardVariant {
   /** BATCH-2 · the graded answer sheet — per-answer board-style depth, rendered
    *  under the summary. Absent everywhere else. */
   gradedAnswers?: ScorecardGradedAnswer[] | null;
+  /** START-HERE-1 · the MCQs the student got wrong, with what they picked, the right option
+   *  and the bank's own solution steps (never generated text). Absent everywhere else. */
+  wrongAnswers?: ScorecardWrongAnswer[] | null;
   /** Optional footer heading for the stacked what-next menu (QP: "What next?"). */
   actionsHeading?: string;
   /** Render actions as a stacked what-next menu (QP) rather than the worksheet 2-up row. */
@@ -456,9 +480,70 @@ export interface QuickPracticeVariantInput {
    *  never has to infer that the bare ✕ is the return. Omitted (a direct / hub visit) ⇒ the
    *  what-next menu is byte-identical to today. */
   returnTicket?: { label: string; onReturn: () => void };
+  /** START-HERE-1 — the wrong MCQs of this set, with the stored answer and bank steps. Only
+   *  honoured on an attempted (MCQ-only) session; omitted ⇒ the scorecard is unchanged. */
+  wrongAnswers?: ScorecardWrongAnswer[] | null;
+  /** START-HERE-1 — extra what-next rows ("Try 5 more in this chapter", "See all your
+   *  progress"), placed under the review action. Omitted ⇒ the menu is unchanged. */
+  extraActions?: ScorecardAction[];
 }
 
-type MenuId = "keep" | "fresh" | "chapter" | "predicted" | "study";
+type MenuId ="keep" | "fresh" | "chapter" | "predicted" | "study";
+
+/** The handlers of Quick Practice's fixed what-next floor (both QP variants and the stored
+ *  re-open). */
+export interface QuickPracticeMenuHandlers {
+  allDone: boolean;
+  onKeepPracticing?: () => void;
+  onFreshSet: () => void;
+  onChapterTest: () => void;
+  onPredicted: () => void;
+  onStudy: () => void;
+  overlayMode?: boolean;
+}
+
+const QP_FLOOR_LABELS: Record<MenuId, string> = {
+  keep: "Keep practicing this set",
+  fresh: "Build a fresh set",
+  chapter: "Chapter Test",
+  predicted: "Important Questions",
+  study: "Study this chapter",
+};
+const QP_FLOOR_TAGS: Record<MenuId, string> = {
+  keep: "Back",
+  fresh: "New",
+  chapter: "Test",
+  predicted: "Important Qs",
+  study: "Hub",
+};
+
+/** The floor order (Keep only when there is a partial set to return to — matches the
+ *  shipped menu, which omits it on the allDone auto-offer). The overlay (tutor panel) omits
+ *  the app-navigation items — they would leave the tutor thread. */
+function quickPracticeFloorIds(h: QuickPracticeMenuHandlers): MenuId[] {
+  return [
+    ...(!h.allDone && h.onKeepPracticing ? (["keep"] as MenuId[]) : []),
+    "fresh",
+    ...(h.overlayMode ? [] : (["chapter", "predicted", "study"] as MenuId[])),
+  ];
+}
+
+function quickPracticeFloorAction(id: MenuId, tone: ScorecardAction["tone"], h: QuickPracticeMenuHandlers): ScorecardAction {
+  const handlers: Record<MenuId, (() => void) | undefined> = {
+    keep: h.onKeepPracticing,
+    fresh: h.onFreshSet,
+    chapter: h.onChapterTest,
+    predicted: h.onPredicted,
+    study: h.onStudy,
+  };
+  return {
+    label: QP_FLOOR_LABELS[id],
+    tag: QP_FLOOR_TAGS[id],
+    tone,
+    onClick: handlers[id] ?? (() => {}),
+    disabled: !handlers[id],
+  };
+}
 
 /** PRACTICE-HONESTY-1 — the owner's label for the review action, shared by both Quick
  *  Practice variants so the two cannot drift. */
@@ -490,13 +575,32 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     onStudy,
     overlayMode = false,
     returnTicket,
+    wrongAnswers,
+    extraActions,
   } = input;
+
+  // The fixed floor menu (Keep / Fresh set / Chapter Test / Important Qs / Study) — the ONE
+  // builder both the empty state below and the graded scorecard here use (no second copy).
+  const menu: QuickPracticeMenuHandlers = { allDone, onKeepPracticing, onFreshSet, onChapterTest, onPredicted, onStudy, overlayMode };
+  // (Kept literal here — the overlay acceptance guard pins this shape; `quickPracticeFloorIds`
+  // is the same rule for the stored reopen.)
+  const floor: MenuId[] = [
+    ...(!allDone && onKeepPracticing ? (["keep"] as MenuId[]) : []),
+    "fresh",
+    // Overlay (tutor panel) omits the app-navigation items — they would leave the tutor thread.
+    ...(overlayMode ? [] : (["chapter", "predicted", "study"] as MenuId[])),
+  ];
 
   // ── PRACTICE-HONESTY-1 · an ATTEMPTED session reaching this variant is MCQ-only (any
   // saved written answer routes the host to the confirm card instead). On the Chapter Test /
-  // Full Mock model it shows JUST the MCQ marks scored and ONE action: "Back to this set
-  // (see the steps)" — ALWAYS offered, even when every question was attempted. The empty
-  // state (0 attempted) falls through to the shipped menu, unchanged.
+  // Full Mock model it shows JUST the MCQ marks scored, with "Back to this set (see the
+  // steps)" FIRST and primary — ALWAYS offered, even when every question was attempted.
+  // QP-SCORECARD-2 A (owner ruling Oct 2026 05:00) reverses the "ONE action" part: the full
+  // what-next menu follows it (the SAME floor the empty state uses, every item secondary so
+  // the review keeps the primary slot), then the Start-here extras, then the return ticket.
+  // The overlay rule is the empty state's own: inside the tutor panel the app-navigation
+  // items are omitted (`quickPracticeFloorIds`). The empty state (0 attempted) falls through
+  // to the shipped menu, unchanged.
   if (attempted > 0) {
     const review = onReviewSet ?? onKeepPracticing;
     return {
@@ -517,6 +621,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
       fourType: fourType && (fourType.conceptual || fourType.calculation || fourType.silly || fourType.presentation) ? fourType : null,
       pending: null,
       allPending: null,
+      wrongAnswers: wrongAnswers && wrongAnswers.length > 0 ? wrongAnswers : null,
       actionsHeading: "What next?",
       stackActions: true,
       footnote:
@@ -529,6 +634,13 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
           onClick: review ?? (() => {}),
           disabled: !review,
         },
+        // "Keep practicing this set" is offered on a partial set ONLY when it is a different
+        // action from the review row above (an older caller that passes no `onReviewSet`
+        // gets the review row wired to `onKeepPracticing` — never the same action twice).
+        ...floor
+          .filter((id) => !(id === "keep" && !onReviewSet))
+          .map((id) => quickPracticeFloorAction(id, "secondary", menu)),
+        ...(extraActions ?? []),
         ...(returnTicket ? [returnTicketAction(returnTicket)] : []),
       ],
     };
@@ -553,38 +665,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
         ? `All ${mcqAnswered} MCQ${mcqAnswered === 1 ? "" : "s"} correct this session.`
         : null;
 
-  // ── flex-point 3: the fixed floor menu, with ONE item elevated to primary ──
-  const floorLabels: Record<MenuId, string> = {
-    keep: "Keep practicing this set",
-    fresh: "Build a fresh set",
-    chapter: "Chapter Test",
-    predicted: "Important Questions",
-    study: "Study this chapter",
-  };
-  const floorTags: Record<MenuId, string> = {
-    keep: "Back",
-    fresh: "New",
-    chapter: "Test",
-    predicted: "Important Qs",
-    study: "Hub",
-  };
-  const handlers: Record<MenuId, (() => void) | undefined> = {
-    keep: onKeepPracticing,
-    fresh: onFreshSet,
-    chapter: onChapterTest,
-    predicted: onPredicted,
-    study: onStudy,
-  };
-
-  // The floor order (Keep only when there is a partial set to return to — matches the
-  // shipped menu, which omits it on the allDone auto-offer).
-  const floor: MenuId[] = [
-    ...(!allDone && onKeepPracticing ? (["keep"] as MenuId[]) : []),
-    "fresh",
-    // Overlay (tutor panel) omits the app-navigation items — they would leave the tutor thread.
-    ...(overlayMode ? [] : (["chapter", "predicted", "study"] as MenuId[])),
-  ];
-
+  // ── flex-point 3: the fixed floor menu (`floor`, above), with ONE item elevated to primary ──
   // Personalized primary, from the REAL signal only:
   //   strong (≥3 MCQs, ≥80%)  → elevate the Chapter Test (ready to be tested)
   //   dipping (≥3 MCQs, <50%) → elevate Study this chapter (revise first)
@@ -596,13 +677,8 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     else if (accuracy < 0.5) primaryId = "study";
   }
 
-  const toAction = (id: MenuId, tone: ScorecardAction["tone"]): ScorecardAction => ({
-    label: floorLabels[id],
-    tag: floorTags[id],
-    tone,
-    onClick: handlers[id] ?? (() => {}),
-    disabled: !handlers[id],
-  });
+  const toAction = (id: MenuId, tone: ScorecardAction["tone"]): ScorecardAction =>
+    quickPracticeFloorAction(id, tone, menu);
 
   const actions: ScorecardAction[] = [
     toAction(primaryId, "primary"),
@@ -663,6 +739,11 @@ export interface QuickPracticeGradedVariantInput {
   /** The way home from the tutor overlay — the SAME `returnTicketAction` machinery C&I
    *  and the existing Quick Practice variant use. Omitted on a direct visit. */
   returnTicket?: { label: string; onReturn: () => void };
+  /** QP-SCORECARD-2 A (owner ruling Oct 2026 05:00) — the rest of the what-next floor (Chapter
+   *  Test / Important Questions / Study this chapter), after "Build a fresh set". Omitted, or
+   *  `overlayMode` (inside the tutor panel these would leave the thread) ⇒ the menu is
+   *  byte-identical to before. */
+  appNav?: { onChapterTest: () => void; onPredicted: () => void; onStudy: () => void; overlayMode?: boolean };
 }
 
 /** Thrown when an OBJECTIVE answer carries a mark that a 1-marker cannot have.
@@ -703,6 +784,7 @@ export function quickPracticeGradedScorecardVariant(
     onKeepPracticing,
     onFreshSet,
     returnTicket,
+    appNav,
   } = input;
 
   for (const a of answers) {
@@ -736,6 +818,13 @@ export function quickPracticeGradedScorecardVariant(
             onClick: onFreshSet,
           } as ScorecardAction,
         ]
+      : []),
+    // QP-SCORECARD-2 A — the floor's app-navigation items, the SAME rows (labels, tags) the
+    // MCQ-only scorecard and the empty state use; never inside the tutor overlay.
+    ...(appNav && !appNav.overlayMode
+      ? (["chapter", "predicted", "study"] as MenuId[]).map((id) =>
+          quickPracticeFloorAction(id, "secondary", { allDone: true, onFreshSet: () => {}, ...appNav }),
+        )
       : []),
     // The way home LAST, as the "Back"-tagged secondary row — the same placement and tone
     // C&I and the existing Quick Practice menu use, so the session's own next step keeps
@@ -1506,6 +1595,28 @@ export interface CheckImproveVariantInput {
    *  `line` the honest free-plan sentence shown as the scorecard's message. Omitted —
    *  every whole-paper grade — the variant is byte-identical to before. */
   trialPaper?: { total: number; line: string };
+  /** START-HERE-1 (optional, additive): the tutor hop for a question that lost marks. Given a
+   *  question's number it returns the button's handler, or null when that question has no honest
+   *  hop (no single topic, or the paper was not saved). Omitted — a direct / overlay / signed-out
+   *  grade — the variant is byte-identical to before. */
+  tutorAskFor?: (qNumber: number) => ScorecardTutorAsk | null;
+}
+
+/** START-HERE-1 · one "Where marks slipped" row per GRADED question that lost marks and has a
+ *  hop. A Check & Improve paper has no bank identity, so the row is the question number and the
+ *  button only: nothing about the answer is invented. Empty → null (the shell omits the block). */
+function ciTutorRows(
+  response: WorksheetGradeResponse,
+  tutorAskFor: ((qNumber: number) => ScorecardTutorAsk | null) | undefined,
+): ScorecardWrongAnswer[] | null {
+  if (!tutorAskFor) return null;
+  const rows: ScorecardWrongAnswer[] = [];
+  for (const r of [...response.results].sort((a, b) => a.qNumber - b.qNumber)) {
+    if (!isGradedQuestion(r) || (Number(r.totalMarks) || 0) <= (Number(r.marksAwarded) || 0)) continue;
+    const ask = tutorAskFor(r.qNumber);
+    if (ask) rows.push({ label: `Question ${r.qNumber}`, yourAnswer: null, correctAnswer: null, steps: [], tutorAsk: ask });
+  }
+  return rows.length > 0 ? rows : null;
 }
 
 /** The return-ticket row. `tone: "secondary"` deliberately: the what-next menu's
@@ -1625,6 +1736,7 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
     marksLost: aggregateMarksLost(response),
     pending: pendingStrip(response),
     allPending: null,
+    wrongAnswers: ciTutorRows(response, input.tutorAskFor),
     actionsHeading: "What next?",
     stackActions: true,
     ...(input.signUpToSave
@@ -1808,5 +1920,72 @@ export function storedQuickPracticeScorecardVariant(
     pending: null,
     allPending: null,
     actions,
+  };
+}
+
+// ── QP-SCORECARD-2 B · a SAVED Quick Practice session, reopened read-only ─────────────
+
+export interface ReopenedQuickPracticeVariantInput {
+  /** A pre-formatted date label (the host formats `gradedAt`; keeps this builder pure). */
+  gradedDateLabel: string;
+  /** How many of the record's questions were graded — from the stored perQuestion payload's
+   *  `gradedCount`. Absent ⇒ no graded count is claimed (see `storedQuickPracticeScorecardVariant`). */
+  gradedCount?: number;
+  /** "Where marks slipped" — the rows the host rebuilt from the stored results + the bank. */
+  wrongAnswers?: ScorecardWrongAnswer[] | null;
+  /** The SAME floor menu the live scorecard carries (A). A reopened session has no live set
+   *  behind it, so "Keep practicing this set" never appears (`allDone` is forced). */
+  menu: Omit<QuickPracticeMenuHandlers, "allDone" | "onKeepPracticing">;
+  /** Start-here extras (E4 "Explore LazyTopper", …) — placed after the menu, as on A. */
+  extraActions?: ScorecardAction[];
+}
+
+/**
+ * QP-SCORECARD-2 B — reopen a SAVED Quick Practice session read-only, from the stored record
+ * and its perQuestion payload: the record's own name + code + date, its stored marks, the
+ * four-type, the "Where marks slipped" rows the host rebuilt, and A's what-next menu.
+ *
+ * ★ "Back to this set (see the steps)" is NOT offered here. It reopens the LIVE set with its
+ *   answers in review mode; a saved session has no live set (the picks are not stored), so the
+ *   label would promise something the reopen cannot do. The bank's steps are on the rows.
+ * ★ Pure: it records nothing and grades nothing. Every number comes from the stored record.
+ */
+export function reopenedQuickPracticeScorecardVariant(
+  record: SessionRecord,
+  input: ReopenedQuickPracticeVariantInput,
+): ScorecardVariant {
+  const menu: QuickPracticeMenuHandlers = { ...input.menu, allDone: true };
+  const floor = quickPracticeFloorIds(menu);
+  const totalQuestions = record.questionIds?.length ?? 0;
+  const hasHonestCount = typeof input.gradedCount === "number" && Number.isFinite(input.gradedCount);
+  const rows = input.wrongAnswers && input.wrongAnswers.length > 0 ? input.wrongAnswers : null;
+  return {
+    surface: "quick-practice",
+    title: record.title,
+    subtitle: `${record.id} · ${input.gradedDateLabel}`,
+    score: {
+      kind: "marks",
+      awarded: record.marksAwarded,
+      total: record.marksTotal,
+      ...(totalQuestions > 0
+        ? hasHonestCount
+          ? { gradedCount: input.gradedCount, totalQuestions }
+          : { totalQuestions }
+        : {}),
+    },
+    message: null,
+    note: null,
+    fourType: record.fourType && (record.fourType.conceptual || record.fourType.calculation || record.fourType.silly || record.fourType.presentation)
+      ? record.fourType
+      : null,
+    pending: null,
+    allPending: null,
+    wrongAnswers: rows,
+    actionsHeading: "What next?",
+    stackActions: true,
+    actions: [
+      ...floor.map((id, i) => quickPracticeFloorAction(id, i === 0 ? "primary" : "secondary", menu)),
+      ...(input.extraActions ?? []),
+    ],
   };
 }
