@@ -487,6 +487,10 @@ export interface QuickPracticeVariantInput {
   /** START-HERE-1 — extra what-next rows ("Try 5 more in this chapter", "See all your
    *  progress"), placed under the review action. Omitted ⇒ the menu is unchanged. */
   extraActions?: ScorecardAction[];
+  /** QP-GRADED-SHEET-1 — "Download graded answer sheet (PDF)", honoured on an ATTEMPTED session
+   *  only (the 0-attempted empty state has no sheet). Omitted ⇒ the menu is unchanged. */
+  onDownloadGraded?: () => void;
+  downloading?: boolean;
 }
 
 type MenuId ="keep" | "fresh" | "chapter" | "predicted" | "study";
@@ -550,9 +554,37 @@ function quickPracticeFloorAction(id: MenuId, tone: ScorecardAction["tone"], h: 
  *  Practice variants so the two cannot drift. */
 export const QUICK_PRACTICE_REVIEW_LABEL = "Back to this set (see the steps)";
 
+/** QP-GRADED-SHEET-1 — the graded-sheet download on a Quick Practice scorecard: the SAME label,
+ *  tag, tone and busy state the Chapter Test / Full Mock what-next row uses
+ *  ("Download graded answer sheet (PDF)", tag "Graded"). The host supplies the handler ONLY when
+ *  the set has at least one graded question; absent ⇒ no row, the menu is byte-identical. */
+export const QUICK_PRACTICE_DOWNLOAD_GRADED_LABEL = "Download graded answer sheet (PDF)";
+
+/** Place the download right after the scorecard's primary (first) action. No handler ⇒ the SAME
+ *  array, untouched. Display only. */
+function withQuickPracticeDownload(
+  actions: ScorecardAction[],
+  onDownloadGraded: (() => void) | undefined,
+  downloading: boolean | undefined,
+): ScorecardAction[] {
+  if (!onDownloadGraded) return actions;
+  const busy = downloading === true;
+  const row: ScorecardAction = {
+    label: QUICK_PRACTICE_DOWNLOAD_GRADED_LABEL,
+    tag: "Graded",
+    tone: "secondary",
+    onClick: onDownloadGraded,
+    disabled: busy,
+    busy,
+    busyLabel: "Preparing PDF…",
+  };
+  return [...actions.slice(0, 1), row, ...actions.slice(1)];
+}
+
 /**
  * Build the quick-practice variant: "X of N attempted" (never marks/total), an honest
- * MCQ-accuracy line, a 0-attempted empty state, NO graded-sheet download, and a what-next
+ * MCQ-accuracy line, a 0-attempted empty state, a graded-sheet download ONLY when the host
+ * supplies one for an attempted set (QP-GRADED-SHEET-1), and a what-next
  * menu. The menu is the FLOOR (Keep practicing / Fresh set / Chapter Test / Predicted /
  * Study); ONE item is elevated to the personalized primary, derived from the REAL session
  * signal (MCQ accuracy + attempted), never a generic upsell. No-signal (0 attempted) →
@@ -634,7 +666,8 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
       stackActions: true,
       footnote:
         "MCQ results and answers you check are saved to your progress. Self-marked notes stay in this session.",
-      actions: [
+      // QP-GRADED-SHEET-1 — the graded-sheet download, second (after the review row), when given.
+      actions: withQuickPracticeDownload([
         {
           label: QUICK_PRACTICE_REVIEW_LABEL,
           tag: "Set",
@@ -650,7 +683,7 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
           .map((id) => quickPracticeFloorAction(id, "secondary", menu)),
         ...(extraActions ?? []),
         ...(returnTicket ? [returnTicketAction(returnTicket)] : []),
-      ],
+      ], input.onDownloadGraded, input.downloading),
     };
   }
 
@@ -752,6 +785,10 @@ export interface QuickPracticeGradedVariantInput {
    *  `overlayMode` (inside the tutor panel these would leave the thread) ⇒ the menu is
    *  byte-identical to before. */
   appNav?: { onChapterTest: () => void; onPredicted: () => void; onStudy: () => void; overlayMode?: boolean };
+  /** QP-GRADED-SHEET-1 — "Download graded answer sheet (PDF)", second in the menu. Omitted ⇒ the
+   *  menu is byte-identical to before. */
+  onDownloadGraded?: () => void;
+  downloading?: boolean;
 }
 
 /** Thrown when an OBJECTIVE answer carries a mark that a 1-marker cannot have.
@@ -841,6 +878,8 @@ export function quickPracticeGradedScorecardVariant(
   ];
 
   const hasSplit = markedNow.length > 0 || readyToGrade.length > 0;
+  // QP-GRADED-SHEET-1 — the graded-sheet download, second (after the primary row), when given.
+  const menuActions = withQuickPracticeDownload(actions, input.onDownloadGraded, input.downloading);
 
   return {
     surface: "quick-practice",
@@ -875,7 +914,7 @@ export function quickPracticeGradedScorecardVariant(
     allPending: null,
     actionsHeading: "What next?",
     stackActions: true,
-    actions,
+    actions: menuActions,
   };
 }
 
@@ -1991,6 +2030,10 @@ export interface ReopenedQuickPracticeVariantInput {
   /** FOLLOWUPS-4 D — marks lost on tap-the-answer questions, read from the stored payload
    *  (`storedTapMarksLost`). Absent ⇒ unknown ⇒ no untyped-marks note (never guessed). */
   tapMarksLost?: number;
+  /** QP-GRADED-SHEET-1 — "Download graded answer sheet (PDF)", second in the menu; the host
+   *  supplies it only when the stored payload resolves a graded sheet. Omitted ⇒ unchanged. */
+  onDownloadGraded?: () => void;
+  downloading?: boolean;
 }
 
 /** FOLLOWUPS-4 D [FU-QP-REOPEN-TAP-NOTE] — PURE. The marks a STORED Quick Practice payload lost
@@ -2059,9 +2102,10 @@ export function reopenedQuickPracticeScorecardVariant(
     wrongAnswers: rows,
     actionsHeading: "What next?",
     stackActions: true,
-    actions: [
+    // QP-GRADED-SHEET-1 — the graded-sheet download, second (after the primary row), when given.
+    actions: withQuickPracticeDownload([
       ...floor.map((id, i) => quickPracticeFloorAction(id, i === 0 ? "primary" : "secondary", menu)),
       ...(input.extraActions ?? []),
-    ],
+    ], input.onDownloadGraded, input.downloading),
   };
 }

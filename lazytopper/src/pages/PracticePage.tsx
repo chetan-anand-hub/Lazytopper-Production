@@ -605,7 +605,16 @@ import {
   type ScorecardTutorAsk,
   type ScorecardWrongAnswer,
   type ScorecardSplitRow,
+  type ScorecardVariant,
 } from "../components/results/scorecardVariants";
+// QP-GRADED-SHEET-1 — the graded-sheet download (the shared Worksheet/CT/FM print doc + export).
+import {
+  buildQuickPracticeGradedSheet,
+  downloadQuickPracticeGradedSheet,
+  quickPracticeHasGradedSheet,
+  withQuickPracticePicks,
+  type QuickPracticeGradedSheet,
+} from "../services/quickPracticeGradedSheet";
 import type { SolutionCheckerSavedWorking } from "../components/question/SolutionChecker";
 import { UpgradeSheet, labelForFeature } from "../components/subscription/UpgradeSheet";
 
@@ -2871,6 +2880,24 @@ const packTopicKey = useMemo(() => {
     payload: SessionPerQuestionPayload | null;
     bank: Map<string, BankRow>;
   } | null>(null);
+  // QP-GRADED-SHEET-1 — "Download graded answer sheet (PDF)" on the live, batch-graded and
+  // reopened scorecards. Display / export only: it renders the response already on screen through
+  // the SHARED graded print doc; nothing is graded, scored or recorded. One download at a time.
+  const [qpSheetDownloading, setQpSheetDownloading] = useState(false);
+  const qpSheetDownloadingRef = useRef(false);
+  const downloadQpGradedSheet = useCallback((sheet: QuickPracticeGradedSheet | null) => {
+    if (!sheet || qpSheetDownloadingRef.current) return;
+    qpSheetDownloadingRef.current = true;
+    setQpSheetDownloading(true);
+    void downloadQuickPracticeGradedSheet(sheet)
+      .catch(() => {
+        /* best-effort, as on Chapter Test / Full Mock: the scorecard stays as it is */
+      })
+      .finally(() => {
+        qpSheetDownloadingRef.current = false;
+        setQpSheetDownloading(false);
+      });
+  }, []);
   const reopenSeqRef = useRef(0);
   const reopenUid = !overlay && authUserForJourney?.uid && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null;
   const openSavedSession = useCallback(async (recordId: string) => {
@@ -3632,6 +3659,25 @@ const packTopicKey = useMemo(() => {
   };
   // TUTOR-FIX-2 T12 - a visitor with no account at all (a local session is not "signed out").
   const signedOutVisitor = !authLoading && !authUserForJourney?.uid;
+  /* QP-GRADED-SHEET-1 · the live set's graded sheet: the scorecard's own outcomes (the SAME entries
+     and the SAME record code `persistQuickPracticeSession` uses), the displayed questions, and the
+     scorecard's own note. Built at tap time; null when nothing is graded (no row is offered). */
+  const liveSheetFor = (entries: QuickPracticeEntry[], note: string | null | undefined) =>
+    buildQuickPracticeGradedSheet({
+      questions: filteredQuestions,
+      response: withQuickPracticePicks(buildQuickPracticeResponse(entries), entries),
+      name: liveRecordIdentity.title,
+      code: quickPracticeCode(liveRecordIdentity.subject, {
+        topicSlug: liveRecordIdentity.topicSlug,
+        filterSignature,
+        questionIds: entries.map((e) => e.questionId),
+        startedAt: sessionStartedAt,
+      }),
+      subject: subjectKey,
+      grade: String(grade),
+      createdAt: new Date().toISOString(),
+      note,
+    });
 
   /* START-HERE-1 \u00b7 the scorecard's tutor hop. The tutor reads the student's OWN stored record
      (`from`) and the question (`q`), so nothing about the answer travels in the URL. Only for a
@@ -3803,6 +3849,15 @@ const packTopicKey = useMemo(() => {
           returnTicket: overlay
             ? { label: "Back to your tutor", onReturn: overlay.onClose }
             : undefined,
+          // QP-GRADED-SHEET-1 — offered only when at least one question came back graded. The
+          // sheet is the response above (review attempts excluded, as in the totals).
+          ...(quickPracticeHasGradedSheet(response)
+            ? {
+                onDownloadGraded: () =>
+                  downloadQpGradedSheet(liveSheetFor(scoredBatchEntries ?? batchResult.entries, null)),
+                downloading: qpSheetDownloading,
+              }
+            : {}),
         })}
         onClose={closeScorecard}
         // QP-UPLOAD-LATER — written questions with nothing checked can be uploaded later.
@@ -3948,9 +4003,20 @@ const packTopicKey = useMemo(() => {
   /* \u2550\u2550 3 \u00b7 NOTHING WRITTEN \u2014 today's scorecard, byte-identical \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
      \u2605 ZERO grade calls: `handleGradeBatch` is unreachable from here. Quick Practice for a
      pure-MCQ session stays free, exactly as it is today. */
+  // QP-GRADED-SHEET-1 — the outcomes this scorecard counts (the record's own entries); the sheet's
+  // coaching carries the variant's own note (read back from the built variant).
+  const mcqSheetResponse = buildQuickPracticeResponse(liveEntriesSoFar);
+  const mcqVariantRef: { current: ScorecardVariant | null } = { current: null };
   return (
     <ResultsScorecard
-      variant={quickPracticeScorecardVariant({
+      variant={mcqVariantRef.current = quickPracticeScorecardVariant({
+        ...(quickPracticeHasGradedSheet(mcqSheetResponse)
+          ? {
+              onDownloadGraded: () =>
+                downloadQpGradedSheet(liveSheetFor(liveEntriesSoFar, mcqVariantRef.current?.note)),
+              downloading: qpSheetDownloading,
+            }
+          : {}),
         attempted: sessionStats.attemptedInSet,
         totalInSet: filteredQuestions.length,
         mcqAnswered: sessionStats.localMcqAnswered,
@@ -4088,9 +4154,28 @@ const packTopicKey = useMemo(() => {
         : null,
     });
   }
+  // QP-GRADED-SHEET-1 — the reopened set's graded sheet, from the STORED payload (picks included)
+  // and the bank's own rows in the record's question order; offered only when the payload holds a
+  // graded question. A row the bank could not load still prints its stored result (no text).
+  const reopenResponse = payload?.response ?? null;
+  const reopenVariantRef: { current: ScorecardVariant | null } = { current: null };
+  const reopenSheet = () =>
+    buildQuickPracticeGradedSheet({
+      questions: (record.questionIds || []).map((qid) => bank.get(qid) ?? { id: qid }),
+      response: reopenResponse,
+      name: record.title,
+      code: record.id,
+      subject: recSubject,
+      grade: String(grade),
+      createdAt: new Date(record.gradedAt).toISOString(),
+      note: reopenVariantRef.current?.note,
+    });
   return (
     <ResultsScorecard
-      variant={reopenedQuickPracticeScorecardVariant(record, {
+      variant={reopenVariantRef.current = reopenedQuickPracticeScorecardVariant(record, {
+        ...(quickPracticeHasGradedSheet(reopenResponse)
+          ? { onDownloadGraded: () => downloadQpGradedSheet(reopenSheet()), downloading: qpSheetDownloading }
+          : {}),
         gradedDateLabel: new Date(record.gradedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
         gradedCount: typeof payload?.response?.gradedCount === "number" ? payload.response.gradedCount : undefined,
         // FOLLOWUPS-4 D — the live scorecard's tap-the-answer note: read from the stored payload.

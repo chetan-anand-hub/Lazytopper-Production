@@ -109,6 +109,14 @@ function isBinaryScored(g: WorksheetQuestionGrade, q?: PersistedWorksheetQuestio
   return Number(q?.marks) === 1 || Number(g.totalMarks) === 1;
 }
 
+/** QP-GRADED-SHEET-1 — the option a Quick Practice student picked, as stored beside the result
+ *  (`pickedOption`). Null when absent — every other surface's result — so nothing renders. */
+function pickedOptionOf(g: WorksheetQuestionGrade): string | null {
+  const raw = (g as { pickedOption?: unknown }).pickedOption;
+  const text = typeof raw === "string" ? raw.trim() : "";
+  return text ? text : null;
+}
+
 
 export interface WorksheetGradedPrintDocProps {
   /** FIGURES-ALL-SURFACES-1 PR-2 — draws a question's solution figure in "Model answer". Injected by the PDF exporter
@@ -317,6 +325,14 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                               {formatMark(r.marksAwarded)} / {formatMark(r.totalMarks)}
                             </span>
                           </div>
+                          {/* QP-GRADED-SHEET-1 — the option the student picked, ONLY when the result
+                              carries it (Quick Practice stores the pick beside its result; no other
+                              surface's result has one, so their sheets are unchanged). */}
+                          {pickedOptionOf(r) && (
+                            <div className="lt-gp__pick" data-testid="gp-picked">
+                              Your answer: <MathText text={pickedOptionOf(r)!} />
+                            </div>
+                          )}
                           {/* RENDERING 3 — working WAS uploaded on a 1-marker: show the
                               diagnosis so the student learns what went wrong. The mark above
                               stays binary regardless; no per-step marks are shown. */}
@@ -501,6 +517,7 @@ const GRADED_CSS = `
 .lt-gp__bin--yes { background: var(--gp-green-bg); color: var(--gp-green-d); }
 .lt-gp__bin--no { background: var(--gp-rose-bg); color: var(--gp-rose); }
 .lt-gp__binmk { margin-left: auto; font-size: 12.5px; font-weight: 700; }
+.lt-gp__pick { margin-top: 6px; font-size: 12.5px; color: var(--gp-ink); }
 
 /* Diagnosis on an objective question the student uploaded working for — advisory only,
    never a step-mark tally. */
