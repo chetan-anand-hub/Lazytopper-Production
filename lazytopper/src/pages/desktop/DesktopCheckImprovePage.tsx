@@ -1059,6 +1059,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     if (typeFirstAnswerMode(ciZeroGraded) !== "type" || ciAnswerTouchedRef.current) return;
     if (textAnswer.length > 0 || imageBase64 !== null) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot move when the zero-graded signal arrives, guarded by the touched ref above
     setTab("type");
     // Only the signal's arrival may move the tab; the box's own state is read, not watched.
     // eslint-disable-next-line react-hooks/exhaustive-deps

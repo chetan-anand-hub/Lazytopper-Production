@@ -9,12 +9,19 @@ const { cloudHas, localRows } = vi.hoisted(() => ({ cloudHas: vi.fn(), localRows
 vi.mock("../../services/sessionRecords", () => ({ cloudHasAnySessionRecord: cloudHas, loadLocalSessionRecords: localRows }));
 vi.mock("../../services/firebaseClient", () => ({ authClient: null }));
 
-import { useZeroGraded, askCloudOnce, resetZeroGradedCacheForTests, typeFirstAnswerMode, type ZeroGraded } from "./zeroGraded";
+import {
+  useZeroGraded,
+  askCloudOnce,
+  resetZeroGradedCacheForTests,
+  typeFirstAnswerMode,
+  ZERO_GRADED_NONE_TTL_MS,
+  type ZeroGraded,
+} from "./zeroGraded";
 
 const seen: Record<string, ZeroGraded> = {};
-function Probe({ id, uid, cloud = true }: { id: string; uid: string | null; cloud?: boolean }) {
-  // eslint-disable-next-line react-hooks/globals -- test probe records the hook's value
-  seen[id] = useZeroGraded(uid, { cloud });
+function Probe({ id, uid, cloud = true, recheck }: { id: string; uid: string | null; cloud?: boolean; recheck?: number }) {
+  // eslint-disable-next-line react-hooks/immutability -- test probe records the hook's value
+  seen[id] = useZeroGraded(uid, { cloud, recheck });
   return null;
 }
 
@@ -78,6 +85,55 @@ describe("SHW-2 · useZeroGraded - one cloud read per uid", () => {
     expect(await askCloudOnce("u4")).toBe(false);
     expect(await askCloudOnce("u4")).toBe(false);
     expect(cloudHas).toHaveBeenCalledTimes(2);
+  });
+
+  it("★★ SHW-3: a kept 'no records' expires after 5 minutes - a later mount asks again (graded elsewhere -> 'some')", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      cloudHas.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+      const r1 = render(<Probe id="a" uid="u7" />);
+      await waitFor(() => expect(seen.a).toBe("none"));
+      r1.unmount();
+      // Within the window: the kept answer is reused, no second read (owner's no-extra-read ruling).
+      await vi.advanceTimersByTimeAsync(ZERO_GRADED_NONE_TTL_MS - 1000);
+      const r2 = render(<Probe id="b" uid="u7" />);
+      await waitFor(() => expect(seen.b).toBe("none"));
+      expect(cloudHas).toHaveBeenCalledTimes(1);
+      r2.unmount();
+      // Past the window: a later mount re-asks and sees the record made on another device.
+      await vi.advanceTimersByTimeAsync(2000);
+      render(<Probe id="c" uid="u7" />);
+      await waitFor(() => expect(seen.c).toBe("some"));
+      expect(cloudHas).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("★ SHW-3: a kept 'has records' never expires (no re-read after the window)", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      cloudHas.mockResolvedValue(true);
+      expect(await askCloudOnce("u8")).toBe(true);
+      await vi.advanceTimersByTimeAsync(ZERO_GRADED_NONE_TTL_MS * 10);
+      expect(await askCloudOnce("u8")).toBe(true);
+      expect(cloudHas).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("★★ SHW-3: `recheck` looks again on the SAME mount, local rows first, with no cloud read", async () => {
+    cloudHas.mockResolvedValue(false);
+    await askCloudOnce("u9"); // the hub / Home asked earlier in this tab
+    const r = render(<Probe id="p" uid="u9" cloud={false} />);
+    await waitFor(() => expect(seen.p).toBe("none"));
+    localRows.mockReturnValue([{ id: "graded-here" }]); // the batch just graded wrote a local row
+    r.rerender(<Probe id="p" uid="u9" cloud={false} />); // a plain re-render does not look again
+    expect(seen.p).toBe("none");
+    r.rerender(<Probe id="p" uid="u9" cloud={false} recheck={1} />);
+    await waitFor(() => expect(seen.p).toBe("some"));
+    expect(cloudHas).toHaveBeenCalledTimes(1);
   });
 
   it("★ a different uid is its own read", async () => {

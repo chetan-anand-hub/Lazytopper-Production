@@ -11,7 +11,7 @@
 // ★ The harness of PracticePage.startHere.test.tsx.
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
@@ -64,6 +64,7 @@ vi.mock("../components/practice/practiceQuestionBuilder", async (importActual) =
 
 import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
+import { gradeWorksheet } from "../ai/aiClient";
 import { askCloudOnce, resetZeroGradedCacheForTests } from "../components/startHere/zeroGraded";
 
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
@@ -118,6 +119,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   mockBuild.mockReset();
+  vi.mocked(gradeWorksheet).mockReset();
   setMatchMediaMatches(false);
 });
 
@@ -149,6 +151,37 @@ describe("SHW-2 · Quick Practice answer box - type-first", () => {
     localRows.mockReturnValue([{ id: "x" }]);
     await open(ORDINARY, POOL);
     expect(selectedTab()).toEqual(["Upload a photo"]);
+  });
+
+  it("★★ SHW-3: after the first graded batch on THIS mount, the next answer box opens on Upload (local rows, no new read)", async () => {
+    await askCloudOnce(SIGNED_IN.uid); // zero graded, as Home / the hub already read in this tab
+    vi.mocked(gradeWorksheet).mockImplementation(async () => {
+      // The graded batch's record lands on this device (writeSessionRecord's local row).
+      localRows.mockReturnValue([{ id: "just-graded" }]);
+      return {
+        ok: true,
+        results: [{ qNumber: 1, couldNotRead: false, ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67, annotatedSteps: [], teacherNote: "ok" }],
+        totalQuestions: 1, gradedCount: 1, pendingCount: 0,
+        gradedMarksAwarded: 2, gradedMarksTotal: 3, worksheetTotalMarks: 3,
+      } as unknown as Awaited<ReturnType<typeof gradeWorksheet>>;
+    });
+    await open(ORDINARY, POOL); // Q1's box is open
+    expect(selectedTab()).toEqual(["Type my working"]);
+    const boxes = screen.getAllByLabelText("Type your working and answer");
+    await act(async () => {
+      fireEvent.change(boxes[boxes.length - 1], { target: { value: "R = V / I = 2 ohm" } });
+    });
+    fireEvent.click(await screen.findByTestId("qp-save-answer"));
+    await screen.findByTestId("qp-saved-confirmation");
+    fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.queryByTestId("qp-grade-batch")).toBeNull()); // the graded sheet is up
+    fireEvent.click(await screen.findByRole("button", { name: /Back to this set \(see the steps\)/ }));
+    const triggers = await screen.findAllByRole("button", { name: /^Answer this question$/ });
+    fireEvent.click(triggers[triggers.length - 1]); // an unanswered question's box
+    expect(selectedTab()).toEqual(["Upload a photo"]);
+    expect(cloudHas).toHaveBeenCalledTimes(1); // the recheck read no cloud
   });
 
   it("★ CONTROL: signed out -> Upload", async () => {

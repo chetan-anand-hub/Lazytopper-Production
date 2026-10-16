@@ -38,6 +38,7 @@ import { resetZeroGradedCacheForTests } from "./zeroGraded";
 let location = "";
 function Probe() {
   const l = useLocation();
+  // eslint-disable-next-line react-hooks/globals -- test probe records the router location
   location = `${l.pathname}${l.search}`;
   return null;
 }

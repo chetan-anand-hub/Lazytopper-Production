@@ -695,9 +695,12 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // SHW-2 TYPE-FIRST DEFAULT — a signed-in student with ZERO graded answers gets the answer box on
   // "Type" first. The Start-here check's answer is REUSED (local rows, then the answer Home / the
   // hub already read in this tab): `cloud: false`, so this page never starts a Firestore read.
+  // SHW-3: bumped once per graded batch on this mount, so the signal looks again (local rows
+  // first, no cloud read) and the next set's boxes open on Upload.
+  const [gradedBatchesThisMount, setGradedBatchesThisMount] = useState(0);
   const zeroGradedForAnswerBox = useZeroGraded(
     authUserForJourney && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null,
-    { cloud: false },
+    { cloud: false, recheck: gradedBatchesThisMount },
   );
 
   useEffect(() => {
@@ -2644,6 +2647,8 @@ const packTopicKey = useMemo(() => {
       fairUse.noteGraded();
       // ACTIVATION-1 · L4 — once per graded set; the bare event name only.
       trackPracticeGraded(worksheetId);
+      // SHW-3: the student now has graded work - re-read the type-first signal (local, no cloud).
+      setGradedBatchesThisMount((n) => n + 1);
     }
     // J2 §6 — interrupted: the marked rows stay on screen with "grade the remaining N"; the
     // free MCQ marks still feed today's record (the result above), and no error box.

@@ -278,14 +278,14 @@ const QTYPE_SEG: Record<StartHereQType, string> = {
   written: "Written",
 };
 /** One helper line under the type control, describing the selected type. */
-export const START_HERE_QTYPE_HELP: Record<StartHereQType, string> = {
+const START_HERE_QTYPE_HELP: Record<StartHereQType, string> = {
   mcq: "Tap the right option – 5 board MCQs, about 2 min.",
   ar: "Assertion and reason – 5 board questions.",
   written:
     "One written board question – type your answer, it is marked like the board (uses 1 of today's checks).",
 };
 /** The Start label follows the choice. */
-export const START_HERE_START_LABEL: Record<StartHereQType, string> = {
+const START_HERE_START_LABEL: Record<StartHereQType, string> = {
   mcq: "Start 5 questions",
   ar: "Start 5 questions",
   written: "Start 1 written question",

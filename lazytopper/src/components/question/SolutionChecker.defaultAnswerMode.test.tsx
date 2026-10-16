@@ -55,6 +55,31 @@ describe("SHW-2 · SolutionChecker defaultAnswerMode", () => {
     expect(selected()).toEqual(["Type my working"]);
   });
 
+  // SHW-3: Clear / Re-check reset the box to the host's default, not a hard-coded "upload".
+  it("★★ SHW-3: Re-check returns to the host's default ('type'); undefined still returns to Upload", async () => {
+    const cached = JSON.stringify({
+      result: { ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67, annotatedSteps: [], teacherNote: "ok" },
+      answerKey: "t:abc",
+    });
+    localStorage.setItem("lazytopper.checkResult.v2.u-dam:dam-1", cached);
+    render(<SolutionChecker {...PROPS} defaultAnswerMode="type" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Re-check" }));
+    expect(selected()).toEqual(["Type my working"]);
+    cleanup();
+    localStorage.setItem("lazytopper.checkResult.v2.u-dam:dam-1", cached);
+    render(<SolutionChecker {...PROPS} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Re-check" }));
+    expect(selected()).toEqual(["Upload a photo"]); // byte-identical without the prop
+  });
+
+  it("★★ SHW-3: Clear (Remove a saved answer) returns to the host's default ('type')", () => {
+    const saved = { imageBase64: "AAAA", imageMimeType: "image/jpeg", textAnswer: null, kind: "photo" as const };
+    const r = render(<SolutionChecker {...PROPS} collectMode savedAnswer={saved} defaultAnswerMode="type" />);
+    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+    r.rerender(<SolutionChecker {...PROPS} collectMode savedAnswer={null} defaultAnswerMode="type" />);
+    expect(selected()).toEqual(["Type my working"]);
+  });
+
   it("★★ the student already picked a tab: a late signal never flips it", () => {
     const r = render(<SolutionChecker {...PROPS} />);
     fireEvent.click(screen.getByRole("tab", { name: "Upload a photo" }));

@@ -27,7 +27,7 @@ vi.mock("./startHereAvailability.generated", () => ({ START_HERE_AVAILABILITY: A
 vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
 import StartHereCard, { START_HERE_GETTING, START_HERE_RETRY_MS, accountIsNew } from "./StartHereCard";
-import { resetZeroGradedCacheForTests } from "./zeroGraded";
+import { resetZeroGradedCacheForTests, ZERO_GRADED_NONE_TTL_MS } from "./zeroGraded";
 import {
   START_HERE_COPY,
   START_HERE_DISMISSED_KEY,
@@ -151,9 +151,13 @@ describe("START-HERE-1 · who sees the card (§2.1)", () => {
       await vi.advanceTimersByTimeAsync(START_HERE_RETRY_MS + 50);
       await waitFor(() => expect(card()).not.toBeNull());
       cleanup();
+      // SHW-3: the second half is a LATER visit. Within ZERO_GRADED_NONE_TTL_MS the server's "no
+      // records" is reused by design (no extra read); past it, a mount asks again - so move the clock.
+      await vi.advanceTimersByTimeAsync(ZERO_GRADED_NONE_TTL_MS);
       cloudHas.mockReset().mockResolvedValueOnce(null).mockResolvedValueOnce(true);
       mount();
       await vi.advanceTimersByTimeAsync(START_HERE_RETRY_MS + 50);
+      expect(cloudHas).toHaveBeenCalledTimes(2); // it really asked (and retried) again
       expect(card()).toBeNull();
     } finally {
       vi.useRealTimers();

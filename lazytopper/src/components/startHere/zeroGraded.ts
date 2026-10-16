@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cloudHasAnySessionRecord, loadLocalSessionRecords } from "../../services/sessionRecords";
 import { authClient } from "../../services/firebaseClient";
 
@@ -13,7 +13,9 @@ import { authClient } from "../../services/firebaseClient";
  *
  * ★ NO EXTRA READ (owner ruling, 16 Oct): the cloud answer is shared per uid across every
  * mount in this tab — an in-flight ask is joined, and a SERVER answer (true / false) is kept
- * in a module-level map. "Could not tell" (null) is never kept, so a failed read is retried
+ * in a module-level map ("has records" for the tab's life; SHW-3: "no records" only for
+ * ZERO_GRADED_NONE_TTL_MS, so grading on another device or a failed local write is seen by a
+ * later mount). "Could not tell" (null) is never kept, so a failed read is retried
  * exactly as it always was. Readers that must not add a read at all (Practice) pass
  * `{ cloud: false }`: local rows, then the kept answer, then an ask already in flight — and
  * otherwise "loading" (their caller's unchanged default).
@@ -40,8 +42,15 @@ export function accountIsNew(uid: string, now: number = Date.now()): boolean {
   }
 }
 
-/** uid -> the server's answer ("has at least one record"). Only true / false are kept. */
-const kept = new Map<string, boolean>();
+/**
+ * SHW-3: how long a kept "no records" (false) answer is trusted. A student can grade on another
+ * device (or a local write can fail) after the ask, so "none" is re-asked by a mount after this;
+ * "has records" (true) can never become false and is kept for the life of the tab.
+ */
+export const ZERO_GRADED_NONE_TTL_MS = 5 * 60 * 1000;
+
+/** uid -> the server's answer ("has at least one record") and when it arrived. Only true / false are kept. */
+const kept = new Map<string, { has: boolean; at: number }>();
 /** uid -> the ask in flight, joined by every other mount. */
 const inFlight = new Map<string, Promise<boolean | null>>();
 
@@ -51,9 +60,20 @@ export function resetZeroGradedCacheForTests(): void {
   inFlight.clear();
 }
 
+/** The kept answer for this uid, or undefined (never asked, or a "no records" older than the TTL). */
+function keptAnswer(uid: string): boolean | undefined {
+  const k = kept.get(uid);
+  if (!k) return undefined;
+  if (k.has) return true;
+  if (performance.now() - k.at < ZERO_GRADED_NONE_TTL_MS) return false;
+  kept.delete(uid); // a stale "no records": the next ask reads again
+  return undefined;
+}
+
 /** The cloud answer for this uid: the kept one, the one in flight, or ONE new ask. */
 export function askCloudOnce(uid: string): Promise<boolean | null> {
-  if (kept.has(uid)) return Promise.resolve(kept.get(uid) as boolean);
+  const known = keptAnswer(uid);
+  if (known !== undefined) return Promise.resolve(known);
   const pending = inFlight.get(uid);
   if (pending) return pending;
   const ask = (async (): Promise<boolean | null> => {
@@ -64,7 +84,8 @@ export function askCloudOnce(uid: string): Promise<boolean | null> {
     }
   })().then((has) => {
     inFlight.delete(uid);
-    if (has !== null) kept.set(uid, has);
+    // A monotonic, tab-local stamp (not the calendar clock): it only times the "no records" TTL.
+    if (has !== null) kept.set(uid, { has, at: performance.now() });
     return has;
   });
   inFlight.set(uid, ask);
@@ -90,31 +111,45 @@ export function typeFirstAnswerMode(
 export interface UseZeroGradedOptions {
   /** false -> never START a cloud read (join one in flight / use a kept answer only). Default true. */
   cloud?: boolean;
+  /**
+   * SHW-3: change this number to look again on the SAME mount (e.g. after a graded batch): local
+   * rows first, then the kept answer. It never starts a read by itself beyond what `cloud` allows.
+   */
+  recheck?: number;
 }
 
-export function useZeroGraded(uid?: string | null, { cloud = true }: UseZeroGradedOptions = {}): ZeroGraded {
-  const [graded, setGraded] = useState<ZeroGraded>("loading");
+/** Local rows first (no network), then the kept answer; undefined when neither can say. */
+function knownWithoutNetwork(uid: string | null | undefined, recheck: number): ZeroGraded | undefined {
+  void recheck; // only the memo's key: a new value means "look again"
+  if (!uid) return undefined;
+  // Local first: any record on this device is the answer, and costs no network call.
+  if (loadLocalSessionRecords(uid).length > 0) return "some";
+  const k = keptAnswer(uid);
+  return k === undefined ? undefined : k ? "some" : "none";
+}
+
+export function useZeroGraded(
+  uid?: string | null,
+  { cloud = true, recheck = 0 }: UseZeroGradedOptions = {},
+): ZeroGraded {
+  // What the device already knows, read once per uid / recheck (no network, no effect).
+  const known = useMemo(() => knownWithoutNetwork(uid, recheck), [uid, recheck]);
+  // An answer that needed the network, tagged with the uid + recheck it answers, so a sign-in (or a
+  // recheck) never inherits the previous verdict: it reads "loading" until its own answer lands.
+  const [asked, setAsked] = useState<{ uid: string; recheck: number; graded: ZeroGraded } | null>(null);
 
   useEffect(() => {
-    // Re-enter "loading" on a uid change so a sign-in can never inherit the previous verdict.
-    setGraded("loading");
-    if (!uid) return;
-    // Local first: any record on this device is the answer, and costs no network call.
-    if (loadLocalSessionRecords(uid).length > 0) {
-      setGraded("some");
-      return;
-    }
+    if (!uid || known !== undefined) return;
     let cancelled = false;
+    const settle = (graded: ZeroGraded) => {
+      if (!cancelled) setAsked({ uid, recheck, graded });
+    };
     if (!cloud) {
-      // No new read: a kept answer, or one another mount already started; else stay "loading".
-      if (kept.has(uid)) {
-        setGraded(kept.get(uid) ? "some" : "none");
-        return;
-      }
+      // No new read: join an ask another mount already started; else stay "loading".
       const pending = inFlight.get(uid);
       if (pending) {
         void pending.then((has) => {
-          if (!cancelled && has !== null) setGraded(has ? "some" : "none");
+          if (has !== null) settle(has ? "some" : "none");
         });
       }
       return () => {
@@ -137,15 +172,17 @@ export function useZeroGraded(uid?: string | null, { cloud = true }: UseZeroGrad
       if (has === null) {
         // Still cannot tell: a young account with no local rows is almost certainly new; an older
         // or unknown one is never shown the card on a failed read.
-        setGraded(accountIsNew(uid) ? "none" : "some");
+        settle(accountIsNew(uid) ? "none" : "some");
         return;
       }
-      setGraded(has === false ? "none" : "some");
+      settle(has === false ? "none" : "some");
     })();
     return () => {
       cancelled = true;
     };
-  }, [uid, cloud]);
+  }, [uid, cloud, recheck, known]);
 
-  return graded;
+  if (!uid) return "loading";
+  if (known !== undefined) return known;
+  return asked && asked.uid === uid && asked.recheck === recheck ? asked.graded : "loading";
 }

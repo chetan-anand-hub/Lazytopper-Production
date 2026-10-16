@@ -586,6 +586,7 @@ export function SolutionChecker({
     if (!defaultAnswerMode || answerTouchedRef.current) return;
     // Something already in the box (a photo, typed text, a restored grade) counts as touched.
     if (imageBase64 !== null || textAnswer.length > 0 || result !== null) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot move per change of the host's late-arriving default, guarded by the touched ref above
     setAnswerTab(defaultAnswerMode);
     // Only a CHANGE of the host's default may move the tab; the box's own state is read, not watched.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -878,9 +879,10 @@ export function SolutionChecker({
     setError(null);
     setLogStatus("pending");
     setTextAnswer("");
-    setAnswerTab("upload");
+    // SHW-3: back to the host's first tab (undefined = "upload", today's behaviour).
+    setAnswerTab(defaultAnswerMode ?? "upload");
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [tray.clear]);
+  }, [tray.clear, defaultAnswerMode]);
 
   const handleRecheck = useCallback(() => {
     tray.clear();
@@ -893,9 +895,10 @@ export function SolutionChecker({
     setFileName(null);
     setIsPdf(false);
     setTextAnswer("");
-    setAnswerTab("upload");
+    // SHW-3: back to the host's first tab (undefined = "upload", today's behaviour).
+    setAnswerTab(defaultAnswerMode ?? "upload");
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [tray.clear]);
+  }, [tray.clear, defaultAnswerMode]);
 
   const hasFile = imageBase64 !== null;
   const hasText = textAnswer.trim().length > 0;
