@@ -1,3 +1,12 @@
+## 2026-10-17 - AFTER #1198 to #1209 (written by the cofounder session under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The Session 2 "Next" of the `#1196` block is done: ADS-CLEAN-1 and TUTOR-FIX-2 shipped, then TUTOR-FIX-3/4.)*
+
+- **Owner check (new account):** `#1200` on a brand-new account - segmented toggle, the written Science question, the type-first answer box.
+- **Next (product):** small copy / UX fixes as one PR - `[FU-QP-UPLOAD-LATER-PRETAP-COPY]`, `[FU-QP-LATER-PANEL-SHOW-STEPS]`, `[FU-HOME-MI-NOTE-NO-LOSS]`, `[FU-QP-REOPEN-TAP-NOTE]`; then `[FU-WEAK-AREA-URL-IDS]`; grader nits only with an owner ruling and the eval.
+- **North star (owner, 16 Oct):** day-1 graded-answer rate (target 40%). The leak is after sign-up, not reach; hold ad-spend growth until activation improves.
+- **Follow-ups:** the 2026-10-17 section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-16 - AFTER FOLLOWUPS-1 (`#1196`) (written by the docs sub-agent under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The "Owner question" in the `#1192-#1194` block is answered: the kicker is now "Your first 2 minutes".)*

@@ -23,6 +23,56 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-17 - #1198 to #1209 FOLLOW-UPS (recorded by the cofounder session of 17 Oct under CLAUDE.md section 10)
+
+*Priority order is the order below. File:line readings are at trunk `a21575df`.*
+
+**[FU-QP-UPLOAD-LATER-PRETAP-COPY]** (open) Quick Practice scorecard, before the student taps Upload later: "Upload later saves your marks so far now" shows even when 0 questions were attempted (`lazytopper/src/pages/PracticePage.tsx:3069`). The copy after the tap is correct. Fix: say only what is true when nothing was attempted.
+
+**[FU-QP-LATER-PANEL-SHOW-STEPS]** (open) The later-upload panel (`#1209`, renders through `PracticeQuestionCard`) shows a "Show steps" button that does nothing there. Hide it in the panel. Keep the panel on `PracticeQuestionCard` so the GATE-3 SolutionChecker render-site list stays at two.
+
+**[FU-HOME-MI-NOTE-NO-LOSS]** (open) Home MI note "Fills in when you check a written answer" (`lazytopper/src/pages/desktop/DesktopHome.tsx:802`, `HOME_MI_UNTYPED_TILE_TITLE`) still shows for a student whose checked written answers lost no marks. Reword to "when a checked answer loses marks".
+
+**[FU-WEAK-AREA-URL-IDS]** (open) The weak-concept Practise link (`#1204`, `lib/desktop/conceptSetPath.ts:72`) carries the concept's bank ids in `focusBankIds` (~150 ids in the live check). Consider a short key resolved on the page.
+
+**[FU-GRADER-TYPED-NITS]** (open; grader lane, owner decision) Rare typed-answer cases left by `#1207`: a line broken after an operator ("2 +" / "2 = 5") is not charged; x vs multiplication-sign normalisation differs between the two checks. Reported, not fixed: "2/3 = 0.66" truncation charged; a verification line read as the final answer; probability fraction vs %; a photo quote glued with no space.
+
+**[FU-QP-REOPEN-TAP-NOTE]** (open) A Quick Practice session reopened from history does not show the tap-the-answer note that `#1208` adds to the live scorecard.
+
+**[FU-CI-FREECHECK-TUTOR]** (open, from `#1199`) Check & Improve free-check scorecard for a signed-out visitor has no tutor button; needs an owner design call (same pattern as the signed-out QP sign-up prompt).
+
+**[FU-INTENT-PASTED-WORKING]** (open, from `#1203`) Eval probe CI-12: pasted multi-line working followed by "is this right?" on its own line - `detectOfferIntent` returns null (pre-existing). The route still offered Check & Improve via the model tag 3/3.
+
+**[FU-TUTOR-HINDI-ATTRIBUTION]** (open, from `#1205`) The all-unrecorded attribution safety net's fixed template is English only. A Hindi / Hinglish thread gets the English template.
+
+**[FU-WEAK-AREAS-TOO-FEW-TEXT]** (open) The Quick Practice "My weak areas" card's text for the 'too few' state (too few graded answers to name a weakness) was flagged in the 15-17 Oct session's handoff list; the exact wording defect is to be established before a fix (display only).
+
+**[FU-ESLINT-SETSTATE-EFFECT]** (open, from `#1199` / `#1202`) Two scoped eslint-disables (TutorPage `shownKey`, WorksheetGradePanel). The refactor is not clean because the state is set both by an effect and by a tap. Left as is.
+
+**[FU-MOBILE-MI-REAL-DATA]** (open, unchanged) `lazytopper/src/pages/app/MobileHome.tsx:445` mobile Home MI card is static. `#1201` synced desktop Home and the sidebar only.
+
+**[FU-ADMIN-ANALYTICS-EXCLUSION]** (open, cofounder lane) Exclude `/admin/*` page views from analytics.
+
+**[FU-START-HERE-WRITTEN]** (CLOSED 2026-10-16, built in `#1200`) Written Start-here question, Science only. **Owner live check still owed** on a brand-new account: segmented toggle, the written question, the type-first answer box.
+
+**[FU-WORKSHEET-TUTOR-RETURN]** (CLOSED 2026-10-16, built in `#1199` T9) Worksheet scorecard "Ask the tutor" with a `review=` return.
+
+**[FU-CI-TYPEFIRST-MULTI]** (CLOSED 2026-10-16, done in `#1202`) A whole paper switches a type-first Check & Improve student to Upload.
+
+**[FU-GRADER-TYPED-LINES]** (CLOSED 2026-10-16, done in `#1207`) Root cause `postprocess.cjs` running `falseEqualities` on a model quote that joined two typed lines; fixed in `verify.cjs`; live 96/404 answer now 3/3.
+
+**[FU-SH-TAP-44]** (CLOSED 2026-10-16, done in `#1198`) Start-here chips 44px.
+
+**[FU-SH-SHOWN-DEDUPE]** (CLOSED 2026-10-16, done in `#1198`) `start_here_shown` once per tab session per surface.
+
+**[FU-ADMIN-ACTIONS-LABELS]** (CLOSED 2026-10-16, done in `#1198`) Admin Actions chips in plain words.
+
+**[FU-RETURN-TICKET-CONTRACT]** (CLOSED 2026-10-16, no code) Already done by `#436`, found in `#1198`.
+
+**[FU-WORKSHEET-KEY-PDF-LAYOUT]** (CLOSED 2026-10-16, done in `#1179`) Answer-key PDF figures whole, no sliced lines.
+
+**Owner still owes:** a brand-new test account for the `#1200` live check; the GA4 saved exploration "Visitor -> sign-up funnel"; a 1-second Paid Search check (report only, never click our ads).
+
 ## 2026-10-16 - FOLLOWUPS-1 (`#1196`) FOLLOW-UPS (recorded by the docs sub-agent under CLAUDE.md section 10)
 
 **[FU-WORKSHEET-TUTOR-RETURN]** (open) Renamed and narrowed from `[FU-SCORECARD-TUTOR-REST]`. "Ask the tutor why I lost this mark" is on Quick Practice, Check & Improve, Chapter Test and Full Mock. Worksheet is not wired: worksheet scorecards have no URL reopen-from-record path and the generated state is in memory, so a tutor Back could not return to the same scorecard honestly. Needs a worksheet reopen-from-record path first.
