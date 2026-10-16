@@ -925,3 +925,20 @@ export function coachingLine(input: CoachingInput): string {
   }
   return parts.join(" ");
 }
+
+// ── MI-COPY (owner ask, 16 Oct 2026) — why tap-the-answer marks carry no mistake type ──
+//
+// ONE wording, shared by every surface that shows lost marks with no mistake type behind them
+// (Home's Mistake Intelligence card, the sidebar Mistake Intel card, the Quick Practice
+// scorecard, Me / Progress's "no reason recorded" row). An MCQ / assertion-reason pick records
+// the option chosen, never a reason, so no surface invents one. Display copy only — nothing
+// here is read by grading, scoring, mistake typing or recording.
+
+/** First half: what a tap-the-answer question records. */
+export const UNTYPED_MARKS_WHY = "Tap-the-answer questions record which option you chose, not why.";
+/** Second half, up to the action words (which a surface may render as a link). */
+export const UNTYPED_MARKS_HOW_LEAD = "To see whether a lost mark was a concept gap or a slip,";
+/** The action words — the link text where a link to Check & Improve fits. */
+export const UNTYPED_MARKS_ACTION = "check a written answer";
+/** The whole owner sentence pair, as plain text (where no link fits). */
+export const UNTYPED_MARKS_NOTE = `${UNTYPED_MARKS_WHY} ${UNTYPED_MARKS_HOW_LEAD} ${UNTYPED_MARKS_ACTION}.`;

@@ -4,6 +4,13 @@
 // module (not QuickPracticePresets.tsx) so the component file exports components only
 // (react-refresh/only-export-components).
 
+import {
+  conceptSetPath,
+  type ConceptSetContext,
+  type ConceptSetRef,
+} from "../../lib/desktop/conceptSetPath";
+import type { DesktopSubject } from "../../lib/desktop/navigation";
+
 /** The honest locked line ("Soon" is gone: the card is real, just not yet). True for both locked
  *  cases: no graded answers yet, and graded answers still below Me's weakness-naming gate. */
 export const WEAK_AREAS_LOCKED_COPY = "Unlocks once a few answers are graded";
@@ -21,19 +28,40 @@ export const WEAK_AREAS_LOCKED_COPY = "Unlocks once a few answers are graded";
 export type WeakAreasCard =
   | { kind: "hidden" }
   | { kind: "locked" }
-  | { kind: "live"; href: string; concepts: Array<{ label: string; lost: number }> };
+  | {
+      kind: "live";
+      /** The render-time href (the honest whole-paper fallback when `open` is set). */
+      href: string;
+      concepts: Array<{ label: string; lost: number }>;
+      /** WEAK-AREA-DIRECT: what the click resolves to the concept's EXACT set (conceptSetClick). */
+      open?: { paper: DesktopSubject; concept: ConceptSetRef; ctx: ConceptSetContext };
+    };
 
-/** The card state from the auth state and Me's concept rows (worst first) for this subject. */
+/** WEAK-AREA-DIRECT — where the card is: its paper and the practice page to come Back to. */
+export interface WeakAreasCardHere {
+  paper: DesktopSubject;
+  returnTo: string;
+}
+
+/** The card state from the auth state and Me's concept rows (worst first) for this subject.
+ *  With `here`, the href is Me's concept builder (`conceptSetPath`, the one Me's rows use) with
+ *  Back returning to this practice page; without it, the row's own Me href. */
 export function weakAreasCardFrom(
   signedIn: boolean,
-  rows: ReadonlyArray<{ label: string; lost: number; practisePath: string }>,
+  rows: ReadonlyArray<{ label: string; lost: number; chapter?: string; practisePath: string }>,
+  here?: WeakAreasCardHere,
 ): WeakAreasCard {
   if (!signedIn) return { kind: "hidden" };
   const top = rows[0];
   if (!top) return { kind: "locked" };
+  const concepts = rows.slice(0, 3).map((r) => ({ label: r.label, lost: r.lost }));
+  if (!here) return { kind: "live", href: top.practisePath, concepts };
+  const ctx: ConceptSetContext = { returnTo: here.returnTo };
+  const concept: ConceptSetRef = { label: top.label, chapter: top.chapter };
   return {
     kind: "live",
-    href: top.practisePath,
-    concepts: rows.slice(0, 3).map((r) => ({ label: r.label, lost: r.lost })),
+    href: conceptSetPath(here.paper, concept, ctx),
+    concepts,
+    open: { paper: here.paper, concept, ctx },
   };
 }

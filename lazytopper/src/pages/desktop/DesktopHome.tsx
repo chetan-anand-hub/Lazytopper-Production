@@ -16,7 +16,7 @@ import {
   PRIMARY_CARDS,
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
-import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
+import { MISTAKE_TYPE_LABEL, UNTYPED_MARKS_WHY } from "../../lib/mistakeDisplay";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
@@ -790,8 +790,21 @@ export default function DesktopHome() {
 //      the table", Me's biggest-win chapter and top concept, Me's Practise href, all four tiles
 //      "—" (no type is ever invented) and one honest line pointing at Check & Improve;
 //   3. typed marks → the same, with each tile the MARKS Me's split puts on that type.
+//
+// MI-COPY (owner ask, 16 Oct 2026) — in state 2 the tiles look empty, so the card says why, once:
+// a tap-the-answer pick records the option, not a reason (lib/mistakeDisplay's shared sentence),
+// the "Check a written answer" link is the action, and each tile is muted + dashed with a
+// tooltip saying the same. Display only.
+
+/** State 2's one explanatory line (the link follows it). */
+export const HOME_MI_UNTYPED_NOTE = `These fill in when you check a written answer. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`;
+/** State 2's tile tooltip. */
+export const HOME_MI_UNTYPED_TILE_TITLE = `Fills in when you check a written answer. ${UNTYPED_MARKS_WHY}`;
+
 export function MistakeIntelligenceCard({ summary }: { summary: MeHomeSummary | null }) {
   const hasData = !!summary && summary.lost > 0;
+  // State 2 — lost marks, no typed mark behind them (exactly when the "why" line showed before).
+  const untyped = hasData && !summary.hasTyped;
   const typeMarks = hasData ? summary.typeMarks : null;
   const topConcept = hasData ? summary.concepts[0] ?? null : null;
   const practisePath = hasData
@@ -857,7 +870,13 @@ export function MistakeIntelligenceCard({ summary }: { summary: MeHomeSummary | 
             className="lt-home-bk"
             data-testid="home-mi-bucket"
             data-type={b.key}
-            style={{ background: b.bg, color: b.fg, borderColor: b.border }}
+            data-empty={untyped ? "true" : undefined}
+            title={untyped ? HOME_MI_UNTYPED_TILE_TITLE : undefined}
+            style={
+              untyped
+                ? { background: b.bg, color: b.fg, borderColor: b.border, borderStyle: "dashed", opacity: 0.75 }
+                : { background: b.bg, color: b.fg, borderColor: b.border }
+            }
           >
             <div className="lt-n" style={{ opacity: typeMarks && typeMarks[b.key] > 0 ? 1 : 0.4 }}>
               {typeMarks && typeMarks[b.key] > 0 ? typeMarks[b.key] : "—"}
@@ -870,8 +889,9 @@ export function MistakeIntelligenceCard({ summary }: { summary: MeHomeSummary | 
         ))}
       </div>
 
-      {hasData && !summary.hasTyped ? (
-        <p style={{ margin: "12px 0 0", fontSize: 12, color: TEXT_MUTED }} data-testid="home-mi-why">
+      {untyped ? (
+        <p style={{ margin: "12px 0 0", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.55 }} data-testid="home-mi-why">
+          <span data-testid="home-mi-untyped-note">{HOME_MI_UNTYPED_NOTE}</span>{" "}
           <Link
             to={`/check-improve${HOME_QS_LEAD}`}
             data-testid="home-mi-check"

@@ -314,6 +314,7 @@
     "src/pages/PracticePage.tutorOverlayRows.test.tsx",
     "src/pages/PracticePage.typeFirst.test.tsx",
     "src/pages/PracticePage.uploadLater.test.tsx",
+    "src/pages/PracticePage.weakAreaDirect.test.tsx",
     "src/pages/PricingPage.backnav.test.tsx",
     "src/pages/PricingPage.paycopy.test.tsx",
     "src/pages/PricingPage.pricing.test.tsx",

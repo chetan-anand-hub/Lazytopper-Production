@@ -197,9 +197,13 @@ describe("OR-LIVE L5 · the remainder row and the Not attempted row", () => {
     expect(text).not.toMatch(/The grader took these marks/);
     expect(text).not.toMatch(/not yet classified/);
     expect(within(row).getByText(/no reason recorded/)).toBeInTheDocument();
+    // AMENDED (MI-COPY, owner ask 16 Oct 2026) — was "… — so we will not guess one.": aligned to
+    // the shared tap-the-answer sentence, with "check a written answer" the link to Check & Improve.
     expect(row.textContent).toContain(
-      "No mistake type is recorded for these marks — some may be questions you did not attempt — so we will not guess one.",
+      "No mistake type is recorded for these marks — some may be questions you did not attempt. Tap-the-answer questions record which option you chose, not why. To see whether a lost mark was a concept gap or a slip, check a written answer.",
     );
+    const check = within(row).getByRole("link", { name: "check a written answer" });
+    expect(check.getAttribute("href")).toMatch(/^\/check-improve/);
     // the hero bar's accessible name is honest too
     const label = bar.getAttribute("aria-label") || "";
     expect(label).toContain("24 marks lost with no reason recorded.");
@@ -213,6 +217,9 @@ describe("OR-LIVE L5 · the remainder row and the Not attempted row", () => {
     const row = screen.getByTestId("me-remainder-reason");
     expect(row.textContent).toContain("reason not shown");
     expect(row.textContent).toContain("We can see which marks went, but not yet why, so we are not going to guess.");
+    // MI-COPY CONTROL — the withheld split makes no tap-the-answer claim and carries no link.
+    expect(row.textContent).not.toMatch(/Tap-the-answer/);
+    expect(within(row).queryByRole("link")).toBeNull();
   });
 
   it("remainderSentence — both branches are claim-free", () => {
