@@ -14,7 +14,7 @@
 //   local mirror); the write functions are wrapped in spies that still call through.
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor, within } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor, within, act } from "@testing-library/react";
 import { useEffect } from "react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigationType } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
@@ -43,6 +43,7 @@ const spies = vi.hoisted(() => ({
   writeSessionRecord: vi.fn(),
   writeSessionPerQuestion: vi.fn(),
   persistQuickPracticeSession: vi.fn(),
+  perQuestionReads: vi.fn(),
   trackPracticeGraded: vi.fn(),
   onboarding: vi.fn(),
   extraBankRows: [] as unknown[],
@@ -63,6 +64,11 @@ vi.mock("../services/sessionRecords", async (importOriginal) => {
     writeSessionRecord: (...a: Parameters<typeof actual.writeSessionRecord>) => {
       spies.writeSessionRecord(...a);
       return actual.writeSessionRecord(...a);
+    },
+    // Counts reopens: the page reads the payload once per reopen.
+    getSessionPerQuestion: (...a: Parameters<typeof actual.getSessionPerQuestion>) => {
+      spies.perQuestionReads(...a);
+      return actual.getSessionPerQuestion(...a);
     },
     writeSessionPerQuestion: (...a: Parameters<typeof actual.writeSessionPerQuestion>) => {
       spies.writeSessionPerQuestion(...a);
@@ -254,6 +260,8 @@ describe("QP-SCORECARD-2 C · the tutor round trip returns to the SAME scorecard
     cleanup();
     resetSpies();
     historyLength = 0;
+    spies.perQuestionReads.mockClear();
+    const buildsBefore = mockBuild.mock.calls.length;
     await renderAt(returnTo, [mkItem(1), mkItem(2), mkItem(3)]);
     // The reopened scorecard: the record's code in the subtitle, its stored marks, the rows.
     expect(await screen.findByText(new RegExp(`${recordId} ·`))).toBeInTheDocument();
@@ -272,6 +280,15 @@ describe("QP-SCORECARD-2 C · the tutor round trip returns to the SAME scorecard
     await waitFor(() => expect(lastLocation).not.toContain("review="));
     expect(lastLocation).toContain("topic=real-numbers");
     expect(historyLength).toBe(0);
+    // Stripping `review` changes the query, which rebuilds the set BEHIND the reopen once (it is a
+    // fresh visit's set either way). PIN that it is harmless: after the rebuild has run, the SAME
+    // reopened scorecard is still up (rows + tutor buttons), and it was reopened exactly once.
+    await waitFor(() => expect(mockBuild.mock.calls.length).toBeGreaterThanOrEqual(buildsBefore + 2));
+    await act(async () => {});
+    expect(screen.getByText(new RegExp(`${recordId} ·`))).toBeInTheDocument();
+    expect(screen.getAllByTestId("sc-wrong-answer")).toHaveLength(2);
+    expect(screen.getAllByTestId("sc-tutor-ask")).toHaveLength(2);
+    expect(spies.perQuestionReads).toHaveBeenCalledTimes(1);
     // ★★ HARD RULE — the reopen recorded nothing.
     expect(RECORDING()).toEqual(ZERO);
     // Its own tutor button goes round again to the SAME record.
