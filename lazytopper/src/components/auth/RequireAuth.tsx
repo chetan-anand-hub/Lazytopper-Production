@@ -8,6 +8,8 @@ import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
 
 /** START-HERE-1 — the lock line for a student who came from a scorecard's tutor button. */
 export const SCORECARD_LOCK_COPY = "Your free week has ended — upgrade to ask the tutor why you lost this mark.";
+/** FOLLOWUPS-1 A3 — the same lock line for a student whose PAID pass has ended (not the trial). */
+export const SCORECARD_LOCK_COPY_PAID = "Your Premium pass has ended — renew to ask the tutor why you lost this mark.";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -69,7 +71,12 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
               "Ask the tutor" on a scorecard whose free week has ended. Copy only: the gate above
               is unchanged. */}
           {!neverTrialled && new URLSearchParams(location.search).get("source") === "scorecard"
-            ? SCORECARD_LOCK_COPY
+            ? // FOLLOWUPS-1 A3 — copy only. `passEnd` is server-written (rules refuse client
+              // writes) and set only for a PAID pass, so a non-premium status that carries one
+              // held a pass that has lapsed; without it the lapsed entitlement was the trial.
+              status.passEnd
+              ? SCORECARD_LOCK_COPY_PAID
+              : SCORECARD_LOCK_COPY
             : <>{featureLabel || "This feature"} is part of Premium.</>}
           {neverTrialled ? (
             <>
