@@ -94,7 +94,7 @@ describe("WorksheetPrintDoc — WORKSHEET-FIX-2: one option label, no printed so
 
   it("CONTROL (verifier): a statement-combination MCQ keeps its options whole: \"(a) and (b)\" is content, not a label", () => {
     const { container } = render(<WorksheetPrintDoc ws={wsWith("Which statements are correct?", ["(a) and (b)", "(a) and (c)", "(a), (b) and (c)", "all"])} kind="questions" />);
-    const lis = Array.from(container.querySelectorAll(".lt-wsp__opts li")).map((li) => li.textContent?.replace(/s+/g, " ").trim());
+    const lis = Array.from(container.querySelectorAll(".lt-wsp__opts li")).map((li) => li.textContent?.replace(/\s+/g, " ").trim());
     expect(lis).toEqual(["(a) (a) and (b)", "(b) (a) and (c)", "(c) (a), (b) and (c)", "(d) all"]);
   });
 
