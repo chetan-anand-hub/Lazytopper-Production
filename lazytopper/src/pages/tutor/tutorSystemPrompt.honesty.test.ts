@@ -33,11 +33,14 @@ describe("T1 — the brief is rendered in full, with its window", () => {
     const p = build({ brief: RICH });
     expect(p).toContain("- Window: the last 30 days.");
     expect(p).toContain("- This chapter (Real Numbers): 24.5 marks lost in the last 30 days.");
+    // TUTOR-FIX-3: typed groups and the unrecorded marks are separate lines; the top group is
+    // scoped to the recorded marks when some are unrecorded (tutorSystemPrompt.unrecorded.test.ts).
     expect(p).toContain(
-      "- Where those chapter marks went: concept/knowledge gaps 12, careless slips 6.5, exam technique (presentation, steps, units) 2, not attempted 1, no reason recorded 3.",
+      "- Recorded mistake types for these chapter marks: concept/knowledge gaps 12, careless slips 6.5, exam technique (presentation, steps, units) 2, not attempted 1.",
     );
-    expect(p).toContain("- Biggest loss group in this chapter: concept/knowledge gaps.");
-    expect(p).toContain("- Concepts in this chapter that cost marks: Fundamental Theorem of Arithmetic (6 marks).");
+    expect(p).toContain("- 3 marks: no mistake type recorded (tap-the-answer questions record which option was picked, not why)");
+    expect(p).toContain("- Biggest loss group among the marks with a recorded type: concept/knowledge gaps.");
+    expect(p).toContain("- Concepts in this chapter where marks were lost: Fundamental Theorem of Arithmetic (6 marks).");
     expect(p).toContain("question LTG-M-RN-104, Chapter Test, 2 marks lost, careless slips, 2026-10-12");
     expect(p).toContain("- Recent direction on this topic: worsening.");
     expect(p).toContain("- Whole Maths subject (ALL chapters together, not just this one): 100.5 marks lost in the last 30 days.");
