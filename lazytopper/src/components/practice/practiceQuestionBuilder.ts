@@ -534,16 +534,28 @@ export function enforceDifficultyFilter(questions: PracticeQuestion[], difficult
 export async function buildPracticeQuestionsWithAiTopup(
   args: AiTopupArgs
 ): Promise<PracticeQuestion[]> {
-  const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
+  const flooredCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
+
+  // START-HERE-WRITTEN-FIX: an exact set is gated on the REQUESTED count, not the floored one — a
+  // Start-here "Written - 1 Q" link (count 1, one id) never reached the exact branch, so the chapter
+  // draw ran and the page cut it to one RANDOM row. Only a count below MIN_QUESTION_COUNT with no
+  // sectionFilter differs from flooredCount: every count >= 3 call, and every blueprint per-section
+  // call (always sectionFilter), keeps its old gate and old count byte-for-byte. The normal draw
+  // keeps the MIN_QUESTION_COUNT floor.
+  const requestedCount = Math.max(1, Math.min(MAX_QUESTION_COUNT, args.count || 10));
+  const exactCount =
+    requestedCount < flooredCount && !args.sectionFilter ? requestedCount : flooredCount;
 
   // CONCEPT-MAP-FILL-1 PR-2: a STRICT focus whose id list already covers the whole requested count is
   // served from those ids themselves (the engine's draw cannot be relied on to contain them). A strict
   // list SHORTER than the count keeps the old behaviour (ids first, topped up from the draw). If the ids
   // resolve to no served row, fall through to the engine exactly as before.
   const exactPool =
-    args.strictFocus && args.focusBankIds && args.focusBankIds.length >= safeCount
+    args.strictFocus && args.focusBankIds && args.focusBankIds.length >= exactCount
       ? buildExactFocusPool(args.topicLabel, args.focusBankIds)
       : [];
+  // The set size: the requested count for an exact set, the floored count for every other path.
+  const safeCount = exactPool.length > 0 ? exactCount : flooredCount;
   const engineQuestions =
     exactPool.length > 0
       ? exactPool
