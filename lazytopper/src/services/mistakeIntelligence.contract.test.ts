@@ -797,6 +797,9 @@ describe("T6 · intake predicate — type admits, deduction does not gate", () =
         "services/progressReadModel.ts",
         // consumer — sums, `|| 0` no-op on zero
         "services/mistakeInsightsService.ts",
+        // consumer - MI-HOME-SYNC: Me's buildChapters + the per-type tile split MOVED here so Home
+        // and the sidebar read Me's numbers; both loops guarded `!Number.isFinite(marks) || marks <= 0 continue`
+        "services/meHomeSummary.ts",
         // the producer this lane changed
         "services/mistakeIntelligence.ts",
         // the type declaration

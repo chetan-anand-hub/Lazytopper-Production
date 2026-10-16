@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import {
-  getMistakeLogs,
-  type MistakeLogEntry,
-} from "../../services/mistakeLogService";
+// MI-HOME-SYNC — Home's MI card reads Me/Progress's numbers (the shared read model, Me's window,
+// Me's paper, Me's split / chapters / concepts and Me's Practise hrefs), loaded on demand.
+import { useMeHome } from "../../services/useMeHomeSummary";
+import type { MeHomeSummary, TypeMarks } from "../../services/meHomeSummary";
 import {
   hasMeaningfulMemory,
   readLandingMemory,
@@ -58,8 +58,9 @@ import CbseBanner from "../../components/cbse/CbseBanner";
  *     async API whose date may be `"predicted"` rather than `"official"`, and
  *     students have an existing `hideCountdown` preference. Rendering it here
  *     would add an API dependency AND override that choice.
- *   - Mistake intelligence reads real entries via getMistakeLogs(uid, 7);
- *     anonymous sessions / no entries → honest empty state, never invented counts.
+ *   - Mistake intelligence shows Me/Progress's numbers (MI-HOME-SYNC: services/meHomeSummary,
+ *     Me's window, paper, split, chapters and concepts); anonymous / local sessions / nothing on
+ *     the table → honest empty state, never invented counts.
  *   - "Latest saved worksheet" never says "score" / "attempt" — saved
  *     worksheets capture the plan, not a graded result.
  *
@@ -153,35 +154,21 @@ const MI_BUCKETS: {
   { key: "presentation", bg: "hsl(280, 60%, 96%)", fg: "hsl(280, 50%, 35%)", border: "hsl(280, 45%, 89%)", label: MISTAKE_TYPE_LABEL.presentation },
 ];
 
-interface BucketTotals {
-  total: number;
-  totals: Record<BucketKey, number>;
-  topLabel: string | null;
+/**
+ * MI-HOME-SYNC — the type that cost the most MARKS in Me's split for Me's paper (fixed bucket
+ * order breaks a tie), or null when Me names no typed mark. It used to be the most frequent type
+ * by COUNT over the last 7 days of both papers — a different number from anything Me shows.
+ */
+function topTypeLabel(typeMarks: TypeMarks | null | undefined): string | null {
+  if (!typeMarks) return null;
+  let best: (typeof MI_BUCKETS)[number] | null = null;
+  for (const b of MI_BUCKETS) {
+    if (typeMarks[b.key] > 0 && (!best || typeMarks[b.key] > typeMarks[best.key])) best = b;
+  }
+  return best ? best.label : null;
 }
 
-function aggregateBuckets(entries: MistakeLogEntry[]): BucketTotals {
-  const totals: Record<BucketKey, number> = {
-    conceptual: 0,
-    calculation: 0,
-    silly: 0,
-    presentation: 0,
-  };
-  for (const e of entries) {
-    const c = e?.mistakeCounts;
-    if (!c) continue;
-    if (typeof c.conceptual === "number") totals.conceptual += c.conceptual;
-    if (typeof c.calculation === "number") totals.calculation += c.calculation;
-    if (typeof c.silly === "number") totals.silly += c.silly;
-    if (typeof c.presentation === "number") totals.presentation += c.presentation;
-  }
-  const total = MI_BUCKETS.reduce((sum, b) => sum + totals[b.key], 0);
-  let topLabel: string | null = null;
-  if (total > 0) {
-    const top = [...MI_BUCKETS].sort((a, b) => totals[b.key] - totals[a.key])[0];
-    if (totals[top.key] > 0) topLabel = top.label;
-  }
-  return { total, totals, topLabel };
-}
+const marksWord = (n: number): string => `${n} mark${n === 1 ? "" : "s"}`;
 
 // ── DATE FORMAT (saved-on label) ────────────────────────────────
 function formatSavedOn(iso: string): string | null {
@@ -307,14 +294,13 @@ const HOME_CSS = `
 
 // ── COMPONENT ──────────────────────────────────────────────────
 export default function DesktopHome() {
-  const { user } = useAuth();
+  const { user, mistakeLogsHydrated } = useAuth();
   // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
   // while it is up (two start cards for the same student is noise).
   const startHere = useStartHere(user?.uid ?? null);
   const isSignedIn = !!user;
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
-  const [mistakes, setMistakes] = useState<MistakeLogEntry[]>([]);
 
   // The shared pop-card. Auth state is passed in — homeDestinations stays
   // firebase-free so DesktopShell can mount this same picker in PR-B.
@@ -325,30 +311,13 @@ export default function DesktopHome() {
     setMemory(readLandingMemory());
   }, []);
 
-  // Honest mistake intelligence: real entries (last 7 days) for the
-  // signed-in uid only. Anonymous sessions never get categorised.
-  useEffect(() => {
-    let cancelled = false;
-    if (!user?.uid) {
-      setMistakes([]);
-      return () => {
-        cancelled = true;
-      };
-    }
-    void (async () => {
-      try {
-        const entries = await getMistakeLogs(user.uid, 7);
-        if (!cancelled) setMistakes(Array.isArray(entries) ? entries : []);
-      } catch {
-        if (!cancelled) setMistakes([]);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.uid]);
-
-  const buckets = useMemo(() => aggregateBuckets(mistakes), [mistakes]);
+  // MI-HOME-SYNC — honest mistake intelligence: Me/Progress's numbers for a REAL signed-in
+  // account only (Me's own rule: a local/browse session has no server-side progress). The read
+  // is shared with the sidebar MI panel (one memoised read pair per tab, services/meHomeSummary).
+  const realUid = user && !user.isLocalSession ? user.uid : null;
+  const meHome = useMeHome(realUid, Number(mistakeLogsHydrated) || 0);
+  const miSummary = meHome.read?.summary ?? null;
+  const topMistakeLabel = useMemo(() => topTypeLabel(miSummary?.typeMarks), [miSummary]);
 
   const meaningfulMemory = hasMeaningfulMemory(memory);
   const lastAttempt = memory?.lastAttempt ?? null;
@@ -489,7 +458,7 @@ export default function DesktopHome() {
         {startHere.visible ? null : (
           <FirstSession
             uid={user?.uid ?? null}
-            fallback={<MistakeIntelligenceCard buckets={buckets} />}
+            fallback={<MistakeIntelligenceCard summary={miSummary} />}
           />
         )}
 
@@ -617,11 +586,11 @@ export default function DesktopHome() {
               </div>
             </div>
             <div style={{ minWidth: 0 }}>
-              {buckets.topLabel ? (
+              {topMistakeLabel ? (
                 <>
                   <div style={{ fontSize: 13, color: TEXT }}>
-                    <span style={{ fontWeight: 600 }}>Most common mistake this week:</span>{" "}
-                    <span style={{ color: "hsl(220, 30%, 28%)" }}>{buckets.topLabel}</span>
+                    <span style={{ fontWeight: 600 }}>Most marks lost this month:</span>{" "}
+                    <span style={{ color: "hsl(220, 30%, 28%)" }}>{topMistakeLabel}</span>
                   </div>
                   <div
                     style={{
@@ -814,10 +783,22 @@ export default function DesktopHome() {
 // ONE subject + ONE topicKey, and `topic` is a display string with no guaranteed
 // slug mapping. There is no single honest destination — adding one would need a
 // disambiguation picker (a new feature) or a guess (dishonest). Omitted.
-function MistakeIntelligenceCard({ buckets }: { buckets: BucketTotals }) {
-  const hasData = buckets.topLabel !== null;
+//
+// MI-HOME-SYNC — the card shows Me/Progress's numbers, never its own (services/meHomeSummary):
+//   1. no marks on the table in Me (no graded work, or below Me's gate) → today's empty state;
+//   2. marks on the table, none typed (an MCQ pick carries no mistake type) → Me's "<N> marks on
+//      the table", Me's biggest-win chapter and top concept, Me's Practise href, all four tiles
+//      "—" (no type is ever invented) and one honest line pointing at Check & Improve;
+//   3. typed marks → the same, with each tile the MARKS Me's split puts on that type.
+export function MistakeIntelligenceCard({ summary }: { summary: MeHomeSummary | null }) {
+  const hasData = !!summary && summary.lost > 0;
+  const typeMarks = hasData ? summary.typeMarks : null;
+  const topConcept = hasData ? summary.concepts[0] ?? null : null;
+  const practisePath = hasData
+    ? summary.topChapter?.practisePath ?? topConcept?.practisePath ?? `/practice-hub${HOME_QS_LEAD}`
+    : `/practice-hub${HOME_QS_LEAD}`;
   return (
-    <div className="lt-home-mi" data-testid="home-mi-card">
+    <div className="lt-home-mi" data-testid="home-mi-card" data-state={!hasData ? "empty" : summary.hasTyped ? "typed" : "untyped"}>
       <p
         style={{
           fontSize: 9.5,
@@ -840,15 +821,34 @@ function MistakeIntelligenceCard({ buckets }: { buckets: BucketTotals }) {
           color: "hsl(222, 47%, 16%)",
         }}
       >
-        {hasData
-          ? `Most common this week: ${buckets.topLabel}`
-          : "Your mistake patterns will show here"}
+        {hasData ? (
+          <span data-testid="home-mi-lost">{`${marksWord(summary.lost)} on the table`}</span>
+        ) : (
+          "Your mistake patterns will show here"
+        )}
       </h3>
       <p style={{ margin: "0 0 14px", fontSize: 12, color: TEXT_MUTED }}>
         {hasData
-          ? "Last 7 days · from what you've actually attempted"
+          ? `Your ${summary.paper} paper, the last month · the same figures as Me / Progress`
           : "Built from your real attempts — never guessed."}
       </p>
+
+      {hasData && (summary.topChapter || topConcept) ? (
+        <div style={{ margin: "0 0 14px", fontSize: 12.5, color: TEXT, lineHeight: 1.6 }}>
+          {summary.topChapter ? (
+            <div data-testid="home-mi-top-chapter">
+              <span style={{ fontWeight: 700 }}>Your biggest win:</span>{" "}
+              {summary.topChapter.label}, {marksWord(summary.topChapter.lost)} on the table
+            </div>
+          ) : null}
+          {topConcept ? (
+            <div data-testid="home-mi-top-concept">
+              <span style={{ fontWeight: 700 }}>Top concept:</span> {topConcept.label} ·{" "}
+              {marksWord(topConcept.lost)}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="lt-home-bks">
         {MI_BUCKETS.map((b) => (
@@ -856,15 +856,31 @@ function MistakeIntelligenceCard({ buckets }: { buckets: BucketTotals }) {
             key={b.key}
             className="lt-home-bk"
             data-testid="home-mi-bucket"
+            data-type={b.key}
             style={{ background: b.bg, color: b.fg, borderColor: b.border }}
           >
-            <div className="lt-n" style={{ opacity: hasData ? 1 : 0.4 }}>
-              {hasData ? buckets.totals[b.key] : "—"}
+            <div className="lt-n" style={{ opacity: typeMarks && typeMarks[b.key] > 0 ? 1 : 0.4 }}>
+              {typeMarks && typeMarks[b.key] > 0 ? typeMarks[b.key] : "—"}
             </div>
-            <div className="lt-t">{b.label}</div>
+            <div className="lt-t">
+              {b.label}
+              {typeMarks && typeMarks[b.key] > 0 ? ` · ${typeMarks[b.key] === 1 ? "mark" : "marks"}` : ""}
+            </div>
           </div>
         ))}
       </div>
+
+      {hasData && !summary.hasTyped ? (
+        <p style={{ margin: "12px 0 0", fontSize: 12, color: TEXT_MUTED }} data-testid="home-mi-why">
+          <Link
+            to={`/check-improve${HOME_QS_LEAD}`}
+            data-testid="home-mi-check"
+            style={{ color: PRIMARY, fontWeight: 700, textDecoration: "underline" }}
+          >
+            Check a written answer to see why you lose them
+          </Link>
+        </p>
+      ) : null}
 
       {hasData ? (
         <div
@@ -876,9 +892,10 @@ function MistakeIntelligenceCard({ buckets }: { buckets: BucketTotals }) {
             alignItems: "center",
           }}
         >
+          {/* MI-HOME-SYNC — Me's own Practise href for its biggest win (else its top concept). */}
           <Link
-            to={`/weak-area-practice${HOME_QS_LEAD}`}
-            data-testid="home-mi-weak-areas"
+            to={practisePath}
+            data-testid="home-mi-practise"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -893,7 +910,8 @@ function MistakeIntelligenceCard({ buckets }: { buckets: BucketTotals }) {
               boxShadow: "0 4px 12px -5px hsla(222, 47%, 20%, 0.55)",
             }}
           >
-            <TargetIcon size={13} /> Practise my weak areas
+            <TargetIcon size={13} /> Practise
+            {summary.topChapter ? ` ${summary.topChapter.label}` : topConcept ? ` ${topConcept.label}` : ""}
           </Link>
           <Link
             to={`/me${HOME_QS_LEAD}`}
