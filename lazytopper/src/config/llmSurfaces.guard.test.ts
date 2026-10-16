@@ -122,7 +122,11 @@ describe("SEO-LLM-1 — every notes page offers the official NCERT chapter PDF, 
   }
 
   it("CONTROL — a link pointing at another chapter's code, or another host, is caught", () => {
-    const head = { title: "NCERT Ch. 11 (jemh111) · Areas — x", description: "NCERT Ch. 11 (jemh111) · Areas — x" };
+    // NOTES-TITLE-NCERT-1 — the shipped head shape: the code in parentheses in both.
+    const head = {
+      title: "Areas Related to Circles Class 10 Notes + NCERT PDF (jemh111) | LazyTopper",
+      description: "Read NCERT Class 10 Maths Ch 11 (jemh111) online, then Areas Related to Circles notes, formulas and board questions — free.",
+    };
     const good =
       '<a href="https://ncert.nic.in/textbook/pdf/jemh111.pdf" target="_blank" rel="noopener">Official NCERT chapter PDF (jemh111) — ncert.nic.in</a>';
     expect(ncertLinkProblems(good, head, "jemh111")).toEqual([]);
