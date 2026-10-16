@@ -297,25 +297,26 @@ export function headForPath(path: string): PageHead | null {
     const slug = path.slice(notesPrefix.length);
     const topic = allDesktopTopics().find((candidate) => candidate.slug === slug);
     if (!topic || topic.blurb.trim().length === 0) return null;
-    // ROOT-URL-1 PR-2 (SEO-4, S2) — the title and description both lead with the
-    // NCERT chapter the note covers, read from the note's own spec (see ncertLabel).
-    // SEO-LLM-1 — and its NCERT file code (ncertTitleLabel), the string people search.
-    const label = ncertTitleLabel(slug);
-    const description = `${label} — ${NOTES_BLURB_SHORTENED[slug] ?? topic.blurb}`;
+    // NOTES-TITLE-NCERT-1 (owner-approved 15 Oct 2026, GROWTH-REQ-3LANES Lane 2) — the old
+    // "NCERT Ch. N (code) · <spec title> — Class 10 Notes & Board Questions" ran ~100 characters,
+    // was cut off in Google and never said "PDF". The title now leads with the chapter name and
+    // ends with the NCERT file code (notesTitle, <= 60 visible characters); the description names
+    // subject, chapter number and code. Chapter number and code still come from the note's own
+    // spec (ncertLabel / ncertFileCode), so the head and the page cannot name different chapters.
+    // ★ "NCERT PDF" is honest: every notes page links "Read NCERT Chapter N on LazyTopper (code)"
+    // (NCERT-ENTRY-1, #1184, Note.tsx) and the official ncert.nic.in PDF (SEO-LLM-1); both are
+    // pinned per page by notesHeads.guard / llmSurfaces.guard.
+    const code = ncertFileCode(slug);
+    const description =
+      `Read NCERT Class 10 ${topic.subject} Ch ${ncertChapterNo(slug)} (${code}) online, then ` +
+      `${topic.name} notes, formulas and board questions — free.`;
     if (description.length > NOTES_DESCRIPTION_CAP) {
       throw new Error(
         `writeStaticHeads: ${path} description is ${description.length} characters, over the ` +
-          `${NOTES_DESCRIPTION_CAP} cap. Shorten its text in NOTES_BLURB_SHORTENED (owner: shorter ` +
-          `text, never a cap exception).`,
+          `${NOTES_DESCRIPTION_CAP} cap (owner: shorter text, never a cap exception).`,
       );
     }
-    return {
-      // SEO-3 — the notes pages carry step-marked board questions (CBQ-TAB-1), so
-      // the title says so. The visible h1 in DesktopNotesPage is unchanged.
-      // SEO-NOTES-LINK-2 — the title (only) adds the NCERT file code: ncertTitleLabel.
-      title: `${ncertTitleLabel(slug)} — Class 10 Notes & Board Questions | LazyTopper`,
-      description,
-    };
+    return { title: notesTitle(topic.name, code), description };
   }
 
   return null;
@@ -324,24 +325,34 @@ export function headForPath(path: string): PageHead | null {
 /** The description cap `domain.guard` / `staticHeads.guard` hold every page to. */
 const NOTES_DESCRIPTION_CAP = 155;
 
+/** NOTES-TITLE-NCERT-1 — the most characters a notes title may show before " | LazyTopper". */
+export const NOTES_TITLE_VISIBLE_CAP = 60;
+
 /**
- * The notes pages whose `NCERT Ch. N (code) · <title> — <blurb>` would exceed the 155 cap.
- * The owner's ruling is shorter text, never a cap exception, so the topic blurb
- * (`src/lib/desktop/topics.ts`) is COMPRESSED here by DELETING words from it: nothing is
- * added (`staticHeads.guard` checks each word is in the original). ROOT-URL-1 PR-2 shortened
- * three ("Structure of"; "in a magnetic field"; "together"); SEO-LLM-1 put the NCERT file
- * code in the description (+10 characters), which shortens those three further and adds
- * `pair-of-linear-equations` (", including word problems"). Used for the head only; the
- * blurb is unchanged everywhere else it renders.
+ * NOTES-TITLE-NCERT-1 — "<chapter> Class 10 Notes + NCERT PDF (<code>) | LazyTopper".
+ * When the part before " | LazyTopper" is over NOTES_TITLE_VISIBLE_CAP, it is shortened
+ * deterministically, first form that fits wins:
+ *   1. `<chapter> Class 10 Notes + NCERT PDF (<code>)`
+ *   2. `<chapter> Notes + NCERT PDF (<code>)`          — drop " Class 10"
+ *   3. `<chapter> Notes + PDF (<code>)`                — then drop "NCERT " (the code stays)
+ * Past step 3 it THROWS (owner: shorter text, never a cap exception). The chapter name and
+ * the code are never cut.
  */
-export const NOTES_BLURB_SHORTENED: Readonly<Record<string, string>> = {
-  "pair-of-linear-equations": "Solving pairs of linear equations by substitution and elimination.",
-  "human-eye-and-colourful-world":
-    "The human eye, defects of vision and their correction, dispersion and scattering of light.",
-  "magnetic-effects-of-electric-current":
-    "Magnetic field due to current-carrying conductors, right-hand rule and force on conductor.",
-  trigonometry: "Trigonometric ratios and identities with heights and distances.",
-};
+export function notesTitle(chapterName: string, code: string): string {
+  const ladder = [
+    `${chapterName} Class 10 Notes + NCERT PDF (${code})`,
+    `${chapterName} Notes + NCERT PDF (${code})`,
+    `${chapterName} Notes + PDF (${code})`,
+  ];
+  const fit = ladder.find((candidate) => candidate.length <= NOTES_TITLE_VISIBLE_CAP);
+  if (!fit) {
+    throw new Error(
+      `writeStaticHeads: no notes title for "${chapterName}" (${code}) fits ${NOTES_TITLE_VISIBLE_CAP} ` +
+        `characters; shortest is ${ladder[ladder.length - 1].length}.`,
+    );
+  }
+  return `${fit} | LazyTopper`;
+}
 
 /** Where the note specs live: `<repo>/notes/specs/<slug>.json`. */
 export const NOTE_SPECS_DIR = resolve(LAZYTOPPER_ROOT, "..", "notes", "specs");
@@ -390,11 +401,14 @@ export function ncertFileCode(slug: string, specsDir: string = NOTE_SPECS_DIR): 
   return ncertFileCodeFromSpec(JSON.parse(readFileSync(file, "utf8")), `writeStaticHeads: ${file}`);
 }
 
-/** "NCERT Ch. 2 (jemh102) · Polynomials" — ncertLabel with the file code; the TITLE only. */
-export function ncertTitleLabel(slug: string, specsDir: string = NOTE_SPECS_DIR): string {
-  const label = ncertLabel(slug, specsDir);
-  const code = ncertFileCode(slug, specsDir);
-  return label.replace(/^(NCERT Ch\. \d+) · /, (_m, head: string) => `${head} (${code}) · `);
+/**
+ * NOTES-TITLE-NCERT-1 — the NCERT chapter number of a note (`meta.chapter_no`), validated
+ * exactly as ncertLabel validates it (that function is the reader; this only reads its number).
+ */
+export function ncertChapterNo(slug: string, specsDir: string = NOTE_SPECS_DIR): number {
+  const match = /^NCERT Ch\. (\d+) · /.exec(ncertLabel(slug, specsDir));
+  if (!match) throw new Error(`writeStaticHeads: no chapter number for /notes/${slug}`);
+  return Number(match[1]);
 }
 
 /**
