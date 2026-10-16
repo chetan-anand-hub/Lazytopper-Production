@@ -1,3 +1,17 @@
+## [CURRENT - 2026-10-16 - DISPATCH-PACK_FIRST-WIN Session 1 - FOLLOWUPS-1] `#1196`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* **PROVENANCE.** Written by the docs sub-agent under CLAUDE.md section 10 from `gh pr view`, `git log`, the verifier's production live-check and the owner's rulings of 16 Oct. Facts only. Written at trunk `0d16869c`; re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | what it changed |
+|---|---|---|
+| `#1196` FOLLOWUPS-1 | `0d16869c4666d8e2b52e74af9a569adf2b1818e2` | Start-here kicker is now "Your first 2 minutes" (owner yes); Start-here CSS prefix `lt-sh` renamed `lt-shc` (closes `[FU-LT-SH-CLASS-CLASH]`); the scorecard lock copy tells an expired PAID pass apart via `status.passEnd` (closes `[FU-LOCK-COPY-PAID-EXPIRED]`); `purchase` uses the Razorpay `paymentId` as `transaction_id` and the server order amount as `value` when present, through additive optional fields on `BuyOutcome` read after verify (closes `[FU-PURCHASE-TXN-ID-RAZORPAY]`; owner approved touching payment code); "Ask the tutor why I lost this mark" plus a tutor Back that returns to the same scorecard on Chapter Test and Full Mock, via each page's existing `openStored`; Quick Practice stores `pickedOption` in the `perQuestion` payload (additive; `firestore.rules` checks ownership only), reopened scorecards show "Your answer" and the tutor opener says `You chose "<pick>".` (closes `[FU-QP-REOPEN-PICK]`) |
+
+- **Worksheet NOT done:** worksheet scorecards have no URL reopen-from-record path (generated state is in memory), so a tutor Back could not return honestly. `[FU-SCORECARD-TUTOR-REST]` is narrowed to Worksheet only and renamed `[FU-WORKSHEET-TUTOR-RETURN]`.
+- **Verified:** CI 22/22 on `a250fe9c` (first push). Verifier production live-check at 390 px (iframe) plus a code-bundle scan: a live scorecard shows "Your answer" and the full menu; a reopened saved scorecard shows "Your answer: 6 Ω and 6 Ω"; the tutor opener includes `You chose "6 Ω and 6 Ω"`; "Your first 2 minutes" is in the shipped bundle and the old kicker is gone.
+- **NOT live-verified:** the Chapter Test / Full Mock tutor buttons (need an AI-graded paper; covered by tests); the paid-pass lock copy and the Razorpay id (need a real paid pass / payment).
+- **Owner still owes:** a 390 px focused-overlay check on a FRESH zero-graded account; the admin feed labels check on his admin account; the first real payment must show `purchase` with the Razorpay id in GA4 and Meta.
+- **Open follow-ups now:** `[FU-WORKSHEET-TUTOR-RETURN]`, `[FU-START-HERE-WRITTEN]`.
+
 ## [CURRENT · 2026-10-16 · DISPATCH-PACK_FIRST-WIN Session 1 · TRACK-2 + START-HERE-1 + QP-SCORECARD-2] `#1192` `#1193` `#1194`
 
 *(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by the Session-1 docs sub-agent under §10 from `gh pr view`, `git log`, the mailbox verdicts, `#973` and the owner's rulings of 16 Oct. Facts only; nothing here changes a ruling. Written at trunk `34b88520`; re-derive with `git rev-parse origin/base/approved-thru-437`.

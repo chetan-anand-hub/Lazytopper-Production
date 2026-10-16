@@ -1,3 +1,13 @@
+## 2026-10-16 - DISPATCH-PACK_FIRST-WIN Session 1 follow-ups: FOLLOWUPS-1 (`#1196` `0d16869c`)
+
+**PROVENANCE.** Written by the docs sub-agent under CLAUDE.md section 10 from `gh pr view`, `git log`, the verifier's report and the owner's rulings of 16 Oct. Facts only. Written at trunk `0d16869c`.
+- **Flow:** the six follow-ups opened by `#1192-#1194` built as one PR; CI 22/22 on `a250fe9c` (first push); independent verifier PASS on a production live-check at 390 px (iframe) and a code-bundle scan; merged `0d16869c` on PASS plus green CI (the owner pre-approved the verifier merging).
+- **Owner approvals (09:15):** the scope including payment code (`services/checkout.ts` BuyOutcome fields); the verifier merges on PASS plus green CI; the kicker "Your first 2 minutes".
+- **Stopped on purpose:** Worksheet tutor button. A Back could not return honestly because worksheet scorecards have no reopen-from-record URL; generated state lives in memory. Tracked as `[FU-WORKSHEET-TUTOR-RETURN]`.
+- **Test-data note:** the verifier's 16 Oct test runs recorded practice sets on the owner's MAIN account, so Mistake Intelligence for that account includes them.
+- **Not live-verified:** Chapter Test / Full Mock tutor buttons (need an AI-graded paper), the paid-pass lock copy and the Razorpay id (need a real payment); all covered by tests.
+- **For Session 2:** run Part 4 then Part 3; tutor honesty plus a richer brief is the top tutor gap.
+
 ## 2026-10-16 — DISPATCH-PACK_FIRST-WIN Session 1: TRACK-2 (`#1192` `9ad6630c`) · START-HERE-1 (`#1193` `3252c70a`) · QP-SCORECARD-2 (`#1194` `34b88520`)
 
 ★ **PROVENANCE.** Written by the Session-1 docs sub-agent under §10 from `gh pr view`, `git log`, the mailbox verdicts, `#973` and the owner's rulings of 16 Oct. Facts only; nothing here changes a ruling. Written at trunk `34b88520`; re-derive with `git rev-parse origin/base/approved-thru-437`.

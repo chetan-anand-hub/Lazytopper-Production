@@ -23,6 +23,26 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-16 - FOLLOWUPS-1 (`#1196`) FOLLOW-UPS (recorded by the docs sub-agent under CLAUDE.md section 10)
+
+**[FU-WORKSHEET-TUTOR-RETURN]** (open) Renamed and narrowed from `[FU-SCORECARD-TUTOR-REST]`. "Ask the tutor why I lost this mark" is on Quick Practice, Check & Improve, Chapter Test and Full Mock. Worksheet is not wired: worksheet scorecards have no URL reopen-from-record path and the generated state is in memory, so a tutor Back could not return to the same scorecard honestly. Needs a worksheet reopen-from-record path first.
+
+**[FU-START-HERE-WRITTEN]** (open, unchanged) The Start-here set is MCQ / Assertion-Reason only. A written or case-study type needs the free check (the grader), so it is a separate lane.
+
+**[FU-SCORECARD-TUTOR-REST]** (CLOSED 2026-10-16, narrowed in `#1196`; the Worksheet remainder continues as `[FU-WORKSHEET-TUTOR-RETURN]`)
+
+**[FU-PURCHASE-TXN-ID-RAZORPAY]** (CLOSED 2026-10-16, done in `#1196`) `purchase` now uses the Razorpay `paymentId` and the server order amount. Owner live-verify: the first real payment shows the Razorpay id in GA4 and Meta.
+
+**[FU-LOCK-COPY-PAID-EXPIRED]** (CLOSED 2026-10-16, done in `#1196`) Expired paid pass distinguished via `status.passEnd`. Not live-verified (needs a real paid pass).
+
+**[FU-QP-REOPEN-PICK]** (CLOSED 2026-10-16, done in `#1196`) `pickedOption` stored additively; reopened scorecards show "Your answer"; live-checked.
+
+**[FU-LT-SH-CLASS-CLASH]** (CLOSED 2026-10-16, done in `#1196`) Start-here CSS prefix renamed `lt-shc`.
+
+**Owner question (ANSWERED yes, applied in `#1196`):** kicker "Your first 2 minutes".
+
+**Owner still owes:** 390 px focused overlay on a FRESH zero-graded account; admin feed labels on his admin account; first real payment showing `purchase` with the Razorpay id in GA4 and Meta.
+
 ## 2026-10-16 — TRACK-2 / START-HERE-1 / QP-SCORECARD-2 FOLLOW-UPS (recorded by the Session-1 docs sub-agent under §10)
 
 **[FU-PURCHASE-TXN-ID-RAZORPAY]** (open) `BuyOutcome` (services/checkout.ts) carries no Razorpay payment id or order id, so `purchase`'s `transaction_id` is a per-attempt random id minted at the tap and `value` is the config quote (month: founding/list; till-boards: `tillBoardsQuote().priceInr`). A payment-owned lane should expose the Razorpay payment id and the server's `amountPaise` from `buyPass`. Owner: payment lane.

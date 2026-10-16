@@ -1,3 +1,14 @@
+> **2026-10-16 - FOLLOWUPS-1 (CLAUDE.md section 10 for `#1196`).** Scope: Start-here wording/CSS, scorecard lock copy, checkout analytics fields, tutor hop on two more scorecards, one additive recorded field. **No grading behaviour, marks, mistake typing or record shape changed.**
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Start-here card | kicker "Your first 2 minutes"; CSS prefix `lt-sh` to `lt-shc` (`#1196`) | live (`0d16869c`); bundle scan passed | owner 390 px overlay check on a fresh zero-graded account |
+| Quick Practice scorecard + reopen | `pickedOption` stored in `perQuestion` (additive); "Your answer" on live and reopened scorecards; tutor opener `You chose "<pick>".` (`#1196`) | live (`0d16869c`); live-checked at 390 px | none |
+| Chapter Test, Full Mock | "Ask the tutor why I lost this mark" and tutor Back to the same scorecard via `openStored` (`#1196`) | live (`0d16869c`); NOT live-verified, covered by tests | check on the first AI-graded paper |
+| Worksheet | not changed: no URL reopen-from-record path | unchanged | `[FU-WORKSHEET-TUTOR-RETURN]` |
+| Scorecard lock (`RequirePremium`) | expired PAID pass distinguished via `status.passEnd` (`#1196`) | live; NOT live-verified | needs a real paid pass |
+| Checkout analytics | `purchase` `transaction_id` = Razorpay `paymentId`, `value` = server order amount when present; additive optional `BuyOutcome` fields (`#1196`) | live; NOT live-verified | first real payment in GA4 + Meta; admin feed labels check |
+
 > **2026-10-16 — TRACK-2 / START-HERE-1 / QP-SCORECARD-2 (§10 for `#1192` `#1193` `#1194`).** Scope: analytics events, the Start-here card and focused first-run overlay, scorecard changes and past sessions. **No grading behaviour changed** (all six surfaces untouched).
 
 | surface | what moved (PR) | state | owed |
