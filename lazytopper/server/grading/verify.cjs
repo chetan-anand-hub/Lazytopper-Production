@@ -166,6 +166,36 @@ function quotedInSource(leftRaw, rightRaw, source) {
   return hay.includes(compactExpr(leftRaw) + '=' + compactExpr(rightRaw));
 }
 
+/* GRADER-FIX (typed lines), live 16 Oct 2026 (C&I, HCF/LCM of 96 and 404, typed, every line right):
+   the model QUOTED two typed lines "96 = 2^5 x 3" / "404 = 2^2 x 101" as ONE step, "96 = 2^5 x 3
+   404 = 2^2 x 101"; the clause split (newlines only) read "2^5 x 3 404" as 2^5 × 3404 and charged
+   "96 is not 2^5 x 3 404" — ½ off a correct step. Three conservative guards, each can only REMOVE
+   a charge, never add one:
+   (1) a space between two numbers where the second is followed at once by "=" ("… 3 404 = …") is a
+       line boundary: the clause is split there, and each half is checked on its own;
+   (2) a side that still holds two numbers separated only by a space is not plain arithmetic (a
+       joined line, "1 000"): skipped — except a MIXED NUMBER "3 1/2", which is read as 3½;
+   (3) where the student's verbatim TYPED words are known, an equality the quote makes by running
+       two typed lines together ("96 = 2^5 x 3404" from "…x 3" + "404 = …") and that no single
+       typed line holds is not the student's — it is not charged. */
+const LINE_JOIN = /(?<=\d)\s+(?=\d+(?:\.\d+)?\s*[=≈])/;
+const MIXED_NUMBER = /^\s*(-?)(\d+)\s+(\d+)\s*\/\s*(\d+)\s*$/;
+const SPACED_NUMBERS = /\d\s+(?=[\d.])/;
+function mixedValue(side) {
+  const m = MIXED_NUMBER.exec(String(side == null ? '' : side));
+  if (!m || Number(m[4]) === 0 || Number(m[3]) >= Number(m[4])) return null;
+  const v = Number(m[2]) + Number(m[3]) / Number(m[4]);
+  return m[1] ? -v : v;
+}
+function spansSourceLines(leftRaw, rightRaw, source) {
+  const src = String(source == null ? '' : source);
+  if (!src.trim()) return false;
+  const lines = src.split(/\n/).map((l) => normaliseExpr(l).replace(/\s+/g, ''));
+  const target = compactExpr(leftRaw) + '=' + compactExpr(rightRaw);
+  if (lines.some((l) => l.includes(target))) return false;
+  return lines.join('').includes(target);
+}
+
 /**
  * Every FALSE plain numeric equality in a line of student work.
  * @param {string} text
@@ -176,7 +206,8 @@ function quotedInSource(leftRaw, rightRaw, source) {
  */
 function falseEqualities(text, opts = {}) {
   const out = [];
-  const clauses = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i);
+  const clauses = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i)
+    .flatMap((c) => c.split(LINE_JOIN));
   for (const clause of clauses) {
     if (!/[=≈]/.test(clause)) continue;
     if (/[,:%±∓°<>≤≥≠]/.test(clause)) continue; // lists, ratios, percentages, inequalities: not plain
@@ -190,6 +221,9 @@ function falseEqualities(text, opts = {}) {
       const na = normaliseExpr(a.raw);
       const nb = normaliseExpr(lastSide ? withoutTrailingUnit(b.raw) : b.raw);
       if (!na || !nb || !PLAIN.test(na) || !PLAIN.test(nb)) continue;
+      const ma = mixedValue(na);
+      const mb = mixedValue(nb);
+      if ((ma === null && SPACED_NUMBERS.test(na)) || (mb === null && SPACED_NUMBERS.test(nb))) continue;
       if (!hasOperator(na) && !hasOperator(nb)) continue; // "8 = 8" — nothing computed
       // A RADICAL WITHOUT BRACKETS beside a + or − has an unknowable scope: the student's
       // vinculum over "196 + 110.25" is quoted as "√196 + 110.25" (live, 2026-10-05, CP03-Q08).
@@ -199,8 +233,8 @@ function falseEqualities(text, opts = {}) {
       // student's (−8/7 − 4) over (8/7 + 1) is quoted "-8/7 - 4 / 8/7 + 1" (live, CP01-Q05,
       // 5 of 6 acceptance gradings charged a correct ECF step). Skipped, never charged.
       if (flattenedFraction(na) || flattenedFraction(nb)) continue;
-      const va = evaluate(na);
-      const vb = evaluate(nb);
+      const va = ma !== null ? ma : evaluate(na);
+      const vb = mb !== null ? mb : evaluate(nb);
       if (va === null || vb === null) continue;
       // ROUNDING IS NOT A MISTAKE. Every decimal literal on either side may itself be a
       // rounded value ("3 × 2.73" for 3(√3 + 1)), and its rounding error is carried through
@@ -219,6 +253,7 @@ function falseEqualities(text, opts = {}) {
       if (Math.abs(va - vb) > tol) {
         const signOnly = scale > 1e-12 && Math.abs(va + vb) <= tol;
         if (signOnly && opts.quoted === true && !quotedInSource(a.raw, b.raw, opts.source)) continue;
+        if (opts.quoted === true && spansSourceLines(a.raw, b.raw, opts.source)) continue;
         out.push({ left: a.raw.trim(), right: b.raw.trim(), leftValue: va, rightValue: vb });
       }
     }
@@ -357,6 +392,44 @@ function unitsIn(text) {
  * @returns {'match'|'mismatch'|'skip'}
  */
 function compareFinalAnswer(studentText, keyText) {
+  const first = compareFinalAnswerRaw(studentText, keyText);
+  if (first !== 'mismatch') return first;
+  // GRADER-FIX (examiner gap): a "mismatch" read off the WRITTEN FORM is retried on the VALUE —
+  // digit grouping ("1,21,000" / "9,696" for 121000 / 9696) and powers ("2 × 10^8", "2^2" for
+  // 200000000, 4) — before half a mark goes. Only a mismatch is retried and only a 'match' replaces
+  // it, so this can never take a mark the old comparison gave.
+  return compareFinalAnswerRaw(valueForm(studentText), valueForm(keyText)) === 'match' ? 'match' : first;
+}
+const SUPERSCRIPT_RUN = /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+/g;
+function plainNumber(v) {
+  if (!Number.isFinite(v)) return null;
+  if (Number.isInteger(v) && Math.abs(v) < 1e21) return v.toFixed(0);
+  return String(Number(v.toPrecision(12))).includes('e') ? null : String(Number(v.toPrecision(12)));
+}
+function valueForm(text) {
+  let t = String(text == null ? '' : text).replace(/[−–—]/g, '-');
+  t = t.replace(SUPERSCRIPT_RUN, (m) => '^(' + m.split('').map((c) => SUPERSCRIPT[c]).join('') + ')');
+  // digit grouping — western 9,696 / 1,000,000 and Indian 1,21,000 — never a list "2, 3" (space)
+  t = t.replace(/(?<![\d.,])\d{1,3}(?:(?:,\d{3})+|(?:,\d{2})+,\d{3})(?![\d,])/g, (m) => m.replace(/,/g, ''));
+  const pow = (base, exp) => plainNumber(Math.pow(Number(base), Number(exp)));
+  t = t.replace(/(?<![A-Za-z\d.])(\d+(?:\.\d+)?)\s*[×xX*·]\s*10\s*\^\s*\(?\s*(-?\d+)\s*\)?/g, (m, a, e) => {
+    const p = pow(10, e);
+    const v = p === null ? null : plainNumber(Number(a) * Number(p));
+    return v === null ? m : v;
+  });
+  t = t.replace(/(?<![A-Za-z\d.])(\d+(?:\.\d+)?)\s*\^\s*\(?\s*(-?\d+)\s*\)?(?![\d.])/g, (m, a, e) => {
+    const v = pow(a, e);
+    return v === null ? m : v;
+  });
+  // a mixed number "3 1/2" is 3.5
+  t = t.replace(/(?<![\d./])(\d+)\s+(\d+)\s*\/\s*(\d+)(?![\d./])/g, (m, w, n, d) => {
+    if (!(Number(d) > 0) || Number(n) >= Number(d)) return m;
+    const v = plainNumber(Number(w) + Number(n) / Number(d));
+    return v === null ? m : v;
+  });
+  return t;
+}
+function compareFinalAnswerRaw(studentText, keyText) {
   const key = String(keyText == null ? '' : keyText);
   const stu = String(studentText == null ? '' : studentText);
   if (!key.trim() || !stu.trim()) return 'skip';

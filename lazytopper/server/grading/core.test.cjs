@@ -1951,3 +1951,69 @@ test('§CONSEQ.9 (D248) a `missing` step inherits ONLY if no fully-credited step
    The per-surface proofs live beside this file; loading them here runs them in CI under
    test:server:grading-core (package.json is outside the J0 lane). */
 require('./rulings.surfaces.suite.cjs');
+
+/* ══ GRADER-FIX · TYPED LINES + EXAMINER-EQUIVALENT FORMS (owner-approved lane, 16 Oct 2026) ══ */
+
+const HCF_Q = 'Find the HCF and LCM of 96 and 404 by prime factorisation; verify HCF x LCM = product of the two numbers.';
+const HCF_TYPED = '96 = 2^5 x 3\n404 = 2^2 x 101\nHCF = 2^2 = 4\nLCM = 2^5 x 3 x 101 = 9696\nHCF x LCM = 4 x 9696 = 38784';
+const HCF_STEPS = (first = '96 = 2^5 x 3 404 = 2^2 x 101') => [
+  S({ description: 'Prime factorisation', studentWork: first }),
+  S({ description: 'HCF and LCM', studentWork: 'HCF = 2^2 = 4 LCM = 2^5 x 3 x 101 = 9696' }),
+  S({ description: 'Verification', studentWork: 'HCF x LCM = 4 x 9696 = 38784' }),
+];
+const gradeTyped = async (steps, textAnswer, o = {}) => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] })
+  .single(single({ question: HCF_Q, marks: 3, textAnswer, ...o }))).body;
+
+test('GRD.1 ★ live C&I: two correct TYPED lines the model quoted as one step ("96 = 2^5 x 3 404 = 2^2 x 101") are not charged as a false equality', async () => {
+  const r = await gradeTyped(HCF_STEPS(), HCF_TYPED);
+  assert.equal(r.marksAwarded, 3, 'all-correct typed working keeps 3/3');
+  assert.ok(!/Check the arithmetic/.test(JSON.stringify(r)), 'no false "96 is not 2^5 x 3 404" comment');
+  // the same join with NO space ("…x 3404 = …") is caught against the typed lines
+  assert.equal((await gradeTyped(HCF_STEPS('96 = 2^5 x 3404 = 2^2 x 101'), HCF_TYPED)).marksAwarded, 3);
+  assert.deepEqual(falseEqualities('96 = 2^5 x 3404 = 2^2 x 101', { quoted: true, source: HCF_TYPED }), []);
+  // a photo (no typed source): the spaced join is split at the line boundary, each half checked
+  assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true }), []);
+  assert.deepEqual(falseEqualities('96 = 2^5 × 3\n404 = 2² × 101\nHCF = 2² = 4', { quoted: true }), [], 'multi-line OCR text');
+});
+
+test('GRD.2 CONTROLS: a genuinely false equality on ONE line is still charged ½ — typed, quoted joined, or OCR multi-line', async () => {
+  const wrongTyped = '96 = 2^4 x 3\n404 = 2^2 x 101\nHCF = 2^2 = 4\nLCM = 2^5 x 3 x 101 = 9696\nHCF x LCM = 4 x 9696 = 38784';
+  const r = await gradeTyped(HCF_STEPS('96 = 2^4 x 3 404 = 2^2 x 101'), wrongTyped);
+  assert.equal(r.marksAwarded, 2.5);
+  assert.ok(r.annotatedSteps[0].teacherAnnotation.includes('96 is not 2^4 x 3'), r.annotatedSteps[0].teacherAnnotation);
+  const lcmWrong = HCF_TYPED.replace('= 9696', '= 9969');
+  const steps = HCF_STEPS();
+  steps[1] = S({ description: 'HCF and LCM', studentWork: 'HCF = 2^2 = 4 LCM = 2^5 x 3 x 101 = 9969' });
+  assert.equal((await gradeTyped(steps, lcmWrong)).marksAwarded, 2.5);
+  assert.equal(falseEqualities('404 = 2^2 x 101\nLCM = 2^5 x 3 x 101 = 9969', { quoted: true }).length, 1, 'OCR multi-line: the false line alone');
+  assert.equal(falseEqualities('96 = 2^4 x 3 404 = 2^2 x 101', { quoted: true }).length, 1, 'photo: the false half of a joined quote');
+  assert.equal(falseEqualities('1232/308 = 8', { quoted: true, source: '1232/308 = 8' }).length, 1, 'typed single-line slip');
+});
+
+test('GRD.3 ★ a MIXED NUMBER is read as a mixed number: "7/2 = 3 1/2" is right (CBSE answers write 3½), "7/2 = 2 1/2" is not', async () => {
+  assert.deepEqual(falseEqualities('x = 7/2 = 3 1/2'), []);
+  assert.equal(falseEqualities('x = 7/2 = 2 1/2').length, 1, 'CONTROL: a wrong mixed number is charged');
+  const steps = [S({ studentWork: '2x = 7' }), S({ studentWork: 'x = 7/2 = 3 1/2' })];
+  const r = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] }).single(single({ marks: 2, textAnswer: '2x = 7\nx = 7/2 = 3 1/2' }))).body;
+  assert.equal(r.marksAwarded, 2);
+});
+
+test('GRD.4 ★ the final answer is compared by VALUE: "1,21,000" / "9,696" / "2 × 10^8" / "2^2" equal 121000 / 9696 / 200000000 / 4 — wrong values still mismatch', async () => {
+  assert.equal(compareFinalAnswer('Population after 2 years = 1,21,000', '121000'), 'match');
+  assert.equal(compareFinalAnswer('Amount = Rs 121000', '₹ 1,21,000'), 'match');
+  assert.equal(compareFinalAnswer('LCM = 9,696', '9696'), 'match');
+  assert.equal(compareFinalAnswer('v = 200000000 m/s', '2 × 10^8 m/s'), 'match');
+  assert.equal(compareFinalAnswer('v = 2 × 10⁸ m/s', '200000000 m/s'), 'match');
+  assert.equal(compareFinalAnswer('HCF = 4', '2^2'), 'match');
+  assert.equal(compareFinalAnswer('x = 3 1/2', '3.5'), 'match');
+  assert.equal(compareFinalAnswer('x = 7/2', '3 1/2'), 'match');
+  assert.equal(compareFinalAnswer('x = 2 1/2', '3.5'), 'mismatch', 'CONTROL: a wrong mixed number');
+  // CONTROLS: wrong values stay a mismatch; a list is not a grouped number
+  assert.equal(compareFinalAnswer('Population = 1,12,000', '121000'), 'mismatch');
+  assert.equal(compareFinalAnswer('v = 300000000 m/s', '2 × 10^8 m/s'), 'mismatch');
+  assert.equal(compareFinalAnswer('HCF = 8', '2^2'), 'mismatch');
+  assert.equal(compareFinalAnswer('x = 2, 3', '23'), 'mismatch');
+  const steps = [S(), S({ studentWork: 'Population after 2 years = 1,21,000' })];
+  const r = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true, studentFinalAnswer: '1,21,000' }))] }).single(single({ marks: 2, finalAnswer: '121000' }))).body;
+  assert.equal(r.marksAwarded, 2, 'the right population in Indian digit grouping keeps full marks');
+});
