@@ -493,6 +493,21 @@ import QuickPracticeJobResume, {
 } from "../components/grading/QuickPracticeJobResume";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { toSessionSubject } from "../services/checkImproveGradeService";
+// QP-UPLOAD-LATER — "upload your written answers later", as Chapter Test / Worksheet / Full Mock have.
+import {
+  pendingWrittenAnswers,
+  saveQuickPracticeUploadLater,
+  type QuickPracticePersistIdentity,
+} from "../services/quickPracticeUploadLater";
+import {
+  deleteQuickPracticePaper,
+  loadQuickPracticePaper,
+  type QuickPracticePaperSnapshot,
+} from "../services/quickPracticePaperStore";
+import {
+  QuickPracticeAwaitingStrip,
+  QuickPracticeLaterUploadPanel,
+} from "../components/practice/QuickPracticeUploadLater";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
@@ -2896,6 +2911,175 @@ const packTopicKey = useMemo(() => {
     void openSavedSession(reviewParam);
   }, [reviewParam, authLoading, location.pathname, location.search, location.state, navigate, openSavedSession]);
 
+  // ── QP-UPLOAD-LATER ──────────────────────────────────────────────────────────────────
+  // "Upload later" for the written questions with nothing checked yet: the record is written
+  // NOW with the outcomes so far (same id), plus a text-only snapshot of what is waiting. The
+  // later grade (QuickPracticeLaterUploadPanel) re-serves only those questions and replaces the
+  // SAME record. Its own latch (`uploadLaterSaved`), separate from the one-shot graded guard in
+  // `runGradeBatch` and from the record effect's `recordedSessionRef`. Never in the tutor overlay.
+  const [laterPanel, setLaterPanel] = useState<QuickPracticePaperSnapshot | null>(null);
+  const [laterNotice, setLaterNotice] = useState<string | null>(null);
+  const [awaitingRefresh, setAwaitingRefresh] = useState(0);
+  const [uploadLaterSaved, setUploadLaterSaved] = useState<{ key: string; code: string } | null>(null);
+  const [reopenSnapshot, setReopenSnapshot] = useState<QuickPracticePaperSnapshot | null>(null);
+  const laterGradedCodeRef = useRef<string | null>(null);
+  const uploadLaterSyncRef = useRef<string | null>(null);
+
+  /** The record identity — the same values `runGradeBatch`'s job context carries. */
+  const liveRecordIdentity = useMemo<QuickPracticePersistIdentity>(() => {
+    const mtId = isMultiTopic
+      ? multiTopicSessionIdentity(multiTopics.map((t) => ({ slug: t.canonicalSlug, label: t.label })))
+      : null;
+    return {
+      title: mtId
+        ? isFullSubject
+          ? `Full ${subjectKey} · Practice set`
+          : mtId.title
+        : topicLabel
+          ? `${topicLabel} · Practice set`
+          : "Practice set",
+      subject: toSessionSubject(subjectKey),
+      topicSlug: mtId ? mtId.topicSlug : canonicalTopicKey || topicParam,
+      ...(mtId ? { topicKeys: mtId.topicKeys } : {}),
+      filterSignature,
+      startedAt: sessionStartedAt,
+    };
+  }, [isMultiTopic, multiTopics, isFullSubject, subjectKey, topicLabel, canonicalTopicKey, topicParam, filterSignature, sessionStartedAt]);
+
+  /** The outcomes the record holds right now, one per displayed question — the same derivation
+   *  (and the same review-mode exclusions) as the record effect above. */
+  const liveEntriesSoFar = useMemo<QuickPracticeEntry[]>(() => {
+    if (scoredBatchEntries) return scoredBatchEntries;
+    const pickById = new Map(
+      sessionAnswers.filter((a) => a.pickedOption).map((a) => [String(a.questionId), String(a.pickedOption).trim()] as const),
+    );
+    return committedPoolSelection.displayed.map((q) => {
+      const qId = String(q.id);
+      return {
+        questionId: qId,
+        marks: Number(q.marks) || 0,
+        ...(gradedResults[qId] && !reviewSavedIds[qId] ? { graded: gradedResults[qId] } : {}),
+        ...(mcqResults[qId] && !reviewMcqIds[qId] ? { mcq: mcqResults[qId] } : {}),
+        ...(!reviewMcqIds[qId] && pickById.get(qId) ? { pickedOption: pickById.get(qId)! } : {}),
+      };
+    });
+  }, [scoredBatchEntries, sessionAnswers, committedPoolSelection.displayed, gradedResults, mcqResults, reviewSavedIds, reviewMcqIds]);
+
+  /** Written questions with no check yet. An answer already graded in review mode is not waiting. */
+  const pendingWrittenNow = useMemo(
+    () =>
+      pendingWrittenAnswers(sessionAnswers, liveEntriesSoFar).filter(
+        (a) => !batchResult?.entries[a.qNumber - 1]?.graded && !gradedResults[String(a.questionId)],
+      ),
+    [sessionAnswers, liveEntriesSoFar, batchResult, gradedResults],
+  );
+  const uploadLaterKey = `${filterSignature}::${committedPoolSelection.displayed.map((q) => String(q.id)).join(",")}::${pendingWrittenNow.map((a) => a.qNumber).join(",")}`;
+
+  const handleUploadLater = useCallback(() => {
+    if (overlay) return;
+    const out = saveQuickPracticeUploadLater({
+      user: authUserForJourney,
+      worksheetId: quickPracticeBatchId(filterSignature, sessionStartedAt),
+      subject: subjectKey,
+      persist: liveRecordIdentity,
+      answers: sessionAnswers,
+      entries: liveEntriesSoFar,
+      pending: pendingWrittenNow,
+    });
+    if (out.outcome === "signed-out") {
+      setLaterNotice("Sign in to keep this set and upload your written answers later. Nothing from this set is kept on this device.");
+      return;
+    }
+    if (out.outcome !== "saved") return;
+    setUploadLaterSaved({ key: uploadLaterKey, code: out.code });
+    // This exact waiting list is already saved: the sync effect below acts only when it changes.
+    uploadLaterSyncRef.current = uploadLaterKey;
+    setAwaitingRefresh((n) => n + 1);
+    const photosDropped = pendingWrittenNow.some((a) => !!a.imageBase64);
+    const photosNote = photosDropped ? " Photos you added are not kept, so add them again then." : "";
+    // Review nit: claim the history write only when a record was actually written.
+    setLaterNotice(
+      out.recorded
+        ? `Saved for later. Your marks so far are in your history now. When your written answers are ready, open "Awaiting your written answers" on the practice page.${photosNote}`
+        : `Your set is saved. Upload your written answers when you're ready.${photosNote}`,
+    );
+  }, [overlay, authUserForJourney, filterSignature, sessionStartedAt, subjectKey, liveRecordIdentity, sessionAnswers, liveEntriesSoFar, pendingWrittenNow, uploadLaterKey]);
+
+  // Kept in step: a set saved for later and then graded here after all — the snapshot follows
+  // (cleared when nothing waits, else the waiting list shrinks). Same ids, so nothing doubles.
+  useEffect(() => {
+    if (!uploadLaterSaved || batchResult?.outcome !== "graded") return;
+    if (uploadLaterSyncRef.current === uploadLaterKey) return;
+    uploadLaterSyncRef.current = uploadLaterKey;
+    if (pendingWrittenNow.length === 0) {
+      deleteQuickPracticePaper(authUserForJourney, uploadLaterSaved.code);
+    } else {
+      saveQuickPracticeUploadLater({
+        user: authUserForJourney,
+        worksheetId: quickPracticeBatchId(filterSignature, sessionStartedAt),
+        subject: subjectKey,
+        persist: liveRecordIdentity,
+        answers: sessionAnswers,
+        entries: liveEntriesSoFar,
+        pending: pendingWrittenNow,
+      });
+    }
+    setAwaitingRefresh((n) => n + 1);
+  }, [uploadLaterSaved, batchResult?.outcome, uploadLaterKey, pendingWrittenNow, authUserForJourney, filterSignature, sessionStartedAt, subjectKey, liveRecordIdentity, sessionAnswers, liveEntriesSoFar]);
+
+  // The reopened scorecard offers "Upload written answers" when its set is still waiting.
+  useEffect(() => {
+    setReopenSnapshot(null);
+    if (!qpReopen || !authUserForJourney?.uid || authUserForJourney.isLocalSession) return;
+    let cancelled = false;
+    void loadQuickPracticePaper(authUserForJourney, qpReopen.record.id).then((s) => {
+      if (!cancelled && s && s.pending.length > 0) setReopenSnapshot(s);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [qpReopen, authUserForJourney, awaitingRefresh]);
+
+  const openLaterPanel = useCallback((s: QuickPracticePaperSnapshot) => {
+    setLaterPanel(s);
+    try {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      /* jsdom / old browsers: the panel is still at the top */
+    }
+  }, []);
+
+  /** The "Upload later" block on the confirmation screen and the scorecard. */
+  const uploadLaterBlock =
+    !overlay && (pendingWrittenNow.length > 0 || laterNotice) ? (
+      <div className="qp-ul" data-testid="qp-upload-later-block" style={{ marginTop: 12 }}>
+        <style>{QP_CONFIRM_CSS}</style>
+        {pendingWrittenNow.length > 0 && uploadLaterSaved?.key !== uploadLaterKey && (
+          <>
+            <button
+              type="button"
+              className="qp-cf__cta qp-cf__cta--sec"
+              data-testid="qp-upload-later"
+              onClick={handleUploadLater}
+              style={{ width: "100%" }}
+            >
+              Upload later
+            </button>
+            <p style={{ margin: "6px 0 0", fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", lineHeight: 1.5 }}>
+              {`${pendingWrittenNow.map((a) => `Q${a.qNumber}`).join(", ")} ${pendingWrittenNow.length === 1 ? "is" : "are"} not checked yet. Upload later saves your marks so far now; write your answers on paper and upload them when you're ready.`}
+            </p>
+          </>
+        )}
+        {laterNotice && (
+          <p role="status" data-testid="qp-upload-later-notice" style={{ margin: "6px 0 0", fontSize: "0.8rem", lineHeight: 1.5 }}>
+            {laterNotice}
+          </p>
+        )}
+      </div>
+    ) : null;
+  const withUploadLater = (node: React.ReactNode): React.ReactNode =>
+    node || uploadLaterBlock ? <>{node}{uploadLaterBlock}</> : undefined;
+
   /* START-HERE-1 - the Start-here next steps (src=start_here graded scorecards only).
      QP-SCORECARD-2 E4 - "Explore LazyTopper" first, PRIMARY: the natural exit after the tutor
      round trip, to the app's Home ("/": DesktopHome on desktop; RootEntry sends a phone to
@@ -2952,6 +3136,27 @@ const packTopicKey = useMemo(() => {
     >
       {/* J2 — a background grade of the last practice set, still running after a reload. */}
       <QuickPracticeJobResume user={authUserForJourney} />
+      {/* QP-UPLOAD-LATER — sets saved with "Upload later", and the later upload itself. */}
+      {!overlay && (laterPanel ? (
+        <QuickPracticeLaterUploadPanel
+          user={authUserForJourney}
+          snapshot={laterPanel}
+          defaultAnswerMode={answerBoxDefault}
+          onGraded={(code) => {
+            laterGradedCodeRef.current = code;
+            setAwaitingRefresh((n) => n + 1);
+          }}
+          onClose={() => {
+            setLaterPanel(null);
+            const graded = laterGradedCodeRef.current;
+            laterGradedCodeRef.current = null;
+            // Graded: show the updated scorecard (the SAME record, now with the written grades).
+            if (graded) void openSavedSession(graded);
+          }}
+        />
+      ) : (
+        <QuickPracticeAwaitingStrip user={authUserForJourney} refreshKey={awaitingRefresh} onOpen={openLaterPanel} />
+      ))}
       <UsageWarning scope="practice" snapshot={fairUse.snapshot} />
       {/* ACTIVATION-1 · L1 — the non-blocking "verify your email" strip (unverified email accounts only). */}
       <EmailVerifyReminder />
@@ -3595,6 +3800,8 @@ const packTopicKey = useMemo(() => {
             : undefined,
         })}
         onClose={closeScorecard}
+        // QP-UPLOAD-LATER — written questions with nothing checked can be uploaded later.
+        belowScore={uploadLaterBlock ?? undefined}
       />
     );
   }
@@ -3710,6 +3917,7 @@ const packTopicKey = useMemo(() => {
           >
             {batchGrading ? "Grading your answers\u2026" : "Check my written answers"}
           </button>
+          {!batchGrading && uploadLaterBlock}
           <button
             type="button"
             className="qp-cf__cta qp-cf__cta--sec"
@@ -3788,7 +3996,9 @@ const packTopicKey = useMemo(() => {
         extraActions: startHereExtras(topicK),
       })}
       onClose={closeScorecard}
-      belowScore={
+      // QP-UPLOAD-LATER — the guest card (unchanged) plus the "Upload later" block when written
+      // questions have nothing saved.
+      belowScore={withUploadLater(
         isGuest && !overlay && guestCardDismissedForSet !== freshSetNonce ? (
           <div className="lt-qp-signin lt-qp-signin--sc" data-testid="qp-guest-signin-card">
             <style>{QP_SIGNIN_CSS}</style>
@@ -3821,8 +4031,8 @@ const packTopicKey = useMemo(() => {
               Not now
             </button>
           </div>
-        ) : undefined
-      }
+        ) : undefined,
+      )}
     />
   );
 })()}
@@ -3888,6 +4098,30 @@ const packTopicKey = useMemo(() => {
         extraActions: startHereExtras(recTopic),
       })}
       onClose={close}
+      // QP-UPLOAD-LATER — this set still has written questions waiting.
+      belowScore={
+        reopenSnapshot && reopenSnapshot.code === record.id ? (
+          <div data-testid="qp-reopen-upload-later" style={{ marginTop: 12 }}>
+            <style>{QP_CONFIRM_CSS}</style>
+            <p style={{ margin: "0 0 6px", fontSize: "0.82rem", lineHeight: 1.5 }}>
+              {`${reopenSnapshot.pending.length} written question${reopenSnapshot.pending.length === 1 ? " is" : "s are"} waiting for your answer${reopenSnapshot.pending.length === 1 ? "" : "s"}.`}
+            </p>
+            <button
+              type="button"
+              className="qp-cf__cta"
+              data-testid="qp-reopen-upload"
+              style={{ width: "100%" }}
+              onClick={() => {
+                const s = reopenSnapshot;
+                close();
+                openLaterPanel(s);
+              }}
+            >
+              Upload written answers
+            </button>
+          </div>
+        ) : undefined
+      }
     />
   );
 })()}
