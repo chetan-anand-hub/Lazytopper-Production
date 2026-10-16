@@ -1619,6 +1619,39 @@ function ciTutorRows(
   return rows.length > 0 ? rows : null;
 }
 
+/**
+ * FOLLOWUPS-1 B · "Ask the tutor why I lost this mark" on a Chapter Test / Full Mock scorecard
+ * (live or reopened from the saved record). Decorates an already-built CT/FM variant; it never
+ * changes a mark, a lens, a row or an action. A variant with the graded answer sheet gets the
+ * button on each sheet answer that lost marks (the shell draws it only when awarded < available);
+ * a reopened variant with no sheet gets the C&I-style "Where marks slipped" rows (question number
+ * + button only). No `tutorAskFor` / no response, or no question with a hop -> the SAME variant.
+ */
+export function withPaperTutorAsks(
+  variant: ScorecardVariant,
+  response: WorksheetGradeResponse | null | undefined,
+  tutorAskFor: ((qNumber: number) => ScorecardTutorAsk | null) | undefined,
+): ScorecardVariant {
+  if (!tutorAskFor || !response || !Array.isArray(response.results)) return variant;
+  if (variant.gradedAnswers && variant.gradedAnswers.length > 0) {
+    const asks = new Map<string, ScorecardTutorAsk>();
+    for (const r of response.results) {
+      if (!isGradedQuestion(r) || (Number(r.totalMarks) || 0) <= (Number(r.marksAwarded) || 0)) continue;
+      const ask = tutorAskFor(r.qNumber);
+      // `Question N` is the sheet row's stable key (buildGradedAnswersFromWorksheetResponse).
+      if (ask) asks.set(`Question ${r.qNumber}`, ask);
+    }
+    if (asks.size === 0) return variant;
+    return {
+      ...variant,
+      gradedAnswers: variant.gradedAnswers.map((a) => (asks.has(a.label) ? { ...a, tutorAsk: asks.get(a.label)! } : a)),
+    };
+  }
+  if (variant.wrongAnswers && variant.wrongAnswers.length > 0) return variant;
+  const rows = ciTutorRows(response, tutorAskFor);
+  return rows ? { ...variant, wrongAnswers: rows } : variant;
+}
+
 /** The return-ticket row. `tone: "secondary"` deliberately: the what-next menu's
  *  primary slot belongs to the session's own next step, and two primaries would leave
  *  neither reading as the emphasis. `tag` renders as the menu's small leading chip. */

@@ -632,6 +632,13 @@ export function findScorecardQuestion(
   if (index < 0) return null;
   const qNumber = index + 1;
   const result = (payload?.response?.results || []).find((r) => r.qNumber === qNumber) ?? null;
+  // FOLLOWUPS-1 B — a saved paper (Chapter Test / Full Mock / Worksheet) names its question
+  // by position in `questionIds`; that join is only trusted when the stored results align 1:1
+  // with the ids (the stored lenses' own rule), and the question must hold a stored result.
+  if (isSavedPaperRecord(record)) {
+    const results = payload?.response?.results || [];
+    if (results.length !== (record.questionIds || []).length || !result) return null;
+  }
   return { qNumber, result };
 }
 
@@ -729,4 +736,42 @@ export function buildQuickPracticeReviewHref(record: Pick<SessionRecord, "id" | 
 /** The Check & Improve page that reopens a saved checked paper by its code. */
 export function buildCheckImproveReviewHref(code: string): string {
   return `/check-improve${query({ [SCORECARD_REVIEW_PARAM]: code })}`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FOLLOWUPS-1 B · the same hop on a saved Chapter Test / Full Mock scorecard
+   ══════════════════════════════════════════════════════════════════════════════
+   A saved paper's record carries its bank ids in paper (qNumber) order. The hop names the
+   question by that id (`q=`), so the tutor's `findScorecardQuestion` resolves the SAME position
+   back. Read-only: nothing here grades or writes. */
+
+/** The surfaces whose records name questions by position in a saved paper's `questionIds`. */
+export function isSavedPaperRecord(record: Pick<SessionRecord, "surface">): boolean {
+  return record.surface === "chapter-test" || record.surface === "full-mock" || record.surface === "worksheet";
+}
+
+/** The tutor hop target for question `qNumber` of a saved paper: its bank id and its ONE chapter.
+ *  Null (no button) when the stored results do not align 1:1 with the record's ids, the position
+ *  holds no id, or no single chapter is known for the question (`topicOf` returns null). */
+export function savedPaperQuestionHop(
+  record: Pick<SessionRecord, "questionIds">,
+  response: Pick<WorksheetGradeResponse, "results"> | null | undefined,
+  qNumber: number,
+  topicOf: (questionId: string) => string | null,
+): { questionId: string; topicKey: string } | null {
+  const ids = record.questionIds || [];
+  const results = response?.results || [];
+  if (ids.length === 0 || ids.length !== results.length) return null;
+  const questionId = ids[qNumber - 1];
+  if (!questionId) return null;
+  const topicKey = topicOf(questionId);
+  return topicKey ? { questionId, topicKey } : null;
+}
+
+/** Strip the `review` param from `search` (the host consumes it once, with `replace`). */
+export function searchWithoutReview(search: string): string {
+  const sp = new URLSearchParams(search);
+  sp.delete(SCORECARD_REVIEW_PARAM);
+  const s = sp.toString();
+  return s ? `?${s}` : "";
 }
