@@ -1,13 +1,14 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   getSurfaceHistory,
   getSubjectProgress,
   type ProgressTrend,
 } from "../../services/progressStore";
-import type {
-  SessionRecord,
-  SessionSurface,
-  SessionSubject,
+import {
+  getSessionRecordsFromCloud,
+  type SessionRecord,
+  type SessionSurface,
+  type SessionSubject,
 } from "../../services/sessionRecords";
 import { getWorksheetSession, getWorksheetGrade } from "../../services/worksheetSessionStore";
 import { exportGradedWorksheetPdf } from "../worksheet/worksheetPdfExport";
@@ -42,7 +43,8 @@ import {
  * when the data is thin).
  *
  * ONE responsive component (desktop + mobile via CSS reflow, no useIsDesktop twin).
- * Worksheet is the ONLY surface this component is mounted for (WorksheetHistoryPanel).
+ * Mounted for Worksheet (WorksheetHistoryPanel) and, since QP-SCORECARD-2 B, Quick Practice
+ * (the Practice hub + the Quick Practice page, host-owned reopen via `onOpen`).
  * Every other entry below is a DEFINED-BUT-UNMOUNTED seam: SURFACE_COPY is an
  * exhaustive Record<SessionSurface, …>, so each new surface is FORCED to declare its
  * copy here even when its live history lives elsewhere.
@@ -58,11 +60,11 @@ const SURFACE_COPY: Record<SessionSurface, { heading: string; empty: string }> =
   // Defined-but-unmounted (C&I PR-1): C&I's live history is its own overlay panel
   // (CheckImproveHistoryPanel) — this component is never mounted with "check-improve".
   "check-improve": { heading: "Your checked papers", empty: "Your checked papers will appear here." },
-  // Defined-but-unmounted (QP sessions, 2026-07-15): QP writes records (LOCKED §1a as
-  // amended) but has NO history surface yet — mounting one is [FU-QP-HISTORY-RAIL],
-  // which carries a real design question (QP's scorecard is "X of N attempted, never
-  // marks/total", so a QP row cannot reuse this container's marks-based card).
-  "quick-practice": { heading: "Your practice sets", empty: "Your finished practice sets will appear here." },
+  // QP-SCORECARD-2 B — MOUNTED (the Practice hub + the Quick Practice page). The old design
+  // question ([FU-QP-HISTORY-RAIL]: "X of N attempted, never marks/total") is gone: since
+  // PRACTICE-HONESTY-1 a graded QP scorecard shows MARKS, so the marks chip fits. The host
+  // owns the reopen (`onOpen`): a QP reopen needs the bank rows, tutor buttons and the menu.
+  "quick-practice": { heading: "Your past sessions", empty: "Your finished practice sessions will appear here." },
 };
 
 const SUBJECTS: SessionSubject[] = ["maths", "science"];
@@ -79,6 +81,14 @@ interface SurfaceHistoryProps {
   /** PENDING-UPLOAD-1: when given, tapping an ungraded row opens its upload step instead of
    *  the read-only card. Absent -> every surface using this component is unchanged. */
   onUpload?: (record: SessionRecord) => boolean | Promise<boolean>;
+  /** QP-SCORECARD-2 B: when given, tapping a GRADED row hands the record to the host, which
+   *  owns the reopen (Quick Practice rebuilds its rows from the bank). Absent -> the built-in
+   *  read-only worksheet card, so every existing mount is unchanged. */
+  onOpen?: (record: SessionRecord) => void;
+  /** QP-SCORECARD-2 B: also read the durable cross-device records once on mount (local-first,
+   *  then the cloud merged in — `getSessionRecordsFromCloud`), so a session saved on another
+   *  device is listed. Absent -> the local mirror only, exactly as before. */
+  cloud?: boolean;
 }
 
 function formatDate(ms: number): string {
@@ -168,15 +178,32 @@ function TrendChip({ subject, trend }: { subject: SessionSubject; trend: Progres
   );
 }
 
-export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, onUpload }: SurfaceHistoryProps) {
+export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, onUpload, onOpen, cloud }: SurfaceHistoryProps) {
   const [reopen, setReopen] = useState<SessionRecord | null>(null);
   const [downloading, setDownloading] = useState(false);
   const downloadingRef = useRef(false);
+  // Bumped once the cloud read has refreshed the local mirror (`cloud` only).
+  const [cloudNonce, setCloudNonce] = useState(0);
+  useEffect(() => {
+    if (!cloud || !uid) return;
+    let live = true;
+    void getSessionRecordsFromCloud(uid)
+      .catch(() => [])
+      .then(() => {
+        if (live) setCloudNonce((n) => n + 1);
+      });
+    return () => {
+      live = false;
+    };
+  }, [cloud, uid]);
 
   const records = useMemo(() => {
+    // uid-scoped: no uid (or the cloud mode's signed-in-only contract) lists nothing.
+    if (cloud && !uid) return [];
     const all = getSurfaceHistory(surface, uid);
     return pendingOnly ? all.filter((r) => r.status !== "graded") : all;
-  }, [surface, uid, pendingOnly]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [surface, uid, pendingOnly, cloud, cloudNonce]);
 
   // C2 — honest "vs last time": one subject-level trend, attached to the newest row of
   // each subject (the freshest, peak-motivation moment). Honest-or-silent.
@@ -253,6 +280,7 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
                   type="button"
                   className="lt-sh__row"
                   onClick={() => {
+                    if (r.status === "graded" && onOpen) return onOpen(r);
                     if (r.status === "graded" || !onUpload) return setReopen(r);
                     // The host returns false when it has no paper to upload against: the row then
                     // keeps its read-only stored scorecard (a partial grade's marks stay reachable).
