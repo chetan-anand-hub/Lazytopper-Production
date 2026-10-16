@@ -632,6 +632,13 @@ export function findScorecardQuestion(
   if (index < 0) return null;
   const qNumber = index + 1;
   const result = (payload?.response?.results || []).find((r) => r.qNumber === qNumber) ?? null;
+  // FOLLOWUPS-1 B — a saved paper (Chapter Test / Full Mock / Worksheet) names its question
+  // by position in `questionIds`; that join is only trusted when the stored results align 1:1
+  // with the ids (the stored lenses' own rule), and the question must hold a stored result.
+  if (isSavedPaperRecord(record)) {
+    const results = payload?.response?.results || [];
+    if (results.length !== (record.questionIds || []).length || !result) return null;
+  }
   return { qNumber, result };
 }
 
@@ -661,11 +668,15 @@ export function composeScorecardQuestionOpener(
     };
   }
   const marks = `${lost} mark${lost === 1 ? "" : "s"}`;
+  // FOLLOWUPS-1 C3 — the option the student picked, when the stored payload carries it (Quick
+  // Practice records from FOLLOWUPS-1 on). Quoted verbatim; absent → the opener is unchanged.
+  const storedPick = (gradedResult as { pickedOption?: unknown }).pickedOption;
+  const chose = typeof storedPick === "string" && storedPick.trim() ? ` You chose "${storedPick.trim()}".` : "";
   const fault = firstFaultyStepInResults([gradedResult]);
   if (fault) {
     const { step } = fault;
     return {
-      text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}. Step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)} Want to go through it together?`,
+      text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}.${chose} Step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)} Want to go through it together?`,
       follow: {
         label: "Go through that step",
         send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
@@ -673,7 +684,7 @@ export function composeScorecardQuestionOpener(
     };
   }
   return {
-    text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}. Want to go through why the right answer is right, and where the trap is?`,
+    text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}.${chose} Want to go through why the right answer is right, and where the trap is?`,
     follow: {
       label: "Why was I wrong?",
       send: `Let's go through Q${qNumber}: why was my answer wrong?`,
@@ -729,4 +740,42 @@ export function buildQuickPracticeReviewHref(record: Pick<SessionRecord, "id" | 
 /** The Check & Improve page that reopens a saved checked paper by its code. */
 export function buildCheckImproveReviewHref(code: string): string {
   return `/check-improve${query({ [SCORECARD_REVIEW_PARAM]: code })}`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FOLLOWUPS-1 B · the same hop on a saved Chapter Test / Full Mock scorecard
+   ══════════════════════════════════════════════════════════════════════════════
+   A saved paper's record carries its bank ids in paper (qNumber) order. The hop names the
+   question by that id (`q=`), so the tutor's `findScorecardQuestion` resolves the SAME position
+   back. Read-only: nothing here grades or writes. */
+
+/** The surfaces whose records name questions by position in a saved paper's `questionIds`. */
+export function isSavedPaperRecord(record: Pick<SessionRecord, "surface">): boolean {
+  return record.surface === "chapter-test" || record.surface === "full-mock" || record.surface === "worksheet";
+}
+
+/** The tutor hop target for question `qNumber` of a saved paper: its bank id and its ONE chapter.
+ *  Null (no button) when the stored results do not align 1:1 with the record's ids, the position
+ *  holds no id, or no single chapter is known for the question (`topicOf` returns null). */
+export function savedPaperQuestionHop(
+  record: Pick<SessionRecord, "questionIds">,
+  response: Pick<WorksheetGradeResponse, "results"> | null | undefined,
+  qNumber: number,
+  topicOf: (questionId: string) => string | null,
+): { questionId: string; topicKey: string } | null {
+  const ids = record.questionIds || [];
+  const results = response?.results || [];
+  if (ids.length === 0 || ids.length !== results.length) return null;
+  const questionId = ids[qNumber - 1];
+  if (!questionId) return null;
+  const topicKey = topicOf(questionId);
+  return topicKey ? { questionId, topicKey } : null;
+}
+
+/** Strip the `review` param from `search` (the host consumes it once, with `replace`). */
+export function searchWithoutReview(search: string): string {
+  const sp = new URLSearchParams(search);
+  sp.delete(SCORECARD_REVIEW_PARAM);
+  const s = sp.toString();
+  return s ? `?${s}` : "";
 }

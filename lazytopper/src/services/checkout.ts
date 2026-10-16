@@ -179,7 +179,14 @@ export async function verifyPayment(success: RazorpaySuccess): Promise<{ passEnd
 }
 
 export type BuyOutcome =
-  | { status: "paid"; passEnd: string }
+  | {
+      status: "paid";
+      passEnd: string;
+      /** FOLLOWUPS-1 A4 — Razorpay's payment id (from its signed result). Analytics only. */
+      paymentId?: string;
+      /** FOLLOWUPS-1 A4 — the SERVER order's amount in rupees (amountPaise / 100). Analytics only. */
+      amountInr?: number;
+    }
   | { status: "dismissed" }
   | { status: "failed" };
 
@@ -218,7 +225,15 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
     });
     if (!success) return { status: "dismissed" };
     const { passEnd } = await deps.verify(success);
-    return { status: "paid", passEnd };
+    // FOLLOWUPS-1 A4 — additive, read AFTER the verify: neither value is sent anywhere here.
+    const paymentId = typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
+    const amountInr = Number.isFinite(order.amountPaise) && order.amountPaise > 0 ? order.amountPaise / 100 : undefined;
+    return {
+      status: "paid",
+      passEnd,
+      ...(paymentId !== undefined ? { paymentId } : {}),
+      ...(amountInr !== undefined ? { amountInr } : {}),
+    };
   } catch {
     return { status: "failed" };
   }

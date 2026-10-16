@@ -294,9 +294,35 @@ describe("buyPass", () => {
     const rz = fakeRazorpay("pay");
     const verify = vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" }));
     const out = await buyPass("month", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify });
-    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z" });
+    // FOLLOWUPS-1 A4: the paid outcome additionally carries Razorpay's payment id and the
+    // SERVER order's amount in rupees (analytics only); passEnd is unchanged.
+    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z", paymentId: "pay_1", amountInr: 599 });
     expect(rz.seen[0]).toMatchObject({ key: "rzp_test_x", amount: 59900, currency: "INR", order_id: "order_1" });
     expect(verify).toHaveBeenCalledWith({ razorpay_payment_id: "pay_1", razorpay_order_id: "order_1", razorpay_signature: "sig" });
+  });
+
+  it("FOLLOWUPS-1 A4: what goes to Razorpay and to verify is unchanged; the new fields are read only after verify", async () => {
+    const rz = fakeRazorpay("pay");
+    const verify = vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" }));
+    await buyPass("till_boards", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify });
+    expect(Object.keys(rz.seen[0]).sort()).toEqual(
+      ["amount", "currency", "description", "handler", "key", "modal", "name", "order_id"],
+    );
+    expect(verify).toHaveBeenCalledTimes(1);
+    expect(verify.mock.calls[0]).toEqual([{ razorpay_payment_id: "pay_1", razorpay_order_id: "order_1", razorpay_signature: "sig" }]);
+  });
+
+  it("FOLLOWUPS-1 A4: a payment id that is not a non-empty string is left off (never invented)", async () => {
+    const Ctor = function (this: unknown, options: Record<string, unknown>) {
+      return {
+        open() {
+          (options.handler as (r: unknown) => void)({ razorpay_payment_id: "", razorpay_order_id: "order_1", razorpay_signature: "sig" });
+        },
+      };
+    } as unknown as RazorpayConstructor;
+    const verify = vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" }));
+    const out = await buyPass("month", { createOrder: async () => order, loadScript: async () => Ctor, verify });
+    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z", amountInr: 599 });
   });
 
   it("dismissed checkout -> dismissed, no verify", async () => {

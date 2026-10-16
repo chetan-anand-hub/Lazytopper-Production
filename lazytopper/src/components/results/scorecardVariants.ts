@@ -1619,6 +1619,39 @@ function ciTutorRows(
   return rows.length > 0 ? rows : null;
 }
 
+/**
+ * FOLLOWUPS-1 B · "Ask the tutor why I lost this mark" on a Chapter Test / Full Mock scorecard
+ * (live or reopened from the saved record). Decorates an already-built CT/FM variant; it never
+ * changes a mark, a lens, a row or an action. A variant with the graded answer sheet gets the
+ * button on each sheet answer that lost marks (the shell draws it only when awarded < available);
+ * a reopened variant with no sheet gets the C&I-style "Where marks slipped" rows (question number
+ * + button only). No `tutorAskFor` / no response, or no question with a hop -> the SAME variant.
+ */
+export function withPaperTutorAsks(
+  variant: ScorecardVariant,
+  response: WorksheetGradeResponse | null | undefined,
+  tutorAskFor: ((qNumber: number) => ScorecardTutorAsk | null) | undefined,
+): ScorecardVariant {
+  if (!tutorAskFor || !response || !Array.isArray(response.results)) return variant;
+  if (variant.gradedAnswers && variant.gradedAnswers.length > 0) {
+    const asks = new Map<string, ScorecardTutorAsk>();
+    for (const r of response.results) {
+      if (!isGradedQuestion(r) || (Number(r.totalMarks) || 0) <= (Number(r.marksAwarded) || 0)) continue;
+      const ask = tutorAskFor(r.qNumber);
+      // `Question N` is the sheet row's stable key (buildGradedAnswersFromWorksheetResponse).
+      if (ask) asks.set(`Question ${r.qNumber}`, ask);
+    }
+    if (asks.size === 0) return variant;
+    return {
+      ...variant,
+      gradedAnswers: variant.gradedAnswers.map((a) => (asks.has(a.label) ? { ...a, tutorAsk: asks.get(a.label)! } : a)),
+    };
+  }
+  if (variant.wrongAnswers && variant.wrongAnswers.length > 0) return variant;
+  const rows = ciTutorRows(response, tutorAskFor);
+  return rows ? { ...variant, wrongAnswers: rows } : variant;
+}
+
 /** The return-ticket row. `tone: "secondary"` deliberately: the what-next menu's
  *  primary slot belongs to the session's own next step, and two primaries would leave
  *  neither reading as the emphasis. `tag` renders as the menu's small leading chip. */
@@ -1925,6 +1958,15 @@ export function storedQuickPracticeScorecardVariant(
 
 // ── QP-SCORECARD-2 B · a SAVED Quick Practice session, reopened read-only ─────────────
 
+/** FOLLOWUPS-1 C2 — the option the student picked, as STORED on a Quick Practice perQuestion
+ *  result (`pickedOption`, written by `persistQuickPracticeSession` from FOLLOWUPS-1 on). Null
+ *  when absent (an older record, an unpicked or written-only answer) — never guessed. */
+export function storedPickedOption(result: unknown): string | null {
+  const raw = result && typeof result === "object" ? (result as { pickedOption?: unknown }).pickedOption : null;
+  const text = typeof raw === "string" ? raw.trim() : "";
+  return text ? text : null;
+}
+
 export interface ReopenedQuickPracticeVariantInput {
   /** A pre-formatted date label (the host formats `gradedAt`; keeps this builder pure). */
   gradedDateLabel: string;
@@ -1946,8 +1988,10 @@ export interface ReopenedQuickPracticeVariantInput {
  * four-type, the "Where marks slipped" rows the host rebuilt, and A's what-next menu.
  *
  * ★ "Back to this set (see the steps)" is NOT offered here. It reopens the LIVE set with its
- *   answers in review mode; a saved session has no live set (the picks are not stored), so the
+ *   answers in review mode; a saved session has no live set behind it, so the
  *   label would promise something the reopen cannot do. The bank's steps are on the rows.
+ * ★ FOLLOWUPS-1 C2 — a row's "Your answer" is the STORED pick (`storedPickedOption`), present only
+ *   on records written after the pick was stored; an older record's row simply omits the line.
  * ★ Pure: it records nothing and grades nothing. Every number comes from the stored record.
  */
 export function reopenedQuickPracticeScorecardVariant(
