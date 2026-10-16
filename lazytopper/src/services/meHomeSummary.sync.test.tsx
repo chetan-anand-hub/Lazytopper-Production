@@ -2,21 +2,24 @@
 /**
  * MI-HOME-SYNC — G3-style consistency: for the SAME fixture student, Home's Mistake Intelligence
  * card, the sidebar MI panel and Quick Practice's "My weak areas" card print EXACTLY the numbers
- * and the Practise hrefs Me/Progress RENDERS. Three fixtures:
+ * and the Practise hrefs Me/Progress RENDERS. Four fixtures:
  *   - MCQ-ONLY (the owner's live case): two Quick Practice MCQ sets graded — marks on the table,
  *     no mistake type anywhere ("no reason recorded" in Me);
  *   - TYPED: the same plus typed mistakes — Home's four tiles carry Me's split;
- *   - EMPTY: no graded work — every surface keeps today's empty state.
+ *   - EMPTY: no graded work — every surface keeps today's empty state;
+ *   - THIN: two graded answers, below Me's weakness-naming gate — Quick Practice names nothing.
+ * Plus unit pins: hasTyped follows typed entries, and useMeHome resets its read on a uid change.
  *
  * Only the CLOUD streams are mocked (attempts, session records, the mistake history, the bank
  * index); the read model, Me's derivations and the summary are REAL.
  */
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup, configure } from "@testing-library/react";
+import { render, renderHook, screen, waitFor, cleanup, configure } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import type { PracticeAttempt } from "./practiceInsights";
 import type { MistakeLogEntry } from "./mistakeLogService";
-import { istDayStartMs } from "./progressStore";
+import { istDayStartMs, type RungTrend } from "./progressStore";
+import type { StudyReadModel } from "./progressReadModel";
 
 configure({ asyncUtilTimeout: 8000 });
 
@@ -68,8 +71,17 @@ vi.mock("../context/AuthContext", () => ({
 import MeProgressPage from "../pages/MeProgressPage";
 import { MistakeIntelligenceCard } from "../pages/desktop/DesktopHome";
 import { MistakeIntelCard } from "../components/desktop/MistakeIntelCard";
-import { QuickPracticePresets, QP_PRESETS, weakAreasCardFrom } from "../components/practice/QuickPracticePresets";
-import { loadMeConceptRows, loadMeHome, resetMeHomeMemo, type MeHomeSummary } from "./meHomeSummary";
+import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
+import { weakAreasCardFrom } from "../components/practice/weakAreasCard";
+import {
+  computeMeHomeSummary,
+  loadMeConceptRows,
+  loadMeHome,
+  resetMeHomeMemo,
+  type MeHomeReader,
+  type MeHomeSummary,
+} from "./meHomeSummary";
+import { useMeHome } from "./useMeHomeSummary";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
 import { loadExamConceptResolvers } from "./mistakeConcept";
 import { conceptForQuestionId } from "./progressBankIndex";
@@ -131,16 +143,21 @@ interface MeRendered {
   legend: number[];
 }
 
-async function renderMe(): Promise<MeRendered> {
+/** `emptyTitle` — the student has no graded work: wait for Me's settled empty hero instead of a
+ *  start-here list that will never render (waiting on it only ran the async timeout out). */
+async function renderMe(emptyTitle?: string): Promise<MeRendered> {
   const { container, unmount } = render(
     <MemoryRouter>
       <MeProgressPage />
     </MemoryRouter>,
   );
   await waitFor(() => expect(screen.queryByTestId("me-booting")).toBeNull());
+  if (emptyTitle !== undefined) {
+    await waitFor(() => expect(container.querySelector(".lt-me__title")?.textContent).toBe(emptyTitle));
+  }
   const title = container.querySelector(".lt-me__title")?.textContent ?? "";
   // Me settles on its paper (a second scoped read) — wait for the start-here list, when it has one.
-  const drill = await screen.findByTestId("me-drill-topics").catch(() => null);
+  const drill = emptyTitle !== undefined ? null : await screen.findByTestId("me-drill-topics").catch(() => null);
   let firstChapter: MeRendered["firstChapter"] = null;
   if (drill) {
     const card = drill.querySelector("li")!;
@@ -334,8 +351,10 @@ describe("MI-HOME-SYNC — no graded work: every surface keeps today's empty sta
   });
 
   it("★ Home empty state unchanged, sidebar 'No mistake patterns yet', Quick Practice card locked", async () => {
-    const me = await renderMe();
+    const me = await renderMe("This is where your marks will show up.");
     expect(me.title).toBe("This is where your marks will show up.");
+    expect(me.firstChapter).toBeNull();
+    expect(me.firstConcept).toBeNull();
     const s = await summary();
     expect(s.lost).toBe(0);
     render(
@@ -355,5 +374,95 @@ describe("MI-HOME-SYNC — no graded work: every surface keeps today's empty sta
     );
     expect(await screen.findByText(/No mistake patterns yet/)).toBeTruthy();
     expect(weakAreasCardFrom(true, await loadMeConceptRows(H.uid, "Maths"))).toEqual({ kind: "locked" });
+  });
+});
+
+/* ───────────────────────────── thin: below Me's weakness-naming gate ───────────────────────────── */
+
+describe("MI-HOME-SYNC — thin student (2 graded answers, below Me's gate): nothing names a weak area", () => {
+  beforeEach(() => {
+    H.uid = "u-thin";
+    H.attempts = [mcq(at(0.2), 0, true), mcq(at(0.3), 0, true)];
+  });
+
+  it("★ Home has no split, and Quick Practice 'My weak areas' is NOT live (locked, honest copy)", async () => {
+    const s = await summary();
+    expect(s.split).toBeNull();
+    const rows = await loadMeConceptRows(H.uid, "Maths");
+    expect(rows).toEqual([]);
+    const card = weakAreasCardFrom(true, rows);
+    expect(card).toEqual({ kind: "locked" });
+    render(
+      <MemoryRouter>
+        <QuickPracticePresets
+          presets={QP_PRESETS}
+          selectedKey="board"
+          onSelect={() => {}}
+          competencyAvailable
+          onStart={() => {}}
+          onCustomise={() => {}}
+          timerEnabled={false}
+          onToggleTimer={() => {}}
+          weakAreas={card}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByTestId("qp-weak-live")).toBeNull();
+    expect(screen.getByText("Unlocks once a few answers are graded")).toBeTruthy();
+  });
+
+  it("★ a concept row with marks lost is NOT named while the paper's rung is below Me's gate", async () => {
+    const concept = { key: "real-numbers::hcf", label: "HCF and LCM", marksAvailable: 4, marksScored: 1 };
+    const model = (paperRung: Record<string, unknown>) =>
+      ({ progress: { subjects: [paperRung], concepts: [concept], topics: [] } }) as unknown as StudyReadModel;
+    // Below the gate: the subject rung carries no marks base (Me: "We will not name a weakness").
+    const below: MeHomeReader = async () => model({ key: "maths", label: "Maths" });
+    expect(await loadMeConceptRows("u-gate-below", "Maths", 0, below)).toEqual([]);
+    // Above the gate: the same concept row is named, with Me's concept Practise href.
+    const above: MeHomeReader = async () => model({ key: "maths", label: "Maths", marksAvailable: 12, marksScored: 6 });
+    const rows = await loadMeConceptRows("u-gate-above", "Maths", 0, above);
+    expect(rows.map((r) => [r.label, r.lost])).toEqual([["HCF and LCM", 3]]);
+  });
+});
+
+/* ───────────────────────────── hasTyped / uid change (unit) ───────────────────────────── */
+
+describe("MI-HOME-SYNC — hasTyped follows the typed entries, not the split's splitKnown", () => {
+  it("★ typed entries that over-attribute (splitKnown false) still count as typed: no 'Check a written answer' prompt", () => {
+    const rung = { key: "maths", label: "Maths", marksAvailable: 10, marksScored: 8 } as unknown as RungTrend;
+    const entries = [typedMistake("quick-practice::T1::q1", at(0.3), { conceptual: 5 }, 5)];
+    const s = computeMeHomeSummary(
+      { progress: { subjects: [rung] } as unknown as StudyReadModel["progress"] },
+      "Maths",
+      { topics: [], concepts: [] },
+      { entries, byChapter: {} },
+    );
+    expect(s.split?.splitKnown).toBe(false); // precondition: the log names more than was lost
+    expect(s.lost).toBe(2);
+    expect(s.hasTyped).toBe(true);
+    render(
+      <MemoryRouter>
+        <MistakeIntelligenceCard summary={s} />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByTestId("home-mi-check")).toBeNull();
+  });
+});
+
+describe("MI-HOME-SYNC — useMeHome never shows one student's read under another uid", () => {
+  it("★ a uid change resets `read` to null while the new uid loads", async () => {
+    H.uid = "u-mcq";
+    H.attempts = mcqOnlyStudent();
+    // uid A reads through the real read model; uid B's read never settles (still loading).
+    const pending: MeHomeReader = () => new Promise(() => {});
+    const { result, rerender } = renderHook(
+      ({ uid, reader }: { uid: string; reader?: MeHomeReader }) => useMeHome(uid, 0, reader),
+      { initialProps: { uid: "u-mcq" } as { uid: string; reader?: MeHomeReader } },
+    );
+    await waitFor(() => expect(result.current.status).toBe("ok"));
+    expect(result.current.read).not.toBeNull();
+    rerender({ uid: "u-other", reader: pending });
+    await waitFor(() => expect(result.current.status).toBe("loading"));
+    expect(result.current.read).toBeNull();
   });
 });

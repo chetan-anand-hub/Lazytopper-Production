@@ -92,7 +92,7 @@ import {
 /** MI-HOME-SYNC — Me's DEFAULT window (`ME_DEFAULT_WINDOW`, "month"), read through
  *  services/meHomeSummary; it was the 7-day window, so the card and the Me page a student opens
  *  next spoke for different windows. */
-const WINDOW_PHRASE = "Last month";
+const WINDOW_PHRASE = "Last 30 days"; // the window is a rolling 30 days, not a calendar month
 
 /** The biggest loss, in the owner's groups (lib/mistakeDisplay), with its real unit. */
 export interface MiCardTopLoss {

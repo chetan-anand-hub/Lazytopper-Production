@@ -9,7 +9,8 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
-import { QuickPracticePresets, QP_PRESETS, weakAreasCardFrom } from "./QuickPracticePresets";
+import { QuickPracticePresets, QP_PRESETS } from "./QuickPracticePresets";
+import { weakAreasCardFrom } from "./weakAreasCard";
 import {
   deriveArrivedTargeted,
   shouldShowPresetEntry,
@@ -373,11 +374,11 @@ describe("picker render — selection, gating, timer, bypass of gated cards", ()
     expect(screen.getAllByText(/Quick drill|Board mix|Competency|High-marks/).length).toBeGreaterThanOrEqual(4);
   });
 
-  it("★ signed in, no concept rows → visible, not clickable, 'Unlocks after your first graded set', no 'Soon'", () => {
+  it("★ signed in, no concept rows → visible, not clickable, 'Unlocks once a few answers are graded', no 'Soon'", () => {
     const { onSelect } = renderPicker({ weakAreas: weakAreasCardFrom(true, []) });
     const weak = screen.getByText("My weak areas").closest("button")!;
     expect(weak.hasAttribute("disabled")).toBe(true);
-    expect(weak.textContent).toContain("Unlocks after your first graded set");
+    expect(weak.textContent).toContain("Unlocks once a few answers are graded");
     expect(weak.textContent).not.toMatch(/Soon/);
     fireEvent.click(weak);
     expect(onSelect).not.toHaveBeenCalled();

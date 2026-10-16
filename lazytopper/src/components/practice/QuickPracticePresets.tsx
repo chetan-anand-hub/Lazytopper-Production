@@ -16,6 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import type { DifficultyChoice } from "./practiceQuestionBuilder";
 import { PAPER_DESIGN } from "../../config/syllabus2026-27";
+import { WEAK_AREAS_LOCKED_COPY, type WeakAreasCard } from "./weakAreasCard";
 
 /** The committed-filter bundle a preset applies. Every field is a real PracticeControls
  *  value. `committedDifficulty` is intentionally "all" on every preset: the coarse
@@ -93,9 +94,6 @@ const COMPETENCY_CBSE_LINE = (() => {
  *    descriptive questions). style "all": there is no "long-answer" STYLE value; the 5+23
  *    buckets carry the descriptive character (STYLE_COMPAT of both admits {all,proof,hots}).
  */
-/** MI-HOME-SYNC (B) — the honest locked line ("Soon" is gone: the card is real, just not yet). */
-export const WEAK_AREAS_LOCKED_COPY = "Unlocks after your first graded set";
-
 export const QP_PRESETS: QpPresetConfig[] = [
   {
     key: "quick",
@@ -153,35 +151,6 @@ export const QP_PRESETS: QpPresetConfig[] = [
     gated: true,
   },
 ];
-
-/**
- * MI-HOME-SYNC (B) — the "My weak areas" card's state, decided by PracticePage from Me's concept
- * rows for this subject (services/meHomeSummary, Me's window and gates):
- *   - hidden: signed out / local session — no saved graded work to target;
- *   - locked: signed in, no concept row with marks lost yet — visible, not clickable;
- *   - live:   tapping opens Me's own concept-row Practise href for the TOP concept (the
- *             practice path's `focus` param carries ONE concept; the card says so).
- * Absent → "locked" (honest default; never "Soon").
- */
-export type WeakAreasCard =
-  | { kind: "hidden" }
-  | { kind: "locked" }
-  | { kind: "live"; href: string; concepts: Array<{ label: string; lost: number }> };
-
-/** The card state from the auth state and Me's concept rows (worst first) for this subject. */
-export function weakAreasCardFrom(
-  signedIn: boolean,
-  rows: ReadonlyArray<{ label: string; lost: number; practisePath: string }>,
-): WeakAreasCard {
-  if (!signedIn) return { kind: "hidden" };
-  const top = rows[0];
-  if (!top) return { kind: "locked" };
-  return {
-    kind: "live",
-    href: top.practisePath,
-    concepts: rows.slice(0, 3).map((r) => ({ label: r.label, lost: r.lost })),
-  };
-}
 
 const marksWord = (n: number): string => `${n} mark${n === 1 ? "" : "s"}`;
 

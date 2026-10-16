@@ -23,6 +23,8 @@ import {
   boardChapterKey,
   buildMistakeView,
   readStudyModel,
+  rungNamesWeakness,
+  subjectRungOf,
   type MistakeView,
   type ReadSubject,
   type StudyReadModel,
@@ -228,7 +230,8 @@ export interface MeHomeSummary {
   lost: number;
   /** Marks lost per stored type, summing to Me's split groups; null when Me withholds the split. */
   typeMarks: TypeMarks | null;
-  /** True when Me's split names at least one mark to a mistake group. */
+  /** True when this paper's window holds at least one typed mistake mark (hides the
+   *  "Check a written answer" prompt); independent of whether Me can split the marks. */
   hasTyped: boolean;
   /** Me's "Start here" card #1 (its biggest win), with Me's Practise href. */
   topChapter: MeHomeRow | null;
@@ -249,8 +252,11 @@ export function computeMeHomeSummary(
   const paperRung =
     (all.progress.subjects ?? []).find((r) => r.key.toLowerCase() === mePaperScopeKey(paper)) ?? null;
   const split = splitPaperMarks(paperRung, paperMistakes.entries);
-  const typeMarks = split && split.splitKnown ? mistakeLossByType(paperMistakes.entries) : null;
-  const hasTyped = !!split && split.knowledge + split.technique + split.careless > 0;
+  const byType = mistakeLossByType(paperMistakes.entries);
+  const typeMarks = split && split.splitKnown ? byType : null;
+  // Whether a typed mistake EXISTS for this paper — not whether Me could split it (an
+  // over-attributing log has splitKnown false but the student has already checked written work).
+  const hasTyped = byType.conceptual + byType.calculation + byType.silly + byType.presentation > 0;
   const chapters = buildChapters(paperProgress.topics ?? [], paper, paperMistakes.byChapter);
   const first = chapters[0];
   const topChapter =
@@ -324,9 +330,22 @@ export async function loadMeHome(
   return { all, summary: computeMeHomeSummary(all, paper, scoped.progress, paperMistakes) };
 }
 
-/** Quick Practice: Me's concept rows for ONE paper (the page's subject), with Me's hrefs. */
-export async function loadMeConceptRows(uid: string, paper: DesktopSubject, gen = 0): Promise<MeHomeRow[]> {
-  const scoped = await readPaper(uid, gen, paper, (q) => readStudyModel(uid, q));
+/** Quick Practice: Me's concept rows for ONE paper (the page's subject), with Me's hrefs.
+ *  Naming a concept IS naming a weakness, so the rows are returned ONLY when the paper's rung
+ *  passes Me's gate (`rungNamesWeakness`, the one predicate Me / the Tutor brief ask); below it
+ *  → [] (the card stays locked). The rung comes from the scoped read's own `progress.subjects`:
+ *  a subject-scoped read builds the paper's rung from the SAME subject-filtered graded points the
+ *  unscoped read uses for that paper (progressStore `getWindowedProgress` → `buildSubjectRung`),
+ *  so asking the unscoped read as well could never find a rung this one lacks — it would only
+ *  add a read (with mistake history) for every student below the gate. */
+export async function loadMeConceptRows(
+  uid: string,
+  paper: DesktopSubject,
+  gen = 0,
+  reader: MeHomeReader = (q) => readStudyModel(uid, q),
+): Promise<MeHomeRow[]> {
+  const scoped = await readPaper(uid, gen, paper, reader);
+  if (!rungNamesWeakness(subjectRungOf(scoped.progress, mePaperScopeKey(paper)))) return [];
   return viewRowsFrom(scoped.progress.concepts ?? []).map((r) => ({
     ...r,
     practisePath: meConceptPractisePath(paper, r.label),
