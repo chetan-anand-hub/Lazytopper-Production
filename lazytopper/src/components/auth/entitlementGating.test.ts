@@ -62,7 +62,8 @@ describe("entitlement gating is wired at the component, not the route", () => {
    * download-position assertion below fails, because the buttons land inside it).
    */
   it("the worksheet gate wraps the GRADING panel — the one control that spends", () => {
-    expect(ws).toMatch(/<RequirePremium featureLabel="Worksheet marking">[\s\S]{0,40}?<WorksheetGradePanel ws=\{generated\} \/>/);
+    // TUTOR-FIX-2 T9: the panel may carry extra (display-only) props after `ws`; still the one gated child.
+    expect(ws).toMatch(/<RequirePremium featureLabel="Worksheet marking">[\s\S]{0,40}?<WorksheetGradePanel\s+ws=\{generated\}[^>]*\/>\s*<\/RequirePremium>/);
     expect(ws).toMatch(/import \{ RequirePremium \} from "\.\.\/auth\/RequireAuth"/);
   });
 
