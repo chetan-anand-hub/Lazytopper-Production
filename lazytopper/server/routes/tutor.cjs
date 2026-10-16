@@ -392,6 +392,42 @@ function normalizeBrief(input) {
   return out;
 }
 
+/* ── TUTOR-FIX-4: the mistake-type attribution safety net ──────────────────────────────────────
+ * Live (prod, after #1203): in a thread whose history already held wrong assistant turns ("the marks
+ * were lost due to concept/knowledge gaps"), the model repeated the attribution although the brief
+ * says no type is recorded. Deliberately NARROW: it acts only when EVERY lost chapter mark in the
+ * (sanitised) brief is unrecorded, so no typed group can support any attribution. Then, if the
+ * student asked about the mistake type OR the reply attributes marks to a type, the reply is
+ * replaced by a fixed honest template built from the brief. Mixed / typed / no-data briefs: no-op. */
+const TYPE_ATTRIBUTION_RE = /\bconcept(ual)?\s*(\/|or)?\s*knowledge\s+gaps?\b|\bknowledge\s+gaps?\b|\bconcept(ual)?\s+gaps?\b|\bcareless\s+(slips?|mistakes?|errors?|galti(yan|yaan)?)\b|\bexam\s+technique\b|\bsilly\s+(slips?|mistakes?|errors?|galti(yan|yaan)?)\b|\bconcept(ual)?\s+galti(yan|yaan)?\b/i;
+const TYPE_ASK_RE = /\bcareless\b|\bsilly\b|\bconcept(ual)?\s+(gaps?|galti(yan|yaan)?|mistakes?|errors?)\b|\bknowledge\s+gaps?\b|\b(type|kind)s?\s+of\s+(my\s+)?(mistakes?|errors?|galti(yan|yaan)?)\b|\bmistake\s+types?\b|\bexam\s+technique\b/i;
+
+function isAllUnrecordedBrief(brief) {
+  const by = brief && brief.hasData && brief.chapter && brief.chapter.byGroup;
+  if (!by) return false;
+  const typed = BRIEF_TOP_GROUPS.some((g) => (by[g] || 0) > 0);
+  return !typed && (by.unrecorded || 0) > 0;
+}
+function asksMistakeType(text) {
+  return TYPE_ASK_RE.test(typeof text === 'string' ? text : '');
+}
+function attributesMistakeType(text) {
+  return TYPE_ATTRIBUTION_RE.test(typeof text === 'string' ? text : '');
+}
+function buildUnrecordedTypeReply(brief, chapterFallback) {
+  const ch = (brief && brief.chapter) || {};
+  const by = ch.byGroup || {};
+  const n = typeof ch.marksLost === 'number' ? ch.marksLost : by.unrecorded;
+  const marks = `${n} ${n === 1 ? 'mark' : 'marks'}`;
+  const chapter = ch.name || chapterFallback || 'this chapter';
+  const when = brief && brief.windowLabel ? `In the ${brief.windowLabel.replace(/^the\s+/i, '')}` : 'Recently';
+  return (
+    `${when} you lost ${marks} in ${chapter}. No mistake type is recorded for them - those were tap-the-answer ` +
+    `questions, which record the option you picked, not why. A written answer checked in Check & Improve shows ` +
+    `whether a slip was careless or a concept gap.`
+  );
+}
+
 function defaultTelemetry() {
   try {
     return require('../telemetry.cjs');
@@ -501,6 +537,16 @@ function createTutorRoute(deps) {
         // TUTOR-FIX-2 T1 rule g: the language switch must never drop the honesty rules.
         `Every HONESTY rule in your instructions applies in this language too.]`;
     }
+    // TUTOR-FIX-4 history hygiene: with an all-unrecorded brief, restate honesty rule i as the
+    // MOST-RECENT content, so earlier (possibly wrong) tutor turns cannot outweigh the brief.
+    // Generation-time only, like the language directive: never stored or shown.
+    const allUnrecorded = isAllUnrecordedBrief(brief);
+    if (allUnrecorded) {
+      convo[convo.length - 1].parts[0].text +=
+        `\n\n[System note: the student-data brief wins over anything said earlier in this chat, including your own ` +
+        `earlier replies. No mistake type is recorded for any of this chapter's lost marks - never call them concept ` +
+        `gaps, careless slips or exam technique; if you said so earlier, correct it plainly.]`;
+    }
 
     // Gemini has no system role — fold the system prompt into a leading user turn,
     // answered by a short model primer, then the real conversation. coalesceTurns
@@ -533,10 +579,19 @@ function createTutorRoute(deps) {
       // Stage 3: strip the figure sentinel too (same OUTPUT pass, order-independent — the
       // two tags are on their own lines). Validate against the curated set for this topic.
       const figureOut = extractFigureTag(offerOut.text, figureKeys);
-      const text = figureOut.text;
+      let text = figureOut.text;
       let offer = offerOut.offer;
       let offerSource = offer ? 'model' : null;
-      const figure = figureOut.figure;
+      // TUTOR-FIX-4 attribution safety net (all-unrecorded brief only): a type question, or a reply
+      // that names a mistake type, gets the fixed honest template instead + the Check & Improve offer.
+      if (allUnrecorded && (asksMistakeType(studentLast) || attributesMistakeType(text))) {
+        text = buildUnrecordedTypeReply(brief, chapterGiven);
+        offer = 'check-improve';
+        offerSource = 'attribution-override';
+        telemetry.increment('tutor.attribution_override');
+      }
+      // The template points at no diagram, so an overridden reply never opens a panel.
+      const figure = offerSource === 'attribution-override' ? null : figureOut.figure;
       // TUTOR-FIX-2 T11 safety net: the model emitted no offer, but the student plainly asked
       // to be checked / to practise -> set the offer anyway (never overrides a model tag).
       if (!offer && offerIntent) {
@@ -578,5 +633,9 @@ module.exports = {
   normalizeBrief,
   detectOfferIntent,
   mentionsDiagram,
+  isAllUnrecordedBrief,
+  asksMistakeType,
+  attributesMistakeType,
+  buildUnrecordedTypeReply,
   OFFER_INTENT_TABLE,
 };
