@@ -18,6 +18,7 @@ export const SCORECARD_LOCK_COPY_PAID = "Your Premium pass has ended — renew t
  * full target would fail Login's same-origin guard (`isSafeInternalPath`), the pathname alone is
  * kept — exactly the old value — so this can never turn a working redirect into "/".
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function loginFromFor(location: { pathname: string; search?: string }): string {
   const full = `${location.pathname}${location.search || ""}`;
   return isSafeInternalPath(full) ? full : location.pathname;

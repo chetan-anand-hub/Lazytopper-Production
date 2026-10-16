@@ -80,6 +80,38 @@ describe("T11 · the bare 'yes' to the tutor's own offer", () => {
   it("a bare 'yes' after an ordinary explanation → nothing", () => {
     expect(detectOfferIntent("yes", "So the HCF is the product of the smallest powers.")).toBeNull();
   });
+  // Review fix: ordinary teaching lines are not practice offers.
+  it.each([
+    "Try one more step: divide both sides by 2. Does that make sense?",
+    "Try 2 as a factor first. Shall I go on?",
+    "This is the idea a board quiz usually tests. Clear?",
+  ])("'yes' after a teaching line %j → nothing", (prev) => {
+    expect(detectOfferIntent("yes", prev)).toBeNull();
+  });
+  it.each([
+    "I can give you a couple of questions to try. Want them?",
+    "Want to practise a few on this?",
+    "Shall we do a quick practice set?",
+  ])("'yes' after an explicit practice offer %j → practice", (prev) => {
+    expect(detectOfferIntent("yes", prev)).toEqual({ offer: "practice", rule: "yes-to-practice-offer" });
+  });
+});
+
+describe("Review fix · 'is that correct?' needs the student's own work nearby", () => {
+  it.each(["so sin = p/h, is that correct?", "and the HCF divides the LCM, is that right?"])(
+    "concept check %j → null",
+    (text) => {
+      expect(detectOfferIntent(text)).toBeNull();
+    },
+  );
+  it.each([
+    "My answer is x = 3, is that correct?",
+    "Here is my working: 2x = 6 so x = 3. Is this right?",
+    "is this right? my solution: x = 3",
+    "did I do it right?",
+  ])("own-work check %j → check-improve", (text) => {
+    expect(detectOfferIntent(text)?.offer).toBe("check-improve");
+  });
 });
 
 describe("T11 · table order (mirrors the server)", () => {

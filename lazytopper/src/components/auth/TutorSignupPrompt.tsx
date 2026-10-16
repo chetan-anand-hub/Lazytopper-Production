@@ -25,7 +25,9 @@ export default function TutorSignupPrompt({
 }) {
   const ctaRef = useRef<HTMLAnchorElement | null>(null);
   const dismissRef = useRef(onDismiss);
-  dismissRef.current = onDismiss;
+  useEffect(() => {
+    dismissRef.current = onDismiss;
+  }, [onDismiss]);
   useEffect(() => {
     ctaRef.current?.focus();
     // Capture phase + stop: Escape closes THIS prompt only, not the scorecard underneath

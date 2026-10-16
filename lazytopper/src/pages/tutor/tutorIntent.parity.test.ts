@@ -40,6 +40,11 @@ const PHRASES: Array<[string, string | null]> = [
   ["ok", "Want to try a couple on this?"],
   ["haan", "Shall we do a quick practice set?"],
   ["yes", "So the HCF is the product of the smallest powers."],
+  ["yes", "Try one more step: divide both sides by 2. Does that make sense?"],
+  ["yes", "This is the idea a board quiz usually tests. Clear?"],
+  ["yes", "I can give you a couple of questions to try. Want them?"],
+  ["so sin = p/h, is that correct?", null],
+  ["My answer is x = 3, is that correct?", null],
 ];
 
 describe("TUTOR-FIX-2 · client intent table == server intent table", () => {

@@ -207,7 +207,7 @@ const OFFER_INTENT_TABLE = Object.freeze({
     { id: 'en-how-many-marks', re: /\bhow\s+(many|much)\s+(marks?\s+)?(would|will|do|can|could|did|should)\s+(i|this|it|my\s+\w+)\s+(get|score|be\s+given|deserve|earn)\b/i },
     { id: 'en-marks-would-i-get', re: /\bmarks?\s+(would|will|do|can)\s+i\s+(get|score)\b/i },
     { id: 'en-is-my-answer-right', re: /\b(is|was)\s+my\s+(answer|solution|working|method|attempt|proof)\s+(right|correct|wrong|ok|okay|fine)\b/i },
-    { id: 'en-did-i-do-it-right', re: /\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?|\bdid\s+i\s+(do|get|solve)\s+(it|this|that)\s+(right|correctly)\b/i },
+    { id: 'en-did-i-do-it-right', re: /\b(my|answer|solution|working)\b[^\n]{0,80}\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?|\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?[^\n]{0,80}\b(my|answer|solution|working)\b|\bdid\s+i\s+(do|get|solve)\s+(it|this|that)\s+(right|correctly)\b/i },
     { id: 'en-out-of', re: /\bmark\w*\b[^.?!\n]{0,30}\bout\s+of\s+\d+\b/i },
     { id: 'en-open-check-improve', re: /\bcheck\s*(&|and)\s*improve\b/i },
     { id: 'en-show-my-working', re: /\b(show|send)\s+(you\s+)?my\s+(working|answer|solution|attempt|work)\b/i },
@@ -264,7 +264,7 @@ const AFFIRMATIVE_RE = /^\s*(yes|yeah|yep|yup|ya|ok|okay|sure|please|haan|haa|ha
 /** The tutor's own previous turn offered Check & Improve. */
 const PREV_OFFERED_CHECK_RE = /check\s*(&|and)\s*improve|\bupload\b|\b(get|have)\s+(it|that|this|your\s+\w+(\s+\w+)?)\s+(board[-\s])?(marked|checked|graded)\b|\bboard-marked\b/i;
 /** The tutor's own previous turn offered practice. */
-const PREV_OFFERED_PRACTICE_RE = /\btry\s+(a\s+couple|a\s+few|some|one|two|three|\d+)\b|\bpracti[cs]e\s+(set|questions?|a\s+few|some|this|on)\b|\bquick\s+practice\b|\bquiz\b/i;
+const PREV_OFFERED_PRACTICE_RE = /\btry\s+(a\s+couple|a\s+few|some)\b|\b(a\s+couple|a\s+few|some)\s+(of\s+)?(questions?|problems?|sums)\s+(for\s+you\s+)?to\s+try\b|\bpracti[cs]e\s+(set|questions?|a\s+few|some|this|on)\b|\bquick\s+practice\b/i;
 
 /**
  * Pure. `text` = the student's last turn; `prevTutor` = the tutor turn right before it (optional).

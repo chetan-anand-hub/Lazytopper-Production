@@ -125,6 +125,7 @@ function record(over: Partial<SessionRecord> = {}, q2Awarded = 1): SessionRecord
 let lastLocation = "";
 function Probe() {
   const l = useLocation();
+  // eslint-disable-next-line react-hooks/globals -- test probe records the router location
   lastLocation = l.pathname + l.search;
   return null;
 }
@@ -166,8 +167,8 @@ beforeEach(() => {
 });
 afterEach(() => cleanup());
 
-describe("TUTOR-FIX-2 T9 Â· Worksheet scorecard -> tutor -> the SAME scorecard", () => {
-  it("â˜…â˜… C: a cold ?review=<id> reopens THAT worksheet's scorecard via openUploadFor, strips the param, zero grading/recording calls", async () => {
+describe("TUTOR-FIX-2 T9 - Worksheet scorecard -> tutor -> the SAME scorecard", () => {
+  it("[**] C: a cold ?review=<id> reopens THAT worksheet's scorecard via openUploadFor, strips the param, zero grading/recording calls", async () => {
     mount();
     await screen.findByRole("button", { name: "Read your graded worksheet" }, { timeout: 10000 });
     await waitFor(() => expect(lastLocation).toBe(PAGE));
@@ -176,7 +177,7 @@ describe("TUTOR-FIX-2 T9 Â· Worksheet scorecard -> tutor -> the SAME scorecard
     noGradingOrRecordingCalls();
   });
 
-  it("â˜…â˜… A+B: ONE button (the lost-marks question) whose hop carries from, q, source and returnTo=â€¦review=<id>", async () => {
+  it("[**] A+B: ONE button (the lost-marks question) whose hop carries from, q, source and returnTo=...review=<id>", async () => {
     mount();
     await waitFor(() => expect(askButtons()).toHaveLength(1), { timeout: 10000 });
     fireEvent.click(askButtons()[0]);
@@ -190,7 +191,7 @@ describe("TUTOR-FIX-2 T9 Â· Worksheet scorecard -> tutor -> the SAME scorecard
     noGradingOrRecordingCalls();
   });
 
-  it("â˜… A: a fully-marked worksheet reopens with NO button (CONTROL: the scorecard itself still opens)", async () => {
+  it("[*] A: a fully-marked worksheet reopens with NO button (CONTROL: the scorecard itself still opens)", async () => {
     cloud.list = [record({}, 3)];
     cloud.payload = response(3);
     mount();
@@ -199,7 +200,7 @@ describe("TUTOR-FIX-2 T9 Â· Worksheet scorecard -> tutor -> the SAME scorecard
     expect(document.body.textContent).not.toContain("Where marks slipped");
   });
 
-  it("â˜… D: another account's record is never reopened from review=", async () => {
+  it("[*] D: another account's record is never reopened from review=", async () => {
     cloud.list = [record({ dedupKey: `someone-else::${CODE}` })];
     mount();
     await waitFor(() => expect(lastLocation).toBe(PAGE));
@@ -210,7 +211,7 @@ describe("TUTOR-FIX-2 T9 Â· Worksheet scorecard -> tutor -> the SAME scorecard
     noGradingOrRecordingCalls();
   });
 
-  it("â˜… D: signed out -> review= is just stripped; nothing reopened, no button", async () => {
+  it("[*] D: signed out -> review= is just stripped; nothing reopened, no button", async () => {
     auth.user = null;
     mount();
     await waitFor(() => expect(lastLocation).toBe(PAGE));
@@ -219,7 +220,7 @@ describe("TUTOR-FIX-2 T9 Â· Worksheet scorecard -> tutor -> the SAME scorecard
     expect(askButtons()).toHaveLength(0);
   });
 
-  it("â˜… D: a record whose saved marks differ from the shown grade gets NO button (never a mis-attributed question)", async () => {
+  it("[*] D: a record whose saved marks differ from the shown grade gets NO button (never a mis-attributed question)", async () => {
     cloud.list = [record({ marksAwarded: 9 })];
     mount();
     await screen.findByRole("button", { name: "Read your graded worksheet" }, { timeout: 10000 });

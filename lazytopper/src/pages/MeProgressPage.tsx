@@ -26,6 +26,7 @@ import {
 // TUTOR-FIX-2 (T2) — Me's pure marks derivations live in services/meSplit (moved verbatim so the
 // Tutor brief applies the SAME functions); re-exported so every existing import is unchanged.
 import { lostMarksOf, splitPaperMarks, viewRowsFrom, type PaperSplit, type ViewRow } from "../services/meSplit";
+// eslint-disable-next-line react-refresh/only-export-components
 export { lostMarksOf, splitPaperMarks, viewRowsFrom };
 export type { PaperSplit, ViewRow };
 import { summarizeCareless } from "../services/mistakeInsightsService";

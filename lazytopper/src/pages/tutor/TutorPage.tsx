@@ -95,6 +95,7 @@ function desktopSubjectOf(subjectParam: string): DesktopSubject | null {
 }
 
 /** The tutor's name before a chapter exists: "Maths tutor" — never "this topic". */
+// eslint-disable-next-line react-refresh/only-export-components
 export function subjectTutorTitle(subjectParam: string): string {
   const subject = desktopSubjectOf(subjectParam) ?? prettify(subjectParam);
   return subject ? `${subject} tutor` : "Your tutor";
@@ -270,6 +271,7 @@ function TutorSession() {
   // TUTOR-FIX-2 T11 — deterministic first, model second: when the model omitted the tag but the
   // STUDENT asked to have work checked / marked or asked for practice, the same CTA shows
   // (offerForTutorTurn mirrors the server's intent table). The model's own tag still wins.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const latestTutor = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
@@ -317,6 +319,7 @@ function TutorSession() {
     const live = sawSendingRef.current;
     sawSendingRef.current = false;
     if (!latestTutor?.figure) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reacts once per new tutor turn (index-guarded above)
     setShownKey(latestTutor.figure);
     if (live) setPanelOpen(true);
   }, [latestTutor]);

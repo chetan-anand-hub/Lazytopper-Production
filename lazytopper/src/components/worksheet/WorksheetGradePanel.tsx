@@ -272,6 +272,7 @@ export default function WorksheetGradePanel({
     const cached = getWorksheetGrade<WorksheetGradeResponse>(ws.worksheetId);
     const grade = reopen.response && reopen.response.ok ? reopen.response : cached && cached.ok ? cached : null;
     if (!grade) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot restore per review= nonce, same shape as the restore above
     setOutcome({ response: grade, miOutcomes: [] });
     setFromCache(true);
     setScorecardOpen(true);

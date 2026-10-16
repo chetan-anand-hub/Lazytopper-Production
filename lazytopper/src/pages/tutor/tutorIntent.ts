@@ -28,7 +28,7 @@ const CHECK: ReadonlyArray<[string, RegExp]> = [
   ["en-how-many-marks", /\bhow\s+(many|much)\s+(marks?\s+)?(would|will|do|can|could|did|should)\s+(i|this|it|my\s+\w+)\s+(get|score|be\s+given|deserve|earn)\b/i],
   ["en-marks-would-i-get", /\bmarks?\s+(would|will|do|can)\s+i\s+(get|score)\b/i],
   ["en-is-my-answer-right", /\b(is|was)\s+my\s+(answer|solution|working|method|attempt|proof)\s+(right|correct|wrong|ok|okay|fine)\b/i],
-  ["en-did-i-do-it-right", /\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?|\bdid\s+i\s+(do|get|solve)\s+(it|this|that)\s+(right|correctly)\b/i],
+  ["en-did-i-do-it-right", /\b(my|answer|solution|working)\b[^\n]{0,80}\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?|\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?[^\n]{0,80}\b(my|answer|solution|working)\b|\bdid\s+i\s+(do|get|solve)\s+(it|this|that)\s+(right|correctly)\b/i],
   ["en-out-of", /\bmark\w*\b[^.?!\n]{0,30}\bout\s+of\s+\d+\b/i],
   ["en-open-check-improve", /\bcheck\s*(&|and)\s*improve\b/i],
   ["en-show-my-working", /\b(show|send)\s+(you\s+)?my\s+(working|answer|solution|attempt|work)\b/i],
@@ -84,7 +84,7 @@ const AFFIRMATIVE_RE =
 const PREV_OFFERED_CHECK_RE =
   /check\s*(&|and)\s*improve|\bupload\b|\b(get|have)\s+(it|that|this|your\s+\w+(\s+\w+)?)\s+(board[-\s])?(marked|checked|graded)\b|\bboard-marked\b/i;
 const PREV_OFFERED_PRACTICE_RE =
-  /\btry\s+(a\s+couple|a\s+few|some|one|two|three|\d+)\b|\bpracti[cs]e\s+(set|questions?|a\s+few|some|this|on)\b|\bquick\s+practice\b|\bquiz\b/i;
+  /\btry\s+(a\s+couple|a\s+few|some)\b|\b(a\s+couple|a\s+few|some)\s+(of\s+)?(questions?|problems?|sums)\s+(for\s+you\s+)?to\s+try\b|\bpracti[cs]e\s+(set|questions?|a\s+few|some|this|on)\b|\bquick\s+practice\b/i;
 
 export interface OfferIntent {
   offer: TutorOffer;

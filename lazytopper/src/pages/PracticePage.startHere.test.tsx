@@ -98,6 +98,7 @@ let lastState: unknown = null;
 function LocationProbe() {
   const l = useLocation();
   lastLocation = `${l.pathname}${l.search}`;
+  // eslint-disable-next-line react-hooks/globals -- test probe records the router state
   lastState = l.state;
   return null;
 }

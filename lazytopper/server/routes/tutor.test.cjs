@@ -150,6 +150,29 @@ test('T11 detectOfferIntent: a bare "yes" follows the tutor\'s own offer, and on
   assert.equal(detectOfferIntent('haan', { prevTutor: pr })?.offer, 'practice');
   assert.equal(detectOfferIntent('yes', { prevTutor: 'Want to see how a question like this is solved?' }), null);
   assert.equal(detectOfferIntent('yes please'), null);
+  // Review fix: ordinary teaching lines are not practice offers; explicit offers still are.
+  for (const prev of [
+    'Try one more step: divide both sides by 2. Does that make sense?',
+    'Try 2 as a factor first. Shall I go on?',
+    'This is the idea a board quiz usually tests. Clear?',
+  ]) assert.equal(detectOfferIntent('yes', { prevTutor: prev }), null, prev);
+  for (const prev of [
+    'I can give you a couple of questions to try. Want them?',
+    'Want to practise a few on this?',
+    'Shall we do a quick practice set?',
+  ]) assert.equal(detectOfferIntent('yes', { prevTutor: prev })?.rule, 'yes-to-practice-offer', prev);
+});
+
+test('Review fix: "is that correct?" needs the student\'s own work nearby', () => {
+  for (const p of ['so sin = p/h, is that correct?', 'and the HCF divides the LCM, is that right?']) {
+    assert.equal(detectOfferIntent(p), null, p);
+  }
+  for (const p of [
+    'My answer is x = 3, is that correct?',
+    'Here is my working: 2x = 6 so x = 3. Is this right?',
+    'is this right? my solution: x = 3',
+    'did I do it right?',
+  ]) assert.equal(detectOfferIntent(p)?.offer, 'check-improve', p);
 });
 
 test('T11 safety net: no model tag + a check ask -> offer check-improve, counted', async () => {
