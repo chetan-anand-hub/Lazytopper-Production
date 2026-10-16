@@ -114,6 +114,7 @@ jobs:
       - name: Build (no browser in this chain)
         env:
           VITE_FREE_CHECK_ENABLED: "1"
+          VITE_PAYMENTS_ENABLED: "1"
         run: pnpm --filter lazytopper run build
 
       - name: Restore the date ledger

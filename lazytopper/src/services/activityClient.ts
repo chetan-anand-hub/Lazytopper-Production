@@ -94,6 +94,24 @@ export const ACTIVITY_EVENTS = [
   "practice_graded",
   "testimonial_play",
   "parent_share_click",
+  // SOLUTIONS-1 (lane G, D260) — the public solutions pages.
+  "sol_hint",
+  "sol_attempt_mcq",
+  "sol_attempt_typed_right",
+  "sol_attempt_typed_wrong",
+  "sol_attempt_no_verdict",
+  "sol_unlock",
+  "sol_check_start",
+  // TRACK-2 — checkout and onboarding. Additive.
+  "begin_checkout",
+  "purchase",
+  "start_here_shown",
+  "start_here_start",
+  "start_here_graded",
+  "start_here_dismissed",
+  "tutor_from_scorecard",
+  // TUTOR-FIX-2 T13 — once per tutor thread. Additive.
+  "tutor_first_message",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

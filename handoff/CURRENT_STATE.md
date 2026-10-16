@@ -1,4 +1,90 @@
+## [CURRENT - 2026-10-16 - DISPATCH-PACK_FIRST-WIN Session 1 - FOLLOWUPS-1] `#1196`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* **PROVENANCE.** Written by the docs sub-agent under CLAUDE.md section 10 from `gh pr view`, `git log`, the verifier's production live-check and the owner's rulings of 16 Oct. Facts only. Written at trunk `0d16869c`; re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | what it changed |
+|---|---|---|
+| `#1196` FOLLOWUPS-1 | `0d16869c4666d8e2b52e74af9a569adf2b1818e2` | Start-here kicker is now "Your first 2 minutes" (owner yes); Start-here CSS prefix `lt-sh` renamed `lt-shc` (closes `[FU-LT-SH-CLASS-CLASH]`); the scorecard lock copy tells an expired PAID pass apart via `status.passEnd` (closes `[FU-LOCK-COPY-PAID-EXPIRED]`); `purchase` uses the Razorpay `paymentId` as `transaction_id` and the server order amount as `value` when present, through additive optional fields on `BuyOutcome` read after verify (closes `[FU-PURCHASE-TXN-ID-RAZORPAY]`; owner approved touching payment code); "Ask the tutor why I lost this mark" plus a tutor Back that returns to the same scorecard on Chapter Test and Full Mock, via each page's existing `openStored`; Quick Practice stores `pickedOption` in the `perQuestion` payload (additive; `firestore.rules` checks ownership only), reopened scorecards show "Your answer" and the tutor opener says `You chose "<pick>".` (closes `[FU-QP-REOPEN-PICK]`) |
+
+- **Worksheet NOT done:** worksheet scorecards have no URL reopen-from-record path (generated state is in memory), so a tutor Back could not return honestly. `[FU-SCORECARD-TUTOR-REST]` is narrowed to Worksheet only and renamed `[FU-WORKSHEET-TUTOR-RETURN]`.
+- **Verified:** CI 22/22 on `a250fe9c` (first push). Verifier production live-check at 390 px (iframe) plus a code-bundle scan: a live scorecard shows "Your answer" and the full menu; a reopened saved scorecard shows "Your answer: 6 Ω and 6 Ω"; the tutor opener includes `You chose "6 Ω and 6 Ω"`; "Your first 2 minutes" is in the shipped bundle and the old kicker is gone.
+- **NOT live-verified:** the Chapter Test / Full Mock tutor buttons (need an AI-graded paper; covered by tests); the paid-pass lock copy and the Razorpay id (need a real paid pass / payment).
+- **Owner still owes:** a 390 px focused-overlay check on a FRESH zero-graded account; the admin feed labels check on his admin account; the first real payment must show `purchase` with the Razorpay id in GA4 and Meta.
+- **Open follow-ups now:** `[FU-WORKSHEET-TUTOR-RETURN]`, `[FU-START-HERE-WRITTEN]`.
+
+## [CURRENT · 2026-10-16 · DISPATCH-PACK_FIRST-WIN Session 1 · TRACK-2 + START-HERE-1 + QP-SCORECARD-2] `#1192` `#1193` `#1194`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by the Session-1 docs sub-agent under §10 from `gh pr view`, `git log`, the mailbox verdicts, `#973` and the owner's rulings of 16 Oct. Facts only; nothing here changes a ruling. Written at trunk `34b88520`; re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | what it changed |
+|---|---|---|
+| `#1192` TRACK-2 | `9ad6630c` | `begin_checkout` on a signed-in pay tap; `purchase` ONLY in PassCheckout's server-verified `outcome.status === "paid"` branch, once per transaction id; Meta InitiateCheckout / Purchase; the onboarding events (`start_here_shown|start|graded|dismissed`, `tutor_from_scorecard`) in all four allowlists + admin labels; `/admin` sends nothing to GA4 / Vercel / Meta (activity log unchanged); device flag `lazytopper.internal` tags later GA4 hits `traffic_type: "internal"`. `transaction_id` is a per-attempt id and `value` the config quote until `[FU-PURCHASE-TXN-ID-RAZORPAY]` |
+| `#1193` START-HERE-1 | `3252c70a` | the "Start here · 2 minutes" card (zero-graded signed-in accounts; Home desktop + mobile, `/practice-hub`, `/check-improve`); a 5-question CBQ-MCQ set through the existing exact-set Quick Practice path; wrong MCQs on the QP scorecard with pick, right option and bank steps; "Ask the tutor why I lost this mark" on QP and saved C&I scorecards (`from=<own record id>&q=<question>`, uid-scoped); the expired-trial lock line on `source=scorecard`; the ad's subject hint kept past sign-up. **No grading surface changed** (all six untouched) |
+| `#1194` QP-SCORECARD-2 | `34b88520` | **A** the full what-next menu on graded QP scorecards (owner ruling, reverses part of `#1036`); **B** "Your past sessions" (SurfaceHistory) with read-only reopen and zero recording calls; **C** the tutor's back returns to the saved scorecard (QP `review=<recordId>`, C&I via the existing `openReopen`), which fixes the live defect found after `#1193`; **D** Start-here picker fixes (chips, reused `ChapterPickerModal`, precomputed availability map + drift guard, no default subject); **E** a focused first-run overlay (mobile full screen, desktop overlay; Home + Practice Hub; C&I only when nothing is in progress; "Not now" twice rule; "Explore LazyTopper" exit). Verifier fixes: SurfaceHistory cloud refresh once per uid per tab; CodeQL clear-text uid storage fixed (constant flag); orphan-guard allow-list entry; focus-trap test race fixed |
+
+★ **Zero-graded signal:** local session records first (no network); an empty device asks ONE document (`cloudHasAnySessionRecord`, `limit(1)`); a cached or failed answer is "could not tell": one retry after 3 s, then an account created within 7 days still sees the card, an older or unknown one does not.
+★ **Reopen:** a reopened QP scorecard omits the student's own pick because the stored payload has none (recording code untouched; `[FU-QP-REOPEN-PICK]`).
+★ **Live-check (16 Oct, verifier, production, test account, 1280 px): PASSED** — overlay, chips, 0 network on subject tap, chapter picker, Quick 5, scorecard traps + full menu, tutor round trip back to the saved scorecard, past sessions, card gone after the first graded session, 0 console errors. **Owed by the owner:** the 390 px phone check (needs a fresh zero-graded account), GA4 / purchase checks: see NEXT_ACTION.
+Session 2 starts next (Part 4 then Part 3 of the pack).
+
+## [CURRENT · 2026-10-15 · PRICING-LIGHT-1] `#1190`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by the controller under §10 from `gh pr view 1190` and `git log`. Facts only. Written at trunk `566b3379`; re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1190` PRICING-LIGHT-1 (head `5054f57e`) | `566b3379` | 10-15 10:28 | `/pricing` is a light page, Basic and Premium side by side with a full compare table, two pass tiles (Month pass / Till your boards), navy and deep-green Pay buttons (contrast-tested); content from `src/config/pricingCompare.ts`; the prerendered `/pricing` is captured with payments ON (`VITE_PAYMENTS_ENABLED: "1"` in `prerender-capture.yml`); no unbacked "Limited" claim on Basic (guarded); trunk tree == head tree `b6ce2a89` |
+
+Owner live-verify owed (see the SESSION_LOG entry). No grading behaviour, bank row, server file or `services/checkout.ts` changed.
+
 # LazyTopper — Current State
+
+## [CURRENT · 2026-10-14 · SOLUTIONS-1 + LEGAL-ENTITY-1 (lane G)] `#1186` `#1187`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by G under §10 (one docs PR for both) from `#973` (CLAIM / AUDIT / LIVE posts; D259–D261), `gh pr view`, `git log` and `claude/GROWTH_LOG.md`. Facts only; nothing here changes a ruling. Written at trunk `294e472a` (`#1187`).
+
+★ **TRUNK at writing:** `294e472a` (`#1187`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (IST) | what it changed |
+|---|---|---|---|
+| `#1186` SOLUTIONS-1 (D259–D261) | `3cdbed4b` | 10-14 ~22:58 | two new public pages, `/ncert-solutions/triangles` (13) and `/ncert-exemplar/triangles` (16): D261 allowlist ∩ the chapter loader's served rows; attempt-first (hint = step 1; any MCQ pick / typed answer unlocks the full solution, which is in the pre-built HTML, hidden); MCQ ✓/✗ plus 5 typed rows via `lib/solutions/compareAnswer.ts` (never wrong for a correct equivalent); every ✗ ends in "Check my answer"; real urgency only; BreadcrumbList JSON-LD; 7 `sol_*` events in all four allowlists; a "Solutions" link on the `/ncert-class-10` Triangles row. App.tsx: 1 lazy import + 2 shell matchers + 2 Routes. `vercel.json` regenerated from the router (one-segment wildcard, as `/notes`) |
+| `#1187` LEGAL-ENTITY-1 | `294e472a` | 10-14 ~23:39 | names the operating company **P&CGOLDDUST_TECH PRIVATE LIMITED** (one constant `src/config/legalEntity.ts`) on `/legal/privacy`, `/legal/terms`, `/legal/refund` (operator line in the contact block), in the Terms' first paragraph ("Last updated: October 2026"), and in both copyright lines (legal-page foot + `PublicLegalFooter`). For Razorpay KYC. No payment code or config |
+
+★ **Owner rulings in this pair:** `#1186` merged on the owner's "I approve, merge on green CI" (22:3x IST), overriding the tier-2 cofounder audit before merge; then "we dont need cofounders audit, you audit it" (23:07 IST): G's audit APPROVED (`#973` issuecomment-6174761591). The company name was confirmed exactly as in the spec (cofounder relay, 23:00 IST).
+★ **LIVE checks (curl, static HTML):** `#1186`: www `3cdbed4b`, both pages 200, self-canonical, 13/13 and 16/16 cards with solutions, a two-segment path 404. `#1187`: www `294e472a` (3/3), the operator line on all three legal pages, the Terms paragraph and date, the © line on `/` and `/pricing`.
+★ **Known deviation:** an unknown chapter (`/ncert-solutions/<other>`) is served the shell (200, home canonical) and redirects in-app to `/ncert-class-10`, not a server 404 (`[FU-SOLUTIONS-UNKNOWN-CHAPTER-404]`).
+## [CURRENT · 2026-10-14 · NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (lane G)] `#1171` `#1182` `#1184`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by G under §10 (D195 §6, one docs PR for G's NCERT wave) from `#973` (the CLAIM / AUDIT-REQUEST / MERGE-SLOT / LIVE posts; D195, D196, D210, D211, D213, D221, D232, D234, D235, D258), `gh pr view`, `git log` and `claude/GROWTH_LOG.md`. Facts only; nothing here changes a ruling. Written at trunk `2da27ae4` (`#1184`).
+
+★ **TRUNK at writing:** `2da27ae4` (`#1184`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1171` NCERT-BOOKS-1 (reopens closed `#1159`, D232/D234/D235) | `9f04eb02` | 10-14 08:43:57 | new public page `/ncert-class-10`: the 2026-27 NCERT Class 10 books, Maths 14 + Science 13 = 27 rows; each row "Read the chapter" (our stored copy, D211/D213), Notes, Practice, Check my answer and a credit line "NCERT Class 10 <Book>, Chapter N (jemh/jescNNN) · official copy ncert.nic.in"; full public-page wiring (App.tsx one route, canonical, head, rewrite, llms.txt, sitemap, prerender, inlined route CSS) |
+| `#1182` NCERT-BOOKS-1b (merged by the cofounder, D258) | `1afc7020` | 10-14 12:56:06 | the page joins the desktop shell / mobile self-chrome (App.tsx: 2 exact-path matchers); Maths \| Science tablist with `?subject=`; return-ticket back link; per-row Formulae link; **"NCERT Books" rail item** (DesktopShell.tsx: a real link, a plain click opens a subject → chapter picker); **pdf.js in-page reader** (Android no longer opens a new tab); Maths Ch 9 now stored |
+| `#1184` NCERT-ENTRY-1 | `2da27ae4` | 10-14 13:55:39 | the mobile entry point: an "NCERT" link on every Exam Trends chapter card and in its All-chapters list; every notes page shows "Read NCERT Chapter N on LazyTopper (code)" above the official credit; `ncertReadPath` moved to `config/ncertBooks.ts`. Closes `[FU-NOTES-PDF-LINK-TO-READER]`. No protected file |
+
+★ **Content facts (D213, D221):** the 26 stored chapter PDFs were byte-identical to the live 2026-27 ncert.nic.in files at `#1159`; Maths Ch 9 (`ncert/maths/ch9.pdf`) was uploaded by the owner and returns 206 (`#1182`). Maths Ch 8 and Ch 9 are two rows sharing `/notes/trigonometry`.
+★ **Indexing (G, 14 Oct):** GSC "Request indexing" done for `/ncert-class-10`, `/exam-trends` and 12 notes pages; Bing has all 27; sitemap resubmitted; IndexNow `search-ping` succeeded on `2da27ae4`. 14 notes pages are still to request in GSC (daily quota).
+★ **In flight, not merged:** SOLUTIONS-1 (G, D259–D261), branch `feat/growth-solutions-1` @ `3403492`, no PR yet. **Owed (NEEDS-OWNER):** an Android "Read the chapter" check; tapping NCERT on Exam Trends and on a notes page.
+
+## [CURRENT · 2026-10-14 · UPLOAD-SHRINK-1 (C1/C1b) + PYTHAGORAS-HUB-1/-2 (C1b)] `#1126` `#1174` `#1175` `#1178`
+
+*(Adds to the blocks below, which stay current for everything this block does not name.)* ★ **PROVENANCE.** Written by C1b under §10 (one combined docs PR) from `#973` (the LIVE, MERGE-SLOT, AUDIT-REQUEST and DECISION posts; D183, D199, D212, D219, D222, D223, D229, D233, D235–D237, D245, D249, D251), `COORD\C1-STATE.md`, `gh pr view` and `git log`. Facts only; nothing here changes a ruling. Written at trunk `9e668184` (`#1178`).
+
+★ **TRUNK at writing:** `9e668184` (`#1178`). Re-derive with `git rev-parse origin/base/approved-thru-437`.
+
+| PR | merge SHA | merged (UTC) | what it changed |
+|---|---|---|---|
+| `#1126` UPLOAD-SHRINK-1 | `cdfb6fea` | 10-14 08:58:32 | on-device PDF shrink for scanned PDFs **over the 7 MiB upload ceiling only** (gentlest rung first: 3000 px/q0.95 → … → 2400/0.90, stepping down until it fits); a PDF ≤ ceiling goes up as the same `File` and fetches no pdf.js; typed PDFs never rasterised; pdf.js is a lazy chunk (entry `index-*.js` has 0 references); a second pick aborts the first; 96 MB source-bytes cap → original; a "Skip — upload as it is" button |
+| `#1174` PYTHAGORAS-HUB-1 | `ba797dca` | 10-14 10:04:30 | Triangles hub pack: theorem/converse cards, converse formula card, mind-map n6/n7 and the theorem video removed; numeric a² + b² = c² kept as a tool |
+| `#1175` GRADER-CONSEQUENTIAL-1 (B2) | `31f9f426` | 10-14 11:01:30 | a deducting step with no type inherits the nearest earlier typed lost step's type in the same part (`consequentialOf`, v2 only; `presentation` never an origin; a `missing` step only with no credited step in between); marks unchanged; inline-SVG verdict-coloured arrow with "follows from step N" in the three graded renderers |
+| `#1178` PYTHAGORAS-HUB-2 | `9e668184` | 10-14 11:37:45 | the rendering hub files (content, V2 Full, V2 Enrichment, guided mind map, visual registry, pack): no Pythagoras/converse concept, no area-of-similar-triangles, no Angle Bisector Theorem; `findVisualForQuestion` returns null below the threshold; guard test with controls |
+
+★ **Production grading model (D183):** `gemini-3.8-flash` (`server/grading/modelConfig.cjs:24`, "the code default is what production runs"); 2.5-flash is only the fallback. `/api/health` reports the chat/route model, NOT the grader.
+★ **Upload sizes today:** image ceiling 3 MB (server `mentorImageSupport.cjs:1`, client `uploadLimits.ts:57`; photos are prepared at 2000 px/q0.85 ≈ 200–250 KB), PDF ceiling 7 MiB (both sides), request body 10 MiB; a > 7 MiB scanned PDF is now shrunk instead of refused.
+★ **In flight, not merged:** `#1179` WORKSHEET-FIX-2 (draft). **Owed (NEEDS-OWNER):** the #1126 live-verify (above); a glance at the Triangles hub after #1178.
 
 ## [CURRENT · 2026-10-14 · BANK-STEPS-1 REPAIR (D, B) + GARBLE-1 PAUSE / REWRITE (A, A2) + MATH-RENDER-1/1b/2/3 (D, A2, D2)] `#1142` `#1143` `#1144` `#1145` `#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164` MERGED — repaired questions are served again, wrong or garbled ones are withheld, and maths shorthand in questions and in grader feedback renders as maths
 

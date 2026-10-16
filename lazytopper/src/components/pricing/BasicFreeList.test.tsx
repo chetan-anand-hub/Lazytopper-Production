@@ -27,23 +27,7 @@ vi.mock("../../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
 import { BASIC_FREE_LABELS, FREE_FEATURES } from "./BasicFreeList";
 import { RequirePremium } from "../auth/RequireAuth";
 import PricingPage from "../../pages/PricingPage";
-
-/**
- * Pricing's Basic card as it rendered BEFORE the move — the wording must not drift — with ONE
- * owner-ruled change (FRICTION-FIX-1 · F2 / P7, ruling R3): the "Full mocks…" row (not
- * included) became the mock-papers row (included), whose numbers come from
- * config/mockViewLimits.ts. Typed out here on purpose: this is what a student reads.
- */
-const PRICING_BASIC_ROWS_BEFORE_THE_MOVE = [
-  "✓Browse Home, Exam Trends, and topic surfaces",
-  "✓Practice picker and limited practice",
-  "✓Limited worksheet generation",
-  "✓Basic topic insights",
-  "—Solution Checker / Check & Improve",
-  "—Deep Mistake Intelligence",
-  "✓Open or download 3 chapter tests or mocks a day (1 when signed out) — written answers not checked", // D114 + D117 wording
-  "—Richer Me / Progress recommendations",
-];
+import { BASIC_INCLUDES } from "../../config/pricingCompare";
 
 beforeEach(() => {
   H.user = null;
@@ -54,10 +38,14 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("one source", () => {
-  it("PricingPage no longer declares its own list — it imports the shared one", () => {
+  // PRICING-LIGHT-1 (owner ruling L4, Oct 2026): the pricing page's Basic card now reads
+  // config/pricingCompare.ts. FREE_FEATURES stays the ONE source for every Premium lock's
+  // "Free on Basic:" list (pinned below) — the page simply no longer renders it.
+  it("PricingPage neither declares nor renders FREE_FEATURES any more (L4); the locks still read it", () => {
     const src = readFileSync(resolve(process.cwd(), "src/pages/PricingPage.tsx"), "utf8");
     expect(src).not.toMatch(/const\s+FREE_FEATURES\s*=/);
-    expect(src).toMatch(/import \{ FREE_FEATURES \} from "\.\.\/components\/pricing\/BasicFreeList";/);
+    expect(src).not.toMatch(/\bFREE_FEATURES\.map\b/);
+    expect(src).toMatch(/from "\.\.\/config\/pricingCompare";/);
   });
 
   it("the lock list is exactly Pricing's INCLUDED rows, in order", () => {
@@ -66,8 +54,8 @@ describe("one source", () => {
   });
 });
 
-describe("Pricing's Basic card is unchanged (signed out — the prerendered /pricing shape)", () => {
-  it("renders the same eight rows, same wording, same marks", () => {
+describe("Pricing's Basic card reads the L4 list (signed out — the prerendered /pricing shape)", () => {
+  it("renders BASIC_INCLUDES (free check off in this build), and none of the lock-only rows", () => {
     render(
       <MemoryRouter initialEntries={["/pricing"]}>
         <PricingPage />
@@ -75,7 +63,9 @@ describe("Pricing's Basic card is unchanged (signed out — the prerendered /pri
     );
     const list = screen.getByRole("list", { name: "Basic plan features" });
     const rows = Array.from(list.querySelectorAll("li")).map((li) => li.textContent);
-    expect(rows).toEqual(PRICING_BASIC_ROWS_BEFORE_THE_MOVE);
+    expect(rows).toEqual(BASIC_INCLUDES.filter((i) => !i.onlyWithFreeCheck).map((i) => `✓${i.label}`));
+    // The lock list's EXCLUDED rows were a Pricing-only device; the card no longer lists them.
+    for (const f of FREE_FEATURES.filter((x) => !x.included)) expect(list.textContent).not.toContain(f.label);
   });
 });
 

@@ -2,6 +2,8 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, fireEvent, screen, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 /**
  * RAZORPAY-1 — the pricing page's buy area.
@@ -292,9 +294,35 @@ describe("buyPass", () => {
     const rz = fakeRazorpay("pay");
     const verify = vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" }));
     const out = await buyPass("month", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify });
-    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z" });
+    // FOLLOWUPS-1 A4: the paid outcome additionally carries Razorpay's payment id and the
+    // SERVER order's amount in rupees (analytics only); passEnd is unchanged.
+    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z", paymentId: "pay_1", amountInr: 599 });
     expect(rz.seen[0]).toMatchObject({ key: "rzp_test_x", amount: 59900, currency: "INR", order_id: "order_1" });
     expect(verify).toHaveBeenCalledWith({ razorpay_payment_id: "pay_1", razorpay_order_id: "order_1", razorpay_signature: "sig" });
+  });
+
+  it("FOLLOWUPS-1 A4: what goes to Razorpay and to verify is unchanged; the new fields are read only after verify", async () => {
+    const rz = fakeRazorpay("pay");
+    const verify = vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" }));
+    await buyPass("till_boards", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify });
+    expect(Object.keys(rz.seen[0]).sort()).toEqual(
+      ["amount", "currency", "description", "handler", "key", "modal", "name", "order_id"],
+    );
+    expect(verify).toHaveBeenCalledTimes(1);
+    expect(verify.mock.calls[0]).toEqual([{ razorpay_payment_id: "pay_1", razorpay_order_id: "order_1", razorpay_signature: "sig" }]);
+  });
+
+  it("FOLLOWUPS-1 A4: a payment id that is not a non-empty string is left off (never invented)", async () => {
+    const Ctor = function (this: unknown, options: Record<string, unknown>) {
+      return {
+        open() {
+          (options.handler as (r: unknown) => void)({ razorpay_payment_id: "", razorpay_order_id: "order_1", razorpay_signature: "sig" });
+        },
+      };
+    } as unknown as RazorpayConstructor;
+    const verify = vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" }));
+    const out = await buyPass("month", { createOrder: async () => order, loadScript: async () => Ctor, verify });
+    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z", amountInr: 599 });
   });
 
   it("dismissed checkout -> dismissed, no verify", async () => {
@@ -311,5 +339,100 @@ describe("buyPass", () => {
     expect(await buyPass("month", { createOrder: boom, loadScript: async () => rz.Ctor, verify: vi.fn() })).toEqual({ status: "failed" });
     expect(await buyPass("month", { createOrder: async () => order, loadScript: boom, verify: vi.fn() })).toEqual({ status: "failed" });
     expect(await buyPass("month", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify: boom })).toEqual({ status: "failed" });
+  });
+});
+
+/* ── PRICING-LIGHT-1 · P23 — every state lands in the two-tile layout ─────────
+ * PricingPage lays the buy area out as two pass tiles: `.lt-pricing-checkout` is
+ * `display: contents` inside the tile grid, and these class names place each child.
+ * The change to PassCheckout is class names only — handleBuy / onBuy / the checkout
+ * imports are untouched, and the Z1-Z10 tests above still drive the behaviour.
+ */
+
+const PAGE_CSS = (() => {
+  const src = readFileSync(resolve(process.cwd(), "src/pages/PricingPage.tsx"), "utf8");
+  const m = /const PRICING_CSS = `([\s\S]*?)`;/.exec(src);
+  if (!m) throw new Error("PRICING_CSS not found");
+  return m[1].replace(/\/\*[\s\S]*?\*\//g, "");
+})();
+
+/** The base (outside any @media) declaration block of an exact selector. */
+function baseBlock(selector: string): string {
+  const base = PAGE_CSS.slice(0, PAGE_CSS.indexOf("@media"));
+  const esc = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const m = new RegExp(`(?:^|[}\\s,])${esc}\\s*(?:,[^{]*)?\\{([^}]*)\\}`).exec(base);
+  return m ? m[1] : "";
+}
+
+describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout", () => {
+  it("idle and busy: the month button goes to the Month tile, till-boards to the Till tile", async () => {
+    let finish: (v: BuyOutcome) => void = () => {};
+    view({ onBuy: vi.fn(() => new Promise<BuyOutcome>((r) => { finish = r; })) });
+    const month = screen.getByRole("button", { name: monthButtonLabel(true) });
+    const boards = screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL });
+    expect(month.className).toBe("lt-pricing-cta lt-pricing-pay lt-pricing-pay--month");
+    expect(boards.className).toBe("lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards");
+    expect(month.parentElement?.className).toBe("lt-pricing-checkout");
+    fireEvent.click(month);
+    // Busy: both disabled, still in their tiles.
+    expect((month as HTMLButtonElement).disabled).toBe(true);
+    expect((boards as HTMLButtonElement).disabled).toBe(true);
+    await act(async () => finish({ status: "dismissed" }));
+    expect((month as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("already active: the notice spans the row ABOVE the tiles", () => {
+    view({ activePassEnd: "2026-10-27T06:30:00.000Z" });
+    expect(screen.getByTestId("pass-checkout-already-active").className).toContain("lt-pricing-checkout-note--top");
+  });
+
+  it("paid: 'Premium is active until …' spans the row above the tiles, and the buttons go", async () => {
+    view({ onBuy: vi.fn(async () => ({ status: "paid" as const, passEnd: "2026-10-27T06:30:00.000Z" })) });
+    fireEvent.click(screen.getByRole("button", { name: monthButtonLabel(true) }));
+    const paid = await screen.findByTestId("pass-checkout-paid");
+    expect(paid.className).toContain("lt-pricing-checkout-note--top");
+    expect(paid.textContent).toBe("Premium is active until 27 October 2026");
+    expect(screen.queryByRole("button", { name: monthButtonLabel(true) })).toBeNull();
+  });
+
+  it("failed: the alert spans the row BELOW the tiles, and both buttons stay for a retry", async () => {
+    view({ onBuy: vi.fn(async () => ({ status: "failed" as const })) });
+    fireEvent.click(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL }));
+    const alert = await screen.findByTestId("pass-checkout-failed");
+    expect(alert.className).toContain("lt-pricing-checkout-note--bottom");
+    expect(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL })).toBeTruthy();
+  });
+
+  it("the page's CSS places every one of those classes (and makes the wrapper display: contents)", () => {
+    expect(baseBlock(".lt-pricing-checkout")).toMatch(/display:\s*contents/);
+    expect(baseBlock(".lt-pricing-pay--month")).toMatch(/grid-column:\s*1;[\s\S]*grid-row:\s*3/);
+    expect(baseBlock(".lt-pricing-pay--boards")).toMatch(/grid-column:\s*2;[\s\S]*grid-row:\s*3/);
+    expect(baseBlock(".lt-pricing-checkout-note--top")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*1/);
+    expect(baseBlock(".lt-pricing-checkout-note--bottom")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*4/);
+    // CONTROL — the reader finds nothing for a class the page does not style.
+    expect(baseBlock(".lt-pricing-no-such-class")).toBe("");
+  });
+
+  it("on the page (payments ON) the buy area sits INSIDE the tile grid, Month tile before Till tile", () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    render(
+      <MemoryRouter initialEntries={["/pricing"]}>
+        <PricingPage />
+      </MemoryRouter>,
+    );
+    const grid = document.querySelector('[data-testid="pricing-passes"]');
+    expect(grid).not.toBeNull();
+    expect(grid!.querySelector(":scope > .lt-pricing-checkout")).not.toBeNull();
+    const order = Array.from(grid!.querySelectorAll(".lt-pricing-pass, .lt-pricing-pay")).map((el) =>
+      el.classList.contains("lt-pricing-pass--month")
+        ? "month-tile"
+        : el.classList.contains("lt-pricing-pass--boards")
+          ? "boards-tile"
+          : el.classList.contains("lt-pricing-pay--month")
+            ? "month-pay"
+            : "boards-pay",
+    );
+    expect(order).toEqual(["month-tile", "boards-tile", "month-pay", "boards-pay"]);
+    expect(grid!.querySelector(":scope > .lt-pricing-plan-desc")).toBeNull();
   });
 });

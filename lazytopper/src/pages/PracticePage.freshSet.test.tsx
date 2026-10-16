@@ -134,14 +134,17 @@ function displayedSet(): string[] {
     .map((el) => (el.textContent || "").replace(/^Question (\d+).*$/, "$1"));
 }
 
-/** PRACTICE-HONESTY-1 (owner spec §5, controller D39): the MCQ-only scorecard is "just the
- *  marks + the review button" — it no longer offers "Build a fresh set". The product path to
- *  a fresh set from a finished set is now: "Back to this set (see the steps)" → the toolbar's
- *  "Refresh set", which calls the SAME `buildFreshSet` the old scorecard CTA did
- *  (PracticePage: `refreshSet = () => buildFreshSet()`). So the fresh-set contract below is
- *  driven through that path, and the scorecard's lack of the CTA is pinned. */
+/** PRACTICE-HONESTY-1 (owner spec §5, controller D39): the MCQ-only scorecard was "just the
+ *  marks + the review button". The product path to a fresh set from a finished set used here
+ *  is: "Back to this set (see the steps)" → the toolbar's "Refresh set", which calls the SAME
+ *  `buildFreshSet` the scorecard CTA does (PracticePage: `refreshSet = () => buildFreshSet()`).
+ *  So the fresh-set contract below is driven through that path.
+ *  AMENDED (owner ruling Oct 2026 05:00 (QP-SCORECARD-2 A)) — was
+ *  `expect(queryByRole("button", { name: /Build a fresh set/i })).toBeNull()` (the scorecard's
+ *  lack of the CTA). The graded scorecard now carries the full menu again, so the CTA is
+ *  present (after the review action); the path below is unchanged. */
 async function freshSetFromFinishedSet(callsBefore: number) {
-  expect(screen.queryByRole("button", { name: /Build a fresh set/i })).toBeNull();
+  expect(screen.getByRole("button", { name: /Build a fresh set/i })).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: /Back to this set \(see the steps\)/ }));
   await waitFor(() => {
     if (document.querySelector(".lt-sc__big")) throw new Error("scorecard still up");

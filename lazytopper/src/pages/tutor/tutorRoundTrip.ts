@@ -74,8 +74,17 @@ export function buildQuickPracticeRoundTripHref(args: {
     source: "tutor",
     returnTo: args.returnTo,
     backLabel: args.backLabel,
-    count: typeof args.count === "number" && args.count > 0 ? String(args.count) : undefined,
+    // TUTOR-FIX-2 [FU-PRACTICE-COUNT-PASSTHROUGH] — always a count: the student's stated number,
+    // else 2 ("a couple"), capped at 10, so the set matches what the tutor promised.
+    count: String(quickPracticeCount(args.count)),
   })}`;
+}
+
+/** The overlay set size: a whole number 1..10, default 2. */
+export function quickPracticeCount(count: unknown): number {
+  const n = typeof count === "number" && Number.isFinite(count) ? Math.floor(count) : NaN;
+  if (!(n >= 1)) return 2;
+  return Math.min(10, n);
 }
 
 /**
@@ -174,6 +183,44 @@ export function matchReturningPracticeRecord(
 export interface ReturnOpener {
   text: string;
   follow?: { label: string; send: string };
+}
+
+/** TUTOR-FIX-2 T6 — "that Real Numbers sheet", or the neutral "your sheet" when the opener has
+ *  no chapter it can honestly name (an empty label). */
+function thatRef(label: string, noun: string): string {
+  return label && label.trim() ? `that ${label} ${noun}` : `your ${noun}`;
+}
+
+/**
+ * TUTOR-FIX-2 T6 — the chapter label a return opener may use for a RETURNED record: the record's
+ * OWN chapter(s), never the tutor's when they differ (live defect: the tutor on Trigonometry
+ * labelled a returned quadratic sheet "that Trigonometry sheet").
+ *   · the record's one chapter IS the tutor's → the tutor's own label (unchanged copy);
+ *   · one or two other chapters → their names ("Quadratic Equations", "A and B");
+ *   · no chapter, a mixed paper, or more than two → "" (the opener says "your sheet", no claim).
+ * Matching (`matchReturningRecord`) is unchanged — this only decides the words. PURE: the
+ * caller supplies the name lookup and the canonical slug matcher.
+ */
+export function returnedRecordLabel(
+  record: Pick<SessionRecord, "topicKeys">,
+  tutor: { topicKey: string; topicLabel: string },
+  nameOf: (topicKey: string) => string | null,
+  slugMatches: (a: string, b: string) => boolean = (a, b) => a === b,
+): string {
+  const keys: string[] = [];
+  for (const k of record.topicKeys || []) {
+    const key = String(k || "").trim();
+    if (!key) continue;
+    if (key.startsWith("mixed:")) return "";
+    if (!keys.some((seen) => slugMatches(seen, key))) keys.push(key);
+  }
+  if (keys.length === 0 || keys.length > 2) return "";
+  if (keys.length === 1 && tutor.topicKey && slugMatches(keys[0], tutor.topicKey)) return tutor.topicLabel;
+  const names = keys.map((k) =>
+    tutor.topicKey && slugMatches(k, tutor.topicKey) ? tutor.topicLabel : nameOf(k),
+  );
+  if (names.some((n) => !n || !n.trim())) return "";
+  return names.join(" and ");
 }
 
 /** Trim a grader annotation to one sentence's worth of opener copy — the tutor quotes
@@ -414,7 +461,7 @@ export function composeCheckImproveRichReturnOpener(
     );
     if (!hasWorking) return null; // MCQ-only clean sheet — the thin opener already says this.
     return {
-      text: `${awarded} out of ${total} on that ${topicLabel} sheet — clean, and the working held up step for step. That's landing now. Want a harder one to stretch on, or leave it here?`,
+      text: `${awarded} out of ${total} on ${thatRef(topicLabel, "sheet")} — clean, and the working held up step for step. That's landing now. Want a harder one to stretch on, or leave it here?`,
       follow: { label: "A harder one", send: "Give me a harder one to try." },
     };
   }
@@ -431,7 +478,7 @@ export function composeCheckImproveRichReturnOpener(
   const where = `On Q${qNumber}, step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)}`;
 
   return {
-    text: `The board marked that ${topicLabel} sheet ${awarded} out of ${total}, ${rootCause}. ${where} ${fix}`,
+    text: `The board marked ${thatRef(topicLabel, "sheet")} ${awarded} out of ${total}, ${rootCause}. ${where} ${fix}`,
     follow: {
       label: "Go through that step",
       send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
@@ -550,7 +597,7 @@ export function composeReturnOpener(
   // Honest fallback when the record carries no marks (e.g. a couldn't-read sheet).
   if (awarded == null || total == null || total <= 0) {
     return {
-      text: `You're back with your graded ${topicLabel} ${source}. Want to go through where it slipped, together?`,
+      text: `You're back with your graded ${topicLabel ? `${topicLabel} ` : ""}${source}. Want to go through where it slipped, together?`,
       follow: { label: "Go through it", send: "Yes, let's go through where it slipped." },
     };
   }
@@ -596,4 +643,186 @@ export function composeReturnOpener(
     text: `${lead} ${awarded} out of ${total}, ${rootCause} ${fix}`,
     follow: { label: "Fix just that", send: "Yes — help me fix just that." },
   };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   START-HERE-1 · "Ask the tutor about this mark" — the scorecard hop (spec 2.5)
+   ══════════════════════════════════════════════════════════════════════════════
+   A scorecard question that lost marks links to the tutor with `from=<sessionRecordId>`
+   and `q=<questionId>`. The tutor then reads the student's OWN record and builds the SAME
+   one-shot `TutorReturnedWork` and the same reframed opener the overlay path uses. Nothing
+   here grades: every number and every quoted word comes from the stored record/payload. */
+
+/** A record belongs to `uid` unless its idempotent dedup key names a different account. */
+export function recordBelongsToUid(record: SessionRecord, uid: string): boolean {
+  const key = String(record.dedupKey || "");
+  const at = key.indexOf("::");
+  return at < 0 ? true : key.slice(0, at) === uid;
+}
+
+/** The question `questionId` inside `record`: its 1-based position in the displayed set
+ *  (the join key of the sparse per-question results) and its graded result, if any. */
+export function findScorecardQuestion(
+  record: SessionRecord,
+  payload: SessionPerQuestionPayload | null,
+  questionId: string,
+): { qNumber: number; result: WorksheetQuestionGrade | null } | null {
+  // A Check & Improve paper is the student's own upload — no bank identity, `questionIds` is [] —
+  // so its hop names the question by position: `qn:<number>`. That form must match a stored result.
+  const positional = /^qn:(\d{1,3})$/.exec(questionId);
+  if (positional) {
+    const n = Number(positional[1]);
+    const result = (payload?.response?.results || []).find((r) => r.qNumber === n) ?? null;
+    return result ? { qNumber: n, result } : null;
+  }
+  const index = (record.questionIds || []).indexOf(questionId);
+  if (index < 0) return null;
+  const qNumber = index + 1;
+  const result = (payload?.response?.results || []).find((r) => r.qNumber === qNumber) ?? null;
+  // FOLLOWUPS-1 B — a saved paper (Chapter Test / Full Mock / Worksheet) names its question
+  // by position in `questionIds`; that join is only trusted when the stored results align 1:1
+  // with the ids (the stored lenses' own rule), and the question must hold a stored result.
+  if (isSavedPaperRecord(record)) {
+    const results = payload?.response?.results || [];
+    if (results.length !== (record.questionIds || []).length || !result) return null;
+  }
+  return { qNumber, result };
+}
+
+/** The positional hop id of a question on a paper with no bank identity (Check & Improve). */
+export const positionalQuestionId = (qNumber: number): string => `qn:${qNumber}`;
+
+/** The reframed opener for ONE question the student asked the tutor about. Marks come from
+ *  the stored result; a quoted step is the grader's own annotation (`shortAnnotation`
+ *  truncates, never rewords). A bare MCQ click has no steps, so it is NOT dressed up. */
+export function composeScorecardQuestionOpener(
+  qNumber: number,
+  result: WorksheetQuestionGrade | null,
+  topicLabel: string,
+): ReturnOpener {
+  const gradedResult = result && isGradedQuestion(result) ? result : null;
+  const total = gradedResult ? Number(gradedResult.totalMarks) || 0 : 0;
+  const awarded = gradedResult ? Number(gradedResult.marksAwarded) || 0 : 0;
+  const lost = Math.max(0, total - awarded);
+  if (!gradedResult || total <= 0) {
+    return {
+      text: `You asked about Q${qNumber} on ${thatRef(topicLabel, "set")}. What would you like to go through?`,
+    };
+  }
+  if (lost === 0) {
+    return {
+      text: `Q${qNumber} on ${thatRef(topicLabel, "set")} earned its full ${total} mark${total === 1 ? "" : "s"}. What would you like to check about it?`,
+    };
+  }
+  const marks = `${lost} mark${lost === 1 ? "" : "s"}`;
+  // FOLLOWUPS-1 C3 — the option the student picked, when the stored payload carries it (Quick
+  // Practice records from FOLLOWUPS-1 on). Quoted verbatim; absent → the opener is unchanged.
+  const storedPick = (gradedResult as { pickedOption?: unknown }).pickedOption;
+  const chose = typeof storedPick === "string" && storedPick.trim() ? ` You chose "${storedPick.trim()}".` : "";
+  const fault = firstFaultyStepInResults([gradedResult]);
+  if (fault) {
+    const { step } = fault;
+    return {
+      text: `Q${qNumber} on ${thatRef(topicLabel, "set")} cost you ${marks}.${chose} Step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)} Want to go through it together?`,
+      follow: {
+        label: "Go through that step",
+        send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
+      },
+    };
+  }
+  return {
+    text: `Q${qNumber} on ${thatRef(topicLabel, "set")} cost you ${marks}.${chose} Want to go through why the right answer is right, and where the trap is?`,
+    follow: {
+      label: "Why was I wrong?",
+      send: `Let's go through Q${qNumber}: why was my answer wrong?`,
+    },
+  };
+}
+
+/** The one-shot model context for a scorecard question: the verbatim bank question plus the
+ *  eval-gated step digest of ONLY that question's graded result. Null when there is nothing. */
+export function buildScorecardReturnedWork(
+  questionText: string,
+  result: WorksheetQuestionGrade | null,
+): TutorReturnedWork | null {
+  return buildReturnedWork({
+    question: questionText ? { text: questionText, imageBase64: null } : undefined,
+    response: result ? ({ results: [result] } as unknown as WorksheetGradeResponse) : null,
+    includeDigest: RETURNED_WORK_DIGEST_ENABLED,
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   QP-SCORECARD-2 C · the tutor round trip returns to the SAME scorecard
+   ══════════════════════════════════════════════════════════════════════════════
+   A scorecard's "Ask the tutor why I lost this mark" hands the tutor a `returnTo` that names
+   the student's OWN saved record (`review=<record id>`), so the tutor's back arrow lands on the
+   page that reopens THAT scorecard read-only (Quick Practice: the practice page; Check &
+   Improve: /check-improve). The id only — never an answer. The host reopens once and strips the
+   param with `replace`; an unreadable record leaves the plain page, silently. */
+
+/** The query param that names the saved scorecard to reopen. */
+export const SCORECARD_REVIEW_PARAM = "review";
+
+/** `pathWithSearch` with `review=<recordId>` set (any earlier `review` replaced). */
+export function withScorecardReviewParam(pathWithSearch: string, recordId: string): string {
+  const at = pathWithSearch.indexOf("?");
+  const path = at < 0 ? pathWithSearch : pathWithSearch.slice(0, at);
+  const sp = new URLSearchParams(at < 0 ? "" : pathWithSearch.slice(at + 1));
+  sp.set(SCORECARD_REVIEW_PARAM, recordId);
+  return `${path}?${sp.toString()}`;
+}
+
+/** The Quick Practice page that reopens a saved session (the "Your past sessions" row on the
+ *  Practice hub): the record's own subject and first topic, plus `review=<id>`. */
+export function buildQuickPracticeReviewHref(record: Pick<SessionRecord, "id" | "subject" | "topicKeys">): string {
+  const subject = record.subject === "science" ? "Science" : "Maths";
+  const sp = new URLSearchParams();
+  const topic = (record.topicKeys || []).find((k) => k && !k.startsWith("mixed:"));
+  if (topic) sp.set("topic", topic);
+  sp.set(SCORECARD_REVIEW_PARAM, record.id);
+  return `/practice/10/${subject}?${sp.toString()}`;
+}
+
+/** The Check & Improve page that reopens a saved checked paper by its code. */
+export function buildCheckImproveReviewHref(code: string): string {
+  return `/check-improve${query({ [SCORECARD_REVIEW_PARAM]: code })}`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FOLLOWUPS-1 B · the same hop on a saved Chapter Test / Full Mock scorecard
+   ══════════════════════════════════════════════════════════════════════════════
+   A saved paper's record carries its bank ids in paper (qNumber) order. The hop names the
+   question by that id (`q=`), so the tutor's `findScorecardQuestion` resolves the SAME position
+   back. Read-only: nothing here grades or writes. */
+
+/** The surfaces whose records name questions by position in a saved paper's `questionIds`. */
+export function isSavedPaperRecord(record: Pick<SessionRecord, "surface">): boolean {
+  return record.surface === "chapter-test" || record.surface === "full-mock" || record.surface === "worksheet";
+}
+
+/** The tutor hop target for question `qNumber` of a saved paper: its bank id and its ONE chapter.
+ *  Null (no button) when the stored results do not align 1:1 with the record's ids, the position
+ *  holds no id, or no single chapter is known for the question (`topicOf` returns null). */
+export function savedPaperQuestionHop(
+  record: Pick<SessionRecord, "questionIds">,
+  response: Pick<WorksheetGradeResponse, "results"> | null | undefined,
+  qNumber: number,
+  topicOf: (questionId: string) => string | null,
+): { questionId: string; topicKey: string } | null {
+  const ids = record.questionIds || [];
+  const results = response?.results || [];
+  if (ids.length === 0 || ids.length !== results.length) return null;
+  const questionId = ids[qNumber - 1];
+  if (!questionId) return null;
+  const topicKey = topicOf(questionId);
+  return topicKey ? { questionId, topicKey } : null;
+}
+
+/** Strip the `review` param from `search` (the host consumes it once, with `replace`). */
+export function searchWithoutReview(search: string): string {
+  const sp = new URLSearchParams(search);
+  sp.delete(SCORECARD_REVIEW_PARAM);
+  const s = sp.toString();
+  return s ? `?${s}` : "";
 }

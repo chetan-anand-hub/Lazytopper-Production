@@ -8,7 +8,7 @@
   body:has(.lt-pricing-page),
   #root:has(.lt-pricing-page),
   #root > div:has(.lt-pricing-page) {
-    background: #051733;
+    background: #f7f9fc;
   }
 
   #root > div:has(.lt-pricing-page) {
@@ -19,301 +19,287 @@
     display: none !important;
   }
 
+  /* PRICING-LIGHT-1 (owner design "D") — a light page under a navy band. Every
+     text and button pair here is measured against WCAG AA by
+     PricingPage.pricing.test.tsx, which parses THIS string. */
   .lt-pricing-page {
-    --lt-navy: #071a3d;
-    --lt-green: #16b96a;
-    --lt-green-dark: #0b8f50;
-    --lt-card: rgba(255, 255, 255, 0.06);
-    --lt-line: rgba(255, 255, 255, 0.10);
-    --lt-muted: #adc1d5;
-    --lt-ink: #f8fafc;
+    --lt-ground: #f7f9fc;
+    --lt-surface: #ffffff;
+    --lt-ink: #0b1b3a;
+    --lt-ink-2: #4a5a73;
+    --lt-ink-3: #6b778a;
+    --lt-line: #e1e7ef;
+    --lt-row-line: #e8edf3;
+    --lt-section: #f1f5fa;
+    --lt-band-sub: #c9d6e6;
+    --lt-on-dark: #ffffff;
+    --lt-on-band-green: #7fe0ae;
+    --lt-mint: #eef8f2;
+    --lt-mint-line: #16b96a;
+    --lt-tile-line: #cfe8da;
+    --lt-pill-line: #9ed9b9;
+    --lt-green-deep: #0e7c47;
 
     min-height: 100svh;
     width: 100%;
     color: var(--lt-ink);
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background:
-      radial-gradient(circle at 71% 21%, rgba(22, 185, 106, 0.10) 0, rgba(22, 185, 106, 0) 24%),
-      radial-gradient(circle at 18% 26%, rgba(125, 220, 255, 0.10) 0, rgba(125, 220, 255, 0) 23%),
-      linear-gradient(180deg, #071a2d 0%, #051733 100%);
-    padding: 48px 24px 100px;
+    background: var(--lt-ground);
+    padding: 0;
   }
 
   .lt-pricing-inner {
-    max-width: 960px;
+    width: 100%;
+  }
+
+  .lt-pricing-page :focus-visible {
+    outline: 3px solid var(--lt-green-deep);
+    outline-offset: 2px;
+  }
+
+  .lt-pricing-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ── Navy band ─────────────────────────────────────────────────────────── */
+  .lt-pricing-band {
+    background: var(--lt-ink);
+    padding: 36px 24px 170px;
+  }
+
+  .lt-pricing-band-inner {
+    max-width: 1080px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .lt-pricing-band .ux-return-bar {
+    margin: 0;
+  }
+
+  .lt-pricing-band .ux-return-bar__back {
+    color: var(--lt-on-dark);
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.35);
   }
 
   .lt-pricing-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     text-align: center;
-    margin-top: 32px;
-    margin-bottom: 48px;
   }
 
   .lt-pricing-title {
-    margin: 0 0 16px;
+    margin: 0;
     font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-    font-size: 3.2rem;
+    font-size: 2.9rem;
     line-height: 1.1;
     font-weight: 800;
     letter-spacing: -0.02em;
-    color: #ffffff;
+    color: var(--lt-on-dark);
   }
 
   .lt-pricing-subtitle {
     margin: 0 auto;
     max-width: 640px;
-    color: var(--lt-muted);
-    font-size: 1.02rem;
-    line-height: 1.55;
-    font-weight: 500;
+    color: var(--lt-band-sub);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* ── Body: the cards overlap the band's bottom edge ─────────────────────── */
+  .lt-pricing-body {
+    position: relative;
+    max-width: 1080px;
+    margin: -130px auto 0;
+    padding: 0 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
   }
 
   .lt-pricing-cards {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
-    margin-bottom: 48px;
+    align-items: stretch;
   }
 
   .lt-pricing-card {
     position: relative;
+    min-width: 0;
     padding: 32px 28px;
-    border-radius: 20px;
-    background: var(--lt-card);
+    border-radius: 22px;
+    background: var(--lt-surface);
     border: 1px solid var(--lt-line);
+    box-shadow: 0 14px 34px rgba(11, 27, 58, 0.08);
     display: flex;
     flex-direction: column;
+    gap: 18px;
   }
 
   .lt-pricing-card--premium {
-    background: rgba(22, 185, 106, 0.06);
-    border-color: rgba(22, 185, 106, 0.30);
+    background: var(--lt-mint);
+    border: 2px solid var(--lt-mint-line);
+    box-shadow: 0 22px 48px rgba(11, 27, 58, 0.16);
   }
 
   .lt-pricing-badge {
     position: absolute;
     top: -14px;
     right: 24px;
-    padding: 4px 14px;
+    padding: 6px 14px;
     border-radius: 999px;
-    background: var(--lt-green);
-    color: var(--lt-green-dark);
-    font-size: 0.7rem;
-    font-weight: 900;
-    letter-spacing: 0.08em;
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    box-shadow: 0 8px 18px rgba(22, 185, 106, 0.28);
+  }
+
+  .lt-pricing-premium-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   .lt-pricing-plan-label {
-    font-size: 0.78rem;
-    font-weight: 900;
+    font-size: 0.82rem;
+    font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--lt-muted);
-    margin-bottom: 12px;
+    color: var(--lt-ink-2);
   }
 
   .lt-pricing-plan-label--premium {
-    color: var(--lt-green);
+    color: var(--lt-green-deep);
+  }
+
+  .lt-pricing-founding-flag {
+    margin: 0;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-pill-line);
+    color: var(--lt-ink);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   .lt-pricing-price {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 4px 8px;
   }
 
   .lt-pricing-amount {
     font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-    font-size: 2.8rem;
+    font-size: 3.2rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--lt-ink);
     letter-spacing: -0.02em;
     line-height: 1;
   }
 
   .lt-pricing-period {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--lt-muted);
-  }
-
-  .lt-pricing-price-alt {
-    margin: 0 0 14px;
-    color: var(--lt-muted);
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-
-  .lt-pricing-price-alt::first-letter {
-    text-transform: uppercase;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--lt-ink-2);
   }
 
   /* A struck LIST figure beside the price a founding member actually pays. */
   .lt-pricing-was {
-    color: var(--lt-muted);
+    color: var(--lt-ink-3);
     font-size: 1rem;
     font-weight: 600;
-    opacity: 0.85;
-  }
-
-  /* Till boards — one payment until the first board paper. The number-free
-     line is static; the figures below it are written only after mount and
-     are stripped from the prerendered capture by their data-testid. */
-  .lt-pricing-tillboards {
-    margin: 0 0 16px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(22, 185, 106, 0.22);
-  }
-
-  .lt-pricing-tillboards-line {
-    margin: 0;
-    color: var(--lt-ink);
-    font-size: 0.85rem;
-    font-weight: 700;
-    line-height: 1.45;
-  }
-
-  .lt-pricing-tillboards-figures {
-    margin-top: 8px;
-  }
-
-  .lt-pricing-tillboards-price {
-    margin: 0 0 2px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 6px;
-  }
-
-  .lt-pricing-tillboards-amount {
-    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #ffffff;
-    letter-spacing: -0.01em;
-    line-height: 1.1;
-  }
-
-  .lt-pricing-tillboards-once {
-    color: var(--lt-muted);
-    font-size: 0.82rem;
-    font-weight: 600;
-  }
-
-  .lt-pricing-tillboards-meta {
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 10px;
-    color: var(--lt-muted);
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-
-  .lt-pricing-tillboards-save {
-    color: var(--lt-green);
-    font-weight: 800;
-  }
-
-  /* Founding-offer chrome. The flag sits above the price so the number is read
-     as a founding rate rather than as the regular price. */
-  .lt-pricing-founding-flag {
-    margin: 0 0 10px;
-    display: inline-flex;
-    align-self: flex-start;
-    padding: 4px 12px;
-    border-radius: 999px;
-    background: rgba(22, 185, 106, 0.14);
-    border: 1px solid rgba(22, 185, 106, 0.32);
-    color: var(--lt-green);
-    font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .lt-pricing-founding-note {
-    margin: 0 0 16px;
-    color: var(--lt-ink);
-    font-size: 0.8rem;
-    font-weight: 700;
-    line-height: 1.45;
   }
 
   .lt-pricing-plan-desc {
-    margin: 0 0 20px;
-    color: var(--lt-muted);
-    font-size: 0.88rem;
-    line-height: 1.55;
+    margin: 0;
+    color: var(--lt-ink-2);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .lt-pricing-list-head {
+    margin-top: 6px;
+    color: var(--lt-ink);
+    font-size: 0.9rem;
+    font-weight: 800;
   }
 
   .lt-pricing-features {
     list-style: none;
-    margin: 0 0 24px;
+    margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    flex: 1;
-  }
-
-  .lt-pricing-freecheck {
-    margin: -10px 0 20px;
-    color: var(--lt-muted);
-    font-size: 0.84rem;
-    line-height: 1.5;
-  }
-
-  .lt-pricing-freecheck a {
-    color: var(--lt-green);
-    font-weight: 700;
+    gap: 12px;
   }
 
   .lt-pricing-feature {
     display: grid;
-    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-columns: 16px minmax(0, 1fr);
     align-items: start;
     gap: 10px;
-    font-size: 0.88rem;
-    line-height: 1.55;
-  }
-
-  .lt-pricing-feature--on {
     color: var(--lt-ink);
-  }
-
-  .lt-pricing-feature--off {
-    color: var(--lt-muted);
-    opacity: 0.72;
+    font-size: 1rem;
+    line-height: 1.45;
   }
 
   .lt-pricing-feature-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 999px;
-    background: rgba(22, 185, 106, 0.12);
-    border: 1px solid rgba(22, 185, 106, 0.24);
-    color: var(--lt-green);
-    font-size: 0.78rem;
-    font-weight: 900;
-    margin-top: 1px;
+    color: var(--lt-green-deep);
+    font-weight: 800;
   }
 
-  .lt-pricing-feature--off .lt-pricing-feature-icon {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.10);
-    color: var(--lt-muted);
+  .lt-pricing-feature a {
+    color: var(--lt-green-deep);
+    font-weight: 700;
   }
 
+  .lt-pricing-card-end {
+    margin-top: auto;
+    padding-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .lt-pricing-card-foot {
+    margin: 0;
+    color: var(--lt-ink-2);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .lt-pricing-founding-note {
+    margin: 0;
+    color: var(--lt-ink);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────────────────── */
   .lt-pricing-cta {
     appearance: none;
     cursor: pointer;
@@ -321,64 +307,384 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 48px;
+    min-height: 52px;
     padding: 12px 18px;
     border: 0;
-    border-radius: 13px;
+    border-radius: 12px;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 800;
+    line-height: 1.25;
     letter-spacing: 0;
-    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    text-align: center;
+    text-decoration: none;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .lt-pricing-cta:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .lt-pricing-cta:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(11, 27, 58, 0.18);
   }
 
   .lt-pricing-cta--primary {
-    color: #ffffff;
-    background: var(--lt-navy);
-    box-shadow: 0 16px 28px rgba(7, 26, 61, 0.20), inset 0 0 0 1px rgba(255, 255, 255, 0.10);
-  }
-
-  .lt-pricing-cta--primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 20px 32px rgba(7, 26, 61, 0.28), inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    color: var(--lt-on-dark);
+    background: var(--lt-ink);
   }
 
   .lt-pricing-cta--secondary {
     color: var(--lt-ink);
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: var(--lt-surface);
+    border: 1.5px solid var(--lt-ink);
   }
 
-  .lt-pricing-cta--secondary:hover {
-    background: rgba(255, 255, 255, 0.10);
-    border-color: rgba(255, 255, 255, 0.22);
+  /* The trial action sits under the pay tiles: an outline, so Pay stays the lead. */
+  .lt-pricing-trial-slot .lt-pricing-cta--primary {
+    color: var(--lt-ink);
+    background: var(--lt-surface);
+    border: 1.5px solid var(--lt-ink);
   }
 
-  .lt-pricing-fine-print {
-    margin: 12px 0 0;
-    text-align: center;
-    color: var(--lt-muted);
-    font-size: 0.76rem;
+  /* ── The two pass tiles (P23) ───────────────────────────────────────────
+     One grid holds both tile heads AND PassCheckout's children: the checkout
+     wrapper is display: contents, so its buttons and notices are placed by
+     class into the tile they belong to. Two decorative boxes draw each tile
+     behind its head + button rows. */
+  .lt-pricing-passes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto auto auto auto;
+    column-gap: 12px;
+  }
+
+  .lt-pricing-checkout {
+    display: contents;
+  }
+
+  .lt-pricing-pass-bg {
+    border-radius: 16px;
+    background: var(--lt-surface);
+  }
+
+  .lt-pricing-pass-bg--month {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    border: 1px solid var(--lt-tile-line);
+  }
+
+  .lt-pricing-pass-bg--boards {
+    grid-column: 2;
+    grid-row: 2 / 4;
+    border: 2px solid var(--lt-green-deep);
+  }
+
+  .lt-pricing-pass {
+    position: relative;
+    min-width: 0;
+    padding: 18px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lt-pricing-pass--month {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .lt-pricing-pass--boards {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .lt-pricing-pass-name {
+    color: var(--lt-ink-2);
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+
+  .lt-pricing-pass .lt-pricing-amount {
+    font-size: 2.4rem;
+  }
+
+  .lt-pricing-pass .lt-pricing-was {
+    order: 2;
+  }
+
+  .lt-pricing-pass .lt-pricing-period {
+    order: 3;
+    flex-basis: 100%;
+    font-size: 0.9rem;
+  }
+
+  .lt-pricing-price-alt {
+    margin: 0;
+    color: var(--lt-ink-2);
+    font-size: 0.85rem;
     line-height: 1.45;
+  }
+
+  .lt-pricing-price-alt::first-letter {
+    text-transform: uppercase;
+  }
+
+  .lt-pricing-pay {
+    width: auto;
+    align-self: end;
+    margin: 0 16px 16px;
+    padding: 12px 10px;
+  }
+
+  .lt-pricing-pay--month {
+    grid-column: 1;
+    grid-row: 3;
+    color: var(--lt-on-dark);
+    background: var(--lt-ink);
+  }
+
+  .lt-pricing-pay--boards {
+    grid-column: 2;
+    grid-row: 3;
+    color: var(--lt-on-dark);
+    background: var(--lt-green-deep);
+  }
+
+  .lt-pricing-checkout-note {
+    margin: 0;
+    color: var(--lt-ink);
+    font-weight: 700;
+  }
+
+  .lt-pricing-checkout-note--top {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin-bottom: 14px;
+  }
+
+  .lt-pricing-checkout-note--bottom,
+  .lt-pricing-passes > .lt-pricing-plan-desc {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-top: 14px;
+  }
+
+  /* Till boards — one payment until the first board paper. The number-free
+     line is static; the figures are written only after mount and are stripped
+     from the prerendered capture by their data-testid. The slot keeps their
+     height reserved, so their arrival moves nothing (CLS). */
+  .lt-pricing-tillboards {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lt-pricing-tillboards-slot {
+    min-height: 5.6rem;
+  }
+
+  .lt-pricing-tillboards-line {
+    margin: 0;
+    color: var(--lt-ink-2);
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .lt-pricing-tillboards-price {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 8px;
+  }
+
+  .lt-pricing-tillboards-amount {
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--lt-ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .lt-pricing-tillboards-meta {
+    margin: 6px 0 0;
+    color: var(--lt-ink-2);
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .lt-pricing-save-tag {
+    position: absolute;
+    top: -11px;
+    left: 16px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--lt-green-deep);
+    color: var(--lt-on-dark);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── Compare plans ──────────────────────────────────────────────────────── */
+  .lt-pricing-compare {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .lt-pricing-compare-title {
+    margin: 0;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 800;
+    color: var(--lt-ink);
+    text-align: center;
+  }
+
+  /* At phone width the TABLE scrolls sideways inside this box, never the page.
+     position: relative makes this box the containing block of the cells'
+     screen-reader text, so that text is clipped here too and cannot widen the page. */
+  .lt-pricing-compare-scroll {
+    position: relative;
+    overflow-x: auto;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-line);
+    border-radius: 18px;
+  }
+
+  .lt-pricing-compare-table {
+    width: 100%;
+    min-width: 620px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .lt-pricing-compare-table thead th {
+    padding: 16px 20px;
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
+    text-align: left;
+    font-weight: 800;
+  }
+
+  .lt-pricing-compare-table .lt-pricing-compare-col-feature {
+    width: 46%;
+  }
+
+  .lt-pricing-compare-table .lt-pricing-compare-col-basic {
+    width: 24%;
+  }
+
+  .lt-pricing-compare-table .lt-pricing-compare-col-premium {
+    width: 30%;
+    color: var(--lt-on-band-green);
+  }
+
+  .lt-pricing-compare-section th {
+    padding: 12px 20px;
+    background: var(--lt-section);
+    color: var(--lt-ink-2);
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .lt-pricing-compare-row {
+    border-top: 1px solid var(--lt-row-line);
+  }
+
+  .lt-pricing-compare-row th {
+    padding: 14px 20px;
+    color: var(--lt-ink);
+    text-align: left;
     font-weight: 500;
   }
 
-  .lt-pricing-faq {
-    padding: 36px 32px;
-    border-radius: 20px;
-    background: var(--lt-card);
-    border: 1px solid var(--lt-line);
-    margin-bottom: 32px;
+  .lt-pricing-compare-row td {
+    padding: 14px 20px;
+    color: var(--lt-ink);
   }
 
-  .lt-pricing-faq-title {
-    margin: 0 0 24px;
+  .lt-pricing-compare-row td.lt-pricing-cell--no {
+    color: var(--lt-ink-3);
+  }
+
+  .lt-pricing-compare-row td.lt-pricing-cell--premium {
+    color: var(--lt-green-deep);
+    font-weight: 600;
+  }
+
+  .lt-pricing-fairuse {
+    padding: 20px 22px;
+    border-radius: 16px;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .lt-pricing-fairuse-title {
+    margin: 0;
+    color: var(--lt-ink);
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .lt-pricing-fairuse-text {
+    margin: 0;
+    color: var(--lt-ink-2);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .lt-pricing-fine-print {
+    margin: 0;
+    text-align: center;
+    color: var(--lt-ink-2);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  /* ── FAQ, Coming soon, waitlist (light) ─────────────────────────────────── */
+  .lt-pricing-faq,
+  .lt-pricing-coming,
+  .lt-pricing-waitlist {
+    padding: 36px 32px;
+    border-radius: 20px;
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-line);
+  }
+
+  .lt-pricing-coming {
+    text-align: center;
+  }
+
+  .lt-pricing-faq-title,
+  .lt-pricing-coming-title,
+  .lt-pricing-waitlist-title {
+    margin: 0 0 8px;
     font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 1.6rem;
     line-height: 1.2;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--lt-ink);
     text-align: center;
+  }
+
+  .lt-pricing-faq-title {
+    margin-bottom: 24px;
   }
 
   .lt-pricing-faq-list {
@@ -392,49 +698,33 @@
   .lt-pricing-faq-item {
     padding: 16px 18px;
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--lt-ground);
+    border: 1px solid var(--lt-line);
   }
 
   .lt-pricing-faq-q {
     margin: 0 0 6px;
     color: var(--lt-ink);
-    font-size: 0.95rem;
+    font-size: 0.98rem;
     font-weight: 800;
     line-height: 1.35;
   }
 
   .lt-pricing-faq-a {
     margin: 0;
-    color: var(--lt-muted);
-    font-size: 0.88rem;
+    color: var(--lt-ink-2);
+    font-size: 0.92rem;
     line-height: 1.55;
   }
 
-  .lt-pricing-coming {
-    padding: 36px 32px;
-    border-radius: 20px;
-    background: var(--lt-card);
-    border: 1px solid var(--lt-line);
-    text-align: center;
-    margin-bottom: 24px;
-  }
-
-  .lt-pricing-coming-title {
-    margin: 0 0 8px;
-    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-    font-size: 1.6rem;
-    line-height: 1.2;
-    font-weight: 800;
-    color: #ffffff;
-  }
-
-  .lt-pricing-coming-lede {
-    margin: 0 auto 24px;
+  .lt-pricing-coming-lede,
+  .lt-pricing-waitlist-lede {
+    margin: 0 auto 22px;
     max-width: 540px;
-    color: var(--lt-muted);
-    font-size: 0.88rem;
+    color: var(--lt-ink-2);
+    font-size: 0.92rem;
     line-height: 1.55;
+    text-align: center;
   }
 
   .lt-pricing-coming-chips {
@@ -450,42 +740,16 @@
     gap: 8px;
     padding: 8px 16px;
     border-radius: 999px;
-    background: rgba(22, 185, 106, 0.12);
-    border: 1px solid rgba(22, 185, 106, 0.24);
+    background: var(--lt-mint);
+    border: 1px solid var(--lt-tile-line);
     color: var(--lt-ink);
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     font-weight: 700;
   }
 
   .lt-pricing-coming-chip-icon {
     font-size: 1rem;
     line-height: 1;
-  }
-
-  .lt-pricing-waitlist {
-    padding: 36px 32px;
-    border-radius: 20px;
-    background: var(--lt-card);
-    border: 1px solid var(--lt-line);
-  }
-
-  .lt-pricing-waitlist-title {
-    margin: 0 0 8px;
-    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-    font-size: 1.6rem;
-    line-height: 1.2;
-    font-weight: 800;
-    color: #ffffff;
-    text-align: center;
-  }
-
-  .lt-pricing-waitlist-lede {
-    margin: 0 auto 22px;
-    max-width: 540px;
-    color: var(--lt-muted);
-    font-size: 0.88rem;
-    line-height: 1.55;
-    text-align: center;
   }
 
   .lt-pricing-waitlist-form {
@@ -501,12 +765,10 @@
     font-family: inherit;
     padding: 12px 14px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: var(--lt-surface);
+    border: 1px solid var(--lt-ink-3);
     color: var(--lt-ink);
-    font-size: 0.88rem;
-    outline: none;
-    transition: border-color 160ms ease, box-shadow 160ms ease;
+    font-size: 0.92rem;
   }
 
   .lt-pricing-waitlist-input {
@@ -520,18 +782,12 @@
   }
 
   .lt-pricing-waitlist-select option {
-    background: #071a3d;
-    color: #ffffff;
+    background: var(--lt-surface);
+    color: var(--lt-ink);
   }
 
   .lt-pricing-waitlist-input::placeholder {
-    color: var(--lt-muted);
-  }
-
-  .lt-pricing-waitlist-input:focus,
-  .lt-pricing-waitlist-select:focus {
-    border-color: rgba(22, 185, 106, 0.50);
-    box-shadow: 0 0 0 3px rgba(22, 185, 106, 0.15);
+    color: var(--lt-ink-3);
   }
 
   .lt-pricing-waitlist-cta {
@@ -540,19 +796,12 @@
     cursor: pointer;
     padding: 12px 22px;
     border: 0;
-    border-radius: 13px;
-    background: var(--lt-navy);
-    color: #ffffff;
+    border-radius: 12px;
+    background: var(--lt-ink);
+    color: var(--lt-on-dark);
     font-family: inherit;
-    font-size: 0.88rem;
+    font-size: 0.92rem;
     font-weight: 800;
-    box-shadow: 0 16px 28px rgba(7, 26, 61, 0.20), inset 0 0 0 1px rgba(255, 255, 255, 0.10);
-    transition: transform 160ms ease, box-shadow 160ms ease;
-  }
-
-  .lt-pricing-waitlist-cta:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 20px 32px rgba(7, 26, 61, 0.28), inset 0 0 0 1px rgba(255, 255, 255, 0.14);
   }
 
   .lt-pricing-waitlist-success {
@@ -564,8 +813,8 @@
     max-width: 560px;
     margin: 0 auto;
     border-radius: 16px;
-    background: rgba(22, 185, 106, 0.10);
-    border: 1px solid rgba(22, 185, 106, 0.28);
+    background: var(--lt-mint);
+    border: 1px solid var(--lt-tile-line);
     text-align: center;
   }
 
@@ -576,109 +825,111 @@
 
   .lt-pricing-waitlist-success-title {
     margin: 0;
-    color: var(--lt-green);
+    color: var(--lt-green-deep);
     font-size: 1rem;
     font-weight: 800;
   }
 
   .lt-pricing-waitlist-success-sub {
     margin: 0;
-    color: var(--lt-muted);
-    font-size: 0.85rem;
+    color: var(--lt-ink-2);
+    font-size: 0.88rem;
     line-height: 1.5;
   }
 
-  /* Large desktop */
-  @media (min-width: 1440px) {
-    .lt-pricing-page {
-      padding: 64px 48px 100px;
+  /* The pass tiles stack when the Premium card is narrow: side-by-side cards on a
+     tablet, and every phone. */
+  @media (min-width: 761px) and (max-width: 1023px), (max-width: 560px) {
+    .lt-pricing-passes {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto auto 14px auto auto auto;
+    }
+    .lt-pricing-pass-bg--month {
+      grid-column: 1;
+      grid-row: 2 / 4;
+    }
+    .lt-pricing-pass-bg--boards {
+      grid-column: 1;
+      grid-row: 5 / 7;
+    }
+    .lt-pricing-pass--month {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .lt-pricing-pass--boards {
+      grid-column: 1;
+      grid-row: 5;
+    }
+    .lt-pricing-pay--month {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .lt-pricing-pay--boards {
+      grid-column: 1;
+      grid-row: 6;
+    }
+    .lt-pricing-checkout-note--bottom,
+    .lt-pricing-passes > .lt-pricing-plan-desc {
+      grid-row: 7;
+    }
+    .lt-pricing-tillboards-slot {
+      min-height: 4.4rem;
     }
   }
 
-  /* Narrow laptop — compress card padding, reduce hero heading */
-  @media (min-width: 1024px) and (max-width: 1180px) {
+  @media (max-width: 1023px) {
     .lt-pricing-title {
-      font-size: 2.6rem;
+      font-size: 2.3rem;
     }
     .lt-pricing-card {
       padding: 28px 22px;
     }
-    .lt-pricing-amount {
-      font-size: 2.5rem;
-    }
   }
 
-  /* Short laptop screen — reduce vertical gaps by ~25% */
-  @media (min-width: 1024px) and (max-height: 820px) {
-    .lt-pricing-page {
-      padding: 36px 24px 80px;
+  /* Phones and small tablets — Basic first, then Premium. */
+  @media (max-width: 760px) {
+    .lt-pricing-band {
+      padding: 24px 16px 120px;
     }
-    .lt-pricing-header {
-      margin-top: 24px;
-      margin-bottom: 36px;
-    }
-    .lt-pricing-cards {
-      gap: 18px;
-      margin-bottom: 36px;
-    }
-    .lt-pricing-faq,
-    .lt-pricing-coming,
-    .lt-pricing-waitlist {
-      padding: 28px 26px;
-      margin-bottom: 24px;
-    }
-  }
-
-  /* Tablet / mobile — single column, stack plan cards */
-  @media (max-width: 1023px) {
-    .lt-pricing-page {
-      padding: 32px 24px 80px;
-    }
-    .lt-pricing-header {
-      margin-top: 16px;
-      margin-bottom: 32px;
-    }
-    .lt-pricing-title {
-      font-size: 2rem;
+    .lt-pricing-band-inner {
+      gap: 20px;
     }
     .lt-pricing-subtitle {
-      font-size: 0.94rem;
+      font-size: 1rem;
+    }
+    .lt-pricing-body {
+      margin-top: -92px;
+      padding: 0 16px 72px;
+      gap: 40px;
     }
     .lt-pricing-cards {
-      grid-template-columns: 1fr;
-      gap: 20px;
-      margin-bottom: 32px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+    }
+    .lt-pricing-compare-title {
+      font-size: 1.6rem;
     }
     .lt-pricing-faq-title,
     .lt-pricing-coming-title,
     .lt-pricing-waitlist-title {
       font-size: 1.3rem;
     }
-    .lt-pricing-amount {
-      font-size: 2.4rem;
-    }
-    .lt-pricing-faq,
-    .lt-pricing-coming,
-    .lt-pricing-waitlist {
-      padding: 28px 24px;
-    }
   }
 
-  /* Small mobile — tighten horizontal padding, stack waitlist form */
   @media (max-width: 520px) {
-    .lt-pricing-page {
-      padding: 24px 16px 80px;
-    }
     .lt-pricing-title {
-      font-size: 1.75rem;
+      font-size: 1.9rem;
     }
     .lt-pricing-card {
-      padding: 24px 20px;
+      padding: 26px 18px;
+    }
+    .lt-pricing-amount {
+      font-size: 2.6rem;
     }
     .lt-pricing-faq,
     .lt-pricing-coming,
     .lt-pricing-waitlist {
-      padding: 24px 20px;
+      padding: 24px 18px;
     }
     .lt-pricing-waitlist-form {
       flex-direction: column;
@@ -690,7 +941,7 @@
       width: 100%;
     }
   }
-</style><div class="lt-pricing-inner"><div class="ux-return-bar" data-testid="ux-return-context"><button type="button" class="ux-return-bar__back" aria-label="Back to home">&lt;- Back to home</button></div><section class="lt-pricing-header"><h1 class="lt-pricing-title">Simple, Student-Friendly Plans</h1><p class="lt-pricing-subtitle">Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers, Mistake Intelligence, and full mock workflows. Payment checkout is not automated yet.</p></section><div class="lt-pricing-cards"><div class="lt-pricing-card"><div class="lt-pricing-plan-label">Basic</div><div class="lt-pricing-price"><span class="lt-pricing-amount">₹0</span><span class="lt-pricing-period">/ forever</span></div><p class="lt-pricing-plan-desc">Browse the product and use limited learning tools without paid access.</p><ul class="lt-pricing-features" aria-label="Basic plan features"><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Browse Home, Exam Trends, and topic surfaces</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Practice picker and limited practice</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Limited worksheet generation</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Basic topic insights</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Solution Checker / Check &amp; Improve</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Deep Mistake Intelligence</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Open or download 3 chapter tests or mocks a day (1 when signed out) — written answers not checked</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Richer Me / Progress recommendations</span></li></ul><p class="lt-pricing-freecheck" data-testid="pricing-free-check-line">Not signed in? Your first answer check on <a href="/check-improve" data-discover="true">Check &amp; Improve</a> is free.</p><button type="button" class="lt-pricing-cta lt-pricing-cta--secondary">Start free</button></div><div class="lt-pricing-card lt-pricing-card--premium"><span class="lt-pricing-badge">Most Popular</span><div class="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div><p class="lt-pricing-founding-flag">Founding member · First 200 students.</p><div class="lt-pricing-price" data-testid="pricing-monthly-price"><span class="lt-pricing-amount">₹599</span><span class="lt-pricing-period">for a month</span><s class="lt-pricing-was">₹999</s></div><p class="lt-pricing-price-alt">less than one tuition session</p><div class="lt-pricing-tillboards" data-testid="till-boards"><p class="lt-pricing-tillboards-line">Or pay once till your boards — 20% off.</p></div><p class="lt-pricing-founding-note">Your founding price stays locked for every pass you buy.</p><p class="lt-pricing-plan-desc">Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically.</p><ul class="lt-pricing-features" aria-label="Premium plan features"><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Everything in Basic</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Your AI tutor that actually knows you — your chapters, your mistakes, your pace</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Mistake Intelligence — why you lose marks, not just where</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Check &amp; Improve — photograph your handwritten solution, graded like a board examiner</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Full mocks and important-question sets — real board blueprint</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Progress that tells you what to fix next</span></li></ul><button type="button" class="lt-pricing-cta lt-pricing-cta--primary">Start 7-day trial</button><p class="lt-pricing-fine-print">No credit card required. Premium is not activated automatically.</p></div></div><section class="lt-pricing-faq" aria-label="Pricing frequently asked questions"><h2 class="lt-pricing-faq-title">Frequently Asked Questions</h2><div class="lt-pricing-faq-list"><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Is Basic really free?</div><div class="lt-pricing-faq-a">Yes. Basic keeps browse-first access and limited practice tools available without paid activation.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Should I pay monthly or till my boards?</div><div class="lt-pricing-faq-a">Till boards is one payment that covers every month until your first board paper, at 20% less than paying monthly. The price shrinks each month as the boards get closer.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">What happens after the first 200 students?</div><div class="lt-pricing-faq-a">The founding offer closes. New members then join at the regular price — ₹999 for a month, or 20% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Are there any usage limits?</div><div class="lt-pricing-faq-a">Basic includes limited practice and worksheet generation. Premium includes stronger practice and worksheet quotas, subject to fair use.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">What happens after the trial ends?</div><div class="lt-pricing-faq-a">You keep using the free plan. Nothing is charged automatically; you choose when to upgrade.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Can I pay here?</div><div class="lt-pricing-faq-a">Not yet. Payment checkout is not connected in this build, so Premium activation stays manual.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Is this only for CBSE Class 10?</div><div class="lt-pricing-faq-a">Currently yes. We're expanding to ICSE, State Boards, and Class 12 soon!</div></div></div></section><section class="lt-pricing-coming" aria-label="Boards and classes coming soon"><h2 class="lt-pricing-coming-title">Coming Soon</h2><p class="lt-pricing-coming-lede">We're expanding to more boards and classes. Join the waitlist to get early access.</p><div class="lt-pricing-coming-chips"><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🏛️</span><span>ICSE Board</span></span><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🗺️</span><span>State Boards</span></span><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🎓</span><span>Class 12 CBSE</span></span></div></section><section class="lt-pricing-waitlist" aria-label="Early access waitlist"><h2 class="lt-pricing-waitlist-title">Join the waitlist</h2><p class="lt-pricing-waitlist-lede">Tell us where to reach you and which board you're hoping for. We'll let you know as soon as we open access.</p><div class="lt-pricing-waitlist-form"><input class="lt-pricing-waitlist-input" placeholder="Email or phone number" aria-label="Email or phone number" type="text" value=""><select class="lt-pricing-waitlist-select" aria-label="Board"><option value="">Board...</option><option value="icse">ICSE</option><option value="state">State Board</option><option value="cbse12">CBSE Class 12</option></select><button type="button" class="lt-pricing-waitlist-cta">Join Waitlist</button></div></section></div><footer class="lt-public-legal" aria-label="Legal"><style>
+</style><div class="lt-pricing-inner"><div class="lt-pricing-band"><div class="lt-pricing-band-inner"><div class="ux-return-bar" data-testid="ux-return-context"><button type="button" class="ux-return-bar__back" aria-label="Back to home">&lt;- Back to home</button></div><section class="lt-pricing-header"><h1 class="lt-pricing-title">Simple, Student-Friendly Plans</h1><p class="lt-pricing-subtitle">Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers, Mistake Intelligence, and full mock workflows — pay securely with UPI, card or netbanking.</p></section></div></div><div class="lt-pricing-body"><div class="lt-pricing-cards"><div class="lt-pricing-card lt-pricing-card--basic"><div class="lt-pricing-plan-label">Basic</div><div class="lt-pricing-price"><span class="lt-pricing-amount">₹0</span><span class="lt-pricing-period">/ forever</span></div><p class="lt-pricing-plan-desc">For browsing, revising and practising on your own.</p><button type="button" class="lt-pricing-cta lt-pricing-cta--secondary">Start free</button><div class="lt-pricing-list-head">Basic includes:</div><ul class="lt-pricing-features" aria-label="Basic plan features"><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Exam Trends — chapters ranked from ten years of papers</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Notes, formulae, NCERT books and solutions</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Practice sets and worksheet generation</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Open or download 3 chapter tests or mocks a day (1 when signed out)</span></li><li class="lt-pricing-feature" data-testid="pricing-free-check-line"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Your first <a href="/check-improve" data-discover="true">answer check</a> free</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Basic topic insights</span></li></ul><div class="lt-pricing-card-end"><p class="lt-pricing-card-foot">Written answers on tests and mocks are not checked on Basic.</p></div></div><div class="lt-pricing-card lt-pricing-card--premium"><span class="lt-pricing-badge">Most Popular</span><div class="lt-pricing-premium-top"><div class="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div><p class="lt-pricing-founding-flag">Founding member · First 200 students.</p></div><div class="lt-pricing-passes" data-testid="pricing-passes"><div class="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true"></div><div class="lt-pricing-pass-bg lt-pricing-pass-bg--boards" aria-hidden="true"></div><div class="lt-pricing-pass lt-pricing-pass--month"><div class="lt-pricing-pass-name">Month pass</div><div class="lt-pricing-price" data-testid="pricing-monthly-price"><span class="lt-pricing-amount">₹599</span><span class="lt-pricing-period">for a month</span><s class="lt-pricing-was">₹999</s></div><p class="lt-pricing-price-alt">less than one tuition session</p></div><div class="lt-pricing-pass lt-pricing-pass--boards"><div class="lt-pricing-pass-name">Till your boards</div><div class="lt-pricing-tillboards" data-testid="till-boards"><div class="lt-pricing-tillboards-slot"></div><p class="lt-pricing-tillboards-line">Or pay once till your boards — 20% off.</p></div></div><div class="lt-pricing-checkout" data-testid="pass-checkout"><button type="button" class="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month">Pay ₹599 for a month</button><button type="button" class="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards">Pay once till your boards</button></div></div><p class="lt-pricing-founding-note">Your founding price stays locked for every pass you buy.</p><div class="lt-pricing-list-head">Everything in Basic, plus:</div><ul class="lt-pricing-features" aria-label="Premium plan features"><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Check &amp; Improve — photograph your handwritten answer, marked step by step like a board examiner</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Chapter tests, full mocks and worksheets graded, not just downloaded</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Your AI tutor that knows your chapters, your mistakes, your pace</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Mistake Intelligence — why you lose marks, not just where</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Unlimited chapter tests and mocks to open or download</span></li><li class="lt-pricing-feature"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Progress that tells you what to fix next</span></li></ul><div class="lt-pricing-card-end"><p class="lt-pricing-card-foot">Not sure yet? Sign in and Premium is free for 7 days — no card needed.</p><div class="lt-pricing-trial-slot"><button type="button" class="lt-pricing-cta lt-pricing-cta--primary">Start 7-day trial</button></div></div></div></div><section class="lt-pricing-compare" aria-labelledby="lt-pricing-compare-title"><h2 class="lt-pricing-compare-title" id="lt-pricing-compare-title">Compare plans</h2><div class="lt-pricing-compare-scroll" role="region" aria-label="Compare plans table" tabindex="0"><table class="lt-pricing-compare-table" data-testid="pricing-compare"><thead><tr><th scope="col" class="lt-pricing-compare-col-feature">What you get</th><th scope="col" class="lt-pricing-compare-col-basic">Basic · ₹0</th><th scope="col" class="lt-pricing-compare-col-premium">Premium · from ₹599</th></tr></thead><tbody><tr class="lt-pricing-compare-section"><th scope="rowgroup" colspan="3">Study</th></tr><tr class="lt-pricing-compare-row"><th scope="row">Exam Trends — chapters ranked from ten years of papers</th><td class="lt-pricing-cell--yes"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr><tr class="lt-pricing-compare-row"><th scope="row">Notes, formulae, NCERT books and solutions</th><td class="lt-pricing-cell--yes"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr><tr class="lt-pricing-compare-row"><th scope="row">CBSE 2027 papers and circulars</th><td class="lt-pricing-cell--yes"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr></tbody><tbody><tr class="lt-pricing-compare-section"><th scope="rowgroup" colspan="3">Practice</th></tr><tr class="lt-pricing-compare-row"><th scope="row">Practice sets with model answers</th><td class="lt-pricing-cell--yes"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr><tr class="lt-pricing-compare-row"><th scope="row">Worksheets built from your chosen topics</th><td class="lt-pricing-cell--yes"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr><tr class="lt-pricing-compare-row"><th scope="row">New questions like the one you got wrong</th><td class="lt-pricing-cell--no"><span aria-hidden="true">—</span><span class="lt-pricing-sr">Not included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr></tbody><tbody><tr class="lt-pricing-compare-section"><th scope="rowgroup" colspan="3">Tests &amp; papers</th></tr><tr class="lt-pricing-compare-row"><th scope="row">Open or download chapter tests and full mocks</th><td class="lt-pricing-cell--text">3 a day (1 signed out)</td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span> Unlimited</td></tr><tr class="lt-pricing-compare-row"><th scope="row">Chapter tests, mocks and worksheets graded</th><td class="lt-pricing-cell--no"><span aria-hidden="true">—</span><span class="lt-pricing-sr">Not included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr></tbody><tbody><tr class="lt-pricing-compare-section"><th scope="rowgroup" colspan="3">Answer checking</th></tr><tr class="lt-pricing-compare-row"><th scope="row">Photograph your handwritten answer and get it marked</th><td class="lt-pricing-cell--text">First check free</td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr><tr class="lt-pricing-compare-row"><th scope="row">Step marks, CBSE keywords and units, the way examiners mark</th><td class="lt-pricing-cell--no"><span aria-hidden="true">—</span><span class="lt-pricing-sr">Not included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr><tr class="lt-pricing-compare-row"><th scope="row">Read questions straight from your photo</th><td class="lt-pricing-cell--no"><span aria-hidden="true">—</span><span class="lt-pricing-sr">Not included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr></tbody><tbody><tr class="lt-pricing-compare-section"><th scope="rowgroup" colspan="3">Coaching</th></tr><tr class="lt-pricing-compare-row"><th scope="row">AI tutor that knows your chapters and mistakes</th><td class="lt-pricing-cell--no"><span aria-hidden="true">—</span><span class="lt-pricing-sr">Not included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr><tr class="lt-pricing-compare-row"><th scope="row">Mistake Intelligence — why you lose marks</th><td class="lt-pricing-cell--no"><span aria-hidden="true">—</span><span class="lt-pricing-sr">Not included</span></td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span><span class="lt-pricing-sr">Included</span></td></tr><tr class="lt-pricing-compare-row"><th scope="row">Progress and what to fix next</th><td class="lt-pricing-cell--text">Basic insights</td><td class="lt-pricing-cell--yes lt-pricing-cell--premium"><span aria-hidden="true">✓</span> Full</td></tr></tbody><tbody><tr class="lt-pricing-compare-section"><th scope="rowgroup" colspan="3">Limits</th></tr><tr class="lt-pricing-compare-row"><th scope="row">Fair use</th><td class="lt-pricing-cell--no"><span aria-hidden="true">—</span><span class="lt-pricing-sr">Not included</span></td><td class="lt-pricing-cell--text lt-pricing-cell--premium">Usage bars · reset every 5 hours, day and week</td></tr></tbody></table></div><div class="lt-pricing-fairuse" data-testid="pricing-fair-use"><h3 class="lt-pricing-fairuse-title">Fair use, shown not hidden</h3><p class="lt-pricing-fairuse-text">Premium has generous fair-use limits so the service stays fast for everyone. Your usage bars show what is left and when each one resets — every 5 hours, every day and every week. The 7-day trial includes, each day: 5 answer checks, 1 chapter test and 15 tutor messages; and each week: 1 full mock and 1 worksheet grading.</p></div><p class="lt-pricing-fine-print">No credit card needed for the trial. Passes are one-time payments and never renew automatically.</p></section><section class="lt-pricing-faq" aria-label="Pricing frequently asked questions"><h2 class="lt-pricing-faq-title">Frequently Asked Questions</h2><div class="lt-pricing-faq-list"><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Is Basic really free?</div><div class="lt-pricing-faq-a">Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with Premium.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Should I pay monthly or till my boards?</div><div class="lt-pricing-faq-a">Till boards is one payment that covers every month until your first board paper, at 20% less than paying monthly. The price shrinks each month as the boards get closer.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">What happens after the first 200 students?</div><div class="lt-pricing-faq-a">The founding offer closes. New members then join at the regular price — ₹999 for a month, or 20% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Are there any usage limits?</div><div class="lt-pricing-faq-a">Basic has daily limits on opening tests and mocks. Premium has generous fair use: your usage bars show what is left and when it resets. The 7-day trial has daily and weekly limits, listed above.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">What happens after the trial ends?</div><div class="lt-pricing-faq-a">You keep using the free plan. Nothing is charged automatically; you choose when to upgrade.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Can I pay here?</div><div class="lt-pricing-faq-a">Yes. Tap Pay, finish in Razorpay's secure checkout (UPI, card or netbanking), and Premium turns on straight away.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Is this only for CBSE Class 10?</div><div class="lt-pricing-faq-a">Currently yes. We're expanding to ICSE, State Boards, and Class 12 soon!</div></div></div></section><section class="lt-pricing-coming" aria-label="Boards and classes coming soon"><h2 class="lt-pricing-coming-title">Coming Soon</h2><p class="lt-pricing-coming-lede">We're expanding to more boards and classes. Join the waitlist to get early access.</p><div class="lt-pricing-coming-chips"><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🏛️</span><span>ICSE Board</span></span><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🗺️</span><span>State Boards</span></span><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🎓</span><span>Class 12 CBSE</span></span></div></section><section class="lt-pricing-waitlist" aria-label="Early access waitlist"><h2 class="lt-pricing-waitlist-title">Join the waitlist</h2><p class="lt-pricing-waitlist-lede">Tell us where to reach you and which board you're hoping for. We'll let you know as soon as we open access.</p><div class="lt-pricing-waitlist-form"><input class="lt-pricing-waitlist-input" placeholder="Email or phone number" aria-label="Email or phone number" type="text" value=""><select class="lt-pricing-waitlist-select" aria-label="Board"><option value="">Board...</option><option value="icse">ICSE</option><option value="state">State Board</option><option value="cbse12">CBSE Class 12</option></select><button type="button" class="lt-pricing-waitlist-cta">Join Waitlist</button></div></section></div></div><footer class="lt-public-legal" aria-label="Legal"><style>
   .lt-public-legal {
     display: flex;
     flex-wrap: wrap;
@@ -722,4 +973,4 @@
       font-size: 11.5px;
     }
   }
-</style><span>© 2026 LazyTopper</span><a href="/exam-trends" data-discover="true">Chapters</a><a href="/cbse/class-10?returnTo=%2Fpricing" data-discover="true">CBSE 2027</a><a href="/check-your-answer" data-discover="true">How CBSE marks answers</a><a href="/for-parents" data-discover="true">For parents</a><a href="/legal/privacy" data-discover="true">Privacy</a><a href="/legal/terms" data-discover="true">Terms</a><a href="/legal/refund" data-discover="true">Cancellation &amp; Refunds</a><a href="https://www.youtube.com/@Lazytopper_CBSE" target="_blank" rel="me noopener">YouTube</a><a href="https://www.instagram.com/lazy_topper_/" target="_blank" rel="me noopener">Instagram</a><a href="https://www.facebook.com/lazytoppercbse" target="_blank" rel="me noopener">Facebook</a><a href="https://wa.me/919714568948" target="_blank" rel="me noopener">WhatsApp: ask a doubt</a></footer></main><template data-lt-route="end"></template></div>
+</style><span>© 2026 P&amp;CGOLDDUST_TECH PRIVATE LIMITED</span><a href="/exam-trends" data-discover="true">Chapters</a><a href="/cbse/class-10?returnTo=%2Fpricing" data-discover="true">CBSE 2027</a><a href="/check-your-answer" data-discover="true">How CBSE marks answers</a><a href="/for-parents" data-discover="true">For parents</a><a href="/legal/privacy" data-discover="true">Privacy</a><a href="/legal/terms" data-discover="true">Terms</a><a href="/legal/refund" data-discover="true">Cancellation &amp; Refunds</a><a href="https://www.youtube.com/@Lazytopper_CBSE" target="_blank" rel="me noopener">YouTube</a><a href="https://www.instagram.com/lazy_topper_/" target="_blank" rel="me noopener">Instagram</a><a href="https://www.facebook.com/lazytoppercbse" target="_blank" rel="me noopener">Facebook</a><a href="https://wa.me/919714568948" target="_blank" rel="me noopener">WhatsApp: ask a doubt</a></footer></main><template data-lt-route="end"></template></div>

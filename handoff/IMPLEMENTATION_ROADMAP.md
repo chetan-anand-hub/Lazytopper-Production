@@ -1,4 +1,43 @@
+## 2026-10-16 - FOLLOWUPS-1 (`#1196`) - MERGED
+
+- DONE. Start-here kicker "Your first 2 minutes"; `lt-sh` to `lt-shc` (closes `[FU-LT-SH-CLASS-CLASH]`); expired-paid-pass lock copy (closes `[FU-LOCK-COPY-PAID-EXPIRED]`); Razorpay `paymentId` and server amount in `purchase` (closes `[FU-PURCHASE-TXN-ID-RAZORPAY]`; owner live-verify on the first real payment); `pickedOption` stored and shown on reopen (closes `[FU-QP-REOPEN-PICK]`). Production live-check PASSED at 390 px for the QP pieces and the kicker.
+- DONE. Tutor button and Back on Chapter Test and Full Mock via `openStored` (tests only; live check needs an AI-graded paper).
+- OPEN. `[FU-WORKSHEET-TUTOR-RETURN]` (was the Worksheet part of `[FU-SCORECARD-TUTOR-REST]`), `[FU-START-HERE-WRITTEN]`.
+- NEXT. **Session 2:** Part 4 (ADS-CLEAN-1) then Part 3 (TUTOR-FIX-2) of DISPATCH-PACK_FIRST-WIN.
+
+## 2026-10-16 — TRACK-2 (`#1192`) · START-HERE-1 (`#1193`) · QP-SCORECARD-2 (`#1194`) — ✅ MERGED
+
+- ✅ Purchase + onboarding events, admin traffic out of analytics. ⏳ owner live-verify (GA4 Realtime, first real payment); `[FU-PURCHASE-TXN-ID-RAZORPAY]`.
+- ✅ Start-here card + Quick 5 + traps + tutor hop on QP and saved C&I scorecards. `[FU-SCORECARD-TUTOR-REST]` (Chapter Test / Full Mock / Worksheet), `[FU-START-HERE-WRITTEN]`.
+- ✅ QP-SCORECARD-2: full menu, past sessions + reopen, tutor back to the saved scorecard, picker fixes, focused first-run overlay (closes `[FU-HOME-STARTHERE-PIN]`). Production live-check PASSED at 1280 px. ⏳ owner 390 px phone check; `[FU-QP-REOPEN-PICK]`, `[FU-LT-SH-CLASS-CLASH]`.
+- ⏳ **Session 2:** Part 4 (ADS-CLEAN-1) then Part 3 (TUTOR-FIX-2) of DISPATCH-PACK_FIRST-WIN. `[FU-RETURN-TICKET-CONTRACT]` is unblocked now that START-HERE-1 merged.
+
+## 2026-10-15 — PRICING-LIGHT-1 (`#1190`) — ✅ MERGED
+
+- ✅ Light pricing page, Basic and Premium, full compare table, payments-ON prerender. ⏳ owner live-verify (§4).
+- ⏳ `[FU-LOCK-LIST-LIMITED-PRACTICE]` (the Premium locks' "Free on Basic" list), `[FU-VERCEL-IGNORE-OVERRIDE]`, `[PASS-STATUS-1]`, `[AUTORENEW-1]`.
+
 # LazyTopper Implementation Roadmap
+
+## 2026-10-14 — SOLUTIONS-1 (`#1186`) · LEGAL-ENTITY-1 (`#1187`) — ✅ MERGED (lane G)
+
+- ✅ Triangles NCERT (13) + Exemplar (16) solutions pages, attempt-first. ⏳ More chapters: one publish-safe list per chapter (D261 method), then a data entry each.
+- ✅ The legal pages and footers name P&CGOLDDUST_TECH PRIVATE LIMITED (Razorpay KYC). ⏳ `[FU-ORG-LEGALNAME]`; then the Razorpay go-live steps (owner, no code).
+- ⏳ After go-live: PASS-STATUS-1 ("Your pass" box; "Extend your pass" buttons).
+
+## 2026-10-14 — NCERT-BOOKS-1 (`#1171`) · NCERT-BOOKS-1b (`#1182`) · NCERT-ENTRY-1 (`#1184`) — ✅ MERGED (lane G; owner checks owed)
+
+- ✅ `/ncert-class-10`: the 27 NCERT Class 10 chapters (2026-27), each read on LazyTopper, with notes, formulae, practice and Check my answer. ⏳ owner Android check.
+- ✅ Desktop: an "NCERT Books" rail item with a subject → chapter picker. Mobile: entry from Exam Trends and every notes page. ⏳ owner tap check.
+- ⏳ SOLUTIONS-1 (Triangles NCERT + Exemplar solutions, D259–D261): built, branch only; PR after this docs PR.
+- ⏳ The five D258 follow-ups (one small G PR later).
+
+## 2026-10-14 — UPLOAD-SHRINK-1 (`#1126`) · PYTHAGORAS-HUB-1/-2 (`#1174` `#1178`) — ✅ MERGED (owner live-verify owed for `#1126`)
+
+- ✅ A scanned PDF over the 7 MiB ceiling is shrunk on the device instead of refused; anything at or under it is untouched (owner rule: never degrade grading quality). ⏳ owner live-verify on 2 surfaces.
+- ✅ The Triangles hub no longer teaches Pythagoras / its converse, the area-of-similar-triangles theorem or the Angle Bisector Theorem (owner ruling 1, D245). ⏳ `[FU-TRIANGLES-ORPHANS]` and the HPQ `trig-comp-02` ruling.
+- ✅ A consequential mark loss carries its origin's type on all six grading surfaces and the graded PDF arrow draws (`#1175`, B2). ⏳ owner re-check.
+- ⏳ WORKSHEET-FIX-2 `#1179` (draft).
 
 ## 2026-10-14 — BANK-STEPS-1 REPAIR (`#1142` `#1143` `#1144`, B's `#1145`) · GARBLE-1 PAUSE (`#1146` `#1149` `#1153`) · GARBLE-1 REWRITE-1/2 (`#1156` `#1164`) · MATH-RENDER-1/1b/2/3 (`#1150` `#1155` `#1152` `#1162`) — ✅ MERGED · REPAIR / REWRITE QUEUE STILL OPEN · OWNER DRAWS OWED
 

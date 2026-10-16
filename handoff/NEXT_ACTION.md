@@ -1,3 +1,59 @@
+## 2026-10-16 - AFTER FOLLOWUPS-1 (`#1196`) (written by the docs sub-agent under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The "Owner question" in the `#1192-#1194` block is answered: the kicker is now "Your first 2 minutes".)*
+
+- **Owner check (phone, 390 px):** the focused first-run overlay on a FRESH zero-graded account (still owed from `#1194`).
+- **Owner check (admin):** the admin feed labels on his admin account.
+- **Owner check (first real payment):** `purchase` appears in GA4 and Meta with the Razorpay payment id as `transaction_id`.
+- **Not live-verified (waiting on real data):** Chapter Test / Full Mock "Ask the tutor" buttons and their Back (need an AI-graded paper); the paid-pass expired lock copy (needs a real paid pass).
+- **Next:** **Session 2 runs Part 4 (ADS-CLEAN-1) then Part 3 (TUTOR-FIX-2) of DISPATCH-PACK_FIRST-WIN.** Tutor honesty plus a richer brief remains the top tutor gap.
+- **Follow-ups open:** `[FU-WORKSHEET-TUTOR-RETURN]`, `[FU-START-HERE-WRITTEN]`. Closed in `#1196`: `[FU-LT-SH-CLASS-CLASH]`, `[FU-LOCK-COPY-PAID-EXPIRED]`, `[FU-PURCHASE-TXN-ID-RAZORPAY]`, `[FU-QP-REOPEN-PICK]`; `[FU-SCORECARD-TUTOR-REST]` narrowed and renamed.
+
+## ★ 2026-10-16 — AFTER TRACK-2 (`#1192`), START-HERE-1 (`#1193`) AND QP-SCORECARD-2 (`#1194`) (written by the Session-1 docs sub-agent under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner check (TRACK-2, after merge):** GA4 Realtime shows `begin_checkout` on a pay tap; `/admin` produces no GA4 hit; the first real external payment shows `purchase` with a value in GA4 and Meta. Switch on GA4's internal-traffic filter only with the owner's OK.
+- **Owner check (phone, 390 px):** with a FRESH zero-graded account, the focused first-run overlay fills the screen on Home / Practice Hub and the Start-here card works (Start → Science → Electricity → Quick 5 → answer); the QP scorecard shows the traps (pick, right option, bank steps) and the full what-next menu; "Ask the tutor why I lost this mark" opens the tutor and its back returns to the saved scorecard; "Your past sessions" reopens read-only. The verifier already passed all of this at 1280 px on production (16 Oct); only the phone width is owed.
+- **Next:** **Session 2: run Part 4 (ADS-CLEAN-1) then Part 3 (TUTOR-FIX-2) of DISPATCH-PACK_FIRST-WIN** (Part 4: growth, ad `utm_content` values `cbq_short` / `sci_*`; Part 3: tutor honesty on the server prompt, `tutor.cjs`, `tutorContextBrief.ts`, read-model fixes; Part 3 must merge the same day as Part 2). `[FU-RETURN-TICKET-CONTRACT]` is unblocked now that START-HERE-1 merged.
+- **Owner question (not applied):** change the Start-here kicker to "Your first 2 minutes"?
+- **Follow-ups opened:** `[FU-PURCHASE-TXN-ID-RAZORPAY]`, `[FU-SCORECARD-TUTOR-REST]`, `[FU-START-HERE-WRITTEN]`, `[FU-LOCK-COPY-PAID-EXPIRED]`, `[FU-QP-REOPEN-PICK]`, `[FU-LT-SH-CLASS-CLASH]`. Closed: `[FU-HOME-STARTHERE-PIN]`.
+
+## ★ 2026-10-15 — AFTER PRICING-LIGHT-1 (`#1190`) (written by the controller under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner check (PRICING-LIGHT-1 §4, on www once the build is Ready):** /pricing is light, Basic left and Premium right, both Pay buttons clearly visible and opening the Razorpay popup; the compare table scrolls sideways inside its own box on a phone; Ctrl+U on /pricing has no "Not yet. Payment checkout" and no "Manual activation during beta"; Railway → Variables: none of `FAIR_USE_TRIAL_*` is set (if any is, tell the cofounder: the page's trial numbers would differ from what is enforced).
+- **Follow-ups opened:** `[FU-LOCK-LIST-LIMITED-PRACTICE]`, `[FU-VERCEL-IGNORE-OVERRIDE]`, `[AUTORENEW-1]`; `[PASS-STATUS-1]` was already open (OPEN_QUESTIONS).
+
+## ★ 2026-10-14 — AFTER SOLUTIONS-1 (`#1186`) AND LEGAL-ENTITY-1 (`#1187`) (written by G under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner check (LEGAL-ENTITY-1 §4):** www.lazytopper.com/legal/terms, /legal/privacy and /legal/refund each show "LazyTopper is operated by P&CGOLDDUST_TECH PRIVATE LIMITED."; the Terms open with the new paragraph and say "Last updated: October 2026"; the landing and pricing footers read "© 2026 P&CGOLDDUST_TECH PRIVATE LIMITED"; Ctrl+U on /legal/terms shows the name in the HTML.
+- **Owner check (SOLUTIONS-1):** open /ncert-solutions/triangles and /ncert-exemplar/triangles on a phone; reveal a hint, answer an MCQ, type an answer; the solution opens after the attempt.
+- **Razorpay:** if the review asks for a Contact Us page or a delivery policy, tell the cofounder (a spec amendment follows); nothing is built before that. Go-live steps: `claude/RAZORPAY_GO_LIVE_HANDOFF_2026-10-14.md`.
+- **G next:** GSC + Bing indexing for the two solutions URLs; the 14 remaining notes pages in GSC (15 Oct); the parents YouTube campaign's two video ads (owner decides ₹300 vs Google's ₹416/day minimum).
+
+## ★ 2026-10-14 — AFTER NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (`#1171` `#1182` `#1184`) (written by G under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner check (phone):** open `/ncert-class-10` on an Android phone, tap "Read the chapter" on any chapter: the pages draw inside LazyTopper (no new tab, no download prompt). Then tap "NCERT" on an Exam Trends chapter card, and "Read NCERT Chapter N on LazyTopper" on a notes page: both open the reader and the back link returns to where you were.
+- **G next, in order (cofounder, 14 Oct 20:54 IST):** the NCERT wave's final audit request to the owner → SOLUTIONS-1 PR (tier 2: AUDIT-REQUEST for `App.tsx` and the additive `server/routes/studentActivity.cjs` allowlist) → its docs PR → LEGAL-ENTITY-1.
+- **GSC:** request indexing for the remaining 14 notes pages (about 10 a day; G scheduled 15 Oct 19:00 IST). Re-measure `/ncert-class-10`, `/exam-trends` and the notes pages at +7 / +14 / +28 days (21 Oct, 28 Oct, 11 Nov).
+- **Open follow-ups to schedule (see OPEN_QUESTIONS):** the five D258 nits, `[FU-TRI-SOLUTIONS-HOLD-5]`, `[FU-TRI-OUT-OF-SYLLABUS-SERVED]`, `[FU-OUR-ENVIRONMENT-NO-NCERT-FILE]`.
+
+## ★ 2026-10-14 — AFTER UPLOAD-SHRINK-1 (`#1126`) AND PYTHAGORAS-HUB-1/-2 (`#1174` `#1178`) (written by C1b under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner live-verify of `#1126` (needs a real scanned PDF over 7 MB, e.g. 8–10 MB, 3–5 scanned pages, no text layer), on Check & Improve (single) and Worksheet:** (1) it shows "Optimising your PDF for upload… page n of N" (with Skip) and is then GRADED (before this change: "too large"); (2) control, a scanned PDF under 7 MB: no "Optimising", no request for `shrinkPdf-*.js` / `pdf-*.js` / `pdf.worker.min-*.mjs`; (3) control, a typed (text-layer) PDF over 7 MB: the existing "PDF is too large. Max size is 7 MB." message. The lane is PARTIAL on §4a until this runs.
+- **Owner re-check of `#1175` (Check & Improve with the owner's paper CI-M-POLY-03; and a Worksheet or Chapter Test graded sheet):** Q4 reads conceptual 2.5 with NO "Marks lost, reason not recorded"; steps 3 and 4 show an arrow and "follows from step 2"; the downloaded graded PDF draws the arrow as an arrow, not "Ⅰ,". The lane is PARTIAL on §4a until it runs.
+- **Owner glance, Triangles topic hub (after `#1178`):** no Pythagoras / area-ratio / angle-bisector item; BPT, similarity and the worked example "Finding a missing side with a² + b² = c²" still render.
+- **WORKSHEET-FIX-2 `#1179` (draft, slot 17):** update-branch at its slot, the Opus delta re-check was not done after the verifier fixes (`940fdcd7`), AUDIT-REQUEST, then the owner live-verify in its PR body (a board-mix worksheet PDF and its answer key at 390 px and 1366 px).
+- **Open follow-ups to schedule (see OPEN_QUESTIONS):** `[FU-TRIANGLES-ORPHANS]` (the `Area Ratio` question family + `gArea` tutor id, `trianglesGrindMindmap` AREAS_SIMILAR, three `public/visuals/maths/triangles/*.html`), HPQ `trig-comp-02` (owner ruling on whether stating the Pythagorean theorem as a Reason in a trig context is tool use), stale policy strings (`scopePolicy.ts:69`, `trianglesTutorPath.ts:216`), `[FU-SERVER-IMAGE-3MB-CAP]`, `[FU-NO-REAL-HANDWRITING-EVAL]`, `[FU-GRADER-SELF-CONSISTENCY]`, `[FU-SYN08-HARD-SHEET]`, `[FU-MULTIPAGE-REAL-ANSWER]`.
+
 ## ★ 2026-10-14 — AFTER BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER (`#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`) (written by A2 under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

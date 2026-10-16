@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { RequirePremium } from "../auth/RequireAuth";
@@ -24,7 +24,23 @@ import {
   type PersistedWorksheet,
   type PersistedWorksheetQuestion,
 } from "../../services/worksheetSessionStore";
-import { ensureWorksheetSessionCode, getSessionRecordsFromCloud, type SessionRecord } from "../../services/sessionRecords";
+import {
+  ensureWorksheetSessionCode,
+  getSessionPerQuestion,
+  getSessionRecordsFromCloud,
+  type SessionRecord,
+} from "../../services/sessionRecords";
+import type { WorksheetGradeResponse } from "../../ai/aiClient";
+import type { ScorecardTutorAsk } from "../results/scorecardVariants";
+import { trackOnboardingEvent } from "../../analytics/analytics";
+import { buildTutorPath } from "../../pages/tutor/tutorPath";
+import {
+  SCORECARD_REVIEW_PARAM,
+  recordBelongsToUid,
+  savedPaperQuestionHop,
+  searchWithoutReview,
+  withScorecardReviewParam,
+} from "../../pages/tutor/tutorRoundTrip";
 import { canonicalSlugMatches, resolveCanonicalSlug, resolveCanonicalSlugSet } from "../../data/syllabus/canonicalTopicSlug";
 import { getSurfaceHistory } from "../../services/progressStore";
 import { useBankChapters } from "../../data/bankChapters/useBankChapters";
@@ -39,7 +55,7 @@ import {
 import { exportWorksheetPdf } from "./worksheetPdfExport";
 import { readyShortfallText } from "./worksheetShape";
 import { MathText } from "../question/MathText";
-import WorksheetGradePanel from "./WorksheetGradePanel";
+import WorksheetGradePanel, { type WorksheetReopenGrade } from "./WorksheetGradePanel";
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
 import {
   recordWorksheetDownload,
@@ -217,7 +233,7 @@ function parseEntryContext(search: string): EntryContext {
 }
 
 function WorksheetGeneratorInner() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const fairUse = useFairUse("worksheet", !!user?.uid && !user?.isLocalSession);
   const ctx = useSubjectContext();
   const location = useLocation();
@@ -824,6 +840,92 @@ function WorksheetGeneratorInner() {
     setHistoryOpen(true);
   }
 
+  // ── TUTOR-FIX-2 T9 [FU-WORKSHEET-TUTOR-RETURN] — the Chapter Test / Full Mock hop (#1196) ──
+  // "Ask the tutor why I lost this mark" on a SAVED worksheet's scorecard: the tutor reads the
+  // student's OWN record (`from`) and the question (`q` = its bank id), and its back arrow returns
+  // here with `review=<code>`, which reopens THAT worksheet through the EXISTING `openUploadFor`
+  // (this device's copy -> server snapshot -> rebuild) and shows the record's saved grade.
+  // Signed-in, own record, the shown grade == the record's grade, one known chapter per question.
+  const [reviewRecord, setReviewRecord] = useState<SessionRecord | null>(null);
+  const [reopenGrade, setReopenGrade] = useState<WorksheetReopenGrade | null>(null);
+  const reopenNonceRef = useRef(0);
+  const reviewUid = isSignedIn ? user!.uid : null;
+  const wsTutorAskFor = useCallback(
+    (code: string, response: WorksheetGradeResponse) => {
+      if (!reviewUid || !generated) return undefined;
+      const record =
+        getSurfaceHistory("worksheet", reviewUid).find((r) => r.id === code) ??
+        (reviewRecord && reviewRecord.id === code ? reviewRecord : null);
+      if (
+        !record ||
+        record.surface !== "worksheet" ||
+        !recordBelongsToUid(record, reviewUid) ||
+        record.status === "pending-upload" ||
+        record.worksheetId !== generated.worksheetId ||
+        record.marksAwarded !== (Number(response.gradedMarksAwarded) || 0) ||
+        record.marksTotal !== (Number(response.gradedMarksTotal) || 0)
+      ) {
+        return undefined;
+      }
+      const paper = generated;
+      return (qNumber: number): ScorecardTutorAsk | null => {
+        const q = paper.questions.find((pq) => pq.qNumber === qNumber);
+        if (!q || String(q.id) !== record.questionIds[qNumber - 1]) return null;
+        // The question's OWN chapter, and only when the record names it (never a guess).
+        const chapter = resolveCanonicalSlug(q.topicKey);
+        const hop = savedPaperQuestionHop(record, response, qNumber, () =>
+          chapter && record.topicKeys.includes(chapter) ? chapter : null,
+        );
+        if (!hop) return null;
+        return {
+          onAsk: () => {
+            trackOnboardingEvent("tutor_from_scorecard", { surface: "worksheet" });
+            navigate(
+              buildTutorPath({
+                subject: record.subject === "science" ? "Science" : "Maths",
+                topicKey: hop.topicKey,
+                grade: "10",
+                source: "scorecard",
+                returnTo: withScorecardReviewParam(location.pathname + searchWithoutReview(location.search), record.id),
+                questionId: hop.questionId,
+                from: record.id,
+              }),
+            );
+          },
+        };
+      };
+    },
+    [reviewUid, generated, reviewRecord, navigate, location.pathname, location.search],
+  );
+
+  // The tutor's back arrow: `review=<code>` reopens that saved worksheet ONCE (read-only, through
+  // `openUploadFor`), and the param is stripped with `replace`. Signed-out / not this student's /
+  // not a worksheet -> just stripped; the page is otherwise unchanged. Never grades or records.
+  const reviewParam = new URLSearchParams(location.search).get(SCORECARD_REVIEW_PARAM);
+  const reviewConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!reviewParam || authLoading) return;
+    if (reviewConsumedRef.current === reviewParam) return;
+    reviewConsumedRef.current = reviewParam;
+    navigate({ pathname: location.pathname, search: searchWithoutReview(location.search) }, { replace: true, state: location.state });
+    if (!reviewUid) return;
+    void (async () => {
+      try {
+        const all = await getSessionRecordsFromCloud(reviewUid);
+        const record = all.find((r) => r.id === reviewParam && r.surface === "worksheet" && recordBelongsToUid(r, reviewUid));
+        if (!record) return;
+        const payload = await getSessionPerQuestion(reviewUid, record.perQuestionRef);
+        setReviewRecord(record);
+        reopenNonceRef.current += 1;
+        setReopenGrade({ response: payload?.response ?? null, nonce: reopenNonceRef.current });
+        await openUploadFor(record);
+      } catch {
+        /* honest fallback: the plain page */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reviewParam, authLoading, reviewUid]);
+
   // ── Generated-state derived breakdowns (real counts) ──────────────────────
   const genSectionRows = useMemo(() => {
     if (!generated) return [];
@@ -1331,7 +1433,11 @@ function WorksheetGeneratorInner() {
                 /* Signed in: the EXISTING premium path, unchanged. A free student gets
                    the trial/plans block `RequirePremium` already renders. */
                 <RequirePremium featureLabel="Worksheet marking">
-                  <WorksheetGradePanel ws={generated} />
+                  <WorksheetGradePanel
+                    ws={generated}
+                    reopen={reviewRecord && reviewRecord.worksheetId === generated.worksheetId ? reopenGrade : null}
+                    tutorAskFor={wsTutorAskFor}
+                  />
                 </RequirePremium>
               ) : (
                 /* ★ SIGNED OUT: AN INLINE OFFER, NEVER `RequirePremium`.

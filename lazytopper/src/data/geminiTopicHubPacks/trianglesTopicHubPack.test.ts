@@ -62,13 +62,13 @@ describe("the Triangles topic hub does not teach Pythagoras or its converse as a
     };
     expect(check(pack)).toEqual([]);
     // CONTROL: a pack with a node removed but its edge left WOULD be caught
-    const broken: Pack = { ...pack, mindMap: { ...pack.mindMap, nodes: pack.mindMap.nodes.filter((n) => n.id !== "n8") } };
+    const broken: Pack = { ...pack, mindMap: { ...pack.mindMap, nodes: pack.mindMap.nodes.filter((n) => n.id !== "n2") } };
     expect(check(broken).length).toBeGreaterThan(0);
   });
 
-  it("the other hub content is untouched (BPT, similarity, angle bisector cards remain)", () => {
+  it("the other hub content is untouched (BPT and similarity cards remain; the Angle Bisector items are removed by HUB-2)", () => {
     const titles = pack.definitions.map((d) => d.title);
-    expect(titles).toEqual(["Similar Figures", "Similar Triangles", "Basic Proportionality Theorem (BPT)", "Converse of BPT", "Similarity Criteria", "Angle Bisector Theorem"]);
-    expect(pack.videos.map((v) => v.id)).toEqual(["vid1", "vid2", "vid4"]);
+    expect(titles).toEqual(["Similar Figures", "Similar Triangles", "Basic Proportionality Theorem (BPT)", "Converse of BPT", "Similarity Criteria"]);
+    expect(pack.videos.map((v) => v.id)).toEqual(["vid1", "vid2"]);
   });
 });

@@ -70,7 +70,7 @@ import { getWindowedProgress } from "./progressStore";
 import { loadExamConceptResolvers, type ExamConceptResolvers } from "./mistakeConcept";
 import { CONCEPT_BY_LABEL } from "../data/concepts/conceptLabelMap";
 import { assembleTutorBrief, briefFromModel } from "../pages/tutor/tutorContextBrief";
-import { conceptMistakesNote } from "../pages/MeProgressPage";
+import { conceptMistakesNote, viewRowsFrom } from "../pages/MeProgressPage";
 
 const UID = "u-concept";
 const RN = "real-numbers";
@@ -459,10 +459,16 @@ describe("ME-CONCEPT-1 · ONE gate (Me's): below it nothing is named; above it M
     expect(conceptMistakesNote(irr.mistakes)).toBe("Silly slip 2");
     expect(conceptMistakesNote(undefined)).toBeNull();
 
-    // The brief: the model's weakest (FTA is fully won back, so only Irrationality Proofs remains).
+    // The model's weakest by OPEN marks (FTA is fully won back, so only Irrationality Proofs remains).
+    expect(weakestExamConcepts(m.mistakes, RN, 3, m.progress.concepts)).toEqual([IRR]);
+    // TUTOR-FIX-2 (T2) — the brief now names Me's OPEN-CHAPTER concept rows (the chapter-scoped
+    // read Me makes, top 3 by lost marks, with their marks) — exactly what Me prints for the chapter.
     const brief = await assembleTutorBrief({ uid: UID, topicKey: RN, subject: "maths", window: "month", nowMs: NOW });
-    expect(brief).toEqual(briefFromModel(m, RN));
-    expect(brief.topic.weakConcepts).toEqual(weakestExamConcepts(m.mistakes, RN, 3, m.progress.concepts));
-    expect(brief.topic.weakConcepts).toEqual([IRR]);
+    const chapterModel = await readStudyModel(UID, { window: "month", subject: "maths", topicKey: RN, mistakes: false, tutor: false, nowMs: NOW });
+    expect(brief).toEqual(briefFromModel(m, RN, chapterModel));
+    const meRows = viewRowsFrom((await readStudyModel(UID, { window: "month", topicKey: RN, mistakes: false, nowMs: NOW })).progress.concepts).slice(0, 3);
+    expect(meRows.map((r) => r.label)).toEqual(expect.arrayContaining([IRR]));
+    expect(brief.topic.weakConcepts).toEqual(meRows.map((r) => r.label));
+    expect(brief.chapter?.concepts).toEqual(meRows.map((r) => ({ name: r.label, marksLost: r.lost })));
   });
 });

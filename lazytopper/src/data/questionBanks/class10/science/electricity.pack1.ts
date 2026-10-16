@@ -68,7 +68,7 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "State the formula relating power, voltage, and current: P = V x I. [1]",
       "Substitute values and calculate current: I = P/V = 60 W / 220 V = 0.27 A (approx). [1]",
     ], finalAnswer: "I ≈ 0.27 A" , isCompetencyBased: true },
-  { id: "EL-E14", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The heating effect of electric current is used in:", options: ["Electric motor", "Generator", "Electric iron", "Voltmeter"], answer: "Electric iron", explanation: "The correct answer is Electric iron. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Electric iron" , isCompetencyBased: false,
+  { id: "EL-E14", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The heating effect of electric current is used in:", options: ["Electromagnet", "Electric bell", "Electric iron", "Voltmeter"], answer: "Electric iron", explanation: "The correct answer is Electric iron. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Electric iron" , isCompetencyBased: false,
     solutionSteps: [
       "An electric iron works because current through its high-resistance heating element produces heat (H = I²Rt), so the heating effect of electric current is used in an electric iron.",
     ],

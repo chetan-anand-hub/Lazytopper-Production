@@ -159,6 +159,20 @@ function studentFacingStrings(source: string): string[] {
 
 const UNLIMITED = /unlimited/i;
 
+/**
+ * PRICING-LIGHT-1 (owner ruling L4, Oct 2026) — the pricing page's plan copy moved to
+ * src/config/pricingCompare.ts, so the scan now reads that file too (it would otherwise
+ * have walked past the page's copy). The owner ruled exactly TWO "unlimited" strings, both
+ * about OPENING papers, which Premium never caps (MockViewGate: "Premium is unlimited and
+ * never reaches this."); fair use limits grading, not opening. Only these two exact strings
+ * are allowed, only in that file; any other "unlimited" anywhere still fails.
+ */
+const PRICING_COMPARE = "src/config/pricingCompare.ts";
+const OWNER_RULED_UNLIMITED = new Set([
+  "Unlimited chapter tests and mocks to open or download",
+  "Unlimited",
+]);
+
 function unlimitedHits(): string[] {
   const authDir = resolvePath(process.cwd(), "src/components/auth");
   const files = [
@@ -166,11 +180,13 @@ function unlimitedHits(): string[] {
       .filter((f) => /\.tsx?$/.test(f) && !/\.test\.tsx?$/.test(f))
       .map((f) => joinPath(authDir, f)),
     resolvePath(process.cwd(), "src/pages/PricingPage.tsx"),
+    resolvePath(process.cwd(), PRICING_COMPARE),
   ];
   const hits: string[] = [];
   for (const file of files) {
+    const allowed = file === resolvePath(process.cwd(), PRICING_COMPARE) ? OWNER_RULED_UNLIMITED : new Set<string>();
     for (const text of studentFacingStrings(readSourceFile(file, "utf8"))) {
-      if (UNLIMITED.test(text)) hits.push(`${file}: ${JSON.stringify(text.trim())}`);
+      if (UNLIMITED.test(text) && !allowed.has(text.trim())) hits.push(`${file}: ${JSON.stringify(text.trim())}`);
     }
   }
   return hits;
@@ -197,6 +213,22 @@ describe("OR-P3 — no 'unlimited' claim in student-facing copy", () => {
       "Unlimited mock tests",
       "Unlock unlimited practice for",
     ]);
+  });
+
+  it("PRICING-LIGHT-1 — the two allowed strings exist, and 'Unlimited' sits ONLY on the open/download row", async () => {
+    const compareSource = readSourceFile(resolvePath(process.cwd(), PRICING_COMPARE), "utf8");
+    const found = studentFacingStrings(compareSource).filter((s) => UNLIMITED.test(s)).map((s) => s.trim());
+    // CONTROL — the scan really reads the file and sees both owner-ruled strings.
+    expect(new Set(found)).toEqual(OWNER_RULED_UNLIMITED);
+    const { PREMIUM_PLUS, compareSections } = await import("../../config/pricingCompare");
+    expect(PREMIUM_PLUS.filter((i) => UNLIMITED.test(i.label)).map((i) => i.label)).toEqual([
+      "Unlimited chapter tests and mocks to open or download",
+    ]);
+    const unlimitedRows = compareSections({ freeCheck: true })
+      .flatMap((s) => s.rows)
+      .filter((r) => JSON.stringify([r.basic, r.premium]).match(UNLIMITED))
+      .map((r) => r.label);
+    expect(unlimitedRows).toEqual(["Open or download chapter tests and full mocks"]);
   });
 
   it("CONTROL — the scan reaches the files OR-P3 reworded", () => {

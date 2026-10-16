@@ -1,0 +1,330 @@
+/*
+ * SolutionsPage (`/ncert-solutions/:chapter`, `/ncert-exemplar/:chapter`, SOLUTIONS-1) — the
+ * NcertBooksPage treatment: mobile-first, responsive by CSS alone, EVERY selector scoped under
+ * `.lt-ncs` (a lazy route's stylesheet is global once loaded). Same token values as `.lt-nb`.
+ */
+.lt-ncs {
+  --ncs-bg: #f4f7fb;
+  --ncs-card: #fff;
+  --ncs-ink: #0f2038;
+  --ncs-ink2: #4d647e;
+  --ncs-ink3: #71879f;
+  --ncs-line: #dde5ef;
+  --ncs-g: #0b8f50;
+  --ncs-gt: #06663a;
+  --ncs-gw: #e6f4ec;
+  --ncs-r: #b42318;
+  --ncs-rw: #fdecea;
+  --ncs-navy: #132c4d;
+  --ncs-serif: Fraunces, Georgia, serif;
+  --ncs-sans: Inter, system-ui, -apple-system, sans-serif;
+  --ncs-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
+  display: block;
+  background: var(--ncs-bg);
+  color: var(--ncs-ink);
+  font-family: var(--ncs-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.lt-ncs * {
+  box-sizing: border-box;
+}
+.lt-ncs h1,
+.lt-ncs h2 {
+  font-family: var(--ncs-serif);
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.lt-ncs a {
+  color: var(--ncs-gt);
+}
+.lt-ncs :focus-visible {
+  outline: 2px solid var(--ncs-g);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.lt-ncs__w {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* HERO */
+.lt-ncs__hero {
+  background: var(--ncs-navy);
+  color: #eaf2fb;
+  padding: 28px 0 24px;
+}
+.lt-ncs__back {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: #b9d3ee !important;
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+.lt-ncs__eyebrow {
+  font-size: 12px;
+  color: #8fb3d9;
+  margin: 0 0 10px;
+}
+.lt-ncs__hero h1 {
+  font-size: 26px;
+  line-height: 1.22;
+  color: #fff;
+}
+.lt-ncs__sub {
+  margin: 12px 0 0;
+  color: #c9dbef;
+  max-width: 680px;
+}
+.lt-ncs__facts {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lt-ncs__facts li {
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #eaf2fb;
+}
+
+/* BODY */
+.lt-ncs__body {
+  padding-top: 20px;
+  padding-bottom: 32px;
+}
+.lt-ncs__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.lt-ncs__count {
+  color: var(--ncs-ink2);
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+.lt-ncs__group {
+  margin-top: 22px;
+}
+.lt-ncs__group > h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+/* QUESTION CARD */
+.lt-ncs__q {
+  background: var(--ncs-card);
+  border: 1px solid var(--ncs-line);
+  border-radius: 14px;
+  box-shadow: var(--ncs-sh);
+  padding: 16px;
+  margin: 0 0 14px;
+  scroll-margin-top: 80px;
+}
+.lt-ncs__qhead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--ncs-ink3);
+  margin-bottom: 8px;
+}
+.lt-ncs__marks {
+  white-space: nowrap;
+}
+.lt-ncs__stem {
+  font-size: 15px;
+  white-space: pre-line;
+}
+.lt-ncs__opts {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.lt-ncs__opt {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: #f8fafc;
+  border: 1px solid var(--ncs-line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.lt-ncs__opt:disabled {
+  cursor: default;
+}
+.lt-ncs__opt.is-right {
+  border-color: var(--ncs-g);
+  background: var(--ncs-gw);
+}
+.lt-ncs__opt.is-wrong {
+  border-color: var(--ncs-r);
+  background: var(--ncs-rw);
+}
+.lt-ncs__optl {
+  color: var(--ncs-ink3);
+  font-weight: 600;
+}
+.lt-ncs__try {
+  margin-top: 12px;
+}
+.lt-ncs__try label {
+  display: block;
+  font-size: 13px;
+  color: var(--ncs-ink2);
+  margin-bottom: 6px;
+}
+.lt-ncs__tryrow {
+  display: flex;
+  gap: 8px;
+}
+.lt-ncs__tryrow input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font: inherit;
+  padding: 9px 12px;
+  border: 1px solid var(--ncs-line);
+  border-radius: 10px;
+}
+.lt-ncs__tryrow button,
+.lt-ncs__hintbtn {
+  font: inherit;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+.lt-ncs__tryrow button {
+  background: var(--ncs-g);
+  color: #fff;
+  border: 0;
+}
+.lt-ncs__tryrow button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.lt-ncs__hintbox {
+  margin-top: 10px;
+}
+.lt-ncs__hintbtn {
+  background: none;
+  border: 1px dashed var(--ncs-line);
+  color: var(--ncs-ink2);
+  font-size: 14px;
+  padding: 6px 12px;
+}
+.lt-ncs__hint {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+.lt-ncs__steplabel {
+  font-weight: 700;
+  color: var(--ncs-gt);
+}
+
+/* REVEAL */
+.lt-ncs__sol {
+  margin-top: 14px;
+  border-top: 1px solid var(--ncs-line);
+  padding-top: 12px;
+}
+.lt-ncs__verdict {
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.lt-ncs__verdict.is-right {
+  color: var(--ncs-gt);
+}
+.lt-ncs__verdict.is-wrong {
+  color: var(--ncs-r);
+}
+.lt-ncs__yours {
+  margin: 0 0 8px;
+  color: var(--ncs-ink2);
+}
+.lt-ncs__convert {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  background: var(--ncs-rw);
+  border-radius: 10px;
+}
+.lt-ncs__convertlink,
+.lt-ncs__photolink {
+  font-weight: 700;
+}
+.lt-ncs__solh {
+  font-size: 14px;
+  margin: 4px 0 6px;
+}
+.lt-ncs__steps {
+  margin: 0;
+  padding-left: 22px;
+}
+.lt-ncs__steps li {
+  margin: 0 0 6px;
+}
+.lt-ncs__final {
+  margin: 10px 0 0;
+}
+.lt-ncs__photo {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+/* CLOSING CTA */
+.lt-ncs__cta {
+  margin-top: 28px;
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--ncs-navy);
+  color: #eaf2fb;
+}
+.lt-ncs__cta h2 {
+  color: #fff;
+  font-size: 20px;
+}
+.lt-ncs__cta p {
+  margin: 8px 0 14px;
+  color: #c9dbef;
+}
+.lt-ncs__ctabtn {
+  display: inline-block;
+  background: var(--ncs-g);
+  color: #fff !important;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+}
+.lt-ncs__fine {
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--ncs-ink3);
+}
+
+@media (min-width: 768px) {
+  .lt-ncs__hero h1 {
+    font-size: 32px;
+  }
+  .lt-ncs__q {
+    padding: 20px;
+  }
+}

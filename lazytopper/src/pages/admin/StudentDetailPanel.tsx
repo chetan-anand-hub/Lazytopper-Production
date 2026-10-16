@@ -23,21 +23,22 @@ import {
   type ActivityFeedItem,
   type TimelineDay,
 } from "./studentsAdminModel";
-import { feedItemLabel, orderedFeed, pageRows } from "./activityDetailModel";
+import { activityEventLabel, feedItemLabel, orderedFeed, pageRows } from "./activityDetailModel";
 
 type State =
   | { status: "loading" }
   | { status: "ok"; data: DetailResponse }
   | { status: "refused"; refusal: Refusal; httpStatus: number | null };
 
-function Counts({ counts }: { counts: Record<string, number> }) {
+/** `label` (FOLLOWUPS-2 F3): plain words for a name; omitted -> the raw name, as before. */
+function Counts({ counts, label }: { counts: Record<string, number>; label?: (name: string) => string }) {
   const entries = Object.entries(counts).filter(([, n]) => n > 0);
   if (entries.length === 0) return <span className="sa-muted">none</span>;
   return (
     <span className="sa-chips">
       {entries.map(([name, n]) => (
         <span key={name} className="sa-chip">
-          {name} ×{n}
+          {label ? label(name) : name} ×{n}
         </span>
       ))}
     </span>
@@ -97,6 +98,24 @@ function ActivityFeed({ feed, truncated }: { feed: ActivityFeedItem[] | null | u
   );
 }
 
+/** TUTOR-FIX-2 T8 — tutor messages that day (the trial tutor counter on the ledger day the API
+ *  already read). Absent / null = not recorded (Premium tutor calls are inside the AI calls). */
+function TutorMessages({ ai }: { ai: TimelineDay["ai"] }) {
+  const n = (ai as { tutorMessages?: number | null } | null)?.tutorMessages;
+  if (typeof n !== "number") return null;
+  return (
+    <span className="sa-spend" data-testid="sa-tutor-messages">
+      {" · "}
+      {n} tutor {n === 1 ? "message" : "messages"}
+    </span>
+  );
+}
+
+/** TUTOR-FIX-2 T8 — the ledger read fine and holds no AI day at all: say so plainly. */
+function hasNoAiUse(data: DetailResponse): boolean {
+  return data.reads.usageLedger === "complete" && data.timeline.every((d) => !d.ai);
+}
+
 function DayCard({ day }: { day: TimelineDay }) {
   return (
     <li className="sa-day" data-testid={`sa-day-${day.day}`}>
@@ -131,7 +150,7 @@ function DayCard({ day }: { day: TimelineDay }) {
             <div className="sa-day-row">
               <dt>Actions</dt>
               <dd>
-                <Counts counts={day.activity.events} />
+                <Counts counts={day.activity.events} label={activityEventLabel} />
               </dd>
             </div>
             <div className="sa-day-row">
@@ -160,6 +179,7 @@ function DayCard({ day }: { day: TimelineDay }) {
               <span className="sa-spend" data-testid="sa-actual-spend">
                 {" · "}actual AI spend {formatInr(day.ai.providerSpendInr)}
               </span>
+              <TutorMessages ai={day.ai} />
               {day.ai.checks + day.ai.chapterTests + day.ai.mocks + day.ai.worksheets > 0 && (
                 <span className="sa-muted sa-span">
                   trial use: {day.ai.checks} checks, {day.ai.chapterTests} chapter tests, {day.ai.mocks} mocks,{" "}
@@ -298,6 +318,11 @@ export default function StudentDetailPanel({
                 {k}: {v === "truncated" ? "only the most recent entries are shown" : "could not be read"}
               </p>
             ))}
+          {hasNoAiUse(state.data) && (
+            <p className="sa-note" data-testid="sa-no-tutor-use">
+              AI usage: No tutor use yet.
+            </p>
+          )}
           {state.data.timeline.length === 0 ? (
             <p className="sa-empty">Nothing recorded for this student yet.</p>
           ) : (

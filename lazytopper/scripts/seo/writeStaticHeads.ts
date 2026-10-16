@@ -158,6 +158,20 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Read every chapter of the 2026-27 NCERT Class 10 Mathematics and Science textbooks, " +
       "then go to that chapter's notes, practice and step-marked answer check.",
   },
+  // SOLUTIONS-1 (lane G, D259-D261) — the Triangles solutions pilot. Each title IS the page's h1
+  // (src/pages/SolutionsPage.tsx `solutionsH1`), the searched head words, <= 60 chars.
+  "/ncert-solutions/triangles": {
+    title: "NCERT Solutions Class 10 Maths Chapter 6 Triangles",
+    description:
+      "Step-by-step NCERT solutions for Class 10 Maths Chapter 6 Triangles. Try each question " +
+      "first, then see the full solution, free. No account needed.",
+  },
+  "/ncert-exemplar/triangles": {
+    title: "NCERT Exemplar Solutions Class 10 Maths Chapter 6 Triangles",
+    description:
+      "Step-by-step NCERT Exemplar solutions for Class 10 Maths Chapter 6 Triangles. Try each " +
+      "question first, then see the full solution, free. No account needed.",
+  },
   "/legal/privacy": {
     title: "Privacy Policy | LazyTopper",
     description:
@@ -213,6 +227,8 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/check-your-answer", exact: true, modules: ["CheckYourAnswerPage"] },
   { prefix: "/for-parents", exact: true, modules: ["ForParentsPage"] },
   { prefix: "/ncert-class-10", exact: true, modules: ["NcertBooksPage"] },
+  { prefix: "/ncert-solutions/", exact: false, modules: ["SolutionsPage"] },
+  { prefix: "/ncert-exemplar/", exact: false, modules: ["SolutionsPage"] },
   { prefix: "/highly-probable/", exact: false, modules: ["HighlyProbableQuestions"] },
   { prefix: "/legal/", exact: false, modules: ["LegalPage"] },
   { prefix: "/topic-hub/", exact: false, modules: ["DesktopTopicHubPage"] },
@@ -436,12 +452,39 @@ export function notesJsonLd(path: string, basename: string): Record<string, unkn
 }
 
 /**
+ * SOLUTIONS-1 (lane G) — the JSON-LD for a solutions page: one `BreadcrumbList`
+ * (Home › NCERT Books › this page). The NCERT books page is the real parent (it links here).
+ * Google's "Practice problems" (Quiz) rich result is deprecated, so no Quiz markup; `QAPage`
+ * is for user forums, so not that either. `null` for any path outside the published set.
+ */
+export function solutionsJsonLd(path: string, basename: string): Record<string, unknown> | null {
+  const titles: Readonly<Record<string, string>> = {
+    "/ncert-solutions/triangles": "NCERT Solutions Chapter 6 Triangles",
+    "/ncert-exemplar/triangles": "NCERT Exemplar Solutions Chapter 6 Triangles",
+  };
+  const name = titles[path];
+  if (!name) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: canonicalFor("/", basename) },
+      { "@type": "ListItem", position: 2, name: "NCERT Books", item: canonicalFor("/ncert-class-10", basename) },
+      { "@type": "ListItem", position: 3, name, item: canonicalFor(path, basename) },
+    ],
+  };
+}
+
+/**
  * The JSON-LD a stamped page carries, or `null`: the notes pages' BreadcrumbList + LearningResource
  * (SEO-NOTES-LINK-2), or — VIDEO-EMBED-1 — the testimonial `VideoObject` on the two pages that carry
  * the video, from one shared builder. Exported so the guard exercises the SAME composition the build runs.
  */
 export function pageJsonLd(path: string, basename: string, hasHead: boolean): Record<string, unknown> | null {
-  return (hasHead ? notesJsonLd(path, basename) : null) ?? testimonialVideoJsonLdFor(path, canonicalFor("/", basename));
+  return (
+    (hasHead ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) : null) ??
+    testimonialVideoJsonLdFor(path, canonicalFor("/", basename))
+  );
 }
 
 /**

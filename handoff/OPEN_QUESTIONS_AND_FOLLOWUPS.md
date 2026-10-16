@@ -23,6 +23,104 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-16 - FOLLOWUPS-1 (`#1196`) FOLLOW-UPS (recorded by the docs sub-agent under CLAUDE.md section 10)
+
+**[FU-WORKSHEET-TUTOR-RETURN]** (open) Renamed and narrowed from `[FU-SCORECARD-TUTOR-REST]`. "Ask the tutor why I lost this mark" is on Quick Practice, Check & Improve, Chapter Test and Full Mock. Worksheet is not wired: worksheet scorecards have no URL reopen-from-record path and the generated state is in memory, so a tutor Back could not return to the same scorecard honestly. Needs a worksheet reopen-from-record path first.
+
+**[FU-START-HERE-WRITTEN]** (open, unchanged) The Start-here set is MCQ / Assertion-Reason only. A written or case-study type needs the free check (the grader), so it is a separate lane.
+
+**[FU-SCORECARD-TUTOR-REST]** (CLOSED 2026-10-16, narrowed in `#1196`; the Worksheet remainder continues as `[FU-WORKSHEET-TUTOR-RETURN]`)
+
+**[FU-PURCHASE-TXN-ID-RAZORPAY]** (CLOSED 2026-10-16, done in `#1196`) `purchase` now uses the Razorpay `paymentId` and the server order amount. Owner live-verify: the first real payment shows the Razorpay id in GA4 and Meta.
+
+**[FU-LOCK-COPY-PAID-EXPIRED]** (CLOSED 2026-10-16, done in `#1196`) Expired paid pass distinguished via `status.passEnd`. Not live-verified (needs a real paid pass).
+
+**[FU-QP-REOPEN-PICK]** (CLOSED 2026-10-16, done in `#1196`) `pickedOption` stored additively; reopened scorecards show "Your answer"; live-checked.
+
+**[FU-LT-SH-CLASS-CLASH]** (CLOSED 2026-10-16, done in `#1196`) Start-here CSS prefix renamed `lt-shc`.
+
+**Owner question (ANSWERED yes, applied in `#1196`):** kicker "Your first 2 minutes".
+
+**Owner still owes:** 390 px focused overlay on a FRESH zero-graded account; admin feed labels on his admin account; first real payment showing `purchase` with the Razorpay id in GA4 and Meta.
+
+## 2026-10-16 — TRACK-2 / START-HERE-1 / QP-SCORECARD-2 FOLLOW-UPS (recorded by the Session-1 docs sub-agent under §10)
+
+**[FU-PURCHASE-TXN-ID-RAZORPAY]** (open) `BuyOutcome` (services/checkout.ts) carries no Razorpay payment id or order id, so `purchase`'s `transaction_id` is a per-attempt random id minted at the tap and `value` is the config quote (month: founding/list; till-boards: `tillBoardsQuote().priceInr`). A payment-owned lane should expose the Razorpay payment id and the server's `amountPaise` from `buyPass`. Owner: payment lane.
+
+**[FU-SCORECARD-TUTOR-REST]** (open) "Ask the tutor why I lost this mark" is wired on Quick Practice and saved Check & Improve scorecards. Chapter Test, Full Mock and Worksheet use the same shell (`ResultsScorecard`, `ScorecardGradedAnswer.tutorAsk`); each only needs its call site to pass a `tutorAsk` for a question that lost marks. Multi-topic Quick Practice sets have no single topic and get no hop.
+
+**[FU-START-HERE-WRITTEN]** (open) The Start-here set is MCQ / Assertion–Reason only. A written or case-study type needs the free check (the grader), so it is a separate lane.
+
+**[FU-LOCK-COPY-PAID-EXPIRED]** (open) An expired paid pass also has `isTrialExpired`, so the scorecard lock line (`RequirePremium`, `source=scorecard`) says "Your free week has ended". Fine while no external payer exists; revisit when one does.
+
+**[FU-QP-REOPEN-PICK]** (open) A reopened QP scorecard cannot show the student's own pick because the stored `perQuestion` payload has none. Store `pickedOption` additively in the payload in a recording-owned lane, then show it on reopen. Owner: recording lane.
+
+**[FU-LT-SH-CLASS-CLASH]** (open) The SurfaceHistory root class `lt-sh` collides with the `.lt-sh` CSS that StartHereCard injects: a zero-graded student on Practice Hub would see the empty past-sessions panel styled navy. Rename one of the two classes.
+
+**[FU-HOME-STARTHERE-PIN]** (CLOSED 2026-10-16, done in `#1194`) The Start-here card's Home pin/placement.
+
+**Owner question (open, not applied):** Start-here kicker "Your first 2 minutes" instead of "Start here · 2 minutes".
+
+**Observations handed to Session 2 (not caused by these PRs):** the tutor fabricated "conductor vs insulator, 2 marks" in the owner's Electricity thread (Part 3 honesty); the tutor did not mention the student's own pick (Part 3 richer brief); QP "0 of 5 attempted" after an empty Finish then Keep practicing (pre-existing, unverified).
+
+## 2026-10-15 — PRICING-LIGHT-1 (`#1190`) FOLLOW-UPS (recorded by the controller under §10)
+
+### [FU-LOCK-LIST-LIMITED-PRACTICE] — OPEN (owner ruling 2026-10-15; this docs PR is the record, the fix is its own lane): the Premium locks' "Free on Basic" list (`FREE_FEATURES` in `BasicFreeList.tsx`, shared across the app per P7) still says "Practice picker and limited practice". P20 found no enforced free practice limit (`PracticeLimitGate.tsx` FREE_DAILY_LIMIT=10 is unexported and its counter has 0 callers), so the claim is unbacked, as the pricing page's was. PRICING-LIGHT-1 was forbidden from touching it. Fix: reword `FREE_FEATURES` and update its pins (`BasicFreeList.test.tsx`).
+### [FU-VERCEL-IGNORE-OVERRIDE] — OPEN: an env override so a settings-only production redeploy is never cancelled as docs-only. Scope and mechanism to be decided in its own lane.
+### [PASS-STATUS-1] — OPEN (after Razorpay go-live). **Do not duplicate: the full entry is recorded below under 2026-10-14 (SOLUTIONS-1 / LEGAL-ENTITY-1 follow-ups).** PRICING-LIGHT-1 did not build it; its pass tiles are the natural home for the "Your pass" box and the "Extend your pass" labels.
+### [AUTORENEW-1] — OPEN: follow-up named by the PRICING-LIGHT-1 spec with no detail given there. Scope to be written when the owner commissions it.
+
+## 2026-10-14 — SOLUTIONS-1 / LEGAL-ENTITY-1 (LANE G) FOLLOW-UPS (recorded by G under §10)
+
+### [FU-SOLUTIONS-UNKNOWN-CHAPTER-404] — OPEN (G): `/ncert-solutions/<chapter>` and `/ncert-exemplar/<chapter>` for a chapter not yet published get the shell (200, home canonical) and redirect in-app to `/ncert-class-10`; the spec asked for a server 404. Cause: `vercel.json` is generated from the router (`soft404Routes.guard`), which emits a one-segment wildcard for a param route, as for `/notes/:topicSlug`. Fix options: a per-chapter exact rewrite list in the generator, or static routes per published chapter
+### [FU-ORG-LEGALNAME] — OPEN (own lane): add `"legalName": "P&CGOLDDUST_TECH PRIVATE LIMITED"` to the Organization JSON-LD in `index.html` (changes every prerendered head)
+### [PASS-STATUS-1] — OPEN (after Razorpay go-live): "Manage your pass" lands on the sales page; add a "Your pass" box (type, end date, "granted" for admin grants) and relabel the buy buttons "Extend your pass"
+### [FU-LEGAL-REGISTERED-OFFICE] — OPTIONAL (owner): a registered-office city on the legal pages (LEGAL-ENTITY-1 §2 follow-up)
+
+## 2026-10-14 — NCERT WAVE (LANE G) FOLLOW-UPS (recorded by G under §10)
+
+### [FU-NCERT-PICKER-FOCUS-TRAP] — OPEN (G, one small PR): the rail picker has no focus trap and does not return focus to the rail link on close (D258 nit)
+### [FU-NCERT-READER-DOUBLE-RENDER] — OPEN (G): in `NcertChapterReader`'s `PageCanvas`, a re-intersect while a page is still loading can start two renders (D258 nit)
+### [FU-NCERT-SCIENCE-PANEL-HIDDEN] — OPEN (G, measure first): the Science panel is `hidden` in the prerendered HTML of `/ncert-class-10`; still indexed, possibly weighted lower (D258 nit)
+### [FU-NCERT-READ-PARAM-UNTESTED] — OPEN (G): no test asserts that `?read=<code>` opens the reader (D258 nit)
+### [FU-PKG-DUPLICATE-MATRIX-KEY] — OPEN (owner of `lazytopper/package.json`): `test:matrix:all` is defined twice in `lazytopper/package.json` (D258 nit); a JSON object keeps only the last
+### [FU-NOTES-PDF-LINK-TO-READER] — CLOSED by `#1184` (`2da27ae4`): notes pages link "Read NCERT Chapter N on LazyTopper" to the reader, above the official credit
+### [FU-TRI-SOLUTIONS-HOLD-5] — OPEN (bank lane): 5 Triangles NCERT/Exemplar rows held off the solutions page for their written solution (keys correct): NCERT-6-LA-002, NCERT-6-SA-004, EXMPLR-6-MCQ-001, EXMPLR-6-SA-004, EXMPLR-6-SA-009 (D261 lists each defect)
+### [FU-TRI-OUT-OF-SYLLABUS-SERVED] — OPEN (bank lane): 12 Triangles rows excluded from the solutions page by the syllabus screen are not withheld and are still served in practice (D261 lists them); re-verify against owner ruling 1 / D245
+### [FU-OUR-ENVIRONMENT-NO-NCERT-FILE] — OPEN (bank lane): Our Environment has no NCERT question file, so it cannot get an NCERT solutions page
+
+## 2026-10-14 — UPLOAD-SHRINK-1 / PYTHAGORAS-HUB FOLLOW-UPS (recorded by C1b under §10)
+
+### [FU-SERVER-IMAGE-3MB-CAP] — the server refuses any image over 3 MB before the model (owner: PHOTO-QUALITY lane when opened)
+`lazytopper/server/mentorImageSupport.cjs:1` `const MAX_MENTOR_IMAGE_BYTES = 3 * 1024 * 1024;`, enforced at `:70` and `:84` ("Image is too large. Max size is 3 MB."); client mirror `lazytopper/src/services/uploadLimits.ts:57`. Every photo goes through `preparePhoto` (2000 px/q0.85) so a student never reaches it, but no native-resolution image above 3 MB can ever be graded; native-resolution cells of the eval grid are unreadable by construction. D199: no photo defect, PHOTO-QUALITY-1 not opened.
+
+### [FU-NO-REAL-HANDWRITING-EVAL] — every eval sheet is synthetic (owner: NEEDS-OWNER, ≈10 real handwriting photos)
+The ten "REAL" golden photos are synthetic (`golden/images/manifest.json` `synthetic: true`). There is no real-handwriting material in the repo, so no upload-size or photo-quality finding is a statement about real student photos. Needs ≈10 real photos from the owner.
+
+### [FU-GRADER-SELF-CONSISTENCY] — the production grader repeats itself ~91% of the time on the hardest sheets (owner: a consistency scout after #1126, per D199 §3)
+On the six hardest synthetic sheets, the same image gets the same marks 90.7% of the time (60 reads). Per-sheet self-agreement: S05 and S10 disagree with themselves on the 24-sheet set; SYN-08 flips 2↔3; SYN-12 reads null ×3 as a 3000×4000 photo.
+
+### [FU-SYN08-HARD-SHEET] — SYN-08 flips between 2 and 3 depending on format and compression (owner: D223 §2)
+Original photo 2,2,null; original scan PDF 3,3,3; 2400 px/q0.90 shrink 2,2,2; gentlest-rung shrink 3,3 (+ an HTTP 500). A hard sheet, not a shrink defect; it was the reason #1126 was re-scoped.
+
+### [FU-MULTIPAGE-REAL-ANSWER] — OPEN (NEEDS-OWNER): a genuine multi-page answer set
+The multi-page control used blank filler pages; no real multi-page answer exists in the set, so "multi-page PDFs do not lose marks" is shown for original-page-plus-filler only.
+
+### [FU-GEMINI-25-FLASH-AVAILABILITY] — re-scoped by D183 (LOW)
+The primary grader (3.8) works on new keys; the risk is only that the FALLBACK (2.5-flash) and the light model (if router mode is turned on) 404 on a rotated key.
+
+### [FU-PDF-ARROW-GLYPH] — FIXED in `#1175` (owner check owed)
+The `↳` step-arrow printed as "Ⅰ," in the graded PDF (html2canvas capture font has no glyph); replaced by an inline-SVG arrow in `CheckImproveGradedPrintDoc`, `WorksheetGradedPrintDoc` and `DesktopCheckImprovePage`. Close it after the owner confirms the downloaded PDF.
+
+### [FU-TRIANGLES-ORPHANS] — Triangles content that is OUT but not on a live student path today (owner: a later content lane)
+`contentStrategy/triangles` "Area Ratio" family (`TRI_FAMILY_AREA_RATIO`, `TRI_QTYPE_04`, `LO_TRI_05`, tag-index rows; its `tutorNodeId: gArea` is read by nothing), reaching students only through Practice's "Why this question" panel, gated on `VITE_QTYPE_FIRST_TRIGONOMETRY` (unset in Production); `trianglesGrindMindmap` `AREAS_SIMILAR` (unimported); `public/visuals/maths/triangles/{pythagoras-theorem-visual-proof,pythagoras-theorem,areas-of-similar-triangles}.html` still ship (direct URL only); stale policy strings `scopePolicy.ts:69` and `trianglesTutorPath.ts:216` ("Pythagoras and areas-of-similar-triangles are enrichment-only"); `_final/maths-triangles/{topicHub,boardSteps}.json` (no rendering importer).
+
+### [FU-TRIANGLES-QUICKQUIZ-EMPTY] — CLOSED (checked)
+The pack's `quickQuiz` is 5 empty Q1–Q5 entries passed through enrichment; nothing renders it (only a typed default in `getTopicV2Content.ts`), so no empty card shows.
+
+### [FU-HPQ-TRIG-COMP-02-REASON] — OPEN (owner ruling): an HPQ Assertion-Reason states the Pythagorean theorem as a Reason
+`hpqCompetencyAdditions.ts` ~1100–1125 (`trig-comp-02`, Trigonometry): the Reason states the theorem and the explanation says the identity is "derived directly from the Pythagorean theorem". Left as tool use; owner ruling 1 rules out "stating" it, so the owner/cofounder decides.
+
 ## 2026-10-14 — BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER FOLLOW-UPS AND STANDING RULES (recorded by A2 under §10)
 
 *(For `#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`. D243 §1 names the follow-ups that must each have their own heading here. Where D243 assigns a follow-up's PR to another lane's §10 (C1b, B2), A2 writes first under rule 2 and that lane should not duplicate it.)*

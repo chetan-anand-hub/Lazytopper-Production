@@ -1,3 +1,101 @@
+## 2026-10-16 - FOLLOWUPS-1 (`#1196`): DECISIONS THIS WAVE MADE (RECORDED BY THE DOCS SUB-AGENT UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Decisions of the builder, verifier and owner inside the follow-up spec, each with its reason.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner approvals at 09:15 | scope includes payment code; the verifier merges on PASS plus green CI | the Razorpay id could only be carried by touching `BuyOutcome` / `services/checkout.ts`; the owner chose to take that on and to remove a manual merge step |
+| Worksheet tutor button stopped | Chapter Test and Full Mock only; Worksheet becomes `[FU-WORKSHEET-TUTOR-RETURN]` | worksheet scorecards have no URL reopen-from-record path, so a tutor Back could not return honestly to the same scorecard |
+| the pick is an additive field | `pickedOption` added to the `perQuestion` payload; marks, mistake typing and record shape untouched | `firestore.rules` checks ownership only, so no rules change; older records simply show no pick |
+| `purchase` ids from the verified payment | Razorpay `paymentId` as `transaction_id`, server order amount as `value` when present; per-attempt id and config quote remain the fallback | replaces the `#1192` fallback decision once the verify step returns the real ids |
+| kicker wording | "Your first 2 minutes" | owner yes to the question left open after `#1193` |
+
+## 2026-10-16 — TRACK-2 / START-HERE-1 / QP-SCORECARD-2 (`#1192` `#1193` `#1194`): DECISIONS THIS WAVE MADE (RECORDED BY THE SESSION-1 DOCS SUB-AGENT UNDER §10)
+
+> ⚠ **SCOPE.** No D number is minted here. Decisions of the builder, controller and owner inside the pack's specs, each with its reason.
+
+| decision | what it says | the reason |
+|---|---|---|
+| `purchase` uses a per-attempt id and the config quote | `transaction_id` is minted at the tap; `value` comes from `config/pricing` | `BuyOutcome` has no Razorpay ids and `services/checkout.ts` is forbidden; logged as `[FU-PURCHASE-TXN-ID-RAZORPAY]` |
+| the client activity allowlist is edited with the server's | `activityClient.ts` gains the same 7 names | a test pins client = server = `analytics.ts`; outside the CLAIM but required |
+| the Start-here set rides the exact-set QP path | `focusBankIds` + `strictFocus` + `count=5` + `src=start_here` | the path is already proven to serve exactly the requested ids in order; no new engine, no grading difference |
+| zero-graded signal | local first; one `limit(1)` cloud document; null = could not tell; one retry; then account age ≤ 7 days | the earlier read never throws and degrades to local, which would have shown the card to existing students; weak networks (7-day account-age fallback) must not hide it from new ones |
+| StartHere replaces FirstSession on Home while visible | one start card, not two | both say the same to a zero-graded student |
+| the ad's subject hint has its own tab key | `lazytopper.startHereSubject` | the visit source is deleted at sign-up and its landing is path-only |
+| C&I hop uses `q=qn:<n>` | position, not bank id | an uploaded paper has no bank identity |
+| wrong-answer rows need a real signed-in account | signed-out / local / overlay scorecards unchanged | the owner's additive-only rule for the live product |
+| **owner ruling 16 Oct:** the full what-next menu is restored on graded QP scorecards | reverses part of `#1036` | the trimmed scorecard left students without a clear next step |
+| **owner ruling 16 Oct:** QP-SCORECARD-2 combines A–E in one PR | one PR, not five | the five parts share files; separate PRs would conflict and re-verify the same code |
+| reopen omits the student's own pick | a reopened QP scorecard shows no pick | the stored payload has no pick and the recording code stays untouched; `[FU-QP-REOPEN-PICK]` |
+| focused first-run on Home and Practice Hub; C&I only when idle | overlay never interrupts work in progress on C&I | a first-run prompt must not cover a session the student is already in |
+| 7-day account-age fallback | an account ≤ 7 days old still sees the card when the read could not tell | weak networks must not hide the card from new students |
+| owner-authorised verifier merge + production live-check while the owner is away | the verifier merged `#1194` and ran the live-check | the owner delegated it so launch work was not blocked; the live-check passed at 1280 px, the 390 px phone check stays owed |
+
+## 2026-10-15 — PRICING-LIGHT-1 (`#1190`): OWNER RULINGS AS THEY BEAR ON IT (RECORDED BY THE CONTROLLER UNDER §10)
+
+> ⚠ **SCOPE.** No D number is minted here; these are owner rulings given in chat and relayed to the controller.
+
+| ruling | what it says | the reason given |
+|---|---|---|
+| **Owner, 2026-10-15 (spec v1.0)** | Design "D" locked: light /pricing, Basic left and Premium right, compare table, fair-use box; supersedes PAY-BUTTONS-1 (not built) | the Pay buttons were navy on navy (1.04:1) and the page did not say what each plan gives |
+| **Owner, 2026-10-15** | **P5 superseded**: cards and table state what each plan gives, from `pricingCompare.ts` (the "quota wording belongs in the FAQ" rule is lifted for this page) | the page must explain the plans |
+| **Owner, 2026-10-15** | "Unlimited" allowlist — exactly two strings, in `pricingCompare.ts` only — APPROVED as built | true for Premium (`MockViewGate.tsx`: "Premium is unlimited"); the no-"unlimited" guard still fails any other use |
+| **Owner, 2026-10-15** | "Limited" REJECTED: Basic item 3 "Practice sets and worksheet generation"; the practice and worksheet rows are ✓ | ✓; the usage-limits FAQ reworded; guard "'Limited' needs a constant" added | P20 found no enforced free limit, so claiming one is inaccurate |
+| **Owner, 2026-10-15** | Basic card description "For browsing, revising and practising on your own."; FAQ "Is Basic really free?" reworded word for word; the guard extended to the card description and every FAQ answer | the two leftover sentences made the same unbacked "limited practice" claim |
+| **Owner, 2026-10-15** | Three builder extras APPROVED: trial note hidden for Premium or used-trial students; free-check table cell narrowed to the card line's conditions; tiles kept when payments are off | each is more honest than the literal spec |
+| **Owner, 2026-10-15** | `[FU-LOCK-LIST-LIMITED-PRACTICE]` logged, fix NOT in this lane (docs PR only) | `FREE_FEATURES` is shared by the Premium locks (P7) |
+
+## 2026-10-14 — SOLUTIONS-1 (`#1186`) AND LEGAL-ENTITY-1 (`#1187`): OWNER RULINGS AS THEY BEAR ON THEM (RECORDED BY G UNDER §10)
+
+> ⚠ **SCOPE.** No new D number is minted here; these are owner rulings given in chat and relayed on `#973`. D259–D261 (the solutions rulings) are recorded in the block below.
+
+| ruling | what it says | the reason given |
+|---|---|---|
+| **Owner, 14 Oct ~22:35 IST** | "I approve, merge on green CI" for `#1186`: merge on all-green CI without waiting for the cofounder's APPROVED; the audit follows LIVE | the owner wanted to check the live page himself that night |
+| **Owner, 14 Oct 23:07 IST** | "we dont need cofounders audit, you audit it": G audits `#1186`'s App.tsx and `studentActivity.cjs` diffs itself | owner direction; G's audit: APPROVED (scope exactly 1 lazy import + 2 shell matchers + 2 Routes; 7 additive names) |
+| **Owner via cofounder, 14 Oct 23:00 IST** | LEGAL-ENTITY-1's company name is exactly "P&CGOLDDUST_TECH PRIVATE LIMITED" (underscore, all caps, as on the Certificate of Incorporation); L1–L4 unchanged; run it before anything but lane-overlap; G picks the order | the owner was submitting Razorpay KYC; Razorpay reviews the website shortly after |
+| **G, 14 Oct ~23:10 IST** | Order chosen: LEGAL-ENTITY-1 before the SOLUTIONS-1 docs PR; one docs PR records both | SOLUTIONS-1 was already LIVE and the Razorpay review is time-sensitive; no shared files with any open PR |
+
+## 2026-10-14 (D195–D261) — LANE G AND THE NCERT WAVE (DECISIONS AS THEY BEAR ON IT; RECORDED BY G UNDER §10)
+
+> ⚠ **SCOPE.** Only the decisions that bear on lane G, `#1171`, `#1182`, `#1184` and the SOLUTIONS-1 lane that follows. Others are recorded by the lanes they bear on.
+
+| D | decision | the reason given |
+|---|---|---|
+| **195** | The growth session is engineering lane **G**: own worktree, `CLAIM G`, `MERGE-SLOT G`, `LIVE G`; tier 1 (content/marketing only) merges on an Opus verifier PASS; tier 2 (routing, App.tsx, analytics wiring, server, shared runtime) needs AUDIT-REQUEST + cofounder APPROVE; owner yes before commit/push, spend or platform settings; G may write its own §10 docs PR after the handoff lock | owner ruling 14 Oct 06:33 IST |
+| **196** | G takes NEW work only; it never takes over a lane already in flight | owner clarification 06:51 IST |
+| **210** | NCERT-BOOKS-1 plan approved, tier 2, `App.tsx` owner-scoped for one route line; no "Solutions" link until `/ncert-solutions/*` ships; full public-page wiring; guard + curl + CLS ≤ 0.1 gates | keep the page honest and fully registered (each wiring item had been missed before) |
+| **211** | Amends D210 §1: "Read the chapter" opens OUR stored copy in an on-site reader, loaded on click; notes/practice/check links always visible; attribution always visible; a missing object shows the official link only | keep students on LazyTopper (owner 08:32 IST) |
+| **213** | Owner: NCERT books are publicly available, so our stored copies are served, with a source credit as a trust signal; 2026-27 rationalised list (Maths 14, Science 13); verify each stored PDF is the current edition; per-chapter pages approved as NCERT-BOOKS-2 after demand sizing | latest edition for the 2027 boards; an old reprint is a real risk (E found 2026-27 text differences) |
+| **221** | `#1159` @ `6474d825` APPROVED: 27 correct rows, one lazy import + one route, reader on click with fallback, 26/26 stored files byte-identical to live 2026-27 NCERT, CLS 0/0 | audit of the protected-file diff and the content checks |
+| **232 / 234** | `#1159` closed (G silent 2 h 45 m) to clear `lane-overlap` for `#1169`; branch untouched; the 3-line CI-fix delta approved | the bank queue was deadlocked on shared generated files |
+| **235** | G holds slot 3 with a NEW PR from `feat/growth-ncert-books-1` (→ `#1171`) | G was back; redistribution reversed |
+| **258** | The cofounder takes `#1182` to merge at the owner's direction; AUDIT APPROVED (App.tsx 2 exact-path matchers; DesktopShell one rail item that stays a real link, picker at the shell root); 5 nits logged as follow-ups | owner direction 18:07 IST |
+| **259** | Solutions pages CONFIRMED: free, attempt-first (hint = first step; any MCQ pick / non-empty typed answer / photo check is an attempt; full step-marking needs no account); the full solution is in the pre-built HTML, hidden; NCERT-BOOKS-2: NO; G builds `/ncert-solutions/:chapter` + `/ncert-exemplar/:chapter` as one route family with an App.tsx audit; the cofounder supplies the publish-safe list | owner ruling "free, attempt-first"; same HTML for users and crawlers |
+| **260** | Supersedes D259 §2 conditions: mark MCQs ✓/✗; typed answers get a verdict only where reliably comparable; never mark a correct student wrong; every ✗ ends in "Check my answer"; real urgency only (no invented scarcity, resetting timers or invented counts) | owner: "we want them to see where they went wrong"; CLAUDE.md §5 and the CCPA 2023 dark-pattern guidelines |
+| **261** | Triangles publish-safe list: 29 rows (NCERT 13, Exemplar 16); 5 HOLD (`[FU-TRI-SOLUTIONS-HOLD-5]`), 12 excluded by the syllabus screen (`[FU-TRI-OUT-OF-SYLLABUS-SERVED]`); the page reads allowlist ∩ NOT `WITHHELD_QUESTION_IDS` at build time | two independent blind verifiers per row (key, steps, 2026-27 syllabus, figures, options, clean text) |
+
+## 2026-10-14 (D183–D251) — UPLOAD-SHRINK-1 / PYTHAGORAS-HUB (DECISIONS AS THEY BEAR ON THEM; RECORDED BY C1b UNDER §10)
+
+> ⚠ **SCOPE.** Only the decisions that bear on `#1126`, `#1174`, `#1178` and the C1/C1b lanes. Others are recorded by the lanes they bear on.
+
+| D | decision | the reason given |
+|---|---|---|
+| **183** | Production grades on `gemini-3.8-flash`, not 2.5-flash (supersedes D182 §3–4); the 2.5-flash run stopped and relabelled FALLBACK-2.5; the gate re-run on 3.8; `[FU-SERVER-IMAGE-3MB-CAP]` its own item; `[FU-GEMINI-25-FLASH-AVAILABILITY]` re-scoped | `modelConfig.cjs:24` "THE CODE DEFAULT IS WHAT PRODUCTION RUNS"; `/api/health` reports the chat model, not the grader |
+| **199** | No production photo defect (shipped 2000 px/q0.85 = 0.900 vs the originals' floor 0.907, 60 reads); #1126 pass rule restated as noise-floor-relative; `[FU-GRADER-SELF-CONSISTENCY]` (the grader gives the same marks to the same image ~91% of the time); no hand-over to C2 | the earlier 0.889-vs-1.0 was a small-sample artefact; a flat ≥95% rule fails a design whose own floor is lower |
+| **219** | C1b's queue: multi-page PDF control first (may be live), then the 24-sheet re-measure, then #1126 only if both pass; ≤ ~250 calls | the control might be a live production issue |
+| **222** | C1b to post CLAIM now | nothing from C1b was on the board |
+| **223 §2** | **#1126 re-scoped: shrink only when the upload would otherwise be refused; ≤ ceiling the original goes up unchanged; above it, start at the GENTLEST rung and step down only until it fits; typed PDFs and failures unchanged**; gate = a byte-identical test ≤ ceiling + an eval on over-ceiling sheets (≤ 120 calls); `[FU-SYN08-HARD-SHEET]` logged, `[FU-MULTIPAGE-REAL-ANSWER]` open | SYN-08 is a consistent 3 → 2 shift (3/3 reads), a real loss; a 10 MB PDF is refused outright, so a shrunk file that grades is strictly better |
+| **229 §3** | #1126 @ `bd2e26e0` APPROVED on the code; merge held for the owner's call on #1086 | `lane-overlap` on `package.json` with the owner's parked money-path draft |
+| **233 §3** | PYTHAGORAS-RULING-SCOUT (report only) | owner ruling 1 vs ~34 raw "converse of Pythagoras" mentions |
+| **235 / 236 §2** | PYTHAGORAS-HUB-1 (hub pack only), D2 rewords the 7 rows, the 58 tool citations stay | owner ruling 1: stating/proving is OUT, numeric tool IN |
+| **242 §1** | GRADER-CONSEQUENTIAL-1 (B2, top priority): a typeless deducting step inherits the nearest earlier typed lost step's type in a non-objective question; remainder to a single typed origin; marks never change; objective questions unchanged; the arrow glyph in the same PR | the owner's live paper showed "Marks lost, reason not recorded": "we can't afford misses in the grader anywhere"; the type describes the ERROR and a consequential loss is its cost (CLAUDE.md §13) |
+| **248** | `#1175` APPROVED: `presentation` is never an origin; a `missing` step inherits only with no fully-credited step in between (control + mutation); remainder stays question-wide; 1-based `consequentialOf`; golden `conseqViolations` gains "moved bucket = pointed-to type" | an omission after correct working is a separate loss; an Opus review found `presentation` as an origin broke the A17 cap |
+| **236 §1** | #1086 CLOSED (branch kept); #1126 unblocked | TOPUP-1 depends on Razorpay, still being integrated |
+| **245** | #1174 APPROVED; PYTHAGORAS-HUB-2 scoped (hub-visible files, area theorem OUT, Angle Bisector Theorem OUT, per-row check) | the verifier showed #1174 changed almost nothing a student sees; the fix goes where it renders |
+| **249** | #1178 APPROVED + one in-PR fix (`findVisualForQuestion` returns null below the threshold) | bank rows still point at the removed visual ids and would be handed a wrong visual |
+| **251** | #1178 is next in the slot | #1175 LIVE |
+
 ## 2026-10-14 (D217–D244) — BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER (DECISIONS AS THEY BEAR ON IT; RECORDED BY A2 UNDER §10)
 
 > ⚠ **SCOPE.** D243 §1 asks `DECISION_LOG.md` to record D217–D243 with their reasons. This table records those of D217–D244 that bear on the D, D2, A and A2 lanes and on `#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`. Decisions that concern only another lane (C2's notes and saving work, E's formula content, G's NCERT page, C1b's upload shrink, B2's own repair PRs) are left to those lanes' §10, except the follow-ups D243 lists. Where a decision gives no reason, the cell says so. Read the numbered posts on `#973` for the full text.

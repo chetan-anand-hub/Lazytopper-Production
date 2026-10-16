@@ -26,9 +26,14 @@ const MAX_TURN_CHARS = 4000;
 // out of the same 900-token budget and cut replies off mid-sentence. thinkingBudget 0 turns
 // thinking off (eval, ops/evals/tutor-fix-1: 8/30 MAX_TOKENS → 0/30, judged correct 21 → 29 of
 // 30, lower cost per reply). Temperature and the 900 budget are unchanged.
+// TUTOR-FIX-2 T3: 900 -> 1600 (live: 2 of ~20 replies still cut off). A cap, not a target: the
+// prompt still asks for short turns, so only a reply that would have been cut grows. Accounting:
+// the trial tutor allowance counts REQUESTS (fairUse AI_ROUTES tutorPerDay), unaffected; the
+// Premium caps count cost (usage ledger costMicroInr = tokens x price), so a longer reply spends
+// proportionally more of the Premium window — no per-request change.
 const TUTOR_CALL_CONFIG = Object.freeze({
   temperature: 0.55,
-  maxOutputTokens: 900,
+  maxOutputTokens: 1600,
   thinkingConfig: Object.freeze({ thinkingBudget: 0 }),
 });
 
@@ -184,6 +189,217 @@ function normalizeReturnedWork(input) {
   return out;
 }
 
+/* ── TUTOR-FIX-2 T11: the offer safety net ─────────────────────────────────────
+ * The "Get my answer marked" / "Practise this" buttons must not depend on the student's
+ * wording reaching the model. detectOfferIntent is a PURE function of the student's LAST turn
+ * (plus, for a bare "yes", the tutor turn just before it). The route applies it only when the
+ * model emitted NO offer tag; it never overrides a tag the model did emit. The client lane
+ * mirrors this table (ops/.specs/INTENT_TABLE.md) — keep the two in step.
+ *
+ * Precedence: check-improve first (a student asking about THEIR answer's marks), then practice.
+ * Non-Latin scripts use no \b (word boundaries are ASCII-only in JS regex). */
+const OFFER_INTENT_TABLE = Object.freeze({
+  'check-improve': Object.freeze([
+    // English
+    { id: 'en-check-my', re: /\b(check|mark|grade|evaluate|assess)\s+(my|this|these|it|that)\b/i },
+    { id: 'en-get-it-marked', re: /\b(get|have)\s+(it|this|that|my\s+\w+(\s+\w+)?)\s+(checked|marked|graded|evaluated|assessed)\b/i },
+    { id: 'en-upload', re: /\b(upload|uploading|answer\s*sheet|photo\s+of\s+my)\b/i },
+    { id: 'en-how-many-marks', re: /\bhow\s+(many|much)\s+(marks?\s+)?(would|will|do|can|could|did|should)\s+(i|this|it|my\s+\w+)\s+(get|score|be\s+given|deserve|earn)\b/i },
+    { id: 'en-marks-would-i-get', re: /\bmarks?\s+(would|will|do|can)\s+i\s+(get|score)\b/i },
+    { id: 'en-is-my-answer-right', re: /\b(is|was)\s+my\s+(answer|solution|working|method|attempt|proof)\s+(right|correct|wrong|ok|okay|fine)\b/i },
+    { id: 'en-did-i-do-it-right', re: /\b(my|answer|solution|working)\b[^\n]{0,80}\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?|\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?[^\n]{0,80}\b(my|answer|solution|working)\b|\bdid\s+i\s+(do|get|solve)\s+(it|this|that)\s+(right|correctly)\b/i },
+    { id: 'en-out-of', re: /\bmark\w*\b[^.?!\n]{0,30}\bout\s+of\s+\d+\b/i },
+    { id: 'en-open-check-improve', re: /\bcheck\s*(&|and)\s*improve\b/i },
+    { id: 'en-show-my-working', re: /\b(show|send)\s+(you\s+)?my\s+(working|answer|solution|attempt|work)\b/i },
+    // Hinglish (Latin script)
+    { id: 'hi-check-karo', re: /\bcheck\s*(karo|kar\s*do|kardo|kariye|kijiye|karna|karke|kr\s*do|kro|krdo)\b/i },
+    { id: 'hi-kitne-marks', re: /\bkitn[ae]\s*(marks?|number|nambar|ank)\b/i },
+    { id: 'hi-jaanch', re: /\bja+n?ch\w*/i },
+    { id: 'hi-mera-sahi', re: /\b(mera|meri|mere)\b[^.?!\n]{0,40}\bsahi\b/i },
+    // Tamil / Telugu transliteration
+    { id: 'ta-check-pannu', re: /\bcheck\s*(pannu|pannunga|pannungal|panni|pannuga)\b/i },
+    { id: 'ta-evlo-marks', re: /\b(evlo|evvalavu|ethana|ethanai)\s*marks?\b/i },
+    { id: 'te-check-cheyyi', re: /\bcheck\s*(cheyyi|cheyyandi|cheyandi|chey|cheyu|chesi)\b/i },
+    { id: 'te-enni-marks', re: /\b(enni|entha)\s*marks?\b/i },
+    // Devanagari (Hindi / Marathi) and other UI scripts
+    { id: 'dev-check', re: /चेक|जाँच|जांच|तपास/u },
+    { id: 'dev-kitne-ank', re: /कितने\s*(अंक|नंबर|मार्क्स)|अंक\s*मिलेंगे|किती\s*(गुण|मार्क)/u },
+    { id: 'dev-sahi', re: /(मेरा|मेरी|माझे|माझा)[^.?!\n]{0,40}(सही|बरोबर)/u },
+    { id: 'ta-script', re: /சரிபார்|மதிப்பெண்/u },
+    { id: 'te-script', re: /చెక్|మార్కులు/u },
+    { id: 'bn-script', re: /চেক|কত\s*নম্বর/u },
+    { id: 'kn-script', re: /ಚೆಕ್|ಅಂಕ/u },
+    { id: 'ml-script', re: /ചെക്ക്|മാർക്ക്/u },
+    { id: 'gu-script', re: /ચેક|કેટલા\s*(માર્ક્સ|ગુણ)/u },
+  ]),
+  practice: Object.freeze([
+    // English
+    { id: 'en-practice', re: /\bpracti[cs]e\s+(questions?|problems?|qs|sums|set|on\s+this|on\s+it|this|more|some|a\s+few)\b/i },
+    { id: 'en-want-to-practice', re: /\b(want|need|like|let\s+me|let's|can\s+i|could\s+i)\s+(to\s+)?(practi[cs]e|try\s+(some|a\s+few|a\s+couple|questions))\b/i },
+    { id: 'en-give-me-practice', re: /\b(give|send|set|show)\s+me\s+(some\s+|a\s+few\s+|few\s+)?practi[cs]e\b/i },
+    { id: 'en-test-quiz-me', re: /\b(test|quiz)\s+me\b/i },
+    { id: 'en-give-me-questions', re: /\b(give|send|set)\s+me\s+(some|a\s+few|few|more|\d+|a\s+couple(\s+of)?|another|a|an)?\s*(more\s+)?(board[-\s]?(style|type|like|level)\s+)?(questions?|problems?|qs|mcqs?|sums)\b/i },
+    { id: 'en-more-questions', re: /\b(more|another)\s+(board[-\s]?(style|type|like|level)\s+)?(questions?|problems?|mcqs?|sums)\b/i },
+    { id: 'en-keep-losing-marks', re: /\b(keep|always|still|constantly)\s+(losing|lose|dropping|getting\s+low)\s+marks?\b/i },
+    // Hinglish
+    { id: 'hi-sawal', re: /\b(aur|kuch|naye|more|zyada)\s+sa+wa+l\b|\bsa+wa+l\s+(do|dijiye|chahiye|de\s*do|bhejo)\b/i },
+    { id: 'hi-practice-karni', re: /\bpractice\s*(karni|karna|karwa|karwao|karao|karo|krni|krna|karunga|karungi)\b/i },
+    { id: 'hi-test-lo', re: /\btest\s*(lo|le\s*lo|lelo|karo)\b/i },
+    // Tamil / Telugu transliteration
+    { id: 'ta-practice', re: /\b(practice\s*pannanum|questions?\s*kudunga)\b/i },
+    { id: 'te-practice', re: /\b(practice\s*cheyyali|questions?\s*ivvandi)\b/i },
+    // Devanagari and other UI scripts
+    { id: 'dev-practice', re: /सवाल|अभ्यास|प्रैक्टिस|प्रश्न\s*(दो|दीजिए|द्या)|टेस्ट\s*लो/u },
+    { id: 'ta-script', re: /பயிற்சி/u },
+    { id: 'te-script', re: /ప్రాక్టీస్|అభ్యాసం/u },
+    { id: 'bn-script', re: /অনুশীলন|প্র্যাকটিস/u },
+    { id: 'kn-script', re: /ಅಭ್ಯಾಸ/u },
+    { id: 'ml-script', re: /പരിശീലന/u },
+    { id: 'gu-script', re: /અભ્યાસ|પ્રેક્ટિસ/u },
+  ]),
+});
+
+/** A short bare agreement ("yes", "yes please", "haan", "ok let's do it", "हाँ"). */
+const AFFIRMATIVE_RE = /^\s*(yes|yeah|yep|yup|ya|ok|okay|sure|please|haan|haa|han|ha|ji|ji\s+haan|go\s+ahead|let'?s\s+do\s+(it|that)|do\s+it|definitely|of\s+course|हाँ|हां|जी|ठीक\s+है)\b[\s\S]{0,40}$/iu;
+/** The tutor's own previous turn offered Check & Improve. */
+const PREV_OFFERED_CHECK_RE = /check\s*(&|and)\s*improve|\bupload\b|\b(get|have)\s+(it|that|this|your\s+\w+(\s+\w+)?)\s+(board[-\s])?(marked|checked|graded)\b|\bboard-marked\b/i;
+/** The tutor's own previous turn offered practice. */
+const PREV_OFFERED_PRACTICE_RE = /\btry\s+(a\s+couple|a\s+few|some)\b|\b(a\s+couple|a\s+few|some)\s+(of\s+)?(questions?|problems?|sums)\s+(for\s+you\s+)?to\s+try\b|\bpracti[cs]e\s+(set|questions?|a\s+few|some|this|on)\b|\bquick\s+practice\b/i;
+
+/**
+ * Pure. `text` = the student's last turn; `prevTutor` = the tutor turn right before it (optional).
+ * Returns { offer: 'check-improve' | 'practice', rule } or null.
+ */
+function detectOfferIntent(text, { prevTutor } = {}) {
+  const t = typeof text === 'string' ? text : '';
+  if (!t.trim()) return null;
+  for (const offer of ['check-improve', 'practice']) {
+    for (const row of OFFER_INTENT_TABLE[offer]) {
+      if (row.re.test(t)) return { offer, rule: row.id };
+    }
+  }
+  const prev = typeof prevTutor === 'string' ? prevTutor : '';
+  if (prev && AFFIRMATIVE_RE.test(t)) {
+    if (PREV_OFFERED_CHECK_RE.test(prev)) return { offer: 'check-improve', rule: 'yes-to-check-offer' };
+    if (PREV_OFFERED_PRACTICE_RE.test(prev)) return { offer: 'practice', rule: 'yes-to-practice-offer' };
+  }
+  return null;
+}
+
+/** T4: the reply talks about a diagram/figure/panel being on screen. Counted when no valid figure tag came with it. */
+const DIAGRAM_CLAIM_RE = /\bbeside\s+us\b|\b(look\s+at|see|check|open)\s+the\s+(diagram|figure|panel|picture)\b|\b(diagram|figure|picture)\b[^.\n]{0,40}\b(beside|next\s+to|alongside|on\s+(the\s+)?(right|side|screen)|in\s+the\s+panel|shown\s+(here|above|below|beside))\b|\bin\s+the\s+(side\s+)?panel\b/i;
+
+function mentionsDiagram(text) {
+  return DIAGRAM_CLAIM_RE.test(typeof text === 'string' ? text : '');
+}
+
+/* ── TUTOR-FIX-2 T1/T2: the brief sanitiser (BRIEF CONTRACT, ops/.specs/BUILDER_R2.md) ──────
+ * REBUILDS the client brief at the trust boundary, like normalizeFigures: only whitelisted
+ * fields reach the prompt. Strings <= 80 chars (whitespace collapsed, no "[[" so a brief can
+ * never fake a tag), numbers finite 0..1000, arrays capped. Every new field is optional: an
+ * old client's { hasData, topic, mistakes } passes through unchanged in meaning. */
+const BRIEF_GROUPS = Object.freeze(['knowledge', 'careless', 'examTechnique', 'notAttempted', 'unrecorded']);
+const BRIEF_TOP_GROUPS = Object.freeze(['knowledge', 'careless', 'examTechnique', 'notAttempted']);
+
+function briefStr(v) {
+  if (typeof v !== 'string') return '';
+  return v.replace(/\[\[|\]\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 80);
+}
+function briefNum(v) {
+  return typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1000 ? Math.round(v * 100) / 100 : undefined;
+}
+
+function normalizeBrief(input) {
+  const b = input && typeof input === 'object' && !Array.isArray(input) ? input : null;
+  if (!b) return null;
+  const out = { hasData: b.hasData === true };
+
+  const topicIn = b.topic && typeof b.topic === 'object' ? b.topic : null;
+  if (topicIn) {
+    const topic = {};
+    const trend = briefStr(topicIn.trend);
+    if (trend) topic.trend = trend;
+    if (Array.isArray(topicIn.weakConcepts)) {
+      const wc = topicIn.weakConcepts.map(briefStr).filter(Boolean).slice(0, 3);
+      if (wc.length) topic.weakConcepts = wc;
+    }
+    if (Object.keys(topic).length) out.topic = topic;
+  }
+
+  const mistakesIn = b.mistakes && typeof b.mistakes === 'object' ? b.mistakes : null;
+  if (mistakesIn) {
+    const mistakes = {};
+    const topType = briefStr(mistakesIn.topType);
+    if (topType) mistakes.topType = topType;
+    const mlr = briefNum(mistakesIn.marksLostRecent);
+    if (mlr !== undefined) mistakes.marksLostRecent = mlr;
+    if (Object.keys(mistakes).length) out.mistakes = mistakes;
+  }
+
+  const windowLabel = briefStr(b.windowLabel);
+  if (windowLabel) out.windowLabel = windowLabel;
+
+  const chIn = b.chapter && typeof b.chapter === 'object' ? b.chapter : null;
+  if (chIn) {
+    const chapter = {};
+    const name = briefStr(chIn.name);
+    if (name) chapter.name = name;
+    const ml = briefNum(chIn.marksLost);
+    if (ml !== undefined) chapter.marksLost = ml;
+    if (chIn.byGroup && typeof chIn.byGroup === 'object') {
+      const byGroup = {};
+      for (const g of BRIEF_GROUPS) {
+        const n = briefNum(chIn.byGroup[g]);
+        if (n !== undefined) byGroup[g] = n;
+      }
+      if (Object.keys(byGroup).length) chapter.byGroup = byGroup;
+    }
+    if (BRIEF_TOP_GROUPS.includes(chIn.topGroup)) chapter.topGroup = chIn.topGroup;
+    if (Array.isArray(chIn.concepts)) {
+      const concepts = [];
+      for (const c of chIn.concepts) {
+        const cname = c && briefStr(c.name);
+        const cml = c && briefNum(c.marksLost);
+        if (cname && cml !== undefined) concepts.push({ name: cname, marksLost: cml });
+        if (concepts.length >= 3) break;
+      }
+      if (concepts.length) chapter.concepts = concepts;
+    }
+    if (Array.isArray(chIn.recent)) {
+      const recent = [];
+      for (const r of chIn.recent) {
+        const id = r && briefStr(r.id);
+        const rml = r && briefNum(r.marksLost);
+        const surface = r && briefStr(r.surface);
+        if (!id || rml === undefined || !surface) continue;
+        const row = { id, marksLost: rml, surface };
+        if (BRIEF_GROUPS.includes(r.group)) row.group = r.group;
+        const date = briefStr(r.date);
+        if (date) row.date = date;
+        recent.push(row);
+        if (recent.length >= 3) break;
+      }
+      if (recent.length) chapter.recent = recent;
+    }
+    if (Object.keys(chapter).length) out.chapter = chapter;
+  }
+
+  const subjIn = b.subject && typeof b.subject === 'object' ? b.subject : null;
+  if (subjIn) {
+    const sml = briefNum(subjIn.marksLost);
+    if (sml !== undefined) out.subject = { marksLost: sml };
+  }
+  return out;
+}
+
+function defaultTelemetry() {
+  try {
+    return require('../telemetry.cjs');
+  } catch {
+    return { increment() {} };
+  }
+}
+
 function createTutorRoute(deps) {
   const {
     sendJson,
@@ -194,6 +410,7 @@ function createTutorRoute(deps) {
     ACTIVE_PROVIDER,
     isStubMode,
   } = deps;
+  const telemetry = deps.telemetry && typeof deps.telemetry.increment === 'function' ? deps.telemetry : defaultTelemetry();
 
   const MODEL = GEMINI_TUTOR_MODEL || GEMINI_MODEL;
 
@@ -205,15 +422,19 @@ function createTutorRoute(deps) {
       return sendJson(res, 400, { error: 'Invalid JSON' });
     }
 
-    const topicLabel = String(payload.topicLabel || payload.topicKey || 'this topic').trim();
     const subject =
       payload.subject === 'science' ? 'science' : payload.subject === 'maths' ? 'maths' : '';
+    // TUTOR-FIX-2 T5: a cold entry (no chapter) is named by its SUBJECT, never "this topic".
+    const subjectName = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Class 10 Maths and Science';
+    const chapterGiven = String(payload.topicLabel || payload.topicKey || '').trim();
+    const topicLabel = chapterGiven || subjectName;
     const concept = typeof payload.concept === 'string' ? payload.concept.trim() : '';
     const language =
       typeof payload.language === 'string' && payload.language.trim()
         ? payload.language.trim()
         : 'English';
-    const brief = payload.brief && typeof payload.brief === 'object' ? payload.brief : null;
+    // TUTOR-FIX-2 T1/T2: rebuilt at the trust boundary (BRIEF CONTRACT caps); old clients unchanged in meaning.
+    const brief = normalizeBrief(payload.brief);
     // Fix 4: a real, owner-verified bank question the client pre-selected for the concept,
     // for the "see how it's solved" demonstration. Additive + optional — normalized to the
     // minimal shape the prompt consumes; anything malformed becomes null (self-gen fallback).
@@ -246,6 +467,13 @@ function createTutorRoute(deps) {
     if (convo[convo.length - 1].role !== 'user') {
       return sendJson(res, 400, { error: 'The last message must be the student turn' });
     }
+    // T11: read the student's last turn (and the tutor turn before it) BEFORE the language
+    // directive is appended below, so the safety net sees only what the student typed.
+    const studentLast = convo[convo.length - 1].parts[0].text;
+    const prevTurn = convo.length >= 2 ? convo[convo.length - 2] : null;
+    const offerIntent = detectOfferIntent(studentLast, {
+      prevTutor: prevTurn && prevTurn.role === 'model' ? prevTurn.parts[0].text : '',
+    });
 
     // Stub mode (no provider / local dev / tests): honest canned reply, no model call.
     if (typeof isStubMode === 'function' && isStubMode()) {
@@ -256,7 +484,8 @@ function createTutorRoute(deps) {
       });
     }
 
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork });
+    // An empty topicLabel lets the prompt name the subject and say no chapter was chosen (T5).
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
@@ -268,7 +497,9 @@ function createTutorRoute(deps) {
       const lastUser = convo[convo.length - 1];
       lastUser.parts[0].text +=
         `\n\n[Reply in ${language} for THIS response, regardless of the language used in earlier turns. ` +
-        `Keep exam content — the NCERT definition to memorise and the answer to write — in English.]`;
+        `Keep exam content — the NCERT definition to memorise and the answer to write — in English. ` +
+        // TUTOR-FIX-2 T1 rule g: the language switch must never drop the honesty rules.
+        `Every HONESTY rule in your instructions applies in this language too.]`;
     }
 
     // Gemini has no system role — fold the system prompt into a leading user turn,
@@ -303,14 +534,26 @@ function createTutorRoute(deps) {
       // two tags are on their own lines). Validate against the curated set for this topic.
       const figureOut = extractFigureTag(offerOut.text, figureKeys);
       const text = figureOut.text;
-      const offer = offerOut.offer;
+      let offer = offerOut.offer;
+      let offerSource = offer ? 'model' : null;
       const figure = figureOut.figure;
+      // TUTOR-FIX-2 T11 safety net: the model emitted no offer, but the student plainly asked
+      // to be checked / to practise -> set the offer anyway (never overrides a model tag).
+      if (!offer && offerIntent) {
+        offer = offerIntent.offer;
+        offerSource = 'safety-net';
+        telemetry.increment(`tutor.offer_safety_net.${offerIntent.offer}`);
+      }
+      // TUTOR-FIX-2 T4: count (never rewrite) a reply that talks about an on-screen diagram
+      // without a valid figure tag — the student would be pointed at a panel that is not there.
+      if (!figure && mentionsDiagram(text)) telemetry.increment('tutor.diagram_claim_without_tag');
       if (!text) {
         return sendJson(res, 502, { error: 'The tutor returned an empty reply. Please try again.' });
       }
       // TUTOR-FIX-1: honest cut-off signal — true only when the model stopped at its token limit.
       const truncated = Boolean(reply && reply.finishReason === 'MAX_TOKENS');
-      return sendJson(res, 200, { reply: text, offer, figure, truncated, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
+      // offerSource is additive ('model' | 'safety-net' | null); older clients ignore it.
+      return sendJson(res, 200, { reply: text, offer, offerSource, figure, truncated, model: MODEL, provider: ACTIVE_PROVIDER || 'gemini' });
     } catch (err) {
       console.error('[tutor] generation failed:', err && err.message);
       const status = err && err.status === 504 ? 504 : 500;
@@ -332,4 +575,8 @@ module.exports = {
   normalizeDemoQuestion,
   normalizeFigures,
   normalizeReturnedWork,
+  normalizeBrief,
+  detectOfferIntent,
+  mentionsDiagram,
+  OFFER_INTENT_TABLE,
 };

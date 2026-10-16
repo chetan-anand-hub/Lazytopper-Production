@@ -1173,12 +1173,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
   "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
-  "PYQ-M-AP-004",                 // garbled-extraction: operator lost in the statement (p + q n)
-  "PYQ-M-STAT-008",               // garbled-extraction: class-interval dashes lost in the table
   "PYQ-M-2025-STAT-006",          // garbled-extraction: class-interval dashes lost in the table
   "PYQ-M-2025-TRIG-005",          // garbled-extraction: degree/angle signs lost, marks digits inline
   // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
-  "PYQ-M-QE-003",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
   "PYQ-M-2024-QE-001",            // garbled-extraction: exponent flattened (x2 + x - p(p+1) = 0)
@@ -1188,7 +1185,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
   "2026-STAT-SA-03",              // unsolvable-as-printed (D170): mean 18 with f: 3, f, 7, 5 gives 3f = 25; the row's own last step says 'adjust numbers accordingly'
   // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
-  "PYQ-M-CG-003",                 // garbled-extraction: sign lost in a vertex; not right-angled as printed
   "PYQ-M-2026-REALNUM-005",       // garbled-extraction: fraction bar lost (2 + 3√5 7)
   "PYQ-M-STAT-009",               // garbled-extraction: class-interval dashes lost; wording broken
   "PYQ-M-2025-STAT-003",          // garbled-extraction: class-interval dashes lost in the table
@@ -2154,48 +2150,10 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
   // BANK-STEPS-1 REPAIR PR-5 (lane B, 14 Oct): 36 Science rows repaired (new steps from each row's own stem + key) and served again
-  // EL-E14 stays withheld: its options include "Electric motor" (formative-only per syllabusGuard); options are not this lane's to change, awaiting a cofounder ruling
-  "EL-E14",                       // spliced-solution: the steps answer another question (steps now correct; withheld for the 'Electric motor' option)
   // BANK-STEPS-1 REPAIR PR-4 (lane B, 14 Oct): 50 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-3 (lane B, 14 Oct; CR-M04 + ABS-E06 keys changed per D170): 53 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-2 (lane B, 13 Oct): 49 Science rows repaired (new steps from each row's own stem + key) and served again
   // EL-AR05, HEY-D04: over-paused (D153), steps repaired and served again by BANK-STEPS-1 REPAIR PR-1 (13 Oct)
-  "TRI2-E01",                     // spliced-solution: the steps answer another question
-  "TRI2-E02",                     // spliced-solution: the steps answer another question
-  "TRI2-E03",                     // spliced-solution: the steps answer another question
-  "TRI2-E11",                     // spliced-solution: the steps answer another question
-  "TRI2-E13",                     // spliced-solution: the steps answer another question
-  "TRI2-M07",                     // spliced-solution: part of the steps answer another question
-  "TRI2-H05",                     // spliced-solution: part of the steps answer another question
-  "TR3-050",                      // spliced-solution: part of the steps answer another question
-  "TG3-017",                      // spliced-solution: part of the steps answer another question
-  "TG3-020",                      // spliced-solution: part of the steps answer another question
-  "TG3-044",                      // spliced-solution: part of the steps answer another question
-  "PL2-R16",                      // spliced-solution: the steps answer another question
-  "PLE-E11",                      // spliced-solution: the steps answer another question
-  "PLE-E14",                      // spliced-solution: the steps answer another question
-  "PLE-E15",                      // spliced-solution: the steps answer another question
-  "QE-E18",                       // spliced-solution: the steps answer another question
-  "QE-M05",                       // spliced-solution: the steps answer another question
-  "QE2-056",                      // spliced-solution: the steps answer another question
-  "CG2-050",                      // spliced-solution: the steps answer another question
-  "CG2-053",                      // spliced-solution: the steps answer another question
-  "CIR-E01",                      // spliced-solution: the steps answer another question
-  "CIR-E03",                      // spliced-solution: part of the steps answer another question
-  "CIR-M04",                      // spliced-solution: the steps answer another question
-  "CIR-M16",                      // spliced-solution: the steps answer another question
-  "CI2-052",                      // spliced-solution: the steps answer another question
-  "ARC-E13",                      // spliced-solution: the steps answer another question
-  "ARC-E14",                      // spliced-solution: the steps answer another question
-  "ARC2-051",                     // spliced-solution: the steps answer another question
-  "SAV-E06",                      // spliced-solution: the steps answer another question
-  "SAV-E10",                      // spliced-solution: the steps answer another question
-  "STAT-E02",                     // spliced-solution: the steps answer another question
-  "STAT-E03",                     // spliced-solution: the steps answer another question
-  "STAT-E15",                     // spliced-solution: the steps answer another question
-  "STAT-E17",                     // spliced-solution: the steps answer another question
-  "STAT-E18",                     // spliced-solution: part of the steps answer another question
-  "PR2-047",                      // spliced-solution: the steps answer another question
   "PR2-049",                      // spliced-solution: the steps answer another question (refusal text)
   "ARC2-058",                     // spliced-solution: the steps answer another question (refusal text)
   "TRI2-E21",                     // spliced-solution: the steps answer another question (refusal text)
@@ -2207,7 +2165,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "STAT-N02",                     // spliced-solution: the steps answer another question (refusal text)
   "2026-STAT-SA-02",              // spliced-solution: the steps answer another question (different numbers)
   "2026-PLE-SA-02",               // spliced-solution: the steps answer another question (different numbers)
-  "sci-chem-acids-2m-2022-01",    // spliced-solution: the steps answer another question
   "AP2-049",                      // spliced-solution: the steps answer another question (different numbers)
   "ARC-E07",                      // spliced-solution: the steps answer another question
   "ARC-M17",                      // spliced-solution: the steps answer another question

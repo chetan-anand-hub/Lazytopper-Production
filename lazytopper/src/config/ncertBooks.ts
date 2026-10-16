@@ -77,8 +77,9 @@ export const NCERT_CLASS10_CHAPTERS: readonly NcertBookChapter[] = [
   m(6, "Triangles", "triangles"),
   m(7, "Coordinate Geometry", "coordinate-geometry"),
   m(8, "Introduction to Trigonometry", "trigonometry"),
-  // Not in Storage (ncert/maths/ch9.pdf → 404, 14 Oct 2026): the official copy only.
-  m(9, "Some Applications of Trigonometry", "trigonometry", false),
+  // In Storage since 14 Oct 2026 (NCERT-BOOKS-1b: ncert/maths/ch9.pdf → 206, page 1 reads "Some
+  // Applications of Trigonometry … 133 · 9.1 Heights and Distances", 11 pages).
+  m(9, "Some Applications of Trigonometry", "trigonometry"),
   m(10, "Circles", "circles"),
   m(11, "Areas Related to Circles", "areas-related-to-circles"),
   m(12, "Surface Areas and Volumes", "surface-areas-and-volumes"),
@@ -106,4 +107,26 @@ export function ncertPracticePath(row: NcertBookChapter): string {
     `&returnTo=${encodeURIComponent("/ncert-class-10")}` +
     `&backLabel=${encodeURIComponent("Back to NCERT books")}`
   );
+}
+
+/**
+ * NCERT-BOOKS-1b / NCERT-ENTRY-1 — the link that opens ONE chapter in the on-site reader:
+ * `/ncert-class-10?subject=<maths|science>&read=<code>`, optionally with a return ticket so the
+ * page's back link names where the student came from (Exam Trends, a notes page). The query never
+ * forms a second canonical (`canonicalPathFor` drops it).
+ */
+export function ncertReadPath(row: NcertBookChapter, returnTo?: string, backLabel?: string): string {
+  const sp = new URLSearchParams();
+  sp.set("subject", row.book === "Maths" ? "maths" : "science");
+  sp.set("read", ncertCode(row));
+  if (returnTo) {
+    sp.set("returnTo", returnTo);
+    if (backLabel) sp.set("backLabel", backLabel);
+  }
+  return `/ncert-class-10?${sp.toString()}`;
+}
+
+/** The NCERT chapters a notes / topic slug covers, in book order (Maths Ch 8 + Ch 9 share "trigonometry"). */
+export function ncertRowsForSlug(slug: string): NcertBookChapter[] {
+  return NCERT_CLASS10_CHAPTERS.filter((r) => r.slug === slug);
 }

@@ -10,7 +10,7 @@ vi.mock("./paidCallHeaders", () => ({
   paidJsonHeaders: async () => ({ "Content-Type": "application/json" }),
 }));
 
-import { callTutor, TutorPremiumRequiredError, type TutorRequest } from "./tutorClient";
+import { callTutor, TutorBusyError, TutorPremiumRequiredError, type TutorRequest } from "./tutorClient";
 
 const REQ: TutorRequest = {
   uid: "student-1",
@@ -84,6 +84,15 @@ describe("BUGFIX-1 · B3 · the tutor's 402 is a typed branch", () => {
     const quiet = (await thrown()).message;
     expect(quiet).toBe("LazyTopper is very busy today. Come back after midnight.");
     expect(quiet).not.toMatch(/busy_today|free AI checking|trial|plans/i);
+  });
+  it("TUTOR-FIX-2 T7: busy_today is a TYPED TutorBusyError carrying the server's resetAt (message unchanged)", async () => {
+    respond(429, { error: "busy_today", message: "LazyTopper is very busy today.", cta: "plans", resetAt: "2026-10-16T18:30:00.000Z" });
+    const err = (await thrown()) as TutorBusyError;
+    expect(err).toBeInstanceOf(TutorBusyError);
+    expect(err.name).toBe("TutorBusyError");
+    expect(err.message).toBe("LazyTopper is very busy today. See plans.");
+    expect(err.resetAt).toBe("2026-10-16T18:30:00.000Z");
+    expect(err.cta).toBe("plans");
   });
   it("★ CONTROL: with no `message`, the `error` code is still surfaced rather than swallowed", async () => {
     respond(500, { error: "tutor_upstream_failed" });

@@ -446,7 +446,7 @@ export const shouldResetBuiltOnPop = (
 type StrategyResolver = typeof import("../services/questionTypeFirstResolver");
 import { trackUxEvent } from "../services/uxTelemetry";
 import { stashGuestScore, takeGuestScore, type GuestScore } from "../services/guestScoreStash";
-import { mistakeTypeLabel } from "../lib/mistakeDisplay";
+import { isGradedQuestion, mistakeTypeLabel } from "../lib/mistakeDisplay";
 import {
   MISTAKE_KIND_LABEL,
   buildGradedAnswer,
@@ -496,7 +496,28 @@ import { toSessionSubject } from "../services/checkImproveGradeService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
 // the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
-import { trackPracticeGraded } from "../analytics/analytics";
+import { trackOnboardingEvent, trackPracticeGraded } from "../analytics/analytics";
+import {
+  getSessionPerQuestion,
+  getSessionRecordsFromCloud,
+  loadLocalSessionRecords,
+  quickPracticeCode,
+  type SessionPerQuestionPayload,
+  type SessionRecord,
+} from "../services/sessionRecords";
+import SurfaceHistory from "../components/results/SurfaceHistory";
+import {
+  SCORECARD_REVIEW_PARAM,
+  recordBelongsToUid,
+  withScorecardReviewParam,
+} from "./tutor/tutorRoundTrip";
+import { resolveCorrectOptionIndex } from "../lib/objectiveScoring";
+import {
+  START_HERE_SRC,
+  analyticsSubject,
+  startHerePracticePath,
+  type StartHereQType,
+} from "../components/startHere/startHereModel";
 import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
@@ -538,7 +559,9 @@ import {
   resolveFullSubjectChapterKeys,
 } from "../components/practice/fullSubjectPractice";
 import { buildTutorPath } from "./tutor/tutorPath";
-import { ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
+import { signedOutTutorPath, stashSignedOutAsk } from "./tutor/signedOutScorecardAsk";
+import TutorSignupPrompt from "../components/auth/TutorSignupPrompt";
+import { bankChaptersFor, ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import { PracticeControls } from "../components/practice/PracticeControls";
 import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
@@ -555,7 +578,12 @@ import {
   aggregateMarksLost,
   quickPracticeGradedScorecardVariant,
   quickPracticeScorecardVariant,
+  reopenedQuickPracticeScorecardVariant,
+  storedPickedOption,
+  type ScorecardAction,
   type ScorecardGradedAnswer,
+  type ScorecardTutorAsk,
+  type ScorecardWrongAnswer,
   type ScorecardSplitRow,
 } from "../components/results/scorecardVariants";
 import type { SolutionCheckerSavedWorking } from "../components/question/SolutionChecker";
@@ -661,7 +689,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
   const params = useParams<{ grade?: string; subject?: string }>();
-  const { user: authUserForJourney } = useAuth();
+  const { user: authUserForJourney, loading: authLoading } = useAuth();
 
   useEffect(() => {
     try {
@@ -1304,6 +1332,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
    *  `premiumBlock`, never the same state: one needs an upgrade, the other needs the door
    *  and may be fully entitled once through it. */
   const [signInToGrade, setSignInToGrade] = useState(false);
+  // TUTOR-FIX-2 T12 — the signed-out scorecard's tutor tap: the sign-up prompt's target and the
+  // one-shot it stores ONLY if the visitor chooses Sign up. Null = no prompt.
+  const [signupAsk, setSignupAsk] = useState<
+    { to: string; q: string; qNumber: number; pick: string | null } | null
+  >(null);
   /** ★ QP-GUEST-SIGNIN-1 · a signed-out student who answered only MCQs reaches the scorecard
    *  and, before this, was never asked to sign in (663 CBQ ad clicks, 0 sign-ups). A
    *  non-blocking card under the score asks once per set; "Not now" hides it for THIS set
@@ -2479,7 +2512,10 @@ const packTopicKey = useMemo(() => {
         delete next.notGraded;
         delete next.notGradedReason;
       }
-      if (reviewMcqIds[id]) delete next.mcq;
+      if (reviewMcqIds[id]) {
+        delete next.mcq;
+        delete next.pickedOption; // FOLLOWUPS-1 C1 — a review pick is never stored either
+      }
       return next;
     });
   }, [batchResult, reviewSavedIds, reviewMcqIds]);
@@ -2678,6 +2714,9 @@ const packTopicKey = useMemo(() => {
        the local MCQ outcome already folded in — so the record shape is identical to what
        the per-question path produced, and the latch below still fires exactly once. */
     // PRACTICE-REVIEW-HONEST-1 — review-mode outcomes are never persisted (both branches).
+    const pickById = new Map(
+      sessionAnswers.filter((a) => a.pickedOption).map((a) => [String(a.questionId), String(a.pickedOption).trim()] as const),
+    );
     const entries: QuickPracticeEntry[] = scoredBatchEntries
       ? scoredBatchEntries
       : displayed.map((q) => {
@@ -2690,6 +2729,8 @@ const packTopicKey = useMemo(() => {
             // a student can submit written working for an MCQ, and that working is real.
             ...(gradedResults[qId] && !reviewSavedIds[qId] ? { graded: gradedResults[qId] } : {}),
             ...(mcqResults[qId] && !reviewMcqIds[qId] ? { mcq: mcqResults[qId] } : {}),
+            // FOLLOWUPS-1 C1 — the pick's option text, STORED ONLY (never a review pick).
+            ...(!reviewMcqIds[qId] && pickById.get(qId) ? { pickedOption: pickById.get(qId)! } : {}),
           };
         });
 
@@ -2725,7 +2766,126 @@ const packTopicKey = useMemo(() => {
     authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
     filterSignature, sessionStartedAt, isMultiTopic, isFullSubject, multiTopics,
     batchResult, batchSelection.batch.length, scoredBatchEntries, reviewSavedIds, reviewMcqIds,
+    sessionAnswers,
   ]);
+
+  // ── START-HERE-1 ────────────────────────────────────────────────────────────────────
+  // (a) The id of THIS set's session record — the very code the write above derives
+  // (quickPracticeCode of the same identity) — so a scorecard question can hand the tutor
+  // `from=<record id>`. Single-topic sets only: a mixed set has no one topic to open the tutor on.
+  const sessionRecordId = useMemo(() => {
+    const displayed = committedPoolSelection.displayed;
+    if (isMultiTopic || displayed.length === 0) return null;
+    return quickPracticeCode(toSessionSubject(subjectKey), {
+      topicSlug: canonicalTopicKey || topicParam,
+      filterSignature,
+      questionIds: displayed.map((q) => String(q.id)),
+      startedAt: sessionStartedAt,
+    });
+  }, [committedPoolSelection.displayed, isMultiTopic, subjectKey, canonicalTopicKey, topicParam, filterSignature, sessionStartedAt]);
+
+  // (b) `start_here_graded`, ONCE per Start-here set, when its scorecard first shows with at
+  // least one counted answer. Counts only — no id, no text.
+  const startHereSet = qp.get("src") === START_HERE_SRC;
+  const startHereGradedRef = useRef(false);
+  useEffect(() => {
+    if (!startHereSet || !showScorecard || startHereGradedRef.current) return;
+    if (sessionStats.attemptedInSet <= 0) return;
+    startHereGradedRef.current = true;
+    trackOnboardingEvent("start_here_graded", {
+      subject: analyticsSubject(subjectKey),
+      correct: sessionStats.localMcqCorrect,
+      total: filteredQuestions.length,
+    });
+  }, [startHereSet, showScorecard, sessionStats.attemptedInSet, sessionStats.localMcqCorrect, filteredQuestions.length, subjectKey]);
+
+  // ── QP-SCORECARD-2 B + C ─────────────────────────────────────────────────────────────
+  // A SAVED session's scorecard, reopened READ-ONLY from the student's own stored record +
+  // perQuestion payload (+ the bank's own rows for the right option and the steps). Reached
+  // from "Your past sessions" (this page, or the hub via `review=<id>`) and from the tutor's
+  // back arrow (C: the scorecard's tutor hop carries `returnTo=<this page>&review=<id>`).
+  // ★ READ-ONLY: nothing here writes a record, an attempt or a mistake, or fires an event —
+  //   `persistQuickPracticeSession` / `recordAttempt` / `recordMistake` / `trackPracticeGraded`
+  //   / `start_here_graded` are unreachable from it (the effects above key off the LIVE set).
+  // ★ Local-first (works offline on this device), then the cloud. An unreadable record, a
+  //   record of another account, or another surface's record → the plain page, silently.
+  type BankRow = ReturnType<typeof getBankRows>[number];
+  const [qpReopen, setQpReopen] = useState<{
+    record: SessionRecord;
+    payload: SessionPerQuestionPayload | null;
+    bank: Map<string, BankRow>;
+  } | null>(null);
+  const reopenSeqRef = useRef(0);
+  const reopenUid = !overlay && authUserForJourney?.uid && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null;
+  const openSavedSession = useCallback(async (recordId: string) => {
+    if (!reopenUid || !recordId) return;
+    const seq = ++reopenSeqRef.current;
+    try {
+      let record = loadLocalSessionRecords(reopenUid).find((r) => r.id === recordId) ?? null;
+      if (!record) record = (await getSessionRecordsFromCloud(reopenUid)).find((r) => r.id === recordId) ?? null;
+      if (!record || record.surface !== "quick-practice" || !recordBelongsToUid(record, reopenUid)) return;
+      const payload = await getSessionPerQuestion(reopenUid, record.perQuestionRef).catch(() => null);
+      const bank = new Map<string, BankRow>();
+      try {
+        const slugs = bankChaptersFor(record.topicKeys || []);
+        await ensureBankChapters(slugs);
+        for (const row of getBankRows(slugs)) bank.set(String(row.id), row);
+      } catch {
+        /* the bank chapter could not load (offline, not cached): the rows show what the record holds */
+      }
+      if (seq !== reopenSeqRef.current) return;
+      setQpReopen({ record, payload, bank });
+    } catch {
+      /* honest fallback: the plain page */
+    }
+  }, [reopenUid]);
+
+  // C — ONE reopen per return: the `review` param is consumed once, then stripped with
+  // `replace` (no extra history entry). Waits for auth to resolve; signed-out / overlay → just
+  // stripped (the page is otherwise unchanged).
+  const reviewParam = qp.get(SCORECARD_REVIEW_PARAM);
+  const reviewConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!reviewParam || authLoading) return;
+    if (reviewConsumedRef.current === reviewParam) return;
+    reviewConsumedRef.current = reviewParam;
+    const sp = new URLSearchParams(location.search);
+    sp.delete(SCORECARD_REVIEW_PARAM);
+    const search = sp.toString();
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : "" }, { replace: true, state: location.state });
+    void openSavedSession(reviewParam);
+  }, [reviewParam, authLoading, location.pathname, location.search, location.state, navigate, openSavedSession]);
+
+  /* START-HERE-1 - the Start-here next steps (src=start_here graded scorecards only).
+     QP-SCORECARD-2 E4 - "Explore LazyTopper" first, PRIMARY: the natural exit after the tutor
+     round trip, to the app's Home ("/": DesktopHome on desktop; RootEntry sends a phone to
+     /browse, MobileHome). Nothing is stored: the first graded record already ends Start-here. */
+  function startHereExtras(chapter: string): ScorecardAction[] | undefined {
+    if (!startHereSet) return undefined;
+    return [
+      { label: "Explore LazyTopper", tag: "Home", tone: "primary", onClick: () => navigate("/") },
+      {
+        label: "Try 5 more in this chapter",
+        tag: "New",
+        tone: "secondary",
+        onClick: () => {
+          const ft = (qp.get("qt") === "ar" ? "ar" : "mcq") as StartHereQType;
+          void import("../components/startHere/startHereBank")
+            .then((m) => m.pickStartHereSet({ subject: subjectKey, chapter, qtype: ft, rotation: Date.now() }))
+            .then((ids) => {
+              if (ids.length >= 5) {
+                navigate(startHerePracticePath({ subject: subjectKey, chapter, ids, qtype: ft, returnTo: qp.get("returnTo") || "/practice-hub" }));
+              } else {
+                buildFreshSet();
+              }
+            })
+            .catch(() => buildFreshSet());
+        },
+      },
+      { label: "See all your progress", tag: "Me", tone: "secondary", onClick: () => navigate("/me") },
+    ];
+  }
+
 
   const activeQuestionStrategyDetails = useMemo(
     () => getQuestionStrategyDetails(activeQuestion),
@@ -3216,6 +3376,51 @@ const packTopicKey = useMemo(() => {
     setScorecardDismissed(true);
     setSessionFinished(false);
     setSignInToGrade(false);
+    setSignupAsk(null);
+  };
+  // TUTOR-FIX-2 T12 - a visitor with no account at all (a local session is not "signed out").
+  const signedOutVisitor = !authLoading && !authUserForJourney?.uid;
+
+  /* START-HERE-1 \u00b7 the scorecard's tutor hop. The tutor reads the student's OWN stored record
+     (`from`) and the question (`q`), so nothing about the answer travels in the URL. Only for a
+     signed-in student whose set has a record id, and never inside the tutor's own overlay. */
+  // TUTOR-FIX-2 T12 - a SIGNED-OUT visitor (with `signedOut` = the row's position + pick) gets the
+  // same button; the tap only opens the sign-up prompt: no navigation, no network, nothing stored.
+  const tutorAskFor = (
+    q: PracticeQuestion,
+    signedOut?: { qNumber: number; pick: string | null },
+  ): ScorecardTutorAsk | null => {
+    if (!overlay && signedOutVisitor && signedOut) {
+      const to = signedOutTutorPath({
+        subject: subjectKey,
+        topicKey: q.topicKey || canonicalTopicKey || topicParam,
+        grade: String(grade),
+        questionId: String(q.id),
+      });
+      if (!to) return null;
+      return {
+        onAsk: () => setSignupAsk({ to, q: String(q.id), qNumber: signedOut.qNumber, pick: signedOut.pick }),
+      };
+    }
+    if (overlay || !sessionRecordId || !authUserForJourney?.uid || authUserForJourney.isLocalSession) return null;
+    return {
+      onAsk: () => {
+        trackOnboardingEvent("tutor_from_scorecard", { surface: "quick_practice" });
+        navigate(
+          buildTutorPath({
+            subject: subjectKey,
+            topicKey: q.topicKey || canonicalTopicKey || topicParam,
+            grade: String(grade),
+            source: "scorecard",
+            // QP-SCORECARD-2 C - the back arrow reopens THIS record's scorecard (the live
+            // defect: it used to land on a fresh practice page, the scorecard gone).
+            returnTo: withScorecardReviewParam(location.pathname + location.search, sessionRecordId),
+            questionId: String(q.id),
+            from: sessionRecordId,
+          }),
+        );
+      },
+    };
   };
 
   /* \u2550\u2550 1 \u00b7 THE GRADED ANSWER SHEET (RESULTS-1's surface, now reachable) \u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
@@ -3312,6 +3517,12 @@ const packTopicKey = useMemo(() => {
       ));
     }
     sortGradedAnswers(answers);
+    // START-HERE-1 — "Ask the tutor why I lost this mark" on every answer that lost marks.
+    for (const a of answers) {
+      const n = Number(/^Question (\d+)/.exec(a.label)?.[1]);
+      const q = Number.isInteger(n) && n > 0 ? filteredQuestions[n - 1] : undefined;
+      if (q) a.tutorAsk = tutorAskFor(q);
+    }
 
     return (
       <ResultsScorecard
@@ -3330,6 +3541,13 @@ const packTopicKey = useMemo(() => {
           marksLost: aggregateMarksLost(response),
           onKeepPracticing: () => { setBatchResult(null); backToSetForReview(); },
           onFreshSet: () => buildFreshSet(),
+          // QP-SCORECARD-2 A - the rest of the what-next floor (hidden in the tutor overlay).
+          appNav: {
+            onChapterTest: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, back),
+            onPredicted: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, back),
+            onStudy: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, back),
+            overlayMode: !!overlay,
+          },
           returnTicket: overlay
             ? { label: "Back to your tutor", onReturn: overlay.onClose }
             : undefined,
@@ -3495,6 +3713,37 @@ const packTopicKey = useMemo(() => {
         returnTicket: overlay
           ? { label: "Back to your tutor", onReturn: overlay.onClose }
           : undefined,
+        // START-HERE-1 — the MCQs got wrong: what the student picked, the right option, and the
+        // bank's own solution steps; each with the tutor hop. Picks made after the steps were
+        // seen (review mode) were never scored, so they are not listed.
+        wrongAnswers: filteredQuestions.flatMap((q, i): ScorecardWrongAnswer[] => {
+          const id = String(q.id);
+          // A local session sees the scorecard exactly as before.
+          // TUTOR-FIX-2 (v3 small): the tutor overlay now shows the SAME rows as standalone QP, so
+          // the tutor's "Go through them" matches what the student saw. Display only: the rows'
+          // tutor hop is already null in the overlay (tutorAskFor), nothing is recorded.
+          // TUTOR-FIX-2 T12 (owner ruling) - a SIGNED-OUT visitor now sees these rows too (display
+          // only, from the set on screen: nothing is persisted or graded), each with the tutor button
+          // that opens the sign-up prompt.
+          if (!signedOutVisitor && (!authUserForJourney?.uid || authUserForJourney.isLocalSession)) return [];
+          if (mcqResults[id] !== "wrong" || reviewMcqIds[id]) return [];
+          const opts = Array.isArray(q.options) ? q.options.map(String) : [];
+          const picked = mcqSelections[id];
+          const correct = resolveCorrectOptionIndex(
+            (q as PracticeQuestion & { correctOption?: string }).correctOption,
+            q.answer,
+            opts,
+          );
+          const yourAnswer = typeof picked === "number" && opts[picked] ? opts[picked] : null;
+          return [{
+            label: `Question ${i + 1}`,
+            yourAnswer,
+            correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
+            steps: (Array.isArray(q.solutionSteps) ? q.solutionSteps : []).map(String).filter((s) => s.trim()),
+            tutorAsk: tutorAskFor(q, { qNumber: i + 1, pick: yourAnswer }),
+          }];
+        }),
+        extraActions: startHereExtras(topicK),
       })}
       onClose={closeScorecard}
       belowScore={
@@ -3536,6 +3785,79 @@ const packTopicKey = useMemo(() => {
   );
 })()}
 
+{/* QP-SCORECARD-2 B + C - a SAVED session's scorecard, reopened READ-ONLY (see `openSavedSession`). */}
+{qpReopen && (() => {
+  const { record, payload, bank } = qpReopen;
+  const here = location.pathname + location.search;
+  const recTopic = (record.topicKeys || []).find((k) => k && !k.startsWith("mixed:")) || canonicalTopicKey || topicParam;
+  const recSubject: "Maths" | "Science" = record.subject === "science" ? "Science" : "Maths";
+  const navBack = { state: { back: here, backLabel: "Back to practice" } };
+  const close = () => setQpReopen(null);
+  // "Where marks slipped": every stored result that lost marks, with the bank's right option and
+  // steps. "Your answer" is the STORED pick (FOLLOWUPS-1 C2); an older record has none, so the line is left out.
+  const rows: ScorecardWrongAnswer[] = [];
+  for (const r of payload?.response?.results ?? []) {
+    if (!isGradedQuestion(r)) continue;
+    const total = Number(r.totalMarks) || 0;
+    if (!(total > 0 && (Number(r.marksAwarded) || 0) < total)) continue;
+    const qid = (record.questionIds || [])[r.qNumber - 1];
+    const row = qid ? bank.get(qid) : undefined;
+    const opts = Array.isArray(row?.options) ? row!.options!.map(String) : [];
+    const correct = row
+      ? resolveCorrectOptionIndex((row as { correctOption?: string }).correctOption, row.answer, opts)
+      : -1;
+    rows.push({
+      label: `Question ${r.qNumber}`,
+      yourAnswer: storedPickedOption(r),
+      correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
+      steps: (Array.isArray(row?.solutionSteps) ? row!.solutionSteps! : []).map(String).filter((t) => t.trim()),
+      tutorAsk: qid
+        ? {
+            onAsk: () => {
+              trackOnboardingEvent("tutor_from_scorecard", { surface: "quick_practice" });
+              navigate(
+                buildTutorPath({
+                  subject: recSubject,
+                  topicKey: row?.topicKey || recTopic,
+                  grade: String(grade),
+                  source: "scorecard",
+                  returnTo: withScorecardReviewParam(here, record.id),
+                  questionId: qid,
+                  from: record.id,
+                }),
+              );
+            },
+          }
+        : null,
+    });
+  }
+  return (
+    <ResultsScorecard
+      variant={reopenedQuickPracticeScorecardVariant(record, {
+        gradedDateLabel: new Date(record.gradedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+        gradedCount: typeof payload?.response?.gradedCount === "number" ? payload.response.gradedCount : undefined,
+        wrongAnswers: rows,
+        menu: {
+          onFreshSet: () => { close(); buildFreshSet(); },
+          onChapterTest: () => navigate(`/chapter-test/${grade}/${recSubject}/${recTopic}`, navBack),
+          onPredicted: () => navigate(`/highly-probable/${grade}/${recSubject}?topic=${encodeURIComponent(recTopic)}`, navBack),
+          onStudy: () => navigate(`/topic-hub/${grade}/${recSubject}/${recTopic}`, navBack),
+        },
+        extraActions: startHereExtras(recTopic),
+      })}
+      onClose={close}
+    />
+  );
+})()}
+
+{/* QP-SCORECARD-2 B - "Your past sessions": this student's saved Quick Practice sessions,
+    newest first (signed-in only; never in the tutor overlay). A row reopens its scorecard. */}
+{reopenUid && (
+  <div data-testid="qp-past-sessions">
+    <SurfaceHistory surface="quick-practice" uid={reopenUid} cloud onOpen={(r) => void openSavedSession(r.id)} />
+  </div>
+)}
+
 {/* \u2605\u2605 \u00a74b \u00b7 THE 402 REACHES THE STUDENT. GATE-2's sheet \u2014 the SAME component
     SolutionChecker opens \u2014 mounted ONLY while blocked (it calls router hooks). Nothing
     red, no error code, and everything scored for free is still on screen behind it. */}
@@ -3575,6 +3897,17 @@ const packTopicKey = useMemo(() => {
       Not now
     </button>
   </div>
+)}
+
+{/* TUTOR-FIX-2 T12 - the signed-out scorecard's "Ask the tutor why I lost this mark": the sign-up
+    prompt. Only Sign up stores the one-shot (q + pick, never the uid) and goes to /login, which
+    returns to /tutor/<grade>/<Subject>/<chapter>?source=scorecard&q=<id>. */}
+{signupAsk && (
+  <TutorSignupPrompt
+    to={signupAsk.to}
+    onSignUp={() => stashSignedOutAsk({ q: signupAsk.q, qNumber: signupAsk.qNumber, pick: signupAsk.pick })}
+    onDismiss={() => setSignupAsk(null)}
+  />
 )}
 
 

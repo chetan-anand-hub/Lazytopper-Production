@@ -92,6 +92,10 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   "/for-parents",
   // NCERT-BOOKS-1 (lane G, D210/D213) — the NCERT Class 10 books, chapter-wise: public, indexable.
   "/ncert-class-10",
+  // SOLUTIONS-1 (lane G, D259-D261) — the Triangles NCERT + Exemplar solutions pilot: public,
+  // indexable. Exact paths only; `solutionsPilot.guard.test.tsx` asserts these equal solutionsPaths().
+  "/ncert-solutions/triangles",
+  "/ncert-exemplar/triangles",
 ];
 
 /**

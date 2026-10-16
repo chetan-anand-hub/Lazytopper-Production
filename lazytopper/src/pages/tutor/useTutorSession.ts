@@ -42,10 +42,23 @@ import {
   matchReturningAttempts,
   matchReturningPracticeRecord,
   RETURNED_WORK_DIGEST_ENABLED,
+  buildScorecardReturnedWork,
+  composeScorecardQuestionOpener,
+  findScorecardQuestion,
+  recordBelongsToUid,
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
+import { composeSignedOutAskOpener, takeSignedOutAsk, type SignedOutAsk } from "./signedOutScorecardAsk";
+import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
-import { catalogueFiguresForTopic } from "./conceptVisualCatalogue";
+import { renderableFiguresForTopic } from "./tutorFigures";
+// TUTOR-FIX-2 (S-C, tutor UI) — typed error states, the practice count, the returned record's
+// own chapter label, and the once-per-thread first-message event.
+import { classifyTutorError, type TutorErrorState } from "./tutorErrorState";
+import { practiceCountForThread } from "./tutorIntent";
+import { returnedRecordLabel } from "./tutorRoundTrip";
+import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import { trackOnboardingEvent } from "../../analytics/analytics";
 
 export type TutorStatus = "idle" | "sending" | "error";
 
@@ -68,6 +81,10 @@ export interface UseTutorSessionArgs {
   language: string;
   /** The tutor's own URL — passed as returnTo so the round-trip comes back here. */
   selfHref: string;
+  /** START-HERE-1 — a scorecard hop: the student's own SessionRecord id and the question
+   *  (`q`) that lost marks. Both must be present; either missing opens the normal tutor. */
+  fromRecordId?: string;
+  fromQuestionId?: string;
 }
 
 export interface UseTutorSession {
@@ -75,6 +92,8 @@ export interface UseTutorSession {
   messages: TutorTurn[];
   status: TutorStatus;
   error: string | null;
+  /** TUTOR-FIX-2 T7 — the failure as a typed state (upgrade / limit / busy / offline / retry). */
+  errorState?: TutorErrorState | null;
   started: boolean;
   /** True once a real exchange exists — the round-trip CTAs are "earned" (D-TUT-5). */
   canRoundTrip: boolean;
@@ -127,7 +146,7 @@ function buildOpener(topicLabel: string, concept?: string): TutorOpener {
     };
   }
   return {
-    text: `${topicLabel} - Class 10. Ask me anything on this topic. What's tripping you up - a specific question you got stuck on, or the concept itself?`,
+    text: `${topicLabel} - Class 10. Ask me anything on this chapter. What's tripping you up - a specific question you got stuck on, or the concept itself?`,
     forks: [
       { label: "A specific question", send: "I have a specific question I got stuck on." },
       { label: "A concept I find hard", send: "There's a concept here I find hard." },
@@ -138,6 +157,38 @@ function buildOpener(topicLabel: string, concept?: string): TutorOpener {
 
 const EMPTY_COVERAGE: TutorCoverage = { worked: [], doubts: [] };
 
+/** Threads (uid + chapter) that already sent `tutor_first_message` in this page load. */
+const firstMessageSent = new Set<string>();
+
+/**
+ * TUTOR-FIX-2 T13 — `tutor_first_message`, ONCE per thread: fired when the student sends a
+ * message into a thread that holds no student turn yet (a persisted thread already has one, so
+ * a reopened thread never fires it again), and at most once per thread per page load. Coarse
+ * params only (subject + chapter slug), no text. Analytics never breaks the page.
+ */
+export function trackFirstTutorMessage(
+  priorMessages: ReadonlyArray<TutorTurn>,
+  thread: { uid: string | null; topicKey: string; subject: string },
+): void {
+  try {
+    if (priorMessages.some((m) => m.role === "user")) return;
+    const key = `${thread.uid || "anon"}::${thread.topicKey}`;
+    if (firstMessageSent.has(key)) return;
+    firstMessageSent.add(key);
+    trackOnboardingEvent("tutor_first_message", {
+      subject: thread.subject || "unknown",
+      chapter: thread.topicKey || "none",
+    });
+  } catch {
+    /* analytics must never break the tutor */
+  }
+}
+
+/** Test seam: forget this page load's fired first messages. */
+export function __resetFirstTutorMessageForTests(): void {
+  firstMessageSent.clear();
+}
+
 export function useTutorSession({
   user,
   topicKey,
@@ -146,6 +197,8 @@ export function useTutorSession({
   concept,
   language,
   selfHref,
+  fromRecordId,
+  fromQuestionId,
 }: UseTutorSessionArgs): UseTutorSession {
   const uid = user?.uid ?? null;
 
@@ -156,6 +209,7 @@ export function useTutorSession({
   );
   const [status, setStatus] = useState<TutorStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [errorState, setErrorState] = useState<TutorErrorState | null>(null);
   const [pending, setPending] = useState<TutorPendingMarker | null>(
     () => loadTutorSessionLocal(uid, topicKey)?.pending ?? null,
   );
@@ -205,7 +259,8 @@ export function useTutorSession({
 
   // Stage 3: the closed set of concepts in this topic that have a curated diagram — passed to
   // the model so it can signal one via [[figure:<key>]] (the panel then shows the real asset).
-  const figures = useMemo(() => catalogueFiguresForTopic({ subject, topicKey }), [subject, topicKey]);
+  // TUTOR-FIX-2 T4: only keys the panel can actually render are offered (server-valid == visible).
+  const figures = useMemo(() => renderableFiguresForTopic({ subject, topicKey }), [subject, topicKey]);
 
   const briefRef = useRef<TutorBrief | null>(null);
   const coverageRef = useRef<TutorCoverage>(
@@ -216,6 +271,18 @@ export function useTutorSession({
   const mountedRef = useRef(true);
 
   const opener = useMemo(() => buildOpener(topicLabel, concept), [topicLabel, concept]);
+
+  // TUTOR-FIX-2 T6 — the words a return opener uses for a returned record's chapter(s).
+  const recordLabel = useCallback(
+    (record: SessionRecord) =>
+      returnedRecordLabel(
+        record,
+        { topicKey, topicLabel },
+        (k) => desktopTopicBySlug(k)?.name ?? null,
+        canonicalSlugMatches,
+      ),
+    [topicKey, topicLabel],
+  );
 
   // Persist the durable session (thread + coverage + pending). saveTutorSession is
   // honest-gated (skips signed-out/local) and writes the local mirror synchronously.
@@ -349,6 +416,99 @@ export function useTutorSession({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid, topicKey]);
 
+  // START-HERE-1 (spec 2.5) — arrived from a scorecard's "Ask the tutor why I lost this mark":
+  // `from` = the student's OWN SessionRecord id, `q` = the question. Read the record through the
+  // uid-scoped stores the round trip already reads, build the SAME one-shot returnedWork and the
+  // same reframed opener the overlay path uses. ONE-SHOT (the opener is never added twice to a
+  // thread). No new grading, no new store. A record that is missing, another account's, or that
+  // does not hold the question opens the normal tutor, silently.
+  useEffect(() => {
+    if (!uid || !fromRecordId || !fromQuestionId) return;
+    let live = true;
+    void (async () => {
+      try {
+        const records = await getSessionRecordsFromCloud(uid);
+        const record = records.find((r) => r.id === fromRecordId && recordBelongsToUid(r, uid));
+        if (!live || !record) return;
+        const payload = await getSessionPerQuestion(uid, record.perQuestionRef);
+        const hit = findScorecardQuestion(record, payload, fromQuestionId);
+        if (!live || !hit) return;
+        let questionText = "";
+        try {
+          await ensureBankChapters([topicKey]);
+          const row = selectBankQuestions({
+            subject: subject === "maths" ? "Maths" : subject === "science" ? "Science" : undefined,
+            topicKeys: [topicKey],
+          }).find((q) => String((q as { id?: unknown }).id ?? "") === fromQuestionId);
+          questionText = row ? String(row.questionText || "") : "";
+        } catch {
+          /* no bank text: the opener and the digest still stand on the record */
+        }
+        if (!live) return;
+        returnedWorkRef.current = buildScorecardReturnedWork(questionText, hit.result);
+        const opener = composeScorecardQuestionOpener(hit.qNumber, hit.result, recordLabel(record));
+        updatePending(null);
+        setMessages((prev) => {
+          if (prev.some((m) => m.kind === "return-result" && m.content === opener.text)) return prev;
+          const next: TutorTurn[] = [...prev, { role: "tutor", content: opener.text, kind: "return-result" }];
+          persist(next, null);
+          return next;
+        });
+        setReturnFollow(opener.follow ?? null);
+      } catch {
+        /* honest-or-silent: the normal tutor stays */
+      }
+    })();
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, fromRecordId, fromQuestionId, topicKey]);
+
+  // TUTOR-FIX-2 T12 — arrived from a SIGNED-OUT scorecard's "Ask the tutor why I lost this mark"
+  // after signing up: `q` with NO `from` (a signed-out result is never persisted, so there is no
+  // record). The question id + the student's pick wait in a sessionStorage one-shot
+  // (signedOutScorecardAsk.ts); it is taken ONCE for this `q` (a ref keeps it across a StrictMode
+  // effect re-run), the bank text becomes the one-shot returnedWork, and the opener names the
+  // question and the pick. No record read, no grading. No one-shot -> the normal tutor, unchanged.
+  const signedOutAskRef = useRef<SignedOutAsk | null | undefined>(undefined);
+  useEffect(() => {
+    if (!uid || fromRecordId || !fromQuestionId) return;
+    if (signedOutAskRef.current === undefined) signedOutAskRef.current = takeSignedOutAsk(fromQuestionId);
+    const ask = signedOutAskRef.current;
+    if (!ask) return;
+    let live = true;
+    void (async () => {
+      let questionText = "";
+      try {
+        await ensureBankChapters([topicKey]);
+        const row = selectBankQuestions({
+          subject: subject === "maths" ? "Maths" : subject === "science" ? "Science" : undefined,
+          topicKeys: [topicKey],
+        }).find((q) => String((q as { id?: unknown }).id ?? "") === ask.q);
+        questionText = row ? String(row.questionText || "") : "";
+      } catch {
+        /* no bank text: the opener still names the question and the pick */
+      }
+      if (!live) return;
+      signedOutAskRef.current = null;
+      returnedWorkRef.current = buildScorecardReturnedWork(questionText, null);
+      const opener = composeSignedOutAskOpener(ask, topicLabel, questionText);
+      updatePending(null);
+      setMessages((prev) => {
+        if (prev.some((m) => m.kind === "return-result" && m.content === opener.text)) return prev;
+        const next: TutorTurn[] = [...prev, { role: "tutor", content: opener.text, kind: "return-result" }];
+        persist(next, null);
+        return next;
+      });
+      setReturnFollow(opener.follow);
+    })();
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, fromRecordId, fromQuestionId, topicKey]);
+
   // Assemble the MI/progress brief once (read-only). Honest-or-silent on failure.
   useEffect(() => {
     if (!uid) return;
@@ -371,6 +531,7 @@ export function useTutorSession({
       sendingRef.current = true;
       setStatus("sending");
       setError(null);
+      setErrorState(null);
       try {
         // BANK-SPLIT-1 PR-2 (L4): the boundary await for the demo question's chapter. If the
         // chunk cannot load, the turn still goes out with no demo (the documented null path).
@@ -425,6 +586,8 @@ export function useTutorSession({
       } catch (e) {
         if (!mountedRef.current) return;
         setError(e instanceof Error ? e.message : "The tutor is unavailable right now.");
+        // TUTOR-FIX-2 T7: keep the TYPE of the failure, not just its sentence.
+        setErrorState(classifyTutorError(e));
         setStatus("error");
       } finally {
         sendingRef.current = false;
@@ -446,12 +609,13 @@ export function useTutorSession({
         coverageRef.current = { ...coverageRef.current, worked: [...coverageRef.current.worked, concept] };
       }
       const next: TutorTurn[] = [...messages, { role: "user", content: clean }];
+      trackFirstTutorMessage(messages, { uid, topicKey, subject });
       setMessages(next);
       persist(next, null);
       // The doubt is recorded as Tutor activity in runModel, only after a successful reply.
       void runModel(next);
     },
-    [messages, runModel, concept, persist, updatePending],
+    [messages, runModel, concept, persist, updatePending, uid, topicKey, subject],
   );
 
   const retry = useCallback(() => {
@@ -498,13 +662,16 @@ export function useTutorSession({
         includeDigest: RETURNED_WORK_DIGEST_ENABLED,
       });
       if (record) {
+        // TUTOR-FIX-2 T6: name the RETURNED record's own chapter(s), never this tutor's when they
+        // differ; a record with no chapter gets the neutral "your sheet".
+        const label = recordLabel(record);
         const rich = gradedResponse
-          ? composeCheckImproveRichReturnOpener(record, gradedResponse, topicLabel)
+          ? composeCheckImproveRichReturnOpener(record, gradedResponse, label)
           : null;
-        injectReturn(rich ?? composeReturnOpener(record, topicLabel, "check-improve"));
+        injectReturn(rich ?? composeReturnOpener(record, label, "check-improve"));
       }
     },
-    [injectReturn, topicLabel],
+    [injectReturn, recordLabel],
   );
 
   // ── QP OVERLAY (the C&I overlay's twin) — replaces the navigate leg for the practice CTA ──
@@ -512,6 +679,9 @@ export function useTutorSession({
   // source=tutor + topic + microconcept(subtopicHint) + a short count + backLabel. The overlay
   // host mounts PracticePage in a MemoryRouter seeded with it, so the page sees a real tutor→QP
   // visit (byte-identical params) without navigating away. Graded read-back is UNCHANGED.
+  // TUTOR-FIX-2 [FU-PRACTICE-COUNT-PASSTHROUGH]: the set size the student asked for in this
+  // thread ("test me with 5" → 5), else 2 ("a couple"), capped at 10.
+  const practiceCount = useMemo(() => practiceCountForThread(messages), [messages]);
   const quickPracticeHref = useMemo(
     () =>
       buildQuickPracticeRoundTripHref({
@@ -521,9 +691,9 @@ export function useTutorSession({
         concept,
         // [FU-TUTOR-BACKLABEL-COUNT]: name the back button "Back to your tutor" + a short set.
         backLabel: "Back to your tutor",
-        count: 5,
+        count: practiceCount,
       }),
-    [selfHref, subject, topicKey, concept],
+    [selfHref, subject, topicKey, concept, practiceCount],
   );
 
   // Open the panel + write the pending marker (NO navigate, NO away-cue: the student never
@@ -571,6 +741,7 @@ export function useTutorSession({
     messages,
     status,
     error,
+    errorState,
     started: messages.length > 0,
     canRoundTrip: messages.some((m) => m.role === "tutor" && m.kind !== "away-cue"),
     pending,

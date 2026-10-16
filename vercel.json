@@ -82,6 +82,14 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(ncert-solutions/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(ncert-exemplar/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(admin/funnel/?)",
       "destination": "/__shell.html"
     },

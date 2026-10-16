@@ -1,5 +1,6 @@
 import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
 import { normalisePath } from "./analytics";
+import { START_HERE_SUBJECT_HINT_KEY, subjectHintFromLanding } from "../components/startHere/startHereModel";
 
 /**
  * SOURCE-1 — WHERE DID THIS NEW STUDENT COME FROM? (this visit only)
@@ -132,6 +133,24 @@ export function resetVisitSourceAttempt(): void {
 }
 
 /**
+ * START-HERE-1 (D-S1-3) — which subject the landing's ad was about, kept for the "Start here"
+ * card's subject pre-pick. SEPARATE from the visit source because that one is deleted at
+ * sign-up and its landing is path-only (no query), so it cannot say "cbq=1" or carry a
+ * `utm_content` once the account exists. ONE word ("Maths" / "Science"), tab-scoped
+ * sessionStorage, written once from the landing (the first hint wins), never sent anywhere.
+ * Unknown landing → nothing stored → the card asks.
+ */
+function rememberStartHereSubjectHint(search: string): void {
+  try {
+    if (window.sessionStorage.getItem(START_HERE_SUBJECT_HINT_KEY) !== null) return;
+    const hint = subjectHintFromLanding(cleanUtm(new URLSearchParams(search || "").get("utm_content")), search);
+    if (hint) window.sessionStorage.setItem(START_HERE_SUBJECT_HINT_KEY, hint);
+  } catch {
+    /* blocked storage: the card just asks */
+  }
+}
+
+/**
  * Write `sessionStorage[VISIT_SOURCE_KEY]` only if the tab has not captured already.
  * Never throws; storage can be blocked. Defaults read the live page.
  */
@@ -142,6 +161,7 @@ export function rememberVisitSourceOnce(
 ): void {
   if (attempted) return;
   attempted = true;
+  rememberStartHereSubjectHint(location.search);
   try {
     if (window.sessionStorage.getItem(VISIT_SOURCE_KEY) !== null) return;
     const captured = captureVisitSource(location, referrer, ownHost);

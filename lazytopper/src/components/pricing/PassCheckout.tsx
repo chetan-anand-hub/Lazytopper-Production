@@ -21,8 +21,18 @@ import { withSigninRedirect } from "../../services/freeCheckClient";
 import {
   FOUNDING_OFFER_OPEN,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_DISPLAY,
+  PRICE_MONTHLY_LIST_INR,
+  tillBoardsQuote,
 } from "../../config/pricing";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
+import {
+  newCheckoutAttemptId,
+  trackBeginCheckout,
+  trackPurchase,
+  type CheckoutDetails,
+} from "../../analytics/analytics";
 import {
   buyPass,
   formatPassDate,
@@ -44,6 +54,24 @@ export function monthButtonLabel(offerOpen: boolean): string {
 
 export const TILL_BOARDS_BUTTON_LABEL = "Pay once till your boards";
 
+/**
+ * TRACK-2 — what the checkout events say was bought. The price is the SAME pricing-module
+ * quote the server charges (month: the founding or list price; till boards: tillBoardsQuote
+ * for today and the predicted board date). If the quote is unavailable the event carries no
+ * value rather than an invented one.
+ */
+function checkoutEventDetails(passType: PassType, offerOpen: boolean): CheckoutDetails {
+  if (passType === "month") {
+    return {
+      passType,
+      itemName: "Premium pass for a month",
+      valueInr: offerOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR,
+    };
+  }
+  const quote = tillBoardsQuote(new Date(), predictCbseExamDate("10"), offerOpen);
+  return { passType, itemName: "Premium pass till your boards", valueInr: quote ? quote.priceInr : null };
+}
+
 export interface PassCheckoutViewProps {
   signedIn: boolean;
   offerOpen: boolean;
@@ -53,7 +81,15 @@ export interface PassCheckoutViewProps {
   onBuy: (passType: PassType) => Promise<BuyOutcome>;
 }
 
-/** Presentational half — every state the buy area can be in. */
+/**
+ * Presentational half — every state the buy area can be in.
+ *
+ * PRICING-LIGHT-1 (P23): class names only. PricingPage lays the buy area out as two pass
+ * tiles by making `.lt-pricing-checkout` `display: contents` inside its tile grid; these
+ * class names place each child. Month button -> Month pass tile; till-boards button ->
+ * Till-your-boards tile; the paid / already-active notices -> a full-width row above the
+ * tiles; the failure alert -> a full-width row below. Nothing here decides a state.
+ */
 export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn, onBuy }: PassCheckoutViewProps) {
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<string | null>(null);
@@ -69,9 +105,20 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
     }
     setBusy(passType);
     setFailed(false);
+    const details = checkoutEventDetails(passType, offerOpen);
+    const attemptId = newCheckoutAttemptId();
+    trackBeginCheckout(details);
     const outcome = await onBuy(passType);
     setBusy(null);
     if (outcome.status === "paid") {
+      // TRACK-2: the ONLY `purchase` call site — the server has verified this payment.
+      // FOLLOWUPS-1 A4: Razorpay's payment id as transaction_id and the SERVER order's rupee
+      // amount as value when the outcome carries them; else the per-attempt id / config quote.
+      trackPurchase({
+        ...details,
+        ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
+        transactionId: outcome.paymentId || attemptId,
+      });
       const label = formatPassDate(outcome.passEnd);
       if (label) setPaidUntil(label);
       else setFailed(true);
@@ -83,7 +130,7 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
   if (paidUntil) {
     return (
       <div className="lt-pricing-checkout" data-testid="pass-checkout">
-        <p className="lt-pricing-plan-desc" role="status" data-testid="pass-checkout-paid">
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-paid">
           {premiumActiveUntilCopy(paidUntil)}
         </p>
       </div>
@@ -93,13 +140,13 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
   return (
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
       {activeLabel && (
-        <p className="lt-pricing-plan-desc" data-testid="pass-checkout-already-active">
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" data-testid="pass-checkout-already-active">
           {premiumAlreadyActiveCopy(activeLabel)}
         </p>
       )}
       <button
         type="button"
-        className="lt-pricing-cta lt-pricing-cta--primary"
+        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
         disabled={busy !== null}
         onClick={() => void handleBuy("month")}
       >
@@ -107,14 +154,14 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
       </button>
       <button
         type="button"
-        className="lt-pricing-cta lt-pricing-cta--secondary"
+        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
         disabled={busy !== null}
         onClick={() => void handleBuy("till_boards")}
       >
         {TILL_BOARDS_BUTTON_LABEL}
       </button>
       {failed && (
-        <p className="lt-pricing-plan-desc" role="alert" data-testid="pass-checkout-failed">
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="alert" data-testid="pass-checkout-failed">
           {PAYMENT_FAILED_COPY}
         </p>
       )}

@@ -1,4 +1,54 @@
+> **2026-10-16 - FOLLOWUPS-1 (CLAUDE.md section 10 for `#1196`).** Scope: Start-here wording/CSS, scorecard lock copy, checkout analytics fields, tutor hop on two more scorecards, one additive recorded field. **No grading behaviour, marks, mistake typing or record shape changed.**
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Start-here card | kicker "Your first 2 minutes"; CSS prefix `lt-sh` to `lt-shc` (`#1196`) | live (`0d16869c`); bundle scan passed | owner 390 px overlay check on a fresh zero-graded account |
+| Quick Practice scorecard + reopen | `pickedOption` stored in `perQuestion` (additive); "Your answer" on live and reopened scorecards; tutor opener `You chose "<pick>".` (`#1196`) | live (`0d16869c`); live-checked at 390 px | none |
+| Chapter Test, Full Mock | "Ask the tutor why I lost this mark" and tutor Back to the same scorecard via `openStored` (`#1196`) | live (`0d16869c`); NOT live-verified, covered by tests | check on the first AI-graded paper |
+| Worksheet | not changed: no URL reopen-from-record path | unchanged | `[FU-WORKSHEET-TUTOR-RETURN]` |
+| Scorecard lock (`RequirePremium`) | expired PAID pass distinguished via `status.passEnd` (`#1196`) | live; NOT live-verified | needs a real paid pass |
+| Checkout analytics | `purchase` `transaction_id` = Razorpay `paymentId`, `value` = server order amount when present; additive optional `BuyOutcome` fields (`#1196`) | live; NOT live-verified | first real payment in GA4 + Meta; admin feed labels check |
+
+> **2026-10-16 — TRACK-2 / START-HERE-1 / QP-SCORECARD-2 (§10 for `#1192` `#1193` `#1194`).** Scope: analytics events, the Start-here card and focused first-run overlay, scorecard changes and past sessions. **No grading behaviour changed** (all six surfaces untouched).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| analytics (GA4 / Vercel / Meta / first-party feed) | checkout + onboarding events; /admin silent (`#1192`) | 🟢 live (`9ad6630c`) | owner GA4 Realtime check; first real payment |
+| Home (desktop + mobile), `/practice-hub`, `/check-improve` | "Start here · 2 minutes" card for zero-graded signed-in accounts (`#1193`); picker fixes + focused first-run overlay on Home / Practice Hub, C&I only when idle (`#1194`) | 🟢 live (`3252c70a`, `34b88520`); production live-check passed at 1280 px | owner 390 px phone check (fresh zero-graded account) |
+| Quick Practice scorecard / Practice Hub | wrong-MCQ rows + tutor button (`#1193`); full what-next menu, "Your past sessions" + read-only reopen, tutor back to the saved scorecard (`#1194`) | 🟢 live (`34b88520`) | `[FU-QP-REOPEN-PICK]`, `[FU-LT-SH-CLASS-CLASH]`, `[FU-SCORECARD-TUTOR-REST]` for CT / FM / Worksheet |
+| Check & Improve scorecard, Tutor | "Ask the tutor why I lost this mark" (`#1193`); tutor back via the existing `openReopen` (`#1194`) | 🟢 live (`34b88520`) | tutor honesty and richer brief: Session 2 Part 3 |
+
+> **2026-10-15 — PRICING-LIGHT-1 (controller, §10 for `#1190`).** Scope: one public surface, `/pricing`, plus its prerendered capture. No grading behaviour, bank row or student data changed.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/pricing` (+ `__desktop/pricing` prerender) | light theme, Basic and Premium columns, compare table, two pass tiles, payments-ON prerender (`#1190`) | 🟢 live (`566b3379`) | owner §4 live-verify; `[FU-LOCK-LIST-LIMITED-PRACTICE]`; `[PASS-STATUS-1]` |
+
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
+
+> **2026-10-14 — SOLUTIONS-1 / LEGAL-ENTITY-1 (G, §10 for `#1186` `#1187`).** Scope: two new public pages and the company name on the legal pages and public footer. No grading behaviour, bank row or student data changed.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/ncert-solutions/triangles`, `/ncert-exemplar/triangles` (NEW public pages, desktop shell + mobile self-chrome) | attempt-first solutions, 13 + 16 rows (`#1186`) | 🟢 live (`3cdbed4b`) | owner phone check; `[FU-SOLUTIONS-UNKNOWN-CHAPTER-404]` |
+| `/ncert-class-10` | a "Solutions" link on the Triangles row (`#1186`) | 🟢 live | — |
+| `/legal/*` + public footer (`/`, `/pricing`, …) | "operated by" line, Terms paragraph + October 2026, © P&CGOLDDUST_TECH PRIVATE LIMITED (`#1187`) | 🟢 live (`294e472a`) | owner §4 check; `[FU-ORG-LEGALNAME]` |
+
+> **2026-10-14 — NCERT-BOOKS-1 / 1b / NCERT-ENTRY-1 (G, §10 for `#1171` `#1182` `#1184`).** Scope: one new public surface (`/ncert-class-10`) and two new entry points to it. No grading behaviour, bank row or student data changed.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/ncert-class-10` (NEW public page, desktop shell + mobile self-chrome) | the 27 NCERT Class 10 chapters read on site, with notes / formulae / practice / check links and a credit line (`#1171`); shell, tablist, back link, in-page pdf.js reader (`#1182`) | 🟢 live (`1afc7020`) | owner Android "Read the chapter" check; 5 D258 follow-ups |
+| Desktop rail | "NCERT Books" item: a real link; a plain click opens the subject → chapter picker (`#1182`) | 🟢 live | `[FU-NCERT-PICKER-FOCUS-TRAP]` |
+| Exam Trends + every notes page | an "NCERT" / "Read NCERT Chapter N on LazyTopper" link into the reader (`#1184`) | 🟢 live (`2da27ae4`) | owner tap check on a phone |
+
+> **2026-10-14 — UPLOAD-SHRINK-1 / PYTHAGORAS-HUB-1/-2 (C1b, §10 for `#1126` `#1174` `#1178`).** Scope: the Triangles hub lost three OUT topics (owner ruling 1; area theorem; Angle Bisector Theorem, D245). No grading behaviour changed for any upload ≤ 7 MiB (byte-identical file); above 7 MiB the only reachable change is "refused" → "graded", on every surface whose picker is `PageTray`.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| PDF upload on Check & Improve (single + multi), Worksheet, Chapter Test, Full Mock, Quick Practice (all `PageTray`) | a scanned PDF > 7 MiB is shrunk on the device (`#1126`); ≤ 7 MiB unchanged; typed PDFs unchanged | 🟢 live (merged `cdfb6fea`) | owner live-verify: a > 7 MB scanned PDF on 2 surfaces + the two controls (NEXT_ACTION); §4a PARTIAL until then |
+| Check & Improve (single + multi), Worksheet, Chapter Test, Full Mock, Quick Practice (grading result) + the graded PDFs | a consequential mark loss is attributed to its origin's mistake type instead of "reason not recorded"; the `↳` glyph is an inline-SVG arrow (`#1175`) | 🟢 live (`31f9f426`) | owner re-check on two surfaces; §4a PARTIAL until then |
+| Triangles topic hub | Pythagoras / converse, area-of-similar-triangles and Angle Bisector items removed (`#1174` `#1178`) | 🟢 live | owner glance; `[FU-TRIANGLES-ORPHANS]` |
 
 > **2026-10-14 — BANK-STEPS-1 REPAIR / GARBLE-1 PAUSE + REWRITE / MATH-RENDER (A2, §10 for `#1142`–`#1146` `#1149` `#1150` `#1152` `#1153` `#1155` `#1156` `#1162` `#1164`).** Scope did not change and no grading behaviour changed. Two things moved: the bank CONTENT drawn by Worksheet, Chapter Test, Full Mock and Quick Practice (rows restored, rows withheld), and the DISPLAY of maths in question text and in grader feedback on all six grading surfaces (C&I single, C&I multi, Worksheet, Chapter Test, Full Mock, Quick Practice). The BANK-STEPS-1 block below lists the FIND-2 pause `#1135` as 🟡 not merged; it merged at `8742eb45` (10-13 21:51:58Z), before this window.
 
