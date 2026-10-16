@@ -18,7 +18,7 @@
 // ONE responsive component — pure-CSS reflow, 360px verified.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { MathText } from "../components/question/MathText";
@@ -83,7 +83,21 @@ import {
   fullMockScorecardVariant,
   deriveFullMockChapterLens,
   fullMockFocusLine,
+  withPaperTutorAsks,
+  type ScorecardTutorAsk,
 } from "../components/results/scorecardVariants";
+// FOLLOWUPS-1 B — the scorecard's tutor hop + the tutor's return to THIS saved scorecard.
+import { trackOnboardingEvent } from "../analytics/analytics";
+import { buildTutorPath } from "./tutor/tutorPath";
+import {
+  SCORECARD_REVIEW_PARAM,
+  recordBelongsToUid,
+  savedPaperQuestionHop,
+  searchWithoutReview,
+  withScorecardReviewParam,
+} from "./tutor/tutorRoundTrip";
+import { bankRowMeta } from "../data/bankChapters/bankIdIndex";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 // BANK-LEAN-1 (C3): the stored re-open chapter join reads the question bank, so it
 // lives in scorecardBankLenses — scorecardVariants stays bank-free.
 import {
@@ -171,7 +185,8 @@ export default function FullMockPage() {
   const params = useParams<"grade" | "subject">();
   const [sp] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const location = useLocation();
+  const { user, loading: authLoading } = useAuth();
 
   const grade = params.grade || "10";
   const subject = subjectFromParam(params.subject || sp.get("subject") || "Maths");
@@ -756,6 +771,85 @@ export default function FullMockPage() {
     [user?.uid],
   );
 
+  // FOLLOWUPS-1 B — "Ask the tutor why I lost this mark" on a SAVED mock's scorecard (the QP /
+  // C&I hop): the tutor reads the student's OWN record (`from`) and the question (`q` = its bank
+  // id), and its back arrow returns here with `review=<record id>`, which reopens THAT scorecard
+  // through `openStored` above. Signed-in, own record, and the question's ONE chapter known from
+  // the served bank (a predicted-sourced id has none -> no button) — else no button.
+  const reviewUid = isSignedIn ? user!.uid : null;
+  const fmTutorAskFor = useCallback(
+    (record: SessionRecord | null | undefined, response: WorksheetGradeResponse | null | undefined) =>
+      (qNumber: number): ScorecardTutorAsk | null => {
+        if (!reviewUid || !record || record.surface !== "full-mock" || !recordBelongsToUid(record, reviewUid)) return null;
+        const hop = savedPaperQuestionHop(record, response, qNumber, (id) => resolveCanonicalSlug(bankRowMeta(id)?.topicKey) || null);
+        if (!hop) return null;
+        return {
+          onAsk: () => {
+            trackOnboardingEvent("tutor_from_scorecard", { surface: "full_mock" });
+            navigate(
+              buildTutorPath({
+                subject,
+                topicKey: hop.topicKey,
+                grade: String(grade),
+                source: "scorecard",
+                returnTo: withScorecardReviewParam(location.pathname + searchWithoutReview(location.search), record.id),
+                questionId: hop.questionId,
+                from: record.id,
+              }),
+            );
+          },
+        };
+      },
+    [reviewUid, navigate, subject, grade, location.pathname, location.search],
+  );
+
+  // The tutor's back arrow: `review=<record id>` reopens that saved mock ONCE (read-only, through
+  // `openStored`), and the param is stripped with `replace`. Signed-out / not this student's /
+  // not a full mock -> just stripped; the page is otherwise unchanged.
+  const reviewParam = sp.get(SCORECARD_REVIEW_PARAM);
+  const reviewConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!reviewParam || authLoading) return;
+    if (reviewConsumedRef.current === reviewParam) return;
+    reviewConsumedRef.current = reviewParam;
+    navigate({ pathname: location.pathname, search: searchWithoutReview(location.search) }, { replace: true, state: location.state });
+    if (!reviewUid) return;
+    void (async () => {
+      try {
+        const all = await getSessionRecordsFromCloud(reviewUid);
+        const record = all.find((r) => r.id === reviewParam && r.surface === "full-mock" && recordBelongsToUid(r, reviewUid));
+        if (record) await openStored(record);
+      } catch {
+        /* honest fallback: the plain page */
+      }
+    })();
+  }, [reviewParam, authLoading, reviewUid, location.pathname, location.search, location.state, navigate, openStored]);
+
+  // The live (just graded) mock's saved record — only once it is in the student's store and holds
+  // THIS grade (same graded marks), and only while the paper on screen is the record's paper.
+  const liveRecord = useMemo(
+    () =>
+      activeMock && fullResponse
+        ? records.find(
+            (r) =>
+              r.id === activeMock.code &&
+              r.surface === "full-mock" &&
+              r.status !== "pending-upload" &&
+              r.marksAwarded === (Number(fullResponse.gradedMarksAwarded) || 0) &&
+              r.marksTotal === (Number(fullResponse.gradedMarksTotal) || 0),
+          ) ?? null
+        : null,
+    [records, activeMock, fullResponse],
+  );
+  const liveTutorAskFor = useMemo(() => {
+    if (!liveRecord || !fullResponse || !activeMock) return undefined;
+    const ask = fmTutorAskFor(liveRecord, fullResponse);
+    return (qNumber: number): ScorecardTutorAsk | null => {
+      const q = activeMock.paper.questions.find((pq) => pq.qNumber === qNumber);
+      return q && String(q.id) === liveRecord.questionIds[qNumber - 1] ? ask(qNumber) : null;
+    };
+  }, [liveRecord, fullResponse, activeMock, fmTutorAskFor]);
+
   // ── Downloads (the triad — name + code on all three) ─────────────────────────
   const paperForExport = activeMock?.paper ?? draw?.paper ?? null;
   const codeForExport = activeMock?.code ?? nomen?.code;
@@ -861,7 +955,7 @@ export default function FullMockPage() {
       {/* Read-only re-open scorecard (history card / cross-device pending). */}
       {reopen && (
         <ResultsScorecard
-          variant={storedFullMockScorecardVariant(reopen.record, {
+          variant={withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
@@ -877,7 +971,7 @@ export default function FullMockPage() {
                   startTest();
                 }
               : undefined,
-          })}
+          }), reopen.response, fmTutorAskFor(reopen.record, reopen.response))}
           onClose={() => setReopen(null)}
         />
       )}
@@ -1424,7 +1518,7 @@ export default function FullMockPage() {
 
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
-              variant={fullMockScorecardVariant({
+              variant={withPaperTutorAsks(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "full",
@@ -1452,7 +1546,7 @@ export default function FullMockPage() {
                   setScorecardOpen(false);
                   void downloadSolution();
                 },
-              })}
+              }), fullResponse, liveTutorAskFor)}
               onClose={() => setScorecardOpen(false)}
             />
           )}
