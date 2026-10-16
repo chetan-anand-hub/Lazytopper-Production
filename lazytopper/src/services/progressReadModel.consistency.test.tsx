@@ -105,7 +105,7 @@ import {
   type ReadSubject,
   type StudyReadModel,
 } from "./progressReadModel";
-import MeProgressPage, { buildChapters, conceptMistakesNote, splitPaperMarks } from "../pages/MeProgressPage";
+import MeProgressPage, { buildChapters, conceptMistakesNote, splitPaperMarks, viewRowsFrom } from "../pages/MeProgressPage";
 import { MistakeIntelCard, computeMiCardSummary } from "../components/desktop/MistakeIntelCard";
 import { assembleTutorBrief, briefFromModel } from "../pages/tutor/tutorContextBrief";
 import { mistakeGroupByKey } from "../lib/mistakeDisplay";
@@ -352,6 +352,14 @@ function liveConcepts(m: StudyReadModel, chapter: string): string[] {
 }
 
 const CHAPTERS = ["real-numbers", "polynomials", "heredity", "how-do-organisms-reproduce", "electricity"];
+/** TUTOR-FIX-2 (T2) — each fixture chapter's paper (the tutor opens a chapter in its own paper). */
+const CHAPTER_PAPER: Record<string, ReadSubject> = {
+  "real-numbers": "maths",
+  polynomials: "maths",
+  heredity: "science",
+  "how-do-organisms-reproduce": "science",
+  electricity: "science",
+};
 
 describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every window × paper × chapter", () => {
   for (const window of READ_WINDOWS) {
@@ -363,8 +371,10 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
         const split = splitPaperMarks(subjectRungOf(both.progress, subject), m.mistakes.entries);
         for (const chapter of CHAPTERS) {
           const brief = await assembleTutorBrief({ uid: UID, topicKey: chapter, subject, window, nowMs: NOW });
-          // The read-model API, the same read: the brief IS the model's figures.
-          expect(brief).toEqual(briefFromModel(m, chapter));
+          // The read-model API, the same reads: the brief IS the model's figures (TUTOR-FIX-2 T2:
+          // the subject read + the ONE chapter-scoped read).
+          const chapterModel = await readStudyModel(UID, { window, subject, topicKey: chapter, mistakes: false, tutor: false, nowMs: NOW });
+          expect(brief).toEqual(briefFromModel(m, chapter, chapterModel));
           // == Me: "marks on the table" and the hero's biggest group, or nothing below Me's gate.
           if (split) {
             expect(brief.mistakes.marksLostRecent).toBe(split.lost);
@@ -378,20 +388,38 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
           // Me's chapter list is built from); named concepts only from the chapter's live mistakes.
           const rung = m.progress.topics.find((r) => r.key === chapter);
           expect(Boolean(brief.topic.trend)).toBe(Boolean(rung));
+          // TUTOR-FIX-2 (T2) — the CHAPTER block == Me's chapter numbers for the same fixture:
+          //   marksLost == Me's chapter row (buildChapters, the subject read);
+          //   byGroup == Me's hero rule on the chapter (splitPaperMarks on the chapter's rung + live
+          //   mistakes), mapped technique → examTechnique, unclassified → unrecorded;
+          //   concepts == Me's open-chapter rows (viewRowsFrom over Me's OWN chapter read), top 3.
+          const meChapter = buildChapters(m.progress.topics, PAPER_LABEL[subject], m.mistakes.byChapter).find((c) => c.key === chapter);
+          expect(brief.chapter?.marksLost).toBe(meChapter ? meChapter.lost : undefined);
+          const chapterRung = m.progress.topics.find((r) => r.key === chapter);
+          const chapterSplit = split ? splitPaperMarks(chapterRung, m.mistakes.byChapter[chapter] ?? []) : null;
+          expect(brief.chapter?.byGroup).toEqual(
+            chapterSplit?.splitKnown
+              ? {
+                  knowledge: chapterSplit.knowledge,
+                  careless: chapterSplit.careless,
+                  examTechnique: chapterSplit.technique,
+                  notAttempted: chapterSplit.notAttempted,
+                  unrecorded: chapterSplit.unclassified,
+                }
+              : undefined,
+          );
+          const meOpen = await readStudyModel(UID, { window, topicKey: chapter, mistakes: false, nowMs: NOW });
+          const meRows = CHAPTER_PAPER[chapter] === subject ? viewRowsFrom(meOpen.progress.concepts).slice(0, 3) : [];
           // PR-2b — ONE gate for NAMING a weakness: below Me's (no hero split) the brief names
-          // no concept either; above it, exactly the chapter's live recorded concepts by marks.
+          // no concept either; above it, exactly Me's open-chapter concept rows, with their marks.
           if (!split) {
             expect(brief.topic.weakConcepts).toBeUndefined();
+            expect(brief.chapter?.concepts).toBeUndefined();
           } else {
-            expect(brief.topic.weakConcepts ?? []).toEqual(liveConcepts(m, chapter));
+            expect(brief.topic.weakConcepts ?? []).toEqual(meRows.map((r) => r.label));
+            expect(brief.chapter?.concepts ?? []).toEqual(meRows.map((r) => ({ name: r.label, marksLost: r.lost })));
           }
-          if (brief.topic.weakConcepts) {
-            // ME-CONCEPT-1 — every named concept is one of the model's per-concept rows for the chapter.
-            const live = new Set(Object.values(m.mistakes.byConcept).filter((r) => r.chapter === chapter).map((r) => r.label));
-            for (const c of brief.topic.weakConcepts) expect(live.has(c)).toBe(true);
-            const meChapter = buildChapters(m.progress.topics, PAPER_LABEL[subject], m.mistakes.byChapter).find((c) => c.key === chapter);
-            if (meChapter) expect(meChapter.retryEntry).not.toBeNull();
-          }
+          if (brief.topic.weakConcepts && meChapter) expect(meChapter.retryEntry).not.toBeNull();
         }
       });
     }
