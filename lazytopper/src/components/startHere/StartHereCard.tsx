@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
@@ -559,6 +559,79 @@ function StartHereFocusDialog({
     trackFocus("start_here_shown", surface);
   }, [surface]);
 
+  // The latest Not-now handler, for the document listeners below (mounted once).
+  const notNowRef = useRef(onNotNow);
+  useEffect(() => {
+    notNowRef.current = onNotNow;
+  }, [onNotNow]);
+
+  // ORDER MATTERS: this effect is declared BEFORE the focus-restore one, so on unmount its
+  // listeners are removed first and restoring focus to the page cannot be pulled back in.
+  /**
+   * The trap and Esc live on the DOCUMENT (capture phase), so they hold wherever focus is —
+   * including <body> after a click on the dimmed backdrop. The one exception is the nested
+   * chapter picker (ChapterPickerModal, portalled to <body>, `.lt-sh-picker-top`): while it is
+   * open it is the topmost layer, so its own Esc closes only it and focus inside it is left alone.
+   * Capture runs BEFORE React's root listener, i.e. while the picker is still in the DOM.
+   */
+  useEffect(() => {
+    const pickerOpen = (): HTMLElement | null => document.querySelector<HTMLElement>(".lt-sh-picker-top");
+    const items = (): HTMLElement[] =>
+      dialogRef.current ? Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)) : [];
+    const inside = (n: EventTarget | null): boolean => {
+      const node = n as Node | null;
+      if (!node) return false;
+      if (dialogRef.current?.contains(node)) return true;
+      const picker = pickerOpen();
+      return !!picker && picker.contains(node);
+    };
+    const pullBack = () => {
+      const picker = pickerOpen();
+      const target = picker
+        ? (picker.querySelector<HTMLElement>("select") ?? picker.querySelector<HTMLElement>("button"))
+        : (items()[0] ?? dialogRef.current);
+      target?.focus();
+    };
+
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      const picker = pickerOpen();
+      if (e.key === "Escape") {
+        if (picker) return; // the topmost layer (the picker) handles its own Esc
+        e.preventDefault();
+        e.stopPropagation();
+        notNowRef.current();
+        return;
+      }
+      if (e.key !== "Tab" || picker) return;
+      const list = items();
+      if (list.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = list[0];
+      const last = list[list.length - 1];
+      const active = document.activeElement;
+      const outside = !dialogRef.current || !dialogRef.current.contains(active);
+      if (e.shiftKey && (active === first || outside)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || outside)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    // Focus that lands outside the dialog (and outside an open picker) is pulled back in.
+    const onFocusIn = (e: FocusEvent) => {
+      if (!inside(e.target)) pullBack();
+    };
+    document.addEventListener("keydown", onKey, true);
+    document.addEventListener("focusin", onFocusIn, true);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("focusin", onFocusIn, true);
+    };
+  }, []);
+
   // Focus moves into the dialog, the page behind stops scrolling, and focus returns on close.
   useEffect(() => {
     const before = document.activeElement as HTMLElement | null;
@@ -571,35 +644,6 @@ function StartHereFocusDialog({
     };
   }, []);
 
-  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    // A nested layer (the chapter picker, portalled to <body>) still bubbles its React key
-    // events up to here. Only keys pressed INSIDE this dialog's own DOM are ours: Esc closes
-    // only the topmost layer, and the trap never pulls focus out of the nested picker.
-    if (!dialogRef.current || !dialogRef.current.contains(e.target as Node)) return;
-    if (e.key === "Escape") {
-      e.stopPropagation();
-      onNotNow();
-      return;
-    }
-    const root = dialogRef.current;
-    if (e.key !== "Tab" || !root) return;
-    const items = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
-    if (items.length === 0) {
-      e.preventDefault();
-      return;
-    }
-    const first = items[0];
-    const last = items[items.length - 1];
-    const active = document.activeElement;
-    if (e.shiftKey && (active === first || !root.contains(active))) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && (active === last || !root.contains(active))) {
-      e.preventDefault();
-      first.focus();
-    }
-  };
-
   // Portalled to <body>: a transformed ancestor (the phone layout's animated <main>) would
   // otherwise become the containing block of `position: fixed` (the ChapterPickerModal trap).
   return createPortal(
@@ -607,6 +651,10 @@ function StartHereFocusDialog({
       className={isDesktop ? "lt-shf lt-shf--overlay" : "lt-shf lt-shf--full"}
       data-testid="start-here-focus"
       data-layout={isDesktop ? "overlay" : "full"}
+      // A press on the dimmed backdrop must not move focus to <body> (out of the trap).
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+      }}
     >
       <style>{CSS}</style>
       <div
@@ -616,7 +664,6 @@ function StartHereFocusDialog({
         aria-modal="true"
         aria-labelledby={headingId}
         tabIndex={-1}
-        onKeyDown={onKeyDown}
       >
         <button
           type="button"
