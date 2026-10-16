@@ -810,13 +810,15 @@ export function newCheckoutAttemptId(): string {
  * ------------------------------------------------------------------------- */
 
 export type StartHereSurface = "home" | "practice_hub" | "check_improve";
+/** QP-SCORECARD-2 E5 — the FOCUSED first-run surface on a page: same event names, `<page>_focus`. */
+export type StartHereFocusSurface = "home_focus" | "practice_hub_focus" | "check_improve_focus";
 export type ScorecardSurface = "quick_practice" | "check_improve" | "chapter_test" | "full_mock" | "worksheet";
 
 export interface OnboardingEventParams {
-  start_here_shown: { surface: StartHereSurface };
+  start_here_shown: { surface: StartHereSurface | StartHereFocusSurface };
   start_here_start: { subject: string; chapter: string; qtype: string };
   start_here_graded: { subject: string; correct: number; total: number };
-  start_here_dismissed: { surface: StartHereSurface };
+  start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface };
   tutor_from_scorecard: { surface: ScorecardSurface };
 }
 

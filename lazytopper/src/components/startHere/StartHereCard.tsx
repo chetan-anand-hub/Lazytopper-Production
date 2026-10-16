@@ -2,10 +2,11 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
+import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import { START_HERE_AVAILABILITY } from "./startHereAvailability.generated";
 import { cloudHasAnySessionRecord, loadLocalSessionRecords } from "../../services/sessionRecords";
 import { authClient } from "../../services/firebaseClient";
-import { trackOnboardingEvent, type StartHereSurface } from "../../analytics/analytics";
+import { trackOnboardingEvent, type StartHereFocusSurface, type StartHereSurface } from "../../analytics/analytics";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import {
@@ -97,9 +98,14 @@ const CSS = `
   .lt-sh .lt-sh-chip { border: 1px solid rgba(255,255,255,0.34); background: transparent; color: #fff;
     border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer; }
   .lt-sh .lt-sh-chip[aria-pressed="true"] { background: hsl(152, 55%, 45%); border-color: hsl(152, 55%, 45%); }
-  .lt-sh .lt-sh-select { width: 100%; box-sizing: border-box; border-radius: 10px; padding: 11px 12px;
-    font-size: 14px; border: 1px solid rgba(255,255,255,0.34); background: hsl(222,47%,14%); color: #fff; }
-  .lt-sh .lt-sh-select option { background: hsl(222,47%,14%); color: #fff; }
+  .lt-sh .lt-sh-pick { width: 100%; box-sizing: border-box; display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; border-radius: 10px; padding: 11px 14px; font-size: 14px;
+    font-weight: 600; text-align: left; border: 1px solid rgba(255,255,255,0.34);
+    background: hsl(222,47%,14%); color: #fff; cursor: pointer; }
+  .lt-sh .lt-sh-pick:hover { border-color: hsl(152, 55%, 55%); }
+  .lt-sh .lt-sh-pick:disabled { opacity: 0.55; cursor: default; }
+  .lt-sh .lt-sh-pick-change { font-size: 12.5px; color: hsl(152, 55%, 62%); font-weight: 700; flex: none; }
+  .lt-tutor-ov.lt-sh-picker-top { z-index: 1010; }
   .lt-sh .lt-sh-note { font-size: 12.5px; color: rgba(255,255,255,0.72); margin: 0 0 12px; line-height: 1.5; }
   @media (max-width: 480px) {
     .lt-sh { padding: 19px 17px; border-radius: 14px; }
@@ -291,7 +297,10 @@ function StartHerePanel({
   headingId?: string;
 }) {
   const navigate = useNavigate();
-  const chapterId = useId();
+  const chapterLabelId = useId();
+  const pickerIdPrefix = `lt-sh-ch${chapterLabelId.replace(/[^a-zA-Z0-9]/g, "")}`;
+  const chapterBtnRef = useRef<HTMLButtonElement | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [open, setOpen] = useState(startOpen);
   // D4: the ad's hint pre-picks a subject; with no hint NOTHING is pre-selected (the card asks).
   const [subject, setSubject] = useState<DesktopSubject | null>(() => readSubjectHint());
@@ -313,6 +322,20 @@ function StartHerePanel({
   const selected = chapter && chapterOk(chapter) ? chapter : (topics.find((t) => chapterOk(t.slug))?.slug ?? "");
   const types = QTYPES.filter((t) => selected && offered(selected, t));
   const activeType: StartHereQType = types.includes(qtype) ? qtype : (types[0] ?? "mcq");
+  const selectedName = topics.find((t) => t.slug === selected)?.name ?? "";
+
+  // The nested picker takes focus when it opens (Esc / Tab then belong to it, the topmost
+  // layer), and focus returns to the chapter button when it closes.
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const ov = document.querySelector<HTMLElement>(`[data-testid="${tid("chapter-picker")}"]`);
+    (ov?.querySelector<HTMLElement>("select") ?? ov?.querySelector<HTMLElement>("button"))?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pickerOpen]);
+  const closePicker = () => {
+    setPickerOpen(false);
+    chapterBtnRef.current?.focus();
+  };
 
   const onGo = async () => {
     if (!subject || !selected || busy) return;
@@ -374,26 +397,47 @@ function StartHerePanel({
             </div>
           </div>
           {subject && (
-            <div className="lt-sh-step">
-              <label className="lt-sh-lbl" htmlFor={chapterId}>
+            <div className="lt-sh-step" role="group" aria-labelledby={chapterLabelId}>
+              <span className="lt-sh-lbl" id={chapterLabelId}>
                 2 · Chapter
-              </label>
-              <select
-                id={chapterId}
-                className="lt-sh-select"
+              </span>
+              <button
+                ref={chapterBtnRef}
+                type="button"
+                className="lt-sh-pick"
                 data-testid={tid("chapter")}
-                value={selected}
-                onChange={(e) => {
-                  setChapter(e.target.value);
+                data-chapter={selected}
+                aria-haspopup="dialog"
+                disabled={!selected}
+                onClick={() => setPickerOpen(true)}
+              >
+                <span className="lt-sh-pick-name">{selectedName || "No chapter ready yet"}</span>
+                <span className="lt-sh-pick-change" aria-hidden="true">
+                  Change
+                </span>
+              </button>
+              {/* D2 — the EXISTING chapter picker (ChapterPickerModal), opened on the tapped
+                  subject with that subject locked; chapters without a full Start-here set are
+                  "coming soon" and cannot be chosen. Re-keyed per subject so it opens fresh. */}
+              <ChapterPickerModal
+                key={subject}
+                open={pickerOpen}
+                onClose={closePicker}
+                title="Pick a chapter"
+                sub={`${subject} chapters with board-style questions ready.`}
+                goLabel="Use this chapter"
+                testId={tid("chapter-picker")}
+                idPrefix={pickerIdPrefix}
+                initialSubject={subject}
+                initialTopicKey={selected}
+                lockSubject
+                overlayClassName="lt-sh-picker-top"
+                isComingSoon={(_s, slug) => !chapterOk(slug)}
+                onGo={(_s, slug) => {
+                  setChapter(slug);
                   setFailed(false);
                 }}
-              >
-                {topics.map((t) => (
-                  <option key={t.slug} value={t.slug} disabled={!chapterOk(t.slug)}>
-                    {chapterOk(t.slug) ? t.name : `${t.name} — coming soon`}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
           )}
           {subject && types.length > 0 && (
@@ -444,18 +488,18 @@ function StartHerePanel({
 /* ── QP-SCORECARD-2 E1/E3 — the FOCUSED first-run surface ───────────────────────────────── */
 
 /** The focused surface's analytics param: the page's surface + "_focus" (TRACK-2 event names). */
-export type StartHereFocusSurface = `${StartHereSurface}_focus`;
+export type { StartHereFocusSurface };
 export function focusSurfaceOf(surface: StartHereSurface): StartHereFocusSurface {
   return `${surface}_focus`;
 }
 
 /**
  * `start_here_shown` / `start_here_dismissed` with a focus surface. The event NAMES are TRACK-2's;
- * only the `surface` VALUE is new, and it passes the onboarding slug filter as-is. The cast is the
- * one place the narrower StartHereSurface type (analytics.ts, outside this lane) is widened.
+ * only the `surface` VALUE is new (analytics.ts StartHereFocusSurface), and it passes the
+ * onboarding slug filter as-is.
  */
 function trackFocus(name: "start_here_shown" | "start_here_dismissed", surface: StartHereSurface): void {
-  trackOnboardingEvent(name, { surface: focusSurfaceOf(surface) as unknown as StartHereSurface });
+  trackOnboardingEvent(name, { surface: focusSurfaceOf(surface) });
 }
 
 export interface StartHereFocusViewProps {
@@ -528,6 +572,10 @@ function StartHereFocusDialog({
   }, []);
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    // A nested layer (the chapter picker, portalled to <body>) still bubbles its React key
+    // events up to here. Only keys pressed INSIDE this dialog's own DOM are ours: Esc closes
+    // only the topmost layer, and the trap never pulls focus out of the nested picker.
+    if (!dialogRef.current || !dialogRef.current.contains(e.target as Node)) return;
     if (e.key === "Escape") {
       e.stopPropagation();
       onNotNow();

@@ -1,7 +1,7 @@
 import { setMatchMediaMatches } from "../../test/setup";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render, cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 const { cloudHas, localRows, onboarding, bank, auth, AVAIL } = vi.hoisted(() => ({
@@ -59,6 +59,12 @@ const mount = (uid: string | null = "u1", extra: { focus?: boolean; inProgress?:
 const daysAgo = (n: number): string => new Date(Date.now() - n * 24 * 60 * 60 * 1000).toUTCString();
 const calls = (name: string) => onboarding.mock.calls.filter((c) => c[0] === name);
 const card = () => screen.queryByTestId("start-here-card");
+/** Opens the reused ChapterPickerModal from the card's chapter button; returns its chapter list. */
+async function openChapterPicker(prefix = "start-here"): Promise<HTMLSelectElement> {
+  fireEvent.click(await screen.findByTestId(`${prefix}-chapter`));
+  const picker = await screen.findByTestId(`${prefix}-chapter-picker`);
+  return within(picker).getByLabelText("Chapter") as HTMLSelectElement;
+}
 
 beforeEach(() => {
   window.sessionStorage.clear();
@@ -236,8 +242,8 @@ describe("START-HERE-1 · the picker (§2.2)", () => {
     await open();
     expect(screen.getByTestId("start-here-subject-maths").getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByTestId("start-here-subject-science").getAttribute("aria-pressed")).toBe("false");
-    const select = (await screen.findByTestId("start-here-chapter")) as HTMLSelectElement;
-    expect(select.value).toBe("real-numbers");
+    // QP-SCORECARD-2 D2 (Oct 2026): the chapter is a button opening ChapterPickerModal, not a <select>.
+    expect((await screen.findByTestId("start-here-chapter")).getAttribute("data-chapter")).toBe("real-numbers");
     // QP-SCORECARD-2 D1 (Oct 2026): the type is a chip button now, so "checked" became aria-pressed.
     expect(screen.getByTestId("start-here-qtype-mcq").getAttribute("aria-pressed")).toBe("true");
   });
@@ -253,7 +259,8 @@ describe("START-HERE-1 · the picker (§2.2)", () => {
   it("★ a chapter without CBQ MCQs reads 'coming soon' and cannot be picked", async () => {
     window.sessionStorage.setItem(START_HERE_SUBJECT_HINT_KEY, "Maths");
     await open();
-    const select = (await screen.findByTestId("start-here-chapter")) as HTMLSelectElement;
+    // QP-SCORECARD-2 D2 (Oct 2026): the chapter list now lives in the reused ChapterPickerModal.
+    const select = await openChapterPicker();
     const soon = Array.from(select.options).find((o) => o.value === "polynomials")!;
     expect(soon.textContent).toContain("coming soon");
     expect(soon.disabled).toBe(true);
@@ -335,23 +342,42 @@ describe("QP-SCORECARD-2 D · the picker", () => {
     expect(screen.queryByTestId("start-here-qtype-ar")).toBeNull();
   });
 
-  it("★★ D2: the chapter list is the shared chapter list, and a chapter without CBQ MCQs is 'coming soon' and not selectable", async () => {
+  it("★★ D2: no <select> in the card; the chapter button opens the EXISTING ChapterPickerModal on the tapped subject", async () => {
+    await openPicker();
+    fireEvent.click(screen.getByTestId("start-here-subject-science"));
+    expect(card()!.querySelectorAll("select")).toHaveLength(0);
+    const btn = screen.getByTestId("start-here-chapter");
+    expect(btn.tagName).toBe("BUTTON");
+    expect(btn.textContent).toContain("Electricity");
+    const select = await openChapterPicker();
+    const picker = screen.getByTestId("start-here-chapter-picker");
+    expect(picker.className).toContain("lt-tutor-ov"); // ChapterPickerModal's own overlay
+    expect(within(picker).getByRole("dialog").getAttribute("aria-label")).toBe("Pick a chapter");
+    expect(within(picker).queryByLabelText("Subject")).toBeNull(); // the subject is locked to the tap
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(desktopTopicsBySubject("Science").map((t) => t.slug));
+    expect(select.value).toBe("electricity");
+  });
+
+  it("★★ D2: in the picker a chapter without CBQ MCQs is 'coming soon' and not selectable; a ready one is chosen", async () => {
     await openPicker();
     fireEvent.click(screen.getByTestId("start-here-subject-maths"));
-    const select = screen.getByTestId("start-here-chapter") as HTMLSelectElement;
-    expect(Array.from(select.options).map((o) => o.value)).toEqual(desktopTopicsBySubject("Maths").map((t) => t.slug));
+    const select = await openChapterPicker();
     const soon = Array.from(select.options).find((o) => o.value === "polynomials")!;
     expect(soon.textContent).toContain("coming soon");
     expect(soon.disabled).toBe(true);
     fireEvent.change(select, { target: { value: "polynomials" } });
     expect(select.value).toBe("real-numbers"); // a coming-soon chapter is never the selection
+    fireEvent.click(screen.getByTestId("start-here-chapter-picker-open"));
+    expect(screen.queryByTestId("start-here-chapter-picker")).toBeNull();
+    expect(screen.getByTestId("start-here-chapter").getAttribute("data-chapter")).toBe("real-numbers");
+    expect(document.activeElement).toBe(screen.getByTestId("start-here-chapter")); // focus returns
   });
 
   it("★★ D3: a subject tap lists chapters AT ONCE with no bank call (no 'Checking…' state)", async () => {
     await openPicker();
     fireEvent.click(screen.getByTestId("start-here-subject-science"));
-    // Synchronous: no await between the tap and the list.
-    expect((screen.getByTestId("start-here-chapter") as HTMLSelectElement).value).toBe("electricity");
+    // Synchronous: no await between the tap and the chosen chapter.
+    expect(screen.getByTestId("start-here-chapter").getAttribute("data-chapter")).toBe("electricity");
     expect(card()!.textContent).not.toContain("Checking which chapters");
     fireEvent.click(screen.getByTestId("start-here-subject-maths"));
     expect(screen.getByTestId("start-here-chapter")).toBeInTheDocument();
@@ -500,6 +526,28 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     window.sessionStorage.clear();
     mount("u2", { focus: true });
     await waitFor(() => expect(focusEl()).not.toBeNull());
+  });
+
+  it("★★ the chapter picker nested in the focused surface: it takes focus, Tab stays in it, Esc closes ONLY the picker", async () => {
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-focus-subject-science"));
+    const select = await openChapterPicker("start-here-focus");
+    const picker = screen.getByTestId("start-here-focus-chapter-picker");
+    expect(picker.className).toContain("lt-sh-picker-top"); // stacked above the focused surface
+    expect(document.activeElement).toBe(select); // the topmost layer has focus
+    fireEvent.keyDown(select, { key: "Tab" });
+    expect(document.activeElement).toBe(select); // the focused surface's trap did not pull it back
+    fireEvent.keyDown(select, { key: "Escape" });
+    expect(screen.queryByTestId("start-here-focus-chapter-picker")).toBeNull(); // picker closed
+    expect(focusEl()).not.toBeNull(); // ...and the focused surface is still open
+    expect(calls("start_here_dismissed")).toHaveLength(0);
+    expect(count()).toBeNull();
+    expect(document.activeElement).toBe(screen.getByTestId("start-here-focus-chapter"));
+    // A second Esc, now inside the focused surface, is its Not now.
+    fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+    expect(focusEl()).toBeNull();
+    expect(count()).toBe("1");
   });
 
   it("★★ focus is trapped: it starts inside the dialog and Tab / Shift+Tab wrap at the ends", async () => {
