@@ -813,7 +813,12 @@ function honestyBlock() {
     `record which option was picked, not why) and offer Check & Improve (a written answer shows why) — emit ` +
     `[[offer:check-improve]]. The same for "am I making silly mistakes?", "what's my biggest mistake?" or "why ` +
     `do I lose marks here?": give the figures you have (marks, concepts), say the type is not recorded, offer ` +
-    `Check & Improve.`
+    `Check & Improve.\n` +
+    // TUTOR-FIX-4: live, the model followed its OWN earlier wrong turns over the brief.
+    `i. WHAT YOU KNOW ABOUT THIS STUDENT (the student-data brief) in this system message is the only source of ` +
+    `truth about the student's marks and mistake types. If anything said earlier in this conversation ` +
+    `(including your own earlier replies) contradicts it, the brief wins — correct it plainly ("Correction: ` +
+    `those marks have no mistake type recorded") and never repeat the earlier claim.`
   );
 }
 
