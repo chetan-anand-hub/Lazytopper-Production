@@ -23,21 +23,22 @@ import {
   type ActivityFeedItem,
   type TimelineDay,
 } from "./studentsAdminModel";
-import { feedItemLabel, orderedFeed, pageRows } from "./activityDetailModel";
+import { activityEventLabel, feedItemLabel, orderedFeed, pageRows } from "./activityDetailModel";
 
 type State =
   | { status: "loading" }
   | { status: "ok"; data: DetailResponse }
   | { status: "refused"; refusal: Refusal; httpStatus: number | null };
 
-function Counts({ counts }: { counts: Record<string, number> }) {
+/** `label` (FOLLOWUPS-2 F3): plain words for a name; omitted -> the raw name, as before. */
+function Counts({ counts, label }: { counts: Record<string, number>; label?: (name: string) => string }) {
   const entries = Object.entries(counts).filter(([, n]) => n > 0);
   if (entries.length === 0) return <span className="sa-muted">none</span>;
   return (
     <span className="sa-chips">
       {entries.map(([name, n]) => (
         <span key={name} className="sa-chip">
-          {name} ×{n}
+          {label ? label(name) : name} ×{n}
         </span>
       ))}
     </span>
@@ -149,7 +150,7 @@ function DayCard({ day }: { day: TimelineDay }) {
             <div className="sa-day-row">
               <dt>Actions</dt>
               <dd>
-                <Counts counts={day.activity.events} />
+                <Counts counts={day.activity.events} label={activityEventLabel} />
               </dd>
             </div>
             <div className="sa-day-row">

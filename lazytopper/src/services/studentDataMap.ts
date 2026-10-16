@@ -612,7 +612,10 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "`lazytopper.startHereFocusNotNow.<uid>` (1 or 2: how many times Not now was tapped on the " +
       "focused first-run Start-here surface, so it is offered at most twice) and, in THIS TAB's " +
       "sessionStorage, `lazytopper.startHereFocusClosed` (the single character 1 once the focused " +
-      "surface was closed this visit; never the uid); neither is ever sent anywhere." +
+      "surface was closed this visit; never the uid); neither is ever sent anywhere. " +
+      "FOLLOWUPS-2 F2: plus, in THIS TAB's sessionStorage, `lazytopper.startHereShown.<surface>` " +
+      "(the single character 1 once the Start-here card or focused surface was shown on that page " +
+      "this visit, so the shown event is counted once per tab; never the uid, never sent anywhere). " +
       " TUTOR-FIX-2 T12: plus, in THIS TAB's sessionStorage, `lazytopper.tutorSignupAsk.v1` (a " +
       "signed-out visitor's Quick Practice question id, its position and the option they picked, " +
       "stored only when they choose Sign up on a scorecard's tutor prompt; never the uid; read " +

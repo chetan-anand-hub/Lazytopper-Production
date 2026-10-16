@@ -74,6 +74,27 @@ export function accountIsNew(uid: string, now: number = Date.now()): boolean {
   }
 }
 
+/**
+ * FOLLOWUPS-2 F2 [FU-SH-SHOWN-DEDUPE] — `start_here_shown` at most ONCE per tab session per
+ * surface (a page remount no longer re-fires it). THIS TAB's sessionStorage holds
+ * `lazytopper.startHereShown.<surface>` = the constant "1" (never the uid; registered in
+ * studentDataMap.ts). Storage unavailable or throwing -> fail open: the per-mount ref still
+ * limits it to once per mount, as before.
+ */
+export const START_HERE_SHOWN_PREFIX = "lazytopper.startHereShown.";
+
+/** True -> fire `start_here_shown` now (first time this tab for this surface, or no storage). */
+export function claimStartHereShown(surface: string): boolean {
+  try {
+    const key = START_HERE_SHOWN_PREFIX + surface;
+    if (window.sessionStorage.getItem(key) === "1") return false;
+    window.sessionStorage.setItem(key, "1");
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 const CSS = `
   .lt-shc { background: linear-gradient(160deg, hsl(222,47%,24%) 0%, hsl(222,47%,16%) 100%); color: #fff;
     border-radius: 15px; padding: 23px 25px; min-width: 0; max-width: 100%; box-sizing: border-box;
@@ -96,7 +117,8 @@ const CSS = `
     margin: 0 0 6px; letter-spacing: 0.02em; }
   .lt-shc .lt-shc-chips { display: flex; gap: 8px; flex-wrap: wrap; }
   .lt-shc .lt-shc-chip { border: 1px solid rgba(255,255,255,0.34); background: transparent; color: #fff;
-    border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+    border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer;
+    min-height: 44px; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; }
   .lt-shc .lt-shc-chip[aria-pressed="true"] { background: hsl(152, 55%, 45%); border-color: hsl(152, 55%, 45%); }
   .lt-shc .lt-shc-pick { width: 100%; box-sizing: border-box; display: flex; align-items: center;
     justify-content: space-between; gap: 12px; border-radius: 10px; padding: 11px 14px; font-size: 14px;
@@ -248,7 +270,7 @@ export function StartHereView({
   useEffect(() => {
     if (!visible || shownRef.current) return;
     shownRef.current = true;
-    trackOnboardingEvent("start_here_shown", { surface });
+    if (claimStartHereShown(surface)) trackOnboardingEvent("start_here_shown", { surface });
   }, [visible, surface]);
 
   if (!visible) return null;
@@ -556,7 +578,7 @@ function StartHereFocusDialog({
   useEffect(() => {
     if (shownRef.current) return;
     shownRef.current = true;
-    trackFocus("start_here_shown", surface);
+    if (claimStartHereShown(focusSurfaceOf(surface))) trackFocus("start_here_shown", surface);
   }, [surface]);
 
   // The latest Not-now handler, for the document listeners below (mounted once).

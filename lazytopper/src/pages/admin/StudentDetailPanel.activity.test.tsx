@@ -148,3 +148,19 @@ describe("activityDetailModel — labels", () => {
     expect(pageRows({ home: 1, pricing: 4, me: 0 }).map((r) => r.key)).toEqual(["pricing", "home"]);
   });
 });
+
+describe("StudentDetailPanel — Actions chips in plain words (FOLLOWUPS-2 F3 [FU-ADMIN-ACTIONS-LABELS])", () => {
+  it("★ Actions chips use activityEventLabel; an unknown name falls back to the raw name; Sections stay raw", async () => {
+    const d = detail();
+    (d.timeline[1].activity as { events: Record<string, number> }).events = { check_graded: 1, mystery_event: 2 };
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => d })));
+    render(<StudentDetailPanel uid="stu1" getToken={async () => "admin-token"} onBack={() => {}} />);
+    const day = await screen.findByTestId("sa-day-2026-11-20");
+    const actions = within(day).getByText("Actions").parentElement!;
+    const chips = Array.from(actions.querySelectorAll(".sa-chip")).map((c) => c.textContent);
+    expect(chips).toEqual(["Checked an answer ×1", "mystery_event ×2"]);
+    // Sections used is not an event list: unchanged raw names.
+    const sections = within(day).getByText("Sections used").parentElement!;
+    expect(Array.from(sections.querySelectorAll(".sa-chip")).map((c) => c.textContent)).toEqual(["notes ×3", "check-improve ×1"]);
+  });
+});
