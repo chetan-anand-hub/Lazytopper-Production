@@ -1,3 +1,13 @@
+## ★ 2026-10-16 — AFTER TRACK-2 (`#1192`), START-HERE-1 (`#1193`) AND QP-SCORECARD-2 (`#1194`) (written by the Session-1 docs sub-agent under §10)
+
+*(The owner items of every block below stand unchanged. This block only adds the items below.)*
+
+- **Owner check (TRACK-2, after merge):** GA4 Realtime shows `begin_checkout` on a pay tap; `/admin` produces no GA4 hit; the first real external payment shows `purchase` with a value in GA4 and Meta. Switch on GA4's internal-traffic filter only with the owner's OK.
+- **Owner check (phone, 390 px):** with a FRESH zero-graded account, the focused first-run overlay fills the screen on Home / Practice Hub and the Start-here card works (Start → Science → Electricity → Quick 5 → answer); the QP scorecard shows the traps (pick, right option, bank steps) and the full what-next menu; "Ask the tutor why I lost this mark" opens the tutor and its back returns to the saved scorecard; "Your past sessions" reopens read-only. The verifier already passed all of this at 1280 px on production (16 Oct); only the phone width is owed.
+- **Next:** **Session 2: run Part 4 (ADS-CLEAN-1) then Part 3 (TUTOR-FIX-2) of DISPATCH-PACK_FIRST-WIN** (Part 4: growth, ad `utm_content` values `cbq_short` / `sci_*`; Part 3: tutor honesty on the server prompt, `tutor.cjs`, `tutorContextBrief.ts`, read-model fixes; Part 3 must merge the same day as Part 2). `[FU-RETURN-TICKET-CONTRACT]` is unblocked now that START-HERE-1 merged.
+- **Owner question (not applied):** change the Start-here kicker to "Your first 2 minutes"?
+- **Follow-ups opened:** `[FU-PURCHASE-TXN-ID-RAZORPAY]`, `[FU-SCORECARD-TUTOR-REST]`, `[FU-START-HERE-WRITTEN]`, `[FU-LOCK-COPY-PAID-EXPIRED]`, `[FU-QP-REOPEN-PICK]`, `[FU-LT-SH-CLASS-CLASH]`. Closed: `[FU-HOME-STARTHERE-PIN]`.
+
 ## ★ 2026-10-15 — AFTER PRICING-LIGHT-1 (`#1190`) (written by the controller under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

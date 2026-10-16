@@ -23,6 +23,26 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-16 — TRACK-2 / START-HERE-1 / QP-SCORECARD-2 FOLLOW-UPS (recorded by the Session-1 docs sub-agent under §10)
+
+**[FU-PURCHASE-TXN-ID-RAZORPAY]** (open) `BuyOutcome` (services/checkout.ts) carries no Razorpay payment id or order id, so `purchase`'s `transaction_id` is a per-attempt random id minted at the tap and `value` is the config quote (month: founding/list; till-boards: `tillBoardsQuote().priceInr`). A payment-owned lane should expose the Razorpay payment id and the server's `amountPaise` from `buyPass`. Owner: payment lane.
+
+**[FU-SCORECARD-TUTOR-REST]** (open) "Ask the tutor why I lost this mark" is wired on Quick Practice and saved Check & Improve scorecards. Chapter Test, Full Mock and Worksheet use the same shell (`ResultsScorecard`, `ScorecardGradedAnswer.tutorAsk`); each only needs its call site to pass a `tutorAsk` for a question that lost marks. Multi-topic Quick Practice sets have no single topic and get no hop.
+
+**[FU-START-HERE-WRITTEN]** (open) The Start-here set is MCQ / Assertion–Reason only. A written or case-study type needs the free check (the grader), so it is a separate lane.
+
+**[FU-LOCK-COPY-PAID-EXPIRED]** (open) An expired paid pass also has `isTrialExpired`, so the scorecard lock line (`RequirePremium`, `source=scorecard`) says "Your free week has ended". Fine while no external payer exists; revisit when one does.
+
+**[FU-QP-REOPEN-PICK]** (open) A reopened QP scorecard cannot show the student's own pick because the stored `perQuestion` payload has none. Store `pickedOption` additively in the payload in a recording-owned lane, then show it on reopen. Owner: recording lane.
+
+**[FU-LT-SH-CLASS-CLASH]** (open) The SurfaceHistory root class `lt-sh` collides with the `.lt-sh` CSS that StartHereCard injects: a zero-graded student on Practice Hub would see the empty past-sessions panel styled navy. Rename one of the two classes.
+
+**[FU-HOME-STARTHERE-PIN]** (CLOSED 2026-10-16, done in `#1194`) The Start-here card's Home pin/placement.
+
+**Owner question (open, not applied):** Start-here kicker "Your first 2 minutes" instead of "Start here · 2 minutes".
+
+**Observations handed to Session 2 (not caused by these PRs):** the tutor fabricated "conductor vs insulator, 2 marks" in the owner's Electricity thread (Part 3 honesty); the tutor did not mention the student's own pick (Part 3 richer brief); QP "0 of 5 attempted" after an empty Finish then Keep practicing (pre-existing, unverified).
+
 ## 2026-10-15 — PRICING-LIGHT-1 (`#1190`) FOLLOW-UPS (recorded by the controller under §10)
 
 ### [FU-LOCK-LIST-LIMITED-PRACTICE] — OPEN (owner ruling 2026-10-15; this docs PR is the record, the fix is its own lane): the Premium locks' "Free on Basic" list (`FREE_FEATURES` in `BasicFreeList.tsx`, shared across the app per P7) still says "Practice picker and limited practice". P20 found no enforced free practice limit (`PracticeLimitGate.tsx` FREE_DAILY_LIMIT=10 is unexported and its counter has 0 callers), so the claim is unbacked, as the pricing page's was. PRICING-LIGHT-1 was forbidden from touching it. Fix: reword `FREE_FEATURES` and update its pins (`BasicFreeList.test.tsx`).

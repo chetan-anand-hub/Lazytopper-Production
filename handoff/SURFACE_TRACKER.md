@@ -1,3 +1,12 @@
+> **2026-10-16 — TRACK-2 / START-HERE-1 / QP-SCORECARD-2 (§10 for `#1192` `#1193` `#1194`).** Scope: analytics events, the Start-here card and focused first-run overlay, scorecard changes and past sessions. **No grading behaviour changed** (all six surfaces untouched).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| analytics (GA4 / Vercel / Meta / first-party feed) | checkout + onboarding events; /admin silent (`#1192`) | 🟢 live (`9ad6630c`) | owner GA4 Realtime check; first real payment |
+| Home (desktop + mobile), `/practice-hub`, `/check-improve` | "Start here · 2 minutes" card for zero-graded signed-in accounts (`#1193`); picker fixes + focused first-run overlay on Home / Practice Hub, C&I only when idle (`#1194`) | 🟢 live (`3252c70a`, `34b88520`); production live-check passed at 1280 px | owner 390 px phone check (fresh zero-graded account) |
+| Quick Practice scorecard / Practice Hub | wrong-MCQ rows + tutor button (`#1193`); full what-next menu, "Your past sessions" + read-only reopen, tutor back to the saved scorecard (`#1194`) | 🟢 live (`34b88520`) | `[FU-QP-REOPEN-PICK]`, `[FU-LT-SH-CLASS-CLASH]`, `[FU-SCORECARD-TUTOR-REST]` for CT / FM / Worksheet |
+| Check & Improve scorecard, Tutor | "Ask the tutor why I lost this mark" (`#1193`); tutor back via the existing `openReopen` (`#1194`) | 🟢 live (`34b88520`) | tutor honesty and richer brief: Session 2 Part 3 |
+
 > **2026-10-15 — PRICING-LIGHT-1 (controller, §10 for `#1190`).** Scope: one public surface, `/pricing`, plus its prerendered capture. No grading behaviour, bank row or student data changed.
 
 | surface | what moved (PR) | state | owed |

@@ -1,3 +1,10 @@
+## 2026-10-16 — TRACK-2 (`#1192`) · START-HERE-1 (`#1193`) · QP-SCORECARD-2 (`#1194`) — ✅ MERGED
+
+- ✅ Purchase + onboarding events, admin traffic out of analytics. ⏳ owner live-verify (GA4 Realtime, first real payment); `[FU-PURCHASE-TXN-ID-RAZORPAY]`.
+- ✅ Start-here card + Quick 5 + traps + tutor hop on QP and saved C&I scorecards. `[FU-SCORECARD-TUTOR-REST]` (Chapter Test / Full Mock / Worksheet), `[FU-START-HERE-WRITTEN]`.
+- ✅ QP-SCORECARD-2: full menu, past sessions + reopen, tutor back to the saved scorecard, picker fixes, focused first-run overlay (closes `[FU-HOME-STARTHERE-PIN]`). Production live-check PASSED at 1280 px. ⏳ owner 390 px phone check; `[FU-QP-REOPEN-PICK]`, `[FU-LT-SH-CLASS-CLASH]`.
+- ⏳ **Session 2:** Part 4 (ADS-CLEAN-1) then Part 3 (TUTOR-FIX-2) of DISPATCH-PACK_FIRST-WIN. `[FU-RETURN-TICKET-CONTRACT]` is unblocked now that START-HERE-1 merged.
+
 ## 2026-10-15 — PRICING-LIGHT-1 (`#1190`) — ✅ MERGED
 
 - ✅ Light pricing page, Basic and Premium, full compare table, payments-ON prerender. ⏳ owner live-verify (§4).
