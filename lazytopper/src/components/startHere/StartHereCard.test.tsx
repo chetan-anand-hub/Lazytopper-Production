@@ -424,6 +424,13 @@ describe("QP-SCORECARD-2 D · the picker", () => {
 describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
   const focusEl = () => screen.queryByTestId("start-here-focus");
   const dialog = () => screen.getByRole("dialog");
+  // The dialog can be in the DOM before its passive effects run. The trap's document listeners
+  // and the initial focus are installed in the same effect flush (trap first), so focus being
+  // inside the dialog proves the trap is live. Wait for that before poking the trap.
+  const trapActive = async () => {
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    await waitFor(() => expect(dialog().contains(document.activeElement)).toBe(true));
+  };
   const count = () => window.localStorage.getItem(`${START_HERE_FOCUS_NOT_NOW_PREFIX}u1`);
 
   beforeEach(() => {
@@ -490,7 +497,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
 
   it("★★ Esc = Not now: closes for this visit, fires start_here_dismissed (focus surface), the inline card stays", async () => {
     mount("u1", { focus: true });
-    await waitFor(() => expect(focusEl()).not.toBeNull());
+    await trapActive();
     fireEvent.keyDown(dialog(), { key: "Escape" });
     expect(focusEl()).toBeNull();
     expect(card()).not.toBeNull(); // the inline card remains
@@ -555,7 +562,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
   it("★★ desktop backdrop press, focus on <body>: Esc still closes the dialog and records the focus Not now", async () => {
     setMatchMediaMatches(true);
     mount("u1", { focus: true });
-    await waitFor(() => expect(focusEl()).not.toBeNull());
+    await trapActive();
     // The backdrop press is prevented (it would move focus to <body>)...
     expect(fireEvent.mouseDown(focusEl()!)).toBe(false);
     // ...and even if focus does reach <body>, the trap and Esc still hold.
@@ -573,9 +580,10 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
 
   it("★★ focus moved to an element outside (the inline card behind) is pulled back into the dialog", async () => {
     mount("u1", { focus: true });
-    await waitFor(() => expect(focusEl()).not.toBeNull());
+    await trapActive();
     const behind = screen.getByTestId("start-here-not-now"); // the inline card's own Not now
     behind.focus();
+    // The pull-back is synchronous (the capture-phase focusin handler refocuses in place).
     expect(document.activeElement).not.toBe(behind);
     expect(dialog().contains(document.activeElement)).toBe(true);
   });
@@ -602,7 +610,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
 
   it("★★ focus is trapped: it starts inside the dialog and Tab / Shift+Tab wrap at the ends", async () => {
     mount("u1", { focus: true });
-    await waitFor(() => expect(focusEl()).not.toBeNull());
+    await trapActive();
     const d = dialog();
     expect(d.contains(document.activeElement)).toBe(true);
     const items = Array.from(d.querySelectorAll<HTMLElement>("button:not([disabled]), select"));
