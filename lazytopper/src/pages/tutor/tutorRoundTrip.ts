@@ -661,11 +661,15 @@ export function composeScorecardQuestionOpener(
     };
   }
   const marks = `${lost} mark${lost === 1 ? "" : "s"}`;
+  // FOLLOWUPS-1 C3 — the option the student picked, when the stored payload carries it (Quick
+  // Practice records from FOLLOWUPS-1 on). Quoted verbatim; absent → the opener is unchanged.
+  const storedPick = (gradedResult as { pickedOption?: unknown }).pickedOption;
+  const chose = typeof storedPick === "string" && storedPick.trim() ? ` You chose "${storedPick.trim()}".` : "";
   const fault = firstFaultyStepInResults([gradedResult]);
   if (fault) {
     const { step } = fault;
     return {
-      text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}. Step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)} Want to go through it together?`,
+      text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}.${chose} Step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)} Want to go through it together?`,
       follow: {
         label: "Go through that step",
         send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
@@ -673,7 +677,7 @@ export function composeScorecardQuestionOpener(
     };
   }
   return {
-    text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}. Want to go through why the right answer is right, and where the trap is?`,
+    text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}.${chose} Want to go through why the right answer is right, and where the trap is?`,
     follow: {
       label: "Why was I wrong?",
       send: `Let's go through Q${qNumber}: why was my answer wrong?`,

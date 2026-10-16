@@ -137,6 +137,10 @@ export interface QuickPracticeEntry {
   /** The server's own `notGraded` reason (A's PR-3; owner-approved 2026-10-05), kept so the sheet
    *  says THAT reason ("try again", "couldn't grade it reliably"). Absent unless the server sent one. */
   notGradedReason?: NotGradedReason;
+  /** FOLLOWUPS-1 C1 — the option text the student picked (an MCQ only). STORED ONLY: it rides
+   *  the perQuestion payload so a reopened scorecard can say "Your answer"; nothing grades on it.
+   *  Absent for an unpicked or written-only answer, and for a pick made in review mode. */
+  pickedOption?: string;
 }
 
 /**
@@ -297,13 +301,28 @@ export function persistQuickPracticeSession(args: {
       worksheetId: record.worksheetId,
       surface: "quick-practice",
       gradedAt: record.gradedAt,
-      response,
+      response: withStoredPicks(response, entries),
     });
     return "recorded";
   } catch (error) {
     console.warn("[quickPracticeSessionService] session record write failed", error);
     return "skipped-error";
   }
+}
+
+/** FOLLOWUPS-1 C1 — the perQuestion payload's results with each MCQ pick STORED beside its
+ *  result (`pickedOption`, additive + optional). Pure; marks, mistake data and counts pass
+ *  through untouched, and a result whose entry carries no pick is returned as the same object.
+ *  The join is the result's `qNumber` = 1-based DISPLAYED position (see the builder above). */
+function withStoredPicks(response: WorksheetGradeResponse, entries: QuickPracticeEntry[]): WorksheetGradeResponse {
+  if (!entries.some((e) => e.pickedOption)) return response;
+  return {
+    ...response,
+    results: response.results.map((r) => {
+      const pick = entries[r.qNumber - 1]?.pickedOption;
+      return pick ? { ...r, pickedOption: pick } : r;
+    }),
+  };
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -740,6 +759,7 @@ export async function gradeQuickPracticeBatch(args: {
     if (classifyQuickPracticeAnswer(answer) === "local-mcq" && answer.pickedCorrect != null) {
       base.mcq = answer.pickedCorrect ? "correct" : "wrong";
     }
+    if (nonEmpty(answer.pickedOption)) base.pickedOption = String(answer.pickedOption).trim(); // FOLLOWUPS-1 C1 — stored only
     return base;
   };
   const baseEntries = answers.map(localEntry);
