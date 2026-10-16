@@ -56,6 +56,28 @@ describe("TRACK-2 · PassCheckout events", () => {
     });
   });
 
+  it("FOLLOWUPS-1 A4: paid WITH paymentId + amountInr -> transaction_id = paymentId, value = server amount", async () => {
+    const c = view(async () => ({ ...PAID, paymentId: "pay_ABC123", amountInr: 499 }));
+    tapMonth(c);
+    await waitFor(() => expect(track.trackPurchase).toHaveBeenCalledTimes(1));
+    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({
+      passType: "month",
+      valueInr: 499,
+      transactionId: "pay_ABC123",
+    });
+    expect(c.getByText(/Premium is active until/)).toBeTruthy();
+  });
+
+  it("FOLLOWUPS-1 A4: paid with paymentId only -> transaction_id = paymentId, value stays the config quote", async () => {
+    const c = view(async () => ({ ...PAID, paymentId: "pay_XYZ" }));
+    tapMonth(c);
+    await waitFor(() => expect(track.trackPurchase).toHaveBeenCalledTimes(1));
+    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({
+      valueInr: PRICE_MONTHLY_FOUNDING_INR,
+      transactionId: "pay_XYZ",
+    });
+  });
+
   it.each<[string, BuyOutcome]>([
     ["failed", { status: "failed" }],
     ["dismissed (cancel)", { status: "dismissed" }],

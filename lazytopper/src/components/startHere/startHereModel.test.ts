@@ -33,7 +33,7 @@ beforeEach(() => {
 
 describe("START-HERE-1 · the card's words (honest, no invented numbers)", () => {
   it("pins the owner's copy", () => {
-    expect(START_HERE_COPY.kicker).toBe("Start here · 2 minutes");
+    expect(START_HERE_COPY.kicker).toBe("Your first 2 minutes");
     expect(START_HERE_COPY.body).toBe("Pick a chapter, answer 5 board-style questions, and see exactly where marks slip.");
     expect(START_HERE_COPY.start).toBe("Start");
     expect(START_HERE_COPY.notNow).toBe("Not now");

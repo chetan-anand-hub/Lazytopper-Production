@@ -112,7 +112,13 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
     setBusy(null);
     if (outcome.status === "paid") {
       // TRACK-2: the ONLY `purchase` call site — the server has verified this payment.
-      trackPurchase({ ...details, transactionId: attemptId });
+      // FOLLOWUPS-1 A4: Razorpay's payment id as transaction_id and the SERVER order's rupee
+      // amount as value when the outcome carries them; else the per-attempt id / config quote.
+      trackPurchase({
+        ...details,
+        ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
+        transactionId: outcome.paymentId || attemptId,
+      });
       const label = formatPassDate(outcome.passEnd);
       if (label) setPaidUntil(label);
       else setFailed(true);

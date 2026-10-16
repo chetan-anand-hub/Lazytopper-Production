@@ -325,9 +325,9 @@ describe("QP-SCORECARD-2 D · the picker", () => {
     expect(card()!.querySelectorAll('input[type="radio"]')).toHaveLength(0);
     for (const chip of [mcq, ar]) {
       expect(chip.tagName).toBe("BUTTON");
-      expect(chip.className).toBe("lt-sh-chip"); // the SAME chip class as the subject row
+      expect(chip.className).toBe("lt-shc-chip"); // the SAME chip class as the subject row
     }
-    expect(screen.getByTestId("start-here-subject-science").className).toBe("lt-sh-chip");
+    expect(screen.getByTestId("start-here-subject-science").className).toBe("lt-shc-chip");
     expect(mcq.getAttribute("aria-pressed")).toBe("true");
     expect(ar.getAttribute("aria-pressed")).toBe("false");
     fireEvent.click(ar);
@@ -543,7 +543,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     fireEvent.click(screen.getByTestId("start-here-focus-subject-science"));
     const select = await openChapterPicker("start-here-focus");
     const picker = screen.getByTestId("start-here-focus-chapter-picker");
-    expect(picker.className).toContain("lt-sh-picker-top"); // stacked above the focused surface
+    expect(picker.className).toContain("lt-shc-picker-top"); // stacked above the focused surface
     expect(document.activeElement).toBe(select); // the topmost layer has focus
     fireEvent.keyDown(select, { key: "Tab" });
     expect(document.activeElement).toBe(select); // the focused surface's trap did not pull it back
@@ -629,7 +629,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     mount("u1", { focus: true });
     await waitFor(() => expect(focusEl()).not.toBeNull());
     expect(focusEl()!.getAttribute("data-layout")).toBe("full");
-    expect(focusEl()!.className).toContain("lt-shf--full");
+    expect(focusEl()!.className).toContain("lt-shcf--full");
     cleanup();
     window.sessionStorage.clear();
     window.localStorage.clear();
@@ -637,7 +637,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     mount("u1", { focus: true });
     await waitFor(() => expect(focusEl()).not.toBeNull());
     expect(focusEl()!.getAttribute("data-layout")).toBe("overlay");
-    expect(focusEl()!.className).toContain("lt-shf--overlay");
+    expect(focusEl()!.className).toContain("lt-shcf--overlay");
   });
 
   it("Start from the focused surface opens the same five-question set (bank fetched on Start only)", async () => {

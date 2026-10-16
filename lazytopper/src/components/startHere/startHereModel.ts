@@ -16,7 +16,7 @@ export const START_HERE_SRC = "start_here";
 export const START_HERE_COUNT = 5;
 
 export const START_HERE_COPY = {
-  kicker: "Start here · 2 minutes",
+  kicker: "Your first 2 minutes",
   body: "Pick a chapter, answer 5 board-style questions, and see exactly where marks slip.",
   start: "Start",
   notNow: "Not now",

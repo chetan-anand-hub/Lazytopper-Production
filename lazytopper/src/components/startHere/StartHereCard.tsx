@@ -75,61 +75,61 @@ export function accountIsNew(uid: string, now: number = Date.now()): boolean {
 }
 
 const CSS = `
-  .lt-sh { background: linear-gradient(160deg, hsl(222,47%,24%) 0%, hsl(222,47%,16%) 100%); color: #fff;
+  .lt-shc { background: linear-gradient(160deg, hsl(222,47%,24%) 0%, hsl(222,47%,16%) 100%); color: #fff;
     border-radius: 15px; padding: 23px 25px; min-width: 0; max-width: 100%; box-sizing: border-box;
     box-shadow: 0 6px 18px -10px hsla(222, 47%, 20%, 0.55); margin-bottom: 14px; }
-  .lt-sh--spaced { margin-top: 13px; }
-  .lt-sh .lt-sh-k { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  .lt-shc--spaced { margin-top: 13px; }
+  .lt-shc .lt-shc-k { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
     color: hsl(152, 55%, 60%); font-weight: 700; margin: 0 0 8px; }
-  .lt-sh .lt-sh-h { font-family: 'Fraunces', Georgia, serif; font-size: 21px; line-height: 1.25;
+  .lt-shc .lt-shc-h { font-family: 'Fraunces', Georgia, serif; font-size: 21px; line-height: 1.25;
     font-weight: 600; margin: 0 0 14px; color: #fff; }
-  .lt-sh .lt-sh-ctas { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .lt-sh .lt-sh-go { display: inline-flex; align-items: center; justify-content: center;
+  .lt-shc .lt-shc-ctas { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .lt-shc .lt-shc-go { display: inline-flex; align-items: center; justify-content: center;
     background: hsl(152, 55%, 45%); color: #fff; border: 0; border-radius: 10px; padding: 11px 22px;
     font-size: 14px; font-weight: 700; cursor: pointer; }
-  .lt-sh .lt-sh-go:hover { background: hsl(152, 57%, 40%); }
-  .lt-sh .lt-sh-go:disabled { opacity: 0.55; cursor: default; }
-  .lt-sh .lt-sh-later { background: none; border: 0; color: rgba(255,255,255,0.78); font-size: 13.5px;
+  .lt-shc .lt-shc-go:hover { background: hsl(152, 57%, 40%); }
+  .lt-shc .lt-shc-go:disabled { opacity: 0.55; cursor: default; }
+  .lt-shc .lt-shc-later { background: none; border: 0; color: rgba(255,255,255,0.78); font-size: 13.5px;
     font-weight: 600; text-decoration: underline; cursor: pointer; padding: 6px 2px; }
-  .lt-sh .lt-sh-step { margin: 0 0 14px; }
-  .lt-sh .lt-sh-lbl { display: block; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+  .lt-shc .lt-shc-step { margin: 0 0 14px; }
+  .lt-shc .lt-shc-lbl { display: block; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
     margin: 0 0 6px; letter-spacing: 0.02em; }
-  .lt-sh .lt-sh-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-  .lt-sh .lt-sh-chip { border: 1px solid rgba(255,255,255,0.34); background: transparent; color: #fff;
+  .lt-shc .lt-shc-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .lt-shc .lt-shc-chip { border: 1px solid rgba(255,255,255,0.34); background: transparent; color: #fff;
     border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer; }
-  .lt-sh .lt-sh-chip[aria-pressed="true"] { background: hsl(152, 55%, 45%); border-color: hsl(152, 55%, 45%); }
-  .lt-sh .lt-sh-pick { width: 100%; box-sizing: border-box; display: flex; align-items: center;
+  .lt-shc .lt-shc-chip[aria-pressed="true"] { background: hsl(152, 55%, 45%); border-color: hsl(152, 55%, 45%); }
+  .lt-shc .lt-shc-pick { width: 100%; box-sizing: border-box; display: flex; align-items: center;
     justify-content: space-between; gap: 12px; border-radius: 10px; padding: 11px 14px; font-size: 14px;
     font-weight: 600; text-align: left; border: 1px solid rgba(255,255,255,0.34);
     background: hsl(222,47%,14%); color: #fff; cursor: pointer; }
-  .lt-sh .lt-sh-pick:hover { border-color: hsl(152, 55%, 55%); }
-  .lt-sh .lt-sh-pick:disabled { opacity: 0.55; cursor: default; }
-  .lt-sh .lt-sh-pick-change { font-size: 12.5px; color: hsl(152, 55%, 62%); font-weight: 700; flex: none; }
-  .lt-tutor-ov.lt-sh-picker-top { z-index: 1010; }
-  .lt-sh .lt-sh-note { font-size: 12.5px; color: rgba(255,255,255,0.72); margin: 0 0 12px; line-height: 1.5; }
+  .lt-shc .lt-shc-pick:hover { border-color: hsl(152, 55%, 55%); }
+  .lt-shc .lt-shc-pick:disabled { opacity: 0.55; cursor: default; }
+  .lt-shc .lt-shc-pick-change { font-size: 12.5px; color: hsl(152, 55%, 62%); font-weight: 700; flex: none; }
+  .lt-tutor-ov.lt-shc-picker-top { z-index: 1010; }
+  .lt-shc .lt-shc-note { font-size: 12.5px; color: rgba(255,255,255,0.72); margin: 0 0 12px; line-height: 1.5; }
   @media (max-width: 480px) {
-    .lt-sh { padding: 19px 17px; border-radius: 14px; }
-    .lt-sh .lt-sh-h { font-size: 18.5px; }
-    .lt-sh .lt-sh-ctas { flex-direction: column; align-items: stretch; gap: 9px; }
-    .lt-sh .lt-sh-go { width: 100%; }
-    .lt-sh .lt-sh-later { align-self: center; }
+    .lt-shc { padding: 19px 17px; border-radius: 14px; }
+    .lt-shc .lt-shc-h { font-size: 18.5px; }
+    .lt-shc .lt-shc-ctas { flex-direction: column; align-items: stretch; gap: 9px; }
+    .lt-shc .lt-shc-go { width: 100%; }
+    .lt-shc .lt-shc-later { align-self: center; }
   }
-  html.lt-shf-lock, html.lt-shf-lock body { overflow: hidden; }
-  .lt-shf { position: fixed; inset: 0; z-index: 1000; box-sizing: border-box; }
-  .lt-shf--overlay { background: hsla(222, 47%, 8%, 0.62); display: flex; align-items: center;
+  html.lt-shcf-lock, html.lt-shcf-lock body { overflow: hidden; }
+  .lt-shcf { position: fixed; inset: 0; z-index: 1000; box-sizing: border-box; }
+  .lt-shcf--overlay { background: hsla(222, 47%, 8%, 0.62); display: flex; align-items: center;
     justify-content: center; padding: 24px; }
-  .lt-shf--overlay .lt-shf-dlg { width: 100%; max-width: 560px; max-height: calc(100vh - 48px);
+  .lt-shcf--overlay .lt-shcf-dlg { width: 100%; max-width: 560px; max-height: calc(100vh - 48px);
     overflow-y: auto; margin: 0; position: relative; padding: 32px 34px 28px;
     box-shadow: 0 24px 60px -20px hsla(222, 60%, 4%, 0.8); }
-  .lt-shf--full { background: hsl(222,47%,16%); overflow-y: auto; }
-  .lt-shf--full .lt-shf-dlg { min-height: 100%; border-radius: 0; margin: 0; box-shadow: none;
+  .lt-shcf--full { background: hsl(222,47%,16%); overflow-y: auto; }
+  .lt-shcf--full .lt-shcf-dlg { min-height: 100%; border-radius: 0; margin: 0; box-shadow: none;
     position: relative; padding: 56px 20px 28px; }
-  .lt-shf .lt-shf-dlg:focus { outline: none; }
-  .lt-shf .lt-shf-x { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px;
+  .lt-shcf .lt-shcf-dlg:focus { outline: none; }
+  .lt-shcf .lt-shcf-x { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px;
     border-radius: 999px; border: 1px solid rgba(255,255,255,0.3); background: transparent;
     color: #fff; font-size: 16px; cursor: pointer; }
-  .lt-shf .lt-shf-x:hover { background: rgba(255,255,255,0.1); }
-  .lt-shf .lt-sh-h { padding-right: 36px; }
+  .lt-shcf .lt-shcf-x:hover { background: rgba(255,255,255,0.1); }
+  .lt-shcf .lt-shc-h { padding-right: 36px; }
 `;
 
 export interface StartHereState {
@@ -261,7 +261,7 @@ export function StartHereView({
   return (
     <>
       <style>{CSS}</style>
-      <section className={spaced ? "lt-sh lt-sh--spaced" : "lt-sh"} data-testid="start-here-card">
+      <section className={spaced ? "lt-shc lt-shc--spaced" : "lt-shc"} data-testid="start-here-card">
         <StartHerePanel testIdPrefix="start-here" returnTo={returnTo} onNotNow={onNotNow} />
       </section>
     </>
@@ -298,7 +298,7 @@ function StartHerePanel({
 }) {
   const navigate = useNavigate();
   const chapterLabelId = useId();
-  const pickerIdPrefix = `lt-sh-ch${chapterLabelId.replace(/[^a-zA-Z0-9]/g, "")}`;
+  const pickerIdPrefix = `lt-shc-ch${chapterLabelId.replace(/[^a-zA-Z0-9]/g, "")}`;
   const chapterBtnRef = useRef<HTMLButtonElement | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [open, setOpen] = useState(startOpen);
@@ -360,29 +360,29 @@ function StartHerePanel({
 
   return (
     <>
-      <p className="lt-sh-k">{START_HERE_COPY.kicker}</p>
-      <h2 className="lt-sh-h" id={headingId}>
+      <p className="lt-shc-k">{START_HERE_COPY.kicker}</p>
+      <h2 className="lt-shc-h" id={headingId}>
         {START_HERE_COPY.body}
       </h2>
       {!open ? (
-        <div className="lt-sh-ctas">
-          <button type="button" className="lt-sh-go" data-testid={tid("start")} onClick={() => setOpen(true)}>
+        <div className="lt-shc-ctas">
+          <button type="button" className="lt-shc-go" data-testid={tid("start")} onClick={() => setOpen(true)}>
             {START_HERE_COPY.start}
           </button>
-          <button type="button" className="lt-sh-later" data-testid={tid("not-now")} onClick={onNotNow}>
+          <button type="button" className="lt-shc-later" data-testid={tid("not-now")} onClick={onNotNow}>
             {START_HERE_COPY.notNow}
           </button>
         </div>
       ) : (
         <>
-          <div className="lt-sh-step" role="group" aria-label="Subject">
-            <span className="lt-sh-lbl">1 · Subject</span>
-            <div className="lt-sh-chips">
+          <div className="lt-shc-step" role="group" aria-label="Subject">
+            <span className="lt-shc-lbl">1 · Subject</span>
+            <div className="lt-shc-chips">
               {(["Maths", "Science"] as const).map((s) => (
                 <button
                   key={s}
                   type="button"
-                  className="lt-sh-chip"
+                  className="lt-shc-chip"
                   aria-pressed={subject === s}
                   data-testid={tid(`subject-${s.toLowerCase()}`)}
                   onClick={() => {
@@ -397,22 +397,22 @@ function StartHerePanel({
             </div>
           </div>
           {subject && (
-            <div className="lt-sh-step" role="group" aria-labelledby={chapterLabelId}>
-              <span className="lt-sh-lbl" id={chapterLabelId}>
+            <div className="lt-shc-step" role="group" aria-labelledby={chapterLabelId}>
+              <span className="lt-shc-lbl" id={chapterLabelId}>
                 2 · Chapter
               </span>
               <button
                 ref={chapterBtnRef}
                 type="button"
-                className="lt-sh-pick"
+                className="lt-shc-pick"
                 data-testid={tid("chapter")}
                 data-chapter={selected}
                 aria-haspopup="dialog"
                 disabled={!selected}
                 onClick={() => setPickerOpen(true)}
               >
-                <span className="lt-sh-pick-name">{selectedName || "No chapter ready yet"}</span>
-                <span className="lt-sh-pick-change" aria-hidden="true">
+                <span className="lt-shc-pick-name">{selectedName || "No chapter ready yet"}</span>
+                <span className="lt-shc-pick-change" aria-hidden="true">
                   Change
                 </span>
               </button>
@@ -431,7 +431,7 @@ function StartHerePanel({
                 initialSubject={subject}
                 initialTopicKey={selected}
                 lockSubject
-                overlayClassName="lt-sh-picker-top"
+                overlayClassName="lt-shc-picker-top"
                 isComingSoon={(_s, slug) => !chapterOk(slug)}
                 onGo={(_s, slug) => {
                   setChapter(slug);
@@ -441,14 +441,14 @@ function StartHerePanel({
             </div>
           )}
           {subject && types.length > 0 && (
-            <div className="lt-sh-step" role="group" aria-label="Question type">
-              <span className="lt-sh-lbl">3 · Question type</span>
-              <div className="lt-sh-chips">
+            <div className="lt-shc-step" role="group" aria-label="Question type">
+              <span className="lt-shc-lbl">3 · Question type</span>
+              <div className="lt-shc-chips">
                 {types.map((t) => (
                   <button
                     key={t}
                     type="button"
-                    className="lt-sh-chip"
+                    className="lt-shc-chip"
                     aria-pressed={activeType === t}
                     data-testid={tid(`qtype-${t}`)}
                     onClick={() => setQtype(t)}
@@ -460,14 +460,14 @@ function StartHerePanel({
             </div>
           )}
           {failed && (
-            <p className="lt-sh-note" role="alert">
+            <p className="lt-shc-note" role="alert">
               We couldn&apos;t line up five questions for that chapter just now. Try another chapter.
             </p>
           )}
-          <div className="lt-sh-ctas">
+          <div className="lt-shc-ctas">
             <button
               type="button"
-              className="lt-sh-go"
+              className="lt-shc-go"
               data-testid={tid("go")}
               aria-live="polite"
               disabled={!subject || !selected || busy}
@@ -475,7 +475,7 @@ function StartHerePanel({
             >
               {busy ? START_HERE_GETTING : "Start 5 questions"}
             </button>
-            <button type="button" className="lt-sh-later" data-testid={tid("not-now")} onClick={onNotNow}>
+            <button type="button" className="lt-shc-later" data-testid={tid("not-now")} onClick={onNotNow}>
               {START_HERE_COPY.notNow}
             </button>
           </div>
@@ -570,12 +570,12 @@ function StartHereFocusDialog({
   /**
    * The trap and Esc live on the DOCUMENT (capture phase), so they hold wherever focus is —
    * including <body> after a click on the dimmed backdrop. The one exception is the nested
-   * chapter picker (ChapterPickerModal, portalled to <body>, `.lt-sh-picker-top`): while it is
+   * chapter picker (ChapterPickerModal, portalled to <body>, `.lt-shc-picker-top`): while it is
    * open it is the topmost layer, so its own Esc closes only it and focus inside it is left alone.
    * Capture runs BEFORE React's root listener, i.e. while the picker is still in the DOM.
    */
   useEffect(() => {
-    const pickerOpen = (): HTMLElement | null => document.querySelector<HTMLElement>(".lt-sh-picker-top");
+    const pickerOpen = (): HTMLElement | null => document.querySelector<HTMLElement>(".lt-shc-picker-top");
     const items = (): HTMLElement[] =>
       dialogRef.current ? Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)) : [];
     const inside = (n: EventTarget | null): boolean => {
@@ -637,9 +637,9 @@ function StartHereFocusDialog({
     const before = document.activeElement as HTMLElement | null;
     const first = dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE);
     (first ?? dialogRef.current)?.focus();
-    document.documentElement.classList.add("lt-shf-lock");
+    document.documentElement.classList.add("lt-shcf-lock");
     return () => {
-      document.documentElement.classList.remove("lt-shf-lock");
+      document.documentElement.classList.remove("lt-shcf-lock");
       if (before && typeof before.focus === "function" && document.contains(before)) before.focus();
     };
   }, []);
@@ -648,7 +648,7 @@ function StartHereFocusDialog({
   // otherwise become the containing block of `position: fixed` (the ChapterPickerModal trap).
   return createPortal(
     <div
-      className={isDesktop ? "lt-shf lt-shf--overlay" : "lt-shf lt-shf--full"}
+      className={isDesktop ? "lt-shcf lt-shcf--overlay" : "lt-shcf lt-shcf--full"}
       data-testid="start-here-focus"
       data-layout={isDesktop ? "overlay" : "full"}
       // A press on the dimmed backdrop must not move focus to <body> (out of the trap).
@@ -659,7 +659,7 @@ function StartHereFocusDialog({
       <style>{CSS}</style>
       <div
         ref={dialogRef}
-        className="lt-sh lt-shf-dlg"
+        className="lt-shc lt-shcf-dlg"
         role="dialog"
         aria-modal="true"
         aria-labelledby={headingId}
@@ -667,7 +667,7 @@ function StartHereFocusDialog({
       >
         <button
           type="button"
-          className="lt-shf-x"
+          className="lt-shcf-x"
           aria-label="Close"
           data-testid="start-here-focus-close"
           onClick={onNotNow}
