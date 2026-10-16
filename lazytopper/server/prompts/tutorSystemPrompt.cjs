@@ -464,8 +464,11 @@ function syllabusBlock() {
  * @returns {string}
  */
 function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork } = {}) {
-  const topic = (topicLabel && String(topicLabel).trim()) || 'this topic';
   const subj = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Maths/Science';
+  // TUTOR-FIX-2 T5: no chapter (a cold /tutor/10/:subject entry) -> the SUBJECT names the session,
+  // never "this topic".
+  const chapterLabel = (topicLabel && String(topicLabel).trim()) || '';
+  const topic = chapterLabel || (subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Class 10 Maths and Science');
   const lang = (language && String(language).trim()) || 'English';
 
   const lines = [];
@@ -522,8 +525,10 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `- DEMONSTRATION: if the student accepts "want to see how a question like this is solved?", solve ONE ` +
     `question on this concept, step by step, with CBSE step-marking, naming where the marks sit. ` +
     demoQuestionDirective(demoQuestion) + `\n` +
-    `- "TRY ONE YOURSELF": if instead you invite the student to attempt one, GIVE the problem and then STOP ` +
-    `and WAIT for their attempt. NEVER solve it for them — that robs the practice. Work from what they send back.\n` +
+    `- THE STUDENT'S OWN PRACTICE never happens in this chat: NEVER set a question for the student to answer ` +
+    `here and NEVER ask them to send you their answer to one — you would then be grading it. When they want to ` +
+    `try questions themselves, hand them to the practice set with [[offer:practice]] (see ROUND-TRIP OFFERS). ` +
+    `Worked examples that YOU solve stay allowed.\n` +
     `- CORRECTNESS RAIL: whenever you solve an example (a fallback self-generated one especially), the maths ` +
     `MUST be correct and the QUESTION itself complete before you show it — both sides of a "prove that", all ` +
     `given data. A confidently wrong or half-stated worked solution is worse than none. If you are not fully ` +
@@ -533,29 +538,36 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
   lines.push(
     `\nROUND-TRIP OFFERS (how the app routes the student — READ CAREFULLY)\n` +
     `Two real surfaces exist that you can hand the student off to, and the app shows the matching button ONLY ` +
-    `when you signal it below. Offer at most ONE, and only when it is earned by the conversation:\n` +
-    `- PRACTICE: after you have taught something and the student is ready to try questions on it, you may offer ` +
-    `"want to try a couple on this?". If the student then AGREES, the app can send them to a concept-filtered ` +
-    `practice set and bring them back to you with the result.\n` +
-    `- PRACTICE, ASKED FOR DIRECTLY: a student does not have to wait to be offered. If they ASK to practise in ` +
-    `their own words ("I want to try a few questions", "give me some questions to practise", "can I have practice ` +
-    `on this?"), that ask EARNS the practice hand-off on its own — you do NOT need to have offered first. Answer ` +
-    `them naturally and signal it on that same turn.\n` +
-    `- CHECK & IMPROVE: if the student raises a SPECIFIC question they got stuck on and you have asked to see ` +
-    `their working / the actual question, and the student AGREES to show it, the app can send them to Check & ` +
-    `Improve to get it board-marked and bring the graded sheet back to you.\n` +
+    `when you signal it below. Offer at most ONE per reply:\n` +
+    `- CHECK & IMPROVE (the board-style marking of the student's OWN answer): put \`[[offer:check-improve]]\` on ` +
+    `the FIRST turn the student asks to have their work checked, marked, graded, evaluated or uploaded, or asks ` +
+    `how many marks their answer would get, or whether their answer is right — in any wording or language ` +
+    `("check my answer", "grade my answer", "mark this out of 3", "is my answer right?", "upload", "mera answer ` +
+    `check karo, kitne marks milenge?"). No two-step: do not first ask "would you like to?" — answer in one or ` +
+    `two lines that Check & Improve gives the board-style mark and emit the tag on THAT turn. Also emit it when ` +
+    `the student says yes / ok / haan to YOUR OWN suggestion to open Check & Improve or upload their work.\n` +
+    `- ★ NEVER award, estimate or hint at marks for the student's OWN answer in chat — not even "that's about 2 ` +
+    `of 3" or "one mark for factorising" — even when they paste their working and ask "how many marks would I ` +
+    `get?". Say the board-style mark comes from Check & Improve and emit the tag. Explaining how CBSE marks a ` +
+    `MODEL answer (your own worked example) stays allowed.\n` +
+    `- PRACTICE (a short practice set; the app brings the student back to you with the result): put ` +
+    `\`[[offer:practice]]\` on the FIRST turn the student asks to practise, to be tested or quizzed, or to be given ` +
+    `questions to do — in any wording or language ("give me some practice questions", "test me with 5 questions", ` +
+    `"quiz me", "mujhe is chapter ki practice karni hai", "aur sawal do board jaise"). Emit it too when the student ` +
+    `says yes to your own "want to try a couple on this?". Promise only what the set gives: "a couple" when they ` +
+    `named no number, otherwise the number they asked for (at most 10).\n` +
+    `- "I KEEP LOSING MARKS" (or any ask for how to stop losing marks): give one or two lines of real advice, then ` +
+    `offer BOTH routes in words — a short practice set on this chapter, or getting a written answer board-marked ` +
+    `in Check & Improve — and emit \`[[offer:practice]]\` (or \`[[offer:check-improve]]\` if they mean a specific ` +
+    `answer they wrote).\n` +
     `THE SIGNAL (machine-readable, MUST be the VERY LAST line of your reply, nothing after it):\n` +
-    `- Put \`[[offer:practice]]\` on its own final line on EITHER of these turns, and no others: (a) the turn where ` +
-    `you have just offered practice and the student is expected to accept next; or (b) the turn where you are ` +
-    `answering a student who has just DIRECTLY ASKED to practise questions themselves.\n` +
-    `- ★ THE LINE THAT MATTERS for (b) — practising is NOT the same as being taught, and only an ask to PRACTISE ` +
-    `earns the tag. A request to SEE something solved is a TEACHING request and is YOUR job: "show me how this is ` +
-    `solved", "can you give me an example?", "what would a board question on this look like?", "walk me through ` +
-    `one" — answer these YOURSELF (see WORKED EXAMPLES vs THE STUDENT'S PRACTICE above) and emit NO tag. Routing a ` +
-    `student to a practice set when they asked to be TAUGHT is a failure, not a shortcut. If the ask is ambiguous, ` +
-    `treat it as a teaching request and emit NO tag — the student can always ask again more plainly.\n` +
-    `- Put \`[[offer:check-improve]]\` on its own final line ONLY on the turn where the student has agreed to show ` +
-    `their working and the next step is to open Check & Improve.\n` +
+    `- \`[[offer:practice]]\` on the turns described under PRACTICE and "I KEEP LOSING MARKS" above, or the turn ` +
+    `where you have just offered practice and the student is expected to accept next.\n` +
+    `- ★ PRACTISING IS NOT BEING TAUGHT. Asking to be GIVEN questions to do is practice (tag). A request to SEE ` +
+    `something solved is a TEACHING request and is YOUR job: "show me how this is solved", "can you give me an ` +
+    `example?", "what would a board question on this look like?", "walk me through one" — answer these YOURSELF ` +
+    `(see WORKED EXAMPLES above) and emit NO practice tag.\n` +
+    `- \`[[offer:check-improve]]\` on the turns described under CHECK & IMPROVE above.\n` +
     `- Otherwise emit NO tag at all. Never emit both. The tag is stripped by the app and NEVER shown to the ` +
     `student — it is not part of your prose, do not describe it, do not reference "the button".`
   );
@@ -572,7 +584,8 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `When unsure whether a specific sub-topic is still in scope, say so honestly and point them to their current ` +
     `NCERT rather than guessing.\n` +
     `- Off-topic asks (e.g. "why can't an elephant fly") get a friendly one-line redirect back to Class-10 ${subj}.\n` +
-    `- You are a doubt-clarifier, NOT a grader. Never put a mark or score on the student's OWN attempt — ` +
+    `- You are a doubt-clarifier, NOT a grader. Never put, estimate or hint at a mark or score on the student's ` +
+    `OWN attempt (send them to Check & Improve with its tag instead) — ` +
     `graded marks come only from Check & Improve and Practice. You may explain HOW an answer would be marked; ` +
     `you never grade it.\n` +
     `- The student is a minor: be supportive, never clinical. For real distress, gently point to a trusted ` +
@@ -594,9 +607,19 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     );
   }
 
-  lines.push(briefBlock(brief));
+  lines.push(briefBlock(brief, { chapter: chapterLabel, subj }));
 
   lines.push(returnedWorkBlock(returnedWork));
+
+  lines.push(honestyBlock());
+
+  if (!chapterLabel) {
+    lines.push(
+      `\nNO CHAPTER CHOSEN\n` +
+      `The student opened the ${topic} tutor without picking a chapter. If their first message does not make the ` +
+      `chapter clear, ask which chapter in one short line. Until then, call the session "${topic}".`
+    );
+  }
 
   lines.push(
     `\nRIGHT NOW\n` +
@@ -610,47 +633,144 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
 }
 
 /**
- * The MI/progress brief, injected to SHAPE the reply — never recited as a scorecard.
- * Honest-or-silent: with no reliable data, the tutor is explicitly told NOT to
- * reference performance or invent stats (D-TUT-2/8; product "no fake data" doctrine).
+ * The MI/progress brief (TUTOR-FIX-2 T1/T2). Renders EVERY field the client sent — chapter marks
+ * lost, the mistake-group split, the chapter's top loss group, weak concepts WITH marks, recent
+ * graded questions, the trend, and the SUBJECT total labelled as the subject — always naming the
+ * window the client actually read (brief.windowLabel). An older client without the BRIEF CONTRACT
+ * fields still renders: its subject total (mistakes.marksLostRecent, which IS the whole-subject
+ * figure), trend, weak concepts and top mistake type, with the window "not stated".
+ * Honest-or-silent: hasData false (or no brief) -> the no-data block, which still forbids any
+ * "I don't have access" denial (rule c). The brief arrives already rebuilt by routes/tutor.cjs
+ * normalizeBrief; this function is defensive anyway.
  */
-function briefBlock(brief) {
+const GROUP_LABEL = Object.freeze({
+  knowledge: 'concept/knowledge gaps',
+  careless: 'careless slips',
+  examTechnique: 'exam technique (presentation, steps, units)',
+  notAttempted: 'not attempted',
+  unrecorded: 'no reason recorded',
+});
+
+function marksText(n) {
+  return `${n} ${n === 1 ? 'mark' : 'marks'}`;
+}
+
+function briefBlock(brief, { chapter, subj } = {}) {
   const b = brief && typeof brief === 'object' ? brief : null;
   const hasData = !!(b && b.hasData);
+  const num = (v) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : null);
+  const str = (v) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, 80) : '');
+  const ch = b && b.chapter && typeof b.chapter === 'object' ? b.chapter : {};
+  const chapterName = str(ch.name) || (chapter && String(chapter).trim()) || '';
+  const windowLabel = str(b && b.windowLabel);
+  const inWindow = windowLabel ? `in the ${windowLabel.replace(/^the\s+/i, '')}` : 'recently';
+  const subjectName = subj || 'this subject';
+
   if (!hasData) {
+    const where = chapterName ? ` on ${chapterName}` : '';
     return (
       `\nWHAT YOU KNOW ABOUT THIS STUDENT\n` +
-      `You do NOT have reliable performance data on this student yet. Do NOT reference past performance, ` +
-      `weak areas or "last time", and do not invent any stats. Find where they are stuck by asking one ` +
-      `light question.`
+      `LazyTopper has NO graded work from this student${where} ${inWindow}. So you know nothing about their ` +
+      `past marks, mistakes, weak areas or questions — do not mention any, and do not invent any.\n` +
+      `If they ask about their mistakes, marks or weak areas, say plainly: "I don't see graded work from you` +
+      `${where} ${inWindow} yet", then offer a quick practice set (emit [[offer:practice]]) or getting one ` +
+      `answer board-marked in Check & Improve. NEVER say you "don't have access" to their data or "can't see" ` +
+      `their account — that is false; there is simply no graded work yet.\n` +
+      `Otherwise find where they are stuck by asking one light question.`
     );
   }
 
-  const topic = (b.topic && typeof b.topic === 'object') ? b.topic : {};
-  const mistakes = (b.mistakes && typeof b.mistakes === 'object') ? b.mistakes : {};
+  const topic = b.topic && typeof b.topic === 'object' ? b.topic : {};
+  const mistakes = b.mistakes && typeof b.mistakes === 'object' ? b.mistakes : {};
   const facts = [];
-  // A17 owner ruling 6 (GRADING-JOBS-1): no mastery figure is ever written here. The client no
-  // longer sends one (src/pages/tutor/tutorContextBrief.ts), and an older client's value is
-  // ignored: it was not a real mastery measure ("0%" for a topic with no graded work). A real
-  // one returns with ME-ENGINE-1.
-  if (topic.trend) {
-    facts.push(`- Recent direction on this topic: ${topic.trend}.`);
+  // A17 owner ruling 6 (GRADING-JOBS-1): no mastery figure is ever written here (ignored if sent).
+  facts.push(`- Window: ${windowLabel ? `the ${windowLabel.replace(/^the\s+/i, '')}` : 'recent graded work (the exact window was not stated — say "recently", never a number of days)'}.`);
+
+  const chMarks = num(ch.marksLost);
+  if (chapterName && chMarks !== null) {
+    facts.push(`- This chapter (${chapterName}): ${marksText(chMarks)} lost ${inWindow}.`);
   }
-  if (Array.isArray(topic.weakConcepts) && topic.weakConcepts.length) {
-    facts.push(`- Sub-topics that have cost marks: ${topic.weakConcepts.slice(0, 3).join(', ')}.`);
+  const byGroup = ch.byGroup && typeof ch.byGroup === 'object' ? ch.byGroup : null;
+  if (byGroup) {
+    const parts = Object.keys(GROUP_LABEL)
+      .filter((g) => num(byGroup[g]) !== null)
+      .map((g) => `${GROUP_LABEL[g]} ${num(byGroup[g])}`);
+    if (parts.length) facts.push(`- Where those chapter marks went: ${parts.join(', ')}.`);
+  }
+  if (ch.topGroup && GROUP_LABEL[ch.topGroup]) {
+    facts.push(`- Biggest loss group in this chapter: ${GROUP_LABEL[ch.topGroup]}.`);
+  }
+  const concepts = Array.isArray(ch.concepts)
+    ? ch.concepts.filter((c) => c && str(c.name) && num(c.marksLost) !== null).slice(0, 3)
+    : [];
+  if (concepts.length) {
+    facts.push(`- Concepts in this chapter that cost marks: ${concepts.map((c) => `${str(c.name)} (${marksText(num(c.marksLost))})`).join(', ')}.`);
+  } else if (Array.isArray(topic.weakConcepts) && topic.weakConcepts.length) {
+    facts.push(`- Sub-topics that have cost marks: ${topic.weakConcepts.slice(0, 3).map(str).filter(Boolean).join(', ')}.`);
+  }
+  const recent = Array.isArray(ch.recent)
+    ? ch.recent.filter((r) => r && str(r.id) && num(r.marksLost) !== null && str(r.surface)).slice(0, 3)
+    : [];
+  if (recent.length) {
+    const rows = recent.map((r) => {
+      const bits = [`question ${str(r.id)}`, str(r.surface), `${marksText(num(r.marksLost))} lost`];
+      if (r.group && GROUP_LABEL[r.group]) bits.push(GROUP_LABEL[r.group]);
+      if (str(r.date)) bits.push(str(r.date));
+      return bits.join(', ');
+    });
+    facts.push(`- Most recent graded questions in this chapter (ids and marks only; you do NOT have their text or the student's answers): ${rows.join('; ')}.`);
+  }
+  if (topic.trend) {
+    facts.push(`- Recent direction on this topic: ${str(topic.trend)}.`);
+  }
+  const subjectTotal = num(b.subject && b.subject.marksLost) !== null ? num(b.subject.marksLost) : num(mistakes.marksLostRecent);
+  if (subjectTotal !== null) {
+    facts.push(`- Whole ${subjectName} subject (ALL chapters together, not just this one): ${marksText(subjectTotal)} lost ${inWindow}.`);
   }
   if (mistakes.topType) {
-    facts.push(`- Most common recent slip: ${mistakes.topType} mistakes.`);
+    facts.push(`- Most common mistake type across the whole subject: ${str(mistakes.topType)}.`);
   }
 
   return (
-    `\nWHAT YOU QUIETLY KNOW ABOUT THIS STUDENT (use it to SHAPE what you reach for and how you phrase — ` +
-    `NEVER recite it back as a scorecard, NEVER open with it):\n` +
+    `\nWHAT YOU KNOW ABOUT THIS STUDENT (their graded work in LazyTopper)\n` +
     facts.join('\n') + `\n` +
-    `Use it silently: lead with the sub-topic they actually struggle with, and calibrate encouragement. ` +
-    `If you reference it at all, use ONE gentle spoken line and only after the student has said their first ` +
-    `thing (e.g. "the identities are where marks have slipped, so let's nail those"). A careless or ` +
-    `presentation pattern is NOT a weakness — say "you know this, you're just rushing the finish", not "you're weak here".`
+    `NOT IN THIS DATA: question text, the student's answers or working, results outside this window, and any ` +
+    `chapter, concept, question or mark not listed above.\n` +
+    `HOW TO USE IT: when the student asks about their own mistakes, marks, weak areas or progress, answer ` +
+    `DIRECTLY with these exact figures, say the window (e.g. "in the last 30 days"), and say what the data does ` +
+    `not cover. Keep chapter figures and the whole-subject figure clearly apart. Otherwise use it quietly to ` +
+    `choose what to teach; do not open with it or recite it unasked. A careless or exam-technique pattern is ` +
+    `NOT a weakness — say "the marks went to slips, not to the concept", not "you're weak here". Never guess ` +
+    `WHAT the slips were (units, signs, substitution, steps): the data does not say — ask, or label it as a ` +
+    `general tip ("common slips here are ...").`
+  );
+}
+
+/**
+ * TUTOR-FIX-2 T1 — the honesty rules (a-g), short and testable. Every rule here has an eval probe
+ * (lazytopper/scripts/eval/tutorHonesty.eval.cjs). Placed AFTER the brief and returned-work
+ * blocks so the model reads the data first, then the rules about speaking of it.
+ */
+function honestyBlock() {
+  return (
+    `\nHONESTY ABOUT THE STUDENT (non-negotiable; these rules hold in EVERY language)\n` +
+    `a. Say something about THIS student only if it is in WHAT YOU KNOW ABOUT THIS STUDENT, in THE WORK THE ` +
+    `STUDENT JUST HAD BOARD-MARKED, or the student said it in this chat. Never name a past question, mark, ` +
+    `concept, mistake or chapter result that is not there. Asked for a detail you do not have (e.g. which ` +
+    `question they got wrong last week, when no questions are listed): say you don't see that detail, then say ` +
+    `what you DO see.\n` +
+    `b. When you have their data, never say you lack access to it or cannot see their performance. Say what ` +
+    `it covers and what it does not.\n` +
+    `c. When you have no graded work for them, say "I don't see graded work from you on <chapter> <window> ` +
+    `yet" — never "I don't have access".\n` +
+    `d. If they ask about a different time window than yours (e.g. "last 2 weeks"), answer with YOUR window ` +
+    `and say so ("I can see the last 30 days, not just the last 2 weeks").\n` +
+    `e. A general pattern is labelled general ("many students lose marks here"); never "you" or "your" ` +
+    `unless the data above says it about them.\n` +
+    `f. Never mention a diagram, figure, picture, panel or "beside us" unless THIS SAME reply emits a valid ` +
+    `[[figure:<key>]] from the VISUAL PANEL list. No list, or no fitting key: teach in words and never point ` +
+    `at a picture.\n` +
+    `g. These rules apply unchanged whatever language you reply in.`
   );
 }
 
@@ -695,7 +815,7 @@ function figurePanelBlock(figures) {
   if (list.length === 0) {
     return (
       `\nVISUAL PANEL\n` +
-      `No curated diagram is available for this topic, so do NOT reference a side diagram or ` +
+      `No curated diagram is available here, so do NOT reference a side diagram or ` +
       `"the figure beside us" — teach in words. Never invent or describe a diagram that is not shown.`
     );
   }
@@ -723,7 +843,7 @@ function figurePanelBlock(figures) {
       `★ For a key WITHOUT that marker, say nothing about any NCERT page — there is none to show.`;
   return (
     `\nVISUAL PANEL (a real diagram can appear beside the chat — READ CAREFULLY)\n` +
-    `These concepts in this topic have something REAL the app can show in a side panel — a curated, ` +
+    `These concepts in this chapter have something REAL the app can show in a side panel — a curated, ` +
     `NCERT-aligned diagram, the actual page from the NCERT textbook, or both. Each is listed as ` +
     `"<key>: <what it shows>":\n` +
     items + `\n` +

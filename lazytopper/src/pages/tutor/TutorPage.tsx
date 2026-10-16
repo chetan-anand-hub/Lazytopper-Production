@@ -14,7 +14,12 @@
 // explanation panel stays a CLOSED Stage-3 placeholder.
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+// TUTOR-FIX-2 (S-C) — chapter-first cold entry, the deterministic offer rule, typed errors.
+import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
+import type { DesktopSubject } from "../../lib/desktop/navigation";
+import { offerForTutorTurn } from "./tutorIntent";
+import { backAtLine, limitHeadline, type TutorErrorState } from "./tutorErrorState";
 import { useAuth } from "../../context/AuthContext";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
@@ -76,7 +81,84 @@ export default function TutorPage() {
   if (!isTutorTopicKeyAllowed(topicKeyRaw)) {
     return <TutorTopicNotInSyllabus topicKeyRaw={topicKeyRaw} />;
   }
+  // TUTOR-FIX-2 T5 — the cold entry /tutor/:grade/:subject (no chapter) picks a chapter FIRST:
+  // no tutor session (so no thread under an empty topic key, no "this topic" opener) starts
+  // until one is chosen. Deep links that carry a chapter are unchanged.
+  if (!topicKeyRaw) return <TutorChapterFirst />;
   return <TutorSession />;
+}
+
+/** "Maths" / "Science" for the route's subject segment, or null when it is neither. */
+function desktopSubjectOf(subjectParam: string): DesktopSubject | null {
+  const s = subjectParam.toLowerCase();
+  return s === "maths" ? "Maths" : s === "science" ? "Science" : null;
+}
+
+/** The tutor's name before a chapter exists: "Maths tutor" — never "this topic". */
+// eslint-disable-next-line react-refresh/only-export-components
+export function subjectTutorTitle(subjectParam: string): string {
+  const subject = desktopSubjectOf(subjectParam) ?? prettify(subjectParam);
+  return subject ? `${subject} tutor` : "Your tutor";
+}
+
+/**
+ * TUTOR-FIX-2 T5 — the chapter picker the cold entry opens on: the EXISTING ChapterPickerModal
+ * (one chooser, one chapter list), on the route's subject with that subject locked. Choosing a
+ * chapter REPLACES this URL with the chapter's own tutor URL (query kept: source / returnTo), so
+ * the session that starts is exactly the deep-linked one. Closing the picker leaves a calm page
+ * with a button to reopen it — never a tutor thread.
+ */
+function TutorChapterFirst() {
+  const params = useParams<{ grade?: string; subject?: string }>();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const grade = params.grade || "10";
+  const subjectParam = params.subject || "";
+  const lockedSubject = desktopSubjectOf(subjectParam);
+  const title = subjectTutorTitle(subjectParam);
+  const backHref = safeInternalReturnTo(searchParams.get("returnTo")) || "/exam-trends";
+  const [pickerOpen, setPickerOpen] = useState(true);
+
+  const openChapter = (subject: DesktopSubject, topicKey: string) => {
+    const seg = lockedSubject ? subjectParam : subject;
+    navigate(`/tutor/${grade}/${encodeURIComponent(seg)}/${encodeURIComponent(topicKey)}${location.search}`, {
+      replace: true,
+    });
+  };
+
+  return (
+    <div className="lt-tutor">
+      <style>{TUTOR_CSS}</style>
+      <header className="lt-tutor__top">
+        <Link to={backHref} className="lt-tutor__back" aria-label="Back">
+          <span aria-hidden="true">&larr;</span>
+        </Link>
+        <div className="lt-tutor__ttl">
+          <div className="lt-tutor__c">{title}</div>
+          <div className="lt-tutor__s2">Class 10 · pick a chapter to start</div>
+        </div>
+      </header>
+      <div className="lt-tutor__notin" data-testid="tutor-chapter-first">
+        <p className="lt-tutor__notin-p">Pick the chapter you want help with. The tutor opens on that chapter.</p>
+        <button type="button" className="lt-tutor__action" onClick={() => setPickerOpen(true)}>
+          Pick a chapter
+        </button>
+      </div>
+      <ChapterPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        title={title}
+        sub="Pick a chapter. The tutor opens on it."
+        goLabel="Open tutor →"
+        testId="tutor-chapter-first-picker"
+        idPrefix="lt-tutor-first"
+        initialSubject={lockedSubject ?? undefined}
+        lockSubject={!!lockedSubject}
+        onGo={openChapter}
+      />
+    </div>
+  );
 }
 
 function TutorTopicNotInSyllabus({ topicKeyRaw }: { topicKeyRaw: string }) {
@@ -119,8 +201,10 @@ function TutorSession() {
   const topicKeyRaw = params.topicKey || "";
   const canonicalTopicKey = resolveCanonicalSlug(topicKeyRaw) || topicKeyRaw;
   const topicLabel = useMemo(
-    () => desktopTopicBySlug(topicKeyRaw)?.name || prettify(topicKeyRaw) || "this topic",
-    [topicKeyRaw],
+    // TUTOR-FIX-2 T5: never "this topic" — the session only mounts with a chapter now, and the
+    // last-resort label is the subject's tutor name.
+    () => desktopTopicBySlug(topicKeyRaw)?.name || prettify(topicKeyRaw) || subjectTutorTitle(subjectParam),
+    [topicKeyRaw, subjectParam],
   );
 
   const concept = searchParams.get("concept") || undefined;
@@ -146,6 +230,7 @@ function TutorSession() {
     messages,
     status,
     error,
+    errorState,
     pending,
     returnFollow,
     send,
@@ -182,13 +267,22 @@ function TutorSession() {
   // model raises `offer` only when it has just offered practice (student expected to accept)
   // or the student has agreed to show working for C&I. One CTA at a time, tied to what was
   // said — never a standing pair. No offer → no CTA (D-TUT-4/5, the v4 prototype).
-  const latestOffer = useMemo(() => {
+  //
+  // TUTOR-FIX-2 T11 — deterministic first, model second: when the model omitted the tag but the
+  // STUDENT asked to have work checked / marked or asked for practice, the same CTA shows
+  // (offerForTutorTurn mirrors the server's intent table). The model's own tag still wins.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const latestTutor = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
-      if (m.role === "tutor" && m.kind !== "away-cue") return m.offer ?? null;
+      if (m.role === "tutor" && m.kind !== "away-cue") return { index: i, figure: m.figure ?? null };
     }
     return null;
   }, [messages]);
+  const latestOffer = useMemo(
+    () => (latestTutor ? offerForTutorTurn(messages, latestTutor.index) : null),
+    [messages, latestTutor],
+  );
 
   // ── Explanation panel (Stage 3, D-TUT-13/14) ──────────────────────────────
   // The model signals a curated diagram per turn via `figure` (a conceptKey, validated
@@ -199,29 +293,36 @@ function TutorSession() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [ncertRef, setNcertRef] = useState<NcertPageRef | null>(null);
 
-  const latestFigureKey = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i];
-      if (m.role === "tutor" && m.kind !== "away-cue") return m.figure ?? null;
-    }
-    return null;
-  }, [messages]);
-
   // Seed from a restored thread WITHOUT auto-opening (open-closed on mount, per the locked
-  // prototype — the "Diagram" reopen button surfaces it). Thereafter a genuinely NEW figure
-  // during the session opens the panel to it; an explicit close is respected until the next.
-  const figureSeededRef = useRef(false);
+  // prototype — the "Diagram" reopen button surfaces it).
+  //
+  // TUTOR-FIX-2 T4 — thereafter EVERY figure-bearing REPLY opens the panel, the SAME key a second
+  // time included (it used to open only on a NEW key, so "look at the diagram again" left it shut
+  // while the model said "the diagram beside us"). Keyed on the tutor TURN, not the figure key:
+  // each new reply opens it once; a close the student makes after that reply is respected until
+  // the next figure-bearing reply. Only a LIVE reply opens it (the turn arrived after a send) — a
+  // cloud re-hydration of an old thread updates the shown key without popping the panel open.
+  const sawSendingRef = useRef(false);
   useEffect(() => {
-    if (!figureSeededRef.current) {
-      figureSeededRef.current = true;
-      setShownKey(latestFigureKey);
+    if (status === "sending") sawSendingRef.current = true;
+  }, [status]);
+  const handledTutorIndexRef = useRef<number | null | undefined>(undefined);
+  useEffect(() => {
+    const index = latestTutor?.index ?? null;
+    if (handledTutorIndexRef.current === undefined) {
+      handledTutorIndexRef.current = index;
+      setShownKey(latestTutor?.figure ?? null);
       return;
     }
-    if (latestFigureKey && latestFigureKey !== shownKey) {
-      setShownKey(latestFigureKey);
-      setPanelOpen(true);
-    }
-  }, [latestFigureKey, shownKey]);
+    if (index === handledTutorIndexRef.current) return;
+    handledTutorIndexRef.current = index;
+    const live = sawSendingRef.current;
+    sawSendingRef.current = false;
+    if (!latestTutor?.figure) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reacts once per new tutor turn (index-guarded above)
+    setShownKey(latestTutor.figure);
+    if (live) setPanelOpen(true);
+  }, [latestTutor]);
 
   // The questionId figure override is only ever correct for the concept the student arrived
   // on — apply it solely when the shown concept IS that arrival concept.
@@ -256,8 +357,31 @@ function TutorSession() {
     send(text);
   };
 
+  // TUTOR-FIX-2 T4.3 — at phone width the diagram is a BOTTOM SHEET docked ABOVE the composer
+  // (never over the input): the dock's live height is published as --lt-dock-h, which the sheet's
+  // `bottom` reads. ResizeObserver tracks the composer growing (tools row wrap, keyboard).
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const dockRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    const dock = dockRef.current;
+    if (!root || !dock) return;
+    const publish = () => {
+      const h = Math.ceil(dock.getBoundingClientRect().height);
+      if (h > 0) root.style.setProperty("--lt-dock-h", `${h}px`);
+    };
+    publish();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(publish);
+    ro.observe(dock);
+    return () => ro.disconnect();
+  }, []);
+
+  // TUTOR-FIX-2 T3 — "Continue" on a reply the model cut at its token limit: a normal message.
+  const continueTurn = () => send("Please continue from where you stopped.");
+
   return (
-    <div className="lt-tutor">
+    <div className="lt-tutor" ref={rootRef}>
       <style>{TUTOR_CSS}</style>
 
       {/* Nameless, warm header — back + concept + Class 10 + language */}
@@ -267,7 +391,7 @@ function TutorSession() {
         </Link>
         <div className="lt-tutor__ttl">
           <div className="lt-tutor__c">{concept ? `${topicLabel} · ${concept}` : topicLabel}</div>
-          <div className="lt-tutor__s2">Class 10 · ask anything on this topic</div>
+          <div className="lt-tutor__s2">Class 10 · ask anything on this chapter</div>
         </div>
         {resolvedVisual && !panelOpen && (
           <button
@@ -317,6 +441,24 @@ function TutorSession() {
                       {f.label}
                     </button>
                   ))}
+                  {/* TUTOR-FIX-2 T11 — the two round trips as opener chips: they open the
+                      overlays directly, no model turn needed. */}
+                  <button
+                    type="button"
+                    className="lt-tutor__fork lt-tutor__fork--go"
+                    data-testid="tutor-chip-check"
+                    onClick={openCheckImproveOverlay}
+                  >
+                    Get my answer marked
+                  </button>
+                  <button
+                    type="button"
+                    className="lt-tutor__fork lt-tutor__fork--go"
+                    data-testid="tutor-chip-practice"
+                    onClick={openQuickPracticeOverlay}
+                  >
+                    Practise this chapter
+                  </button>
                 </div>
               </>
             )}
@@ -348,8 +490,22 @@ function TutorSession() {
                   className={m.kind === "return-result" ? "lt-tutor__t lt-tutor__t--return" : "lt-tutor__t"}
                 >
                   <MathText text={m.content} />
+                  {/* TUTOR-FIX-2 T3 — the LATEST cut-off reply carries a "Continue" button (a
+                      normal message); an older one keeps only the honest note. */}
                   {m.truncated && (
-                    <p className="lt-tutor__cutnote">This answer was cut short. Ask me to continue.</p>
+                    <p className="lt-tutor__cutnote">
+                      This answer was cut short.
+                      {latestTutor?.index === i && status !== "sending" && (
+                        <button
+                          type="button"
+                          className="lt-tutor__continue"
+                          data-testid="tutor-continue"
+                          onClick={continueTurn}
+                        >
+                          Continue
+                        </button>
+                      )}
+                    </p>
                   )}
                   {m.figure && (
                     <button
@@ -404,33 +560,46 @@ function TutorSession() {
               </div>
             )}
             {status === "error" && (
-              <div className="lt-tutor__err">
-                <span>{error || "The tutor is unavailable right now."}</span>
-                <button type="button" className="lt-tutor__retry" onClick={retry}>
-                  Try again
-                </button>
-              </div>
+              <TutorErrorView
+                state={errorState ?? { kind: "failed", message: error || "The tutor is unavailable right now." }}
+                onRetry={retry}
+                selfHref={selfHref}
+              />
             )}
           </div>
 
-          {/* Round-trip CTA — intent-driven, ONE at a time, never a standing pair (Fix 3 /
-              D-TUT-4/5). Rendered only when the model's latest turn earned it. */}
-          {!pending && latestOffer === "practice" && (
-            <div className="lt-tutor__actions">
-              <button type="button" className="lt-tutor__action" onClick={openQuickPracticeOverlay}>
-                Practise this
-              </button>
-            </div>
-          )}
-          {!pending && latestOffer === "check-improve" && (
-            <div className="lt-tutor__actions">
-              <button type="button" className="lt-tutor__action" onClick={openCheckImproveOverlay}>
-                Get my attempt marked
-              </button>
-            </div>
-          )}
+          {/* TUTOR-FIX-2 T4.3 — the dock (offer CTA + composer); its height positions the phone
+              diagram sheet ABOVE it. */}
+          <div className="lt-tutor__dock" ref={dockRef}>
+          {/* Round-trip CTA (Fix 3 / D-TUT-4/5). TUTOR-FIX-2 integration: the permanent pair
+              below opens the SAME overlays with the SAME handlers, so the old under-reply
+              "Practise this" / "Get my attempt marked" button would be a duplicate. Keep one:
+              when the latest turn earns an offer (model tag or the intent rule), the matching
+              permanent control is marked as the offer (`--offered`) instead. */}
 
           <form className="lt-tutor__composer" onSubmit={onSubmit}>
+            {/* TUTOR-FIX-2 T11 — the two round trips, PERMANENT, next to the composer at every
+                width: they open the overlays directly, never waiting on the model's wording. */}
+            <div className="lt-tutor__tools" role="group" aria-label="Your work">
+              <button
+                type="button"
+                className={`lt-tutor__tool${!pending && latestOffer === "check-improve" ? " lt-tutor__tool--offered" : ""}`}
+                data-testid="tutor-tool-check"
+                data-offered={!pending && latestOffer === "check-improve" ? "true" : undefined}
+                onClick={openCheckImproveOverlay}
+              >
+                Get my answer marked
+              </button>
+              <button
+                type="button"
+                className={`lt-tutor__tool${!pending && latestOffer === "practice" ? " lt-tutor__tool--offered" : ""}`}
+                data-testid="tutor-tool-practice"
+                data-offered={!pending && latestOffer === "practice" ? "true" : undefined}
+                onClick={openQuickPracticeOverlay}
+              >
+                Practise this chapter
+              </button>
+            </div>
             <div className="lt-tutor__cbar">
               <input
                 className="lt-tutor__input"
@@ -454,6 +623,7 @@ function TutorSession() {
               CBSE Class-10 · NCERT-grounded · graded work stays in Check &amp; Improve / Practice
             </div>
           </form>
+          </div>
         </section>
 
         {/* Explanation panel (Stage 3, D-TUT-13 panel 2). Split on desktop, overlay on
@@ -493,6 +663,56 @@ function TutorSession() {
         onClose={closeQuickPractice}
         seedUrl={quickPracticeHref}
       />
+    </div>
+  );
+}
+
+/**
+ * TUTOR-FIX-2 T7 — one typed failure, rendered as what it is:
+ *   premium  → an upgrade card to the EXISTING pricing entry (UpgradeSheet's own URL), no retry;
+ *   limit    → "You've used today's tutor messages. Back at <IST time>" / "Back tomorrow.", no retry;
+ *   busy     → the same family ("very busy today", back at …), + "See plans" when the server said so;
+ *   offline  → a connection line + "Try again";
+ *   reauth / failed → the honest line + "Try again" (today's behaviour).
+ * The UsageWarning above the stream is unchanged.
+ */
+function TutorErrorView({ state, onRetry, selfHref }: { state: TutorErrorState; onRetry: () => void; selfHref: string }) {
+  const pricingHref = `/pricing?source=upgrade-sheet&returnTo=${encodeURIComponent(selfHref)}`;
+  if (state.kind === "premium") {
+    return (
+      <div className="lt-tutor__upgrade" role="status" data-testid="tutor-error-premium">
+        <p className="lt-tutor__upgrade-h">The tutor is part of Premium</p>
+        <p className="lt-tutor__upgrade-p">{state.message}</p>
+        <Link to={pricingHref} className="lt-tutor__action">
+          See Premium
+        </Link>
+      </div>
+    );
+  }
+  if (state.kind === "limit" || state.kind === "busy") {
+    return (
+      <div className="lt-tutor__limit" role="status" data-testid={`tutor-error-${state.kind}`}>
+        <span>
+          {limitHeadline(state)} {backAtLine(state.resetAt)}
+        </span>
+        {state.kind === "busy" && state.plans && (
+          <Link to={pricingHref} className="lt-tutor__retry">
+            See plans
+          </Link>
+        )}
+      </div>
+    );
+  }
+  const line =
+    state.kind === "offline"
+      ? "You seem to be offline. Check your connection and try again."
+      : state.message;
+  return (
+    <div className="lt-tutor__err" data-testid={`tutor-error-${state.kind}`}>
+      <span>{line}</span>
+      <button type="button" className="lt-tutor__retry" onClick={onRetry}>
+        Try again
+      </button>
     </div>
   );
 }
@@ -843,24 +1063,112 @@ const TUTOR_CSS = `
   color: var(--lt-soft);
 }
 
+/* TUTOR-FIX-2 T3: the "Continue" on a cut-off reply. */
+.lt-tutor__continue {
+  margin-left: 8px;
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: 12.5px;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--lt-green-deep);
+  background: var(--lt-green-tint);
+  border: 1px solid var(--lt-green-line);
+  border-radius: 8px;
+  padding: 5px 11px;
+  cursor: pointer;
+}
+
+/* TUTOR-FIX-2 T11: the permanent pair next to the composer, and the opener chips. */
+.lt-tutor__dock { flex: none; }
+.lt-tutor__tools { display: flex; gap: 8px; margin: 0 0 8px; }
+.lt-tutor__tool {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 36px;
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--lt-green-deep);
+  background: #fff;
+  border: 1px solid var(--lt-green-line);
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lt-tutor__tool:hover { background: var(--lt-green-tint); border-color: var(--lt-green); }
+/* The tutor's latest turn offered this round trip: the permanent control carries the offer. */
+.lt-tutor__tool--offered { background: var(--lt-green-deep); color: #fff; border-color: var(--lt-green-deep); }
+.lt-tutor__tool--offered:hover { background: var(--lt-green-deep); border-color: var(--lt-green-deep); }
+.lt-tutor__fork--go { background: var(--lt-green-tint); font-weight: 600; }
+
+/* TUTOR-FIX-2 T7: the typed failure states. */
+.lt-tutor__upgrade {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--lt-green-tint);
+  border: 1px solid var(--lt-green-line);
+  border-radius: 12px;
+  padding: 13px 15px;
+  margin: 2px 0 12px;
+}
+.lt-tutor__upgrade-h { margin: 0; font-weight: 700; font-size: 14.5px; color: var(--lt-ink); }
+.lt-tutor__upgrade-p { margin: 0; font-size: 13.5px; color: var(--lt-soft); line-height: 1.5; }
+.lt-tutor__upgrade .lt-tutor__action { text-decoration: none; }
+.lt-tutor__limit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: var(--lt-amber-ink);
+  background: var(--lt-amber-bg);
+  border: 1px solid var(--lt-amber-line);
+  border-radius: 10px;
+  padding: 10px 13px;
+  margin: 2px 0 12px;
+}
+.lt-tutor__limit .lt-tutor__retry { text-decoration: none; }
+
 /* KaTeX: keep long display math from forcing a horizontal page scroll on mobile. */
 .lt-tutor__t .katex-display { overflow-x: auto; overflow-y: hidden; margin: 0.4em 0; }
 
 /* Mobile reflow — pure CSS, no JS width branch. The explanation panel (Stage 3)
-   overlays instead of splitting; the chat stays full-viewport. */
+   overlays instead of splitting; the chat stays full-viewport.
+   TUTOR-FIX-2 T4.3 — the panel is a BOTTOM SHEET docked ABOVE the composer (bottom =
+   --lt-dock-h, the dock's measured height), so the input and the two tools stay visible and
+   usable while the diagram is open; its own close (x) and the header "Diagram" toggle it. */
 @media (max-width: 1023px) {
   .lt-tutor__stream { padding: 16px 16px 8px; }
   .lt-tutor__composer { padding: 10px 16px 12px; }
   .lt-tutor__actions { padding: 8px 16px 0; }
   .lt-tutor__panel {
     position: absolute;
-    inset: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: var(--lt-dock-h, 132px);
     width: 100%;
+    height: min(58%, 560px);
     border-left: none;
+    border-top: 1px solid var(--lt-line);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -12px 32px rgba(8, 14, 24, 0.18);
+    overflow: hidden;
     z-index: 6;
     transform: translateY(0);
+    transition: transform 0.2s ease;
   }
-  .lt-tutor__panel--closed { width: 100%; transform: translateY(101%); }
+  .lt-tutor__panel--closed {
+    width: 100%;
+    transform: translateY(calc(100% + var(--lt-dock-h, 132px)));
+    visibility: hidden;
+    box-shadow: none;
+  }
   .lt-tutor__lang-lbl { display: none; }
 }
 `;

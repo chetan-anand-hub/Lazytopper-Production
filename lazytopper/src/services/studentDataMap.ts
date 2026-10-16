@@ -615,7 +615,12 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "surface was closed this visit; never the uid); neither is ever sent anywhere. " +
       "FOLLOWUPS-2 F2: plus, in THIS TAB's sessionStorage, `lazytopper.startHereShown.<surface>` " +
       "(the single character 1 once the Start-here card or focused surface was shown on that page " +
-      "this visit, so the shown event is counted once per tab; never the uid, never sent anywhere).",
+      "this visit, so the shown event is counted once per tab; never the uid, never sent anywhere). " +
+      " TUTOR-FIX-2 T12: plus, in THIS TAB's sessionStorage, `lazytopper.tutorSignupAsk.v1` (a " +
+      "signed-out visitor's Quick Practice question id, its position and the option they picked, " +
+      "stored only when they choose Sign up on a scorecard's tutor prompt; never the uid; read " +
+      "and deleted once by the tutor for that question after sign-up, where it becomes the " +
+      "opening line of that student's own tutor thread; dropped unread after an hour).",
     mechanism: "client-local",
     exportable: true,
     notes:

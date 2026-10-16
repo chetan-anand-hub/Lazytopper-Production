@@ -116,6 +116,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'start_here_graded',
   'start_here_dismissed',
   'tutor_from_scorecard',
+  // TUTOR-FIX-2 T13 - once per tutor thread. Additive only.
+  'tutor_first_message',
 ]);
 
 /**

@@ -35,7 +35,9 @@ vi.mock("./useTutorSession", () => ({
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: null }) }));
 import TutorPage from "./TutorPage";
 
-const NOTE = "This answer was cut short. Ask me to continue.";
+// TUTOR-FIX-2 T3 replaced the passive "Ask me to continue." with a "Continue" button (see
+// TutorPage.tf2.test.tsx); the honest note itself stays, once, under that reply.
+const NOTE = /This answer was cut short\./;
 const mount = () =>
   render(
     <MemoryRouter initialEntries={["/tutor/10/science/electricity"]}>

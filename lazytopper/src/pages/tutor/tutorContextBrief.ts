@@ -17,9 +17,28 @@
 // (`weakestExamConcepts` over `mistakes.byConcept`; an unresolvable mistake names nothing, never
 // its raw label) — and only above Me's weakness gate (PR-2b), or nothing. Names only, no figure.
 
+//
+// TUTOR-FIX-2 (T2) — THE CHAPTER-CORRECT BRIEF. The subject read above gave `marksLostRecent` =
+// the PAPER total (so Trigonometry and Real Numbers both said 100.5), and the weak concepts came
+// from mistake rows needing a bank questionId (so Real Numbers named nothing while Me listed
+// "Fundamental Theorem of Arithmetic"). Now, when a chapter is open, the brief ALSO carries a
+// `chapter` block built from Me's OWN derivations (services/meSplit, moved verbatim from the page):
+//   - `chapter.marksLost` = Me's chapter row (`lostMarksOf` of the chapter's rung, subject read);
+//   - `chapter.byGroup` / `topGroup` = Me's hero split rule (`splitPaperMarks`) applied to the
+//     chapter's rung and the chapter's live mistakes (`mistakes.byChapter`, Me's chapter source);
+//   - `chapter.concepts` = Me's open-chapter concept rows (`viewRowsFrom` over a CHAPTER-SCOPED
+//     `readStudyModel` — the one extra read, as Me makes it), top 3 with their marks; and
+//     `topic.weakConcepts` = their names (one source with Me);
+//   - `chapter.recent` = up to 3 newest live mistakes in the chapter (id, marks, group, surface,
+//     IST date) — never the student's text.
+// Anything that NAMES a weakness (group split, top group, concepts, recent) stays under Me's ONE
+// gate (`weaknessNamingRung`). `windowLabel` is derived from the window read; `subject.marksLost`
+// is the paper total under the same gate.
+
 import {
   ME_DEFAULT_WINDOW,
   boardChapterKey,
+  mistakeLossByGroup,
   readStudyModel,
   topLossGroup,
   weakestExamConcepts,
@@ -27,8 +46,13 @@ import {
   type ReadWindow,
   type StudyReadModel,
 } from "../../services/progressReadModel";
-import type { TutorBrief } from "../../ai/tutorClient";
-import { mistakeGroupByKey, mistakeGroupOf, mistakeTypeLabel } from "../../lib/mistakeDisplay";
+import { WINDOW_DAYS } from "../../services/progressStore";
+import { lostMarksOf, splitPaperMarks, viewRowsFrom } from "../../services/meSplit";
+import { istDayKey } from "../../services/tutorSessionStore";
+import type { MistakeLogEntry } from "../../services/mistakeLogService";
+import type { TutorBrief, TutorBriefChapter } from "../../ai/tutorClient";
+import { desktopTopicForWeakAreaKey } from "../../lib/desktop/topics";
+import { mistakeGroupByKey, mistakeGroupOf, mistakeTypeLabel, type MistakeGroupKey } from "../../lib/mistakeDisplay";
 
 /**
  * SCORECARD-MI-1 (B3) — the top type as the tutor should hear it: by its owner GROUP, so a
@@ -93,8 +117,8 @@ export interface AssembleBriefArgs {
  *     won back (ME-CONCEPT-1) — under the SAME gate (PR-2b): below it, none. Never a percentage,
  *     never invented, never a raw bank label.
  */
-export function briefFromModel(model: StudyReadModel, chapterKey: string): TutorBrief {
-  const brief: TutorBrief = { hasData: false, topic: {}, mistakes: {} };
+export function briefFromModel(model: StudyReadModel, chapterKey: string, chapterModel?: StudyReadModel | null): TutorBrief {
+  const brief: TutorBrief = { hasData: false, topic: {}, mistakes: {}, windowLabel: windowLabelOf(model.window) };
 
   const rung = chapterKey ? model.progress.topics.find((r) => r.key === chapterKey) : undefined;
   if (rung) {
@@ -110,18 +134,139 @@ export function briefFromModel(model: StudyReadModel, chapterKey: string): Tutor
   if (namingRung) {
     // ME-CONCEPT-1 — the chapter's weakest Exam Trends concepts from the model's per-concept
     // mistakes (the same rows Me's Concepts tab carries). Names only — no percentage, no mastery.
-    const weak = weakestExamConcepts(model.mistakes, chapterKey, MAX_WEAK_CONCEPTS, model.progress.concepts);
+    // TUTOR-FIX-2 (T2) — with the chapter-scoped read, the names are Me's open-chapter concept
+    // rows (one source with Me); without it (an old caller), the ME-CONCEPT-1 rule as before.
+    const weak = chapterModel
+      ? chapterConceptRows(chapterModel).map((c) => c.name)
+      : weakestExamConcepts(model.mistakes, chapterKey, MAX_WEAK_CONCEPTS, model.progress.concepts);
     if (weak.length) brief.topic.weakConcepts = weak;
 
     if (model.progress.totals) {
       brief.mistakes.marksLostRecent = model.progress.totals.marksLost;
+      brief.subject = { marksLost: model.progress.totals.marksLost };
       const top = topLossGroup(model.mistakes.byGroup);
       if (top) brief.mistakes.topType = mistakeGroupByKey(top).label.toLowerCase();
     }
   }
 
-  brief.hasData = Boolean(brief.topic.trend || (brief.topic.weakConcepts && brief.topic.weakConcepts.length) || brief.mistakes.topType);
+  if (chapterKey && chapterModel) {
+    const chapter = chapterBlockOf(model, chapterKey, chapterModel, Boolean(namingRung));
+    if (chapter) brief.chapter = chapter;
+  }
+
+  brief.hasData = Boolean(
+    brief.topic.trend ||
+      (brief.topic.weakConcepts && brief.topic.weakConcepts.length) ||
+      brief.mistakes.topType ||
+      typeof brief.chapter?.marksLost === "number",
+  );
   return brief;
+}
+
+/* ───────────────────────── TUTOR-FIX-2 (T2) — the chapter block ───────────────────────── */
+
+/**
+ * The window's label for the tutor, from the window actually read (never hardcoded): a rolling
+ * window by its own day count (`WINDOW_DAYS`, "last 30 days"); the IST calendar day (the one read
+ * window with no rolling day count) as "today so far".
+ */
+export function windowLabelOf(window: ReadWindow): string {
+  const days = (WINDOW_DAYS as Partial<Record<ReadWindow, number>>)[window];
+  return typeof days === "number" ? `last ${days} days` : "today so far";
+}
+
+/**
+ * Me's group keys → the brief contract's names (BUILDER_R2): knowledge → knowledge, careless →
+ * careless, technique → examTechnique; Me's `notAttempted` → notAttempted and its honest
+ * remainder `unclassified` → unrecorded.
+ */
+const CONTRACT_GROUP: Record<MistakeGroupKey, "knowledge" | "careless" | "examTechnique"> = {
+  knowledge: "knowledge",
+  careless: "careless",
+  technique: "examTechnique",
+};
+
+/** Me's open-chapter concept rows (`viewRowsFrom` over the chapter-scoped read), top 3, with marks. */
+function chapterConceptRows(chapterModel: StudyReadModel): Array<{ name: string; marksLost: number }> {
+  return viewRowsFrom(chapterModel.progress.concepts ?? [])
+    .slice(0, MAX_WEAK_CONCEPTS)
+    .map((r) => ({ name: r.label, marksLost: r.lost }));
+}
+
+/** A paper surface's synthetic per-question id (`ws:/ct:/fm:/ci:{id}:q{n}[#k]`) — the read model's shape. */
+const SYNTHETIC_QID = /^(ws|ct|fm|ci):.+:q(\d+)(?:#\d+)?$/;
+const SURFACE_OF_PREFIX: Record<string, string> = {
+  ws: "worksheet",
+  ct: "chapter-test",
+  fm: "full-mock",
+  ci: "check-improve",
+};
+
+/** One live mistake as the tutor may hear it: its question id, marks, group, surface, IST date. */
+function recentOf(e: MistakeLogEntry, i: number): NonNullable<TutorBriefChapter["recent"]>[number] {
+  const qid = String(e.questionId ?? "").trim();
+  const synthetic = SYNTHETIC_QID.exec(qid);
+  // A bank id as is; a paper question by its position ("Q3"); otherwise its place in this list.
+  const id = synthetic ? `Q${synthetic[2]}` : qid || `#${i + 1}`;
+  const stableSurface = String(e.id ?? "").includes("::") ? String(e.id).split("::")[0] : "";
+  const surface = stableSurface || (synthetic ? SURFACE_OF_PREFIX[synthetic[1]] : "") || "unknown";
+  const split = mistakeLossByGroup([e]);
+  const top = topLossGroup(split);
+  const group = top ? CONTRACT_GROUP[top] : split.notAttempted > 0 ? "notAttempted" : undefined;
+  const ts = Date.parse(String(e.timestamp ?? ""));
+  return {
+    id,
+    marksLost: Math.max(0, Math.round((Number(e.marksLost) || 0) * 10) / 10),
+    ...(group ? { group } : {}),
+    surface,
+    ...(Number.isFinite(ts) ? { date: istDayKey(ts) } : {}),
+  };
+}
+
+/**
+ * The chapter block, from Me's own derivations (see the file header). `model` is the subject read
+ * (Me's chapter list source), `chapterModel` the chapter-scoped read (Me's open-chapter concepts).
+ * `names` = Me's gate for naming a weakness. Nothing to say → null (no empty block).
+ */
+export function chapterBlockOf(
+  model: StudyReadModel,
+  chapterKey: string,
+  chapterModel: StudyReadModel,
+  names: boolean,
+): TutorBriefChapter | null {
+  const chapter: TutorBriefChapter = {};
+  const rung = model.progress.topics.find((r) => r.key === chapterKey);
+  const lost = rung ? lostMarksOf(rung) : null;
+  if (lost !== null) chapter.marksLost = lost;
+
+  const entries = model.mistakes.byChapter[chapterKey] ?? [];
+  if (names) {
+    const split = splitPaperMarks(rung, entries);
+    // Me refuses to say WHY when the log names more marks than were lost (splitKnown false).
+    if (split && split.splitKnown) {
+      chapter.byGroup = {
+        knowledge: split.knowledge,
+        careless: split.careless,
+        examTechnique: split.technique,
+        notAttempted: split.notAttempted,
+        unrecorded: split.unclassified,
+      };
+      const top = topLossGroup(split);
+      if (top) chapter.topGroup = CONTRACT_GROUP[top];
+    }
+    const concepts = chapterConceptRows(chapterModel);
+    if (concepts.length) chapter.concepts = concepts;
+    const recent = entries
+      .filter((e) => (Number(e.marksLost) || 0) > 0)
+      .slice(0, 3)
+      .map(recentOf);
+    if (recent.length) chapter.recent = recent;
+  }
+
+  if (Object.keys(chapter).length === 0) return null;
+  const name = desktopTopicForWeakAreaKey(chapterKey)?.name || rung?.label;
+  if (name) chapter.name = name;
+  return chapter;
 }
 
 /**
@@ -140,13 +285,24 @@ export async function assembleTutorBrief({
   if (!uid) return empty;
   const chapterKey = boardChapterKey(topicKey);
   try {
-    const model = await readStudyModel(uid, {
+    const base = {
       window,
       ...(subject ? { subject } : {}),
       tutor: false,
       ...(typeof nowMs === "number" ? { nowMs } : {}),
-    });
-    return briefFromModel(model, chapterKey);
+    } as const;
+    // TUTOR-FIX-2 (T2) — at most ONE extra read, and only when a chapter is open: the
+    // chapter-scoped read Me makes for an open chapter's concepts (same window, paper and gates;
+    // its mistake history is not needed — the subject read already carries the chapter's).
+    // Sequential on purpose: two overlapping reads race the lazily imported bank lookup under
+    // the test runner's module mocks (the second read saw no concept rows); one after the other
+    // is deterministic everywhere. The brief is built once per session, in the background.
+    const model = await readStudyModel(uid, base);
+    const chapterModel = chapterKey
+      ? await readStudyModel(uid, { ...base, topicKey: chapterKey, mistakes: false }).catch(() => null)
+      : null;
+    // A failed chapter read leaves the brief exactly as before (no chapter block), never broken.
+    return briefFromModel(model, chapterKey, chapterModel);
   } catch {
     return empty; /* honest-or-silent */
   }

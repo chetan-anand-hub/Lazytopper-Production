@@ -94,9 +94,12 @@ function mkItem(n: number): PQ {
 }
 
 let lastLocation = "";
+let lastState: unknown = null;
 function LocationProbe() {
   const l = useLocation();
   lastLocation = `${l.pathname}${l.search}`;
+  // eslint-disable-next-line react-hooks/globals -- test probe records the router state
+  lastState = l.state;
   return null;
 }
 
@@ -201,18 +204,69 @@ describe("START-HERE-1 · Ask the tutor why I lost this mark (Quick Practice sco
     expect(startHereCalls("tutor_from_scorecard")).toEqual([["tutor_from_scorecard", { surface: "quick_practice" }]]);
   });
 
-  it("★★ a local session or a signed-out visitor sees the scorecard exactly as before: no rows, no button", async () => {
-    for (const who of [{ uid: "local-1", isLocalSession: true }, null]) {
-      authUser.current = who;
-      await buildSet("&src=start_here", [mkItem(1)]);
-      fireEvent.click(screen.getByText("q1-wrong"));
-      await screen.findByText(/Session scorecard/);
-      expect(screen.queryAllByTestId("sc-wrong-answer")).toHaveLength(0);
-      expect(screen.queryByTestId("sc-wrong-heading")).toBeNull();
-      expect(screen.queryByTestId("sc-tutor-ask")).toBeNull();
-      cleanup();
-    }
+  it("★★ a local session sees the scorecard exactly as before: no rows, no button", async () => {
+    authUser.current = { uid: "local-1", isLocalSession: true };
+    await buildSet("&src=start_here", [mkItem(1)]);
+    fireEvent.click(screen.getByText("q1-wrong"));
+    await screen.findByText(/Session scorecard/);
+    expect(screen.queryAllByTestId("sc-wrong-answer")).toHaveLength(0);
+    expect(screen.queryByTestId("sc-wrong-heading")).toBeNull();
+    expect(screen.queryByTestId("sc-tutor-ask")).toBeNull();
     authUser.current = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
+  });
+
+  // TUTOR-FIX-2 T12 (owner ruling) — a SIGNED-OUT visitor (incl. the Start-here path) now sees
+  // the lost-mark rows with "Ask the tutor why I lost this mark"; the tap opens a sign-up prompt
+  // and does nothing else: no /tutor navigation, no network, no analytics, nothing stored. Only
+  // choosing Sign up stores the one-shot (q + pick) and goes to /login with the tutor as `from`.
+  it("★★ signed out: the button opens the sign-up prompt — no /tutor navigation, no network", async () => {
+    authUser.current = null;
+    sessionStorage.clear();
+    try {
+      await buildSet("&src=start_here&qt=mcq", [mkItem(1), mkItem(2)]);
+      fireEvent.click(screen.getByText("q1-correct"));
+      fireEvent.click(screen.getByText("q2-wrong"));
+      const buttons = await screen.findAllByTestId("sc-tutor-ask");
+      expect(buttons).toHaveLength(1);
+      const before = lastLocation;
+      const fetchSpy = vi.fn();
+      vi.stubGlobal("fetch", fetchSpy);
+      onboarding.mockClear();
+      fireEvent.click(buttons[0]);
+      const prompt = await screen.findByTestId("tutor-signup-prompt");
+      expect(prompt.textContent).toContain(
+        "Sign up free to ask the tutor why you lost this mark - your 7-day trial starts when you sign up.",
+      );
+      expect(lastLocation).toBe(before);
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(onboarding).not.toHaveBeenCalled();
+      expect(sessionStorage.getItem("lazytopper.tutorSignupAsk.v1")).toBeNull();
+      vi.unstubAllGlobals();
+
+      fireEvent.click(within(prompt).getByTestId("tutor-signup-cta"));
+      await waitFor(() => expect(lastLocation).toBe("/login"));
+      expect(lastState).toEqual({ from: "/tutor/10/Maths/real-numbers?q=q-2&source=scorecard" });
+      const stash = JSON.parse(sessionStorage.getItem("lazytopper.tutorSignupAsk.v1")!);
+      expect(stash).toMatchObject({ q: "q-2", qNumber: 2, pick: "q2-wrong" });
+      expect(written).toHaveLength(0); // the signed-out result is never persisted
+    } finally {
+      vi.unstubAllGlobals();
+      authUser.current = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
+    }
+  });
+
+  it("★ signed out: Not now closes the prompt and keeps the scorecard", async () => {
+    authUser.current = null;
+    try {
+      await buildSet("", [mkItem(1)]);
+      fireEvent.click(screen.getByText("q1-wrong"));
+      fireEvent.click(await screen.findByTestId("sc-tutor-ask"));
+      fireEvent.click(within(await screen.findByTestId("tutor-signup-prompt")).getByRole("button", { name: "Not now" }));
+      await waitFor(() => expect(screen.queryByTestId("tutor-signup-prompt")).toBeNull());
+      expect(screen.getByTestId("sc-wrong-heading")).toBeInTheDocument();
+    } finally {
+      authUser.current = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
+    }
   });
 
   it("★★ review mode: a pick made after Finish (steps seen) is not scored, so it is never listed as wrong", async () => {

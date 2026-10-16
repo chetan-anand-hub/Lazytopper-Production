@@ -68,7 +68,12 @@ function getPath(obj: Data, field: string): unknown {
   return cur;
 }
 
-function makeFirestore(store: Record<string, Data>) {
+/** TUTOR-FIX-2 T8: optional failure injection. `rejectQueryUnder` makes a collection QUERY's get()
+ *  reject under that path prefix (the production symptom of the usageLedger days query);
+ *  `rejectDocGetUnder` makes single-document get() reject there (a real read failure). */
+type FsOpts = { rejectQueryUnder?: string; rejectDocGetUnder?: string };
+
+function makeFirestore(store: Record<string, Data>, fsOpts: FsOpts = {}) {
   const calls: string[] = [];
   const writes: string[] = [];
   const thrower = (name: string) => () => {
@@ -145,6 +150,9 @@ function makeFirestore(store: Record<string, Data>) {
       },
       get: async () => {
         calls.push("get");
+        if (fsOpts.rejectQueryUnder && collPath.startsWith(fsOpts.rejectQueryUnder)) {
+          throw new Error("9 FAILED_PRECONDITION: simulated query failure");
+        }
         const docs = run().map((d) => ({ id: d.id, exists: true, data: () => JSON.parse(JSON.stringify(d.data)) }));
         return { docs, size: docs.length, empty: docs.length === 0 };
       },
@@ -161,6 +169,9 @@ function makeFirestore(store: Record<string, Data>) {
       id,
       get: async () => {
         calls.push("get");
+        if (fsOpts.rejectDocGetUnder && p.startsWith(fsOpts.rejectDocGetUnder)) {
+          throw new Error("14 UNAVAILABLE: simulated read failure");
+        }
         const exists = Object.prototype.hasOwnProperty.call(store, p);
         return { id, exists, data: () => (exists ? JSON.parse(JSON.stringify(store[p])) : undefined) };
       },
@@ -256,10 +267,11 @@ type World = {
   users: FakeUser[];
   store: Record<string, Data>;
   now: number;
+  fsOpts?: FsOpts;
 };
 
 function buildRoutes(world: World, opts: { gate?: "real" | "none" } = {}) {
-  const fs = makeFirestore(world.store);
+  const fs = makeFirestore(world.store, world.fsOpts);
   const fa = makeAdmin(world.users, { "admin-token": ADMIN_UID, "student-token": STUDENT_TOKEN_UID });
   const telemetry = createAdminTelemetryRoutes({ sendJson, firebaseAdmin: fa.admin, telemetry: { snapshot: () => ({}) }, getTokenTelemetry: () => [] });
   const routes = mod.createAdminStudentsRoutes({
@@ -632,7 +644,8 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
         feedTruncated: false,
       });
       // HARDEN-1 PR-2: this ledger day has no providerSpendMicroInr (a pre-#957 day) -> null = not recorded.
-      expect(day2.ai).toEqual({ calls: 4, costInr: 1.23, providerSpendInr: null, checks: 1, chapterTests: 0, mocks: 0, worksheets: 0 });
+      // TUTOR-FIX-2 T8: + tutorMessages (the trialTutor counter; null = not recorded on this day).
+      expect(day2.ai).toEqual({ calls: 4, costInr: 1.23, providerSpendInr: null, checks: 1, chapterTests: 0, mocks: 0, worksheets: 0, tutorMessages: null });
 
       const day3 = tl[2] as unknown as { sessions: Data[]; practice: Data; mocks: Data[]; plan: Data[] };
       expect(day3.sessions).toEqual([
@@ -990,5 +1003,66 @@ describe("HARDEN-1 PR-2 · student detail — usage meter vs actual AI spend (FU
   it("a recorded zero spend stays 0 (a real zero is not not-recorded)", async () => {
     const ai = await dayAi({ calls: 1, costMicroInr: 0, providerSpendMicroInr: 0 });
     expect(ai.providerSpendInr).toBe(0);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TUTOR-FIX-2 T8 — tutor usage on the student detail. Production showed
+   "usageLedger: could not be read" for students, i.e. the days QUERY rejected
+   (safeDocs returns null only on a throw). The ledger is now read by DAY KEY
+   (the same document reads fair use already makes on every metered call), so
+   an empty ledger is [] -> "No tutor use yet", and only a real read failure is
+   "unavailable". Same fakes: writes throw; the clock is injected.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+describe("TUTOR-FIX-2 T8 · usage ledger on the student detail", () => {
+  const T8_NOW = Date.parse("2026-11-20T09:30:00.000Z");
+  const created = T8_NOW - 3 * DAY;
+  const uid = STUDENT_TOKEN_UID;
+
+  async function detail(store: Record<string, Data>, fsOpts?: FsOpts) {
+    const w = buildRoutes({ now: T8_NOW, users: [user(uid, created)], store, fsOpts });
+    const r = await w.get(`/api/admin/students/${uid}`, "admin-token");
+    expect(r.status).toBe(200);
+    return { r, w };
+  }
+
+  it("★ the production symptom: a days QUERY that rejects no longer makes the ledger 'unavailable'", async () => {
+    const d = istDayKey(created + DAY);
+    const { r } = await detail({ [`usageLedger/${uid}/days/${d}`]: { calls: 2, costMicroInr: 10_000, trialTutor: 2 } }, { rejectQueryUnder: "usageLedger/" });
+    expect(r.body.reads.usageLedger).toBe("complete");
+    const day = (r.body.timeline as Array<{ day: string; ai: Data | null }>).find((x) => x.day === d)!;
+    expect(day.ai).toMatchObject({ calls: 2, tutorMessages: 2 });
+  });
+
+  it("empty ledger (a new account, no days) -> 'complete' and no AI usage on any day", async () => {
+    const { r } = await detail({}, { rejectQueryUnder: "usageLedger/" });
+    expect(r.body.reads.usageLedger).toBe("complete");
+    expect((r.body.timeline as Array<{ ai: Data | null }>).every((d) => d.ai === null)).toBe(true);
+  });
+
+  it("tutor messages per day come from the ledger days already read (trialTutor); absent field -> null, never 0", async () => {
+    const d1 = istDayKey(created);
+    const d2 = istDayKey(created + DAY);
+    const { r } = await detail({
+      [`usageLedger/${uid}/days/${d1}`]: { calls: 5, costMicroInr: 0, trialTutor: 4 },
+      [`usageLedger/${uid}/days/${d2}`]: { calls: 1, costMicroInr: 0 },
+    });
+    const tl = r.body.timeline as Array<{ day: string; ai: Data | null }>;
+    expect(tl.find((x) => x.day === d1)!.ai!.tutorMessages).toBe(4);
+    expect(tl.find((x) => x.day === d2)!.ai!.tutorMessages).toBeNull();
+  });
+
+  it("a real read failure still says 'unavailable'", async () => {
+    const { r } = await detail({}, { rejectDocGetUnder: "usageLedger/" });
+    expect(r.body.reads.usageLedger).toBe("unavailable");
+  });
+
+  it("reads only the days since sign-up (or the ledger start), never a day before; read methods only", async () => {
+    const { w } = await detail({});
+    expect(w.fs.writes).toEqual([]);
+    expect([...new Set(w.fs.calls)].filter((m) => !FS_READ_METHODS.has(m))).toEqual([]);
+    // sign-up 3 days ago -> 4 IST day documents (sign-up day .. today), one getAll.
+    expect(w.fs.calls.filter((c) => c === "getAll").length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -75,6 +75,24 @@ export interface TutorBrief {
     topType?: string;
     marksLostRecent?: number;
   };
+  /** TUTOR-FIX-2 (T2) — the window the figures cover, derived from the window read ("last 30 days"). */
+  windowLabel?: string;
+  /** TUTOR-FIX-2 (T2) — the opened chapter, chapter-scoped: the same numbers Me shows. */
+  chapter?: TutorBriefChapter;
+  /** TUTOR-FIX-2 (T2) — the subject (paper) total; `mistakes.marksLostRecent` stays for old servers. */
+  subject?: { marksLost?: number };
+}
+
+/** TUTOR-FIX-2 (T2) — the chapter block of the brief (BUILDER_R2 brief contract; all optional). */
+export interface TutorBriefChapter {
+  name?: string;
+  marksLost?: number;
+  byGroup?: { knowledge?: number; careless?: number; examTechnique?: number; notAttempted?: number; unrecorded?: number };
+  topGroup?: "knowledge" | "careless" | "examTechnique" | "notAttempted";
+  /** Max 3, in Me's chapter concept-row order (most marks lost first). */
+  concepts?: Array<{ name: string; marksLost: number }>;
+  /** Max 3 most recent graded questions with lost marks in the chapter. No student text. */
+  recent?: Array<{ id: string; marksLost: number; group?: string; surface: string; date?: string }>;
 }
 
 export interface TutorRequest {
@@ -192,6 +210,23 @@ export class TutorLimitError extends Error {
   }
 }
 
+/**
+ * TUTOR-FIX-2 T7 — thrown on the site-wide ceiling (429 `busy_today`, FU-GLOBAL-SHED). The
+ * `message` is unchanged (the server's calm sentence, + " See plans." for cta plans); the type
+ * and the server's `resetAt` let the tutor page say when it is back instead of a bare line.
+ */
+export class TutorBusyError extends Error {
+  readonly resetAt: string | null;
+  readonly cta: "plans" | null;
+
+  constructor(message: string, resetAt: string | null, cta: "plans" | null) {
+    super(message);
+    this.name = "TutorBusyError";
+    this.resetAt = resetAt;
+    this.cta = cta;
+  }
+}
+
 /** ALL-AI-METERING-1: the Tutor's fair-use refusal, or null for any other failure. */
 function tutorLimitFrom(status: number, details: unknown): TutorLimitError | null {
   const d = (details && typeof details === "object" ? details : {}) as { error?: unknown; resetAt?: unknown; window?: unknown };
@@ -267,8 +302,14 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
     // FU-GLOBAL-SHED (D58b-2) - the site-wide ceiling is its own calm message, not a fault: the server's
     // sentence (no "free AI checking" wording on the Tutor) + "See plans." when the server chose that call to action.
     if (res.status === 429 && details?.error === "busy_today") {
-      const cta = (details as { cta?: unknown }).cta === "plans" ? " See plans." : "";
-      throw new Error(`${details.message || "LazyTopper is very busy today. Come back after midnight."}${cta}`);
+      const plans = (details as { cta?: unknown }).cta === "plans";
+      const cta = plans ? " See plans." : "";
+      const busyReset = (details as { resetAt?: unknown }).resetAt;
+      throw new TutorBusyError(
+        `${details.message || "LazyTopper is very busy today. Come back after midnight."}${cta}`,
+        typeof busyReset === "string" && busyReset.trim() ? busyReset : null,
+        plans ? "plans" : null,
+      );
     }
     // ALL-AI-METERING-1: a fair-use refusal is the Tutor's limit copy, never the raw code.
     const limitError = tutorLimitFrom(res.status, details);
