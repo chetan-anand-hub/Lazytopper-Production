@@ -18,9 +18,11 @@ import {
   storedCheckImproveScorecardVariant,
   storedQuickPracticeScorecardVariant,
   reopenedQuickPracticeScorecardVariant,
+  storedTapMarksLost,
   quickPracticeGradedScorecardVariant,
   ObjectiveMarkNotBinaryError,
 } from "./scorecardVariants";
+import { buildQuickPracticeResponse } from "../../services/quickPracticeSessionService";
 // BANK-LEAN-1 (C3): the bank-backed lookups and their dependents moved to their own
 // module so scorecardVariants stays bank-free; same functions, same assertions.
 import {
@@ -1170,5 +1172,36 @@ describe("reopenedQuickPracticeScorecardVariant (QP-SCORECARD-2 B)", () => {
     expect(v.score).toEqual({ kind: "marks", awarded: 1, total: 3, totalQuestions: 3 });
     expect(v.wrongAnswers).toBeNull();
     expect(v.actions.map((a) => a.label)).toEqual(["Build a fresh set", "Explore LazyTopper"]);
+  });
+
+  // FOLLOWUPS-4 D [FU-QP-REOPEN-TAP-NOTE] — the live MCQ scorecard's one untyped-marks note, on
+  // the reopen, under the same condition: tap-the-answer marks lost and no typed mistake.
+  it("★★ tap-the-answer marks lost, nothing typed → the SAME note the live scorecard shows", () => {
+    const v = reopenedQuickPracticeScorecardVariant(rec, { gradedDateLabel: "3 Jul 2026", tapMarksLost: 2, menu });
+    expect(v.note).toBe(UNTYPED_MARKS_NOTE);
+  });
+
+  it("D CONTROLS — no note when no tap marks were lost, when that is unknown, or when a typed mistake shows", () => {
+    expect(reopenedQuickPracticeScorecardVariant(rec, { gradedDateLabel: "x", tapMarksLost: 0, menu }).note).toBeNull();
+    expect(reopenedQuickPracticeScorecardVariant(rec, { gradedDateLabel: "x", menu }).note).toBeNull();
+    const typed = { ...rec, fourType: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 } };
+    expect(reopenedQuickPracticeScorecardVariant(typed, { gradedDateLabel: "x", tapMarksLost: 2, menu }).note).toBeNull();
+  });
+
+  it("storedTapMarksLost — sums ONLY the tap-the-answer results' lost marks, from the stored payload", () => {
+    const written = {
+      marksAwarded: 1, totalMarks: 3, percentage: 33, annotatedSteps: [],
+      mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "",
+    } as unknown as Parameters<typeof buildQuickPracticeResponse>[0][number]["graded"];
+    const stored = buildQuickPracticeResponse([
+      { questionId: "a", marks: 1, mcq: "wrong" },
+      { questionId: "b", marks: 3, graded: written },
+      { questionId: "c", marks: 1, mcq: "correct" },
+      { questionId: "d", marks: 1, mcq: "wrong" },
+      { questionId: "e", marks: 1 },
+    ]);
+    expect(storedTapMarksLost(stored.results)).toBe(2);
+    expect(storedTapMarksLost([stored.results[1]])).toBe(0); // a written loss is not a tap loss
+    expect(storedTapMarksLost(undefined)).toBeUndefined(); // no payload → unknown, never 0
   });
 });
