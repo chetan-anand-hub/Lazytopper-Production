@@ -568,22 +568,11 @@ function TutorSession() {
           {/* TUTOR-FIX-2 T4.3 — the dock (offer CTA + composer); its height positions the phone
               diagram sheet ABOVE it. */}
           <div className="lt-tutor__dock" ref={dockRef}>
-          {/* Round-trip CTA — intent-driven, ONE at a time, never a standing pair (Fix 3 /
-              D-TUT-4/5). Rendered only when the model's latest turn earned it. */}
-          {!pending && latestOffer === "practice" && (
-            <div className="lt-tutor__actions">
-              <button type="button" className="lt-tutor__action" onClick={openQuickPracticeOverlay}>
-                Practise this
-              </button>
-            </div>
-          )}
-          {!pending && latestOffer === "check-improve" && (
-            <div className="lt-tutor__actions">
-              <button type="button" className="lt-tutor__action" onClick={openCheckImproveOverlay}>
-                Get my attempt marked
-              </button>
-            </div>
-          )}
+          {/* Round-trip CTA (Fix 3 / D-TUT-4/5). TUTOR-FIX-2 integration: the permanent pair
+              below opens the SAME overlays with the SAME handlers, so the old under-reply
+              "Practise this" / "Get my attempt marked" button would be a duplicate. Keep one:
+              when the latest turn earns an offer (model tag or the intent rule), the matching
+              permanent control is marked as the offer (`--offered`) instead. */}
 
           <form className="lt-tutor__composer" onSubmit={onSubmit}>
             {/* TUTOR-FIX-2 T11 — the two round trips, PERMANENT, next to the composer at every
@@ -591,16 +580,18 @@ function TutorSession() {
             <div className="lt-tutor__tools" role="group" aria-label="Your work">
               <button
                 type="button"
-                className="lt-tutor__tool"
+                className={`lt-tutor__tool${!pending && latestOffer === "check-improve" ? " lt-tutor__tool--offered" : ""}`}
                 data-testid="tutor-tool-check"
+                data-offered={!pending && latestOffer === "check-improve" ? "true" : undefined}
                 onClick={openCheckImproveOverlay}
               >
                 Get my answer marked
               </button>
               <button
                 type="button"
-                className="lt-tutor__tool"
+                className={`lt-tutor__tool${!pending && latestOffer === "practice" ? " lt-tutor__tool--offered" : ""}`}
                 data-testid="tutor-tool-practice"
+                data-offered={!pending && latestOffer === "practice" ? "true" : undefined}
                 onClick={openQuickPracticeOverlay}
               >
                 Practise this chapter
@@ -1105,6 +1096,9 @@ const TUTOR_CSS = `
   text-overflow: ellipsis;
 }
 .lt-tutor__tool:hover { background: var(--lt-green-tint); border-color: var(--lt-green); }
+/* The tutor's latest turn offered this round trip: the permanent control carries the offer. */
+.lt-tutor__tool--offered { background: var(--lt-green-deep); color: #fff; border-color: var(--lt-green-deep); }
+.lt-tutor__tool--offered:hover { background: var(--lt-green-deep); border-color: var(--lt-green-deep); }
 .lt-tutor__fork--go { background: var(--lt-green-tint); font-weight: 600; }
 
 /* TUTOR-FIX-2 T7: the typed failure states. */

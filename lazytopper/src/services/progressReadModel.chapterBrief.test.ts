@@ -64,6 +64,16 @@ import { readStudyModel } from "./progressReadModel";
 import { buildChapters, splitPaperMarks, viewRowsFrom } from "../pages/MeProgressPage";
 import { assembleTutorBrief } from "../pages/tutor/tutorContextBrief";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
+import { createRequire } from "node:module";
+
+// TUTOR-FIX-2 integration (BRIEF CONTRACT): lane A's server sanitiser + prompt, fed lane B's REAL brief.
+const requireCjs = createRequire(import.meta.url);
+const { normalizeBrief } = requireCjs("../../server/routes/tutor.cjs") as {
+  normalizeBrief: (b: unknown) => Record<string, unknown> | null;
+};
+const { buildTutorSystemPrompt } = requireCjs("../../server/prompts/tutorSystemPrompt.cjs") as {
+  buildTutorSystemPrompt: (args: Record<string, unknown>) => string;
+};
 
 const UID = "u-chapter";
 const WINDOW = "month" as const;
@@ -209,5 +219,33 @@ describe("TUTOR-FIX-2 T2 — the brief is chapter-correct", () => {
     expect(thin.windowLabel).toBe("last 30 days");
     H.attempts = keep.attempts;
     H.mistakes = keep.mistakes;
+  });
+});
+
+describe("TUTOR-FIX-2 integration — the client brief survives the server sanitiser and reaches the prompt", () => {
+  it("★ lane B's real brief -> normalizeBrief -> buildTutorSystemPrompt names chapter marks, split, concepts, recent and the window", async () => {
+    const trig = await brief("trigonometry");
+    const rn = await brief("real-numbers");
+    // The sanitiser keeps every contract field the client sends (nothing renamed or dropped).
+    const cleanTrig = normalizeBrief(JSON.parse(JSON.stringify(trig)))!;
+    expect(cleanTrig.chapter).toEqual(trig.chapter);
+    expect(cleanTrig.windowLabel).toBe(trig.windowLabel);
+    expect(cleanTrig.subject).toEqual(trig.subject);
+
+    const pTrig = buildTutorSystemPrompt({ topicLabel: "Trigonometry", subject: "maths", brief: cleanTrig });
+    expect(pTrig).toContain("- Window: the last 30 days.");
+    expect(pTrig).toContain("- This chapter (Trigonometry): 9 marks lost in the last 30 days.");
+    expect(pTrig).toContain(
+      "- Where those chapter marks went: concept/knowledge gaps 1, careless slips 0, exam technique (presentation, steps, units) 2, not attempted 0, no reason recorded 6.",
+    );
+    expect(pTrig).toContain("- Biggest loss group in this chapter: exam technique (presentation, steps, units).");
+    expect(pTrig).toMatch(/Most recent graded questions in this chapter[^\n]*question Q4, worksheet, 2 marks lost, exam technique/);
+    expect(pTrig).toMatch(/question trig-bank-7, quick-practice, 1 mark lost, concept\/knowledge gaps/);
+    expect(pTrig).toContain("- Whole Maths subject (ALL chapters together, not just this one): 15 marks lost in the last 30 days.");
+
+    const pRn = buildTutorSystemPrompt({ topicLabel: "Real Numbers", subject: "maths", brief: normalizeBrief(JSON.parse(JSON.stringify(rn))) });
+    expect(pRn).toContain("- This chapter (Real Numbers): 6 marks lost in the last 30 days.");
+    expect(pRn).toContain("- Concepts in this chapter that cost marks: Fundamental Theorem of Arithmetic (6 marks).");
+    expect(pRn).not.toMatch(/student's own words/);
   });
 });

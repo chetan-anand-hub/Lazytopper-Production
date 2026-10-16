@@ -279,20 +279,28 @@ describe("T11 · Check & Improve and Practice never depend on the student's word
     expect(H.openCI).toHaveBeenCalledTimes(1);
     expect(H.openQP).toHaveBeenCalledTimes(1);
   });
-  it("★★ RED on today's UI: 'grade my answer' + a reply with NO tag still shows 'Get my attempt marked'", () => {
+  // Integration (keep one): the offer is carried by the permanent control for the same action
+  // (same handler), never a second identical button under the reply.
+  it("★★ RED on today's UI: 'grade my answer' + a reply with NO tag still offers Check & Improve (one button)", () => {
     H.state = { messages: [u("grade my answer"), t({ content: "Go to Check & Improve for that." })] };
     render(tree("/tutor/10/maths/trigonometry"));
-    expect(screen.getByRole("button", { name: "Get my attempt marked" })).toBeTruthy();
+    expect(screen.getByTestId("tutor-tool-check").getAttribute("data-offered")).toBe("true");
+    expect(screen.getByTestId("tutor-tool-practice").getAttribute("data-offered")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Get my attempt marked" })).toBeNull();
+    fireEvent.click(screen.getByTestId("tutor-tool-check"));
+    expect(H.openCI).toHaveBeenCalledTimes(1);
   });
-  it("★★ 'aur sawal do board jaise' + no tag still shows 'Practise this'", () => {
+  it("★★ 'aur sawal do board jaise' + no tag still offers practice (one button)", () => {
     H.state = { messages: [u("aur sawal do board jaise"), t({ content: "Here is a worked example." })] };
     render(tree("/tutor/10/maths/trigonometry"));
-    expect(screen.getByRole("button", { name: "Practise this" })).toBeTruthy();
+    expect(screen.getByTestId("tutor-tool-practice").getAttribute("data-offered")).toBe("true");
+    expect(screen.getByTestId("tutor-tool-check").getAttribute("data-offered")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Practise this" })).toBeNull();
   });
-  it("CONTROL: an ordinary question with no tag shows no offer CTA", () => {
+  it("CONTROL: an ordinary question with no tag offers nothing", () => {
     H.state = { messages: [u("why is sin 30 a half?"), t({})] };
     render(tree("/tutor/10/maths/trigonometry"));
-    expect(screen.queryByRole("button", { name: "Practise this" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Get my attempt marked" })).toBeNull();
+    expect(screen.getByTestId("tutor-tool-check").getAttribute("data-offered")).toBeNull();
+    expect(screen.getByTestId("tutor-tool-practice").getAttribute("data-offered")).toBeNull();
   });
 });
