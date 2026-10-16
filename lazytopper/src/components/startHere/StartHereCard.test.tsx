@@ -651,3 +651,102 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     expect(bank.startHereAvailability).not.toHaveBeenCalled();
   });
 });
+
+describe("FOLLOWUPS-2 F1 [FU-SH-TAP-44] · chips are 44px tap targets", () => {
+  const chipRule = (css: string): string => /\.lt-shc \.lt-shc-chip \{[^}]*\}/.exec(css)?.[0] ?? "";
+
+  it("★ the injected .lt-shc-chip rule has min-height 44px with inline-flex centring (inline card)", async () => {
+    cloudHas.mockResolvedValue(false);
+    mount();
+    await waitFor(() => expect(card()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-start"));
+    const chip = screen.getByTestId("start-here-subject-maths");
+    expect(chip.matches(".lt-shc .lt-shc-chip")).toBe(true);
+    const css = Array.from(document.querySelectorAll("style")).map((s) => s.textContent ?? "").join("\n");
+    const rule = chipRule(css);
+    expect(rule).toMatch(/min-height: 44px;/);
+    expect(rule).toMatch(/display: inline-flex;/);
+    expect(rule).toMatch(/align-items: center;/);
+    expect(rule).toMatch(/justify-content: center;/);
+  });
+
+  it("★ the overlay (lt-shcf) chips are matched by the same 44px rule", async () => {
+    window.localStorage.clear();
+    cloudHas.mockResolvedValue(false);
+    mount("u1", { focus: true });
+    await waitFor(() => expect(screen.queryByTestId("start-here-focus")).not.toBeNull());
+    const chip = screen.getByTestId("start-here-focus-subject-maths");
+    expect(chip.closest(".lt-shcf")).not.toBeNull();
+    expect(chip.matches(".lt-shc .lt-shc-chip")).toBe(true);
+    const css = screen.getByTestId("start-here-focus").querySelector("style")!.textContent ?? "";
+    expect(chipRule(css)).toMatch(/min-height: 44px;/);
+  });
+});
+
+describe("FOLLOWUPS-2 F2 [FU-SH-SHOWN-DEDUPE] · start_here_shown at most once per tab per surface", () => {
+  const treeOn = (surface: "practice_hub" | "home", focus = false) => (
+    <MemoryRouter initialEntries={["/x"]}>
+      <Routes>
+        <Route path="*" element={<StartHereCard uid="u1" surface={surface} returnTo="/x" focus={focus} />} />
+      </Routes>
+    </MemoryRouter>
+  );
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    cloudHas.mockResolvedValue(false);
+  });
+
+  it("★★ two mounts on the same surface -> ONE start_here_shown; the value stored is the constant 1, never the uid", async () => {
+    render(treeOn("practice_hub"));
+    await waitFor(() => expect(card()).not.toBeNull());
+    await waitFor(() => expect(calls("start_here_shown")).toHaveLength(1));
+    cleanup();
+    render(treeOn("practice_hub"));
+    await waitFor(() => expect(card()).not.toBeNull());
+    await new Promise((r) => setTimeout(r, 0));
+    expect(calls("start_here_shown")).toEqual([["start_here_shown", { surface: "practice_hub" }]]);
+    for (let i = 0; i < window.sessionStorage.length; i++) {
+      const k = window.sessionStorage.key(i)!;
+      expect(k).not.toContain("u1");
+      if (k.startsWith("lazytopper.startHereShown.")) expect(window.sessionStorage.getItem(k)).toBe("1");
+    }
+  });
+
+  it("★ a different surface gets its own one; the focus surface likewise dedupes on remount", async () => {
+    render(treeOn("practice_hub", true));
+    await waitFor(() => expect(calls("start_here_shown")).toHaveLength(2));
+    cleanup();
+    render(treeOn("practice_hub", true));
+    await waitFor(() => expect(card()).not.toBeNull());
+    await new Promise((r) => setTimeout(r, 0));
+    expect(calls("start_here_shown")).toHaveLength(2);
+    cleanup();
+    render(treeOn("home"));
+    await waitFor(() => expect(calls("start_here_shown")).toHaveLength(3));
+    expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "home" }]);
+    expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub_focus" }]);
+  });
+
+  it("★ storage throws -> fail open: still fires once per mount", async () => {
+    const getItem = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    try {
+      const { rerender } = render(treeOn("practice_hub"));
+      await waitFor(() => expect(calls("start_here_shown")).toHaveLength(1));
+      rerender(treeOn("practice_hub"));
+      await new Promise((r) => setTimeout(r, 0));
+      expect(calls("start_here_shown")).toHaveLength(1);
+      cleanup();
+      render(treeOn("practice_hub"));
+      await waitFor(() => expect(calls("start_here_shown")).toHaveLength(2));
+    } finally {
+      getItem.mockRestore();
+      setItem.mockRestore();
+    }
+  });
+});

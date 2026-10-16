@@ -290,7 +290,8 @@ describe("StudentsAdminPage — detail", () => {
     const day2 = await screen.findByTestId("sa-day-2026-10-06");
     expect(within(day2).getByText("Day 2")).toBeTruthy();
     expect(within(day2).getByText("check-improve ×3")).toBeTruthy();
-    expect(within(day2).getByText("check_graded ×1")).toBeTruthy();
+    // FOLLOWUPS-2 F3 [FU-ADMIN-ACTIONS-LABELS]: Actions chips now read in plain words.
+    expect(within(day2).getByText("Checked an answer ×1")).toBeTruthy();
     // HARDEN-1 PR-2: the meter is now labelled; this fixture day has no spend field -> "not recorded".
     expect(day2.textContent).toMatch(/4 AI calls · usage meter \(graded\) ₹1\.23 · actual AI spend not recorded/);
     expect(day2.textContent).toMatch(/Chapter test · science · 7\/10/);
