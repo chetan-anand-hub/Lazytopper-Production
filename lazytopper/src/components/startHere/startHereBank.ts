@@ -17,7 +17,7 @@ import { stableHash8 } from "../../services/sessionRecords";
 import { buildSeenQuestionIds } from "../../services/quickPracticeSessionService";
 import { getAttempts } from "../../services/practiceInsights";
 import { practiceTopicLabel } from "../practice/cbqAvailability";
-import { START_HERE_COUNT, type StartHereQType } from "./startHereModel";
+import { startHereSetSize, type StartHereQType } from "./startHereModel";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 
 interface BankRowLike {
@@ -59,7 +59,27 @@ export function isFourOptionMcq(row: BankRowLike): boolean {
   );
 }
 
+/**
+ * START-HERE-WRITTEN - a written (short-answer) board question a student can TYPE an answer to:
+ * a Science `isCbq` row in the bank's short-answer formats (Short, 2-3 marks; VSA, 2 marks), with
+ * the bank's own `solutionSteps` (the scorecard shows them) and no figure to read. Never an MCQ
+ * (no options) or an A-R row. Case-Based (4 marks, several parts) and Long (5 marks) are left out:
+ * too long to type as a first 2-minute question. Maths is excluded (owner ruling 16 Oct: maths
+ * symbols are hard to type), so a Maths chapter counts 0 and never offers the type.
+ */
+const WRITTEN_FORMAT = /^(short|vsa)$/i;
+export function isWrittenRow(row: BankRowLike): boolean {
+  if (String(row.subject ?? "").trim().toLowerCase() !== "science") return false;
+  if (!isCbq(row as never) || isAssertionReasonRow(row)) return false;
+  if (Array.isArray(row.options) && row.options.length > 0) return false;
+  if (!WRITTEN_FORMAT.test(String(row.format ?? "").trim())) return false;
+  if (row.image || row.imageUrl || row.diagram || row.figure) return false;
+  const steps = Array.isArray(row.solutionSteps) ? row.solutionSteps.filter((s) => String(s ?? "").trim()) : [];
+  return steps.length > 0;
+}
+
 function rowQType(row: BankRowLike): StartHereQType | null {
+  if (isWrittenRow(row)) return "written";
   if (!isCbq(row as never) || !isFourOptionMcq(row)) return null;
   return isAssertionReasonRow(row) ? "ar" : "mcq";
 }
@@ -83,7 +103,7 @@ export async function startHereAvailability(
   await ensureBankSubject(subject);
   const out: StartHereAvailability = {};
   for (const slug of slugs) {
-    const counts = { mcq: 0, ar: 0 };
+    const counts = { mcq: 0, ar: 0, written: 0 };
     const seen = new Set<string>();
     for (const row of startHereChapterRows(subject, slug)) {
       const id = String(row.id ?? "");
@@ -100,7 +120,7 @@ export async function startHereAvailability(
 
 /** A chapter can host a Start-here set of this type only when it has a full set of them. */
 export function typeOffered(counts: Record<StartHereQType, number> | undefined, t: StartHereQType): boolean {
-  return !!counts && counts[t] >= START_HERE_COUNT;
+  return !!counts && (counts[t] ?? 0) >= startHereSetSize(t);
 }
 
 const DIFFICULTY_RANK: Record<string, number> = { hard: 0, medium: 1, easy: 2 };
@@ -130,8 +150,9 @@ export function chooseStartHereIds(
     have.add(id);
     pool.push(row);
   }
+  const size = startHereSetSize(qtype);
   const nonEasy = pool.filter((r) => difficultyRank(r) < 2);
-  const candidates = nonEasy.length >= START_HERE_COUNT ? nonEasy : pool;
+  const candidates = nonEasy.length >= size ? nonEasy : pool;
   const tie = (r: BankRowLike): number => parseInt(stableHash8(`${String(r.id)}|${rotation}`), 16);
   return [...candidates]
     .sort(
@@ -141,7 +162,7 @@ export function chooseStartHereIds(
         bloomRank(a) - bloomRank(b) ||
         tie(a) - tie(b),
     )
-    .slice(0, START_HERE_COUNT)
+    .slice(0, size)
     .map((r) => String(r.id));
 }
 

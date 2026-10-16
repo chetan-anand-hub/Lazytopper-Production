@@ -70,6 +70,7 @@ vi.mock("../analytics/analytics", async (importActual) => {
 
 import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
+import { gradeWorksheet } from "../ai/aiClient";
 
 authUser.current = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
@@ -281,5 +282,93 @@ describe("START-HERE-1 · Ask the tutor why I lost this mark (Quick Practice sco
     await screen.findByRole("button", { name: /Back to this set \(see the steps\)/ });
     expect(screen.queryAllByTestId("sc-wrong-answer")).toHaveLength(0);
     expect(screen.queryByTestId("sc-tutor-ask")).toBeNull();
+  });
+});
+
+// START-HERE-WRITTEN - the ONE written Science question, on the REAL page.
+//   * the link's count=1 survives the page's count floor, so the exact-set path serves that one id;
+//   * the typed answer goes through Quick Practice's EXISTING written grading (gradeWorksheet,
+//     surface "quick-practice") with its line breaks intact (TUTOR-FIX-2 T14, the QP leg);
+//   * start_here_graded fires once.
+describe("START-HERE-WRITTEN · a one-question written Start-here set", () => {
+  const mockGrade = vi.mocked(gradeWorksheet);
+  afterEach(() => mockGrade.mockReset());
+
+  function mkWritten(): PQ {
+    return {
+      id: "w-1",
+      questionText: "Question 1: solve it.",
+      marks: 3,
+      section: "C",
+      format: "Short",
+      difficulty: "Hard",
+      subtopic: "seed",
+      topicKey: "electricity",
+      solutionSteps: ["Bank step one.", "Bank step two."],
+      finalAnswer: "2 ohm",
+    } as unknown as PQ;
+  }
+
+  it("★★ count=1 serves the one id; the typed answer reaches the existing grader with line breaks intact", async () => {
+    mockGrade.mockResolvedValue({
+      ok: true,
+      results: [
+        {
+          qNumber: 1, couldNotRead: false, ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67,
+          annotatedSteps: [
+            { stepNumber: 2, description: "Substitute", studentWork: "R = 4/2", status: "incorrect", marksAwarded: 0,
+              marksDeducted: 1, teacherAnnotation: "Units missing.", mistakeType: "presentation", correctedWorking: null },
+          ],
+          mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 1 },
+          teacherNote: "Good method.",
+        },
+      ],
+      totalQuestions: 1, gradedCount: 1, pendingCount: 0, gradedMarksAwarded: 2, gradedMarksTotal: 3, worksheetTotalMarks: 3,
+    } as never);
+    mockBuild.mockResolvedValue([mkWritten()]);
+    setMatchMediaMatches(true);
+    render(
+      <MemoryRouter
+        initialEntries={["/practice/10/science?topic=electricity&focusBankIds=w-1&strictFocus=true&count=1&src=start_here&qt=written"]}
+      >
+        <LocationProbe />
+        <Routes>
+          <Route path="/practice/:grade/:subject" element={<PracticePage />} />
+          <Route path="*" element={null} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await screen.findAllByText(/^Question 1: solve it\.$/, {}, { timeout: 30000 });
+    // The exact-set path: the one id, count 1 (the page's floor of 3 would otherwise send it elsewhere).
+    // ONE engine call, on the exact-set branch (the blueprint branch fans out one call per section
+    // with a `sectionFilter`).
+    expect(mockBuild).toHaveBeenCalledTimes(1);
+    expect(mockBuild.mock.calls[0][0]).toMatchObject({ count: 1, focusBankIds: ["w-1"], strictFocus: true });
+    expect(mockBuild.mock.calls[0][0]).not.toHaveProperty("sectionFilter");
+    expect(screen.getAllByTestId("practice-question-card")).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole("button", { name: /^Answer this question$/ }));
+    const tabs = screen.getAllByRole("tab", { name: "Type my working" });
+    fireEvent.click(tabs[tabs.length - 1]);
+    fireEvent.change(screen.getByLabelText("Type your working and answer"), {
+      target: { value: "V = 4 V, I = 2 A\nR = V / I\nR = 2 ohm" },
+    });
+    fireEvent.click(await screen.findByTestId("qp-save-answer"));
+    await screen.findByTestId("qp-saved-confirmation");
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(mockGrade).toHaveBeenCalledTimes(1));
+    const [req, opts] = mockGrade.mock.calls[0] as unknown as [
+      { questions: Array<{ qNumber: number; textAnswer?: string }>; uploads?: unknown[] },
+      { surface?: string },
+    ];
+    expect(opts.surface).toBe("quick-practice");
+    expect(req.questions).toHaveLength(1);
+    expect(req.questions[0].textAnswer).toBe("V = 4 V, I = 2 A\nR = V / I\nR = 2 ohm");
+    expect(req.uploads ?? []).toHaveLength(0);
+    await waitFor(() => expect(startHereCalls("start_here_graded")).toHaveLength(1));
+    expect(startHereCalls("start_here_graded")[0][1]).toMatchObject({ subject: "science", total: 1 });
+    // The existing written scorecard carries the tutor door on the question that lost marks.
+    expect(await screen.findAllByTestId("sc-tutor-ask")).toHaveLength(1);
   });
 });

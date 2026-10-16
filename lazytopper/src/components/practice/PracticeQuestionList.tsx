@@ -43,6 +43,9 @@ export interface PracticeQuestionListProps {
    * signal and the finished/review state). Omitted ⇒ nothing is locked (shipped behaviour).
    */
   isStepsLocked?: (qId: string) => boolean;
+  /** SHW-2 — the answer box's first-selected tab, passed straight through to every card.
+   *  Omitted ⇒ "upload", today's behaviour. */
+  defaultAnswerMode?: "type" | "upload";
 }
 
 export function PracticeQuestionList(props: PracticeQuestionListProps) {
@@ -51,7 +54,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     expandedAnswers, mcqSelections, mcqResults,
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
-    collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked,
+    collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
   } = props;
 
   return (
@@ -166,6 +169,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onSaveAnswer={onSaveAnswer}
               onRemoveAnswer={onRemoveAnswer}
               stepsLocked={isStepsLocked ? isStepsLocked(String(q.id)) : false}
+              defaultAnswerMode={defaultAnswerMode}
             />
           ))}
         </div>

@@ -22,11 +22,34 @@ export const START_HERE_COPY = {
   notNow: "Not now",
 } as const;
 
-export type StartHereQType = "mcq" | "ar";
+export type StartHereQType = "mcq" | "ar" | "written";
 export const START_HERE_QTYPE_LABEL: Record<StartHereQType, string> = {
   mcq: "Quick 5: tap the answer",
   ar: "Assertion–Reason",
+  written: "Written: 1 board question (uses 1 of today's checks)",
 };
+
+/**
+ * START-HERE-WRITTEN - how many questions a Start-here set of this type has. MCQ / A-R: the five
+ * of START-HERE-1. Written: ONE Science CBQ short-answer question, typed and graded by Quick
+ * Practice's EXISTING written path (/api/grade-worksheet, surface "quick-practice"), so it uses
+ * one of the trial's daily checks. Science only: the bank side (startHereBank.ts) counts no
+ * written item for Maths, so the type is never offered there.
+ */
+export const START_HERE_WRITTEN_COUNT = 1;
+export function startHereSetSize(qtype: StartHereQType): number {
+  return qtype === "written" ? START_HERE_WRITTEN_COUNT : START_HERE_COUNT;
+}
+
+/**
+ * The Practice page's lower bound for `count`: its usual floor, except a Start-here WRITTEN link
+ * (`src=start_here&qt=written`), whose exact set is one question. Without this the page's floor
+ * (3) would lift count above the one id, and the exact-set path (focusBankIds covers the count)
+ * would not apply. Every other link keeps `fallback` exactly.
+ */
+export function startHereCountFloor(src: string | null, qt: string | null, fallback: number): number {
+  return src === START_HERE_SRC && qt === "written" ? START_HERE_WRITTEN_COUNT : fallback;
+}
 
 /* ── the ad's subject hint ─────────────────────────────────────────────────────────────── */
 
@@ -105,7 +128,7 @@ export function startHerePracticePath(args: {
   sp.set("topic", args.chapter);
   sp.set("focusBankIds", args.ids.join(","));
   sp.set("strictFocus", "true");
-  sp.set("count", String(START_HERE_COUNT));
+  sp.set("count", String(startHereSetSize(args.qtype)));
   sp.set("src", START_HERE_SRC);
   sp.set("qt", args.qtype);
   sp.set("backLabel", "Back");

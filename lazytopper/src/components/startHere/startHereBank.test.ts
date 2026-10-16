@@ -15,6 +15,7 @@ import {
   chooseStartHereIds,
   isAssertionReasonRow,
   isFourOptionMcq,
+  isWrittenRow,
   pickStartHereSet,
   startHereAvailability,
   startHereChapterRows,
@@ -166,9 +167,86 @@ describe("QP-SCORECARD-2 D3 · startHereAvailability.generated.ts equals the run
 
   it("every chapter the card lists has an entry, and at least one chapter per subject can host a set", () => {
     for (const subject of START_HERE_SUBJECTS) {
-      const entry = START_HERE_AVAILABILITY[subject] as Record<string, { mcq: number; ar: number }>;
+      const entry = START_HERE_AVAILABILITY[subject] as Record<string, { mcq: number; ar: number; written: number }>;
       for (const t of desktopTopicsBySubject(subject)) expect(entry[t.slug], `${subject}/${t.slug}`).toBeDefined();
       expect(Object.values(entry).some((c) => c.mcq >= 5)).toBe(true);
     }
+  });
+});
+
+/**
+ * START-HERE-WRITTEN - the third type: ONE Science CBQ short-answer (written) question, typed.
+ * Science only (maths symbols are hard to type, owner ruling 16 Oct); a chapter with no written
+ * CBQ item does not offer the type.
+ */
+describe("START-HERE-WRITTEN · one written Science CBQ", () => {
+  it("Science / electricity: exactly ONE id, a CBQ short-answer row of this chapter with the bank's steps", async () => {
+    await ensureBankSubject("Science");
+    const ids = await pickStartHereSet({ subject: "Science", chapter: "electricity", qtype: "written", rotation: 1 });
+    expect(ids).toHaveLength(1);
+    const rows = startHereChapterRows("Science", "electricity") as Row[];
+    const row = rows.find((r) => String(r.id) === ids[0]);
+    expect(row, `${ids[0]} is a row of electricity`).toBeDefined();
+    expect(isCbq(row as never)).toBe(true);
+    expect(String(row!.subject).toLowerCase()).toBe("science");
+    expect(isWrittenRow(row!)).toBe(true);
+    expect(isFourOptionMcq(row!)).toBe(false);
+    expect(isAssertionReasonRow(row!)).toBe(false);
+    expect((row!.solutionSteps as unknown[]).length).toBeGreaterThan(0);
+    // Same difficulty order as the MCQ set: no unchosen written row is harder than the chosen one.
+    for (const r of rows.filter((x) => isWrittenRow(x))) expect(rank(r)).toBeGreaterThanOrEqual(rank(row!));
+  });
+
+  it("Maths offers NO written type: every Maths chapter counts 0 written (and the picker gets nothing)", async () => {
+    const slugs = desktopTopicsBySubject("Maths").map((t) => t.slug);
+    const avail = await startHereAvailability("Maths", slugs);
+    for (const slug of slugs) {
+      expect(avail[slug].written, slug).toBe(0);
+      expect(typeOffered(avail[slug], "written")).toBe(false);
+    }
+    expect(await pickStartHereSet({ subject: "Maths", chapter: "real-numbers", qtype: "written", rotation: 1 })).toEqual([]);
+  }, 120_000);
+
+  it("a chapter with 0 written items does not offer the type; 1 is enough", () => {
+    expect(typeOffered({ mcq: 20, ar: 10, written: 0 }, "written")).toBe(false);
+    expect(typeOffered({ mcq: 20, ar: 10, written: 1 }, "written")).toBe(true);
+    // CONTROL: MCQ / A-R still need a full five.
+    expect(typeOffered({ mcq: 4, ar: 5, written: 3 }, "mcq")).toBe(false);
+    expect(typeOffered({ mcq: 4, ar: 5, written: 3 }, "ar")).toBe(true);
+  });
+
+  it("the written predicate: Science CBQ Short / VSA with bank steps; never an MCQ, an A-R, a Maths row or a step-less row", () => {
+    const w = (id: string, extra: Row = {}): Row => ({
+      id, subject: "Science", competencyVerified: true, format: "Short", marks: 3, difficulty: "Hard",
+      solutionSteps: ["step 1", "step 2"], ...extra,
+    });
+    expect(isWrittenRow(w("short"))).toBe(true);
+    expect(isWrittenRow(w("vsa", { format: "VSA", marks: 2 }))).toBe(true);
+    expect(isWrittenRow(w("maths", { subject: "Maths" }))).toBe(false);
+    expect(isWrittenRow(w("nocbq", { competencyVerified: false }))).toBe(false);
+    expect(isWrittenRow(w("nosteps", { solutionSteps: [] }))).toBe(false);
+    expect(isWrittenRow(w("case", { format: "Case-Based", marks: 4 }))).toBe(false);
+    expect(isWrittenRow(w("long", { format: "Long", marks: 5 }))).toBe(false);
+    expect(isWrittenRow(w("mcq", { format: "MCQ", options: ["a", "b", "c", "d"], answer: "a" }))).toBe(false);
+    expect(isWrittenRow(w("ar", { format: "Assertion-Reasoning" }))).toBe(false);
+    expect(isWrittenRow(w("fig", { image: "fig.png" }))).toBe(false);
+    // The types never mix.
+    const rows = [w("short"), { id: "m", competencyVerified: true, difficulty: "Hard", options: ["a", "b", "c", "d"], answer: "a" }];
+    expect(chooseStartHereIds(rows, "written", new Set(), 0)).toEqual(["short"]);
+    expect(chooseStartHereIds(rows, "mcq", new Set(), 0)).toEqual(["m"]);
+  });
+
+  it("an unseen written question beats a seen one; Hard before Medium", () => {
+    const w = (id: string, difficulty: string): Row => ({
+      id, subject: "Science", competencyVerified: true, format: "Short", difficulty, solutionSteps: ["s"],
+    });
+    const rows = [w("m1", "Medium"), w("h1", "Hard"), w("h2", "Hard")];
+    const first = chooseStartHereIds(rows, "written", new Set(), 0);
+    expect(first).toHaveLength(1);
+    expect(first[0].startsWith("h")).toBe(true);
+    const next = chooseStartHereIds(rows, "written", new Set(first), 0);
+    expect(next).toHaveLength(1);
+    expect(next[0]).not.toBe(first[0]);
+    expect(next[0].startsWith("h")).toBe(true);
   });
 });

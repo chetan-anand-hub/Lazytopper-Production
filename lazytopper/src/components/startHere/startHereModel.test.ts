@@ -18,6 +18,9 @@ import {
   readSubjectHint,
   startHerePracticePath,
   subjectHintFromLanding,
+  START_HERE_QTYPE_LABEL,
+  startHereCountFloor,
+  startHereSetSize,
 } from "./startHereModel";
 import {
   VISIT_SOURCE_KEY,
@@ -162,5 +165,46 @@ describe("QP-SCORECARD-2 E3 · the focused surface's Not-now memory never stores
     window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, UID);
     expect(focusAllowed(UID)).toBe(true);
     expect(focusAllowed("")).toBe(false);
+  });
+});
+
+describe("START-HERE-WRITTEN · the written type (one typed board question)", () => {
+  it("pins the chip copy (it names the check it uses)", () => {
+    expect(START_HERE_QTYPE_LABEL.written).toBe("Written: 1 board question (uses 1 of today's checks)");
+  });
+
+  it("a written set is ONE question on the same exact-set path: count=1, qt=written, src=start_here", () => {
+    expect(startHereSetSize("written")).toBe(1);
+    const path = startHerePracticePath({
+      subject: "Science",
+      chapter: "electricity",
+      ids: ["LTG-S-ELEC-1"],
+      qtype: "written",
+      returnTo: "/",
+    });
+    const sp = new URLSearchParams(path.split("?")[1]);
+    expect(path.startsWith("/practice/10/Science?")).toBe(true);
+    expect(sp.get("focusBankIds")).toBe("LTG-S-ELEC-1");
+    expect(sp.get("strictFocus")).toBe("true");
+    expect(sp.get("count")).toBe("1");
+    expect(sp.get("src")).toBe("start_here");
+    expect(sp.get("qt")).toBe("written");
+  });
+
+  it("CONTROL: the MCQ and A-R sets keep five questions", () => {
+    expect(startHereSetSize("mcq")).toBe(5);
+    expect(startHereSetSize("ar")).toBe(5);
+    const sp = new URLSearchParams(
+      startHerePracticePath({ subject: "Maths", chapter: "real-numbers", ids: ["a", "b", "c", "d", "e"], qtype: "mcq", returnTo: "/" }).split("?")[1],
+    );
+    expect(sp.get("count")).toBe("5");
+  });
+
+  it("the Practice page's count floor drops to 1 ONLY for a Start-here written link", () => {
+    expect(startHereCountFloor("start_here", "written", 3)).toBe(1);
+    expect(startHereCountFloor("start_here", "mcq", 3)).toBe(3);
+    expect(startHereCountFloor(null, "written", 3)).toBe(3);
+    expect(startHereCountFloor("other", "written", 3)).toBe(3);
+    expect(startHereCountFloor(null, null, 3)).toBe(3);
   });
 });

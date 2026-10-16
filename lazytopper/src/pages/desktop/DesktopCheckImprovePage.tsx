@@ -122,6 +122,7 @@ import {
 import { clearCiDraft, saveCiDraft, sweepExpiredCiDraftImages, takeCiDraft } from "../../services/checkImproveDraft";
 import EmailVerifyReminder from "../../components/auth/EmailVerifyReminder";
 import StartHereCard from "../../components/startHere/StartHereCard";
+import { typeFirstAnswerMode, useZeroGraded } from "../../components/startHere/zeroGraded";
 import {
   FREE_CHECK_COPY,
   FREE_CHECK_SIGNIN_PATH,
@@ -1043,6 +1044,19 @@ const DesktopCheckImprovePageInner: React.FC<{
   const [imageMime, setImageMime] = useState<string>("image/jpeg");
   const [imageName, setImageName] = useState<string>("");
 
+  // SHW-2 TYPE-FIRST DEFAULT (owner ruling, 16 Oct) — a signed-in student with ZERO graded answers
+  // starts on "Type answer"; both tabs always show. A signed-out visitor (free check / ad landing,
+  // `freeCheck` set) and a student with graded work keep "Upload image". The signal is the
+  // Start-here card's own read on this page (./zeroGraded shares it per uid: no second read);
+  // inside the tutor overlay (no card) it never starts one. While unknown: Upload, unchanged.
+  // Display only — grading, scoring and recording are untouched.
+  const ciZeroGraded = useZeroGraded(
+    !freeCheck && user?.uid && !user.isLocalSession ? user.uid : null,
+    { cloud: !overlay },
+  );
+  /** The student picked a tab / a draft or paste filled the box: the default never moves it after. */
+  const ciAnswerTouchedRef = useRef(false);
+
   // Detect-then-confirm: `detected` is the AI's read (immutable record for the
   // override log); `confirmed` is what grading runs against (the student may
   // correct it). `editing` toggles the inline correction.
@@ -1108,6 +1122,21 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Every question read from the upload. `length > 1` switches the UI to the
   // multi-question grade path (grade ALL via the worksheet structured grader).
   const [detectedQuestions, setDetectedQuestions] = useState<DetectedQuestion[] | null>(null);
+
+  // SHW-2 type-first move (see ciZeroGraded above). SHW-4: it happens only on a page nobody has
+  // started - once the student typed / uploaded a question, a read is running or done (a whole paper
+  // detected as multi grades from the answer PHOTO), or any answer exists, a late signal (slow
+  // network) never moves the tab under them.
+  useEffect(() => {
+    if (typeFirstAnswerMode(ciZeroGraded) !== "type" || ciAnswerTouchedRef.current) return;
+    if (textAnswer.length > 0 || imageBase64 !== null) return;
+    if (question.length > 0 || qImageBase64 !== null) return;
+    if (detecting || detected !== null || confirmed !== null || detectedQuestions !== null) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot move when the zero-graded signal arrives, guarded by the touched ref above
+    setTab("type");
+    // Only the signal's arrival may move the tab; the page's own state is read, not watched.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ciZeroGraded]);
 
   // ── ACTIVATION-1 · L2 — the in-progress question + answer survive sign-in (THIS TAB only) ──
   // A signed-out visitor's input is autosaved (debounced) to the tab's sessionStorage + IndexedDB
@@ -1186,6 +1215,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setQImageBase64(d.images.qImageBase64);
       setQImageMime(d.fields.qImageMime);
       setQImageName(d.fields.qImageName);
+      ciAnswerTouchedRef.current = true; // SHW-2: the restored draft's tab wins
       setTab(d.fields.tab as AnswerTab);
       setTextAnswer(d.fields.textAnswer);
       setImageBase64(d.images.imageBase64);
@@ -1474,6 +1504,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setQuestionTab("upload");
       handleQuestionFile(file);
     } else {
+      ciAnswerTouchedRef.current = true; // SHW-2
       setTab("upload");
       handleFileChosen(file);
     }
@@ -3004,7 +3035,10 @@ const DesktopCheckImprovePageInner: React.FC<{
                     <button
                       key={t}
                       type="button"
-                      onClick={() => setTab(t)}
+                      onClick={() => {
+                        ciAnswerTouchedRef.current = true; // SHW-2
+                        setTab(t);
+                      }}
                       style={{
                         flex: 1,
                         height: 34,

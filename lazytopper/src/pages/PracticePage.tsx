@@ -515,9 +515,11 @@ import { resolveCorrectOptionIndex } from "../lib/objectiveScoring";
 import {
   START_HERE_SRC,
   analyticsSubject,
+  startHereCountFloor,
   startHerePracticePath,
   type StartHereQType,
 } from "../components/startHere/startHereModel";
+import { typeFirstAnswerMode, useZeroGraded } from "../components/startHere/zeroGraded";
 import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
@@ -690,6 +692,16 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [, setSearchParams] = useSearchParams();
   const params = useParams<{ grade?: string; subject?: string }>();
   const { user: authUserForJourney, loading: authLoading } = useAuth();
+  // SHW-2 TYPE-FIRST DEFAULT — a signed-in student with ZERO graded answers gets the answer box on
+  // "Type" first. The Start-here check's answer is REUSED (local rows, then the answer Home / the
+  // hub already read in this tab): `cloud: false`, so this page never starts a Firestore read.
+  // SHW-3: bumped once per graded batch on this mount, so the signal looks again (local rows
+  // first, no cloud read) and the next set's boxes open on Upload.
+  const [gradedBatchesThisMount, setGradedBatchesThisMount] = useState(0);
+  const zeroGradedForAnswerBox = useZeroGraded(
+    authUserForJourney && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null,
+    { cloud: false, recheck: gradedBatchesThisMount },
+  );
 
   useEffect(() => {
     try {
@@ -832,7 +844,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
 
     const recommendedCount = queryRecommendedCount ?? navRecommendedCount ?? 10;
     const clampedCount = Math.max(
-      MIN_QUESTION_COUNT,
+      // START-HERE-WRITTEN: a Start-here written link is ONE question (exact set); every other link keeps the floor.
+      startHereCountFloor(qp.get("src"), qp.get("qt"), MIN_QUESTION_COUNT),
       Math.min(COUNT_SOFT_MAX, Math.min(MAX_QUESTION_COUNT, recommendedCount))
     );
 
@@ -2634,6 +2647,8 @@ const packTopicKey = useMemo(() => {
       fairUse.noteGraded();
       // ACTIVATION-1 · L4 — once per graded set; the bare event name only.
       trackPracticeGraded(worksheetId);
+      // SHW-3: the student now has graded work - re-read the type-first signal (local, no cloud).
+      setGradedBatchesThisMount((n) => n + 1);
     }
     // J2 §6 — interrupted: the marked rows stay on screen with "grade the remaining N"; the
     // free MCQ marks still feed today's record (the result above), and no error box.
@@ -2787,17 +2802,24 @@ const packTopicKey = useMemo(() => {
   // (b) `start_here_graded`, ONCE per Start-here set, when its scorecard first shows with at
   // least one counted answer. Counts only — no id, no text.
   const startHereSet = qp.get("src") === START_HERE_SRC;
+  // SHW-2 — the answer box's first-selected tab: "type" on a Start-here WRITTEN set or for a
+  // zero-graded student; otherwise undefined (upload, unchanged). Display only.
+  const answerBoxDefault = typeFirstAnswerMode(zeroGradedForAnswerBox, {
+    startHereWritten: startHereSet && qp.get("qt") === "written",
+  });
   const startHereGradedRef = useRef(false);
   useEffect(() => {
     if (!startHereSet || !showScorecard || startHereGradedRef.current) return;
-    if (sessionStats.attemptedInSet <= 0) return;
+    // START-HERE-WRITTEN: a written answer is graded in the batch at Finish (it never lands in
+    // `gradedResults`), so a graded batch also counts as the set's first graded result.
+    if (sessionStats.attemptedInSet <= 0 && batchResult?.outcome !== "graded") return;
     startHereGradedRef.current = true;
     trackOnboardingEvent("start_here_graded", {
       subject: analyticsSubject(subjectKey),
       correct: sessionStats.localMcqCorrect,
       total: filteredQuestions.length,
     });
-  }, [startHereSet, showScorecard, sessionStats.attemptedInSet, sessionStats.localMcqCorrect, filteredQuestions.length, subjectKey]);
+  }, [startHereSet, showScorecard, sessionStats.attemptedInSet, sessionStats.localMcqCorrect, filteredQuestions.length, subjectKey, batchResult?.outcome]);
 
   // ── QP-SCORECARD-2 B + C ─────────────────────────────────────────────────────────────
   // A SAVED session's scorecard, reopened READ-ONLY from the student's own stored record +
@@ -3324,6 +3346,7 @@ const packTopicKey = useMemo(() => {
           // ★★ WIRE-2 · COLLECT MODE. The answer panel SAVES; nothing on this page grades
           // per question any more. The ONE paid call is `handleGradeBatch`, below.
           collectMode
+          defaultAnswerMode={answerBoxDefault}
           savedAnswers={savedAnswers}
           onSaveAnswer={handleSaveAnswer}
           onRemoveAnswer={handleRemoveAnswer}
