@@ -150,3 +150,19 @@ describe("TF3 — honesty rule h and the practice-offer wording", () => {
     expect(p).toMatch(/NEVER write "Here are a couple of practice questions"/);
   });
 });
+
+// TUTOR-FIX-4: live, the model repeated its OWN earlier wrong turns ("due to concept/knowledge gaps")
+// over the brief. Rule i makes the brief the only source of truth and asks for a plain correction.
+describe("TF4 — honesty rule i: the brief beats the conversation", () => {
+  const p = build(LIVE);
+  it("states the brief is the only source of truth, own earlier replies included, with the correction wording", () => {
+    expect(p).toContain(
+      "\ni. WHAT YOU KNOW ABOUT THIS STUDENT (the student-data brief) in this system message is the only source of truth about the student's marks and mistake types.",
+    );
+    expect(p).toMatch(/including your own earlier replies\) contradicts it, the brief wins/);
+    expect(p).toContain("Correction: those marks have no mistake type recorded");
+  });
+  it("rule i sits after rule h in the honesty block", () => {
+    expect(p.indexOf("\ni. WHAT YOU KNOW")).toBeGreaterThan(p.indexOf("\nh. Say a mistake type"));
+  });
+});

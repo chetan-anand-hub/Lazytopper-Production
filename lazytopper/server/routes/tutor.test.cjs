@@ -293,3 +293,172 @@ test('T1 the language directive keeps the honesty rules (rule g)', async () => {
   const last = contentsSeen[0][contentsSeen[0].length - 1].parts[0].text;
   assert.match(last, /Every HONESTY rule in your instructions applies in this language too/);
 });
+
+/* ── TUTOR-FIX-4: the attribution safety net (all-unrecorded brief only) ─────────────────────
+ * Live defect after #1203: an existing Real Numbers thread whose history already held three wrong
+ * assistant turns ("the marks were lost due to concept/knowledge gaps") made the model repeat the
+ * attribution although the brief says no type is recorded. The route must never pass that through. */
+const { isAllUnrecordedBrief, asksMistakeType, attributesMistakeType, buildUnrecordedTypeReply } = require('./tutor.cjs');
+
+const LIVE_UNRECORDED = {
+  hasData: true, topic: { trend: 'improving', weakConcepts: ['Fundamental Theorem of Arithmetic'] },
+  mistakes: { marksLostRecent: 7 }, windowLabel: 'last 30 days', subject: { marksLost: 7 },
+  chapter: {
+    marksLost: 7, byGroup: { knowledge: 0, careless: 0, examTechnique: 0, notAttempted: 0, unrecorded: 7 },
+    concepts: [{ name: 'Fundamental Theorem of Arithmetic', marksLost: 5 }], name: 'Real Numbers',
+  },
+};
+const MIXED_BRIEF = {
+  hasData: true, windowLabel: 'last 30 days',
+  chapter: { name: 'Real Numbers', marksLost: 8, byGroup: { knowledge: 3, careless: 0, examTechnique: 1, notAttempted: 0, unrecorded: 4 } },
+};
+const WRONG_TURN = 'In the last 30 days you lost 7 marks in Real Numbers, and the marks were lost due to concept/knowledge gaps. There were no marks lost due to careless slips.';
+const WRONG_HISTORY = [
+  { role: 'student', content: 'what are my mistakes in real numbers?' }, { role: 'tutor', content: WRONG_TURN },
+  { role: 'student', content: 'which concept?' }, { role: 'tutor', content: 'Fundamental Theorem of Arithmetic, 5 marks. The marks were lost due to concept/knowledge gaps.' },
+  { role: 'student', content: 'ok' }, { role: 'tutor', content: 'Those marks were lost due to concept/knowledge gaps, so revise the theorem.' },
+];
+
+test('TF4 isAllUnrecordedBrief: only when every lost chapter mark is unrecorded', () => {
+  assert.equal(isAllUnrecordedBrief(normalizeBrief(LIVE_UNRECORDED)), true);
+  assert.equal(isAllUnrecordedBrief(normalizeBrief(MIXED_BRIEF)), false);
+  assert.equal(isAllUnrecordedBrief(normalizeBrief({ hasData: true, chapter: { byGroup: { careless: 2 } } })), false);
+  assert.equal(isAllUnrecordedBrief(normalizeBrief({ hasData: false })), false);
+  assert.equal(isAllUnrecordedBrief(null), false);
+  assert.equal(isAllUnrecordedBrief(normalizeBrief({ hasData: true, chapter: { byGroup: { unrecorded: 0 } } })), false);
+});
+
+test('TF4 attributesMistakeType table (English + Hinglish)', () => {
+  const YES = [
+    'the marks were lost due to concept/knowledge gaps.',
+    'These were conceptual gaps, not careless.',
+    'Your mistakes are concept or knowledge gaps.',
+    'It was a knowledge gap.',
+    'There were no marks lost due to careless slips.',
+    'mostly careless mistakes',
+    'you lost marks to exam technique',
+    'just silly slips',
+    'a silly mistake here',
+    'ye concept galti thi',
+    'tumhari careless galti hai',
+    'Concept / knowledge gap',
+  ];
+  const NO = [
+    'In the last 30 days you lost 7 marks in Real Numbers.',
+    'Let us revise the Fundamental Theorem of Arithmetic.',
+    'HCF x LCM = product of the two numbers.',
+    'Can you tell me which concept confuses you?',
+  ];
+  for (const s of YES) assert.equal(attributesMistakeType(s), true, s);
+  for (const s of NO) assert.equal(attributesMistakeType(s), false, s);
+});
+
+test('TF4 asksMistakeType table (English + Hinglish)', () => {
+  const YES = [
+    'are my mistakes in real numbers careless or concept?',
+    'last 2 weeks careless or concept?',
+    'kya meri galtiyan careless hain?',
+    'am I making silly mistakes?',
+    'concept galti hai ya careless galti?',
+    'what type of mistakes do I make?',
+    'is it a concept gap?',
+    'conceptual or careless?',
+  ];
+  const NO = ['explain this concept', 'what is HCF?', 'whats my biggest mistake', 'Give me some practice questions on this chapter'];
+  for (const s of YES) assert.equal(asksMistakeType(s), true, s);
+  for (const s of NO) assert.equal(asksMistakeType(s), false, s);
+});
+
+test('TF4 buildUnrecordedTypeReply uses the brief figures, never a type', () => {
+  const text = buildUnrecordedTypeReply(normalizeBrief(LIVE_UNRECORDED), 'Real Numbers');
+  assert.match(text, /^In the last 30 days you lost 7 marks in Real Numbers\./);
+  assert.match(text, /No mistake type is recorded for them/);
+  assert.match(text, /Check & Improve/);
+  assert.doesNotMatch(text, /due to|were (concept|careless|knowledge)|no marks/i);
+  const noWindow = buildUnrecordedTypeReply(normalizeBrief({ ...LIVE_UNRECORDED, windowLabel: undefined }), 'Real Numbers');
+  assert.match(noWindow, /^Recently you lost 7 marks in Real Numbers\./);
+});
+
+test('TF4 RED->GREEN: the live defect reply (wrong history) is replaced, offer=check-improve, counter logged', async () => {
+  const events = [];
+  const h = routeWith({ text: `${WRONG_TURN}\n[[offer:practice]]`, finishReason: 'STOP' }, events);
+  const res = await h.send({ brief: LIVE_UNRECORDED, messages: [...WRONG_HISTORY, { role: 'student', content: 'are my mistakes in real numbers careless or concept?' }] });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.reply, buildUnrecordedTypeReply(normalizeBrief(LIVE_UNRECORDED), 'Real Numbers'));
+  assert.doesNotMatch(res.body.reply, /due to concept|no marks lost due to careless/i);
+  assert.match(res.body.reply, /lost 7 marks in Real Numbers/);
+  assert.equal(res.body.offer, 'check-improve');
+  assert.equal(res.body.offerSource, 'attribution-override');
+  assert.ok(events.includes('tutor.attribution_override'));
+});
+
+test('TF4 v2 sentence-level table: honest negation kept, asserting replaced, mixed replaced only with an asserting sentence', () => {
+  const KEPT = [
+    'Correction: those 7 marks have no mistake type recorded.',
+    'Correction: the marks were not concept/knowledge gaps as I said - no type is recorded.',
+    'Tap-the-answer questions record which option was picked, so I cannot say whether they were careless slips or concept gaps.',
+    "The mistake type isn't recorded, so I can't tell if these were silly mistakes or knowledge gaps.",
+    'The type (careless slips, concept gaps, exam technique) is not recorded for these marks.',
+    'In the last 30 days you lost 7 marks in Real Numbers.\nNo mistake type is recorded - I can\'t say if it was a concept gap.',
+    'Let us revise the Fundamental Theorem of Arithmetic.',
+  ];
+  const REPLACED = [
+    'In the last 30 days you lost 7 marks. The marks were lost due to concept/knowledge gaps.',
+    'You lost 7 marks. There were no marks lost due to careless slips.',
+    // mixed: one honest sentence, one asserting sentence -> replaced
+    'Correction: no mistake type is recorded. But honestly these look like concept gaps to me.',
+    'I cannot say for sure. Still, mostly careless mistakes!',
+    'ye concept galti thi',
+  ];
+  for (const s of KEPT) assert.equal(attributesMistakeType(s), false, s);
+  for (const s of REPLACED) assert.equal(attributesMistakeType(s), true, s);
+  // the template itself is never read as an assertion
+  assert.equal(attributesMistakeType(buildUnrecordedTypeReply(normalizeBrief(LIVE_UNRECORDED), 'Real Numbers')), false);
+});
+
+test('TF4 v2 route: an honest reply with negation passes through untouched (no override, no counter)', async () => {
+  const events = [];
+  const honest = 'Correction: those 7 marks have no mistake type recorded. Tap-the-answer questions record the option, so I cannot say whether they were careless slips or concept gaps.\n[[offer:check-improve]]';
+  const res = await routeWith({ text: honest, finishReason: 'STOP' }, events)
+    .send({ brief: LIVE_UNRECORDED, messages: [...WRONG_HISTORY, { role: 'student', content: 'are my mistakes in real numbers careless or concept?' }] });
+  assert.equal(res.body.reply, honest.replace('\n[[offer:check-improve]]', ''));
+  assert.equal(res.body.offer, 'check-improve');
+  assert.equal(res.body.offerSource, 'model');
+  assert.equal(events.includes('tutor.attribution_override'), false);
+});
+
+test('TF4 v2 route: a type question with a reply that names no type is no longer replaced', async () => {
+  const res = await routeWith({ text: 'Good question! Let us look at HCF first.', finishReason: 'STOP' }, [])
+    .send({ brief: LIVE_UNRECORDED, messages: [{ role: 'student', content: 'kya meri galtiyan careless hain?' }] });
+  assert.equal(res.body.reply, 'Good question! Let us look at HCF first.');
+});
+
+test('TF4 v2 route: a Hindi session is not replaced; the non-English counter is logged', async () => {
+  const events = [];
+  const res = await routeWith({ text: WRONG_TURN, finishReason: 'STOP' }, events)
+    .send({ brief: LIVE_UNRECORDED, language: 'Hindi', messages: [{ role: 'student', content: 'kya meri galtiyan careless hain?' }] });
+  assert.equal(res.body.reply, WRONG_TURN);
+  assert.notEqual(res.body.offerSource, 'attribution-override');
+  assert.ok(events.includes('tutor.attribution_unreplaced_nonenglish'));
+  assert.equal(events.includes('tutor.attribution_override'), false);
+});
+
+test('TF4 narrow: mixed brief, no-data brief and a non-type reply pass through untouched', async () => {
+  const events = [];
+  const mixed = await routeWith({ text: 'The marks were lost due to concept/knowledge gaps.', finishReason: 'STOP' }, events)
+    .send({ brief: MIXED_BRIEF, messages: [{ role: 'student', content: 'careless or concept?' }] });
+  assert.equal(mixed.body.reply, 'The marks were lost due to concept/knowledge gaps.');
+  const plain = await routeWith({ text: 'HCF is the highest common factor.', finishReason: 'STOP' }, events)
+    .send({ brief: LIVE_UNRECORDED, messages: [{ role: 'student', content: 'what is HCF?' }] });
+  assert.equal(plain.body.reply, 'HCF is the highest common factor.');
+  assert.equal(events.includes('tutor.attribution_override'), false);
+});
+
+test('TF4 history hygiene: an all-unrecorded brief appends the brief-wins note to the last turn sent to the model', async () => {
+  const h = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
+  await h.send({ brief: LIVE_UNRECORDED, messages: [...WRONG_HISTORY, { role: 'student', content: 'what next?' }] });
+  assert.match(h.prompts[0], /the student-data brief wins/i);
+  const h2 = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
+  await h2.send({ brief: MIXED_BRIEF, messages: [{ role: 'student', content: 'what next?' }] });
+  assert.doesNotMatch(h2.prompts[0], /the student-data brief wins/i);
+});
