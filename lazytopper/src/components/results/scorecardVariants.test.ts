@@ -17,6 +17,7 @@ import {
   checkImproveScorecardVariant,
   storedCheckImproveScorecardVariant,
   storedQuickPracticeScorecardVariant,
+  reopenedQuickPracticeScorecardVariant,
   quickPracticeGradedScorecardVariant,
   ObjectiveMarkNotBinaryError,
 } from "./scorecardVariants";
@@ -193,14 +194,22 @@ describe("quickPracticeScorecardVariant", () => {
     expect(v.actions.map((a) => a.label)).not.toContain("Chapter Test");
   });
 
-  it("a normal (direct/hub) visit gets NO return row — just the review action", () => {
+  it("a normal (direct/hub) visit gets NO return row — the review action, then the full menu", () => {
     const v = quickPracticeScorecardVariant({
       ...base,
       attempted: 5, totalInSet: 5, mcqAnswered: 3, mcqCorrect: 3, allDone: true,
     });
     expect(v.actions.find((a) => a.tag === "Back")).toBeUndefined();
-    // PRACTICE-HONESTY-1 — MCQ-only: just the marks + "Back to this set (see the steps)".
-    expect(v.actions.map((a) => a.label)).toEqual(["Back to this set (see the steps)"]);
+    // AMENDED (owner ruling Oct 2026 05:00 (QP-SCORECARD-2 A)) — was: PRACTICE-HONESTY-1
+    // "MCQ-only: just the marks + 'Back to this set (see the steps)'" (ONE action). The graded
+    // scorecard now carries the empty state's full menu after the review action.
+    expect(v.actions.map((a) => a.label)).toEqual([
+      "Back to this set (see the steps)",
+      "Build a fresh set",
+      "Chapter Test",
+      "Important Questions",
+      "Study this chapter",
+    ]);
   });
 
   it("0-attempted shows the honest empty state and the floor menu (no-signal → keep)", () => {
@@ -228,14 +237,68 @@ describe("quickPracticeScorecardVariant", () => {
     const v = quickPracticeScorecardVariant({
       ...base, attempted: 5, totalInSet: 5, mcqAnswered: 4, mcqCorrect: 4, allDone: true, onReviewSet,
     });
-    expect(v.actions).toHaveLength(1);
+    // AMENDED (owner ruling Oct 2026 05:00 (QP-SCORECARD-2 A)) — was `toHaveLength(1)` (ONE
+    // action). The review stays FIRST and the ONLY primary; the full menu follows it.
     expect(v.actions[0].label).toBe("Back to this set (see the steps)");
     expect(v.actions[0].tone).toBe("primary");
+    expect(v.actions.slice(1).every((a) => a.tone === "secondary")).toBe(true);
     v.actions[0].onClick();
     expect(onReviewSet).toHaveBeenCalledTimes(1);
-    // CONTROL — the same session with a dipping score gets the SAME single action.
+    // CONTROL — the same session with a dipping score gets the SAME actions (no elevation on a
+    // graded scorecard: the review keeps the primary slot). AMENDED (owner ruling Oct 2026
+    // 05:00 (QP-SCORECARD-2 A)) — was `toEqual(["Back to this set (see the steps)"])`.
     const dipping = quickPracticeScorecardVariant({ ...base, attempted: 5, totalInSet: 5, mcqAnswered: 4, mcqCorrect: 1, allDone: true });
-    expect(dipping.actions.map((a) => a.label)).toEqual(["Back to this set (see the steps)"]);
+    expect(dipping.actions.map((a) => a.label)).toEqual(v.actions.map((a) => a.label));
+    expect(dipping.actions.map((a) => a.tone)).toEqual(v.actions.map((a) => a.tone));
+  });
+
+  // ── QP-SCORECARD-2 A (owner ruling Oct 2026 05:00) — the graded scorecard's full menu ──
+  it("A ★★ graded: Back-to-set FIRST and primary, then the empty state's menu, then Start-here extras, then the ticket", () => {
+    const chapter = vi.fn();
+    const v = quickPracticeScorecardVariant({
+      ...base, onChapterTest: chapter, onReviewSet: vi.fn(),
+      attempted: 2, totalInSet: 5, mcqAnswered: 2, mcqCorrect: 1, allDone: false,
+      extraActions: [{ label: "Explore LazyTopper", tag: "Home", tone: "primary", onClick: noop }],
+    });
+    expect(v.actions.map((a) => a.label)).toEqual([
+      "Back to this set (see the steps)",
+      "Keep practicing this set",
+      "Build a fresh set",
+      "Chapter Test",
+      "Important Questions",
+      "Study this chapter",
+      "Explore LazyTopper",
+    ]);
+    // The menu rows are the empty state's own (same labels, same tags) — no new copy.
+    const empty = quickPracticeScorecardVariant({ ...base, attempted: 0, totalInSet: 5, mcqAnswered: 0, mcqCorrect: 0, allDone: false });
+    const emptyByLabel = new Map(empty.actions.map((a) => [a.label, a.tag]));
+    for (const a of v.actions.slice(1, 6)) expect(a.tag).toBe(emptyByLabel.get(a.label));
+    v.actions.find((a) => a.label === "Chapter Test")!.onClick();
+    expect(chapter).toHaveBeenCalledTimes(1);
+  });
+
+  it("A ★★ overlay host: the graded menu hides the app-navigation items; the ticket is last", () => {
+    const v = quickPracticeScorecardVariant({
+      ...base, onReviewSet: vi.fn(),
+      attempted: 3, totalInSet: 3, mcqAnswered: 3, mcqCorrect: 2, allDone: true,
+      overlayMode: true,
+      returnTicket: { label: "Back to your tutor", onReturn: noop },
+    });
+    const labels = v.actions.map((a) => a.label);
+    expect(labels).toEqual(["Back to this set (see the steps)", "Build a fresh set", "Back to your tutor"]);
+    for (const nav of ["Chapter Test", "Important Questions", "Study this chapter"]) expect(labels).not.toContain(nav);
+  });
+
+  it("A · CONTROL: the empty state (0 attempted) menu is unchanged", () => {
+    const v = quickPracticeScorecardVariant({ ...base, attempted: 0, totalInSet: 6, mcqAnswered: 0, mcqCorrect: 0, allDone: false });
+    expect(v.actions.map((a) => [a.label, a.tag, a.tone])).toEqual([
+      ["Keep practicing this set", "Back", "primary"],
+      ["Build a fresh set", "New", "secondary"],
+      ["Chapter Test", "Test", "secondary"],
+      ["Important Questions", "Important Qs", "secondary"],
+      ["Study this chapter", "Hub", "secondary"],
+    ]);
+    expect(v.score).toEqual({ kind: "attempts", attempted: 0, ofN: 6, mcqAnswered: 0, mcqCorrect: 0 });
   });
 
   it("renders an MI four-type block ONLY when typed mistakes are supplied", () => {
@@ -1010,5 +1073,53 @@ describe("storedQuickPracticeScorecardVariant", () => {
     });
     expect(v.pending).toBeNull();
     expect(v.allPending).toBeNull();
+  });
+});
+
+// ── QP-SCORECARD-2 B · a saved Quick Practice session, reopened read-only ──────────────
+describe("reopenedQuickPracticeScorecardVariant (QP-SCORECARD-2 B)", () => {
+  const rec: SessionRecord = {
+    id: "QP-M-REAL-0a1b2c3d",
+    worksheetId: "qp:QP-M-REAL-0a1b2c3d",
+    surface: "quick-practice",
+    title: "Real Numbers · Practice set",
+    subject: "maths",
+    topicKeys: ["real-numbers"],
+    questionIds: ["q-1", "q-2", "q-3"],
+    marksAwarded: 1,
+    marksTotal: 3,
+    status: "graded",
+    fourType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    sectionBreakdown: null,
+    gradedAt: 1751500000000,
+    perQuestionRef: "qp:QP-M-REAL-0a1b2c3d",
+    dedupKey: "uid-1::QP-M-REAL-0a1b2c3d",
+  };
+  const menu = { onFreshSet: () => {}, onChapterTest: () => {}, onPredicted: () => {}, onStudy: () => {} };
+
+  it("★★ the record's own name, code and date; stored marks; the rows; A's menu with NO live-set actions", () => {
+    const rows = [{ label: "Question 1", yourAnswer: null, correctAnswer: "q1-correct", steps: ["s1"] }];
+    const v = reopenedQuickPracticeScorecardVariant(rec, { gradedDateLabel: "3 Jul 2026", gradedCount: 3, wrongAnswers: rows, menu });
+    expect(v.title).toBe("Real Numbers · Practice set");
+    expect(v.subtitle).toBe("QP-M-REAL-0a1b2c3d · 3 Jul 2026");
+    expect(v.score).toEqual({ kind: "marks", awarded: 1, total: 3, gradedCount: 3, totalQuestions: 3 });
+    expect(v.wrongAnswers).toEqual(rows);
+    expect(v.fourType).toBeNull();
+    const labels = v.actions.map((a) => a.label);
+    expect(labels).toEqual(["Build a fresh set", "Chapter Test", "Important Questions", "Study this chapter"]);
+    expect(labels).not.toContain("Back to this set (see the steps)");
+    expect(labels).not.toContain("Keep practicing this set");
+    expect(v.actions[0].tone).toBe("primary");
+  });
+
+  it("an absent graded count is never synthesised; Start-here extras follow the menu", () => {
+    const v = reopenedQuickPracticeScorecardVariant(rec, {
+      gradedDateLabel: "3 Jul 2026",
+      menu: { ...menu, overlayMode: true },
+      extraActions: [{ label: "Explore LazyTopper", tone: "primary", onClick: () => {} }],
+    });
+    expect(v.score).toEqual({ kind: "marks", awarded: 1, total: 3, totalQuestions: 3 });
+    expect(v.wrongAnswers).toBeNull();
+    expect(v.actions.map((a) => a.label)).toEqual(["Build a fresh set", "Explore LazyTopper"]);
   });
 });
