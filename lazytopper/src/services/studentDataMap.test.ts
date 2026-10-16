@@ -643,3 +643,11 @@ describe("studentDataMap — erasure architecture facts", () => {
     expect(ls.mechanism).toBe("client-local");
   });
 });
+
+describe("studentDataMap — FOLLOWUPS-2 F2 Start-here shown dedupe key", () => {
+  it("★ lazytopper.startHereShown.<surface> is listed under the existing local-storage entry (sessionStorage, never the uid)", () => {
+    const local = STUDENT_DATA_MAP.find((l) => l.id === "local-storage");
+    expect(local!.holds).toContain("`lazytopper.startHereShown.<surface>`");
+    expect(STUDENT_DATA_MAP.filter((l) => l.kind === "local-storage")).toHaveLength(1);
+  });
+});
