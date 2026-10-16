@@ -36,6 +36,7 @@ import {
   buildChapters,
   meChapterPractisePath,
   meConceptPractisePath,
+  meConceptRowsFrom,
   mePaperOf,
 } from "../services/meHomeSummary";
 // eslint-disable-next-line react-refresh/only-export-components
@@ -618,7 +619,8 @@ export default function MeProgressPage() {
     [mistakeRungs],
   );
 
-  const conceptRows = useMemo(() => viewRowsFrom(data?.concepts ?? []), [data]);
+  // WEAK-AREA-DIRECT — the same rows, each with its chapter, so its Practise opens the concept's set.
+  const conceptRows = useMemo(() => meConceptRowsFrom(data?.concepts ?? []), [data]);
   // ME-CONCEPT-1 — the per-concept mistakes the read model put on the SAME rows (above Me's
   // weakness gate only; below it no row carries any, and no note is printed).
   const conceptNotes = useMemo(() => {
@@ -1197,7 +1199,7 @@ export default function MeProgressPage() {
                         <MarksWord value={row.lost} />
                       </span>
                       <RowCta
-                        to={meConceptPractisePath(paper, row.label, ROUTE_CTX)}
+                        to={meConceptPractisePath(paper, row, ROUTE_CTX)}
                         label="Practise"
                         testId={`me-practise-concept-${row.key}`}
                       />

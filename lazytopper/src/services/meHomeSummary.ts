@@ -30,14 +30,14 @@ import {
   type StudyReadModel,
   type StudyReadQuery,
 } from "./progressReadModel";
-import type { RungTrend } from "./progressStore";
+import type { ConceptRung, RungTrend } from "./progressStore";
+import { conceptSetPath, type ConceptSetRef } from "../lib/desktop/conceptSetPath";
 import type { MistakeLogEntry } from "./mistakeLogService";
 import { lostMarksOf, splitPaperMarks, viewRowsFrom, type PaperSplit, type ViewRow } from "./meSplit";
 import { entryMarksLost, isStoredMistakeType, type StoredMistakeType } from "../lib/mistakeDisplay";
 import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
 import {
   buildDesktopConceptPracticePath,
-  buildDesktopPracticePath,
   withQuery,
   type DesktopRouteContext,
   type DesktopSubject,
@@ -164,14 +164,26 @@ export function meChapterPractisePath(
   return withQuery("/exam-trends", params);
 }
 
-/** Me's per-concept row Practise href (Me's "By concept" rows call this). ONE concept per href:
- *  the hub's `focus` param carries a single concept label — there is no multi-focus param. */
+/** Me's per-concept row Practise href (Me's "By concept" rows call this; so does Quick Practice's
+ *  "My weak areas" card). ONE concept per href. WEAK-AREA-DIRECT: a Quick Practice SET on that
+ *  concept in its chapter (lib/desktop/conceptSetPath) - the /practice-hub picker it used to open
+ *  ignores `focus`, so the concept was lost. */
 export function meConceptPractisePath(
   paper: DesktopSubject,
-  label: string,
+  concept: ConceptSetRef,
   ctx: DesktopRouteContext = ME_ROUTE_CTX,
 ): string {
-  return buildDesktopPracticePath({ scope: "full-subject", subject: paper, focus: label, ...ctx });
+  return conceptSetPath(paper, concept, ctx);
+}
+
+/** Me's "By concept" rows (`viewRowsFrom`, unchanged) with each row's chapter, so its Practise
+ *  can open the concept's own set. A row without a chapter stays as it was. */
+export function meConceptRowsFrom(concepts: readonly ConceptRung[]): Array<ViewRow & { chapter?: string }> {
+  const chapterByKey = new Map(concepts.map((c) => [c.key, c.chapter]));
+  return viewRowsFrom(concepts as ConceptRung[]).map((r) => {
+    const chapter = chapterByKey.get(r.key);
+    return chapter ? { ...r, chapter } : r;
+  });
 }
 
 /* ───────────────────────── the per-type marks (same rule, finer grain) ───────────────────────── */
@@ -218,6 +230,8 @@ export interface MeHomeRow {
   key: string;
   label: string;
   lost: number;
+  /** A concept row's chapter (ConceptRung.chapter), when known — its Practise opens that chapter's set. */
+  chapter?: string;
   practisePath: string;
 }
 
@@ -263,9 +277,9 @@ export function computeMeHomeSummary(
     first && first.lost > 0
       ? { key: first.key, label: first.label, lost: first.lost, practisePath: meChapterPractisePath(first) }
       : null;
-  const concepts = viewRowsFrom(paperProgress.concepts ?? []).map((r: ViewRow) => ({
+  const concepts = meConceptRowsFrom(paperProgress.concepts ?? []).map((r) => ({
     ...r,
-    practisePath: meConceptPractisePath(paper, r.label),
+    practisePath: meConceptPractisePath(paper, r),
   }));
   return { paper, split, lost: split?.lost ?? 0, typeMarks, hasTyped, topChapter, concepts };
 }
@@ -346,8 +360,8 @@ export async function loadMeConceptRows(
 ): Promise<MeHomeRow[]> {
   const scoped = await readPaper(uid, gen, paper, reader);
   if (!rungNamesWeakness(subjectRungOf(scoped.progress, mePaperScopeKey(paper)))) return [];
-  return viewRowsFrom(scoped.progress.concepts ?? []).map((r) => ({
+  return meConceptRowsFrom(scoped.progress.concepts ?? []).map((r) => ({
     ...r,
-    practisePath: meConceptPractisePath(paper, r.label),
+    practisePath: meConceptPractisePath(paper, r),
   }));
 }

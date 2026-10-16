@@ -4,6 +4,9 @@
 // module (not QuickPracticePresets.tsx) so the component file exports components only
 // (react-refresh/only-export-components).
 
+import { conceptSetPath } from "../../lib/desktop/conceptSetPath";
+import type { DesktopSubject } from "../../lib/desktop/navigation";
+
 /** The honest locked line ("Soon" is gone: the card is real, just not yet). True for both locked
  *  cases: no graded answers yet, and graded answers still below Me's weakness-naming gate. */
 export const WEAK_AREAS_LOCKED_COPY = "Unlocks once a few answers are graded";
@@ -23,17 +26,26 @@ export type WeakAreasCard =
   | { kind: "locked" }
   | { kind: "live"; href: string; concepts: Array<{ label: string; lost: number }> };
 
-/** The card state from the auth state and Me's concept rows (worst first) for this subject. */
+/** WEAK-AREA-DIRECT — where the card is: its paper and the practice page to come Back to. */
+export interface WeakAreasCardHere {
+  paper: DesktopSubject;
+  returnTo: string;
+}
+
+/** The card state from the auth state and Me's concept rows (worst first) for this subject.
+ *  With `here`, the href is Me's concept builder (`conceptSetPath`, the one Me's rows use) with
+ *  Back returning to this practice page; without it, the row's own Me href. */
 export function weakAreasCardFrom(
   signedIn: boolean,
-  rows: ReadonlyArray<{ label: string; lost: number; practisePath: string }>,
+  rows: ReadonlyArray<{ label: string; lost: number; chapter?: string; practisePath: string }>,
+  here?: WeakAreasCardHere,
 ): WeakAreasCard {
   if (!signedIn) return { kind: "hidden" };
   const top = rows[0];
   if (!top) return { kind: "locked" };
   return {
     kind: "live",
-    href: top.practisePath,
+    href: here ? conceptSetPath(here.paper, top, { returnTo: here.returnTo }) : top.practisePath,
     concepts: rows.slice(0, 3).map((r) => ({ label: r.label, lost: r.lost })),
   };
 }
