@@ -1,3 +1,17 @@
+## 2026-10-17 - #1198 to #1209: DECISIONS THE 15-17 OCT SESSION MADE (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner and cofounder decisions, each with its reason.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Start-here written question is Science only, typed (owner 16 Oct) | third type "Written - 1 Q" serves one short-answer Science CBQ and uses one daily check | owner ruling 16 Oct 16:45: typed answer, Science CBQs for v1; the existing QP written grading marks it, so no grader change |
+| type/subject pills are segmented controls, not green | selected = light fill + check | owner: the pills looked like CTAs next to Start |
+| tutor: the brief beats the conversation (rule i) + a narrow safety net | override only when every lost chapter mark is unrecorded | the live model repeated its own earlier wrong attribution; a deterministic net is cheaper than trusting the prompt alone |
+| grader fix without a prompt change (`#1207`) | only `verify.cjs`; each new guard can only remove a charge, a value retry can only turn mismatch into match | keeps the six surfaces in step and cannot lower a mark the old check gave |
+| Upload later records now and grades later with `record: true` (owner 16 Oct 22:20) | same worksheetId, same session record id replaced | MI must count the written grades once, never twice |
+| weak concept opens the exact set | `focusBankIds` + `strictFocus`, resolved on click | the hub ignored `focus`, so the concept was lost |
+| one docs PR for thirteen merges | this PR | the per-PR docs PRs were not made during the session; one PR avoids thirteen serialized docs PRs |
+
 ## 2026-10-16 - FOLLOWUPS-1 (`#1196`): DECISIONS THIS WAVE MADE (RECORDED BY THE DOCS SUB-AGENT UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Decisions of the builder, verifier and owner inside the follow-up spec, each with its reason.

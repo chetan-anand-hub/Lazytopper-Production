@@ -1,3 +1,13 @@
+## 2026-10-17 - Cofounder session 15-17 Oct: #1198 to #1209 (thirteen merges, trunk `a21575df`)
+
+**PROVENANCE.** Written by the cofounder session of 17 Oct under CLAUDE.md section 10 from `gh pr view`, `git log` and the 15-17 Oct session's handoff note. Facts only. Written at trunk `a21575df`.
+- **Merged in order:** `#1198` `16a7c2fc`, `#1199` `9e76be20`, `#1179` `1cd2654e`, `#1200` `0300655e`, `#1202` `e5dfebc9`, `#1201` `998ab2a3`, `#1203` `2afe517c`, `#1205` `ec65e5ec`, `#1206` `50c57943`, `#1204` `d61ebae3`, `#1207` `2a1416e9`, `#1208` `4b773b6a`, `#1209` `a21575df`.
+- **Flow:** owner's standing merge rule - cofounder audit + an independent reviewer + green CI, then merge, live check, instant revert if broken. Lane-overlap was resolved by sequencing (later PRs closed, merged in order, reopened); admin bypass only for a stale overlap.
+- **Intermediate PR-branch failures (all fixed before merge):** lane-overlap on `#1204` / `#1208`; prerender `capture` on `#1208` (fixed by committing the CI artifact); GATE-3 clock / vitest on `#1209` (fixed by reusing `PracticeQuestionCard`).
+- **Grader (`#1207`):** three independent review rounds; golden gate `changed=0`; live typed 96/404 answer 3/3.
+- **Tutor:** eval on the eval key with a stand-in model; live re-checks on production after each merge.
+- **Docs lag:** the per-PR docs PRs were not made during the session; this one entry covers all thirteen.
+
 ## 2026-10-16 - DISPATCH-PACK_FIRST-WIN Session 1 follow-ups: FOLLOWUPS-1 (`#1196` `0d16869c`)
 
 **PROVENANCE.** Written by the docs sub-agent under CLAUDE.md section 10 from `gh pr view`, `git log`, the verifier's report and the owner's rulings of 16 Oct. Facts only. Written at trunk `0d16869c`.

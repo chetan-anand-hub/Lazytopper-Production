@@ -1,3 +1,19 @@
+> **2026-10-17 - #1198 to #1209 (CLAUDE.md section 10, one docs PR for the 15-17 Oct merges).** Scope: tutor, onboarding, Mistake Intelligence display, Quick Practice, Worksheet PDF, notes heads, and one grader check (`#1207`, `verify.cjs` only, no prompt change). No surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Tutor | honesty rules a-i, chapter brief, safety nets, Continue, diagram panel, chapter picker, typed errors, permanent action buttons, signed-out sign-up prompt (`#1199` `#1203` `#1205`) | live; live-checked (round trips, offers, Real Numbers correction) | `[FU-TUTOR-HINDI-ATTRIBUTION]`, `[FU-INTENT-PASTED-WORKING]`, `[FU-CI-FREECHECK-TUTOR]` |
+| Start-here card | 44px chips, shown-once (`#1198`); written Science question, segmented toggle (`#1200`) | live; NOT live-checked on a new account | owner new account |
+| Check & Improve answer box | type-first tab for new students (`#1200`); whole paper switches to Upload (`#1202`) | live | `#1200` new-account check |
+| Home + sidebar MI | Me's numbers, 30 days (`#1201`); untyped-marks wording (`#1208`) | live; live-checked | `[FU-HOME-MI-NOTE-NO-LOSS]`, `[FU-MOBILE-MI-REAL-DATA]` |
+| Me / Progress | concept Practise opens the exact set (`#1204`); "no reason recorded" wording (`#1208`) | live; live-checked | `[FU-WEAK-AREA-URL-IDS]` |
+| Quick Practice | "My weak areas" live behind Me's gate (`#1201`); scorecard untyped note (`#1208`); Upload later + strip + later panel (`#1209`) | live; later grade NOT live-run (unit tests) | `[FU-QP-UPLOAD-LATER-PRETAP-COPY]`, `[FU-QP-LATER-PANEL-SHOW-STEPS]`, `[FU-QP-REOPEN-TAP-NOTE]`, `[FU-WEAK-AREAS-TOO-FEW-TEXT]` |
+| Worksheet | answer-key PDF layout, focus, fill, AI cap, tilt (`#1179`); tutor return (`#1199`) | live; PDF checked | none |
+| Grader (all six surfaces, shared post-model check) | typed lines never a false equality; value-equivalent final answers (`#1207`) | live; 96/404 typed answer 3/3 | `[FU-GRADER-TYPED-NITS]` |
+| Practice hub CBQ card | copy now true (`#1208`) | live; checked | none |
+| Notes heads | `<chapter> Class 10 Notes + NCERT PDF (<code>)` (`#1206`) | live | watch Search Console CTR on `jemh` / `jesc` queries |
+| Admin | Actions chips in plain words (`#1198`); tutor usage (`#1199`) | live | `[FU-ADMIN-ANALYTICS-EXCLUSION]` |
+
 > **2026-10-16 - FOLLOWUPS-1 (CLAUDE.md section 10 for `#1196`).** Scope: Start-here wording/CSS, scorecard lock copy, checkout analytics fields, tutor hop on two more scorecards, one additive recorded field. **No grading behaviour, marks, mistake typing or record shape changed.**
 
 | surface | what moved (PR) | state | owed |
