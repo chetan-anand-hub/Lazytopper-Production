@@ -6,7 +6,7 @@
 // Harness: the one of PracticePage.scorecardReturn.test.tsx (real record store, spied writes).
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
@@ -30,7 +30,7 @@ vi.mock("../services/guidedJourneyService", () => ({ recordDetour: () => {} }));
 
 const spies = vi.hoisted(() => ({
   recordAttempt: vi.fn(() => "recorded"),
-  recordMistake: vi.fn(),
+  recordMistake: vi.fn(async () => ({ outcome: "logged" as const, bridged: false })),
   writeSessionRecord: vi.fn(),
   writeSessionPerQuestion: vi.fn(),
   exportPdf: vi.fn(async () => "file.pdf"),
@@ -99,6 +99,7 @@ vi.mock("../analytics/analytics", async (importActual) => {
 import PracticePage from "./PracticePage";
 import { UNTYPED_MARKS_NOTE } from "../lib/mistakeDisplay";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
+import { gradeWorksheet } from "../ai/aiClient";
 
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
 type PQ = import("../data/predictionDataService").PracticeQuestion;
@@ -214,6 +215,85 @@ describe("QP-GRADED-SHEET-1 · the live Quick Practice scorecard", () => {
     await screen.findByText(/nothing is counted against you/);
     expect(screen.queryByRole("button", { name: DOWNLOAD })).toBeNull();
   });
+});
+
+// ── The written-answer (batch-graded) scorecard ─────────────────────────────────────────────
+function mkWritten(n: number): PQ {
+  return {
+    id: `w-${n}`,
+    questionText: `Question ${n}: solve it.`,
+    marks: 3,
+    section: "C",
+    format: "vsa",
+    difficulty: "Easy",
+    subtopic: "seed",
+    topicKey: "real-numbers",
+    solutionSteps: [`Bank step one of question ${n}.`],
+  } as unknown as PQ;
+}
+const writtenGrade = (qNumber: number) => ({
+  qNumber,
+  couldNotRead: false,
+  ok: true,
+  totalMarks: 3,
+  marksAwarded: 2,
+  percentage: 67,
+  annotatedSteps: [
+    { stepNumber: 1, description: "Substitute", studentWork: "14 x 75 = 1030", status: "incorrect",
+      marksAwarded: 0, marksDeducted: 1, teacherAnnotation: "14 x 75 is 1050.", mistakeType: "calculation", correctedWorking: null },
+  ],
+  mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 },
+  teacherNote: "Method correct throughout.",
+});
+async function saveTypedFor(n: number) {
+  const triggers = () => screen.getAllByRole("button", { name: /^(Answer this question|Hide answer box)$/ });
+  fireEvent.click(triggers()[n - 1]);
+  const tabs = screen.getAllByRole("tab", { name: "Type my working" });
+  fireEvent.click(tabs[tabs.length - 1]);
+  const boxes = screen.getAllByLabelText("Type your working and answer");
+  await act(async () => {
+    fireEvent.change(boxes[boxes.length - 1], { target: { value: "x = 4 and x = -2" } });
+  });
+  fireEvent.click(await screen.findByTestId("qp-save-answer"));
+  await screen.findByTestId("qp-saved-confirmation");
+  fireEvent.click(triggers()[n - 1]);
+}
+
+describe("QP-GRADED-SHEET-1 · the written-answer (batch-graded) Quick Practice scorecard", () => {
+  it("★★ an answer the grader could not read is on the sheet as NOT graded (no mark), header says Quick Practice", async () => {
+    vi.mocked(gradeWorksheet).mockResolvedValue({
+      ok: true,
+      results: [writtenGrade(1), writtenGrade(2), { qNumber: 3, couldNotRead: true, totalMarks: 3 }],
+      totalQuestions: 3, gradedCount: 2, pendingCount: 1,
+      gradedMarksAwarded: 4, gradedMarksTotal: 6, worksheetTotalMarks: 9,
+    } as unknown as Awaited<ReturnType<typeof gradeWorksheet>>);
+    await renderAt(SET_URL(), [mkWritten(1), mkWritten(2), mkWritten(3)]);
+    for (const n of [1, 2, 3]) await saveTypedFor(n);
+    fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    // The scorecard lists Q3 as not graded (an ungraded row, no mark) — and the sheet must too.
+    const btn = await screen.findByRole("button", { name: DOWNLOAD });
+    expect(document.querySelectorAll('[data-grade-state="could-not-read"], [data-state="could-not-read"]').length
+      + (document.body.textContent?.match(/Question 3/g)?.length ?? 0)).toBeGreaterThan(0);
+    fireEvent.click(btn);
+    await waitFor(() => expect(spies.exportPdf).toHaveBeenCalledTimes(1));
+    const a = lastExport() as ExportArgs & { kindLabel?: string; response: { pendingCount: number } };
+    expect(a.kindLabel).toBe("Quick Practice");
+    // Totals untouched (Q3 is never scored); Q3 is present as a non-scored row.
+    expect(a.response.gradedMarksAwarded).toBe(4);
+    expect(a.response.gradedMarksTotal).toBe(6);
+    expect(a.response.pendingCount).toBe(1);
+    const q3 = a.response.results.find((r) => r.qNumber === 3) as { couldNotRead?: boolean; marksAwarded?: number };
+    expect(q3).toMatchObject({ couldNotRead: true });
+    expect(q3.marksAwarded).toBeUndefined();
+    // Rendered through the shared doc: the pending line, never "All N questions read and graded".
+    const { WorksheetGradedPrintDoc } = await import("../components/worksheet/WorksheetGradedPrintDoc");
+    cleanup();
+    const { container } = render(<WorksheetGradedPrintDoc {...(a as unknown as Parameters<typeof WorksheetGradedPrintDoc>[0])} />);
+    expect(container.textContent).toContain("1 question pending");
+    expect(container.textContent).not.toMatch(/read and graded/);
+    expect(container.textContent).toContain("Quick Practice · 3 questions · 9 marks");
+  }, 120_000);
 });
 
 describe("QP-GRADED-SHEET-1 · the reopened Quick Practice scorecard (history / tutor return)", () => {

@@ -11,9 +11,11 @@
 // ★ HONEST-OR-ABSENT. A response with nothing graded has no sheet (`null`), so the host offers no
 //   download — the affordance never promises a sheet it cannot produce.
 
-import type { WorksheetGradeResponse } from "../ai/aiClient";
+import type { WorksheetGradeResponse, WorksheetQuestionGrade } from "../ai/aiClient";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "./worksheetSessionStore";
 import {
+  type GradeState,
+  type NotGradedReason,
   coachingLine,
   effectivePaperCounts,
   gradeStateOf,
@@ -45,14 +47,12 @@ export interface QuickPracticeGradedSheet {
   name: string;
   code: string;
   coaching: string;
+  /** The sheet header's surface word (the shared doc defaults to "Worksheet"). */
+  kindLabel: string;
 }
 
-/** The pick a QP result carries, or null. Only Quick Practice results ever carry one. */
-function pickOf(entry: unknown): string | null {
-  const raw = entry && typeof entry === "object" ? (entry as { pickedOption?: unknown }).pickedOption : null;
-  const text = typeof raw === "string" ? raw.trim() : "";
-  return text ? text : null;
-}
+/** The header word on a Quick Practice sheet. */
+export const QUICK_PRACTICE_SHEET_KIND = "Quick Practice";
 
 /** QP-GRADED-SHEET-1 — whether a QP grade response has a graded sheet at all: at least one
  *  question came back graded (a tapped MCQ or a checked written answer). */
@@ -61,21 +61,47 @@ export function quickPracticeHasGradedSheet(response: WorksheetGradeResponse | n
     && (Number(response.gradedCount) || 0) >= 1;
 }
 
-/** The live set's picks beside their results (the SAME join `persistQuickPracticeSession` writes
- *  to the stored payload), so the live sheet and a reopened one say "Your answer" alike. Pure;
- *  marks and mistake data pass through untouched; a result with no pick is the same object. */
-export function withQuickPracticePicks(
+/** One answer the written-answer scorecard lists as NOT graded (it has no mark). `state` is the
+ *  scorecard's own grade state; `reason` the server's notGraded reason for a "not-graded" row. */
+export interface QuickPracticeUngradedRow {
+  qNumber: number;
+  totalMarks: number;
+  state: Exclude<GradeState, "graded">;
+  reason?: NotGradedReason | null;
+}
+
+/**
+ * QP-GRADED-SHEET-1 (review fix 1) — the written-answer scorecard lists answers the grader did NOT
+ * grade (could not read, unread option, answer does not match, not graded this time, over the
+ * photo cap). `buildQuickPracticeResponse` omits them (they are never scored and never recorded),
+ * so the sheet adds them back as NON-SCORED rows in the flags the shared print doc already reads:
+ * no mark, no mistake type, counted in `pendingCount` (as the server counts every not-graded
+ * answer), so the doc prints its pending lines and never "All N questions read and graded".
+ * DISPLAY ONLY: the totals and `gradedCount` are untouched; a qNumber that already has a result
+ * keeps it. Never written anywhere.
+ */
+export function withQuickPracticeUngradedRows(
   response: WorksheetGradeResponse,
-  entries: ReadonlyArray<{ pickedOption?: string } | null | undefined>,
+  rows: ReadonlyArray<QuickPracticeUngradedRow>,
 ): WorksheetGradeResponse {
-  if (!entries.some((e) => pickOf(e))) return response;
+  const have = new Set(response.results.map((r) => r.qNumber));
+  const added: WorksheetQuestionGrade[] = [];
+  for (const row of rows) {
+    if (have.has(row.qNumber)) continue;
+    have.add(row.qNumber);
+    const base: WorksheetQuestionGrade = { qNumber: row.qNumber, couldNotRead: false, totalMarks: Number(row.totalMarks) || 0 };
+    if (row.state === "could-not-read") added.push({ ...base, couldNotRead: true });
+    else if (row.state === "unread-option") added.push({ ...base, objectiveResolved: false });
+    else if (row.state === "answer-mismatch") added.push({ ...base, answerMismatch: true });
+    // The server's own reason, as the scorecard shows it (`notGradedReasonOf` reads every reason,
+    // "interrupted" included, which the wire type predates).
+    else added.push({ ...base, notGraded: (row.reason ?? "error") as WorksheetQuestionGrade["notGraded"] });
+  }
+  if (added.length === 0) return response;
   return {
     ...response,
-    results: response.results.map((r) => {
-      if (pickOf(r)) return r;
-      const pick = pickOf(entries[r.qNumber - 1]);
-      return pick ? { ...r, pickedOption: pick } : r;
-    }),
+    results: [...response.results, ...added].sort((a, b) => a.qNumber - b.qNumber),
+    pendingCount: (Number(response.pendingCount) || 0) + added.length,
   };
 }
 
@@ -109,7 +135,9 @@ export function buildQuickPracticeGradedSheet(args: {
   if (!response || !quickPracticeHasGradedSheet(response)) return null;
 
   const totalByQ = new Map<number, number>(response.results.map((r) => [r.qNumber, Number(r.totalMarks) || 0]));
-  const wsQuestions: PersistedWorksheetQuestion[] = questions.map((q, i) => {
+  // Review fix 2 — the sheet's questions are the ones ON the sheet (a row in the response), so the
+  // header's count and marks describe what the student is reading, never the unattempted rest.
+  const allQuestions: PersistedWorksheetQuestion[] = questions.map((q, i) => {
     const qNumber = i + 1;
     const marks = Number(q?.marks);
     return {
@@ -127,6 +155,7 @@ export function buildQuickPracticeGradedSheet(args: {
       ...(text(q?.answer) ? { answer: text(q?.answer) } : {}),
     };
   });
+  const wsQuestions = allQuestions.filter((q) => totalByQ.has(q.qNumber));
 
   const coaching = [
     coachingLine({
@@ -150,7 +179,7 @@ export function buildQuickPracticeGradedSheet(args: {
       subject,
       grade,
       sectionFilter: "All",
-      totalMarks: Number(response.worksheetTotalMarks) || wsQuestions.reduce((s, q) => s + q.marks, 0),
+      totalMarks: wsQuestions.reduce((s, q) => s + (Number(q.marks) || 0), 0),
       questions: wsQuestions,
       code,
       name,
@@ -159,6 +188,7 @@ export function buildQuickPracticeGradedSheet(args: {
     name,
     code,
     coaching,
+    kindLabel: QUICK_PRACTICE_SHEET_KIND,
   };
 }
 

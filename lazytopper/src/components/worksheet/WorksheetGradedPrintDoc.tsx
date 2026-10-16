@@ -128,9 +128,12 @@ export interface WorksheetGradedPrintDocProps {
   code: string;
   /** Coaching footer line (product-voice, derived from counts — never raw model prose). */
   coaching: string;
+  /** QP-GRADED-SHEET-1 — the surface word in the header ("Quick Practice"). Optional; absent ⇒
+   *  "Worksheet", so the Worksheet / Chapter Test / Full Mock sheets print exactly as before. */
+  kindLabel?: string;
 }
 
-export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, renderSolutionFigure }: WorksheetGradedPrintDocProps) {
+export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, renderSolutionFigure, kindLabel = "Worksheet" }: WorksheetGradedPrintDocProps) {
   const byNumber = new Map<number, PersistedWorksheetQuestion>(
     ws.questions.map((q) => [q.qNumber, q]),
   );
@@ -175,7 +178,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
           <b>{name}</b>
           <span>{code}</span>
           <span>
-            Worksheet · {ws.questions.length} question{ws.questions.length === 1 ? "" : "s"} · {ws.totalMarks} marks
+            {kindLabel} · {ws.questions.length} question{ws.questions.length === 1 ? "" : "s"} · {ws.totalMarks} marks
           </span>
           <span>{formatDate(ws.createdAt)}</span>
         </div>
@@ -198,7 +201,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                   <div className="lt-gp__pending">
                     <b>{unreadCount} {unreadCount === 1 ? "question" : "questions"} pending</b> —
                     couldn’t be read clearly. <b>Not</b> graded and <b>not</b> scored 0. Re-upload a clearer photo to grade
-                    {unreadCount === 1 ? " it" : " them"}. Worksheet is worth {response.worksheetTotalMarks} marks in total.
+                    {unreadCount === 1 ? " it" : " them"}. {kindLabel} is worth {response.worksheetTotalMarks} marks in total.
                   </div>
                 )}
                 {mismatchCount > 0 && (

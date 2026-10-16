@@ -8,9 +8,13 @@ import { afterEach } from "vitest";
 import {
   buildQuickPracticeGradedSheet,
   quickPracticeHasGradedSheet,
-  withQuickPracticePicks,
+  withQuickPracticeUngradedRows,
 } from "./quickPracticeGradedSheet";
-import { buildQuickPracticeResponse, type QuickPracticeEntry } from "./quickPracticeSessionService";
+import {
+  buildQuickPracticeResponse,
+  withStoredPicks as withQuickPracticePicks,
+  type QuickPracticeEntry,
+} from "./quickPracticeSessionService";
 import { WorksheetGradedPrintDoc } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { UNTYPED_MARKS_LABEL, UNTYPED_MARKS_NOTE } from "../lib/mistakeDisplay";
 import type { CheckSolutionResponse, WorksheetGradeResponse } from "../ai/aiClient";
@@ -88,13 +92,14 @@ describe("QP-GRADED-SHEET-1 · buildQuickPracticeGradedSheet", () => {
     expect(s.code).toBe("QP-M-REAL-abc12345");
   });
 
-  it("the questions are the displayed set, in order, with the bank's own text and steps", () => {
+  it("★ the questions are the ones ON the sheet (the unattempted Q4 is not), with the bank's text and steps", () => {
     const s = sheet()!;
     expect(s.ws.questions.map((x) => [x.qNumber, x.id, x.marks, x.section])).toEqual([
-      [1, "q-1", 1, "A"], [2, "q-2", 1, "A"], [3, "q-3", 3, "C"], [4, "q-4", 1, "A"],
+      [1, "q-1", 1, "A"], [2, "q-2", 1, "A"], [3, "q-3", 3, "C"],
     ]);
     expect(s.ws.questions[2].solutionSteps).toEqual(["Bank step for 3."]);
-    expect(s.ws.totalMarks).toBe(6);
+    expect(s.ws.totalMarks).toBe(5);
+    expect(s.kindLabel).toBe("Quick Practice");
   });
 
   it("a reopened row whose bank row could not load keeps its stored marks, with no invented text", () => {
@@ -105,6 +110,30 @@ describe("QP-GRADED-SHEET-1 · buildQuickPracticeGradedSheet", () => {
     })!;
     expect(s.ws.questions[2]).toMatchObject({ id: "q-3", marks: 3, questionText: "" });
     expect(s.ws.questions[2].solutionSteps).toBeUndefined();
+  });
+
+  it("★ review fix 1 — not-graded answers join as NON-SCORED rows; totals and gradedCount untouched", () => {
+    const base = buildQuickPracticeResponse(entries);
+    const out = withQuickPracticeUngradedRows(base, [
+      { qNumber: 4, totalMarks: 1, state: "could-not-read" },
+      { qNumber: 5, totalMarks: 3, state: "not-graded", reason: "timeout" },
+      { qNumber: 6, totalMarks: 1, state: "unread-option" },
+      { qNumber: 7, totalMarks: 3, state: "answer-mismatch" },
+      { qNumber: 3, totalMarks: 3, state: "could-not-read" }, // Q3 already graded: kept as graded
+    ]);
+    expect(out.gradedMarksAwarded).toBe(base.gradedMarksAwarded);
+    expect(out.gradedMarksTotal).toBe(base.gradedMarksTotal);
+    expect(out.gradedCount).toBe(base.gradedCount);
+    expect(out.pendingCount).toBe(4);
+    expect(out.results.map((r) => r.qNumber)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    const by = (n: number) => out.results.find((r) => r.qNumber === n)!;
+    expect(by(3).marksAwarded).toBe(2);
+    expect(by(4)).toMatchObject({ couldNotRead: true });
+    expect(by(5)).toMatchObject({ notGraded: "timeout" });
+    expect(by(6)).toMatchObject({ objectiveResolved: false });
+    expect(by(7)).toMatchObject({ answerMismatch: true });
+    for (const n of [4, 5, 6, 7]) expect(by(n).marksAwarded).toBeUndefined();
+    expect(withQuickPracticeUngradedRows(base, [])).toBe(base);
   });
 
   it("★ the coaching footer is the shared coaching line plus the scorecard's OWN note, verbatim", () => {
@@ -129,6 +158,30 @@ describe("QP-GRADED-SHEET-1 · the shared print doc renders the QP sheet", () =>
     expect(container.textContent).toContain(UNTYPED_MARKS_LABEL);
     expect(container.textContent).toContain(UNTYPED_MARKS_NOTE);
     expect(container.textContent).toContain("QP-M-REAL-abc12345");
+  });
+
+  it("★ review fix 2 — the header reads 'Quick Practice' with the sheet's own count and marks", () => {
+    const { container } = render(<WorksheetGradedPrintDoc {...sheet()!} />);
+    expect(container.querySelector(".lt-gp__meta")!.textContent).toContain("Quick Practice · 3 questions · 5 marks");
+    expect(container.querySelector(".lt-gp__meta")!.textContent).not.toContain("Worksheet");
+  });
+
+  it("CONTROL (review fix 2): without kindLabel the header is exactly today's 'Worksheet · N questions · M marks'", () => {
+    const s = sheet()!;
+    const { container } = render(<WorksheetGradedPrintDoc ws={s.ws} response={s.response} name={s.name} code={s.code} coaching={s.coaching} />);
+    expect(container.querySelector(".lt-gp__meta")!.textContent).toContain("Worksheet · 3 questions · 5 marks");
+  });
+
+  it("★ review fix 1 — with a not-graded row the doc prints the pending line, never 'All N read and graded'", () => {
+    const s = sheet()!;
+    const clean = render(<WorksheetGradedPrintDoc {...s} />);
+    expect(clean.container.textContent).toContain("All 3 questions read and graded.");
+    cleanup();
+    const response = withQuickPracticeUngradedRows(s.response, [{ qNumber: 4, totalMarks: 1, state: "could-not-read" }]);
+    const { container } = render(<WorksheetGradedPrintDoc {...s} response={response} ws={{ ...s.ws, questions: [...s.ws.questions] }} />);
+    expect(container.textContent).not.toMatch(/read and graded/);
+    expect(container.textContent).toContain("1 question pending");
+    expect(container.textContent).toContain("not graded, not scored 0");
   });
 
   it("CONTROL: a result with no stored pick (every other surface) renders no 'Your answer' line", () => {

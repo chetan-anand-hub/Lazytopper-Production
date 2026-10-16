@@ -292,11 +292,17 @@ export async function exportGradedWorksheetPdf(args: {
   name: string;
   code: string;
   coaching: string;
+  /** QP-GRADED-SHEET-1 — optional header word ("Quick Practice"); absent ⇒ the doc's "Worksheet",
+   *  so every existing caller renders exactly as before. */
+  kindLabel?: string;
 }): Promise<string> {
-  const { ws, response, name, code, coaching } = args;
+  const { ws, response, name, code, coaching, kindLabel } = args;
   const filename = `lazytopper-${slug(name || ws.title)}-${codeToken(code)}graded.pdf`;
   return renderElementToPdf(
-    createElement(WorksheetGradedPrintDoc, { ws, response, name, code, coaching, renderSolutionFigure: await loadSolutionFigureRenderer() }),
+    createElement(WorksheetGradedPrintDoc, {
+      ws, response, name, code, coaching, renderSolutionFigure: await loadSolutionFigureRenderer(),
+      ...(kindLabel ? { kindLabel } : {}),
+    }),
     filename,
   );
 }
