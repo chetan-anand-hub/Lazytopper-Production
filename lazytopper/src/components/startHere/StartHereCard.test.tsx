@@ -1,8 +1,16 @@
+import { setMatchMediaMatches } from "../../test/setup";
+import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render, cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
-const { cloudHas, localRows, onboarding, bank, auth } = vi.hoisted(() => ({
+const { cloudHas, localRows, onboarding, bank, auth, AVAIL } = vi.hoisted(() => ({
+  // QP-SCORECARD-2 D3: the card lists chapters from the precomputed map (mocked here with this
+  // stub); the real map is pinned against the real bank in startHereBank.test.ts.
+  AVAIL: {
+    Maths: { "real-numbers": { mcq: 20, ar: 0 }, polynomials: { mcq: 0, ar: 0 } },
+    Science: { electricity: { mcq: 25, ar: 10 } },
+  },
   auth: { currentUser: null as null | { uid: string; metadata: { creationTime?: string } } },
   cloudHas: vi.fn(),
   localRows: vi.fn(),
@@ -15,10 +23,17 @@ const { cloudHas, localRows, onboarding, bank, auth } = vi.hoisted(() => ({
 vi.mock("../../services/sessionRecords", () => ({ cloudHasAnySessionRecord: cloudHas, loadLocalSessionRecords: localRows }));
 vi.mock("../../analytics/analytics", () => ({ trackOnboardingEvent: onboarding }));
 vi.mock("./startHereBank", () => bank);
+vi.mock("./startHereAvailability.generated", () => ({ START_HERE_AVAILABILITY: AVAIL }));
 vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
-import StartHereCard, { START_HERE_RETRY_MS, accountIsNew } from "./StartHereCard";
-import { START_HERE_COPY, START_HERE_DISMISSED_KEY, START_HERE_SUBJECT_HINT_KEY } from "./startHereModel";
+import StartHereCard, { START_HERE_GETTING, START_HERE_RETRY_MS, accountIsNew } from "./StartHereCard";
+import {
+  START_HERE_COPY,
+  START_HERE_DISMISSED_KEY,
+  START_HERE_FOCUS_CLOSED_KEY,
+  START_HERE_FOCUS_NOT_NOW_PREFIX,
+  START_HERE_SUBJECT_HINT_KEY,
+} from "./startHereModel";
 
 /**
  * START-HERE-1 §2.1 / §2.2 — who sees the card, "Not now", the picker, the events.
@@ -31,23 +46,25 @@ function Probe() {
   return null;
 }
 
-const AVAIL = {
-  Maths: { "real-numbers": { mcq: 20, ar: 0 }, polynomials: { mcq: 0, ar: 0 } },
-  Science: { electricity: { mcq: 25, ar: 10 } },
-};
 
-const tree = (uid: string | null = "u1") => (
+const tree = (uid: string | null = "u1", extra: { focus?: boolean; inProgress?: boolean } = {}) => (
     <MemoryRouter initialEntries={["/practice-hub"]}>
       <Probe />
       <Routes>
-        <Route path="*" element={<StartHereCard uid={uid} surface="practice_hub" returnTo="/practice-hub" />} />
+        <Route path="*" element={<StartHereCard uid={uid} surface="practice_hub" returnTo="/practice-hub" {...extra} />} />
       </Routes>
     </MemoryRouter>
 );
-const mount = (uid: string | null = "u1") => render(tree(uid));
+const mount = (uid: string | null = "u1", extra: { focus?: boolean; inProgress?: boolean } = {}) => render(tree(uid, extra));
 const daysAgo = (n: number): string => new Date(Date.now() - n * 24 * 60 * 60 * 1000).toUTCString();
 const calls = (name: string) => onboarding.mock.calls.filter((c) => c[0] === name);
 const card = () => screen.queryByTestId("start-here-card");
+/** Opens the reused ChapterPickerModal from the card's chapter button; returns its chapter list. */
+async function openChapterPicker(prefix = "start-here"): Promise<HTMLSelectElement> {
+  fireEvent.click(await screen.findByTestId(`${prefix}-chapter`));
+  const picker = await screen.findByTestId(`${prefix}-chapter-picker`);
+  return within(picker).getByLabelText("Chapter") as HTMLSelectElement;
+}
 
 beforeEach(() => {
   window.sessionStorage.clear();
@@ -57,7 +74,6 @@ beforeEach(() => {
   onboarding.mockReset();
   bank.startHereAvailability.mockReset();
   bank.pickStartHereSet.mockReset();
-  bank.startHereAvailability.mockImplementation(async (subject: "Maths" | "Science") => AVAIL[subject]);
   bank.pickStartHereSet.mockResolvedValue(["a", "b", "c", "d", "e"]);
   location = "";
 });
@@ -226,9 +242,10 @@ describe("START-HERE-1 · the picker (§2.2)", () => {
     await open();
     expect(screen.getByTestId("start-here-subject-maths").getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByTestId("start-here-subject-science").getAttribute("aria-pressed")).toBe("false");
-    const select = (await screen.findByTestId("start-here-chapter")) as HTMLSelectElement;
-    expect(select.value).toBe("real-numbers");
-    expect((screen.getByTestId("start-here-qtype-mcq") as HTMLInputElement).checked).toBe(true);
+    // QP-SCORECARD-2 D2 (Oct 2026): the chapter is a button opening ChapterPickerModal, not a <select>.
+    expect((await screen.findByTestId("start-here-chapter")).getAttribute("data-chapter")).toBe("real-numbers");
+    // QP-SCORECARD-2 D1 (Oct 2026): the type is a chip button now, so "checked" became aria-pressed.
+    expect(screen.getByTestId("start-here-qtype-mcq").getAttribute("aria-pressed")).toBe("true");
   });
 
   it("★★ an unknown landing: nothing is pre-selected and the card ASKS", async () => {
@@ -242,7 +259,8 @@ describe("START-HERE-1 · the picker (§2.2)", () => {
   it("★ a chapter without CBQ MCQs reads 'coming soon' and cannot be picked", async () => {
     window.sessionStorage.setItem(START_HERE_SUBJECT_HINT_KEY, "Maths");
     await open();
-    const select = (await screen.findByTestId("start-here-chapter")) as HTMLSelectElement;
+    // QP-SCORECARD-2 D2 (Oct 2026): the chapter list now lives in the reused ChapterPickerModal.
+    const select = await openChapterPicker();
     const soon = Array.from(select.options).find((o) => o.value === "polynomials")!;
     expect(soon.textContent).toContain("coming soon");
     expect(soon.disabled).toBe(true);
@@ -285,5 +303,293 @@ describe("START-HERE-1 · the picker (§2.2)", () => {
     expect(await screen.findByRole("alert")).toBeInTheDocument();
     expect(location).toBe("/practice-hub");
     expect(calls("start_here_start")).toHaveLength(0);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────────────────
+ * QP-SCORECARD-2 D1-D4 — the picker fixes (owner report, Oct 2026, a NEW account).
+ * ───────────────────────────────────────────────────────────────────────────────────────── */
+describe("QP-SCORECARD-2 D · the picker", () => {
+  async function openPicker() {
+    cloudHas.mockResolvedValue(false);
+    mount();
+    await waitFor(() => expect(card()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-start"));
+  }
+
+  it("★★ D1: no radio input renders in the card; the question types are chip buttons with aria-pressed, Quick 5 pre-selected", async () => {
+    await openPicker();
+    fireEvent.click(screen.getByTestId("start-here-subject-science"));
+    const mcq = screen.getByTestId("start-here-qtype-mcq");
+    const ar = screen.getByTestId("start-here-qtype-ar");
+    expect(card()!.querySelectorAll('input[type="radio"]')).toHaveLength(0);
+    for (const chip of [mcq, ar]) {
+      expect(chip.tagName).toBe("BUTTON");
+      expect(chip.className).toBe("lt-sh-chip"); // the SAME chip class as the subject row
+    }
+    expect(screen.getByTestId("start-here-subject-science").className).toBe("lt-sh-chip");
+    expect(mcq.getAttribute("aria-pressed")).toBe("true");
+    expect(ar.getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(ar);
+    expect(ar.getAttribute("aria-pressed")).toBe("true");
+    expect(mcq.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("★ D1: the A-R chip shows only when the chapter has a full set of A-R CBQ MCQs", async () => {
+    await openPicker();
+    fireEvent.click(screen.getByTestId("start-here-subject-maths")); // real-numbers: ar 0 in the stub
+    expect(screen.getByTestId("start-here-qtype-mcq")).toBeInTheDocument();
+    expect(screen.queryByTestId("start-here-qtype-ar")).toBeNull();
+  });
+
+  it("★★ D2: no <select> in the card; the chapter button opens the EXISTING ChapterPickerModal on the tapped subject", async () => {
+    await openPicker();
+    fireEvent.click(screen.getByTestId("start-here-subject-science"));
+    expect(card()!.querySelectorAll("select")).toHaveLength(0);
+    const btn = screen.getByTestId("start-here-chapter");
+    expect(btn.tagName).toBe("BUTTON");
+    expect(btn.textContent).toContain("Electricity");
+    const select = await openChapterPicker();
+    const picker = screen.getByTestId("start-here-chapter-picker");
+    expect(picker.className).toContain("lt-tutor-ov"); // ChapterPickerModal's own overlay
+    expect(within(picker).getByRole("dialog").getAttribute("aria-label")).toBe("Pick a chapter");
+    expect(within(picker).queryByLabelText("Subject")).toBeNull(); // the subject is locked to the tap
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(desktopTopicsBySubject("Science").map((t) => t.slug));
+    expect(select.value).toBe("electricity");
+  });
+
+  it("★★ D2: in the picker a chapter without CBQ MCQs is 'coming soon' and not selectable; a ready one is chosen", async () => {
+    await openPicker();
+    fireEvent.click(screen.getByTestId("start-here-subject-maths"));
+    const select = await openChapterPicker();
+    const soon = Array.from(select.options).find((o) => o.value === "polynomials")!;
+    expect(soon.textContent).toContain("coming soon");
+    expect(soon.disabled).toBe(true);
+    fireEvent.change(select, { target: { value: "polynomials" } });
+    expect(select.value).toBe("real-numbers"); // a coming-soon chapter is never the selection
+    fireEvent.click(screen.getByTestId("start-here-chapter-picker-open"));
+    expect(screen.queryByTestId("start-here-chapter-picker")).toBeNull();
+    expect(screen.getByTestId("start-here-chapter").getAttribute("data-chapter")).toBe("real-numbers");
+    expect(document.activeElement).toBe(screen.getByTestId("start-here-chapter")); // focus returns
+  });
+
+  it("★★ D3: a subject tap lists chapters AT ONCE with no bank call (no 'Checking…' state)", async () => {
+    await openPicker();
+    fireEvent.click(screen.getByTestId("start-here-subject-science"));
+    // Synchronous: no await between the tap and the chosen chapter.
+    expect(screen.getByTestId("start-here-chapter").getAttribute("data-chapter")).toBe("electricity");
+    expect(card()!.textContent).not.toContain("Checking which chapters");
+    fireEvent.click(screen.getByTestId("start-here-subject-maths"));
+    expect(screen.getByTestId("start-here-chapter")).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(bank.startHereAvailability).not.toHaveBeenCalled();
+    expect(bank.pickStartHereSet).not.toHaveBeenCalled();
+  });
+
+  it("★★ D3: the bank is fetched only on Start, with an honest 'Getting your 5 questions…' state", async () => {
+    let release: (ids: string[]) => void = () => undefined;
+    bank.pickStartHereSet.mockReturnValue(new Promise<string[]>((r) => (release = r)));
+    await openPicker();
+    fireEvent.click(screen.getByTestId("start-here-subject-science"));
+    expect(bank.pickStartHereSet).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("start-here-go"));
+    await waitFor(() => expect(bank.pickStartHereSet).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId("start-here-go").textContent).toBe(START_HERE_GETTING);
+    expect(START_HERE_GETTING).toBe("Getting your 5 questions…");
+    expect((screen.getByTestId("start-here-go") as HTMLButtonElement).disabled).toBe(true);
+    release(["a", "b", "c", "d", "e"]);
+    await waitFor(() => expect(location).toMatch(/^\/practice\/10\/Science\?/));
+  });
+
+  it("★★ D4: with no ad hint NO subject is pre-selected (inline card AND the focused surface)", async () => {
+    window.localStorage.clear();
+    await openPicker();
+    for (const s of ["maths", "science"]) {
+      expect(screen.getByTestId(`start-here-subject-${s}`).getAttribute("aria-pressed")).toBe("false");
+    }
+    cleanup();
+    mount("u1", { focus: true });
+    await screen.findByTestId("start-here-focus");
+    for (const s of ["maths", "science"]) {
+      expect(screen.getByTestId(`start-here-focus-subject-${s}`).getAttribute("aria-pressed")).toBe("false");
+    }
+    expect(screen.queryByTestId("start-here-focus-chapter")).toBeNull();
+    expect((screen.getByTestId("start-here-focus-go") as HTMLButtonElement).disabled).toBe(true);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────────────────
+ * QP-SCORECARD-2 E — the focused first-run surface (owner ruling, Oct 2026).
+ * ───────────────────────────────────────────────────────────────────────────────────────── */
+describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
+  const focusEl = () => screen.queryByTestId("start-here-focus");
+  const dialog = () => screen.getByRole("dialog");
+  const count = () => window.localStorage.getItem(`${START_HERE_FOCUS_NOT_NOW_PREFIX}u1`);
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    cloudHas.mockResolvedValue(false);
+  });
+  afterEach(() => setMatchMediaMatches(false));
+
+  it("★★ zero-graded + focus: the focused surface opens, role=dialog, aria-modal, aria-labelledby -> the heading", async () => {
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    const d = dialog();
+    expect(d.getAttribute("aria-modal")).toBe("true");
+    const heading = document.getElementById(d.getAttribute("aria-labelledby")!);
+    expect(heading?.textContent).toBe(START_HERE_COPY.body);
+    // The picker is open straight away (the focused surface IS the first step).
+    expect(screen.getByTestId("start-here-focus-subject-maths")).toBeInTheDocument();
+    // Passive effects can land after the async eligibility read settles: wait for the events.
+    await waitFor(() => expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub_focus" }]));
+    // The inline card's own event and param are unchanged.
+    await waitFor(() => expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub" }]));
+  });
+
+  it("★★ focus off (the default): byte-unchanged — no overlay, no focus storage read, no focus event", async () => {
+    const getItem = vi.spyOn(Storage.prototype, "getItem");
+    try {
+      mount();
+      await waitFor(() => expect(card()).not.toBeNull());
+      expect(focusEl()).toBeNull();
+      const keys = getItem.mock.calls.map((c) => String(c[0]));
+      expect(keys.some((k) => k.startsWith(START_HERE_FOCUS_NOT_NOW_PREFIX) || k === START_HERE_FOCUS_CLOSED_KEY)).toBe(false);
+      await waitFor(() => expect(calls("start_here_shown")).toEqual([["start_here_shown", { surface: "practice_hub" }]]));
+    } finally {
+      getItem.mockRestore();
+    }
+  });
+
+  it("★★ an existing student gets no focused surface (and no focus storage read); a signed-out visitor neither", async () => {
+    const getItem = vi.spyOn(Storage.prototype, "getItem");
+    try {
+      localRows.mockReturnValue([{ id: "r1" }]);
+      mount("u1", { focus: true });
+      await new Promise((r) => setTimeout(r, 0));
+      expect(focusEl()).toBeNull();
+      expect(card()).toBeNull();
+      cleanup();
+      const { container } = mount(null, { focus: true });
+      await new Promise((r) => setTimeout(r, 0));
+      expect(container.innerHTML).toBe("");
+      expect(focusEl()).toBeNull();
+      const keys = getItem.mock.calls.map((c) => String(c[0]));
+      expect(keys.some((k) => k.startsWith(START_HERE_FOCUS_NOT_NOW_PREFIX) || k === START_HERE_FOCUS_CLOSED_KEY)).toBe(false);
+      expect(calls("start_here_shown")).toHaveLength(0);
+    } finally {
+      getItem.mockRestore();
+    }
+  });
+
+  it("★★ something in progress on the page (inProgress): no focused surface; the inline card still shows", async () => {
+    mount("u1", { focus: true, inProgress: true });
+    await waitFor(() => expect(card()).not.toBeNull());
+    expect(focusEl()).toBeNull();
+  });
+
+  it("★★ Esc = Not now: closes for this visit, fires start_here_dismissed (focus surface), the inline card stays", async () => {
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    fireEvent.keyDown(dialog(), { key: "Escape" });
+    expect(focusEl()).toBeNull();
+    expect(card()).not.toBeNull(); // the inline card remains
+    expect(calls("start_here_dismissed")).toEqual([["start_here_dismissed", { surface: "practice_hub_focus" }]]);
+    expect(count()).toBe("1");
+    // The same visit, another page: the focused surface stays closed, the inline card shows.
+    cleanup();
+    mount("u1", { focus: true });
+    await waitFor(() => expect(card()).not.toBeNull());
+    expect(focusEl()).toBeNull();
+  });
+
+  it("★★ next visit it returns ONCE more; after a second Not now only the inline card shows", async () => {
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-focus-not-now"));
+    expect(count()).toBe("1");
+    // Visit 2 (a new session): offered once more.
+    cleanup();
+    window.sessionStorage.clear();
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-focus-close")); // the ✕ is also Not now
+    expect(count()).toBe("2");
+    // Visit 3: only the inline card.
+    cleanup();
+    window.sessionStorage.clear();
+    mount("u1", { focus: true });
+    await waitFor(() => expect(card()).not.toBeNull());
+    expect(focusEl()).toBeNull();
+    // Per uid: another account on this device still gets its own offer.
+    cleanup();
+    window.sessionStorage.clear();
+    mount("u2", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+  });
+
+  it("★★ the chapter picker nested in the focused surface: it takes focus, Tab stays in it, Esc closes ONLY the picker", async () => {
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-focus-subject-science"));
+    const select = await openChapterPicker("start-here-focus");
+    const picker = screen.getByTestId("start-here-focus-chapter-picker");
+    expect(picker.className).toContain("lt-sh-picker-top"); // stacked above the focused surface
+    expect(document.activeElement).toBe(select); // the topmost layer has focus
+    fireEvent.keyDown(select, { key: "Tab" });
+    expect(document.activeElement).toBe(select); // the focused surface's trap did not pull it back
+    fireEvent.keyDown(select, { key: "Escape" });
+    expect(screen.queryByTestId("start-here-focus-chapter-picker")).toBeNull(); // picker closed
+    expect(focusEl()).not.toBeNull(); // ...and the focused surface is still open
+    expect(calls("start_here_dismissed")).toHaveLength(0);
+    expect(count()).toBeNull();
+    expect(document.activeElement).toBe(screen.getByTestId("start-here-focus-chapter"));
+    // A second Esc, now inside the focused surface, is its Not now.
+    fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+    expect(focusEl()).toBeNull();
+    expect(count()).toBe("1");
+  });
+
+  it("★★ focus is trapped: it starts inside the dialog and Tab / Shift+Tab wrap at the ends", async () => {
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    const d = dialog();
+    expect(d.contains(document.activeElement)).toBe(true);
+    const items = Array.from(d.querySelectorAll<HTMLElement>("button:not([disabled]), select"));
+    const first = items[0];
+    const last = items[items.length - 1];
+    last.focus();
+    fireEvent.keyDown(d, { key: "Tab" });
+    expect(document.activeElement).toBe(first);
+    first.focus();
+    fireEvent.keyDown(d, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(last);
+  });
+
+  it("full screen under 1024 px, a centred overlay at desktop width", async () => {
+    setMatchMediaMatches(false);
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    expect(focusEl()!.getAttribute("data-layout")).toBe("full");
+    expect(focusEl()!.className).toContain("lt-shf--full");
+    cleanup();
+    window.sessionStorage.clear();
+    window.localStorage.clear();
+    setMatchMediaMatches(true);
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    expect(focusEl()!.getAttribute("data-layout")).toBe("overlay");
+    expect(focusEl()!.className).toContain("lt-shf--overlay");
+  });
+
+  it("Start from the focused surface opens the same five-question set (bank fetched on Start only)", async () => {
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-focus-subject-science"));
+    expect(bank.pickStartHereSet).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("start-here-focus-go"));
+    await waitFor(() => expect(location).toMatch(/^\/practice\/10\/Science\?/));
+    expect(new URLSearchParams(location.split("?")[1]).get("src")).toBe("start_here");
+    expect(bank.startHereAvailability).not.toHaveBeenCalled();
   });
 });

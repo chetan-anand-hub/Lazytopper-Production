@@ -117,3 +117,57 @@ export function startHerePracticePath(args: {
 export function analyticsSubject(subject: DesktopSubject): string {
   return subject === "Science" ? "science" : "maths";
 }
+
+/* ── QP-SCORECARD-2 E3 — the FOCUSED first-run surface's "Not now" memory ───────────────── */
+
+/**
+ * The focused surface (full screen on a phone, a centred overlay on desktop) is offered to the
+ * Start-here audience at most TWICE across visits: its first "Not now" closes it for this visit
+ * (the inline card stays), the next visit offers it ONCE more, and after a second "Not now" only
+ * the inline card shows — until the first graded result ends both (the card's existing rule).
+ *
+ * Per uid, on this device only, never sent anywhere (registered in services/studentDataMap.ts):
+ *  - localStorage `lazytopper.startHereFocusNotNow.<uid>`: "1" or "2", how many times "Not now"
+ *    was tapped on the focused surface.
+ *  - sessionStorage `lazytopper.startHereFocusClosed`: the uid whose focused surface was closed
+ *    in THIS tab's visit.
+ */
+export const START_HERE_FOCUS_NOT_NOW_PREFIX = "lazytopper.startHereFocusNotNow.";
+export const START_HERE_FOCUS_CLOSED_KEY = "lazytopper.startHereFocusClosed";
+export const START_HERE_FOCUS_MAX_NOT_NOW = 2;
+
+export function focusNotNowCount(uid: string): number {
+  try {
+    const n = Number(window.localStorage.getItem(START_HERE_FOCUS_NOT_NOW_PREFIX + uid));
+    return Number.isInteger(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Whether the focused surface may open for this uid now (the audience check is the caller's). */
+export function focusAllowed(uid: string): boolean {
+  if (!uid) return false;
+  try {
+    if (window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY) === uid) return false;
+  } catch {
+    /* unreadable session memory: fall through to the device count */
+  }
+  return focusNotNowCount(uid) < START_HERE_FOCUS_MAX_NOT_NOW;
+}
+
+/** "Not now" on the focused surface: closed for this visit, and one fewer offer left. */
+export function recordFocusNotNow(uid: string): void {
+  if (!uid) return;
+  try {
+    window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, uid);
+  } catch {
+    /* blocked storage */
+  }
+  try {
+    const next = Math.min(focusNotNowCount(uid) + 1, START_HERE_FOCUS_MAX_NOT_NOW);
+    window.localStorage.setItem(START_HERE_FOCUS_NOT_NOW_PREFIX + uid, String(next));
+  } catch {
+    /* blocked storage: the surface simply returns next visit */
+  }
+}
