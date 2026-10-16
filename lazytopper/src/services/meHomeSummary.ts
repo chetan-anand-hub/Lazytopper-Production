@@ -31,7 +31,7 @@ import {
   type StudyReadQuery,
 } from "./progressReadModel";
 import type { ConceptRung, RungTrend } from "./progressStore";
-import { conceptSetPath, type ConceptSetRef } from "../lib/desktop/conceptSetPath";
+import { conceptSetPath, type ConceptSetContext, type ConceptSetRef } from "../lib/desktop/conceptSetPath";
 import type { MistakeLogEntry } from "./mistakeLogService";
 import { lostMarksOf, splitPaperMarks, viewRowsFrom, type PaperSplit, type ViewRow } from "./meSplit";
 import { entryMarksLost, isStoredMistakeType, type StoredMistakeType } from "../lib/mistakeDisplay";
@@ -45,6 +45,8 @@ import {
 
 /** Me/Progress's route context — every Practise href Me builds carries it (Me imports it). */
 export const ME_ROUTE_CTX: DesktopRouteContext = { source: "me", returnTo: "/me" };
+/** WEAK-AREA-DIRECT: Me's concept Practise also names its Back (`?backLabel=`, as the Topic Hub does). */
+export const ME_CONCEPT_CTX: ConceptSetContext = { ...ME_ROUTE_CTX, backLabel: "Back to Me / Progress" };
 
 /** The two papers, in Me's order (Maths first breaks a tie). */
 export const ME_PAPERS: DesktopSubject[] = ["Maths", "Science"];
@@ -165,13 +167,13 @@ export function meChapterPractisePath(
 }
 
 /** Me's per-concept row Practise href (Me's "By concept" rows call this; so does Quick Practice's
- *  "My weak areas" card). ONE concept per href. WEAK-AREA-DIRECT: a Quick Practice SET on that
- *  concept in its chapter (lib/desktop/conceptSetPath) - the /practice-hub picker it used to open
- *  ignores `focus`, so the concept was lost. */
+ *  "My weak areas" card). ONE concept per href. WEAK-AREA-DIRECT: the RENDER-time href is the
+ *  paper's honest whole set (no focus); the click (`conceptSetClick`) resolves the concept's EXACT
+ *  set lazily (lib/desktop/conceptSetPath), so Home / Quick Practice never load the bank index. */
 export function meConceptPractisePath(
   paper: DesktopSubject,
   concept: ConceptSetRef,
-  ctx: DesktopRouteContext = ME_ROUTE_CTX,
+  ctx: ConceptSetContext = ME_CONCEPT_CTX,
 ): string {
   return conceptSetPath(paper, concept, ctx);
 }

@@ -1,9 +1,9 @@
-// WEAK-AREA-DIRECT — a weak concept's Practise lands IN a Quick Practice set on that concept.
+// WEAK-AREA-DIRECT - a weak concept's Practise lands IN a Quick Practice set of EXACTLY that concept.
 //
-//   1. The concept URL (Me's / the card's builder, conceptSetPath) narrows the REAL page's served
-//      set to the concept: the set leads with, and carries more of, the concept's questions than
-//      the same chapter without the focus (the tutor's subtopicHint path, read as-is).
-//   2. The "My weak areas" card is ON the Quick Practice page, so its link is a SAME-ROUTE arrival:
+//   1. The concept URL (resolved at click time by conceptSetPath's `resolveConceptSetPath`, the
+//      Topic Hub's focusBankIds + strictFocus path) makes the REAL page serve only rows Me counts
+//      under that concept; Back reads "Back to Me / Progress" from the `?backLabel=` query.
+//   2. The "My weak areas" card is ON the Quick Practice page, so its click is a SAME-ROUTE arrival:
 //      the page must open the new set, not keep the chooser it was on (the page initialises from
 //      the URL once per mount, so a new arrival remounts it - `practiceArrivalKey`).
 //
@@ -12,7 +12,7 @@
 
 import { describe, it, expect, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
-import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
+import { Link, MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
@@ -35,23 +35,27 @@ vi.mock("../services/practiceInsights", () => ({
 import PracticePage, { practiceArrivalKey } from "./PracticePage";
 import { ensureBankChapters } from "../data/bankChapters/loader";
 import { bankIndexEntries } from "../data/bankChapters/bankIdIndex";
-import { conceptSetPath } from "../lib/desktop/conceptSetPath";
+import { conceptForSubtopic } from "../data/concepts/conceptLabelMap";
+import { conceptSetClick, conceptSetPath, resolveConceptSetPath } from "../lib/desktop/conceptSetPath";
 
 const CHAPTER = "real-numbers";
 const CONCEPT = "Fundamental Theorem of Arithmetic";
+const ME_BACK = "Back to Me / Progress";
 const FIXED_NOW = new Date("2026-10-16T00:00:00Z");
 const COPY_TITLE = "Copy a shareable link to this exact question set";
 
 let copied: string[] = [];
 
-const subtopicOf = (() => {
-  let map: Map<string, string> | null = null;
-  return (id: string): string => {
-    map ??= new Map([...bankIndexEntries()].map(([k, m]) => [k, String(m.subtopic ?? "")]));
-    return map.get(id) ?? "";
+/** True when Me files this bank row under CONCEPT in CHAPTER (the same lookup Me counts with). */
+const isConcept = (() => {
+  let map: Map<string, { topicKey: string; subtopic: string }> | null = null;
+  return (id: string): boolean => {
+    map ??= new Map([...bankIndexEntries()]);
+    const m = map.get(id);
+    if (!m || m.topicKey !== CHAPTER) return false;
+    return conceptForSubtopic(CHAPTER, m.subtopic.trim()) === CONCEPT;
   };
 })();
-const isConcept = (id: string) => subtopicOf(id).toLowerCase().includes(CONCEPT.toLowerCase());
 
 async function copiedIds(): Promise<string[]> {
   const copy = await screen.findByTitle(COPY_TITLE, undefined, { timeout: 60000 });
@@ -96,7 +100,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("practiceArrivalKey — what makes a new arrival", () => {
+describe("practiceArrivalKey - what makes a new arrival", () => {
   it("ignores the page's own history markers (built, review); a new topic/focus is a new arrival", () => {
     const base = "?topic=real-numbers&focus=FTA";
     expect(practiceArrivalKey(`${base}&built=1`)).toBe(practiceArrivalKey(base));
@@ -107,25 +111,39 @@ describe("practiceArrivalKey — what makes a new arrival", () => {
   });
 });
 
-describe("the concept URL narrows the real page's set", () => {
-  it("★ leads with the concept and serves more of it than the plain chapter", async () => {
-    const url = conceptSetPath("Maths", { label: CONCEPT, chapter: CHAPTER }, { source: "me", returnTo: "/me" });
+describe("the concept URL serves EXACTLY the concept on the real page", () => {
+  it("every served question is the concept (mapped FTA in Real Numbers); Back reads Me", async () => {
+    const url = await resolveConceptSetPath(
+      "Maths",
+      { label: CONCEPT, chapter: CHAPTER },
+      { source: "me", returnTo: "/me", backLabel: ME_BACK },
+    );
     const served = await displayedIds(url);
-    cleanup();
-    copied = [];
-    const control = await displayedIds(`/practice/10/Maths?topic=${CHAPTER}&source=me&returnTo=%2Fme`);
     expect(served.length).toBeGreaterThan(0);
-    expect(isConcept(served[0]), `first served ${served[0]} is ${CONCEPT}`).toBe(true);
-    expect(served.filter(isConcept).length).toBeGreaterThan(control.filter(isConcept).length);
+    expect(served.filter((id) => !isConcept(id)), `served ids outside ${CONCEPT}`).toEqual([]);
+    expect(screen.getAllByText(new RegExp(ME_BACK.replace(/[/]/g, "\\/"))).length).toBeGreaterThan(0);
   }, 180000);
 });
 
+function ConceptLink({ to }: { to: string }) {
+  const navigate = useNavigate();
+  return (
+    <Link
+      to={to}
+      data-testid="weak-link"
+      onClick={conceptSetClick(navigate, "Maths", { label: CONCEPT, chapter: CHAPTER }, { returnTo: "/practice/10/Maths" })}
+    >
+      My weak areas
+    </Link>
+  );
+}
+
 describe("the 'My weak areas' card is a same-route arrival", () => {
-  it("★ from the chooser, the card's link opens the concept's set (not the chooser it was on)", async () => {
+  it("from the chooser, the card's click opens the concept's exact set (not the chooser it was on)", async () => {
     const href = conceptSetPath("Maths", { label: CONCEPT, chapter: CHAPTER }, { returnTo: "/practice/10/Maths" });
     render(
       <MemoryRouter initialEntries={["/practice/10/Maths"]}>
-        <Link to={href} data-testid="weak-link">My weak areas</Link>
+        <ConceptLink to={href} />
         <Routes>
           <Route path="/practice/:grade/:subject" element={<PracticePage />} />
         </Routes>
@@ -136,6 +154,6 @@ describe("the 'My weak areas' card is a same-route arrival", () => {
     fireEvent.click(screen.getByTestId("weak-link"));
     const served = await copiedIds();
     expect(served.length).toBeGreaterThan(0);
-    expect(isConcept(served[0])).toBe(true);
+    expect(served.filter((id) => !isConcept(id))).toEqual([]);
   }, 180000);
 });

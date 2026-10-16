@@ -4,7 +4,11 @@
 // module (not QuickPracticePresets.tsx) so the component file exports components only
 // (react-refresh/only-export-components).
 
-import { conceptSetPath } from "../../lib/desktop/conceptSetPath";
+import {
+  conceptSetPath,
+  type ConceptSetContext,
+  type ConceptSetRef,
+} from "../../lib/desktop/conceptSetPath";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 
 /** The honest locked line ("Soon" is gone: the card is real, just not yet). True for both locked
@@ -24,7 +28,14 @@ export const WEAK_AREAS_LOCKED_COPY = "Unlocks once a few answers are graded";
 export type WeakAreasCard =
   | { kind: "hidden" }
   | { kind: "locked" }
-  | { kind: "live"; href: string; concepts: Array<{ label: string; lost: number }> };
+  | {
+      kind: "live";
+      /** The render-time href (the honest whole-paper fallback when `open` is set). */
+      href: string;
+      concepts: Array<{ label: string; lost: number }>;
+      /** WEAK-AREA-DIRECT: what the click resolves to the concept's EXACT set (conceptSetClick). */
+      open?: { paper: DesktopSubject; concept: ConceptSetRef; ctx: ConceptSetContext };
+    };
 
 /** WEAK-AREA-DIRECT — where the card is: its paper and the practice page to come Back to. */
 export interface WeakAreasCardHere {
@@ -43,9 +54,14 @@ export function weakAreasCardFrom(
   if (!signedIn) return { kind: "hidden" };
   const top = rows[0];
   if (!top) return { kind: "locked" };
+  const concepts = rows.slice(0, 3).map((r) => ({ label: r.label, lost: r.lost }));
+  if (!here) return { kind: "live", href: top.practisePath, concepts };
+  const ctx: ConceptSetContext = { returnTo: here.returnTo };
+  const concept: ConceptSetRef = { label: top.label, chapter: top.chapter };
   return {
     kind: "live",
-    href: here ? conceptSetPath(here.paper, top, { returnTo: here.returnTo }) : top.practisePath,
-    concepts: rows.slice(0, 3).map((r) => ({ label: r.label, lost: r.lost })),
+    href: conceptSetPath(here.paper, concept, ctx),
+    concepts,
+    open: { paper: here.paper, concept, ctx },
   };
 }
