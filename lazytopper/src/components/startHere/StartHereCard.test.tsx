@@ -496,6 +496,8 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     expect(card()).not.toBeNull(); // the inline card remains
     expect(calls("start_here_dismissed")).toEqual([["start_here_dismissed", { surface: "practice_hub_focus" }]]);
     expect(count()).toBe("1");
+    // The visit memory is a flag, never the account id (CodeQL clear-text storage).
+    expect(window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY)).toBe("1");
     // The same visit, another page: the focused surface stays closed, the inline card shows.
     cleanup();
     mount("u1", { focus: true });

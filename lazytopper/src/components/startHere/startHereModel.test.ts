@@ -6,8 +6,14 @@ vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
 import {
   START_HERE_COPY,
   START_HERE_DISMISSED_KEY,
+  START_HERE_FOCUS_CLOSED_KEY,
+  START_HERE_FOCUS_MAX_NOT_NOW,
+  START_HERE_FOCUS_NOT_NOW_PREFIX,
   START_HERE_SUBJECT_HINT_KEY,
   dismissForSession,
+  focusAllowed,
+  focusNotNowCount,
+  recordFocusNotNow,
   isDismissedThisSession,
   readSubjectHint,
   startHerePracticePath,
@@ -108,5 +114,53 @@ describe("START-HERE-1 · the practice URL", () => {
     expect(q.get("src")).toBe("start_here");
     expect(q.get("qt")).toBe("mcq");
     expect(q.get("returnTo")).toBe("/practice-hub");
+  });
+});
+
+describe("QP-SCORECARD-2 E3 · the focused surface's Not-now memory never stores the account id", () => {
+  const UID = "firebaseUid_ABC123";
+
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it("★★ Not now stores the flag \"1\" for this visit, never the uid, in session storage", () => {
+    expect(focusAllowed(UID)).toBe(true);
+    recordFocusNotNow(UID);
+    expect(window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY)).toBe("1");
+    // No storage VALUE anywhere contains the uid.
+    for (const store of [window.sessionStorage, window.localStorage]) {
+      for (let i = 0; i < store.length; i++) {
+        const value = store.getItem(store.key(i)!) ?? "";
+        expect(value).not.toContain(UID);
+      }
+    }
+  });
+
+  it("★★ Not now closes the focused surface for the visit; a new visit offers it once more, then never", () => {
+    recordFocusNotNow(UID);
+    expect(focusAllowed(UID)).toBe(false);
+    expect(focusNotNowCount(UID)).toBe(1);
+    expect(window.localStorage.getItem(START_HERE_FOCUS_NOT_NOW_PREFIX + UID)).toBe("1");
+    window.sessionStorage.clear(); // next visit
+    expect(focusAllowed(UID)).toBe(true);
+    recordFocusNotNow(UID);
+    expect(focusNotNowCount(UID)).toBe(START_HERE_FOCUS_MAX_NOT_NOW);
+    window.sessionStorage.clear(); // third visit
+    expect(focusAllowed(UID)).toBe(false);
+    recordFocusNotNow(UID); // capped
+    expect(window.localStorage.getItem(START_HERE_FOCUS_NOT_NOW_PREFIX + UID)).toBe("2");
+  });
+
+  it("★ the visit flag is per tab session, not per account (accepted); the device count stays per uid", () => {
+    recordFocusNotNow(UID);
+    expect(focusAllowed("otherUid")).toBe(false);
+    expect(focusNotNowCount("otherUid")).toBe(0);
+    window.sessionStorage.clear();
+    expect(focusAllowed("otherUid")).toBe(true);
+    // A legacy uid-valued flag no longer closes anything.
+    window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, UID);
+    expect(focusAllowed(UID)).toBe(true);
+    expect(focusAllowed("")).toBe(false);
   });
 });

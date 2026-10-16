@@ -129,8 +129,10 @@ export function analyticsSubject(subject: DesktopSubject): string {
  * Per uid, on this device only, never sent anywhere (registered in services/studentDataMap.ts):
  *  - localStorage `lazytopper.startHereFocusNotNow.<uid>`: "1" or "2", how many times "Not now"
  *    was tapped on the focused surface.
- *  - sessionStorage `lazytopper.startHereFocusClosed`: the uid whose focused surface was closed
- *    in THIS tab's visit.
+ *  - sessionStorage `lazytopper.startHereFocusClosed`: the constant "1" once the focused surface
+ *    was closed in THIS tab's visit. It never stores the uid (or anything derived from it) as a
+ *    value; a different account signing in within the same tab session also sees the focused
+ *    surface closed for that visit (harmless: the inline card still shows).
  */
 export const START_HERE_FOCUS_NOT_NOW_PREFIX = "lazytopper.startHereFocusNotNow.";
 export const START_HERE_FOCUS_CLOSED_KEY = "lazytopper.startHereFocusClosed";
@@ -149,7 +151,7 @@ export function focusNotNowCount(uid: string): number {
 export function focusAllowed(uid: string): boolean {
   if (!uid) return false;
   try {
-    if (window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY) === uid) return false;
+    if (window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY) === "1") return false;
   } catch {
     /* unreadable session memory: fall through to the device count */
   }
@@ -160,7 +162,7 @@ export function focusAllowed(uid: string): boolean {
 export function recordFocusNotNow(uid: string): void {
   if (!uid) return;
   try {
-    window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, uid);
+    window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, "1");
   } catch {
     /* blocked storage */
   }
