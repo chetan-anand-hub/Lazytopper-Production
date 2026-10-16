@@ -91,6 +91,13 @@ export interface PracticeQuestionCardProps {
    */
   stepsLocked?: boolean;
   /**
+   * FOLLOWUPS-4 B [FU-QP-LATER-PANEL-SHOW-STEPS] — a host with no steps to offer (the Quick
+   * Practice later-upload panel) hides the steps control: no "Show steps" button, no lock note,
+   * and the steps panel never renders. Omitted / false ⇒ the shipped behaviour, so every
+   * existing caller is byte-identical.
+   */
+  hideSteps?: boolean;
+  /**
    * PRACTICE-REVIEW-HONEST-1 (DECISION 27a / 30b) — whether an MCQ pick here is a real
    * attempt. false ⇒ the pick still reports right/wrong (onMcqSelect / onMcqResult) but is
    * NOT sent to `recordAttempt`: an answer given after the steps were seen (Quick Practice
@@ -176,13 +183,14 @@ export function PracticeQuestionCard({
   onAskTutor,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
   stepsLocked = false,
+  hideSteps = false,
   countsAsAttempt: countsAsAttemptProp,
   defaultAnswerMode,
 }: PracticeQuestionCardProps) {
   const countsAsAttemptDefault = useContext(AttemptCountingContext);
   const countsAsAttempt = countsAsAttemptProp ?? countsAsAttemptDefault;
   // The ONE gate every steps render reads: a host's stale `isOpen` cannot leak the panel.
-  const stepsOpen = isOpen && !stepsLocked;
+  const stepsOpen = isOpen && !stepsLocked && !hideSteps;
   const [showChecker, setShowChecker] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
   const stepSolutionRef = useRef<HTMLDivElement>(null);
@@ -634,7 +642,7 @@ export function PracticeQuestionCard({
             <span>{showChecker ? (collectMode ? "Hide answer box" : "Hide check") : collectMode ? "Answer this question" : "Check my answer"}</span>
           </button>
         )}
-        {stepsLocked ? (
+        {hideSteps ? null : stepsLocked ? (
           <StepsLockedNote />
         ) : (
         <button

@@ -250,13 +250,15 @@ export function QuickPracticeLaterUploadPanel({
                 </div>
                 {/* GATE-3 — the EXISTING gated render path (PracticeQuestionCard in collect mode,
                     exactly as PracticePage uses it), so this panel adds no new SolutionChecker
-                    render site. Steps stay closed (`isOpen` false); no MCQ here (written only). */}
+                    render site. Steps stay closed (`isOpen` false); no MCQ here (written only).
+                    FOLLOWUPS-4 B — `hideSteps`: this panel has no steps to show, so no "Show steps". */}
                 <PracticeQuestionCard
                   q={laterQuestion(p)}
                   idx={p.qNumber - 1}
                   subjectKey={snapshot.subject || ""}
                   topicLabel={String(p.topicLabel || "")}
                   isOpen={false}
+                  hideSteps
                   solutionLoading={false}
                   solutionError={undefined}
                   solutionData={undefined}

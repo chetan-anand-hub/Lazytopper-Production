@@ -54,7 +54,7 @@ const Q = {
   topicKey: "real-numbers",
 } as unknown as PracticeQuestion;
 
-function renderCard(opts: { isOpen: boolean; stepsLocked?: boolean }) {
+function renderCard(opts: { isOpen: boolean; stepsLocked?: boolean; hideSteps?: boolean }) {
   return render(
     <MemoryRouter>
       <PracticeQuestionCard
@@ -73,6 +73,7 @@ function renderCard(opts: { isOpen: boolean; stepsLocked?: boolean }) {
         onMcqSelect={() => {}}
         onMcqResult={() => {}}
         {...(opts.stepsLocked === undefined ? {} : { stepsLocked: opts.stepsLocked })}
+        {...(opts.hideSteps === undefined ? {} : { hideSteps: opts.hideSteps })}
       />
     </MemoryRouter>,
   );
@@ -137,5 +138,23 @@ describe("PracticeQuestionCard — stepsLocked", () => {
     renderCard({ isOpen: false });
     expect(screen.getByTestId("practice-mentor-cta").textContent).toBe("Show steps");
     expect(screen.queryByTestId("steps-locked-note")).toBeNull();
+  });
+});
+
+// FOLLOWUPS-4 B [FU-QP-LATER-PANEL-SHOW-STEPS] — a host with no steps to show (the Quick
+// Practice later-upload panel) opts out of the steps control entirely. Omitted ⇒ shipped.
+describe("PracticeQuestionCard — hideSteps", () => {
+  it("★★ hideSteps: no 'Show steps', no lock note, and no steps panel even with a stale isOpen", () => {
+    renderCard({ isOpen: true, hideSteps: true });
+    expect(screen.queryByTestId("practice-mentor-cta")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Show steps|Hide steps/ })).toBeNull();
+    expect(screen.queryByTestId("steps-locked-note")).toBeNull();
+    expect(screen.queryByText("Solution steps (for comparison)")).toBeNull();
+    expect(document.body.textContent).not.toMatch(STEP_TEXT);
+  });
+
+  it("CONTROL — hideSteps false ⇒ 'Show steps' as shipped", () => {
+    renderCard({ isOpen: false, hideSteps: false });
+    expect(screen.getByTestId("practice-mentor-cta").textContent).toBe("Show steps");
   });
 });

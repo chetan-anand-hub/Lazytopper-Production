@@ -599,6 +599,7 @@ import {
   quickPracticeScorecardVariant,
   reopenedQuickPracticeScorecardVariant,
   storedPickedOption,
+  storedTapMarksLost,
   type ScorecardAction,
   type ScorecardGradedAnswer,
   type ScorecardTutorAsk,
@@ -2973,6 +2974,10 @@ const packTopicKey = useMemo(() => {
       ),
     [sessionAnswers, liveEntriesSoFar, batchResult, gradedResults],
   );
+  /** FOLLOWUPS-4 A — whether the set has "marks so far": the SAME count the record write gates on
+   *  (`buildQuickPracticeResponse(...).gradedCount`, persistQuickPracticeSession's own rule — a
+   *  graded or tapped question). Copy only; nothing is scored or recorded differently. */
+  const hasMarksSoFar = useMemo(() => buildQuickPracticeResponse(liveEntriesSoFar).gradedCount > 0, [liveEntriesSoFar]);
   const uploadLaterKey = `${filterSignature}::${committedPoolSelection.displayed.map((q) => String(q.id)).join(",")}::${pendingWrittenNow.map((a) => a.qNumber).join(",")}`;
 
   const handleUploadLater = useCallback(() => {
@@ -3066,7 +3071,7 @@ const packTopicKey = useMemo(() => {
               Upload later
             </button>
             <p style={{ margin: "6px 0 0", fontSize: "0.78rem", color: "hsl(220, 15%, 42%)", lineHeight: 1.5 }}>
-              {`${pendingWrittenNow.map((a) => `Q${a.qNumber}`).join(", ")} ${pendingWrittenNow.length === 1 ? "is" : "are"} not checked yet. Upload later saves your marks so far now; write your answers on paper and upload them when you're ready.`}
+              {`${pendingWrittenNow.map((a) => `Q${a.qNumber}`).join(", ")} ${pendingWrittenNow.length === 1 ? "is" : "are"} not checked yet. ${hasMarksSoFar ? "Upload later saves your marks so far now" : "Upload later saves this set"}; write your answers on paper and upload them when you're ready.`}
             </p>
           </>
         )}
@@ -4088,6 +4093,8 @@ const packTopicKey = useMemo(() => {
       variant={reopenedQuickPracticeScorecardVariant(record, {
         gradedDateLabel: new Date(record.gradedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
         gradedCount: typeof payload?.response?.gradedCount === "number" ? payload.response.gradedCount : undefined,
+        // FOLLOWUPS-4 D — the live scorecard's tap-the-answer note: read from the stored payload.
+        tapMarksLost: storedTapMarksLost(payload?.response?.results),
         wrongAnswers: rows,
         menu: {
           onFreshSet: () => { close(); buildFreshSet(); },

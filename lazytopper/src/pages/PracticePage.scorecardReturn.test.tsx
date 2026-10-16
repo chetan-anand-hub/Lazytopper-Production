@@ -119,6 +119,7 @@ vi.mock("../analytics/analytics", async (importActual) => {
 });
 
 import PracticePage from "./PracticePage";
+import { UNTYPED_MARKS_NOTE } from "../lib/mistakeDisplay";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
 
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
@@ -327,6 +328,20 @@ describe("QP-SCORECARD-2 C · the tutor round trip returns to the SAME scorecard
     expect(rows).toHaveLength(2);
     expect(rows[1].textContent).toContain("Correct answer: q3-correct");
     for (const row of rows) expect(row.textContent).not.toContain("Your answer");
+    expect(RECORDING()).toEqual(ZERO);
+  });
+
+  it("FOLLOWUPS-4 D [FU-QP-REOPEN-TAP-NOTE] — the reopened MCQ set shows the live scorecard's tap-the-answer note", async () => {
+    const { recordId, tutorUrl } = await gradeAndAskTutor();
+    const returnTo = new URLSearchParams(tutorUrl.split("?")[1]).get("returnTo")!;
+    cleanup();
+    resetSpies();
+    await renderAt(returnTo, [mkItem(1), mkItem(2), mkItem(3)]);
+    expect(await screen.findByText(new RegExp(`${recordId} ·`))).toBeInTheDocument();
+    await screen.findAllByTestId("sc-wrong-answer");
+    const notes = Array.from(document.querySelectorAll(".lt-sc__note")).map((n) => n.textContent);
+    expect(notes).toEqual([UNTYPED_MARKS_NOTE]);
+    // Read-only, as every reopen.
     expect(RECORDING()).toEqual(ZERO);
   });
 

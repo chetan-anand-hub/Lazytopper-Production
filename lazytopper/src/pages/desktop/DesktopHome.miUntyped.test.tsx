@@ -46,7 +46,12 @@ describe("MI-COPY — Home MI card, lost marks with no mistake type (MCQ-only)",
     const note = screen.getByTestId("home-mi-untyped-note");
     expect(note.textContent).toContain(HOME_MI_UNTYPED_NOTE);
     expect(HOME_MI_UNTYPED_NOTE).toContain(UNTYPED_MARKS_WHY);
-    expect(HOME_MI_UNTYPED_NOTE).toMatch(/^These fill in when you check a written answer\./);
+    // FOLLOWUPS-4 C [FU-HOME-MI-NOTE-NO-LOSS] — true also for a student who HAS checked written
+    // answers that lost no marks: the tiles fill in when a checked written answer LOSES marks.
+    expect(HOME_MI_UNTYPED_NOTE).toBe(
+      `These fill in when a checked written answer loses marks. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`,
+    );
+    expect(note.textContent).not.toMatch(/when you check a written answer/);
     expect(screen.getAllByTestId("home-mi-untyped-note")).toHaveLength(1);
   });
 
@@ -70,7 +75,7 @@ describe("MI-COPY — Home MI card, lost marks with no mistake type (MCQ-only)",
       expect(t.style.borderStyle).toBe("dashed");
       expect(t.querySelector(".lt-n")!.textContent).toBe("—");
     }
-    expect(HOME_MI_UNTYPED_TILE_TITLE).toContain(UNTYPED_MARKS_WHY);
+    expect(HOME_MI_UNTYPED_TILE_TITLE).toBe(`Fills in when a checked written answer loses marks. ${UNTYPED_MARKS_WHY}`);
   });
 });
 

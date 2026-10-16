@@ -152,6 +152,10 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
     // Graded scorecard: Q2 + Q3 (written, nothing saved) can be uploaded later.
     const later = await screen.findByTestId("qp-upload-later");
     expect(screen.getByTestId("qp-upload-later-block").textContent).toContain("Q2, Q3 are not checked yet");
+    // FOLLOWUPS-4 A — Q1 was graded, so "your marks so far" is true here (today's sentence).
+    expect(screen.getByTestId("qp-upload-later-block").textContent).toContain(
+      "Q2, Q3 are not checked yet. Upload later saves your marks so far now; write your answers on paper and upload them when you're ready.",
+    );
     await waitFor(() => expect(writeSessionRecord).toHaveBeenCalled());
     const recordId = (writeSessionRecord.mock.calls.at(-1) as unknown as [unknown, { id: string }])[1].id;
     writeSessionRecord.mockClear();
@@ -180,6 +184,9 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
       "Question 3",
     ]);
     const [q2, q3] = within(panel).getAllByTestId("qp-later-question");
+    // FOLLOWUPS-4 B — the panel has no steps to show, so it offers no "Show steps".
+    expect(within(panel).queryByRole("button", { name: /Show steps|Hide steps/ })).toBeNull();
+    expect(within(panel).queryByTestId("practice-mentor-cta")).toBeNull();
     // Served through PracticeQuestionCard (the gated render path): its own trigger opens the box.
     fireEvent.click(within(q2).getByRole("button", { name: "Answer this question" }));
     fireEvent.click(within(q3).getByRole("button", { name: "Answer this question" }));
@@ -208,6 +215,14 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
   it("★ nothing attempted: the set is kept, but the notice never claims marks went to history (review nit 1)", async () => {
     await buildSet();
     fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    // FOLLOWUPS-4 A [FU-QP-UPLOAD-LATER-PRETAP-COPY] — nothing attempted ⇒ there are no "marks so
+    // far", so the line under the button never claims them.
+    await screen.findByTestId("qp-upload-later");
+    const preTap = screen.getByTestId("qp-upload-later-block").textContent || "";
+    expect(preTap).toContain(
+      "Q1, Q2, Q3 are not checked yet. Upload later saves this set; write your answers on paper and upload them when you're ready.",
+    );
+    expect(preTap).not.toContain("marks so far");
     fireEvent.click(await screen.findByTestId("qp-upload-later"));
     const notice = (await screen.findByTestId("qp-upload-later-notice")).textContent || "";
     expect(notice).toContain("Your set is saved. Upload your written answers when you're ready.");
