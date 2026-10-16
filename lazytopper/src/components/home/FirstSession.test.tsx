@@ -54,6 +54,14 @@ vi.mock("../../hooks/useSubscription", () => ({
 vi.mock("../../services/mistakeLogService", () => ({
   getMistakeLogs: vi.fn(async () => []),
 }));
+// MI-HOME-SYNC — Home's MI card now reads Me's numbers (services/useMeHomeSummary → the shared read
+// model, which also reads session records). Pinned to "no marks on the table" here so
+// `sessions.reads` keeps counting FirstSession's ONE graded-history read; the Home == Me numbers
+// are pinned in services/meHomeSummary.sync.test.tsx.
+vi.mock("../../services/useMeHomeSummary", () => ({
+  useMeHome: () => ({ status: "idle", read: null }),
+  useMeConceptRows: () => ({ status: "idle", rows: [] }),
+}));
 
 import FirstSession from "./FirstSession";
 import DesktopHome from "../../pages/desktop/DesktopHome";

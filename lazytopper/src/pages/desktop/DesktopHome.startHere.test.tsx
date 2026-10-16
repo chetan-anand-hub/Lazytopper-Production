@@ -13,6 +13,10 @@ import { setMatchMediaMatches } from "../../test/setup";
 const state = vi.hoisted(() => ({ local: [] as unknown[], cloudHas: false as boolean | null }));
 vi.mock("../../services/sessionRecords", () => ({
   getSessionRecordsFromCloud: vi.fn(async () => state.local),
+  // MI-HOME-SYNC: Home's MI card now reads Me's numbers through the shared read model
+  // (progressStore.getWindowedProgress), which also reads the per-question payloads. Without this
+  // export the read rejects from the mock proxy (CI: unhandled rejection in vitest 4/4 on #1201).
+  getAllSessionPerQuestionFromCloud: vi.fn(async () => []),
   loadLocalSessionRecords: () => state.local,
   cloudHasAnySessionRecord: async () => state.cloudHas,
 }));

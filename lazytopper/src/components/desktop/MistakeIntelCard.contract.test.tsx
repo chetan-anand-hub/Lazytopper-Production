@@ -51,6 +51,7 @@ import type { MistakeLogEntry } from "../../services/mistakeLogService";
 import type { PracticeAttempt } from "../../services/practiceInsights";
 import { buildMistakeView, buildStudyActivity, type StudyReadModel } from "../../services/progressReadModel";
 import { emptyWindowed } from "../../services/progressStore";
+import { resetMeHomeMemo } from "../../services/meHomeSummary";
 
 /** A read-model snapshot for the pure summary: these entries, and `graded` checked answers. */
 function model(entries: MistakeLogEntry[], graded = 0, marksLost = 0): StudyReadModel {
@@ -93,6 +94,8 @@ const aboveGate = () => [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((h) => attempt(
 const renderCard = () => render(<MemoryRouter><MistakeIntelCard /></MemoryRouter>);
 
 beforeEach(() => {
+  // MI-HOME-SYNC — the card's read is memoised per tab; each test is a fresh tab.
+  resetMeHomeMemo();
   h.user = { uid: "u1" };
   h.entries = [];
   h.attempts = [];
@@ -175,5 +178,18 @@ describe("honest states unchanged", () => {
   it("no entries → the no-data prompt", async () => {
     renderCard();
     expect(await screen.findByText(/No mistake patterns yet/)).toBeTruthy();
+  });
+});
+
+describe("MI-HOME-SYNC — MCQ-only marks on the table (owner's live case) are never 'no patterns yet'", () => {
+  it("★★ MCQ picks lost marks, no MI entry → '<N> marks on the table — top: <Me's chapter>' + Check an answer", async () => {
+    // Eight MCQ picks spread over the week, each 1 of 2 → 8 marks on the table in Me; no MI entry.
+    h.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((hr) => attempt("mcq", hr * 60 * 60 * 1000));
+    renderCard();
+    const line = await screen.findByTestId("mi-card-untyped");
+    expect(line.textContent).toContain("8 marks on the table");
+    expect(screen.getByTestId("mi-card-untyped-top").textContent).toBe("Real Numbers");
+    expect(screen.getByTestId("mi-card-check").getAttribute("href")).toBe("/check-improve");
+    expect(screen.queryByText(/No mistake patterns yet/)).toBeNull();
   });
 });

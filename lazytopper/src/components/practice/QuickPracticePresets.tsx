@@ -13,8 +13,10 @@
 // STYLE_COMPAT / DIFF_COMPAT_BY_MARKS matrices — never an invented mode.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import type { DifficultyChoice } from "./practiceQuestionBuilder";
 import { PAPER_DESIGN } from "../../config/syllabus2026-27";
+import { WEAK_AREAS_LOCKED_COPY, type WeakAreasCard } from "./weakAreasCard";
 
 /** The committed-filter bundle a preset applies. Every field is a real PracticeControls
  *  value. `committedDifficulty` is intentionally "all" on every preset: the coarse
@@ -144,11 +146,13 @@ export const QP_PRESETS: QpPresetConfig[] = [
     accentClass: "qp-comp",
     desc: "Questions targeted at the concepts you've been losing marks on.",
     chips: [{ text: "Personalised" }],
-    cbse: "Unlocks after a few graded sessions — powered by Mistake Intelligence.",
+    cbse: WEAK_AREAS_LOCKED_COPY,
     startNote: "",
     gated: true,
   },
 ];
+
+const marksWord = (n: number): string => `${n} mark${n === 1 ? "" : "s"}`;
 
 export interface QuickPracticePresetsProps {
   presets: QpPresetConfig[];
@@ -160,10 +164,12 @@ export interface QuickPracticePresetsProps {
   onCustomise: () => void;
   timerEnabled: boolean;
   onToggleTimer: () => void;
+  /** MI-HOME-SYNC (B) — the "My weak areas" card state (absent → locked). */
+  weakAreas?: WeakAreasCard;
 }
 
 export function QuickPracticePresets({
-  presets,
+  presets: allPresets,
   selectedKey,
   onSelect,
   competencyAvailable,
@@ -171,7 +177,9 @@ export function QuickPracticePresets({
   onCustomise,
   timerEnabled,
   onToggleTimer,
+  weakAreas = { kind: "locked" },
 }: QuickPracticePresetsProps) {
+  const presets = weakAreas.kind === "hidden" ? allPresets.filter((p) => p.key !== "weak") : allPresets;
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const [activeDot, setActiveDot] = useState(0);
 
@@ -206,6 +214,35 @@ export function QuickPracticePresets({
 
       <div className="qp-presets" ref={scrollerRef}>
         {presets.map((p) => {
+          if (p.key === "weak" && weakAreas.kind === "live") {
+            // MI-HOME-SYNC (B) — LIVE: Me's own concept-row Practise href for the top concept.
+            const [top, ...rest] = weakAreas.concepts;
+            return (
+              <Link
+                key={p.key}
+                to={weakAreas.href}
+                className={`qp-preset ${p.accentClass}`}
+                data-testid="qp-weak-live"
+              >
+                <div className="qp-p-top">
+                  <div className="qp-p-ic" aria-hidden="true">{p.icon}</div>
+                  <div className="qp-p-name">{p.label}</div>
+                </div>
+                <p className="qp-p-desc" data-testid="qp-weak-top">
+                  A set on {top.label} — {marksWord(top.lost)} lost there in the last month.
+                </p>
+                <div className="qp-p-meta">
+                  <span className="qp-chip a">Personalised</span>
+                  {rest.slice(0, 2).map((c) => (
+                    <span key={c.label} className="qp-chip">{c.label} · {marksWord(c.lost)}</span>
+                  ))}
+                </div>
+                <div className="qp-cbse">
+                  One concept per set: your top one, from Me / Progress.
+                </div>
+              </Link>
+            );
+          }
           const gated = isGated(p);
           const selectedNow = !gated && p.key === selectedKey;
           const compComingSoon = p.key === "comp" && !competencyAvailable;
@@ -220,7 +257,7 @@ export function QuickPracticePresets({
               onClick={() => { if (!gated) onSelect(p.key); }}
             >
               {selectedNow && <span className="qp-sel-check" aria-hidden="true">✓</span>}
-              {p.gated && <span className="qp-soon-tag">Soon</span>}
+              {p.gated && p.key !== "weak" && <span className="qp-soon-tag">Soon</span>}
               {compComingSoon && <span className="qp-soon-tag">Soon</span>}
               <div className="qp-p-top">
                 <div className="qp-p-ic" aria-hidden="true">{p.icon}</div>
