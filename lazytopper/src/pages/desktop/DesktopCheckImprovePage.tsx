@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ReturnTicketStrip, useReturnTicket } from "../../components/navigation/ReturnTicket";
 import {
   checkSolutionImage,
@@ -147,7 +147,12 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { useFreeCheckReturn } from "../../hooks/useFreeCheckReturn";
 import { trackNamedEvent, trackOnboardingEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
 import { buildTutorPath } from "../tutor/tutorPath";
-import { positionalQuestionId } from "../tutor/tutorRoundTrip";
+import {
+  SCORECARD_REVIEW_PARAM,
+  buildCheckImproveReviewHref,
+  positionalQuestionId,
+  recordBelongsToUid,
+} from "../tutor/tutorRoundTrip";
 import type { ScorecardTutorAsk } from "../../components/results/scorecardVariants";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
@@ -1338,6 +1343,29 @@ const DesktopCheckImprovePageInner: React.FC<{
     void loadCiRecords();
   }, [loadCiRecords]);
 
+  // QP-SCORECARD-2 C (law 6, Check & Improve) — the tutor's back arrow from a SAVED paper's
+  // "Ask the tutor why I lost this mark" lands on `/check-improve?review=<paper code>`: reopen
+  // THAT paper read-only through the page's existing reopen-by-record (`openReopen`, the same
+  // one "Your checked papers" uses), ONCE, and strip the param with `replace`. The record is the
+  // student's own (uid-scoped, local-first then cloud via `loadCiRecords`); an unreadable one, or
+  // a signed-out / overlay visit, leaves the plain page, silently.
+  const ciLocation = useLocation();
+  const ciReviewCode = overlay ? null : new URLSearchParams(ciLocation.search).get(SCORECARD_REVIEW_PARAM);
+  const ciReviewConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!ciReviewCode || ciRecordsLoading) return;
+    if (ciReviewConsumedRef.current === ciReviewCode) return;
+    ciReviewConsumedRef.current = ciReviewCode;
+    const sp = new URLSearchParams(ciLocation.search);
+    sp.delete(SCORECARD_REVIEW_PARAM);
+    const search = sp.toString();
+    navigate({ pathname: ciLocation.pathname, search: search ? `?${search}` : "" }, { replace: true, state: ciLocation.state });
+    const uid = user?.uid && !user.isLocalSession ? user.uid : null;
+    const record = uid ? ciRecords.find((r) => r.id === ciReviewCode && recordBelongsToUid(r, uid)) : undefined;
+    if (record) void openReopen(record);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ciReviewCode, ciRecordsLoading, ciRecords, user?.uid, user?.isLocalSession]);
+
   // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -2337,7 +2365,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             subject,
             topicKey: topicSlug,
             source: "scorecard",
-            returnTo: "/check-improve",
+            // QP-SCORECARD-2 C — the back arrow reopens THIS saved paper (was "/check-improve":
+            // a fresh upload page, the graded paper gone).
+            returnTo: buildCheckImproveReviewHref(ciCode),
             questionId: positionalQuestionId(qNumber),
             from: ciCode,
           }),
