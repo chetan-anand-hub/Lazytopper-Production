@@ -76,6 +76,7 @@ import MeProgressPage, { splitPaperMarks } from "../pages/MeProgressPage";
 import { assembleTutorBrief, briefFromModel, TUTOR_BRIEF_WINDOW } from "../pages/tutor/tutorContextBrief";
 import { MistakeIntelCard, computeMiCardSummary } from "../components/desktop/MistakeIntelCard";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
+import { resetMeHomeMemo } from "./meHomeSummary";
 
 const UID = "u-gate";
 const CHAPTER = "arithmetic-progression";
@@ -131,6 +132,8 @@ async function renderMe(): Promise<void> {
 beforeEach(() => {
   cleanup();
   n = 0;
+  // MI-HOME-SYNC — the sidebar's read is memoised per tab; each test is a fresh tab.
+  resetMeHomeMemo();
 });
 
 describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE gate for naming a weakness", () => {
@@ -159,7 +162,8 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
     cleanup();
 
     // PR-2b (C-W1) — the sidebar MI widget names nothing either: no group, no marks figure.
-    const week = await readStudyModel(UID, { window: "week", nowMs: NOW });
+    // MI-HOME-SYNC — the widget reads Me's default window (the month), not the week.
+    const week = await readStudyModel(UID, { window: TUTOR_BRIEF_WINDOW, nowMs: NOW });
     const card = computeMiCardSummary(week);
     expect(card.namesWeakness).toBe(false);
     expect(card.topLoss).toBeNull();
@@ -207,7 +211,8 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
     cleanup();
 
     // PR-2b (C-W1) — above the gate the widget names too: the model's group, the model's figure.
-    const week = await readStudyModel(UID, { window: "week", nowMs: NOW });
+    // MI-HOME-SYNC — the widget reads Me's default window (the month), not the week.
+    const week = await readStudyModel(UID, { window: TUTOR_BRIEF_WINDOW, nowMs: NOW });
     const card = computeMiCardSummary(week);
     expect(card.namesWeakness).toBe(true);
     expect(card.topLoss?.label).toBe("Knowledge gap");

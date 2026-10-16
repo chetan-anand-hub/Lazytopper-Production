@@ -566,7 +566,8 @@ import TutorSignupPrompt from "../components/auth/TutorSignupPrompt";
 import { bankChaptersFor, ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import { PracticeControls } from "../components/practice/PracticeControls";
-import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
+import { QuickPracticePresets, QP_PRESETS, weakAreasCardFrom, type WeakAreasCard } from "../components/practice/QuickPracticePresets";
+import { useMeConceptRows } from "../services/useMeHomeSummary";
 import { QP_ENTRY_CSS } from "../components/practice/quickPracticeEntryStyles";
 import { PracticeHero } from "../components/practice/PracticeHero";
 import { WhyThisQuestionPanel } from "../components/practice/WhyThisQuestionPanel";
@@ -691,7 +692,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
   const params = useParams<{ grade?: string; subject?: string }>();
-  const { user: authUserForJourney, loading: authLoading } = useAuth();
+  const { user: authUserForJourney, loading: authLoading, mistakeLogsHydrated: mistakeLogsHydratedForQp } = useAuth();
   // SHW-2 TYPE-FIRST DEFAULT — a signed-in student with ZERO graded answers gets the answer box on
   // "Type" first. The Start-here check's answer is REUSED (local rows, then the answer Home / the
   // hub already read in this tab): `cloud: false`, so this page never starts a Firestore read.
@@ -1367,6 +1368,18 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   }, [isGuest]);
   /** FAIR-USE-UI-1 - fair limits on the batched grade (dark unless enforced). */
   const fairUse = useFairUse("checks", !!authUserForJourney?.uid && !authUserForJourney?.isLocalSession);
+  /** MI-HOME-SYNC (B) — the "My weak areas" preset is LIVE from Me's concept rows for this
+   *  subject (Me's window and gates, services/meHomeSummary). Read only while the preset picker
+   *  is on screen, for a real signed-in account, never inside the Tutor overlay; the read is the
+   *  paper-scoped progress read only (no mistake history, no Tutor), memoised and shared with
+   *  the desktop sidebar's read of the same paper. No grading or recording path is touched. */
+  const presetEntryVisible = !overlay && shouldShowPresetEntry(isBuilt, arrivedTargeted, entryMode);
+  const weakAreasRows = useMeConceptRows(
+    presetEntryVisible && !isGuest ? authUserForJourney?.uid ?? null : null,
+    subjectKey,
+    Number(mistakeLogsHydratedForQp) || 0,
+  );
+  const weakAreasCard: WeakAreasCard = weakAreasCardFrom(!isGuest, weakAreasRows.rows);
   /** ALL-AI-METERING-1 - the More-like-this limit panel (the AI top-up was refused). */
   const [moreLikeThisLimit, setMoreLikeThisLimit] = useState<LimitState | null>(null);
   /** DECISION 29d - a FREE student's 402 premium_required: a plan note with a trial link, not a limit. */
@@ -3152,6 +3165,7 @@ const packTopicKey = useMemo(() => {
             onCustomise={() => setEntryMode("custom")}
             timerEnabled={timerEnabled}
             onToggleTimer={() => setTimerEnabled((p) => !p)}
+            weakAreas={weakAreasCard}
           />
         ) : (
         <>

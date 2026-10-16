@@ -474,8 +474,10 @@ describe("G3 — the sidebar MI widget joins the pin: widget == Me == brief == t
   // `readStudyModel(uid, { window: "week" })`, both papers — so for the week: its checked answers
   // are the model's graded answers, and its marks lost are the model's graded-stream total, which
   // is Me's "marks on the table" for Maths plus Science, and the brief's figure for each paper.
-  it("★ week, both papers — the pure summary and the RENDERED card print the model's numbers", async () => {
-    const all = await model("week", null);
+  // MI-HOME-SYNC — the card now reads Me's DEFAULT window (`ME_DEFAULT_WINDOW`, the month), the
+  // window Me opens on, so the pin runs on the month (it was the week).
+  it("★ month (Me's default window), both papers — the pure summary and the RENDERED card print the model's numbers", async () => {
+    const all = await model("month", null);
     const card = computeMiCardSummary(all);
     expect(card.checkedCount).toBe(all.progress.activity.gradedAnswers);
     expect(card.checkedCount).toBeGreaterThan(0);
@@ -484,12 +486,12 @@ describe("G3 — the sidebar MI widget joins the pin: widget == Me == brief == t
     // == Me, per paper (both papers are above Me's gate in the week — asserted, not assumed).
     let meSum = 0;
     for (const subject of ["maths", "science"] as const) {
-      const m = await model("week", subject);
+      const m = await model("month", subject);
       const split = splitPaperMarks(subjectRungOf(all.progress, subject), m.mistakes.entries);
       expect(split).not.toBeNull();
       meSum += split!.lost;
       // == the brief for the same paper and window.
-      const brief = await assembleTutorBrief({ uid: UID, topicKey: "real-numbers", subject, window: "week", nowMs: NOW });
+      const brief = await assembleTutorBrief({ uid: UID, topicKey: "real-numbers", subject, window: "month", nowMs: NOW });
       expect(brief.mistakes.marksLostRecent).toBe(split!.lost);
     }
     expect(card.totalMarksLost).toBeCloseTo(meSum, 5);

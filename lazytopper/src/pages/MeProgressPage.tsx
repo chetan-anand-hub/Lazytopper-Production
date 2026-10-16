@@ -18,7 +18,6 @@ import type { MistakeLogEntry } from "../services/mistakeLogService";
 // and its one mistake group split.
 import {
   ME_DEFAULT_WINDOW,
-  boardChapterKey,
   readStudyModel,
   rungNamesWeakness,
   type MistakeView,
@@ -29,6 +28,18 @@ import { lostMarksOf, splitPaperMarks, viewRowsFrom, type PaperSplit, type ViewR
 // eslint-disable-next-line react-refresh/only-export-components
 export { lostMarksOf, splitPaperMarks, viewRowsFrom };
 export type { PaperSplit, ViewRow };
+// MI-HOME-SYNC — the chapter list, the paper choice and the Practise href builders live in
+// services/meHomeSummary (moved verbatim) so Home, the sidebar and Quick Practice show exactly
+// Me's numbers and hrefs; re-exported so every existing import is unchanged.
+import {
+  ME_ROUTE_CTX,
+  buildChapters,
+  meChapterPractisePath,
+  meConceptPractisePath,
+  mePaperOf,
+} from "../services/meHomeSummary";
+// eslint-disable-next-line react-refresh/only-export-components
+export { buildChapters };
 import { summarizeCareless } from "../services/mistakeInsightsService";
 import {
   MISTAKES_BY_KIND_HEADING,
@@ -36,12 +47,10 @@ import {
   MISTAKE_TYPE_LABEL,
   NOT_ATTEMPTED,
   countWithUnit,
-  isStoredMistakeType,
   mistakeGroupByKey,
   mistakeGroupOf,
 } from "../lib/mistakeDisplay";
 import { planMistakeRetry, retryCopyFor } from "../services/mistakeRetry";
-import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
 import { buildActionableDesktopTopicHubContent } from "../lib/desktop/topicHubContent";
 import {
   buildDesktopTopicHubPath,
@@ -113,7 +122,7 @@ import UsageCard from "../components/usage/UsageCard";
  * (a bar segment's width and tone), per the CLAUDE.md section 7 ruling for this page.
  */
 
-const ROUTE_CTX: DesktopRouteContext = { source: "me", returnTo: "/me" };
+const ROUTE_CTX: DesktopRouteContext = ME_ROUTE_CTX;
 const BACK_LABEL = "Back to Me / Progress";
 const BACK_STATE = { back: "/me", backLabel: BACK_LABEL } as const;
 
@@ -305,82 +314,8 @@ export function resolveArrivalConcept(
   return null;
 }
 
-interface Chapter {
-  key: string;
-  label: string;
-  slug: string | null;
-  subject: DesktopSubject | null;
-  lost: number;
-  /** The dominant KNOWLEDGE-gap type for this chapter, or null. */
-  gapType: "conceptual" | "calculation" | null;
-  /** The most recent mistake-log entry for this chapter - the retry candidate. */
-  retryEntry: MistakeLogEntry | null;
-}
-
-/**
- * The chapter list. Sourced from the windowed topic rungs, resolved against the
- * canonical desktop registry so a chapter that does not resolve is routed honestly
- * rather than emitted as a broken path.
- *
- * Ordering is by marks on the table, descending, with the rung key as the tie-break -
- * so it is STABLE between visits and only moves when new graded data moves it. It is
- * never reshuffled for variety.
- */
-export function buildChapters(
-  topics: RungTrend[],
-  paper: DesktopSubject,
-  byChapter: MistakeView["byChapter"],
-): Chapter[] {
-  // ME-ENGINE-1 PR-1 — the mistakes per chapter come from the shared read model, grouped by its
-  // ONE canonicaliser (`boardChapterKey`, the 26 board chapters). This page used to group them
-  // with `normalizeTopicKey` (the topicAliasMap vocabulary: "reproduction",
-  // "heredity-and-evolution") — a second canonicaliser, the G3 #10 split.
-  const rows: Chapter[] = [];
-  for (const rung of topics) {
-    // A mistake-type key can never enter the chapter list - it is not a chapter.
-    if (isStoredMistakeType(rung.key.toLowerCase())) continue;
-    const meta = desktopTopicForWeakAreaKey(rung.key);
-    // Subject purity. The read is already scoped, so this only ever excludes a row
-    // that RESOLVES to the other paper; an unresolvable key is kept and routed honestly.
-    if (meta?.subject && meta.subject !== paper) continue;
-
-    const canonical = boardChapterKey(rung.key);
-    const entries = (canonical ? byChapter[canonical] ?? [] : [])
-      .slice()
-      .sort((a, b) => Date.parse(b.timestamp || "") - Date.parse(a.timestamp || ""));
-
-    let conceptual = 0;
-    let calculation = 0;
-    for (const entry of entries) {
-      for (const step of entry.stepDetails ?? []) {
-        const type = String(step?.mistakeType ?? "").trim().toLowerCase();
-        const marks = Number(step?.marksDeducted);
-        if (!Number.isFinite(marks) || marks <= 0) continue;
-        if (type === "conceptual") conceptual += marks;
-        else if (type === "calculation") calculation += marks;
-      }
-    }
-    // A chapter is tagged ONLY with a knowledge-gap type — owner ruling: that is
-    // `conceptual` alone. Calculation is careless ("you already know this"), so a
-    // calculation-dominant chapter carries no tag at all: naming a chapter after a slip
-    // would be the moat breaking in a different costume. `calculation` is still summed
-    // above only so the comparison stays honest about what dominated.
-    const gapType = conceptual > 0 && conceptual >= calculation ? "conceptual" : null;
-
-    rows.push({
-      key: rung.key,
-      label: meta?.name || rung.label || rung.key,
-      slug: meta?.slug ?? null,
-      subject: meta?.subject ?? null,
-      lost: lostMarksOf(rung) ?? 0,
-      gapType,
-      retryEntry: entries[0] ?? null,
-    });
-  }
-
-  rows.sort((a, b) => (b.lost !== a.lost ? b.lost - a.lost : a.key.localeCompare(b.key)));
-  return rows;
-}
+// MI-HOME-SYNC — `Chapter` and `buildChapters` moved VERBATIM to services/meHomeSummary
+// (imported and re-exported above), so Home reads the same chapter list as this page.
 
 /**
  * The one-line reason under a chapter card. HONEST-OR-SILENT AT SENTENCE LEVEL: it
@@ -648,9 +583,10 @@ export default function MeProgressPage() {
   // Once they touch the switch it is theirs and we never move it under them.
   useEffect(() => {
     if (paperTouched || subjectRungs.length === 0) return;
-    const best = PAPERS.slice().sort((a, b) => (lostByPaper[b] ?? -1) - (lostByPaper[a] ?? -1))[0];
-    if (best && (lostByPaper[best] ?? 0) > 0) setPaper(best);
-  }, [subjectRungs, lostByPaper, paperTouched]);
+    // MI-HOME-SYNC — the same choice Home makes (services/meHomeSummary `mePaperOf`, moved here).
+    const best = mePaperOf(subjectRungs);
+    if (best) setPaper(best);
+  }, [subjectRungs, paperTouched]);
 
   // The chosen paper's live mistakes, scoped by the read model's ONE subject split (a
   // "Mathematics" entry is a Maths mistake; the old exact `=== "maths"` dropped it).
@@ -1099,15 +1035,8 @@ export default function MeProgressPage() {
                     const learnPath = c.slug
                       ? buildDesktopTopicHubPath(c.slug, ROUTE_CTX)
                       : withMeQuery("/exam-trends");
-                    const practisePath =
-                      c.slug && c.subject
-                        ? buildDesktopConceptPracticePath({
-                            subject: c.subject,
-                            topic: c.slug,
-                            backLabel: `Back to ${c.label}`,
-                            ...ROUTE_CTX,
-                          })
-                        : withMeQuery("/exam-trends");
+                    // MI-HOME-SYNC — the one builder Home's Practise also calls.
+                    const practisePath = meChapterPractisePath(c, ROUTE_CTX);
                     const plan = c.retryEntry ? planMistakeRetry(c.retryEntry) : null;
                     // The module decides the words AND whether there is a control at all.
                     // `null` means the entry carries no question identity, so nothing can
@@ -1268,12 +1197,7 @@ export default function MeProgressPage() {
                         <MarksWord value={row.lost} />
                       </span>
                       <RowCta
-                        to={buildDesktopPracticePath({
-                          scope: "full-subject",
-                          subject: paper,
-                          focus: row.label,
-                          ...ROUTE_CTX,
-                        })}
+                        to={meConceptPractisePath(paper, row.label, ROUTE_CTX)}
                         label="Practise"
                         testId={`me-practise-concept-${row.key}`}
                       />

@@ -3,12 +3,13 @@ import { render, cleanup, fireEvent, screen, act } from "@testing-library/react"
 import { useEffect, useRef, useState } from "react";
 import {
   createMemoryRouter,
+  MemoryRouter,
   RouterProvider,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
 
-import { QuickPracticePresets, QP_PRESETS } from "./QuickPracticePresets";
+import { QuickPracticePresets, QP_PRESETS, weakAreasCardFrom } from "./QuickPracticePresets";
 import {
   deriveArrivedTargeted,
   shouldShowPresetEntry,
@@ -364,12 +365,59 @@ describe("picker render — selection, gating, timer, bypass of gated cards", ()
     expect(onSelect).toHaveBeenCalledWith("comp");
   });
 
-  it("the 5th 'My weak areas' card stays gated (Soon) and never selects", () => {
-    const { onSelect } = renderPicker();
+  // MI-HOME-SYNC (B) — "My weak areas" is no longer "Soon": hidden signed out, honestly locked
+  // with no concept rows, LIVE (a link to Me's concept Practise href) with them.
+  it("★ signed out → the 'My weak areas' card is hidden (no saved graded work to target)", () => {
+    renderPicker({ weakAreas: weakAreasCardFrom(false, []) });
+    expect(screen.queryByText("My weak areas")).toBeNull();
+    expect(screen.getAllByText(/Quick drill|Board mix|Competency|High-marks/).length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("★ signed in, no concept rows → visible, not clickable, 'Unlocks after your first graded set', no 'Soon'", () => {
+    const { onSelect } = renderPicker({ weakAreas: weakAreasCardFrom(true, []) });
     const weak = screen.getByText("My weak areas").closest("button")!;
     expect(weak.hasAttribute("disabled")).toBe(true);
+    expect(weak.textContent).toContain("Unlocks after your first graded set");
+    expect(weak.textContent).not.toMatch(/Soon/);
     fireEvent.click(weak);
     expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("★ default (no state passed) is the honest locked card, never 'Soon'", () => {
+    renderPicker();
+    const weak = screen.getByText("My weak areas").closest("button")!;
+    expect(weak.hasAttribute("disabled")).toBe(true);
+    expect(weak.textContent).not.toMatch(/Soon/);
+  });
+
+  it("★ concept rows → LIVE: a link to the top concept's Practise href, naming the top concepts with marks", () => {
+    const rows = [
+      { label: "Fundamental Theorem of Arithmetic", lost: 5, practisePath: "/practice-hub?scope=full-subject&subject=Maths&focus=Fundamental+Theorem+of+Arithmetic&source=me&returnTo=%2Fme" },
+      { label: "Irrational Numbers", lost: 2, practisePath: "/practice-hub?x=2" },
+    ];
+    const weakAreas = weakAreasCardFrom(true, rows);
+    render(
+      <MemoryRouter>
+        <QuickPracticePresets
+          presets={QP_PRESETS}
+          selectedKey="board"
+          onSelect={vi.fn()}
+          competencyAvailable
+          onStart={vi.fn()}
+          onCustomise={vi.fn()}
+          timerEnabled={false}
+          onToggleTimer={vi.fn()}
+          weakAreas={weakAreas}
+        />
+      </MemoryRouter>,
+    );
+    const live = screen.getByTestId("qp-weak-live");
+    expect(live.tagName).toBe("A");
+    expect(live.getAttribute("href")).toBe(rows[0].practisePath);
+    expect(screen.getByTestId("qp-weak-top").textContent).toContain("Fundamental Theorem of Arithmetic — 5 marks");
+    expect(live.textContent).toContain("Irrational Numbers · 2 marks");
+    expect(live.textContent).toContain("One concept per set");
+    expect(live.textContent).not.toMatch(/Soon/);
   });
 
   it("Start / Customise / Timer wire to their callbacks", () => {

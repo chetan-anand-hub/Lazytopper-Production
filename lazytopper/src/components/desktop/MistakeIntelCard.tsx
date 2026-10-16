@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -7,6 +7,9 @@ import {
   topLossGroup,
   type StudyReadModel,
 } from "../../services/progressReadModel";
+// MI-HOME-SYNC — the sidebar reads the SAME memoised pair Home reads (Me's window, Me's paper).
+import { useMeHome } from "../../services/useMeHomeSummary";
+import type { MeHomeSummary } from "../../services/meHomeSummary";
 import {
   groupCounts,
   marksWithUnit,
@@ -34,7 +37,11 @@ import {
  * data driven sidebar that reads from the same production source the rest
  * of the desktop surfaces use:
  *
- *   readStudyModel(uid, { window: "week" })   (services/progressReadModel)
+ *   readStudyModel(uid, { window: ME_DEFAULT_WINDOW })   (services/progressReadModel)
+ *   — MI-HOME-SYNC: through services/meHomeSummary's memoised read pair (shared with Home);
+ *   it was the 7-day window. A new state sits between "no logs" and "with logs": Me has marks
+ *   on the table with no mistake type recorded (MCQ picks) → "<N> marks on the table — top:
+ *   <Me's top concept, else its biggest-win chapter>" + "Check an answer".
  *
  * — ME-ENGINE-1 PR-1: the ONE shared read model Me/Progress also reads, from
  * Firestore only (synced data; no device-only fallback), so the card and Me show
@@ -82,9 +89,10 @@ import {
  *   - Only show a top pattern when its real count is greater than zero.
  */
 
-const WINDOW_DAYS = 7;
-/** ME-ENGINE-1 PR-1 — the shared read model's 7-day window (the same one Me's "Week" reads). */
-const CARD_WINDOW = "week" as const;
+/** MI-HOME-SYNC — Me's DEFAULT window (`ME_DEFAULT_WINDOW`, "month"), read through
+ *  services/meHomeSummary; it was the 7-day window, so the card and the Me page a student opens
+ *  next spoke for different windows. */
+const WINDOW_PHRASE = "Last month";
 
 /** The biggest loss, in the owner's groups (lib/mistakeDisplay), with its real unit. */
 export interface MiCardTopLoss {
@@ -180,6 +188,7 @@ type ViewState =
   | { kind: "signed-out" }
   | { kind: "error" }
   | { kind: "no-data" }
+  | { kind: "untyped"; me: MeHomeSummary }
   | { kind: "with-data"; summary: MiCardSummary };
 
 const CARD_STYLE: React.CSSProperties = {
@@ -242,56 +251,32 @@ export function MistakeIntelCard() {
 
   const uid = user?.uid ?? null;
 
-  const [fetchState, setFetchState] = useState<{
-    status: "idle" | "loading" | "ok" | "error";
-    model: StudyReadModel | null;
-  }>({ status: "idle", model: null });
-
-  useEffect(() => {
-    if (!uid) {
-      // No user — clear any prior fetch state so we render the signed-out
-      // surface immediately instead of leaking the previous user's data.
-      setFetchState({ status: "idle", model: null });
-      return;
-    }
-
-    let cancelled = false;
-    setFetchState((prev) => ({ status: "loading", model: prev.model }));
-
-    void (async () => {
-      try {
-        // ME-ENGINE-1 PR-1 — the ONE shared read model, both papers, the 7-day window.
-        const model = await readStudyModel(uid, { window: CARD_WINDOW });
-        if (cancelled) return;
-        // A mistake history that could not be read is an error, never "no patterns yet".
-        setFetchState(
-          model.mistakes.complete ? { status: "ok", model } : { status: "error", model: null },
-        );
-      } catch {
-        if (cancelled) return;
-        setFetchState({ status: "error", model: null });
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-    // Re-fetch when the user changes, and again after Firestore hydration
-    // completes (mistakeLogsHydrated bumps from AuthContext) so newly
-    // imported cloud entries are reflected without a manual refresh.
-  }, [uid, mistakeLogsHydrated]);
+  // MI-HOME-SYNC — the ONE shared read model through the memoised pair Home also reads (both
+  // papers for the checked-answer / biggest-loss line, Me's paper for Me's numbers), Me's window.
+  // Re-read when the user changes, and again after Firestore hydration completes
+  // (mistakeLogsHydrated bumps from AuthContext) so newly imported cloud entries show.
+  const { status, read } = useMeHome(uid, Number(mistakeLogsHydrated) || 0, (query) =>
+    // ME-ENGINE-1 — the ONE source, the shared read model (Me's default window, via the memo).
+    readStudyModel(uid, query),
+  );
 
   const view: ViewState = useMemo(() => {
     if (authLoading) return { kind: "loading" };
     if (!uid) return { kind: "signed-out" };
-    const entries = fetchState.model?.mistakes.entries ?? [];
-    if (fetchState.status === "loading" && entries.length === 0) {
-      return { kind: "loading" };
+    const model: StudyReadModel | null = read?.all ?? null;
+    const entries = model?.mistakes.entries ?? [];
+    if ((status === "loading" || status === "idle") && !model) return { kind: "loading" };
+    // A mistake history that could not be read is an error, never "no patterns yet".
+    if (status === "error" || (model && !model.mistakes.complete)) return { kind: "error" };
+    // State 2 — Me has marks on the table but no mistake entry names a type for them (an MCQ
+    // pick writes none): say what Me says, never "no mistake patterns yet". With entries the
+    // with-data line below is unchanged.
+    if (entries.length === 0 && read && read.summary.lost > 0 && !read.summary.hasTyped) {
+      return { kind: "untyped", me: read.summary };
     }
-    if (fetchState.status === "error") return { kind: "error" };
-    if (!fetchState.model || entries.length === 0) return { kind: "no-data" };
-    return { kind: "with-data", summary: computeMiCardSummary(fetchState.model) };
-  }, [authLoading, uid, fetchState.status, fetchState.model]);
+    if (!model || entries.length === 0) return { kind: "no-data" };
+    return { kind: "with-data", summary: computeMiCardSummary(model) };
+  }, [authLoading, uid, status, read]);
 
   return (
     <div style={CARD_STYLE}>
@@ -340,10 +325,28 @@ export function MistakeIntelCard() {
         </>
       )}
 
+      {view.kind === "untyped" && (
+        <>
+          <p style={BODY_STYLE} data-testid="mi-card-untyped">
+            <span style={{ color: "#fff", fontWeight: 700 }}>
+              {formatMarks(view.me.lost)} {view.me.lost === 1 ? "mark" : "marks"} on the table
+            </span>
+            {(() => {
+              const top = view.me.concepts[0]?.label ?? view.me.topChapter?.label ?? null;
+              return top ? <> &mdash; top: <span data-testid="mi-card-untyped-top">{top}</span></> : null;
+            })()}
+            .
+          </p>
+          <Link to="/check-improve" style={CTA_STYLE} data-testid="mi-card-check">
+            Check an answer →
+          </Link>
+        </>
+      )}
+
       {view.kind === "with-data" && (
         <>
           <p style={BODY_STYLE} data-testid="mi-card-summary">
-            Last {WINDOW_DAYS} days:{" "}
+            {WINDOW_PHRASE}:{" "}
             {view.summary.checkedCount > 0 ? (
               <span style={{ color: "#fff", fontWeight: 700 }} data-testid="mi-card-checked">
                 {view.summary.checkedCount} checked{" "}
