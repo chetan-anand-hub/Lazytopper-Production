@@ -8,8 +8,8 @@ import {
   applyJsonLd,
   headForPath,
   ncertFileCode,
-  ncertLabel,
   notesJsonLd,
+  notesTitle,
   NOTE_SPECS_DIR,
 } from "../../scripts/seo/writeStaticHeads";
 import { canonicalFor } from "./canonicalUrl";
@@ -53,6 +53,28 @@ const CODE_PIN: Readonly<Record<string, string>> = {
   "our-environment": "jesc113",
 };
 
+/** The NCERT chapter number, read off the pinned code's last two digits (jemh111 -> 11). */
+function pinnedChapter(slug: string): number {
+  return Number(CODE_PIN[slug].slice(-2));
+}
+
+const TITLE_SUFFIX = " | LazyTopper";
+
+/**
+ * NOTES-TITLE-NCERT-1 (owner-approved 15 Oct 2026, GROWTH-REQ-3LANES Lane 2) — the title ladder,
+ * restated: the first form whose part before " | LazyTopper" is <= 60 characters.
+ */
+function expectedNotesTitle(name: string, code: string): string {
+  const ladder = [
+    `${name} Class 10 Notes + NCERT PDF (${code})`,
+    `${name} Notes + NCERT PDF (${code})`,
+    `${name} Notes + PDF (${code})`,
+  ];
+  const fit = ladder.find((t) => t.length <= 60);
+  if (!fit) throw new Error(`no notes title fits 60 characters for ${name}`);
+  return `${fit}${TITLE_SUFFIX}`;
+}
+
 const BASENAME = ""; // ROOT-URL-1: the app is served at the domain root
 const ORIGIN = "https://www.lazytopper.com";
 const SHELL = "<!doctype html>\n<html><head>\n<title>x</title>\n</head><body></body></html>";
@@ -83,19 +105,60 @@ describe("SEO-NOTES-LINK-2 — notes titles carry the NCERT file code", () => {
     expect(Object.keys(CODE_PIN).sort()).toEqual(notes.map((p) => p.slice(7)).sort());
   });
 
-  it.each(notes.map((p) => [p]))("%s: code resolves, title and description contain it, description cap held", (path) => {
+  it.each(notes.map((p) => [p]))("%s: code resolves, title and description contain it, caps held", (path) => {
     const slug = path.slice("/notes/".length);
     expect(ncertFileCode(slug)).toBe(CODE_PIN[slug]);
     const head = headForPath(path)!;
     expect(head).not.toBeNull();
-    const label = ncertLabel(slug); // "NCERT Ch. N · <title>" — unchanged
-    const withCode = label.replace(/^(NCERT Ch\. \d+) · /, `$1 (${CODE_PIN[slug]}) · `);
-    expect(head.title).toBe(`${withCode} — Class 10 Notes & Board Questions | LazyTopper`);
-    // SEO-LLM-1 — the description carries the same code, "NCERT Ch. N (code) · <title> — …", still ≤ 155.
-    expect(head.description.startsWith(`${withCode} — `)).toBe(true);
-    expect(head.description).toContain(`(${CODE_PIN[slug]})`);
+    const topic = desktopTopicBySlug(slug)!;
+    // NOTES-TITLE-NCERT-1 — "<chapter> Class 10 Notes + NCERT PDF (code) | LazyTopper", built here from
+    // the hand-written CODE_PIN and the topic name, never from the writer.
+    expect(head.title).toBe(expectedNotesTitle(topic.name, CODE_PIN[slug]));
+    expect(head.title.length - TITLE_SUFFIX.length).toBeLessThanOrEqual(60);
+    expect(head.description).toBe(
+      `Read NCERT Class 10 ${topic.subject} Ch ${pinnedChapter(slug)} (${CODE_PIN[slug]}) online, then ` +
+        `${topic.name} notes, formulas and board questions — free.`,
+    );
     expect(head.description.length).toBeLessThanOrEqual(155);
   });
+
+  it("pins sample titles verbatim (Maths + Science) and logs every chapter's visible title length", () => {
+    // 61 characters with " Class 10", so step 2 of the ladder.
+    expect(headForPath("/notes/areas-related-to-circles")!.title).toBe(
+      "Areas Related to Circles Notes + NCERT PDF (jemh111) | LazyTopper",
+    );
+    expect(headForPath("/notes/electricity")!.title).toBe("Electricity Class 10 Notes + NCERT PDF (jesc111) | LazyTopper");
+    expect(headForPath("/notes/real-numbers")!.title).toBe("Real Numbers Class 10 Notes + NCERT PDF (jemh101) | LazyTopper");
+    expect(headForPath("/notes/electricity")!.description).toBe(
+      "Read NCERT Class 10 Science Ch 11 (jesc111) online, then Electricity notes, formulas and board questions — free.",
+    );
+    const lengths = notes.map((p) => {
+      const t = headForPath(p)!.title;
+      return `${p.slice(7)}=${t.length - TITLE_SUFFIX.length}`;
+    });
+    // eslint-disable-next-line no-console
+    console.log(`NOTES_TITLE_LENGTHS: ${lengths.join(" ")}`);
+  });
+
+  it("CONTROL — the title ladder drops \" Class 10\", then \"NCERT \", and throws past that", () => {
+    expect(notesTitle("Real Numbers", "jemh101")).toBe("Real Numbers Class 10 Notes + NCERT PDF (jemh101) | LazyTopper");
+    const n32 = "x".repeat(32); // 32 + " Notes + NCERT PDF (jemh101)" (28) = 60: step 2
+    expect(notesTitle(n32, "jemh101")).toBe(`${n32} Notes + NCERT PDF (jemh101) | LazyTopper`);
+    const n33 = "x".repeat(33); // 61 at step 2, 55 at step 3
+    expect(notesTitle(n33, "jemh101")).toBe(`${n33} Notes + PDF (jemh101) | LazyTopper`);
+    expect(() => notesTitle("x".repeat(39), "jemh101")).toThrow(/60/);
+  });
+
+  // NOTES-TITLE-NCERT-1 — TRUTH CHECK for the "NCERT PDF" claim: every notes page, as shipped (the
+  // prerendered body, both variants), carries the NCERT-ENTRY-1 (#1184) link "Read NCERT Chapter N on
+  // LazyTopper (code)". SEO-LLM-1 (llmSurfaces.guard) separately pins the ncert.nic.in PDF link.
+  for (const variant of ["", "__desktop"] as const) {
+    it.each(notes.map((p) => [p]))(`${variant || "mobile"} %s: page links its NCERT chapter`, (path) => {
+      const slug = path.slice("/notes/".length);
+      const body = readFileSync(join(process.cwd(), "prerendered", variant, "notes", `${slug}.html`), "utf8");
+      expect(body).toContain(`Read NCERT Chapter ${pinnedChapter(slug)} on LazyTopper (${CODE_PIN[slug]})`);
+    });
+  }
 
   it("CONTROL — a spec with no resolvable code THROWS, never guesses", () => {
     const dir = mkdtempSync(join(tmpdir(), "lt-notes-spec-"));
