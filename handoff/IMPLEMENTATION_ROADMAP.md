@@ -1,3 +1,9 @@
+## 2026-10-17 - #1198 to #1209 - MERGED
+
+- DONE. Tutor honesty and chapter brief (`#1199` `#1203` `#1205`); onboarding written Start-here + type-first box (`#1198` `#1200` `#1202`); Mistake Intelligence synced to Me and explained for tap-the-answer marks (`#1201` `#1208`); weak concept opens its exact set (`#1204`); Quick Practice Upload later (`#1209`); worksheet answer-key PDF (`#1179`); notes titles (`#1206`); grader typed-lines and value-equivalent answers (`#1207`).
+- OPEN. `#1200` new-account live check (owner); the follow-ups in the 2026-10-17 section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- NEXT. One small copy / UX PR for the QP and Home MI follow-ups.
+
 ## 2026-10-16 - FOLLOWUPS-1 (`#1196`) - MERGED
 
 - DONE. Start-here kicker "Your first 2 minutes"; `lt-sh` to `lt-shc` (closes `[FU-LT-SH-CLASS-CLASH]`); expired-paid-pass lock copy (closes `[FU-LOCK-COPY-PAID-EXPIRED]`); Razorpay `paymentId` and server amount in `purchase` (closes `[FU-PURCHASE-TXN-ID-RAZORPAY]`; owner live-verify on the first real payment); `pickedOption` stored and shown on reopen (closes `[FU-QP-REOPEN-PICK]`). Production live-check PASSED at 390 px for the QP pieces and the kicker.
