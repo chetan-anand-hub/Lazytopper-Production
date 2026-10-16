@@ -1,17 +1,15 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import { START_HERE_AVAILABILITY } from "./startHereAvailability.generated";
-import { cloudHasAnySessionRecord, loadLocalSessionRecords } from "../../services/sessionRecords";
-import { authClient } from "../../services/firebaseClient";
+import { useZeroGraded } from "./zeroGraded";
 import { trackOnboardingEvent, type StartHereFocusSurface, type StartHereSurface } from "../../analytics/analytics";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import {
   START_HERE_COPY,
-  START_HERE_QTYPE_LABEL,
   analyticsSubject,
   startHereSetSize,
   dismissForSession,
@@ -42,8 +40,9 @@ import {
  * chapter really has; "Quick 5" is the default). QP-SCORECARD-2 D3: which chapters / types are
  * offered comes from a PRECOMPUTED map (startHereAvailability.generated.ts, guarded against the
  * bank), so listing costs no network; the bank is reached with `import()` only on "Start 5
- * questions", so Home / Practice Hub / Check & Improve stay bank-free. D1: every choice is a
- * chip button (aria-pressed), no radio inputs (the global `input` CSS made them white bars).
+ * questions", so Home / Practice Hub / Check & Improve stay bank-free. D1: no radio inputs (the
+ * global `input` CSS made them white bars); SHW-2: each choice is a segmented control of
+ * role="radio" buttons (aria-checked), never styled like the green Start button.
  *
  * ── THE FOCUSED FIRST RUN (QP-SCORECARD-2 E) ────────────────────────────────────────────
  * The same audience may also get StartHereFocusView: full screen on a phone, a centred overlay
@@ -52,27 +51,9 @@ import {
  * Honest copy: no invented numbers, no promised score.
  */
 
-type Tri = "loading" | "none" | "some";
-
-/** One more ask after this long when the cloud could not answer. */
-export const START_HERE_RETRY_MS = 3000;
-/** An account created within this many days counts as new when the network cannot say. */
-export const START_HERE_NEW_ACCOUNT_DAYS = 7;
-
-/** The signed-in user's Firebase Auth `metadata.creationTime`, already on the device. Missing,
- *  unparseable, a different user, or in the future -> false (never guess "new"). */
-export function accountIsNew(uid: string, now: number = Date.now()): boolean {
-  try {
-    const user = authClient?.currentUser;
-    if (!user || user.uid !== uid) return false;
-    const created = Date.parse(user.metadata?.creationTime ?? "");
-    if (!Number.isFinite(created)) return false;
-    const age = now - created;
-    return age >= 0 && age <= START_HERE_NEW_ACCOUNT_DAYS * 24 * 60 * 60 * 1000;
-  } catch {
-    return false;
-  }
-}
+// SHW-2: the zero-graded read (local-first, limit(1) cloud ask, retry, account-age fallback) moved
+// verbatim to ./zeroGraded so the answer boxes' type-first default shares the card's ONE read.
+export { START_HERE_RETRY_MS, START_HERE_NEW_ACCOUNT_DAYS, accountIsNew } from "./zeroGraded";
 
 /**
  * FOLLOWUPS-2 F2 [FU-SH-SHOWN-DEDUPE] — `start_here_shown` at most ONCE per tab session per
@@ -115,11 +96,26 @@ const CSS = `
   .lt-shc .lt-shc-step { margin: 0 0 14px; }
   .lt-shc .lt-shc-lbl { display: block; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
     margin: 0 0 6px; letter-spacing: 0.02em; }
-  .lt-shc .lt-shc-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-  .lt-shc .lt-shc-chip { border: 1px solid rgba(255,255,255,0.34); background: transparent; color: #fff;
-    border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer;
-    min-height: 44px; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; }
-  .lt-shc .lt-shc-chip[aria-pressed="true"] { background: hsl(152, 55%, 45%); border-color: hsl(152, 55%, 45%); }
+  .lt-shc .lt-shc-seg { display: flex; width: 100%; box-sizing: border-box; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.34); overflow: hidden; }
+  .lt-shc .lt-shc-seg-opt { flex: 1 1 0; min-width: 0; min-height: 44px; box-sizing: border-box; margin: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    padding: 8px 10px; border: 0; border-left: 1px solid rgba(255,255,255,0.22); border-radius: 0;
+    background: transparent; color: #fff; font-size: 13.5px; font-weight: 700; text-align: center;
+    cursor: pointer; }
+  .lt-shc .lt-shc-seg-opt:first-child { border-left: 0; }
+  .lt-shc .lt-shc-seg-opt:hover { background: rgba(255,255,255,0.06); }
+  .lt-shc .lt-shc-seg-opt[aria-checked="true"] { background: rgba(255,255,255,0.16);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.55); }
+  .lt-shc .lt-shc-seg-opt:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
+  .lt-shc .lt-shc-seg-main { display: inline-flex; align-items: center; gap: 6px; }
+  .lt-shc .lt-shc-seg-check { font-size: 12px; line-height: 1; }
+  .lt-shc .lt-shc-seg-sub { font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,0.72); }
+  .lt-shc .lt-shc-seg--stacked { flex-direction: column; }
+  .lt-shc .lt-shc-seg--stacked .lt-shc-seg-opt { flex-direction: row; justify-content: space-between;
+    border-left: 0; border-top: 1px solid rgba(255,255,255,0.22); padding: 8px 14px; }
+  .lt-shc .lt-shc-seg--stacked .lt-shc-seg-opt:first-child { border-top: 0; }
+  .lt-shc .lt-shc-help { font-size: 12.5px; color: rgba(255,255,255,0.78); margin: 8px 0 0; line-height: 1.45; }
   .lt-shc .lt-shc-pick { width: 100%; box-sizing: border-box; display: flex; align-items: center;
     justify-content: space-between; gap: 12px; border-radius: 10px; padding: 11px 14px; font-size: 14px;
     font-weight: 600; text-align: left; border: 1px solid rgba(255,255,255,0.34);
@@ -166,52 +162,9 @@ export interface StartHereState {
  * FirstSession card down while this one is up (two start cards on one screen is noise).
  */
 export function useStartHere(uid?: string | null): StartHereState {
-  const [graded, setGraded] = useState<Tri>("loading");
+  // The tri-state zero-graded read (./zeroGraded): local first, then ONE cloud ask per uid per tab.
+  const graded = useZeroGraded(uid);
   const [dismissed, setDismissed] = useState<boolean>(() => isDismissedThisSession());
-
-  useEffect(() => {
-    // Re-enter "loading" on a uid change so a sign-in can never inherit the previous verdict.
-    setGraded("loading");
-    if (!uid) return;
-    // Local first: any record on this device is the answer, and costs no network call.
-    if (loadLocalSessionRecords(uid).length > 0) {
-      setGraded("some");
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      // Only a device with no local rows asks the cloud, and only whether ONE record exists.
-      // `true` -> a returning student; `false` -> a first session. `null` is "could not tell"
-      // (offline, no Firestore, a cached answer, any error): ask ONCE more after a few seconds,
-      // and if the network still cannot answer, decide from the account's age (known on the
-      // device, no network) so a weak connection never hides the card from a NEW student.
-      const ask = async (): Promise<boolean | null> => {
-        try {
-          return await cloudHasAnySessionRecord(uid);
-        } catch {
-          return null;
-        }
-      };
-      let has = await ask();
-      if (cancelled) return;
-      if (has === null) {
-        await new Promise((r) => setTimeout(r, START_HERE_RETRY_MS));
-        if (cancelled) return;
-        has = await ask();
-        if (cancelled) return;
-      }
-      if (has === null) {
-        // Still cannot tell: a young account with no local rows is almost certainly new; an older
-        // or unknown one is never shown the card on a failed read.
-        setGraded(accountIsNew(uid) ? "none" : "some");
-        return;
-      }
-      setGraded(has === false ? "none" : "some");
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [uid]);
 
   return {
     visible: !!uid && graded === "none" && !dismissed,
@@ -310,6 +263,131 @@ function chapterCounts(subject: DesktopSubject, slug: string): ChapterCounts | u
   return bySubject[slug];
 }
 
+/* ── SHW-2 — the SEGMENTED CONTROL (owner ruling, 16 Oct) ────────────────────────────────
+ * The subject and type choices used to be pills whose selected state was the Start button's
+ * green, so students read them as CTAs and tapped them expecting something to happen. Each
+ * choice is now ONE connected control: role="radiogroup", options role="radio" + aria-checked,
+ * arrow keys / Home / End move the choice (roving tabindex), >= 44px tall. Checked = a light
+ * fill + a check mark, NEVER the CTA green; unchecked = transparent with a divider. The Start
+ * button stays the only solid-green control. */
+
+/** The type control's labels: a main line and a count line. */
+const QTYPE_SEG: Record<StartHereQType, string> = {
+  mcq: "Tap answer",
+  ar: "Assertion–Reason",
+  written: "Written",
+};
+/** One helper line under the type control, describing the selected type. */
+export const START_HERE_QTYPE_HELP: Record<StartHereQType, string> = {
+  mcq: "Tap the right option – 5 board MCQs, about 2 min.",
+  ar: "Assertion and reason – 5 board questions.",
+  written:
+    "One written board question – type your answer, it is marked like the board (uses 1 of today's checks).",
+};
+/** The Start label follows the choice. */
+export const START_HERE_START_LABEL: Record<StartHereQType, string> = {
+  mcq: "Start 5 questions",
+  ar: "Start 5 questions",
+  written: "Start 1 written question",
+};
+/** Below this container width the type control stacks into rows. */
+export const START_HERE_SEG_STACK_BELOW = 360;
+
+function countLine(t: StartHereQType): string {
+  const n = startHereSetSize(t);
+  return `${n} Q${n === 1 ? "" : "s"}`;
+}
+
+interface SegOption<T extends string> {
+  value: T;
+  label: string;
+  sub?: string;
+  testId: string;
+}
+
+function Segmented<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+  stackBelow,
+}: {
+  label: string;
+  options: readonly SegOption<T>[];
+  value: T | null;
+  onChange: (v: T) => void;
+  /** Stack the options into rows when the control is narrower than this (px). */
+  stackBelow?: number;
+}) {
+  const groupRef = useRef<HTMLDivElement | null>(null);
+  const [stacked, setStacked] = useState(false);
+
+  // The container width, measured by a ResizeObserver (none / 0 width -> unknown -> side by side).
+  useEffect(() => {
+    if (!stackBelow) return;
+    const el = groupRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect?.width ?? 0;
+      setStacked(w > 0 && w < stackBelow);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [stackBelow]);
+
+  const checkedIdx = options.findIndex((o) => o.value === value);
+  const onKeyDown = (e: ReactKeyboardEvent<HTMLButtonElement>, i: number) => {
+    const n = options.length;
+    let next = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (i + 1) % n;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (i - 1 + n) % n;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = n - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    onChange(options[next].value);
+    groupRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[next]?.focus();
+  };
+
+  return (
+    <div
+      ref={groupRef}
+      role="radiogroup"
+      aria-label={label}
+      className={stacked ? "lt-shc-seg lt-shc-seg--stacked" : "lt-shc-seg"}
+    >
+      {options.map((o, i) => {
+        const checked = o.value === value;
+        // Roving tabindex: the checked option (or the first, when none is) is the one Tab stop.
+        const tabbable = checkedIdx >= 0 ? checked : i === 0;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={checked}
+            tabIndex={tabbable ? 0 : -1}
+            className="lt-shc-seg-opt"
+            data-testid={o.testId}
+            onClick={() => onChange(o.value)}
+            onKeyDown={(e) => onKeyDown(e, i)}
+          >
+            <span className="lt-shc-seg-main">
+              {checked ? (
+                <span className="lt-shc-seg-check" aria-hidden="true">
+                  {"✓"}
+                </span>
+              ) : null}
+              {o.label}
+            </span>
+            {o.sub ? <span className="lt-shc-seg-sub">{o.sub}</span> : null}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function StartHerePanel({
   testIdPrefix,
   returnTo,
@@ -405,26 +483,24 @@ function StartHerePanel({
         </div>
       ) : (
         <>
-          <div className="lt-shc-step" role="group" aria-label="Subject">
-            <span className="lt-shc-lbl">1 · Subject</span>
-            <div className="lt-shc-chips">
-              {(["Maths", "Science"] as const).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  className="lt-shc-chip"
-                  aria-pressed={subject === s}
-                  data-testid={tid(`subject-${s.toLowerCase()}`)}
-                  onClick={() => {
-                    setSubject(s);
-                    setChapter("");
-                    setFailed(false);
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
+          <div className="lt-shc-step">
+            <span className="lt-shc-lbl" aria-hidden="true">
+              1 · Subject
+            </span>
+            <Segmented<DesktopSubject>
+              label="Subject"
+              options={(["Maths", "Science"] as const).map((s) => ({
+                value: s,
+                label: s,
+                testId: tid(`subject-${s.toLowerCase()}`),
+              }))}
+              value={subject}
+              onChange={(s) => {
+                setSubject(s);
+                setChapter("");
+                setFailed(false);
+              }}
+            />
           </div>
           {subject && (
             <div className="lt-shc-step" role="group" aria-labelledby={chapterLabelId}>
@@ -471,22 +547,20 @@ function StartHerePanel({
             </div>
           )}
           {subject && types.length > 0 && (
-            <div className="lt-shc-step" role="group" aria-label="Question type">
-              <span className="lt-shc-lbl">3 · Question type</span>
-              <div className="lt-shc-chips">
-                {types.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    className="lt-shc-chip"
-                    aria-pressed={activeType === t}
-                    data-testid={tid(`qtype-${t}`)}
-                    onClick={() => setQtype(t)}
-                  >
-                    {START_HERE_QTYPE_LABEL[t]}
-                  </button>
-                ))}
-              </div>
+            <div className="lt-shc-step">
+              <span className="lt-shc-lbl" aria-hidden="true">
+                3 · Question type
+              </span>
+              <Segmented<StartHereQType>
+                label="Question type"
+                options={types.map((t) => ({ value: t, label: QTYPE_SEG[t], sub: countLine(t), testId: tid(`qtype-${t}`) }))}
+                value={activeType}
+                onChange={setQtype}
+                stackBelow={START_HERE_SEG_STACK_BELOW}
+              />
+              <p className="lt-shc-help" data-testid={tid("qtype-help")}>
+                {START_HERE_QTYPE_HELP[activeType]}
+              </p>
             </div>
           )}
           {failed && (
@@ -505,13 +579,11 @@ function StartHerePanel({
               disabled={!subject || !selected || busy}
               onClick={() => void onGo()}
             >
-              {activeType === "written"
-                ? busy
+              {busy
+                ? activeType === "written"
                   ? START_HERE_GETTING_ONE
-                  : "Start the question"
-                : busy
-                  ? START_HERE_GETTING
-                  : "Start 5 questions"}
+                  : START_HERE_GETTING
+                : START_HERE_START_LABEL[activeType]}
             </button>
             <button type="button" className="lt-shc-later" data-testid={tid("not-now")} onClick={onNotNow}>
               {START_HERE_COPY.notNow}

@@ -98,6 +98,9 @@ export interface PracticeQuestionCardProps {
    * which defaults to true, so every other host is byte-identical.
    */
   countsAsAttempt?: boolean;
+  /** SHW-2 — the answer box's first-selected tab, straight through to SolutionChecker.
+   *  Omitted ⇒ "upload", today's behaviour. */
+  defaultAnswerMode?: "type" | "upload";
 }
 
 /** PRACTICE-REVIEW-HONEST-1 — the host's default for `countsAsAttempt`, for a host that
@@ -174,6 +177,7 @@ export function PracticeQuestionCard({
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
   stepsLocked = false,
   countsAsAttempt: countsAsAttemptProp,
+  defaultAnswerMode,
 }: PracticeQuestionCardProps) {
   const countsAsAttemptDefault = useContext(AttemptCountingContext);
   const countsAsAttempt = countsAsAttemptProp ?? countsAsAttemptDefault;
@@ -707,6 +711,8 @@ export function PracticeQuestionCard({
           onRemoveAnswer={() => onRemoveAnswer?.(String(q.id))}
           // N2 — the SAME attempt identity the MCQ click above records under.
           attemptIdentity={practiceCardAttemptIdentity(String(q.id))}
+          // SHW-2 — which answer tab is selected first (undefined = upload, unchanged).
+          defaultAnswerMode={defaultAnswerMode}
         />
       )}
 

@@ -519,6 +519,7 @@ import {
   startHerePracticePath,
   type StartHereQType,
 } from "../components/startHere/startHereModel";
+import { typeFirstAnswerMode, useZeroGraded } from "../components/startHere/zeroGraded";
 import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
@@ -691,6 +692,13 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [, setSearchParams] = useSearchParams();
   const params = useParams<{ grade?: string; subject?: string }>();
   const { user: authUserForJourney, loading: authLoading } = useAuth();
+  // SHW-2 TYPE-FIRST DEFAULT — a signed-in student with ZERO graded answers gets the answer box on
+  // "Type" first. The Start-here check's answer is REUSED (local rows, then the answer Home / the
+  // hub already read in this tab): `cloud: false`, so this page never starts a Firestore read.
+  const zeroGradedForAnswerBox = useZeroGraded(
+    authUserForJourney && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null,
+    { cloud: false },
+  );
 
   useEffect(() => {
     try {
@@ -2789,6 +2797,11 @@ const packTopicKey = useMemo(() => {
   // (b) `start_here_graded`, ONCE per Start-here set, when its scorecard first shows with at
   // least one counted answer. Counts only — no id, no text.
   const startHereSet = qp.get("src") === START_HERE_SRC;
+  // SHW-2 — the answer box's first-selected tab: "type" on a Start-here WRITTEN set or for a
+  // zero-graded student; otherwise undefined (upload, unchanged). Display only.
+  const answerBoxDefault = typeFirstAnswerMode(zeroGradedForAnswerBox, {
+    startHereWritten: startHereSet && qp.get("qt") === "written",
+  });
   const startHereGradedRef = useRef(false);
   useEffect(() => {
     if (!startHereSet || !showScorecard || startHereGradedRef.current) return;
@@ -3328,6 +3341,7 @@ const packTopicKey = useMemo(() => {
           // ★★ WIRE-2 · COLLECT MODE. The answer panel SAVES; nothing on this page grades
           // per question any more. The ONE paid call is `handleGradeBatch`, below.
           collectMode
+          defaultAnswerMode={answerBoxDefault}
           savedAnswers={savedAnswers}
           onSaveAnswer={handleSaveAnswer}
           onRemoveAnswer={handleRemoveAnswer}

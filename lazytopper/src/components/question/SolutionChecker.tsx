@@ -145,6 +145,13 @@ interface SolutionCheckerProps {
    * The Mistake-Intelligence entry's identity is never affected.
    */
   attemptIdentity?: { surface: string; questionId: string };
+  /**
+   * SHW-2 TYPE-FIRST DEFAULT (owner ruling, 16 Oct) — which answer tab is selected at FIRST.
+   * Both tabs always show; nothing else changes (grading, scoring, recording untouched).
+   * Omitted = "upload", today's behaviour byte-for-byte. A value that arrives late (the host's
+   * signal was still loading) moves the tab only while the student has not touched the box.
+   */
+  defaultAnswerMode?: "type" | "upload";
 }
 
 /**
@@ -500,6 +507,7 @@ function SignInToCheckCta() {
 export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer, attemptIdentity,
+  defaultAnswerMode,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   /**
@@ -560,7 +568,10 @@ export function SolutionChecker({
   // Which answer-input peer is showing. Defaults to "upload", matching both shipped
   // C&I controls. (Typing is no longer hidden by that default — it is an equal,
   // always-visible peer; the old default hid it behind a disclosure.)
-  const [answerTab, setAnswerTab] = useState<AnswerTab>("upload");
+  // SHW-2: the host may ask for "type" first (a new student / a Start-here written set).
+  const [answerTab, setAnswerTab] = useState<AnswerTab>(defaultAnswerMode ?? "upload");
+  /** SHW-2: the student picked a tab, or put something in the box — a late default never moves it. */
+  const answerTouchedRef = useRef(false);
   const [loading, setLoading] = useState(false);
   // LOW-END-1 R2: Uploading NN% -> Sent ✓ -> Grading… -> Done (or offline), while checking.
   const [stage, setStage] = useState<GradingStage | null>(null);
@@ -570,6 +581,15 @@ export function SolutionChecker({
   const [savedAnswerKey, setSavedAnswerKey] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [logStatus, setLogStatus] = useState<LogStatus>("pending");
+  // SHW-2: a default that arrives late moves the tab only while the box is untouched.
+  useEffect(() => {
+    if (!defaultAnswerMode || answerTouchedRef.current) return;
+    // Something already in the box (a photo, typed text, a restored grade) counts as touched.
+    if (imageBase64 !== null || textAnswer.length > 0 || result !== null) return;
+    setAnswerTab(defaultAnswerMode);
+    // Only a CHANGE of the host's default may move the tab; the box's own state is read, not watched.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultAnswerMode]);
   /**
    * GATE-2 — the Premium boundary, when the server refuses a grade (402).
    *
@@ -964,7 +984,10 @@ export function SolutionChecker({
                 type="button"
                 role="tab"
                 aria-selected={active}
-                onClick={() => setAnswerTab(t)}
+                onClick={() => {
+                  answerTouchedRef.current = true;
+                  setAnswerTab(t);
+                }}
                 style={{
                   // flex:1 — equal peers at every width. At 360px the card's inner width
                   // is ~328px, so each CTA gets ~162px against ~105px of label: it fits

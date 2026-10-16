@@ -27,6 +27,7 @@ vi.mock("./startHereAvailability.generated", () => ({ START_HERE_AVAILABILITY: A
 vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
 import StartHereCard, { START_HERE_GETTING, START_HERE_RETRY_MS, accountIsNew } from "./StartHereCard";
+import { resetZeroGradedCacheForTests } from "./zeroGraded";
 import {
   START_HERE_COPY,
   START_HERE_DISMISSED_KEY,
@@ -68,6 +69,7 @@ async function openChapterPicker(prefix = "start-here"): Promise<HTMLSelectEleme
 
 beforeEach(() => {
   window.sessionStorage.clear();
+  resetZeroGradedCacheForTests(); // SHW-2: the cloud answer is kept per uid per tab
   cloudHas.mockReset();
   auth.currentUser = null;
   localRows.mockReset().mockReturnValue([]);
@@ -190,6 +192,8 @@ describe("START-HERE-1 · who sees the card (§2.1)", () => {
     resolve(false);
     await waitFor(() => expect(card()).not.toBeNull());
     cleanup();
+    // SHW-2: a server answer is kept per uid for this tab; a NEW tab (fresh module state) asks again.
+    resetZeroGradedCacheForTests();
     cloudHas.mockRejectedValue(new Error("offline"));
     mount();
     await new Promise((r) => setTimeout(r, 0));
@@ -240,18 +244,18 @@ describe("START-HERE-1 · the picker (§2.2)", () => {
   it("★★ with a Maths ad hint, Maths is pre-selected; Quick 5 is the default type", async () => {
     window.sessionStorage.setItem(START_HERE_SUBJECT_HINT_KEY, "Maths");
     await open();
-    expect(screen.getByTestId("start-here-subject-maths").getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByTestId("start-here-subject-science").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByTestId("start-here-subject-maths").getAttribute("aria-checked")).toBe("true");
+    expect(screen.getByTestId("start-here-subject-science").getAttribute("aria-checked")).toBe("false");
     // QP-SCORECARD-2 D2 (Oct 2026): the chapter is a button opening ChapterPickerModal, not a <select>.
     expect((await screen.findByTestId("start-here-chapter")).getAttribute("data-chapter")).toBe("real-numbers");
-    // QP-SCORECARD-2 D1 (Oct 2026): the type is a chip button now, so "checked" became aria-pressed.
-    expect(screen.getByTestId("start-here-qtype-mcq").getAttribute("aria-pressed")).toBe("true");
+    // QP-SCORECARD-2 D1 (Oct 2026) made the type a chip button; SHW-2 made it a role="radio" option (aria-checked).
+    expect(screen.getByTestId("start-here-qtype-mcq").getAttribute("aria-checked")).toBe("true");
   });
 
   it("★★ an unknown landing: nothing is pre-selected and the card ASKS", async () => {
     await open();
-    expect(screen.getByTestId("start-here-subject-maths").getAttribute("aria-pressed")).toBe("false");
-    expect(screen.getByTestId("start-here-subject-science").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByTestId("start-here-subject-maths").getAttribute("aria-checked")).toBe("false");
+    expect(screen.getByTestId("start-here-subject-science").getAttribute("aria-checked")).toBe("false");
     expect(screen.queryByTestId("start-here-chapter")).toBeNull();
     expect((screen.getByTestId("start-here-go") as HTMLButtonElement).disabled).toBe(true);
   });
@@ -317,22 +321,23 @@ describe("QP-SCORECARD-2 D · the picker", () => {
     fireEvent.click(screen.getByTestId("start-here-start"));
   }
 
-  it("★★ D1: no radio input renders in the card; the question types are chip buttons with aria-pressed, Quick 5 pre-selected", async () => {
+  it("★★ D1: no radio input renders in the card; the question types are segmented radio options with aria-checked, Quick 5 pre-selected", async () => {
     await openPicker();
     fireEvent.click(screen.getByTestId("start-here-subject-science"));
     const mcq = screen.getByTestId("start-here-qtype-mcq");
     const ar = screen.getByTestId("start-here-qtype-ar");
     expect(card()!.querySelectorAll('input[type="radio"]')).toHaveLength(0);
+    // SHW-2 (Oct 2026): the choices are segmented-control radios (role="radio" buttons, aria-checked).
     for (const chip of [mcq, ar]) {
       expect(chip.tagName).toBe("BUTTON");
-      expect(chip.className).toBe("lt-shc-chip"); // the SAME chip class as the subject row
+      expect(chip.className).toBe("lt-shc-seg-opt"); // the SAME option class as the subject row
     }
-    expect(screen.getByTestId("start-here-subject-science").className).toBe("lt-shc-chip");
-    expect(mcq.getAttribute("aria-pressed")).toBe("true");
-    expect(ar.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByTestId("start-here-subject-science").className).toBe("lt-shc-seg-opt");
+    expect(mcq.getAttribute("aria-checked")).toBe("true");
+    expect(ar.getAttribute("aria-checked")).toBe("false");
     fireEvent.click(ar);
-    expect(ar.getAttribute("aria-pressed")).toBe("true");
-    expect(mcq.getAttribute("aria-pressed")).toBe("false");
+    expect(ar.getAttribute("aria-checked")).toBe("true");
+    expect(mcq.getAttribute("aria-checked")).toBe("false");
   });
 
   it("★ D1: the A-R chip shows only when the chapter has a full set of A-R CBQ MCQs", async () => {
@@ -405,13 +410,13 @@ describe("QP-SCORECARD-2 D · the picker", () => {
     window.localStorage.clear();
     await openPicker();
     for (const s of ["maths", "science"]) {
-      expect(screen.getByTestId(`start-here-subject-${s}`).getAttribute("aria-pressed")).toBe("false");
+      expect(screen.getByTestId(`start-here-subject-${s}`).getAttribute("aria-checked")).toBe("false");
     }
     cleanup();
     mount("u1", { focus: true });
     await screen.findByTestId("start-here-focus");
     for (const s of ["maths", "science"]) {
-      expect(screen.getByTestId(`start-here-focus-subject-${s}`).getAttribute("aria-pressed")).toBe("false");
+      expect(screen.getByTestId(`start-here-focus-subject-${s}`).getAttribute("aria-checked")).toBe("false");
     }
     expect(screen.queryByTestId("start-here-focus-chapter")).toBeNull();
     expect((screen.getByTestId("start-here-focus-go") as HTMLButtonElement).disabled).toBe(true);
@@ -653,19 +658,20 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
 });
 
 describe("FOLLOWUPS-2 F1 [FU-SH-TAP-44] · chips are 44px tap targets", () => {
-  const chipRule = (css: string): string => /\.lt-shc \.lt-shc-chip \{[^}]*\}/.exec(css)?.[0] ?? "";
+  // SHW-2 (Oct 2026): the chips became segmented-control options (.lt-shc-seg-opt); the 44px floor stays.
+  const chipRule = (css: string): string => /\.lt-shc \.lt-shc-seg-opt \{[^}]*\}/.exec(css)?.[0] ?? "";
 
-  it("★ the injected .lt-shc-chip rule has min-height 44px with inline-flex centring (inline card)", async () => {
+  it("★ the injected .lt-shc-seg-opt rule has min-height 44px with flex centring (inline card)", async () => {
     cloudHas.mockResolvedValue(false);
     mount();
     await waitFor(() => expect(card()).not.toBeNull());
     fireEvent.click(screen.getByTestId("start-here-start"));
     const chip = screen.getByTestId("start-here-subject-maths");
-    expect(chip.matches(".lt-shc .lt-shc-chip")).toBe(true);
+    expect(chip.matches(".lt-shc .lt-shc-seg-opt")).toBe(true);
     const css = Array.from(document.querySelectorAll("style")).map((s) => s.textContent ?? "").join("\n");
     const rule = chipRule(css);
     expect(rule).toMatch(/min-height: 44px;/);
-    expect(rule).toMatch(/display: inline-flex;/);
+    expect(rule).toMatch(/display: flex;/);
     expect(rule).toMatch(/align-items: center;/);
     expect(rule).toMatch(/justify-content: center;/);
   });
@@ -677,7 +683,7 @@ describe("FOLLOWUPS-2 F1 [FU-SH-TAP-44] · chips are 44px tap targets", () => {
     await waitFor(() => expect(screen.queryByTestId("start-here-focus")).not.toBeNull());
     const chip = screen.getByTestId("start-here-focus-subject-maths");
     expect(chip.closest(".lt-shcf")).not.toBeNull();
-    expect(chip.matches(".lt-shc .lt-shc-chip")).toBe(true);
+    expect(chip.matches(".lt-shc .lt-shc-seg-opt")).toBe(true);
     const css = screen.getByTestId("start-here-focus").querySelector("style")!.textContent ?? "";
     expect(chipRule(css)).toMatch(/min-height: 44px;/);
   });

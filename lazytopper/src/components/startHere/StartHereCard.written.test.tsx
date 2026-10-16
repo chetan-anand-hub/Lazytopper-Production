@@ -33,6 +33,7 @@ vi.mock("./startHereAvailability.generated", () => ({ START_HERE_AVAILABILITY: A
 vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
 import StartHereCard from "./StartHereCard";
+import { resetZeroGradedCacheForTests } from "./zeroGraded";
 
 let location = "";
 function Probe() {
@@ -57,6 +58,7 @@ async function openPicker() {
 
 beforeEach(() => {
   window.sessionStorage.clear();
+  resetZeroGradedCacheForTests();
   cloudHas.mockReset();
   localRows.mockReset().mockReturnValue([]);
   onboarding.mockReset();
@@ -66,14 +68,18 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("START-HERE-WRITTEN · the written chip", () => {
-  it("Science chapter with written items: the chip shows with the owner's copy; Quick 5 stays the default", async () => {
+  // SHW-2 (Oct 2026): the type is a segmented-control option - "Written" + "1 Q", and the
+  // "(uses 1 of today's checks)" note moved to the helper line under the control.
+  it("Science chapter with written items: the option shows with the owner's copy; Quick 5 stays the default", async () => {
     await openPicker();
     fireEvent.click(screen.getByTestId("start-here-subject-science"));
     const chip = screen.getByTestId("start-here-qtype-written");
-    expect(chip.textContent).toBe("Written: 1 board question (uses 1 of today's checks)");
+    expect(chip.textContent).toBe("Written1 Q");
     expect(chip.tagName).toBe("BUTTON");
-    expect(chip.getAttribute("aria-pressed")).toBe("false");
-    expect(screen.getByTestId("start-here-qtype-mcq").getAttribute("aria-pressed")).toBe("true");
+    expect(chip.getAttribute("aria-checked")).toBe("false");
+    expect(screen.getByTestId("start-here-qtype-mcq").getAttribute("aria-checked")).toBe("true");
+    fireEvent.click(chip);
+    expect(screen.getByTestId("start-here-qtype-help").textContent).toContain("(uses 1 of today's checks)");
   });
 
   it("hidden for Maths, even when the map carries a written count", async () => {
@@ -101,7 +107,7 @@ describe("START-HERE-WRITTEN · the written chip", () => {
     await openPicker();
     fireEvent.click(screen.getByTestId("start-here-subject-science"));
     fireEvent.click(screen.getByTestId("start-here-qtype-written"));
-    expect(screen.getByTestId("start-here-go").textContent).toBe("Start the question");
+    expect(screen.getByTestId("start-here-go").textContent).toBe("Start 1 written question"); // SHW-2 label
     fireEvent.click(screen.getByTestId("start-here-go"));
     await waitFor(() => expect(location).toMatch(/^\/practice\/10\/Science\?/));
     const q = new URLSearchParams(location.split("?")[1]);
