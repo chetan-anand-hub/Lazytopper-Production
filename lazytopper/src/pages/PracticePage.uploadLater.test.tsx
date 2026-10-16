@@ -173,6 +173,8 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
     // The later upload: ONLY Q2 + Q3 are re-served.
     fireEvent.click(within(strip).getByTestId("qp-awaiting-open"));
     const panel = await screen.findByTestId("qp-later-panel");
+    // Review nit 2: no MCQ was answered in this set, so the panel never claims MCQ marks are saved.
+    expect(panel.textContent).not.toMatch(/MCQ marks/);
     expect(within(panel).getAllByTestId("qp-later-question").map((el) => el.textContent?.slice(0, 10))).toEqual([
       "Question 2",
       "Question 3",
@@ -198,6 +200,19 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
     expect((writeSessionRecord.mock.calls[0] as unknown as [unknown, { id: string }])[1].id).toBe(recordId);
     expect(JSON.parse(window.localStorage.getItem("lazytopper.qp.papers.v1.student-1") || "[]")).toEqual([]);
     expect((await within(panel).findByRole("status")).textContent).toContain("Graded.");
+  }, 60000);
+
+  it("★ nothing attempted: the set is kept, but the notice never claims marks went to history (review nit 1)", async () => {
+    await buildSet();
+    fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    fireEvent.click(await screen.findByTestId("qp-upload-later"));
+    const notice = (await screen.findByTestId("qp-upload-later-notice")).textContent || "";
+    expect(notice).toContain("Your set is saved. Upload your written answers when you're ready.");
+    expect(notice).not.toContain("in your history now");
+    // Nothing scored → no record, but the snapshot holds the set.
+    expect(writeSessionRecord).not.toHaveBeenCalled();
+    const stored = JSON.parse(window.localStorage.getItem("lazytopper.qp.papers.v1.student-1") || "[]");
+    expect(stored[0].pending.map((p: { qNumber: number }) => p.qNumber)).toEqual([1, 2, 3]);
   }, 60000);
 
   it("★ signed out: Upload later keeps nothing and says so", async () => {

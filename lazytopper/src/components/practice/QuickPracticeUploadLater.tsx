@@ -213,7 +213,8 @@ export function QuickPracticeLaterUploadPanel({
       <strong style={{ fontSize: "0.95rem" }}>{snapshot.persist.title}</strong>
       <p style={note}>
         Add your working for each written question (type it or upload a photo), then check them together.
-        Your MCQ marks from this set are already saved.
+        {/* Review nit: only when this set actually has scored MCQ outcomes. */}
+        {snapshot.entries.some((e) => e.mcq) ? " Your MCQ marks from this set are already saved." : ""}
       </p>
       {done ? (
         <>

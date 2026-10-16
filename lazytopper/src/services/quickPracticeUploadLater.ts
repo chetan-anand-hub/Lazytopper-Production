@@ -65,7 +65,8 @@ export function quickPracticeRecordCode(persist: QuickPracticePersistIdentity, e
 }
 
 export type UploadLaterOutcome =
-  | { outcome: "saved"; code: string; pendingCount: number }
+  /** `recorded` — whether a session record was actually written (false when nothing was scored yet). */
+  | { outcome: "saved"; code: string; pendingCount: number; recorded: boolean }
   | { outcome: "signed-out" }
   | { outcome: "nothing-pending" };
 
@@ -89,10 +90,10 @@ export function saveQuickPracticeUploadLater(args: {
   if (pending.length === 0) return { outcome: "nothing-pending" };
   // The record is written NOW — leaving the page no longer loses the set. (Nothing scored yet
   // ⇒ the service writes no record, by its own rule; the snapshot still holds the set.)
-  persistQuickPracticeSession({ user, ...persist, entries });
+  const persisted = persistQuickPracticeSession({ user, ...persist, entries });
   const code = quickPracticeRecordCode(persist, entries);
   saveQuickPracticePaper(user, { code, worksheetId, subject, persist, entries, pending });
-  return { outcome: "saved", code, pendingCount: pending.length };
+  return { outcome: "saved", code, pendingCount: pending.length, recorded: persisted === "recorded" };
 }
 
 /** PURE. The earlier outcomes with each newly GRADED later answer placed at its displayed

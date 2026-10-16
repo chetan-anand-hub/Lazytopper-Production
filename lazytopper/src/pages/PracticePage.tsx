@@ -2992,8 +2992,12 @@ const packTopicKey = useMemo(() => {
     uploadLaterSyncRef.current = uploadLaterKey;
     setAwaitingRefresh((n) => n + 1);
     const photosDropped = pendingWrittenNow.some((a) => !!a.imageBase64);
+    const photosNote = photosDropped ? " Photos you added are not kept, so add them again then." : "";
+    // Review nit: claim the history write only when a record was actually written.
     setLaterNotice(
-      `Saved for later. Your marks so far are in your history now. When your written answers are ready, open "Awaiting your written answers" on the practice page${photosDropped ? " (photos you added are not kept, so add them again then)" : ""}.`,
+      out.recorded
+        ? `Saved for later. Your marks so far are in your history now. When your written answers are ready, open "Awaiting your written answers" on the practice page.${photosNote}`
+        : `Your set is saved. Upload your written answers when you're ready.${photosNote}`,
     );
   }, [overlay, authUserForJourney, filterSignature, sessionStartedAt, subjectKey, liveRecordIdentity, sessionAnswers, liveEntriesSoFar, pendingWrittenNow, uploadLaterKey]);
 

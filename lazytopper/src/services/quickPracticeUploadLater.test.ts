@@ -123,7 +123,7 @@ describe("pendingWrittenAnswers", () => {
 describe("saveQuickPracticeUploadLater", () => {
   it("writes the record NOW with the outcomes so far, and a snapshot of what is waiting", () => {
     const out = later.saveQuickPracticeUploadLater({ user: USER, worksheetId: WS, subject: "Maths", persist: PERSIST, answers: ANSWERS, entries: ENTRIES });
-    expect(out).toEqual({ outcome: "saved", code: CODE, pendingCount: 2 });
+    expect(out).toEqual({ outcome: "saved", code: CODE, pendingCount: 2, recorded: true });
     expect(writeSessionRecord).toHaveBeenCalledTimes(1);
     expect(writeSessionRecord.mock.calls[0][1].id).toBe(CODE);
     expect(saveQuickPracticePaper).toHaveBeenCalledTimes(1);
@@ -132,6 +132,14 @@ describe("saveQuickPracticeUploadLater", () => {
     expect(snap.worksheetId).toBe(WS);
     expect(snap.pending.map((p) => p.qNumber)).toEqual([2, 3]);
     expect(snap.entries).toEqual(ENTRIES);
+  });
+
+  it("nothing scored yet: the snapshot is kept but `recorded` is false (no record was written)", () => {
+    const entries: Entry[] = [{ questionId: "b1", marks: 1 }, ENTRIES[1], ENTRIES[2]];
+    const out = later.saveQuickPracticeUploadLater({ user: USER, worksheetId: WS, subject: "Maths", persist: PERSIST, answers: ANSWERS, entries });
+    expect(out).toEqual({ outcome: "saved", code: CODE, pendingCount: 2, recorded: false });
+    expect(writeSessionRecord).not.toHaveBeenCalled();
+    expect(saveQuickPracticePaper).toHaveBeenCalledTimes(1);
   });
 
   it("signed out / local session: nothing kept, honest outcome", () => {
