@@ -269,8 +269,9 @@ describe("QP-SCORECARD-2 C · the tutor round trip returns to the SAME scorecard
     expect(rows.map((r) => within(r).getByText(/^Question \d$/).textContent)).toEqual(["Question 1", "Question 3"]);
     expect(rows[1].textContent).toContain("Correct answer: q3-correct");
     expect(rows[1].textContent).toContain("Bank step one of question 3.");
-    // The pick is not stored on the record — left out, never guessed.
-    expect(rows[1].textContent).not.toContain("Your answer");
+    // FOLLOWUPS-1 C2 — the pick is now STORED on the payload, so the reopen names it.
+    expect(rows[0].textContent).toContain("Your answer: q1-wrong");
+    expect(rows[1].textContent).toContain("Your answer: q3-wrong");
     expect(screen.getAllByTestId("sc-tutor-ask")).toHaveLength(2);
     // The full menu (A) on the reopen; no live-set action.
     expect(screen.getByRole("button", { name: /Build a fresh set/ })).toBeInTheDocument();
@@ -298,6 +299,34 @@ describe("QP-SCORECARD-2 C · the tutor round trip returns to the SAME scorecard
     expect(again.get("from")).toBe(recordId);
     expect(again.get("q")).toBe("q-1");
     expect(new URLSearchParams(again.get("returnTo")!.split("?")[1]).get("review")).toBe(recordId);
+    expect(RECORDING()).toEqual(ZERO);
+  });
+
+  it("FOLLOWUPS-1 C1/C2 — the payload stores each pick; an OLD payload without picks reopens with no 'Your answer' line", async () => {
+    const { tutorUrl } = await gradeAndAskTutor();
+    // C1 — the written payload carries the pick beside each picked MCQ's result; marks untouched.
+    const payload = spies.writeSessionPerQuestion.mock.calls.at(-1)![1] as {
+      response: { results: { qNumber: number; marksAwarded?: number; pickedOption?: string }[] };
+    };
+    expect(payload.response.results.map((r) => [r.qNumber, r.marksAwarded, r.pickedOption])).toEqual([
+      [1, 0, "q1-wrong"],
+      [2, 1, "q2-correct"],
+      [3, 0, "q3-wrong"],
+    ]);
+    // C2 — simulate a record written BEFORE the pick was stored: drop every stored pick.
+    for (const key of Object.keys(window.localStorage)) {
+      const raw = window.localStorage.getItem(key);
+      if (!raw || !raw.includes("pickedOption")) continue;
+      window.localStorage.setItem(key, JSON.stringify(JSON.parse(raw, (k, v) => (k === "pickedOption" ? undefined : v))));
+    }
+    const returnTo = new URLSearchParams(tutorUrl.split("?")[1]).get("returnTo")!;
+    cleanup();
+    resetSpies();
+    await renderAt(returnTo, [mkItem(1), mkItem(2), mkItem(3)]);
+    const rows = await screen.findAllByTestId("sc-wrong-answer");
+    expect(rows).toHaveLength(2);
+    expect(rows[1].textContent).toContain("Correct answer: q3-correct");
+    for (const row of rows) expect(row.textContent).not.toContain("Your answer");
     expect(RECORDING()).toEqual(ZERO);
   });
 

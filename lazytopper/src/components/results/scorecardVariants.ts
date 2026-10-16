@@ -1958,6 +1958,15 @@ export function storedQuickPracticeScorecardVariant(
 
 // ── QP-SCORECARD-2 B · a SAVED Quick Practice session, reopened read-only ─────────────
 
+/** FOLLOWUPS-1 C2 — the option the student picked, as STORED on a Quick Practice perQuestion
+ *  result (`pickedOption`, written by `persistQuickPracticeSession` from FOLLOWUPS-1 on). Null
+ *  when absent (an older record, an unpicked or written-only answer) — never guessed. */
+export function storedPickedOption(result: unknown): string | null {
+  const raw = result && typeof result === "object" ? (result as { pickedOption?: unknown }).pickedOption : null;
+  const text = typeof raw === "string" ? raw.trim() : "";
+  return text ? text : null;
+}
+
 export interface ReopenedQuickPracticeVariantInput {
   /** A pre-formatted date label (the host formats `gradedAt`; keeps this builder pure). */
   gradedDateLabel: string;
@@ -1979,8 +1988,10 @@ export interface ReopenedQuickPracticeVariantInput {
  * four-type, the "Where marks slipped" rows the host rebuilt, and A's what-next menu.
  *
  * ★ "Back to this set (see the steps)" is NOT offered here. It reopens the LIVE set with its
- *   answers in review mode; a saved session has no live set (the picks are not stored), so the
+ *   answers in review mode; a saved session has no live set behind it, so the
  *   label would promise something the reopen cannot do. The bank's steps are on the rows.
+ * ★ FOLLOWUPS-1 C2 — a row's "Your answer" is the STORED pick (`storedPickedOption`), present only
+ *   on records written after the pick was stored; an older record's row simply omits the line.
  * ★ Pure: it records nothing and grades nothing. Every number comes from the stored record.
  */
 export function reopenedQuickPracticeScorecardVariant(

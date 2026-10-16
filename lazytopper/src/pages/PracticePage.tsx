@@ -577,6 +577,7 @@ import {
   quickPracticeGradedScorecardVariant,
   quickPracticeScorecardVariant,
   reopenedQuickPracticeScorecardVariant,
+  storedPickedOption,
   type ScorecardAction,
   type ScorecardGradedAnswer,
   type ScorecardTutorAsk,
@@ -2504,7 +2505,10 @@ const packTopicKey = useMemo(() => {
         delete next.notGraded;
         delete next.notGradedReason;
       }
-      if (reviewMcqIds[id]) delete next.mcq;
+      if (reviewMcqIds[id]) {
+        delete next.mcq;
+        delete next.pickedOption; // FOLLOWUPS-1 C1 — a review pick is never stored either
+      }
       return next;
     });
   }, [batchResult, reviewSavedIds, reviewMcqIds]);
@@ -2703,6 +2707,9 @@ const packTopicKey = useMemo(() => {
        the local MCQ outcome already folded in — so the record shape is identical to what
        the per-question path produced, and the latch below still fires exactly once. */
     // PRACTICE-REVIEW-HONEST-1 — review-mode outcomes are never persisted (both branches).
+    const pickById = new Map(
+      sessionAnswers.filter((a) => a.pickedOption).map((a) => [String(a.questionId), String(a.pickedOption).trim()] as const),
+    );
     const entries: QuickPracticeEntry[] = scoredBatchEntries
       ? scoredBatchEntries
       : displayed.map((q) => {
@@ -2715,6 +2722,8 @@ const packTopicKey = useMemo(() => {
             // a student can submit written working for an MCQ, and that working is real.
             ...(gradedResults[qId] && !reviewSavedIds[qId] ? { graded: gradedResults[qId] } : {}),
             ...(mcqResults[qId] && !reviewMcqIds[qId] ? { mcq: mcqResults[qId] } : {}),
+            // FOLLOWUPS-1 C1 — the pick's option text, STORED ONLY (never a review pick).
+            ...(!reviewMcqIds[qId] && pickById.get(qId) ? { pickedOption: pickById.get(qId)! } : {}),
           };
         });
 
@@ -2750,6 +2759,7 @@ const packTopicKey = useMemo(() => {
     authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
     filterSignature, sessionStartedAt, isMultiTopic, isFullSubject, multiTopics,
     batchResult, batchSelection.batch.length, scoredBatchEntries, reviewSavedIds, reviewMcqIds,
+    sessionAnswers,
   ]);
 
   // ── START-HERE-1 ────────────────────────────────────────────────────────────────────
@@ -3750,7 +3760,7 @@ const packTopicKey = useMemo(() => {
   const navBack = { state: { back: here, backLabel: "Back to practice" } };
   const close = () => setQpReopen(null);
   // "Where marks slipped": every stored result that lost marks, with the bank's right option and
-  // steps. The pick itself is not stored on the record, so "Your answer" is honestly left out.
+  // steps. "Your answer" is the STORED pick (FOLLOWUPS-1 C2); an older record has none, so the line is left out.
   const rows: ScorecardWrongAnswer[] = [];
   for (const r of payload?.response?.results ?? []) {
     if (!isGradedQuestion(r)) continue;
@@ -3764,7 +3774,7 @@ const packTopicKey = useMemo(() => {
       : -1;
     rows.push({
       label: `Question ${r.qNumber}`,
-      yourAnswer: null,
+      yourAnswer: storedPickedOption(r),
       correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
       steps: (Array.isArray(row?.solutionSteps) ? row!.solutionSteps! : []).map(String).filter((t) => t.trim()),
       tutorAsk: qid
