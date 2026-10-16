@@ -4,14 +4,18 @@
 //   • `QuickPracticeAwaitingStrip` — "Awaiting your written answers" on the practice page,
 //     read from the student's own snapshots (quickPracticePaperStore).
 //   • `QuickPracticeLaterUploadPanel` — re-serves ONLY the waiting written questions in the
-//     existing per-question save panel (SolutionChecker collect mode: Type or Upload), then one
+//     existing per-question save panel (PracticeQuestionCard in collect mode, the same gated
+//     render path PracticePage uses: Type or Upload), then one
 //     "Check my written answers" tap grades them through `gradeQuickPracticeLater`.
 // Grading, scoring and MI recording are the shared services', unchanged. Fair use: the same
 // per-question plan + refusal handling as the live confirmation screen. Signed-out: honest copy.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AuthUser } from "../../context/AuthContext";
-import { SolutionChecker, type SolutionCheckerSavedWorking } from "../question/SolutionChecker";
+import type { SolutionCheckerSavedWorking } from "../question/SolutionChecker";
+import { PracticeQuestionCard } from "./PracticeQuestionCard";
+import type { PracticeQuestion } from "../../data/predictionDataService";
+import type { QuickPracticeSavedAnswer } from "../../services/quickPracticeSessionService";
 import {
   listQuickPracticePapers,
   type QuickPracticePaperSnapshot,
@@ -22,6 +26,20 @@ import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import FairUseConfirm from "../usage/FairUseConfirm";
 import { UpgradeSheet, labelForFeature } from "../subscription/UpgradeSheet";
 import { trackPracticeGraded } from "../../analytics/analytics";
+
+const noop = () => {};
+
+/** A waiting answer as the bank question the card renders (text fields only, from the snapshot). */
+function laterQuestion(p: QuickPracticeSavedAnswer): PracticeQuestion {
+  return {
+    id: String(p.questionId),
+    questionText: String(p.questionText || ""),
+    marks: Number(p.marks) || 0,
+    ...(p.section ? { section: p.section } : {}),
+    ...(p.format ? { format: p.format } : {}),
+    ...(p.topicKey ? { topicKey: p.topicKey } : {}),
+  } as unknown as PracticeQuestion;
+}
 
 const box: React.CSSProperties = {
   margin: "14px 0",
@@ -230,18 +248,27 @@ export function QuickPracticeLaterUploadPanel({
                 <div style={{ fontSize: "0.86rem", fontWeight: 700 }}>
                   {`Question ${p.qNumber} · ${Number(p.marks) || 0} mark${(Number(p.marks) || 0) === 1 ? "" : "s"}`}
                 </div>
-                <p style={{ margin: "4px 0 0", fontSize: "0.86rem", whiteSpace: "pre-wrap" }}>{p.questionText}</p>
-                <SolutionChecker
-                  question={p.questionText}
-                  marks={Number(p.marks) || 0}
-                  subject={snapshot.subject || ""}
-                  topic={String(p.topicLabel || "")}
-                  questionId={id}
-                  section={p.section}
-                  format={p.format}
+                {/* GATE-3 — the EXISTING gated render path (PracticeQuestionCard in collect mode,
+                    exactly as PracticePage uses it), so this panel adds no new SolutionChecker
+                    render site. Steps stay closed (`isOpen` false); no MCQ here (written only). */}
+                <PracticeQuestionCard
+                  q={laterQuestion(p)}
+                  idx={p.qNumber - 1}
+                  subjectKey={snapshot.subject || ""}
+                  topicLabel={String(p.topicLabel || "")}
+                  isOpen={false}
+                  solutionLoading={false}
+                  solutionError={undefined}
+                  solutionData={undefined}
+                  mcqSelection={undefined}
+                  mcqResult={undefined}
+                  onSetActiveQuestion={noop}
+                  onToggleAnswer={noop}
+                  onMcqSelect={noop}
+                  onMcqResult={noop}
                   collectMode
                   savedAnswer={working[id] ?? null}
-                  onSaveAnswer={(w) => setWorking((prev) => ({ ...prev, [id]: w }))}
+                  onSaveAnswer={(_qId, w) => setWorking((prev) => ({ ...prev, [id]: w }))}
                   onRemoveAnswer={() =>
                     setWorking((prev) => {
                       const next = { ...prev };
@@ -249,6 +276,7 @@ export function QuickPracticeLaterUploadPanel({
                       return next;
                     })
                   }
+                  countsAsAttempt={false}
                   defaultAnswerMode={defaultAnswerMode}
                 />
               </div>

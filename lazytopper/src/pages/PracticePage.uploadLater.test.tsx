@@ -180,6 +180,9 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
       "Question 3",
     ]);
     const [q2, q3] = within(panel).getAllByTestId("qp-later-question");
+    // Served through PracticeQuestionCard (the gated render path): its own trigger opens the box.
+    fireEvent.click(within(q2).getByRole("button", { name: "Answer this question" }));
+    fireEvent.click(within(q3).getByRole("button", { name: "Answer this question" }));
     await typeAndSave(q2, "later answer 2");
     await typeAndSave(q3, "later answer 3");
     recordMistake.mockClear();
