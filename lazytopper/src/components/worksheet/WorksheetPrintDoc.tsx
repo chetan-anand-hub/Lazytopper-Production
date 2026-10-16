@@ -1,4 +1,5 @@
 import { MathText } from "../question/MathText";
+import { stripOptionLabels, stripSourceTag } from "./worksheetPrintText";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 
@@ -181,18 +182,19 @@ function QuestionBlock({ q }: { q: PersistedWorksheetQuestion }) {
   const marks = Number(q.marks) || 1;
   const hasOptions = Array.isArray(q.options) && q.options.length > 0;
   const rules = hasOptions ? 0 : Math.max(2, Math.min(6, marks));
+  const optionTexts = hasOptions ? stripOptionLabels(q.options!) : [];
   return (
     <div className="lt-wsp__q">
       <span className="lt-wsp__qn">Q{q.qNumber}.</span>
       <div className="lt-wsp__qbody">
         <div className="lt-wsp__qtext">
-          <MathText text={q.questionText} />
+          <MathText text={stripSourceTag(q.questionText)} />
           <span className="lt-wsp__qmarks">[{marks}]</span>
         </div>
         <PrintQuestionFigures questionId={q.id} />
         {hasOptions ? (
           <ol className="lt-wsp__opts">
-            {q.options!.map((opt, oi) => (
+            {optionTexts.map((opt, oi) => (
               <li key={oi}>
                 <span className="lt-wsp__optl">({OPTION_LETTERS[oi] ?? oi + 1})</span>{" "}
                 <MathText text={opt} />
@@ -228,7 +230,7 @@ function AnswerBlock({ q, renderSolutionFigure }: { q: PersistedWorksheetQuestio
             const hasOwnMark = /\[\s*\d/.test(s);
             return (
               <li key={si} className="lt-wsp__step">
-                <MathText text={s} />
+                <MathText text={stripSourceTag(s)} />
                 {!hasOwnMark && (
                   <span className="lt-wsp__stepmk">
                     {" "}
@@ -243,7 +245,7 @@ function AnswerBlock({ q, renderSolutionFigure }: { q: PersistedWorksheetQuestio
       {renderSolutionFigure?.(q.id)}
       {finalAns ? (
         <div className="lt-wsp__final">
-          Answer: <MathText text={finalAns} />
+          Answer: <MathText text={stripSourceTag(finalAns)} />
         </div>
       ) : steps.length === 0 ? (
         <div className="lt-wsp__nosol">Worked solution not available for this question.</div>
