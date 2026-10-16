@@ -1,4 +1,13 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { desktopTopicsBySubject } from "../../lib/desktop/topics";
+import {
+  START_HERE_SUBJECTS,
+  computeStartHereAvailabilityMap,
+  renderStartHereAvailabilityFile,
+} from "./startHereAvailabilitySource";
+import { START_HERE_AVAILABILITY } from "./startHereAvailability.generated";
 import { ensureBankSubject } from "../../data/bankChapters/loader";
 import { isCbq } from "../../lib/cbq/cbqClassification";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
@@ -130,5 +139,36 @@ describe("selection rules on synthetic rows", () => {
     const rows = [mcq("plain", "Hard"), mcq("ar", "Hard", { format: "Assertion-Reasoning" })];
     expect(chooseStartHereIds(rows, "mcq", new Set(), 0)).toEqual(["plain"]);
     expect(chooseStartHereIds(rows, "ar", new Set(), 0)).toEqual(["ar"]);
+  });
+});
+
+/**
+ * QP-SCORECARD-2 D3 — the precomputed availability map can never drift from the bank.
+ *
+ * The Start-here card lists chapters / question types from startHereAvailability.generated.ts
+ * (no bank download). This guard recomputes the map with the SAME runtime function over the
+ * REAL bank and asserts the committed file is byte-identical to its rendering. A bank change
+ * that moves any count fails here until `node scripts/generateStartHereAvailability.mjs --write`
+ * is re-run (that script runs THIS file with START_HERE_AVAILABILITY_WRITE=1).
+ */
+const FILE = resolve(__dirname, "startHereAvailability.generated.ts");
+
+describe("QP-SCORECARD-2 D3 · startHereAvailability.generated.ts equals the runtime computation", () => {
+  it("★★ the committed file is exactly the rendering of the live-bank computation", async () => {
+    const map = await computeStartHereAvailabilityMap();
+    const text = renderStartHereAvailabilityFile(map);
+    if (process.env.START_HERE_AVAILABILITY_WRITE === "1") writeFileSync(FILE, text, "utf8");
+    const committed = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
+    expect(committed, "STALE: run `node scripts/generateStartHereAvailability.mjs --write`").toBe(text);
+    // And the imported module carries the same numbers (not just the same text).
+    expect(JSON.parse(JSON.stringify(START_HERE_AVAILABILITY))).toEqual(map);
+  }, 120_000);
+
+  it("every chapter the card lists has an entry, and at least one chapter per subject can host a set", () => {
+    for (const subject of START_HERE_SUBJECTS) {
+      const entry = START_HERE_AVAILABILITY[subject] as Record<string, { mcq: number; ar: number }>;
+      for (const t of desktopTopicsBySubject(subject)) expect(entry[t.slug], `${subject}/${t.slug}`).toBeDefined();
+      expect(Object.values(entry).some((c) => c.mcq >= 5)).toBe(true);
+    }
   });
 });
