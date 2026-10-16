@@ -147,6 +147,14 @@ export function isShaped(sections: readonly string[], requested: number): boolea
   return sections.length >= 2 && requested >= SHAPE_MIN_COUNT;
 }
 
+/** WORKSHEET-FIX-2 (b): the line the ready card shows when a sheet has fewer questions than were asked for (null when it is
+ *  complete, or when the request is unknown, e.g. a sheet re-opened from history). Mirrors the preview's honest-count line. */
+export function readyShortfallText(got: number, asked: number | null): string | null {
+  if (asked === null || !(got < asked) || got < 0) return null;
+  const noun = got === 1 ? "question was" : "questions were";
+  return `Only ${got} unique ${noun} available for this scope (you asked for ${asked}), so this worksheet has ${got} — honest counts, no padding.`;
+}
+
 /** The AI cap for a sheet of `n` rows. */
 export function aiCapFor(n: number): number {
   return Math.floor(AI_CAP_FRACTION * n);
@@ -271,11 +279,15 @@ export function planDraw(input: PlanDrawInput): PlannedDraw {
   let targets: Record<string, number>;
   let reallocations: Reallocation[] = [];
   if (shaped) {
-    // The student's weak-section boost (MI) tilts the blueprint share; mean over the topics in scope.
+    // The student's weak-section boost (MI) tilts the blueprint share. WORKSHEET-FIX-2 (f): weighted by each topic's share of
+    // the rows this sheet draws (its allocation), so two weak topics that supply a large part of a full-subject sheet move
+    // the section counts, instead of being averaged away by the 11 topics with no boost (a plain mean over all topics).
     const tilt: Record<string, number> = {};
+    const allocSum = topics.reduce((a, t) => a + Math.max(0, t.allocated), 0);
     for (const s of sections) {
-      const per = topics.map((t) => Number(input.boosts?.[t.key]?.[s]) || 1);
-      tilt[s] = per.reduce((a, b) => a + b, 0) / (per.length || 1);
+      const per = topics.map((t) => ({ w: allocSum > 0 ? Math.max(0, t.allocated) : 1, b: Number(input.boosts?.[t.key]?.[s]) || 1 }));
+      const wSum = per.reduce((a, p) => a + p.w, 0);
+      tilt[s] = wSum > 0 ? per.reduce((a, p) => a + p.w * p.b, 0) / wSum : 1;
     }
     const raw = sectionCounts(sections, N, tilt);
     const b = borrowShortfalls(raw, supplyBySection, sections);
@@ -490,13 +502,19 @@ export function drawFromSpec(
     for (const q of out) drawn[spec.mode === "free" ? "*" : sectionOf(q)] = (drawn[spec.mode === "free" ? "*" : sectionOf(q)] ?? 0) + 1;
     const want = spec.mode === "free" ? { "*": total } : spec.sectionTargets;
     const short = Object.keys(want).filter((s) => (drawn[s] ?? 0) < (want[s] ?? 0));
-    const fillFrom = (s: string) => {
+    // `limit` = the rows this call may still add (the section's own gap): a fill for one short section must not also
+    // cover another short section's gap (WORKSHEET-FIX-2 d).
+    const fillFrom = (s: string, limit = Number.POSITIVE_INFINITY) => {
       const { cbq, ver, ai } = candidates(null, s);
       const lists = spec.mode === "cbq-mix" ? [cbq] : [tools.shuffle([...ver, ...cbq]), ai];
+      let added = 0;
       for (const list of lists) {
         for (const q of list) {
-          if (out.length >= total) return;
-          if (fresh(q)) take(q);
+          if (out.length >= total || added >= limit) return;
+          if (fresh(q)) {
+            take(q);
+            added += 1;
+          }
         }
       }
     };
@@ -504,7 +522,7 @@ export function drawFromSpec(
       for (const k of [s, ...(NEIGHBOURS[s] ?? [])]) {
         if (out.length < total && (drawn[s] ?? 0) < (want[s] ?? 0)) {
           const before = out.length;
-          fillFrom(k);
+          fillFrom(k, (want[s] ?? 0) - (drawn[s] ?? 0));
           drawn[s] = (drawn[s] ?? 0) + (out.length - before);
         }
       }

@@ -53,6 +53,7 @@ import {
   type MistakeSection,
 } from "./worksheetMiSelector";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
+import { readyShortfallText } from "./worksheetShape";
 import { MathText } from "../question/MathText";
 import WorksheetGradePanel, { type WorksheetReopenGrade } from "./WorksheetGradePanel";
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
@@ -309,6 +310,9 @@ function WorksheetGeneratorInner() {
   const [view, setView] = useState<View>("build");
   const [drawNonce, setDrawNonce] = useState(0); // bumped by Shuffle to redraw the candidate
   const [generated, setGenerated] = useState<PersistedWorksheet | null>(null);
+  /** WORKSHEET-FIX-2 (b): how many questions the student asked for when this sheet was generated (null when it was
+   *  re-opened from history: unknown), so the ready card can repeat the preview's "only N available" line. */
+  const [askedCount, setAskedCount] = useState<number | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<"questions" | "answers" | null>(null);
 
@@ -745,6 +749,7 @@ function WorksheetGeneratorInner() {
         questions,
       };
       saveWorksheetSession(ws);
+      setAskedCount(effCount);
       setGenerated(ws);
       setView("generated");
     } catch {
@@ -816,6 +821,7 @@ function WorksheetGeneratorInner() {
     }
     if (ws) {
       setHistoryOpen(false);
+      setAskedCount(null);
       setGenerated(ws);
       setView("generated");
       return true;
@@ -1380,6 +1386,12 @@ function WorksheetGeneratorInner() {
             <div className="lt-ws__gtick" aria-hidden="true">✓</div>
             <h1 className="lt-ws__title">Your {generated?.title} worksheet is ready</h1>
             <p className="lt-ws__lead">{generated?.questions.length} questions · {generated?.totalMarks} marks · {generated?.sectionFilter}. Download, solve on paper, then check against the answer key.</p>
+
+            {generated && readyShortfallText(generated.questions.length, askedCount) && (
+              <div className="lt-ws__note lt-ws__note--warn" data-testid="ws-ready-shortfall">
+                {readyShortfallText(generated.questions.length, askedCount)}
+              </div>
+            )}
 
             {genSectionRows.length > 0 && (
               <div className="lt-ws__gsecs">

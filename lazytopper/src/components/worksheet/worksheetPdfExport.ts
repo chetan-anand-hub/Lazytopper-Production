@@ -21,6 +21,7 @@ import { WorksheetPrintDoc } from "./WorksheetPrintDoc";
 import { WorksheetGradedPrintDoc } from "./WorksheetGradedPrintDoc";
 import { loadKatex } from "../question/MathText";
 import type { RenderSolutionFigure } from "./printFigures";
+import { planSlices, type Span } from "./worksheetPagination";
 import {
   CheckImproveGradedPrintDoc,
   type CheckImproveGradedPrintDocProps,
@@ -73,6 +74,65 @@ export async function waitForImages(host: HTMLElement, timeoutMs = 8000): Promis
     ),
     new Promise<void>((resolve) => window.setTimeout(resolve, timeoutMs)),
   ]);
+}
+
+/** html2canvas mis-places an inline <svg> that is sized only by CSS (width:100% + auto margins): the solution figures came
+ *  out shifted right and cropped. A plain <img> it places correctly (the question figures are <img>s), so every figure <svg>
+ *  in the host is swapped for an <img> of its own serialised markup at the size the browser laid it out at. A figure that
+ *  cannot be converted is left as it is (never blocks the PDF). */
+export async function svgsToImages(host: HTMLElement): Promise<void> {
+  // Only the figures: KaTeX draws square roots and vector arrows as inline SVG that relies on its own CSS (absolute
+  // position, 100% width), so those are left alone.
+  const svgs = Array.from(host.querySelectorAll(".lt-pfig__fig svg"));
+  await Promise.all(
+    svgs.map(async (svg) => {
+      try {
+        const r = svg.getBoundingClientRect();
+        if (!(r.width > 0 && r.height > 0)) return;
+        const clone = svg.cloneNode(true) as SVGElement;
+        clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        clone.setAttribute("width", String(Math.round(r.width)));
+        clone.setAttribute("height", String(Math.round(r.height)));
+        const img = new Image();
+        img.className = "lt-pfig__svgimg";
+        img.alt = svg.getAttribute("aria-label") || "";
+        img.width = Math.round(r.width);
+        img.height = Math.round(r.height);
+        const loaded = new Promise<void>((resolve) => {
+          img.addEventListener("load", () => resolve(), { once: true });
+          img.addEventListener("error", () => resolve(), { once: true });
+        });
+        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(clone))}`;
+        await loaded;
+        if (img.naturalWidth > 0) svg.replaceWith(img);
+      } catch {
+        /* keep the live <svg> */
+      }
+    }),
+  );
+}
+
+/** Units a page cut must not split: a question line, an option, a step, a figure, a heading. Class names are the print
+ *  document's own (.lt-wsp__*) plus the shared figure class (.lt-pfig__fig). A sheet with none of them (the Check & Improve graded
+ *  sheet) has no atoms and is cut exactly as before; a graded worksheet / test sheet that has figures gets those figures kept whole.
+ *  A heading is glued to the first line after it so it is never stranded at the foot of a page. */
+const ATOM_SELECTOR = ".lt-wsp__qtext, .lt-wsp__opts li, .lt-wsp__step, .lt-wsp__final, .lt-wsp__solhead, .lt-wsp__sechead, .lt-wsp__instr, .lt-wsp__titlerow, .lt-pfig__fig";
+
+export function collectPrintAtoms(host: HTMLElement): Span[] {
+  const top0 = host.getBoundingClientRect().top;
+  const span = (el: Element): Span => {
+    const r = el.getBoundingClientRect();
+    return { top: r.top - top0, bottom: r.bottom - top0 };
+  };
+  const atoms: Span[] = Array.from(host.querySelectorAll(ATOM_SELECTOR)).map(span);
+  const glue = (head: Element, nextSel: string, within: Element | null) => {
+    const next = within?.querySelector(nextSel);
+    if (next) atoms.push({ top: span(head).top, bottom: span(next).bottom });
+  };
+  host.querySelectorAll(".lt-wsp__solhead").forEach((h) => glue(h, ".lt-wsp__step, .lt-wsp__final, .lt-pfig__fig", h.parentElement));
+  host.querySelectorAll(".lt-wsp__qtext").forEach((t) => glue(t, ".lt-pfig__fig", t.parentElement)); // "in the figure…" stays with its figure
+  host.querySelectorAll(".lt-wsp__sechead").forEach((h) => glue(h, ".lt-wsp__qtext, .lt-wsp__solhead", h.nextElementSibling));
+  return atoms;
 }
 
 async function waitForRenderReady(): Promise<void> {
@@ -136,6 +196,11 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
     root.render(element);
     await waitForRenderReady();
     await waitForImages(host);
+    await svgsToImages(host);
+
+    // Where a page may be cut, measured now (the laid-out DOM) and converted to canvas pixels after the capture.
+    const atomsCss = collectPrintAtoms(host);
+    const hostH = host.getBoundingClientRect().height;
 
     const canvas = await html2canvas(host, {
       scale: 2,
@@ -156,11 +221,19 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
     const usableH = pageH - marginTop - footerH;
     const pxPerMm = canvas.width / imgW || 1;
     const sliceHpx = Math.max(1, Math.floor(usableH * pxPerMm));
-    const totalPages = Math.max(1, Math.ceil(canvas.height / sliceHpx));
+    const yScale = hostH > 0 ? canvas.height / hostH : 1;
+    const slices = planSlices(
+      atomsCss.map((a) => ({ top: a.top * yScale, bottom: a.bottom * yScale })),
+      canvas.height,
+      sliceHpx,
+    );
+    const totalPages = Math.max(1, slices.length);
 
     for (let page = 0; page < totalPages; page += 1) {
-      const yPx = page * sliceHpx;
-      const hPx = Math.min(sliceHpx, canvas.height - yPx);
+      // integer page edges taken from ONE rounding of each cut, so a page never drops or repeats a canvas pixel
+      const yPx = page === 0 ? 0 : Math.round(slices[page].y);
+      const nextY = page + 1 < slices.length ? Math.round(slices[page + 1].y) : canvas.height;
+      const hPx = Math.max(1, Math.min(nextY, canvas.height) - yPx);
       const slice = document.createElement("canvas");
       slice.width = canvas.width;
       slice.height = hPx;

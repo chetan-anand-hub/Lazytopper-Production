@@ -79,3 +79,47 @@ describe("WorksheetPrintDoc — count identity (FIX 2)", () => {
     expect(container.textContent).toContain("6 questions");
   });
 });
+
+describe("WorksheetPrintDoc — WORKSHEET-FIX-2: one option label, no printed source tag", () => {
+  const wsWith = (questionText: string, options: string[]): PersistedWorksheet => ({
+    ...makeWs(1),
+    questions: [{ ...makeWs(1).questions[0], questionText, options }],
+  });
+
+  it("an option that already carries its own letter prints ONE label: '(a) 77/6', not '(a) (A) 77/6'", () => {
+    const { container } = render(<WorksheetPrintDoc ws={wsWith("Area of the sector?", ["(A) 77/6 cm", "B) 154/6 cm", "(C) 49/6 cm", "D. 98/6 cm"])} kind="questions" />);
+    const lis = Array.from(container.querySelectorAll(".lt-wsp__opts li")).map((li) => li.textContent?.replace(/\s+/g, " ").trim());
+    expect(lis).toEqual(["(a) 77/6 cm", "(b) 154/6 cm", "(c) 49/6 cm", "(d) 98/6 cm"]);
+  });
+
+  it("CONTROL (verifier): a statement-combination MCQ keeps its options whole: \"(a) and (b)\" is content, not a label", () => {
+    const { container } = render(<WorksheetPrintDoc ws={wsWith("Which statements are correct?", ["(a) and (b)", "(a) and (c)", "(a), (b) and (c)", "all"])} kind="questions" />);
+    const lis = Array.from(container.querySelectorAll(".lt-wsp__opts li")).map((li) => li.textContent?.replace(/\s+/g, " ").trim());
+    expect(lis).toEqual(["(a) (a) and (b)", "(b) (a) and (c)", "(c) (a), (b) and (c)", "(d) all"]);
+  });
+
+  it("the answer key does not print a source tag either (steps and final answer)", () => {
+    const ws = makeWs(1);
+    ws.questions[0] = { ...ws.questions[0], solutionSteps: ["Step one [Delhi 2017]"], finalAnswer: "42 [All India 2016]" };
+    const { container } = render(<WorksheetPrintDoc ws={ws} kind="answers" />);
+    const text = container.textContent || "";
+    expect(text).toContain("Step one");
+    expect(text).toContain("42");
+    expect(text).not.toMatch(/Delhi 2017|All India 2016/);
+  });
+
+  it("CONTROL: plain options are unchanged", () => {
+    const { container } = render(<WorksheetPrintDoc ws={wsWith("Pick one", ["77/6 cm", "154/6 cm"])} kind="questions" />);
+    const lis = Array.from(container.querySelectorAll(".lt-wsp__opts li")).map((li) => li.textContent?.replace(/\s+/g, " ").trim());
+    expect(lis).toEqual(["(a) 77/6 cm", "(b) 154/6 cm"]);
+  });
+
+  it("a trailing exam-source tag is not printed; other bracketed text stays", () => {
+    const { container } = render(<WorksheetPrintDoc ws={wsWith("Why does it take food? [All India 2017]", [])} kind="questions" />);
+    const text = container.textContent || "";
+    expect(text).toContain("Why does it take food?");
+    expect(text).not.toContain("All India");
+    const keep = render(<WorksheetPrintDoc ws={wsWith("Find x [in cm]", [])} kind="questions" />);
+    expect(keep.container.textContent).toContain("[in cm]");
+  });
+});
