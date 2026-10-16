@@ -550,6 +550,54 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     expect(count()).toBe("1");
   });
 
+  it("★★ desktop backdrop press, focus on <body>: Esc still closes the dialog and records the focus Not now", async () => {
+    setMatchMediaMatches(true);
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    // The backdrop press is prevented (it would move focus to <body>)...
+    expect(fireEvent.mouseDown(focusEl()!)).toBe(false);
+    // ...and even if focus does reach <body>, the trap and Esc still hold.
+    (document.activeElement as HTMLElement).blur();
+    expect(document.activeElement).toBe(document.body);
+    fireEvent.keyDown(document.body, { key: "Tab" });
+    expect(dialog().contains(document.activeElement)).toBe(true);
+    (document.activeElement as HTMLElement).blur();
+    fireEvent.keyDown(document.body, { key: "Escape" });
+    expect(focusEl()).toBeNull();
+    expect(count()).toBe("1");
+    expect(calls("start_here_dismissed")).toEqual([["start_here_dismissed", { surface: "practice_hub_focus" }]]);
+    expect(card()).not.toBeNull(); // the inline card stays (it was NOT dismissed)
+  });
+
+  it("★★ focus moved to an element outside (the inline card behind) is pulled back into the dialog", async () => {
+    mount("u1", { focus: true });
+    await waitFor(() => expect(focusEl()).not.toBeNull());
+    const behind = screen.getByTestId("start-here-not-now"); // the inline card's own Not now
+    behind.focus();
+    expect(document.activeElement).not.toBe(behind);
+    expect(dialog().contains(document.activeElement)).toBe(true);
+  });
+
+  it("★ unmount removes the document listeners (Esc and focus are free again)", async () => {
+    const remove = vi.spyOn(document, "removeEventListener");
+    try {
+      mount("u1", { focus: true });
+      await waitFor(() => expect(focusEl()).not.toBeNull());
+      fireEvent.click(screen.getByTestId("start-here-focus-not-now"));
+      expect(focusEl()).toBeNull();
+      const removed = remove.mock.calls.filter((c) => c[2] === true).map((c) => c[0]);
+      expect(removed).toEqual(expect.arrayContaining(["keydown", "focusin"]));
+      const behind = screen.getByTestId("start-here-not-now");
+      behind.focus();
+      expect(document.activeElement).toBe(behind); // nothing pulls focus any more
+      fireEvent.keyDown(document.body, { key: "Escape" });
+      expect(calls("start_here_dismissed")).toHaveLength(1);
+      expect(count()).toBe("1");
+    } finally {
+      remove.mockRestore();
+    }
+  });
+
   it("★★ focus is trapped: it starts inside the dialog and Tab / Shift+Tab wrap at the ends", async () => {
     mount("u1", { focus: true });
     await waitFor(() => expect(focusEl()).not.toBeNull());
