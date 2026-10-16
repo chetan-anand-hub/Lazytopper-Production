@@ -555,7 +555,10 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `questions to do — in any wording or language ("give me some practice questions", "test me with 5 questions", ` +
     `"quiz me", "mujhe is chapter ki practice karni hai", "aur sawal do board jaise"). Emit it too when the student ` +
     `says yes to your own "want to try a couple on this?". Promise only what the set gives: "a couple" when they ` +
-    `named no number, otherwise the number they asked for (at most 10).\n` +
+    `named no number, otherwise the number they asked for (at most 10). The questions are NOT in your reply — ` +
+    `they open when the student taps Practise this chapter. So word it as a pointer, e.g. "Tap Practise this ` +
+    `chapter for a couple of board questions", and NEVER write "Here are a couple of practice questions" (or ` +
+    `any "here are..." / "below are...") when no questions follow.\n` +
     `- "I KEEP LOSING MARKS" (or any ask for how to stop losing marks): give one or two lines of real advice, then ` +
     `offer BOTH routes in words — a short practice set on this chapter, or getting a written answer board-marked ` +
     `in Check & Improve — and emit \`[[offer:practice]]\` (or \`[[offer:check-improve]]\` if they mean a specific ` +
@@ -567,9 +570,11 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `something solved is a TEACHING request and is YOUR job: "show me how this is solved", "can you give me an ` +
     `example?", "what would a board question on this look like?", "walk me through one" — answer these YOURSELF ` +
     `(see WORKED EXAMPLES above) and emit NO practice tag.\n` +
-    `- \`[[offer:check-improve]]\` on the turns described under CHECK & IMPROVE above.\n` +
+    `- \`[[offer:check-improve]]\` on the turns described under CHECK & IMPROVE above, and under honesty rule h ` +
+    `(the student asks what kind of mistakes they make and the brief has no mistake type for those marks).\n` +
     `- Otherwise emit NO tag at all. Never emit both. The tag is stripped by the app and NEVER shown to the ` +
-    `student — it is not part of your prose, do not describe it, do not reference "the button".`
+    `student — it is not part of your prose, do not describe it, do not reference "the button" (naming the ` +
+    `always-visible Practise this chapter control, as shown under PRACTICE, is fine).`
   );
 
   lines.push(figurePanelBlock(figures));
@@ -650,6 +655,7 @@ const GROUP_LABEL = Object.freeze({
   notAttempted: 'not attempted',
   unrecorded: 'no reason recorded',
 });
+const TYPED_GROUPS = Object.freeze(['knowledge', 'careless', 'examTechnique', 'notAttempted']);
 
 function marksText(n) {
   return `${n} ${n === 1 ? 'mark' : 'marks'}`;
@@ -690,21 +696,49 @@ function briefBlock(brief, { chapter, subj } = {}) {
   if (chapterName && chMarks !== null) {
     facts.push(`- This chapter (${chapterName}): ${marksText(chMarks)} lost ${inWindow}.`);
   }
+  // TUTOR-FIX-3: the split is rendered HONESTLY. Only typed groups with marks > 0 are listed (a
+  // "careless 0" invites "no marks were lost to careless slips", i.e. an implied attribution); the
+  // `unrecorded` marks get their own explicit do-NOT-attribute line; when EVERY lost mark is
+  // unrecorded there is no top group / top type to speak of, so neither is rendered.
   const byGroup = ch.byGroup && typeof ch.byGroup === 'object' ? ch.byGroup : null;
+  let allUnrecorded = false;
   if (byGroup) {
-    const parts = Object.keys(GROUP_LABEL)
-      .filter((g) => num(byGroup[g]) !== null)
-      .map((g) => `${GROUP_LABEL[g]} ${num(byGroup[g])}`);
-    if (parts.length) facts.push(`- Where those chapter marks went: ${parts.join(', ')}.`);
-  }
-  if (ch.topGroup && GROUP_LABEL[ch.topGroup]) {
+    const typed = TYPED_GROUPS.filter((g) => (num(byGroup[g]) || 0) > 0);
+    const unrecorded = num(byGroup.unrecorded) || 0;
+    allUnrecorded = unrecorded > 0 && typed.length === 0;
+    if (typed.length) {
+      facts.push(`- Recorded mistake types for these chapter marks: ${typed.map((g) => `${GROUP_LABEL[g]} ${num(byGroup[g])}`).join(', ')}.`);
+    }
+    if (unrecorded > 0) {
+      facts.push(
+        `- ${marksText(unrecorded)}: no mistake type recorded (tap-the-answer questions record which option was ` +
+        `picked, not why) — do NOT attribute these to concept gaps, careless slips or exam technique.`,
+      );
+    }
+    if (allUnrecorded) {
+      facts.push(
+        `- Mistake type: NOT recorded for any of the ${marksText(unrecorded)} lost in this chapter. You do not know ` +
+        `whether they were concept gaps, careless slips, exam technique or not attempted — never say or imply which.`,
+      );
+    }
+    if (!allUnrecorded && ch.topGroup && GROUP_LABEL[ch.topGroup] && TYPED_GROUPS.includes(ch.topGroup) && (num(byGroup[ch.topGroup]) || 0) > 0) {
+      facts.push(
+        unrecorded > 0
+          ? `- Biggest loss group among the marks with a recorded type: ${GROUP_LABEL[ch.topGroup]}.`
+          : `- Biggest loss group in this chapter: ${GROUP_LABEL[ch.topGroup]}.`,
+      );
+    }
+  } else if (ch.topGroup && GROUP_LABEL[ch.topGroup] && TYPED_GROUPS.includes(ch.topGroup)) {
     facts.push(`- Biggest loss group in this chapter: ${GROUP_LABEL[ch.topGroup]}.`);
   }
   const concepts = Array.isArray(ch.concepts)
     ? ch.concepts.filter((c) => c && str(c.name) && num(c.marksLost) !== null).slice(0, 3)
     : [];
   if (concepts.length) {
-    facts.push(`- Concepts in this chapter that cost marks: ${concepts.map((c) => `${str(c.name)} (${marksText(num(c.marksLost))})`).join(', ')}.`);
+    facts.push(
+      `- Concepts in this chapter where marks were lost: ${concepts.map((c) => `${str(c.name)} (${marksText(num(c.marksLost))})`).join(', ')}. ` +
+      `A concept name says WHERE marks were lost, not WHY — it is not a mistake type and does not mean a concept/knowledge gap.`,
+    );
   } else if (Array.isArray(topic.weakConcepts) && topic.weakConcepts.length) {
     facts.push(`- Sub-topics that have cost marks: ${topic.weakConcepts.slice(0, 3).map(str).filter(Boolean).join(', ')}.`);
   }
@@ -727,7 +761,7 @@ function briefBlock(brief, { chapter, subj } = {}) {
   if (subjectTotal !== null) {
     facts.push(`- Whole ${subjectName} subject (ALL chapters together, not just this one): ${marksText(subjectTotal)} lost ${inWindow}.`);
   }
-  if (mistakes.topType) {
+  if (mistakes.topType && !allUnrecorded) {
     facts.push(`- Most common mistake type across the whole subject: ${str(mistakes.topType)}.`);
   }
 
@@ -770,7 +804,16 @@ function honestyBlock() {
     `f. Never mention a diagram, figure, picture, panel or "beside us" unless THIS SAME reply emits a valid ` +
     `[[figure:<key>]] from the VISUAL PANEL list. No list, or no fitting key: teach in words and never point ` +
     `at a picture.\n` +
-    `g. These rules apply unchanged whatever language you reply in.`
+    `g. These rules apply unchanged whatever language you reply in.\n` +
+    `h. Say a mistake type (concept/knowledge gap, careless slip, exam technique, not attempted) ONLY for groups ` +
+    `the brief gives marks for. A concept or sub-topic name is where marks were lost, not a mistake type. Marks ` +
+    `with no mistake type recorded are never "concept gaps", "careless" or anything else — and do not say a ` +
+    `type had "no marks" either when the marks simply were not typed. If the student asks careless vs concept ` +
+    `and the marks are unrecorded, say the type is not recorded for those marks (tap-the-answer questions ` +
+    `record which option was picked, not why) and offer Check & Improve (a written answer shows why) — emit ` +
+    `[[offer:check-improve]]. The same for "am I making silly mistakes?", "what's my biggest mistake?" or "why ` +
+    `do I lose marks here?": give the figures you have (marks, concepts), say the type is not recorded, offer ` +
+    `Check & Improve.`
   );
 }
 
