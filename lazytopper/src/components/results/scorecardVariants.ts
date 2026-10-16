@@ -1988,6 +1988,26 @@ export interface ReopenedQuickPracticeVariantInput {
   menu: Omit<QuickPracticeMenuHandlers, "allDone" | "onKeepPracticing">;
   /** Start-here extras (E4 "Explore LazyTopper", …) — placed after the menu, as on A. */
   extraActions?: ScorecardAction[];
+  /** FOLLOWUPS-4 D — marks lost on tap-the-answer questions, read from the stored payload
+   *  (`storedTapMarksLost`). Absent ⇒ unknown ⇒ no untyped-marks note (never guessed). */
+  tapMarksLost?: number;
+}
+
+/** FOLLOWUPS-4 D [FU-QP-REOPEN-TAP-NOTE] — PURE. The marks a STORED Quick Practice payload lost
+ *  on tap-the-answer questions. `buildQuickPracticeResponse` writes a tapped MCQ's result with NO
+ *  `annotatedSteps` and a checked written answer's result WITH them (always an array), so that is
+ *  the stored distinction; only graded results count (an unread one is never a loss). Read-only.
+ *  No results array ⇒ undefined (unknown, never 0). */
+export function storedTapMarksLost(results: unknown): number | undefined {
+  if (!Array.isArray(results)) return undefined;
+  let lost = 0;
+  for (const raw of results) {
+    if (!raw || typeof raw !== "object") continue;
+    const r = raw as WorksheetGradeResponse["results"][number];
+    if (!isGradedQuestion(r) || Array.isArray((r as { annotatedSteps?: unknown }).annotatedSteps)) continue;
+    lost += Math.max(0, (Number(r.totalMarks) || 0) - (Number(r.marksAwarded) || 0));
+  }
+  return lost;
 }
 
 /**
@@ -2011,6 +2031,10 @@ export function reopenedQuickPracticeScorecardVariant(
   const totalQuestions = record.questionIds?.length ?? 0;
   const hasHonestCount = typeof input.gradedCount === "number" && Number.isFinite(input.gradedCount);
   const rows = input.wrongAnswers && input.wrongAnswers.length > 0 ? input.wrongAnswers : null;
+  const typedFourType =
+    record.fourType && (record.fourType.conceptual || record.fourType.calculation || record.fourType.silly || record.fourType.presentation)
+      ? record.fourType
+      : null;
   return {
     surface: "quick-practice",
     title: record.title,
@@ -2026,10 +2050,10 @@ export function reopenedQuickPracticeScorecardVariant(
         : {}),
     },
     message: null,
-    note: null,
-    fourType: record.fourType && (record.fourType.conceptual || record.fourType.calculation || record.fourType.silly || record.fourType.presentation)
-      ? record.fourType
-      : null,
+    // FOLLOWUPS-4 D [FU-QP-REOPEN-TAP-NOTE] — the live MCQ scorecard's ONE note (MI-COPY), under
+    // its condition: tap-the-answer marks were lost and no typed mistake shows. Display only.
+    note: (input.tapMarksLost ?? 0) > 0 && !typedFourType ? UNTYPED_MARKS_NOTE : null,
+    fourType: typedFourType,
     pending: null,
     allPending: null,
     wrongAnswers: rows,

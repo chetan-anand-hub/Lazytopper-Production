@@ -796,10 +796,13 @@ export default function DesktopHome() {
 // the "Check a written answer" link is the action, and each tile is muted + dashed with a
 // tooltip saying the same. Display only.
 
+// FOLLOWUPS-4 C [FU-HOME-MI-NOTE-NO-LOSS] — "when you check a written answer" was false for a
+// student who HAS checked written answers that lost nothing; a type fills in only when a checked
+// written answer LOSES marks, which is true in both cases.
 /** State 2's one explanatory line (the link follows it). */
-export const HOME_MI_UNTYPED_NOTE = `These fill in when you check a written answer. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`;
+export const HOME_MI_UNTYPED_NOTE = `These fill in when a checked written answer loses marks. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`;
 /** State 2's tile tooltip. */
-export const HOME_MI_UNTYPED_TILE_TITLE = `Fills in when you check a written answer. ${UNTYPED_MARKS_WHY}`;
+export const HOME_MI_UNTYPED_TILE_TITLE = `Fills in when a checked written answer loses marks. ${UNTYPED_MARKS_WHY}`;
 
 export function MistakeIntelligenceCard({ summary }: { summary: MeHomeSummary | null }) {
   const hasData = !!summary && summary.lost > 0;
