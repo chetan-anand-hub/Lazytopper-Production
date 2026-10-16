@@ -102,6 +102,8 @@ const EVENT_LABELS: Record<string, string> = {
   start_here_graded: "Finished Start here",
   start_here_dismissed: "Dismissed Start here",
   tutor_from_scorecard: "Opened the tutor from a scorecard",
+  // TUTOR-FIX-2 T13.
+  tutor_first_message: "Sent a first tutor message",
 };
 
 /** A recorded event name in plain words, e.g. "check_graded" -> "Checked an answer". */

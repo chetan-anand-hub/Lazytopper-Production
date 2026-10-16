@@ -110,6 +110,8 @@ export const ACTIVITY_EVENTS = [
   "start_here_graded",
   "start_here_dismissed",
   "tutor_from_scorecard",
+  // TUTOR-FIX-2 T13 — once per tutor thread. Additive.
+  "tutor_first_message",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

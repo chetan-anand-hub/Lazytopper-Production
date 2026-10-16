@@ -39,6 +39,8 @@ const mcqLost = { qNumber: 2, couldNotRead: false, ok: true, totalMarks: 1, mark
 const record = (over: Record<string, unknown> = {}) => ({
   id: "QP-1",
   questionIds: ["q-a", "q-b"],
+  // TUTOR-FIX-2 T6 — the opener names the RECORD's own chapter (an empty set is neutral).
+  topicKeys: ["real-numbers"],
   dedupKey: "u1::QP-1",
   perQuestionRef: "qp:QP-1",
   ...over,

@@ -74,8 +74,17 @@ export function buildQuickPracticeRoundTripHref(args: {
     source: "tutor",
     returnTo: args.returnTo,
     backLabel: args.backLabel,
-    count: typeof args.count === "number" && args.count > 0 ? String(args.count) : undefined,
+    // TUTOR-FIX-2 [FU-PRACTICE-COUNT-PASSTHROUGH] — always a count: the student's stated number,
+    // else 2 ("a couple"), capped at 10, so the set matches what the tutor promised.
+    count: String(quickPracticeCount(args.count)),
   })}`;
+}
+
+/** The overlay set size: a whole number 1..10, default 2. */
+export function quickPracticeCount(count: unknown): number {
+  const n = typeof count === "number" && Number.isFinite(count) ? Math.floor(count) : NaN;
+  if (!(n >= 1)) return 2;
+  return Math.min(10, n);
 }
 
 /**
@@ -174,6 +183,44 @@ export function matchReturningPracticeRecord(
 export interface ReturnOpener {
   text: string;
   follow?: { label: string; send: string };
+}
+
+/** TUTOR-FIX-2 T6 — "that Real Numbers sheet", or the neutral "your sheet" when the opener has
+ *  no chapter it can honestly name (an empty label). */
+function thatRef(label: string, noun: string): string {
+  return label && label.trim() ? `that ${label} ${noun}` : `your ${noun}`;
+}
+
+/**
+ * TUTOR-FIX-2 T6 — the chapter label a return opener may use for a RETURNED record: the record's
+ * OWN chapter(s), never the tutor's when they differ (live defect: the tutor on Trigonometry
+ * labelled a returned quadratic sheet "that Trigonometry sheet").
+ *   · the record's one chapter IS the tutor's → the tutor's own label (unchanged copy);
+ *   · one or two other chapters → their names ("Quadratic Equations", "A and B");
+ *   · no chapter, a mixed paper, or more than two → "" (the opener says "your sheet", no claim).
+ * Matching (`matchReturningRecord`) is unchanged — this only decides the words. PURE: the
+ * caller supplies the name lookup and the canonical slug matcher.
+ */
+export function returnedRecordLabel(
+  record: Pick<SessionRecord, "topicKeys">,
+  tutor: { topicKey: string; topicLabel: string },
+  nameOf: (topicKey: string) => string | null,
+  slugMatches: (a: string, b: string) => boolean = (a, b) => a === b,
+): string {
+  const keys: string[] = [];
+  for (const k of record.topicKeys || []) {
+    const key = String(k || "").trim();
+    if (!key) continue;
+    if (key.startsWith("mixed:")) return "";
+    if (!keys.some((seen) => slugMatches(seen, key))) keys.push(key);
+  }
+  if (keys.length === 0 || keys.length > 2) return "";
+  if (keys.length === 1 && tutor.topicKey && slugMatches(keys[0], tutor.topicKey)) return tutor.topicLabel;
+  const names = keys.map((k) =>
+    tutor.topicKey && slugMatches(k, tutor.topicKey) ? tutor.topicLabel : nameOf(k),
+  );
+  if (names.some((n) => !n || !n.trim())) return "";
+  return names.join(" and ");
 }
 
 /** Trim a grader annotation to one sentence's worth of opener copy — the tutor quotes
@@ -414,7 +461,7 @@ export function composeCheckImproveRichReturnOpener(
     );
     if (!hasWorking) return null; // MCQ-only clean sheet — the thin opener already says this.
     return {
-      text: `${awarded} out of ${total} on that ${topicLabel} sheet — clean, and the working held up step for step. That's landing now. Want a harder one to stretch on, or leave it here?`,
+      text: `${awarded} out of ${total} on ${thatRef(topicLabel, "sheet")} — clean, and the working held up step for step. That's landing now. Want a harder one to stretch on, or leave it here?`,
       follow: { label: "A harder one", send: "Give me a harder one to try." },
     };
   }
@@ -431,7 +478,7 @@ export function composeCheckImproveRichReturnOpener(
   const where = `On Q${qNumber}, step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)}`;
 
   return {
-    text: `The board marked that ${topicLabel} sheet ${awarded} out of ${total}, ${rootCause}. ${where} ${fix}`,
+    text: `The board marked ${thatRef(topicLabel, "sheet")} ${awarded} out of ${total}, ${rootCause}. ${where} ${fix}`,
     follow: {
       label: "Go through that step",
       send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
@@ -550,7 +597,7 @@ export function composeReturnOpener(
   // Honest fallback when the record carries no marks (e.g. a couldn't-read sheet).
   if (awarded == null || total == null || total <= 0) {
     return {
-      text: `You're back with your graded ${topicLabel} ${source}. Want to go through where it slipped, together?`,
+      text: `You're back with your graded ${topicLabel ? `${topicLabel} ` : ""}${source}. Want to go through where it slipped, together?`,
       follow: { label: "Go through it", send: "Yes, let's go through where it slipped." },
     };
   }
@@ -659,12 +706,12 @@ export function composeScorecardQuestionOpener(
   const lost = Math.max(0, total - awarded);
   if (!gradedResult || total <= 0) {
     return {
-      text: `You asked about Q${qNumber} on that ${topicLabel} set. What would you like to go through?`,
+      text: `You asked about Q${qNumber} on ${thatRef(topicLabel, "set")}. What would you like to go through?`,
     };
   }
   if (lost === 0) {
     return {
-      text: `Q${qNumber} on that ${topicLabel} set earned its full ${total} mark${total === 1 ? "" : "s"}. What would you like to check about it?`,
+      text: `Q${qNumber} on ${thatRef(topicLabel, "set")} earned its full ${total} mark${total === 1 ? "" : "s"}. What would you like to check about it?`,
     };
   }
   const marks = `${lost} mark${lost === 1 ? "" : "s"}`;
@@ -676,7 +723,7 @@ export function composeScorecardQuestionOpener(
   if (fault) {
     const { step } = fault;
     return {
-      text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}.${chose} Step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)} Want to go through it together?`,
+      text: `Q${qNumber} on ${thatRef(topicLabel, "set")} cost you ${marks}.${chose} Step ${step.stepNumber} — "${step.description}" — ${stepFaultPhrase(step.status)}: ${shortAnnotation(step.teacherAnnotation)} Want to go through it together?`,
       follow: {
         label: "Go through that step",
         send: `Let's go through Q${qNumber}, step ${step.stepNumber}: ${step.description}`,
@@ -684,7 +731,7 @@ export function composeScorecardQuestionOpener(
     };
   }
   return {
-    text: `Q${qNumber} on that ${topicLabel} set cost you ${marks}.${chose} Want to go through why the right answer is right, and where the trap is?`,
+    text: `Q${qNumber} on ${thatRef(topicLabel, "set")} cost you ${marks}.${chose} Want to go through why the right answer is right, and where the trap is?`,
     follow: {
       label: "Why was I wrong?",
       send: `Let's go through Q${qNumber}: why was my answer wrong?`,

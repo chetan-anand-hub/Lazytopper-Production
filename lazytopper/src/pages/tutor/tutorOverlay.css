@@ -74,3 +74,16 @@
     animation: none;
   }
 }
+
+/* TUTOR-FIX-2 (v3 small) — the hosted Check & Improve page's pinned close (x) measured 29x26 px
+   at 390: below a usable tap target. CSS ONLY, scoped to the tutor's overlay panel (a direct
+   /check-improve visit never renders this button, and the page file is untouched): the button's
+   inline style sets no size or display, so these rules lift it to a 44x44 target with the glyph
+   centred. Matched by its own accessible name, the one stable hook the page gives it. */
+.lt-tutor-overlay__panel button[aria-label="Close and return to your tutor"] {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
