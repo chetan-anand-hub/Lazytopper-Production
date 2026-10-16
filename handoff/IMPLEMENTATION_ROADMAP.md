@@ -1,3 +1,10 @@
+## 2026-10-16 - FOLLOWUPS-1 (`#1196`) - MERGED
+
+- DONE. Start-here kicker "Your first 2 minutes"; `lt-sh` to `lt-shc` (closes `[FU-LT-SH-CLASS-CLASH]`); expired-paid-pass lock copy (closes `[FU-LOCK-COPY-PAID-EXPIRED]`); Razorpay `paymentId` and server amount in `purchase` (closes `[FU-PURCHASE-TXN-ID-RAZORPAY]`; owner live-verify on the first real payment); `pickedOption` stored and shown on reopen (closes `[FU-QP-REOPEN-PICK]`). Production live-check PASSED at 390 px for the QP pieces and the kicker.
+- DONE. Tutor button and Back on Chapter Test and Full Mock via `openStored` (tests only; live check needs an AI-graded paper).
+- OPEN. `[FU-WORKSHEET-TUTOR-RETURN]` (was the Worksheet part of `[FU-SCORECARD-TUTOR-REST]`), `[FU-START-HERE-WRITTEN]`.
+- NEXT. **Session 2:** Part 4 (ADS-CLEAN-1) then Part 3 (TUTOR-FIX-2) of DISPATCH-PACK_FIRST-WIN.
+
 ## 2026-10-16 — TRACK-2 (`#1192`) · START-HERE-1 (`#1193`) · QP-SCORECARD-2 (`#1194`) — ✅ MERGED
 
 - ✅ Purchase + onboarding events, admin traffic out of analytics. ⏳ owner live-verify (GA4 Realtime, first real payment); `[FU-PURCHASE-TXN-ID-RAZORPAY]`.

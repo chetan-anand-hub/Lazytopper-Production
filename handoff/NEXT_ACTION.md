@@ -1,3 +1,14 @@
+## 2026-10-16 - AFTER FOLLOWUPS-1 (`#1196`) (written by the docs sub-agent under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The "Owner question" in the `#1192-#1194` block is answered: the kicker is now "Your first 2 minutes".)*
+
+- **Owner check (phone, 390 px):** the focused first-run overlay on a FRESH zero-graded account (still owed from `#1194`).
+- **Owner check (admin):** the admin feed labels on his admin account.
+- **Owner check (first real payment):** `purchase` appears in GA4 and Meta with the Razorpay payment id as `transaction_id`.
+- **Not live-verified (waiting on real data):** Chapter Test / Full Mock "Ask the tutor" buttons and their Back (need an AI-graded paper); the paid-pass expired lock copy (needs a real paid pass).
+- **Next:** **Session 2 runs Part 4 (ADS-CLEAN-1) then Part 3 (TUTOR-FIX-2) of DISPATCH-PACK_FIRST-WIN.** Tutor honesty plus a richer brief remains the top tutor gap.
+- **Follow-ups open:** `[FU-WORKSHEET-TUTOR-RETURN]`, `[FU-START-HERE-WRITTEN]`. Closed in `#1196`: `[FU-LT-SH-CLASS-CLASH]`, `[FU-LOCK-COPY-PAID-EXPIRED]`, `[FU-PURCHASE-TXN-ID-RAZORPAY]`, `[FU-QP-REOPEN-PICK]`; `[FU-SCORECARD-TUTOR-REST]` narrowed and renamed.
+
 ## ★ 2026-10-16 — AFTER TRACK-2 (`#1192`), START-HERE-1 (`#1193`) AND QP-SCORECARD-2 (`#1194`) (written by the Session-1 docs sub-agent under §10)
 
 *(The owner items of every block below stand unchanged. This block only adds the items below.)*

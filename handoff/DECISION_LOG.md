@@ -1,3 +1,15 @@
+## 2026-10-16 - FOLLOWUPS-1 (`#1196`): DECISIONS THIS WAVE MADE (RECORDED BY THE DOCS SUB-AGENT UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Decisions of the builder, verifier and owner inside the follow-up spec, each with its reason.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner approvals at 09:15 | scope includes payment code; the verifier merges on PASS plus green CI | the Razorpay id could only be carried by touching `BuyOutcome` / `services/checkout.ts`; the owner chose to take that on and to remove a manual merge step |
+| Worksheet tutor button stopped | Chapter Test and Full Mock only; Worksheet becomes `[FU-WORKSHEET-TUTOR-RETURN]` | worksheet scorecards have no URL reopen-from-record path, so a tutor Back could not return honestly to the same scorecard |
+| the pick is an additive field | `pickedOption` added to the `perQuestion` payload; marks, mistake typing and record shape untouched | `firestore.rules` checks ownership only, so no rules change; older records simply show no pick |
+| `purchase` ids from the verified payment | Razorpay `paymentId` as `transaction_id`, server order amount as `value` when present; per-attempt id and config quote remain the fallback | replaces the `#1192` fallback decision once the verify step returns the real ids |
+| kicker wording | "Your first 2 minutes" | owner yes to the question left open after `#1193` |
+
 ## 2026-10-16 — TRACK-2 / START-HERE-1 / QP-SCORECARD-2 (`#1192` `#1193` `#1194`): DECISIONS THIS WAVE MADE (RECORDED BY THE SESSION-1 DOCS SUB-AGENT UNDER §10)
 
 > ⚠ **SCOPE.** No D number is minted here. Decisions of the builder, controller and owner inside the pack's specs, each with its reason.
