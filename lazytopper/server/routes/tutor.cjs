@@ -396,9 +396,11 @@ function normalizeBrief(input) {
  * Live (prod, after #1203): in a thread whose history already held wrong assistant turns ("the marks
  * were lost due to concept/knowledge gaps"), the model repeated the attribution although the brief
  * says no type is recorded. Deliberately NARROW: it acts only when EVERY lost chapter mark in the
- * (sanitised) brief is unrecorded, so no typed group can support any attribution. Then, if the
- * student asked about the mistake type OR the reply attributes marks to a type, the reply is
- * replaced by a fixed honest template built from the brief. Mixed / typed / no-data briefs: no-op. */
+ * (sanitised) brief is unrecorded, so no typed group can support any attribution. Then, only if a
+ * reply SENTENCE asserts a type (a type word and no negation marker), an English session's reply is
+ * replaced by a fixed honest template built from the brief. An honest reply ("Correction: no mistake
+ * type is recorded ...") passes through. Mixed / typed / no-data briefs: no-op. asksMistakeType is
+ * kept as an exported helper (eval/diagnostics); it no longer triggers a replacement by itself. */
 const TYPE_ATTRIBUTION_RE = /\bconcept(ual)?\s*(\/|or)?\s*knowledge\s+gaps?\b|\bknowledge\s+gaps?\b|\bconcept(ual)?\s+gaps?\b|\bcareless\s+(slips?|mistakes?|errors?|galti(yan|yaan)?)\b|\bexam\s+technique\b|\bsilly\s+(slips?|mistakes?|errors?|galti(yan|yaan)?)\b|\bconcept(ual)?\s+galti(yan|yaan)?\b/i;
 const TYPE_ASK_RE = /\bcareless\b|\bsilly\b|\bconcept(ual)?\s+(gaps?|galti(yan|yaan)?|mistakes?|errors?)\b|\bknowledge\s+gaps?\b|\b(type|kind)s?\s+of\s+(my\s+)?(mistakes?|errors?|galti(yan|yaan)?)\b|\bmistake\s+types?\b|\bexam\s+technique\b/i;
 
@@ -411,8 +413,21 @@ function isAllUnrecordedBrief(brief) {
 function asksMistakeType(text) {
   return TYPE_ASK_RE.test(typeof text === 'string' ? text : '');
 }
+// A sentence carrying any of these is HONEST about the type (it says it is not recorded / cannot be told),
+// even when it names the type words ("I cannot say whether they were careless slips or concept gaps").
+// `whether` is included so the template's own "shows whether a slip was careless or a concept gap" is not
+// read as an assertion.
+const TYPE_NEGATION_RE = /\bno\s+mistake\s+type\b|\bnot\s+recorded\b|\bisn'?t\s+recorded\b|\b(can'?t|cannot|can\s+not)\s+(say|tell)\b|\bcorrection\b|\bwhether\b/i;
+function splitSentences(text) {
+  return String(text).split(/(?<=[.!?।])\s+|\n+/).map((x) => x.trim()).filter(Boolean);
+}
+/** TUTOR-FIX-4 v2: true only when some SENTENCE names a mistake type and carries no negation marker. */
 function attributesMistakeType(text) {
-  return TYPE_ATTRIBUTION_RE.test(typeof text === 'string' ? text : '');
+  const t = typeof text === 'string' ? text : '';
+  return splitSentences(t).some((sent) => TYPE_ATTRIBUTION_RE.test(sent) && !TYPE_NEGATION_RE.test(sent));
+}
+function isEnglishSession(language) {
+  return !language || /^english$/i.test(String(language).trim());
 }
 function buildUnrecordedTypeReply(brief, chapterFallback) {
   const ch = (brief && brief.chapter) || {};
@@ -582,13 +597,19 @@ function createTutorRoute(deps) {
       let text = figureOut.text;
       let offer = offerOut.offer;
       let offerSource = offer ? 'model' : null;
-      // TUTOR-FIX-4 attribution safety net (all-unrecorded brief only): a type question, or a reply
-      // that names a mistake type, gets the fixed honest template instead + the Check & Improve offer.
-      if (allUnrecorded && (asksMistakeType(studentLast) || attributesMistakeType(text))) {
-        text = buildUnrecordedTypeReply(brief, chapterGiven);
-        offer = 'check-improve';
-        offerSource = 'attribution-override';
-        telemetry.increment('tutor.attribution_override');
+      // TUTOR-FIX-4 attribution safety net (all-unrecorded brief only): a reply with an ASSERTING
+      // sentence that names a mistake type (no "not recorded" / "cannot say" / "Correction" marker in
+      // it) gets the fixed honest template + the Check & Improve offer. The template is English, so a
+      // non-English session is not replaced (rule i + the history note carry it) - counted instead.
+      if (allUnrecorded && attributesMistakeType(text)) {
+        if (isEnglishSession(language)) {
+          text = buildUnrecordedTypeReply(brief, chapterGiven);
+          offer = 'check-improve';
+          offerSource = 'attribution-override';
+          telemetry.increment('tutor.attribution_override');
+        } else {
+          telemetry.increment('tutor.attribution_unreplaced_nonenglish');
+        }
       }
       // The template points at no diagram, so an overridden reply never opens a panel.
       const figure = offerSource === 'attribution-override' ? null : figureOut.figure;

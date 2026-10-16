@@ -392,11 +392,55 @@ test('TF4 RED->GREEN: the live defect reply (wrong history) is replaced, offer=c
   assert.ok(events.includes('tutor.attribution_override'));
 });
 
-test('TF4 the student asking careless-vs-concept in the all-unrecorded case gets the honest template even if the model wandered', async () => {
-  const h = routeWith({ text: 'Good question! Let us look at HCF first.', finishReason: 'STOP' }, []);
-  const res = await h.send({ brief: LIVE_UNRECORDED, messages: [{ role: 'student', content: 'kya meri galtiyan careless hain?' }] });
-  assert.match(res.body.reply, /No mistake type is recorded/);
+test('TF4 v2 sentence-level table: honest negation kept, asserting replaced, mixed replaced only with an asserting sentence', () => {
+  const KEPT = [
+    'Correction: those 7 marks have no mistake type recorded.',
+    'Correction: the marks were not concept/knowledge gaps as I said - no type is recorded.',
+    'Tap-the-answer questions record which option was picked, so I cannot say whether they were careless slips or concept gaps.',
+    "The mistake type isn't recorded, so I can't tell if these were silly mistakes or knowledge gaps.",
+    'The type (careless slips, concept gaps, exam technique) is not recorded for these marks.',
+    'In the last 30 days you lost 7 marks in Real Numbers.\nNo mistake type is recorded - I can\'t say if it was a concept gap.',
+    'Let us revise the Fundamental Theorem of Arithmetic.',
+  ];
+  const REPLACED = [
+    'In the last 30 days you lost 7 marks. The marks were lost due to concept/knowledge gaps.',
+    'You lost 7 marks. There were no marks lost due to careless slips.',
+    // mixed: one honest sentence, one asserting sentence -> replaced
+    'Correction: no mistake type is recorded. But honestly these look like concept gaps to me.',
+    'I cannot say for sure. Still, mostly careless mistakes!',
+    'ye concept galti thi',
+  ];
+  for (const s of KEPT) assert.equal(attributesMistakeType(s), false, s);
+  for (const s of REPLACED) assert.equal(attributesMistakeType(s), true, s);
+  // the template itself is never read as an assertion
+  assert.equal(attributesMistakeType(buildUnrecordedTypeReply(normalizeBrief(LIVE_UNRECORDED), 'Real Numbers')), false);
+});
+
+test('TF4 v2 route: an honest reply with negation passes through untouched (no override, no counter)', async () => {
+  const events = [];
+  const honest = 'Correction: those 7 marks have no mistake type recorded. Tap-the-answer questions record the option, so I cannot say whether they were careless slips or concept gaps.\n[[offer:check-improve]]';
+  const res = await routeWith({ text: honest, finishReason: 'STOP' }, events)
+    .send({ brief: LIVE_UNRECORDED, messages: [...WRONG_HISTORY, { role: 'student', content: 'are my mistakes in real numbers careless or concept?' }] });
+  assert.equal(res.body.reply, honest.replace('\n[[offer:check-improve]]', ''));
   assert.equal(res.body.offer, 'check-improve');
+  assert.equal(res.body.offerSource, 'model');
+  assert.equal(events.includes('tutor.attribution_override'), false);
+});
+
+test('TF4 v2 route: a type question with a reply that names no type is no longer replaced', async () => {
+  const res = await routeWith({ text: 'Good question! Let us look at HCF first.', finishReason: 'STOP' }, [])
+    .send({ brief: LIVE_UNRECORDED, messages: [{ role: 'student', content: 'kya meri galtiyan careless hain?' }] });
+  assert.equal(res.body.reply, 'Good question! Let us look at HCF first.');
+});
+
+test('TF4 v2 route: a Hindi session is not replaced; the non-English counter is logged', async () => {
+  const events = [];
+  const res = await routeWith({ text: WRONG_TURN, finishReason: 'STOP' }, events)
+    .send({ brief: LIVE_UNRECORDED, language: 'Hindi', messages: [{ role: 'student', content: 'kya meri galtiyan careless hain?' }] });
+  assert.equal(res.body.reply, WRONG_TURN);
+  assert.notEqual(res.body.offerSource, 'attribution-override');
+  assert.ok(events.includes('tutor.attribution_unreplaced_nonenglish'));
+  assert.equal(events.includes('tutor.attribution_override'), false);
 });
 
 test('TF4 narrow: mixed brief, no-data brief and a non-type reply pass through untouched', async () => {

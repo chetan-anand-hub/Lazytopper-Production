@@ -311,8 +311,8 @@ async function main() {
     metric('(info) unrecorded-only brief: Check & Improve offered on type asks', 'info', (r) => /^(UR|WH)-/.test(r.id), (r) => r.offer === 'check-improve', (r) => `offer=${r.offer}/${r.offerSource} tag=${r.modelTag}`),
     // TUTOR-FIX-4: route-level (after the safety net) on the wrong-history fixture; and what the MODEL alone did.
     metric('wrong-history fixture: attribution at route level = 0', 'fails = 0', (r) => /^WH-/.test(r.id), (r) => !J(r, 'unsupported_mistake_type'), (r) => r.judge && r.judge.type_evidence),
-    // Regex only: an honest "I cannot say whether careless slips or concept gaps" also matches, so this is NOT an attribution rate.
-    metric('(info) raw model reply did not name a mistake type (regex, before the safety net)', 'info', (r) => /^(UR|WH)-/.test(r.id), (r) => !attributesMistakeType(extractOfferTag(r.raw || '').text), () => 'raw model reply names a mistake type (may be an honest "cannot say whether ...")'),
+    // Sentence-level regex (the route's own attributesMistakeType): an asserting type sentence in the raw model reply.
+    metric('(info) raw model reply had no asserting type sentence (before the safety net)', 'info', (r) => /^(UR|WH)-/.test(r.id), (r) => !attributesMistakeType(extractOfferTag(r.raw || '').text), () => 'raw model reply asserts a mistake type'),
     metric('(info) attribution override fired', 'info', () => true, (r) => r.offerSource !== 'attribution-override', () => 'override fired'),
   ];
   const pct = (m) => (m.n ? Math.round((m.pass / m.n) * 1000) / 10 : 0);
