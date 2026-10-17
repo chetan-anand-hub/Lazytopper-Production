@@ -408,14 +408,24 @@ function createAdminStudentsRoutes(deps = {}) {
     return db().collection(SESSION_RECORDS_COLLECTION).doc(uid).collection(READ_SEGMENTS.records);
   }
 
-  /** The four per-row numbers of the list, 4 reads. */
+  /** The four per-row numbers of the list, 6 reads (2 of them: pending-upload papers to subtract). */
   async function rowActivity(row) {
-    const [daysActive, lastDocs, checks, tests] = await Promise.all([
+    const [daysActive, lastDocs, checks, allTests, ...pendingTests] = await Promise.all([
       safeCount(activityDays(row.uid)),
       safeDocs(activityDays(row.uid).orderBy('lastSeenMs', 'desc').limit(1).select('lastSeenMs')),
       safeCount(sessionRecords(row.uid).where('surface', '==', CHECK_SURFACE)),
       safeCount(sessionRecords(row.uid).where('surface', 'in', [...TEST_SURFACES])),
+      // AWAIT-1-PAPERS: a downloaded paper writes a `pending-upload` record before anything is
+      // answered; it is not a test taken. SUBTRACTED (equality-only counts, no composite index)
+      // rather than filtered with `!=`, which would also drop legacy records that carry no status.
+      ...TEST_SURFACES.map((s) =>
+        safeCount(sessionRecords(row.uid).where('surface', '==', s).where('status', '==', 'pending-upload')),
+      ),
     ]);
+    const tests =
+      allTests === null || pendingTests.some((n) => n === null)
+        ? null
+        : Math.max(0, allTests - pendingTests.reduce((a, n) => a + n, 0));
     let lastActiveMs = null;
     if (lastDocs && lastDocs.length > 0) {
       const d = lastDocs[0].data() || {};

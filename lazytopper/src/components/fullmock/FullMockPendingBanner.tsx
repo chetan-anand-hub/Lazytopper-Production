@@ -36,7 +36,12 @@ export default function FullMockPendingBanner({
   return (
     <div className="lt-fm__banner" role="status">
       <span>
-        {one ? (
+        {one && first.status === "pending-upload" ? (
+          // AWAIT-1-PAPERS: a downloaded paper has nothing scored yet — never "0/0".
+          <>
+            <b>{first.title}</b> ({first.id}) is awaiting your answer sheet.
+          </>
+        ) : one ? (
           <>
             <b>{first.title}</b> ({first.id}) is awaiting your answer sheet — objective scored{" "}
             <b>

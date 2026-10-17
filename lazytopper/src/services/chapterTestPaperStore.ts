@@ -30,9 +30,17 @@ export interface ChapterTestPaperSnapshot {
   topicKey: string;
   /** The drawn paper, whole: the SAME questions the student sat. */
   paper: PersistedWorksheet;
-  /** Frozen at submit (deterministic 0-or-full). */
-  objective: ObjectiveScore;
+  /** Frozen at submit (deterministic 0-or-full). AWAIT-1: null on a DOWNLOADED paper until the
+   *  student taps the Section A options they wrote (no in-app picks exist yet). */
+  objective: ObjectiveScore | null;
+  /** AWAIT-1-PAPERS — saved at download (sat on paper): Section A is entered at upload time. */
+  downloaded?: boolean;
   savedAt: number;
+}
+
+/** AWAIT-1 — a downloaded paper whose Section A picks are not entered yet. */
+export function needsSectionAPicks(s: Pick<ChapterTestPaperSnapshot, "objective" | "downloaded">): boolean {
+  return s.downloaded === true && !s.objective;
 }
 
 const LOCAL_KEY_PREFIX = "lazytopper.ct.papers.v1.";
@@ -57,8 +65,7 @@ function isSnapshot(v: unknown): v is ChapterTestPaperSnapshot {
     typeof s.paper === "object" &&
     Array.isArray((s.paper as PersistedWorksheet).questions) &&
     typeof (s.paper as PersistedWorksheet).worksheetId === "string" &&
-    !!s.objective &&
-    typeof s.objective === "object"
+    ((!!s.objective && typeof s.objective === "object") || (s.downloaded === true && s.objective == null))
   );
 }
 
@@ -107,21 +114,23 @@ export function saveChapterTestPaper(
 export async function loadChapterTestPaper(
   user: AuthUser | null | undefined,
   code: string,
+  /** AWAIT-1: read the server copy first (this device's copy may be a stale downloaded one). */
+  opts: { preferServer?: boolean } = {},
 ): Promise<ChapterTestPaperSnapshot | null> {
   const uid = cloudUid(user);
   if (!uid) return null;
   const local = readLocal(uid).find((s) => s.code === code);
-  if (local) return local;
+  if (local && !(opts.preferServer && firestoreDb)) return local;
   if (!firestoreDb) return null;
   try {
     const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "chapterTestPapers", code));
     const data = snap.exists() ? snap.data() : null;
-    if (!isSnapshot(data)) return null;
+    if (!isSnapshot(data)) return local ?? null;
     writeLocal(uid, [data, ...readLocal(uid).filter((s) => s.code !== code)]);
     return data;
   } catch (error) {
     console.warn("[chapterTestPaperStore] snapshot read failed", error);
-    return null;
+    return local ?? null;
   }
 }
 

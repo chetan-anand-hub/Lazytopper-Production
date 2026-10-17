@@ -249,6 +249,9 @@ export default function FullMockHistoryPanel({
                         </div>
                       ) : null}
                     </>
+                  ) : r.status === "pending-upload" ? (
+                    // AWAIT-1-PAPERS: a downloaded paper has nothing scored yet — never "0/0".
+                    <div className="lt-fm__objline">Downloaded · nothing graded yet — upload your answers.</div>
                   ) : (
                     <div className="lt-fm__objline">
                       Objective scored <b>{r.marksAwarded}/{r.marksTotal}</b> — upload to complete.

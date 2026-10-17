@@ -482,6 +482,8 @@ describe("studentDataMap — per-location properties", () => {
     "sessionRecords.records",
     "sessionRecords.perQuestion",
     "sessionRecords.fullMockPapers",
+    "sessionRecords.chapterTestPapers",
+    "sessionRecords.worksheetPapers",
     "practiceInsights",
     "practiceInsights.attempts",
     "mockScoreHistory",

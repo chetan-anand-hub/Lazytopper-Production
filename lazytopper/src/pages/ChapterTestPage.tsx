@@ -37,6 +37,7 @@ import {
   getSessionPerQuestion,
   chapterTestSequence,
   chapterTestNomenclature,
+  buildChapterTestSessionRecord,
   type SessionRecord,
   type SessionSubject,
 } from "../services/sessionRecords";
@@ -58,7 +59,19 @@ import {
   saveChapterTestPaper,
   loadChapterTestPaper,
   deleteChapterTestPaper,
+  needsSectionAPicks,
+  type ChapterTestPaperSnapshot,
 } from "../services/chapterTestPaperStore";
+// AWAIT-1-PAPERS — a downloaded paper is kept, its code shown, and Section A tapped in at upload.
+import {
+  CONTINUED_ELSEWHERE_LINE,
+  STATUS_UNKNOWN_LINE,
+  picksMayContinue,
+  readPaperRecordStatus,
+  recordPaperDownload,
+} from "../components/papers/paperDownloadRecord";
+import PaperDownloadedNote from "../components/papers/PaperDownloadedNote";
+import SectionAPicker from "../components/papers/SectionAPicker";
 // BANK-LEAN-1 (C3): the chapter-test variants join to the question bank (by-concept
 // lens), so they live in scorecardBankLenses — scorecardVariants stays bank-free.
 import {
@@ -94,7 +107,8 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 
-type Phase = "setup" | "taking" | "results";
+// "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
+type Phase = "setup" | "taking" | "results" | "pick";
 type SubjectKey = "Maths" | "Science";
 
 const SECTION_HEAD: Record<string, string> = {
@@ -259,6 +273,13 @@ export default function ChapterTestPage() {
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  // AWAIT-1-PAPERS — the paper just downloaded (the confirmation card) and a downloaded paper
+  // re-opened for its Section A picks.
+  const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
+  const [pickPaper, setPickPaper] = useState<ChapterTestPaperSnapshot | null>(null);
+  const [paperNotice, setPaperNotice] = useState<string | null>(null);
+  // `openStored` is declared further down; the picks guard reaches it through this ref.
+  const openStoredRef = useRef<((record: SessionRecord) => Promise<void>) | null>(null);
   const [reopen, setReopen] = useState<{
     record: SessionRecord;
     response: WorksheetGradeResponse | null;
@@ -529,12 +550,105 @@ export default function ChapterTestPage() {
     setDownloading(true);
     try {
       await exportWorksheetPdf(paper, "questions", nomen.code);
+      // AWAIT-1-PAPERS: the downloaded paper is kept under the code PRINTED on it — a
+      // pending-upload record (nothing graded) + the paper with no Section A result yet — so
+      // "Upload" can come back to THIS paper. Signed out: export only (the note says so).
+      setDownloadedNote({ code: nomen.code, name: nomen.name });
+      if (isSignedIn) {
+        const dlPaper = paper;
+        const dl = { code: nomen.code, name: nomen.name };
+        void recordPaperDownload({
+          user,
+          code: dl.code,
+          paper: dlPaper,
+          buildRecord: (response, uid) =>
+            buildChapterTestSessionRecord({ paper: dlPaper, code: dl.code, subject: sessionSubject, topicKey, response, uid }),
+          saveSnapshot: () =>
+            saveChapterTestPaper(user, {
+              code: dl.code,
+              name: dl.name,
+              subject,
+              topicKey,
+              paper: dlPaper,
+              objective: null,
+              downloaded: true,
+            }),
+        })
+          .then((outcome) => {
+            if (outcome === "written") void loadRecords();
+          })
+          .catch(() => {
+            /* best-effort: the PDF is already downloaded */
+          });
+      }
     } catch {
       /* best-effort */
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords]);
+
+  // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
+  // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
+  // from here the paper is exactly an in-app submitted test: the same partial record + paper
+  // copy `finishToPartial` writes, then the existing upload step. No grader change.
+  const continueFromPicks = useCallback(
+    async (picks: Record<number, string>) => {
+      const p = pickPaper;
+      if (!p) return;
+      // Server first: if this paper was already continued (Section A entered, or graded) on
+      // another device, write NOTHING here — say so and open its current state instead.
+      const status = await readPaperRecordStatus(user, p.code);
+      if (!picksMayContinue(status)) {
+        if (status === "unknown") {
+          setPaperNotice(STATUS_UNKNOWN_LINE);
+          return;
+        }
+        setPaperNotice(CONTINUED_ELSEWHERE_LINE);
+        setPickPaper(null);
+        setPhase("setup");
+        const all = await loadRecords();
+        const current = all.find((r) => r.id === p.code && r.surface === "chapter-test");
+        if (current) await openStoredRef.current?.(current);
+        return;
+      }
+      setPaperNotice(null);
+      const obj = scoreObjectiveSection(objectiveQuestions(p.paper), picks);
+      writeChapterTestPartialRecord({
+        user,
+        paper: p.paper,
+        code: p.code,
+        subject: sessionSubject,
+        topicKey: p.topicKey,
+        response: buildChapterTestResponse({
+          paper: p.paper,
+          objective: obj,
+          subjectiveQuestions: subjectiveQuestions(p.paper),
+          subjectiveResponse: null,
+        }),
+      });
+      saveChapterTestPaper(user, {
+        code: p.code,
+        name: p.name,
+        subject: p.subject,
+        topicKey: p.topicKey,
+        paper: p.paper,
+        objective: obj,
+        downloaded: true,
+      });
+      setPickPaper(null);
+      setFullResponse(null);
+      setGradeError(null);
+      setResumedCt({ paper: p.paper, objective: obj, code: p.code, name: p.name });
+      setNomen({ code: p.code, name: p.name });
+      setObjective(obj);
+      setResultsPhase("partial");
+      setScorecardOpen(false);
+      setPhase("results");
+      void loadRecords();
+    },
+    [pickPaper, user, sessionSubject, loadRecords],
+  );
   const downloadSolution = useCallback(async () => {
     if (!paper || !nomen || downloading) return;
     setDownloading(true);
@@ -574,8 +688,25 @@ export default function ChapterTestPage() {
   // same worksheetId (so the fair-use paper pass and MI identity are the same paper's).
   const openPendingUpload = useCallback(
     async (record: SessionRecord) => {
-      const snap = await loadChapterTestPaper(user, record.id);
-      if (snap) {
+      let snap = await loadChapterTestPaper(user, record.id);
+      // AWAIT-1: this device may hold the DOWNLOADED copy of a paper whose Section A was since
+      // entered on another device (the record is no longer pending): read the server copy.
+      if (snap && needsSectionAPicks(snap) && record.status !== "pending-upload") {
+        snap = await loadChapterTestPaper(user, record.id, { preferServer: true });
+        // Still no Section A anywhere for a record that moved on: no paper to continue (honest line).
+        if (snap && needsSectionAPicks(snap)) snap = null;
+      }
+      // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
+      if (snap && needsSectionAPicks(snap)) {
+        // The same fair-use gate as an in-app start (UI3): an exhausted allowance is stopped
+        // BEFORE a client-scored partial record could be written.
+        if (fairUse.blockPaperStart()) return;
+        setReopen(null);
+        setPickPaper(snap);
+        setPhase("pick");
+        return;
+      }
+      if (snap && snap.objective) {
         setReopen(null);
         setFullResponse(null);
         setGradeError(null);
@@ -598,7 +729,7 @@ export default function ChapterTestPage() {
           "This test was taken before papers were saved, so it can't be uploaded. Start a new test to practise this chapter.",
       });
     },
-    [user],
+    [user, fairUse.blockPaperStart],
   );
 
   const openStored = useCallback(
@@ -619,6 +750,9 @@ export default function ChapterTestPage() {
     },
     [user?.uid, openPendingUpload],
   );
+  useEffect(() => {
+    openStoredRef.current = openStored;
+  }, [openStored]);
 
   // FOLLOWUPS-1 B — "Ask the tutor why I lost this mark" on a SAVED test's scorecard (the QP /
   // C&I hop): the tutor reads the student's OWN record (`from`) and the question (`q` = its bank
@@ -710,6 +844,11 @@ export default function ChapterTestPage() {
     <div className="lt-ct">
       <style>{CT_CSS}</style>
       <UsageWarning scope="chapter-test" snapshot={fairUse.snapshot} />
+      {paperNotice && (
+        <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
+          {paperNotice}
+        </div>
+      )}
 
       {/* Read-only re-open scorecard (from a history card), any phase. */}
       {reopen && (
@@ -858,6 +997,16 @@ export default function ChapterTestPage() {
                       </button>
                     </div>
 
+                    {downloadedNote && (
+                      <PaperDownloadedNote
+                        signedIn={isSignedIn}
+                        code={downloadedNote.code}
+                        label={topicName}
+                        path={location.pathname}
+                        surface="chapter_test"
+                      />
+                    )}
+
                     {/* CBSE-PAGE-1 — a real <Link>, and deliberately OUTSIDE
                         .lt-ct__startrow: that rule gives every .lt-ct__btn inside it
                         flex:1, so placing it in the row would have resized the two
@@ -885,6 +1034,29 @@ export default function ChapterTestPage() {
               </div>
             </div>
           </div>
+        </>
+      )}
+
+      {/* ─────────────── PICK (AWAIT-1: a downloaded paper's Section A) ─────────────── */}
+      {phase === "pick" && pickPaper && (
+        <>
+          <div className="lt-ct__pagebar">
+            <button type="button" className="lt-ct__back" onClick={() => navigate(backTo)}>
+              ← {backLabel}
+            </button>
+            <span className="lt-ct__pagetitle">Chapter Test · Upload</span>
+          </div>
+          <SectionAPicker
+            eyebrow={`Chapter Test · ${topicName}`}
+            name={pickPaper.name}
+            code={pickPaper.code}
+            questions={objectiveQuestions(pickPaper.paper)}
+            onContinue={continueFromPicks}
+            onCancel={() => {
+              setPickPaper(null);
+              setPhase("setup");
+            }}
+          />
         </>
       )}
 

@@ -49,7 +49,7 @@ describe("PENDING-UPLOAD-1 · later grade attaches to the existing record", () =
     const snap = await loadChapterTestPaper(user, "CT-M-REALNUMBERS-03");
     expect(snap).not.toBeNull();
     const out = await gradeChapterTestUpload({
-      user, paper: snap!.paper, code: snap!.code, subject: "maths", topicKey: "real-numbers", objective: snap!.objective,
+      user, paper: snap!.paper, code: snap!.code, subject: "maths", topicKey: "real-numbers", objective: snap!.objective!,
       subjectiveQuestions: snap!.paper.questions.filter((q) => q.section !== "A"),
       upload: { imageBase64: "x", imageMimeType: "application/pdf" },
     });

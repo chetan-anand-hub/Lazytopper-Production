@@ -151,6 +151,9 @@ export default function ChapterTestHistoryRail({
                       </div>
                     )}
                   </>
+                ) : r.status === "pending-upload" ? (
+                  // AWAIT-1-PAPERS: a downloaded paper has nothing scored yet — never "(0/0)".
+                  <div className="lt-ct__vs">Awaiting your answers — nothing graded yet.</div>
                 ) : (
                   <div className="lt-ct__vs">
                     Objective scored ({r.marksAwarded}/{r.marksTotal}) — upload your written work to

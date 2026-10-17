@@ -256,6 +256,27 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     mechanism: "browser-sdk",
     exportable: true,
   },
+  {
+    // PENDING-UPLOAD-1 / AWAIT-1-PAPERS — the Chapter Test paper kept for "Upload later"
+    // (chapterTestPaperStore.ts): the drawn questions + the Section A result. Text only.
+    id: "sessionRecords.chapterTestPapers",
+    kind: "firestore-subcollection",
+    parentId: "sessionRecords",
+    path: "sessionRecords/{uid}/chapterTestPapers/{code}",
+    holds: "Generated chapter test papers held for the student, with their Section A result.",
+    mechanism: "browser-sdk",
+    exportable: true,
+  },
+  {
+    // PENDING-UPLOAD-1 — the downloaded worksheet kept for "Upload later" (worksheetPaperStore.ts).
+    id: "sessionRecords.worksheetPapers",
+    kind: "firestore-subcollection",
+    parentId: "sessionRecords",
+    path: "sessionRecords/{uid}/worksheetPapers/{code}",
+    holds: "Downloaded worksheet papers held for the student.",
+    mechanism: "browser-sdk",
+    exportable: true,
+  },
 
   // ── Firestore: derived analytics ─────────────────────────────────────────────────
   {
