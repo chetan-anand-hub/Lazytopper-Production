@@ -773,7 +773,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): Distance between (-1, 2) and (3, -1) is 5. Reason (R): Distance formula uses Pythagoras theorem.",
+    "questionText": "Assertion (A): Distance between (-1, 2) and (3, -1) is 5. Reason (R): The distance formula comes from the relation a² + b² = c² for the sides of a right triangle.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -784,7 +784,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Distance = √[(3-(-1))² + (-1-2)²] = √[16 + 9] = 5",
       "A is true",
-      "Distance formula is derived from Pythagoras theorem",
+      "The distance formula comes from a² + b² = c² for the sides of a right triangle",
       "R is correct and explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
@@ -876,7 +876,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "QR = √[(2-0)² + (2-2)²] = √[4+0] = 2",
       "RP = √[(2-2)² + (0-2)²] = √[0+4] = 2",
       "PQ² = 8, QR² = 4, RP² = 4",
-      "QR² + RP² = 4 + 4 = 8 = PQ² (Pythagorean theorem)",
+      "QR² + RP² = 4 + 4 = 8 = PQ², i.e. PQ² = QR² + RP²",
       "Also QR = RP = 2, so isosceles",
       "Therefore isosceles right-angled triangle"
     ],
@@ -1031,7 +1031,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "[1 mark] Option (A) (2, 4): by the section formula with m1:m2 = 1:2, x = (1×4 + 2×1)/3 = 6/3 = 2 and y = (1×6 + 2×3)/3 = 12/3 = 4.",
     ],
   },
-  { id: "CG2-051", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between (−5, 7) and (−1, 3) is:", options: ["4√2", "2√2", "4", "5√2"], answer: "4√2", explanation: "The correct answer is 4√2. d = √((−1+5)²+(3−7)²) = √(16+16) = 4√2.", finalAnswer: "d = √((−1+5)²+(3−7)²) = √(16+16) = 4√2.", isCompetencyBased: false,
+  { id: "CG2-051", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The distance between (−5, 7) and (−1, 3) is:", options: ["4√2", "2√2", "4", "5√2"], answer: "4√2", explanation: "The correct answer is 4√2. d = √((−1+5)²+(3−7)²) = √(16+16) = 4√2.", finalAnswer: "4√2", isCompetencyBased: false,
     solutionSteps: [
       "Let A(−5, 7) and B(−1, 3).",
       "Apply the distance formula: d = √[(x₂ − x₁)² + (y₂ − y₁)²].",
@@ -1052,11 +1052,9 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "[1 mark] Option (A) (1, 1): midpoint = ((−3 + 5)/2, (4 + (−2))/2) = (2/2, 2/2) = (1, 1).",
     ],
   },
-  { id: "CG2-054", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If A(2, y) and B(6, 4) and AB = 5, then y equals:", options: ["1 or 7","0 or 8","1 or −7","7 only"], answer: "1 or 7", explanation: "The correct answer is 1 or 7. AB² = 16+(y−4)² = 25 → (y−4)² = 9 → y−4 = ±3 → y = 7 or y = 1.", finalAnswer: "AB² = 16+(y−4)² = 25 → (y−4)² = 9 → y−4 = ±3 → y = 7 or y = 1.", isCompetencyBased: false,
+  { id: "CG2-054", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If A(2, y) and B(6, 4) and AB = 5, then y equals:", options: ["1 or 7","0 or 8","1 or −7","7 only"], answer: "1 or 7", explanation: "The correct answer is 1 or 7. AB² = 16+(y−4)² = 25 → (y−4)² = 9 → y−4 = ±3 → y = 7 or y = 1.", finalAnswer: "y = 1 or y = 7", isCompetencyBased: false,
     solutionSteps: [
-      "The distance between two points (x1,y1) and (x2,y2) is given by d = sqrt((x2-x1)^2 + (y2-y1)^2).",
-      "Assuming points P(2, -3) and Q(10, 3): d = sqrt((10-2)^2 + (3-(-3))^2).",
-      "Calculate: d = sqrt((8)^2 + (6)^2) = sqrt(64 + 36) = sqrt(100) = 10.",
+      "[1 mark] AB² = (6 − 2)² + (4 − y)² = 25 ⇒ (4 − y)² = 9 ⇒ 4 − y = ±3 ⇒ y = 1 or y = 7.",
     ],
   },
   { id: "CG2-055", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The distance of the point (3, 4) from the origin is 5.\nReason (R): The distance formula between (x₁, y₁) and (x₂, y₂) is √((x₂−x₁)²+(y₂−y₁)²).", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "d = √(3²+4²) = √25 = 5. R gives the formula used to compute A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
