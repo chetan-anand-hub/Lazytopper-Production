@@ -20,6 +20,7 @@ import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
+import PendingPapersCard from "../../components/home/PendingPapersCard";
 import {
   BORDER,
   CARD_BG,
@@ -41,8 +42,8 @@ import {
  *
  * Order (AUTH-2-FU §4 — owner ruling):
  *   brand bar → greeting → phone-linking nudge → hero CAROUSEL + dots → the
- *   MERGED card (first-session OR MI, ONE slot) → resume strip → collapsed
- *   quick links.
+ *   MERGED card (first-session OR MI, ONE slot) → resume strip → "Waiting for
+ *   your answers" (HOME-PENDING-1; it replaced the collapsed quick links).
  *
  * ── Card inventory is now genuinely SHARED ────────────────────────────────
  * This page used to hardcode its own titles inline while importing only
@@ -222,29 +223,6 @@ const MOBILE_HOME_CSS = `
   }
   .lt-mhome-bk .lt-t { font-size: 10px; font-weight: 650; margin-top: 2px; opacity: 0.9; }
 
-  .lt-mhome-qd {
-    border: 1px solid ${BORDER}; border-radius: 14px; background: ${CARD_BG};
-    overflow: hidden; max-width: 100%;
-  }
-  .lt-mhome-qd summary {
-    list-style: none; cursor: pointer; padding: 13px 15px; font-size: 13px;
-    font-weight: 700; font-family: ${FONT_DISPLAY};
-    display: flex; align-items: center; gap: 8px; color: ${FG};
-  }
-  .lt-mhome-qd summary::-webkit-details-marker { display: none; }
-  .lt-mhome-qd summary .lt-cnt {
-    font-size: 10.5px; font-weight: 650; color: ${MUTED};
-    font-family: inherit; margin-left: auto;
-  }
-  .lt-mhome-qd[open] summary {
-    border-bottom: 1px solid ${BORDER}; background: hsl(152, 50%, 96%);
-    color: ${GREEN_DARK};
-  }
-  .lt-mhome-qd .lt-inner { padding: 11px; display: grid; gap: 9px; }
-  .lt-mhome-q {
-    display: block; text-decoration: none; color: ${FG}; min-width: 0;
-    border: 1px solid ${BORDER}; border-radius: 12px; padding: 11px;
-  }
 `;
 
 function ArrowRight({ stroke = "#fff" }: { stroke?: string }) {
@@ -561,39 +539,9 @@ export default function MobileHome() {
     isSignedIn && meaningfulMemory && resumeRoute !== "/" && !!resumeTopicLabel;
   const resumeTo = `${resumeRoute}${resumeRoute.includes("?") ? "&" : "?"}${HOME_QS}`;
 
-  // Target subject/grade for the quick links. Never shown as a claim about the
-  // student — only used to aim the URLs. Maths is the catalogue default.
-  const fallbackSubject: "Maths" | "Science" =
-    memorySubject === "Science" || lastAttempt?.subject === "Science" ? "Science" : "Maths";
+  // The grade the crumb chip names. Never a claim about the student beyond what
+  // landing memory holds; Class 10 is the catalogue default.
   const fallbackGrade = memoryGrade && memoryGrade.trim() ? memoryGrade : "10";
-
-  const quickLinks = [
-    {
-      to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Maths?${HOME_QS}`,
-      kicker: "Full test",
-      title: "Maths · 80 marks",
-      detail: "3-hour board paper",
-    },
-    {
-      to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Science?${HOME_QS}`,
-      kicker: "Full test",
-      title: "Science · 80 marks",
-      detail: "Phy + Chem + Bio",
-    },
-    {
-      to: `/exam-trends?subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
-      kicker: "Predicted",
-      title: "What's likely in 2027",
-      detail: "Tier-ranked breakdown",
-    },
-    {
-      // Worksheets stay reachable here after the hero card retired.
-      to: `/practice/worksheets?scope=multi-topic&subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
-      kicker: "Worksheet",
-      title: "Multi-topic worksheet",
-      detail: "Pick topics in builder",
-    },
-  ];
 
   // Header trial/affordance chip — honest states only (no fake day counts).
   // RETIREMENT PR-1: post-login target re-pointed off the retired /onboarding to "/".
@@ -871,54 +819,13 @@ export default function MobileHome() {
         )}
 
 
-        {/* ── Quick links — collapsed on mobile ───────────────────
-            No section label here: the <summary> IS the label, and rendering
-            both stutters "Jump straight in" twice on the page. */}
-        <div style={{ height: 18 }} />
-        <details className="lt-mhome-qd">
-          <summary>
-            Jump straight in
-            <span className="lt-cnt">{quickLinks.length} shortcuts</span>
-          </summary>
-          <div className="lt-inner">
-            {quickLinks.map((q) => (
-              <Link
-                key={q.title}
-                to={q.to}
-                className="lt-mhome-q"
-                data-testid="mobile-home-quick-link"
-              >
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: 8.5,
-                    fontWeight: 800,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: MUTED,
-                  }}
-                >
-                  {q.kicker}
-                </span>
-                <span
-                  style={{
-                    display: "block",
-                    fontFamily: FONT_DISPLAY,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    marginTop: 2,
-                    color: FG,
-                  }}
-                >
-                  {q.title}
-                </span>
-                <span style={{ display: "block", fontSize: 10.5, color: MUTED, marginTop: 1 }}>
-                  {q.detail}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </details>
+        {/* ── HOME-PENDING-1 — "Waiting for your answers" ─────────
+            The slot the collapsed "Jump straight in" shortcuts held (owner ruling
+            17 Oct 2026: removed on mobile AND desktop). Signed-in only, and nothing at
+            all when no paper is waiting — `spaced` is its own top margin, so a null
+            adds no gap. Full Mock and the worksheet builder stay
+            reachable from the Practice tab (its "Full Test" and "Worksheet" cards). */}
+        <PendingPapersCard user={user} spaced />
 
         {/* Check & Improve stays one tap away for the signed-out visitor who
             wants to see grading before committing to anything. */}

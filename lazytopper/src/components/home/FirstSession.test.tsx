@@ -63,6 +63,14 @@ vi.mock("../../services/useMeHomeSummary", () => ({
   useMeConceptRows: () => ({ status: "idle", rows: [] }),
 }));
 
+// HOME-PENDING-1 — the pending-papers card took the quick strip's slot on both Home pages. It is
+// pinned in PendingPapersCard.test.tsx; here it is a PROBE so `sessions.reads` keeps counting
+// FirstSession's ONE graded-history read, and the probe marks the slot's position.
+vi.mock("./PendingPapersCard", async () => {
+  const { createElement } = await import("react");
+  return { default: () => createElement("div", { "data-testid": "pending-slot-probe" }) };
+});
+
 import FirstSession from "./FirstSession";
 import DesktopHome from "../../pages/desktop/DesktopHome";
 import MobileHome from "../../pages/app/MobileHome";
@@ -288,7 +296,7 @@ describe("6 · the start card is wired into both Home pages", () => {
     expect(await screen.findByTestId("first-session-card")).toBeTruthy();
     expect(screen.getAllByTestId("home-hero")).toHaveLength(3); // + 1 tutor button
     expect(screen.getByTestId("home-hero-tutor")).toBeTruthy();
-    expect(screen.getAllByTestId("home-quick-tile")).toHaveLength(4);
+    expect(screen.getByTestId("pending-slot-probe")).toBeTruthy();
   });
 });
 
@@ -420,14 +428,14 @@ describe("8 · exactly ONE first-session / MI card, in ONE position", () => {
   //
   // ★ A count alone cannot tell "replaced the empty state" from "replaced
   // something else and deleted MI". This pins the POSITION: whichever card
-  // renders, it is the SAME DOM position — between the hero grid and the quick
-  // strip on desktop, and between the hero dots and the quick links on mobile.
-  it("★ DesktopHome · both states occupy the SAME slot — after the heroes, before the quick strip", async () => {
+  // renders, it is the SAME DOM position — between the hero grid and the
+  // pending-papers slot (HOME-PENDING-1; the quick strip / quick links held it before).
+  it("★ DesktopHome · both states occupy the SAME slot — after the heroes, before the pending-papers slot", async () => {
     sessions.records = [];
     const zero = renderIn(<DesktopHome />);
     const firstCard = await screen.findByTestId("first-session-card");
     const heroZero = screen.getAllByTestId("home-hero")[0];
-    const quickZero = screen.getAllByTestId("home-quick-tile")[0];
+    const quickZero = screen.getByTestId("pending-slot-probe");
     // Node.DOCUMENT_POSITION_FOLLOWING === 4
     expect(heroZero.compareDocumentPosition(firstCard) & 4).toBe(4);
     expect(firstCard.compareDocumentPosition(quickZero) & 4).toBe(4);
@@ -439,17 +447,17 @@ describe("8 · exactly ONE first-session / MI card, in ONE position", () => {
     renderIn(<DesktopHome />);
     const miCard = await screen.findByTestId("home-mi-card");
     const heroSome = screen.getAllByTestId("home-hero")[0];
-    const quickSome = screen.getAllByTestId("home-quick-tile")[0];
+    const quickSome = screen.getByTestId("pending-slot-probe");
     expect(heroSome.compareDocumentPosition(miCard) & 4).toBe(4);
     expect(miCard.compareDocumentPosition(quickSome) & 4).toBe(4);
   });
 
-  it("★ MobileHome · both states occupy the SAME slot — after the heroes, before the quick links", async () => {
+  it("★ MobileHome · both states occupy the SAME slot — after the heroes, before the pending-papers slot", async () => {
     sessions.records = [];
     const zero = renderIn(<MobileHome />);
     const firstCard = await screen.findByTestId("first-session-card");
     const heroZero = screen.getAllByTestId("mobile-home-destination")[0];
-    const quickZero = screen.getAllByTestId("mobile-home-quick-link")[0];
+    const quickZero = screen.getByTestId("pending-slot-probe");
     expect(heroZero.compareDocumentPosition(firstCard) & 4).toBe(4);
     expect(firstCard.compareDocumentPosition(quickZero) & 4).toBe(4);
     zero.unmount();
@@ -460,7 +468,7 @@ describe("8 · exactly ONE first-session / MI card, in ONE position", () => {
     renderIn(<MobileHome />);
     const miCard = await screen.findByTestId("mobile-home-mistake-panel");
     const heroSome = screen.getAllByTestId("mobile-home-destination")[0];
-    const quickSome = screen.getAllByTestId("mobile-home-quick-link")[0];
+    const quickSome = screen.getByTestId("pending-slot-probe");
     expect(heroSome.compareDocumentPosition(miCard) & 4).toBe(4);
     expect(miCard.compareDocumentPosition(quickSome) & 4).toBe(4);
   });

@@ -815,12 +815,19 @@ export type StartHereSurface = "home" | "practice_hub" | "check_improve";
 /** QP-SCORECARD-2 E5 — the FOCUSED first-run surface on a page: same event names, `<page>_focus`. */
 export type StartHereFocusSurface = "home_focus" | "practice_hub_focus" | "check_improve_focus";
 export type ScorecardSurface = "quick_practice" | "check_improve" | "chapter_test" | "full_mock" | "worksheet";
+/** HOME-PENDING-1 — the paper surfaces with an answer upload still waiting. */
+export type PendingUploadSurface = "worksheet" | "chapter_test" | "full_mock" | "quick_practice";
 
 export interface OnboardingEventParams {
   start_here_shown: { surface: StartHereSurface | StartHereFocusSurface };
   start_here_start: { subject: string; chapter: string; qtype: string };
   start_here_graded: { subject: string; correct: number; total: number };
   start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface };
+  /** HOME-PENDING-1 — Home's "Waiting for your answers" card was shown (once per tab), with the
+   *  number of papers waiting. No code, no id. */
+  pending_card_shown: { count: number };
+  /** HOME-PENDING-1 — "Upload answers" tapped on that card: the paper's surface only. */
+  pending_upload_tap: { surface: PendingUploadSurface };
   tutor_from_scorecard: { surface: ScorecardSurface };
   /** TUTOR-FIX-2 T13 — once per tutor thread: the subject and the board chapter slug only. */
   tutor_first_message: { subject: string; chapter: string };

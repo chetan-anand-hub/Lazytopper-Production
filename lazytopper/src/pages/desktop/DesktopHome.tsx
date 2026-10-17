@@ -21,6 +21,7 @@ import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
+import PendingPapersCard from "../../components/home/PendingPapersCard";
 
 /**
  * DesktopHome — the Home cockpit at desktop width (and at /browse for a
@@ -29,7 +30,7 @@ import CbseBanner from "../../components/cbse/CbseBanner";
  * Section order (AUTH-2-FU §4 — owner ruling):
  *   phone-linking nudge → "Start here" (4 hero cards) → the MERGED card
  *   (first-session OR MI, one slot) → resume strip → latest saved worksheet →
- *   "Jump straight in" (quick strip).
+ *   "Waiting for your answers" (HOME-PENDING-1; it replaced "Jump straight in").
  * The heroes come before the merged card so a new student sees WHAT THE PRODUCT
  * DOES before being told what to do; the nudge stays on top because it is an
  * action we want taken, not a suggestion.
@@ -38,7 +39,7 @@ import CbseBanner from "../../components/cbse/CbseBanner";
  *   - The Worksheets hero is RETIRED. It and the Practice card carried the
  *     IDENTICAL destination string (`/practice-hub?source=home&returnTo=%2F`),
  *     so Home shipped a literally duplicated slot. Worksheets stay reachable at
- *     the practice hub and via the quick strip's multi-topic worksheet tile.
+ *     the practice hub (the quick strip that also linked them is gone, HOME-PENDING-1).
  *   - A Tutor card takes the freed slot. It opens the shared pop-card
  *     (`useTutorPicker`) rather than navigating, because the tutor URL needs a
  *     subject + chapter the student has to choose.
@@ -274,18 +275,6 @@ const HOME_CSS = `
   }
   .lt-home-bk .lt-t { font-size: 10.5px; font-weight: 650; margin-top: 3px; opacity: 0.9; }
 
-  .lt-home-strip {
-    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
-  }
-  .lt-home-strip > * { min-width: 0; }
-  .lt-home-q {
-    background: #fff; border: 1px solid hsl(215, 25%, 90%); border-radius: 14px;
-    padding: 13px; text-decoration: none; display: block; min-width: 0;
-    transition: border-color 0.15s, transform 0.15s;
-  }
-  .lt-home-q:hover {
-    border-color: hsl(152, 42%, 86%); transform: translateY(-1px);
-  }
 `;
 
 // PRIMARY_CARDS + QuickCard + loginUrl + the tutor pop-card live in
@@ -330,14 +319,7 @@ export default function DesktopHome() {
       ? "Resume with Exam Trends"
       : null;
 
-  // Default subject for quick-generate predicted/multi-topic when no
-  // memory exists. We never invent a subject in the visible label, but
-  // we do need a target subject for the quick-generate URLs — Maths is the
-  // production catalogue default and is the safest neutral value.
-  const fallbackSubject: "Maths" | "Science" =
-    memorySubject === "Science" || lastAttempt?.subject === "Science"
-      ? "Science"
-      : "Maths";
+  // The grade the latest-worksheet card's links aim at (never shown as a claim).
   const fallbackGrade = memoryGrade && memoryGrade.trim() ? memoryGrade : "10";
 
   return (
@@ -679,94 +661,12 @@ export default function DesktopHome() {
           </section>
         )}
 
-        {/* ── Jump straight in — quick strip ───────────────────── */}
-        <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-            }}
-          >
-            <p className="lt-home-sect">Jump straight in</p>
-            <Link
-              to={`/practice-hub${HOME_QS_LEAD}`}
-              style={{
-                fontSize: 12,
-                color: ACCENT,
-                textDecoration: "none",
-                fontWeight: 600,
-              }}
-            >
-              All practice modes →
-            </Link>
-          </div>
-          <div className="lt-home-strip">
-            {[
-              {
-                // Full Test — the /full-mock surface; MockViewGate on the
-                // route is the ONLY gate, so the tile navigates plainly.
-                to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Maths?${HOME_QS}`,
-                kicker: "Full test",
-                title: "Maths · 80 marks",
-                detail: "3-hour board paper",
-              },
-              {
-                to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Science?${HOME_QS}`,
-                kicker: "Full test",
-                title: "Science · 80 marks",
-                detail: "Phy + Chem + Bio",
-              },
-              {
-                to: `/exam-trends?subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
-                kicker: "Predicted",
-                title: "What's likely in 2027",
-                detail: "Tier-ranked breakdown",
-              },
-              {
-                // Worksheets stay reachable here after the hero card retired.
-                to: `/practice/worksheets?scope=multi-topic&subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
-                kicker: "Worksheet",
-                title: "Multi-topic worksheet",
-                detail: "Pick topics in builder",
-              },
-            ].map((tile) => (
-              <Link
-                key={tile.title}
-                to={tile.to}
-                className="lt-home-q"
-                data-testid="home-quick-tile"
-              >
-                <div
-                  style={{
-                    fontSize: 8.5,
-                    fontWeight: 800,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: TEXT_MUTED,
-                  }}
-                >
-                  {tile.kicker}
-                </div>
-                <div
-                  style={{
-                    fontFamily: FONT_DISPLAY,
-                    fontWeight: 700,
-                    fontSize: 13,
-                    marginTop: 3,
-                    color: TEXT,
-                  }}
-                >
-                  {tile.title}
-                </div>
-                <div style={{ fontSize: 10.5, color: TEXT_MUTED, marginTop: 2 }}>
-                  {tile.detail}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* ── HOME-PENDING-1 — "Waiting for your answers" ─────────
+            The slot "Jump straight in" held (owner ruling 17 Oct 2026: removed on desktop
+            AND mobile). Every paper still waiting for an answer upload, signed-in only,
+            and nothing at all when none is waiting. Full Mock and the worksheet builder
+            stay reachable from the Practice hub (its "Full Test" and "Worksheet" cards). */}
+        <PendingPapersCard user={user} />
       </div>
       {tutorPicker}
     </div>
