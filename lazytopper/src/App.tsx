@@ -64,6 +64,10 @@ const PricingPage = lazy(() => import("./pages/PricingPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 const ForParentsPage = lazy(() => import("./pages/ForParentsPage"));
+// WA-CONTACT-1 — the /contact page and the floating WhatsApp button (decides its own routes).
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+// Mounted outside the ErrorBoundary, so a chunk that never loads renders nothing, never an error.
+const WhatsAppFab = lazy(() => import("./components/contact/WhatsAppFab").catch(() => ({ default: () => null })));
 const NcertBooksPage = lazy(() => import("./pages/NcertBooksPage"));
 const SolutionsPage = lazy(() => import("./pages/SolutionsPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
@@ -1024,6 +1028,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/cbse/class-10" element={withRouteSuspense(<Cbse2027Page />)} />
           <Route path="/check-your-answer" element={withRouteSuspense(<CheckYourAnswerPage />)} />
           <Route path="/for-parents" element={withRouteSuspense(<ForParentsPage />)} />
+          <Route path="/contact" element={withRouteSuspense(<ContactPage />)} />
           <Route path="/ncert-class-10" element={withRouteSuspense(<NcertBooksPage />)} />
           {/* SOLUTIONS-1 (G, D259-D261): one route family; the page serves the pilot chapters only. */}
           <Route path="/ncert-solutions/:chapter" element={withRouteSuspense(<SolutionsPage />)} />
@@ -1385,6 +1390,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
       })()}
       </ErrorBoundary>
       <BottomNav />
+      <Suspense fallback={null}><WhatsAppFab /></Suspense>
     </PrerenderedRouteContext.Provider>
   );
 }
