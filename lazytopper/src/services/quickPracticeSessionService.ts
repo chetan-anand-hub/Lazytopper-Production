@@ -313,8 +313,9 @@ export function persistQuickPracticeSession(args: {
 /** FOLLOWUPS-1 C1 — the perQuestion payload's results with each MCQ pick STORED beside its
  *  result (`pickedOption`, additive + optional). Pure; marks, mistake data and counts pass
  *  through untouched, and a result whose entry carries no pick is returned as the same object.
- *  The join is the result's `qNumber` = 1-based DISPLAYED position (see the builder above). */
-function withStoredPicks(response: WorksheetGradeResponse, entries: QuickPracticeEntry[]): WorksheetGradeResponse {
+ *  The join is the result's `qNumber` = 1-based DISPLAYED position (see the builder above).
+ *  Exported (QP-GRADED-SHEET-1) so the live graded sheet joins the picks the SAME way. */
+export function withStoredPicks(response: WorksheetGradeResponse, entries: QuickPracticeEntry[]): WorksheetGradeResponse {
   if (!entries.some((e) => e.pickedOption)) return response;
   return {
     ...response,
