@@ -4091,6 +4091,7 @@ const packTopicKey = useMemo(() => {
     <ResultsScorecard
       variant={mcqVariant}
       onClose={closeScorecard}
+      hideShare={isGuest} // SHARE-SCORE-1 — no "Share my score" on a signed-out guest's scorecard
       // QP-UPLOAD-LATER — the guest card (unchanged) plus the "Upload later" block when written
       // questions have nothing saved.
       belowScore={withUploadLater(
