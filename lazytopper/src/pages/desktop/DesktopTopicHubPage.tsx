@@ -5,6 +5,7 @@ import {
   buildDesktopChapterTestPath,
   buildDesktopConceptPracticePath,
   buildDesktopPracticePath,
+  buildDesktopWorksheetPath,
   type DesktopRouteContext,
   type DesktopSubject,
 } from "../../lib/desktop/navigation";
@@ -248,6 +249,18 @@ export default function DesktopTopicHubPage() {
     ...routeContext,
   });
 
+  // Worksheet action-band button (TOPICHUB-WORKSHEET-1) — wires the inert "Soon" button to
+  // the ONE worksheet generator (/practice/worksheets) pre-set to THIS chapter. Same route
+  // context as Chapter test, so the generator's Back returns to this exact hub URL. The
+  // generator validates `topic` against its catalogue under `subject` + `stream`.
+  const worksheetHref = buildDesktopWorksheetPath({
+    scope: "topic",
+    subject: topic.subject,
+    stream: topic.stream,
+    topic: topic.slug,
+    ...routeContext,
+  });
+
   // Concept-row "Practise" (PR-E1 items 1+2 + amendment — [FU-PRACTISE-CONCEPT-FILTER]).
   // Lands DIRECTLY in Quick Practice (/practice/:grade/:subject) — NOT the generic
   // /practice-hub (which needed a 2nd click) — carrying the concept focus AND the
@@ -301,6 +314,7 @@ export default function DesktopTopicHubPage() {
       backLabel={backLabel}
       practiceAllHref={practiceAllHref}
       chapterTestHref={chapterTestHref}
+      worksheetHref={worksheetHref}
       practiceHrefForConcept={practiceHrefForConcept}
       askTutorHref={askTutorHref}
       tutorHrefForConcept={tutorHrefForConcept}

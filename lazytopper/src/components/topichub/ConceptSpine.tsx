@@ -38,8 +38,9 @@ const NoteModal = lazyWithRetry(() => import("../notes/NoteModal"));
  *      everything else is an honest "coming soon".
  *   4. ACTION BAND (3 buttons) — "Practise this topic" (primary, solid green) ·
  *      "Chapter test" · "Worksheet". "Practise this topic" routes to the existing
- *      topic practice (what the old "Practice all" tab did). Chapter test /
- *      Worksheet are present-but-inert (honest "Soon") pending their PR-E wiring.
+ *      topic practice (what the old "Practice all" tab did). Chapter test is live
+ *      (PR-E1); Worksheet is live when the page passes `worksheetHref`
+ *      (TOPICHUB-WORKSHEET-1), else the inert honest "Soon" button.
  *   5. Concept-row "Practise" is CONCEPT-FILTERED — the page builds the per-concept
  *      route (PR-E1: buildDesktopConceptPracticePath) that lands DIRECTLY in Quick
  *      Practice (/practice/:grade/:subject) carrying the concept identity + its mark
@@ -454,6 +455,9 @@ export interface ConceptSpineProps {
   practiceAllHref: string;
   /** Existing Chapter Test route for this topic — powers "Chapter test" in the band (PR-E1). */
   chapterTestHref: string;
+  /** Worksheet generator route for this topic (TOPICHUB-WORKSHEET-1) — powers "Worksheet" in
+   *  the band. Optional: absent ⇒ the inert honest "Soon" button renders as before. */
+  worksheetHref?: string;
   /** Builds the per-concept practice route. `null` = the concept has too few served questions to
    *  practise on its own (CONCEPT-MAP-FILL-1 PR-2): the row then shows an honest note, not a button. */
   practiceHrefForConcept: (concept: BoardConcept) => string | null;
@@ -484,6 +488,7 @@ export function ConceptSpine({
   backLabel,
   practiceAllHref,
   chapterTestHref,
+  worksheetHref,
   practiceHrefForConcept,
   askTutorHref,
   tutorHrefForConcept,
@@ -791,15 +796,27 @@ export function ConceptSpine({
           >
             Chapter test
           </Link>
-          {/* Worksheet — present-but-inert (honest "Soon") pending PR-E2 */}
-          <button
-            type="button"
-            className="lt-spine__ab lt-spine__ab--secondary"
-            aria-disabled="true"
-            title="Worksheet — coming soon"
-          >
-            Worksheet <span className="lt-spine__soon">Soon</span>
-          </button>
+          {/* Worksheet — LIVE when the page supplies a route (TOPICHUB-WORKSHEET-1): opens the
+              ONE worksheet generator (/practice/worksheets) pre-set to THIS chapter, styled like
+              Chapter test. With no route supplied it keeps the inert honest "Soon" fallback. */}
+          {worksheetHref ? (
+            <Link
+              to={worksheetHref}
+              className="lt-spine__ab lt-spine__ab--test lt-spine__ab--worksheet"
+              title="Make a worksheet on this topic"
+            >
+              Worksheet
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="lt-spine__ab lt-spine__ab--secondary"
+              aria-disabled="true"
+              title="Worksheet — coming soon"
+            >
+              Worksheet <span className="lt-spine__soon">Soon</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
