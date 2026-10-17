@@ -899,6 +899,24 @@ export function __resetPracticeGradedForTests(): void {
   practiceGradedSent.clear();
 }
 
+/** SHARE-SCORE-1 — how a scorecard was shared: the OS share sheet, or the desktop wa.me link. */
+export type ScoreShareMethod = "native" | "whatsapp_link";
+
+/**
+ * SHARE-SCORE-1 — `score_share`: a student shared a scorecard image. The surface and the
+ * method only; never the score, a code, an id or any text. Vendors only (GA4 / Vercel), like
+ * `whatsapp_contact_tap`: deliberately NOT in `NamedAnalyticsEvent`, so the first-party log
+ * drops it and no server allow-list change is needed.
+ */
+export function trackScoreShare(surface: ScorecardSurface, method: ScoreShareMethod): void {
+  try {
+    const data = { surface, method };
+    send("event", { name: "score_share", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 /**
  * ★★ WHY THE `isNewUser` CHECK LIVES HERE AND NOT IN AuthContext.
  *
