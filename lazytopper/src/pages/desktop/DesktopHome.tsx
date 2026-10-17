@@ -21,16 +21,18 @@ import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
-import PendingPapersCard from "../../components/home/PendingPapersCard";
+import PendingPapersStrip from "../../components/home/PendingPapersStrip";
+import { usePendingPapers } from "../../components/home/usePendingPapers";
+
 
 /**
  * DesktopHome — the Home cockpit at desktop width (and at /browse for a
  * signed-out desktop visitor).
  *
  * Section order (AUTH-2-FU §4 — owner ruling):
- *   phone-linking nudge → "Start here" (4 hero cards) → the MERGED card
- *   (first-session OR MI, one slot) → resume strip → latest saved worksheet →
- *   "Waiting for your answers" (HOME-PENDING-1; it replaced "Jump straight in").
+ *   [papers-waiting strip, HOME-PENDING-1] → CBSE news strip → phone-linking nudge →
+ *   "Start here" (4 hero cards) → the MERGED card (first-session OR MI, one slot) →
+ *   resume strip → latest saved worksheet. ("Jump straight in" is gone: HOME-PENDING-1.)
  * The heroes come before the merged card so a new student sees WHAT THE PRODUCT
  * DOES before being told what to do; the nudge stays on top because it is an
  * action we want taken, not a suggestion.
@@ -288,6 +290,10 @@ export default function DesktopHome() {
   // while it is up (two start cards for the same student is noise).
   const startHere = useStartHere(user?.uid ?? null);
   const isSignedIn = !!user;
+  // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same read as the header
+  // bell, memoised per tab). Drives the strip at the top and whether the phone nudge waits.
+  const { papers: pendingPapers } = usePendingPapers(user);
+  const showPending = pendingPapers.length > 0;
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
 
@@ -357,9 +363,15 @@ export default function DesktopHome() {
         {/* ── CBSE news strip (CBSE-AUTO-1 C12) ────────────────────
             Renders null unless the mirror's manifest flags a recent circular
             important and this student has not dismissed it. */}
+        {/* HOME-PENDING-1 (owner ruling 17 Oct 2026) — the papers-waiting ACTION STRIP comes
+            FIRST, above the CBSE strip and the heroes, and only when something waits. Never
+            more than these two stacked: while the strip shows, the one-time phone nudge waits
+            for a later visit (it renders nothing, so it is not spent). */}
+        {showPending ? <PendingPapersStrip papers={pendingPapers} /> : null}
+
         <CbseBanner />
 
-        <LinkPhoneNudge />
+        {showPending ? null : <LinkPhoneNudge />}
 
         <StartHereView surface="home" returnTo="/" state={startHere} />
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
@@ -661,12 +673,10 @@ export default function DesktopHome() {
           </section>
         )}
 
-        {/* ── HOME-PENDING-1 — "Waiting for your answers" ─────────
-            The slot "Jump straight in" held (owner ruling 17 Oct 2026: removed on desktop
-            AND mobile). Every paper still waiting for an answer upload, signed-in only,
-            and nothing at all when none is waiting. Full Mock and the worksheet builder
-            stay reachable from the Practice hub (its "Full Test" and "Worksheet" cards). */}
-        <PendingPapersCard user={user} />
+        {/* HOME-PENDING-1 — "Jump straight in" used to close the page here (owner ruling
+            17 Oct 2026: removed on desktop AND mobile). Full Mock and the worksheet builder
+            stay reachable from the Practice hub (its "Full Test" and "Worksheet" cards); the
+            papers waiting for answers are the strip at the TOP of this page. */}
       </div>
       {tutorPicker}
     </div>

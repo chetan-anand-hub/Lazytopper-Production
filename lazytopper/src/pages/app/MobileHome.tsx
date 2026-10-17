@@ -20,7 +20,9 @@ import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
-import PendingPapersCard from "../../components/home/PendingPapersCard";
+import PendingPapersStrip from "../../components/home/PendingPapersStrip";
+import PendingBell from "../../components/home/PendingBell";
+import { usePendingPapers } from "../../components/home/usePendingPapers";
 import {
   BORDER,
   CARD_BG,
@@ -41,9 +43,9 @@ import {
  * (the route branches `isDesktop ? <DesktopHome/> : <MobileHome/>`).
  *
  * Order (AUTH-2-FU §4 — owner ruling):
- *   brand bar → greeting → phone-linking nudge → hero CAROUSEL + dots → the
- *   MERGED card (first-session OR MI, ONE slot) → resume strip → "Waiting for
- *   your answers" (HOME-PENDING-1; it replaced the collapsed quick links).
+ *   brand bar (+ HOME-PENDING-1 bell) → greeting → [papers-waiting strip → CBSE strip,
+ *   HOME-PENDING-1] → phone-linking nudge → hero CAROUSEL + dots → the MERGED card
+ *   (first-session OR MI, ONE slot) → resume strip. (The collapsed quick links are gone.)
  *
  * ── Card inventory is now genuinely SHARED ────────────────────────────────
  * This page used to hardcode its own titles inline while importing only
@@ -512,6 +514,10 @@ export default function MobileHome() {
   const startHere = useStartHere(user?.uid ?? null);
   const { isTrialActive, isPremium, isTrialExpired } = useSubscription();
   const isSignedIn = !!user;
+  // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same memoised read as
+  // the bell in the brand bar).
+  const { papers: pendingPapers } = usePendingPapers(user);
+  const showPending = pendingPapers.length > 0;
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
   useEffect(() => {
@@ -632,6 +638,9 @@ export default function MobileHome() {
             when signed out, so the signed-out bar is unchanged. */}
         <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
           {trialChip}
+          {/* HOME-PENDING-1 — the bell (badge + popover), signed-in only on this bar: a
+              signed-out visitor has nothing it could list. */}
+          {isSignedIn ? <PendingBell user={user} /> : null}
           <MobileAccountMenu />
         </div>
       </header>
@@ -641,7 +650,9 @@ export default function MobileHome() {
         {/* CBSE news strip (CBSE-AUTO-1 C12). Renders null unless the mirror's
             manifest flags a recent circular important and it is not dismissed;
             `spaced` is its own margin, so a null leaves the layout unchanged. */}
-        <CbseBanner spaced />
+        {/* HOME-PENDING-1: while the papers-waiting strip shows, the CBSE strip moves under it
+            (the strip renders first; see below). */}
+        {showPending ? null : <CbseBanner spaced />}
 
         {/* Greeting */}
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: 23, fontWeight: 600, lineHeight: 1.05, color: FG, margin: 0 }}>
@@ -665,7 +676,18 @@ export default function MobileHome() {
             wrapper div: an always-rendered wrapper would push everything below
             it down by 13px even in the (usual) case where the nudge renders
             null. */}
-        <LinkPhoneNudge spaced />
+        {/* HOME-PENDING-1 (owner ruling 17 Oct 2026) — the ACTION STRIP: under the greeting,
+            above the heroes, only when a paper waits; the CBSE strip follows it. Never more
+            than these two stacked, so the one-time phone nudge waits for a visit without the
+            strip (it renders nothing, so it is not spent). */}
+        {showPending ? (
+          <>
+            <PendingPapersStrip papers={pendingPapers} spaced />
+            <CbseBanner spaced />
+          </>
+        ) : (
+          <LinkPhoneNudge spaced />
+        )}
 
         <StartHereView surface="home" returnTo="/browse" state={startHere} spaced />
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
@@ -819,13 +841,10 @@ export default function MobileHome() {
         )}
 
 
-        {/* ── HOME-PENDING-1 — "Waiting for your answers" ─────────
-            The slot the collapsed "Jump straight in" shortcuts held (owner ruling
-            17 Oct 2026: removed on mobile AND desktop). Signed-in only, and nothing at
-            all when no paper is waiting — `spaced` is its own top margin, so a null
-            adds no gap. Full Mock and the worksheet builder stay
-            reachable from the Practice tab (its "Full Test" and "Worksheet" cards). */}
-        <PendingPapersCard user={user} spaced />
+        {/* HOME-PENDING-1 — the collapsed "Jump straight in" shortcuts used to sit here (owner
+            ruling 17 Oct 2026: removed on mobile AND desktop). Full Mock and the worksheet
+            builder stay reachable from the Practice tab (its "Full Test" and "Worksheet"
+            cards); the papers waiting for answers are the strip under the greeting. */}
 
         {/* Check & Improve stays one tap away for the signed-out visitor who
             wants to see grading before committing to anything. */}

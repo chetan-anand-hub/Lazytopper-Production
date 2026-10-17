@@ -63,13 +63,14 @@ vi.mock("../../services/useMeHomeSummary", () => ({
   useMeConceptRows: () => ({ status: "idle", rows: [] }),
 }));
 
-// HOME-PENDING-1 — the pending-papers card took the quick strip's slot on both Home pages. It is
-// pinned in PendingPapersCard.test.tsx; here it is a PROBE so `sessions.reads` keeps counting
-// FirstSession's ONE graded-history read, and the probe marks the slot's position.
-vi.mock("./PendingPapersCard", async () => {
-  const { createElement } = await import("react");
-  return { default: () => createElement("div", { "data-testid": "pending-slot-probe" }) };
-});
+// HOME-PENDING-1 — both Home pages (and mobile Home's bell) read the papers waiting for answers
+// through usePendingPapers; pinned in PendingPapersStrip.test.tsx / PendingBell.test.tsx. Held
+// empty here so `sessions.reads` keeps counting FirstSession's ONE graded-history read.
+vi.mock("./usePendingPapers", () => ({
+  usePendingPapers: () => ({ uid: null, papers: [] }),
+  trackPendingShown: () => {},
+  trackPendingUploadTap: () => {},
+}));
 
 import FirstSession from "./FirstSession";
 import DesktopHome from "../../pages/desktop/DesktopHome";
@@ -296,7 +297,8 @@ describe("6 · the start card is wired into both Home pages", () => {
     expect(await screen.findByTestId("first-session-card")).toBeTruthy();
     expect(screen.getAllByTestId("home-hero")).toHaveLength(3); // + 1 tutor button
     expect(screen.getByTestId("home-hero-tutor")).toBeTruthy();
-    expect(screen.getByTestId("pending-slot-probe")).toBeTruthy();
+    // HOME-PENDING-1: the quick strip that used to close the page is gone.
+    expect(screen.queryByTestId("home-quick-tile")).toBeNull();
   });
 });
 
@@ -428,17 +430,15 @@ describe("8 · exactly ONE first-session / MI card, in ONE position", () => {
   //
   // ★ A count alone cannot tell "replaced the empty state" from "replaced
   // something else and deleted MI". This pins the POSITION: whichever card
-  // renders, it is the SAME DOM position — between the hero grid and the
-  // pending-papers slot (HOME-PENDING-1; the quick strip / quick links held it before).
-  it("★ DesktopHome · both states occupy the SAME slot — after the heroes, before the pending-papers slot", async () => {
+  // renders, it is the SAME DOM position — after the hero grid / hero dots. (Its later anchor,
+  // the quick strip / quick links, was removed by HOME-PENDING-1.)
+  it("★ DesktopHome · both states occupy the SAME slot — after the heroes", async () => {
     sessions.records = [];
     const zero = renderIn(<DesktopHome />);
     const firstCard = await screen.findByTestId("first-session-card");
     const heroZero = screen.getAllByTestId("home-hero")[0];
-    const quickZero = screen.getByTestId("pending-slot-probe");
     // Node.DOCUMENT_POSITION_FOLLOWING === 4
     expect(heroZero.compareDocumentPosition(firstCard) & 4).toBe(4);
-    expect(firstCard.compareDocumentPosition(quickZero) & 4).toBe(4);
     zero.unmount();
     cleanup();
 
@@ -447,19 +447,15 @@ describe("8 · exactly ONE first-session / MI card, in ONE position", () => {
     renderIn(<DesktopHome />);
     const miCard = await screen.findByTestId("home-mi-card");
     const heroSome = screen.getAllByTestId("home-hero")[0];
-    const quickSome = screen.getByTestId("pending-slot-probe");
     expect(heroSome.compareDocumentPosition(miCard) & 4).toBe(4);
-    expect(miCard.compareDocumentPosition(quickSome) & 4).toBe(4);
   });
 
-  it("★ MobileHome · both states occupy the SAME slot — after the heroes, before the pending-papers slot", async () => {
+  it("★ MobileHome · both states occupy the SAME slot — after the heroes", async () => {
     sessions.records = [];
     const zero = renderIn(<MobileHome />);
     const firstCard = await screen.findByTestId("first-session-card");
     const heroZero = screen.getAllByTestId("mobile-home-destination")[0];
-    const quickZero = screen.getByTestId("pending-slot-probe");
     expect(heroZero.compareDocumentPosition(firstCard) & 4).toBe(4);
-    expect(firstCard.compareDocumentPosition(quickZero) & 4).toBe(4);
     zero.unmount();
     cleanup();
 
@@ -468,9 +464,7 @@ describe("8 · exactly ONE first-session / MI card, in ONE position", () => {
     renderIn(<MobileHome />);
     const miCard = await screen.findByTestId("mobile-home-mistake-panel");
     const heroSome = screen.getAllByTestId("mobile-home-destination")[0];
-    const quickSome = screen.getByTestId("pending-slot-probe");
     expect(heroSome.compareDocumentPosition(miCard) & 4).toBe(4);
-    expect(miCard.compareDocumentPosition(quickSome) & 4).toBe(4);
   });
 
   // ── ASSERTION 2 · the greeting is not on the page body any more ──────────
