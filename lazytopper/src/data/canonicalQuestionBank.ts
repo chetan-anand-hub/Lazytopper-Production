@@ -568,6 +568,9 @@ import { SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED } from './questionBanks/clas
 import { ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/acids-bases-and-salts.c3.cbq.ltgen';
 import { CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.c3.cbq.ltgen';
 import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.c3.cbq.ltgen';
+// OUR-ENV-NCERT-1 (2026-10-17) — NCERT Ch 13 Our Environment textbook questions (jesc113.pdf, Reprint 2026-27).
+// Authentic questions; authored solutions (registered in AI_GENERATED_SOLUTION_SOURCES below).
+import { OE_NCERT } from './questionBanks/class10/science/ourEnvironment.ncert';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1100,6 +1103,8 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED,
   ...CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED,
   ...OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED,
+  // OUR-ENV-NCERT-1 (2026-10-17): NCERT Ch 13 in-text + exercise questions (15; Exercise Q1 skipped, non-unique key).
+  ...OE_NCERT,
 ];
 
 // ---------------------------------------------------------------------------
@@ -2353,6 +2358,9 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   REPRODUCE_EXPAND_EXTRACT,
   // Batch 6 (2026-07-13): heredity exhaustive extract — authentic questions (evolution contamination dropped), reconstructed solutions.
   HEREDITY_EXPAND_EXTRACT,
+  // OUR-ENV-NCERT-1 (2026-10-17): NCERT Ch 13 textbook questions (verbatim, Reprint 2026-27) —
+  // authentic questions; NCERT prints no solutions, so every worked solution is authored.
+  OE_NCERT,
 ] as const;
 
 const CLASS_B_STEPPED_SOLUTION_IDS: readonly string[] = [
