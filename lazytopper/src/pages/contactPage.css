@@ -1,0 +1,123 @@
+/*
+ * ContactPage (`/contact`, WA-CONTACT-1) — mobile-first, responsive by CSS alone. Every
+ * selector is scoped under `.lt-contact` (a lazy route's stylesheet is global once loaded).
+ * House grammar: soft white page, navy ink, green accent (the `.lt-fp` token values).
+ */
+.lt-contact {
+  --ct-bg: #f4f7fb;
+  --ct-card: #fff;
+  --ct-ink: #0f2038;
+  --ct-ink2: #4d647e;
+  --ct-line: #dde5ef;
+  --ct-g: #0b8f50;
+  --ct-gt: #06663a;
+  --ct-gw: #e6f4ec;
+  --ct-serif: Fraunces, Georgia, serif;
+  --ct-sans: Inter, system-ui, -apple-system, sans-serif;
+  display: block;
+  min-height: 70vh;
+  background: var(--ct-bg);
+  color: var(--ct-ink);
+  font-family: var(--ct-sans);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.lt-contact * {
+  box-sizing: border-box;
+}
+.lt-contact h1,
+.lt-contact h2 {
+  font-family: var(--ct-serif);
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.lt-contact a {
+  color: var(--ct-gt);
+}
+.lt-contact :focus-visible {
+  outline: 2px solid var(--ct-g);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.lt-contact__w {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 28px 16px 40px;
+}
+.lt-contact__eyebrow {
+  font-size: 12px;
+  color: var(--ct-ink2);
+  margin: 0 0 8px;
+}
+.lt-contact h1 {
+  font-size: clamp(26px, 7vw, 36px);
+  line-height: 1.15;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.lt-contact__sub {
+  color: var(--ct-ink2);
+  margin: 0 0 20px;
+}
+
+.lt-contact__card {
+  background: var(--ct-card);
+  border: 1px solid var(--ct-line);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
+}
+.lt-contact__card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.lt-contact__card p {
+  margin: 0 0 6px;
+  color: var(--ct-ink2);
+}
+.lt-contact__card--wa {
+  border-color: #b9e2cb;
+  background: linear-gradient(180deg, var(--ct-gw), #fff 70%);
+}
+.lt-contact .lt-contact__number {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ct-ink);
+  letter-spacing: 0.01em;
+}
+
+.lt-contact .lt-contact__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 0 20px;
+  border-radius: 12px;
+  /* the darker green: white text on it is >= 4.5:1 (WCAG AA) */
+  background: var(--ct-gt);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.lt-contact .lt-contact__btn:hover {
+  background: #054d2c;
+}
+@media (min-width: 560px) {
+  .lt-contact .lt-contact__btn {
+    display: inline-flex;
+  }
+}
+
+.lt-contact__mail {
+  font-weight: 600;
+}
+
+.lt-contact__fine {
+  font-size: 13px;
+  color: var(--ct-ink2);
+  margin: 18px 0 0;
+}

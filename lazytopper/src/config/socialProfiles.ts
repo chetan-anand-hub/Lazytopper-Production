@@ -19,6 +19,8 @@ export const FACEBOOK_URL = "https://www.facebook.com/lazytoppercbse";
 export const X_URL = "https://x.com/lazy_topper_";
 export const LINKEDIN_URL = "https://www.linkedin.com/company/146258133";
 export const WHATSAPP_URL = "https://wa.me/919714568948";
+/** WA-CONTACT-1 — the same number as people read it (the /contact page, the legal pages). */
+export const WHATSAPP_DISPLAY_NUMBER = "+91 97145 68948";
 
 /** The Organization's `sameAs`, in this order. */
 export const SAME_AS: readonly string[] = [YOUTUBE_URL, INSTAGRAM_URL, FACEBOOK_URL, X_URL, LINKEDIN_URL];

@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { LEGAL_SLUGS, type LegalSlug } from "./legalSlugs";
 import { LEGAL_ENTITY_NAME } from "../config/legalEntity";
+import { WHATSAPP_DISPLAY_NUMBER, WHATSAPP_URL } from "../config/socialProfiles";
 
 /**
  * LegalPage (`/legal/:slug`) — Privacy, Terms and Refund policies.
@@ -458,6 +459,13 @@ const LegalPage = () => {
             {/* LEGAL-ENTITY-1 (L2) — on every legal page, above the per-page contact line. */}
             <p data-testid="legal-operator">{`LazyTopper is operated by ${LEGAL_ENTITY_NAME}.`}</p>
             {page.contact}
+            {/* WA-CONTACT-1 (§4) — the founder's WhatsApp, for doubts, questions, suggestions. */}
+            <p data-testid="legal-whatsapp">
+              {"For doubts, questions or suggestions, WhatsApp "}
+              <a className="lt-legal-mail" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                {WHATSAPP_DISPLAY_NUMBER}
+              </a>
+            </p>
           </div>
         </div>
       </div>

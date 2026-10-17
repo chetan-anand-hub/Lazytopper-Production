@@ -866,6 +866,20 @@ export function trackParentShareClick(placement: ParentSharePlacement): void {
   send("event", { name: "parent_share_click", data: { placement } });
 }
 
+/** WA-CONTACT-1 — which WhatsApp contact link was tapped. */
+export type WhatsAppContactPlacement = "fab" | "contact_page";
+
+/**
+ * WA-CONTACT-1 — `whatsapp_contact_tap`: a visitor tapped a "message us on WhatsApp" link
+ * (the floating button, or the /contact page). Name plus a two-value placement, the same
+ * shape as `parent_share_click`; never the message, a page id or a contact. Deliberately
+ * NOT in `NamedAnalyticsEvent`: it goes to the vendors only, and the first-party activity
+ * log (whose allow-list is mirrored by the server) drops it, so no server change is needed.
+ */
+export function trackWhatsAppContactTap(placement: WhatsAppContactPlacement): void {
+  send("event", { name: "whatsapp_contact_tap", data: { placement } });
+}
+
 /** Attempts already counted in THIS page load — a graded attempt is counted once. */
 const practiceGradedSent = new Set<string>();
 
