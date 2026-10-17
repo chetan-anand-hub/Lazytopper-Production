@@ -62,9 +62,17 @@ vi.mock("../../services/sessionRecords", async (importOriginal) => {
 vi.mock("../../components/checkimprove/boardQuestionPick", () => ({
   pickBoardTryQuestion: (...a: unknown[]) => H.pick(...a),
 }));
+// The draft service, as an in-memory store with the real contract (save while signed out, take
+// once after sign-in). Its real expiry clock is pinned in DesktopCheckImprovePage.activationDraft.
+const D = vi.hoisted(() => ({ saved: null as null | { fields: unknown; images: unknown } }));
+vi.mock("../../services/checkImproveDraft", () => ({
+  saveCiDraft: (fields: unknown, images: unknown) => { D.saved = { fields, images }; },
+  clearCiDraft: () => { D.saved = null; },
+  takeCiDraft: async () => D.saved,
+  sweepExpiredCiDraftImages: async () => {},
+}));
 
 import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
-import { CI_DRAFT_KEY, __setCiDraftImageStoreForTests, type CiDraftImageStore } from "../../services/checkImproveDraft";
 import { FREE_CHECK_SIGNIN_PATH, hasUsedFreeCheck } from "../../services/freeCheckClient";
 
 const STUDENT = { uid: "the-student", email: "new@example.com", displayName: null, providerIds: ["password"] };
@@ -93,22 +101,13 @@ function renderPage() {
     </MemoryRouter>,
   );
 }
-function memoryImageStore(): CiDraftImageStore {
-  const rows = new Map<string, string>();
-  return {
-    async put(id, slot, data) { rows.set(`${id}:${slot}`, data); },
-    async get(id, slot) { return rows.get(`${id}:${slot}`) ?? null; },
-    async deleteId(id) { rows.delete(`${id}:q`); rows.delete(`${id}:a`); },
-    async purgeOlderThan() {},
-  };
-}
 const questionBox = () => screen.getByLabelText("Type the question") as HTMLTextAreaElement;
 const howItWorks = () => screen.getByText("How it works").closest("details") as HTMLDetailsElement;
 
 beforeEach(() => {
   window.localStorage.clear();
   window.sessionStorage.clear();
-  __setCiDraftImageStoreForTests(memoryImageStore());
+  D.saved = null;
   vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
   setMatchMediaMatches(false); // phone width
   H.auth = { user: null, loading: false };
@@ -130,7 +129,6 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
   setMatchMediaMatches(false);
-  __setCiDraftImageStoreForTests(null);
 });
 
 describe("ACTIVATION-2 A · Start here on Check & Improve → 'Check one answer'", () => {
@@ -156,7 +154,8 @@ describe("ACTIVATION-2 B · mobile header Sign up (signed out)", () => {
     fireEvent.change(questionBox(), { target: { value: QUESTION } });
     fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
     expect(where).toBe(FREE_CHECK_SIGNIN_PATH);
-    expect(window.sessionStorage.getItem(CI_DRAFT_KEY)).toContain("root 2"); // flushed on the way out
+    // flushed on the way out (no waiting for the 800 ms autosave debounce)
+    expect((D.saved?.fields as { question?: string } | undefined)?.question).toBe(QUESTION);
 
     cleanup();
     H.auth = { user: STUDENT, loading: false };

@@ -25,6 +25,8 @@ vi.mock("../context/AuthContext", () => ({
   }),
 }));
 vi.mock("../services/referralService", () => ({ creditPendingReferral: vi.fn() }));
+// The door's UX telemetry stamps the wall clock; it is not what this file pins.
+vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
 vi.mock("firebase/auth", () => ({
   sendEmailVerification: vi.fn(async () => {}),
   reload: vi.fn(async () => {}),

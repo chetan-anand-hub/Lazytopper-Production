@@ -1598,7 +1598,9 @@ const DesktopCheckImprovePageInner: React.FC<{
     boardTurnRef.current += 1;
     try {
       const { pickBoardTryQuestion } = await import("../../components/checkimprove/boardQuestionPick");
-      const q = await pickBoardTryQuestion({ subject, exclude: boardSeenRef.current, rotation: Date.now() });
+      // The rotation only varies the pick between visits; an elapsed (monotonic) reading is enough.
+      const rotation = Math.floor(performance.now());
+      const q = await pickBoardTryQuestion({ subject, exclude: boardSeenRef.current, rotation });
       if (!q) {
         setBoardError("We couldn't load a board question just now. Type or upload your own question.");
         return;
