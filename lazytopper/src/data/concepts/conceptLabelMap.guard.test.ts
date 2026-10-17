@@ -236,8 +236,9 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
   });
 
   it("a paused label that is served again is RED (paused-but-served): the cue to remove it from PAUSED_LABELS", () => {
-    // The control supplies its own paused entry for a label the served bank carries (PAUSED_LABELS holds no served label).
-    const paused = [{ chapter: "polynomials", label: "Degree of Polynomial" }];
+    // The control adds its own paused entry for a label the served bank carries (PAUSED_LABELS holds no served label);
+    // the real PAUSED_LABELS stay in the list so their genuinely unserved labels do not also report stale-mapped.
+    const paused = [...PAUSED_LABELS, { chapter: "polynomials", label: "Degree of Polynomial" }];
     expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED, paused).map((p) => p.kind)).toEqual(["paused-but-served"]);
   });
 
