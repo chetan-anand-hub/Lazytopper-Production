@@ -451,27 +451,180 @@
   "formula_strip": [
     {
       "label": "Neuron path",
-      "math": "Dendrite (receives) to cell body to axon to nerve ending; the gap to the next cell is the synapse"
+      "math": "Dendrite (receives) to cell body to axon to nerve ending; the gap to the next cell is the synapse",
+      "id": "neuron-path",
+      "tip": "Dendrite receives; axon sends."
     },
     {
       "label": "Reflex arc",
-      "math": "Receptor to sensory neuron to spinal cord (relay) to motor neuron to effector muscle"
+      "math": "Receptor to sensory neuron to spinal cord (relay) to motor neuron to effector muscle",
+      "id": "reflex-arc",
+      "tip": "Formed in the spinal cord; faster than thinking."
     },
     {
       "label": "Brain regions",
-      "math": "Fore-brain - thinking, senses, voluntary action, hunger; mid-brain and hind-brain - involuntary; cerebellum - posture and balance; medulla - blood pressure, salivation, vomiting"
+      "math": "Fore-brain - thinking, senses, voluntary action, hunger; mid-brain and hind-brain - involuntary; cerebellum - posture and balance; medulla - blood pressure, salivation, vomiting",
+      "id": "brain-regions",
+      "tip": "Mid-brain and hind-brain control involuntary actions."
     },
     {
       "label": "Plant tropisms",
-      "math": "Phototropism (light), geotropism (gravity), hydrotropism (water), chemotropism (chemicals)"
+      "math": "Phototropism (light), geotropism (gravity), hydrotropism (water), chemotropism (chemicals)",
+      "id": "plant-tropisms",
+      "tip": "Shoots bend towards light; roots away."
     },
     {
       "label": "Plant hormones",
-      "math": "Auxin - elongation and bending; gibberellin - stem growth; cytokinin - cell division; abscisic acid - inhibits growth (wilting)"
+      "math": "Auxin - elongation and bending; gibberellin - stem growth; cytokinin - cell division; abscisic acid - inhibits growth (wilting)",
+      "id": "plant-hormones"
     },
     {
-      "label": "Animal hormones (Table 6.1)",
-      "math": "Growth hormone - pituitary; thyroxin - thyroid (needs iodine); insulin - pancreas (blood sugar); adrenaline - adrenal gland; testosterone - testes; oestrogen - ovaries"
+      "label": "Animal hormones and their glands",
+      "math": "Growth hormone - pituitary; thyroxin - thyroid (needs iodine); insulin - pancreas (blood sugar); adrenaline - adrenal gland; testosterone - testes; oestrogen - ovaries",
+      "id": "animal-hormones",
+      "tip": "Hormones travel in the blood; each gland makes its own hormone."
+    },
+    {
+      "label": "Reflex Action, Voluntary Action and Involuntary Action",
+      "math": "A reflex action is a sudden, automatic response, and the reflex arc is formed in the spinal cord. A voluntary action is controlled by the thinking part of the fore-brain. Involuntary actions are controlled by the mid-brain and hind-brain; the medulla handles blood pressure, salivation and vomiting.",
+      "id": "reflex-vs-voluntary-actions"
+    },
+    {
+      "label": "Protection of the Brain and Spinal Cord",
+      "math": "The brain sits inside a bony box (the skull), in a fluid-filled balloon that absorbs shocks. The vertebral column (backbone) protects the spinal cord.",
+      "id": "nervous-system-protection"
+    },
+    {
+      "label": "Immediate Response in Plants (Touch)",
+      "math": "The leaves of the sensitive plant (touch-me-not) fold up quickly when touched. The plant has no nervous tissue; the movement happens because the cells change their water content.",
+      "id": "immediate-response-in-plants"
+    },
+    {
+      "label": "Auxin and Bending towards Light",
+      "math": "Auxin, made at the tip of the shoot, diffuses to the side away from light. The cells on the shady side grow longer, so the shoot bends towards the light.",
+      "id": "auxin-and-bending"
+    },
+    {
+      "label": "Thyroxin, Iodine and Goitre",
+      "math": "Thyroxin from the thyroid gland regulates metabolism. Iodine is needed to make thyroxin; if the diet lacks iodine, the thyroid can swell, giving a swollen neck (goitre). This is why we use iodised salt.",
+      "id": "thyroxin-and-iodine"
+    },
+    {
+      "label": "Insulin and Feedback Mechanism",
+      "math": "Insulin, made by the pancreas, regulates blood sugar. When the sugar level rises, the pancreas releases more insulin; when it falls, less is released. This feedback mechanism keeps hormone levels right.",
+      "id": "insulin-and-feedback"
+    },
+    {
+      "label": "Adrenaline: the Emergency Hormone",
+      "math": "Adrenaline, from the adrenal glands, goes directly into the blood. The heart beats faster, breathing becomes faster and blood is diverted to the skeletal muscles, getting the body ready to fight or run.",
+      "id": "adrenaline-response"
+    },
+    {
+      "label": "Growth Hormone, Testosterone, Oestrogen",
+      "math": "Growth hormone from the pituitary gland regulates growth and development; too little in childhood causes dwarfism. At puberty, testosterone is secreted in males and oestrogen in females.",
+      "id": "growth-hormone-and-puberty"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "reflex-arc-order",
+      "text": "Always write the arc in order: receptor → sensory neuron → spinal cord → motor neuron → effector.",
+      "use": "written-ok",
+      "source": "NCERT 6.1.1"
+    },
+    {
+      "id": "tropism-direction",
+      "text": "Shoot: positive phototropism, negative geotropism. Root: negative phototropism, positive geotropism.",
+      "use": "mcq-check",
+      "source": "NCERT 6.2.2"
+    },
+    {
+      "id": "hormone-gland-pairs",
+      "text": "Pairs: GH – pituitary; thyroxin – thyroid; insulin – pancreas; adrenaline – adrenal; testosterone – testes; oestrogen – ovaries.",
+      "use": "mcq-check",
+      "source": "NCERT 6.3 (body text)"
+    },
+    {
+      "id": "nervous-vs-hormonal",
+      "text": "Nervous: electrical, fast, short-lived. Hormonal: chemical, slower, reaches all cells.",
+      "use": "written-ok",
+      "source": "NCERT 6 intro, 6.3"
+    },
+    {
+      "id": "diagram-labels-brain",
+      "text": "Label fore-brain, mid-brain, hind-brain, cerebellum and medulla.",
+      "use": "written-ok",
+      "source": "NCERT Fig 6.3; CBSE marking principle"
+    },
+    {
+      "id": "neuron-path-trick",
+      "text": "<b>D</b>adi <b>C</b>hai <b>A</b>ur <b>N</b>amkeen.",
+      "gloss": "Path of an impulse. D = Dendrite · C = Cell body · A = Axon · N = Nerve ending (then the synapse gap).",
+      "use": "memory-aid",
+      "source": "NCERT 6.1"
+    },
+    {
+      "id": "reflex-arc-trick",
+      "text": "<b>R</b>ani <b>S</b>e <b>S</b>abzi <b>M</b>angwao <b>E</b>kdum.",
+      "gloss": "The five parts, in order. R = Receptor · S = Sensory neuron · S = Spinal cord · M = Motor neuron · E = Effector.",
+      "use": "memory-aid",
+      "source": "NCERT 6.1.1"
+    },
+    {
+      "id": "hind-brain-trick",
+      "text": "<b>Medulla = Majboori ke kaam. Cerebellum = Cycle ka balance.</b>",
+      "gloss": "Hind-brain. medulla: involuntary actions (blood pressure, salivation, vomiting); cerebellum: posture and balance, precision of voluntary actions.",
+      "use": "memory-aid",
+      "source": "NCERT 6.1.2"
+    },
+    {
+      "id": "fore-brain-trick",
+      "text": "<b>Soch, Sunna, Sunghna, Dekhna, Bhookh.</b>",
+      "gloss": "Fore-brain. thinking · hearing · smell · sight · hunger centre.",
+      "use": "memory-aid",
+      "source": "NCERT 6.1.2"
+    },
+    {
+      "id": "tropism-trick",
+      "text": "<b>Photo = Roshni, Geo = Zameen, Hydro = Paani, Chemo = Rasayan.</b>",
+      "gloss": "Four tropisms. light · gravity (earth) · water · chemicals (pollen tube towards the ovule).",
+      "use": "memory-aid",
+      "source": "NCERT 6.2.2"
+    },
+    {
+      "id": "plant-hormone-trick",
+      "text": "<b>Auxin = Aage badhao, Gibberellin = Ganna lamba, Cytokinin = Cell banao, Abscisic = Ab bas!</b>",
+      "gloss": "Four plant hormones. auxin: cell elongation · gibberellin: stem growth · cytokinin: cell division · abscisic acid: inhibits growth.",
+      "use": "memory-aid",
+      "source": "NCERT 6.2.2"
+    },
+    {
+      "id": "hormone-gland-trick",
+      "text": "<b>Naam ka pehla akshar ghar se milta hai: Thyroxin–Thyroid, Adrenaline–Adrenal, Testosterone–Testes, Oestrogen–Ovaries.</b> Sirf <b>Growth–Pituitary</b> aur <b>Insulin–Pancreas</b> alag.",
+      "gloss": "Hormone–gland pairs. T–T, A–A, T–T, O–O match by first letter; GH → pituitary; insulin → pancreas.",
+      "use": "memory-aid",
+      "source": "NCERT 6.3"
+    },
+    {
+      "id": "insulin-trick",
+      "text": "<b>Sugar badhi, insulin badha; sugar ghati, insulin ghata.</b>",
+      "gloss": "Feedback. blood sugar up → more insulin; down → less.",
+      "use": "memory-aid",
+      "source": "NCERT 6.3"
+    },
+    {
+      "id": "adrenaline-trick",
+      "text": "<b>Adrenaline = dil tez, saans tez, khoon muscles ko.</b>",
+      "gloss": "Emergency response. heart rate ↑ · breathing ↑ · blood diverted to skeletal muscles.",
+      "use": "memory-aid",
+      "source": "NCERT 6.3"
+    },
+    {
+      "id": "iodine-trick",
+      "text": "<b>Iodised namak = thyroxin ke liye, galaa phoolna (goitre) rokne ke liye.</b>",
+      "gloss": "Iodine. iodine → thyroxin; deficiency → goitre.",
+      "use": "memory-aid",
+      "source": "NCERT 6.3"
     }
   ],
   "third_tab_content": {
@@ -505,6 +658,9 @@
       "asset": "control-and-coordination/fig_neuron.webp"
     },
     "fig_reflex_arc": {
+      "id": "reflex-arc-diagram",
+      "heading": "Reflex Arc Diagram",
+      "alt": "The pathway of a reflex - heat/pain receptors in the skin, the sensory neuron to the spinal cord (CNS), the relay and motor neurons, and the effector muscle in the arm; the message also travels on to the brain.",
       "bucket": "ncert",
       "tag": "NCERT Fig 6.2",
       "caption": "Reflex arc",
@@ -515,13 +671,21 @@
         "ncert_fig": "6.2",
         "page_pdf": 4,
         "printed_page": 103,
-        "crop": [360, 204, 1596, 840],
+        "crop": [
+          360,
+          204,
+          1596,
+          840
+        ],
         "clean": "saturation",
         "note": "rasterize@220dpi + saturation-clean via pymupdf; eye-confirmed, no watermark or text bleed"
       },
       "asset": "control-and-coordination/fig_reflex_arc.webp"
     },
     "fig_brain": {
+      "id": "human-brain-diagram",
+      "heading": "Human Brain Diagram (Fore-brain, Mid-brain, Hind-brain)",
+      "alt": "Sectional view - fore-brain (cerebrum) inside the cranium, mid-brain, and the hind-brain parts (pons, medulla, cerebellum) leading to the spinal cord; the hypothalamus and pituitary gland are also labelled.",
       "bucket": "ncert",
       "tag": "NCERT Fig 6.3",
       "caption": "Human brain",
@@ -532,7 +696,12 @@
         "ncert_fig": "6.3",
         "page_pdf": 5,
         "printed_page": 104,
-        "crop": [336, 522, 1560, 1218],
+        "crop": [
+          336,
+          522,
+          1560,
+          1218
+        ],
         "clean": "saturation",
         "note": "rasterize@220dpi + saturation-clean via pymupdf; eye-confirmed, no watermark or text bleed"
       },

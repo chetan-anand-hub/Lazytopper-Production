@@ -153,7 +153,7 @@
     {
       "id": "c4",
       "title": "Proving irrationality by contradiction",
-      "body": "To prove $\\sqrt{p}$ irrational: assume it is rational, $\\sqrt{p} = a/b$ with $a,b$ coprime. Square and rearrange to get $p \\mid a^2$, so (by Theorem 1.2) $p \\mid a$; substitute back to force $p \\mid b$ too. Now $a$ and $b$ share the factor $p$ — contradicting 'coprime'. Hence $\\sqrt{p}$ is irrational.",
+      "body": "To prove $\\sqrt{2}$ irrational: assume it is rational, $\\sqrt{2} = a/b$ with $a,b$ coprime. Square and rearrange to get $2 \\mid a^2$, so (by Theorem 1.2) $2 \\mid a$; substitute back to force $2 \\mid b$ too. Now $a$ and $b$ share the factor $2$ — contradicting 'coprime'. Hence $\\sqrt{2}$ is irrational. The same steps prove it for $\\sqrt{3}$ and $\\sqrt{5}$.",
       "tested": "3-mark 'prove that √2 / √3 / √5 is irrational'",
       "figure_ref": null,
       "source": {
@@ -425,23 +425,107 @@
   "formula_strip": [
     {
       "label": "Fundamental Theorem of Arithmetic",
-      "math": "composite $= p_1^{a_1} p_2^{a_2} \\cdots p_k^{a_k}$ (unique, order aside)"
+      "math": "composite $= p_1^{a_1} p_2^{a_2} \\cdots p_k^{a_k}$ (unique, order aside)",
+      "id": "fundamental-theorem-of-arithmetic",
+      "tip": "Use a factor tree and write primes in ascending order, then collect powers."
     },
     {
       "label": "HCF",
-      "math": "product of the \\textbf{smallest} power of each \\textbf{common} prime"
+      "math": "product of the <b>smallest</b> power of each <b>common</b> prime",
+      "id": "hcf-prime-factorisation",
+      "tip": "Smallest power of each COMMON prime."
     },
     {
       "label": "LCM",
-      "math": "product of the \\textbf{greatest} power of \\textbf{every} prime"
+      "math": "product of the <b>greatest</b> power of <b>every</b> prime",
+      "id": "lcm-prime-factorisation",
+      "tip": "Greatest power of EVERY prime that appears."
     },
     {
       "label": "HCF × LCM (two numbers)",
-      "math": "$\\text{HCF}(a,b) \\times \\text{LCM}(a,b) = a \\times b$"
+      "math": "$\\text{HCF}(a,b) \\times \\text{LCM}(a,b) = a \\times b$",
+      "id": "hcf-lcm-product",
+      "tip": "Given both numbers and their HCF: LCM = (a × b) ÷ HCF. Given the HCF, the LCM and one number: the other number = (HCF × LCM) ÷ that number. Write the formula line first."
     },
     {
       "label": "Prime divides a square",
-      "math": "$p \\text{ prime},\\ p \\mid a^2 \\Rightarrow p \\mid a$"
+      "math": "$p \\text{ prime},\\ p \\mid a^2 \\Rightarrow p \\mid a$",
+      "id": "prime-divides-square",
+      "tip": "State it in words in every irrationality proof: \"if a prime divides a², it divides a\" (Theorem 1.2)."
+    },
+    {
+      "label": "Statement and proof outline",
+      "math": "$\\sqrt{2}$ is irrational. Proof by contradiction: assume $\\sqrt{2}=\\dfrac{a}{b}$ with $a, b$ co-prime. Squaring gives $2b^2=a^2$, so 2 divides $a^2$, hence 2 divides $a$. Write $a=2c$; then $b^2=2c^2$, so 2 divides $b$ too. Now $a$ and $b$ share the factor 2, which contradicts co-primality. So $\\sqrt{2}$ is irrational. The same argument works for $\\sqrt{3}$ and $\\sqrt{5}$. The full proof is in the Proof tab.",
+      "id": "sqrt-2-is-irrational",
+      "heading": "Proof that √2 is Irrational"
+    },
+    {
+      "label": "Rational ± Irrational is Irrational",
+      "math": "The sum or difference of a rational and an irrational number is irrational. The product (or quotient) of a non-zero rational and an irrational number is irrational. To prove it: assume the result is rational, isolate the surd, and reach a contradiction.",
+      "id": "rational-irrational-sums"
+    },
+    {
+      "label": "HCF and LCM of Three Numbers",
+      "math": "For three numbers, $\\text{HCF}\\times\\text{LCM}$ is NOT equal to the product of the numbers. Find the HCF and LCM by prime factorisation directly.",
+      "id": "hcf-lcm-three-numbers"
+    },
+    {
+      "label": "When Does a Number End in 0?",
+      "math": "A number ends in 0 only if its prime factorisation contains both 2 and 5. So $4^n$ and $6^n$ never end in 0, but $(2\\times5)^n$ always does.",
+      "id": "numbers-ending-in-zero"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "coprime-lcm-is-product",
+      "text": "If HCF(a,b) = 1 (co-prime) then LCM = a × b.",
+      "use": "written-ok",
+      "source": "NCERT 1.2 (HCF×LCM = a×b); SQP-M-RN-001"
+    },
+    {
+      "id": "ratio-hcf-lcm",
+      "text": "Two numbers in ratio m:n (m,n co-prime) are mk and nk: HCF = k, LCM = mnk, so HCF = LCM ÷ (mn).",
+      "use": "mcq-check",
+      "source": "PYQ-M-RN-006 (2:3, LCM 180 → HCF 30), PYQ-M-2026-REALNUM-001"
+    },
+    {
+      "id": "ends-in-zero-check",
+      "text": "A number ends in 0 only if both 2 and 5 divide it; test 5ⁿ, 4ⁿ, 6ⁿ at a glance.",
+      "use": "mcq-check",
+      "source": "NCERT 1.2 Ex 1; PYQ-M-RN-002"
+    },
+    {
+      "id": "hcf-divides-lcm",
+      "text": "HCF divides LCM: HCF is a factor of both numbers and LCM is a multiple of both, so HCF ≤ smaller number and LCM ≥ larger number. Use to drop wrong options.",
+      "use": "mcq-check",
+      "source": "definition, NCERT 1.2"
+    },
+    {
+      "id": "three-number-caution",
+      "text": "Never use HCF × LCM = product for three numbers.",
+      "use": "written-ok",
+      "source": "NCERT 1.2 Example 4 Remark"
+    },
+    {
+      "id": "hcf-lcm-power-trick",
+      "text": "HCF = <b>C</b>hhota power, <b>C</b>ommon prime. LCM = <b>B</b>ada power, <b>S</b>ab prime.",
+      "gloss": "HCF: smallest power, common primes only. LCM: greatest power, every prime. C=Chhota (smallest power), C=Common (common primes only); B=Bada (greatest power), S=Sab (all primes).",
+      "use": "memory-aid",
+      "source": "NCERT 1.2 Example 2"
+    },
+    {
+      "id": "irrational-proof-order",
+      "text": "<b>M</b>ummy <b>S</b>e <b>D</b>ahi <b>V</b>ala <b>N</b>ashta",
+      "gloss": "Proof order. M = <b>M</b>aan lo √2 = a/b, a,b co-prime · S = <b>S</b>quare it (2b² = a²) · D = <b>D</b>ivides: 2 divides a² so 2 divides a; write a = 2c, then b² = 2c², so 2 divides b · V = <b>V</b>irodh (a and b share factor 2, contradiction) · N = <b>N</b>ishkarsh (so √2 is irrational).",
+      "use": "memory-aid",
+      "source": "NCERT 1.3 Thm 1.3"
+    },
+    {
+      "id": "two-versus-three-numbers",
+      "text": "<b>Do</b> ki jodi mein HCF × LCM = a × b; <b>teen</b> ki bheed mein nahi.",
+      "gloss": "Product rule holds for two numbers only. Do = two numbers (rule holds); Teen = three (fails).",
+      "use": "memory-aid",
+      "source": "NCERT 1.2 Example 4 Remark"
     }
   ],
   "mindmap": {

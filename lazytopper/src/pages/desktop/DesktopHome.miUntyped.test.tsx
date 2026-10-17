@@ -48,10 +48,13 @@ describe("MI-COPY — Home MI card, lost marks with no mistake type (MCQ-only)",
     expect(HOME_MI_UNTYPED_NOTE).toContain(UNTYPED_MARKS_WHY);
     // FOLLOWUPS-4 C [FU-HOME-MI-NOTE-NO-LOSS] — true also for a student who HAS checked written
     // answers that lost no marks: the tiles fill in when a checked written answer LOSES marks.
+    // FOLLOWUPS-5 M — and only when we can NAME the mistake behind those marks (marks lost only
+    // to missing steps carry no type), so "loses marks" alone still overclaimed.
     expect(HOME_MI_UNTYPED_NOTE).toBe(
-      `These fill in when a checked written answer loses marks. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`,
+      `These fill in when we can name the mistake behind marks lost in a checked written answer. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`,
     );
     expect(note.textContent).not.toMatch(/when you check a written answer/);
+    expect(note.textContent).not.toMatch(/when a checked written answer loses marks/);
     expect(screen.getAllByTestId("home-mi-untyped-note")).toHaveLength(1);
   });
 
@@ -75,7 +78,7 @@ describe("MI-COPY — Home MI card, lost marks with no mistake type (MCQ-only)",
       expect(t.style.borderStyle).toBe("dashed");
       expect(t.querySelector(".lt-n")!.textContent).toBe("—");
     }
-    expect(HOME_MI_UNTYPED_TILE_TITLE).toBe(`Fills in when a checked written answer loses marks. ${UNTYPED_MARKS_WHY}`);
+    expect(HOME_MI_UNTYPED_TILE_TITLE).toBe(`Fills in when we can name a mistake in a checked written answer. ${UNTYPED_MARKS_WHY}`);
   });
 });
 

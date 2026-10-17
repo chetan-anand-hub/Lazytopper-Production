@@ -327,27 +327,142 @@
   "formula_strip": [
     {
       "label": "Power of a lens",
-      "math": "$P = \\dfrac{1}{f\\,(\\text{m})}$ &nbsp;(dioptre, D)"
+      "math": "$P = \\dfrac{1}{f\\,(\\text{m})}$ &nbsp;(dioptre, D)",
+      "id": "power-of-a-lens",
+      "heading": "Power of a Lens (Dioptre)",
+      "tip": "f in metres."
     },
     {
       "label": "Lens formula",
-      "math": "$\\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{f}$"
+      "math": "$\\dfrac{1}{v} - \\dfrac{1}{u} = \\dfrac{1}{f}$",
+      "id": "lens-formula",
+      "heading": "Lens Formula",
+      "tip": "Use for the corrective-lens numerical."
     },
     {
       "label": "Myopia correction",
-      "math": "$f = -(\\text{far point in m}),\\; P<0$ (concave)"
+      "math": "$f = -(\\text{far point in m}),\\; P<0$ (concave)",
+      "id": "myopia-correction",
+      "heading": "Myopia and its Correction",
+      "tip": "Far point of a myopic eye: use a lens with f = −(far point distance); P is negative."
     },
     {
       "label": "Hypermetropia correction",
-      "math": "object at $25\\text{ cm}$, image at the near point; $P>0$ (convex)"
+      "math": "object at $25\\text{ cm}$, image at the near point; $P>0$ (convex)",
+      "id": "hypermetropia-correction",
+      "heading": "Hypermetropia and its Correction",
+      "tip": "Object at 25 cm should form a virtual image at the eye's near point; P positive."
     },
     {
       "label": "Normal vision range",
-      "math": "near point $\\approx 25\\text{ cm}$ → far point $\\infty$"
+      "math": "near point $\\approx 25\\text{ cm}$ → far point $\\infty$",
+      "id": "normal-vision-range",
+      "tip": "25 cm to infinity."
     },
     {
       "label": "Colour bending in a prism",
-      "math": "red bends least · violet bends most (VIBGYOR)"
+      "math": "red bends least · violet bends most (VIBGYOR)",
+      "id": "dispersion-of-light",
+      "tip": "Red bends least, violet most."
+    },
+    {
+      "label": "Power of Accommodation",
+      "math": "The eye lens changes its focal length to focus objects at different distances. For distant objects the ciliary muscles relax, the lens becomes thinner and its focal length longer. For near objects the ciliary muscles contract, the lens becomes thicker and its focal length shorter.",
+      "id": "power-of-accommodation"
+    },
+    {
+      "label": "Cause and correction",
+      "math": "The ciliary muscles weaken and the eye lens loses flexibility, so the near point recedes. It is corrected with a convex lens. A person who also has myopia needs a bi-focal lens: the upper part is concave (for distant vision) and the lower part is convex (for near vision).",
+      "id": "presbyopia",
+      "heading": "Presbyopia"
+    },
+    {
+      "label": "Refraction through a Prism",
+      "math": "A glass prism has two triangular bases and three rectangular lateral surfaces, inclined to each other. The angle between the two refracting faces is the angle of the prism; the angle between the incident ray extended and the emergent ray is the angle of deviation; the angle the emergent ray makes with the normal is the angle of emergence.",
+      "id": "refraction-through-a-prism"
+    },
+    {
+      "label": "Scattering of Light: Tyndall Effect and the Blue Sky",
+      "math": "Fine particles in the atmosphere scatter light (Tyndall effect). Blue light is scattered the most and red the least, so the clear sky looks blue, and danger signals are red because red light is scattered least and travels farthest.",
+      "id": "scattering-of-light"
+    },
+    {
+      "label": "Atmospheric Refraction",
+      "math": "Stars twinkle because starlight is refracted again and again as it passes through layers of air of changing density. Planets do not twinkle because they are close enough to act as an extended source, so the flickering averages out. The Sun is visible about 2 minutes before the actual sunrise and about 2 minutes after the actual sunset.",
+      "id": "atmospheric-refraction"
+    },
+    {
+      "label": "Rainbow Formation",
+      "math": "A rainbow is a natural spectrum seen after rain with the Sun behind the observer. Sunlight is refracted on entering a water droplet, dispersed into its colours, reflected internally and refracted again on leaving.",
+      "id": "rainbow-formation"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "image-position-names-the-defect",
+      "text": "Image falls IN FRONT of the retina ⇒ myopia ⇒ concave lens. BEHIND the retina ⇒ hypermetropia ⇒ convex lens.",
+      "use": "written-ok",
+      "source": "NCERT 10.2 (Figs 10.2, 10.3)"
+    },
+    {
+      "id": "power-sign-names-the-lens",
+      "text": "P negative ⇒ concave; P positive ⇒ convex.",
+      "use": "mcq-check",
+      "source": "NCERT 9.3.8, 10.2"
+    },
+    {
+      "id": "violet-bends-most",
+      "text": "Shortest wavelength (violet) deviates most; longest (red) least.",
+      "use": "mcq-check",
+      "source": "NCERT 10.4; PYQ-S-EYE-003"
+    },
+    {
+      "id": "blue-scatters-red-does-not",
+      "text": "Blue scatters most so the sky is blue; red scatters least so danger signals are red.",
+      "use": "mcq-check",
+      "source": "NCERT 10.6.2; SQP-S-HEW-001"
+    },
+    {
+      "id": "normal-eye-limits",
+      "text": "Normal near point 25 cm, far point infinity.",
+      "use": "mcq-check",
+      "source": "NCERT 10.1.1"
+    },
+    {
+      "id": "defect-lens-trick",
+      "text": "<b>Myopia = Minus</b> (concave), <b>Hypermetropia = Hum plus</b> (convex).",
+      "gloss": "Which lens. M-M: myopia → minus (concave, diverging); H-H: hypermetropia → plus (convex, converging).",
+      "use": "memory-aid",
+      "source": "NCERT 10.2"
+    },
+    {
+      "id": "eye-light-path-trick",
+      "text": "<b>C</b>hai <b>P</b>ilao <b>L</b>assi <b>R</b>ehne do.",
+      "gloss": "Path of light in the eye. C = Cornea · P = Pupil · L = Lens · R = Retina (then optic nerve).",
+      "use": "memory-aid",
+      "source": "NCERT 10.1"
+    },
+    {
+      "id": "near-far-point-trick",
+      "text": "<b>Paas 25 cm, door anant.</b>",
+      "gloss": "Normal vision. near point 25 cm; far point infinity.",
+      "use": "memory-aid",
+      "source": "NCERT 10.1.1"
+    },
+    {
+      "id": "vibgyor-order-trick",
+      "text": "<b>V</b>ikram <b>I</b>se <b>B</b>olo, <b>G</b>aadi <b>Y</b>ahin <b>O</b>oper <b>R</b>akhna.",
+      "gloss": "Spectrum order. V=Violet · I=Indigo · B=Blue · G=Green · Y=Yellow · O=Orange · R=Red.",
+      "use": "memory-aid",
+      "source": "NCERT 10.4",
+      "heading": "VIBGYOR: Colours of the Spectrum Trick"
+    },
+    {
+      "id": "scatter-trick",
+      "text": "<b>Neela bikhre zyada, laal kam</b>: aasmaan neela, khatre ka signal laal.",
+      "gloss": "Scattering. blue scattered most; red least.",
+      "use": "memory-aid",
+      "source": "NCERT 10.6.2"
     }
   ],
   "third_tab_content": {

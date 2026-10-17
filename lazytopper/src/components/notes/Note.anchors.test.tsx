@@ -45,6 +45,8 @@ const spec = (slug: string): NoteSpec => {
   if (!s) throw new Error("no spec " + slug);
   return s;
 };
+/** A chapter without tricks, whatever the shipped spec data says: the honest-empty-state checks must not depend on it. */
+const noTricks = (slug: string): NoteSpec => ({ ...spec(slug), shortcuts: undefined });
 
 const SHORTCUTS: NoteShortcut[] = [
   { id: "trig-ratio-order", heading: "Trigonometry Table (0° to 90°)", text: "Order of the ratios: $\\sin, \\cos, \\tan$", use: "mcq-check", source: "NCERT 8.2" },
@@ -71,7 +73,7 @@ const selected = () => screen.getAllByRole("tab").findIndex((t) => t.getAttribut
 
 describe("NOTES-FORMULA-3a — honest empty state (every chapter today)", () => {
   it("(a) no shortcuts: label, panels and links are exactly as before", () => {
-    const s = spec("trigonometry");
+    const s = noTricks("trigonometry");
     expect(hasTricks(s)).toBe(false);
     const { container } = mount(s);
     expect(tabLabels()[1]).toBe("Formulae & Mindmap");
@@ -187,9 +189,9 @@ describe("NOTES-FORMULA-3a — a hash opens the tab that holds the anchor", () =
 
   it("(f4) a section that this chapter does not have is not an anchor (#shortcuts with no shortcuts does nothing)", () => {
     window.history.replaceState(null, "", "/#shortcuts");
-    mount(spec("trigonometry"));
+    mount(noTricks("trigonometry"));
     expect(selected()).toBe(0);
-    expect(anchorTabs(spec("trigonometry")).has("shortcuts")).toBe(false);
+    expect(anchorTabs(noTricks("trigonometry")).has("shortcuts")).toBe(false);
   });
 });
 
@@ -199,24 +201,24 @@ describe("NOTES-FORMULA-3a — diagrams", () => {
     const c = s.third_tab_content;
     if (c.kind !== "diagrams") throw new Error("life-processes third tab is not diagrams");
     const ref = c.diagrams[0];
-    return { ...s, figures: { ...s.figures, [ref]: { ...s.figures[ref], id: "human-heart-diagram", heading: "Human Heart Diagram", alt: "Labelled diagram of the human heart" } } };
+    return { ...s, figures: { ...s.figures, [ref]: { ...s.figures[ref], id: "fixture-heart-diagram", heading: "Human Heart Diagram", alt: "Labelled diagram of the human heart" } } };
   };
 
   it("(h) the figure carries its id and h3 heading, the section is #diagrams, the hash opens the third tab, the alt is the spec's", () => {
     const s = diag();
     const { container } = mount(s);
-    expect(container.querySelectorAll("#human-heart-diagram")).toHaveLength(1);
-    expect(container.querySelector("#human-heart-diagram h3.lt-note__h3")!.textContent).toBe("Human Heart Diagram");
+    expect(container.querySelectorAll("#fixture-heart-diagram")).toHaveLength(1);
+    expect(container.querySelector("#fixture-heart-diagram h3.lt-note__h3")!.textContent).toBe("Human Heart Diagram");
     expect(container.querySelector("#diagrams")).not.toBeNull();
-    const img = container.querySelector("#human-heart-diagram img");
+    const img = container.querySelector("#fixture-heart-diagram img");
     expect(img, "the figure renders an <img> (it has an asset)").not.toBeNull();
     expect(img!.getAttribute("alt")).toBe("Labelled diagram of the human heart");
-    expect(panels(container)[2].contains(container.querySelector("#human-heart-diagram"))).toBe(true);
+    expect(panels(container)[2].contains(container.querySelector("#fixture-heart-diagram"))).toBe(true);
     cleanup();
-    window.history.replaceState(null, "", "/#human-heart-diagram");
+    window.history.replaceState(null, "", "/#fixture-heart-diagram");
     mount(s);
     expect(selected()).toBe(2);
-    expect(scrolled).toContain("human-heart-diagram");
+    expect(scrolled).toContain("fixture-heart-diagram");
   });
 });
 

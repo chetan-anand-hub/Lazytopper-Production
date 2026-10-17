@@ -355,7 +355,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): sin²θ + cos²θ = 1 for all values of θ. Reason (R): This is derived from the Pythagorean theorem applied to a right triangle.",
+    "questionText": "Assertion (A): sin²θ + cos²θ = 1 for all values of θ. Reason (R): This follows from opposite² + adjacent² = hypotenuse² for the sides of a right triangle, divided by hypotenuse².",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -954,12 +954,12 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "sin² θ + cos² θ = 1",
     "solutionSteps": [
-      "Fundamental identity derived from Pythagoras theorem",
+      "Fundamental identity: opposite² + adjacent² = hypotenuse² divided by hypotenuse²",
       "In a right-angled triangle: opposite² + adjacent² = hypotenuse²",
       "Dividing by hypotenuse²: sin² θ + cos² θ = 1"
     ],
     "finalAnswer": "sin² θ + cos² θ = 1",
-    "explanation": "Fundamental identity derived from Pythagoras theorem. In a right-angled triangle: opposite² + adjacent² = hypotenuse². Dividing by hypotenuse²: sin² θ + cos² θ = 1. Therefore, the correct answer is sin² θ + cos² θ = 1.",
+    "explanation": "Fundamental identity. In a right-angled triangle: opposite² + adjacent² = hypotenuse². Dividing by hypotenuse²: sin² θ + cos² θ = 1. Therefore, the correct answer is sin² θ + cos² θ = 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
