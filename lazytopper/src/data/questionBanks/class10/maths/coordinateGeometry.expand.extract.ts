@@ -114,7 +114,7 @@ export const COORD_EXPAND_EXTRACT: CanonicalQuestion[] = [
     "questionText": "If A(5, 3), B(11, −5) and P(12, y) are the vertices of a triangle right-angled at P, find the value(s) of y.",
     "answer": "Right angle at P ⇒ PA² + PB² = AB². AB² = (11−5)² + (−5−3)² = 36 + 64 = 100. PA² = (12−5)² + (y−3)² = 49 + (y−3)². PB² = (12−11)² + (y+5)² = 1 + (y+5)². So 49 + (y−3)² + 1 + (y+5)² = 100 ⇒ (y−3)² + (y+5)² = 50 ⇒ 2y² + 4y + 34 = 50 ⇒ 2y² + 4y − 16 = 0 ⇒ y² + 2y − 8 = 0 ⇒ (y + 4)(y − 2) = 0 ⇒ y = 2 or y = −4.",
     "solutionSteps": [
-      "[1 mark] Right angle at P ⇒ by the converse of Pythagoras, PA² + PB² = AB². Compute AB² = 6² + (−8)² = 100.",
+      "[1 mark] The angle at P is 90°, so PA² + PB² = AB² (the two legs PA and PB, and the hypotenuse AB). Compute AB² = 6² + (−8)² = 100.",
       "[1 mark] PA² = 7² + (y−3)² and PB² = 1² + (y+5)². Substitute: 49 + (y−3)² + 1 + (y+5)² = 100 ⇒ (y−3)² + (y+5)² = 50.",
       "[1 mark] Simplify to 2y² + 4y − 16 = 0 ⇒ y² + 2y − 8 = 0 ⇒ (y+4)(y−2) = 0 ⇒ y = 2 or y = −4."
     ],

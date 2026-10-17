@@ -709,10 +709,12 @@ export default function DesktopHome() {
 // FOLLOWUPS-4 C [FU-HOME-MI-NOTE-NO-LOSS] — "when you check a written answer" was false for a
 // student who HAS checked written answers that lost nothing; a type fills in only when a checked
 // written answer LOSES marks, which is true in both cases.
+// FOLLOWUPS-5 M — still an overclaim: marks lost only to missing steps carry no type, so a type
+// fills in only when we can NAME the mistake behind the lost marks.
 /** State 2's one explanatory line (the link follows it). */
-export const HOME_MI_UNTYPED_NOTE = `These fill in when a checked written answer loses marks. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`;
+export const HOME_MI_UNTYPED_NOTE = `These fill in when we can name the mistake behind marks lost in a checked written answer. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`;
 /** State 2's tile tooltip. */
-export const HOME_MI_UNTYPED_TILE_TITLE = `Fills in when a checked written answer loses marks. ${UNTYPED_MARKS_WHY}`;
+export const HOME_MI_UNTYPED_TILE_TITLE = `Fills in when we can name a mistake in a checked written answer. ${UNTYPED_MARKS_WHY}`;
 
 export function MistakeIntelligenceCard({ summary }: { summary: MeHomeSummary | null }) {
   const hasData = !!summary && summary.lost > 0;
