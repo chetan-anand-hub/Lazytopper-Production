@@ -481,7 +481,7 @@
       "id": "resistance-from-v-and-i"
     },
     {
-      "label": "Resistivity (ρ = RA/l)",
+      "label": "Resistivity ($\\rho = RA/l$)",
       "math": "$\\rho=\\dfrac{RA}{l}$, measured in ohm-metre ($\\Omega\\,\\text{m}$). Alloys generally have higher resistivity than the metals they are made of.",
       "id": "resistivity-formula"
     },

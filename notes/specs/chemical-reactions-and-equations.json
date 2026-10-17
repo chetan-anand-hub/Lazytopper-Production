@@ -535,7 +535,7 @@
     },
     {
       "label": "State Symbols and Conditions",
-      "math": "Write the physical state after each formula: (s) solid, (l) liquid, (g) gas, (aq) aqueous solution. Write conditions such as heat, catalyst, sunlight or electric current over the arrow. General word equations take no state symbols. A balanced equation earns ½ mark and the state symbols and conditions another ½ mark.",
+      "math": "Write the physical state after each formula: (s) solid, (l) liquid, (g) gas, (aq) aqueous solution. Write conditions such as heat, catalyst, sunlight or electric current over the arrow. General word equations take no state symbols. Examiners usually reward a balanced equation and correct state symbols and conditions separately.",
       "id": "state-symbols-and-conditions"
     },
     {
@@ -562,7 +562,7 @@
   "shortcuts": [
     {
       "id": "skeleton-balance-states",
-      "text": "Order of marks: skeletal equation → balanced → state symbols/conditions. Balanced equation ½, state symbols/conditions ½ (CBSE scheme).",
+      "text": "Order of marks: skeletal equation → balanced → state symbols/conditions. Examiners usually reward a balanced equation and correct state symbols separately.",
       "use": "written-ok",
       "source": "NCERT 1.1; CBSE marking principle"
     },

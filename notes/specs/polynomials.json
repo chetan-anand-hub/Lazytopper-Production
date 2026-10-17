@@ -357,7 +357,7 @@
       "id": "zeroes-from-graph"
     },
     {
-      "label": "Expressions in α and β",
+      "label": "Expressions in $\\alpha$ and $\\beta$",
       "math": "$\\alpha^2+\\beta^2=(\\alpha+\\beta)^2-2\\alpha\\beta$ · $\\dfrac{1}{\\alpha}+\\dfrac{1}{\\beta}=\\dfrac{\\alpha+\\beta}{\\alpha\\beta}$ · $\\dfrac{\\alpha}{\\beta}+\\dfrac{\\beta}{\\alpha}=\\dfrac{\\alpha^2+\\beta^2}{\\alpha\\beta}$",
       "id": "symmetric-expressions-of-zeroes"
     },
