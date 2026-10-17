@@ -2412,4 +2412,11 @@ export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
   // per-step [N mark] scheme. Questions untouched; solutionSteps (+ absent/garbled
   // finalAnswer) AI-re-authored, PENDING OWNER VERIFICATION — hence rank-demoted here.
   ...CLASS_B_STEPPED_SOLUTION_IDS,
+  // TRI-AA-ANSWERS (2026-10-17, BANK-LANES-LAND item 9): authentic NCERT / Exemplar Triangles
+  // questions whose worked solutions cited Theorem 6.7 (the deleted 2026-27 Pythagoras-proof
+  // section). Solutions re-authored with AA similarity only; question text, options and final
+  // results unchanged. PENDING OWNER VERIFICATION.
+  "TRI-N-NCERT-6-LA-006",
+  "TRI-N-EXMPLR-6-LA-007",
+  "TRI-N-EXMPLR-6-MCQ-001",
 ]);
