@@ -19,6 +19,8 @@ import {
   type PaperMarksLost,
 } from "../../lib/mistakeDisplay";
 import { MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "./GradeStateParts";
+import ShareScoreButton from "./share/ShareScoreButton";
+import { canShareScore } from "./share/shareCardModel";
 import type {
   ScorecardVariant,
   ScorecardScore,
@@ -57,6 +59,9 @@ interface ResultsScorecardProps {
   /** QP-GUEST-SIGNIN-1 — optional content shown right under the score (a guest's sign-in
    *  card). Absent on every other caller, so their scorecards are unchanged. */
   belowScore?: ReactNode;
+  /** SHARE-SCORE-1 — a host that knows the viewer is signed out (a preview) hides "Share my
+   *  score". Absent everywhere today: the shell's own rule (canShareScore) still applies. */
+  hideShare?: boolean;
 }
 
 /** The score hero + descriptor — marks (worksheet/tests) or attempts (quick practice). */
@@ -560,7 +565,7 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
-export default function ResultsScorecard({ variant, onClose, belowScore }: ResultsScorecardProps) {
+export default function ResultsScorecard({ variant, onClose, belowScore, hideShare }: ResultsScorecardProps) {
   // Close on Escape — modal etiquette without a modal library.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -605,6 +610,9 @@ export default function ResultsScorecard({ variant, onClose, belowScore }: Resul
             <>
               <ScoreHero score={variant.score} />
               {belowScore}
+              {/* SHARE-SCORE-1 — a real graded score only; the image is drawn from an
+                  allow-listed model on tap, never from this DOM. */}
+              {!hideShare && canShareScore(variant) && <ShareScoreButton variant={variant} />}
 
               {variant.pending && (() => {
                 // SCORECARD-MI-1 PR-2 — an answer that does not match its question is NOT an
