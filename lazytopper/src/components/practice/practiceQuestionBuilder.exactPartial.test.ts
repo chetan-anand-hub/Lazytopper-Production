@@ -47,6 +47,13 @@ describe("exact set with an unresolved id", () => {
     expect(served.map((q) => String(q.id))).toEqual([VALID, "LTG-S-CHEMRXN-249"]);
   });
 
+  it("control: a per-section (sectionFilter) call is unchanged - still topped up as on trunk", async () => {
+    const served = await build(3, [VALID, "NOPE-XYZ", "NOPE-ABC"], "C");
+    const ids = served.map((q) => String(q.id));
+    expect(ids[0]).toBe(VALID);
+    expect(ids.length).toBeGreaterThan(1);
+  });
+
   it("control: zero ids resolve -> today's behaviour (falls through to the chapter draw, not empty)", async () => {
     const served = await build(2, ["NOPE-XYZ", "NOPE-ABC"]);
     expect(served.length).toBeGreaterThan(0);

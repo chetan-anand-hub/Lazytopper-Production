@@ -372,3 +372,45 @@ describe("START-HERE-WRITTEN · a one-question written Start-here set", () => {
     expect(await screen.findAllByTestId("sc-tutor-ask")).toHaveLength(1);
   });
 });
+
+describe("FOLLOWUPS-5 review · the hero counts what a short exact set actually serves", () => {
+  async function renderAt(url: string, pool: PQ[]) {
+    mockBuild.mockResolvedValue(pool);
+    setMatchMediaMatches(true);
+    render(
+      <MemoryRouter initialEntries={[url]}>
+        <Routes>
+          <Route path="/practice/:grade/:subject" element={<PracticePage />} />
+          <Route path="*" element={null} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
+    return screen.getByText(/in this set\./).textContent ?? "";
+  }
+
+  // The page floors a link's count at MIN_QUESTION_COUNT (3) outside Start-here written, so the
+  // short exact set that reaches the page is a 3+-id concept link with a withheld id.
+  it("★ strict ids [q-1, q-2, NOPE-XYZ], count 3, two rows served -> the hero says 2 questions", async () => {
+    const hero = await renderAt(
+      "/practice/10/maths?topic=real-numbers&count=3&focusBankIds=q-1,q-2,NOPE-XYZ&strictFocus=true",
+      [mkItem(1), mkItem(2)],
+    );
+    expect(screen.getAllByTestId("practice-question-card")).toHaveLength(2);
+    expect(hero).toContain("2 questions in this set.");
+    expect(hero).not.toContain("3 questions");
+  });
+
+  it("control: a full exact set keeps the requested count", async () => {
+    const hero = await renderAt(
+      "/practice/10/maths?topic=real-numbers&count=3&focusBankIds=q-1,q-2,q-3&strictFocus=true",
+      [mkItem(1), mkItem(2), mkItem(3)],
+    );
+    expect(hero).toContain("3 questions in this set.");
+  });
+
+  it("control: a non-exact set keeps the requested count even when fewer rows come back", async () => {
+    const hero = await renderAt("/practice/10/maths?topic=real-numbers&count=5", [mkItem(1), mkItem(2), mkItem(3)]);
+    expect(hero).toContain("5 questions in this set.");
+  });
+});
