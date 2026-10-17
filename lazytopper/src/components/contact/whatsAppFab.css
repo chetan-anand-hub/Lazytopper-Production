@@ -1,0 +1,58 @@
+/* WA-CONTACT-1 — floating WhatsApp button. A NEW class name on purpose: the orphan
+   `.lt-whatsapp-fab` in pages/home.css is unused and is left alone.
+   Mobile: above the fixed bottom nav (z 20, ~60px tall) and the safe area.
+   Desktop (>= 1024px, the app's useIsDesktop breakpoint): 24px from the corner.
+   z-index 18: below the bottom nav, toasts (60), the desktop header (35) and every modal. */
+.lt-wa-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  z-index: 18;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.22);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lt-wa-fab:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.28);
+}
+
+.lt-wa-fab:focus-visible {
+  outline: 3px solid hsl(222, 47%, 24%);
+  outline-offset: 3px;
+}
+
+.lt-wa-fab__icon {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .lt-wa-fab {
+    right: 24px;
+    bottom: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-wa-fab {
+    transition: none;
+  }
+  .lt-wa-fab:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  .lt-wa-fab {
+    display: none;
+  }
+}
