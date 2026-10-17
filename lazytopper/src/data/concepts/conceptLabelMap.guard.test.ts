@@ -92,7 +92,9 @@ const MAX_REVIEWED_LABELS = 136;
 // 14 Oct SCI-BACKLOG-1 batch 1 (F): 19 Science rows serve again (+19, 10438 served), all with the unmapped "Chapter Practice" echo label, so none gains a concept: measured 9618 of 10438 = 0.92144 -> pin 0.9225 -> 0.9214 (the dilution by exactly those 19 rows; AUDIT-REQUEST names it for the cofounder).
 // 17 Oct SCI-BACKLOG-1 batch 1 LANDED on trunk bf957004 (after UNKNOWN-OWNER A/B and #1222): re-measured by runtime import on the merged tree:
 // 9728 of 10554 = 0.92174 (the same 19 concept-less rows on a larger bank) -> pin 0.9225 -> 0.9217 (the branch's 0.9214 was measured on 10438 rows).
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9217;
+// 17 Oct SCI-BACKLOG-1 batch 2 LANDED on trunk aa24ad13: 6 Science SINGLE-STEP rows serve again, all concept-less (9728 rows with a concept before and after):
+// re-measured by runtime import on the merged tree: 9728 of 10560 = 0.92121 -> pin 0.9217 -> 0.9212.
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9212;
 
 const isChapterEchoSubtopic = echoFromShape;
 
