@@ -246,15 +246,16 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
     expect(screen.queryByText(/ask the tutor about these/i)).toBeNull();
   });
 
-  it("collapses the quick links into a tap-to-open list", () => {
+  it("HOME-PENDING-1: the collapsed quick links ('Jump straight in') are gone; Practice is the way to Full Test / worksheets", () => {
     setMatchMediaMatches(false);
     renderMobileHome();
 
-    const links = screen.getAllByTestId("mobile-home-quick-link");
-    expect(links).toHaveLength(4);
-    // Worksheets stay reachable after the hero card retired.
-    const hrefs = links.map((l) => l.getAttribute("href") ?? "");
-    expect(hrefs.some((h) => h.includes("/practice/worksheets"))).toBe(true);
+    expect(screen.queryAllByTestId("mobile-home-quick-link")).toHaveLength(0);
+    expect(screen.queryByText(/Jump straight in/i)).toBeNull();
+    // CONTROL: the page rendered, and its Practice card (the hub with the Full Test and
+    // Worksheet cards) is still one tap away.
+    const hrefs = screen.getAllByTestId("mobile-home-destination").map((l) => l.getAttribute("href") ?? "");
+    expect(hrefs.some((h) => h.startsWith("/practice-hub"))).toBe(true);
   });
 
   it("does NOT show a resume strip for a signed-out visitor", () => {

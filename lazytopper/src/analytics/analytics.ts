@@ -815,12 +815,21 @@ export type StartHereSurface = "home" | "practice_hub" | "check_improve";
 /** QP-SCORECARD-2 E5 — the FOCUSED first-run surface on a page: same event names, `<page>_focus`. */
 export type StartHereFocusSurface = "home_focus" | "practice_hub_focus" | "check_improve_focus";
 export type ScorecardSurface = "quick_practice" | "check_improve" | "chapter_test" | "full_mock" | "worksheet";
+/** HOME-PENDING-1 — the paper surfaces with an answer upload still waiting. */
+export type PendingUploadSurface = "worksheet" | "chapter_test" | "full_mock" | "quick_practice";
+/** HOME-PENDING-1 — where the pending list was: the Home action strip or the header bell. */
+export type PendingPlacement = "strip" | "bell";
 
 export interface OnboardingEventParams {
   start_here_shown: { surface: StartHereSurface | StartHereFocusSurface };
   start_here_start: { subject: string; chapter: string; qtype: string };
   start_here_graded: { subject: string; correct: number; total: number };
   start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface };
+  /** HOME-PENDING-1 — the pending-answers list was shown (once per tab per placement: the Home
+   *  strip rendered / the header bell's popover opened), with the number waiting. No code, no id. */
+  pending_card_shown: { count: number; placement: PendingPlacement };
+  /** HOME-PENDING-1 — "Upload answers" tapped: the paper's surface and where, only. */
+  pending_upload_tap: { surface: PendingUploadSurface; placement: PendingPlacement };
   tutor_from_scorecard: { surface: ScorecardSurface };
   /** TUTOR-FIX-2 T13 — once per tutor thread: the subject and the board chapter slug only. */
   tutor_first_message: { subject: string; chapter: string };
@@ -912,6 +921,24 @@ export function trackPracticeGraded(attemptKey: string): void {
 /** Test seam: forget which attempts were counted. */
 export function __resetPracticeGradedForTests(): void {
   practiceGradedSent.clear();
+}
+
+/** SHARE-SCORE-1 — how a scorecard was shared: the OS share sheet, or the desktop wa.me link. */
+export type ScoreShareMethod = "native" | "whatsapp_link";
+
+/**
+ * SHARE-SCORE-1 — `score_share`: a student shared a scorecard image. The surface and the
+ * method only; never the score, a code, an id or any text. Vendors only (GA4 / Vercel), like
+ * `whatsapp_contact_tap`: deliberately NOT in `NamedAnalyticsEvent`, so the first-party log
+ * drops it and no server allow-list change is needed.
+ */
+export function trackScoreShare(surface: ScorecardSurface, method: ScoreShareMethod): void {
+  try {
+    const data = { surface, method };
+    send("event", { name: "score_share", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
 }
 
 /**
