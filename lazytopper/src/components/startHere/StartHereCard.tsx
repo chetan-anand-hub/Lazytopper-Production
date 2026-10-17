@@ -15,6 +15,7 @@ import {
   dismissForSession,
   focusAllowed,
   recordFocusNotNow,
+  START_HERE_FOCUS_CLOSED_KEY,
   isDismissedThisSession,
   readSubjectHint,
   startHerePracticePath,
@@ -195,17 +196,35 @@ export interface StartHereCardProps {
    * True → the focused surface is not offered here (the inline card is unaffected).
    */
   inProgress?: boolean;
+  /**
+   * ACTIVATION-2 A — Check & Improve only. Set → the focused surface leads with "Check one
+   * answer" (this callback, after the takeover closes: the page scrolls to / focuses its question
+   * box); the practice picker is the secondary "or practise 5 questions". Closing the takeover
+   * by any route also hides the inline card on this page for this visit. Unset (every other
+   * page) → rendering, reads and events are exactly as before.
+   */
+  checkOneAnswer?: () => void;
 }
 
 /** The card with its own eligibility read (Practice Hub, Check & Improve). */
-export default function StartHereCard({ uid, focus = false, inProgress = false, ...rest }: StartHereCardProps) {
+export default function StartHereCard({ uid, focus = false, inProgress = false, checkOneAnswer, ...rest }: StartHereCardProps) {
   const state = useStartHere(uid);
+  // ACTIVATION-2 A: the takeover on THIS page was closed → the inline card stands down here too.
+  const [hiddenHere, setHiddenHere] = useState(false);
+  const inlineState = hiddenHere ? { ...state, visible: false } : state;
   return (
     <>
       {focus && !inProgress && uid ? (
-        <StartHereFocusView uid={uid} surface={rest.surface} returnTo={rest.returnTo} state={state} />
+        <StartHereFocusView
+          uid={uid}
+          surface={rest.surface}
+          returnTo={rest.returnTo}
+          state={state}
+          checkOneAnswer={checkOneAnswer}
+          onClosed={checkOneAnswer ? () => setHiddenHere(true) : undefined}
+        />
       ) : null}
-      <StartHereView {...rest} state={state} />
+      <StartHereView {...rest} state={inlineState} />
     </>
   );
 }
@@ -216,7 +235,7 @@ export function StartHereView({
   returnTo,
   spaced = false,
   state,
-}: Omit<StartHereCardProps, "uid" | "focus" | "inProgress"> & { state: StartHereState }) {
+}: Omit<StartHereCardProps, "uid" | "focus" | "inProgress" | "checkOneAnswer"> & { state: StartHereState }) {
   const visible = state.visible;
   const shownRef = useRef(false);
 
@@ -608,9 +627,26 @@ export function focusSurfaceOf(surface: StartHereSurface): StartHereFocusSurface
  * only the `surface` VALUE is new (analytics.ts StartHereFocusSurface), and it passes the
  * onboarding slug filter as-is.
  */
-function trackFocus(name: "start_here_shown" | "start_here_dismissed", surface: StartHereSurface): void {
-  trackOnboardingEvent(name, { surface: focusSurfaceOf(surface) });
+function trackFocus(
+  name: "start_here_shown" | "start_here_dismissed",
+  surface: StartHereSurface,
+  checkOne = false,
+): void {
+  // ACTIVATION-2 A: the Check & Improve takeover adds `variant: "check_one"`; every other call is
+  // byte-for-byte the payload it was.
+  trackOnboardingEvent(
+    name,
+    checkOne ? { surface: focusSurfaceOf(surface), variant: "check_one" } : { surface: focusSurfaceOf(surface) },
+  );
 }
+
+/** ACTIVATION-2 A — the Check & Improve takeover's copy (honest: one answer, free, no promise). */
+export const START_HERE_CHECK_ONE_COPY = {
+  kicker: "Start here",
+  body: "Check one written answer – free. Type or photograph a question, then your answer; we show where marks are lost.",
+  cta: "Check one answer",
+  practise: "or practise 5 questions",
+} as const;
 
 export interface StartHereFocusViewProps {
   /** The signed-in uid (the "Not now" memory is per uid, on this device). */
@@ -620,6 +656,10 @@ export interface StartHereFocusViewProps {
   returnTo: string;
   /** The SAME eligibility read the inline card uses (useStartHere). */
   state: StartHereState;
+  /** ACTIVATION-2 A — set on Check & Improve only: lead with "Check one answer". */
+  checkOneAnswer?: () => void;
+  /** ACTIVATION-2 A — called once the takeover closes by any route (✕, Esc, Not now, Check one). */
+  onClosed?: () => void;
 }
 
 /**
@@ -627,21 +667,40 @@ export interface StartHereFocusViewProps {
  * unless the inline card's own audience rule holds AND the E3 "Not now" rule allows it — so a
  * signed-out visitor or an existing student never reaches the overlay code path.
  */
-export function StartHereFocusView({ uid, surface, returnTo, state }: StartHereFocusViewProps) {
+export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnswer, onClosed }: StartHereFocusViewProps) {
   const [closed, setClosed] = useState(false);
   const eligible = state.visible && !!uid && !closed;
   // The device memory is read only once the audience rule says yes.
   const allowed = useMemo(() => (eligible ? focusAllowed(uid) : false), [eligible, uid]);
   if (!eligible || !allowed) return null;
+  const checkOne = !!checkOneAnswer;
   return (
     <StartHereFocusDialog
       surface={surface}
       returnTo={returnTo}
+      checkOne={checkOne}
       onNotNow={() => {
-        trackFocus("start_here_dismissed", surface);
+        trackFocus("start_here_dismissed", surface, checkOne);
         recordFocusNotNow(uid);
         setClosed(true);
+        onClosed?.();
       }}
+      onCheckOne={
+        checkOneAnswer
+          ? () => {
+              // The student chose the check: closed for this visit (not a "Not now", so the
+              // twice-offered count is untouched); the page then takes them to its question box.
+              try {
+                window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, "1");
+              } catch {
+                /* blocked storage: closed for this mount only */
+              }
+              setClosed(true);
+              onClosed?.();
+              checkOneAnswer();
+            }
+          : undefined
+      }
     />
   );
 }
@@ -653,20 +712,32 @@ function StartHereFocusDialog({
   surface,
   returnTo,
   onNotNow,
+  checkOne = false,
+  onCheckOne,
 }: {
   surface: StartHereSurface;
   returnTo: string;
   onNotNow: () => void;
+  /** ACTIVATION-2 A — lead with "Check one answer" (Check & Improve only). */
+  checkOne?: boolean;
+  onCheckOne?: () => void;
 }) {
   const isDesktop = useIsDesktop();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const headingId = useId();
   const shownRef = useRef(false);
+  // ACTIVATION-2 A: "or practise 5 questions" swaps in the existing practice picker, in place.
+  const [practise, setPractise] = useState(false);
+  // ACTIVATION-2 A (iOS): "Check one answer" hands focus to the page's question box INSIDE the tap
+  // (iOS raises the keyboard only for a focus made in the user gesture). Once released, the trap
+  // stops pulling focus back and the close does not restore focus over the box.
+  const releasedRef = useRef(false);
 
   useEffect(() => {
     if (shownRef.current) return;
     shownRef.current = true;
-    if (claimStartHereShown(focusSurfaceOf(surface))) trackFocus("start_here_shown", surface);
+    if (claimStartHereShown(focusSurfaceOf(surface))) trackFocus("start_here_shown", surface, checkOne);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount; checkOne is fixed per page
   }, [surface]);
 
   // The latest Not-now handler, for the document listeners below (mounted once).
@@ -704,6 +775,7 @@ function StartHereFocusDialog({
     };
 
     const onKey = (e: globalThis.KeyboardEvent) => {
+      if (releasedRef.current) return;
       const picker = pickerOpen();
       if (e.key === "Escape") {
         if (picker) return; // the topmost layer (the picker) handles its own Esc
@@ -732,6 +804,7 @@ function StartHereFocusDialog({
     };
     // Focus that lands outside the dialog (and outside an open picker) is pulled back in.
     const onFocusIn = (e: FocusEvent) => {
+      if (releasedRef.current) return;
       if (!inside(e.target)) pullBack();
     };
     document.addEventListener("keydown", onKey, true);
@@ -750,6 +823,7 @@ function StartHereFocusDialog({
     document.documentElement.classList.add("lt-shcf-lock");
     return () => {
       document.documentElement.classList.remove("lt-shcf-lock");
+      if (releasedRef.current) return; // focus already handed to the page's question box
       if (before && typeof before.focus === "function" && document.contains(before)) before.focus();
     };
   }, []);
@@ -784,13 +858,43 @@ function StartHereFocusDialog({
         >
           ✕
         </button>
-        <StartHerePanel
-          testIdPrefix="start-here-focus"
-          returnTo={returnTo}
-          onNotNow={onNotNow}
-          startOpen
-          headingId={headingId}
-        />
+        {checkOne && onCheckOne && !practise ? (
+          <>
+            <p className="lt-shc-k">{START_HERE_CHECK_ONE_COPY.kicker}</p>
+            <h2 className="lt-shc-h" id={headingId}>
+              {START_HERE_CHECK_ONE_COPY.body}
+            </h2>
+            <div className="lt-shc-ctas">
+              <button
+                type="button"
+                className="lt-shc-go"
+                data-testid="start-here-focus-check-one"
+                onClick={() => {
+                  releasedRef.current = true;
+                  onCheckOne();
+                }}
+              >
+                {START_HERE_CHECK_ONE_COPY.cta}
+              </button>
+              <button
+                type="button"
+                className="lt-shc-later"
+                data-testid="start-here-focus-practise"
+                onClick={() => setPractise(true)}
+              >
+                {START_HERE_CHECK_ONE_COPY.practise}
+              </button>
+            </div>
+          </>
+        ) : (
+          <StartHerePanel
+            testIdPrefix="start-here-focus"
+            returnTo={returnTo}
+            onNotNow={onNotNow}
+            startOpen
+            headingId={headingId}
+          />
+        )}
       </div>
     </div>,
     document.body,

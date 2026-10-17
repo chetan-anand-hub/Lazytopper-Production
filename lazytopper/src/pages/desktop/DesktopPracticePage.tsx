@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import MobileShell from "../../components/mobile/MobileShell";
+import MobileSignUpButton from "../../components/mobile/MobileSignUpButton";
 import {
   isDesktopScopeValueValid,
   type DesktopScopeValue,
@@ -3446,7 +3447,13 @@ export default function DesktopPracticePage() {
   return isDesktop ? (
     pageBody
   ) : (
-    <MobileShell title="Practice" subtitle="Pick a scope, then choose what to do." showNav>
+    <MobileShell
+      title="Practice"
+      subtitle="Pick a scope, then choose what to do."
+      showNav
+      // ACTIVATION-2 B — a signed-out visitor's compact "Sign up" (renders nothing when signed in).
+      rightSlot={<MobileSignUpButton />}
+    >
       {pageBody}
     </MobileShell>
   );
