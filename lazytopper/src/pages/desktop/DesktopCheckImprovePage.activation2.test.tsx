@@ -141,10 +141,14 @@ describe("ACTIVATION-2 A · Start here on Check & Improve → 'Check one answer'
     Element.prototype.scrollIntoView = scroll;
     renderPage();
     fireEvent.click(await screen.findByTestId("start-here-focus-check-one"));
+    // iOS: focused INSIDE the tap (synchronously), not on a later tick
+    expect(document.activeElement).toBe(questionBox());
     await waitFor(() => expect(screen.queryByTestId("start-here-focus")).toBeNull());
     expect(screen.queryByTestId("start-here-card")).toBeNull();
-    await waitFor(() => expect(document.activeElement).toBe(questionBox()));
-    expect(scroll).toHaveBeenCalled();
+    // the closing takeover did not pull focus back or restore it elsewhere
+    expect(document.activeElement).toBe(questionBox());
+    await waitFor(() => expect(scroll).toHaveBeenCalled());
+    expect(document.activeElement).toBe(questionBox());
   });
 });
 
@@ -176,6 +180,7 @@ describe("ACTIVATION-2 B · mobile header Sign up (signed out)", () => {
 describe("ACTIVATION-2 D · Try a board question", () => {
   it("★★ fills the box with the real bank question + its source line; nothing is read, graded or spent", async () => {
     renderPage();
+    expect(screen.getByRole("button", { name: "Try a board question" }).style.minHeight).toBe("44px"); // phone tap target
     fireEvent.click(screen.getByRole("button", { name: "Try a board question" }));
     await waitFor(() => expect(questionBox().value).toBe(BOARD.text));
     expect(screen.getByTestId("ci-board-source").textContent).toBe(BOARD.label);

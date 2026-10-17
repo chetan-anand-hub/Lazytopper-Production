@@ -728,6 +728,10 @@ function StartHereFocusDialog({
   const shownRef = useRef(false);
   // ACTIVATION-2 A: "or practise 5 questions" swaps in the existing practice picker, in place.
   const [practise, setPractise] = useState(false);
+  // ACTIVATION-2 A (iOS): "Check one answer" hands focus to the page's question box INSIDE the tap
+  // (iOS raises the keyboard only for a focus made in the user gesture). Once released, the trap
+  // stops pulling focus back and the close does not restore focus over the box.
+  const releasedRef = useRef(false);
 
   useEffect(() => {
     if (shownRef.current) return;
@@ -771,6 +775,7 @@ function StartHereFocusDialog({
     };
 
     const onKey = (e: globalThis.KeyboardEvent) => {
+      if (releasedRef.current) return;
       const picker = pickerOpen();
       if (e.key === "Escape") {
         if (picker) return; // the topmost layer (the picker) handles its own Esc
@@ -799,6 +804,7 @@ function StartHereFocusDialog({
     };
     // Focus that lands outside the dialog (and outside an open picker) is pulled back in.
     const onFocusIn = (e: FocusEvent) => {
+      if (releasedRef.current) return;
       if (!inside(e.target)) pullBack();
     };
     document.addEventListener("keydown", onKey, true);
@@ -817,6 +823,7 @@ function StartHereFocusDialog({
     document.documentElement.classList.add("lt-shcf-lock");
     return () => {
       document.documentElement.classList.remove("lt-shcf-lock");
+      if (releasedRef.current) return; // focus already handed to the page's question box
       if (before && typeof before.focus === "function" && document.contains(before)) before.focus();
     };
   }, []);
@@ -858,7 +865,15 @@ function StartHereFocusDialog({
               {START_HERE_CHECK_ONE_COPY.body}
             </h2>
             <div className="lt-shc-ctas">
-              <button type="button" className="lt-shc-go" data-testid="start-here-focus-check-one" onClick={onCheckOne}>
+              <button
+                type="button"
+                className="lt-shc-go"
+                data-testid="start-here-focus-check-one"
+                onClick={() => {
+                  releasedRef.current = true;
+                  onCheckOne();
+                }}
+              >
                 {START_HERE_CHECK_ONE_COPY.cta}
               </button>
               <button

@@ -1613,15 +1613,20 @@ const DesktopCheckImprovePageInner: React.FC<{
     }
   }
 
-  // ACTIVATION-2 A — Start here's "Check one answer": bring the question card in and focus its
-  // box. Deferred one tick so the closing takeover's own focus-restore runs first.
+  // ACTIVATION-2 A — Start here's "Check one answer": focus the question box SYNCHRONOUSLY, inside
+  // the tap (iOS raises the keyboard only for a focus made in the user gesture; the takeover has
+  // released its focus trap and will not restore focus over the box), then smooth-scroll the card
+  // in once the takeover's scroll lock is gone. If the box is not mounted yet (upload tab), it is
+  // focused on the next tick instead.
   const focusQuestionBox = useCallback(() => {
+    const box = () =>
+      questionCardRef.current?.querySelector<HTMLTextAreaElement>('textarea[aria-label="Type the question"]') ?? null;
+    const now = box();
+    now?.focus({ preventScroll: true });
     setQuestionTab("type");
     window.setTimeout(() => {
-      const card = questionCardRef.current;
-      if (!card) return;
-      card.scrollIntoView?.({ behavior: "smooth", block: "start" });
-      card.querySelector<HTMLTextAreaElement>('textarea[aria-label="Type the question"]')?.focus({ preventScroll: true });
+      questionCardRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      if (!now) box()?.focus({ preventScroll: true });
     }, 0);
   }, []);
 
@@ -2915,7 +2920,13 @@ const DesktopCheckImprovePageInner: React.FC<{
                       type="button"
                       onClick={() => void tryBoardQuestion()}
                       disabled={boardBusy}
-                      style={{ ...buttonOutline, alignSelf: "flex-start", opacity: boardBusy ? 0.55 : 1 }}
+                      style={{
+                        ...buttonOutline,
+                        alignSelf: "flex-start",
+                        opacity: boardBusy ? 0.55 : 1,
+                        // a 44px tap target on a phone (desktop keeps the outline button's size)
+                        ...(isDesktop ? null : { minHeight: 44 }),
+                      }}
                     >
                       {boardBusy ? "Getting a board question…" : "Try a board question"}
                     </button>

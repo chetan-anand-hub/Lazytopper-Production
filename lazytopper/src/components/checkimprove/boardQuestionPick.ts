@@ -11,7 +11,8 @@
 // in advance. The row's own text is filled into the question box; the student still taps
 // "Read the question", writes an answer and taps Grade — so nothing is spent until they do.
 
-import { ensureBankSubject, getBankRowsForSubject, isAiGeneratedBankId } from "../../data/bankChapters/loader";
+import { bankChaptersForSubject, ensureBankChapters, getBankRows, isAiGeneratedBankId } from "../../data/bankChapters/loader";
+import { isGeneratedOrAuthoredRow, syllabusExclusion } from "../../lib/boardQuestions/selectionRule";
 import { stableHash8 } from "../../services/sessionRecords";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
@@ -21,6 +22,7 @@ export interface BoardTryRow {
   id?: unknown;
   subject?: unknown;
   topicKey?: unknown;
+  subtopic?: unknown;
   section?: unknown;
   marks?: unknown;
   format?: unknown;
@@ -104,7 +106,7 @@ export function chooseBoardTryRow(
   exclude: ReadonlySet<string>,
   rotation: number,
 ): BoardTryRow | null {
-  const pool = rows.filter(isBoardTryRow);
+  const pool = rows.filter(isOfferableRow);
   if (pool.length === 0) return null;
   const fresh = pool.filter((r) => !exclude.has(String(r.id)));
   const from = fresh.length > 0 ? fresh : pool;
@@ -113,19 +115,56 @@ export function chooseBoardTryRow(
 }
 
 /**
- * One board question for `subject` from the SERVED rows (withheld rows are never in
- * getBankRowsForSubject), or null when the subject has none. AI-pack rows are dropped here.
+ * The full RUNTIME rule: the shape rule above, never a LazyTopper-generated or authored row,
+ * and inside the 2026-27 syllabus by the notes' own board-question recogniser (the same helpers
+ * boardQuestionPick.test.ts pins against the live bank).
+ */
+export function isOfferableRow(row: BoardTryRow): boolean {
+  return (
+    isBoardTryRow(row) &&
+    !isGeneratedOrAuthoredRow(row) &&
+    syllabusExclusion({
+      topicKey: String(row.topicKey ?? ""),
+      subtopic: typeof row.subtopic === "string" ? row.subtopic : undefined,
+      questionText: String(row.questionText ?? ""),
+    }) === null
+  );
+}
+
+const toQuestion = (row: BoardTryRow, subject: DesktopSubject): BoardTryQuestion => ({
+  id: String(row.id),
+  subject,
+  text: boardTryText(row),
+  label: boardTryLabel(row),
+});
+
+/**
+ * One board question for `subject`, loading ONE chapter at a time (not the whole subject): the
+ * starting chapter is a deterministic rotation over the subject's static chapter list, and a
+ * chapter with nothing to offer (or only ids already offered) moves on to the next. Served rows
+ * only (withheld rows are never in getBankRows); AI-pack rows are dropped. Null when the whole
+ * subject has nothing; an already-offered question is repeated only when nothing fresh is left.
  */
 export async function pickBoardTryQuestion(args: {
   subject: DesktopSubject;
   exclude?: ReadonlySet<string>;
   rotation: number;
 }): Promise<BoardTryQuestion | null> {
-  await ensureBankSubject(args.subject);
-  const rows = (getBankRowsForSubject(args.subject) as unknown as BoardTryRow[]).filter(
-    (r) => String(r.subject ?? "") === args.subject && !isAiGeneratedBankId(String(r.id ?? "")),
-  );
-  const row = chooseBoardTryRow(rows, args.exclude ?? new Set(), args.rotation);
-  if (!row) return null;
-  return { id: String(row.id), subject: args.subject, text: boardTryText(row), label: boardTryLabel(row) };
+  const chapters = bankChaptersForSubject(args.subject);
+  if (chapters.length === 0) return null;
+  const exclude = args.exclude ?? new Set<string>();
+  const start = Math.abs(Math.floor(args.rotation)) % chapters.length;
+  let repeat: BoardTryRow | null = null;
+  for (let i = 0; i < chapters.length; i += 1) {
+    const slug = chapters[(start + i) % chapters.length];
+    await ensureBankChapters([slug]);
+    const rows = (getBankRows([slug]) as unknown as BoardTryRow[]).filter(
+      (r) => String(r.subject ?? "") === args.subject && !isAiGeneratedBankId(String(r.id ?? "")),
+    );
+    const row = chooseBoardTryRow(rows, exclude, args.rotation);
+    if (!row) continue;
+    if (!exclude.has(String(row.id))) return toQuestion(row, args.subject);
+    repeat ??= row;
+  }
+  return repeat ? toQuestion(repeat, args.subject) : null;
 }

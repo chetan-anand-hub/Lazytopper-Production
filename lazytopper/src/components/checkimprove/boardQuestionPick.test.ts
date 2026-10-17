@@ -6,6 +6,7 @@ import {
   boardTryText,
   chooseBoardTryRow,
   isBoardTryRow,
+  isOfferableRow,
   pickBoardTryQuestion,
   type BoardTryRow,
 } from "./boardQuestionPick";
@@ -56,6 +57,16 @@ describe("ACTIVATION-2 D · the board-question rule", () => {
     ["a row with unmarked steps", { solutionSteps: ["E = I²Rt"] }],
   ])("rejects %s", (_n, patch) => {
     expect(isBoardTryRow({ ...GOOD, ...(patch as Partial<BoardTryRow>) })).toBe(false);
+  });
+
+  it.each([
+    ["a LazyTopper-generated row", { origin: "lt-generated" }],
+    ["an authored row", { questionProvenance: "authored" }],
+    ["a row outside the 2026-27 syllabus", { topicKey: "trigonometry", questionText: "Evaluate sin (90° − A) cos A + cos (90° − A) sin A for an acute angle A." }],
+  ])("the RUNTIME rule also rejects %s", (_n, patch) => {
+    expect(isOfferableRow(GOOD)).toBe(true);
+    expect(isOfferableRow({ ...GOOD, ...(patch as Partial<BoardTryRow>) })).toBe(false);
+    expect(chooseBoardTryRow([{ ...GOOD, ...(patch as Partial<BoardTryRow>) }], new Set(), 1)).toBeNull();
   });
 
   it("fills the row's own words plus its real marks, and labels the source honestly", () => {

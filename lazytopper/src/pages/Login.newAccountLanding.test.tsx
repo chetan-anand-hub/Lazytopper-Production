@@ -97,6 +97,26 @@ describe("ACTIVATION-2 C · where a sign-in lands", () => {
     expect(await screen.findByText("LANDED ON PRACTICE HUB")).toBeTruthy();
   });
 
+  it("★★ a NEW account whose ?redirect= is only the default Home (%2F, as Welcome / the shell pass it) lands on Check & Improve", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?reason=login&redirect=%2F");
+    expect(await screen.findByText("LANDED ON CHECK AND IMPROVE")).toBeTruthy();
+  });
+
+  it("★ a NEW account from the mobile Home (/browse) lands on Check & Improve too", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2Fbrowse");
+    expect(await screen.findByText("LANDED ON CHECK AND IMPROVE")).toBeTruthy();
+  });
+
+  it("★★ CONTROL: a RETURNING login with redirect=%2F still lands on home", async () => {
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?reason=login&redirect=%2F");
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+  });
+
   it("★ state.from wins too", async () => {
     markNewAccountLanding();
     authState.user = GOOGLE_USER;

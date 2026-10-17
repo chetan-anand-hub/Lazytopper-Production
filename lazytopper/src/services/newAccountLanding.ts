@@ -36,6 +36,17 @@ export function markNewAccountLandingIfNew(credential: UserCredential): void {
   }
 }
 
+/**
+ * The targets that only mean "Home" (cofounder ruling on #1224): no target, "/" (Welcome.tsx and
+ * DesktopShell.tsx pass `redirect=%2F` as their default) and "/browse" (the mobile Home a
+ * signed-in student on "/" is routed to; the mobile header passes the current path). A new
+ * account with one of these lands on Check & Improve; any other target is the student's own.
+ */
+const DEFAULT_HOME_TARGETS: ReadonlySet<string> = new Set(["", "/", "/browse"]);
+export function isDefaultHomeTarget(target: string | null | undefined): boolean {
+  return DEFAULT_HOME_TARGETS.has(String(target ?? "").trim());
+}
+
 /** True once, for a fresh mark; the mark is cleared either way. */
 export function takeNewAccountLanding(now: number = elapsedNow()): boolean {
   const at = markedAt;

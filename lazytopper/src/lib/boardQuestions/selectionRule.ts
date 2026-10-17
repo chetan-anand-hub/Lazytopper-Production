@@ -315,3 +315,16 @@ export function selectBoardQuestions(
 
   return out;
 }
+
+/**
+ * ACTIVATION-2 D — true for a row LazyTopper generated (GEN-THIN-1 `origin: "lt-generated"`) or
+ * authored on a template (TIERMAP-1 `questionProvenance: "authored"`). Such a row is never offered
+ * as a "board question". It lives HERE because this module is one of the few allowed to read the
+ * internal provenance fields (ltGenerated.guard.test.ts). Pure and bank-free: the Check & Improve
+ * board-question picker (components/checkimprove/boardQuestionPick.ts, loaded with import() only)
+ * calls it together with `syllabusExclusion` above. The notes selection rule is unchanged.
+ */
+export function isGeneratedOrAuthoredRow(q: object): boolean {
+  const row = q as { origin?: unknown; questionProvenance?: unknown };
+  return row.origin === "lt-generated" || row.questionProvenance === "authored";
+}
