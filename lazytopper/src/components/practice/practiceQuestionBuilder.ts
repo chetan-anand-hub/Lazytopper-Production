@@ -666,6 +666,13 @@ export async function buildPracticeQuestionsWithAiTopup(
     ? [...strictBase, ...topUpPool.slice(0, remainingForTopUp)]
     : strictBase;
 
+  // FOLLOWUPS-5 L: an EXACT set where SOME ids resolve but fewer than requested (one withheld or
+  // retired id) serves ONLY the resolved rows - never topped up from the canonical/AI fallback with
+  // an unrelated question. Zero resolved (exactPool empty) and a full exact set are unchanged.
+  if (exactPool.length > 0 && exactPool.length < exactCount && baseQuestions.length > 0) {
+    return enforceDifficultyFilter(baseQuestions.slice(0, safeCount), args.difficulty);
+  }
+
   const missing = safeCount - baseQuestions.length;
 
   if (missing <= 0) {
