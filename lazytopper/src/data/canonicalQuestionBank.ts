@@ -2149,6 +2149,16 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-CTRL-042",             // text repaired by BANK-FIX-7 PR-2 (stray header + truncated answer); still withheld: its answer cites the booklet's own diagram and booklet figures may not be bound
   "SCO-S-ELEC-012",             // text-damaged: garbled wiring description, printed so in the booklet (cbjescco12 Q17); no allowed source to restore it from (BANK-FIX-7 PR-2)
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
+  // SCI-BACKLOG-1 batch 3 (F, 14 Oct, D252): GDR-L-CBJ-011 paused, repair is a diagrams-plus-text change [FU-GDR-L-CBJ-011-OBJECT-AT-F]
+  "GDR-L-CBJ-011",                // wrong-content vs NCERT 2026-27: key says object at F gives a real, inverted, highly enlarged image at infinity; the 2026-27 table says "image would not be formed". Its computed figure (diagrams/registry/lightSolutionFigures.ts, opticsCase) expects an enlarged real image, so text and figure are repaired together later
+  // WITHHOLD-TRI-GDR-1 (17 Oct, reviewer siblings of GDR-L-CBJ-011): same wrong claim. NCERT jesc109 (Reprint 2026-27) Table 9.1 (concave mirror) and Table 9.4 (convex lens), object at F: 'At infinity' / 'Image would not be formed'
+  "GDR-L-NUM-019",                // wrong-content vs NCERT 2026-27 Table 9.4: convex lens, object at F; step 2 says the image at infinity is "real, inverted, highly magnified"
+  "GDR-L-CBJ-018",                // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror, object at F; step 3 says "image at infinity, real, inverted and highly enlarged"
+  "LTG-S-LIGHT-278",              // wrong-content vs NCERT 2026-27 Table 9.4: convex lens, part (d) object at F; step 4 says the image at infinity is "real, inverted, highly enlarged"
+  "LIGHT-EXMPLR-9-LA-002",        // wrong-content vs NCERT 2026-27 Table 9.4: convex lens, part (e) object at F; key says "Real, inverted, highly enlarged, at infinity". Its computed figures (lightSolutionFigures.ts) are repaired with the text
+  "LT-H01",                       // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror, part (v) object at F; step says "image at infinity, real, inverted, highly magnified". Its computed figures (lightSolutionFigures.ts) are repaired with the text
+  "LT2-043",                      // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror, part (iii) u = -20 cm = f (object at F); key says "image at infinity, highly magnified"
+  "FND-L-SPM-026",                // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror match-the-column; key pairs "At F" with "(a) At infinity, highly magnified"
   // BANK-STEPS-1 REPAIR PR-5 (lane B, 14 Oct): 36 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-4 (lane B, 14 Oct): 50 Science rows repaired (new steps from each row's own stem + key) and served again
   // BANK-STEPS-1 REPAIR PR-3 (lane B, 14 Oct; CR-M04 + ABS-E06 keys changed per D170): 53 Science rows repaired (new steps from each row's own stem + key) and served again

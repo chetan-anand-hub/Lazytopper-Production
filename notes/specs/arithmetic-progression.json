@@ -574,7 +574,7 @@
           "which term / how many terms",
           "set a(n) or S(n) = target",
           "n must be a positive integer",
-          "sum -> quadratic in n -> two answers possible"
+          "sum → quadratic in n → two answers possible"
         ]
       },
       {
