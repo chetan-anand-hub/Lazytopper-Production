@@ -23,12 +23,13 @@ import { FM_BLUEPRINT, buildUnionPool, fullMockChapterWeights, sectionPool } fro
 import { getTopics, planWorksheet } from "../../components/worksheet/worksheetModel";
 
 /** This lane's withholds: id -> the chapter slug whose pools must exclude it. */
-const WITHHELD_HERE = new Map<string, { subject: "Maths" | "Science"; slug: string }>([
-  ["GDR-L-CBJ-011", { subject: "Science", slug: "light-reflection-and-refraction" }],
-]);
-
-/** Served-bank size at trunk 5a22ffe5, read from this same import before the withhold (RED run; see PR body). */
-const SERVED_BEFORE = 10461;
+//    Reviewer siblings (same wrong claim, object AT F; NCERT Table 9.4 convex lens / Table 9.1 concave mirror): GDR-L-NUM-019,
+//    GDR-L-CBJ-018, LTG-S-LIGHT-278, LIGHT-EXMPLR-9-LA-002, LT-H01, LT2-043, FND-L-SPM-026 - same PAUSE block + `paused` ledger pattern.
+const LIGHT = { subject: "Science", slug: "light-reflection-and-refraction" } as const;
+const WITHHELD_HERE = new Map<string, { subject: "Maths" | "Science"; slug: string }>(
+  ["GDR-L-CBJ-011", "GDR-L-NUM-019", "GDR-L-CBJ-018", "LTG-S-LIGHT-278", "LIGHT-EXMPLR-9-LA-002", "LT-H01", "LT2-043", "FND-L-SPM-026"]
+    .map((id) => [id, LIGHT]),
+);
 
 const SERVED = new Set(canonicalQuestionBank.map((q) => q.id));
 const RAW = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
@@ -42,8 +43,11 @@ describe("WITHHOLD-TRI-GDR-1 - the served bank", () => {
     expect(SERVED.has(id)).toBe(false);
   });
 
-  it("the served bank drops by exactly the number withheld here", () => {
-    expect(canonicalQuestionBank.length).toBe(SERVED_BEFORE - WITHHELD_HERE.size);
+  it("the served bank drops by exactly the raw rows withheld here (no bank-wide total is pinned)", () => {
+    const servedWithoutThisLane = RAW_CANONICAL_QUESTION_BANK.filter((q) => !WITHHELD_QUESTION_IDS.has(q.id) || WITHHELD_HERE.has(q.id));
+    const rawRowsHere = RAW_CANONICAL_QUESTION_BANK.filter((q) => WITHHELD_HERE.has(q.id)).length;
+    expect(rawRowsHere).toBe(WITHHELD_HERE.size); // each id names exactly one raw row
+    expect(canonicalQuestionBank.length).toBe(servedWithoutThisLane.length - rawRowsHere);
   });
 
   it("the chapter loader no longer returns a withheld row", () => {
@@ -89,11 +93,9 @@ describe("WITHHOLD-TRI-GDR-1 - Chapter Test / Worksheet / Full Mock pools exclud
     for (const spec of FM_BLUEPRINT) expect(sectionPool(pool, spec.section).map((q) => q.id), spec.section).not.toContain(id);
   });
 
-  it("CONTROL: the raw row resolves to its chapter and would be Chapter-Test eligible if served", () => {
-    for (const [id, { slug }] of WITHHELD_HERE) {
-      const q = RAW.get(id)!;
-      expect(resolveCanonicalSlug(q.topicKey)).toBe(slug);
-      expect(isEligibleForChapterTest(q), id).toBe(true);
-    }
+  it("CONTROL: every raw row resolves to its chapter, and the pool checks are not vacuous (some would be Chapter-Test eligible if served)", () => {
+    for (const [id, { slug }] of WITHHELD_HERE) expect(resolveCanonicalSlug(RAW.get(id)!.topicKey), id).toBe(slug);
+    expect([...WITHHELD_HERE.keys()].filter((id) => isEligibleForChapterTest(RAW.get(id)!)).length).toBeGreaterThan(0);
+    expect(isEligibleForChapterTest(RAW.get("GDR-L-CBJ-011")!)).toBe(true);
   });
 });

@@ -67,6 +67,11 @@ const OWNER_WITHHELD_GENERATED: ReadonlySet<string> = new Set([
   "LTG-S-HERED-294", "LTG-S-HERED-295", "LTG-S-HERED-297", "LTG-S-HERED-298", "LTG-S-HERED-299",
   "LTG-M-QE-284", // 2026-10-07 CI-1 13:0xZ: part (iii) maxima via equal roots, OUT
   "LTG-S-HERED-102", "LTG-S-HERED-106",
+  // WITHHOLD-TRI-GDR-1 (17 Oct, PR #1222): part (d) says an object at F of a convex lens gives a "real, inverted, highly enlarged"
+  // image; NCERT jesc109 (Reprint 2026-27) Table 9.4 says "Image would not be formed". Its template LIGHT-EXMPLR-9-LA-002 is withheld
+  // for the same wrong claim. Withheld under the owner-approved WITHHOLD-TRI-GDR-1 lane (owner 17 Oct 12:08 IST) at the cofounder
+  // reviewer's direction; owner acknowledgement of this generated-row withhold is requested in the PR.
+  "LTG-S-LIGHT-278",
 ]);
 const BANK_BY_ID = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 const RAW_BY_ID = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
