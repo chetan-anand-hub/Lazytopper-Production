@@ -67,13 +67,24 @@ const GENERIC_LABELS = new Set([
   "worksheet",
 ]);
 
-/** Any surface code (`WS-M-RN-03`, `CT-M-RN-02`, `FM-M-04`, `CI-1`, ...). */
-const CODE_TOKEN = /\b[A-Z]{2}-[A-Z0-9]+(?:-[A-Z0-9]+)*\b/g;
+/** Any surface code or internal id, whole, any case, hex tails included: `WS-M-RN-03`,
+ *  `CT-M-RN-02`, `FM-M-04`, `CI-M-TR-01`, `QP-M-RN-3fa9c0b1` (sessionRecords.ts:1200),
+ *  `ws-…`/`ct-…`/`fm-…`/`qp-…` ids, `UNL-…` paper ids. */
+const CODE_TOKEN = /\b(?:WS|CT|FM|CI|QP|UNL)-[A-Z0-9]+(?:-[A-Z0-9]+)*/gi;
+/** The ONLY head whose subtitle may lend the chapter: the LIVE C&I builder's fixed title
+ *  (scorecardVariants.ts:1798), whose subtitle leads with the topic. A saved / reopened
+ *  record's subtitle leads with its CODE and is never read. */
+const LIVE_CI_TITLE = "check & improve paper";
 const MAX_CONTEXT = 60;
 
 function cleanSegment(raw: string): string | null {
-  const s = raw.replace(CODE_TOKEN, "").replace(/\s+/g, " ").trim();
-  if (!s || GENERIC_LABELS.has(s.toLowerCase())) return null;
+  const s = raw
+    .replace(CODE_TOKEN, "")
+    .replace(/\s+/g, " ")
+    .replace(/^[\s\-–—:|,#.]+|[\s\-–—:|,#.]+$/g, "")
+    .trim();
+  // Nothing left, or only digits/punctuation (a code's remnant), is not a chapter.
+  if (!s || !/[A-Za-z]/.test(s) || GENERIC_LABELS.has(s.toLowerCase())) return null;
   // A status segment ("graded just now") is not a chapter.
   if (/^(graded|submitted|fully graded|saved)\b/i.test(s)) return null;
   return s.length > MAX_CONTEXT ? `${s.slice(0, MAX_CONTEXT - 3).trimEnd()}...` : s;
@@ -86,12 +97,16 @@ function firstSegment(label: string | null | undefined): string | null {
 
 /**
  * The chapter/subject label: the head title's first segment ("Real Numbers · Test #2" ->
- * "Real Numbers"; "Maths · Mock #4" -> "Maths"). A generic head ("Check & Improve paper",
- * "Session scorecard") falls back to the subtitle's first segment, which the live C&I
- * builder leads with the topic. Codes are stripped; nothing left -> null (honest-or-silent).
+ * "Real Numbers"; "Maths · Mock #4" -> "Maths"). ONLY the live C&I head ("Check & Improve
+ * paper") falls back to the subtitle's first segment, which that builder leads with the
+ * topic; every other head (incl. a saved / reopened record, whose subtitle leads with its
+ * code) never reads the subtitle. Codes are stripped; nothing left -> null (honest-or-silent).
  */
 export function shareContextOf(variant: Pick<ScorecardVariant, "title" | "subtitle">): string | null {
-  return firstSegment(variant.title) ?? firstSegment(variant.subtitle);
+  const fromTitle = firstSegment(variant.title);
+  if (fromTitle) return fromTitle;
+  if ((variant.title ?? "").trim().toLowerCase() !== LIVE_CI_TITLE) return null;
+  return firstSegment(variant.subtitle);
 }
 
 /**

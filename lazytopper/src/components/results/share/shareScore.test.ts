@@ -46,13 +46,15 @@ describe("shareNative", () => {
 });
 
 describe("openWhatsAppLink", () => {
-  it("opens wa.me with the encoded text in a new tab", () => {
-    const open = vi.fn(() => ({}));
-    openWhatsAppLink("I scored 3/5 in Light & Optics", open);
-    expect(open).toHaveBeenCalledWith(
-      `https://wa.me/?text=${encodeURIComponent("I scored 3/5 in Light & Optics")}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+  it("opens wa.me with the encoded text in a new tab, cuts the opener, reports true", () => {
+    const win = { opener: {} as unknown };
+    const open = vi.fn(() => win);
+    expect(openWhatsAppLink("I scored 3/5 in Light & Optics", open)).toBe(true);
+    expect(open).toHaveBeenCalledWith(`https://wa.me/?text=${encodeURIComponent("I scored 3/5 in Light & Optics")}`, "_blank");
+    expect(win.opener).toBeNull();
+  });
+  it("a blocked popup (null) or a throwing open reports false", () => {
+    expect(openWhatsAppLink("t", () => null)).toBe(false);
+    expect(openWhatsAppLink("t", () => { throw new Error("blocked"); })).toBe(false);
   });
 });

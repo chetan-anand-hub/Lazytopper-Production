@@ -28,6 +28,9 @@ export interface ScoreShareResult {
 export interface RunScoreShareOptions {
   method: ShareMethod;
   nav?: ShareNavigator;
+  /** Desktop: whether the button's wa.me window actually opened (window.open returned a
+   *  window). `whatsapp_link` is counted only when true. */
+  linkOpened?: boolean;
   /** Test seam: the date shown on the card (default: today). */
   dateLabel?: string;
 }
@@ -72,8 +75,9 @@ export async function renderSharePng(model: ShareCardModel): Promise<Blob> {
 export async function runScoreShare(variant: ScorecardVariant, opts: RunScoreShareOptions): Promise<ScoreShareResult> {
   const model = buildShareCardModel(variant, opts.dateLabel ?? formatShareDate(new Date()));
   if (!model) return { outcome: "failed" };
-  // Desktop: wa.me was opened by the button inside the tap - that IS the share.
-  if (opts.method === "whatsapp_link") reportScoreShare(variant.surface, "whatsapp_link");
+  // Desktop: wa.me was opened by the button inside the tap - that IS the share, but only
+  // if a window really opened (a blocked popup is not a share).
+  if (opts.method === "whatsapp_link" && opts.linkOpened === true) reportScoreShare(variant.surface, "whatsapp_link");
   let blob: Blob;
   try {
     blob = await renderSharePng(model);

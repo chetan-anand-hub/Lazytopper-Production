@@ -60,7 +60,8 @@ interface ResultsScorecardProps {
    *  card). Absent on every other caller, so their scorecards are unchanged. */
   belowScore?: ReactNode;
   /** SHARE-SCORE-1 — a host that knows the viewer is signed out (a preview) hides "Share my
-   *  score". Absent everywhere today: the shell's own rule (canShareScore) still applies. */
+   *  score". Passed by PracticePage's MCQ-only scorecard as `hideShare={isGuest}`; absent on
+   *  every other host. The shell's own rule (canShareScore) applies either way. */
   hideShare?: boolean;
 }
 

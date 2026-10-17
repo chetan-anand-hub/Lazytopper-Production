@@ -28,11 +28,20 @@ function variant(over: Partial<ScorecardVariant> = {}): ScorecardVariant {
 
 describe("runScoreShare - score_share analytics", () => {
   it("desktop link: fires {check_improve, whatsapp_link} and renders the 1080x1350 PNG", async () => {
-    const r = await runScoreShare(variant(), { method: "whatsapp_link", dateLabel: "17 Oct 2026" });
+    const r = await runScoreShare(variant(), { method: "whatsapp_link", linkOpened: true, dateLabel: "17 Oct 2026" });
     expect(r.outcome).toBe("downloaded");
     expect(trackScoreShare).toHaveBeenCalledTimes(1);
     expect(trackScoreShare).toHaveBeenCalledWith("check_improve", "whatsapp_link");
     expect(toBlob).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ width: 1080, height: 1350, pixelRatio: 1 }));
+  });
+
+  it("desktop link with a blocked popup (window.open returned null): no event, PNG still saved", async () => {
+    const r = await runScoreShare(variant(), { method: "whatsapp_link", linkOpened: false, dateLabel: "x" });
+    expect(r.outcome).toBe("downloaded");
+    expect(trackScoreShare).not.toHaveBeenCalled();
+    const r2 = await runScoreShare(variant(), { method: "whatsapp_link", dateLabel: "x" });
+    expect(r2.outcome).toBe("downloaded");
+    expect(trackScoreShare).not.toHaveBeenCalled();
   });
 
   it("native: fires {quick_practice, native} only once the sheet completes", async () => {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ScorecardVariant } from "../scorecardVariants";
 import { buildShareCardModel, shareText } from "./shareCardModel";
-import { SHARE_FILENAME, openWhatsAppLink, pickShareMethod, shareNative, type ShareNavigator } from "./shareScore";
+import { SHARE_FILENAME, downloadBlob, openWhatsAppLink, pickShareMethod, shareNative, type ShareNavigator } from "./shareScore";
 
 /**
  * SHARE-SCORE-1 - "Share my score" on the scorecard. The host (ResultsScorecard) mounts it
@@ -45,21 +45,27 @@ export default function ShareScoreButton({ variant }: { variant: ScorecardVarian
         // Already loaded by the first tap - this import resolves from the module cache.
         void import("./runScoreShare").then((m) => m.reportScoreShare(variant.surface, "native")).catch(() => {});
       }
+      if (outcome === "failed") {
+        // The sheet refused for a reason other than a cancel: still give the student their
+        // image, exactly as the first tap's failure path does (runScoreShare).
+        downloadBlob(readyFile, SHARE_FILENAME);
+      }
       setReadyFile(outcome === "needs-tap" ? readyFile : null);
-      setPhase(outcome === "needs-tap" ? "ready" : outcome === "failed" ? "failed" : "idle");
+      setPhase(outcome === "needs-tap" ? "ready" : "idle");
       return;
     }
 
     const probe = new File([new Uint8Array([0])], SHARE_FILENAME, { type: "image/png" });
     const method = pickShareMethod(nav, probe);
+    let linkOpened = false;
     if (method === "whatsapp_link" && typeof window !== "undefined" && typeof window.open === "function") {
-      openWhatsAppLink(text, (url, target, features) => window.open(url, target, features));
+      linkOpened = openWhatsAppLink(text, (url, target) => window.open(url, target));
     }
 
     setPhase("busy");
     try {
       const { runScoreShare } = await import("./runScoreShare");
-      const result = await runScoreShare(variant, { method, nav });
+      const result = await runScoreShare(variant, { method, nav, linkOpened });
       if (result.outcome === "needs-tap" && result.file) {
         setReadyFile(result.file);
         setPhase("ready");

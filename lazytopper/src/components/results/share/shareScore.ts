@@ -53,11 +53,29 @@ export async function shareNative(nav: ShareNavigator, file: File, text: string)
   }
 }
 
-type OpenFn = (url: string, target: string, features: string) => unknown;
+type OpenFn = (url: string, target: string) => { opener: unknown } | null | undefined;
 
-/** Open wa.me with the text pre-filled, in a new tab. */
-export function openWhatsAppLink(text: string, open: OpenFn): void {
-  open(whatsAppShareUrl(text), "_blank", "noopener,noreferrer");
+/**
+ * Open wa.me with the text pre-filled, in a new tab. Returns whether a window actually
+ * opened (a popup blocker returns null) - only then does the share count.
+ *
+ * NOT `"noopener"` in the features: with it, window.open returns null even on success, so the
+ * open could never be confirmed. The opener link is cut by hand instead.
+ */
+export function openWhatsAppLink(text: string, open: OpenFn): boolean {
+  let w: { opener: unknown } | null | undefined = null;
+  try {
+    w = open(whatsAppShareUrl(text), "_blank");
+  } catch {
+    return false;
+  }
+  if (!w) return false;
+  try {
+    w.opener = null;
+  } catch {
+    /* cross-origin already: nothing to cut */
+  }
+  return true;
 }
 
 /** Save the PNG on desktop (an object-URL anchor; revoked straight after). */

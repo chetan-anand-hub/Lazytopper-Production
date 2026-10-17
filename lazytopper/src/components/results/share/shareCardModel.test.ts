@@ -72,6 +72,38 @@ describe("shareContextOf - chapter/subject, never a code", () => {
   });
 });
 
+describe("shareContextOf - adversarial codes (review fix 2)", () => {
+  const CODE_ANY = /\b(?:ws|ct|fm|ci|qp|unl)-|3fa9c0b1|[0-9a-f]{8}/i;
+  const cases: Array<[string, string, string | null]> = [
+    // [title, subtitle, expected]
+    ["QP-M-RN-3fa9c0b1", "QP-M-RN-3fa9c0b1 · graded 3 Oct", null],
+    ["qp-m-rn-3fa9c0b1", "qp-m-rn-3fa9c0b1 · graded 3 Oct", null],
+    ["Real Numbers QP-M-RN-3fa9c0b1", "x", "Real Numbers"],
+    ["WS-M-RN-03", "WS-M-RN-03 · graded 3 Oct", null],
+    ["CT-S-LI-02 · Test #2", "CT-S-LI-02 · graded 3 Oct", null],
+    ["Light · CT-S-LI-02", "CT-S-LI-02 · graded 3 Oct", "Light"],
+    ["FM-M-04", "FM-M-04 · fully graded", null],
+    ["ws-lx1a2b-9f8e7d", "Topic Leak · ws-lx1a2b-9f8e7d", null],
+    ["", "Leaked Subtitle Topic · CI-M-TR-01", null],
+    ["   ", "Leaked Subtitle Topic", null],
+  ];
+  it.each(cases)("title %j / subtitle %j -> %j", (title, subtitle, expected) => {
+    const out = shareContextOf({ title, subtitle });
+    expect(out).toBe(expected);
+    if (out) expect(out).not.toMatch(CODE_ANY);
+  });
+
+  it("a saved / reopened record never falls back to its subtitle", () => {
+    // Reopen subtitles lead with the record id (scorecardVariants.ts:964, :1876, :1967, :2084).
+    expect(shareContextOf({ title: "Session scorecard", subtitle: "Triangles · QP-M-TR-3fa9c0b1" })).toBeNull();
+    expect(shareContextOf({ title: "CI-M-TR-01", subtitle: "Triangles · graded 3 Oct" })).toBeNull();
+  });
+
+  it("only the LIVE C&I head reads the subtitle, and strips its code", () => {
+    expect(shareContextOf({ title: "Check & Improve paper", subtitle: "Light ci-s-li-07 · CI-S-LI-07 · graded just now" })).toBe("Light");
+  });
+});
+
 describe("buildShareCardModel - the allow-list", () => {
   it("copies only score, surface, context, split and date", () => {
     const m = buildShareCardModel(variant({ marksLost: typedMarks }), "17 Oct 2026");
