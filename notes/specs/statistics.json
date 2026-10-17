@@ -568,10 +568,10 @@
       {
         "label": "Mean of grouped data (3 mk)",
         "children": [
-          "Class mark x_i = (upper + lower)/2",
-          "Direct: x̄ = Σf_i x_i / Σf_i",
-          "Assumed-mean: x̄ = a + Σf_i d_i / Σf_i",
-          "Step-deviation: x̄ = a + h(Σf_i u_i / Σf_i)",
+          "Class mark $x_i$ = (upper + lower)/2",
+          "Direct: $\\bar{x} = \\Sigma f_i x_i / \\Sigma f_i$",
+          "Assumed-mean: $\\bar{x} = a + \\Sigma f_i d_i / \\Sigma f_i$",
+          "Step-deviation: $\\bar{x} = a + h(\\Sigma f_i u_i / \\Sigma f_i)$",
           "All three give the same mean"
         ]
       },
