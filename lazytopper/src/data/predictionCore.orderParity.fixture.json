@@ -155,8 +155,8 @@
    ]
   },
   "light-reflection-and-refraction": {
-   "n": 795,
-   "sha256": "d362580b1c1238156bd847ebac89007c39888a34a57245bf5e43076c9c6e95ea",
+   "n": 794,
+   "sha256": "bc56100117d0bd0961bb56fdf2278d075a06995da93ce102682e3e4b5a337b3c",
    "head": [
     "LTG-S-LIGHT-253",
     "LTG-S-LIGHT-257",
@@ -392,7 +392,7 @@
   },
   "light-reflection-and-refraction": {
    "n": 165,
-   "sha256": "0a790b5a3ec11827e1ec271c31f1ee48fdba2c281c863367ba9ba6245f55b683",
+   "sha256": "a431750e168486c6add18576950f34d9c204f1edcec38a35e3cf15120b7d47c3",
    "head": [
     "Always Erect Image\tLIGHT-NCERT-9-MCQ-005",
     "Cause of Refraction\tLTG-S-LIGHT-255,LTG-S-LIGHT-244,2026-LIGHT-MCQ-02,CBE-S-LGHT-B-008,LT-M08,LT2-042,LT-H04,LT-M04,LT2-035,LT-E11,LT-M10,LT-M15,LT2-034,LT2-039,LT-M13,LT2-011,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-010,LT2-022,LT2-033,LT2-050,LT2-054,LT2-057,LT-E13,LT-E09",

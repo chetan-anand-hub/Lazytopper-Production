@@ -21,6 +21,7 @@ export interface BankSteps1Entry {
 }
 
 export const BANK_STEPS_1: readonly BankSteps1Entry[] = [
+  { id: "GDR-L-CBJ-011", file: "class10/science/light-reflection-and-refraction.gdr.ts", verdict: "WRONG-CONTENT", evidence: "SCI-BACKLOG-1 batch 3 (D252): the key says an object at the focus of a convex lens gives a real, inverted, highly enlarged image at infinity, but the NCERT 2026-27 table (jesc109, object at F1) says \"Image would not be formed\". The row's computed figure (lightSolutionFigures.ts, opticsCase) expects an enlarged real image, so the repair is a diagrams-plus-text change [FU-GDR-L-CBJ-011-OBJECT-AT-F]; paused until then.", likelyTrueOwnerId: null, state: "paused" },
   { id: "TRI2-E01", file: "class10/maths/triangles.pack2.ts", verdict: "MISPAIRED", evidence: "Stem asks '△ADE is similar to △ABC by' which criterion, but steps 'Substitute the given values: 3/2 = 6/EC ... EC = 4 cm' solve a numeric BPT problem.", likelyTrueOwnerId: "unknown", state: "repaired" },
   { id: "TRI2-E02", file: "class10/maths/triangles.pack2.ts", verdict: "MISPAIRED", evidence: "Stem asks 'ratio of the corresponding medians of two similar triangles' but steps compute 'angle A = angle P = 47 degrees ... angle C = 50 degrees'.", likelyTrueOwnerId: "unknown", state: "repaired" },
   { id: "TRI2-E03", file: "class10/maths/triangles.pack2.ts", verdict: "MISPAIRED", evidence: "Stem asks the hypotenuse for 'legs 6 cm and 8 cm' but steps solve a ladder/window problem 'x^2 + 8^2 = 10^2 ... x = 6 m'.", likelyTrueOwnerId: "unknown", state: "repaired" },
