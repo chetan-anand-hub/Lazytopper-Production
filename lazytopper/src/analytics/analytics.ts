@@ -880,6 +880,21 @@ export function trackWhatsAppContactTap(placement: WhatsAppContactPlacement): vo
   send("event", { name: "whatsapp_contact_tap", data: { placement } });
 }
 
+/** AWAIT-1-PAPERS — the paper surface a reminder was set from, and how. */
+export type PaperReminderSurface = "chapter_test" | "full_mock" | "worksheet";
+export type PaperReminderKind = "calendar" | "whatsapp";
+
+/**
+ * AWAIT-1-PAPERS — `paper_reminder`: a student set a reminder to come back and upload the
+ * answers for a downloaded paper (an .ics file, or a WhatsApp self-send link). Surface + kind
+ * ONLY: never the paper code, a question id, the deep link or a number. Vendor-only (GA4 /
+ * Vercel), like `whatsapp_contact_tap`: NOT in `NamedAnalyticsEvent`, so the first-party
+ * activity log drops it and no server change is needed.
+ */
+export function trackPaperReminder(surface: PaperReminderSurface, kind: PaperReminderKind): void {
+  send("event", { name: "paper_reminder", data: { surface, kind } });
+}
+
 /** Attempts already counted in THIS page load — a graded attempt is counted once. */
 const practiceGradedSent = new Set<string>();
 

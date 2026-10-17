@@ -54,6 +54,9 @@ export interface FullMockSessionState {
   /** The draw's real mix — display only. */
   pyqCount?: number;
   freshCount?: number;
+  /** AWAIT-1-PAPERS — a DOWNLOADED paper (sat on paper, Section A tapped in at upload): it has
+   *  no in-app timer, so its `focus` is a placeholder that is never reported or recorded. */
+  downloaded?: boolean;
   updatedAt: number;
   /** GRADING-JOBS-1 J2 (contract §11) — the background grade of this awaiting-upload mock,
    *  `{jobId, idempotencyKey, …}`, so a reload resumes the SAME job. Absent = none running. */

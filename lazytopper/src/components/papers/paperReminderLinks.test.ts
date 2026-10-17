@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildAppDeepLink,
   buildPaperReminderIcs,
   buildWhatsAppReminderUrl,
   escapeIcsText,
@@ -50,6 +51,15 @@ describe("AWAIT-1 paper reminder builders", () => {
   it("names the file from the code only", () => {
     expect(reminderIcsFileName("CT-M-TRIG-03")).toBe("lazytopper-reminder-CT-M-TRIG-03.ics");
     expect(reminderIcsFileName("../x y")).toBe("lazytopper-reminder-xy.ics");
+  });
+
+  it("builds the deep link from origin + router base + path", () => {
+    expect(buildAppDeepLink("https://lazytopper.com", "/app/", "/chapter-test/10/Maths/trigonometry")).toBe(
+      "https://lazytopper.com/app/chapter-test/10/Maths/trigonometry",
+    );
+    expect(buildAppDeepLink("http://localhost:5173", "/", "full-mock/10/Science")).toBe(
+      "http://localhost:5173/full-mock/10/Science",
+    );
   });
 
   it("builds a wa.me self-send link with NO phone number", () => {

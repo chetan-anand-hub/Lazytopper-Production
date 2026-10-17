@@ -44,10 +44,15 @@ export interface FullMockPaperSnapshot {
   /** Wall-clock anchors of the sitting (the mock is already submitted). */
   startedAt: number;
   durationMs: number;
-  /** Frozen at submit (deterministic 0-or-full) — the pick data is gone. */
-  objective: ObjectiveScore;
-  /** §8b aggregates measured during the sitting. */
+  /** Frozen at submit (deterministic 0-or-full) — the pick data is gone. AWAIT-1: null on a
+   *  DOWNLOADED paper until the student taps the Section A options they wrote. */
+  objective: ObjectiveScore | null;
+  /** §8b aggregates measured during the sitting. Never present on a downloaded paper: it was
+   *  not sat in the app, so there is no on-screen time to report (AWAIT-1, owner ruling). */
   focus?: SessionFocusAggregates;
+  /** AWAIT-1-PAPERS — saved at download (sat on paper): no in-app timer, no focus, Section A
+   *  entered at upload time. `startedAt` is then the download moment and `durationMs` is 0. */
+  downloaded?: boolean;
   /** The draw's real mix — display only. */
   pyqCount?: number;
   freshCount?: number;
@@ -77,8 +82,7 @@ function isSnapshot(v: unknown): v is FullMockPaperSnapshot {
     !!s.paper &&
     typeof s.paper === "object" &&
     Array.isArray((s.paper as PersistedWorksheet).questions) &&
-    !!s.objective &&
-    typeof s.objective === "object"
+    ((!!s.objective && typeof s.objective === "object") || (s.downloaded === true && s.objective == null))
   );
 }
 

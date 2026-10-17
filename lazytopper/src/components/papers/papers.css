@@ -1,0 +1,99 @@
+/* AWAIT-1-PAPERS — the downloaded-paper card, the reminder actions and the Section A picker.
+   Self-contained colours (navy / soft white / green accent) so the reminder actions also
+   render outside the Chapter Test chrome (the Worksheet ready screen, later QP). */
+.lt-paper-dl {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid #cfe9dc;
+  border-radius: 14px;
+  background: #f1faf5;
+  color: #15233a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.lt-paper-dl__code {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.lt-paper-dl__p {
+  margin: 4px 0 0;
+}
+.lt-paper-dl--signedout {
+  border-color: #e7ebf0;
+  background: #f6f8fa;
+}
+
+.lt-paper-rem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.lt-paper-rem__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid #e7ebf0;
+  border-radius: 10px;
+  background: #fff;
+  color: #15233a;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.lt-paper-rem__btn:hover {
+  border-color: #2fae73;
+}
+.lt-paper-rem__btn--wa {
+  color: #0f6b44;
+}
+
+.lt-paper-pick {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.lt-paper-pick__note {
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fdf3e5;
+  color: #15233a;
+  font-size: 14px;
+}
+.lt-paper-pick__q {
+  padding: 14px 0;
+  border-top: 1px solid #e7ebf0;
+}
+.lt-paper-pick__qhead {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.lt-paper-pick__qtext {
+  margin-bottom: 10px;
+}
+.lt-paper-pick__foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+  background: #fff;
+  border-top: 1px solid #e7ebf0;
+}
+.lt-paper-pick__count {
+  font-size: 13.5px;
+  color: #4a5568;
+}
+.lt-paper-pick__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

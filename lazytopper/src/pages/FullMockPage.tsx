@@ -40,6 +40,7 @@ import {
   getSessionPerQuestion,
   fullMockSequence,
   fullMockNomenclature,
+  buildFullMockSessionRecord,
   type SessionRecord,
   type SessionSubject,
   type SessionFocusAggregates,
@@ -54,7 +55,12 @@ import {
   saveFullMockPaperSnapshot,
   fetchFullMockPaperSnapshot,
   deleteFullMockPaperSnapshot,
+  type FullMockPaperSnapshot,
 } from "../services/fullMockPaperStore";
+// AWAIT-1-PAPERS — a downloaded paper is kept, its code shown, and Section A tapped in at upload.
+import { recordPaperDownload } from "../components/papers/paperDownloadRecord";
+import PaperDownloadedNote from "../components/papers/PaperDownloadedNote";
+import SectionAPicker from "../components/papers/SectionAPicker";
 import {
   FM_DURATION_MS,
   drawFullMock,
@@ -125,7 +131,8 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 
-type Phase = "setup" | "taking" | "results";
+// "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
+type Phase = "setup" | "taking" | "results" | "pick";
 
 const SECTION_HEAD: Record<string, string> = {
   A: "Section A · Objective · 1 mark each",
@@ -346,6 +353,12 @@ export default function FullMockPage() {
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  // AWAIT-1-PAPERS — the paper just downloaded (the confirmation card), a downloaded paper
+  // re-opened for its Section A picks, and whether the ACTIVE mock was sat on paper: a
+  // downloaded mock has no in-app timer, so no time or focus figure is recorded or shown.
+  const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
+  const [pickSnap, setPickSnap] = useState<FullMockPaperSnapshot | null>(null);
+  const downloadedRef = useRef(false);
   const [reopen, setReopen] = useState<{
     record: SessionRecord;
     response: WorksheetGradeResponse | null;
@@ -516,6 +529,7 @@ export default function FullMockPage() {
     // A RESUME is not a start and is never blocked.
     if (fairUse.blockPaperStart()) return;
     submittedRef.current = false;
+    downloadedRef.current = false;
     const a: ActiveMock = {
       paper: draw.paper,
       code: nomen.code,
@@ -540,6 +554,7 @@ export default function FullMockPage() {
     const s = inProgress ?? findInProgressSession(sessionUid);
     if (!s) return;
     setPanelOpen(false);
+    downloadedRef.current = false;
     const a: ActiveMock = {
       paper: s.paper,
       code: s.code,
@@ -606,7 +621,8 @@ export default function FullMockPage() {
           objective,
           subjectiveQuestions: fullMockSubjectiveQuestions(a.paper),
           upload,
-          focus: focusRef.current,
+          // AWAIT-1: a mock sat on paper has no measured focus — none is recorded (never zeros).
+          focus: downloadedRef.current ? undefined : focusRef.current,
           job: {
             store: fullMockJobStore(sessionUid, a.code),
             paperKey: a.paper.worksheetId,
@@ -672,6 +688,7 @@ export default function FullMockPage() {
     setObjective(s.objective);
     focusRef.current = { ...EMPTY_FOCUS, ...s.focus };
     submittedRef.current = true; // already submitted — the grade only
+    downloadedRef.current = s.downloaded === true;
     setFullResponse(null);
     setResultsPhase("partial");
     setScorecardOpen(false);
@@ -694,6 +711,13 @@ export default function FullMockPage() {
         // the server-side snapshot so the upload grades the REAL paper
         // [FU-FM-CROSS-DEVICE-UPLOAD]. No snapshot → the honest fallback below.
         const snap = await fetchFullMockPaperSnapshot(user, record.id);
+        // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
+        if (snap && snap.downloaded === true && !snap.objective) {
+          setReopen(null);
+          setPickSnap(snap);
+          setPhase("pick");
+          return;
+        }
         if (snap) {
           s = {
             code: snap.code,
@@ -711,6 +735,7 @@ export default function FullMockPage() {
             objective: snap.objective,
             pyqCount: snap.pyqCount,
             freshCount: snap.freshCount,
+            ...(snap.downloaded ? { downloaded: true } : {}),
             updatedAt: Date.now(),
           };
           // Re-seed this device's session so the rest of the upload flow (and
@@ -733,6 +758,7 @@ export default function FullMockPage() {
         setObjective(s.objective);
         focusRef.current = { ...EMPTY_FOCUS, ...s.focus };
         submittedRef.current = true; // already submitted — upload only
+        downloadedRef.current = s.downloaded === true;
         setFullResponse(null);
         setResultsPhase("partial");
         setScorecardOpen(false);
@@ -853,17 +879,141 @@ export default function FullMockPage() {
   // ── Downloads (the triad — name + code on all three) ─────────────────────────
   const paperForExport = activeMock?.paper ?? draw?.paper ?? null;
   const codeForExport = activeMock?.code ?? nomen?.code;
+  const nameForExport = activeMock?.name ?? nomen?.name;
   const downloadPaper = useCallback(async () => {
     if (!paperForExport || downloading) return;
     setDownloading(true);
     try {
       await exportWorksheetPdf(paperForExport, "questions", codeForExport);
+      // AWAIT-1-PAPERS: the downloaded paper is kept under the code PRINTED on it — a
+      // pending-upload record (nothing graded) + the paper with no Section A result, no
+      // timer and no focus — so "Upload now" can come back to THIS paper. Signed out: export
+      // only (the note says so). A mock already submitted in the app is never replaced.
+      if (codeForExport && nameForExport) {
+        setDownloadedNote({ code: codeForExport, name: nameForExport });
+        if (isSignedIn) {
+          const dlPaper = paperForExport;
+          const dl = { code: codeForExport, name: nameForExport };
+          const mix =
+            activeMock && activeMock.paper === dlPaper
+              ? { pyqCount: activeMock.pyqCount, freshCount: activeMock.freshCount }
+              : draw && draw.paper === dlPaper
+                ? { pyqCount: draw.pyqCount, freshCount: draw.freshCount }
+                : {};
+          void recordPaperDownload({
+            user,
+            code: dl.code,
+            paper: dlPaper,
+            buildRecord: (response, uid) =>
+              buildFullMockSessionRecord({ paper: dlPaper, code: dl.code, subject: sessionSubject, response, uid }),
+            saveSnapshot: () =>
+              saveFullMockPaperSnapshot(user, {
+                code: dl.code,
+                name: dl.name,
+                subject,
+                grade,
+                paper: dlPaper,
+                // Not a sitting: the download moment, and no in-app duration.
+                startedAt: Date.now(),
+                durationMs: 0,
+                objective: null,
+                downloaded: true,
+                ...mix,
+              }),
+          })
+            .then((outcome) => {
+              if (outcome === "written") void loadRecords();
+            })
+            .catch(() => {
+              /* best-effort: the PDF is already downloaded */
+            });
+        }
+      }
     } catch {
       /* best-effort */
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, downloading]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords]);
+
+  // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
+  // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
+  // from here it is an in-app submitted mock (partial record + paper copy + this device's
+  // awaiting-upload session), minus anything timed: no focus is recorded or shown.
+  const continueFromPicks = useCallback(
+    (picks: Record<number, string>) => {
+      const snap = pickSnap;
+      if (!snap) return;
+      const obj = scoreObjectiveSection(fullMockObjectiveQuestions(snap.paper), picks);
+      writeFullMockPartialRecord({
+        user,
+        paper: snap.paper,
+        code: snap.code,
+        subject: sessionSubject,
+        response: buildFullMockResponse({
+          paper: snap.paper,
+          objective: obj,
+          subjectiveQuestions: fullMockSubjectiveQuestions(snap.paper),
+          subjectiveResponse: null,
+        }),
+      });
+      saveFullMockSession(sessionUid, {
+        code: snap.code,
+        name: snap.name,
+        subject: snap.subject,
+        grade: snap.grade,
+        paper: snap.paper,
+        startedAt: snap.startedAt,
+        durationMs: snap.durationMs,
+        answers: {},
+        flags: [],
+        currentQNumber: 1,
+        focus: { ...EMPTY_FOCUS },
+        phase: "awaiting-upload",
+        objective: obj,
+        pyqCount: snap.pyqCount,
+        freshCount: snap.freshCount,
+        downloaded: true,
+        updatedAt: Date.now(),
+      });
+      saveFullMockPaperSnapshot(user, {
+        code: snap.code,
+        name: snap.name,
+        subject: snap.subject,
+        grade: snap.grade,
+        paper: snap.paper,
+        startedAt: snap.startedAt,
+        durationMs: snap.durationMs,
+        objective: obj,
+        downloaded: true,
+        pyqCount: snap.pyqCount,
+        freshCount: snap.freshCount,
+      });
+      const a: ActiveMock = {
+        paper: snap.paper,
+        code: snap.code,
+        name: snap.name,
+        startedAt: snap.startedAt,
+        durationMs: snap.durationMs,
+        pyqCount: snap.pyqCount,
+        freshCount: snap.freshCount,
+      };
+      setActiveMock(a);
+      activeRef.current = a;
+      focusRef.current = { ...EMPTY_FOCUS };
+      downloadedRef.current = true;
+      submittedRef.current = true; // Section A entered — upload only
+      setPickSnap(null);
+      setObjective(obj);
+      setFullResponse(null);
+      setGradeError(null);
+      setResultsPhase("partial");
+      setScorecardOpen(false);
+      setPhase("results");
+      void loadRecords();
+    },
+    [pickSnap, user, sessionSubject, sessionUid, loadRecords],
+  );
   const downloadSolution = useCallback(async () => {
     if (!paperForExport || downloading) return;
     setDownloading(true);
@@ -913,7 +1063,8 @@ export default function FullMockPage() {
 
   // Cheap per-render read: focusRef is frozen once the test ends, which is the
   // only time this line renders (partial + full scorecards).
-  const focusLine = fullMockFocusLine(focusRef.current);
+  // AWAIT-1: a mock sat on paper shows no on-screen time line (none was measured).
+  const focusLine = downloadedRef.current ? null : fullMockFocusLine(focusRef.current);
 
   const practiseWorstChapter = useCallback(() => {
     const a = activeRef.current;
@@ -1167,6 +1318,16 @@ export default function FullMockPage() {
                       </button>
                     </div>
 
+                    {downloadedNote && (
+                      <PaperDownloadedNote
+                        signedIn={isSignedIn}
+                        code={downloadedNote.code}
+                        label={downloadedNote.name}
+                        path={location.pathname}
+                        surface="full_mock"
+                      />
+                    )}
+
                     {/* CBSE-PAGE-1 — a real <Link>, deliberately OUTSIDE
                         .lt-ct__startrow (that rule gives buttons inside it flex:1,
                         so an extra child would have resized the existing two). */}
@@ -1193,6 +1354,29 @@ export default function FullMockPage() {
               </div>
             </div>
           </div>
+        </>
+      )}
+
+      {/* ─────────────── PICK (AWAIT-1: a downloaded paper's Section A) ─────────────── */}
+      {phase === "pick" && pickSnap && (
+        <>
+          <div className="lt-ct__pagebar">
+            <button type="button" className="lt-ct__back" onClick={() => navigate(backTo)}>
+              ← Practice
+            </button>
+            <span className="lt-ct__pagetitle">Mock · Upload</span>
+          </div>
+          <SectionAPicker
+            eyebrow={`Full mock · ${subject}`}
+            name={pickSnap.name}
+            code={pickSnap.code}
+            questions={fullMockObjectiveQuestions(pickSnap.paper)}
+            onContinue={continueFromPicks}
+            onCancel={() => {
+              setPickSnap(null);
+              setPhase("setup");
+            }}
+          />
         </>
       )}
 

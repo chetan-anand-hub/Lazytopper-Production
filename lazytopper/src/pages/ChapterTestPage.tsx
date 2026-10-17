@@ -37,6 +37,7 @@ import {
   getSessionPerQuestion,
   chapterTestSequence,
   chapterTestNomenclature,
+  buildChapterTestSessionRecord,
   type SessionRecord,
   type SessionSubject,
 } from "../services/sessionRecords";
@@ -58,7 +59,13 @@ import {
   saveChapterTestPaper,
   loadChapterTestPaper,
   deleteChapterTestPaper,
+  needsSectionAPicks,
+  type ChapterTestPaperSnapshot,
 } from "../services/chapterTestPaperStore";
+// AWAIT-1-PAPERS — a downloaded paper is kept, its code shown, and Section A tapped in at upload.
+import { recordPaperDownload } from "../components/papers/paperDownloadRecord";
+import PaperDownloadedNote from "../components/papers/PaperDownloadedNote";
+import SectionAPicker from "../components/papers/SectionAPicker";
 // BANK-LEAN-1 (C3): the chapter-test variants join to the question bank (by-concept
 // lens), so they live in scorecardBankLenses — scorecardVariants stays bank-free.
 import {
@@ -94,7 +101,8 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 
-type Phase = "setup" | "taking" | "results";
+// "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
+type Phase = "setup" | "taking" | "results" | "pick";
 type SubjectKey = "Maths" | "Science";
 
 const SECTION_HEAD: Record<string, string> = {
@@ -259,6 +267,10 @@ export default function ChapterTestPage() {
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  // AWAIT-1-PAPERS — the paper just downloaded (the confirmation card) and a downloaded paper
+  // re-opened for its Section A picks.
+  const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
+  const [pickPaper, setPickPaper] = useState<ChapterTestPaperSnapshot | null>(null);
   const [reopen, setReopen] = useState<{
     record: SessionRecord;
     response: WorksheetGradeResponse | null;
@@ -529,12 +541,88 @@ export default function ChapterTestPage() {
     setDownloading(true);
     try {
       await exportWorksheetPdf(paper, "questions", nomen.code);
+      // AWAIT-1-PAPERS: the downloaded paper is kept under the code PRINTED on it — a
+      // pending-upload record (nothing graded) + the paper with no Section A result yet — so
+      // "Upload" can come back to THIS paper. Signed out: export only (the note says so).
+      setDownloadedNote({ code: nomen.code, name: nomen.name });
+      if (isSignedIn) {
+        const dlPaper = paper;
+        const dl = { code: nomen.code, name: nomen.name };
+        void recordPaperDownload({
+          user,
+          code: dl.code,
+          paper: dlPaper,
+          buildRecord: (response, uid) =>
+            buildChapterTestSessionRecord({ paper: dlPaper, code: dl.code, subject: sessionSubject, topicKey, response, uid }),
+          saveSnapshot: () =>
+            saveChapterTestPaper(user, {
+              code: dl.code,
+              name: dl.name,
+              subject,
+              topicKey,
+              paper: dlPaper,
+              objective: null,
+              downloaded: true,
+            }),
+        })
+          .then((outcome) => {
+            if (outcome === "written") void loadRecords();
+          })
+          .catch(() => {
+            /* best-effort: the PDF is already downloaded */
+          });
+      }
     } catch {
       /* best-effort */
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords]);
+
+  // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
+  // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
+  // from here the paper is exactly an in-app submitted test: the same partial record + paper
+  // copy `finishToPartial` writes, then the existing upload step. No grader change.
+  const continueFromPicks = useCallback(
+    (picks: Record<number, string>) => {
+      const p = pickPaper;
+      if (!p) return;
+      const obj = scoreObjectiveSection(objectiveQuestions(p.paper), picks);
+      writeChapterTestPartialRecord({
+        user,
+        paper: p.paper,
+        code: p.code,
+        subject: sessionSubject,
+        topicKey: p.topicKey,
+        response: buildChapterTestResponse({
+          paper: p.paper,
+          objective: obj,
+          subjectiveQuestions: subjectiveQuestions(p.paper),
+          subjectiveResponse: null,
+        }),
+      });
+      saveChapterTestPaper(user, {
+        code: p.code,
+        name: p.name,
+        subject: p.subject,
+        topicKey: p.topicKey,
+        paper: p.paper,
+        objective: obj,
+        downloaded: true,
+      });
+      setPickPaper(null);
+      setFullResponse(null);
+      setGradeError(null);
+      setResumedCt({ paper: p.paper, objective: obj, code: p.code, name: p.name });
+      setNomen({ code: p.code, name: p.name });
+      setObjective(obj);
+      setResultsPhase("partial");
+      setScorecardOpen(false);
+      setPhase("results");
+      void loadRecords();
+    },
+    [pickPaper, user, sessionSubject, loadRecords],
+  );
   const downloadSolution = useCallback(async () => {
     if (!paper || !nomen || downloading) return;
     setDownloading(true);
@@ -575,7 +663,14 @@ export default function ChapterTestPage() {
   const openPendingUpload = useCallback(
     async (record: SessionRecord) => {
       const snap = await loadChapterTestPaper(user, record.id);
-      if (snap) {
+      // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
+      if (snap && needsSectionAPicks(snap)) {
+        setReopen(null);
+        setPickPaper(snap);
+        setPhase("pick");
+        return;
+      }
+      if (snap && snap.objective) {
         setReopen(null);
         setFullResponse(null);
         setGradeError(null);
@@ -858,6 +953,16 @@ export default function ChapterTestPage() {
                       </button>
                     </div>
 
+                    {downloadedNote && (
+                      <PaperDownloadedNote
+                        signedIn={isSignedIn}
+                        code={downloadedNote.code}
+                        label={topicName}
+                        path={location.pathname}
+                        surface="chapter_test"
+                      />
+                    )}
+
                     {/* CBSE-PAGE-1 — a real <Link>, and deliberately OUTSIDE
                         .lt-ct__startrow: that rule gives every .lt-ct__btn inside it
                         flex:1, so placing it in the row would have resized the two
@@ -885,6 +990,29 @@ export default function ChapterTestPage() {
               </div>
             </div>
           </div>
+        </>
+      )}
+
+      {/* ─────────────── PICK (AWAIT-1: a downloaded paper's Section A) ─────────────── */}
+      {phase === "pick" && pickPaper && (
+        <>
+          <div className="lt-ct__pagebar">
+            <button type="button" className="lt-ct__back" onClick={() => navigate(backTo)}>
+              ← {backLabel}
+            </button>
+            <span className="lt-ct__pagetitle">Chapter Test · Upload</span>
+          </div>
+          <SectionAPicker
+            eyebrow={`Chapter Test · ${topicName}`}
+            name={pickPaper.name}
+            code={pickPaper.code}
+            questions={objectiveQuestions(pickPaper.paper)}
+            onContinue={continueFromPicks}
+            onCancel={() => {
+              setPickPaper(null);
+              setPhase("setup");
+            }}
+          />
         </>
       )}
 

@@ -20,6 +20,15 @@ export interface PaperReminderInput {
   url: string;
 }
 
+/**
+ * Absolute deep link to an in-app path: origin + the router base (vite BASE_URL, never a
+ * hardcoded prefix) + the path. Pure: the caller passes origin and base.
+ */
+export function buildAppDeepLink(origin: string, base: string, path: string): string {
+  const b = base ? (base.endsWith("/") ? base : `${base}/`) : "/";
+  return `${origin}${b.startsWith("/") ? b : `/${b}`}${String(path).replace(/^\/+/, "")}`;
+}
+
 export const PAPER_REMINDER_HOUR = 19;
 export const PAPER_REMINDER_DURATION_MIN = 30;
 
