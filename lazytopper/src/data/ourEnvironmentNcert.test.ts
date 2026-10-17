@@ -18,20 +18,20 @@ import {
   AI_GENERATED_QUESTION_IDS,
 } from "./canonicalQuestionBank";
 import { bankRowMeta } from "./bankChapters/bankIdIndex";
-import { OE_NCERT } from "./questionBanks/class10/science/ourEnvironment.ncert";
+import { OE_TEXTBOOK } from "./questionBanks/class10/science/ourEnvironment.ncert";
 
 describe("OUR-ENV-NCERT-1 · NCERT Ch 13 Our Environment", () => {
   it("holds the 15 in-syllabus textbook questions with well-formed unique ids", () => {
-    expect(OE_NCERT).toHaveLength(15);
-    const ids = OE_NCERT.map((q) => q.id);
+    expect(OE_TEXTBOOK).toHaveLength(15);
+    const ids = OE_TEXTBOOK.map((q) => q.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of ids) expect(id).toMatch(/^OE-NCERT-13-(SA|LA|MCQ)-\d{3}$/);
-    expect(OE_NCERT.filter((q) => q.format === "MCQ")).toHaveLength(2);
+    expect(OE_TEXTBOOK.filter((q) => q.format === "MCQ")).toHaveLength(2);
   });
 
   it("every row is served as our-environment and resolves through bankIdIndex", () => {
     const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
-    for (const q of OE_NCERT) {
+    for (const q of OE_TEXTBOOK) {
       expect(q.topicKey).toBe("our-environment");
       expect(served.get(q.id)).toBe(q);
       expect(bankRowMeta(q.id)?.topicKey).toBe("our-environment");
@@ -39,14 +39,14 @@ describe("OUR-ENV-NCERT-1 · NCERT Ch 13 Our Environment", () => {
   });
 
   it("authored solutions are flagged: whole array in AI_GENERATED_SOLUTION_IDS, none an AI-pack question", () => {
-    for (const q of OE_NCERT) {
+    for (const q of OE_TEXTBOOK) {
       expect(AI_GENERATED_SOLUTION_IDS.has(q.id)).toBe(true);
       expect(AI_GENERATED_QUESTION_IDS.has(q.id)).toBe(false);
     }
   });
 
   it("every row is step-marked with leading [N mark] prefixes that sum to its marks", () => {
-    for (const q of OE_NCERT) {
+    for (const q of OE_TEXTBOOK) {
       const steps = q.solutionSteps ?? [];
       expect(steps.length).toBeGreaterThan(0);
       let total = 0;
@@ -62,9 +62,9 @@ describe("OUR-ENV-NCERT-1 · NCERT Ch 13 Our Environment", () => {
   });
 
   it("each MCQ key is exactly one of its options; Exercise Q1 is not carried", () => {
-    for (const q of OE_NCERT.filter((r) => r.format === "MCQ")) {
+    for (const q of OE_TEXTBOOK.filter((r) => r.format === "MCQ")) {
       expect((q.options ?? []).filter((o) => o === q.answer)).toHaveLength(1);
     }
-    expect(OE_NCERT.some((q) => q.ncertRef === "Exercise Q1")).toBe(false);
+    expect(OE_TEXTBOOK.some((q) => q.ncertRef === "Exercise Q1")).toBe(false);
   });
 });

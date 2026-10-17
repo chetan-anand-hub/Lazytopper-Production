@@ -61,7 +61,13 @@ describe("BANK-FIX-1 PR-1 · ids unchanged", () => {
     // lane measured it: GEN-THIN-1's 50 `origin: "lt-generated"` rows (#961) merged after that.
     // 2026-10-11 CONCEPT-MAP-FILL-1 (D79b): rows ADDED after this lane measured its count are excluded by id, one dated entry each,
     // so the pin keeps meaning "BANK-FIX-1 added/removed nothing". SQP-M-2026-ARC-001 = the official CBSE SQP 2026-27 Maths Q10 (car wheel).
-    const ADDED_AFTER_BANK_FIX_1 = new Set(["SQP-M-2026-ARC-001"]);
+    // 2026-10-17 OUR-ENV-NCERT-1 (#1233): the 15 NCERT Ch 13 Our Environment textbook rows (jesc113, Reprint 2026-27).
+    const ADDED_AFTER_BANK_FIX_1 = new Set([
+      "SQP-M-2026-ARC-001",
+      "OE-NCERT-13-SA-001", "OE-NCERT-13-SA-002", "OE-NCERT-13-SA-003", "OE-NCERT-13-SA-004", "OE-NCERT-13-SA-005",
+      "OE-NCERT-13-SA-006", "OE-NCERT-13-SA-007", "OE-NCERT-13-SA-008", "OE-NCERT-13-SA-009", "OE-NCERT-13-SA-010",
+      "OE-NCERT-13-SA-011", "OE-NCERT-13-SA-012", "OE-NCERT-13-SA-013", "OE-NCERT-13-MCQ-001", "OE-NCERT-13-MCQ-002",
+    ]);
     const preexisting = RAW_CANONICAL_QUESTION_BANK.filter(
       (q) => (q as CanonicalQuestion).origin !== "lt-generated" && !ADDED_AFTER_BANK_FIX_1.has(q.id),
     );

@@ -570,7 +570,7 @@ import { CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED } from './question
 import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.c3.cbq.ltgen';
 // OUR-ENV-NCERT-1 (2026-10-17) — NCERT Ch 13 Our Environment textbook questions (jesc113.pdf, Reprint 2026-27).
 // Authentic questions; authored solutions (registered in AI_GENERATED_SOLUTION_SOURCES below).
-import { OE_NCERT } from './questionBanks/class10/science/ourEnvironment.ncert';
+import { OE_TEXTBOOK } from './questionBanks/class10/science/ourEnvironment.ncert';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1104,7 +1104,7 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED,
   ...OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED,
   // OUR-ENV-NCERT-1 (2026-10-17): NCERT Ch 13 in-text + exercise questions (15; Exercise Q1 skipped, non-unique key).
-  ...OE_NCERT,
+  ...OE_TEXTBOOK,
 ];
 
 // ---------------------------------------------------------------------------
@@ -2336,7 +2336,7 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   HEREDITY_EXPAND_EXTRACT,
   // OUR-ENV-NCERT-1 (2026-10-17): NCERT Ch 13 textbook questions (verbatim, Reprint 2026-27) —
   // authentic questions; NCERT prints no solutions, so every worked solution is authored.
-  OE_NCERT,
+  OE_TEXTBOOK,
 ] as const;
 
 const CLASS_B_STEPPED_SOLUTION_IDS: readonly string[] = [

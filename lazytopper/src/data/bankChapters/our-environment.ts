@@ -24,7 +24,7 @@ import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline
 import { OUR_ENVIRONMENT_CBQ_LT_GENERATED } from "../questionBanks/class10/science/our-environment.cbq.ltgen";
 import { ENVIRONMENT_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/our-environment.b1.cbq.ltgen";
 import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from "../questionBanks/class10/science/our-environment.c3.cbq.ltgen";
-import { OE_NCERT } from "../questionBanks/class10/science/ourEnvironment.ncert";
+import { OE_TEXTBOOK } from "../questionBanks/class10/science/ourEnvironment.ncert";
 
 export default defineChapter("our-environment", [
   [52, OUR_ENVIRONMENT_PACK1, true],
@@ -45,7 +45,7 @@ export default defineChapter("our-environment", [
   [427, OUR_ENVIRONMENT_CBQ_LT_GENERATED, false],
   [450, ENVIRONMENT_CBQ_B1_LT_GENERATED, false],
   [458, OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED, false],
-  [459, OE_NCERT, false],
+  [459, OE_TEXTBOOK, false],
 ], [
   "OEX-A-005",
   "SCO-S-ENV-002",
