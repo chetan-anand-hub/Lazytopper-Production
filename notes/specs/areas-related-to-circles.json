@@ -409,14 +409,14 @@
       "id": "circle-area"
     },
     {
-      "label": "Length of an arc (angle θ)",
+      "label": "Length of an arc (angle $\\theta$)",
       "math": "$\\ell = \\dfrac{\\theta}{360}\\times 2\\pi r$",
       "id": "arc-length",
       "heading": "Length of an Arc",
       "tip": "θ/360 of the circumference."
     },
     {
-      "label": "Area of a sector (angle θ)",
+      "label": "Area of a sector (angle $\\theta$)",
       "math": "$\\dfrac{\\theta}{360}\\times \\pi r^2$",
       "id": "sector-area",
       "heading": "Area of a Sector",

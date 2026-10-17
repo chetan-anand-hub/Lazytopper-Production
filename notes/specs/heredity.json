@@ -376,7 +376,7 @@
     },
     {
       "label": "Human sex chromosomes",
-      "math": "Female = $\\text{XX}$ (all eggs X) . Male = $\\text{XY}$ (sperm X or Y) $\\rightarrow$ the sex is decided by whether the sperm carries X or Y",
+      "math": "Female = $\\text{XX}$ (all eggs X) · Male = $\\text{XY}$ (sperm X or Y) $\\rightarrow$ the sex is decided by whether the sperm carries X or Y",
       "id": "sex-chromosomes",
       "tip": "The sex is decided by the X or Y chromosome in the sperm; it is chance, not choice."
     },
@@ -606,19 +606,19 @@
       {
         "label": "Mendel's monohybrid cross",
         "children": [
-          "Tall (TT) x short (tt) -> F1 all tall (Tt)",
+          "Tall (TT) $\\times$ short (tt) $\\rightarrow$ $\\text{F}_1$ all tall (Tt)",
           "Dominant trait masks the recessive one",
-          "F2: 3 tall : 1 short (genotype 1:2:1)",
-          "Recessive factor hidden in F1, reappears in F2"
+          "$\\text{F}_2$: 3 tall : 1 short (genotype 1:2:1)",
+          "Recessive factor hidden in $\\text{F}_1$, reappears in $\\text{F}_2$"
         ]
       },
       {
         "label": "Dihybrid cross",
         "children": [
           "Round-green (RRyy) x wrinkled-yellow (rrYY)",
-          "F1 all round and yellow (Rr Yy)",
-          "F2: 9:3:3:1 - four phenotypes",
-          "New combinations -> traits inherited independently"
+          "$\\text{F}_1$ all round and yellow (Rr Yy)",
+          "$\\text{F}_2$: 9:3:3:1 - four phenotypes",
+          "New combinations $\\rightarrow$ traits inherited independently"
         ]
       },
       {
@@ -635,7 +635,7 @@
         "children": [
           "22 matched pairs + 1 sex-chromosome pair",
           "Female XX (all X eggs), Male XY (X or Y sperm)",
-          "Father's chromosome decides sex: X -> girl, Y -> boy",
+          "Father's chromosome decides sex: X $\\rightarrow$ girl, Y $\\rightarrow$ boy",
           "Don't say the mother decides the sex"
         ]
       }

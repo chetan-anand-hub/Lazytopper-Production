@@ -898,7 +898,7 @@
       {
         "label": "Nutrition",
         "children": [
-          "Autotrophic - photosynthesis (CO2 + water + sunlight + chlorophyll)",
+          "Autotrophic - photosynthesis ($\\text{CO}_2$ + water + sunlight + chlorophyll)",
           "Heterotrophic - animals &amp; fungi; enzymes break down complex food",
           "Human digestion - mouth to stomach to small intestine; villi absorb",
           "Amoeba - pseudopodia + food-vacuole"
@@ -908,8 +908,8 @@
         "label": "Respiration",
         "children": [
           "Glucose to pyruvate (cytoplasm)",
-          "Aerobic (mitochondria) to CO2 + water + more energy",
-          "Anaerobic - yeast to ethanol + CO2; muscle to lactic acid",
+          "Aerobic (mitochondria) to $\\text{CO}_2$ + water + more energy",
+          "Anaerobic - yeast to ethanol + $\\text{CO}_2$; muscle to lactic acid",
           "Energy stored as ATP"
         ]
       },

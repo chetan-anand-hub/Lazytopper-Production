@@ -535,15 +535,15 @@
         "label": "Complementary events",
         "children": [
           "P(not E) = 1 - P(E)",
-          "'not' / 'at least' -> use complement",
+          "'not' / 'at least' → use complement",
           "E and (not E) fill the whole space"
         ]
       },
       {
         "label": "Impossible / sure / range",
         "children": [
-          "Impossible event -> 0",
-          "Sure event -> 1",
+          "Impossible event → 0",
+          "Sure event → 1",
           "0 <= P(E) <= 1 always"
         ]
       },

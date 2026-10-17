@@ -451,7 +451,7 @@
       {
         "label": "Build a quadratic",
         "children": [
-          "x^2 - (sum)x + product",
+          "$x^2 - (\\text{sum})x + \\text{product}$",
           "Any real k-multiple also works"
         ]
       },
