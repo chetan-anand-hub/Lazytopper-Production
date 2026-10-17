@@ -9,7 +9,7 @@ vi.mock("../../analytics/analytics", () => ({
   },
 }));
 
-import WhatsAppFab from "./WhatsAppFab";
+import WhatsAppFab, { WhatsAppFabBoundary } from "./WhatsAppFab";
 
 /** WA-CONTACT-1 — the floating button: where it renders, its link, and the overlay hide. */
 
@@ -75,6 +75,30 @@ describe("WhatsAppFab", () => {
     document.body.style.overflow = "hidden";
     at("/practice-hub");
     expect(screen.queryByRole("link", FAB)).toBeNull();
+  });
+
+  it("attaches no MutationObserver on a hidden route, and does on a shown one", () => {
+    const spy = vi.spyOn(MutationObserver.prototype, "observe");
+    at("/chapter-test/10/Maths/triangles");
+    expect(spy).not.toHaveBeenCalled();
+    cleanup();
+    at("/practice-hub");
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("the boundary renders nothing when its child throws", () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    function Boom(): never {
+      throw new Error("boom");
+    }
+    const { container } = render(
+      <WhatsAppFabBoundary>
+        <Boom />
+      </WhatsAppFabBoundary>,
+    );
+    expect(container.innerHTML).toBe("");
+    err.mockRestore();
   });
 
   it("a tap records whatsapp_contact_tap with placement fab", () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Component, useEffect, useState, type ReactElement, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
 import { trackWhatsAppContactTap } from "../../analytics/analytics";
@@ -21,12 +21,21 @@ import "./whatsAppFab.css";
  *
  * A plain `<a target="_blank">` to `wa.me`: works without JavaScript handlers, opens the
  * WhatsApp app on a phone and WhatsApp Web on a laptop.
+ *
+ * ★ It is mounted OUTSIDE App's ErrorBoundary, so the default export carries its own
+ * boundary: any error in the button renders nothing, never a broken page.
  */
 
-function useOverlayOpen(): boolean {
-  const [open, setOpen] = useState(() => (typeof document === "undefined" ? false : isOverlayOpen(document)));
+/**
+ * True while an overlay is open. The observers are attached ONLY while `enabled` (the
+ * route is on the allow-list), so test and practice pages pay nothing.
+ */
+function useOverlayOpen(enabled: boolean): boolean {
+  const [open, setOpen] = useState(() =>
+    enabled && typeof document !== "undefined" ? isOverlayOpen(document) : false,
+  );
   useEffect(() => {
-    if (typeof document === "undefined" || typeof MutationObserver === "undefined") return;
+    if (!enabled || typeof document === "undefined" || typeof MutationObserver === "undefined") return;
     let frame = 0;
     const check = () => {
       frame = 0;
@@ -48,7 +57,7 @@ function useOverlayOpen(): boolean {
       body.disconnect();
       if (frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [enabled]);
   return open;
 }
 
@@ -63,10 +72,11 @@ function WhatsAppIcon() {
   );
 }
 
-export default function WhatsAppFab() {
+function WhatsAppFabInner() {
   const { pathname } = useLocation();
-  const overlayOpen = useOverlayOpen();
-  if (overlayOpen || !shouldShowWhatsAppFab(pathname)) return null;
+  const shown = shouldShowWhatsAppFab(pathname);
+  const overlayOpen = useOverlayOpen(shown);
+  if (!shown || overlayOpen) return null;
   const href = whatsAppHref(whatsAppMessageFor(pathname));
   return (
     <a
@@ -81,5 +91,28 @@ export default function WhatsAppFab() {
     >
       <WhatsAppIcon />
     </a>
+  );
+}
+
+/** Renders nothing if its child throws: a contact shortcut is never worth a broken page. */
+export class WhatsAppFabBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError(): { failed: boolean } {
+    return { failed: true };
+  }
+  componentDidCatch(): void {
+    /* swallowed on purpose: the button is optional chrome */
+  }
+  render(): ReactNode {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
+// Return type kept `ReactElement | null`: App.tsx's lazy import falls back to `() => null`.
+export default function WhatsAppFab(): ReactElement | null {
+  return (
+    <WhatsAppFabBoundary>
+      <WhatsAppFabInner />
+    </WhatsAppFabBoundary>
   );
 }

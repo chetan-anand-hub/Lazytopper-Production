@@ -97,13 +97,14 @@
   margin-top: 10px;
   padding: 0 20px;
   border-radius: 12px;
-  background: var(--ct-g);
+  /* the darker green: white text on it is >= 4.5:1 (WCAG AA) */
+  background: var(--ct-gt);
   color: #fff;
   font-weight: 700;
   text-decoration: none;
 }
 .lt-contact .lt-contact__btn:hover {
-  background: var(--ct-gt);
+  background: #054d2c;
 }
 @media (min-width: 560px) {
   .lt-contact .lt-contact__btn {
