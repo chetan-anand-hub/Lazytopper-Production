@@ -31,11 +31,23 @@ const PACKS = [
 
 const served = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
 // C1's single classifier (lib/cbq/cbqClassification.ts, #977): isCbq = competencyVerified === true.
+// 17 Oct WITHHOLD-TRI-GDR-1 (#1222): pack rows paused for wrong content (kept in the pack, not served). Pinned both ways below;
+// LTG-S-LIGHT-278 part (d): object at F of a convex lens - NCERT 2026-27 Table 9.4 "Image would not be formed".
+const PAUSED_PACK_ROWS: ReadonlySet<string> = new Set(["LTG-S-LIGHT-278"]);
 
 describe("CBQ-1 · C2 batch 1 (Magnetic Effects, Light, Electricity)", () => {
+  it("a paused pack row is withheld (not served) and is still in its pack", () => {
+    const packIds = new Set(PACKS.flatMap((p) => p.rows.map((q) => q.id)));
+    for (const id of PAUSED_PACK_ROWS) {
+      expect(packIds.has(id), id).toBe(true);
+      expect(served.has(id), `${id} is paused but served: drop it from PAUSED_PACK_ROWS`).toBe(false);
+    }
+  });
+
   it("every pack row is served, in its chapter, generated, and a CBQ", () => {
     for (const p of PACKS) {
       for (const q of p.rows) {
+        if (PAUSED_PACK_ROWS.has(q.id)) continue;
         const s = served.get(q.id);
         expect(s, `${q.id} is not served`).toBeTruthy();
         expect(s?.topicKey, q.id).toBe(p.slug);

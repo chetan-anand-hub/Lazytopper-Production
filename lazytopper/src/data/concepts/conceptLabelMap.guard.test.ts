@@ -82,6 +82,9 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3, 71 more paused rows): every row of these four mapped labels is now paused (same D143 shape).
   { chapter: "polynomials", label: "Degree of Polynomial" },
   { chapter: "surface-areas-and-volumes", label: "Total Surface Area" },
+  // 17 Oct WITHHOLD-TRI-GDR-1 (#1222): the label's only row, LIGHT-EXMPLR-9-LA-002, is paused (object at F: NCERT 2026-27 Table 9.4
+  // "Image would not be formed"). Its repair PR serves the row again and drops this entry.
+  { chapter: "light-reflection-and-refraction", label: "Convex Lens — All Object Positions" },
 ];
 const MAX_REVIEWED_LABELS = 136;
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
