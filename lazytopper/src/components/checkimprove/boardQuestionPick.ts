@@ -29,8 +29,6 @@ export interface BoardTryRow {
   solutionSteps?: unknown;
   pyqYear?: unknown;
   ncertRef?: unknown;
-  origin?: unknown;
-  questionProvenance?: unknown;
   sourceOverride?: unknown;
   requiresDiagram?: unknown;
   [key: string]: unknown;
@@ -66,7 +64,11 @@ const REPLACEMENT_CHAR = String.fromCharCode(0xfffd);
 export function isBoardTryRow(row: BoardTryRow): boolean {
   const id = String(row.id ?? "");
   if (!id) return false;
-  if (row.origin === "lt-generated" || row.questionProvenance === "authored" || row.sourceOverride === "others") return false;
+  // A board-paper row: a board year and a "PYQ ..." paper reference, and a source that was
+  // confirmed (BANK-FIX-1 `sourceOverride: "others"` rows are never shown as board questions).
+  // Generated / authored rows carry no board year (pinned in boardQuestionPick.test.ts against
+  // the live bank), so the internal provenance fields are not read here (GEN-THIN-1 guard).
+  if (row.sourceOverride === "others") return false;
   if (!String(row.pyqYear ?? "").trim() || !/^PYQ\b/.test(String(row.ncertRef ?? ""))) return false;
   if (!["B", "C"].includes(String(row.section ?? "").trim())) return false;
   const marks = Number(row.marks);

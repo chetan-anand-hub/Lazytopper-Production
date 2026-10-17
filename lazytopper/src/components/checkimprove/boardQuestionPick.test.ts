@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { ensureBankSubject, getBankRowsForSubject, isAiGeneratedBankId } from "../../data/bankChapters/loader";
+import { syllabusExclusion } from "../../lib/boardQuestions/selectionRule";
 import {
   boardTryLabel,
   boardTryText,
@@ -46,8 +47,6 @@ describe("ACTIVATION-2 D · the board-question rule", () => {
     ["a 1-mark row", { marks: 1 }],
     ["a 5-mark row", { marks: 5 }],
     ["a Section E row", { section: "E" }],
-    ["a LazyTopper-generated row", { origin: "lt-generated" }],
-    ["an authored row", { questionProvenance: "authored" }],
     ["a row whose source was not confirmed", { sourceOverride: "others" }],
     ["a row with no board year", { pyqYear: undefined }],
     ["a non-board paper (SQP)", { ncertRef: "SQP 2024-25 Q22" }],
@@ -80,6 +79,12 @@ describe("ACTIVATION-2 D · against the REAL served bank", () => {
       expect(String(r.subject)).toBe(subject);
       expect(String(r.ncertRef)).toMatch(/^PYQ\b/);
       expect([2, 3]).toContain(Number(r.marks));
+      // Never a LazyTopper-generated or authored row (the module does not read these internal
+      // provenance fields - GEN-THIN-1 - so the live bank is pinned here instead).
+      expect(r.origin, String(r.id)).not.toBe("lt-generated");
+      expect(r.questionProvenance, String(r.id)).not.toBe("authored");
+      // Inside the 2026-27 syllabus by the notes' own board-question recogniser.
+      expect(syllabusExclusion(r as never), String(r.id)).toBeNull();
     }
   });
 
