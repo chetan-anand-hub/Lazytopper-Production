@@ -2038,6 +2038,7 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
   "polynomials": {
   },
   "pair-of-linear-equations": {
+    "Pair of Linear Equations in Two Variables": { reason: "generic", note: "generic: chapter-name / format label, carries no concept - re-tag per row (curatedInline 2026-PLE-SA-02, served again by SCI-BACKLOG-1 batch 4)" },
   },
   "quadratic-equations": {
     "Assertion-Reasoning": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
@@ -2090,6 +2091,7 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Water Transfer (Cuboid to Cylinder)": { reason: "concept-gap", note: "audit (verified): volume transfer / rate of flow between containers — propose \"Volume Transfer & Flow\"" },
   },
   "statistics": {
+    "Statistics": { reason: "generic", note: "generic: chapter-name / format label, carries no concept - re-tag per row (curatedInline 2026-STAT-SA-02, served again by SCI-BACKLOG-1 batch 4)" },
     "Empirical Relationship of Mean, Median and Mode": { reason: "spans-concepts", note: "spans-concepts: relates all three of mean/median/mode (consistent with sibling empirical-relation labels)" },
     "Mean Mode Median Comparison": { reason: "concept-gap", note: "audit (verified): spans mean/median/mode; propose \"Mean, Median & Mode — Combined Applications\"" },
     "Mean of Ungrouped Observations": { reason: "concept-gap", note: "audit (verified): ungrouped mean (prerequisite); propose \"Mean of Ungrouped Data\"" },

@@ -83,7 +83,7 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   // "Image would not be formed"). Its repair PR serves the row again and drops this entry.
   { chapter: "light-reflection-and-refraction", label: "Convex Lens — All Object Positions" },
 ];
-const MAX_REVIEWED_LABELS = 136;
+const MAX_REVIEWED_LABELS = 138; // 14 Oct SCI-BACKLOG-1 batch 4 (F): +2 reviewed generic labels "Statistics" and "Pair of Linear Equations in Two Variables" (2026-STAT-SA-02, 2026-PLE-SA-02 serve again)
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
 // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3): 10268 served rows, measured 0.91858 -> pin 0.9189 -> 0.9185 (each REPAIR PR re-measures and raises it back).
 // 14 Oct GARBLE-1 REWRITE-1 (A2): PYQ-M-2024-TRIG-018 and -020 serve again (label 'Trigonometric Identity Proofs' has a carrier, its PAUSED_LABELS entry is gone). Re-measured on the merged tree by runtime import: 10329 served, 0.92264 (this includes the rows #1145 restored) -> pin 0.9185 -> 0.9226.
@@ -94,7 +94,9 @@ const MAX_REVIEWED_LABELS = 136;
 // 9728 of 10554 = 0.92174 (the same 19 concept-less rows on a larger bank) -> pin 0.9225 -> 0.9217 (the branch's 0.9214 was measured on 10438 rows).
 // 17 Oct SCI-BACKLOG-1 batch 2 LANDED on trunk aa24ad13: 6 Science SINGLE-STEP rows serve again, all concept-less (9728 rows with a concept before and after):
 // re-measured by runtime import on the merged tree: 9728 of 10560 = 0.92121 -> pin 0.9217 -> 0.9212.
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9212;
+// 17 Oct SCI-BACKLOG-1 batch 4 LANDED on trunk ce4c76a8: 2026-STAT-SA-02 and 2026-PLE-SA-02 serve again under reviewed generic labels (no concept):
+// re-measured by runtime import on the merged tree: 9728 of 10562 = 0.92104 -> pin 0.9212 -> 0.9210.
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9210;
 
 const isChapterEchoSubtopic = echoFromShape;
 
