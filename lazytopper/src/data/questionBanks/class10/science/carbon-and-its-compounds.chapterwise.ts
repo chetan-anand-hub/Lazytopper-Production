@@ -197,16 +197,20 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq04 Q5", isCompetencyBased: false,
     sourceOverride: "others" },
   // cbjesccq04 Q2 (Section A, 1mk)
+  // CARB-025 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 section 4.2.4 'Homologous Series' (Table 4.3), section 4.2.5 'Nomenclature of Carbon Compounds' (Table 4.4) and Exercise 2
   { id: "SCQ-S-CARB-025", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "Ethanal 6. Write the formula of first two members of homologous series whose functional group is .",
-    answer: "1. 2-Propanone",
-    solutionSteps: ["1. 2-Propanone"],
+    questionText: "Write the formula of first two members of homologous series whose functional group is —CO— (ketone, >C=O).",
+    answer: "Functional group —CO— (ketone). 1. Propanone, CH3COCH3 2. Butanone, CH3COCH2CH3",
+    solutionSteps: ["[1 mark] First member: propanone, CH3COCH3 (a ketone needs at least three carbon atoms).","[1 mark] Second member: butanone, CH3COCH2CH3 (differs from propanone by a –CH2– unit)."],
+    finalAnswer: "Propanone, CH3COCH3 and butanone, CH3COCH2CH3.",
     ncertRef: "cbjesccq04 Q2", isCompetencyBased: false },
   // cbjesccq04 Q71 (Section B, 2mk)
+  // CARB-026 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 section 4.2.3 (structural isomers, Fig. 4.8), section 4.2.4 Table 4.3 and section 4.2.5 Table 4.4
   { id: "SCQ-S-CARB-026", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Draw the structural formulae of the possible isomers for the compound with molecular formula C3H6O.",
-    answer: "72. Explain why cannot we have isomers of first three members of alkane family. Ans : [CBSE Sample Paper 2017, CBSE 2015] It is because branching is not possible with carbon atoms, that is why, there are no isomers till propane.",
-    solutionSteps: ["72. Explain why cannot we have isomers of first three members of alkane family. Ans : [CBSE Sample Paper 2017, CBSE 2015] It is because branching is not possible with carbon atoms, that is why, there are no isomers till propane."],
+    answer: "At Class 10 level, C3H6O has two isomers: propanal, CH3–CH2–CHO (an aldehyde), and propanone, CH3–CO–CH3 (a ketone).",
+    solutionSteps: ["[1 mark] Isomer 1 — propanal (aldehyde): CH3–CH2–CHO, i.e. H3C–CH2–C(=O)–H, with the C=O group at the end of the chain.","[1 mark] Isomer 2 — propanone (ketone): CH3–CO–CH3, i.e. H3C–C(=O)–CH3, with the C=O group on the middle carbon. Both have the formula C3H6O but different structures, so they are structural isomers."],
+    finalAnswer: "Propanal, CH3CH2CHO, and propanone, CH3COCH3.",
     ncertRef: "cbjesccq04 Q71", isCompetencyBased: false },
   // cbjesccq04 Q73 (Section B, 2mk)
   { id: "SCQ-S-CARB-027", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -233,10 +237,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["a. Covalent compounds do not form ions, hence they are bad conductor of electricity. b. Covalent compounds have weak intermolecular forces of attraction, therefore, have low melting and boiling points."],
     ncertRef: "cbjesccq04 Q76", isCompetencyBased: true },
   // cbjesccq04 Q77 (Section B, 2mk)
+  // CARB-031 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 section 4.2.4 'Homologous Series' and section 4.2.5 'Nomenclature of Carbon Compounds'
   { id: "SCQ-S-CARB-031", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What is homologous series? Write the name and draw the structure of the second member of alkene series.",
-    answer: "a. The series of organic compounds having same functional group and similar chemical properties is called homologous series. b.",
-    solutionSteps: ["a. The series of organic compounds having same functional group and similar chemical properties is called homologous series. b."],
+    answer: "a. A homologous series is a series of carbon compounds in which the same functional group substitutes for hydrogen in a carbon chain; successive members differ by a –CH2– unit and have similar chemical properties. b. The second member of the alkene series is propene, C3H6: CH3–CH=CH2.",
+    solutionSteps: ["[1 mark] a. Homologous series: a series of carbon compounds in which the same functional group substitutes for hydrogen in a carbon chain; successive members differ by a –CH2– unit, and they show similar chemical properties with a gradation in physical properties.","[1 mark] b. Second member of the alkene series (after ethene, C2H4): propene, C3H6; structure CH3–CH=CH2, i.e. H3C–CH=CH2, with the C=C double bond at the end of the three-carbon chain."],
+    finalAnswer: "Homologous series = same functional group on carbon chains, successive members differing by –CH2–; second alkene is propene, CH3–CH=CH2 (C3H6).",
     ncertRef: "cbjesccq04 Q77", isCompetencyBased: false },
   // cbjesccq04 Q99 (Section C, 3mk)
   { id: "SCQ-S-CARB-032", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",

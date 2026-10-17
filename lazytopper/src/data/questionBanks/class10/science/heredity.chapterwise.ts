@@ -205,10 +205,12 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["The trait which represents the tallness in a pea plant is dominant over the another trait, shortness (dwarf)."],
     ncertRef: "cbjesccq09 Q6", isCompetencyBased: true },
   // cbjesccq09 Q7 (Section A, 1mk)
+  // HERED-026 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc108 (Heredity), section 8.1 'Accumulation of Variation during Reproduction'
   { id: "SCQ-S-HERED-026", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "All the variations in a species do not have equal chances of survival. Why?",
-    answer: "Some variations are caused by environmental changes and they do not bring out any change in DNA. Therefore, all the variations do not have equal chances of survival.",
-    solutionSteps: ["Some variations are caused by environmental changes and they do not bring out any change in DNA. Therefore, all the variations do not have equal chances of survival."],
+    answer: "Depending on the nature of the variation, different individuals get different kinds of advantages in the environment they live in, so only some variations help survival. For example, bacteria that can withstand heat survive better in a heat wave than those that cannot.",
+    solutionSteps: ["[1 mark] Variations differ in nature: depending on the nature of the variation, different individuals get different kinds of advantages in their environment, so not all variations are equally useful for survival.","[1 mark] Example: bacteria that can withstand heat survive better in a heat wave than bacteria without this variation."],
+    finalAnswer: "Depending on the nature of the variation, different individuals get different kinds of advantages in the environment they live in, so only some variations help survival. For example, bacteria that can withstand heat survive better in a heat wave than those that cannot.",
     ncertRef: "cbjesccq09 Q7", isCompetencyBased: true },
   // cbjesccq09 Q34 (Section B, 2mk)
   { id: "SCQ-S-HERED-027", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -305,16 +307,12 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq09 Q109", isCompetencyBased: true, sourceOverride: "others" },
   // cbjesccq09 Q113 (Section D, 5mk)
+  // HERED-040 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc108 (Heredity), section 8.2.2 'Rules for the Inheritance of Traits – Mendel's Contributions', Fig. 8.3 and Fig. 8.5
   { id: "SCQ-S-HERED-040", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "a. What are monohybrid and dihybrid cross? b. How Mendel proved that tallness is the dominant trait and dwarfness is recessive in a pea plant?. Explain with the help of a monohybrid cross.",
-    answer: "a. A monohybrid cross is the cross between two homozygous parents, which differ in only one contrasting trait in F2 generation ratio 3:1. A dihybrid cross is a cross between two heterozygous parents which differ in two contrasting traits. This type of cross yields a phenotypic ra",
-    solutionSteps: [
-      "[1 mark] (a) Monohybrid cross: a cross between two parents differing in a single pair of contrasting characters (one trait); it gives an F₂ phenotypic ratio of 3 : 1.",
-      "[1 mark] (a) Dihybrid cross: a cross between two parents differing in two pairs of contrasting characters (two traits); it gives an F₂ phenotypic ratio of 9 : 3 : 3 : 1.",
-      "[1 mark] (b) Cross: Mendel crossed a pure tall pea plant (TT) with a pure dwarf pea plant (tt).",
-      "[1 mark] (b) F₁ result: All the F₁ plants were tall (Tt); the dwarf character did not appear, showing that tallness is dominant and dwarfness is recessive.",
-      "[1 mark] (b) F₂ result: On self-pollinating the F₁ (Tt × Tt), the F₂ generation showed tall and dwarf plants in the ratio 3 : 1 — the reappearance of dwarf plants proves that dwarfness is recessive and was only masked in the F₁."
-    ],
+    questionText: "a. What are monohybrid and dihybrid cross? b. How Mendel proved that tallness is the dominant trait and dwarfness is recessive in a pea plant? Explain with the help of a monohybrid cross.",
+    answer: "(a) A monohybrid cross is a cross between two parents differing in one pair of contrasting characters; it gives an F₂ phenotypic ratio of 3 : 1. A dihybrid cross is a cross between two parents differing in two pairs of contrasting characters; it gives an F₂ phenotypic ratio of 9 : 3 : 3 : 1. (b) Mendel crossed a pure tall pea plant (TT) with a pure dwarf plant (tt); all F₁ plants were tall (Tt), and on self-pollinating the F₁, the F₂ had tall and dwarf plants in the ratio 3 : 1. The reappearance of dwarf plants in F₂ shows that tallness is dominant and dwarfness is recessive.",
+    solutionSteps: ["[1 mark] (a) Monohybrid cross: a cross between two parents differing in a single pair of contrasting characters (one trait); it gives an F₂ phenotypic ratio of 3 : 1.","[1 mark] (a) Dihybrid cross: a cross between two parents differing in two pairs of contrasting characters (two traits); it gives an F₂ phenotypic ratio of 9 : 3 : 3 : 1.","[1 mark] (b) Cross: Mendel crossed a pure tall pea plant (TT) with a pure dwarf pea plant (tt).","[1 mark] (b) F₁ result: All the F₁ plants were tall (Tt); the dwarf character did not appear, showing that tallness is dominant and dwarfness is recessive.","[1 mark] (b) F₂ result: On self-pollinating the F₁ (Tt × Tt), the F₂ generation showed tall and dwarf plants in the ratio 3 : 1 — the reappearance of dwarf plants proves that dwarfness is recessive and was only masked in the F₁."],
+    finalAnswer: "Monohybrid cross: parents differ in one pair of contrasting characters (F₂ ratio 3 : 1); dihybrid cross: parents differ in two pairs of contrasting characters (F₂ ratio 9 : 3 : 3 : 1). Pure tall (TT) × pure dwarf (tt) gives all-tall F₁ (Tt); selfing F₁ gives tall : dwarf = 3 : 1 in F₂, so tallness is dominant and dwarfness is recessive.",
     ncertRef: "cbjesccq09 Q113", isCompetencyBased: true },
   // cbjesccq09 Q119 (Section D, 5mk)
   { id: "SCQ-S-HERED-041", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",

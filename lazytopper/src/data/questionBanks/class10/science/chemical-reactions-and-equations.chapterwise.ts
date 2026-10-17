@@ -152,10 +152,12 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["[2 marks] The solution will become blue, shiny silver metal will get deposited. Cu(s) + 2AgNO3(aq) → Cu(NO3)2 (aq) + 2Ag(s)"],
     ncertRef: "cbjesccq01 Q2", isCompetencyBased: false },
   // cbjesccq01 Q3 (Section A, 1mk)
+  // CHEM-019 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc101 section 1.2.5 'Oxidation and Reduction' (eq. 1.31) and jesc103 section 3.4.4 'Extracting Metals in the Middle of the Activity Series'
   { id: "SCQ-S-CHEM-019", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "State one industrial application of reduction process.",
-    answer: "It is used in the extraction of metals e.g., ZnO(s) + C(s) Heat Zn(s) + CO2(g)",
-    solutionSteps: ["[2 marks] It is used in the extraction of metals e.g., ZnO(s) + C(s) Heat Zn(s) + CO2(g)"],
+    answer: "Reduction is used in the extraction of metals from their oxides, e.g. zinc oxide is heated with carbon to get zinc: ZnO(s) + C(s) → Zn(s) + CO(g).",
+    solutionSteps: ["[1 mark] Application: reduction is used in the extraction of metals — a metal oxide is reduced to the metal by heating it with a reducing agent such as carbon (coke).","[1 mark] Example (balanced): ZnO(s) + C(s) → Zn(s) + CO(g) (on heating); ZnO is reduced to Zn and carbon is oxidised to CO."],
+    finalAnswer: "Extraction of metals from their oxides by reduction, e.g. ZnO(s) + C(s) → Zn(s) + CO(g) on heating.",
     ncertRef: "cbjesccq01 Q3", isCompetencyBased: false },
   // cbjesccq01 Q4 (Section A, 1mk)
   { id: "SCQ-S-CHEM-020", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
