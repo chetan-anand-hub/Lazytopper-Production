@@ -194,10 +194,12 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["[2 marks] Glycolysis."],
     ncertRef: "cbjesccq06 Q3", isCompetencyBased: false },
   // cbjesccq06 Q4 (Section A, 1mk)
+  // LIFE-024 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 5 Life Processes, 5.3 Respiration (respiratory pigment); end-of-chapter Exercise Q10
   { id: "SCQ-S-LIFE-024", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "What would be the consequences of deficiency of haemoglobin in our bodies? [Foreign 2012]",
-    answer: "Anaemia.",
-    solutionSteps: ["[2 marks] Anaemia."],
+    questionText: "What would be the consequences of deficiency of haemoglobin in our bodies?",
+    answer: "Haemoglobin carries oxygen from the lungs to the tissues. Its deficiency lowers the oxygen-carrying capacity of the blood, so less oxygen reaches the body cells, less energy is released and the person feels tired and breathless. This condition is called anaemia.",
+    solutionSteps: ["[1 mark] Haemoglobin is the respiratory pigment that carries oxygen from the lungs to the tissues; its deficiency lowers the oxygen-carrying capacity of the blood, so less oxygen reaches the body cells and less energy is released (tiredness, breathlessness).","[1 mark] This condition, caused by deficiency of haemoglobin, is called anaemia."],
+    finalAnswer: "Less oxygen is carried to the tissues, so less energy is released and the person feels tired; the condition is anaemia.",
     ncertRef: "cbjesccq06 Q4", isCompetencyBased: false },
   // cbjesccq06 Q5 (Section A, 1mk)
   { id: "SCQ-S-LIFE-025", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -207,34 +209,44 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq06 Q5", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjesccq06 Q6 (Section A, 1mk)
+  // LIFE-026 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 5 Life Processes, 5.2.2 Heterotrophic Nutrition and 5.2.3 How do Organisms obtain their Nutrition? (Fig. 5.5)
   { id: "SCQ-S-LIFE-026", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Name mode of nutrition in the following organisms: (a) Fungi (b) Amoeba",
-    answer: "[All India 2011] a. Fungi - saprophytic b. Amoeba — animal like nutrition",
-    solutionSteps: ["[2 marks] [All India 2011] a. Fungi - saprophytic b. Amoeba — animal like nutrition"],
+    answer: "a. Fungi - saprophytic nutrition b. Amoeba - holozoic nutrition",
+    solutionSteps: ["[1 mark] (a) Fungi: saprophytic nutrition - they break down food material outside the body and then absorb it (e.g. bread mould, yeast, mushroom).","[1 mark] (b) Amoeba: holozoic nutrition - it takes in whole food particles using temporary finger-like extensions (pseudopodia), forming a food vacuole in which the food is digested."],
+    finalAnswer: "Fungi: saprophytic nutrition; Amoeba: holozoic nutrition.",
     ncertRef: "cbjesccq06 Q6", isCompetencyBased: false },
   // cbjesccq06 Q21 (Section B, 2mk)
+  // LIFE-027 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc105, section 5.4.1 'Transportation in Human Beings' (sub-heads 'Lymph', 'Our pump - the heart'); board tag All India 2018
   { id: "SCQ-S-LIFE-027", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What is Lymph? How is it different from blood?",
-    answer: "[All India 2018] Lymph is the light yellow fluid containing lymphocyte, which fights against infections. Blood Lymph",
-    solutionSteps: ["[2 marks] [All India 2018] Lymph is the light yellow fluid containing lymphocyte, which fights against infections. Blood Lymph"],
+    answer: "Lymph (tissue fluid) is the colourless fluid formed when some plasma, proteins and blood cells escape through the pores in capillary walls into the intercellular spaces. Unlike blood, it is colourless and contains less protein, it carries digested and absorbed fat from the intestine, and it flows in one direction from the tissues through lymph vessels into larger veins, whereas blood is pumped round the body by the heart and carries oxygen in its red blood corpuscles.",
+    solutionSteps: ["[1 mark] Lymph (tissue fluid) is formed when some plasma, proteins and blood cells escape through the pores in the walls of capillaries into the intercellular spaces of tissues; it drains into lymphatic capillaries and large lymph vessels that open into larger veins.","[1 mark] Difference from blood: lymph is colourless and contains less protein than blood, carries digested and absorbed fat from the intestine and flows in one direction back into the veins, whereas blood is red (red blood corpuscles carry oxygen) and is pumped around the body by the heart."],
+    finalAnswer: "Lymph is colourless tissue fluid formed from plasma, proteins and blood cells that escape from capillaries; unlike blood it contains less protein, carries absorbed fat and drains one way into veins, while blood is red and pumped by the heart.",
     ncertRef: "cbjesccq06 Q21", isCompetencyBased: true },
   // cbjesccq06 Q1 (Section B, 2mk)
+  // LIFE-028 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc105, section 5.2.3 'How do Organisms obtain their Nutrition?' (Nutrition in Human Beings) and Exercise 5; board tag Delhi 2017
   { id: "SCQ-S-LIFE-028", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Blood is pumped throughout the body by heart. Lymph is moved along through the normal function of the body. 2. Blood transports oxygen throughout the body. Lymph removes waste from the system. 3. Blood flows through the body in a circular motion. The movement of lymph is in a single direction. 4. Blood contains red blood cells, white blood cells and platelets. Lymph is a light yellow and clear liquid. 5. We can see blood with the naked eyes. Lymph cannot be seen with the naked eyes. 6. The kidney purify the blood. Lymph is purified in the nodes itself. 22. How are fats digested in our bodies? Where does this process take place? [Delhi 2017]",
-    answer: "Fats are first emulsified with the help of bile salts followed by their breakdown in fatty acids and glycerol due to the action of lipase. All these events take place in first part of small intestine-duodenum. Saprophytic",
-    solutionSteps: ["[2 marks] Fats are first emulsified with the help of bile salts followed by their breakdown in fatty acids and glycerol due to the action of lipase. All these events take place in first part of small intestine-duodenum. Saprophytic"],
+    questionText: "How are fats digested in our bodies? Where does this process take place? [Delhi 2017]",
+    answer: "Fats are present as large globules; bile salts from the liver emulsify them into smaller globules, lipase in pancreatic juice breaks down the emulsified fats, and enzymes of the intestinal juice finally convert fats into fatty acids and glycerol. This takes place in the small intestine.",
+    solutionSteps: ["[1 mark] Bile salts (in bile juice from the liver) break the large fat globules into smaller globules (emulsification), which increases the efficiency of enzyme action.","[1 mark] Lipase in pancreatic juice breaks down the emulsified fats, and enzymes of the intestinal juice finally convert fats into fatty acids and glycerol; all this takes place in the small intestine."],
+    finalAnswer: "Fats are emulsified by bile salts, broken down by pancreatic lipase and finally converted into fatty acids and glycerol by intestinal juice, in the small intestine.",
     ncertRef: "cbjesccq06 Q1", isCompetencyBased: true },
   // cbjesccq06 Q23 (Section B, 2mk)
+  // LIFE-029 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc105, section 5.2.2 'Heterotrophic Nutrition'; board answer text recovered from the spill in LIFE-030's stem (Delhi 2017)
   { id: "SCQ-S-LIFE-029", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Differentiate between saprophytic nutrition and parasitic nutrition based on the type of food and manner of obtaining it. [Delhi 2017]",
-    answer: "S a p r o p hy t i c Nutrition Parasitic Nutrition",
-    solutionSteps: ["[2 marks] S a p r o p hy t i c Nutrition Parasitic Nutrition"],
+    answer: "Type of food: saprophytes feed on dead and decaying organic matter, whereas parasites take their food from a living host (plant or animal). Manner of obtaining it: saprophytes (e.g. fungi like bread mould and mushrooms) break down the food outside their body and then absorb it, whereas parasites (e.g. cuscuta, ticks, lice, leeches, tapeworms) live on or inside the host and derive nutrition from it without killing it.",
+    solutionSteps: ["[1 mark] Type of food: saprophytic nutrition uses dead and decaying organic matter, whereas parasitic nutrition uses food obtained from a living host plant or animal.","[1 mark] Manner of obtaining food: saprophytes such as fungi (bread mould, mushrooms) break down the food material outside the body and then absorb it, whereas parasites such as cuscuta, ticks, lice, leeches and tapeworms live on or inside the host and derive nutrition from it without killing it."],
+    finalAnswer: "Saprophytes feed on dead, decaying matter, breaking it down outside the body and absorbing it (fungi); parasites take food from a living host without killing it (cuscuta, lice, tapeworm).",
     ncertRef: "cbjesccq06 Q23", isCompetencyBased: true },
   // cbjesccq06 Q1 (Section B, 2mk)
+  // LIFE-030 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc105, section 5.3 'Respiration' (gas exchange in plants) and 5.2.1 'Autotrophic Nutrition' (stomata); board tag Foreign 2017
   { id: "SCQ-S-LIFE-030", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Taking dead decay organic matter in the form of food is called saprophytic nutrition. Living on or inside other organisms and deriving their food from them without killing them. 2. It shows extracellular digestion. It has intracellular digestion. 3. It does not depend on living host. It causes harm to the organism. 4. E.g., fungi and bacteria. E.g., lice, tapeworm, leech. 24. How do plants exchange gases?",
-    answer: "[Foreign 2017] Plants exchange gases through stomata. Large intercellular spaces ensure that each cell is in contact with air. Carbon dioxide and oxygen are exchanged here.",
-    solutionSteps: ["[2 marks] [Foreign 2017] Plants exchange gases through stomata. Large intercellular spaces ensure that each cell is in contact with air. Carbon dioxide and oxygen are exchanged here."],
+    questionText: "How do plants exchange gases?",
+    answer: "Plants exchange gases through stomata (tiny pores on the surface of leaves), and the large intercellular spaces ensure that all cells are in contact with air. Carbon dioxide and oxygen are exchanged by diffusion; at night carbon dioxide release is the main exchange, while during the day the carbon dioxide from respiration is used in photosynthesis and oxygen release is the main event.",
+    solutionSteps: ["[1 mark] Plants exchange gases through stomata, the tiny pores on the surface of leaves, and the large intercellular spaces ensure that all cells are in contact with air.","[1 mark] Carbon dioxide and oxygen are exchanged by diffusion, and the direction depends on the environmental conditions and the needs of the plant: at night carbon dioxide release is the main exchange, while during the day the carbon dioxide from respiration is used for photosynthesis and oxygen release is the main event."],
+    finalAnswer: "Through stomata and intercellular spaces, by diffusion of carbon dioxide and oxygen; CO₂ is mainly released at night and O₂ mainly released during the day.",
     ncertRef: "cbjesccq06 Q1", isCompetencyBased: true },
   // cbjesccq06 Q25 (Section B, 2mk)
   { id: "SCQ-S-LIFE-031", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -250,16 +262,20 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq06 Q26", isCompetencyBased: false,
     sourceOverride: "others", },
   // cbjesccq06 Q63 (Section C, 3mk)
+  // LIFE-033 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 5 Life Processes, 5.2.1 Autotrophic Nutrition (p. 82)
   { id: "SCQ-S-LIFE-033", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What is sequence of steps in photosynthesis? How is it different in desert plants and those in temperate regions?",
-    answer: "[All India 2018, Delhi 2017, Foreign 2015] Chloroplast (chlorophyll), on exposure to light energy, becomes activated by absorbing light energy, and splits water (photolysis of water) to oxygen and hydrogen. Hydrogen reduces CO2, and synthesizes glucose. In plants of temperate reg",
-    solutionSteps: ["[3 marks] [All India 2018, Delhi 2017, Foreign 2015] Chloroplast (chlorophyll), on exposure to light energy, becomes activated by absorbing light energy, and splits water (photolysis of water) to oxygen and hydrogen. Hydrogen reduces CO2, and synthesizes glucose. In plants of temperate regions, stomata open during day to take in CO2 and release O2. Desert plants open stomata at night to check excessive loss of water hence sequence of steps of photosynthesis are slightly different. These plants take up carbon dioxide at night and prepare an intermediate which is acted upon by the energy absorbed by the c"],
+    answer: "Steps of photosynthesis: (i) chlorophyll absorbs light energy; (ii) light energy is converted to chemical energy and water molecules are split into hydrogen and oxygen; (iii) carbon dioxide is reduced to carbohydrates (glucose). In plants of temperate regions the stomata open during the day to take in CO2, so all the steps take place during the day. Desert plants keep their stomata closed during the day to check excessive loss of water; they take up carbon dioxide at night and prepare an intermediate, which is acted upon by the energy absorbed by chlorophyll during the day.",
+    solutionSteps: ["[1 mark] Sequence of steps: (i) chlorophyll in the chloroplast absorbs light energy; (ii) light energy is converted to chemical energy and water molecules are split into hydrogen and oxygen; (iii) carbon dioxide is reduced to carbohydrates (glucose).","[1 mark] Temperate plants: the stomata open during the day to take in CO2 and release O2, so all the steps take place one after the other during the day.","[1 mark] Desert plants: to check excessive loss of water the stomata open at night, so these plants take up carbon dioxide at night and prepare an intermediate, which is acted upon by the energy absorbed by chlorophyll during the day."],
+    finalAnswer: "Photosynthesis: light absorbed by chlorophyll, water split into hydrogen and oxygen, CO2 reduced to carbohydrate. Temperate plants do all steps by day; desert plants take in CO2 at night as an intermediate and complete the process using light energy absorbed by day.",
     ncertRef: "cbjesccq06 Q63", isCompetencyBased: true },
   // cbjesccq06 Q64 (Section C, 3mk)
+  // LIFE-034 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 5 Life Processes, 5.3 Respiration, Activity 5.4 and Fig. 5.7
   { id: "SCQ-S-LIFE-034", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
-    questionText: "Design an activity to show that CO2 is produced during breathing. [Delhi 2017]",
-    answer: "Materials Required: Two test tubes, a cork with two holes, two glass tubes bent at right angle, syringe, lime water Ca(OH)2. Procedure : a. Take some freshly prepared lime water, Ca(OH)2 in two test tubes, b. Fit cork with two holes in test tubes A and B. c. Fix two glass tubes i",
-    solutionSteps: ["[3 marks] Materials Required: Two test tubes, a cork with two holes, two glass tubes bent at right angle, syringe, lime water Ca(OH)2. Procedure : a. Take some freshly prepared lime water, Ca(OH)2 in two test tubes, b. Fit cork with two holes in test tubes A and B. c. Fix two glass tubes in this cork of test tube A as shown in the figure. d. Exhale air into the tube and record your observations. Chap 6 : Life Process e. Pass air by the syringe through the lime water contained in test tube B and record your observations. (A) Air being exhaled into lime water (B) Air being passed into lime water with a sy"],
+    questionText: "Design an activity to show that CO2 is produced during breathing.",
+    answer: "Take freshly prepared lime water in two test tubes A and B. Exhale air through a glass tube into the lime water in test tube A, and pass ordinary air through the lime water in test tube B with a syringe. Lime water in A turns milky quickly, while lime water in B takes much longer to turn milky. This shows that exhaled air contains much more carbon dioxide, i.e. CO2 is produced during breathing.",
+    solutionSteps: ["[1 mark] Set-up: take freshly prepared lime water, Ca(OH)2, in two test tubes A and B; fit each with a cork carrying glass tubes bent at right angles.","[1 mark] Procedure: exhale (blow) air through the glass tube into the lime water in test tube A; pass ordinary air through the lime water in test tube B using a syringe; note how long each takes to turn milky.","[1 mark] Observation and conclusion: lime water in A turns milky quickly, while lime water in B takes much longer; so exhaled air contains much more carbon dioxide, showing that CO2 is produced during breathing."],
+    finalAnswer: "Lime water turns milky much faster with exhaled air than with air pushed by a syringe, so exhaled air has more CO2: CO2 is produced during breathing.",
     ncertRef: "cbjesccq06 Q64", isCompetencyBased: false },
   // cbjesccq06 Q65 (Section C, 3mk)
   { id: "SCQ-S-LIFE-035", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -296,16 +312,12 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq06 Q68", isCompetencyBased: true },
   // cbjesccq06 Q79 (Section D, 5mk)
+  // LIFE-039 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 5 Life Processes, 5.4.2 Transportation in Plants – Transport of water (pp. 94-95)
   { id: "SCQ-S-LIFE-039", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "How are water and minerals absorbed and transported in the plants? [All India 2009]",
-    answer: "1. Transpiration is the process of removal of water vapors from the aerial parts of a plant, mainly through stomata in the leaves.",
-    solutionSteps: [
-      "[1 mark] Absorption: Water and dissolved minerals are absorbed from the soil by the root hairs of the plant through diffusion and osmosis; the large surface area of the root hairs increases the rate of absorption.",
-      "[1 mark] Root pressure: The absorbed water passes from cell to cell up to the xylem of the roots, developing a positive pressure called root pressure that pushes water a short way up the stem.",
-      "[1 mark] Conducting tissue: Water and minerals are transported upward through the xylem — a continuous system of vessels and tracheids running from the roots through the stem to the leaves.",
-      "[1 mark] Transpiration pull: Loss of water vapour from the leaves through the stomata (transpiration) creates a suction force (negative pressure) that pulls the water column up the xylem; this is the main force acting in tall plants.",
-      "[1 mark] Ascent of sap: The continuous column of water, held together by cohesion, thus rises from the roots to the leaves (ascent of sap), delivering water and minerals to all aerial parts of the plant."
-    ],
+    questionText: "How are water and minerals absorbed and transported in the plants?",
+    answer: "Root cells in contact with the soil actively take up mineral ions; the resulting difference in ion concentration makes water move from the soil into the root. Water and minerals are carried upward through the xylem, a continuous system of vessels and tracheids from roots through stem to leaves. The steady movement of water into the root xylem creates root pressure, which pushes the water column up and is more important at night. Evaporation of water from the leaves through the stomata (transpiration) creates a suction that pulls water up the xylem; during the day, this transpiration pull is the major driving force. Thus water and dissolved minerals reach all parts of the plant.",
+    solutionSteps: ["[1 mark] Absorption: cells of the root in contact with the soil actively take up mineral ions; this creates a difference in ion concentration between the root and the soil, so water moves from the soil into the root.","[1 mark] Conducting tissue: water and minerals are transported upward through the xylem, in which vessels and tracheids of the roots, stem and leaves are interconnected to form a continuous system of water-conducting channels.","[1 mark] Root pressure: the steady movement of water into the root xylem creates a column of water that is pushed upwards; the effect of root pressure is more important at night.","[1 mark] Transpiration pull: loss of water vapour from the aerial parts, mainly through the stomata of the leaves (transpiration), creates a suction that pulls water up from the xylem of the roots; during the day, when the stomata are open, this is the major driving force.","[1 mark] Result: root pressure and transpiration pull together move water and the minerals dissolved in it from the roots to the leaves and all other parts of the plant."],
+    finalAnswer: "Roots take up ions, so water enters the root from the soil; water and minerals travel up the xylem, pushed by root pressure (mainly at night) and pulled by transpiration (mainly by day), to all parts of the plant.",
     ncertRef: "cbjesccq06 Q79", isCompetencyBased: true },
   // cbjesccq06 Q2 (Section D, 5mk)
   { id: "SCQ-S-LIFE-040", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
@@ -334,16 +346,12 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq06 Q81", isCompetencyBased: false, sourceOverride: "others" },
   // cbjesccq06 Q1 (Section D, 5mk)
+  // LIFE-042 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc105, section 5.4.1 'Transportation in Human Beings' ('Our pump - the heart', Fig. 5.10, Fig. 5.11, 'The tubes - blood vessels', 'Maintenance by platelets'); board tag All India 2018
   { id: "SCQ-S-LIFE-042", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
-    questionText: "Presence of air required. Presence of air not required 2. Occur in two steps: 1st Glycolysis in cytoplasm. 2nd in mitochondria. Complete process occurs in cytoplasm. 3. Glucose completely oxidized to CO, and H2O. Glucose incompletely oxidized to either an organic acid or alcohol with CO2. 4. Large amount of energy produced Less energy produced 5 E.g., man, higher plants E.g., yeast, lactobacillus 82. a. Mention any two components of blood. b. Trace the movement of oxygenated blood in the body. c. Write the function of valves present in between atria and ventricles. d. Write one structural difference between the composition of artery and veins. [All India 2018]",
-    answer: "a. plasma, blood cells. b. Pulmonary vein from lungs \" left atrium left ventricle \" aorta \" arteries to all organs. c. Valves prevent backflow of blood from ventricles to atria when latter are contracting. d. Arteries have thick, muscular and elastic walls. Veins have thinner,",
-    solutionSteps: [
-      "[1 mark] (a) Two components of blood: plasma (the fluid matrix) and the blood cells — red blood cells, white blood cells and platelets.",
-      "[1 mark] (b) Path of oxygenated blood — start: Oxygenated blood from the lungs returns through the pulmonary veins to the left atrium and then passes into the left ventricle.",
-      "[1 mark] (b) Path of oxygenated blood — distribution: The thick-walled left ventricle pumps the oxygenated blood into the aorta, from where the arteries carry it to all the organs of the body.",
-      "[1 mark] (c) Function of valves: The valves between the atria and ventricles prevent the backflow of blood from the ventricles into the atria when the ventricles contract.",
-      "[1 mark] (d) Structural difference: Arteries have thick, muscular and elastic walls and carry blood at high pressure without valves, whereas veins have thinner, less muscular walls, carry blood at low pressure and have valves to prevent backflow."
-    ],
+    questionText: "a. Mention any two components of blood. b. Trace the movement of oxygenated blood in the body. c. Write the function of valves present in between atria and ventricles. d. Write one structural difference between the composition of artery and veins. [All India 2018]",
+    answer: "a. Plasma and blood cells (red blood corpuscles, platelets). b. Lungs → pulmonary veins → left atrium → left ventricle → aorta → arteries → all organs of the body. c. The valves prevent the backflow of blood from the ventricles into the atria when the ventricles contract. d. Arteries have thick, elastic walls, whereas veins have thinner walls and have valves.",
+    solutionSteps: ["[1 mark] (a) Two components of blood: plasma (the fluid medium in which the cells are suspended) and the blood cells, such as red blood corpuscles and platelets.","[1 mark] (b) Path of oxygenated blood - start: oxygenated blood from the lungs returns through the pulmonary veins to the left atrium and then passes into the left ventricle.","[1 mark] (b) Path of oxygenated blood - distribution: the muscular left ventricle contracts and pumps the oxygenated blood into the aorta, from where the arteries carry it to all the organs of the body.","[1 mark] (c) Function of valves: the valves between the atria and ventricles ensure that blood does not flow backwards from the ventricles into the atria when the ventricles contract.","[1 mark] (d) Structural difference: arteries have thick, elastic walls because blood leaves the heart under high pressure, whereas veins have thinner walls and have valves that make the blood flow in one direction only."],
+    finalAnswer: "a. Plasma and blood cells. b. Lungs → pulmonary veins → left atrium → left ventricle → aorta → arteries → body organs. c. Valves prevent backflow of blood into the atria. d. Arteries have thick, elastic walls; veins have thin walls with valves.",
     ncertRef: "cbjesccq06 Q1", isCompetencyBased: false },
   // cbjesccq06 Q83 (Section D, 5mk)
   { id: "SCQ-S-LIFE-043", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
@@ -358,15 +366,11 @@ export const LIFE_PROCESSES_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq06 Q83", isCompetencyBased: false },
   // cbjesccq06 Q84 (Section D, 5mk)
+  // LIFE-044 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 5 Life Processes, 5.5.1 Excretion in Human Beings, Fig. 5.13
   { id: "SCQ-S-LIFE-044", subject: "Science", topicKey: "life-processes", subtopic: "Chapter Practice — Life Processes", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "a. What are two vital functions of the human kidney? b. Draw labelled diagram of human urinary system.",
-    answer: "[Delhi 2017] a. The two vital functions of kidney are —",
-    solutionSteps: [
-      "[1 mark] (a) Vital function 1 — Excretion: The kidneys filter the blood and remove nitrogenous metabolic wastes such as urea and excess salts, excreting them from the body as urine.",
-      "[1 mark] (a) Vital function 2 — Osmoregulation: The kidneys regulate the water and ionic (electrolyte) balance of the body by adjusting the amount of water and salts reabsorbed and excreted.",
-      "[1 mark] Filtration process: Blood is filtered in the glomerulus of each nephron, and useful substances (glucose, amino acids, some water and salts) are selectively reabsorbed while wastes pass out as urine.",
-      "[1 mark] Diagram: Labelled diagram of the human urinary system showing the two kidneys, the two ureters, the urinary bladder and the urethra.",
-      "[1 mark] Labels: The kidneys produce urine, the ureters carry it to the urinary bladder, which stores it, and the urethra passes it out of the body."
-    ],
+    answer: "a. The two vital functions of kidney are: (i) Excretion - removal of nitrogenous wastes such as urea and uric acid from the blood as urine; (ii) Osmoregulation - maintaining the right amount of water and ionic balance in the body by controlling the amount of water and salts reabsorbed. b. Labelled diagram of the human urinary system showing the pair of kidneys, the pair of ureters, the urinary bladder and the urethra.",
+    solutionSteps: ["[1 mark] (a) Function 1 - Excretion: the kidneys filter the blood and remove nitrogenous wastes such as urea and uric acid, which pass out as urine.","[1 mark] (a) Function 2 - Osmoregulation: the kidneys maintain the water and ionic balance of the body by controlling the amount of water and salts reabsorbed.","[1 mark] Diagram: human urinary system drawn with a pair of kidneys located in the abdomen, one on either side of the backbone, each joined to a ureter.","[1 mark] Labels: kidney, ureter, urinary bladder and urethra correctly labelled.","[1 mark] Path shown: urine produced in the kidneys passes through the ureters into the urinary bladder, where it is stored until it is released through the urethra."],
+    finalAnswer: "(a) Excretion of nitrogenous wastes (urea, uric acid) and osmoregulation (water and salt balance). (b) Diagram labelled: kidneys, ureters, urinary bladder, urethra.",
     ncertRef: "cbjesccq06 Q84", isCompetencyBased: false, },
 ];

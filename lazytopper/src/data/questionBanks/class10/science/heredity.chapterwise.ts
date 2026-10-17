@@ -174,10 +174,12 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjescco09 Q33", isCompetencyBased: true,
     sourceOverride: "others", },
   // cbjesccq09 Q1 (Section A, 1mk)
+  // HERED-021 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 8 Heredity, 8.2.2 Rules for the Inheritance of Traits – Mendel's Contributions
   { id: "SCQ-S-HERED-021", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "A Mendelian experiment consisted of breeding pea plants bearing violet flowers with pea plants bearing white flowers. What will be the result in Fj progeny?",
-    answer: "[All India 2018] All will bear violet flowers.",
-    solutionSteps: ["[All India 2018] All will bear violet flowers."],
+    questionText: "A Mendelian experiment consisted of breeding pea plants bearing violet flowers with pea plants bearing white flowers. What will be the result in F1 progeny?",
+    answer: "All will bear violet flowers.",
+    solutionSteps: ["[1 mark] Violet flower colour is the dominant trait and white is recessive; in F1 only the dominant parental trait is expressed, with no intermediate or mixed colour.","[1 mark] Hence all the F1 plants will bear violet flowers."],
+    finalAnswer: "All F1 plants will bear violet flowers, since violet is dominant over white.",
     ncertRef: "cbjesccq09 Q1", isCompetencyBased: false },
   // cbjesccq09 Q3 (Section A, 1mk)
   { id: "SCQ-S-HERED-022", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -205,10 +207,12 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["The trait which represents the tallness in a pea plant is dominant over the another trait, shortness (dwarf)."],
     ncertRef: "cbjesccq09 Q6", isCompetencyBased: true },
   // cbjesccq09 Q7 (Section A, 1mk)
+  // HERED-026 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc108 (Heredity), section 8.1 'Accumulation of Variation during Reproduction'
   { id: "SCQ-S-HERED-026", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "All the variations in a species do not have equal chances of survival. Why?",
-    answer: "Some variations are caused by environmental changes and they do not bring out any change in DNA. Therefore, all the variations do not have equal chances of survival.",
-    solutionSteps: ["Some variations are caused by environmental changes and they do not bring out any change in DNA. Therefore, all the variations do not have equal chances of survival."],
+    answer: "Depending on the nature of the variation, different individuals get different kinds of advantages in the environment they live in, so only some variations help survival. For example, bacteria that can withstand heat survive better in a heat wave than those that cannot.",
+    solutionSteps: ["[1 mark] Variations differ in nature: depending on the nature of the variation, different individuals get different kinds of advantages in their environment, so not all variations are equally useful for survival.","[1 mark] Example: bacteria that can withstand heat survive better in a heat wave than bacteria without this variation."],
+    finalAnswer: "Depending on the nature of the variation, different individuals get different kinds of advantages in the environment they live in, so only some variations help survival. For example, bacteria that can withstand heat survive better in a heat wave than those that cannot.",
     ncertRef: "cbjesccq09 Q7", isCompetencyBased: true },
   // cbjesccq09 Q34 (Section B, 2mk)
   { id: "SCQ-S-HERED-027", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -257,16 +261,20 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq09 Q63", isCompetencyBased: true },
   // cbjesccq09 Q64 (Section C, 3mk)
+  // HERED-034 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 8 Heredity, 8.2.4 Sex Determination, Fig. 8.6
   { id: "SCQ-S-HERED-034", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "\"It is a matter of chance whether a couple will have a male or a female child.\" Justify this statement by drawing a flow chart.",
-    answer: "[Foreign 2015,2017] Women produce only one type of ovum (carrying X chromosome) and males produce two types of sperms (carrying either X or Y chromosome) in equal proportions. So the sex of a child is a matter of chance depending upon the type of sperm fertilizing the ovum.",
-    solutionSteps: ["[Foreign 2015,2017] Women produce only one type of ovum (carrying X chromosome) and males produce two types of sperms (carrying either X or Y chromosome) in equal proportions. So the sex of a child is a matter of chance depending upon the type of sperm fertilizing the ovum."],
+    answer: "Women produce only one type of ovum (carrying X chromosome) and males produce two types of sperms (carrying either X or Y chromosome) in equal proportions. So the sex of a child is a matter of chance depending upon the type of sperm fertilizing the ovum.",
+    solutionSteps: ["[1 mark] Parents: mother is XX and produces only one type of ovum, each carrying an X chromosome; father is XY and produces two types of sperms, half carrying X and half carrying Y.","[1 mark] Flow chart: ovum (X) + sperm (X) → zygote XX → girl; ovum (X) + sperm (Y) → zygote XY → boy.","[1 mark] Since X-bearing and Y-bearing sperms are formed in equal proportions, the sex of the child is a matter of chance, depending upon which type of sperm fertilises the ovum."],
+    finalAnswer: "The mother gives only X; the father gives X or Y in equal proportion. X sperm gives a girl (XX), Y sperm gives a boy (XY), so the sex of the child is a matter of chance.",
     ncertRef: "cbjesccq09 Q64", isCompetencyBased: true },
   // cbjesccq09 Q65 (Section C, 3mk)
+  // HERED-035 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 8 Heredity, 8.2.2 Rules for the Inheritance of Traits – Mendel's Contributions, the NCERT tall-round x short-wrinkled cross
   { id: "SCQ-S-HERED-035", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "How do Mendel's experiments show that the a. traits may be dominant or recessive, b. traits are inherited independently?",
-    answer: "[All India 2017] a. When Mendel cross pollinated pure tall pea plants with pure dwarf pea plants, only tall plants were obtained in F1 generation. On self pollinating the F1 progeny, both tall and dwarf plants appeared in F2 generation in the ratio 3 : 1. Appearance of tall chara",
-    solutionSteps: ["[All India 2017] a. When Mendel cross pollinated pure tall pea plants with pure dwarf pea plants, only tall plants were obtained in F1 generation. On self pollinating the F1 progeny, both tall and dwarf plants appeared in F2 generation in the ratio 3 : 1. Appearance of tall character in both the F1 and F2 shows that it is a dominant character. The absence of dwarf character in F1 generation and its reappearance in F2 shows dwarfness is the recessive character. b. When Mendel conducted a dihybrid cross having two sets of characters, he obtained only one set of parental characters in F1 generati"],
+    answer: "a. When Mendel cross-pollinated pure tall pea plants with pure dwarf pea plants, only tall plants were obtained in the F1 generation. On self-pollinating the F1 plants, both tall and dwarf plants appeared in the F2 generation in the ratio 3 : 1. Tallness, expressed in F1, is the dominant trait; dwarfness, absent in F1 and reappearing in F2, is the recessive trait. b. When Mendel crossed tall plants having round seeds with short plants having wrinkled seeds, all F1 plants were tall with round seeds. On self-pollinating F1, the F2 had the parental types (tall-round, short-wrinkled) and also new combinations (tall-wrinkled, short-round). So the tall/short trait and the round/wrinkled seed trait are inherited independently.",
+    solutionSteps: ["[1 mark] (a) Pure tall × pure dwarf pea plants gave only tall plants in F1; on self-pollinating F1, both tall and dwarf plants appeared in F2 in the ratio 3 : 1.","[1 mark] (a) Tallness, expressed in F1, is the dominant trait; dwarfness, absent in F1 but reappearing in F2, is the recessive trait.","[1 mark] (b) Tall plants with round seeds × short plants with wrinkled seeds gave all tall, round-seeded F1; in F2 the parental types appeared along with new combinations (tall with wrinkled seeds, short with round seeds), so the two traits are inherited independently."],
+    finalAnswer: "(a) The 3 : 1 reappearance of dwarf plants in F2 after an all-tall F1 shows tall is dominant and dwarf recessive. (b) New combinations (tall-wrinkled, short-round) in F2 of a two-trait cross show the traits are inherited independently.",
     ncertRef: "cbjesccq09 Q65", isCompetencyBased: true },
   // cbjesccq09 Q70 (Section C, 3mk)
   { id: "SCQ-S-HERED-036", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -305,16 +313,12 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq09 Q109", isCompetencyBased: true, sourceOverride: "others" },
   // cbjesccq09 Q113 (Section D, 5mk)
+  // HERED-040 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc108 (Heredity), section 8.2.2 'Rules for the Inheritance of Traits – Mendel's Contributions', Fig. 8.3 and Fig. 8.5
   { id: "SCQ-S-HERED-040", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "a. What are monohybrid and dihybrid cross? b. How Mendel proved that tallness is the dominant trait and dwarfness is recessive in a pea plant?. Explain with the help of a monohybrid cross.",
-    answer: "a. A monohybrid cross is the cross between two homozygous parents, which differ in only one contrasting trait in F2 generation ratio 3:1. A dihybrid cross is a cross between two heterozygous parents which differ in two contrasting traits. This type of cross yields a phenotypic ra",
-    solutionSteps: [
-      "[1 mark] (a) Monohybrid cross: a cross between two parents differing in a single pair of contrasting characters (one trait); it gives an F₂ phenotypic ratio of 3 : 1.",
-      "[1 mark] (a) Dihybrid cross: a cross between two parents differing in two pairs of contrasting characters (two traits); it gives an F₂ phenotypic ratio of 9 : 3 : 3 : 1.",
-      "[1 mark] (b) Cross: Mendel crossed a pure tall pea plant (TT) with a pure dwarf pea plant (tt).",
-      "[1 mark] (b) F₁ result: All the F₁ plants were tall (Tt); the dwarf character did not appear, showing that tallness is dominant and dwarfness is recessive.",
-      "[1 mark] (b) F₂ result: On self-pollinating the F₁ (Tt × Tt), the F₂ generation showed tall and dwarf plants in the ratio 3 : 1 — the reappearance of dwarf plants proves that dwarfness is recessive and was only masked in the F₁."
-    ],
+    questionText: "a. What are monohybrid and dihybrid cross? b. How Mendel proved that tallness is the dominant trait and dwarfness is recessive in a pea plant? Explain with the help of a monohybrid cross.",
+    answer: "(a) A monohybrid cross is a cross between two parents differing in one pair of contrasting characters; it gives an F₂ phenotypic ratio of 3 : 1. A dihybrid cross is a cross between two parents differing in two pairs of contrasting characters; it gives an F₂ phenotypic ratio of 9 : 3 : 3 : 1. (b) Mendel crossed a pure tall pea plant (TT) with a pure dwarf plant (tt); all F₁ plants were tall (Tt), and on self-pollinating the F₁, the F₂ had tall and dwarf plants in the ratio 3 : 1. The reappearance of dwarf plants in F₂ shows that tallness is dominant and dwarfness is recessive.",
+    solutionSteps: ["[1 mark] (a) Monohybrid cross: a cross between two parents differing in a single pair of contrasting characters (one trait); it gives an F₂ phenotypic ratio of 3 : 1.","[1 mark] (a) Dihybrid cross: a cross between two parents differing in two pairs of contrasting characters (two traits); it gives an F₂ phenotypic ratio of 9 : 3 : 3 : 1.","[1 mark] (b) Cross: Mendel crossed a pure tall pea plant (TT) with a pure dwarf pea plant (tt).","[1 mark] (b) F₁ result: All the F₁ plants were tall (Tt); the dwarf character did not appear, showing that tallness is dominant and dwarfness is recessive.","[1 mark] (b) F₂ result: On self-pollinating the F₁ (Tt × Tt), the F₂ generation showed tall and dwarf plants in the ratio 3 : 1 — the reappearance of dwarf plants proves that dwarfness is recessive and was only masked in the F₁."],
+    finalAnswer: "Monohybrid cross: parents differ in one pair of contrasting characters (F₂ ratio 3 : 1); dihybrid cross: parents differ in two pairs of contrasting characters (F₂ ratio 9 : 3 : 3 : 1). Pure tall (TT) × pure dwarf (tt) gives all-tall F₁ (Tt); selfing F₁ gives tall : dwarf = 3 : 1 in F₂, so tallness is dominant and dwarfness is recessive.",
     ncertRef: "cbjesccq09 Q113", isCompetencyBased: true },
   // cbjesccq09 Q119 (Section D, 5mk)
   { id: "SCQ-S-HERED-041", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",

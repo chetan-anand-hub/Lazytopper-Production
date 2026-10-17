@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "chemical-reactions-and-equations" (Science): 520 served rows from 22 source arrays, 58 withheld.
+// Chapter "chemical-reactions-and-equations" (Science): 522 served rows from 22 source arrays, 56 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -77,9 +77,7 @@ export default defineChapter("chemical-reactions-and-equations", [
   "CHEM-EXMPLR-1-MCQ-014",
   "CHEM-EXMPLR-1-MCQ-018",
   "CBE-S-CHEM-C-003",
-  "SCQ-S-CHEM-019",
   "SCQ-S-CHEM-026",
-  "SCQ-S-CHEM-033",
   "SCQ-S-CHEM-039",
   "PYQ-S-CHEM-002",
   "PYQ-S-CHEM-006",

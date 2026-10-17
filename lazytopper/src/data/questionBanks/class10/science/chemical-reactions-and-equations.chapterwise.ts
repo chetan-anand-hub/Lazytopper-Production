@@ -152,16 +152,20 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["[2 marks] The solution will become blue, shiny silver metal will get deposited. Cu(s) + 2AgNO3(aq) → Cu(NO3)2 (aq) + 2Ag(s)"],
     ncertRef: "cbjesccq01 Q2", isCompetencyBased: false },
   // cbjesccq01 Q3 (Section A, 1mk)
+  // CHEM-019 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc101 section 1.2.5 'Oxidation and Reduction' (eq. 1.31) and jesc103 section 3.4.4 'Extracting Metals in the Middle of the Activity Series'
   { id: "SCQ-S-CHEM-019", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "State one industrial application of reduction process.",
-    answer: "It is used in the extraction of metals e.g., ZnO(s) + C(s) Heat Zn(s) + CO2(g)",
-    solutionSteps: ["[2 marks] It is used in the extraction of metals e.g., ZnO(s) + C(s) Heat Zn(s) + CO2(g)"],
+    answer: "Reduction is used in the extraction of metals from their oxides, e.g. zinc oxide is heated with carbon to get zinc: ZnO(s) + C(s) → Zn(s) + CO(g).",
+    solutionSteps: ["[1 mark] Application: reduction is used in the extraction of metals — a metal oxide is reduced to the metal by heating it with a reducing agent such as carbon (coke).","[1 mark] Example (balanced): ZnO(s) + C(s) → Zn(s) + CO(g) (on heating); ZnO is reduced to Zn and carbon is oxidised to CO."],
+    finalAnswer: "Extraction of metals from their oxides by reduction, e.g. ZnO(s) + C(s) → Zn(s) + CO(g) on heating.",
     ncertRef: "cbjesccq01 Q3", isCompetencyBased: false },
   // cbjesccq01 Q4 (Section A, 1mk)
+  // CHEM-020 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 1 (jesc101) introduction, physical and chemical changes
   { id: "SCQ-S-CHEM-020", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Which one of the following is a chemical change? Give reason also. (a) Burning of wax (b) Melting of wax",
-    answer: "Burning of gas is a chemical change because new products with new properties will be formed on burning.",
-    solutionSteps: ["[2 marks] Burning of gas is a chemical change because new products with new properties will be formed on burning."],
+    answer: "(a) Burning of wax is a chemical change because new substances with new properties (carbon dioxide and water vapour) are formed, and the change cannot be reversed.",
+    solutionSteps: ["[1 mark] Burning of wax (option a) is a chemical change.","[1 mark] Reason: on burning, wax forms new substances with new properties (carbon dioxide and water vapour) and the change cannot be reversed; melting of wax only changes its state, so it is a physical change."],
+    finalAnswer: "(a) Burning of wax is a chemical change, because new products with new properties are formed.",
     ncertRef: "cbjesccq01 Q4", isCompetencyBased: true },
   // cbjesccq01 Q5 (Section A, 1mk)
   { id: "SCQ-S-CHEM-021", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -254,20 +258,20 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq01 Q88", isCompetencyBased: false },
   // cbjesccq01 Q89 (Section C, 3mk)
+  // CHEM-033 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc101 section 1.1 (observations that show a chemical reaction: change in state, colour, evolution of a gas, change in temperature); part (a) corrected: the stored AgCl example is a precipitate, not a change of state; parts (b) and (c) kept (NCERT's own gas and heat examples are Zn + acid and CaO + H2O, the stored CaCO3 + HCl and CH4 combustion are standard)
   { id: "SCQ-S-CHEM-033", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "State one example each characterised by following along with suitable chemical equation. a. Change in state, b. Evolution of gas, c. Change in temperature.",
-    answer: "a. Change in state: AgNO3(aq) + HCl(aq) → AgCl(s) + HNO3(aq) b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g) c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + Heat",
-    solutionSteps: ["[3 marks] a. Change in state: AgNO3(aq) + HCl(aq) → AgCl(s) + HNO3(aq) b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g) c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + Heat"],
+    answer: "a. Change in state: 2H2(g) + O2(g) → 2H2O(l) (hydrogen burns in oxygen; the gases form liquid water). b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g). c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + heat.",
+    solutionSteps: ["[1 mark] a. Change in state: 2H2(g) + O2(g) → 2H2O(l); the gaseous reactants change into liquid water.","[1 mark] b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g); carbon dioxide gas is given off with brisk bubbling.","[1 mark] c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + heat; the reaction releases heat, so the temperature rises."],
+    finalAnswer: "a. 2H2(g) + O2(g) → 2H2O(l); b. CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g); c. CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + heat.",
     ncertRef: "cbjesccq01 Q89", isCompetencyBased: false },
   // cbjesccq01 Q90 (Section C, 3mk)
+  // CHEM-034 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 1 (jesc101) sec 1.2.1 Combination, 1.2.2 Decomposition, 1.2.4 Double Displacement
   { id: "SCQ-S-CHEM-034", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
-    questionText: "Name the type of reactions represented by the following equations: a. CaO + H2O $ Ca(OH)2 b. 3BaCl2 + Al2(SO4) $ 3BaSO4 + 2AlCl3 c. 2FeSO4 Heat Fe2O3 + SO2 + SO3",
-    answer: "a. Combination reaction. b. Double displacement reaction. c. Decomposition reaction.",
-    solutionSteps: [
-      "[1 mark] a. Combination reaction.",
-      "[1 mark] b. Double displacement reaction.",
-      "[1 mark] c. Decomposition reaction.",
-    ],
+    questionText: "Name the type of reactions represented by the following equations: a. CaO + H2O → Ca(OH)2 b. 3BaCl2 + Al2(SO4)3 → 3BaSO4 + 2AlCl3 c. 2FeSO4 →(heat) Fe2O3 + SO2 + SO3",
+    answer: "a. Combination reaction, b. Double displacement reaction, c. Decomposition reaction.",
+    solutionSteps: ["[1 mark] a. CaO + H2O → Ca(OH)2: two reactants form a single product, so it is a combination reaction.","[1 mark] b. 3BaCl2 + Al2(SO4)3 → 3BaSO4 + 2AlCl3: the reactants exchange ions (a white precipitate of BaSO4 forms), so it is a double displacement reaction.","[1 mark] c. 2FeSO4 →(heat) Fe2O3 + SO2 + SO3: a single reactant breaks down on heating into simpler products, so it is a (thermal) decomposition reaction."],
+    finalAnswer: "a. Combination reaction; b. double displacement reaction; c. decomposition reaction.",
     ncertRef: "cbjesccq01 Q90", isCompetencyBased: false },
   // cbjesccq01 Q105 (Section D, 5mk)
   { id: "SCQ-S-CHEM-035", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",

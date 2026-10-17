@@ -200,10 +200,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["[All India 2016] In human female, ovary contains thousands of eggs. One egg is produced every month one of the ovaries. Ovary also secretes estrogens hormone for development of sexual characteristics at puberty."],
     ncertRef: "cbjesccq08 Q5", isCompetencyBased: false },
   // cbjesccq08 Q6 (Section A, 1mk)
+  // REPR-026 repaired (SCI-BACKLOG-1, 14 Oct, D244): Booklet cbjesccq08 Q6 [All India 2016]; key checked against NCERT Class 10 Science 2026-27 jesc107, section 7.3.2 'Sexual Reproduction in Flowering Plants' (unisexual vs bisexual flowers)
   { id: "SCQ-S-REPR-026", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What are those organisms called which bear both sex organs in the same individual. Give one example of such organism.",
-    answer: "[All India 2016] Bisexual. For example: earthworm, leech, starfish, hibiscus, mustard. (Any one)",
-    solutionSteps: ["[All India 2016] Bisexual. For example: earthworm, leech, starfish, hibiscus, mustard. (Any one)"],
+    answer: "Such organisms are called bisexual. Example: Hibiscus or mustard (any one).",
+    solutionSteps: ["[1 mark] Organisms that bear both the male and the female sex organs in the same individual are called bisexual.","[1 mark] Example (any one): Hibiscus or mustard, whose flowers contain both stamens (male) and pistil (female)."],
+    finalAnswer: "Bisexual; e.g. Hibiscus or mustard.",
     ncertRef: "cbjesccq08 Q6", isCompetencyBased: false },
   // cbjesccq08 Q31 (Section B, 2mk)
   { id: "SCQ-S-REPR-027", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -212,10 +214,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["[Delhi 2017] a. Uterus wall becomes thicker due to development of blood vessels and glands in it and placenta develops from the side of foetus so that it can derive nutrition from mother and pass the waste to mother's blood. b. Uterus lining gets peeled and shed off along with mucus, blood, dead ovum during menstruation."],
     ncertRef: "cbjesccq08 Q31", isCompetencyBased: false },
   // cbjesccq08 Q32 (Section B, 2mk)
+  // REPR-028 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 7 How do Organisms Reproduce?, 7.2.1 Fission and 7.2.2 Fragmentation
   { id: "SCQ-S-REPR-028", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Give reasons as to why the following processes are different from each other: a. Fission in Amoeba and Plasmodium . b. Binary fission and Fragmentation.",
-    answer: "a. In Amoeba during binary fission the cell divides into two daughter cells while in Plasmodium multiple fission occurs, where the cell divides into many daughter cells. b. In binary fission, a cell divides into two daughter cells while in fragmentation, the body of a multicellul",
-    solutionSteps: ["a. In Amoeba during binary fission the cell divides into two daughter cells while in Plasmodium multiple fission occurs, where the cell divides into many daughter cells. b. In binary fission, a cell divides into two daughter cells while in fragmentation, the body of a multicellular organisms divides into two or more Chap 8 : How Do Organisms Reproduce parts which grow further."],
+    questionText: "Give reasons as to why the following processes are different from each other: a. Fission in Amoeba and Plasmodium. b. Binary fission and Fragmentation.",
+    answer: "a. In Amoeba, binary fission occurs: the cell divides into two daughter cells, while in Plasmodium multiple fission occurs: the cell divides into many daughter cells simultaneously. b. In binary fission, a single cell divides into two daughter cells, while in fragmentation the body of a multicellular organism (e.g. Spirogyra) breaks up into two or more pieces, each of which grows into a new individual.",
+    solutionSteps: ["[1 mark] (a) Amoeba divides by binary fission into two daughter cells, while Plasmodium divides by multiple fission into many daughter cells simultaneously.","[1 mark] (b) Binary fission is the division of a single cell into two daughter cells, while in fragmentation the body of a multicellular organism (e.g. Spirogyra) breaks up into two or more pieces, each of which grows into a new individual."],
+    finalAnswer: "(a) Amoeba: two daughter cells (binary fission); Plasmodium: many daughter cells at once (multiple fission). (b) Binary fission splits a single cell into two; fragmentation breaks a multicellular body into pieces that each grow into a new individual.",
     ncertRef: "cbjesccq08 Q32", isCompetencyBased: true },
   // cbjesccq08 Q33 (Section B, 2mk)
   { id: "SCQ-S-REPR-029", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -230,10 +234,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["To build the copies of DNA or the genetic material, the cells use biochemical reactions. Additional cellular apparatus along with the DNA copies are separated and so a cell divides to give rise to two almost identical cells."],
     ncertRef: "cbjesccq08 Q34", isCompetencyBased: true },
   // cbjesccq08 Q35 (Section B, 2mk)
+  // REPR-031 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 7 How do Organisms Reproduce?, 7.1 Do Organisms Create Exact Copies of Themselves? and 7.3 Sexual Reproduction; Ch 8 Heredity 8.1
   { id: "SCQ-S-REPR-031", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "\"Variations\" are seen in the organisms. State the two main causes of variation.",
-    answer: "Variations are caused by: a. Change in the genetic material, i.e., DNA at the time of DNA copying. b. Environmental factors viz., light, temperature, nutrition, wind and water supply, etc. c. Mutations.",
-    solutionSteps: ["Variations are caused by: a. Change in the genetic material, i.e., DNA at the time of DNA copying. b. Environmental factors viz., light, temperature, nutrition, wind and water supply, etc. c. Mutations."],
+    answer: "The two main causes of variation are: a. Inaccuracies (changes) in DNA copying during reproduction. b. Sexual reproduction, in which DNA from two different individuals combines, creating new combinations of variations.",
+    solutionSteps: ["[1 mark] (a) Errors in DNA copying: the process of copying DNA during reproduction is not absolutely accurate, so small changes (variations) arise in each new copy.","[1 mark] (b) Sexual reproduction: DNA from two different individuals (male and female parents) combines, creating new combinations of variations in the offspring."],
+    finalAnswer: "Variation arises from inaccuracies in DNA copying and from sexual reproduction, which combines DNA from two parents.",
     ncertRef: "cbjesccq08 Q35", isCompetencyBased: false },
   // cbjesccq08 Q36 (Section B, 2mk)
   { id: "SCQ-S-REPR-032", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -298,16 +304,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "a. Regeneration into three Planaria; b. Leaf-notch buds form new plantlets (vegetative propagation); c. Spores released germinate into new Rhizopus.",
     sourceOverride: "others", },
   // cbjesccq08 Q118 (Section D, 5mk)
+  // REPR-039 repaired (SCI-BACKLOG-1, 14 Oct, D244): Booklet cbjesccq08 Q118 [All India 2016-17]; key checked against NCERT Class 10 Science 2026-27 jesc107, sections 7.2.1 Fission, 7.2.2 Fragmentation, 7.2.3 Regeneration, 7.2.5 Vegetative Propagation, 7.2.6 Spore Formation
   { id: "SCQ-S-REPR-039", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Name the type of asexual reproduction demonstrated by the following organisms: a. Amoeba b. Rhizopus c. Planaria d. Plasmodium e. Bryophyllum",
-    answer: "[All India 2016-17] a. Binary fission b. Spore formation c. Fragmentation d. Multiple fission e. Vegetative propagation",
-    solutionSteps: [
-      "[1 mark] a. Amoeba — Binary fission: the parent cell divides into two equal daughter cells.",
-      "[1 mark] b. Rhizopus — Spore formation: sporangia produce and release spores that germinate into new individuals.",
-      "[1 mark] c. Planaria — Fragmentation (regeneration): the body breaks into pieces, each of which regenerates into a complete organism.",
-      "[1 mark] d. Plasmodium — Multiple fission: the parent nucleus divides repeatedly, forming many daughter cells simultaneously.",
-      "[1 mark] e. Bryophyllum — Vegetative propagation: adventitious buds on the leaf margins grow into new plants."
-    ],
+    answer: "a. Binary fission b. Spore formation c. Regeneration d. Multiple fission e. Vegetative propagation",
+    solutionSteps: ["[1 mark] a. Amoeba — Binary fission: the cell splits into two daughter cells, and the splitting can take place in any plane.","[1 mark] b. Rhizopus — Spore formation: the sporangia contain spores that, on reaching a moist surface, develop into new Rhizopus individuals.","[1 mark] c. Planaria — Regeneration: if the body is cut into any number of pieces, each piece grows into a complete organism.","[1 mark] d. Plasmodium — Multiple fission: the cell divides into many daughter cells simultaneously.","[1 mark] e. Bryophyllum — Vegetative propagation: buds produced in the notches along the leaf margin fall on the soil and develop into new plants."],
+    finalAnswer: "a. Binary fission; b. Spore formation; c. Regeneration; d. Multiple fission; e. Vegetative propagation.",
     ncertRef: "cbjesccq08 Q118", isCompetencyBased: false },
   // cbjesccq08 Q119 (Section D, 5mk)
   { id: "SCQ-S-REPR-040", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
