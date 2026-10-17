@@ -491,31 +491,125 @@
   "formula_strip": [
     {
       "label": "Six ratios",
-      "math": "$\\sin A = \\dfrac{\\text{opp}}{\\text{hyp}},\\ \\cos A = \\dfrac{\\text{adj}}{\\text{hyp}},\\ \\tan A = \\dfrac{\\text{opp}}{\\text{adj}}$"
+      "math": "$\\sin A = \\dfrac{\\text{opp}}{\\text{hyp}},\\ \\cos A = \\dfrac{\\text{adj}}{\\text{hyp}},\\ \\tan A = \\dfrac{\\text{opp}}{\\text{adj}}$",
+      "id": "trigonometric-ratios-formulas",
+      "heading": "Trigonometric Ratios: sin, cos, tan",
+      "tip": "Mark opposite / adjacent from the angle asked, not from the picture."
     },
     {
       "label": "Reciprocals",
-      "math": "$\\csc A = \\dfrac{1}{\\sin A},\\ \\sec A = \\dfrac{1}{\\cos A},\\ \\cot A = \\dfrac{1}{\\tan A} = \\dfrac{\\cos A}{\\sin A}$"
+      "math": "$\\csc A = \\dfrac{1}{\\sin A},\\ \\sec A = \\dfrac{1}{\\cos A},\\ \\cot A = \\dfrac{1}{\\tan A} = \\dfrac{\\cos A}{\\sin A}$",
+      "id": "reciprocal-ratios",
+      "tip": "Flip the ratio."
     },
     {
-      "label": "sin at 0/30/45/60/90",
-      "math": "$0,\\ \\tfrac12,\\ \\tfrac{1}{\\sqrt2},\\ \\tfrac{\\sqrt3}{2},\\ 1$"
-    },
-    {
-      "label": "cos at 0/30/45/60/90",
-      "math": "$1,\\ \\tfrac{\\sqrt3}{2},\\ \\tfrac{1}{\\sqrt2},\\ \\tfrac12,\\ 0$"
-    },
-    {
-      "label": "tan at 0/30/45/60/90",
-      "math": "$0,\\ \\tfrac{1}{\\sqrt3},\\ 1,\\ \\sqrt3,\\ \\text{not defined}$"
+      "label": "Values of the six ratios",
+      "math": "$\\begin{array}{c|ccccc} \\angle A & 0^\\circ & 30^\\circ & 45^\\circ & 60^\\circ & 90^\\circ \\\\ \\hline \\sin A & 0 & \\tfrac{1}{2} & \\tfrac{1}{\\sqrt2} & \\tfrac{\\sqrt3}{2} & 1 \\\\ \\cos A & 1 & \\tfrac{\\sqrt3}{2} & \\tfrac{1}{\\sqrt2} & \\tfrac{1}{2} & 0 \\\\ \\tan A & 0 & \\tfrac{1}{\\sqrt3} & 1 & \\sqrt3 & \\text{not defined} \\\\ \\operatorname{cosec} A & \\text{not defined} & 2 & \\sqrt2 & \\tfrac{2}{\\sqrt3} & 1 \\\\ \\sec A & 1 & \\tfrac{2}{\\sqrt3} & \\sqrt2 & 2 & \\text{not defined} \\\\ \\cot A & \\text{not defined} & \\sqrt3 & 1 & \\tfrac{1}{\\sqrt3} & 0 \\end{array}$",
+      "id": "trigonometry-table",
+      "heading": "Trigonometry Table (0° to 90°)"
     },
     {
       "label": "Identities",
-      "math": "$\\sin^2 A + \\cos^2 A = 1;\\ \\ 1 + \\tan^2 A = \\sec^2 A;\\ \\ 1 + \\cot^2 A = \\csc^2 A$"
+      "math": "$\\sin^2 A + \\cos^2 A = 1;\\ \\ 1 + \\tan^2 A = \\sec^2 A;\\ \\ 1 + \\cot^2 A = \\csc^2 A$",
+      "id": "trigonometric-identities",
+      "heading": "Trigonometric Identities (sin²A + cos²A = 1 and two more)",
+      "tip": "Convert everything to sin and cos and work on one side only (usually the harder side), writing every line."
     },
     {
       "label": "Heights & distances",
-      "math": "$\\tan\\theta = \\dfrac{\\text{height}}{\\text{horizontal distance}}$ · elevation: look up · depression: look down (= elevation from the other end)"
+      "math": "$\\tan\\theta = \\dfrac{\\text{height}}{\\text{horizontal distance}}$ · elevation: look up · depression: look down (= elevation from the other end)",
+      "id": "heights-and-distances",
+      "tip": "The angle of depression from the top equals the angle of elevation from the bottom."
+    },
+    {
+      "label": "tan A = sin A / cos A, cot A = cos A / sin A",
+      "math": "$\\tan A=\\dfrac{\\sin A}{\\cos A}$ and $\\cot A=\\dfrac{\\cos A}{\\sin A}$.",
+      "id": "tan-as-sin-over-cos"
+    },
+    {
+      "label": "Identities in Other Forms",
+      "math": "$\\sin^2A=1-\\cos^2A$ · $\\cos^2A=1-\\sin^2A$ · $\\sec^2A-\\tan^2A=1$ · $\\operatorname{cosec}^2A-\\cot^2A=1$",
+      "id": "identity-rearrangements"
+    },
+    {
+      "label": "Range of sin and cos",
+      "math": "For an acute angle, $\\sin A$ and $\\cos A$ are less than 1, because the hypotenuse is the longest side of a right triangle.",
+      "id": "sin-cos-bounds"
+    },
+    {
+      "label": "Line of Sight, Angle of Elevation and Depression",
+      "math": "The line of sight is the line from the eye to the object. The angle of elevation is measured upward from the horizontal; the angle of depression is measured downward from the horizontal. Use $\\tan$ when the height and the ground distance are involved; use $\\sin$ or $\\cos$ when a rope or ladder (the hypotenuse) is involved. Problems use angles of 30°, 45° and 60° only, with at most two right triangles.",
+      "id": "heights-and-distances-terms"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "triples-for-ratios",
+      "text": "Spot 3-4-5, 5-12-13, 8-15-17, 7-24-25 triangles to get the third side.",
+      "use": "mcq-check",
+      "source": "PYQ-M-2024-TRIG-006b (3/5 and 12/13)"
+    },
+    {
+      "id": "shadow-ratio-angle",
+      "text": "Shadow = √3 × height ⇒ 30°; shadow = height ⇒ 45°; height = √3 × shadow ⇒ 60°.",
+      "use": "mcq-check",
+      "source": "PYQ-M-2024-TRIG-004, -005"
+    },
+    {
+      "id": "sin-equals-cos-means-45",
+      "text": "For an acute angle θ: sin θ = cos θ ⇒ θ = 45° and tan θ = 1.",
+      "use": "mcq-check",
+      "source": "PYQ-M-TRIG-004 (B)"
+    },
+    {
+      "id": "identity-proof-method",
+      "text": "Prove identities by converting to sin and cos and simplifying ONE side, writing every line.",
+      "use": "written-ok",
+      "source": "NCERT 8.4 Examples 10–12; PYQ-M-TRIG-006/-007"
+    },
+    {
+      "id": "draw-label-hd",
+      "text": "Draw, mark the given angle, name the right triangle(s), choose tan for height÷ground.",
+      "use": "written-ok",
+      "source": "NCERT 9.1 Examples; PYQ-M-TRIG-008"
+    },
+    {
+      "id": "soh-cah-toa-names",
+      "text": "<b>S</b>onu <b>O</b>ye <b>H</b>arsh! · <b>C</b>handu <b>A</b>aya <b>H</b>ai! · <b>T</b>ina <b>O</b>ffice <b>A</b>ayi.",
+      "gloss": "sin = opposite/hypotenuse; cos = adjacent/hypotenuse; tan = opposite/adjacent. S-O-H = sin, opposite, hypotenuse · C-A-H = cos, adjacent, hypotenuse · T-O-A = tan, opposite, adjacent.",
+      "use": "memory-aid",
+      "source": "NCERT 8.2",
+      "heading": "SOH CAH TOA: Trigonometric Ratios Trick"
+    },
+    {
+      "id": "trigonometry-table-trick",
+      "text": "<b>0, 1, 2, 3, 4 ka root, sab upon 2.</b>",
+      "gloss": "sin 0°, 30°, 45°, 60°, 90°. √0/2 = 0 · √1/2 = 1/2 · √2/2 = 1/√2 · √3/2 · √4/2 = 1.",
+      "use": "memory-aid",
+      "source": "NCERT 8.3 Table 8.1",
+      "heading": "Trigonometry Table Trick (sin 0° to 90°)"
+    },
+    {
+      "id": "cos-row-trick",
+      "text": "<b>Cosine = sine wali row, ulte kram mein</b> (4, 3, 2, 1, 0 ka root, upon 2).",
+      "gloss": "cos 0° … 90°. √4/2 = 1 · √3/2 · √2/2 · √1/2 · √0/2 = 0.",
+      "use": "memory-aid",
+      "source": "NCERT 8.3 Table 8.1",
+      "heading": "Trigonometry Table Trick (cos 0° to 90°)"
+    },
+    {
+      "id": "reciprocal-pairs",
+      "text": "<b>Har jodi mein ek 'co': sin ↔ COsec, COs ↔ sec, tan ↔ COt.</b>",
+      "gloss": "reciprocals. sin=1/cosec, cos=1/sec, tan=1/cot.",
+      "use": "memory-aid",
+      "source": "NCERT 8.2"
+    },
+    {
+      "id": "identity-pairs",
+      "text": "<b>Tan–Sec</b> ki jodi, <b>Cot–Cosec</b> ki jodi; <b>1</b> hamesha <b>baayen taraf</b>, Tan²/Cot² ke saath.",
+      "gloss": "1 + tan²A = sec²A; 1 + cot²A = cosec²A. Tan pairs with Sec, Cot with Cosec; the \"1\" sits on the left with tan²A / cot²A.",
+      "use": "memory-aid",
+      "source": "NCERT 8.4"
     }
   ],
   "mindmap": {

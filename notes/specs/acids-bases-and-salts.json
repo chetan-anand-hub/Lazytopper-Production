@@ -374,35 +374,184 @@
   "formula_strip": [
     {
       "label": "Acid + Metal",
-      "math": "$\\text{Acid} + \\text{Metal} \\rightarrow \\text{Salt} + \\text{Hydrogen gas}$"
+      "math": "$\\text{Acid} + \\text{Metal} \\rightarrow \\text{Salt} + \\text{Hydrogen gas}$",
+      "id": "acid-metal-reaction",
+      "tip": "Test hydrogen: it burns with a \"pop\"."
     },
     {
       "label": "Carbonate / bicarbonate + Acid",
-      "math": "Metal carbonate / hydrogencarbonate + Acid &rarr; Salt + Carbon dioxide + Water"
+      "math": "Metal carbonate / hydrogencarbonate + Acid &rarr; Salt + Carbon dioxide + Water",
+      "id": "carbonate-acid-reaction",
+      "tip": "CO₂ turns lime water milky."
     },
     {
       "label": "Neutralisation",
-      "math": "$\\text{Base} + \\text{Acid} \\rightarrow \\text{Salt} + \\text{Water}$   .   $\\text{H}^+(\\text{aq}) + \\text{OH}^-(\\text{aq}) \\rightarrow \\text{H}_2\\text{O}(l)$"
+      "math": "$\\text{Base} + \\text{Acid} \\rightarrow \\text{Salt} + \\text{Water}$   .   $\\text{H}^+(\\text{aq}) + \\text{OH}^-(\\text{aq}) \\rightarrow \\text{H}_2\\text{O}(l)$",
+      "id": "neutralisation-reaction",
+      "tip": "Acid + base → salt + water."
     },
     {
       "label": "Acids / bases in water",
-      "math": "$\\text{HCl}(g) + \\text{H}_2\\text{O}(l) \\rightarrow \\text{H}_3\\text{O}^+(\\text{aq}) + \\text{Cl}^-(\\text{aq})$   .   $\\text{NaOH}(s) \\xrightarrow{\\text{water}} \\text{Na}^+(\\text{aq}) + \\text{OH}^-(\\text{aq})$"
+      "math": "$\\text{HCl}(g) + \\text{H}_2\\text{O}(l) \\rightarrow \\text{H}_3\\text{O}^+(\\text{aq}) + \\text{Cl}^-(\\text{aq})$   .   $\\text{NaOH}(s) \\xrightarrow{\\text{water}} \\text{Na}^+(\\text{aq}) + \\text{OH}^-(\\text{aq})$",
+      "id": "acids-and-bases-in-water",
+      "tip": "An acid shows H⁺ only in water."
     },
     {
       "label": "pH scale",
-      "math": "0 (very acidic) &mdash; 7 (neutral) &mdash; 14 (very alkaline) ; lower pH = more $\\text{H}^+$"
+      "math": "0 (very acidic) &mdash; 7 (neutral) &mdash; 14 (very alkaline) ; lower pH = more $\\text{H}^+$",
+      "id": "ph-scale",
+      "heading": "pH Scale",
+      "tip": "Lower pH = more H⁺."
     },
     {
       "label": "Chlor-alkali",
-      "math": "$2\\text{NaCl}(\\text{aq}) + 2\\text{H}_2\\text{O}(l) \\rightarrow 2\\text{NaOH}(\\text{aq}) + \\text{Cl}_2(g) + \\text{H}_2(g)$"
+      "math": "$2\\text{NaCl}(\\text{aq}) + 2\\text{H}_2\\text{O}(l) \\rightarrow 2\\text{NaOH}(\\text{aq}) + \\text{Cl}_2(g) + \\text{H}_2(g)$",
+      "id": "chlor-alkali-process",
+      "tip": "Three products: NaOH, Cl₂, H₂."
     },
     {
       "label": "Baking / washing soda",
-      "math": "$\\text{NaHCO}_3$ (baking soda)   .   $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$ (washing soda)"
+      "math": "$\\text{NaHCO}_3$ (baking soda)   .   $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$ (washing soda)",
+      "id": "baking-soda-and-washing-soda",
+      "tip": "NaHCO₃ has no water of crystallisation; washing soda has 10."
     },
     {
       "label": "Plaster of Paris",
-      "math": "$\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O}(s) + \\tfrac{3}{2}\\text{H}_2\\text{O}(l) \\rightarrow \\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}(s)$ (gypsum)"
+      "math": "$\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O}(s) + \\tfrac{3}{2}\\text{H}_2\\text{O}(l) \\rightarrow \\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}(s)$ (gypsum)",
+      "id": "plaster-of-paris",
+      "tip": "Store away from moisture."
+    },
+    {
+      "label": "Acid-Base Indicators",
+      "math": "Litmus: acids turn blue litmus red; bases turn red litmus blue. Phenolphthalein turns pink with a base. Turmeric is another natural indicator.",
+      "id": "acid-base-indicators"
+    },
+    {
+      "label": "Olfactory Indicators",
+      "math": "Substances whose smell changes in acidic or basic solutions are olfactory indicators. Onion, vanilla essence and clove oil can be used as olfactory indicators.",
+      "id": "olfactory-indicators"
+    },
+    {
+      "label": "pH of Common Substances",
+      "math": "pH paper colours give a rough guide; neutral is 7, below 7 is acidic and above 7 is basic. A universal indicator is a mixture of several indicators. From the pH chart: gastric juice about 1.2; lemon juice about 2.2; pure water 7 (neutral); blood about 7.4; milk of magnesia 10; sodium hydroxide solution about 14. Rain with pH below 5.6 is acid rain; our body works within pH 7.0 to 7.8.",
+      "id": "ph-of-common-substances"
+    },
+    {
+      "label": "pH in Everyday Life",
+      "math": "Tooth decay starts when the pH of the mouth falls below 5.5. Antacids neutralise excess acid in the stomach. Acid rain flowing into rivers lowers their pH and makes life difficult for aquatic organisms.",
+      "id": "ph-in-everyday-life"
+    },
+    {
+      "label": "Dilution of Acids and Bases",
+      "math": "Always add acid slowly to water with constant stirring; never add water to acid. Dissolving an acid or a base in water is highly exothermic.",
+      "id": "dilution-of-acids"
+    },
+    {
+      "label": "pH of Salts",
+      "math": "Salts of a strong acid and a strong base are neutral, with pH 7. Salts of a strong acid and a weak base are acidic (pH less than 7). Salts of a strong base and a weak acid are basic (pH more than 7).",
+      "id": "ph-of-salts"
+    },
+    {
+      "label": "Water of Crystallisation",
+      "math": "Some crystals contain a fixed number of water molecules, called water of crystallisation: $\\text{CuSO}_4\\cdot5\\text{H}_2\\text{O}$ is blue and turns white on heating; moisten it and the blue returns. Washing soda is $\\text{Na}_2\\text{CO}_3\\cdot10\\text{H}_2\\text{O}$ and gypsum is $\\text{CaSO}_4\\cdot2\\text{H}_2\\text{O}$.",
+      "id": "water-of-crystallisation"
+    },
+    {
+      "label": "Uses of Sodium Hydroxide, Bleaching Powder, Baking Soda, Washing Soda",
+      "math": "<b>Sodium hydroxide</b> (chlor-alkali process, Fig 2.8): de-greasing metals, soaps and detergents, paper making, artificial fibres.<br><b>Chlorine</b>: water treatment, swimming pools, PVC, disinfectants, CFCs, pesticides. <b>Hydrogen</b>: fuels, margarine, ammonia for fertilisers.<br><b>Bleaching powder</b>: bleaching cotton, linen, wood pulp and washed clothes; an oxidising agent in many chemical industries; makes drinking water free from germs.<br><b>Baking soda</b>: baking powder (baking soda + tartaric acid) makes bread and cake rise; crispy pakoras in the kitchen; an ingredient in antacids; soda-acid fire extinguishers.<br><b>Washing soda</b>: glass, soap and paper industries; making sodium compounds such as borax; a domestic cleaning agent; removing permanent hardness of water.",
+      "id": "uses-of-salt-compounds"
+    },
+    {
+      "label": "Strong and Weak Acids and Bases",
+      "math": "The strength of an acid or base depends on the number of H⁺ or OH⁻ ions it gives. Acids that give more H⁺ ions are strong acids; those that give fewer are weak acids. The same idea holds for strong and weak bases.",
+      "id": "strong-and-weak-acids-and-bases"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "ph-reading",
+      "text": "pH &lt; 7 acid, 7 neutral, &gt; 7 base; lower pH = more H⁺.",
+      "use": "mcq-check",
+      "source": "NCERT 2.3"
+    },
+    {
+      "id": "co2-lime-water-test",
+      "text": "Gas that turns lime water milky = CO₂; in an acid reaction, the other reactant is a carbonate or hydrogencarbonate.",
+      "use": "mcq-check",
+      "source": "NCERT 2.1.3"
+    },
+    {
+      "id": "acid-to-water",
+      "text": "Dilute acids by adding acid to water.",
+      "use": "written-ok",
+      "source": "NCERT 2.2.1"
+    },
+    {
+      "id": "salt-ph-by-parents",
+      "text": "Salt of strong acid + strong base is neutral (NaCl, pH 7).",
+      "use": "mcq-check",
+      "source": "NCERT 2.4.2"
+    },
+    {
+      "id": "hydrogen-pop-test",
+      "text": "Burning matchstick near the gas: \"pop\" ⇒ hydrogen.",
+      "use": "mcq-check",
+      "source": "NCERT 2.1.2"
+    },
+    {
+      "id": "acid-needs-water",
+      "text": "Dry HCl gas does not change dry litmus; acids show acidic behaviour only in water (H⁺(aq)).",
+      "use": "written-ok",
+      "source": "NCERT 2.2.1; PYQ-S-2025-ACID-005, PYQ-S-2024-ACID-004"
+    },
+    {
+      "id": "litmus-trick",
+      "text": "<b>Acid ne Neela ko Laal kiya; Base ne Laal ko Neela.</b>",
+      "gloss": "Litmus. acid: blue → red; base: red → blue.",
+      "use": "memory-aid",
+      "source": "NCERT 2.1.1"
+    },
+    {
+      "id": "ph-scale-trick",
+      "text": "<b>0 sabse khatta, 7 beech ka paani, 14 sabse kadwa (saabun jaisa).</b>",
+      "gloss": "pH scale. 0 very acidic · 7 neutral · 14 very alkaline.",
+      "use": "memory-aid",
+      "source": "NCERT 2.3"
+    },
+    {
+      "id": "soda-formula-trick",
+      "text": "<b>Baking soda mein Hydrogen, washing soda mein dus paani.</b>",
+      "gloss": "Formulae. baking soda NaHCO₃ (H, no crystal water); washing soda Na₂CO₃·10H₂O.",
+      "use": "memory-aid",
+      "source": "NCERT 2.4.3"
+    },
+    {
+      "id": "pop-vs-gypsum-trick",
+      "text": "<b>Aadha paani wala POP, do paani wala Gypsum.</b>",
+      "gloss": "CaSO₄ hydrates. POP CaSO₄·½H₂O; gypsum CaSO₄·2H₂O.",
+      "use": "memory-aid",
+      "source": "NCERT 2.4.4"
+    },
+    {
+      "id": "chlor-alkali-trick",
+      "text": "<b>Naina Chai Hi</b>: NaOH, Cl₂, H₂.",
+      "gloss": "Products of brine electrolysis. N = NaOH · C = Cl₂ · H = H₂ (order of the NCERT equation).",
+      "use": "memory-aid",
+      "source": "NCERT 2.4.3"
+    },
+    {
+      "id": "neutral-salt-trick",
+      "text": "<b>Majboot acid + majboot base = namak, pH 7.</b>",
+      "gloss": "Salt types. strong acid + strong base → neutral salt.",
+      "use": "memory-aid",
+      "source": "NCERT 2.4.2"
+    },
+    {
+      "id": "acid-to-water-trick",
+      "text": "<b>Paani mein acid, kabhi acid mein paani nahi.</b>",
+      "gloss": "Safe dilution. add acid to water.",
+      "use": "memory-aid",
+      "source": "NCERT 2.2.1"
     }
   ],
   "mindmap": {
