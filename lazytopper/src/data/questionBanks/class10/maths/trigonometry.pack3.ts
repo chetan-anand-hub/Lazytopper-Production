@@ -584,11 +584,10 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) Ladder length = 10 m; (ii) Height = 5√3 m ≈ 8.66 m",
     "solutionSteps": [
-      "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.",
-      "(i) Let ladder length = L. cos 60° = base/ladder = 5/L",
-      "1/2 = 5/L, so L = 10 m",
-      "(ii) sin 60° = height/ladder = h/10",
-      "√3/2 = h/10, so h = 5√3 m"
+      "[1 mark] (i) Ladder is the hypotenuse, base distance 5 m is adjacent to the 60° angle: cos 60° = 5/L.",
+      "[1 mark] (i) 1/2 = 5/L ⇒ L = 10 m. Length of the ladder = 10 m.",
+      "[1 mark] (ii) Height h is opposite the 60° angle: tan 60° = h/5 ⇒ h = 5 tan 60° = 5√3.",
+      "[1 mark] (ii) h = 5√3 m ≈ 5 × 1.732 = 8.66 m. The ladder touches the wall at a height of 5√3 m ≈ 8.66 m.",
     ],
     "finalAnswer": "(i) Ladder length = 10 m; (ii) Height = 5√3 m ≈ 8.66 m",
     "visualExplainerId": "maths-trigonometry-height-and-distance-problems",
@@ -1655,9 +1654,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   },
   { id: "TG3-065", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric identities", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): cosec²θ − cot²θ = 1 for all values of θ where the expressions are defined.\nReason (R): This identity is derived from the Pythagorean identity sin²θ + cos²θ = 1 by dividing both sides by sin²θ.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Dividing sin²θ + cos²θ = 1 by sin²θ gives 1 + cot²θ = cosec²θ, i.e., cosec²θ − cot²θ = 1.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
-      "Reason (R) states the fundamental trigonometric identities: 1 + tan^2 A = sec^2 A and 1 + cot^2 A = cosec^2 A, which are true.",
-      "For Assertion (A), substitute these identities: (1 + tan^2 A) / (1 + cot^2 A) = sec^2 A / cosec^2 A = (1/cos^2 A) / (1/sin^2 A).",
-      "Simplify the expression: sin^2 A / cos^2 A = tan^2 A. This confirms Assertion (A) is true and Reason (R) correctly explains it.",
+      "[1 mark] Dividing sin²θ + cos²θ = 1 by sin²θ (sin θ ≠ 0) gives 1 + cot²θ = cosec²θ, i.e. cosec²θ − cot²θ = 1 wherever defined; so A is true, R is true, and R is exactly how A is obtained — R correctly explains A.",
     ],
   }
 ];
