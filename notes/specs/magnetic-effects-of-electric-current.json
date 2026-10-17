@@ -443,19 +443,140 @@
   "formula_strip": [
     {
       "label": "Field vs current (straight wire)",
-      "math": "$B \\propto I$"
+      "math": "$B \\propto I$",
+      "id": "field-vs-current",
+      "tip": "B ∝ I."
     },
     {
       "label": "Field vs distance (straight wire)",
-      "math": "$B \\propto \\dfrac{1}{r}$"
+      "math": "$B \\propto \\dfrac{1}{r}$",
+      "id": "field-vs-distance",
+      "tip": "B ∝ 1/r."
     },
     {
       "label": "Coil of $n$ turns",
-      "math": "$B_{\\text{coil}} = n \\times B_{\\text{single turn}}$"
+      "math": "$B_{\\text{coil}} = n \\times B_{\\text{single turn}}$",
+      "id": "field-of-a-coil",
+      "tip": "n × the single-turn field."
     },
     {
       "label": "Mains supply in India",
-      "math": "AC, $220\\ \\text{V}$, $50\\ \\text{Hz}$ — live (red) · neutral (black) · earth (green)"
+      "math": "AC, $220\\ \\text{V}$, $50\\ \\text{Hz}$ — live (red) · neutral (black) · earth (green)",
+      "id": "mains-supply-in-india",
+      "tip": "220 V (NCERT 12.4); 50 Hz appears in the NCERT chapter summary and the CBSE syllabus line \"frequency of AC\"."
+    },
+    {
+      "label": "Oersted's Experiment",
+      "math": "A compass needle placed near a wire carrying a current is deflected, so a current produces a magnetic field. When the direction of the current is reversed, the deflection reverses.",
+      "id": "oersted-experiment"
+    },
+    {
+      "label": "Properties of field lines",
+      "math": "Outside a magnet the field lines emerge from the north pole and enter the south pole; inside the magnet they run from south to north, so they are closed curves. No two field lines cross each other. Where the lines are closer together the field is stronger.",
+      "id": "magnetic-field-lines",
+      "heading": "Magnetic Field Lines: Properties"
+    },
+    {
+      "label": "Statement",
+      "math": "Imagine holding a straight current-carrying wire in your right hand with the thumb pointing along the direction of the current. The fingers then wrap around the wire in the direction of the magnetic field lines.",
+      "id": "right-hand-thumb-rule",
+      "heading": "Right-Hand Thumb Rule"
+    },
+    {
+      "label": "Field of a solenoid",
+      "math": "A solenoid is a coil of many circular turns of insulated wire wrapped like a cylinder. The field pattern around it is like that of a bar magnet: one end behaves as a north pole and the other as a south pole. Inside a long straight solenoid the field is uniform (the same at all points). A soft-iron core inside a solenoid makes an electromagnet.",
+      "id": "solenoid-magnetic-field",
+      "heading": "Magnetic Field of a Solenoid"
+    },
+    {
+      "label": "Force on a Current-carrying Conductor",
+      "math": "A conductor carrying a current placed in a magnetic field experiences a force. The force is largest when the current is perpendicular to the field, and its direction reverses when the direction of the current is reversed.",
+      "id": "force-on-a-conductor"
+    },
+    {
+      "label": "Statement",
+      "math": "Stretch the thumb, forefinger and middle finger of your left hand so that they are mutually perpendicular. If the forefinger points along the magnetic field and the middle finger along the current, the thumb points in the direction of the force (motion) on the conductor.",
+      "id": "flemings-left-hand-rule",
+      "heading": "Fleming's Left-Hand Rule"
+    },
+    {
+      "label": "Wires, fuse and earthing",
+      "math": "Our supply has a live wire (red insulation), a neutral wire (black) and an earth wire (green); the potential difference between live and neutral is 220 V. The earth wire is connected to the metal body of appliances to prevent shocks. A fuse in the circuit protects against overloading and short-circuiting. In a house, a 5 A circuit is used for bulbs and fans and a 15 A circuit for geysers and air coolers.",
+      "id": "domestic-electric-circuits",
+      "heading": "Domestic Electric Circuits"
+    },
+    {
+      "label": "Direct and alternating current",
+      "math": "Direct current (DC) flows in one direction only, as from a battery of dry cells. Alternating current (AC) reverses its direction at regular intervals; the frequency of the AC supply in India is 50 Hz. AC is better for long-distance transmission of power because it can be sent over long distances without much loss of electric energy. Household supply is AC.",
+      "id": "ac-and-dc",
+      "heading": "Direct Current and Alternating Current"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "field-line-rules",
+      "text": "Field lines never cross; closer lines mean a stronger field.",
+      "use": "mcq-check",
+      "source": "NCERT 12.1"
+    },
+    {
+      "id": "two-rules-two-jobs",
+      "text": "Right-hand THUMB rule = direction of the FIELD from a current. Fleming's LEFT-hand rule = direction of the FORCE. Do not swap them.",
+      "use": "mcq-check",
+      "source": "NCERT 12.2.2, 12.3; PYQ-S-2026-ELEC-008, -009"
+    },
+    {
+      "id": "force-is-perpendicular-to-both",
+      "text": "The force is perpendicular to both the field and the current.",
+      "use": "mcq-check",
+      "source": "NCERT 12.3"
+    },
+    {
+      "id": "domestic-wires-and-fuse",
+      "text": "Colours: red live, black neutral, green earth. The fuse goes in the live wire.",
+      "use": "mcq-check",
+      "source": "NCERT 12.4; PYQ-S-2025-ELEC-003"
+    },
+    {
+      "id": "solenoid-is-uniform-inside",
+      "text": "Field inside a long straight solenoid is the same at every point.",
+      "use": "mcq-check",
+      "source": "NCERT 12.2.4, Ex Q3; PYQ-S-MAG-005"
+    },
+    {
+      "id": "thumb-rule-trick",
+      "text": "Taar ko <b>mutthi</b> mein pakdo: <b>angootha = bijli ki disha</b>, <b>lipti ungliyan = chumbakiy kshetra</b>.",
+      "gloss": "Right-hand thumb rule. thumb = current direction; curled fingers = field direction.",
+      "use": "memory-aid",
+      "source": "NCERT 12.2.2"
+    },
+    {
+      "id": "flemings-lhr-trick",
+      "text": "<b>Angootha = Taakat</b>, <b>Pehli ungli = Field</b>, <b>Beech wali = Bijli</b>.",
+      "gloss": "Fleming's left-hand rule. thumb = force (motion); forefinger = field; middle finger = current.",
+      "use": "memory-aid",
+      "source": "NCERT 12.3"
+    },
+    {
+      "id": "field-line-direction-trick",
+      "text": "<b>N se nikle, S mein ghuse</b> (bahar); magnet ke <b>andar S se N</b>.",
+      "gloss": "Field line direction. outside N→S; inside S→N.",
+      "use": "memory-aid",
+      "source": "NCERT 12.1"
+    },
+    {
+      "id": "wire-colour-trick",
+      "text": "<b>Laal = Live, Kaala = Neutral, Hara = Earth.</b>",
+      "gloss": "Wire colours. red live · black neutral · green earth.",
+      "use": "memory-aid",
+      "source": "NCERT 12.4"
+    },
+    {
+      "id": "fuse-rating-trick",
+      "text": "<b>Paanch</b> ampere: bulb-pankha. <b>Pandrah</b> ampere: geyser-cooler.",
+      "gloss": "Circuit ratings. 5 A for bulbs and fans; 15 A for geysers, air coolers.",
+      "use": "memory-aid",
+      "source": "NCERT 12.4"
     }
   ],
   "third_tab_content": {

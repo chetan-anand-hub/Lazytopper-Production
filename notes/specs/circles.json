@@ -338,23 +338,101 @@
   "formula_strip": [
     {
       "label": "Tangent ⊥ radius",
-      "math": "$OP \\perp XY$ at the point of contact $P$"
+      "math": "$OP \\perp XY$ at the point of contact $P$",
+      "id": "tangent-perpendicular-to-radius",
+      "tip": "Join the centre to the point of contact first."
     },
     {
       "label": "Length of a tangent",
-      "math": "$\\ell = \\sqrt{d^2 - r^2}$  ($d$ = distance of point from centre, $r$ = radius)"
+      "math": "$\\ell = \\sqrt{d^2 - r^2}$  ($d$ = distance of point from centre, $r$ = radius)",
+      "id": "length-of-a-tangent",
+      "tip": "ℓ² = d² − r² (right angle at the point of contact)."
     },
     {
       "label": "Equal tangents",
-      "math": "$PQ = PR$  (from external point $P$)"
+      "math": "$PQ = PR$  (from external point $P$)",
+      "id": "equal-tangents-theorem",
+      "tip": "PQ = PR makes △PQR isosceles."
     },
     {
       "label": "Number of tangents",
-      "math": "inside $0$ · on $1$ · outside $2$"
+      "math": "inside $0$ · on $1$ · outside $2$",
+      "id": "number-of-tangents",
+      "tip": "Inside 0, on 1, outside 2."
     },
     {
       "label": "Circumscribed quadrilateral",
-      "math": "$AB + CD = AD + BC$"
+      "math": "$AB + CD = AD + BC$",
+      "id": "circumscribed-quadrilateral",
+      "tip": "AB + CD = AD + BC."
+    },
+    {
+      "label": "Secant, Tangent, Non-intersecting Line",
+      "math": "A line that cuts a circle at 2 points is a secant. A line that touches it at exactly 1 point is a tangent. A line that does not meet it (0 points) is non-intersecting.",
+      "id": "secant-tangent-nonintersecting"
+    },
+    {
+      "label": "Angle Between Two Tangents",
+      "math": "The angle between the two tangents drawn from an external point is supplementary to the angle subtended at the centre by the line joining the points of contact: $\\angle APB+\\angle AOB=180^\\circ$.",
+      "id": "angle-between-tangents"
+    },
+    {
+      "label": "Parallelogram Circumscribing a Circle",
+      "math": "A parallelogram that circumscribes a circle is a rhombus.",
+      "id": "parallelogram-circumscribing-rhombus"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "tangent-length-triples",
+      "text": "Tangent length from (d, r): spot 9-40-41, 5-12-13, 3-4-5.",
+      "use": "mcq-check",
+      "source": "PYQ-M-CIRC-005"
+    },
+    {
+      "id": "isosceles-from-equal-tangents",
+      "text": "PA = PB ⇒ base angles equal ⇒ use 180° sum.",
+      "use": "written-ok",
+      "source": "NCERT Thm 10.2, Example; PYQ-M-CIRC-009"
+    },
+    {
+      "id": "radius-makes-90",
+      "text": "∠OPT = 90° gives the third angle by angle sum.",
+      "use": "written-ok",
+      "source": "NCERT Thm 10.1; PYQ-M-CIRC-006"
+    },
+    {
+      "id": "half-perimeter",
+      "text": "In a circumscribed quadrilateral AB + CD = half the perimeter.",
+      "use": "mcq-check",
+      "source": "PYQ-M-CIRC-001"
+    },
+    {
+      "id": "cite-the-theorem",
+      "text": "In proofs state the reason in words: the tangent is perpendicular to the radius at the point of contact; radii of the same circle are equal.",
+      "use": "written-ok",
+      "source": "NCERT 10.2"
+    },
+    {
+      "id": "tangent-count-trick",
+      "text": "<b>Andar Zero, Circle pe Ek, Bahar Do.</b>",
+      "gloss": "Number of tangents. Andar (inside) 0 · Circle pe (on the circle) 1 · Bahar (outside) 2.",
+      "use": "memory-aid",
+      "source": "NCERT 10.3"
+    },
+    {
+      "id": "tangent-90-trick",
+      "text": "Chhoone wali line (tangent) radius pe <b>lamb (90°)</b>.",
+      "gloss": "Theorem 10.1. tangent at contact ⟂ radius.",
+      "use": "memory-aid",
+      "source": "NCERT Thm 10.1"
+    },
+    {
+      "id": "equal-tangents-trick",
+      "text": "Bahar wale point se <b>do tangent, jodi barabar.</b>",
+      "gloss": "Theorem 10.2. PQ = PR.",
+      "use": "memory-aid",
+      "source": "NCERT Thm 10.2"
     }
   ],
   "mindmap": {
