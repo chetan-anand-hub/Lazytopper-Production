@@ -20,8 +20,8 @@
    ]
   },
   "pair-of-linear-equations": {
-   "n": 449,
-   "sha256": "750cec3a24eb9860b2b038596676ab8471ee12d18d5242635d8a3690174c443d",
+   "n": 450,
+   "sha256": "a78129121fbbbf7d951ace4e13df5ec6234a90f3acb06c5e59cb891ef625ce29",
    "head": [
     "BX-PLE-E-022",
     "BX-PLE-E-023",
@@ -101,8 +101,8 @@
    ]
   },
   "statistics": {
-   "n": 316,
-   "sha256": "05669e2fdc65dcf3694f44f39899201ef5c46f2aa1f4197a43dcdee5dc5bbc99",
+   "n": 317,
+   "sha256": "8bbbbbce29983c0c9a2404721bcae7491bf868e2b6edf34375218aadf2029e06",
    "head": [
     "LTG-M-STAT-271",
     "LTG-M-STAT-282",
@@ -256,8 +256,8 @@
    ]
   },
   "pair-of-linear-equations": {
-   "n": 67,
-   "sha256": "80aae7649ee4520d87d2f1de752ade798f4f41e595e42b8f8ed0c8949ab429cf",
+   "n": 68,
+   "sha256": "0ec38eaabb598ea9c9ae19a5c2991d082c6afa726b4f44c483b48a01e090a5fd",
    "head": [
     "Algebraic Methods — Substitution\tCBE-M-PLE-B-003",
     "Algebraic Solution\tBX-PLE-EX-A-013,BX-PLE-EX-A-011,BX-PLE-EX-C-018,2026-PLE-MCQ-01,2026-PLE-MCQ-08,PLE-M15,2026-PLE-SA-03,2026-PLE-SA-10,PLE-M13,PLE-E15,PLE-E20,PLE-M01,PLE-M09,PLE-M18,PLE-H03,PLE-H12,PLE-M07,PLE-E05,PLE-E08,PLE-E12,PLE-E18,PLE-E03,PLE-E06,PLE-E10",
@@ -337,8 +337,8 @@
    ]
   },
   "statistics": {
-   "n": 64,
-   "sha256": "2fa941cadb2eb3deb1b7374788880c26795dbff03b42fc02901f499eee12bdd2",
+   "n": 65,
+   "sha256": "150c3995aa0234bdc05c0d6813a8e6f6812bfd1c94edfb00dbea8c039226bdaf",
    "head": [
     "Assumed Mean Choice\tLTG-M-STAT-234,PYQ-M-STAT-006,PYQ-M-2026-STAT-001,PYQ-M-2024-STAT-001,PYQ-M-2024-STAT-003,STAT-N-EXEM-13-VSA-002,STAT-N01",
     "Assumed Mean Deviations\tPYQ-M-STAT-006,PYQ-M-2026-STAT-001,PYQ-M-2024-STAT-001,PYQ-M-2024-STAT-003,STAT-N-EXEM2-13-MCQ-001,STAT-N01",
