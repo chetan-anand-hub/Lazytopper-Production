@@ -487,31 +487,156 @@
   "formula_strip": [
     {
       "label": "Combination",
-      "math": "$\\text{A} + \\text{B} \\rightarrow \\text{AB}$  (two or more reactants $\\rightarrow$ a single product)"
+      "math": "$\\text{A} + \\text{B} \\rightarrow \\text{AB}$  (two or more reactants $\\rightarrow$ a single product)",
+      "id": "combination-reaction",
+      "tip": "Two or more reactants, ONE product."
     },
     {
       "label": "Decomposition",
-      "math": "$\\text{AB} \\rightarrow \\text{A} + \\text{B}$  (one reactant $\\rightarrow$ two or more products)"
+      "math": "$\\text{AB} \\rightarrow \\text{A} + \\text{B}$  (one reactant $\\rightarrow$ two or more products)",
+      "id": "decomposition-reaction",
+      "tip": "Needs heat, light or electricity."
     },
     {
       "label": "Displacement",
-      "math": "$\\text{A} + \\text{BC} \\rightarrow \\text{AC} + \\text{B}$  (A more reactive than B)"
+      "math": "$\\text{A} + \\text{BC} \\rightarrow \\text{AC} + \\text{B}$  (A more reactive than B)",
+      "id": "displacement-reaction",
+      "tip": "The more reactive element takes the place."
     },
     {
       "label": "Double displacement",
-      "math": "$\\text{AB} + \\text{CD} \\rightarrow \\text{AD} + \\text{CB}$  (ions exchanged)"
+      "math": "$\\text{AB} + \\text{CD} \\rightarrow \\text{AD} + \\text{CB}$  (ions exchanged)",
+      "id": "double-displacement-reaction",
+      "tip": "Ions exchange; look for a precipitate."
     },
     {
       "label": "Oxidation / Reduction",
-      "math": "Oxidation: gain O or lose H  .  Reduction: lose O or gain H"
+      "math": "Oxidation: gain O or lose H  .  Reduction: lose O or gain H",
+      "id": "oxidation-and-reduction",
+      "tip": "Oxidised = gains oxygen or loses hydrogen."
     },
     {
       "label": "Conservation of mass",
-      "math": "atoms of each element (reactants) = atoms of each element (products)"
+      "math": "atoms of each element (reactants) = atoms of each element (products)",
+      "id": "law-of-conservation-of-mass",
+      "tip": "Count atoms of each element on both sides."
     },
     {
       "label": "Everyday oxidation",
-      "math": "Corrosion (rusting of iron) - prevented by painting, oiling, greasing or galvanising"
+      "math": "Corrosion (rusting of iron) - prevented by painting, oiling, greasing or galvanising",
+      "id": "corrosion",
+      "tip": "Corrosion colours: iron gives reddish-brown rust; silver gets a black coating; copper a green coating."
+    },
+    {
+      "label": "Steps",
+      "math": "(1) Write the skeletal equation with the correct formulae. (2) Count the atoms of each element on both sides. (3) Balance one element at a time by hit and trial, changing only the numbers in front of formulae, never the formulae themselves. (4) Check that each element has the same number of atoms on both sides. (5) Add the state symbols and conditions.",
+      "id": "how-to-balance-a-chemical-equation",
+      "heading": "How to Balance a Chemical Equation"
+    },
+    {
+      "label": "State Symbols and Conditions",
+      "math": "Write the physical state after each formula: (s) solid, (l) liquid, (g) gas, (aq) aqueous solution. Write conditions such as heat, catalyst, sunlight or electric current over the arrow. General word equations take no state symbols. Examiners usually reward a balanced equation and correct state symbols and conditions separately.",
+      "id": "state-symbols-and-conditions"
+    },
+    {
+      "label": "Exothermic and Endothermic Reactions",
+      "math": "In an exothermic reaction heat is released: burning of natural gas, respiration, decomposition of vegetable matter into compost, and quicklime reacting with water. In an endothermic reaction energy is absorbed.",
+      "id": "exothermic-and-endothermic-reactions"
+    },
+    {
+      "label": "Thermal, Electrolytic and Photolytic Decomposition",
+      "math": "By heat: $\\text{CaCO}_3(s) \\xrightarrow{\\text{Heat}} \\text{CaO}(s) + \\text{CO}_2(g)$<br>By electricity: $2\\text{H}_2\\text{O}(l) \\xrightarrow{\\text{Electric current}} 2\\text{H}_2(g) + \\text{O}_2(g)$<br>By light: $2\\text{AgCl}(s) \\xrightarrow{\\text{Sunlight}} 2\\text{Ag}(s) + \\text{Cl}_2(g)$",
+      "id": "types-of-decomposition-reaction"
+    },
+    {
+      "label": "Precipitation Reaction",
+      "math": "A reaction that forms an insoluble product, called a precipitate, is a precipitation reaction. For example, sodium sulphate solution and barium chloride solution form white barium sulphate: $\\text{Na}_2\\text{SO}_4(aq) + \\text{BaCl}_2(aq) \\rightarrow \\text{BaSO}_4(s) + 2\\text{NaCl}(aq)$.",
+      "id": "precipitation-reaction"
+    },
+    {
+      "label": "Colour Changes in Reactions (Observations)",
+      "math": "Iron nail in copper sulphate: the blue solution turns pale green and the nail becomes brownish. Silver chloride: white, turns grey in sunlight. Copper powder heated in air turns black (copper(II) oxide). Lead nitrate on heating gives brown fumes of nitrogen dioxide. Crystals of ferrous sulphate are green.",
+      "id": "colour-changes-in-reactions"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "skeleton-balance-states",
+      "text": "Order of marks: skeletal equation → balanced → state symbols/conditions. Examiners usually reward a balanced equation and correct state symbols separately.",
+      "use": "written-ok",
+      "source": "NCERT 1.1; CBSE marking principle"
+    },
+    {
+      "id": "atom-count-check",
+      "text": "After balancing, count each element on both sides once more.",
+      "use": "mcq-check",
+      "source": "NCERT 1.1.2 (law of conservation of mass)"
+    },
+    {
+      "id": "precipitate-means-double-displacement",
+      "text": "A new insoluble solid formed from two solutions ⇒ precipitation (double displacement).",
+      "use": "mcq-check",
+      "source": "NCERT 1.2.4"
+    },
+    {
+      "id": "name-the-energy",
+      "text": "Decomposition by heat (thermal); by light (silver salts); by electricity (electrolysis).",
+      "use": "written-ok",
+      "source": "NCERT 1.2.2"
+    },
+    {
+      "id": "redox-both-at-once",
+      "text": "In one reaction one substance is oxidised while another is reduced (CuO is reduced, H₂ is oxidised). Use the Class 10 definition: oxygen/hydrogen.",
+      "use": "written-ok",
+      "source": "NCERT 1.2.5; Q3 of the section"
+    },
+    {
+      "id": "exothermic-feels-hot",
+      "text": "If the test tube warms up it is exothermic.",
+      "use": "mcq-check",
+      "source": "NCERT 1.2 (quicklime + water)"
+    },
+    {
+      "id": "reaction-types-trick",
+      "text": "<b>Jodo, Todo, Hatao, Badlo.</b>",
+      "gloss": "The four types. Jodo = combination · Todo = decomposition · Hatao = displacement · Badlo = double displacement (the NCERT order 1.2.1–1.2.4).",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.1–1.2.4"
+    },
+    {
+      "id": "redox-trick",
+      "text": "<b>Oxidation = Oxygen Aaye ya Hydrogen Jaye. Reduction = Oxygen Jaye ya Hydrogen Aaye.</b>",
+      "gloss": "Class 10 redox definition. Oxidation: gain O or lose H. Reduction: lose O or gain H. (No electron-transfer rule.)",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.5"
+    },
+    {
+      "id": "decomposition-energy-trick",
+      "text": "<b>Chuna-patthar tapish se, chaandi ka namak roshni se, paani bijli se.</b>",
+      "gloss": "Which energy for which example. CaCO₃ → heat · AgCl → light · H₂O → electricity.",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.2"
+    },
+    {
+      "id": "exo-endo-trick",
+      "text": "<b>Exo = Energy bahar, Endo = Energy andar.</b>",
+      "gloss": "Heat out / heat in. exothermic releases; endothermic absorbs.",
+      "use": "memory-aid",
+      "source": "NCERT 1.2"
+    },
+    {
+      "id": "colour-blue-green-trick",
+      "text": "<b>Neela gaya, Hara aaya; keel ka rang bhura.</b>",
+      "gloss": "CuSO₄ + Fe. blue copper sulphate → green iron sulphate; the iron nail turns brownish.",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.3"
+    },
+    {
+      "id": "barium-white-trick",
+      "text": "<b>Barium + sulphate = safed gaadha.</b>",
+      "gloss": "BaSO₄ precipitate is white. Ba + SO₄ → white precipitate.",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.4"
     }
   ],
   "mindmap": {
