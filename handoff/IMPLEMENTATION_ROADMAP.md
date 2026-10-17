@@ -1,3 +1,10 @@
+## 2026-10-17 - #1211 to #1231 - MERGED
+
+- DONE. Follow-ups and selection fixes (`#1211` `#1212` `#1220`); Quick Practice graded PDF (`#1213`); Topic Hub Worksheet link (`#1214`); WhatsApp contact + `/contact` (`#1215`); Share my score (`#1216`); papers-waiting strip + bell (`#1217`); downloaded CT / FM kept for upload later (`#1218`); ACTIVATION-2 (`#1224`); notes formulae 3b + notation (`#1221` `#1226`); bank lanes landed (`#1223` `#1222` `#1225` `#1227` `#1228` `#1229` `#1230` `#1231`), served 10461 -> 10562.
+- IN PROGRESS. OUR-ENV-NCERT-1 (NCERT Ch 13 Our Environment, 15 rows) built on `feat/our-env-ncert-1`, no PR yet.
+- OPEN. Live-verify of all twenty; the follow-ups in the 2026-10-17 (#1211 to #1231) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- NEXT. Measure ACTIVATION-2 (day-1 graded-answer rate); TRI-AA-ANSWERS; bank text-clean follow-ups as one lane.
+
 ## 2026-10-17 - #1198 to #1209 - MERGED
 
 - DONE. Tutor honesty and chapter brief (`#1199` `#1203` `#1205`); onboarding written Start-here + type-first box (`#1198` `#1200` `#1202`); Mistake Intelligence synced to Me and explained for tap-the-answer marks (`#1201` `#1208`); weak concept opens its exact set (`#1204`); Quick Practice Upload later (`#1209`); worksheet answer-key PDF (`#1179`); notes titles (`#1206`); grader typed-lines and value-equivalent answers (`#1207`).

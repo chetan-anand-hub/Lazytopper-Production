@@ -1,3 +1,19 @@
+> **2026-10-17 - #1211 to #1231 (CLAUDE.md section 10, one docs PR for the 17 Oct merges).** Scope: Quick Practice, Check & Improve onboarding, Home, Topic Hub, scorecards (share / PDF), Chapter Test / Full Mock persistence, contact, notes content, and bank content. No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Check & Improve | Start-here "Check one answer", mobile Sign up, "Try a board question", How it works collapsed on phones (`#1224`) | live; NOT live-checked | `[FU-ACT2-NEW-ACCOUNT-LIVE]`, `[FU-ACT2-INLINE-CARD-SESSION]`, `[FU-ACT2-MATHS-BOARD-POOL]`, `[FU-ACT2-AUTO-READ]`, `[FU-ACT2-PICKER-CHUNK-FIGURES]` |
+| Login / new account | new account with no explicit target lands on `/check-improve` (`#1224`) | live; NOT live-checked | `[FU-ACT2-NEW-ACCOUNT-LIVE]` |
+| Quick Practice | upload-later copy, later panel, reopen tap note (`#1211`); 1-question exact set (`#1212`); graded PDF (`#1213`); partial exact set not topped up (`#1220`); Practice hub mobile Sign up (`#1224`) | live; NOT live-checked | `[FU-EXACT-SET-ZERO-RESOLVED-EMPTY]` |
+| Results scorecard (all surfaces) | "Share my score" PNG (`#1216`) | live; NOT live-checked | `[FU-SHARE-CARD-INTER-FONT]` |
+| Home | papers-waiting strip + bell, Jump straight in removed (`#1217`); MI note wording (`#1211` `#1220`) | live; NOT live-checked | `[FU-MOBILE-MI-REAL-DATA]` |
+| Chapter Test / Full Mock | downloaded paper kept, Section A picker, reminders (`#1218`) | live; NOT live-checked | `[FU-AWAIT-TWO-DEVICE-RACE]`, `[FU-AWAIT-FOLLOWUPS]` |
+| Topic Hub | Worksheet button live (`#1214`) | live; NOT live-checked | none |
+| Contact / browse pages | WhatsApp FAB, `/contact`, legal contact line (`#1215`) | live; NOT live-checked | `[FU-CONTACT-INDEX]` |
+| Notes | formulae / shortcuts / tricks for 26 chapters (`#1221`); KaTeX notation in mindmaps + chemistry prose (`#1226`) | live; NOT live-checked | `[FU-NOTES-FIG-ALT-LATEX]`, `[FU-NOTES-CARBON-XRIGHTARROW-SLASH]`, `[FU-NOTE-NOTATION-GUARD-SKIPPED-FIELDS]`, `[FU-NOTES-PROSE-FORMULAS-NONCHEM]`, `[FU-NOTES-TRICKS-AUTHORED-TAG]` |
+| Question bank | 8 Light rows withheld (`#1222`); 20 text-cleaned (`#1223`); 82 Maths + 27 Science rows re-served, 36 repaired (`#1225` `#1227`-`#1231`); served 10461 -> 10562 | live | `[FU-TRI-AA-ANSWERS]`, `[FU-LTG-LIGHT-278-OWNER-ACK]`, `[FU-AUTHENTIC-TIER-PREDICTED-ROWS]`, the bank text-clean FUs |
+| Admin | "tests taken" excludes downloaded-only papers (`#1218`) | live | none |
+
 > **2026-10-17 - #1198 to #1209 (CLAUDE.md section 10, one docs PR for the 15-17 Oct merges).** Scope: tutor, onboarding, Mistake Intelligence display, Quick Practice, Worksheet PDF, notes heads, and one grader check (`#1207`, `verify.cjs` only, no prompt change). No surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

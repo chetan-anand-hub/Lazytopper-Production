@@ -1,3 +1,15 @@
+## 2026-10-17 - Cofounder session 01Sqfd9w: #1211 to #1231 (twenty merges, trunk `866743a3`)
+
+**PROVENANCE.** Written by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10 from `gh pr view`, `git log`, `gh run list` and the session facts the cofounder handed over. Facts only. Written at trunk `866743a3`.
+- **Merged in order:** `#1211` `6f8e2bdb`, `#1212` `7481c57e`, `#1213` `38843c13`, `#1214` `1b857a6f`, `#1215` `03977e20`, `#1216` `60faedf2`, `#1217` `83c175a6`, `#1218` `5a22ffe5`, `#1220` `577f9e93`, `#1223` `3aa92f98`, `#1221` `4d5533af`, `#1226` `fb887091`, `#1222` `483116af`, `#1224` `b8776502`, `#1225` `8e7512f9`, `#1227` `bf957004`, `#1228` `aa24ad13`, `#1229` `db58f024`, `#1230` `ce4c76a8`, `#1231` `866743a3`. (`#1219` is an issue.)
+- **Flow:** owner's standing merge rule (cofounder audit + independent reviewer + green CI, then merge). Lane-overlap on `analytics.ts` (`#1215` `#1216` `#1217` `#1218`) and on the bank pause block / ledger / generated files (`#1222` and the BANK-LANES-LAND lanes) was resolved by sequencing and regenerating, never by hand-merging generated files.
+- **BANK-LANES-LAND:** seven parked bank lanes cherry-picked onto trunk (`#1223` `#1225` `#1227` `#1228` `#1229` `#1230` `#1231`); "DRAFT, audit pending" lane commits were audited in each PR's review. Served 10461 -> 10453 (`#1222`) -> 10497 -> 10535 -> 10554 -> 10560 -> 10560 -> 10562. Coverage pin re-measured 0.9225 -> 0.9217 -> 0.9212 -> 0.9210.
+- **Activation analysis:** 147 sign-ups in 7 days, but about 1 in 50 recent sign-ups checked an answer; owner approved ACTIVATION-2 A-E, built and merged as `#1224`.
+- **Stale branches:** 198 remote branches deleted; ledger `ops/.specs/BRANCH_CLEANUP_2026-10-17.tsv` (gitignored) plus an OneDrive diff folder. REVIEW list: `feat/topup-1-server`, `fix/garble-1-wrong-content-pause-2`, `handover/bank-fix-1-pr2`, `preview/payments-test`, `wip/c2-booklet-withhold-1-src`. Kept for the owner: `docs/post-pr-557-563-wave3`, `recovery/lost-trunk-42d82e8`.
+- **Growth (outside the repo, owner-run, 17 Oct):** Navratri Dandiya Short posted on YouTube, Instagram and Facebook. Google Ads: Navratri ad group (12 states, 17-20 Oct, campaign budget Rs 1,950/day, wind-down scheduled 21 Oct). Search v2: the Sample-paper ad group paused (0 sign-ups on Rs 893 spend, policy-limited); budget Rs 600/day; new ad group "6 Maths chapter-wise important Qs"; new sitelinks / callouts for formula notes, WhatsApp contact and print-and-upload-later.
+- **In progress at close:** OUR-ENV-NCERT-1 (NCERT Ch 13 Our Environment, 15 rows) committed on `feat/our-env-ncert-1` (local worktree), PR not opened.
+- **Docs:** this one entry covers all twenty merges (no per-PR docs PRs were made during the session).
+
 ## 2026-10-17 - Cofounder session 15-17 Oct: #1198 to #1209 (thirteen merges, trunk `a21575df`)
 
 **PROVENANCE.** Written by the cofounder session of 17 Oct under CLAUDE.md section 10 from `gh pr view`, `git log` and the 15-17 Oct session's handoff note. Facts only. Written at trunk `a21575df`.

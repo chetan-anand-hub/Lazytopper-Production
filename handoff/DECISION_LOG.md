@@ -1,3 +1,21 @@
+## 2026-10-17 - #1211 to #1231: DECISIONS AND RULINGS OF 17 OCT (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner and cofounder decisions of cofounder session 01Sqfd9w, each with its reason. The commits of `#1230` / `#1231` cite "D253" and "D254"; neither has a DECISION_LOG entry, so the `#1231` audit row below is the ruling of record for 2026-PLE-SA-02 / 2026-STAT-SA-02.
+
+| decision | what it says | the reason |
+|---|---|---|
+| ACTIVATION-2 A-E approved (owner, 17 Oct) | A: C&I Start-here "Check one answer"; B: mobile signed-out Sign up; C: new accounts land on Check & Improve; D: "Try a board question"; E: "How it works" collapsed on mobile. Built in `#1224` | 147 sign-ups in 7 days, but about 1 in 50 recent sign-ups checked an answer; the leak is after sign-up |
+| new-account landing: `/` or `/browse` is "no explicit target" (cofounder ruling on `#1224` review) | for a NEW account, an empty redirect, `/` or `/browse` goes to `/check-improve`; any other redirect still wins; returning logins unchanged | those are the default redirects Welcome, DesktopShell and the mobile header send, so without the ruling item C would never fire |
+| `score_share` stays on Vercel + GA4 (owner) | no GA4-only send path is added to `analytics.ts` | `analytics.ts` has no GA4-only helper; Meta already drops the unmapped event; not worth new plumbing |
+| Triangles: 12 D261 rows NOT withheld (`#1222`) | NCERT-6-SA-006/007/008, EXMPLR-6-MCQ-002, SA-007, SA-013, LA-005, LA-006, CB-001, CB-002, NCERT-6-LA-006, EXMPLR-6-LA-007 stay served | owner ruling 1 (`syllabus2026-27.ts`): Pythagoras as a numeric tool is IN; none of the 12 states or proves Pythagoras, its converse or the area theorem |
+| Triangles: re-justify three answers via AA (owner) | NCERT-6-LA-006, EXMPLR-6-LA-007 and EXMPLR-6-MCQ-001 keep their stems; their solutions are rewritten to argue by AA similarity instead of citing Theorem 6.7. Lane `TRI-AA-ANSWERS` (`[FU-TRI-AA-ANSWERS]`) | the stems are provable by AA (IN); only the cited theorem is from the deleted Pythagoras section |
+| 8 Light rows withheld (`#1222`) | GDR-L-CBJ-011, GDR-L-NUM-019, GDR-L-CBJ-018, LTG-S-LIGHT-278, LIGHT-EXMPLR-9-LA-002, LT-H01, LT2-043, FND-L-SPM-026: paused as WRONG-CONTENT | NCERT 2026-27 (jesc109) Tables 9.1 and 9.4: object at F gives image "At infinity", "Image would not be formed"; each row claims a real / enlarged image |
+| LTG-S-LIGHT-278 in `OWNER_WITHHELD_GENERATED` (reviewer direction; owner to confirm) | the generated row is withheld under the WITHHOLD-TRI-GDR-1 lane | its template LIGHT-EXMPLR-9-LA-002 is withheld as wrong content, and `ltGenerated.guard` accepts a generated withhold only from that list. Owner acknowledgement owed (`[FU-LTG-LIGHT-278-OWNER-ACK]`) |
+| 2026-PLE-SA-02 / 2026-STAT-SA-02 (cofounder, `#1231` audit) | both are LT-authored PREDICTED rows, not 2026 board PYQs; served again with a content fix each (PLE stem made consistent; STAT steps for its own stem, median 12.5) | the `2026-` prefix and the "Authentic" tier header could read as a real 2026 paper; see `[FU-AUTHENTIC-TIER-PREDICTED-ROWS]` |
+| coverage pin moved by re-measurement only | 0.9225 -> 0.9217 (`#1228`) -> 0.9212 (`#1229`) -> 0.9210 (`#1231`) | the re-served rows carry generic labels and add no concept (9728 concept rows throughout); the pin tracks the measured ratio on the merged tree |
+| bank lanes land as cherry-picks onto trunk (BANK-LANES-LAND) | each parked lane cherry-picked `-x`, generated files regenerated never hand-merged, import-based counts in the PR body | lanes were built on old bases; regenerating avoids silent drift in `bankIdIndex` / chapter files / the order-parity fixture |
+| stale branches deleted (cofounder, 17 Oct) | 198 remote branches deleted with a ledger; a REVIEW list and two owner-kept branches stay | the remote list hid live work; the ledger plus diff folder keeps every deleted tip recoverable |
+
 ## 2026-10-17 - #1198 to #1209: DECISIONS THE 15-17 OCT SESSION MADE (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner and cofounder decisions, each with its reason.

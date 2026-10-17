@@ -23,6 +23,92 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-17 - #1211 to #1231 FOLLOW-UPS (recorded by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10)
+
+*Priority order is the order below within each group. File:line readings are at trunk `866743a3`. Earlier dated entries are left as written (standing rule 3); their closures are recorded here.*
+
+### Product
+
+**[FU-AUTHENTIC-TIER-PREDICTED-ROWS]** (open, honesty) `lazytopper/src/data/questionBanks/class10/curatedInline.ts:8` labels the file "Authentic tier", and it holds LT-authored PREDICTED rows with `2026-*-SA-*` ids (e.g. 2026-PLE-SA-02, 2026-STAT-SA-02, re-served by `#1231`). Verify that no UI (source line, board-question label, `#1224` "Try a board question", PYQ filters) ever presents them as 2026 board questions.
+
+**[FU-ACT2-NEW-ACCOUNT-LIVE]** (open, owner) Live-verify `#1224` item C on a brand-new Google account: `/login` with no redirect, `/` or `/browse` -> `/check-improve`; `/login?redirect=/practice-hub` -> `/practice-hub`; returning account -> Home. The mark relies on AuthContext marking before Login's navigation effect runs.
+
+**[FU-ACT2-INLINE-CARD-SESSION]** (open, owner call) `#1224` A hides the C&I inline Start-here card per page visit only; a later visit in the same tab shows it again. Hiding it for the whole tab needs one new sessionStorage key + a `STUDENT_DATA_MAP` entry.
+
+**[FU-ACT2-MATHS-BOARD-POOL]** (open, owner call) `#1224` D "Try a board question": about 6-7 Maths rows pass the strict filters (Science about 40). Widen (e.g. allow rows without step-marked solutions) or keep strict.
+
+**[FU-ACT2-AUTO-READ]** (open) `#1224` D fills plain text only; the student still taps "Read the question" (a normal detect call). Pre-reading from a bank source would need a new path.
+
+**[FU-ACT2-PICKER-CHUNK-FIGURES]** (open, perf) `#1224` D imports `lib/boardQuestions/selectionRule.ts` (`isGeneratedOrAuthoredRow`) into the lazy board-picker chunk, which pulls the figure registry into that chunk. Split the pure predicate out.
+
+**[FU-AWAIT-TWO-DEVICE-RACE]** (open) `#1218` cross-device Continue reads the server first but the read-then-write is not transactional; two devices continuing within the same moment can both write.
+
+**[FU-AWAIT-FOLLOWUPS]** (open, from `#1218` / `#1217`) Worksheet mount of `PaperReminderActions` (one line in `WorksheetGenerator.tsx`, another lane); Full Mock has no URL that opens a pending upload directly (+1 tap) and Quick Practice goes through its scorecard (+1 tap); the "taken before papers were saved" line is wrong for a downloaded paper whose snapshot write failed (rare).
+
+**[FU-EXACT-SET-ZERO-RESOLVED-EMPTY]** (open, needs design) From `#1212` / `#1220`: a strict exact set whose ids ALL fail to resolve (withheld / missing) still falls through to the engine draw and tops up with unrelated rows. Needs an honest empty state; behaviour pinned by a control test.
+
+**[FU-SHARE-CARD-INTER-FONT]** (open, low) `#1216` share card names "Inter" but Inter is not loaded anywhere in the app; the PNG uses the system stack.
+
+**[FU-CONTACT-INDEX]** (open, from `#1215`; owner said yes to indexing) Add `/contact` to `SELF_CANONICAL_EXACT`, `STATIC_PAGE_HEADS`, `ROUTE_CHUNK_MODULES`, `llms.txt`, sitemap and prerender; until then its canonical falls back to the root. `/contact` is not linked from anywhere yet (footer / account menu are outside that lane).
+
+**[FU-SCORE-SHARE-GA4-ONLY]** (CLOSED 2026-10-17, owner ruling) `score_share` stays on Vercel + GA4; no GA4-only send path.
+
+### Notes
+
+**[FU-NOTES-FIG-ALT-LATEX]** (open) Two figure captions now contain LaTeX, so their alt text would read raw markup: `notes/specs/acids-bases-and-salts.json:740` and `notes/specs/carbon-and-its-compounds.json:864`. Give each a plain-text alt.
+
+**[FU-NOTES-CARBON-XRIGHTARROW-SLASH]** (open) `notes/specs/carbon-and-its-compounds.json:760`: the `\xrightarrow` upper label ends "+ heat /" (stray " /").
+
+**[FU-NOTE-NOTATION-GUARD-SKIPPED-FIELDS]** (open) `noteNotation.guard.test.ts` (`#1226`) skips the `source_ledger` and tag fields; plain notation there is not caught.
+
+**[FU-NOTES-PROSE-FORMULAS-NONCHEM]** (open) Plain-text formulas remain in prose outside the four chemistry chapters (heredity F1/F2, life-processes CO2, others); guard rule (b) is scoped to chemistry chapters.
+
+**[FU-NOTES-TRICKS-AUTHORED-TAG]** (open) "Shortcuts & Tricks" and "Memory Tricks" cards (`lazytopper/src/components/notes/Note.tsx:1675-1676`) carry no AUTHORED tag although the content is LT-authored, not NCERT.
+
+**[FU-SCOPE-GUARD-PRODUCT-DOCS-MODE]** (open, tooling) `scope:guard` has no product+docs mode, so every notes PR that ships `notes/specs/*.json` (`#1221`, `#1226`) fails `--mode product` on the [docs] lane by design.
+
+### Bank
+
+**[FU-TRI-AA-ANSWERS]** (open, lane TRI-AA-ANSWERS, owner ruling 17 Oct) Re-justify via AA similarity, instead of citing Theorem 6.7: NCERT-6-LA-006, EXMPLR-6-LA-007, EXMPLR-6-MCQ-001. Stems unchanged.
+
+**[FU-LTG-LIGHT-278-OWNER-ACK]** (open, owner) LTG-S-LIGHT-278 was added to `OWNER_WITHHELD_GENERATED` by `#1222` at the reviewer's direction; owner to confirm.
+
+**[FU-BANK-SCQ-LIGHT-044-LEDGER]** (open, review) SCQ-S-LIGHT-044's ledger evidence repeats the old object-at-F misreading ("at F gives highly enlarged image at infinity"). `#1230` corrected the row's key; re-check the evidence text.
+
+**[FU-BANK-TG3-037-STEP-WORDING]** (open) TG3-037 step wording.
+
+**[FU-BANK-TRIG2-AR01-PBH]** (open) TRIG2-AR01 uses p, b, h without defining them.
+
+**[FU-BANK-ARC2-056-FIG-LABELS]** (open) ARC2-056 figure labels.
+
+**[FU-BANK-GENERIC-BASIS-EXPLANATIONS]** (open) Generic "scientific / mathematical basis" explanations: ARC-E07, ARC-M17, PLE-E17, QE-E11, QE-E16, QE-M10, STAT-M10, SAV-E13, TRI2-AR02, CG-E18, TRI2-E04, SAV-E15.
+
+**[FU-BANK-SCQ-ENV-028-FRAGMENT]** (open) SCQ-S-ENV-028 has a sentence fragment.
+
+**[FU-BANK-SCQ-LIFE-BOARD-TAGS]** (open) Board tags inside the question text of SCQ-S-LIFE-028, SCQ-S-LIFE-029, SCQ-S-LIFE-042.
+
+**[FU-BANK-CARB-CITATIONS]** (open) CARB-026 cites section 4.2.3, should be 4.2.2; CARB-036 should cite CBSE 2017 Delhi 31/1/1; CARB-032 should cite section 4.4.1 p72.
+
+**[FU-BANK-CARB-041D-NAME]** (open, D252 call) CARB-041(d) "sodium methanoate" naming.
+
+**[FU-BANK-CTRL-030-NCERTREF]** (open) CTRL-030 `ncertRef` label is wrong.
+
+**[FU-CONCEPTLABEL-CONTROL-ASSERT-LABEL]** (open, test) The conceptLabelMap paused-but-served control should assert the label, not only the outcome list (it went RED for the wrong reason during `#1227`).
+
+**[FU-OUR-ENVIRONMENT-NO-NCERT-FILE]** (IN PROGRESS 2026-10-17) OUR-ENV-NCERT-1 (NCERT Ch 13 textbook questions, 15 rows) is committed on `feat/our-env-ncert-1` (`27644f43`); no PR yet. Close when it merges.
+
+**[FU-TRI-OUT-OF-SYLLABUS-SERVED]** (CLOSED 2026-10-17, `#1222` audit + owner ruling) The 12 D261 rows are NOT out of syllabus under owner ruling 1 (Pythagoras as a numeric tool is IN); none withheld. The three answer fixes move to `[FU-TRI-AA-ANSWERS]`.
+
+### Closed by merges / stale
+
+**[FU-QP-UPLOAD-LATER-PRETAP-COPY]** (CLOSED 2026-10-17, done in `#1211`) **[FU-QP-LATER-PANEL-SHOW-STEPS]** (CLOSED 2026-10-17, `#1211`) **[FU-HOME-MI-NOTE-NO-LOSS]** (CLOSED 2026-10-17, `#1211`, wording refined in `#1220`) **[FU-QP-REOPEN-TAP-NOTE]** (CLOSED 2026-10-17, `#1211`).
+
+**[FU-ADMIN-ANALYTICS-EXCLUSION]** (CLOSED 2026-10-17, stale) Already shipped in `#1192` (TRACK-2: admin traffic kept out of analytics); the 2026-10-17 `#1198`-`#1209` entry listed it as open in error.
+
+`[FU-NOTES-PDF-LINK-TO-READER]` was already recorded CLOSED by `#1184`; no change.
+
+**Owner still owes:** a brand-new Google account for `[FU-ACT2-NEW-ACCOUNT-LIVE]` (and the `#1200` check); acknowledgement for `[FU-LTG-LIGHT-278-OWNER-ACK]`; calls on `[FU-ACT2-INLINE-CARD-SESSION]` and `[FU-ACT2-MATHS-BOARD-POOL]`.
+
 ## 2026-10-17 - #1198 to #1209 FOLLOW-UPS (recorded by the cofounder session of 17 Oct under CLAUDE.md section 10)
 
 *Priority order is the order below. File:line readings are at trunk `a21575df`.*
