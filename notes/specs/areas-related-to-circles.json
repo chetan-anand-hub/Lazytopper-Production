@@ -406,11 +406,11 @@
       "math": "$A = \\pi r^2$"
     },
     {
-      "label": "Length of an arc (angle θ)",
+      "label": "Length of an arc (angle $\\theta$)",
       "math": "$\\ell = \\dfrac{\\theta}{360}\\times 2\\pi r$"
     },
     {
-      "label": "Area of a sector (angle θ)",
+      "label": "Area of a sector (angle $\\theta$)",
       "math": "$\\dfrac{\\theta}{360}\\times \\pi r^2$"
     },
     {

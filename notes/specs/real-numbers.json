@@ -429,11 +429,11 @@
     },
     {
       "label": "HCF",
-      "math": "product of the \\textbf{smallest} power of each \\textbf{common} prime"
+      "math": "product of the <b>smallest</b> power of each <b>common</b> prime"
     },
     {
       "label": "LCM",
-      "math": "product of the \\textbf{greatest} power of \\textbf{every} prime"
+      "math": "product of the <b>greatest</b> power of <b>every</b> prime"
     },
     {
       "label": "HCF × LCM (two numbers)",
