@@ -96,7 +96,9 @@ const MAX_REVIEWED_LABELS = 138; // 14 Oct SCI-BACKLOG-1 batch 4 (F): +2 reviewe
 // re-measured by runtime import on the merged tree: 9728 of 10560 = 0.92121 -> pin 0.9217 -> 0.9212.
 // 17 Oct SCI-BACKLOG-1 batch 4 LANDED on trunk ce4c76a8: 2026-STAT-SA-02 and 2026-PLE-SA-02 serve again under reviewed generic labels (no concept):
 // re-measured by runtime import on the merged tree: 9728 of 10562 = 0.92104 -> pin 0.9212 -> 0.9210.
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9210;
+// 17 Oct GARBLE-1 REWRITE-4 LANDED on trunk 866743a3: PYQ-M-2024-TRIG-014, -QE-001, -QE-005a serve again (two of them carry a concept, 9728 -> 9730):
+// re-measured by runtime import on the merged tree: 9730 of 10565 = 0.92097 -> pin 0.9210 -> 0.9209.
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9209;
 
 const isChapterEchoSubtopic = echoFromShape;
 
