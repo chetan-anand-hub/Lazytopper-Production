@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "light-reflection-and-refraction" (Science): 780 served rows from 22 source arrays, 75 withheld.
+// Chapter "light-reflection-and-refraction" (Science): 772 served rows from 22 source arrays, 83 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -51,11 +51,14 @@ export default defineChapter("light-reflection-and-refraction", [
   [429, LIGHT_CBQ_LT_GENERATED, false],
   [431, LIGHT_CBQ_B1_LT_GENERATED, false],
 ], [
+  "LT-H01",
   "LT-H05",
   "LT2-013",
   "LT2-019",
   "LT2-025",
+  "LT2-043",
   "LIGHT-EXMPLR-9-MCQ-004",
+  "LIGHT-EXMPLR-9-LA-002",
   "SCO-S-LIGHT-002",
   "SCO-S-LIGHT-005",
   "SCO-S-LIGHT-008",
@@ -87,6 +90,7 @@ export default defineChapter("light-reflection-and-refraction", [
   "PYQ-S-2024-LIGHT-001",
   "PYQ-S-2024-LIGHT-002",
   "PYQ-S-2024-LIGHT-003",
+  "FND-L-SPM-026",
   "FND-L-SPM-044",
   "FND-L-QB-078",
   "FND-L-QB-117",
@@ -124,6 +128,10 @@ export default defineChapter("light-reflection-and-refraction", [
   "FND-L-WSF-17",
   "FND-L-WSF-18",
   "GDR-L-EQ-13",
+  "GDR-L-NUM-019",
   "GDR-L-NUM-022",
+  "GDR-L-CBJ-011",
+  "GDR-L-CBJ-018",
   "GDR-L-NUM-095",
+  "LTG-S-LIGHT-278",
 ]);
