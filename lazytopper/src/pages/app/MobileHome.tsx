@@ -20,6 +20,9 @@ import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
+import PendingPapersStrip from "../../components/home/PendingPapersStrip";
+import PendingBell from "../../components/home/PendingBell";
+import { usePendingPapers } from "../../components/home/usePendingPapers";
 import {
   BORDER,
   CARD_BG,
@@ -40,9 +43,9 @@ import {
  * (the route branches `isDesktop ? <DesktopHome/> : <MobileHome/>`).
  *
  * Order (AUTH-2-FU §4 — owner ruling):
- *   brand bar → greeting → phone-linking nudge → hero CAROUSEL + dots → the
- *   MERGED card (first-session OR MI, ONE slot) → resume strip → collapsed
- *   quick links.
+ *   brand bar (+ HOME-PENDING-1 bell) → greeting → [papers-waiting strip → CBSE strip,
+ *   HOME-PENDING-1] → phone-linking nudge → hero CAROUSEL + dots → the MERGED card
+ *   (first-session OR MI, ONE slot) → resume strip. (The collapsed quick links are gone.)
  *
  * ── Card inventory is now genuinely SHARED ────────────────────────────────
  * This page used to hardcode its own titles inline while importing only
@@ -222,29 +225,6 @@ const MOBILE_HOME_CSS = `
   }
   .lt-mhome-bk .lt-t { font-size: 10px; font-weight: 650; margin-top: 2px; opacity: 0.9; }
 
-  .lt-mhome-qd {
-    border: 1px solid ${BORDER}; border-radius: 14px; background: ${CARD_BG};
-    overflow: hidden; max-width: 100%;
-  }
-  .lt-mhome-qd summary {
-    list-style: none; cursor: pointer; padding: 13px 15px; font-size: 13px;
-    font-weight: 700; font-family: ${FONT_DISPLAY};
-    display: flex; align-items: center; gap: 8px; color: ${FG};
-  }
-  .lt-mhome-qd summary::-webkit-details-marker { display: none; }
-  .lt-mhome-qd summary .lt-cnt {
-    font-size: 10.5px; font-weight: 650; color: ${MUTED};
-    font-family: inherit; margin-left: auto;
-  }
-  .lt-mhome-qd[open] summary {
-    border-bottom: 1px solid ${BORDER}; background: hsl(152, 50%, 96%);
-    color: ${GREEN_DARK};
-  }
-  .lt-mhome-qd .lt-inner { padding: 11px; display: grid; gap: 9px; }
-  .lt-mhome-q {
-    display: block; text-decoration: none; color: ${FG}; min-width: 0;
-    border: 1px solid ${BORDER}; border-radius: 12px; padding: 11px;
-  }
 `;
 
 function ArrowRight({ stroke = "#fff" }: { stroke?: string }) {
@@ -534,6 +514,10 @@ export default function MobileHome() {
   const startHere = useStartHere(user?.uid ?? null);
   const { isTrialActive, isPremium, isTrialExpired } = useSubscription();
   const isSignedIn = !!user;
+  // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same memoised read as
+  // the bell in the brand bar).
+  const { papers: pendingPapers } = usePendingPapers(user);
+  const showPending = pendingPapers.length > 0;
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
   useEffect(() => {
@@ -561,39 +545,9 @@ export default function MobileHome() {
     isSignedIn && meaningfulMemory && resumeRoute !== "/" && !!resumeTopicLabel;
   const resumeTo = `${resumeRoute}${resumeRoute.includes("?") ? "&" : "?"}${HOME_QS}`;
 
-  // Target subject/grade for the quick links. Never shown as a claim about the
-  // student — only used to aim the URLs. Maths is the catalogue default.
-  const fallbackSubject: "Maths" | "Science" =
-    memorySubject === "Science" || lastAttempt?.subject === "Science" ? "Science" : "Maths";
+  // The grade the crumb chip names. Never a claim about the student beyond what
+  // landing memory holds; Class 10 is the catalogue default.
   const fallbackGrade = memoryGrade && memoryGrade.trim() ? memoryGrade : "10";
-
-  const quickLinks = [
-    {
-      to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Maths?${HOME_QS}`,
-      kicker: "Full test",
-      title: "Maths · 80 marks",
-      detail: "3-hour board paper",
-    },
-    {
-      to: `/full-mock/${encodeURIComponent(fallbackGrade)}/Science?${HOME_QS}`,
-      kicker: "Full test",
-      title: "Science · 80 marks",
-      detail: "Phy + Chem + Bio",
-    },
-    {
-      to: `/exam-trends?subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
-      kicker: "Predicted",
-      title: "What's likely in 2027",
-      detail: "Tier-ranked breakdown",
-    },
-    {
-      // Worksheets stay reachable here after the hero card retired.
-      to: `/practice/worksheets?scope=multi-topic&subject=${encodeURIComponent(fallbackSubject)}&${HOME_QS}`,
-      kicker: "Worksheet",
-      title: "Multi-topic worksheet",
-      detail: "Pick topics in builder",
-    },
-  ];
 
   // Header trial/affordance chip — honest states only (no fake day counts).
   // RETIREMENT PR-1: post-login target re-pointed off the retired /onboarding to "/".
@@ -684,6 +638,9 @@ export default function MobileHome() {
             when signed out, so the signed-out bar is unchanged. */}
         <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
           {trialChip}
+          {/* HOME-PENDING-1 — the bell (badge + popover), signed-in only on this bar: a
+              signed-out visitor has nothing it could list. */}
+          {isSignedIn ? <PendingBell user={user} /> : null}
           <MobileAccountMenu />
         </div>
       </header>
@@ -693,7 +650,9 @@ export default function MobileHome() {
         {/* CBSE news strip (CBSE-AUTO-1 C12). Renders null unless the mirror's
             manifest flags a recent circular important and it is not dismissed;
             `spaced` is its own margin, so a null leaves the layout unchanged. */}
-        <CbseBanner spaced />
+        {/* HOME-PENDING-1: while the papers-waiting strip shows, the CBSE strip moves under it
+            (the strip renders first; see below). */}
+        {showPending ? null : <CbseBanner spaced />}
 
         {/* Greeting */}
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: 23, fontWeight: 600, lineHeight: 1.05, color: FG, margin: 0 }}>
@@ -717,7 +676,18 @@ export default function MobileHome() {
             wrapper div: an always-rendered wrapper would push everything below
             it down by 13px even in the (usual) case where the nudge renders
             null. */}
-        <LinkPhoneNudge spaced />
+        {/* HOME-PENDING-1 (owner ruling 17 Oct 2026) — the ACTION STRIP: under the greeting,
+            above the heroes, only when a paper waits; the CBSE strip follows it. Never more
+            than these two stacked, so the one-time phone nudge waits for a visit without the
+            strip (it renders nothing, so it is not spent). */}
+        {showPending ? (
+          <>
+            <PendingPapersStrip papers={pendingPapers} spaced />
+            <CbseBanner spaced />
+          </>
+        ) : (
+          <LinkPhoneNudge spaced />
+        )}
 
         <StartHereView surface="home" returnTo="/browse" state={startHere} spaced />
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
@@ -871,54 +841,10 @@ export default function MobileHome() {
         )}
 
 
-        {/* ── Quick links — collapsed on mobile ───────────────────
-            No section label here: the <summary> IS the label, and rendering
-            both stutters "Jump straight in" twice on the page. */}
-        <div style={{ height: 18 }} />
-        <details className="lt-mhome-qd">
-          <summary>
-            Jump straight in
-            <span className="lt-cnt">{quickLinks.length} shortcuts</span>
-          </summary>
-          <div className="lt-inner">
-            {quickLinks.map((q) => (
-              <Link
-                key={q.title}
-                to={q.to}
-                className="lt-mhome-q"
-                data-testid="mobile-home-quick-link"
-              >
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: 8.5,
-                    fontWeight: 800,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: MUTED,
-                  }}
-                >
-                  {q.kicker}
-                </span>
-                <span
-                  style={{
-                    display: "block",
-                    fontFamily: FONT_DISPLAY,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    marginTop: 2,
-                    color: FG,
-                  }}
-                >
-                  {q.title}
-                </span>
-                <span style={{ display: "block", fontSize: 10.5, color: MUTED, marginTop: 1 }}>
-                  {q.detail}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </details>
+        {/* HOME-PENDING-1 — the collapsed "Jump straight in" shortcuts used to sit here (owner
+            ruling 17 Oct 2026: removed on mobile AND desktop). Full Mock and the worksheet
+            builder stay reachable from the Practice tab (its "Full Test" and "Worksheet"
+            cards); the papers waiting for answers are the strip under the greeting. */}
 
         {/* Check & Improve stays one tap away for the signed-out visitor who
             wants to see grading before committing to anything. */}
