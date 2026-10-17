@@ -256,10 +256,12 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq01 Q88", isCompetencyBased: false },
   // cbjesccq01 Q89 (Section C, 3mk)
+  // CHEM-033 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc101 section 1.1 (observations that show a chemical reaction: change in state, colour, evolution of a gas, change in temperature); part (a) corrected: the stored AgCl example is a precipitate, not a change of state; parts (b) and (c) kept (NCERT's own gas and heat examples are Zn + acid and CaO + H2O, the stored CaCO3 + HCl and CH4 combustion are standard)
   { id: "SCQ-S-CHEM-033", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "State one example each characterised by following along with suitable chemical equation. a. Change in state, b. Evolution of gas, c. Change in temperature.",
-    answer: "a. Change in state: AgNO3(aq) + HCl(aq) → AgCl(s) + HNO3(aq) b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g) c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + Heat",
-    solutionSteps: ["[3 marks] a. Change in state: AgNO3(aq) + HCl(aq) → AgCl(s) + HNO3(aq) b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g) c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + Heat"],
+    answer: "a. Change in state: 2H2(g) + O2(g) → 2H2O(l) (hydrogen burns in oxygen; the gases form liquid water). b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g). c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + heat.",
+    solutionSteps: ["[1 mark] a. Change in state: 2H2(g) + O2(g) → 2H2O(l); the gaseous reactants change into liquid water.","[1 mark] b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g); carbon dioxide gas is given off with brisk bubbling.","[1 mark] c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + heat; the reaction releases heat, so the temperature rises."],
+    finalAnswer: "a. 2H2(g) + O2(g) → 2H2O(l); b. CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g); c. CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + heat.",
     ncertRef: "cbjesccq01 Q89", isCompetencyBased: false },
   // cbjesccq01 Q90 (Section C, 3mk)
   { id: "SCQ-S-CHEM-034", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",

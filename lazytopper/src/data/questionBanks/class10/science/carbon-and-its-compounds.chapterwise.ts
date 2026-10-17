@@ -245,10 +245,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "Homologous series = same functional group on carbon chains, successive members differing by –CH2–; second alkene is propene, CH3–CH=CH2 (C3H6).",
     ncertRef: "cbjesccq04 Q77", isCompetencyBased: false },
   // cbjesccq04 Q99 (Section C, 3mk)
+  // CARB-032 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 sections 4.3 and 4.3.1: heating ethanol at 443 K with excess concentrated sulphuric acid dehydrates it to ethene, the acid acting as a dehydrating agent; ethanol reacts with sodium to give sodium ethoxide and hydrogen. The stored key was an extraction-garbled equation and is rebuilt from the same content
   { id: "SCQ-S-CARB-032", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
-    questionText: "A compound X on heating with excess of cone. H2SO4 at 443 K gives an unsaturated compound Y. X also reacts with sodium metal to evolve a colourless gas Z. Identify X, Y and Z. Write the equations of the chemical reaction of formation of Y and also write the role of conc. sulphuric acid in the reaction.",
-    answer: "X is CH3CH2OH, Ethanol Y is Ethene, Z is H2. C H OH CH CH H O K Conc H SO 2 5 443 2 2 2 2 4 = + $ X Y Ethanol Sodium ethoxide CH CH OH Na CH CH ONa H 2 2 2 Z 3 2 3 2 2 $ + + Cone. H2SO4 acts as dehydrating agent.",
-    solutionSteps: ["X is CH3CH2OH, Ethanol Y is Ethene, Z is H2. C H OH CH CH H O K Conc H SO 2 5 443 2 2 2 2 4 = + $ X Y Ethanol Sodium ethoxide CH CH OH Na CH CH ONa H 2 2 2 Z 3 2 3 2 2 $ + + Cone. H2SO4 acts as dehydrating agent."],
+    questionText: "A compound X on heating with excess of conc. H2SO4 at 443 K gives an unsaturated compound Y. X also reacts with sodium metal to evolve a colourless gas Z. Identify X, Y and Z. Write the equations of the chemical reaction of formation of Y and also write the role of conc. sulphuric acid in the reaction.",
+    answer: "X is ethanol, CH3CH2OH; Y is ethene, CH2=CH2; Z is hydrogen, H2 (2CH3CH2OH + 2Na → 2CH3CH2ONa + H2). Formation of Y: CH3CH2OH → CH2=CH2 + H2O (hot conc. H2SO4, 443 K). Conc. H2SO4 acts as a dehydrating agent.",
+    solutionSteps: ["[1 mark] X is ethanol, CH3CH2OH; Y is ethene, CH2=CH2; Z is hydrogen gas, H2 given off when ethanol reacts with sodium: 2CH3CH2OH + 2Na → 2CH3CH2ONa + H2.","[1 mark] Formation of Y: CH3CH2OH → CH2=CH2 + H2O on heating with excess conc. H2SO4 at 443 K.","[1 mark] Role of conc. H2SO4: it acts as a dehydrating agent, removing water from ethanol."],
+    finalAnswer: "X = ethanol, Y = ethene, Z = hydrogen; CH3CH2OH → CH2=CH2 + H2O (conc. H2SO4, 443 K); conc. H2SO4 is a dehydrating agent.",
     ncertRef: "cbjesccq04 Q99", isCompetencyBased: false },
   // cbjesccq04 Q100 (Section C, 3mk)
   { id: "SCQ-S-CARB-033", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -257,10 +259,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["a. It is because covalent compounds do not form ions, therefore, do not conduct electricity. b. It has 18 single bonds."],
     ncertRef: "cbjesccq04 Q100", isCompetencyBased: true },
   // cbjesccq04 Q101 (Section C, 3mk)
+  // CARB-034 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 sections 4.2.2-4.2.5 (structural isomers; aldehyde -CHO and ketone -CO- groups; Table 4.4 propanal and propanone; electron dot structures of covalent compounds); the stored key was only the running header 'Chap 4 : Carbon and Its Compounds'. Same isomer pair as SCQ-S-CARB-026
   { id: "SCQ-S-CARB-034", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Draw the structural formula of all the possible isomers of the compound with the molecular formula C3H6O and also give electron dot structures.",
-    answer: "Chap 4 : Carbon and Its Compounds",
-    solutionSteps: ["Chap 4 : Carbon and Its Compounds"],
+    answer: "C3H6O has two isomers at this level: propanal, CH3–CH2–CHO (an aldehyde), and propanone, CH3–CO–CH3 (a ketone). In the electron dot structure of each, every carbon shares four pairs of electrons, each hydrogen shares one pair, and oxygen shares two pairs with carbon (a C=O double bond) and keeps two lone pairs.",
+    solutionSteps: ["[1 mark] Structural formulae: propanal, CH3–CH2–CHO (H3C–CH2–C(=O)–H, aldehyde), and propanone, CH3–CO–CH3 (H3C–C(=O)–CH3, ketone); both have the formula C3H6O but different structures, so they are structural isomers.","[1 mark] Electron dot structure of propanal: the C–C and C–H bonds are single shared pairs; the carbonyl carbon shares two pairs with oxygen (C=O) and one pair with hydrogen; oxygen also has two lone pairs.","[1 mark] Electron dot structure of propanone: the two CH3 groups are joined to the central carbon by single shared pairs, the central carbon shares two pairs with oxygen (C=O), and oxygen has two lone pairs."],
+    finalAnswer: "Propanal, CH3CH2CHO, and propanone, CH3COCH3, with the C=O group drawn as two shared pairs and two lone pairs on oxygen.",
     ncertRef: "cbjesccq04 Q101", isCompetencyBased: false },
   // cbjesccq04 Q102 (Section C, 3mk)
   { id: "SCQ-S-CARB-035", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
@@ -269,10 +273,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["These are functional isomers."],
     ncertRef: "cbjesccq04 Q102", isCompetencyBased: false },
   // cbjesccq04 Q103 (Section C, 3mk)
+  // CARB-036 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 section 4.3.3 (addition reaction: unsaturated hydrocarbons add hydrogen in the presence of catalysts such as palladium or nickel to give saturated hydrocarbons). STEM FIX: the stored 'C4H3' is an impossible formula (the stored key says X has a double bond, and C5H12 is the saturated alkane); restored to C4H8, the alkene formula, as in the CBSE question. This stem restoration is INFERRED, not read from a printed paper (no allowed source reachable): flagged for the cofounder
   { id: "SCQ-S-CARB-036", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "The carbon compounds X and Y have the molecular formula C4H3 and C5H12 respectively. Which one of these is most likely to show addition reaction? Justify your answer. Also give chemical equations to explain the process of addition reaction in this case.",
-    answer: "C4H3 will undergo addition reaction. It is because it has double bond while C5H12 is a saturated hydrocarbon which cannot undergo addition reaction.",
-    solutionSteps: ["C4H3 will undergo addition reaction. It is because it has double bond while C5H12 is a saturated hydrocarbon which cannot undergo addition reaction."],
+    questionText: "The carbon compounds X and Y have the molecular formula C4H8 and C5H12 respectively. Which one of these is most likely to show addition reaction? Justify your answer. Also give chemical equations to explain the process of addition reaction in this case.",
+    answer: "C4H8 (X) will undergo addition reaction because it is an unsaturated hydrocarbon with a double bond, while C5H12 (Y) is a saturated hydrocarbon that cannot undergo addition reaction. Addition of hydrogen: CH3CH2CH=CH2 + H2 → CH3CH2CH2CH3 (in the presence of nickel or palladium catalyst).",
+    solutionSteps: ["[1 mark] C4H8 (X) is the compound most likely to show addition reaction.","[1 mark] Justification: C4H8 is an unsaturated hydrocarbon with a double bond, whereas C5H12 is a saturated hydrocarbon (CnH2n+2) with only single bonds and so cannot undergo addition reaction.","[1 mark] Equation (hydrogenation): CH3CH2CH=CH2 + H2 → CH3CH2CH2CH3 in the presence of nickel or palladium as catalyst."],
+    finalAnswer: "C4H8 shows addition (it has a double bond; C5H12 is saturated): CH3CH2CH=CH2 + H2 → CH3CH2CH2CH3 (Ni or Pd catalyst).",
     ncertRef: "cbjesccq04 Q103", isCompetencyBased: true },
   // cbjesccq04 Q106 (Section C, 3mk)
   { id: "SCQ-S-CARB-037", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
