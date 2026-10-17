@@ -10,6 +10,7 @@ import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyRem
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
+import { NEW_ACCOUNT_LANDING_PATH, isDefaultHomeTarget, takeNewAccountLanding } from "../services/newAccountLanding";
 
 type LocationState = { from?: string };
 
@@ -1662,7 +1663,17 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         trackNamedEvent("trial_start");
       }
     }
-    navigate(nextPath, { replace: true });
+    // ACTIVATION-2 C — a NEW account (the sign_up signal, marked in AuthContext) whose target is
+    // only the default Home (no target, or `?redirect=` / `state.from` of "/" or "/browse", which
+    // Welcome / DesktopShell / the mobile header pass as a default) lands on Check & Improve. Any
+    // other target still wins; a returning login is unchanged. The mark is taken (cleared) on
+    // every exit, so it never outlives this sign-in.
+    const isNewAccount = takeNewAccountLanding();
+    const explicitTarget = searchParams.has("redirect")
+      ? searchParams.get("redirect")
+      : (((location.state || {}) as LocationState).from ?? null);
+    const goesHomeByDefault = isDefaultHomeTarget(explicitTarget);
+    navigate(isNewAccount && goesHomeByDefault ? NEW_ACCOUNT_LANDING_PATH : nextPath, { replace: true });
     // `subscription` is read when the effect runs; `awaitingTrialHydration` flipping
     // is what re-runs it once this uid's record has hydrated.
     // eslint-disable-next-line react-hooks/exhaustive-deps

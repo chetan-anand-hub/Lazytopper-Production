@@ -125,7 +125,9 @@ check(
 );
 check(
   "HUNK A: the direct-visit mobile path STILL renders MobileShell (chrome suppression is overlay-only)",
-  /<MobileShell title="Check & Improve" subtitle=\{subtitle\} showNav>/.test(page),
+  // ACTIVATION-2 B adds a `rightSlot` (the signed-out Sign up) after showNav; the pin is still the
+  // same MobileShell on the direct-visit mobile path.
+  /<MobileShell title="Check & Improve" subtitle=\{subtitle\} showNav(?:>| rightSlot=\{ciMobileSignUp\(\)\}>)/.test(page),
 );
 
 // HUNK B — the pinned ✕ closes via the payload-aware overlayReturn (keyed off scorecardOpen).

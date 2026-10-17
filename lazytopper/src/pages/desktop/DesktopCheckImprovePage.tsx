@@ -28,6 +28,7 @@ import { recordableInterruptedRows, recordedIndicesOf } from "../../ai/gradingJo
 import GradingJobRows from "../../components/grading/GradingJobRows";
 import { isGradingJobGone, useGradingJob } from "../../components/grading/useGradingJob";
 import MobileShell from "../../components/mobile/MobileShell";
+import MobileSignUpButton from "../../components/mobile/MobileSignUpButton";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
@@ -991,6 +992,14 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Mobile: this page carries the shared MobileShell header (the app-wide account
   // avatar-dropdown), REUSED and never forked. Back is left to the in-page
   // PageHeader, which already has it, so a student never meets two back controls.
+  const ciMobileSignUp = () => (
+    <MobileSignUpButton
+      onBeforeNavigate={() => {
+        pendingDraftSave.current?.();
+        if (isFreeMode) markFreeCheckSigninIntent();
+      }}
+    />
+  );
   const withChrome = (body: React.ReactNode, subtitle: string) =>
     overlay ? (
       // OVERLAY MODE (build v1.1): the tutor host owns the sheet frame, so render the page
@@ -1019,7 +1028,10 @@ const DesktopCheckImprovePageInner: React.FC<{
     ) : isDesktop ? (
       <>{body}</>
     ) : (
-      <MobileShell title="Check & Improve" subtitle={subtitle} showNav>
+      // ACTIVATION-2 B — rightSlot: a signed-out visitor's compact "Sign up" (nothing when signed
+      // in). The in-progress draft is flushed on the way out, and the free check's sign-in marker
+      // is set exactly as its own sign-in links set it (OR-18).
+      <MobileShell title="Check & Improve" subtitle={subtitle} showNav rightSlot={ciMobileSignUp()}>
         {body}
       </MobileShell>
     );
@@ -1036,6 +1048,17 @@ const DesktopCheckImprovePageInner: React.FC<{
   const [qImageMime, setQImageMime] = useState<string>("image/jpeg");
   const [qImageName, setQImageName] = useState<string>("");
   const qFileInputRef = useRef<HTMLInputElement>(null);
+  /** ACTIVATION-2 A — the question card, so Start here's "Check one answer" can bring it in. */
+  const questionCardRef = useRef<HTMLElement | null>(null);
+
+  // ── ACTIVATION-2 D — "Try a board question" (a REAL bank question; nothing spent on fill) ──
+  const [boardSource, setBoardSource] = useState<{ id: string; text: string; label: string } | null>(null);
+  const [boardBusy, setBoardBusy] = useState(false);
+  const [boardError, setBoardError] = useState<string | null>(null);
+  /** Taps so far: even → Science, odd → Maths (alternating, never Math.random). */
+  const boardTurnRef = useRef(0);
+  /** Ids already offered on this page, so the next tap brings a different question. */
+  const boardSeenRef = useRef<Set<string>>(new Set());
 
   // Answer input (unchanged).
   const [tab, setTab] = useState<AnswerTab>("upload");
@@ -1354,6 +1377,9 @@ const DesktopCheckImprovePageInner: React.FC<{
   // = untouched, so it falls back to the first-run default (open when no papers yet);
   // once the student toggles, their choice sticks.
   const [howItWorksOpen, setHowItWorksOpen] = useState<boolean | null>(null);
+  // ACTIVATION-2 E — on a phone it starts collapsed (the question box comes first); desktop keeps
+  // the first-run default above (open when no papers yet).
+  const howItWorksDefaultOpen = isDesktop && ciRecords.length === 0;
   const [reopen, setReopen] = useState<SessionRecord | null>(null);
   // ABSORBED FROM THE RETIRED TWIN — and the reason matters. The two twins had
   // DRIFTED here, and the mobile one was AHEAD: it lazily loaded a re-opened paper's
@@ -1556,6 +1582,53 @@ const DesktopCheckImprovePageInner: React.FC<{
     setCiSaved(false);
     setScorecardOpen(false);
   }
+
+  // ACTIVATION-2 D — fill ONE real board question (Science / Maths alternating). The bank is
+  // reached here, on the tap, through import(). Fills the box only: the student still reads,
+  // answers and grades, so no check is used by the fill itself.
+  async function tryBoardQuestion() {
+    if (boardBusy) return;
+    setBoardBusy(true);
+    setBoardError(null);
+    const subject = boardTurnRef.current % 2 === 0 ? "Science" : "Maths";
+    boardTurnRef.current += 1;
+    try {
+      const { pickBoardTryQuestion } = await import("../../components/checkimprove/boardQuestionPick");
+      // The rotation only varies the pick between visits; an elapsed (monotonic) reading is enough.
+      const rotation = Math.floor(performance.now());
+      const q = await pickBoardTryQuestion({ subject, exclude: boardSeenRef.current, rotation });
+      if (!q) {
+        setBoardError("We couldn't load a board question just now. Type or upload your own question.");
+        return;
+      }
+      boardSeenRef.current.add(q.id);
+      setQuestionTab("type");
+      clearDetection();
+      setQuestion(q.text);
+      setBoardSource({ id: q.id, text: q.text, label: q.label });
+    } catch {
+      setBoardError("We couldn't load a board question just now. Type or upload your own question.");
+    } finally {
+      setBoardBusy(false);
+    }
+  }
+
+  // ACTIVATION-2 A — Start here's "Check one answer": focus the question box SYNCHRONOUSLY, inside
+  // the tap (iOS raises the keyboard only for a focus made in the user gesture; the takeover has
+  // released its focus trap and will not restore focus over the box), then smooth-scroll the card
+  // in once the takeover's scroll lock is gone. If the box is not mounted yet (upload tab), it is
+  // focused on the next tick instead.
+  const focusQuestionBox = useCallback(() => {
+    const box = () =>
+      questionCardRef.current?.querySelector<HTMLTextAreaElement>('textarea[aria-label="Type the question"]') ?? null;
+    const now = box();
+    now?.focus({ preventScroll: true });
+    setQuestionTab("type");
+    window.setTimeout(() => {
+      questionCardRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      if (!now) box()?.focus({ preventScroll: true });
+    }, 0);
+  }, []);
 
   // Read the question ALONE (one deliberate, cheap call) → show the detected chip.
   async function handleReadQuestion() {
@@ -2556,6 +2629,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             returnTo="/check-improve"
             focus
             inProgress={ciInProgress}
+            checkOneAnswer={focusQuestionBox}
           />
         )}
         {/* No lede here — deleted at both widths (owner-decided). Every clause it
@@ -2624,7 +2698,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             rotated 90° when open. No new token, no native triangle: the accent green
             is the CTA weight, so an explainer gets the TINT, never the full accent. */}
         <details
-          open={howItWorksOpen ?? ciRecords.length === 0}
+          open={howItWorksOpen ?? howItWorksDefaultOpen}
           onToggle={(e) => setHowItWorksOpen(e.currentTarget.open)}
           style={{
             ...cardStyle,
@@ -2655,7 +2729,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                 display: "inline-flex",
                 color: ACCENT_FG,
                 transition: "transform 0.15s ease",
-                transform: (howItWorksOpen ?? ciRecords.length === 0) ? "rotate(90deg)" : "rotate(0deg)",
+                transform: (howItWorksOpen ?? howItWorksDefaultOpen) ? "rotate(90deg)" : "rotate(0deg)",
               }}
             >
               <ChevronRightGlyph size={15} />
@@ -2698,6 +2772,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         >
           {/* 1 · THE QUESTION — always first in the DOM */}
           <section
+            ref={questionCardRef}
             onPaste={(e) => handleCardPaste(e, "question")}
             style={{
               ...cardStyle,
@@ -2741,7 +2816,12 @@ const DesktopCheckImprovePageInner: React.FC<{
                 // drop its stale detection chip, exactly as before.
                 <EquationInput
                   value={question}
-                  onChange={(v) => { setQuestion(v); clearDetection(); }}
+                  onChange={(v) => {
+                    setQuestion(v);
+                    clearDetection();
+                    // ACTIVATION-2 D: edited → no longer the board's words, so the source line goes.
+                    if (boardSource && v !== boardSource.text) setBoardSource(null);
+                  }}
                   placeholder="e.g. Find the 10th term of the AP 3, 7, 11, … [3]"
                   rows={3}
                   autoGrow
@@ -2827,6 +2907,37 @@ const DesktopCheckImprovePageInner: React.FC<{
                     />
                   )}
                 </div>
+              )}
+
+              {/* ACTIVATION-2 D — "Try a board question": ONE real CBSE board question from the
+                  canonical bank (components/checkimprove/boardQuestionPick.ts, loaded with
+                  import() so this page stays bank-free), filled as plain text with its honest
+                  source line. Nothing is read, graded or spent until the student does it. */}
+              {questionTab === "type" && !overlay && (
+                <>
+                  {!question.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => void tryBoardQuestion()}
+                      disabled={boardBusy}
+                      style={{
+                        ...buttonOutline,
+                        alignSelf: "flex-start",
+                        opacity: boardBusy ? 0.55 : 1,
+                        // a 44px tap target on a phone (desktop keeps the outline button's size)
+                        ...(isDesktop ? null : { minHeight: 44 }),
+                      }}
+                    >
+                      {boardBusy ? "Getting a board question…" : "Try a board question"}
+                    </button>
+                  )}
+                  {boardSource && question === boardSource.text && (
+                    <div data-testid="ci-board-source" style={{ fontSize: 12, color: TEXT_MUTED }}>
+                      {boardSource.label}
+                    </div>
+                  )}
+                  {boardError && <div style={{ fontSize: 12.5, color: TEXT_MUTED }}>{boardError}</div>}
+                </>
               )}
 
               <button

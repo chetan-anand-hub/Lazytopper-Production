@@ -34,6 +34,7 @@ import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured, getPopupRedirectResolver } from "../services/firebaseClient";
 import { restoreFromDB } from "../services/dbSyncService";
 import { trackSignUp, trackSignUpIfNew } from "../analytics/analytics";
+import { markNewAccountLanding, markNewAccountLandingIfNew } from "../services/newAccountLanding";
 import { sendVisitSourceIfNewUser, sendVisitSourceOnSignUp } from "../analytics/visitSource";
 import { startTrialForNewAccount, startTrialIfNewAccount } from "../services/newAccountTrial";
 import { startOutboxSync } from "../services/sessionRecordsOutbox";
@@ -360,6 +361,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // TRIAL-ON-SIGNUP-1 — a NEW account's 7-day trial starts here, once (same isNewUser
     // gate, inside the helper). Synchronous and before any await: see newAccountTrial.ts.
     startTrialIfNewAccount(credential);
+    // ACTIVATION-2 C — a NEW account with no explicit redirect lands on Check & Improve.
+    markNewAccountLandingIfNew(credential);
   }, []);
 
   const signInWithEmailPassword = useCallback(async (email: string, password: string) => {
@@ -378,6 +381,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // TRIAL-ON-SIGNUP-1 — this call created the account, so the trial starts here, once,
       // BEFORE the updateProfile await below (ordering matters — see newAccountTrial.ts).
       startTrialForNewAccount(credential?.user?.uid);
+      markNewAccountLanding(); // ACTIVATION-2 C — this call created the account
       const trimmedName = (displayName || "").trim();
       if (trimmedName && credential.user) {
         try {
@@ -501,6 +505,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // TRIAL-ON-SIGNUP-1 — a NEW phone account's trial starts here, once. ⚠ Not on the
     // link path below (confirmLinkPhoneOtp): linking is not a sign-up.
     startTrialIfNewAccount(credential);
+    markNewAccountLandingIfNew(credential); // ACTIVATION-2 C — not on the link path either
 
     // ── THE NAME ────────────────────────────────────────────────────────────
     // `mapFirebaseUser` only ever READS `displayName`. Google supplies one and
