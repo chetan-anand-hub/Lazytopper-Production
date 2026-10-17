@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { render, cleanup, screen, within } from "@testing-library/react";
+import { render, cleanup, screen, within, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 /**
@@ -28,6 +28,7 @@ vi.mock("../../components/auth/RequireAuth", () => ({
 
 import DesktopTopicHubPage from "./DesktopTopicHubPage";
 import WorksheetGenerator from "../../components/worksheet/WorksheetGenerator";
+import { getTopics } from "../../components/worksheet/worksheetModel";
 import { allDesktopTopics } from "../../lib/desktop/topics";
 import { buildDesktopWorksheetPath } from "../../lib/desktop/navigation";
 import { __resetBankChaptersForTest } from "../../data/bankChapters/loader";
@@ -111,6 +112,40 @@ describe("Topic Hub Worksheet -> generator pre-set to the chapter (all topics)",
     }
     expect(rejected).toEqual([]);
   }, 120000);
+
+  // Not only "no redirect": the generator's topic SELECTION (selectedTopics, seeded from the URL at
+  // WorksheetGenerator.tsx:274-276) is exactly this chapter — the hero names it and, in Customise,
+  // the one pressed topic chip is it (no "All topics", no other chapter).
+  for (const [subject, slug] of [
+    ["Maths", "trigonometry"],
+    ["Science", "electricity"],
+  ] as const) {
+    it(`${subject}/${slug}: the generator opens with exactly that chapter selected`, async () => {
+      const t = TOPICS.find((x) => x.slug === slug)!;
+      expect(t.subject).toBe(subject);
+      const label = getTopics(subject, subject === "Science" ? t.stream : "All").find((w) => w.key === slug)!.label;
+      const href = hubWorksheetHref(subject, slug);
+      render(
+        <MemoryRouter initialEntries={[href]}>
+          <Routes>
+            <Route path="/practice/worksheets" element={<WorksheetGenerator />} />
+            <Route path="/practice-hub" element={<div data-testid="redirected-to-hub" />} />
+          </Routes>
+        </MemoryRouter>,
+      );
+      expect(screen.queryByTestId("redirected-to-hub")).toBeNull();
+      await waitFor(() => expect(screen.queryByText("Loading questions…")).toBeNull(), { timeout: 60000 });
+      expect(document.querySelector(".lt-ws__heroh")?.textContent ?? "").toContain(label);
+
+      fireEvent.click(screen.getAllByRole("button", { name: "Customise" })[0]);
+      const allChip = document.querySelector<HTMLButtonElement>(".lt-ws__chip--all");
+      expect(allChip).toHaveAttribute("aria-pressed", "false");
+      const pressed = [...document.querySelectorAll<HTMLButtonElement>(".lt-ws__chip:not(.lt-ws__chip--all)")]
+        .filter((b) => b.getAttribute("aria-pressed") === "true")
+        .map((b) => b.textContent);
+      expect(pressed).toEqual([label]);
+    }, 120000);
+  }
 
   it("CONTROL: an unknown topic key IS redirected to the hub (the check above can fail)", () => {
     expect(
