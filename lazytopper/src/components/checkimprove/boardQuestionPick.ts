@@ -55,6 +55,8 @@ const HAS_CHOICE = /\bOR\b|attempt either/i;
 const MARK_BLEED = /[.:?]\s*[1-5]\s+(?:\(|[A-Z])/;
 /** Every solution step carries its "[N mark]" prefix — the step-marked (repaired) rows. */
 const STEP_MARK = /^\[\d+(?:\.\d+)? marks?\]/;
+/** U+FFFD, the decoder's "unreadable byte" mark (built from its code so no source byte is one). */
+const REPLACEMENT_CHAR = String.fromCharCode(0xfffd);
 
 /**
  * True for a written (non-MCQ) Section B/C board question of 2-3 marks that a student can read
@@ -73,7 +75,7 @@ export function isBoardTryRow(row: BoardTryRow): boolean {
   if (Array.isArray(row.options) && row.options.length > 0) return false;
   if (row.requiresDiagram || row.image || row.imageUrl || row.diagram || row.figure) return false;
   const text = String(row.questionText ?? "").trim();
-  if (text.length < 20 || text.length > 400 || text.includes("�")) return false;
+  if (text.length < 20 || text.length > 400 || text.includes(REPLACEMENT_CHAR)) return false;
   if (NEEDS_VISUAL.test(text) || HAS_CHOICE.test(text) || MARK_BLEED.test(text)) return false;
   const steps = Array.isArray(row.solutionSteps) ? row.solutionSteps.map((s) => String(s ?? "")) : [];
   return steps.length > 0 && steps.every((s) => STEP_MARK.test(s.trim()));

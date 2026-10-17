@@ -992,6 +992,14 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Mobile: this page carries the shared MobileShell header (the app-wide account
   // avatar-dropdown), REUSED and never forked. Back is left to the in-page
   // PageHeader, which already has it, so a student never meets two back controls.
+  const ciMobileSignUp = () => (
+    <MobileSignUpButton
+      onBeforeNavigate={() => {
+        pendingDraftSave.current?.();
+        if (isFreeMode) markFreeCheckSigninIntent();
+      }}
+    />
+  );
   const withChrome = (body: React.ReactNode, subtitle: string) =>
     overlay ? (
       // OVERLAY MODE (build v1.1): the tutor host owns the sheet frame, so render the page
@@ -1020,22 +1028,10 @@ const DesktopCheckImprovePageInner: React.FC<{
     ) : isDesktop ? (
       <>{body}</>
     ) : (
-      <MobileShell
-        title="Check & Improve"
-        subtitle={subtitle}
-        showNav
-        // ACTIVATION-2 B — a signed-out visitor's compact "Sign up" (nothing when signed in). The
-        // in-progress draft is flushed on the way out, and the free check's sign-in marker is
-        // set exactly as its own sign-in links set it (OR-18).
-        rightSlot={
-          <MobileSignUpButton
-            onBeforeNavigate={() => {
-              pendingDraftSave.current?.();
-              if (isFreeMode) markFreeCheckSigninIntent();
-            }}
-          />
-        }
-      >
+      // ACTIVATION-2 B — rightSlot: a signed-out visitor's compact "Sign up" (nothing when signed
+      // in). The in-progress draft is flushed on the way out, and the free check's sign-in marker
+      // is set exactly as its own sign-in links set it (OR-18).
+      <MobileShell title="Check & Improve" subtitle={subtitle} showNav rightSlot={ciMobileSignUp()}>
         {body}
       </MobileShell>
     );
