@@ -1,0 +1,386 @@
+{
+ "landing": {
+  "A": {
+   "lcp": 1422,
+   "fcp": 1398,
+   "tbt": 337,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 2570,
+   "fcp": 2048,
+   "tbt": 354,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 1520,
+   "fcp": 1298,
+   "tbt": 337,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 751,
+   "fcp": 618,
+   "tbt": 10,
+   "cls": 0.000004
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ },
+ "practicehub": {
+  "A": {
+   "lcp": 1774,
+   "fcp": 1774,
+   "tbt": 506,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 2986,
+   "fcp": 2986,
+   "tbt": 323,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 1936,
+   "fcp": 1936,
+   "tbt": 520,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 311,
+   "fcp": 288,
+   "tbt": 0,
+   "cls": 0.000577
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ },
+ "trends": {
+  "A": {
+   "lcp": 1819,
+   "fcp": 1747,
+   "tbt": 534,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 4247,
+   "fcp": 3947,
+   "tbt": 464,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 3197,
+   "fcp": 3047,
+   "tbt": 355,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 2465,
+   "fcp": 2425,
+   "tbt": 0,
+   "cls": 0.000577
+  },
+  "Bold": {
+   "lcp": 11447,
+   "fcp": 10847,
+   "tbt": 577,
+   "cls": 0
+  }
+ },
+ "topichub": {
+  "A": {
+   "lcp": 2492,
+   "fcp": 2492,
+   "tbt": 262,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 4261,
+   "fcp": 4261,
+   "tbt": 62,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 3361,
+   "fcp": 3211,
+   "tbt": 150,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 1198,
+   "fcp": 1198,
+   "tbt": 0,
+   "cls": 0.000577
+  },
+  "Bold": {
+   "lcp": 11761,
+   "fcp": 11161,
+   "tbt": 127,
+   "cls": 0
+  }
+ },
+ "notesTrig": {
+  "A": {
+   "lcp": 2438,
+   "fcp": 2141,
+   "tbt": 1275,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 5836,
+   "fcp": 4908,
+   "tbt": 620,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 4486,
+   "fcp": 3858,
+   "tbt": 626,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 605,
+   "fcp": 582,
+   "tbt": 112,
+   "cls": 0.008472
+  },
+  "Bold": {
+   "lcp": 16036,
+   "fcp": 13308,
+   "tbt": 0,
+   "cls": 0
+  }
+ },
+ "notesStat": {
+  "A": {
+   "lcp": 2370,
+   "fcp": 2027,
+   "tbt": 1209,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 3793,
+   "fcp": 3004,
+   "tbt": 1010,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 2593,
+   "fcp": 2104,
+   "tbt": 1010,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 585,
+   "fcp": 554,
+   "tbt": 145,
+   "cls": 0.005218
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ },
+ "notesElec": {
+  "A": {
+   "lcp": 2234,
+   "fcp": 1948,
+   "tbt": 1100,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 3432,
+   "fcp": 2733,
+   "tbt": 1095,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 2241,
+   "fcp": 1828,
+   "tbt": 1100,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 631,
+   "fcp": 612,
+   "tbt": 41,
+   "cls": 0.006846
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ },
+ "cya": {
+  "A": {
+   "lcp": 1979,
+   "fcp": 1391,
+   "tbt": 377,
+   "cls": 0.348777
+  },
+  "B": {
+   "lcp": 4179,
+   "fcp": 2379,
+   "tbt": 326,
+   "cls": 0.348777
+  },
+  "LHmobile": {
+   "lcp": 3279,
+   "fcp": 1291,
+   "tbt": 377,
+   "cls": 0.348777
+  },
+  "C": {
+   "lcp": 660,
+   "fcp": 660,
+   "tbt": 1,
+   "cls": 0.89769
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ },
+ "ci": {
+  "A": {
+   "lcp": 2088,
+   "fcp": 1716,
+   "tbt": 268,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 4961,
+   "fcp": 4001,
+   "tbt": 253,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 3986,
+   "fcp": 3026,
+   "tbt": 253,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 462,
+   "fcp": 390,
+   "tbt": 0,
+   "cls": 0.0005870000000000001
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ },
+ "login": {
+  "A": {
+   "lcp": 1898,
+   "fcp": 1580,
+   "tbt": 368,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 4098,
+   "fcp": 3798,
+   "tbt": 368,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 3071,
+   "fcp": 2899,
+   "tbt": 368,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 463,
+   "fcp": 411,
+   "tbt": 0,
+   "cls": 0
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ },
+ "pricing": {
+  "A": {
+   "lcp": 1431,
+   "fcp": 1382,
+   "tbt": 480,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 2116,
+   "fcp": 2032,
+   "tbt": 480,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 1331,
+   "fcp": 1282,
+   "tbt": 480,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 360,
+   "fcp": 349,
+   "tbt": 30,
+   "cls": 0.003848
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ },
+ "hpq": {
+  "A": {
+   "lcp": 1652,
+   "fcp": 1589,
+   "tbt": 1042,
+   "cls": 0
+  },
+  "B": {
+   "lcp": 3329,
+   "fcp": 3151,
+   "tbt": 526,
+   "cls": 0
+  },
+  "LHmobile": {
+   "lcp": 2131,
+   "fcp": 1960,
+   "tbt": 569,
+   "cls": 0
+  },
+  "C": {
+   "lcp": 501,
+   "fcp": 453,
+   "tbt": 27,
+   "cls": 0.000577
+  },
+  "Bold": {
+   "lcp": null,
+   "fcp": null,
+   "tbt": null,
+   "cls": null
+  }
+ }
+}
