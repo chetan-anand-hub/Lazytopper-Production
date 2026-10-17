@@ -98,7 +98,9 @@ const MAX_REVIEWED_LABELS = 138; // 14 Oct SCI-BACKLOG-1 batch 4 (F): +2 reviewe
 // re-measured by runtime import on the merged tree: 9728 of 10562 = 0.92104 -> pin 0.9212 -> 0.9210.
 // 17 Oct GARBLE-1 REWRITE-4 LANDED on trunk 866743a3: PYQ-M-2024-TRIG-014, -QE-001, -QE-005a serve again (two of them carry a concept, 9728 -> 9730):
 // re-measured by runtime import on the merged tree: 9730 of 10565 = 0.92097 -> pin 0.9210 -> 0.9209.
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9209;
+// 17 Oct OUR-ENV-NCERT-1 (#1233), merged on trunk 9172cc80: 15 NCERT Ch 13 Our Environment rows, all under mapped labels (9730 -> 9745):
+// re-measured by runtime import on the merged tree: 9745 of 10580 = 0.92108 -> pin 0.9209 -> 0.9210.
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9210;
 
 const isChapterEchoSubtopic = echoFromShape;
 
