@@ -820,11 +820,15 @@ export type PendingUploadSurface = "worksheet" | "chapter_test" | "full_mock" | 
 /** HOME-PENDING-1 — where the pending list was: the Home action strip or the header bell. */
 export type PendingPlacement = "strip" | "bell";
 
+/** ACTIVATION-2 A — which focused first-run surface was shown: absent = the practice picker
+ *  (every page before), "check_one" = Check & Improve's "Check one answer" takeover. */
+export type StartHereVariant = "check_one";
+
 export interface OnboardingEventParams {
-  start_here_shown: { surface: StartHereSurface | StartHereFocusSurface };
+  start_here_shown: { surface: StartHereSurface | StartHereFocusSurface; variant?: StartHereVariant };
   start_here_start: { subject: string; chapter: string; qtype: string };
   start_here_graded: { subject: string; correct: number; total: number };
-  start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface };
+  start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface; variant?: StartHereVariant };
   /** HOME-PENDING-1 — the pending-answers list was shown (once per tab per placement: the Home
    *  strip rendered / the header bell's popover opened), with the number waiting. No code, no id. */
   pending_card_shown: { count: number; placement: PendingPlacement };

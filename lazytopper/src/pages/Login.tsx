@@ -10,6 +10,7 @@ import { sendVerificationToCurrentUser } from "../components/auth/EmailVerifyRem
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
+import { NEW_ACCOUNT_LANDING_PATH, takeNewAccountLanding } from "../services/newAccountLanding";
 
 type LocationState = { from?: string };
 
@@ -1662,7 +1663,13 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         trackNamedEvent("trial_start");
       }
     }
-    navigate(nextPath, { replace: true });
+    // ACTIVATION-2 C — a NEW account (the sign_up signal, marked in AuthContext) with no explicit
+    // `?redirect=` / `state.from` lands on Check & Improve; a returning login keeps "/". The mark
+    // is taken (cleared) on every exit, so it never outlives this sign-in.
+    const isNewAccount = takeNewAccountLanding();
+    const hasExplicitTarget =
+      searchParams.has("redirect") || Boolean(((location.state || {}) as LocationState).from);
+    navigate(isNewAccount && !hasExplicitTarget ? NEW_ACCOUNT_LANDING_PATH : nextPath, { replace: true });
     // `subscription` is read when the effect runs; `awaitingTrialHydration` flipping
     // is what re-runs it once this uid's record has hydrated.
     // eslint-disable-next-line react-hooks/exhaustive-deps
