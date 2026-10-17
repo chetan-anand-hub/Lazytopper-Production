@@ -60,6 +60,40 @@ function recordDocId(code: string): string {
 }
 
 /**
+ * The record's CURRENT status, server first (this device's mirror only when there is no
+ * Firestore). "missing" = no record; "unknown" = a read we cannot trust (failed, or a
+ * cache-only answer that cannot prove another device has not moved it on).
+ */
+export async function readPaperRecordStatus(
+  user: AuthUser | null | undefined,
+  code: string,
+): Promise<SessionRecord["status"] | "missing" | "unknown"> {
+  const uid = cloudUid(user);
+  if (!uid || !code) return "unknown";
+  if (firestoreDb) {
+    try {
+      const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "records", recordDocId(code)));
+      if (snap.metadata && snap.metadata.fromCache) return "unknown";
+      if (!snap.exists()) return "missing";
+      const status = (snap.data() as Partial<SessionRecord> | undefined)?.status;
+      return status ?? "unknown";
+    } catch (error) {
+      console.warn("[paperDownloadRecord] record status read failed", error);
+      return "unknown";
+    }
+  }
+  return loadLocalSessionRecords(uid).find((r) => r.id === code)?.status ?? "missing";
+}
+
+/** AWAIT-1 — Section A picks may be written only while the paper is still untouched. */
+export function picksMayContinue(status: Awaited<ReturnType<typeof readPaperRecordStatus>>): boolean {
+  return status === "pending-upload" || status === "missing";
+}
+
+export const CONTINUED_ELSEWHERE_LINE = "This paper was already continued on another device.";
+export const STATUS_UNKNOWN_LINE = "We couldn’t check this paper just now. Check your connection and try again.";
+
+/**
  * Write the pending record for a downloaded paper, then (only then) call `saveSnapshot`.
  * Returns "written" or "skipped" (signed out, unreadable, or an existing non-pending record).
  */

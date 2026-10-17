@@ -162,6 +162,8 @@ function realSeed(uid = UID) {
     [`sessionRecords/${uid}/records/r1`]: { score: 17 },
     [`sessionRecords/${uid}/perQuestion/q1`]: { typed: 'V = IR' },
     [`sessionRecords/${uid}/fullMockPapers/p1`]: {},
+    [`sessionRecords/${uid}/chapterTestPapers/c1`]: {},
+    [`sessionRecords/${uid}/worksheetPapers/w1`]: {},
     [`practiceInsights/${uid}`]: {},
     [`practiceInsights/${uid}/attempts/at1`]: { correct: false },
     [`mockScoreHistory/${uid}`]: {},

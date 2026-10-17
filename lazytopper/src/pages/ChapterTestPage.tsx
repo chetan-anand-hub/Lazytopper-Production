@@ -63,7 +63,13 @@ import {
   type ChapterTestPaperSnapshot,
 } from "../services/chapterTestPaperStore";
 // AWAIT-1-PAPERS — a downloaded paper is kept, its code shown, and Section A tapped in at upload.
-import { recordPaperDownload } from "../components/papers/paperDownloadRecord";
+import {
+  CONTINUED_ELSEWHERE_LINE,
+  STATUS_UNKNOWN_LINE,
+  picksMayContinue,
+  readPaperRecordStatus,
+  recordPaperDownload,
+} from "../components/papers/paperDownloadRecord";
 import PaperDownloadedNote from "../components/papers/PaperDownloadedNote";
 import SectionAPicker from "../components/papers/SectionAPicker";
 // BANK-LEAN-1 (C3): the chapter-test variants join to the question bank (by-concept
@@ -271,6 +277,9 @@ export default function ChapterTestPage() {
   // re-opened for its Section A picks.
   const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
   const [pickPaper, setPickPaper] = useState<ChapterTestPaperSnapshot | null>(null);
+  const [paperNotice, setPaperNotice] = useState<string | null>(null);
+  // `openStored` is declared further down; the picks guard reaches it through this ref.
+  const openStoredRef = useRef<((record: SessionRecord) => Promise<void>) | null>(null);
   const [reopen, setReopen] = useState<{
     record: SessionRecord;
     response: WorksheetGradeResponse | null;
@@ -584,9 +593,26 @@ export default function ChapterTestPage() {
   // from here the paper is exactly an in-app submitted test: the same partial record + paper
   // copy `finishToPartial` writes, then the existing upload step. No grader change.
   const continueFromPicks = useCallback(
-    (picks: Record<number, string>) => {
+    async (picks: Record<number, string>) => {
       const p = pickPaper;
       if (!p) return;
+      // Server first: if this paper was already continued (Section A entered, or graded) on
+      // another device, write NOTHING here — say so and open its current state instead.
+      const status = await readPaperRecordStatus(user, p.code);
+      if (!picksMayContinue(status)) {
+        if (status === "unknown") {
+          setPaperNotice(STATUS_UNKNOWN_LINE);
+          return;
+        }
+        setPaperNotice(CONTINUED_ELSEWHERE_LINE);
+        setPickPaper(null);
+        setPhase("setup");
+        const all = await loadRecords();
+        const current = all.find((r) => r.id === p.code && r.surface === "chapter-test");
+        if (current) await openStoredRef.current?.(current);
+        return;
+      }
+      setPaperNotice(null);
       const obj = scoreObjectiveSection(objectiveQuestions(p.paper), picks);
       writeChapterTestPartialRecord({
         user,
@@ -662,9 +688,19 @@ export default function ChapterTestPage() {
   // same worksheetId (so the fair-use paper pass and MI identity are the same paper's).
   const openPendingUpload = useCallback(
     async (record: SessionRecord) => {
-      const snap = await loadChapterTestPaper(user, record.id);
+      let snap = await loadChapterTestPaper(user, record.id);
+      // AWAIT-1: this device may hold the DOWNLOADED copy of a paper whose Section A was since
+      // entered on another device (the record is no longer pending): read the server copy.
+      if (snap && needsSectionAPicks(snap) && record.status !== "pending-upload") {
+        snap = await loadChapterTestPaper(user, record.id, { preferServer: true });
+        // Still no Section A anywhere for a record that moved on: no paper to continue (honest line).
+        if (snap && needsSectionAPicks(snap)) snap = null;
+      }
       // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
       if (snap && needsSectionAPicks(snap)) {
+        // The same fair-use gate as an in-app start (UI3): an exhausted allowance is stopped
+        // BEFORE a client-scored partial record could be written.
+        if (fairUse.blockPaperStart()) return;
         setReopen(null);
         setPickPaper(snap);
         setPhase("pick");
@@ -693,7 +729,7 @@ export default function ChapterTestPage() {
           "This test was taken before papers were saved, so it can't be uploaded. Start a new test to practise this chapter.",
       });
     },
-    [user],
+    [user, fairUse.blockPaperStart],
   );
 
   const openStored = useCallback(
@@ -714,6 +750,9 @@ export default function ChapterTestPage() {
     },
     [user?.uid, openPendingUpload],
   );
+  useEffect(() => {
+    openStoredRef.current = openStored;
+  }, [openStored]);
 
   // FOLLOWUPS-1 B — "Ask the tutor why I lost this mark" on a SAVED test's scorecard (the QP /
   // C&I hop): the tutor reads the student's OWN record (`from`) and the question (`q` = its bank
@@ -805,6 +844,11 @@ export default function ChapterTestPage() {
     <div className="lt-ct">
       <style>{CT_CSS}</style>
       <UsageWarning scope="chapter-test" snapshot={fairUse.snapshot} />
+      {paperNotice && (
+        <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
+          {paperNotice}
+        </div>
+      )}
 
       {/* Read-only re-open scorecard (from a history card), any phase. */}
       {reopen && (

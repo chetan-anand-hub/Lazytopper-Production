@@ -483,6 +483,19 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       expect(row.email).toBe("stu000@example.com");
     });
 
+    it("★ AWAIT-1: a downloaded-but-not-uploaded (pending-upload) CT / FM paper is not a test taken; partial and status-less records still count", async () => {
+      const world = listWorld();
+      world.store["sessionRecords/stu000/records/CT-2"] = { surface: "chapter-test", status: "pending-upload", gradedAt: NOW - 3600_000 };
+      world.store["sessionRecords/stu000/records/FM-2"] = { surface: "full-mock", status: "pending-upload", gradedAt: NOW - 3600_000 };
+      world.store["sessionRecords/stu000/records/CT-3"] = { surface: "chapter-test", status: "partial", gradedAt: NOW - 3600_000 };
+      world.store["sessionRecords/stu000/records/WS-2"] = { surface: "worksheet", status: "pending-upload", gradedAt: NOW - 3600_000 };
+      const w = buildRoutes(world);
+      const r = await w.get("/api/admin/students", "admin-token");
+      const row = r.body.rows.find((x: { uid: string }) => x.uid === "stu000");
+      // CT-1 + FM-1 (no status: legacy) + CT-3 (partial) = 3; the two pending-upload papers are excluded.
+      expect(row.testsTaken).toEqual({ source: "sessionRecords", coverage: "full", count: 3 });
+    });
+
     it("★ SOURCE-1: each row carries the coarse source from signupSources/{uid}; a missing doc is null (an account from before the lane)", async () => {
       const world = listWorld();
       world.store["signupSources/stu000"] = {

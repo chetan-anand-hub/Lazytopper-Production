@@ -150,6 +150,7 @@ describe("AWAIT-1 · Upload on a downloaded Full Mock", () => {
       code: CODE, name: "Maths · Mock #2", subject: "Maths", grade: "10", paper,
       startedAt: 1, durationMs: 0, objective: null, downloaded: true, savedAt: 1,
     };
+    fs.docs[`sessionRecords/student-1/records/${CODE}`] = pendingRecord(); // still pending on the server
     mount();
     await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 });
     // The banner never reads "objective scored 0/0" for a downloaded paper.
@@ -177,5 +178,37 @@ describe("AWAIT-1 · Upload on a downloaded Full Mock", () => {
     ]);
     expect(args.subjectiveQuestions.map((q) => q.id)).toEqual(["q-c"]);
     expect(args.focus).toBeUndefined();
+  }, 90000);
+
+  it("★ continued on ANOTHER device meanwhile -> nothing written here; the notice + its current state", async () => {
+    const serverObjective: ObjectiveScore = {
+      results: [
+        { qNumber: 1, id: "q-a1", selected: "2", correct: true, awarded: 1, total: 1 },
+        { qNumber: 2, id: "q-a2", selected: "6", correct: true, awarded: 1, total: 1 },
+      ],
+      awarded: 2, total: 2, answeredCount: 2, totalQuestions: 2,
+    };
+    records.list = [pendingRecord()];
+    const snapPath = `sessionRecords/student-1/fullMockPapers/${CODE}`;
+    fs.docs[snapPath] = {
+      code: CODE, name: "Maths · Mock #2", subject: "Maths", grade: "10", paper,
+      startedAt: 1, durationMs: 0, objective: null, downloaded: true, savedAt: 1,
+    };
+    mount();
+    await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 });
+    fireEvent.click(await screen.findByRole("button", { name: /Upload now/ }));
+    await screen.findByTestId("section-a-picker");
+    // Meanwhile the other device entered Section A.
+    const partial = { ...pendingRecord(), status: "partial", marksAwarded: 2, marksTotal: 2 };
+    fs.docs[`sessionRecords/student-1/records/${CODE}`] = partial;
+    fs.docs[snapPath] = { ...(fs.docs[snapPath] as object), objective: serverObjective, savedAt: 2 };
+    records.list = [partial];
+    fs.writes = [];
+    fireEvent.click(screen.getByRole("button", { name: /Continue to upload/ }));
+    expect((await screen.findByTestId("paper-notice")).textContent).toBe("This paper was already continued on another device.");
+    const step = await screen.findByTestId("upload-step");
+    expect(step.textContent).toContain(`${CODE} · objective 2/2`);
+    expect(recordWrites()).toHaveLength(0);
+    expect(paperWrites()).toHaveLength(0);
   }, 90000);
 });

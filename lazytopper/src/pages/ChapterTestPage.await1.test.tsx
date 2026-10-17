@@ -14,16 +14,35 @@ const auth = vi.hoisted(() => ({ user: { uid: "student-1", isLocalSession: false
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: () => {} }));
 
-const fs = vi.hoisted(() => ({ writes: [] as Array<{ path: string; body: Record<string, unknown> }> }));
+const fs = vi.hoisted(() => ({
+  writes: [] as Array<{ path: string; body: Record<string, unknown> }>,
+  docs: {} as Record<string, unknown>,
+}));
 vi.mock("../services/firebaseClient", () => ({ firestoreDb: {} }));
 vi.mock("firebase/firestore", () => ({
   doc: (_db: unknown, ...path: string[]) => ({ path: path.join("/") }),
   setDoc: vi.fn(async (ref: { path: string }, body: Record<string, unknown>) => {
     fs.writes.push({ path: ref.path, body });
   }),
-  getDoc: vi.fn(async () => ({ exists: () => false, data: () => null, metadata: { fromCache: false } })),
+  getDoc: vi.fn(async (ref: { path: string }) => ({
+    exists: () => fs.docs[ref.path] != null,
+    data: () => fs.docs[ref.path],
+    metadata: { fromCache: false },
+  })),
   deleteDoc: vi.fn(async () => {}),
 }));
+// Item 4: the picker honours the same fair-use start gate as an in-app start.
+const fair = vi.hoisted(() => ({ block: false }));
+vi.mock("../components/usage/useFairUse", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../components/usage/useFairUse")>();
+  return {
+    ...actual,
+    useFairUse: (...args: Parameters<typeof actual.useFairUse>) => {
+      const r = actual.useFairUse(...args);
+      return { ...r, blockPaperStart: () => (fair.block ? true : r.blockPaperStart()) };
+    },
+  };
+});
 
 const records = vi.hoisted(() => ({ list: [] as unknown[] }));
 vi.mock("../services/sessionRecords", async (importOriginal) => {
@@ -124,6 +143,8 @@ beforeEach(() => {
   window.localStorage.clear();
   window.sessionStorage.clear();
   fs.writes = [];
+  fs.docs = {};
+  fair.block = false;
   pdf.calls = [];
   grade.calls = [];
   records.list = [];
@@ -188,11 +209,17 @@ describe("AWAIT-1 · Chapter Test download keeps the paper", () => {
 describe("AWAIT-1 · Upload on a downloaded Chapter Test", () => {
   it("★ re-opens THAT paper: Section A tapped in (untapped = not attempted), graded against the SAME ids", async () => {
     records.list = [pendingRecord()];
+    fs.docs[`sessionRecords/student-1/records/${CODE}`] = pendingRecord(); // still pending on the server
     saveChapterTestPaper(auth.user as never, {
       code: CODE, name: paper.name!, subject: "Maths", topicKey: "real-numbers", paper, objective: null, downloaded: true,
     });
+    fs.writes = [];
     await mount();
-    fireEvent.click(await screen.findByText(/Awaiting sheet/, undefined, { timeout: 30000 }));
+    await screen.findByText(/Awaiting sheet/, undefined, { timeout: 30000 });
+    // Item 2: the rail never reads "Objective scored (0/0)" for a downloaded paper.
+    expect(document.body.textContent).toContain("Awaiting your answers — nothing graded yet.");
+    expect(document.body.textContent).not.toMatch(/Objective scored \(0\/0\)/);
+    fireEvent.click(screen.getByText(/Awaiting sheet/));
     const picker = await screen.findByTestId("section-a-picker");
     expect(picker.textContent).toContain("Untapped questions count as not attempted.");
     expect(picker.textContent).toContain(CODE);
@@ -215,6 +242,68 @@ describe("AWAIT-1 · Upload on a downloaded Chapter Test", () => {
       ["q-a2", null, 0],
     ]);
     expect(args.subjectiveQuestions.map((q) => q.id)).toEqual(["q-c"]);
+  });
+
+  it("★ continued on ANOTHER device meanwhile -> nothing is written here; the notice + its current state (upload step)", async () => {
+    const serverObjective: ObjectiveScore = {
+      results: [
+        { qNumber: 1, id: "q-a1", selected: "2", correct: true, awarded: 1, total: 1 },
+        { qNumber: 2, id: "q-a2", selected: "6", correct: true, awarded: 1, total: 1 },
+      ],
+      awarded: 2, total: 2, answeredCount: 2, totalQuestions: 2,
+    };
+    records.list = [pendingRecord()]; // this device's view is stale
+    saveChapterTestPaper(auth.user as never, {
+      code: CODE, name: paper.name!, subject: "Maths", topicKey: "real-numbers", paper, objective: null, downloaded: true,
+    });
+    // The server: the other device entered Section A (partial) and saved the paper with it.
+    fs.docs[`sessionRecords/student-1/records/${CODE}`] = { ...pendingRecord(), status: "partial", marksAwarded: 2, marksTotal: 2 };
+    fs.docs[`sessionRecords/student-1/chapterTestPapers/${CODE}`] = {
+      code: CODE, name: paper.name, subject: "Maths", topicKey: "real-numbers", paper, objective: serverObjective, downloaded: true, savedAt: 2,
+    };
+    fs.writes = [];
+    await mount();
+    fireEvent.click(await screen.findByText(/Awaiting sheet/, undefined, { timeout: 30000 }));
+    await screen.findByTestId("section-a-picker");
+    records.list = [{ ...pendingRecord(), status: "partial", marksAwarded: 2, marksTotal: 2 }];
+    fireEvent.click(screen.getAllByRole("button", { name: /^A/ })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /Continue to upload/ }));
+    expect((await screen.findByTestId("paper-notice")).textContent).toBe("This paper was already continued on another device.");
+    const step = await screen.findByTestId("upload-step");
+    expect(step.textContent).toContain(`${CODE} · objective 2/2`); // the OTHER device's Section A, not this one's taps
+    expect(recordWrites()).toHaveLength(0);
+    expect(paperWrites()).toHaveLength(0);
+  });
+
+  it("★ a read we cannot trust (offline cache) -> nothing is written, the student is told, the picker stays", async () => {
+    const { getDoc } = await import("firebase/firestore");
+    records.list = [pendingRecord()];
+    saveChapterTestPaper(auth.user as never, {
+      code: CODE, name: paper.name!, subject: "Maths", topicKey: "real-numbers", paper, objective: null, downloaded: true,
+    });
+    fs.writes = [];
+    await mount();
+    fireEvent.click(await screen.findByText(/Awaiting sheet/, undefined, { timeout: 30000 }));
+    await screen.findByTestId("section-a-picker");
+    vi.mocked(getDoc).mockResolvedValueOnce({ exists: () => true, data: () => pendingRecord(), metadata: { fromCache: true } } as never);
+    fireEvent.click(screen.getByRole("button", { name: /Continue to upload/ }));
+    expect((await screen.findByTestId("paper-notice")).textContent).toMatch(/couldn.t check this paper/);
+    expect(screen.getByTestId("section-a-picker")).toBeTruthy();
+    expect(recordWrites()).toHaveLength(0);
+  });
+
+  it("★ fair use: an exhausted allowance stops the picker before anything is scored or written", async () => {
+    fair.block = true;
+    records.list = [pendingRecord()];
+    saveChapterTestPaper(auth.user as never, {
+      code: CODE, name: paper.name!, subject: "Maths", topicKey: "real-numbers", paper, objective: null, downloaded: true,
+    });
+    fs.writes = [];
+    await mount();
+    fireEvent.click(await screen.findByText(/Awaiting sheet/, undefined, { timeout: 30000 }));
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByTestId("section-a-picker")).toBeNull();
+    expect(recordWrites()).toHaveLength(0);
   });
 
   it("CONTROL: a test submitted in the app still opens straight on the upload step (no picker)", async () => {

@@ -22,12 +22,19 @@ export interface SectionAPickerProps {
   /** The paper's Section A (objective) questions, in paper order. */
   questions: PersistedWorksheetQuestion[];
   /** Picks keyed by qNumber, as OPTION TEXT (the shape `scoreObjectiveSection` reads). */
-  onContinue: (picks: Record<number, string>) => void;
+  onContinue: (picks: Record<number, string>) => void | Promise<void>;
   onCancel: () => void;
 }
 
 export default function SectionAPicker({ eyebrow, name, code, questions, onContinue, onCancel }: SectionAPickerProps) {
   const [picks, setPicks] = useState<Record<number, string>>({});
+  // One continue at a time (the page checks the record on the server first).
+  const [busy, setBusy] = useState(false);
+  const cont = () => {
+    if (busy) return;
+    setBusy(true);
+    Promise.resolve(onContinue(picks)).finally(() => setBusy(false));
+  };
   const tapped = questions.filter((q) => !!picks[q.qNumber]).length;
   const untapped = questions.length - tapped;
   return (
@@ -82,8 +89,8 @@ export default function SectionAPicker({ eyebrow, name, code, questions, onConti
           <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={onCancel}>
             Not now
           </button>
-          <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => onContinue(picks)}>
-            Continue to upload →
+          <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={cont} disabled={busy}>
+            {busy ? "Checking…" : "Continue to upload →"}
           </button>
         </span>
       </div>

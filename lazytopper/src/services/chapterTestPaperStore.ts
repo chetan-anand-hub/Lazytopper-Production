@@ -114,21 +114,23 @@ export function saveChapterTestPaper(
 export async function loadChapterTestPaper(
   user: AuthUser | null | undefined,
   code: string,
+  /** AWAIT-1: read the server copy first (this device's copy may be a stale downloaded one). */
+  opts: { preferServer?: boolean } = {},
 ): Promise<ChapterTestPaperSnapshot | null> {
   const uid = cloudUid(user);
   if (!uid) return null;
   const local = readLocal(uid).find((s) => s.code === code);
-  if (local) return local;
+  if (local && !(opts.preferServer && firestoreDb)) return local;
   if (!firestoreDb) return null;
   try {
     const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "chapterTestPapers", code));
     const data = snap.exists() ? snap.data() : null;
-    if (!isSnapshot(data)) return null;
+    if (!isSnapshot(data)) return local ?? null;
     writeLocal(uid, [data, ...readLocal(uid).filter((s) => s.code !== code)]);
     return data;
   } catch (error) {
     console.warn("[chapterTestPaperStore] snapshot read failed", error);
-    return null;
+    return local ?? null;
   }
 }
 

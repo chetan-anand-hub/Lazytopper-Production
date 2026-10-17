@@ -13,7 +13,7 @@ import {
 const input = {
   code: "CT-M-TRIG-03",
   label: "Trigonometry",
-  url: "https://lazytopper.com/app/chapter-test/10/maths/trigonometry",
+  url: "https://lazytopper.com/chapter-test/10/maths/trigonometry",
 };
 // A fixed local instant (month is 0-based): 17 Oct 2026, 09:15 local.
 const now = new Date(2026, 9, 17, 9, 15, 0);
@@ -48,14 +48,29 @@ describe("AWAIT-1 paper reminder builders", () => {
     expect(folded.replace(/\r\n /g, "")).toBe("X".repeat(160));
   });
 
+  it("folds by UTF-8 octets, never splitting a multi-byte character", () => {
+    const enc = new TextEncoder();
+    const line = "SUMMARY:Upload answers: FM-S-02 " + "Science · Mock #2 · ".repeat(8);
+    const folded = foldIcsLine(line);
+    for (const l of folded.split("\r\n")) expect(enc.encode(l).length).toBeLessThanOrEqual(75);
+    expect(folded.replace(/\r\n /g, "")).toBe(line);
+    // A label with "·" goes through the whole builder within the octet limit.
+    const ics = buildPaperReminderIcs({ code: "FM-S-02", label: "Science · Mock #2 · ".repeat(4), url: input.url }, now);
+    for (const l of ics.split("\r\n")) expect(enc.encode(l).length).toBeLessThanOrEqual(75);
+  });
+
   it("names the file from the code only", () => {
     expect(reminderIcsFileName("CT-M-TRIG-03")).toBe("lazytopper-reminder-CT-M-TRIG-03.ics");
     expect(reminderIcsFileName("../x y")).toBe("lazytopper-reminder-xy.ics");
   });
 
   it("builds the deep link from origin + router base + path", () => {
-    expect(buildAppDeepLink("https://lazytopper.com", "/app/", "/chapter-test/10/Maths/trigonometry")).toBe(
-      "https://lazytopper.com/app/chapter-test/10/Maths/trigonometry",
+    // The app's base is "/" (BASE_URL); a non-root base is still honoured.
+    expect(buildAppDeepLink("https://lazytopper.com", "/", "/chapter-test/10/Maths/trigonometry")).toBe(
+      "https://lazytopper.com/chapter-test/10/Maths/trigonometry",
+    );
+    expect(buildAppDeepLink("https://lazytopper.com", "/v2", "chapter-test/10/Maths/trigonometry")).toBe(
+      "https://lazytopper.com/v2/chapter-test/10/Maths/trigonometry",
     );
     expect(buildAppDeepLink("http://localhost:5173", "/", "full-mock/10/Science")).toBe(
       "http://localhost:5173/full-mock/10/Science",

@@ -65,12 +65,32 @@ export function escapeIcsText(value: string): string {
     .replace(/\r?\n/g, "\\n");
 }
 
-/** RFC 5545 line folding: no physical line longer than 75 characters (continuations start with a space). */
+/** UTF-8 byte length of one code point. */
+function utf8Bytes(cp: number): number {
+  return cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+}
+
+/**
+ * RFC 5545 line folding by OCTETS: no physical line longer than 75 bytes of UTF-8 (a
+ * continuation's leading space counts), never splitting a multi-byte character ("·", "’").
+ */
 export function foldIcsLine(line: string): string {
-  if (line.length <= 75) return line;
-  const parts: string[] = [line.slice(0, 75)];
-  for (let i = 75; i < line.length; i += 74) parts.push(` ${line.slice(i, i + 74)}`);
-  return parts.join("\r\n");
+  const parts: string[] = [];
+  let cur = "";
+  let bytes = 0;
+  for (const ch of line) {
+    const b = utf8Bytes(ch.codePointAt(0) ?? 0);
+    const limit = parts.length === 0 ? 75 : 74;
+    if (bytes + b > limit) {
+      parts.push(cur);
+      cur = "";
+      bytes = 0;
+    }
+    cur += ch;
+    bytes += b;
+  }
+  parts.push(cur);
+  return parts.map((p, i) => (i === 0 ? p : ` ${p}`)).join("\r\n");
 }
 
 export function reminderTitle(input: PaperReminderInput): string {

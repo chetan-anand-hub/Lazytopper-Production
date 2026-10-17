@@ -58,7 +58,13 @@ import {
   type FullMockPaperSnapshot,
 } from "../services/fullMockPaperStore";
 // AWAIT-1-PAPERS — a downloaded paper is kept, its code shown, and Section A tapped in at upload.
-import { recordPaperDownload } from "../components/papers/paperDownloadRecord";
+import {
+  CONTINUED_ELSEWHERE_LINE,
+  STATUS_UNKNOWN_LINE,
+  picksMayContinue,
+  readPaperRecordStatus,
+  recordPaperDownload,
+} from "../components/papers/paperDownloadRecord";
 import PaperDownloadedNote from "../components/papers/PaperDownloadedNote";
 import SectionAPicker from "../components/papers/SectionAPicker";
 import {
@@ -358,6 +364,7 @@ export default function FullMockPage() {
   // downloaded mock has no in-app timer, so no time or focus figure is recorded or shown.
   const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
   const [pickSnap, setPickSnap] = useState<FullMockPaperSnapshot | null>(null);
+  const [paperNotice, setPaperNotice] = useState<string | null>(null);
   const downloadedRef = useRef(false);
   const [reopen, setReopen] = useState<{
     record: SessionRecord;
@@ -713,6 +720,9 @@ export default function FullMockPage() {
         const snap = await fetchFullMockPaperSnapshot(user, record.id);
         // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
         if (snap && snap.downloaded === true && !snap.objective) {
+          // The same fair-use gate as an in-app start (UI3): an exhausted allowance is stopped
+          // BEFORE a client-scored partial record could be written.
+          if (fairUse.blockPaperStart()) return;
           setReopen(null);
           setPickSnap(snap);
           setPhase("pick");
@@ -780,7 +790,7 @@ export default function FullMockPage() {
         });
       }
     },
-    [sessionUid, user],
+    [sessionUid, user, fairUse.blockPaperStart],
   );
 
   // ── Re-open a stored mock read-only ──────────────────────────────────────────
@@ -941,9 +951,26 @@ export default function FullMockPage() {
   // from here it is an in-app submitted mock (partial record + paper copy + this device's
   // awaiting-upload session), minus anything timed: no focus is recorded or shown.
   const continueFromPicks = useCallback(
-    (picks: Record<number, string>) => {
+    async (picks: Record<number, string>) => {
       const snap = pickSnap;
       if (!snap) return;
+      // Server first: if this mock was already continued (Section A entered, or graded) on
+      // another device, write NOTHING here — say so and open its current state instead.
+      const status = await readPaperRecordStatus(user, snap.code);
+      if (!picksMayContinue(status)) {
+        if (status === "unknown") {
+          setPaperNotice(STATUS_UNKNOWN_LINE);
+          return;
+        }
+        setPaperNotice(CONTINUED_ELSEWHERE_LINE);
+        setPickSnap(null);
+        setPhase("setup");
+        const all = await loadRecords();
+        const current = all.find((r) => r.id === snap.code && r.surface === "full-mock");
+        if (current) await (current.status === "graded" ? openStored(current) : openPendingUpload(current));
+        return;
+      }
+      setPaperNotice(null);
       const obj = scoreObjectiveSection(fullMockObjectiveQuestions(snap.paper), picks);
       writeFullMockPartialRecord({
         user,
@@ -1012,7 +1039,7 @@ export default function FullMockPage() {
       setPhase("results");
       void loadRecords();
     },
-    [pickSnap, user, sessionSubject, sessionUid, loadRecords],
+    [pickSnap, user, sessionSubject, sessionUid, loadRecords, openStored, openPendingUpload],
   );
   const downloadSolution = useCallback(async () => {
     if (!paperForExport || downloading) return;
@@ -1102,6 +1129,11 @@ export default function FullMockPage() {
       <style>{CT_CSS}</style>
       <style>{FM_CSS}</style>
       <UsageWarning scope="full-mock" snapshot={fairUse.snapshot} />
+      {paperNotice && (
+        <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
+          {paperNotice}
+        </div>
+      )}
 
       {/* Read-only re-open scorecard (history card / cross-device pending). */}
       {reopen && (
