@@ -1,6 +1,6 @@
-## [CURRENT - 2026-10-17 - Cofounder session 17 Oct - #1211 to #1231] `#1211` `#1212` `#1213` `#1214` `#1215` `#1216` `#1217` `#1218` `#1220` `#1223` `#1221` `#1226` `#1222` `#1224` `#1225` `#1227` `#1228` `#1229` `#1230` `#1231`
+## [CURRENT - 2026-10-17 - Cofounder session 17 Oct - #1211 to #1235] `#1211` `#1212` `#1213` `#1214` `#1215` `#1216` `#1217` `#1218` `#1220` `#1223` `#1221` `#1226` `#1222` `#1224` `#1225` `#1227` `#1228` `#1229` `#1230` `#1231` `#1234` `#1235` `#1233`
 
-*(Adds to the blocks below, which stay current for everything this block does not name.)* **PROVENANCE.** Written by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10, one docs PR for all twenty merges since `#1210`. Sources: `gh pr view` bodies, `git log`, `gh run list`, and the session facts the cofounder handed over. Facts only. Written at trunk `866743a3`; re-derive with `git ls-remote origin base/approved-thru-437`. Live `/version.json` = `866743a3` (checked 17 Oct, after `#1231`). `#1219` is an issue (CBSE mirror circulars feed), not a PR.
+*(Adds to the blocks below, which stay current for everything this block does not name.)* **PROVENANCE.** Written by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10, one docs PR for all twenty-three merges since `#1210`. Sources: `gh pr view` bodies, `git log`, `gh run list`, and the session facts the cofounder / coordinator handed over. Facts only. Written at trunk `7e0a5b00`; re-derive with `git ls-remote origin base/approved-thru-437`. Live `/version.json` = `9172cc80` was checked 17 Oct after `#1235`; `#1233` deploy not checked here. `#1219` is an issue (CBSE mirror circulars feed), not a PR.
 
 | PR | merge SHA | what it changed |
 |---|---|---|
@@ -24,14 +24,17 @@
 | `#1229` SCI-B2 land | `db58f024` | 6 Science single-step rows rewritten from NCERT (3 x [1 mark]) and served; CARB-036 formula fix was inferred (audited in review). Served 10554 -> 10560; pin 0.9217 -> 0.9212. |
 | `#1230` SCI-B3 land | `ce4c76a8` | 36 served Science rows repaired from NCERT 2026-27 (keys, garble, `$` arrows, biogas removed from ENV-035). Served 10560 unchanged; pin 0.9212 unchanged. |
 | `#1231` SCI-B4 land | `866743a3` | 2026-STAT-SA-02 and 2026-PLE-SA-02 (stem made consistent) repaired and served; two reviewed generic labels. Served 10560 -> 10562; pin 0.9212 -> 0.9210. |
+| `#1234` TRI-AA-ANSWERS | `2320dc0a` | NCERT-6-LA-006, EXMPLR-6-LA-007, EXMPLR-6-MCQ-001 solutions re-justified by the AA criterion only (no Theorem 6.7); questions, options and keys unchanged; NCERT-6-LA-006 finalAnswer citation "Theorem 6.7" -> "AA similarity" (cofounder call); `sourceOverride: "others"` on the two Exemplar rows. Served 10562 unchanged. |
+| `#1235` REWRITE-4 land | `9172cc80` | PYQ-M-2024-TRIG-014, PYQ-M-2024-QE-001, PYQ-M-2024-QE-005a stems restored verbatim from the official CBSE 2024 papers (D241) and served again. Served 10562 -> 10565; pin 0.9210 -> 0.9209 (9730 of 10565). |
+| `#1233` OUR-ENV-NCERT-1 | `7e0a5b00` | 15 NCERT Ch 13 Our Environment textbook rows from `jesc113.pdf` (Reprint 2026-27, SHA-256 `3F61F057...35918B2D`); Exercise Q1 excluded (more than one correct option); export named `OE_TEXTBOOK` (avoids a CodeQL false positive on "cert"). Served 10565 -> 10580 (our-environment 356 -> 371); pin 0.9209 -> 0.9210 (9745 of 10580; all 15 rows carry a concept). |
 
-- **Served bank:** 10461 at the start of 17 Oct -> **10562** at trunk `866743a3` (import-based counts in each PR body). Raw stays 11492.
-- **Concept-coverage pin:** 0.9225 -> 0.9217 -> 0.9212 -> 0.9210, each a re-measurement on the merged tree (the added rows carry generic labels, no concept), not a relaxation.
+- **Served bank:** 10461 at the start of 17 Oct -> **10580** at trunk `7e0a5b00` (import-based counts in each PR body). Raw grows by the 15 new rows of `#1233`.
+- **Concept-coverage pin:** 0.9225 -> 0.9217 -> 0.9212 -> 0.9210 -> 0.9209 -> 0.9210, each a re-measurement on the merged tree, not a relaxation.
 - **Six grading surfaces (section 4a):** no PR here changes grading, scoring, mistake typing or recording, or a grader prompt. `#1212` / `#1220` change Quick Practice selection only; `#1218` changes WHEN a CT / FM paper is persisted and scores Section A picks with the existing `scoreObjectiveSection`.
-- **Live-verified:** none of these twenty is recorded as live-verified in the sources this block was written from; each PR body lists its live-verify steps, which stay owed. Production serves `866743a3`.
-- **CI:** Quality Gate green on trunk at `db58f024`, `ce4c76a8` and `866743a3`.
+- **Live-verified (coordinator, 17 Oct ~14:39 IST):** production served `9172cc80`; 9 signed-out pages OK; no "Theorem 6.7" and no garble on the checked pages (`#1234` `#1235`). The other PRs' signed-in live-verify steps (listed in each PR body) are not recorded as done in the sources used here.
+- **CI:** Quality Gate green on trunk at `866743a3` and `9172cc80` (`7e0a5b00` not checked at writing). The run on `2320dc0a` (`#1234`) failed only on `progressReadModel.istMidnight.test.ts`, the known IST-midnight clock flake; the next trunk run passed.
 - **Repo hygiene (17 Oct):** 198 stale remote branches deleted (ledger `ops/.specs/BRANCH_CLEANUP_2026-10-17.tsv`, gitignored, plus an OneDrive diff folder). REVIEW list kept: `feat/topup-1-server`, `fix/garble-1-wrong-content-pause-2`, `handover/bank-fix-1-pr2`, `preview/payments-test`, `wip/c2-booklet-withhold-1-src`. Kept for the owner: `docs/post-pr-557-563-wave3`, `recovery/lost-trunk-42d82e8`.
-- **Open follow-ups now:** see the 2026-10-17 (#1211 to #1231) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Open follow-ups now:** see the 2026-10-17 (#1211 to #1235) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
 
 ## [CURRENT - 2026-10-17 - Cofounder session 15-17 Oct - #1198 to #1209] `#1198` `#1199` `#1179` `#1200` `#1202` `#1201` `#1203` `#1205` `#1206` `#1204` `#1207` `#1208` `#1209`
 

@@ -23,9 +23,9 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-10-17 - #1211 to #1231 FOLLOW-UPS (recorded by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10)
+## 2026-10-17 - #1211 to #1235 FOLLOW-UPS (recorded by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10)
 
-*Priority order is the order below within each group. File:line readings are at trunk `866743a3`. Earlier dated entries are left as written (standing rule 3); their closures are recorded here.*
+*Priority order is the order below within each group. File:line readings are at trunk `866743a3` unless an entry names `7e0a5b00`. Earlier dated entries are left as written (standing rule 3); their closures are recorded here.*
 
 ### Product
 
@@ -69,7 +69,15 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ### Bank
 
-**[FU-TRI-AA-ANSWERS]** (open, lane TRI-AA-ANSWERS, owner ruling 17 Oct) Re-justify via AA similarity, instead of citing Theorem 6.7: NCERT-6-LA-006, EXMPLR-6-LA-007, EXMPLR-6-MCQ-001. Stems unchanged.
+**[FU-TRI-AA-NITS]** (open, from `#1234`) NCERT-6-LA-006 `strategyHint` still paraphrases Theorem 6.7; the three re-justified rows have no bankFixN ledger entry.
+
+**[FU-REWRITE-4-NITS]** (open, from `#1235`) PYQ-M-2024-QE-005a answer uses U+2212 (minus sign) where the bank writes ASCII; empty "GARBLE-1 (D152)" heading comment at `canonicalQuestionBank.ts:1173`.
+
+**[FU-OE-NCERT-NITS]** (open, from `#1233`) `canonicalQuestionBank.ts:97` comment still says Ch 13 is skipped; ozone subtopic labels are split between SA-006 and SA-013.
+
+**[FU-OE-BOARD-SET]** (open, owner call) The owner may want an Our Environment PYQ / board set next.
+
+**[FU-TRI-AA-ANSWERS]** (CLOSED 2026-10-17, done in `#1234` `2320dc0a`) NCERT-6-LA-006, EXMPLR-6-LA-007, EXMPLR-6-MCQ-001 re-justified by AA similarity; no Theorem 6.7 in their solutions; NCERT-6-LA-006 finalAnswer citation changed by cofounder call; served 10562 unchanged.
 
 **[FU-LTG-LIGHT-278-OWNER-ACK]** (open, owner) LTG-S-LIGHT-278 was added to `OWNER_WITHHELD_GENERATED` by `#1222` at the reviewer's direction; owner to confirm.
 
@@ -95,9 +103,9 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 **[FU-CONCEPTLABEL-CONTROL-ASSERT-LABEL]** (open, test) The conceptLabelMap paused-but-served control should assert the label, not only the outcome list (it went RED for the wrong reason during `#1227`).
 
-**[FU-OUR-ENVIRONMENT-NO-NCERT-FILE]** (IN PROGRESS 2026-10-17) OUR-ENV-NCERT-1 (NCERT Ch 13 textbook questions, 15 rows) is committed on `feat/our-env-ncert-1` (`27644f43`); no PR yet. Close when it merges.
+**[FU-OUR-ENVIRONMENT-NO-NCERT-FILE]** (CLOSED 2026-10-17, done in `#1233` `7e0a5b00`) 15 NCERT Ch 13 textbook rows from `jesc113.pdf` (Reprint 2026-27, SHA-256 `3F61F057...35918B2D`); Exercise Q1 excluded (more than one correct option); served 10565 -> 10580. Nits in `[FU-OE-NCERT-NITS]`.
 
-**[FU-TRI-OUT-OF-SYLLABUS-SERVED]** (CLOSED 2026-10-17, `#1222` audit + owner ruling) The 12 D261 rows are NOT out of syllabus under owner ruling 1 (Pythagoras as a numeric tool is IN); none withheld. The three answer fixes move to `[FU-TRI-AA-ANSWERS]`.
+**[FU-TRI-OUT-OF-SYLLABUS-SERVED]** (CLOSED 2026-10-17, fully) The 12 D261 rows are NOT out of syllabus under owner ruling 1 (Pythagoras as a numeric tool is IN); none withheld (`#1222` audit + owner ruling). The three answers that cited Theorem 6.7 were re-justified by AA in `#1234` (`[FU-TRI-AA-ANSWERS]`); the coordinator's live check found no "Theorem 6.7" on the checked pages.
 
 ### Closed by merges / stale
 

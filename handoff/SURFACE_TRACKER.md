@@ -1,4 +1,4 @@
-> **2026-10-17 - #1211 to #1231 (CLAUDE.md section 10, one docs PR for the 17 Oct merges).** Scope: Quick Practice, Check & Improve onboarding, Home, Topic Hub, scorecards (share / PDF), Chapter Test / Full Mock persistence, contact, notes content, and bank content. No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling.
+> **2026-10-17 - #1211 to #1235 (CLAUDE.md section 10, one docs PR for the 17 Oct merges).** Scope: Quick Practice, Check & Improve onboarding, Home, Topic Hub, scorecards (share / PDF), Chapter Test / Full Mock persistence, contact, notes content, and bank content. No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
 |---|---|---|---|
@@ -11,7 +11,7 @@
 | Topic Hub | Worksheet button live (`#1214`) | live; NOT live-checked | none |
 | Contact / browse pages | WhatsApp FAB, `/contact`, legal contact line (`#1215`) | live; NOT live-checked | `[FU-CONTACT-INDEX]` |
 | Notes | formulae / shortcuts / tricks for 26 chapters (`#1221`); KaTeX notation in mindmaps + chemistry prose (`#1226`) | live; NOT live-checked | `[FU-NOTES-FIG-ALT-LATEX]`, `[FU-NOTES-CARBON-XRIGHTARROW-SLASH]`, `[FU-NOTE-NOTATION-GUARD-SKIPPED-FIELDS]`, `[FU-NOTES-PROSE-FORMULAS-NONCHEM]`, `[FU-NOTES-TRICKS-AUTHORED-TAG]` |
-| Question bank | 8 Light rows withheld (`#1222`); 20 text-cleaned (`#1223`); 82 Maths + 27 Science rows re-served, 36 repaired (`#1225` `#1227`-`#1231`); served 10461 -> 10562 | live | `[FU-TRI-AA-ANSWERS]`, `[FU-LTG-LIGHT-278-OWNER-ACK]`, `[FU-AUTHENTIC-TIER-PREDICTED-ROWS]`, the bank text-clean FUs |
+| Question bank | 8 Light rows withheld (`#1222`); 20 text-cleaned (`#1223`); 82 Maths + 27 Science rows re-served, 36 repaired (`#1225` `#1227`-`#1231`); 3 Triangles answers by AA (`#1234`); 3 CBSE 2024 Maths stems restored (`#1235`); 15 NCERT Our Environment rows (`#1233`); served 10461 -> 10580 | live; `#1234` / `#1235` signed-out pages checked (coordinator) | `[FU-LTG-LIGHT-278-OWNER-ACK]`, `[FU-AUTHENTIC-TIER-PREDICTED-ROWS]`, `[FU-TRI-AA-NITS]`, `[FU-REWRITE-4-NITS]`, `[FU-OE-NCERT-NITS]`, the bank text-clean FUs |
 | Admin | "tests taken" excludes downloaded-only papers (`#1218`) | live | none |
 
 > **2026-10-17 - #1198 to #1209 (CLAUDE.md section 10, one docs PR for the 15-17 Oct merges).** Scope: tutor, onboarding, Mistake Intelligence display, Quick Practice, Worksheet PDF, notes heads, and one grader check (`#1207`, `verify.cjs` only, no prompt change). No surface's Scope moved to Settling.

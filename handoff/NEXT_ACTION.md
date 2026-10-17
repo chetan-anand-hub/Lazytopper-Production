@@ -1,13 +1,13 @@
-## 2026-10-17 - AFTER #1211 to #1231 (written by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10)
+## 2026-10-17 - AFTER #1211 to #1235 (written by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The "Next (product)" of the `#1198`-`#1209` block is done: FOLLOWUPS-4 `#1211` shipped the four copy / UX items.)*
 
 - **Owner checks:** ACTIVATION-2 item C on a brand-new Google account from `/login` (lands on `/check-improve`; `[FU-ACT2-NEW-ACCOUNT-LIVE]`); acknowledge LTG-S-LIGHT-278 in `OWNER_WITHHELD_GENERATED` (`[FU-LTG-LIGHT-278-OWNER-ACK]`); the `#1200` new-account check still stands.
-- **Live-verify (cofounder / owner):** the steps listed in each of `#1211`-`#1231`; first `#1224` A-E at 390 px and 1366 px, `#1216` share on Android, `#1218` download -> picker -> upload, `#1221` / `#1226` notes at 390 px.
-- **Next (bank):** TRI-AA-ANSWERS (`[FU-TRI-AA-ANSWERS]`); open the OUR-ENV-NCERT-1 PR (`[FU-OUR-ENVIRONMENT-NO-NCERT-FILE]`); the bank text-clean follow-ups as one lane.
+- **Live-verify (cofounder / owner):** signed-in steps listed in `#1211`-`#1231`; first `#1224` A-E at 390 px and 1366 px, `#1216` share on Android, `#1218` download -> picker -> upload, `#1221` / `#1226` notes at 390 px. (`#1234` / `#1235` signed-out pages checked by the coordinator.)
+- **Next (bank):** the bank text-clean follow-ups as one lane, including `[FU-TRI-AA-NITS]`, `[FU-REWRITE-4-NITS]` and `[FU-OE-NCERT-NITS]`; owner call on `[FU-OE-BOARD-SET]`.
 - **Next (product):** `[FU-AUTHENTIC-TIER-PREDICTED-ROWS]` check first (honesty); then the ACTIVATION-2 questions.
 - **North star (owner, 16 Oct):** day-1 graded-answer rate (target 40%). 17 Oct reading: about 1 in 50 recent sign-ups checked an answer; ACTIVATION-2 is the response.
-- **Follow-ups:** the 2026-10-17 (#1211 to #1231) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Follow-ups:** the 2026-10-17 (#1211 to #1235) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
 
 ## 2026-10-17 - AFTER #1198 to #1209 (written by the cofounder session under CLAUDE.md section 10)
 
