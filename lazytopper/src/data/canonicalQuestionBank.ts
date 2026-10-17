@@ -2165,90 +2165,46 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // BANK-STEPS-1 REPAIR PR-2 (lane B, 13 Oct): 49 Science rows repaired (new steps from each row's own stem + key) and served again
   // EL-AR05, HEY-D04: over-paused (D153), steps repaired and served again by BANK-STEPS-1 REPAIR PR-1 (13 Oct)
   "PR2-049",                      // spliced-solution: the steps answer another question (refusal text)
-  "ARC2-058",                     // spliced-solution: the steps answer another question (refusal text)
   "TRI2-E21",                     // spliced-solution: the steps answer another question (refusal text)
   "STAT-M10",                     // spliced-solution: the steps answer another question (refusal text)
   "TRI2-E14",                     // spliced-solution: the steps answer another question (refusal text)
-  "PLE-E17",                      // spliced-solution: the steps answer another question (refusal text)
-  "QE-N02",                       // spliced-solution: the steps answer another question (refusal text)
   "PR2-051",                      // spliced-solution: the steps answer another question (refusal text)
   "STAT-N02",                     // spliced-solution: the steps answer another question (refusal text)
   "2026-STAT-SA-02",              // spliced-solution: the steps answer another question (different numbers)
   "2026-PLE-SA-02",               // spliced-solution: the steps answer another question (different numbers)
-  "AP2-049",                      // spliced-solution: the steps answer another question (different numbers)
-  "ARC-E07",                      // spliced-solution: the steps answer another question
-  "ARC-M17",                      // spliced-solution: the steps answer another question
   "SAV-E13",                      // spliced-solution: the steps answer another question
-  "QE-E16",                       // spliced-solution: the steps answer another question
-  "QE-M10",                       // spliced-solution: the steps answer another question
-  "AP2-046",                      // spliced-solution: the steps answer another question
-  "QE2-057",                      // spliced-solution: the steps answer another question (different numbers)
   "SAV2-042",                     // spliced-solution: part of the steps answer another question
   "SAV2-019",                     // spliced-solution: part of the steps answer another question
   "CG2-049",                      // spliced-solution: the steps answer another question (different numbers)
-  "QE-N01",                       // spliced-solution: the steps answer another question (different numbers)
-  "AP2-048",                      // spliced-solution: the steps answer another question
   "CG2-054",                      // spliced-solution: the steps answer another question (different numbers)
-  "QE2-050",                      // spliced-solution: the steps answer another question (different numbers)
   "TRI2-AR02",                    // spliced-solution: part of the steps answer another question
   "CG-N02",                       // spliced-solution: part of the steps answer another question
-  "PLE2-R12",                     // spliced-solution: the steps answer another question (different numbers)
   "CG-N04",                       // spliced-solution: the steps answer another question (different numbers)
-  "QE-E11",                       // spliced-solution: the steps answer another question (different numbers)
-  "QE2-055",                      // spliced-solution: the steps answer another question
-  "QE2-049",                      // spliced-solution: the steps answer another question
-  "ARC2-048",                     // spliced-solution: the steps answer another question (different numbers)
-  "QE2-051",                      // spliced-solution: part of the steps answer another question
   "STAT-N01",                     // spliced-solution: the steps answer another question
   "CI2-049",                      // spliced-solution: the steps answer another question
   "TRIG2-M03",                    // spliced-solution: part of the steps answer another question
   "CI2-018",                      // spliced-solution: part of the steps answer another question
   "PLE2-037",                     // spliced-solution: part of the steps answer another question
-  "QE-E08",                       // spliced-solution: the steps answer another question
-  "PLE2-R13",                     // spliced-solution: the steps answer another question (different numbers)
   "CG-E18",                       // spliced-solution: part of the steps answer another question
-  "PLE2-R14",                     // spliced-solution: the steps answer another question (refusal text)
-  "ARC2-055",                     // spliced-solution: refusal text instead of working
-  "ARC2-056",                     // spliced-solution: refusal text instead of working
-  "ARC2-057",                     // spliced-solution: refusal text instead of working
   "SAV2-R19",                     // spliced-solution: refusal text instead of working
-  "AP2-051",                      // spliced-solution: the steps answer another question
-  "AP2-052",                      // spliced-solution: the steps answer another question (different numbers)
   "TRI2-E04",                     // spliced-solution: the steps answer another question (different numbers)
   "TRIG2-M02",                    // spliced-solution: part of the steps answer another question
   "PL2-R14",                      // spliced-solution: the steps answer another question (different numbers)
   "PR2-048",                      // spliced-solution: the steps answer another question (different numbers)
-  "AP2-053",                      // spliced-solution: part of the steps answer another question
-  "QE2-052",                      // spliced-solution: the steps answer another question (different numbers)
-  "PLE2-R10",                     // spliced-solution: the steps answer another question (different numbers)
-  "QE2-054",                      // spliced-solution: the steps answer another question (different numbers)
   "CI2-055",                      // spliced-solution: the steps answer another question
   "TG3-065",                      // spliced-solution: the steps answer another question
-  "AP2-054",                      // spliced-solution: the steps answer another question (refusal text)
   "CI2-054",                      // spliced-solution: the steps answer another question
   "CG-N06",                       // spliced-solution: the steps answer another question
-  "ARC2-046",                     // spliced-solution: the steps answer another question
-  "AP2-050",                      // spliced-solution: the steps answer another question (different numbers)
-  "ARC2-049",                     // spliced-solution: the steps answer another question (different numbers)
   "SAV-E15",                      // spliced-solution: the steps answer another question
   "CG2-055",                      // spliced-solution: the steps answer another question (different numbers)
   "SAV2-R16",                     // spliced-solution: the steps answer another question (different numbers)
   "CIR-H12",                      // spliced-solution: part of the steps answer another question
-  "AP2-055",                      // spliced-solution: part of the steps answer another question
   "TRIG2-H11",                    // spliced-solution: part of the steps answer another question
-  "AP2-044",                      // spliced-solution: the steps answer another question (different numbers)
-  "ARC2-053",                     // spliced-solution: the steps answer another question
-  "AP2-047",                      // spliced-solution: the steps answer another question (different numbers)
   "TG3-021",                      // spliced-solution: part of the steps answer another question
   "CI2-051",                      // spliced-solution: the steps answer another question
-  "AP2-045",                      // spliced-solution: the steps answer another question
-  "PLE2-R08",                     // spliced-solution: the steps answer another question
   "TRI2-H08",                     // spliced-solution: part of the steps answer another question
-  "ARC2-047",                     // spliced-solution: part of the steps answer another question
-  "PLE2-R09",                     // spliced-solution: the steps answer another question (different numbers)
   "PL2-R13",                      // spliced-solution: the steps answer another question (refusal text)
   "PL2-R17",                      // spliced-solution: the steps answer another question
-  "PLE2-R11",                     // spliced-solution: the steps answer another question
   // wrong-content rows (D178/D179, found by B while splitting single-step rows; rewrite owner: A, from NCERT)
   "SCQ-S-CHEM-033",               // wrong-content (D178): the 'change in state' example is a precipitate reaction, not a change of state
   "SCQ-S-METAL-036",              // wrong-content (D178): silver, the best heat conductor, is missing and the answer text is garbled ('...of heat copper') - NCERT does name lead as a poor conductor

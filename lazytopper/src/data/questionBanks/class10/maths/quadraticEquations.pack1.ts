@@ -36,11 +36,9 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "D = (−4)² − 4(2)(3) = 16 − 24 = −8 [1]",
       "D < 0, roots are not real [1]",
     ], finalAnswer: "D = −8; roots are not real" , isCompetencyBased: true },
-  { id: "QE-E08", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The quadratic formula gives roots as:", options: ["x = (−b ± √D)/(2a)", "x = (b ± √D)/(2a)", "x = (−b ± D)/(2a)", "x = (−b ± √D)/a"], answer: "x = (−b ± √D)/(2a)", explanation: "The correct answer is x = (−b ± √D)/(2a). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "x = (−b ± √D)/(2a)" , isCompetencyBased: false,
+  { id: "QE-E08", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The quadratic formula gives roots as:", options: ["x = (−b ± √D)/(2a)", "x = (b ± √D)/(2a)", "x = (−b ± D)/(2a)", "x = (−b ± √D)/a"], answer: "x = (−b ± √D)/(2a)", explanation: "The correct answer is x = (−b ± √D)/(2a). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "x = (−b ± √D)/(2a), where D = b² − 4ac" , isCompetencyBased: false,
     solutionSteps: [
-      "Given equation: 2x^2 = 8.",
-      "Divide by 2: x^2 = 4.",
-      "Taking square root on both sides, x = +/- sqrt(4) = +/- 2.",
+      "[1 mark] For ax² + bx + c = 0 (a ≠ 0, D = b² − 4ac ≥ 0), the quadratic formula is x = (−b ± √D)/(2a); the other options have the wrong sign of b, omit the square root, or drop the factor 2.",
     ],
   },
   { id: "QE-E09", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "One root of x² − 5x + k = 0 is 2. The value of k is:", options: ["6", "3", "5", "10"], answer: "6", explanation: "4 − 10 + k = 0 → k = 6. Therefore, the correct answer is 6.", solutionSteps: ["4 − 10 + k = 0 → k = 6"], finalAnswer: "6" , isCompetencyBased: true },
@@ -51,10 +49,7 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "x = 3/2 or x = −2" , isCompetencyBased: true },
   { id: "QE-E11", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The equation x² + 3x + 4 = 0 has no real roots.\nReason (R): D = 9 − 16 = −7 < 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "For Assertion (A): Equation is x^2 + 4x + 4 = 0. Here a=1, b=4, c=4.",
-      "Discriminant D = b^2 - 4ac = (4)^2 - 4(1)(4) = 16 - 16 = 0.",
-      "Since D=0, the equation has two equal real roots. Thus, Assertion (A) is true.",
-      "Reason (R) correctly states the condition for equal real roots (D=0). Hence, R is true and explains A.",
+      "[1 mark] D = 3² − 4(1)(4) = 9 − 16 = −7 < 0, so R is true; since D < 0 the equation has no real roots, so A is true and R explains A.",
     ],
   },
   { id: "QE-E12", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If x = 1 is a root of x² + kx + 6 = 0, then k =", options: ["−7", "7", "−5", "5"], answer: "−7", explanation: "1 + k + 6 = 0 → k = −7. Therefore, the correct answer is −7.", solutionSteps: ["1 + k + 6 = 0 → k = −7"], finalAnswer: "−7" , isCompetencyBased: true },
@@ -72,9 +67,7 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
   },
   { id: "QE-E16", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): x = 3 is a root of x² − 6x + 9 = 0.\nReason (R): x² − 6x + 9 = (x − 3)².", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): x^2 - 4 = 0 implies x^2 = 4, so x = +/- sqrt(4), which means x = 2 or x = -2. Thus, Assertion (A) is true.",
-      "Reason (R): The statement 'If x^2 = k, then x = sqrt(k) or x = -sqrt(k)' is a fundamental property used to solve such equations. Thus, Reason (R) is true.",
-      "Reason (R) correctly explains the method used to find the roots in Assertion (A). Therefore, R is the correct explanation for A.",
+      "[1 mark] R is true: (x − 3)² = x² − 6x + 9. So x² − 6x + 9 = 0 gives (x − 3)² = 0, i.e. x = 3; hence A is true and R explains A.",
     ],
   },
   { id: "QE-E17", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Solve: 5x² = 4x + 7 using the quadratic formula.", solutionSteps: [
@@ -144,9 +137,7 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
     ], finalAnswer: "90 m and 120 m" , isCompetencyBased: true },
   { id: "QE-M10", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): (x − 1)(x − 2) = 0 is a quadratic equation.\nReason (R): It can be written as x² − 3x + 2 = 0.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
-      "Assertion (A): For the equation x^2 - 5x + 6 = 0, factorize it as (x-2)(x-3) = 0. The roots are x=2 and x=3. So, Assertion (A) is true.",
-      "Reason (R): A quadratic equation ax^2 + bx + c = 0 has at most two roots. This is a fundamental property of quadratic equations and is true.",
-      "However, Reason (R) states a general property about the number of roots, not the method or explanation for finding the specific roots of the given equation. Thus, R is not the correct explanation for A.",
+      "[1 mark] Expanding, (x − 1)(x − 2) = x² − 3x + 2, so R is true; this is of the form ax² + bx + c = 0 with a = 1 ≠ 0, which is exactly why the equation is quadratic. So A is true and R explains A.",
     ],
   },
   { id: "QE-M11", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "The sum of two numbers is 15 and the sum of their reciprocals is 3/10.\n(i) If one number is x, express the other in terms of x.\n(ii) Form a quadratic equation using the given conditions.\n(iii) Solve the equation to find the two numbers.\n(iv) Find their product.", solutionSteps: [
@@ -281,17 +272,14 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "(a+c−2b)² = 0 [1]",
       "a + c = 2b, i.e., a, b, c are in AP. [1]",
     ], finalAnswer: "2b = a + c (proved)" , visualExplainerId: "maths-quadratic-equations-standard-form-and-roots", isCompetencyBased: true },
-  { id: "QE-N01", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation 2x² − 4x + 3 = 0, the discriminant is:", options: ["−8","8","−4","4"], answer: "−8", explanation: "The correct answer is −8. D = b² − 4ac = 16 − 4×2×3 = 16 − 24 = −8. No real roots.", finalAnswer: "D = b² − 4ac = 16 − 4×2×3 = 16 − 24 = −8. No real roots.", isCompetencyBased: false,
+  { id: "QE-N01", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation 2x² − 4x + 3 = 0, the discriminant is:", options: ["−8","8","−4","4"], answer: "−8", explanation: "The correct answer is −8. D = b² − 4ac = 16 − 4×2×3 = 16 − 24 = −8. No real roots.", finalAnswer: "D = −8", isCompetencyBased: false,
     solutionSteps: [
-      "For the standard quadratic equation ax^2 + bx + c = 0, the discriminant D is given by D = b^2 - 4ac.",
-      "Assuming a question like 'What is the discriminant of 3x^2 - 5x + 2 = 0?', here a=3, b=-5, c=2.",
-      "Substitute the values: D = (-5)^2 - 4(3)(2) = 25 - 24 = 1.",
+      "[1 mark] D = b² − 4ac = (−4)² − 4(2)(3) = 16 − 24 = −8.",
     ],
   },
-  { id: "QE-N02", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the discriminant of a quadratic equation is zero, the roots are:", options: ["Two equal real roots","Two unequal real roots","No real roots","Imaginary roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 0 → the equation has two equal (coincident) real roots.", finalAnswer: "D = 0 → the equation has two equal (coincident) real roots.", isCompetencyBased: false,
+  { id: "QE-N02", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If the discriminant of a quadratic equation is zero, the roots are:", options: ["Two equal real roots","Two unequal real roots","No real roots","Imaginary roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 0 → the equation has two equal (coincident) real roots.", finalAnswer: "Two equal real roots", isCompetencyBased: false,
     solutionSteps: [
-      "The question text for this problem is missing.",
-      "Please provide the quadratic equation to determine the nature of its roots and generate the solution steps.",
+      "[1 mark] When D = b² − 4ac = 0, the roots are x = −b/(2a) and x = −b/(2a), so the equation has two equal real roots.",
     ],
   }
 ];

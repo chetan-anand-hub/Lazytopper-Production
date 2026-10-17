@@ -78,7 +78,6 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 const MIN_MAPPED_LABELS = 1850;
 /** Labels whose every row is paused by BANK-STEPS-1: allowed to be mapped while served by nothing. Pinned both ways in the tests below. */
 const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
-  { chapter: "quadratic-equations", label: "Roots by Formula" },
   // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3, 71 more paused rows): every row of these four mapped labels is now paused (same D143 shape).
   { chapter: "polynomials", label: "Degree of Polynomial" },
   { chapter: "surface-areas-and-volumes", label: "Total Surface Area" },
@@ -91,6 +90,7 @@ const MAX_REVIEWED_LABELS = 136;
 // 13 Oct BANK-STEPS-1 PR-3 (PAUSE-3): 10268 served rows, measured 0.91858 -> pin 0.9189 -> 0.9185 (each REPAIR PR re-measures and raises it back).
 // 14 Oct GARBLE-1 REWRITE-1 (A2): PYQ-M-2024-TRIG-018 and -020 serve again (label 'Trigonometric Identity Proofs' has a carrier, its PAUSED_LABELS entry is gone). Re-measured on the merged tree by runtime import: 10329 served, 0.92264 (this includes the rows #1145 restored) -> pin 0.9185 -> 0.9226.
 // 14 Oct GARBLE-1 REWRITE-2 (A2): PYQ-M-2024-QE-002, -004b and -006a serve again (10329 -> 10332). Two carry a mapped concept ('Nature of Roots'); QE-002's label 'Sum and Product of Roots' is a reviewed unmapped label (other-chapter: polynomials), so it has none: 9530 of 10329 -> 9532 of 10332 (0.92257), and the pin moves 0.9226 -> 0.9225 by exactly that one row.
+// 14 Oct MATHS-UNKNOWN-OWNER-1 (D3): 44 rows serve again (10419 -> 10463); QE2-049 re-serves "Roots by Formula", so its PAUSED_LABELS entry is gone (the paused-but-served control now uses polynomials / Degree of Polynomial). Pin left at 0.9225.
 const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9225;
 
 const isChapterEchoSubtopic = echoFromShape;
@@ -239,7 +239,7 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
 
   it("a paused label that is served again is RED (paused-but-served): the cue to remove it from PAUSED_LABELS", () => {
     const s = new Map([...SERVED].map(([k, v]) => [k, new Map(v)]));
-    s.get("quadratic-equations")!.set("Roots by Formula", 1);
+    s.get("polynomials")!.set("Degree of Polynomial", 1);
     expect(auditMap(s, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED).map((p) => p.kind)).toEqual(["paused-but-served"]);
   });
 
