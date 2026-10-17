@@ -214,10 +214,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["[Delhi 2017] a. Uterus wall becomes thicker due to development of blood vessels and glands in it and placenta develops from the side of foetus so that it can derive nutrition from mother and pass the waste to mother's blood. b. Uterus lining gets peeled and shed off along with mucus, blood, dead ovum during menstruation."],
     ncertRef: "cbjesccq08 Q31", isCompetencyBased: false },
   // cbjesccq08 Q32 (Section B, 2mk)
+  // REPR-028 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 7 How do Organisms Reproduce?, 7.2.1 Fission and 7.2.2 Fragmentation
   { id: "SCQ-S-REPR-028", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Give reasons as to why the following processes are different from each other: a. Fission in Amoeba and Plasmodium . b. Binary fission and Fragmentation.",
-    answer: "a. In Amoeba during binary fission the cell divides into two daughter cells while in Plasmodium multiple fission occurs, where the cell divides into many daughter cells. b. In binary fission, a cell divides into two daughter cells while in fragmentation, the body of a multicellul",
-    solutionSteps: ["a. In Amoeba during binary fission the cell divides into two daughter cells while in Plasmodium multiple fission occurs, where the cell divides into many daughter cells. b. In binary fission, a cell divides into two daughter cells while in fragmentation, the body of a multicellular organisms divides into two or more Chap 8 : How Do Organisms Reproduce parts which grow further."],
+    questionText: "Give reasons as to why the following processes are different from each other: a. Fission in Amoeba and Plasmodium. b. Binary fission and Fragmentation.",
+    answer: "a. In Amoeba, binary fission occurs: the cell divides into two daughter cells, while in Plasmodium multiple fission occurs: the cell divides into many daughter cells simultaneously. b. In binary fission, a single cell divides into two daughter cells, while in fragmentation the body of a multicellular organism (e.g. Spirogyra) breaks up into two or more pieces, each of which grows into a new individual.",
+    solutionSteps: ["[1 mark] (a) Amoeba divides by binary fission into two daughter cells, while Plasmodium divides by multiple fission into many daughter cells simultaneously.","[1 mark] (b) Binary fission is the division of a single cell into two daughter cells, while in fragmentation the body of a multicellular organism (e.g. Spirogyra) breaks up into two or more pieces, each of which grows into a new individual."],
+    finalAnswer: "(a) Amoeba: two daughter cells (binary fission); Plasmodium: many daughter cells at once (multiple fission). (b) Binary fission splits a single cell into two; fragmentation breaks a multicellular body into pieces that each grow into a new individual.",
     ncertRef: "cbjesccq08 Q32", isCompetencyBased: true },
   // cbjesccq08 Q33 (Section B, 2mk)
   { id: "SCQ-S-REPR-029", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -232,10 +234,12 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["To build the copies of DNA or the genetic material, the cells use biochemical reactions. Additional cellular apparatus along with the DNA copies are separated and so a cell divides to give rise to two almost identical cells."],
     ncertRef: "cbjesccq08 Q34", isCompetencyBased: true },
   // cbjesccq08 Q35 (Section B, 2mk)
+  // REPR-031 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 7 How do Organisms Reproduce?, 7.1 Do Organisms Create Exact Copies of Themselves? and 7.3 Sexual Reproduction; Ch 8 Heredity 8.1
   { id: "SCQ-S-REPR-031", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "\"Variations\" are seen in the organisms. State the two main causes of variation.",
-    answer: "Variations are caused by: a. Change in the genetic material, i.e., DNA at the time of DNA copying. b. Environmental factors viz., light, temperature, nutrition, wind and water supply, etc. c. Mutations.",
-    solutionSteps: ["Variations are caused by: a. Change in the genetic material, i.e., DNA at the time of DNA copying. b. Environmental factors viz., light, temperature, nutrition, wind and water supply, etc. c. Mutations."],
+    answer: "The two main causes of variation are: a. Inaccuracies (changes) in DNA copying during reproduction. b. Sexual reproduction, in which DNA from two different individuals combines, creating new combinations of variations.",
+    solutionSteps: ["[1 mark] (a) Errors in DNA copying: the process of copying DNA during reproduction is not absolutely accurate, so small changes (variations) arise in each new copy.","[1 mark] (b) Sexual reproduction: DNA from two different individuals (male and female parents) combines, creating new combinations of variations in the offspring."],
+    finalAnswer: "Variation arises from inaccuracies in DNA copying and from sexual reproduction, which combines DNA from two parents.",
     ncertRef: "cbjesccq08 Q35", isCompetencyBased: false },
   // cbjesccq08 Q36 (Section B, 2mk)
   { id: "SCQ-S-REPR-032", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",

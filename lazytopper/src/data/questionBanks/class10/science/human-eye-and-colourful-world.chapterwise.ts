@@ -197,10 +197,12 @@ export const HUMAN_EYE_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["Eye lens is made of transparent and flexible jelly like material."],
     ncertRef: "cbjesccq11 Q4", isCompetencyBased: false },
   // cbjesccq11 Q5 (Section A, 1mk)
+  // EYE-025 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science (2026-27) Ch 10, Sec 10.1 The Human Eye
   { id: "SCQ-S-EYE-025", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "How is the sense of vision carried from the eye to the brain?",
-    answer: "Through optical nerve, sense of vision is carried from eye to the brain.",
-    solutionSteps: ["Through optical nerve, sense of vision is carried from eye to the brain."],
+    answer: "The light-sensitive cells of the retina get activated on illumination and generate electrical signals. These signals are carried to the brain by the optic nerve, and the brain interprets them so that we see the object.",
+    solutionSteps: ["[1 mark] The image is formed on the retina, whose light-sensitive cells get activated on illumination and generate electrical signals.","[1 mark] These electrical signals are carried to the brain by the optic nerve; the brain interprets them and we see the object."],
+    finalAnswer: "The retina converts light into electrical signals, which the optic nerve carries to the brain for interpretation.",
     ncertRef: "cbjesccq11 Q5", isCompetencyBased: true },
   // cbjesccq11 Q6 (Section A, 1mk)
   { id: "SCQ-S-EYE-026", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",

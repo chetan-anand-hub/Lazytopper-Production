@@ -213,10 +213,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "Propanal, CH3CH2CHO, and propanone, CH3COCH3.",
     ncertRef: "cbjesccq04 Q71", isCompetencyBased: false },
   // cbjesccq04 Q73 (Section B, 2mk)
+  // CARB-027 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 4 (jesc104) sec 4.3.1 Combustion
   { id: "SCQ-S-CARB-027", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Write balanced equations for the burning of (a) methane (b) ethane in air.",
-    answer: "(a) CH4(g) + 2O2(g) $ CO2(g) + 2H2O(l) (b) 2C2H6(g) + 7O2(g) $ 4CO2(g) + 6H2O(l)",
-    solutionSteps: ["(a) CH4(g) + 2O2(g) $ CO2(g) + 2H2O(l) (b) 2C2H6(g) + 7O2(g) $ 4CO2(g) + 6H2O(l)"],
+    answer: "(a) CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) (b) 2C2H6(g) + 7O2(g) → 4CO2(g) + 6H2O(l)",
+    solutionSteps: ["[1 mark] (a) Methane burns in air: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + heat and light.","[1 mark] (b) Ethane burns in air: 2C2H6(g) + 7O2(g) → 4CO2(g) + 6H2O(l) + heat and light."],
+    finalAnswer: "(a) CH4 + 2O2 → CO2 + 2H2O; (b) 2C2H6 + 7O2 → 4CO2 + 6H2O.",
     ncertRef: "cbjesccq04 Q73", isCompetencyBased: false },
   // cbjesccq04 Q74 (Section B, 2mk)
   { id: "SCQ-S-CARB-028", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -225,10 +227,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     solutionSteps: ["Benzene has 3 double bonds whereas cyclohexane has all single bonds."],
     ncertRef: "cbjesccq04 Q74", isCompetencyBased: true },
   // cbjesccq04 Q75 (Section B, 2mk)
+  // CARB-029 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 4 (jesc104) sec 4.4.1 Properties of Ethanol (reaction with sodium) and 4.4.2 Properties of Ethanoic Acid
   { id: "SCQ-S-CARB-029", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "a. Write chemical name and formula of vinegar? b. Describe with a chemical equation what happens when sodium reacts with ethanol.",
-    answer: "a. Vinegar contains ethanoic acid, b. Sodium ethoxide and hydrogen gas is formed. 2C2H5OH + 2Na $ 2C2H5ONa + H2",
-    solutionSteps: ["a. Vinegar contains ethanoic acid, b. Sodium ethoxide and hydrogen gas is formed. 2C2H5OH + 2Na $ 2C2H5ONa + H2"],
+    answer: "a. Vinegar is a 5-8% solution of ethanoic acid (acetic acid), CH3COOH, in water. b. Sodium reacts with ethanol to form sodium ethoxide and hydrogen gas: 2Na + 2CH3CH2OH → 2CH3CH2ONa + H2.",
+    solutionSteps: ["[1 mark] a. Vinegar is a 5-8% solution of ethanoic acid (acetic acid) in water; formula CH3COOH.","[1 mark] b. Sodium reacts with ethanol, evolving hydrogen gas and forming sodium ethoxide: 2Na + 2CH3CH2OH → 2CH3CH2ONa + H2."],
+    finalAnswer: "a. Ethanoic acid (acetic acid), CH3COOH. b. 2Na + 2CH3CH2OH → 2CH3CH2ONa + H2 (sodium ethoxide and hydrogen gas).",
     ncertRef: "cbjesccq04 Q75", isCompetencyBased: true },
   // cbjesccq04 Q76 (Section B, 2mk)
   { id: "SCQ-S-CARB-030", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -253,10 +257,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "X = ethanol, Y = ethene, Z = hydrogen; CH3CH2OH → CH2=CH2 + H2O (conc. H2SO4, 443 K); conc. H2SO4 is a dehydrating agent.",
     ncertRef: "cbjesccq04 Q99", isCompetencyBased: false },
   // cbjesccq04 Q100 (Section C, 3mk)
+  // CARB-033 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science Ch 4 (jesc104) sec 4.2.4, Fig 4.9 Structure of cyclohexane
   { id: "SCQ-S-CARB-033", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. Why are most carbon compounds poor conductors of electricity? b. Write the name and structure of a saturated compound in which carbon atoms are arranged in a ring. Give the number of single bonds present in this compound.",
-    answer: "a. It is because covalent compounds do not form ions, therefore, do not conduct electricity. b. It has 18 single bonds.",
-    solutionSteps: ["a. It is because covalent compounds do not form ions, therefore, do not conduct electricity. b. It has 18 single bonds."],
+    answer: "a. Carbon compounds are covalent compounds; they do not form ions, therefore they are poor conductors of electricity. b. Cyclohexane (C6H12), a ring of six carbon atoms each joined to two hydrogen atoms; it has 18 single bonds.",
+    solutionSteps: ["[1 mark] a. Most carbon compounds are covalent: their atoms share electrons and do not form ions, so they are poor conductors of electricity.","[1 mark] b. The saturated ring compound is cyclohexane, C6H12: six carbon atoms joined by single bonds in a ring, each carbon also bonded to two hydrogen atoms.","[1 mark] Number of single bonds = 6 C–C bonds + 12 C–H bonds = 18 single bonds."],
+    finalAnswer: "Carbon compounds are covalent and form no ions, so they conduct poorly; cyclohexane (C6H12) is a saturated ring compound with 18 single bonds.",
     ncertRef: "cbjesccq04 Q100", isCompetencyBased: true },
   // cbjesccq04 Q101 (Section C, 3mk)
   // CARB-034 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 sections 4.2.2-4.2.5 (structural isomers; aldehyde -CHO and ketone -CO- groups; Table 4.4 propanal and propanone; electron dot structures of covalent compounds); the stored key was only the running header 'Chap 4 : Carbon and Its Compounds'. Same isomer pair as SCQ-S-CARB-026
@@ -267,10 +273,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "Propanal, CH3CH2CHO, and propanone, CH3COCH3, with the C=O group drawn as two shared pairs and two lone pairs on oxygen.",
     ncertRef: "cbjesccq04 Q101", isCompetencyBased: false },
   // cbjesccq04 Q102 (Section C, 3mk)
+  // CARB-035 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 4 (jesc104) sec 4.2.4 isomers and Table 4.4 nomenclature (Propanal, Propanone)
   { id: "SCQ-S-CARB-035", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "An aldehyde as well as ketone can be represented by the same molecular formula say C3H6O. Write their structures and name them. State the relationship between two in language of science.",
-    answer: "These are functional isomers.",
-    solutionSteps: ["These are functional isomers."],
+    answer: "Aldehyde: propanal, CH3–CH2–CHO; ketone: propanone, CH3–CO–CH3. Both have the formula C3H6O but different structures and functional groups, so they are isomers (structural isomers).",
+    solutionSteps: ["[1 mark] Aldehyde with formula C3H6O: CH3–CH2–CHO, named propanal (–CHO group at the end of the chain).","[1 mark] Ketone with formula C3H6O: CH3–CO–CH3, named propanone (C=O group on the middle carbon).","[1 mark] Relationship: they have the same molecular formula but different structures (different functional groups), so they are isomers — structural isomers."],
+    finalAnswer: "Propanal (CH3CH2CHO) and propanone (CH3COCH3) share the formula C3H6O but have different structures; they are structural isomers.",
     ncertRef: "cbjesccq04 Q102", isCompetencyBased: false },
   // cbjesccq04 Q103 (Section C, 3mk)
   // CARB-036 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 section 4.3.3 (addition reaction: unsaturated hydrocarbons add hydrogen in the presence of catalysts such as palladium or nickel to give saturated hydrocarbons). STEM FIX: the stored 'C4H3' is an impossible formula (the stored key says X has a double bond, and C5H12 is the saturated alkane); restored to C4H8, the alkene formula, as in the CBSE question. This stem restoration is INFERRED, not read from a printed paper (no allowed source reachable): flagged for the cofounder
@@ -304,16 +312,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq04 Q155", isCompetencyBased: true, sourceOverride: "others" },
   // cbjesccq04 Q156 (Section D, 5mk)
+  // CARB-039 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 4 (jesc104) sec 4.5 Soaps and Detergents
   { id: "SCQ-S-CARB-039", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Soaps and detergents are both types of salts. State the difference between the two. Write the mechanism of the cleansing action of soaps. Why do soaps not form lather (foam) with hard water? Mention any two problems that arise due to the use of detergents instead of soaps.",
-    answer: "a. Soaps are sodium or potassium salts of fatty acids e.g. —COONa. Detergents are sodium or potassium salts of sulphonic acids e.g. —SO3Na or —SO4Na b. Soaps are sodium or potassium salts of fatty acids. They contain —COONa group. Detergents are sodium or potassium salts of sulph",
-    solutionSteps: [
-      "[1 mark] Difference: soaps are sodium or potassium salts of long-chain fatty acids and contain the –COONa group; detergents are sodium salts of sulphonic acids and contain the –SO3Na (or –SO4Na) group.",
-      "[1 mark] Structure of a soap/detergent molecule: it has a long hydrophobic (water-repelling) hydrocarbon tail and a hydrophilic (water-attracting) ionic head, so one end dissolves in oil/grease and the other in water.",
-      "[1 mark] Cleansing mechanism: the hydrophobic tails attach to the oily dirt while the ionic heads face the water, forming spherical clusters called micelles that trap the grease; agitation lifts the micelles into the water and rinsing carries the dirt away.",
-      "[1 mark] Soaps do not lather with hard water because Ca²⁺ and Mg²⁺ ions in hard water react with the soap to form insoluble calcium/magnesium salts of fatty acids (scum), so the soap is wasted before it can form foam.",
-      "[1 mark] Two problems with detergents: (i) many detergents have non-biodegradable branched hydrocarbon chains that cause water pollution/foaming in rivers, and (ii) they persist in the environment, harming aquatic life."
-    ],
+    answer: "Soaps are sodium or potassium salts of long-chain fatty acids (–COONa group); detergents are sodium salts of sulphonic acids (–SO3Na or –SO4Na group). Cleansing action: a soap molecule has a hydrophobic hydrocarbon tail that attaches to oily dirt and an ionic hydrophilic head that faces water; the molecules form micelles that trap the grease, which is lifted off by agitation and washed away by rinsing. Soaps do not lather with hard water because the calcium and magnesium ions react with soap to form an insoluble scum. Problems of detergents: (i) many are non-biodegradable and cause foaming and pollution of rivers; (ii) they persist in the environment and harm aquatic life.",
+    solutionSteps: ["[1 mark] Difference: soaps are sodium or potassium salts of long-chain fatty acids and contain the –COONa group; detergents are sodium salts of sulphonic acids and contain the –SO3Na (or –SO4Na) group.","[1 mark] Structure of a soap/detergent molecule: it has a long hydrophobic (water-repelling) hydrocarbon tail and a hydrophilic (water-attracting) ionic head, so one end dissolves in oil/grease and the other in water.","[1 mark] Cleansing mechanism: the hydrophobic tails attach to the oily dirt while the ionic heads face the water, forming spherical clusters called micelles that trap the grease; agitation lifts the micelles into the water and rinsing carries the dirt away.","[1 mark] Soaps do not lather with hard water because Ca²⁺ and Mg²⁺ ions in hard water react with the soap to form insoluble calcium/magnesium salts of fatty acids (scum), so the soap is wasted before it can form foam.","[1 mark] Two problems with detergents: (i) many detergents have non-biodegradable branched hydrocarbon chains that cause water pollution/foaming in rivers, and (ii) they persist in the environment, harming aquatic life."],
+    finalAnswer: "Soaps are fatty-acid salts (–COONa), detergents sulphonic-acid salts (–SO3Na); soap cleans by forming micelles; hard-water Ca²⁺/Mg²⁺ form scum with soap; detergents are often non-biodegradable and pollute water.",
     ncertRef: "cbjesccq04 Q156", isCompetencyBased: true },
   // cbjesccq04 Q157 (Section D, 5mk)
   { id: "SCQ-S-CARB-040", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
@@ -328,16 +332,12 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq04 Q157", isCompetencyBased: true },
   // cbjesccq04 Q158 (Section D, 5mk)
+  // CARB-041 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 4 (jesc104) sec 4.3.2 Oxidation, 4.3.3 Addition Reaction, 4.4.1 Properties of Ethanol, 4.4.2 Properties of Ethanoic Acid
   { id: "SCQ-S-CARB-041", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
-    questionText: "Complete the following chemical equations and write the chemical name of the products formed. a. CH2=CH2 + H2 $ b. CH3COOH + NaOH $ c. CH3CH2OH H SO 2 4 d. HCOOH + Na $ e. C2H5OH Alk MnO4 $",
-    answer: "a. CH2= CH2 + H2 CH3– CH3 Ethane b. CH3COOH + NaOH CH3COONa + H2O Sodium ethanoate c. CH3CH2OH . Conc H SO 2 4 D CH2= CH2 + H2O Ethene d. 2HCOOH + 2Na 2HCOONa + H2 Sodium methanoate e. C2H5OH . Alk KMnO4 CH3COOH + H2O Ethanoic acid",
-    solutionSteps: [
-      "[1 mark] a. CH2=CH2 + H2 →(Ni, heat) CH3–CH3; product is ethane.",
-      "[1 mark] b. CH3COOH + NaOH → CH3COONa + H2O; product is sodium ethanoate (sodium acetate).",
-      "[1 mark] c. CH3CH2OH →(conc. H2SO4, 443 K) CH2=CH2 + H2O; product is ethene (dehydration).",
-      "[1 mark] d. 2HCOOH + 2Na → 2HCOONa + H2↑; product is sodium methanoate (sodium formate).",
-      "[1 mark] e. C2H5OH →(alkaline KMnO4, warm) CH3COOH + H2O; product is ethanoic acid (oxidation)."
-    ],
+    questionText: "Complete the following chemical equations and write the chemical name of the products formed. a. CH2=CH2 + H2 → b. CH3COOH + NaOH → c. CH3CH2OH →(conc. H2SO4, heat) d. HCOOH + Na → e. C2H5OH →(alkaline KMnO4, heat)",
+    answer: "a. CH2=CH2 + H2 →(Ni) CH3–CH3; ethane. b. CH3COOH + NaOH → CH3COONa + H2O; sodium ethanoate (sodium acetate). c. CH3CH2OH →(hot conc. H2SO4) CH2=CH2 + H2O; ethene. d. 2HCOOH + 2Na → 2HCOONa + H2; a sodium salt and hydrogen gas (which burns with a pop). e. C2H5OH →(alkaline KMnO4, heat) CH3COOH; ethanoic acid.",
+    solutionSteps: ["[1 mark] a. CH2=CH2 + H2 →(Ni catalyst) CH3–CH3; product is ethane.","[1 mark] b. CH3COOH + NaOH → CH3COONa + H2O; product is sodium ethanoate (sodium acetate).","[1 mark] c. CH3CH2OH →(hot conc. H2SO4, 443 K) CH2=CH2 + H2O; product is ethene (dehydration).","[1 mark] d. 2HCOOH + 2Na → 2HCOONa + H2; the products are a sodium salt and hydrogen gas (which burns with a pop).","[1 mark] e. CH3CH2OH →(alkaline KMnO4, heat) CH3COOH; product is ethanoic acid (oxidation)."],
+    finalAnswer: "a. Ethane; b. sodium ethanoate; c. ethene; d. a sodium salt and hydrogen gas; e. ethanoic acid.",
     ncertRef: "cbjesccq04 Q158", isCompetencyBased: false },
   // cbjesccq04 Q159 (Section D, 5mk)
   { id: "SCQ-S-CARB-042", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
@@ -352,15 +352,11 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     ],
     ncertRef: "cbjesccq04 Q159", isCompetencyBased: true },
   // cbjesccq04 Q160 (Section D, 5mk)
+  // CARB-043 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 4 (jesc104) sec 4.4.1 (ethanol + sodium) and sec 4.5 Soaps and Detergents
   { id: "SCQ-S-CARB-043", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. You have three unlabelled test tubes containing ethanol, ethanoic acid and soap solution. Explain the method you would use to identify the compounds in different test tubes by chemical tests using litmus paper and sodium metal. b. Give reason of formation of scum when soaps are used with hard water.",
-    answer: "Chap 4 : Carbon and Its Compounds a. Red litmus paper will become blue in soap solution only. Ethanoic acid will turn blue litmus red only. Ethanol will react with Na metal to form sodium ethoxide and hydrogen gas will be liberated. b. Soaps are sodium or potassium salts of fatty",
-    solutionSteps: [
-      "[1 mark] a. Soap solution is basic, so it turns red litmus paper blue (only the soap solution does this).",
-      "[1 mark] a. Ethanoic acid is acidic, so it turns blue litmus paper red (only the ethanoic acid does this).",
-      "[1 mark] a. Ethanol changes neither litmus; it is identified by adding sodium metal — brisk effervescence of hydrogen gas is seen and sodium ethoxide is formed: 2C2H5OH + 2Na → 2C2H5ONa + H2↑.",
-      "[1 mark] b. Soaps are sodium or potassium salts of fatty acids; in hard water they react with the dissolved Ca²⁺ and Mg²⁺ ions.",
-      "[1 mark] b. This forms insoluble calcium/magnesium salts of fatty acids that separate out as a sticky precipitate called scum, which is why soaps do not clean well in hard water."
-    ],
+    answer: "a. Soap solution is basic and turns red litmus blue; ethanoic acid turns blue litmus red; ethanol does not change either litmus but reacts with sodium metal with effervescence of hydrogen gas, forming sodium ethoxide: 2C2H5OH + 2Na → 2C2H5ONa + H2. b. Soaps are sodium or potassium salts of fatty acids; in hard water they react with calcium and magnesium ions to form insoluble calcium and magnesium salts that separate out as scum.",
+    solutionSteps: ["[1 mark] a. Soap solution is basic, so it turns red litmus paper blue (only the soap solution does this).","[1 mark] a. Ethanoic acid is acidic, so it turns blue litmus paper red (only the ethanoic acid does this).","[1 mark] a. Ethanol changes neither litmus; it is identified by adding sodium metal — brisk effervescence of hydrogen gas is seen and sodium ethoxide is formed: 2C2H5OH + 2Na → 2C2H5ONa + H2.","[1 mark] b. Soaps are sodium or potassium salts of fatty acids; in hard water they react with the dissolved Ca²⁺ and Mg²⁺ ions.","[1 mark] b. This forms insoluble calcium/magnesium salts of fatty acids that separate out as a sticky precipitate called scum, which is why soaps do not clean well in hard water."],
+    finalAnswer: "Soap turns red litmus blue, ethanoic acid turns blue litmus red, ethanol gives hydrogen with sodium; scum is the insoluble calcium/magnesium salt formed when soap reacts with hard water.",
     ncertRef: "cbjesccq04 Q160", isCompetencyBased: true },
 ];
