@@ -340,7 +340,7 @@ export const COORD_EXPAND_CASE_E: CanonicalQuestion[] = [
       "[1 mark] PQ = √[(0−3)² + (3−0)²] = √18 = 3√2.",
       "[1 mark] QR = √[(−3−0)² + (0−3)²] = √18 = 3√2.",
       "[1 mark] PR = √[(−3−3)² + 0²] = √36 = 6.",
-      "[1 mark] PQ = QR ⇒ isosceles; and PQ² + QR² = 18 + 18 = 36 = PR², so by the converse of Pythagoras the right angle is at Q."
+      "[1 mark] PQ = QR ⇒ isosceles; and PQ² + QR² = 18 + 18 = 36 = PR², i.e. PR² = PQ² + QR², so the angle at Q is 90°."
     ],
     "finalAnswer": "Isosceles right triangle, right angle at Q.",
     "isCompetencyBased": true,

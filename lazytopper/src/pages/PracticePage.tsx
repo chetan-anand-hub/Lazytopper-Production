@@ -297,6 +297,15 @@ export const isExactFocusSet = (
 ): boolean =>
   strictFocus && !!focusBankIds && focusBankIds.length >= count && marks === "all" && !range;
 
+/**
+ * FOLLOWUPS-5 (review of #1220) — the hero's "N questions in this set". An exact id set where a
+ * withheld id did not resolve serves FEWER rows than requested (the builder never tops it up with
+ * an unrelated question), so the hero counts the rows actually shown. Every other path (not exact,
+ * nothing shown yet, or a full set) keeps the requested count, unchanged.
+ */
+const practiceHeroCount = (exact: boolean, requested: number, displayed: number): number =>
+  exact && displayed > 0 && displayed < requested ? displayed : requested;
+
 const uiMarksToSectionScope = (ui: string): "A" | "B" | "C" | "D" | "E" | "All" => {
   if (ui === "1") return "A";
   if (ui === "5") return "D";
@@ -3324,7 +3333,11 @@ const packTopicKey = useMemo(() => {
           subjectKey={subjectKey}
           title={title}
           topicParam={topicParam}
-          questionCount={questionCount}
+          questionCount={practiceHeroCount(
+            isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange),
+            questionCount,
+            filteredQuestions.length,
+          )}
         />
 
         {isTargetedSession && ((() => {

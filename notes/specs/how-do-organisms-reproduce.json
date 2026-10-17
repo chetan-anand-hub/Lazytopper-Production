@@ -484,35 +484,189 @@
   "formula_strip": [
     {
       "label": "Asexual modes (single parent)",
-      "math": "Fission &middot; Budding &middot; Fragmentation &middot; Regeneration &middot; Spore formation &middot; Vegetative propagation - offspring genetically identical to the parent"
+      "math": "Fission &middot; Budding &middot; Fragmentation &middot; Regeneration &middot; Spore formation &middot; Vegetative propagation - offspring genetically identical to the parent",
+      "id": "asexual-modes",
+      "tip": "Offspring are genetically similar to the parent."
     },
     {
       "label": "Fission types",
-      "math": "Binary fission = 2 daughter cells (Amoeba, in any plane); Multiple fission = many daughters at once (Plasmodium)"
+      "math": "Binary fission = 2 daughter cells (Amoeba, in any plane); Multiple fission = many daughters at once (Plasmodium)",
+      "id": "types-of-fission",
+      "tip": "Amoeba: binary; Plasmodium: multiple."
     },
     {
       "label": "Flower parts",
-      "math": "Male = Stamen (Anther + Filament) makes pollen; Female = Pistil (Stigma + Style + Ovary with ovules/egg)"
+      "math": "Male = Stamen (Anther + Filament) makes pollen; Female = Pistil (Stigma + Style + Ovary with ovules/egg)",
+      "id": "flower-parts",
+      "tip": "Stamen = male; pistil = female."
     },
     {
       "label": "Pollination vs Fertilisation",
-      "math": "Pollination = pollen transferred anther &rarr; stigma; Fertilisation = male germ-cell fuses with egg &rarr; zygote"
+      "math": "Pollination = pollen transferred anther &rarr; stigma; Fertilisation = male germ-cell fuses with egg &rarr; zygote",
+      "id": "pollination-vs-fertilisation",
+      "tip": "Pollination is the transfer; fertilisation is the fusion."
     },
     {
       "label": "Male reproductive system",
-      "math": "Testes (in scrotum) &rarr; vas deferens &rarr; (prostate + seminal vesicle secretions) &rarr; urethra &rarr; penis"
+      "math": "Testes (in scrotum) &rarr; vas deferens &rarr; (prostate + seminal vesicle secretions) &rarr; urethra &rarr; penis",
+      "id": "male-reproductive-system"
     },
     {
       "label": "Female reproductive system",
-      "math": "Ovary &rarr; oviduct / fallopian tube (site of fertilisation) &rarr; uterus &rarr; cervix &rarr; vagina"
+      "math": "Ovary &rarr; oviduct / fallopian tube (site of fertilisation) &rarr; uterus &rarr; cervix &rarr; vagina",
+      "id": "female-reproductive-system"
     },
     {
       "label": "Egg &amp; menstrual cycle",
-      "math": "One egg released per month; unfertilised egg lives about 1 day; menstruation lasts about 2-8 days; development takes about 9 months"
+      "math": "One egg released per month; unfertilised egg lives about 1 day; menstruation lasts about 2-8 days; development takes about 9 months",
+      "id": "egg-and-menstrual-cycle"
     },
     {
       "label": "Contraception categories",
-      "math": "Barrier (condom) &middot; Intra-uterine device (copper-T/loop) &middot; Hormonal (oral pills) &middot; Surgical (block vas deferens or fallopian tube) - condom also lowers STD transmission"
+      "math": "Barrier (condom) &middot; Intra-uterine device (copper-T/loop) &middot; Hormonal (oral pills) &middot; Surgical (block vas deferens or fallopian tube) - condom also lowers STD transmission",
+      "id": "contraception-methods"
+    },
+    {
+      "label": "Asexual Reproduction: Modes and Examples (Table)",
+      "math": "Fission: Amoeba (binary), Plasmodium (multiple)<br>Fragmentation: Spirogyra<br>Regeneration: Hydra, Planaria<br>Budding: Hydra, yeast<br>Vegetative propagation: Bryophyllum (leaf); layering, grafting (sugarcane, rose, grapes)<br>Spore formation: Rhizopus",
+      "id": "asexual-modes-with-examples"
+    },
+    {
+      "label": "After Fertilisation in a Flower",
+      "math": "The zygote divides to form an embryo inside the ovule. The ovule develops a tough coat and becomes the seed; the ovary ripens into the fruit; the other flower parts wither and fall. The seed germinates into a new plant under suitable conditions.",
+      "id": "after-fertilisation"
+    },
+    {
+      "label": "Pollen Tube and Fertilisation in Plants",
+      "math": "Pollen lands on the stigma. A pollen tube grows through the style to the ovary and reaches the ovule. The male gamete travels down the tube and fuses with the egg to form the zygote.",
+      "id": "pollen-tube"
+    },
+    {
+      "label": "Puberty: Changes in Boys and Girls",
+      "math": "Both boys and girls: thick hair appears in new parts of the body (armpits, genital area), thinner hair on legs, arms and face; the skin becomes oily and pimples may appear; there is a new awareness of one's body. In girls: breast size increases and menstruation begins. In boys: thick hair grows on the face and the voice cracks. The testes make testosterone. The changes come slowly, over months and years, and not at the same age in everyone.",
+      "id": "puberty-changes"
+    },
+    {
+      "label": "Placenta and Development of the Embryo",
+      "math": "The embryo is implanted in the lining of the uterus. The placenta, a disc embedded in the uterine wall, gives the embryo nutrition from the mother's blood and removes waste. Development takes about nine months.",
+      "id": "placenta-and-pregnancy"
+    },
+    {
+      "label": "Sexually Transmitted Diseases (STDs)",
+      "math": "Bacterial infections: gonorrhoea, syphilis. Viral infections: warts, HIV-AIDS. A condom helps to prevent transmission of many of these infections to some extent.",
+      "id": "sexually-transmitted-diseases"
+    },
+    {
+      "label": "Reproductive Health: Family Planning and Sex Ratio",
+      "math": "Contraceptive methods help in family planning. The female–male sex ratio must be maintained: female foeticide is a serious social problem that has lowered the child sex ratio.",
+      "id": "reproductive-health"
+    },
+    {
+      "label": "Vegetative Propagation: Why Use It",
+      "math": "Plants raised this way bear flowers and fruits earlier than those grown from seeds. Banana, orange, rose and jasmine have lost the capacity to produce seeds and can only be propagated this way. The new plants are genetically similar enough to the parent to have all its characteristics.",
+      "id": "vegetative-propagation-benefits"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "identical-or-varied",
+      "text": "Asexual: one parent, genetically similar offspring. Sexual: two gametes, variation.",
+      "use": "mcq-check",
+      "source": "NCERT 7.1, 7.3"
+    },
+    {
+      "id": "pollination-then-fertilisation",
+      "text": "Pollination (transfer) comes first, fertilisation (fusion) after; do not swap them.",
+      "use": "mcq-check",
+      "source": "NCERT 7.3.2"
+    },
+    {
+      "id": "ovule-seed-ovary-fruit",
+      "text": "Ovule → seed; ovary → fruit.",
+      "use": "mcq-check",
+      "source": "NCERT 7.3.2"
+    },
+    {
+      "id": "site-of-fertilisation",
+      "text": "Fertilisation occurs in the oviduct; the embryo implants in the uterus.",
+      "use": "mcq-check",
+      "source": "NCERT 7.3.3"
+    },
+    {
+      "id": "draw-flower-label",
+      "text": "Label stamen (anther, filament), pistil (stigma, style, ovary with ovule).",
+      "use": "written-ok",
+      "source": "NCERT 7.3.2 (Fig); CBSE marking principle"
+    },
+    {
+      "id": "asexual-modes-trick",
+      "text": "<b>F</b>atafat <b>F</b>ruit <b>R</b>akh <b>B</b>hoola <b>V</b>ahan <b>S</b>ada.",
+      "gloss": "Six asexual modes in NCERT order. F = Fission · F = Fragmentation · R = Regeneration · B = Budding · V = Vegetative propagation · S = Spore formation.",
+      "use": "memory-aid",
+      "source": "NCERT 7.2.1–7.2.6"
+    },
+    {
+      "id": "asexual-examples-trick",
+      "text": "<b>Amoeba do, Plasmodium bahut, Spirogyra tukde, Hydra-Planaria dobara, Hydra-Khameer kali, Bryophyllum patte se, Rhizopus bijanu se.</b>",
+      "gloss": "Which organism, which mode. Amoeba binary fission · Plasmodium multiple fission · Spirogyra fragmentation · Hydra, Planaria regeneration · Hydra, yeast budding · Bryophyllum leaf vegetative propagation · Rhizopus spores.",
+      "use": "memory-aid",
+      "source": "NCERT 7.2"
+    },
+    {
+      "id": "flower-parts-trick",
+      "text": "<b>Sta-MEN = male (anther makes pollen); Pistil = female: Stigma, Style, Ovary.</b>",
+      "gloss": "Flower parts. Sta-MEN: stamen is the male part (anther makes pollen); Pistil: the female part, with stigma (top), style, ovary.",
+      "use": "memory-aid",
+      "source": "NCERT 7.3.2"
+    },
+    {
+      "id": "pollen-journey-trick",
+      "text": "<b>Girta, badhta, pahunchta, milta.</b>",
+      "gloss": "Pollen to zygote. lands on stigma · tube grows through style · reaches ovule · male gamete fuses with egg.",
+      "use": "memory-aid",
+      "source": "NCERT 7.3.2"
+    },
+    {
+      "id": "seed-fruit-trick",
+      "text": "<b>Ovule se Seed, Ovary se Fruit (phal).</b>",
+      "gloss": "After fertilisation. ovule → seed; ovary → fruit.",
+      "use": "memory-aid",
+      "source": "NCERT 7.3.2"
+    },
+    {
+      "id": "male-path-trick",
+      "text": "<b>T</b>amatar <b>V</b>atana <b>U</b>rad.",
+      "gloss": "Path of sperm. T = Testes · V = Vas deferens · U = Urethra (prostate, seminal vesicle add secretions on the way).",
+      "use": "memory-aid",
+      "source": "NCERT 7.3.3"
+    },
+    {
+      "id": "female-path-trick",
+      "text": "<b>Anda, naali, ghar, raasta.</b>",
+      "gloss": "Female path. ovary (egg) → oviduct (fertilisation) → uterus (embryo grows) → vagina.",
+      "use": "memory-aid",
+      "source": "NCERT 7.3.3"
+    },
+    {
+      "id": "cycle-numbers-trick",
+      "text": "<b>Ek anda, ek din, do se aath din, nau mahine.</b>",
+      "gloss": "Numbers to remember. one egg per month · egg lives about a day · menstruation 2–8 days · development about nine months.",
+      "use": "memory-aid",
+      "source": "NCERT 7.3.3"
+    },
+    {
+      "id": "contraception-trick",
+      "text": "<b>B</b>ina <b>H</b>ichak <b>I</b>tna <b>S</b>amjho.",
+      "gloss": "Four contraceptive categories. B = Barrier (condom) · H = Hormonal (oral pills) · I = loop or copper-T placed in the uterus · S = Surgical (blocking the vas deferens or the fallopian tube).",
+      "use": "memory-aid",
+      "source": "NCERT 7.3.3"
+    },
+    {
+      "id": "sti-trick",
+      "text": "<b>Jeevanu: Gonorrhoea, Syphilis. Virus: Warts, HIV-AIDS.</b>",
+      "gloss": "Infections by cause. bacterial: gonorrhoea, syphilis; viral: warts, HIV-AIDS.",
+      "use": "memory-aid",
+      "source": "NCERT 7.3.3"
     }
   ],
   "third_tab_content": {
@@ -581,6 +735,9 @@
       "asset": "how-do-organisms-reproduce/fig_budding_hydra.webp"
     },
     "fig_flower_ls": {
+      "id": "flower-diagram",
+      "heading": "Flower: Longitudinal Section",
+      "alt": "The reproductive parts labelled - Pistil (Stigma, Style, Ovary) and Stamen (Anther, Filament), with Petal and Sepal. The most-drawn diagram of this chapter (exercise Q7).",
       "bucket": "ncert",
       "tag": "NCERT Fig 7.7",
       "caption": "Longitudinal section of a flower",
@@ -591,7 +748,12 @@
         "ncert_fig": "7.7",
         "page_pdf": 8,
         "printed_page": 120,
-        "crop": [130, 1558, 900, 2015],
+        "crop": [
+          130,
+          1558,
+          900,
+          2015
+        ],
         "clean": "saturation",
         "note": "rasterize@220dpi + saturation-clean via pymupdf; trimmed the caption line; eye-confirmed"
       },
