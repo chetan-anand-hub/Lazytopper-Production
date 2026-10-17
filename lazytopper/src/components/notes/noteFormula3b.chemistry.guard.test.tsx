@@ -88,7 +88,8 @@ describe("NOTES-FORMULA-3b CHEMISTRY — the cofounder's rulings, pinned", () =>
     const m = item("metals-and-non-metals", "reactivity-series")!.math;
     expect(m.replace(/\s+/g, " ")).toContain("K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au");
     const trick = (spec("metals-and-non-metals").shortcuts ?? []).find((t) => t.id === "reactivity-series-trick")!;
-    const words = trick.text.replace(/<[^>]+>/g, "").replace(/[.,]/g, "").split(/\s+/).filter(Boolean);
+    const plain = new DOMParser().parseFromString(trick.text, "text/html").body.textContent ?? "";
+    const words = plain.replace(/[.,]/g, "").split(/\s+/).filter(Boolean);
     expect(words).toHaveLength(13);
   });
 
