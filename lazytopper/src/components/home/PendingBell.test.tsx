@@ -55,6 +55,7 @@ import PendingBell from "./PendingBell";
 import PendingPapersStrip from "./PendingPapersStrip";
 import { usePendingPapers, __resetPendingShownForTests } from "./usePendingPapers";
 import { __resetPendingPapersForTests } from "./pendingPapers";
+import { PENDING_CSS } from "./pendingPapersUi";
 import { DesktopShell } from "../desktop/DesktopShell";
 import MobileHome from "../../pages/app/MobileHome";
 import type { SessionRecord } from "../../services/sessionRecords";
@@ -157,6 +158,48 @@ describe("PendingBell", () => {
     fireEvent.click(screen.getByTestId("pending-paper-upload"));
     expect(screen.queryByTestId("pending-bell-popover")).toBeNull();
     expect(onboarding).toHaveBeenLastCalledWith("pending_upload_tap", { surface: "worksheet", placement: "bell" });
+  });
+
+  it("★ focus leaving the bell + popover closes it — CONTROL: focus moving inside it does not", async () => {
+    seedRecords([rec({ id: "WS-1" })]);
+    renderBell();
+    const bell = await screen.findByTestId("pending-bell");
+    fireEvent.click(bell);
+    const link = screen.getByTestId("pending-paper-upload");
+    fireEvent.blur(bell, { relatedTarget: link });
+    expect(screen.getByTestId("pending-bell-popover")).toBeTruthy();
+    fireEvent.blur(link, { relatedTarget: screen.getByText("outside") });
+    expect(screen.queryByTestId("pending-bell-popover")).toBeNull();
+  });
+
+  it("★ 390 / 360 px: below 480 px the popover is pinned to the viewport (fixed, 12 px gutters, scrolls)", () => {
+    const m = PENDING_CSS.match(/@media \(max-width: 480px\) \{([\s\S]*)\}\s*$/);
+    expect(m).not.toBeNull();
+    const rule = (m![1].match(/\.lt-pbell-pop \{([^}]*)\}/) ?? [])[1] ?? "";
+    expect(rule).toContain("position: fixed");
+    expect(rule).toContain("left: 12px");
+    expect(rule).toContain("right: 12px");
+    expect(rule).toContain("max-height:");
+    expect(rule).toContain("overflow-y: auto");
+    // CONTROL: the wide-screen rule is the anchored, absolutely placed popover
+    expect(PENDING_CSS).toMatch(/\.lt-pbell-pop \{ position: absolute;/);
+  });
+
+  it("★ an account switch never shows the previous account's papers, not even for a frame", async () => {
+    seedRecords([rec({ id: "WS-A" })]);
+    const seen: string[][] = [];
+    function Probe({ uid }: { uid: string }) {
+      const { papers } = usePendingPapers({ uid, isLocalSession: false });
+      seen.push(papers.map((p) => p.code));
+      return null;
+    }
+    const view = render(<Probe uid={UID} />);
+    await waitFor(() => expect(cloud.sessionReads).toBe(1));
+    await waitFor(() => expect(seen[seen.length - 1]).toEqual(["WS-A"]));
+    seen.length = 0;
+    view.rerender(<Probe uid="student-2" />);
+    expect(seen.length).toBeGreaterThan(0);
+    for (const frame of seen) expect(frame).not.toContain("WS-A");
   });
 
   it("signed in with nothing waiting: the popover says so honestly (no invented items)", async () => {

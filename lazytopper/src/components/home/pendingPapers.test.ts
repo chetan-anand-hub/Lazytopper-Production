@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 //
-// HOME-PENDING-1 â€” the read behind Home's "Waiting for your answers" card: which papers are
+// HOME-PENDING-1 — the read behind Home's "Waiting for your answers" card: which papers are
 // listed, where "Upload answers" goes, and what it costs to read.
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -78,7 +78,7 @@ function qpSnap(over: Partial<QuickPracticePaperSnapshot> = {}): QuickPracticePa
     worksheetId: "qp-ws-1",
     subject: "Maths",
     persist: {
-      title: "Arithmetic Progressions Â· Practice set",
+      title: "Arithmetic Progressions · Practice set",
       subject: "maths",
       topicSlug: "arithmetic-progressions",
       filterSignature: "sig",
@@ -110,8 +110,8 @@ describe("which papers are waiting", () => {
   it("lists Worksheet / Chapter Test / Full Mock records that are pending-upload or partial", () => {
     const rows = pendingFromSessionRecords([
       rec({ id: "WS-1", surface: "worksheet", status: "pending-upload" }),
-      rec({ id: "CT-M-TRI-02", surface: "chapter-test", status: "partial", title: "Trigonometry Â· Test #2" }),
-      rec({ id: "FM-S-03", surface: "full-mock", status: "pending-upload", subject: "science", title: "Science Â· Mock #3" }),
+      rec({ id: "CT-M-TRI-02", surface: "chapter-test", status: "partial", title: "Trigonometry · Test #2" }),
+      rec({ id: "FM-S-03", surface: "full-mock", status: "pending-upload", subject: "science", title: "Science · Mock #3" }),
     ]);
     expect(rows.map((r) => [r.surface, r.code, r.subject])).toEqual([
       ["worksheet", "WS-1", "maths"],
@@ -132,7 +132,7 @@ describe("which papers are waiting", () => {
 
   it("a QP set saved with Upload later is listed while written questions wait, and not once none do", () => {
     expect(pendingFromQuickPracticePapers([qpSnap()]).map((r) => [r.surface, r.code, r.title])).toEqual([
-      ["quick-practice", "QP-M-AP-1234abcd", "Arithmetic Progressions Â· Practice set"],
+      ["quick-practice", "QP-M-AP-1234abcd", "Arithmetic Progressions · Practice set"],
     ]);
     expect(pendingFromQuickPracticePapers([qpSnap({ pending: [] })])).toEqual([]);
   });
@@ -144,7 +144,7 @@ describe("which papers are waiting", () => {
   });
 });
 
-describe("deep links â€” each surface's own existing entry", () => {
+describe("deep links — each surface's own existing entry", () => {
   it("Worksheet: the generator with review=<code> (reopens the paper on its upload step)", () => {
     expect(pendingPaperHref("worksheet", { code: "WS-M-TRI-01", subject: "maths" })).toBe(
       "/practice/worksheets?review=WS-M-TRI-01&source=home&returnTo=%2F",
@@ -155,7 +155,7 @@ describe("deep links â€” each surface's own existing entry", () => {
       "/chapter-test/10/Science/light-reflection?review=CT-S-LIG-01&source=home&returnTo=%2F",
     );
   });
-  it("Full Mock: the mock page (its awaiting banner carries the Upload button â€” no direct URL exists)", () => {
+  it("Full Mock: the mock page (its awaiting banner carries the Upload button — no direct URL exists)", () => {
     expect(pendingPaperHref("full-mock", { code: "FM-M-01", subject: "maths" })).toBe(
       "/full-mock/10/Maths?source=home&returnTo=%2F",
     );
@@ -182,7 +182,7 @@ describe("reads", () => {
     expect(cloud.sessionReads + cloud.qpReads).toBe(0);
   });
 
-  it("â˜… read cost: ONE hydration per tab â€” a second Home mount reads the cloud zero more times", async () => {
+  it("★ read cost: ONE hydration per tab — a second Home mount reads the cloud zero more times", async () => {
     seedRecords([rec({ id: "WS-1" })]);
     seedQp([qpSnap()]);
     expect((await loadPendingPapers(USER)).map((r) => r.code).sort()).toEqual(["QP-M-AP-1234abcd", "WS-1"]);
@@ -197,7 +197,7 @@ describe("reads", () => {
     expect((await loadPendingPapers(USER)).map((r) => r.code)).toEqual(["QP-M-AP-other999"]);
   });
 
-  it("â˜… a QP set uploaded on THIS device after hydration does not come back from the stale cloud list", async () => {
+  it("★ a QP set uploaded on THIS device after hydration does not come back from the stale cloud list", async () => {
     seedQp([qpSnap()]);
     cloud.qp = [qpSnap()];
     expect((await loadPendingPapers(USER)).map((r) => r.code)).toEqual(["QP-M-AP-1234abcd"]);

@@ -1,7 +1,8 @@
 import { useEffect, useId, useState } from "react";
 import { Link } from "react-router-dom";
 import type { PendingPaper } from "./pendingPapers";
-import { PENDING_CSS, PendingPapersList, papersWaitingLabel } from "./PendingPapersList";
+import { PendingPapersList } from "./PendingPapersList";
+import { PENDING_CSS, papersWaitingLabel } from "./pendingPapersUi";
 import { trackPendingShown, trackPendingUploadTap } from "./usePendingPapers";
 
 /**

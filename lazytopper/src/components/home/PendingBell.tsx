@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { AuthUser } from "../../context/AuthContext";
-import { PENDING_CSS, PendingPapersList, papersWaitingLabel } from "./PendingPapersList";
+import { PendingPapersList } from "./PendingPapersList";
+import { PENDING_CSS, papersWaitingLabel } from "./pendingPapersUi";
 import { trackPendingShown, usePendingPapers } from "./usePendingPapers";
 
 /**
@@ -11,12 +12,14 @@ import { trackPendingShown, usePendingPapers } from "./usePendingPapers";
  *
  *   • Signed out / local session: the bell renders as before — inert, no badge, no popover.
  *   • Signed in, nothing waiting: no badge; the popover says so honestly.
- *   • Accessible: a real button with aria-expanded / aria-controls; Escape or an outside click
- *     closes, and Escape returns focus to the bell.
+ *   • Accessible: a real button with aria-expanded / aria-controls; Escape, an outside click or
+ *     focus leaving the bell + popover closes it, and Escape returns focus to the bell.
  */
 export default function PendingBell({ user }: { user: Pick<AuthUser, "uid" | "isLocalSession"> | null | undefined }) {
   const { uid, papers } = usePendingPapers(user);
-  const [open, setOpen] = useState(false);
+  const [openState, setOpen] = useState(false);
+  // Derived, not synced by an effect: signed out (no uid) the popover is simply never open.
+  const open = openState && !!uid;
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const popId = useId();
@@ -50,14 +53,18 @@ export default function PendingBell({ user }: { user: Pick<AuthUser, "uid" | "is
     if (open && count > 0) trackPendingShown("bell", count);
   }, [open, count]);
 
-  useEffect(() => {
-    if (!uid) setOpen(false);
-  }, [uid]);
-
   const label = uid && count > 0 ? `Notifications: ${papersWaitingLabel(count)}` : "Notifications";
 
   return (
-    <div className="lt-pbell" ref={wrapRef}>
+    <div
+      className="lt-pbell"
+      ref={wrapRef}
+      // Focus leaving the bell + popover (Tab past the last link, or into the page) closes it.
+      onBlur={(e) => {
+        const next = e.relatedTarget as Node | null;
+        if (open && next && wrapRef.current && !wrapRef.current.contains(next)) close(false);
+      }}
+    >
       <style>{PENDING_CSS}</style>
       <button
         ref={btnRef}
@@ -81,7 +88,7 @@ export default function PendingBell({ user }: { user: Pick<AuthUser, "uid" | "is
           </span>
         ) : null}
       </button>
-      {uid && open ? (
+      {open ? (
         <div className="lt-pbell-pop" id={popId} role="dialog" aria-label="Papers waiting for your answers" data-testid="pending-bell-popover">
           <p className="lt-pbell-h">{count > 0 ? papersWaitingLabel(count) : "Notifications"}</p>
           {count > 0 ? (

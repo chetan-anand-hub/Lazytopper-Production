@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AuthUser } from "../../context/AuthContext";
 import { trackOnboardingEvent, type PendingPlacement, type PendingUploadSurface } from "../../analytics/analytics";
 import {
@@ -21,14 +21,18 @@ export function usePendingPapers(user: Pick<AuthUser, "uid" | "isLocalSession"> 
 } {
   const uid = pendingPapersUid(user);
   const isLocalSession = user?.isLocalSession;
-  const [papers, setPapers] = useState<PendingPaper[]>(() => readPendingPapersLocal(uid));
+  // The device copy for THIS uid, derived (no state): it is what shows until the hydrated list
+  // for the same uid arrives.
+  const local = useMemo(() => readPendingPapersLocal(uid), [uid]);
+  // The hydrated list is stored WITH the uid it belongs to, so after an account switch the
+  // previous account's papers can never show for a frame under the new uid.
+  const [loaded, setLoaded] = useState<{ uid: string; papers: PendingPaper[] } | null>(null);
   useEffect(() => {
-    setPapers(readPendingPapersLocal(uid));
     if (!uid) return;
     let live = true;
     void loadPendingPapers({ uid, isLocalSession })
       .then((list) => {
-        if (live) setPapers(list);
+        if (live) setLoaded({ uid, papers: list });
       })
       .catch(() => {
         /* the device list stays */
@@ -37,7 +41,8 @@ export function usePendingPapers(user: Pick<AuthUser, "uid" | "isLocalSession"> 
       live = false;
     };
   }, [uid, isLocalSession]);
-  return { uid, papers: uid ? papers : [] };
+  const papers = !uid ? [] : loaded && loaded.uid === uid ? loaded.papers : local;
+  return { uid, papers };
 }
 
 const SHOWN_KEY = "lazytopper.pendingCardShown.";
