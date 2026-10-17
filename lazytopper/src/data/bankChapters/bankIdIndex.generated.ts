@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Served bank id -> {topicKey, subtopic, section} for 10562 rows, in aggregator order.
+// Served bank id -> {topicKey, subtopic, section} for 10580 rows, in aggregator order.
 // Ids and tags only, never question content. Read through ./bankIdIndex.ts.
 
 export const BANK_ID_INDEX_TOPIC_KEYS: readonly string[] = [
@@ -8903,9 +8903,11 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["PYQ-M-2024-PLE-001", 4, 9, 0],
   ["PYQ-M-2024-PLE-002", 4, 9, 0],
   ["PYQ-M-2024-PLE-003", 4, 9, 0],
+  ["PYQ-M-2024-QE-001", 5, 9, 0],
   ["PYQ-M-2024-QE-002", 5, 54, 0],
   ["PYQ-M-2024-QE-003", 5, 48, 0],
   ["PYQ-M-2024-QE-004b", 5, 48, 3],
+  ["PYQ-M-2024-QE-005a", 5, 48, 3],
   ["PYQ-M-2024-QE-006a", 5, 48, 3],
   ["PYQ-M-2024-AP-001a", 6, 56, 2],
   ["PYQ-M-2024-AP-002a", 6, 56, 2],
@@ -8928,6 +8930,7 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["PYQ-M-2024-TRIG-008", 1, 1248, 1],
   ["PYQ-M-2024-TRIG-009", 1, 1248, 1],
   ["PYQ-M-2024-TRIG-011b", 1, 9, 1],
+  ["PYQ-M-2024-TRIG-014", 1, 1248, 2],
   ["PYQ-M-2024-TRIG-015", 1, 1248, 2],
   ["PYQ-M-2024-TRIG-016", 1, 9, 2],
   ["PYQ-M-2024-TRIG-017", 1, 9, 2],
@@ -12574,4 +12577,19 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["LTG-S-ENV-308", 25, 1484, 4],
   ["LTG-S-ENV-309", 25, 1957, 4],
   ["LTG-S-ENV-310", 25, 1765, 3],
+  ["OE-NCERT-13-SA-001", 25, 221, 2],
+  ["OE-NCERT-13-SA-002", 25, 1957, 1],
+  ["OE-NCERT-13-SA-003", 25, 1728, 1],
+  ["OE-NCERT-13-SA-004", 25, 223, 1],
+  ["OE-NCERT-13-SA-005", 25, 223, 1],
+  ["OE-NCERT-13-SA-006", 25, 1890, 2],
+  ["OE-NCERT-13-SA-007", 25, 1765, 1],
+  ["OE-NCERT-13-MCQ-001", 25, 1727, 0],
+  ["OE-NCERT-13-MCQ-002", 25, 1887, 0],
+  ["OE-NCERT-13-SA-008", 25, 1686, 2],
+  ["OE-NCERT-13-SA-009", 25, 1686, 2],
+  ["OE-NCERT-13-SA-010", 25, 217, 2],
+  ["OE-NCERT-13-SA-011", 25, 223, 2],
+  ["OE-NCERT-13-SA-012", 25, 223, 2],
+  ["OE-NCERT-13-SA-013", 25, 200, 2],
 ];

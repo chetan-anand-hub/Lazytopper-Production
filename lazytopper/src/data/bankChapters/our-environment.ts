@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "our-environment" (Science): 356 served rows from 18 source arrays, 15 withheld.
+// Chapter "our-environment" (Science): 371 served rows from 19 source arrays, 15 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -24,6 +24,7 @@ import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline
 import { OUR_ENVIRONMENT_CBQ_LT_GENERATED } from "../questionBanks/class10/science/our-environment.cbq.ltgen";
 import { ENVIRONMENT_CBQ_B1_LT_GENERATED } from "../questionBanks/class10/science/our-environment.b1.cbq.ltgen";
 import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from "../questionBanks/class10/science/our-environment.c3.cbq.ltgen";
+import { OE_TEXTBOOK } from "../questionBanks/class10/science/ourEnvironment.ncert";
 
 export default defineChapter("our-environment", [
   [52, OUR_ENVIRONMENT_PACK1, true],
@@ -44,6 +45,7 @@ export default defineChapter("our-environment", [
   [427, OUR_ENVIRONMENT_CBQ_LT_GENERATED, false],
   [450, ENVIRONMENT_CBQ_B1_LT_GENERATED, false],
   [458, OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED, false],
+  [459, OE_TEXTBOOK, false],
 ], [
   "OEX-A-005",
   "SCO-S-ENV-002",

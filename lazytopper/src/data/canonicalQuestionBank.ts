@@ -568,6 +568,9 @@ import { SURFACE_AREAS_AND_VOLUMES_CBQ_LT_GENERATED } from './questionBanks/clas
 import { ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/acids-bases-and-salts.c3.cbq.ltgen';
 import { CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/chemical-reactions-and-equations.c3.cbq.ltgen';
 import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from './questionBanks/class10/science/our-environment.c3.cbq.ltgen';
+// OUR-ENV-NCERT-1 (2026-10-17) — NCERT Ch 13 Our Environment textbook questions (jesc113.pdf, Reprint 2026-27).
+// Authentic questions; authored solutions (registered in AI_GENERATED_SOLUTION_SOURCES below).
+import { OE_TEXTBOOK } from './questionBanks/class10/science/ourEnvironment.ncert';
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -1100,6 +1103,8 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED,
   ...CHEMICAL_REACTIONS_AND_EQUATIONS_C3_CBQ_LT_GENERATED,
   ...OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED,
+  // OUR-ENV-NCERT-1 (2026-10-17): NCERT Ch 13 in-text + exercise questions (15; Exercise Q1 skipped, non-unique key).
+  ...OE_TEXTBOOK,
 ];
 
 // ---------------------------------------------------------------------------
@@ -1171,15 +1176,12 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-013",     // mojibake
   "PYQ-M-2024-TRIG-019",     // mojibake
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
-  "PYQ-M-2024-TRIG-014",     // garbled-extraction: fractions flattened (tan/cot proof)
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
   "PYQ-M-2025-STAT-006",          // garbled-extraction: class-interval dashes lost in the table
   "PYQ-M-2025-TRIG-005",          // garbled-extraction: degree/angle signs lost, marks digits inline
   // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
   "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
   "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
-  "PYQ-M-2024-QE-001",            // garbled-extraction: exponent flattened (x2 + x - p(p+1) = 0)
-  "PYQ-M-2024-QE-005a",           // garbled-extraction: exponent flattened ((k+1)x2)
   "PYQ-M-2026-QE-001",            // garbled-extraction: exponent flattened ((p-q)x2)
   "PYQ-M-2025-SAV-005",           // garbled-extraction: pi symbol dropped (Take = 3.14)
   "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
@@ -2329,6 +2331,9 @@ const AI_GENERATED_SOLUTION_SOURCES = [
   REPRODUCE_EXPAND_EXTRACT,
   // Batch 6 (2026-07-13): heredity exhaustive extract — authentic questions (evolution contamination dropped), reconstructed solutions.
   HEREDITY_EXPAND_EXTRACT,
+  // OUR-ENV-NCERT-1 (2026-10-17): NCERT Ch 13 textbook questions (verbatim, Reprint 2026-27) —
+  // authentic questions; NCERT prints no solutions, so every worked solution is authored.
+  OE_TEXTBOOK,
 ] as const;
 
 const CLASS_B_STEPPED_SOLUTION_IDS: readonly string[] = [
@@ -2404,4 +2409,11 @@ export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
   // per-step [N mark] scheme. Questions untouched; solutionSteps (+ absent/garbled
   // finalAnswer) AI-re-authored, PENDING OWNER VERIFICATION — hence rank-demoted here.
   ...CLASS_B_STEPPED_SOLUTION_IDS,
+  // TRI-AA-ANSWERS (2026-10-17, BANK-LANES-LAND item 9): authentic NCERT / Exemplar Triangles
+  // questions whose worked solutions cited Theorem 6.7 (the deleted 2026-27 Pythagoras-proof
+  // section). Solutions re-authored with AA similarity only; question text, options and final
+  // results unchanged. PENDING OWNER VERIFICATION.
+  "TRI-N-NCERT-6-LA-006",
+  "TRI-N-EXMPLR-6-LA-007",
+  "TRI-N-EXMPLR-6-MCQ-001",
 ]);
