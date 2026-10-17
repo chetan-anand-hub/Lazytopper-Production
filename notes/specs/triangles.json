@@ -226,7 +226,7 @@
     },
     {
       "id": "ex_ncert_3",
-      "shape": "Converse of BPT -> isosceles - NCERT Example 3",
+      "shape": "Converse of BPT → isosceles - NCERT Example 3",
       "kind": "numerical",
       "problem_verbatim": "In Fig. 6.16, PS/SQ = PT/TR and ∠PST = ∠PRQ. Prove that PQR is an isosceles triangle.",
       "solution_steps": [
@@ -332,7 +332,7 @@
   "strategies": [
     {
       "cue": "Two triangles - are they similar?",
-      "text": "Hunt for equal angles first (from parallels, vertically opposite, or a common angle) -> AA. No angles? Check if all three side pairs share a ratio -> SSS. One angle plus its two including sides in ratio -> SAS."
+      "text": "Hunt for equal angles first (from parallels, vertically opposite, or a common angle) → AA. No angles? Check if all three side pairs share a ratio → SSS. One angle plus its two including sides in ratio → SAS."
     },
     {
       "cue": "Need to PROVE two lines parallel?",
@@ -376,19 +376,102 @@
   "formula_strip": [
     {
       "label": "Basic Proportionality Theorem",
-      "math": "$DE \\parallel BC \\Rightarrow \\dfrac{AD}{DB}=\\dfrac{AE}{EC}$"
+      "math": "$DE \\parallel BC \\Rightarrow \\dfrac{AD}{DB}=\\dfrac{AE}{EC}$",
+      "id": "basic-proportionality-theorem",
+      "heading": "Basic Proportionality Theorem",
+      "tip": "AD/DB = AE/EC. For AD/AB use the similar-triangles form."
     },
     {
       "label": "Similar triangles - sides",
-      "math": "$\\triangle ABC \\sim \\triangle DEF \\Rightarrow \\dfrac{AB}{DE}=\\dfrac{BC}{EF}=\\dfrac{CA}{FD}$"
+      "math": "$\\triangle ABC \\sim \\triangle DEF \\Rightarrow \\dfrac{AB}{DE}=\\dfrac{BC}{EF}=\\dfrac{CA}{FD}$",
+      "id": "similar-triangles-sides",
+      "tip": "Write the similarity in vertex order so the ratios read off directly."
     },
     {
       "label": "Similar triangles - angles",
-      "math": "$\\angle A=\\angle D,\\;\\angle B=\\angle E,\\;\\angle C=\\angle F$"
+      "math": "$\\angle A=\\angle D,\\;\\angle B=\\angle E,\\;\\angle C=\\angle F$",
+      "id": "similar-triangles-angles",
+      "tip": "Corresponding angles are equal."
     },
     {
       "label": "Criteria",
-      "math": "AAA / AA $\\cdot$ SSS $\\cdot$ SAS (included angle)"
+      "math": "AAA / AA $\\cdot$ SSS $\\cdot$ SAS (included angle)",
+      "id": "similarity-criteria",
+      "tip": "SAS needs the INCLUDED angle; AA needs only two angles."
+    },
+    {
+      "label": "Basic Proportionality Theorem: Statement",
+      "math": "If a line is drawn parallel to one side of a triangle to intersect the other two sides in distinct points, the other two sides are divided in the same ratio. The proof is in the Proof tab.",
+      "id": "bpt-statement"
+    },
+    {
+      "label": "DE ∥ BC: AD/AB = AE/AC = DE/BC",
+      "math": "If $DE\\parallel BC$ then $\\triangle ADE\\sim\\triangle ABC$ (AA), so $\\dfrac{AD}{AB}=\\dfrac{AE}{AC}=\\dfrac{DE}{BC}$.",
+      "id": "parallel-line-corollary"
+    },
+    {
+      "label": "Shadow and Pole Problems",
+      "math": "At the same time of day, a pole and its shadow form a triangle similar to the one formed by a tower and its shadow (AA: both are right-angled and the Sun's angle of elevation is the same). So the heights are in the same ratio as the shadows.",
+      "id": "shadow-problems"
+    },
+    {
+      "label": "Statement",
+      "math": "If a line divides two sides of a triangle in the same ratio, the line is parallel to the third side. This is stated without proof. Use it to show that a line is parallel: for example, $DE\\parallel BC$ if $\\dfrac{AD}{DB}=\\dfrac{AE}{EC}$.",
+      "id": "converse-of-bpt",
+      "heading": "Converse of the Basic Proportionality Theorem"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "vertex-order",
+      "text": "Write \"△ABC ∼ △DEF\" so A↔D, B↔E, C↔F; ratios follow.",
+      "use": "written-ok",
+      "source": "NCERT 6.3"
+    },
+    {
+      "id": "parallel-gives-three-ratios",
+      "text": "DE ∥ BC gives AD/AB = AE/AC = DE/BC (state the AA similarity first in written work).",
+      "use": "mcq-check",
+      "source": "PYQ-M-2024-TRI-001, SQP-M-TRI-001"
+    },
+    {
+      "id": "one-scale-factor",
+      "text": "All corresponding sides of similar triangles share one scale factor.",
+      "use": "mcq-check",
+      "source": "NCERT 6.2"
+    },
+    {
+      "id": "shadow-similarity",
+      "text": "State △ ∼ △ first (AA: both right angles, same angle of elevation of the Sun), then heights ∝ shadows.",
+      "use": "written-ok",
+      "source": "NCERT Example 7"
+    },
+    {
+      "id": "aa-needs-two",
+      "text": "Two equal angles are enough (the third follows from the angle sum).",
+      "use": "written-ok",
+      "source": "NCERT 6.4"
+    },
+    {
+      "id": "criteria-trick",
+      "text": "<b>AA</b> = <b>A</b>am-<b>A</b>am · <b>SSS</b> = <b>S</b>amosa-<b>S</b>amosa-<b>S</b>amosa (teeno bhujayein anupaat mein) · <b>SAS</b> = <b>S</b>amosa-<b>A</b>am-<b>S</b>amosa (Aam = beech ka angle).",
+      "gloss": "Similarity criteria. Aam = angle, Samosa = side. AA = two angles; SSS = three sides proportional; SAS = side, INCLUDED angle, side.",
+      "use": "memory-aid",
+      "source": "NCERT Thm 6.3–6.5"
+    },
+    {
+      "id": "bpt-trick",
+      "text": "<b>Upar : Neeche</b> = <b>Upar : Neeche</b> (dono bhujaon par).",
+      "gloss": "AD/DB = AE/EC. AD upper part : DB lower part = AE : EC.",
+      "use": "memory-aid",
+      "source": "NCERT Thm 6.1"
+    },
+    {
+      "id": "vertex-order-trick",
+      "text": "<b>Pehle-pehle, doosre-doosre, teesre-teesre</b>.",
+      "gloss": "Correspondence of vertices. A-D, B-E, C-F.",
+      "use": "memory-aid",
+      "source": "NCERT 6.3"
     }
   ],
   "mindmap": {
@@ -567,7 +650,7 @@
       "source": "NCERT 2026-27 Ch6 Example 1 p.82"
     },
     {
-      "item": "Converse of BPT -> isosceles - NCERT Example 3",
+      "item": "Converse of BPT → isosceles - NCERT Example 3",
       "type": "example",
       "source": "NCERT 2026-27 Ch6 Example 3 p.83-84"
     },

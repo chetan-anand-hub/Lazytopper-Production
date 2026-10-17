@@ -413,35 +413,172 @@
   "formula_strip": [
     {
       "label": "Electric current",
-      "math": "$I=\\dfrac{Q}{t}$"
+      "math": "$I=\\dfrac{Q}{t}$",
+      "id": "electric-current",
+      "tip": "I = Q/t; 1 A = 1 C/s."
     },
     {
       "label": "Ohm's law",
-      "math": "$V=IR$"
+      "math": "$V=IR$",
+      "id": "ohms-law",
+      "heading": "Ohm's Law",
+      "tip": "Constant temperature is part of the law."
     },
     {
       "label": "Resistance from resistivity",
-      "math": "$R=\\rho\\dfrac{l}{A}$"
+      "math": "$R=\\rho\\dfrac{l}{A}$",
+      "id": "resistivity",
+      "heading": "Resistance and Resistivity",
+      "tip": "R ∝ l, R ∝ 1/A; ρ depends on material and temperature, not on size."
     },
     {
       "label": "Resistors in series",
-      "math": "$R_s=R_1+R_2+R_3$"
+      "math": "$R_s=R_1+R_2+R_3$",
+      "id": "resistors-in-series",
+      "heading": "Resistors in Series",
+      "tip": "Same current, voltages add."
     },
     {
       "label": "Resistors in parallel",
-      "math": "$\\dfrac{1}{R_p}=\\dfrac{1}{R_1}+\\dfrac{1}{R_2}+\\dfrac{1}{R_3}$"
+      "math": "$\\dfrac{1}{R_p}=\\dfrac{1}{R_1}+\\dfrac{1}{R_2}+\\dfrac{1}{R_3}$",
+      "id": "resistors-in-parallel",
+      "heading": "Resistors in Parallel",
+      "tip": "Same voltage, currents add."
     },
     {
       "label": "Electric power",
-      "math": "$P=VI=I^2R=\\dfrac{V^2}{R}$"
+      "math": "$P=VI=I^2R=\\dfrac{V^2}{R}$",
+      "id": "electric-power",
+      "heading": "Electric Power",
+      "tip": "Pick the form that matches what is constant."
     },
     {
       "label": "Joule's heating",
-      "math": "$H=I^2Rt$"
+      "math": "$H=I^2Rt$",
+      "id": "heating-effect-of-current",
+      "heading": "Heating Effect of Electric Current (Joule's Law)",
+      "tip": "Also H = VIt."
     },
     {
       "label": "Commercial energy unit",
-      "math": "$1\\,\\text{kW h}=3.6\\times10^6\\,\\text{J}$"
+      "math": "$1\\,\\text{kW h}=3.6\\times10^6\\,\\text{J}$",
+      "id": "commercial-unit-of-energy",
+      "tip": "1 kWh = 1 unit."
+    },
+    {
+      "label": "Electric Charge and Number of Electrons",
+      "math": "$Q=ne$, where $n$ is the number of electrons and the charge of one electron is $1.6\\times10^{-19}$ coulomb.",
+      "id": "charge-and-electrons"
+    },
+    {
+      "label": "Electric Potential Difference",
+      "math": "$V=\\dfrac{W}{Q}$. One volt is the potential difference when 1 joule of work is done to move a charge of 1 coulomb: $1\\ \\text{V}=1\\ \\text{J C}^{-1}$. A voltmeter is connected in parallel across the component; an ammeter is connected in series.",
+      "id": "potential-difference"
+    },
+    {
+      "label": "Resistance, R = V/I, and the V–I Graph",
+      "math": "$R=\\dfrac{V}{I}$, and $1\\ \\Omega=1\\ \\text{V A}^{-1}$. The V–I graph of a conductor that obeys Ohm's law is a straight line through the origin.",
+      "id": "resistance-from-v-and-i"
+    },
+    {
+      "label": "Resistivity ($\\rho = RA/l$)",
+      "math": "$\\rho=\\dfrac{RA}{l}$, measured in ohm-metre ($\\Omega\\,\\text{m}$). Alloys generally have higher resistivity than the metals they are made of.",
+      "id": "resistivity-formula"
+    },
+    {
+      "label": "Electric Circuit Symbols",
+      "math": "Electric cell · battery · plug key (open) · plug key (closed) · wire joint · wires crossing without joining · electric bulb · resistor of resistance $R$ · variable resistance (rheostat) · ammeter · voltmeter.",
+      "id": "electric-circuit-symbols"
+    },
+    {
+      "label": "Electrical Energy and Cost",
+      "math": "$E=P\\times t$. Electrical energy in kilowatt-hours = power in kW × time in hours. Cost = number of units (kWh) × rate per unit.",
+      "id": "energy-and-cost"
+    },
+    {
+      "label": "Practical Applications of the Heating Effect",
+      "math": "Electric heaters and irons use the heating effect. A bulb filament is made of tungsten, which has a very high melting point (3380 °C). A fuse is a wire of low melting point placed in series; if the current becomes too high it melts and breaks the circuit.",
+      "id": "fuse-and-heating-applications"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "ammeter-series-voltmeter-parallel",
+      "text": "Ammeter in series, voltmeter in parallel (across the component).",
+      "use": "mcq-check",
+      "source": "NCERT 11.1, 11.2"
+    },
+    {
+      "id": "equivalent-resistance-bounds",
+      "text": "Series total is larger than the largest resistor; parallel total is smaller than the smallest. Use to reject options.",
+      "use": "mcq-check",
+      "source": "NCERT 11.6; PYQ-S-ELEC-005"
+    },
+    {
+      "id": "parallel-quick-forms",
+      "text": "Two resistors in parallel: R₁R₂/(R₁+R₂). n equal resistors R in parallel: R/n. (Write 1/Rₚ in a written answer.)",
+      "use": "mcq-check",
+      "source": "NCERT 11.6.2; PYQ-S-2025-ELEC-001"
+    },
+    {
+      "id": "choose-the-power-form",
+      "text": "Same current (series) → P = I²R. Same voltage (parallel, household) → P = V²/R.",
+      "use": "written-ok",
+      "source": "NCERT 11.8; PYQ-S-2025-ELEC-002"
+    },
+    {
+      "id": "resistance-scaling",
+      "text": "R ∝ l and R ∝ 1/A, so doubling length doubles R; halving the diameter makes R four times (A ∝ d²).",
+      "use": "mcq-check",
+      "source": "NCERT 11.5; PYQ-S-ELEC-001, CBE-S-ELEC-B-005"
+    },
+    {
+      "id": "kwh-cost-steps",
+      "text": "Convert to kW and hours first, then units × rate.",
+      "use": "written-ok",
+      "source": "NCERT 11.8; CBE-S-ELEC-C-001"
+    },
+    {
+      "id": "ohm-law-trick",
+      "text": "<b>V</b>ikas ne <b>I</b>mli × <b>R</b>oti li: V = I × R.",
+      "gloss": "Ohm's law. V = potential difference · I = current · R = resistance, in that order.",
+      "use": "memory-aid",
+      "source": "NCERT 11.4"
+    },
+    {
+      "id": "unit-trick",
+      "text": "<b>Ampere</b> = coulomb ek second mein. <b>Volt</b> = joule per coulomb. <b>Ohm</b> = volt per ampere.",
+      "gloss": "Units. 1 A = 1 C/s · 1 V = 1 J/C · 1 Ω = 1 V/A.",
+      "use": "memory-aid",
+      "source": "NCERT 11.1, 11.2, 11.4"
+    },
+    {
+      "id": "series-parallel-trick",
+      "text": "<b>Series</b>: current wahi, voltage baante, R jodo. <b>Parallel</b>: voltage wahi, current baante, 1/R jodo.",
+      "gloss": "Series vs parallel. series: I same, V adds, R adds; parallel: V same, I adds, 1/R adds.",
+      "use": "memory-aid",
+      "source": "NCERT 11.6"
+    },
+    {
+      "id": "power-forms-trick",
+      "text": "P = VI mein <b>V = IR daalo</b> to I²R; <b>I = V/R daalo</b> to V²/R.",
+      "gloss": "Three power forms. P = VI → I²R → V²/R.",
+      "use": "memory-aid",
+      "source": "NCERT 11.8"
+    },
+    {
+      "id": "joule-trick",
+      "text": "Garmi = <b>I² R t</b>: current ka square, resistance, time.",
+      "gloss": "H = I²Rt. I² · R · t, in that order.",
+      "use": "memory-aid",
+      "source": "NCERT 11.7"
+    },
+    {
+      "id": "unit-lakh-trick",
+      "text": "<b>1 unit bijli = 36 lakh joule.</b>",
+      "gloss": "1 kWh = 3.6 × 10⁶ J. 1000 W × 3600 s = 36,00,000 J = 3.6 × 10⁶ J.",
+      "use": "memory-aid",
+      "source": "NCERT 11.8"
     }
   ],
   "third_tab_content": {
@@ -587,8 +724,8 @@
       {
         "label": "Combining resistors",
         "children": [
-          "Series: Rs = R1 + R2 + R3",
-          "Parallel: 1/Rp = 1/R1 + 1/R2 + 1/R3",
+          "Series: $R_s = R_1 + R_2 + R_3$",
+          "Parallel: $\\dfrac{1}{R_p} = \\dfrac{1}{R_1} + \\dfrac{1}{R_2} + \\dfrac{1}{R_3}$",
           "Series same I · Parallel same V"
         ]
       },

@@ -375,23 +375,153 @@
   "formula_strip": [
     {
       "label": "10% law of energy transfer",
-      "math": "About 10% of the energy at one trophic level passes to the next; the other ~90% is lost as heat, digestion and work"
+      "math": "About 10% of the energy at one trophic level passes to the next; the other ~90% is lost as heat, digestion and work",
+      "id": "ten-percent-law"
     },
     {
       "label": "Energy captured by producers",
-      "math": "Green plants capture only about 1% of the sunlight falling on their leaves and store it as food energy"
+      "math": "Green plants capture only about 1% of the sunlight falling on their leaves and store it as food energy",
+      "id": "energy-captured-by-producers",
+      "tip": "~1% of sunlight."
     },
     {
       "label": "Length of a food chain",
-      "math": "Food chains generally have only 3 or 4 trophic levels - little usable energy remains after four levels"
+      "math": "Food chains generally have only 3 or 4 trophic levels - little usable energy remains after four levels",
+      "id": "length-of-a-food-chain"
     },
     {
       "label": "Trophic levels (order)",
-      "math": "Producers (1st) to Primary consumers / herbivores (2nd) to Secondary consumers (3rd) to Tertiary consumers (4th)"
+      "math": "Producers (1st) to Primary consumers / herbivores (2nd) to Secondary consumers (3rd) to Tertiary consumers (4th)",
+      "id": "trophic-levels"
     },
     {
       "label": "Ozone formation",
-      "math": "$\\text{O}_2(g) \\xrightarrow{\\text{UV}} \\text{O}(g) + \\text{O}(g)$ (free oxygen atoms); then $\\text{O}(g) + \\text{O}_2(g) \\rightarrow \\text{O}_3(g)$ (ozone)"
+      "math": "$\\text{O}_2(g) \\xrightarrow{\\text{UV}} \\text{O}(g) + \\text{O}(g)$ (free oxygen atoms); then $\\text{O}(g) + \\text{O}_2(g) \\rightarrow \\text{O}_3(g)$ (ozone)",
+      "id": "ozone-formation",
+      "tip": "O₂ → O + O under UV; O + O₂ → O₃."
+    },
+    {
+      "label": "Components of an Ecosystem",
+      "math": "An ecosystem has biotic components (living organisms: producers, consumers and decomposers) and abiotic components (non-living: air, water, soil, sunlight). Forests, ponds and lakes are natural ecosystems; gardens and crop fields are human-made.",
+      "id": "ecosystem-components"
+    },
+    {
+      "label": "Food Chain and Food Web",
+      "math": "A food chain is one path along which food and energy pass from one organism to the next. A food web is many food chains linked together.",
+      "id": "food-chain-and-food-web"
+    },
+    {
+      "label": "Biological Magnification",
+      "math": "Pesticides and other chemicals used on crops are washed into the soil and water bodies and absorbed by plants. They are not broken down, so they pass up the food chain and accumulate at each trophic level. Human beings are at the top, so the largest amounts collect in our bodies. This is biological magnification.",
+      "id": "biological-magnification"
+    },
+    {
+      "label": "Ozone Layer Depletion and CFCs",
+      "math": "Ozone at higher levels of the atmosphere shields the Earth from the Sun's harmful ultraviolet radiation. Chlorofluorocarbons (CFCs), used as refrigerants and in fire extinguishers, caused a sharp drop in ozone. In 1987 the United Nations Environment Programme (UNEP) got an agreement to freeze CFC production.",
+      "id": "ozone-depletion-and-cfcs"
+    },
+    {
+      "label": "Biodegradable and Non-biodegradable Substances",
+      "math": "Substances that are broken down by biological processes are biodegradable. Those that are not broken down (such as many plastics) are non-biodegradable; they persist in the environment and harm it.",
+      "id": "biodegradable-and-non-biodegradable"
+    },
+    {
+      "label": "Types of Consumers",
+      "math": "Consumers are herbivores, carnivores, omnivores and parasites.",
+      "id": "consumer-types"
+    },
+    {
+      "label": "Role of Decomposers",
+      "math": "Bacteria and fungi break down the dead remains and waste of organisms into simple substances that return to the soil.",
+      "id": "decomposers-role"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "ten-percent-arithmetic",
+      "text": "Energy at the next level = 10% of the level before: 10 000 J → 1 000 J → 100 J → 10 J.",
+      "use": "mcq-check",
+      "source": "NCERT 13.1.1"
+    },
+    {
+      "id": "most-producers",
+      "text": "The greatest NUMBER of organisms is at the producer level; the least at the top.",
+      "use": "mcq-check",
+      "source": "NCERT 13.1.1"
+    },
+    {
+      "id": "write-the-chain-in-arrows",
+      "text": "Write food chains with arrows pointing from the eaten to the eater, starting from a producer.",
+      "use": "written-ok",
+      "source": "NCERT 13.1.1"
+    },
+    {
+      "id": "magnification-top-level",
+      "text": "Biological magnification is highest in the top consumer.",
+      "use": "mcq-check",
+      "source": "NCERT 13.2"
+    },
+    {
+      "id": "ozone-oxygen-form",
+      "text": "Ozone is O₃ (three oxygen atoms); the harmful gas at ground level, the protective one high up.",
+      "use": "mcq-check",
+      "source": "NCERT 13.2.1"
+    },
+    {
+      "id": "components-trick",
+      "text": "<b>P</b>apa <b>C</b>hai <b>D</b>o.",
+      "gloss": "Biotic components. P = Producers · C = Consumers · D = Decomposers.",
+      "use": "memory-aid",
+      "source": "NCERT 13.1"
+    },
+    {
+      "id": "trophic-order-trick",
+      "text": "<b>Pehle ped-paudhe, phir shaakaahari, phir chhote maansaahari, phir bade maansaahari.</b>",
+      "gloss": "Four trophic levels. 1 producers · 2 herbivores (primary consumers) · 3 small carnivores (secondary) · 4 larger carnivores (tertiary).",
+      "use": "memory-aid",
+      "source": "NCERT 13.1.1"
+    },
+    {
+      "id": "ten-percent-trick",
+      "text": "<b>Das mein se ek aage; baaki nau jeevan-kriyaon mein lagte hain ya garmi banke nikal jaate hain.</b>",
+      "gloss": "10% law. 10% passes on to the next level; about 90% is used in life processes (digestion, work) or lost as heat.",
+      "use": "memory-aid",
+      "source": "NCERT 13.1.1"
+    },
+    {
+      "id": "chain-vs-web-trick",
+      "text": "<b>Ek raasta = chain, kai raaste = web.</b>",
+      "gloss": "a food chain is one path; a web is many.",
+      "use": "memory-aid",
+      "source": "NCERT 13.1.1"
+    },
+    {
+      "id": "ozone-trick",
+      "text": "<b>Todo, phir Jodo: UV ne O₂ todi, O ne O₂ se jodkar O₃ banaya.</b>",
+      "gloss": "Ozone formation. O₂ → O + O (UV) · O + O₂ → O₃.",
+      "use": "memory-aid",
+      "source": "NCERT 13.2.1"
+    },
+    {
+      "id": "cfc-trick",
+      "text": "<b>CFC = fridge se nikla, ozone ka dushman.</b>",
+      "gloss": "CFCs deplete ozone. CFCs used as refrigerants and in fire extinguishers; UNEP agreement 1987.",
+      "use": "memory-aid",
+      "source": "NCERT 13.2.1"
+    },
+    {
+      "id": "biodegradable-trick",
+      "text": "<b>Bio-degradable = jise bacteria kha jaate hain; non-bio = plastic jaisa, tikta hai.</b>",
+      "gloss": "broken down by biological processes vs not.",
+      "use": "memory-aid",
+      "source": "NCERT 13.2.2"
+    },
+    {
+      "id": "magnification-trick",
+      "text": "<b>Zehar upar chadhta hai, har level pe zyada: sabse zyada insaan mein.</b>",
+      "gloss": "Biological magnification. non-degradable chemicals accumulate at each trophic level; highest at the top.",
+      "use": "memory-aid",
+      "source": "NCERT 13.2"
     }
   ],
   "third_tab_content": {
@@ -406,6 +536,9 @@
   },
   "figures": {
     "fig_food_chain": {
+      "id": "food-chain-diagram",
+      "heading": "Food Chain Diagram",
+      "alt": "Three food chains, each read bottom-to-top from the producer: (a) forest - tree to deer to tiger; (b) grassland - grass to grasshopper to frog to snake to a bird of prey; (c) pond - aquatic plant to scorpion/insect to fish to heron.",
       "bucket": "ncert",
       "tag": "NCERT Fig 13.1",
       "caption": "Food chain in nature (a) in forest, (b) in grassland and (c) in a pond",
@@ -416,7 +549,12 @@
         "ncert_fig": "13.1",
         "page_pdf": 3,
         "printed_page": 210,
-        "crop": [110, 210, 640, 875],
+        "crop": [
+          110,
+          210,
+          640,
+          875
+        ],
         "clean": "saturation",
         "note": "crop+saturation-clean via pymupdf at dpi 220; eye-confirmed, no text bleed"
       },
@@ -515,7 +653,7 @@
       {
         "label": "Ozone &amp; waste",
         "children": [
-          "Ozone (O3) shields Earth from the Sun's UV",
+          "Ozone ($\\text{O}_3$) shields Earth from the Sun's UV",
           "CFCs deplete it (UNEP 1987 freeze)",
           "Biodegradable - broken down by microbes",
           "Non-biodegradable (plastics) persist &amp; harm the ecosystem"

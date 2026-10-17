@@ -465,23 +465,98 @@
   "formula_strip": [
     {
       "label": "Standard form",
-      "math": "$ax^2 + bx + c = 0,\\ a \\neq 0$"
+      "math": "$ax^2 + bx + c = 0,\\ a \\neq 0$",
+      "id": "standard-form-quadratic",
+      "tip": "Move everything to one side first."
     },
     {
       "label": "Quadratic formula",
-      "math": "$x = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$"
+      "math": "$x = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$",
+      "id": "quadratic-formula",
+      "heading": "Quadratic Formula",
+      "tip": "Compute D = b² − 4ac first, then substitute D."
     },
     {
       "label": "Discriminant",
-      "math": "$D = b^2 - 4ac$"
+      "math": "$D = b^2 - 4ac$",
+      "id": "discriminant",
+      "heading": "Discriminant",
+      "tip": "Write the value of D as its own step."
     },
     {
       "label": "Nature of roots",
-      "math": "$D{>}0$: distinct · $D{=}0$: equal · $D{<}0$: none real"
+      "math": "$D{>}0$: distinct · $D{=}0$: equal · $D{<}0$: none real",
+      "id": "nature-of-roots",
+      "tip": "State D &gt; 0 / = 0 / &lt; 0 in words before concluding."
     },
     {
       "label": "Roots &amp; coefficients",
-      "math": "$\\alpha+\\beta = -\\dfrac{b}{a} \\;\\cdot\\; \\alpha\\beta = \\dfrac{c}{a} \\;\\cdot\\; x^2-(\\alpha+\\beta)x+\\alpha\\beta=0$"
+      "math": "$\\alpha+\\beta = -\\dfrac{b}{a} \\;\\cdot\\; \\alpha\\beta = \\dfrac{c}{a} \\;\\cdot\\; x^2-(\\alpha+\\beta)x+\\alpha\\beta=0$",
+      "id": "roots-and-coefficients",
+      "tip": "Sum −b/a, product c/a, for checking."
+    },
+    {
+      "label": "Solving by Factorisation (Splitting the Middle Term)",
+      "math": "Find two numbers whose product is $ac$ and whose sum is $b$; split the middle term $bx$ with them; factorise by grouping; set each factor equal to 0.",
+      "id": "factorisation-method"
+    },
+    {
+      "label": "Condition for Real and Equal Roots",
+      "math": "If $D=0$, the equation has two equal real roots, each equal to $-\\dfrac{b}{2a}$.",
+      "id": "roots-equal-condition"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "k-for-equal-roots",
+      "text": "Set D = 0, solve for k; reject any k that makes a = 0 (e.g. in (k−1)x² + …, reject k = 1).",
+      "use": "written-ok",
+      "source": "PYQ-M-QE-006, PYQ-M-2024-QE-004b"
+    },
+    {
+      "id": "real-vs-distinct",
+      "text": "\"Real roots\": D ≥ 0. \"Two distinct real roots\": D &gt; 0.",
+      "use": "mcq-check",
+      "source": "NCERT 4.4"
+    },
+    {
+      "id": "opposite-sign-a-c",
+      "text": "If a and c have opposite signs then −4ac &gt; 0, so D &gt; 0: two distinct real roots.",
+      "use": "mcq-check",
+      "source": "NCERT 4.4 (b² − 4ac)"
+    },
+    {
+      "id": "sum-product-without-solving",
+      "text": "For \"sum/product of roots\", use −b/a and c/a; do not solve.",
+      "use": "mcq-check",
+      "source": "PYQ-M-QE-005"
+    },
+    {
+      "id": "verify-the-roots",
+      "text": "Substitute each root back into the equation.",
+      "use": "written-ok",
+      "source": "NCERT 4.3 Ex \"verify\""
+    },
+    {
+      "id": "discriminant-trick",
+      "text": "<b>Bhai</b> ka square minus <b>chaar Aloo-Chacha</b>.",
+      "gloss": "D = b² − 4ac. Bhai = b (squared), chaar = 4, Aloo = a, Chacha = c.",
+      "use": "memory-aid",
+      "source": "NCERT 4.4"
+    },
+    {
+      "id": "nature-trick",
+      "text": "<b>P</b>lus = <b>P</b>akke do alag · <b>Z</b>ero = <b>Z</b>indagi bhar ek jaisa (do barabar) · <b>M</b>inus = <b>M</b>ayoos (real root nahi).",
+      "gloss": "D&gt;0 / D=0 / D&lt;0. P→two distinct real roots; Z→two equal real roots; M→no real roots.",
+      "use": "memory-aid",
+      "source": "NCERT 4.4"
+    },
+    {
+      "id": "formula-trick",
+      "text": "<b>Minus</b> Bhai, <b>plus-minus</b> root-D, poore upar wale ko <b>do Aloo</b> se bhaag.",
+      "gloss": "x = (−b ± √D)/(2a). minus b, ± √D, over 2a.",
+      "use": "memory-aid",
+      "source": "NCERT 4.4"
     }
   ],
   "mindmap": {
@@ -676,7 +751,7 @@
     {
       "item": "“Find k” for equal roots · CBSE 2024",
       "type": "example",
-      "source": "CBSE 2024 board paper 30/5/1 Q32(a) · repo bank PYQ-M-2024-QE-006a"
+      "source": "CBSE 2024 board paper 30/5/1 Q32(a)"
     }
   ]
 }

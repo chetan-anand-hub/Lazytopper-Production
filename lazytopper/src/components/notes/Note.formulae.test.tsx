@@ -52,6 +52,8 @@ const spec = (slug: string): NoteSpec => {
   if (!s) throw new Error("no spec " + slug);
   return s;
 };
+/** A chapter as it was before tricks existed: these NOTES-FORMULA-1 checks are about the Formulae card, not the tricks. */
+const noTricks = (slug: string): NoteSpec => ({ ...spec(slug), shortcuts: undefined });
 
 describe("NOTES-FORMULA-1 — placement", () => {
   it("(a) Note tab: Formulae directly after The Big Idea, not at the end", () => {
@@ -63,13 +65,13 @@ describe("NOTES-FORMULA-1 — placement", () => {
   });
 
   it("(b) Mindmap tab: the same card is first, above the mind-map", () => {
-    const { container } = mount(spec("trigonometry"));
+    const { container } = mount(noTricks("trigonometry"));
     const mind = panels(container)[1];
     expect(labelsIn(mind)).toEqual(["Formulae", "Mindmap"]);
   });
 
   it("(c) labels: tab 'Formulae & Mindmap', no 'Formula strip' anywhere", () => {
-    const { container } = mount(spec("trigonometry"));
+    const { container } = mount(noTricks("trigonometry"));
     const tabs = screen.getAllByRole("tab").map((t) => (t.textContent || "").trim());
     expect(tabs[1]).toBe("Formulae & Mindmap");
     expect(container.textContent).not.toContain("Formula strip");
@@ -122,9 +124,27 @@ describe("NOTES-FORMULA-1 — all 26 notes", () => {
   });
 });
 
+describe("NOTES-FORMULA-3b-SHIP — Greek letters in a formula title keep their case", () => {
+  // The title is CSS-uppercased; uppercasing a KaTeX ρ/α/β would show Ρ/Α/Β (a different symbol).
+  it("(h) electricity 'Resistivity' and polynomials 'Expressions in' titles render math that is not uppercased", () => {
+    for (const [slug, start] of [["electricity", "Resistivity ("], ["polynomials", "Expressions in"]] as const) {
+      const item = spec(slug).formula_strip.find((f) => f.label.startsWith(start))!;
+      expect(item.label, slug).toMatch(/\$\\(rho|alpha)/);
+      const { container } = mount(spec(slug));
+      const label = Array.from(container.querySelectorAll<HTMLElement>(".lt-note__flabel")).find((n) =>
+        (n.textContent || "").startsWith(start),
+      )!;
+      expect(label.querySelector(".katex"), slug).toBeTruthy();
+      const css = Array.from(container.querySelectorAll("style")).map((s) => s.textContent || "").join("\n");
+      expect(css).toMatch(/\.lt-note__flabel \.katex\s*\{[^}]*text-transform:\s*none/);
+      cleanup();
+    }
+  });
+});
+
 describe("NOTES-FORMULA-1 — honest empty state", () => {
   it("(f) empty strip: tab stays 'Mindmap', no Formulae card", () => {
-    const s: NoteSpec = { ...spec("trigonometry"), formula_strip: [] };
+    const s: NoteSpec = { ...noTricks("trigonometry"), formula_strip: [] };
     const { container } = mount(s);
     const tabs = screen.getAllByRole("tab").map((t) => (t.textContent || "").trim());
     expect(tabs[1]).toBe("Mindmap");

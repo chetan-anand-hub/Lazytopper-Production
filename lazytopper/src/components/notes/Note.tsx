@@ -378,6 +378,7 @@ const NOTE_CSS = `
   font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
   text-transform: uppercase; color: var(--lt-note-green-deep); margin-bottom: 7px;
 }
+.lt-note__flabel .katex { text-transform: none; }
 .lt-note__fval { font-size: 16px; color: var(--lt-note-navy); }
 
 /* third tab */

@@ -12,10 +12,10 @@
     },
     "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 2"
   },
-  "board_asks": "identify an acid or a base with indicators (blue/red litmus, methyl orange, phenolphthalein, and olfactory indicators); write and balance the reactions of acids and bases - with metals (Salt + Hydrogen), with metal carbonates/hydrogencarbonates (Salt + Carbon dioxide + Water), acid-base neutralisation (Salt + Water), and metal-oxide / non-metal-oxide reactions; explain what happens to an acid or a base in water (H+(aq)/H3O+ and OH-(aq) ions) and why their solutions conduct electricity; use the pH scale (0-14) and its everyday importance (body pH, soil, digestion and antacids, tooth decay, acid rain); classify salts by family and by the pH of the salt; and give the preparation, properties and uses of the chlor-alkali products, washing soda, baking soda, bleaching powder and plaster of Paris (water of crystallisation). Most marks sit in writing the correct balanced reaction and in the pH reasoning.",
+  "board_asks": "identify an acid or a base with indicators (blue/red litmus, methyl orange, phenolphthalein, and olfactory indicators); write and balance the reactions of acids and bases - with metals (Salt + Hydrogen), with metal carbonates/hydrogencarbonates (Salt + Carbon dioxide + Water), acid-base neutralisation (Salt + Water), and metal-oxide / non-metal-oxide reactions; explain what happens to an acid or a base in water ($\\text{H}^+(\\text{aq})$/$\\text{H}_3\\text{O}^+$ and $\\text{OH}^-(\\text{aq})$ ions) and why their solutions conduct electricity; use the pH scale (0-14) and its everyday importance (body pH, soil, digestion and antacids, tooth decay, acid rain); classify salts by family and by the pH of the salt; and give the preparation, properties and uses of the chlor-alkali products, washing soda, baking soda, bleaching powder and plaster of Paris (water of crystallisation). Most marks sit in writing the correct balanced reaction and in the pH reasoning.",
   "big_idea": {
-    "tagline": "Sour or bitter - decoded by H+, OH- and pH.",
-    "body": "Acids taste sour and turn blue litmus red; bases taste bitter and turn red litmus blue. In water an acid releases hydrogen ions, H+(aq) (shown as the hydronium ion H3O+), and a base releases hydroxide ions, OH-(aq) - and those ions explain everything else: why acid and base solutions conduct electricity, how they react with metals, carbonates and each other, and where a solution sits on the pH scale from 0 to 14. When an acid neutralises a base you get a salt plus water, and the chapter then follows one salt - common salt - as it becomes sodium hydroxide, bleaching powder, baking soda and washing soda, then closes with plaster of Paris (made from gypsum)."
+    "tagline": "Sour or bitter - decoded by $\\text{H}^+$, $\\text{OH}^-$ and pH.",
+    "body": "Acids taste sour and turn blue litmus red; bases taste bitter and turn red litmus blue. In water an acid releases hydrogen ions, $\\text{H}^+(\\text{aq})$ (shown as the hydronium ion $\\text{H}_3\\text{O}^+$), and a base releases hydroxide ions, $\\text{OH}^-(\\text{aq})$ - and those ions explain everything else: why acid and base solutions conduct electricity, how they react with metals, carbonates and each other, and where a solution sits on the pH scale from 0 to 14. When an acid neutralises a base you get a salt plus water, and the chapter then follows one salt - common salt - as it becomes sodium hydroxide, bleaching powder, baking soda and washing soda, then closes with plaster of Paris (made from gypsum)."
   },
   "definitions": [
     {
@@ -41,7 +41,7 @@
       "tier": "headline",
       "term": "Neutralisation reaction",
       "verbatim": "The reaction between an acid and a base to give a salt and water is known as a neutralisation reaction.",
-      "plain": "Acid and base cancel each other out, producing a salt and water: Acid + Base -> Salt + Water.",
+      "plain": "Acid and base cancel each other out, producing a salt and water: Acid + Base $\\rightarrow$ Salt + Water.",
       "memorise": true,
       "source": { "ncert_page": 21, "edition": "2026-27", "chapter": 2 }
     },
@@ -59,7 +59,7 @@
       "tier": "headline",
       "term": "pH scale",
       "verbatim": "A scale for measuring hydrogen ion concentration in a solution, called pH scale has been developed.",
-      "plain": "A 0-14 number line for how acidic or basic a solution is: 0 very acidic, 7 neutral, 14 very alkaline. The higher the H3O+ concentration, the lower the pH.",
+      "plain": "A 0-14 number line for how acidic or basic a solution is: 0 very acidic, 7 neutral, 14 very alkaline. The higher the $\\text{H}_3\\text{O}^+$ concentration, the lower the pH.",
       "memorise": true,
       "source": { "ncert_page": 25, "edition": "2026-27", "chapter": 2 }
     },
@@ -68,7 +68,7 @@
       "tier": "headline",
       "term": "Strong and weak acids",
       "verbatim": "Acids that give rise to more H+ ions are said to be strong acids, and acids that give less H+ ions are said to be weak acids.",
-      "plain": "Strength is about how fully an acid ionises, not how dilute it is - a strong acid produces more H+ ions than a weak acid of the same concentration.",
+      "plain": "Strength is about how fully an acid ionises, not how dilute it is - a strong acid produces more $\\text{H}^+$ ions than a weak acid of the same concentration.",
       "memorise": true,
       "source": { "ncert_page": 26, "edition": "2026-27", "chapter": 2 }
     },
@@ -86,7 +86,7 @@
       "tier": "headline",
       "term": "Water of crystallisation",
       "verbatim": "Water of crystallisation is the fixed number of water molecules present in one formula unit of a salt.",
-      "plain": "The water locked into a crystal - CuSO4.5H2O has five, Na2CO3.10H2O has ten; heating drives it off (blue copper sulphate turns white).",
+      "plain": "The water locked into a crystal - $\\text{CuSO}_4 \\cdot 5\\text{H}_2\\text{O}$ has five, $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$ has ten; heating drives it off (blue copper sulphate turns white).",
       "memorise": true,
       "source": { "ncert_page": 32, "edition": "2026-27", "chapter": 2 }
     },
@@ -174,7 +174,7 @@
     {
       "id": "c3",
       "title": "What all acids and all bases have in common",
-      "body": "All acids produce hydrogen ions, H+(aq) - shown as the hydronium ion H3O+ - but only in the presence of water; all bases produce hydroxide ions, OH-(aq). These free ions carry current, so acid and base solutions conduct electricity, whereas glucose and alcohol contain hydrogen yet do not ionise and do not conduct.",
+      "body": "All acids produce hydrogen ions, $\\text{H}^+(\\text{aq})$ - shown as the hydronium ion $\\text{H}_3\\text{O}^+$ - but only in the presence of water; all bases produce hydroxide ions, $\\text{OH}^-(\\text{aq})$. These free ions carry current, so acid and base solutions conduct electricity, whereas glucose and alcohol contain hydrogen yet do not ionise and do not conduct.",
       "tested": "2 mark: why dry HCl gas does not turn dry litmus red; why an aqueous acid conducts electricity while glucose solution does not.",
       "figure_ref": null,
       "source": { "ncert_page": 23, "edition": "2026-27" }
@@ -182,8 +182,8 @@
     {
       "id": "c4",
       "title": "Strength and the pH scale",
-      "body": "Strength depends on how many H+ (or OH-) ions a solution produces, not on how concentrated it is - a strong acid ionises more fully than a weak acid at the same concentration. The universal indicator and the pH scale (0 very acidic, 7 neutral, 14 very alkaline) measure hydrogen-ion concentration: the higher the H3O+ concentration, the lower the pH.",
-      "tested": "2-3 mark: order solutions by pH / H+ concentration; classify solutions as strong or weak, acidic or basic.",
+      "body": "Strength depends on how many $\\text{H}^+$ (or $\\text{OH}^-$) ions a solution produces, not on how concentrated it is - a strong acid ionises more fully than a weak acid at the same concentration. The universal indicator and the pH scale (0 very acidic, 7 neutral, 14 very alkaline) measure hydrogen-ion concentration: the higher the $\\text{H}_3\\text{O}^+$ concentration, the lower the pH.",
+      "tested": "2-3 mark: order solutions by pH / $\\text{H}^+$ concentration; classify solutions as strong or weak, acidic or basic.",
       "figure_ref": "fig_ph_scale",
       "source": { "ncert_page": 25, "edition": "2026-27" }
     },
@@ -198,7 +198,7 @@
     {
       "id": "c6",
       "title": "Salts - family and pH",
-      "body": "A salt is formed when an acid neutralises a base. Salts with the same positive or negative radical belong to one family (NaCl and Na2SO4 are sodium salts; NaCl and KCl are chloride salts). A salt of a strong acid and a strong base is neutral (pH 7); a strong-acid / weak-base salt is acidic (pH < 7); and a strong-base / weak-acid salt is basic (pH > 7).",
+      "body": "A salt is formed when an acid neutralises a base. Salts with the same positive or negative radical belong to one family (NaCl and $\\text{Na}_2\\text{SO}_4$ are sodium salts; NaCl and KCl are chloride salts). A salt of a strong acid and a strong base is neutral (pH 7); a strong-acid / weak-base salt is acidic (pH < 7); and a strong-base / weak-acid salt is basic (pH > 7).",
       "tested": "identify the acid and base a salt came from; predict whether the salt is acidic, basic or neutral.",
       "figure_ref": null,
       "source": { "ncert_page": 29, "edition": "2026-27" }
@@ -206,8 +206,8 @@
     {
       "id": "c7",
       "title": "Chemicals from common salt, and water of crystallisation",
-      "body": "Common salt (NaCl) is the raw material for many chemicals. Electrolysis of brine - the chlor-alkali process - gives sodium hydroxide, chlorine and hydrogen. Chlorine on dry slaked lime gives bleaching powder, Ca(ClO)2. Baking soda (NaHCO3) and washing soda (Na2CO3.10H2O) are both made from common salt, and heating gypsum at 373 K gives plaster of Paris. Water of crystallisation is the fixed number of water molecules in one formula unit of a salt (CuSO4.5H2O, Na2CO3.10H2O, CaSO4.2H2O).",
-      "tested": "3-5 mark: uses of the chlor-alkali products; equations for baking soda, washing soda and plaster of Paris; what 10H2O signifies.",
+      "body": "Common salt (NaCl) is the raw material for many chemicals. Electrolysis of brine - the chlor-alkali process - gives sodium hydroxide, chlorine and hydrogen. Chlorine on dry slaked lime gives bleaching powder, $\\text{Ca(ClO)}_2$. Baking soda ($\\text{NaHCO}_3$) and washing soda ($\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$) are both made from common salt, and heating gypsum at 373 K gives plaster of Paris. Water of crystallisation is the fixed number of water molecules in one formula unit of a salt ($\\text{CuSO}_4 \\cdot 5\\text{H}_2\\text{O}$, $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$, $\\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}$).",
+      "tested": "3-5 mark: uses of the chlor-alkali products; equations for baking soda, washing soda and plaster of Paris; what $10\\text{H}_2\\text{O}$ signifies.",
       "figure_ref": "fig_chlor_alkali",
       "source": { "ncert_page": 30, "edition": "2026-27" }
     }
@@ -215,20 +215,20 @@
   "examples": [
     {
       "id": "ex_acid_metal_zinc",
-      "shape": "Acid + metal -> salt + hydrogen",
+      "shape": "Acid + metal $\\rightarrow$ salt + hydrogen",
       "kind": "reaction",
       "problem_verbatim": "[authored prompt] Dilute sulphuric acid is added to zinc granules. Write the word equation and the balanced chemical equation, and name and test the gas evolved.",
       "solution_steps": [
         {
           "lead": "Word equation.",
-          "text": "Zinc + dilute sulphuric acid -> zinc sulphate + hydrogen.",
-          "concept_tag": "Acid + Metal -> Salt + Hydrogen",
+          "text": "Zinc + dilute sulphuric acid $\\rightarrow$ zinc sulphate + hydrogen.",
+          "concept_tag": "Acid + Metal $\\rightarrow$ Salt + Hydrogen",
           "mark": 1
         },
         {
           "lead": "Balanced equation.",
           "text": "The metal displaces hydrogen from the acid:",
-          "equation": "Zn(s) + H2SO4(aq) -> ZnSO4(aq) + H2(g)",
+          "equation": "$\\text{Zn}(\\text{s}) + \\text{H}_2\\text{SO}_4(\\text{aq}) \\rightarrow \\text{ZnSO}_4(\\text{aq}) + \\text{H}_2(\\text{g})$",
           "mark": 1
         },
         {
@@ -243,20 +243,20 @@
     },
     {
       "id": "ex_carbonate_acid_A",
-      "shape": "Metal carbonate + acid -> salt + CO2 + water",
+      "shape": "Metal carbonate + acid $\\rightarrow$ salt + $\\text{CO}_2$ + water",
       "kind": "reaction",
       "problem_verbatim": "[authored prompt] A metal compound A reacts with dilute hydrochloric acid to give effervescence; the gas evolved extinguishes a burning candle, and one of the products is calcium chloride. Identify A, write the balanced equation, and name the gas.",
       "solution_steps": [
         {
           "lead": "Identify A.",
-          "text": "Effervescence with an acid and calcium chloride as a product means A is a carbonate - calcium carbonate, CaCO3.",
+          "text": "Effervescence with an acid and calcium chloride as a product means A is a carbonate - calcium carbonate, $\\text{CaCO}_3$.",
           "concept_tag": "carbonate + acid",
           "mark": 1
         },
         {
           "lead": "Balanced equation.",
           "text": "The carbonate gives a salt, carbon dioxide and water:",
-          "equation": "CaCO3(s) + 2HCl(aq) -> CaCl2(aq) + H2O(l) + CO2(g)",
+          "equation": "$\\text{CaCO}_3(\\text{s}) + 2\\text{HCl}(\\text{aq}) \\rightarrow \\text{CaCl}_2(\\text{aq}) + \\text{H}_2\\text{O}(\\text{l}) + \\text{CO}_2(\\text{g})$",
           "mark": 1
         },
         {
@@ -278,19 +278,19 @@
         {
           "lead": "Balanced equation.",
           "text": "The pink colour fades as the base is neutralised:",
-          "equation": "NaOH(aq) + HCl(aq) -> NaCl(aq) + H2O(l)",
+          "equation": "$\\text{NaOH}(\\text{aq}) + \\text{HCl}(\\text{aq}) \\rightarrow \\text{NaCl}(\\text{aq}) + \\text{H}_2\\text{O}(\\text{l})$",
           "mark": 1
         },
         {
           "lead": "Type and ionic form.",
           "text": "Acid and base give a salt and water, so it is a neutralisation reaction; in ionic form the reacting ions are:",
-          "equation": "H+(aq) + OH-(aq) -> H2O(l)",
+          "equation": "$\\text{H}^+(\\text{aq}) + \\text{OH}^-(\\text{aq}) \\rightarrow \\text{H}_2\\text{O}(\\text{l})$",
           "concept_tag": "neutralisation",
           "mark": 1
         }
       ],
       "marks_total": 2,
-      "mark_logic": "CBSE 2-mark: the balanced molecular equation for NaCl (1) + naming it a neutralisation reaction and giving the ionic equation H+ + OH- -> H2O (1).",
+      "mark_logic": "CBSE 2-mark: the balanced molecular equation for NaCl (1) + naming it a neutralisation reaction and giving the ionic equation $\\text{H}^+ + \\text{OH}^- \\rightarrow \\text{H}_2\\text{O}$ (1).",
       "source": { "ncert_example": "Activity 2.6, Section 2.1.4", "ncert_page": 21, "edition": "2026-27", "chapter": 2 }
     },
     {
@@ -330,7 +330,7 @@
     },
     {
       "cue": "Reaction asked?",
-      "text": "Match the second reactant: metal -> Salt + H2; carbonate / hydrogencarbonate -> Salt + CO2 + Water; base -> Salt + Water (neutralisation); metal oxide is basic, non-metal oxide is acidic. Then balance and add state symbols."
+      "text": "Match the second reactant: metal $\\rightarrow$ Salt + $\\text{H}_2$; carbonate / hydrogencarbonate $\\rightarrow$ Salt + $\\text{CO}_2$ + Water; base $\\rightarrow$ Salt + Water (neutralisation); metal oxide is basic, non-metal oxide is acidic. Then balance and add state symbols."
     },
     {
       "cue": "Test the gas.",
@@ -338,24 +338,24 @@
     },
     {
       "cue": "pH question?",
-      "text": "Lower pH means more H+ and more acidic; exactly 7 is neutral. To compare two solutions, the one with the lower pH has the higher hydrogen-ion concentration."
+      "text": "Lower pH means more $\\text{H}^+$ and more acidic; exactly 7 is neutral. To compare two solutions, the one with the lower pH has the higher hydrogen-ion concentration."
     },
     {
       "cue": "A chemical from common salt?",
-      "text": "Anchor each to NaCl: brine -> NaOH + Cl2 + H2 (chlor-alkali); Cl2 + dry slaked lime -> bleaching powder; heat gypsum -> plaster of Paris."
+      "text": "Anchor each to NaCl: brine $\\rightarrow$ $\\text{NaOH} + \\text{Cl}_2 + \\text{H}_2$ (chlor-alkali); $\\text{Cl}_2$ + dry slaked lime $\\rightarrow$ bleaching powder; heat gypsum $\\rightarrow$ plaster of Paris."
     }
   ],
   "pitfalls": [
     {
-      "text": "Thinking 'salt' means only sodium chloride. In chemistry a salt is any product of an acid neutralising a base - ZnSO4, CaCl2 and Na2CO3 are all salts.",
+      "text": "Thinking 'salt' means only sodium chloride. In chemistry a salt is any product of an acid neutralising a base - $\\text{ZnSO}_4$, $\\text{CaCl}_2$ and $\\text{Na}_2\\text{CO}_3$ are all salts.",
       "owner_verified": false
     },
     {
-      "text": "Forgetting that H+ ions form only in water, so dry HCl gas does NOT turn dry litmus red - the separation of H+ from the HCl molecule needs water.",
+      "text": "Forgetting that $\\text{H}^+$ ions form only in water, so dry HCl gas does NOT turn dry litmus red - the separation of $\\text{H}^+$ from the HCl molecule needs water.",
       "owner_verified": false
     },
     {
-      "text": "Confusing strength with concentration. A strong acid ionises more fully than a weak acid at the same concentration; strong / weak is about the number of H+ ions produced, not how dilute the solution is.",
+      "text": "Confusing strength with concentration. A strong acid ionises more fully than a weak acid at the same concentration; strong / weak is about the number of $\\text{H}^+$ ions produced, not how dilute the solution is.",
       "owner_verified": false
     },
     {
@@ -363,46 +363,195 @@
       "owner_verified": false
     },
     {
-      "text": "Mixing up baking soda and washing soda - baking soda is NaHCO3 (sodium hydrogencarbonate) while washing soda is Na2CO3.10H2O (hydrated sodium carbonate).",
+      "text": "Mixing up baking soda and washing soda - baking soda is $\\text{NaHCO}_3$ (sodium hydrogencarbonate) while washing soda is $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$ (hydrated sodium carbonate).",
       "owner_verified": false
     },
     {
-      "text": "Writing plaster of Paris with a whole water molecule. It is calcium sulphate hemihydrate, CaSO4.(1/2)H2O - two formula units share one water molecule.",
+      "text": "Writing plaster of Paris with a whole water molecule. It is calcium sulphate hemihydrate, $\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O}$ - two formula units share one water molecule.",
       "owner_verified": false
     }
   ],
   "formula_strip": [
     {
       "label": "Acid + Metal",
-      "math": "$\\text{Acid} + \\text{Metal} \\rightarrow \\text{Salt} + \\text{Hydrogen gas}$"
+      "math": "$\\text{Acid} + \\text{Metal} \\rightarrow \\text{Salt} + \\text{Hydrogen gas}$",
+      "id": "acid-metal-reaction",
+      "tip": "Test hydrogen: it burns with a \"pop\"."
     },
     {
       "label": "Carbonate / bicarbonate + Acid",
-      "math": "Metal carbonate / hydrogencarbonate + Acid &rarr; Salt + Carbon dioxide + Water"
+      "math": "Metal carbonate / hydrogencarbonate + Acid &rarr; Salt + Carbon dioxide + Water",
+      "id": "carbonate-acid-reaction",
+      "tip": "CO₂ turns lime water milky."
     },
     {
       "label": "Neutralisation",
-      "math": "$\\text{Base} + \\text{Acid} \\rightarrow \\text{Salt} + \\text{Water}$   .   $\\text{H}^+(\\text{aq}) + \\text{OH}^-(\\text{aq}) \\rightarrow \\text{H}_2\\text{O}(l)$"
+      "math": "$\\text{Base} + \\text{Acid} \\rightarrow \\text{Salt} + \\text{Water}$ · $\\text{H}^+(\\text{aq}) + \\text{OH}^-(\\text{aq}) \\rightarrow \\text{H}_2\\text{O}(\\text{l})$",
+      "id": "neutralisation-reaction",
+      "tip": "Acid + base → salt + water."
     },
     {
       "label": "Acids / bases in water",
-      "math": "$\\text{HCl}(g) + \\text{H}_2\\text{O}(l) \\rightarrow \\text{H}_3\\text{O}^+(\\text{aq}) + \\text{Cl}^-(\\text{aq})$   .   $\\text{NaOH}(s) \\xrightarrow{\\text{water}} \\text{Na}^+(\\text{aq}) + \\text{OH}^-(\\text{aq})$"
+      "math": "$\\text{HCl}(\\text{g}) + \\text{H}_2\\text{O}(\\text{l}) \\rightarrow \\text{H}_3\\text{O}^+(\\text{aq}) + \\text{Cl}^-(\\text{aq})$ · $\\text{NaOH}(\\text{s}) \\xrightarrow{\\text{water}} \\text{Na}^+(\\text{aq}) + \\text{OH}^-(\\text{aq})$",
+      "id": "acids-and-bases-in-water",
+      "tip": "An acid shows H⁺ only in water."
     },
     {
       "label": "pH scale",
-      "math": "0 (very acidic) &mdash; 7 (neutral) &mdash; 14 (very alkaline) ; lower pH = more $\\text{H}^+$"
+      "math": "0 (very acidic) &mdash; 7 (neutral) &mdash; 14 (very alkaline) ; lower pH = more $\\text{H}^+$",
+      "id": "ph-scale",
+      "heading": "pH Scale",
+      "tip": "Lower pH = more H⁺."
     },
     {
       "label": "Chlor-alkali",
-      "math": "$2\\text{NaCl}(\\text{aq}) + 2\\text{H}_2\\text{O}(l) \\rightarrow 2\\text{NaOH}(\\text{aq}) + \\text{Cl}_2(g) + \\text{H}_2(g)$"
+      "math": "$2\\text{NaCl}(\\text{aq}) + 2\\text{H}_2\\text{O}(\\text{l}) \\rightarrow 2\\text{NaOH}(\\text{aq}) + \\text{Cl}_2(\\text{g}) + \\text{H}_2(\\text{g})$",
+      "id": "chlor-alkali-process",
+      "tip": "Three products: NaOH, Cl₂, H₂."
     },
     {
       "label": "Baking / washing soda",
-      "math": "$\\text{NaHCO}_3$ (baking soda)   .   $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$ (washing soda)"
+      "math": "$\\text{NaHCO}_3$ (baking soda) · $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$ (washing soda)",
+      "id": "baking-soda-and-washing-soda",
+      "tip": "NaHCO₃ has no water of crystallisation; washing soda has 10."
     },
     {
       "label": "Plaster of Paris",
-      "math": "$\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O}(s) + \\tfrac{3}{2}\\text{H}_2\\text{O}(l) \\rightarrow \\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}(s)$ (gypsum)"
+      "math": "$\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O}(\\text{s}) + \\tfrac{3}{2}\\text{H}_2\\text{O}(\\text{l}) \\rightarrow \\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}(\\text{s})$ (gypsum)",
+      "id": "plaster-of-paris",
+      "tip": "Store away from moisture."
+    },
+    {
+      "label": "Acid-Base Indicators",
+      "math": "Litmus: acids turn blue litmus red; bases turn red litmus blue. Phenolphthalein turns pink with a base. Turmeric is another natural indicator.",
+      "id": "acid-base-indicators"
+    },
+    {
+      "label": "Olfactory Indicators",
+      "math": "Substances whose smell changes in acidic or basic solutions are olfactory indicators. Onion, vanilla essence and clove oil can be used as olfactory indicators.",
+      "id": "olfactory-indicators"
+    },
+    {
+      "label": "pH of Common Substances",
+      "math": "pH paper colours give a rough guide; neutral is 7, below 7 is acidic and above 7 is basic. A universal indicator is a mixture of several indicators. From the pH chart: gastric juice about 1.2; lemon juice about 2.2; pure water 7 (neutral); blood about 7.4; milk of magnesia 10; sodium hydroxide solution about 14. Rain with pH below 5.6 is acid rain; our body works within pH 7.0 to 7.8.",
+      "id": "ph-of-common-substances"
+    },
+    {
+      "label": "pH in Everyday Life",
+      "math": "Tooth decay starts when the pH of the mouth falls below 5.5. Antacids neutralise excess acid in the stomach. Acid rain flowing into rivers lowers their pH and makes life difficult for aquatic organisms.",
+      "id": "ph-in-everyday-life"
+    },
+    {
+      "label": "Dilution of Acids and Bases",
+      "math": "Always add acid slowly to water with constant stirring; never add water to acid. Dissolving an acid or a base in water is highly exothermic.",
+      "id": "dilution-of-acids"
+    },
+    {
+      "label": "pH of Salts",
+      "math": "Salts of a strong acid and a strong base are neutral, with pH 7. Salts of a strong acid and a weak base are acidic (pH less than 7). Salts of a strong base and a weak acid are basic (pH more than 7).",
+      "id": "ph-of-salts"
+    },
+    {
+      "label": "Water of Crystallisation",
+      "math": "Some crystals contain a fixed number of water molecules, called water of crystallisation: $\\text{CuSO}_4\\cdot5\\text{H}_2\\text{O}$ is blue and turns white on heating; moisten it and the blue returns. Washing soda is $\\text{Na}_2\\text{CO}_3\\cdot10\\text{H}_2\\text{O}$ and gypsum is $\\text{CaSO}_4\\cdot2\\text{H}_2\\text{O}$.",
+      "id": "water-of-crystallisation"
+    },
+    {
+      "label": "Uses of Sodium Hydroxide, Bleaching Powder, Baking Soda, Washing Soda",
+      "math": "<b>Sodium hydroxide</b> (chlor-alkali process, Fig 2.8): de-greasing metals, soaps and detergents, paper making, artificial fibres.<br><b>Chlorine</b>: water treatment, swimming pools, PVC, disinfectants, CFCs, pesticides. <b>Hydrogen</b>: fuels, margarine, ammonia for fertilisers.<br><b>Bleaching powder</b>: bleaching cotton, linen, wood pulp and washed clothes; an oxidising agent in many chemical industries; makes drinking water free from germs.<br><b>Baking soda</b>: baking powder (baking soda + tartaric acid) makes bread and cake rise; crispy pakoras in the kitchen; an ingredient in antacids; soda-acid fire extinguishers.<br><b>Washing soda</b>: glass, soap and paper industries; making sodium compounds such as borax; a domestic cleaning agent; removing permanent hardness of water.",
+      "id": "uses-of-salt-compounds"
+    },
+    {
+      "label": "Strong and Weak Acids and Bases",
+      "math": "The strength of an acid or base depends on the number of H⁺ or OH⁻ ions it gives. Acids that give more H⁺ ions are strong acids; those that give fewer are weak acids. The same idea holds for strong and weak bases.",
+      "id": "strong-and-weak-acids-and-bases"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "ph-reading",
+      "text": "pH &lt; 7 acid, 7 neutral, &gt; 7 base; lower pH = more H⁺.",
+      "use": "mcq-check",
+      "source": "NCERT 2.3"
+    },
+    {
+      "id": "co2-lime-water-test",
+      "text": "Gas that turns lime water milky = CO₂; in an acid reaction, the other reactant is a carbonate or hydrogencarbonate.",
+      "use": "mcq-check",
+      "source": "NCERT 2.1.3"
+    },
+    {
+      "id": "acid-to-water",
+      "text": "Dilute acids by adding acid to water.",
+      "use": "written-ok",
+      "source": "NCERT 2.2.1"
+    },
+    {
+      "id": "salt-ph-by-parents",
+      "text": "Salt of strong acid + strong base is neutral (NaCl, pH 7).",
+      "use": "mcq-check",
+      "source": "NCERT 2.4.2"
+    },
+    {
+      "id": "hydrogen-pop-test",
+      "text": "Burning matchstick near the gas: \"pop\" ⇒ hydrogen.",
+      "use": "mcq-check",
+      "source": "NCERT 2.1.2"
+    },
+    {
+      "id": "acid-needs-water",
+      "text": "Dry HCl gas does not change dry litmus; acids show acidic behaviour only in water (H⁺(aq)).",
+      "use": "written-ok",
+      "source": "NCERT 2.2.1; PYQ-S-2025-ACID-005, PYQ-S-2024-ACID-004"
+    },
+    {
+      "id": "litmus-trick",
+      "text": "<b>Acid ne Neela ko Laal kiya; Base ne Laal ko Neela.</b>",
+      "gloss": "Litmus. acid: blue → red; base: red → blue.",
+      "use": "memory-aid",
+      "source": "NCERT 2.1.1"
+    },
+    {
+      "id": "ph-scale-trick",
+      "text": "<b>0 sabse khatta, 7 beech ka paani, 14 sabse kadwa (saabun jaisa).</b>",
+      "gloss": "pH scale. 0 very acidic · 7 neutral · 14 very alkaline.",
+      "use": "memory-aid",
+      "source": "NCERT 2.3"
+    },
+    {
+      "id": "soda-formula-trick",
+      "text": "<b>Baking soda mein Hydrogen, washing soda mein dus paani.</b>",
+      "gloss": "Formulae. baking soda NaHCO₃ (H, no crystal water); washing soda Na₂CO₃·10H₂O.",
+      "use": "memory-aid",
+      "source": "NCERT 2.4.3"
+    },
+    {
+      "id": "pop-vs-gypsum-trick",
+      "text": "<b>Aadha paani wala POP, do paani wala Gypsum.</b>",
+      "gloss": "CaSO₄ hydrates. POP CaSO₄·½H₂O; gypsum CaSO₄·2H₂O.",
+      "use": "memory-aid",
+      "source": "NCERT 2.4.4"
+    },
+    {
+      "id": "chlor-alkali-trick",
+      "text": "<b>Naina Chai Hi</b>: NaOH, Cl₂, H₂.",
+      "gloss": "Products of brine electrolysis. N = NaOH · C = Cl₂ · H = H₂ (order of the NCERT equation).",
+      "use": "memory-aid",
+      "source": "NCERT 2.4.3"
+    },
+    {
+      "id": "neutral-salt-trick",
+      "text": "<b>Majboot acid + majboot base = namak, pH 7.</b>",
+      "gloss": "Salt types. strong acid + strong base → neutral salt.",
+      "use": "memory-aid",
+      "source": "NCERT 2.4.2"
+    },
+    {
+      "id": "acid-to-water-trick",
+      "text": "<b>Paani mein acid, kabhi acid mein paani nahi.</b>",
+      "gloss": "Safe dilution. add acid to water.",
+      "use": "memory-aid",
+      "source": "NCERT 2.2.1"
     }
   ],
   "mindmap": {
@@ -411,18 +560,18 @@
       {
         "label": "Indicators",
         "children": [
-          "Litmus: blue->red (acid), red->blue (base)",
+          "Litmus: blue $\\rightarrow$ red (acid), red $\\rightarrow$ blue (base)",
           "Methyl orange & phenolphthalein",
           "Olfactory: onion, vanilla, clove",
-          "Universal indicator -> pH"
+          "Universal indicator $\\rightarrow$ pH"
         ]
       },
       {
         "label": "Reactions of acids & bases",
         "children": [
-          "Acid + Metal -> Salt + H2",
-          "Carbonate / bicarbonate + Acid -> Salt + CO2 + Water",
-          "Neutralisation: Acid + Base -> Salt + Water",
+          "Acid + Metal $\\rightarrow$ Salt + $\\text{H}_2$",
+          "Carbonate / bicarbonate + Acid $\\rightarrow$ Salt + $\\text{CO}_2$ + Water",
+          "Neutralisation: Acid + Base $\\rightarrow$ Salt + Water",
           "Metal oxide (basic) + Acid",
           "Non-metal oxide (acidic) + Base"
         ]
@@ -430,9 +579,9 @@
       {
         "label": "In water: ions",
         "children": [
-          "Acid -> H+(aq) / H3O+",
-          "Base -> OH-(aq); alkali = soluble base",
-          "Free ions -> conduct electricity",
+          "Acid $\\rightarrow$ $\\text{H}^+(\\text{aq})$ / $\\text{H}_3\\text{O}^+$",
+          "Base $\\rightarrow$ $\\text{OH}^-(\\text{aq})$; alkali = soluble base",
+          "Free ions $\\rightarrow$ conduct electricity",
           "Dilution is highly exothermic"
         ]
       },
@@ -440,7 +589,7 @@
         "label": "pH scale (0-14)",
         "children": [
           "7 neutral, <7 acidic, >7 basic",
-          "Strong vs weak (more / less H+)",
+          "Strong vs weak (more / less $\\text{H}^+$)",
           "Body 7.0-7.8; tooth decay < 5.5",
           "Acid rain < 5.6; soil & digestion"
         ]
@@ -451,17 +600,17 @@
           "Salt = acid + base neutralised",
           "Family: same radical",
           "pH of salt: strong+strong = 7",
-          "Water of crystallisation (CuSO4.5H2O)"
+          "Water of crystallisation ($\\text{CuSO}_4 \\cdot 5\\text{H}_2\\text{O}$)"
         ]
       },
       {
         "label": "Chemicals from common salt",
         "children": [
-          "Chlor-alkali: NaOH + Cl2 + H2",
-          "Bleaching powder Ca(ClO)2",
-          "Baking soda NaHCO3",
-          "Washing soda Na2CO3.10H2O",
-          "Plaster of Paris CaSO4.(1/2)H2O"
+          "Chlor-alkali: $\\text{NaOH} + \\text{Cl}_2 + \\text{H}_2$",
+          "Bleaching powder $\\text{Ca(ClO)}_2$",
+          "Baking soda $\\text{NaHCO}_3$",
+          "Washing soda $\\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$",
+          "Plaster of Paris $\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O}$"
         ]
       }
     ]
@@ -472,97 +621,97 @@
     "reactions": [
       {
         "name": "Acid + metal (general)",
-        "equation": "Acid + Metal -> Salt + Hydrogen gas",
+        "equation": "Acid + Metal $\\rightarrow$ Salt + Hydrogen gas",
         "conditions": "The metal displaces hydrogen from the acid as hydrogen gas",
         "source": { "ncert_page": 20, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Base + metal (zinc + sodium hydroxide)",
-        "equation": "2NaOH(aq) + Zn(s) -> Na2ZnO2(s) + H2(g)",
+        "equation": "$2\\text{NaOH}(\\text{aq}) + \\text{Zn}(\\text{s}) \\rightarrow \\text{Na}_2\\text{ZnO}_2(\\text{s}) + \\text{H}_2(\\text{g})$",
         "conditions": "Warmed; sodium zincate forms and hydrogen is evolved (not all metals do this)",
         "source": { "ncert_page": 20, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Carbonate + acid (sodium carbonate + HCl)",
-        "equation": "Na2CO3(s) + 2HCl(aq) -> 2NaCl(aq) + H2O(l) + CO2(g)",
+        "equation": "$\\text{Na}_2\\text{CO}_3(\\text{s}) + 2\\text{HCl}(\\text{aq}) \\rightarrow 2\\text{NaCl}(\\text{aq}) + \\text{H}_2\\text{O}(\\text{l}) + \\text{CO}_2(\\text{g})$",
         "conditions": "Effervescence of carbon dioxide (Activity 2.5)",
         "source": { "ncert_page": 20, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Hydrogencarbonate + acid (sodium hydrogencarbonate + HCl)",
-        "equation": "NaHCO3(s) + HCl(aq) -> NaCl(aq) + H2O(l) + CO2(g)",
+        "equation": "$\\text{NaHCO}_3(\\text{s}) + \\text{HCl}(\\text{aq}) \\rightarrow \\text{NaCl}(\\text{aq}) + \\text{H}_2\\text{O}(\\text{l}) + \\text{CO}_2(\\text{g})$",
         "conditions": "Effervescence of carbon dioxide (Activity 2.5)",
         "source": { "ncert_page": 20, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Carbon dioxide + lime water",
-        "equation": "Ca(OH)2(aq) + CO2(g) -> CaCO3(s) + H2O(l)",
+        "equation": "$\\text{Ca(OH)}_2(\\text{aq}) + \\text{CO}_2(\\text{g}) \\rightarrow \\text{CaCO}_3(\\text{s}) + \\text{H}_2\\text{O}(\\text{l})$",
         "conditions": "Lime water turns milky (white precipitate of calcium carbonate)",
         "source": { "ncert_page": 20, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Excess carbon dioxide + calcium carbonate",
-        "equation": "CaCO3(s) + H2O(l) + CO2(g) -> Ca(HCO3)2(aq)",
-        "conditions": "On passing excess CO2 the milkiness disappears (soluble calcium hydrogencarbonate)",
+        "equation": "$\\text{CaCO}_3(\\text{s}) + \\text{H}_2\\text{O}(\\text{l}) + \\text{CO}_2(\\text{g}) \\rightarrow \\text{Ca(HCO}_3\\text{)}_2(\\text{aq})$",
+        "conditions": "On passing excess $\\text{CO}_2$ the milkiness disappears (soluble calcium hydrogencarbonate)",
         "source": { "ncert_page": 21, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Neutralisation (sodium hydroxide + HCl)",
-        "equation": "NaOH(aq) + HCl(aq) -> NaCl(aq) + H2O(l)",
-        "conditions": "Base + Acid -> Salt + Water (Activity 2.6)",
+        "equation": "$\\text{NaOH}(\\text{aq}) + \\text{HCl}(\\text{aq}) \\rightarrow \\text{NaCl}(\\text{aq}) + \\text{H}_2\\text{O}(\\text{l})$",
+        "conditions": "Base + Acid $\\rightarrow$ Salt + Water (Activity 2.6)",
         "source": { "ncert_page": 21, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Metal oxide + acid (general)",
-        "equation": "Metal oxide + Acid -> Salt + Water",
+        "equation": "Metal oxide + Acid $\\rightarrow$ Salt + Water",
         "conditions": "Copper oxide + dilute HCl gives a blue-green copper(II) chloride solution; metal oxides are basic",
         "source": { "ncert_page": 21, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Neutralisation - ionic form",
-        "equation": "H+(aq) + OH-(aq) -> H2O(l)",
-        "conditions": "All acids give H+(aq) and all bases give OH-(aq); Acid + Base -> Salt + Water",
+        "equation": "$\\text{H}^+(\\text{aq}) + \\text{OH}^-(\\text{aq}) \\rightarrow \\text{H}_2\\text{O}(\\text{l})$",
+        "conditions": "All acids give $\\text{H}^+(\\text{aq})$ and all bases give $\\text{OH}^-(\\text{aq})$; Acid + Base $\\rightarrow$ Salt + Water",
         "source": { "ncert_page": 24, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Acid in water (ionisation of HCl)",
-        "equation": "HCl + H2O -> H3O+ + Cl-",
-        "conditions": "H+ ions separate from HCl only in the presence of water (hydronium ion)",
+        "equation": "$\\text{HCl} + \\text{H}_2\\text{O} \\rightarrow \\text{H}_3\\text{O}^+ + \\text{Cl}^-$",
+        "conditions": "$\\text{H}^+$ ions separate from HCl only in the presence of water (hydronium ion)",
         "source": { "ncert_page": 23, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Chlor-alkali process (electrolysis of brine)",
-        "equation": "2NaCl(aq) + 2H2O(l) -> 2NaOH(aq) + Cl2(g) + H2(g)",
-        "conditions": "Electricity through brine; Cl2 at anode, H2 at cathode, NaOH near the cathode",
+        "equation": "$2\\text{NaCl}(\\text{aq}) + 2\\text{H}_2\\text{O}(\\text{l}) \\rightarrow 2\\text{NaOH}(\\text{aq}) + \\text{Cl}_2(\\text{g}) + \\text{H}_2(\\text{g})$",
+        "conditions": "Electricity through brine; $\\text{Cl}_2$ at anode, $\\text{H}_2$ at cathode, NaOH near the cathode",
         "source": { "ncert_page": 30, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Bleaching powder",
-        "equation": "2Ca(OH)2 + 2Cl2 -> Ca(ClO)2 + CaCl2 + 2H2O",
-        "conditions": "Action of chlorine on dry slaked lime; bleaching powder is Ca(ClO)2",
+        "equation": "$2\\text{Ca(OH)}_2 + 2\\text{Cl}_2 \\rightarrow \\text{Ca(ClO)}_2 + \\text{CaCl}_2 + 2\\text{H}_2\\text{O}$",
+        "conditions": "Action of chlorine on dry slaked lime; bleaching powder is $\\text{Ca(ClO)}_2$",
         "source": { "ncert_page": 30, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Baking soda (formation)",
-        "equation": "NaCl + H2O + CO2 + NH3 -> NH4Cl + NaHCO3",
+        "equation": "$\\text{NaCl} + \\text{H}_2\\text{O} + \\text{CO}_2 + \\text{NH}_3 \\rightarrow \\text{NH}_4\\text{Cl} + \\text{NaHCO}_3$",
         "conditions": "Sodium hydrogencarbonate made using common salt as a raw material",
         "source": { "ncert_page": 31, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Baking soda on heating",
-        "equation": "2NaHCO3 --Heat--> Na2CO3 + H2O + CO2",
-        "conditions": "On heating during cooking; the CO2 released makes cakes soft and spongy",
+        "equation": "$2\\text{NaHCO}_3 \\xrightarrow{\\text{Heat}} \\text{Na}_2\\text{CO}_3 + \\text{H}_2\\text{O} + \\text{CO}_2$",
+        "conditions": "On heating during cooking; the $\\text{CO}_2$ released makes cakes soft and spongy",
         "source": { "ncert_page": 31, "edition": "2026-27", "chapter": 2 }
       },
       {
         "name": "Washing soda (recrystallisation)",
-        "equation": "Na2CO3 + 10H2O -> Na2CO3.10H2O",
+        "equation": "$\\text{Na}_2\\text{CO}_3 + 10\\text{H}_2\\text{O} \\rightarrow \\text{Na}_2\\text{CO}_3 \\cdot 10\\text{H}_2\\text{O}$",
         "conditions": "Sodium carbonate from heating baking soda is recrystallised to hydrated washing soda",
         "source": { "ncert_page": 31, "edition": "2026-27", "chapter": 2 }
       },
       {
-        "name": "Plaster of Paris + water -> gypsum",
-        "equation": "CaSO4.(1/2)H2O + (3/2)H2O -> CaSO4.2H2O",
+        "name": "Plaster of Paris + water $\\rightarrow$ gypsum",
+        "equation": "$\\text{CaSO}_4 \\cdot \\tfrac{1}{2}\\text{H}_2\\text{O} + \\tfrac{3}{2}\\text{H}_2\\text{O} \\rightarrow \\text{CaSO}_4 \\cdot 2\\text{H}_2\\text{O}$",
         "conditions": "Plaster of Paris sets to a hard mass of gypsum on mixing with water",
         "source": { "ncert_page": 33, "edition": "2026-27", "chapter": 2 }
       }
@@ -588,8 +737,8 @@
     "fig_ph_scale": {
       "bucket": "ncert",
       "tag": "NCERT Fig 2.6",
-      "caption": "Variation of pH with the change in concentration of H+(aq) and OH-(aq) ions.",
-      "legend": "The pH scale runs 0 to 14: acidic nature increases towards 0 (rising H+), basic nature increases towards 14 (rising OH-), and 7 is neutral. Labels: acidic nature increasing, neutral 7, basic nature increasing, H+, OH-, increase / decrease in H+ ion concentration.",
+      "caption": "Variation of pH with the change in concentration of $\\text{H}^+(\\text{aq})$ and $\\text{OH}^-(\\text{aq})$ ions.",
+      "legend": "The pH scale runs 0 to 14: acidic nature increases towards 0 (rising $\\text{H}^+$), basic nature increases towards 14 (rising $\\text{OH}^-$), and 7 is neutral. Labels: acidic nature increasing, neutral 7, basic nature increasing, $\\text{H}^+$, $\\text{OH}^-$, increase / decrease in $\\text{H}^+$ ion concentration.",
       "source": {
         "pdf": "jesc102",
         "edition": "2026-27",
@@ -605,7 +754,7 @@
       "bucket": "ncert",
       "tag": "NCERT Fig 2.8",
       "caption": "Important products from the chlor-alkali process.",
-      "legend": "Electrolysis of brine (aqueous NaCl) gives chlorine at the anode, hydrogen at the cathode and sodium hydroxide near the cathode, separated by a membrane. Labels: anode (+), cathode (-), Cl2, H2, brine, brine containing NaOH, membrane, Cl-, OH-, Na+, H+, and the uses of each product.",
+      "legend": "Electrolysis of brine (aqueous NaCl) gives chlorine at the anode, hydrogen at the cathode and sodium hydroxide near the cathode, separated by a membrane. Labels: anode (+), cathode (-), $\\text{Cl}_2$, $\\text{H}_2$, brine, brine containing NaOH, membrane, $\\text{Cl}^-$, $\\text{OH}^-$, $\\text{Na}^+$, $\\text{H}^+$, and the uses of each product.",
       "source": {
         "pdf": "jesc102",
         "edition": "2026-27",
@@ -634,8 +783,8 @@
     { "item": "Chlor-alkali process", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.30" },
     { "item": "Bleaching powder", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.30" },
     { "item": "Plaster of Paris", "type": "verbatim", "source": "NCERT 2026-27 Ch2 p.33" },
-    { "item": "Acid + metal -> salt + hydrogen", "type": "example", "source": "NCERT 2026-27 Ch2 Activity 2.3 / Exercise 5(a) p.20" },
-    { "item": "Metal carbonate + acid -> salt + CO2 + water", "type": "example", "source": "NCERT 2026-27 Ch2 Section 2.1.3 / Questions p.22" },
+    { "item": "Acid + metal $\\rightarrow$ salt + hydrogen", "type": "example", "source": "NCERT 2026-27 Ch2 Activity 2.3 / Exercise 5(a) p.20" },
+    { "item": "Metal carbonate + acid $\\rightarrow$ salt + $\\text{CO}_2$ + water", "type": "example", "source": "NCERT 2026-27 Ch2 Section 2.1.3 / Questions p.22" },
     { "item": "Neutralisation (acid + base)", "type": "example", "source": "NCERT 2026-27 Ch2 Activity 2.6 / Section 2.1.4 p.21" },
     { "item": "Neutralisation volume ratio", "type": "example", "source": "NCERT 2026-27 Ch2 Exercise Q3 p.34" },
     { "item": "NCERT Fig 2.1", "type": "figure", "source": "NCERT 2026-27 Ch2 Fig 2.1 p.19" },

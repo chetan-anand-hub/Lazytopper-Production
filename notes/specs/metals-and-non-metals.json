@@ -88,7 +88,7 @@
       "tier": "headline",
       "term": "Ionic (electrovalent) compounds",
       "verbatim": "The compounds formed in this manner by the transfer of electrons from a metal to a non-metal are known as ionic compounds or electrovalent compounds.",
-      "plain": "Compounds like NaCl or MgCl2 made when a metal donates electrons to a non-metal, giving oppositely charged ions held by strong electrostatic attraction.",
+      "plain": "Compounds like NaCl or $\\text{MgCl}_2$ made when a metal donates electrons to a non-metal, giving oppositely charged ions held by strong electrostatic attraction.",
       "memorise": true,
       "source": {
         "ncert_page": 48,
@@ -265,7 +265,7 @@
     {
       "id": "c4",
       "title": "Reaction of metals with water and acids",
-      "body": "Metals react with water to give a metal oxide (or hydroxide) and hydrogen, but not all metals react. Potassium and sodium react violently with cold water; calcium reacts less violently and floats; magnesium reacts with hot water; aluminium, iron and zinc react only with steam; lead, copper, silver and gold do not react at all. With dilute acids the reactivity order is Mg > Al > Zn > Fe, while copper gives no reaction. Hydrogen is usually not evolved with nitric acid, because HNO3 is a strong oxidising agent.",
+      "body": "Metals react with water to give a metal oxide (or hydroxide) and hydrogen, but not all metals react. Potassium and sodium react violently with cold water; calcium reacts less violently and floats; magnesium reacts with hot water; aluminium, iron and zinc react only with steam; lead, copper, silver and gold do not react at all. With dilute acids the reactivity order is Mg > Al > Zn > Fe, while copper gives no reaction. Hydrogen is usually not evolved with nitric acid, because $\\text{HNO}_3$ is a strong oxidising agent.",
       "tested": "3-mark: write equations for iron with steam and calcium/potassium with water; explain why sodium is stored in kerosene.",
       "figure_ref": null
     },
@@ -279,8 +279,8 @@
     {
       "id": "c6",
       "title": "Ionic (electrovalent) compounds and their properties",
-      "body": "When a metal transfers electrons to a non-metal, oppositely charged ions form and are held by strong electrostatic forces - for example sodium loses one electron to chlorine to give Na+ and Cl-, which aggregate as sodium chloride. Such ionic compounds are solids that are hard and brittle, have high melting and boiling points, are generally soluble in water but not in petrol or kerosene, and conduct electricity in the molten or aqueous state (ions free to move) but not as solids.",
-      "tested": "3-mark: show the formation of Na2O or MgO by electron transfer; give the ions present; explain the high melting point.",
+      "body": "When a metal transfers electrons to a non-metal, oppositely charged ions form and are held by strong electrostatic forces - for example sodium loses one electron to chlorine to give $\\text{Na}^+$ and $\\text{Cl}^-$, which aggregate as sodium chloride. Such ionic compounds are solids that are hard and brittle, have high melting and boiling points, are generally soluble in water but not in petrol or kerosene, and conduct electricity in the molten or aqueous state (ions free to move) but not as solids.",
+      "tested": "3-mark: show the formation of $\\text{Na}_2\\text{O}$ or MgO by electron transfer; give the ions present; explain the high melting point.",
       "figure_ref": "fig_nacl_formation"
     },
     {
@@ -315,14 +315,14 @@
         {
           "lead": "Copper.",
           "text": "Copper heated in air combines with oxygen to form a black layer of copper(II) oxide.",
-          "equation": "2Cu + O2 -> 2CuO",
-          "concept_tag": "metal + oxygen -> metal oxide",
+          "equation": "$2\\text{Cu} + \\text{O}_2 \\rightarrow 2\\text{CuO}$",
+          "concept_tag": "metal + oxygen $\\rightarrow$ metal oxide",
           "mark": 1
         },
         {
           "lead": "Aluminium.",
           "text": "Aluminium combines with oxygen to form aluminium oxide.",
-          "equation": "4Al + 3O2 -> 2Al2O3",
+          "equation": "$4\\text{Al} + 3\\text{O}_2 \\rightarrow 2\\text{Al}_2\\text{O}_3$",
           "mark": 1
         },
         {
@@ -333,7 +333,7 @@
         }
       ],
       "marks_total": 3,
-      "mark_logic": "3-mark: the balanced equation for copper (1) + the balanced equation for aluminium (1) + stating the oxides are basic, with Al2O3 amphoteric (1). Balance oxygen first, then the metal.",
+      "mark_logic": "3-mark: the balanced equation for copper (1) + the balanced equation for aluminium (1) + stating the oxides are basic, with $\\text{Al}_2\\text{O}_3$ amphoteric (1). Balance oxygen first, then the metal.",
       "source": {
         "ncert_page": 41,
         "edition": "2026-27",
@@ -349,20 +349,20 @@
         {
           "lead": "Sodium - cold water.",
           "text": "Sodium reacts violently and exothermically with cold water; the hydrogen evolved catches fire.",
-          "equation": "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g) + heat energy",
+          "equation": "$2\\text{Na}(\\text{s}) + 2\\text{H}_2\\text{O}(\\text{l}) \\rightarrow 2\\text{NaOH}(\\text{aq}) + \\text{H}_2(\\text{g}) + \\text{heat energy}$",
           "concept_tag": "very reactive metal",
           "mark": 1
         },
         {
           "lead": "Calcium - cold water.",
           "text": "Calcium reacts less violently and starts floating as hydrogen bubbles stick to it.",
-          "equation": "Ca(s) + 2H2O(l) -> Ca(OH)2(aq) + H2(g)",
+          "equation": "$\\text{Ca}(\\text{s}) + 2\\text{H}_2\\text{O}(\\text{l}) \\rightarrow \\text{Ca(OH)}_2(\\text{aq}) + \\text{H}_2(\\text{g})$",
           "mark": 1
         },
         {
           "lead": "Iron - steam only.",
           "text": "Iron does not react with cold or hot water; it reacts only with steam to give the oxide and hydrogen.",
-          "equation": "3Fe(s) + 4H2O(g) -> Fe3O4(s) + 4H2(g)",
+          "equation": "$3\\text{Fe}(\\text{s}) + 4\\text{H}_2\\text{O}(\\text{g}) \\rightarrow \\text{Fe}_3\\text{O}_4(\\text{s}) + 4\\text{H}_2(\\text{g})$",
           "concept_tag": "reacts only with steam",
           "mark": 1
         }
@@ -384,8 +384,8 @@
         {
           "lead": "Reaction (zinc).",
           "text": "A reactive metal reacts with a dilute acid to give a salt and hydrogen gas. For zinc:",
-          "equation": "Zn(s) + 2HCl(aq) -> ZnCl2(aq) + H2(g)",
-          "concept_tag": "metal + dilute acid -> salt + hydrogen",
+          "equation": "$\\text{Zn}(\\text{s}) + 2\\text{HCl}(\\text{aq}) \\rightarrow \\text{ZnCl}_2(\\text{aq}) + \\text{H}_2(\\text{g})$",
+          "concept_tag": "metal + dilute acid $\\rightarrow$ salt + hydrogen",
           "mark": 1
         },
         {
@@ -396,7 +396,7 @@
         {
           "lead": "Copper.",
           "text": "With copper no bubbles were seen and the temperature did not change - copper does not react with dilute HCl, as it lies below hydrogen in the activity series.",
-          "concept_tag": "below hydrogen -> no H2",
+          "concept_tag": "below hydrogen $\\rightarrow$ no $\\text{H}_2$",
           "mark": 1
         }
       ],
@@ -417,7 +417,7 @@
         {
           "lead": "Where the reaction occurs.",
           "text": "Iron is more reactive than copper, so the iron nail displaces copper from copper sulphate solution; the copper wire in iron sulphate solution shows no reaction.",
-          "equation": "Fe(s) + CuSO4(aq) -> FeSO4(aq) + Cu(s)",
+          "equation": "$\\text{Fe}(\\text{s}) + \\text{CuSO}_4(\\text{aq}) \\rightarrow \\text{FeSO}_4(\\text{aq}) + \\text{Cu}(\\text{s})$",
           "mark": 1
         },
         {
@@ -428,7 +428,7 @@
         {
           "lead": "Type of reaction.",
           "text": "A more reactive metal displaces a less reactive metal from its salt solution, so this is a displacement reaction.",
-          "concept_tag": "displacement -> reactivity evidence",
+          "concept_tag": "displacement $\\rightarrow$ reactivity evidence",
           "mark": 1
         }
       ],
@@ -449,12 +449,12 @@
         {
           "lead": "Equation.",
           "text": "Aluminium, being more reactive, reduces iron(III) oxide to iron:",
-          "equation": "Fe2O3(s) + 2Al(s) -> 2Fe(l) + Al2O3(s) + Heat",
+          "equation": "$\\text{Fe}_2\\text{O}_3(\\text{s}) + 2\\text{Al}(\\text{s}) \\rightarrow 2\\text{Fe}(\\text{l}) + \\text{Al}_2\\text{O}_3(\\text{s}) + \\text{Heat}$",
           "mark": 1
         },
         {
           "lead": "Oxidised / reduced.",
-          "text": "Aluminium gains oxygen, so it is oxidised to Al2O3; iron(III) oxide loses oxygen, so it is reduced to iron.",
+          "text": "Aluminium gains oxygen, so it is oxidised to $\\text{Al}_2\\text{O}_3$; iron(III) oxide loses oxygen, so it is reduced to iron.",
           "concept_tag": "gain O = oxidised, lose O = reduced",
           "mark": 1
         },
@@ -481,21 +481,21 @@
         {
           "lead": "Roasting (sulphide ore).",
           "text": "The sulphide ore is heated strongly in excess air to give the oxide - this is roasting.",
-          "equation": "2ZnS(s) + 3O2(g) --Heat--> 2ZnO(s) + 2SO2(g)",
+          "equation": "$2\\text{ZnS}(\\text{s}) + 3\\text{O}_2(\\text{g}) \\xrightarrow{\\text{Heat}} 2\\text{ZnO}(\\text{s}) + 2\\text{SO}_2(\\text{g})$",
           "concept_tag": "roasting = sulphide + excess air",
           "mark": 1
         },
         {
           "lead": "Calcination (carbonate ore).",
           "text": "The carbonate ore is heated strongly in limited air to give the oxide - this is calcination.",
-          "equation": "ZnCO3(s) --Heat--> ZnO(s) + CO2(g)",
+          "equation": "$\\text{ZnCO}_3(\\text{s}) \\xrightarrow{\\text{Heat}} \\text{ZnO}(\\text{s}) + \\text{CO}_2(\\text{g})$",
           "concept_tag": "calcination = carbonate + limited air",
           "mark": 1
         },
         {
           "lead": "Reduction.",
           "text": "The zinc oxide is then reduced to metallic zinc by heating with carbon.",
-          "equation": "ZnO(s) + C(s) -> Zn(s) + CO(g)",
+          "equation": "$\\text{ZnO}(\\text{s}) + \\text{C}(\\text{s}) \\rightarrow \\text{Zn}(\\text{s}) + \\text{CO}(\\text{g})$",
           "mark": 1
         }
       ],
@@ -519,7 +519,7 @@
     },
     {
       "cue": "Which extraction method?",
-      "text": "Tie the method to the series: top metals (K, Na, Ca, Mg, Al) -> electrolysis of the molten compound; middle metals (Zn, Fe, Pb, Cu) -> roast or calcine the ore to the oxide, then reduce with carbon; bottom metals (Ag, Au) -> found native or reduced by heat alone."
+      "text": "Tie the method to the series: top metals (K, Na, Ca, Mg, Al) $\\rightarrow$ electrolysis of the molten compound; middle metals (Zn, Fe, Pb, Cu) $\\rightarrow$ roast or calcine the ore to the oxide, then reduce with carbon; bottom metals (Ag, Au) $\\rightarrow$ found native or reduced by heat alone."
     },
     {
       "cue": "Roasting or calcination?",
@@ -548,7 +548,7 @@
       "owner_verified": false
     },
     {
-      "text": "Expecting hydrogen gas when a metal reacts with nitric acid. HNO3 is a strong oxidising agent, so it usually oxidises the hydrogen to water and no H2 is evolved (very dilute HNO3 with Mg or Mn is the exception).",
+      "text": "Expecting hydrogen gas when a metal reacts with nitric acid. $\\text{HNO}_3$ is a strong oxidising agent, so it usually oxidises the hydrogen to water and no $\\text{H}_2$ is evolved (very dilute $\\text{HNO}_3$ with Mg or Mn is the exception).",
       "owner_verified": false
     },
     {
@@ -559,31 +559,181 @@
   "formula_strip": [
     {
       "label": "Metal + Oxygen",
-      "math": "$\\text{Metal} + \\text{Oxygen} \\rightarrow \\text{Metal oxide}$  (mostly basic; $\\text{Al}_2\\text{O}_3$ and $\\text{ZnO}$ are amphoteric)"
+      "math": "$\\text{Metal} + \\text{Oxygen} \\rightarrow \\text{Metal oxide}$  (mostly basic; $\\text{Al}_2\\text{O}_3$ and $\\text{ZnO}$ are amphoteric)",
+      "id": "metal-oxygen-reaction",
+      "tip": "Metal oxides are mostly basic; Al₂O₃, ZnO amphoteric."
     },
     {
       "label": "Metal + Water",
-      "math": "$\\text{Metal} + \\text{Water} \\rightarrow \\text{Metal oxide} + \\text{Hydrogen}$  .  $\\text{Metal oxide} + \\text{Water} \\rightarrow \\text{Metal hydroxide}$"
+      "math": "$\\text{Metal} + \\text{Water} \\rightarrow \\text{Metal oxide} + \\text{Hydrogen}$ · $\\text{Metal oxide} + \\text{Water} \\rightarrow \\text{Metal hydroxide}$",
+      "id": "metal-water-reaction",
+      "tip": "Reactivity decides cold water, hot water, steam, none."
     },
     {
       "label": "Metal + Acid",
-      "math": "$\\text{Metal} + \\text{Dilute acid} \\rightarrow \\text{Salt} + \\text{Hydrogen}$"
+      "math": "$\\text{Metal} + \\text{Dilute acid} \\rightarrow \\text{Salt} + \\text{Hydrogen}$",
+      "id": "metal-acid-reaction",
+      "tip": "Cu, Hg, Ag, Au do not release hydrogen."
     },
     {
       "label": "Displacement",
-      "math": "$\\text{Metal A} + \\text{Salt solution of B} \\rightarrow \\text{Salt solution of A} + \\text{Metal B}$  (A more reactive than B)"
+      "math": "$\\text{Metal A} + \\text{Salt solution of B} \\rightarrow \\text{Salt solution of A} + \\text{Metal B}$  (A more reactive than B)",
+      "id": "metal-displacement-reaction",
+      "tip": "More reactive displaces less reactive."
     },
     {
       "label": "Activity series",
-      "math": "K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au"
+      "math": "K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au",
+      "id": "reactivity-series",
+      "heading": "Reactivity Series of Metals (Activity Series)",
+      "tip": "K Na Ca Mg Al Zn Fe Pb H Cu Hg Ag Au (top most reactive)."
     },
     {
       "label": "Roasting / Calcination",
-      "math": "Roasting: sulphide ore + excess air $\\rightarrow$ oxide  .  Calcination: carbonate ore + limited air $\\rightarrow$ oxide"
+      "math": "Roasting: sulphide ore + excess air $\\rightarrow$ oxide · Calcination: carbonate ore + limited air $\\rightarrow$ oxide",
+      "id": "roasting-and-calcination",
+      "tip": "Roasting: sulphide ore, excess air. Calcination: carbonate ore, limited air."
     },
     {
       "label": "Thermit reaction",
-      "math": "$\\text{Fe}_2\\text{O}_3(s) + 2\\text{Al}(s) \\rightarrow 2\\text{Fe}(l) + \\text{Al}_2\\text{O}_3(s) + \\text{Heat}$  (aluminium reduces iron(III) oxide; the iron is molten)"
+      "math": "$\\text{Fe}_2\\text{O}_3(s) + 2\\text{Al}(s) \\rightarrow 2\\text{Fe}(l) + \\text{Al}_2\\text{O}_3(s) + \\text{Heat}$  (aluminium reduces iron(III) oxide; the iron is molten)",
+      "id": "thermit-reaction",
+      "tip": "Aluminium reduces iron(III) oxide; used to join rails."
+    },
+    {
+      "label": "Physical Properties of Metals and Non-metals (with Exceptions)",
+      "math": "Metals are lustrous, malleable, ductile, sonorous and good conductors of heat and electricity; non-metals are brittle and poor conductors. Exceptions: mercury is a liquid metal; gallium and caesium melt at very low temperatures; iodine is a lustrous non-metal; diamond is the hardest natural substance; graphite conducts electricity; the alkali metals (lithium, sodium, potassium) are so soft that they can be cut with a knife; lead and mercury are poor conductors of heat; non-metals are solids or gases except bromine, which is a liquid.",
+      "id": "physical-properties-of-metals-and-non-metals"
+    },
+    {
+      "label": "Properties of Ionic Compounds",
+      "math": "Ionic compounds are solids, somewhat hard and brittle; they have high melting and boiling points; they dissolve in water; they conduct electricity in solution and in the molten state but not as solids.",
+      "id": "properties-of-ionic-compounds"
+    },
+    {
+      "label": "Extraction of Metals by Position in the Reactivity Series",
+      "math": "Top of the series (K, Na, Ca, Mg, Al): electrolysis of the molten chloride; the metal is deposited at the cathode. Middle (Zn, Fe, Pb): roast or calcine the ore to the oxide, then reduce with carbon. Bottom: mercury from cinnabar (HgS) and copper from Cu₂S are obtained by heating in air alone; silver and gold are found free.",
+      "id": "extraction-of-metals-by-reactivity"
+    },
+    {
+      "label": "Electrolytic Refining of Copper",
+      "math": "The impure metal is made the anode and a thin strip of pure metal the cathode, in a solution of acidified copper sulphate. On passing current, pure copper deposits on the cathode.",
+      "id": "electrolytic-refining"
+    },
+    {
+      "label": "Prevention of Corrosion",
+      "math": "Painting, oiling, greasing, galvanising, chrome plating, anodising and making alloys. Galvanising is coating iron or steel with a thin layer of zinc; the article stays protected even if the zinc coating is broken.",
+      "id": "corrosion-prevention-methods"
+    },
+    {
+      "label": "Alloys",
+      "math": "An alloy is a homogeneous mixture of two or more metals, or of a metal and a non-metal. Pure iron is soft; with a little carbon (about 0.05%) it becomes hard and strong; with nickel and chromium it gives stainless steel. Brass is copper and zinc; bronze is copper and tin. An alloy with mercury is an amalgam. The conductivity and melting point of an alloy are lower than those of the pure metals.",
+      "id": "alloys"
+    },
+    {
+      "label": "Metals and Water: Who Reacts How",
+      "math": "Potassium and sodium react violently with cold water. Calcium reacts less violently. Magnesium reacts only with hot water. Aluminium, iron and zinc react only with steam, giving the metal oxide and hydrogen. Lead, copper, silver and gold do not react with water at all.",
+      "id": "metals-and-water-detail"
+    },
+    {
+      "label": "Formation of an Ionic Compound (NaCl)",
+      "math": "A metal atom loses electrons to form a positive ion; a non-metal atom gains electrons to form a negative ion; the opposite charges attract. $\\text{Na}\\rightarrow\\text{Na}^++e^-$ and $\\text{Cl}+e^-\\rightarrow\\text{Cl}^-$, giving $\\text{NaCl}$.",
+      "id": "formation-of-ionic-compound"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "displacement-by-series-position",
+      "text": "A metal displaces any metal BELOW it in the reactivity series from its salt solution.",
+      "use": "mcq-check",
+      "source": "NCERT 3.2.4, 3.2.5"
+    },
+    {
+      "id": "above-hydrogen-releases-hydrogen",
+      "text": "Only metals above hydrogen displace H₂ from dilute acids; Cu, Hg, Ag, Au do not.",
+      "use": "mcq-check",
+      "source": "NCERT 3.2.3"
+    },
+    {
+      "id": "extraction-follows-reactivity",
+      "text": "Top: electrolysis. Middle: carbon reduction (after roasting/calcination). Bottom: heat alone.",
+      "use": "written-ok",
+      "source": "NCERT 3.4"
+    },
+    {
+      "id": "oxide-nature",
+      "text": "Metal oxides are basic; non-metal oxides acidic; aluminium and zinc oxides are amphoteric.",
+      "use": "mcq-check",
+      "source": "NCERT 3.2.1"
+    },
+    {
+      "id": "roast-vs-calcine",
+      "text": "Sulphide ore ⇒ roasting (excess air). Carbonate ore ⇒ calcination (limited air).",
+      "use": "written-ok",
+      "source": "NCERT 3.4.4"
+    },
+    {
+      "id": "refining-electrodes",
+      "text": "Refining: impure metal at the anode, pure metal at the cathode.",
+      "use": "written-ok",
+      "source": "NCERT 3.4.6"
+    },
+    {
+      "id": "reactivity-series-trick",
+      "text": "<b>K</b>al <b>N</b>aani <b>Ca</b>r <b>M</b>ein <b>Al</b>oo <b>Z</b>eera <b>F</b>ry <b>P</b>aka <b>H</b>ain, <b>Cu</b>pboard <b>H</b>i <b>Ag</b>le <b>Au</b>nty.",
+      "gloss": "Most reactive → least reactive, 13 members, hydrogen in position 9. Kal = <b>K</b> · Naani = <b>Na</b> · Car = <b>Ca</b> · Mein = <b>Mg</b> · Aloo = <b>Al</b> · Zeera = <b>Zn</b> · Fry = <b>Fe</b> · Paka = <b>Pb</b> · Hain = <b>H</b> (hydrogen) · Cupboard = <b>Cu</b> · Hi = <b>Hg</b> · Agle = <b>Ag</b> · Aunty = <b>Au</b>. The five words that share a first letter (Ca, Al, Cu, Ag, Au) now carry the whole symbol (Car, Aloo, Cupboard, Agle, Aunty).",
+      "use": "memory-aid",
+      "source": "NCERT 3.2.5 Table 3.2",
+      "heading": "Reactivity Series Trick (K to Au)"
+    },
+    {
+      "id": "anode-cathode-trick",
+      "text": "<b>Anode = Ashuddh, Cathode = Chokha.</b>",
+      "gloss": "Electrolytic refining. anode: impure metal · cathode: pure metal strip.",
+      "use": "memory-aid",
+      "source": "NCERT 3.4.6"
+    },
+    {
+      "id": "metal-water-trick",
+      "text": "<b>K, Na bhadak jaate; Ca kam bhadakta aur tairta hai; Mg sirf garam paani; Al-Zn-Fe sirf bhaap; Pb se Au kuch nahi.</b>",
+      "gloss": "Metals and water. K, Na violent · Ca less violent · Mg hot water · Al, Fe, Zn steam · Pb, Cu, Ag, Au nothing.",
+      "use": "memory-aid",
+      "source": "NCERT 3.2.2"
+    },
+    {
+      "id": "extraction-trick",
+      "text": "<b>Upar: Bijli. Beech: Bhatti. Neeche: Aanch.</b>",
+      "gloss": "Extraction method by position. top: electrolysis · middle: carbon reduction (furnace) · bottom: heat alone (Hg, Cu) or found free (Ag, Au).",
+      "use": "memory-aid",
+      "source": "NCERT 3.4.3–3.4.5"
+    },
+    {
+      "id": "oxide-trick",
+      "text": "<b>Metal ka oxide Base; non-metal ka oxide Acid; Aluminium-Zinc dono taraf.</b>",
+      "gloss": "Nature of oxides. basic · acidic · amphoteric (Al₂O₃, ZnO).",
+      "use": "memory-aid",
+      "source": "NCERT 3.2.1"
+    },
+    {
+      "id": "corrosion-prevention-trick",
+      "text": "<b>P</b>intu <b>O</b>ye <b>G</b>aya <b>G</b>aon <b>C</b>hhodke <b>A</b>aj <b>A</b>aya.",
+      "gloss": "Seven prevention methods, NCERT order. P = painting · O = oiling · G = greasing · G = galvanising · C = chrome plating · A = anodising · A = alloying (making alloys).",
+      "use": "memory-aid",
+      "source": "NCERT 3.5.1"
+    },
+    {
+      "id": "ionic-bond-trick",
+      "text": "<b>Metal de, non-metal le.</b>",
+      "gloss": "Ionic bond formation. metal loses electrons (cation); non-metal gains (anion).",
+      "use": "memory-aid",
+      "source": "NCERT 3.3"
+    },
+    {
+      "id": "alloy-trick",
+      "text": "<b>Pital = Cu + Zn; Kaansa = Cu + Sn.</b>",
+      "gloss": "Brass and bronze. brass: copper + zinc · bronze: copper + tin.",
+      "use": "memory-aid",
+      "source": "NCERT 3.5.1"
     }
   ],
   "mindmap": {
@@ -601,10 +751,10 @@
       {
         "label": "Chemical properties",
         "children": [
-          "With oxygen -> metal oxide (basic; Al2O3/ZnO amphoteric)",
-          "With water -> oxide/hydroxide + H2 (Na/K violent, Al/Fe steam)",
-          "With dilute acid -> salt + H2 (Mg > Al > Zn > Fe)",
-          "With salt solution -> displacement"
+          "With oxygen $\\rightarrow$ metal oxide (basic; $\\text{Al}_2\\text{O}_3$/ZnO amphoteric)",
+          "With water $\\rightarrow$ oxide/hydroxide + $\\text{H}_2$ (Na/K violent, Al/Fe steam)",
+          "With dilute acid $\\rightarrow$ salt + $\\text{H}_2$ (Mg > Al > Zn > Fe)",
+          "With salt solution $\\rightarrow$ displacement"
         ]
       },
       {
@@ -612,13 +762,13 @@
         "children": [
           "K > Na > Ca > Mg > Al > Zn > Fe > Pb > [H] > Cu > Hg > Ag > Au",
           "More reactive metal displaces less reactive one",
-          "Above hydrogen -> displaces H2 from dilute acids"
+          "Above hydrogen $\\rightarrow$ displaces $\\text{H}_2$ from dilute acids"
         ]
       },
       {
         "label": "Ionic (electrovalent) compounds",
         "children": [
-          "Metal transfers electrons to non-metal (Na+ + Cl- -> NaCl)",
+          "Metal transfers electrons to non-metal ($\\text{Na}^+ + \\text{Cl}^- \\rightarrow \\text{NaCl}$)",
           "High melting and boiling points; hard, brittle solids",
           "Soluble in water, not in petrol/kerosene",
           "Conduct in molten / aqueous state, not as solids"
@@ -628,9 +778,9 @@
         "label": "Occurrence and extraction",
         "children": [
           "Minerals and ores; gangue removed by enrichment",
-          "Top metals -> electrolysis of molten compound",
-          "Middle metals -> roasting/calcination then reduction with carbon",
-          "Refining -> electrolytic refining (anode mud)"
+          "Top metals $\\rightarrow$ electrolysis of molten compound",
+          "Middle metals $\\rightarrow$ roasting/calcination then reduction with carbon",
+          "Refining $\\rightarrow$ electrolytic refining (anode mud)"
         ]
       },
       {
@@ -650,7 +800,7 @@
     "reactions": [
       {
         "name": "Metal + oxygen (general)",
-        "equation": "Metal + Oxygen -> Metal oxide",
+        "equation": "Metal + Oxygen $\\rightarrow$ Metal oxide",
         "conditions": "Almost all metals combine with oxygen to form metal oxides (mostly basic)",
         "source": {
           "ncert_page": 41,
@@ -660,7 +810,7 @@
       },
       {
         "name": "Copper burnt in air",
-        "equation": "2Cu + O2 -> 2CuO",
+        "equation": "$2\\text{Cu} + \\text{O}_2 \\rightarrow 2\\text{CuO}$",
         "conditions": "Copper heated in air forms a black layer of copper(II) oxide",
         "source": {
           "ncert_page": 41,
@@ -670,7 +820,7 @@
       },
       {
         "name": "Aluminium burnt in air",
-        "equation": "4Al + 3O2 -> 2Al2O3",
+        "equation": "$4\\text{Al} + 3\\text{O}_2 \\rightarrow 2\\text{Al}_2\\text{O}_3$",
         "conditions": "Aluminium combines with oxygen to form aluminium oxide",
         "source": {
           "ncert_page": 41,
@@ -680,7 +830,7 @@
       },
       {
         "name": "Amphoteric oxide with an acid",
-        "equation": "Al2O3 + 6HCl -> 2AlCl3 + 3H2O",
+        "equation": "$\\text{Al}_2\\text{O}_3 + 6\\text{HCl} \\rightarrow 2\\text{AlCl}_3 + 3\\text{H}_2\\text{O}$",
         "conditions": "Aluminium oxide (amphoteric) behaves as a base towards acid",
         "source": {
           "ncert_page": 41,
@@ -690,7 +840,7 @@
       },
       {
         "name": "Amphoteric oxide with a base",
-        "equation": "Al2O3 + 2NaOH -> 2NaAlO2 + H2O",
+        "equation": "$\\text{Al}_2\\text{O}_3 + 2\\text{NaOH} \\rightarrow 2\\text{NaAlO}_2 + \\text{H}_2\\text{O}$",
         "conditions": "Aluminium oxide (amphoteric) behaves as an acid towards base; gives sodium aluminate",
         "source": {
           "ncert_page": 41,
@@ -699,8 +849,8 @@
         }
       },
       {
-        "name": "Soluble metal oxide -> alkali",
-        "equation": "Na2O(s) + H2O(l) -> 2NaOH(aq)",
+        "name": "Soluble metal oxide $\\rightarrow$ alkali",
+        "equation": "$\\text{Na}_2\\text{O}(\\text{s}) + \\text{H}_2\\text{O}(\\text{l}) \\rightarrow 2\\text{NaOH}(\\text{aq})$",
         "conditions": "Sodium oxide dissolves in water to form an alkali",
         "source": {
           "ncert_page": 41,
@@ -710,7 +860,7 @@
       },
       {
         "name": "Sodium + cold water",
-        "equation": "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g) + heat energy",
+        "equation": "$2\\text{Na}(\\text{s}) + 2\\text{H}_2\\text{O}(\\text{l}) \\rightarrow 2\\text{NaOH}(\\text{aq}) + \\text{H}_2(\\text{g}) + \\text{heat energy}$",
         "conditions": "Violent and exothermic; the evolved hydrogen catches fire",
         "source": {
           "ncert_page": 43,
@@ -720,7 +870,7 @@
       },
       {
         "name": "Calcium + water",
-        "equation": "Ca(s) + 2H2O(l) -> Ca(OH)2(aq) + H2(g)",
+        "equation": "$\\text{Ca}(\\text{s}) + 2\\text{H}_2\\text{O}(\\text{l}) \\rightarrow \\text{Ca(OH)}_2(\\text{aq}) + \\text{H}_2(\\text{g})$",
         "conditions": "Less violent; calcium floats on the hydrogen bubbles",
         "source": {
           "ncert_page": 43,
@@ -730,7 +880,7 @@
       },
       {
         "name": "Iron + steam",
-        "equation": "3Fe(s) + 4H2O(g) -> Fe3O4(s) + 4H2(g)",
+        "equation": "$3\\text{Fe}(\\text{s}) + 4\\text{H}_2\\text{O}(\\text{g}) \\rightarrow \\text{Fe}_3\\text{O}_4(\\text{s}) + 4\\text{H}_2(\\text{g})$",
         "conditions": "Iron reacts only with steam, not with cold or hot water",
         "source": {
           "ncert_page": 43,
@@ -740,7 +890,7 @@
       },
       {
         "name": "Metal + dilute acid (general)",
-        "equation": "Metal + Dilute acid -> Salt + Hydrogen",
+        "equation": "Metal + Dilute acid $\\rightarrow$ Salt + Hydrogen",
         "conditions": "Reactivity Mg > Al > Zn > Fe; copper does not react with dilute HCl",
         "source": {
           "ncert_page": 44,
@@ -750,7 +900,7 @@
       },
       {
         "name": "Displacement (general)",
-        "equation": "Metal A + Salt solution of B -> Salt solution of A + Metal B",
+        "equation": "Metal A + Salt solution of B $\\rightarrow$ Salt solution of A + Metal B",
         "conditions": "A more reactive metal (A) displaces a less reactive one (B) from its salt",
         "source": {
           "ncert_page": 45,
@@ -760,7 +910,7 @@
       },
       {
         "name": "Roasting - zinc sulphide",
-        "equation": "2ZnS(s) + 3O2(g) --Heat--> 2ZnO(s) + 2SO2(g)",
+        "equation": "$2\\text{ZnS}(\\text{s}) + 3\\text{O}_2(\\text{g}) \\xrightarrow{\\text{Heat}} 2\\text{ZnO}(\\text{s}) + 2\\text{SO}_2(\\text{g})$",
         "conditions": "Sulphide ore heated in excess air is converted to the oxide (roasting)",
         "source": {
           "ncert_page": 51,
@@ -770,7 +920,7 @@
       },
       {
         "name": "Calcination - zinc carbonate",
-        "equation": "ZnCO3(s) --Heat--> ZnO(s) + CO2(g)",
+        "equation": "$\\text{ZnCO}_3(\\text{s}) \\xrightarrow{\\text{Heat}} \\text{ZnO}(\\text{s}) + \\text{CO}_2(\\text{g})$",
         "conditions": "Carbonate ore heated in limited air is converted to the oxide (calcination)",
         "source": {
           "ncert_page": 51,
@@ -780,7 +930,7 @@
       },
       {
         "name": "Reduction by carbon - zinc oxide",
-        "equation": "ZnO(s) + C(s) -> Zn(s) + CO(g)",
+        "equation": "$\\text{ZnO}(\\text{s}) + \\text{C}(\\text{s}) \\rightarrow \\text{Zn}(\\text{s}) + \\text{CO}(\\text{g})$",
         "conditions": "The metal oxide is reduced to metal by heating with carbon",
         "source": {
           "ncert_page": 51,
@@ -790,7 +940,7 @@
       },
       {
         "name": "Extraction of mercury (low reactivity)",
-        "equation": "2HgS(s) + 3O2(g) --Heat--> 2HgO(s) + 2SO2(g) ; 2HgO(s) --Heat--> 2Hg(l) + O2(g)",
+        "equation": "$2\\text{HgS}(\\text{s}) + 3\\text{O}_2(\\text{g}) \\xrightarrow{\\text{Heat}} 2\\text{HgO}(\\text{s}) + 2\\text{SO}_2(\\text{g})$ ; $2\\text{HgO}(\\text{s}) \\xrightarrow{\\text{Heat}} 2\\text{Hg}(\\text{l}) + \\text{O}_2(\\text{g})$",
         "conditions": "Cinnabar is roasted to the oxide, which is then reduced to mercury by heat alone",
         "source": {
           "ncert_page": 51,
@@ -800,7 +950,7 @@
       },
       {
         "name": "Thermit reaction",
-        "equation": "Fe2O3(s) + 2Al(s) -> 2Fe(l) + Al2O3(s) + Heat",
+        "equation": "$\\text{Fe}_2\\text{O}_3(\\text{s}) + 2\\text{Al}(\\text{s}) \\rightarrow 2\\text{Fe}(\\text{l}) + \\text{Al}_2\\text{O}_3(\\text{s}) + \\text{Heat}$",
         "conditions": "Highly exothermic; molten iron produced is used to join railway tracks",
         "source": {
           "ncert_page": 52,
@@ -810,7 +960,7 @@
       },
       {
         "name": "Electrolytic reduction - at cathode",
-        "equation": "Na+ + e- -> Na",
+        "equation": "$\\text{Na}^+ + \\text{e}^- \\rightarrow \\text{Na}$",
         "conditions": "Reactive metals obtained by electrolysis of the molten chloride; metal deposits at the cathode",
         "source": {
           "ncert_page": 52,
@@ -820,7 +970,7 @@
       },
       {
         "name": "Electrolytic reduction - at anode",
-        "equation": "2Cl- -> Cl2 + 2e-",
+        "equation": "$2\\text{Cl}^- \\rightarrow \\text{Cl}_2 + 2\\text{e}^-$",
         "conditions": "Chlorine is liberated at the anode",
         "source": {
           "ncert_page": 52,
@@ -830,7 +980,7 @@
       },
       {
         "name": "Formation of an ionic compound",
-        "equation": "Na -> Na+ + e- ; Cl + e- -> Cl- ; Na+ + Cl- -> NaCl",
+        "equation": "$\\text{Na} \\rightarrow \\text{Na}^+ + \\text{e}^-$ ; $\\text{Cl} + \\text{e}^- \\rightarrow \\text{Cl}^-$ ; $\\text{Na}^+ + \\text{Cl}^- \\rightarrow \\text{NaCl}$",
         "conditions": "Electron transfer from the metal to the non-metal gives oppositely charged ions",
         "source": {
           "ncert_page": 47,
@@ -845,7 +995,7 @@
       "bucket": "ncert",
       "tag": "NCERT Fig 3.10",
       "caption": "Steps involved in the extraction of metals from ores.",
-      "legend": "The extraction route branches on the activity series: high-reactivity metals -> electrolysis of molten ore -> pure metal; medium-reactivity metals -> carbonate ore (calcination) or sulphide ore (roasting) -> oxide of metal -> reduction to metal -> purification; low-reactivity metals -> sulphide ores -> roasting -> metal -> refining.",
+      "legend": "The extraction route branches on the activity series: high-reactivity metals $\\rightarrow$ electrolysis of molten ore $\\rightarrow$ pure metal; medium-reactivity metals $\\rightarrow$ carbonate ore (calcination) or sulphide ore (roasting) $\\rightarrow$ oxide of metal $\\rightarrow$ reduction to metal $\\rightarrow$ purification; low-reactivity metals $\\rightarrow$ sulphide ores $\\rightarrow$ roasting $\\rightarrow$ metal $\\rightarrow$ refining.",
       "source": {
         "pdf": "jesc103",
         "edition": "2026-27",
@@ -861,7 +1011,7 @@
       "bucket": "ncert",
       "tag": "NCERT Fig 3.12",
       "caption": "Electrolytic refining of copper.",
-      "legend": "The electrolyte is a solution of acidified copper sulphate; the anode is impure copper and the cathode is a strip of pure copper. On passing current, pure copper dissolves from the anode and is deposited on the cathode, while insoluble impurities settle below the anode as anode mud. Labels: Key, Cathode, Anode, Acidified copper sulphate solution, Cu2+, Tank, Impurities (anode mud).",
+      "legend": "The electrolyte is a solution of acidified copper sulphate; the anode is impure copper and the cathode is a strip of pure copper. On passing current, pure copper dissolves from the anode and is deposited on the cathode, while insoluble impurities settle below the anode as anode mud. Labels: Key, Cathode, Anode, Acidified copper sulphate solution, $\\text{Cu}^{2+}$, Tank, Impurities (anode mud).",
       "source": {
         "pdf": "jesc103",
         "edition": "2026-27",
@@ -893,7 +1043,7 @@
       "bucket": "ncert",
       "tag": "NCERT Fig 3.5",
       "caption": "Formation of sodium chloride.",
-      "legend": "Sodium (2,8,1) loses one electron to become the sodium cation Na+ (2,8); chlorine (2,8,7) gains that electron to become the chloride anion Cl- (2,8,8). The oppositely charged ions attract to form the ionic compound sodium chloride (electron-dot / cross diagram shown).",
+      "legend": "Sodium (2,8,1) loses one electron to become the sodium cation $\\text{Na}^+$ (2,8); chlorine (2,8,7) gains that electron to become the chloride anion $\\text{Cl}^-$ (2,8,8). The oppositely charged ions attract to form the ionic compound sodium chloride (electron-dot / cross diagram shown).",
       "source": {
         "pdf": "jesc103",
         "edition": "2026-27",

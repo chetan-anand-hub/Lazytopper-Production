@@ -342,19 +342,100 @@
   "formula_strip": [
     {
       "label": "General form",
-      "math": "$a_1x+b_1y+c_1=0,\\;\\; a_2x+b_2y+c_2=0$"
+      "math": "$a_1x+b_1y+c_1=0,\\;\\; a_2x+b_2y+c_2=0$",
+      "id": "general-form-pair",
+      "tip": "Bring both equations to ax + by + c = 0 (c to the left, signs flip) BEFORE comparing ratios."
     },
     {
       "label": "Unique solution (intersecting)",
-      "math": "$\\dfrac{a_1}{a_2}\\neq\\dfrac{b_1}{b_2}$"
+      "math": "$\\dfrac{a_1}{a_2}\\neq\\dfrac{b_1}{b_2}$",
+      "id": "unique-solution-condition",
+      "tip": "a₁/a₂ ≠ b₁/b₂; c does not matter."
     },
     {
       "label": "No solution (parallel)",
-      "math": "$\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}\\neq\\dfrac{c_1}{c_2}$"
+      "math": "$\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}\\neq\\dfrac{c_1}{c_2}$",
+      "id": "no-solution-condition",
+      "tip": "Equal a and b ratios first, then check the c-ratio is DIFFERENT."
     },
     {
       "label": "Infinitely many (coincident)",
-      "math": "$\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}=\\dfrac{c_1}{c_2}$"
+      "math": "$\\dfrac{a_1}{a_2}=\\dfrac{b_1}{b_2}=\\dfrac{c_1}{c_2}$",
+      "id": "infinitely-many-solutions-condition",
+      "tip": "All three ratios equal; one equation is a multiple of the other."
+    },
+    {
+      "label": "Consistent and Inconsistent Pair: Graph vs Ratios",
+      "math": "Intersecting lines: exactly one solution; the pair is consistent; $\\tfrac{a_1}{a_2}\\neq\\tfrac{b_1}{b_2}$.<br>Parallel lines: no solution; the pair is inconsistent; $\\tfrac{a_1}{a_2}=\\tfrac{b_1}{b_2}\\neq\\tfrac{c_1}{c_2}$.<br>Coincident lines: infinitely many solutions; the pair is dependent (consistent); $\\tfrac{a_1}{a_2}=\\tfrac{b_1}{b_2}=\\tfrac{c_1}{c_2}$.",
+      "id": "consistency-table"
+    },
+    {
+      "label": "Substitution Method: Steps",
+      "math": "(1) Express one variable in terms of the other from one equation. (2) Substitute it in the other equation. (3) Solve for the remaining variable. (4) Back-substitute to get the second value. (5) Verify in both equations.",
+      "id": "substitution-method-steps"
+    },
+    {
+      "label": "Elimination Method: Steps",
+      "math": "(1) Multiply the equations so that the coefficients of one variable become numerically equal. (2) Add the equations if the signs of that variable are opposite; subtract if they are the same. (3) Solve for the other variable. (4) Back-substitute to find the first.",
+      "id": "elimination-method-steps"
+    },
+    {
+      "label": "Finding k for a Given Number of Solutions",
+      "math": "Equate the ratios that contain $k$ as the condition requires, solve for $k$, then check the remaining ratio. Reject a value of $k$ that breaks that condition.",
+      "id": "find-k-for-condition"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "k-from-ratios",
+      "text": "For \"no/infinitely many\", equate the ratios that contain k, solve for k, then check the remaining ratio (≠ for none, = for infinite).",
+      "use": "written-ok",
+      "source": "PYQ-M-PLE-003, PYQ-M-2025-PLE-002"
+    },
+    {
+      "id": "multiple-means-coincident",
+      "text": "If one equation is a constant multiple of the other, the lines coincide.",
+      "use": "mcq-check",
+      "source": "NCERT 3.2"
+    },
+    {
+      "id": "eliminate-sign-rule",
+      "text": "Opposite signs on the variable being eliminated: add. Same signs: subtract.",
+      "use": "written-ok",
+      "source": "NCERT 3.3.2"
+    },
+    {
+      "id": "sum-and-difference-pair",
+      "text": "x + y = p and x − y = q give x = (p+q)/2, y = (p−q)/2.",
+      "use": "mcq-check",
+      "source": "elimination, NCERT 3.3.2"
+    },
+    {
+      "id": "substitute-back-check",
+      "text": "Put your (x, y) into BOTH equations to eliminate options.",
+      "use": "mcq-check",
+      "source": "NCERT 3.3 \"verify\""
+    },
+    {
+      "id": "three-ratio-cases",
+      "text": "a/a aur b/b <b>alag</b> → <b>ek</b> hal · a/a = b/b par c/c <b>alag</b> → <b>koi nahi</b> · <b>teeno</b> barabar → <b>anant</b>.",
+      "gloss": "Ratio cases. alag = ≠ → unique; first two equal, third unequal → none; all equal → infinite.",
+      "use": "memory-aid",
+      "source": "NCERT 3.2 table"
+    },
+    {
+      "id": "elimination-sign-trick",
+      "text": "<b>A</b>lag-<b>A</b>dd, <b>S</b>ame-<b>S</b>ubtract.",
+      "gloss": "Opposite signs add, same signs subtract. A-A: Alag(opposite)→Add; S-S: Same→Subtract.",
+      "use": "memory-aid",
+      "source": "NCERT 3.3.2"
+    },
+    {
+      "id": "consistent-trick",
+      "text": "Consistent = kam se kam ek hal; Inconsistent = koi hal nahi.",
+      "gloss": "Consistent: at least one solution. Inconsistent: no solution.",
+      "use": "memory-aid",
+      "source": "NCERT 3.1"
     }
   ],
   "mindmap": {

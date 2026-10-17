@@ -364,23 +364,151 @@
   "formula_strip": [
     {
       "label": "Monohybrid $\\text{F}_2$ ratio",
-      "math": "$\\text{Tt} \\times \\text{Tt} \\rightarrow 1\\ \\text{TT} : 2\\ \\text{Tt} : 1\\ \\text{tt}$ = 3 tall : 1 short (phenotype 3:1, genotype 1:2:1)"
+      "math": "$\\text{Tt} \\times \\text{Tt} \\rightarrow 1\\ \\text{TT} : 2\\ \\text{Tt} : 1\\ \\text{tt}$ = 3 tall : 1 short (the plants you see are in the ratio 3 : 1; the gene pairs are in the ratio 1 : 2 : 1)",
+      "id": "monohybrid-f2-ratio",
+      "tip": "3 tall : 1 short; 1 TT : 2 Tt : 1 tt."
     },
     {
       "label": "Dihybrid $\\text{F}_2$ ratio",
-      "math": "$\\text{Rr Yy} \\times \\text{Rr Yy} \\rightarrow$ 9 round-yellow : 3 round-green : 3 wrinkled-yellow : 1 wrinkled-green (9:3:3:1)"
-    },
-    {
-      "label": "Mendel's dihybrid count",
-      "math": "315 : 108 : 101 : 32 out of 556 seeds, close to a 9:3:3:1 ratio"
+      "math": "$\\text{Rr Yy} \\times \\text{Rr Yy} \\rightarrow$ 9 round-yellow : 3 round-green : 3 wrinkled-yellow : 1 wrinkled-green (9:3:3:1)",
+      "id": "dihybrid-f2-ratio",
+      "tip": "Order: round-yellow 9, round-green 3, wrinkled-yellow 3, wrinkled-green 1."
     },
     {
       "label": "Human sex chromosomes",
-      "math": "Female = $\\text{XX}$ (all eggs X) . Male = $\\text{XY}$ (sperm X or Y) $\\rightarrow$ the father determines the sex"
+      "math": "Female = $\\text{XX}$ (all eggs X) · Male = $\\text{XY}$ (sperm X or Y) $\\rightarrow$ the sex is decided by whether the sperm carries X or Y",
+      "id": "sex-chromosomes",
+      "tip": "The sex is decided by the X or Y chromosome in the sperm; it is chance, not choice."
     },
     {
       "label": "Gene copies",
-      "math": "Two copies of every gene per body cell (one from each parent); each germ cell carries only one copy"
+      "math": "Two copies of every gene per body cell (one from each parent); each germ cell carries only one copy",
+      "id": "gene-copies"
+    },
+    {
+      "label": "Inherited Traits",
+      "math": "A child gets DNA from both parents, so each trait has two versions, for example free or attached earlobes.",
+      "id": "inherited-traits"
+    },
+    {
+      "label": "Mendel's Experiments with Garden Peas",
+      "math": "Mendel worked with garden pea plants and contrasting visible traits: round or wrinkled seeds, tall or short plants, white or violet flowers.",
+      "id": "mendels-experiments"
+    },
+    {
+      "label": "Dominant and Recessive Traits",
+      "math": "A trait that shows in the first generation (F₁) is dominant; the trait that is hidden is recessive. Using T for tall and t for short: TT and Tt plants are tall, and only tt is short.",
+      "id": "dominant-and-recessive-traits"
+    },
+    {
+      "label": "Monohybrid Cross: F₁ and F₂ Step by Step",
+      "math": "Tall (TT) × short (tt): all F₁ plants are Tt and tall. Self-pollinating F₁ gives F₂ with TT, Tt, Tt and tt: three tall plants to one short plant.",
+      "id": "monohybrid-cross-steps"
+    },
+    {
+      "label": "Independent Inheritance of Two Traits",
+      "math": "Cross a tall plant with round seeds with a short plant with wrinkled seeds: all F₁ plants are tall with round seeds. In F₂ there are also new combinations: tall plants with wrinkled seeds and short plants with round seeds. This shows that height and seed shape are inherited independently.",
+      "id": "independent-inheritance"
+    },
+    {
+      "label": "Human Chromosomes: 22 Pairs + Sex Chromosomes",
+      "math": "There are 22 pairs of ordinary chromosomes and one pair of sex chromosomes: XX in females and XY in males. Every child gets an X from the mother. Each child has a 50% chance of being a boy and a 50% chance of being a girl.",
+      "id": "human-chromosomes"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "capital-dominant",
+      "text": "Capital letter = dominant; small = recessive; a recessive trait shows only with both copies small.",
+      "use": "mcq-check",
+      "source": "NCERT 8.2.2"
+    },
+    {
+      "id": "f2-ratios",
+      "text": "Monohybrid F₂: 3:1 and 1:2:1. Dihybrid F₂: 9:3:3:1.",
+      "use": "mcq-check",
+      "source": "NCERT 8.2.2; PYQ-S-2024-HERED-002"
+    },
+    {
+      "id": "cross-of-pure-parents",
+      "text": "Pure dominant × pure recessive: F₁ is 100% dominant-looking.",
+      "use": "mcq-check",
+      "source": "NCERT 8.2.2; PYQ-S-HERED-001"
+    },
+    {
+      "id": "father-decides-sex",
+      "text": "Every egg carries X; the sperm carries X or Y. The X or Y in the sperm decides the sex: chance, not choice.",
+      "use": "mcq-check",
+      "source": "NCERT 8.2.4"
+    },
+    {
+      "id": "show-the-cross",
+      "text": "Write parents' genes, gametes, then F₁ and F₂ in a Punnett square, with ratios.",
+      "use": "written-ok",
+      "source": "NCERT Fig 8.3; PYQ-S-2024-HERED-006"
+    },
+    {
+      "id": "dominant-recessive-trick",
+      "text": "<b>Bada T chalta hai (dominant), chhota t chhupa rehta hai (recessive).</b>",
+      "gloss": "T dominant; t recessive; TT, Tt tall; tt short.",
+      "use": "memory-aid",
+      "source": "NCERT 8.2.2"
+    },
+    {
+      "id": "f2-ratio-trick",
+      "text": "<b>Teen–ek dikhta hai; ek–do–ek andar ka asli.</b>",
+      "gloss": "Monohybrid F₂. 3 tall : 1 short visible; 1 TT : 2 Tt : 1 tt genes.",
+      "use": "memory-aid",
+      "source": "NCERT 8.2.2"
+    },
+    {
+      "id": "dihybrid-trick",
+      "text": "<b>Nau, teen, teen, ek: Gol-peela, Gol-hara, Jhurri-peela, Jhurri-hara.</b>",
+      "gloss": "Dihybrid F₂ order. 9 round-yellow · 3 round-green · 3 wrinkled-yellow · 1 wrinkled-green.",
+      "use": "memory-aid",
+      "source": "NCERT Fig 8.4"
+    },
+    {
+      "id": "f1-uniform-trick",
+      "text": "<b>F₁ mein sab Lambe: ek trait dikha, dusra chhupa.</b>",
+      "gloss": "F₁ result. TT × tt → all tall (tallness dominant).",
+      "use": "memory-aid",
+      "source": "NCERT 8.2.2"
+    },
+    {
+      "id": "sex-determination-trick",
+      "text": "<b>Maa sirf X deti hai; shukranu ka X ya Y tay karta hai (chance, choice nahi): X → beti, Y → beta.</b>",
+      "gloss": "Sex determination. XX female (all eggs X); XY male; sperm with X → girl, sperm with Y → boy.",
+      "use": "memory-aid",
+      "source": "NCERT 8.2.4"
+    },
+    {
+      "id": "chromosome-count-trick",
+      "text": "<b>22 jodi + ek jodi sex-chromosome (X/Y) ki.</b>",
+      "gloss": "Human chromosomes. 22 pairs of ordinary chromosomes plus one pair of sex chromosomes (XX or XY).",
+      "use": "memory-aid",
+      "source": "NCERT 8.2.4"
+    },
+    {
+      "id": "mendel-pea-trick",
+      "text": "<b>Mendel ka Matar: Gol–Jhurri, Lamba–Chhota, Safed–Baingani.</b>",
+      "gloss": "Contrasting traits. round/wrinkled seeds; tall/short plants; white/violet flowers.",
+      "use": "memory-aid",
+      "source": "NCERT 8.2.2"
+    },
+    {
+      "id": "two-copies-trick",
+      "text": "<b>Har gene ki do copy: ek Maa se, ek Papa se; germ cell mein sirf ek.</b>",
+      "gloss": "two copies per body cell; one per germ cell.",
+      "use": "memory-aid",
+      "source": "NCERT 8.2.2"
+    },
+    {
+      "id": "new-combination-trick",
+      "text": "<b>Naye jodi: Lamba-Jhurri, Chhota-Gol.</b>",
+      "gloss": "Independent inheritance. tall-wrinkled and short-round appear in F₂.",
+      "use": "memory-aid",
+      "source": "NCERT 8.2.2 (Fig 8.4 text)"
     }
   ],
   "third_tab_content": {
@@ -478,19 +606,19 @@
       {
         "label": "Mendel's monohybrid cross",
         "children": [
-          "Tall (TT) x short (tt) -> F1 all tall (Tt)",
+          "Tall (TT) $\\times$ short (tt) $\\rightarrow$ $\\text{F}_1$ all tall (Tt)",
           "Dominant trait masks the recessive one",
-          "F2: 3 tall : 1 short (genotype 1:2:1)",
-          "Recessive factor hidden in F1, reappears in F2"
+          "$\\text{F}_2$: 3 tall : 1 short (genotype 1:2:1)",
+          "Recessive factor hidden in $\\text{F}_1$, reappears in $\\text{F}_2$"
         ]
       },
       {
         "label": "Dihybrid cross",
         "children": [
           "Round-green (RRyy) x wrinkled-yellow (rrYY)",
-          "F1 all round and yellow (Rr Yy)",
-          "F2: 9:3:3:1 - four phenotypes",
-          "New combinations -> traits inherited independently"
+          "$\\text{F}_1$ all round and yellow (Rr Yy)",
+          "$\\text{F}_2$: 9:3:3:1 - four phenotypes",
+          "New combinations $\\rightarrow$ traits inherited independently"
         ]
       },
       {
@@ -507,7 +635,7 @@
         "children": [
           "22 matched pairs + 1 sex-chromosome pair",
           "Female XX (all X eggs), Male XY (X or Y sperm)",
-          "Father's chromosome decides sex: X -> girl, Y -> boy",
+          "Father's chromosome decides sex: X $\\rightarrow$ girl, Y $\\rightarrow$ boy",
           "Don't say the mother decides the sex"
         ]
       }

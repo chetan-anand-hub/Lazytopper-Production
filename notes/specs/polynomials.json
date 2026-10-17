@@ -323,23 +323,101 @@
   "formula_strip": [
     {
       "label": "Quadratic polynomial",
-      "math": "$ax^2+bx+c,\\ a\\neq 0$"
+      "math": "$ax^2+bx+c,\\ a\\neq 0$",
+      "id": "quadratic-polynomial",
+      "tip": "Degree 2; if a = 0 it is not quadratic."
     },
     {
       "label": "Zero",
-      "math": "$p(k)=0$"
+      "math": "$p(k)=0$",
+      "id": "zero-of-a-polynomial",
+      "tip": "A zero is the x-coordinate of the point where the graph meets the x-axis."
     },
     {
       "label": "Sum of zeroes",
-      "math": "$\\alpha+\\beta=-\\dfrac{b}{a}$"
+      "math": "$\\alpha+\\beta=-\\dfrac{b}{a}$",
+      "id": "sum-of-zeroes",
+      "tip": "α+β = −b/a: the sign flips against the x-coefficient."
     },
     {
       "label": "Product of zeroes",
-      "math": "$\\alpha\\beta=\\dfrac{c}{a}$"
+      "math": "$\\alpha\\beta=\\dfrac{c}{a}$",
+      "id": "product-of-zeroes",
+      "tip": "αβ = c/a."
     },
     {
       "label": "Build from zeroes",
-      "math": "$x^2-(\\alpha+\\beta)x+\\alpha\\beta$"
+      "math": "$x^2-(\\alpha+\\beta)x+\\alpha\\beta$",
+      "id": "quadratic-from-zeroes",
+      "tip": "Write \"x² − (α+β)x + αβ\" and say any non-zero multiple also works."
+    },
+    {
+      "label": "Zeroes of a Quadratic from its Graph",
+      "math": "The graph of a quadratic polynomial is a parabola. If it cuts the x-axis twice there are 2 zeroes; if it just touches the x-axis there is 1 (repeated) zero; if it never meets the x-axis there is no real zero. The parabola opens upwards if $a>0$ and downwards if $a<0$. A quadratic polynomial has at most 2 zeroes.",
+      "id": "zeroes-from-graph"
+    },
+    {
+      "label": "Expressions in $\\alpha$ and $\\beta$",
+      "math": "$\\alpha^2+\\beta^2=(\\alpha+\\beta)^2-2\\alpha\\beta$ · $\\dfrac{1}{\\alpha}+\\dfrac{1}{\\beta}=\\dfrac{\\alpha+\\beta}{\\alpha\\beta}$ · $\\dfrac{\\alpha}{\\beta}+\\dfrac{\\beta}{\\alpha}=\\dfrac{\\alpha^2+\\beta^2}{\\alpha\\beta}$",
+      "id": "symmetric-expressions-of-zeroes"
+    },
+    {
+      "label": "Verifying the Relationship",
+      "math": "Find the zeroes, then check that their sum equals $-\\dfrac{b}{a}$ and their product equals $\\dfrac{c}{a}$.",
+      "id": "verify-zero-relationship"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "sum-zero-means-no-x-term",
+      "text": "If the zeroes are negatives of each other (α+β = 0) the x-term is missing (b = 0).",
+      "use": "mcq-check",
+      "source": "PYQ-M-POLY-003 (x² − 1)"
+    },
+    {
+      "id": "reciprocal-zeroes",
+      "text": "Zeroes reciprocal of each other ⇔ αβ = 1 ⇔ c = a.",
+      "use": "mcq-check",
+      "source": "NCERT 2.3 (αβ = c/a)"
+    },
+    {
+      "id": "one-over-sum",
+      "text": "1/α + 1/β = −b/c (c ≠ 0).",
+      "use": "mcq-check",
+      "source": "PYQ-M-POLY-004"
+    },
+    {
+      "id": "alpha-squared-plus-beta-squared",
+      "text": "Show the line α²+β² = (α+β)² − 2αβ, then substitute.",
+      "use": "written-ok",
+      "source": "PYQ-M-POLY-001, PYQ-M-2024-POLY-003"
+    },
+    {
+      "id": "count-zeroes-from-graph",
+      "text": "Count x-axis crossings; a touch means equal zeroes.",
+      "use": "mcq-check",
+      "source": "NCERT 2.2"
+    },
+    {
+      "id": "sum-product-trick",
+      "text": "<b>Jod</b> = minus <b>Bhai</b> upon <b>Aloo</b>. <b>Gunaa</b> = <b>Chacha</b> upon <b>Aloo</b>.",
+      "gloss": "Sum = −b/a, product = c/a. Jod = sum, Gunaa = product; Bhai = <b>b</b>, Aloo = <b>a</b>, Chacha = <b>c</b>; minus applies to the sum only.",
+      "use": "memory-aid",
+      "source": "NCERT 2.3"
+    },
+    {
+      "id": "graph-zero-count",
+      "text": "<b>Do</b> baar kate = do zero · <b>ek</b> baar chhue = ek zero (do barabar) · <b>kabhi na</b> mile = real zero nahi.",
+      "gloss": "Parabola cases. 2 crossings = 2 zeroes; touch = 1 repeated zero; no meet = none.",
+      "use": "memory-aid",
+      "source": "NCERT 2.2 figures"
+    },
+    {
+      "id": "build-the-quadratic",
+      "text": "x² <b>minus</b> (Jod)x <b>plus</b> Gunaa.",
+      "gloss": "x² − (α+β)x + αβ. minus goes with the sum, plus with the product.",
+      "use": "memory-aid",
+      "source": "NCERT 2.3"
     }
   ],
   "mindmap": {
@@ -373,7 +451,7 @@
       {
         "label": "Build a quadratic",
         "children": [
-          "x^2 - (sum)x + product",
+          "$x^2 - (\\text{sum})x + \\text{product}$",
           "Any real k-multiple also works"
         ]
       },

@@ -399,23 +399,103 @@
   "formula_strip": [
     {
       "label": "Circumference of a circle",
-      "math": "$C = 2\\pi r$"
+      "math": "$C = 2\\pi r$",
+      "id": "circle-circumference",
+      "tip": "use π = 22/7 when r is a multiple of 7, unless the question gives a value of π."
     },
     {
       "label": "Area of a circle",
-      "math": "$A = \\pi r^2$"
+      "math": "$A = \\pi r^2$",
+      "id": "circle-area"
     },
     {
-      "label": "Length of an arc (angle θ)",
-      "math": "$\\ell = \\dfrac{\\theta}{360}\\times 2\\pi r$"
+      "label": "Length of an arc (angle $\\theta$)",
+      "math": "$\\ell = \\dfrac{\\theta}{360}\\times 2\\pi r$",
+      "id": "arc-length",
+      "heading": "Length of an Arc",
+      "tip": "θ/360 of the circumference."
     },
     {
-      "label": "Area of a sector (angle θ)",
-      "math": "$\\dfrac{\\theta}{360}\\times \\pi r^2$"
+      "label": "Area of a sector (angle $\\theta$)",
+      "math": "$\\dfrac{\\theta}{360}\\times \\pi r^2$",
+      "id": "sector-area",
+      "heading": "Area of a Sector",
+      "tip": "θ/360 of the area."
     },
     {
       "label": "Area of a segment",
-      "math": "$\\dfrac{\\theta}{360}\\times \\pi r^2 - \\text{area of }\\triangle OAB$"
+      "math": "$\\dfrac{\\theta}{360}\\times \\pi r^2 - \\text{area of }\\triangle OAB$",
+      "id": "segment-area",
+      "heading": "Area of a Segment",
+      "tip": "Sector − triangle OAB."
+    },
+    {
+      "label": "Perimeter of a Sector",
+      "math": "$\\text{Perimeter}=\\ell+2r$: the arc length plus the two radii.",
+      "id": "perimeter-of-sector"
+    },
+    {
+      "label": "Major Sector and Major Segment",
+      "math": "Angle of the major sector $=360^\\circ-\\theta$. Area of major sector $=\\pi r^2-$ area of minor sector. Area of major segment $=\\pi r^2-$ area of minor segment.",
+      "id": "major-sector-and-segment"
+    },
+    {
+      "label": "Area of △OAB for 60°, 90°, 120°",
+      "math": "For $120^\\circ$: draw $OM\\perp AB$; $\\angle AOM=60^\\circ$, so $OM=\\dfrac{r}{2}$ and $AM=\\dfrac{\\sqrt3}{2}r$. For $60^\\circ$ say that $\\triangle OAB$ is equilateral; for $90^\\circ$ the two sides are both $r$. Values to check against: $60^\\circ$: $\\dfrac{\\sqrt3}{4}r^2$; $90^\\circ$: $\\dfrac12 r^2$; $120^\\circ$: $\\dfrac{\\sqrt3}{4}r^2$.",
+      "id": "triangle-oab-by-angle"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "half-l-r",
+      "text": "Sector area = ½ × arc length × radius.",
+      "use": "mcq-check",
+      "source": "NCERT 11.1"
+    },
+    {
+      "id": "fraction-of-circle",
+      "text": "Area one-twelfth of the circle ⇒ θ = 30°.",
+      "use": "mcq-check",
+      "source": "PYQ-M-2024-ARC-001"
+    },
+    {
+      "id": "segment-sector-minus-triangle",
+      "text": "Draw OAB, label θ, then subtract.",
+      "use": "written-ok",
+      "source": "NCERT 11.1"
+    },
+    {
+      "id": "sector-perimeter-trap",
+      "text": "Sector perimeter includes the two radii.",
+      "use": "mcq-check",
+      "source": "PYQ-M-2024-ARC-004"
+    },
+    {
+      "id": "same-angle-scaling",
+      "text": "Same θ: arc ∝ r, area ∝ r².",
+      "use": "mcq-check",
+      "source": "NCERT 11.1 formulas"
+    },
+    {
+      "id": "fraction-trick",
+      "text": "<b>Kitna hissa? θ/360</b> — lambai <b>2πr</b> ki, area <b>πr²</b> ki.",
+      "gloss": "arc and sector. θ/360 × 2πr; θ/360 × πr².",
+      "use": "memory-aid",
+      "source": "NCERT 11.1"
+    },
+    {
+      "id": "segment-trick",
+      "text": "Segment = Sector <b>minus</b> Tikona (triangle).",
+      "gloss": "segment = sector − △OAB.",
+      "use": "memory-aid",
+      "source": "NCERT 11.1"
+    },
+    {
+      "id": "major-trick",
+      "text": "Major = <b>poora</b> gola <b>minus</b> minor.",
+      "gloss": "πr² − minor.",
+      "use": "memory-aid",
+      "source": "NCERT 11.1"
     }
   ],
   "mindmap": {

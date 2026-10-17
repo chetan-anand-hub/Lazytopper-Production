@@ -443,23 +443,101 @@
   "formula_strip": [
     {
       "label": "General form",
-      "math": "$a,\\ a+d,\\ a+2d,\\ a+3d,\\ \\dots$"
+      "math": "$a,\\ a+d,\\ a+2d,\\ a+3d,\\ \\dots$",
+      "id": "ap-general-form",
+      "tip": "a, a+d, a+2d, …"
     },
     {
       "label": "Common difference",
-      "math": "$d = a_{k+1} - a_k$"
+      "math": "$d = a_{k+1} - a_k$",
+      "id": "common-difference",
+      "tip": "d = a₂ − a₁; every consecutive difference must be equal. For a formula, show aₙ₊₁ − aₙ is constant."
     },
     {
       "label": "nth term",
-      "math": "$a_n = a + (n-1)d$"
+      "math": "$a_n = a + (n-1)d$",
+      "id": "nth-term-of-an-ap",
+      "tip": "aₙ = a + (n−1)d; find n by solving for it."
     },
     {
       "label": "Sum of n terms",
-      "math": "$S_n = \\dfrac{n}{2}\\,[2a + (n-1)d]$"
+      "math": "$S_n = \\dfrac{n}{2}\\,[2a + (n-1)d]$",
+      "id": "sum-of-n-terms-of-an-ap",
+      "tip": "Use this when d is known."
     },
     {
       "label": "Sum with last term l",
-      "math": "$S_n = \\dfrac{n}{2}\\,(a + l)$"
+      "math": "$S_n = \\dfrac{n}{2}\\,(a + l)$",
+      "id": "sum-with-last-term",
+      "tip": "Use this when the last term is given."
+    },
+    {
+      "label": "nth Term from the Sum",
+      "math": "$a_n=S_n-S_{n-1}$ for $n\\geq 2$, and $a_1=S_1$.",
+      "id": "nth-term-from-sum"
+    },
+    {
+      "label": "mth Term from the End",
+      "math": "If $l$ is the last term, the $m$th term from the end is $l-(m-1)d$.",
+      "id": "term-from-the-end"
+    },
+    {
+      "label": "How to Tell If a List is an AP",
+      "math": "A list is an AP if the difference between every pair of consecutive terms is the same.",
+      "id": "ap-membership-test"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "nth-from-sn",
+      "text": "aₙ = Sₙ − Sₙ₋₁ (and a₁ = S₁).",
+      "use": "written-ok",
+      "source": "NCERT 5.4; PYQ-M-AP-005"
+    },
+    {
+      "id": "pick-the-sum-form",
+      "text": "Last term given → n/2(a+l). Otherwise → n/2[2a+(n−1)d].",
+      "use": "mcq-check",
+      "source": "NCERT 5.4"
+    },
+    {
+      "id": "from-the-end",
+      "text": "mth term from the end = l − (m−1)d.",
+      "use": "written-ok",
+      "source": "NCERT 5.3 Example 8"
+    },
+    {
+      "id": "d-from-two-terms",
+      "text": "d = (aₘ − aₙ)/(m − n) when two terms are known.",
+      "use": "mcq-check",
+      "source": "derived, NCERT 5.3; PYQ-M-AP-004"
+    },
+    {
+      "id": "check-n-is-natural",
+      "text": "n must be a positive whole number; if it comes out fractional or negative, re-check or reject.",
+      "use": "written-ok",
+      "source": "NCERT 5.3 Examples"
+    },
+    {
+      "id": "nth-term-trick",
+      "text": "<b>Pehla</b> + (n−1) <b>kadam</b>.",
+      "gloss": "aₙ = a + (n−1)d. Pehla = a; (n−1) = number of steps; kadam = d.",
+      "use": "memory-aid",
+      "source": "NCERT 5.3"
+    },
+    {
+      "id": "sum-trick",
+      "text": "<b>Aadha-n</b> × (<b>pehla</b> + <b>aakhri</b>).",
+      "gloss": "Sₙ = n/2(a + l). Aadha-n = n/2; pehla = a; aakhri = l.",
+      "use": "memory-aid",
+      "source": "NCERT 5.4"
+    },
+    {
+      "id": "sn-difference-trick",
+      "text": "<b>Aaj tak ka total</b> − <b>kal tak ka total</b> = aaj ka term.",
+      "gloss": "aₙ = Sₙ − Sₙ₋₁. aaj tak = Sₙ; kal tak = Sₙ₋₁.",
+      "use": "memory-aid",
+      "source": "NCERT 5.4"
     }
   ],
   "mindmap": {
@@ -496,7 +574,7 @@
           "which term / how many terms",
           "set a(n) or S(n) = target",
           "n must be a positive integer",
-          "sum -> quadratic in n -> two answers possible"
+          "sum → quadratic in n → two answers possible"
         ]
       },
       {

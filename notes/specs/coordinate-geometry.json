@@ -170,13 +170,13 @@
         },
         {
           "lead": "Name the type.",
-          "text": "$PQ^2+PR^2=50+2=52=QR^2$, so by the converse of the Pythagoras theorem $\\angle P=90°$ — it is a <b>right triangle</b>.",
-          "concept_tag": "converse of Pythagoras",
+          "text": "$PQ^2+PR^2=50+2=52=QR^2$, so the check $a^2+b^2=c^2$ holds numerically and $\\angle P=90°$ — it is a <b>right triangle</b>.",
+          "concept_tag": "right-angle check (numeric)",
           "mark": 1
         }
       ],
       "marks_total": 3,
-      "mark_logic": "3-mark shape: 1½ for the three side-lengths via the distance formula, ½ for the triangle-inequality conclusion, 1 for naming it a right triangle by the converse of Pythagoras ($PQ^2+PR^2=QR^2$).",
+      "mark_logic": "3-mark shape: 1½ for the three side-lengths via the distance formula, ½ for the triangle-inequality conclusion, 1 for naming it a right triangle by checking $PQ^2+PR^2=QR^2$ numerically.",
       "source": {
         "ncert_example": "1",
         "ncert_page": 102,
@@ -367,19 +367,102 @@
   "formula_strip": [
     {
       "label": "Distance formula",
-      "math": "$PQ=\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$"
+      "math": "$PQ=\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$",
+      "id": "distance-formula",
+      "heading": "Distance Formula",
+      "tip": "The order of subtraction does not matter once squared."
     },
     {
       "label": "Distance from origin",
-      "math": "$OP=\\sqrt{x^2+y^2}$"
+      "math": "$OP=\\sqrt{x^2+y^2}$",
+      "id": "distance-from-origin",
+      "tip": "Special case with (x₁,y₁) = (0,0)."
     },
     {
       "label": "Section formula (internal, $m_1:m_2$)",
-      "math": "$\\left(\\dfrac{m_1x_2+m_2x_1}{m_1+m_2},\\ \\dfrac{m_1y_2+m_2y_1}{m_1+m_2}\\right)$"
+      "math": "$\\left(\\dfrac{m_1x_2+m_2x_1}{m_1+m_2},\\ \\dfrac{m_1y_2+m_2y_1}{m_1+m_2}\\right)$",
+      "id": "section-formula",
+      "heading": "Section Formula (Internal Division)",
+      "tip": "m₁ pairs with the SECOND point's coordinates, m₂ with the first."
     },
     {
       "label": "Mid-point",
-      "math": "$\\left(\\dfrac{x_1+x_2}{2},\\ \\dfrac{y_1+y_2}{2}\\right)$"
+      "math": "$\\left(\\dfrac{x_1+x_2}{2},\\ \\dfrac{y_1+y_2}{2}\\right)$",
+      "id": "mid-point-formula",
+      "tip": "Section formula with m₁ = m₂."
+    },
+    {
+      "label": "Collinear Points using the Distance Formula",
+      "math": "Three points $A, B, C$ are collinear if the sum of two of the distances equals the third, for example $AB+BC=AC$.",
+      "id": "collinear-points-distance-test"
+    },
+    {
+      "label": "Identifying Shapes using Distances",
+      "math": "Triangle: three equal sides is equilateral; two equal sides is isosceles; to test for a right angle, check $a^2+b^2=c^2$ numerically on the three distances. Quadrilateral: <b>square</b> = four equal sides and equal diagonals; <b>rhombus</b> = four equal sides but unequal diagonals; <b>rectangle</b> = opposite sides equal and equal diagonals; <b>parallelogram</b> = opposite sides equal (its diagonals share the same mid-point).",
+      "id": "shapes-from-distances"
+    },
+    {
+      "label": "Points of Trisection",
+      "math": "The two points that divide $AB$ into three equal parts divide it in the ratios $1:2$ and $2:1$: $P\\left(\\dfrac{x_2+2x_1}{3},\\dfrac{y_2+2y_1}{3}\\right)$ and $Q\\left(\\dfrac{2x_2+x_1}{3},\\dfrac{2y_2+y_1}{3}\\right)$.",
+      "id": "trisection-points"
+    },
+    {
+      "label": "Finding the Ratio k : 1",
+      "math": "To find the ratio in which a point divides a segment, take the ratio as $k:1$, put it into the section formula, and solve for $k$.",
+      "id": "ratio-k-to-1"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "collinear-by-distance",
+      "text": "Show AB + BC = AC (or any pair summing to the third).",
+      "use": "written-ok",
+      "source": "NCERT 7.2"
+    },
+    {
+      "id": "axis-division-ratio",
+      "text": "The y-axis divides A(x₁,y₁)B(x₂,y₂) in ratio |x₁| : |x₂| (opposite signs); the x-axis in |y₁| : |y₂|.",
+      "use": "mcq-check",
+      "source": "PYQ-M-CG-004, PYQ-M-2024-CG-005a"
+    },
+    {
+      "id": "other-endpoint",
+      "text": "Other endpoint B = 2M − A when the mid-point M is given.",
+      "use": "mcq-check",
+      "source": "NCERT 7.3 mid-point"
+    },
+    {
+      "id": "equidistant-square-both-sides",
+      "text": "PA = PB: square to PA² = PB² and avoid roots.",
+      "use": "written-ok",
+      "source": "NCERT Ex 7.1"
+    },
+    {
+      "id": "diagonals-share-midpoint",
+      "text": "In a parallelogram the diagonals have the same mid-point.",
+      "use": "written-ok",
+      "source": "NCERT 7.3 Example 10"
+    },
+    {
+      "id": "distance-trick",
+      "text": "<b>Antar-antar, square, jod, root.</b>",
+      "gloss": "PQ = √((x₂−x₁)² + (y₂−y₁)²). antar = difference of x and of y; square each; add; root.",
+      "use": "memory-aid",
+      "source": "NCERT 7.2"
+    },
+    {
+      "id": "section-trick",
+      "text": "<b>Pehla ratio doosre point ke saath.</b>",
+      "gloss": "(m₁x₂ + m₂x₁)/(m₁+m₂). m₁ with x₂ (second point); m₂ with x₁.",
+      "use": "memory-aid",
+      "source": "NCERT 7.3"
+    },
+    {
+      "id": "midpoint-trick",
+      "text": "<b>Jod ka aadha.</b>",
+      "gloss": "((x₁+x₂)/2, (y₁+y₂)/2). sum of each coordinate, halved.",
+      "use": "memory-aid",
+      "source": "NCERT 7.3"
     }
   ],
   "mindmap": {

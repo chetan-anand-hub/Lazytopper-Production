@@ -240,27 +240,27 @@
         },
         {
           "lead": "Start with the biggest formula.",
-          "text": "Fe3O4 has 4 oxygen atoms, so balance oxygen by putting 4 before H2O.",
-          "equation": "Fe + 4H2O -> Fe3O4 + H2",
+          "text": "$\\text{Fe}_3\\text{O}_4$ has 4 oxygen atoms, so balance oxygen by putting 4 before $\\text{H}_2\\text{O}$.",
+          "equation": "$\\text{Fe} + 4\\text{H}_2\\text{O} \\rightarrow \\text{Fe}_3\\text{O}_4 + \\text{H}_2$",
           "concept_tag": "start with the most atoms",
           "mark": 0.5
         },
         {
           "lead": "Balance hydrogen.",
-          "text": "There are now 8 H atoms on the left, so put 4 before H2 on the right.",
-          "equation": "Fe + 4H2O -> Fe3O4 + 4H2",
+          "text": "There are now 8 H atoms on the left, so put 4 before $\\text{H}_2$ on the right.",
+          "equation": "$\\text{Fe} + 4\\text{H}_2\\text{O} \\rightarrow \\text{Fe}_3\\text{O}_4 + 4\\text{H}_2$",
           "mark": 0.5
         },
         {
           "lead": "Balance iron.",
           "text": "There are 3 Fe atoms on the right, so put 3 before Fe on the left.",
-          "equation": "3Fe + 4H2O -> Fe3O4 + 4H2",
+          "equation": "$3\\text{Fe} + 4\\text{H}_2\\text{O} \\rightarrow \\text{Fe}_3\\text{O}_4 + 4\\text{H}_2$",
           "mark": 0.5
         },
         {
           "lead": "Add physical states.",
           "text": "Water is used here as steam, so the complete balanced equation is:",
-          "equation": "3Fe(s) + 4H2O(g) -> Fe3O4(s) + 4H2(g)",
+          "equation": "$3\\text{Fe}(\\text{s}) + 4\\text{H}_2\\text{O}(\\text{g}) \\rightarrow \\text{Fe}_3\\text{O}_4(\\text{s}) + 4\\text{H}_2(\\text{g})$",
           "mark": 1
         }
       ],
@@ -282,7 +282,7 @@
         {
           "lead": "Equation.",
           "text": "Calcium oxide reacts vigorously with water to give slaked lime, releasing heat:",
-          "equation": "CaO(s) + H2O(l) -> Ca(OH)2(aq) + Heat",
+          "equation": "$\\text{CaO}(\\text{s}) + \\text{H}_2\\text{O}(\\text{l}) \\rightarrow \\text{Ca(OH)}_2(\\text{aq}) + \\text{Heat}$",
           "mark": 1
         },
         {
@@ -316,21 +316,21 @@
         {
           "lead": "Thermal (heat).",
           "text": "Limestone decomposes on strong heating to quicklime and carbon dioxide:",
-          "equation": "CaCO3(s) --Heat--> CaO(s) + CO2(g)",
+          "equation": "$\\text{CaCO}_3(\\text{s}) \\xrightarrow{\\text{Heat}} \\text{CaO}(\\text{s}) + \\text{CO}_2(\\text{g})$",
           "concept_tag": "thermal decomposition",
           "mark": 1
         },
         {
           "lead": "Photolytic (light).",
           "text": "White silver chloride turns grey in sunlight, decomposing to silver and chlorine:",
-          "equation": "2AgCl(s) --Sunlight--> 2Ag(s) + Cl2(g)",
+          "equation": "$2\\text{AgCl}(\\text{s}) \\xrightarrow{\\text{Sunlight}} 2\\text{Ag}(\\text{s}) + \\text{Cl}_2(\\text{g})$",
           "concept_tag": "photolytic decomposition",
           "mark": 1
         },
         {
           "lead": "Electrolytic (electricity).",
           "text": "Passing electricity through acidified water decomposes it (Activity 1.7); hydrogen and oxygen are collected in a 2:1 volume ratio.",
-          "equation": "2H2O(l) --Electricity--> 2H2(g) + O2(g)",
+          "equation": "$2\\text{H}_2\\text{O}(\\text{l}) \\xrightarrow{\\text{Electricity}} 2\\text{H}_2(\\text{g}) + \\text{O}_2(\\text{g})$",
           "concept_tag": "electrolytic decomposition",
           "mark": 1
         }
@@ -353,7 +353,7 @@
         {
           "lead": "Equation.",
           "text": "Iron is more reactive than copper, so it displaces copper from the solution:",
-          "equation": "Fe(s) + CuSO4(aq) -> FeSO4(aq) + Cu(s)",
+          "equation": "$\\text{Fe}(\\text{s}) + \\text{CuSO}_4(\\text{aq}) \\rightarrow \\text{FeSO}_4(\\text{aq}) + \\text{Cu}(\\text{s})$",
           "mark": 1
         },
         {
@@ -391,7 +391,7 @@
         {
           "lead": "Equation.",
           "text": "The two solutions exchange ions:",
-          "equation": "Na2SO4(aq) + BaCl2(aq) -> BaSO4(s) + 2NaCl(aq)",
+          "equation": "$\\text{Na}_2\\text{SO}_4(\\text{aq}) + \\text{BaCl}_2(\\text{aq}) \\rightarrow \\text{BaSO}_4(\\text{s}) + 2\\text{NaCl}(\\text{aq})$",
           "mark": 1
         },
         {
@@ -402,7 +402,7 @@
         }
       ],
       "marks_total": 3,
-      "mark_logic": "3-mark: observing/naming the white precipitate BaSO4 (1) + the balanced equation with state symbols (1) + classifying it as double displacement / precipitation (1).",
+      "mark_logic": "3-mark: observing/naming the white precipitate $\\text{BaSO}_4$ (1) + the balanced equation with state symbols (1) + classifying it as double displacement / precipitation (1).",
       "source": {
         "ncert_example": "Activity 1.10, Eq. 1.27",
         "ncert_page": 11,
@@ -424,18 +424,18 @@
         },
         {
           "lead": "Hydrogen.",
-          "text": "H2 gains oxygen, so it is oxidised to water.",
+          "text": "$\\text{H}_2$ gains oxygen, so it is oxidised to water.",
           "concept_tag": "oxidation = gain of oxygen",
           "mark": 1
         },
         {
           "lead": "Overall.",
           "text": "Oxidation and reduction happen together, so the reaction is a redox reaction:",
-          "equation": "CuO + H2 --Heat--> Cu + H2O"
+          "equation": "$\\text{CuO} + \\text{H}_2 \\xrightarrow{\\text{Heat}} \\text{Cu} + \\text{H}_2\\text{O}$"
         }
       ],
       "marks_total": 2,
-      "mark_logic": "2-mark: CuO is reduced because it loses oxygen (1) + H2 is oxidised because it gains oxygen (1). State the rule - gain of oxygen is oxidation, loss of oxygen is reduction - and note that both together make it a redox reaction.",
+      "mark_logic": "2-mark: CuO is reduced because it loses oxygen (1) + $\\text{H}_2$ is oxidised because it gains oxygen (1). State the rule - gain of oxygen is oxidation, loss of oxygen is reduction - and note that both together make it a redox reaction.",
       "source": {
         "ncert_example": "Eq. 1.29",
         "ncert_page": 12,
@@ -464,7 +464,7 @@
   ],
   "pitfalls": [
     {
-      "text": "Changing a formula to balance an equation - e.g. writing H2O4 instead of putting a 4 before H2O. Only the coefficients may be changed, never the subscripts inside a formula.",
+      "text": "Changing a formula to balance an equation - e.g. writing $\\text{H}_2\\text{O}_4$ instead of putting a 4 before $\\text{H}_2\\text{O}$. Only the coefficients may be changed, never the subscripts inside a formula.",
       "owner_verified": false
     },
     {
@@ -487,31 +487,156 @@
   "formula_strip": [
     {
       "label": "Combination",
-      "math": "$\\text{A} + \\text{B} \\rightarrow \\text{AB}$  (two or more reactants $\\rightarrow$ a single product)"
+      "math": "$\\text{A} + \\text{B} \\rightarrow \\text{AB}$  (two or more reactants $\\rightarrow$ a single product)",
+      "id": "combination-reaction",
+      "tip": "Two or more reactants, ONE product."
     },
     {
       "label": "Decomposition",
-      "math": "$\\text{AB} \\rightarrow \\text{A} + \\text{B}$  (one reactant $\\rightarrow$ two or more products)"
+      "math": "$\\text{AB} \\rightarrow \\text{A} + \\text{B}$  (one reactant $\\rightarrow$ two or more products)",
+      "id": "decomposition-reaction",
+      "tip": "Needs heat, light or electricity."
     },
     {
       "label": "Displacement",
-      "math": "$\\text{A} + \\text{BC} \\rightarrow \\text{AC} + \\text{B}$  (A more reactive than B)"
+      "math": "$\\text{A} + \\text{BC} \\rightarrow \\text{AC} + \\text{B}$  (A more reactive than B)",
+      "id": "displacement-reaction",
+      "tip": "The more reactive element takes the place."
     },
     {
       "label": "Double displacement",
-      "math": "$\\text{AB} + \\text{CD} \\rightarrow \\text{AD} + \\text{CB}$  (ions exchanged)"
+      "math": "$\\text{AB} + \\text{CD} \\rightarrow \\text{AD} + \\text{CB}$  (ions exchanged)",
+      "id": "double-displacement-reaction",
+      "tip": "Ions exchange; look for a precipitate."
     },
     {
       "label": "Oxidation / Reduction",
-      "math": "Oxidation: gain O or lose H  .  Reduction: lose O or gain H"
+      "math": "Oxidation: gain O or lose H · Reduction: lose O or gain H",
+      "id": "oxidation-and-reduction",
+      "tip": "Oxidised = gains oxygen or loses hydrogen."
     },
     {
       "label": "Conservation of mass",
-      "math": "atoms of each element (reactants) = atoms of each element (products)"
+      "math": "atoms of each element (reactants) = atoms of each element (products)",
+      "id": "law-of-conservation-of-mass",
+      "tip": "Count atoms of each element on both sides."
     },
     {
       "label": "Everyday oxidation",
-      "math": "Corrosion (rusting of iron) - prevented by painting, oiling, greasing or galvanising"
+      "math": "Corrosion (rusting of iron) - prevented by painting, oiling, greasing or galvanising",
+      "id": "corrosion",
+      "tip": "Corrosion colours: iron gives reddish-brown rust; silver gets a black coating; copper a green coating."
+    },
+    {
+      "label": "Steps",
+      "math": "(1) Write the skeletal equation with the correct formulae. (2) Count the atoms of each element on both sides. (3) Balance one element at a time by hit and trial, changing only the numbers in front of formulae, never the formulae themselves. (4) Check that each element has the same number of atoms on both sides. (5) Add the state symbols and conditions.",
+      "id": "how-to-balance-a-chemical-equation",
+      "heading": "How to Balance a Chemical Equation"
+    },
+    {
+      "label": "State Symbols and Conditions",
+      "math": "Write the physical state after each formula: (s) solid, (l) liquid, (g) gas, (aq) aqueous solution. Write conditions such as heat, catalyst, sunlight or electric current over the arrow. General word equations take no state symbols. Examiners usually reward a balanced equation and correct state symbols and conditions separately.",
+      "id": "state-symbols-and-conditions"
+    },
+    {
+      "label": "Exothermic and Endothermic Reactions",
+      "math": "In an exothermic reaction heat is released: burning of natural gas, respiration, decomposition of vegetable matter into compost, and quicklime reacting with water. In an endothermic reaction energy is absorbed.",
+      "id": "exothermic-and-endothermic-reactions"
+    },
+    {
+      "label": "Thermal, Electrolytic and Photolytic Decomposition",
+      "math": "By heat: $\\text{CaCO}_3(s) \\xrightarrow{\\text{Heat}} \\text{CaO}(s) + \\text{CO}_2(g)$<br>By electricity: $2\\text{H}_2\\text{O}(l) \\xrightarrow{\\text{Electric current}} 2\\text{H}_2(g) + \\text{O}_2(g)$<br>By light: $2\\text{AgCl}(s) \\xrightarrow{\\text{Sunlight}} 2\\text{Ag}(s) + \\text{Cl}_2(g)$",
+      "id": "types-of-decomposition-reaction"
+    },
+    {
+      "label": "Precipitation Reaction",
+      "math": "A reaction that forms an insoluble product, called a precipitate, is a precipitation reaction. For example, sodium sulphate solution and barium chloride solution form white barium sulphate: $\\text{Na}_2\\text{SO}_4(aq) + \\text{BaCl}_2(aq) \\rightarrow \\text{BaSO}_4(s) + 2\\text{NaCl}(aq)$.",
+      "id": "precipitation-reaction"
+    },
+    {
+      "label": "Colour Changes in Reactions (Observations)",
+      "math": "Iron nail in copper sulphate: the blue solution turns pale green and the nail becomes brownish. Silver chloride: white, turns grey in sunlight. Copper powder heated in air turns black (copper(II) oxide). Lead nitrate on heating gives brown fumes of nitrogen dioxide. Crystals of ferrous sulphate are green.",
+      "id": "colour-changes-in-reactions"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "skeleton-balance-states",
+      "text": "Order of marks: skeletal equation → balanced → state symbols/conditions. Examiners usually reward a balanced equation and correct state symbols separately.",
+      "use": "written-ok",
+      "source": "NCERT 1.1; CBSE marking principle"
+    },
+    {
+      "id": "atom-count-check",
+      "text": "After balancing, count each element on both sides once more.",
+      "use": "mcq-check",
+      "source": "NCERT 1.1.2 (law of conservation of mass)"
+    },
+    {
+      "id": "precipitate-means-double-displacement",
+      "text": "A new insoluble solid formed from two solutions ⇒ precipitation (double displacement).",
+      "use": "mcq-check",
+      "source": "NCERT 1.2.4"
+    },
+    {
+      "id": "name-the-energy",
+      "text": "Decomposition by heat (thermal); by light (silver salts); by electricity (electrolysis).",
+      "use": "written-ok",
+      "source": "NCERT 1.2.2"
+    },
+    {
+      "id": "redox-both-at-once",
+      "text": "In one reaction one substance is oxidised while another is reduced (CuO is reduced, H₂ is oxidised). Use the Class 10 definition: oxygen/hydrogen.",
+      "use": "written-ok",
+      "source": "NCERT 1.2.5; Q3 of the section"
+    },
+    {
+      "id": "exothermic-feels-hot",
+      "text": "If the test tube warms up it is exothermic.",
+      "use": "mcq-check",
+      "source": "NCERT 1.2 (quicklime + water)"
+    },
+    {
+      "id": "reaction-types-trick",
+      "text": "<b>Jodo, Todo, Hatao, Badlo.</b>",
+      "gloss": "The four types. Jodo = combination · Todo = decomposition · Hatao = displacement · Badlo = double displacement (the NCERT order 1.2.1–1.2.4).",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.1–1.2.4"
+    },
+    {
+      "id": "redox-trick",
+      "text": "<b>Oxidation = Oxygen Aaye ya Hydrogen Jaye. Reduction = Oxygen Jaye ya Hydrogen Aaye.</b>",
+      "gloss": "Class 10 redox definition. Oxidation: gain O or lose H. Reduction: lose O or gain H. (No electron-transfer rule.)",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.5"
+    },
+    {
+      "id": "decomposition-energy-trick",
+      "text": "<b>Chuna-patthar tapish se, chaandi ka namak roshni se, paani bijli se.</b>",
+      "gloss": "Which energy for which example. CaCO₃ → heat · AgCl → light · H₂O → electricity.",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.2"
+    },
+    {
+      "id": "exo-endo-trick",
+      "text": "<b>Exo = Energy bahar, Endo = Energy andar.</b>",
+      "gloss": "Heat out / heat in. exothermic releases; endothermic absorbs.",
+      "use": "memory-aid",
+      "source": "NCERT 1.2"
+    },
+    {
+      "id": "colour-blue-green-trick",
+      "text": "<b>Neela gaya, Hara aaya; keel ka rang bhura.</b>",
+      "gloss": "CuSO₄ + Fe. blue copper sulphate → green iron sulphate; the iron nail turns brownish.",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.3"
+    },
+    {
+      "id": "barium-white-trick",
+      "text": "<b>Barium + sulphate = safed gaadha.</b>",
+      "gloss": "BaSO₄ precipitate is white. Ba + SO₄ → white precipitate.",
+      "use": "memory-aid",
+      "source": "NCERT 1.2.4"
     }
   ],
   "mindmap": {
@@ -520,7 +645,7 @@
       {
         "label": "Chemical equation",
         "children": [
-          "Reactants -> Products (arrow)",
+          "Reactants $\\rightarrow$ Products (arrow)",
           "Skeletal vs balanced equation",
           "Balance: change coefficients only",
           "State symbols (s)(l)(g)(aq)"
@@ -529,9 +654,9 @@
       {
         "label": "Five reaction types",
         "children": [
-          "Combination (A+B -> AB)",
-          "Decomposition (AB -> A+B)",
-          "Displacement (A+BC -> AC+B)",
+          "Combination (A+B $\\rightarrow$ AB)",
+          "Decomposition (AB $\\rightarrow$ A+B)",
+          "Displacement (A+BC $\\rightarrow$ AC+B)",
           "Double displacement (ion swap)",
           "Precipitation (insoluble salt)"
         ]
@@ -539,8 +664,8 @@
       {
         "label": "Decomposition by...",
         "children": [
-          "Heat - thermal (CaCO3 -> CaO + CO2)",
-          "Light - photolytic (2AgCl -> 2Ag + Cl2)",
+          "Heat - thermal ($\\text{CaCO}_3 \\rightarrow \\text{CaO} + \\text{CO}_2$)",
+          "Light - photolytic ($2\\text{AgCl} \\rightarrow 2\\text{Ag} + \\text{Cl}_2$)",
           "Electricity - electrolytic (water)"
         ]
       },
@@ -549,8 +674,8 @@
         "children": [
           "Oxidation = gain O / lose H",
           "Reduction = lose O / gain H",
-          "2Cu + O2 -> 2CuO",
-          "CuO + H2 -> Cu + H2O (redox)"
+          "$2\\text{Cu} + \\text{O}_2 \\rightarrow 2\\text{CuO}$",
+          "$\\text{CuO} + \\text{H}_2 \\rightarrow \\text{Cu} + \\text{H}_2\\text{O}$ (redox)"
         ]
       },
       {
@@ -575,8 +700,8 @@
     "reactions": [
       {
         "name": "Combination - slaked lime",
-        "equation": "CaO(s) + H2O(l) -> Ca(OH)2(aq) + Heat",
-        "conditions": "Quicklime + water -> slaked lime; strongly exothermic",
+        "equation": "$\\text{CaO}(\\text{s}) + \\text{H}_2\\text{O}(\\text{l}) \\rightarrow \\text{Ca(OH)}_2(\\text{aq}) + \\text{Heat}$",
+        "conditions": "Quicklime + water $\\rightarrow$ slaked lime; strongly exothermic",
         "source": {
           "ncert_page": 6,
           "ncert_equation": "1.13",
@@ -586,7 +711,7 @@
       },
       {
         "name": "Combination - burning of coal",
-        "equation": "C(s) + O2(g) -> CO2(g)",
+        "equation": "$\\text{C}(\\text{s}) + \\text{O}_2(\\text{g}) \\rightarrow \\text{CO}_2(\\text{g})$",
         "conditions": "Carbon burns in oxygen",
         "source": {
           "ncert_page": 7,
@@ -597,7 +722,7 @@
       },
       {
         "name": "Combination - formation of water",
-        "equation": "2H2(g) + O2(g) -> 2H2O(l)",
+        "equation": "$2\\text{H}_2(\\text{g}) + \\text{O}_2(\\text{g}) \\rightarrow 2\\text{H}_2\\text{O}(\\text{l})$",
         "conditions": "Hydrogen burns in oxygen",
         "source": {
           "ncert_page": 7,
@@ -608,7 +733,7 @@
       },
       {
         "name": "Exothermic - respiration",
-        "equation": "C6H12O6(aq) + 6O2(aq) -> 6CO2(aq) + 6H2O(l) + energy",
+        "equation": "$\\text{C}_6\\text{H}_{12}\\text{O}_6(\\text{aq}) + 6\\text{O}_2(\\text{aq}) \\rightarrow 6\\text{CO}_2(\\text{aq}) + 6\\text{H}_2\\text{O}(\\text{l}) + \\text{energy}$",
         "conditions": "Glucose is broken down with oxygen in the cells; exothermic",
         "source": {
           "ncert_page": 7,
@@ -619,7 +744,7 @@
       },
       {
         "name": "Thermal decomposition - ferrous sulphate",
-        "equation": "2FeSO4(s) --Heat--> Fe2O3(s) + SO2(g) + SO3(g)",
+        "equation": "$2\\text{FeSO}_4(\\text{s}) \\xrightarrow{\\text{Heat}} \\text{Fe}_2\\text{O}_3(\\text{s}) + \\text{SO}_2(\\text{g}) + \\text{SO}_3(\\text{g})$",
         "conditions": "Green crystals lose colour; smell of burning sulphur (Activity 1.5)",
         "source": {
           "ncert_page": 8,
@@ -630,8 +755,8 @@
       },
       {
         "name": "Thermal decomposition - limestone",
-        "equation": "CaCO3(s) --Heat--> CaO(s) + CO2(g)",
-        "conditions": "Limestone -> quicklime; used in the cement industry",
+        "equation": "$\\text{CaCO}_3(\\text{s}) \\xrightarrow{\\text{Heat}} \\text{CaO}(\\text{s}) + \\text{CO}_2(\\text{g})$",
+        "conditions": "Limestone $\\rightarrow$ quicklime; used in the cement industry",
         "source": {
           "ncert_page": 8,
           "ncert_equation": "1.20",
@@ -641,7 +766,7 @@
       },
       {
         "name": "Thermal decomposition - lead nitrate",
-        "equation": "2Pb(NO3)2(s) --Heat--> 2PbO(s) + 4NO2(g) + O2(g)",
+        "equation": "$2\\text{Pb(NO}_3\\text{)}_2(\\text{s}) \\xrightarrow{\\text{Heat}} 2\\text{PbO}(\\text{s}) + 4\\text{NO}_2(\\text{g}) + \\text{O}_2(\\text{g})$",
         "conditions": "Brown fumes of nitrogen dioxide given off (Activity 1.6)",
         "source": {
           "ncert_page": 9,
@@ -652,7 +777,7 @@
       },
       {
         "name": "Photolytic decomposition - silver chloride",
-        "equation": "2AgCl(s) --Sunlight--> 2Ag(s) + Cl2(g)",
+        "equation": "$2\\text{AgCl}(\\text{s}) \\xrightarrow{\\text{Sunlight}} 2\\text{Ag}(\\text{s}) + \\text{Cl}_2(\\text{g})$",
         "conditions": "White silver chloride turns grey in sunlight; used in photography",
         "source": {
           "ncert_page": 9,
@@ -663,7 +788,7 @@
       },
       {
         "name": "Photolytic decomposition - silver bromide",
-        "equation": "2AgBr(s) --Sunlight--> 2Ag(s) + Br2(g)",
+        "equation": "$2\\text{AgBr}(\\text{s}) \\xrightarrow{\\text{Sunlight}} 2\\text{Ag}(\\text{s}) + \\text{Br}_2(\\text{g})$",
         "conditions": "Behaves like silver chloride; used in black-and-white photography",
         "source": {
           "ncert_page": 10,
@@ -674,8 +799,8 @@
       },
       {
         "name": "Electrolytic decomposition - water",
-        "equation": "2H2O(l) --Electricity--> 2H2(g) + O2(g)",
-        "conditions": "Electrolysis of acidified water; H2:O2 collected in a 2:1 volume ratio (Activity 1.7, Fig. 1.6 - the balanced equation is the standard form of this printed activity, not a printed equation)",
+        "equation": "$2\\text{H}_2\\text{O}(\\text{l}) \\xrightarrow{\\text{Electricity}} 2\\text{H}_2(\\text{g}) + \\text{O}_2(\\text{g})$",
+        "conditions": "Electrolysis of acidified water; $\\text{H}_2$:$\\text{O}_2$ collected in a 2:1 volume ratio (Activity 1.7, Fig. 1.6 - the balanced equation is the standard form of this printed activity, not a printed equation)",
         "source": {
           "ncert_page": 9,
           "ncert_example": "Activity 1.7 (Fig. 1.6)",
@@ -685,7 +810,7 @@
       },
       {
         "name": "Displacement - iron and copper sulphate",
-        "equation": "Fe(s) + CuSO4(aq) -> FeSO4(aq) + Cu(s)",
+        "equation": "$\\text{Fe}(\\text{s}) + \\text{CuSO}_4(\\text{aq}) \\rightarrow \\text{FeSO}_4(\\text{aq}) + \\text{Cu}(\\text{s})$",
         "conditions": "Iron is more reactive than copper; blue solution fades, nail turns brown",
         "source": {
           "ncert_page": 11,
@@ -696,7 +821,7 @@
       },
       {
         "name": "Displacement - zinc and copper sulphate",
-        "equation": "Zn(s) + CuSO4(aq) -> ZnSO4(aq) + Cu(s)",
+        "equation": "$\\text{Zn}(\\text{s}) + \\text{CuSO}_4(\\text{aq}) \\rightarrow \\text{ZnSO}_4(\\text{aq}) + \\text{Cu}(\\text{s})$",
         "conditions": "Zinc is more reactive than copper",
         "source": {
           "ncert_page": 11,
@@ -707,7 +832,7 @@
       },
       {
         "name": "Double displacement - precipitation of barium sulphate",
-        "equation": "Na2SO4(aq) + BaCl2(aq) -> BaSO4(s) + 2NaCl(aq)",
+        "equation": "$\\text{Na}_2\\text{SO}_4(\\text{aq}) + \\text{BaCl}_2(\\text{aq}) \\rightarrow \\text{BaSO}_4(\\text{s}) + 2\\text{NaCl}(\\text{aq})$",
         "conditions": "White precipitate of barium sulphate (insoluble)",
         "source": {
           "ncert_page": 11,
@@ -718,7 +843,7 @@
       },
       {
         "name": "Redox - oxidation of copper",
-        "equation": "2Cu + O2 --Heat--> 2CuO",
+        "equation": "$2\\text{Cu} + \\text{O}_2 \\xrightarrow{\\text{Heat}} 2\\text{CuO}$",
         "conditions": "Copper gains oxygen (oxidised); black coating of copper oxide forms",
         "source": {
           "ncert_page": 12,
@@ -729,8 +854,8 @@
       },
       {
         "name": "Redox - reduction of copper oxide",
-        "equation": "CuO + H2 --Heat--> Cu + H2O",
-        "conditions": "CuO is reduced (loses oxygen); H2 is oxidised (gains oxygen)",
+        "equation": "$\\text{CuO} + \\text{H}_2 \\xrightarrow{\\text{Heat}} \\text{Cu} + \\text{H}_2\\text{O}$",
+        "conditions": "CuO is reduced (loses oxygen); $\\text{H}_2$ is oxidised (gains oxygen)",
         "source": {
           "ncert_page": 12,
           "ncert_equation": "1.29",
@@ -745,7 +870,7 @@
       "bucket": "ncert",
       "tag": "NCERT Fig 1.1",
       "caption": "Burning of a magnesium ribbon in air and collection of magnesium oxide in a watch-glass.",
-      "legend": "A combination (and redox) reaction: magnesium burns with a dazzling white flame; Mg + O2 -> MgO. Labels: tong, magnesium ribbon, burner, watch-glass, magnesium oxide.",
+      "legend": "A combination (and redox) reaction: magnesium burns with a dazzling white flame; $\\text{Mg} + \\text{O}_2 \\rightarrow \\text{MgO}$. Labels: tong, magnesium ribbon, burner, watch-glass, magnesium oxide.",
       "source": {
         "pdf": "jesc101",
         "edition": "2026-27",

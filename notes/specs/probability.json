@@ -416,23 +416,100 @@
   "formula_strip": [
     {
       "label": "Classical probability",
-      "math": "$P(E) = \\dfrac{\\text{Number of outcomes favourable to }E}{\\text{Number of all possible outcomes}}$"
+      "math": "$P(E) = \\dfrac{\\text{Number of outcomes favourable to }E}{\\text{Number of all possible outcomes}}$",
+      "id": "classical-probability",
+      "tip": "List the sample space and count favourable outcomes."
     },
     {
       "label": "Complement rule",
-      "math": "$P(\\overline{E}) = 1 - P(E)$"
+      "math": "$P(\\overline{E}) = 1 - P(E)$",
+      "id": "complement-rule",
+      "tip": "\"at least one\" → 1 − P(none)."
     },
     {
       "label": "Range of probability",
-      "math": "$0 \\le P(E) \\le 1$"
+      "math": "$0 \\le P(E) \\le 1$",
+      "id": "range-of-probability",
+      "tip": "answers outside 0–1 are wrong."
     },
     {
       "label": "Impossible / sure event",
-      "math": "$P(\\text{impossible}) = 0 \\;\\cdot\\; P(\\text{sure}) = 1$"
+      "math": "$P(\\text{impossible}) = 0 \\;\\cdot\\; P(\\text{sure}) = 1$",
+      "id": "impossible-and-sure-events"
     },
     {
       "label": "Elementary events",
-      "math": "$\\sum P(\\text{elementary events}) = 1$"
+      "math": "$\\sum P(\\text{elementary events}) = 1$",
+      "id": "elementary-events",
+      "tip": "Sum of probabilities of all elementary events = 1."
+    },
+    {
+      "label": "Playing Cards: What You Need",
+      "math": "52 cards in 4 suits of 13 each: spades and clubs are black, hearts and diamonds are red (26 red, 26 black). Each suit has ace, king, queen, jack and 2 to 10. Kings, queens and jacks are the face cards: 12 in all. There are 4 aces.",
+      "id": "playing-cards-facts"
+    },
+    {
+      "label": "Coins and Dice: Sample Spaces",
+      "math": "One coin: 2 outcomes. Two coins: 4. Three coins: 8. One die: 6. Two dice thrown together: 36.",
+      "id": "coins-and-dice-outcomes"
+    },
+    {
+      "label": "Equally Likely Outcomes",
+      "math": "The formula $P(E)=\\dfrac{\\text{favourable outcomes}}{\\text{all possible outcomes}}$ assumes that all outcomes are equally likely.",
+      "id": "equally-likely-outcomes"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "probability-range-check",
+      "text": "Any answer outside [0, 1] is wrong.",
+      "use": "mcq-check",
+      "source": "NCERT 14.1"
+    },
+    {
+      "id": "use-complement",
+      "text": "\"not E\" → 1 − P(E); \"at least one\" → 1 − P(none).",
+      "use": "written-ok",
+      "source": "PYQ-M-PROB-006"
+    },
+    {
+      "id": "face-cards-twelve",
+      "text": "Face cards = 12 (J, Q, K × 4), not 16.",
+      "use": "mcq-check",
+      "source": "NCERT 14.1"
+    },
+    {
+      "id": "list-sample-space",
+      "text": "Write the sample space, count favourable and total.",
+      "use": "written-ok",
+      "source": "NCERT 14.1 Example 9"
+    },
+    {
+      "id": "two-dice-count",
+      "text": "Two dice: 36 outcomes; doubles 6.",
+      "use": "mcq-check",
+      "source": "PYQ-M-PROB-003, -005"
+    },
+    {
+      "id": "probability-trick",
+      "text": "<b>Anukool upon Kul.</b>",
+      "gloss": "P(E) = favourable / total. Anukool = favourable outcomes; Kul = all possible outcomes.",
+      "use": "memory-aid",
+      "source": "NCERT 14.1"
+    },
+    {
+      "id": "range-trick",
+      "text": "<b>Zero</b> = namumkin, <b>ek</b> = pakka.",
+      "gloss": "P=0 impossible; P=1 sure.",
+      "use": "memory-aid",
+      "source": "NCERT 14.1"
+    },
+    {
+      "id": "cards-trick",
+      "text": "<b>4 suit (hukum, paan, eent, chidi) × 13 patte = 52</b>; Raja, Rani, Gulam × 4 suit = 12 face cards.",
+      "gloss": "4 suits (spades, hearts, diamonds, clubs; 2 black, 2 red) × 13 cards = 52; K, Q, J in each suit = 12 face cards.",
+      "use": "memory-aid",
+      "source": "NCERT 14.1 Example 4"
     }
   ],
   "mindmap": {
@@ -458,15 +535,15 @@
         "label": "Complementary events",
         "children": [
           "P(not E) = 1 - P(E)",
-          "'not' / 'at least' -> use complement",
+          "'not' / 'at least' → use complement",
           "E and (not E) fill the whole space"
         ]
       },
       {
         "label": "Impossible / sure / range",
         "children": [
-          "Impossible event -> 0",
-          "Sure event -> 1",
+          "Impossible event → 0",
+          "Sure event → 1",
           "0 <= P(E) <= 1 always"
         ]
       },

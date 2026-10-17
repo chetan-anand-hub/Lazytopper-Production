@@ -12,7 +12,7 @@
     },
     "source_edition": "NCERT Reprint 2026-27, Class 10 Science, Ch 4"
   },
-  "board_asks": "draw electron-dot (Lewis) structures for simple covalent molecules (H2, O2, N2, CH4, CO2 and compounds such as CH3Cl); give the two reasons - catenation and tetravalency - for carbon's huge number of compounds; define a homologous series and give an example; name a compound and identify its functional group; write balanced equations for combustion, the oxidation of ethanol to ethanoic acid, addition (hydrogenation), substitution, esterification and saponification, with the correct conditions above the arrow; differentiate ethanol and ethanoic acid by their physical and chemical properties; and explain the cleaning action of soap through micelle formation. Most marks sit in drawing the correct structure and writing the right reaction with its conditions.",
+  "board_asks": "draw electron-dot (Lewis) structures for simple covalent molecules ($\\text{H}_2$, $\\text{O}_2$, $\\text{N}_2$, $\\text{CH}_4$, $\\text{CO}_2$ and compounds such as $\\text{CH}_3\\text{Cl}$); give the two reasons - catenation and tetravalency - for carbon's huge number of compounds; define a homologous series and give an example; name a compound and identify its functional group; write balanced equations for combustion, the oxidation of ethanol to ethanoic acid, addition (hydrogenation), substitution, esterification and saponification, with the correct conditions above the arrow; differentiate ethanol and ethanoic acid by their physical and chemical properties; and explain the cleaning action of soap through micelle formation. Most marks sit in drawing the correct structure and writing the right reaction with its conditions.",
   "big_idea": {
     "tagline": "One element, millions of compounds - because carbon shares.",
     "body": "Carbon completes its octet not by giving or taking electrons but by sharing them, forming four strong covalent bonds. Two properties - catenation (carbon-to-carbon chains, branches and rings) and tetravalency - let carbon build an enormous family of compounds. Attach a functional group and a whole homologous series behaves alike, so learning one member teaches you the rest. The chapter's reactions - combustion, oxidation, addition, substitution, esterification and saponification - and the cleaning action of soap all follow from this covalent bonding."
@@ -101,7 +101,7 @@
       "tier": "headline",
       "term": "Homologous series",
       "verbatim": "Hence, such a series of compounds in which the same functional group substitutes for hydrogen in a carbon chain is called a homologous series.",
-      "plain": "A family of compounds with the same functional group where each member differs from the next by a -CH2- unit (14 u); members share similar chemical properties and show a gradation in physical properties.",
+      "plain": "A family of compounds with the same functional group where each member differs from the next by a $-\\text{CH}_2-$ unit (14 u); members share similar chemical properties and show a gradation in physical properties.",
       "memorise": true,
       "source": {
         "ncert_page": 66,
@@ -205,8 +205,8 @@
     {
       "id": "c1",
       "title": "Covalent bonding and electron-dot structures",
-      "body": "Carbon has four valence electrons and cannot easily gain or lose four, so it shares them, forming four covalent bonds. Show only valence electrons as dots or crosses: a single shared pair is a single bond (H2, CH4), two shared pairs a double bond (O2), three shared pairs a triple bond (N2). Because no ions form, covalent compounds have low melting/boiling points and are poor conductors of electricity.",
-      "tested": "3-mark: draw the electron dot structure of a given molecule (e.g. CH3Cl, CO2, ethanoic acid) and explain the covalent bonding.",
+      "body": "Carbon has four valence electrons and cannot easily gain or lose four, so it shares them, forming four covalent bonds. Show only valence electrons as dots or crosses: a single shared pair is a single bond ($\\text{H}_2$, $\\text{CH}_4$), two shared pairs a double bond ($\\text{O}_2$), three shared pairs a triple bond ($\\text{N}_2$). Because no ions form, covalent compounds have low melting/boiling points and are poor conductors of electricity.",
+      "tested": "3-mark: draw the electron dot structure of a given molecule (e.g. $\\text{CH}_3\\text{Cl}$, $\\text{CO}_2$, ethanoic acid) and explain the covalent bonding.",
       "figure_ref": "fig_methane_electron_dot"
     },
     {
@@ -226,21 +226,21 @@
     {
       "id": "c4",
       "title": "Chains, branches, rings and isomers",
-      "body": "Saturated hydrocarbons (alkanes, methane to hexane) have only single bonds; unsaturated ones have double bonds (alkenes) or triple bonds (alkynes). Carbon skeletons can be straight chains, branched chains or rings (e.g. cyclohexane, benzene). From four carbons onward the same molecular formula can be arranged in more than one way - these are structural isomers (e.g. two isomers of butane, C4H10).",
+      "body": "Saturated hydrocarbons (alkanes, methane to hexane) have only single bonds; unsaturated ones have double bonds (alkenes) or triple bonds (alkynes). Carbon skeletons can be straight chains, branched chains or rings (e.g. cyclohexane, benzene). From four carbons onward the same molecular formula can be arranged in more than one way - these are structural isomers (e.g. two isomers of butane, $\\text{C}_4\\text{H}_{10}$).",
       "tested": "3-mark: draw the structures/structural isomers of a named compound (e.g. the isomers of pentane) and classify as saturated or unsaturated.",
       "figure_ref": "fig_saturated_hydrocarbons_table"
     },
     {
       "id": "c5",
       "title": "Homologous series, functional groups and naming",
-      "body": "Replacing a hydrogen on a carbon chain with a functional group (halo-, alcohol -OH, aldehyde, ketone, carboxylic acid) fixes the chemistry of the compound. A homologous series shares one functional group, with successive members differing by a -CH2- unit (14 u); chemical properties stay similar while melting/boiling points rise gradually. To name a compound: count the carbons for the stem (meth-, eth-, prop-, but-...), then add the group's prefix or suffix, dropping the final 'e' before a vowel suffix (propane - e + one = propanone).",
+      "body": "Replacing a hydrogen on a carbon chain with a functional group (halo-, alcohol -OH, aldehyde, ketone, carboxylic acid) fixes the chemistry of the compound. A homologous series shares one functional group, with successive members differing by a $-\\text{CH}_2-$ unit (14 u); chemical properties stay similar while melting/boiling points rise gradually. To name a compound: count the carbons for the stem (meth-, eth-, prop-, but-...), then add the group's prefix or suffix, dropping the final 'e' before a vowel suffix (propane - e + one = propanone).",
       "tested": "3-mark: define a homologous series with an example; name compounds or identify the functional group from a formula.",
       "figure_ref": null
     },
     {
       "id": "c6",
       "title": "Chemical properties of carbon compounds",
-      "body": "Combustion: carbon and its compounds burn in oxygen to give carbon dioxide (and water) with heat and light; saturated hydrocarbons give a clean blue flame, unsaturated ones a sooty yellow flame. Oxidation: alcohols are oxidised to carboxylic acids by oxidising agents (alkaline KMnO4 or acidified K2Cr2O7). Addition: unsaturated hydrocarbons add hydrogen over a nickel/palladium catalyst (hydrogenation). Substitution: in sunlight, chlorine replaces the hydrogens of a saturated hydrocarbon one by one.",
+      "body": "Combustion: carbon and its compounds burn in oxygen to give carbon dioxide (and water) with heat and light; saturated hydrocarbons give a clean blue flame, unsaturated ones a sooty yellow flame. Oxidation: alcohols are oxidised to carboxylic acids by oxidising agents (alkaline $\\text{KMnO}_4$ or acidified $\\text{K}_2\\text{Cr}_2\\text{O}_7$). Addition: unsaturated hydrocarbons add hydrogen over a nickel/palladium catalyst (hydrogenation). Substitution: in sunlight, chlorine replaces the hydrogens of a saturated hydrocarbon one by one.",
       "tested": "identify the reaction type from an equation; name the products; state which hydrocarbons undergo addition reactions.",
       "figure_ref": null
     },
@@ -262,20 +262,20 @@
         {
           "lead": "Carbon.",
           "text": "Carbon burns in oxygen to give carbon dioxide with heat and light:",
-          "equation": "C + O2 -> CO2 + heat and light",
+          "equation": "$\\text{C} + \\text{O}_2 \\rightarrow \\text{CO}_2 + \\text{heat and light}$",
           "concept_tag": "combustion = oxidation",
           "mark": 1
         },
         {
           "lead": "Methane.",
           "text": "Balancing the skeletal combustion equation printed in the chapter:",
-          "equation": "CH4 + 2O2 -> CO2 + 2H2O + heat and light",
+          "equation": "$\\text{CH}_4 + 2\\text{O}_2 \\rightarrow \\text{CO}_2 + 2\\text{H}_2\\text{O} + \\text{heat and light}$",
           "mark": 1
         },
         {
           "lead": "Ethanol.",
           "text": "Balancing the ethanol combustion equation; alcohol burns cleanly:",
-          "equation": "CH3CH2OH + 3O2 -> 2CO2 + 3H2O + heat and light",
+          "equation": "$\\text{CH}_3\\text{CH}_2\\text{OH} + 3\\text{O}_2 \\rightarrow 2\\text{CO}_2 + 3\\text{H}_2\\text{O} + \\text{heat and light}$",
           "mark": 1
         }
       ],
@@ -302,13 +302,13 @@
         {
           "lead": "Reagent.",
           "text": "Alkaline potassium permanganate (or acidified potassium dichromate) supplies the oxygen; such substances are oxidising agents:",
-          "equation": "CH3CH2OH --Alkaline KMnO4 + heat--> CH3COOH",
+          "equation": "$\\text{CH}_3\\text{CH}_2\\text{OH} \\xrightarrow{\\text{Alkaline KMnO}_4\\text{ + heat}} \\text{CH}_3\\text{COOH}$",
           "concept_tag": "oxidising agent",
           "mark": 1
         }
       ],
       "marks_total": 2,
-      "mark_logic": "2-mark: oxygen is added to ethanol so it is oxidation (1) + naming the oxidising agent, alkaline KMnO4 or acidified K2Cr2O7 (1).",
+      "mark_logic": "2-mark: oxygen is added to ethanol so it is oxidation (1) + naming the oxidising agent, alkaline $\\text{KMnO}_4$ or acidified $\\text{K}_2\\text{Cr}_2\\text{O}_7$ (1).",
       "source": {
         "ncert_page": 71,
         "edition": "2026-27",
@@ -324,7 +324,7 @@
         {
           "lead": "Definition.",
           "text": "Hydrogenation is an addition reaction in which unsaturated hydrocarbons add hydrogen over a nickel (or palladium) catalyst to give saturated hydrocarbons:",
-          "equation": "R-CH=CH-R' + H2 --Ni--> R-CH2-CH2-R'",
+          "equation": "$\\text{R-CH=CH-R'} + \\text{H}_2 \\xrightarrow{\\text{Ni}} \\text{R-CH}_2\\text{-CH}_2\\text{-R'}$",
           "concept_tag": "addition reaction",
           "mark": 1
         },
@@ -351,7 +351,7 @@
         {
           "lead": "Equation.",
           "text": "In sunlight, chlorine replaces the hydrogen atoms of the saturated hydrocarbon one by one:",
-          "equation": "CH4 + Cl2 --Sunlight--> CH3Cl + HCl",
+          "equation": "$\\text{CH}_4 + \\text{Cl}_2 \\xrightarrow{\\text{Sunlight}} \\text{CH}_3\\text{Cl} + \\text{HCl}$",
           "mark": 1
         },
         {
@@ -378,7 +378,7 @@
         {
           "lead": "Esterification.",
           "text": "Ethanoic acid reacts with ethanol in the presence of an acid catalyst to form a sweet-smelling ester:",
-          "equation": "CH3COOH + CH3CH2OH --Acid--> CH3COOC2H5 + H2O",
+          "equation": "$\\text{CH}_3\\text{COOH} + \\text{CH}_3\\text{CH}_2\\text{OH} \\xrightarrow{\\text{Acid}} \\text{CH}_3\\text{COOC}_2\\text{H}_5 + \\text{H}_2\\text{O}$",
           "concept_tag": "esterification",
           "mark": 1.5
         },
@@ -390,7 +390,7 @@
         {
           "lead": "Saponification.",
           "text": "On heating with sodium hydroxide the ester is converted back to the alcohol and the sodium salt of the acid - this is saponification, used to prepare soap:",
-          "equation": "CH3COOC2H5 + NaOH -> C2H5OH + CH3COONa",
+          "equation": "$\\text{CH}_3\\text{COOC}_2\\text{H}_5 + \\text{NaOH} \\rightarrow \\text{C}_2\\text{H}_5\\text{OH} + \\text{CH}_3\\text{COONa}$",
           "concept_tag": "saponification",
           "mark": 1
         }
@@ -412,24 +412,24 @@
         {
           "lead": "With a base.",
           "text": "Like a mineral acid it neutralises sodium hydroxide to give a salt (sodium acetate) and water:",
-          "equation": "NaOH + CH3COOH -> CH3COONa + H2O",
+          "equation": "$\\text{NaOH} + \\text{CH}_3\\text{COOH} \\rightarrow \\text{CH}_3\\text{COONa} + \\text{H}_2\\text{O}$",
           "mark": 1
         },
         {
           "lead": "With a carbonate.",
           "text": "With sodium carbonate it gives the salt, water and carbon dioxide gas:",
-          "equation": "2CH3COOH + Na2CO3 -> 2CH3COONa + H2O + CO2",
+          "equation": "$2\\text{CH}_3\\text{COOH} + \\text{Na}_2\\text{CO}_3 \\rightarrow 2\\text{CH}_3\\text{COONa} + \\text{H}_2\\text{O} + \\text{CO}_2$",
           "mark": 1
         },
         {
           "lead": "Gas test.",
           "text": "The gas evolved in (ii) is carbon dioxide, which turns freshly prepared lime-water milky.",
-          "concept_tag": "CO2 test",
+          "concept_tag": "$\\text{CO}_2$ test",
           "mark": 1
         }
       ],
       "marks_total": 3,
-      "mark_logic": "3-mark: the neutralisation equation with NaOH giving sodium acetate + water (1) + the equation with sodium carbonate giving salt + water + CO2 (1) + identifying the gas as carbon dioxide by the lime-water test (1).",
+      "mark_logic": "3-mark: the neutralisation equation with NaOH giving sodium acetate + water (1) + the equation with sodium carbonate giving salt + water + $\\text{CO}_2$ (1) + identifying the gas as carbon dioxide by the lime-water test (1).",
       "source": {
         "ncert_page": 74,
         "edition": "2026-27",
@@ -448,7 +448,7 @@
     },
     {
       "cue": "Which reaction type is it?",
-      "text": "Saturated + Cl2 in sunlight is substitution; unsaturated + H2 over Ni is addition; alcohol + oxidising agent is oxidation; acid + alcohol is esterification; ester + NaOH is saponification."
+      "text": "Saturated + $\\text{Cl}_2$ in sunlight is substitution; unsaturated + $\\text{H}_2$ over Ni is addition; alcohol + oxidising agent is oxidation; acid + alcohol is esterification; ester + NaOH is saponification."
     },
     {
       "cue": "Cleaning action asked?",
@@ -480,35 +480,180 @@
   "formula_strip": [
     {
       "label": "Covalent bond",
-      "math": "shared electron pair between two atoms = 1 covalent bond (2 pairs = double, 3 pairs = triple)"
+      "math": "shared electron pair between two atoms = 1 covalent bond (2 pairs = double, 3 pairs = triple)",
+      "id": "covalent-bond",
+      "tip": "Shared electron PAIR = one bond."
     },
     {
       "label": "General formulae",
-      "math": "Alkanes $\\text{C}_n\\text{H}_{2n+2}$  .  Alkenes $\\text{C}_n\\text{H}_{2n}$  .  Alkynes $\\text{C}_n\\text{H}_{2n-2}$"
+      "math": "Alkanes $\\text{C}_n\\text{H}_{2n+2}$ · Alkenes $\\text{C}_n\\text{H}_{2n}$ · Alkynes $\\text{C}_n\\text{H}_{2n-2}$",
+      "id": "general-formulae-of-hydrocarbons",
+      "tip": "Check by putting n = 2: C₂H₆, C₂H₄, C₂H₂."
     },
     {
       "label": "Homologous series",
-      "math": "successive members differ by a $-\\text{CH}_2-$ unit (14 u)"
+      "math": "successive members differ by a $-\\text{CH}_2-$ unit (14 u)",
+      "id": "homologous-series",
+      "tip": "Successive members differ by CH₂ (14 u)."
     },
     {
       "label": "Combustion",
-      "math": "$\\text{carbon compound} + \\text{O}_2 \\rightarrow \\text{CO}_2 + \\text{H}_2\\text{O} + \\text{heat and light}$"
+      "math": "$\\text{carbon compound} + \\text{O}_2 \\rightarrow \\text{CO}_2 + \\text{H}_2\\text{O} + \\text{heat and light}$",
+      "id": "combustion-of-carbon-compounds",
+      "tip": "Saturated hydrocarbons burn with a clean flame; unsaturated give sooty flame."
     },
     {
       "label": "Oxidation",
-      "math": "ethanol $\\xrightarrow{[\\text{O}]}$ ethanoic acid  (alcohol $\\rightarrow$ carboxylic acid)"
+      "math": "ethanol $\\xrightarrow{[\\text{O}]}$ ethanoic acid  (alcohol $\\rightarrow$ carboxylic acid)",
+      "id": "oxidation-of-ethanol",
+      "tip": "Ethanol → ethanoic acid with an oxidising agent."
     },
     {
       "label": "Addition (hydrogenation)",
-      "math": "unsaturated + $\\text{H}_2 \\xrightarrow{\\text{Ni}}$ saturated"
+      "math": "unsaturated + $\\text{H}_2 \\xrightarrow{\\text{Ni}}$ saturated",
+      "id": "addition-reaction",
+      "tip": "Only unsaturated compounds; Ni catalyst."
     },
     {
       "label": "Substitution",
-      "math": "$\\text{CH}_4(g) + \\text{Cl}_2(g) \\xrightarrow{\\text{sunlight}} \\text{CH}_3\\text{Cl}(g) + \\text{HCl}(g)$"
+      "math": "$\\text{CH}_4(g) + \\text{Cl}_2(g) \\xrightarrow{\\text{sunlight}} \\text{CH}_3\\text{Cl}(g) + \\text{HCl}(g)$",
+      "id": "substitution-reaction",
+      "tip": "Needs sunlight; replaces H by Cl."
     },
     {
       "label": "Esterification / saponification",
-      "math": "acid + alcohol $\\xrightarrow{\\text{Acid}}$ ester + water ;  ester + $\\text{NaOH} \\rightarrow$ soap + alcohol"
+      "math": "acid + alcohol $\\xrightarrow{\\text{Acid}}$ ester + water ;  ester + $\\text{NaOH} \\rightarrow$ soap + alcohol",
+      "id": "esterification-and-saponification",
+      "tip": "Ester is sweet-smelling; saponification gives soap."
+    },
+    {
+      "label": "Name and formula by number of carbons",
+      "math": "1 carbon: methane $\\text{CH}_4$<br>2 carbons: ethane $\\text{C}_2\\text{H}_6$<br>3 carbons: propane $\\text{C}_3\\text{H}_8$<br>4 carbons: butane $\\text{C}_4\\text{H}_{10}$<br>5 carbons: pentane $\\text{C}_5\\text{H}_{12}$<br>6 carbons: hexane $\\text{C}_6\\text{H}_{14}$",
+      "id": "alkanes-table",
+      "heading": "Alkanes (Table)"
+    },
+    {
+      "label": "Group and its formula",
+      "math": "Halogen (halo): –Cl, –Br<br>Alcohol: –OH<br>Aldehyde: –CHO<br>Ketone: >C=O<br>Carboxylic acid: –COOH",
+      "id": "functional-groups-table",
+      "heading": "Functional Groups (Table)"
+    },
+    {
+      "label": "Nomenclature of Carbon Compounds (Steps and Table)",
+      "math": "(1) Count the carbon atoms and use the root word: meth (1), eth (2), prop (3), but (4), pent (5), hex (6). (2) Show the functional group as a prefix or a suffix: halo → prefix chloro-, bromo-; alcohol → suffix –ol; aldehyde → –al; ketone → –one. (3) If the suffix begins with a vowel, drop the final 'e' of the chain name (propane + ol → propanol). (4) A double bond is shown by –ene and a triple bond by –yne.",
+      "id": "nomenclature-of-carbon-compounds"
+    },
+    {
+      "label": "Electron Dot Structures",
+      "math": "In a hydrogen molecule two atoms share one pair of electrons (a single bond); in oxygen they share two pairs (a double bond); in nitrogen three pairs (a triple bond). In methane, carbon shares four pairs, one with each of four hydrogen atoms. Valency: carbon 4, hydrogen 1, oxygen 2, nitrogen 3.",
+      "id": "covalent-bonding-electron-dot"
+    },
+    {
+      "label": "Properties of Covalent Compounds",
+      "math": "Covalent compounds have low melting and boiling points and are poor conductors of electricity, because no ions are formed.",
+      "id": "properties-of-covalent-compounds"
+    },
+    {
+      "label": "Soaps and Detergents: Cleansing Action",
+      "math": "Soap is the sodium or potassium salt of a long-chain carboxylic acid. One end (ionic) is attracted to water; the long carbon chain is attracted to oil. In water the molecules form clusters called micelles, with the oily dirt collected in the middle, so the dirt is rinsed away. With hard water, soap reacts with calcium and magnesium salts to form an insoluble scum, so more soap is needed; detergents do not form scum.",
+      "id": "soaps-and-detergents"
+    },
+    {
+      "label": "Ethanol and Ethanoic Acid: Properties and Uses",
+      "math": "Ethanol is a liquid at room temperature, dissolves in water, reacts with sodium and, heated with hot concentrated sulphuric acid, gives ethene. It is a good solvent, used in medicines such as tincture of iodine and cough syrups. Ethanoic acid reacts with bases, carbonates and hydrogencarbonates (releasing carbon dioxide). A 5–8% solution of ethanoic acid in water is vinegar, used as a preservative in pickles.",
+      "id": "properties-and-uses-of-ethanol-and-ethanoic-acid"
+    },
+    {
+      "label": "Allotropes of Carbon",
+      "math": "Diamond and graphite are both forms (allotropes) of carbon. Diamond is the hardest natural substance known; graphite conducts electricity.",
+      "id": "allotropes-of-carbon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "formula-by-n",
+      "text": "Alkane CₙH₂ₙ₊₂, alkene CₙH₂ₙ, alkyne CₙH₂ₙ₋₂; test with n = 2: C₂H₆, C₂H₄, C₂H₂.",
+      "use": "mcq-check",
+      "source": "NCERT 4.2.1"
+    },
+    {
+      "id": "name-from-suffix",
+      "text": "–ol alcohol, –al aldehyde, –one ketone; –ene double bond, –yne triple bond.",
+      "use": "mcq-check",
+      "source": "NCERT Table 4.4"
+    },
+    {
+      "id": "sooty-flame-means-unsaturated",
+      "text": "Yellow sooty flame ⇒ unsaturated; clean blue flame ⇒ saturated (with enough air).",
+      "use": "mcq-check",
+      "source": "NCERT 4.3.1"
+    },
+    {
+      "id": "addition-needs-double-bond",
+      "text": "Addition reaction only for unsaturated compounds (double/triple bond).",
+      "use": "mcq-check",
+      "source": "NCERT 4.3.3"
+    },
+    {
+      "id": "ethanoic-acid-test",
+      "text": "Ethanoic acid + sodium hydrogencarbonate fizzes (CO₂); ethanol does not.",
+      "use": "mcq-check",
+      "source": "NCERT 4.4.2"
+    },
+    {
+      "id": "soap-hard-water",
+      "text": "Soap forms scum with hard water; detergents lather.",
+      "use": "written-ok",
+      "source": "NCERT 4.4.3"
+    },
+    {
+      "id": "alkane-names-trick",
+      "text": "<b>M</b>ummy <b>E</b>k <b>P</b>yaara <b>B</b>ada <b>P</b>arantha <b>H</b>ai.",
+      "gloss": "First six alkanes in order. M = Methane (C₁) · E = Ethane (C₂) · P = Propane (C₃) · B = Butane (C₄) · P = Pentane (C₅) · H = Hexane (C₆).",
+      "use": "memory-aid",
+      "source": "NCERT Table 4.2"
+    },
+    {
+      "id": "cnh2n-trick",
+      "text": "<b>Ane pe do zyada, Ene pe seedha 2n, Yne pe do kam.</b>",
+      "gloss": "General formulae. alkane CₙH₂ₙ₊₂ · alkene CₙH₂ₙ · alkyne CₙH₂ₙ₋₂.",
+      "use": "memory-aid",
+      "source": "NCERT 4.2.1"
+    },
+    {
+      "id": "suffix-trick",
+      "text": "<b>Alcohol ka ol, Aldehyde ka al, Ketone ka one.</b>",
+      "gloss": "Suffixes. –ol, –al, –one.",
+      "use": "memory-aid",
+      "source": "NCERT Table 4.4"
+    },
+    {
+      "id": "homologous-trick",
+      "text": "<b>Agla sadasya = pichhla + CH₂ (14 u).</b>",
+      "gloss": "Successive members. each member differs by one CH₂.",
+      "use": "memory-aid",
+      "source": "NCERT 4.2.4"
+    },
+    {
+      "id": "valency-trick",
+      "text": "<b>Carbon chaar haath, Oxygen do, Nitrogen teen, Hydrogen ek.</b>",
+      "gloss": "Valencies. C 4 · O 2 · N 3 · H 1.",
+      "use": "memory-aid",
+      "source": "NCERT 4.1"
+    },
+    {
+      "id": "covalent-properties-trick",
+      "text": "<b>Covalent: kam pighle, bijli nahi.</b>",
+      "gloss": "Properties. low melting/boiling points; poor conductors.",
+      "use": "memory-aid",
+      "source": "NCERT 4.1"
+    },
+    {
+      "id": "micelle-trick",
+      "text": "<b>Soap ka sir paani mein, poonchh tel mein.</b>",
+      "gloss": "Soap micelle. ionic end in water; hydrocarbon tail in oil.",
+      "use": "memory-aid",
+      "source": "NCERT 4.4.3"
     }
   ],
   "mindmap": {
@@ -518,7 +663,7 @@
         "label": "Bonding in carbon",
         "children": [
           "Covalent bond = shared electron pair",
-          "H2, O2 (double), N2 (triple), CH4",
+          "$\\text{H}_2$, $\\text{O}_2$ (double), $\\text{N}_2$ (triple), $\\text{CH}_4$",
           "Tetravalent - forms 4 bonds",
           "Poor conductor; low m.p./b.p."
         ]
@@ -545,7 +690,7 @@
           "Saturated (alkanes) - single bonds",
           "Unsaturated - alkenes (=), alkynes (triple)",
           "Structural isomers - same formula",
-          "Homologous series - differ by CH2"
+          "Homologous series - differ by $\\text{CH}_2$"
         ]
       },
       {
@@ -559,17 +704,17 @@
       {
         "label": "Chemical properties",
         "children": [
-          "Combustion -> CO2 + H2O + heat",
-          "Oxidation: ethanol -> ethanoic acid",
+          "Combustion $\\rightarrow$ $\\text{CO}_2 + \\text{H}_2\\text{O} + \\text{heat}$",
+          "Oxidation: ethanol $\\rightarrow$ ethanoic acid",
           "Addition (hydrogenation, Ni)",
-          "Substitution (CH4 + Cl2, sunlight)"
+          "Substitution ($\\text{CH}_4 + \\text{Cl}_2$, sunlight)"
         ]
       },
       {
         "label": "Ethanol, ethanoic acid, soaps",
         "children": [
-          "Ethanol + Na -> H2; dehydration -> ethene",
-          "Ethanoic acid: ester, salt + CO2 with carbonate",
+          "Ethanol + $\\text{Na} \\rightarrow \\text{H}_2$; dehydration $\\rightarrow$ ethene",
+          "Ethanoic acid: ester, salt + $\\text{CO}_2$ with carbonate",
           "Soap micelle - cleans oily dirt",
           "Detergents work in hard water"
         ]
@@ -582,7 +727,7 @@
     "reactions": [
       {
         "name": "Combustion - carbon",
-        "equation": "C + O2 -> CO2 + heat and light",
+        "equation": "$\\text{C} + \\text{O}_2 \\rightarrow \\text{CO}_2 + \\text{heat and light}$",
         "conditions": "Carbon burns completely in oxygen; an oxidation reaction",
         "source": {
           "ncert_page": 69,
@@ -592,7 +737,7 @@
       },
       {
         "name": "Combustion - methane",
-        "equation": "CH4 + 2O2 -> CO2 + 2H2O + heat and light",
+        "equation": "$\\text{CH}_4 + 2\\text{O}_2 \\rightarrow \\text{CO}_2 + 2\\text{H}_2\\text{O} + \\text{heat and light}$",
         "conditions": "Balanced form of the skeletal combustion equation printed on p.69",
         "source": {
           "ncert_page": 69,
@@ -602,7 +747,7 @@
       },
       {
         "name": "Combustion - ethanol",
-        "equation": "CH3CH2OH + 3O2 -> 2CO2 + 3H2O + heat and light",
+        "equation": "$\\text{CH}_3\\text{CH}_2\\text{OH} + 3\\text{O}_2 \\rightarrow 2\\text{CO}_2 + 3\\text{H}_2\\text{O} + \\text{heat and light}$",
         "conditions": "Balanced form of the skeletal combustion equation printed on p.69; alcohol burns cleanly",
         "source": {
           "ncert_page": 69,
@@ -612,7 +757,7 @@
       },
       {
         "name": "Oxidation - ethanol to ethanoic acid",
-        "equation": "CH3CH2OH --Alkaline KMnO4 + heat / Acidified K2Cr2O7 + heat--> CH3COOH",
+        "equation": "$\\text{CH}_3\\text{CH}_2\\text{OH} \\xrightarrow[\\text{Acidified K}_2\\text{Cr}_2\\text{O}_7\\text{ + heat}]{\\text{Alkaline KMnO}_4\\text{ + heat /}} \\text{CH}_3\\text{COOH}$",
         "conditions": "Alcohol oxidised to carboxylic acid; the oxidising agent adds oxygen",
         "source": {
           "ncert_page": 70,
@@ -622,7 +767,7 @@
       },
       {
         "name": "Addition - hydrogenation of unsaturated hydrocarbons",
-        "equation": "R-CH=CH-R' + H2 --Ni--> R-CH2-CH2-R'",
+        "equation": "$\\text{R-CH=CH-R'} + \\text{H}_2 \\xrightarrow{\\text{Ni}} \\text{R-CH}_2\\text{-CH}_2\\text{-R'}$",
         "conditions": "Unsaturated hydrocarbons add hydrogen over a Ni/Pd catalyst to give saturated hydrocarbons; used to harden vegetable oils (NCERT describes this reaction textually, p.71)",
         "source": {
           "ncert_page": 71,
@@ -632,7 +777,7 @@
       },
       {
         "name": "Substitution - methane and chlorine",
-        "equation": "CH4 + Cl2 --Sunlight--> CH3Cl + HCl",
+        "equation": "$\\text{CH}_4 + \\text{Cl}_2 \\xrightarrow{\\text{Sunlight}} \\text{CH}_3\\text{Cl} + \\text{HCl}$",
         "conditions": "In sunlight chlorine replaces hydrogen atoms of the saturated hydrocarbon one by one",
         "source": {
           "ncert_page": 71,
@@ -642,7 +787,7 @@
       },
       {
         "name": "Ethanol with sodium",
-        "equation": "2Na + 2CH3CH2OH -> 2CH3CH2ONa + H2",
+        "equation": "$2\\text{Na} + 2\\text{CH}_3\\text{CH}_2\\text{OH} \\rightarrow 2\\text{CH}_3\\text{CH}_2\\text{ONa} + \\text{H}_2$",
         "conditions": "Alcohols react with sodium; hydrogen gas is evolved and sodium ethoxide is formed",
         "source": {
           "ncert_page": 72,
@@ -652,7 +797,7 @@
       },
       {
         "name": "Dehydration of ethanol to ethene",
-        "equation": "CH3CH2OH --Hot conc. H2SO4, 443 K--> CH2=CH2 + H2O",
+        "equation": "$\\text{CH}_3\\text{CH}_2\\text{OH} \\xrightarrow{\\text{Hot conc. H}_2\\text{SO}_4\\text{, 443 K}} \\text{CH}_2\\text{=CH}_2 + \\text{H}_2\\text{O}$",
         "conditions": "Concentrated sulphuric acid acts as a dehydrating agent, giving the unsaturated ethene",
         "source": {
           "ncert_page": 72,
@@ -662,7 +807,7 @@
       },
       {
         "name": "Esterification",
-        "equation": "CH3COOH + CH3CH2OH --Acid--> CH3COOC2H5 + H2O",
+        "equation": "$\\text{CH}_3\\text{COOH} + \\text{CH}_3\\text{CH}_2\\text{OH} \\xrightarrow{\\text{Acid}} \\text{CH}_3\\text{COOC}_2\\text{H}_5 + \\text{H}_2\\text{O}$",
         "conditions": "Acid + alcohol give a sweet-smelling ester (ethyl ethanoate) and water; acid catalyst",
         "source": {
           "ncert_page": 73,
@@ -672,7 +817,7 @@
       },
       {
         "name": "Saponification",
-        "equation": "CH3COOC2H5 + NaOH -> C2H5OH + CH3COONa",
+        "equation": "$\\text{CH}_3\\text{COOC}_2\\text{H}_5 + \\text{NaOH} \\rightarrow \\text{C}_2\\text{H}_5\\text{OH} + \\text{CH}_3\\text{COONa}$",
         "conditions": "Ester + alkali give the alcohol and the sodium salt of the acid; the basis of soap-making",
         "source": {
           "ncert_page": 74,
@@ -682,7 +827,7 @@
       },
       {
         "name": "Ethanoic acid with a base",
-        "equation": "NaOH + CH3COOH -> CH3COONa + H2O",
+        "equation": "$\\text{NaOH} + \\text{CH}_3\\text{COOH} \\rightarrow \\text{CH}_3\\text{COONa} + \\text{H}_2\\text{O}$",
         "conditions": "Neutralisation; gives sodium ethanoate (sodium acetate) and water",
         "source": {
           "ncert_page": 74,
@@ -692,7 +837,7 @@
       },
       {
         "name": "Ethanoic acid with sodium carbonate",
-        "equation": "2CH3COOH + Na2CO3 -> 2CH3COONa + H2O + CO2",
+        "equation": "$2\\text{CH}_3\\text{COOH} + \\text{Na}_2\\text{CO}_3 \\rightarrow 2\\text{CH}_3\\text{COONa} + \\text{H}_2\\text{O} + \\text{CO}_2$",
         "conditions": "Gives salt + water + carbon dioxide (turns lime-water milky)",
         "source": {
           "ncert_page": 74,
@@ -702,7 +847,7 @@
       },
       {
         "name": "Ethanoic acid with sodium hydrogencarbonate",
-        "equation": "CH3COOH + NaHCO3 -> CH3COONa + H2O + CO2",
+        "equation": "$\\text{CH}_3\\text{COOH} + \\text{NaHCO}_3 \\rightarrow \\text{CH}_3\\text{COONa} + \\text{H}_2\\text{O} + \\text{CO}_2$",
         "conditions": "Gives salt + water + carbon dioxide",
         "source": {
           "ncert_page": 74,
@@ -716,7 +861,7 @@
     "fig_methane_electron_dot": {
       "bucket": "ncert",
       "tag": "NCERT Fig 4.5",
-      "caption": "Electron dot structure for methane (CH4).",
+      "caption": "Electron dot structure for methane ($\\text{CH}_4$).",
       "legend": "Each of carbon's four valence electrons is shared with a hydrogen atom (a dot-and-cross pair per bond), giving four single covalent bonds and a completed octet for carbon.",
       "source": {
         "pdf": "jesc104",
@@ -733,7 +878,7 @@
       "bucket": "ncert",
       "tag": "NCERT Table 4.2",
       "caption": "Formulae and structures of the first six saturated hydrocarbons (alkanes), methane to hexane.",
-      "legend": "Each successive member gains one -CH2- unit; the single-bonded carbon skeleton lengthens from CH4 to C6H14 - a homologous series.",
+      "legend": "Each successive member gains one $-\\text{CH}_2-$ unit; the single-bonded carbon skeleton lengthens from $\\text{CH}_4$ to $\\text{C}_6\\text{H}_{14}$ - a homologous series.",
       "source": {
         "pdf": "jesc104",
         "edition": "2026-27",

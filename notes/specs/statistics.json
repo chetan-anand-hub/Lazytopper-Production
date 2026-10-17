@@ -433,31 +433,133 @@
   "formula_strip": [
     {
       "label": "Mean — direct method",
-      "math": "$\\bar{x} = \\dfrac{\\Sigma f_i x_i}{\\Sigma f_i}$"
+      "math": "$\\bar{x} = \\dfrac{\\Sigma f_i x_i}{\\Sigma f_i}$",
+      "id": "mean-direct-method",
+      "heading": "Mean of Grouped Data: Direct Method",
+      "tip": "Small x, f: direct."
     },
     {
       "label": "Mean — assumed-mean method",
-      "math": "$\\bar{x} = a + \\dfrac{\\Sigma f_i d_i}{\\Sigma f_i},\\ d_i = x_i - a$"
+      "math": "$\\bar{x} = a + \\dfrac{\\Sigma f_i d_i}{\\Sigma f_i},\\ d_i = x_i - a$",
+      "id": "mean-assumed-mean-method",
+      "heading": "Mean of Grouped Data: Assumed Mean Method",
+      "tip": "Take a at the middle class mark."
     },
     {
       "label": "Mean — step-deviation method",
-      "math": "$\\bar{x} = a + h\\!\\left(\\dfrac{\\Sigma f_i u_i}{\\Sigma f_i}\\right),\\ u_i = \\dfrac{x_i - a}{h}$"
+      "math": "$\\bar{x} = a + h\\!\\left(\\dfrac{\\Sigma f_i u_i}{\\Sigma f_i}\\right),\\ u_i = \\dfrac{x_i - a}{h}$",
+      "id": "mean-step-deviation-method",
+      "heading": "Mean of Grouped Data: Step Deviation Method",
+      "tip": "Use when all dᵢ share a common factor h."
     },
     {
       "label": "Class mark",
-      "math": "$x_i = \\dfrac{\\text{upper limit} + \\text{lower limit}}{2}$"
+      "math": "$x_i = \\dfrac{\\text{upper limit} + \\text{lower limit}}{2}$",
+      "id": "class-mark",
+      "tip": "upper + lower, halved."
     },
     {
       "label": "Mode",
-      "math": "$\\text{Mode} = l + \\left(\\dfrac{f_1 - f_0}{2f_1 - f_0 - f_2}\\right)h$"
+      "math": "$\\text{Mode} = l + \\left(\\dfrac{f_1 - f_0}{2f_1 - f_0 - f_2}\\right)h$",
+      "id": "mode-grouped-data",
+      "heading": "Mode of Grouped Data",
+      "tip": "modal class = highest frequency; f₀ before, f₂ after."
     },
     {
       "label": "Median",
-      "math": "$\\text{Median} = l + \\left(\\dfrac{\\frac{n}{2} - cf}{f}\\right)h$"
+      "math": "$\\text{Median} = l + \\left(\\dfrac{\\frac{n}{2} - cf}{f}\\right)h$",
+      "id": "median-grouped-data",
+      "heading": "Median of Grouped Data",
+      "tip": "cf = cumulative frequency of the class BEFORE the median class."
     },
     {
       "label": "Empirical relation",
-      "math": "$3\\,\\text{Median} = \\text{Mode} + 2\\,\\text{Mean}$"
+      "math": "$3\\,\\text{Median} = \\text{Mode} + 2\\,\\text{Mean}$",
+      "id": "empirical-relationship",
+      "heading": "Relationship between Mean, Median and Mode",
+      "tip": "Mode = 3 Median − 2 Mean."
+    },
+    {
+      "label": "Cumulative Frequency",
+      "math": "The cumulative frequency of a class is the sum of the frequencies of all the classes up to and including that class (a running total).",
+      "id": "cumulative-frequency"
+    },
+    {
+      "label": "What l, f, cf, h, f₀, f₁, f₂ Mean",
+      "math": "$l$ = lower limit of the median (or modal) class · $h$ = class size · $f$ = frequency of the median class · $cf$ = cumulative frequency of the class just before it · $n=\\Sigma f_i$ · $f_1$ = frequency of the modal class · $f_0$ = frequency of the class before it · $f_2$ = frequency of the class after it.",
+      "id": "symbols-in-median-and-mode"
+    },
+    {
+      "label": "Finding the Median Class",
+      "math": "$n=\\Sigma f_i$. The median class is the class whose cumulative frequency is greater than, and nearest to, $\\dfrac{n}{2}$.",
+      "id": "median-class-rule"
+    }
+  ],
+  "shortcuts": [
+    {
+      "id": "empirical-quick-mode",
+      "text": "Mode = 3 Median − 2 Mean. Use it only when the question gives the mean and the median, or asks for this relation; otherwise use the grouped-mode formula.",
+      "use": "written-ok",
+      "source": "PYQ-M-STAT-003, -005"
+    },
+    {
+      "id": "choose-the-mean-method",
+      "text": "Big numbers or common factor h → step deviation.",
+      "use": "written-ok",
+      "source": "NCERT 13.2"
+    },
+    {
+      "id": "shift-the-data",
+      "text": "Add k to every observation → mean + k.",
+      "use": "mcq-check",
+      "source": "PYQ-M-STAT-004"
+    },
+    {
+      "id": "median-class-by-cf",
+      "text": "Locate n/2 in the cf column; take the class whose cf is greater than and nearest to n/2.",
+      "use": "written-ok",
+      "source": "NCERT 13.4"
+    },
+    {
+      "id": "modal-class-neighbours",
+      "text": "Modal class = max frequency; f₀, f₂ are its neighbours (not the max again).",
+      "use": "mcq-check",
+      "source": "NCERT 13.3; PYQ-M-STAT-009"
+    },
+    {
+      "id": "three-mean-methods",
+      "text": "<b>Direct</b>: fx ka jod / f ka jod. <b>Maan-kar</b>: a + fd ka jod / f ka jod. <b>Step</b>: a + h × fu ka jod / f ka jod.",
+      "gloss": "x̄ = Σfx/Σf · a + Σfd/Σf · a + h(Σfu/Σf).",
+      "use": "memory-aid",
+      "source": "NCERT 13.2"
+    },
+    {
+      "id": "mode-trick",
+      "text": "<b>Lower limit (l) plus</b>: <b>apna</b> minus <b>pehle wala</b>, upar; neeche <b>do apna</b> minus pehle minus baad wala; sab <b>h</b> se guna.",
+      "gloss": "l + (f₁ − f₀)/(2f₁ − f₀ − f₂) × h; f₁ = apna, f₀ = pehle, f₂ = baad.",
+      "use": "memory-aid",
+      "source": "NCERT 13.3"
+    },
+    {
+      "id": "median-trick",
+      "text": "<b>Lower limit (l) plus</b>: <b>aadha n</b> minus <b>cf</b>, <b>f</b> se bhaag, <b>h</b> se guna.",
+      "gloss": "l + ((n/2 − cf)/f) × h.",
+      "use": "memory-aid",
+      "source": "NCERT 13.4"
+    },
+    {
+      "id": "empirical-trick",
+      "text": "<b>Teen</b> Median = <b>ek</b> Mode + <b>do</b> Mean.",
+      "gloss": "3 Median = Mode + 2 Mean.",
+      "use": "memory-aid",
+      "source": "NCERT 13.4 Remarks 1"
+    },
+    {
+      "id": "class-mark-trick",
+      "text": "<b>Upar-neeche jod, aadha.</b>",
+      "gloss": "(upper + lower)/2.",
+      "use": "memory-aid",
+      "source": "NCERT 13.2"
     }
   ],
   "mindmap": {
@@ -466,10 +568,10 @@
       {
         "label": "Mean of grouped data (3 mk)",
         "children": [
-          "Class mark x_i = (upper + lower)/2",
-          "Direct: x̄ = Σf_i x_i / Σf_i",
-          "Assumed-mean: x̄ = a + Σf_i d_i / Σf_i",
-          "Step-deviation: x̄ = a + h(Σf_i u_i / Σf_i)",
+          "Class mark $x_i$ = (upper + lower)/2",
+          "Direct: $\\bar{x} = \\Sigma f_i x_i / \\Sigma f_i$",
+          "Assumed-mean: $\\bar{x} = a + \\Sigma f_i d_i / \\Sigma f_i$",
+          "Step-deviation: $\\bar{x} = a + h(\\Sigma f_i u_i / \\Sigma f_i)$",
           "All three give the same mean"
         ]
       },
