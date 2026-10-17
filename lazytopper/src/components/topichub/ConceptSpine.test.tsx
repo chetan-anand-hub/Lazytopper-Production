@@ -99,6 +99,7 @@ function renderSpine(
   topic = trig,
   actionable = trigContent,
   backLabel = "Back to Exam Trends",
+  worksheetHref?: string,
 ) {
   return render(
     <MemoryRouter>
@@ -109,6 +110,7 @@ function renderSpine(
         backLabel={backLabel}
         practiceAllHref="/practice-hub?scope=topic"
         chapterTestHref="/chapter-test/10/Maths/trigonometry?source=topicHub"
+        worksheetHref={worksheetHref}
         // Concept-row Practise (PR-E1 + amendment) lands DIRECTLY in Quick Practice
         // (/practice/:grade/:subject) carrying the concept focus + the mark band as
         // an EXACT numeric range (marksMin/marksMax) PracticePage filters on the real
@@ -387,7 +389,29 @@ describe("ConceptSpine — Examiner's tips (expandable container, no fabrication
 });
 
 describe("ConceptSpine — receded action band (3 buttons, correct hierarchy)", () => {
-  it("has 3 actions: primary Practise + LIVE Chapter test link + inert Worksheet", () => {
+  it("TOPICHUB-WORKSHEET-1: with a worksheetHref, Worksheet is a LIVE link to that href, styled like Chapter test, no 'Soon'", () => {
+    const href =
+      "/practice/worksheets?scope=topic&subject=Maths&topic=trigonometry&source=topicHub&returnTo=%2Ftopic-hub%2F10%2FMaths%2Ftrigonometry";
+    const { container } = renderSpine(trig, trigContent, "Back to Exam Trends", href);
+    const band = container.querySelector(".lt-spine__band") as HTMLElement;
+    expect(band.querySelectorAll(".lt-spine__ab")).toHaveLength(3);
+
+    const ws = within(band).getByRole("link", { name: "Worksheet" });
+    expect(ws).toHaveAttribute("href", href);
+    expect(ws).toHaveClass("lt-spine__ab", "lt-spine__ab--test", "lt-spine__ab--worksheet");
+    expect(ws).not.toHaveAttribute("aria-disabled");
+    // The inert fallback is gone when a route is supplied.
+    expect(band.querySelector(".lt-spine__ab--secondary")).toBeNull();
+    expect(band.querySelector(".lt-spine__soon")).toBeNull();
+    expect(within(band).queryByText("Soon")).toBeNull();
+    // Chapter test is untouched by the worksheet wiring.
+    expect(within(band).getByRole("link", { name: "Chapter test" })).toHaveAttribute(
+      "href",
+      "/chapter-test/10/Maths/trigonometry?source=topicHub",
+    );
+  });
+
+  it("has 3 actions: primary Practise + LIVE Chapter test link + inert Worksheet (no worksheetHref supplied)", () => {
     const { container } = renderSpine();
     const band = container.querySelector(".lt-spine__band") as HTMLElement;
     expect(band).toBeTruthy();
@@ -412,7 +436,7 @@ describe("ConceptSpine — receded action band (3 buttons, correct hierarchy)", 
     );
     expect(test).not.toHaveAttribute("aria-disabled");
 
-    // Worksheet — still present-but-inert (honest "Soon"), pending PR-E2.
+    // Worksheet — the inert fallback (honest "Soon") when the caller supplies no route.
     const secondaries = band.querySelectorAll(".lt-spine__ab--secondary");
     expect(secondaries).toHaveLength(1);
     expect(secondaries[0].tagName).toBe("BUTTON");
