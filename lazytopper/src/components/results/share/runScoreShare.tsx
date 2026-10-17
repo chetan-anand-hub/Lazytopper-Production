@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { flushSync } from "react-dom";
-import type { ScorecardVariant } from "../scorecardVariants";
+import { trackScoreShare, type ScorecardSurface as AnalyticsScorecardSurface } from "../../../analytics/analytics";
+import type { ScorecardSurface, ScorecardVariant } from "../scorecardVariants";
 import ShareCard from "./ShareCard";
 import { buildShareCardModel, formatShareDate, shareText, type ShareCardModel } from "./shareCardModel";
 import { SHARE_FILENAME, downloadBlob, shareNative, type NativeShareOutcome, type ShareMethod, type ShareNavigator } from "./shareScore";
@@ -27,6 +28,22 @@ export interface ScoreShareResult {
 export interface RunScoreShareOptions {
   method: ShareMethod;
   nav?: ShareNavigator;
+  /** Test seam: the date shown on the card (default: today). */
+  dateLabel?: string;
+}
+
+const ANALYTICS_SURFACE: Record<ScorecardSurface, AnalyticsScorecardSurface> = {
+  worksheet: "worksheet",
+  "quick-practice": "quick_practice",
+  "chapter-test": "chapter_test",
+  "full-mock": "full_mock",
+  "check-improve": "check_improve",
+};
+
+/** `score_share` {surface, method} - sent only when a share actually went out: the OS sheet
+ *  completed (native), or wa.me was opened (whatsapp_link). Never on a cancel or a failure. */
+export function reportScoreShare(surface: ScorecardSurface, method: ShareMethod): void {
+  trackScoreShare(ANALYTICS_SURFACE[surface], method);
 }
 
 /** Draw the card off-screen and return it as a PNG blob. */
@@ -53,8 +70,10 @@ export async function renderSharePng(model: ShareCardModel): Promise<Blob> {
 }
 
 export async function runScoreShare(variant: ScorecardVariant, opts: RunScoreShareOptions): Promise<ScoreShareResult> {
-  const model = buildShareCardModel(variant, formatShareDate(new Date()));
+  const model = buildShareCardModel(variant, opts.dateLabel ?? formatShareDate(new Date()));
   if (!model) return { outcome: "failed" };
+  // Desktop: wa.me was opened by the button inside the tap - that IS the share.
+  if (opts.method === "whatsapp_link") reportScoreShare(variant.surface, "whatsapp_link");
   let blob: Blob;
   try {
     blob = await renderSharePng(model);
@@ -64,6 +83,7 @@ export async function runScoreShare(variant: ScorecardVariant, opts: RunScoreSha
   const file = new File([blob], SHARE_FILENAME, { type: "image/png" });
   if (opts.method === "native" && opts.nav) {
     const outcome = await shareNative(opts.nav, file, shareText(model));
+    if (outcome === "shared") reportScoreShare(variant.surface, "native");
     if (outcome === "failed") {
       // The sheet refused for another reason: still give the student their image.
       downloadBlob(blob, SHARE_FILENAME);

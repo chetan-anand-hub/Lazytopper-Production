@@ -41,6 +41,10 @@ export default function ShareScoreButton({ variant }: { variant: ScorecardVarian
     if (phase === "ready" && readyFile && nav) {
       setPhase("busy");
       const outcome = await shareNative(nav, readyFile, text);
+      if (outcome === "shared") {
+        // Already loaded by the first tap - this import resolves from the module cache.
+        void import("./runScoreShare").then((m) => m.reportScoreShare(variant.surface, "native")).catch(() => {});
+      }
       setReadyFile(outcome === "needs-tap" ? readyFile : null);
       setPhase(outcome === "needs-tap" ? "ready" : outcome === "failed" ? "failed" : "idle");
       return;

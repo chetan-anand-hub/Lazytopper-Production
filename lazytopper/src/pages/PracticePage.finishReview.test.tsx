@@ -348,6 +348,15 @@ describe("QP-GUEST-SIGNIN-1 · sign-in card on the signed-out MCQ-only scorecard
     expect(screen.queryByTestId("qp-guest-signin-card")).toBeNull();
   });
 
+  it("SHARE-SCORE-1: a guest's scorecard has no 'Share my score' (CONTROL: a signed-in student's has it)", async () => {
+    await reachScorecard();
+    expect(screen.queryByTestId("sc-share-score")).toBeNull();
+    cleanup();
+    authUser.current = STUDENT;
+    await reachScorecard();
+    expect(screen.getByTestId("sc-share-score")).toBeInTheDocument();
+  });
+
   it("the scorecard's own review action is still present and works with the card shown", async () => {
     await reachScorecard();
     expect(screen.getByTestId("qp-guest-signin-card")).toBeInTheDocument();
