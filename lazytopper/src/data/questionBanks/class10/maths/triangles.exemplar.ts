@@ -13,10 +13,11 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
     questionText: "In △ABC, ∠BAC = 90° and AD ⊥ BC. Then:",
     options: ["BD · CD = BC²", "AB · AC = BC²", "BD · CD = AD²", "AB · AC = AD²"],
     answer: "BD · CD = AD²",
-    solutionSteps: ["By Theorem 6.7, the altitude AD from the right-angle vertex A makes △ABD ~ △CAD.", "From the similarity: AD/CD = BD/AD ⇒ AD² = BD · CD.", "Hence BD · CD = AD² — option (c)."],
+    solutionSteps: ["In △ABD and △CAD: ∠ADB = ∠CDA = 90° (AD ⊥ BC).", "∠BAD = 90° − ∠DAC (since ∠BAC = 90°) and ∠ACD = 90° − ∠DAC (angle sum in △ADC), so ∠BAD = ∠ACD.", "By AA similarity, △ABD ~ △CAD (A↔C, B↔A, D↔D), so BD/AD = AD/CD ⇒ AD² = BD · CD.", "Hence BD · CD = AD² — option (c)."],
     finalAnswer: "BD · CD = AD² — option (c).",
     ncertRef: "Exemplar Ex 6.1 Q1", isCompetencyBased: true,
-    strategyHint: "Altitude from the right-angle vertex to the hypotenuse: AD² = BD · CD (the geometric-mean relation)." },
+    strategyHint: "Show △ABD ~ △CAD by AA (right angles at D, and ∠BAD = ∠ACD), then read off BD/AD = AD/CD.",
+    sourceOverride: "others" },
 
   { id: "TRI-N-EXMPLR-6-MCQ-002", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The lengths of the diagonals of a rhombus are 16 cm and 12 cm. Then, the length of the side of the rhombus is:",
@@ -238,11 +239,12 @@ export const TRI_EXEMPLAR: CanonicalQuestion[] = [
 
   { id: "TRI-N-EXMPLR-6-LA-007", subject: "Maths", topicKey: "triangles", subtopic: "Similarity in Right Triangles", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "△ABC is right-angled at B and BD ⊥ AC. If AD = 4 cm and CD = 5 cm, find BD and AB.",
-    answer: "By Theorem 6.7 applied to right △ABC with altitude BD from the right angle to the hypotenuse: BD² = AD · CD and AB² = AD · AC. Compute: BD² = 4 · 5 = 20 ⇒ BD = √20 = 2√5 cm. AC = AD + CD = 4 + 5 = 9 cm. AB² = AD · AC = 4 · 9 = 36 ⇒ AB = 6 cm.",
-    solutionSteps: ["Right triangle ABC at B with altitude BD on hypotenuse AC (D on AC).", "By Theorem 6.7, BD² = AD · CD (geometric-mean relation for the altitude).", "BD² = 4 · 5 = 20 ⇒ BD = 2√5 cm.", "AC = AD + CD = 4 + 5 = 9 cm.", "Also AB² = AD · AC = 4 · 9 = 36 ⇒ AB = 6 cm."],
+    answer: "BD ⊥ AC, so ∠ADB = ∠BDC = 90°. In △ADB, ∠BAD + ∠ABD = 90°; also ∠ABD + ∠DBC = ∠ABC = 90°. Hence ∠BAD = ∠DBC. So △ADB ~ △BDC by AA similarity (A↔B, D↔D, B↔C), giving AD/BD = BD/CD ⇒ BD² = AD · CD = 4 · 5 = 20 ⇒ BD = 2√5 cm. Next, in △ADB and △ABC: ∠A is common and ∠ADB = ∠ABC = 90°, so △ADB ~ △ABC by AA similarity (A↔A, D↔B, B↔C), giving AD/AB = AB/AC ⇒ AB² = AD · AC. AC = AD + CD = 4 + 5 = 9 cm, so AB² = 4 · 9 = 36 ⇒ AB = 6 cm.",
+    solutionSteps: ["[1 mark] BD ⊥ AC, so ∠ADB = ∠BDC = 90°. In △ADB, ∠BAD + ∠ABD = 90°, and ∠ABD + ∠DBC = ∠ABC = 90°; hence ∠BAD = ∠DBC.", "[1 mark] By AA similarity, △ADB ~ △BDC (A↔B, D↔D, B↔C), so AD/BD = BD/CD ⇒ BD² = AD · CD.", "[1 mark] BD² = 4 · 5 = 20 ⇒ BD = √20 = 2√5 cm.", "[1 mark] In △ADB and △ABC: ∠A is common and ∠ADB = ∠ABC = 90°, so △ADB ~ △ABC by AA similarity (A↔A, D↔B, B↔C); hence AD/AB = AB/AC ⇒ AB² = AD · AC.", "[1 mark] AC = AD + CD = 4 + 5 = 9 cm, so AB² = 4 · 9 = 36 ⇒ AB = 6 cm."],
     finalAnswer: "BD = 2√5 cm; AB = 6 cm.",
     ncertRef: "Exemplar Ex 6.4 Q9", isCompetencyBased: true,
-    strategyHint: "Use the two geometric-mean relations from Theorem 6.7: BD² = AD · CD and AB² = AD · AC." },
+    strategyHint: "Use AA similarity twice: △ADB ~ △BDC gives BD² = AD · CD, and △ADB ~ △ABC gives AB² = AD · AC.",
+    sourceOverride: "others" },
 
   // ===== Case-Based =====
   { id: "TRI-N-EXMPLR-6-CB-001", subject: "Maths", topicKey: "triangles", subtopic: "Similarity Proofs", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
