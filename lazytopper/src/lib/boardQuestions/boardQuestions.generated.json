@@ -688,7 +688,8 @@
             "A circular loop",
             "A solenoid",
             "A circular coil"
-          ]
+          ],
+          "pyqYear": "2024"
         },
         {
           "id": "PYQ-S-2024-METAL-002",
@@ -703,20 +704,20 @@
           "pyqYear": "2024"
         },
         {
-          "id": "PYQ-S-2026-ACID-018",
-          "questionText": "(A) (i) List any two features of the electric current used in the houses of India. (ii) Write any two differences between direct current and an alternating current. (iii) How will you identify live wire and neutral wire in a domestic electric circuit ? OR (B) (i) Why is fuse an important component in our electric circuits ? (ii) Distinguish between overloading and short-circuiting of a circuit. (iii) Giving reason explain what type of materials are used in fuse wires.",
-          "marks": 5,
-          "section": "D",
+          "id": "PYQ-S-2025-MAG-001",
+          "questionText": "Which one of the following statements is not true about a bar magnet ?",
+          "marks": 1,
+          "section": "A",
           "solutionSteps": [
-            "[1 mark] (A) (i) Features • Direction of current changes periodically/ alternating current. • Frequency of current supplied in our houses is 50 Hz.",
-            "[1 mark] (ii) Direct current Alternating current (I) Flows in one direction (II) Sources : Cell / battery (I) Reverses its direction periodically.",
-            "[0.5 mark] (II) Source : Power plant (any other suitable difference)",
-            "[0.5 mark] OR (B) (i) Because it is a safety device, which prevents the damage to electric appliances and circuit caused due to overloading.",
-            "[0.5 mark] (ii) Over loading Short circuiting It is caused when too many appliances are connected to a single socket./ Due to accidental hike in the supply voltage.",
-            "[0.5 mark] It is caused due to direct contact of live wire with the neutral wire.",
-            "[1 mark] (iii) • A piece of wire made of a metal or an alloy. • appropriate (low) melting point."
+            "[1 mark] Correct option: (d) The direction of magnetic field lines inside a bar magnet is from its north pole to its south pole."
           ],
-          "pyqYear": "2026"
+          "options": [
+            "It sets itself in north-south direction when suspended freely.",
+            "It has attractive power for iron filings.",
+            "It produces magnetic field lines.",
+            "The direction of magnetic field lines inside a bar magnet is from its north pole to its south pole."
+          ],
+          "pyqYear": "2025"
         }
       ]
     },

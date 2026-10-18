@@ -12,7 +12,7 @@ export const humanEyePYQ2026: CanonicalQuestion[] = [
     questionText: "A thin beam of white light falls on a face of a glass prism and a spectrum is obtained on a screen. Which of the following options is the correct sequence of colours from top to bottom on the screen ?",
     options: ["Red, Green, Yellow, Violet, Blue", "Red, Yellow, Green, Blue, Violet", "Violet, Blue, Green, Yellow, Red", "Violet, Red, Green, Yellow, Blue"],
     answer: "Red, Yellow, Green, Blue, Violet",
-    solutionSteps: ["Correct option: (b) Red, Yellow, Green, Blue, Violet."],
+    solutionSteps: ["[1 mark] Correct option: (b) Red, Yellow, Green, Blue, Violet."],
     finalAnswer: "(b) Red, Yellow, Green, Blue, Violet",
     ncertRef: "PYQ 31/2/2 Q30", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "2" },
