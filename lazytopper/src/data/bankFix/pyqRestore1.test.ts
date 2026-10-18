@@ -151,3 +151,26 @@ describe("PYQ-RESTORE-1 · both subjects", () => {
     expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10580);
   });
 });
+
+// Controller rulings on the PR-1 (#1236) review, applied in PR-2 (2026-10-18).
+describe("PYQ-RESTORE-1 · #1236 review rulings", () => {
+  it("PYQ-M-2024-TRIG-002 options read as the official 30/2/1 paper prints them", () => {
+    const q = bankById.get("PYQ-M-2024-TRIG-002")!;
+    expect(q.options).toEqual([
+      "Both Assertion (A) and Reason (R) are true. Reason (R) is the correct explanation of Assertion (A).",
+      "Both Assertion (A) and Reason (R) are true. Reason (R) does not give correct explanation of (A).",
+      "Assertion (A) is true but Reason (R) is not true.",
+      "Assertion (A) is not true but Reason (R) is true.",
+    ]);
+    expect(q.answer).toBe((q.options as string[])[0]);
+  });
+  it("PYQ-M-AP-001 key carries no stray mark digit", () => {
+    const q = bankById.get("PYQ-M-AP-001")!;
+    expect(q.finalAnswer).toBe("(b) 3");
+    expect(q.solutionSteps).toEqual(["[1 mark] Correct option: (b) 3."]);
+  });
+  it("PYQ-M-2026-STAT-002 stays Others (kept-others, no year)", () => {
+    expect(PYQ_RESTORE_1_MATHS.find((e) => e.id === "PYQ-M-2026-STAT-002")?.verdict).toBe("kept-others");
+    expect(bankById.get("PYQ-M-2026-STAT-002")?.pyqYear).toBeUndefined();
+  });
+});
