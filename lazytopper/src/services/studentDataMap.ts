@@ -463,6 +463,27 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "`where('uid','==',uid)`.",
   },
 
+  // ── Firestore: parent pay links (server-only, ASK-PARENTS-PAY-1) ─────────────────
+  {
+    id: "parentPayLinks",
+    kind: "firestore-collection",
+    path: "parentPayLinks/{linkId}",
+    holds:
+      "Links a student sent a parent so the parent can pay for the student's pass, keyed " +
+      "by the SHA-256 of the link's token (the token itself is never stored), with the " +
+      "student's `uid` as a FIELD: the student's first name, status (open / paid), created " +
+      "and expiry times, and the ids of the payment orders the link started. Nothing about " +
+      "the parent.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "Written only by server/routes/parentPay.cjs through the Admin SDK; NOT declared in " +
+      "firestore.rules, so browsers fall to the deny-all catch-all. Field-keyed like " +
+      "`qrUploadSlots`: export and erasure QUERY `where('uid','==',uid)`. Deleted on " +
+      "erasure (a link is not an accounting record; the orders it started are kept, " +
+      "anonymised, in `payOrders`).",
+  },
+
   // ── Firestore: AI usage ledger (server-only, METER-1) ────────────────────────────
   {
     id: "usageLedger",

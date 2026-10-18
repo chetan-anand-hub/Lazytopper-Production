@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { TRIAL_DAYS } from "../services/subscriptionService";
@@ -30,6 +30,9 @@ import {
 } from "../config/pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import PassCheckout from "../components/pricing/PassCheckout";
+import AskParents from "../components/pricing/AskParents";
+import ParentPayPanel from "../components/pricing/ParentPayPanel";
+import { isParentPayClientEnabled, readParentPayToken } from "../services/parentPay";
 import {
   BASIC_FOOTNOTE,
   BASIC_INCLUDES,
@@ -1276,7 +1279,20 @@ function CompareCellView({ cell, plan }: { cell: CompareCell; plan: "basic" | "p
   );
 }
 
+/**
+ * ASK-PARENTS-PAY-1 — `/pricing#pp=<token>` is a parent's pay link: with parent pay switched
+ * on, the parent's page replaces the plans. The token is read ONCE (latched), so taking it
+ * out of the address bar on mount does not swap the page back. Without a valid
+ * token, or while parent pay is dark, this is exactly the plans page as before.
+ */
 export default function PricingPage() {
+  const { hash } = useLocation();
+  const [parentToken] = useState(() => (isParentPayClientEnabled() ? readParentPayToken(hash) : null));
+  if (parentToken) return <ParentPayPanel token={parentToken} />;
+  return <PricingPlansPage />;
+}
+
+function PricingPlansPage() {
   const navigate = useNavigate();
   // PAYCOPY-1 — read once per render; drives the subtitle, the pay FAQ and the fine print.
   const paymentsOn = isPaymentsClientEnabled();
@@ -1514,6 +1530,9 @@ export default function PricingPage() {
                 {showTrialFootnote && <p className="lt-pricing-card-foot">{PREMIUM_FOOTNOTE}</p>}
                 {/* L2 — the P17 trial states, below the tiles. */}
                 <div className="lt-pricing-trial-slot">{premiumTrialAction}</div>
+                {/* ASK-PARENTS-PAY-1 — a signed-in student on a trial or Basic (never Premium)
+                    can send a parent a pay link. Renders nothing while parent pay is dark. */}
+                {user && subscription.hydrated && subscription.status.tier !== "premium" && <AskParents />}
               </div>
             </div>
           </div>
