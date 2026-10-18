@@ -13,7 +13,8 @@ import {
 } from "./ncertBooks";
 import { SELF_CANONICAL_EXACT, canonicalPathFor } from "./canonicalUrl";
 import { sitemapPaths } from "./sitemapUrls";
-import { solutionsChapter, solutionsPaths } from "./solutionsPublishSafe";
+import { solutionsPaths } from "./solutionsPublishSafe";
+import { solutionsHrefForRow } from "../pages/NcertBooksPage";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { ncertPickerChapters, ncertReadPath, NCERT_SCIENCE_BRANCHES } from "../components/ncert/NcertChapterPicker";
 import { ncertFileCodeFromSpec } from "../lib/ncertFileCode";
@@ -189,11 +190,12 @@ describe("NCERT-BOOKS-1 (c) — the page carries all 27 rows with honest links",
     expect(loadProblems(html)).toEqual([]);
   });
 
-  it("SOLUTIONS-1 — exactly the pilot chapters' rows link their solutions page", () => {
+  it("SOLUTIONS-1/2 — exactly the rows with a published solutions page link it", () => {
     const linked = [...html.matchAll(/data-testid="nb-solutions-([a-z0-9]+)"/g)].map((m) => m[1]);
-    const pilot = rows.filter((r) => solutionsChapter(r.slug)?.chapter === r.chapter && r.book === "Maths").map(ncertCode);
-    expect(linked).toEqual(pilot);
-    expect(pilot).toEqual(["jemh106"]);
+    const published = rows.filter((r) => solutionsHrefForRow(r) !== null).map(ncertCode);
+    expect(linked).toEqual(published);
+    expect(published).toContain("jemh106");
+    expect(published.every((c) => c.startsWith("jemh"))).toBe(true); // Maths only
     const link = /<a\b[^>]*data-testid="nb-solutions-jemh106"[^>]*>Solutions<\/a>/.exec(html)?.[0] ?? "";
     expect(link).toContain('href="/ncert-solutions/triangles"');
   });
@@ -339,7 +341,8 @@ describe("NCERT-BOOKS-1b (g) — phones read the chapter in the page (owner repr
 
 describe("CONTROLS — the SOLUTIONS-1 narrowing removes only a published link", () => {
   it("a link to an unpublished chapter, or loose 'solutions' copy, is still caught", () => {
-    const unpublished = '<a href="/ncert-solutions/circles" data-testid="nb-solutions-jemh110">Solutions</a>';
+    // (Circles was the unpublished example until SOLUTIONS-2; Constructions is deleted for 2026-27.)
+    const unpublished = '<a href="/ncert-solutions/constructions" data-testid="nb-solutions-jemh110">Solutions</a>';
     expect(copyProblems(withoutPublishedSolutionsLinks(unpublished).replace(/<[^>]+>/g, " "))).toEqual(["solutions"]);
     expect(copyProblems(withoutPublishedSolutionsLinks("<p>NCERT solutions coming</p>"))).toContain("solutions");
     const published = '<a href="/ncert-solutions/triangles" data-testid="nb-solutions-jemh106">Solutions</a>';
