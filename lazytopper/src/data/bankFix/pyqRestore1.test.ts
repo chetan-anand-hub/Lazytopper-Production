@@ -119,7 +119,7 @@ describe("PYQ-RESTORE-1 · step marks from the official marking scheme", () => {
 });
 
 describe("PYQ-RESTORE-1 · no row added or withheld", () => {
-  it("served bank total is at least this lane's 10,580 (measured before and after, 2026-10-18)", () => {
+  it("served bank total is at least this lane's 10,580 (measured before and after this lane)", () => {
     // A floor, not an exact count: a later lane that adds rows must not break this pin; a lane
     // that withholds rows lowers the floor with a dated comment.
     expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10580);
