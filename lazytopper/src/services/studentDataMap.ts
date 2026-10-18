@@ -422,6 +422,26 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "catch-all.",
   },
 
+  {
+    id: "subscriptions.adminGrants",
+    kind: "firestore-subcollection",
+    parentId: "subscriptions",
+    path: "subscriptions/{uid}/adminGrants/{requestId}",
+    holds:
+      "One record per free Premium extension an admin gave this account (e.g. the " +
+      "feedback-call reward): days added, the reason, price 0, the end before and after, " +
+      "which admin gave it, and when.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "ADMIN-EXTEND-1 — the admin audit entry AND the idempotency key of " +
+      "POST /api/admin/extend-premium. Written ONLY by server/services/premiumExtension.cjs " +
+      "inside the extension transaction. NOT a payment: kept apart from `payments` so it " +
+      "never shows as a sale. Erased with the account. No client rule matches it: the " +
+      "parent document's rules block has no nested wildcard, so the path falls to the " +
+      "deny-all catch-all.",
+  },
+
   // ── Firestore: payment orders (server-only, RAZORPAY-1) ──────────────────────────
   {
     id: "payOrders",

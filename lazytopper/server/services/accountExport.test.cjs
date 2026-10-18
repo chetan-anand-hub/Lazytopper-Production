@@ -179,6 +179,8 @@ function realSeed(uid = UID) {
     [`subscriptions/${uid}`]: { tier: 'free' },
     // RAZORPAY-1 · Z9: one record per applied pass payment.
     [`subscriptions/${uid}/payments/pay_A`]: { passType: 'month', pricePaidInr: 599, grantedAt: '2026-09-27T06:30:00.000Z' },
+    // ADMIN-EXTEND-1: one record per free admin extension (audit entry + idempotency key).
+    [`subscriptions/${uid}/adminGrants/req-00000001`]: { action: 'extend_premium_days', days: 7, reason: 'feedback call reward', pricePaidInr: 0, isSale: false, createdAt: '2026-10-18T06:30:00.000Z' },
     // RAZORPAY-1 · Z7: FIELD-KEYED like qrUploadSlots — the doc id is the Razorpay order id.
     'payOrders/order_A': { uid, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'paid', paymentId: 'pay_A' },
     // Another student's order — must never appear in this student's export.
