@@ -94,7 +94,8 @@ import { CONTROL_COORDINATION_EXEMPLAR } from './questionBanks/class10/science/c
 import { REPRODUCTION_NCERT } from './questionBanks/class10/science/reproduction.ncert';
 import { REPRODUCTION_EXEMPLAR } from './questionBanks/class10/science/reproduction.exemplar';
 
-// Science chapters 8-12 NCERT + Exemplar extractions (added 2026-05-22 — Ch 13 Our Environment skipped per CBSE 2026-27 rationalisation)
+// Science chapters 8-12 NCERT + Exemplar extractions (added 2026-05-22). Ch 13 Our Environment was skipped then;
+// its NCERT textbook rows were added later by OUR-ENV-NCERT-1 (#1233, ourEnvironment.ncert.ts).
 import { HEREDITY_NCERT } from './questionBanks/class10/science/heredity.ncert';
 import { HEREDITY_EXEMPLAR } from './questionBanks/class10/science/heredity.exemplar';
 import { LIGHT_NCERT } from './questionBanks/class10/science/light.ncert';
