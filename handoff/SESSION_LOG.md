@@ -1,3 +1,15 @@
+## 2026-10-18 - PERF-3 #1255: Firestore leaves the entry chunk (trunk `a0883bbf`)
+
+**PROVENANCE.** Written by the PERF-3 builder under CLAUDE.md section 10, docs-only. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 18 Oct); facts marked **[builder-reported]** come from the PERF-3 builder's own runs (report `C:\Users\Chetan\OneDrive\Desktop\diff\report-perf3-2026-10-18.md`, PR #1255 body); facts marked **[git/gh]** were re-read with `git` / `gh` while writing this entry. Written at trunk `a0883bbf`.
+- **Lane:** spec `LazyTopper_PERF-3_v1.1_2026-10-18.md` (v1.0 failed the premise-gate format and was replaced the same day), then three cofounder deltas: v1.2 (twin gate), v1.3 (review FAIL, 2 MUST-FIX), v1.4 (re-review FAIL, 1 MUST-FIX). Worktree `C:\Projects\lt-perf3`, branch `perf/perf-3`, base `c8970cfc`.
+- **Commits [git/gh]:** `4ed79521` (the change), `6155c33d` (twin gate, v1.2), `6c65b889` (review round, v1.3), `ada1c8b0` (re-review round, v1.4); squash-merged as `a0883bbf` (2026-10-18T17:59:51Z). Tree of `a0883bbf` = tree of `ada1c8b0`.
+- **Review flow:** independent review at `6155c33d` FAIL (base-side gate mapping missing; Chromium replays a cached failed dynamic import) -> fixed in `6c65b889`; independent re-review at `6c65b889` FAIL (`adaptivePracticeEngine.ts` still imported the SDK itself, bypassing the facade's `?retry=` recovery) -> fixed in `ada1c8b0` with a single-loader guard proven RED on two mutations. PR marked ready for review under the v1.4 authorisation; merged by the owner.
+- **Result:** entry 414,195 -> 248,243 B gz (builder build) **[builder-reported]**; live entry 247,598 B gz with 0 Firestore markers, live read-only owner-account check clean, PSI `/` 84 and `/check-improve` 67 **[cofounder-verified]**.
+- **Local gates at `ada1c8b0` [builder-reported]:** both typechecks, build + guard, guard `--budget`, `check:mojibake`, `scope:guard --mode mixed`, both `test:matrix:all` (root: `# suites 73` `# tests 466` `# fail 0`, after putting Git's bash on PATH - see `[FU-CBSE-MIRROR-TEST-NEEDS-BASH]`), `git diff --check`.
+- **Owed:** owner test-account live-verify (sign-up + trial write, 2-surface grading round trips, offline outbox flush, blocked-chunk retry).
+- **Found outside the lane (read-only):** the owner checkout has 898 tracked files missing on disk (`[FU-OWNER-CHECKOUT-898-MISSING]`); nothing there was changed.
+- **Docs:** this entry (branch `docs/post-pr-1255-perf3-handoff`).
+
 ## 2026-10-18 - Cofounder session 01PbRBtk: #1236 to #1242 (fifteen merges, trunk `4010570d`)
 
 **PROVENANCE.** Written by the docs builder of cofounder session 01PbRBtk under CLAUDE.md section 10 from `gh pr view`, `git log`, `gh run list` / check-run annotations and the owner rulings the cofounder handed over. Facts only. Written at trunk `4010570d`.

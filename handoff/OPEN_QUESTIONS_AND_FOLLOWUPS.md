@@ -23,6 +23,49 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-18 - PERF-3 #1255 FOLLOW-UPS (recorded by the PERF-3 builder under CLAUDE.md section 10)
+
+*Readings are at trunk `a0883bbf`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 18 Oct); facts marked **[builder-reported]** come from the PERF-3 builder's own runs (report `C:\Users\Chetan\OneDrive\Desktop\diff\report-perf3-2026-10-18.md`, PR #1255 body); facts marked **[git/gh]** were re-read with `git` / `gh` while writing this entry.
+
+### Owner decision
+
+### [FU-OWNER-CHECKOUT-898-MISSING]
+**Found read-only by the PERF-3 builder, 18 Oct [builder-reported]; nothing was cleaned or changed.** `git -C C:\Projects\Lazytopper-Production status --short` lists 979 entries: **898 ` D`** (tracked files deleted from disk, unstaged) and 81 `??`. The deletions are source and assets, not `node_modules` or `dist`: `lazytopper/src` 357, `lazytopper/public` 256, `lazytopper/scripts` 101, `lib/shared-data` 63 (all of `lib/shared-data/src/questionBanks`), `lazytopper/server` 43, `artifacts/api-server` 17, `artifacts/lazytopper-app` 10, smaller groups. 895 of the 898 still exist at the trunk tip. No sparse-checkout, skip-worktree or assume-unchanged flags are set. That checkout's HEAD is `374593be` (2026-10-10, `#1059`) on a local `base/approved-thru-437`, **193 commits behind** origin. The 51 affected parent directories have mtimes 2026-10-06 to 2026-10-10 20:54 and `.git/index` 2026-10-10 20:55, so the deletions predate 18 Oct. The 81 untracked files are local docs (`handoff/BRIEF_*`, `SIGNAL_*`, `WAVE_STATE_*`, `CLOSEOUT_*`, `COORD_*`, `CONTROLLER_*.md`, `LazyTopper_MeProgress_v7*.html`, `snap_body.md`, `b.tmp`). **Owner's reading: leftover build files. Ruling PENDING: restore (`git restore .` after saving the untracked docs, then fast-forward) or retire the checkout.** Until then, treat that checkout as unusable for gates; worktrees from `origin` are unaffected (CLAUDE.md section 2a).
+
+### Routed to PERF-4
+
+### [FU-PERF3-LAZY-AUTH]
+**Routed to PERF-4 (owner / cofounder, 18 Oct).** The <= 150 KB gz stretch target. The next entry win is `firebase/auth`, about 63 KB gz (25% of the 248 KB entry) **[builder-reported]**; a lazy-auth lane would take the entry to about 185 KB, not further, because react-dom alone is about 115 KB. Auth stayed eager in PERF-3 so the header still gets `onAuthStateChanged` from the entry.
+
+### [FU-PERF-THIRD-PARTY-TAGS]
+**Routed to PERF-4; an owner analytics / marketing decision.** On the deployed preview, about 600 ms of about 700 ms mobile TBT on `/check-your-answer` is third-party: Facebook pixel 375 ms, Google Tag Manager 222 ms (Lighthouse `third-party-summary`) **[builder-reported]**; locally, without the tags, the same builds score 95 and 97. Live PSI after the merge: `/` 84 (TBT 470 ms), `/check-improve` 67 (TBT 250 ms) **[cofounder-verified]**. Deferring the tags (until interaction or idle) is the remaining lever for Perf >= 90. Must keep conversion measurement intact.
+
+### Tests and tooling
+
+### [FU-VERIFY-BUILD-WRONG-ENTRY]
+`lazytopper/scripts/verify-production-build.mjs` picks the "main bundle" with `entries.find(f => f.startsWith("index-"))`. On both the base and the PERF-3 builds that returns `index-0pJihu0A.js`, a 13 KB library chunk, not the entry **[builder-reported]**, so its "main bundle present / fresh" checks read the wrong file. Predates PERF-3. Fix: read the entry from `index.html`, as `scripts/ops/perf3_entry_chunk_acceptance.mjs` and `captureStaticBodies.entryChunkOf` already do.
+
+### [FU-CBSE-MIRROR-TEST-NEEDS-BASH]
+`scripts/src/cbseMirrorGuards.test.ts` (CA-4, "the job writes only when CBSE_MIRROR_LIVE is '1'") runs `spawnSync("bash", ["-c", script], ...)`. On a Windows dev box where bash is not on PowerShell's PATH, the root `test:matrix:all` reports 2 fails (`-1 !== 1`, `-1 !== 0`: no exit status because the spawn failed) **[builder-reported, 18 Oct, at `ada1c8b0`]**. With `C:\Program Files\Git\bin` on PATH it is green: `# suites 73` `# tests 466` `# fail 0`. CI (linux) is unaffected. Fix options: skip with a clear message when bash is absent, or name the requirement in CLAUDE.md section 6.
+
+### [FU-CLAUDEMD-PREINSTALL-SH]
+On Windows, `pnpm install` needs Git's `sh` on PATH (`C:\Program Files\Git\usr\bin`) because the root `preinstall` runs `sh -c` **[builder-reported]**. CLAUDE.md section 6 names the rollup binary step but not this one.
+
+### [FU-PERF3-FIRESTOREDB-MOCK-MIGRATION]
+**Test-shim debt (review SHOULD-FIX 3).** `lazytopper/src/test/setup.ts` installs a `vi.mock("../services/firestoreSdk")` stand-in driven by each suite's own `firebaseClient.firestoreDb` mock and `firebase/firestore` mock, so about 85 suite sites still mock `firebaseClient.firestoreDb`, an export production no longer has **[builder-reported]**. Migrate them to mock `services/firestoreSdk` directly, then delete the stand-in's `firestoreDb` bridge.
+
+### [FU-PERF3-REAL-LOADER-FNF-TEST]
+**Test-shim debt (review SHOULD-FIX 3).** The `setup.ts` stand-in is always synchronous, so the 113 suites that use it never see the first-load deferral. Add one real-facade, real-call-site test of a fire-and-forget writer (e.g. `practiceInsights.recordAttempt`) under a deferred first load, asserting payload timestamps are taken at call time and delete-then-set order holds.
+
+### [FU-PERF3-AUTH-IDLE-PREFETCH]
+**Review SHOULD-FIX 4; `AuthContext` was outside PERF-3's allowlist.** In `AuthContext`, once `onAuthStateChanged` reports a signed-in user, call `void getFirestore()` at idle, so the sign-up trial-pin write and the hydration reads never wait on a cold Firestore chunk (about 166 KB) **[builder-reported]**. Signed-out public pages are unaffected. Touches the sign-up path: needs a live new-account check.
+
+### [FU-MOBILEHOME-COMMENT-STALE]
+**Review SHOULD-FIX 6, not done in PERF-3 because page files were read-only in its allowlist.** `lazytopper/src/pages/app/MobileHome.tsx:79-80` comments describe import chains that now end at the facade. Comment-only fix.
+
+### [FU-PKG-DUPLICATE-MATRIX-KEY]
+`lazytopper/package.json` defines `"test:matrix:all"` twice (lines 126 / 127 at the PERF-3 base) **[builder-reported]**. JSON keeps the last one (which adds `test:server:fair-use-30day`); the first is dead. Delete the first.
+
 ## 2026-10-18 - #1236 to #1242 FOLLOW-UPS (recorded by the docs builder of cofounder session 01PbRBtk under CLAUDE.md section 10)
 
 *Priority order is the order below within each group. Readings are at trunk `4010570d`. Earlier dated entries are left as written (standing rule 3); their closures are recorded here.*

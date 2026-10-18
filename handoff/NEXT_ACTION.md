@@ -1,3 +1,13 @@
+## 2026-10-18 - AFTER #1255 PERF-3 (written by the PERF-3 builder under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them.)* Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 18 Oct); facts marked **[builder-reported]** come from the PERF-3 builder's own runs (report `C:\Users\Chetan\OneDrive\Desktop\diff\report-perf3-2026-10-18.md`, PR #1255 body); facts marked **[git/gh]** were re-read with `git` / `gh` while writing this entry.
+
+- **Owner live-verify on a test account (owed for #1255):** (1) a brand-new sign-up - the trial write lands and Premium/trial shows; (2) grade one answer on a single-question surface (Check & Improve) and one on a structured surface (Chapter Test, Full Mock, Worksheet or Quick Practice) and confirm both appear on Me / Mistake Intelligence after a reload; (3) go offline, grade or record something, come back online and confirm the outbox flushes; (4) block the Firestore chunk once (DevTools request blocking) and confirm the retry recovers after unblocking.
+- **Owner decision:** the checkout `C:\Projects\Lazytopper-Production` has 898 tracked files missing on disk (`[FU-OWNER-CHECKOUT-898-MISSING]`). Owner says they are leftover build files; ruling pending on restore (`git restore .`, after saving the 81 untracked docs) or retire (stop using that checkout).
+- **Next (perf):** PERF-4 (branch `perf/perf-4`) owns `/check-improve` and `/pricing`, the <= 150 KB stretch (`[FU-PERF3-LAZY-AUTH]`) and the third-party tag cost (`[FU-PERF-THIRD-PARTY-TAGS]`, an owner analytics / marketing decision).
+- **Next (small, test/tooling):** `[FU-VERIFY-BUILD-WRONG-ENTRY]`; `[FU-PERF3-AUTH-IDLE-PREFETCH]`; `[FU-PERF3-REAL-LOADER-FNF-TEST]`; `[FU-PERF3-FIRESTOREDB-MOCK-MIGRATION]`.
+- **Follow-ups:** the 2026-10-18 (PERF-3 #1255) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-18 - AFTER #1236 to #1242 (written by the docs builder of cofounder session 01PbRBtk under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. From the `#1211`-`#1235` block: "the bank text-clean follow-ups as one lane" shipped as BANK-TEXT-CLEAN-1 `#1250`; `[FU-AUTHENTIC-TIER-PREDICTED-ROWS]` has an owner ruling (the 26 authentic-tier questions stay Practice-Hub-only, see DECISION_LOG 2026-10-18); `[FU-ACT2-MATHS-BOARD-POOL]` is answered by `#1236` / `#1248` / `#1237` (rows step-marked, not rules loosened).)*

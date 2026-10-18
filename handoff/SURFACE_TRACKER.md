@@ -1,3 +1,16 @@
+> **2026-10-18 - PERF-3 #1255 (CLAUDE.md section 10).** Scope: how every surface loads Firestore (performance / persistence plumbing). No grading, scoring, mistake typing or recording changed; no page content changed. No surface's Scope moved to Settling. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 18 Oct); facts marked **[builder-reported]** come from the PERF-3 builder's own runs (report `C:\Users\Chetan\OneDrive\Desktop\diff\report-perf3-2026-10-18.md`, PR #1255 body); facts marked **[git/gh]** were re-read with `git` / `gh` while writing this entry.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Public / signed-out pages (`/`, `/check-your-answer`, notes, solutions, browse) | entry chunk no longer carries Firestore (`#1255`) | live; entry 247,598 B gz, 0 Firestore markers; PSI `/` 84 [cofounder-verified] | `[FU-PERF-THIRD-PARTY-TAGS]`, `[FU-PERF3-LAZY-AUTH]` (PERF-4) |
+| Me / Progress / Mistake Intelligence | reads through the lazy facade (`#1255`) | live; owner account loads MI + progress, 0 console errors [cofounder-verified] | none |
+| Check & Improve (single + multi-question) | persistence through the facade (`#1255`) | live; 65 papers listed [cofounder-verified]; grading round trip NOT live-checked | owner 2-surface grading round trip |
+| Worksheet / Chapter Test / Full Mock / Quick Practice | persistence through the facade (`#1255`) | live; NOT live-checked | owner 2-surface grading round trip; offline outbox flush |
+| Pricing / Premium state | Premium read through the facade (`#1255`) | live; "Premium is already active until 15 November 2026" [cofounder-verified] | PERF-4 owns `/pricing` perf (PSI not re-measured here) |
+| Sign-up / trial | trial-pin write through the facade (`#1255`) | live; NOT live-checked | owner sign-up + trial write; `[FU-PERF3-AUTH-IDLE-PREFETCH]` |
+| Firestore chunk load failure | `?retry=<n>` retry; WebKit one more plain import (`#1255`) | live; tests only | owner blocked-chunk retry test |
+| Build / CI | entry-chunk guard at the end of `build` (budget in CI only); single-loader vitest guard (`#1255`) | live; trunk Quality Gate success (run 39152107134) | `[FU-VERIFY-BUILD-WRONG-ENTRY]`, `[FU-CBSE-MIRROR-TEST-NEEDS-BASH]` |
+
 > **2026-10-18 - #1236 to #1242 (CLAUDE.md section 10, one docs PR for the 18 Oct merges).** Scope: question bank provenance, solutions pages, Check & Improve picker, Home, Me / Progress, scorecard, pricing, admin, contact, CI. No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
