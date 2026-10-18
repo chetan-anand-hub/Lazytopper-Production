@@ -151,7 +151,8 @@ describe("PYQ-RESTORE-1 · both subjects", () => {
     // A floor, not an exact count: a later lane that adds rows must not break this pin; a lane
     // that withholds rows lowers the floor with a dated comment.
     // 18 Oct WITHHOLD-METAL-007: PYQ-S-2026-METAL-007 withheld (misfiled Biology row), measured by import 10580 -> 10579.
-    expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10579);
+    // 19 Oct REFILE-PYQ2026-1: METAL-007 re-filed to control-and-coordination and served again, measured by import 10579 -> 10580.
+    expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10580);
   });
 });
 

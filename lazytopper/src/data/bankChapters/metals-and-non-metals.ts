@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "metals-and-non-metals" (Science): 512 served rows from 22 source arrays, 18 withheld.
+// Chapter "metals-and-non-metals" (Science): 514 served rows from 23 source arrays, 17 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -20,6 +20,7 @@ import { METALS_NON_METALS_APQ } from "../questionBanks/class10/science/metals-a
 import { METALS_NON_METALS_CHAPTERWISE } from "../questionBanks/class10/science/metals-and-non-metals.chapterwise";
 import { ACIDS_BASES_SALTS_PYQ } from "../questionBanks/class10/science/acids-bases-and-salts.pyq";
 import { METALS_NON_METALS_PYQ } from "../questionBanks/class10/science/metals-and-non-metals.pyq";
+import { chemicalReactionsPYQ2026 } from "../questionBanks/class10/science/chemicalReactions.pyq2026";
 import { acidsBasesSaltsPYQ2026 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2026";
 import { metalsNonMetalsPYQ2026 } from "../questionBanks/class10/science/metalsNonMetals.pyq2026";
 import { chemicalReactionsPYQ2025 } from "../questionBanks/class10/science/chemicalReactions.pyq2025";
@@ -44,6 +45,7 @@ export default defineChapter("metals-and-non-metals", [
   [284, METALS_NON_METALS_CHAPTERWISE, false],
   [296, ACIDS_BASES_SALTS_PYQ, false],
   [297, METALS_NON_METALS_PYQ, false],
+  [359, chemicalReactionsPYQ2026, false],
   [360, acidsBasesSaltsPYQ2026, false],
   [361, metalsNonMetalsPYQ2026, false],
   [372, chemicalReactionsPYQ2025, false],
@@ -64,7 +66,6 @@ export default defineChapter("metals-and-non-metals", [
   "SCQ-S-METAL-044",
   "PYQ-S-METAL-003",
   "PYQ-S-2026-METAL-004",
-  "PYQ-S-2026-METAL-007",
   "PYQ-S-2026-METAL-009",
   "PYQ-S-2026-METAL-010",
   "PYQ-S-2026-METAL-011",

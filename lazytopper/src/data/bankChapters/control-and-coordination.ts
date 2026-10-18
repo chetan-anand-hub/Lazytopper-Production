@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "control-and-coordination" (Science): 373 served rows from 19 source arrays, 16 withheld.
+// Chapter "control-and-coordination" (Science): 374 served rows from 20 source arrays, 16 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -17,6 +17,7 @@ import { CONTROL_COORDINATION_APQ } from "../questionBanks/class10/science/contr
 import { CONTROL_COORDINATION_CHAPTERWISE } from "../questionBanks/class10/science/control-and-coordination.chapterwise";
 import { LIFE_PROCESSES_PYQ } from "../questionBanks/class10/science/life-processes.pyq";
 import { CONTROL_COORDINATION_PYQ } from "../questionBanks/class10/science/control-and-coordination.pyq";
+import { metalsNonMetalsPYQ2026 } from "../questionBanks/class10/science/metalsNonMetals.pyq2026";
 import { controlCoordinationPYQ2026 } from "../questionBanks/class10/science/controlCoordination.pyq2026";
 import { controlCoordinationPYQ2025 } from "../questionBanks/class10/science/controlCoordination.pyq2025";
 import { lifeProcessesPYQ2024 } from "../questionBanks/class10/science/lifeProcesses.pyq2024";
@@ -38,6 +39,7 @@ export default defineChapter("control-and-coordination", [
   [287, CONTROL_COORDINATION_CHAPTERWISE, false],
   [299, LIFE_PROCESSES_PYQ, false],
   [300, CONTROL_COORDINATION_PYQ, false],
+  [361, metalsNonMetalsPYQ2026, false],
   [364, controlCoordinationPYQ2026, false],
   [377, controlCoordinationPYQ2025, false],
   [389, lifeProcessesPYQ2024, false],

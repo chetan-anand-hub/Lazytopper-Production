@@ -32,9 +32,9 @@ export const humanEyePYQ2026: CanonicalQuestion[] = [
     pyqYear: "2026", pyqSet: "1" },
   { id: "PYQ-S-2026-EYE-004", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Rainbow Formation", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Explain the phenomenon of rainbow formation in the sky. Draw the labelled ray diagram in support of your explanation.",
-    answer: "They refract and disperse the incident sunlight, then reflect it internally, and finally refract it again when it comes out of the raindrop.",
-    solutionSteps: ["Rainbow is caused by dispersion of sunlight by tiny water droplets, present in the atmosphere.", "The water droplets act like small prisms.", "They refract and disperse the incident sunlight, then reflect it internally, and finally refract it again when it comes out of the raindrop."],
-    finalAnswer: "They refract and disperse the incident sunlight, then reflect it internally, and finally refract it again when it comes out of the raindrop.",
+    answer: "Rainbow is caused by dispersion of sunlight by tiny water droplets, present in the atmosphere. The water droplets act like small prisms. They refract and disperse the incident sunlight, then reflect it internally, and finally refract it again when it comes out of the raindrop. Diagram: white sunlight, raindrop, red, violet.",
+    solutionSteps: ["[2 marks] Rainbow is caused by dispersion of sunlight by tiny water droplets, present in the atmosphere. The water droplets act like small prisms. They refract and disperse the incident sunlight, then reflect it internally, and finally refract it again when it comes out of the raindrop.", "[1 mark] Diagram: labelled ray diagram of white sunlight entering a raindrop, refracted and dispersed, internally reflected, and refracted out as red and violet rays (labels: white sunlight, raindrop, red, violet)."],
+    finalAnswer: "Rainbow is caused by dispersion of sunlight by tiny water droplets, present in the atmosphere. The water droplets act like small prisms. They refract and disperse the incident sunlight, then reflect it internally, and finally refract it again when it comes out of the raindrop. Diagram: white sunlight, raindrop, red, violet.",
     ncertRef: "PYQ 31/4/1 Q36", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },
 ];
