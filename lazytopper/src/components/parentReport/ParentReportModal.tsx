@@ -62,7 +62,8 @@ export default function ParentReportModal({
   const [phase, setPhase] = useState<Phase>("loading");
   const [model, setModel] = useState<StudyReadModel | null>(null);
   const [showName, setShowName] = useState(false);
-  const [png, setPng] = useState<{ blob: Blob; url: string | null } | null>(null);
+  // The PNG drawn for a given card; a stale one (the name box changed) is never shown or sent.
+  const [drawn, setDrawn] = useState<{ report: ParentReport; blob: Blob; url: string | null } | null>(null);
   const [share, setShare] = useState<SharePhase>("idle");
   const shownSent = useRef(false);
   const closeRef = useRef<HTMLButtonElement | null>(null);
@@ -89,6 +90,7 @@ export default function ParentReportModal({
     () => (model ? buildParentReport(model, { firstName: showName ? firstName : null }) : null),
     [model, showName, firstName],
   );
+  const png = drawn && drawn.report === report ? drawn : null;
 
   // `parent_report_shown` once per open, when the card is first built: placement + state only.
   useEffect(() => {
@@ -102,12 +104,11 @@ export default function ParentReportModal({
     if (!report) return;
     let alive = true;
     let url: string | null = null;
-    setPng(null);
     render(report)
       .then((blob) => {
         if (!alive) return;
         url = typeof URL !== "undefined" && typeof URL.createObjectURL === "function" ? URL.createObjectURL(blob) : null;
-        setPng({ blob, url });
+        setDrawn({ report, blob, url });
       })
       .catch(() => {
         if (alive) setPhase("error");

@@ -116,7 +116,7 @@ describe("ParentReportCard — honest states, no placeholder", () => {
 });
 
 function renderModal(over: Partial<Parameters<typeof ParentReportModal>[0]> = {}) {
-  const renderPng = vi.fn(async (_r: ParentReport) => new Blob([new Uint8Array([137, 80, 78, 71])], { type: "image/png" }));
+  const renderPng = vi.fn(async (report: ParentReport) => new Blob([new Uint8Array([137, 80, 78, 71]), report.state], { type: "image/png" }));
   const read = vi.fn(async () => thinModel(1));
   const onClose = vi.fn();
   render(<ParentReportModal uid="u1" displayName={null} placement="me" onClose={onClose} read={read} render={renderPng} {...over} />);
