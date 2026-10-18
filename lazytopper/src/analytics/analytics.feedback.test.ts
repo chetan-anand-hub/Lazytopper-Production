@@ -1,0 +1,95 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+
+vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
+const recordActivity = vi.hoisted(() => vi.fn());
+vi.mock("../services/activityClient", () => ({ recordActivity }));
+
+import { trackFeedbackEvent, type FeedbackPromptReason } from "./analytics";
+
+/**
+ * FEEDBACK-1 — what each destination receives for the "help us improve" prompt.
+ *   Vercel: { name: feedback_*, data: { moment[, reason] } }
+ *   GA4:    the same two codes plus the redacted address keys — nothing else
+ *   Meta:   nothing
+ *   First-party: { name: feedback_<...> } only — one allow-listed name carrying both codes.
+ * And no free text can travel: there is no parameter for it, and junk codes are dropped.
+ */
+const originalLocation = window.location;
+type Win = { gtag?: unknown; fbq?: unknown; va?: unknown };
+const w = window as unknown as Win;
+let ga4: unknown[][];
+let meta: unknown[][];
+let vercel: Array<[string, Record<string, unknown>]>;
+
+beforeEach(() => {
+  vi.stubEnv("BASE_URL", "/");
+  ga4 = [];
+  meta = [];
+  vercel = [];
+  w.gtag = (...args: unknown[]) => ga4.push(args);
+  const fbq = (...args: unknown[]) => meta.push(args);
+  (fbq as unknown as { callMethod: unknown }).callMethod = () => undefined;
+  w.fbq = fbq;
+  w.va = (kind: string, payload: Record<string, unknown>) => vercel.push([kind, payload]);
+  Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: false });
+  Object.defineProperty(document, "referrer", { configurable: true, get: () => "" });
+  const url = new URL("/practice-hub", "https://www.lazytopper.com");
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    writable: true,
+    value: { href: url.href, origin: url.origin, hostname: url.hostname, pathname: url.pathname, search: url.search, hash: url.hash },
+  });
+  window.localStorage.clear();
+  recordActivity.mockClear();
+});
+
+afterEach(() => {
+  delete w.gtag;
+  delete w.fbq;
+  delete w.va;
+  Object.defineProperty(window, "location", { configurable: true, writable: true, value: originalLocation });
+  vi.unstubAllEnvs();
+});
+
+const ga4Events = () => ga4.filter((e) => e[0] === "event") as Array<[string, string, Record<string, unknown>]>;
+const ADDRESS_KEYS = ["page_location", "page_referrer", "traffic_type"];
+
+describe("FEEDBACK-1 · trackFeedbackEvent payloads", () => {
+  it("reason: Vercel and GA4 get only moment + reason; first-party gets the composed name only; Meta nothing", () => {
+    trackFeedbackEvent("reason", "paywall", "ask_parents");
+    expect(vercel).toEqual([["event", { name: "feedback_reason", data: { moment: "paywall", reason: "ask_parents" } }]]);
+    const [, name, params] = ga4Events()[0];
+    expect(name).toBe("feedback_reason");
+    const nonAddress = Object.keys(params).filter((k) => !ADDRESS_KEYS.includes(k)).sort();
+    expect(nonAddress).toEqual(["moment", "reason"]);
+    expect(params).toMatchObject({ moment: "paywall", reason: "ask_parents" });
+    expect(meta).toEqual([]);
+    expect(recordActivity.mock.calls).toEqual([["event", { name: "feedback_paywall_ask_parents" }]]);
+  });
+
+  it("shown / dismissed carry the moment only", () => {
+    trackFeedbackEvent("shown", "trial_end");
+    trackFeedbackEvent("dismissed", "trial_end");
+    expect(vercel.map((v) => v[1])).toEqual([
+      { name: "feedback_shown", data: { moment: "trial_end" } },
+      { name: "feedback_dismissed", data: { moment: "trial_end" } },
+    ]);
+    expect(recordActivity.mock.calls.map((c) => c[1])).toEqual([
+      { name: "feedback_shown_trial_end" },
+      { name: "feedback_dismissed_trial_end" },
+    ]);
+  });
+
+  it("★ no free text can ride along: a non-code reason is DROPPED everywhere (control: a real code is sent)", () => {
+    const words = "my phone is 9876543210 call me" as unknown as FeedbackPromptReason;
+    trackFeedbackEvent("reason", "paywall", words);
+    trackFeedbackEvent("reason", "paywall");
+    trackFeedbackEvent("reason", "nope" as unknown as "paywall", "price");
+    expect(vercel).toEqual([]);
+    expect(ga4Events()).toEqual([]);
+    expect(recordActivity).not.toHaveBeenCalled();
+    trackFeedbackEvent("reason", "trial_end", "price");
+    expect(vercel).toHaveLength(1);
+    expect(JSON.stringify([vercel, ga4, recordActivity.mock.calls])).not.toContain("9876543210");
+  });
+});

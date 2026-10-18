@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
+import { useTrialEndFeedback } from "../../components/feedback/useTrialEndFeedback";
 import {
   hasMeaningfulMemory,
   readLandingMemory,
@@ -512,7 +513,15 @@ export default function MobileHome() {
   // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
   // while it is up (two start cards for the same student is noise).
   const startHere = useStartHere(user?.uid ?? null);
-  const { isTrialActive, isPremium, isTrialExpired } = useSubscription();
+  const { isTrialActive, isPremium, isTrialExpired, hydrated, status: subStatus } = useSubscription();
+  // FEEDBACK-1 — once per trial end, the gentle "help us improve" prompt (never blocks).
+  useTrialEndFeedback({
+    uid: user?.uid,
+    hydrated,
+    isTrialExpired,
+    isPremium,
+    trialStartDate: subStatus?.trialStartDate,
+  });
   const isSignedIn = !!user;
   // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same memoised read as
   // the bell in the brand bar).

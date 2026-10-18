@@ -112,6 +112,24 @@ export const ACTIVITY_EVENTS = [
   "tutor_from_scorecard",
   // TUTOR-FIX-2 T13 — once per tutor thread. Additive.
   "tutor_first_message",
+  // FEEDBACK-1 — the "help us improve" prompt: shown / dismissed per moment, and the one-tap
+  // reason per moment. Names only, never text. Additive.
+  "feedback_shown_paywall",
+  "feedback_dismissed_paywall",
+  "feedback_shown_trial_end",
+  "feedback_dismissed_trial_end",
+  "feedback_paywall_not_tried",
+  "feedback_paywall_ask_parents",
+  "feedback_paywall_price",
+  "feedback_paywall_not_enough_help",
+  "feedback_paywall_boards_far",
+  "feedback_paywall_other",
+  "feedback_trial_end_not_tried",
+  "feedback_trial_end_ask_parents",
+  "feedback_trial_end_price",
+  "feedback_trial_end_not_enough_help",
+  "feedback_trial_end_boards_far",
+  "feedback_trial_end_other",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 
