@@ -250,6 +250,20 @@ describe("PARENT-REPORT-1 · the pattern card — every figure from the read mod
     expect(r.nextSteps[1]).toBe("You already know this: 2 marks to gain — slow down and check each line.");
   });
 
+  it("the knowledge step names the chapter with the most CONCEPT-GAP marks, not the top chapter overall", async () => {
+    H.attempts = EIGHT;
+    H.mistakes = [
+      mistake("p1", 5, "Polynomials", { calculation: 2, silly: 1 }),
+      mistake("r1", 8, "Real Numbers", { conceptual: 1 }),
+    ];
+    const { report: r } = await report();
+    expect(r.state).toBe("pattern");
+    expect(r.chapters.map((c) => c.key)).toEqual(["polynomials", "real-numbers"]);
+    const knowledge = r.nextSteps.find((s) => s.startsWith("Learn this"));
+    expect(knowledge).toMatch(/practise Real Numbers until/);
+    expect(knowledge).not.toMatch(/Polynomials/);
+  });
+
   it("won back = ONLY a later correct attempt, inside the IST week; a re-grade never counts", async () => {
     H.attempts = EIGHT;
     const resolved = (id: string, by: MistakeResolution, hoursAgo: number) =>

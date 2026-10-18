@@ -152,6 +152,8 @@ interface PatternParts {
   chapters: ParentReportChapter[];
   groupMarks: Record<MistakeGroupKey, number>;
   typeMarks: TypeMarks;
+  /** The chapter with the most CONCEPT-GAP marks (the knowledge next step names it), or null. */
+  conceptChapter: string | null;
 }
 
 const PAPERS: readonly ReadSubject[] = ["maths", "science"];
@@ -166,6 +168,7 @@ function patternParts(model: StudyReadModel): PatternParts | null {
   let untyped = 0;
   const groupMarks: Record<MistakeGroupKey, number> = { knowledge: 0, technique: 0, careless: 0 };
   const chapterMarks = new Map<string, number>();
+  const chapterConceptual = new Map<string, number>();
   for (const paper of papers) {
     const view = buildMistakeView(
       model.mistakes.entries,
@@ -186,6 +189,7 @@ function patternParts(model: StudyReadModel): PatternParts | null {
       const k = boardChapterKey(key) || key;
       const m = entries.reduce((s, e) => s + Math.max(0, Number(e.marksLost) || 0), 0);
       chapterMarks.set(k, (chapterMarks.get(k) ?? 0) + m);
+      chapterConceptual.set(k, (chapterConceptual.get(k) ?? 0) + mistakeLossByType(entries).conceptual);
     }
   }
   const rows: ParentReportTypeRow[] = [];
@@ -217,6 +221,12 @@ function patternParts(model: StudyReadModel): PatternParts | null {
       careless: round1(groupMarks.careless),
     },
     typeMarks,
+    conceptChapter: (() => {
+      const best = Array.from(chapterConceptual.entries())
+        .filter(([, m]) => m > 0)
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+      return best ? chapterLabel(best[0]) : null;
+    })(),
   };
 }
 
@@ -274,7 +284,9 @@ export function buildParentReport(model: StudyReadModel, opts: { firstName?: str
   if (!parts) {
     return { ...base, state: "activity", wonBack: wonCount > 0 ? { count: wonCount, marks: null } : null };
   }
-  const practiseWhat = parts.chapters[0]?.label;
+  // The knowledge step's practise <chapter> names the chapter whose CONCEPT-GAP marks are highest,
+  // never merely the chapter that lost the most marks overall (that may be all careless slips).
+  const practiseWhat = parts.conceptChapter ?? undefined;
   return {
     ...base,
     state: "pattern",
