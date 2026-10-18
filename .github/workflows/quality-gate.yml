@@ -29,8 +29,11 @@ name: Quality Gate
 # a test that reads the clock is missing from that manifest.
 #
 # ★★ THE FULL BAR IS STILL THIS PROJECT'S ONLY PRE-MERGE INTEGRATION CHECK, so the classifier is
-# biased towards running it: a push to this branch ALWAYS runs everything (every merge produces
-# one), and anything the classifier cannot confidently classify runs everything. A docs-only PR
+# biased towards running it: anything the classifier cannot confidently classify runs everything.
+# A push to this branch runs everything UNLESS GitHub's record proves the merged tree identical to
+# a PR head whose quality-gate passed (CI-COST-1; strict up-to-date makes that the normal case);
+# the nightly schedule runs only nightly-full-clock. CI_FORCE_FULL_BAR=1 (repo variable) restores
+# the full bar on both. A docs-only PR
 # (wave-closing handoffs included since CI-SPEED-1) takes the fast path; add `[ci-full]` to its
 # title to force the full bar.
 #
@@ -81,8 +84,17 @@ jobs:
   # while reporting 4). That is why `fetch-depth: 0` and the base fetch are load-bearing: without
   # them merge-base fails, which reports "unresolved", which runs the FULL bar. It never exits
   # non-zero, and the `!= 'true'` polarity below means even a MISSING output runs everything.
+  #
+  # ★ CI-COST-1 (2026-10-18): on a PUSH the classifier reads GitHub's own record (hence the
+  # permissions and GH_TOKEN below) and takes a light post-merge path ONLY when this commit's tree
+  # is byte-identical to a PR head whose quality-gate passed; on SCHEDULE it runs only the unique
+  # nightly-full-clock job. Anything else, or the repo variable CI_FORCE_FULL_BAR=1, runs everything.
   classify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
+      pull-requests: read
     outputs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
       verdict: ${{ steps.classify.outputs.verdict }}
@@ -101,6 +113,8 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           BASE_REF: ${{ github.base_ref }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          GH_TOKEN: ${{ github.token }}
+          CI_FORCE_FULL_BAR: ${{ vars.CI_FORCE_FULL_BAR }}
         run: node lazytopper/scripts/ops/ci_docs_lane_acceptance.mjs --classify
       # ★ SAY WHICH PATH THIS RUN TOOK, IN THE RUN.
       - name: Which path did this run take

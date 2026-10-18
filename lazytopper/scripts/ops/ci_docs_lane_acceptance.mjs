@@ -23,6 +23,10 @@
  * ★ FAILS CLOSED, EVERYWHERE. Every unknown, every error, every unresolvable list, every event
  *   that is not a pull_request => FULL BAR. `--classify` never exits non-zero: a crash must not
  *   skip the gate, it must fall back to running everything.
+ *   CI-COST-1 (2026-10-18) narrows "every non-PR event" by TWO proven cases, see decideNonPrPath:
+ *   a push whose tree GitHub's record proves identical to a green-gated PR head (post-merge), and
+ *   the nightly schedule (whose unique job, nightly-full-clock, is gated on the event). Every
+ *   other non-PR event, and every push lacking any one fact, is still the full bar.
  *
  * MODES
  *   node scripts/ops/ci_docs_lane_acceptance.mjs             # the acceptance suite (default)
@@ -242,10 +246,111 @@ export function resolveChangedFiles(env = process.env) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// NON-PR EVENTS — CI-COST-1 (owner order 2026-10-18: "we must optimise it and make it most efficient")
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * ★★ WHY A PUSH TO TRUNK NO LONGER ALWAYS RE-RUNS THE FULL BAR — AND THE EVIDENCE IT NEEDS.
+ *
+ * The header's premise ("a product PR's CI runs against ITS OWN base") stopped being true when
+ * the trunk ruleset turned on `strict_required_status_checks_policy`: a PR cannot merge until its
+ * head contains the trunk tip, and its quality-gate ran on `refs/pull/N/merge`. The merged tree IS
+ * the tested tree, so the push run re-paid ~65 billable minutes per merge (docs merges included)
+ * to test bytes that had just passed.
+ *
+ * It is NOT taken on trust, and it does NOT read the ruleset. It proves, from GitHub's own record,
+ * that THIS commit's tree is byte-identical to a tree whose `quality-gate` is green:
+ *   (1) the push is the merge of EXACTLY ONE pull request into this branch;
+ *   (2) that PR's head CONTAINS this commit's first parent (head ⊇ the trunk it merged into, so
+ *       the PR run's merge ref had the same tree as the head);
+ *   (3) the tree of this commit EQUALS the tree of the PR head;
+ *   (4) the PR head's latest `quality-gate` check run concluded `success`.
+ * Any fact missing, unreadable, or contrary — an admin bypass of a red or out-of-date PR, a direct
+ * push, an API error — takes the FULL bar. So does the repo variable CI_FORCE_FULL_BAR=1.
+ *
+ * ★ THE NIGHTLY (`schedule`) NOW RUNS ONLY WHAT IS UNIQUE TO IT. Its full-bar half re-ran, on a
+ * trunk every one of whose trees already passed the full bar (on its PR, or on its push after a
+ * bypass), the very jobs those runs passed (~48 billable min/night). `nightly-full-clock` — the
+ * FULL suite under BOTH clocks, which no PR runs and which opens an issue on failure — is gated on
+ * the event, not on this classifier, so it still runs. `workflow_dispatch` and `merge_group` keep
+ * the full bar: a hand-dispatched run means "run everything", and a merge group has no PR head.
+ */
+export const FORCE_FULL_VAR = "CI_FORCE_FULL_BAR";
+
+export function decideNonPrPath({ event, forceFull = false, facts = null }) {
+  const full = (reason) => ({ light: false, verdict: "full", reason });
+  if (forceFull === true) return full(`${FORCE_FULL_VAR}=1 forces the full bar`);
+  if (event === "schedule") {
+    return { light: true, verdict: "nightly",
+      reason: "schedule: only nightly-full-clock (full suite under both clocks) is unique to the nightly" };
+  }
+  if (event !== "push") return full(`event=${event || "(unset)"} is not a pull_request — the full bar`);
+  if (!facts || typeof facts !== "object") return full("push: no post-merge evidence could be read");
+  if (facts.error) return full(`push: evidence unreadable (${facts.error})`);
+  if (!Array.isArray(facts.mergedPrs) || facts.mergedPrs.length !== 1) {
+    return full(`push: expected the merge of exactly one PR, found ${Array.isArray(facts.mergedPrs) ? facts.mergedPrs.length : "none"}`);
+  }
+  if (facts.headContainsParent !== true) return full("push: the PR head did not contain the trunk it merged into");
+  if (!facts.mergeTree || facts.mergeTree !== facts.prHeadTree) return full("push: merged tree differs from the PR head's tree");
+  if (facts.headCheck !== "success") return full(`push: the PR head's quality-gate is ${facts.headCheck || "missing"}, not success`);
+  return { light: true, verdict: "post-merge",
+    reason: `push: merge of #${facts.mergedPrs[0].number}, tree identical to its head, whose quality-gate passed` };
+}
+
+/** Reads the facts `decideNonPrPath` needs, through `gh api`. Never throws: an error is a fact. */
+export function gatherPushFacts(env = process.env, api = (p) => JSON.parse(execSync(`gh api "${p}"`, {
+  encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GH_TOKEN: env.GH_TOKEN || process.env.GH_TOKEN || "" } }))) {
+  try {
+    const repo = env.GITHUB_REPOSITORY;
+    const sha = env.GITHUB_SHA;
+    const branch = env.GITHUB_REF_NAME;
+    if (!repo || !sha || !branch) return { error: "GITHUB_REPOSITORY / GITHUB_SHA / GITHUB_REF_NAME unset" };
+    const commit = api(`repos/${repo}/commits/${sha}`);
+    const parent = commit?.parents?.[0]?.sha;
+    const mergeTree = commit?.commit?.tree?.sha;
+    const mergedPrs = (api(`repos/${repo}/commits/${sha}/pulls`) || [])
+      .filter((p) => p && p.merged_at && p.base?.ref === branch && p.merge_commit_sha === sha)
+      .map((p) => ({ number: p.number, headSha: p.head?.sha }));
+    if (mergedPrs.length !== 1 || !parent) return { mergedPrs, mergeTree };
+    const head = mergedPrs[0].headSha;
+    const cmp = api(`repos/${repo}/compare/${parent}...${head}`);
+    const headContainsParent = cmp?.behind_by === 0 && (cmp?.status === "ahead" || cmp?.status === "identical");
+    const prHeadTree = api(`repos/${repo}/commits/${head}`)?.commit?.tree?.sha;
+    const runs = (api(`repos/${repo}/commits/${head}/check-runs?check_name=quality-gate&filter=latest`)?.check_runs || [])
+      .filter((r) => r && r.name === "quality-gate")
+      .sort((a, b) => String(b.started_at).localeCompare(String(a.started_at)));
+    return { mergedPrs, mergeTree, prHeadTree, headContainsParent, headCheck: runs[0]?.conclusion || null };
+  } catch (err) {
+    return { error: String(err?.message || err).split("\n")[0].slice(0, 160) };
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // --classify : what CI actually runs
 // ---------------------------------------------------------------------------------------------
 
 function runClassify() {
+  // ★ CI-COST-1: non-PR events decide here first; anything that is not light falls through to the
+  //   unchanged path below, which takes the full bar by policy.
+  const event = process.env.EVENT_NAME || process.env.GITHUB_EVENT_NAME || "";
+  if (event !== "pull_request") {
+    const forceFull = String(process.env[FORCE_FULL_VAR] || "").trim() === "1";
+    const facts = event === "push" && !forceFull ? gatherPushFacts() : null;
+    const d = decideNonPrPath({ event, forceFull, facts });
+    console.log(`CI_NON_PR_PATH: event=${event || "(unset)"} verdict=${d.verdict} — ${d.reason}`);
+    if (facts) console.log(`CI_NON_PR_FACTS: ${JSON.stringify(facts)}`);
+    if (d.light) {
+      const out = process.env.GITHUB_OUTPUT;
+      if (out) {
+        fs.appendFileSync(out, "docs_only=true\n");
+        fs.appendFileSync(out, "inspected=0\n");
+        fs.appendFileSync(out, `verdict=${d.verdict}\n`);
+      }
+      console.log(`CI_DOCS_LANE_VERDICT: ${d.verdict.toUpperCase()} LIGHT PATH — ${d.reason}`);
+      process.exitCode = 0;
+      return;
+    }
+  }
   let resolved;
   try {
     resolved = resolveChangedFiles();
@@ -493,10 +598,55 @@ function runSuite(mutation) {
     "quality-gate is a REQUIRED check; a required check that never runs leaves the PR stuck on " +
       "\"expected — waiting for status\", unmergeable with no error. Classify INSIDE the job.");
 
-  check("a14_a_push_to_trunk_always_takes_the_full_bar",
+  // ★ CI-COST-1: a push to trunk takes the full bar UNLESS GitHub's own record proves the merged
+  //   tree is byte-identical to a tree whose quality-gate passed. Every merge still produces a push
+  //   run (the trigger is pinned), and every failure of the evidence is the full bar.
+  check("a14_a_push_to_trunk_runs_and_takes_the_full_bar_without_post_merge_evidence",
     /event !== "pull_request"/.test(readText(fileURLToPath(import.meta.url))) &&
-      /push:\s*\n\s*branches:\s*\[base\/approved-thru-437\]/.test(wf),
-    "every merge produces a push run, so the integration check cannot be forgotten");
+      /push:\s*\n\s*branches:\s*\[base\/approved-thru-437\]/.test(wf) &&
+      decideNonPrPath({ event: "push" }).verdict === "full" &&
+      decideNonPrPath({ event: "push", facts: { error: "HTTP 403" } }).verdict === "full",
+    "every merge produces a push run; with no readable evidence it is the full bar");
+
+  {
+    const good = { mergedPrs: [{ number: 7, headSha: "h" }], headContainsParent: true, mergeTree: "t1", prHeadTree: "t1", headCheck: "success" };
+    const D = (event, facts, forceFull) => decideNonPrPath({ event, facts, forceFull }).verdict;
+    const bad = {
+      "no PR (direct push)": { ...good, mergedPrs: [] },
+      "two PRs": { ...good, mergedPrs: [{ number: 1 }, { number: 2 }] },
+      "head behind trunk (out-of-date bypass)": { ...good, headContainsParent: false },
+      "tree differs": { ...good, prHeadTree: "t2" },
+      "tree missing": { ...good, mergeTree: undefined, prHeadTree: undefined },
+      "head check failed (red bypass)": { ...good, headCheck: "failure" },
+      "head check missing": { ...good, headCheck: null },
+      "head check cancelled": { ...good, headCheck: "cancelled" },
+    };
+    const leaks = Object.entries(bad).filter(([, f]) => D("push", f) !== "full").map(([k]) => k);
+    check("a19_post_merge_light_path_needs_every_fact_and_fails_closed_on_each",
+      D("push", good) === "post-merge" && leaks.length === 0 && D("push", good, true) === "full" &&
+        D("push", { ...good, headContainsParent: "true" }) === "full",
+      leaks.length ? `LIGHT PATH LEAKED on: ${leaks.join(", ")}`
+                   : `light only with all four facts; ${Object.keys(bad).length} contrary facts + ${FORCE_FULL_VAR}=1 all run the full bar`);
+  }
+
+  check("a20_nightly_runs_only_its_unique_job_dispatch_and_merge_group_stay_full",
+    decideNonPrPath({ event: "schedule" }).verdict === "nightly" &&
+      decideNonPrPath({ event: "schedule", forceFull: true }).verdict === "full" &&
+      decideNonPrPath({ event: "workflow_dispatch" }).verdict === "full" &&
+      decideNonPrPath({ event: "merge_group" }).verdict === "full" &&
+      decideNonPrPath({ event: "" }).verdict === "full" &&
+      /\n  nightly-full-clock:\n    if: github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'\n/.test(wf.replace(/\r\n/g, "\n")),
+    "schedule: nightly-full-clock still runs (gated on the event, not on this classifier); dispatch = run everything");
+
+  {
+    const cls = jobs.find((j) => j.id === "classify");
+    const b = cls ? cls.block : "";
+    check("a21_classify_job_can_read_the_evidence_and_honours_the_override",
+      /\n    permissions:\n      contents: read\n      checks: read\n      pull-requests: read\n/.test(b) &&
+        /GH_TOKEN: \$\{\{ github\.token \}\}/.test(b) &&
+        new RegExp(`${FORCE_FULL_VAR}: \\$\\{\\{ vars\\.${FORCE_FULL_VAR} \\}\\}`).test(b),
+      "the classify job needs checks:read + pull-requests:read and GH_TOKEN to read the evidence, and passes the CI_FORCE_FULL_BAR repo variable");
+  }
 
   // --- [FU-SEC1-CI-WIRE-SERVER-TESTS] — the durable half of the fix ----------------------------
   // ★ WIRING TWO SUITES ONCE IS NOT A FIX. SEC-1's suites were green locally and ungated in CI,
