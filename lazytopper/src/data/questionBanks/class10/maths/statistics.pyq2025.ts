@@ -9,12 +9,12 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const STATISTICS_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-STAT-001", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "In the following table, the mean of the given data is 18. Find the missing frequency f. Hence find the mode.\nDaily Allowance (in ₹) : Number of Children\n11–13 : 7\n13–15 : 6\n15–17 : 9\n17–19 : 13\n19–21 : f\n21–23 : 5\n23–25 : 4",
+    questionText: "Find the missing frequency ‘f’ in the following table, if the mean of the given data is 18. Hence find the mode.\nDaily Allowance : Number of Children\n11–13 : 7\n13–15 : 6\n15–17 : 9\n17–19 : 13\n19–21 : f\n21–23 : 5\n23–25 : 4",
     answer: "f = 20; modal class 19–21; Mode = 19 + ((20 − 13)/(40 − 13 − 5)) × 2 = 19.64 (approx.)",
     solutionSteps: ["[2 marks] Correct table — Daily Allowance | xi | fi | fixi: 11–13 | 12 | 7 | 84; 13–15 | 14 | 6 | 84; 15–17 | 16 | 9 | 144; 17–19 | 18 | 13 | 234; 19–21 | 20 | f | 20f; 21–23 | 22 | 5 | 110; 23–25 | 24 | 4 | 96; Total: Σfi = 44 + f, Σfixi = 752 + 20f.", "[1 mark] Mean = Σfixi/Σfi ⟹ 18 = (752 + 20f)/(44 + f) ⟹ 792 + 18f = 752 + 20f ⟹ f = 20.", "[0.5 mark] Modal class is 19–21 (highest frequency f = 20); l = 19, f₁ = 20, f₀ = 13, f₂ = 5, h = 2.", "[1 mark] Mode = 19 + ((20 − 13)/(2×20 − 13 − 5)) × 2 = 19 + (7/22) × 2.", "[0.5 mark] Mode = 19 + 0.64 = 19.64 (approx.)."],
     finalAnswer: "f = 20; modal class 19–21; Mode = 19 + ((20 − 13)/(40 − 13 − 5)) × 2 = 19.64 (approx.)",
     ncertRef: "PYQ 30/1/1 Q35", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2025", pyqSet: "1",
   },
   { id: "PYQ-M-2025-STAT-002", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The following frequency distribution gives the monthly consumption of electricity of 68 consumers of a locality. Find the mean and mode of the data.\nMonthly Consumption (in units) : Number of Consumers\n65–85 : 4\n85–105 : 5\n105–125 : 13\n125–145 : 20\n145–165 : 14\n165–185 : 8\n185–205 : 4",
@@ -22,7 +22,7 @@ export const STATISTICS_PYQ_2025: CanonicalQuestion[] = [
     solutionSteps: ["[2 marks] Correct table (step-deviation, a = 135, h = 20) — Monthly Consumption | fi | xi | ui = (xi − 135)/20 | fiui: 65–85 | 4 | 75 | −3 | −12; 85–105 | 5 | 95 | −2 | −10; 105–125 | 13 | 115 | −1 | −13; 125–145 | 20 | 135 = a | 0 | 0; 145–165 | 14 | 155 | 1 | 14; 165–185 | 8 | 175 | 2 | 16; 185–205 | 4 | 195 | 3 | 12; Total: Σfi = 68, Σfiui = 7.", "[1 mark] Mean = a + (Σfiui/Σfi) × h = 135 + (7/68) × 20 = 137.06.", "[0.5 mark] Modal class is 125–145 (highest frequency 20).", "[1 mark] Mode = 125 + ((20 − 13)/(2×20 − 13 − 14)) × 20 = 125 + (7/13) × 20 = 135.77.", "[0.5 mark] Hence Mean = 137.06 units and Mode = 135.77 units."],
     finalAnswer: "Mean = 137.06 units and Mode = 135.77 units",
     ncertRef: "PYQ 30/1/2 Q33", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2025", pyqSet: "2",
   },
   { id: "PYQ-M-2025-STAT-003", subject: "Maths", topicKey: "statistics", subtopic: "Median", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The lengths of 40 leaves of a plant are measured correct to the nearest millimetre, and the data obtained is represented in the following table : Length (in mm) Number of Leaves 118 126 3 127 135 5 136 144 9 145 153 12 154 162 5 163 171 4 172 180 2 Find the median length of the leaves.",

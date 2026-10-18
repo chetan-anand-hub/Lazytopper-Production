@@ -296,24 +296,18 @@
           ]
         },
         {
-          "id": "PYQ-M-2024-CIRC-003",
-          "questionText": "In the given figure, if PT is a tangent to a circle with centre O and ∠TPO = 35°, then the measure of ∠x is :",
+          "id": "PYQ-M-2024-CIRC-001",
+          "questionText": "If two tangents inclined at an angle of 60º are drawn to a circle of radius 5 cm, then the length of each tangent is :",
           "marks": 1,
           "section": "A",
           "solutionSteps": [
-            "[1 mark] Correct option: (d) 125°. ∠OTP = 90° (radius ⊥ tangent at the point of contact); ∠x is the exterior angle of △OTP at O, so ∠x = 90° + 35° = 125°."
+            "[1 mark] OP bisects the 60° angle, so ∠APO = 30° with OA ⊥ AP; tan 30° = OA/AP ⟹ 1/√3 = 5/AP ⟹ AP = 5√3 cm → option (d)."
           ],
           "options": [
-            "110°",
-            "115°",
-            "120°",
-            "125°"
-          ],
-          "figures": [
-            {
-              "src": "/figures/pyq-maths/circles/PYQ-M-2024-CIRC-003.webp",
-              "alt": "Circle with centre O; tangent from P touches it at T; angle TPO marked 35°; angle x marked at O"
-            }
+            "5√3/2 cm",
+            "10 cm",
+            "5/√3 cm",
+            "5√3 cm"
           ],
           "pyqYear": "2024"
         }
