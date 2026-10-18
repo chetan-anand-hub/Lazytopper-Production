@@ -14,7 +14,7 @@ export const PROBABILITY_PYQ_2026: CanonicalQuestion[] = [
     // Recovered from MS_X_041_Mathematics_30-5-1_2025-26, p.9. The stored text stopped at the
     // stacked-fraction line break, dropping the final "= 10".
     answer: "P(getting a yellow ball) = 1 − P(getting a green ball) ⟹ (Number of yellow balls)/25 = 1 − 3/5 = 2/5 ⟹ Number of yellow balls = 25 × 2/5 = 10",
-    solutionSteps: ["P(getting a yellow ball) = 1 − P(getting a green ball)", "(Number of yellow balls)/25 = 1 − 3/5 = 2/5", "⟹ Number of yellow balls = 25 × 2/5 = 10"],
+    solutionSteps: ["[1 mark] P(getting a yellow ball) = 1 − P(getting a green ball), so (Number of yellow balls)/25 = 1 − 3/5 = 2/5", "[1 mark] ⟹ Number of yellow balls = 25 × 2/5 = 10"],
     finalAnswer: "Number of yellow balls = 10",
     ncertRef: "PYQ 30/5/1 Q25", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },
@@ -26,7 +26,7 @@ export const PROBABILITY_PYQ_2026: CanonicalQuestion[] = [
     questionText: "A bag contains 30 balls out of which 'm' number of balls are blue in colour. (i) Find the probability that a ball drawn at random from the bag is not blue. (ii) If 6 more blue balls are added in the bag, then the probability of drawing a blue ball will be 5/4 times the probability of drawing a blue ball in the first case. Find the value of m.",
     // Recovered from MS_X_041_Mathematics_30-4-1_2025-26, p.14.
     answer: "(i) P(ball drawn is not blue) = (30 − m)/30 or 1 − m/30 (ii) Total number of balls now = 36 Number of blue balls now = m + 6 P(ball drawn is blue) = (m+6)/36 According to question, (m+6)/36 = 5/4 × m/30 ⟹ m = 12",
-    solutionSteps: ["(i) P(ball drawn is not blue) = (30 − m)/30 or 1 − m/30", "(ii) Total number of balls now = 36 Number of blue balls now = m + 6", "P(ball drawn is blue) = (m+6)/36", "According to question, (m+6)/36 = 5/4 × m/30 ⟹ m = 12"],
+    solutionSteps: ["[1 mark] (i) P(ball drawn is not blue) = (30 − m)/30 or 1 − m/30", "[1 mark] (ii) Total number of balls now = 36 Number of blue balls now = m + 6; P(ball drawn is blue) = (m+6)/36", "[1 mark] According to question, (m+6)/36 = 5/4 × m/30 ⟹ m = 12"],
     finalAnswer: "m = 12",
     ncertRef: "PYQ 30/4/1 Q30", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },
@@ -36,6 +36,6 @@ export const PROBABILITY_PYQ_2026: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] (a) White + red balls = 35 − 7 − 8 = 20. Let white = x, so red = 20 − x.", "[1 mark] (a) P(red) = 3 × P(white) ⇒ (20 − x)/35 = 3x/35 ⇒ 20 − x = 3x ⇒ x = 5. So white = 5 and red = 15.", "[1 mark] (b) Black or white balls = 7 + 5 = 12.", "[1 mark] (b) P(black or white) = 12/35."],
     finalAnswer: "(a) 15 red balls (b) 12/35",
     ncertRef: "PYQ 30(B) Q38", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2026", pyqSet: "1",
   },
 ];

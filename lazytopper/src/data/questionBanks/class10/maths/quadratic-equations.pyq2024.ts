@@ -31,10 +31,10 @@ export const QUADRATIC_EQUATIONS_PYQ_2024: CanonicalQuestion[] = [
     questionText: "If the quadratic equation ax² + bx + c = 0 has real and equal roots, then the value of c is :",
     options: ["b/(2a)", "−b/(2a)", "b²/(4a)", "−b²/(4a)"],
     answer: "b²/(4a)",
-    solutionSteps: ["Real and equal roots ⟹ D = b² − 4ac = 0 ⟹ 4ac = b² ⟹ c = b²/(4a). Correct option: (c)."],
+    solutionSteps: ["[1 mark] Real and equal roots ⟹ D = b² − 4ac = 0 ⟹ 4ac = b² ⟹ c = b²/(4a). Correct option: (c)."],
     finalAnswer: "(c) b²/(4a)",
     ncertRef: "PYQ 30/5/2 Q6", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2024", pyqSet: "2",
   },
   { id: "PYQ-M-2024-QE-004b", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     // answer recovered from Marking scheme 30 4 1 (2023-24), p.15.
