@@ -131,7 +131,7 @@ export const TRI_NCERT: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Given: △ABD with ∠A = 90°; AC ⊥ BD with C on BD, so ∠ACB = ∠ACD = 90°. To prove: (i) AB² = BC · BD; (ii) AC² = BC · DC; (iii) AD² = BD · CD.", "[1 mark] (i) In △ABC and △DBA: ∠B is common and ∠ACB = ∠DAB = 90°. By AA similarity, △ABC ~ △DBA (A↔D, B↔B, C↔A), so AB/DB = BC/BA ⇒ AB² = BC · BD.", "[1 mark] (ii) In △BCA and △ACD: ∠BCA = ∠ACD = 90°. Also ∠CBA = 90° − ∠BAC (angle sum in △ABC) and ∠CAD = ∠BAD − ∠BAC = 90° − ∠BAC, so ∠CBA = ∠CAD.", "[1 mark] By AA similarity, △BCA ~ △ACD (B↔A, C↔C, A↔D), so BC/AC = CA/CD ⇒ AC² = BC · DC.", "[1 mark] (iii) In △ACD and △BAD: ∠D is common and ∠ACD = ∠BAD = 90°. By AA similarity, △ACD ~ △BAD (A↔B, C↔A, D↔D), so AD/BD = CD/AD ⇒ AD² = BD · CD. Hence (i), (ii) and (iii) are proved."],
     finalAnswer: "Proved (i), (ii), (iii) using AA similarity (△ABC ~ △DBA, △BCA ~ △ACD, △ACD ~ △BAD).",
     ncertRef: "NCERT Ex 6.5 Q3", isCompetencyBased: true, sourceOverride: "others",
-    strategyHint: "Identify the three similar triangles formed by the altitude from the right angle; each result is a side-ratio from one similarity pair." },
+    strategyHint: "For each part, pick two right triangles that share an acute angle (or have equal acute angles by angle sum), prove them similar by AA, then write the side ratio and cross-multiply." },
 
   { id: "TRI-N-NCERT-6-LA-007", subject: "Maths", topicKey: "triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "ABC is an isosceles triangle right-angled at C. Prove that AB² = 2 AC².",
