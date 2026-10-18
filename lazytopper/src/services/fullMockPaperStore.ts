@@ -26,8 +26,7 @@
 //     sessions; a missing or unreadable snapshot returns null and the caller
 //     keeps the honest "sat on another device" message — no fabricated paper.
 
-import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import type { AuthUser } from "../context/AuthContext";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import type { ObjectiveScore } from "./chapterTestGradeService";
@@ -64,7 +63,7 @@ export interface FullMockPaperSnapshot {
 function cloudUid(user: AuthUser | null | undefined): string | null {
   const uid = user?.uid;
   if (!uid || user?.isLocalSession || uid === "anonymous") return null;
-  return firestoreDb ? uid : null;
+  return isFirestoreEnabled() ? uid : null;
 }
 
 /** Drop undefined optionals before the write (the sessionRecords pattern). */
@@ -92,14 +91,13 @@ export function saveFullMockPaperSnapshot(
   snapshot: Omit<FullMockPaperSnapshot, "savedAt">,
 ): void {
   const uid = cloudUid(user);
-  if (!uid || !firestoreDb) return;
+  if (!uid || !isFirestoreEnabled()) return;
   try {
-    void setDoc(
-      doc(firestoreDb, "sessionRecords", uid, "fullMockPapers", snapshot.code),
-      stripUndefined({ ...snapshot, savedAt: Date.now() }),
-    ).catch((error) => {
-      console.warn("[fullMockPaperStore] snapshot write failed", error);
-    });
+    const data = stripUndefined({ ...snapshot, savedAt: Date.now() });
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "fullMockPapers", snapshot.code), data))
+      .catch((error) => {
+        console.warn("[fullMockPaperStore] snapshot write failed", error);
+      });
   } catch (error) {
     console.warn("[fullMockPaperStore] snapshot write failed", error);
   }
@@ -112,9 +110,9 @@ export async function fetchFullMockPaperSnapshot(
   code: string,
 ): Promise<FullMockPaperSnapshot | null> {
   const uid = cloudUid(user);
-  if (!uid || !firestoreDb) return null;
+  if (!uid || !isFirestoreEnabled()) return null;
   try {
-    const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "fullMockPapers", code));
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "fullMockPapers", code)));
     const data = snap.exists() ? snap.data() : null;
     return isSnapshot(data) ? data : null;
   } catch (error) {
@@ -129,11 +127,12 @@ export function deleteFullMockPaperSnapshot(
   code: string,
 ): void {
   const uid = cloudUid(user);
-  if (!uid || !firestoreDb) return;
+  if (!uid || !isFirestoreEnabled()) return;
   try {
-    void deleteDoc(doc(firestoreDb, "sessionRecords", uid, "fullMockPapers", code)).catch(() => {
-      /* best-effort */
-    });
+    void withFirestore(({ fs, db }) => fs.deleteDoc(fs.doc(db, "sessionRecords", uid, "fullMockPapers", code)))
+      .catch(() => {
+        /* best-effort */
+      });
   } catch {
     /* best-effort */
   }

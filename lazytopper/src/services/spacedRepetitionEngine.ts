@@ -1,10 +1,9 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   buildProgressScopeKey,
   getActiveProgressUser,
   saveLearnerProgressSegment,
 } from "./studentProgressStore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 
 export type SRStage = "new" | "learning" | "review" | "mastered";
 
@@ -214,8 +213,10 @@ export function saveSRSchedule(schedule: SRSchedule): void {
       void saveLearnerProgressSegment(uid, "recentActivity", [
         { kind: "sr_update", at: nowIso() },
       ]);
-      if (firestoreDb && uid !== "anonymous") {
-        void setDoc(doc(firestoreDb, "srSchedules", uid), { ...schedule }, { merge: true }).catch(() => {});
+      if (isFirestoreEnabled() && uid !== "anonymous") {
+        const data = { ...schedule };
+        void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "srSchedules", uid), data, { merge: true }))
+          .catch(() => {});
       }
     }
   } catch { /* best effort */ }
@@ -224,9 +225,9 @@ export function saveSRSchedule(schedule: SRSchedule): void {
 export async function loadSRScheduleWithSync(): Promise<SRSchedule> {
   const local = loadSRSchedule();
   const uid = getActiveProgressUser();
-  if (firestoreDb && uid && uid !== "anonymous") {
+  if (isFirestoreEnabled() && uid && uid !== "anonymous") {
     try {
-      const snap = await getDoc(doc(firestoreDb, "srSchedules", uid));
+      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "srSchedules", uid)));
       if (snap.exists()) {
         const remote = snap.data() as Record<string, unknown>;
         if (remote?.version === 2 && remote?.cards && (remote.updatedAt as string) > local.updatedAt) {
@@ -242,7 +243,8 @@ export async function loadSRScheduleWithSync(): Promise<SRSchedule> {
             if (typeof window !== "undefined") {
               window.localStorage.setItem(getStorageKey(), JSON.stringify(migrated));
             }
-            void setDoc(doc(firestoreDb, "srSchedules", uid), { ...migrated }, { merge: true }).catch(() => {});
+            const data = { ...migrated };
+            void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "srSchedules", uid), data, { merge: true })).catch(() => {});
             return migrated;
           }
         }

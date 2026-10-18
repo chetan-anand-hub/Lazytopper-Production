@@ -597,6 +597,29 @@ const SR_VALID_SURFACES = /const VALID_SURFACES[\s\S]*?\];/;
 const SR_CLOUD_READ = /export async function getSessionRecordsFromCloud\([\s\S]*?\n\}/;
 const SR_MERGE_BY_ID = /function mergeById\([\s\S]*?\n\}/;
 const SR_LOCAL_READ = /export function loadLocalSessionRecords\([\s\S]*?\n\}/;
+// ★★ PERF-3 (owner ruling 18 Oct 2026 19:56 IST, "agree with 'What should be done, in order' —
+// lets do it"; QUESTION 6155055299 / 6155074123) — sessionRecords.ts may change in HOW it obtains
+// the Firestore functions (a static `firebase/firestore` import → the on-demand facade
+// `services/firestoreSdk`), and in nothing else. The frozen cloud read is compared AFTER mapping
+// exactly the two PERF-3 forms back to the eager ones:
+//   `isFirestoreEnabled()`                               → `firestoreDb`
+//   `await withFirestore(({ fs, db }) => fs.A(fs.B(db, …)));` → `await A(B(firestoreDb, …));`
+// Every other byte of the read must still match the merge-base: a changed path, filter, merge or
+// return is still RED (self-tested below). NOT lifted: the shape, the predicate, VALID_SURFACES,
+// mergeById and the local read are compared exactly as before. Applied to the HEAD side only, so
+// a merge-base that already carries the PERF-3 form compares byte-for-byte.
+function perf3EagerForm(block) {
+  if (!block) return block;
+  return block
+    .split("\n")
+    .map((line) => {
+      let l = line.replace(/\bisFirestoreEnabled\(\)/g, "firestoreDb");
+      const m = l.match(/^(.*)await withFirestore\(\(\{ fs, db \}\) => (.*)\);$/);
+      if (m) l = `${m[1]}await ${m[2].replace(/\bfs\./g, "").replace(/\(db(?=[,)])/g, "(firestoreDb")};`;
+      return l;
+    })
+    .join("\n");
+}
 function additiveOnlyProblems(baseSrc, headSrc) {
   const problems = [];
   for (const name of ["SessionRecord", "SessionPerQuestionPayload", "SessionFourType"]) {
@@ -620,7 +643,8 @@ function additiveOnlyProblems(baseSrc, headSrc) {
     ["loadLocalSessionRecords (the local read)", SR_LOCAL_READ],
   ]) {
     const b = srBlock(baseSrc, re);
-    const h = srBlock(headSrc, re);
+    // PERF-3: only the cloud read gets the facade mapping (see perf3EagerForm).
+    const h = re === SR_CLOUD_READ ? perf3EagerForm(srBlock(headSrc, re)) : srBlock(headSrc, re);
     if (!b || !h || b !== h) problems.push(`${label} changed`);
   }
   return problems;
@@ -691,6 +715,30 @@ function additiveOnlyChange(base, f) {
       && additiveOnlyProblems(fx, fx.replace("  return [...secondary, ...primary];", "  return [...primary];")).length > 0
       && additiveOnlyProblems(fx, fx.replace("  return [];\n}\nfunction mergeById", "  return [].slice(1);\n}\nfunction mergeById")).length > 0,
     "the additive-only rule would let the cloud / merged / local read of an old record change");
+  // PERF-3 (owner ruling 18 Oct 2026) — the facade mapping, proven to allow ONLY the facade.
+  const eagerRead = [
+    "  if (!firestoreDb) return local;",
+    '  const snap = await getDocs(collection(firestoreDb, "sessionRecords", id, "records"));',
+  ].join("\n");
+  const facadeRead = [
+    "  if (!isFirestoreEnabled()) return local;",
+    '  const snap = await withFirestore(({ fs, db }) => fs.getDocs(fs.collection(db, "sessionRecords", id, "records")));',
+  ].join("\n");
+  const fxEager = fx.replace("  return mergeById([], loadLocalSessionRecords(uid));", `${eagerRead}\n  return mergeById([], loadLocalSessionRecords(uid));`);
+  const withRead = (body) => fx.replace("  return mergeById([], loadLocalSessionRecords(uid));", `${body}\n  return mergeById([], loadLocalSessionRecords(uid));`);
+  check("FORBIDDEN(additive-only): PERF-3 — the cloud read reaching Firestore through the facade is ALLOWED (owner ruling 18 Oct 2026)",
+    additiveOnlyProblems(fxEager, withRead(facadeRead)).length === 0,
+    "the additive-only rule rejects the very facade change the owner ruled in");
+  check("FORBIDDEN(additive-only): PERF-3 CONTROL — through the facade, a changed PATH is still caught",
+    additiveOnlyProblems(fxEager, withRead(facadeRead.replace('"records"', '"recs"'))).length > 0,
+    "the PERF-3 mapping would let the cloud read change where it reads");
+  check("FORBIDDEN(additive-only): PERF-3 CONTROL — through the facade, a changed guard or an extra query clause is still caught",
+    additiveOnlyProblems(fxEager, withRead(facadeRead.replace("return local;", "return [];"))).length > 0
+      && additiveOnlyProblems(fxEager, withRead(facadeRead.replace('"records"))', '"records"), fs.limit(1))'))).length > 0,
+    "the PERF-3 mapping would let the cloud read's guard or query change");
+  check("FORBIDDEN(additive-only): PERF-3 CONTROL — an UNMAPPED helper (not the facade form) is still caught",
+    additiveOnlyProblems(fxEager, withRead(facadeRead.replace("withFirestore(({ fs, db }) =>", "someOtherLoader(({ fs, db }) =>"))).length > 0,
+    "the PERF-3 mapping is wider than the one form the ruling allows");
   for (const f of ADDITIVE_ONLY_ENTRIES) {
     check(`FORBIDDEN(additive-only): ${f} is still in the guarded set`, FORBIDDEN.includes(f),
       "the additive-only rule narrows an entry; it must never stand in for a removed one");

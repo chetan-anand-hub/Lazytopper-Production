@@ -40,8 +40,10 @@
 // This module is the STORE + durable #NN + per-question payload only. Reading it at
 // altitudes (recent strip, per-surface history, rolled-up progress) is progressStore.
 
-import { collection, doc, getDoc, getDocs, limit, query, setDoc } from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+// PERF-3 (owner ruling 18 Oct 2026): Firestore is obtained through the on-demand facade — the
+// SAME single instance (D32), loaded on the first call. Only HOW this module reaches the SDK
+// changed; every path, id, record shape and write is byte-identical.
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import { trackCloudWrite, type OutboxEntry, type ResendOutcome } from "./sessionRecordsOutbox";
 import { getActiveProgressUser } from "./studentProgressStore";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
@@ -370,9 +372,9 @@ export async function getSessionRecordsFromCloud(uid?: string | null): Promise<S
   const id = readableUid(uid);
   if (!id) return [];
   const local = loadLocalSessionRecords(id);
-  if (!firestoreDb) return local;
+  if (!isFirestoreEnabled()) return local;
   try {
-    const snap = await getDocs(collection(firestoreDb, "sessionRecords", id, "records"));
+    const snap = await withFirestore(({ fs, db }) => fs.getDocs(fs.collection(db, "sessionRecords", id, "records")));
     const rows = snap.docs.map((d) => d.data()).filter(isSessionRecord) as SessionRecord[];
     if (!rows.length) return local;
     const merged = mergeById(rows, local);
@@ -394,9 +396,9 @@ export async function getSessionRecordsFromCloud(uid?: string | null): Promise<S
  */
 export async function cloudHasAnySessionRecord(uid?: string | null): Promise<boolean | null> {
   const id = readableUid(uid);
-  if (!id || !firestoreDb) return null;
+  if (!id || !isFirestoreEnabled()) return null;
   try {
-    const snap = await getDocs(query(collection(firestoreDb, "sessionRecords", id, "records"), limit(1)));
+    const snap = await withFirestore(({ fs, db }) => fs.getDocs(fs.query(fs.collection(db, "sessionRecords", id, "records"), fs.limit(1))));
     // Offline, the SDK may answer from its cache instead of throwing: an empty CACHED snapshot is
     // not "this account has no records". Only a SERVER answer is an answer.
     if (snap.metadata?.fromCache) return null;
@@ -431,7 +433,7 @@ export function writeSessionRecord(
     /* best-effort */
   }
 
-  if (firestoreDb && uid !== "anonymous") {
+  if (isFirestoreEnabled() && uid !== "anonymous") {
     // N5 (verifier, controller fix round 2026-10-05; owner ruling "re-grade replaces") — a FULL
     // replace, never `{ merge: true }`: a re-grade that omits an optional field (its versioned
     // marks, its per-question topics, `notGradedAllUnread`) must not inherit the earlier write's
@@ -440,18 +442,18 @@ export function writeSessionRecord(
     // SAVE-SYNC-1 (D190): the same full-replace write, but TRACKED — queued in the per-uid outbox
     // first, retried with backoff, re-sent on the next load / `online` if the tab closed or the
     // network stayed down. The first attempt still runs synchronously, as before.
-    const db = firestoreDb;
     const queuedAt = new Date().toISOString();
     trackCloudWrite(
       uid,
       "record",
       record.id,
       queuedAt,
-      () =>
-        setDoc(
-          doc(db, "sessionRecords", uid, "records", sanitizeDocId(record.id)),
-          stripUndefined({ ...record, updatedAt: queuedAt }),
-        ),
+      () => {
+        const data = stripUndefined({ ...record, updatedAt: queuedAt });
+        return withFirestore(({ fs, db }) =>
+          fs.setDoc(fs.doc(db, "sessionRecords", uid, "records", sanitizeDocId(record.id)), data),
+        );
+      },
       // the body travels WITH the entry (the mirror is capped and cloud-wins on read); a record that is
       // not yet a graded result (a worksheet download, status "pending-upload") is tracked but never announced
       { body: record, quiet: record.status === "pending-upload" },
@@ -498,22 +500,22 @@ export function writeSessionPerQuestion(
     /* best-effort */
   }
 
-  if (firestoreDb && uid !== "anonymous") {
+  if (isFirestoreEnabled() && uid !== "anonymous") {
     // N5 — the same full replace for the payload a re-grade rewrites (Firestore merges nested maps,
     // so a stale `response` field would otherwise survive under the new grade).
     // SAVE-SYNC-1 (D190): tracked like the record write above.
-    const db = firestoreDb;
     const queuedAt = new Date().toISOString();
     trackCloudWrite(
       uid,
       "perQuestion",
       payload.ref,
       queuedAt,
-      () =>
-        setDoc(
-          doc(db, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)),
-          stripUndefined({ ...payload, updatedAt: queuedAt }),
-        ),
+      () => {
+        const data = stripUndefined({ ...payload, updatedAt: queuedAt });
+        return withFirestore(({ fs, db }) =>
+          fs.setDoc(fs.doc(db, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)), data),
+        );
+      },
       { body: payload },
     );
   }
@@ -531,7 +533,7 @@ export async function resendOutboxEntry(
   entry: OutboxEntry,
   isCurrent: () => boolean = () => true,
 ): Promise<ResendOutcome> {
-  if (!firestoreDb || !uid || uid === "anonymous") return "no-cloud";
+  if (!isFirestoreEnabled() || !uid || uid === "anonymous") return "no-cloud";
   // The queued body first (it is exactly what was graded when the write was queued); the mirror only
   // for an entry that carries none. A re-grade that overwrote the mirror, a trimmed mirror, or a cloud
   // read that put an older copy back can no longer change what is re-sent.
@@ -545,19 +547,14 @@ export async function resendOutboxEntry(
   if (entry.body === undefined && entry.gradedAt !== undefined && (body as { gradedAt?: unknown }).gradedAt !== entry.gradedAt) {
     return "no-local-copy";
   }
-  const ref = doc(
-    firestoreDb,
-    "sessionRecords",
-    uid,
-    entry.kind === "record" ? "records" : "perQuestion",
-    sanitizeDocId(entry.id),
-  );
-  const existing = await getDoc(ref);
+  const docPath = [uid, entry.kind === "record" ? "records" : "perQuestion", sanitizeDocId(entry.id)] as const;
+  const existing = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", ...docPath)));
   const cloudAt = existing.exists() ? (existing.data() as { updatedAt?: unknown } | undefined)?.updatedAt : undefined;
   if (typeof cloudAt === "string" && cloudAt > entry.queuedAt) return "cloud-newer";
   // a re-grade of this id may have been queued while we awaited the read: its chain owns the id now
   if (!isCurrent()) return "superseded";
-  await setDoc(ref, stripUndefined({ ...body, updatedAt: entry.queuedAt }));
+  const data = stripUndefined({ ...body, updatedAt: entry.queuedAt });
+  await withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", ...docPath), data));
   return "sent";
 }
 
@@ -570,9 +567,9 @@ export async function getSessionPerQuestion(
   if (!id || !ref) return null;
   const local = readLocalPayloads(id)[ref];
   if (local) return local;
-  if (!firestoreDb) return null;
+  if (!isFirestoreEnabled()) return null;
   try {
-    const snap = await getDocs(collection(firestoreDb, "sessionRecords", id, "perQuestion"));
+    const snap = await withFirestore(({ fs, db }) => fs.getDocs(fs.collection(db, "sessionRecords", id, "perQuestion")));
     const match = snap.docs.map((d) => d.data() as SessionPerQuestionPayload).find((p) => p?.ref === ref);
     return match ?? null;
   } catch (error) {
@@ -595,9 +592,9 @@ export async function getAllSessionPerQuestionFromCloud(
   const id = readableUid(uid);
   if (!id) return [];
   const local = Object.values(readLocalPayloads(id));
-  if (!firestoreDb) return local;
+  if (!isFirestoreEnabled()) return local;
   try {
-    const snap = await getDocs(collection(firestoreDb, "sessionRecords", id, "perQuestion"));
+    const snap = await withFirestore(({ fs, db }) => fs.getDocs(fs.collection(db, "sessionRecords", id, "perQuestion")));
     const rows = snap.docs
       .map((d) => d.data() as SessionPerQuestionPayload)
       .filter((p) => p && typeof p.ref === "string");

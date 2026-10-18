@@ -17,8 +17,7 @@
 // (status "partial" / "graded") is never replaced by a pending one, and a read we cannot
 // complete writes nothing. Best-effort throughout: a miss never blocks the PDF.
 
-import { doc, getDoc } from "firebase/firestore";
-import { firestoreDb } from "../../services/firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "../../services/firestoreSdk";
 import type { AuthUser } from "../../context/AuthContext";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
@@ -70,9 +69,9 @@ export async function readPaperRecordStatus(
 ): Promise<SessionRecord["status"] | "missing" | "unknown"> {
   const uid = cloudUid(user);
   if (!uid || !code) return "unknown";
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "records", recordDocId(code)));
+      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "records", recordDocId(code))));
       if (snap.metadata && snap.metadata.fromCache) return "unknown";
       if (!snap.exists()) return "missing";
       const status = (snap.data() as Partial<SessionRecord> | undefined)?.status;
@@ -108,9 +107,9 @@ export async function recordPaperDownload(args: {
   const uid = cloudUid(user);
   if (!uid || !code) return "skipped";
   let existing: SessionRecord | undefined;
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "records", recordDocId(code)));
+      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "records", recordDocId(code))));
       // A cache-only answer (offline) cannot prove another device has not graded it: write nothing.
       if (snap.metadata && snap.metadata.fromCache) return "skipped";
       existing = snap.exists() ? (snap.data() as SessionRecord) : undefined;

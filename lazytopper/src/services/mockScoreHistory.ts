@@ -1,6 +1,5 @@
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { getActiveProgressUser } from "./studentProgressStore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 
 export interface MockScoreEntry {
@@ -44,12 +43,14 @@ function asEntry(v: MockScoreEntry & { updatedAt?: unknown }): MockScoreEntry {
  * every reader already reads. Never throws. Returns how many entries arrived from the cloud.
  */
 export async function hydrateMockScoreHistoryFromCloud(uid: string | null | undefined): Promise<number> {
-  if (typeof window === "undefined" || !firestoreDb || !uid || uid === "anonymous") return 0;
+  if (typeof window === "undefined" || !isFirestoreEnabled() || !uid || uid === "anonymous") return 0;
   try {
-    const [blob, perMock] = await Promise.all([
-      getDoc(doc(firestoreDb, "mockScoreHistory", uid)),
-      getDocs(collection(firestoreDb, "mockScoreHistory", uid, "entries")),
-    ]);
+    const [blob, perMock] = await withFirestore(({ fs, db }) =>
+      Promise.all([
+        fs.getDoc(fs.doc(db, "mockScoreHistory", uid)),
+        fs.getDocs(fs.collection(db, "mockScoreHistory", uid, "entries")),
+      ]),
+    );
     const cloud: MockScoreEntry[] = [];
     const blobEntries = blob.exists() ? (blob.data() as { entries?: unknown }).entries : undefined;
     if (Array.isArray(blobEntries)) cloud.push(...blobEntries.filter(isMockScoreEntry).map(asEntry));
@@ -95,8 +96,10 @@ function saveMockScoreHistory(history: MockScoreHistory): void {
   window.localStorage.setItem(getStorageKey(), JSON.stringify(history));
 
   const uid = getActiveProgressUser();
-  if (firestoreDb && uid && uid !== "anonymous") {
-    void setDoc(doc(firestoreDb, "mockScoreHistory", uid), { ...history, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+  if (isFirestoreEnabled() && uid && uid !== "anonymous") {
+    const data = { ...history, updatedAt: new Date().toISOString() };
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "mockScoreHistory", uid), data, { merge: true }))
+      .catch(() => {});
   }
 }
 
@@ -113,12 +116,12 @@ export function saveMockScore(entry: Omit<MockScoreEntry, "id" | "timestamp">): 
   // PR-B: durable per-mock record (mirror of the attempt subcollection). Keep the
   // existing blob write above; this is the additional queryable layer. Fire-and-forget.
   const uid = getActiveProgressUser();
-  if (firestoreDb && uid && uid !== "anonymous") {
-    void setDoc(
-      doc(firestoreDb, "mockScoreHistory", uid, "entries", newEntry.id),
-      { ...newEntry, updatedAt: new Date().toISOString() },
-      { merge: true },
-    ).catch(() => {});
+  if (isFirestoreEnabled() && uid && uid !== "anonymous") {
+    const data = { ...newEntry, updatedAt: new Date().toISOString() };
+    void withFirestore(({ fs, db }) =>
+        fs.setDoc(fs.doc(db, "mockScoreHistory", uid, "entries", newEntry.id), data, { merge: true }),
+      )
+      .catch(() => {});
   }
 }
 

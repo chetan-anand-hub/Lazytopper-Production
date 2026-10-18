@@ -115,8 +115,11 @@ function isCloudUid(uid: string | null): uid is string {
 }
 
 async function cloudRef(uid: string) {
-  const [{ firestoreDb }, { doc }] = await Promise.all([import("./firebaseClient"), import("firebase/firestore")]);
-  return firestoreDb ? doc(firestoreDb, "learnerProfiles", uid) : null;
+  // PERF-3: the one Firestore instance now comes from the on-demand facade (firebaseClient no
+  // longer creates it). Still a dynamic import, so this module's static graph stays Firebase-free.
+  const { isFirestoreEnabled, withFirestore } = await import("./firestoreSdk");
+  if (!isFirestoreEnabled()) return null;
+  return withFirestore(({ fs, db }) => fs.doc(db, "learnerProfiles", uid));
 }
 
 /** Pushes run ONE AT A TIME, in save order — two quick saves must never land newest-first. */
@@ -159,9 +162,9 @@ async function readSyncedProfile(ref: NonNullable<Awaited<ReturnType<typeof clou
     const snap = await firestore.getDoc(ref);
     if (!snap.metadata?.hasPendingWrites) return snap;
     if (snap.metadata.fromCache || attempt === MAX_PENDING_REREADS) return null;
-    const { firestoreDb } = await import("./firebaseClient");
-    if (!firestoreDb) return null;
-    await firestore.waitForPendingWrites(firestoreDb);
+    const { isFirestoreEnabled, withFirestore } = await import("./firestoreSdk");
+    if (!isFirestoreEnabled()) return null;
+    await withFirestore(({ db }) => firestore.waitForPendingWrites(db));
   }
   return null;
 }

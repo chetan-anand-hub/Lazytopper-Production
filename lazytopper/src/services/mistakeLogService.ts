@@ -1,18 +1,5 @@
-import {
-  collection,
-  addDoc,
-  doc,
-  setDoc,
-  updateDoc,
-  query,
-  where,
-  orderBy,
-  getDocs,
-  limit,
-  startAfter,
-  type QueryConstraint,
-} from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+import type { QueryConstraint } from "firebase/firestore";
+import { isFirestoreEnabled, withFirestore, type FirestoreSdk } from "./firestoreSdk";
 
 const LOCAL_KEY_PREFIX = "lazytopper.mistakeLogs.v1";
 const MAX_LOCAL_ENTRIES = 200;
@@ -191,16 +178,13 @@ export async function logMistakes(
   const existing = readLocal(uid).filter((e) => e.id !== id);
   writeLocal(uid, [full, ...existing]);
 
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      if (stableId) {
-        await setDoc(doc(firestoreDb, "learnerProfiles", uid, "mistakeLogs", stableId), full);
-      } else {
-        await addDoc(
-          collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"),
-          full
-        );
-      }
+      await withFirestore<unknown>(({ fs, db }) =>
+        stableId
+          ? fs.setDoc(fs.doc(db, "learnerProfiles", uid, "mistakeLogs", stableId), full)
+          : fs.addDoc(fs.collection(db, "learnerProfiles", uid, "mistakeLogs"), full)
+      );
     } catch {
       // Firestore write failed — localStorage copy remains the source of truth
     }
@@ -247,9 +231,9 @@ export async function resolveStableMistakeLog(
   if (!hadLocal && !options?.known) return false;
   const fields = { resolvedAt: resolution.resolvedAt, resolvedBy: resolution.resolvedBy };
   if (hadLocal) writeLocal(uid, local.map((e) => (e.id === stableId ? { ...e, ...fields } : e)));
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      await updateDoc(doc(firestoreDb, "learnerProfiles", uid, "mistakeLogs", stableId), fields);
+      await withFirestore(({ fs, db }) => fs.updateDoc(fs.doc(db, "learnerProfiles", uid, "mistakeLogs", stableId), fields));
     } catch {
       // Firestore update failed (or the entry never reached the cloud) — best effort, as the write
     }
@@ -295,10 +279,10 @@ export async function resolveEarlierMistakesForQuestion(
   };
   const resolved = new Set<string>();
 
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      const snap = await getDocs(
-        query(collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"), where("questionId", "==", qid))
+      const snap = await withFirestore(({ fs, db }) =>
+        fs.getDocs(fs.query(fs.collection(db, "learnerProfiles", uid, "mistakeLogs"), fs.where("questionId", "==", qid)))
       );
       for (const d of snap.docs) {
         const data = d.data() as MistakeLogEntry;
@@ -306,7 +290,7 @@ export async function resolveEarlierMistakesForQuestion(
         if (!eligible({ ...data, id })) continue;
         try {
           // eslint-disable-next-line no-await-in-loop
-          await updateDoc(doc(firestoreDb, "learnerProfiles", uid, "mistakeLogs", id), fields);
+          await withFirestore(({ fs, db }) => fs.updateDoc(fs.doc(db, "learnerProfiles", uid, "mistakeLogs", id), fields));
           resolved.add(id);
         } catch {
           /* best effort, as every MI write */
@@ -341,23 +325,29 @@ export interface MistakeLogCloudRead {
  * G14 — read EVERY entry matching `constraints` (ordered by `orderField` desc), page by page
  * (`MISTAKE_LOG_PAGE_SIZE`), until a short page. Throws when Firestore is unreachable; returns
  * `complete: false` only when the safety bound stopped it.
+ *
+ * PERF-3: `constraints` is a BUILDER over the on-demand SDK (the `where(...)` factories live in
+ * it), called for each page's query — it yields exactly the constraints that were passed before,
+ * so every page issues the same query as before.
  */
 async function readAllMistakeLogPages(
   uid: string,
-  constraints: QueryConstraint[],
+  constraints: (fs: FirestoreSdk) => QueryConstraint[],
   orderField: "timestamp" | "resolvedAt"
 ): Promise<MistakeLogCloudRead> {
-  if (!firestoreDb) return { entries: [], complete: false };
-  const base = collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs");
+  if (!isFirestoreEnabled()) return { entries: [], complete: false };
   const entries: MistakeLogEntry[] = [];
   let cursor: unknown = null;
   for (let page = 0; page < MAX_MISTAKE_LOG_PAGES; page += 1) {
-    const parts: QueryConstraint[] = [...constraints, orderBy(orderField, "desc")];
-    // `startAfter` only from the second page on, so a one-page read issues the same query as before.
-    if (cursor) parts.push(startAfter(cursor));
-    parts.push(limit(MISTAKE_LOG_PAGE_SIZE));
     // eslint-disable-next-line no-await-in-loop
-    const snap = await getDocs(query(base, ...parts));
+    const snap = await withFirestore(({ fs, db }) => {
+      const base = fs.collection(db, "learnerProfiles", uid, "mistakeLogs");
+      const parts: QueryConstraint[] = [...constraints(fs), fs.orderBy(orderField, "desc")];
+      // `startAfter` only from the second page on, so a one-page read issues the same query as before.
+      if (cursor) parts.push(fs.startAfter(cursor));
+      parts.push(fs.limit(MISTAKE_LOG_PAGE_SIZE));
+      return fs.getDocs(fs.query(base, ...parts));
+    });
     for (const d of snap.docs) {
       const data = d.data() as MistakeLogEntry;
       entries.push({ ...data, id: data.id || d.id });
@@ -384,8 +374,8 @@ export async function getMistakeLogHistoryFromCloud(
 ): Promise<MistakeLogCloudRead> {
   const startIso = new Date(startMs).toISOString();
   const [logged, resolved] = await Promise.all([
-    readAllMistakeLogPages(uid, [where("timestamp", ">=", startIso)], "timestamp"),
-    readAllMistakeLogPages(uid, [where("resolvedAt", ">=", startIso)], "resolvedAt"),
+    readAllMistakeLogPages(uid, (fs) => [fs.where("timestamp", ">=", startIso)], "timestamp"),
+    readAllMistakeLogPages(uid, (fs) => [fs.where("resolvedAt", ">=", startIso)], "resolvedAt"),
   ]);
   const byId = new Map<string, MistakeLogEntry>();
   for (const e of [...logged.entries, ...resolved.entries]) byId.set(e.id, e);
@@ -419,15 +409,18 @@ async function hydrateMistakeLogEntriesFromCloud(uid: string): Promise<void> {
   const existing = readLocal(uid);
   if (existing.length > 0) return; // localStorage already has data — skip
 
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
 
   try {
-    const q = query(
-      collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"),
-      orderBy("timestamp", "desc"),
-      limit(MAX_LOCAL_ENTRIES)
+    const snap = await withFirestore(({ fs, db }) =>
+      fs.getDocs(
+        fs.query(
+          fs.collection(db, "learnerProfiles", uid, "mistakeLogs"),
+          fs.orderBy("timestamp", "desc"),
+          fs.limit(MAX_LOCAL_ENTRIES)
+        )
+      )
     );
-    const snap = await getDocs(q);
     if (snap.empty) return;
 
     const remote = snap.docs.map((d) => {
@@ -467,12 +460,12 @@ export async function getMistakeLogs(
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
   const cutoffIso = new Date(cutoff).toISOString();
 
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
       // G14 — every page of the window, not the first 200 entries of it.
       const { entries: remote } = await readAllMistakeLogPages(
         uid,
-        [where("timestamp", ">=", cutoffIso)],
+        (fs) => [fs.where("timestamp", ">=", cutoffIso)],
         "timestamp"
       );
 

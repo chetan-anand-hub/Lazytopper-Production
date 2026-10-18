@@ -1,5 +1,4 @@
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 
 export type SubscriptionTier = "free" | "trial" | "premium";
 
@@ -264,21 +263,23 @@ async function saveCloud(
   status: SubscriptionStatus,
   opts: { pinTrialStart?: boolean } = {},
 ): Promise<void> {
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
   // A pass (or legacy premium) record is SERVER-owned. Its expiry is DERIVED on every
   // read, never written back: the write would carry plan "pass_*", which rules refuse,
   // and the stored pass must survive so a later grant can see it.
   if (!isClientWritable(status)) return;
+  const payload: Record<string, unknown> = {
+    tier: status.tier,
+    plan: status.plan,
+    premiumSince: status.premiumSince,
+    updatedAt: new Date().toISOString(),
+  };
   try {
-    const ref = doc(firestoreDb, FIRESTORE_COLLECTION, uid);
-    const payload: Record<string, unknown> = {
-      tier: status.tier,
-      plan: status.plan,
-      premiumSince: status.premiumSince,
-      updatedAt: new Date().toISOString(),
-    };
-    if (opts.pinTrialStart) payload.trialStartDate = serverTimestamp();
-    await setDoc(ref, payload, { merge: true });
+    await withFirestore(({ fs, db }) => {
+      const ref = fs.doc(db, FIRESTORE_COLLECTION, uid);
+      if (opts.pinTrialStart) payload.trialStartDate = fs.serverTimestamp();
+      return fs.setDoc(ref, payload, { merge: true });
+    });
   } catch {}
 }
 
@@ -287,10 +288,9 @@ async function loadCloud(uid: string): Promise<CloudResult> {
   // `error` case, not the `absent` case. `absent` is a positive statement ("the read
   // succeeded and there is no document") and must never be inferred from a read that
   // never ran.
-  if (!firestoreDb) return { kind: "error" };
+  if (!isFirestoreEnabled()) return { kind: "error" };
   try {
-    const ref = doc(firestoreDb, FIRESTORE_COLLECTION, uid);
-    const snap = await getDoc(ref);
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, FIRESTORE_COLLECTION, uid)));
     if (!snap.exists()) return { kind: "absent" };
     // ★★ P0-TRIAL — `{serverTimestamps:"estimate"}` IS THE FIX, and the default was the
     // bug. `snap.data()` defaults to `serverTimestamps:"none"`, which materialises an
