@@ -12,7 +12,7 @@ export const metalsNonMetalsPYQ2025: CanonicalQuestion[] = [
     questionText: "Aluminium powder is used in thermit welding because :",
     options: ["Its reaction with iron is highly exothermic.", "When it is heated with iron (III) oxide, molten iron is obtained.", "When it is heated with iron (III) oxide, molten aluminium oxide is obtained to join railway tracks.", "Its melting point is low as compared to iron and a molten alloy of iron and aluminium is formed on heating which is used to join railway tracks."],
     answer: "When it is heated with iron (III) oxide, molten iron is obtained.",
-    solutionSteps: ["[1 mark] Correct option: (b) When it is heated with iron (III) oxide, molten iron is obtained.."],
+    solutionSteps: ["[1 mark] Correct option: (b) When it is heated with iron (III) oxide, molten iron is obtained."],
     finalAnswer: "(b) When it is heated with iron (III) oxide, molten iron is obtained.",
     ncertRef: "PYQ 31/2/1 Q4", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1" },

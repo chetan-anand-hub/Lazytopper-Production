@@ -20,7 +20,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_PYQ: CanonicalQuestion[] = [
     questionText: "The number of chromosomes in parents and offsprings of a particular species undergoing sexual reproduction remain constant due to :",
     options: ["doubling of chromosomes after zygote formation.", "halving of chromosomes after zygote formation.", "doubling of chromosomes before gamete formation.", "halving of chromosomes at the time of gamete formation."],
     answer: "halving of chromosomes at the time of gamete formation.",
-    solutionSteps: ["[1 mark] Correct option: (d) halving of chromosomes at the time of gamete formation.."],
+    solutionSteps: ["[1 mark] Correct option: (d) halving of chromosomes at the time of gamete formation."],
     finalAnswer: "(d) halving of chromosomes at the time of gamete formation.",
     ncertRef: "PYQ 31/4/1 Q12", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },

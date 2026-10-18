@@ -12,7 +12,7 @@ export const CONTROL_COORDINATION_PYQ: CanonicalQuestion[] = [
     questionText: "In plants the role of cytokinin is :",
     options: ["Promote cell division.", "Wilting of leaves.", "Promote the opening of stomatal pore.", "Help in the growth of stem."],
     answer: "Promote cell division.",
-    solutionSteps: ["[1 mark] Correct option: (a) Promote cell division.."],
+    solutionSteps: ["[1 mark] Correct option: (a) Promote cell division."],
     finalAnswer: "(a) Promote cell division.",
     ncertRef: "PYQ 31/4/1 Q11", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },

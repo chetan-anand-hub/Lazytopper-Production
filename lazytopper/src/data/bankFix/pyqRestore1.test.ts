@@ -13,6 +13,8 @@
  *   5. the served bank total is unchanged (no row added or withheld by this lane).
  */
 import { describe, expect, it, vi } from "vitest";
+import { createHash } from "node:crypto";
+import { WITHHELD_QUESTION_IDS } from "../canonicalQuestionBank";
 
 // PracticePage is imported only for its pure `questionMatchesFilters`; it reaches services/cbseExamDate,
 // which reads the clock at module load. Stubbed exactly as bankFix1.pr2.test.ts does.
@@ -172,5 +174,39 @@ describe("PYQ-RESTORE-1 · #1236 review rulings", () => {
   it("PYQ-M-2026-STAT-002 stays Others (kept-others, no year)", () => {
     expect(PYQ_RESTORE_1_MATHS.find((e) => e.id === "PYQ-M-2026-STAT-002")?.verdict).toBe("kept-others");
     expect(bankById.get("PYQ-M-2026-STAT-002")?.pyqYear).toBeUndefined();
+  });
+});
+
+// Controller ruling (#1248 review): PYQ-S-2026-CHEMRXN-009 is withheld (bilingual column bleed, not
+// served), so this lane leaves it exactly as it was. The hash is of the row as it stood on trunk
+// 095277e5; a later re-extraction lane that repairs the row updates this pin deliberately.
+describe("PYQ-RESTORE-1 · CHEMRXN-009 left unchanged", () => {
+  const ID = "PYQ-S-2026-CHEMRXN-009";
+  it("is withheld, not served, and in neither ledger", () => {
+    expect(WITHHELD_QUESTION_IDS.has(ID)).toBe(true);
+    expect(servedIds.has(ID)).toBe(false);
+    expect([...PYQ_RESTORE_1_MATHS, ...PYQ_RESTORE_1_SCIENCE].some((e) => e.id === ID)).toBe(false);
+  });
+  it("row content is byte-for-byte what trunk had (no step labels added)", () => {
+    const q = bankById.get(ID)!;
+    expect(q).toBeDefined();
+    expect((q.solutionSteps as string[]).some((s) => STEP.test(s))).toBe(false);
+    expect(createHash("sha256").update(JSON.stringify(q)).digest("hex")).toBe("27393ea348c35450974c16029cfea64e2648b54e14feb9e7ece98e23c6ea2c56");
+  });
+});
+
+// #1248 review nits: no doubled full stop in any ledger row's steps; MAG-004 rewritten per scheme mark.
+describe("PYQ-RESTORE-1 · #1248 review nits", () => {
+  it("no ledger row's solutionSteps contain a doubled full stop", () => {
+    const bad: string[] = [];
+    for (const e of [...PYQ_RESTORE_1_MATHS, ...PYQ_RESTORE_1_SCIENCE]) {
+      const steps = (bankById.get(e.id)?.solutionSteps as string[] | undefined) ?? [];
+      if (steps.some((s) => /(?<!\.)\.\.(?!\.)/.test(s))) bad.push(e.id);
+    }
+    expect(bad).toEqual([]);
+  });
+  it("PYQ-S-2025-MAG-004 has one step per scheme mark, parts (a) x3, (b) x2, (c) x1", () => {
+    const steps = bankById.get("PYQ-S-2025-MAG-004")!.solutionSteps as string[];
+    expect(steps.map((s) => s.match(/^\[0\.5 marks\] \(([abc])\)/)?.[1])).toEqual(["a", "a", "a", "b", "b", "c"]);
   });
 });

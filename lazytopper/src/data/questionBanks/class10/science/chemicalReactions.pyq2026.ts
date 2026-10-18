@@ -29,7 +29,7 @@ export const chemicalReactionsPYQ2026: CanonicalQuestion[] = [
     questionText: "When ferrous sulphate crystals are heated in a test tube, we observe that :",
     options: ["A colourless gas with no smell is evolved.", "A brown gas is evolved.", "The green colour of the salt fades and a gas with the smell of burning sulphur is evolved.", "The green colour of the salt fades and no gas is evolved."],
     answer: "The green colour of the salt fades and a gas with the smell of burning sulphur is evolved.",
-    solutionSteps: ["[1 mark] Correct option: (c) The green colour of the salt fades and a gas with the smell of burning sulphur is evolved.."],
+    solutionSteps: ["[1 mark] Correct option: (c) The green colour of the salt fades and a gas with the smell of burning sulphur is evolved."],
     finalAnswer: "(c) The green colour of the salt fades and a gas with the smell of burning sulphur is evolved.",
     ncertRef: "PYQ 31/2/1 Q19", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },

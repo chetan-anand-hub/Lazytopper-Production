@@ -20,7 +20,7 @@ export const howOrganismsReproducePYQ2025: CanonicalQuestion[] = [
     questionText: "Which one of the following statements is not correct for the plants raised by vegetative propagation ?",
     options: ["Can bear flowers and fruits earlier than those produced from seeds.", "Those plants that have lost the capacity to produce seeds can be grown.", "As compared to the parent plant, vegetatively propagated plants show more variations.", "All the plants produced in this way are genetically similar to the parent plant."],
     answer: "As compared to the parent plant, vegetatively propagated plants show more variations.",
-    solutionSteps: ["[1 mark] Correct option: (c) As compared to the parent plant, vegetatively propagated plants show more variations.."],
+    solutionSteps: ["[1 mark] Correct option: (c) As compared to the parent plant, vegetatively propagated plants show more variations."],
     finalAnswer: "(c) As compared to the parent plant, vegetatively propagated plants show more variations.",
     ncertRef: "PYQ 31/2/2 Q9", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "2" },
