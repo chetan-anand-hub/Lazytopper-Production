@@ -23,6 +23,50 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-18 - #1236 to #1242 FOLLOW-UPS (recorded by the docs builder of cofounder session 01PbRBtk under CLAUDE.md section 10)
+
+*Priority order is the order below within each group. Readings are at trunk `4010570d`. Earlier dated entries are left as written (standing rule 3); their closures are recorded here.*
+
+### Closed or answered here
+
+- **[FU-CONTACT-INDEX]** CLOSED by `#1239` (`3a6e8323`): `/contact` is self-canonical, in the sitemap (live `sitemap.xml` checked 18 Oct), prerendered and linked from the public footer.
+- **[FU-AUTHENTIC-TIER-PREDICTED-ROWS]** ANSWERED by owner ruling (18 Oct): the 26 "authentic tier" questions stay Practice-Hub-only; they are not Important Questions, and HPQ means predicted 2027 questions. A UI check that no surface labels them as 2026 board questions is still worth doing; not done in this docs PR.
+- **[FU-ACT2-MATHS-BOARD-POOL]** ANSWERED: the strict rules were kept; the pool grew by step-marking real PYQ rows (`#1236` `#1248`) and allowing Section D (`#1237`). `#1237` commit body: offerable pool (served, non-AI) Maths 94 -> 88, Science 43 -> 42 after the figure / table exclusion.
+
+### Owner decisions
+
+**[FU-SOLUTIONS3-PRB-HOLD]** (open, HELD FOR OWNER) `#1252` SOLUTIONS-3 PR-B, stacked on `#1251`: `ncertRef` renumbered on 96 rows (no question, option, answer or step text changed), syllabus releases, and 6 new NCERT pages (real-numbers, pair-of-linear-equations, areas-related-to-circles, surface-areas-and-volumes, statistics, probability). Reviewed APPROVE-WITH-NITS. The owner must rule on: (1) the curriculum source - `Maths_SecP1X_2026-27.pdf` was read from the Wayback capture of the cbseacademic.nic.in URL (16 Jun 2026, sha256 `d773e7c1...`) because that site serves an expired TLS certificate; (2) releasing the 5 Statistics cumulative-frequency rows (both agents said OUT / BORDERLINE, but the 2026-27 textbook's Median section uses less-than / more-than cumulative-frequency tables, jemh113); (3) about 10 stale refs on unpublished rows. Count note: the brief says 9 syllabus releases; the PR body says "Released: 9" but enumerates 8 ids (`POLY-N-EXEM-2-VSA-002`, `AP-N-EXEM-5-SA-006`, `AP-N-EXEM2-5-SA-003`, `AP-N-EXEM2-5-SA-007`, `CG-N-NCERT-7-EX-015`, `CG-N-EXEM2-7-SA-009`, `SAV-N-EXMPLR-12-LA-006`, `SAV-N-EXEM2-12-LA-011`) - confirm the ninth before merge.
+
+**[FU-PARENT-PAY-ENABLE]** (open, owner, before switching parent pay ON) `#1240` is merged with `PARENT_PAY_ENABLED` (Railway) and `VITE_PARENT_PAY_ENABLED` (Vercel) unset. Before switching on: (1) check the anonymous-caller IP key the parent routes rate-limit on (60 parent calls / IP / hour) resolves to the real client IP in production; (2) write a refund runbook for a link paid twice; (3) set both flags together (with `PAYMENTS_ENABLED` / `VITE_PAYMENTS_ENABLED`); plus one owner test payment in Razorpay test mode (PR body). Also open from the PR body: link lifetime (72 h) and orders per link (5); message wording review; mounting `<AskParents />` in `UpgradeSheet` / `UpgradeModal` now that `#1238` is merged; `#1242` banner CTA to the parent action (one-line follow-up in `TrialEndBannerView`).
+
+**[FU-TRIAL-EMAIL-ENABLE]** (open, owner, before switching the trial email ON) `#1242` `trialEndingEmail.cjs` is OFF (`TRIAL_EMAIL_ENABLED` unset). Before switching on: Resend account and a verified sending domain; the privacy policy names the email provider; one dry run (`TRIAL_EMAIL_ENABLED=1` only, read the `[trial-email] dry-run:` lines); then one real send (`TRIAL_EMAIL_DRY_RUN=0` + `RESEND_API_KEY`, `TRIAL_EMAIL_FROM`, `TRIAL_EMAIL_UNSUBSCRIBE_SECRET`). PR body also suggests a sign-up notice line ("We'll email you once before your free trial ends...").
+
+### CI
+
+**[FU-ISTMIDNIGHT]** (open, a builder is investigating) The `progressReadModel.istMidnight` consistency pin is flaky: it failed on trunk run 39109844247 (`fde275ce`, job `clock (2030 1/2)`); the next trunk runs passed. Same test as `[FU-CI-ISTMIDNIGHT-FLAKE]` (earlier section) and the 17 Oct failure on `2320dc0a`; this entry tracks the 18 Oct recurrence and the investigation.
+
+**[FU-CI-COST-NITS]** (open, from the `#1247` review) (1) the aggregate's shard union check should compare file NAMES, not counts; (2) count clock legs per half; (3) stale "4 shards" comments now that vitest runs 5; (4) quote `$FILES` in the workflow shell; (5) re-measure clock durations (`vitest-durations.json` came from 2 green runs).
+
+### Bank
+
+**[FU-PYQ-HALF-MARK-SPLIT]** (open) PYQ rows: split steps to the official half-mark scheme where a step carries more than one scheme mark, and clean the answer fields. `#1236` lists 12 restored rows left without step labels (OR rows in one row, garbled steps, figure-mark residue); `#1248` defers the `[1/2 mark]` -> `[0.5 marks]` normalisation to a later lane.
+
+**[FU-OE-COMPOSTING-WORDING]** (open) Our Environment wording is inconsistent on composting: `#1250` rebuilt SCQ-S-ENV-029 because composting is not in the 2026-27 NCERT text, while other OE rows may still mention it. Sweep and align.
+
+**[FU-PYQ-M-2024-TRIG-001-DEGREE]** (open, from `#1248`) `PYQ-M-2024-TRIG-001` step and finalAnswer read "(d) 60" with no degree sign.
+
+**[FU-PYQ-S-CHEMRXN-009]** (open, from `#1248`) `PYQ-S-2026-CHEMRXN-009` is not served and was left unchanged per the controller ruling.
+
+### Product
+
+**[FU-PARENT-REPORT-CHECKBOX]** (open, `#1241`) The opt-in first-name checkbox on the parent report sheet renders as a wide box.
+
+### Growth (outside the repo)
+
+**[FU-DUSSEHRA-SHORT]** (open, owner) Dussehra Short animatic + script (claude.ai doc) awaiting owner tweaks.
+
+**[FU-ACT2-MEASURE-24OCT]** (scheduled, 24 Oct) ACTIVATION-2 measurement (day-1 graded-answer rate) and the Ads budget test.
+
 ## 2026-10-17 - #1211 to #1235 FOLLOW-UPS (recorded by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10)
 
 *Priority order is the order below within each group. File:line readings are at trunk `866743a3` unless an entry names `7e0a5b00`. Earlier dated entries are left as written (standing rule 3); their closures are recorded here.*

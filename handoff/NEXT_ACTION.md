@@ -1,3 +1,18 @@
+## 2026-10-18 - AFTER #1236 to #1242 (written by the docs builder of cofounder session 01PbRBtk under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. From the `#1211`-`#1235` block: "the bank text-clean follow-ups as one lane" shipped as BANK-TEXT-CLEAN-1 `#1250`; `[FU-AUTHENTIC-TIER-PREDICTED-ROWS]` has an owner ruling (the 26 authentic-tier questions stay Practice-Hub-only, see DECISION_LOG 2026-10-18); `[FU-ACT2-MATHS-BOARD-POOL]` is answered by `#1236` / `#1248` / `#1237` (rows step-marked, not rules loosened).)*
+
+- **Owner (end of session):** switch the repo back to PRIVATE (owner rule, 18 Oct). Private means an Actions budget of $0, so CI blocks once included minutes run out.
+- **Owner decision:** `#1252` SOLUTIONS-3 PR-B is HELD FOR OWNER - accept or reject the Wayback capture as the curriculum source; rule on releasing the 5 Statistics cumulative-frequency rows; note about 10 stale refs on unpublished rows (`[FU-SOLUTIONS3-PRB-HOLD]`).
+- **Before switching parent pay ON (`#1240`):** check the anonymous IP rate-limit key in production; write a refund runbook for double-paid links; set `PARENT_PAY_ENABLED` and `VITE_PARENT_PAY_ENABLED` together; one owner test payment in Razorpay test mode (`[FU-PARENT-PAY-ENABLE]`).
+- **Before switching the trial email ON (`#1242`):** Resend account + verified domain; privacy policy names the provider; one dry run; one real send (`[FU-TRIAL-EMAIL-ENABLE]`).
+- **Feedback-call reward:** grant the 7 days with the admin "Extend Premium (free)" button (`#1249`), never with `/api/admin/grant-pass`.
+- **CI:** `[FU-ISTMIDNIGHT]` (a builder is investigating); the CI nits in `[FU-CI-COST-NITS]`.
+- **Live-verify (cofounder / owner):** `#1238` card at 360 px; `#1241` share on a phone; `#1242` banner on a day-5 trial account; `#1244` / `#1251` two solutions pages; `#1249` one extension on a test account.
+- **Scheduled 24 Oct:** ACTIVATION-2 measurement and the Ads budget test (`[FU-ACT2-MEASURE-24OCT]`).
+- **Next (bank):** `[FU-PYQ-HALF-MARK-SPLIT]`, `[FU-OE-COMPOSTING-WORDING]`, `[FU-PYQ-M-2024-TRIG-001-DEGREE]`.
+- **Follow-ups:** the 2026-10-18 (#1236 to #1242) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-17 - AFTER #1211 to #1235 (written by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The "Next (product)" of the `#1198`-`#1209` block is done: FOLLOWUPS-4 `#1211` shipped the four copy / UX items.)*
