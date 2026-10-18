@@ -23,7 +23,7 @@ export const QE_NCERT: CanonicalQuestion[] = [
     answer: "−8",
     solutionSteps: ["For ax² + bx + c = 0, discriminant D = b² − 4ac.", "Here a = 2, b = −4, c = 3.", "D = (−4)² − 4(2)(3) = 16 − 24 = −8.", "Since D < 0, the equation has no real roots."],
     finalAnswer: "−8 — option (a).",
-    ncertRef: "NCERT Example 16", isCompetencyBased: false,
+    ncertRef: "NCERT Example 7", isCompetencyBased: false,
     strategyHint: "Always identify a, b, c first; then D = b² − 4ac." },
 
   { id: "QE-N-NCERT-4-MCQ-003", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant and Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
@@ -32,7 +32,7 @@ export const QE_NCERT: CanonicalQuestion[] = [
     answer: "Two equal real roots",
     solutionSteps: ["a = 3, b = −4√3, c = 4.", "D = b² − 4ac = (−4√3)² − 4(3)(4) = 48 − 48 = 0.", "D = 0 ⇒ two equal real roots.", "The repeated root is x = −b/2a = 4√3 / 6 = 2√3 / 3."],
     finalAnswer: "Two equal real roots — option (a).",
-    ncertRef: "NCERT Ex 4.4 Q1(ii)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 4.3 Q1(ii)", isCompetencyBased: true,
     strategyHint: "Compute D first; D = 0 ⇒ equal roots, D > 0 ⇒ distinct, D < 0 ⇒ none." },
 
   { id: "QE-N-NCERT-4-MCQ-004", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Factorisation", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
@@ -90,7 +90,7 @@ export const QE_NCERT: CanonicalQuestion[] = [
     answer: "For equal roots, D = 0: k² − 24 = 0 ⇒ k² = 24 ⇒ k = ±2√6.",
     solutionSteps: ["For ax² + bx + c = 0 to have equal roots, D = b² − 4ac = 0.", "Here a = 2, b = k, c = 3 ⇒ D = k² − 4(2)(3) = k² − 24.", "Set D = 0: k² − 24 = 0 ⇒ k² = 24 ⇒ k = ±√24 = ±2√6.", "So k = 2√6 or k = −2√6."],
     finalAnswer: "k = ±2√6.",
-    ncertRef: "NCERT Ex 4.4 Q2(i)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 4.3 Q2(i)", isCompetencyBased: true,
     strategyHint: "Equal roots ⇔ D = 0 — set b² − 4ac = 0 and solve for the unknown coefficient." },
 
   // ===== Section C: Short (3 marks) =====
@@ -155,7 +155,7 @@ export const QE_NCERT: CanonicalQuestion[] = [
     answer: "D = 0; the equation has two equal real roots, each x = 1/3.",
     solutionSteps: ["Here a = 3, b = −2, c = 1/3.", "D = b² − 4ac = (−2)² − 4 × 3 × (1/3) = 4 − 4 = 0.", "Since D = 0, the equation has two equal real roots.", "The repeated root: x = −b / 2a = 2 / 6 = 1/3.", "Hence both roots are x = 1/3, 1/3."],
     finalAnswer: "D = 0; equal real roots x = 1/3, 1/3.",
-    ncertRef: "NCERT Example 18", isCompetencyBased: false,
+    ncertRef: "NCERT Example 9", isCompetencyBased: false,
     strategyHint: "When D = 0, the unique root is x = −b/2a — quote it twice." },
 
   { id: "QE-N-NCERT-4-SH-009", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word Problems", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -163,7 +163,7 @@ export const QE_NCERT: CanonicalQuestion[] = [
     answer: "Yes — it is a square park of side 20 m (length = breadth = 20 m).",
     solutionSteps: ["Let length = ℓ and breadth = b. Perimeter 2(ℓ + b) = 80 ⇒ ℓ + b = 40 ⇒ b = 40 − ℓ.", "Area: ℓ · b = ℓ(40 − ℓ) = 400 ⇒ 40ℓ − ℓ² = 400 ⇒ ℓ² − 40ℓ + 400 = 0.", "Discriminant D = 40² − 4(400) = 1600 − 1600 = 0 → equal real roots ⇒ a unique design exists.", "Root: ℓ = 40/2 = 20 m, hence b = 40 − 20 = 20 m.", "So the park is a 20 m × 20 m square — it is possible."],
     finalAnswer: "Yes; ℓ = b = 20 m (the park is a square).",
-    ncertRef: "NCERT Ex 4.4 Q5", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 4.3 Q5", isCompetencyBased: true,
     strategyHint: "Use the discriminant to first decide feasibility; D ≥ 0 ⇒ design exists." },
 
   // ===== Section D: Long (5 marks) =====

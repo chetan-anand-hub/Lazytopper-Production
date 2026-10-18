@@ -15,7 +15,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "2² × 3 × 13",
     solutionSteps: ["Divide 156 by 2: 156 ÷ 2 = 78.", "78 ÷ 2 = 39. 39 ÷ 3 = 13. 13 is prime.", "So 156 = 2 × 2 × 3 × 13 = 2² × 3 × 13."],
     finalAnswer: "2² × 3 × 13 — option (a).",
-    ncertRef: "NCERT Ex 1.2 Q1(ii)", isCompetencyBased: false },
+    ncertRef: "NCERT Ex 1.1 Q1(ii)", isCompetencyBased: false },
 
   { id: "RN-N-NCERT-1-MCQ-002", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If HCF(306, 657) = 9, then LCM(306, 657) is",
@@ -23,7 +23,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "22338",
     solutionSteps: ["For two positive integers a and b: HCF(a, b) × LCM(a, b) = a × b.", "LCM(306, 657) = (306 × 657) / HCF(306, 657) = 201042 / 9.", "201042 / 9 = 22338."],
     finalAnswer: "22338 — option (a).",
-    ncertRef: "NCERT Ex 1.2 Q4", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.1 Q4", isCompetencyBased: true,
     strategyHint: "Use HCF × LCM = product of the two numbers." },
 
   { id: "RN-N-NCERT-1-MCQ-003", subject: "Maths", topicKey: "real-numbers", subtopic: "Decimal Expansion", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
@@ -41,7 +41,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "0",
     solutionSteps: ["6ⁿ = (2 × 3)ⁿ = 2ⁿ × 3ⁿ. The only prime factors of 6ⁿ are 2 and 3.", "A number ends with 0 only if it is divisible by 10 = 2 × 5, i.e. its prime factorisation must contain 5.", "Since 6ⁿ has no factor of 5, by the uniqueness of prime factorisation (FTA), 6ⁿ can NEVER end with 0."],
     finalAnswer: "0 — option (c).",
-    ncertRef: "NCERT Ex 1.2 Q5", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.1 Q5", isCompetencyBased: true,
     strategyHint: "Ends-with-0 ⇒ divisible by 10 ⇒ must have factor 5." },
 
   { id: "RN-N-NCERT-1-MCQ-005", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
@@ -50,7 +50,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "182 and 13",
     solutionSteps: ["26 = 2 × 13. 91 = 7 × 13.", "HCF = product of smallest powers of common primes = 13.", "LCM = product of greatest powers of all primes = 2 × 7 × 13 = 182.", "Check: HCF × LCM = 13 × 182 = 2366 = 26 × 91. ✓"],
     finalAnswer: "LCM = 182, HCF = 13 — option (a).",
-    ncertRef: "NCERT Ex 1.2 Q2(i)", isCompetencyBased: false },
+    ncertRef: "NCERT Ex 1.1 Q2(i)", isCompetencyBased: false },
 
   // ===== Section A — Assertion-Reasoning (1 mark) =====
   { id: "RN-N-NCERT-1-AR-001", subject: "Maths", topicKey: "real-numbers", subtopic: "Decimal Expansion", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
@@ -86,7 +86,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "5005 = 5 × 7 × 11 × 13.",
     solutionSteps: ["5005 is divisible by 5 (ends in 5): 5005 ÷ 5 = 1001.", "1001 ÷ 7 = 143.", "143 ÷ 11 = 13. 13 is prime.", "So 5005 = 5 × 7 × 11 × 13."],
     finalAnswer: "5005 = 5 × 7 × 11 × 13.",
-    ncertRef: "NCERT Ex 1.2 Q1(iv)", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 1.1 Q1(iv)", isCompetencyBased: false,
     strategyHint: "Pull out small primes (2, 3, 5, 7, 11, …) one by one." },
 
   { id: "RN-N-NCERT-1-SA-002", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
@@ -94,7 +94,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "510 = 2 × 3 × 5 × 17, 92 = 2² × 23. HCF = 2; LCM = 2² × 3 × 5 × 17 × 23 = 23460.",
     solutionSteps: ["510 = 2 × 255 = 2 × 3 × 85 = 2 × 3 × 5 × 17.", "92 = 2 × 46 = 2 × 2 × 23 = 2² × 23.", "HCF = product of smallest powers of common primes = 2¹ = 2.", "LCM = 2² × 3 × 5 × 17 × 23 = 4 × 5865 = 23460."],
     finalAnswer: "HCF = 2, LCM = 23460.",
-    ncertRef: "NCERT Ex 1.2 Q2(ii)", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 1.1 Q2(ii)", isCompetencyBased: false,
     strategyHint: "HCF = smallest powers of COMMON primes; LCM = greatest powers of ALL primes." },
 
   { id: "RN-N-NCERT-1-SA-003", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
@@ -102,7 +102,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "7 × 11 × 13 + 13 = 13 × (7 × 11 + 1) = 13 × 78. Since the expression has two factors greater than 1 (namely 13 and 78), it is composite.",
     solutionSteps: ["Factor 13 from both terms: 7 × 11 × 13 + 13 = 13 × (7 × 11 + 1).", "Compute 7 × 11 + 1 = 77 + 1 = 78.", "So the number = 13 × 78. Both 13 > 1 and 78 > 1.", "A number with more than two positive factors is composite. Hence 7 × 11 × 13 + 13 is composite."],
     finalAnswer: "13 × 78 = 1014, composite (has factors 13 and 78 besides 1 and itself).",
-    ncertRef: "NCERT Ex 1.2 Q6", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.1 Q6", isCompetencyBased: true,
     strategyHint: "Look for a common factor in both terms before checking primality." },
 
   { id: "RN-N-NCERT-1-SA-004", subject: "Maths", topicKey: "real-numbers", subtopic: "Decimal Expansion", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
@@ -119,7 +119,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "17, 23, 29 are all prime numbers with no common factors. HCF = 1; LCM = 17 × 23 × 29 = 11339.",
     solutionSteps: ["Prime factorisations: 17 = 17; 23 = 23; 29 = 29. (All three are themselves prime.)", "There is no prime common to all three → HCF = 1.", "LCM = product of all distinct primes (each to the power 1) = 17 × 23 × 29.", "17 × 23 = 391; 391 × 29 = 11339.", "Hence HCF = 1 and LCM = 11339."],
     finalAnswer: "HCF = 1; LCM = 11339.",
-    ncertRef: "NCERT Ex 1.2 Q3(ii)", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 1.1 Q3(ii)", isCompetencyBased: false,
     strategyHint: "Pairwise coprime numbers ⇒ HCF = 1, LCM = product." },
 
   { id: "RN-N-NCERT-1-SA-006", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -127,7 +127,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "6 = 2 × 3; 72 = 2³ × 3²; 120 = 2³ × 3 × 5. HCF = 2 × 3 = 6; LCM = 2³ × 3² × 5 = 360.",
     solutionSteps: ["6 = 2 × 3.", "72 = 8 × 9 = 2³ × 3².", "120 = 8 × 15 = 2³ × 3 × 5.", "HCF = smallest powers of common primes = 2¹ × 3¹ = 6.", "LCM = greatest powers of all primes that appear = 2³ × 3² × 5 = 8 × 9 × 5 = 360."],
     finalAnswer: "HCF = 6; LCM = 360.",
-    ncertRef: "NCERT Example 8", isCompetencyBased: false,
+    ncertRef: "NCERT Example 4", isCompetencyBased: false,
     strategyHint: "Three numbers: take min powers for HCF and max powers for LCM over ALL three." },
 
   { id: "RN-N-NCERT-1-SA-007", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -135,7 +135,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "They will meet again at the starting point after LCM(18, 12) = 36 minutes.",
     solutionSteps: ["They both meet at the start when each has completed an integer number of rounds — i.e. after a time that is a multiple of both 18 and 12.", "The smallest such time is LCM(18, 12).", "Prime factorisations: 18 = 2 × 3²; 12 = 2² × 3.", "LCM = 2² × 3² = 4 × 9 = 36.", "Hence they meet at the starting point after 36 minutes."],
     finalAnswer: "36 minutes.",
-    ncertRef: "NCERT Ex 1.2 Q7", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.1 Q7", isCompetencyBased: true,
     strategyHint: "'Meet again at start' = LCM of individual lap times." },
 
   { id: "RN-N-NCERT-1-SA-008", subject: "Maths", topicKey: "real-numbers", subtopic: "Fundamental Theorem of Arithmetic", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
@@ -143,7 +143,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "7 × 6 × 5 × 4 × 3 × 2 × 1 + 5 = 5 × (7 × 6 × 4 × 3 × 2 × 1 + 1) = 5 × 1009. Since the expression equals a product of two integers each greater than 1, it is composite.",
     solutionSteps: ["5 is a factor of both terms: 7 × 6 × 5 × 4 × 3 × 2 × 1 contains a 5, and the second term IS 5.", "Factor out 5: 5 × (7 × 6 × 4 × 3 × 2 × 1 + 1).", "Compute 7 × 6 × 4 × 3 × 2 × 1 = 1008. So the bracket = 1008 + 1 = 1009.", "Number = 5 × 1009. Both 5 > 1 and 1009 > 1.", "A number expressible as a product of two integers each > 1 is composite. Hence the number is composite."],
     finalAnswer: "5 × 1009 = 5045, composite.",
-    ncertRef: "NCERT Ex 1.2 Q6", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.1 Q6", isCompetencyBased: true,
     strategyHint: "When the second term is a prime that already appears in the product, factor it out." },
 
   { id: "RN-N-NCERT-1-SA-009", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrational Numbers", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
@@ -151,7 +151,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "Assume, to the contrary, that 5 − √3 is rational. Then we can write 5 − √3 = a/b for some integers a, b (b ≠ 0). Rearranging, √3 = 5 − a/b = (5b − a)/b, which is a ratio of integers and hence rational. This contradicts the known fact that √3 is irrational. Hence 5 − √3 must be irrational.",
     solutionSteps: ["Assume 5 − √3 is rational. Then 5 − √3 = a/b with integers a, b and b ≠ 0.", "Rearrange: √3 = 5 − a/b = (5b − a)/b.", "RHS is a ratio of two integers with non-zero denominator → rational.", "So √3 would be rational, contradicting the given fact that √3 is irrational.", "Hence our assumption is wrong. Therefore 5 − √3 is irrational."],
     finalAnswer: "5 − √3 is irrational (by contradiction, using √3 irrational).",
-    ncertRef: "NCERT Example 10", isCompetencyBased: true,
+    ncertRef: "NCERT Example 6", isCompetencyBased: true,
     strategyHint: "Sum/difference of a rational and an irrational is irrational." },
 
   { id: "RN-N-NCERT-1-SA-010", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrational Numbers", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
@@ -159,7 +159,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "Assume 1/√2 is rational. Then 1/√2 = a/b for coprime integers a, b with b ≠ 0. Cross-multiplying, b = a√2, so √2 = b/a, which would make √2 rational. This contradicts the known fact that √2 is irrational. Hence 1/√2 is irrational.",
     solutionSteps: ["Suppose, to the contrary, that 1/√2 is rational. Write 1/√2 = a/b with a, b coprime integers, b ≠ 0.", "Cross-multiply: b = a√2, so √2 = b/a.", "Since a, b are integers and a ≠ 0, b/a is rational.", "But √2 is irrational (NCERT Theorem 1.4) → contradiction.", "Hence 1/√2 is irrational."],
     finalAnswer: "1/√2 is irrational.",
-    ncertRef: "NCERT Ex 1.3 Q3(i)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.2 Q3(i)", isCompetencyBased: true,
     strategyHint: "Quotient of a non-zero rational and an irrational is irrational." },
 
   // ===== Section D — Long / Proofs (5 marks) =====
@@ -176,7 +176,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "Assume, to the contrary, that √3 is rational. Then √3 = a/b for coprime integers a, b with b ≠ 0. Squaring: 3 = a²/b², so a² = 3b². Hence 3 divides a², and by Theorem 1.3 (prime p | a² ⇒ p | a), 3 divides a. Write a = 3c. Then (3c)² = 3b² ⇒ 9c² = 3b² ⇒ b² = 3c². So 3 divides b², hence 3 divides b. Thus 3 is a common factor of a and b, contradicting the assumption that a and b are coprime. Hence √3 is irrational.",
     solutionSteps: ["Suppose √3 is rational. Then √3 = a/b with gcd(a, b) = 1 and b ≠ 0.", "Squaring: 3 = a²/b² ⇒ a² = 3b² ⇒ 3 | a².", "By the prime-divides-square theorem, 3 | a. Write a = 3c.", "Substitute: 9c² = 3b² ⇒ b² = 3c². So 3 | b², hence 3 | b.", "Now 3 | a and 3 | b, contradicting gcd(a, b) = 1. Hence √3 is irrational."],
     finalAnswer: "√3 is irrational.",
-    ncertRef: "NCERT Example 9", isCompetencyBased: true,
+    ncertRef: "NCERT Example 5", isCompetencyBased: true,
     strategyHint: "Same template as √2 proof; replace 2 with 3." },
 
   { id: "RN-N-NCERT-1-LA-003", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
@@ -184,7 +184,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "Assume, to the contrary, that √5 is rational. Then √5 = a/b for coprime integers a, b with b ≠ 0. Squaring: 5 = a²/b², so a² = 5b². Hence 5 divides a², and by Theorem 1.3 (prime p | a² ⇒ p | a), 5 divides a. Write a = 5c. Substituting: 25c² = 5b² ⇒ b² = 5c². So 5 divides b², and hence 5 divides b. But then 5 is a common factor of a and b, contradicting gcd(a, b) = 1. The contradiction shows our assumption was wrong, so √5 is irrational.",
     solutionSteps: ["Assume √5 is rational. Write √5 = a/b with gcd(a, b) = 1, b ≠ 0.", "Squaring: 5 = a²/b² ⇒ a² = 5b² ⇒ 5 | a².", "Since 5 is prime, 5 | a² ⇒ 5 | a. Write a = 5c for some integer c.", "Substitute: (5c)² = 5b² ⇒ 25c² = 5b² ⇒ b² = 5c². Hence 5 | b² ⇒ 5 | b.", "Now 5 is a common factor of a and b, contradicting gcd(a, b) = 1. Hence √5 is irrational."],
     finalAnswer: "√5 is irrational.",
-    ncertRef: "NCERT Ex 1.3 Q1", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.2 Q1", isCompetencyBased: true,
     strategyHint: "Identical template — works for any prime p in place of 5." },
 
   { id: "RN-N-NCERT-1-LA-004", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
@@ -192,7 +192,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "Assume, to the contrary, that 3 + 2√5 is rational. Then we can write 3 + 2√5 = a/b for some integers a, b with b ≠ 0. Rearranging: 2√5 = a/b − 3 = (a − 3b)/b. Dividing by 2: √5 = (a − 3b)/(2b). Since a, b are integers, (a − 3b)/(2b) is a ratio of two integers with non-zero denominator, hence is rational. So √5 would be rational. But we are given that √5 is irrational — contradiction. Therefore our assumption was wrong, and 3 + 2√5 is irrational.",
     solutionSteps: ["Suppose, for contradiction, that 3 + 2√5 is rational. Then 3 + 2√5 = a/b with a, b integers, b ≠ 0.", "Isolate √5: 2√5 = a/b − 3 = (a − 3b)/b.", "Divide by 2: √5 = (a − 3b)/(2b).", "RHS is a ratio of integers (with non-zero denominator) → rational.", "So √5 would be rational, contradicting the fact that √5 is irrational. Hence 3 + 2√5 is irrational."],
     finalAnswer: "3 + 2√5 is irrational.",
-    ncertRef: "NCERT Ex 1.3 Q2", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.2 Q2", isCompetencyBased: true,
     strategyHint: "Isolate √5 on one side; show RHS is rational; contradict." },
 
   // ===== Section E — Case-Based (4 marks) =====

@@ -210,7 +210,7 @@ export const TRIG_NCERT: CanonicalQuestion[] = [
       "So the expression = 9 × 1 = 9."
     ],
     finalAnswer: "9 — option (b).",
-    ncertRef: "NCERT Ex 8.4 Q4(i)", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 8.3 Q3(i)", isCompetencyBased: false,
     strategyHint: "Factor out 9 and apply sec²A − tan²A = 1." },
 
   { id: "TRIG-N-NCERT-8-MCQ-004", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identities", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
@@ -222,7 +222,7 @@ export const TRIG_NCERT: CanonicalQuestion[] = [
       "= (1 − sin²A) / cos A = cos²A / cos A = cos A."
     ],
     finalAnswer: "cos A — option (d).",
-    ncertRef: "NCERT Ex 8.4 Q4(iii)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 8.3 Q3(iii)", isCompetencyBased: true,
     strategyHint: "Combine into (1 + sin A)/cos A, then use (1 + sin A)(1 − sin A) = 1 − sin²A = cos²A." },
 
   { id: "TRIG-N-NCERT-8-LA-002", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identities", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
@@ -236,7 +236,7 @@ export const TRIG_NCERT: CanonicalQuestion[] = [
       "Hence proved."
     ],
     finalAnswer: "LHS = 2 sec A = RHS.",
-    ncertRef: "NCERT Ex 8.4 Q5(ii)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 8.3 Q4(ii)", isCompetencyBased: true,
     strategyHint: "Combine fractions, expand the numerator, and use sin²A + cos²A = 1." },
 
   { id: "TRIG-N-NCERT-8-LA-003", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identities", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
@@ -249,7 +249,7 @@ export const TRIG_NCERT: CanonicalQuestion[] = [
       "Hence LHS = sec A + tan A = RHS. Proved."
     ],
     finalAnswer: "LHS = sec A + tan A = RHS.",
-    ncertRef: "NCERT Ex 8.4 Q5(vi)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 8.3 Q4(vi)", isCompetencyBased: true,
     strategyHint: "Multiply inside the radical by (1 + sin A)/(1 + sin A) to get a perfect square over cos²A." },
 
   // ===================== CHAPTER 9: Applications of Trigonometry =====================

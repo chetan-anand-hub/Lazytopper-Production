@@ -24,7 +24,7 @@ export const AP_NCERT: CanonicalQuestion[] = [
     answer: "47",
     solutionSteps: ["a = 2, d = 7 − 2 = 5, n = 10.", "a₁₀ = 2 + 9 × 5 = 2 + 45 = 47."],
     finalAnswer: "47 — option (a).",
-    ncertRef: "NCERT Example 3 (page 102)", isCompetencyBased: false },
+    ncertRef: "NCERT Example 3", isCompetencyBased: false },
 
   { id: "AP-N-NCERT-5-MCQ-003", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Identification of AP", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Which of the following is NOT an AP?",
@@ -40,7 +40,7 @@ export const AP_NCERT: CanonicalQuestion[] = [
     answer: "−979",
     solutionSteps: ["a = 8, d = 3 − 8 = −5, n = 22.", "Sₙ = n/2 [2a + (n − 1)d] = 22/2 [16 + 21 × (−5)] = 11 × (16 − 105).", "S₂₂ = 11 × (−89) = −979."],
     finalAnswer: "−979 — option (a).",
-    ncertRef: "NCERT Example 11 (page 109)", isCompetencyBased: false,
+    ncertRef: "NCERT Example 11", isCompetencyBased: false,
     strategyHint: "Use Sₙ = n/2[2a + (n − 1)d]." },
 
   { id: "AP-N-NCERT-5-MCQ-005", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term of AP", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
@@ -95,21 +95,21 @@ export const AP_NCERT: CanonicalQuestion[] = [
     questionText: "How many two-digit numbers are divisible by 3?",
     solutionSteps: ["Two-digit multiples of 3 form the AP 12, 15, 18, …, 99 with a = 12, d = 3.", "aₙ = 99 ⇒ 12 + (n − 1) × 3 = 99 ⇒ (n − 1) × 3 = 87 ⇒ n − 1 = 29.", "n = 30 — there are 30 such numbers."],
     finalAnswer: "30 two-digit numbers are divisible by 3.",
-    ncertRef: "NCERT Example 7 (page 103)", isCompetencyBased: true,
+    ncertRef: "NCERT Example 7", isCompetencyBased: true,
     strategyHint: "List the AP of multiples in the given range, then solve aₙ = a + (n − 1)d." },
 
   { id: "AP-N-NCERT-5-VSA-004", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term of AP", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Which term of the AP 21, 18, 15, … is −81?",
     solutionSteps: ["a = 21, d = 18 − 21 = −3.", "aₙ = −81 ⇒ 21 + (n − 1) × (−3) = −81.", "(n − 1) × (−3) = −102 ⇒ n − 1 = 34 ⇒ n = 35."],
     finalAnswer: "The 35th term of the AP is −81.",
-    ncertRef: "NCERT Example 4 (page 102)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 4", isCompetencyBased: true },
 
   // ===== Section C — Short Answer (3 marks) =====
   { id: "AP-N-NCERT-5-SA-001", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term of AP", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Determine the AP whose 3rd term is 5 and the 7th term is 9.",
     solutionSteps: ["a + 2d = 5 …(1) and a + 6d = 9 …(2).", "Subtract (1) from (2): 4d = 4 ⇒ d = 1.", "Substitute in (1): a = 5 − 2 = 3.", "So the AP is 3, 4, 5, 6, 7, ……"],
     finalAnswer: "AP: 3, 4, 5, 6, 7, ….",
-    ncertRef: "NCERT Example 5 (page 102)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 5", isCompetencyBased: true },
 
   { id: "AP-N-NCERT-5-SA-002", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term of AP", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the 31st term of an AP whose 11th term is 38 and the 16th term is 73.",
@@ -127,7 +127,7 @@ export const AP_NCERT: CanonicalQuestion[] = [
     questionText: "How many terms of the AP 24, 21, 18, … must be taken so that their sum is 78?",
     solutionSteps: ["a = 24, d = −3, Sₙ = 78.", "Sₙ = n/2 [2a + (n − 1)d] = n/2 [48 + (n − 1)(−3)] = n/2 [51 − 3n].", "Equate: n(51 − 3n)/2 = 78 ⇒ 51n − 3n² = 156 ⇒ n² − 17n + 52 = 0.", "(n − 4)(n − 13) = 0 ⇒ n = 4 or n = 13. Both are valid because terms 5 to 13 sum to zero (terms cross from positive to negative)."],
     finalAnswer: "n = 4 or n = 13.",
-    ncertRef: "NCERT Example 13 (page 110)", isCompetencyBased: true,
+    ncertRef: "NCERT Example 13", isCompetencyBased: true,
     strategyHint: "Two answers can occur when the AP changes sign — both are valid." },
 
   { id: "AP-N-NCERT-5-SA-005", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -140,7 +140,7 @@ export const AP_NCERT: CanonicalQuestion[] = [
     questionText: "If the sum of the first 14 terms of an AP is 1050 and its first term is 10, find the 20th term.",
     solutionSteps: ["S₁₄ = 14/2 [2 × 10 + 13d] = 7 (20 + 13d) = 140 + 91d.", "Equate: 140 + 91d = 1050 ⇒ 91d = 910 ⇒ d = 10.", "a₂₀ = a + 19d = 10 + 19 × 10 = 200."],
     finalAnswer: "20th term = 200.",
-    ncertRef: "NCERT Example 12 (page 109)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 12", isCompetencyBased: true },
 
   // ===== Section D — Long Answer (5 marks) =====
   { id: "AP-N-NCERT-5-LA-001", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term of AP", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
@@ -154,7 +154,7 @@ export const AP_NCERT: CanonicalQuestion[] = [
     questionText: "A manufacturer of TV sets produced 600 sets in the third year and 700 sets in the seventh year. Assuming that the production increases uniformly by a fixed number every year, find (i) the production in the 1st year, (ii) the production in the 10th year, (iii) the total production in the first 7 years.",
     solutionSteps: ["Let aₙ denote production in the nth year. a₃ = 600 and a₇ = 700.", "a + 2d = 600 and a + 6d = 700. Subtract: 4d = 100 ⇒ d = 25.", "(i) a = 600 − 2 × 25 = 550. Production in year 1 = 550 sets.", "(ii) a₁₀ = a + 9d = 550 + 225 = 775 sets.", "(iii) S₇ = 7/2 [2 × 550 + 6 × 25] = 7/2 × 1250 = 4375 sets."],
     finalAnswer: "(i) 550 sets, (ii) 775 sets, (iii) 4375 sets in first 7 years.",
-    ncertRef: "NCERT Example 16 (page 111)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 16", isCompetencyBased: true },
 
   { id: "AP-N-NCERT-5-LA-003", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A contract on a construction job specifies a penalty for delay of completion as ₹200 for the first day, ₹250 for the second day, ₹300 for the third day, etc., the penalty for each succeeding day being ₹50 more than for the preceding day. How much money must the contractor pay as penalty if the work is delayed by 30 days?",

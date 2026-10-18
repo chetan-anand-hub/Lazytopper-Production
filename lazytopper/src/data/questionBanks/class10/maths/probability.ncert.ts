@@ -15,7 +15,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     answer: "−1.5",
     solutionSteps: ["A probability must satisfy 0 ≤ P(E) ≤ 1.", "−1.5 is negative, so it lies outside this range and cannot be a probability."],
     finalAnswer: "−1.5 — option (b).",
-    ncertRef: "NCERT Ex 15.1 Q4", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 14.1 Q4", isCompetencyBased: false,
     strategyHint: "Reject any value < 0 or > 1." },
 
   { id: "PROB-N-NCERT-14-MCQ-002", subject: "Maths", topicKey: "probability", subtopic: "Complementary Events", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
@@ -24,7 +24,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     answer: "0.95",
     solutionSteps: ["P(E) + P(not E) = 1.", "P(not E) = 1 − 0.05 = 0.95."],
     finalAnswer: "0.95 — option (c).",
-    ncertRef: "NCERT Ex 15.1 Q5", isCompetencyBased: false },
+    ncertRef: "NCERT Ex 14.1 Q5", isCompetencyBased: false },
 
   { id: "PROB-N-NCERT-14-MCQ-003", subject: "Maths", topicKey: "probability", subtopic: "Single Die", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "A die is thrown once. The probability of getting an odd number is",
@@ -32,7 +32,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     answer: "1/2",
     solutionSteps: ["Total outcomes = 6 (faces 1–6).", "Favourable odd outcomes: 1, 3, 5 → 3 outcomes.", "P(odd) = 3/6 = 1/2."],
     finalAnswer: "1/2 — option (c).",
-    ncertRef: "NCERT Ex 15.1 Q13(iii)", isCompetencyBased: false },
+    ncertRef: "NCERT Ex 14.1 Q13(iii)", isCompetencyBased: false },
 
   { id: "PROB-N-NCERT-14-MCQ-004", subject: "Maths", topicKey: "probability", subtopic: "Playing Cards", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "One card is drawn from a well-shuffled deck of 52 cards. The probability that the card is an ace is",
@@ -40,7 +40,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     answer: "1/13",
     solutionSteps: ["A deck has 4 aces out of 52.", "P(ace) = 4/52 = 1/13."],
     finalAnswer: "1/13 — option (a).",
-    ncertRef: "NCERT Example 4 (page 301)", isCompetencyBased: false },
+    ncertRef: "NCERT Example 4", isCompetencyBased: false },
 
   { id: "PROB-N-NCERT-14-MCQ-005", subject: "Maths", topicKey: "probability", subtopic: "Two Dice", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Two dice (one blue and one grey) are thrown simultaneously. The probability that the sum of the two numbers appearing on top is 8 equals",
@@ -48,7 +48,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     answer: "5/36",
     solutionSteps: ["Total outcomes = 6 × 6 = 36.", "Favourable pairs (sum 8): (2,6), (3,5), (4,4), (5,3), (6,2) → 5 outcomes.", "P(sum = 8) = 5/36."],
     finalAnswer: "5/36 — option (a).",
-    ncertRef: "NCERT Example 13(i) (page 307)", isCompetencyBased: true,
+    ncertRef: "NCERT Example 13(i)", isCompetencyBased: true,
     strategyHint: "Enumerate ordered pairs systematically using the 6×6 grid." },
 
   { id: "PROB-N-NCERT-14-MCQ-006", subject: "Maths", topicKey: "probability", subtopic: "Two Coins", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
@@ -57,7 +57,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     answer: "3/4",
     solutionSteps: ["Sample space: {HH, HT, TH, TT} — 4 outcomes.", "‘At least one head’ is favoured by HH, HT, TH → 3 outcomes.", "P(at least one head) = 3/4."],
     finalAnswer: "3/4 — option (c).",
-    ncertRef: "NCERT Example 9 (page 304)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 9", isCompetencyBased: true },
 
   // ===== Section A — Assertion-Reasoning (1 mark) =====
   { id: "PROB-N-NCERT-14-AR-001", subject: "Maths", topicKey: "probability", subtopic: "Sure and Impossible Events", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
@@ -84,57 +84,57 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     answer: "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     solutionSteps: ["By R: P(not E) = 1 − 2/3 = 1/3. So A is true.", "R is the standard complementary-events identity — true.", "R is exactly the reason A holds."],
     finalAnswer: "Option (A).",
-    ncertRef: "NCERT Section 15.2 / Ex 15.1 Q1(i)", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q1(i)", isCompetencyBased: true },
 
   // ===== Section B — Short Answer (2 marks) =====
   { id: "PROB-N-NCERT-14-VSA-001", subject: "Maths", topicKey: "probability", subtopic: "Sure and Impossible Events", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "A bag contains only lemon-flavoured candies. Malini takes out one candy without looking. Find the probability that she takes out (i) an orange-flavoured candy, (ii) a lemon-flavoured candy.",
     solutionSteps: ["(i) There are no orange-flavoured candies in the bag, so favourable outcomes = 0. P(orange) = 0 (impossible event).", "(ii) Every candy in the bag is lemon-flavoured, so P(lemon) = 1 (sure event)."],
     finalAnswer: "(i) 0; (ii) 1.",
-    ncertRef: "NCERT Ex 15.1 Q6", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q6", isCompetencyBased: true },
 
   { id: "PROB-N-NCERT-14-VSA-002", subject: "Maths", topicKey: "probability", subtopic: "Coloured Balls", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "A bag contains 3 red balls and 5 black balls. A ball is drawn at random. Find the probability that the ball drawn is (i) red, (ii) not red.",
     solutionSteps: ["Total balls = 3 + 5 = 8.", "(i) P(red) = 3/8.", "(ii) P(not red) = 1 − 3/8 = 5/8 (or directly 5 black/8 total)."],
     finalAnswer: "(i) 3/8; (ii) 5/8.",
-    ncertRef: "NCERT Ex 15.1 Q8", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q8", isCompetencyBased: true },
 
   { id: "PROB-N-NCERT-14-VSA-003", subject: "Maths", topicKey: "probability", subtopic: "Coins", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Why is tossing a coin considered a fair way of deciding which team should get the ball at the beginning of a football game?",
     solutionSteps: ["A coin is symmetrical and unbiased; tossing it at random gives either head or tail with equal probability 1/2.", "Since each team is equally likely to win the toss, no team has a built-in advantage.", "Hence the coin toss is a fair (impartial) way to assign the ball."],
     finalAnswer: "Because the two outcomes (head, tail) are equally likely, giving both teams an equal chance.",
-    ncertRef: "NCERT Ex 15.1 Q3", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q3", isCompetencyBased: true },
 
   // ===== Section C — Short Answer (3 marks) =====
   { id: "PROB-N-NCERT-14-SA-001", subject: "Maths", topicKey: "probability", subtopic: "Marbles", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A box contains 5 red marbles, 8 white marbles and 4 green marbles. One marble is drawn at random. What is the probability that the marble drawn is (i) red, (ii) white, (iii) not green?",
     solutionSteps: ["Total marbles = 5 + 8 + 4 = 17.", "(i) P(red) = 5/17.", "(ii) P(white) = 8/17.", "(iii) P(not green) = 1 − 4/17 = 13/17."],
     finalAnswer: "(i) 5/17; (ii) 8/17; (iii) 13/17.",
-    ncertRef: "NCERT Ex 15.1 Q9", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q9", isCompetencyBased: true },
 
   { id: "PROB-N-NCERT-14-SA-002", subject: "Maths", topicKey: "probability", subtopic: "Coins", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A piggy bank contains hundred 50p coins, fifty ₹1 coins, twenty ₹2 coins and ten ₹5 coins. One coin falls out at random. Find the probability that the coin (i) is a 50p coin, (ii) is not a ₹5 coin.",
     solutionSteps: ["Total coins = 100 + 50 + 20 + 10 = 180.", "(i) P(50p) = 100/180 = 5/9.", "(ii) Number of coins that are not ₹5 = 180 − 10 = 170. P(not ₹5) = 170/180 = 17/18."],
     finalAnswer: "(i) 5/9; (ii) 17/18.",
-    ncertRef: "NCERT Ex 15.1 Q10", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q10", isCompetencyBased: true },
 
   { id: "PROB-N-NCERT-14-SA-003", subject: "Maths", topicKey: "probability", subtopic: "Playing Cards", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "One card is drawn from a well-shuffled deck of 52 cards. Find the probability of getting (i) a king of red colour, (ii) a face card, (iii) a red face card.",
     solutionSteps: ["(i) Red kings: king of hearts and king of diamonds → 2 favourable. P = 2/52 = 1/26.", "(ii) Face cards = J, Q, K of each suit × 4 suits = 12. P(face) = 12/52 = 3/13.", "(iii) Red face cards: J, Q, K of hearts + J, Q, K of diamonds = 6. P = 6/52 = 3/26."],
     finalAnswer: "(i) 1/26; (ii) 3/13; (iii) 3/26.",
-    ncertRef: "NCERT Ex 15.1 Q14(i,ii,iii)", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q14(i,ii,iii)", isCompetencyBased: true },
 
   { id: "PROB-N-NCERT-14-SA-004", subject: "Maths", topicKey: "probability", subtopic: "Numbered Discs", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A box contains 90 discs numbered 1 to 90. If one disc is drawn at random, find the probability that it bears (i) a two-digit number, (ii) a perfect square, (iii) a number divisible by 5.",
     solutionSteps: ["Total outcomes = 90.", "(i) Two-digit numbers from 10 to 90 → 81 outcomes. P = 81/90 = 9/10.", "(ii) Perfect squares ≤ 90: 1, 4, 9, 16, 25, 36, 49, 64, 81 → 9 outcomes. P = 9/90 = 1/10.", "(iii) Multiples of 5 from 5 to 90: 5, 10, …, 90. Count = 90/5 = 18. P = 18/90 = 1/5."],
     finalAnswer: "(i) 9/10; (ii) 1/10; (iii) 1/5.",
-    ncertRef: "NCERT Ex 15.1 Q18", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q18", isCompetencyBased: true },
 
   { id: "PROB-N-NCERT-14-SA-005", subject: "Maths", topicKey: "probability", subtopic: "Defective Items", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "12 defective pens are accidentally mixed with 132 good ones. One pen is taken out at random. Find the probability that the pen taken out is a good one.",
     solutionSteps: ["Total pens = 12 + 132 = 144.", "Favourable (good) outcomes = 132.", "P(good) = 132/144 = 11/12."],
     finalAnswer: "P(good pen) = 11/12.",
-    ncertRef: "NCERT Ex 15.1 Q16", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q16", isCompetencyBased: true },
 
   // ===== Section D — Long Answer (5 marks) =====
   { id: "PROB-N-NCERT-14-LA-001", subject: "Maths", topicKey: "probability", subtopic: "Two Dice", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",

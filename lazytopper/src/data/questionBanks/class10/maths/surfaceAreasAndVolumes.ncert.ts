@@ -21,7 +21,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "Surface area = 2(lb + bh + hl) = 2(8·4 + 4·4 + 4·8) cm² = 2(32 + 16 + 32) cm² = 2 × 80 cm² = 160 cm²."
     ],
     finalAnswer: "160 cm² — option (B).",
-    ncertRef: "NCERT Ex 13.1 Q1", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 12.1 Q1", isCompetencyBased: false,
     strategyHint: "Two equal cubes joined make a cuboid of side 2a × a × a; compute its surface area, not the sum of cube surfaces." },
 
   { id: "SAV-N-NCERT-12-MCQ-002", subject: "Maths", topicKey: "surface-areas-and-volumes",
@@ -91,7 +91,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "= 6(7)² + (22/7)(3.5)² cm² = 294 + (22/7)(12.25) cm² = 294 + 38.5 cm² = 332.5 cm²."
     ],
     finalAnswer: "Greatest diameter = 7 cm; surface area = 332.5 cm².",
-    ncertRef: "NCERT Ex 13.1 Q4", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 12.1 Q4", isCompetencyBased: false,
     strategyHint: "Greatest hemisphere fitting on a cube face has diameter equal to the cube's edge; subtract the covered circle and add the curved dome." },
 
   { id: "SAV-N-NCERT-12-SA-001", subject: "Maths", topicKey: "surface-areas-and-volumes",
@@ -104,7 +104,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "= 2 × (22/7) × 2.5 × (9 + 5) mm² = 2 × (22/7) × 2.5 × 14 mm² = 220 mm²."
     ],
     finalAnswer: "Surface area of capsule = 220 mm².",
-    ncertRef: "NCERT Ex 13.1 Q6", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 12.1 Q6", isCompetencyBased: true,
     strategyHint: "Capsule = cylinder + 2 hemispheres (= 1 full sphere of same radius); use 2πrh + 4πr²." },
 
   // ===== Section C — Short (3m) =====
@@ -132,7 +132,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "= 2 × (22/7) × 7 × (7 + 6) cm² = 2 × 22 × 13 cm² = 572 cm²."
     ],
     finalAnswer: "Inner surface area = 572 cm².",
-    ncertRef: "NCERT Ex 13.1 Q2", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 12.1 Q2", isCompetencyBased: true,
     strategyHint: "Cylinder height = total height − hemisphere radius; only inner curved surfaces are counted (vessel is hollow, top open)." },
 
   { id: "SAV-N-NCERT-12-SA-006", subject: "Maths", topicKey: "surface-areas-and-volumes",
@@ -146,7 +146,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "= (22/7) × 3.5 × (12.5 + 7) cm² = (22/7) × 3.5 × 19.5 cm² = 11 × 19.5 cm² = 214.5 cm²."
     ],
     finalAnswer: "Total surface area of toy = 214.5 cm².",
-    ncertRef: "NCERT Ex 13.1 Q3", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 12.1 Q3", isCompetencyBased: true,
     strategyHint: "Height of cone = total height − radius; use πr(l + 2r) with l = √(r² + h²)." },
 
   { id: "SAV-N-NCERT-12-SA-007", subject: "Maths", topicKey: "surface-areas-and-volumes",
@@ -160,7 +160,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "= (22 × 2.25 × 28)/(7 × 3) cm³ = 1386/21 cm³ = 66 cm³."
     ],
     finalAnswer: "Volume of air in model = 66 cm³.",
-    ncertRef: "NCERT Ex 13.2 Q2", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 12.2 Q2", isCompetencyBased: true,
     strategyHint: "Cylinder length excludes the two cone heights; add cylinder volume to both cone volumes." },
 
   // ===== Section D — Long (5m) =====
@@ -191,7 +191,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "Syrup (30%) = 0.30 × 1127.28 ≈ 338 cm³."
     ],
     finalAnswer: "Approximate syrup in 45 gulab jamuns ≈ 338 cm³.",
-    ncertRef: "NCERT Ex 13.2 Q3", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 12.2 Q3", isCompetencyBased: true,
     strategyHint: "Each jamun = cylinder + 2 hemispheres (= 1 sphere); use πr²h + (4/3)πr³, then take 30%." },
 
   // ===== Section E — Case-Based (4m) =====
@@ -206,7 +206,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "Cost = 44 × ₹500 = ₹22,000."
     ],
     finalAnswer: "Canvas area = 44 m²; total cost = ₹22,000.",
-    ncertRef: "NCERT Ex 13.1 Q7", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 12.1 Q7", isCompetencyBased: true,
     strategyHint: "Base is open, so only CSA of cylinder + CSA of cone count; then multiply by the rate." },
 
   { id: "SAV-N-NCERT-12-CB-002", subject: "Maths", topicKey: "surface-areas-and-volumes",

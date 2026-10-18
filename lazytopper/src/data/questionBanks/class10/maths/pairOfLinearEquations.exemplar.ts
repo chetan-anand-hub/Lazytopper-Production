@@ -216,7 +216,7 @@ export const PLE_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Salim = 38 years, daughter = 14 years. Let Salim's present age = x and daughter's present age = y. Two years ago: x − 2 = 3(y − 2) → x − 3y = −4 …(1). Six years later: x + 6 = 2(y + 6) + 4 → x − 2y = 10 …(2). Subtract: −y = −14 → y = 14; then x = 38.",
     solutionSteps: ["Let Salim's age now = x; daughter's age now = y (years).", "Two years ago: x − 2 = 3(y − 2) → x − 3y = −4 …(1).", "Six years later: x + 6 = 2(y + 6) + 4 → x + 6 = 2y + 16 → x − 2y = 10 …(2).", "Subtract (1) from (2): (x − 2y) − (x − 3y) = 10 − (−4) → y = 14.", "Substitute in (2): x = 10 + 2(14) = 38. Salim = 38 yr, daughter = 14 yr.", "Check: 2 years ago, 36 = 3 × 12 ✓; 6 years later, 44 = 2 × 20 + 4 ✓."],
     finalAnswer: "Salim = 38 years, Daughter = 14 years.",
-    ncertRef: "Exemplar Ex 3.4 Q16", isCompetencyBased: true,
+    ncertRef: "Exemplar Ex 3.3 Q16", isCompetencyBased: true,
     strategyHint: "'X years ago' → subtract X; 'X years later' → add X; then translate the comparative phrase." },
 
   { id: "PLE-N-EXMPLR-3-LA-003", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
@@ -224,7 +224,7 @@ export const PLE_EXEMPLAR: CanonicalQuestion[] = [
     answer: "The numbers are 40 and 48. Let the numbers be 5k and 6k. Then (5k − 8)/(6k − 8) = 4/5. Cross-multiplying: 5(5k − 8) = 4(6k − 8) → 25k − 40 = 24k − 32 → k = 8. So the numbers are 40 and 48.",
     solutionSteps: ["Let the numbers be 5k and 6k (so their ratio is 5 : 6).", "After subtracting 8 from each: (5k − 8)/(6k − 8) = 4/5.", "Cross-multiply: 5(5k − 8) = 4(6k − 8) → 25k − 40 = 24k − 32.", "Solve: k = 8. Numbers = 5(8) = 40 and 6(8) = 48.", "Verify: (40 − 8)/(48 − 8) = 32/40 = 4/5 ✓."],
     finalAnswer: "The numbers are 40 and 48.",
-    ncertRef: "Exemplar Ex 3.4 Q18", isCompetencyBased: true,
+    ncertRef: "Exemplar Ex 3.3 Q18", isCompetencyBased: true,
     strategyHint: "Represent ratio numbers as 5k and 6k — converts the problem to a single-variable equation." },
 
   { id: "PLE-N-EXMPLR-3-LA-004", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Elimination Method", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
@@ -232,7 +232,7 @@ export const PLE_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Hall A has 100 students and Hall B has 80 students. Let A = x, B = y. After 10 from A → B: x − 10 = y + 10 → x − y = 20 …(1). After 20 from B → A: x + 20 = 2(y − 20) → x − 2y = −60 …(2). Subtract (2) from (1): y = 80; then x = 100.",
     solutionSteps: ["Let number of students in Hall A = x and in Hall B = y.", "Condition 1 (10 from A to B makes counts equal): x − 10 = y + 10 → x − y = 20 …(1).", "Condition 2 (20 from B to A makes A's count double B's): x + 20 = 2(y − 20) → x − 2y = −60 …(2).", "Subtract (2) from (1): (x − y) − (x − 2y) = 20 − (−60) → y = 80.", "From (1): x = 80 + 20 = 100. Hall A = 100 students, Hall B = 80 students.", "Verify: (100 − 10, 80 + 10) = (90, 90) ✓; (100 + 20, 80 − 20) = (120, 60), and 120 = 2(60) ✓."],
     finalAnswer: "Hall A: 100 students; Hall B: 80 students.",
-    ncertRef: "Exemplar Ex 3.4 Q19", isCompetencyBased: true,
+    ncertRef: "Exemplar Ex 3.3 Q19", isCompetencyBased: true,
     strategyHint: "Always subtract a moved quantity from one hall and add it to the other — net total is preserved." },
 
   { id: "PLE-N-EXMPLR-3-LA-005", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
@@ -240,7 +240,7 @@ export const PLE_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Fixed charge = ₹10 and extra-day charge = ₹3 per day. Let fixed = ₹x and per-extra-day = ₹y. Latika (6 days, 4 extra): x + 4y = 22. Anand (4 days, 2 extra): x + 2y = 16. Subtract: 2y = 6 → y = 3; then x = 10.",
     solutionSteps: ["Let fixed charge for the first two days = ₹x and per-extra-day charge = ₹y.", "Latika kept 6 days = 2 + 4 extra: x + 4y = 22 …(1).", "Anand kept 4 days = 2 + 2 extra: x + 2y = 16 …(2).", "Subtract (2) from (1): 2y = 6 → y = 3.", "Substitute in (2): x + 6 = 16 → x = 10. Fixed charge ₹10, extra-day charge ₹3.", "Verify: Latika 10 + 4(3) = 22 ✓; Anand 10 + 2(3) = 16 ✓."],
     finalAnswer: "Fixed charge = ₹10; charge for each extra day = ₹3.",
-    ncertRef: "Exemplar Ex 3.4 Q20", isCompetencyBased: true,
+    ncertRef: "Exemplar Ex 3.3 Q20", isCompetencyBased: true,
     strategyHint: "Count EXTRA days (total − 2), not the total days." },
 
   { id: "PLE-N-EXMPLR-3-LA-006", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
@@ -248,7 +248,7 @@ export const PLE_EXEMPLAR: CanonicalQuestion[] = [
     answer: "Jayanti answered 100 questions correctly. Let correct = x and wrong = y. Then x + y = 120 (total attempted) and x − y/2 = 90 (marks). From the first: y = 120 − x. Substitute: x − (120 − x)/2 = 90 → 2x − (120 − x) = 180 → 3x − 120 = 180 → x = 100. Then y = 20.",
     solutionSteps: ["Let number of correct answers = x and number of wrong answers = y.", "Total questions attempted: x + y = 120 …(1).", "Marks scored: 1·x + (−1/2)·y = 90 → 2x − y = 180 …(2).", "Add (1) and (2): 3x = 300 → x = 100.", "From (1): y = 20. So Jayanti answered 100 correctly and 20 incorrectly.", "Verify: 100 + 20 = 120 ✓; 100 − 20/2 = 100 − 10 = 90 ✓."],
     finalAnswer: "Jayanti answered 100 questions correctly (and 20 wrong).",
-    ncertRef: "Exemplar Ex 3.4 Q21", isCompetencyBased: true,
+    ncertRef: "Exemplar Ex 3.3 Q21", isCompetencyBased: true,
     strategyHint: "Marks equation = (marks-per-correct)·x + (penalty)·y; multiply through by 2 to clear the half." },
 
   { id: "PLE-N-EXMPLR-3-CB-001", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",

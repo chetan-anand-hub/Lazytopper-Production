@@ -137,7 +137,21 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     chapter: 1,
     title: "Real Numbers",
     decision: "SOLUTIONS-2 (owner 18 Oct)",
-    ncert: [],
+    ncert: [
+      r("RN-N-NCERT-1-MCQ-001"),
+      r("RN-N-NCERT-1-MCQ-002"),
+      r("RN-N-NCERT-1-MCQ-005"),
+      r("RN-N-NCERT-1-SA-001"), // not one comparable value
+      r("RN-N-NCERT-1-SA-002"), // more than one value in the answer
+      r("RN-N-NCERT-1-SA-003"), // more than one value in the answer
+      r("RN-N-NCERT-1-SA-005"), // more than one value in the answer
+      r("RN-N-NCERT-1-SA-006"), // more than one value in the answer
+      r("RN-N-NCERT-1-SA-007"), // asks for more than one value
+      r("RN-N-NCERT-1-SA-009"), // proof
+      r("RN-N-NCERT-1-LA-002"), // proof
+      r("RN-N-NCERT-1-LA-003"), // proof
+      r("RN-N-NCERT-1-LA-004"), // proof
+    ],
     exemplar: [
       r("RN-N-EXMPLR-1-MCQ-001"),
       r("RN-N-EXMPLR-1-MCQ-002"),
@@ -150,9 +164,10 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("RN-N-EXMPLR-1-LA-001"), // proof
     ],
     boardPattern: {
-      ncert: [],
-      exemplar: [
+      ncert: [
         r("RN-N-NCERT-1-CB-001"), // case-based
+      ],
+      exemplar: [
         r("RN-N-EXMPLR-1-CB-001"), // case-based
       ],
     },
@@ -167,6 +182,7 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("POLY-N-NCERT-2-MCQ-001"),
       r("POLY-N-NCERT-2-VSA-001"), // asks for more than one value
       r("POLY-N-NCERT-2-VSA-002"), // asks for more than one value
+      r("POLY-N-NCERT-2-SA-001"), // yes/no, true/false or verify, with reason
       r("POLY-N-NCERT-2-SA-002"), // yes/no, true/false or verify, with reason
       r("POLY-N-NCERT-2-SA-004"), // asks for more than one value
     ],
@@ -176,6 +192,7 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("POLY-N-EXEM-2-MCQ-004"),
       r("POLY-N-EXEM-2-MCQ-006"),
       r("POLY-N-EXEM-2-MCQ-007"),
+      r("POLY-N-EXEM-2-VSA-002"), // yes/no, true/false or verify, with reason
       r("POLY-N-EXEM-2-SA-001"), // yes/no, true/false or verify, with reason
       r("POLY-N-EXEM-2-SA-002"), // yes/no, true/false or verify, with reason
       r("POLY-N-EXEM-2-SA-003"), // yes/no, true/false or verify, with reason
@@ -196,7 +213,24 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     title: "Pair of Linear Equations in Two Variables",
     shortTitle: "Pair of Linear Equations",
     decision: "SOLUTIONS-2 (owner 18 Oct)",
-    ncert: [],
+    ncert: [
+      r("PLE-N-NCERT-3-MCQ-001"),
+      r("PLE-N-NCERT-3-MCQ-002"),
+      r("PLE-N-NCERT-3-SA-001"), // more than one value in the answer
+      r("PLE-N-NCERT-3-SA-002"), // more than one value in the answer
+      r("PLE-N-NCERT-3-SA-003"), // more than one value in the answer
+      r("PLE-N-NCERT-3-MCQ-005"),
+      r("PLE-N-NCERT-3-SA-005"), // more than one value in the answer
+      r("PLE-N-NCERT-3-SA-006"), // more than one value in the answer
+      r("PLE-N-NCERT-3-SA-007"), // more than one value in the answer
+      r("PLE-N-NCERT-3-SA-008"), // more than one value in the answer
+      r("PLE-N-NCERT-3-SA-009"), // more than one value in the answer
+      r("PLE-N-NCERT-3-SA-011"), // asks for more than one value
+      r("PLE-N-NCERT-3-SA-012"), // asks for more than one value
+      r("PLE-N-NCERT-3-LA-001"), // more than one value in the answer
+      r("PLE-N-NCERT-3-LA-002"), // more than one value in the answer
+      r("PLE-N-NCERT-3-LA-003"), // more than one value in the answer
+    ],
     exemplar: [
       r("PLE-N-EXMPLR-3-MCQ-002"),
       r("PLE-N-EXMPLR-3-MCQ-003"),
@@ -219,14 +253,19 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("PLE-N-EXMPLR-3-SA-005"), // asks for more than one value
       r("PLE-N-EXMPLR-3-SA-007"), // more than one value in the answer
       r("PLE-N-EXMPLR-3-LA-001"), // more than one value in the answer
+      r("PLE-N-EXMPLR-3-LA-002"), // more than one value in the answer
+      r("PLE-N-EXMPLR-3-LA-003"), // more than one value in the answer
+      r("PLE-N-EXMPLR-3-LA-004"), // more than one value in the answer
+      r("PLE-N-EXMPLR-3-LA-005"), // more than one value in the answer
+      r("PLE-N-EXMPLR-3-LA-006"), // more than one value in the answer
     ],
     boardPattern: {
-      ncert: [],
-      exemplar: [
+      ncert: [
         r("PLE-N-NCERT-3-CB-001"), // case-based
         r("PLE-N-NCERT-3-CB-002"), // case-based
         r("PLE-N-NCERT-3-CB-003"), // case-based
       ],
+      exemplar: [],
     },
   },
   {
@@ -236,15 +275,20 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     title: "Quadratic Equations",
     decision: "SOLUTIONS-2 (owner 18 Oct)",
     ncert: [
+      r("QE-N-NCERT-4-MCQ-002"),
+      r("QE-N-NCERT-4-MCQ-003"),
       r("QE-N-NCERT-4-MCQ-004"),
       r("QE-N-NCERT-4-SA-001"), // yes/no, true/false or verify, with reason
       r("QE-N-NCERT-4-SA-002"), // a relation, not one value
       r("QE-N-NCERT-4-SA-003"), // asks for more than one value
+      r("QE-N-NCERT-4-SA-004"), // asks for more than one value
       r("QE-N-NCERT-4-SH-001"), // asks for more than one value
       r("QE-N-NCERT-4-SH-002"), // asks for more than one value
       r("QE-N-NCERT-4-SH-005"), // more than one value in the answer
       r("QE-N-NCERT-4-SH-006"), // more than one value in the answer
       r("QE-N-NCERT-4-SH-007"), // more than one value in the answer
+      r("QE-N-NCERT-4-SH-008"), // asks for more than one value
+      r("QE-N-NCERT-4-SH-009"), // more than one value in the answer
     ],
     exemplar: [
       r("QE-N-EXMPLR-4-MCQ-003"),
@@ -291,14 +335,22 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     decision: "SOLUTIONS-2 (owner 18 Oct)",
     ncert: [
       r("AP-N-NCERT-5-MCQ-001"),
+      r("AP-N-NCERT-5-MCQ-002"),
       r("AP-N-NCERT-5-MCQ-003"),
+      r("AP-N-NCERT-5-MCQ-004"),
       r("AP-N-NCERT-5-MCQ-005"),
       r("AP-N-NCERT-5-VSA-001"), // more than one value in the answer
       r("AP-N-NCERT-5-VSA-002"), // more than one value in the answer
+      r("AP-N-NCERT-5-VSA-003"), // not one comparable value
+      r("AP-N-NCERT-5-VSA-004"), // not one comparable value
+      r("AP-N-NCERT-5-SA-001"), // more than one value in the answer
       v("AP-N-NCERT-5-SA-002"), // 31st term = 178
       v("AP-N-NCERT-5-SA-003"), // Sum = 1661
+      r("AP-N-NCERT-5-SA-004"), // more than one value in the answer
       v("AP-N-NCERT-5-SA-005"), // Sum = 960
+      v("AP-N-NCERT-5-SA-006"), // 20th term = 200
       r("AP-N-NCERT-5-LA-001"), // more than one value in the answer
+      r("AP-N-NCERT-5-LA-002"), // multi-part
       r("AP-N-NCERT-5-LA-003"), // more than one value in the answer
     ],
     exemplar: [
@@ -318,6 +370,7 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("AP-N-EXEM-5-SA-003"), // more than one value in the answer
       r("AP-N-EXEM-5-SA-004"), // not one comparable value
       v("AP-N-EXEM-5-SA-005"), // k = 27
+      r("AP-N-EXEM-5-SA-006"), // more than one value in the answer
       r("AP-N-EXEM-5-LA-001"), // more than one value in the answer
       r("AP-N-EXEM-5-LA-002"), // more than one value in the answer
       r("AP-N-EXEM2-5-MCQ-001"),
@@ -333,9 +386,11 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("AP-N-EXEM2-5-VSA-003"), // a relation, not one value
       r("AP-N-EXEM2-5-SA-001"), // more than one value in the answer
       r("AP-N-EXEM2-5-SA-002"), // more than one value in the answer
+      r("AP-N-EXEM2-5-SA-003"), // more than one value in the answer
       r("AP-N-EXEM2-5-SA-004"), // asks for more than one value
       v("AP-N-EXEM2-5-SA-005"), // −78
       r("AP-N-EXEM2-5-SA-006"), // more than one value in the answer
+      r("AP-N-EXEM2-5-SA-007"), // more than one value in the answer
       v("AP-N-EXEM2-5-SA-008"), // 1170
       v("AP-N-EXEM2-5-LA-001"), // S₂₀ = 970
       r("AP-N-EXEM2-5-LA-002"), // more than one value in the answer
@@ -370,6 +425,7 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       v("CG-N-NCERT-7-EX-010"), // p = 7
       r("CG-N-NCERT-7-EX-012"), // not one comparable value
       r("CG-N-NCERT-7-EX-013"), // not one comparable value
+      r("CG-N-NCERT-7-EX-015"), // approximate / rounded key
       r("CG-N-NCERT-7-EX-016"), // yes/no, true/false or verify, with reason
       r("CG-N-NCERT-7-EX-017"), // more than one value in the answer
       r("CG-N-NCERT-7-EX-018"), // asks for more than one value
@@ -416,6 +472,7 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("CG-N-EXEM2-7-SA-006"), // ratio answer
       r("CG-N-EXEM2-7-SA-007"), // more than one value in the answer
       r("CG-N-EXEM2-7-SA-008"), // more than one value in the answer
+      r("CG-N-EXEM2-7-SA-009"), // asks for more than one value
     ],
     boardPattern: {
       ncert: [
@@ -446,6 +503,10 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       v("TRIG-N-NCERT-8-SA-007"), // 2
       r("TRIG-N-NCERT-8-MCQ-002"),
       r("TRIG-N-NCERT-8-SA-008"), // more than one value in the answer
+      r("TRIG-N-NCERT-8-MCQ-003"),
+      r("TRIG-N-NCERT-8-MCQ-004"),
+      r("TRIG-N-NCERT-8-LA-002"), // proof
+      r("TRIG-N-NCERT-8-LA-003"), // proof
     ],
     exemplar: [
       r("TRIG-N-EXMPLR-8-MCQ-001"),
@@ -551,7 +612,15 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     chapter: 11,
     title: "Areas Related to Circles",
     decision: "SOLUTIONS-2 (owner 18 Oct)",
-    ncert: [],
+    ncert: [
+      r("ARC-N-NCERT-11-MCQ-002"),
+      r("ARC-N-NCERT-11-MCQ-005"),
+      r("ARC-N-NCERT-11-VSA-001"), // more than one value in the answer
+      r("ARC-N-NCERT-11-VSA-002"), // approximate / rounded key
+      r("ARC-N-NCERT-11-SA-001"), // multi-part
+      r("ARC-N-NCERT-11-SA-002"), // approximation in the question
+      r("ARC-N-NCERT-11-SA-003"), // approximation in the question
+    ],
     exemplar: [
       r("ARC-N-EXEM-11-MCQ-001"),
       r("ARC-N-EXEM-11-MCQ-002"),
@@ -602,7 +671,16 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     chapter: 12,
     title: "Surface Areas and Volumes",
     decision: "SOLUTIONS-2 (owner 18 Oct)",
-    ncert: [],
+    ncert: [
+      r("SAV-N-NCERT-12-MCQ-001"),
+      r("SAV-N-NCERT-12-VSA-001"), // more than one value in the answer
+      r("SAV-N-NCERT-12-SA-001"), // approximation in the question
+      r("SAV-N-NCERT-12-SA-004"), // approximation in the question
+      r("SAV-N-NCERT-12-SA-005"), // approximation in the question
+      r("SAV-N-NCERT-12-SA-006"), // approximation in the question
+      r("SAV-N-NCERT-12-SA-007"), // approximation in the question
+      r("SAV-N-NCERT-12-LA-004"), // approximation in the question
+    ],
     exemplar: [
       r("SAV-N-EXMPLR-12-MCQ-011"),
       r("SAV-N-EXMPLR-12-MCQ-012"),
@@ -612,14 +690,17 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("SAV-N-EXMPLR-12-SA-003"), // not one comparable value
       r("SAV-N-EXMPLR-12-SA-004"), // approximation in the question
       r("SAV-N-EXMPLR-12-SA-005"), // more than one value in the answer
+      r("SAV-N-EXMPLR-12-LA-006"), // approximation in the question
       r("SAV-N-EXMPLR-12-LA-008"), // more than one value in the answer
       r("SAV-N-EXEM2-12-VSA-001"), // yes/no, true/false or verify, with reason
       v("SAV-N-EXEM2-12-LA-009"), // Height of the building = 4 m
+      r("SAV-N-EXEM2-12-LA-011"), // not one comparable value
     ],
     boardPattern: {
-      ncert: [],
-      exemplar: [
+      ncert: [
         r("SAV-N-NCERT-12-CB-001"), // case-based
+      ],
+      exemplar: [
         r("SAV-N-EXMPLR-12-AR-002"),
       ],
     },
@@ -630,11 +711,21 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     chapter: 13,
     title: "Statistics",
     decision: "SOLUTIONS-2 (owner 18 Oct)",
-    ncert: [],
+    ncert: [
+      r("STAT-N-NCERT-13-SA-002"), // not one comparable value
+      r("STAT-N-NCERT-13-SA-003"), // approximate / rounded key
+      r("STAT-N-NCERT-13-SA-004"), // approximate / rounded key
+      r("STAT-N-NCERT-13-SA-005"), // approximate / rounded key
+      v("STAT-N-NCERT-13-SA-006"), // Missing frequency f = 20
+      r("STAT-N-NCERT-13-LA-001"), // more than one value in the answer
+      r("STAT-N-NCERT-13-LA-002"), // more than one value in the answer
+    ],
     exemplar: [
       r("STAT-N-EXEM-13-MCQ-001"),
       r("STAT-N-EXEM-13-MCQ-003"),
+      r("STAT-N-EXEM-13-MCQ-004"),
       r("STAT-N-EXEM-13-MCQ-005"),
+      r("STAT-N-EXEM-13-MCQ-006"),
       r("STAT-N-EXEM-13-VSA-001"), // yes/no, true/false or verify, with reason
       v("STAT-N-EXEM-13-SA-001"), // Mean = 35
       v("STAT-N-EXEM-13-SA-002"), // Mean = 5.5
@@ -655,14 +746,17 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("STAT-N-EXEM2-13-SA-003"), // approximate / rounded key
       r("STAT-N-EXEM2-13-SA-004"), // not one comparable value
       r("STAT-N-EXEM2-13-SA-005"), // more than one value in the answer
+      r("STAT-N-EXEM2-13-SA-006"), // more than one value in the answer
+      r("STAT-N-EXEM2-13-SA-007"), // more than one value in the answer
       r("STAT-N-EXEM2-13-SA-008"), // more than one value in the answer
+      r("STAT-N-EXEM2-13-SA-009"), // more than one value in the answer
       r("STAT-N-EXEM2-13-SA-010"), // not one comparable value
     ],
     boardPattern: {
-      ncert: [],
-      exemplar: [
+      ncert: [
         r("STAT-N-NCERT-13-CB-001"), // case-based
       ],
+      exemplar: [],
     },
   },
   {
@@ -672,7 +766,22 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     exemplarChapter: 13,
     title: "Probability",
     decision: "SOLUTIONS-2 (owner 18 Oct)",
-    ncert: [],
+    ncert: [
+      r("PROB-N-NCERT-14-MCQ-001"),
+      r("PROB-N-NCERT-14-MCQ-002"),
+      r("PROB-N-NCERT-14-MCQ-003"),
+      r("PROB-N-NCERT-14-MCQ-004"),
+      r("PROB-N-NCERT-14-MCQ-005"),
+      r("PROB-N-NCERT-14-MCQ-006"),
+      r("PROB-N-NCERT-14-VSA-001"), // multi-part
+      r("PROB-N-NCERT-14-VSA-002"), // multi-part
+      r("PROB-N-NCERT-14-VSA-003"), // more than one value in the answer
+      r("PROB-N-NCERT-14-SA-001"), // multi-part
+      r("PROB-N-NCERT-14-SA-002"), // multi-part
+      r("PROB-N-NCERT-14-SA-003"), // multi-part
+      r("PROB-N-NCERT-14-SA-004"), // multi-part
+      r("PROB-N-NCERT-14-SA-005"), // a relation, not one value
+    ],
     exemplar: [
       r("PROB-N-EXEM-14-MCQ-001"),
       r("PROB-N-EXEM-14-MCQ-002"),
@@ -693,10 +802,10 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("PROB-N-EXEM-14-LA-002"), // multi-part
     ],
     boardPattern: {
-      ncert: [],
-      exemplar: [
+      ncert: [
         r("PROB-N-NCERT-14-AR-002"),
       ],
+      exemplar: [],
     },
   },
   // <SOLUTIONS-2:END>

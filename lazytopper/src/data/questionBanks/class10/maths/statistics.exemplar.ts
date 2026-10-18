@@ -60,7 +60,7 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
     answer: "19",
     solutionSteps: ["Number in 16000-19000 range = (>16000 count) − (>19000 count) = 69 − 50 = 19."],
     finalAnswer: "19 — option (d).",
-    ncertRef: "Exemplar Sample Question 2 (page 156)", isCompetencyBased: true },
+    ncertRef: "Exemplar Sample Question 2", isCompetencyBased: true },
 
   // ===== Section A — Assertion-Reasoning (1 mark) =====
   { id: "STAT-N-EXEM-13-AR-001", subject: "Maths", topicKey: "statistics", subtopic: "Empirical Relationship", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Evaluating",
