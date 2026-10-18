@@ -202,6 +202,11 @@ const { runWithRequestContext, bindRequestUid } = require('./services/usageLedge
 // RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
 // off, all three routes answer this file's own 404. Keys only from env; see the module.
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH } = require('./routes/payments.cjs');
+// ASK-PARENTS-PAY-1: a parent pays for their child from a link the child sends. DARK unless
+// BOTH PAYMENTS_ENABLED and PARENT_PAY_ENABLED are on; the uid comes only from the link.
+const {
+  createParentPayRoutes, PARENT_LINK_PATH, PARENT_VIEW_PATH, PARENT_ORDER_PATH, PARENT_VERIFY_PATH,
+} = require('./routes/parentPay.cjs');
 // FAIR-USE-1: trial allowances + premium cost caps on the two grading endpoints, the
 // premium exemption from the 80% vision shed (U4), and GET /api/usage/me. Refusals are
 // DARK unless FAIR_USE_ENFORCE=1 (U8). cachedReadJson lets a grade-worksheet body that
@@ -388,6 +393,18 @@ const accountExportRoutes = createAccountExportRoutes({
 });
 
 const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry });
+const parentPayRoutes = createParentPayRoutes({
+  sendJson,
+  verifiedCaller,
+  adminFirestore,
+  telemetry,
+  // The child's display name from the server's own auth record — never from a request.
+  getDisplayName: async (uid) => {
+    if (!firebaseAdmin) return '';
+    const record = await firebaseAdmin.auth().getUser(uid);
+    return (record && record.displayName) || '';
+  },
+});
 // J1: the job poll — self-gating (verified uid, owner-scoped path, its own per-uid cap).
 const gradingJobsRoutes = createGradingJobsRoutes({ sendJson, verifiedCaller, gradingJobs, telemetry, corsOrigin: config.CORS_ORIGIN });
 // TRIAL-END-1: the one trial-ending email. OFF unless TRIAL_EMAIL_ENABLED; a DRY RUN until
@@ -613,6 +630,11 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === PAY_ORDER_PATH) return paymentRoutes.handleOrder(req, res);
   if (req.method === 'POST' && reqPath === PAY_VERIFY_PATH) return paymentRoutes.handleVerify(req, res);
   if (req.method === 'POST' && reqPath === PAY_WEBHOOK_PATH) return paymentRoutes.handleWebhook(req, res);
+  // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
+  if (req.method === 'POST' && reqPath === PARENT_LINK_PATH) return parentPayRoutes.handleMintLink(req, res);
+  if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);
+  if (req.method === 'POST' && reqPath === PARENT_ORDER_PATH) return parentPayRoutes.handleOrder(req, res);
+  if (req.method === 'POST' && reqPath === PARENT_VERIFY_PATH) return parentPayRoutes.handleVerify(req, res);
 
   // ── QR answer handoff ────────────────────────────────────────────────────────
   // ORDER IS LOAD-BEARING: '/api/qr-upload/new' must be matched BEFORE the

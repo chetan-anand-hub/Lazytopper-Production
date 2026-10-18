@@ -1,0 +1,261 @@
+/* ASK-PARENTS-PAY-1 — "Ask your parents to pay" (the student's side, inside the pricing
+   page's Premium card) and the parent's pay page (/pricing#pp=…). Own class names; the
+   pricing page's tokens are used when present, with the same values as fallbacks. */
+
+.lt-ask-parents {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--lt-line, #e1e7ef);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lt-ask-parents-open {
+  appearance: none;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--lt-green-deep, #0e7c47);
+  background: var(--lt-surface, #ffffff);
+  color: var(--lt-green-deep, #0e7c47);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lt-ask-parents-open:hover {
+  background: var(--lt-mint, #eef8f2);
+}
+
+.lt-ask-parents-hint,
+.lt-ask-parents-note {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--lt-ink-2, #4a5a73);
+}
+
+.lt-ask-parents-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--lt-section, #f1f5fa);
+  border: 1px solid var(--lt-line, #e1e7ef);
+}
+
+.lt-ask-parents-lang {
+  display: inline-flex;
+  align-self: flex-start;
+  border: 1px solid var(--lt-line, #e1e7ef);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--lt-surface, #ffffff);
+}
+
+.lt-ask-parents-lang button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 6px 14px;
+  min-height: 36px;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--lt-ink-2, #4a5a73);
+  cursor: pointer;
+}
+
+.lt-ask-parents-lang button[aria-pressed="true"] {
+  background: var(--lt-ink, #0b1b3a);
+  color: var(--lt-on-dark, #ffffff);
+}
+
+.lt-ask-parents-preview {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--lt-surface, #ffffff);
+  border: 1px solid var(--lt-line, #e1e7ef);
+  color: var(--lt-ink, #0b1b3a);
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.lt-ask-parents-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lt-ask-parents-send,
+.lt-ask-parents-copy,
+.lt-ask-parents-retry {
+  appearance: none;
+  flex: 1 1 140px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lt-ask-parents-send {
+  border: 0;
+  background: var(--lt-green-deep, #0e7c47);
+  color: #ffffff;
+}
+
+.lt-ask-parents-copy,
+.lt-ask-parents-retry {
+  border: 1px solid var(--lt-line, #e1e7ef);
+  background: var(--lt-surface, #ffffff);
+  color: var(--lt-ink, #0b1b3a);
+}
+
+.lt-ask-parents-send:disabled,
+.lt-ask-parents-copy:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ── The parent's page ─────────────────────────────────────────────────────── */
+
+.lt-parent-pay {
+  --pp-ground: #f7f9fc;
+  --pp-surface: #ffffff;
+  --pp-ink: #0b1b3a;
+  --pp-ink-2: #4a5a73;
+  --pp-line: #e1e7ef;
+  --pp-mint: #eef8f2;
+  --pp-green: #0e7c47;
+
+  min-height: 100svh;
+  background: var(--pp-ground);
+  color: var(--pp-ink);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 0 0 40px;
+}
+
+.lt-parent-pay :focus-visible {
+  outline: 3px solid var(--pp-green);
+  outline-offset: 2px;
+}
+
+.lt-parent-pay-band {
+  background: var(--pp-ink);
+  color: #ffffff;
+  padding: 28px 16px 56px;
+}
+
+.lt-parent-pay-band-inner,
+.lt-parent-pay-card {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.lt-parent-pay-brand {
+  margin: 0 0 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #7fe0ae;
+}
+
+.lt-parent-pay-title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+.lt-parent-pay-card {
+  margin-top: -36px;
+  background: var(--pp-surface);
+  border: 1px solid var(--pp-line);
+  border-radius: 16px;
+  box-shadow: 0 14px 34px rgba(11, 27, 58, 0.08);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (min-width: 600px) {
+  .lt-parent-pay-card {
+    padding: 24px;
+  }
+}
+
+.lt-parent-pay-text {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--pp-ink-2);
+}
+
+.lt-parent-pay-text strong {
+  color: var(--pp-ink);
+}
+
+.lt-parent-pay-buy {
+  appearance: none;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lt-parent-pay-buy--month {
+  border: 0;
+  background: var(--pp-green);
+  color: #ffffff;
+}
+
+.lt-parent-pay-buy--boards {
+  border: 1.5px solid var(--pp-green);
+  background: var(--pp-surface);
+  color: var(--pp-green);
+}
+
+.lt-parent-pay-buy:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.lt-parent-pay-fine {
+  margin: 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--pp-mint);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--pp-ink-2);
+}
+
+.lt-parent-pay-status {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.lt-parent-pay-status--ok {
+  color: var(--pp-green);
+}
+
+.lt-parent-pay-status--error {
+  color: #b42318;
+}
+
+.lt-parent-pay-more {
+  color: var(--pp-ink-2);
+  font-size: 0.85rem;
+}

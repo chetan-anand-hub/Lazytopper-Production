@@ -162,8 +162,9 @@ const BANNER_CSS = `
 }
 .lt-trial-banner__close {
   flex: 0 0 auto;
-  min-height: 36px;
-  padding: 0 10px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
   border: none;
   border-radius: 10px;
   background: transparent;
@@ -220,12 +221,8 @@ export function TrialEndBannerView({ model, spaced = false }: { model: TrialEndB
           </Link>
         </div>
       </div>
-      <button
-        type="button"
-        className="lt-trial-banner__close"
-        aria-label="Hide until tomorrow"
-        onClick={model.dismiss}
-      >
+      {/* The visible text IS the accessible name (WCAG 2.5.3 label-in-name); 44 px tap target. */}
+      <button type="button" className="lt-trial-banner__close" onClick={model.dismiss}>
         Not today
       </button>
     </section>

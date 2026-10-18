@@ -491,13 +491,18 @@ function createTrialEndingEmailer(deps = {}) {
    */
   async function writeSkipMarker(ledgerRef, decision, reason, nowMs) {
     try {
-      await ledgerRef.set({
-        status: 'skipped',
-        reason,
-        trialStartMs: decision.trialStartMs,
-        recheckAfterMs: PERMANENT_SKIP_REASONS.has(reason) ? null : nowMs + UNVERIFIED_RECHECK_MS,
-        skippedAt: serverTimestamp(),
-      });
+      // MERGED into the row, never a replacement (re-review nit): an opt-out recorded between
+      // this run's ledger read and this write survives — `optedOut` is never part of a marker.
+      await ledgerRef.set(
+        {
+          status: 'skipped',
+          reason,
+          trialStartMs: decision.trialStartMs,
+          recheckAfterMs: PERMANENT_SKIP_REASONS.has(reason) ? null : nowMs + UNVERIFIED_RECHECK_MS,
+          skippedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
     } catch {
       /* a missing marker only costs a lookup next hour */
     }

@@ -755,6 +755,12 @@ export interface CheckoutDetails {
   itemName: string;
   /** Rupees. null when the price cannot be known on the client: the event is sent without a value. */
   valueInr: number | null;
+  /**
+   * ASK-PARENTS-PAY-1 — who is paying. Absent (every pre-existing call site) means the
+   * student's own checkout and the payload is byte-for-byte as before; `"parent"` adds
+   * `payer: "parent"` to the Vercel and GA4 params (never to Meta, which gets money only).
+   */
+  payer?: "parent";
 }
 
 const CHECKOUT_CURRENCY = "INR";
@@ -762,9 +768,10 @@ const CHECKOUT_CURRENCY = "INR";
 function checkoutParams(d: CheckoutDetails): { vercel: Record<string, unknown>; ga4: Record<string, unknown>; meta: Record<string, unknown> } {
   const value = typeof d.valueInr === "number" && Number.isFinite(d.valueInr) && d.valueInr > 0 ? d.valueInr : null;
   const money: Record<string, unknown> = value === null ? { currency: CHECKOUT_CURRENCY } : { currency: CHECKOUT_CURRENCY, value };
+  const payer: Record<string, unknown> = d.payer === "parent" ? { payer: "parent" } : {};
   return {
-    vercel: { ...money, pass: d.passType },
-    ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName }] },
+    vercel: { ...money, pass: d.passType, ...payer },
+    ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName }], ...payer },
     meta: money,
   };
 }
@@ -963,6 +970,43 @@ export type WhatsAppContactPlacement = "fab" | "contact_page";
  */
 export function trackWhatsAppContactTap(placement: WhatsAppContactPlacement): void {
   send("event", { name: "whatsapp_contact_tap", data: { placement } });
+}
+
+/** ASK-PARENTS-PAY-1 — where "Ask your parents to pay" was used, and which step. */
+export type AskParentSurface = "pricing";
+export type AskParentAction = "open" | "whatsapp" | "copy";
+
+/**
+ * ASK-PARENTS-PAY-1 — `ask_parent_tap`: a student opened "Ask your parents to pay", or sent
+ * / copied the message. Surface + action ONLY: never the message, the link, its token, a
+ * count or a contact. Vendors only (GA4 / Vercel), like `score_share`: NOT in
+ * `NamedAnalyticsEvent`, so the first-party log drops it and no server change is needed.
+ */
+export function trackAskParentTap(surface: AskParentSurface, action: AskParentAction): void {
+  try {
+    const data = { surface, action };
+    send("event", { name: "ask_parent_tap", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * ASK-PARENTS-PAY-1 — `parent_pay_page_view`: a parent opened a LIVE pay link (the server
+ * accepted it). The name plus a one-value surface, never an id or the token. Vendors only,
+ * like `ask_parent_tap` (a parent is signed out, so the first-party log never records it, and
+ * the name is deliberately NOT in `NamedAnalyticsEvent`). The page's address carries the
+ * token in its FRAGMENT, which no vendor receives: GA4 and Vercel get the redacted path
+ * (`/pricing`), and Meta sends nothing at all from an address with a hash
+ * (`metaAddressIsClean`).
+ */
+export function trackParentPayPageView(): void {
+  try {
+    const data = { surface: "pricing" };
+    send("event", { name: "parent_pay_page_view", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
 }
 
 /** AWAIT-1-PAPERS — the paper surface a reminder was set from, and how. */

@@ -164,7 +164,14 @@ describe("TrialEndBanner — once-per-IST-day dismissal and analytics", () => {
     setNow(ist(2026, 6, 6, 23, 0));
     hydrate.mockResolvedValue(trial());
     renderBanner();
-    fireEvent.click(await screen.findByRole("button", { name: "Hide until tomorrow" }));
+    // Re-review nit: the accessible name IS the visible text, and the tap target is >= 44 px.
+    const notToday = await screen.findByRole("button", { name: "Not today" });
+    expect(notToday).not.toHaveAttribute("aria-label");
+    const css = document.querySelector('[data-testid="trial-end-banner"] style')?.textContent ?? "";
+    const closeRule = css.match(/\.lt-trial-banner__close \{([^}]*)\}/)?.[1] ?? "";
+    expect(closeRule).toMatch(/min-height: 44px/);
+    expect(closeRule).toMatch(/min-width: 44px/);
+    fireEvent.click(notToday);
     expect(screen.queryByTestId("trial-end-banner")).toBeNull();
     expect(localStorage.getItem(`${TRIAL_BANNER_HIDDEN_KEY_PREFIX}u1`)).toBe("2026-06-06");
 

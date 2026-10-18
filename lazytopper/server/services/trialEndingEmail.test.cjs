@@ -622,3 +622,33 @@ test('ADMIN-EXTEND-1: a pass_extension account (trial start kept, in the window)
   assert.equal(r.skipped['tier-free'], 1);
   assert.equal(s.lookups.length, 0, 'not even looked up in Auth');
 });
+
+test('RE-REVIEW: a skip marker is MERGED — an opt-out recorded while the account was being looked up survives', async () => {
+  const db = makeDb();
+  const users = { ph: { phoneNumber: '+911234567890', providerData: [{ providerId: 'phone' }] } };
+  const s = setup({ db, users, subs: { ph: trialDoc(NOW - 5.5 * DAY) } });
+  // The opt-out lands between the job's ledger read and its marker write (during the Auth lookup).
+  const admin = makeAdmin(users);
+  const realAuth = admin.auth;
+  const emailer = createTrialEndingEmailer({
+    env: SEND_ENV,
+    adminFirestore: db,
+    firebaseAdmin: {
+      ...admin,
+      auth: () => ({
+        async getUser(uid) {
+          await db.collection(TRIAL_EMAILS_COLLECTION).doc(uid).set({ optedOut: true }, { merge: true });
+          return realAuth().getUser(uid);
+        },
+      }),
+    },
+    fetchImpl: okFetch([]),
+    now: () => NOW,
+    log: () => {},
+  });
+  void s;
+  await emailer.runOnce();
+  const row = db.docs.get(`${TRIAL_EMAILS_COLLECTION}/ph`);
+  assert.equal(row.status, 'skipped');
+  assert.equal(row.optedOut, true, 'the opt-out must survive the marker write');
+});
