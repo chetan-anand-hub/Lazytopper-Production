@@ -12,11 +12,14 @@
  *     those, it stays a dry run and says which is missing. No agent ever handles these secrets.
  *
  *   ★ ONCE PER TRIAL, EVEN ACROSS RESTARTS AND TWO INSTANCES. Before sending, the job CLAIMS
- *     `trialEmails/{uid}` with a create-only write; Firestore lets exactly one `create` win, so a
- *     restart, an overlapping Railway deploy (overlapSeconds) or a second replica can never send
- *     twice. A crash between claim and send leaves the claim in place: at most once, never twice.
- *     Only a send that certainly did NOT go out (HTTP 429/5xx or a network error) releases the
- *     claim for the next hourly run, and those retries carry a provider Idempotency-Key.
+ *     `trialEmails/{uid}` in a Firestore TRANSACTION that also takes one slot of the IST day's
+ *     durable cap (`trialEmailDaily/{YYYY-MM-DD}`), so a restart, an overlapping Railway deploy
+ *     (overlapSeconds) or a second replica can never send twice nor pass the day's cap. A crash
+ *     between claim and send leaves the claim in place: at most once, never twice. Only a send
+ *     that certainly did NOT go out (HTTP 429/5xx or a network error) releases the claim — in a
+ *     transaction that never deletes over an opt-out — and those retries carry a provider
+ *     Idempotency-Key. Accounts that cannot be emailed (phone-only, no address, unverified) get
+ *     a skip marker so they are not looked up every hour (unverified: re-checked after 6 h).
  *
  *   ★ TRANSACTIONAL, NOT MARKETING (DPDP Act 2023 — many students are minors). It is a notice
  *     about the student's OWN trial: when it ends (the real derived end, start + TRIAL_DAYS),
@@ -40,6 +43,17 @@ const crypto = require('crypto');
 const { deriveEffectiveTier, isServerPinnedStart, TRIAL_MS } = require('./entitlement.cjs');
 
 const TRIAL_EMAILS_COLLECTION = 'trialEmails';
+/**
+ * Review finding 1 — the DURABLE daily cap: one document per IST day, id = the day key, holding
+ * ONLY `count` (+ the key and a timestamp). Incremented in the SAME transaction as the claim, so
+ * the cap holds across restarts, deploys and instances. No uid, nothing about any student: it
+ * is listed in studentDataMap NON_STUDENT_COLLECTIONS (the `freeCheckDaily` precedent).
+ */
+const TRIAL_EMAIL_DAILY_COLLECTION = 'trialEmailDaily';
+/** Review finding 4 — skip reasons that cannot change during a 7-day trial: never looked up again. */
+const PERMANENT_SKIP_REASONS = new Set(['no-email', 'not-an-email-sign-in']);
+/** An unverified address may be verified later: re-checked at most this often. */
+const UNVERIFIED_RECHECK_MS = 6 * 60 * 60 * 1000;
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 const SESSION_RECORDS_COLLECTION = 'sessionRecords';
 // A SUBcollection, held as a property (the studentActivity ACTIVITY_SEGMENTS pattern) so the
@@ -179,7 +193,7 @@ const EMAIL_PROVIDERS = new Set(['google.com', 'password']);
 /**
  * May this Auth account get the email, and at which address? PURE. Only an account that signed
  * in with an email (Google, or email + password); never a phone-only account, never a disabled
- * one, never an address Google has not verified unless the student typed it at sign-up.
+ * one, and never an address Firebase does not mark `emailVerified === true`.
  */
 function emailEligibility(user) {
   if (!user || typeof user !== 'object') return { ok: false, reason: 'no-account' };
@@ -189,7 +203,10 @@ function emailEligibility(user) {
   const providers = Array.isArray(user.providerData) ? user.providerData.map((p) => p && p.providerId) : [];
   const viaEmail = providers.some((p) => EMAIL_PROVIDERS.has(p));
   if (!viaEmail) return { ok: false, reason: 'not-an-email-sign-in' };
-  if (!user.emailVerified && !providers.includes('password')) return { ok: false, reason: 'email-unverified' };
+  // Review finding 2 (controller, 18 Oct): ONLY a verified address — for email+password as well
+  // as Google (Google verifies its own, but it is still checked). A typed-but-unverified address
+  // may belong to someone else, and this email names the student's activity. Owner may relax later.
+  if (user.emailVerified !== true) return { ok: false, reason: 'email-unverified' };
   return { ok: true, email };
 }
 
@@ -385,8 +402,6 @@ function createTrialEndingEmailer(deps = {}) {
   const setIntervalFn = deps.setIntervalFn || setInterval;
 
   let running = false;
-  let capDay = '';
-  let sentToday = 0;
   const dryRunLogged = new Set();
 
   function timestampFromMillis(ms) {
@@ -412,6 +427,82 @@ function createTrialEndingEmailer(deps = {}) {
     }
   }
 
+  /** Is this ledger row a skip marker whose re-check time has come? */
+  function isDueSkipMarker(data, nowMs) {
+    return !!data && data.status === 'skipped' && !data.optedOut && typeof data.recheckAfterMs === 'number' && data.recheckAfterMs <= nowMs;
+  }
+
+  /**
+   * ★ THE CLAIM + THE DURABLE CAP, in ONE transaction (review finding 1). Reads the ledger row and
+   * the IST day's counter; writes the claim and count+1 only if nobody holds the row and the day
+   * is under the cap. Firestore retries a transaction whose reads changed underneath it, so two
+   * instances can neither both claim one student nor both take the last slot of the day.
+   * Returns 'claimed' | 'claimed-elsewhere' | 'opted-out' | 'daily-cap'.
+   */
+  async function claimWithinCap(ledgerRef, decision, dayKey, nowMs) {
+    const dailyRef = adminFirestore.collection(TRIAL_EMAIL_DAILY_COLLECTION).doc(dayKey);
+    return adminFirestore.runTransaction(async (tx) => {
+      const l = await tx.get(ledgerRef);
+      const d = await tx.get(dailyRef);
+      if (l.exists) {
+        const data = l.data() || {};
+        if (data.optedOut) return 'opted-out';
+        if (!isDueSkipMarker(data, nowMs)) return 'claimed-elsewhere';
+      }
+      const raw = d.exists ? (d.data() || {}).count : 0;
+      const count = typeof raw === 'number' && raw > 0 ? raw : 0;
+      if (count >= config.dailyCap) return 'daily-cap';
+      tx.set(ledgerRef, {
+        trialStartMs: decision.trialStartMs,
+        trialEndsAtMs: decision.trialEndsAtMs,
+        status: 'claimed',
+        claimedAt: serverTimestamp(),
+        capDay: dayKey,
+      });
+      tx.set(dailyRef, { count: count + 1, dayKey, updatedAt: serverTimestamp() }, { merge: true });
+      return 'claimed';
+    });
+  }
+
+  /**
+   * Release a claim whose send certainly did not go out (review finding 3): deletes the row ONLY
+   * while it is still this run's `claimed` row with no opt-out — an unsubscribe recorded in the
+   * meantime survives — and gives the day's slot back.
+   */
+  async function releaseClaim(ledgerRef, dayKey) {
+    const dailyRef = adminFirestore.collection(TRIAL_EMAIL_DAILY_COLLECTION).doc(dayKey);
+    return adminFirestore.runTransaction(async (tx) => {
+      const l = await tx.get(ledgerRef);
+      const d = await tx.get(dailyRef);
+      if (!l.exists) return false;
+      const data = l.data() || {};
+      if (data.status !== 'claimed' || data.optedOut) return false;
+      tx.delete(ledgerRef);
+      const raw = d.exists ? (d.data() || {}).count : 0;
+      if (typeof raw === 'number' && raw > 0) tx.set(dailyRef, { count: raw - 1, updatedAt: serverTimestamp() }, { merge: true });
+      return true;
+    });
+  }
+
+  /**
+   * Review finding 4: remember WHY an account cannot be emailed, so it is not looked up in Auth
+   * every hour. Phone-only / no-email: never re-checked during the trial. Unverified: re-checked
+   * after UNVERIFIED_RECHECK_MS (they may verify). Never written in a dry run.
+   */
+  async function writeSkipMarker(ledgerRef, decision, reason, nowMs) {
+    try {
+      await ledgerRef.set({
+        status: 'skipped',
+        reason,
+        trialStartMs: decision.trialStartMs,
+        recheckAfterMs: PERMANENT_SKIP_REASONS.has(reason) ? null : nowMs + UNVERIFIED_RECHECK_MS,
+        skippedAt: serverTimestamp(),
+      });
+    } catch {
+      /* a missing marker only costs a lookup next hour */
+    }
+  }
+
   /** One pass. Never throws; returns a summary (also logged). */
   async function runOnce() {
     const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {} };
@@ -428,10 +519,6 @@ function createTrialEndingEmailer(deps = {}) {
     try {
       const nowMs = now();
       const day = istDayKeyOf(nowMs);
-      if (day !== capDay) {
-        capDay = day;
-        sentToday = 0;
-      }
       const { loMs, hiMs } = startRangeFor(nowMs);
       const snap = await adminFirestore
         .collection(SUBSCRIPTIONS_COLLECTION)
@@ -451,8 +538,20 @@ function createTrialEndingEmailer(deps = {}) {
         const ledger = await ledgerRef.get();
         if (ledger.exists) {
           const data = ledger.data() || {};
-          skip(data.optedOut ? 'opted-out' : `already-${data.status || 'recorded'}`);
-          continue;
+          if (data.optedOut) {
+            skip('opted-out');
+            continue;
+          }
+          if (data.status === 'skipped') {
+            if (!isDueSkipMarker(data, nowMs)) {
+              skip(`marked-${data.reason || 'skipped'}`);
+              continue;
+            }
+            // A due re-check (an unverified address): look the account up again below.
+          } else {
+            skip(`already-${data.status || 'recorded'}`);
+            continue;
+          }
         }
         let user = null;
         try {
@@ -464,6 +563,9 @@ function createTrialEndingEmailer(deps = {}) {
         const who = emailEligibility(user);
         if (!who.ok) {
           skip(who.reason);
+          if (config.mode === 'send' && (PERMANENT_SKIP_REASONS.has(who.reason) || who.reason === 'email-unverified')) {
+            await writeSkipMarker(ledgerRef, decision, who.reason, nowMs);
+          }
           continue;
         }
         const counts = await readCounts(uid, decision.trialStartMs);
@@ -479,25 +581,17 @@ function createTrialEndingEmailer(deps = {}) {
           continue;
         }
 
-        if (sentToday >= config.dailyCap) {
-          skip('daily-cap');
+        // ★ THE CLAIM + DURABLE CAP — one transaction. Exactly one instance/run wins a student,
+        // and the IST day's count (in Firestore, not memory) never passes the cap.
+        let claim;
+        try {
+          claim = await claimWithinCap(ledgerRef, decision, day, nowMs);
+        } catch (e) {
+          skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
           continue;
         }
-
-        // ★ THE CLAIM — create-only. Exactly one instance/run wins; everyone else skips.
-        try {
-          await ledgerRef.create({
-            trialStartMs: decision.trialStartMs,
-            trialEndsAtMs: decision.trialEndsAtMs,
-            status: 'claimed',
-            claimedAt: serverTimestamp(),
-          });
-        } catch (e) {
-          if (isAlreadyExists(e)) {
-            skip('claimed-elsewhere');
-            continue;
-          }
-          skip('claim-error');
+        if (claim !== 'claimed') {
+          skip(claim);
           continue;
         }
 
@@ -522,8 +616,9 @@ function createTrialEndingEmailer(deps = {}) {
           if (result.ok) {
             await ledgerRef.update({ status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null });
           } else if (result.retryable) {
-            // Certainly not delivered (or safe to retry under the Idempotency-Key): release.
-            await ledgerRef.delete();
+            // Certainly not delivered (or safe to retry under the Idempotency-Key): release —
+            // transactionally, and never over an opt-out (review finding 3).
+            await releaseClaim(ledgerRef, day);
           } else {
             await ledgerRef.update({ status: 'failed', failedAt: serverTimestamp(), error: result.code });
           }
@@ -533,7 +628,6 @@ function createTrialEndingEmailer(deps = {}) {
 
         if (result.ok) {
           summary.sent += 1;
-          sentToday += 1;
           if (telemetry && typeof telemetry.increment === 'function') telemetry.increment('trial_email_sent');
           log(`[trial-email] trial_email_sent uid=${uid} trialEndsAt=${endsIso}`);
         } else {
@@ -657,6 +751,8 @@ module.exports = {
   formatIstDate,
   formatIstTime,
   TRIAL_EMAILS_COLLECTION,
+  TRIAL_EMAIL_DAILY_COLLECTION,
+  UNVERIFIED_RECHECK_MS,
   TRIAL_EMAIL_UNSUBSCRIBE_PATH,
   RESEND_ENDPOINT,
   WINDOW_MIN_MS,

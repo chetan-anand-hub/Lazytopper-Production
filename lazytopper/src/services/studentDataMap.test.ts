@@ -216,7 +216,8 @@ describe("studentDataMap — drift guard", () => {
   it("★★ the non-student exemption is EXACT, disjoint from the map, and not dead (OR-3)", () => {
     // An exemption list that can grow silently is how a drift guard stops guarding.
     // Exact (toEqual), so adding a name here is a deliberate, reviewed edit.
-    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily"]);
+    // TRIAL-END-1 (review finding 1): `trialEmailDaily` — one counter per IST day, no uid.
+    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily", "trialEmailDaily"]);
     // An exempt name must never ALSO be a student-data location.
     const mapped = new Set(firestoreCollectionNames());
     expect(NON_STUDENT_COLLECTIONS.filter((c) => mapped.has(c))).toEqual([]);
@@ -287,11 +288,12 @@ describe("studentDataMap — drift guard", () => {
     // data (uid-keyed graded results, 24 h) — in the map, erased and exported, not exempted.
     //
     // ★ `trialEmails` JOINED this set with TRIAL-END-1. Written only by
-    // server/services/trialEndingEmail.cjs through the Admin SDK (a create-only claim per
-    // trial, then the outcome, and the unsubscribe opt-out); no client reads or writes it, so
-    // it is undeclared on purpose (deny-all catch-all). It IS student data (a doc per uid) -
-    // in the map, erased and exported, not exempted.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "signupSources", "trialEmails", "usageLedger"]);
+    // server/services/trialEndingEmail.cjs through the Admin SDK (a transactional claim per
+    // trial, then the outcome or a skip marker, and the unsubscribe opt-out); no client reads or
+    // writes it, so it is undeclared on purpose (deny-all catch-all). It IS student data (a doc
+    // per uid) - in the map, erased and exported, not exempted. Its day counter
+    // `trialEmailDaily` (review finding 1) is uid-free and exempt, like `freeCheckDaily`.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {

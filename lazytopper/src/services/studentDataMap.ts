@@ -543,15 +543,17 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     path: "trialEmails/{uid}",
     holds:
       "Whether the one 'your trial ends soon' service email was sent for this student's " +
-      "trial: the trial start it was for, its state (claimed, sent, failed), when, the email " +
-      "provider's message id, and — if the student used the email's opt-out link — that they " +
-      "opted out and when. Never the email address or the email's text.",
+      "trial: the trial start it was for, its state (claimed, sent, failed — or skipped, with " +
+      "the reason: no email address, not an email sign-in, or an unverified address, and when " +
+      "to look again), when, the email provider's message id, and — if the student used the " +
+      "email's opt-out link — that they opted out and when. Never the email address or the " +
+      "email's text.",
     mechanism: "admin-sdk-required",
     exportable: true,
     notes:
       "★★ Written ONLY by server/services/trialEndingEmail.cjs through the Admin SDK: a " +
-      "create-only claim BEFORE sending (so a restart or a second instance can never send " +
-      "twice), then the outcome; and by its opt-out link handler. Off unless the owner sets " +
+      "transactional claim BEFORE sending (so a restart or a second instance can never send " +
+      "twice), then the outcome, or a skip marker; and by its opt-out link handler. Off unless the owner sets " +
       "TRIAL_EMAIL_ENABLED. NOT declared in firestore.rules — browsers fall through to the " +
       "deny-all catch-all. Erased with the account and included in the export.",
   },
@@ -724,12 +726,18 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
  *     app id. Written only by `server/services/freeCheck.cjs` through the Admin SDK; no
  *     client rule matches it, so browsers are denied by the catch-all.
  *
+ *   - `trialEmailDaily` (TRIAL-END-1, review finding 1): one document per IST day, id = the
+ *     day key, holding ONLY `count` (how many trial-ending emails were claimed that day, for the
+ *     durable daily cap), the day key and a timestamp. No uid, no address, nothing joinable to a
+ *     student. Written only by `server/services/trialEndingEmail.cjs` through the Admin SDK; no
+ *     client rule matches it, so browsers are denied by the catch-all.
+ *
  * ★ This list is an EXEMPTION, and exemptions are how a drift guard dies. It is exact,
  * it is pinned by `studentDataMap.test.ts`, and a name belongs here only with a reason
  * of the kind above. A collection that could hold anything about a student goes in the
  * map, never here. ErasureMechanism and erasure/export behaviour are unchanged by it.
  */
-export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily"]);
+export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily"]);
 
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */
 export function adminOnlyLocations(): readonly StudentDataLocation[] {

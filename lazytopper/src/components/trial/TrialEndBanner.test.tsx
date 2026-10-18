@@ -116,6 +116,10 @@ describe("TrialEndBanner — who sees it", () => {
     ["day 4 (too early)", trial(), ist(2026, 6, 4, 12)],
     ["an ended trial", trial(), ist(2026, 6, 9, 12)],
     ["premium", { ...trial(), tier: "premium", plan: "pass_month" } as SubscriptionStatus, ist(2026, 6, 6, 12)],
+    // Review nit 5: a premium pass bought DURING the trial, on a banner day — paid, so no banner.
+    ["premium bought mid-trial (on a banner day)", { ...trial(), tier: "premium", plan: "pass_till_boards", premiumSince: new Date(START + 3 * DAY).toISOString(), passEnd: new Date(START + 200 * DAY).toISOString() } as SubscriptionStatus, ist(2026, 6, 7, 9)],
+    // Review nit 5: an EXPIRED trial as the record stores it (free + trial_7day + an old start).
+    ["an expired trial (free + trial_7day, start 10 days ago)", { tier: "free", plan: "trial_7day", trialStartDate: new Date(START).toISOString(), trialEndDate: null, premiumSince: null } as SubscriptionStatus, ist(2026, 6, 11, 12)],
     ["free", { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null } as SubscriptionStatus, ist(2026, 6, 6, 12)],
   ])("says nothing for %s", async (_label, status, now) => {
     setNow(now);

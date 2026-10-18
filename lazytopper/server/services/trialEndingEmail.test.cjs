@@ -97,13 +97,33 @@ function makeDb() {
       },
     };
   }
-  return { docs, calls, collection: (name) => collRef(name) };
+  // Transactions run one at a time with their writes applied at commit — the serializable
+  // outcome Firestore guarantees (it retries a transaction whose reads changed underneath it).
+  let txChain = Promise.resolve();
+  function runTransaction(fn) {
+    const run = txChain.then(async () => {
+      const writes = [];
+      const tx = {
+        get: (ref) => ref.get(),
+        set: (ref, data, opts) => { writes.push(() => ref.set(data, opts)); return tx; },
+        update: (ref, data) => { writes.push(() => ref.update(data)); return tx; },
+        delete: (ref) => { writes.push(() => ref.delete()); return tx; },
+      };
+      const result = await fn(tx);
+      for (const w of writes) await w();
+      return result;
+    });
+    txChain = run.catch(() => {});
+    return run;
+  }
+  return { docs, calls, collection: (name) => collRef(name), runTransaction };
 }
-function makeAdmin(users) {
+function makeAdmin(users, lookups = []) {
   return {
     firestore: { Timestamp: { fromMillis: ts }, FieldValue: { serverTimestamp: () => ts(NOW) } },
     auth: () => ({
       async getUser(uid) {
+        lookups.push(uid);
         if (!users[uid]) {
           const e = new Error('no user');
           e.code = 'auth/user-not-found';
@@ -131,21 +151,22 @@ const SEND_ENV = {
   TRIAL_EMAIL_FROM: 'LazyTopper <hello@lazytopper.com>',
   TRIAL_EMAIL_UNSUBSCRIBE_SECRET: SECRET,
 };
-function setup({ env = SEND_ENV, users = { u1: googleUser('asha@example.com') }, subs = { u1: trialDoc(NOW - 5.5 * DAY) }, fetchImpl, db } = {}) {
+function setup({ env = SEND_ENV, users = { u1: googleUser('asha@example.com') }, subs = { u1: trialDoc(NOW - 5.5 * DAY) }, fetchImpl, db, now = () => NOW } = {}) {
   const theDb = db || makeDb();
   for (const [uid, d] of Object.entries(subs)) theDb.docs.set(`subscriptions/${uid}`, d);
   const logs = [];
   const fetchCalls = [];
+  const lookups = [];
   const emailer = createTrialEndingEmailer({
     env,
     adminFirestore: theDb,
-    firebaseAdmin: makeAdmin(users),
+    firebaseAdmin: makeAdmin(users, lookups),
     fetchImpl: fetchImpl || okFetch(fetchCalls),
-    now: () => NOW,
+    now,
     log: (l) => logs.push(l),
     telemetry: { counts: {}, increment(name) { this.counts[name] = (this.counts[name] || 0) + 1; } },
   });
-  return { db: theDb, logs, fetchCalls, emailer };
+  return { db: theDb, logs, fetchCalls, emailer, lookups };
 }
 
 // ── Config: OFF by default ───────────────────────────────────────────────────────────────
@@ -329,7 +350,10 @@ test('window: only trials ending 24-48 h from now; premium, pass, ended and clie
 
 test('only email sign-ins: Google or email+password; never phone-only, disabled or Google-unverified', () => {
   assert.equal(emailEligibility(googleUser('a@b.co')).ok, true);
-  assert.equal(emailEligibility({ email: 'a@b.co', emailVerified: false, providerData: [{ providerId: 'password' }] }).ok, true);
+  assert.equal(emailEligibility({ email: 'a@b.co', emailVerified: true, providerData: [{ providerId: 'password' }] }).ok, true);
+  // Review finding 2: an UNVERIFIED email+password address is never emailed.
+  assert.equal(emailEligibility({ email: 'a@b.co', emailVerified: false, providerData: [{ providerId: 'password' }] }).reason, 'email-unverified');
+  assert.equal(emailEligibility({ email: 'a@b.co', providerData: [{ providerId: 'password' }] }).reason, 'email-unverified');
   assert.equal(emailEligibility({ phoneNumber: '+911234567890', providerData: [{ providerId: 'phone' }] }).reason, 'no-email');
   assert.equal(emailEligibility({ email: 'a@b.co', emailVerified: true, providerData: [{ providerId: 'phone' }] }).reason, 'not-an-email-sign-in');
   assert.equal(emailEligibility({ ...googleUser('a@b.co'), disabled: true }).reason, 'disabled');
@@ -446,4 +470,134 @@ test('unsubscribe: an invalid token is a 400; an erased account is not re-create
   await s.emailer.handleUnsubscribe({ method: 'POST', url, resume() {} }, res, url);
   assert.equal(res.status, 200);
   assert.equal(s.db.docs.has(`${TRIAL_EMAILS_COLLECTION}/gone`), false);
+});
+
+// ── Review fixes (controller, 18 Oct 2026) ──────────────────────────────────────────────
+
+function manyStudents(n, prefix = 's') {
+  const users = {};
+  const subs = {};
+  for (let i = 0; i < n; i += 1) {
+    users[`${prefix}${i}`] = googleUser(`${prefix}${i}@example.com`);
+    subs[`${prefix}${i}`] = trialDoc(NOW - 5.5 * DAY + i * 1000);
+  }
+  return { users, subs };
+}
+
+test('FINDING 1: the daily cap is DURABLE — two instances together, then a restart, never pass it', async () => {
+  const db = makeDb();
+  const env = { ...SEND_ENV, TRIAL_EMAIL_DAILY_CAP: '2' };
+  const first = manyStudents(3, 'a');
+  const a = setup({ db, env, ...first });
+  const b = setup({ db, env, users: first.users, subs: {} });
+  const [ra, rb] = await Promise.all([a.emailer.runOnce(), b.emailer.runOnce()]);
+  assert.equal(ra.sent + rb.sent, 2, 'two instances together send at most the cap');
+  assert.equal(a.fetchCalls.length + b.fetchCalls.length, 2);
+  const dayKey = istDayKeyOf(NOW);
+  assert.equal(db.docs.get(`trialEmailDaily/${dayKey}`).count, 2);
+
+  // A deploy restarts the process: a NEW emailer with fresh memory, a new student in the window.
+  const later = manyStudents(1, 'z');
+  const restarted = setup({ db, env, ...later });
+  const rc = await restarted.emailer.runOnce();
+  assert.equal(rc.sent, 0, 'a restart does not reset the day');
+  assert.equal(rc.skipped['daily-cap'] >= 1, true);
+  assert.equal(restarted.fetchCalls.length, 0);
+  assert.equal(db.docs.get(`trialEmailDaily/${dayKey}`).count, 2);
+});
+
+test('FINDING 1: the cap is per IST day — the next IST day sends again', async () => {
+  const db = makeDb();
+  const env = { ...SEND_ENV, TRIAL_EMAIL_DAILY_CAP: '1' };
+  db.docs.set(`trialEmailDaily/${istDayKeyOf(NOW)}`, { count: 1 });
+  const s = setup({ db, env });
+  assert.equal((await s.emailer.runOnce()).sent, 0);
+  // 12 hours later is the next IST day (10:00 am -> 10:00 pm is the same day; use +16 h).
+  const next = setup({ db, env, subs: { u2: trialDoc(NOW + 16 * HOUR - 5.5 * DAY) }, users: { u2: googleUser('b@example.com') }, now: () => NOW + 16 * HOUR });
+  assert.notEqual(istDayKeyOf(NOW + 16 * HOUR), istDayKeyOf(NOW));
+  assert.equal((await next.emailer.runOnce()).sent, 1);
+});
+
+test('FINDING 2: an unverified email+password account is never emailed (Google unverified neither); phone-only excluded', async () => {
+  const s = setup({
+    users: {
+      pw: { email: 'typed@example.com', emailVerified: false, disabled: false, providerData: [{ providerId: 'password' }] },
+      gg: { ...googleUser('g@example.com'), emailVerified: false },
+      ph: { phoneNumber: '+911234567890', providerData: [{ providerId: 'phone' }] },
+      ok: { email: 'ok@example.com', emailVerified: true, disabled: false, providerData: [{ providerId: 'password' }] },
+    },
+    subs: { pw: trialDoc(NOW - 5.5 * DAY), gg: trialDoc(NOW - 5.5 * DAY), ph: trialDoc(NOW - 5.5 * DAY), ok: trialDoc(NOW - 5.5 * DAY) },
+  });
+  const r = await s.emailer.runOnce();
+  assert.equal(r.sent, 1);
+  assert.deepEqual(s.fetchCalls.map((c) => c.body.to[0]), ['ok@example.com']);
+  assert.equal(r.skipped['email-unverified'], 2);
+  assert.equal(r.skipped['no-email'], 1);
+});
+
+test('FINDING 3: releasing a failed claim never erases an opt-out recorded meanwhile', async () => {
+  const db = makeDb();
+  const fetchImpl = async () => {
+    // The student taps Unsubscribe while the send is in flight (the handler merges optedOut).
+    await db.collection(TRIAL_EMAILS_COLLECTION).doc('u1').set({ optedOut: true }, { merge: true });
+    return { ok: false, status: 429, json: async () => ({}) };
+  };
+  const s = setup({ db, fetchImpl });
+  const r = await s.emailer.runOnce();
+  assert.equal(r.failed, 1);
+  const row = db.docs.get(`${TRIAL_EMAILS_COLLECTION}/u1`);
+  assert.ok(row, 'the row (and with it the opt-out) must survive the release');
+  assert.equal(row.optedOut, true);
+  const again = await s.emailer.runOnce();
+  assert.equal(again.sent, 0);
+  assert.equal(again.skipped['opted-out'], 1);
+});
+
+test('FINDING 3: a released claim gives its daily slot back', async () => {
+  const db = makeDb();
+  let status = 503;
+  const s = setup({ db, fetchImpl: async () => (status === 200 ? { ok: true, status: 200, json: async () => ({ id: 'm' }) } : { ok: false, status, json: async () => ({}) }) });
+  await s.emailer.runOnce();
+  assert.equal(db.docs.has(`${TRIAL_EMAILS_COLLECTION}/u1`), false);
+  assert.equal(db.docs.get(`trialEmailDaily/${istDayKeyOf(NOW)}`).count, 0);
+  status = 200;
+  assert.equal((await s.emailer.runOnce()).sent, 1);
+  assert.equal(db.docs.get(`trialEmailDaily/${istDayKeyOf(NOW)}`).count, 1);
+});
+
+test('FINDING 4: phone-only / no-email accounts get a skip marker and are not looked up again', async () => {
+  const db = makeDb();
+  const users = { ph: { phoneNumber: '+911234567890', providerData: [{ providerId: 'phone' }] } };
+  const s = setup({ db, users, subs: { ph: trialDoc(NOW - 5.5 * DAY) } });
+  await s.emailer.runOnce();
+  const marker = db.docs.get(`${TRIAL_EMAILS_COLLECTION}/ph`);
+  assert.equal(marker.status, 'skipped');
+  assert.equal(marker.reason, 'no-email');
+  assert.equal(marker.recheckAfterMs, null);
+  assert.equal(s.lookups.length, 1);
+  const again = await s.emailer.runOnce();
+  assert.equal(s.lookups.length, 1, 'no second Auth lookup for a marked account');
+  assert.equal(again.skipped['marked-no-email'], 1);
+});
+
+test('FINDING 4: an unverified address is re-checked after 6 h and emailed once verified; a dry run writes no marker', async () => {
+  const db = makeDb();
+  const users = { pw: { email: 'p@example.com', emailVerified: false, disabled: false, providerData: [{ providerId: 'password' }] } };
+  let nowMs = NOW;
+  const s = setup({ db, users, subs: { pw: trialDoc(NOW - 5.2 * DAY) }, now: () => nowMs });
+  await s.emailer.runOnce();
+  assert.equal(db.docs.get(`${TRIAL_EMAILS_COLLECTION}/pw`).reason, 'email-unverified');
+  nowMs = NOW + HOUR;
+  await s.emailer.runOnce();
+  assert.equal(s.lookups.length, 1, 'not re-checked within 6 h');
+  users.pw.emailVerified = true;
+  nowMs = NOW + 7 * HOUR;
+  const r = await s.emailer.runOnce();
+  assert.equal(s.lookups.length, 2);
+  assert.equal(r.sent, 1);
+  assert.equal(db.docs.get(`${TRIAL_EMAILS_COLLECTION}/pw`).status, 'sent');
+
+  const dry = setup({ env: { TRIAL_EMAIL_ENABLED: '1' }, users: { ph: { phoneNumber: '+91', providerData: [{ providerId: 'phone' }] } }, subs: { ph: trialDoc(NOW - 5.5 * DAY) } });
+  await dry.emailer.runOnce();
+  assert.equal(dry.db.docs.has(`${TRIAL_EMAILS_COLLECTION}/ph`), false, 'a dry run writes nothing, markers included');
 });
