@@ -122,6 +122,9 @@ export default function PublicLegalFooter({ className }: { className?: string })
           {label}
         </Link>
       ))}
+      {/* CONTACT-INDEX-1 (owner ruling, 18 Oct 2026) — the contact page, beside the legal links,
+          so /contact has an inbound crawl path from every page that carries this footer. */}
+      <Link to="/contact">Contact</Link>
       {/* ORG-SAMEAS-1 — our own profiles, the same URLs the Organization `sameAs` declares
           (config/socialProfiles.ts is the one list). `rel="me"` says these are ours; there
           is deliberately no `nofollow` and no UTM tag on an identity link. */}
