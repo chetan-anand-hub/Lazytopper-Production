@@ -39,8 +39,18 @@ import { createHash } from "node:crypto";
  * The content a verifier saw: question, options, keys and steps. The ledger stores this hash per
  * id; a row whose content changed since verification is `unverified` until verified again.
  */
-export function rowHash(q: Pick<Row, "questionText" | "options" | "answer" | "finalAnswer" | "solutionSteps">): string {
-  const payload = JSON.stringify([q.questionText ?? null, q.options ?? null, q.answer ?? null, q.finalAnswer ?? null, q.solutionSteps ?? []]);
+export function rowHash(
+  q: Pick<Row, "questionText" | "options" | "answer" | "finalAnswer" | "solutionSteps" | "ncertRef">,
+): string {
+  // ncertRef is included: the book check is a verdict ABOUT the reference, so a renumbered row re-verifies.
+  const payload = JSON.stringify([
+    q.questionText ?? null,
+    q.options ?? null,
+    q.answer ?? null,
+    q.finalAnswer ?? null,
+    q.solutionSteps ?? [],
+    q.ncertRef ?? null,
+  ]);
   return createHash("sha256").update(payload, "utf8").digest("hex").slice(0, 16);
 }
 
@@ -217,7 +227,8 @@ export function syllabusReason(q: Row, guard: GuardLists): string | null {
 export const NEEDS_FIGURE_TEXT =
   /\bfig(?:ure|ures|s)?\b\.?|\bfig\.|diagram|\bshown\b|\bgraph\b|\bdraw\b|adjoining|\bplotted\b|\bpicture\b/i;
 /** A solution that points at a figure the page cannot show. */
-export const NEEDS_FIGURE_STEPS = /\b(?:see|from|in|refer to|using) (?:the )?(?:fig\.?|figure|diagram|graph)\b/i;
+export const NEEDS_FIGURE_STEPS =
+  /\b(?:see|from|in|refer to|using) (?:the )?(?:given |adjoining |above |following )?(?:fig\.?|figure|diagram|graph)\b/i;
 /** U+FFFD (built from its code), and the common UTF-8-read-as-Latin-1 shapes. */
 const REPLACEMENT_CHAR = String.fromCharCode(0xfffd);
 // (written with escapes so this file itself passes check:mojibake)
@@ -227,7 +238,7 @@ export const MARK_BLEED = /[.:?]\s*[1-5]\s+(?:\(|[A-Z])/;
 /** A drafting self-correction left in the text ("[Actually prove:]", "= 4s? Actually Area = r·s"). */
 export const AUTHORING_ARTIFACT = /\[\s*actually\b|\?\s+actually\b/i;
 /** Formats the NCERT / Exemplar books do not have: these rows are LazyTopper adaptations. */
-const ADAPTED_FORMAT = /^(?:assertion-reason(?:ing)?|case-based)$/i;
+const ADAPTED_FORMAT = /assertion|case[ -]?(?:based|study)/i;
 const ADAPTED_ID = /-(?:AR|CB|CRE)-\d+$/;
 
 /** A reference that names one real problem of the book; anything else is not a book question. */
@@ -577,11 +588,12 @@ export function emitPagesBlock(selections: readonly ChapterSelection[]): string 
 
 /** Replace a generated block. Throws when the markers are missing. */
 export function replaceBlock(source: string, block: string, begin = BLOCK_BEGIN, end = BLOCK_END): string {
+  const eol = source.includes("\r\n") ? "\r\n" : "\n"; // keep the file's own line endings
   const s = source.replace(/\r\n/g, "\n");
   const a = s.indexOf(begin);
   const b = s.indexOf(end);
   if (a < 0 || b < a) throw new Error(`selectSolutions: markers ${begin.trim().slice(0, 30)}… not found`);
-  return s.slice(0, a) + block + s.slice(b + end.length);
+  return (s.slice(0, a) + block + s.slice(b + end.length)).replace(/\n/g, eol);
 }
 
 /** A committed block, as text (for the determinism guard). Line endings normalised to LF. */

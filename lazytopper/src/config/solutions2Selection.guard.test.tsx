@@ -30,7 +30,7 @@ import { SELF_CANONICAL_EXACT, SITE_ORIGIN } from "./canonicalUrl";
 import { sitemapPaths } from "./sitemapUrls";
 import { ensureBankSubject, getBankRows } from "../data/bankChapters/loader";
 import { WITHHELD_QUESTION_IDS } from "../data/canonicalQuestionBank";
-import { compareAnswer, correctOptionIndex } from "../lib/solutions/compareAnswer";
+import { compareAnswer, correctOptionIndex, parseQuantity } from "../lib/solutions/compareAnswer";
 import { ROUTE_CHUNK_MODULES, STATIC_PAGE_HEADS, solutionsJsonLd } from "../../scripts/seo/writeStaticHeads";
 import { llmsSolutionsLines, rewriteLlms } from "../../scripts/solutions/writeLlmsSolutions";
 import {
@@ -206,6 +206,28 @@ describe("(c) every published SOLUTIONS-2 row is served, verified, and every ✓
       }
     }
   });
+  it("every typed ✓/✗ row accepts equivalent correct forms and rejects a wrong value (never mark a correct student wrong)", () => {
+    let checked = 0;
+    for (const ch of S2) {
+      for (const book of BOOKS) {
+        for (const { q, safe } of publishedRows(getBankRows([bankSlugOf(ch)]), ch, book)) {
+          if (safe.verdict !== "value") continue;
+          const key = String(q.finalAnswer);
+          const k = parseQuantity(key)!;
+          const bare = key.slice(key.lastIndexOf("=") + 1).replace(/\.\s*$/, "").trim(); // "55/3 cm"
+          const num = bare.replace(/\s*(mm|cm|km|m)$/, "");
+          const forms = [key, bare, num, ` ${bare} `];
+          if (!Number.isInteger(k.value)) forms.push(k.value.toFixed(4));
+          if (k.unit === "cm") forms.push(`${k.value / 100} m`);
+          if (k.unit === "m") forms.push(`${k.value * 100} cm`);
+          for (const f of forms) expect(compareAnswer(f, key).verdict, `${q.id}: "${f}" vs "${key}"`).toBe("right");
+          expect(compareAnswer(String(k.value + 1), key).verdict, `${q.id}: wrong value`).toBe("wrong");
+          checked += 1;
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(0);
+  });
   it("each published row's content still hashes to what the verifiers saw", () => {
     for (const ch of S2) {
       for (const book of BOOKS) {
@@ -233,6 +255,13 @@ describe("(c) every published SOLUTIONS-2 row is served, verified, and every ✓
     expect([...intro.ncert, ...intro.exemplar].every((r) => /-(?:NCERT|EXMPLR)-8-/.test(r.id))).toBe(true);
     expect([...apps.ncert, ...apps.exemplar].every((r) => /-(?:NCERT|EXMPLR)-9-/.test(r.id))).toBe(true);
     expect(apps.exemplarChapter).toBe(8);
+    // Content, not just the id convention: every Ch 9 row is heights-and-distances, no Ch 8 row is.
+    const byId = new Map(getBankRows(["trigonometry"]).map((q) => [q.id, q] as const));
+    const hd = (id: string) => /height|distance|elevation|depression|tower|angle of/i.test(`${byId.get(id)?.subtopic} ${byId.get(id)?.questionText}`);
+    for (const r of [...apps.ncert, ...apps.exemplar]) expect(hd(r.id), r.id).toBe(true);
+    for (const r of [...intro.ncert, ...intro.exemplar]) {
+      expect(/elevation|depression|heights? and distances?/i.test(String(byId.get(r.id)?.subtopic)), r.id).toBe(false);
+    }
   });
   it("the id allowlist stays out of the entry chunk: only the two lazy pages import solutionsPublishSafe", () => {
     const walk = (dir: string): string[] =>
@@ -241,7 +270,7 @@ describe("(c) every published SOLUTIONS-2 row is served, verified, and every ✓
       );
     const importers = walk("src")
       .filter((f) => !/\.test\.tsx?$/.test(f) && !f.endsWith("solutionsPublishSafe.ts"))
-      .filter((f) => /from\s+["'][^"']*solutionsPublishSafe["']/.test(read(f)));
+      .filter((f) => /(?:from\s+|import\s*\(\s*)["'][^"']*solutionsPublishSafe["']/.test(read(f)));
     expect(importers.sort()).toEqual(["src/pages/NcertBooksPage.tsx", "src/pages/SolutionsPage.tsx"]);
     expect(read("src/config/canonicalUrl.ts")).toMatch(/from "\.\/solutionsPages"/);
     expect(read("src/config/solutionsPages.ts")).not.toMatch(/\b[rv]\("[A-Z]/);
