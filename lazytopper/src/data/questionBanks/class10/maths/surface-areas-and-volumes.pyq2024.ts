@@ -13,7 +13,7 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ_2024: CanonicalQuestion[] = [
     questionText: "Assertion (A) : The area of canvas cloth required to just cover a heap of rice in the form of a cone of diameter 14 m and height 24 m is 175 π sq.m. Reason (R) : The curved surface area of a cone of radius r and slant height l is π r l.",
     options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
     answer: "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).",
-    solutionSteps: ["[1 mark] Correct option: (a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of the Assertion (A).."],
+    solutionSteps: ["[1 mark] Correct option: (a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of the Assertion (A)."],
     finalAnswer: "(a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of the Assertion (A).",
     ncertRef: "PYQ 30(B) Q19", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },

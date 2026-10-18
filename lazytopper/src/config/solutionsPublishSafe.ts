@@ -723,7 +723,9 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
     exemplar: [
       r("STAT-N-EXEM-13-MCQ-001"),
       r("STAT-N-EXEM-13-MCQ-003"),
+      r("STAT-N-EXEM-13-MCQ-004"),
       r("STAT-N-EXEM-13-MCQ-005"),
+      r("STAT-N-EXEM-13-MCQ-006"),
       r("STAT-N-EXEM-13-VSA-001"), // yes/no, true/false or verify, with reason
       v("STAT-N-EXEM-13-SA-001"), // Mean = 35
       v("STAT-N-EXEM-13-SA-002"), // Mean = 5.5
@@ -744,7 +746,10 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       r("STAT-N-EXEM2-13-SA-003"), // approximate / rounded key
       r("STAT-N-EXEM2-13-SA-004"), // not one comparable value
       r("STAT-N-EXEM2-13-SA-005"), // more than one value in the answer
+      r("STAT-N-EXEM2-13-SA-006"), // more than one value in the answer
+      r("STAT-N-EXEM2-13-SA-007"), // more than one value in the answer
       r("STAT-N-EXEM2-13-SA-008"), // more than one value in the answer
+      r("STAT-N-EXEM2-13-SA-009"), // more than one value in the answer
       r("STAT-N-EXEM2-13-SA-010"), // not one comparable value
     ],
     boardPattern: {

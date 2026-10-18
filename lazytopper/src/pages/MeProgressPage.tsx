@@ -76,6 +76,7 @@ import AccountDataControls from "../components/account/AccountDataControls";
 // FAIR-USE-UI-1 (UI4) - the student's fair-use limits. Renders NOTHING unless
 // /api/usage/me says `enforced: true`, so the page is unchanged while enforcement is off.
 import UsageCard from "../components/usage/UsageCard";
+import ShareWithParentsButton from "../components/parentReport/ShareWithParentsButton";
 
 /**
  * MeProgressPage - ONE responsive Me / Progress surface for every width.
@@ -822,6 +823,12 @@ export default function MeProgressPage() {
             {studentName ? `${studentName}, your ` : "Your "}
             {paper} sheet is still filling in.
           </h1>
+        )}
+        {/* PARENT-REPORT-1 — the weekly report card for a parent (self-guards: real account only). */}
+        {booting ? null : (
+          <div className="lt-me__parents">
+            <ShareWithParentsButton placement="me" />
+          </div>
         )}
       </header>
 
@@ -1662,6 +1669,8 @@ const ME_CSS = `
   margin: 4px 0 0; letter-spacing: -0.015em; line-height: 1.18;
 }
 .lt-me__lede { margin: 0; font-size: 14px; color: var(--me-muted); line-height: 1.55; }
+.lt-me__parents { margin-top: 12px; }
+.lt-me__parents:empty { display: none; }
 
 .lt-me__windows, .lt-me__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
 .lt-me__chip {

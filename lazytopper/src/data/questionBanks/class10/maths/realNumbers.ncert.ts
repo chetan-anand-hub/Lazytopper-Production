@@ -102,7 +102,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "7 × 11 × 13 + 13 = 13 × (7 × 11 + 1) = 13 × 78. Since the expression has two factors greater than 1 (namely 13 and 78), it is composite.",
     solutionSteps: ["Factor 13 from both terms: 7 × 11 × 13 + 13 = 13 × (7 × 11 + 1).", "Compute 7 × 11 + 1 = 77 + 1 = 78.", "So the number = 13 × 78. Both 13 > 1 and 78 > 1.", "A number with more than two positive factors is composite. Hence 7 × 11 × 13 + 13 is composite."],
     finalAnswer: "13 × 78 = 1014, composite (has factors 13 and 78 besides 1 and itself).",
-    ncertRef: "NCERT Ex 1.1 Q6(i)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.1 Q6", isCompetencyBased: true,
     strategyHint: "Look for a common factor in both terms before checking primality." },
 
   { id: "RN-N-NCERT-1-SA-004", subject: "Maths", topicKey: "real-numbers", subtopic: "Decimal Expansion", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
@@ -143,7 +143,7 @@ export const RN_NCERT: CanonicalQuestion[] = [
     answer: "7 × 6 × 5 × 4 × 3 × 2 × 1 + 5 = 5 × (7 × 6 × 4 × 3 × 2 × 1 + 1) = 5 × 1009. Since the expression equals a product of two integers each greater than 1, it is composite.",
     solutionSteps: ["5 is a factor of both terms: 7 × 6 × 5 × 4 × 3 × 2 × 1 contains a 5, and the second term IS 5.", "Factor out 5: 5 × (7 × 6 × 4 × 3 × 2 × 1 + 1).", "Compute 7 × 6 × 4 × 3 × 2 × 1 = 1008. So the bracket = 1008 + 1 = 1009.", "Number = 5 × 1009. Both 5 > 1 and 1009 > 1.", "A number expressible as a product of two integers each > 1 is composite. Hence the number is composite."],
     finalAnswer: "5 × 1009 = 5045, composite.",
-    ncertRef: "NCERT Ex 1.2 Q6", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 1.1 Q6", isCompetencyBased: true,
     strategyHint: "When the second term is a prime that already appears in the product, factor it out." },
 
   { id: "RN-N-NCERT-1-SA-009", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrational Numbers", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",

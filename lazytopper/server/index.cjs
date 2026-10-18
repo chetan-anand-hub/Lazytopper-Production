@@ -202,6 +202,11 @@ const { runWithRequestContext, bindRequestUid } = require('./services/usageLedge
 // RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
 // off, all three routes answer this file's own 404. Keys only from env; see the module.
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH } = require('./routes/payments.cjs');
+// ASK-PARENTS-PAY-1: a parent pays for their child from a link the child sends. DARK unless
+// BOTH PAYMENTS_ENABLED and PARENT_PAY_ENABLED are on; the uid comes only from the link.
+const {
+  createParentPayRoutes, PARENT_LINK_PATH, PARENT_VIEW_PATH, PARENT_ORDER_PATH, PARENT_VERIFY_PATH,
+} = require('./routes/parentPay.cjs');
 // FAIR-USE-1: trial allowances + premium cost caps on the two grading endpoints, the
 // premium exemption from the 80% vision shed (U4), and GET /api/usage/me. Refusals are
 // DARK unless FAIR_USE_ENFORCE=1 (U8). cachedReadJson lets a grade-worksheet body that
@@ -388,8 +393,25 @@ const accountExportRoutes = createAccountExportRoutes({
 });
 
 const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry });
+const parentPayRoutes = createParentPayRoutes({
+  sendJson,
+  verifiedCaller,
+  adminFirestore,
+  telemetry,
+  // The child's display name from the server's own auth record — never from a request.
+  getDisplayName: async (uid) => {
+    if (!firebaseAdmin) return '';
+    const record = await firebaseAdmin.auth().getUser(uid);
+    return (record && record.displayName) || '';
+  },
+});
 // J1: the job poll — self-gating (verified uid, owner-scoped path, its own per-uid cap).
 const gradingJobsRoutes = createGradingJobsRoutes({ sendJson, verifiedCaller, gradingJobs, telemetry, corsOrigin: config.CORS_ORIGIN });
+// TRIAL-END-1: the one trial-ending email. OFF unless TRIAL_EMAIL_ENABLED; a DRY RUN until
+// TRIAL_EMAIL_DRY_RUN=0 and the Resend key/sender/unsubscribe secret are all set. Armed in
+// server.listen below; its unsubscribe route is matched in handleRequest. See the module.
+const { createTrialEndingEmailer, TRIAL_EMAIL_UNSUBSCRIBE_PATH } = require('./services/trialEndingEmail.cjs');
+const trialEndingEmailer = createTrialEndingEmailer({ adminFirestore, firebaseAdmin, telemetry });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -599,6 +621,7 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === '/api/activity') return require('./routes/studentActivity.cjs').handleStudentActivity(req, res, { sendJson, firebaseAdmin, adminFirestore }); // STUDENT-ACTIVITY-1: signed-in students' section/event counts (first-party, admin-only; see the module)
   if (req.method === 'POST' && reqPath === '/api/signup-source') return require('./routes/signupSource.cjs').handleSignupSourceRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SOURCE-1: a NEW account's one-visit source, once, create-only, server-only (see the module)
+  if ((req.method === 'GET' || req.method === 'POST') && reqPath === TRIAL_EMAIL_UNSUBSCRIBE_PATH) return trialEndingEmailer.handleUnsubscribe(req, res, reqUrlRaw); // TRIAL-END-1: the trial email's unsubscribe link (HMAC token; GET confirms, POST records; see services/trialEndingEmail.cjs)
 
   // ── Payments (RAZORPAY-1) ────────────────────────────────────────────────────
   // Self-gating: each handler answers 404 while PAYMENTS_ENABLED is off, resolves the
@@ -607,6 +630,11 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === PAY_ORDER_PATH) return paymentRoutes.handleOrder(req, res);
   if (req.method === 'POST' && reqPath === PAY_VERIFY_PATH) return paymentRoutes.handleVerify(req, res);
   if (req.method === 'POST' && reqPath === PAY_WEBHOOK_PATH) return paymentRoutes.handleWebhook(req, res);
+  // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
+  if (req.method === 'POST' && reqPath === PARENT_LINK_PATH) return parentPayRoutes.handleMintLink(req, res);
+  if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);
+  if (req.method === 'POST' && reqPath === PARENT_ORDER_PATH) return parentPayRoutes.handleOrder(req, res);
+  if (req.method === 'POST' && reqPath === PARENT_VERIFY_PATH) return parentPayRoutes.handleVerify(req, res);
 
   // ── QR answer handoff ────────────────────────────────────────────────────────
   // ORDER IS LOAD-BEARING: '/api/qr-upload/new' must be matched BEFORE the
@@ -779,6 +807,7 @@ async function handleRequest(req, res) {
     return adminTelemetryRoutes.handleGetTokenTelemetry(req, res);
   }
   if (req.method === 'GET' && (reqPath === '/api/admin/students' || reqPath.startsWith('/api/admin/students/'))) return require('./routes/adminStudents.cjs').handleAdminStudents(req, res, { sendJson, sendJsonWithHeaders, firebaseAdmin, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // STUDENT-ACTIVITY-1 PR-2: admin "Students" page, READ-ONLY, behind the shared ADMIN_FIREBASE_UIDS gate (see the module)
+  if (req.method === 'POST' && reqPath === '/api/admin/extend-premium') return require('./routes/adminExtendPremium.cjs').handleAdminExtendPremium(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-EXTEND-1: extend Premium by N days at price 0 (feedback-call reward), behind the SAME ADMIN_FIREBASE_UIDS gate as the Students page; same-origin from /admin/students, so no CORS preflight entry
 
   if (req.method === 'POST' && reqPath === '/api/admin/warm-question-pool') {
     const adminSecret = process.env.WARM_POOL_ADMIN_SECRET;
@@ -878,6 +907,9 @@ server.listen(config.PORT, () => {
     `Routing: visual→${config.HAS_ANTHROPIC_PROXY ? 'claude-sonnet' : 'gemini'} | chat→gemini | MaxHistory: ${config.MAX_HISTORY_TURNS} turns`
   );
   if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
+
+  // TRIAL-END-1 — prints its mode (OFF / DRY RUN / SENDING) and arms nothing when OFF.
+  trialEndingEmailer.schedule();
 
   // ── Unattended question generation ────────────────────────────────────────
   // ★ GATE FIRST, SCHEMA SECOND. Resolve and PRINT the state of every path

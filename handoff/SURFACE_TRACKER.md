@@ -1,3 +1,19 @@
+> **2026-10-18 - #1236 to #1242 (CLAUDE.md section 10, one docs PR for the 18 Oct merges).** Scope: question bank provenance, solutions pages, Check & Improve picker, Home, Me / Progress, scorecard, pricing, admin, contact, CI. No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Question bank | 121 Maths + 81 Science PYQ rows regain board year; 100 + 98 rows step-marked (`#1236` `#1248`); 28 rows text-cleaned incl. ENV-029 (`#1250`); served 10580 unchanged | live | `[FU-PYQ-HALF-MARK-SPLIT]`, `[FU-OE-COMPOSTING-WORDING]`, `[FU-PYQ-M-2024-TRIG-001-DEGREE]`, `[FU-PYQ-S-CHEMRXN-009]` |
+| Solutions pages (public) | 20 Maths NCERT / Exemplar pages (`#1244`); CBSE board-pattern section, Triangles aligned (`#1251`) | live; NOT live-checked | `[FU-SOLUTIONS3-PRB-HOLD]` (`#1252`) |
+| Check & Improve | "Try a board question" accepts Section D 5-mark rows; skips figure / graph / table rows (`#1237`); scorecard "Show my parents where I lose marks" (`#1241`) | live; NOT live-checked | none |
+| Home | trial-ending banner days 5-7 (`#1242`); trial-end feedback card (`#1238`); "Share with parents" (`#1241`) | live; NOT live-checked | `[FU-PARENT-REPORT-CHECKBOX]` |
+| Paywall (UpgradeSheet / UpgradeModal) | feedback card + 5-minute call offer on dismiss (`#1238`) | live; NOT live-checked | none |
+| Me / Progress | "Share with parents" report card (`#1241`) | live; NOT live-checked | `[FU-PARENT-REPORT-CHECKBOX]` |
+| Pricing | "Ask your parents to pay" + parent pay page (`#1240`) | merged, switched OFF | `[FU-PARENT-PAY-ENABLE]` |
+| Trial email (server) | `trialEndingEmail.cjs` hourly job + unsubscribe (`#1242`) | merged, OFF (dry run when enabled) | `[FU-TRIAL-EMAIL-ENABLE]` |
+| Admin | "Extend Premium (free)" on the student panel (`#1249`); feedback answers line (`#1238`) | live; NOT live-checked | none |
+| Contact | `/contact` self-canonical, sitemap, prerender, footer link (`#1239`) | live; sitemap checked 18 Oct | none (`[FU-CONTACT-INDEX]` closed) |
+| CI | vitest timeout fix, CodeQL removed (`#1243`); draft lane-overlap (`#1246`); light post-merge path, 5 shards, nightly real-date (`#1247`) | live | `[FU-ISTMIDNIGHT]`, `[FU-CI-COST-NITS]` |
+
 > **2026-10-17 - #1211 to #1235 (CLAUDE.md section 10, one docs PR for the 17 Oct merges).** Scope: Quick Practice, Check & Improve onboarding, Home, Topic Hub, scorecards (share / PDF), Chapter Test / Full Mock persistence, contact, notes content, and bank content. No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

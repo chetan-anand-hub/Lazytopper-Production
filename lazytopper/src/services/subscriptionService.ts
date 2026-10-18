@@ -10,7 +10,13 @@ export type SubscriptionPlan =
   | "premium_yearly"
   /** STORED-RATE-1 — a paid pass, written only by the server (passGrant.cjs). */
   | "pass_month"
-  | "pass_till_boards";
+  | "pass_till_boards"
+  /**
+   * ADMIN-EXTEND-1 — a free admin extension (e.g. the feedback-call reward) on an account
+   * that held no pass. Written only by the server (premiumExtension.cjs); it carries a
+   * server-written `passEnd`, so `applyPassExpiry` ends it exactly like a paid pass.
+   */
+  | "pass_extension";
 
 export interface SubscriptionStatus {
   tier: SubscriptionTier;

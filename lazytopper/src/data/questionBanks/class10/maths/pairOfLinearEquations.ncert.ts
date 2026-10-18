@@ -32,7 +32,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "inconsistent",
     solutionSteps: ["Write as 2x − 3y − 8 = 0 and 4x − 6y − 9 = 0.", "a₁/a₂ = 2/4 = 1/2; b₁/b₂ = −3/−6 = 1/2; c₁/c₂ = −8/−9 = 8/9.", "Here a₁/a₂ = b₁/b₂ ≠ c₁/c₂ → lines are parallel.", "Parallel lines never meet → no solution → inconsistent."],
     finalAnswer: "Inconsistent — option (c).",
-    ncertRef: "NCERT Ex 3.3 Q3(ii)", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 3.1 Q3(ii)", isCompetencyBased: false,
     strategyHint: "a₁/a₂ = b₁/b₂ ≠ c₁/c₂ → parallel → inconsistent." },
 
   { id: "PLE-N-NCERT-3-MCQ-004", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Consistency of Equations", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
@@ -194,7 +194,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "(i) x + 10y = 105 and x + 15y = 155. (ii) Subtracting: 5y = 50 → y = ₹10/km; then x = 105 − 100 = ₹5. (iii) For 25 km, fare = x + 25y = 5 + 250 = ₹255.",
     solutionSteps: ["Let fixed charge = ₹x and per-km charge = ₹y.", "10 km journey: x + 10y = 105 …(1). 15 km journey: x + 15y = 155 …(2).", "Subtract (1) from (2): 5y = 50 → y = 10. Then from (1): x = 105 − 100 = 5.", "So fixed charge = ₹5 and per-km charge = ₹10.", "Fare for 25 km = x + 25y = 5 + 250 = ₹255."],
     finalAnswer: "Fixed charge ₹5, per-km charge ₹10; fare for 25 km = ₹255.",
-    ncertRef: "NCERT Ex 3.3 Q3(iv)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.2 Q3(iv)", isCompetencyBased: true,
     strategyHint: "Subtracting the two equations cancels the fixed charge — gives the per-km rate directly." },
 
   { id: "PLE-N-NCERT-3-CB-003", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
@@ -202,6 +202,6 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "(i) Saritha kept 7 days → 4 extra days: x + 4y = 27. Susy kept 5 days → 2 extra days: x + 2y = 21. (ii) Subtract: 2y = 6 → y = ₹3; then x = ₹15. (iii) For 10 days → 7 extra days: fare = 15 + 7(3) = ₹36.",
     solutionSteps: ["Let fixed charge for the first 3 days = ₹x; additional per-day charge = ₹y.", "Saritha (7 days): x + (7 − 3)y = 27 → x + 4y = 27 …(1).", "Susy (5 days): x + (5 − 3)y = 21 → x + 2y = 21 …(2).", "Subtract (2) from (1): 2y = 6 → y = 3. From (2): x = 21 − 6 = 15.", "For 10 days → 7 extra days: charge = 15 + 7(3) = ₹36."],
     finalAnswer: "Fixed ₹15, per-extra-day ₹3; charge for 10 days = ₹36.",
-    ncertRef: "NCERT Ex 3.4 Q2(v)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.3 Q2(v)", isCompetencyBased: true,
     strategyHint: "Carefully count the number of EXTRA days (total days − 3), not the total." },
 ];

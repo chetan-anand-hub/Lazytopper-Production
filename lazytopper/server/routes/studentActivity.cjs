@@ -118,6 +118,9 @@ const ACTIVITY_EVENTS = Object.freeze([
   'tutor_from_scorecard',
   // TUTOR-FIX-2 T13 - once per tutor thread. Additive only.
   'tutor_first_message',
+  // TRIAL-END-1 - the trial-ending Home banner (shown / an action tapped). Additive only.
+  'trial_banner_shown',
+  'trial_banner_click',
   // FEEDBACK-1 - the "help us improve" prompt: shown / dismissed per moment, and the
   // one-tap reason per moment. Names only, never text. Additive only.
   'feedback_shown_paywall',

@@ -1,3 +1,17 @@
+## 2026-10-18 - Cofounder session 01PbRBtk: #1236 to #1242 (fifteen merges, trunk `4010570d`)
+
+**PROVENANCE.** Written by the docs builder of cofounder session 01PbRBtk under CLAUDE.md section 10 from `gh pr view`, `git log`, `gh run list` / check-run annotations and the owner rulings the cofounder handed over. Facts only. Written at trunk `4010570d`.
+- **Merged in order** (matches `git log --oneline 6e588408..origin/base/approved-thru-437` and the `mergedAt` times): `#1236` `ca1cb018`, `#1243` `0f428c87`, `#1239` `3a6e8323`, `#1244` `095277e5`, `#1246` `0213e4ad`, `#1238` `0946d563`, `#1237` `6e7fd303`, `#1250` `9006110b`, `#1241` `9f481542`, `#1249` `b17f43a1`, `#1248` `fde275ce`, `#1247` `6cfbf560`, `#1240` `bc4b8c9d`, `#1251` `e6fb2256`, `#1242` `4010570d`. Two `chore(ledger) ... [skip ci]` commits (`70f5e9e0`, `27a1c87c`) sit between them; they are not PRs.
+- **Bank / provenance:** PYQ-RESTORE-1 restored board years to 121 Maths + 81 Science rows confirmed against the official CBSE papers (owner ruling a) and step-marked 100 + 98 rows from the official marking schemes (`#1236` `#1248`); BANK-TEXT-CLEAN-1 cleaned 28 rows incl. SCQ-S-ENV-029 (`#1250`). Served 10580 throughout.
+- **Solutions pages:** SOLUTIONS-2 added 20 Maths pages, 331 rows (`#1244`); SOLUTIONS-3 PR-A added the labelled CBSE board-pattern section (33 rows) and aligned Triangles (`#1251`). PR-B `#1252` (96 ref renumbers, 9 syllabus releases, 6 NCERT pages) reviewed APPROVE-WITH-NITS and HELD FOR OWNER.
+- **Activation / conversion:** "Try a board question" widened to Section D and made text-only (`#1237`); feedback card + 5-minute call offer (`#1238`) with its admin grant path (`#1249`); parent report card (`#1241`); "Ask your parents to pay" merged switched OFF (`#1240`); trial-ending banner live, trial email OFF + dry run (`#1242`).
+- **SEO:** `/contact` indexed (`#1239`); live sitemap lists it.
+- **CI:** `#1243` fixed the vitest `onTaskUpdate` timeout and removed CodeQL; `#1246` stopped draft PRs blocking lane-overlap; `#1247` added the post-merge light path, duration-balanced shards and the nightly real-date step. Two trunk runs (39098585410, 39105553379) failed only because the aggregate job was not started (Actions billing: "recent account payments have failed or your spending limit needs to be increased"), while the repo was private. Run 39109844247 failed on the istMidnight pin (`[FU-ISTMIDNIGHT]`). Trunk `4010570d` Quality Gate: success.
+- **Repo settings (owner):** private, then PUBLIC the same day until CI cost / speed is solved; back to private at the end of the session (owner rule). GitHub Pro bought; trunk ruleset enforced; "Strict up-to-date" OFF.
+- **Exceptions (owner, one-off):** `src/data` for the CI test file (`#1243`) and for the SOLUTIONS-3 bank lane.
+- **Outside the repo:** Dussehra Short animatic + script (claude.ai doc) awaiting owner tweaks; 24 Oct ACTIVATION-2 measurement and Ads budget test scheduled.
+- **Docs:** this one entry covers all fifteen merges (branch `docs/post-pr-1236-1242-handoff`).
+
 ## 2026-10-17 - Cofounder session 01Sqfd9w: #1211 to #1235 (twenty-three merges, trunk `7e0a5b00`)
 
 **PROVENANCE.** Written by the docs sub-agent of cofounder session 01Sqfd9w under CLAUDE.md section 10 from `gh pr view`, `git log`, `gh run list` and the session facts the cofounder / coordinator handed over. Facts only. Written at trunk `7e0a5b00`.

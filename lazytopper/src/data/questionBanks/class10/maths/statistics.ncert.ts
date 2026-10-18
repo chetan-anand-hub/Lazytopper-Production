@@ -139,7 +139,7 @@ export const STAT_NCERT: CanonicalQuestion[] = [
     questionText: "A school's environment club surveys SO₂ concentration (in ppm) for 30 localities. Concentration of SO₂: 0.00-0.04 → 4, 0.04-0.08 → 9, 0.08-0.12 → 9, 0.12-0.16 → 2, 0.16-0.20 → 4, 0.20-0.24 → 2.\n(i) Find the class mark of the class 0.04-0.08.\n(ii) Find Σfᵢ and Σfᵢxᵢ.\n(iii) Find the mean SO₂ concentration.\n(iv) Which method did you use and why?",
     solutionSteps: ["(i) Class mark = (0.04 + 0.08)/2 = 0.06.", "(ii) Class marks: 0.02, 0.06, 0.10, 0.14, 0.18, 0.22. Σfᵢ = 30. Σfᵢxᵢ = 4×0.02 + 9×0.06 + 9×0.10 + 2×0.14 + 4×0.18 + 2×0.22 = 0.08 + 0.54 + 0.90 + 0.28 + 0.72 + 0.44 = 2.96.", "(iii) Mean = 2.96/30 ≈ 0.099 ppm.", "(iv) Direct method — class marks are small, multiplication is easy and exact."],
     finalAnswer: "(i) 0.06; (ii) Σf = 30, Σfx = 2.96; (iii) Mean ≈ 0.099 ppm; (iv) Direct method.",
-    ncertRef: "NCERT Ex 14.1 Q7", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 13.1 Q7", isCompetencyBased: true },
 
   // ===== Creating-level question =====
   { id: "STAT-N-NCERT-13-CRE-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",

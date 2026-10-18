@@ -422,6 +422,26 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "catch-all.",
   },
 
+  {
+    id: "subscriptions.adminGrants",
+    kind: "firestore-subcollection",
+    parentId: "subscriptions",
+    path: "subscriptions/{uid}/adminGrants/{requestId}",
+    holds:
+      "One record per free Premium extension an admin gave this account (e.g. the " +
+      "feedback-call reward): days added, the reason, price 0, the end before and after, " +
+      "which admin gave it, and when.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "ADMIN-EXTEND-1 — the admin audit entry AND the idempotency key of " +
+      "POST /api/admin/extend-premium. Written ONLY by server/services/premiumExtension.cjs " +
+      "inside the extension transaction. NOT a payment: kept apart from `payments` so it " +
+      "never shows as a sale. Erased with the account. No client rule matches it: the " +
+      "parent document's rules block has no nested wildcard, so the path falls to the " +
+      "deny-all catch-all.",
+  },
+
   // ── Firestore: payment orders (server-only, RAZORPAY-1) ──────────────────────────
   {
     id: "payOrders",
@@ -441,6 +461,27 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "Admin SDK; NOT declared in firestore.rules, so browsers fall to the deny-all " +
       "catch-all. ★ Field-keyed like `qrUploadSlots`: export and erasure must QUERY " +
       "`where('uid','==',uid)`.",
+  },
+
+  // ── Firestore: parent pay links (server-only, ASK-PARENTS-PAY-1) ─────────────────
+  {
+    id: "parentPayLinks",
+    kind: "firestore-collection",
+    path: "parentPayLinks/{linkId}",
+    holds:
+      "Links a student sent a parent so the parent can pay for the student's pass, keyed " +
+      "by the SHA-256 of the link's token (the token itself is never stored), with the " +
+      "student's `uid` as a FIELD: the student's first name, status (open / paid), created " +
+      "and expiry times, and the ids of the payment orders the link started. Nothing about " +
+      "the parent.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "Written only by server/routes/parentPay.cjs through the Admin SDK; NOT declared in " +
+      "firestore.rules, so browsers fall to the deny-all catch-all. Field-keyed like " +
+      "`qrUploadSlots`: export and erasure QUERY `where('uid','==',uid)`. Deleted on " +
+      "erasure (a link is not an accounting record; the orders it started are kept, " +
+      "anonymised, in `payOrders`).",
   },
 
   // ── Firestore: AI usage ledger (server-only, METER-1) ────────────────────────────
@@ -534,6 +575,28 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "admin Students page only. NOT declared in firestore.rules — browsers fall through to " +
       "the deny-all catch-all. Erased with the account and included in the export. The " +
       "device half of the same capture is the sessionStorage key listed under `local-storage`.",
+  },
+
+  // ── Firestore: the one trial-ending email (server-only, TRIAL-END-1) ─────────────
+  {
+    id: "trialEmails",
+    kind: "firestore-collection",
+    path: "trialEmails/{uid}",
+    holds:
+      "Whether the one 'your trial ends soon' service email was sent for this student's " +
+      "trial: the trial start it was for, its state (claimed, sent, failed — or skipped, with " +
+      "the reason: no email address, not an email sign-in, or an unverified address, and when " +
+      "to look again), when, the email provider's message id, and — if the student used the " +
+      "email's opt-out link — that they opted out and when. Never the email address or the " +
+      "email's text.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ Written ONLY by server/services/trialEndingEmail.cjs through the Admin SDK: a " +
+      "transactional claim BEFORE sending (so a restart or a second instance can never send " +
+      "twice), then the outcome, or a skip marker; and by its opt-out link handler. Off unless the owner sets " +
+      "TRIAL_EMAIL_ENABLED. NOT declared in firestore.rules — browsers fall through to the " +
+      "deny-all catch-all. Erased with the account and included in the export.",
   },
 
   // ── Firestore: stored grading results for retries (server-only, LOW-END-1 R4) ──────
@@ -642,6 +705,11 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "stored only when they choose Sign up on a scorecard's tutor prompt; never the uid; read " +
       "and deleted once by the tutor for that question after sign-up, where it becomes the " +
       "opening line of that student's own tutor thread; dropped unread after an hour). " +
+      "TRIAL-END-1: plus localStorage `lazytopper.trialEndBannerHidden.<uid>` (the IST date, " +
+      "YYYY-MM-DD, on which the student tapped Not today on the trial-ending banner, so it stays " +
+      "hidden until the next day; dismissal state only, never trial state, never sent anywhere) " +
+      "and, in THIS TAB's sessionStorage, `lazytopper.trialBannerShown` (the IST date the banner's " +
+      "shown event was last counted in this tab; never the uid, never sent anywhere). " +
       "FEEDBACK-1: plus localStorage `lazytopper.feedbackAsk.<uid>` (when the \"help us improve\" " +
       "prompt was last shown after an upgrade screen, the start timestamp of the trial whose end " +
       "was already asked about, and when any such prompt was last shown, so each moment is asked " +
@@ -671,6 +739,23 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "not by us. The export and the privacy policy must SAY this rather than let the " +
       "owner discover it. Owner decision: which Gemini tier/terms apply.",
   },
+  {
+    id: "third-party.email-provider",
+    kind: "third-party",
+    path: "https://api.resend.com/emails",
+    holds:
+      "★ TRIAL-END-1 — only when the owner switches the trial-ending email on: the student's " +
+      "sign-in email address and the text of that one service email (when their trial ends and " +
+      "how many checks, tests and practice sets they did) are handed to the email provider to " +
+      "deliver it.",
+    mechanism: "third-party-unreachable",
+    exportable: false,
+    notes:
+      "★★ CANNOT BE DELETED BY THE PRODUCT. The provider keeps its own delivery logs under its " +
+      "own terms. Nothing is sent while TRIAL_EMAIL_ENABLED is off or TRIAL_EMAIL_DRY_RUN is on " +
+      "(the default). Owner decision: the provider account, and saying so in the privacy policy " +
+      "before switching it on.",
+  },
 ];
 
 /**
@@ -686,12 +771,18 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
  *     app id. Written only by `server/services/freeCheck.cjs` through the Admin SDK; no
  *     client rule matches it, so browsers are denied by the catch-all.
  *
+ *   - `trialEmailDaily` (TRIAL-END-1, review finding 1): one document per IST day, id = the
+ *     day key, holding ONLY `count` (how many trial-ending emails were claimed that day, for the
+ *     durable daily cap), the day key and a timestamp. No uid, no address, nothing joinable to a
+ *     student. Written only by `server/services/trialEndingEmail.cjs` through the Admin SDK; no
+ *     client rule matches it, so browsers are denied by the catch-all.
+ *
  * ★ This list is an EXEMPTION, and exemptions are how a drift guard dies. It is exact,
  * it is pinned by `studentDataMap.test.ts`, and a name belongs here only with a reason
  * of the kind above. A collection that could hold anything about a student goes in the
  * map, never here. ErasureMechanism and erasure/export behaviour are unchanged by it.
  */
-export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily"]);
+export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily"]);
 
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */
 export function adminOnlyLocations(): readonly StudentDataLocation[] {

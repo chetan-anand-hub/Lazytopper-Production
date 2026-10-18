@@ -70,8 +70,9 @@ export type { ReadWindow, WindowTotal };
 
 export type ReadSubject = "maths" | "science";
 
-/** Every window the read model serves, in display order. */
-export const READ_WINDOWS: readonly ReadWindow[] = ["today", "week", "2wk", "month", "4mo"];
+/** Every window Me / the Tutor / the widget read, in display order. PARENT-REPORT-1: the weekly
+ *  parent report's `istWeek` window is served too but deliberately NOT listed here (no Me chip). */
+export const READ_WINDOWS = ["today", "week", "2wk", "month", "4mo"] as const satisfies readonly ReadWindow[];
 
 export interface StudyReadQuery {
   window: ReadWindow;

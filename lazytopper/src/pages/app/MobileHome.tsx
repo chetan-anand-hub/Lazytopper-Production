@@ -23,7 +23,9 @@ import { StartHereFocusView, StartHereView, useStartHere } from "../../component
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
 import PendingBell from "../../components/home/PendingBell";
+import ShareWithParentsButton from "../../components/parentReport/ShareWithParentsButton";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
+import { TrialEndBannerView, useTrialEndBanner } from "../../components/trial/TrialEndBanner";
 import {
   BORDER,
   CARD_BG,
@@ -124,6 +126,8 @@ const MI_BUCKETS = [
  */
 const MOBILE_HOME_CSS = `
   .lt-mhome-root, .lt-mhome-root * { box-sizing: border-box; }
+  .lt-mhome-parents { margin-top: 13px; }
+  .lt-mhome-parents:empty { display: none; }
   .lt-mhome-root { overflow-x: hidden; max-width: 100%; }
 
   .lt-mhome-heroes {
@@ -527,6 +531,8 @@ export default function MobileHome() {
   // the bell in the brand bar).
   const { papers: pendingPapers } = usePendingPapers(user);
   const showPending = pendingPapers.length > 0;
+  // TRIAL-END-1 — the trial-ending strip's model (null unless an active trial is on days 5-7).
+  const trialBanner = useTrialEndBanner();
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
   useEffect(() => {
@@ -661,7 +667,7 @@ export default function MobileHome() {
             `spaced` is its own margin, so a null leaves the layout unchanged. */}
         {/* HOME-PENDING-1: while the papers-waiting strip shows, the CBSE strip moves under it
             (the strip renders first; see below). */}
-        {showPending ? null : <CbseBanner spaced />}
+        {showPending || trialBanner ? null : <CbseBanner spaced />}
 
         {/* Greeting */}
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: 23, fontWeight: 600, lineHeight: 1.05, color: FG, margin: 0 }}>
@@ -689,9 +695,18 @@ export default function MobileHome() {
             above the heroes, only when a paper waits; the CBSE strip follows it. Never more
             than these two stacked, so the one-time phone nudge waits for a visit without the
             strip (it renders nothing, so it is not spent). */}
+        {/* TRIAL-END-1 (owner ruling 18 Oct 2026) — the trial-ending strip (trial days 5-7) sits
+            in this same action slot. Still never more than two strips: pending + trial pushes the
+            CBSE strip out for that visit (it renders nothing, so nothing is dismissed), and the
+            phone nudge waits whenever either strip is up. */}
         {showPending ? (
           <>
             <PendingPapersStrip papers={pendingPapers} spaced />
+            {trialBanner ? <TrialEndBannerView model={trialBanner} spaced /> : <CbseBanner spaced />}
+          </>
+        ) : trialBanner ? (
+          <>
+            <TrialEndBannerView model={trialBanner} spaced />
             <CbseBanner spaced />
           </>
         ) : (
@@ -807,6 +822,14 @@ export default function MobileHome() {
             />
           )}
         </div>
+
+        {/* PARENT-REPORT-1 — the weekly report card a student sends a parent. The button renders
+            nothing for a signed-out visitor or a local session (no synced data to report). */}
+        {isSignedIn ? (
+          <div className="lt-mhome-parents">
+            <ShareWithParentsButton placement="home" />
+          </div>
+        ) : null}
 
         {/* Returning / signed-in: resume strip (real memory only). AUTH-2-FU §4
             moves it BELOW the merged card — the heroes and the one next action

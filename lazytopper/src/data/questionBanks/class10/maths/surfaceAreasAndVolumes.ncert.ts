@@ -206,7 +206,7 @@ export const SAV_NCERT: CanonicalQuestion[] = [
       "Cost = 44 × ₹500 = ₹22,000."
     ],
     finalAnswer: "Canvas area = 44 m²; total cost = ₹22,000.",
-    ncertRef: "NCERT Ex 13.1 Q7", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 12.1 Q7", isCompetencyBased: true,
     strategyHint: "Base is open, so only CSA of cylinder + CSA of cone count; then multiply by the rate." },
 
   { id: "SAV-N-NCERT-12-CB-002", subject: "Maths", topicKey: "surface-areas-and-volumes",

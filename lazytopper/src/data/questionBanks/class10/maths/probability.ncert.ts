@@ -84,7 +84,7 @@ export const PROB_NCERT: CanonicalQuestion[] = [
     answer: "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
     solutionSteps: ["By R: P(not E) = 1 − 2/3 = 1/3. So A is true.", "R is the standard complementary-events identity — true.", "R is exactly the reason A holds."],
     finalAnswer: "Option (A).",
-    ncertRef: "NCERT Section 15.2 / Ex 15.1 Q1(i)", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 14.1 Q1(i)", isCompetencyBased: true },
 
   // ===== Section B — Short Answer (2 marks) =====
   { id: "PROB-N-NCERT-14-VSA-001", subject: "Maths", topicKey: "probability", subtopic: "Sure and Impossible Events", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",

@@ -701,6 +701,10 @@ export type NamedAnalyticsEvent =
   | "tutor_from_scorecard"
   // TUTOR-FIX-2 T13 — the first message a student sends in a tutor thread (once per thread).
   | "tutor_first_message"
+  // TRIAL-END-1 — the trial-ending Home banner (trial days 5 to 7): shown (once per tab per IST
+  // day) and a tap on one of its actions (a two-value cta, never an id or a count).
+  | "trial_banner_shown"
+  | "trial_banner_click"
   // FEEDBACK-1 — the "help us improve" prompt, FIRST-PARTY names only (moment and reason are
   // inside the name because the activity store keeps names only). Sent by trackFeedbackEvent,
   // which gives the vendors the generic feedback_shown / feedback_dismissed / feedback_reason
@@ -751,6 +755,12 @@ export interface CheckoutDetails {
   itemName: string;
   /** Rupees. null when the price cannot be known on the client: the event is sent without a value. */
   valueInr: number | null;
+  /**
+   * ASK-PARENTS-PAY-1 — who is paying. Absent (every pre-existing call site) means the
+   * student's own checkout and the payload is byte-for-byte as before; `"parent"` adds
+   * `payer: "parent"` to the Vercel and GA4 params (never to Meta, which gets money only).
+   */
+  payer?: "parent";
 }
 
 const CHECKOUT_CURRENCY = "INR";
@@ -758,9 +768,10 @@ const CHECKOUT_CURRENCY = "INR";
 function checkoutParams(d: CheckoutDetails): { vercel: Record<string, unknown>; ga4: Record<string, unknown>; meta: Record<string, unknown> } {
   const value = typeof d.valueInr === "number" && Number.isFinite(d.valueInr) && d.valueInr > 0 ? d.valueInr : null;
   const money: Record<string, unknown> = value === null ? { currency: CHECKOUT_CURRENCY } : { currency: CHECKOUT_CURRENCY, value };
+  const payer: Record<string, unknown> = d.payer === "parent" ? { payer: "parent" } : {};
   return {
-    vercel: { ...money, pass: d.passType },
-    ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName }] },
+    vercel: { ...money, pass: d.passType, ...payer },
+    ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName }], ...payer },
     meta: money,
   };
 }
@@ -913,6 +924,40 @@ export function trackParentShareClick(placement: ParentSharePlacement): void {
   send("event", { name: "parent_share_click", data: { placement } });
 }
 
+/** TRIAL-END-1 — which action on the trial-ending banner was tapped. */
+export type TrialBannerCta = "plans" | "check";
+
+/** TRIAL-END-1 — sessionStorage key: the IST day key on which `trial_banner_shown` was last sent in THIS tab. */
+export const TRIAL_BANNER_SHOWN_KEY = "lazytopper.trialBannerShown";
+
+/**
+ * TRIAL-END-1 — `trial_banner_shown`, at most ONCE per tab per IST day (`dayKey`, from the
+ * banner's own IST helper), so a re-render or a reload of the same tab never counts it twice.
+ * The payload is the bare event name: no uid, no day number, no counts.
+ */
+export function trackTrialBannerShown(dayKey: string): void {
+  try {
+    if (window.sessionStorage.getItem(TRIAL_BANNER_SHOWN_KEY) === dayKey) return;
+    window.sessionStorage.setItem(TRIAL_BANNER_SHOWN_KEY, dayKey);
+  } catch {
+    /* storage blocked: still count it once for this render */
+  }
+  trackNamedEvent("trial_banner_shown");
+}
+
+/**
+ * TRIAL-END-1 — `trial_banner_click`: "See plans" or "Check an answer" on the banner. Name plus
+ * a two-value cta (the `parent_share_click` shape) — Vercel reads `data`, GA4 its params, and the
+ * first-party log takes the name only.
+ */
+export function trackTrialBannerClick(cta: TrialBannerCta): void {
+  try {
+    send("event", { name: "trial_banner_click", data: { cta } }, { ga4: { cta } });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 /** WA-CONTACT-1 — which WhatsApp contact link was tapped. */
 export type WhatsAppContactPlacement = "fab" | "contact_page";
 
@@ -925,6 +970,43 @@ export type WhatsAppContactPlacement = "fab" | "contact_page";
  */
 export function trackWhatsAppContactTap(placement: WhatsAppContactPlacement): void {
   send("event", { name: "whatsapp_contact_tap", data: { placement } });
+}
+
+/** ASK-PARENTS-PAY-1 — where "Ask your parents to pay" was used, and which step. */
+export type AskParentSurface = "pricing";
+export type AskParentAction = "open" | "whatsapp" | "copy";
+
+/**
+ * ASK-PARENTS-PAY-1 — `ask_parent_tap`: a student opened "Ask your parents to pay", or sent
+ * / copied the message. Surface + action ONLY: never the message, the link, its token, a
+ * count or a contact. Vendors only (GA4 / Vercel), like `score_share`: NOT in
+ * `NamedAnalyticsEvent`, so the first-party log drops it and no server change is needed.
+ */
+export function trackAskParentTap(surface: AskParentSurface, action: AskParentAction): void {
+  try {
+    const data = { surface, action };
+    send("event", { name: "ask_parent_tap", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * ASK-PARENTS-PAY-1 — `parent_pay_page_view`: a parent opened a LIVE pay link (the server
+ * accepted it). The name plus a one-value surface, never an id or the token. Vendors only,
+ * like `ask_parent_tap` (a parent is signed out, so the first-party log never records it, and
+ * the name is deliberately NOT in `NamedAnalyticsEvent`). The page's address carries the
+ * token in its FRAGMENT, which no vendor receives: GA4 and Vercel get the redacted path
+ * (`/pricing`), and Meta sends nothing at all from an address with a hash
+ * (`metaAddressIsClean`).
+ */
+export function trackParentPayPageView(): void {
+  try {
+    const data = { surface: "pricing" };
+    send("event", { name: "parent_pay_page_view", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
 }
 
 /** AWAIT-1-PAPERS — the paper surface a reminder was set from, and how. */
@@ -974,6 +1056,39 @@ export function trackScoreShare(surface: ScorecardSurface, method: ScoreShareMet
   try {
     const data = { surface, method };
     send("event", { name: "score_share", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/** PARENT-REPORT-1 — where the "Share with parents" button was. */
+export type ParentReportPlacement = "me" | "home" | "check_improve";
+/** PARENT-REPORT-1 — which honest state the card was in (never a figure). */
+export type ParentReportState = "empty" | "activity" | "pattern";
+
+/**
+ * PARENT-REPORT-1 — `parent_report_shown`: the weekly parent report card was shown to the
+ * student (once per open). Placement + state ONLY: never a number, a name, a chapter or any
+ * text. Vendors only (GA4 / Vercel), like `score_share`: NOT in `NamedAnalyticsEvent`, so the
+ * first-party log drops it and no server allow-list change is needed.
+ */
+export function trackParentReportShown(placement: ParentReportPlacement, state: ParentReportState): void {
+  try {
+    const data = { placement, state };
+    send("event", { name: "parent_report_shown", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * PARENT-REPORT-1 — `parent_report_share`: the student actually shared the card (the OS sheet
+ * completed, or wa.me opened). Placement + method ONLY, never a cancel or a failure.
+ */
+export function trackParentReportShare(placement: ParentReportPlacement, method: ScoreShareMethod): void {
+  try {
+    const data = { placement, method };
+    send("event", { name: "parent_report_share", data }, { ga4: data });
   } catch {
     /* analytics must never break the page */
   }

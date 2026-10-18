@@ -112,6 +112,9 @@ export const ACTIVITY_EVENTS = [
   "tutor_from_scorecard",
   // TUTOR-FIX-2 T13 — once per tutor thread. Additive.
   "tutor_first_message",
+  // TRIAL-END-1 — the trial-ending Home banner. Additive.
+  "trial_banner_shown",
+  "trial_banner_click",
   // FEEDBACK-1 — the "help us improve" prompt: shown / dismissed per moment, and the one-tap
   // reason per moment. Names only, never text. Additive.
   "feedback_shown_paywall",
