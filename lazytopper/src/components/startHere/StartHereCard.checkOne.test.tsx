@@ -91,7 +91,11 @@ describe("ACTIVATION-2 A — Start here on Check & Improve", () => {
   it("start_here_shown keeps its name and surface, plus variant=check_one", async () => {
     mount(vi.fn());
     await screen.findByTestId("start-here-focus");
-    expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "check_improve_focus", variant: "check_one" }]);
+    // The event fires from a passive useEffect, which can run a tick AFTER the dialog is in the DOM
+    // (CI-VITEST-TIMEOUT-1: seen red on a loaded 2-vCPU runner, run 39095428811 attempt 2). Wait for it.
+    await waitFor(() =>
+      expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "check_improve_focus", variant: "check_one" }]),
+    );
   });
 
   it("CONTROL: without checkOneAnswer (every other page) the takeover is the practice picker, unchanged", async () => {
@@ -99,7 +103,7 @@ describe("ACTIVATION-2 A — Start here on Check & Improve", () => {
     await screen.findByTestId("start-here-focus");
     expect(screen.queryByTestId("start-here-focus-check-one")).toBeNull();
     expect(screen.getByTestId("start-here-focus-subject-maths")).toBeTruthy();
-    expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub_focus" }]);
+    await waitFor(() => expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub_focus" }]));
     fireEvent.click(screen.getByTestId("start-here-focus-close"));
     await waitFor(() => expect(screen.queryByTestId("start-here-focus")).toBeNull());
     expect(screen.getByTestId("start-here-card")).toBeTruthy();
