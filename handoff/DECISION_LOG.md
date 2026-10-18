@@ -1,3 +1,16 @@
+## 2026-10-19 - WITHHOLD-METAL-007 #1257: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The two owner rulings of 18 Oct night and the lane's own build decisions, each with its reason, as written in the WITHHOLD-METAL-007 and REFILE-PYQ2026-1 specs, the builder report and the independent review.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner ruling, 18 Oct 2026 ~23:52 IST (chat): withhold ONLY the Varun question now | `PYQ-S-2026-METAL-007` is withheld from every surface at once; it stays unchanged in its source file; every other misfiled or garbled 2026 PYQ row waits for a separate re-file-and-repair lane; authorises `src/data/` edits for this purpose only | a student had just been served a Biology question in a Chemistry test (report 18 Oct 23:42 IST). One known-bad row could be taken off every surface quickly and safely with the existing withhold mechanism; repairing it (and its siblings) needs the official paper and its own review, which should not delay stopping the visible defect |
+| owner ruling, 18 Oct 2026 23:53 IST (chat): "how many questions are in this category? fix them" | all misfiled or garbled Science 2026 PYQ rows are to be fixed - re-filed to their true chapter, text restored verbatim from the official CBSE 2026 paper and marking scheme, or withheld when no source can be read; `PYQ-S-2026-METAL-007` is re-filed and served again in that lane. Specced as REFILE-PYQ2026-1 (`C:\Users\Chetan\OneDrive\Desktop\diff\specs\LazyTopper_REFILE-PYQ2026-1_v1.0_2026-10-19.md`), to start only after #1257 merged | the cofounder's read of the 2026 PYQ files found about 29 more Science rows misfiled or garbled, plus truncated answers (`[FU-PYQ2026-MISFILED-GARBLED]`); withholding them all would empty real board questions from the bank, while leaving them serves wrong-chapter and unreadable questions. Fixing from official sources keeps both quality and supply |
+| builder: mirror #1222, no new mechanism | id in the BANK-STEPS-1 PAUSE block + `paused` WRONG-CONTENT ledger row; regenerate chapters, the order-parity fixture and the clock manifest | the spec required the existing pattern; `bankSteps1.test.ts` (c) pins the paused count to the PAUSE block, and the generated chapter lists and fixture must agree with the aggregator |
+| builder: verdict WRONG-CONTENT for a misfiled row | the ledger verdict union has no MISFILED value; the evidence text says "misfiled" | adding a verdict value was outside the lane's scope; the reviewer accepted it for now and routed the ruling to REFILE-PYQ2026-1 (`[FU-BANKSTEPS-VERDICT-MISFILED]`) |
+| builder: lower the `pyqRestore1.test.ts` served floor 10580 -> 10579 with a dated comment | re-measured, not relaxed; the guard test pins the exact -1 | the floor's own comment says a withholding lane lowers it with a dated comment |
+| merge by the owner | squash `56850447` 2026-10-18T19:35:01Z | standing merge rule: independent review (PASS-WITH-FOLLOW-UP, no MUST-FIX) + green CI, then the owner merges |
+
 ## 2026-10-18 - PERF-3 #1255: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner ruling and the cofounder spec deltas of the PERF-3 lane, each with its reason, as written in the spec, the deltas and the builder report.

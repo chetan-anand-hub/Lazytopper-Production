@@ -23,6 +23,34 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-19 - WITHHOLD-METAL-007 #1257 FOLLOW-UPS (recorded by the WITHHOLD-METAL-007 builder under CLAUDE.md section 10)
+
+*Readings are at trunk `56850447`. Earlier dated entries are left as written (standing rule 3).* S1-S5 are the SHOULD-FIX items of the independent review `C:\Users\Chetan\OneDrive\Desktop\diff\review-pr1257-2026-10-19.md` (PASS-WITH-FOLLOW-UP, no MUST-FIX), cited as **[reviewer]**; M2 is the reviewer's mutation that removes the id from `WITHHELD_QUESTION_IDS` and re-runs `gen:bank-chapters`, so the row is really served again.
+
+### Bank content
+
+### [FU-PYQ2026-MISFILED-GARBLED]
+**The cofounder's reading, 18-19 Oct, UNVERIFIED - not a census.** Reading the question text of the 2026 PYQ files at `c6ac0ddb`, the cofounder found about 29 Science 2026 PYQ rows that are misfiled (wrong chapter) or garbled (Hindi stripped, leaving fragments such as `() () : () C2H6O 'P'`), across `chemicalReactions`, `lightReflection`, `metalsNonMetals`, `electricity`, `acidsBasesSalts`, `controlCoordination`, `humanEye` and `lifeProcesses` (`*.pyq2026.ts`), plus many rows whose `answer` / `finalAnswer` holds only the last part of a multi-part answer. Maths 2026 rows looked correctly filed. `PYQ-S-2026-METAL-007` was the one a student hit (withheld by #1257); the rest are still served. **Owner ruling 18 Oct 23:53 IST: "fix them".** Lane **REFILE-PYQ2026-1**, spec `C:\Users\Chetan\OneDrive\Desktop\diff\specs\LazyTopper_REFILE-PYQ2026-1_v1.0_2026-10-19.md`: it produces the verified per-row census (R re-file / F fix text verbatim from the official CBSE 2026 paper and marking scheme, with URL + SHA-256 in a ledger / W withhold / K keep), re-files METAL-007 under Control & Coordination with both internal-choice answers, and removes it from the withhold list in the same PR. Fresh reviewer samples >= 10 changed rows against the official PDFs.
+
+### Tests (from the #1257 review)
+
+### [FU-WITHHOLD-METAL-007-BOARDTRY-VACUOUS]
+**Review S1 [reviewer].** The "Try a board question" check in `lazytopper/src/data/bankFix/withholdMetal007.test.ts:134-143` is vacuous for this row: `isBoardTryRow` could never offer it - its stem has an "OR" internal choice (`HAS_CHOICE`, `boardQuestionPick.ts:95` / `:126`), says "Draw a flow chart" (`/\bdraw\b/i`, `:72`) and carries "? 2 OR" mark bleed (`:97`). It stayed green under M2. The CONTROL (`:152-158`) proves Chapter-Test eligibility only. Fix: assert `isOfferableRow(row) === false` with a comment that this surface was never reachable, or drop the claim. The builder report's "each surface is proved by import" overstates this one surface.
+
+### [FU-WITHHOLD-METAL-007-PRACTICE-SAMPLE-WEAK]
+**Review S2 [reviewer].** The seeded `buildPracticeQuestionsFromEngine` check (`withholdMetal007.test.ts:82-95`, 30 seeds x 10 questions) stays green under M2: the sample never reaches the row, so it is not evidence. Quick Practice is still covered by the `generatePracticeSet` "General" check (`:97`), which goes RED. Fix: strengthen it (larger count, or the row's "General" concept) or relabel it as a smoke check.
+
+### [FU-WITHHOLD-METAL-007-HPQ-NOT-A-BANK-CONSUMER]
+**Review S3 [reviewer].** The Important Questions (HPQ) check (`withholdMetal007.test.ts:145-150`) is vacuous by construction: `highlyProbableQuestions.ts` is a separate curated dataset, not a bank consumer, so it can never hold a bank row. The test title says so honestly; reports should list HPQ as "not a bank consumer", not as a proved withhold.
+
+### Ledger and process
+
+### [FU-BANKSTEPS-VERDICT-MISFILED]
+**Review S4 [reviewer].** `bankFix/bankSteps1Ledger.ts` has no `MISFILED` verdict, so `PYQ-S-2026-METAL-007` is ledgered `WRONG-CONTENT` (`:32`; its evidence text says "misfiled"). Acceptable for now. REFILE-PYQ2026-1 should rule whether to add `MISFILED` (and update the verdict check in `bankSteps1.test.ts`) or keep WRONG-CONTENT, before it ledgers about 29 more re-filed rows.
+
+### [FU-WITHHOLD-SPEC-FORCED-FILES]
+**Review S5 [reviewer].** `scope:guard --mode product` FAILs on `lazytopper/scripts/testClock/date-sensitive-tests.json` for any withhold whose guard test draws real pools (CLOCK_GUARD needs it listed); `--mode mixed` is OK. #1222 and #1257 both also had to regenerate `predictionCore.orderParity.fixture.json`. Neither file was named in the #1257 spec section 1. Future withhold specs list both as forced files up front and name `--mode mixed` as the scope gate.
+
 ## 2026-10-18 - PERF-3 #1255 FOLLOW-UPS (recorded by the PERF-3 builder under CLAUDE.md section 10)
 
 *Readings are at trunk `a0883bbf`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 18 Oct); facts marked **[builder-reported]** come from the PERF-3 builder's own runs (report `C:\Users\Chetan\OneDrive\Desktop\diff\report-perf3-2026-10-18.md`, PR #1255 body); facts marked **[git/gh]** were re-read with `git` / `gh` while writing this entry.
