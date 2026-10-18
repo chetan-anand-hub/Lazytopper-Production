@@ -27,6 +27,8 @@
  * the root is `/app/` WITH a slash; every other path has NONE.
  */
 
+import { solutionsPaths } from "./solutionsPages";
+
 /** The host the sitemap, robots.txt and og:image already use. */
 export const SITE_ORIGIN = "https://www.lazytopper.com";
 
@@ -96,9 +98,10 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   // NCERT-BOOKS-1 (lane G, D210/D213) — the NCERT Class 10 books, chapter-wise: public, indexable.
   "/ncert-class-10",
   // SOLUTIONS-1 (lane G, D259-D261) — the Triangles NCERT + Exemplar solutions pilot: public,
-  // indexable. Exact paths only; `solutionsPilot.guard.test.tsx` asserts these equal solutionsPaths().
-  "/ncert-solutions/triangles",
-  "/ncert-exemplar/triangles",
+  // indexable. SOLUTIONS-2 (owner 18 Oct 2026) — every published solutions page, DERIVED from
+  // `solutionsPaths()` (the light `solutionsPages.ts`, no ids): a chapter added there is
+  // self-canonical, in the sitemap and in the prerender set with no edit here. Exact paths only.
+  ...solutionsPaths(),
 ];
 
 /**
