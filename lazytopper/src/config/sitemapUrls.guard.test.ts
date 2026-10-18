@@ -21,6 +21,7 @@ import {
 } from "./canonicalUrl";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { LEGAL_SLUGS } from "../pages/legalSlugs";
+import { solutionsPaths } from "./solutionsPages";
 import { ensureAllNoteSpecs, getNoteSpecForTopic } from "../components/notes/noteSpecRegistry";
 
 // LOW-END-1 (L4): specs are per-chapter chunks now; this suite reads them synchronously.
@@ -267,7 +268,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
    * every member must have an AUTHORED spec — advertising a note URL that renders
    * "Notes not found" would be a soft 404 at HTTP 200.
    */
-  it("★ advertises 68 URLs: the 65 before, the two Triangles solutions pages (SOLUTIONS-1) and /contact (CONTACT-INDEX-1)", () => {
+  it("★ advertises 88 URLs: the 65 before, /contact (CONTACT-INDEX-1) and 22 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2)", () => {
     const paths = sitemapPaths();
     const registry = allDesktopTopics();
     const notes = paths.filter((p) => p.startsWith("/notes/"));
@@ -276,7 +277,12 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     expect(paths.length).toBe(
       SELF_CANONICAL_EXACT.length + LEGAL_SLUGS.length + 2 * registry.length,
     );
-    expect(paths.length, "the owner-ruled advertised count").toBe(68);
+    // SOLUTIONS-2 (owner 18 Oct 2026): the solutions pages are DERIVED from solutionsPaths(); the
+    // count stays pinned so a silent change of the published set still fails here.
+    expect(paths).toContain("/contact");
+    expect(solutionsPaths().length, "published solutions pages").toBe(22);
+    expect(paths.length, "the owner-ruled advertised count").toBe(66 + solutionsPaths().length);
+    expect(paths.length).toBe(88);
 
     for (const path of notes) {
       const slug = path.slice("/notes/".length);
