@@ -1,3 +1,10 @@
+## 2026-10-18 - PERF-3 (`#1255`) - MERGED
+
+- DONE. `firebase/firestore` out of the entry chunk behind one lazy facade; entry 414 -> 248 KB gz (live 247,598 B, cofounder-verified); spec target <= 250 KB gz met. Guards: entry-chunk acceptance at the end of `build`; single-loader vitest guard.
+- NOT MET (routed). Stretch <= 150 KB gz and the Lighthouse Perf targets (`/` 84 vs >= 90, `/check-improve` 67 vs >= 75, cofounder PSI 1 run) -> PERF-4 (`[FU-PERF3-LAZY-AUTH]`, `[FU-PERF-THIRD-PARTY-TAGS]`).
+- OPEN. Owner test-account live-verify (sign-up + trial write, 2-surface grading round trips, offline outbox flush, blocked-chunk retry); the follow-ups in the 2026-10-18 (PERF-3 #1255) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- NEXT. PERF-4.
+
 ## 2026-10-18 - #1236 to #1242 - MERGED
 
 - DONE. PYQ board years restored and step marks added, Maths + Science (`#1236` `#1248`); bank text clean incl. ENV-029 (`#1250`); Maths NCERT + Exemplar solutions pages for 13 chapters (`#1244`) and the CBSE board-pattern section (`#1251`); "Try a board question" widened to Section D and text-only (`#1237`); feedback card + call offer (`#1238`) and admin Extend Premium (`#1249`); parent report card (`#1241`); trial-ending banner (`#1242`); `/contact` indexed (`#1239`); CI fixes and cost / speed (`#1243` `#1246` `#1247`). Served 10580 unchanged.
