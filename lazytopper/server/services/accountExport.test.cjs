@@ -206,6 +206,8 @@ function realSeed(uid = UID) {
       ref: 'www.youtube.com', utm_source: 'youtube', utm_medium: 'paid', utm_campaign: 'test',
       utm_content: null, landing: '/', gclid: false, fbclid: false,
     },
+    // TRIAL-END-1 — the one trial-ending email's ledger (server-only).
+    [`trialEmails/${uid}`]: { trialStartMs: 1790000000000, trialEndsAtMs: 1790604800000, status: 'sent', providerMessageId: 'msg_1' },
     // LOW-END-1 R4. The parent is seeded only so the map-driven test has a row to find;
     // production writes only the attempt documents (a stored grade, kept 24 h).
     [`gradingResults/${uid}`]: {},

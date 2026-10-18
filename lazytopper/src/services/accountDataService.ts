@@ -66,7 +66,10 @@ export const THIRD_PARTY_RETENTION_DISCLOSURE =
   "When you asked our AI to grade an answer or explain a topic, that answer was sent " +
   "to Google's Gemini AI to be read. Those copies are held by Google under Google's " +
   "rules, not ours. Deleting your LazyTopper account does not reach them, and we " +
-  "cannot delete them for you.";
+  "cannot delete them for you." +
+  // TRIAL-END-1 — the second third party in STUDENT_DATA_MAP (`third-party.email-provider`).
+  " If we emailed you about your trial ending, our email provider keeps its own record " +
+  "of sending that email under its rules, which we cannot delete either.";
 
 /** The word a student must type to arm the delete. Deliberately not "yes" or "ok". */
 export const ERASE_CONFIRM_PHRASE = "DELETE";

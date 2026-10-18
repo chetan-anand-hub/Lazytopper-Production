@@ -22,6 +22,7 @@ import {
   exportFallbackFilename,
   isStudentLocalKey,
   thirdPartyDisclosureIds,
+  THIRD_PARTY_RETENTION_DISCLOSURE,
 } from "./accountDataService";
 import { captureIncomingReferral, creditPendingReferral } from "./referralService";
 
@@ -418,7 +419,9 @@ describe("5 · the third-party disclosure is map-derived", () => {
   it("names exactly the third-party-unreachable locations STUDENT_DATA_MAP declares", () => {
     // Re-derived at read time — if a second third party is added to the map, this
     // fails and forces the UI to disclose it rather than keep naming Gemini alone.
-    expect(thirdPartyDisclosureIds()).toEqual(["third-party.gemini"]);
+    // TRIAL-END-1 added the trial email's provider; THIRD_PARTY_RETENTION_DISCLOSURE now names it.
+    expect(thirdPartyDisclosureIds()).toEqual(["third-party.gemini", "third-party.email-provider"]);
+    expect(THIRD_PARTY_RETENTION_DISCLOSURE).toMatch(/email provider/);
   });
 });
 
