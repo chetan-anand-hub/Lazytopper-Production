@@ -22,7 +22,7 @@ export const POLYNOMIALS_PYQ_2024: CanonicalQuestion[] = [
     questionText: "Assertion (A) : Degree of a zero polynomial is not defined. Reason (R): Degree of a nonzero constant polynomial is 0.",
     options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
     answer: "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).",
-    solutionSteps: ["[1 mark] Correct option: (b) Both Assertion (A) and Reason (R) are true, but Reason (R) is not the correct explanation of Assertion (A).."],
+    solutionSteps: ["[1 mark] Correct option: (b) Both Assertion (A) and Reason (R) are true, but Reason (R) is not the correct explanation of Assertion (A)."],
     finalAnswer: "(b) Both Assertion (A) and Reason (R) are true, but Reason (R) is not the correct explanation of Assertion (A).",
     ncertRef: "PYQ 30/5/3 Q19", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "3" },

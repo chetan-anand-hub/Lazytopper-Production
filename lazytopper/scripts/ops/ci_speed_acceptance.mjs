@@ -23,7 +23,8 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { decide, isDeployInertPath, listChangedPaths, verdictForFiles } from "./vercel_ignore_build.mjs";
 import { CONFIRM_READS, SETTLE_READS, SKIP_LINE, classifyLiveRead, decideInertSkip } from "./searchping_inert_skip.mjs";
-import { guard, dateSignalsIn, readList, scan } from "../testClock/dateSensitive.mjs";
+import { guard, dateSignalsIn, enumerateVitestFiles, readList, scan } from "../testClock/dateSensitive.mjs";
+import { planShards, readDurations, substringCollisions } from "./ci_shard_plan.mjs";
 import { isRepoFrame } from "../testClock/clockRecorderFrames.mjs";
 import { FULL_BAR_JOBS, evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
 
@@ -214,10 +215,15 @@ export const REAL_COMMITS = [
     /group:\s*quality-gate-\$\{\{\s*github\.event_name\s*\}\}-\$\{\{\s*github\.ref\s*\}\}/.test(wf),
     "a nightly/dispatched run must never cancel (or be cancelled by) a trunk push run");
   const clock = jobBlock("clock");
+  // ★ CI-SPEED-2: per clock, two duration-planned halves of the manifest + one ops-matrix leg.
+  const count = (re) => (clock.match(re) || []).length;
   check("w3_clock_jobs_run_the_manifest_and_the_whole_ops_matrix",
-    /dateSensitive\.mjs --print=vitest/.test(clock) && clock.includes("vitest run --shard ${{ matrix.part }}/2 $FILES") && /part: 2/.test(clock) &&
-      /pnpm --filter lazytopper run test:matrix:all/.test(clock) && /selfCheck\.mjs/.test(clock) &&
-      /2030-06-15T06:30:00\.000Z/.test(clock) && /2030-02-14T18:45:00\.000Z/.test(clock));
+    clock.includes("ci_shard_plan.mjs --source=clock --shards=2 --index=${{ matrix.part }}") &&
+      clock.includes("pnpm --filter lazytopper exec vitest run $FILES") &&
+      count(/\n            part: '1'\n/g) === 2 && count(/\n            part: '2'\n/g) === 2 && count(/\n            part: ops\n/g) === 2 &&
+      /if \[ "\$\{\{ matrix\.part \}\}" = "ops" \]; then\n\s+NODE_OPTIONS="\$PRELOAD" pnpm --filter lazytopper run test:matrix:all\n/.test(clock) &&
+      /selfCheck\.mjs/.test(clock) && count(/2030-06-15T06:30:00\.000Z/g) === 3 && count(/2030-02-14T18:45:00\.000Z/g) === 3,
+    "each clock: manifest halves 1 and 2 (planned by duration) + the whole ops matrix in its own leg");
   const nightly = jobBlock("nightly-full-clock");
   check("w4_nightly_job_runs_the_full_suites_under_both_clocks_and_opens_an_issue",
     /if: github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'/.test(nightly) &&
@@ -271,14 +277,61 @@ export const REAL_COMMITS = [
       /PR_IS_DRAFT: \$\{\{ github\.event\.pull_request\.draft \}\}/.test(lo),
     `lane-overlap pull_request types=[${loTypes.join(", ")}]; quality-gate must not list ready_for_review; PR_IS_DRAFT must be passed`);
   const vitest = jobBlock("vitest");
-  check("w5_default_vitest_runs_every_file_once_via_4_shards",
-    /shard: \[1, 2, 3, 4\]/.test(vitest) && /pnpm --filter lazytopper exec vitest run --shard \$\{\{ matrix\.shard \}\}\/4/.test(vitest) &&
-      !/--exclude/.test(vitest) && /EXPECTED_SHARDS: '4'/.test(wf),
-    "no test leaves the default run; the aggregate checks the shards cover every file");
+  // ★ CI-SPEED-2: N duration-planned shards; N must agree in the matrix, the planner call, the
+  //   shard-summary label and EXPECTED_SHARDS, or the aggregate would judge the wrong set.
+  {
+    const listed = ((vitest.match(/\n        shard: \[([^\]]*)\]/) || [])[1] || "").split(",").map((x) => Number(x.trim())).filter(Boolean);
+    const n = listed.length;
+    const seq = listed.every((v, i) => v === i + 1);
+    check("w5_default_vitest_runs_every_file_once_via_planned_shards",
+      n >= 4 && seq &&
+        vitest.includes(`ci_shard_plan.mjs --source=all --shards=${n} --index=\${{ matrix.shard }}`) &&
+        vitest.includes("pnpm --filter lazytopper exec vitest run $FILES --reporter=default --reporter=json") &&
+        vitest.includes(`--shard=\${{ matrix.shard }}/${n}`) && vitest.includes(`name: vitest (\${{ matrix.shard }}/${n})`) &&
+        !/--exclude/.test(vitest) && new RegExp(`EXPECTED_SHARDS: '${n}'`).test(wf),
+      `shards=${n}: matrix, planner, summary label and EXPECTED_SHARDS agree; the aggregate checks the shards cover every file`);
+  }
   const buildOps = jobBlock("build-ops");
   check("w6_static_guard_and_this_suite_run_on_the_full_bar",
     /dateSensitive\.mjs --guard/.test(buildOps) && /ci_speed_acceptance\.mjs/.test(buildOps) &&
       /if: needs\.classify\.outputs\.docs_only != 'true'/.test(buildOps));
+}
+
+// ---- (g) CI-SPEED-2 — the duration-balanced shard planner ----------------------------------------
+// Balance is best-effort; COVERAGE is not. Every source file in exactly one bin, on the REAL file
+// lists, with the REAL durations table — and the planner refuses the two shapes that would make a
+// shard run the wrong files (an empty bin runs everything; a substring path selects a second file).
+{
+  const all = enumerateVitestFiles();
+  const manifest = readList().vitest;
+  const durations = readDurations();
+  const exactCover = (files, bins) => {
+    const seen = bins.flatMap((b) => b.files);
+    return seen.length === new Set(files).size && new Set(seen).size === seen.length && files.every((f) => seen.includes(f));
+  };
+  const allBins = planShards(all, durations, 5);
+  const clockBins = planShards(manifest, durations, 2);
+  check("w13_planner_puts_every_file_in_exactly_one_shard",
+    exactCover(all, allBins) && exactCover(manifest, clockBins) &&
+      JSON.stringify(planShards(all, durations, 5)) === JSON.stringify(allBins),
+    `all: ${all.length} files -> [${allBins.map((b) => b.files.length).join(", ")}]; clock: ${manifest.length} -> [${clockBins.map((b) => b.files.length).join(", ")}]; deterministic`);
+  // Balance: on the real table, no bin exceeds the lightest by more than the single slowest file.
+  const slowest = Math.max(...all.map((f) => durations[f] || 0));
+  const spread = (bins) => Math.max(...bins.map((b) => b.seconds)) - Math.min(...bins.map((b) => b.seconds));
+  check("w14_planned_shards_are_balanced_by_duration",
+    Object.keys(durations).length > 0 && spread(allBins) <= slowest + 1e-9 && spread(clockBins) <= slowest + 1e-9,
+    `table=${Object.keys(durations).length} files; vitest bins s=[${allBins.map((b) => Math.round(b.seconds)).join(", ")}]; clock bins s=[${clockBins.map((b) => Math.round(b.seconds)).join(", ")}]; slowest file ${slowest}s`);
+  let emptyRefused = false;
+  try { planShards(["src/a.test.ts"], {}, 2); } catch { emptyRefused = true; }
+  check("w15_planner_refuses_empty_shards_and_substring_collisions",
+    emptyRefused &&
+      substringCollisions(["src/a.test.ts"], ["src/a.test.ts", "src/a.test.tsx"]).length === 1 &&
+      substringCollisions(all, all).length === 0,
+    "an empty bin would run the WHOLE suite; a substring path would select a second file — both refused");
+  // A stale table (unknown file, deleted file) changes balance only, never coverage.
+  const stale = planShards([...all.slice(0, 20), "src/__new__.test.ts"], { ...durations, "src/__deleted__.test.ts": 999 }, 3);
+  check("w16_a_stale_durations_table_never_drops_or_adds_a_file",
+    exactCover([...all.slice(0, 20), "src/__new__.test.ts"], stale) && !stale.some((b) => b.files.includes("src/__deleted__.test.ts")));
 }
 
 // ---- (f) RAILWAY-BUILD-GATE (owner order 2026-10-07) ------------------------------------------
