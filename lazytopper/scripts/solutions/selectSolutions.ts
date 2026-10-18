@@ -220,7 +220,8 @@ export const NEEDS_FIGURE_TEXT =
 export const NEEDS_FIGURE_STEPS = /\b(?:see|from|in|refer to|using) (?:the )?(?:fig\.?|figure|diagram|graph)\b/i;
 /** U+FFFD (built from its code), and the common UTF-8-read-as-Latin-1 shapes. */
 const REPLACEMENT_CHAR = String.fromCharCode(0xfffd);
-const MOJIBAKE = /Ã.|â€|Â[^\w]/;
+// (written with escapes so this file itself passes check:mojibake)
+const MOJIBAKE = new RegExp(["\\u00C3.", "\\u00E2\\u20AC", "\\u00C2[^\\w]"].join("|"));
 /** A paper mark bled into the text (same detector as checkimprove/boardQuestionPick.ts). */
 export const MARK_BLEED = /[.:?]\s*[1-5]\s+(?:\(|[A-Z])/;
 /** A drafting self-correction left in the text ("[Actually prove:]", "= 4s? Actually Area = r·s"). */

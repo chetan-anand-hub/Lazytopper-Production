@@ -326,7 +326,7 @@ describe("CONTROLS — every rule fires on synthetic violating input", () => {
     expect(reason({ solutionSteps: ["Area = 4s? Actually Area = r·s."] })).toBe("garbled");
     expect(reason({ questionText: "Can we find a₃₀ − a₂₀ without actually finding a₃₀?" })).toBeNull();
     expect(reason({ requiresDiagram: true })).toBe("needs-figure");
-    expect(reason({ solutionSteps: ["Ã©tape one", "Mean = 14."] })).toBe("garbled");
+    expect(reason({ solutionSteps: [String.fromCharCode(0xc3, 0xa9) + "tape one", "Mean = 14."] })).toBe("garbled");
     expect(classifyRow(base, spec, guard, new Set([base.id])).reason).toBe("withheld");
     expect(reason({ options: ["14", "14", "15", "16"], answer: "14" })).toBe("mcq-key-ambiguous");
     expect(reason({ options: ["13", "14", "15", "16"], answer: "14" })).toBeNull();
