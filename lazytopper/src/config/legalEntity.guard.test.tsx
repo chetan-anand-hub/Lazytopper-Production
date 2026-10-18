@@ -16,6 +16,7 @@ import { join, relative, resolve, sep } from "node:path";
 import { LEGAL_ENTITY_NAME } from "./legalEntity";
 import LegalPage from "../pages/LegalPage";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import { solutionsPaths } from "./solutionsPages";
 
 afterEach(cleanup);
 
@@ -43,9 +44,9 @@ const P8_PAGES = [
   "legal/refund.html",
   "legal/terms.html",
   "ncert-class-10.html",
-  "ncert-exemplar/triangles.html",
-  "ncert-solutions/triangles.html",
   "pricing.html",
+  // SOLUTIONS-1/2: every published solutions page carries the public footer (derived, not hand-listed).
+  ...solutionsPaths().map((p) => `${p.slice(1)}.html`),
 ];
 const P8_FILES = P8_PAGES.flatMap((p) => [p, `__desktop/${p}`]);
 

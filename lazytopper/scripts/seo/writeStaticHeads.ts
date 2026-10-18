@@ -54,6 +54,13 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { canonicalFor } from "../../src/config/canonicalUrl";
+import {
+  solutionsBreadcrumbName,
+  solutionsHeadDescription,
+  solutionsHeadTitle,
+  solutionsPageFor,
+  solutionsPaths,
+} from "../../src/config/solutionsPublishSafe";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { allDesktopTopics } from "../../src/lib/desktop/topics";
 import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
@@ -66,6 +73,17 @@ const LAZYTOPPER_ROOT = resolve(here, "..", "..");
 export interface PageHead {
   title: string;
   description: string;
+}
+
+/** SOLUTIONS-2 — one head per published solutions page, from the ONE builder in solutionsPublishSafe.ts. */
+export function solutionsStaticHeads(): Record<string, PageHead> {
+  const out: Record<string, PageHead> = {};
+  for (const path of solutionsPaths()) {
+    const page = solutionsPageFor(path);
+    if (!page) throw new Error(`writeStaticHeads: solutions path ${path} has no published chapter/book`);
+    out[path] = { title: solutionsHeadTitle(page.book, page.ch), description: solutionsHeadDescription(page.book, page.ch) };
+  }
+  return out;
 }
 
 /**
@@ -167,20 +185,11 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Read every chapter of the 2026-27 NCERT Class 10 Mathematics and Science textbooks, " +
       "then go to that chapter's notes, practice and step-marked answer check.",
   },
-  // SOLUTIONS-1 (lane G, D259-D261) — the Triangles solutions pilot. Each title IS the page's h1
-  // (src/pages/SolutionsPage.tsx `solutionsH1`), the searched head words, <= 60 chars.
-  "/ncert-solutions/triangles": {
-    title: "NCERT Solutions Class 10 Maths Chapter 6 Triangles",
-    description:
-      "Step-by-step NCERT solutions for Class 10 Maths Chapter 6 Triangles. Try each question " +
-      "first, then see the full solution, free. No account needed.",
-  },
-  "/ncert-exemplar/triangles": {
-    title: "NCERT Exemplar Solutions Class 10 Maths Chapter 6 Triangles",
-    description:
-      "Step-by-step NCERT Exemplar solutions for Class 10 Maths Chapter 6 Triangles. Try each " +
-      "question first, then see the full solution, free. No account needed.",
-  },
+  // SOLUTIONS-1 (lane G, D259-D261) — the Triangles solutions pilot; SOLUTIONS-2 (owner 18 Oct
+  // 2026) — every published solutions page, DERIVED from `solutionsPaths()`. The title is the
+  // page's h1 (`solutionsTitle`, the searched head words) when it fits 60 characters, else the
+  // first shorter form (`solutionsHeadTitle`); the description restates the page's sub-line.
+  ...solutionsStaticHeads(),
   "/legal/privacy": {
     title: "Privacy Policy | LazyTopper",
     description:
@@ -482,12 +491,10 @@ export function notesJsonLd(path: string, basename: string): Record<string, unkn
  * is for user forums, so not that either. `null` for any path outside the published set.
  */
 export function solutionsJsonLd(path: string, basename: string): Record<string, unknown> | null {
-  const titles: Readonly<Record<string, string>> = {
-    "/ncert-solutions/triangles": "NCERT Solutions Chapter 6 Triangles",
-    "/ncert-exemplar/triangles": "NCERT Exemplar Solutions Chapter 6 Triangles",
-  };
-  const name = titles[path];
-  if (!name) return null;
+  // SOLUTIONS-2: the name comes from the one builder (`solutionsBreadcrumbName`), for every published page.
+  const page = solutionsPageFor(path);
+  if (!page) return null;
+  const name = solutionsBreadcrumbName(page.book, page.ch);
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
