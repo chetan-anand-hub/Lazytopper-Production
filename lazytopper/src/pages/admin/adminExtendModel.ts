@@ -55,7 +55,7 @@ export function confirmationLine(student: string, days: number, newEndMs: number
   const dayWord = days === 1 ? "day" : "days";
   return (
     `Give ${student} ${days} more ${dayWord} of Premium, until ${formatIstDate(newEndMs)}? ` +
-    `Price ₹0 — not a sale. Reason: ${reason}.`
+    `No charge — not a sale. Reason: ${reason}.`
   );
 }
 
@@ -78,7 +78,7 @@ export function doneLine(student: string, ext: ExtensionResult, replayed: boolea
   const end = ext.newEnd ? formatIstDate(Date.parse(ext.newEnd)) : "—";
   const days = ext.days ?? 0;
   const prefix = replayed ? "Already done" : "Done";
-  return `${prefix}: ${student} has Premium until ${end} (+${days} ${days === 1 ? "day" : "days"}, ₹0, not a sale).`;
+  return `${prefix}: ${student} has Premium until ${end} (+${days} ${days === 1 ? "day" : "days"}, no charge, not a sale).`;
 }
 
 /** One id per confirmation, so a double-click or retry is the SAME request (idempotent). */

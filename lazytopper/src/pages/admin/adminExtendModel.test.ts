@@ -53,12 +53,12 @@ describe("ADMIN-EXTEND-1 · preview = max(now, current end) + days (the server's
 });
 
 describe("ADMIN-EXTEND-1 · honest lines", () => {
-  it("the confirmation line names the student, the days and the new end date, and says ₹0 / not a sale", () => {
+  it("the confirmation line names the student, the days and the new end date, and says no charge / not a sale", () => {
     const line = confirmationLine("ri•••@gmail.com (uid u1)", 7, NOW + 10 * DAY, "feedback call reward");
     expect(line).toContain("ri•••@gmail.com (uid u1)");
     expect(line).toContain("7 more days");
     expect(line).toContain(formatIstDate(NOW + 10 * DAY));
-    expect(line).toContain("₹0");
+    expect(line).toContain("No charge");
     expect(line).toContain("not a sale");
     expect(line).toContain("feedback call reward");
     expect(confirmationLine("s", 1, NOW, "r")).toContain("1 more day of");
@@ -69,7 +69,7 @@ describe("ADMIN-EXTEND-1 · honest lines", () => {
       uid: "u1", requestId: "req-1", days: 7, reason: "feedback call reward", pricePaidInr: 0, isSale: false,
       basis: "trial", previousEnd: null, newEnd: new Date(NOW + 9 * DAY).toISOString(), adminUid: "a", createdAt: null,
     };
-    expect(doneLine("s", ext, false)).toBe(`Done: s has Premium until ${formatIstDate(NOW + 9 * DAY)} (+7 days, ₹0, not a sale).`);
+    expect(doneLine("s", ext, false)).toBe(`Done: s has Premium until ${formatIstDate(NOW + 9 * DAY)} (+7 days, no charge, not a sale).`);
     expect(doneLine("s", ext, true)).toMatch(/^Already done:/);
   });
 });

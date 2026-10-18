@@ -39,7 +39,7 @@ describe("ExtendPremiumControl", () => {
     expect(line).toContain("ri•••@gmail.com (uid u1)");
     expect(line).toContain("7 more days");
     expect(line).toContain(formatIstDate(trialEnd + 7 * DAY));
-    expect(line).toContain("₹0");
+    expect(line).toContain("No charge");
 
     const confirm = screen.getByRole("button", { name: "Confirm" });
     fireEvent.click(confirm);
