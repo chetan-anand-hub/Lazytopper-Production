@@ -5,7 +5,11 @@ import type { CanonicalQuestion } from "../../predictionTypes";
 // canonicalQuestionBank.ts. BANK-SPLIT-1 PR-2 moved them here UNCHANGED (every field,
 // value, id and their order byte-identical) and spreads this array at the exact same
 // position, so the per-chapter bank modules can import them without the aggregator.
-// Authentic tier: not a .pack file and not in AI_GENERATED_PACK_SOURCES.
+// What these rows are (owner ruling, 18 Oct 2026): LazyTopper-authored questions modelled on
+// the shape of the 2026 CBSE PYQs. They are NOT board questions: they carry no pyqYear and must
+// never be shown or labelled as PYQs. (They are not an AI .pack file either, so they are not in
+// AI_GENERATED_PACK_SOURCES.) They are practice-bank rows only, not Highly Probable / predicted
+// questions: predictionScore 0, no tier, policyTag or likelihood (BANK-TEXT-CLEAN-1 check, 18 Oct).
 
 export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
   {
