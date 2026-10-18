@@ -121,6 +121,11 @@ describe("TrialEndBanner — who sees it", () => {
     // Review nit 5: an EXPIRED trial as the record stores it (free + trial_7day + an old start).
     ["an expired trial (free + trial_7day, start 10 days ago)", { tier: "free", plan: "trial_7day", trialStartDate: new Date(START).toISOString(), trialEndDate: null, premiumSince: null } as SubscriptionStatus, ist(2026, 6, 11, 12)],
     ["free", { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null } as SubscriptionStatus, ist(2026, 6, 6, 12)],
+    // ADMIN-EXTEND-1 (#1249): an extension is stored as tier premium + plan pass_extension + passEnd,
+    // with the trial start KEPT. On a banner day it is premium -> no "your trial ends" banner.
+    ["an admin extension (pass_extension, running)", { tier: "premium", plan: "pass_extension", trialStartDate: new Date(START).toISOString(), trialEndDate: null, premiumSince: null, passEnd: new Date(START + 14 * DAY).toISOString() } as SubscriptionStatus, ist(2026, 6, 7, 9)],
+    // ...and once that extension's passEnd has passed it is free (not a trial) -> still nothing.
+    ["an admin extension that has ended", { tier: "premium", plan: "pass_extension", trialStartDate: new Date(START).toISOString(), trialEndDate: null, premiumSince: null, passEnd: new Date(START + 5 * DAY).toISOString() } as SubscriptionStatus, ist(2026, 6, 7, 9)],
   ])("says nothing for %s", async (_label, status, now) => {
     setNow(now);
     hydrate.mockResolvedValue(status);

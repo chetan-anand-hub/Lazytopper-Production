@@ -46,9 +46,51 @@ export interface BoardTryQuestion {
   label: string;
 }
 
-const WRITTEN_FORMAT = /^(short|vsa)$/i;
-/** A figure, table or drawing the box cannot carry. */
-const NEEDS_VISUAL = /\bfig(?:ure|\.)|diagram|\bshown\b|set-up|\bgraph\b|\btable\b|\bdraw\b|following (?:distribution|data)/i;
+/**
+ * The written shapes on offer: a Section B/C short answer of 2-3 marks, or (BOARD-TRY-WIDEN-1,
+ * owner ruling (b) 2026-10-18) a Section D long answer of 5 marks. Every other rule below applies
+ * to both shapes unchanged — the same 400-character cap and the same "[N mark]" step marking.
+ */
+const WRITTEN_SHAPES: ReadonlyArray<{ sections: readonly string[]; marks: readonly number[]; format: RegExp }> = [
+  { sections: ["B", "C"], marks: [2, 3], format: /^(short|vsa)$/i },
+  { sections: ["D"], marks: [5], format: /^long$/i },
+];
+/**
+ * Wording that points at a figure, graph, table or diagram the plain-text box cannot carry
+ * (BOARD-TRY-WIDEN-1 follow-up). Each phrase was found in a served board row the picker used to
+ * accept, or was already in the rule: "the given electric circuit", "solve ... graphically" /
+ * "graphical method", "the following frequency distribution", "is given below:", "ogive", ...
+ */
+const VISUAL_WORDING: readonly RegExp[] = [
+  /\bfig(?:ure|s?\.)/i, // "the figure", "shown in the figure", "Fig. 3"
+  /diagram/i,
+  /\bshown\b/i,
+  /set-up/i,
+  /\bgraph(?:s|ical|ically)?\b/i, // "draw the graph", "graphically", "graphical method"
+  /\bogive\b/i,
+  /\btables?\b/i, // "the table below", "the following table"
+  /\bdraw\b/i,
+  /\bfollowing\s+(?:[a-z]+\s+)?(?:distribution|data)\b/i, // "following (frequency) distribution / data"
+  /\b(?:given|shown)\s+below\b/i, // "is given below:"
+  /\bgiven\s+(?:[a-z]+\s+)?circuit\b/i, // "Consider the given electric circuit"
+];
+/** One "label : value" row of a data table written into the stem ("25-30 : 14"). */
+const TABLE_ROW = /^\s*[^:\n]{1,40}\s:\s[^:\n]{1,40}$/;
+/** Three class intervals in a run ("0-10, 10-20, 20-30") - a frequency table laid out inline. */
+const INTERVAL_RUN = /(?:\b\d+\s*[-\u2013]\s*\d+\b[\s,;]+){2}\d+\s*[-\u2013]\s*\d+\b/;
+
+/**
+ * True when `text` cannot be answered from plain text: it names a figure / graph / table /
+ * diagram, asks for a graphical solution, or carries a data table in the stem (two or more
+ * "a : b" rows on their own lines, or a run of class intervals). An inline ratio such as
+ * "in the ratio 2 : 3" is ordinary text and does NOT count.
+ */
+export function needsFigureOrTable(text: string): boolean {
+  if (VISUAL_WORDING.some((re) => re.test(text))) return true;
+  if (text.split(/\r?\n/).filter((line) => TABLE_ROW.test(line)).length >= 2) return true;
+  return INTERVAL_RUN.test(text);
+}
+
 /** An internal choice ("OR", "Attempt either") — a first try should be ONE question. */
 const HAS_CHOICE = /\bOR\b|attempt either/i;
 /** A mark number bled into the text by the paper's layout ("... 15 cm. 3 Use the lens formula"). */
@@ -59,9 +101,10 @@ const STEP_MARK = /^\[\d+(?:\.\d+)? marks?\]/;
 const REPLACEMENT_CHAR = String.fromCharCode(0xfffd);
 
 /**
- * True for a written (non-MCQ) Section B/C board question of 2-3 marks that a student can read
- * as plain text: a served row from a CBSE board paper (a `pyqYear` and a "PYQ ..." paper
- * reference), no options, no figure / table / choice, clean text, step-marked solution.
+ * True for a written (non-MCQ) Section B/C board question of 2-3 marks, or a Section D long
+ * answer of 5 marks, that a student can read as plain text: a served row from a CBSE board paper
+ * (a `pyqYear` and a "PYQ ..." paper reference), no options, no figure / table / choice, clean
+ * text of at most 400 characters, step-marked solution.
  */
 export function isBoardTryRow(row: BoardTryRow): boolean {
   const id = String(row.id ?? "");
@@ -72,15 +115,15 @@ export function isBoardTryRow(row: BoardTryRow): boolean {
   // the live bank), so the internal provenance fields are not read here (GEN-THIN-1 guard).
   if (row.sourceOverride === "others") return false;
   if (!String(row.pyqYear ?? "").trim() || !/^PYQ\b/.test(String(row.ncertRef ?? ""))) return false;
-  if (!["B", "C"].includes(String(row.section ?? "").trim())) return false;
+  const section = String(row.section ?? "").trim();
   const marks = Number(row.marks);
-  if (marks !== 2 && marks !== 3) return false;
-  if (!WRITTEN_FORMAT.test(String(row.format ?? "").trim())) return false;
+  const format = String(row.format ?? "").trim();
+  if (!WRITTEN_SHAPES.some((s) => s.sections.includes(section) && s.marks.includes(marks) && s.format.test(format))) return false;
   if (Array.isArray(row.options) && row.options.length > 0) return false;
   if (row.requiresDiagram || row.image || row.imageUrl || row.diagram || row.figure) return false;
   const text = String(row.questionText ?? "").trim();
   if (text.length < 20 || text.length > 400 || text.includes(REPLACEMENT_CHAR)) return false;
-  if (NEEDS_VISUAL.test(text) || HAS_CHOICE.test(text) || MARK_BLEED.test(text)) return false;
+  if (needsFigureOrTable(text) || HAS_CHOICE.test(text) || MARK_BLEED.test(text)) return false;
   const steps = Array.isArray(row.solutionSteps) ? row.solutionSteps.map((s) => String(s ?? "")) : [];
   return steps.length > 0 && steps.every((s) => STEP_MARK.test(s.trim()));
 }

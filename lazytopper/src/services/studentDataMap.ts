@@ -422,6 +422,26 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "catch-all.",
   },
 
+  {
+    id: "subscriptions.adminGrants",
+    kind: "firestore-subcollection",
+    parentId: "subscriptions",
+    path: "subscriptions/{uid}/adminGrants/{requestId}",
+    holds:
+      "One record per free Premium extension an admin gave this account (e.g. the " +
+      "feedback-call reward): days added, the reason, price 0, the end before and after, " +
+      "which admin gave it, and when.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "ADMIN-EXTEND-1 — the admin audit entry AND the idempotency key of " +
+      "POST /api/admin/extend-premium. Written ONLY by server/services/premiumExtension.cjs " +
+      "inside the extension transaction. NOT a payment: kept apart from `payments` so it " +
+      "never shows as a sale. Erased with the account. No client rule matches it: the " +
+      "parent document's rules block has no nested wildcard, so the path falls to the " +
+      "deny-all catch-all.",
+  },
+
   // ── Firestore: payment orders (server-only, RAZORPAY-1) ──────────────────────────
   {
     id: "payOrders",
@@ -668,7 +688,11 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "YYYY-MM-DD, on which the student tapped Not today on the trial-ending banner, so it stays " +
       "hidden until the next day; dismissal state only, never trial state, never sent anywhere) " +
       "and, in THIS TAB's sessionStorage, `lazytopper.trialBannerShown` (the IST date the banner's " +
-      "shown event was last counted in this tab; never the uid, never sent anywhere).",
+      "shown event was last counted in this tab; never the uid, never sent anywhere). " +
+      "FEEDBACK-1: plus localStorage `lazytopper.feedbackAsk.<uid>` (when the \"help us improve\" " +
+      "prompt was last shown after an upgrade screen, the start timestamp of the trial whose end " +
+      "was already asked about, and when any such prompt was last shown, so each moment is asked " +
+      "at most once; never the answer, never sent anywhere).",
     mechanism: "client-local",
     exportable: true,
     notes:

@@ -601,3 +601,24 @@ test('FINDING 4: an unverified address is re-checked after 6 h and emailed once 
   await dry.emailer.runOnce();
   assert.equal(dry.db.docs.has(`${TRIAL_EMAILS_COLLECTION}/ph`), false, 'a dry run writes nothing, markers included');
 });
+
+// ── ADMIN-EXTEND-1 (#1249): an extension is premium, never "your trial ends" ─────────────
+
+test('ADMIN-EXTEND-1: a pass_extension account (trial start kept, in the window) is never emailed — running or ended', async () => {
+  const start = NOW - 5.5 * DAY; // the kept trial start sits inside the 24-48 h window
+  const running = { tier: 'premium', plan: 'pass_extension', trialStartDate: ts(start), premiumSince: null, passEnd: ts(NOW + 5 * DAY) };
+  const ended = { tier: 'premium', plan: 'pass_extension', trialStartDate: ts(start), premiumSince: null, passEnd: ts(NOW - HOUR) };
+  assert.equal(decideCandidate(running, NOW).reason, 'tier-premium');
+  assert.equal(decideCandidate(ended, NOW).reason, 'tier-free', 'an ended extension is free, not a trial');
+  const s = setup({
+    users: { ext: googleUser('ext@example.com'), old: googleUser('old@example.com') },
+    subs: { ext: running, old: ended },
+  });
+  const r = await s.emailer.runOnce();
+  assert.equal(r.candidates, 2, 'both rows are in the window query (the trial start is kept)');
+  assert.equal(r.sent, 0);
+  assert.equal(s.fetchCalls.length, 0);
+  assert.equal(r.skipped['tier-premium'], 1);
+  assert.equal(r.skipped['tier-free'], 1);
+  assert.equal(s.lookups.length, 0, 'not even looked up in Auth');
+});

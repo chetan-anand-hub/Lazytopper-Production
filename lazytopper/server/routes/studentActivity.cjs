@@ -121,6 +121,27 @@ const ACTIVITY_EVENTS = Object.freeze([
   // TRIAL-END-1 - the trial-ending Home banner (shown / an action tapped). Additive only.
   'trial_banner_shown',
   'trial_banner_click',
+  // FEEDBACK-1 - the "help us improve" prompt: shown / dismissed per moment, and the
+  // one-tap reason per moment. Names only, never text. Additive only.
+  'feedback_shown_paywall',
+  'feedback_dismissed_paywall',
+  'feedback_shown_trial_end',
+  'feedback_dismissed_trial_end',
+  'feedback_paywall_not_tried',
+  'feedback_paywall_ask_parents',
+  'feedback_paywall_price',
+  'feedback_paywall_not_enough_help',
+  'feedback_paywall_boards_far',
+  'feedback_paywall_other',
+  'feedback_trial_end_not_tried',
+  'feedback_trial_end_ask_parents',
+  'feedback_trial_end_price',
+  'feedback_trial_end_not_enough_help',
+  'feedback_trial_end_boards_far',
+  'feedback_trial_end_other',
+  // FEEDBACK-1 - tapped the 5-minute feedback-call offer (opens WhatsApp only). Additive only.
+  'feedback_call_tap_paywall',
+  'feedback_call_tap_trial_end',
 ]);
 
 /**

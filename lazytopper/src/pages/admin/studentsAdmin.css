@@ -490,3 +490,66 @@
 .sa-spend {
   white-space: nowrap;
 }
+
+/* ADMIN-EXTEND-1 — the "Extend Premium (free)" control on a student's detail panel. */
+.sa-extend {
+  background: var(--sa-navy-800);
+  border: 1px solid var(--sa-line);
+  border-left: 3px solid var(--sa-amber);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 0 0 16px;
+}
+.sa-extend-title {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.sa-extend-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+}
+.sa-extend-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sa-white-3);
+}
+.sa-extend-grow {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.sa-extend-input {
+  background: var(--sa-navy-900);
+  color: var(--sa-white);
+  border: 1px solid var(--sa-line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.85rem;
+  text-transform: none;
+  letter-spacing: normal;
+  width: 100%;
+}
+.sa-extend-days {
+  width: 80px;
+}
+.sa-extend-full {
+  flex-basis: 100%;
+  margin: 0;
+}
+.sa-extend-confirm {
+  color: var(--sa-white);
+  font-weight: 600;
+}
+.sa-extend-done {
+  color: var(--sa-green);
+  font-weight: 600;
+}
+.sa-btn-plain {
+  background: transparent;
+}

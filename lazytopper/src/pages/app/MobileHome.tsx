@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
+import { useTrialEndFeedback } from "../../components/feedback/useTrialEndFeedback";
 import {
   hasMeaningfulMemory,
   readLandingMemory,
@@ -22,6 +23,7 @@ import { StartHereFocusView, StartHereView, useStartHere } from "../../component
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
 import PendingBell from "../../components/home/PendingBell";
+import ShareWithParentsButton from "../../components/parentReport/ShareWithParentsButton";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
 import { TrialEndBannerView, useTrialEndBanner } from "../../components/trial/TrialEndBanner";
 import {
@@ -124,6 +126,8 @@ const MI_BUCKETS = [
  */
 const MOBILE_HOME_CSS = `
   .lt-mhome-root, .lt-mhome-root * { box-sizing: border-box; }
+  .lt-mhome-parents { margin-top: 13px; }
+  .lt-mhome-parents:empty { display: none; }
   .lt-mhome-root { overflow-x: hidden; max-width: 100%; }
 
   .lt-mhome-heroes {
@@ -513,7 +517,15 @@ export default function MobileHome() {
   // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
   // while it is up (two start cards for the same student is noise).
   const startHere = useStartHere(user?.uid ?? null);
-  const { isTrialActive, isPremium, isTrialExpired } = useSubscription();
+  const { isTrialActive, isPremium, isTrialExpired, hydrated, status: subStatus } = useSubscription();
+  // FEEDBACK-1 — once per trial end, the gentle "help us improve" prompt (never blocks).
+  useTrialEndFeedback({
+    uid: user?.uid,
+    hydrated,
+    isTrialExpired,
+    isPremium,
+    trialStartDate: subStatus?.trialStartDate,
+  });
   const isSignedIn = !!user;
   // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same memoised read as
   // the bell in the brand bar).
@@ -810,6 +822,14 @@ export default function MobileHome() {
             />
           )}
         </div>
+
+        {/* PARENT-REPORT-1 — the weekly report card a student sends a parent. The button renders
+            nothing for a signed-out visitor or a local session (no synced data to report). */}
+        {isSignedIn ? (
+          <div className="lt-mhome-parents">
+            <ShareWithParentsButton placement="home" />
+          </div>
+        ) : null}
 
         {/* Returning / signed-in: resume strip (real memory only). AUTH-2-FU §4
             moves it BELOW the merged card — the heroes and the one next action

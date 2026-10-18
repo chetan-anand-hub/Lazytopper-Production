@@ -11,6 +11,13 @@
 import { decodePageKey } from "../../services/activityPages";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import type { ActivityFeedItem } from "./studentsAdminModel";
+import {
+  FEEDBACK_MOMENTS,
+  FEEDBACK_REASONS,
+  feedbackActivityName,
+  type FeedbackMoment,
+  type FeedbackReason,
+} from "../../components/feedback/feedbackPromptModel";
 
 const STATIC_PAGE_LABELS: Record<string, string> = {
   home: "Home",
@@ -74,6 +81,18 @@ export function pageLabel(key: string): string {
   return name;
 }
 
+/** FEEDBACK-1 — where the prompt was shown, in the owner's words. (Declared before
+ *  EVENT_LABELS, which reads it while it is built.) */
+export const FEEDBACK_MOMENT_LABELS: Record<FeedbackMoment, string> = {
+  paywall: "after closing an upgrade screen",
+  trial_end: "after the trial ended",
+};
+
+/** FEEDBACK-1 — each reason code -> the exact words the student tapped (one source: the prompt's own list). */
+export const FEEDBACK_REASON_LABELS: Record<FeedbackReason, string> = Object.fromEntries(
+  FEEDBACK_REASONS.map((r) => [r.code, r.label]),
+) as Record<FeedbackReason, string>;
+
 const EVENT_LABELS: Record<string, string> = {
   sign_up: "Signed up",
   free_check_used_block: "Was shown that the free check is used",
@@ -106,7 +125,58 @@ const EVENT_LABELS: Record<string, string> = {
   tutor_first_message: "Sent a first tutor message",
   trial_banner_shown: "Saw the trial-ending banner",
   trial_banner_click: "Tapped the trial-ending banner",
+  // FEEDBACK-1 — the "help us improve" prompt (shown / dismissed / answered), built below.
+  ...feedbackEventLabels(),
 };
+
+/* ── FEEDBACK-1 — the "help us improve" prompt ─────────────────────────────── */
+
+function feedbackEventLabels(): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const m of FEEDBACK_MOMENTS) {
+    out[feedbackActivityName("shown", m)] = `Was asked for feedback (${FEEDBACK_MOMENT_LABELS[m]})`;
+    out[feedbackActivityName("dismissed", m)] = `Said No thanks to feedback (${FEEDBACK_MOMENT_LABELS[m]})`;
+    out[feedbackActivityName("call_tap", m)] =
+      `Opened WhatsApp for the 5-minute feedback call offer (${FEEDBACK_MOMENT_LABELS[m]})`;
+    for (const r of FEEDBACK_REASONS) {
+      out[feedbackActivityName("reason", m, r.code)] = `Feedback (${FEEDBACK_MOMENT_LABELS[m]}): “${r.label}”`;
+    }
+  }
+  return out;
+}
+
+/** One answer to the feedback prompt, as the admin detail lists it. */
+export interface FeedbackAnswerRow {
+  day: string;
+  moment: FeedbackMoment;
+  reason: FeedbackReason;
+  label: string;
+  count: number;
+}
+
+const FEEDBACK_REASON_NAME = /^feedback_(paywall|trial_end)_(not_tried|ask_parents|price|not_enough_help|boards_far|other)$/;
+
+/**
+ * FEEDBACK-1 — every answer this student gave, newest day first, read from the day
+ * timeline's event COUNTS (exact even when a day's feed was truncated). Shown/dismissed
+ * names are not answers and are left out. Read-only: nothing is stored or inferred.
+ */
+export function feedbackAnswers(
+  timeline: ReadonlyArray<{ day: string; activity: { events: Record<string, number> } | null }>,
+): FeedbackAnswerRow[] {
+  const rows: FeedbackAnswerRow[] = [];
+  for (const d of timeline) {
+    const events = d.activity?.events ?? {};
+    for (const [name, count] of Object.entries(events)) {
+      const m = FEEDBACK_REASON_NAME.exec(name);
+      if (!m || !(count > 0)) continue;
+      const moment = m[1] as FeedbackMoment;
+      const reason = m[2] as FeedbackReason;
+      rows.push({ day: d.day, moment, reason, label: FEEDBACK_REASON_LABELS[reason], count });
+    }
+  }
+  return rows.sort((a, b) => (a.day < b.day ? 1 : a.day > b.day ? -1 : a.label.localeCompare(b.label)));
+}
 
 /** A recorded event name in plain words, e.g. "check_graded" -> "Checked an answer". */
 export function activityEventLabel(name: string): string {

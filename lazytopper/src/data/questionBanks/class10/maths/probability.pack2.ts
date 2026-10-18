@@ -1237,7 +1237,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "I",
     "ncertRef": "Ex 15.1"
   },
-  { id: "PR2-046", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A die is thrown once. The probability of getting a prime number is:", options: ["1/2","1/3","2/3","1/6"], answer: "1/2", explanation: "The correct answer is 1/2. Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", finalAnswer: "Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", isCompetencyBased: false,
+  { id: "PR2-046", subject: "Maths", topicKey: "probability", subtopic: "Basic Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A die is thrown once. The probability of getting a prime number is:", options: ["1/2","1/3","2/3","1/6"], answer: "1/2", explanation: "The correct answer is 1/2. Prime numbers on die: 2, 3, 5. P = 3/6 = 1/2.", finalAnswer: "1/2", isCompetencyBased: false,
     solutionSteps: [
       "The prime numbers on a die are 2, 3 and 5, so P(prime) = 3/6 = 1/2. [1]",
     ],

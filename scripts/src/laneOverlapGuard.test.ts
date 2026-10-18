@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
 // @ts-expect-error — plain .mjs script, no type declarations by design.
-import { GENERATED_PREFIXES, isGenerated } from "../ops/lane_overlap.mjs";
+import { GENERATED_PREFIXES, evaluateOverlaps, isGenerated } from "../ops/lane_overlap.mjs";
 
 /**
  * GUARD — the generated-artifact exclusion in `scripts/ops/lane_overlap.mjs`.
@@ -74,5 +74,79 @@ describe("lane_overlap generated-path exclusion", () => {
 
   it("matches on a path prefix, not a substring anywhere in the path", () => {
     assert.equal(isGenerated("some/other/lazytopper/prerendered/x.html"), false);
+  });
+});
+
+/**
+ * GUARD — DRAFT PRs do not block (owner ruling CI-2, 2026-10-18).
+ *
+ * A draft is parked work, not a lane about to merge. An overlap with ANOTHER PR's draft
+ * is informational; when THIS PR is a draft the check passes with a note and is re-run on
+ * `ready_for_review` (pinned in ci_speed_acceptance.mjs w12). ★ THE CONTROL is the
+ * non-draft case: two ready PRs sharing an authored file must still FAIL, or the required
+ * check has stopped watching the thing it exists for.
+ */
+describe("lane_overlap draft handling", () => {
+  const mine = ["lazytopper/src/pages/Home.tsx", "lazytopper/package.json"];
+  const pr = (number: number, isDraft: boolean) => ({
+    number, isDraft, title: `PR ${number}`, headRefName: `b${number}`, baseRefName: "base/approved-thru-437",
+  });
+
+  it("an overlapping DRAFT PR no longer fails the check (reported as informational)", () => {
+    const r = evaluateOverlaps({ mine, others: [{ pr: pr(11, true), files: ["lazytopper/package.json"] }] });
+    assert.equal(r.ok, true);
+    assert.equal(r.blocking.length, 0);
+    assert.equal(r.informational.length, 1);
+    assert.deepEqual(r.informational[0].shared, ["lazytopper/package.json"]);
+  });
+
+  it("an overlapping NON-draft PR still fails the check (the control)", () => {
+    const r = evaluateOverlaps({ mine, others: [{ pr: pr(12, false), files: ["lazytopper/package.json"] }] });
+    assert.equal(r.ok, false);
+    assert.equal(r.blocking.length, 1);
+    assert.equal(r.blocking[0].pr.number, 12);
+    assert.equal(r.informational.length, 0);
+  });
+
+  it("a non-draft overlap still fails even when a draft overlap is also present", () => {
+    const r = evaluateOverlaps({
+      mine,
+      others: [
+        { pr: pr(11, true), files: ["lazytopper/package.json"] },
+        { pr: pr(12, false), files: ["lazytopper/src/pages/Home.tsx"] },
+      ],
+    });
+    assert.equal(r.ok, false);
+    assert.deepEqual(r.blocking.map((o: { pr: { number: number } }) => o.pr.number), [12]);
+    assert.deepEqual(r.informational.map((o: { pr: { number: number } }) => o.pr.number), [11]);
+  });
+
+  it("when THIS PR is a draft, overlaps are still reported but the check passes", () => {
+    const r = evaluateOverlaps({ mine, selfIsDraft: true, others: [{ pr: pr(12, false), files: ["lazytopper/package.json"] }] });
+    assert.equal(r.ok, true);
+    assert.equal(r.selfIsDraft, true);
+    assert.equal(r.blocking.length, 1, "the overlap is still computed and reported, not hidden");
+  });
+
+  it("isDraft must be literally true — a missing or odd flag is treated as a ready PR (fails closed)", () => {
+    for (const isDraft of [undefined, "true", 1, null]) {
+      const r = evaluateOverlaps({
+        mine,
+        others: [{ pr: { ...pr(13, false), isDraft }, files: ["lazytopper/package.json"] }],
+      });
+      assert.equal(r.ok, false, `isDraft=${JSON.stringify(isDraft)} must block`);
+    }
+  });
+
+  it("generated paths stay excluded for drafts and non-drafts alike", () => {
+    const r = evaluateOverlaps({
+      mine: ["lazytopper/prerendered/manifest.json"],
+      others: [
+        { pr: pr(11, true), files: ["lazytopper/prerendered/manifest.json"] },
+        { pr: pr(12, false), files: ["lazytopper/prerendered/manifest.json"] },
+      ],
+    });
+    assert.equal(r.ok, true);
+    assert.equal(r.blocking.length + r.informational.length, 0);
   });
 });

@@ -506,6 +506,7 @@ describe("studentDataMap — per-location properties", () => {
     "tutorSessions.topics",
     "subscriptions",
     "subscriptions.payments",
+    "subscriptions.adminGrants",
     "payOrders",
     "usageLedger",
     "usageLedger.days",
@@ -585,7 +586,25 @@ describe("studentDataMap — payment records are STUDENT data (RAZORPAY-1, Z7/Z9
     expect(pays!.exportable).toBe(true);
     expect(pays!.mechanism).toBe("admin-sdk-required");
     expect(pays!.onErase === undefined || pays!.onErase === "delete").toBe(true);
-    expect(subcollectionsOf("subscriptions").map((l) => l.id)).toEqual(["subscriptions.payments"]);
+    expect(subcollectionsOf("subscriptions").map((l) => l.id)).toEqual([
+      "subscriptions.payments",
+      "subscriptions.adminGrants",
+    ]);
+  });
+
+  it("★★ ADMIN-EXTEND-1: subscriptions.adminGrants is mapped under subscriptions, admin-only, DELETED on erasure", () => {
+    const grants = STUDENT_DATA_MAP.find((l) => l.id === "subscriptions.adminGrants");
+    expect(grants, "subscriptions.adminGrants is missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(grants!.kind).toBe("firestore-subcollection");
+    expect(grants!.parentId).toBe("subscriptions");
+    expect(grants!.path).toBe("subscriptions/{uid}/adminGrants/{requestId}");
+    expect(grants!.exportable).toBe(true);
+    expect(grants!.mechanism).toBe("admin-sdk-required");
+    expect(grants!.onErase === undefined || grants!.onErase === "delete").toBe(true);
+    // The writer really uses this segment name (held as a property, not a top-level collection).
+    const writer = readFileSync(path.join(LAZYTOPPER, "server", "services", "premiumExtension.cjs"), "utf8");
+    expect(writer).toContain("adminGrants: 'adminGrants'");
+    expect(scanCollectionsFromSource().has("adminGrants")).toBe(false);
   });
 
   it("★ CONTROL: the source scan really finds payOrders (the writer is live), and no phantom `payments`", () => {

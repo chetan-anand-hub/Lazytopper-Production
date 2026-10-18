@@ -23,6 +23,7 @@ import "../test/preloadBankChapters";
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import { describe, it, expect } from "vitest";
 
 import {
@@ -348,8 +349,15 @@ describe("GEN-THIN-1 · thin concepts reach ≥ 10 and the surfaces really draw 
     }
   });
 
-  it("CHAPTER TEST — across seeded draws of each thin chapter, generated rows are drawn", T, () => {
+  it("CHAPTER TEST — across seeded draws of each thin chapter, generated rows are drawn", T, async () => {
+    // CI-VITEST-TIMEOUT-1: this loop is ~40 s of SYNCHRONOUS work (chapters x 40 seeded draws).
+    // vitest's runner sends an `onTaskUpdate` RPC at each test boundary and does not yield a
+    // macrotask between tests, so this file used to run ~60-66 s without the worker's event loop
+    // ever reaching its I/O phase. The RPC reply sat unread, birpc's fixed 60 s timer fired first
+    // and the shard exited 1 with "[vitest-worker]: Timeout calling onTaskUpdate" after every test
+    // had PASSED. Yielding once per chapter lets the reply be read; the assertions are unchanged.
     for (const slug of new Set(GEN.map((q) => q.topicKey))) {
+      await yieldToEventLoop();
       const subject = GEN.find((q) => q.topicKey === slug)!.subject;
       let hits = 0;
       for (let seed = 1; seed <= 40; seed++) {
