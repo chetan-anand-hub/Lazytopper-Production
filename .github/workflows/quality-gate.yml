@@ -343,6 +343,10 @@ jobs:
   # HEAP: maxWorkers 2 (vitest.config.ts) x 2048 MB per runner. [FU-VITEST-CI-HEAP-CEILING]
   # SHARD COUNT 4 is MEASURED (CI-SPEED-1 report): the unsharded pass took 4.9-6.6 min over the
   # last 10 runs and the slowest file ~40 s; 4 shards put each near 1.5-2 min of tests.
+  # ★ CI-SPEED-2 (owner order 2026-10-18, wall time): 5 shards, planned by MEASURED per-file duration
+  # (lazytopper/scripts/ops/ci_shard_plan.mjs + vitest-durations.json), not by file count —
+  # `vitest --shard 2/4` ran ~9.5 min against ~5 for its siblings. The plan puts every file on disk in
+  # exactly one shard, and the aggregate still fails unless the shards together ran every file.
   vitest:
     needs: classify
     if: needs.classify.outputs.docs_only != 'true'
@@ -350,8 +354,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
-    name: vitest (${{ matrix.shard }}/4)
+        shard: [1, 2, 3, 4, 5]
+    name: vitest (${{ matrix.shard }}/5)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -379,12 +383,15 @@ jobs:
       # the quality-gate job's log carries VITEST_TOTAL for all shards together.
       - name: Vitest suites (lazytopper)
         timeout-minutes: 20
-        run: pnpm --filter lazytopper exec vitest run --shard ${{ matrix.shard }}/4 --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-shard.json"
+        run: |
+          set -euo pipefail
+          FILES="$(node lazytopper/scripts/ops/ci_shard_plan.mjs --source=all --shards=5 --index=${{ matrix.shard }})"
+          pnpm --filter lazytopper exec vitest run $FILES --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-shard.json"
         env:
           NODE_OPTIONS: --max-old-space-size=2048
       - name: Shard summary (files and tests this shard ran)
         if: ${{ !cancelled() }}
-        run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/4
+        run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/5
       - name: Upload shard summary
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
@@ -407,25 +414,34 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # Each clock is split in two halves of the manifest (vitest --shard x/2); the ops matrix
-      # runs once per clock, in part 1. The manifest is ~70% of the suite's test time (the runtime
-      # recorder found product code reading the clock in about half the files), so one job per
-      # clock would be the slowest job of the run.
+      # Each clock is split in two halves of the manifest. The manifest is ~70% of the suite's test
+      # time (the runtime recorder found product code reading the clock in about half the files), so
+      # one job per clock would be the slowest job of the run.
+      # ★ CI-SPEED-2 (owner order 2026-10-18, wall time): the halves are planned by MEASURED
+      # duration (ci_shard_plan.mjs --source=clock), not `vitest --shard` file counts, and the ops
+      # matrix moved out of part 1 into its OWN leg per clock (part: ops) — part 1 carried both and
+      # was the critical path of every run (~11 min). Same clocks, same files, same ops matrix.
       matrix:
         include:
           - name: '2030'
             at: '2030-06-15T06:30:00.000Z'
-            part: 1
+            part: '1'
           - name: '2030'
             at: '2030-06-15T06:30:00.000Z'
-            part: 2
+            part: '2'
+          - name: '2030'
+            at: '2030-06-15T06:30:00.000Z'
+            part: ops
           - name: ist-midnight
             at: '2030-02-14T18:45:00.000Z'
-            part: 1
+            part: '1'
           - name: ist-midnight
             at: '2030-02-14T18:45:00.000Z'
-            part: 2
-    name: clock (${{ matrix.name }} ${{ matrix.part }}/2)
+            part: '2'
+          - name: ist-midnight
+            at: '2030-02-14T18:45:00.000Z'
+            part: ops
+    name: clock (${{ matrix.name }} ${{ matrix.part }})
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -451,6 +467,7 @@ jobs:
           node-version: '22'
           cache: pnpm
       - name: Install ripgrep (required by ops-matrix audits)
+        if: matrix.part == 'ops'
         run: sudo apt-get update && sudo apt-get install -y ripgrep
       - name: Install workspace (frozen lockfile)
         run: pnpm install --frozen-lockfile
@@ -462,11 +479,12 @@ jobs:
           set -euo pipefail
           PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
           NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
-          FILES="$(node lazytopper/scripts/testClock/dateSensitive.mjs --print=vitest)"
-          echo "CLOCK_MANIFEST_FILES: $(printf '%s\n' "$FILES" | wc -l)"
-          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run --shard ${{ matrix.part }}/2 $FILES
-          if [ "${{ matrix.part }}" = "1" ]; then
+          if [ "${{ matrix.part }}" = "ops" ]; then
             NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+          else
+            FILES="$(node lazytopper/scripts/ops/ci_shard_plan.mjs --source=clock --shards=2 --index=${{ matrix.part }})"
+            echo "CLOCK_MANIFEST_FILES (this half): $(printf '%s\n' "$FILES" | wc -l)"
+            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run $FILES
           fi
 
   # ★ THE REQUIRED CHECK. The trunk ruleset requires a check named exactly `quality-gate`; this
@@ -499,7 +517,7 @@ jobs:
           NEEDS_JSON: ${{ toJSON(needs) }}
           DOCS_ONLY: ${{ needs.classify.outputs.docs_only }}
           SHARD_DIR: ${{ runner.temp }}/summary
-          EXPECTED_SHARDS: '4'
+          EXPECTED_SHARDS: '5'
         run: node lazytopper/scripts/ops/ci_aggregate.mjs --aggregate
 
   # The FULL vitest suite and the FULL ops matrix under BOTH clocks — what every PR ran before
