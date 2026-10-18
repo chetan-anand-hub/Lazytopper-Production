@@ -12,7 +12,7 @@ export const REAL_NUMBERS_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-REALNUM-001", subject: "Maths", topicKey: "real-numbers", subtopic: "HCF and LCM", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Two numbers are in the ratio 3 : 5 and their LCM is 180. Find the HCF of these two numbers.",
     answer: "HCF = x HCF × LCM = Product of two numbers x × 180 = 3x × 5x x = 12 HCF of numbers is 12.",
-    solutionSteps: ["Let the numbers be 3x and 5x.", "HCF = x HCF × LCM = Product of two numbers x × 180 = 3x × 5x x = 12 HCF of numbers is 12."],
+    solutionSteps: ["[0.5 marks] Let the numbers be 3x and 5x; HCF = x.", "[1 mark] HCF × LCM = Product of two numbers: x × 180 = 3x × 5x.", "[0.5 marks] x = 12, so the HCF of the numbers is 12."],
     finalAnswer: "HCF = x HCF × LCM = Product of two numbers x × 180 = 3x × 5x x = 12 HCF of numbers is 12.",
     ncertRef: "PYQ 30(B) Q21", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },

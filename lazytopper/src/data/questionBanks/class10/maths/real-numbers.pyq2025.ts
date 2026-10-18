@@ -20,7 +20,7 @@ export const REAL_NUMBERS_PYQ_2025: CanonicalQuestion[] = [
     questionText: "If x is the LCM of 4, 6, 8 and y is the LCM of 3, 5, 7 and p is the LCM of x and y, then which of the following is true ?",
     options: ["p = 35x", "p = 4y", "p = 8x", "p = 16y"],
     answer: "p = 35x",
-    solutionSteps: ["Correct option: (a) p = 35x."],
+    solutionSteps: ["[1 mark] Correct option: (a) p = 35x."],
     finalAnswer: "(a) p = 35x",
     ncertRef: "PYQ 30/3/2 Q9", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "2" },

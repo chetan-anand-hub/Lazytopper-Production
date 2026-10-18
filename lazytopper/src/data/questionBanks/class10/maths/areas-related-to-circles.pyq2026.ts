@@ -13,9 +13,9 @@ export const AREAS_RELATED_TO_CIRCLES_PYQ_2026: CanonicalQuestion[] = [
     questionText: "Assertion (A) : In a circle of radius 21 cm, an arc of length 22 cm subtends an angle of 60° at the centre. Reason (R) : The length of arc of a sector of a circle of radius r and central angle θ is (θ/360°) × 2πr.",
     options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
     answer: "Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).",
-    solutionSteps: ["By R, arc = (60/360) × 2 × (22/7) × 21 = 22 cm, so A is true. R is the standard formula and it explains A. Correct option: (a)."],
+    solutionSteps: ["[1 mark] By R, arc = (60/360) × 2 × (22/7) × 21 = 22 cm, so A is true. R is the standard formula and it explains A. Correct option: (a)."],
     finalAnswer: "(a) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).",
     ncertRef: "PYQ 30(B) Q19", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2026", pyqSet: "1",
   },
 ];
