@@ -84,7 +84,7 @@
 #     timeout). A daily cadence would run that repeatedly for no added safety.
 #
 #  2. lane-overlap.yml. It fails a PR on a shared changed path against EVERY
-#     other open PR, drafts included. A noisy Dependabot does not merely add
+#     other open non-draft PR (drafts only warn, since CI-2). A noisy Dependabot does not merely add
 #     noise -- it would jam the wave-sequencing gate that the parallel product
 #     lanes depend on. Hence weekly, staggered across two days, and
 #     open-pull-requests-limit summing to at most 5 open PRs across all three
