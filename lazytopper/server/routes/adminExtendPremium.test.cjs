@@ -143,6 +143,10 @@ test('a double-click (same requestId) is replayed, not applied twice', async () 
   assert.equal(b.body.replayed, true);
   assert.equal(b.body.extension.newEnd, a.body.extension.newEnd);
   assert.equal(grantKeys(h.db).length, 1);
+  // Same id, different days -> 409 request-mismatch.
+  const c = await h.post('admin-token', { ...BODY, days: 14 });
+  assert.equal(c.status, 409);
+  assert.equal(c.body.code, 'request-mismatch');
 });
 
 test('bad input -> 400; nothing to extend -> 409 with a code', async () => {

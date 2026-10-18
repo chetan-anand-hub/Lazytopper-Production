@@ -137,7 +137,17 @@ function computeExtension(stored, { days, nowMs }) {
   }
 
   const { trialEndsAtMs, passEndsAtMs } = deriveEffectiveTier(stored, nowMs);
-  const passEndMs = storedTier === 'premium' ? passEndsAtMs : null;
+  // The stored pass end counts WHATEVER the stored tier says (security review nit 1): a
+  // passEnd still in the future on a non-premium record must never be overwritten with an
+  // earlier end. passGrant.computeGrant reads passEnd the same way, regardless of tier, and
+  // firestore.rules refuse every client write of it, so it is a server-written value.
+  const rawPassEndMs = toMillis(stored.passEnd);
+  const passEndMs =
+    storedTier === 'premium'
+      ? passEndsAtMs
+      : rawPassEndMs !== null && rawPassEndMs > nowMs
+        ? rawPassEndMs
+        : null;
   const ends = [trialEndsAtMs, passEndMs].filter((v) => v !== null && Number.isFinite(v));
   const previousEndMs = ends.length > 0 ? Math.max(...ends) : null;
 
@@ -203,8 +213,17 @@ async function extendPremium(input, { firestore } = {}) {
     const grantSnap = await tx.get(grantRef);
 
     // This request was already applied (a double-click, a retry): nothing changes.
+    // The same id with a DIFFERENT day count is not a retry, it is a different request:
+    // refuse it rather than silently answer with the old result (security review nit 2).
     if (grantSnap && grantSnap.exists) {
-      return { replayed: true, extension: describeExtension(request.uid, grantSnap.data() || {}) };
+      const prior = grantSnap.data() || {};
+      if (prior.days !== request.days) {
+        throw new ExtensionRefusedError(
+          'request-mismatch',
+          `This request id was already used for ${prior.days} days; start a new confirmation to give ${request.days}`,
+        );
+      }
+      return { replayed: true, extension: describeExtension(request.uid, prior) };
     }
 
     const stored = snap && snap.exists ? snap.data() || {} : null;

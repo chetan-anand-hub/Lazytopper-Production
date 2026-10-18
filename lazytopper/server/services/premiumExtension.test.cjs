@@ -220,6 +220,23 @@ test('never shortens · computeExtension is strictly later than every end, for e
   }
 });
 
+test('never shortens · a FUTURE passEnd on a NON-premium record still counts (review nit 1)', async () => {
+  // e.g. a record whose stored tier is not "premium" but still carries a server-written
+  // passEnd 40 days out: the extension must grow THAT end, never store an earlier one.
+  const passEnd = NOW + 40 * DAY;
+  for (const tier of ['free', 'trial']) {
+    const db = memoryFirestore({ [SUB('u1')]: { ...trialDoc(2), tier, plan: 'pass_month', passEnd: stamp(passEnd) } });
+    const { extension } = await run(db);
+    assert.equal(msOf(db.read(SUB('u1')).passEnd), passEnd + 7 * DAY, tier);
+    assert.equal(extension.basis, 'pass', tier);
+    assert.equal(extension.previousEnd, new Date(passEnd).toISOString(), tier);
+  }
+  // A PAST passEnd on a non-premium record is ignored (the running trial end wins).
+  const lapsed = memoryFirestore({ [SUB('u1')]: { ...trialDoc(2), tier: 'free', passEnd: stamp(NOW - 5 * DAY) } });
+  await run(lapsed);
+  assert.equal(msOf(lapsed.read(SUB('u1')).passEnd), NOW + 5 * DAY + 7 * DAY);
+});
+
 test('refused · Premium with NO end date (legacy owner grant) is not touched — nothing to extend', async () => {
   const db = memoryFirestore({ [SUB('u1')]: { tier: 'premium', plan: 'premium_monthly', premiumSince: '2026-08-01T00:00:00.000Z' } });
   await assert.rejects(run(db), (e) => e instanceof ExtensionRefusedError && e.code === 'premium-no-end');
@@ -281,6 +298,17 @@ test('idempotent · a CONCURRENT double-click (same requestId, in parallel) exte
   assert.deepEqual([a.replayed, b.replayed].sort(), [false, true]);
   assert.equal(msOf(db.read(SUB('u1')).passEnd), NOW + 3 * DAY + 7 * DAY);
   assert.equal(db.keys().filter((k) => k.includes('/adminGrants/')).length, 1);
+});
+
+test('idempotent · the same requestId with DIFFERENT days is refused as a mismatch, not replayed (review nit 2)', async () => {
+  const db = memoryFirestore({ [SUB('u1')]: trialDoc(4) });
+  await run(db, { days: 7 });
+  const endAfterFirst = msOf(db.read(SUB('u1')).passEnd);
+  await assert.rejects(run(db, { days: 14 }), (e) => e instanceof ExtensionRefusedError && e.code === 'request-mismatch');
+  assert.equal(msOf(db.read(SUB('u1')).passEnd), endAfterFirst);
+  assert.equal(db.keys().filter((k) => k.includes('/adminGrants/')).length, 1);
+  // The SAME days is still a plain replay.
+  assert.equal((await run(db, { days: 7 })).replayed, true);
 });
 
 test('two DIFFERENT requests stack (two rewards are two extensions)', async () => {
