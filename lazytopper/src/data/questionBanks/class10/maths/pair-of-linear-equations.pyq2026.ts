@@ -21,7 +21,7 @@ export const PAIR_LINEAR_EQUATIONS_PYQ_2026: CanonicalQuestion[] = [
     questionText: "Assertion (A) : The system of linear equations 3x – 5y + 7 = 0 and –6 x + 10 y + 14 = 0 is inconsistent. Reason (R) : When two linear equations don't have unique solution, they always represent parallel lines.",
     options: ["Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).", "Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).", "Assertion (A) is true but Reason (R) is false.", "Assertion (A) is false but Reason (R) is true."],
     answer: "Assertion (A) is true but Reason (R) is false.",
-    solutionSteps: ["[1 mark] Correct option: (c) Assertion (A) is true, but Reason (R) is false.."],
+    solutionSteps: ["[1 mark] Correct option: (c) Assertion (A) is true, but Reason (R) is false."],
     finalAnswer: "(c) Assertion (A) is true, but Reason (R) is false.",
     ncertRef: "PYQ 30/5/1 Q19", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },

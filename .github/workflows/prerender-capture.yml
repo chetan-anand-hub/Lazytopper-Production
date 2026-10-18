@@ -76,13 +76,30 @@ jobs:
           token: ${{ secrets.PRERENDER_TOKEN || github.token }}
           fetch-depth: 0
 
+      # ★ CI-COST-1 (2026-10-18): a DOCS-ONLY PR cannot change a rendered page, so it skips the
+      # capture (~5 billable min) and the job still reports success. The decision is the SAME
+      # classifier quality-gate uses (ci_docs_lane_acceptance.mjs --classify) — no second copy of
+      # the rules — and it fails closed: unresolvable, [ci-full], or any non-docs path => capture.
+      - name: Fetch PR base branch (for the docs-only decision)
+        run: git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+      - name: Classify (docs-only PRs skip the capture)
+        id: cls
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node lazytopper/scripts/ops/ci_docs_lane_acceptance.mjs --classify
+
       - uses: pnpm/action-setup@v4
+        if: steps.cls.outputs.docs_only != 'true'
       - uses: actions/setup-node@v4
+        if: steps.cls.outputs.docs_only != 'true'
         with:
           node-version: 22
           cache: pnpm
 
       - name: Install workspace (frozen lockfile)
+        if: steps.cls.outputs.docs_only != 'true'
         run: pnpm install --frozen-lockfile
 
       # ⚠ `pnpm install` does NOT bring a browser. `pnpm-workspace.yaml` restricts
@@ -91,6 +108,7 @@ jobs:
       # dev box only because that machine had a global ms-playwright cache from other
       # work — the kind of accident that passes at a desk and fails everywhere else.
       - name: Install the headless shell
+        if: steps.cls.outputs.docs_only != 'true'
         run: pnpm --filter lazytopper exec playwright install --only-shell --no-progress chromium
 
       # ⚠ THE CAPTURE'S BUILD MUST NOT DEPEND ON THE ARTIFACT IT IS ABOUT TO REPLACE.
@@ -103,6 +121,7 @@ jobs:
       # `gen:sitemap` compares the fresh fragments against it. The staleness check
       # below still compares against the COMMITTED tree (`git status`), unchanged.
       - name: Set the committed artifact aside for the build
+        if: steps.cls.outputs.docs_only != 'true'
         run: |
           mkdir -p "$RUNNER_TEMP/committed"
           if [ -d lazytopper/prerendered ]; then mv lazytopper/prerendered "$RUNNER_TEMP/committed/"; fi
@@ -112,12 +131,14 @@ jobs:
       # /sign-up while production links to /check-improve, and crawlers would read the
       # wrong CTA. `staticBodies.guard.test.ts` pins the committed landing's CTA.
       - name: Build (no browser in this chain)
+        if: steps.cls.outputs.docs_only != 'true'
         env:
           VITE_FREE_CHECK_ENABLED: "1"
           VITE_PAYMENTS_ENABLED: "1"
         run: pnpm --filter lazytopper run build
 
       - name: Restore the date ledger
+        if: steps.cls.outputs.docs_only != 'true'
         run: |
           mkdir -p lazytopper/prerendered
           if [ -f "$RUNNER_TEMP/committed/prerendered/lastmod.json" ]; then
@@ -129,6 +150,7 @@ jobs:
       # with them reachable (the control). A page whose DOM differs between the two has
       # become data-dependent and FAILS here rather than silently freezing one response.
       - name: Capture
+        if: steps.cls.outputs.docs_only != 'true'
         run: pnpm --filter lazytopper run seo:capture
 
       # SEO-FRESH-1 (F2) — the sitemap's dates are derived from the fragments just
@@ -137,12 +159,14 @@ jobs:
       # date. Both files are part of the artifact below, so a stale date fails this job
       # exactly as a stale fragment does, and is supplied the same way.
       - name: Regenerate the sitemap dates from the fresh capture
+        if: steps.cls.outputs.docs_only != 'true'
         run: pnpm --filter lazytopper run gen:sitemap
 
       # ⚠ `git status --porcelain`, NOT `git diff --quiet`. `git diff` is blind to
       # UNTRACKED files, so a fragment for a newly advertised page (or a first
       # `lastmod.json`) would read as "matches" while being absent from the commit.
       - name: Is the committed artifact current?
+        if: steps.cls.outputs.docs_only != 'true'
         id: check
         run: |
           changed="$(git status --porcelain -- lazytopper/prerendered lazytopper/public/sitemap.xml)"
