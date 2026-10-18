@@ -200,6 +200,9 @@ function realSeed(uid = UID) {
     'payOrders/order_B': { uid, passType: 'till_boards', amountPaise: 239600, status: 'created' },
     // Another student's order — must survive untouched.
     'payOrders/order_Z': { uid: OTHER, passType: 'month', amountPaise: 59900, status: 'paid' },
+    // ASK-PARENTS-PAY-1: FIELD-KEYED pay links — DELETED with the account (not an accounting record).
+    'parentPayLinks/sha-link-a': { uid, firstName: 'Aarav', status: 'paid', orderIds: ['order_A'] },
+    'parentPayLinks/sha-link-z': { uid: OTHER, firstName: 'Zoya', status: 'open', orderIds: [] },
     // METER-1: production writes ONLY the day documents; the parent stays missing.
     [`usageLedger/${uid}/days/2026-09-27`]: { calls: 1, costMicroInr: 246400 },
     // ★ FIELD-KEYED. The doc id is sha256(uploadToken); the student is a `uid` FIELD.
@@ -662,6 +665,20 @@ test('★★ Z7: payOrders are KEPT with uid -> "erased" — anonymised, never d
   assert.ok(!result.remaining.some((r) => r.id === 'payOrders'));
   assert.equal(result.ok, true);
   assert.equal(result.summary.documentsAnonymised, 2);
+});
+
+test('★★ ASK-PARENTS-PAY-1: parentPayLinks are DELETED by the uid FIELD — never another student’s, and the orders stay', async () => {
+  const { service, store } = makeService();
+  const result = await service.eraseAccount(UID);
+  const row = byId(result, 'parentPayLinks');
+  assert.ok(row, 'parentPayLinks is not in the erasure plan');
+  assert.equal(store.docs.has('parentPayLinks/sha-link-a'), false, "the student's pay link survived erasure");
+  assert.equal(store.docs.get('parentPayLinks/sha-link-z').uid, OTHER, "another student's link was touched");
+  const q = store.queriedByField.find((x) => x.collection === 'parentPayLinks');
+  assert.deepEqual({ field: q.field, value: q.value }, { field: 'uid', value: UID });
+  // The order the link started is an accounting record: kept, anonymised (Z7), not deleted.
+  assert.equal(store.docs.get('payOrders/order_A').uid, 'erased');
+  assert.ok(!result.remaining.some((r) => r.id === 'parentPayLinks'));
 });
 
 test('★ Z7: a second erasure finds no payOrders under the uid -> notFound, and rewrites nothing', async () => {

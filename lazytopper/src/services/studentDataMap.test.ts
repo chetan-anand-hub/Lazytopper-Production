@@ -285,7 +285,12 @@ describe("studentDataMap — drift guard", () => {
     // server/services/fairUse.cjs (createGradingIdempotency) through the Admin SDK; no client
     // reads or writes it, so it is undeclared on purpose (deny-all catch-all). It IS student
     // data (uid-keyed graded results, 24 h) — in the map, erased and exported, not exempted.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "signupSources", "usageLedger"]);
+    //
+    // ★ `parentPayLinks` JOINED this set with ASK-PARENTS-PAY-1. Written only by
+    // server/routes/parentPay.cjs through the Admin SDK; no client may read or write a pay
+    // link (it holds the child's uid), so it is undeclared on purpose (deny-all catch-all).
+    // It IS student data (a `uid` field) — in the map, deleted on erasure and exported.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "parentPayLinks", "payOrders", "qrUploadSlots", "signupSources", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {

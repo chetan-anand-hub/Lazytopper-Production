@@ -183,6 +183,9 @@ function realSeed(uid = UID) {
     'payOrders/order_A': { uid, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'paid', paymentId: 'pay_A' },
     // Another student's order — must never appear in this student's export.
     'payOrders/order_Z': { uid: OTHER, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'created' },
+    // ASK-PARENTS-PAY-1: FIELD-KEYED — the doc id is sha256(link token); the child is a `uid` FIELD.
+    'parentPayLinks/sha-link-a': { uid, firstName: 'Aarav', status: 'paid', orderIds: ['order_A'] },
+    'parentPayLinks/sha-link-z': { uid: OTHER, firstName: 'Zoya', status: 'open', orderIds: [] },
     // METER-1. The parent is seeded only so the map-driven "every location carries data"
     // test has a row to find; production never writes it (see the phantom-parent test).
     [`usageLedger/${uid}`]: {},
