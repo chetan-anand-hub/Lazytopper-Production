@@ -1,3 +1,9 @@
+## 2026-10-19 - WITHHOLD-METAL-007 (`#1257`) - MERGED
+
+- DONE. `PYQ-S-2026-METAL-007` (a Control & Coordination PYQ filed under Metals and Non-metals, served in a Chemistry test) withheld on every surface; served bank 10580 -> 10579 (Science -1). Live on www at `56850447`, withhold present in the deployed metals chunk and the global withheld set (cofounder-verified). Independent review PASS-WITH-FOLLOW-UP, no MUST-FIX.
+- OPEN. The review's S1-S5 and `[FU-PYQ2026-MISFILED-GARBLED]` in the 2026-10-19 (WITHHOLD-METAL-007 #1257) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- NEXT. REFILE-PYQ2026-1 (specced 2026-10-19; re-files METAL-007 and serves it again under its true chapter).
+
 ## 2026-10-18 - PERF-3 (`#1255`) - MERGED
 
 - DONE. `firebase/firestore` out of the entry chunk behind one lazy facade; entry 414 -> 248 KB gz (live 247,598 B, cofounder-verified); spec target <= 250 KB gz met. Guards: entry-chunk acceptance at the end of `build`; single-loader vitest guard.

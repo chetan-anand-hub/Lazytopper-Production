@@ -1,3 +1,14 @@
+## 2026-10-19 - AFTER #1257 WITHHOLD-METAL-007 (written by the WITHHOLD-METAL-007 builder under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them.)* Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 19 Oct); facts marked **[reviewer]** come from the independent review `C:\Users\Chetan\OneDrive\Desktop\diff\review-pr1257-2026-10-19.md`.
+
+- **Done:** the student-reported Biology question in a Chemistry test (`PYQ-S-2026-METAL-007`) is withheld on every surface, live on www at `56850447` **[cofounder-verified]**. The cofounder's section 5 live-verify is complete.
+- **Next (bank content):** REFILE-PYQ2026-1, spec `C:\Users\Chetan\OneDrive\Desktop\diff\specs\LazyTopper_REFILE-PYQ2026-1_v1.0_2026-10-19.md`, on the owner ruling of 18 Oct 23:53 IST ("fix them"). It produces the verified census of every `*.pyq2026.ts` row (R re-file / F fix text from the official paper / W withhold / K keep), re-files `PYQ-S-2026-METAL-007` under Control & Coordination with both internal-choice answers, and removes it from the withhold list in the same PR (`[FU-PYQ2026-MISFILED-GARBLED]`). Builder worktree `C:\Projects\lt-refile-2026`, branch `fix/refile-pyq2026-1`; fresh independent reviewer samples >= 10 changed rows against the official PDFs; the cofounder merges.
+- **Fold into REFILE-PYQ2026-1 (or a small test lane):** `[FU-WITHHOLD-METAL-007-BOARDTRY-VACUOUS]`, `[FU-WITHHOLD-METAL-007-PRACTICE-SAMPLE-WEAK]`, `[FU-WITHHOLD-METAL-007-HPQ-NOT-A-BANK-CONSUMER]`, `[FU-BANKSTEPS-VERDICT-MISFILED]` (the ledger verdict ruling).
+- **Spec writers:** `[FU-WITHHOLD-SPEC-FORCED-FILES]` - a withhold spec lists the order-parity fixture and the clock manifest as forced files up front.
+- **Owner (unchanged, now also seen by the #1257 reviewer [reviewer]):** the shared checkout `C:\Projects\Lazytopper-Production` (local `base/approved-thru-437` at `374593be`, about 979 status entries) - `[FU-OWNER-CHECKOUT-898-MISSING]`.
+- **Follow-ups:** the 2026-10-19 (WITHHOLD-METAL-007 #1257) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-18 - AFTER #1255 PERF-3 (written by the PERF-3 builder under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them.)* Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 18 Oct); facts marked **[builder-reported]** come from the PERF-3 builder's own runs (report `C:\Users\Chetan\OneDrive\Desktop\diff\report-perf3-2026-10-18.md`, PR #1255 body); facts marked **[git/gh]** were re-read with `git` / `gh` while writing this entry.

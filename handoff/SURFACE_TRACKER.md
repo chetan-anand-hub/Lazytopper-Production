@@ -1,3 +1,14 @@
+> **2026-10-19 - WITHHOLD-METAL-007 #1257 (CLAUDE.md section 10).** Scope: bank content only - one Science 2026 PYQ row (`PYQ-S-2026-METAL-007`, a Control & Coordination question filed under Metals and Non-metals) is withheld from every serving pool. No grading, scoring, mistake typing, recording or page code changed. No surface's Scope moved to Settling. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 19 Oct); facts marked **[builder-reported]** come from `withholdMetal007.test.ts` (import-based, 13 tests); facts marked **[reviewer]** come from the independent review `C:\Users\Chetan\OneDrive\Desktop\diff\review-pr1257-2026-10-19.md` (mutation M2: row re-served).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Chapter Test (Metals) | row leaves the draw pool (`#1257`) | live; RED under M2 [reviewer]; withheld in the deployed metals chunk [cofounder-verified] | REFILE-PYQ2026-1 re-serves it under Control & Coordination |
+| Worksheet / Full Mock (Science) | row leaves every topic, union and section pool (`#1257`) | live; RED under M2 [reviewer] | REFILE-PYQ2026-1 |
+| Quick Practice / Practice (Metals) | row leaves the engine and `generatePracticeSet` (`#1257`) | live; `generatePracticeSet` "General" RED under M2, seeded-builder sample stays green [reviewer] | `[FU-WITHHOLD-METAL-007-PRACTICE-SAMPLE-WEAK]` |
+| Check & Improve "Try a board question" | none: the row was never offerable (OR choice, "Draw", mark bleed) | unchanged [reviewer] | `[FU-WITHHOLD-METAL-007-BOARDTRY-VACUOUS]` |
+| Important Questions (HPQ) | none: separate curated dataset, not a bank consumer | unchanged [reviewer] | `[FU-WITHHOLD-METAL-007-HPQ-NOT-A-BANK-CONSUMER]` |
+| Every bank surface (Science 2026 PYQ rows) | none | about 29 other rows misfiled / garbled, the cofounder's reading, unverified | `[FU-PYQ2026-MISFILED-GARBLED]` (REFILE-PYQ2026-1) |
+
 > **2026-10-18 - PERF-3 #1255 (CLAUDE.md section 10).** Scope: how every surface loads Firestore (performance / persistence plumbing). No grading, scoring, mistake typing or recording changed; no page content changed. No surface's Scope moved to Settling. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 18 Oct); facts marked **[builder-reported]** come from the PERF-3 builder's own runs (report `C:\Users\Chetan\OneDrive\Desktop\diff\report-perf3-2026-10-18.md`, PR #1255 body); facts marked **[git/gh]** were re-read with `git` / `gh` while writing this entry.
 
 | surface | what moved (PR) | state | owed |
