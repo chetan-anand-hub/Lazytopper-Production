@@ -779,6 +779,7 @@ async function handleRequest(req, res) {
     return adminTelemetryRoutes.handleGetTokenTelemetry(req, res);
   }
   if (req.method === 'GET' && (reqPath === '/api/admin/students' || reqPath.startsWith('/api/admin/students/'))) return require('./routes/adminStudents.cjs').handleAdminStudents(req, res, { sendJson, sendJsonWithHeaders, firebaseAdmin, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // STUDENT-ACTIVITY-1 PR-2: admin "Students" page, READ-ONLY, behind the shared ADMIN_FIREBASE_UIDS gate (see the module)
+  if (req.method === 'POST' && reqPath === '/api/admin/extend-premium') return require('./routes/adminExtendPremium.cjs').handleAdminExtendPremium(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-EXTEND-1: extend Premium by N days at price 0 (feedback-call reward), behind the SAME ADMIN_FIREBASE_UIDS gate as the Students page; same-origin from /admin/students, so no CORS preflight entry
 
   if (req.method === 'POST' && reqPath === '/api/admin/warm-question-pool') {
     const adminSecret = process.env.WARM_POOL_ADMIN_SECRET;
