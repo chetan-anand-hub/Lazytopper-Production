@@ -5,7 +5,6 @@
  * Daily Mix and Weekly Wrapped.
  */
 
-import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from "firebase/firestore";
 import type { AuthUser } from "../context/AuthContext";
 import {
   buildProgressScopeKey,
@@ -14,7 +13,7 @@ import {
 } from "./studentProgressStore";
 import { clearWrongAnswer, getWrongConceptsForTopic } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug, canonicalSlugMatches } from "../data/syllabus/canonicalTopicSlug";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import {
   attemptDedupKey,
   legacyAttemptKey,
@@ -147,8 +146,10 @@ export function saveInsights(data: PracticeInsights): void {
     const uid = getActiveProgressUser();
     if (uid) {
       void saveLearnerProgressSegment(uid, "attempts", data.attempts);
-      if (firestoreDb && uid !== "anonymous") {
-        void setDoc(doc(firestoreDb, "practiceInsights", uid), { ...data, updatedAt: new Date().toISOString() }, { merge: true }).catch((e) => console.warn("[practiceInsights] blob write failed", e));
+      if (isFirestoreEnabled() && uid !== "anonymous") {
+        const blob = { ...data, updatedAt: new Date().toISOString() };
+        void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "practiceInsights", uid), blob, { merge: true }))
+          .catch((e) => console.warn("[practiceInsights] blob write failed", e));
       }
     }
   } catch (err) {
@@ -400,21 +401,23 @@ export function recordAttempt(
   // doc: latest wins, never a duplicate. `merge: false` so a field the new outcome no longer
   // carries (e.g. `notAttempted` after a re-grade) does not linger from the old one.
   // Fire-and-forget, mirrors the blob-write guard in saveInsights.
-  if (firestoreDb && user.uid !== "anonymous") {
+  if (isFirestoreEnabled() && user.uid !== "anonymous") {
+    const uid = user.uid;
     // N1 — the old score-keyed doc of a re-graded pre-change submission leaves the cloud too, so
     // the durable time-series also holds ONE attempt for it (its id = the old key, sanitized).
+    // PERF-3: each delete, then the write, is handed to the SDK in this same order (withFirestore
+    // runs them synchronously once the SDK is loaded, and in call order while it loads).
     for (const legacyKey of retired) {
       try {
-        void deleteDoc(doc(firestoreDb, "practiceInsights", user.uid, "attempts", legacyKey.replace(/[/.#$[\]\s]/g, "_")))
+        const legacyId = legacyKey.replace(/[/.#$[\]\s]/g, "_");
+        void withFirestore(({ fs, db }) => fs.deleteDoc(fs.doc(db, "practiceInsights", uid, "attempts", legacyId)))
           .catch((e) => console.warn("[practiceInsights] legacy attempt delete failed", e));
       } catch (e) {
         console.warn("[practiceInsights] legacy attempt delete failed", e);
       }
     }
-    void setDoc(
-      doc(firestoreDb, "practiceInsights", user.uid, "attempts", attemptId),
-      attemptDoc,
-    ).catch((e) => console.warn("[practiceInsights] attempt write failed", e));
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "practiceInsights", uid, "attempts", attemptId), attemptDoc))
+      .catch((e) => console.warn("[practiceInsights] attempt write failed", e));
   }
 
   // ── Loop-closer (MI-Loop Stage 2 PR 2) ────────────────────────────────
@@ -466,13 +469,15 @@ export async function getAttemptsFromCloud(
   uid: string,
   options: { start?: number; end?: number } = {},
 ): Promise<PracticeAttempt[]> {
-  if (!firestoreDb || !uid || uid === "anonymous") return [];
+  if (!isFirestoreEnabled() || !uid || uid === "anonymous") return [];
   try {
-    const col = collection(firestoreDb, "practiceInsights", uid, "attempts");
-    const clauses = [];
-    if (typeof options.start === "number") clauses.push(where("timestamp", ">=", options.start));
-    if (typeof options.end === "number") clauses.push(where("timestamp", "<=", options.end));
-    const snap = await getDocs(clauses.length ? query(col, ...clauses) : query(col));
+    const snap = await withFirestore(({ fs, db }) => {
+      const col = fs.collection(db, "practiceInsights", uid, "attempts");
+      const clauses = [];
+      if (typeof options.start === "number") clauses.push(fs.where("timestamp", ">=", options.start));
+      if (typeof options.end === "number") clauses.push(fs.where("timestamp", "<=", options.end));
+      return fs.getDocs(clauses.length ? fs.query(col, ...clauses) : fs.query(col));
+    });
     return snap.docs.map((d) => d.data() as PracticeAttempt);
   } catch (err) {
     console.warn("getAttemptsFromCloud failed:", err);

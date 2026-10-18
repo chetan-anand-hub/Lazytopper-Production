@@ -16,8 +16,7 @@
 // (C&I / Practice); the tutor never writes one. ME-ENGINE-1 PR-2 adds one more record, the
 // timestamped DOUBT (see "Tutor ACTIVITY" below) — a send time per doubt, no grade either.
 
-import { arrayUnion, doc, getDoc, setDoc } from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import type { AuthUser } from "../context/AuthContext";
 import type { TutorTurn } from "../ai/tutorClient";
 
@@ -129,9 +128,9 @@ export async function loadTutorSessionFromCloud(
   const id = readableUid(uid);
   if (!id || !topicKey) return null;
   const local = loadTutorSessionLocal(id, topicKey);
-  if (!firestoreDb) return local;
+  if (!isFirestoreEnabled()) return local;
   try {
-    const snap = await getDoc(doc(firestoreDb, "tutorSessions", id, "topics", sanitizeDocId(topicKey)));
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "tutorSessions", id, "topics", sanitizeDocId(topicKey))));
     const cloud = snap.exists() && isTutorSessionDoc(snap.data()) ? (snap.data() as TutorSessionDoc) : null;
     if (!cloud) return local;
     if (local && local.updatedAt >= cloud.updatedAt) return local;
@@ -162,12 +161,12 @@ export function saveTutorSession(
 
   writeTutorSessionLocal(uid, toStore);
 
-  if (firestoreDb) {
-    void setDoc(
-      doc(firestoreDb, "tutorSessions", uid, "topics", sanitizeDocId(session.topicKey)),
-      stripUndefined(toStore),
-      { merge: true },
-    ).catch((error) => console.warn("[tutorSession] cloud write failed", { topicKey: session.topicKey, error }));
+  if (isFirestoreEnabled()) {
+    const data = stripUndefined(toStore);
+    void withFirestore(({ fs, db }) =>
+        fs.setDoc(fs.doc(db, "tutorSessions", uid, "topics", sanitizeDocId(session.topicKey)), data, { merge: true }),
+      )
+      .catch((error) => console.warn("[tutorSession] cloud write failed", { topicKey: session.topicKey, error }));
   }
   return "recorded";
 }
@@ -237,12 +236,13 @@ export function recordTutorTurn(
   if (!turn.topicKey) return { outcome: "skipped-no-topic", event: null };
   const at = typeof turn.at === "number" ? turn.at : Date.now();
   const event: TutorTurnEvent = { at, topicKey: turn.topicKey, subject: turn.subject };
-  if (firestoreDb) {
-    void setDoc(
-      doc(firestoreDb, "tutorSessions", user.uid),
-      { doubtsAt: { [tutorDoubtKey(turn.subject, turn.topicKey)]: arrayUnion(at) } },
-      { merge: true },
-    ).catch((error) => console.warn("[tutorSession] doubt write failed", { topicKey: turn.topicKey, error }));
+  if (isFirestoreEnabled()) {
+    const uid = user.uid;
+    const doubtKey = tutorDoubtKey(turn.subject, turn.topicKey);
+    void withFirestore(({ fs, db }) =>
+        fs.setDoc(fs.doc(db, "tutorSessions", uid), { doubtsAt: { [doubtKey]: fs.arrayUnion(at) } }, { merge: true }),
+      )
+      .catch((error) => console.warn("[tutorSession] doubt write failed", { topicKey: turn.topicKey, error }));
   }
   return { outcome: "recorded", event };
 }
@@ -257,9 +257,9 @@ export async function getTutorTurnsFromCloud(
   startMs: number,
 ): Promise<{ events: TutorTurnEvent[]; complete: boolean }> {
   const id = readableUid(uid);
-  if (!id || !firestoreDb) return { events: [], complete: true };
+  if (!id || !isFirestoreEnabled()) return { events: [], complete: true };
   try {
-    const snap = await getDoc(doc(firestoreDb, "tutorSessions", id));
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "tutorSessions", id)));
     const raw = snap.exists() ? (snap.data() as { doubtsAt?: unknown }).doubtsAt : undefined;
     const events: TutorTurnEvent[] = [];
     if (raw && typeof raw === "object") {

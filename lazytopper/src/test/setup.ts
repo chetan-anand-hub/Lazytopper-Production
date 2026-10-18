@@ -1,5 +1,60 @@
 import "@testing-library/jest-dom";
-import { afterEach, beforeEach } from "vitest";
+import { afterEach, beforeEach, vi } from "vitest";
+
+/**
+ * PERF-3 — THE FIRESTORE FACADE, AS EVERY EXISTING TEST ALREADY DESCRIBES IT.
+ *
+ * Product code reaches Firestore through `services/firestoreSdk` (`isFirestoreEnabled()` +
+ * `getFirestore()`), which loads the SDK on demand. Over a hundred suites were written against
+ * the OLD shape: they mock `services/firebaseClient` with a `firestoreDb` (truthy = "cloud on",
+ * null/absent = "no cloud") and mock `firebase/firestore` with the functions they assert on.
+ *
+ * This stand-in keeps every one of those suites meaning exactly what it meant: it reads the
+ * suite's own `firebaseClient` mock for `firestoreDb` and hands back the suite's own
+ * `firebase/firestore` mock as `fs`, with that `firestoreDb` as `db` — so `doc(db, ...)` paths,
+ * `setDoc` payloads and "no cloud" branches are asserted exactly as before.
+ *
+ * The REAL facade is exercised by `services/firestoreSdk.test.ts` (which unmocks it) and, for
+ * the bundle, by `scripts/ops/perf3_entry_chunk_acceptance.mjs`.
+ */
+vi.mock("../services/firestoreSdk", async () => {
+  const client = (await import("../services/firebaseClient")) as Record<string, unknown>;
+  // Resolved ONCE, here: concurrent dynamic imports of a mocked package from setup code were
+  // measured to hand back the REAL module to some callers. One import, one module.
+  const fs = await import("firebase/firestore");
+  const readDb = (): unknown => {
+    try {
+      // A suite whose firebaseClient mock defines no `firestoreDb` gets vitest's "no export"
+      // throw here — that suite never had a cloud, so it has none now.
+      return client.firestoreDb;
+    } catch {
+      return undefined;
+    }
+  };
+  const noDb = () => new Error("[test setup] firestoreSdk: no firestoreDb in this suite's firebaseClient mock");
+  // Like the real facade: ONE promise object per Firestore instance (a suite that swaps
+  // `firestoreDb` between tests gets a new one).
+  let cached: { db: unknown; handle: Promise<{ fs: typeof fs; db: unknown }> } | null = null;
+  return {
+    isFirestoreEnabled: () => Boolean(readDb()),
+    getFirestore: () => {
+      const db = readDb();
+      if (!db) return Promise.reject(noDb());
+      if (!cached || cached.db !== db) cached = { db, handle: Promise.resolve({ fs, db }) };
+      return cached.handle;
+    },
+    // Like the real facade once the SDK is loaded: `use` runs synchronously, in the caller's call.
+    withFirestore: (use: (h: { fs: typeof fs; db: unknown }) => unknown) => {
+      const db = readDb();
+      if (!db) return Promise.reject(noDb());
+      try {
+        return Promise.resolve(use({ fs, db }));
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+  };
+});
 // Test clock (TEST-CLOCK-SWEEP): with LT_TEST_CLOCK=<ISO> set, "now" reads that instant and
 // ticks from there, in every test. Unset -> nothing is installed. See the module for the design.
 import { ensureTestClock, installTestClockFromEnv } from "../../scripts/testClock/testClock.mjs";

@@ -8,7 +8,10 @@ import {
   type Auth,
   type PopupRedirectResolver,
 } from "firebase/auth";
-import { initializeFirestore, type Firestore } from "firebase/firestore";
+// PERF-3: NO `firebase/firestore` import here — not even a type-only one is needed. Firestore
+// is created on demand, once, by services/firestoreSdk.ts (getFirestore / isFirestoreEnabled).
+// A static import of it in this module puts the whole SDK back in the entry chunk;
+// scripts/ops/perf3_entry_chunk_acceptance.mjs goes red if it does.
 
 type FirebaseConfig = {
   apiKey: string;
@@ -43,7 +46,6 @@ export const firebaseProjectId = firebaseConfig.projectId;
 
 let app: FirebaseApp | null = null;
 let authClient: Auth | null = null;
-let firestoreDb: Firestore | null = null;
 
 if (firebaseConfigured) {
   app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
@@ -59,13 +61,12 @@ if (firebaseConfigured) {
   authClient = initializeAuth(app, {
     persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
   });
-  // ignoreUndefinedProperties: the SDK otherwise THROWS on any `undefined` field
-  // value, which silently killed every practiceInsights/attempts write (attempt docs
-  // carry optional undefined fields like bloomSkill/topicName). Do NOT remove this.
-  firestoreDb = initializeFirestore(app, { ignoreUndefinedProperties: true });
+  // PERF-3: Firestore is no longer initialised here. services/firestoreSdk.ts makes the SAME
+  // single `initializeFirestore(app, { ignoreUndefinedProperties: true })` call (D32 — do NOT
+  // drop that option) on the first real Firestore call, after loading the SDK on demand.
 }
 
-export { app, authClient, firestoreDb };
+export { app, authClient };
 
 /**
  * LOW-END-1 (L5) — THE POPUP RESOLVER, ON DEMAND.

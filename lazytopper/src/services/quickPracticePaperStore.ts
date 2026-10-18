@@ -16,8 +16,7 @@
 //   • HONEST-FAILURE: a missing or unreadable copy returns null / is left out; the caller
 //     says so — a set is never rebuilt or guessed.
 
-import { collection, deleteDoc, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import type { AuthUser } from "../context/AuthContext";
 import type { QuickPracticeEntry, QuickPracticeSavedAnswer } from "./quickPracticeSessionService";
 import type { SessionSubject } from "./sessionRecords";
@@ -116,11 +115,12 @@ export function saveQuickPracticePaper(
     savedAt: Date.now(),
   });
   writeLocal(uid, [full, ...readLocal(uid).filter((s) => s.code !== full.code)]);
-  if (!firestoreDb) return true;
+  if (!isFirestoreEnabled()) return true;
   try {
-    void setDoc(doc(firestoreDb, "sessionRecords", uid, COLLECTION, full.code), full).catch((error) => {
-      console.warn("[quickPracticePaperStore] snapshot write failed", error);
-    });
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, COLLECTION, full.code), full))
+      .catch((error) => {
+        console.warn("[quickPracticePaperStore] snapshot write failed", error);
+      });
   } catch (error) {
     console.warn("[quickPracticePaperStore] snapshot write failed", error);
   }
@@ -136,9 +136,9 @@ export async function loadQuickPracticePaper(
   if (!uid) return null;
   const local = readLocal(uid).find((s) => s.code === code);
   if (local) return local;
-  if (!firestoreDb) return null;
+  if (!isFirestoreEnabled()) return null;
   try {
-    const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, COLLECTION, code));
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, COLLECTION, code)));
     const data = snap.exists() ? snap.data() : null;
     if (!isQuickPracticePaperSnapshot(data)) return null;
     writeLocal(uid, [data, ...readLocal(uid).filter((s) => s.code !== code)]);
@@ -158,9 +158,9 @@ export async function listQuickPracticePapers(
   if (!uid) return [];
   const byCode = new Map<string, QuickPracticePaperSnapshot>();
   for (const s of readLocal(uid)) byCode.set(s.code, s);
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      const snap = await getDocs(collection(firestoreDb, "sessionRecords", uid, COLLECTION));
+      const snap = await withFirestore(({ fs, db }) => fs.getDocs(fs.collection(db, "sessionRecords", uid, COLLECTION)));
       snap.forEach((d) => {
         const data = d.data();
         if (!isQuickPracticePaperSnapshot(data)) return;
@@ -181,11 +181,12 @@ export function deleteQuickPracticePaper(user: AuthUser | null | undefined, code
   const uid = cloudUid(user);
   if (!uid) return;
   writeLocal(uid, readLocal(uid).filter((s) => s.code !== code));
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
   try {
-    void deleteDoc(doc(firestoreDb, "sessionRecords", uid, COLLECTION, code)).catch(() => {
-      /* best-effort */
-    });
+    void withFirestore(({ fs, db }) => fs.deleteDoc(fs.doc(db, "sessionRecords", uid, COLLECTION, code)))
+      .catch(() => {
+        /* best-effort */
+      });
   } catch {
     /* best-effort */
   }

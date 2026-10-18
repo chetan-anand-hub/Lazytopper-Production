@@ -5,7 +5,6 @@
 // The module is KEPT, unchanged in behaviour, because the ops guards still read it (GA-21 in
 // check_improve_convergence_acceptance.mjs; Guard D in topickey_guard_acceptance.mjs) and its
 // own tests pin the weak-area evidence rules; deleting it needs those guards moved first.
-import { doc, setDoc } from "firebase/firestore";
 import { loadInsights, type PracticeAttempt } from "./practiceInsights";
 import { loadWrongAnswerLog, type WrongAnswerEntry } from "./adaptivePracticeEngine";
 import { loadTopicMasterySnapshot, type TopicHubNodeMasteryState } from "./topicHubMastery";
@@ -14,7 +13,7 @@ import { normalizeTopicKey } from "../utils/topicResolver";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { getMockTopicScores } from "./mockScoreHistory";
 import { getActiveProgressUser } from "./studentProgressStore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import { attemptWeakAreaOutcome } from "./attemptOutcome";
 
 export interface WeakArea {
@@ -293,14 +292,18 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
   };
 
   const uid = getActiveProgressUser();
-  if (firestoreDb && uid && uid !== "anonymous") {
+  if (isFirestoreEnabled() && uid && uid !== "anonymous") {
     const topicMasteryMap: Record<string, number> = {};
     for (const { topicKey, masteryKey } of allTopics) {
       const { percent } = computeTopicMastery(masteryKey);
       topicMasteryMap[topicKey] = Math.round(percent);
     }
-    void setDoc(doc(firestoreDb, "weakAreaSummary", uid), { ...result, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
-    void setDoc(doc(firestoreDb, "topicMastery", uid), { ...topicMasteryMap, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+    const summary = { ...result, updatedAt: new Date().toISOString() };
+    const mastery = { ...topicMasteryMap, updatedAt: new Date().toISOString() };
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "weakAreaSummary", uid), summary, { merge: true }))
+      .catch(() => {});
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "topicMastery", uid), mastery, { merge: true }))
+      .catch(() => {});
   }
 
   return result;

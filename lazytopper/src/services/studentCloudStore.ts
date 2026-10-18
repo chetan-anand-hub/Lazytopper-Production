@@ -1,6 +1,5 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import type { StudentProfile } from "../utils/strategy";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 
 const PROFILE_KEY_PREFIX = "lazytopper.profile.v2";
 const DASHBOARD_PREFS_KEY_PREFIX = "lazytopper.dashboard.prefs.v1";
@@ -99,9 +98,9 @@ function writeLocal(key: string, value: unknown): void {
 
 export async function loadStudentProfile(uid: string): Promise<StudentProfile | null> {
   const local = readLocal(localProfileKey(uid), sanitizeProfile);
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      const snap = await getDoc(doc(firestoreDb, "learnerProfiles", uid));
+      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "learnerProfiles", uid)));
       if (snap.exists()) {
         const remote = sanitizeProfile(snap.data());
         if (remote) {
@@ -119,16 +118,13 @@ export async function loadStudentProfile(uid: string): Promise<StudentProfile | 
 
 export async function saveStudentProfile(uid: string, profile: StudentProfile): Promise<void> {
   writeLocal(localProfileKey(uid), profile);
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
+  const data = {
+    ...profile,
+    updatedAt: new Date().toISOString(),
+  };
   try {
-    await setDoc(
-      doc(firestoreDb, "learnerProfiles", uid),
-      {
-        ...profile,
-        updatedAt: new Date().toISOString(),
-      },
-      { merge: true }
-    );
+    await withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "learnerProfiles", uid), data, { merge: true }));
   } catch (error) {
     console.warn("[studentCloudStore] saveStudentProfile cloud write failed", { uid, error });
     // keep local fallback only
@@ -137,9 +133,9 @@ export async function saveStudentProfile(uid: string, profile: StudentProfile): 
 
 export async function loadDashboardPrefs(uid: string): Promise<DashboardPrefs | null> {
   const local = readLocal(localPrefsKey(uid), sanitizePrefs);
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      const snap = await getDoc(doc(firestoreDb, "dashboardPrefs", uid));
+      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "dashboardPrefs", uid)));
       if (snap.exists()) {
         const remote = sanitizePrefs(snap.data());
         if (remote) {
@@ -161,9 +157,9 @@ export async function saveDashboardPrefs(uid: string, prefs: DashboardPrefs): Pr
     updatedAt: new Date().toISOString(),
   };
   writeLocal(localPrefsKey(uid), payload);
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
   try {
-    await setDoc(doc(firestoreDb, "dashboardPrefs", uid), payload, { merge: true });
+    await withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "dashboardPrefs", uid), payload, { merge: true }));
   } catch (error) {
     console.warn("[studentCloudStore] saveDashboardPrefs cloud write failed", { uid, error });
     // keep local fallback only
@@ -172,29 +168,31 @@ export async function saveDashboardPrefs(uid: string, prefs: DashboardPrefs): Pr
 
 export async function ensureLearnerCloudBaseline(uid: string): Promise<void> {
   const safeUid = String(uid || "").trim();
-  if (!safeUid || !firestoreDb) return;
+  if (!safeUid || !isFirestoreEnabled()) return;
 
   const nowIso = new Date().toISOString();
   try {
-    await Promise.all([
-      setDoc(
-        doc(firestoreDb, "learnerProfiles", safeUid),
-        {
-          uid: safeUid,
-          createdAt: nowIso,
-          updatedAt: nowIso,
-        },
-        { merge: true }
-      ),
-      setDoc(
-        doc(firestoreDb, "dashboardPrefs", safeUid),
-        {
-          uid: safeUid,
-          updatedAt: nowIso,
-        },
-        { merge: true }
-      ),
-    ]);
+    await withFirestore(({ fs, db }) =>
+      Promise.all([
+        fs.setDoc(
+          fs.doc(db, "learnerProfiles", safeUid),
+          {
+            uid: safeUid,
+            createdAt: nowIso,
+            updatedAt: nowIso,
+          },
+          { merge: true }
+        ),
+        fs.setDoc(
+          fs.doc(db, "dashboardPrefs", safeUid),
+          {
+            uid: safeUid,
+            updatedAt: nowIso,
+          },
+          { merge: true }
+        ),
+      ])
+    );
   } catch (error) {
     console.warn("[studentCloudStore] ensureLearnerCloudBaseline failed", { uid: safeUid, error });
     // noop: local fallbacks stay active

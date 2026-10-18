@@ -16,8 +16,7 @@
 // uid only, fire-and-forget. HONEST-FAILURE: a missing/unreadable copy returns null and the
 // caller says so — a paper is never rebuilt or guessed.
 
-import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import type { AuthUser } from "../context/AuthContext";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
@@ -111,14 +110,13 @@ export function saveWorksheetPaperSnapshot(
   if (!uid) return;
   const codes = readCodes(uid);
   if (!codes.includes(snapshot.code)) writeCodes(uid, [snapshot.code, ...codes]);
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
   try {
-    void setDoc(
-      doc(firestoreDb, "sessionRecords", uid, "worksheetPapers", snapshot.code),
-      stripUndefined({ ...snapshot, savedAt: Date.now() }),
-    ).catch((error) => {
-      console.warn("[worksheetPaperStore] snapshot write failed", error);
-    });
+    const data = stripUndefined({ ...snapshot, savedAt: Date.now() });
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "worksheetPapers", snapshot.code), data))
+      .catch((error) => {
+        console.warn("[worksheetPaperStore] snapshot write failed", error);
+      });
   } catch (error) {
     console.warn("[worksheetPaperStore] snapshot write failed", error);
   }
@@ -130,9 +128,9 @@ export async function fetchWorksheetPaperSnapshot(
   code: string,
 ): Promise<WorksheetPaperSnapshot | null> {
   const uid = cloudUid(user);
-  if (!uid || !firestoreDb) return null;
+  if (!uid || !isFirestoreEnabled()) return null;
   try {
-    const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "worksheetPapers", code));
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "worksheetPapers", code)));
     const data = snap.exists() ? snap.data() : null;
     return isSnapshot(data) ? data : null;
   } catch (error) {
@@ -146,11 +144,12 @@ export function deleteWorksheetPaperSnapshot(user: AuthUser | null | undefined, 
   const uid = cloudUid(user);
   if (!uid) return;
   writeCodes(uid, readCodes(uid).filter((c) => c !== code));
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
   try {
-    void deleteDoc(doc(firestoreDb, "sessionRecords", uid, "worksheetPapers", code)).catch(() => {
-      /* best-effort */
-    });
+    void withFirestore(({ fs, db }) => fs.deleteDoc(fs.doc(db, "sessionRecords", uid, "worksheetPapers", code)))
+      .catch(() => {
+        /* best-effort */
+      });
   } catch {
     /* best-effort */
   }
@@ -183,9 +182,9 @@ export async function recordWorksheetDownload(
   // pending write replace a grade made on another device. A read we cannot complete writes
   // nothing (the download still works; the pending card appears on the next successful one).
   let existing: SessionRecord | undefined;
-  if (firestoreDb) {
+  if (isFirestoreEnabled()) {
     try {
-      const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "records", nomen.code.replace(/[/.#$[\]\s]/g, "_")));
+      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "records", nomen.code.replace(/[/.#$[\]\s]/g, "_"))));
       // A cache-only answer (offline) cannot prove another device has not graded it: write nothing.
       if (snap.metadata && snap.metadata.fromCache) return;
       existing = snap.exists() ? (snap.data() as SessionRecord) : undefined;

@@ -1,5 +1,4 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import type { UserChapterStats } from "../engine/smartLearningTypes";
 import type { PracticeAttempt } from "./practiceInsights";
 import type { TopicHubMasterySnapshot } from "./topicHubMastery";
@@ -178,10 +177,10 @@ export function buildProgressScopeKey(
 
 export async function loadLearnerProgress(uid: string): Promise<LearnerProgressSnapshot | null> {
   const local = sanitizeSnapshot(uid, readJson(snapshotKey(uid)));
-  if (!firestoreDb) return local;
+  if (!isFirestoreEnabled()) return local;
 
   try {
-    const snap = await getDoc(doc(firestoreDb, "learnerProgress", uid));
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "learnerProgress", uid)));
     if (!snap.exists()) return local;
     const remote = sanitizeSnapshot(uid, snap.data());
     if (!remote) return local;
@@ -202,16 +201,13 @@ export async function saveLearnerProgress(
   const merged = mergeSnapshots(uid, local, patch);
   writeJson(snapshotKey(uid), merged);
 
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
+  const data = {
+    ...patch,
+    updatedAt: merged.updatedAt,
+  };
   try {
-    await setDoc(
-      doc(firestoreDb, "learnerProgress", uid),
-      {
-        ...patch,
-        updatedAt: merged.updatedAt,
-      },
-      { merge: true }
-    );
+    await withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "learnerProgress", uid), data, { merge: true }));
   } catch (error) {
     console.warn("[studentProgressStore] saveLearnerProgress cloud write failed", { uid, collection: "learnerProgress", error });
   }
@@ -256,16 +252,13 @@ export async function hydrateLocalProgressFromCloud(uid: string): Promise<void> 
 
 export async function ensureLearnerProgressBaseline(uid: string): Promise<void> {
   const safeUid = String(uid || "").trim();
-  if (!safeUid || !firestoreDb) return;
+  if (!safeUid || !isFirestoreEnabled()) return;
+  const data = {
+    uid: safeUid,
+    updatedAt: new Date().toISOString(),
+  };
   try {
-    await setDoc(
-      doc(firestoreDb, "learnerProgress", safeUid),
-      {
-        uid: safeUid,
-        updatedAt: new Date().toISOString(),
-      },
-      { merge: true }
-    );
+    await withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "learnerProgress", safeUid), data, { merge: true }));
   } catch (error) {
     console.warn("[studentProgressStore] ensureLearnerProgressBaseline failed", { uid: safeUid, collection: "learnerProgress", error });
   }

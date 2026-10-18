@@ -12,9 +12,8 @@
 //     model carries no due reviews, so none is invented. `reviewTopics` stays in the persisted
 //     shape (stored paths keep loading) and is always written empty.
 // No areas → no path: nothing is built and nothing is saved (a below-gate path names nothing).
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getActiveProgressUser } from "./studentProgressStore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 
 /** One weak area to plan for — from the shared read model, never device-local data. */
 export interface LearningPathArea {
@@ -178,9 +177,9 @@ export function loadLearningPath(): LearningPath | null {
 export async function loadLearningPathWithSync(): Promise<LearningPath | null> {
   const local = loadLearningPath();
   const uid = getActiveProgressUser();
-  if (firestoreDb && uid && uid !== "anonymous") {
+  if (isFirestoreEnabled() && uid && uid !== "anonymous") {
     try {
-      const snap = await getDoc(doc(firestoreDb, "learningPaths", uid));
+      const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "learningPaths", uid)));
       if (snap.exists()) {
         const remote = snap.data() as LearningPath;
         if (!local || remote.updatedAt > local.updatedAt) {
@@ -206,8 +205,10 @@ export function saveLearningPath(path: LearningPath): void {
   saveLocalLearningPath(path);
 
   const uid = getActiveProgressUser();
-  if (firestoreDb && uid && uid !== "anonymous") {
-    void setDoc(doc(firestoreDb, "learningPaths", uid), { ...path }, { merge: true }).catch(() => {});
+  if (isFirestoreEnabled() && uid && uid !== "anonymous") {
+    const data = { ...path };
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "learningPaths", uid), data, { merge: true }))
+      .catch(() => {});
   }
 }
 

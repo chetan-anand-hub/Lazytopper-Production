@@ -16,8 +16,7 @@
 //   • HONEST-FAILURE: a missing or unreadable copy returns null; the caller says so —
 //     a paper is never rebuilt or guessed.
 
-import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { firestoreDb } from "./firebaseClient";
+import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 import type { AuthUser } from "../context/AuthContext";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import type { ObjectiveScore } from "./chapterTestGradeService";
@@ -98,13 +97,13 @@ export function saveChapterTestPaper(
   if (!uid) return;
   const full: ChapterTestPaperSnapshot = { ...snapshot, savedAt: Date.now() };
   writeLocal(uid, [full, ...readLocal(uid).filter((s) => s.code !== full.code)]);
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
   try {
-    void setDoc(doc(firestoreDb, "sessionRecords", uid, "chapterTestPapers", full.code), stripUndefined(full)).catch(
-      (error) => {
+    const data = stripUndefined(full);
+    void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "sessionRecords", uid, "chapterTestPapers", full.code), data))
+      .catch((error) => {
         console.warn("[chapterTestPaperStore] snapshot write failed", error);
-      },
-    );
+      });
   } catch (error) {
     console.warn("[chapterTestPaperStore] snapshot write failed", error);
   }
@@ -120,10 +119,10 @@ export async function loadChapterTestPaper(
   const uid = cloudUid(user);
   if (!uid) return null;
   const local = readLocal(uid).find((s) => s.code === code);
-  if (local && !(opts.preferServer && firestoreDb)) return local;
-  if (!firestoreDb) return null;
+  if (local && !(opts.preferServer && isFirestoreEnabled())) return local;
+  if (!isFirestoreEnabled()) return null;
   try {
-    const snap = await getDoc(doc(firestoreDb, "sessionRecords", uid, "chapterTestPapers", code));
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", uid, "chapterTestPapers", code)));
     const data = snap.exists() ? snap.data() : null;
     if (!isSnapshot(data)) return local ?? null;
     writeLocal(uid, [data, ...readLocal(uid).filter((s) => s.code !== code)]);
@@ -139,11 +138,12 @@ export function deleteChapterTestPaper(user: AuthUser | null | undefined, code: 
   const uid = cloudUid(user);
   if (!uid) return;
   writeLocal(uid, readLocal(uid).filter((s) => s.code !== code));
-  if (!firestoreDb) return;
+  if (!isFirestoreEnabled()) return;
   try {
-    void deleteDoc(doc(firestoreDb, "sessionRecords", uid, "chapterTestPapers", code)).catch(() => {
-      /* best-effort */
-    });
+    void withFirestore(({ fs, db }) => fs.deleteDoc(fs.doc(db, "sessionRecords", uid, "chapterTestPapers", code)))
+      .catch(() => {
+        /* best-effort */
+      });
   } catch {
     /* best-effort */
   }
