@@ -250,7 +250,11 @@ describe("conceptLabelMap — mutation controls (each check can fail)", () => {
     // The control adds its own paused entry for a label the served bank carries (PAUSED_LABELS holds no served label);
     // the real PAUSED_LABELS stay in the list so their genuinely unserved labels do not also report stale-mapped.
     const paused = [...PAUSED_LABELS, { chapter: "polynomials", label: "Degree of Polynomial" }];
-    expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED, paused).map((p) => p.kind)).toEqual(["paused-but-served"]);
+    // [FU-CONCEPTLABEL-CONTROL-ASSERT-LABEL]: assert the whole problem (kind, chapter AND label), not only the kind
+    // list, so a DIFFERENT label going paused-but-served cannot satisfy this control by accident.
+    expect(auditMap(SERVED, ALL_CONCEPTS, CONCEPT_BY_LABEL, UNMAPPED_LABELS_REVIEWED, paused)).toEqual([
+      { kind: "paused-but-served", chapter: "polynomials", label: "Degree of Polynomial" },
+    ]);
   });
 
   const clone = (s: Served): Served => new Map([...s].map(([k, v]) => [k, new Map(v)]));

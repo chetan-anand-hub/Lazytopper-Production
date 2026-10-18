@@ -23,7 +23,43 @@ import {
   type ActivityFeedItem,
   type TimelineDay,
 } from "./studentsAdminModel";
-import { activityEventLabel, feedItemLabel, orderedFeed, pageRows } from "./activityDetailModel";
+import {
+  FEEDBACK_MOMENT_LABELS,
+  activityEventLabel,
+  feedItemLabel,
+  feedbackAnswers,
+  orderedFeed,
+  pageRows,
+} from "./activityDetailModel";
+import ExtendPremiumControl from "./ExtendPremiumControl";
+
+/** The student as the header shows them: masked unless the admin pressed Reveal. */
+function studentName(s: DetailResponse["student"], revealed: boolean): string {
+  if (revealed) return s.email || s.phone || "—";
+  return s.email ? maskEmail(s.email) : maskPhone(s.phone);
+}
+
+/** FEEDBACK-1 — the student's one-tap answers to "help us improve", newest day first. */
+function FeedbackAnswers({ timeline }: { timeline: TimelineDay[] }) {
+  const rows = feedbackAnswers(timeline);
+  return (
+    <div className="sa-note" data-testid="sa-feedback">
+      <strong>Feedback answers: </strong>
+      {rows.length === 0 ? (
+        <span className="sa-muted">none recorded</span>
+      ) : (
+        <span className="sa-chips">
+          {rows.map((r) => (
+            <span key={`${r.day}-${r.moment}-${r.reason}`} className="sa-chip">
+              &ldquo;{r.label}&rdquo; · {FEEDBACK_MOMENT_LABELS[r.moment]} · {formatDayKey(r.day)}
+              {r.count > 1 ? ` ×${r.count}` : ""}
+            </span>
+          ))}
+        </span>
+      )}
+    </div>
+  );
+}
 
 type State =
   | { status: "loading" }
@@ -261,6 +297,13 @@ export default function StudentDetailPanel({
     };
   }, [uid, getToken]);
 
+  /** ADMIN-EXTEND-1: after an extension, re-read the detail quietly so "Plan now" shows the server's new end. */
+  function refreshPlan() {
+    void fetchAdmin<DetailResponse>(detailUrl(uid), getToken).then((r) => {
+      if (r.ok) setState({ status: "ok", data: r.data });
+    });
+  }
+
   return (
     <section className="sa-detail" aria-label="Student detail">
       <button type="button" className="sa-btn sa-btn-ghost" onClick={onBack}>
@@ -304,6 +347,14 @@ export default function StudentDetailPanel({
               <dd>{formatIstDateTime(state.data.student.lastSignInMs)}</dd>
             </div>
           </dl>
+          <ExtendPremiumControl
+            uid={uid}
+            studentLabel={`${studentName(state.data.student, revealed)} (uid ${uid})`}
+            plan={state.data.student.plan}
+            getToken={getToken}
+            onExtended={refreshPlan}
+          />
+          <FeedbackAnswers timeline={state.data.timeline} />
           <p className="sa-note">
             Sections and actions are recorded since {formatDayKey(state.data.sources.activityLog.since)}; AI usage since{" "}
             {formatDayKey(state.data.sources.usageLedger.since)}; sessions since {formatDayKey(state.data.sources.sessionRecords.since)};

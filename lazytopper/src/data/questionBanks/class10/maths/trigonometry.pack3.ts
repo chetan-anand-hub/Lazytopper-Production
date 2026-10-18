@@ -953,9 +953,9 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "sin² θ + cos² θ = 1",
     "solutionSteps": [
-      "Fundamental identity: opposite² + adjacent² = hypotenuse² divided by hypotenuse²",
-      "In a right-angled triangle: opposite² + adjacent² = hypotenuse²",
-      "Dividing by hypotenuse²: sin² θ + cos² θ = 1"
+      "In a right-angled triangle with acute angle θ: (side opposite θ)² + (side adjacent to θ)² = (hypotenuse)².",
+      "Divide every term by (hypotenuse)²: (opposite/hypotenuse)² + (adjacent/hypotenuse)² = 1.",
+      "Since sin θ = opposite/hypotenuse and cos θ = adjacent/hypotenuse, this is sin² θ + cos² θ = 1, the fundamental identity."
     ],
     "finalAnswer": "sin² θ + cos² θ = 1",
     "explanation": "Fundamental identity. In a right-angled triangle: opposite² + adjacent² = hypotenuse². Dividing by hypotenuse²: sin² θ + cos² θ = 1. Therefore, the correct answer is sin² θ + cos² θ = 1.",

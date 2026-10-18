@@ -42,8 +42,9 @@
  * — see the "not mounted when closed" test.
  */
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { getPremiumFeatureList } from "../../services/featureGates";
 import { MONTHLY_INLINE } from "../../config/pricing";
 
@@ -183,15 +184,24 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
   const location = useLocation();
   const sheetRef = useRef<HTMLDivElement>(null);
 
+  // FEEDBACK-1 — every way of closing WITHOUT going to plans ("Keep using Basic", the
+  // backdrop, Escape) is the paywall moment: close first, then ask the host for the
+  // gentle prompt (at most once per student per 7 days; never blocks; see
+  // components/feedback). "See plans" is not a dismissal and does not call this.
+  const dismiss = useCallback(() => {
+    onClose();
+    notifyPaywallDismissed();
+  }, [onClose]);
+
   // Escape closes, exactly like "Keep using Basic" — same call, so the two exits
   // cannot drift apart.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") dismiss();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [dismiss]);
 
   useEffect(() => {
     sheetRef.current?.focus();
@@ -212,7 +222,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
   return (
     <div
       className="lt-upsheet__scrim"
-      onClick={onClose}
+      onClick={dismiss}
       data-testid="upgrade-sheet-scrim"
     >
       <style>{UPGRADE_SHEET_CSS}</style>
@@ -260,7 +270,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
           bank, Practice, and your progress. Nothing you&rsquo;ve done is locked.
         </div>
 
-        <button type="button" className="lt-upsheet__basic" onClick={onClose}>
+        <button type="button" className="lt-upsheet__basic" onClick={dismiss}>
           Keep using Basic
         </button>
       </div>

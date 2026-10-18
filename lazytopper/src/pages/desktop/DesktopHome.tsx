@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useSubscription } from "../../hooks/useSubscription";
+import { useTrialEndFeedback } from "../../components/feedback/useTrialEndFeedback";
 // MI-HOME-SYNC — Home's MI card reads Me/Progress's numbers (the shared read model, Me's window,
 // Me's paper, Me's split / chapters / concepts and Me's Practise hrefs), loaded on demand.
 import { useMeHome } from "../../services/useMeHomeSummary";
+import ShareWithParentsButton from "../../components/parentReport/ShareWithParentsButton";
 import type { MeHomeSummary, TypeMarks } from "../../services/meHomeSummary";
 import {
   hasMeaningfulMemory,
@@ -23,6 +26,7 @@ import { StartHereFocusView, StartHereView, useStartHere } from "../../component
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
+import { TrialEndBannerView, useTrialEndBanner } from "../../components/trial/TrialEndBanner";
 
 
 /**
@@ -289,11 +293,22 @@ export default function DesktopHome() {
   // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
   // while it is up (two start cards for the same student is noise).
   const startHere = useStartHere(user?.uid ?? null);
+  // FEEDBACK-1 — once per trial end, the gentle "help us improve" prompt (never blocks).
+  const sub = useSubscription();
+  useTrialEndFeedback({
+    uid: user?.uid,
+    hydrated: sub?.hydrated,
+    isTrialExpired: sub?.isTrialExpired,
+    isPremium: sub?.isPremium,
+    trialStartDate: sub?.status?.trialStartDate,
+  });
   const isSignedIn = !!user;
   // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same read as the header
   // bell, memoised per tab). Drives the strip at the top and whether the phone nudge waits.
   const { papers: pendingPapers } = usePendingPapers(user);
   const showPending = pendingPapers.length > 0;
+  // TRIAL-END-1 — the trial-ending strip's model (null unless an active trial is on days 5-7).
+  const trialBanner = useTrialEndBanner();
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
 
@@ -369,9 +384,15 @@ export default function DesktopHome() {
             for a later visit (it renders nothing, so it is not spent). */}
         {showPending ? <PendingPapersStrip papers={pendingPapers} /> : null}
 
-        <CbseBanner />
+        {/* TRIAL-END-1 (owner ruling 18 Oct 2026) — the trial-ending strip, trial days 5-7 only.
+            Still never more than two strips: with the pending strip AND this one up, the CBSE
+            strip waits (it renders nothing, so nothing is dismissed); the phone nudge waits
+            whenever this strip is up. */}
+        <TrialEndBannerView model={trialBanner} />
 
-        {showPending ? null : <LinkPhoneNudge />}
+        {showPending && trialBanner ? null : <CbseBanner />}
+
+        {showPending || trialBanner ? null : <LinkPhoneNudge />}
 
         <StartHereView surface="home" returnTo="/" state={startHere} />
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
@@ -455,6 +476,9 @@ export default function DesktopHome() {
             fallback={<MistakeIntelligenceCard summary={miSummary} />}
           />
         )}
+
+        {/* PARENT-REPORT-1 — the weekly report card a student sends a parent (real account only). */}
+        {realUid ? <ShareWithParentsButton placement="home" /> : null}
 
         {/* ── Memory strip (honest — only when meaningful) ─────── */}
         {isSignedIn && meaningfulMemory && memory && (

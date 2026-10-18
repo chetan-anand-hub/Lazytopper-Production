@@ -2,6 +2,7 @@ import { getPremiumFeatureList } from "../services/featureGates";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BasicFreeList } from "./pricing/BasicFreeList";
+import { notifyPaywallDismissed } from "./feedback/feedbackPromptHost";
 
 /**
  * FRICTION-FIX-1 · F3 (FU-UPGRADE-MODAL-NO-BASIC-EXIT) — the modal had ONE exit that was
@@ -66,6 +67,14 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
 
   if (!open) return null;
 
+  // FEEDBACK-1 — the backdrop, the corner × and "Keep using Basic" close WITHOUT going to
+  // plans: that is the paywall moment, so the host may show the gentle prompt (at most once
+  // per student per 7 days; never blocks). handleUpgrade below is not a dismissal.
+  const dismiss = () => {
+    onClose();
+    notifyPaywallDismissed();
+  };
+
   const handleUpgrade = () => {
     onClose();
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
@@ -80,7 +89,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
         display: "flex", alignItems: "center", justifyContent: "center",
         padding: 16,
       }}
-      onClick={onClose}
+      onClick={dismiss}
     >
       <div
         className="lt-upgrade__card"
@@ -93,7 +102,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
       >
         <button
           type="button"
-          onClick={onClose}
+          onClick={dismiss}
           style={{
             position: "absolute", top: 12, right: 14,
             background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#999",
@@ -178,7 +187,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
         <button
           type="button"
           className="lt-upgrade__keep-basic"
-          onClick={onClose}
+          onClick={dismiss}
           data-testid="upgrade-modal-keep-basic"
         >
           Keep using Basic

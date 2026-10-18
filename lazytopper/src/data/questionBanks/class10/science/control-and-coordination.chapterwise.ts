@@ -230,14 +230,14 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
     answer: "Plants Animals",
     solutionSteps: ["Plants Animals"],
     ncertRef: "cbjesccq07 Q28", isCompetencyBased: false },
-  // cbjesccq07 Q1 (Section B, 2mk)
+  // cbjesccq07 Q30 (Section B, 2mk) - the stem and key are booklet Q30 since the SCI-BACKLOG-1 repair; ncertRef corrected from "Q1" by BANK-TEXT-CLEAN-1 ([FU-BANK-CTRL-030-NCERTREF])
   // CTRL-030 repaired (SCI-BACKLOG-1, 14 Oct, D244): Booklet cbjesccq07 Q30 [CBSE 2014], recovered from the stored key; answer checked against NCERT Class 10 Science 2026-27 jesc106, section 6.3 'Hormones in Animals' (feedback mechanism, insulin example)
   { id: "SCQ-S-CTRL-030", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "How does feedback mechanism regulate the hormone secretion?",
     answer: "The timing and amount of hormone released are regulated by feedback mechanisms. For example, when the blood sugar level rises it is detected by the cells of the pancreas, which produce more insulin; as the blood sugar level falls, insulin secretion is reduced.",
     solutionSteps: ["[1 mark] Hormones must be secreted in precise quantities; the timing and amount of hormone released are regulated by a feedback mechanism.","[1 mark] Example: if the sugar level in blood rises, it is detected by the cells of the pancreas, which respond by producing more insulin; as the blood sugar level falls, insulin secretion is reduced."],
     finalAnswer: "Feedback mechanism regulates the timing and amount of hormone released, e.g. high blood sugar → pancreas secretes more insulin; falling blood sugar → less insulin.",
-    ncertRef: "cbjesccq07 Q1", isCompetencyBased: false },
+    ncertRef: "cbjesccq07 Q30", isCompetencyBased: false },
   // cbjesccq07 Q31 (Section B, 2mk)
   { id: "SCQ-S-CTRL-031", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What is meant by hydrotropism? Give an example.",

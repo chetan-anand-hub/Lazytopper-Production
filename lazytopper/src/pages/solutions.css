@@ -122,6 +122,17 @@
   font-size: 20px;
   margin-bottom: 10px;
 }
+/* SOLUTIONS-3: the CBSE board-pattern section, set apart from the book questions */
+.lt-ncs__board {
+  border-top: 2px solid var(--ncs-line);
+  padding-top: 18px;
+}
+.lt-ncs__boardnote {
+  color: var(--ncs-ink2);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
 
 /* QUESTION CARD */
 .lt-ncs__q {

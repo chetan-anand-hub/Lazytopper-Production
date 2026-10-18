@@ -179,10 +179,15 @@ function realSeed(uid = UID) {
     [`subscriptions/${uid}`]: { tier: 'free' },
     // RAZORPAY-1 · Z9: one record per applied pass payment.
     [`subscriptions/${uid}/payments/pay_A`]: { passType: 'month', pricePaidInr: 599, grantedAt: '2026-09-27T06:30:00.000Z' },
+    // ADMIN-EXTEND-1: one record per free admin extension (audit entry + idempotency key).
+    [`subscriptions/${uid}/adminGrants/req-00000001`]: { action: 'extend_premium_days', days: 7, reason: 'feedback call reward', pricePaidInr: 0, isSale: false, createdAt: '2026-10-18T06:30:00.000Z' },
     // RAZORPAY-1 · Z7: FIELD-KEYED like qrUploadSlots — the doc id is the Razorpay order id.
     'payOrders/order_A': { uid, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'paid', paymentId: 'pay_A' },
     // Another student's order — must never appear in this student's export.
     'payOrders/order_Z': { uid: OTHER, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'created' },
+    // ASK-PARENTS-PAY-1: FIELD-KEYED — the doc id is sha256(link token); the child is a `uid` FIELD.
+    'parentPayLinks/sha-link-a': { uid, firstName: 'Aarav', status: 'paid', orderIds: ['order_A'] },
+    'parentPayLinks/sha-link-z': { uid: OTHER, firstName: 'Zoya', status: 'open', orderIds: [] },
     // METER-1. The parent is seeded only so the map-driven "every location carries data"
     // test has a row to find; production never writes it (see the phantom-parent test).
     [`usageLedger/${uid}`]: {},
@@ -201,6 +206,8 @@ function realSeed(uid = UID) {
       ref: 'www.youtube.com', utm_source: 'youtube', utm_medium: 'paid', utm_campaign: 'test',
       utm_content: null, landing: '/', gclid: false, fbclid: false,
     },
+    // TRIAL-END-1 — the one trial-ending email's ledger (server-only).
+    [`trialEmails/${uid}`]: { trialStartMs: 1790000000000, trialEndsAtMs: 1790604800000, status: 'sent', providerMessageId: 'msg_1' },
     // LOW-END-1 R4. The parent is seeded only so the map-driven test has a row to find;
     // production writes only the attempt documents (a stored grade, kept 24 h).
     [`gradingResults/${uid}`]: {},

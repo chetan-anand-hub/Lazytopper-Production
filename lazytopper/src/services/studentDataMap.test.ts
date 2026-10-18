@@ -216,7 +216,8 @@ describe("studentDataMap — drift guard", () => {
   it("★★ the non-student exemption is EXACT, disjoint from the map, and not dead (OR-3)", () => {
     // An exemption list that can grow silently is how a drift guard stops guarding.
     // Exact (toEqual), so adding a name here is a deliberate, reviewed edit.
-    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily"]);
+    // TRIAL-END-1 (review finding 1): `trialEmailDaily` — one counter per IST day, no uid.
+    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily", "trialEmailDaily"]);
     // An exempt name must never ALSO be a student-data location.
     const mapped = new Set(firestoreCollectionNames());
     expect(NON_STUDENT_COLLECTIONS.filter((c) => mapped.has(c))).toEqual([]);
@@ -285,7 +286,19 @@ describe("studentDataMap — drift guard", () => {
     // server/services/fairUse.cjs (createGradingIdempotency) through the Admin SDK; no client
     // reads or writes it, so it is undeclared on purpose (deny-all catch-all). It IS student
     // data (uid-keyed graded results, 24 h) — in the map, erased and exported, not exempted.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "signupSources", "usageLedger"]);
+    //
+    // ★ `parentPayLinks` JOINED this set with ASK-PARENTS-PAY-1. Written only by
+    // server/routes/parentPay.cjs through the Admin SDK; no client may read or write a pay
+    // link (it holds the child's uid), so it is undeclared on purpose (deny-all catch-all).
+    // It IS student data (a `uid` field) — in the map, deleted on erasure and exported.
+    //
+    // ★ `trialEmails` JOINED this set with TRIAL-END-1. Written only by
+    // server/services/trialEndingEmail.cjs through the Admin SDK (a transactional claim per
+    // trial, then the outcome or a skip marker, and the unsubscribe opt-out); no client reads or
+    // writes it, so it is undeclared on purpose (deny-all catch-all). It IS student data (a doc
+    // per uid) - in the map, erased and exported, not exempted. Its day counter
+    // `trialEmailDaily` (review finding 1) is uid-free and exempt, like `freeCheckDaily`.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "parentPayLinks", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -498,6 +511,7 @@ describe("studentDataMap — per-location properties", () => {
     "tutorSessions.topics",
     "subscriptions",
     "subscriptions.payments",
+    "subscriptions.adminGrants",
     "payOrders",
     "usageLedger",
     "usageLedger.days",
@@ -510,6 +524,9 @@ describe("studentDataMap — per-location properties", () => {
     "storage.qr-uploads",
     "local-storage",
     "third-party.gemini",
+    // TRIAL-END-1 — the trial-ending email's ledger and the provider that delivers it.
+    "trialEmails",
+    "third-party.email-provider",
   ] as const;
 
   for (const id of REQUIRED_IDS) {
@@ -574,7 +591,25 @@ describe("studentDataMap — payment records are STUDENT data (RAZORPAY-1, Z7/Z9
     expect(pays!.exportable).toBe(true);
     expect(pays!.mechanism).toBe("admin-sdk-required");
     expect(pays!.onErase === undefined || pays!.onErase === "delete").toBe(true);
-    expect(subcollectionsOf("subscriptions").map((l) => l.id)).toEqual(["subscriptions.payments"]);
+    expect(subcollectionsOf("subscriptions").map((l) => l.id)).toEqual([
+      "subscriptions.payments",
+      "subscriptions.adminGrants",
+    ]);
+  });
+
+  it("★★ ADMIN-EXTEND-1: subscriptions.adminGrants is mapped under subscriptions, admin-only, DELETED on erasure", () => {
+    const grants = STUDENT_DATA_MAP.find((l) => l.id === "subscriptions.adminGrants");
+    expect(grants, "subscriptions.adminGrants is missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(grants!.kind).toBe("firestore-subcollection");
+    expect(grants!.parentId).toBe("subscriptions");
+    expect(grants!.path).toBe("subscriptions/{uid}/adminGrants/{requestId}");
+    expect(grants!.exportable).toBe(true);
+    expect(grants!.mechanism).toBe("admin-sdk-required");
+    expect(grants!.onErase === undefined || grants!.onErase === "delete").toBe(true);
+    // The writer really uses this segment name (held as a property, not a top-level collection).
+    const writer = readFileSync(path.join(LAZYTOPPER, "server", "services", "premiumExtension.cjs"), "utf8");
+    expect(writer).toContain("adminGrants: 'adminGrants'");
+    expect(scanCollectionsFromSource().has("adminGrants")).toBe(false);
   });
 
   it("★ CONTROL: the source scan really finds payOrders (the writer is live), and no phantom `payments`", () => {

@@ -12,7 +12,7 @@ export const acidsBasesSaltsPYQ2025: CanonicalQuestion[] = [
     questionText: "Consider the following reactions : (i) Dilute hydrochloric acid reacts with sodium hydroxide. (ii) Magnesium oxide reacts with dilute hydrochloric acid. (iii) Carbon dioxide reacts with sodium hydroxide. It is found that in each case :",
     options: ["Salt and water is formed.", "Neutral salts are formed.", "Hydrogen gas is formed.", "Acidic salts are formed."],
     answer: "Salt and water is formed.",
-    solutionSteps: ["[1 mark] Correct option: (a) Salt and water is formed.."],
+    solutionSteps: ["[1 mark] Correct option: (a) Salt and water is formed."],
     finalAnswer: "(a) Salt and water is formed.",
     ncertRef: "PYQ 31/1/1 Q4", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1" },
