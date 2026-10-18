@@ -64,6 +64,6 @@ export const TRIANGLES_PYQ: CanonicalQuestion[] = [
     ],
     finalAnswer: "(i) R(200, 400), S(−200, 400); (ii)(a) 160000 sq m [OR (b) 400√2 m]; (iii) k = 1.",
     ncertRef: "PYQ 30/4/3 Q38", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2023", pyqSet: "3",
   },
 ];

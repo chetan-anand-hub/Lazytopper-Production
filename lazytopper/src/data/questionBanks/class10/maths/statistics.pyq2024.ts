@@ -15,7 +15,7 @@ export const STATISTICS_PYQ_2024: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Class marks xi: 5, 8, 11, 14; frequencies fi: 5, 4, 9, 10; Σfi = 28.", "[1 mark] fixi: 25, 32, 99, 140; Σfixi = 296.", "[1 mark] Mean = Σfixi/Σfi = 296/28 = 74/7 ≈ 10.57."],
     finalAnswer: "Mean = 74/7 ≈ 10.57",
     ncertRef: "PYQ 30(B) Q31", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2024", pyqSet: "1",
   },
   { id: "PYQ-M-2024-STAT-002", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "The following table shows the ages of the patients admitted in a hospital during a year : Age (in years) 5 – 15 15 – 25 25 – 35 35 – 45 45 – 55 55 – 65 Number of patients 6 11 21 23 14 5 Find the mode and mean of the data given above.",
