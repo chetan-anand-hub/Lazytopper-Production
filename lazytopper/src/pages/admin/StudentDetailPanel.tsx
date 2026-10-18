@@ -23,13 +23,42 @@ import {
   type ActivityFeedItem,
   type TimelineDay,
 } from "./studentsAdminModel";
-import { activityEventLabel, feedItemLabel, orderedFeed, pageRows } from "./activityDetailModel";
+import {
+  FEEDBACK_MOMENT_LABELS,
+  activityEventLabel,
+  feedItemLabel,
+  feedbackAnswers,
+  orderedFeed,
+  pageRows,
+} from "./activityDetailModel";
 import ExtendPremiumControl from "./ExtendPremiumControl";
 
 /** The student as the header shows them: masked unless the admin pressed Reveal. */
 function studentName(s: DetailResponse["student"], revealed: boolean): string {
   if (revealed) return s.email || s.phone || "—";
   return s.email ? maskEmail(s.email) : maskPhone(s.phone);
+}
+
+/** FEEDBACK-1 — the student's one-tap answers to "help us improve", newest day first. */
+function FeedbackAnswers({ timeline }: { timeline: TimelineDay[] }) {
+  const rows = feedbackAnswers(timeline);
+  return (
+    <div className="sa-note" data-testid="sa-feedback">
+      <strong>Feedback answers: </strong>
+      {rows.length === 0 ? (
+        <span className="sa-muted">none recorded</span>
+      ) : (
+        <span className="sa-chips">
+          {rows.map((r) => (
+            <span key={`${r.day}-${r.moment}-${r.reason}`} className="sa-chip">
+              &ldquo;{r.label}&rdquo; · {FEEDBACK_MOMENT_LABELS[r.moment]} · {formatDayKey(r.day)}
+              {r.count > 1 ? ` ×${r.count}` : ""}
+            </span>
+          ))}
+        </span>
+      )}
+    </div>
+  );
 }
 
 type State =
@@ -325,6 +354,7 @@ export default function StudentDetailPanel({
             getToken={getToken}
             onExtended={refreshPlan}
           />
+          <FeedbackAnswers timeline={state.data.timeline} />
           <p className="sa-note">
             Sections and actions are recorded since {formatDayKey(state.data.sources.activityLog.since)}; AI usage since{" "}
             {formatDayKey(state.data.sources.usageLedger.since)}; sessions since {formatDayKey(state.data.sources.sessionRecords.since)};
