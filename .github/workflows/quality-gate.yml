@@ -577,6 +577,17 @@ jobs:
           console.log(`NIGHTLY_VITEST_COVERAGE: ${ok ? "PASS" : "FAIL"}`);
           if (!ok) process.exit(1);
           '
+      # ★ CI-COST-1 (owner review): the nightly no longer re-runs the full bar, so it would have NO
+      # step at the REAL date. This is the cheap one: build + both typechecks, once (2030 leg), with
+      # no LT_TEST_CLOCK — ~3 billable min on top of a job that is already set up. After the clock
+      # run, so a failure here never hides it; the issue step below still fires on its failure.
+      - name: Real-date build + both typechecks (2030 leg only, no test clock)
+        if: ${{ !cancelled() && matrix.name == '2030' }}
+        run: |
+          set -euo pipefail
+          pnpm --filter lazytopper run build
+          pnpm --filter lazytopper exec tsc -p tsconfig.app.json --noEmit
+          pnpm --filter lazytopper run typecheck:test
       - name: Open an issue (scheduled run failed)
         if: failure() && github.event_name == 'schedule'
         env:

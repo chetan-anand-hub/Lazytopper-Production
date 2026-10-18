@@ -317,7 +317,8 @@ export function gatherPushFacts(env = process.env, api = (p) => JSON.parse(execS
     const headContainsParent = cmp?.behind_by === 0 && (cmp?.status === "ahead" || cmp?.status === "identical");
     const prHeadTree = api(`repos/${repo}/commits/${head}`)?.commit?.tree?.sha;
     const runs = (api(`repos/${repo}/commits/${head}/check-runs?check_name=quality-gate&filter=latest`)?.check_runs || [])
-      .filter((r) => r && r.name === "quality-gate")
+      // Only GitHub Actions' own run counts: any other app could post a check named quality-gate.
+      .filter((r) => r && r.name === "quality-gate" && r.app?.slug === "github-actions")
       .sort((a, b) => String(b.started_at).localeCompare(String(a.started_at)));
     return { mergedPrs, mergeTree, prHeadTree, headContainsParent, headCheck: runs[0]?.conclusion || null };
   } catch (err) {
@@ -646,6 +647,75 @@ function runSuite(mutation) {
         /GH_TOKEN: \$\{\{ github\.token \}\}/.test(b) &&
         new RegExp(`${FORCE_FULL_VAR}: \\$\\{\\{ vars\\.${FORCE_FULL_VAR} \\}\\}`).test(b),
       "the classify job needs checks:read + pull-requests:read and GH_TOKEN to read the evidence, and passes the CI_FORCE_FULL_BAR repo variable");
+  }
+
+  // ★ a22 — gatherPushFacts against a FAKE GitHub API. a19 proves the DECISION fails closed on bad
+  //   facts; these prove the GATHERING produces bad facts from bad API answers, one guard per check,
+  //   so removing any single guard in gatherPushFacts turns exactly its check RED.
+  {
+    const R = "o/r", B = "base/approved-thru-437", SHA = "m".repeat(40), PARENT = "p".repeat(40), HEAD = "h".repeat(40);
+    const env = { GITHUB_REPOSITORY: R, GITHUB_SHA: SHA, GITHUB_REF_NAME: B };
+    const run = (conclusion, started_at, slug = "github-actions") =>
+      ({ name: "quality-gate", conclusion, started_at, app: { slug } });
+    const base = () => ({
+      [`repos/${R}/commits/${SHA}`]: { parents: [{ sha: PARENT }], commit: { tree: { sha: "T" } } },
+      [`repos/${R}/commits/${SHA}/pulls`]: [{ number: 9, merged_at: "2026-10-18T00:00:00Z", base: { ref: B }, merge_commit_sha: SHA, head: { sha: HEAD } }],
+      [`repos/${R}/compare/${PARENT}...${HEAD}`]: { status: "ahead", behind_by: 0 },
+      [`repos/${R}/commits/${HEAD}`]: { commit: { tree: { sha: "T" } } },
+      [`repos/${R}/commits/${HEAD}/check-runs?check_name=quality-gate&filter=latest`]: { check_runs: [run("success", "2026-10-18T01:00:00Z")] },
+    });
+    const fakeApi = (table) => (p) => {
+      if (!(p in table)) throw new Error(`fake api: no route ${p}`);
+      const v = table[p];
+      if (v instanceof Error) throw v;
+      return JSON.parse(JSON.stringify(v));
+    };
+    const verdictFor = (mutate) => {
+      const t = base();
+      mutate(t);
+      try { return decideNonPrPath({ event: "push", facts: gatherPushFacts(env, fakeApi(t)) }).verdict; }
+      catch (err) { return `THREW: ${String(err?.message || err).slice(0, 60)}`; }
+    };
+    const pullsKey = `repos/${R}/commits/${SHA}/pulls`;
+    const runsKey = `repos/${R}/commits/${HEAD}/check-runs?check_name=quality-gate&filter=latest`;
+    const control = verdictFor(() => {});
+    const cases = [
+      ["a22a_merge_commit_sha_mismatch_is_full", (t) => { t[pullsKey][0].merge_commit_sha = "x".repeat(40); }],
+      ["a22b_pr_merged_into_another_base_is_full", (t) => { t[pullsKey][0].base.ref = "some/other-branch"; }],
+      // ★ behind_by alone (status left "ahead"), so the behind_by guard — not the status guard — must catch it.
+      ["a22c_head_behind_trunk_is_full", (t) => { t[`repos/${R}/compare/${PARENT}...${HEAD}`] = { status: "ahead", behind_by: 2 }; }],
+      ["a22h_head_diverged_from_trunk_is_full", (t) => { t[`repos/${R}/compare/${PARENT}...${HEAD}`] = { status: "diverged", behind_by: 0 }; }],
+      // ★ The EARLIER success is listed FIRST, so dropping the newest-first sort reads it and leaks.
+      ["a22d_latest_run_failed_after_an_earlier_success_is_full",
+        (t) => { t[runsKey].check_runs = [run("success", "2026-10-18T01:00:00Z"), run("failure", "2026-10-18T02:00:00Z")]; }],
+      ["a22e_latest_run_in_progress_after_an_earlier_success_is_full",
+        (t) => { t[runsKey].check_runs = [run("success", "2026-10-18T01:00:00Z"), run(null, "2026-10-18T02:00:00Z")]; }],
+      ["a22f_api_throws_is_full", (t) => { t[`repos/${R}/commits/${SHA}`] = new Error("HTTP 502"); }],
+      // ★ A non-Actions app posting a green `quality-gate` must not override Actions' red one.
+      ["a22g_only_github_actions_quality_gate_runs_count",
+        (t) => { t[runsKey].check_runs = [run("success", "2026-10-18T03:00:00Z", "some-other-app"), run("failure", "2026-10-18T02:00:00Z")]; }],
+    ];
+    check("a22_control_good_facts_take_the_post_merge_path", control === "post-merge", `control verdict=${control}`);
+    for (const [name, mutate] of cases) {
+      const v = verdictFor(mutate);
+      check(name, control === "post-merge" && v === "full", `verdict=${v}`);
+    }
+  }
+
+  // ★ a23 — the nightly keeps ONE cheap REAL-DATE run (owner review, CI-COST-1): build + both
+  //   typechecks, once (2030 leg), with no LT_TEST_CLOCK, after the clock run so it never masks it.
+  {
+    const wfn = wf.replace(/\r\n/g, "\n");
+    const nj = (wfn.match(/\n  nightly-full-clock:\n([\s\S]*?)(?=\n  [A-Za-z][\w-]*:\n|$)/) || [])[1] || "";
+    const step = (nj.split(/\n      - name: /).find((s) => s.startsWith("Real-date build")) || "");
+    check("a23_nightly_has_a_cheap_real_date_build_and_typecheck_step",
+      /\n        if: \$\{\{ !cancelled\(\) && matrix\.name == '2030' \}\}\n/.test(step) &&
+        /pnpm --filter lazytopper run build/.test(step) &&
+        /pnpm --filter lazytopper exec tsc -p tsconfig\.app\.json --noEmit/.test(step) &&
+        /pnpm --filter lazytopper run typecheck:test/.test(step) &&
+        !/LT_TEST_CLOCK|vitest/.test(step) &&
+        nj.indexOf("Real-date build") > nj.indexOf("Every test file on disk ran"),
+      step ? "real-date build + app/test typechecks, 2030 leg only, no fake clock, no vitest" : "the real-date step is missing from nightly-full-clock");
   }
 
   // --- [FU-SEC1-CI-WIRE-SERVER-TESTS] — the durable half of the fix ----------------------------
