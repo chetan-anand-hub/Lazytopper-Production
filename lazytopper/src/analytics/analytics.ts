@@ -921,13 +921,17 @@ export function trackAskParentTap(surface: AskParentSurface, action: AskParentAc
 
 /**
  * ASK-PARENTS-PAY-1 — `parent_pay_page_view`: a parent opened a LIVE pay link (the server
- * accepted it). The bare name. The page's address carries the token in its FRAGMENT, which
- * no vendor receives: GA4 and Vercel get the redacted path (`/pricing`), and Meta sends
- * nothing at all from an address with a hash (`metaAddressIsClean`).
+ * accepted it). The name plus a one-value surface, never an id or the token. Vendors only,
+ * like `ask_parent_tap` (a parent is signed out, so the first-party log never records it, and
+ * the name is deliberately NOT in `NamedAnalyticsEvent`). The page's address carries the
+ * token in its FRAGMENT, which no vendor receives: GA4 and Vercel get the redacted path
+ * (`/pricing`), and Meta sends nothing at all from an address with a hash
+ * (`metaAddressIsClean`).
  */
 export function trackParentPayPageView(): void {
   try {
-    send("event", { name: "parent_pay_page_view" });
+    const data = { surface: "pricing" };
+    send("event", { name: "parent_pay_page_view", data }, { ga4: data });
   } catch {
     /* analytics must never break the page */
   }
