@@ -720,7 +720,10 @@ export type NamedAnalyticsEvent =
   | "feedback_trial_end_price"
   | "feedback_trial_end_not_enough_help"
   | "feedback_trial_end_boards_far"
-  | "feedback_trial_end_other";
+  | "feedback_trial_end_other"
+  // FEEDBACK-1 — the student tapped the 5-minute feedback-call offer (opens WhatsApp only).
+  | "feedback_call_tap_paywall"
+  | "feedback_call_tap_trial_end";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1006,7 +1009,7 @@ const FEEDBACK_REASON_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>([
  * does not match. Free text never reaches a vendor, and the activity store takes none.
  */
 export function trackFeedbackEvent(
-  kind: "shown" | "dismissed" | "reason",
+  kind: "shown" | "dismissed" | "reason" | "call_tap",
   moment: FeedbackPromptMoment,
   reason?: FeedbackPromptReason,
 ): void {
@@ -1014,7 +1017,16 @@ export function trackFeedbackEvent(
     if (!FEEDBACK_MOMENT_SET.has(moment)) return;
     if (kind === "reason" && (!reason || !FEEDBACK_REASON_SET.has(reason))) return;
     const data: Record<string, string> = kind === "reason" && reason ? { moment, reason } : { moment };
-    const vendorName = kind === "reason" ? "feedback_reason" : kind === "shown" ? "feedback_shown" : "feedback_dismissed";
+    // `call_tap`: the student tapped the 5-minute feedback-call offer. Vendors get
+    // `feedback_call_tap` + `{ moment }`; first-party gets `feedback_call_tap_<moment>`.
+    const vendorName =
+      kind === "call_tap"
+        ? "feedback_call_tap"
+        : kind === "reason"
+          ? "feedback_reason"
+          : kind === "shown"
+            ? "feedback_shown"
+            : "feedback_dismissed";
     const activityName = (kind === "reason" ? `feedback_${moment}_${reason}` : `feedback_${kind}_${moment}`) as NamedAnalyticsEvent;
     send("event", { name: vendorName, data }, { ga4: data }, activityName);
   } catch {

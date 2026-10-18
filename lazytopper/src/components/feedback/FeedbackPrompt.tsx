@@ -14,7 +14,14 @@
  * those record. It never reads or writes storage.
  */
 import { useEffect, useRef, useState } from "react";
-import { FEEDBACK_COPY, FEEDBACK_REASONS, type FeedbackReason } from "./feedbackPromptModel";
+import { WHATSAPP_URL } from "../../config/socialProfiles";
+import {
+  FEEDBACK_CALL_COPY,
+  FEEDBACK_COPY,
+  FEEDBACK_REASONS,
+  feedbackCallHref,
+  type FeedbackReason,
+} from "./feedbackPromptModel";
 
 const FEEDBACK_PROMPT_CSS = `
   .lt-fb {
@@ -115,6 +122,43 @@ const FEEDBACK_PROMPT_CSS = `
     font-weight: 800;
     color: var(--lt-green-dark, #0b8f50);
   }
+  .lt-fb__call {
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(22, 185, 106, 0.08);
+    border: 1px solid rgba(22, 185, 106, 0.28);
+  }
+  .lt-fb__call-offer {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--lt-ink, #0f2743);
+  }
+  .lt-fb__call-note {
+    margin: 2px 0 8px;
+    font-size: 0.8rem;
+    color: var(--lt-muted, #49627f);
+  }
+  .lt-fb__call-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 0 14px;
+    border-radius: 12px;
+    background: var(--lt-green, #16b96a);
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .lt-fb__call-cta:focus-visible {
+    outline: 2px solid var(--lt-ink, #0f2743);
+    outline-offset: 2px;
+  }
   .lt-fb button { font-family: inherit; }
   .lt-fb button:focus-visible {
     outline: 2px solid var(--lt-green, #16b96a);
@@ -133,9 +177,11 @@ export interface FeedbackPromptProps {
   onDismiss: () => void;
   /** Called once the card should be removed (after the thank-you, or right after a dismiss). */
   onDone: () => void;
+  /** The student tapped the 5-minute call offer (it only opens WhatsApp; nothing is granted). */
+  onCallTap?: () => void;
 }
 
-export function FeedbackPrompt({ onAnswer, onDismiss, onDone }: FeedbackPromptProps) {
+export function FeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap }: FeedbackPromptProps) {
   const [answered, setAnswered] = useState(false);
   const settled = useRef(false);
 
@@ -214,6 +260,20 @@ export function FeedbackPrompt({ onAnswer, onDismiss, onDone }: FeedbackPromptPr
               </li>
             ))}
           </ul>
+          <div className="lt-fb__call" data-testid="feedback-call">
+            <p className="lt-fb__call-offer">{FEEDBACK_CALL_COPY.offer}</p>
+            <p className="lt-fb__call-note">{FEEDBACK_CALL_COPY.note}</p>
+            <a
+              className="lt-fb__call-cta"
+              href={feedbackCallHref(WHATSAPP_URL)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onCallTap?.()}
+              data-testid="feedback-call-cta"
+            >
+              {FEEDBACK_CALL_COPY.cta}
+            </a>
+          </div>
           <button type="button" className="lt-fb__no" onClick={dismiss} data-testid="feedback-no-thanks">
             {FEEDBACK_COPY.close}
           </button>

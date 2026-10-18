@@ -134,6 +134,8 @@ function feedbackEventLabels(): Record<string, string> {
   for (const m of FEEDBACK_MOMENTS) {
     out[feedbackActivityName("shown", m)] = `Was asked for feedback (${FEEDBACK_MOMENT_LABELS[m]})`;
     out[feedbackActivityName("dismissed", m)] = `Said No thanks to feedback (${FEEDBACK_MOMENT_LABELS[m]})`;
+    out[feedbackActivityName("call_tap", m)] =
+      `Opened WhatsApp for the 5-minute feedback call offer (${FEEDBACK_MOMENT_LABELS[m]})`;
     for (const r of FEEDBACK_REASONS) {
       out[feedbackActivityName("reason", m, r.code)] = `Feedback (${FEEDBACK_MOMENT_LABELS[m]}): “${r.label}”`;
     }

@@ -80,6 +80,16 @@ describe("FEEDBACK-1 · trackFeedbackEvent payloads", () => {
     ]);
   });
 
+  it("call_tap (5-minute call offer): vendors get feedback_call_tap + moment only; first-party the composed name; Meta nothing", () => {
+    trackFeedbackEvent("call_tap", "paywall");
+    expect(vercel).toEqual([["event", { name: "feedback_call_tap", data: { moment: "paywall" } }]]);
+    const [, name, params] = ga4Events()[0];
+    expect(name).toBe("feedback_call_tap");
+    expect(Object.keys(params).filter((k) => !ADDRESS_KEYS.includes(k))).toEqual(["moment"]);
+    expect(meta).toEqual([]);
+    expect(recordActivity.mock.calls).toEqual([["event", { name: "feedback_call_tap_paywall" }]]);
+  });
+
   it("★ no free text can ride along: a non-code reason is DROPPED everywhere (control: a real code is sent)", () => {
     const words = "my phone is 9876543210 call me" as unknown as FeedbackPromptReason;
     trackFeedbackEvent("reason", "paywall", words);

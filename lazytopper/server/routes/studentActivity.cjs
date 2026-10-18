@@ -136,6 +136,9 @@ const ACTIVITY_EVENTS = Object.freeze([
   'feedback_trial_end_not_enough_help',
   'feedback_trial_end_boards_far',
   'feedback_trial_end_other',
+  // FEEDBACK-1 - tapped the 5-minute feedback-call offer (opens WhatsApp only). Additive only.
+  'feedback_call_tap_paywall',
+  'feedback_call_tap_trial_end',
 ]);
 
 /**

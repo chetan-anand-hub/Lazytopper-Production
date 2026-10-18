@@ -53,13 +53,13 @@ export const FEEDBACK_COPY = {
 
 /* ── Event names ─────────────────────────────────────────────────────────────── */
 
-export type FeedbackEventKind = "shown" | "dismissed" | "reason";
+export type FeedbackEventKind = "shown" | "dismissed" | "reason" | "call_tap";
 
 /**
  * The FIRST-PARTY activity name. Moment and reason are inside the name because the
  * activity store keeps names and counts only:
- *   shown/dismissed -> `feedback_shown_paywall`, `feedback_dismissed_trial_end`
- *   reason          -> `feedback_paywall_price`, `feedback_trial_end_ask_parents`
+ *   shown/dismissed/call_tap -> `feedback_shown_paywall`, `feedback_call_tap_trial_end`
+ *   reason                   -> `feedback_paywall_price`, `feedback_trial_end_ask_parents`
  * Every one of these is in the allow-lists (activityClient.ts + studentActivity.cjs).
  */
 export function feedbackActivityName(kind: FeedbackEventKind, moment: FeedbackMoment, reason?: FeedbackReason): string {
@@ -72,12 +72,47 @@ export function allFeedbackActivityNames(): string[] {
   const out: string[] = [];
   for (const m of FEEDBACK_MOMENTS) out.push(feedbackActivityName("shown", m), feedbackActivityName("dismissed", m));
   for (const m of FEEDBACK_MOMENTS) for (const r of FEEDBACK_REASONS) out.push(feedbackActivityName("reason", m, r.code));
+  for (const m of FEEDBACK_MOMENTS) out.push(feedbackActivityName("call_tap", m));
   return out;
 }
 
 /** The vendor (GA4 / Vercel) name: generic, with `{ moment, reason }` as data. */
-export function feedbackVendorName(kind: FeedbackEventKind): "feedback_shown" | "feedback_dismissed" | "feedback_reason" {
+export function feedbackVendorName(
+  kind: FeedbackEventKind,
+): "feedback_shown" | "feedback_dismissed" | "feedback_reason" | "feedback_call_tap" {
+  if (kind === "call_tap") return "feedback_call_tap";
   return kind === "reason" ? "feedback_reason" : kind === "shown" ? "feedback_shown" : "feedback_dismissed";
+}
+
+/* ── The 5-minute feedback call (owner ruling 18 Oct 2026) ─────────────────── */
+
+/**
+ * The owner offers a student a 5-minute feedback call, rewarded with 7 more days of
+ * Premium trial.
+ *
+ * ★ A PROMISE, NOT A GRANT. Premium and trial change only by a server-verified payment
+ * or an ADMIN grant (CLAUDE.md §5). Nothing in the client grants or extends anything:
+ * the card says the team adds the days after the call, and the CTA only opens WhatsApp to
+ * the business number. No phone or email is collected in the card.
+ *
+ * ★ NO URGENCY, NO PRICE. The only number is the honest "5 minutes" / "7 days".
+ */
+export const FEEDBACK_CALL_COPY = {
+  offer: "Got 5 minutes? Chat with us and we'll extend your Premium trial by 7 days.",
+  note: "Our team adds the 7 days to your account after the call.",
+  cta: "Chat with us on WhatsApp",
+} as const;
+
+/** The prefilled WhatsApp message. Fixed text: no uid, no name, nothing the student typed. */
+export const FEEDBACK_CALL_MESSAGE = "Hi LazyTopper, I'd like the 5-minute feedback call for 7 extra Premium days.";
+
+/**
+ * `https://wa.me/<business number>?text=<message>` — built from the ONE shared number
+ * constant (`config/socialProfiles.ts` WHATSAPP_URL, also used by the floating WhatsApp
+ * button and /contact). Passed in so this module stays pure and testable.
+ */
+export function feedbackCallHref(whatsAppUrl: string): string {
+  return `${whatsAppUrl}?text=${encodeURIComponent(FEEDBACK_CALL_MESSAGE)}`;
 }
 
 /* ── Once-per-moment rule ────────────────────────────────────────────────────── */

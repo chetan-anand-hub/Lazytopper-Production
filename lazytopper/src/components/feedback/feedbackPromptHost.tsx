@@ -79,6 +79,7 @@ export function renderFeedbackPrompt(moment: FeedbackMoment): void {
     <FeedbackPrompt
       onAnswer={(reason) => trackFeedbackEvent("reason", moment, reason)}
       onDismiss={() => trackFeedbackEvent("dismissed", moment)}
+      onCallTap={() => trackFeedbackEvent("call_tap", moment)}
       onDone={unmount}
     />,
   );
