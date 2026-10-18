@@ -16,7 +16,7 @@ export const magneticEffectsPYQ2024: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] The magnetic field lines of a current-carrying solenoid emerge from one end and enter the other, exactly like a bar magnet; one end acts as a north pole and the other as a south pole. Hence (c) a solenoid."],
     finalAnswer: "(c) A solenoid",
     ncertRef: "PYQ 31/5/1 Q14", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2024", pyqSet: "1",
   },
   { id: "PYQ-S-2024-MAG-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A uniform magnetic field exists in the plane of paper as shown in the diagram. In this field, an electron (e ) and a positron (p+) enter as shown. The electron and positron experience forces :",

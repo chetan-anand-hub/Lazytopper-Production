@@ -224,7 +224,9 @@ describe("BANK-FIX-1 PR-2 · ruling 2: Others rows are never PYQ / NCERT / year-
   // PYQ-RESTORE-1 (2026-10-18, owner ruling (a) amends ruling 2): rows whose question was confirmed
   // against the official CBSE paper are PYQ again - pinned the other way in pyqRestore1.test.ts.
   const others = BANK_FIX_1_PR2.filter((e) => e.others && e.surface === "bank" && servedIds.has(e.id) && !BANK_FIX_3_OFFICIAL_RESOURCED_IDS.has(e.id) && !PYQ_RESTORE_1_RESTORED_IDS.has(e.id));
-  it("has served Others rows (non-vacuous)", () => expect(others.length).toBeGreaterThan(800));
+  // Floor lowered 800 -> 700 by PYQ-RESTORE-1 PR-2 (2026-10-18): 81 Science rows confirmed against the
+  // official papers left this set (753 served Others rows measured after the lane).
+  it("has served Others rows (non-vacuous)", () => expect(others.length).toBeGreaterThan(700));
   it("no Others row is PYQ (either matcher), carries a year, or is offered as PYQ / NCERT", () => {
     const bad: string[] = [];
     for (const e of others) {

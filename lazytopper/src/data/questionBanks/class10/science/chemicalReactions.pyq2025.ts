@@ -23,7 +23,7 @@ export const chemicalReactionsPYQ2025: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Correct option: (b) Calcium and magnesium. Highly reactive metals (Na, Ca, Mg, Al) cannot be reduced by carbon and are obtained by electrolytic reduction of their molten chlorides/oxides; Au, Ag and Fe are not."],
     finalAnswer: "(b) Calcium and magnesium",
     ncertRef: "PYQ 31/1/1 Q6", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2025", pyqSet: "1",
   },
   { id: "PYQ-S-2025-CHEMRXN-003", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Exothermic and Endothermic", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The correct balanced chemical equation showing exothermic reaction in which natural gas burns in air is :",

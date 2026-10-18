@@ -31,7 +31,7 @@ export const metalsNonMetalsPYQ2025: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Alloys generally have higher resistivity than their constituent metals (which is why they are used in heating elements). Resistivity does not depend on length or area. Correct option: (b) Higher than that of its constituent metals."],
     finalAnswer: "(b) Higher than that of its constituent metals.",
     ncertRef: "PYQ 31/2/2 Q14", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2025", pyqSet: "2",
   },
   { id: "PYQ-S-2025-METAL-004", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Extraction of Metals", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The most common method of extraction of metals from their oxide ores is :",
