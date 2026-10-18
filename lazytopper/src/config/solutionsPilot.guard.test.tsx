@@ -8,7 +8,7 @@ import SolutionsPage, { exerciseOf, solutionsH1 } from "../pages/SolutionsPage";
 import {
   parseSolutionsPath,
   publishedRows,
-  SOLUTIONS_PILOT,
+  SOLUTIONS_CHAPTERS,
   solutionsChapter,
   solutionsPath,
   solutionsPaths,
@@ -136,7 +136,9 @@ const ids = (book: SolutionsBook) => tri[book].map((r) => r.id);
 
 describe("(a) the allowlist is exactly D261, and the bank serves it", () => {
   it("13 NCERT + 16 Exemplar, in D261's order, unique", () => {
-    expect(SOLUTIONS_PILOT.map((c) => c.slug)).toEqual(["triangles"]);
+    // SOLUTIONS-2 added the other Maths chapters after it; the pilot entry stays first and unchanged.
+    expect(SOLUTIONS_CHAPTERS[0].slug).toBe("triangles");
+    expect(SOLUTIONS_CHAPTERS.filter((c) => c.decision === "D261").map((c) => c.slug)).toEqual(["triangles"]);
     expect(ids("ncert")).toEqual(D261_NCERT);
     expect(ids("exemplar")).toEqual(D261_EXEMPLAR);
     expect(new Set([...ids("ncert"), ...ids("exemplar")]).size).toBe(29);
@@ -189,11 +191,12 @@ describe("(b) the page renders exactly the published rows, attempt-first", () =>
   });
 
   it("an unknown chapter or path is not a solutions page", () => {
-    expect(solutionsChapter("circles")).toBeNull();
+    // "circles" was the unknown chapter here until SOLUTIONS-2 published it; Constructions is deleted for 2026-27.
+    expect(solutionsChapter("constructions")).toBeNull();
     expect(parseSolutionsPath("/ncert-solutions/triangles")).toEqual({ book: "ncert", slug: "triangles" });
     expect(parseSolutionsPath("/ncert-exemplar/triangles/")).toEqual({ book: "exemplar", slug: "triangles" });
     expect(parseSolutionsPath("/ncert-solutions/triangles/x")).toBeNull();
-    expect(render("/ncert-solutions/circles")).not.toContain("ncert-solutions-page");
+    expect(render("/ncert-solutions/constructions")).not.toContain("ncert-solutions-page");
   });
 
   it("groups by the bank's own exercise reference, never an invented one", () => {
@@ -215,7 +218,8 @@ describe("(c) verdicts — never mark a correct student wrong", () => {
   });
 
   it("ONLY the five pinned typed rows are opted in, and each bank key still compares to itself", () => {
-    const optedIn = SOLUTIONS_PILOT.flatMap((c) => [...c.ncert, ...c.exemplar]).filter((r) => r.verdict === "value").map((r) => r.id);
+    // The pilot's own opt-ins (SOLUTIONS-2 rows are pinned in solutions2Selection.guard.test.tsx).
+    const optedIn = [...tri.ncert, ...tri.exemplar].filter((r) => r.verdict === "value").map((r) => r.id);
     expect(optedIn.sort()).toEqual(Object.keys(VALUE_KEYS).sort());
     const byId = new Map(getBankRows(["triangles"]).map((q) => [q.id, q] as const));
     for (const [id, key] of Object.entries(VALUE_KEYS)) {
@@ -267,8 +271,8 @@ describe("(d) copy is honest", () => {
 
 describe("(e) registered everywhere a public page must be", () => {
   const paths = solutionsPaths();
-  it("exactly the two pilot paths, self-canonical and in the sitemap set", () => {
-    expect(paths).toEqual(["/ncert-solutions/triangles", "/ncert-exemplar/triangles"]);
+  it("the two pilot paths lead the derived set, self-canonical and in the sitemap set", () => {
+    expect(paths.slice(0, 2)).toEqual(["/ncert-solutions/triangles", "/ncert-exemplar/triangles"]);
     for (const p of paths) {
       expect(SELF_CANONICAL_EXACT, p).toContain(p);
       expect(sitemapPaths(), p).toContain(p);

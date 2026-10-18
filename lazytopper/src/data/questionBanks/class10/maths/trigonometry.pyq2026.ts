@@ -15,7 +15,7 @@ export const TRIGONOMETRY_PYQ_2026: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] Let K be the kite, KG = 60 m its height above the ground, T the bottom and R the top (roof) of the building; S is the point on KG level with the roof, so SR = GT and KS = 60 − TR.", "[1 mark] From T: tan 45° = KG/GT ⇒ 1 = 60/GT ⇒ GT = 60 m, so SR = 60 m.", "[1 mark] From R: tan 30° = KS/SR ⇒ 1/√3 = KS/60 ⇒ KS = 20√3 m ≈ 34.6 m.", "[1 mark] Height of roof TR = 60 − 20√3 = 60 − 34.6 = 25.4 m.", "[1 mark] sin 30° = KS/KR ⇒ 1/2 = 20√3/KR ⇒ KR = 40√3 = 69.2 m. Length of string = 69.2 m; height of roof = 25.4 m."],
     finalAnswer: "Length of the string = 69.2 m; height of the roof from the ground = 25.4 m",
     ncertRef: "PYQ 30/4/1 Q34", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2026", pyqSet: "1",
   },
   { id: "PYQ-M-2026-TRIG-002", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and Distances", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "Elevated water storage tanks are built to store and supply water to nearby colonies. In the diagram given above, AB is an elevated water tank and CD is a nearby multistorey building. The building is 54 metres away from the water tank.\nFrom a window (W) of the building, the angle of elevation of top of the tank is 45° and angle of depression of its foot is 30°.\n(i) Write a relation between d (the height of window) and y.\n(ii) Determine the value of h.\n(iii) (a) Determine height of the water tank.\nOR\n(iii) (b) Find the value of x and height of the window above ground level.",

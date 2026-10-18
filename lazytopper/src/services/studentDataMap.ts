@@ -641,7 +641,11 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "signed-out visitor's Quick Practice question id, its position and the option they picked, " +
       "stored only when they choose Sign up on a scorecard's tutor prompt; never the uid; read " +
       "and deleted once by the tutor for that question after sign-up, where it becomes the " +
-      "opening line of that student's own tutor thread; dropped unread after an hour).",
+      "opening line of that student's own tutor thread; dropped unread after an hour). " +
+      "FEEDBACK-1: plus localStorage `lazytopper.feedbackAsk.<uid>` (when the \"help us improve\" " +
+      "prompt was last shown after an upgrade screen, the start timestamp of the trial whose end " +
+      "was already asked about, and when any such prompt was last shown, so each moment is asked " +
+      "at most once; never the answer, never sent anywhere).",
     mechanism: "client-local",
     exportable: true,
     notes:
