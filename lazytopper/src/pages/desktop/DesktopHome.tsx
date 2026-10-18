@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 // MI-HOME-SYNC — Home's MI card reads Me/Progress's numbers (the shared read model, Me's window,
 // Me's paper, Me's split / chapters / concepts and Me's Practise hrefs), loaded on demand.
 import { useMeHome } from "../../services/useMeHomeSummary";
+import ShareWithParentsButton from "../../components/parentReport/ShareWithParentsButton";
 import type { MeHomeSummary, TypeMarks } from "../../services/meHomeSummary";
 import {
   hasMeaningfulMemory,
@@ -455,6 +456,9 @@ export default function DesktopHome() {
             fallback={<MistakeIntelligenceCard summary={miSummary} />}
           />
         )}
+
+        {/* PARENT-REPORT-1 — the weekly report card a student sends a parent (real account only). */}
+        {realUid ? <ShareWithParentsButton placement="home" /> : null}
 
         {/* ── Memory strip (honest — only when meaningful) ─────── */}
         {isSignedIn && meaningfulMemory && memory && (

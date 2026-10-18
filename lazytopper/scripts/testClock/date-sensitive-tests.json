@@ -231,6 +231,8 @@
     "src/components/home/pendingPapers.test.ts",
     "src/components/papers/PaperReminderActions.test.tsx",
     "src/components/papers/paperReminderLinks.test.ts",
+    "src/components/parentReport/ParentReportModal.test.tsx",
+    "src/components/parentReport/parentReportModel.test.ts",
     "src/components/practice/QuickPracticePresets.test.tsx",
     "src/components/practice/cbqAvailability.test.ts",
     "src/components/practice/fullSubjectPractice.test.ts",

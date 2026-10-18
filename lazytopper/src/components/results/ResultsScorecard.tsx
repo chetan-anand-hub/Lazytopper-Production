@@ -21,6 +21,7 @@ import {
 import { MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "./GradeStateParts";
 import ShareScoreButton from "./share/ShareScoreButton";
 import { canShareScore } from "./share/shareCardModel";
+import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import type {
   ScorecardVariant,
   ScorecardScore,
@@ -614,6 +615,11 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
               {/* SHARE-SCORE-1 — a real graded score only; the image is drawn from an
                   allow-listed model on tap, never from this DOM. */}
               {!hideShare && canShareScore(variant) && <ShareScoreButton variant={variant} />}
+              {/* PARENT-REPORT-1 — after a graded Check & Improve score: the weekly parent
+                  report (the button renders nothing without a real signed-in account). */}
+              {variant.surface === "check-improve" && canShareScore(variant) && (
+                <ShareWithParentsButton placement="check_improve" label={CHECK_IMPROVE_PARENTS_LABEL} />
+              )}
 
               {variant.pending && (() => {
                 // SCORECARD-MI-1 PR-2 — an answer that does not match its question is NOT an

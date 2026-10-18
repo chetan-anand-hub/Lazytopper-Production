@@ -22,6 +22,7 @@ import { StartHereFocusView, StartHereView, useStartHere } from "../../component
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
 import PendingBell from "../../components/home/PendingBell";
+import ShareWithParentsButton from "../../components/parentReport/ShareWithParentsButton";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
 import {
   BORDER,
@@ -123,6 +124,8 @@ const MI_BUCKETS = [
  */
 const MOBILE_HOME_CSS = `
   .lt-mhome-root, .lt-mhome-root * { box-sizing: border-box; }
+  .lt-mhome-parents { margin-top: 13px; }
+  .lt-mhome-parents:empty { display: none; }
   .lt-mhome-root { overflow-x: hidden; max-width: 100%; }
 
   .lt-mhome-heroes {
@@ -798,6 +801,14 @@ export default function MobileHome() {
             />
           )}
         </div>
+
+        {/* PARENT-REPORT-1 — the weekly report card a student sends a parent. The button renders
+            nothing for a signed-out visitor or a local session (no synced data to report). */}
+        {isSignedIn ? (
+          <div className="lt-mhome-parents">
+            <ShareWithParentsButton placement="home" />
+          </div>
+        ) : null}
 
         {/* Returning / signed-in: resume strip (real memory only). AUTH-2-FU §4
             moves it BELOW the merged card — the heroes and the one next action
