@@ -1227,7 +1227,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "[1 mark] Option (a) 7 cm is correct: C = 2*pi*r, so 44 = 2 * (22/7) * r, giving r = 44 * 7/44 = 7 cm.",
     ],
   },
-  { id: "ARC2-052", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a semicircle with diameter 28 cm is:", options: ["308 cm²","154 cm²","616 cm²","77 cm²"], answer: "308 cm²", explanation: "The correct answer is 308 cm². r = 14. Semicircle area = (1/2)πr² = (1/2) × (22/7) × 196 = 308 cm².", finalAnswer: "r = 14. Semicircle area = (1/2)πr² = (1/2) × (22/7) × 196 = 308 cm².", isCompetencyBased: false,
+  { id: "ARC2-052", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a semicircle with diameter 28 cm is:", options: ["308 cm²","154 cm²","616 cm²","77 cm²"], answer: "308 cm²", explanation: "The correct answer is 308 cm². r = 14. Semicircle area = (1/2)πr² = (1/2) × (22/7) × 196 = 308 cm².", finalAnswer: "308 cm²", isCompetencyBased: false,
     solutionSteps: [
       "Diameter 28 cm gives r = 14 cm, so the area of the semicircle = ½πr² = ½ × (22/7) × 14² = 308 cm². [1]",
     ],
@@ -1251,7 +1251,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
   },
   { id: "ARC2-056", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Segment Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The area of a minor segment of a circle is obtained by:", options: ["Subtracting area of triangle from area of sector","Adding area of triangle to area of sector","Subtracting area of sector from area of circle","Dividing area of circle by 2"], answer: "Subtracting area of triangle from area of sector", explanation: "The correct answer is Subtracting area of triangle from area of sector. Minor segment area = Area of sector − Area of corresponding triangle formed by the chord.", finalAnswer: "Area of minor segment = area of minor sector − area of the corresponding triangle", isCompetencyBased: false,
     solutionSteps: [
-      "[1 mark] The minor segment is the region between a chord and its minor arc. The minor sector OAPB consists of this segment together with triangle OAB, so area of minor segment = area of sector OAPB − area of △OAB. Hence the correct option is 'Subtracting area of triangle from area of sector'.",
+      "[1 mark] Let O be the centre and AB a chord, with P a point on the minor arc AB. The minor segment APB is the region between chord AB and the minor arc. The minor sector OAPB is made up of this segment together with triangle OAB, so area of minor segment APB = area of sector OAPB − area of △OAB. Hence the correct option is 'Subtracting area of triangle from area of sector'.",
     ],
   },
   { id: "ARC2-057", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A circular clock face has radius 21 cm. The area swept by the minute hand in 15 minutes is:", options: ["346.5 cm²","693 cm²","1386 cm²","173.25 cm²"], answer: "346.5 cm²", explanation: "The correct answer is 346.5 cm². 15 min = 90°. Area = (90/360) × (22/7) × 441 = (1/4) × 1386 = 346.5 cm².", finalAnswer: "346.5 cm²", isCompetencyBased: false,

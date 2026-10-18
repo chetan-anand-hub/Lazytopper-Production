@@ -12591,5 +12591,5 @@ export const BANK_ID_INDEX_ROWS: ReadonlyArray<readonly [string, number, number,
   ["OE-NCERT-13-SA-010", 25, 217, 2],
   ["OE-NCERT-13-SA-011", 25, 223, 2],
   ["OE-NCERT-13-SA-012", 25, 223, 2],
-  ["OE-NCERT-13-SA-013", 25, 200, 2],
+  ["OE-NCERT-13-SA-013", 25, 1890, 2],
 ];

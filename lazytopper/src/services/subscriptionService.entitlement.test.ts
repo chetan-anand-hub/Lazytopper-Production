@@ -22,6 +22,7 @@
 //    firestore-rules-tests/subscriptions.rules.test.mjs)
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createRequire } from "node:module";
 
 vi.mock("./firebaseClient", () => ({ firestoreDb: { __fakeDb: true } }));
 
@@ -367,5 +368,63 @@ describe("9  STORED-RATE-1 R5 — pass expiry on the client", () => {
     );
     await hydrateSubscriptionFromCloud(UID);
     expect(setDocMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ===========================================================================
+// 10 — ★★ ADMIN-EXTEND-1. The document the SERVER writes for a free admin extension
+//      (server/services/premiumExtension.cjs computeExtension — the real function, not a
+//      copy) hydrates on the client to the SAME end the server gate reads: premium until
+//      the new passEnd, free at it. The trial start is untouched, so a student whose
+//      extension ends is an expired-trial student, never offered a second trial.
+// ===========================================================================
+describe("10  ADMIN-EXTEND-1 — the client reads the extension's end exactly as the server does", () => {
+  const requireCjs = createRequire(import.meta.url);
+  const { computeExtension } = requireCjs("../../server/services/premiumExtension.cjs") as {
+    computeExtension: (
+      stored: Record<string, unknown>,
+      req: { days: number; nowMs: number },
+    ) => { newEndMs: number; fields: Record<string, unknown> };
+  };
+  /** Firestore hands a stored Date back as a Timestamp. */
+  const stamp = (ms: number) => ({ toDate: () => new Date(ms) });
+  const asFirestore = (doc: Record<string, unknown>) =>
+    Object.fromEntries(Object.entries(doc).map(([k, v]) => [k, v instanceof Date ? stamp(v.getTime()) : v]));
+
+  const NOW = Date.UTC(2026, 9, 18, 6, 30);
+  const trialDoc = {
+    tier: "trial",
+    plan: "trial_7day",
+    premiumSince: null,
+    trialStartDate: stamp(NOW - 4 * DAY),
+  };
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("10a a running trial extended by 7 days is premium past day 7 and free at the new end", async () => {
+    const { newEndMs, fields } = computeExtension(trialDoc, { days: 7, nowMs: NOW });
+    expect(newEndMs).toBe(NOW + 3 * DAY + 7 * DAY);
+    const written = asFirestore({ ...trialDoc, ...fields });
+    vi.useFakeTimers({ toFake: ["Date"] });
+
+    // Day 9 — after the ORIGINAL trial end: still Premium.
+    vi.setSystemTime(NOW + 5 * DAY);
+    getDocMock.mockResolvedValue(found(written));
+    let resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("premium");
+    expect(resolved.plan).toBe("pass_extension");
+    expect(resolved.passEnd).toBe(new Date(newEndMs).toISOString());
+    expect(isPremiumAccess(resolved)).toBe(true);
+    // The server-owned record is never written back by the client.
+    expect(setDocMock).not.toHaveBeenCalled();
+
+    // At the new end: free, and an EXPIRED trial (trialStartDate kept) — no new trial offer.
+    vi.setSystemTime(newEndMs);
+    resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("free");
+    expect(resolved.trialStartDate).not.toBeNull();
+    expect(setDocMock).not.toHaveBeenCalled();
   });
 });

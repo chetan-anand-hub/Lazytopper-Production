@@ -260,7 +260,18 @@ export function isInternalDevice(): boolean {
   }
 }
 
-function send(kind: "pageview" | "event", payload: Record<string, unknown>, params: VendorParams = {}): void {
+/**
+ * `activityName` (FEEDBACK-1): the name the FIRST-PARTY log records instead of
+ * `payload.name`, for an event whose vendor name is generic but whose first-party name
+ * carries its codes. Only the name changes: the activity log is still handed nothing but
+ * `{ name }`, and the vendors still get exactly `payload` / `params`.
+ */
+function send(
+  kind: "pageview" | "event",
+  payload: Record<string, unknown>,
+  params: VendorParams = {},
+  activityName?: NamedAnalyticsEvent,
+): void {
   if (!analyticsEnabled()) return;
   let adminHit = false;
   try {
@@ -279,7 +290,7 @@ function send(kind: "pageview" | "event", payload: Record<string, unknown>, para
   // visitor is never recorded and never linked to an account. Runs last, in its own
   // guard, so it can never cost either vendor its hit.
   try {
-    recordActivity(kind, payload);
+    recordActivity(kind, activityName ? { name: activityName } : payload);
   } catch {
     /* analytics must never break the page */
   }
@@ -689,7 +700,30 @@ export type NamedAnalyticsEvent =
   | "start_here_dismissed"
   | "tutor_from_scorecard"
   // TUTOR-FIX-2 T13 — the first message a student sends in a tutor thread (once per thread).
-  | "tutor_first_message";
+  | "tutor_first_message"
+  // FEEDBACK-1 — the "help us improve" prompt, FIRST-PARTY names only (moment and reason are
+  // inside the name because the activity store keeps names only). Sent by trackFeedbackEvent,
+  // which gives the vendors the generic feedback_shown / feedback_dismissed / feedback_reason
+  // instead. Never free text.
+  | "feedback_shown_paywall"
+  | "feedback_dismissed_paywall"
+  | "feedback_shown_trial_end"
+  | "feedback_dismissed_trial_end"
+  | "feedback_paywall_not_tried"
+  | "feedback_paywall_ask_parents"
+  | "feedback_paywall_price"
+  | "feedback_paywall_not_enough_help"
+  | "feedback_paywall_boards_far"
+  | "feedback_paywall_other"
+  | "feedback_trial_end_not_tried"
+  | "feedback_trial_end_ask_parents"
+  | "feedback_trial_end_price"
+  | "feedback_trial_end_not_enough_help"
+  | "feedback_trial_end_boards_far"
+  | "feedback_trial_end_other"
+  // FEEDBACK-1 — the student tapped the 5-minute feedback-call offer (opens WhatsApp only).
+  | "feedback_call_tap_paywall"
+  | "feedback_call_tap_trial_end";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -940,6 +974,94 @@ export function trackScoreShare(surface: ScorecardSurface, method: ScoreShareMet
   try {
     const data = { surface, method };
     send("event", { name: "score_share", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/** PARENT-REPORT-1 — where the "Share with parents" button was. */
+export type ParentReportPlacement = "me" | "home" | "check_improve";
+/** PARENT-REPORT-1 — which honest state the card was in (never a figure). */
+export type ParentReportState = "empty" | "activity" | "pattern";
+
+/**
+ * PARENT-REPORT-1 — `parent_report_shown`: the weekly parent report card was shown to the
+ * student (once per open). Placement + state ONLY: never a number, a name, a chapter or any
+ * text. Vendors only (GA4 / Vercel), like `score_share`: NOT in `NamedAnalyticsEvent`, so the
+ * first-party log drops it and no server allow-list change is needed.
+ */
+export function trackParentReportShown(placement: ParentReportPlacement, state: ParentReportState): void {
+  try {
+    const data = { placement, state };
+    send("event", { name: "parent_report_shown", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * PARENT-REPORT-1 — `parent_report_share`: the student actually shared the card (the OS sheet
+ * completed, or wa.me opened). Placement + method ONLY, never a cancel or a failure.
+ */
+export function trackParentReportShare(placement: ParentReportPlacement, method: ScoreShareMethod): void {
+  try {
+    const data = { placement, method };
+    send("event", { name: "parent_report_share", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/** FEEDBACK-1 — the two moments the "help us improve" prompt can appear at. */
+export type FeedbackPromptMoment = "paywall" | "trial_end";
+/** FEEDBACK-1 — the six one-tap reason codes. */
+export type FeedbackPromptReason = "not_tried" | "ask_parents" | "price" | "not_enough_help" | "boards_far" | "other";
+
+const FEEDBACK_MOMENT_SET: ReadonlySet<string> = new Set<FeedbackPromptMoment>(["paywall", "trial_end"]);
+const FEEDBACK_REASON_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>([
+  "not_tried",
+  "ask_parents",
+  "price",
+  "not_enough_help",
+  "boards_far",
+  "other",
+]);
+
+/**
+ * FEEDBACK-1 (owner ruling 18 Oct 2026) — the "help us improve" prompt was shown,
+ * dismissed, or answered.
+ *
+ *   Vercel + GA4: `feedback_shown` / `feedback_dismissed` / `feedback_reason`, with data
+ *                 `{ moment }` or `{ moment, reason }` — two closed codes, nothing else.
+ *   First-party:  one allow-listed NAME carrying both codes (`feedback_shown_paywall`,
+ *                 `feedback_trial_end_price`, ...), so the owner can read answers per student.
+ *   Meta:         nothing (not in META_EVENTS).
+ *
+ * ★ TAKES NO TEXT. There is no string parameter a caller could put a student's words in:
+ * the moment and reason are checked against closed sets and the call is dropped if either
+ * does not match. Free text never reaches a vendor, and the activity store takes none.
+ */
+export function trackFeedbackEvent(
+  kind: "shown" | "dismissed" | "reason" | "call_tap",
+  moment: FeedbackPromptMoment,
+  reason?: FeedbackPromptReason,
+): void {
+  try {
+    if (!FEEDBACK_MOMENT_SET.has(moment)) return;
+    if (kind === "reason" && (!reason || !FEEDBACK_REASON_SET.has(reason))) return;
+    const data: Record<string, string> = kind === "reason" && reason ? { moment, reason } : { moment };
+    // `call_tap`: the student tapped the 5-minute feedback-call offer. Vendors get
+    // `feedback_call_tap` + `{ moment }`; first-party gets `feedback_call_tap_<moment>`.
+    const vendorName =
+      kind === "call_tap"
+        ? "feedback_call_tap"
+        : kind === "reason"
+          ? "feedback_reason"
+          : kind === "shown"
+            ? "feedback_shown"
+            : "feedback_dismissed";
+    const activityName = (kind === "reason" ? `feedback_${moment}_${reason}` : `feedback_${kind}_${moment}`) as NamedAnalyticsEvent;
+    send("event", { name: vendorName, data }, { ga4: data }, activityName);
   } catch {
     /* analytics must never break the page */
   }
