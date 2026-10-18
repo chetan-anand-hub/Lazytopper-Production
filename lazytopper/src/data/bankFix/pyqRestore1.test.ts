@@ -150,7 +150,8 @@ describe("PYQ-RESTORE-1 · both subjects", () => {
   it("served bank total is at least this lane's 10,580 (measured before and after this lane)", () => {
     // A floor, not an exact count: a later lane that adds rows must not break this pin; a lane
     // that withholds rows lowers the floor with a dated comment.
-    expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10580);
+    // 18 Oct WITHHOLD-METAL-007: PYQ-S-2026-METAL-007 withheld (misfiled Biology row), measured by import 10580 -> 10579.
+    expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10579);
   });
 });
 
