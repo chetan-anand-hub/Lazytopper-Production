@@ -7,7 +7,9 @@ import { MemoryRouter } from "react-router-dom";
 import SolutionsPage from "../pages/SolutionsPage";
 import { solutionsHrefForRow } from "../pages/NcertBooksPage";
 import {
+  BOARD_PATTERN_HEADING,
   bankSlugOf,
+  boardPatternRows,
   booksOf,
   hasBook,
   publishedRows,
@@ -25,6 +27,7 @@ import {
   type SolutionsChapter,
 } from "./solutionsPublishSafe";
 import { SOLUTIONS_2_LEDGER } from "./solutions2Ledger";
+import { SOLUTIONS_3_BOARD_LEDGER } from "./solutions3BoardLedger";
 import { NCERT_CLASS10_CHAPTERS } from "./ncertBooks";
 import { SELF_CANONICAL_EXACT, SITE_ORIGIN } from "./canonicalUrl";
 import { sitemapPaths } from "./sitemapUrls";
@@ -34,8 +37,11 @@ import { compareAnswer, correctOptionIndex, parseQuantity } from "../lib/solutio
 import { ROUTE_CHUNK_MODULES, STATIC_PAGE_HEADS, solutionsJsonLd } from "../../scripts/seo/writeStaticHeads";
 import { llmsSolutionsLines, rewriteLlms } from "../../scripts/solutions/writeLlmsSolutions";
 import {
+  boardKindOf,
+  classifyBoardRow,
   classifyRow,
   committedBlock,
+  selectBoard,
   emitBlock,
   emitPagesBlock,
   MIN_ROWS_PER_PAGE,
@@ -302,12 +308,104 @@ describe("(d) the new pages render their rows, attempt-first, with honest siblin
         expect(html).toContain(`<h1>${solutionsTitle(book, ch)}</h1>`);
         // The page groups cards by exercise, so compare the SET of cards with the published rows.
         const cards = [...html.matchAll(/data-testid="ncs-q-([a-z0-9-]+)"/g)].map((m) => m[1]).sort();
-        const want = publishedRows(getBankRows([bankSlugOf(ch)]), ch, book).map(({ q }) => q.id.toLowerCase()).sort();
+        const served = getBankRows([bankSlugOf(ch)]);
+        const bookRows = publishedRows(served, ch, book).map(({ q }) => q.id.toLowerCase());
+        // + the SOLUTIONS-3 board-pattern section (tested in (g)).
+        const want = [...bookRows, ...boardPatternRows(served, ch, book).map(({ q }) => q.id.toLowerCase())].sort();
         expect(cards).toEqual(want);
-        expect(want.length).toBeGreaterThanOrEqual(MIN_ROWS_PER_PAGE);
+        expect(bookRows.length).toBeGreaterThanOrEqual(MIN_ROWS_PER_PAGE);
         expect(html).toContain(`href="/notes/${bankSlugOf(ch)}"`);
         const sibling: SolutionsBook = book === "ncert" ? "exemplar" : "ncert";
         expect(html.includes(`href="${solutionsPath(sibling, ch.slug)}"`)).toBe(hasBook(ch, sibling));
+      });
+    }
+  }
+});
+
+describe("(g) SOLUTIONS-3 ruling 1: the CBSE board-pattern section", () => {
+  const render = (path: string) =>
+    renderToStaticMarkup(
+      <MemoryRouter initialEntries={[path]}>
+        <SolutionsPage />
+      </MemoryRouter>,
+    );
+  const boardOf = (ch: SolutionsChapter, book: SolutionsBook) => ch.boardPattern?.[book] ?? [];
+
+  it("every board row is served, verified (publish, live hash), board-format, and on no book list", () => {
+    const seen = new Set<string>();
+    let ar = 0;
+    for (const ch of SOLUTIONS_CHAPTERS) {
+      const byId = new Map(getBankRows([bankSlugOf(ch)]).map((q) => [q.id, q] as const));
+      const bookIds = new Set([...ch.ncert, ...ch.exemplar].map((r) => r.id));
+      for (const book of BOOKS) {
+        if (boardOf(ch, book).length) expect(hasBook(ch, book), `${ch.slug} ${book}: board rows on an unpublished page`).toBe(true);
+        for (const r of boardOf(ch, book)) {
+          const q = byId.get(r.id);
+          expect(q, r.id).toBeDefined();
+          expect(WITHHELD_QUESTION_IDS.has(r.id), r.id).toBe(false);
+          expect(bookIds.has(r.id), `${r.id} is also a book row`).toBe(false);
+          expect(seen.has(r.id), `${r.id} twice`).toBe(false);
+          seen.add(r.id);
+          expect(r.verdict, `${r.id}: no typed verdict in the board section`).toBeUndefined();
+          const l = SOLUTIONS_3_BOARD_LEDGER[r.id];
+          expect(l?.status, r.id).toBe("publish");
+          expect(l.hash, r.id).toBe(rowHash(q as Row));
+          expect(boardKindOf(q as Row), r.id).not.toBeNull();
+          if (boardKindOf(q as Row) === "assertion-reason") {
+            ar += 1;
+            expect(q!.options, r.id).toHaveLength(4);
+            expect(correctOptionIndex(String(q!.answer), q!.options!), r.id).not.toBeNull();
+            expect(l.note, `${r.id}: every AR row is blind-solved`).toContain("AR blind solve agrees");
+          } else {
+            expect(l.note, r.id).toContain("case blind solve agrees");
+          }
+        }
+      }
+    }
+    expect(ar).toBeGreaterThan(0);
+    expect(seen.size).toBeGreaterThan(0);
+  });
+
+  it("no ledger hold is published, and every board row of every page passes the board rules", () => {
+    const guard = readSyllabusGuard();
+    const published = new Set(SOLUTIONS_CHAPTERS.flatMap((c) => [...boardOf(c, "ncert"), ...boardOf(c, "exemplar")].map((r) => r.id)));
+    for (const [id, l] of Object.entries(SOLUTIONS_3_BOARD_LEDGER)) if (l.status === "hold") expect(published.has(id), id).toBe(false);
+    for (const s of selections) {
+      for (const book of BOOKS) {
+        for (const r of s.board[book]) {
+          const c = classifyBoardRow((getBankRows([s.spec.bank]) as Row[]).find((q) => q.id === r.id)!, s.spec, guard);
+          expect(c, r.id).not.toBeNull();
+          expect(c!.reason, r.id).toBeNull();
+        }
+      }
+    }
+  });
+
+  for (const ch of SOLUTIONS_CHAPTERS) {
+    for (const book of BOOKS) {
+      if (!hasBook(ch, book)) continue;
+      const p = solutionsPath(book, ch.slug);
+      it(`${p}: board rows only inside the labelled section, labelled by format, never by book reference`, () => {
+        const html = render(p);
+        const rows = boardPatternRows(getBankRows([bankSlugOf(ch)]), ch, book);
+        const at = html.indexOf('data-testid="ncs-board"');
+        if (!rows.length) {
+          expect(at, "an empty board section is rendered").toBe(-1);
+          return;
+        }
+        expect(html.split(`<h2 id="ncs-board-h">${BOARD_PATTERN_HEADING}</h2>`)).toHaveLength(2);
+        const section = html.slice(at, html.indexOf('aria-labelledby="ncs-cta-h"'));
+        expect(section).toContain(book === "ncert" ? "These are not NCERT textbook questions." : "These are not NCERT Exemplar questions.");
+        expect(section).not.toMatch(/\bPYQ\b|previous year/i);
+        const before = html.slice(0, at);
+        for (const { q } of rows) {
+          const a = q.id.toLowerCase();
+          expect(section, q.id).toContain(`data-testid="ncs-q-${a}"`);
+          expect(before, `${q.id} rendered among the book questions`).not.toContain(`data-testid="ncs-q-${a}"`);
+        }
+        const refs = [...section.matchAll(/<span class="lt-ncs__ref">([^<]*)<\/span>/g)].map((m) => m[1]);
+        expect(refs).toHaveLength(rows.length);
+        for (const ref of refs) expect(ref).toMatch(/^CBSE board pattern · (?:Assertion-Reason|Case-based)$/);
       });
     }
   }
@@ -439,6 +537,48 @@ describe("CONTROLS — every rule fires on synthetic violating input", () => {
     const text = "a\n- [A](https://www.lazytopper.com/ncert-solutions/x): y\nb\n- [B](https://www.lazytopper.com/ncert-exemplar/x): z";
     expect(() => rewriteLlms(text, ["L"])).toThrow();
     expect(rewriteLlms("a\n- [A](https://www.lazytopper.com/ncert-solutions/x): y\nb", ["L1", "L2"])).toBe("a\nL1\nL2\nb");
+  });
+
+  it("SOLUTIONS-3 board rules: format, PYQ claim, book location, figure, AR options, ledger, placement", () => {
+    const ar: Row = {
+      ...base,
+      id: "STAT-N-EXEM-13-AR-901",
+      format: "Assertion-Reasoning",
+      questionText: "Assertion (A): The mean of 2, 4, 6 is 4.\nReason (R): Mean = sum of observations / number of observations.",
+      options: ["(A) Both true, R explains A.", "(B) Both true, R does not explain A.", "(C) A true, R false.", "(D) A false, R true."],
+      answer: "(A) Both true, R explains A.",
+      solutionSteps: ["Mean = 12/3 = 4, so A is true; R is the definition used."],
+      finalAnswer: "Option (A).",
+    };
+    const b = (patch: Partial<Row>) => classifyBoardRow({ ...ar, ...patch }, spec, guard);
+    expect(b({})?.reason).toBeNull();
+    expect(b({})?.kind).toBe("assertion-reason");
+    expect(b({ id: "STAT-N-EXEM-13-CRE-901", format: "Short", options: undefined })?.reason).toBe("not-board-format");
+    expect(b({ sourceOverride: "others" })?.reason).toBe("source-others");
+    expect(b({ questionText: ar.questionText + " (CBSE 2023)" })?.reason).toBe("pyq-without-official-source");
+    expect(b({ solutionSteps: ["A is NCERT Theorem 10.1; R is the reason."] })?.reason).toBe("cites-book-location");
+    expect(b({ solutionSteps: ["By the formula in §13.3, A is true."] })?.reason).toBe("cites-book-location");
+    expect(b({ solutionSteps: ["R is the standard NCERT formula, so A is true."] })?.reason).toBeNull();
+    expect(b({ questionText: "Assertion (A): In the figure, the mean is 4.\nReason (R): …" })?.reason).toBe("needs-figure");
+    expect(b({ questionText: "Assertion (A): All congruent figures are similar.\nReason (R): Two figures are similar if they have the same shape." })?.reason).toBeNull();
+    expect(b({ options: ar.options!.slice(0, 3) })?.reason).toBe("ar-options");
+    expect(b({ answer: "(E) none" })?.reason).toBe("mcq-key-ambiguous");
+    expect(b({ subtopic: "Ogive" })?.reason).toBe("syllabus");
+    expect(classifyBoardRow({ ...base }, spec, guard)).toBeNull(); // a book row is not a board candidate
+    expect(classifyBoardRow({ ...ar, id: "STAT-N-PYQ-13-AR-901" }, spec, guard)).toBeNull();
+    // ledger + placement
+    const rows: Row[] = [ar, { ...ar, id: "STAT-N-NCERT-13-CB-901", format: "Case-Based", options: undefined, answer: undefined, questionText: "Case: (i) Find the mean of 2, 4, 6. (ii) Find the median." }];
+    const ledger = Object.fromEntries(rows.map((r) => [r.id, { status: "publish" as const, hash: rowHash(r), note: "" }]));
+    const both = selectBoard(rows, spec, guard, { ncert: true, exemplar: true }, ledger);
+    expect([both.exemplar.map((r) => r.id), both.ncert.map((r) => r.id)]).toEqual([[ar.id], [rows[1].id]]);
+    const exOnly = selectBoard(rows, spec, guard, { ncert: false, exemplar: true }, ledger);
+    expect(exOnly.exemplar.map((r) => r.id)).toEqual([ar.id, rows[1].id]); // the NCERT-id row falls back to the published page
+    expect(selectBoard(rows, spec, guard, { ncert: false, exemplar: false }, ledger).exemplar).toEqual([]);
+    expect(selectBoard(rows, spec, guard, { ncert: true, exemplar: true }, {}).excluded.every((e) => e.reason === "unverified")).toBe(true);
+    const held = { ...ledger, [ar.id]: { status: "hold" as const, note: "x" } };
+    expect(selectBoard(rows, spec, guard, { ncert: true, exemplar: true }, held).excluded.find((e) => e.id === ar.id)?.reason).toBe("held");
+    const edited = [{ ...ar, finalAnswer: "Option (B)." }, rows[1]];
+    expect(selectBoard(edited, spec, guard, { ncert: true, exemplar: true }, ledger).excluded.find((e) => e.id === ar.id)?.reason).toBe("unverified");
   });
 
   function fillers(n: number, idPrefix = "STAT-N-EXEM-13-SA-8", refPrefix = "Exemplar Ex 13.3 Q"): Row[] {

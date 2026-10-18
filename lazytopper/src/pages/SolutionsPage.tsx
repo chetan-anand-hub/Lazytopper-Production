@@ -7,7 +7,10 @@ import { MathText } from "../components/question/MathText";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { ncertCode, ncertPracticePath, ncertReadPath, ncertRowsForSlug } from "../config/ncertBooks";
 import {
+  BOARD_PATTERN_HEADING,
   bankSlugOf,
+  boardPatternLabel,
+  boardPatternRows,
   bookChapterNo,
   hasBook,
   parseSolutionsPath,
@@ -103,7 +106,19 @@ function CheckLink({ className, children }: { className: string; children: React
   );
 }
 
-function QuestionCard({ q, safe }: { q: CanonicalQuestion; safe: PublishSafeRow }) {
+/** "(A) Both …" shown after our own "(a)" label reads "(a) (A) Both …": drop a leading label that repeats it. */
+export function optionText(opt: string, i: number): string {
+  const letter = LETTERS[i];
+  const m = /^\(([a-e])\)\s*/i.exec(opt);
+  return m && letter && m[1].toLowerCase() === letter ? opt.slice(m[0].length) : opt;
+}
+
+/**
+ * One question. `refLabel` replaces the book reference in the card header: the board-pattern section
+ * (SOLUTIONS-3) shows the FORMAT ("CBSE board pattern · Assertion-Reason"), never the row's ncertRef,
+ * so no board-pattern row reads as a numbered NCERT / Exemplar question.
+ */
+function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: PublishSafeRow; refLabel?: string }) {
   const anchor = anchorOf(q.id);
   const options = Array.isArray(q.options) ? q.options : null;
   const steps = Array.isArray(q.solutionSteps) ? q.solutionSteps : [];
@@ -152,7 +167,7 @@ function QuestionCard({ q, safe }: { q: CanonicalQuestion; safe: PublishSafeRow 
       data-verdict={options ? "option" : safe.verdict === "value" ? "value" : "none"}
     >
       <header className="lt-ncs__qhead">
-        <span className="lt-ncs__ref">{q.ncertRef ?? q.id}</span>
+        <span className="lt-ncs__ref">{refLabel ?? q.ncertRef ?? q.id}</span>
         <span className="lt-ncs__marks">
           {q.marks} {q.marks === 1 ? "mark" : "marks"}
         </span>
@@ -174,7 +189,7 @@ function QuestionCard({ q, safe }: { q: CanonicalQuestion; safe: PublishSafeRow 
                   disabled={pick !== null}
                   onClick={() => onPick(i)}
                 >
-                  <span className="lt-ncs__optl">({LETTERS[i] ?? i + 1})</span> <MathText text={String(opt)} />
+                  <span className="lt-ncs__optl">({LETTERS[i] ?? i + 1})</span> <MathText text={optionText(String(opt), i)} />
                 </button>
               </li>
             );
@@ -265,6 +280,7 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
   const served = useServedRows(bank);
   const rows = publishedRows(served, ch, book);
   const groups = groupRows(rows);
+  const board = boardPatternRows(served, ch, book);
   const here = solutionsPath(book, ch.slug);
   const ncertRow = ncertRowsForSlug(bank).find((r) => r.chapter === ch.chapter) ?? null;
   const unit = chapterUnit(bank);
@@ -331,6 +347,20 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           </section>
         ))}
 
+        {board.length > 0 ? (
+          <section className="lt-ncs__group lt-ncs__board" aria-labelledby="ncs-board-h" data-testid="ncs-board">
+            <h2 id="ncs-board-h">{BOARD_PATTERN_HEADING}</h2>
+            <p className="lt-ncs__boardnote" data-testid="ncs-board-note">
+              These are not {book === "ncert" ? "NCERT textbook" : "NCERT Exemplar"} questions. Neither NCERT book has
+              Assertion-Reason questions: they, and case-based questions, are a CBSE board-paper format. These follow
+              that format on this chapter's 2026-27 syllabus, with solutions by LazyTopper.
+            </p>
+            {board.map(({ q, safe }) => (
+              <QuestionCard key={q.id} q={q} safe={safe} refLabel={`CBSE board pattern · ${boardPatternLabel(q)}`} />
+            ))}
+          </section>
+        ) : null}
+
         <section className="lt-ncs__cta" aria-labelledby="ncs-cta-h">
           <h2 id="ncs-cta-h">Would your working get full marks?</h2>
           <p>
@@ -342,7 +372,9 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
 
         <p className="lt-ncs__fine">
           Questions from the NCERT Class 10 {ch.subject === "Maths" ? "Mathematics" : ch.subject}{" "}
-          {book === "ncert" ? "textbook" : "Exemplar Problems"}; the solutions are written by LazyTopper. LazyTopper is
+          {book === "ncert" ? "textbook" : "Exemplar Problems"}
+          {board.length > 0 ? " (the CBSE board-pattern section is not from the NCERT books)" : ""}; the solutions are
+          written by LazyTopper. LazyTopper is
           an independent platform and is not affiliated with CBSE or NCERT.
         </p>
       </div>

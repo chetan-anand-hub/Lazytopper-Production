@@ -22,6 +22,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { NCERT_CLASS10_CHAPTERS } from "../../src/config/ncertBooks";
 import { SOLUTIONS_2_LEDGER, type LedgerEntry } from "../../src/config/solutions2Ledger";
+import { SOLUTIONS_3_BOARD_LEDGER } from "../../src/config/solutions3BoardLedger";
 import {
   booksOf,
   solutionsHeadDescription,
@@ -403,6 +404,8 @@ export interface ChapterSelection {
   ncert: SelectedRow[];
   exemplar: SelectedRow[];
   excluded: Classified[];
+  /** SOLUTIONS-3: the CBSE board-pattern section, per published page. */
+  board: BoardSelection;
 }
 
 /** The note written beside a published id (one short note per non-trivial row). */
@@ -423,8 +426,9 @@ export function selectChapter(
   spec: ChapterSpec,
   guard: GuardLists,
   ledger: Readonly<Record<string, LedgerEntry>> = SOLUTIONS_2_LEDGER,
+  boardLedger: Readonly<Record<string, LedgerEntry>> = SOLUTIONS_3_BOARD_LEDGER,
 ): ChapterSelection {
-  const sel: ChapterSelection = { spec, ncert: [], exemplar: [], excluded: [] };
+  const sel: ChapterSelection = { spec, ncert: [], exemplar: [], excluded: [], board: { ncert: [], exemplar: [], excluded: [] } };
   // Pass 1: the rules. Candidates keep bank order.
   const candidates: Array<{ q: Row; c: Classified }> = [];
   for (const q of rows) {
@@ -489,11 +493,182 @@ export function selectChapter(
       sel[book] = [];
     }
   }
+  // SOLUTIONS-3: the board-pattern section rides on the pages the book rows publish (never creates one).
+  sel.board = selectBoard(rows, spec, guard, { ncert: sel.ncert.length > 0, exemplar: sel.exemplar.length > 0 }, boardLedger);
   return sel;
 }
 
 /** The fewest rows a published book page may have. */
 export const MIN_ROWS_PER_PAGE = 5;
+
+// ---------------------------------------------------------------------------------------------
+// SOLUTIONS-3 (owner ruling 1, 18 Oct 2026) — the CBSE BOARD-PATTERN section.
+//
+// For 2026-27 Class 10 keeps the rationalised NCERT books, and neither the textbook nor the
+// Exemplar has Assertion-Reason items: AR and case-based questions are a CBSE board-paper FORMAT.
+// So these rows are published in ONE clearly labelled section per page ("CBSE board pattern:
+// Assertion-Reason and case-based questions"), NEVER as numbered NCERT / Exemplar questions: the
+// page shows the format, not the row's `ncertRef`.
+//
+// ★ CANDIDATES: the chapter's NCERT / Exemplar-id rows whose FORMAT is Assertion-Reason or
+//   Case-Based. A "design task" (-CRE-) row in Short format is neither, so it stays out.
+// ★ RULES (first failure is the reason): withheld · source "others" · not a board format · a
+//   PYQ / board-paper claim without an official source · a book LOCATION cited in the text
+//   (§ / Section / Theorem / Example / Exercise / page + number: a pre-2023 number would be
+//   shown as fact, and the section must not read as book content) · syllabus · figure ·
+//   garbled · AR without exactly four options and exactly one equal to the key · duplicate text ·
+//   ledger (`solutions3BoardLedger.ts`, content-hash bound like SOLUTIONS-2).
+// ★ PLACEMENT: a row goes on the page of the book its id names when that page is published, else
+//   on the chapter's other published page; a chapter with no published book page shows none (no
+//   URL is ever created for this section).
+// ---------------------------------------------------------------------------------------------
+
+export type BoardKind = "assertion-reason" | "case-based";
+
+/** The board-paper format of a row, or null. Decided by `format` (the id suffix alone is not enough: -CRE- rows are Short). */
+export function boardKindOf(q: Pick<Row, "format">): BoardKind | null {
+  const f = String(q.format ?? "").trim();
+  if (/assertion/i.test(f)) return "assertion-reason";
+  if (/case[ -]?(?:based|study)/i.test(f)) return "case-based";
+  return null;
+}
+
+/** A claim to be a past CBSE paper question (which then needs a board label AND an official source). */
+export const PYQ_CLAIM = /\bPYQ\b|\bprevious year\b|\bCBSE\s*(?:board\s*)?(?:20\d\d|sample paper|SQP)\b|\bboard (?:exam|paper)\s*20\d\d\b/i;
+/** A book location cited in the text: § / Section / Theorem / Example / Exercise / Ex / page + a number. */
+export const BOOK_LOCATION_CITED = /§\s*\d|\b(?:Section|Theorem|Example|Exercise|Ex\.?|page|pg\.?)\s*\d/i;
+/** "similar / congruent / plane figures": shapes, not a drawing (board-section figure screen only). */
+export const FIGURE_AS_SHAPE =
+  /\b(?:similar|congruent|plane|geometric(?:al)?)\s+figures?\b|\bfigures?\s+(?:are|is)\s+(?:similar|congruent)\b/gi;
+
+export type BoardExclusionReason =
+  | "withheld"
+  | "source-others"
+  | "not-board-format"
+  | "pyq-without-official-source"
+  | "cites-book-location"
+  | "syllabus"
+  | "needs-figure"
+  | "garbled"
+  | "ar-options"
+  | "mcq-key-ambiguous"
+  | "duplicate"
+  | "held"
+  | "unverified";
+
+export interface BoardClassified {
+  id: string;
+  book: Book;
+  kind: BoardKind | null;
+  reason: BoardExclusionReason | null;
+  detail: string;
+}
+
+/**
+ * The first board-section rule a row fails (null reason = candidate), or null when the row is not
+ * a board-section candidate at all (not an NCERT / Exemplar id of this chapter page, or not an
+ * adapted AR / case / CRE row).
+ */
+export function classifyBoardRow(
+  q: Row,
+  spec: ChapterSpec,
+  guard: GuardLists,
+  withheld: ReadonlySet<string> = WITHHELD_QUESTION_IDS,
+): BoardClassified | null {
+  const id = q.id;
+  const book = bookOf(id);
+  if (!book || q.topicKey !== spec.bank) return null;
+  if (spec.bank !== spec.slug && idChapterOf(id) !== spec.chapter) return null;
+  if (!ADAPTED_FORMAT.test(String(q.format ?? "").trim()) && !ADAPTED_ID.test(id)) return null;
+  const kind = boardKindOf(q);
+  const out = (reason: BoardExclusionReason | null, detail = ""): BoardClassified => ({ id, book, kind, reason, detail });
+  if (withheld.has(id)) return out("withheld", "WITHHELD_QUESTION_IDS");
+  if (q.sourceOverride === "others") return out("source-others", "BANK-FIX-1: stays in the Practice Hub only");
+  if (!kind) return out("not-board-format", `${q.format}: neither Assertion-Reason nor case-based`);
+  const text = allText(q);
+  // No row in this section is shown as a past paper: a PYQ claim would need its board label and an
+  // official source, which these adapted rows do not carry.
+  if (PYQ_CLAIM.test(text)) return out("pyq-without-official-source", "claims a CBSE paper without an official source");
+  const cited = BOOK_LOCATION_CITED.exec([q.questionText, ...(q.solutionSteps ?? []), q.finalAnswer, q.answer].join("\n"));
+  if (cited) return out("cites-book-location", cited[0]);
+  const syl = syllabusReason(q, guard);
+  if (syl) return out("syllabus", syl);
+  if (q.requiresDiagram === true) return out("needs-figure", "requiresDiagram");
+  if (getFiguresForQuestion(id).length > 0) return out("needs-figure", "a bound figure the page does not render");
+  // "similar / congruent figures" names shapes (the Triangles concept), not a drawing the page lacks.
+  if (NEEDS_FIGURE_TEXT.test(String(q.questionText ?? "").replace(FIGURE_AS_SHAPE, "shapes"))) {
+    return out("needs-figure", "question refers to a figure/graph");
+  }
+  if ((q.solutionSteps ?? []).some((s) => NEEDS_FIGURE_STEPS.test(String(s)))) return out("needs-figure", "solution refers to a figure");
+  if (text.includes(REPLACEMENT_CHAR)) return out("garbled", "U+FFFD");
+  if (MOJIBAKE.test(text)) return out("garbled", "mojibake");
+  if (MARK_BLEED.test(String(q.questionText ?? ""))) return out("garbled", "mark bleed");
+  if (AUTHORING_ARTIFACT.test(text)) return out("garbled", "drafting artifact");
+  if (!String(q.questionText ?? "").trim() || !(q.solutionSteps ?? []).length || !String(q.finalAnswer ?? q.answer ?? "").trim()) {
+    return out("garbled", "missing question, steps or answer");
+  }
+  const opts = Array.isArray(q.options) ? q.options : [];
+  if (kind === "assertion-reason" && opts.length !== 4) return out("ar-options", `${opts.length} options`);
+  if (opts.length > 0 && correctOptionIndex(String(q.answer ?? ""), opts) === null) return out("mcq-key-ambiguous", String(q.answer));
+  return out(null);
+}
+
+export interface BoardSelection {
+  ncert: SelectedRow[];
+  exemplar: SelectedRow[];
+  excluded: BoardClassified[];
+}
+
+/** The book page a board row is shown on (its id's book when published, else the other), or null. */
+export function boardPageFor(book: Book, published: Readonly<Record<Book, boolean>>): Book | null {
+  if (published[book]) return book;
+  const other: Book = book === "ncert" ? "exemplar" : "ncert";
+  return published[other] ? other : null;
+}
+
+/** The board-pattern section of one chapter page (bank order; AR rows have an option verdict, case rows none). */
+export function selectBoard(
+  rows: readonly Row[],
+  spec: ChapterSpec,
+  guard: GuardLists,
+  published: Readonly<Record<Book, boolean>>,
+  ledger: Readonly<Record<string, LedgerEntry>> = SOLUTIONS_3_BOARD_LEDGER,
+): BoardSelection {
+  const sel: BoardSelection = { ncert: [], exemplar: [], excluded: [] };
+  const seenText = new Map<string, string>();
+  for (const q of rows) {
+    const c = classifyBoardRow(q, spec, guard);
+    if (!c) continue;
+    if (c.reason) {
+      sel.excluded.push(c);
+      continue;
+    }
+    const tk = dupKey(String(q.questionText));
+    const dupOf = seenText.get(tk);
+    if (dupOf) {
+      sel.excluded.push({ ...c, reason: "duplicate", detail: `same question as ${dupOf}` });
+      continue;
+    }
+    seenText.set(tk, q.id);
+    const l = ledger[q.id];
+    if (!l) {
+      sel.excluded.push({ ...c, reason: "unverified", detail: "not in solutions3BoardLedger.ts" });
+      continue;
+    }
+    if (l.status === "hold" || l.status === "ref-mismatch") {
+      sel.excluded.push({ ...c, reason: "held", detail: l.note });
+      continue;
+    }
+    if (l.hash !== rowHash(q)) {
+      sel.excluded.push({ ...c, reason: "unverified", detail: "content changed since verification (hash)" });
+      continue;
+    }
+    const page = boardPageFor(c.book, published);
+    if (!page) continue; // the chapter has no published page: nothing to attach the section to
+    sel[page].push({ id: q.id, verdict: false, note: c.kind === "assertion-reason" ? "" : "case-based" });
+  }
+  return sel;
+}
 
 // ---------------------------------------------------------------------------------------------
 // Emitting the allowlist block.
@@ -508,6 +683,19 @@ function emitRows(rows: readonly SelectedRow[]): string {
   return rows
     .map((r) => `      ${r.verdict ? "v" : "r"}(${JSON.stringify(r.id)}),${r.note ? ` // ${commentSafe(r.note)}` : ""}`)
     .join("\n");
+}
+
+/** SOLUTIONS-3: the `boardPattern` lines of a chapter (none when the section is empty). */
+function emitBoard(b: BoardSelection): string[] {
+  if (b.ncert.length + b.exemplar.length === 0) return [];
+  const list = (rows: readonly SelectedRow[]) =>
+    rows.length ? `[\n${rows.map((r) => `  ${emitRows([r])}`).join("\n")}\n      ]` : "[]";
+  return [
+    `    boardPattern: {`,
+    `      ncert: ${list(b.ncert)},`,
+    `      exemplar: ${list(b.exemplar)},`,
+    `    },`,
+  ];
 }
 
 /** The chapter as solutionsPublishSafe.ts will hold it (for the head-text ladders). */
@@ -567,6 +755,7 @@ export function emitBlock(selections: readonly ChapterSelection[]): string {
         `    decision: ${JSON.stringify(SOLUTIONS_2_DECISION)},`,
         s.ncert.length ? `    ncert: [\n${emitRows(s.ncert)}\n    ],` : "    ncert: [],",
         s.exemplar.length ? `    exemplar: [\n${emitRows(s.exemplar)}\n    ],` : "    exemplar: [],",
+        ...emitBoard(s.board),
         "  },",
       ].join("\n");
     });
@@ -631,6 +820,27 @@ async function main(argv: string[]): Promise<void> {
     if (argv.includes("--excluded")) {
       for (const s of selections) for (const e of s.excluded) console.log(`EXCL\t${s.spec.slug}\t${e.id}\t${e.reason}\t${e.detail}`);
     }
+  }
+  if (argv.includes("--board")) {
+    for (const s of selections) {
+      console.log(`BOARD\t${s.spec.slug}\tncert ${s.board.ncert.length}\texemplar ${s.board.exemplar.length}`);
+      for (const e of s.board.excluded) console.log(`BOARD-EXCL\t${s.spec.slug}\t${e.id}\t${e.reason}\t${e.detail}`);
+    }
+  }
+  const bi = argv.indexOf("--board-candidates");
+  if (bi >= 0) {
+    // Every row that passes the board-section RULES (before the ledger), with its content hash: the verifiers' input.
+    const { getBankRows } = await import("../../src/data/bankChapters/loader");
+    const guard = readSyllabusGuard();
+    // All 14 chapters: the Triangles pilot's board rows are verified into the same ledger.
+    const out = maths202627Chapters().flatMap((spec) =>
+      (getBankRows([spec.bank]) as Row[]).flatMap((q) => {
+        const c = classifyBoardRow(q, spec, guard);
+        return c ? [{ slug: spec.slug, id: q.id, kind: c.kind, reason: c.reason, detail: c.detail, hash: rowHash(q) }] : [];
+      }),
+    );
+    writeFileSync(argv[bi + 1], JSON.stringify(out, null, 1));
+    console.log(`board candidates: ${out.length} -> ${argv[bi + 1]}`);
   }
   const ci = argv.indexOf("--candidates");
   if (ci >= 0) {

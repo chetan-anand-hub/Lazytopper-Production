@@ -6,6 +6,8 @@ import { MemoryRouter } from "react-router-dom";
 
 import SolutionsPage, { exerciseOf, solutionsH1 } from "../pages/SolutionsPage";
 import {
+  BOARD_PATTERN_HEADING,
+  boardPatternRows,
   parseSolutionsPath,
   publishedRows,
   SOLUTIONS_CHAPTERS,
@@ -20,12 +22,15 @@ import { ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { WITHHELD_QUESTION_IDS } from "../data/canonicalQuestionBank";
 import { compareAnswer, correctOptionIndex, parseQuantity } from "../lib/solutions/compareAnswer";
 import { pageJsonLd, ROUTE_CHUNK_MODULES, STATIC_PAGE_HEADS } from "../../scripts/seo/writeStaticHeads";
+import { rowHash, type Row } from "../../scripts/solutions/selectSolutions";
+import { SOLUTIONS_3_BOARD_LEDGER } from "./solutions3BoardLedger";
 
 /**
  * SOLUTIONS-1 (lane G; #973 D259 / D260 / D261) — the Triangles NCERT + Exemplar solutions pilot.
  *
- *   (a) exactly the D261 ids are allowlisted (13 + 16), none of the 5 HOLD or 12 excluded ids,
- *       and every one is served by the bank exactly when it is not withheld;
+ *   (a) exactly the D261 ids are allowlisted as SOLUTIONS-3 amended them (11 + 14 book rows; the AR
+ *       and case rows in the labelled board-pattern section; the two "others" rows off the page),
+ *       none of the 5 HOLD or 12 excluded ids, and every one is served exactly when not withheld;
  *   (b) the page renders exactly those rows; before an attempt each solution is in the HTML but
  *       `hidden`, and only step 1 sits behind the hint; a withheld row disappears (CONTROL);
  *   (c) verdicts: MCQ / AR rows have exactly one correct option; ONLY the five opted-in typed rows
@@ -43,30 +48,36 @@ import { pageJsonLd, ROUTE_CHUNK_MODULES, STATIC_PAGE_HEADS } from "../../script
 const ROOT = process.cwd(); // vitest runs with cwd = lazytopper/
 const read = (rel: string) => readFileSync(resolve(ROOT, rel), "utf8");
 
+// SOLUTIONS-3 (owner rulings 18 Oct 2026) changed D261's lists in two ways only:
+//   ruling 1 — the AR and case rows moved out of the NCERT book list into the labelled
+//              "CBSE board pattern" section (`boardPattern.ncert`);
+//   ruling 2 — TRI-N-EXMPLR-6-LA-001 and -SA-011 (now source "others") left the page (Practice Hub only).
 const D261_NCERT = [
   "TRI-N-NCERT-6-MCQ-001", "TRI-N-NCERT-6-MCQ-002", "TRI-N-NCERT-6-VSA-001", "TRI-N-NCERT-6-SA-001",
   "TRI-N-NCERT-6-SA-002", "TRI-N-NCERT-6-SA-003", "TRI-N-NCERT-6-SA-005", "TRI-N-NCERT-6-LA-001",
-  "TRI-N-NCERT-6-LA-003", "TRI-N-NCERT-6-LA-004", "TRI-N-NCERT-6-LA-005", "TRI-N-NCERT-6-AR-001",
-  "TRI-N-NCERT-6-CB-001",
+  "TRI-N-NCERT-6-LA-003", "TRI-N-NCERT-6-LA-004", "TRI-N-NCERT-6-LA-005",
 ];
 const D261_EXEMPLAR = [
   "TRI-N-EXMPLR-6-MCQ-003", "TRI-N-EXMPLR-6-MCQ-004", "TRI-N-EXMPLR-6-MCQ-005", "TRI-N-EXMPLR-6-MCQ-006",
   "TRI-N-EXMPLR-6-MCQ-007", "TRI-N-EXMPLR-6-SA-002", "TRI-N-EXMPLR-6-SA-003", "TRI-N-EXMPLR-6-SA-005",
-  "TRI-N-EXMPLR-6-SA-006", "TRI-N-EXMPLR-6-SA-008", "TRI-N-EXMPLR-6-SA-010", "TRI-N-EXMPLR-6-SA-011",
-  "TRI-N-EXMPLR-6-SA-012", "TRI-N-EXMPLR-6-LA-001", "TRI-N-EXMPLR-6-LA-003", "TRI-N-EXMPLR-6-LA-004",
+  "TRI-N-EXMPLR-6-SA-006", "TRI-N-EXMPLR-6-SA-008", "TRI-N-EXMPLR-6-SA-010",
+  "TRI-N-EXMPLR-6-SA-012", "TRI-N-EXMPLR-6-LA-003", "TRI-N-EXMPLR-6-LA-004",
 ];
+/** Ruling 1: the pilot's AR / case rows, now in the board-pattern section of the NCERT page. */
+const S3_BOARD_NCERT = ["TRI-N-NCERT-6-AR-001", "TRI-N-NCERT-6-CB-001"];
+/** Ruling 2: off the page, still served to the Practice Hub. */
+const S3_REMOVED = ["TRI-N-EXMPLR-6-LA-001", "TRI-N-EXMPLR-6-SA-011"];
 const D261_HOLD = ["TRI-N-NCERT-6-LA-002", "TRI-N-NCERT-6-SA-004", "TRI-N-EXMPLR-6-MCQ-001", "TRI-N-EXMPLR-6-SA-004", "TRI-N-EXMPLR-6-SA-009"];
 const D261_EXCLUDED = [
   "TRI-N-NCERT-6-LA-006", "TRI-N-NCERT-6-SA-006", "TRI-N-NCERT-6-SA-007", "TRI-N-NCERT-6-SA-008",
   "TRI-N-EXMPLR-6-MCQ-002", "TRI-N-EXMPLR-6-SA-007", "TRI-N-EXMPLR-6-SA-013", "TRI-N-EXMPLR-6-LA-005",
   "TRI-N-EXMPLR-6-LA-006", "TRI-N-EXMPLR-6-LA-007", "TRI-N-EXMPLR-6-CB-001", "TRI-N-EXMPLR-6-CB-002",
 ];
-/** The five typed rows opted in for a verdict, with the bank's own key (pinned). */
+/** The typed rows opted in for a verdict, with the bank's own key (pinned). SA-011 left with ruling 2. */
 const VALUE_KEYS: Readonly<Record<string, string>> = {
   "TRI-N-NCERT-6-SA-001": "EC = 2 cm.",
   "TRI-N-NCERT-6-SA-005": "Height of the tower = 42 m.",
   "TRI-N-EXMPLR-6-SA-008": "Perimeter of △ABC = 18 cm.",
-  "TRI-N-EXMPLR-6-SA-011": "BD = 55/3 cm.",
   "TRI-N-EXMPLR-6-SA-012": "Height of the telephone pole = 10 m.",
 };
 
@@ -133,23 +144,48 @@ beforeAll(async () => {
 
 const tri = solutionsChapter("triangles")!;
 const ids = (book: SolutionsBook) => tri[book].map((r) => r.id);
+const boardIds = (book: SolutionsBook) => (tri.boardPattern?.[book] ?? []).map((r) => r.id);
+/** Book rows + board-pattern rows of one page (every card the page renders). */
+const pageRows = (book: SolutionsBook) => {
+  const served = getBankRows(["triangles"]);
+  return [...publishedRows(served, tri, book), ...boardPatternRows(served, tri, book)];
+};
 
-describe("(a) the allowlist is exactly D261, and the bank serves it", () => {
-  it("13 NCERT + 16 Exemplar, in D261's order, unique", () => {
-    // SOLUTIONS-2 added the other Maths chapters after it; the pilot entry stays first and unchanged.
+describe("(a) the allowlist is D261 as amended by SOLUTIONS-3, and the bank serves it", () => {
+  it("11 NCERT + 14 Exemplar book rows in D261's order, + 2 board-pattern rows, unique", () => {
+    // SOLUTIONS-2 added the other Maths chapters after it; the pilot entry stays first.
     expect(SOLUTIONS_CHAPTERS[0].slug).toBe("triangles");
     expect(SOLUTIONS_CHAPTERS.filter((c) => c.decision === "D261").map((c) => c.slug)).toEqual(["triangles"]);
     expect(ids("ncert")).toEqual(D261_NCERT);
     expect(ids("exemplar")).toEqual(D261_EXEMPLAR);
-    expect(new Set([...ids("ncert"), ...ids("exemplar")]).size).toBe(29);
+    expect(boardIds("ncert")).toEqual(S3_BOARD_NCERT);
+    expect(boardIds("exemplar")).toEqual([]);
+    expect(new Set([...ids("ncert"), ...ids("exemplar"), ...boardIds("ncert")]).size).toBe(27);
+  });
+  it("ruling 1: no AR / case row is in a Triangles BOOK list; ruling 2: the two 'others' rows are on no list", () => {
+    const books = [...ids("ncert"), ...ids("exemplar")];
+    expect(books.filter((id) => /-(?:AR|CB|CRE)-\d+$/.test(id))).toEqual([]);
+    const all = new Set([...books, ...boardIds("ncert"), ...boardIds("exemplar")]);
+    for (const id of S3_REMOVED) expect(all.has(id), id).toBe(false);
+    // ... and they stay in the Practice Hub: the bank still serves them.
+    const served = new Set(getBankRows(["triangles"]).map((q) => q.id));
+    for (const id of S3_REMOVED) expect(served.has(id), id).toBe(!WITHHELD_QUESTION_IDS.has(id));
+  });
+  it("the board-pattern rows are re-verified in solutions3BoardLedger.ts (publish, live hash)", () => {
+    const byId = new Map(getBankRows(["triangles"]).map((q) => [q.id, q] as const));
+    for (const id of S3_BOARD_NCERT) {
+      const l = SOLUTIONS_3_BOARD_LEDGER[id];
+      expect(l?.status, id).toBe("publish");
+      expect(l.hash, id).toBe(rowHash(byId.get(id)! as Row));
+    }
   });
   it("none of the 5 HOLD or the 12 syllabus-excluded rows is allowlisted", () => {
-    const all = new Set([...ids("ncert"), ...ids("exemplar")]);
+    const all = new Set([...ids("ncert"), ...ids("exemplar"), ...boardIds("ncert"), ...boardIds("exemplar")]);
     for (const id of [...D261_HOLD, ...D261_EXCLUDED]) expect(all.has(id), id).toBe(false);
   });
   it("each allowlisted id is served by the chapter loader exactly when it is not withheld", () => {
     const served = new Set(getBankRows(["triangles"]).map((q) => q.id));
-    for (const id of [...ids("ncert"), ...ids("exemplar")]) {
+    for (const id of [...ids("ncert"), ...ids("exemplar"), ...boardIds("ncert")]) {
       expect(served.has(id), id).toBe(!WITHHELD_QUESTION_IDS.has(id));
     }
   });
@@ -161,14 +197,14 @@ describe("(b) the page renders exactly the published rows, attempt-first", () =>
       const html = pages[book];
       expect(html).toContain(`<h1>${solutionsH1(book, tri)}</h1>`);
       const cards = [...html.matchAll(/data-testid="ncs-q-([a-z0-9-]+)"/g)].map((m) => m[1]);
-      const expected = publishedRows(getBankRows(["triangles"]), tri, book).map(({ q }) => q.id.toLowerCase());
+      const expected = pageRows(book).map(({ q }) => q.id.toLowerCase());
       expect(cards.length).toBe(expected.length);
       expect(new Set(cards)).toEqual(new Set(expected));
     });
 
     it(`${book}: before an attempt, the full solution is in the HTML but hidden; the hint holds step 1 only`, () => {
       const html = pages[book];
-      for (const { q } of publishedRows(getBankRows(["triangles"]), tri, book)) {
+      for (const { q } of pageRows(book)) {
         const a = q.id.toLowerCase();
         const sol = block(html, `ncs-sol-${a}`);
         expect(sol, `no solution block for ${q.id}`).not.toBeNull();
@@ -184,10 +220,40 @@ describe("(b) the page renders exactly the published rows, attempt-first", () =>
   }
 
   it("CONTROL: a row withheld later disappears (allowlist ∩ served)", () => {
-    const served = getBankRows(["triangles"]).filter((q) => q.id !== "TRI-N-NCERT-6-SA-001");
+    const served = getBankRows(["triangles"]).filter((q) => q.id !== "TRI-N-NCERT-6-SA-001" && q.id !== "TRI-N-NCERT-6-CB-001");
     const out = publishedRows(served, tri, "ncert").map(({ q }) => q.id);
-    expect(out).toHaveLength(12);
+    expect(out).toHaveLength(D261_NCERT.length - 1);
     expect(out).not.toContain("TRI-N-NCERT-6-SA-001");
+    expect(boardPatternRows(served, tri, "ncert").map(({ q }) => q.id)).toEqual(["TRI-N-NCERT-6-AR-001"]);
+  });
+
+  it("ruling 1: the AR / case rows sit ONLY in the labelled board-pattern section, never under a book reference", () => {
+    const html = pages.ncert;
+    const section = block(html, "ncs-board");
+    expect(section, "no board-pattern section on the NCERT page").not.toBeNull();
+    expect(section!).toContain(`<h2 id="ncs-board-h">${BOARD_PATTERN_HEADING}</h2>`);
+    expect(BOARD_PATTERN_HEADING).toBe("CBSE board pattern: Assertion-Reason and case-based questions");
+    expect(block(html, "ncs-board-note")!).toContain("These are not NCERT textbook questions.");
+    const byId = new Map(getBankRows(["triangles"]).map((q) => [q.id, q] as const));
+    for (const id of S3_BOARD_NCERT) {
+      const card = block(section!, `ncs-q-${id.toLowerCase()}`);
+      expect(card, `${id} is not inside the board-pattern section`).not.toBeNull();
+      const ref = /<span class="lt-ncs__ref">([^<]*)<\/span>/.exec(card!)![1];
+      expect(ref, id).toMatch(/^CBSE board pattern · (?:Assertion-Reason|Case-based)$/);
+      expect(card!, `${id} shows its book reference`).not.toContain(String(byId.get(id)!.ncertRef));
+      expect(card!, id).not.toMatch(/\bPYQ\b/);
+    }
+    // Every card OUTSIDE the section is a book row.
+    const outside = html.replace(section!, "");
+    for (const id of S3_BOARD_NCERT) expect(outside, id).not.toContain(`ncs-q-${id.toLowerCase()}`);
+    // The Exemplar page has no board rows, so no section.
+    expect(block(pages.exemplar, "ncs-board")).toBeNull();
+  });
+
+  it("ruling 2: the two 'others' rows are on neither page", () => {
+    for (const book of ["ncert", "exemplar"] as const) {
+      for (const id of S3_REMOVED) expect(pages[book], `${book} ${id}`).not.toContain(`ncs-q-${id.toLowerCase()}`);
+    }
   });
 
   it("an unknown chapter or path is not a solutions page", () => {
@@ -210,15 +276,17 @@ describe("(b) the page renders exactly the published rows, attempt-first", () =>
 describe("(c) verdicts — never mark a correct student wrong", () => {
   it("every MCQ / AR row has exactly one option equal to its key", () => {
     for (const book of ["ncert", "exemplar"] as const) {
-      for (const { q } of publishedRows(getBankRows(["triangles"]), tri, book)) {
+      for (const { q } of pageRows(book)) {
         if (!Array.isArray(q.options)) continue;
         expect(correctOptionIndex(String(q.answer), q.options), q.id).not.toBeNull();
       }
     }
   });
 
-  it("ONLY the five pinned typed rows are opted in, and each bank key still compares to itself", () => {
+  it("ONLY the four pinned typed rows are opted in, and each bank key still compares to itself", () => {
     // The pilot's own opt-ins (SOLUTIONS-2 rows are pinned in solutions2Selection.guard.test.tsx).
+    const board = [...(tri.boardPattern?.ncert ?? []), ...(tri.boardPattern?.exemplar ?? [])];
+    expect(board.filter((r) => r.verdict === "value"), "a board-pattern row never gets a typed verdict").toEqual([]);
     const optedIn = [...tri.ncert, ...tri.exemplar].filter((r) => r.verdict === "value").map((r) => r.id);
     expect(optedIn.sort()).toEqual(Object.keys(VALUE_KEYS).sort());
     const byId = new Map(getBankRows(["triangles"]).map((q) => [q.id, q] as const));
@@ -234,7 +302,7 @@ describe("(c) verdicts — never mark a correct student wrong", () => {
   it("the page marks verdict rows `value`, MCQ/AR `option`, every other row `none`, and offers the photo check", () => {
     for (const book of ["ncert", "exemplar"] as const) {
       const html = pages[book];
-      for (const { q, safe } of publishedRows(getBankRows(["triangles"]), tri, book)) {
+      for (const { q, safe } of pageRows(book)) {
         const card = block(html, `ncs-q-${q.id.toLowerCase()}`)!;
         const want = Array.isArray(q.options) ? "option" : safe.verdict === "value" ? "value" : "none";
         expect(openTag(card), q.id).toContain(`data-verdict="${want}"`);
@@ -330,7 +398,7 @@ describe("(f) the committed prerender carries every row and its hidden solution 
       const file = resolve(ROOT, "prerendered", `${solutionsPath(book, "triangles").slice(1)}.html`);
       if (!existsSync(file)) return; // captured by CI in this PR; asserted once committed
       const body = readFileSync(file, "utf8");
-      for (const id of ids(book)) {
+      for (const id of [...ids(book), ...boardIds(book)]) {
         if (WITHHELD_QUESTION_IDS.has(id)) continue;
         const a = id.toLowerCase();
         expect(body, id).toContain(`data-testid="ncs-q-${a}"`);
