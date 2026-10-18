@@ -16,8 +16,10 @@ import "./contactPage.css";
  * operating company comes from `config/legalEntity.ts` (never retyped here).
  *
  * The title and description are set on mount for the browser tab and for a crawler that
- * runs the bundle. The page is NOT yet in the sitemap or the prerender (that needs a
- * build: reported as a follow-up in the PR).
+ * runs the bundle. CONTACT-INDEX-1 (owner ruling, 18 Oct 2026) made the page self-canonical,
+ * advertised (sitemap, llms.txt) and prerendered; its static head in
+ * `scripts/seo/writeStaticHeads.ts` repeats CONTACT_TITLE / CONTACT_DESCRIPTION word for word
+ * (`config/contactIndex.guard.test.tsx` pins the two equal).
  */
 
 export const CONTACT_EMAIL = "support@lazytopper.com";
