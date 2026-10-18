@@ -38,15 +38,58 @@ const GOOD: BoardTryRow = {
   ncertRef: "PYQ 31/3/2 Q26",
 };
 
+/** BOARD-TRY-WIDEN-1 (owner ruling (b), 2026-10-18): a Section D long answer of 5 marks is offered too. */
+const GOOD_D: BoardTryRow = {
+  id: "PYQ-M-2025-SAV-004",
+  subject: "Maths",
+  topicKey: "surface-areas-and-volumes",
+  section: "D",
+  marks: 5,
+  format: "Long",
+  questionText: "A vessel is in the form of an inverted cone. Its height is 8 cm and the radius of its top, which is open, is 5 cm. It is filled with water up to the brim. When lead shots, each of which is a sphere of radius 0.5 cm, are dropped into the vessel, one-fourth of the water flows out. Find the number of lead shots dropped in the vessel.",
+  solutionSteps: [
+    "[1 mark] Volume of water in the cone = (1/3)πr²h = (1/3) × π × 5² × 8",
+    "[0.5 mark] = 200π/3 cm³.",
+    "[1 mark] Volume that flows out = (1/4) × (200π/3) = 50π/3 cm³.",
+    "[1 mark] Volume of one lead shot = (4/3)π(1/2)³",
+    "[0.5 mark] = π/6 cm³.",
+    "[1 mark] Number of lead shots = (50π/3) ÷ (π/6) = 100.",
+  ],
+  pyqYear: "2025",
+  ncertRef: "PYQ 30/3/1 Q35",
+};
+
 describe("ACTIVATION-2 D · the board-question rule", () => {
   it("accepts a clean written Section B/C board row of 2-3 marks", () => {
     expect(isBoardTryRow(GOOD)).toBe(true);
   });
 
+  it("accepts a clean written Section D long answer of 5 marks (BOARD-TRY-WIDEN-1)", () => {
+    expect(isBoardTryRow(GOOD_D)).toBe(true);
+    expect(isOfferableRow(GOOD_D)).toBe(true);
+    expect(boardTryText(GOOD_D)).toBe(`${String(GOOD_D.questionText)} [5]`);
+    expect(boardTryLabel(GOOD_D)).toBe("CBSE board question (2025) · Surface Areas and Volumes");
+  });
+
+  it.each([
+    ["a Section D row of 3 marks", { marks: 3 }],
+    ["a Section D row that is not a long answer", { format: "Short" }],
+    ["a Section D row with options", { options: ["a", "b", "c", "d"] }],
+    ["a Section D row over 400 characters", { questionText: `${String(GOOD_D.questionText)} ${"Show all the working clearly. ".repeat(3)}` }],
+    ["a Section D row needing a figure", { questionText: "In the given figure, a solid is made of a cylinder with a cone on top. Find its total surface area and volume." }],
+    ["a Section D internal-choice row", { questionText: "(a) Find the volume of a cone of radius 7 cm and height 24 cm. OR (b) Find the curved surface area of a hemisphere of radius 7 cm." }],
+    ["a Section D row with an unmarked step", { solutionSteps: ["[1 mark] V = (1/3)πr²h", "Number of lead shots = 100"] }],
+    ["a Section D row whose source was not confirmed", { sourceOverride: "others" }],
+  ])("still rejects %s", (_n, patch) => {
+    expect(isBoardTryRow({ ...GOOD_D, ...(patch as Partial<BoardTryRow>) })).toBe(false);
+  });
+
   it.each([
     ["an MCQ", { format: "MCQ", options: ["a", "b", "c", "d"] }],
     ["a 1-mark row", { marks: 1 }],
-    ["a 5-mark row", { marks: 5 }],
+    ["a 5-mark Section B row", { marks: 5 }],
+    ["a 5-mark long answer outside Section D", { marks: 5, format: "Long" }],
+    ["a 2-3 mark row moved to Section D", { section: "D" }],
     ["a Section E row", { section: "E" }],
     ["a row whose source was not confirmed", { sourceOverride: "others" }],
     ["a row with no board year", { pyqYear: undefined }],
@@ -89,13 +132,27 @@ describe("ACTIVATION-2 D · against the REAL served bank", () => {
     for (const r of pool) {
       expect(String(r.subject)).toBe(subject);
       expect(String(r.ncertRef)).toMatch(/^PYQ\b/);
-      expect([2, 3]).toContain(Number(r.marks));
+      // Section B/C at 2-3 marks, or Section D at 5 marks (BOARD-TRY-WIDEN-1) - never another mix.
+      if (String(r.section).trim() === "D") expect(Number(r.marks), String(r.id)).toBe(5);
+      else expect([2, 3], String(r.id)).toContain(Number(r.marks));
+      expect(String(r.questionText).trim().length, String(r.id)).toBeLessThanOrEqual(400);
       // Never a LazyTopper-generated or authored row (the module does not read these internal
       // provenance fields - GEN-THIN-1 - so the live bank is pinned here instead).
       expect(r.origin, String(r.id)).not.toBe("lt-generated");
       expect(r.questionProvenance, String(r.id)).not.toBe("authored");
       // Inside the 2026-27 syllabus by the notes' own board-question recogniser.
       expect(syllabusExclusion(r as never), String(r.id)).toBeNull();
+    }
+  });
+
+  it("Section D long answers are really on offer (BOARD-TRY-WIDEN-1, non-vacuous)", () => {
+    // 7 offerable Section D rows measured on trunk 6e588408 (Maths 6, Science 1), 2026-10-18.
+    const d = SUBJECTS.flatMap((s) => served[s].filter(isOfferableRow).filter((r) => !isAiGeneratedBankId(String(r.id))))
+      .filter((r) => String(r.section).trim() === "D");
+    expect(d.length).toBeGreaterThanOrEqual(5);
+    for (const r of d) {
+      expect(Number(r.marks), String(r.id)).toBe(5);
+      expect(String(r.format), String(r.id)).toMatch(/^long$/i);
     }
   });
 

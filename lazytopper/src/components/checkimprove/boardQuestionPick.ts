@@ -46,7 +46,15 @@ export interface BoardTryQuestion {
   label: string;
 }
 
-const WRITTEN_FORMAT = /^(short|vsa)$/i;
+/**
+ * The written shapes on offer: a Section B/C short answer of 2-3 marks, or (BOARD-TRY-WIDEN-1,
+ * owner ruling (b) 2026-10-18) a Section D long answer of 5 marks. Every other rule below applies
+ * to both shapes unchanged — the same 400-character cap and the same "[N mark]" step marking.
+ */
+const WRITTEN_SHAPES: ReadonlyArray<{ sections: readonly string[]; marks: readonly number[]; format: RegExp }> = [
+  { sections: ["B", "C"], marks: [2, 3], format: /^(short|vsa)$/i },
+  { sections: ["D"], marks: [5], format: /^long$/i },
+];
 /** A figure, table or drawing the box cannot carry. */
 const NEEDS_VISUAL = /\bfig(?:ure|\.)|diagram|\bshown\b|set-up|\bgraph\b|\btable\b|\bdraw\b|following (?:distribution|data)/i;
 /** An internal choice ("OR", "Attempt either") — a first try should be ONE question. */
@@ -59,9 +67,10 @@ const STEP_MARK = /^\[\d+(?:\.\d+)? marks?\]/;
 const REPLACEMENT_CHAR = String.fromCharCode(0xfffd);
 
 /**
- * True for a written (non-MCQ) Section B/C board question of 2-3 marks that a student can read
- * as plain text: a served row from a CBSE board paper (a `pyqYear` and a "PYQ ..." paper
- * reference), no options, no figure / table / choice, clean text, step-marked solution.
+ * True for a written (non-MCQ) Section B/C board question of 2-3 marks, or a Section D long
+ * answer of 5 marks, that a student can read as plain text: a served row from a CBSE board paper
+ * (a `pyqYear` and a "PYQ ..." paper reference), no options, no figure / table / choice, clean
+ * text of at most 400 characters, step-marked solution.
  */
 export function isBoardTryRow(row: BoardTryRow): boolean {
   const id = String(row.id ?? "");
@@ -72,10 +81,10 @@ export function isBoardTryRow(row: BoardTryRow): boolean {
   // the live bank), so the internal provenance fields are not read here (GEN-THIN-1 guard).
   if (row.sourceOverride === "others") return false;
   if (!String(row.pyqYear ?? "").trim() || !/^PYQ\b/.test(String(row.ncertRef ?? ""))) return false;
-  if (!["B", "C"].includes(String(row.section ?? "").trim())) return false;
+  const section = String(row.section ?? "").trim();
   const marks = Number(row.marks);
-  if (marks !== 2 && marks !== 3) return false;
-  if (!WRITTEN_FORMAT.test(String(row.format ?? "").trim())) return false;
+  const format = String(row.format ?? "").trim();
+  if (!WRITTEN_SHAPES.some((s) => s.sections.includes(section) && s.marks.includes(marks) && s.format.test(format))) return false;
   if (Array.isArray(row.options) && row.options.length > 0) return false;
   if (row.requiresDiagram || row.image || row.imageUrl || row.diagram || row.figure) return false;
   const text = String(row.questionText ?? "").trim();
