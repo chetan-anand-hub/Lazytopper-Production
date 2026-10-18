@@ -9,6 +9,7 @@ import { solutionsHrefForRow } from "../pages/NcertBooksPage";
 import {
   BOARD_PATTERN_HEADING,
   bankSlugOf,
+  boardPatternLabel,
   boardPatternRows,
   booksOf,
   hasBook,
@@ -395,7 +396,13 @@ describe("(g) SOLUTIONS-3 ruling 1: the CBSE board-pattern section", () => {
         }
         expect(html.split(`<h2 id="ncs-board-h">${BOARD_PATTERN_HEADING}</h2>`)).toHaveLength(2);
         const section = html.slice(at, html.indexOf('aria-labelledby="ncs-cta-h"'));
-        expect(section).toContain(book === "ncert" ? "These are not NCERT textbook questions." : "These are not NCERT Exemplar questions.");
+        expect(section).toContain("These are not numbered NCERT/Exemplar questions; some case studies are");
+        expect(section).not.toMatch(/These are not NCERT (?:textbook|Exemplar) questions/);
+        // The card label follows the row's real format (an -AR- / Assertion-Reasoning row), not "has options".
+        for (const { q } of rows) {
+          const want = /assertion/i.test(String(q.format)) ? "Assertion-Reason" : "Case-based";
+          expect(section, q.id).toContain(`<span class="lt-ncs__ref">CBSE board pattern · ${want}</span>`);
+        }
         expect(section).not.toMatch(/\bPYQ\b|previous year/i);
         const before = html.slice(0, at);
         for (const { q } of rows) {
@@ -537,6 +544,15 @@ describe("CONTROLS — every rule fires on synthetic violating input", () => {
     const text = "a\n- [A](https://www.lazytopper.com/ncert-solutions/x): y\nb\n- [B](https://www.lazytopper.com/ncert-exemplar/x): z";
     expect(() => rewriteLlms(text, ["L"])).toThrow();
     expect(rewriteLlms("a\n- [A](https://www.lazytopper.com/ncert-solutions/x): y\nb", ["L1", "L2"])).toBe("a\nL1\nL2\nb");
+  });
+
+  it("SOLUTIONS-3 boardPatternLabel decides AR from the row's format / -AR- id, never from 'has options'", () => {
+    expect(boardPatternLabel({ id: "X-N-NCERT-1-AR-001", format: "Assertion-Reasoning" })).toBe("Assertion-Reason");
+    expect(boardPatternLabel({ id: "X-N-NCERT-1-AR-002", format: "" })).toBe("Assertion-Reason");
+    // CONTROL: a case-based row WITH options (an MCQ sub-part) is still Case-based.
+    const caseWithOptions = { id: "X-N-NCERT-1-CB-001", format: "Case-Based", options: ["1", "2", "3", "4"] };
+    expect(boardPatternLabel(caseWithOptions)).toBe("Case-based");
+    expect(boardPatternLabel({ id: "X-N-EXEM-1-CB-002", format: "Case-Based" })).toBe("Case-based");
   });
 
   it("SOLUTIONS-3 board rules: format, PYQ claim, book location, figure, AR options, ledger, placement", () => {

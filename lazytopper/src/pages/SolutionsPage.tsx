@@ -351,9 +351,10 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           <section className="lt-ncs__group lt-ncs__board" aria-labelledby="ncs-board-h" data-testid="ncs-board">
             <h2 id="ncs-board-h">{BOARD_PATTERN_HEADING}</h2>
             <p className="lt-ncs__boardnote" data-testid="ncs-board-note">
-              These are not {book === "ncert" ? "NCERT textbook" : "NCERT Exemplar"} questions. Neither NCERT book has
-              Assertion-Reason questions: they, and case-based questions, are a CBSE board-paper format. These follow
-              that format on this chapter's 2026-27 syllabus, with solutions by LazyTopper.
+              Written in the CBSE board format. These are not numbered NCERT/Exemplar questions; some case studies are
+              built on textbook problems. Neither NCERT book has Assertion-Reason questions: they, and case-based
+              questions, are a CBSE board-paper format, here on this chapter's 2026-27 syllabus, with solutions by
+              LazyTopper.
             </p>
             {board.map(({ q, safe }) => (
               <QuestionCard key={q.id} q={q} safe={safe} refLabel={`CBSE board pattern · ${boardPatternLabel(q)}`} />
@@ -373,7 +374,7 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
         <p className="lt-ncs__fine">
           Questions from the NCERT Class 10 {ch.subject === "Maths" ? "Mathematics" : ch.subject}{" "}
           {book === "ncert" ? "textbook" : "Exemplar Problems"}
-          {board.length > 0 ? " (the CBSE board-pattern section is not from the NCERT books)" : ""}; the solutions are
+          {board.length > 0 ? " (the CBSE board-pattern section is in the board format, not numbered book questions)" : ""}; the solutions are
           written by LazyTopper. LazyTopper is
           an independent platform and is not affiliated with CBSE or NCERT.
         </p>

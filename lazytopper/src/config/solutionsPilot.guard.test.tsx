@@ -233,7 +233,13 @@ describe("(b) the page renders exactly the published rows, attempt-first", () =>
     expect(section, "no board-pattern section on the NCERT page").not.toBeNull();
     expect(section!).toContain(`<h2 id="ncs-board-h">${BOARD_PATTERN_HEADING}</h2>`);
     expect(BOARD_PATTERN_HEADING).toBe("CBSE board pattern: Assertion-Reason and case-based questions");
-    expect(block(html, "ncs-board-note")!).toContain("These are not NCERT textbook questions.");
+    // Honest wording (review nit): some case studies ARE built on textbook problems, so the note says
+    // "not NUMBERED book questions", never "not NCERT questions".
+    const note = block(html, "ncs-board-note")!;
+    expect(note).toContain("Written in the CBSE board format.");
+    expect(note).toContain("These are not numbered NCERT/Exemplar questions; some case studies are");
+    expect(note).toContain("built on textbook problems.");
+    expect(note).not.toMatch(/These are not NCERT (?:textbook|Exemplar) questions/);
     const byId = new Map(getBankRows(["triangles"]).map((q) => [q.id, q] as const));
     for (const id of S3_BOARD_NCERT) {
       const card = block(section!, `ncs-q-${id.toLowerCase()}`);
