@@ -1,3 +1,10 @@
+## 2026-10-18 - #1236 to #1242 - MERGED
+
+- DONE. PYQ board years restored and step marks added, Maths + Science (`#1236` `#1248`); bank text clean incl. ENV-029 (`#1250`); Maths NCERT + Exemplar solutions pages for 13 chapters (`#1244`) and the CBSE board-pattern section (`#1251`); "Try a board question" widened to Section D and text-only (`#1237`); feedback card + call offer (`#1238`) and admin Extend Premium (`#1249`); parent report card (`#1241`); trial-ending banner (`#1242`); `/contact` indexed (`#1239`); CI fixes and cost / speed (`#1243` `#1246` `#1247`). Served 10580 unchanged.
+- DONE, SWITCHED OFF. "Ask your parents to pay" (`#1240`, both flags unset); trial-ending email (`#1242`, off; dry run when enabled).
+- OPEN. `#1252` SOLUTIONS-3 PR-B held for owner; parent-pay and trial-email switch-on checklists; `[FU-ISTMIDNIGHT]`; the follow-ups in the 2026-10-18 (#1236 to #1242) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- NEXT. Repo back to private at session end (owner); 24 Oct ACTIVATION-2 measurement and Ads budget test.
+
 ## 2026-10-17 - #1211 to #1235 - MERGED
 
 - DONE. Follow-ups and selection fixes (`#1211` `#1212` `#1220`); Quick Practice graded PDF (`#1213`); Topic Hub Worksheet link (`#1214`); WhatsApp contact + `/contact` (`#1215`); Share my score (`#1216`); papers-waiting strip + bell (`#1217`); downloaded CT / FM kept for upload later (`#1218`); ACTIVATION-2 (`#1224`); notes formulae 3b + notation (`#1221` `#1226`); bank lanes landed (`#1223` `#1222` `#1225` `#1227` `#1228` `#1229` `#1230` `#1231` `#1235`), Triangles AA answers (`#1234`) and NCERT Ch 13 Our Environment textbook questions (`#1233`), served 10461 -> 10580.
