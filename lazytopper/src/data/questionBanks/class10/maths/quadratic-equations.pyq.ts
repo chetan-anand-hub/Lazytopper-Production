@@ -20,10 +20,10 @@ export const QUADRATIC_EQUATIONS_PYQ: CanonicalQuestion[] = [
     questionText: "The roots of the equation x² + 3x − 10 = 0 are :",
     options: ["2, −5", "−2, 5", "2, 5", "−2, −5"],
     answer: "2, −5",
-    solutionSteps: ["x² + 3x − 10 = x² + 5x − 2x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5. Correct option: (a) 2, −5."],
+    solutionSteps: ["[1 mark] x² + 3x − 10 = x² + 5x − 2x − 10 = (x + 5)(x − 2) = 0 ⟹ x = 2 or x = −5. Correct option: (a) 2, −5."],
     finalAnswer: "(a) 2, −5",
     ncertRef: "PYQ 30/4/1 Q2", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2023", pyqSet: "1",
   },
   { id: "PYQ-M-QE-003", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     // REWRITE-3 (A2): options restored (x2 -> x²) from the row's own key + Vedantu reproduction of CBSE 2023 set 30/5/1 Q5 (options (a) x² – 4x + 1 = 0, (b) x² + 4x + 1 = 0, (c) 4x² – 3 = 0, (d) x² – 1 = 0; answer (a)); official PDF not available to the controller (the older comment below cites the original extraction source).
@@ -57,7 +57,7 @@ export const QUADRATIC_EQUATIONS_PYQ: CanonicalQuestion[] = [
     // Recovered from MS 041_30-4-1 Mathematics 2022-23, p.13 (final value p = 6). questionText also had scraped Section-D boilerplate appended, removed here.
     questionText: "Find the value of 'p' for which the quadratic equation px(x – 2) + 6 = 0 has two equal real roots.",
     answer: "px(x – 2) + 6 = 0 ⇒ px2 – 2px + 6 = 0, a = p, b = – 2p, c = 6. Quadratic equation has equal roots, so D = 0. b2 – 4ac = 0 ⇒ 4p2 – 24p = 0, 4p (p – 6) = 0, p = 0, p = 6. p = 0 rejected ⇒ p = 6.",
-    solutionSteps: ["px(x – 2) + 6 = 0 ⇒ px2 – 2px + 6 = 0, so a = p, b = – 2p, c = 6.", "The equation has equal roots, so D = b2 – 4ac = 0 ⇒ 4p2 – 24p = 0.", "4p (p – 6) = 0 ⇒ p = 0 or p = 6; p = 0 is rejected (it is not a quadratic), so p = 6."],
+    solutionSteps: ["[0.5 marks] px(x – 2) + 6 = 0 ⇒ px2 – 2px + 6 = 0, so a = p, b = – 2p, c = 6.", "[1.5 marks] The equation has equal roots, so D = b2 – 4ac = 0 ⇒ 4p2 – 24p = 0.", "[1 mark] 4p (p – 6) = 0 ⇒ p = 0 or p = 6; p = 0 is rejected (it is not a quadratic), so p = 6."],
     finalAnswer: "p = 6",
     ncertRef: "PYQ 30/4/1 Q31", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
