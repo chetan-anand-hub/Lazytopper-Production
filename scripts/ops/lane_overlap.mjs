@@ -13,13 +13,24 @@
 // so the gated-lane review requirement is visible in the check output as well as via
 // .github/CODEOWNERS.
 //
+// DRAFTS (owner ruling, CI-2, 2026-10-18). A draft PR is parked work, not a lane that is
+// about to merge, so it must not block anyone:
+//   - an overlap with ANOTHER PR that is a draft is INFORMATIONAL (a ::warning:: and a
+//     summary row), never a failure;
+//   - when THIS PR is a draft, the check still runs and reports every overlap, but passes
+//     with a note. lane-overlap.yml re-runs on `ready_for_review`, so the real verdict is
+//     taken the moment the PR leaves draft.
+// An overlap between two NON-draft PRs still FAILS, exactly as before.
+//
 // Env (supplied by .github/workflows/lane-overlap.yml):
 //   PR_NUMBER          - the current PR's number            (required)
 //   GITHUB_REPOSITORY  - "owner/repo"                        (required)
 //   GH_TOKEN           - token for the gh CLI                (required; set to GITHUB_TOKEN)
+//   PR_IS_DRAFT        - "true" when this PR is a draft     (optional; github.event.pull_request.draft)
 //   GITHUB_STEP_SUMMARY- file path for the run summary       (optional; set by Actions)
 //
-// Exit: 0 = no overlap (may still WARN on gated paths); 1 = overlap found, or fatal error.
+// Exit: 0 = no blocking overlap (may still WARN on gated paths / draft overlaps);
+//       1 = blocking overlap found, or fatal error.
 
 import { execFileSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
@@ -70,6 +81,27 @@ export function isGenerated(path) {
   return GENERATED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
+/**
+ * Pure verdict. `mine` = this PR's changed paths; `others` = [{ pr, files }] for every
+ * other open PR (pr.isDraft from `gh pr list`); `selfIsDraft` = this PR is a draft.
+ *   blocking      - overlaps with NON-draft PRs (fail the check unless this PR is a draft)
+ *   informational - overlaps with DRAFT PRs (warn only, never fail)
+ *   ok            - true when the check passes
+ */
+export function evaluateOverlaps({ mine, others, selfIsDraft = false }) {
+  const mineSet = new Set(mine);
+  const blocking = [];
+  const informational = [];
+  for (const { pr, files } of others) {
+    // Generated output is excluded: whichever lane merges second regenerates it.
+    const shared = files.filter((f) => mineSet.has(f) && !isGenerated(f));
+    if (!shared.length) continue;
+    (pr.isDraft === true ? informational : blocking).push({ pr, shared });
+  }
+  const ok = blocking.length === 0 || selfIsDraft === true;
+  return { ok, blocking, informational, selfIsDraft: selfIsDraft === true };
+}
+
 function annErr(msg) { console.error(`::error::${msg}`); }
 function annWarn(msg) { console.error(`::warning::${msg}`); }
 function summary(md) {
@@ -104,7 +136,6 @@ function main() {
     annErr(`lane-overlap: could not read files for PR #${PR_NUMBER}: ${e.message}`);
     process.exit(1);
   }
-  const mineSet = new Set(mine);
   console.log(`PR #${PR_NUMBER} changes ${mine.length} file(s).`);
 
   // --- Gated-path warnings (non-fatal) ---
@@ -125,7 +156,7 @@ function main() {
   }
   console.log(`Comparing against ${others.length} other open PR(s).`);
 
-  const overlaps = [];
+  const fetched = [];
   for (const pr of others) {
     let files;
     try {
@@ -134,15 +165,15 @@ function main() {
       annWarn(`lane-overlap: could not read files for PR #${pr.number} (skipping): ${e.message}`);
       continue;
     }
-    // Generated output is excluded: whichever lane merges second regenerates it.
-    const shared = files.filter((f) => mineSet.has(f) && !isGenerated(f));
-    if (shared.length) overlaps.push({ pr, shared });
+    fetched.push({ pr, files });
   }
+  const selfIsDraft = String(process.env.PR_IS_DRAFT || '').toLowerCase() === 'true';
+  const { ok, blocking, informational } = evaluateOverlaps({ mine, others: fetched, selfIsDraft });
 
   // --- Report to the run summary ---
   summary('## Lane-overlap check');
   summary('');
-  summary(`**PR #${PR_NUMBER}** changes ${mine.length} file(s); ${gatedHits.length} gated.`);
+  summary(`**PR #${PR_NUMBER}**${selfIsDraft ? ' [draft]' : ''} changes ${mine.length} file(s); ${gatedHits.length} gated.`);
   summary('');
   if (gatedHits.length) {
     summary('### WARN -- gated paths touched (owner review required)');
@@ -150,10 +181,45 @@ function main() {
     summary('');
   }
 
-  if (overlaps.length === 0) {
-    console.log('PASS: no lane overlap with any other open PR.');
-    summary('### PASS -- no lane overlap');
-    summary('This PR shares no changed file with any other open PR.');
+  const row = ({ pr, shared }) => {
+    const tag = pr.isDraft ? ' [draft]' : '';
+    const cells = shared.map((s) => '`' + s + '`').join('<br>');
+    return `| #${pr.number}${tag} ${pr.title} | ${pr.baseRefName} | ${cells} |`;
+  };
+
+  // Draft overlaps: informational only, never a failure.
+  if (informational.length) {
+    summary('### INFO -- overlap with DRAFT PR(s) (does not block)');
+    summary('');
+    summary('| Other PR | Base | Shared path(s) |');
+    summary('|---|---|---|');
+    for (const o of informational) {
+      annWarn(`Lane overlap with DRAFT PR #${o.pr.number} (${o.pr.headRefName}): shares ${o.shared.length} path(s) -- ${o.shared.join(', ')} -- informational only; drafts do not block.`);
+      summary(row(o));
+    }
+    summary('');
+  }
+
+  if (blocking.length === 0) {
+    console.log(`PASS: no lane overlap with any other open non-draft PR${informational.length ? ` (${informational.length} draft overlap(s) reported as warnings)` : ''}.`);
+    summary('### PASS -- no blocking lane overlap');
+    summary('This PR shares no changed file with any other open non-draft PR.');
+    process.exit(0);
+  }
+
+  if (ok) {
+    // THIS PR is a draft: report every overlap, pass with a note. ready_for_review re-runs the check.
+    for (const o of blocking) {
+      annWarn(`Lane overlap with PR #${o.pr.number} (${o.pr.headRefName}): shares ${o.shared.length} path(s) -- ${o.shared.join(', ')} -- this PR is a DRAFT, so it passes for now; it will be re-checked when marked ready for review.`);
+    }
+    console.log(`PASS (draft): ${blocking.length} overlap(s) with non-draft PR(s); re-checked on ready_for_review.`);
+    summary('### PASS (draft) -- overlap found, but this PR is a draft');
+    summary('');
+    summary('| Other PR | Base | Shared path(s) |');
+    summary('|---|---|---|');
+    for (const o of blocking) summary(row(o));
+    summary('');
+    summary('> This check re-runs when the PR is marked ready for review, and will FAIL then if the overlap remains.');
     process.exit(0);
   }
 
@@ -161,11 +227,9 @@ function main() {
   summary('');
   summary('| Other PR | Base | Shared path(s) |');
   summary('|---|---|---|');
-  for (const { pr, shared } of overlaps) {
-    const tag = pr.isDraft ? ' [draft]' : '';
-    annErr(`Lane overlap with PR #${pr.number}${tag} (${pr.headRefName}): shares ${shared.length} path(s) -- ${shared.join(', ')} -- sequence, do not parallelize.`);
-    const cells = shared.map((s) => '`' + s + '`').join('<br>');
-    summary(`| #${pr.number}${tag} ${pr.title} | ${pr.baseRefName} | ${cells} |`);
+  for (const o of blocking) {
+    annErr(`Lane overlap with PR #${o.pr.number} (${o.pr.headRefName}): shares ${o.shared.length} path(s) -- ${o.shared.join(', ')} -- sequence, do not parallelize.`);
+    summary(row(o));
   }
   summary('');
   summary('> Two branches editing the same file in parallel will conflict on merge. Land one, rebase the other.');

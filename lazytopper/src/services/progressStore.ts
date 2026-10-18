@@ -173,9 +173,11 @@ export const WINDOW_DAYS: Record<ProgressWindow, number> = { week: 7, "2wk": 14,
  * unchanged. `ProgressWindow` itself is NOT widened: the Topic Hub and Me's chips key records on
  * it, and a `today` they cannot render must not appear in their types.
  */
-export type ReadWindow = "today" | ProgressWindow;
+export type ReadWindow = "today" | "istWeek" | ProgressWindow;
+/** PARENT-REPORT-1 — how many IST calendar days `istWeek` spans (today included). */
+export const IST_WEEK_DAYS = 7;
 /** Days each window spans — `today` counts as ONE day for span labels only (see windowRange). */
-export const READ_WINDOW_DAYS: Record<ReadWindow, number> = { today: 1, ...WINDOW_DAYS };
+export const READ_WINDOW_DAYS: Record<ReadWindow, number> = { today: 1, istWeek: IST_WEEK_DAYS, ...WINDOW_DAYS };
 
 /** IST is a fixed UTC+05:30 — India observes no daylight saving. */
 const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
@@ -185,9 +187,25 @@ export function istDayStartMs(ms: number): number {
   return Math.floor((ms + IST_OFFSET_MS) / DAY_MS) * DAY_MS - IST_OFFSET_MS;
 }
 
-/** The [start, end] epoch-ms range a window covers at `nowMs` (end = now, inclusive). */
+/** PARENT-REPORT-1 — the IST calendar date containing `ms` (month 0–11), whatever the device's
+ *  own time zone: the same fixed offset as `istDayStartMs`, so a label can never name a day the
+ *  window does not start or end on. */
+export function istCalendarDate(ms: number): { year: number; month: number; day: number } {
+  const d = new Date(istDayStartMs(ms) + IST_OFFSET_MS);
+  return { year: d.getUTCFullYear(), month: d.getUTCMonth(), day: d.getUTCDate() };
+}
+
+/**
+ * The [start, end] epoch-ms range a window covers at `nowMs` (end = now, inclusive).
+ *
+ * PARENT-REPORT-1 — `istWeek` is the last SEVEN IST CALENDAR DAYS, today included: it starts at
+ * the IST midnight six days before today's, so its boundaries are IST midnights like `today`'s,
+ * never a rolling 168 hours. It is NOT in `READ_WINDOWS` (Me's chips): only the weekly parent
+ * report reads it.
+ */
 export function windowRange(window: ReadWindow, nowMs: number): { start: number; end: number } {
   if (window === "today") return { start: istDayStartMs(nowMs), end: nowMs };
+  if (window === "istWeek") return { start: istDayStartMs(nowMs) - (IST_WEEK_DAYS - 1) * DAY_MS, end: nowMs };
   return { start: nowMs - WINDOW_DAYS[window] * DAY_MS, end: nowMs };
 }
 

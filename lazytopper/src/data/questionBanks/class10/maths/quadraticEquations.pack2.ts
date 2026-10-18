@@ -1281,7 +1281,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     ],
     sourceOverride: "others",
   },
-  { id: "QE2-048", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation x² + 4x + 4 = 0, the nature of roots is:", options: ["Two equal real roots","Two distinct real roots","No real roots","Complex roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 16−16 = 0 → two equal roots: x = −2.", finalAnswer: "D = 16−16 = 0 → two equal roots: x = −2.", isCompetencyBased: false,
+  { id: "QE2-048", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "For the equation x² + 4x + 4 = 0, the nature of roots is:", options: ["Two equal real roots","Two distinct real roots","No real roots","Complex roots"], answer: "Two equal real roots", explanation: "The correct answer is Two equal real roots. D = 16−16 = 0 → two equal roots: x = −2.", finalAnswer: "Two equal real roots", isCompetencyBased: false,
     solutionSteps: [
       "For x² + 4x + 4 = 0, D = b² − 4ac = 16 − 16 = 0, so the roots are real and equal (x = −2): two equal real roots. [1]",
     ],
