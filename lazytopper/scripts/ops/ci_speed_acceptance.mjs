@@ -259,6 +259,17 @@ export const REAL_COMMITS = [
       realSteps.length > 0 && realSteps.every((st) => /\n        if: github\.event_name == 'pull_request'\n/.test(st)) &&
       realSteps.some((st) => /node scripts\/ops\/lane_overlap\.mjs/.test(st)),
     `pass-through steps=${passThrough.length}; the pass-through must be gated on merge_group only, every real step on pull_request`);
+  // ★ CI-2 (owner ruling 2026-10-18): drafts never block lane-overlap, so marking a draft READY must
+  //   re-run it — `ready_for_review` is a lane-overlap trigger. It stays OUT of quality-gate.yml (a
+  //   ready flip changes no code, so re-paying ~47 billable minutes would buy nothing).
+  const prTypes = (text) => ((text.match(/\n  pull_request:\n(?:[ \t]*#[^\n]*\n)*    types: \[([^\]]*)\]/) || [])[1] || "")
+    .split(",").map((x) => x.trim()).filter(Boolean);
+  const loTypes = prTypes(lo);
+  check("w12_lane_overlap_reruns_on_ready_for_review_quality_gate_does_not",
+    ["opened", "synchronize", "reopened", "ready_for_review"].every((t) => loTypes.includes(t)) &&
+      !/ready_for_review/.test(wf.replace(/^\s*#.*$/gm, "")) &&
+      /PR_IS_DRAFT: \$\{\{ github\.event\.pull_request\.draft \}\}/.test(lo),
+    `lane-overlap pull_request types=[${loTypes.join(", ")}]; quality-gate must not list ready_for_review; PR_IS_DRAFT must be passed`);
   const vitest = jobBlock("vitest");
   check("w5_default_vitest_runs_every_file_once_via_4_shards",
     /shard: \[1, 2, 3, 4\]/.test(vitest) && /pnpm --filter lazytopper exec vitest run --shard \$\{\{ matrix\.shard \}\}\/4/.test(vitest) &&
