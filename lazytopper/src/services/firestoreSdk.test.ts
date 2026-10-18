@@ -145,6 +145,92 @@ describe("firestoreSdk — the on-demand Firestore facade (PERF-3)", () => {
     expect(H.initCalls).toHaveLength(0);
   });
 
+  // ── MUST-FIX 2 (review of #1255): Chromium caches a failed import() per URL ─────────────────
+  // The loader below behaves like Chromium's module map: once a URL has failed, importing that
+  // SAME URL fails again without a request. Only a NEW key (`?retry=<n>`) reaches the network.
+  const CHUNK = "https://app.test/assets/index.esm-AAAA.js";
+  const chromiumFailure = (url: string) => new Error(`Failed to fetch dynamically imported module: ${url}`);
+  function cachedFailureLoader(opts: { networkDownFor: number }) {
+    const calls: string[] = [];
+    const cachedFailures = new Set<string>([CHUNK]);
+    let networkFailuresLeft = opts.networkDownFor;
+    return {
+      calls,
+      loader: {
+        primary: () => {
+          calls.push("primary");
+          return Promise.reject(chromiumFailure(CHUNK)); // the plain specifier: its failure is cached
+        },
+        importUrl: (url: string) => {
+          calls.push(url);
+          if (cachedFailures.has(url)) return Promise.reject(chromiumFailure(url)); // replayed, no request
+          if (networkFailuresLeft > 0) {
+            networkFailuresLeft -= 1;
+            cachedFailures.add(url);
+            return Promise.reject(chromiumFailure(url));
+          }
+          return Promise.resolve(H.sdk() as never);
+        },
+        sleep: async () => {},
+      },
+    };
+  }
+
+  it("CACHED FAILURE: the retry imports the failed chunk URL with ?retry=1 (a new key), succeeds, and initialises once", async () => {
+    const sdk = await freshFacade();
+    const { calls, loader } = cachedFailureLoader({ networkDownFor: 0 });
+    sdk.__setFirestoreSdkLoaderForTests(loader);
+    const order: string[] = [];
+    const a = sdk.withFirestore(() => order.push("A"));
+    const b = sdk.withFirestore(() => order.push("B"));
+    await Promise.all([a, b]);
+    expect(calls).toEqual(["primary", `${CHUNK}?retry=1`]);
+    expect(calls).not.toContain(CHUNK); // never re-tries the cached URL itself
+    expect(order).toEqual(["A", "B"]); // order kept across the retry
+    expect(H.initCalls).toHaveLength(1);
+  });
+
+  it("CACHED FAILURE: when every retry of one call fails, it REJECTS; a LATER call uses fresh ?retry= keys (never the cached ones) and succeeds", async () => {
+    const sdk = await freshFacade();
+    // primary + 2 retries (retry=1, retry=2) all fail in the first call.
+    const { calls, loader } = cachedFailureLoader({ networkDownFor: 2 });
+    sdk.__setFirestoreSdkLoaderForTests(loader);
+    const first = sdk.getFirestore();
+    const firstError = await first.then(() => null, (e: unknown) => e);
+    expect(failureText(firstError)).toContain("Failed to fetch dynamically imported module");
+    expect(calls).toEqual(["primary", `${CHUNK}?retry=1`, `${CHUNK}?retry=2`]);
+    expect(H.initCalls).toHaveLength(0);
+
+    // Network back. The next call must NOT replay the plain import or retry=1/2 (all cached).
+    const handle = await sdk.getFirestore();
+    expect(handle.db).toEqual({ __db: 1 });
+    expect(calls.slice(3)).toEqual([`${CHUNK}?retry=3`]);
+    expect(calls.filter((c) => c === "primary")).toHaveLength(1);
+    expect(H.initCalls).toHaveLength(1);
+    // ...and the instance is kept: no further loads.
+    await sdk.getFirestore();
+    expect(calls).toHaveLength(4);
+  });
+
+  it("an error thrown while the SDK EVALUATES is not a fetch failure: rethrown at once, no retry", async () => {
+    const sdk = await freshFacade();
+    const calls: string[] = [];
+    sdk.__setFirestoreSdkLoaderForTests({
+      primary: () => {
+        calls.push("primary");
+        return Promise.reject(new TypeError("Cannot read properties of undefined (reading 'x')"));
+      },
+      importUrl: (url) => {
+        calls.push(url);
+        return Promise.resolve(H.sdk() as never);
+      },
+      sleep: async () => {},
+    });
+    await expect(sdk.getFirestore()).rejects.toThrow("Cannot read properties of undefined");
+    expect(calls).toEqual(["primary"]);
+    expect(H.initCalls).toHaveLength(0);
+  });
+
   it("a failed load reaches an EXISTING caller's own error path (sessionRecords degrades to local, logged)", async () => {
     failNextLoad(new Error("chunk load failed"));
     vi.resetModules();

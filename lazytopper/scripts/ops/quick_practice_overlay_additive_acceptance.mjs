@@ -701,7 +701,8 @@ const SR_LOCAL_READ = /export function loadLocalSessionRecords\([\s\S]*?\n\}/;
 //   `await withFirestore(({ fs, db }) => fs.A(fs.B(db, …)));` → `await A(B(firestoreDb, …));`
 // Every other byte of the read must still match the merge-base: a changed path, filter, merge or
 // return is still RED (self-tested below). NOT lifted: the shape, the predicate, VALID_SURFACES,
-// mergeById and the local read are compared exactly as before. Applied to the HEAD side only.
+// mergeById and the local read are compared exactly as before. Applied to BOTH sides (it is a no-op
+// on eager text), so the gate compares a facade-form merge-base with a facade-form HEAD after merge.
 function perf3EagerForm(block) {
   if (!block) return block;
   return block
@@ -736,8 +737,9 @@ function additiveOnlyProblems(baseSrc, headSrc) {
     ["mergeById (cloud over the local mirror)", SR_MERGE_BY_ID],
     ["loadLocalSessionRecords (the local read)", SR_LOCAL_READ],
   ]) {
-    const b = srBlock(baseSrc, re);
-    // PERF-3: only the cloud read gets the facade mapping (see perf3EagerForm).
+    // PERF-3: only the cloud read gets the facade mapping (see perf3EagerForm), on BOTH sides: once
+    // PERF-3 is merged the merge-base itself carries the facade form (review of #1255, MUST-FIX 1).
+    const b = re === SR_CLOUD_READ ? perf3EagerForm(srBlock(baseSrc, re)) : srBlock(baseSrc, re);
     const h = re === SR_CLOUD_READ ? perf3EagerForm(srBlock(headSrc, re)) : srBlock(headSrc, re);
     if (!b || !h || b !== h) problems.push(`${label} changed`);
   }
@@ -834,6 +836,13 @@ function additiveOnlyChange(base, f) {
   check("FORBIDDEN(additive-only): PERF-3 CONTROL — an UNMAPPED helper (not the facade form) is still caught",
     additiveOnlyProblems(fxEager, withRead(facadeRead.replace("withFirestore(({ fs, db }) =>", "someOtherLoader(({ fs, db }) =>"))).length > 0,
     "the PERF-3 mapping is wider than the one form the ruling allows");
+  check("FORBIDDEN(additive-only): PERF-3 AFTER MERGE — a facade-form base vs the same facade-form head is ALLOWED (review of #1255, MUST-FIX 1)",
+    additiveOnlyProblems(withRead(facadeRead), withRead(facadeRead)).length === 0,
+    "the gate would go RED on every later sessionRecords.ts edit once PERF-3 is the merge-base");
+  check("FORBIDDEN(additive-only): PERF-3 AFTER MERGE CONTROL — facade-form base vs a facade-form head with a changed path or guard is still caught",
+    additiveOnlyProblems(withRead(facadeRead), withRead(facadeRead.replace('"records"', '"recs"'))).length > 0
+      && additiveOnlyProblems(withRead(facadeRead), withRead(facadeRead.replace("return local;", "return [];"))).length > 0,
+    "after merge the mapping would let the cloud read change");
   for (const f of ADDITIVE_ONLY_ENTRIES) {
     check(`FORBIDDEN(additive-only): ${f} is still in the guarded set`, FORBIDDEN.includes(f),
       "the additive-only rule narrows an entry; it must never stand in for a removed one");
