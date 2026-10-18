@@ -37,6 +37,7 @@ const PRERENDERED = join(APP_ROOT, "prerendered");
  */
 const P8_PAGES = [
   "check-your-answer.html",
+  "contact.html", // CONTACT-INDEX-1 — /contact renders the public footer, now prerendered
   "for-parents.html",
   "index.html",
   "legal/privacy.html",

@@ -92,6 +92,9 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   "/check-your-answer",
   // PARENTS-1 — the parent landing page: public, indexable, signed-out readable.
   "/for-parents",
+  // CONTACT-INDEX-1 (owner ruling, 18 Oct 2026; [FU-CONTACT-INDEX]) — the WhatsApp/email contact
+  // page (WA-CONTACT-1): public, signed-out readable, indexable.
+  "/contact",
   // NCERT-BOOKS-1 (lane G, D210/D213) — the NCERT Class 10 books, chapter-wise: public, indexable.
   "/ncert-class-10",
   // SOLUTIONS-1 (lane G, D259-D261) — the Triangles NCERT + Exemplar solutions pilot: public,

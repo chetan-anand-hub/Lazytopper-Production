@@ -10,7 +10,10 @@
 #   -> "disabled". The SUPPLY-2 "enabled" reading below is therefore history.
 #
 # Dependabot VERSION updates for LazyTopper.
-# Lane SUPPLY-1, 2026-08-03. Companion file: .github/workflows/codeql.yml
+# Lane SUPPLY-1, 2026-08-03. Companion file was .github/workflows/codeql.yml -
+# DELETED 2026-10-18 (CI-VITEST-TIMEOUT-1): the repo went private on GitHub Free,
+# where code scanning needs paid GitHub Code Security, so every CodeQL run failed
+# with "Code scanning is not enabled for this repository".
 #
 # ---------------------------------------------------------------------------
 # WHAT THIS FILE DOES *NOT* DO  — read before assuming the audit item is closed
@@ -156,9 +159,9 @@ updates:
 
   # --- 2. GitHub Actions ----------------------------------------------------
   # The workflows themselves are a supply chain: quality-gate.yml,
-  # lane-overlap.yml, state-board.yml and codeql.yml consume third-party
+  # lane-overlap.yml, state-board.yml and the other workflows consume third-party
   # actions pinned by major tag (actions/checkout@v5, actions/setup-node@v4,
-  # actions/setup-java@v4, github/codeql-action/*@v3). A major tag floats, so
+  # actions/setup-java@v4). (codeql.yml was deleted 2026-10-18.) A major tag floats, so
   # these entries surface the MAJOR bumps that a floating tag hides.
   - package-ecosystem: "github-actions"
     directory: "/"

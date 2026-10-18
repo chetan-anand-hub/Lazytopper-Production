@@ -168,6 +168,15 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Your child photographs a written answer; LazyTopper marks every step the way a CBSE " +
       "examiner does and shows what to fix. First check free.",
   },
+  // CONTACT-INDEX-1 (owner ruling, 18 Oct 2026) — the contact page. Both strings are the page's
+  // own CONTACT_TITLE / CONTACT_DESCRIPTION (src/pages/ContactPage.tsx), word for word; the
+  // contact guard test pins the two equal. Nothing is added.
+  "/contact": {
+    title: "Contact LazyTopper | WhatsApp and Email",
+    description:
+      "Message LazyTopper on WhatsApp at +91 97145 68948 with your CBSE Class 10 doubts, questions " +
+      "or suggestions, or email support@lazytopper.com.",
+  },
   // NCERT-BOOKS-1 (lane G, D210/D213) — the NCERT Class 10 books, chapter-wise. Both strings
   // restate the page's own h1 and sub-line (src/pages/NcertBooksPage.tsx). Title <= 60 chars.
   "/ncert-class-10": {
@@ -235,6 +244,7 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/cbse/class-10", exact: true, modules: ["Cbse2027Page"] },
   { prefix: "/check-your-answer", exact: true, modules: ["CheckYourAnswerPage"] },
   { prefix: "/for-parents", exact: true, modules: ["ForParentsPage"] },
+  { prefix: "/contact", exact: true, modules: ["ContactPage"] },
   { prefix: "/ncert-class-10", exact: true, modules: ["NcertBooksPage"] },
   { prefix: "/ncert-solutions/", exact: false, modules: ["SolutionsPage"] },
   { prefix: "/ncert-exemplar/", exact: false, modules: ["SolutionsPage"] },
