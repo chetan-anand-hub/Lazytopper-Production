@@ -22,7 +22,7 @@ vi.mock("../../context/AuthContext", () => ({
   },
 }));
 
-import ParentReportCard, { ACTIVITY_EN, CARD_FOOTER, EMPTY_EN, EMPTY_HI } from "./ParentReportCard";
+import ParentReportCard, { ACTIVITY_EN, CARD_FOOTER, EMPTY_EN, EMPTY_HI, NOT_READY_EN } from "./ParentReportCard";
 import ParentReportModal from "./ParentReportModal";
 import ShareWithParentsButton from "./ShareWithParentsButton";
 import { PARENT_REPORT_LINK } from "./parentReportModel";
@@ -54,6 +54,7 @@ const PATTERN: ParentReport = {
   chapters: [{ key: "real-numbers", label: "Real Numbers", marks: 3 }],
   wonBack: { count: 1, marks: 2 },
   nextSteps: ["Learn this: 5 marks to gain — practise Real Numbers until the method is yours."],
+  activityReason: null,
 };
 
 const PLACEHOLDER = /NaN|undefined|\bnull\b|\[object|lorem|placeholder|0 \/ 0|>\s*—\s*</i;
@@ -83,7 +84,7 @@ describe("ParentReportCard — honest states, no placeholder", () => {
     );
     expect(html).toContain(EMPTY_EN);
     expect(html).toContain(EMPTY_HI);
-    expect(EMPTY_EN).toBe("Not enough checked answers this week to show a pattern — check 3 answers to see one");
+    expect(EMPTY_EN).toBe("Not enough checked answers this week to show a pattern — check 3 answers this week to start your card");
     expect(html).not.toContain('data-testid="prc-answers"');
     expect(html).not.toContain('data-testid="prc-types"');
     expect(html).not.toMatch(PLACEHOLDER);
@@ -91,12 +92,23 @@ describe("ParentReportCard — honest states, no placeholder", () => {
 
   it("activity: counts and the note, nothing about why marks were lost", () => {
     const html = renderToStaticMarkup(
-      <ParentReportCard report={{ ...PATTERN, state: "activity", marksLost: null, typeRows: [], chapters: [], wonBack: null, nextSteps: [] }} />,
+      <ParentReportCard report={{ ...PATTERN, state: "activity", activityReason: "few-answers", marksLost: null, typeRows: [], chapters: [], wonBack: null, nextSteps: [] }} />,
     );
     expect(html).toContain(ACTIVITY_EN);
+    expect(html).not.toContain(NOT_READY_EN);
     expect(html).toContain('data-testid="prc-answers"');
     expect(html).not.toContain('data-testid="prc-lost"');
     expect(html).not.toContain('data-testid="prc-types"');
+    expect(html).not.toMatch(PLACEHOLDER);
+  });
+
+  it("activity 'not-ready' (history failed / counts don't reconcile): a neutral line, never 'not enough answers'", () => {
+    const html = renderToStaticMarkup(
+      <ParentReportCard report={{ ...PATTERN, state: "activity", activityReason: "not-ready", answersMarked: 12, marksLost: null, typeRows: [], chapters: [], wonBack: null, nextSteps: [] }} />,
+    );
+    expect(html).toContain(NOT_READY_EN);
+    expect(html).not.toContain(ACTIVITY_EN);
+    expect(html).not.toMatch(/Not enough checked answers/);
     expect(html).not.toMatch(PLACEHOLDER);
   });
 

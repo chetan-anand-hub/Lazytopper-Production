@@ -20,10 +20,16 @@ import {
  *
  * CLAUDE.md 7 — classes only, no inline style objects.
  */
-export const EMPTY_EN = `Not enough checked answers this week to show a pattern — check ${MIN_ANSWERS_FOR_REPORT} answers to see one`;
-export const EMPTY_HI = `इस हफ़्ते पैटर्न दिखाने के लिए काफ़ी जाँचे गए उत्तर नहीं हैं — पैटर्न देखने के लिए ${MIN_ANSWERS_FOR_REPORT} उत्तर जाँचें`;
+// The owner's sentence, with its promise made true: 3 answers START the card (the counts card);
+// a mistake pattern may need more, which the activity note then says.
+export const EMPTY_EN = `Not enough checked answers this week to show a pattern — check ${MIN_ANSWERS_FOR_REPORT} answers this week to start your card`;
+export const EMPTY_HI = `इस हफ़्ते पैटर्न दिखाने के लिए काफ़ी जाँचे गए उत्तर नहीं हैं — अपना कार्ड शुरू करने के लिए इस हफ़्ते ${MIN_ANSWERS_FOR_REPORT} उत्तर जाँचें`;
+/** Activity card, reason "few-answers" (below Me's gate) — the only case where this is true. */
 export const ACTIVITY_EN = "Not enough checked answers yet to say why marks were lost — a few more this week will show it.";
 export const ACTIVITY_HI = "अंक क्यों कटे, यह बताने के लिए अभी काफ़ी उत्तर नहीं — इस हफ़्ते कुछ और उत्तर जाँचने पर दिखेगा।";
+/** Activity card, reason "not-ready" (history incomplete / counts do not reconcile) — neutral. */
+export const NOT_READY_EN = "The mistake pattern isn’t ready yet — the counts above are this week’s real totals.";
+export const NOT_READY_HI = "गलतियों का पैटर्न अभी तैयार नहीं है — ऊपर की संख्याएँ इस हफ़्ते की असली हैं।";
 export const CARD_FOOTER = `Month pass: ${TUITION_ANCHOR} · ${PARENT_REPORT_LINK_LABEL}`;
 
 function plural(n: number, one: string, many: string): string {
@@ -77,9 +83,9 @@ export default function ParentReportCard({ report }: { report: ParentReport }) {
           </div>
 
           {report.state === "activity" && (
-            <div className="lt-prc__note" data-testid="prc-activity-note">
-              <p>{ACTIVITY_EN}</p>
-              <p className="lt-prc__hi">{ACTIVITY_HI}</p>
+            <div className="lt-prc__note" data-testid="prc-activity-note" data-reason={report.activityReason ?? "not-ready"}>
+              <p>{report.activityReason === "few-answers" ? ACTIVITY_EN : NOT_READY_EN}</p>
+              <p className="lt-prc__hi">{report.activityReason === "few-answers" ? ACTIVITY_HI : NOT_READY_HI}</p>
             </div>
           )}
 

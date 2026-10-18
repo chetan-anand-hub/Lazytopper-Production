@@ -178,6 +178,7 @@ describe("PARENT-REPORT-1 · honest states", () => {
     const { report: r } = await report();
     expect(r.state).toBe("activity");
     expect(r.answersMarked).toBe(4);
+    expect(r.activityReason).toBe("few-answers");
     expect(r.marksLost).toBeNull();
     expect(r.typeRows).toEqual([]);
     expect(r.chapters).toEqual([]);
@@ -190,8 +191,24 @@ describe("PARENT-REPORT-1 · honest states", () => {
     H.complete = false;
     const { report: r } = await report();
     expect(r.state).toBe("activity");
+    expect(r.activityReason).toBe("not-ready");
     expect(r.typeRows).toEqual([]);
     expect(r.wonBack).toBeNull();
+  });
+
+  it("12 answers (well above Me's gate) but the mistake history failed to load → 'not-ready', never 'not enough answers'", async () => {
+    H.attempts = [...EIGHT, attempt(8, 2), attempt(9, 4), attempt(10, 6), attempt(11, 9)];
+    H.mistakes = ENTRIES;
+    H.complete = false;
+    const { model, report: r } = await report();
+    // Precondition: with the history complete this student WOULD get a pattern — the gate is met.
+    expect(model.progress.subjects.find((s) => s.key.toLowerCase() === "maths")?.marksAvailable).toBeGreaterThan(0);
+    expect(r.answersMarked).toBe(12);
+    expect(r.state).toBe("activity");
+    expect(r.activityReason).toBe("not-ready");
+    expect(r.wonBack).toBeNull();
+    H.complete = true;
+    expect((await report()).report.state).toBe("pattern");
   });
 
   it("a log that names MORE marks than the graded stream lost → Me's split is unknown → nothing named", async () => {
@@ -199,6 +216,7 @@ describe("PARENT-REPORT-1 · honest states", () => {
     H.mistakes = [mistake("big", 3, "Real Numbers", { conceptual: 30 })];
     const { report: r } = await report();
     expect(r.state).toBe("activity");
+    expect(r.activityReason).toBe("not-ready");
     expect(r.typeRows).toEqual([]);
   });
 
@@ -208,6 +226,7 @@ describe("PARENT-REPORT-1 · honest states", () => {
     const { report: r } = await report();
     expect(r.state).toBe("activity");
     expect(r.answersMarked).toBe(10);
+    expect(r.activityReason).toBe("few-answers");
   });
 });
 
@@ -217,6 +236,7 @@ describe("PARENT-REPORT-1 · the pattern card — every figure from the read mod
     H.mistakes = ENTRIES;
     const { model, report: r } = await report();
     expect(r.state).toBe("pattern");
+    expect(r.activityReason).toBeNull();
     expect(r.weekLabel).toBe("12 – 18 Oct 2026");
     expect(r.answersMarked).toBe(model.progress.totals?.answers);
     expect(r.answersMarked).toBe(8);
@@ -296,6 +316,34 @@ describe("PARENT-REPORT-1 · privacy", () => {
     expect(named.firstName).toBe("Aarav");
     expect(JSON.stringify(named)).not.toContain("Kumar");
     expect(parentReportShareText(named)).toContain("Aarav's weekly");
+  });
+
+  it("the share text is state-specific and never claims what the card does not show", async () => {
+    H.attempts = [attempt(0, 2)];
+    const empty = (await report()).report;
+    expect(empty.state).toBe("empty");
+    expect(parentReportShareText(empty)).toBe(
+      `My weekly LazyTopper report — not enough checked answers yet (12 – 18 Oct 2026). ${PARENT_REPORT_LINK}`,
+    );
+    H.attempts = [attempt(0, 2), attempt(1, 4), attempt(2, 6), attempt(3, 9)];
+    const activity = (await report()).report;
+    expect(activity.state).toBe("activity");
+    expect(parentReportShareText(activity)).toBe(
+      `My weekly LazyTopper report — answers checked and tests taken (12 – 18 Oct 2026). ${PARENT_REPORT_LINK}`,
+    );
+    for (const r of [empty, activity]) expect(parentReportShareText(r)).not.toMatch(/marks are being lost/);
+  });
+
+  it("the total is built from the rounded rows, so they always add up exactly", async () => {
+    H.attempts = EIGHT;
+    H.mistakes = [
+      mistake("x1", 3, "Real Numbers", { conceptual: 0.35 }),
+      mistake("x2", 4, "Real Numbers", { calculation: 0.35 }),
+      mistake("x3", 5, "Polynomials", { silly: 0.35 }),
+    ];
+    const { report: r } = await report();
+    expect(r.state).toBe("pattern");
+    expect(r.marksLost).toBe(Math.round(r.typeRows.reduce((s, x) => s + x.marks, 0) * 10) / 10);
   });
 
   it("first name: letters of the first word only; an email, phone or handle is never shown", () => {

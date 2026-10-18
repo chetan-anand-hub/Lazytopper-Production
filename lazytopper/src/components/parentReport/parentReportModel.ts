@@ -106,7 +106,12 @@ export interface ParentReport {
   wonBack: { count: number; marks: number | null } | null;
   /** "pattern" only: the product's own coaching sentences (`coachingLine`). */
   nextSteps: string[];
+  /** "activity" only: why the pattern is withheld (null on the other states). */
+  activityReason: ActivityReason | null;
 }
+
+/** few-answers = below Me's gate; not-ready = history incomplete or Me's split unknown. */
+export type ActivityReason = "few-answers" | "not-ready";
 
 /** Hindi lines for the four stored types and the two remainders (display copy only). */
 export const HINDI_ROW: Readonly<Record<ParentReportRowKey, string>> = {
@@ -163,7 +168,6 @@ function patternParts(model: StudyReadModel): PatternParts | null {
   const papers = PAPERS.filter((s) => (Number(model.progress.subjectTotals?.[s]?.answers) || 0) > 0);
   if (papers.length === 0) return null;
   const typeMarks: TypeMarks = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  let lost = 0;
   let notAttempted = 0;
   let untyped = 0;
   const groupMarks: Record<MistakeGroupKey, number> = { knowledge: 0, technique: 0, careless: 0 };
@@ -177,7 +181,6 @@ function patternParts(model: StudyReadModel): PatternParts | null {
     );
     const split = splitPaperMarks(subjectRungOf(model.progress, paper), view.entries);
     if (!split || !split.splitKnown) return null;
-    lost += split.lost;
     notAttempted += split.notAttempted;
     untyped += split.unclassified;
     groupMarks.knowledge += split.knowledge;
@@ -212,7 +215,8 @@ function patternParts(model: StudyReadModel): PatternParts | null {
     .slice(0, MAX_CHAPTERS);
 
   return {
-    marksLost: round1(lost),
+    // Built from the ROUNDED rows, so the card's total and its rows always add up exactly.
+    marksLost: round1(rows.reduce((s, x) => s + x.marks, 0)),
     typeRows: rows,
     chapters,
     groupMarks: {
@@ -268,6 +272,7 @@ export function buildParentReport(model: StudyReadModel, opts: { firstName?: str
     chapters: [],
     wonBack: null,
     nextSteps: [],
+    activityReason: null,
   };
   if (answersMarked < MIN_ANSWERS_FOR_REPORT) return base;
 
@@ -275,14 +280,25 @@ export function buildParentReport(model: StudyReadModel, opts: { firstName?: str
   const won = model.mistakes.wonBack;
   const wonCount = complete ? Math.max(0, Number(won?.count) || 0) : 0;
 
+  // WHY a pattern is withheld, so the card says only what is true: "few-answers" ONLY when Me's
+  // gate is the reason (too few graded answers per paper); "not-ready" when the history read
+  // failed / was cut short, or the log and the graded stream do not reconcile (Me's split unknown).
   let parts: PatternParts | null = null;
+  let reason: ActivityReason = "not-ready";
   try {
-    parts = complete && modelNamesWeakness(model) ? patternParts(model) : null;
+    if (complete && !modelNamesWeakness(model)) reason = "few-answers";
+    else if (complete) parts = patternParts(model);
   } catch {
     parts = null;
+    reason = "not-ready";
   }
   if (!parts) {
-    return { ...base, state: "activity", wonBack: wonCount > 0 ? { count: wonCount, marks: null } : null };
+    return {
+      ...base,
+      state: "activity",
+      activityReason: reason,
+      wonBack: wonCount > 0 ? { count: wonCount, marks: null } : null,
+    };
   }
   // The knowledge step's practise <chapter> names the chapter whose CONCEPT-GAP marks are highest,
   // never merely the chapter that lost the most marks overall (that may be all careless slips).
@@ -307,7 +323,14 @@ export function reportTitle(firstName: string | null): { en: string; hi: string 
 
 /** The message that rides with the image (and is the whole wa.me message on desktop). No figure,
  *  no answer, no id: the first name only when chosen. */
-export function parentReportShareText(report: Pick<ParentReport, "firstName" | "weekLabel">): string {
+export function parentReportShareText(report: Pick<ParentReport, "firstName" | "weekLabel" | "state">): string {
   const who = report.firstName ? `${report.firstName}'s` : "My";
-  return `${who} weekly LazyTopper report — where marks are being lost (${report.weekLabel}). ${PARENT_REPORT_LINK}`;
+  // State-specific: the text never claims what the card does not show.
+  const what =
+    report.state === "pattern"
+      ? "where marks are being lost"
+      : report.state === "activity"
+        ? "answers checked and tests taken"
+        : "not enough checked answers yet";
+  return `${who} weekly LazyTopper report — ${what} (${report.weekLabel}). ${PARENT_REPORT_LINK}`;
 }
