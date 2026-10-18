@@ -689,7 +689,11 @@ export type NamedAnalyticsEvent =
   | "start_here_dismissed"
   | "tutor_from_scorecard"
   // TUTOR-FIX-2 T13 — the first message a student sends in a tutor thread (once per thread).
-  | "tutor_first_message";
+  | "tutor_first_message"
+  // TRIAL-END-1 — the trial-ending Home banner (trial days 5 to 7): shown (once per tab per IST
+  // day) and a tap on one of its actions (a two-value cta, never an id or a count).
+  | "trial_banner_shown"
+  | "trial_banner_click";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -877,6 +881,40 @@ export type ParentSharePlacement = "hero" | "footer";
  */
 export function trackParentShareClick(placement: ParentSharePlacement): void {
   send("event", { name: "parent_share_click", data: { placement } });
+}
+
+/** TRIAL-END-1 — which action on the trial-ending banner was tapped. */
+export type TrialBannerCta = "plans" | "check";
+
+/** TRIAL-END-1 — sessionStorage key: the IST day key on which `trial_banner_shown` was last sent in THIS tab. */
+export const TRIAL_BANNER_SHOWN_KEY = "lazytopper.trialBannerShown";
+
+/**
+ * TRIAL-END-1 — `trial_banner_shown`, at most ONCE per tab per IST day (`dayKey`, from the
+ * banner's own IST helper), so a re-render or a reload of the same tab never counts it twice.
+ * The payload is the bare event name: no uid, no day number, no counts.
+ */
+export function trackTrialBannerShown(dayKey: string): void {
+  try {
+    if (window.sessionStorage.getItem(TRIAL_BANNER_SHOWN_KEY) === dayKey) return;
+    window.sessionStorage.setItem(TRIAL_BANNER_SHOWN_KEY, dayKey);
+  } catch {
+    /* storage blocked: still count it once for this render */
+  }
+  trackNamedEvent("trial_banner_shown");
+}
+
+/**
+ * TRIAL-END-1 — `trial_banner_click`: "See plans" or "Check an answer" on the banner. Name plus
+ * a two-value cta (the `parent_share_click` shape) — Vercel reads `data`, GA4 its params, and the
+ * first-party log takes the name only.
+ */
+export function trackTrialBannerClick(cta: TrialBannerCta): void {
+  try {
+    send("event", { name: "trial_banner_click", data: { cta } }, { ga4: { cta } });
+  } catch {
+    /* analytics must never break the page */
+  }
 }
 
 /** WA-CONTACT-1 — which WhatsApp contact link was tapped. */

@@ -104,6 +104,8 @@ const EVENT_LABELS: Record<string, string> = {
   tutor_from_scorecard: "Opened the tutor from a scorecard",
   // TUTOR-FIX-2 T13.
   tutor_first_message: "Sent a first tutor message",
+  trial_banner_shown: "Saw the trial-ending banner",
+  trial_banner_click: "Tapped the trial-ending banner",
 };
 
 /** A recorded event name in plain words, e.g. "check_graded" -> "Checked an answer". */

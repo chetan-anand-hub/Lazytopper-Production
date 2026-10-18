@@ -23,6 +23,7 @@ import { StartHereFocusView, StartHereView, useStartHere } from "../../component
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
+import { TrialEndBannerView, useTrialEndBanner } from "../../components/trial/TrialEndBanner";
 
 
 /**
@@ -294,6 +295,8 @@ export default function DesktopHome() {
   // bell, memoised per tab). Drives the strip at the top and whether the phone nudge waits.
   const { papers: pendingPapers } = usePendingPapers(user);
   const showPending = pendingPapers.length > 0;
+  // TRIAL-END-1 — the trial-ending strip's model (null unless an active trial is on days 5-7).
+  const trialBanner = useTrialEndBanner();
 
   const [memory, setMemory] = useState<LandingMemory | null>(null);
 
@@ -369,9 +372,15 @@ export default function DesktopHome() {
             for a later visit (it renders nothing, so it is not spent). */}
         {showPending ? <PendingPapersStrip papers={pendingPapers} /> : null}
 
-        <CbseBanner />
+        {/* TRIAL-END-1 (owner ruling 18 Oct 2026) — the trial-ending strip, trial days 5-7 only.
+            Still never more than two strips: with the pending strip AND this one up, the CBSE
+            strip waits (it renders nothing, so nothing is dismissed); the phone nudge waits
+            whenever this strip is up. */}
+        <TrialEndBannerView model={trialBanner} />
 
-        {showPending ? null : <LinkPhoneNudge />}
+        {showPending && trialBanner ? null : <CbseBanner />}
+
+        {showPending || trialBanner ? null : <LinkPhoneNudge />}
 
         <StartHereView surface="home" returnTo="/" state={startHere} />
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):

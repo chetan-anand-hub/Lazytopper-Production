@@ -112,6 +112,9 @@ export const ACTIVITY_EVENTS = [
   "tutor_from_scorecard",
   // TUTOR-FIX-2 T13 — once per tutor thread. Additive.
   "tutor_first_message",
+  // TRIAL-END-1 — the trial-ending Home banner. Additive.
+  "trial_banner_shown",
+  "trial_banner_click",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

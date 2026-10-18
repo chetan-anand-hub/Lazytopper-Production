@@ -285,7 +285,13 @@ describe("studentDataMap — drift guard", () => {
     // server/services/fairUse.cjs (createGradingIdempotency) through the Admin SDK; no client
     // reads or writes it, so it is undeclared on purpose (deny-all catch-all). It IS student
     // data (uid-keyed graded results, 24 h) — in the map, erased and exported, not exempted.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "signupSources", "usageLedger"]);
+    //
+    // ★ `trialEmails` JOINED this set with TRIAL-END-1. Written only by
+    // server/services/trialEndingEmail.cjs through the Admin SDK (a create-only claim per
+    // trial, then the outcome, and the unsubscribe opt-out); no client reads or writes it, so
+    // it is undeclared on purpose (deny-all catch-all). It IS student data (a doc per uid) -
+    // in the map, erased and exported, not exempted.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "signupSources", "trialEmails", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -510,6 +516,9 @@ describe("studentDataMap — per-location properties", () => {
     "storage.qr-uploads",
     "local-storage",
     "third-party.gemini",
+    // TRIAL-END-1 — the trial-ending email's ledger and the provider that delivers it.
+    "trialEmails",
+    "third-party.email-provider",
   ] as const;
 
   for (const id of REQUIRED_IDS) {

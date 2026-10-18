@@ -536,6 +536,26 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "device half of the same capture is the sessionStorage key listed under `local-storage`.",
   },
 
+  // ── Firestore: the one trial-ending email (server-only, TRIAL-END-1) ─────────────
+  {
+    id: "trialEmails",
+    kind: "firestore-collection",
+    path: "trialEmails/{uid}",
+    holds:
+      "Whether the one 'your trial ends soon' service email was sent for this student's " +
+      "trial: the trial start it was for, its state (claimed, sent, failed), when, the email " +
+      "provider's message id, and — if the student used the email's opt-out link — that they " +
+      "opted out and when. Never the email address or the email's text.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ Written ONLY by server/services/trialEndingEmail.cjs through the Admin SDK: a " +
+      "create-only claim BEFORE sending (so a restart or a second instance can never send " +
+      "twice), then the outcome; and by its opt-out link handler. Off unless the owner sets " +
+      "TRIAL_EMAIL_ENABLED. NOT declared in firestore.rules — browsers fall through to the " +
+      "deny-all catch-all. Erased with the account and included in the export.",
+  },
+
   // ── Firestore: stored grading results for retries (server-only, LOW-END-1 R4) ──────
   {
     id: "gradingResults",
@@ -641,7 +661,12 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "signed-out visitor's Quick Practice question id, its position and the option they picked, " +
       "stored only when they choose Sign up on a scorecard's tutor prompt; never the uid; read " +
       "and deleted once by the tutor for that question after sign-up, where it becomes the " +
-      "opening line of that student's own tutor thread; dropped unread after an hour).",
+      "opening line of that student's own tutor thread; dropped unread after an hour). " +
+      "TRIAL-END-1: plus localStorage `lazytopper.trialEndBannerHidden.<uid>` (the IST date, " +
+      "YYYY-MM-DD, on which the student tapped Not today on the trial-ending banner, so it stays " +
+      "hidden until the next day; dismissal state only, never trial state, never sent anywhere) " +
+      "and, in THIS TAB's sessionStorage, `lazytopper.trialBannerShown` (the IST date the banner's " +
+      "shown event was last counted in this tab; never the uid, never sent anywhere).",
     mechanism: "client-local",
     exportable: true,
     notes:
@@ -666,6 +691,23 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "★★ CANNOT BE DELETED BY THE PRODUCT. Retention is governed by Google's API terms, " +
       "not by us. The export and the privacy policy must SAY this rather than let the " +
       "owner discover it. Owner decision: which Gemini tier/terms apply.",
+  },
+  {
+    id: "third-party.email-provider",
+    kind: "third-party",
+    path: "https://api.resend.com/emails",
+    holds:
+      "★ TRIAL-END-1 — only when the owner switches the trial-ending email on: the student's " +
+      "sign-in email address and the text of that one service email (when their trial ends and " +
+      "how many checks, tests and practice sets they did) are handed to the email provider to " +
+      "deliver it.",
+    mechanism: "third-party-unreachable",
+    exportable: false,
+    notes:
+      "★★ CANNOT BE DELETED BY THE PRODUCT. The provider keeps its own delivery logs under its " +
+      "own terms. Nothing is sent while TRIAL_EMAIL_ENABLED is off or TRIAL_EMAIL_DRY_RUN is on " +
+      "(the default). Owner decision: the provider account, and saying so in the privacy policy " +
+      "before switching it on.",
   },
 ];
 

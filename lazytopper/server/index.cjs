@@ -390,6 +390,11 @@ const accountExportRoutes = createAccountExportRoutes({
 const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry });
 // J1: the job poll — self-gating (verified uid, owner-scoped path, its own per-uid cap).
 const gradingJobsRoutes = createGradingJobsRoutes({ sendJson, verifiedCaller, gradingJobs, telemetry, corsOrigin: config.CORS_ORIGIN });
+// TRIAL-END-1: the one trial-ending email. OFF unless TRIAL_EMAIL_ENABLED; a DRY RUN until
+// TRIAL_EMAIL_DRY_RUN=0 and the Resend key/sender/unsubscribe secret are all set. Armed in
+// server.listen below; its unsubscribe route is matched in handleRequest. See the module.
+const { createTrialEndingEmailer, TRIAL_EMAIL_UNSUBSCRIBE_PATH } = require('./services/trialEndingEmail.cjs');
+const trialEndingEmailer = createTrialEndingEmailer({ adminFirestore, firebaseAdmin, telemetry });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -599,6 +604,7 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === '/api/activity') return require('./routes/studentActivity.cjs').handleStudentActivity(req, res, { sendJson, firebaseAdmin, adminFirestore }); // STUDENT-ACTIVITY-1: signed-in students' section/event counts (first-party, admin-only; see the module)
   if (req.method === 'POST' && reqPath === '/api/signup-source') return require('./routes/signupSource.cjs').handleSignupSourceRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SOURCE-1: a NEW account's one-visit source, once, create-only, server-only (see the module)
+  if ((req.method === 'GET' || req.method === 'POST') && reqPath === TRIAL_EMAIL_UNSUBSCRIBE_PATH) return trialEndingEmailer.handleUnsubscribe(req, res, reqUrlRaw); // TRIAL-END-1: the trial email's unsubscribe link (HMAC token; GET confirms, POST records; see services/trialEndingEmail.cjs)
 
   // ── Payments (RAZORPAY-1) ────────────────────────────────────────────────────
   // Self-gating: each handler answers 404 while PAYMENTS_ENABLED is off, resolves the
@@ -878,6 +884,9 @@ server.listen(config.PORT, () => {
     `Routing: visual→${config.HAS_ANTHROPIC_PROXY ? 'claude-sonnet' : 'gemini'} | chat→gemini | MaxHistory: ${config.MAX_HISTORY_TURNS} turns`
   );
   if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
+
+  // TRIAL-END-1 — prints its mode (OFF / DRY RUN / SENDING) and arms nothing when OFF.
+  trialEndingEmailer.schedule();
 
   // ── Unattended question generation ────────────────────────────────────────
   // ★ GATE FIRST, SCHEMA SECOND. Resolve and PRINT the state of every path
