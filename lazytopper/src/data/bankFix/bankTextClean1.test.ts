@@ -60,6 +60,19 @@ describe("BANK-TEXT-CLEAN-1 ledger", () => {
     expect(text(row("SCQ-S-ENV-028"))).not.toContain("(how:");
   });
 
+  it("ENV-029 (owner ruling 18 Oct): no booklet residue, no deleted sub-topic, complete 2-mark key", () => {
+    const r = row("SCQ-S-ENV-029");
+    const all = text(r);
+    expect(all).not.toMatch(/All India 2016|Chap 15|Enviorment/);
+    expect(all).not.toMatch(/biogas/i);
+    expect(r.marks).toBe(2);
+    expect((r.solutionSteps ?? []).length).toBe(2);
+    for (const s of r.solutionSteps ?? []) expect(s).toMatch(/^\[1 mark\] /);
+    expect(String(r.answer)).toMatch(/\.$/);
+    expect(String(r.finalAnswer)).toContain("recycle");
+    expect(String(r.finalAnswer)).toContain("biodegradable");
+  });
+
   it("CARB-041 (d) names sodium methanoate (sodium formate) and hydrogen in answer, step and finalAnswer", () => {
     const r = row("SCQ-S-CARB-041");
     for (const s of [r.answer, r.finalAnswer, (r.solutionSteps ?? [])[3]]) {

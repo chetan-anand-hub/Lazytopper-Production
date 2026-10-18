@@ -216,10 +216,19 @@ export const OUR_ENVIRONMENT_CHAPTERWISE: CanonicalQuestion[] = [
     finalAnswer: "Ozone holes are thinned regions of the ozone layer in the upper atmosphere. They form when CFCs (used as refrigerants and in fire extinguishers) damage the ozone (O₃) layer: UV radiation releases chlorine from the CFCs, and the chlorine breaks down ozone.",
     ncertRef: "cbjesccq15 Q62", isCompetencyBased: true },
   // cbjesccq15 Q63 (Section B, 2mk)
+  // ENV-029 cleaned (BANK-TEXT-CLEAN-1, owner ruling 18 Oct 07:10 IST: clean up, do not withhold). The stored key carried
+  // the booklet's page residue "[All India 2016] Chap 15 : Our Enviorment" and was cut off ("Recycling plastics, glass ").
+  // Its way (a) was "biogas or compost": Biogas is a DELETED 2026-27 sub-topic (syllabusGuard.ts) and composting is not in
+  // the 2026-27 NCERT text, so (a) is rebuilt from NCERT Class 10 Science 2026-27, jesc113 (Reprint 2026-27) section 13.2.2
+  // 'Managing the Garbage we Produce': Activity 13.7 (p. 215) - biodegradable and non-biodegradable wastes treated
+  // separately; Activity 13.9 (p. 216) - recycling of plastics. Way (b) keeps the row's own key, "recycling plastics, glass
+  // and metals" (booklet cbjesccq15 Q63). The same question is NCERT's in-text Q2 on p. 216. No CBSE 2016 marking scheme
+  // was available, so the row carries no pyqYear and no board tag.
   { id: "SCQ-S-ENV-029", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In cities garbage disposal is a major problem. How can we deal with this problem? List any two ways.",
-    answer: "[All India 2016] Chap 15 : Our Enviorment Two methods of garbage disposal are: a. Converting organic wastes into biogas or compost. Organic wastes like cow dung, leaves etc can be decomposed and converted into useful substance like biogas and manure. b. Recycling plastics, glass ",
-    solutionSteps: ["[All India 2016] Chap 15 : Our Enviorment Two methods of garbage disposal are: a. Converting organic wastes into biogas or compost. Organic wastes like cow dung, leaves etc can be decomposed and converted into useful substance like biogas and manure. b. Recycling plastics, glass and metals."],
+    answer: "Two ways of dealing with garbage: (a) Segregate it into biodegradable waste (kitchen waste, vegetable peels, paper) and non-biodegradable waste (plastics, glass, metals), so that each kind can be treated separately; the biodegradable part is broken down by decomposers. (b) Recycle non-biodegradable waste such as plastics, glass and metals instead of dumping it.",
+    solutionSteps: ["[1 mark] Segregation: separate the garbage into biodegradable waste (kitchen waste, vegetable peels, paper) and non-biodegradable waste (plastics, glass, metals), so that the local body can treat each kind separately; the biodegradable part is broken down by decomposers.","[1 mark] Recycling: send non-biodegradable materials such as plastics, glass and metals for recycling instead of dumping them, so that they do not persist in the environment and harm the ecosystem."],
+    finalAnswer: "(a) Segregate biodegradable and non-biodegradable waste so each is treated separately; (b) recycle non-biodegradable waste such as plastics, glass and metals.",
     ncertRef: "cbjesccq15 Q63", isCompetencyBased: true },
   // cbjesccq15 Q64 (Section B, 2mk)
   { id: "SCQ-S-ENV-030", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
