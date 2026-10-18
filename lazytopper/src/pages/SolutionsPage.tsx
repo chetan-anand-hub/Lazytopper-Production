@@ -7,10 +7,15 @@ import { MathText } from "../components/question/MathText";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { ncertCode, ncertPracticePath, ncertReadPath, ncertRowsForSlug } from "../config/ncertBooks";
 import {
+  bankSlugOf,
+  bookChapterNo,
+  hasBook,
   parseSolutionsPath,
   publishedRows,
+  solutionsBookName,
   solutionsChapter,
   solutionsPath,
+  solutionsTitle,
   type PublishSafeRow,
   type SolutionsBook,
   type SolutionsChapter,
@@ -24,7 +29,7 @@ import "./solutions.css";
 
 /**
  * SolutionsPage — `/ncert-solutions/:chapter` and `/ncert-exemplar/:chapter` (SOLUTIONS-1, lane G;
- * #973 D259 / D260 / D261). Pilot: Chapter 6 Triangles.
+ * #973 D259 / D260 / D261). Pilot: Chapter 6 Triangles; SOLUTIONS-2 (owner 18 Oct 2026): every Maths chapter.
  *
  * ★ FREE, ATTEMPT-FIRST (D259). Before an attempt: the question, its options (MCQ / AR), and
  *   "Stuck? Show a hint" (the FIRST step only). An attempt is any MCQ pick or any non-empty typed
@@ -63,13 +68,9 @@ function useServedRows(slug: string): CanonicalQuestion[] {
 
 const track = (name: NamedAnalyticsEvent) => trackNamedEvent(name);
 
-const BOOK_NAME: Readonly<Record<SolutionsBook, string>> = {
-  ncert: "NCERT Solutions",
-  exemplar: "NCERT Exemplar Solutions",
-};
-
+/** The page's h1 — one builder, shared with the static heads (`solutionsTitle`). */
 export function solutionsH1(book: SolutionsBook, ch: SolutionsChapter): string {
-  return `${BOOK_NAME[book]} Class 10 ${ch.subject} Chapter ${ch.chapter} ${ch.title}`;
+  return solutionsTitle(book, ch);
 }
 
 const anchorOf = (id: string) => id.toLowerCase();
@@ -259,14 +260,17 @@ function QuestionCard({ q, safe }: { q: CanonicalQuestion; safe: PublishSafeRow 
 }
 
 function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChapter }) {
-  const served = useServedRows(ch.slug);
+  // SOLUTIONS-2: a chapter's bank / notes slug can differ from its URL slug (trigonometry → Ch 8 and Ch 9).
+  const bank = bankSlugOf(ch);
+  const served = useServedRows(bank);
   const rows = publishedRows(served, ch, book);
   const groups = groupRows(rows);
   const here = solutionsPath(book, ch.slug);
-  const ncertRow = ncertRowsForSlug(ch.slug).find((r) => r.chapter === ch.chapter) ?? null;
-  const unit = chapterUnit(ch.slug);
+  const ncertRow = ncertRowsForSlug(bank).find((r) => r.chapter === ch.chapter) ?? null;
+  const unit = chapterUnit(bank);
   const totalMarks = unit ? Object.values(UNIT_MARKS[unit.subject]).reduce((a, b) => a + b, 0) : null;
   const sibling: SolutionsBook = book === "ncert" ? "exemplar" : "ncert";
+  const BOOK_NAME = { ncert: solutionsBookName("ncert"), exemplar: solutionsBookName("exemplar") };
 
   const ticket = useReturnTicket();
   const backHref = ticket?.path ?? "/";
@@ -301,8 +305,8 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
 
       <div className="lt-ncs__w lt-ncs__body">
         <nav className="lt-ncs__links" aria-label={`${ch.title}: more on this chapter`}>
-          <Link to={`/notes/${ch.slug}`}>Notes</Link>
-          <Link to={`/notes/${ch.slug}#formulae`}>Formulae</Link>
+          <Link to={`/notes/${bank}`}>Notes</Link>
+          <Link to={`/notes/${bank}#formulae`}>Formulae</Link>
           {ncertRow ? (
             <Link to={ncertReadPath(ncertRow, here, BOOK_NAME[book])}>
               Read NCERT Chapter {ch.chapter} ({ncertCode(ncertRow)})
@@ -310,11 +314,12 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           ) : null}
           {ncertRow ? <Link to={ncertPracticePath(ncertRow)}>Practice</Link> : null}
           <CheckLink className="">Check my answer</CheckLink>
-          <Link to={solutionsPath(sibling, ch.slug)}>{BOOK_NAME[sibling]}</Link>
+          {hasBook(ch, sibling) ? <Link to={solutionsPath(sibling, ch.slug)}>{BOOK_NAME[sibling]}</Link> : null}
         </nav>
 
         <p className="lt-ncs__count">
-          {rows.length} {book === "ncert" ? "NCERT textbook" : "NCERT Exemplar"} questions from Chapter {ch.chapter}
+          {rows.length} {book === "ncert" ? "NCERT textbook" : "NCERT Exemplar"} questions from Chapter{" "}
+          {bookChapterNo(ch, book)}
         </p>
 
         {groups.map((g) => (
@@ -350,8 +355,10 @@ export default function SolutionsPage() {
   const { pathname } = useLocation();
   const parsed = parseSolutionsPath(pathname);
   const ch = parsed ? solutionsChapter(parsed.slug) : null;
-  // Only the pilot chapters exist. Anything else goes to the NCERT books page in the app
-  // (vercel.json is generated from the router, so like /notes/:topicSlug any one-segment chapter reaches the shell; this redirect handles non-pilot chapters, FU-SOLUTIONS-UNKNOWN-CHAPTER-404).
-  if (!parsed || !ch) return <Navigate to="/ncert-class-10" replace />;
+  // Only the allowlisted chapters exist, and a book page only when that book has rows. Anything else
+  // goes to the NCERT books page in the app (vercel.json is generated from the router, so like
+  // /notes/:topicSlug any one-segment chapter reaches the shell; this redirect handles the rest,
+  // FU-SOLUTIONS-UNKNOWN-CHAPTER-404).
+  if (!parsed || !ch || !hasBook(ch, parsed.book)) return <Navigate to="/ncert-class-10" replace />;
   return <ChapterSolutions book={parsed.book} ch={ch} />;
 }

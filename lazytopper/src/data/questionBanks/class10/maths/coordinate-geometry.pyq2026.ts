@@ -15,7 +15,7 @@ export const COORDINATE_GEOMETRY_PYQ_2026: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] P is equidistant from A and B ⇒ PA = PB ⇒ PA² = PB² ⇒ (x − 5)² + (y − 3)² = (x − 1)² + (y − 7)².", "[1 mark] x² − 10x + 25 + y² − 6y + 9 = x² − 2x + 1 + y² − 14y + 49 ⇒ −10x − 6y + 34 = −2x − 14y + 50.", "[1 mark] −8x + 8y = 16 ⇒ x − y + 2 = 0 (i.e. x − y = −2)."],
     finalAnswer: "x − y + 2 = 0",
     ncertRef: "PYQ 30(B) Q28", isCompetencyBased: true,
-    sourceOverride: "others",
+    pyqYear: "2026", pyqSet: "1",
   },
   // RETIRED 2026-07-21 ([FU-BANK-GARBLED-ANSWER-CLASS], owner-approved): "PYQ-M-2026-CG-002".
   // Its questionText welded two unrelated problems — the Latin remnants of 30/5/1 Q35 (a
