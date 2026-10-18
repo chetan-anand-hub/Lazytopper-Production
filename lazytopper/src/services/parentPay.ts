@@ -139,7 +139,7 @@ async function childAuthHeaders(): Promise<Record<string, string>> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export type ParentLinkReason = "invalid" | "expired" | "used" | "failed";
+export type ParentLinkReason = "invalid" | "expired" | "used" | "covered" | "failed";
 
 export class ParentLinkError extends Error {
   readonly reason: ParentLinkReason;
@@ -164,7 +164,7 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
   }
   if (res.ok && parsed && parsed.ok === true) return parsed;
   const reason = parsed && typeof parsed.reason === "string" ? parsed.reason : "";
-  if (reason === "invalid" || reason === "expired" || reason === "used") throw new ParentLinkError(reason);
+  if (reason === "invalid" || reason === "expired" || reason === "used" || reason === "covered") throw new ParentLinkError(reason);
   throw new ParentLinkError("failed");
 }
 
@@ -208,7 +208,7 @@ export async function viewParentLink(token: string): Promise<ParentLinkView> {
 export type ParentBuyOutcome =
   | { status: "paid"; passEnd: string; firstName: string; paymentId?: string; amountInr?: number }
   | { status: "dismissed" }
-  | { status: "failed"; reason?: "invalid" | "expired" | "used" };
+  | { status: "failed"; reason?: Exclude<ParentLinkReason, "failed"> };
 
 export interface ParentBuyDeps {
   createOrder: (token: string, passType: PassType) => Promise<{ orderId: string; keyId: string; amountPaise: number }>;

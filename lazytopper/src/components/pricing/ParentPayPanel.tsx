@@ -13,8 +13,8 @@
  * Razorpay sees and what we do not, and that the link pays once. No countdown, no
  * pre-selected option, no pressure copy.
  *
- * ★ The token leaves the address bar before Razorpay's checkout script loads (it would
- * otherwise see the page URL); it is kept in this component's memory only.
+ * ★ The token leaves the address bar as soon as the page mounts (Razorpay's checkout.js, a
+ * vendor tag or a forwarded tab never sees it); it is kept in this component's memory only.
  */
 import { useEffect, useRef, useState } from "react";
 import {
@@ -31,12 +31,13 @@ import {
   viewParentLink,
   ParentLinkError,
   type ParentBuyOutcome,
+  type ParentLinkReason,
   type ParentLinkView,
   type ParentPayLang,
 } from "../../services/parentPay";
 import "./askParents.css";
 
-type Reason = "invalid" | "expired" | "used" | "failed";
+type Reason = ParentLinkReason;
 
 interface Copy {
   brand: string;
@@ -69,6 +70,8 @@ const COPY: Record<ParentPayLang, Copy> = {
       invalid: () => "This link isn't valid. Ask your child to send a new one from LazyTopper.",
       expired: (name) => `This link has expired. Ask ${name || "your child"} to send a new one from LazyTopper.`,
       used: () => "This link has already been used for a payment, so it can't be used again.",
+      covered: (name) =>
+        `Nothing to pay — ${name ? `${name}'s` : "your child's"} LazyTopper Premium already runs until the board exams.`,
       failed: () => "We couldn't open this link right now. Please try again in a little while.",
     },
     more: "See all LazyTopper plans",
@@ -89,6 +92,8 @@ const COPY: Record<ParentPayLang, Copy> = {
       invalid: () => "यह लिंक मान्य नहीं है। अपने बच्चे से LazyTopper से नया लिंक भेजने को कहें।",
       expired: (name) => `इस लिंक की समय-सीमा खत्म हो गई है। ${name || "अपने बच्चे"} से नया लिंक भेजने को कहें।`,
       used: () => "इस लिंक से भुगतान हो चुका है, इसलिए इसे दोबारा इस्तेमाल नहीं किया जा सकता।",
+      covered: (name) =>
+        `कुछ भी भुगतान नहीं करना है — ${name ? `${name} का` : "आपके बच्चे का"} LazyTopper Premium बोर्ड परीक्षा तक पहले से चालू है।`,
       failed: () => "अभी यह लिंक नहीं खुल पाया। थोड़ी देर बाद फिर से कोशिश करें।",
     },
     more: "LazyTopper के सभी प्लान देखें",
@@ -99,7 +104,7 @@ export interface ParentPayPanelViewProps {
   token: string;
   view: (token: string) => Promise<ParentLinkView>;
   buy: (token: string, passType: PassType) => Promise<ParentBuyOutcome>;
-  /** Called once, before the first checkout opens: take the token out of the address bar. */
+  /** Called once, on mount (before the link is even viewed): take the token out of the address bar. */
   scrubAddress: () => void;
 }
 
@@ -113,6 +118,15 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
   const [failed, setFailed] = useState(false);
   const scrubbed = useRef(false);
   const t = COPY[lang];
+
+  // The token leaves the address bar AT ONCE (review round 1): the page already holds it
+  // (PricingPage latched it), so nothing later — a vendor tag, Razorpay's checkout.js, a
+  // screenshot, a forwarded tab — ever sees it in the URL. Runs before the view call below.
+  useEffect(() => {
+    if (scrubbed.current) return;
+    scrubbed.current = true;
+    scrubAddress();
+  }, [scrubAddress]);
 
   useEffect(() => {
     let live = true;
@@ -136,10 +150,6 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
 
   async function handleBuy(passType: PassType, priceInr: number) {
     if (busy) return;
-    if (!scrubbed.current) {
-      scrubbed.current = true;
-      scrubAddress();
-    }
     setBusy(passType);
     setFailed(false);
     const details: CheckoutDetails = {

@@ -38,8 +38,12 @@ const {
   LINK_TTL_MS,
   MAX_ORDERS_PER_LINK,
   MAX_LINKS_PER_UID_PER_DAY,
+  MAX_PARENT_CALLS_PER_CLIENT_PER_DAY,
   TOKEN_PATTERN,
+  createParentPayLimiter,
+  coveredTillBoards,
 } = require('./parentPay.cjs');
+const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_WEBHOOK_PATH } = require('./payments.cjs');
 const { createHttpUtils } = require('../services/httpUtils.cjs');
 
@@ -82,7 +86,26 @@ function memoryFirestore(seed = {}) {
     docs,
     read: (key) => (docs.get(key) ? { ...docs.get(key).data } : undefined),
     keys: (prefix) => [...docs.keys()].filter((k) => k.startsWith(prefix)),
-    collection: (name) => ({ doc: (id) => ref(`${name}/${id}`) }),
+    collection: (name) => ({
+      doc: (id) => ref(`${name}/${id}`),
+      // Equality query on a top-level collection (the only shape parentPay.cjs asks).
+      where: (field, op, value) => {
+        assert.equal(op, '==');
+        return {
+          async get() {
+            await yieldNow();
+            const out = [];
+            for (const [key, entry] of docs) {
+              const parts = key.split('/');
+              if (parts.length === 2 && parts[0] === name && entry.data[field] === value) {
+                out.push({ id: parts[1], data: () => ({ ...entry.data }) });
+              }
+            }
+            return { docs: out, empty: out.length === 0, size: out.length };
+          },
+        };
+      },
+    }),
     async runTransaction(fn) {
       for (let attempt = 0; attempt < 10; attempt += 1) {
         const seen = new Map();
@@ -151,7 +174,7 @@ function fakeRazorpay() {
 }
 
 /* ── parent-pay routes AND the existing payment routes, behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' } } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -167,6 +190,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now,
     foundingOfferOpen: true,
     getDisplayName: async (uid) => displayNames[uid] || '',
+    ...(rateLimiter ? { rateLimiter } : {}),
   });
   const pay = createPaymentRoutes({
     sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true,
@@ -282,7 +306,7 @@ test('L · the token is 256-bit, opaque, shown once, and stored ONLY as its SHA-
   assert.deepEqual(keys, [`parentPayLinks/${linkIdOf(out.token)}`]);
   assert.ok(!JSON.stringify([...srv.db.docs]).includes(out.token), 'the raw token was stored');
   const link = srv.db.read(keys[0]);
-  assert.deepEqual(Object.keys(link).sort(), ['createdAt', 'expiresAt', 'firstName', 'orderIds', 'status', 'uid']);
+  assert.deepEqual(Object.keys(link).sort(), ['createdAt', 'expiresAt', 'firstName', 'orderIds', 'orderSlots', 'status', 'uid']);
   assert.equal(link.uid, 'child1');
   assert.equal(link.firstName, 'Aarav', 'first name only — never the surname');
   assert.equal(link.status, 'open');
@@ -406,16 +430,100 @@ test('O · a link can start at most MAX_ORDERS_PER_LINK orders', async (t) => {
   assert.equal(r.json.reason, 'too_many_orders');
 });
 
-test('O · per-IP throttle on the unauthenticated routes', async (t) => {
+test('O · the parent routes are throttled by the product limiter (rateLimiter.cjs), per client, signed out by construction', async (t) => {
+  // The REAL limiter, with the parent-pay classes, a small hard cap for the test.
+  const limiter = createRateLimiter({
+    now: () => NOW,
+    paidEndpoints: { [PARENT_VIEW_PATH]: 'parentPay', [PARENT_ORDER_PATH]: 'parentPay', [PARENT_VERIFY_PATH]: 'parentPay' },
+    limits: { [ANONYMOUS_CLASS]: { soft: 2, hard: 3 } },
+  });
+  const srv = await startRoutes({ rateLimiter: limiter });
+  t.after(srv.close);
+  const from = (ip, uidHeader) => ({ 'X-Forwarded-For': ip, ...(uidHeader ? { 'X-Lazytopper-Uid': uidHeader } : {}) });
+  const statuses = [];
+  // Rotating a typed uid header buys nothing: the routes are keyed as signed out.
+  for (let i = 0; i < 4; i += 1) {
+    statuses.push((await request(srv.port, PARENT_VIEW_PATH, { body: { token: 'y'.repeat(43) }, headers: from('203.0.113.9', `fake-${i}`) })).status);
+  }
+  assert.deepEqual(statuses, [404, 404, 404, 429]);
+  const other = await request(srv.port, PARENT_VIEW_PATH, { body: { token: 'y'.repeat(43) }, headers: from('203.0.113.10') });
+  assert.equal(other.status, 404, 'another client is not throttled');
+});
+
+test('O · the default limiter is the product one, with the documented daily caps', () => {
+  const limiter = createParentPayLimiter({ now: () => NOW });
+  assert.equal(limiter.limits[ANONYMOUS_CLASS].hard, MAX_PARENT_CALLS_PER_CLIENT_PER_DAY);
+  assert.equal(limiter.limits.parentLink.hard, MAX_LINKS_PER_UID_PER_DAY);
+  assert.equal(limiter.paidEndpoints[PARENT_LINK_PATH], 'parentLink');
+  for (const p of [PARENT_VIEW_PATH, PARENT_ORDER_PATH, PARENT_VERIFY_PATH]) assert.equal(limiter.paidEndpoints[p], 'parentPay');
+  // STATIC: no hand-rolled counter or IP parser is left in the module.
+  const src = require('node:fs').readFileSync(require('node:path').join(__dirname, 'parentPay.cjs'), 'utf8');
+  assert.ok(!/x-forwarded-for/i.test(src), 'parentPay.cjs parses X-Forwarded-For itself');
+  assert.ok(!/buckets\.clear\(\)/.test(src), 'parentPay.cjs carries its own counter map');
+});
+
+/* ── review round 1 (controller, 18 Oct) ─────────────────────────────────────── */
+
+test('O · RACE: parallel orders on one link never exceed the cap, and no order id is lost', async (t) => {
   const srv = await startRoutes();
   t.after(srv.close);
-  let last;
-  for (let i = 0; i < 61; i += 1) {
-    last = await request(srv.port, PARENT_VIEW_PATH, { body: { token: 'y'.repeat(43) }, headers: { 'X-Forwarded-For': '203.0.113.9' } });
+  const { token } = await mint(srv);
+  const results = await Promise.all(Array.from({ length: MAX_ORDERS_PER_LINK + 4 }, () => parentOrder(srv, token)));
+  const ok = results.filter((r) => r.status === 200);
+  const capped = results.filter((r) => r.status === 429);
+  assert.equal(ok.length, MAX_ORDERS_PER_LINK, `created ${ok.length} orders, cap is ${MAX_ORDERS_PER_LINK}`);
+  assert.equal(capped.length, 4);
+  for (const r of capped) assert.equal(r.json.reason, 'too_many_orders');
+  const link = srv.db.read(`parentPayLinks/${linkIdOf(token)}`);
+  assert.equal(link.orderSlots, MAX_ORDERS_PER_LINK);
+  assert.deepEqual([...link.orderIds].sort(), ok.map((r) => r.json.orderId).sort(), 'an order id was lost from the link');
+  assert.equal(srv.rzp.orders.size, MAX_ORDERS_PER_LINK, 'Razorpay was asked for more orders than the cap');
+});
+
+test('O · a webhook-paid order MISSING from the link\'s list still spends the link (payOrders queried by parentLinkId)', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const { json: o } = await parentOrder(srv, token);
+  const p = srv.rzp.pay(o.orderId);
+  const raw = webhookBody(p);
+  const hook = await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+  assert.equal(hook.status, 200, hook.text);
+  // Simulate the lost append the review found: the list no longer names the paid order.
+  await srv.db.collection('parentPayLinks').doc(linkIdOf(token)).set({ orderIds: [] }, { merge: true });
+  for (const path of [PARENT_VIEW_PATH, PARENT_ORDER_PATH]) {
+    const r = await request(srv.port, path, { body: { token, passType: 'month' } });
+    assert.equal(r.status, 410, path);
+    assert.equal(r.json.reason, 'used');
   }
-  assert.equal(last.status, 429);
-  const other = await request(srv.port, PARENT_VIEW_PATH, { body: { token: 'y'.repeat(43) }, headers: { 'X-Forwarded-For': '203.0.113.10' } });
-  assert.equal(other.status, 404, 'another IP is not throttled');
+  assert.equal(srv.rzp.orders.size, 1, 'a second order was created for a paid link');
+});
+
+test('L · ALREADY COVERED: a child whose pass already runs to the boards gets no view and no order', async (t) => {
+  // NOW is 2026-09-27 IST; the predicted board day is 2027-02-17. A pass to 2027-03-01 covers it.
+  const db = memoryFirestore({ 'subscriptions/child1': { tier: 'premium', passType: 'till_boards', passEnd: new Date('2027-03-01T00:00:00+05:30') } });
+  const srv = await startRoutes({ db });
+  t.after(srv.close);
+  assert.equal(coveredTillBoards(db.read('subscriptions/child1'), NOW), true);
+  const { token } = await mint(srv);
+  for (const [path, passType] of [[PARENT_VIEW_PATH], [PARENT_ORDER_PATH, 'month'], [PARENT_ORDER_PATH, 'till_boards']]) {
+    const r = await request(srv.port, path, { body: { token, passType } });
+    assert.equal(r.status, 410, `${path} ${passType || ''}`);
+    assert.equal(r.json.reason, 'covered');
+  }
+  assert.equal(srv.rzp.calls.length, 0, 'Razorpay was asked to charge for a covered child');
+});
+
+test('L · NOT covered: a pass that ends BEFORE the boards (or has expired) still lets the parent pay', async (t) => {
+  assert.equal(coveredTillBoards({ passEnd: new Date('2026-12-01T00:00:00+05:30') }, NOW), false);
+  assert.equal(coveredTillBoards({ passEnd: new Date('2026-09-01T00:00:00+05:30') }, NOW), false);
+  assert.equal(coveredTillBoards({}, NOW), false);
+  const db = memoryFirestore({ 'subscriptions/child1': { tier: 'premium', passType: 'month', passEnd: new Date('2026-10-20T00:00:00+05:30') } });
+  const srv = await startRoutes({ db });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  assert.equal((await request(srv.port, PARENT_VIEW_PATH, { body: { token } })).status, 200);
+  assert.equal((await parentOrder(srv, token)).status, 200);
 });
 
 /* ══════════════════════════════════════════════════════════════════════════

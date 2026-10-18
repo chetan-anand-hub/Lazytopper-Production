@@ -1282,7 +1282,7 @@ function CompareCellView({ cell, plan }: { cell: CompareCell; plan: "basic" | "p
 /**
  * ASK-PARENTS-PAY-1 — `/pricing#pp=<token>` is a parent's pay link: with parent pay switched
  * on, the parent's page replaces the plans. The token is read ONCE (latched), so taking it
- * out of the address bar before checkout does not swap the page back. Without a valid
+ * out of the address bar on mount does not swap the page back. Without a valid
  * token, or while parent pay is dark, this is exactly the plans page as before.
  */
 export default function PricingPage() {

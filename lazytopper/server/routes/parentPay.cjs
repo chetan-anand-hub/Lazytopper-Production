@@ -39,10 +39,16 @@
  * Idempotent end to end through grantPass's payment-level record (Z9).
  *
  * ★ SINGLE USE. A link pays at most once. It stops creating orders as soon as any order it
- * created is `paid` (by verify OR by the webhook — the order documents are re-read, so a
- * webhook-only completion is seen too), it expires (LINK_TTL_MS), and it can create at most
- * MAX_ORDERS_PER_LINK orders at all. Verify does NOT check expiry: a payment Razorpay
- * captured for an order created while the link was live is always honoured.
+ * created is `paid` (by verify OR by the webhook — `payOrders` is QUERIED by `parentLinkId`,
+ * so a webhook-only completion is seen too, whatever the link's own list says), it expires
+ * (LINK_TTL_MS), and it can create at most MAX_ORDERS_PER_LINK orders at all — the cap is
+ * checked and its slot taken in ONE Firestore transaction, so parallel requests cannot
+ * exceed it. Verify does NOT check expiry: a payment Razorpay captured for an order created
+ * while the link was live is always honoured.
+ *
+ * ★ ALREADY COVERED. If the child's pass already runs to the end of the predicted board day
+ * (bought by the child, or through another link), view and order refuse with `covered` —
+ * a parent is never asked to pay for nothing.
  *
  * ★ PRIVACY. The URL carries only the opaque token, in the FRAGMENT (`/pricing#pp=…`), so it
  * never reaches a server log, a Referer or an analytics vendor. A parent sees the child's
@@ -61,6 +67,8 @@ const {
   RAZORPAY_API_BASE,
 } = require('./payments.cjs');
 const { grantPass, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
+const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
+const pricing = require('../services/passPricing.cjs');
 
 const PARENT_LINK_PATH = '/api/pay/parent-link';
 const PARENT_VIEW_PATH = '/api/pay/parent/view';
@@ -77,8 +85,17 @@ const LINK_TTL_MS = 72 * 60 * 60 * 1000;
 const MAX_ORDERS_PER_LINK = 5;
 /** Links one child may mint per IST day. */
 const MAX_LINKS_PER_UID_PER_DAY = 10;
-/** Parent-route calls per client IP per hour (view + order + verify together). */
-const MAX_PARENT_CALLS_PER_IP_PER_HOUR = 60;
+/**
+ * Parent-route calls per client per IST day (view + order + verify together). Counted by
+ * the product's ONE limiter (rateLimiter.cjs), keyed exactly as it keys every signed-out
+ * caller — the same client-IP rule, the same daily reset (which is also its only memory
+ * bound), the same documented XFF caveat. Not a second, hand-rolled policy.
+ */
+const MAX_PARENT_CALLS_PER_CLIENT_PER_DAY = 300;
+/** The limiter's class for minting (keyed by the child's VERIFIED uid). */
+const PARENT_LINK_CLASS = 'parentLink';
+/** Refusal reason when the child's pass already runs to the boards. */
+const COVERED_REASON = 'covered';
 
 const RAZORPAY_TIMEOUT_MS = 15000;
 const CURRENCY = 'INR';
@@ -138,26 +155,48 @@ function toMillis(value) {
   return null;
 }
 
-/** A small fixed-window counter. In memory: a restart forgets it, which only loosens it. */
-function createWindowCounter({ max, windowMs, now }) {
-  const buckets = new Map();
-  return {
-    take(key) {
-      const t = now();
-      const windowStart = Math.floor(t / windowMs);
-      const k = `${key}|${windowStart}`;
-      if (buckets.size > 50000) buckets.clear();
-      const n = (buckets.get(k) || 0) + 1;
-      if (n > max) return false;
-      buckets.set(k, n);
-      return true;
+/**
+ * The parent-pay limiter: an instance of the product's existing limiter (rateLimiter.cjs),
+ * like payments.cjs's own. Minting is keyed on the child's VERIFIED uid; the three parent
+ * routes are called signed out by construction, so they are checked with `signedOut: true`
+ * (a typed X-Lazytopper-Uid header keys nothing) and land in the limiter's anonymous
+ * per-client bucket. No global class: these routes cost no model calls.
+ */
+function createParentPayLimiter({ telemetry, now } = {}) {
+  return createRateLimiter({
+    telemetry,
+    now,
+    paidEndpoints: {
+      [PARENT_LINK_PATH]: PARENT_LINK_CLASS,
+      [PARENT_VIEW_PATH]: 'parentPay',
+      [PARENT_ORDER_PATH]: 'parentPay',
+      [PARENT_VERIFY_PATH]: 'parentPay',
     },
-  };
+    limits: {
+      [PARENT_LINK_CLASS]: { soft: Math.ceil(MAX_LINKS_PER_UID_PER_DAY / 2), hard: MAX_LINKS_PER_UID_PER_DAY },
+      [ANONYMOUS_CLASS]: { soft: Math.ceil(MAX_PARENT_CALLS_PER_CLIENT_PER_DAY / 2), hard: MAX_PARENT_CALLS_PER_CLIENT_PER_DAY },
+    },
+  });
 }
 
-function clientIp(req) {
-  const xff = String((req && req.headers && req.headers['x-forwarded-for']) || '').split(',')[0].trim();
-  return xff || String((req && req.socket && req.socket.remoteAddress) || 'unknown');
+/**
+ * Does the child's pass already run to (or past) the end of the predicted board day? Then
+ * neither pass buys anything new for the boards and the link must not take money.
+ */
+function coveredTillBoards(storedSubscription, nowMs) {
+  const stored = storedSubscription && typeof storedSubscription === 'object' ? storedSubscription : {};
+  const endMs = toMillis(stored.passEnd);
+  if (endMs === null || endMs <= nowMs) return false;
+  const boardEndMs = pricing.endOfIstDayMs(pricing.predictBoardDateIso(nowMs));
+  return boardEndMs !== null && endMs >= boardEndMs;
+}
+
+class OrderCapError extends Error {}
+class LinkClosedError extends Error {
+  constructor(reason) {
+    super(reason);
+    this.reason = reason;
+  }
 }
 
 function createParentPayRoutes(deps = {}) {
@@ -175,8 +214,7 @@ function createParentPayRoutes(deps = {}) {
     tokenFactory = mintToken,
   } = deps;
 
-  const mintCounter = createWindowCounter({ max: MAX_LINKS_PER_UID_PER_DAY, windowMs: 24 * 60 * 60 * 1000, now });
-  const ipCounter = createWindowCounter({ max: MAX_PARENT_CALLS_PER_IP_PER_HOUR, windowMs: 60 * 60 * 1000, now });
+  const rateLimiter = deps.rateLimiter || createParentPayLimiter({ telemetry, now });
 
   function emit(event) {
     try {
@@ -260,10 +298,14 @@ function createParentPayRoutes(deps = {}) {
     }
   }
 
-  /** The child's server prices right now, rupees. A pass that cannot be priced is null. */
-  async function quotesFor(uid) {
+  /** The child's stored subscription (the server's own record). */
+  async function readSubscription(uid) {
     const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
-    const stored = snap && snap.exists ? snap.data() || {} : {};
+    return snap && snap.exists ? snap.data() || {} : {};
+  }
+
+  /** The child's server prices right now, rupees. A pass that cannot be priced is null. */
+  function pricesFrom(stored) {
     const prices = {};
     for (const passType of Object.keys(PASS_TYPES)) {
       try {
@@ -273,6 +315,10 @@ function createParentPayRoutes(deps = {}) {
       }
     }
     return prices;
+  }
+
+  async function quotesFor(uid) {
+    return pricesFrom(await readSubscription(uid));
   }
 
   /** The link for a token, or a refusal reason. `requireOpen` = may it start a payment now. */
@@ -291,25 +337,61 @@ function createParentPayRoutes(deps = {}) {
     return { linkId, ref, link };
   }
 
-  /** Has any order this link created already been paid (by verify or by the webhook)? */
-  async function linkAlreadyPaid(link) {
-    const ids = Array.isArray(link.orderIds) ? link.orderIds.filter((id) => typeof id === 'string' && ID_PATTERN.test(id)) : [];
-    for (const id of ids) {
-      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(id).get();
-      const order = snap && snap.exists ? snap.data() || {} : null;
-      if (order && order.status === 'paid') return id;
+  /**
+   * Has any order this link created already been paid (by verify or by the webhook)?
+   * ★ Asked of `payOrders` BY `parentLinkId`, never of the link's own `orderIds` list: every
+   * parent order is stored with its `parentLinkId` BEFORE Razorpay can see a payment for it,
+   * so no order — whatever happened to the list — is invisible to this check.
+   */
+  async function linkAlreadyPaid(linkId) {
+    const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('parentLinkId', '==', linkId).get();
+    const docs = snap && Array.isArray(snap.docs) ? snap.docs : [];
+    for (const doc of docs) {
+      const order = typeof doc.data === 'function' ? doc.data() || {} : {};
+      if (order.payer === PARENT_PAYER && order.status === 'paid') return doc.id;
     }
     return null;
   }
 
-  function admitParentCall(req, res, scope) {
+  /**
+   * ★ ONE TRANSACTION reserves an order slot: the link is re-read inside it (still open,
+   * unexpired) and its `orderSlots` count is checked against the cap and incremented
+   * together, so parallel requests can never create more than MAX_ORDERS_PER_LINK orders.
+   */
+  async function reserveOrderSlot(ref) {
+    await adminFirestore.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const link = snap && snap.exists ? snap.data() || {} : null;
+      if (!link || link.status !== 'open') throw new LinkClosedError('used');
+      const exp = toMillis(link.expiresAt);
+      if (exp === null || exp <= now()) throw new LinkClosedError('expired');
+      const listed = Array.isArray(link.orderIds) ? link.orderIds.length : 0;
+      const slots = Number.isInteger(link.orderSlots) ? link.orderSlots : listed;
+      if (slots >= MAX_ORDERS_PER_LINK) throw new OrderCapError('cap');
+      tx.set(ref, { orderSlots: slots + 1 }, { merge: true });
+    });
+  }
+
+  /** The order id joins the link's list in its own transaction — no read-then-write loss. */
+  async function appendOrderId(ref, orderId) {
+    await adminFirestore.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const link = snap && snap.exists ? snap.data() || {} : {};
+      const ids = Array.isArray(link.orderIds) ? link.orderIds : [];
+      if (!ids.includes(orderId)) tx.set(ref, { orderIds: [...ids, orderId] }, { merge: true });
+    });
+  }
+
+  function admitParentCall(req, res, scope, reqPath) {
     if (!isParentPayEnabled(env)) {
       sendJson(res, 404, NOT_FOUND_BODY);
       return false;
     }
-    if (!ipCounter.take(clientIp(req))) {
+    // Signed out by construction: no uid (verified or header) keys this bucket.
+    const verdict = rateLimiter.check(req, reqPath, '', { signedOut: true });
+    if (!verdict.allowed) {
       emit(`payments.parent.${scope}.rate_limited`);
-      sendJson(res, 429, { ok: false, error: 'Too many attempts. Please try again in a while.' });
+      sendJson(res, 429, { ok: false, error: 'Too many attempts. Please try again tomorrow.' });
       return false;
     }
     if (!adminFirestore) {
@@ -324,7 +406,8 @@ function createParentPayRoutes(deps = {}) {
     if (!isParentPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
     const uid = await verifiedCaller.resolveVerifiedUid(req);
     if (!uid) return sendJson(res, 401, { ok: false, error: 'unauthenticated' });
-    if (!mintCounter.take(uid)) {
+    const verdict = rateLimiter.check(req, PARENT_LINK_PATH, uid);
+    if (!verdict.allowed) {
       emit('payments.parent.link.rate_limited');
       return sendJson(res, 429, { ok: false, error: 'Too many links today. Please try again tomorrow.' });
     }
@@ -359,6 +442,7 @@ function createParentPayRoutes(deps = {}) {
         createdAt: new Date(createdMs),
         expiresAt: new Date(expiresMs),
         orderIds: [],
+        orderSlots: 0,
       });
     } catch (e) {
       emit('payments.parent.link.store_failed');
@@ -371,7 +455,7 @@ function createParentPayRoutes(deps = {}) {
 
   /* ── POST /api/pay/parent/view — what the parent's page shows ─────────────── */
   async function handleView(req, res) {
-    if (!admitParentCall(req, res, 'view')) return undefined;
+    if (!admitParentCall(req, res, 'view', PARENT_VIEW_PATH)) return undefined;
     const body = await readJsonBody(req, res);
     if (!body) return undefined;
     let resolved;
@@ -379,12 +463,15 @@ function createParentPayRoutes(deps = {}) {
     try {
       resolved = await resolveLink(body.token, { requireOpen: true });
       if (resolved.reason) return linkRefused(res, 'view', resolved.reason);
-      const paidOrder = await linkAlreadyPaid(resolved.link);
+      const paidOrder = await linkAlreadyPaid(resolved.linkId);
       if (paidOrder) {
         await resolved.ref.set({ status: 'paid', paidOrderId: paidOrder }, { merge: true });
         return linkRefused(res, 'view', 'used');
       }
-      prices = await quotesFor(resolved.link.uid);
+      const stored = await readSubscription(resolved.link.uid);
+      // Already covered till the boards (by the child, or through another link): nothing to sell.
+      if (coveredTillBoards(stored, now())) return linkRefused(res, 'view', COVERED_REASON);
+      prices = pricesFrom(stored);
     } catch (e) {
       emit('payments.parent.view.failed');
       console.error('[pay/parent/view] failed:', e && e.message);
@@ -401,7 +488,7 @@ function createParentPayRoutes(deps = {}) {
 
   /* ── POST /api/pay/parent/order — an order bound to the CHILD's uid ───────── */
   async function handleOrder(req, res) {
-    if (!admitParentCall(req, res, 'order')) return undefined;
+    if (!admitParentCall(req, res, 'order', PARENT_ORDER_PATH)) return undefined;
     const keys = readKeys();
     if (!keys.keyId || !keys.keySecret) return unavailable(res);
     const body = await readJsonBody(req, res);
@@ -416,17 +503,18 @@ function createParentPayRoutes(deps = {}) {
     try {
       resolved = await resolveLink(body.token, { requireOpen: true });
       if (resolved.reason) return linkRefused(res, 'order', resolved.reason);
-      const orderIds = Array.isArray(resolved.link.orderIds) ? resolved.link.orderIds : [];
-      const paidOrder = await linkAlreadyPaid(resolved.link);
+      const paidOrder = await linkAlreadyPaid(resolved.linkId);
       if (paidOrder) {
         await resolved.ref.set({ status: 'paid', paidOrderId: paidOrder }, { merge: true });
         return linkRefused(res, 'order', 'used');
       }
-      if (orderIds.length >= MAX_ORDERS_PER_LINK) return reject(res, 'order', 'too_many_orders', 429);
-      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(resolved.link.uid).get();
-      const stored = snap && snap.exists ? snap.data() || {} : {};
+      const stored = await readSubscription(resolved.link.uid);
+      if (coveredTillBoards(stored, now())) return linkRefused(res, 'order', COVERED_REASON);
       quote = quotePass(stored, passType, now(), { foundingOfferOpen });
+      await reserveOrderSlot(resolved.ref);
     } catch (e) {
+      if (e instanceof OrderCapError) return reject(res, 'order', 'too_many_orders', 429);
+      if (e instanceof LinkClosedError) return linkRefused(res, 'order', e.reason);
       emit('payments.parent.order.prepare_failed');
       console.error('[pay/parent/order] could not prepare the order:', e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Could not price this pass.' });
@@ -460,6 +548,8 @@ function createParentPayRoutes(deps = {}) {
     }
 
     try {
+      // Stored WITH its parentLinkId before the browser ever gets the order id — so
+      // linkAlreadyPaid can always find it, whatever happens to the link's list.
       await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(order.id).set({
         uid,
         passType,
@@ -470,8 +560,7 @@ function createParentPayRoutes(deps = {}) {
         payer: PARENT_PAYER,
         parentLinkId: linkId,
       });
-      const orderIds = Array.isArray(link.orderIds) ? link.orderIds : [];
-      await ref.set({ orderIds: [...orderIds, order.id] }, { merge: true });
+      await appendOrderId(ref, order.id);
     } catch (e) {
       emit('payments.parent.order.store_failed');
       console.error('[pay/parent/order] could not store the order:', e && e.message);
@@ -484,7 +573,7 @@ function createParentPayRoutes(deps = {}) {
 
   /* ── POST /api/pay/parent/verify — every check, then the CHILD's grant ────── */
   async function handleVerify(req, res) {
-    if (!admitParentCall(req, res, 'verify')) return undefined;
+    if (!admitParentCall(req, res, 'verify', PARENT_VERIFY_PATH)) return undefined;
     const keys = readKeys();
     if (!keys.keyId || !keys.keySecret) return unavailable(res);
     const body = await readJsonBody(req, res);
@@ -591,5 +680,8 @@ module.exports = {
   LINK_TTL_MS,
   MAX_ORDERS_PER_LINK,
   MAX_LINKS_PER_UID_PER_DAY,
+  MAX_PARENT_CALLS_PER_CLIENT_PER_DAY,
   TOKEN_PATTERN,
+  createParentPayLimiter,
+  coveredTillBoards,
 };

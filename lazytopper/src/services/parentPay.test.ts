@@ -86,7 +86,7 @@ describe("the link", () => {
   });
 
   it("view maps the server's refusals to a reason", async () => {
-    for (const [status, reason] of [[404, "invalid"], [410, "expired"], [410, "used"]] as const) {
+    for (const [status, reason] of [[404, "invalid"], [410, "expired"], [410, "used"], [410, "covered"]] as const) {
       vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status, json: async () => ({ ok: false, reason }) })));
       await expect(viewParentLink(TOKEN)).rejects.toMatchObject({ reason });
     }

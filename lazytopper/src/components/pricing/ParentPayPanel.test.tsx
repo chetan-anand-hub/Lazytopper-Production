@@ -67,6 +67,7 @@ describe("ParentPayPanel", () => {
     ["expired", "This link has expired"],
     ["used", "already been used"],
     ["invalid", "isn't valid"],
+    ["covered", "Nothing to pay"],
     ["failed", "couldn't open this link"],
   ] as const)("a refused link (%s) shows why, and NO pay button", async (reason, text) => {
     await renderPanel({ view: vi.fn(async () => { throw new ParentLinkError(reason); }) });
@@ -75,7 +76,33 @@ describe("ParentPayPanel", () => {
     expect(pageView).not.toHaveBeenCalled();
   });
 
-  it("pay: the token leaves the address bar BEFORE checkout; Premium shown only from the server's passEnd", async () => {
+  it("the token leaves the address bar ON MOUNT — before the link is viewed, and with no Buy tap at all", async () => {
+    const order: string[] = [];
+    const scrubAddress = vi.fn(() => order.push("scrub"));
+    const view = vi.fn(async () => {
+      order.push("view");
+      return VIEW;
+    });
+    await renderPanel({ scrubAddress, view });
+    expect(scrubAddress).toHaveBeenCalledTimes(1);
+    expect(order).toEqual(["scrub", "view"]);
+  });
+
+  it("the real scrub removes #pp=… and keeps the path and query", async () => {
+    window.history.replaceState(null, "", `/pricing?utm_source=whatsapp#pp=${TOKEN}`);
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, ...VIEW }) })));
+    const { default: ParentPayPanel } = await import("./ParentPayPanel");
+    await act(async () => {
+      render(<ParentPayPanel token={TOKEN} />);
+    });
+    expect(window.location.hash).toBe("");
+    expect(window.location.pathname).toBe("/pricing");
+    expect(window.location.search).toBe("?utm_source=whatsapp");
+    expect(window.location.href).not.toContain(TOKEN);
+    vi.unstubAllGlobals();
+  });
+
+  it("pay: Premium shown only from the server's passEnd; the token was already scrubbed", async () => {
     const order: string[] = [];
     const scrubAddress = vi.fn(() => order.push("scrub"));
     const buy = vi.fn(async (): Promise<ParentBuyOutcome> => {
@@ -87,6 +114,7 @@ describe("ParentPayPanel", () => {
       fireEvent.click(screen.getByRole("button", { name: "Pay ₹599 for a month" }));
     });
     expect(order).toEqual(["scrub", "buy"]);
+    expect(scrubAddress).toHaveBeenCalledTimes(1);
     expect(buy).toHaveBeenCalledWith(TOKEN, "month");
     expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Aarav's Premium is active until 18 November 2026");
     expect(begin).toHaveBeenCalledWith(expect.objectContaining({ passType: "month", valueInr: 599, payer: "parent" }));
