@@ -593,7 +593,6 @@ export const SOLUTIONS_CHAPTERS: readonly SolutionsChapter[] = [
       ncert: [],
       exemplar: [
         r("ARC-N-EXEM-11-AR-002"),
-        r("ARC-N-EXEM-11-CB-001"), // case-based
       ],
     },
   },
@@ -865,8 +864,12 @@ export function boardPatternRows<Q extends { id: string }>(
   return out;
 }
 
-/** "Assertion-Reason" / "Case-based" for a board-pattern card (from the row's format; options mean AR). */
-export function boardPatternLabel(q: { format?: string; options?: readonly string[] | null }): string {
-  if (/assertion/i.test(String(q.format ?? "")) || (Array.isArray(q.options) && q.options.length > 0)) return "Assertion-Reason";
+/**
+ * "Assertion-Reason" / "Case-based" for a board-pattern card, decided by the row's ACTUAL format
+ * (`format` names Assertion-Reason, or the id is an -AR- row) — never by "has options": a case-based
+ * row with an MCQ sub-part must not be labelled Assertion-Reason.
+ */
+export function boardPatternLabel(q: { id?: string; format?: string }): string {
+  if (/assertion/i.test(String(q.format ?? "")) || /-AR-\d+$/.test(String(q.id ?? ""))) return "Assertion-Reason";
   return "Case-based";
 }

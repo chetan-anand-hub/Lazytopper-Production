@@ -48,19 +48,19 @@
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/areas-related-to-circles": {
-    "sha256": "65441e23904d73195e86e7912a07942ee4f88f9cca14a255aeaa410f5dc2405d",
+    "sha256": "f538f49c53a813a7a2347af5b1ff6eaf54896919e0211a75deea54b810004e1e",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/arithmetic-progression": {
-    "sha256": "a46bc6b58bf60a14389abd1c46e42ab90436ae233b981af8c1f384d72fd58840",
+    "sha256": "6356d9122e28323f028a399c11b58ee7fc887cff13fe2273d0bd7546e583cfa1",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/circles": {
-    "sha256": "bfd140953983420628f8fb977bac44b45c5156b1bd3d59f89d4a13edba9773bd",
+    "sha256": "4a18a3eef47e85260424910acdbeaef1fa05dc4adb23ea4beb049551cff3d0ef",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/coordinate-geometry": {
-    "sha256": "ea40823088632ba50f65d2d227c81ba08b5adab93b94af58e7a731ed896d1dca",
+    "sha256": "0acb5b2118221b300921690970ecf81f0d938de1d60770364e7584f0b0f08d94",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/introduction-to-trigonometry": {
@@ -68,35 +68,35 @@
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/pair-of-linear-equations": {
-    "sha256": "c710dbe0fce7d228d922fc8495d026c8f0ddc65979c3fee1955a9a2da7e13ea4",
+    "sha256": "34e126433f70138d6bc268c57c6d8c533af0f6a6cd79219fc43c6461fb1a731f",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/polynomials": {
-    "sha256": "f7e6cb7f7bb2f211c4970faa72c0142bd01e6ee6efc5d137300a8ccc2f2d4b6f",
+    "sha256": "2c8432e8e7c1fa31e5e9bbe02316cb52d7c9752d840675b477b760746e952949",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/probability": {
-    "sha256": "4c6267b62899ab765a2b3ba391cd739f3ba89a8b9934ec4f2acab1e38b5e5433",
+    "sha256": "20754b3b0f1cb09d330ff6046c56dcf2e7888f19f90ee4a5934586688ddfef7f",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/quadratic-equations": {
-    "sha256": "b46d14fd5d586f8bccd36fa07d396e96ab587095450f6643eef6cf02b3cb4a00",
+    "sha256": "b6b1088518163b8990a0137dafaa6269ce20eb9d22fdc0f79a29125219f94d14",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/real-numbers": {
-    "sha256": "c419246c86c2cbef7d2371a1c46a27763a2fcdecaa78f13dce45d375f1cfdbb7",
+    "sha256": "f4bb51aa80737d84aabd6efd481988a51c4c006231e96f28e5c7e29259adb4e2",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/some-applications-of-trigonometry": {
-    "sha256": "63f6ec2c18a5c70425f1e2ed2f8692244339930fae663b415877fecdddc5c530",
+    "sha256": "fc5e0bbf39d7ac9dc832db9cf9e54495edfa1e1cea9d8ea9d1f207890d1641ac",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/statistics": {
-    "sha256": "08ab09bdfc40f47d921d89296919a1ca475ccfec9808276cd40ddcee3f74af39",
+    "sha256": "f155c7d53ec01c8d8518111d824d68ff6c1e79e3da7684ea5c020b610559ab8d",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/surface-areas-and-volumes": {
-    "sha256": "263764276c366ee7f6786a23d5925d1f79606a2ecc2eeb535d71d6e222e19b7d",
+    "sha256": "8b8ef9148716bf4ea6ef9f3cbedf0d1f167991855e2461f744cc01152ba880dc",
     "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/triangles": {
@@ -104,7 +104,7 @@
     "lastmod": "2026-10-18"
   },
   "/ncert-solutions/arithmetic-progression": {
-    "sha256": "e397d8361796d344bd970238bcb11f5774b832875c6b95c4d04ac235107fb64e",
+    "sha256": "057899377b57e6231b31a4a3e5d213faeea3481a5923a7a0d1cd64bc80dd74ca",
     "lastmod": "2026-10-18"
   },
   "/ncert-solutions/circles": {
@@ -112,7 +112,7 @@
     "lastmod": "2026-10-18"
   },
   "/ncert-solutions/coordinate-geometry": {
-    "sha256": "bb3b1d6065001ce50616147f5c76374d52f4a566ae737562d94740693f5d08f8",
+    "sha256": "570f0b724cad8dfc27b0032576cdbe92b2f8e2be693ed4f1a17372d632d75408",
     "lastmod": "2026-10-18"
   },
   "/ncert-solutions/introduction-to-trigonometry": {
@@ -124,7 +124,7 @@
     "lastmod": "2026-10-18"
   },
   "/ncert-solutions/quadratic-equations": {
-    "sha256": "64736d56b20eb15287e3c45550e5c3369b8aa6fc2d148f5743b9612cf6edd5c3",
+    "sha256": "0dc5fc30a2e00ac25a17adb196b56a9ffea61941bb75f05678227389826c6827",
     "lastmod": "2026-10-18"
   },
   "/ncert-solutions/some-applications-of-trigonometry": {
@@ -132,7 +132,7 @@
     "lastmod": "2026-10-18"
   },
   "/ncert-solutions/triangles": {
-    "sha256": "7e8784eb64332149162fd73de54b61818adcdaf0ae4fab15ec52f6250bd1e89a",
+    "sha256": "4f498351760ad251a672d08bb564d9148b64560cf7b9d7b91bb2c130de892337",
     "lastmod": "2026-10-18"
   },
   "/notes/acids-bases-and-salts": {

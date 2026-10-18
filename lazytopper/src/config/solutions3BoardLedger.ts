@@ -71,7 +71,7 @@ export const SOLUTIONS_3_BOARD_LEDGER: Readonly<Record<string, LedgerEntry>> = {
   "ARC-N-NCERT-11-CB-001": { status: "hold", note: "text/steps audit: the answer depends on π = 22/7, which the question never states" },
   "ARC-N-EXEM-11-AR-001": { status: "hold", note: "second audit: syllabus BORDERLINE (major segment with no central angle; the official content limits segment problems to 60°, 90° and 120°)" },
   "ARC-N-EXEM-11-AR-002": { status: "publish", hash: "ee7099faa46c4578", note: "syllabus IN (official 2026-27 content); AR blind solve agrees; judge: key correct; text/steps audit clean" },
-  "ARC-N-EXEM-11-CB-001": { status: "publish", hash: "db3fdb8b0dc91958", note: "syllabus IN (official 2026-27 content); case blind solve agrees; judge: key correct; text/steps audit clean" },
+  "ARC-N-EXEM-11-CB-001": { status: "hold", note: "PR review: the answer depends on π = 22/7, which the question never states (held, consistent with ARC-N-NCERT-11-CB-001)" },
   "SAV-N-NCERT-12-CB-001": { status: "publish", hash: "109955b1ec1a560f", note: "syllabus IN (official 2026-27 content); case blind solve agrees; judge: key correct; text/steps audit clean" },
   "SAV-N-EXMPLR-12-AR-002": { status: "publish", hash: "05fd6176092ba830", note: "syllabus IN (official 2026-27 content); AR blind solve agrees; judge: key correct; text/steps audit clean" },
   "STAT-N-NCERT-13-AR-002": { status: "hold", note: "second audit: maths correct, but both independent audits flag the 'standard NCERT formula / identity' wording (and thin or circular steps) on a page that says these are not NCERT questions; release after a bank wording fix" },
