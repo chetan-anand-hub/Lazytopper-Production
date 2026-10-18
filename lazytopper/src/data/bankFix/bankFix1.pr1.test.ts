@@ -28,6 +28,7 @@ import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { isPYQQuestion as engineIsPYQQuestion } from "../practiceSetGenerator";
 import { questionMatchesFilters } from "../../pages/PracticePage";
 import { BANK_FIX_1_PR1, BANK_FIX_1_RAW_COUNT } from "./bankFix1Ledger";
+import { PYQ_RESTORE_1_RESTORED_IDS } from "./pyqRestore1Ledger";
 import type { CanonicalQuestion } from "../predictionTypes";
 import type { SelectableQuestion } from "../../lib/boardQuestions/selectionRule";
 
@@ -131,7 +132,9 @@ describe("BANK-FIX-1 PR-1 · written answers carry the corrected values", () => 
 
 describe("BANK-FIX-1 ruling 2 · changed rows are 'Others' everywhere", () => {
   const changedServedBank = BANK_FIX_1_PR1.filter(
-    (e) => e.surface === "bank" && e.verdict === "fixed" && servedIds.has(e.id),
+    // PYQ-RESTORE-1 (2026-10-18, owner ruling (a) amends ruling 2): a fixed SOLUTION does not change
+    // a confirmed board question's provenance - those rows are pinned as PYQ in pyqRestore1.test.ts.
+    (e) => e.surface === "bank" && e.verdict === "fixed" && servedIds.has(e.id) && !PYQ_RESTORE_1_RESTORED_IDS.has(e.id),
   );
   it("has changed served bank rows (non-vacuous)", () => expect(changedServedBank.length).toBeGreaterThan(100));
   it("no changed row is PYQ (either matcher), carries a year, or is offered as PYQ / NCERT", () => {
