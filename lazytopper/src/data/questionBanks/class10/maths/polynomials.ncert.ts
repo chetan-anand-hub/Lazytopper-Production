@@ -95,14 +95,14 @@ export const POLY_NCERT: CanonicalQuestion[] = [
     questionText: "Find a quadratic polynomial whose zeroes are sum −3 and product 2 respectively.",
     solutionSteps: ["The quadratic with sum s and product p of zeroes is x² – sx + p.", "Substituting s = −3, p = 2: x² – (−3)x + 2 = x² + 3x + 2."],
     finalAnswer: "x² + 3x + 2.",
-    ncertRef: "NCERT Example 4 (page 31)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 4", isCompetencyBased: true },
 
   // ===== Section C — Short Answer (3 marks) =====
   { id: "POLY-N-NCERT-2-SA-001", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes & Coefficient Relationship", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the zeroes of x² + 7x + 10 and verify the relationship between the zeroes and the coefficients.",
     solutionSteps: ["Factorise: x² + 7x + 10 = (x + 2)(x + 5).", "Zeroes: x = −2 and x = −5.", "Sum = −2 + (−5) = −7 = −(7)/1 = −(coeff of x)/(coeff of x²). ✓", "Product = (−2)(−5) = 10 = (constant)/(coeff of x²). ✓"],
     finalAnswer: "Zeroes: −2 and −5; relationship verified.",
-    ncertRef: "NCERT Example 2 (page 29)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 2", isCompetencyBased: true },
 
   { id: "POLY-N-NCERT-2-SA-002", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes & Coefficient Relationship", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the zeroes of 6x² – 3 – 7x and verify the relationship between zeroes and coefficients.",

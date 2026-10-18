@@ -108,7 +108,7 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
     questionText: "PQ is a chord of length 8 cm of a circle of radius 5 cm. The tangents at P and Q intersect at a point T. Find the length TP.",
     solutionSteps: ["Join OT meeting PQ at R. ∆TPQ is isosceles (TP = TQ), so OT bisects PQ at R ⇒ PR = 4.", "In ∆OPR: OR² = OP² − PR² = 25 − 16 = 9 ⇒ OR = 3.", "In ∆OPT, OP ⊥ PT. Using similar triangles or Pythagoras: TP × OR = OP × PR? More directly: TP/OP = PR/OR (from ∆TRP ∼ ∆PRO).", "TP = (PR × OP)/OR = (4 × 5)/3 = 20/3 cm."],
     finalAnswer: "TP = 20/3 cm.",
-    ncertRef: "NCERT Example 3 (page 213)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 3", isCompetencyBased: true },
 
   { id: "CIRC-N-NCERT-10-SA-004", subject: "Maths", topicKey: "circles", subtopic: "Circumscribed Quadrilateral", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "A quadrilateral ABCD is drawn to circumscribe a circle. Prove that AB + CD = AD + BC.",
@@ -121,7 +121,7 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
     questionText: "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
     solutionSteps: ["Let ∠PTQ = θ. TP = TQ (equal tangents), so ∆TPQ is isosceles.", "∠TPQ = ∠TQP = (180° − θ)/2 = 90° − θ/2.", "OP ⊥ TP ⇒ ∠OPT = 90°.", "∠OPQ = ∠OPT − ∠TPQ = 90° − (90° − θ/2) = θ/2 = (1/2)∠PTQ.", "Hence ∠PTQ = 2∠OPQ."],
     finalAnswer: "Proved: ∠PTQ = 2∠OPQ.",
-    ncertRef: "NCERT Example 2 (page 212)", isCompetencyBased: true },
+    ncertRef: "NCERT Example 2", isCompetencyBased: true },
 
   // ===== Section D — Long Answer (5 marks) =====
   { id: "CIRC-N-NCERT-10-LA-001", subject: "Maths", topicKey: "circles", subtopic: "Triangle Circumscribing Circle", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",

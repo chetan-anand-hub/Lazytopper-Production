@@ -15,7 +15,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "intersecting at a point",
     solutionSteps: ["For the two equations a₁ = 5, b₁ = −4, c₁ = 8 and a₂ = 7, b₂ = 6, c₂ = −9.", "Compute a₁/a₂ = 5/7 and b₁/b₂ = −4/6 = −2/3.", "Since 5/7 ≠ −2/3, i.e., a₁/a₂ ≠ b₁/b₂, the lines are intersecting (unique solution).", "Hence the pair represents intersecting lines."],
     finalAnswer: "Intersecting at a point — option (a).",
-    ncertRef: "NCERT Ex 3.2 Q2(i)", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 3.1 Q2(i)", isCompetencyBased: false,
     strategyHint: "Check a₁/a₂ vs b₁/b₂ first: if unequal → unique solution → intersecting." },
 
   { id: "PLE-N-NCERT-3-MCQ-002", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Consistency of Equations", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
@@ -24,7 +24,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "consistent with infinitely many solutions (coincident)",
     solutionSteps: ["a₁/a₂ = 9/18 = 1/2.", "b₁/b₂ = 3/6 = 1/2.", "c₁/c₂ = 12/24 = 1/2.", "Since a₁/a₂ = b₁/b₂ = c₁/c₂, the lines are coincident → infinitely many solutions (consistent, dependent)."],
     finalAnswer: "Coincident lines with infinitely many solutions — option (c).",
-    ncertRef: "NCERT Ex 3.2 Q2(ii)", isCompetencyBased: false },
+    ncertRef: "NCERT Ex 3.1 Q2(ii)", isCompetencyBased: false },
 
   { id: "PLE-N-NCERT-3-MCQ-003", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Consistency of Equations", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "The pair of equations 2x − 3y = 8 and 4x − 6y = 9 is:",
@@ -50,7 +50,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "x = 9, y = 5. From x + y = 14, write x = 14 − y. Substitute into x − y = 4 to get (14 − y) − y = 4 → 14 − 2y = 4 → 2y = 10 → y = 5. Then x = 14 − 5 = 9.",
     solutionSteps: ["From equation 1: x = 14 − y.", "Substitute into x − y = 4: (14 − y) − y = 4 → 14 − 2y = 4.", "Solve: 2y = 10 → y = 5.", "Back-substitute: x = 14 − 5 = 9."],
     finalAnswer: "x = 9, y = 5.",
-    ncertRef: "NCERT Ex 3.3 Q1(i)", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 3.2 Q1(i)", isCompetencyBased: false,
     strategyHint: "Pick the simpler equation and express one variable in terms of the other." },
 
   { id: "PLE-N-NCERT-3-SA-002", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Substitution Method", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
@@ -58,7 +58,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "Infinitely many solutions. From 3x − y = 3 we get y = 3x − 3. Substituting in 9x − 3y = 9 gives 9x − 3(3x − 3) = 9 → 9x − 9x + 9 = 9 → 9 = 9, which is always true. The two equations are equivalent (the second is 3 times the first), so the pair has infinitely many solutions.",
     solutionSteps: ["From 3x − y = 3: y = 3x − 3.", "Substitute into 9x − 3y = 9: 9x − 3(3x − 3) = 9.", "Simplify: 9x − 9x + 9 = 9 → 9 = 9, a true statement with no variable.", "Hence the pair has infinitely many solutions (the two equations represent the same line)."],
     finalAnswer: "Infinitely many solutions; the two equations are equivalent.",
-    ncertRef: "NCERT Ex 3.3 Q1(iii)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.2 Q1(iii)", isCompetencyBased: true,
     strategyHint: "A true statement without a variable after substitution ⇒ infinitely many solutions." },
 
   { id: "PLE-N-NCERT-3-SA-003", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Elimination Method", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
@@ -66,7 +66,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "x = 19/5, y = 6/5. Multiply equation 1 by 3 to get 3x + 3y = 15. Add to 2x − 3y = 4: 5x = 19 → x = 19/5. Then y = 5 − x = 5 − 19/5 = 6/5.",
     solutionSteps: ["Eq1: x + y = 5;  Eq2: 2x − 3y = 4.", "Multiply Eq1 by 3: 3x + 3y = 15.", "Add to Eq2: (3x + 2x) + (3y − 3y) = 15 + 4 → 5x = 19 → x = 19/5.", "Back-substitute in Eq1: y = 5 − 19/5 = 6/5."],
     finalAnswer: "x = 19/5, y = 6/5.",
-    ncertRef: "NCERT Ex 3.4 Q1(i)", isCompetencyBased: false,
+    ncertRef: "NCERT Ex 3.3 Q1(i)", isCompetencyBased: false,
     strategyHint: "Make coefficients of one variable equal/opposite, then add/subtract to eliminate." },
 
   { id: "PLE-N-NCERT-3-SA-004", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Elimination Method", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -74,7 +74,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "x = 2, y = 1. Simplify Eq2: x − y = 1, so x = y + 1. From Eq1 (×1): 3(y + 1) + 4y = 10 → 7y + 3 = 10 → y = 1. Then x = 2.",
     solutionSteps: ["Eq2 ÷ 2: x − y = 1 → x = y + 1.", "Or eliminate y: multiply Eq2 by 2 → 4x − 4y = 4; add to Eq1 → 7x = 14 → x = 2.", "Substitute x = 2 in Eq2: 2(2) − 2y = 2 → 4 − 2y = 2 → y = 1.", "Solution: x = 2, y = 1."],
     finalAnswer: "x = 2, y = 1.",
-    ncertRef: "NCERT Ex 3.4 Q1(ii)", isCompetencyBased: false },
+    ncertRef: "NCERT Ex 3.3 Q1(ii)", isCompetencyBased: false },
 
   // ===== Section A: Graphical recognition (MCQ continued) =====
   { id: "PLE-N-NCERT-3-MCQ-005", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Analysing",
@@ -83,7 +83,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "parallel",
     solutionSteps: ["a₁/a₂ = 6/2 = 3.", "b₁/b₂ = −3/−1 = 3.", "c₁/c₂ = 10/9.", "a₁/a₂ = b₁/b₂ ≠ c₁/c₂ → parallel lines.", "Hence the pair represents parallel (non-intersecting) lines."],
     finalAnswer: "Parallel — option (d).",
-    ncertRef: "NCERT Ex 3.2 Q2(iii)", isCompetencyBased: false },
+    ncertRef: "NCERT Ex 3.1 Q2(iii)", isCompetencyBased: false },
 
   // ===== Section C: Short Answer (3 marks) — Word problems =====
   { id: "PLE-N-NCERT-3-SA-005", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -91,7 +91,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "Number of boys = 3 and number of girls = 7. Let x = boys and y = girls. Then x + y = 10 and y = x + 4. Substituting: x + (x + 4) = 10 → 2x = 6 → x = 3, and y = 7.",
     solutionSteps: ["Let number of boys = x and number of girls = y.", "From the total: x + y = 10.", "From the relation: y − x = 4 (girls are 4 more than boys).", "Adding the two equations: 2y = 14 → y = 7; then x = 10 − 7 = 3.", "Hence 3 boys and 7 girls participated."],
     finalAnswer: "3 boys and 7 girls.",
-    ncertRef: "NCERT Ex 3.2 Q1(i)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.1 Q1(i)", isCompetencyBased: true,
     strategyHint: "Translate each English clause into one equation; solve the resulting pair." },
 
   { id: "PLE-N-NCERT-3-SA-006", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -99,7 +99,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "Cost of one pencil = ₹3, cost of one pen = ₹5. Let pencil = ₹x and pen = ₹y. Then 5x + 7y = 50 and 7x + 5y = 46. Adding: 12x + 12y = 96 → x + y = 8. Subtracting: −2x + 2y = 4 → y − x = 2. Solving: x = 3, y = 5.",
     solutionSteps: ["Let cost of a pencil = ₹x and cost of a pen = ₹y.", "Equations: 5x + 7y = 50 …(1) and 7x + 5y = 46 …(2).", "Add (1) and (2): 12x + 12y = 96 → x + y = 8.", "Subtract (1) from (2): 2x − 2y = −4 → y − x = 2.", "Solve: y = 5, x = 3. Hence each pencil costs ₹3 and each pen ₹5."],
     finalAnswer: "Pencil = ₹3, Pen = ₹5.",
-    ncertRef: "NCERT Ex 3.2 Q1(ii)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.1 Q1(ii)", isCompetencyBased: true,
     strategyHint: "Symmetric coefficients → add the equations to find x + y, subtract to find x − y." },
 
   { id: "PLE-N-NCERT-3-SA-007", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
@@ -107,28 +107,28 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "Length = 20 m and width = 16 m. Let length = x and width = y. Half-perimeter = x + y = 36 and x − y = 4. Adding: 2x = 40 → x = 20; then y = 16.",
     solutionSteps: ["Let length = x m and width = y m.", "Half-perimeter = (length + width) = x + y = 36 …(1).", "Length is 4 m more than width: x = y + 4, i.e., x − y = 4 …(2).", "Add (1) and (2): 2x = 40 → x = 20 m.", "From (1): y = 36 − 20 = 16 m. Dimensions: 20 m × 16 m."],
     finalAnswer: "Length = 20 m, Width = 16 m.",
-    ncertRef: "NCERT Ex 3.2 Q5", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 3.1 Q5", isCompetencyBased: true },
 
   { id: "PLE-N-NCERT-3-SA-008", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The difference between two numbers is 26 and one number is three times the other. Find them.",
     answer: "The two numbers are 13 and 39. Let the smaller number be x and the larger 3x. Then 3x − x = 26 → 2x = 26 → x = 13 and 3x = 39.",
     solutionSteps: ["Let the smaller number = x and the larger number = y.", "Equations: y − x = 26 …(1) and y = 3x …(2).", "Substitute (2) into (1): 3x − x = 26 → 2x = 26 → x = 13.", "Then y = 3(13) = 39.", "Hence the numbers are 13 and 39."],
     finalAnswer: "The numbers are 13 and 39.",
-    ncertRef: "NCERT Ex 3.3 Q3(i)", isCompetencyBased: false },
+    ncertRef: "NCERT Ex 3.2 Q3(i)", isCompetencyBased: false },
 
   { id: "PLE-N-NCERT-3-SA-009", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The larger of two supplementary angles exceeds the smaller by 18°. Find them.",
     answer: "The two angles are 99° and 81°. Supplementary angles sum to 180°. Let smaller = x and larger = y. Then x + y = 180 and y − x = 18. Adding: 2y = 198 → y = 99°; then x = 81°.",
     solutionSteps: ["Let smaller angle = x° and larger = y°.", "Supplementary: x + y = 180 …(1).", "Larger exceeds smaller by 18°: y − x = 18 …(2).", "Add (1) and (2): 2y = 198 → y = 99°.", "Substitute back: x = 180 − 99 = 81°. So the angles are 81° and 99°."],
     finalAnswer: "81° and 99°.",
-    ncertRef: "NCERT Ex 3.3 Q3(ii)", isCompetencyBased: true },
+    ncertRef: "NCERT Ex 3.2 Q3(ii)", isCompetencyBased: true },
 
   { id: "PLE-N-NCERT-3-SA-010", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The coach of a cricket team buys 7 bats and 6 balls for ₹3800. Later, she buys 3 bats and 5 balls for ₹1750. Find the cost of each bat and each ball.",
     answer: "Bat = ₹500, Ball = ₹50. Let bat = ₹x, ball = ₹y. Then 7x + 6y = 3800 and 3x + 5y = 1750. Multiply Eq2 by 7/3 or eliminate x: 3(7x + 6y) = 11400 → 21x + 18y = 11400; 7(3x + 5y) = 12250 → 21x + 35y = 12250. Subtract: 17y = 850 → y = 50. Then x = (3800 − 300)/7 = 500.",
     solutionSteps: ["Let cost of a bat = ₹x and cost of a ball = ₹y.", "Equations: 7x + 6y = 3800 …(1) and 3x + 5y = 1750 …(2).", "Multiply (1) by 3 and (2) by 7: 21x + 18y = 11400 and 21x + 35y = 12250.", "Subtract: 17y = 850 → y = 50.", "Substitute in (1): 7x + 300 = 3800 → 7x = 3500 → x = 500. Bat = ₹500, Ball = ₹50."],
     finalAnswer: "Bat costs ₹500 and each ball ₹50.",
-    ncertRef: "NCERT Ex 3.3 Q3(iii)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.2 Q3(iii)", isCompetencyBased: true,
     strategyHint: "Match coefficients of x by multiplying suitably, then subtract to find y." },
 
   { id: "PLE-N-NCERT-3-SA-011", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -136,7 +136,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "The fraction is 7/9. Let the fraction be x/y. Then (x + 2)/(y + 2) = 9/11 → 11x − 9y = −4 and (x + 3)/(y + 3) = 5/6 → 6x − 5y = −3. Solving: x = 7, y = 9.",
     solutionSteps: ["Let the fraction = x/y.", "First condition: (x + 2)/(y + 2) = 9/11 → 11(x + 2) = 9(y + 2) → 11x − 9y = −4 …(1).", "Second condition: (x + 3)/(y + 3) = 5/6 → 6(x + 3) = 5(y + 3) → 6x − 5y = −3 …(2).", "Multiply (1) by 5 and (2) by 9: 55x − 45y = −20 and 54x − 45y = −27. Subtract: x = 7.", "Substitute in (1): 11(7) − 9y = −4 → 9y = 81 → y = 9. Fraction = 7/9."],
     finalAnswer: "The fraction is 7/9.",
-    ncertRef: "NCERT Ex 3.3 Q3(v)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.2 Q3(v)", isCompetencyBased: true,
     strategyHint: "Cross-multiply each fraction condition to remove the fraction, then solve the resulting pair." },
 
   { id: "PLE-N-NCERT-3-SA-012", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -144,7 +144,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "Jacob = 40 years, son = 10 years. Let present ages be Jacob = x and son = y. Then x + 5 = 3(y + 5) → x − 3y = 10 and x − 5 = 7(y − 5) → x − 7y = −30. Subtracting: 4y = 40 → y = 10; x = 40.",
     solutionSteps: ["Let Jacob's present age = x years and son's present age = y years.", "Five years hence: x + 5 = 3(y + 5) → x − 3y = 10 …(1).", "Five years ago: x − 5 = 7(y − 5) → x − 7y = −30 …(2).", "Subtract (2) from (1): 4y = 40 → y = 10.", "Substitute in (1): x = 10 + 30 = 40. Jacob is 40 and his son is 10."],
     finalAnswer: "Jacob = 40 years, Son = 10 years.",
-    ncertRef: "NCERT Ex 3.3 Q3(vi)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.2 Q3(vi)", isCompetencyBased: true,
     strategyHint: "Add a constant to both ages for 'years hence', subtract for 'years ago' — then form the relation given." },
 
   // ===== Section D: Long Answer (5 marks) =====
@@ -153,7 +153,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "Monthly incomes are ₹18,000 and ₹14,000. Let incomes be 9x and 7x, expenditures 4y and 3y. Savings: 9x − 4y = 2000 …(1) and 7x − 3y = 2000 …(2). Multiply (1) by 3 and (2) by 4: 27x − 12y = 6000 and 28x − 12y = 8000. Subtract: x = 2000. Incomes = 9x = ₹18,000 and 7x = ₹14,000. Check expenditures: 4y = 16000, 3y = 12000 → y = 4000 (consistent).",
     solutionSteps: ["Let monthly incomes = ₹9x and ₹7x (ratio 9 : 7).", "Let monthly expenditures = ₹4y and ₹3y (ratio 4 : 3).", "Savings = income − expenditure = ₹2000 for each: 9x − 4y = 2000 …(1); 7x − 3y = 2000 …(2).", "Multiply (1) by 3 and (2) by 4 to align y-coefficients: 27x − 12y = 6000; 28x − 12y = 8000.", "Subtract: x = 2000. Incomes = 9(2000) = ₹18,000 and 7(2000) = ₹14,000. (Verify: y = 4000 → expenditures ₹16,000 and ₹12,000 → savings ₹2000 each.)"],
     finalAnswer: "Monthly incomes: ₹18,000 and ₹14,000.",
-    ncertRef: "NCERT Example 11", isCompetencyBased: true,
+    ncertRef: "NCERT Example 8", isCompetencyBased: true,
     strategyHint: "Set ratio quantities as multiples (9x, 7x and 4y, 3y) — converts ratios into two-variable linear system." },
 
   { id: "PLE-N-NCERT-3-LA-002", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
@@ -161,7 +161,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "There are TWO such numbers: 24 and 42. Let the digits be x (tens) and y (units). Then the number is 10x + y and the reversed number is 10y + x. Their sum is 11(x + y) = 66 → x + y = 6. The digits differ by 2: either x − y = 2 or y − x = 2. Case 1 (x − y = 2): x = 4, y = 2 → number = 42. Case 2 (y − x = 2): x = 2, y = 4 → number = 24.",
     solutionSteps: ["Let the tens digit = x and units digit = y. Number = 10x + y; reversed = 10y + x.", "Sum condition: (10x + y) + (10y + x) = 66 → 11(x + y) = 66 → x + y = 6 …(1).", "Digit difference condition: x − y = 2 …(2a) OR y − x = 2 …(2b).", "Case 1: (1) and (2a) → 2x = 8 → x = 4, y = 2 → number = 42.", "Case 2: (1) and (2b) → 2y = 8 → y = 4, x = 2 → number = 24. Hence two numbers exist: 42 and 24."],
     finalAnswer: "Two numbers — 42 and 24 (both satisfy the conditions).",
-    ncertRef: "NCERT Example 13", isCompetencyBased: true,
+    ncertRef: "NCERT Example 10", isCompetencyBased: true,
     strategyHint: "Two-digit number value = 10·(tens) + (units); 'differ by 2' has two cases (±)." },
 
   { id: "PLE-N-NCERT-3-LA-003", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Elimination Method", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
@@ -169,7 +169,7 @@ export const PLE_NCERT: CanonicalQuestion[] = [
     answer: "Nuri = 50 years, Sonu = 20 years. Let present ages be Nuri = x and Sonu = y. Five years ago: x − 5 = 3(y − 5) → x − 3y = −10. Ten years later: x + 10 = 2(y + 10) → x − 2y = 10. Subtract: −y = −20 → y = 20; then x = 50.",
     solutionSteps: ["Let Nuri's present age = x and Sonu's present age = y.", "Five years ago: x − 5 = 3(y − 5) → x − 3y = −10 …(1).", "Ten years later: x + 10 = 2(y + 10) → x − 2y = 10 …(2).", "Subtract (1) from (2): (x − 2y) − (x − 3y) = 10 − (−10) → y = 20.", "Substitute in (2): x = 10 + 2(20) = 50.", "Hence Nuri is 50 years old and Sonu is 20 years old. (Check: 5 years ago, 45 = 3 × 15 ✓; 10 years later, 60 = 2 × 30 ✓.)"],
     finalAnswer: "Nuri = 50 years, Sonu = 20 years.",
-    ncertRef: "NCERT Ex 3.4 Q2(ii)", isCompetencyBased: true,
+    ncertRef: "NCERT Ex 3.3 Q2(ii)", isCompetencyBased: true,
     strategyHint: "Express 'X years ago' as (present − X) and 'X years later' as (present + X)." },
 
   { id: "PLE-N-NCERT-3-LA-004", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Word Problems on Linear Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
