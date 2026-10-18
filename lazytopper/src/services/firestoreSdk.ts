@@ -9,8 +9,12 @@ import { RETRY_DELAYS_MS, failedModuleUrl, isChunkLoadError, retryUrl } from "..
  * ~410 KB gz entry chunk, downloaded and parsed on every public page — the landing page, the
  * free check, every notes page — although none of them reads or writes Firestore until a
  * signed-in student's data is touched. This module is now the ONLY place that loads the SDK:
- * `import("firebase/firestore")` on the first real call, and the single `initializeFirestore`
- * call (D32) right after it.
+ * `import("firebase/firestore")` (or, after a failed fetch, its `?retry=<n>` URL) on the first
+ * real call, and the single `initializeFirestore` call (D32) right after it. Every other module
+ * reaches the SDK through `withFirestore` / `getFirestore`, so all of them use the ONE module
+ * instance this file loaded — never a second raw import, which after a `?retry=` recovery would
+ * replay Chromium's cached failure or (Firefox) evaluate a second SDK instance. Pinned:
+ * `firestoreSdk.singleLoader.guard.test.ts` fails on any other value import of the SDK in src/.
  *
  *   isFirestoreEnabled()  — SYNCHRONOUS, and true exactly when the old eager `firestoreDb` was
  *                           non-null (Firebase configured → the app exists). Every caller's

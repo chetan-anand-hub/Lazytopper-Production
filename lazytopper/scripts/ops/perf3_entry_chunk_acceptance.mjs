@@ -50,10 +50,10 @@ const LAZYTOPPER = path.resolve(__dirname, "..", "..");
 export const FIRESTORE_MARKERS = ["firestore.googleapis.com", "webchannel"];
 
 /** Whole-file gzip (zlib default level) of the EMITTED entry file, measured by PERF-3
- *  (`pnpm run build`, 2026-10-18, after the review round: +97 B for the chunk-URL retry).
- *  Before PERF-3 the same measure read 414195. Re-measure and update when the entry
- *  legitimately changes. */
-export const MEASURED_ENTRY_GZ = 248296;
+ *  (`pnpm run build`, 2026-10-18, after the re-review round: the chunk-URL retry, and
+ *  adaptivePracticeEngine's raw SDK imports routed through the facade). Before PERF-3 the same
+ *  measure read 414195. Re-measure and update when the entry legitimately changes. */
+export const MEASURED_ENTRY_GZ = 248243;
 export const ENTRY_GZ_BUDGET = Math.floor(MEASURED_ENTRY_GZ * 1.1);
 
 /** Resolve the build output the way the sibling build scripts do (applyPrerendered.resolveOutDir). */

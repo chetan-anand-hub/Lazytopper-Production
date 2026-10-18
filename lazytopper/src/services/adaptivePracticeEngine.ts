@@ -131,8 +131,13 @@ function pushWrongAnswerLog(uid: string, log: WrongAnswerLog): Promise<void> {
     .then(async () => {
       const ref = await cloudRef(uid);
       if (!ref) return;
-      const { setDoc } = await import("firebase/firestore");
-      await setDoc(ref, { [WRONG_ANSWER_CLOUD_FIELD]: snapshot }, { mergeFields: [WRONG_ANSWER_CLOUD_FIELD] });
+      // PERF-3 (re-review MUST-FIX A): the SDK comes from the facade's ONE loaded module — never a
+      // raw import("firebase/firestore"), which after a `?retry=` recovery would replay Chromium's
+      // cached failure or (Firefox) load a second SDK instance that rejects this ref.
+      const { withFirestore } = await import("./firestoreSdk");
+      await withFirestore(({ fs }) =>
+        fs.setDoc(ref, { [WRONG_ANSWER_CLOUD_FIELD]: snapshot }, { mergeFields: [WRONG_ANSWER_CLOUD_FIELD] }),
+      );
     })
     .catch(() => {
       /* best-effort: the device copy stays, and the next save or sign-in retries */
@@ -157,14 +162,14 @@ const MAX_PENDING_REREADS = 3;
  * sign-in retries. Null too if this device keeps writing the document under the read.
  */
 async function readSyncedProfile(ref: NonNullable<Awaited<ReturnType<typeof cloudRef>>>) {
-  const firestore = await import("firebase/firestore");
+  // PERF-3 (re-review MUST-FIX A): every SDK call through the facade's one module (see above).
+  const { isFirestoreEnabled, withFirestore } = await import("./firestoreSdk");
   for (let attempt = 0; attempt <= MAX_PENDING_REREADS; attempt += 1) {
-    const snap = await firestore.getDoc(ref);
+    const snap = await withFirestore(({ fs }) => fs.getDoc(ref));
     if (!snap.metadata?.hasPendingWrites) return snap;
     if (snap.metadata.fromCache || attempt === MAX_PENDING_REREADS) return null;
-    const { isFirestoreEnabled, withFirestore } = await import("./firestoreSdk");
     if (!isFirestoreEnabled()) return null;
-    await withFirestore(({ db }) => firestore.waitForPendingWrites(db));
+    await withFirestore(({ fs, db }) => fs.waitForPendingWrites(db));
   }
   return null;
 }

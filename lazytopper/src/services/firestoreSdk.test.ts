@@ -212,6 +212,71 @@ describe("firestoreSdk — the on-demand Firestore facade (PERF-3)", () => {
     expect(calls).toHaveLength(4);
   });
 
+  // ── The URL-less branch (WebKit: "Importing a module script failed." carries no URL) ──────────
+  // WebKit re-requests the same URL, so the facade makes ONE more plain import after 300 ms and
+  // lets that result stand; the URL is unknown, so nothing is remembered and a later call tries
+  // the plain import again. It never invents a `?retry=` URL it cannot know.
+  const webkitFailure = () => new Error("Importing a module script failed.");
+
+  it("NO URL IN THE ERROR (WebKit): one more plain import after the first delay; its success stands", async () => {
+    const sdk = await freshFacade();
+    const calls: string[] = [];
+    const sleeps: number[] = [];
+    let plainFailuresLeft = 1;
+    sdk.__setFirestoreSdkLoaderForTests({
+      primary: () => {
+        calls.push("primary");
+        if (plainFailuresLeft > 0) {
+          plainFailuresLeft -= 1;
+          return Promise.reject(webkitFailure());
+        }
+        return Promise.resolve(H.sdk() as never);
+      },
+      importUrl: (url) => {
+        calls.push(url);
+        return Promise.resolve(H.sdk() as never);
+      },
+      sleep: async (ms) => {
+        sleeps.push(ms);
+      },
+    });
+    const handle = await sdk.getFirestore();
+    expect(handle.db).toEqual({ __db: 1 });
+    expect(calls).toEqual(["primary", "primary"]); // no ?retry= URL is ever invented
+    expect(sleeps).toEqual([300]);
+    expect(H.initCalls).toHaveLength(1);
+  });
+
+  it("NO URL IN THE ERROR (WebKit): if the second plain import fails too, the call REJECTS; a later call tries the plain import again and can succeed", async () => {
+    const sdk = await freshFacade();
+    const calls: string[] = [];
+    let plainFailuresLeft = 2;
+    sdk.__setFirestoreSdkLoaderForTests({
+      primary: () => {
+        calls.push("primary");
+        if (plainFailuresLeft > 0) {
+          plainFailuresLeft -= 1;
+          return Promise.reject(webkitFailure());
+        }
+        return Promise.resolve(H.sdk() as never);
+      },
+      importUrl: (url) => {
+        calls.push(url);
+        return Promise.resolve(H.sdk() as never);
+      },
+      sleep: async () => {},
+    });
+    await expect(sdk.getFirestore()).rejects.toThrow("Importing a module script failed.");
+    expect(calls).toEqual(["primary", "primary"]);
+    expect(H.initCalls).toHaveLength(0);
+    // Bounded: nothing retries on its own. The next caller starts a new attempt — plain again,
+    // because no URL was ever learned.
+    const handle = await sdk.getFirestore();
+    expect(handle.db).toEqual({ __db: 1 });
+    expect(calls).toEqual(["primary", "primary", "primary"]);
+    expect(H.initCalls).toHaveLength(1);
+  });
+
   it("an error thrown while the SDK EVALUATES is not a fetch failure: rethrown at once, no retry", async () => {
     const sdk = await freshFacade();
     const calls: string[] = [];
