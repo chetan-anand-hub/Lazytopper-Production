@@ -87,9 +87,32 @@ vi.mock("./tutorSessionStore", async (importOriginal) => ({
     complete: true,
   }),
 }));
-vi.mock("./progressBankIndex", () => ({
-  conceptForQuestionId: (id: string | null | undefined) => (id ? H.bank[String(id)] ?? null : null),
-}));
+/**
+ * [FU-CI-ISTMIDNIGHT-FLAKE] — the fixture bank is mocked at the id INDEX, never at
+ * `./progressBankIndex`. progressStore reaches progressBankIndex with `await import()`, and Me
+ * fires two reads in ONE commit (both papers + the chosen paper), so two of those imports overlap.
+ * vitest 3.2.6 resolves a FACTORY-mocked module for a dynamic import by pushing the mock onto the
+ * importer's SHARED callstack around an `await` (VitestMocker.requestWithMock — its own comment:
+ * "this will not work if user does Promise.all(import(), import())"). The overlapping import saw
+ * the mock already on the stack and got the REAL module, whose index has no fixture ids, so that
+ * read had no concept rows. When it was the read Me kept (the test's Maths click landed before
+ * Me's auto-pick moved to Science, so it was never cancelled), the Concepts tab never printed the
+ * note: red only under load, at any instant. An UNMOCKED module's overlapping imports share one
+ * evaluation, so the real progressBankIndex is loaded normally and reads THIS index, which serves
+ * the fixture rows (last, so they win) beside the served bank. A test defect: in the app a dynamic
+ * import always returns the one real module.
+ */
+vi.mock("../data/bankChapters/bankIdIndex", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../data/bankChapters/bankIdIndex")>();
+  return {
+    ...actual,
+    bankRowMeta: (id: string | null | undefined) => H.bank[String(id ?? "")] ?? actual.bankRowMeta(id),
+    bankIndexEntries: function* () {
+      yield* actual.bankIndexEntries();
+      yield* Object.entries(H.bank);
+    },
+  };
+});
 vi.mock("../components/subscription/UpgradeSheet", () => ({ UpgradeSheet: () => null }));
 vi.mock("../hooks/useIsDesktop", () => ({ useIsDesktop: () => true }));
 vi.mock("../hooks/useSubscription", () => ({ useSubscription: () => ({ isPremium: true }) }));
@@ -111,6 +134,7 @@ import { assembleTutorBrief, briefFromModel } from "../pages/tutor/tutorContextB
 import { mistakeGroupByKey } from "../lib/mistakeDisplay";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
 import { loadExamConceptResolvers, type ExamConceptResolvers } from "./mistakeConcept";
+import { __resetProgressBankIndexForTest } from "./progressBankIndex";
 
 const UID = "u-g3";
 
@@ -179,6 +203,8 @@ beforeAll(async () => {
     if (a.topicKey === "real-numbers") H.bank[a.questionId] = { subtopic: "HCF and LCM", section: "B", topicKey: "real-numbers" };
     if (a.topicKey === "heredity" && a.mode === "graded") H.bank[a.questionId] = { subtopic: "Alleles", section: "A", topicKey: "heredity" };
   }
+  // progressBankIndex builds its id map ONCE, lazily — rebuild it over the completed fixture bank.
+  __resetProgressBankIndexForTest();
   H.records = [];
   H.mistakes = [
     // Maths — "Mathematics" is the same paper (one subject split)
@@ -279,6 +305,22 @@ describe("G3 — ONE fixture student: Me/Progress == the read model, every windo
 /* ───────────────────────────── the RENDERED surfaces print them ───────────────────────────── */
 
 describe("G3 — the rendered surfaces print the model's numbers", () => {
+  it("★ [FU-CI-ISTMIDNIGHT-FLAKE] OVERLAPPING reads — as Me fires them, in one commit — all see the fixture bank", async () => {
+    // Me's mount starts the both-papers read and the chosen paper's read together. Every one of
+    // them must resolve the fixture's bank ids: a read that got a different bank index has no
+    // concept rows, and Me printed no concept note from it (the flake this pins).
+    const reads = await Promise.all([
+      readStudyModel(UID, { window: "month" }),
+      readStudyModel(UID, { window: "month", subject: "maths" }),
+      readStudyModel(UID, { window: "month", subject: "science" }),
+      readStudyModel(UID, { window: "week", subject: "maths" }),
+    ]);
+    for (const r of reads) expect(r.progress.concepts.length, `${r.window} · ${r.subject ?? "both"}`).toBeGreaterThan(0);
+    for (const r of [reads[0], reads[1], reads[3]]) {
+      expect(r.progress.concepts.map((c) => c.key)).toContain("real-numbers|Fundamental Theorem of Arithmetic");
+    }
+  });
+
   it("★ Me/Progress — the hero for the chosen paper, Month then Week, Maths then Science", async () => {
     const user = userEvent.setup();
     render(

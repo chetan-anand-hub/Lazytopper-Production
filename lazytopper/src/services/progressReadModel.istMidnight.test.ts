@@ -22,11 +22,18 @@ const FILE = "src/services/progressReadModel.consistency.test.tsx";
 const INSTANTS = ["2026-10-07T18:29:59Z", "2026-10-07T18:30:00Z", "2026-10-07T18:35:00Z", "2026-10-07T18:44:00Z"];
 
 function runAt(instant: string): Promise<{ code: number; out: string }> {
+  // [FU-CI-ISTMIDNIGHT-FLAKE] — the child starts its OWN clock at `instant`. Under a CI clock job
+  // this process already carries LT_TEST_CLOCK_ANCHOR (testClock.mjs: the real ms that maps to the
+  // JOB's target, inherited so one process tree reads one clock). Passed on, it made the child read
+  // `instant` + the minutes the job had already run (18:29:59Z became ~18:33Z), so the pre-midnight
+  // instant was never tested there. A different target needs a fresh anchor.
+  const env: NodeJS.ProcessEnv = { ...process.env, LT_TEST_CLOCK: instant, NO_COLOR: "1", FORCE_COLOR: "0" };
+  delete env.LT_TEST_CLOCK_ANCHOR;
   return new Promise((resolve) => {
     execFile(
       process.execPath,
       [VITEST, "run", FILE],
-      { cwd: LAZY, env: { ...process.env, LT_TEST_CLOCK: instant, NO_COLOR: "1", FORCE_COLOR: "0" }, maxBuffer: 32 * 1024 * 1024 },
+      { cwd: LAZY, env, maxBuffer: 32 * 1024 * 1024 },
       (err, stdout, stderr) => resolve({ code: err ? Number((err as { code?: number }).code ?? 1) : 0, out: `${stdout}\n${stderr}` }),
     );
   });
