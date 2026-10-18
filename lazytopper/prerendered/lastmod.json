@@ -1,23 +1,27 @@
 {
   "/": {
-    "sha256": "b188bbc1df7c925dbaa7609efc752ddbd21d9ee65c8b2f41432d245fa53afd8e",
-    "lastmod": "2026-10-17"
+    "sha256": "3ac5337cdf7f88fdbb4f234905168258b08c7889be2daaf5d4974fea1abbb1f4",
+    "lastmod": "2026-10-18"
   },
   "/cbse/class-10": {
     "sha256": "3bba40b2b73afd4303134e86025345b8788b8505386e86f2643641984514aed8",
     "lastmod": "2026-10-17"
   },
   "/check-your-answer": {
-    "sha256": "13a46841a6cf17875a1a5caa626eef5e1660d202cf597120a73893e5ce13fc43",
-    "lastmod": "2026-10-17"
+    "sha256": "d8604822f9efe5e49d217bc48082541e938aadd442dd3c75450bcea4077e33e4",
+    "lastmod": "2026-10-18"
+  },
+  "/contact": {
+    "sha256": "477904baefe471f061f5406373e37c87a1bf54e22b7d304418a047ba40d31e03",
+    "lastmod": "2026-10-18"
   },
   "/exam-trends": {
     "sha256": "4e52498ba8705bf05fc2724b4a473d44544105a8b2c94b3b189a73c3a6e4f8bf",
     "lastmod": "2026-10-17"
   },
   "/for-parents": {
-    "sha256": "173cae751965cd13cc7a215bdbfe2a3e00d480349ddee35dedceb998ecadbf79",
-    "lastmod": "2026-10-17"
+    "sha256": "463713e2aa22259a9734fdbc28794beca726d277cd68f0f432e1412a4a4d7f83",
+    "lastmod": "2026-10-18"
   },
   "/highly-probable/10/Maths": {
     "sha256": "16fb5dc4155eaa45e47a35aad879ab469c35e5d2ba7550c74deafd78e1fcff20",
@@ -40,16 +44,16 @@
     "lastmod": "2026-10-17"
   },
   "/ncert-class-10": {
-    "sha256": "3c64c00d1ffbf09ed612007a71e571a06b677afc6f42a39be3eac1f53d1b1a59",
-    "lastmod": "2026-10-17"
+    "sha256": "f318b5c771be820a6e2ecb3bccdb002218ad045b5bb22afcb361dff7897960b7",
+    "lastmod": "2026-10-18"
   },
   "/ncert-exemplar/triangles": {
-    "sha256": "d208f70076e0d971564d386be20f381a82150a3149f25859d3fba9f9c21463d3",
-    "lastmod": "2026-10-17"
+    "sha256": "9f3f93f5a166fb52a21452582c30abd3f91eee5cccbe07cfa0ca13ef91587047",
+    "lastmod": "2026-10-18"
   },
   "/ncert-solutions/triangles": {
-    "sha256": "09cdbf4f9223e0c05d1b3f444040f0b5ab7640d0d8855cffe6ea0725a0bdcd8d",
-    "lastmod": "2026-10-17"
+    "sha256": "29b04637bc6d4b616c361d683c847f8174ee4549bf159b49192d2049671f39de",
+    "lastmod": "2026-10-18"
   },
   "/notes/acids-bases-and-salts": {
     "sha256": "a2bc8443069a52d081a44354f89ef4b2de2f4268b107d2a4ed65f1c4afed156b",
@@ -160,8 +164,8 @@
     "lastmod": "2026-10-17"
   },
   "/pricing": {
-    "sha256": "07345a378a6b4b47b7f6a6a112f6bddd8a5313c9511a70b816cc738724f56fcb",
-    "lastmod": "2026-10-17"
+    "sha256": "7660fb4e26d84532355316e0be31f46b940dfbd8134a652a2ca23a74c4c3c862",
+    "lastmod": "2026-10-18"
   },
   "/topic-hub/acids-bases-and-salts": {
     "sha256": "23f9f46012f0b8ab681467ca658dbb7847fe857a49d9d2427d2b1ad51803f66a",
