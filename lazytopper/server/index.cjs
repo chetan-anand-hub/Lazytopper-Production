@@ -201,7 +201,7 @@ const { createAccountExportRoutes, ACCOUNT_EXPORT_PATH } = require('./routes/acc
 const { runWithRequestContext, bindRequestUid } = require('./services/usageLedger.cjs');
 // RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
 // off, all three routes answer this file's own 404. Keys only from env; see the module.
-const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH } = require('./routes/payments.cjs');
+const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, PAY_STATUS_PATH } = require('./routes/payments.cjs');
 // ASK-PARENTS-PAY-1: a parent pays for their child from a link the child sends. DARK unless
 // BOTH PAYMENTS_ENABLED and PARENT_PAY_ENABLED are on; the uid comes only from the link.
 const {
@@ -630,6 +630,7 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === PAY_ORDER_PATH) return paymentRoutes.handleOrder(req, res);
   if (req.method === 'POST' && reqPath === PAY_VERIFY_PATH) return paymentRoutes.handleVerify(req, res);
   if (req.method === 'POST' && reqPath === PAY_WEBHOOK_PATH) return paymentRoutes.handleWebhook(req, res);
+  if (req.method === 'POST' && reqPath === PAY_STATUS_PATH) return paymentRoutes.handleStatus(req, res); // PAY-STATUS-1
   // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
   if (req.method === 'POST' && reqPath === PARENT_LINK_PATH) return parentPayRoutes.handleMintLink(req, res);
   if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);

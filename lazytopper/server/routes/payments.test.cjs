@@ -35,6 +35,7 @@ const {
   PAY_ORDER_PATH,
   PAY_VERIFY_PATH,
   PAY_WEBHOOK_PATH,
+  PAY_STATUS_PATH,
 } = require('./payments.cjs');
 const { createHttpUtils } = require('../services/httpUtils.cjs');
 const pricing = require('../services/passPricing.cjs');
@@ -116,12 +117,14 @@ function fakeRazorpay() {
   const orders = new Map();
   const payments = new Map();
   const calls = [];
+  const state = { down: false };
   let seq = 0;
   const reply = (status, json) => ({ ok: status >= 200 && status < 300, status, json: async () => json });
   async function fetchImpl(url, init = {}) {
     const method = init.method || 'GET';
     const body = init.body ? JSON.parse(init.body) : undefined;
     calls.push({ url, method, body, auth: init.headers && init.headers.Authorization });
+    if (state.down) throw new Error('getaddrinfo ENOTFOUND api.razorpay.com');
     const expectedAuth = `Basic ${Buffer.from(`${KEY_ID}:${KEY_SECRET}`).toString('base64')}`;
     if (!init.headers || init.headers.Authorization !== expectedAuth) return reply(401, { error: { code: 'BAD_REQUEST_ERROR' } });
     const u = new URL(url);
@@ -131,6 +134,12 @@ function fakeRazorpay() {
       const order = { id: `order_T${seq}`, entity: 'order', amount: body.amount, currency: body.currency, notes: body.notes, status: 'created' };
       orders.set(order.id, order);
       return reply(200, order);
+    }
+    // PAY-STATUS-1 · the order's payments (razorpay.com/docs/api/orders/fetch-payments):
+    // { entity: "collection", count, items: [payment, ...] }.
+    if (method === 'GET' && (m = u.pathname.match(/^\/v1\/orders\/([^/]+)\/payments$/))) {
+      const items = [...payments.values()].filter((p) => p.order_id === m[1]).map((p) => ({ ...p }));
+      return reply(200, { entity: 'collection', count: items.length, items });
     }
     if (method === 'GET' && (m = u.pathname.match(/^\/v1\/payments\/([^/]+)$/))) {
       const p = payments.get(m[1]);
@@ -151,7 +160,7 @@ function fakeRazorpay() {
     payments.set(id, p);
     return p;
   }
-  return { fetchImpl, orders, payments, calls, pay };
+  return { fetchImpl, orders, payments, calls, pay, state };
 }
 
 /* ── the routes behind a real HTTP server, so bodies arrive as real bytes ────────── */
@@ -175,6 +184,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     if (req.method === 'POST' && p === PAY_ORDER_PATH) h = routes.handleOrder;
     else if (req.method === 'POST' && p === PAY_VERIFY_PATH) h = routes.handleVerify;
     else if (req.method === 'POST' && p === PAY_WEBHOOK_PATH) h = routes.handleWebhook;
+    else if (req.method === 'POST' && p === PAY_STATUS_PATH) h = routes.handleStatus;
     if (!h) return sendJson(res, 404, { error: 'Not Found' });
     return Promise.resolve(h(req, res)).catch((e) => sendJson(res, 500, { error: e.message }));
   });
@@ -222,13 +232,13 @@ function webhookBody(payment, event = 'payment.captured') {
    Z1 — dark by default
    ══════════════════════════════════════════════════════════════════════════ */
 
-test('Z1 · PAYMENTS_ENABLED unset: all three routes answer 404 and touch nothing', async (t) => {
+test('Z1 · PAYMENTS_ENABLED unset: all four routes answer 404 and touch nothing', async (t) => {
   const rzp = fakeRazorpay();
   const db = memoryFirestore();
   const srv = await startRoutes({ env: { RAZORPAY_KEY_ID: KEY_ID, RAZORPAY_KEY_SECRET: KEY_SECRET, RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET }, rzp, db });
   t.after(srv.close);
-  for (const p of [PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH]) {
-    const r = await request(srv.port, p, { body: { passType: 'month' }, headers: asUid('u1') });
+  for (const p of [PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, PAY_STATUS_PATH]) {
+    const r = await request(srv.port, p, { body: { passType: 'month', orderId: 'order_X' }, headers: asUid('u1') });
     assert.equal(r.status, 404, p);
     assert.deepEqual(r.json, { error: 'Not Found' }, p);
   }
@@ -594,14 +604,14 @@ function bootServer({ port, env: extraEnv }) {
   return { child, ready };
 }
 
-test('Z1 · REAL index.cjs, switch OFF: the three routes give the gateway\'s own 404, byte-identical to an unknown path', { timeout: 90000 }, async (t) => {
+test('Z1 · REAL index.cjs, switch OFF: the four routes give the gateway\'s own 404, byte-identical to an unknown path', { timeout: 90000 }, async (t) => {
   const port = await freePort();
   const srv = bootServer({ port });
   t.after(() => srv.child.kill());
   await srv.ready;
   const control = await request(port, '/api/pay/no-such-route', { body: {} });
   assert.equal(control.status, 404);
-  for (const p of [PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH]) {
+  for (const p of [PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, PAY_STATUS_PATH]) {
     const r = await request(port, p, { body: { passType: 'month' } });
     assert.equal(r.status, 404, p);
     assert.equal(r.text, control.text, `${p} is distinguishable from an unknown path while dark`);
@@ -618,4 +628,255 @@ test('Z1 · REAL index.cjs, switch ON: the routes are mounted (unauthenticated o
   const hook = await request(port, PAY_WEBHOOK_PATH, { raw: '{"event":"payment.captured"}', headers: { 'X-Razorpay-Signature': 'bad' } });
   assert.equal(hook.status, 400, hook.text);
   assert.equal(hook.json.reason, 'bad_signature');
+  const status = await request(port, PAY_STATUS_PATH, { body: { orderId: 'order_X' } });
+  assert.equal(status.status, 401, status.text);
+  assert.deepEqual(status.json, order.json, 'status refuses a signed-out caller exactly as order/verify do');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PAY-STATUS-1 — "is my payment through?" + an idempotent reconcile (owner D9)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const askStatus = (srv, orderId, uid = 'u1', extra = {}) =>
+  request(srv.port, PAY_STATUS_PATH, { body: { orderId, ...extra }, headers: asUid(uid) });
+const paymentDocs = (db, uid = 'u1') => [...db.docs.keys()].filter((k) => k.startsWith(`subscriptions/${uid}/payments/`));
+const orderPaymentLists = (rzp) => rzp.calls.filter((c) => c.method === 'GET' && /\/v1\/orders\/[^/]+\/payments$/.test(c.url));
+
+test('STATUS · a signed-out caller -> 401 exactly as verify, and nothing is read', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const before = srv.rzp.calls.length;
+  const s = await request(srv.port, PAY_STATUS_PATH, { body: { orderId } });
+  const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId } });
+  assert.equal(s.status, 401);
+  assert.equal(s.text, v.text, 'status and verify refuse a signed-out caller differently');
+  assert.equal(srv.rzp.calls.length, before);
+});
+
+test('STATUS · another student\'s order -> uid_mismatch; an unknown order -> 404 reject; neither calls Razorpay', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1');
+  srv.rzp.pay(orderId);
+  const before = srv.rzp.calls.length;
+  const other = await askStatus(srv, orderId, 'intruder');
+  assert.equal(other.status, 400);
+  assert.equal(other.json.reason, 'uid_mismatch');
+  const unknown = await askStatus(srv, 'order_nope');
+  assert.equal(unknown.status, 404);
+  assert.deepEqual(unknown.json, { ok: false, error: 'payment_rejected', reason: 'unknown_order' });
+  const malformed = await askStatus(srv, '../payOrders/x');
+  assert.equal(malformed.status, 400);
+  assert.equal(malformed.json.reason, 'malformed');
+  assert.equal(srv.rzp.calls.length, before, 'a refused status call reached Razorpay');
+  assert.equal(srv.db.read('subscriptions/intruder'), undefined);
+  assert.equal(srv.db.read('subscriptions/u1'), undefined, 'the intruder\'s call granted the owner');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'created');
+  assert.ok(srv.events.includes('payments.status.rejected.uid_mismatch'));
+  assert.ok(srv.events.includes('payments.status.rejected.unknown_order'));
+});
+
+test('STATUS · an order already PAID -> state paid with passEnd, paymentId, amountInr; no Razorpay call, no write', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const p = srv.rzp.pay(orderId);
+  const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(v.status, 200);
+  const callsBefore = srv.rzp.calls.length;
+  const subVersion = srv.db.version('subscriptions/u1');
+  const r = await askStatus(srv, orderId);
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(r.json, { ok: true, state: 'paid', passEnd: v.json.passEnd, paymentId: p.id, amountInr: 599 });
+  assert.equal(srv.rzp.calls.length, callsBefore, 'a paid order still asked Razorpay');
+  assert.equal(srv.db.version('subscriptions/u1'), subVersion, 'a paid-order status call wrote the subscription');
+  assert.ok(srv.events.includes('payments.status.paid'));
+});
+
+test('STATUS · created + Razorpay CAPTURED matching -> grant once, state paid; again -> paid, no second grant; concurrent -> replayed', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const p = srv.rzp.pay(orderId);
+  // A request amount is ignored — only the order id is read.
+  const r = await askStatus(srv, orderId, 'u1', { amount: 100, amountPaise: 100, paymentId: 'pay_forged', status: 'captured' });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.state, 'paid');
+  assert.equal(r.json.replayed, false);
+  assert.equal(r.json.paymentId, p.id);
+  assert.equal(r.json.amountInr, 599);
+  assert.equal(r.json.passEnd, new Date(istNoon('2026-10-27')).toISOString());
+  assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+  assert.equal(srv.db.read('subscriptions/u1').lastPaymentRef, p.id);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).paymentId, p.id);
+  assert.deepEqual(paymentDocs(srv.db), [`subscriptions/u1/payments/${p.id}`]);
+  assert.ok(srv.events.includes('payments.status.granted'));
+  assert.ok(srv.events.includes('payments.status.reconciled'));
+  // Second call: the order is paid now -> answered from the store, nothing granted.
+  const lists = orderPaymentLists(srv.rzp).length;
+  const again = await askStatus(srv, orderId);
+  assert.deepEqual(again.json, { ok: true, state: 'paid', passEnd: r.json.passEnd, paymentId: p.id, amountInr: 599 });
+  assert.equal(orderPaymentLists(srv.rzp).length, lists);
+  assert.deepEqual(paymentDocs(srv.db), [`subscriptions/u1/payments/${p.id}`], 'a second payment record was written');
+  assert.equal(ms(srv.db.read('subscriptions/u1').passEnd), istNoon('2026-10-27'), 'one month, not more');
+  // The webhook for the same payment afterwards is a replay (live-verify step d).
+  const raw = webhookBody(p);
+  const hook = await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+  assert.equal(hook.json.replayed, true);
+  assert.equal(ms(srv.db.read('subscriptions/u1').passEnd), istNoon('2026-10-27'), 'webhook after status granted twice');
+});
+
+test('STATUS · concurrent status + status + verify on a created order grant ONCE; the rest are replayed', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const p = srv.rzp.pay(orderId);
+  const results = await Promise.all([
+    askStatus(srv, orderId),
+    askStatus(srv, orderId),
+    request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') }),
+  ]);
+  for (const r of results) assert.equal(r.status, 200, r.text);
+  const granting = results.filter((r) => r.json.replayed === false);
+  assert.equal(granting.length, 1, 'more than one path granted');
+  assert.ok(results.some((r) => r.json.replayed === true), 'no concurrent call was a replay');
+  assert.deepEqual(paymentDocs(srv.db), [`subscriptions/u1/payments/${p.id}`]);
+  assert.equal(ms(srv.db.read('subscriptions/u1').passEnd), istNoon('2026-10-27'), 'one month, not more');
+});
+
+test('STATUS · created + Razorpay AUTHORIZED -> captured for the STORED amount, then granted', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const p = srv.rzp.pay(orderId, { status: 'authorized' });
+  const r = await askStatus(srv, orderId);
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.state, 'paid');
+  assert.equal(r.json.paymentId, p.id);
+  const capture = srv.rzp.calls.find((c) => c.url.endsWith(`/payments/${p.id}/capture`));
+  assert.deepEqual(capture.body, { amount: 59900, currency: 'INR' });
+  assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+});
+
+test('STATUS · amount mismatch / currency mismatch / failed / another order\'s payment -> pending, NO grant, nothing captured', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const other = await createOrder(srv);
+  srv.rzp.pay(orderId, { id: 'pay_cheap', amount: 100 });
+  srv.rzp.pay(orderId, { id: 'pay_cheap_auth', amount: 100, status: 'authorized' });
+  srv.rzp.pay(orderId, { id: 'pay_usd', currency: 'USD' });
+  srv.rzp.pay(orderId, { id: 'pay_failed', status: 'failed' });
+  // A captured payment of ANOTHER order sits in the fake too; it must not leak in.
+  srv.rzp.pay(other.orderId, { id: 'pay_other_order' });
+  // (a listing that itself carries a foreign order_id is the next test)
+  const r = await askStatus(srv, orderId);
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(r.json, { ok: true, state: 'pending' });
+  assert.equal(srv.rzp.calls.filter((c) => c.url.includes('/capture')).length, 0, 'a mismatched authorized payment was captured');
+  assert.equal(srv.db.read('subscriptions/u1'), undefined, 'a mismatched payment was granted');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'created');
+  assert.ok(srv.events.includes('payments.status.pending'));
+});
+
+test('STATUS · a listing that carries a payment of ANOTHER order_id is never granted', async (t) => {
+  const rzp = fakeRazorpay();
+  const inner = rzp.fetchImpl;
+  // Razorpay (or a MITM'd response) returns another order's captured payment in this order's list.
+  rzp.fetchImpl = async (url, init) => {
+    const res = await inner(url, init);
+    if (/\/v1\/orders\/[^/]+\/payments$/.test(new URL(url).pathname)) {
+      const json = await res.json();
+      json.items.push({ id: 'pay_foreign', entity: 'payment', order_id: 'order_someoneelse', amount: 59900, currency: 'INR', status: 'captured' });
+      return { ok: true, status: 200, json: async () => json };
+    }
+    return res;
+  };
+  const srv = await startRoutes({ rzp });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const r = await askStatus(srv, orderId);
+  assert.deepEqual(r.json, { ok: true, state: 'pending' });
+  assert.equal(srv.db.read('subscriptions/u1'), undefined);
+});
+
+test('STATUS · created + no payments -> pending; Razorpay unreachable -> 200 unknown, no grant', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const none = await askStatus(srv, orderId);
+  assert.equal(none.status, 200);
+  assert.deepEqual(none.json, { ok: true, state: 'pending' });
+  srv.rzp.pay(orderId); // captured, but Razorpay cannot be reached
+  srv.rzp.state.down = true;
+  const down = await askStatus(srv, orderId);
+  assert.equal(down.status, 200, down.text);
+  assert.deepEqual(down.json, { ok: true, state: 'unknown' });
+  assert.ok(srv.events.includes('payments.status.razorpay_unreachable'));
+  assert.ok(srv.events.includes('payments.status.unknown'));
+  assert.equal(srv.db.read('subscriptions/u1'), undefined, 'granted without Razorpay confirming');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'created');
+  // Back up: the same call now reconciles.
+  srv.rzp.state.down = false;
+  const up = await askStatus(srv, orderId);
+  assert.equal(up.json.state, 'paid');
+});
+
+test('STATUS · Razorpay refuses the listing (non-2xx) -> unknown, no grant', async (t) => {
+  const rzp = fakeRazorpay();
+  const inner = rzp.fetchImpl;
+  rzp.fetchImpl = async (url, init) => {
+    if (/\/v1\/orders\/[^/]+\/payments$/.test(new URL(url).pathname)) return { ok: false, status: 500, json: async () => ({}) };
+    return inner(url, init);
+  };
+  const srv = await startRoutes({ rzp });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  rzp.pay(orderId);
+  const r = await askStatus(srv, orderId);
+  assert.deepEqual(r.json, { ok: true, state: 'unknown' });
+  assert.ok(srv.events.includes('payments.status.list_failed'));
+  assert.equal(srv.db.read('subscriptions/u1'), undefined);
+});
+
+test('STATUS · shares the payments rate class with order and verify', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_ON, LT_CAP_PAYMENTS_SOFT: '2', LT_CAP_PAYMENTS_HARD: '2' } });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv); // 1 of 2
+  assert.equal((await askStatus(srv, orderId)).status, 200); // 2 of 2
+  const third = await askStatus(srv, orderId);
+  assert.notEqual(third.status, 200, 'status polling is not rate-limited');
+  assert.ok(third.status >= 400 && third.status < 500, third.text);
+});
+
+test('STATUS · STATIC: verify, webhook and status judge a payment through the ONE shared Z4 function', () => {
+  const src = fs.readFileSync(PAYMENTS_CJS, 'utf8');
+  for (const fn of ['handleVerify', 'handleWebhook', 'findConfirmedPayment']) {
+    const body = src.match(new RegExp(`async function ${fn}\\([^)]*\\) \\{[\\s\\S]*?\\n  \\}`));
+    assert.ok(body, `${fn} is gone`);
+    assert.match(body[0], /paymentMismatch\(/, `${fn} does not use the shared Z4 checks`);
+    assert.doesNotMatch(body[0], /\.currency !== CURRENCY|\.status !== 'captured'\) return reject/, `${fn} re-implements a Z4 check`);
+  }
+  // The status handler never reads money from the request.
+  const status = src.match(/async function handleStatus\([^)]*\) \{[\s\S]*?\n  \}/)[0];
+  assert.doesNotMatch(status, /body\.(amount|amountPaise|price|paymentId|status|signature)/);
+});
+
+test('STATUS · an AUTHORIZED payment whose capture fails and stays authorized -> pending, NO grant', async (t) => {
+  const rzp = fakeRazorpay();
+  const inner = rzp.fetchImpl;
+  rzp.fetchImpl = async (url, init) => {
+    if (/\/capture$/.test(new URL(url).pathname)) return { ok: false, status: 400, json: async () => ({ error: {} }) };
+    return inner(url, init);
+  };
+  const srv = await startRoutes({ rzp });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  rzp.pay(orderId, { status: 'authorized' });
+  const r = await askStatus(srv, orderId);
+  assert.deepEqual(r.json, { ok: true, state: 'pending' });
+  assert.equal(srv.db.read('subscriptions/u1'), undefined, 'an uncaptured payment was granted');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'created');
 });
