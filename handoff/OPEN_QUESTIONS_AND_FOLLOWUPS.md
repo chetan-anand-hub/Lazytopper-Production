@@ -23,6 +23,61 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-19 - HIDE8-FIG8-1 #1261 / #1262 AND LOGO-1 #1263 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `e307f4b0`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[builder-reported]** come from the PR bodies of #1261, #1262, #1263; facts marked **[reviewer]** come from the independent reviews as relayed in the coordinator's message, 19 Oct; facts marked **[git/gh]** were re-read while writing this entry.
+
+### Closed / superseded by #1261 and #1262
+
+- **[FU-REFILE-PYQ2026-K-OR-STEP-LABELS]** CLOSED by `#1262` (`acd94951`): ELEC-011, ELEC-012 (1/2 glyph -> 0.5), MAG-002, MAG-003, CTRL-007 carry step marks as their official schemes print them, every step labelled, sum = marks **[builder-reported]**. The MAG-002 OR (b) gap is carried by `[FU-HIDE8-MAG002-OR-B]`.
+- **[FU-REFILE-PYQ2026-BLOCKED-R]** SUPERSEDED by owner ruling 19 Oct 2026 07:08 IST: CHEMRXN-001, CHEMRXN-004 and ELEC-010 are withheld as WRONG-CHAPTER in `#1262` (no longer served, no longer in `CROSS_CHAPTER_ALLOW`); re-filing them is `[FU-HIDE8-REFILE-3]`.
+- **[FU-REFILE-PYQ2026-NITS]** PARTLY CLOSED by `#1261`: CHEMRXN-021 now reads "six crosses". The HERED-008 1/2-mark grouping half stays open (not stated as fixed in #1261 or #1262).
+- **Repo visibility** (carried item of the #1259 section): DONE - PRIVATE at writing **[git/gh]**.
+
+### Owner rulings owed
+
+### [FU-OGSVG-FAKE-REVIEWS]
+**Possible fabricated claim on a served file.** `lazytopper/public/og-image.svg:68` renders "★ 4.8 from 2,340+ reviews" (re-read at `e307f4b0` [git/gh]); the file also claims "500+ practice questions" and Predicted Questions percentages **[builder-reported]**. It is not the live `og:image` (that is `og-image.png`) but is still publicly served at `/og-image.svg`. No evidence for the review count is known; CLAUDE.md section 5 forbids fake data. Recommended: remove the claim or delete the file. `#1263` swapped only its LT tile.
+
+### [FU-LOGO-MOBILE-NOMARK]
+**Mobile headers with no brand mark at all.** On mobile, `/pricing`, `/ncert-*`, `/practice-hub`, `/check-improve`, `/exam-trends` and `/notes/*` show no brand mark, before or after `#1263`. The owner asked (19 Oct 10:40 IST) for the logo on mobile; adding one is a header layout change outside LOGO-1's "brand lines only", so it needs an owner ruling and its own lane. (The #1263 squash message names this `FU-LOGO-MOBILE-HEADERS`; same item.)
+
+### Brand / logo
+
+### [FU-LOGO-SHARECARD]
+The share card (`ShareCard.tsx:22`) and parent weekly report (`ParentReportCard.tsx:45`) still show a green dot beside "LazyTopper", not the fingerprint. `ShareCard.test.tsx:72` forbids any `img` (privacy pin), so the fix needs either an inline-SVG mark or a reviewed change to that pin.
+
+### [FU-LOGO-LOGIN-GLOW]
+Cosmetic: the login mark's glow styling (`Login.tsx:122-131`) was designed for the old green tile; tune it for the fingerprint.
+
+### [FU-LOGO-PDF-LIVECHECK]
+Owner live-check: print one worksheet, one graded worksheet and one Check & Improve graded PDF on www and confirm the fingerprint in the masthead. Nobody has viewed a live PDF header.
+
+### Bank content
+
+### [FU-HIDE8-REFILE-3]
+**From #1262 [builder-reported].** Re-template `LTG-S-CHEMRXN-254`, `-311` (from CHEMRXN-001), `LTG-S-CHEMRXN-264` (from CHEMRXN-004) and `LTG-S-ELEC-299` (from ELEC-010) - re-read `shapedFrom` first - then re-file the 3 PYQ rows to life-processes / magnetic-effects-of-electric-current and serve them again (drop the WRONG-CHAPTER pause and the id-scoped "misfiled" entries).
+
+### [FU-HIDE8-LTG-SIX-DOTS]
+`lazytopper/src/data/questionBanks/class10/science/metals-and-non-metals.b1.cbq.ltgen.ts:2355` still reads "O with six dots" (re-read at `e307f4b0` [git/gh]); the scheme draws six crosses. `#1261` fixed only the PYQ row CHEMRXN-021.
+
+### [FU-HIDE8-MAG002-OR-B]
+`PYQ-S-2026-MAG-002` serves only part (a); the OR (b) alternative of 31/3/1 Q39 is missing from the row. Add it from the official paper and scheme (sources already hash-bound).
+
+### [FU-CROP-REGISTRY-NO-BBOX]
+`solutionFigureCrops.ts` records each crop's source file and page but not its bbox (the bboxes are only in the #1261 PR body). Store the bbox so a crop can be re-rendered and re-verified from the registry alone.
+
+### Lessons (standing guidance)
+
+- Withholding a PYQ row that LTG rows are `shapedFrom` needs an id-scoped, owner-approved reason in `ltGenerated.guard`; a shared reason was a review must-fix on #1262.
+- Desktop Commander can vanish after the laptop disconnects: fall back to `device_request_folder_access` + `device_stage_files` into a Linux clone, verify the diff is identical, commit there. `gh pr create` hits GraphQL 403: open PRs with REST (`gh api repos/chetan-anand-hub/Lazytopper-Production/pulls -f ...`).
+
+### Carried forward (open, unchanged)
+
+- `[FU-REFILE-PYQ2026-MISFILED-WITHHELD]` (#1259 section).
+- **PERF-4 re-scope:** `[FU-PERF3-LAZY-AUTH]`, `[FU-PERF-THIRD-PARTY-TAGS]` (2026-10-18 PERF-3 section).
+- **Owner:** the Google Ads top-up and the Google Ads logo re-submission (now that www shows the fingerprint); decisions on the callout swap and the image route; GSC indexing requests for the 5 exemplar pages. Ads / marketing state: project docs `claude/HANDOFF_ADS_AND_VISUALS_SESSION_2026-10-19.md`, `claude/MARKETING_ANALYSIS_REPORT_2026-10-18.md`.
+
 ## 2026-10-19 - REFILE-PYQ2026-1 #1259 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `d033ee0b`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[builder-reported]** come from `C:\Users\Chetan\OneDrive\Desktop\diff\report-refile-pyq2026-1-2026-10-19.md` (PR #1259 body); facts marked **[reviewer]** come from the independent review (PASS, no MUST-FIX) as relayed in the coordinator's message, 19 Oct; facts marked **[git/gh]** were re-read while writing this entry.

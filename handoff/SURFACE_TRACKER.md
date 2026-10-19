@@ -1,3 +1,18 @@
+> **2026-10-19 - HIDE8-FIG8-1 #1261 + #1262, LOGO-1 #1263 (CLAUDE.md section 10).** Scope: bank content (solution figures on 6 PYQ rows; 3 rows withheld; step-mark labels on 5 rows) and brand chrome (logo on every surface). No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merges (the coordinator's message, 19 Oct); **[builder-reported]** facts come from the PR bodies and import-based guards (`solutionFigureCrops.pins.test.tsx`, `hide8WrongChapter.test.ts`, `brandMark.guard.test.ts`); **[reviewer]** facts come from the independent reviews as relayed; **[docs-builder-curl]** facts were fetched from www while writing.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Solutions (worked answer view, Science + Maths 2026 PYQ) | 7 official scheme drawings on CHEMRXN-021, METAL-008, LIGHT-009, HERED-008, HERED-010, CG-003 (`#1261`) | live; crop WebP 200 [cofounder-verified] | `[FU-CROP-REGISTRY-NO-BBOX]` |
+| Chapter Test / Quick Practice / Worksheet / Full Mock (Chemical Reactions; Electricity) | CHEMRXN-001, -004, ELEC-010 withheld; 518 -> 516, 392 -> 391 (`#1262`) | live [cofounder-verified]; pools pinned [builder-reported] | `[FU-HIDE8-REFILE-3]` |
+| Every bank surface (5 rows: ELEC-011, ELEC-012, MAG-002, MAG-003, CTRL-007) | step marks as the official schemes print them (`#1262`) | live [cofounder-verified] | `[FU-HIDE8-MAG002-OR-B]` |
+| Favicon / apple-touch icon (every page, 404) | fingerprint PNG set + ico (`#1263`) | live; 200 `image/png` [docs-builder-curl] | - |
+| Desktop sidebar, global navbar, mobile home top bar, login | fingerprint tile (`#1263`) | merged; review PASS incl. 390 / 360 px [reviewer]; not viewed on www by this writer | `[FU-LOGO-LOGIN-GLOW]` |
+| Mobile headers with no mark (`/pricing`, `/ncert-*`, `/practice-hub`, `/check-improve`, `/exam-trends`, `/notes/*`) | none: no brand mark before or after (`#1263`) | unchanged | `[FU-LOGO-MOBILE-NOMARK]` (owner ruling) |
+| Worksheet / graded worksheet / Check & Improve graded PDFs | fingerprint in the masthead (`#1263`) | merged; NOT live-checked | `[FU-LOGO-PDF-LIVECHECK]` |
+| Share card / parent weekly report | none: green dot kept (`#1263`) | unchanged | `[FU-LOGO-SHARECARD]` |
+| `/og-image.svg` (old vector share card, still served) | LT tile -> fingerprint only (`#1263`) | live file still carries "★ 4.8 from 2,340+ reviews" | `[FU-OGSVG-FAKE-REVIEWS]` (owner ruling) |
+| Prerendered crawler bodies | brand element re-captured, 98 html + `lastmod.json` (`#1263`) | merged [git/gh] | - |
+
 > **2026-10-19 - REFILE-PYQ2026-1 #1259 (CLAUDE.md section 10).** Scope: bank content only - 5 Science 2026 PYQ rows change chapter and 41 rows get text restored from the official CBSE 2026 papers; `PYQ-S-2026-METAL-007` is served again under Control & Coordination. No grading, scoring, mistake typing, recording or page code changed. No surface's Scope moved to Settling. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 19 Oct); facts marked **[builder-reported]** come from `refilePyq2026.test.ts` (import-based, 23 tests) and the builder report; facts marked **[reviewer]** come from the independent review (PASS, no MUST-FIX) as relayed in the coordinator's message.
 
 | surface | what moved (PR) | state | owed |
