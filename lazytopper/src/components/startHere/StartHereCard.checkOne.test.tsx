@@ -81,9 +81,11 @@ describe("ACTIVATION-2 A — Start here on Check & Improve", () => {
     expect(window.localStorage.getItem(START_HERE_FOCUS_NOT_NOW_PREFIX + "u1")).toBe("1");
   });
 
-  it("'or practise 5 questions' opens the existing practice picker in place", async () => {
+  it("'or practise 5 questions' opens the practice panel in place (START-HERE-ONE-TAP-1: its ready state, picker behind Change)", async () => {
     mount(vi.fn());
     fireEvent.click(await screen.findByTestId("start-here-focus-practise"));
+    expect(await screen.findByTestId("start-here-focus-ready")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("start-here-focus-change"));
     expect(await screen.findByTestId("start-here-focus-subject-maths")).toBeTruthy();
     expect(within(screen.getByTestId("start-here-focus")).getByText(START_HERE_COPY.body)).toBeTruthy();
   });
@@ -102,7 +104,8 @@ describe("ACTIVATION-2 A — Start here on Check & Improve", () => {
     mount(undefined, "practice_hub");
     await screen.findByTestId("start-here-focus");
     expect(screen.queryByTestId("start-here-focus-check-one")).toBeNull();
-    expect(screen.getByTestId("start-here-focus-subject-maths")).toBeTruthy();
+    // START-HERE-ONE-TAP-1: the practice panel opens on its one-tap ready state.
+    expect(screen.getByTestId("start-here-focus-ready")).toBeTruthy();
     await waitFor(() => expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub_focus" }]));
     fireEvent.click(screen.getByTestId("start-here-focus-close"));
     await waitFor(() => expect(screen.queryByTestId("start-here-focus")).toBeNull());

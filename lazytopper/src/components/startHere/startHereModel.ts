@@ -22,6 +22,19 @@ export const START_HERE_COPY = {
   notNow: "Not now",
 } as const;
 
+/**
+ * START-HERE-ONE-TAP-1 — the READY state's copy: one button per subject that launches at once.
+ * Honest: no counts or promises beyond "5 questions" and the chapter's own name.
+ */
+export const START_HERE_ONE_TAP_COPY = {
+  /** The hinted subject's one button, followed by the pre-selected chapter's name. */
+  hinted: "Start 5 questions",
+  /** No hint: one button per subject, "<Subject> · 5 questions". */
+  perSubjectSuffix: "5 questions",
+  /** The secondary text button that reveals the full picker (subject, chapter, type, go). */
+  change: "Change chapter or question type",
+} as const;
+
 export type StartHereQType = "mcq" | "ar" | "written";
 export const START_HERE_QTYPE_LABEL: Record<StartHereQType, string> = {
   mcq: "Quick 5: tap the answer",

@@ -55,6 +55,7 @@ async function openPicker() {
   );
   await waitFor(() => expect(screen.queryByTestId("start-here-card")).not.toBeNull());
   fireEvent.click(screen.getByTestId("start-here-start"));
+  fireEvent.click(screen.getByTestId("start-here-change")); // START-HERE-ONE-TAP-1: picker behind "Change…"
 }
 
 beforeEach(() => {
@@ -120,7 +121,7 @@ describe("START-HERE-WRITTEN · the written chip", () => {
     expect(q.get("qt")).toBe("written");
     expect(bank.pickStartHereSet.mock.calls[0][0]).toMatchObject({ subject: "Science", chapter: "electricity", qtype: "written" });
     expect(onboarding.mock.calls.filter((c) => c[0] === "start_here_start")).toEqual([
-      ["start_here_start", { subject: "science", chapter: "electricity", qtype: "written" }],
+      ["start_here_start", { subject: "science", chapter: "electricity", qtype: "written", mode: "picker" }],
     ]);
   });
 

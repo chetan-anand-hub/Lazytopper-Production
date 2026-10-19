@@ -243,6 +243,8 @@ describe("START-HERE-1 · the picker (§2.2)", () => {
     mount();
     await waitFor(() => expect(card()).not.toBeNull());
     fireEvent.click(screen.getByTestId("start-here-start"));
+    // START-HERE-ONE-TAP-1: "Start" now opens the one-tap READY state; the picker is behind "Change…".
+    fireEvent.click(screen.getByTestId("start-here-change"));
   }
 
   it("★★ with a Maths ad hint, Maths is pre-selected; Quick 5 is the default type", async () => {
@@ -299,7 +301,7 @@ describe("START-HERE-1 · the picker (§2.2)", () => {
     expect(q.get("src")).toBe("start_here");
     expect(q.get("qt")).toBe("ar");
     expect(bank.pickStartHereSet.mock.calls[0][0]).toMatchObject({ subject: "Science", chapter: "electricity", qtype: "ar" });
-    expect(calls("start_here_start")).toEqual([["start_here_start", { subject: "science", chapter: "electricity", qtype: "ar" }]]);
+    expect(calls("start_here_start")).toEqual([["start_here_start", { subject: "science", chapter: "electricity", qtype: "ar", mode: "picker" }]]);
   });
 
   it("★ if five questions cannot be lined up it says so and stays; no start event, no navigation", async () => {
@@ -323,6 +325,8 @@ describe("QP-SCORECARD-2 D · the picker", () => {
     mount();
     await waitFor(() => expect(card()).not.toBeNull());
     fireEvent.click(screen.getByTestId("start-here-start"));
+    // START-HERE-ONE-TAP-1: "Start" now opens the one-tap READY state; the picker is behind "Change…".
+    fireEvent.click(screen.getByTestId("start-here-change"));
   }
 
   it("★★ D1: no radio input renders in the card; the question types are segmented radio options with aria-checked, Quick 5 pre-selected", async () => {
@@ -419,6 +423,7 @@ describe("QP-SCORECARD-2 D · the picker", () => {
     cleanup();
     mount("u1", { focus: true });
     await screen.findByTestId("start-here-focus");
+    fireEvent.click(screen.getByTestId("start-here-focus-change")); // START-HERE-ONE-TAP-1: picker behind "Change…"
     for (const s of ["maths", "science"]) {
       expect(screen.getByTestId(`start-here-focus-subject-${s}`).getAttribute("aria-checked")).toBe("false");
     }
@@ -455,7 +460,11 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
     expect(d.getAttribute("aria-modal")).toBe("true");
     const heading = document.getElementById(d.getAttribute("aria-labelledby")!);
     expect(heading?.textContent).toBe(START_HERE_COPY.body);
-    // The picker is open straight away (the focused surface IS the first step).
+    // START-HERE-ONE-TAP-1: the READY state is open straight away (one tap launches); the picker
+    // is one "Change…" tap behind it.
+    expect(screen.getByTestId("start-here-focus-one-tap-maths")).toBeInTheDocument();
+    expect(screen.queryByTestId("start-here-focus-subject-maths")).toBeNull();
+    fireEvent.click(screen.getByTestId("start-here-focus-change"));
     expect(screen.getByTestId("start-here-focus-subject-maths")).toBeInTheDocument();
     // Passive effects can land after the async eligibility read settles: wait for the events.
     await waitFor(() => expect(calls("start_here_shown")).toContainEqual(["start_here_shown", { surface: "practice_hub_focus" }]));
@@ -549,6 +558,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
   it("★★ the chapter picker nested in the focused surface: it takes focus, Tab stays in it, Esc closes ONLY the picker", async () => {
     mount("u1", { focus: true });
     await waitFor(() => expect(focusEl()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-focus-change")); // START-HERE-ONE-TAP-1: picker behind "Change…"
     fireEvent.click(screen.getByTestId("start-here-focus-subject-science"));
     const select = await openChapterPicker("start-here-focus");
     const picker = screen.getByTestId("start-here-focus-chapter-picker");
@@ -652,6 +662,7 @@ describe("QP-SCORECARD-2 E · the focused first-run surface", () => {
   it("Start from the focused surface opens the same five-question set (bank fetched on Start only)", async () => {
     mount("u1", { focus: true });
     await waitFor(() => expect(focusEl()).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-focus-change")); // START-HERE-ONE-TAP-1: picker behind "Change…"
     fireEvent.click(screen.getByTestId("start-here-focus-subject-science"));
     expect(bank.pickStartHereSet).not.toHaveBeenCalled();
     fireEvent.click(screen.getByTestId("start-here-focus-go"));
@@ -670,6 +681,7 @@ describe("FOLLOWUPS-2 F1 [FU-SH-TAP-44] · chips are 44px tap targets", () => {
     mount();
     await waitFor(() => expect(card()).not.toBeNull());
     fireEvent.click(screen.getByTestId("start-here-start"));
+    fireEvent.click(screen.getByTestId("start-here-change")); // START-HERE-ONE-TAP-1: picker behind "Change…"
     const chip = screen.getByTestId("start-here-subject-maths");
     expect(chip.matches(".lt-shc .lt-shc-seg-opt")).toBe(true);
     const css = Array.from(document.querySelectorAll("style")).map((s) => s.textContent ?? "").join("\n");
@@ -685,6 +697,7 @@ describe("FOLLOWUPS-2 F1 [FU-SH-TAP-44] · chips are 44px tap targets", () => {
     cloudHas.mockResolvedValue(false);
     mount("u1", { focus: true });
     await waitFor(() => expect(screen.queryByTestId("start-here-focus")).not.toBeNull());
+    fireEvent.click(screen.getByTestId("start-here-focus-change")); // START-HERE-ONE-TAP-1: picker behind "Change…"
     const chip = screen.getByTestId("start-here-focus-subject-maths");
     expect(chip.closest(".lt-shcf")).not.toBeNull();
     expect(chip.matches(".lt-shc .lt-shc-seg-opt")).toBe(true);

@@ -44,6 +44,8 @@ async function mount(focus = false) {
   );
   await waitFor(() => expect(screen.queryByTestId("start-here-card")).not.toBeNull());
   if (!focus) fireEvent.click(screen.getByTestId("start-here-start"));
+  // START-HERE-ONE-TAP-1: the picker under test is behind "Change chapter or question type".
+  fireEvent.click(await screen.findByTestId(focus ? "start-here-focus-change" : "start-here-change"));
 }
 
 /** The injected rule for the checked option, from the page's own <style>. */
@@ -160,7 +162,7 @@ describe("SHW-2 · segmented controls on the inline card", () => {
     expect(screen.getAllByTestId("start-here-qtype-help")).toHaveLength(1);
   });
 
-  it("★ CONTROL: start_here_start params are unchanged", async () => {
+  it("★ CONTROL: start_here_start params are unchanged (plus START-HERE-ONE-TAP-1 mode=picker)", async () => {
     bank.pickStartHereSet.mockResolvedValue(["a", "b", "c", "d", "e"]);
     await mount();
     fireEvent.click(screen.getByTestId("start-here-subject-science"));
@@ -168,7 +170,7 @@ describe("SHW-2 · segmented controls on the inline card", () => {
     fireEvent.click(screen.getByTestId("start-here-go"));
     await waitFor(() =>
       expect(onboarding.mock.calls.filter((c) => c[0] === "start_here_start")).toEqual([
-        ["start_here_start", { subject: "science", chapter: "electricity", qtype: "ar" }],
+        ["start_here_start", { subject: "science", chapter: "electricity", qtype: "ar", mode: "picker" }],
       ]),
     );
   });
