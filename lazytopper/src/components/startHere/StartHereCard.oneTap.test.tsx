@@ -32,7 +32,13 @@ vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
 import StartHereCard, { START_HERE_GETTING, oneTapTarget } from "./StartHereCard";
 import { resetZeroGradedCacheForTests } from "./zeroGraded";
-import { START_HERE_COPY, START_HERE_ONE_TAP_COPY, START_HERE_SUBJECT_HINT_KEY } from "./startHereModel";
+import {
+  START_HERE_COPY,
+  START_HERE_COUNT,
+  START_HERE_FAIL_COPY,
+  START_HERE_ONE_TAP_COPY,
+  START_HERE_SUBJECT_HINT_KEY,
+} from "./startHereModel";
 
 let location = "";
 function Probe() {
@@ -118,6 +124,10 @@ describe("START-HERE-ONE-TAP-1 · the ready state (inline card)", () => {
     expect(maths.textContent).toBe(`Maths · ${START_HERE_ONE_TAP_COPY.perSubjectSuffix}`);
     expect(science.textContent).toBe(`Science · ${START_HERE_ONE_TAP_COPY.perSubjectSuffix}`);
     expect(maths.textContent).toBe("Maths · 5 questions");
+    expect(START_HERE_ONE_TAP_COPY.perSubjectSuffix).toBe(`${START_HERE_COUNT} questions`);
+    // One live region for the ready buttons (the container), none on each button.
+    expect(screen.getByTestId("start-here-ready").getAttribute("aria-live")).toBe("polite");
+    expect(maths.hasAttribute("aria-live")).toBe(false);
     fireEvent.click(science);
     await waitFor(() => expect(location).toMatch(/^\/practice\/10\/Science\?/));
     expect(query().get("topic")).toBe("electricity");
@@ -173,7 +183,9 @@ describe("START-HERE-ONE-TAP-1 · the ready state (inline card)", () => {
     await openInline();
     fireEvent.click(screen.getByTestId("start-here-one-tap-science"));
     const note = await screen.findByRole("alert");
-    expect(note.textContent).toBe("We couldn't line up five questions for that chapter just now. Try another chapter.");
+    // The ready state shows no chapter control, so its note points at the Change control.
+    expect(note.textContent).toBe(START_HERE_FAIL_COPY.ready);
+    expect(note.textContent).toContain(START_HERE_ONE_TAP_COPY.change);
     expect(location).toBe("/practice-hub");
     expect(calls("start_here_start")).toHaveLength(0);
     const change = screen.getByTestId("start-here-change") as HTMLButtonElement;

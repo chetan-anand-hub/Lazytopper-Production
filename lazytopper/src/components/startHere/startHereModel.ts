@@ -28,11 +28,21 @@ export const START_HERE_COPY = {
  */
 export const START_HERE_ONE_TAP_COPY = {
   /** The hinted subject's one button, followed by the pre-selected chapter's name. */
-  hinted: "Start 5 questions",
+  hinted: `Start ${START_HERE_COUNT} questions`,
   /** No hint: one button per subject, "<Subject> · 5 questions". */
-  perSubjectSuffix: "5 questions",
+  perSubjectSuffix: `${START_HERE_COUNT} questions`,
   /** The secondary text button that reveals the full picker (subject, chapter, type, go). */
   change: "Change chapter or question type",
+} as const;
+
+/**
+ * The honest "could not line up a set" notes. The picker can point at its own chapter control;
+ * the ready state has none on screen, so its note points at the Change control instead.
+ */
+export const START_HERE_FAIL_COPY = {
+  picker: "We couldn't line up five questions for that chapter just now. Try another chapter.",
+  pickerWritten: "We couldn't line up a written question for that chapter just now. Try another chapter.",
+  ready: "We couldn't line up five questions for that chapter just now. Tap 'Change chapter or question type' to pick another.",
 } as const;
 
 export type StartHereQType = "mcq" | "ar" | "written";

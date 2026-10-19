@@ -11,6 +11,7 @@ import type { DesktopSubject } from "../../lib/desktop/navigation";
 import {
   START_HERE_COPY,
   START_HERE_ONE_TAP_COPY,
+  START_HERE_FAIL_COPY,
   analyticsSubject,
   startHereSetSize,
   dismissForSession,
@@ -594,7 +595,8 @@ function StartHerePanel({
       ) : !showPicker ? (
         <>
           {/* START-HERE-ONE-TAP-1 — the READY state: each button launches at once (P8 path). */}
-          <div className="lt-shc-ready" data-testid={tid("ready")}>
+          {/* ONE live region for the ready buttons' "Getting your 5 questions…" state. */}
+          <div className="lt-shc-ready" data-testid={tid("ready")} aria-live="polite">
             {readyTargets.map((target) => (
               <button
                 key={target.subject}
@@ -602,7 +604,6 @@ function StartHerePanel({
                 className="lt-shc-go"
                 data-testid={tid(`one-tap-${target.subject.toLowerCase()}`)}
                 data-chapter={target.slug}
-                aria-live="polite"
                 disabled={isBusy}
                 onClick={() => onOneTap(target)}
               >
@@ -612,7 +613,7 @@ function StartHerePanel({
           </div>
           {failed && (
             <p className="lt-shc-note" role="alert">
-              We couldn't line up five questions for that chapter just now. Try another chapter.
+              {START_HERE_FAIL_COPY.ready}
             </p>
           )}
           <div className="lt-shc-ctas">
@@ -719,8 +720,8 @@ function StartHerePanel({
           {failed && (
             <p className="lt-shc-note" role="alert">
               {activeType === "written"
-                ? "We couldn't line up a written question for that chapter just now. Try another chapter."
-                : "We couldn't line up five questions for that chapter just now. Try another chapter."}
+                ? START_HERE_FAIL_COPY.pickerWritten
+                : START_HERE_FAIL_COPY.picker}
             </p>
           )}
           <div className="lt-shc-ctas">
