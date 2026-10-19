@@ -60,6 +60,7 @@ const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
+import { BRAND_MARK_SRC } from "./config/brandMark";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
@@ -868,11 +869,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
       {!isAuthRoute && !shouldUseDesktopShell && !isPublicLandingRoute && !mobileSelfChromed && !isBareFullScreen && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 10,
-            background: "linear-gradient(135deg, #22c55e, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center",
-            color: "var(--text)", fontWeight: 900, fontSize: 14,
-          }}>LT</div>
+          <img src={BRAND_MARK_SRC} width={32} height={32} alt="" aria-hidden="true" style={{ borderRadius: 10, display: "block" }} />
           <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text)", fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif" }}>LazyTopper</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

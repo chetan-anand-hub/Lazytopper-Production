@@ -2,6 +2,7 @@ import { MathText } from "../question/MathText";
 import { stripOptionLabels, stripSourceTag } from "./worksheetPrintText";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
+import { BRAND_MARK_SRC } from "../../config/brandMark";
 
 /**
  * WorksheetPrintDoc — the worksheet rendered to the locked PDF design
@@ -116,7 +117,7 @@ export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure }: Work
       <div className="lt-wsp__content">
         {/* Masthead */}
         <header className="lt-wsp__mast">
-          <span className="lt-wsp__logo">LT</span>
+          <img className="lt-wsp__logo" src={BRAND_MARK_SRC} alt="" aria-hidden="true" />
           <span className="lt-wsp__brand">
             <span className="lt-wsp__name">LazyTopper</span>
             <span className="lt-wsp__tag">CBSE Class 10 · Board-exam practice</span>

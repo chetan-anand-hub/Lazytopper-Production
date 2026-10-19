@@ -11,6 +11,7 @@ import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 import { NEW_ACCOUNT_LANDING_PATH, isDefaultHomeTarget, takeNewAccountLanding } from "../services/newAccountLanding";
+import { BRAND_MARK_SRC } from "../config/brandMark";
 
 type LocationState = { from?: string };
 
@@ -1996,14 +1997,15 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     "--lt-login-bg": isLight ? "#f7fbff" : "#051733",
   } as CSSProperties;
 
-  const mark = (size: number, fontSize: number) => (
-    <span
+  const mark = (size: number) => (
+    <img
       className="lt-login-mark"
-      style={{ width: size, height: size, fontSize }}
+      src={BRAND_MARK_SRC}
+      width={size}
+      height={size}
+      alt=""
       aria-hidden="true"
-    >
-      L
-    </span>
+    />
   );
 
   const trimmedEmail = email.trim();
@@ -2039,7 +2041,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
 
       <section className="lt-login-brand-panel" aria-label="LazyTopper exam companion">
         <Link to="/" aria-label="Back to LazyTopper home" className="lt-login-home-link">
-          {mark(42, 17)}
+          {mark(42)}
           <span className="lt-login-wordmark">LazyTopper</span>
         </Link>
 
@@ -2097,7 +2099,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       <section className="lt-login-auth-panel" aria-label="Sign in">
         <div className="lt-login-gate">
           <Link to="/" aria-label="Back to LazyTopper home" className="lt-login-mobile-brand">
-            {mark(42, 17)}
+            {mark(42)}
             <span>
               <span className="lt-login-wordmark">LazyTopper</span>
               <span className="lt-login-mobile-brand-sub">CBSE Class 10 Board Exam Prep</span>
