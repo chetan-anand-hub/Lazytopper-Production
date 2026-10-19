@@ -1,3 +1,15 @@
+## 2026-10-19 - AFTER #1259 REFILE-PYQ2026-1 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The "Next (bank content)" and the "Fold into REFILE-PYQ2026-1" items of the #1257 block are done: #1259 shipped the census and the re-file, and retired `withholdMetal007.test.ts` with review S1-S4 answered in the new guard.)* Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 19 Oct); facts marked **[reviewer]** come from the independent review as relayed in that message.
+
+- **Done:** REFILE-PYQ2026-1 (`#1259`, `d033ee0b`). All 190 rows of the 26 `*.pyq2026.ts` files censused against the official CBSE 2026 papers (R 8 / F 36 / W 40 / K 106); `PYQ-S-2026-METAL-007` served again under Control & Coordination. Review PASS, no MUST-FIX **[reviewer]**; live on www at `d033ee0b` with METAL-007 and CHEMRXN-016 under their new chapters **[cofounder-verified]**.
+- **Cofounder, right after this docs PR merges:** switch the repo to PRIVATE (it is PUBLIC at writing; owner rule of 18 Oct). Private means an Actions budget of $0, so CI blocks once included minutes run out.
+- **Next (bank content, small lane):** `[FU-REFILE-PYQ2026-BLOCKED-R]` - re-number / move the derived LT-generated rows first (`LTG-S-CHEMRXN-254`, `-264`, `-311`, `LTG-S-ELEC-299`; see the FU for the exact mapping), then re-file `PYQ-S-2026-CHEMRXN-001`, `-004` (-> life-processes) and `ELEC-010` (-> magnetic-effects-of-electric-current) and drop their `CROSS_CHAPTER_ALLOW` entries (the staleness check forces that step). Owner ruling 19 Oct 05:17 IST.
+- **Next (bank content, can fold into the same lane):** `[FU-REFILE-PYQ2026-K-OR-STEP-LABELS]` (5 K rows), `[FU-REFILE-PYQ2026-NITS]` (CHEMRXN-021, HERED-008).
+- **Later (restore lane):** `[FU-REFILE-PYQ2026-MISFILED-WITHHELD]` - misfiled rows that remain withheld (for example METAL-009, -010, -011, LIFEP-014).
+- **Still owed (carried forward, unchanged):** PERF-4 re-scope (the PERF-3 block's PERF-4 item); Google Ads top-up (owner); owner decisions on the callout swap and the image route; GSC indexing requests for the 5 exemplar pages. The last three are carried from the cofounder session (the coordinator's message, 19 Oct) and were not recorded in an earlier handoff block.
+- **Follow-ups:** the 2026-10-19 (REFILE-PYQ2026-1 #1259) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-19 - AFTER #1257 WITHHOLD-METAL-007 (written by the WITHHOLD-METAL-007 builder under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them.)* Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 19 Oct); facts marked **[reviewer]** come from the independent review `C:\Users\Chetan\OneDrive\Desktop\diff\review-pr1257-2026-10-19.md`.
