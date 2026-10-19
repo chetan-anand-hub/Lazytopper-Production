@@ -39,11 +39,11 @@ const SRC_ROOT = resolve(ROOT, "src");
  * scanned" number with files this guard cannot actually inspect — a subject count
  * that overstates its own coverage is worse than none.
  *
- * ⚠ The share IMAGE is the known blind spot: `public/og-image.svg` renders the
- * domain as literal text and IS scanned, but the exported `public/og-image.png`
- * is a bitmap. If the PNG was exported before the SVG was corrected it still has
- * the dead domain printed on it, and no text scan can see that. That is an owner
- * re-export, not something this guard can assert.
+ * ⚠ The share IMAGE is the known blind spot: the live share card `public/og-image.png`
+ * is a bitmap, and no text scan can read what is printed on it. Its old vector source
+ * `public/og-image.svg` was DELETED in HYGIENE-2 (2026-10-19) because it printed an
+ * invented "★ 4.8 from 2,340+ reviews" rating; the guard below pins it ABSENT. What
+ * the PNG shows is an owner export, verified by eye, not something this guard can assert.
  */
 const TEXT_EXT = new Set([
   ".html", ".htm", ".txt", ".xml", ".svg", ".json", ".md", ".webmanifest",
@@ -147,7 +147,8 @@ describe("domain guard — the never-owned lazytopper.app appears nowhere in the
       "public/robots.txt",
       "public/sitemap.xml",
       "public/llms.txt",
-      "public/og-image.svg",
+      // (public/og-image.svg also carried it; HYGIENE-2 deleted that file — pinned
+      // absent in the rating-claim guard below, so it is no longer a walk target.)
       // Proof the src/ walk recurses rather than reading the top level only.
       "src/config/pricing.ts",
       "src/pages/LegalPage.tsx",
@@ -357,5 +358,62 @@ describe("index.html SERP length caps — the counts are pinned, not asserted in
         `${DESCRIPTION_MAX}-character cap — Google cuts it mid-sentence. ` +
         `Rendered value: ${JSON.stringify(decodeEntities(raw as string))}`,
     ).toBeLessThanOrEqual(DESCRIPTION_MAX);
+  });
+});
+
+/**
+ * HYGIENE-2 (owner-approved 2026-10-19, gap report item 9) — NO INVENTED RATING SHIPS.
+ *
+ * `public/og-image.svg` was served at /og-image.svg (HTTP 200) and printed
+ * "★ 4.8 from 2,340+ reviews". LazyTopper has no such rating and no such reviews: it
+ * was fabricated social proof on a public URL (CLAUDE.md §5, no fake data). The file
+ * was DELETED (the live share card is og-image.png). This pins it gone and sweeps the
+ * same shipped corpus as the domain guard for any rating / review-count claim.
+ *
+ * Exempt: test files (they must name the pattern), and `src/data/**` — question banks
+ * are word problems that may legitimately count "reviews" or "ratings" in a dataset,
+ * and are not product claims. Bank data is out of scope for this lane.
+ */
+const RATING_CLAIM =
+  /★\s*[0-5]\.\d|\b[0-5]\.\d\s*(?:★|stars?\b)|\b\d[\d,]*\+?\s+(?:reviews|ratings)\b|"(?:aggregateRating|ratingValue|reviewCount)"/i;
+
+describe("HYGIENE-2 — no invented rating or review count ships", () => {
+  it("public/og-image.svg (the fabricated-rating share card) is ABSENT", () => {
+    expect(existsSync(join(PUBLIC_ROOT, "og-image.svg"))).toBe(false);
+    // The live share card is the PNG, and it is what index.html points at.
+    expect(existsSync(join(PUBLIC_ROOT, "og-image.png"))).toBe(true);
+    const html = readFileSync(INDEX_HTML, "utf8");
+    expect(html).toContain('content="https://www.lazytopper.com/og-image.png"');
+    expect(html).not.toMatch(/og-image\.svg/);
+  });
+
+  it("zero rating / review-count claims across index.html, public/ and src/ (scan names its subject)", () => {
+    const files = corpus();
+    const hits: string[] = [];
+    let scanned = 0;
+    for (const abs of files) {
+      const r = rel(abs);
+      if (isExempt(r) || r.startsWith("src/data/")) continue;
+      scanned += 1;
+      readFileSync(abs, "utf8")
+        .split(/\r?\n/)
+        .forEach((line, i) => {
+          const m = RATING_CLAIM.exec(line);
+          if (m) hits.push(`${r}:${i + 1}  ${m[0]}`);
+        });
+    }
+    expect(scanned).toBeGreaterThan(300);
+    expect(files.map(rel)).toContain("public/llms.txt");
+    expect(hits).toEqual([]);
+  });
+
+  it("CONTROL — the matcher fires on the deleted claim and ignores ordinary ★ / decimals", () => {
+    expect(RATING_CLAIM.test("★ 4.8 from 2,340+ reviews")).toBe(true);
+    expect(RATING_CLAIM.test("Rated 4.9 stars by parents")).toBe(true);
+    expect(RATING_CLAIM.test("1,200 reviews")).toBe(true);
+    expect(RATING_CLAIM.test('"aggregateRating": {')).toBe(true);
+    expect(RATING_CLAIM.test("★ Highlighted row = Modal Class")).toBe(false);
+    expect(RATING_CLAIM.test("6/12 = 2.5/5 = 1/2")).toBe(false);
+    expect(RATING_CLAIM.test("vertical-align:-4.8164em;")).toBe(false);
   });
 });

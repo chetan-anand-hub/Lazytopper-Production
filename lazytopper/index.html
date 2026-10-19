@@ -186,6 +186,13 @@
          page has loaded and the main thread is idle — never later than 4 s after load.
          Everything pushed meanwhile (page views, sign_up) sits in dataLayer and the library
          processes it when it arrives.
+
+         HYGIENE-2 (owner, 2026-10-19): the owner's own browsing is INTERNAL traffic. A full
+         page load on /admin or /admin/... sets a per-browser marker (localStorage
+         "lt.internalTraffic" = "1"; an analytics convenience only, never premium/trial state).
+         While the marker is present, traffic_type "internal" is passed in the config and set
+         once for every later event, and GA4's active Internal Traffic data filter drops them.
+         A browser that has never loaded /admin is untouched.
          src/analytics/indexHtml.guard.test.ts runs this block and pins all of it. -->
     <script>
       (function () {
@@ -228,18 +235,29 @@
           if (key === "gclid" || key.indexOf("utm_") === 0) kept.push(parts[i]);
         }
         var ref = /^(https?:\/\/)(?:[^\/?#@]*@)?([^\/?#@]+)/i.exec(String(document.referrer || ""));
+        var onAdmin = /^\/admin(?:\/|$)/.test(full);
+        var internal = onAdmin;
+        try {
+          if (onAdmin) window.localStorage.setItem("lt.internalTraffic", "1");
+          internal = onAdmin || window.localStorage.getItem("lt.internalTraffic") === "1";
+        } catch (err) {
+          internal = onAdmin;
+        }
         window.dataLayer = window.dataLayer || [];
         window.gtag = function () {
           window.dataLayer.push(arguments);
         };
         window.gtag("js", new Date());
-        window.gtag("config", "G-1T8Q12H4RQ", {
+        var ga4Config = {
           send_page_view: false,
           allow_google_signals: true,
           allow_ad_personalization_signals: true,
           page_location: loc.origin + BASE + path + (kept.length ? "?" + kept.join("&") : ""),
           page_referrer: ref ? ref[1] + ref[2] + "/" : ""
-        });
+        };
+        if (internal) ga4Config.traffic_type = "internal";
+        window.gtag("config", "G-1T8Q12H4RQ", ga4Config);
+        if (internal) window.gtag("set", { traffic_type: "internal" });
         var loaded = false;
         var cues = ["pointerdown", "keydown", "touchstart", "scroll"];
         function loadGtag() {
