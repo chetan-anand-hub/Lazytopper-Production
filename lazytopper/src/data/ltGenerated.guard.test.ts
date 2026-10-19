@@ -38,6 +38,7 @@ import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix/bankFix1Pr2Withholds
 import { RULE5_BIND_1_WITHHOLD_CATEGORY } from "./bankFix/rule5Bind1Withholds"; // RULE5-BIND-1 (11 Oct): its category also feeds the template rule
 import { GARBLE_1_WITHHOLD_CATEGORY } from "./bankFix/garble1Withholds"; // GARBLE-1 (13 Oct): its category also feeds the template rule
 import { BANK_FIX_5, type BankFix5Entry } from "./bankFix/bankFix5Ledger";
+import { BANK_STEPS_1 } from "./bankFix/bankSteps1Ledger"; // HIDE8-FIG8-1 Part A: paused WRONG-CHAPTER rows are "misfiled" withheld templates
 import { resolveCanonicalSlug } from "./syllabus/canonicalTopicSlug";
 import { PredictionCore } from "./predictionCore";
 import { generatePracticeSet } from "./practiceSetGenerator";
@@ -81,7 +82,13 @@ const RAW_BY_ID = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
 // for a reason that leaves its content in the syllabus (figure missing / duplicate / garbled text). A template
 // withheld as out of the syllabus (out-of-syllabus / limit / syllabus-excluded / formative-only) is still a red:
 // a question modelled on it carries that content.
-const TEMPLATE_MAY_BE_WITHHELD = new Set(["figure", "duplicate", "garbled"]);
+// HIDE8-FIG8-1 Part A (19 Oct 2026, owner ruling 07:08 IST: "Allow 'wrong chapter' as a reason to hide -- yes"): "misfiled" joins the set.
+// A misfiled template is a correct, in-syllabus question sitting under the wrong chapter id, so the generated rows modelled on it carry
+// no wrong content. Its category comes ONLY from a `paused` WRONG-CHAPTER entry in bankSteps1Ledger.ts (MISFILED_WITHHOLD_CATEGORY below).
+const TEMPLATE_MAY_BE_WITHHELD = new Set(["figure", "duplicate", "garbled", "misfiled"]);
+const MISFILED_WITHHOLD_CATEGORY: ReadonlyMap<string, string> = new Map(
+  BANK_STEPS_1.filter((e) => e.verdict === "WRONG-CHAPTER" && e.state === "paused").map((e) => [e.id, "misfiled"] as const),
+);
 // BANK-FIX-1 PR-2 (2026-10-07, controller D21): a template withheld as "limit" is accepted ONLY for these reviewed rows.
 // The limit is lazytopper/src/config/syllabus2026-27.ts:699-704 — "Heights & distances: at most TWO right triangles"
 // ("Problems should not involve more than two right triangles.") and "angles of elevation/depression ONLY 30°, 45°,
@@ -95,7 +102,7 @@ export const LIMIT_TEMPLATE_REVIEWED: ReadonlySet<string> = new Set(["LTG-M-TRIG
 const templateOf = (q: CanonicalQuestion, ledger: readonly BankFix5Entry[] = BANK_FIX_5): CanonicalQuestion | undefined => {
   const id = String(q.shapedFrom);
   if (BANK_BY_ID.has(id)) return BANK_BY_ID.get(id);
-  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? RULE5_BIND_1_WITHHOLD_CATEGORY.get(id) ?? GARBLE_1_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
+  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? RULE5_BIND_1_WITHHOLD_CATEGORY.get(id) ?? GARBLE_1_WITHHOLD_CATEGORY.get(id) ?? MISFILED_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
   const allowed = cat !== undefined && (TEMPLATE_MAY_BE_WITHHELD.has(cat) || (cat === "limit" && LIMIT_TEMPLATE_REVIEWED.has(q.id)));
   return allowed && WITHHELD_QUESTION_IDS.has(id) ? RAW_BY_ID.get(id) : undefined;
 };
@@ -207,6 +214,12 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
     expect(templateOf({ shapedFrom: wk } as CanonicalQuestion, madeUp)).toBeUndefined();
     // every categorised id IS withheld (the map and the withhold block agree)
     expect([...BANK_FIX_1_PR2_WITHHOLD_CATEGORY.keys()].filter((id) => !WITHHELD_QUESTION_IDS.has(id))).toEqual([]);
+    // HIDE8-FIG8-1 Part A: a paused WRONG-CHAPTER row is a "misfiled" withheld template; a paused WRONG-CONTENT row is NOT.
+    expect([...MISFILED_WITHHOLD_CATEGORY.keys()].sort()).toEqual(["PYQ-S-2026-CHEMRXN-001", "PYQ-S-2026-CHEMRXN-004", "PYQ-S-2026-ELEC-010"]);
+    expect([...MISFILED_WITHHOLD_CATEGORY.keys()].filter((id) => !WITHHELD_QUESTION_IDS.has(id))).toEqual([]);
+    expect(templateOf({ shapedFrom: "PYQ-S-2026-CHEMRXN-001" } as CanonicalQuestion)?.id).toBe("PYQ-S-2026-CHEMRXN-001");
+    expect(WITHHELD_QUESTION_IDS.has("GDR-L-CBJ-011")).toBe(true);
+    expect(templateOf({ shapedFrom: "GDR-L-CBJ-011" } as CanonicalQuestion)).toBeUndefined();
   });
 
   it("CONTROL — the chapter-code check fires on the Acids-looking id it was written for", () => {

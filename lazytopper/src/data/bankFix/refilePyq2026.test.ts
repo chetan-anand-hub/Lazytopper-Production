@@ -131,13 +131,16 @@ describe("REFILE-PYQ2026-1 outcomes hold in the assembled bank", () => {
     expect(bad).toEqual([]);
   });
 
-  it("R (blocked): unchanged, still served, and allow-listed in the chapter guard with its reason", () => {
+  // HIDE8-FIG8-1 Part A (19 Oct 2026, owner ruling 07:08 IST): the 3 blocked rows are now WITHHELD as WRONG-CHAPTER (bankSteps1Ledger
+  // `paused`; pinned by hide8WrongChapter.test.ts). Before: unchanged, served and allow-listed in the chapter guard.
+  it("R (blocked): unchanged, withheld as WRONG-CHAPTER (HIDE8-FIG8-1 Part A), and no longer on the chapter guard's allow-list", () => {
     const blocked = outcome("R").filter((e) => e.blocked);
     expect(blocked.map((e) => e.id).sort()).toEqual(["PYQ-S-2026-CHEMRXN-001", "PYQ-S-2026-CHEMRXN-004", "PYQ-S-2026-ELEC-010"]);
     for (const e of blocked) {
       expect(RAW.get(e.id)!.topicKey, e.id).toBe(e.chapterBefore);
-      expect(SERVED.has(e.id), e.id).toBe(true);
-      expect(CROSS_CHAPTER_ALLOW.get(e.id), e.id).toMatch(/^R-BLOCKED/);
+      expect(SERVED.has(e.id), e.id).toBe(false);
+      expect(WITHHELD_QUESTION_IDS.has(e.id), e.id).toBe(true);
+      expect(CROSS_CHAPTER_ALLOW.has(e.id), e.id).toBe(false);
     }
   });
 
@@ -207,12 +210,9 @@ const ANCHORS: Readonly<Record<string, readonly string[]>> = {
 };
 
 /** Reviewed allow-list: a served row whose words point to another chapter, with the reason it is filed where it is. */
-// OWNER RULING (19 Oct 2026 05:17 IST, chat): the three R-BLOCKED rows stay as they are now (allow-listed, served) and are
-// fixed in a small follow-up lane [FU-REFILE-PYQ2026-BLOCKED-R]; that lane removes their entries here.
+// OWNER RULING (19 Oct 2026 05:17 IST, chat): the three R-BLOCKED rows stayed allow-listed and served until a follow-up lane
+// [FU-REFILE-PYQ2026-BLOCKED-R]. HIDE8-FIG8-1 Part A (19 Oct 07:08 IST ruling) withholds them as WRONG-CHAPTER and removes their entries here.
 const CROSS_CHAPTER_ALLOW: ReadonlyMap<string, string> = new Map([
-  ["PYQ-S-2026-CHEMRXN-001", "R-BLOCKED: 31/2/1 Q5 is Life Processes (photosynthesis); re-file blocked by ltGenerated.guard (template of LTG-S-CHEMRXN-254 / -311) - owner ruling 19 Oct 05:17 IST, follow-up lane"],
-  ["PYQ-S-2026-CHEMRXN-004", "R-BLOCKED: 31/2/3 Q5 is Life Processes (photosynthesis equation); re-file blocked by ltGenerated.guard (template of LTG-S-CHEMRXN-264) - owner ruling 19 Oct 05:17 IST, follow-up lane"],
-  ["PYQ-S-2026-ELEC-010", "R-BLOCKED: 31/3/3 Q39(a) is Magnetic Effects (domestic circuits); re-file blocked by ltGenerated.guard (template of LTG-S-ELEC-299) - owner ruling 19 Oct 05:17 IST, follow-up lane"],
   ["PYQ-S-2026-CHEMRXN-007", "CROSS: galvanisation as protection against corrosion is taught in Chemical Reactions (corrosion) and in Metals (prevention of corrosion)"],
   ["PYQ-S-2026-ELEC-003", "CROSS: the internal choice spans Electricity ((A) fuse rating of a heater) and Magnetic Effects ((B) electromagnet); filed by (A)"],
   ["PYQ-S-2026-LIGHT-012", "CROSS: scattering of light (Human Eye and the Colourful World) contrasted with reflection (Light)"],
@@ -237,7 +237,7 @@ const SERVED_SCI_2026 = (canonicalQuestionBank as unknown as Row[]).filter((q) =
 
 describe("REFILE-PYQ2026-1 chapter keyword guard", () => {
   it("covers every served 2026 Science row, and the anchor table covers the 13 Science chapters", () => {
-    expect(SERVED_SCI_2026.length).toBe(118);
+    expect(SERVED_SCI_2026.length).toBe(115); // 118 at REFILE-PYQ2026-1; HIDE8-FIG8-1 Part A (19 Oct) withholds the 3 WRONG-CHAPTER rows (measured)
     expect(Object.keys(ANCHORS).sort()).toEqual(getTopics("Science").map((t) => t.key).sort());
   });
 

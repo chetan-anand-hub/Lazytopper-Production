@@ -119,8 +119,8 @@
    ]
   },
   "chemical-reactions-and-equations": {
-   "n": 523,
-   "sha256": "1f5361f94b90b6fed177a7db99abf4e507ca5ade0438aa39db971fc91e9ada38",
+   "n": 521,
+   "sha256": "e33fe0de88a9ab21989b73de2bcdf5c7cd80ac7c066fc63e4010f1bda617cb50",
    "head": [
     "BX-CHEM-E-063",
     "BX-CHEM-E-056",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 404,
-   "sha256": "b11d89dc62ecbcb8deaf04952ca50bae9152c7b5e14bc549c6d7336bade12539",
+   "n": 403,
+   "sha256": "8f922fb3a20d821455c4b6ea215c58beec0b1a9209179f41ed294b0e50e483f3",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -356,7 +356,7 @@
   },
   "chemical-reactions-and-equations": {
    "n": 73,
-   "sha256": "343596d390fc149fa6a543e852f882f895345b41eb6ad10f3a666f097bd7d8b6",
+   "sha256": "f9820d77d5855b6d88dab6a800138810837fabd9090be27f3f6ae14bd4998703",
    "head": [
     "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
     "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
@@ -410,7 +410,7 @@
   },
   "electricity": {
    "n": 148,
-   "sha256": "1822748bfb344343c5ebb914eff7f5b128f40dab3a43d39cc2037a144d1f33f3",
+   "sha256": "79fdaefc3fa886b30605709f338c05c59efe4784395772b0f34180efeadc41ad",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
