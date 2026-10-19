@@ -12,7 +12,7 @@
  * ★ SIGNED-OUT -> SIGN IN FIRST (Z3), returning to a FIXED internal path (/pricing) —
  * no caller-supplied destination ever reaches the redirect.
  */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -35,13 +35,17 @@ import {
 } from "../../analytics/analytics";
 import {
   buyPass,
+  checkPayStatus,
   formatPassDate,
   isPaymentsClientEnabled,
+  PAYMENT_CHECKING_COPY,
   PAYMENT_FAILED_COPY,
+  PAYMENT_STILL_CONFIRMING_COPY,
   premiumActiveUntilCopy,
   premiumAlreadyActiveCopy,
   type BuyOutcome,
   type PassType,
+  type PayStatusResult,
 } from "../../services/checkout";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -53,6 +57,17 @@ export function monthButtonLabel(offerOpen: boolean): string {
 }
 
 export const TILL_BOARDS_BUTTON_LABEL = "Pay once till your boards";
+
+/**
+ * PAY-RECOVER-1 — when (ms after the pending outcome) the server is asked about the order.
+ * SPARSE on purpose: `/api/pay/status` shares the `payments` rate budget (20 soft / 60 hard a
+ * day) with order and verify, and checkout.ts caps one order at MAX_STATUS_CHECKS_PER_ORDER
+ * (6) status calls in a tab. Four polls leave two for "Check again" / the return-to-tab
+ * refresh. (The spec's "about 0, 3, 8, 15, 30 s" thinned to four under the owner's budget.)
+ */
+export const PAY_STATUS_POLL_DELAYS_MS: readonly number[] = [0, 3_000, 10_000, 30_000];
+
+export const CHECK_AGAIN_LABEL = "Check again";
 
 /**
  * TRACK-2 — what the checkout events say was bought. The price is the SAME pricing-module
@@ -79,6 +94,10 @@ export interface PassCheckoutViewProps {
   activePassEnd: string | null;
   onSignIn: () => void;
   onBuy: (passType: PassType) => Promise<BuyOutcome>;
+  /** PAY-RECOVER-1 — query the server about an order Razorpay signed as paid. Never throws. */
+  onCheckStatus?: (orderId: string) => Promise<PayStatusResult>;
+  /** Test seam: the poll schedule (ms from the pending outcome). */
+  pollDelaysMs?: readonly number[];
 }
 
 /**
@@ -90,12 +109,73 @@ export interface PassCheckoutViewProps {
  * Till-your-boards tile; the paid / already-active notices -> a full-width row above the
  * tiles; the failure alert -> a full-width row below. Nothing here decides a state.
  */
-export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn, onBuy }: PassCheckoutViewProps) {
+export function PassCheckoutView({
+  signedIn,
+  offerOpen,
+  activePassEnd,
+  onSignIn,
+  onBuy,
+  onCheckStatus = checkPayStatus,
+  pollDelaysMs = PAY_STATUS_POLL_DELAYS_MS,
+}: PassCheckoutViewProps) {
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
+  /** PAY-RECOVER-1 — "checking" while polls run; "confirming" once they ran out still pending. */
+  const [recovery, setRecovery] = useState<null | "checking" | "confirming">(null);
+  const pendingRef = useRef<{ orderId: string; details: CheckoutDetails; attemptId: string; paymentId?: string } | null>(null);
+  const pollRun = useRef(0);
+  const mounted = useRef(true);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      pollRun.current += 1; // cancels any running poll loop
+    };
+  }, []);
 
   const activeLabel = formatPassDate(activePassEnd);
+
+  /** A SERVER `paid` for the pending order: the same active copy and the one `purchase`. */
+  function settlePaid(result: Extract<PayStatusResult, { state: "paid" }>) {
+    const pending = pendingRef.current;
+    if (!pending) return;
+    pendingRef.current = null;
+    // trackPurchase dedupes per transaction id in this tab (P9), so a payment the verify
+    // DID record before its response was lost is still counted once.
+    trackPurchase({
+      ...pending.details,
+      ...(result.amountInr !== undefined ? { valueInr: result.amountInr } : {}),
+      transactionId: result.paymentId || pending.paymentId || pending.attemptId,
+    });
+    setRecovery(null);
+    const label = formatPassDate(result.passEnd);
+    if (label) setPaidUntil(label);
+    else setRecovery("confirming");
+  }
+
+  /** Query the server at each delay; stop on paid, on unmount, or on a newer run. */
+  async function pollStatus(delays: readonly number[]) {
+    const pending = pendingRef.current;
+    if (!pending) return;
+    const run = ++pollRun.current;
+    setRecovery("checking");
+    let elapsed = 0;
+    for (const at of delays) {
+      const wait = Math.max(0, at - elapsed);
+      elapsed = Math.max(elapsed, at);
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      if (!mounted.current || run !== pollRun.current) return;
+      const result = await onCheckStatus(pending.orderId).catch((): PayStatusResult => ({ state: "unknown" }));
+      if (!mounted.current || run !== pollRun.current) return;
+      if (result.state === "paid") {
+        settlePaid(result);
+        return;
+      }
+    }
+    setRecovery("confirming");
+  }
 
   async function handleBuy(passType: PassType) {
     if (busy) return;
@@ -105,6 +185,8 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
     }
     setBusy(passType);
     setFailed(false);
+    setRecovery(null);
+    pendingRef.current = null;
     const details = checkoutEventDetails(passType, offerOpen);
     const attemptId = newCheckoutAttemptId();
     trackBeginCheckout(details);
@@ -122,9 +204,23 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
       const label = formatPassDate(outcome.passEnd);
       if (label) setPaidUntil(label);
       else setFailed(true);
+    } else if (outcome.status === "pending") {
+      // PAY-RECOVER-1 — Razorpay signed a success; never the failure sentence from here on.
+      pendingRef.current = {
+        orderId: outcome.orderId,
+        details,
+        attemptId,
+        ...(outcome.paymentId ? { paymentId: outcome.paymentId } : {}),
+      };
+      await pollStatus(pollDelaysMs);
     } else if (outcome.status === "failed") {
       setFailed(true);
     }
+  }
+
+  function handleCheckAgain() {
+    if (recovery !== "confirming") return;
+    void pollStatus([0]);
   }
 
   if (paidUntil) {
@@ -147,7 +243,7 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
       <button
         type="button"
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
-        disabled={busy !== null}
+        disabled={busy !== null || recovery === "checking"}
         onClick={() => void handleBuy("month")}
       >
         {monthButtonLabel(offerOpen)}
@@ -155,15 +251,28 @@ export function PassCheckoutView({ signedIn, offerOpen, activePassEnd, onSignIn,
       <button
         type="button"
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
-        disabled={busy !== null}
+        disabled={busy !== null || recovery === "checking"}
         onClick={() => void handleBuy("till_boards")}
       >
         {TILL_BOARDS_BUTTON_LABEL}
       </button>
-      {failed && (
+      {failed && !recovery && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="alert" data-testid="pass-checkout-failed">
           {PAYMENT_FAILED_COPY}
         </p>
+      )}
+      {recovery === "checking" && (
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="status" data-testid="pass-checkout-checking">
+          {PAYMENT_CHECKING_COPY}
+        </p>
+      )}
+      {recovery === "confirming" && (
+        <div className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="status" data-testid="pass-checkout-confirming">
+          <p>{PAYMENT_STILL_CONFIRMING_COPY}</p>
+          <button type="button" className="lt-pricing-cta lt-pricing-cta--secondary lt-pricing-check-again" onClick={handleCheckAgain}>
+            {CHECK_AGAIN_LABEL}
+          </button>
+        </div>
       )}
     </div>
   );
@@ -193,6 +302,12 @@ function PassCheckoutConnected() {
         // Refresh the cached entitlement from the SERVER record the grant just wrote.
         if (outcome.status === "paid" && uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined);
         return outcome;
+      }}
+      onCheckStatus={async (orderId) => {
+        const result = await checkPayStatus(orderId);
+        // PAY-RECOVER-1 — a server `paid` wrote the pass: re-read it (the emitter updates the shell).
+        if (result.state === "paid" && uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined);
+        return result;
       }}
     />
   );

@@ -333,12 +333,16 @@ describe("buyPass", () => {
     expect(verify).not.toHaveBeenCalled();
   });
 
-  it("any failure (order, script, verify) -> failed, never a thrown error and never paid", async () => {
+  it("an order or script failure -> failed; a verify failure AFTER the signed success -> pending (PAY-RECOVER-1), never paid", async () => {
     const rz = fakeRazorpay("pay");
     const boom = async () => { throw new Error("x"); };
     expect(await buyPass("month", { createOrder: boom, loadScript: async () => rz.Ctor, verify: vi.fn() })).toEqual({ status: "failed" });
     expect(await buyPass("month", { createOrder: async () => order, loadScript: boom, verify: vi.fn() })).toEqual({ status: "failed" });
-    expect(await buyPass("month", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify: boom })).toEqual({ status: "failed" });
+    expect(await buyPass("month", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify: boom })).toEqual({
+      status: "pending",
+      orderId: "order_1",
+      paymentId: "pay_1",
+    });
   });
 });
 

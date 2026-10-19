@@ -140,6 +140,24 @@ describe("ParentPayPanel", () => {
     expect(purchase).not.toHaveBeenCalled();
   });
 
+  it("PAY-RECOVER-1: pending (verify errored after Razorpay's signed success) -> 'still confirming', never the failure line, no purchase", async () => {
+    await renderPanel({ buy: vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "pending" })) });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹599 for a month" }));
+    });
+    expect(screen.getByTestId("parent-pay-confirming")).toHaveTextContent(
+      "We're still confirming your payment with your bank. If money left your account, Premium turns on automatically — you won't be charged twice.",
+    );
+    expect(screen.queryByTestId("parent-pay-failed")).toBeNull();
+    expect(document.body.textContent).not.toContain("didn't go through");
+    expect(screen.queryByTestId("parent-pay-paid")).toBeNull();
+    expect(purchase).not.toHaveBeenCalled();
+    expect(screen.getByTestId("parent-pay-confirming").textContent).not.toMatch(/\bask\b/i);
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(screen.getByTestId("parent-pay-confirming")).toHaveTextContent("पुष्टि");
+    expect(document.body.textContent).not.toContain("भुगतान नहीं हो पाया");
+  });
+
   it("a link spent while the page was open (paid by the webhook) turns into the 'used' message", async () => {
     await renderPanel({ buy: vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "failed", reason: "used" })) });
     await act(async () => {
