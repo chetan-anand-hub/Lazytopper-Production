@@ -2162,8 +2162,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "LT-H01",                       // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror, part (v) object at F; step says "image at infinity, real, inverted, highly magnified". Its computed figures (lightSolutionFigures.ts) are repaired with the text
   "LT2-043",                      // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror, part (iii) u = -20 cm = f (object at F); key says "image at infinity, highly magnified"
   "FND-L-SPM-026",                // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror match-the-column; key pairs "At F" with "(a) At infinity, highly magnified"
-  // WITHHOLD-METAL-007 (18 Oct, owner ruling ~23:52 IST, from a student report): a Biology PYQ served in Chemistry tests; held for the later re-file-and-repair lane
-  "PYQ-S-2026-METAL-007",         // wrong-content (misfiled): CBSE 2026 31/4/1 Q12 is Control & Coordination (Varun's pancreatic duct OR Sunil's reflex action), filed under metals-and-non-metals; the row stays unchanged in metalsNonMetals.pyq2026.ts
+  // WITHHOLD-METAL-007 (18 Oct, owner ruling ~23:52 IST, from a student report): PYQ-S-2026-METAL-007, a Biology PYQ served in Chemistry tests, was held here
+  // REFILE-PYQ2026-1 (19 Oct): PYQ-S-2026-METAL-007 re-filed to control-and-coordination, both OR alternatives answered from the official 31/4/1 scheme, and served again (ledger: bankFix/refilePyq2026Ledger.ts; id leaves this block)
   // SCI-BACKLOG-1 batch 1 (F, 14 Oct, D244): 19 WRONG-CONTENT Science rows corrected from NCERT 2026-27 / the board booklet answers and served again (ids leave this block)
   // SCI-BACKLOG-1 batch 2 (F, 14 Oct, D244): 6 SINGLE-STEP Science rows rewritten from NCERT 2026-27 and served again (ids leave this block)
   // SCI-BACKLOG-1 batch 4 (F, 14 Oct, D253/D254): 2026-STAT-SA-02 (steps rewritten for its own stem) and 2026-PLE-SA-02 (stem made consistent per D254) repaired and served again
