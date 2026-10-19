@@ -375,7 +375,7 @@ describe("index.html SERP length caps — the counts are pinned, not asserted in
  * and are not product claims. Bank data is out of scope for this lane.
  */
 const RATING_CLAIM =
-  /★\s*[0-5]\.\d|\b[0-5]\.\d\s*(?:★|stars?\b)|\b\d[\d,]*\+?\s+(?:reviews|ratings)\b|"(?:aggregateRating|ratingValue|reviewCount)"/i;
+  /★\s*[0-5]\.\d|\b[0-5]\.\d\s*(?:stars?\b|★\s*(?:from|rating|rated|by|\d))|\b\d[\d,]*\+?\s+(?:reviews|ratings)\b|"(?:aggregateRating|ratingValue|reviewCount)"/i;
 
 describe("HYGIENE-2 — no invented rating or review count ships", () => {
   it("public/og-image.svg (the fabricated-rating share card) is ABSENT", () => {
@@ -415,5 +415,8 @@ describe("HYGIENE-2 — no invented rating or review count ships", () => {
     expect(RATING_CLAIM.test("★ Highlighted row = Modal Class")).toBe(false);
     expect(RATING_CLAIM.test("6/12 = 2.5/5 = 1/2")).toBe(false);
     expect(RATING_CLAIM.test("vertical-align:-4.8164em;")).toBe(false);
+    // Review nit: the repo's "§N.N ★" section-marker comment style must not trip the scan.
+    expect(RATING_CLAIM.test("// §2.1 ★ the point")).toBe(false);
+    expect(RATING_CLAIM.test("4.8 ★ from 2,340 parents")).toBe(true);
   });
 });
