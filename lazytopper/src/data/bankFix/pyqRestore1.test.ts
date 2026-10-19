@@ -47,11 +47,14 @@ import {
   PYQ_RESTORE_1_SCIENCE_SOURCES,
   PYQ_RESTORE_1_RESTORED_IDS,
 } from "./pyqRestore1Ledger";
+import { BANK_STEPS_1 } from "./bankSteps1Ledger";
 
 type Row = Record<string, unknown> & { id: string };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
 const servedIds = new Set((canonicalQuestionBank as unknown as Row[]).map((q) => q.id));
 const STEP = /^\[(\d+(?:\.\d+)?) marks?\] /;
+/** HIDE8-FIG8-1 Part A: rows withheld as WRONG-CHAPTER (bankSteps1Ledger `paused`), read from the ledger, never retyped. */
+const WRONG_CHAPTER_PAUSED = new Set(BANK_STEPS_1.filter((e) => e.verdict === "WRONG-CHAPTER" && e.state === "paused").map((e) => e.id));
 
 const SUBJECTS = [
   {
@@ -106,7 +109,10 @@ describe.each(SUBJECTS)("PYQ-RESTORE-1 · $name", ({ name, ledger, sources, coun
     for (const e of ledger.filter((x) => x.verdict === "restored")) {
       const q = bankById.get(e.id);
       if (!q) { bad.push(`${e.id}: missing`); continue; }
-      if (!servedIds.has(e.id)) bad.push(`${e.id}: not served`);
+      // HIDE8-FIG8-1 Part A (19 Oct 2026, owner ruling 07:08 IST): a restored row later withheld as WRONG-CHAPTER (bankSteps1Ledger
+      // `paused`) keeps its restored provenance but is not served; it must then be withheld. Measured: PYQ-S-2026-CHEMRXN-001, PYQ-S-2026-ELEC-010.
+      if (WRONG_CHAPTER_PAUSED.has(e.id)) { if (servedIds.has(e.id) || !WITHHELD_QUESTION_IDS.has(e.id)) bad.push(`${e.id}: WRONG-CHAPTER but served`); }
+      else if (!servedIds.has(e.id)) bad.push(`${e.id}: not served`);
       if (q.sourceOverride !== undefined) bad.push(`${e.id}: still has sourceOverride`);
       if (q.pyqYear !== e.year || q.pyqSet !== e.set) bad.push(`${e.id}: year/set ${String(q.pyqYear)}/${String(q.pyqSet)}`);
       if (q.ncertRef !== e.ref) bad.push(`${e.id}: ref ${String(q.ncertRef)}`);
@@ -152,7 +158,8 @@ describe("PYQ-RESTORE-1 · both subjects", () => {
     // that withholds rows lowers the floor with a dated comment.
     // 18 Oct WITHHOLD-METAL-007: PYQ-S-2026-METAL-007 withheld (misfiled Biology row), measured by import 10580 -> 10579.
     // 19 Oct REFILE-PYQ2026-1: METAL-007 re-filed to control-and-coordination and served again, measured by import 10579 -> 10580.
-    expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10580);
+    // 19 Oct HIDE8-FIG8-1 Part A (owner ruling 07:08 IST): PYQ-S-2026-CHEMRXN-001 / -004 and PYQ-S-2026-ELEC-010 withheld as WRONG-CHAPTER, measured by import 10580 -> 10577.
+    expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10577);
   });
 });
 

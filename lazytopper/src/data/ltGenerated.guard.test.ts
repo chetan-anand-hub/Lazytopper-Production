@@ -38,6 +38,8 @@ import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix/bankFix1Pr2Withholds
 import { RULE5_BIND_1_WITHHOLD_CATEGORY } from "./bankFix/rule5Bind1Withholds"; // RULE5-BIND-1 (11 Oct): its category also feeds the template rule
 import { GARBLE_1_WITHHOLD_CATEGORY } from "./bankFix/garble1Withholds"; // GARBLE-1 (13 Oct): its category also feeds the template rule
 import { BANK_FIX_5, type BankFix5Entry } from "./bankFix/bankFix5Ledger";
+import { BANK_STEPS_1 } from "./bankFix/bankSteps1Ledger"; // HIDE8-FIG8-1 Part A: paused WRONG-CHAPTER rows are "misfiled" withheld templates
+import { REFILE_PYQ2026 } from "./bankFix/refilePyq2026Ledger"; // HIDE8-FIG8-1 Part A: misfiled ids must be blocked outcome-R rows
 import { resolveCanonicalSlug } from "./syllabus/canonicalTopicSlug";
 import { PredictionCore } from "./predictionCore";
 import { generatePracticeSet } from "./practiceSetGenerator";
@@ -82,6 +84,13 @@ const RAW_BY_ID = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q]));
 // withheld as out of the syllabus (out-of-syllabus / limit / syllabus-excluded / formative-only) is still a red:
 // a question modelled on it carries that content.
 const TEMPLATE_MAY_BE_WITHHELD = new Set(["figure", "duplicate", "garbled"]);
+// HIDE8-FIG8-1 Part A (19 Oct 2026, owner ruling 07:08 IST: "Allow 'wrong chapter' as a reason to hide -- yes"): a "misfiled" template is
+// a correct, in-syllabus question sitting under the wrong chapter id, so the generated rows modelled on it carry no wrong content. It is
+// NOT in the shared set above (a free-form ledger category "misfiled" must never be enough): it is accepted ONLY for an id that is a
+// `paused` WRONG-CHAPTER entry in bankSteps1Ledger.ts (MISFILED_WITHHOLD_CATEGORY below).
+const MISFILED_WITHHOLD_CATEGORY: ReadonlyMap<string, string> = new Map(
+  BANK_STEPS_1.filter((e) => e.verdict === "WRONG-CHAPTER" && e.state === "paused").map((e) => [e.id, "misfiled"] as const),
+);
 // BANK-FIX-1 PR-2 (2026-10-07, controller D21): a template withheld as "limit" is accepted ONLY for these reviewed rows.
 // The limit is lazytopper/src/config/syllabus2026-27.ts:699-704 — "Heights & distances: at most TWO right triangles"
 // ("Problems should not involve more than two right triangles.") and "angles of elevation/depression ONLY 30°, 45°,
@@ -95,8 +104,8 @@ export const LIMIT_TEMPLATE_REVIEWED: ReadonlySet<string> = new Set(["LTG-M-TRIG
 const templateOf = (q: CanonicalQuestion, ledger: readonly BankFix5Entry[] = BANK_FIX_5): CanonicalQuestion | undefined => {
   const id = String(q.shapedFrom);
   if (BANK_BY_ID.has(id)) return BANK_BY_ID.get(id);
-  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? RULE5_BIND_1_WITHHOLD_CATEGORY.get(id) ?? GARBLE_1_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
-  const allowed = cat !== undefined && (TEMPLATE_MAY_BE_WITHHELD.has(cat) || (cat === "limit" && LIMIT_TEMPLATE_REVIEWED.has(q.id)));
+  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? RULE5_BIND_1_WITHHOLD_CATEGORY.get(id) ?? GARBLE_1_WITHHOLD_CATEGORY.get(id) ?? MISFILED_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
+  const allowed = cat !== undefined && (TEMPLATE_MAY_BE_WITHHELD.has(cat) || (cat === "limit" && LIMIT_TEMPLATE_REVIEWED.has(q.id)) || (cat === "misfiled" && MISFILED_WITHHOLD_CATEGORY.has(id)));
   return allowed && WITHHELD_QUESTION_IDS.has(id) ? RAW_BY_ID.get(id) : undefined;
 };
 
@@ -207,6 +216,24 @@ describe("GEN-THIN-1 · provenance — internal, complete, and never PYQ-shaped"
     expect(templateOf({ shapedFrom: wk } as CanonicalQuestion, madeUp)).toBeUndefined();
     // every categorised id IS withheld (the map and the withhold block agree)
     expect([...BANK_FIX_1_PR2_WITHHOLD_CATEGORY.keys()].filter((id) => !WITHHELD_QUESTION_IDS.has(id))).toEqual([]);
+    // HIDE8-FIG8-1 Part A: a paused WRONG-CHAPTER row is a "misfiled" withheld template; a paused WRONG-CONTENT row is NOT.
+    expect([...MISFILED_WITHHOLD_CATEGORY.keys()].sort()).toEqual(["PYQ-S-2026-CHEMRXN-001", "PYQ-S-2026-CHEMRXN-004", "PYQ-S-2026-ELEC-010"]);
+    expect([...MISFILED_WITHHOLD_CATEGORY.keys()].filter((id) => !WITHHELD_QUESTION_IDS.has(id))).toEqual([]);
+    expect(templateOf({ shapedFrom: "PYQ-S-2026-CHEMRXN-001" } as CanonicalQuestion)?.id).toBe("PYQ-S-2026-CHEMRXN-001");
+    expect(WITHHELD_QUESTION_IDS.has("GDR-L-CBJ-011")).toBe(true);
+    expect(templateOf({ shapedFrom: "GDR-L-CBJ-011" } as CanonicalQuestion)).toBeUndefined();
+    // review of #1262: a free-form "misfiled" category on any other withheld row is NOT accepted. Probe: the withheld wrong-key
+    // BANK-FIX-5 row PYQ-S-2026-CHEMRXN-019, relabelled "misfiled" by an injected ledger entry, stays rejected.
+    const k19 = BANK_FIX_5.find((e) => e.id === "PYQ-S-2026-CHEMRXN-019" && e.verdict === "withheld")!;
+    expect(k19.category).toBe("wrong-key");
+    expect(WITHHELD_QUESTION_IDS.has(k19.id)).toBe(true);
+    expect(templateOf({ shapedFrom: k19.id } as CanonicalQuestion, [{ ...k19, category: "misfiled" }])).toBeUndefined();
+    // each misfiled id is a REFILE-PYQ2026-1 outcome-R row whose re-file was blocked (the only rows this reason exists for)
+    for (const id of MISFILED_WITHHOLD_CATEGORY.keys()) {
+      const r = REFILE_PYQ2026.find((e) => e.id === id);
+      expect(r?.outcome, id).toBe("R");
+      expect(r?.blocked, id).toBe(true);
+    }
   });
 
   it("CONTROL — the chapter-code check fires on the Acids-looking id it was written for", () => {

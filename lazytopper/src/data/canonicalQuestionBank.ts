@@ -2164,6 +2164,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "FND-L-SPM-026",                // wrong-content vs NCERT 2026-27 Table 9.1: concave mirror match-the-column; key pairs "At F" with "(a) At infinity, highly magnified"
   // WITHHOLD-METAL-007 (18 Oct, owner ruling ~23:52 IST, from a student report): PYQ-S-2026-METAL-007, a Biology PYQ served in Chemistry tests, was held here
   // REFILE-PYQ2026-1 (19 Oct): PYQ-S-2026-METAL-007 re-filed to control-and-coordination, both OR alternatives answered from the official 31/4/1 scheme, and served again (ledger: bankFix/refilePyq2026Ledger.ts; id leaves this block)
+  // HIDE8-FIG8-1 Part A (19 Oct, owner rulings 06:54 + 07:08 IST, "Allow 'wrong chapter' as a reason to hide"): the 3 REFILE-PYQ2026-1 blocked-R rows, filed in the wrong chapter
+  // and not re-fileable because LTG rows cite them as templates. Withheld as WRONG-CHAPTER (bankSteps1Ledger `paused`); the rows stay byte-for-byte unchanged in chemicalReactions.pyq2026.ts / electricity.pyq2026.ts
+  "PYQ-S-2026-CHEMRXN-001",       // wrong-chapter: CBSE 2026 31/2/1 Q5 (photosynthesis events) is Life Processes, filed under chemical-reactions-and-equations
+  "PYQ-S-2026-CHEMRXN-004",       // wrong-chapter: CBSE 2026 31/2/3 Q5 (balanced photosynthesis equation) is Life Processes, filed under chemical-reactions-and-equations
+  "PYQ-S-2026-ELEC-010",          // wrong-chapter: CBSE 2026 31/3/3 Q39(a) (wire colours, 220 V, earthing, fuse) is Magnetic Effects (domestic circuits), filed under electricity
   // SCI-BACKLOG-1 batch 1 (F, 14 Oct, D244): 19 WRONG-CONTENT Science rows corrected from NCERT 2026-27 / the board booklet answers and served again (ids leave this block)
   // SCI-BACKLOG-1 batch 2 (F, 14 Oct, D244): 6 SINGLE-STEP Science rows rewritten from NCERT 2026-27 and served again (ids leave this block)
   // SCI-BACKLOG-1 batch 4 (F, 14 Oct, D253/D254): 2026-STAT-SA-02 (steps rewritten for its own stem) and 2026-PLE-SA-02 (stem made consistent per D254) repaired and served again
