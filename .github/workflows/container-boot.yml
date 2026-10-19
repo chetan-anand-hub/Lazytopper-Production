@@ -49,6 +49,10 @@ jobs:
   container-boot:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # actions:read lets a push read the PREVIOUS trunk push's Container Boot result (CI-COST-2).
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -63,15 +67,18 @@ jobs:
       # job never runs `pnpm install` on the runner — the IMAGE does its own frozen install,
       # which is the thing under test. Installing here would measure the wrong environment
       # and cost minutes to do it.
-      # ★ CI-COST-2: on a push, the same relevance list is applied to `before..HEAD` (the commits
-      # this push added; fetch-depth 0 above gives the full history). Unknown/zero before-SHA, a
-      # force push, or any git failure BOOTS — see decideBoot in the script.
+      # ★ CI-COST-2: a push SKIPS the boot only when EVERY path in `before..HEAD` (the commits this
+      # push added; fetch-depth 0 above gives the full history) is on a short allow-to-skip list
+      # (handoff/, docs/, top-level *.md, ...) AND the previous trunk push's boot succeeded.
+      # Anything unknown, an unknown/zero before-SHA, a force push, or any git/API failure BOOTS
+      # — see decideBoot in the script. PR classification is unchanged.
       - name: Decide whether this change set can move the image
         id: classify
         env:
           EVENT_NAME: ${{ github.event_name }}
           BASE_REF: ${{ github.base_ref }}
           PUSH_BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
         run: node scripts/ci/container_boot_gate.mjs --classify
 
       - name: Set up Buildx (layer cache)
