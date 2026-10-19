@@ -1,3 +1,17 @@
+> **2026-10-19 (daily) - #1265 - #1270 (CLAUDE.md section 10, now once a day).** Scope: parent page, pricing copy, Check & Improve entry chrome, Start here launch, checkout recovery, analytics marker, CI. No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling. Facts marked **[git/gh]** were re-read from trunk; **[docs-builder-curl]** were fetched from www while writing (markup only, nothing viewed in a browser).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/for-parents` | "Check one answer free" (hero + footer) -> `/check-improve?from=for_parents&utm_source=for_parents`; "See pricing" -> `/pricing`; fifth tile "A tutor for doubts, explained step by step" (no link); still no sign-up CTA (`#1268`) | live; markup present on www [docs-builder-curl] | owner phone check; `[FU-C6-TUTOR-WORD]` |
+| `/pricing` + sign-in OfferStrip | "First 200 students." removed; badge "Founding member offer" (`#1268`) | live; no "First 200" on www [docs-builder-curl] | `[FU-PRICING-FOUNDING-COHORT]` (manual close only) |
+| Check & Improve (`/check-improve`) | "Back to parents page" link when `from=for_parents`, inside the shell, never in the tutor overlay (`#1268`) | merged; tests [git/gh]; not live-viewed | owner phone check |
+| Start here (inline card, focused surface, C&I "or practise 5" branch) | READY state: one tap per subject launches 5 questions; picker behind "Change chapter or question type" (`#1267`) | merged [git/gh]; not live-viewed | owner check; `[FU-PRACTICEPAGE-STARTHERE-WRITTEN-FLAKE]` |
+| Checkout (PassCheckout) / payments | after a signed success: "Checking your payment…" + polling, never "failed"; Pay held while unconfirmed; return-to-tab refresh; server `POST /api/pay/status` reconcile (`#1266`, `#1270`) | merged [git/gh]; no live payment by this writer | owner real-payment live-verify |
+| Parent pay panel | "still confirming" copy (en + hi), Pay held, no polling (`#1270`) | merged; parent pay not switched on [coordinator] | `[FU-PAY-STATUS-PARENT-ORDERS]` |
+| Share card (`og-image.png`) / `/og-image.svg` | 10,000+ practice questions; svg with invented rating deleted (`#1269`) | live; svg 404 [docs-builder-curl] | - |
+| GA4 (owner's browsing) | `/admin` full load marks `lt.internalTraffic`, hits tagged internal (`#1269`) | merged | `[FU-GA4-INTERNAL-MARKER-LIMITS]` |
+| CI | job timeouts, diff-scoped push boot, evidence-reader buffer (`#1265`) | merged | `[FU-CI-CLOCK-LEGS-INVESTIGATE]`, CI-COST-3 (`#1271` open) |
+
 > **2026-10-19 - HIDE8-FIG8-1 #1261 + #1262, LOGO-1 #1263 (CLAUDE.md section 10).** Scope: bank content (solution figures on 6 PYQ rows; 3 rows withheld; step-mark labels on 5 rows) and brand chrome (logo on every surface). No grading, scoring, mistake typing or recording changed. No surface's Scope moved to Settling. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merges (the coordinator's message, 19 Oct); **[builder-reported]** facts come from the PR bodies and import-based guards (`solutionFigureCrops.pins.test.tsx`, `hide8WrongChapter.test.ts`, `brandMark.guard.test.ts`); **[reviewer]** facts come from the independent reviews as relayed; **[docs-builder-curl]** facts were fetched from www while writing.
 
 | surface | what moved (PR) | state | owed |

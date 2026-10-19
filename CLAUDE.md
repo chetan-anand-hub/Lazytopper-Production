@@ -290,7 +290,13 @@ as in §6). The human merge gate is retained — CI does NOT auto-merge product 
 
 ## 10. Handoff Update Rule
 
-After every merged PR, a docs-only handoff update must be created before starting the next product PR.
+**ONCE A DAY, after the day's merges** (owner ruling 2026-10-19), ONE docs-only handoff PR records
+every PR merged that day. It replaces the earlier rule ("after every merged PR, a docs-only handoff
+update must be created before starting the next product PR"). **Why:** one docs PR per merged PR
+cost a full CI run each, and the per-PR rule blocked the next product PR on a docs round-trip; one
+daily PR keeps the record complete with fewer CI runs. Product PRs may merge back to back during the
+day; the daily docs PR names each of them (merge SHA, what moved) and re-derives the trunk tip at
+writing. A day with no merges needs no docs PR.
 Update these **SEVEN** files in `handoff/`:
 - `CURRENT_STATE.md` — update SHA, stage, PR state
 - `NEXT_ACTION.md` — update next task and doctrine
