@@ -25,7 +25,7 @@ import {
   type CheckoutDetails,
 } from "../../analytics/analytics";
 import { formatInr } from "../../config/pricing";
-import { formatPassDate, type PassType } from "../../services/checkout";
+import { formatPassDate, PAY_PENDING_TTL_MS, type PassType } from "../../services/checkout";
 import {
   buyPassAsParent,
   viewParentLink,
@@ -48,6 +48,8 @@ interface Copy {
   fine: (name: string) => string;
   paid: (name: string, date: string) => string;
   payFailed: string;
+  /** PAY-RECOVER-1 — after Razorpay's signed success, when the server could not confirm yet. */
+  stillConfirming: string;
   loading: string;
   refused: Record<Reason, (name: string) => string>;
   more: string;
@@ -65,6 +67,8 @@ const COPY: Record<ParentPayLang, Copy> = {
       `Premium goes to ${name ? `${name}'s` : "your child's"} account, not yours — you don't need an account or any password. You pay on Razorpay's secure checkout; LazyTopper never sees your card, UPI or bank details. This link can be used for one payment.`,
     paid: (name, date) => `Done — ${name ? `${name}'s` : "your child's"} Premium is active until ${date}. Thank you!`,
     payFailed: "Payment didn't go through. You haven't been charged twice — try again.",
+    stillConfirming:
+      "We're still confirming your payment with your bank. If money left your account, Premium turns on automatically — you won't be charged twice.",
     loading: "Opening the link…",
     refused: {
       invalid: () => "This link isn't valid. Ask your child to send a new one from LazyTopper.",
@@ -87,6 +91,8 @@ const COPY: Record<ParentPayLang, Copy> = {
       `Premium ${name ? `${name} के` : "आपके बच्चे के"} अकाउंट में जाएगा, आपके नहीं — आपको कोई अकाउंट या पासवर्ड नहीं चाहिए। भुगतान Razorpay के सुरक्षित चेकआउट पर होगा; LazyTopper आपका कार्ड, UPI या बैंक विवरण कभी नहीं देखता। यह लिंक एक ही भुगतान के लिए है।`,
     paid: (name, date) => `हो गया — ${name ? `${name} का` : "आपके बच्चे का"} Premium ${date} तक चालू है। धन्यवाद!`,
     payFailed: "भुगतान नहीं हो पाया। आपसे दो बार पैसे नहीं कटे हैं — फिर से कोशिश करें।",
+    stillConfirming:
+      "हम अभी आपके बैंक से आपके भुगतान की पुष्टि कर रहे हैं। अगर आपके खाते से पैसे कट गए हैं, तो Premium अपने-आप चालू हो जाएगा — आपसे दो बार पैसे नहीं कटेंगे।",
     loading: "लिंक खुल रहा है…",
     refused: {
       invalid: () => "यह लिंक मान्य नहीं है। अपने बच्चे से LazyTopper से नया लिंक भेजने को कहें।",
@@ -106,17 +112,32 @@ export interface ParentPayPanelViewProps {
   buy: (token: string, passType: PassType) => Promise<ParentBuyOutcome>;
   /** Called once, on mount (before the link is even viewed): take the token out of the address bar. */
   scrubAddress: () => void;
+  /** Test seam: how long the Pay buttons stay held after an unconfirmed payment (default 30 min). */
+  pendingHoldMs?: number;
 }
 
 type ViewState = { kind: "loading" } | { kind: "ready"; data: ParentLinkView } | { kind: "refused"; reason: Reason };
 
-export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPayPanelViewProps) {
+export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHoldMs = PAY_PENDING_TTL_MS }: ParentPayPanelViewProps) {
   const [lang, setLang] = useState<ParentPayLang>("en");
   const [state, setState] = useState<ViewState>({ kind: "loading" });
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<{ name: string; date: string } | null>(null);
   const [failed, setFailed] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const scrubbed = useRef(false);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // MONEY: while a signed-but-unconfirmed payment is "still confirming", the Pay buttons are
+  // held so a parent who was charged is not invited to pay again; they return after 30 min.
+  useEffect(() => {
+    if (!confirming) return undefined;
+    holdTimer.current = setTimeout(() => setConfirming(false), pendingHoldMs);
+    return () => {
+      if (holdTimer.current !== null) clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    };
+  }, [confirming, pendingHoldMs]);
   const t = COPY[lang];
 
   // The token leaves the address bar AT ONCE (review round 1): the page already holds it
@@ -149,9 +170,10 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
   const name = state.kind === "ready" ? state.data.firstName : "";
 
   async function handleBuy(passType: PassType, priceInr: number) {
-    if (busy) return;
+    if (busy || confirming) return;
     setBusy(passType);
     setFailed(false);
+    setConfirming(false);
     const details: CheckoutDetails = {
       passType,
       itemName: passType === "month" ? "Premium pass for a month" : "Premium pass till your boards",
@@ -172,6 +194,9 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
       const date = formatPassDate(outcome.passEnd);
       if (date) setPaidUntil({ name: outcome.firstName || name, date });
       else setFailed(true);
+    } else if (outcome.status === "pending") {
+      // PAY-RECOVER-1 — no `purchase` here: the server has not confirmed this payment.
+      setConfirming(true);
     } else if (outcome.status === "failed") {
       if (outcome.reason) setState({ kind: "refused", reason: outcome.reason });
       else setFailed(true);
@@ -223,7 +248,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
               <button
                 type="button"
                 className="lt-parent-pay-buy lt-parent-pay-buy--month"
-                disabled={busy !== null}
+                disabled={busy !== null || confirming}
                 onClick={() => void handleBuy("month", prices.month as number)}
               >
                 {t.month(formatInr(prices.month))}
@@ -233,7 +258,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
               <button
                 type="button"
                 className="lt-parent-pay-buy lt-parent-pay-buy--boards"
-                disabled={busy !== null}
+                disabled={busy !== null || confirming}
                 onClick={() => void handleBuy("till_boards", prices.till_boards as number)}
               >
                 {t.boards(formatInr(prices.till_boards))}
@@ -242,6 +267,11 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
             {failed && (
               <p className="lt-parent-pay-status lt-parent-pay-status--error" role="alert" data-testid="parent-pay-failed">
                 {t.payFailed}
+              </p>
+            )}
+            {confirming && (
+              <p className="lt-parent-pay-status" role="status" data-testid="parent-pay-confirming">
+                {t.stillConfirming}
               </p>
             )}
             <p className="lt-parent-pay-fine">{t.fine(name)}</p>

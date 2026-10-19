@@ -199,6 +199,7 @@ describe("the parent's purchase", () => {
 
   it("a link that became used / expired is reported with its reason; anything else is a plain failure", async () => {
     expect(await buyPassAsParent(TOKEN, "month", deps({ createOrder: async () => { throw new ParentLinkError("used"); } }))).toEqual({ status: "failed", reason: "used" });
-    expect(await buyPassAsParent(TOKEN, "month", deps({ verify: async () => { throw new Error("x"); } }))).toEqual({ status: "failed" });
+    // PAY-RECOVER-1 — a verify error AFTER Razorpay's signed success is pending, never failed.
+    expect(await buyPassAsParent(TOKEN, "month", deps({ verify: async () => { throw new Error("x"); } }))).toEqual({ status: "pending" });
   });
 });

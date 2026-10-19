@@ -22,6 +22,8 @@ export const CHECKOUT_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js
 
 export const PAY_ORDER_ENDPOINT = "/api/pay/order";
 export const PAY_VERIFY_ENDPOINT = "/api/pay/verify";
+/** PAY-STATUS-1 — "is my payment through?" for the caller's OWN order (auth required). */
+export const PAY_STATUS_ENDPOINT = "/api/pay/status";
 
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";
@@ -30,6 +32,19 @@ export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been 
 export function premiumActiveUntilCopy(dateLabel: string): string {
   return `Premium is active until ${dateLabel}`;
 }
+
+/**
+ * PAY-RECOVER-1 — shown while the server is asked about an order Razorpay already signed as
+ * paid. Never the failure sentence once a signed success exists.
+ */
+export const PAYMENT_CHECKING_COPY = "Checking your payment…";
+
+/**
+ * PAY-RECOVER-1 (owner decision D4) — Razorpay signed a success but the server could not
+ * confirm it yet. Premium still comes only from the server (verify, webhook or status).
+ */
+export const PAYMENT_STILL_CONFIRMING_COPY =
+  "We're still confirming your payment with your bank. If money left your account, Premium turns on automatically — you won't be charged twice.";
 
 /** Z10 — shown in the buy area first when a pass is already running. */
 export function premiumAlreadyActiveCopy(dateLabel: string): string {
@@ -188,6 +203,12 @@ export type BuyOutcome =
       amountInr?: number;
     }
   | { status: "dismissed" }
+  /**
+   * PAY-RECOVER-1 — Razorpay's handler returned a SIGNED success but the server's verify
+   * errored (network, timeout, 5xx, a rejection). The money may well have left the account,
+   * so this is never `failed`: the caller asks `checkPayStatus(orderId)` instead.
+   */
+  | { status: "pending"; orderId: string; paymentId?: string }
   | { status: "failed" };
 
 export interface BuyDeps {
@@ -203,12 +224,15 @@ const DEFAULT_DEPS: BuyDeps = {
 };
 
 /**
- * The whole purchase: order -> Razorpay's checkout -> server verify. Never throws;
- * every failure is `{ status: "failed" }`, and closing the checkout is `dismissed`.
+ * The whole purchase: order -> Razorpay's checkout -> server verify. Never throws.
+ * Order-creation / script-load failures are `{ status: "failed" }`; closing the checkout is
+ * `dismissed`; a verify error AFTER Razorpay's signed success is `pending` (PAY-RECOVER-1).
  */
 export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS): Promise<BuyOutcome> {
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(passType), deps.loadScript()]);
+    // PAY-RECOVER-1 — remember THIS tab's open order (an order id, never premium state).
+    writePayPending(order.orderId);
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -223,10 +247,21 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
       });
       checkout.open();
     });
+    // PAY-RECOVER-1 — the marker is KEPT on dismiss: a UPI app can finish after the sheet closes.
     if (!success) return { status: "dismissed" };
-    const { passEnd } = await deps.verify(success);
-    // FOLLOWUPS-1 A4 — additive, read AFTER the verify: neither value is sent anywhere here.
+    // FOLLOWUPS-1 A4 — additive, analytics only: Razorpay's payment id is read from its signed
+    // result (before the verify, so a `pending` outcome can carry it) and the amount from the
+    // SERVER order; neither value is sent anywhere by this function.
     const paymentId = typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
+    let passEnd: string;
+    try {
+      ({ passEnd } = await deps.verify(success));
+    } catch {
+      // PAY-RECOVER-1 — past this line Razorpay has SIGNED a success: whatever the verify
+      // error, the honest state is "still checking", never "didn't go through".
+      return { status: "pending", orderId: order.orderId, ...(paymentId !== undefined ? { paymentId } : {}) };
+    }
+    clearPayPending(order.orderId);
     const amountInr = Number.isFinite(order.amountPaise) && order.amountPaise > 0 ? order.amountPaise / 100 : undefined;
     return {
       status: "paid",
@@ -237,4 +272,208 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
   } catch {
     return { status: "failed" };
   }
+}
+
+/* ── PAY-RECOVER-1 · the pending-order marker and the status check ───────────── */
+
+/**
+ * sessionStorage key: `{ orderId, at, checks }` for the order THIS tab last opened a checkout
+ * for. An order id and a counter — never a tier, a trial or a passEnd. Registered in
+ * studentDataMap.ts. Cleared on paid / a server `paid`, and ignored (and removed) after 30 min.
+ */
+export const PAY_PENDING_KEY = "lazytopper.payPending";
+
+/** The marker is forgotten after this long. */
+export const PAY_PENDING_TTL_MS = 30 * 60 * 1000;
+
+/**
+ * `/api/pay/status` shares the `payments` rate budget (20 soft / 60 hard a day) with order
+ * and verify, so ONE order may cost at most this many status calls in this tab — across
+ * the post-checkout polls, "Check again" and the return-to-tab refresh together.
+ */
+export const MAX_STATUS_CHECKS_PER_ORDER = 6;
+
+export interface PayPendingMarker {
+  orderId: string;
+  at: number;
+  checks: number;
+}
+
+function sessionStore(): Storage | null {
+  try {
+    return typeof sessionStorage === "undefined" ? null : sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+function writeMarker(marker: PayPendingMarker): void {
+  try {
+    sessionStore()?.setItem(PAY_PENDING_KEY, JSON.stringify(marker));
+  } catch {
+    /* storage blocked: recovery falls back to the webhook + the next hydrate */
+  }
+}
+
+export function writePayPending(orderId: string, now: number = Date.now()): void {
+  writeMarker({ orderId, at: now, checks: 0 });
+}
+
+/** The live marker, or null. An expired or unreadable marker is removed. */
+export function readPayPending(nowMs?: number): PayPendingMarker | null {
+  const store = sessionStore();
+  if (!store) return null;
+  let raw: string | null = null;
+  try {
+    raw = store.getItem(PAY_PENDING_KEY);
+  } catch {
+    return null;
+  }
+  if (!raw) return null;
+  // The wall clock is read only when a marker exists (its expiry is a wall-clock 30 minutes).
+  const now = nowMs ?? Date.now();
+  try {
+    const parsed = JSON.parse(raw) as Partial<PayPendingMarker>;
+    const ok =
+      typeof parsed.orderId === "string" &&
+      parsed.orderId.length > 0 &&
+      typeof parsed.at === "number" &&
+      Number.isFinite(parsed.at) &&
+      now - parsed.at <= PAY_PENDING_TTL_MS &&
+      parsed.at <= now + 60_000;
+    if (ok) {
+      const checks = typeof parsed.checks === "number" && Number.isFinite(parsed.checks) ? parsed.checks : 0;
+      return { orderId: parsed.orderId as string, at: parsed.at as number, checks };
+    }
+  } catch {
+    /* fall through: remove */
+  }
+  clearPayPending();
+  return null;
+}
+
+/** Remove the marker — only when it is for `orderId`, if one is given. */
+export function clearPayPending(orderId?: string): void {
+  const store = sessionStore();
+  if (!store) return;
+  try {
+    if (orderId !== undefined) {
+      const raw = store.getItem(PAY_PENDING_KEY);
+      if (raw) {
+        try {
+          if ((JSON.parse(raw) as { orderId?: unknown }).orderId !== orderId) return;
+        } catch {
+          /* unreadable: remove it */
+        }
+      }
+    }
+    store.removeItem(PAY_PENDING_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export type PayStatusResult =
+  | { state: "paid"; passEnd: string; paymentId?: string; amountInr?: number }
+  | { state: "pending" }
+  /** Razorpay unreachable, the request failed, or this tab's status budget is spent. */
+  | { state: "unknown" };
+
+/**
+ * Status calls spent per order in THIS tab's memory. The sessionStorage marker carries the
+ * same count across a reload; this map keeps the cap when the marker is missing (storage
+ * blocked, expired, cleared, or the order belongs to another tab), so the
+ * MAX_STATUS_CHECKS_PER_ORDER cap holds regardless of storage.
+ */
+const statusChecksInMemory = new Map<string, number>();
+
+/** Test seam: forget the in-memory status-call counts. */
+export function resetPayStatusBudgetForTests(): void {
+  statusChecksInMemory.clear();
+}
+
+function statusChecksUsed(orderId: string, marker: PayPendingMarker | null): number {
+  const stored = marker && marker.orderId === orderId ? marker.checks : 0;
+  return Math.max(stored, statusChecksInMemory.get(orderId) ?? 0);
+}
+
+/**
+ * Spend one of the order's status calls. False once MAX_STATUS_CHECKS_PER_ORDER are spent —
+ * counted as the larger of the marker's count and this tab's in-memory count.
+ */
+function takeStatusCheck(orderId: string): boolean {
+  const marker = readPayPending();
+  const used = statusChecksUsed(orderId, marker);
+  if (used >= MAX_STATUS_CHECKS_PER_ORDER) return false;
+  statusChecksInMemory.set(orderId, used + 1);
+  if (marker && marker.orderId === orderId) writeMarker({ ...marker, checks: used + 1 });
+  return true;
+}
+
+/** How many status calls this order still has in this tab. */
+export function statusChecksLeft(orderId: string): number {
+  return Math.max(0, MAX_STATUS_CHECKS_PER_ORDER - statusChecksUsed(orderId, readPayPending()));
+}
+
+/* ── PAY-RECOVER-1 · in-tab "order settled" emitter ────────────────────────────
+ * A server `paid` can arrive through the buy area's own polls OR through the return-to-tab
+ * refresh in useSubscription. Both go through checkPayStatus, which announces it here, so the
+ * buy area settles (active copy + its one `purchase`) whichever path got the answer.
+ */
+export type PaySettledListener = (orderId: string, result: Extract<PayStatusResult, { state: "paid" }>) => void;
+
+const paySettledListeners = new Set<PaySettledListener>();
+
+export function onPaySettled(listener: PaySettledListener): () => void {
+  paySettledListeners.add(listener);
+  return () => {
+    paySettledListeners.delete(listener);
+  };
+}
+
+function emitPaySettled(orderId: string, result: Extract<PayStatusResult, { state: "paid" }>): void {
+  for (const listener of Array.from(paySettledListeners)) {
+    try {
+      listener(orderId, result);
+    } catch {
+      /* one bad listener must not starve the others */
+    }
+  }
+}
+
+export interface PayStatusDeps {
+  post: (url: string, body: unknown) => Promise<Record<string, unknown>>;
+}
+
+const DEFAULT_STATUS_DEPS: PayStatusDeps = { post: postJson };
+
+/**
+ * PAY-STATUS-1 route: `POST /api/pay/status { orderId }` ->
+ * `{ ok, state: "paid", passEnd, paymentId, amountInr } | { ok, state: "pending" } | { ok, state: "unknown" }`.
+ * Never throws. Premium is believed only from the server's `passEnd` (CLAUDE.md §5).
+ */
+export async function checkPayStatus(orderId: string, deps: PayStatusDeps = DEFAULT_STATUS_DEPS): Promise<PayStatusResult> {
+  if (!orderId) return { state: "unknown" };
+  if (!takeStatusCheck(orderId)) return { state: "unknown" };
+  let json: Record<string, unknown>;
+  try {
+    json = await deps.post(PAY_STATUS_ENDPOINT, { orderId });
+  } catch {
+    return { state: "unknown" };
+  }
+  if (json.state === "paid" && typeof json.passEnd === "string" && json.passEnd) {
+    clearPayPending(orderId);
+    const paymentId = typeof json.paymentId === "string" && json.paymentId ? json.paymentId : undefined;
+    const amountInr = typeof json.amountInr === "number" && Number.isFinite(json.amountInr) && json.amountInr > 0 ? json.amountInr : undefined;
+    const paid: Extract<PayStatusResult, { state: "paid" }> = {
+      state: "paid",
+      passEnd: json.passEnd,
+      ...(paymentId !== undefined ? { paymentId } : {}),
+      ...(amountInr !== undefined ? { amountInr } : {}),
+    };
+    emitPaySettled(orderId, paid);
+    return paid;
+  }
+  if (json.state === "pending") return { state: "pending" };
+  return { state: "unknown" };
 }

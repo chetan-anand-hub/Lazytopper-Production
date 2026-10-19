@@ -356,6 +356,34 @@ export function saveSubscription(uid: string, status: SubscriptionStatus): void 
   void saveCloud(uid, status);
 }
 
+/* ── PAY-RECOVER-1 · in-tab hydration emitter ─────────────────────────────────
+ * Every `useSubscription` instance (the shell chrome, the page, the buy area) holds its own
+ * copy of the status. Without this, a hydration run by ONE instance — e.g. after a payment —
+ * refreshed only that instance and the cache, and the others stayed stale until remount.
+ * Emits ONLY a cloud-reconciled status (found / absent), never a cache read or an error,
+ * and only from the async hydration path, so no listener runs during a render.
+ */
+export type SubscriptionHydratedListener = (uid: string, status: SubscriptionStatus) => void;
+
+const hydratedListeners = new Set<SubscriptionHydratedListener>();
+
+export function onSubscriptionHydrated(listener: SubscriptionHydratedListener): () => void {
+  hydratedListeners.add(listener);
+  return () => {
+    hydratedListeners.delete(listener);
+  };
+}
+
+function emitHydrated(uid: string, status: SubscriptionStatus): void {
+  for (const listener of Array.from(hydratedListeners)) {
+    try {
+      listener(uid, status);
+    } catch {
+      /* one bad listener must not starve the others */
+    }
+  }
+}
+
 /**
  * Resolve entitlement against the cloud. The three outcomes need three responses:
  *
@@ -377,6 +405,7 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
       // trialStartDate, so the merge preserves the pinned start either way.
       void saveCloud(uid, resolved);
     }
+    emitHydrated(uid, resolved);
     return resolved;
   }
 
@@ -385,6 +414,7 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
     saveLocal(uid, free);
     // Deliberately no cloud write: a cache with no cloud record is not evidence of
     // anything, and uploading it would launder a forgery into the record of truth.
+    emitHydrated(uid, free);
     return free;
   }
 

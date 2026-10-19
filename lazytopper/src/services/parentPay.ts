@@ -208,6 +208,8 @@ export async function viewParentLink(token: string): Promise<ParentLinkView> {
 export type ParentBuyOutcome =
   | { status: "paid"; passEnd: string; firstName: string; paymentId?: string; amountInr?: number }
   | { status: "dismissed" }
+  /** PAY-RECOVER-1 — a verify error AFTER Razorpay's signed success. Never shown as a failure. */
+  | { status: "pending" }
   | { status: "failed"; reason?: Exclude<ParentLinkReason, "failed"> };
 
 export interface ParentBuyDeps {
@@ -267,7 +269,15 @@ export async function buyPassAsParent(
       checkout.open();
     });
     if (!success) return { status: "dismissed" };
-    const { passEnd, firstName } = await deps.verify(token, success);
+    let verified: { passEnd: string; firstName: string };
+    try {
+      verified = await deps.verify(token, success);
+    } catch {
+      // PAY-RECOVER-1 — Razorpay has SIGNED a success: never "didn't go through" from here.
+      // The webhook still grants the child's pass; the parent route has no auth, so no poll.
+      return { status: "pending" };
+    }
+    const { passEnd, firstName } = verified;
     const paymentId = typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
     const amountInr = Number.isFinite(order.amountPaise) && order.amountPaise > 0 ? order.amountPaise / 100 : undefined;
     return {

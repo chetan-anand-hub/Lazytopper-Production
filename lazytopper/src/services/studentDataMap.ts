@@ -713,7 +713,12 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "FEEDBACK-1: plus localStorage `lazytopper.feedbackAsk.<uid>` (when the \"help us improve\" " +
       "prompt was last shown after an upgrade screen, the start timestamp of the trial whose end " +
       "was already asked about, and when any such prompt was last shown, so each moment is asked " +
-      "at most once; never the answer, never sent anywhere).",
+      "at most once; never the answer, never sent anywhere). " +
+      "PAY-RECOVER-1: plus, in THIS TAB's sessionStorage, `lazytopper.payPending` (the Razorpay " +
+      "order id of the checkout this tab last opened, when it was opened and how many payment " +
+      "status checks it has used, so a payment whose confirmation was lost can be re-checked; " +
+      "never a tier, trial or pass date, never the uid; removed once the payment is confirmed, " +
+      "ignored and removed after 30 minutes; the order id is sent only to our own status check).",
     mechanism: "client-local",
     exportable: true,
     notes:
