@@ -1,3 +1,23 @@
+## 2026-10-19 - HIDE8-FIG8-1 #1261 + #1262 AND LOGO-1 #1263: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The owner rulings of 19 Oct morning and the lanes' own build decisions, each with its reason, as written in the PR bodies of #1261, #1262, #1263 and the independent reviews as relayed in the coordinator's message.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner ruling, 19 Oct 2026 06:54 IST (chat) | "correct and provide diagrams where it is missing" | solutions to drawing questions showed no drawing; the official scheme has them |
+| owner ruling, 19 Oct 2026 07:08 IST (chat): "dont hide them, fix the questions. Allow 'wrong chapter' as a reason to hide -- yes" | withhold only the 3 wrong-chapter rows; fix (not hide) the 5 step-label rows; a new honest withhold reason is allowed in `ltGenerated.guard` | the 06:54 plan (hide 8 ids) turned 7 files / 13 tests RED at `ltGenerated.guard.test.ts:153`: 7 of the 8 are templates of served LTG rows, and the guard admitted only figure / duplicate / garbled withholds |
+| owner ruling, 19 Oct 2026 07:08 IST (chat): "change logo on Lazytopper website, everywhere. fingerprint is our logo"; 10:40 IST: "ensure logo appears on mobile design also" | the fingerprint replaces the LT tile, graduation cap and "L" tile on every surface | Google Ads rejected the fingerprint ad logo for "Business Logo Irrelevance" because the site showed a different mark |
+| `#1262` review must-fix 1: "misfiled" is id-scoped | accepted only for ids in `MISFILED_WITHHOLD_CATEGORY` (paused WRONG-CHAPTER), each asserted a blocked R row of `refilePyq2026Ledger`; CONTROL: relabelled `CHEMRXN-019` stays rejected | a shared reason would let any withheld template (e.g. a wrong-key row) pass the guard under a false label |
+| `#1262` review must-fix 2: no inferred step splits | MAG-002 (iii) is one `[1 mark]` step; CTRL-007 (a) one `[2 marks]` step | CLAUDE.md section 13: step marks follow the scheme as printed, not a split the scheme does not show |
+| `#1262`: derived LTG rows stay served | `LTG-S-CHEMRXN-254`, `-311`, `-264`, `LTG-S-ELEC-299` keep `shapedFrom` unchanged | they are correct in their own chapter; re-templating them is the re-file lane `[FU-HIDE8-REFILE-3]` |
+| `#1261`: 3 crops skipped | EYE-004, ELEC-004 (NCERT figures already bound), METAL-007 (scheme flow chart is text) | a second crop would break single-crop pins or duplicate the NCERT figure; text is already carried verbatim. Cofounder-approved |
+| `#1261`: crops SHA-pinned | each marking-scheme crop's `source.file` must be a `REFILE_PYQ2026_SOURCES` key with the same SHA-256 | anti-fabrication: every drawing points at a document anyone can re-hash |
+| `#1263`: protected files, brand lines only | `App.tsx` navbar and `DesktopShell.tsx` sidebar edited only on brand lines (cofounder-approved) | "everywhere" covers them; anything beyond the brand element is out of lane |
+| `#1263`: no mark added where none existed | mobile title-bar pages, `/pricing`, `/ncert-*`, 404 left without a mark -> `[FU-LOGO-MOBILE-NOMARK]` | adding one is a header layout change, outside "brand lines only"; owner / cofounder call |
+| `#1263`: share-card dot and `og-image.svg` claim left | share card / weekly report dot kept (`[FU-LOGO-SHARECARD]`); `og-image.svg:68` review claim untouched (`[FU-OGSVG-FAKE-REVIEWS]`) | `ShareCard.test.tsx` forbids any `img`; deleting a claim is an owner decision, not a logo swap |
+| merges (as `chetan-anand-hub`) | squash `46e685de`, `acd94951`, `e307f4b0` | standing merge rule: independent review PASS + green CI |
+| tooling | when Desktop Commander drops, stage the worktree into a Linux clone and commit from there; open PRs with `gh api .../pulls` | the laptop disconnected mid-lane on #1262 and #1263; `gh pr create` hits GraphQL 403 |
+
 ## 2026-10-19 - REFILE-PYQ2026-1 #1259: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner ruling of 19 Oct morning and the lane's own build decisions, each with its reason, as written in the builder report (`C:\Users\Chetan\OneDrive\Desktop\diff\report-refile-pyq2026-1-2026-10-19.md`), the ledger header and the independent review as relayed in the coordinator's message.

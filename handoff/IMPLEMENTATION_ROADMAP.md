@@ -1,3 +1,11 @@
+## 2026-10-19 - HIDE8-FIG8-1 (`#1261` Part B, `#1262` Part A) and LOGO-1 (`#1263`) - MERGED
+
+- DONE. `#1261` (`46e685de`): 7 official CBSE 2026 marking-scheme drawings bound into 6 PYQ solutions, SHA-pinned to the refile ledger; crop pins 58 -> 65; CHEMRXN-021 "six crosses". Review PASS; live (cofounder-verified).
+- DONE. `#1262` (`acd94951`): CHEMRXN-001, CHEMRXN-004, ELEC-010 withheld as WRONG-CHAPTER by owner ruling 19 Oct 07:08 IST, with an id-scoped "misfiled" reason in `ltGenerated.guard`; step marks per scheme on 5 rows; served 10580 -> 10577. Review FAIL -> PASS after 2 must-fixes; live (cofounder-verified). Closes `[FU-REFILE-PYQ2026-K-OR-STEP-LABELS]`; supersedes `[FU-REFILE-PYQ2026-BLOCKED-R]` (now `[FU-HIDE8-REFILE-3]`).
+- DONE. `#1263` (`e307f4b0`): the fingerprint is the brand mark on favicon, apple-touch icon, app navbar, desktop sidebar, mobile home, login and 3 print docs; guard `brandMark.guard.test.ts`. Review PASS incl. mobile.
+- OPEN. `[FU-OGSVG-FAKE-REVIEWS]` and `[FU-LOGO-MOBILE-NOMARK]` (owner rulings), `[FU-HIDE8-REFILE-3]`, `[FU-HIDE8-LTG-SIX-DOTS]`, `[FU-HIDE8-MAG002-OR-B]`, `[FU-LOGO-SHARECARD]`, `[FU-LOGO-LOGIN-GLOW]`, `[FU-LOGO-PDF-LIVECHECK]`, `[FU-CROP-REGISTRY-NO-BBOX]`.
+- NEXT. Session focus: ads, visuals, SEO / indexing (project docs `claude/HANDOFF_ADS_AND_VISUALS_SESSION_2026-10-19.md`, `claude/MARKETING_ANALYSIS_REPORT_2026-10-18.md`); re-submit the Google Ads logo.
+
 ## 2026-10-19 - REFILE-PYQ2026-1 (`#1259`) - MERGED
 
 - DONE. All 190 rows of the 26 `*.pyq2026.ts` files censused against the official CBSE 2026 papers and schemes (R 8 / F 36 / W 40 / K 106), sources hash-bound in `refilePyq2026Ledger.ts`; 5 rows re-filed, 41 rows repaired; `PYQ-S-2026-METAL-007` served again under Control & Coordination; served 10579 -> 10580. New chapter keyword guard `refilePyq2026.test.ts`. Live on www at `d033ee0b` (cofounder-verified). Independent review PASS, no MUST-FIX. Closes `[FU-PYQ2026-MISFILED-GARBLED]` and the #1257 review S1-S4.
