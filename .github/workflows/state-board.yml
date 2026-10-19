@@ -28,6 +28,7 @@ permissions:
 jobs:
   state-board:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     # Never act on the ledger's own [skip ci] commit (belt-and-suspenders; GitHub already
     # skips [skip ci] pushes and GITHUB_TOKEN pushes do not re-trigger).
     if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip ci]') }}

@@ -56,6 +56,8 @@
  */
 
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
 const args = process.argv.slice(2);
@@ -95,40 +97,86 @@ const RELEVANT = [
   /^\.github\/workflows\/container-boot\.yml$/,
 ];
 
-function changedFiles() {
-  const base = process.env["BASE_REF"];
-  if (process.env["EVENT_NAME"] !== "pull_request" || !base) return null;
-  const mergeBase = execFileSync("git", ["merge-base", `origin/${base}`, "HEAD"], {
-    encoding: "utf8",
-  }).trim();
-  return execFileSync("git", ["diff", "--name-only", `${mergeBase}..HEAD`], {
-    encoding: "utf8",
-  })
-    .split("\n")
-    .map((s) => s.trim())
-    .filter(Boolean);
+const GIT_OPTS = { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 * 1024 * 1024 };
+const defaultGit = (gitArgs) => execFileSync("git", gitArgs, GIT_OPTS);
+const lines = (out) => String(out).split("\n").map((s) => s.trim()).filter(Boolean);
+const FULL_SHA = /^[0-9a-f]{40}$/i;
+const ZERO_SHA = /^0+$/;
+
+/** The changed paths that can move the image. */
+export function imageHits(files) {
+  return files.filter((f) => RELEVANT.some((re) => re.test(f)));
+}
+
+/**
+ * The whole decision, as a pure function of the event and a `git` runner (injectable for tests).
+ * Returns { skip, reason, hits, files }. Every path that cannot PROVE "no image-relevant file
+ * changed" returns skip:false — the boot runs.
+ *
+ * ★ CI-COST-2 (owner-approved 2026-10-19): a PUSH to trunk no longer boots unconditionally. It
+ *   applies the SAME relevance list to `${PUSH_BEFORE}..HEAD` — exactly the commits this push
+ *   added — and boots if any image-relevant path moved. It FAILS SAFE TOWARD BOOTING: an unset,
+ *   all-zero or malformed before-SHA (branch creation, an event with no `before`), a before-SHA
+ *   absent from the checkout, a before-SHA that is NOT an ancestor of HEAD (a force push), an
+ *   empty diff, or any git error all RUN the boot. Railway no longer waits on CI (owner ruling
+ *   D33), so the push boot is a post-merge record; the PR run still boots every PR that touches
+ *   an image path, before merge, exactly as before. workflow_dispatch always boots.
+ */
+export function decideBoot({ event, baseRef, pushBefore, git = defaultGit } = {}) {
+  const run = (reason) => ({ skip: false, reason, hits: [], files: [] });
+  const fromFiles = (files, prefix = "") => {
+    const hits = imageHits(files);
+    return {
+      skip: hits.length === 0,
+      reason: prefix + (hits.length ? "image-relevant paths changed" : "no image-relevant path changed"),
+      hits,
+      files,
+    };
+  };
+
+  if (event === "pull_request") {
+    // PR behaviour is UNCHANGED: the merge-base diff against the PR's base branch.
+    if (!baseRef) return run("not a pull_request -> always run");
+    try {
+      const mergeBase = String(git(["merge-base", `origin/${baseRef}`, "HEAD"])).trim();
+      return fromFiles(lines(git(["diff", "--name-only", `${mergeBase}..HEAD`])));
+    } catch (err) {
+      // A failed merge-base must RUN the gate, never silently skip it.
+      console.log(`classifier: could not derive changed files (${err.message}) -> RUNNING`);
+      return run("unresolved (fail-open)");
+    }
+  }
+
+  if (event === "push") {
+    const before = String(pushBefore || "").trim();
+    if (!FULL_SHA.test(before) || ZERO_SHA.test(before)) {
+      return run(`push: before SHA unknown (${before || "unset"}) -> RUNNING (fail-safe)`);
+    }
+    let files;
+    try {
+      git(["cat-file", "-e", `${before}^{commit}`]);
+      // exits non-zero (throws) when `before` is not an ancestor: a force push rewrote trunk.
+      git(["merge-base", "--is-ancestor", before, "HEAD"]);
+      files = lines(git(["diff", "--name-only", `${before}..HEAD`]));
+    } catch (err) {
+      const why = String(err?.message || err).split("\n")[0].slice(0, 120);
+      return run(`push: cannot diff ${before.slice(0, 12)}..HEAD as a fast-forward (${why}) -> RUNNING (fail-safe)`);
+    }
+    if (files.length === 0) return run("push: empty diff -> RUNNING (fail-safe)");
+    return fromFiles(files, "push: ");
+  }
+
+  // workflow_dispatch (and anything else): a hand-run means "boot it".
+  return run(`event=${event || "(unset)"} is not pull_request/push -> always run`);
 }
 
 function classify() {
-  let files = null;
-  let reason = "";
-  try {
-    files = changedFiles();
-  } catch (err) {
-    // A failed merge-base must RUN the gate, never silently skip it.
-    console.log(`classifier: could not derive changed files (${err.message}) -> RUNNING`);
-    return emit(false, "unresolved (fail-open)", []);
-  }
-
-  if (files === null) {
-    // push to trunk, or workflow_dispatch. The integration check must not be
-    // forgettable, so trunk always boots the image.
-    return emit(false, "not a pull_request -> always run", []);
-  }
-
-  const hits = files.filter((f) => RELEVANT.some((re) => re.test(f)));
-  reason = hits.length ? "image-relevant paths changed" : "no image-relevant path changed";
-  return emit(hits.length === 0, reason, hits, files);
+  const d = decideBoot({
+    event: process.env["EVENT_NAME"],
+    baseRef: process.env["BASE_REF"],
+    pushBefore: process.env["PUSH_BEFORE"],
+  });
+  return emit(d.skip, d.reason, d.hits, d.files);
 }
 
 function emit(skip, reason, hits, files = []) {
@@ -216,9 +264,15 @@ async function assertBoot() {
   console.log("\nCONTAINER BOOT GATE: the image built, booted, and served its healthcheck.");
 }
 
-if (has("--classify")) process.exit(classify());
-else if (has("--assert")) await assertBoot();
-else {
-  console.error("usage: --classify | --assert --log <file> --url <base>");
-  process.exit(2);
+// ★ ONLY WHEN RUN AS A SCRIPT, so the tests can import decideBoot without running the CLI.
+const invokedDirectly =
+  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
+
+if (invokedDirectly) {
+  if (has("--classify")) process.exit(classify());
+  else if (has("--assert")) await assertBoot();
+  else {
+    console.error("usage: --classify | --assert --log <file> --url <base>");
+    process.exit(2);
+  }
 }
