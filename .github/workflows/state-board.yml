@@ -24,6 +24,8 @@ concurrency:
 
 permissions:
   contents: write
+  # CI-COST-3: a push reads the PREVIOUS trunk push's State Board result before it may skip.
+  actions: read
 
 jobs:
   state-board:
@@ -33,12 +35,31 @@ jobs:
     # skips [skip ci] pushes and GITHUB_TOKEN pushes do not re-trigger).
     if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip ci]') }}
     steps:
+      # ★ CI-COST-3: a PUSH needs history to diff `before..HEAD` (commits + trees only, no blobs);
+      # a manual dispatch keeps exactly the depth-1 checkout it had before.
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          fetch-depth: 1
+          fetch-depth: ${{ github.event_name == 'push' && '0' || '1' }}
+          filter: ${{ github.event_name == 'push' && 'blob:none' || '' }}
+
+      # ★ CI-COST-3 (owner-approved 2026-10-19). A push whose EVERY path in `before..HEAD` is on the
+      # shared docs-only skip list, AND whose previous trunk State Board run passed, records no
+      # ledger row (scripts/ci/docs_only_push.mjs — the CI-COST-2 rule). A manual dispatch never
+      # runs this step and always records. Fails SAFE: a crash leaves `docs_only` unset
+      # (continue-on-error) and only the literal 'true' skips.
+      - name: Docs-only push? (post-merge skip decision)
+        id: docs
+        if: github.event_name == 'push'
+        continue-on-error: true
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/docs_only_push.mjs --workflow state-board.yml
 
       - name: Build ledger record
+        if: github.event_name != 'push' || steps.docs.outputs.docs_only != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -46,6 +67,7 @@ jobs:
         run: node scripts/ops/state_board.mjs
 
       - name: Commit + push ledger (resilient)
+        if: github.event_name != 'push' || steps.docs.outputs.docs_only != 'true'
         run: |
           set -e
           git config user.name "github-actions[bot]"

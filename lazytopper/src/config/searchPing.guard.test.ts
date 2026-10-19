@@ -149,12 +149,15 @@ describe("search-ping — the IndexNow request body", () => {
 interface IfContext {
   github: { event_name: string; event: Record<string, unknown> };
   steps?: Record<string, { outputs: Record<string, string> }>;
+  needs?: Record<string, { outputs: Record<string, string> }>;
+  /** The run was cancelled (only `!cancelled()` reads it; absent = not cancelled). */
+  cancelled?: boolean;
 }
 
 /**
  * Evaluate a workflow `if:` against a context. Supports exactly the grammar these conditions
- * use — `path == 'lit'` / `path != 'lit'` operands over `github.*` / `steps.*`, joined by `&&` / `||`, with
- * parentheses — and THROWS on anything else, so a condition this cannot read fails loudly
+ * use — `path == 'lit'` / `path != 'lit'` operands over `github.*` / `steps.*` / `needs.*`, the status
+ * function `!cancelled()` (CI-COST-3), joined by `&&` / `||`, with parentheses — and THROWS on anything else, so a condition this cannot read fails loudly
  * instead of being judged permissive. An ABSENT `if:` is `true` (GitHub's default).
  */
 function evaluateIf(condition: string | undefined, context: IfContext): boolean {
@@ -174,7 +177,8 @@ function evaluateIf(condition: string | undefined, context: IfContext): boolean 
       if (tokens[at++] !== ")") throw new Error(`unbalanced ( in if: "${source}"`);
       return value;
     }
-    const match = /^((?:github|steps)\.[\w.-]+)\s*([!=])=\s*'([^']*)'$/.exec(token ?? "");
+    if (token === "!cancelled()") return context.cancelled !== true;
+    const match = /^((?:github|steps|needs)\.[\w.-]+)\s*([!=])=\s*'([^']*)'$/.exec(token ?? "");
     if (!match) throw new Error(`unsupported token "${token}" in if: "${source}"`);
     // A missing output is '' in Actions; `!=` against a literal is therefore TRUE when it is absent.
     const equal = lookup(match[1]) === match[3];
@@ -269,6 +273,70 @@ describe("search-ping.yml — the trigger filter", () => {
         ).toBe(false);
       }
     }
+  });
+});
+
+// ── CI-COST-3 — a docs-only TRUNK PUSH skips the ping job; nothing else can ─────────────
+
+describe("search-ping.yml — CI-COST-3 docs-only push skip (post-merge only)", () => {
+  const workflow = parseYaml(readFileSync(WORKFLOW, "utf8")) as {
+    jobs: Record<
+      string,
+      {
+        if?: string;
+        needs?: string | string[];
+        outputs?: Record<string, string>;
+        steps: Array<{ id?: string; if?: string; run?: string; uses?: string; "continue-on-error"?: boolean }>;
+      }
+    >;
+  };
+  const { classify, ping } = workflow.jobs;
+  const withNeeds = (trigger: IfContext, docsOnly?: string, cancelled = false): IfContext => ({
+    ...trigger,
+    cancelled,
+    needs: docsOnly === undefined ? {} : { classify: { outputs: { docs_only: docsOnly } } },
+  });
+  const ALL: Array<[string, IfContext]> = [
+    ["deployment_status", deploymentEvent("Production", "success")],
+    ["workflow_dispatch", dispatchEvent],
+    ["push", pushEvent],
+  ];
+
+  it("ping needs classify, and classify's only output is the docs_only step output", () => {
+    expect(classify, "no classify job").toBeDefined();
+    expect([ping?.needs].flat()).toEqual(["classify"]);
+    expect(classify?.outputs).toEqual({ docs_only: "${{ steps.docs.outputs.docs_only }}" });
+  });
+
+  it("★ a trunk push with docs_only == 'true' skips ping — and that is the ONLY skip", () => {
+    expect(evaluateIf(ping?.if, withNeeds(pushEvent, "true"))).toBe(false);
+    for (const value of [undefined, "", "false", "yes", "TRUE"]) {
+      expect(evaluateIf(ping?.if, withNeeds(pushEvent, value)), `push docs_only=${String(value)}`).toBe(true);
+    }
+  });
+
+  it("★ ZERO change for deployment_status and workflow_dispatch: even docs_only == 'true' cannot skip them", () => {
+    for (const [name, trigger] of ALL.filter(([n]) => n !== "push")) {
+      for (const value of [undefined, "true", "false"]) {
+        expect(evaluateIf(ping?.if, withNeeds(trigger, value)), `${name} docs_only=${String(value)}`).toBe(true);
+      }
+    }
+  });
+
+  it("FAILS SAFE: a failed/skipped classify (no output) still pings; only a cancelled run does not", () => {
+    for (const [name, trigger] of ALL) {
+      expect(evaluateIf(ping?.if, withNeeds(trigger)), name).toBe(true);
+      expect(evaluateIf(ping?.if, withNeeds(trigger, undefined, true)), `${name} cancelled`).toBe(false);
+    }
+    expect(ping?.if).toMatch(/^\$\{\{ !cancelled\(\) && /);
+  });
+
+  it("classify does work on a push ONLY, calls the shared rule for THIS workflow, and cannot fail the decision", () => {
+    expect(classify?.if).toBe(ping?.if?.replace(/^.*\) && \((github\.event_name == 'push'.*)\) \}\}$/, "$1"));
+    for (const step of classify?.steps ?? []) expect(step.if, step.run ?? step.uses).toBe("github.event_name == 'push'");
+    const docs = classify?.steps.find((step) => step.id === "docs");
+    expect(docs?.run).toBe("node scripts/ci/docs_only_push.mjs --workflow search-ping.yml");
+    expect(docs?.["continue-on-error"]).toBe(true);
   });
 });
 

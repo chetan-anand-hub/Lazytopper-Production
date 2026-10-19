@@ -59,6 +59,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { decidePush, notSkippable } from "./docs_only_push.mjs";
 
 const args = process.argv.slice(2);
 const has = (f) => args.includes(f);
@@ -100,8 +101,6 @@ const RELEVANT = [
 const GIT_OPTS = { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 * 1024 * 1024 };
 const defaultGit = (gitArgs) => execFileSync("git", gitArgs, GIT_OPTS);
 const lines = (out) => String(out).split("\n").map((s) => s.trim()).filter(Boolean);
-const FULL_SHA = /^[0-9a-f]{40}$/i;
-const ZERO_SHA = /^0+$/;
 
 /** The changed paths that can move the image. */
 export function imageHits(files) {
@@ -117,7 +116,8 @@ export function imageHits(files) {
  *   but it does NOT reuse RELEVANT. RELEVANT is a list of what CAN move the image, and it is
  *   incomplete for a push: the Dockerfile does `COPY . .`, the gateway compiles lazytopper/src/**
  *   (including .md and .json it reads at runtime) at boot, and the root build reads lib/, notes/,
- *   tsconfig*.json and more. So a push uses the INVERSE: an allow-to-SKIP list (SKIPPABLE_ON_PUSH)
+ *   tsconfig*.json and more. So a push uses the INVERSE: an allow-to-SKIP list (skipListFor in
+ *   scripts/ci/docs_only_push.mjs, shared since CI-COST-3)
  *   of paths that are obviously outside the image, and it boots unless EVERY path in
  *   `${PUSH_BEFORE}..HEAD` matches it. Anything unknown boots.
  *   It also FAILS SAFE TOWARD BOOTING on: an unset, all-zero or malformed before-SHA, a
@@ -129,23 +129,15 @@ export function imageHits(files) {
  *   chain stays red until a boot passes. Railway no longer waits on CI (owner ruling D33); the
  *   PR run still classifies with RELEVANT exactly as before. workflow_dispatch always boots.
  */
-const SKIPPABLE_ON_PUSH = [
-  /^handoff\//,
-  /^docs\//,
-  /^ledger\//,
-  /^screenshots\//,
-  /^ops\/.*\.md$/,
-  // Top-level markdown only (AGENTS.md, CLAUDE.md, ...). NOT any *.md: the tutor retriever reads
-  // .md files under lazytopper/src at runtime.
-  /^[^/]+\.md$/,
-  // Excluded from the image by .dockerignore — except this gate's own workflow, which must boot.
-  /^\.claude\//,
-  /^\.github\/(?!workflows\/container-boot\.yml$)/,
-];
+// ★ CI-COST-3: the allow-to-SKIP list and the push ladder now live in ONE shared module,
+//   scripts/ci/docs_only_push.mjs (also used by Golden Eval, search-ping and State Board). The list
+//   for this workflow is skipListFor("container-boot.yml") — the CI-COST-2 list verbatim, whose
+//   `.github/` entry exempts this gate's own workflow file so a change to it still boots.
+const SELF_WORKFLOW = "container-boot.yml";
 
 /** The changed paths that are NOT provably outside the image (push rule). */
 export function nonSkippable(files) {
-  return files.filter((f) => !SKIPPABLE_ON_PUSH.some((re) => re.test(f)));
+  return notSkippable(files, SELF_WORKFLOW);
 }
 
 const defaultPrevBoot = (before) => {
@@ -187,36 +179,13 @@ export function decideBoot({ event, baseRef, pushBefore, git = defaultGit, prevB
   }
 
   if (event === "push") {
-    const before = String(pushBefore || "").trim();
-    if (!FULL_SHA.test(before) || ZERO_SHA.test(before)) {
-      return run(`push: before SHA unknown (${before || "unset"}) -> RUNNING (fail-safe)`);
-    }
-    let files;
-    try {
-      git(["cat-file", "-e", `${before}^{commit}`]);
-      // exits non-zero (throws) when `before` is not an ancestor: a force push rewrote trunk.
-      git(["merge-base", "--is-ancestor", before, "HEAD"]);
-      files = lines(git(["diff", "--name-only", `${before}..HEAD`]));
-    } catch (err) {
-      const why = String(err?.message || err).split("\n")[0].slice(0, 120);
-      return run(`push: cannot diff ${before.slice(0, 12)}..HEAD as a fast-forward (${why}) -> RUNNING (fail-safe)`);
-    }
-    if (files.length === 0) return run("push: empty diff -> RUNNING (fail-safe)");
-    const hits = nonSkippable(files);
-    if (hits.length) {
-      return { skip: false, reason: "push: a path not on the skip list changed -> RUNNING", hits, files };
-    }
-    let prev;
-    try {
-      prev = prevBoot(before);
-    } catch (err) {
-      const why = String(err?.message || err).split("\n")[0].slice(0, 120);
-      return { skip: false, reason: `push: previous trunk boot unreadable (${why}) -> RUNNING (fail-safe)`, hits, files };
-    }
-    if (prev !== "success") {
-      return { skip: false, reason: `push: previous trunk boot (${before.slice(0, 12)}) is ${prev}, not success -> RUNNING`, hits, files };
-    }
-    return { skip: true, reason: "push: every changed path is on the skip list and the previous trunk boot passed", hits, files };
+    return decidePush({
+      pushBefore,
+      git,
+      prevRun: prevBoot,
+      workflowFile: SELF_WORKFLOW,
+      prevLabel: "previous trunk boot",
+    });
   }
 
   // workflow_dispatch (and anything else): a hand-run means "boot it".

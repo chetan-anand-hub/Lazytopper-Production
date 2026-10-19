@@ -34,22 +34,46 @@ concurrency:
 
 permissions:
   contents: read
+  # CI-COST-3: a push reads the PREVIOUS trunk push's Golden Eval result before it may skip.
+  actions: read
 
 jobs:
   golden-eval:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # ★ CI-COST-3: a PUSH needs history to diff `before..HEAD` (commits + trees only, no blobs).
+      # Every other event gets exactly the inputs it had before (depth 1, no filter).
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: ${{ github.event_name == 'push' && '0' || '1' }}
+          filter: ${{ github.event_name == 'push' && 'blob:none' || '' }}
 
       - name: Node version
         run: node --version
 
+      # ★ CI-COST-3 (owner-approved 2026-10-19). POST-MERGE ONLY: a push to trunk skips the golden
+      # steps when EVERY path in `before..HEAD` is on the shared docs-only skip list AND the previous
+      # trunk push's Golden Eval run passed (scripts/ci/docs_only_push.mjs — the CI-COST-2 rule).
+      # Pull requests and manual dispatches never run this step and always run the gate. Fails
+      # SAFE: a crash leaves `docs_only` unset (continue-on-error) and only the literal 'true' skips.
+      - name: Docs-only push? (post-merge skip decision)
+        id: docs
+        if: github.event_name == 'push'
+        continue-on-error: true
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/docs_only_push.mjs --workflow golden-eval.yml
+
       - name: G1 — golden gate (replay stored responses, zero model calls)
+        if: github.event_name != 'push' || steps.docs.outputs.docs_only != 'true'
         working-directory: lazytopper
         run: node server/eval/golden/goldenGate.cjs
 
       - name: G1 + G2 — golden suites (network block proof, floor control, replay fidelity, response shapes)
+        if: github.event_name != 'push' || steps.docs.outputs.docs_only != 'true'
         working-directory: lazytopper
         run: node --test server/eval/golden/golden.test.cjs server/eval/golden/shapes.test.cjs server/eval/graderEval.parity.test.cjs
