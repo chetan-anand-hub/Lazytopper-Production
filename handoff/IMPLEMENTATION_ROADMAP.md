@@ -1,3 +1,9 @@
+## 2026-10-19 - REFILE-PYQ2026-1 (`#1259`) - MERGED
+
+- DONE. All 190 rows of the 26 `*.pyq2026.ts` files censused against the official CBSE 2026 papers and schemes (R 8 / F 36 / W 40 / K 106), sources hash-bound in `refilePyq2026Ledger.ts`; 5 rows re-filed, 41 rows repaired; `PYQ-S-2026-METAL-007` served again under Control & Coordination; served 10579 -> 10580. New chapter keyword guard `refilePyq2026.test.ts`. Live on www at `d033ee0b` (cofounder-verified). Independent review PASS, no MUST-FIX. Closes `[FU-PYQ2026-MISFILED-GARBLED]` and the #1257 review S1-S4.
+- OPEN. `[FU-REFILE-PYQ2026-BLOCKED-R]` (3 rows still misfiled, allow-listed by owner ruling 19 Oct 05:17 IST), `[FU-REFILE-PYQ2026-K-OR-STEP-LABELS]`, `[FU-REFILE-PYQ2026-NITS]`, `[FU-REFILE-PYQ2026-MISFILED-WITHHELD]`.
+- NEXT. The small BLOCKED-R lane (re-home / re-id the LT-generated rows first). Cofounder: repo back to private after this docs PR.
+
 ## 2026-10-19 - WITHHOLD-METAL-007 (`#1257`) - MERGED
 
 - DONE. `PYQ-S-2026-METAL-007` (a Control & Coordination PYQ filed under Metals and Non-metals, served in a Chemistry test) withheld on every surface; served bank 10580 -> 10579 (Science -1). Live on www at `56850447`, withhold present in the deployed metals chunk and the global withheld set (cofounder-verified). Independent review PASS-WITH-FOLLOW-UP, no MUST-FIX.

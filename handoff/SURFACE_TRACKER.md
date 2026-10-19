@@ -1,3 +1,16 @@
+> **2026-10-19 - REFILE-PYQ2026-1 #1259 (CLAUDE.md section 10).** Scope: bank content only - 5 Science 2026 PYQ rows change chapter and 41 rows get text restored from the official CBSE 2026 papers; `PYQ-S-2026-METAL-007` is served again under Control & Coordination. No grading, scoring, mistake typing, recording or page code changed. No surface's Scope moved to Settling. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 19 Oct); facts marked **[builder-reported]** come from `refilePyq2026.test.ts` (import-based, 23 tests) and the builder report; facts marked **[reviewer]** come from the independent review (PASS, no MUST-FIX) as relayed in the coordinator's message.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Chapter Test / Quick Practice (Control & Coordination) | METAL-007 joins the pool, both OR answers from the 31/4/1 scheme (`#1259`) | live; served bundle shows `topicKey` "control-and-coordination" [cofounder-verified]; pool membership pinned [builder-reported] | - |
+| Chapter Test / Quick Practice (Metals and Non-metals) | CHEMRXN-016, -021 join (Extraction of Metals); METAL-007 stays out (`#1259`) | live; CHEMRXN-016 `topicKey` "metals-and-non-metals" on www [cofounder-verified]; served 512 -> 514 [builder-reported] | `[FU-REFILE-PYQ2026-NITS]` (CHEMRXN-021) |
+| Chapter Test / Quick Practice (Acids, Bases and Salts; Chemical Reactions) | CHEMRXN-012, -018 move to Acids (549 -> 551); Chemical Reactions 522 -> 518 (`#1259`) | live [builder-reported] | `[FU-REFILE-PYQ2026-BLOCKED-R]` (CHEMRXN-001, -004 still under Chemical Reactions) |
+| Worksheet / Full Mock (Science) | the same rows follow their new chapter in every topic, union and section pool; 41 rows read verbatim from the official paper (`#1259`) | live [builder-reported] | `[FU-REFILE-PYQ2026-K-OR-STEP-LABELS]` |
+| Topic hub (Metals and Non-metals), prerendered | practise spine refreshed from CI artifact `prerendered-1259` (`#1259`) | merged [git/gh]; NOT live-checked | - |
+| Every bank surface (Science 2026 PYQ rows) | census of all 190 rows; chapter keyword guard now in CI (`#1259`) | 3 rows still misfiled and served by owner ruling; misfiled W rows still withheld | `[FU-REFILE-PYQ2026-BLOCKED-R]`, `[FU-REFILE-PYQ2026-MISFILED-WITHHELD]` |
+| Check & Improve "Try a board question" | none: 2026 PYQ rows are not offered (now pinned positively) | unchanged [builder-reported] | - |
+| Important Questions (HPQ) | none: not a bank consumer | unchanged | - |
+
 > **2026-10-19 - WITHHOLD-METAL-007 #1257 (CLAUDE.md section 10).** Scope: bank content only - one Science 2026 PYQ row (`PYQ-S-2026-METAL-007`, a Control & Coordination question filed under Metals and Non-metals) is withheld from every serving pool. No grading, scoring, mistake typing, recording or page code changed. No surface's Scope moved to Settling. Facts marked **[cofounder-verified]** were checked by the cofounder on www after the merge (the coordinator's message, 19 Oct); facts marked **[builder-reported]** come from `withholdMetal007.test.ts` (import-based, 13 tests); facts marked **[reviewer]** come from the independent review `C:\Users\Chetan\OneDrive\Desktop\diff\review-pr1257-2026-10-19.md` (mutation M2: row re-served).
 
 | surface | what moved (PR) | state | owed |

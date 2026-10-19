@@ -23,6 +23,37 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-19 - REFILE-PYQ2026-1 #1259 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `d033ee0b`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[builder-reported]** come from `C:\Users\Chetan\OneDrive\Desktop\diff\report-refile-pyq2026-1-2026-10-19.md` (PR #1259 body); facts marked **[reviewer]** come from the independent review (PASS, no MUST-FIX) as relayed in the coordinator's message, 19 Oct; facts marked **[git/gh]** were re-read while writing this entry.
+
+### Closed by #1259
+
+- **[FU-PYQ2026-MISFILED-GARBLED]** CLOSED by `#1259` (`d033ee0b`): the cofounder's unverified reading of about 29 rows is replaced by a verified census of all 190 rows (R 8 / F 36 / W 40 / K 106), ledgered with sources in `src/data/bankFix/refilePyq2026Ledger.ts`. The 3 R rows that could not move are carried by `[FU-REFILE-PYQ2026-BLOCKED-R]`.
+- **[FU-WITHHOLD-METAL-007-BOARDTRY-VACUOUS]**, **[FU-WITHHOLD-METAL-007-PRACTICE-SAMPLE-WEAK]**, **[FU-WITHHOLD-METAL-007-HPQ-NOT-A-BANK-CONSUMER]** CLOSED by `#1259`: `withholdMetal007.test.ts` is retired; `refilePyq2026.test.ts` pins board-try positively (2026 PYQ rows are not offered), uses deterministic pool membership (positive for control-and-coordination, negative for metals) and labels HPQ "not a bank consumer" **[builder-reported]**.
+- **[FU-BANKSTEPS-VERDICT-MISFILED]** CLOSED by `#1259` with the ruling "no MISFILED verdict": misfiling is recorded per row as `chapterBefore` != `trueChapter` with outcome R or W, the ledger header records the ruling, and the chapter keyword guard enforces it from now on **[builder-reported]**.
+- **[FU-WITHHOLD-SPEC-FORCED-FILES]** stays as standing guidance; `#1259` hit it again (`scope:guard --mode product` FAIL on the clock manifest only, `--mode mixed` OK) **[builder-reported]**.
+
+### Bank content
+
+### [FU-REFILE-PYQ2026-BLOCKED-R]
+**OWNER RULING, 19 Oct 2026 05:17 IST (chat): the 3 blocked R rows stay exactly as they are, served and allow-listed, and are fixed in a small follow-up lane.** `PYQ-S-2026-CHEMRXN-001` (31/2/1 Q5, photosynthesis) and `PYQ-S-2026-CHEMRXN-004` (31/2/3 Q5, photosynthesis equation) belong in life-processes; `PYQ-S-2026-ELEC-010` (31/3/3 Q39(a), domestic circuits) belongs in magnetic-effects-of-electric-current. The re-file is blocked by `ltGenerated.guard.test.ts:174`, which requires each LT-generated row's id-chapter code to match the chapter of the PYQ row it was shaped from. **The derived rows, re-read by `shapedFrom` at `d033ee0b` [git/gh]:** CHEMRXN-001 -> `LTG-S-CHEMRXN-254` (`chemical-reactions-and-equations.b1.cbq.ltgen.ts`) and `LTG-S-CHEMRXN-311` (`.c3.cbq.ltgen.ts`); CHEMRXN-004 -> `LTG-S-CHEMRXN-264` (`.b1.cbq.ltgen.ts`); ELEC-010 -> `LTG-S-ELEC-299` (`electricity.b1.cbq.ltgen.ts`). **CORRECTION:** the builder report's P5 table and the coordinator's brief list `LTG-S-ELEC-264` and put `-311` under CHEMRXN-004; the `shapedFrom` fields say otherwise (no `LTG-S-ELEC-264` is shaped from ELEC-010), and the `CROSS_CHAPTER_ALLOW` comments in `refilePyq2026.test.ts:213-215` agree with `shapedFrom`, not with the report table. The lane re-reads `shapedFrom` before it moves anything. **Order:** re-number / move the derived LTG rows first, then re-file the 3 PYQ rows (`topicKey` + `subtopic`, `gen:bank-chapters`, order-parity fixture), then drop their `CROSS_CHAPTER_ALLOW` entries - the staleness check fails if an allow-listed row stops needing its entry, so that last step is forced.
+
+### [FU-REFILE-PYQ2026-K-OR-STEP-LABELS]
+**From the #1259 audit request (item 6) [builder-reported], left as K.** Five K rows have inconsistent step labelling on their OR alternative: `PYQ-S-2026-ELEC-011` and `ELEC-012` (step marks sum to 10 on a 5-mark question, and a 1/2-mark glyph issue); `CTRL-007` and `MAG-003` (no step labels on the OR alternative); `MAG-002` (serves only part (a)). Check each against its official scheme and fix the step marks / labels, or record why K stands. Fold into the BLOCKED-R lane if small.
+
+### [FU-REFILE-PYQ2026-NITS]
+**Two text nits on #1259 rows.** `PYQ-S-2026-CHEMRXN-021`: "six dots" should read "six crosses" (the electron-dot description). `PYQ-S-2026-HERED-008`: the 1/2-mark grouping of its steps does not follow the scheme's grouping. Neither changes a key. Fold into the next bank lane.
+
+### [FU-REFILE-PYQ2026-MISFILED-WITHHELD]
+**Misfiled rows that #1259 left withheld (W, unchanged).** The census names true chapters for W rows that are both misfiled and broken, for example `PYQ-S-2026-METAL-009` (-> magnetic-effects), `METAL-010` and `METAL-011` (-> electricity), `LIFEP-014` (-> how-do-organisms-reproduce); the full list with reasons is the W table of the builder report. They are not served, so they hurt nobody now; a later restore lane can repair them from the official PDFs (sources already hash-bound in the ledger) and re-file them in the same step.
+
+### Carried forward (open, unchanged by #1259)
+
+- **Repo visibility:** PUBLIC at writing **[git/gh]**; the cofounder makes it private right after this docs PR merges (owner rule, 18 Oct; DECISION_LOG 2026-10-18).
+- **PERF-4 re-scope:** `[FU-PERF3-LAZY-AUTH]`, `[FU-PERF-THIRD-PARTY-TAGS]` (2026-10-18 PERF-3 section).
+- **Owner, from the cofounder session (the coordinator's message, 19 Oct; not recorded in an earlier handoff block):** the Google Ads top-up; decisions on the callout swap and the image route; GSC indexing requests for the 5 exemplar pages.
+
 ## 2026-10-19 - WITHHOLD-METAL-007 #1257 FOLLOW-UPS (recorded by the WITHHOLD-METAL-007 builder under CLAUDE.md section 10)
 
 *Readings are at trunk `56850447`. Earlier dated entries are left as written (standing rule 3).* S1-S5 are the SHOULD-FIX items of the independent review `C:\Users\Chetan\OneDrive\Desktop\diff\review-pr1257-2026-10-19.md` (PASS-WITH-FOLLOW-UP, no MUST-FIX), cited as **[reviewer]**; M2 is the reviewer's mutation that removes the id from `WITHHELD_QUESTION_IDS` and re-runs `gen:bank-chapters`, so the row is really served again.
