@@ -97,6 +97,14 @@ const ELEC_DIR = "/figures/solutions/ncert-science/electricity/";
 const HER_DIR = "/figures/solutions/ncert-science/heredity/";
 const NCERT_LIGHT = "NCERT Class 10 Science (Reprint 2026-27) jesc109.pdf";
 const LIGHT_DIR = "/figures/solutions/ncert-science/light-reflection-and-refraction/";
+// HIDE8-FIG8-1 Part B: official CBSE 2026 marking schemes. Each `file` is a key of REFILE_PYQ2026_SOURCES
+// (bankFix/refilePyq2026Ledger.ts), which records the SHA-256 of that PDF; the pin test asserts it.
+const MS_SCI_31_2 = "https://www.cbse.gov.in/cbsenew/marking-scheme/2026/X/086_SCIENCE.zip#086_SCIENCE/X_086_Set-.2(31.2.1 to 31.2.3) in  ENGLISH.pdf";
+const MS_SCI_31_4 = "https://www.cbse.gov.in/cbsenew/marking-scheme/2026/X/086_SCIENCE.zip#086_SCIENCE/Revised MS X_086_31.4 ALL ENGLISH.pdf";
+const MS_SCI_31_5 = "https://www.cbse.gov.in/cbsenew/marking-scheme/2026/X/086_SCIENCE.zip#086_SCIENCE/X_086_Set-5 (31.5.1 to 31.5.3)  in ENGLISH.pdf";
+const MS_MATHS_30_4_1 = "https://www.cbse.gov.in/cbsenew/marking-scheme/2026/X/041_MATHEMATICS_STANDARD.zip#041_MATHEMATICS STANDARD/MS_X_041_Mathematics_30-4-1_2025-26 (1).pdf";
+const MS26_DIR = "/figures/solutions/cbse-ms-2026/";
+const BY_H8 = "HIDE8-FIG8-1 builder: row read + crop eye-checked against the scheme page (PDF re-hashed against the ledger), 2026-10-19";
 
 export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
   {
@@ -718,5 +726,90 @@ export const SOLUTION_FIGURE_CROPS: CropFigureBinding[] = [
     source: { file: NCERT_EYE, page: 6, figure: "NCERT Class 10 Science, Fig. 10.4" },
     eyeConfirm: "asked (a): ray diagram for refraction through a glass prism, marking the angle of refraction and the angle of deviation; Fig. 10.4 marks r at the first face and D, with i, e and A",
     confirmedBy: BY_D,
+  },
+  // HIDE8-FIG8-1 Part B (19 Oct 2026, owner ruling 06:54 IST "correct and provide diagrams where it is missing"):
+  // the drawing each 2026 row's OWN official CBSE marking scheme prints for its answer, cropped at 200 dpi
+  // (PyMuPDF 1.27.2.3) from the cbse.gov.in PDF whose SHA-256 is recorded in bankFix/refilePyq2026Ledger.ts
+  // (REFILE_PYQ2026_SOURCES; `source.file` is that key). Never redrawn; the row's text steps are unchanged.
+  // Not bound, with reason: PYQ-S-2026-EYE-004 (already shows NCERT Fig. 10.8, which the scheme reprints),
+  // PYQ-S-2026-ELEC-004 (b) (already shows NCERT Fig. 11.3, the V-I graph), PYQ-S-2026-METAL-007 (B) (the
+  // scheme's flow chart is one line of text, which the row carries verbatim). PYQ-S-2026-HERED-010 binds the
+  // scheme's parents -> F1 drawing only: the scheme's checkerboard labels its fourth row "Ry" (should be "ry").
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-CHEMRXN-021",
+    slot: "solution",
+    part: "(B)(iii) CaO",
+    filePath: `${MS26_DIR}metals-and-non-metals/cbse-ms-2026-31-5-1-q29-cao-electron-dot.webp`,
+    alt: "Electron dot structure of CaO: Ca with two dots, curved arrows to O shown with six crosses, giving [Ca2+][:O:]2-",
+    source: { file: MS_SCI_31_5, page: 7, figure: "CBSE 2026 Marking Scheme 31/5/1, Q29 (B)(iii)" },
+    eyeConfirm: "asked (B)(iii): formation of CaO with electron dot structure; the scheme draws Ca: + O (six crosses) with two arrows -> [Ca2+][:O:]2-, matching the row's step",
+    confirmedBy: BY_H8,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-METAL-008",
+    slot: "solution",
+    part: "(a)(ii) MgO",
+    filePath: `${MS26_DIR}metals-and-non-metals/cbse-ms-2026-31-2-1-q26-mgo-electron-dot.webp`,
+    alt: "Electron transfer forming MgO: Mg with two dots, curved arrows to O shown with six crosses, giving [Mg2+][O2-]",
+    source: { file: MS_SCI_31_2, page: 6, figure: "CBSE 2026 Marking Scheme 31/2/1, Q26 (a)(ii)" },
+    eyeConfirm: "asked (a)(ii): how Mg combines with O by transfer of electrons; the scheme draws Mg: + O with two arrows -> [Mg2+][O2-], the row's step 5",
+    confirmedBy: BY_H8,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-LIGHT-009",
+    slot: "solution",
+    part: "(B) correction",
+    filePath: `${MS26_DIR}human-eye-and-colourful-world/cbse-ms-2026-31-5-1-q34-hypermetropia-correction.webp`,
+    alt: "Correction with a convex lens: rays from an object at N' pass through the lens as if coming from N and meet on the retina of the eye",
+    source: { file: MS_SCI_31_5, page: 8, figure: "CBSE 2026 Marking Scheme 31/5/1, Q34 (B)" },
+    eyeConfirm: "asked (B): ray diagram correcting the defect of an eye that cannot see closer than 1 m; the scheme draws N, N', a convex lens and the eye with ray directions, as the row's step describes",
+    confirmedBy: BY_H8,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-HERED-008",
+    slot: "solution",
+    part: "(a) cross",
+    filePath: `${MS26_DIR}heredity/cbse-ms-2026-31-4-1-q14-red-white-cross.webp`,
+    alt: "Cross of RR (red flowers) x rr (white flowers): gametes R and r give F1 Rr (all red); Rr x Rr gametes give F2 RR, Rr, Rr (red) and rr (white)",
+    source: { file: MS_SCI_31_4, page: 4, figure: "CBSE 2026 Marking Scheme 31/4/1, Q14 (a)" },
+    eyeConfirm: "asked (a): depict the table as a cross; the scheme's drawing shows parents RR x rr, gametes, F1 Rr all red, Rr x Rr and F2 RR Rr Rr rr, matching the row's four (a) steps",
+    confirmedBy: BY_H8,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-S-2026-HERED-010",
+    slot: "solution",
+    part: "parents to F1",
+    filePath: `${MS26_DIR}heredity/cbse-ms-2026-31-5-1-q13-dihybrid-f1-cross.webp`,
+    alt: "Parents RRYY (round, yellow) x rryy (wrinkled, green) give F1 RrYy (round, yellow), followed by self pollination",
+    source: { file: MS_SCI_31_5, page: 4, figure: "CBSE 2026 Marking Scheme 31/5/1, Q13" },
+    eyeConfirm: "asked: the cross up to F2; the scheme's drawing shows parents RRYY x rryy -> F1 RrYy (round, yellow) -> self pollination, the row's step 1; its F2 checkerboard (a text table with a 'Ry' row-label typo) is not cropped",
+    confirmedBy: BY_H8,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-M-2026-CG-003",
+    slot: "solution",
+    part: "(ii) AP : PD",
+    filePath: `${MS26_DIR}coordinate-geometry/cbse-ms-2026-30-4-1-q38-ii-ap-pd.webp`,
+    alt: "Line segment from A(-4, 2) to D(-5, -2) with P(x, 0) dividing it in the ratio K : 1",
+    source: { file: MS_MATHS_30_4_1, page: 25, figure: "CBSE 2026 Marking Scheme 30/4/1, Q38 (ii)" },
+    eyeConfirm: "asked (ii): the ratio in which the X-axis divides AD; the scheme draws A(-4, 2), P(x, 0), D(-5, -2) with K and 1, as the row's step 'P(x, 0) divides AD in the ratio K : 1'",
+    confirmedBy: BY_H8,
+  },
+  {
+    kind: "crop",
+    questionId: "PYQ-M-2026-CG-003",
+    slot: "solution",
+    part: "(iii)(b) AO : OB",
+    filePath: `${MS26_DIR}coordinate-geometry/cbse-ms-2026-30-4-1-q38-iii-b-ao-ob.webp`,
+    alt: "Line segment from A(-4, 2) to B(4, -4) with O(0, 0) marked between them, parts labelled K and 1",
+    source: { file: MS_MATHS_30_4_1, page: 25, figure: "CBSE 2026 Marking Scheme 30/4/1, Q38 (iii)(b)" },
+    eyeConfirm: "asked (iii)(b): show A, O, B are not collinear using the section formula; the scheme draws A(-4, 2), O(0, 0), B(4, -4) with AO : OB = K : 1, the row's OR step",
+    confirmedBy: BY_H8,
   },
 ];
