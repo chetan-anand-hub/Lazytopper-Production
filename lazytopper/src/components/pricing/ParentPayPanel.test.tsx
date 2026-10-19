@@ -158,6 +158,24 @@ describe("ParentPayPanel", () => {
     expect(document.body.textContent).not.toContain("भुगतान नहीं हो पाया");
   });
 
+  it("PAY-RECOVER-1 MONEY: while 'still confirming', both Pay buttons are held; they return after the hold", async () => {
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "pending" }));
+    await renderPanel({ buy, pendingHoldMs: 60 });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹599 for a month" }));
+    });
+    expect(screen.getByTestId("parent-pay-confirming")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pay ₹599 for a month" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" }));
+    expect(buy).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 120));
+    });
+    expect(screen.getByRole("button", { name: "Pay ₹599 for a month" })).toBeEnabled();
+    expect(screen.queryByTestId("parent-pay-confirming")).toBeNull();
+  });
+
   it("a link spent while the page was open (paid by the webhook) turns into the 'used' message", async () => {
     await renderPanel({ buy: vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "failed", reason: "used" })) });
     await act(async () => {

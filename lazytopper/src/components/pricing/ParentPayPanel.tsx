@@ -25,7 +25,7 @@ import {
   type CheckoutDetails,
 } from "../../analytics/analytics";
 import { formatInr } from "../../config/pricing";
-import { formatPassDate, type PassType } from "../../services/checkout";
+import { formatPassDate, PAY_PENDING_TTL_MS, type PassType } from "../../services/checkout";
 import {
   buyPassAsParent,
   viewParentLink,
@@ -112,11 +112,13 @@ export interface ParentPayPanelViewProps {
   buy: (token: string, passType: PassType) => Promise<ParentBuyOutcome>;
   /** Called once, on mount (before the link is even viewed): take the token out of the address bar. */
   scrubAddress: () => void;
+  /** Test seam: how long the Pay buttons stay held after an unconfirmed payment (default 30 min). */
+  pendingHoldMs?: number;
 }
 
 type ViewState = { kind: "loading" } | { kind: "ready"; data: ParentLinkView } | { kind: "refused"; reason: Reason };
 
-export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPayPanelViewProps) {
+export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHoldMs = PAY_PENDING_TTL_MS }: ParentPayPanelViewProps) {
   const [lang, setLang] = useState<ParentPayLang>("en");
   const [state, setState] = useState<ViewState>({ kind: "loading" });
   const [busy, setBusy] = useState<PassType | null>(null);
@@ -124,6 +126,18 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
   const [failed, setFailed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const scrubbed = useRef(false);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // MONEY: while a signed-but-unconfirmed payment is "still confirming", the Pay buttons are
+  // held so a parent who was charged is not invited to pay again; they return after 30 min.
+  useEffect(() => {
+    if (!confirming) return undefined;
+    holdTimer.current = setTimeout(() => setConfirming(false), pendingHoldMs);
+    return () => {
+      if (holdTimer.current !== null) clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    };
+  }, [confirming, pendingHoldMs]);
   const t = COPY[lang];
 
   // The token leaves the address bar AT ONCE (review round 1): the page already holds it
@@ -156,7 +170,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
   const name = state.kind === "ready" ? state.data.firstName : "";
 
   async function handleBuy(passType: PassType, priceInr: number) {
-    if (busy) return;
+    if (busy || confirming) return;
     setBusy(passType);
     setFailed(false);
     setConfirming(false);
@@ -234,7 +248,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
               <button
                 type="button"
                 className="lt-parent-pay-buy lt-parent-pay-buy--month"
-                disabled={busy !== null}
+                disabled={busy !== null || confirming}
                 onClick={() => void handleBuy("month", prices.month as number)}
               >
                 {t.month(formatInr(prices.month))}
@@ -244,7 +258,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress }: ParentPay
               <button
                 type="button"
                 className="lt-parent-pay-buy lt-parent-pay-buy--boards"
-                disabled={busy !== null}
+                disabled={busy !== null || confirming}
                 onClick={() => void handleBuy("till_boards", prices.till_boards as number)}
               >
                 {t.boards(formatInr(prices.till_boards))}

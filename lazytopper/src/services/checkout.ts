@@ -249,7 +249,9 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
     });
     // PAY-RECOVER-1 — the marker is KEPT on dismiss: a UPI app can finish after the sheet closes.
     if (!success) return { status: "dismissed" };
-    // FOLLOWUPS-1 A4 — additive, read AFTER the verify: neither value is sent anywhere here.
+    // FOLLOWUPS-1 A4 — additive, analytics only: Razorpay's payment id is read from its signed
+    // result (before the verify, so a `pending` outcome can carry it) and the amount from the
+    // SERVER order; neither value is sent anywhere by this function.
     const paymentId = typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
     let passEnd: string;
     try {
@@ -378,22 +380,65 @@ export type PayStatusResult =
   | { state: "unknown" };
 
 /**
- * Spend one of the order's status calls. False once MAX_STATUS_CHECKS_PER_ORDER are spent.
- * An order with no live marker (expired, other tab) gets a fresh in-memory count of one.
+ * Status calls spent per order in THIS tab's memory. The sessionStorage marker carries the
+ * same count across a reload; this map keeps the cap when the marker is missing (storage
+ * blocked, expired, cleared, or the order belongs to another tab), so the
+ * MAX_STATUS_CHECKS_PER_ORDER cap holds regardless of storage.
+ */
+const statusChecksInMemory = new Map<string, number>();
+
+/** Test seam: forget the in-memory status-call counts. */
+export function resetPayStatusBudgetForTests(): void {
+  statusChecksInMemory.clear();
+}
+
+function statusChecksUsed(orderId: string, marker: PayPendingMarker | null): number {
+  const stored = marker && marker.orderId === orderId ? marker.checks : 0;
+  return Math.max(stored, statusChecksInMemory.get(orderId) ?? 0);
+}
+
+/**
+ * Spend one of the order's status calls. False once MAX_STATUS_CHECKS_PER_ORDER are spent —
+ * counted as the larger of the marker's count and this tab's in-memory count.
  */
 function takeStatusCheck(orderId: string): boolean {
   const marker = readPayPending();
-  if (!marker || marker.orderId !== orderId) return true;
-  if (marker.checks >= MAX_STATUS_CHECKS_PER_ORDER) return false;
-  writeMarker({ ...marker, checks: marker.checks + 1 });
+  const used = statusChecksUsed(orderId, marker);
+  if (used >= MAX_STATUS_CHECKS_PER_ORDER) return false;
+  statusChecksInMemory.set(orderId, used + 1);
+  if (marker && marker.orderId === orderId) writeMarker({ ...marker, checks: used + 1 });
   return true;
 }
 
 /** How many status calls this order still has in this tab. */
 export function statusChecksLeft(orderId: string): number {
-  const marker = readPayPending();
-  if (!marker || marker.orderId !== orderId) return MAX_STATUS_CHECKS_PER_ORDER;
-  return Math.max(0, MAX_STATUS_CHECKS_PER_ORDER - marker.checks);
+  return Math.max(0, MAX_STATUS_CHECKS_PER_ORDER - statusChecksUsed(orderId, readPayPending()));
+}
+
+/* ── PAY-RECOVER-1 · in-tab "order settled" emitter ────────────────────────────
+ * A server `paid` can arrive through the buy area's own polls OR through the return-to-tab
+ * refresh in useSubscription. Both go through checkPayStatus, which announces it here, so the
+ * buy area settles (active copy + its one `purchase`) whichever path got the answer.
+ */
+export type PaySettledListener = (orderId: string, result: Extract<PayStatusResult, { state: "paid" }>) => void;
+
+const paySettledListeners = new Set<PaySettledListener>();
+
+export function onPaySettled(listener: PaySettledListener): () => void {
+  paySettledListeners.add(listener);
+  return () => {
+    paySettledListeners.delete(listener);
+  };
+}
+
+function emitPaySettled(orderId: string, result: Extract<PayStatusResult, { state: "paid" }>): void {
+  for (const listener of Array.from(paySettledListeners)) {
+    try {
+      listener(orderId, result);
+    } catch {
+      /* one bad listener must not starve the others */
+    }
+  }
 }
 
 export interface PayStatusDeps {
@@ -420,12 +465,14 @@ export async function checkPayStatus(orderId: string, deps: PayStatusDeps = DEFA
     clearPayPending(orderId);
     const paymentId = typeof json.paymentId === "string" && json.paymentId ? json.paymentId : undefined;
     const amountInr = typeof json.amountInr === "number" && Number.isFinite(json.amountInr) && json.amountInr > 0 ? json.amountInr : undefined;
-    return {
+    const paid: Extract<PayStatusResult, { state: "paid" }> = {
       state: "paid",
       passEnd: json.passEnd,
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
     };
+    emitPaySettled(orderId, paid);
+    return paid;
   }
   if (json.state === "pending") return { state: "pending" };
   return { state: "unknown" };

@@ -38,6 +38,8 @@ import {
   checkPayStatus,
   formatPassDate,
   isPaymentsClientEnabled,
+  onPaySettled,
+  PAY_PENDING_TTL_MS,
   PAYMENT_CHECKING_COPY,
   PAYMENT_FAILED_COPY,
   PAYMENT_STILL_CONFIRMING_COPY,
@@ -98,6 +100,12 @@ export interface PassCheckoutViewProps {
   onCheckStatus?: (orderId: string) => Promise<PayStatusResult>;
   /** Test seam: the poll schedule (ms from the pending outcome). */
   pollDelaysMs?: readonly number[];
+  /**
+   * Test seam: how long the Pay buttons stay held for an unresolved order. Default: the
+   * pending marker's own life (30 min) — after that the order is forgotten and paying is
+   * offered again.
+   */
+  pendingHoldMs?: number;
 }
 
 /**
@@ -117,6 +125,7 @@ export function PassCheckoutView({
   onBuy,
   onCheckStatus = checkPayStatus,
   pollDelaysMs = PAY_STATUS_POLL_DELAYS_MS,
+  pendingHoldMs = PAY_PENDING_TTL_MS,
 }: PassCheckoutViewProps) {
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<string | null>(null);
@@ -126,14 +135,32 @@ export function PassCheckoutView({
   const pendingRef = useRef<{ orderId: string; details: CheckoutDetails; attemptId: string; paymentId?: string } | null>(null);
   const pollRun = useRef(0);
   const mounted = useRef(true);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function clearHold() {
+    if (holdTimer.current !== null) clearTimeout(holdTimer.current);
+    holdTimer.current = null;
+  }
 
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
       pollRun.current += 1; // cancels any running poll loop
+      clearHold();
     };
   }, []);
+
+  // PAY-RECOVER-1 — a server `paid` for THIS order may arrive through the return-to-tab
+  // refresh (useSubscription) rather than our own polls; settle the same way either way.
+  const settleRef = useRef<(result: Extract<PayStatusResult, { state: "paid" }>) => void>(() => undefined);
+  useEffect(
+    () =>
+      onPaySettled((orderId, result) => {
+        if (pendingRef.current && pendingRef.current.orderId === orderId) settleRef.current(result);
+      }),
+    [],
+  );
 
   const activeLabel = formatPassDate(activePassEnd);
 
@@ -142,6 +169,8 @@ export function PassCheckoutView({
     const pending = pendingRef.current;
     if (!pending) return;
     pendingRef.current = null;
+    pollRun.current += 1; // stops any poll loop still running for this order
+    clearHold();
     // trackPurchase dedupes per transaction id in this tab (P9), so a payment the verify
     // DID record before its response was lost is still counted once.
     trackPurchase({
@@ -151,9 +180,11 @@ export function PassCheckoutView({
     });
     setRecovery(null);
     const label = formatPassDate(result.passEnd);
+    // An unreadable server date: no active copy is invented; the hydrated pass shows instead.
     if (label) setPaidUntil(label);
-    else setRecovery("confirming");
   }
+
+  settleRef.current = settlePaid;
 
   /** Query the server at each delay; stop on paid, on unmount, or on a newer run. */
   async function pollStatus(delays: readonly number[]) {
@@ -178,7 +209,7 @@ export function PassCheckoutView({
   }
 
   async function handleBuy(passType: PassType) {
-    if (busy) return;
+    if (busy || recovery !== null) return;
     if (!signedIn) {
       onSignIn();
       return;
@@ -187,6 +218,7 @@ export function PassCheckoutView({
     setFailed(false);
     setRecovery(null);
     pendingRef.current = null;
+    clearHold();
     const details = checkoutEventDetails(passType, offerOpen);
     const attemptId = newCheckoutAttemptId();
     trackBeginCheckout(details);
@@ -212,6 +244,17 @@ export function PassCheckoutView({
         attemptId,
         ...(outcome.paymentId ? { paymentId: outcome.paymentId } : {}),
       };
+      // MONEY: the Pay buttons stay held while this order is unresolved, so a student who
+      // was charged is never invited to pay a second time. They come back only when the
+      // order is forgotten — the pending marker's 30-minute life.
+      clearHold();
+      holdTimer.current = setTimeout(() => {
+        holdTimer.current = null;
+        if (!mounted.current) return;
+        pendingRef.current = null;
+        pollRun.current += 1;
+        setRecovery(null);
+      }, pendingHoldMs);
       await pollStatus(pollDelaysMs);
     } else if (outcome.status === "failed") {
       setFailed(true);
@@ -243,7 +286,7 @@ export function PassCheckoutView({
       <button
         type="button"
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
-        disabled={busy !== null || recovery === "checking"}
+        disabled={busy !== null || recovery !== null}
         onClick={() => void handleBuy("month")}
       >
         {monthButtonLabel(offerOpen)}
@@ -251,7 +294,7 @@ export function PassCheckoutView({
       <button
         type="button"
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
-        disabled={busy !== null || recovery === "checking"}
+        disabled={busy !== null || recovery !== null}
         onClick={() => void handleBuy("till_boards")}
       >
         {TILL_BOARDS_BUTTON_LABEL}

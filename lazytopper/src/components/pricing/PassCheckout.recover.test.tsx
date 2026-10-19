@@ -23,8 +23,10 @@ vi.mock("../../analytics/analytics", () => track);
 
 import { CHECK_AGAIN_LABEL, PAY_STATUS_POLL_DELAYS_MS, PassCheckoutView } from "./PassCheckout";
 import {
+  checkPayStatus,
   MAX_STATUS_CHECKS_PER_ORDER,
   PAYMENT_CHECKING_COPY,
+  resetPayStatusBudgetForTests,
   PAYMENT_FAILED_COPY,
   PAYMENT_STILL_CONFIRMING_COPY,
   type BuyOutcome,
@@ -50,7 +52,11 @@ function view(onCheckStatus: (orderId: string) => Promise<PayStatusResult>, onBu
 }
 const tapMonth = () => fireEvent.click(screen.getByRole("button", { name: /for a month/i }));
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  sessionStorage.clear();
+  resetPayStatusBudgetForTests();
+});
 afterEach(cleanup);
 
 describe("PAY-RECOVER-1 · PassCheckout pending", () => {
@@ -168,6 +174,96 @@ describe("PAY-RECOVER-1 · PassCheckout pending", () => {
       expect(PAY_STATUS_POLL_DELAYS_MS[i]).toBeGreaterThan(PAY_STATUS_POLL_DELAYS_MS[i - 1]);
     }
     expect(PAY_STATUS_POLL_DELAYS_MS[PAY_STATUS_POLL_DELAYS_MS.length - 1]).toBeLessThanOrEqual(30_000);
+  });
+});
+
+describe("PAY-RECOVER-1 review fixes · the Pay buttons and the return-to-tab settle", () => {
+  const payButtons = () => [screen.getByRole("button", { name: /for a month/i }), screen.getByRole("button", { name: /till your boards/i })];
+
+  it("MONEY: while 'still confirming' is shown, BOTH Pay buttons stay disabled (no second charge invited)", async () => {
+    view(async () => ({ state: "pending" }));
+    tapMonth();
+    await screen.findByTestId("pass-checkout-confirming");
+    for (const b of payButtons()) expect(b).toBeDisabled();
+    // a tap on a held button buys nothing
+    const before = track.trackBeginCheckout.mock.calls.length;
+    for (const b of payButtons()) fireEvent.click(b);
+    expect(track.trackBeginCheckout.mock.calls.length).toBe(before);
+  });
+
+  it("the buttons come back only when the unresolved order is forgotten (the marker's life)", async () => {
+    render(
+      <PassCheckoutView
+        signedIn
+        offerOpen
+        activePassEnd={null}
+        onSignIn={() => undefined}
+        onBuy={async () => PENDING}
+        onCheckStatus={async () => ({ state: "pending" })}
+        pollDelaysMs={FAST}
+        pendingHoldMs={60}
+      />,
+    );
+    tapMonth();
+    await screen.findByTestId("pass-checkout-confirming");
+    for (const b of payButtons()) expect(b).toBeDisabled();
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 120));
+    });
+    for (const b of payButtons()) expect(b).toBeEnabled();
+    expect(screen.queryByTestId("pass-checkout-confirming")).toBeNull();
+    expect(screen.queryByTestId("pass-checkout-failed")).toBeNull();
+  });
+
+  it("a server `paid` reached through the RETURN-TO-TAB refresh settles the confirming UI + ONE purchase (server payment id)", async () => {
+    view(async () => ({ state: "pending" }));
+    tapMonth();
+    await screen.findByTestId("pass-checkout-confirming");
+    expect(track.trackPurchase).not.toHaveBeenCalled();
+    // The path useSubscription's focus refresh takes: the REAL checkPayStatus, answered paid.
+    await act(async () => {
+      await checkPayStatus("order_R1", {
+        post: async () => ({ ok: true, state: "paid", passEnd: "2027-01-01T00:00:00.000Z", paymentId: "pay_FOCUS", amountInr: 599 }),
+      });
+    });
+    expect(screen.getByTestId("pass-checkout-paid")).toHaveTextContent(/Premium is active until 1 January 2027/);
+    expect(screen.queryByTestId("pass-checkout-confirming")).toBeNull();
+    expect(track.trackPurchase).toHaveBeenCalledTimes(1);
+    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ valueInr: 599, transactionId: "pay_FOCUS" });
+  });
+
+  it("a settle for ANOTHER order is ignored", async () => {
+    view(async () => ({ state: "pending" }));
+    tapMonth();
+    await screen.findByTestId("pass-checkout-confirming");
+    await act(async () => {
+      await checkPayStatus("order_OTHER", {
+        post: async () => ({ ok: true, state: "paid", passEnd: "2027-01-01T00:00:00.000Z", paymentId: "pay_X", amountInr: 599 }),
+      });
+    });
+    expect(screen.getByTestId("pass-checkout-confirming")).toBeTruthy();
+    expect(track.trackPurchase).not.toHaveBeenCalled();
+  });
+
+  it("a settle arriving WHILE the polls run stops them: no further status calls, one purchase", async () => {
+    let calls = 0;
+    const status = vi.fn(async (): Promise<PayStatusResult> => {
+      calls += 1;
+      if (calls === 1) {
+        await checkPayStatus("order_R1", {
+          post: async () => ({ ok: true, state: "paid", passEnd: "2027-01-01T00:00:00.000Z", paymentId: "pay_FOCUS", amountInr: 599 }),
+        });
+      }
+      return { state: "pending" };
+    });
+    view(status);
+    tapMonth();
+    await screen.findByTestId("pass-checkout-paid");
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+    });
+    expect(status).toHaveBeenCalledTimes(1);
+    expect(track.trackPurchase).toHaveBeenCalledTimes(1);
   });
 });
 

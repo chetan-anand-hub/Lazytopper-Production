@@ -33,7 +33,9 @@ import {
   PAY_STATUS_ENDPOINT,
   PAYMENT_FAILED_COPY,
   PAYMENT_STILL_CONFIRMING_COPY,
+  onPaySettled,
   readPayPending,
+  resetPayStatusBudgetForTests,
   statusChecksLeft,
   writePayPending,
   type RazorpayConstructor,
@@ -61,6 +63,7 @@ function storedMarker(): Record<string, unknown> | null {
 beforeEach(() => {
   sessionStorage.clear();
   localStorage.clear();
+  resetPayStatusBudgetForTests();
 });
 afterEach(() => {
   vi.restoreAllMocks();
@@ -210,6 +213,52 @@ describe("checkPayStatus", () => {
     expect(post).toHaveBeenCalledTimes(MAX_STATUS_CHECKS_PER_ORDER);
     expect(statusChecksLeft("order_R1")).toBe(0);
     expect(MAX_STATUS_CHECKS_PER_ORDER).toBeLessThanOrEqual(6);
+  });
+
+  it("the cap holds with NO marker (expired / cleared / another tab): in-memory count", async () => {
+    const post = vi.fn(async () => ({ ok: true, state: "pending" }));
+    for (let i = 0; i < MAX_STATUS_CHECKS_PER_ORDER + 4; i += 1) await checkPayStatus("order_NOMARK", { post });
+    expect(post).toHaveBeenCalledTimes(MAX_STATUS_CHECKS_PER_ORDER);
+    expect(statusChecksLeft("order_NOMARK")).toBe(0);
+  });
+
+  it("the cap holds when sessionStorage is BLOCKED (every access throws)", async () => {
+    const get = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("SecurityError");
+    });
+    const set = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("SecurityError");
+    });
+    const post = vi.fn(async () => ({ ok: true, state: "pending" }));
+    for (let i = 0; i < MAX_STATUS_CHECKS_PER_ORDER + 4; i += 1) await checkPayStatus("order_BLOCKED", { post });
+    expect(post).toHaveBeenCalledTimes(MAX_STATUS_CHECKS_PER_ORDER);
+    get.mockRestore();
+    set.mockRestore();
+  });
+
+  it("the cap is the larger of the marker's count and the in-memory count (a cleared marker does not reset it)", async () => {
+    writePayPending("order_R1");
+    const post = vi.fn(async () => ({ ok: true, state: "pending" }));
+    for (let i = 0; i < 4; i += 1) await checkPayStatus("order_R1", { post });
+    sessionStorage.clear(); // marker gone
+    writePayPending("order_R1"); // even a fresh marker at checks 0
+    for (let i = 0; i < 6; i += 1) await checkPayStatus("order_R1", { post });
+    expect(post).toHaveBeenCalledTimes(MAX_STATUS_CHECKS_PER_ORDER);
+  });
+
+  it("a server paid is announced ONCE to onPaySettled with the server's values; pending announces nothing", async () => {
+    const seen: Array<[string, unknown]> = [];
+    const off = onPaySettled((orderId, result) => seen.push([orderId, result]));
+    try {
+      await checkPayStatus("order_R1", { post: async () => ({ ok: true, state: "pending" }) });
+      expect(seen).toEqual([]);
+      await checkPayStatus("order_R1", {
+        post: async () => ({ ok: true, state: "paid", passEnd: "2026-11-18T06:30:00.000Z", paymentId: "pay_S", amountInr: 599 }),
+      });
+      expect(seen).toEqual([["order_R1", { state: "paid", passEnd: "2026-11-18T06:30:00.000Z", paymentId: "pay_S", amountInr: 599 }]]);
+    } finally {
+      off();
+    }
   });
 
   it("★ writes NO localStorage key at all (no tier / trial / passEnd beyond the existing cache path)", async () => {
