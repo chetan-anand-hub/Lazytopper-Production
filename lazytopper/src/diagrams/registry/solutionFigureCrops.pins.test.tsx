@@ -11,6 +11,7 @@ import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { SOLUTION_FIGURE_CROPS } from "./solutionFigureCrops";
 import { SolutionFigure } from "../SolutionFigure";
+import { REFILE_PYQ2026_SOURCES } from "../../data/bankFix/refilePyq2026Ledger";
 
 afterEach(cleanup);
 
@@ -24,6 +25,7 @@ const MET = "/figures/solutions/ncert-science/metals-and-non-metals/";
 const ELEC = "/figures/solutions/ncert-science/electricity/";
 const HER = "/figures/solutions/ncert-science/heredity/";
 const LIGHT = "/figures/solutions/ncert-science/light-reflection-and-refraction/";
+const MS26 = "/figures/solutions/cbse-ms-2026/";
 
 /** [questionId, part, filePath, exact figcaption text] */
 const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string]> = [
@@ -90,16 +92,46 @@ const PINNED: ReadonlyArray<readonly [string, string | undefined, string, string
   ["SP-S-2023-LGHT-D-001", "(b) glass slab", `${LIGHT}ncert-fig-9-10-glass-slab.webp`, "Official figure: NCERT Class 10 Science, Fig. 9.10 — (b) glass slab"],
   ["GDR-L-CBJ-016", "(b) glass slab", `${LIGHT}ncert-fig-9-10-glass-slab.webp`, "Official figure: NCERT Class 10 Science, Fig. 9.10 — (b) glass slab"],
   ["PYQ-S-2026-LIGHT-015", "(a) prism", `${EYE}ncert-fig-10-4-prism-refraction.webp`, "Official figure: NCERT Class 10 Science, Fig. 10.4 — (a) prism"],
+  // HIDE8-FIG8-1 Part B (19 Oct 2026): official CBSE 2026 marking-scheme drawings.
+  ["PYQ-S-2026-CHEMRXN-021", "(B)(iii) CaO", `${MS26}metals-and-non-metals/cbse-ms-2026-31-5-1-q29-cao-electron-dot.webp`, "Official figure: CBSE 2026 Marking Scheme 31/5/1, Q29 (B)(iii) — (B)(iii) CaO"],
+  ["PYQ-S-2026-METAL-008", "(a)(ii) MgO", `${MS26}metals-and-non-metals/cbse-ms-2026-31-2-1-q26-mgo-electron-dot.webp`, "Official figure: CBSE 2026 Marking Scheme 31/2/1, Q26 (a)(ii) — (a)(ii) MgO"],
+  ["PYQ-S-2026-LIGHT-009", "(B) correction", `${MS26}human-eye-and-colourful-world/cbse-ms-2026-31-5-1-q34-hypermetropia-correction.webp`, "Official figure: CBSE 2026 Marking Scheme 31/5/1, Q34 (B) — (B) correction"],
+  ["PYQ-S-2026-HERED-008", "(a) cross", `${MS26}heredity/cbse-ms-2026-31-4-1-q14-red-white-cross.webp`, "Official figure: CBSE 2026 Marking Scheme 31/4/1, Q14 (a) — (a) cross"],
+  ["PYQ-S-2026-HERED-010", "parents to F1", `${MS26}heredity/cbse-ms-2026-31-5-1-q13-dihybrid-f1-cross.webp`, "Official figure: CBSE 2026 Marking Scheme 31/5/1, Q13 — parents to F1"],
+  ["PYQ-M-2026-CG-003", "(ii) AP : PD", `${MS26}coordinate-geometry/cbse-ms-2026-30-4-1-q38-ii-ap-pd.webp`, "Official figure: CBSE 2026 Marking Scheme 30/4/1, Q38 (ii) — (ii) AP : PD"],
+  ["PYQ-M-2026-CG-003", "(iii)(b) AO : OB", `${MS26}coordinate-geometry/cbse-ms-2026-30-4-1-q38-iii-b-ao-ob.webp`, "Official figure: CBSE 2026 Marking Scheme 30/4/1, Q38 (iii)(b) — (iii)(b) AO : OB"],
+];
+
+/** HIDE8-FIG8-1 Part B: each marking-scheme crop -> the SHA-256 of its source PDF as recorded in the REFILE ledger. */
+const MS_CROP_SOURCE_SHA: ReadonlyArray<readonly [string, string, string]> = [
+  ["PYQ-S-2026-CHEMRXN-021", "(B)(iii) CaO", "6a7fea975308fcb19f5605b16cf4b01e935eb111abbcfc84b298abc3c623be6b"],
+  ["PYQ-S-2026-METAL-008", "(a)(ii) MgO", "df498adaf59d0107bae16c445d0bd99d473502e88f69e31838dc4573d90a4fb9"],
+  ["PYQ-S-2026-LIGHT-009", "(B) correction", "6a7fea975308fcb19f5605b16cf4b01e935eb111abbcfc84b298abc3c623be6b"],
+  ["PYQ-S-2026-HERED-008", "(a) cross", "7260ef95fb531a7c99a6d35169fe628c4e32bdc9d882641fc8462f876732c1db"],
+  ["PYQ-S-2026-HERED-010", "parents to F1", "6a7fea975308fcb19f5605b16cf4b01e935eb111abbcfc84b298abc3c623be6b"],
+  ["PYQ-M-2026-CG-003", "(ii) AP : PD", "f2657403b8851b76108b954519877c2b41f4913ddfda52f3755708dc91d15dea"],
+  ["PYQ-M-2026-CG-003", "(iii)(b) AO : OB", "f2657403b8851b76108b954519877c2b41f4913ddfda52f3755708dc91d15dea"],
 ];
 
 const key = (q: string, part: string | undefined, file: string) => `${q} | ${part ?? "-"} | ${file}`;
 
 describe("solution-figure crop bindings are pinned (FU-1038-PIN-BINDINGS)", () => {
-  it("the registry holds EXACTLY the 58 pinned (questionId, part, filePath) tuples", () => {
+  it("the registry holds EXACTLY the 65 pinned (questionId, part, filePath) tuples", () => {
     const actual = SOLUTION_FIGURE_CROPS.map((c) => key(c.questionId, c.part, c.filePath)).sort();
     const expected = PINNED.map(([q, part, file]) => key(q, part, file)).sort();
     expect(actual).toEqual(expected);
-    expect(SOLUTION_FIGURE_CROPS).toHaveLength(58);
+    expect(SOLUTION_FIGURE_CROPS).toHaveLength(65); // 58 + 7 (HIDE8-FIG8-1 Part B)
+  });
+
+  it("every CBSE marking-scheme crop cites a PDF whose SHA-256 the REFILE-PYQ2026 ledger records (HIDE8-FIG8-1)", () => {
+    const ms = SOLUTION_FIGURE_CROPS.filter((c) => c.filePath.startsWith(MS26));
+    expect(ms.map((c) => key(c.questionId, c.part, "")).sort()).toEqual(MS_CROP_SOURCE_SHA.map(([q, p]) => key(q, p, "")).sort());
+    for (const [q, part, sha] of MS_CROP_SOURCE_SHA) {
+      const c = ms.find((x) => x.questionId === q && x.part === part)!;
+      expect(c.source.file, `${q} ${part}`).toMatch(/^https:\/\/www\.cbse\.gov\.in\/cbsenew\/marking-scheme\/2026\/X\//);
+      expect(REFILE_PYQ2026_SOURCES[c.source.file], `${q} ${part}: source not in the ledger`).toBe(sha);
+      expect(c.source.figure, `${q} ${part}`).toMatch(/^CBSE 2026 Marking Scheme /);
+    }
   });
 
   it.each(PINNED.map(([q, part, file, caption]) => ({ q, part, file, caption })))(
