@@ -4,9 +4,10 @@
  *   POST /api/pay/order     { passType }                        AUTH REQUIRED
  *   POST /api/pay/verify    { orderId, paymentId, signature }   AUTH REQUIRED
  *   POST /api/pay/webhook   Razorpay's signed event             SIGNATURE REQUIRED
+ *   POST /api/pay/status    { orderId }                         AUTH REQUIRED (PAY-STATUS-1)
  *
  * ★★ DARK BY DEFAULT (Z1). With the server env `PAYMENTS_ENABLED` unset, every one of
- * the three answers 404 — byte-for-byte the gateway's own not-found — before it reads
+ * the four answers 404 — byte-for-byte the gateway's own not-found — before it reads
  * a header, a body or a key. Keys come ONLY from env: RAZORPAY_KEY_ID,
  * RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET. The key SECRET and the webhook secret
  * never leave this process; only the public key id is returned to the browser.
@@ -31,17 +32,29 @@
  *
  * ★ IDEMPOTENT END TO END. The grant is `grantPass` with `paymentRef = paymentId` and
  * `payOrderId = orderId`: the payment record, the pass and the order's created -> paid
- * transition are one Firestore transaction (Z9), so verify + webhook + retries of
- * either grant a payment exactly once.
+ * transition are one Firestore transaction (Z9), so verify + webhook + status + retries
+ * of any of them grant a payment exactly once.
+ *
+ * ★★ ONE SET OF Z4 PAYMENT CHECKS (PAY-STATUS-1). verify, webhook and status all judge
+ * Razorpay's payment through `paymentMismatch` — order_id, INR, amount equals the STORED
+ * amountPaise, captured — so the three grant paths cannot drift apart (CLAUDE.md §4a).
+ *
+ * ★ STATUS IS A RECONCILE, NOT A SHORTCUT (owner decision D9). `/api/pay/status` answers
+ * "is my payment through?" for the caller's OWN order. A `created` order is checked
+ * against Razorpay's own list of the order's payments; it grants (through the same
+ * `grantAndRespond`) ONLY on a Razorpay-confirmed captured payment that passes every Z4
+ * check. Nothing in the request but the order id is read; Razorpay unreachable is an
+ * honest `state: "unknown"`, never a grant.
  */
 
 const crypto = require('node:crypto');
-const { grantPass, computeGrant, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
+const { grantPass, computeGrant, describePass, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter } = require('../services/rateLimiter.cjs');
 
 const PAY_ORDER_PATH = '/api/pay/order';
 const PAY_VERIFY_PATH = '/api/pay/verify';
 const PAY_WEBHOOK_PATH = '/api/pay/webhook';
+const PAY_STATUS_PATH = '/api/pay/status';
 
 /** Top-level collection. Named as a constant so the studentDataMap drift guard sees it. */
 const PAY_ORDERS_COLLECTION = 'payOrders';
@@ -137,6 +150,26 @@ function readRawBody(req, maxBytes) {
   });
 }
 
+/**
+ * ★★ Z4, SHARED (PAY-STATUS-1). Does Razorpay's payment belong to THIS order, in INR, for
+ * EXACTLY the stored amount? Returns the first failing reason, or null. The order of the
+ * checks is the order verify and webhook have always applied them in.
+ */
+function paymentIdentityMismatch(payment, { orderId, amountPaise }) {
+  if (payment.order_id !== orderId) return 'order_mismatch';
+  if (payment.currency !== CURRENCY) return 'currency_mismatch';
+  if (!Number.isInteger(amountPaise) || payment.amount !== amountPaise) return 'amount_mismatch';
+  return null;
+}
+
+/** Every Z4 check on a payment: its identity (above), and that it is captured. */
+function paymentMismatch(payment, order) {
+  const identity = paymentIdentityMismatch(payment, order);
+  if (identity) return identity;
+  if (payment.status !== 'captured') return 'not_captured';
+  return null;
+}
+
 function parseJsonObject(buf) {
   const text = buf.length ? buf.toString('utf8') : '{}';
   const parsed = JSON.parse(text);
@@ -180,7 +213,7 @@ function createPaymentRoutes(deps = {}) {
     createRateLimiter({
       telemetry,
       now,
-      paidEndpoints: { [PAY_ORDER_PATH]: 'payments', [PAY_VERIFY_PATH]: 'payments' },
+      paidEndpoints: { [PAY_ORDER_PATH]: 'payments', [PAY_VERIFY_PATH]: 'payments', [PAY_STATUS_PATH]: 'payments' },
       limits: {
         payments: {
           soft: Number(env.LT_CAP_PAYMENTS_SOFT || 20),
@@ -240,7 +273,7 @@ function createPaymentRoutes(deps = {}) {
     }
   }
 
-  /** The shared front door of the two browser routes. Returns { uid, keys } or null. */
+  /** The shared front door of the three browser routes. Returns { uid, keys } or null. */
   async function admitBrowserCall(req, res, reqPath) {
     const uid = await verifiedCaller.resolveVerifiedUid(req);
     if (!uid) {
@@ -406,28 +439,33 @@ function createPaymentRoutes(deps = {}) {
     }
     const payment = result.payment;
     if (payment.id !== undefined && payment.id !== paymentId) return reject(res, 'verify', 'payment_mismatch');
-    if (payment.order_id !== orderId) return reject(res, 'verify', 'order_mismatch');
-    if (payment.currency !== CURRENCY) return reject(res, 'verify', 'currency_mismatch');
-    if (payment.amount !== order.amountPaise) return reject(res, 'verify', 'amount_mismatch');
-    if (payment.status !== 'captured') return reject(res, 'verify', 'not_captured');
+    const mismatch = paymentMismatch(payment, { orderId, amountPaise: order.amountPaise });
+    if (mismatch) return reject(res, 'verify', mismatch);
 
     // 4. Grant — idempotent, with the order's created -> paid in the same transaction.
     return grantAndRespond(res, 'verify', { uid: order.uid, passType: order.passType, paymentId, orderId });
   }
 
-  async function grantAndRespond(res, scope, { uid, passType, paymentId, orderId }) {
+  /**
+   * `extra` (status only): `{ body, counter }` — fields appended AFTER the verify/webhook
+   * response fields, and a counter emitted only on a successful grant. Absent, the
+   * response is exactly what verify and webhook have always sent.
+   */
+  async function grantAndRespond(res, scope, { uid, passType, paymentId, orderId }, extra) {
     try {
       const granted = await grantPass(
         { uid, passType, paymentRef: paymentId, now: now() },
         { firestore: adminFirestore, payOrderId: orderId, foundingOfferOpen },
       );
       emit(granted.replayed ? `payments.${scope}.replayed` : `payments.${scope}.granted`);
-      return sendJson(res, 200, {
+      if (extra && extra.counter) emit(extra.counter);
+      const body = {
         ok: true,
         replayed: granted.replayed,
         passEnd: granted.pass.passEnd,
         pass: granted.pass,
-      });
+      };
+      return sendJson(res, 200, extra && extra.body ? { ...body, ...extra.body } : body);
     } catch (e) {
       if (e instanceof PassGrantInputError) return reject(res, scope, 'grant_refused');
       emit(`payments.${scope}.grant_failed`);
@@ -495,16 +533,123 @@ function createPaymentRoutes(deps = {}) {
       return sendJson(res, 200, { ok: true, ignored: true });
     }
 
-    if (entity.currency !== CURRENCY) return reject(res, 'webhook', 'currency_mismatch');
-    if (!Number.isInteger(order.amountPaise) || entity.amount !== order.amountPaise) {
-      return reject(res, 'webhook', 'amount_mismatch');
-    }
-    if (entity.status !== 'captured') return reject(res, 'webhook', 'not_captured');
+    // orderId was read from this entity, so order_mismatch cannot fire here; the shared
+    // checks then run currency -> amount -> captured, as the webhook always has.
+    const mismatch = paymentMismatch(entity, { orderId, amountPaise: order.amountPaise });
+    if (mismatch) return reject(res, 'webhook', mismatch);
 
     return grantAndRespond(res, 'webhook', { uid: order.uid, passType: order.passType, paymentId, orderId });
   }
 
-  return { handleOrder, handleVerify, handleWebhook, isEnabled: enabled };
+  /**
+   * The first of Razorpay's payments for this order that passes EVERY Z4 check —
+   * capturing an authorized one for the STORED amount first (P4). Returns
+   * { payment } | { none: true } | { upstream: reason }. Throws if Razorpay is unreachable.
+   */
+  async function findConfirmedPayment(keys, orderId, amountPaise) {
+    const listed = await razorpay(keys, 'GET', `/orders/${orderId}/payments`);
+    if (!listed.ok || !listed.json || !Array.isArray(listed.json.items)) return { upstream: 'list_failed' };
+    for (const item of listed.json.items) {
+      if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) continue;
+      // Never capture a payment that is not this order's, in INR, for the stored amount.
+      if (paymentIdentityMismatch(item, { orderId, amountPaise })) continue;
+      let payment = item;
+      if (item.status === 'authorized') {
+        const result = await fetchCapturedPayment(keys, item.id, amountPaise);
+        if (result.error) return { upstream: result.error };
+        payment = result.payment;
+        if (payment.id !== undefined && payment.id !== item.id) continue;
+      } else if (item.status !== 'captured') {
+        continue;
+      }
+      if (!paymentMismatch(payment, { orderId, amountPaise })) return { payment: { ...payment, id: item.id } };
+    }
+    return { none: true };
+  }
+
+  /* ── PAY-STATUS-1 · POST /api/pay/status ────────────────────────────────── */
+  async function handleStatus(req, res) {
+    if (!enabled()) return sendJson(res, 404, NOT_FOUND_BODY);
+    const admitted = await admitBrowserCall(req, res, PAY_STATUS_PATH);
+    if (!admitted) return undefined;
+    const { uid, keys } = admitted;
+
+    const body = await readJsonBody(req, res);
+    if (!body) return undefined;
+    // Only the order id is read from the request — never an amount, a payment or a status.
+    const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    if (!ID_PATTERN.test(orderId)) return reject(res, 'status', 'malformed');
+
+    let order;
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+      order = snap && snap.exists ? snap.data() || {} : null;
+    } catch (e) {
+      emit('payments.status.store_read_failed');
+      console.error('[pay/status] order read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not read the order.' });
+    }
+    if (!order) {
+      emit('payments.status.rejected.unknown_order');
+      return sendJson(res, 404, { ok: false, error: 'payment_rejected', reason: 'unknown_order' });
+    }
+    if (order.uid !== uid) return reject(res, 'status', 'uid_mismatch');
+    if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return reject(res, 'status', 'bad_order');
+    const amountInr = order.amountPaise / 100;
+
+    // 1. Already paid (verify, webhook or an earlier status call): report it, write nothing.
+    if (order.status === 'paid') {
+      let pass;
+      try {
+        const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+        pass = describePass(uid, snap && snap.exists ? snap.data() || {} : {});
+      } catch (e) {
+        emit('payments.status.store_read_failed');
+        console.error('[pay/status] subscription read failed:', e && e.message);
+        return sendJson(res, 500, { ok: false, error: 'Could not read the pass.' });
+      }
+      emit('payments.status.paid');
+      return sendJson(res, 200, {
+        ok: true,
+        state: 'paid',
+        passEnd: pass.passEnd,
+        paymentId: typeof order.paymentId === 'string' ? order.paymentId : null,
+        amountInr,
+      });
+    }
+    if (order.status !== 'created') return reject(res, 'status', 'bad_order');
+
+    // 2. Created: ask Razorpay what was actually paid against this order.
+    let found;
+    try {
+      found = await findConfirmedPayment(keys, orderId, order.amountPaise);
+    } catch (e) {
+      emit('payments.status.razorpay_unreachable');
+      emit('payments.status.unknown');
+      console.error('[pay/status] razorpay unreachable:', e && e.message);
+      return sendJson(res, 200, { ok: true, state: 'unknown' });
+    }
+    if (found.upstream) {
+      emit(`payments.status.${found.upstream}`);
+      emit('payments.status.unknown');
+      return sendJson(res, 200, { ok: true, state: 'unknown' });
+    }
+    if (!found.payment) {
+      emit('payments.status.pending');
+      return sendJson(res, 200, { ok: true, state: 'pending' });
+    }
+
+    // 3. A Razorpay-confirmed captured payment for this order: the SAME idempotent grant.
+    const paymentId = found.payment.id;
+    return grantAndRespond(
+      res,
+      'status',
+      { uid: order.uid, passType: order.passType, paymentId, orderId },
+      { body: { state: 'paid', paymentId, amountInr }, counter: 'payments.status.reconciled' },
+    );
+  }
+
+  return { handleOrder, handleVerify, handleWebhook, handleStatus, isEnabled: enabled };
 }
 
 module.exports = {
@@ -519,6 +664,7 @@ module.exports = {
   PAY_ORDER_PATH,
   PAY_VERIFY_PATH,
   PAY_WEBHOOK_PATH,
+  PAY_STATUS_PATH,
   PAY_ORDERS_COLLECTION,
   RAZORPAY_API_BASE,
 };
