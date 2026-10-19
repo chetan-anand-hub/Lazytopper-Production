@@ -1,0 +1,30 @@
+/*
+ * PARENTS-CTA-1 (owner ruling 2026-10-19) — the "← Back to parents page" link on
+ * /check-improve, shown only to a visitor who came from /for-parents. Scoped class names
+ * only: this file is global once loaded.
+ */
+.lt-ci-parent-return {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 10px 16px 0;
+}
+.lt-ci-parent-return__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  color: #06663a;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.lt-ci-parent-return__link:hover {
+  background: #e6f4ec;
+  text-decoration: underline;
+}
+.lt-ci-parent-return__link:focus-visible {
+  outline: 2px solid #0b8f50;
+  outline-offset: 2px;
+}

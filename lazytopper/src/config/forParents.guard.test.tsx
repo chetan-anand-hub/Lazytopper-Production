@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { render, screen, cleanup, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-import ForParentsPage, { PARENT_SHARE_HREF } from "../pages/ForParentsPage";
+import ForParentsPage, { FREE_CHECK_TO, PARENT_SHARE_HREF } from "../pages/ForParentsPage";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { SELF_CANONICAL_EXACT } from "./canonicalUrl";
 import { sitemapPaths } from "./sitemapUrls";
@@ -22,7 +22,12 @@ import { testimonialVideoJsonLdFor } from "../../scripts/seo/testimonialVideoJso
  *       "Send LazyTopper to my child" buttons as plain links to `https://wa.me/?text=…` whose
  *       message carries `utm_source=parent_share`, the VideoObject, and NO youtube `src`/iframe;
  *   (c) the forbidden copy is absent, and so are `ref=parent`, a price and any sign-up link;
- *   (d) Welcome has the parent line and the public footer has "For parents".
+ *   (d) Welcome has the parent line and the public footer has "For parents";
+ *   (e) PARENTS-CTA-1 (owner ruling 2026-10-19): EXACTLY two "Check one answer free" links
+ *       (hero + closing section) to `/check-improve?from=for_parents&utm_source=for_parents`,
+ *       and a "See pricing" link to /pricing in the cost answer — in the rendered page AND
+ *       the committed prerender; plus a fifth, UNLINKED tile "A tutor for doubts, explained
+ *       step by step". The share buttons, the no-price and no-sign-up rules are unchanged.
  *
  * Every detector takes its input as an argument and is run against SYNTHETIC violating input
  * in the CONTROL tests, so a typo'd regex cannot sit green on a correct tree.
@@ -46,6 +51,31 @@ function shareHrefs(html: string): string[] {
   return [...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>\s*Send LazyTopper to my child\s*<\/a>/g)].map((m) =>
     m[1].replace(/&amp;/g, "&"),
   );
+}
+
+/** The "Check one answer free" anchors in a piece of HTML → their hrefs (`&amp;` decoded). */
+function freeCheckHrefs(html: string): string[] {
+  return [...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>\s*Check one answer free\s*<\/a>/g)].map((m) =>
+    m[1].replace(/&amp;/g, "&"),
+  );
+}
+
+/** The "See pricing" anchors → their hrefs. */
+function pricingHrefs(html: string): string[] {
+  return [...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>\s*See pricing\s*<\/a>/g)].map((m) => m[1]);
+}
+
+const FREE_CHECK_HREF = "/check-improve?from=for_parents&utm_source=for_parents";
+
+const TUTOR_TILE = "A tutor for doubts, explained step by step";
+/** The tutor tile must be present, exactly once, as unlinked text (`<span>`, never inside `<a>`). */
+function tutorTileProblems(html: string): string[] {
+  const problems: string[] = [];
+  const count = html.split(TUTOR_TILE).length - 1;
+  if (count !== 1) problems.push(`tutor tile appears ${count} times`);
+  if (!html.includes(`<li><span>${TUTOR_TILE}</span></li>`)) problems.push("tutor tile is not an unlinked <span>");
+  if (new RegExp(`<a\\b[^>]*>\\s*${TUTOR_TILE}`).test(html)) problems.push("tutor tile is linked");
+  return problems;
 }
 
 /** Offending patterns in the page's visible words and links; empty means clean. */
@@ -143,11 +173,15 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
     expect(mediaProblems(html)).toEqual([]);
   });
 
-  it("the four tiles link only to existing public pages (the fourth has no link)", () => {
+  it("the five tiles link only to existing public pages (the fourth and the tutor tile have no link)", () => {
     for (const to of ["/check-your-answer", "/practice-hub", "/highly-probable/10/Maths"]) {
       expect(html).toContain(`href="${to}"`);
     }
     expect(html).toContain("<span>Practice on weak topics</span>");
+    // PARENTS-CTA-1 (owner, 2026-10-19): the tutor tile is plain text — the tutor needs an account.
+    expect(tutorTileProblems(html)).toEqual([]);
+    const tiles = html.slice(html.indexOf('<ul class="lt-fp__tiles">'));
+    expect((tiles.slice(0, tiles.indexOf("</ul>")).match(/<li>/g) ?? []).length).toBe(5);
   });
 
   it("the committed prerender of the page (mobile and desktop) has the same, plus no youtube src", () => {
@@ -160,6 +194,12 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
       expect(hrefs.every((h) => h.startsWith("https://wa.me/?text=") && h.includes("utm_source%3Dparent_share")), rel).toBe(true);
       expect(mediaProblems(pre), rel).toEqual([]);
       expect(copyProblems(pre), rel).toEqual([]);
+      // PARENTS-CTA-1 — the free-check links and the pricing link are in the frozen HTML too.
+      expect(freeCheckHrefs(pre), rel).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF]);
+      expect(pricingHrefs(pre), rel).toEqual(["/pricing"]);
+      expect(pre, rel).toContain('data-testid="fp-free-check-hero"');
+      expect(pre, rel).toContain('data-testid="fp-free-check-footer"');
+      expect(tutorTileProblems(pre), rel).toEqual([]);
     }
   });
 
@@ -202,6 +242,49 @@ describe("PARENTS-1 (c) — the forbidden copy, ref=parent, a price and a sign-u
       expect(copyProblems(html), name).toContain(name);
     }
     expect(copyProblems("<p>Your child photographs a written answer.</p>")).toEqual([]);
+  });
+});
+
+describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /pricing link", () => {
+  const html = renderedPage();
+
+  it("EXACTLY two 'Check one answer free' links, both to the tagged free-check URL (entity-encoded &amp; in HTML)", () => {
+    expect(FREE_CHECK_TO).toBe(FREE_CHECK_HREF);
+    expect(freeCheckHrefs(html)).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF]);
+    expect(html).toContain('href="/check-improve?from=for_parents&amp;utm_source=for_parents"');
+    expect(html).toContain('data-testid="fp-free-check-hero"');
+    expect(html).toContain('data-testid="fp-free-check-footer"');
+    // Hero pair: share first, then free check; same in the closing section.
+    expect(html.indexOf('data-testid="fp-share-hero"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-hero"'));
+    expect(html.indexOf('data-testid="fp-free-check-hero"')).toBeLessThan(html.indexOf('data-testid="fp-share-footer"'));
+    expect(html.indexOf('data-testid="fp-share-footer"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-footer"'));
+    // Secondary styling by class, never an inline style object.
+    const anchors = html.match(/<a\b[^>]*>\s*Check one answer free\s*<\/a>/g) ?? [];
+    expect(anchors.length).toBe(2);
+    for (const anchor of anchors) {
+      expect(anchor).toContain('class="lt-fp__cta2"');
+      expect(anchor).not.toMatch(/\bstyle=/);
+    }
+  });
+
+  it("the cost answer keeps its true copy and links 'See pricing' to /pricing — still with no price figure", () => {
+    expect(pricingHrefs(html)).toEqual(["/pricing"]);
+    const cost = html.slice(html.indexOf("<summary>What does it cost?</summary>"));
+    const answer = cost.slice(0, cost.indexOf("</details>"));
+    expect(answer).toContain("The first answer check is free, without an account. A new account gets a 7-day Premium trial.");
+    expect(pricingHrefs(answer)).toEqual(["/pricing"]);
+    expect(copyProblems(html)).toEqual([]);
+  });
+
+  it("CONTROL — the extractors fire on input with the links and stay empty without", () => {
+    const a = '<a class="lt-fp__cta2" href="/check-improve?from=for_parents&amp;utm_source=for_parents">Check one answer free</a>';
+    expect(freeCheckHrefs(a + a)).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF]);
+    expect(freeCheckHrefs("<p>Check one answer free</p>")).toEqual([]);
+    expect(pricingHrefs('<a href="/pricing">See pricing</a>')).toEqual(["/pricing"]);
+    expect(pricingHrefs("<p>See pricing</p>")).toEqual([]);
+    expect(tutorTileProblems(`<li><span>${TUTOR_TILE}</span></li>`)).toEqual([]);
+    expect(tutorTileProblems(`<li><a href="/tutor">${TUTOR_TILE}</a></li>`)).toContain("tutor tile is linked");
+    expect(tutorTileProblems("<li><span>Practice on weak topics</span></li>")).toContain("tutor tile appears 0 times");
   });
 });
 

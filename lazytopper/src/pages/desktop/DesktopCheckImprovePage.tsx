@@ -32,6 +32,15 @@ import MobileSignUpButton from "../../components/mobile/MobileSignUpButton";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
+  PARENT_RETURN_LABEL,
+  PARENT_RETURN_TO,
+  persistParentFlag,
+  storedParentFlag,
+  tabStorage,
+  urlHasParentFlag,
+} from "../../lib/parentReturn";
+import "./checkImproveParentReturn.css";
+import {
   buildConfirmedDetection,
   withSubjectCorrected,
   ciQuestionIds,
@@ -4382,17 +4391,44 @@ const DesktopCheckImprovePageInner: React.FC<{
  * opens from the tutor, which is itself premium-gated, so a premium user reaching
  * it passes this gate too.
  */
-const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) =>
-  // FREE-CHECK-1b branches HERE, in the C&I wrapper — never inside the shared
-  // RequirePremium (N11). Flag off, or the tutor overlay: exactly the gate below, as
-  // before. The flag is a build-time constant, so this branch never flips on a mount.
-  !overlay && isFreeCheckClientEnabled() ? (
-    <FreeCheckCheckImprovePage />
-  ) : (
-    <RequirePremium featureLabel="Check & Improve">
-      <DesktopCheckImprovePageInner overlay={overlay} />
-    </RequirePremium>
+/**
+ * PARENTS-CTA-1 (owner ruling 2026-10-19) — "← Back to parents page", shown ONLY to a
+ * visitor who arrived from /for-parents (`?from=for_parents`, remembered for this tab in
+ * sessionStorage by `lib/parentReturn.ts`). NAVIGATION ONLY: it sits above the page, in
+ * every phase (free check, gate, signed in), and touches no grading, marks or prompts.
+ */
+const ParentReturnLink: React.FC = () => {
+  const { search } = useLocation();
+  const fromUrl = urlHasParentFlag(search);
+  const [stored] = useState(() => storedParentFlag(tabStorage()));
+  useEffect(() => {
+    if (fromUrl) persistParentFlag(tabStorage());
+  }, [fromUrl]);
+  if (!fromUrl && !stored) return null;
+  return (
+    <nav className="lt-ci-parent-return" aria-label="Back to parents page">
+      <Link className="lt-ci-parent-return__link" to={PARENT_RETURN_TO} data-testid="ci-parent-return">
+        {PARENT_RETURN_LABEL}
+      </Link>
+    </nav>
   );
+};
+
+const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) => (
+  <>
+    {!overlay && <ParentReturnLink />}
+    {/* FREE-CHECK-1b branches HERE, in the C&I wrapper — never inside the shared
+        RequirePremium (N11). Flag off, or the tutor overlay: exactly the gate below, as
+        before. The flag is a build-time constant, so this branch never flips on a mount. */}
+    {!overlay && isFreeCheckClientEnabled() ? (
+      <FreeCheckCheckImprovePage />
+    ) : (
+      <RequirePremium featureLabel="Check & Improve">
+        <DesktopCheckImprovePageInner overlay={overlay} />
+      </RequirePremium>
+    )}
+  </>
+);
 
 const FREE_CHECK_MODE: FreeCheckInnerMode = { mode: "free" };
 

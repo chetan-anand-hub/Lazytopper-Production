@@ -13,9 +13,8 @@
  *
  * TWO PRICE TIERS, AND WHY THE SHAPE IS HONEST
  * There is a LIST price and a FOUNDING price, and both are published from day
- * one. Founding members — the first `FOUNDING_COHORT_SIZE` students — pay less
- * because they took a risk on an unproven product. When the cohort fills, the
- * OFFER CLOSES; it is not repriced. That is categorically different from
+ * one. Founding members pay less because they took a risk on an unproven
+ * product. When the founding offer ends, the OFFER CLOSES; it is not repriced. That is categorically different from
  * launching low and raising the price later, and the copy must keep saying so.
  *
  * ⚠ SCOPE THE PROMISE TO AN ACTIVE SUBSCRIPTION, NOT TO PUBLISHED PRICES.
@@ -28,7 +27,7 @@
  * two apart in copy — see [FU-ANNUAL-PRICE-ROSE-POST-539].
  *
  * The list price is therefore not aspirational — it is the real, published,
- * currently-charged price for student 201 onwards. Do not describe it as a
+ * currently-charged price once the founding offer closes. Do not describe it as a
  * "was" price or a discount-anchor; it is struck on the page to show which of
  * two LIVE prices applies, not to mark a retired one.
  *
@@ -51,10 +50,10 @@
 
 export const PRICE_FREE_INR = 0;
 
-/** Regular published price — what student 201 onwards pays. */
+/** Regular published price — what new members pay once the founding offer closes. */
 export const PRICE_MONTHLY_LIST_INR = 999;
 
-/** Founding-member price — the first `FOUNDING_COHORT_SIZE` students. */
+/** Founding-member price — while `FOUNDING_OFFER_OPEN`. */
 export const PRICE_MONTHLY_FOUNDING_INR = 599;
 
 // NOTE (PRICING-TB-1): there is deliberately NO fixed board-year price any more.
@@ -64,30 +63,28 @@ export const PRICE_MONTHLY_FOUNDING_INR = 599;
 // until the first board paper, 20% under the monthly rate. That price depends on
 // TODAY'S DATE, so it cannot be a constant here: see `tillBoardsQuote()` below.
 
-/**
- * How many students the founding rate is open to. The offer closes when this
- * many have taken it; existing members keep their rate.
- *
- * NOTE: closing the cohort is currently a MANUAL operation — nothing in the
- * product counts subscribers or flips this off. Tracked as
- * [FU-PRICING-FOUNDING-COHORT]. Until that mechanism exists, this number is a
- * published promise the product cannot itself enforce.
- */
-export const FOUNDING_COHORT_SIZE = 200;
+// NOTE (PARENTS-CTA-1, owner ruling 2026-10-19): there is deliberately NO seat
+// count any more. `FOUNDING_COHORT_SIZE` and the visible "First N
+// students." line it fed were removed: the badge now reads "Founding member offer" and no
+// surface publishes a number of seats. Closing the offer stays a MANUAL owner
+// operation (flip `FOUNDING_OFFER_OPEN`) — nothing in the product counts
+// subscribers. See [FU-PRICING-FOUNDING-COHORT]. Do not reintroduce a seat number
+// in copy without an owner ruling: a number the product cannot enforce is a
+// published promise it cannot keep.
 
 /**
  * Is the founding offer still open?
  *
  * This module already carries offer-SHAPED values, not just numbers —
- * `FOUNDING_COHORT_SIZE`, `FOUNDING_LABEL`, `FOUNDING_LOCK_COPY`,
- * `FOUNDING_COHORT_COPY` and `AVAILABILITY_LIMITED` all describe the offer
+ * `FOUNDING_LABEL`, `FOUNDING_OFFER_BADGE`, `FOUNDING_LOCK_COPY` and
+ * `AVAILABILITY_LIMITED` all describe the offer
  * rather than a price — so the flag that says whether that offer is live
  * belongs beside them. Splitting it into its own module would put the offer's
  * state one import away from every string that describes it, which is the drift
  * this file exists to prevent.
  *
  * ★★ IT IS A BOOLEAN, AND IT MUST STAY ONE. Never a remaining-seats number.
- * "First 200 students" is a true claim about the OFFER; "43 places left" is a
+ * "Founding member offer" is a claim about the OFFER; "43 places left" is a
  * claim about DEMAND. A live count that does not move for a month reads as
  * "nobody is buying" — worse than silence — and a hand-tuned one is fabrication.
  * Do not widen this to a count, and do not add a sibling that could become one.
@@ -187,7 +184,12 @@ export const TUITION_ANCHOR = "less than one tuition session";
  */
 export const FOUNDING_LABEL = "Founding member";
 export const FOUNDING_LOCK_COPY = "Your founding price stays locked for every pass you buy.";
-export const FOUNDING_COHORT_COPY = `First ${FOUNDING_COHORT_SIZE} students.`;
+/**
+ * The founding badge, word for word (PARENTS-CTA-1, owner ruling 2026-10-19):
+ * "Founding member offer" — NO seat count. Replaces the retired
+ * `FOUNDING_COHORT_COPY` (a "First N students." seat line).
+ */
+export const FOUNDING_OFFER_BADGE = `${FOUNDING_LABEL} offer`;
 
 // NOTE: there is deliberately no `FOUNDING_REGULAR_PRICE_COPY` constant. A first
 // draft exported one and nothing ever consumed it — the "Regular price ⟨x⟩" line
@@ -219,10 +221,11 @@ export const PRICE_MONTHLY_FOUNDING_JSONLD = String(PRICE_MONTHLY_FOUNDING_INR);
  * ONLY structured signal used for the cohort.
  *
  * The cohort SIZE is deliberately not expressed in the schema. `eligibleQuantity`
- * means units per order, not seats remaining, so using it for "200 students"
+ * means units per order, not seats remaining, so using it for a cohort size
  * would be an invented semantic — and Google ignores or flags invented Offer
  * properties. The same reasoning rules out publishing the SAVING: schema.org has
- * no field for it. Both live in visible copy, where they are true and readable.
+ * no field for it. The saving lives in visible copy; no seat count is published
+ * anywhere (PARENTS-CTA-1).
  */
 export const AVAILABILITY_LIMITED = "https://schema.org/LimitedAvailability";
 export const AVAILABILITY_IN_STOCK = "https://schema.org/InStock";

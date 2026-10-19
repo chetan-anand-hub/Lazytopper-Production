@@ -5,8 +5,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
-  FOUNDING_COHORT_COPY,
   FOUNDING_LABEL,
+  FOUNDING_OFFER_BADGE,
   MONTHLY_INLINE,
   PERIOD_MONTHLY_LABEL,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
@@ -128,14 +128,15 @@ describe("offer OPEN", () => {
     // pinned as a literal so a constant drift cannot silently reword it.
     const body = strip.querySelector(".lt-offer-strip-body");
     expect(flat(body)).toBe(
-      "Founding member: ₹599 for a month ₹999, locked for every pass you buy. First 200 students.",
+      "Founding member: ₹599 for a month ₹999, locked for every pass you buy.",
     );
     // ...and the ₹999 inside it is the struck element, not a live second price.
     expect(body?.querySelector("s")).toBe(struck);
 
-    // The cohort claim, read from the module rather than retyped — a literal
-    // here would keep passing after the cohort size moved.
-    expect(text).toContain(FOUNDING_COHORT_COPY);
+    // PARENTS-CTA-1 (owner, 2026-10-19): the seat-count sentence is GONE. No
+    // "First N students", no "200" anywhere in the strip.
+    expect(text).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
+    expect(text).not.toContain("200");
   });
 
   it("scopes the permanence claim to the student's own passes, never to published prices", async () => {
@@ -310,8 +311,9 @@ describe("no price literal lives in the component", () => {
 /**
  * A remaining-seats claim: a number attached to scarcity language.
  *
- * Deliberately NOT `/\d/` — "First 200 students" is a digit, and it is a true
- * claim about the OFFER's size. What is forbidden is a claim about DEMAND:
+ * Deliberately NOT `/\d/` — the strip carries prices, which are digits, and a
+ * true claim about the OFFER. (The old seat-count sentence was removed by
+ * PARENTS-CTA-1.) What is forbidden is a claim about DEMAND:
  * "43 places left", "only 12 spots remaining", "157 seats gone".
  */
 const REMAINING_COUNT =
@@ -341,9 +343,8 @@ describe("★★ never a count", () => {
       expect(banned, `pattern failed to catch "${banned}"`).toMatch(REMAINING_COUNT);
     }
 
-    // …and does not fire on the claim that IS honest, which is the whole
-    // distinction: 200 is a property of the offer, not of demand.
-    expect(FOUNDING_COHORT_COPY).not.toMatch(REMAINING_COUNT);
+    // …and does not fire on the offer copy that IS honest.
+    expect(FOUNDING_OFFER_BADGE).not.toMatch(REMAINING_COUNT);
     expect("7-day full trial, then free Basic").not.toMatch(REMAINING_COUNT);
   });
 
