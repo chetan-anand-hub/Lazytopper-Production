@@ -4,7 +4,7 @@
  * expensive work when the push changed nothing but documentation.
  *
  * Factored out of scripts/ci/container_boot_gate.mjs (CI-COST-2, #1265), where it was proven,
- * and shared with Golden Eval, search-ping (push trigger only) and State Board (CI-COST-3,
+ * and shared with Golden Eval and search-ping (push trigger only) (CI-COST-3, State Board deliberately NOT gated: its ledger row must record every merge;
  * owner-approved 2026-10-19). There is exactly one copy of the skip list and one copy of the
  * fail-safe ladder; container_boot_gate.mjs calls decidePush() for its push path.
  *

@@ -18,7 +18,7 @@ import { nonSkippable as bootNonSkippable } from "./container_boot_gate.mjs";
 const OK = () => "success";
 const SCRIPT = fileURLToPath(new URL("./docs_only_push.mjs", import.meta.url));
 const REPO = path.resolve(path.dirname(SCRIPT), "..", "..");
-const GATED = ["golden-eval.yml", "search-ping.yml", "state-board.yml"];
+const GATED = ["golden-eval.yml", "search-ping.yml"];
 
 function makeRepo() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "docs-only-"));
@@ -213,7 +213,6 @@ test("CLI: writes docs_only=true ONLY for a proven docs-only push; anything else
 const GATE_IF = "github.event_name != 'push' || steps.docs.outputs.docs_only != 'true'";
 for (const [wf, gatedSteps] of [
   ["golden-eval.yml", ["G1 — golden gate", "G1 + G2 — golden suites"]],
-  ["state-board.yml", ["Build ledger record", "Commit + push ledger"]],
 ]) {
   test(`${wf}: the classifier runs on push only, for this workflow, fail-safe; each expensive step is gated`, () => {
     const y = fs.readFileSync(path.join(REPO, ".github", "workflows", wf), "utf8");
