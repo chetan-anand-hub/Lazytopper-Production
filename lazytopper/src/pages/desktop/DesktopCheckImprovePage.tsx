@@ -1032,8 +1032,17 @@ const DesktopCheckImprovePageInner: React.FC<{
       }}
     />
   );
-  const withChrome = (body: React.ReactNode, subtitle: string) =>
-    overlay ? (
+  const withChrome = (pageBody: React.ReactNode, subtitle: string) => {
+    // PARENTS-CTA-1 — the back link (renders nothing for anyone not from /for-parents) is the
+    // first child of the page body on the two NON-overlay paths only: inside DesktopShell's
+    // content area on a desktop, inside MobileShell's <main> on a phone. Never in the overlay.
+    const body = overlay ? pageBody : (
+      <>
+        <ParentReturnLink />
+        {pageBody}
+      </>
+    );
+    return overlay ? (
       // OVERLAY MODE (build v1.1): the tutor host owns the sheet frame, so render the page
       // BARE — no MobileShell, even at mobile width. A MobileShell here would put the app's
       // account header + bottom NAV inside a full-screen sheet, giving the student a way to
@@ -1058,21 +1067,16 @@ const DesktopCheckImprovePageInner: React.FC<{
         {body}
       </>
     ) : isDesktop ? (
-      // PARENTS-CTA-1 — the back link (renders nothing for anyone not from /for-parents).
-      <>
-        <ParentReturnLink />
-        {body}
-      </>
+      <>{body}</>
     ) : (
       // ACTIVATION-2 B — rightSlot: a signed-out visitor's compact "Sign up" (nothing when signed
       // in). The in-progress draft is flushed on the way out, and the free check's sign-in marker
       // is set exactly as its own sign-in links set it (OR-18).
-      // PARENTS-CTA-1 — the back link sits INSIDE the shell's <main>, above the page body.
       <MobileShell title="Check & Improve" subtitle={subtitle} showNav rightSlot={ciMobileSignUp()}>
-        <ParentReturnLink />
         {body}
       </MobileShell>
     );
+  };
 
   // ── input form state ─────────────────────────────────────────────
   // Subject / topic / marks are NO LONGER student-picked — the grader determines
