@@ -26,6 +26,7 @@ import {
 } from "../../lib/mistakeDisplay";
 import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import { StepAnnotation } from "../results/StepAnnotation";
+import { BRAND_MARK_SRC } from "../../config/brandMark";
 import type {
   CheckSolutionAnnotatedStep,
   CheckSolutionMistakeSummary,
@@ -196,7 +197,7 @@ export function CheckImproveGradedPrintDoc({
 
       <div className="lt-cigp__head">
         <div className="lt-cigp__brand">
-          <span className="lt-cigp__logo">LT</span>
+          <img className="lt-cigp__logo" src={BRAND_MARK_SRC} alt="" aria-hidden="true" />
           <span>
             <span className="lt-cigp__nm">LazyTopper</span>
             <span className="lt-cigp__tg">CBSE · CLASS 10 · CHECK &amp; IMPROVE</span>

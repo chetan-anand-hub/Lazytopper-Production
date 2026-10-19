@@ -27,6 +27,7 @@ import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
 import { StepAnnotation } from "../results/StepAnnotation";
+import { BRAND_MARK_SRC } from "../../config/brandMark";
 import type {
   CheckSolutionAnnotatedStep,
   WorksheetGradeResponse,
@@ -168,7 +169,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
 
       <div className="lt-gp__head">
         <div className="lt-gp__brand">
-          <span className="lt-gp__logo">LT</span>
+          <img className="lt-gp__logo" src={BRAND_MARK_SRC} alt="" aria-hidden="true" />
           <span>
             <span className="lt-gp__nm">LazyTopper</span>
             <span className="lt-gp__tg">CBSE · CLASS 10</span>

@@ -26,6 +26,7 @@ import PendingBell from "../../components/home/PendingBell";
 import ShareWithParentsButton from "../../components/parentReport/ShareWithParentsButton";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
 import { TrialEndBannerView, useTrialEndBanner } from "../../components/trial/TrialEndBanner";
+import { BRAND_MARK_SRC } from "../../config/brandMark";
 import {
   BORDER,
   CARD_BG,
@@ -638,12 +639,7 @@ export default function MobileHome() {
         }}
       >
         <span style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 15, color: FG }}>
-          <span style={{ width: 26, height: 26, borderRadius: 7, background: GREEN, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ width: 15, height: 15 }}>
-              <path d="M3 9l9-5 9 5-9 5-9-5z" fill="#fff" />
-              <path d="M7 11v5c0 1 2.5 2.5 5 2.5s5-1.5 5-2.5v-5" stroke="#fff" strokeWidth="1.6" fill="none" />
-            </svg>
-          </span>
+          <img src={BRAND_MARK_SRC} width={26} height={26} alt="" aria-hidden="true" style={{ borderRadius: 7, display: "block" }} />
           LazyTopper
         </span>
         {/* Right cluster — mirrors MobileShell's own header cluster. The account

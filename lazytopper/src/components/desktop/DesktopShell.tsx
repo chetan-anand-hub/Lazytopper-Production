@@ -7,6 +7,7 @@ import { MistakeIntelCard } from "./MistakeIntelCard";
 import { TutorPickerModal } from "../../lib/desktop/homeDestinations";
 import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
 import PendingBell from "../home/PendingBell";
+import { BRAND_MARK_SRC } from "../../config/brandMark";
 
 /**
  * DesktopShell — locked desktop AppShell parity build (Desktop Phase 1).
@@ -337,23 +338,14 @@ export function DesktopShell({ children }: DesktopShellProps) {
             color: "inherit",
           }}
         >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: "linear-gradient(135deg, hsl(152,55%,45%), hsl(152,60%,38%))",
-              display: "grid",
-              placeItems: "center",
-              boxShadow: "0 0 32px hsla(152,55%,45%,0.25)",
-            }}
+          <img
+            src={BRAND_MARK_SRC}
+            width={36}
+            height={36}
+            alt=""
             aria-hidden="true"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-              <path d="M6 12v5c3 3 9 3 12 0v-5" />
-            </svg>
-          </div>
+            style={{ borderRadius: 10, display: "block", flexShrink: 0 }}
+          />
           <div>
             <div
               style={{
