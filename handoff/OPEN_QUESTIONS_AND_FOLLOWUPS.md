@@ -23,6 +23,61 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-19 (daily) - #1265 CI-COST-2, #1266 PAY-STATUS-1, #1267 START-HERE-ONE-TAP-1, #1268 PARENTS-CTA-1, #1269 HYGIENE-2, #1270 PAY-RECOVER-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10, the first daily handoff)
+
+*Readings are at trunk `1b4bc035`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. relayed review findings).
+
+### Closed / narrowed by today's merges
+
+- **[FU-OGSVG-FAKE-REVIEWS]** CLOSED by `#1269` (`296d4b5b`): `lazytopper/public/og-image.svg` deleted; `/og-image.svg` returns 404 **[docs-builder-curl]**; brandMark / domain guards pin it absent and a rating / review-count sweep over `index.html`, `public/`, `src/` fails on any such claim **[git/gh]**.
+- **"First 200 students" copy** RETIRED by `#1268` (`cd234bf7`): `FOUNDING_COHORT_SIZE` and `FOUNDING_COHORT_COPY` removed; the badge reads "Founding member offer"; `/pricing` on www carries no "First 200" **[docs-builder-curl]**. Older entries quoting the line (e.g. the #830 / #548 blocks) are history, not current copy.
+- **[FU-PRICING-FOUNDING-COHORT]** NARROWED by `#1268`: there is no published seat number any more, so the "promise the product cannot enforce" is gone. What remains: closing the founding offer is a MANUAL flip of `FOUNDING_OFFER_OPEN`; nothing counts subscribers. Still open as that.
+- **`/admin` GA4 exclusion** (memory request; `[FU-ADMIN-ANALYTICS-EXCLUSION]`, recorded CLOSED 2026-10-17 as shipped in `#1192`): `#1269` adds an `index.html`-level marker so a full `/admin` load tags GA4 hits `traffic_type: "internal"` from the first page view. Limits: `[FU-GA4-INTERNAL-MARKER-LIMITS]`.
+- **8,500+ claim** SUPERSEDED: share card and `docs/SEO_DECISIONS.md` C6 now say 10,000+ (owner ruling 19 Oct; served 10,577 at `acd94951`).
+
+### CI cost
+
+### [FU-CI-CLOCK-LEGS-INVESTIGATE]
+**Why does every PR run the clock legs?** Each PR's Quality Gate runs date-pinned "clock" legs (2030 and IST-midnight) - about half of a ~50-minute PR run **[coordinator]**; the owner calls 50 min per PR waste. Find out why the legs exist per PR (which defect class they caught, and when), what would break if they ran only nightly (`nightly-full-clock` exists) or only when a date-sensitive file (`scripts/testClock/date-sensitive-tests.json`) or its subject changes, and propose the cheaper trigger. Investigation first; no workflow change without a ruling.
+
+### [FU-PACKAGE-JSON-DUP-MATRIX-KEY]
+`lazytopper/package.json` has TWO `"test:matrix:all"` keys (lines 126 and 127 at `1b4bc035` [git/gh]); they are NOT identical (1,837 vs 1,875 bytes; first difference at char 1302). JSON parsers keep the LAST one, so line 126 is dead text that a reader (and CLAUDE.md section 6 "read the chain in package.json") can mistake for the gate. Delete the dead key after confirming the last one is the intended chain.
+
+### [FU-PRACTICEPAGE-STARTHERE-WRITTEN-FLAKE]
+`lazytopper/src/pages/PracticePage.startHere.test.tsx` ~L194, `await waitFor(() => expect(written.length).toBeGreaterThan(0))`, uses the default 1 s `waitFor` and flakes; it fails on a clean base too **[coordinator]**, so it is not caused by today's PRs. Give it an explicit timeout or await the event that writes, and run it under load to prove it.
+
+### [FU-SCOPEGUARD-DOCS-DIR-IS-TOOLING]
+Found while writing this handoff. The local `scope:guard` (anchor `lazytopper/`) files `docs/SEO_DECISIONS.md` under `trackedTooling`, so a handoff PR that also amends it FAILS every mode ("no declared mode covers this lane combination: trackedTooling+docs"). The CI classifier (`verdictForFiles`, `vercel_ignore_build.mjs`) calls the same 9 files "deploy-inert docs", and `ci_docs_lane_acceptance.mjs` asserts `docs/SEO_DECISIONS.md` is docs-only. Two classifiers disagree on `docs/`. This PR was verified in halves (handoff + CLAUDE.md: `--mode docs` OK; `docs/SEO_DECISIONS.md` alone: auto tooling OK). Fix: put repo-root `docs/*.md` in the guard's docs lane, or declare a docs+tooling mode.
+
+### Payments
+
+### [FU-PAY-STATUS-PARENT-ORDERS]
+Parent-paid orders recover only through the Razorpay webhook. `POST /api/pay/status` needs the student's verified uid, and the parent route has no auth, so `ParentPayPanel` shows "still confirming" and never polls (`#1270`). If the webhook is late or lost, nothing on the parent side reconciles. Options: a parent-order status route keyed on the order plus a signed token from the panel, or a server-side sweep of `created` parent orders. Matters once parent pay is switched on (ops, queued).
+
+### Security
+
+### [FU-ANON-XFF-SPOOFABLE]
+The signed-out rate limiter keys on the FIRST `X-Forwarded-For` hop (`lazytopper/server/services/rateLimiter.cjs` ~L338 and ~L514), which a client can set. Real visitors are keyed correctly (Vercel appends the real address), and a spoof gains nothing today **[coordinator, review finding]** beyond picking its own bucket. Fix: key on a header only Vercel sets, or lock Railway ingress to Vercel so the chain is trusted.
+
+### Analytics
+
+### [FU-GA4-INTERNAL-MARKER-LIMITS]
+`#1269`'s marker has limits **[coordinator, review finding; git/gh]**: (1) only a FULL page load on `/admin` or under it sets it (the `index.html` block runs once per document load) - an in-app navigation into `/admin` does not; (2) ANY visitor who loads `/admin` is marked internal (the route's auth comes later), so a curious visitor drops out of GA4; (3) the Meta pixel and Vercel Analytics do not read it, so the owner's non-admin browsing still counts there. Also: there are now TWO device markers - `lazytopper.internal` (TRACK-2, `analytics.ts`, registered in `studentDataMap.ts`) and `lt.internalTraffic` (HYGIENE-2, `index.html`, NOT found in `studentDataMap.ts` by grep at writing). Unify them or register the second in the data map.
+
+### SEO
+
+### [FU-INDEXNOW-RESTAMP-CHURN]
+`gen:sitemap` restamps a URL's `lastmod` whenever its prerendered body hash changes, and search-ping sends every restamped URL to IndexNow on each trunk push (`search-ping.yml` header). Chrome-only or copy-only changes therefore restamp: `#1263` (logo) restamped 6 sitemap URLs; `#1268` restamped `/pricing` for a badge-copy change **[git/gh]**. Frequent cosmetic restamps can teach crawlers to discount `lastmod`. Measure how often restamps are cosmetic, then decide whether the hash should ignore shared chrome.
+
+### [FU-C6-TUTOR-WORD]
+`docs/SEO_DECISIONS.md` C6 says describe the AI "as a teaching assistant, never a 'tutor'". `#1268` (owner ruling 19 Oct) added the `/for-parents` tile "A tutor for doubts, explained step by step", and the product already names its Tutor surface. Owner call: amend C6 (e.g. "tutor" allowed for the product's own Tutor feature, not as a competitor framing) or change the tile.
+
+### Carried forward (open, unchanged)
+
+- Everything in the #1261-#1263 section except `[FU-OGSVG-FAKE-REVIEWS]` (closed above).
+- **Queued [coordinator]:** CI-COST-3 (`#1271` open, not merged at writing), PAYWALL-PAY-1, parent pay switch-on (ops), PURCHASE-CONV-1, "Not now -> ask the tutor".
+- **Owner:** repo back to PRIVATE when the day's PRs are done; ads budget / landing changes (see `DECISION_LOG.md`, 19 Oct daily).
+
 ## 2026-10-19 - HIDE8-FIG8-1 #1261 / #1262 AND LOGO-1 #1263 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `e307f4b0`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[builder-reported]** come from the PR bodies of #1261, #1262, #1263; facts marked **[reviewer]** come from the independent reviews as relayed in the coordinator's message, 19 Oct; facts marked **[git/gh]** were re-read while writing this entry.

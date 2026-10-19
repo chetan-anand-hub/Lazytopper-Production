@@ -1,3 +1,14 @@
+## 2026-10-19 (daily) - CI-COST-2 (`#1265`), PAY-STATUS-1 (`#1266`), START-HERE-ONE-TAP-1 (`#1267`), PARENTS-CTA-1 (`#1268`), HYGIENE-2 (`#1269`), PAY-RECOVER-1 (`#1270`) - MERGED
+
+- DONE. `#1266` (`417393d9`) + `#1270` (`1b4bc035`): payment recovery GAP 5 - `POST /api/pay/status` reconciles a student's own order with Razorpay through the same grant path; the checkout shows "Checking your payment…" instead of a false failure after a signed success, holds Pay while unconfirmed, and refreshes the subscription on return to the tab. Owner live-verify owed (a real payment).
+- DONE. `#1265` (`4bf18575`): CI cost - evidence reader maxBuffer, job timeouts on every job, diff-scoped Container Boot on push.
+- DONE. `#1267` (`76d61af2`): one tap from Start here to five graded questions.
+- DONE. `#1268` (`cd234bf7`): `/for-parents` free-check link, `/pricing` link, tutor tile; `/check-improve` back link; "First 200" -> "Founding member offer". Live markup on www [docs-builder-curl].
+- DONE. `#1269` (`296d4b5b`): fabricated-rating `og-image.svg` deleted (closes `[FU-OGSVG-FAKE-REVIEWS]`); share card 10,000+; `/admin` loads mark GA4 internal traffic.
+- PROCESS. Handoff docs now once a day (CLAUDE.md section 10 amended, owner ruling 19 Oct).
+- NEXT. CI-COST-3 (`#1271` open, not merged at writing), PAYWALL-PAY-1, parent pay switch-on (ops), PURCHASE-CONV-1, "Not now -> ask the tutor". Repo back to PRIVATE.
+- OPEN. `[FU-CI-CLOCK-LEGS-INVESTIGATE]`, `[FU-ANON-XFF-SPOOFABLE]`, `[FU-GA4-INTERNAL-MARKER-LIMITS]`, `[FU-PRACTICEPAGE-STARTHERE-WRITTEN-FLAKE]`, `[FU-PACKAGE-JSON-DUP-MATRIX-KEY]`, `[FU-PAY-STATUS-PARENT-ORDERS]`, `[FU-INDEXNOW-RESTAMP-CHURN]`, `[FU-C6-TUTOR-WORD]`, `[FU-SCOPEGUARD-DOCS-DIR-IS-TOOLING]`.
+
 ## 2026-10-19 - HIDE8-FIG8-1 (`#1261` Part B, `#1262` Part A) and LOGO-1 (`#1263`) - MERGED
 
 - DONE. `#1261` (`46e685de`): 7 official CBSE 2026 marking-scheme drawings bound into 6 PYQ solutions, SHA-pinned to the refile ledger; crop pins 58 -> 65; CHEMRXN-021 "six crosses". Review PASS; live (cofounder-verified).

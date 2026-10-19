@@ -72,12 +72,20 @@ page must supply, not about a word**, and both directions need a control.
 **C5 · Batched publication.** ENGINE-1 emits in **two or three batches over a fortnight**,
 not one drop. A new domain publishing 130 pages in a day is a content-farm pattern.
 
-**C6 · Claims.** Only these are verified and publishable: **8,500+ practice questions ·
+**C6 · Claims.** Only these are verified and publishable: **10,000+ practice questions ·
 10 years of real CBSE papers · 26 topics · Maths and Science (Physics, Chemistry,
 Biology) only.** No star ratings, no review counts, no success percentages, no user
 numbers. Trial wording is fixed: *"7-day Premium trial — then free Basic, upgrade
 anytime"* — never "then paid". Describe the AI as a **teaching assistant**, never a
 "tutor": tutors are a distribution channel, not a competitor.
+
+*C6 amended 2026-10-19 (owner ruling): the question claim is **10,000+** (was 8,500+); the
+share card `og-image.png` says the same since HYGIENE-2 (#1269). Served bank at trunk
+`acd94951` (#1262) is 10,577 by import, so 10,000+ is true. The same PR deleted
+`public/og-image.svg`, which carried an invented "4.8 from 2,340+ reviews" — the kind of
+claim this rule forbids. Note: PARENTS-CTA-1 (#1268, owner ruling 19 Oct) put the tile
+"A tutor for doubts, explained step by step" on `/for-parents`; the "never a tutor"
+wording above is open against it as `[FU-C6-TUTOR-WORD]` (handoff board).*
 
 ---
 
