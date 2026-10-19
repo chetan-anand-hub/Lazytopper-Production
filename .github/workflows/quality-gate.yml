@@ -77,6 +77,10 @@ concurrency:
   group: quality-gate-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
+# ★ CI-COST-2: every job carries a job-level `timeout-minutes`, so a HUNG job is cut off instead
+# of billing GitHub's 6-hour default. Each limit is >= 4x the slowest successful run of that job
+# observed on 2026-10-19 (and above any step-level timeout inside it), so it only ever ends a hang.
+# A timed-out job is a FAILED job: the aggregate `quality-gate` goes red — it fails closed.
 jobs:
   # ★★ THE DECISION. Delegated to the module that is ALSO its own acceptance suite. It derives the
   # changed-file list from `git merge-base origin/<base> HEAD` recomputed HERE, at run time — this
@@ -91,6 +95,7 @@ jobs:
   # nightly-full-clock job. Anything else, or the repo variable CI_FORCE_FULL_BAR=1, runs everything.
   classify:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
       checks: read
@@ -128,6 +133,7 @@ jobs:
   docs-lane:
     needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -173,6 +179,7 @@ jobs:
     needs: classify
     if: needs.classify.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -234,6 +241,7 @@ jobs:
     needs: classify
     if: needs.classify.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -351,6 +359,7 @@ jobs:
     needs: classify
     if: needs.classify.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -412,6 +421,7 @@ jobs:
     needs: classify
     if: needs.classify.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       # Each clock is split in two halves of the manifest. The manifest is ~70% of the suite's test
@@ -496,6 +506,7 @@ jobs:
     needs: [classify, docs-lane, static, build-ops, railway-build, vitest, clock]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout the aggregate script
         uses: actions/checkout@v7
@@ -527,6 +538,7 @@ jobs:
   nightly-full-clock:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 75
     permissions:
       contents: read
       issues: write

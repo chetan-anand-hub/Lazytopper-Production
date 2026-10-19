@@ -56,6 +56,8 @@
  */
 
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
 const args = process.argv.slice(2);
@@ -95,40 +97,139 @@ const RELEVANT = [
   /^\.github\/workflows\/container-boot\.yml$/,
 ];
 
-function changedFiles() {
-  const base = process.env["BASE_REF"];
-  if (process.env["EVENT_NAME"] !== "pull_request" || !base) return null;
-  const mergeBase = execFileSync("git", ["merge-base", `origin/${base}`, "HEAD"], {
-    encoding: "utf8",
-  }).trim();
-  return execFileSync("git", ["diff", "--name-only", `${mergeBase}..HEAD`], {
-    encoding: "utf8",
-  })
-    .split("\n")
-    .map((s) => s.trim())
-    .filter(Boolean);
+const GIT_OPTS = { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 * 1024 * 1024 };
+const defaultGit = (gitArgs) => execFileSync("git", gitArgs, GIT_OPTS);
+const lines = (out) => String(out).split("\n").map((s) => s.trim()).filter(Boolean);
+const FULL_SHA = /^[0-9a-f]{40}$/i;
+const ZERO_SHA = /^0+$/;
+
+/** The changed paths that can move the image. */
+export function imageHits(files) {
+  return files.filter((f) => RELEVANT.some((re) => re.test(f)));
+}
+
+/**
+ * The whole decision, as a pure function of the event and a `git` runner (injectable for tests).
+ * Returns { skip, reason, hits, files }. Every path that cannot PROVE "no image-relevant file
+ * changed" returns skip:false — the boot runs.
+ *
+ * ★ CI-COST-2 (owner-approved 2026-10-19): a PUSH to trunk no longer boots unconditionally —
+ *   but it does NOT reuse RELEVANT. RELEVANT is a list of what CAN move the image, and it is
+ *   incomplete for a push: the Dockerfile does `COPY . .`, the gateway compiles lazytopper/src/**
+ *   (including .md and .json it reads at runtime) at boot, and the root build reads lib/, notes/,
+ *   tsconfig*.json and more. So a push uses the INVERSE: an allow-to-SKIP list (SKIPPABLE_ON_PUSH)
+ *   of paths that are obviously outside the image, and it boots unless EVERY path in
+ *   `${PUSH_BEFORE}..HEAD` matches it. Anything unknown boots.
+ *   It also FAILS SAFE TOWARD BOOTING on: an unset, all-zero or malformed before-SHA, a
+ *   before-SHA absent from the checkout, a before-SHA that is NOT an ancestor of HEAD (a force
+ *   push), an empty diff, any git error — and, before any skip, the PREVIOUS trunk push's
+ *   Container Boot run (the run for `before`) not being a completed success, or not being
+ *   readable at all. That last rule stops a red (or still-running) trunk boot from being hidden
+ *   by a following docs-only push: a skipped run only succeeds when its predecessor did, so the
+ *   chain stays red until a boot passes. Railway no longer waits on CI (owner ruling D33); the
+ *   PR run still classifies with RELEVANT exactly as before. workflow_dispatch always boots.
+ */
+const SKIPPABLE_ON_PUSH = [
+  /^handoff\//,
+  /^docs\//,
+  /^ledger\//,
+  /^screenshots\//,
+  /^ops\/.*\.md$/,
+  // Top-level markdown only (AGENTS.md, CLAUDE.md, ...). NOT any *.md: the tutor retriever reads
+  // .md files under lazytopper/src at runtime.
+  /^[^/]+\.md$/,
+  // Excluded from the image by .dockerignore — except this gate's own workflow, which must boot.
+  /^\.claude\//,
+  /^\.github\/(?!workflows\/container-boot\.yml$)/,
+];
+
+/** The changed paths that are NOT provably outside the image (push rule). */
+export function nonSkippable(files) {
+  return files.filter((f) => !SKIPPABLE_ON_PUSH.some((re) => re.test(f)));
+}
+
+const defaultPrevBoot = (before) => {
+  const repo = process.env["GITHUB_REPOSITORY"];
+  const branch = process.env["GITHUB_REF_NAME"];
+  if (!repo || !branch) throw new Error("GITHUB_REPOSITORY / GITHUB_REF_NAME unset");
+  const q = `repos/${repo}/actions/workflows/container-boot.yml/runs?event=push&branch=${encodeURIComponent(branch)}&head_sha=${before}&per_page=20`;
+  const out = execFileSync("gh", ["api", q], { ...GIT_OPTS, env: { ...process.env } });
+  const runs = (JSON.parse(out)?.workflow_runs || [])
+    .filter((r) => r && r.head_sha === before)
+    .sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)));
+  if (!runs.length) return "no run found";
+  return runs[0].status === "completed" ? String(runs[0].conclusion) : `still ${runs[0].status}`;
+};
+
+export function decideBoot({ event, baseRef, pushBefore, git = defaultGit, prevBoot = defaultPrevBoot } = {}) {
+  const run = (reason) => ({ skip: false, reason, hits: [], files: [] });
+  const fromFiles = (files, prefix = "") => {
+    const hits = imageHits(files);
+    return {
+      skip: hits.length === 0,
+      reason: prefix + (hits.length ? "image-relevant paths changed" : "no image-relevant path changed"),
+      hits,
+      files,
+    };
+  };
+
+  if (event === "pull_request") {
+    // PR behaviour is UNCHANGED: the merge-base diff against the PR's base branch.
+    if (!baseRef) return run("not a pull_request -> always run");
+    try {
+      const mergeBase = String(git(["merge-base", `origin/${baseRef}`, "HEAD"])).trim();
+      return fromFiles(lines(git(["diff", "--name-only", `${mergeBase}..HEAD`])));
+    } catch (err) {
+      // A failed merge-base must RUN the gate, never silently skip it.
+      console.log(`classifier: could not derive changed files (${err.message}) -> RUNNING`);
+      return run("unresolved (fail-open)");
+    }
+  }
+
+  if (event === "push") {
+    const before = String(pushBefore || "").trim();
+    if (!FULL_SHA.test(before) || ZERO_SHA.test(before)) {
+      return run(`push: before SHA unknown (${before || "unset"}) -> RUNNING (fail-safe)`);
+    }
+    let files;
+    try {
+      git(["cat-file", "-e", `${before}^{commit}`]);
+      // exits non-zero (throws) when `before` is not an ancestor: a force push rewrote trunk.
+      git(["merge-base", "--is-ancestor", before, "HEAD"]);
+      files = lines(git(["diff", "--name-only", `${before}..HEAD`]));
+    } catch (err) {
+      const why = String(err?.message || err).split("\n")[0].slice(0, 120);
+      return run(`push: cannot diff ${before.slice(0, 12)}..HEAD as a fast-forward (${why}) -> RUNNING (fail-safe)`);
+    }
+    if (files.length === 0) return run("push: empty diff -> RUNNING (fail-safe)");
+    const hits = nonSkippable(files);
+    if (hits.length) {
+      return { skip: false, reason: "push: a path not on the skip list changed -> RUNNING", hits, files };
+    }
+    let prev;
+    try {
+      prev = prevBoot(before);
+    } catch (err) {
+      const why = String(err?.message || err).split("\n")[0].slice(0, 120);
+      return { skip: false, reason: `push: previous trunk boot unreadable (${why}) -> RUNNING (fail-safe)`, hits, files };
+    }
+    if (prev !== "success") {
+      return { skip: false, reason: `push: previous trunk boot (${before.slice(0, 12)}) is ${prev}, not success -> RUNNING`, hits, files };
+    }
+    return { skip: true, reason: "push: every changed path is on the skip list and the previous trunk boot passed", hits, files };
+  }
+
+  // workflow_dispatch (and anything else): a hand-run means "boot it".
+  return run(`event=${event || "(unset)"} is not pull_request/push -> always run`);
 }
 
 function classify() {
-  let files = null;
-  let reason = "";
-  try {
-    files = changedFiles();
-  } catch (err) {
-    // A failed merge-base must RUN the gate, never silently skip it.
-    console.log(`classifier: could not derive changed files (${err.message}) -> RUNNING`);
-    return emit(false, "unresolved (fail-open)", []);
-  }
-
-  if (files === null) {
-    // push to trunk, or workflow_dispatch. The integration check must not be
-    // forgettable, so trunk always boots the image.
-    return emit(false, "not a pull_request -> always run", []);
-  }
-
-  const hits = files.filter((f) => RELEVANT.some((re) => re.test(f)));
-  reason = hits.length ? "image-relevant paths changed" : "no image-relevant path changed";
-  return emit(hits.length === 0, reason, hits, files);
+  const d = decideBoot({
+    event: process.env["EVENT_NAME"],
+    baseRef: process.env["BASE_REF"],
+    pushBefore: process.env["PUSH_BEFORE"],
+  });
+  return emit(d.skip, d.reason, d.hits, d.files);
 }
 
 function emit(skip, reason, hits, files = []) {
@@ -216,9 +317,15 @@ async function assertBoot() {
   console.log("\nCONTAINER BOOT GATE: the image built, booted, and served its healthcheck.");
 }
 
-if (has("--classify")) process.exit(classify());
-else if (has("--assert")) await assertBoot();
-else {
-  console.error("usage: --classify | --assert --log <file> --url <base>");
-  process.exit(2);
+// ★ ONLY WHEN RUN AS A SCRIPT, so the tests can import decideBoot without running the CLI.
+const invokedDirectly =
+  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
+
+if (invokedDirectly) {
+  if (has("--classify")) process.exit(classify());
+  else if (has("--assert")) await assertBoot();
+  else {
+    console.error("usage: --classify | --assert --log <file> --url <base>");
+    process.exit(2);
+  }
 }

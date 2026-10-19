@@ -297,9 +297,24 @@ export function decideNonPrPath({ event, forceFull = false, facts = null }) {
     reason: `push: merge of #${facts.mergedPrs[0].number}, tree identical to its head, whose quality-gate passed` };
 }
 
+/**
+ * ★ CI-COST-2: `gh api` output is buffered by execSync, whose default maxBuffer is 1 MiB. A large
+ *   merge commit's JSON (every file + patch) overflows it — run 39205080072 (merge of #1263) logged
+ *   `push: evidence unreadable (spawnSync /bin/sh ENOBUFS)` and fell back to the ~58-min full bar
+ *   on a tree whose PR head had already passed. Raising the buffer only lets a READABLE answer be
+ *   read: every fact is still checked by `decideNonPrPath`, and any exec error is still a fact
+ *   (`{ error }`) that takes the full bar.
+ */
+export const GH_API_MAX_BUFFER = 256 * 1024 * 1024;
+
+export function ghApiJson(p, env = process.env, exec = execSync) {
+  return JSON.parse(exec(`gh api "${p}"`, {
+    encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GH_API_MAX_BUFFER,
+    env: { ...process.env, GH_TOKEN: env.GH_TOKEN || process.env.GH_TOKEN || "" } }));
+}
+
 /** Reads the facts `decideNonPrPath` needs, through `gh api`. Never throws: an error is a fact. */
-export function gatherPushFacts(env = process.env, api = (p) => JSON.parse(execSync(`gh api "${p}"`, {
-  encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GH_TOKEN: env.GH_TOKEN || process.env.GH_TOKEN || "" } }))) {
+export function gatherPushFacts(env = process.env, api = (p) => ghApiJson(p, env)) {
   try {
     const repo = env.GITHUB_REPOSITORY;
     const sha = env.GITHUB_SHA;
@@ -700,6 +715,29 @@ function runSuite(mutation) {
       const v = verdictFor(mutate);
       check(name, control === "post-merge" && v === "full", `verdict=${v}`);
     }
+  }
+
+  // ★ a24 — CI-COST-2: the real `gh api` reader can carry a large commit's JSON. A >1 MiB answer
+  //   (the default execSync maxBuffer) is produced by a REAL child process through ghApiJson's own
+  //   exec options, so dropping or shrinking maxBuffer turns this RED with ENOBUFS. The fallback is
+  //   unchanged: an ENOBUFS thrown by the reader is still an `error` fact and still the full bar.
+  {
+    let seen = null;
+    ghApiJson("repos/o/r/commits/x", {}, (cmd, opts) => { seen = opts; return "{}"; });
+    const big = 2 * 1024 * 1024;
+    let bigOk = false, bigDetail = "";
+    try {
+      const out = ghApiJson("repos/o/r/commits/x", {}, (cmd, opts) =>
+        execSync(`"${process.execPath}" -e "process.stdout.write(JSON.stringify({x:'a'.repeat(${big})}))"`, opts));
+      bigOk = out?.x?.length === big;
+    } catch (err) { bigDetail = String(err?.message || err).split("\n")[0].slice(0, 80); }
+    const enobufs = gatherPushFacts({ GITHUB_REPOSITORY: "o/r", GITHUB_SHA: "s", GITHUB_REF_NAME: "b" },
+      () => { throw new Error("spawnSync /bin/sh ENOBUFS"); });
+    check("a24_gh_api_reader_carries_large_commits_and_still_fails_closed",
+      seen && seen.maxBuffer === GH_API_MAX_BUFFER && GH_API_MAX_BUFFER >= 256 * 1024 * 1024 && bigOk &&
+        decideNonPrPath({ event: "push", facts: enobufs }).verdict === "full",
+      bigOk ? `maxBuffer=${GH_API_MAX_BUFFER}; a ${big}-byte answer parsed; ENOBUFS still takes the full bar`
+            : `a ${big}-byte answer did not parse: ${bigDetail || "wrong length"}`);
   }
 
   // ★ a23 — the nightly keeps ONE cheap REAL-DATE run (owner review, CI-COST-1): build + both

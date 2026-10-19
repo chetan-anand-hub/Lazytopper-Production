@@ -34,6 +34,7 @@ permissions:
 jobs:
   lane-overlap:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       # merge_group ONLY — never on pull_request (pinned by ci_speed_acceptance.mjs).
       - name: Lane-overlap pass-through (merge_group)
