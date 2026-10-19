@@ -138,9 +138,12 @@ type Run = {
   win: Record<string, unknown>;
 };
 
+/** HYGIENE-2 — a stand-in localStorage: a Map, or "throws" for a blocked / private store. */
+type Storage = Map<string, string> | "throws";
+
 function runGa4Block(
   href: string,
-  opts: { referrer?: string; webdriver?: boolean; readyState?: string; noIdle?: boolean } = {},
+  opts: { referrer?: string; webdriver?: boolean; readyState?: string; noIdle?: boolean; storage?: Storage } = {},
 ): Run {
   const url = new URL(href);
   const appended: Appended[] = [];
@@ -172,6 +175,19 @@ function runGa4Block(
     win.requestIdleCallback = (fn: () => void, o?: { timeout?: number }) => {
       idles.push({ timeout: o?.timeout, fn });
       return idles.length;
+    };
+  }
+  const storage = opts.storage;
+  if (storage === "throws") {
+    Object.defineProperty(win, "localStorage", {
+      get() {
+        throw new Error("SecurityError: storage blocked");
+      },
+    });
+  } else if (storage) {
+    win.localStorage = {
+      getItem: (k: string) => (storage.has(k) ? storage.get(k)! : null),
+      setItem: (k: string, v: string) => void storage.set(k, String(v)),
     };
   }
   const doc = {
@@ -362,6 +378,98 @@ describe("index.html — the GA4 block (GA4-1)", () => {
     // CONTROL — the rule really fires (a no-op on both sides would also be "equal").
     expect(normalisePath("/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12")).toBe("/admin/students/:id");
     expect(normalisePath("/parent/a@b.c")).toBe("/parent/:email");
+  });
+});
+
+/**
+ * HYGIENE-2 (owner-approved 2026-10-19, gap report item 10) — the owner's own browsing is
+ * INTERNAL traffic. GA4's Internal Traffic data filter (active) drops events whose
+ * `traffic_type` is "internal". A full load on /admin (or /admin/...) sets the per-browser
+ * marker `lt.internalTraffic` = "1"; while it is present the block passes traffic_type in
+ * the config AND `gtag("set", …)`s it once, so every later event from src/analytics/
+ * (which only `set`s page fields) carries it too.
+ *
+ * Mutations: key the marker on any path containing "admin" -> the "/notes/admin" and
+ * "/administer" rows go red; drop the `set` -> the later-event test goes red; write the
+ * marker on every page -> the fresh-browser CONTROL goes red.
+ */
+const INTERNAL_KEY = "lt.internalTraffic";
+const setEntries = (run: Run) => (run.dataLayer ?? []).filter((e) => e[0] === "set");
+
+describe("index.html — internal traffic marker (HYGIENE-2)", () => {
+  it("★ CONTROL — a fresh browser on an ordinary page: no marker written, no traffic_type anywhere", () => {
+    const storage = new Map<string, string>();
+    const run = runGa4Block("https://www.lazytopper.com/notes/trigonometry", { storage });
+    expect(storage.size).toBe(0);
+    expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config"]);
+    expect(run.config).not.toHaveProperty("traffic_type");
+    expect(JSON.stringify(run.dataLayer)).not.toContain("internal");
+  });
+
+  it.each(["/admin", "/admin/", "/admin/funnel", "/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12"])(
+    "★ a load on %s writes the marker and marks this load internal (config + set)",
+    (path) => {
+      const storage = new Map<string, string>();
+      const run = runGa4Block(`https://www.lazytopper.com${path}`, { storage });
+      expect(storage.get(INTERNAL_KEY)).toBe("1");
+      expect(run.config).toMatchObject({ traffic_type: "internal", send_page_view: false });
+      expect(setEntries(run)).toEqual([["set", { traffic_type: "internal" }]]);
+      expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config", "set"]);
+    },
+  );
+
+  it.each(["/", "/administer", "/admins", "/notes/admin", "/parent/admin/report", "/pricing?admin=1"])(
+    "keys ONLY on a path that starts with /admin — %s writes nothing",
+    (path) => {
+      const storage = new Map<string, string>();
+      const run = runGa4Block(`https://www.lazytopper.com${path}`, { storage });
+      expect(storage.has(INTERNAL_KEY)).toBe(false);
+      expect(run.config).not.toHaveProperty("traffic_type");
+      expect(setEntries(run)).toEqual([]);
+    },
+  );
+
+  it("★ the marker persists: an ordinary page in the SAME browser after /admin is internal, and so is every later event", () => {
+    const storage = new Map<string, string>();
+    runGa4Block("https://www.lazytopper.com/admin/funnel", { storage });
+    const run = runGa4Block("https://www.lazytopper.com/notes/electricity?gclid=G1", { storage });
+    expect(run.config).toMatchObject({
+      traffic_type: "internal",
+      page_location: "https://www.lazytopper.com/notes/electricity?gclid=G1",
+    });
+    // What src/analytics/ sends later only `set`s page fields; the global traffic_type stays.
+    const gtag = run.win.gtag as (...args: unknown[]) => void;
+    gtag("set", { page_location: "https://www.lazytopper.com/notes/electricity" });
+    gtag("event", "page_view", { page_location: "https://www.lazytopper.com/notes/electricity" });
+    const entries = (run.win.dataLayer as Array<ArrayLike<unknown>>).map((e) => Array.from(e));
+    expect(entries.map((e) => e[0])).toEqual(["js", "config", "set", "set", "event"]);
+    expect(entries[2]).toEqual(["set", { traffic_type: "internal" }]);
+  });
+
+  it("a marker with any other value is ignored", () => {
+    const storage = new Map([[INTERNAL_KEY, "0"]]);
+    expect(runGa4Block("https://www.lazytopper.com/", { storage }).config).not.toHaveProperty("traffic_type");
+  });
+
+  it("blocked storage (throws) never breaks the block: /admin is still internal for that load, other pages are not", () => {
+    const admin = runGa4Block("https://www.lazytopper.com/admin", { storage: "throws" });
+    expect(admin.gtagDefined).toBe(true);
+    expect(admin.config).toMatchObject({ traffic_type: "internal" });
+    const page = runGa4Block("https://www.lazytopper.com/pricing", { storage: "throws" });
+    expect(page.dataLayer?.map((e) => e[0])).toEqual(["js", "config"]);
+    expect(page.config).not.toHaveProperty("traffic_type");
+  });
+
+  it("the /u/ hand-off and automated-context skips still win — nothing runs even with the marker set", () => {
+    const storage = new Map([[INTERNAL_KEY, "1"]]);
+    expect(runGa4Block(`https://www.lazytopper.com/u/${"f".repeat(64)}`, { storage }).dataLayer).toBeUndefined();
+    expect(runGa4Block("http://localhost:5173/admin", { storage: new Map() }).dataLayer).toBeUndefined();
+  });
+
+  it("the marker is an analytics key only — the block names no premium / trial / pass state", () => {
+    const [block] = ga4Blocks();
+    expect(block.body).toContain(`"${INTERNAL_KEY}"`);
+    expect(block.body).not.toMatch(/premium|trial|grantPass|isPro/i);
   });
 });
 

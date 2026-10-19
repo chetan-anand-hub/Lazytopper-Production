@@ -117,7 +117,8 @@ describe("LOGO-1 — no shipped file draws the old mark", () => {
     for (const f of [
       "index.html",
       "public/favicon.svg",
-      "public/og-image.svg",
+      // public/og-image.svg also carried the old tile; HYGIENE-2 (2026-10-19) DELETED it
+      // (it printed an invented rating). Pinned absent below and in domain.guard.test.ts.
       "src/App.tsx",
       "src/components/desktop/DesktopShell.tsx",
       "src/pages/app/MobileHome.tsx",
@@ -127,6 +128,8 @@ describe("LOGO-1 — no shipped file draws the old mark", () => {
       expect(rels.has(f), `scan does not reach ${f}`).toBe(true);
     }
     expect(files.length).toBeGreaterThan(200);
+    // HYGIENE-2: the deleted share-card SVG must not come back (with or without the old mark).
+    expect(existsSync(join(PUBLIC_ROOT, "og-image.svg")), "public/og-image.svg was deleted in HYGIENE-2").toBe(false);
   });
 
   it("zero hits for every old-mark pattern", () => {

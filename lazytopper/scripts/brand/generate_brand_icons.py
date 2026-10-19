@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import base64
 import io
-import re
 from pathlib import Path
 
 from PIL import Image
@@ -96,24 +95,10 @@ def main() -> None:
     )
     (PUBLIC / "favicon.svg").write_text(svg, encoding="ascii", newline="\n")
 
-    # og-image.svg (the vector source of the old share card) drew the green "LT" tile at
-    # x=80 y=80 56x56. Swap ONLY that tile for the fingerprint tile; every other element
-    # of the file is left byte-for-byte. Idempotent: a second run finds no LT tile.
-    og = PUBLIC / "og-image.svg"
-    text = og.read_text(encoding="utf-8")
-    lt_tile = re.compile(
-        r'  <rect x="80" y="80" width="56" height="56" rx="14" fill="#58cc02"/>\n'
-        r'  <text x="108" y="116"[^\n]*>LT</text>\n'
-    )
-    tile_b64 = base64.b64encode(png_bytes(sizes[128])).decode("ascii")
-    fp_tile = (
-        '  <clipPath id="lt-mark-clip"><rect x="80" y="80" width="56" height="56" rx="14"/></clipPath>\n'
-        f'  <image x="80" y="80" width="56" height="56" clip-path="url(#lt-mark-clip)" '
-        f'href="data:image/png;base64,{tile_b64}"/>\n'
-    )
-    text, n = lt_tile.subn(fp_tile, text)
-    if n:
-        og.write_text(text, encoding="utf-8", newline="\n")
+    # HYGIENE-2 (owner, 2026-10-19): the old share-card source public/og-image.svg was
+    # DELETED -- it printed an invented "4.8 from 2,340+ reviews" rating. The live share
+    # card is the owner's public/og-image.png (index.html og:image); this script does not
+    # generate or patch it, so there is no share-card step here any more.
 
     for name in (
         "favicon.ico",
