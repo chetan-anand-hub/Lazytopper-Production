@@ -871,7 +871,9 @@ export type StartHereVariant = "check_one";
 
 export interface OnboardingEventParams {
   start_here_shown: { surface: StartHereSurface | StartHereFocusSurface; variant?: StartHereVariant };
-  start_here_start: { subject: string; chapter: string; qtype: string };
+  /** START-HERE-ONE-TAP-1 — `mode`: "one_tap" (the ready state's subject button) or "picker"
+   *  (the full picker's go). Optional in the type only so older callers stay valid; the card always sends it. */
+  start_here_start: { subject: string; chapter: string; qtype: string; mode?: "one_tap" | "picker" };
   start_here_graded: { subject: string; correct: number; total: number };
   start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface; variant?: StartHereVariant };
   /** HOME-PENDING-1 — the pending-answers list was shown (once per tab per placement: the Home

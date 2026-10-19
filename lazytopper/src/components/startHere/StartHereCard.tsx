@@ -10,6 +10,8 @@ import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import {
   START_HERE_COPY,
+  START_HERE_ONE_TAP_COPY,
+  START_HERE_FAIL_COPY,
   analyticsSubject,
   startHereSetSize,
   dismissForSession,
@@ -34,6 +36,11 @@ import {
  * (local-first, then cloud-merged). On a fresh device a returning student has no local rows
  * until the cloud read lands, so the state is TRI-state and the card can only appear AFTER a
  * completed read that returned zero rows — never during hydration, never on a failed read.
+ *
+ * ── THE READY STATE (START-HERE-ONE-TAP-1) ──────────────────────────────────────────────
+ * Once open (inline: after "Start"; focused surface: at once) the card shows ONE button per
+ * subject that launches at once — the hinted subject only, else Maths and Science — on the
+ * picker's own default chapter and MCQ. "Change chapter or question type" reveals the picker.
  *
  * ── THE PICKER ──────────────────────────────────────────────────────────────────────────
  * Three taps, decisions pre-made: subject (pre-picked from the ad when known), chapter (the
@@ -89,11 +96,14 @@ const CSS = `
   .lt-shc .lt-shc-ctas { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .lt-shc .lt-shc-go { display: inline-flex; align-items: center; justify-content: center;
     background: hsl(152, 55%, 45%); color: #fff; border: 0; border-radius: 10px; padding: 11px 22px;
-    font-size: 14px; font-weight: 700; cursor: pointer; }
+    font-size: 14px; font-weight: 700; cursor: pointer; min-height: 44px; box-sizing: border-box; }
   .lt-shc .lt-shc-go:hover { background: hsl(152, 57%, 40%); }
   .lt-shc .lt-shc-go:disabled { opacity: 0.55; cursor: default; }
   .lt-shc .lt-shc-later { background: none; border: 0; color: rgba(255,255,255,0.78); font-size: 13.5px;
     font-weight: 600; text-decoration: underline; cursor: pointer; padding: 6px 2px; }
+  .lt-shc .lt-shc-change { min-height: 44px; }
+  .lt-shc .lt-shc-ready { display: flex; flex-direction: column; align-items: stretch; gap: 10px; margin: 0 0 12px; }
+  .lt-shc .lt-shc-ready .lt-shc-go { width: 100%; text-align: center; }
   .lt-shc .lt-shc-step { margin: 0 0 14px; }
   .lt-shc .lt-shc-lbl { display: block; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
     margin: 0 0 6px; letter-spacing: 0.02em; }
@@ -282,6 +292,34 @@ function chapterCounts(subject: DesktopSubject, slug: string): ChapterCounts | u
   return bySubject[slug];
 }
 
+/** Whether `subject`'s chapter `slug` can host a full set of type `t` (precomputed map; no network). */
+function offeredIn(subject: DesktopSubject, slug: string, t: StartHereQType): boolean {
+  return (t !== "written" || subject === WRITTEN_SUBJECT) && (chapterCounts(subject, slug)?.[t] ?? 0) >= startHereSetSize(t);
+}
+
+/** A chapter that can host a set of ANY offered type. */
+function chapterOkIn(subject: DesktopSubject, slug: string): boolean {
+  return QTYPES.some((t) => offeredIn(subject, slug, t));
+}
+
+/** One ready-state button: a subject and its pre-selected chapter. */
+interface OneTapTarget {
+  subject: DesktopSubject;
+  slug: string;
+  name: string;
+}
+
+/**
+ * START-HERE-ONE-TAP-1 — the chapter a subject's one-tap button launches: the picker's own
+ * pre-selection (the first chapter, in the shared list's order, that can host a set) on the
+ * default MCQ type. Null when that chapter has no full MCQ set (the button is then not offered).
+ */
+export function oneTapTarget(subject: DesktopSubject): OneTapTarget | null {
+  const first = desktopTopicsBySubject(subject).find((t) => chapterOkIn(subject, t.slug));
+  if (!first || !offeredIn(subject, first.slug, "mcq")) return null;
+  return { subject, slug: first.slug, name: first.name };
+}
+
 /* ── SHW-2 — the SEGMENTED CONTROL (owner ruling, 16 Oct) ────────────────────────────────
  * The subject and type choices used to be pills whose selected state was the Start button's
  * green, so students read them as CTAs and tapped them expecting something to happen. Each
@@ -428,24 +466,46 @@ function StartHerePanel({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [open, setOpen] = useState(startOpen);
   // D4: the ad's hint pre-picks a subject; with no hint NOTHING is pre-selected (the card asks).
-  const [subject, setSubject] = useState<DesktopSubject | null>(() => readSubjectHint());
+  const [hint] = useState<DesktopSubject | null>(() => readSubjectHint());
+  const [subject, setSubject] = useState<DesktopSubject | null>(hint);
   const [chapter, setChapter] = useState("");
   // D1: "Quick 5: tap the answer" is the default type.
   const [qtype, setQtype] = useState<StartHereQType>("mcq");
-  const [busy, setBusy] = useState(false);
+  // Which launch is fetching: the picker's go, or one subject's one-tap button.
+  const [busy, setBusy] = useState<null | "picker" | DesktopSubject>(null);
   const [failed, setFailed] = useState(false);
+  // START-HERE-ONE-TAP-1: false = the READY state (one button per subject); true = the full picker.
+  const [picking, setPicking] = useState(false);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const focusAfterRef = useRef<string | null>(null);
   const tid = (s: string) => `${testIdPrefix}-${s}`;
+  const isBusy = busy !== null;
+
+  // START-HERE-ONE-TAP-1 §1.1: the hinted subject gets ONE button; no hint, one per subject.
+  // Each launches that subject's pre-selected chapter (the picker's own default) on MCQ.
+  const readyTargets = useMemo(
+    () => (hint ? [hint] : (["Maths", "Science"] as const)).map(oneTapTarget).filter((t): t is OneTapTarget => !!t),
+    [hint],
+  );
+  // Nothing can launch in one tap (no ready chapter) -> the picker, as before.
+  const showPicker = picking || readyTargets.length === 0;
+
+  // A control that replaced the tapped one (Start -> ready, Change -> picker) takes focus, so
+  // keyboard and screen-reader users are not dropped onto <body>.
+  useEffect(() => {
+    const sel = focusAfterRef.current;
+    if (!sel) return;
+    focusAfterRef.current = null;
+    panelRef.current?.querySelector<HTMLElement>(sel)?.focus();
+  }, [open, picking]);
 
   // D2/D3: the chapter list is the shared one (`desktopTopicsBySubject`, the list
   // ChapterPickerModal shows, with its " — coming soon" / first-available rules), and which
   // chapters can host a set comes from the precomputed map: a subject tap lists chapters at
   // once, with NO network call.
   const topics = useMemo(() => (subject ? desktopTopicsBySubject(subject) : []), [subject]);
-  const offered = (slug: string, t: StartHereQType): boolean =>
-    !!subject &&
-    (t !== "written" || subject === WRITTEN_SUBJECT) &&
-    (chapterCounts(subject, slug)?.[t] ?? 0) >= startHereSetSize(t);
-  const chapterOk = (slug: string): boolean => QTYPES.some((t) => offered(slug, t));
+  const offered = (slug: string, t: StartHereQType): boolean => !!subject && offeredIn(subject, slug, t);
+  const chapterOk = (slug: string): boolean => !!subject && chapterOkIn(subject, slug);
   const selected = chapter && chapterOk(chapter) ? chapter : (topics.find((t) => chapterOk(t.slug))?.slug ?? "");
   const types = QTYPES.filter((t) => selected && offered(selected, t));
   const activeType: StartHereQType = types.includes(qtype) ? qtype : (types[0] ?? "mcq");
@@ -464,42 +524,117 @@ function StartHerePanel({
     chapterBtnRef.current?.focus();
   };
 
-  const onGo = async () => {
-    if (!subject || !selected || busy) return;
-    setBusy(true);
+  /** The ONE launch path (P8), shared by the picker's go and the ready state's one-tap buttons. */
+  const launch = async (
+    s: DesktopSubject,
+    ch: string,
+    t: StartHereQType,
+    mode: "one_tap" | "picker",
+  ): Promise<void> => {
+    if (isBusy) return;
+    setBusy(mode === "picker" ? "picker" : s);
     setFailed(false);
     try {
       // D3: the bank is reached HERE, on Start, and nowhere earlier.
       const bank = await import("./startHereBank");
-      const ids = await bank.pickStartHereSet({ subject, chapter: selected, qtype: activeType, rotation: Date.now() });
-      if (ids.length < startHereSetSize(activeType)) {
+      const ids = await bank.pickStartHereSet({ subject: s, chapter: ch, qtype: t, rotation: Date.now() });
+      if (ids.length < startHereSetSize(t)) {
         setFailed(true);
-        setBusy(false);
+        setBusy(null);
         return;
       }
-      trackOnboardingEvent("start_here_start", { subject: analyticsSubject(subject), chapter: selected, qtype: activeType });
-      navigate(startHerePracticePath({ subject, chapter: selected, ids, qtype: activeType, returnTo }));
+      trackOnboardingEvent("start_here_start", { subject: analyticsSubject(s), chapter: ch, qtype: t, mode });
+      navigate(startHerePracticePath({ subject: s, chapter: ch, ids, qtype: t, returnTo }));
     } catch {
       setFailed(true);
-      setBusy(false);
+      setBusy(null);
     }
   };
 
+  const onGo = () => {
+    if (!subject || !selected) return;
+    void launch(subject, selected, activeType, "picker");
+  };
+
+  const onOneTap = (target: OneTapTarget) => {
+    // The tapped subject becomes the picker's subject too, so "Change…" after a failure opens on it.
+    setSubject(target.subject);
+    setChapter("");
+    setQtype("mcq");
+    void launch(target.subject, target.slug, "mcq", "one_tap");
+  };
+
+  const oneTapLabel = (target: OneTapTarget): string =>
+    hint
+      ? `${START_HERE_ONE_TAP_COPY.hinted} · ${target.name}`
+      : `${target.subject} · ${START_HERE_ONE_TAP_COPY.perSubjectSuffix}`;
+
   return (
-    <>
+    <div ref={panelRef}>
       <p className="lt-shc-k">{START_HERE_COPY.kicker}</p>
       <h2 className="lt-shc-h" id={headingId}>
         {START_HERE_COPY.body}
       </h2>
       {!open ? (
         <div className="lt-shc-ctas">
-          <button type="button" className="lt-shc-go" data-testid={tid("start")} onClick={() => setOpen(true)}>
+          <button
+            type="button"
+            className="lt-shc-go"
+            data-testid={tid("start")}
+            onClick={() => {
+              focusAfterRef.current = ".lt-shc-ready .lt-shc-go, [role='radio']";
+              setOpen(true);
+            }}
+          >
             {START_HERE_COPY.start}
           </button>
           <button type="button" className="lt-shc-later" data-testid={tid("not-now")} onClick={onNotNow}>
             {START_HERE_COPY.notNow}
           </button>
         </div>
+      ) : !showPicker ? (
+        <>
+          {/* START-HERE-ONE-TAP-1 — the READY state: each button launches at once (P8 path). */}
+          {/* ONE live region for the ready buttons' "Getting your 5 questions…" state. */}
+          <div className="lt-shc-ready" data-testid={tid("ready")} aria-live="polite">
+            {readyTargets.map((target) => (
+              <button
+                key={target.subject}
+                type="button"
+                className="lt-shc-go"
+                data-testid={tid(`one-tap-${target.subject.toLowerCase()}`)}
+                data-chapter={target.slug}
+                disabled={isBusy}
+                onClick={() => onOneTap(target)}
+              >
+                {busy === target.subject ? START_HERE_GETTING : oneTapLabel(target)}
+              </button>
+            ))}
+          </div>
+          {failed && (
+            <p className="lt-shc-note" role="alert">
+              {START_HERE_FAIL_COPY.ready}
+            </p>
+          )}
+          <div className="lt-shc-ctas">
+            <button
+              type="button"
+              className="lt-shc-later lt-shc-change"
+              data-testid={tid("change")}
+              disabled={isBusy}
+              onClick={() => {
+                focusAfterRef.current = "[role='radio'][tabindex='0']";
+                setFailed(false);
+                setPicking(true);
+              }}
+            >
+              {START_HERE_ONE_TAP_COPY.change}
+            </button>
+            <button type="button" className="lt-shc-later" data-testid={tid("not-now")} onClick={onNotNow}>
+              {START_HERE_COPY.notNow}
+            </button>
+          </div>
+        </>
       ) : (
         <>
           <div className="lt-shc-step">
@@ -585,8 +720,8 @@ function StartHerePanel({
           {failed && (
             <p className="lt-shc-note" role="alert">
               {activeType === "written"
-                ? "We couldn't line up a written question for that chapter just now. Try another chapter."
-                : "We couldn't line up five questions for that chapter just now. Try another chapter."}
+                ? START_HERE_FAIL_COPY.pickerWritten
+                : START_HERE_FAIL_COPY.picker}
             </p>
           )}
           <div className="lt-shc-ctas">
@@ -595,10 +730,10 @@ function StartHerePanel({
               className="lt-shc-go"
               data-testid={tid("go")}
               aria-live="polite"
-              disabled={!subject || !selected || busy}
-              onClick={() => void onGo()}
+              disabled={!subject || !selected || isBusy}
+              onClick={onGo}
             >
-              {busy
+              {busy === "picker"
                 ? activeType === "written"
                   ? START_HERE_GETTING_ONE
                   : START_HERE_GETTING
@@ -610,7 +745,7 @@ function StartHerePanel({
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }
 
