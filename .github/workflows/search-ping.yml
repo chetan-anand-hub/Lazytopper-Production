@@ -78,10 +78,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  ping:
-    # A trunk push or a dispatch always runs (the push branch filter is in `on:`); a
-    # deployment_status runs ONLY on Production success (unchanged).
+  # ★ CI-COST-3 (owner-approved 2026-10-19) — POST-MERGE ONLY. On a trunk PUSH this job decides
+  # whether every path in `before..HEAD` is on the shared docs-only skip list AND the previous trunk
+  # push's search-ping run passed (scripts/ci/docs_only_push.mjs — the CI-COST-2 rule). Only then is
+  # `ping` skipped: no install, no 30-minute rollout wait. A docs-only push cannot move the sitemap,
+  # and the next real run diffs from the last SUCCESSFUL PING (S3), so nothing is lost; requiring a
+  # green predecessor means a release still waiting for www is never orphaned by a docs push.
+  # deployment_status and workflow_dispatch: both steps are skipped, `docs_only` is never set, and
+  # `ping` runs exactly as before (its `if:` also names `push` explicitly). The triggers are
+  # unchanged (searchPing.guard.test.ts pins them) — the gate lives inside, never in `on:`.
+  classify:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.docs.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@v7
+        if: github.event_name == 'push'
+        with:
+          ref: ${{ github.event.deployment.sha || inputs.sha || github.sha }}
+          # Commits + trees only: enough for `before..HEAD`, without the blobs.
+          fetch-depth: 0
+          filter: blob:none
+
+      # Fails SAFE: a crash leaves `docs_only` unset (continue-on-error), a failed job is still
+      # followed by `ping` (`!cancelled()`), and only the literal 'true' skips.
+      - name: Docs-only push? (post-merge skip decision)
+        id: docs
+        if: github.event_name == 'push'
+        continue-on-error: true
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/docs_only_push.mjs --workflow search-ping.yml
+
+  ping:
+    needs: classify
+    # A trunk push or a dispatch always runs (the push branch filter is in `on:`); a
+    # deployment_status runs ONLY on Production success (unchanged). CI-COST-3: a trunk push whose
+    # `classify` said docs_only == 'true' is skipped — no other event and no other value can skip.
+    if: ${{ !cancelled() && (github.event_name != 'push' || needs.classify.outputs.docs_only != 'true') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')) }}
     runs-on: ubuntu-latest
     # The rollout wait alone may take 30 minutes (S2).
     timeout-minutes: 50

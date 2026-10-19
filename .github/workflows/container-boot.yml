@@ -189,9 +189,12 @@ jobs:
 
       # The classifier's own tests (node:test, no dependencies). `always()` so a red self-test is
       # reported without ever being able to stop the boot above from running.
+      # CI-COST-3: the push rule now lives in scripts/ci/docs_only_push.mjs (shared with Golden Eval,
+      # search-ping and State Board), so its suite runs here too — this job already boots on any
+      # scripts/ci/ change in a PR, which is exactly when that suite can go red.
       - name: Classifier self-test
         if: always()
-        run: node --test scripts/ci/container_boot_gate.test.mjs
+        run: node --test scripts/ci/container_boot_gate.test.mjs scripts/ci/docs_only_push.test.mjs
 
       - name: Which path did this run take
         if: always()
