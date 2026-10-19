@@ -443,16 +443,16 @@ describe("PricingPage — R6 FAQ copy", () => {
     );
   });
 
-  it("answers what happens after the cohort fills, and locks the founding PASS price (OR-P7)", () => {
+  it("answers what happens when the founding offer ends, and locks the founding PASS price (OR-P7)", () => {
     const { inner } = renderPricing();
     const faq = flat(inner.querySelector(".lt-pricing-faq"));
 
-    expect(faq).toContain("What happens after the first 200 students?");
-    // The close condition...
-    expect(faq).toContain("The founding offer closes.");
-    // ...the regular price, with till boards named WITHOUT a figure...
+    // PARENTS-CTA-1 (owner, 2026-10-19): the question carries NO seat count.
+    expect(faq).toContain("What happens when the founding offer ends?");
+    expect(faq).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
+    // The close condition, the regular price, with till boards named WITHOUT a figure...
     expect(faq).toContain(
-      "New members then join at the regular price — ₹999 for a month, or 20% off when you pay once till your boards",
+      "When it ends, new members join at the regular price — ₹999 for a month, or 20% off when you pay once till your boards",
     );
     // ...and the lock, which is what makes the close honest rather than a bait.
     expect(faq).toContain("Your rate is locked.");
@@ -471,12 +471,15 @@ describe("PricingPage — R6 FAQ copy", () => {
     expect(rupeeAmounts(faq).filter((a) => !STATIC_FIGURES.has(a))).toEqual([]);
   });
 
-  it("keeps the founding offer's load-bearing promises: the label, the lock and the cohort", () => {
+  it("keeps the founding offer's load-bearing promises: the badge and the lock — and NO seat count", () => {
     const { premium } = renderPricing();
     const card = flat(premium);
 
     expect(card).toContain("Your founding price stays locked for every pass you buy.");
-    expect(card).toContain("First 200 students.");
+    // PARENTS-CTA-1 (owner, 2026-10-19): the badge reads exactly this, word for word.
+    expect(flat(premium.querySelector(".lt-pricing-founding-flag"))).toBe("Founding member offer");
+    expect(card).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
+    expect(card).not.toMatch(/\b200\b/);
     expect(card.toLowerCase()).toContain("founding member");
     expect(card).toContain("Start 7-day trial");
     expect(card).toContain("Manual activation during beta.");
@@ -860,7 +863,7 @@ describe("PricingPage — COPY-2 · K5 the founding chip and lock note follow th
     expect(premium.querySelector(".lt-pricing-founding-note")).toBeNull();
     const card = flat(premium);
     expect(card).not.toContain("Your founding price stays locked for every pass you buy.");
-    expect(card).not.toContain("First 200 students.");
+    expect(card).not.toContain("Founding member offer");
     // CONTROL — the card still rendered, at the list price.
     expect(card).toContain("Manual activation during beta.");
     expect(flat(premium.querySelector(".lt-pricing-amount"))).toBe(PRICE_MONTHLY_LIST_DISPLAY);
@@ -868,7 +871,7 @@ describe("PricingPage — COPY-2 · K5 the founding chip and lock note follow th
 
   it("CONTROL — offer OPEN: the same queries find the chip and the lock note", async () => {
     const premium = await renderWithOffer(true);
-    expect(flat(premium.querySelector(".lt-pricing-founding-flag"))).toContain("First 200 students.");
+    expect(flat(premium.querySelector(".lt-pricing-founding-flag"))).toBe("Founding member offer");
     expect(flat(premium.querySelector(".lt-pricing-founding-note"))).toBe(
       "Your founding price stays locked for every pass you buy.",
     );

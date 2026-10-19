@@ -1,0 +1,43 @@
+/*
+ * PARENTS-CTA-1 (owner ruling 2026-10-19) — the "← Back to parents page" link on
+ * /check-improve, shown only to a visitor who came from /for-parents. Scoped class names
+ * only: this file is global once loaded. Colours come from the shared light-theme tokens
+ * (styles.css `--mob-*`, defined on :root), never a page-local hex.
+ *
+ * Desktop: first child of the page body inside DesktopShell's content area.
+ * Phone: first child of MobileShell's <main>, which already supplies the 440px frame,
+ * the side padding and the safe-area insets — so it adds no padding of its own there.
+ */
+.lt-ci-parent-return {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 10px 16px 0;
+}
+.phone-shell .lt-ci-parent-return {
+  max-width: none;
+  margin: -8px 0 8px;
+  padding: 0;
+}
+.lt-ci-parent-return__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  color: var(--mob-primary);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.phone-shell .lt-ci-parent-return__link {
+  min-height: 44px;
+  padding: 4px 0;
+}
+.lt-ci-parent-return__link:hover {
+  background: var(--mob-success-soft);
+  text-decoration: underline;
+}
+.lt-ci-parent-return__link:focus-visible {
+  outline: 2px solid var(--mob-accent-hover);
+  outline-offset: 2px;
+}

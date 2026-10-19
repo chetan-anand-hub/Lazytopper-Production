@@ -1,6 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
 import {
-  FOUNDING_COHORT_COPY,
   FOUNDING_LABEL,
   FOUNDING_OFFER_OPEN,
   PERIOD_MONTHLY_LABEL,
@@ -19,11 +18,12 @@ import { TRIAL_WORDING } from "../pricing/BasicFreeList";
  * the only strings in it are error messages. Every student who signs up today
  * converts blind — asked for a name, an email and a password with no statement
  * of what they are joining — while the strongest lever the product has (founding
- * member, a lower rate, first N students) sits two navigations away on /pricing.
+ * member, a lower rate) sits two navigations away on /pricing.
  *
  * ★★ NEVER A COUNT.
- * This renders "First 200 students" and must never render "43 places left". The
- * first is a true claim about the OFFER; the second is a claim about DEMAND that
+ * This renders no seat number at all (PARENTS-CTA-1, owner ruling 2026-10-19:
+ * the "First N students" sentence was removed) and must never render "43 places
+ * left". The offer is a claim about the OFFER; a count is a claim about DEMAND that
  * the product cannot make honestly. A live counter that does not move for a
  * month reads as "nobody is buying" — worse than silence — and a hand-tuned one
  * is fabrication, which CLAUDE.md §5 forbids in code. There is deliberately no
@@ -358,7 +358,8 @@ export default function OfferStrip({
             </span>
             {/* PRICING-TB-1 · OR-P6 Decision 1(b) (owner, 2026-09-26), word for word:
                 "Founding member: <founding> for a month <list>, locked for every pass
-                you buy. First 200 students." — the list figure stays struck (R1).
+                you buy." — the list figure stays struck (R1). PARENTS-CTA-1 (owner,
+                2026-10-19) dropped the trailing seat-count sentence.
                 No figure is typed here: the price-literal pin scans this file. */}
             {": "}
             <span className="lt-offer-strip-price">
@@ -366,7 +367,7 @@ export default function OfferStrip({
             </span>
             {" "}
             <s className="lt-offer-strip-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
-            {`, locked for every pass you buy. ${FOUNDING_COHORT_COPY}`}
+            {", locked for every pass you buy."}
           </p>
         </>
       ) : (

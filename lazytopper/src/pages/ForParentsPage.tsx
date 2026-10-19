@@ -12,8 +12,26 @@ import "./forParents.css";
  *
  * ★ WHY NO SIGN-UP BUTTON. Most people the ads reach are parents, and a parent who signs up
  * on their own phone is not the user: that is the dead-account pattern this page exists to
- * stop. The only action is "Send LazyTopper to my child", a WhatsApp share of the free
- * answer check. No sign-up CTA, no price, no parent account (owner rulings, 12–13 Oct).
+ * stop. The primary action is "Send LazyTopper to my child", a WhatsApp share of the free
+ * answer check. No sign-up CTA, no price figure, no parent account (owner rulings, 12–13 Oct).
+ *
+ * ★ WHAT THE 19 OCT RULING ADDED (PARENTS-CTA-1, owner ruling 2026-10-19). Three things, and
+ * only these three:
+ *   1. A SECONDARY "Check one answer free" link (hero and closing section) straight to the
+ *      free answer check, `/check-improve?from=for_parents&utm_source=for_parents`, for the
+ *      parent (or the child beside them) who wants to see it work right here. `from=` makes
+ *      /check-improve show a "Back to parents page" link (`lib/parentReturn.ts`).
+ *      `utm_source=for_parents` is NOT reliable attribution for these clicks: the visit
+ *      source is FIRST-TOUCH per tab (`rememberVisitSourceOnce`, analytics/visitSource.ts
+ *      ~L166: it runs once per page load and keeps any source the tab already stored), and a
+ *      click from this page is an in-app navigation in the same tab. The tag only records for
+ *      a visitor who opens the URL directly in a fresh tab (e.g. the link shared on). No new analytics event: the
+ *      named-event union lives in `analytics/analytics.ts`, outside this lane.
+ *   2. A "See pricing" link to `/pricing` in the "What does it cost?" answer. The page itself
+ *      still states NO rupee figure.
+ *   3. A fifth "What your child gets" tile, "A tutor for doubts, explained step by step", with
+ *      NO link: the tutor needs an account, and this page offers no route to make one.
+ * Still NO sign-up / login link or button on this page. The share button is unchanged.
  *
  * ★ THE SHARE LINK USES UTM TAGS, NOT `?ref=`. `referralService` reads `?ref=` as a
  * referral code and `visitSource.ref` is the referrer host; a third meaning would be a trap.
@@ -44,6 +62,10 @@ export const PARENT_SHARE_HREF = `https://wa.me/?text=${encodeURIComponent(PAREN
 
 const SHARE_LABEL = "Send LazyTopper to my child";
 
+/** PARENTS-CTA-1 — the secondary link to the free answer check (owner ruling 2026-10-19). */
+export const FREE_CHECK_LABEL = "Check one answer free";
+export const FREE_CHECK_TO = "/check-improve?from=for_parents&utm_source=for_parents";
+
 interface Tile {
   readonly title: string;
   /** An existing public page, or none. */
@@ -55,7 +77,19 @@ const TILES: readonly Tile[] = [
   { title: "Chapter tests and full mocks in the CBSE pattern", to: "/practice-hub" },
   { title: "Important Questions from 10 years of CBSE papers", to: "/highly-probable/10/Maths" },
   { title: "Practice on weak topics" },
+  // PARENTS-CTA-1 (owner ruling 2026-10-19): deliberately NO link — the tutor needs an account,
+  // and this page carries no sign-up route.
+  { title: "A tutor for doubts, explained step by step" },
 ];
+
+/** A plain link (in the prerendered HTML, works with no JavaScript), styled secondary. */
+function FreeCheckLink({ placement }: { placement: ParentSharePlacement }) {
+  return (
+    <Link className="lt-fp__cta2" to={FREE_CHECK_TO} data-testid={`fp-free-check-${placement}`}>
+      {FREE_CHECK_LABEL}
+    </Link>
+  );
+}
 
 function ShareButton({ placement }: { placement: ParentSharePlacement }) {
   const onClick = () => trackParentShareClick(placement);
@@ -84,7 +118,10 @@ export default function ForParentsPage() {
             Your child writes the answer on paper and takes a photo. LazyTopper marks it step by step, the way a CBSE
             examiner does, and shows what to fix.
           </p>
-          <ShareButton placement="hero" />
+          <div className="lt-fp__actions">
+            <ShareButton placement="hero" />
+            <FreeCheckLink placement="hero" />
+          </div>
         </div>
       </header>
 
@@ -135,7 +172,10 @@ export default function ForParentsPage() {
           </details>
           <details>
             <summary>What does it cost?</summary>
-            <p>The first answer check is free, without an account. A new account gets a 7-day Premium trial.</p>
+            <p>
+              The first answer check is free, without an account. A new account gets a 7-day Premium trial.{" "}
+              <Link to="/pricing">See pricing</Link>
+            </p>
           </details>
           <details>
             <summary>Can I see my child’s progress?</summary>
@@ -146,7 +186,10 @@ export default function ForParentsPage() {
         <section aria-labelledby="fp-send" className="lt-fp__send">
           <h2 id="fp-send">Hand it to your child</h2>
           <p>One tap opens WhatsApp with a message and a link. Your child opens it on their own phone and tries a free check.</p>
-          <ShareButton placement="footer" />
+          <div className="lt-fp__actions">
+            <ShareButton placement="footer" />
+            <FreeCheckLink placement="footer" />
+          </div>
         </section>
 
         <p className="lt-fp__fine">LazyTopper is an independent platform and is not affiliated with CBSE.</p>

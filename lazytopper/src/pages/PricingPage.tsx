@@ -12,10 +12,8 @@ import {
   withSigninRedirect,
 } from "../services/freeCheckClient";
 import {
-  FOUNDING_COHORT_COPY,
-  FOUNDING_COHORT_SIZE,
-  FOUNDING_LABEL,
   FOUNDING_LOCK_COPY,
+  FOUNDING_OFFER_BADGE,
   FOUNDING_OFFER_OPEN,
   PERIOD_FREE_LABEL,
   PERIOD_MONTHLY_LABEL,
@@ -1059,8 +1057,11 @@ const FAQ_ITEMS = [
     // moves. Do not widen this back out. The broad version is
     // precisely the sentence a student who saw an older published price would
     // quote back.
-    q: `What happens after the first ${FOUNDING_COHORT_SIZE} students?`,
-    a: `The founding offer closes. New members then join at the regular price — ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}, or ${TILL_BOARDS_SAVING_PERCENT}% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought.`,
+    //
+    // PARENTS-CTA-1 (owner ruling 2026-10-19): NO seat count and NO deadline in the
+    // question or the answer — the "first N students" wording was withdrawn.
+    q: "What happens when the founding offer ends?",
+    a: `When it ends, new members join at the regular price — ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}, or ${TILL_BOARDS_SAVING_PERCENT}% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought.`,
   },
   {
     q: "Are there any usage limits?",
@@ -1486,7 +1487,7 @@ function PricingPlansPage() {
                 <div className="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div>
                 {FOUNDING_OFFER_OPEN && (
                   <p className="lt-pricing-founding-flag">
-                    {`${FOUNDING_LABEL} · ${FOUNDING_COHORT_COPY}`}
+                    {FOUNDING_OFFER_BADGE}
                   </p>
                 )}
               </div>

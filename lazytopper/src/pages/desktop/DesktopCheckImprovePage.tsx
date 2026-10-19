@@ -32,6 +32,13 @@ import MobileSignUpButton from "../../components/mobile/MobileSignUpButton";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
+  PARENT_RETURN_LABEL,
+  PARENT_RETURN_TO,
+  shouldShowParentReturn,
+  tabStorage,
+} from "../../lib/parentReturn";
+import "./checkImproveParentReturn.css";
+import {
   buildConfirmedDetection,
   withSubjectCorrected,
   ciQuestionIds,
@@ -909,6 +916,31 @@ function readCiPaperJobContext(raw: unknown): CiPaperJobContext | null {
   };
 }
 
+/**
+ * PARENTS-CTA-1 (owner ruling 2026-10-19) — "← Back to parents page", shown ONLY to a
+ * visitor who arrived from /for-parents (`?from=for_parents`, remembered for this tab in
+ * sessionStorage by `shouldShowParentReturn` in `lib/parentReturn.ts`). NAVIGATION ONLY:
+ * it touches no grading, marks, prompts or the free-check flow.
+ *
+ * It is rendered by `withChrome` (below), as the first child of the page body: INSIDE
+ * MobileShell's <main> on a phone (so it respects the 440px frame, the safe-area padding
+ * and the shell's theme) and inside DesktopShell's content area on a desktop. It is never
+ * rendered in the tutor overlay, and the FREE-CHECK-1b / RequirePremium wrapper is untouched.
+ */
+const ParentReturnLink: React.FC = () => {
+  const { search } = useLocation();
+  // Pure helper; persisting the flag is an idempotent sessionStorage write (throw-safe).
+  const show = useMemo(() => shouldShowParentReturn(search, tabStorage()), [search]);
+  if (!show) return null;
+  return (
+    <nav className="lt-ci-parent-return" aria-label="Back to parents page">
+      <Link className="lt-ci-parent-return__link" to={PARENT_RETURN_TO} data-testid="ci-parent-return">
+        {PARENT_RETURN_LABEL}
+      </Link>
+    </nav>
+  );
+};
+
 const DesktopCheckImprovePageInner: React.FC<{
   overlay?: CheckImproveOverlayProps;
   freeCheck?: FreeCheckInnerMode;
@@ -1000,8 +1032,17 @@ const DesktopCheckImprovePageInner: React.FC<{
       }}
     />
   );
-  const withChrome = (body: React.ReactNode, subtitle: string) =>
-    overlay ? (
+  const withChrome = (pageBody: React.ReactNode, subtitle: string) => {
+    // PARENTS-CTA-1 — the back link (renders nothing for anyone not from /for-parents) is the
+    // first child of the page body on the two NON-overlay paths only: inside DesktopShell's
+    // content area on a desktop, inside MobileShell's <main> on a phone. Never in the overlay.
+    const body = overlay ? pageBody : (
+      <>
+        <ParentReturnLink />
+        {pageBody}
+      </>
+    );
+    return overlay ? (
       // OVERLAY MODE (build v1.1): the tutor host owns the sheet frame, so render the page
       // BARE — no MobileShell, even at mobile width. A MobileShell here would put the app's
       // account header + bottom NAV inside a full-screen sheet, giving the student a way to
@@ -1035,6 +1076,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         {body}
       </MobileShell>
     );
+  };
 
   // ── input form state ─────────────────────────────────────────────
   // Subject / topic / marks are NO LONGER student-picked — the grader determines
