@@ -20,9 +20,13 @@ import "./forParents.css";
  *   1. A SECONDARY "Check one answer free" link (hero and closing section) straight to the
  *      free answer check, `/check-improve?from=for_parents&utm_source=for_parents`, for the
  *      parent (or the child beside them) who wants to see it work right here. `from=` makes
- *      /check-improve show a "Back to parents page" link (`lib/parentReturn.ts`);
- *      `utm_source=for_parents` is what SOURCE-1 captures for attribution. No new analytics
- *      event: the named-event union lives in `analytics/analytics.ts`, outside this lane.
+ *      /check-improve show a "Back to parents page" link (`lib/parentReturn.ts`).
+ *      `utm_source=for_parents` is NOT reliable attribution for these clicks: the visit
+ *      source is FIRST-TOUCH per tab (`rememberVisitSourceOnce`, analytics/visitSource.ts
+ *      ~L166: it runs once per page load and keeps any source the tab already stored), and a
+ *      click from this page is an in-app navigation in the same tab. The tag only records for
+ *      a visitor who opens the URL directly in a fresh tab (e.g. the link shared on). No new analytics event: the
+ *      named-event union lives in `analytics/analytics.ts`, outside this lane.
  *   2. A "See pricing" link to `/pricing` in the "What does it cost?" answer. The page itself
  *      still states NO rupee figure.
  *   3. A fifth "What your child gets" tile, "A tutor for doubts, explained step by step", with

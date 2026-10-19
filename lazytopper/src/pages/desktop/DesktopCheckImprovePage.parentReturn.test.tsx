@@ -48,6 +48,7 @@ vi.mock("../../lib/parentReturn", async (importOriginal) => {
 });
 
 import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
+import { setMatchMediaMatches } from "../../test/setup";
 import { PARENT_RETURN_KEY } from "../../lib/parentReturn";
 
 function renderAt(entry: string, props: { overlay?: { onClose: () => void } } = {}) {
@@ -119,6 +120,25 @@ describe("PARENTS-CTA-1 — /check-improve back link to the parents page", () =>
       H.sub.isPremium = false;
       H.auth = { user: null, loading: false };
     }
+  });
+
+  it("PHONE: renders INSIDE MobileShell's <main> (the 440px frame), as its first child — never above .phone-shell", async () => {
+    setMatchMediaMatches(false);
+    const r = renderAt("/check-improve?from=for_parents");
+    const link = await screen.findByTestId("ci-parent-return");
+    const main = link.closest(".phone-shell main");
+    expect(main, "the back link must sit inside the shell's <main>").not.toBeNull();
+    expect(main?.firstElementChild?.contains(link)).toBe(true);
+    // Nothing of ours sits outside the shell frame.
+    expect(r.container.firstElementChild?.classList.contains("phone-shell")).toBe(true);
+  });
+
+  it("DESKTOP: renders as the first child of the page body, with no phone shell", async () => {
+    setMatchMediaMatches(true);
+    const r = renderAt("/check-improve?from=for_parents");
+    const link = await screen.findByTestId("ci-parent-return");
+    expect(link.closest(".phone-shell")).toBeNull();
+    expect(r.container.firstElementChild?.contains(link)).toBe(true);
   });
 
   it("does not break the page when sessionStorage throws", async () => {
