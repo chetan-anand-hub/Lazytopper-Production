@@ -1,0 +1,134 @@
+/* GUIDE-PUBLIC-1 — Byte peeking in on a public chapter page. Lazy: travels with publicPeekChunk only.
+   Fixed-position overlay, portalled to <body>: nothing in the page flow moves (CLS 0).
+   BOTTOM-LEFT on purpose: the WhatsApp button (contact/whatsAppFab.css) owns bottom-right —
+   mobile right:16px bottom:84px+safe-area (52px), desktop right:24px bottom:24px.
+   Mobile (< 1024px) the global BottomNav is fixed along the bottom, so Byte's edge is its top edge.
+   Desktop (>= 1024px) the DesktopShell's navy sidebar is 260px wide, so he starts right of it.
+   z-index 18: the WhatsApp button's layer — below the bottom nav, toasts, the header and every modal. */
+
+.lt-pp {
+  position: fixed;
+  left: 10px;
+  bottom: calc(var(--lt-pp-nav, 64px) + env(safe-area-inset-bottom, 0px));
+  z-index: 18;
+  display: flex;
+  /* F1: the DOM is row → panel → pill; drawn bottom-up so the panel sits above Byte. */
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+}
+.lt-pp > * { pointer-events: auto; }
+@media (min-width: 1024px) {
+  .lt-pp { left: 284px; bottom: 0; }
+}
+
+.lt-pp__row { display: flex; align-items: flex-end; gap: 6px; }
+
+/* Byte: the rig's peek crop — only the part above the edge is drawn, so the host sits ON the edge. */
+.lt-pp__byte { width: 78px; }
+@media (min-width: 1024px) { .lt-pp__byte { width: 96px; } }
+/* He waves once: a hello wiggle of the whole peeking body (the rig's peek pose keeps his forearms on the edge). */
+.lt-pp__byte.is-wave { transform-origin: 50% 100%; animation: lt-pp-wave 1.3s ease-in-out 1; }
+@keyframes lt-pp-wave {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-9deg); }
+  40% { transform: rotate(7deg); }
+  60% { transform: rotate(-6deg); }
+  80% { transform: rotate(3deg); }
+}
+
+/* The one line: a real button (keyboard reaches the panel through it). Kept clear of the WhatsApp
+   button on a phone: its right edge stays left of right:76px. */
+.lt-pp__bub {
+  margin: 0 0 14px;
+  max-width: min(240px, calc(100vw - 10px - 78px - 6px - 34px - 84px));
+  padding: 8px 12px;
+  border: 2px solid #14213d;
+  border-radius: 14px 14px 14px 4px;
+  background: #fff;
+  color: #14213d;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(14, 23, 41, .18);
+  animation: lt-pp-pop .35s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+@media (min-width: 1024px) { .lt-pp__bub { max-width: 260px; margin-bottom: 22px; } }
+@keyframes lt-pp-pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.lt-pp__x {
+  align-self: flex-start;
+  width: 32px;
+  height: 32px;
+  margin-top: -6px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #14213d;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(14, 23, 41, .2);
+}
+
+.lt-pp__bub:focus-visible, .lt-pp__x:focus-visible, .lt-pp__opt:focus-visible {
+  outline: 3px solid hsl(152, 55%, 38%);
+  outline-offset: 2px;
+}
+
+/* The panel: a small card above Byte. Not a modal (no backdrop, no focus trap); Esc closes it.
+   On a phone it stays narrower than the gap left of the WhatsApp button. */
+.lt-pp__panel {
+  box-sizing: border-box;
+  width: min(300px, calc(100vw - 10px - 84px));
+  padding: 10px;
+  border: 2px solid #14213d;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(14, 23, 41, .22);
+  animation: lt-pp-pop .25s ease-out both;
+}
+.lt-pp__opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.lt-pp__opt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 8px 11px;
+  border: 1.5px solid #dde2ee;
+  border-radius: 12px;
+  background: #fff;
+  color: #14213d;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.lt-pp__opts li:first-child .lt-pp__opt { border-color: hsl(152, 55%, 42%); background: #e3f5ec; }
+.lt-pp__opt:hover, .lt-pp__opt:focus-visible { border-color: hsl(152, 55%, 42%); background: #f3fbf7; }
+.lt-pp__opt:disabled { cursor: progress; opacity: .7; }
+.lt-pp__opt b { font-size: 14px; line-height: 1.3; }
+.lt-pp__opt span { font-size: 12.5px; color: hsl(220, 15%, 42%); }
+.lt-pp__fail { margin: 8px 2px 0; font-size: 13px; color: hsl(0, 60%, 40%); }
+
+/* PREVIEW-1 — "Admin preview" (only while the owner previews the guide on this browser). */
+.lt-pp__admin { display: inline-block; margin: 0 0 6px; font-size: 10.5px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; line-height: 1; padding: 5px 8px; border-radius: 999px; background: #14213d; color: #fff;
+  white-space: nowrap; pointer-events: none; }
+
+.lt-pp__vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-pp__byte.is-wave, .lt-pp__bub, .lt-pp__panel { animation: none; }
+}
+@media print { .lt-pp { display: none; } }

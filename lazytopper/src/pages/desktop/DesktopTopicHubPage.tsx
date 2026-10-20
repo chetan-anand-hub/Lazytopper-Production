@@ -21,6 +21,7 @@ import {
 import { conceptPractiseTarget } from "../../lib/desktop/conceptPractice";
 import { Card } from "../../components/grammar/Card";
 import { ConceptSpine } from "../../components/topichub/ConceptSpine";
+import PublicPeek from "../../components/guide/public/PublicPeek";
 import { TopicProgressTrend } from "../../components/progress/TopicProgressTrend";
 import { normalizeTopicKey } from "../../utils/topicResolver";
 import { buildTutorPath } from "../tutor/tutorPath";
@@ -320,7 +321,7 @@ export default function DesktopTopicHubPage() {
       tutorHrefForConcept={tutorHrefForConcept}
       arrivalConceptName={arrivalConceptName}
       topicProgressSlot={
-        <TopicProgressTrend topicKey={normalizeTopicKey(topic.slug) || topic.slug} />
+        <><TopicProgressTrend topicKey={normalizeTopicKey(topic.slug) || topic.slug} /><PublicPeek page="topic_hub" chapterSlug={topic.slug} /></>
       }
     />
   );
