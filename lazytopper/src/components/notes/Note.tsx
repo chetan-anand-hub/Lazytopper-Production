@@ -388,6 +388,27 @@ const NOTE_CSS = `
   max-width: 100%; overflow-x: auto; overflow-y: hidden;
   padding: 3px 0; margin: -3px 0;
 }
+/* MOBILE-FIT-2: phones hide the scrollbar, so a formula that still overflows its
+   card (the trig-ratio table is ~385 px) needs a visible cue that it scrolls.
+   CSS-only scroll shadows: two card-coloured covers ride with the content
+   (background-attachment: local) and hide two navy edge shadows pinned to the box
+   (scroll). While more formula lies to the right, the right shadow shows; at the
+   end of the scroll the cover slides over it. Each cover is solid for the full
+   shadow width, so a formula that fits shows no trace of either shadow. Also,
+   the value box bleeds to the card's inner edges so the formula gets the FULL card
+   width. Scoped to phones and touch screens (where scrollbars are hidden); desktop
+   with a pointer is untouched. */
+@media (max-width: 560px), (hover: none) {
+  .lt-note__fval {
+    margin: -3px -15px; padding: 3px 15px; max-width: calc(100% + 30px);
+    background:
+      linear-gradient(to right, #fcfdfe 50%, rgba(252, 253, 254, 0)) left center / 36px 100% no-repeat local,
+      linear-gradient(to left, #fcfdfe 50%, rgba(252, 253, 254, 0)) right center / 36px 100% no-repeat local,
+      linear-gradient(to right, rgba(15, 36, 68, 0.28), rgba(15, 36, 68, 0)) left center / 18px 100% no-repeat scroll,
+      linear-gradient(to left, rgba(15, 36, 68, 0.28), rgba(15, 36, 68, 0)) right center / 18px 100% no-repeat scroll;
+    background-color: #fcfdfe;
+  }
+}
 
 /* third tab */
 .lt-note__signtable { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 10px; }
@@ -466,6 +487,11 @@ const NOTE_CSS = `
   .lt-note__block > .lt-note__figure { margin-left: -14px; margin-right: -14px; }
   .lt-note__keyterms dl { grid-template-columns: minmax(0, 1fr); }
   .lt-note__block { padding: 16px 14px; }
+}
+/* MOBILE-FIT-2: on a phone the note card's side padding drops to 12 px (vertical
+   padding unchanged) so the content gets ~330 px of a 360 px screen. */
+@media (max-width: 480px) {
+  .lt-note { padding-left: 12px; padding-right: 12px; }
 }
 
 /* ── tab bar + Download-PDF button (Part 3) ────────────────────────── */

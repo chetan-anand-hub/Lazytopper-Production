@@ -9,6 +9,11 @@
 //   2. the formula value box keeps `max-width: 100%` + `overflow-x: auto`, so a formula wider
 //      than its card scrolls inside its own box instead of being cut off;
 //   3. the tab row can shrink (`min-width: 0`) and, on phones, wraps.
+//   4. (MOBILE-FIT-2) phones hide the scrollbar, so on phones / touch screens the formula value
+//      box carries a CSS-only scroll-shadow cue: card-coloured covers attached `local` over navy
+//      edge shadows attached `scroll`, each cover solid for at least the shadow's width (else a
+//      formula that fits shows a faint shadow); and the box bleeds to its card's inner edges.
+//      The cue lives ONLY inside a phone/touch media query, so desktop with a pointer is untouched.
 
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
@@ -51,5 +56,26 @@ describe("MOBILE-FIT-1 note stylesheet", () => {
     expect(phone, "phone tab media block").not.toBeNull();
     expect(phone![1]).toMatch(/flex-wrap:\s*wrap/);
     expect(phone![2]).toMatch(/min-width:\s*0/);
+  });
+
+  it("formula value box shows a scroll cue on phones and touch screens only (MOBILE-FIT-2)", () => {
+    expect(rule(CSS, ".lt-note__fval"), "cue must not be in the desktop base rule").not.toMatch(/background/);
+    const m = CSS.match(/@media \(max-width: 560px\), \(hover: none\) \{\s*\.lt-note__fval \{([^}]*)\}/);
+    expect(m, "phone/touch .lt-note__fval media block").not.toBeNull();
+    const d = m![1];
+    const layers = [...d.matchAll(/linear-gradient\([^)]*(?:\([^)]*\)[^)]*)*\)\s*(left|right) center \/ (\d+)px 100% no-repeat (local|scroll)/g)];
+    const covers = layers.filter((l) => l[3] === "local");
+    const shadows = layers.filter((l) => l[3] === "scroll");
+    expect(covers.map((l) => l[1]).sort()).toEqual(["left", "right"]);
+    expect(shadows.map((l) => l[1]).sort()).toEqual(["left", "right"]);
+    // each cover's solid part (stop % x width) must hide its whole shadow when nothing overflows
+    for (const c of covers) {
+      const solid = Number(c[0].match(/#fcfdfe (\d+)%/)![1]) / 100 * Number(c[2]);
+      const sh = shadows.find((s) => s[1] === c[1])!;
+      expect(solid, `${c[1]} cover hides its shadow`).toBeGreaterThanOrEqual(Number(sh[2]));
+    }
+    // and the box uses the card's full inner width
+    expect(d).toMatch(/margin:\s*-3px -15px/);
+    expect(d).toMatch(/max-width:\s*calc\(100% \+ 30px\)/);
   });
 });

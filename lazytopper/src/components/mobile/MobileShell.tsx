@@ -160,7 +160,10 @@ export function MobileShell({
       <main
         className="animate-float-up"
         style={{
-          padding: `20px 20px ${showNav ? "calc(var(--mob-nav-height) + 28px)" : "env(safe-area-inset-bottom, 28px)"}`,
+          // MOBILE-FIT-2: side gutter is 12 px on a phone (<= 480 px wide) and 20 px
+          // from 488 px up (a linear step between) — clamp(), because an inline
+          // style cannot hold a media query. Vertical padding is unchanged.
+          padding: `20px clamp(12px, calc(100vw - 468px), 20px) ${showNav ? "calc(var(--mob-nav-height) + 28px)" : "env(safe-area-inset-bottom, 28px)"}`,
           minHeight: hasHeader ? "calc(100dvh - 52px)" : "100dvh",
         }}
       >
