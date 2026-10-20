@@ -1,0 +1,9 @@
+/* MI-VOICE-1 — the character row on the navy sidebar's Mistake Intel card (guide arm only).
+   Visual grammar: soft white bubble, navy ink, on the card's dark surface (CLAUDE.md §5).
+   The row is reserved at its final size at first paint; the 56 px slot is fixed so the lazy
+   character fills it without moving the card's text. */
+.lt-mi-voice { display: flex; align-items: center; gap: 8px; min-height: 56px; margin: 8px 0 2px; }
+.lt-mi-voice__slot { flex: 0 0 56px; width: 56px; height: 56px; display: flex; align-items: flex-end; justify-content: center; }
+.lt-mi-voice__char { width: 56px; }
+.lt-mi-voice__say { position: relative; min-width: 0; margin: 0; background: #fff; color: #14213d;
+  border-radius: 12px 12px 12px 4px; padding: 6px 9px; font-size: 12px; line-height: 1.35; font-weight: 700; }

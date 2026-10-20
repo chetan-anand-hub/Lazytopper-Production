@@ -1005,6 +1005,9 @@ export function trackOnboardingEvent<E extends OnboardingEvent>(name: E, params:
  *   guide_dismissed { surface }                    — the guide was closed (today's dismiss keys)
  *   guide_reopened  { surface }                    — the corner chip reopened it
  *   ziggy_reaction  { band }                       — Ziggy reacted on the first scorecard
+ *   mi_voice_shown  { state }                      — MI-VOICE-1: Ziggy/Byte voiced the sidebar
+ *                                                    Mistake Intel card (guide arm; once per tab
+ *                                                    per state; never under the admin preview)
  * ------------------------------------------------------------------------- */
 
 export type GuideVariant = "guide" | "control";
@@ -1038,6 +1041,8 @@ export function guidePreviewOnDevice(): boolean {
 }
 export type GuideIntentParam = "cbq" | "chapter" | "papers" | "check_improve" | "default";
 export type ZiggyBand = "full" | "half_plus" | "under_half";
+/** MI-VOICE-1 — which Mistake Intel moment the character voiced (components/guide/mi). */
+export type MiVoiceState = "no_data" | "thin" | "untyped" | "careless" | "knowledge" | "technique";
 
 export interface OnboardingEventParams {
   guide_shown: { surface: StartHereSurface | StartHereFocusSurface; variant: GuideVariant; intent: GuideIntentParam };
@@ -1045,6 +1050,7 @@ export interface OnboardingEventParams {
   guide_dismissed: { surface: StartHereSurface | StartHereFocusSurface };
   guide_reopened: { surface: StartHereSurface };
   ziggy_reaction: { band: ZiggyBand };
+  mi_voice_shown: { state: MiVoiceState };
 }
 
 /**

@@ -18,6 +18,9 @@ import {
   UNTYPED_MARKS_WHY,
   type MistakeGroupKey,
 } from "../../lib/mistakeDisplay";
+// MI-VOICE-1 — the guide arm's character row (eager decision + bubble; the drawing is lazy).
+import { MiVoiceRow } from "../guide/mi/MiVoiceRow";
+import type { MiVoiceInput } from "../guide/mi/miVoiceModel";
 
 /**
  * MistakeIntelCard — sidebar block in the locked desktop baseline AppShell.
@@ -192,6 +195,28 @@ type ViewState =
   | { kind: "untyped"; me: MeHomeSummary }
   | { kind: "with-data"; summary: MiCardSummary };
 
+export type { ViewState as MiCardViewState };
+
+/**
+ * MI-VOICE-1 — the card's view state, projected to EXACTLY what the card prints, for the
+ * character row (components/guide/mi). No new read, no new computation: the untyped figure is
+ * this card's `formatMarks` string, the biggest loss is `topLoss.amount` as printed.
+ */
+export function miVoiceInputFor(view: ViewState): MiVoiceInput {
+  switch (view.kind) {
+    case "untyped":
+      return { kind: "untyped", lost: view.me.lost, lostText: formatMarks(view.me.lost) };
+    case "with-data":
+      return {
+        kind: "with-data",
+        namesWeakness: view.summary.namesWeakness,
+        topLoss: view.summary.topLoss ? { group: view.summary.topLoss.group, amount: view.summary.topLoss.amount } : null,
+      };
+    default:
+      return { kind: view.kind };
+  }
+}
+
 const CARD_STYLE: React.CSSProperties = {
   borderRadius: 12,
   background: "rgba(255,255,255,0.04)",
@@ -278,6 +303,7 @@ export function MistakeIntelCard() {
     if (!model || entries.length === 0) return { kind: "no-data" };
     return { kind: "with-data", summary: computeMiCardSummary(model) };
   }, [authLoading, uid, status, read]);
+  const voiceInput = useMemo(() => miVoiceInputFor(view), [view]);
 
   return (
     <div style={CARD_STYLE}>
@@ -285,6 +311,10 @@ export function MistakeIntelCard() {
         <SparklesIcon />
         <span style={HEADER_LABEL_STYLE}>Mistake Intel</span>
       </div>
+
+      {/* MI-VOICE-1 — guide arm only: Ziggy/Byte re-voice the fact below (renders nothing in
+          the control arm, so the control card is byte-identical). */}
+      <MiVoiceRow uid={uid} input={voiceInput} />
 
       {view.kind === "loading" && (
         <>
