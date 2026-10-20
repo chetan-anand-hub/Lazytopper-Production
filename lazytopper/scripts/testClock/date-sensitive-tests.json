@@ -238,6 +238,7 @@
     "src/components/feedback/feedbackCallOffer.test.tsx",
     "src/components/feedback/feedbackPromptHost.test.tsx",
     "src/components/feedback/feedbackPromptModel.test.ts",
+    "src/components/feedback/firstGradedFeedback.test.tsx",
     "src/components/fullmock/fullMockBlueprint.test.ts",
     "src/components/fullmock/fullMockSession.gradingJob.test.ts",
     "src/components/home/PendingBell.test.tsx",
