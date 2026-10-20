@@ -234,6 +234,17 @@ describe("StudentsAdminPage — list", () => {
       ["other-fbc", src({ utm_source: "newsletter", fbclid: true, ref: "l.facebook.com" }), "From l.facebook.com"],
       ["proto", src({ utm_source: "constructor", ref: "news.example.org" }), "From news.example.org"],
       ["proto2", src({ utm_source: "__proto__" }), "Direct"],
+      // MEASURE-1 C — Meta's {{site_source_name}} codes (case-insensitive); campaign suffix unchanged.
+      ["m-an", src({ utm_source: "an", utm_medium: "paid", ref: "l.facebook.com" }), "Meta ad (Audience Network)"],
+      ["m-fb", src({ utm_source: "fb", utm_medium: "paid", utm_campaign: "cbq", ref: "l.facebook.com" }), "Meta ad (Facebook) (cbq)"],
+      ["m-ig", src({ utm_source: "IG", utm_medium: "CPC", fbclid: true }), "Meta ad (Instagram)"],
+      ["m-msg", src({ utm_source: "msg", utm_medium: "paid" }), "Meta ad (Messenger)"],
+      ["m-th", src({ utm_source: "Th", utm_medium: "paid" }), "Meta ad (Threads)"],
+      ["m-ig-org", src({ utm_source: "ig", utm_medium: "organic" }), "Meta (Instagram)"],
+      ["m-fb-none", src({ utm_source: "fb", ref: "l.facebook.com" }), "Meta (Facebook)"],
+      ["m-msg-c", src({ utm_source: "msg", utm_campaign: "c2" }), "Meta (Messenger) (c2)"],
+      // CONTROL: a code that only LOOKS like one is unchanged ("facebook" stays the old rule).
+      ["m-ctl", src({ utm_source: "fbx", ref: "l.facebook.com" }), "From l.facebook.com"],
       ["ref", src({ ref: "news.example.org" }), "From news.example.org"],
       ["dir", src({}), "Direct"],
       ["old", null, "—"],

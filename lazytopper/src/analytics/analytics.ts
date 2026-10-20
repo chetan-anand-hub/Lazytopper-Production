@@ -1,6 +1,7 @@
 import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
 import { recordActivity } from "../services/activityClient";
 import { rememberVisitSourceOnce } from "./visitSource";
+import { startEngagedVisitWatch, type EngagedVisitTrigger } from "./engagedVisit";
 
 /**
  * THE ONE ANALYTICS ENTRY POINT. Nothing else initialises a vendor, and nothing else
@@ -469,13 +470,15 @@ type MetaCall =
   | readonly ["track" | "trackCustom", string, Record<string, unknown>];
 
 export const META_EVENTS: Readonly<
-  Partial<Record<"sign_up" | NamedAnalyticsEvent, readonly ["track" | "trackCustom", string]>>
+  Partial<Record<"sign_up" | "first_graded" | NamedAnalyticsEvent, readonly ["track" | "trackCustom", string]>>
 > = {
   sign_up: ["track", "CompleteRegistration"],
   trial_start: ["track", "StartTrial"],
   // TRACK-2 — the checkout funnel. Value + currency travel as the third argument.
   begin_checkout: ["track", "InitiateCheckout"],
   purchase: ["track", "Purchase"],
+  // MEASURE-1 B — a custom event (Meta has no standard "activated"); the name only, no surface.
+  first_graded: ["trackCustom", "FirstGraded"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
@@ -621,8 +624,73 @@ export function trackPageview(path: string): void {
   } catch {
     /* a source is never worth a broken page view */
   }
+  // MEASURE-1 A — start the engaged-visit watch on the first page view of the document (the
+  // module's one per-load entry point; idempotent, so later route changes never re-arm it).
+  // Not in an automated context: the prerender capture must not even be watched.
+  try {
+    if (analyticsEnabled()) startEngagedVisitWatch(trackEngagedVisit);
+  } catch {
+    /* analytics must never break the page */
+  }
   const clean = normalisePath(path);
   send("pageview", { route: clean, path: clean });
+}
+
+/**
+ * MEASURE-1 A — `engaged_visit`, sent by the watch in engagedVisit.ts at most once per document.
+ * Data: the trigger and the REDACTED router path of the page it happened on — no id, no query,
+ * nothing personal. Vendors only (Vercel custom event + GA4): NOT a Meta event (not in
+ * META_EVENTS) and NOT in `NamedAnalyticsEvent`, so the first-party activity log drops it.
+ * Returns whether it was sent: false in an automated context or on an /admin page (the watch
+ * then keeps waiting for a later interaction instead of spending the visit).
+ */
+export function trackEngagedVisit(trigger: EngagedVisitTrigger): boolean {
+  try {
+    if (!analyticsEnabled()) return false;
+    if (trigger !== "time" && trigger !== "interaction") return false;
+    const routerPath = routerPathOf(window.location.pathname);
+    if (ADMIN_PATH.test(routerPath)) return false;
+    const data = { trigger, path: normalisePath(routerPath) };
+    send("event", { name: "engaged_visit", data }, { ga4: data });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** MEASURE-1 B — the six graded surfaces (CLAUDE.md §4a), as `first_graded`'s one data field. */
+export type FirstGradedSurface =
+  | "check_improve_single"
+  | "check_improve_multi"
+  | "worksheet"
+  | "chapter_test"
+  | "full_mock"
+  | "quick_practice";
+
+const FIRST_GRADED_SURFACES: ReadonlySet<string> = new Set<FirstGradedSurface>([
+  "check_improve_single",
+  "check_improve_multi",
+  "worksheet",
+  "chapter_test",
+  "full_mock",
+  "quick_practice",
+]);
+
+/**
+ * MEASURE-1 B — `first_graded`: the first graded result an account ever got. The once-per-account
+ * rule lives in firstGraded.ts (`noteFirstGraded`), which is the only caller. Data: `{ surface }`
+ * and nothing else (a closed set, checked here). Vercel + GA4 get `{ surface }`; Meta gets the bare
+ * custom event `FirstGraded` (META_EVENTS), never a parameter. Not in `NamedAnalyticsEvent`, so
+ * the first-party activity log drops it.
+ */
+export function trackFirstGraded(surface: FirstGradedSurface): void {
+  try {
+    if (!FIRST_GRADED_SURFACES.has(surface)) return;
+    const data = { surface };
+    send("event", { name: "first_graded", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
 }
 
 /**

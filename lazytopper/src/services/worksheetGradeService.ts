@@ -20,6 +20,7 @@
 // per-step mistakeType — exactly as the wired Check & Improve path derives it.
 // This module never writes an MI store directly and never re-classifies.
 
+import { noteFirstGraded } from "../analytics/firstGraded";
 import type { AuthUser } from "../context/AuthContext";
 import {
   gradeWorksheet,
@@ -246,6 +247,7 @@ export async function gradeWorksheetAndRecord(
     if (uid && !user?.isLocalSession) {
       const record = buildWorksheetSessionRecord(worksheet, response, nomen, uid);
       writeSessionRecord(user, record);
+      noteFirstGraded(uid, record, "worksheet"); // MEASURE-1 B — observe only
       writeSessionPerQuestion(user, {
         ref: record.perQuestionRef,
         code: nomen.code,

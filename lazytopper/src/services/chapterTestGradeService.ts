@@ -22,6 +22,7 @@
 // record, the scorecard hero + four-type + A–D lens, the graded PDF, and the re-open
 // payload — exactly the shape the worksheet path already produces.
 
+import { noteFirstGraded } from "../analytics/firstGraded";
 import type { AuthUser } from "../context/AuthContext";
 import type { GradingJobOptions } from "../ai/gradingJobs";
 import { recordableInterruptedRows, recordedQNumbersOf } from "../ai/gradingJobRecords";
@@ -229,6 +230,7 @@ export function writeChapterTestPartialRecord(args: {
   try {
     const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response, uid });
     writeSessionRecord(user, record);
+    noteFirstGraded(uid, record, "chapter_test"); // MEASURE-1 B — observe only
   } catch (error) {
     console.warn("[chapterTestGradeService] partial record write failed", error);
   }
@@ -383,6 +385,7 @@ export async function gradeChapterTestUpload(args: {
     if (uid && !user?.isLocalSession) {
       const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response, uid });
       writeSessionRecord(user, record);
+      noteFirstGraded(uid, record, "chapter_test"); // MEASURE-1 B — observe only
       writeSessionPerQuestion(user, {
         ref: record.perQuestionRef,
         code,

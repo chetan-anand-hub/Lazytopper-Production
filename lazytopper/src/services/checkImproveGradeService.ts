@@ -18,6 +18,7 @@
 //     unknowable → questionIds stays [] (concept derivation is bank-matched-only);
 //   • topicSource is stamped at write time from the LIVE session — never backfilled.
 
+import { noteFirstGraded } from "../analytics/firstGraded";
 import type { AuthUser } from "../context/AuthContext";
 import type { CheckSolutionResponse, WorksheetGradeResponse } from "../ai/aiClient";
 import {
@@ -135,8 +136,10 @@ export function persistCheckImproveSession(args: {
   topicSlug: string;
   topicSource: SessionTopicSource;
   response: WorksheetGradeResponse;
+  /** MEASURE-1 B — which C&I path graded this (analytics label only; changes nothing persisted). */
+  path?: "single" | "multi";
 }): PersistCheckImproveOutcome {
-  const { user, code, title, subject, topicSlug, topicSource, response } = args;
+  const { user, code, title, subject, topicSlug, topicSource, response, path } = args;
   // No grade → no record: a session where nothing could be read leaves no
   // fabricated history entry (couldNotRead singles never even reach here).
   if (!response || response.gradedCount <= 0) return "skipped-nothing-graded";
@@ -153,6 +156,9 @@ export function persistCheckImproveSession(args: {
       uid,
     });
     writeSessionRecord(user, record);
+    // MEASURE-1 B — observe only. The caller names its path; absent, a one-question paper is "single".
+    const ciPath = path ?? (response.results.length === 1 ? "single" : "multi");
+    noteFirstGraded(uid, record, ciPath === "single" ? "check_improve_single" : "check_improve_multi");
     writeSessionPerQuestion(user, {
       ref: record.perQuestionRef,
       code,

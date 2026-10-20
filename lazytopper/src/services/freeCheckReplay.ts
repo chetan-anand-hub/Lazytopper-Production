@@ -171,6 +171,7 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
       topicSource,
       // H4/H9 — the adapter itself now carries the `objective` flag and the v2 fields (one path).
       response: withEffectiveCounts(singleCheckToWorksheetResponse(graded)),
+      path: "single", // MEASURE-1 B — analytics label only
     });
     return nomen.code;
   }
@@ -192,6 +193,7 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
     topicSlug: paperMixed ? "" : pending.topicSlug,
     topicSource: paperMixed ? "mixed" : topicSource,
     response,
+    path: "multi", // MEASURE-1 B — analytics label only
   });
   const questionIds = ciQuestionIds(nomen.code, response.results);
   for (const [gi, g] of response.results.entries()) {

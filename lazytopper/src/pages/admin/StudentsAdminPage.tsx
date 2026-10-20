@@ -148,6 +148,18 @@ const SOURCE_PLATFORM: Record<string, string> = {
 };
 
 /**
+ * MEASURE-1 C — Meta's dynamic `{{site_source_name}}` codes, as a Meta ad's `utm_source`. Without
+ * these a Meta ad sign-up read "From l.facebook.com".
+ */
+const META_PLACEMENT: Record<string, string> = {
+  an: "Audience Network",
+  fb: "Facebook",
+  ig: "Instagram",
+  msg: "Messenger",
+  th: "Threads",
+};
+
+/**
  * The Source column's text. A missing doc is "—": never a guess, never "Direct".
  * SOURCE-2: `utm_medium` tells a paid ad from an organic post from an untagged link.
  * Facebook and Instagram add `fbclid` to every outbound link, so `fbclid` alone is not an ad.
@@ -158,8 +170,10 @@ function sourceLabel(source: RowSource | null | undefined): string {
   const medium = (source.utm_medium ?? "").toLowerCase();
   // own keys only: a crafted utm_source such as "constructor" must not read as a platform
   const platform = Object.prototype.hasOwnProperty.call(SOURCE_PLATFORM, src) ? SOURCE_PLATFORM[src] : undefined;
+  const metaPlacement = Object.prototype.hasOwnProperty.call(META_PLACEMENT, src) ? META_PLACEMENT[src] : undefined;
   let label: string;
   if (src === "parent_share") label = "Parent share";
+  else if (metaPlacement) label = medium === "paid" || medium === "cpc" ? `Meta ad (${metaPlacement})` : `Meta (${metaPlacement})`;
   else if (platform && (medium === "paid" || medium === "cpc")) label = src === "meta" ? "Meta ad" : `${platform} ad`;
   else if (platform && medium === "organic" && src !== "google") label = `${platform} post`;
   else if (platform && medium !== "organic") label = `${platform} (untagged)`;
