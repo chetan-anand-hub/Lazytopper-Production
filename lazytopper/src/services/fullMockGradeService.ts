@@ -21,6 +21,7 @@
 //      pending banner's deep-link (same device — the paper is cached by
 //      fullMockSession); the record id keeps it idempotent.
 
+import { noteFirstGraded } from "../analytics/firstGraded";
 import type { AuthUser } from "../context/AuthContext";
 import type { GradingJobOptions } from "../ai/gradingJobs";
 import { recordableInterruptedRows, recordedQNumbersOf } from "../ai/gradingJobRecords";
@@ -112,6 +113,7 @@ export function writeFullMockPartialRecord(args: {
   try {
     const record = buildFullMockSessionRecord({ paper, code, subject, response, uid, focus });
     writeSessionRecord(user, record);
+    noteFirstGraded(uid, record, "full_mock"); // MEASURE-1 B — observe only
   } catch (error) {
     console.warn("[fullMockGradeService] partial record write failed", error);
   }
@@ -265,6 +267,7 @@ export async function gradeFullMockUpload(args: {
     if (uid && !user?.isLocalSession) {
       const record = buildFullMockSessionRecord({ paper, code, subject, response, uid, focus });
       writeSessionRecord(user, record);
+      noteFirstGraded(uid, record, "full_mock"); // MEASURE-1 B — observe only
       writeSessionPerQuestion(user, {
         ref: record.perQuestionRef,
         code,

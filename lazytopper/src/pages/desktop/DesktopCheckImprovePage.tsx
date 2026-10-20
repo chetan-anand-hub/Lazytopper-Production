@@ -2185,6 +2185,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         topicSlug: paperMixed ? "" : confirmed.topicSlug,
         topicSource,
         response: shown,
+        path: "multi", // MEASURE-1 B — analytics label only
       });
       setCiSaved(persistOutcome === "recorded");
       if (persistOutcome === "recorded") void loadCiRecords();
@@ -2465,6 +2466,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         // GA-38 — the objective flag survives into the stored payload; ONE set of counts. H4/H9:
         // the adapter itself carries the flag and the v2 fields (one path, no caller-side echo).
         response: withEffectiveCounts(singleCheckToWorksheetResponse(graded)),
+        path: "single", // MEASURE-1 B — analytics label only
       });
       setCiSaved(persistOutcome === "recorded");
       if (persistOutcome === "recorded") void loadCiRecords();

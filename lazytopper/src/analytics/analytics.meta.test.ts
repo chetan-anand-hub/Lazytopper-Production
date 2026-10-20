@@ -8,7 +8,7 @@ const { getAdditionalUserInfo } = vi.hoisted(() => ({
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo }));
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
-import { META_EVENTS, metaAddressIsClean, trackNamedEvent, trackPageview, trackSignUp } from "./analytics";
+import { META_EVENTS, metaAddressIsClean, trackFirstGraded, trackNamedEvent, trackPageview, trackSignUp } from "./analytics";
 import type { NamedAnalyticsEvent } from "./analytics";
 
 /** The retired base (ROOT-URL-1), read from vercel.json's redirect to the root so this file holds no literal of it. */
@@ -224,12 +224,14 @@ describe("Meta — before the library loads", () => {
 });
 
 describe("Meta — named events", () => {
-  it("maps exactly the PR-1 events plus TRACK-2's two checkout events", () => {
-    expect(Object.keys(META_EVENTS).sort()).toEqual(["begin_checkout", "purchase", "sign_up", "trial_start"]);
+  it("maps exactly the PR-1 events plus TRACK-2's two checkout events plus MEASURE-1's first_graded", () => {
+    expect(Object.keys(META_EVENTS).sort()).toEqual(["begin_checkout", "first_graded", "purchase", "sign_up", "trial_start"]);
+    expect(META_EVENTS.first_graded).toEqual(["trackCustom", "FirstGraded"]);
   });
 
   it.each(Object.entries(META_EVENTS))("fires %s as one two-argument entry", (name, [method, metaName]) => {
     if (name === "sign_up") trackSignUp();
+    else if (name === "first_graded") trackFirstGraded("worksheet");
     else trackNamedEvent(name as NamedAnalyticsEvent);
     const entries = added();
     expect(entries).toEqual([[method, metaName]]);

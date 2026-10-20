@@ -26,6 +26,7 @@
 //     (the shipped "no visible reasoning → no MI intel" invariant, D-PROG-2);
 //   • a session where NOTHING was attempted writes NO record — no fabricated history.
 
+import { noteFirstGraded } from "../analytics/firstGraded";
 import type { AuthUser } from "../context/AuthContext";
 import type { GradingJobInterruptedError, GradingJobOptions } from "../ai/gradingJobs";
 import { isInterruptedJobError, recordableInterruptedRows, recordedQNumbersOf } from "../ai/gradingJobRecords";
@@ -295,6 +296,7 @@ export function persistQuickPracticeSession(args: {
         ? { ...record, topicKeys: multiTopicKeys }
         : record;
     writeSessionRecord(user, finalRecord);
+    noteFirstGraded(uid, finalRecord, "quick_practice"); // MEASURE-1 B — observe only
     writeSessionPerQuestion(user, {
       ref: record.perQuestionRef,
       code,
