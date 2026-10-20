@@ -22,6 +22,7 @@ import { MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "./GradeStatePar
 import ShareScoreButton from "./share/ShareScoreButton";
 import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
+import { useFirstGradedFeedback } from "../feedback/useFirstGradedFeedback";
 import type {
   ScorecardVariant,
   ScorecardScore,
@@ -64,6 +65,10 @@ interface ResultsScorecardProps {
    *  score". Passed by PracticePage's MCQ-only scorecard as `hideShare={isGuest}`; absent on
    *  every other host. The shell's own rule (canShareScore) applies either way. */
   hideShare?: boolean;
+  /** FIRST-FEEDBACK-1 — set ONLY by a host's LIVE, just-graded scorecard (never a stored
+   *  re-open, never inside the tutor overlay): may ask "Was this useful?" once ever.
+   *  Absent on every other caller, so their scorecards are unchanged. */
+  askFirstFeedback?: boolean;
 }
 
 /** The score hero + descriptor — marks (worksheet/tests) or attempts (quick practice). */
@@ -567,7 +572,15 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
-export default function ResultsScorecard({ variant, onClose, belowScore, hideShare }: ResultsScorecardProps) {
+export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback }: ResultsScorecardProps) {
+  // FIRST-FEEDBACK-1 — fire-and-forget, after the scorecard is up; renders nothing here.
+  useFirstGradedFeedback({
+    ask: askFirstFeedback,
+    deferred: variant.deferred,
+    allPending: !!variant.allPending,
+    score: variant.score,
+  });
+
   // Close on Escape — modal etiquette without a modal library.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

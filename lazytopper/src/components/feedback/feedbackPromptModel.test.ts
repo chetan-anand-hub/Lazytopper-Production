@@ -118,9 +118,9 @@ describe("FEEDBACK-1 · names and copy", () => {
     expect(feedbackVendorName("dismissed")).toBe("feedback_dismissed");
   });
 
-  it("every name the prompt can record is in the activity allow-list (18 names, incl. the 2 call taps)", () => {
+  it("every name the prompt can record is in the activity allow-list (18 names, incl. the 2 call taps, + FIRST-FEEDBACK-1's 5)", () => {
     const names = allFeedbackActivityNames();
-    expect(names).toHaveLength(18);
+    expect(names).toHaveLength(23);
     for (const n of names) expect(ACTIVITY_EVENTS as readonly string[]).toContain(n);
   });
 

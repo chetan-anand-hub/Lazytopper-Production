@@ -102,4 +102,24 @@ describe("FEEDBACK-1 · trackFeedbackEvent payloads", () => {
     expect(vercel).toHaveLength(1);
     expect(JSON.stringify([vercel, ga4, recordActivity.mock.calls])).not.toContain("9876543210");
   });
+
+  it("FIRST-FEEDBACK-1: first_graded records its five names; answers never cross moments; no call tap", () => {
+    trackFeedbackEvent("shown", "first_graded");
+    trackFeedbackEvent("reason", "first_graded", "not_really");
+    trackFeedbackEvent("dismissed", "first_graded");
+    expect(recordActivity.mock.calls.map((c) => c[1])).toEqual([
+      { name: "feedback_shown_first_graded" },
+      { name: "feedback_first_graded_not_really" },
+      { name: "feedback_dismissed_first_graded" },
+    ]);
+    expect(vercel[1][1]).toEqual({ name: "feedback_reason", data: { moment: "first_graded", reason: "not_really" } });
+    expect(meta).toEqual([]);
+    recordActivity.mockClear();
+    vercel.length = 0;
+    trackFeedbackEvent("reason", "first_graded", "price");
+    trackFeedbackEvent("reason", "paywall", "yes");
+    trackFeedbackEvent("call_tap", "first_graded");
+    expect(vercel).toEqual([]);
+    expect(recordActivity).not.toHaveBeenCalled();
+  });
 });

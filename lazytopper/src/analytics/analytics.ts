@@ -795,7 +795,13 @@ export type NamedAnalyticsEvent =
   | "feedback_trial_end_other"
   // FEEDBACK-1 — the student tapped the 5-minute feedback-call offer (opens WhatsApp only).
   | "feedback_call_tap_paywall"
-  | "feedback_call_tap_trial_end";
+  | "feedback_call_tap_trial_end"
+  // FIRST-FEEDBACK-1 — "Was this useful?" after the first graded scorecard (no call offer).
+  | "feedback_shown_first_graded"
+  | "feedback_dismissed_first_graded"
+  | "feedback_first_graded_yes"
+  | "feedback_first_graded_not_really"
+  | "feedback_first_graded_too_hard";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1164,12 +1170,22 @@ export function trackParentReportShare(placement: ParentReportPlacement, method:
   }
 }
 
-/** FEEDBACK-1 — the two moments the "help us improve" prompt can appear at. */
-export type FeedbackPromptMoment = "paywall" | "trial_end";
-/** FEEDBACK-1 — the six one-tap reason codes. */
-export type FeedbackPromptReason = "not_tried" | "ask_parents" | "price" | "not_enough_help" | "boards_far" | "other";
+/** FEEDBACK-1 — the two moments the "help us improve" prompt can appear at, plus
+ *  FIRST-FEEDBACK-1's `first_graded` ("Was this useful?" after the first graded result). */
+export type FeedbackPromptMoment = "paywall" | "trial_end" | "first_graded";
+/** FEEDBACK-1 — the six one-tap reason codes, plus FIRST-FEEDBACK-1's three answers. */
+export type FeedbackPromptReason =
+  | "not_tried"
+  | "ask_parents"
+  | "price"
+  | "not_enough_help"
+  | "boards_far"
+  | "other"
+  | "yes"
+  | "not_really"
+  | "too_hard";
 
-const FEEDBACK_MOMENT_SET: ReadonlySet<string> = new Set<FeedbackPromptMoment>(["paywall", "trial_end"]);
+const FEEDBACK_MOMENT_SET: ReadonlySet<string> = new Set<FeedbackPromptMoment>(["paywall", "trial_end", "first_graded"]);
 const FEEDBACK_REASON_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>([
   "not_tried",
   "ask_parents",
@@ -1178,6 +1194,8 @@ const FEEDBACK_REASON_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>([
   "boards_far",
   "other",
 ]);
+/** FIRST-FEEDBACK-1 — `first_graded` takes ONLY these; the other moments ONLY the six above. */
+const FIRST_GRADED_ANSWER_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>(["yes", "not_really", "too_hard"]);
 
 /**
  * FEEDBACK-1 (owner ruling 18 Oct 2026) — the "help us improve" prompt was shown,
@@ -1200,7 +1218,10 @@ export function trackFeedbackEvent(
 ): void {
   try {
     if (!FEEDBACK_MOMENT_SET.has(moment)) return;
-    if (kind === "reason" && (!reason || !FEEDBACK_REASON_SET.has(reason))) return;
+    const answers = moment === "first_graded" ? FIRST_GRADED_ANSWER_SET : FEEDBACK_REASON_SET;
+    if (kind === "reason" && (!reason || !answers.has(reason))) return;
+    // FIRST-FEEDBACK-1 — "Was this useful?" has no call offer, so it has no call_tap name.
+    if (kind === "call_tap" && moment === "first_graded") return;
     const data: Record<string, string> = kind === "reason" && reason ? { moment, reason } : { moment };
     // `call_tap`: the student tapped the 5-minute feedback-call offer. Vendors get
     // `feedback_call_tap` + `{ moment }`; first-party gets `feedback_call_tap_<moment>`.

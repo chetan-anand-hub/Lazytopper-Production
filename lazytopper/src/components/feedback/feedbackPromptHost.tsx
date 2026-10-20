@@ -19,7 +19,12 @@
 import { createRoot, type Root } from "react-dom/client";
 import { trackFeedbackEvent } from "../../analytics/analytics";
 import { FeedbackPrompt } from "./FeedbackPrompt";
-import { claimFeedbackMoment, type FeedbackMoment, type FeedbackStore } from "./feedbackPromptModel";
+import {
+  FIRST_GRADED_MOMENT,
+  claimFeedbackMoment,
+  type FeedbackMoment,
+  type FeedbackStore,
+} from "./feedbackPromptModel";
 
 export interface FeedbackRequest {
   /** The signed-in student's uid. Omitted -> read from Firebase Auth (paywall callers). */
@@ -77,6 +82,7 @@ export function renderFeedbackPrompt(moment: FeedbackMoment): void {
   mounted = { root, el };
   root.render(
     <FeedbackPrompt
+      moment={moment}
       onAnswer={(reason) => trackFeedbackEvent("reason", moment, reason)}
       onDismiss={() => trackFeedbackEvent("dismissed", moment)}
       onCallTap={() => trackFeedbackEvent("call_tap", moment)}
@@ -92,10 +98,13 @@ export function renderFeedbackPrompt(moment: FeedbackMoment): void {
  */
 export async function requestFeedbackPrompt(moment: FeedbackMoment, req: FeedbackRequest = {}): Promise<boolean> {
   try {
-    if (shownThisLoad || mounted) return false;
+    // FIRST-FEEDBACK-1 (ruling 0b.3): `first_graded` is once EVER, so it is exempt from the
+    // one-per-page-load rule too — but never while another card is open (`mounted`).
+    const blocked = () => mounted !== null || (shownThisLoad && moment !== FIRST_GRADED_MOMENT);
+    if (blocked()) return false;
     const uid = req.uid ?? (await currentStudentUid());
     if (!uid) return false;
-    if (shownThisLoad || mounted) return false; // re-check after the await
+    if (blocked()) return false; // re-check after the await
     if (!claimFeedbackMoment(deviceStore(), uid, moment, Date.now(), req.trialKey ?? null)) return false;
     shownThisLoad = true;
     renderFeedbackPrompt(moment);
@@ -108,6 +117,15 @@ export async function requestFeedbackPrompt(moment: FeedbackMoment, req: Feedbac
 /** The paywall moment: an upgrade sheet/modal was closed WITHOUT going to plans. */
 export function notifyPaywallDismissed(): void {
   void requestFeedbackPrompt("paywall");
+}
+
+/**
+ * FIRST-FEEDBACK-1 — the first-graded moment: a live graded scorecard has just been
+ * shown. Fire and forget; signed-out / anonymous visitors get nothing (the uid comes from
+ * Firebase Auth), and the once-ever device record decides the rest.
+ */
+export function notifyFirstGradedResult(): void {
+  void requestFeedbackPrompt(FIRST_GRADED_MOMENT);
 }
 
 /** Test seam: forget this page load's prompt and remove any card. */

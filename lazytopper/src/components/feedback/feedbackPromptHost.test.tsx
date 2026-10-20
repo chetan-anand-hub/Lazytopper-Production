@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { act, fireEvent, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const trackFeedbackEvent = vi.hoisted(() => vi.fn());
 vi.mock("../../analytics/analytics", () => ({ trackFeedbackEvent }));
@@ -13,6 +13,9 @@ import {
   requestFeedbackPrompt,
 } from "./feedbackPromptHost";
 import { feedbackStorageKey } from "./feedbackPromptModel";
+import { FIRST_GRADED_DELAY_MS } from "./useFirstGradedFeedback";
+import ResultsScorecard from "../results/ResultsScorecard";
+import type { ScorecardVariant } from "../results/scorecardVariants";
 
 /**
  * FEEDBACK-1 — the host: signed-in students only, once per page load, once per moment
@@ -121,5 +124,75 @@ describe("feedbackPromptHost", () => {
       ["shown", "paywall"],
       ["reason", "paywall", "price"],
     ]);
+  });
+});
+
+/* ── FIRST-FEEDBACK-1 — "Was this useful?" through the host and the scorecard shell ── */
+
+describe("FIRST-FEEDBACK-1 · host", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("is not blocked by an earlier prompt in this page load, but never shows while one is open", async () => {
+    let shown = false;
+    await act(async () => {
+      shown = await requestFeedbackPrompt("paywall", { uid: "u1" });
+    });
+    expect(shown).toBe(true);
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "u1" });
+    });
+    expect(shown).toBe(false); // the paywall card is still open
+    act(() => {
+      fireEvent.click(screen.getByTestId("feedback-x"));
+    });
+    expect(card()).toBeNull();
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "u1" });
+    });
+    expect(shown).toBe(true);
+    expect(trackFeedbackEvent).toHaveBeenCalledWith("shown", "first_graded");
+    act(() => {
+      fireEvent.click(screen.getByRole("button", { name: "Yes" }));
+    });
+    expect(trackFeedbackEvent).toHaveBeenCalledWith("reason", "first_graded", "yes");
+  });
+
+  it("a signed-out visitor gets nothing (control: a signed-in student does)", async () => {
+    let shown = true;
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded");
+    });
+    expect(shown).toBe(false);
+    auth.currentUser = { uid: "u9" };
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded");
+    });
+    expect(shown).toBe(true);
+  });
+
+  it("the scorecard renders at once; the question follows after the pause, only with the opt-in", async () => {
+    vi.useFakeTimers();
+    auth.currentUser = { uid: "u5" };
+    const variant = {
+      surface: "worksheet",
+      title: "Worksheet",
+      subtitle: "WS-1",
+      score: { kind: "marks", awarded: 4, total: 10 },
+      actions: [],
+    } as unknown as ScorecardVariant;
+    const r = render(<ResultsScorecard variant={variant} onClose={() => {}} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(FIRST_GRADED_DELAY_MS + 50);
+    });
+    expect(card()).toBeNull(); // control: no opt-in, no question
+    r.unmount();
+    render(<ResultsScorecard variant={variant} onClose={() => {}} askFirstFeedback />);
+    expect(screen.getByRole("dialog", { name: "Worksheet scorecard" })).toBeInTheDocument();
+    expect(card()).toBeNull(); // not before the pause: the scorecard comes first
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(FIRST_GRADED_DELAY_MS + 50);
+    });
+    expect(card()).not.toBeNull();
+    expect(screen.getByText("Was this useful?")).toBeInTheDocument();
   });
 });
