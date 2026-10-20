@@ -1426,9 +1426,9 @@ function PricingPlansPage() {
     <main className="lt-pricing-page" aria-label="LazyTopper pricing">
       <style dangerouslySetInnerHTML={{ __html: PRICING_CSS }} />
       <div className="lt-pricing-inner">
-        <ParentReturnLink />
         <div className="lt-pricing-band">
           <div className="lt-pricing-band-inner">
+            <ParentReturnLink />
             {carriedRedirect && backTo !== returnTarget.backTo ? (
               // Wrapped only when a redirect is carried, so the page's markup without one
               // (and so the prerendered /pricing) is unchanged. The capture runs before the
