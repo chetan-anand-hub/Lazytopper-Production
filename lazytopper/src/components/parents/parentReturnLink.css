@@ -1,0 +1,34 @@
+/*
+ * PARENTS-NAV-1 — the shared "← Back to parents page" link (components/parents/ParentReturnLink).
+ * It sits on light pages (pricing, legal, practice, contact…) and on navy heroes (the answer
+ * guide), so it carries its own white pill: readable on either without a per-page variant.
+ * Scoped class names only: this file is global once loaded. Colours are the shared light-theme
+ * tokens (styles.css `--mob-*`, on :root) with the same values as fallbacks.
+ */
+.lt-parent-return {
+  display: block;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.lt-parent-return__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--mob-card-border, rgba(0, 0, 0, 0.08));
+  background: var(--mob-card, #ffffff);
+  color: var(--mob-primary, #1a3a5c);
+  font-family: var(--font-body, Inter, system-ui, sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.lt-parent-return__link:hover {
+  text-decoration: underline;
+}
+.lt-parent-return__link:focus-visible {
+  outline: 2px solid var(--mob-accent-hover, #16a34a);
+  outline-offset: 2px;
+}

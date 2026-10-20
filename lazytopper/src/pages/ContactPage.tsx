@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import ParentReturnLink from "../components/parents/ParentReturnLink";
 import { trackWhatsAppContactTap } from "../analytics/analytics";
 import { LEGAL_ENTITY_NAME } from "../config/legalEntity";
 import { WHATSAPP_DISPLAY_NUMBER, whatsAppHref } from "../components/contact/whatsappContact";
@@ -56,6 +57,7 @@ export default function ContactPage() {
   return (
     <main className="lt-contact" data-testid="contact-page">
       <div className="lt-contact__w">
+        <ParentReturnLink />
         <p className="lt-contact__eyebrow">LazyTopper · CBSE Class 10</p>
         <h1>Contact us</h1>
         <p className="lt-contact__sub">Stuck on a question, or have an idea for LazyTopper? Write to us.</p>

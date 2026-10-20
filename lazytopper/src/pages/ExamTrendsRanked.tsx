@@ -21,6 +21,7 @@ import {
   type HPQTopicBucket,
 } from "../data/highlyProbableQuestions";
 import MobileShell from "../components/mobile/MobileShell";
+import ParentReturnLink from "../components/parents/ParentReturnLink";
 import { notesHref } from "../seo/notesLinks";
 import { ncertReadPath, ncertRowsForSlug } from "../config/ncertBooks";
 
@@ -1634,6 +1635,7 @@ export default function ExamTrendsRanked() {
   const pageBody = (
     <div className="lt-et">
       <style>{STYLES}</style>
+      <ParentReturnLink />
 
       <PageHero subject={subject}>
         <ControlsRow

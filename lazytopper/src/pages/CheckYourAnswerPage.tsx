@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import ParentReturnLink from "../components/parents/ParentReturnLink";
 import "./checkYourAnswer.css";
 
 /**
@@ -145,6 +146,7 @@ export default function CheckYourAnswerPage() {
     <main className="lt-cya" data-testid="check-your-answer-page">
       <header className="lt-cya__hero">
         <div className="lt-cya__w">
+          <ParentReturnLink />
           <p className="lt-cya__eyebrow">CBSE Class 10 · Maths and Science</p>
           <h1>How CBSE examiners mark Class 10 answers</h1>
           <p className="lt-cya__sub">

@@ -11,6 +11,11 @@
  * wrapped: a private window or blocked site data makes the accessor THROW, and then the
  * link simply follows the URL alone.
  *
+ * PARENTS-NAV-1 (owner, 20 Oct 2026): EVERY internal link on /for-parents now carries the flag
+ * (`withParentFlag`), and the same back link is shown on each page those links reach
+ * (`components/parents/ParentReturnLink.tsx`), not only on /check-improve. The link's target is
+ * the constant `PARENT_RETURN_TO`, never a URL read from the query.
+ *
  * NAVIGATION ONLY. Nothing here reads or changes grading, marks, prompts or the free-check
  * flow.
  */
@@ -73,4 +78,21 @@ export function shouldShowParentReturn(search: string, storage: ParentReturnStor
     return true;
   }
   return storedParentFlag(storage);
+}
+
+/**
+ * PARENTS-NAV-1 — `to` with `from=for_parents` merged into its query string. An existing query
+ * is kept (`/cbse/class-10?returnTo=%2Ffor-parents` → `…?returnTo=%2Ffor-parents&from=for_parents`),
+ * an existing `from` is replaced rather than duplicated, and a `#hash` stays at the end.
+ * For an internal path only; it never builds an absolute URL.
+ */
+export function withParentFlag(to: string): string {
+  const hashAt = to.indexOf("#");
+  const hash = hashAt >= 0 ? to.slice(hashAt) : "";
+  const beforeHash = hashAt >= 0 ? to.slice(0, hashAt) : to;
+  const queryAt = beforeHash.indexOf("?");
+  const path = queryAt >= 0 ? beforeHash.slice(0, queryAt) : beforeHash;
+  const params = new URLSearchParams(queryAt >= 0 ? beforeHash.slice(queryAt + 1) : "");
+  params.set(PARENT_RETURN_PARAM, PARENT_RETURN_VALUE);
+  return `${path}?${params.toString()}${hash}`;
 }

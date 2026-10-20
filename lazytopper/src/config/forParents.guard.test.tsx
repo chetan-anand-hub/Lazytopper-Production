@@ -8,7 +8,7 @@ import { MemoryRouter } from "react-router-dom";
 // MUMMY-1 (f): the first-party activity log is not this suite's subject (the share-click test sends a real event).
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
-import ForParentsPage, { FREE_CHECK_TO, PARENT_SHARE_HREF } from "../pages/ForParentsPage";
+import ForParentsPage, { FREE_CHECK_TO, PARENT_SHARE_HREF, PRICING_LABEL, PRICING_TO } from "../pages/ForParentsPage";
 import { GUIDE_PREVIEW_KEY, GUIDE_PREVIEW_MS } from "../components/guide/guideVariant";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { SELF_CANONICAL_EXACT } from "./canonicalUrl";
@@ -36,6 +36,9 @@ import { testimonialVideoJsonLdFor } from "../../scripts/seo/testimonialVideoJso
  *       its beat 4 REUSES the page's two actions with placement "journey" — so the page (and its
  *       prerender) now holds THREE of each, in the order hero → journey → footer, all identical
  *       in href. Nothing else on the page moved.
+ *   (g) PARENTS-NAV-1 (owner, 20 Oct 2026): a visible "See the price" link (hero + closing section)
+ *       to `/pricing?from=for_parents`, still no figure on the page; and EVERY in-app link on the
+ *       page (and in its prerender) carries `from=for_parents`, except the footer's self-link.
  *
  * Every detector takes its input as an argument and is run against SYNTHETIC violating input
  * in the CONTROL tests, so a typo'd regex cannot sit green on a correct tree.
@@ -71,6 +74,25 @@ function freeCheckHrefs(html: string): string[] {
 /** The "See pricing" anchors → their hrefs. */
 function pricingHrefs(html: string): string[] {
   return [...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>\s*See pricing\s*<\/a>/g)].map((m) => m[1]);
+}
+
+/** PARENTS-NAV-1 — the "See the price" anchors → their hrefs. */
+function seePriceHrefs(html: string): string[] {
+  return [...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"[^>]*>\s*See the price\s*<\/a>/g)].map((m) => m[1]);
+}
+
+const PRICING_HREF = "/pricing?from=for_parents";
+
+/**
+ * PARENTS-NAV-1 — in-app hrefs (start with "/", not "//") that do NOT carry `from=for_parents`.
+ * The footer's self-link `/for-parents` is allowed plain. `&amp;` is decoded first.
+ */
+function unflaggedInternalHrefs(html: string): string[] {
+  return [...html.matchAll(/<a\b[^>]*\bhref="([^"]*)"/g)]
+    .map((m) => m[1].replace(/&amp;/g, "&"))
+    .filter((h) => h.startsWith("/") && !h.startsWith("//"))
+    .filter((h) => h !== "/for-parents")
+    .filter((h) => new URLSearchParams(h.includes("?") ? h.slice(h.indexOf("?") + 1).split("#")[0] : "").get("from") !== "for_parents");
 }
 
 const FREE_CHECK_HREF = "/check-improve?from=for_parents&utm_source=for_parents";
@@ -184,7 +206,7 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
 
   it("the five tiles link only to existing public pages (the fourth and the tutor tile have no link)", () => {
     for (const to of ["/check-your-answer", "/practice-hub", "/highly-probable/10/Maths"]) {
-      expect(html).toContain(`href="${to}"`);
+      expect(html).toContain(`href="${to}?from=for_parents"`); // PARENTS-NAV-1
     }
     expect(html).toContain("<span>Practice on weak topics</span>");
     // PARENTS-CTA-1 (owner, 2026-10-19): the tutor tile is plain text — the tutor needs an account.
@@ -205,7 +227,10 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
       expect(copyProblems(pre), rel).toEqual([]);
       // PARENTS-CTA-1 — the free-check links and the pricing link are in the frozen HTML too.
       expect(freeCheckHrefs(pre), rel).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF]);
-      expect(pricingHrefs(pre), rel).toEqual(["/pricing"]);
+      expect(pricingHrefs(pre), rel).toEqual([PRICING_HREF]);
+      // PARENTS-NAV-1 — "See the price" (hero + closing) and every in-app link flagged, frozen too.
+      expect(seePriceHrefs(pre), rel).toEqual([PRICING_HREF, PRICING_HREF]);
+      expect(unflaggedInternalHrefs(pre), rel).toEqual([]);
       expect(pre, rel).toContain('data-testid="fp-free-check-hero"');
       expect(pre, rel).toContain('data-testid="fp-free-check-footer"');
       expect(tutorTileProblems(pre), rel).toEqual([]);
@@ -287,11 +312,11 @@ describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /p
   });
 
   it("the cost answer keeps its true copy and links 'See pricing' to /pricing — still with no price figure", () => {
-    expect(pricingHrefs(html)).toEqual(["/pricing"]);
+    expect(pricingHrefs(html)).toEqual([PRICING_HREF]);
     const cost = html.slice(html.indexOf("<summary>What does it cost?</summary>"));
     const answer = cost.slice(0, cost.indexOf("</details>"));
     expect(answer).toContain("The first answer check is free, without an account. A new account gets a 7-day Premium trial.");
-    expect(pricingHrefs(answer)).toEqual(["/pricing"]);
+    expect(pricingHrefs(answer)).toEqual([PRICING_HREF]);
     expect(copyProblems(html)).toEqual([]);
   });
 
@@ -389,5 +414,69 @@ describe("PARENTS-1 (d) — Welcome has the parent line and the public footer ha
     expect(parents?.getAttribute("href")).toBe("/for-parents");
     const firstExternal = links.findIndex((a) => /^https:\/\//.test(a.getAttribute("href") || ""));
     expect(links.indexOf(parents!)).toBeLessThan(firstExternal);
+  });
+});
+
+describe("PARENTS-NAV-1 (g) — a visible price link, and every link leads back", () => {
+  const html = renderedPage();
+
+  it("'See the price' sits in the hero and the closing section, after the two existing actions, to /pricing?from=for_parents", () => {
+    expect(PRICING_LABEL).toBe("See the price");
+    expect(PRICING_TO).toBe(PRICING_HREF);
+    expect(seePriceHrefs(html)).toEqual([PRICING_HREF, PRICING_HREF]);
+    const hero = html.slice(html.indexOf('<header class="lt-fp__hero">'), html.indexOf("</header>"));
+    expect(hero.indexOf('data-testid="fp-free-check-hero"')).toBeLessThan(hero.indexOf('data-testid="fp-pricing-hero"'));
+    const send = html.slice(html.indexOf('aria-labelledby="fp-send"'));
+    expect(send.indexOf('data-testid="fp-free-check-footer"')).toBeLessThan(send.indexOf('data-testid="fp-pricing-footer"'));
+    // Not in Mummy's journey: it reuses only the share + free-check actions.
+    expect(html.match(/data-testid="fp-pricing-/g)?.length).toBe(2);
+  });
+
+  it("is a quiet tertiary text link (its own class, no inline style), never the share button's class", () => {
+    const anchors = html.match(/<a\b[^>]*>\s*See the price\s*<\/a>/g) ?? [];
+    expect(anchors.length).toBe(2);
+    for (const a of anchors) {
+      expect(a).toContain('class="lt-fp__cta3"');
+      expect(a).not.toMatch(/\bstyle=/);
+      expect(a).not.toContain("lt-fp__cta\"");
+    }
+    const css = read("src/pages/forParents.css");
+    const rule = css.slice(css.indexOf(".lt-fp .lt-fp__cta3 {"), css.indexOf("}", css.indexOf(".lt-fp .lt-fp__cta3 {")));
+    expect(rule).not.toMatch(/background/); // no fill: quieter than the green share button
+    expect(rule).not.toMatch(/border:/); // no outline: quieter than the free-check link
+  });
+
+  it("still NO price figure, no 'Ask', no seat count or deadline on the page", () => {
+    expect(copyProblems(html)).toEqual([]);
+    const words = html.replace(/<[^>]+>/g, " ");
+    expect(words).not.toMatch(/\bAsk\b/);
+    expect(words).not.toMatch(/\bseats?\b/i);
+    expect(words).not.toMatch(/\b(?:offer ends|last date|deadline|only \d+ left)\b/i);
+  });
+
+  it("EVERY in-app link on the page carries from=for_parents (tiles, FAQ, actions, pricing, footer)", () => {
+    expect(unflaggedInternalHrefs(html)).toEqual([]);
+    for (const h of [
+      "/check-your-answer?from=for_parents",
+      "/practice-hub?from=for_parents",
+      "/highly-probable/10/Maths?from=for_parents",
+      "/cbse/class-10?from=for_parents",
+      "/legal/privacy?from=for_parents",
+      "/exam-trends?from=for_parents",
+      "/cbse/class-10?returnTo=%2Ffor-parents&amp;from=for_parents",
+      "/contact?from=for_parents",
+    ]) {
+      expect(html).toContain(`href="${h}"`);
+    }
+    // The external WhatsApp share link is unchanged.
+    expect(shareHrefs(html)).toEqual([PARENT_SHARE_HREF, PARENT_SHARE_HREF, PARENT_SHARE_HREF]);
+  });
+
+  it("CONTROL — the extractors fire on violating input", () => {
+    expect(seePriceHrefs('<a class="lt-fp__cta3" href="/pricing?from=for_parents">See the price</a>')).toEqual([PRICING_HREF]);
+    expect(seePriceHrefs("<p>See the price</p>")).toEqual([]);
+    expect(unflaggedInternalHrefs('<a href="/pricing">x</a><a href="/for-parents">y</a>')).toEqual(["/pricing"]);
+    expect(unflaggedInternalHrefs('<a href="/x?a=1&amp;from=for_parents">x</a><a href="https://wa.me/?text=a">w</a>')).toEqual([]);
+    expect(unflaggedInternalHrefs('<a href="/x?from=other">x</a>')).toEqual(["/x?from=other"]);
   });
 });

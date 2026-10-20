@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { LEGAL_SLUGS, type LegalSlug } from "./legalSlugs";
 import { LEGAL_ENTITY_NAME } from "../config/legalEntity";
 import { WHATSAPP_DISPLAY_NUMBER, WHATSAPP_URL } from "../config/socialProfiles";
+import ParentReturnLink from "../components/parents/ParentReturnLink";
 
 /**
  * LegalPage (`/legal/:slug`) — Privacy, Terms and Refund policies.
@@ -436,6 +437,7 @@ const LegalPage = () => {
       <style>{LEGAL_CSS}</style>
       <BackBar onBack={goBack} />
       <div className="lt-legal-wrap">
+        <ParentReturnLink />
         <nav className="lt-legal-tabs" aria-label="Policies">
           {TABS.map((tab) => (
             <Link

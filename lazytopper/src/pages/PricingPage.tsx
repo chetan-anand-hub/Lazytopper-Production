@@ -50,6 +50,7 @@ import {
 } from "../config/pricingCompare";
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
+import ParentReturnLink from "../components/parents/ParentReturnLink";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -1425,6 +1426,7 @@ function PricingPlansPage() {
     <main className="lt-pricing-page" aria-label="LazyTopper pricing">
       <style dangerouslySetInnerHTML={{ __html: PRICING_CSS }} />
       <div className="lt-pricing-inner">
+        <ParentReturnLink />
         <div className="lt-pricing-band">
           <div className="lt-pricing-band-inner">
             {carriedRedirect && backTo !== returnTarget.backTo ? (
