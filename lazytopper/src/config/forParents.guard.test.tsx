@@ -28,6 +28,10 @@ import { testimonialVideoJsonLdFor } from "../../scripts/seo/testimonialVideoJso
  *       and a "See pricing" link to /pricing in the cost answer — in the rendered page AND
  *       the committed prerender; plus a fifth, UNLINKED tile "A tutor for doubts, explained
  *       step by step". The share buttons, the no-price and no-sign-up rules are unchanged.
+ *   (f) MUMMY-1 (owner, 20 Oct 2026): Mummy's journey sits between the hero and the video, and
+ *       its beat 4 REUSES the page's two actions with placement "journey" — so the page (and its
+ *       prerender) now holds THREE of each, in the order hero → journey → footer, all identical
+ *       in href. Nothing else on the page moved.
  *
  * Every detector takes its input as an argument and is run against SYNTHETIC violating input
  * in the CONTROL tests, so a typo'd regex cannot sit green on a correct tree.
@@ -141,17 +145,18 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
     expect(html).toContain("marks it step by step, the way a CBSE examiner does, and shows what to fix.");
   });
 
-  it("BOTH 'Send LazyTopper to my child' buttons are links to wa.me carrying the parent_share tags", () => {
+  it("ALL 'Send LazyTopper to my child' buttons (hero, Mummy's journey, footer) are links to wa.me carrying the parent_share tags", () => {
     const hrefs = shareHrefs(html);
-    expect(hrefs.length).toBe(2);
+    expect(hrefs.length).toBe(3);
     for (const href of hrefs) {
       expect(href.startsWith("https://wa.me/?text=")).toBe(true);
       expect(href).toContain("utm_source%3Dparent_share");
       expect(href).toContain("utm_medium%3Dwhatsapp");
       expect(href).toContain(encodeURIComponent("https://www.lazytopper.com/check-improve?"));
     }
-    expect(hrefs[0]).toBe(PARENT_SHARE_HREF);
+    expect(hrefs).toEqual([PARENT_SHARE_HREF, PARENT_SHARE_HREF, PARENT_SHARE_HREF]);
     expect(html).toContain('data-testid="fp-share-hero"');
+    expect(html).toContain('data-testid="fp-share-journey"');
     expect(html).toContain('data-testid="fp-share-footer"');
   });
 
@@ -190,16 +195,23 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
       const pre = read(rel);
       expect(pre).toContain("See exactly where your child loses marks in CBSE Class 10.");
       const hrefs = shareHrefs(pre);
-      expect(hrefs.length, rel).toBe(2);
+      expect(hrefs.length, rel).toBe(3);
       expect(hrefs.every((h) => h.startsWith("https://wa.me/?text=") && h.includes("utm_source%3Dparent_share")), rel).toBe(true);
       expect(mediaProblems(pre), rel).toEqual([]);
       expect(copyProblems(pre), rel).toEqual([]);
       // PARENTS-CTA-1 — the free-check links and the pricing link are in the frozen HTML too.
-      expect(freeCheckHrefs(pre), rel).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF]);
+      expect(freeCheckHrefs(pre), rel).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF]);
       expect(pricingHrefs(pre), rel).toEqual(["/pricing"]);
       expect(pre, rel).toContain('data-testid="fp-free-check-hero"');
       expect(pre, rel).toContain('data-testid="fp-free-check-footer"');
       expect(tutorTileProblems(pre), rel).toEqual([]);
+      // MUMMY-1 — the journey's words are in the frozen HTML; Mummy herself (an SVG) is not.
+      expect(pre, rel).toContain('data-testid="mummy-journey"');
+      expect(pre, rel).toContain("Marks cut, but where?");
+      expect(pre, rel).toContain("Hand it to your child");
+      expect(pre, rel).toContain('data-testid="fp-share-journey"');
+      expect(pre, rel).toContain('data-testid="fp-free-check-journey"');
+      expect(pre, rel).toContain('<div class="lt-mj__fig" data-testid="mummy-slot" aria-hidden="true"></div>');
     }
   });
 
@@ -248,19 +260,21 @@ describe("PARENTS-1 (c) — the forbidden copy, ref=parent, a price and a sign-u
 describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /pricing link", () => {
   const html = renderedPage();
 
-  it("EXACTLY two 'Check one answer free' links, both to the tagged free-check URL (entity-encoded &amp; in HTML)", () => {
+  it("EXACTLY three 'Check one answer free' links (hero, Mummy's journey, footer), all to the tagged free-check URL (entity-encoded &amp; in HTML)", () => {
     expect(FREE_CHECK_TO).toBe(FREE_CHECK_HREF);
-    expect(freeCheckHrefs(html)).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF]);
+    expect(freeCheckHrefs(html)).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF]);
     expect(html).toContain('href="/check-improve?from=for_parents&amp;utm_source=for_parents"');
     expect(html).toContain('data-testid="fp-free-check-hero"');
     expect(html).toContain('data-testid="fp-free-check-footer"');
     // Hero pair: share first, then free check; same in the closing section.
     expect(html.indexOf('data-testid="fp-share-hero"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-hero"'));
-    expect(html.indexOf('data-testid="fp-free-check-hero"')).toBeLessThan(html.indexOf('data-testid="fp-share-footer"'));
+    expect(html.indexOf('data-testid="fp-free-check-hero"')).toBeLessThan(html.indexOf('data-testid="fp-share-journey"'));
+    expect(html.indexOf('data-testid="fp-share-journey"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-journey"'));
+    expect(html.indexOf('data-testid="fp-free-check-journey"')).toBeLessThan(html.indexOf('data-testid="fp-share-footer"'));
     expect(html.indexOf('data-testid="fp-share-footer"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-footer"'));
     // Secondary styling by class, never an inline style object.
     const anchors = html.match(/<a\b[^>]*>\s*Check one answer free\s*<\/a>/g) ?? [];
-    expect(anchors.length).toBe(2);
+    expect(anchors.length).toBe(3);
     for (const anchor of anchors) {
       expect(anchor).toContain('class="lt-fp__cta2"');
       expect(anchor).not.toMatch(/\bstyle=/);
@@ -285,6 +299,27 @@ describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /p
     expect(tutorTileProblems(`<li><span>${TUTOR_TILE}</span></li>`)).toEqual([]);
     expect(tutorTileProblems(`<li><a href="/tutor">${TUTOR_TILE}</a></li>`)).toContain("tutor tile is linked");
     expect(tutorTileProblems("<li><span>Practice on weak topics</span></li>")).toContain("tutor tile appears 0 times");
+  });
+});
+
+describe("MUMMY-1 (f) — Mummy's journey sits between the hero and the video, and nothing else moved", () => {
+  const html = renderedPage();
+
+  it("is after the hero's actions and before the video, with all four beats' words in the HTML", () => {
+    const at = html.indexOf('data-testid="mummy-journey"');
+    expect(at).toBeGreaterThan(html.indexOf('data-testid="fp-free-check-hero"'));
+    expect(at).toBeLessThan(html.indexOf('data-testid="testimonial-video"'));
+    for (const s of ["Marks cut, but where?", "Step by step, like CBSE", "Clear next steps", "Hand it to your child"]) {
+      expect(html).toContain(s);
+    }
+    expect(html.match(/data-testid="mummy-journey"/g)?.length).toBe(1);
+  });
+
+  it("the hero is unchanged (its own two actions, no Mummy)", () => {
+    const hero = html.slice(html.indexOf('<header class="lt-fp__hero">'), html.indexOf("</header>") + "</header>".length);
+    expect(hero).toContain('data-testid="fp-share-hero"');
+    expect(hero).toContain('data-testid="fp-free-check-hero"');
+    expect(hero).not.toContain("mummy");
   });
 });
 

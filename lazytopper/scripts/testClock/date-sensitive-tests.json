@@ -256,6 +256,7 @@
     "src/components/guide/guidePreview.signOut.test.tsx",
     "src/components/guide/guidePreview.test.ts",
     "src/components/guide/mi/miVoiceShown.test.ts",
+    "src/components/guide/mummy/MummyJourney.test.tsx",
     "src/components/guide/public/PublicPeek.test.tsx",
     "src/components/guide/public/publicPeekAnalytics.test.ts",
     "src/components/guide/public/publicPeekModel.test.ts",
