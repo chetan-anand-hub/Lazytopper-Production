@@ -6,6 +6,7 @@ vi.mock("../../../analytics/analytics", async (importOriginal) => ({
   trackOnboardingEvent: track,
 }));
 
+import { GUIDE_PREVIEW_KEY } from "../guideVariant";
 import { MI_VOICE_SHOWN_PREFIX, __resetMiVoiceShownForTests, miVoicePreviewActive, noteMiVoiceShown } from "./miVoiceShown";
 
 /** MI-VOICE-1 — `mi_voice_shown { state }` once per tab per state. */
@@ -13,6 +14,7 @@ beforeEach(() => {
   track.mockClear();
   __resetMiVoiceShownForTests();
   window.sessionStorage.clear();
+  window.localStorage.clear();
 });
 
 describe("MI-VOICE-1 · noteMiVoiceShown", () => {
@@ -39,7 +41,29 @@ describe("MI-VOICE-1 · noteMiVoiceShown", () => {
     expect(track).toHaveBeenCalledTimes(2);
   });
 
-  it("PREVIEW-1 seam: off at this base (PREVIEW-1 not merged), so nothing is suppressed yet", () => {
+  it("★ PREVIEW-1 — under a valid admin preview NOTHING is sent (and no tab marker); without one it IS sent", () => {
+    window.localStorage.setItem(GUIDE_PREVIEW_KEY, JSON.stringify({ arm: "guide", until: Date.now() + 60_000 }));
+    expect(miVoicePreviewActive()).toBe(true);
+    noteMiVoiceShown("careless");
+    expect(track).not.toHaveBeenCalled();
+    expect(window.sessionStorage.getItem(MI_VOICE_SHOWN_PREFIX + "careless")).toBeNull();
+
+    window.localStorage.removeItem(GUIDE_PREVIEW_KEY);
     expect(miVoicePreviewActive()).toBe(false);
+    noteMiVoiceShown("careless");
+    expect(track.mock.calls).toEqual([["mi_voice_shown", { state: "careless" }]]);
+  });
+
+  it("an EXPIRED preview is no preview: the event is sent", () => {
+    window.localStorage.setItem(GUIDE_PREVIEW_KEY, JSON.stringify({ arm: "guide", until: Date.now() - 1 }));
+    noteMiVoiceShown("thin");
+    expect(track.mock.calls).toEqual([["mi_voice_shown", { state: "thin" }]]);
+  });
+
+  it("★ trackOnboardingEvent's own PREVIEW-1 guard does NOT cover mi_voice_shown (only start_here_*): this module's check is the one that applies", async () => {
+    const real = await vi.importActual<typeof import("../../../analytics/analytics")>("../../../analytics/analytics");
+    const src = real.trackOnboardingEvent.toString();
+    expect(src).toMatch(/start_here_/);
+    expect(src).not.toMatch(/mi_voice/);
   });
 });

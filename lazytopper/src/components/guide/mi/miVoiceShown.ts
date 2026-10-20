@@ -7,15 +7,17 @@
  * storage → the in-memory set holds this page load.
  */
 import { trackOnboardingEvent, type MiVoiceState } from "../../../analytics/analytics";
+import { guidePreviewActive } from "../guideVariant";
 
 /**
- * PREVIEW-1 — while an admin is previewing the guide on this browser, NO guide analytics may
- * fire (the preview must never pollute the A/B). PREVIEW-1's `guidePreviewActive()` (in
- * ../guideVariant.ts) is NOT merged at this lane's base, so this returns false for now; when
- * PREVIEW-1 merges, this body becomes `return guidePreviewActive();` and nothing else changes.
+ * PREVIEW-1 (#1279) — while an admin previews the guide on this browser, NO guide analytics may
+ * fire (a preview must never pollute the A/B). `trackOnboardingEvent`'s own preview guard only
+ * drops `start_here_*`, and `trackGuideEvent` covers only GUIDE-1's five events, so this check
+ * is the one that drops `mi_voice_shown`. Checked BEFORE the tab marker is written, so a preview
+ * never marks a state as already sent.
  */
 export function miVoicePreviewActive(): boolean {
-  return false;
+  return guidePreviewActive();
 }
 
 export const MI_VOICE_SHOWN_PREFIX = "lazytopper.miVoiceShown.";
