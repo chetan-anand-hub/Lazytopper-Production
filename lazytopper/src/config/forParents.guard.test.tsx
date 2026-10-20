@@ -212,7 +212,8 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
       // MUMMY-1 — the journey's words are in the frozen HTML; Mummy herself (an SVG) is not.
       expect(pre, rel).toContain('data-testid="mummy-journey"');
       expect(pre, rel).toContain("Marks cut, but where?");
-      expect(pre, rel).toContain("Hand it to your child");
+      expect(pre, rel).toContain("child's turn");
+      expect(pre, rel).toContain("One tap opens WhatsApp with a message and a link.");
       expect(pre, rel).toContain('data-testid="fp-share-journey"');
       expect(pre, rel).toContain('data-testid="fp-free-check-journey"');
       expect(pre, rel).toContain('<div class="lt-mj__fig" data-testid="mummy-slot" aria-hidden="true"></div>');
@@ -313,10 +314,12 @@ describe("MUMMY-1 (f) — Mummy's journey sits between the hero and the video, a
     const at = html.indexOf('data-testid="mummy-journey"');
     expect(at).toBeGreaterThan(html.indexOf('data-testid="fp-free-check-hero"'));
     expect(at).toBeLessThan(html.indexOf('data-testid="testimonial-video"'));
-    for (const s of ["Marks cut, but where?", "Step by step, like CBSE", "Clear next steps", "Hand it to your child"]) {
+    for (const s of ["Marks cut, but where?", "Step by step, like CBSE", "Clear next steps", "Your child&#x27;s turn"]) {
       expect(html).toContain(s);
     }
     expect(html.match(/data-testid="mummy-journey"/g)?.length).toBe(1);
+    // Review F2: the journey does not repeat the closing section's heading.
+    expect(html.split("Hand it to your child").length - 1).toBe(1);
   });
 
   it("the hero is unchanged (its own two actions, no Mummy)", () => {

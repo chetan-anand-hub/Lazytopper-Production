@@ -1143,6 +1143,7 @@ export function trackGuidePublicArmAssigned(arm: GuideVariant): void {
  *
  *   mummy_beat { beat }  — a visitor moved the story to beat 1..4 (once per beat per page load)
  *   mummy_tap  {}        — a visitor tapped Mummy
+ *   mummy_seen { beat }  — the section first entered the viewport (beat 1; once per page load)
  * ------------------------------------------------------------------------- */
 
 export type MummyBeatNumber = 1 | 2 | 3 | 4;
@@ -1150,6 +1151,7 @@ export type MummyBeatNumber = 1 | 2 | 3 | 4;
 export interface OnboardingEventParams {
   mummy_beat: { beat: MummyBeatNumber };
   mummy_tap: Record<string, never>;
+  mummy_seen: { beat: 1 };
 }
 
 /** Where on /for-parents the share button was tapped (MUMMY-1 added "journey": beat 4 of Mummy's story). */

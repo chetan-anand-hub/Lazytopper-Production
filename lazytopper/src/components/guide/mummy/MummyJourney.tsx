@@ -12,8 +12,9 @@
  * (placement "journey") in as `actions`: the same href, the same handler, never a new link.
  *
  * Reduced motion: the rig shows still poses, and beat changes swap without animation (CSS).
- * Analytics: `mummy_beat { beat }` once per beat per page load when a visitor moves the story,
- * and `mummy_tap`; both suppressed under the guide preview (mummyModel.mummyPreviewActive).
+ * Analytics: `mummy_seen { beat: 1 }` once per page load when the section first enters the
+ * viewport, `mummy_beat { beat }` once per beat per mount when a visitor moves the story, and
+ * `mummy_tap`; all suppressed under the guide preview (mummyModel.mummyPreviewActive).
  */
 import { lazy, Suspense, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import "./mummyJourney.css";
@@ -24,6 +25,7 @@ import {
   MUMMY_LAUGH_MS,
   shouldDrawMummy,
   trackMummyBeat,
+  trackMummySeen,
   trackMummyTap,
   type MummyBeatNumber,
   type MummyPose,
@@ -60,6 +62,22 @@ function useDrawAfterIdle(): boolean {
   return draw;
 }
 
+/** `mummy_seen` when the section first enters the viewport (IntersectionObserver; none → nothing). */
+function useSeenOnce(ref: { current: HTMLElement | null }): void {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver !== "function") return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        io.disconnect();
+        trackMummySeen();
+      }
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+}
+
 export interface MummyJourneyProps {
   /** Beat 4's actions: the page's own ShareButton + FreeCheckLink (placement "journey"). */
   actions: ReactNode;
@@ -71,6 +89,8 @@ export default function MummyJourney({ actions }: MummyJourneyProps) {
   const laughTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sent = useRef(new Set<MummyBeatNumber>());
   const draw = useDrawAfterIdle();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  useSeenOnce(sectionRef);
   const beat = MUMMY_BEATS[index];
   const pose: MummyPose = laughing ? "laugh" : beat.pose;
 
@@ -101,7 +121,7 @@ export default function MummyJourney({ actions }: MummyJourneyProps) {
   };
 
   return (
-    <section aria-labelledby="fp-mummy" className="lt-mj" data-testid="mummy-journey" data-beat={beat.beat}>
+    <section ref={sectionRef} aria-labelledby="fp-mummy" className="lt-mj" data-testid="mummy-journey" data-beat={beat.beat}>
       <h2 id="fp-mummy" className="lt-mj__h">
         {MUMMY_COPY.heading}
       </h2>

@@ -15,7 +15,14 @@ vi.mock("../BlobCharacter", () => ({
 }));
 
 import MummyJourney from "./MummyJourney";
-import { MUMMY_BEATS, MUMMY_COPY, MUMMY_LAUGH_MS, mummyPreviewActive, shouldDrawMummy } from "./mummyModel";
+import {
+  MUMMY_BEATS,
+  MUMMY_COPY,
+  MUMMY_LAUGH_MS,
+  __resetMummySeenForTests,
+  mummyPreviewActive,
+  shouldDrawMummy,
+} from "./mummyModel";
 import { GUIDE_PREVIEW_KEY, GUIDE_PREVIEW_MS } from "../guideVariant";
 
 /**
@@ -40,8 +47,31 @@ function setWebdriver(v: boolean) {
   Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: v });
 }
 
+/** A controllable IntersectionObserver (jsdom has none): `fire(true)` = the section scrolled into view. */
+class FakeIO {
+  static all: FakeIO[] = [];
+  observed: Element[] = [];
+  disconnected = false;
+  private readonly cb: (entries: Array<{ isIntersecting: boolean }>) => void;
+  constructor(cb: (entries: Array<{ isIntersecting: boolean }>) => void) {
+    this.cb = cb;
+    FakeIO.all.push(this);
+  }
+  observe(el: Element) {
+    this.observed.push(el);
+  }
+  disconnect() {
+    this.disconnected = true;
+  }
+  fire(isIntersecting: boolean) {
+    if (!this.disconnected) this.cb([{ isIntersecting }]);
+  }
+}
+const seenCalls = () => trackOnboardingEvent.mock.calls.filter((c) => c[0] === "mummy_seen");
+
 beforeEach(() => {
   trackOnboardingEvent.mockClear();
+  __resetMummySeenForTests();
   setWebdriver(false);
   window.localStorage.clear();
 });
@@ -185,6 +215,56 @@ describe("MUMMY-1 · PREVIEW-1 — an admin's guide preview suppresses ONLY the 
   });
 });
 
+describe("MUMMY-1 · review F3 — mummy_seen { beat: 1 }, once per page load, on first view", () => {
+  beforeEach(() => {
+    FakeIO.all = [];
+    vi.stubGlobal("IntersectionObserver", FakeIO);
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  const io = () => FakeIO.all.find((o) => o.observed.some((el) => (el as HTMLElement).dataset.testid === "mummy-journey"));
+
+  it("★ nothing until the section enters the viewport; then exactly one mummy_seen { beat: 1 }", () => {
+    render(<MummyJourney actions={ACTIONS} />);
+    expect(io()).toBeDefined();
+    io()!.fire(false);
+    expect(seenCalls()).toEqual([]);
+    io()!.fire(true);
+    io()!.fire(true);
+    expect(seenCalls()).toEqual([["mummy_seen", { beat: 1 }]]);
+    expect(io()!.disconnected).toBe(true);
+  });
+
+  it("once per PAGE LOAD: a re-mount in the same load does not send it again", () => {
+    const first = render(<MummyJourney actions={ACTIONS} />);
+    io()!.fire(true);
+    first.unmount();
+    FakeIO.all = [];
+    render(<MummyJourney actions={ACTIONS} />);
+    io()!.fire(true);
+    expect(seenCalls()).toHaveLength(1);
+  });
+
+  it("★ suppressed under a valid preview (and the preview view does not use up the load's send)", () => {
+    window.localStorage.setItem(GUIDE_PREVIEW_KEY, JSON.stringify({ arm: "guide", until: Date.now() + GUIDE_PREVIEW_MS }));
+    const r = render(<MummyJourney actions={ACTIONS} />);
+    io()!.fire(true);
+    expect(seenCalls()).toEqual([]);
+    r.unmount();
+    window.localStorage.clear();
+    FakeIO.all = [];
+    render(<MummyJourney actions={ACTIONS} />);
+    io()!.fire(true);
+    expect(seenCalls()).toEqual([["mummy_seen", { beat: 1 }]]);
+  });
+
+  it("no IntersectionObserver at all → no event, no error", () => {
+    vi.stubGlobal("IntersectionObserver", undefined);
+    render(<MummyJourney actions={ACTIONS} />);
+    expect(seenCalls()).toEqual([]);
+  });
+});
+
 describe("MUMMY-1 · the copy rules and the chunk boundary", () => {
   const words = [
     MUMMY_COPY.heading,
@@ -200,6 +280,14 @@ describe("MUMMY-1 · the copy rules and the chunk boundary", () => {
     expect(words).not.toMatch(/₹|\bRs\.?\s?\d|\bINR\b/i);
     expect(words).not.toMatch(/\bseats?\b|\bonly \d+\b|\bspots?\b/i);
     expect(words).not.toMatch(/\bdeadline\b|\blast date\b|\bhurry\b|\btoday only\b|\bends\b/i);
+  });
+
+  it("review F1/F2/F5 — beat 4 says what the button really does; no repeated heading; 'And then?'", () => {
+    const four = MUMMY_BEATS[3];
+    expect(four.title).toBe("Your child's turn");
+    expect(four.text).toBe("One tap opens WhatsApp with a message and a link. Your child tries a free check on their own phone.");
+    expect(MUMMY_BEATS.map((b) => b.next)).toEqual(["See the report", "What next?", "And then?", null]);
+    expect(MUMMY_BEATS.some((b) => b.title === "Hand it to your child")).toBe(false);
   });
 
   it("four beats in order, respectful poses only (never `stern`)", () => {

@@ -49,14 +49,15 @@ export const MUMMY_BEATS: readonly MummyBeat[] = [
     line: "Accha! So that's what to fix.",
     title: "Clear next steps",
     text: "Practice on exactly the steps that lost marks.",
-    next: "After a week",
+    next: "And then?",
   },
   {
     beat: 4,
     pose: "mproud",
     line: "So proud of my child!",
-    title: "Hand it to your child",
-    text: "One tap sends a free answer check to your child's phone.",
+    title: "Your child's turn", // not the closing section's "Hand it to your child" (review F2)
+    // Review F1: what the button really does — it opens WhatsApp; the parent sends the link.
+    text: "One tap opens WhatsApp with a message and a link. Your child tries a free check on their own phone.",
     next: null,
   },
 ];
@@ -101,19 +102,27 @@ export function shouldDrawMummy(): boolean {
   }
 }
 
-/** prefers-reduced-motion, read without importing the rig (which must stay in the lazy chunk). */
-export function mummyReducedMotion(): boolean {
-  try {
-    return typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  } catch {
-    return false;
-  }
-}
-
 /** `mummy_beat { beat }` — a visitor moved the story to this beat. Never under the preview. */
 export function trackMummyBeat(beat: MummyBeatNumber): void {
   if (mummyPreviewActive()) return;
   trackOnboardingEvent("mummy_beat", { beat });
+}
+
+/**
+ * `mummy_seen { beat: 1 }` — the section first entered the viewport. ONCE PER PAGE LOAD (a
+ * module-level flag: a re-mount in the same load does not count again). Never under the preview;
+ * a preview view does not use up the page load's one send.
+ */
+let seenSent = false;
+export function trackMummySeen(): void {
+  if (seenSent || mummyPreviewActive()) return;
+  seenSent = true;
+  trackOnboardingEvent("mummy_seen", { beat: 1 });
+}
+
+/** Test seam: forget this page load's `mummy_seen`. */
+export function __resetMummySeenForTests(): void {
+  seenSent = false;
 }
 
 /** `mummy_tap` — a visitor tapped Mummy. Never under the preview. */
