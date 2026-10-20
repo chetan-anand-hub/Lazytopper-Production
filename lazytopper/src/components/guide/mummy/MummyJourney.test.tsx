@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 const trackOnboardingEvent = vi.hoisted(() => vi.fn());
-vi.mock("../../../analytics/analytics", () => ({ trackOnboardingEvent }));
+vi.mock("../../../analytics/analytics", () => ({ trackOnboardingEvent, trackGuideVariantAssigned: vi.fn() }));
 // The rig needs a real layout engine; a stub that shows the pose it was given is what this suite
 // needs (the rig's own drawing is covered by rig.test.ts / rigCast.test.ts).
 vi.mock("../BlobCharacter", () => ({
@@ -16,6 +16,7 @@ vi.mock("../BlobCharacter", () => ({
 
 import MummyJourney from "./MummyJourney";
 import { MUMMY_BEATS, MUMMY_COPY, MUMMY_LAUGH_MS, mummyPreviewActive, shouldDrawMummy } from "./mummyModel";
+import { GUIDE_PREVIEW_KEY, GUIDE_PREVIEW_MS } from "../guideVariant";
 
 /**
  * MUMMY-1 — Mummy's four-beat journey on /for-parents: every beat's words in the static HTML,
@@ -42,6 +43,7 @@ function setWebdriver(v: boolean) {
 beforeEach(() => {
   trackOnboardingEvent.mockClear();
   setWebdriver(false);
+  window.localStorage.clear();
 });
 afterEach(() => {
   cleanup();
@@ -143,8 +145,43 @@ describe("MUMMY-1 · moving the story", () => {
     expect(screen.getByText(MUMMY_BEATS[0].title)).toBeTruthy();
   });
 
-  it("the preview seam is off until PREVIEW-1 lands", () => {
+  it("no preview on this browser: the seam is off and the events fire (see above)", () => {
     expect(mummyPreviewActive()).toBe(false);
+  });
+});
+
+describe("MUMMY-1 · PREVIEW-1 — an admin's guide preview suppresses ONLY the mummy_* events", () => {
+  const setPreview = (until: number) =>
+    window.localStorage.setItem(GUIDE_PREVIEW_KEY, JSON.stringify({ arm: "guide", until }));
+
+  async function walkAndTap() {
+    render(<MummyJourney actions={ACTIONS} />);
+    await screen.findByTestId("blob-mummy");
+    fireEvent.click(screen.getByTestId("mummy-next-1"));
+    fireEvent.click(screen.getByTestId("mummy-next-2"));
+    fireEvent.click(screen.getByTestId("mummy-next-3"));
+    fireEvent.pointerUp(screen.getByTestId("blob-mummy"));
+  }
+
+  it("★ under a VALID preview: no mummy_beat, no mummy_tap — and the story still works", async () => {
+    setPreview(Date.now() + GUIDE_PREVIEW_MS);
+    expect(mummyPreviewActive()).toBe(true);
+    await walkAndTap();
+    expect(screen.getByTestId("mummy-journey").dataset.beat).toBe("4");
+    expect(screen.getByTestId("blob-mummy").dataset.pose).toBe("laugh");
+    expect(trackOnboardingEvent).not.toHaveBeenCalled();
+  });
+
+  it("CONTROL — an EXPIRED preview is no preview: every mummy_* event fires", async () => {
+    setPreview(Date.now() - 1);
+    expect(mummyPreviewActive()).toBe(false);
+    await walkAndTap();
+    expect(trackOnboardingEvent.mock.calls).toEqual([
+      ["mummy_beat", { beat: 2 }],
+      ["mummy_beat", { beat: 3 }],
+      ["mummy_beat", { beat: 4 }],
+      ["mummy_tap", {}],
+    ]);
   });
 });
 

@@ -8,6 +8,7 @@
  * Hinglish only, never the word "Ask", no "½", no price, no seat count, no deadline.
  */
 import { trackOnboardingEvent, type MummyBeatNumber } from "../../../analytics/analytics";
+import { guidePreviewActive } from "../guideVariant";
 
 export type { MummyBeatNumber };
 
@@ -76,15 +77,13 @@ export const MUMMY_LAUGH_MS = 1500;
 export const MUMMY_IDLE_TIMEOUT_MS = 1500;
 
 /**
- * Is the guide PREVIEW on (an admin looking at the guide, not a real visitor)? Analytics are
- * suppressed then.
- *
- * ⚠ PREVIEW-1 is not merged at this lane's base (606ce86): its `guidePreviewActive()` export in
- * components/guide/guideVariant.ts does not exist yet. This ONE function is the seam: once
- * PREVIEW-1 merges, it returns `guidePreviewActive()` and nothing else changes.
+ * Is the guide PREVIEW on (PREVIEW-1: an admin's valid, unexpired "Guide preview" on this browser,
+ * `guidePreviewActive()` in ../guideVariant)? Then the mummy_* events are suppressed, so an admin
+ * looking at the page never counts as a parent. ONLY the mummy_* events: the page's
+ * `parent_share_click` (including the journey's share button) is NOT suppressed (controller ruling).
  */
 export function mummyPreviewActive(): boolean {
-  return false;
+  return guidePreviewActive();
 }
 
 /**

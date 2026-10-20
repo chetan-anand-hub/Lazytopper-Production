@@ -319,6 +319,7 @@
     "src/config/agentsMd.guard.test.ts",
     "src/config/boardDate.parity.test.ts",
     "src/config/crawlerReachability.guard.test.ts",
+    "src/config/forParents.guard.test.tsx",
     "src/config/indexStatusReport.guard.test.ts",
     "src/config/noRepeatInSet.guard.test.ts",
     "src/config/passPricing.parity.test.ts",

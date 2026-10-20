@@ -1,11 +1,15 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { render, screen, cleanup, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
+// MUMMY-1 (f): the first-party activity log is not this suite's subject (the share-click test sends a real event).
+vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
+
 import ForParentsPage, { FREE_CHECK_TO, PARENT_SHARE_HREF } from "../pages/ForParentsPage";
+import { GUIDE_PREVIEW_KEY, GUIDE_PREVIEW_MS } from "../components/guide/guideVariant";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { SELF_CANONICAL_EXACT } from "./canonicalUrl";
 import { sitemapPaths } from "./sitemapUrls";
@@ -320,6 +324,43 @@ describe("MUMMY-1 (f) — Mummy's journey sits between the hero and the video, a
     expect(hero).toContain('data-testid="fp-share-hero"');
     expect(hero).toContain('data-testid="fp-free-check-hero"');
     expect(hero).not.toContain("mummy");
+  });
+});
+
+describe("MUMMY-1 (f) — an admin's guide preview does NOT suppress the parent share click", () => {
+  it("★ under a valid preview, the journey's (and the hero's) share tap still sends parent_share_click", () => {
+    const originalLocation = window.location;
+    const w = window as unknown as { va?: unknown };
+    const vercel: Array<[string, Record<string, unknown>]> = [];
+    w.va = (kind: string, payload: Record<string, unknown>) => vercel.push([kind, payload]);
+    Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: false });
+    const url = new URL("/for-parents", "https://www.lazytopper.com");
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      writable: true,
+      value: { href: url.href, origin: url.origin, hostname: url.hostname, pathname: url.pathname, search: url.search, hash: url.hash },
+    });
+    window.localStorage.setItem(GUIDE_PREVIEW_KEY, JSON.stringify({ arm: "guide", until: Date.now() + GUIDE_PREVIEW_MS }));
+    try {
+      render(
+        <MemoryRouter initialEntries={["/for-parents"]}>
+          <ForParentsPage />
+        </MemoryRouter>,
+      );
+      for (const id of ["fp-share-journey", "fp-share-hero"]) {
+        const a = screen.getByTestId(id);
+        a.addEventListener("click", (e) => e.preventDefault()); // jsdom cannot open wa.me
+        a.click();
+      }
+      expect(vercel.filter(([, p]) => p.name === "parent_share_click")).toEqual([
+        ["event", { name: "parent_share_click", data: { placement: "journey" } }],
+        ["event", { name: "parent_share_click", data: { placement: "hero" } }],
+      ]);
+    } finally {
+      window.localStorage.removeItem(GUIDE_PREVIEW_KEY);
+      delete w.va;
+      Object.defineProperty(window, "location", { configurable: true, writable: true, value: originalLocation });
+    }
   });
 });
 
