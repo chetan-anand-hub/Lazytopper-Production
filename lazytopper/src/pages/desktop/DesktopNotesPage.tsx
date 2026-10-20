@@ -1,6 +1,7 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { Card } from "../../components/grammar/Card";
+import PublicPeek from "../../components/guide/public/PublicPeek";
 import { useReturnTicket } from "../../components/navigation/ReturnTicket";
 import { Note, type NoteInitialTab } from "../../components/notes/Note";
 import { useNoteSpec } from "../../components/notes/noteSpecRegistry";
@@ -235,6 +236,7 @@ export default function DesktopNotesPage() {
         <>
           <Note spec={spec} initialTab={noteTabFromParam(params.get("tab"))} />
           <NotesNav slug={topic.slug} />
+          <PublicPeek page="notes" chapterSlug={topic.slug} />
           {/* SEO-5 PR-4 — the end of every notes page links to the answer-marking guide. */}
           <Link to="/check-your-answer" className="lt-notes-page__cbse">
             Practise writing answers the way examiners mark them → Guide

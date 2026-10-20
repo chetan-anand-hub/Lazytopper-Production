@@ -728,7 +728,14 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "source is captured, so Byte can order his options after sign-up; never a query string, a " +
       "click id or the uid; NOT cleared at sign-up, it ends with the tab), and localStorage `lazytopper.ziggyShown.<tag>` " +
       "(the single character 1 once Ziggy reacted to this account's first scorecard on this device; " +
-      "<tag> is an 8-hex hash of the uid, never the uid). Dev server only, never read by a production " +
+      "<tag> is an 8-hex hash of the uid, never the uid). " +
+      "GUIDE-PUBLIC-1: plus localStorage `lazytopper.guidePublicArm` (guide or control: this DEVICE's " +
+      "group in the public-page Byte test, drawn once at random; a device key, NOT cleared at sign-out; " +
+      "never the uid; the group alone is sent once, as an analytics user property, so the test can be " +
+      "read) and, in THIS TAB's sessionStorage, `lazytopper.guidePublicPeek.<page>` (the single " +
+      "character 1 once Byte peeked in on that page type, notes or topic_hub, in this tab) and a " +
+      "`public_arm` field (that same group) added to the `lazytopper.guideIntent` record above. " +
+      "Dev server only, never read by a production " +
       "build: localStorage `lazytopper.guideVariantOverride` (guide or control, to force a test " +
       "group while developing). PREVIEW-1: plus localStorage `lazytopper.guidePreview` (DEVICE " +
       "state, not student data: the test group, guide or control, and an expiry time 7 days ahead, " +

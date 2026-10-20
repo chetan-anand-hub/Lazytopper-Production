@@ -1008,6 +1008,16 @@ export function trackOnboardingEvent<E extends OnboardingEvent>(name: E, params:
  *   mi_voice_shown  { state }                      — MI-VOICE-1: Ziggy/Byte voiced the sidebar
  *                                                    Mistake Intel card (guide arm; once per tab
  *                                                    per state; never under the admin preview)
+ *
+ * GUIDE-PUBLIC-1 — Byte peeks in on the public notes / topic-hub pages (components/guide/public/).
+ * Signed-out visitors are split per DEVICE (localStorage `lazytopper.guidePublicArm`); signed-in
+ * students reuse their account arm. Same sanitiser, same rule: coarse slugs only.
+ *
+ *   guide_public_shown     { page, arm, chapter } — BOTH arms, at the same trigger moment
+ *   guide_public_option    { option, page }       — a peek option was tapped
+ *   guide_public_dismissed { page }               — the peek was closed with its ×
+ *   GA4 user property `guide_public_arm` + vendor event `guide_public_arm_assigned` once per device
+ *   (trackGuidePublicArmAssigned below). All of it is suppressed under the admin preview.
  * ------------------------------------------------------------------------- */
 
 export type GuideVariant = "guide" | "control";
@@ -1051,7 +1061,14 @@ export interface OnboardingEventParams {
   guide_reopened: { surface: StartHereSurface };
   ziggy_reaction: { band: ZiggyBand };
   mi_voice_shown: { state: MiVoiceState };
+  guide_public_shown: { page: GuidePublicPage; arm: GuideVariant; chapter: string };
+  guide_public_option: { option: GuidePublicOption; page: GuidePublicPage };
+  guide_public_dismissed: { page: GuidePublicPage };
 }
+
+/** GUIDE-PUBLIC-1 — the public page Byte peeked in on, and the options of his panel. */
+export type GuidePublicPage = "notes" | "topic_hub";
+export type GuidePublicOption = "important" | "check_one" | "quick";
 
 /**
  * Once per account per device (guideVariant.ts holds the device marker): the GA4 user property
@@ -1067,6 +1084,28 @@ export function trackGuideVariantAssigned(variant: GuideVariant): void {
     }
     const data = { variant };
     send("event", { name: "guide_variant_assigned", data }, { ga4: data }, "guide_variant_assigned");
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * GUIDE-PUBLIC-1 — once per DEVICE (the caller fires it only when the device's arm is first
+ * assigned): the GA4 user property `guide_public_arm`, then `guide_public_arm_assigned { arm }`
+ * to the vendors and the bare name first-party (names only). Never throws.
+ */
+export function trackGuidePublicArmAssigned(arm: GuideVariant): void {
+  try {
+    if (arm !== "guide" && arm !== "control") return;
+    if (analyticsEnabled() && !window.location.pathname.startsWith("/admin")) {
+      const gtag = resolveGtag();
+      if (gtag) gtag("set", "user_properties", { guide_public_arm: arm });
+    }
+    // NOT a named (first-party) event: that list must equal activityClient's ACTIVITY_EVENTS and
+    // the server's (activityClient.test.ts), files outside this lane — and the device arm is set
+    // for signed-out visitors, whom the first-party log never records anyway. Vendors only.
+    const data = { arm };
+    send("event", { name: "guide_public_arm_assigned", data }, { ga4: data });
   } catch {
     /* analytics must never break the page */
   }
