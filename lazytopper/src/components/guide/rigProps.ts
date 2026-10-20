@@ -101,10 +101,15 @@ export function facePropsSVG(list: readonly Prop[], g: PropGeom): string {
   return s;
 }
 
-/** The sack's number, as digit paths centred in the slot. `null` → an empty slot. */
-export function bagNumberSVG(label: number | null): string {
-  if (label === null) return "";
-  return glyphMarkup(String(label), 0, 4.5, 11, INK, 2, "middle", "lt-gr-dg");
+/**
+ * The sack's number, as digit paths centred in the slot. Normalises its own input (whole,
+ * 0–999), so no caller can put a minus sign, a decimal point or a non-number into the drawing;
+ * anything else → an empty slot.
+ */
+export function bagNumberSVG(label: unknown): string {
+  const n = normaliseBagLabel(label);
+  if (n === null) return "";
+  return glyphMarkup(String(n), 0, 4.5, 11, INK, 2, "middle", "lt-gr-dg");
 }
 
 /** A whole, non-negative number the sack can show (anything else → no number). */

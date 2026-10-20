@@ -163,6 +163,34 @@ describe("RIG-2 · GUIDE-1 invariants hold for the full cast", () => {
     expect(raf).toHaveBeenCalledTimes(1);
   });
 
+  it("★ off-screen pause holds for a peeking Byte and Mummy: loop stops, resumes when either returns", () => {
+    let cb: IntersectionObserverCallback | null = null;
+    class FakeIO {
+      constructor(c: IntersectionObserverCallback) {
+        cb = c;
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+      takeRecords() {
+        return [];
+      }
+    }
+    vi.stubGlobal("IntersectionObserver", FakeIO);
+    const a = new Rig(host(), "byte", "peek");
+    const m = new Rig(host(), "mummy", "worried");
+    rigs.push(a, m);
+    expect(__rigLoopStateForTests()).toEqual({ rigs: 2, running: true });
+    const entry = (t: Element, on: boolean) => ({ target: t, isIntersecting: on }) as unknown as IntersectionObserverEntry;
+    cb!([entry(a.svg, false), entry(m.svg, false)], {} as IntersectionObserver);
+    expect(__rigLoopStateForTests().running).toBe(false);
+    cb!([entry(m.svg, true)], {} as IntersectionObserver);
+    expect(__rigLoopStateForTests().running).toBe(true);
+    while (rigs.length) rigs.pop()!.destroy();
+    vi.unstubAllGlobals();
+    expect(__rigLoopStateForTests()).toEqual({ rigs: 0, running: false });
+  });
+
   it("LCG determinism; no Math.random across every pose and kind", () => {
     const spy = vi.spyOn(Math, "random");
     const s1 = makeSeq(7);
