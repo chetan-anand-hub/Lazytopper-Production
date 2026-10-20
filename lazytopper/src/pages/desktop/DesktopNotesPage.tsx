@@ -43,6 +43,11 @@ const NOTES_PAGE_CSS = `
   padding: 20px 16px 48px;
   font-family: var(--font-body, "Inter", system-ui, sans-serif);
 }
+/* MOBILE-FIT-2: on a phone the mobile shell already gives the side gutter, so the
+   notes page adds none (vertical padding unchanged). */
+@media (max-width: 480px) {
+  .lt-notes-page { padding-left: 0; padding-right: 0; }
+}
 .lt-notes-page__back {
   display: inline-flex;
   align-items: center;

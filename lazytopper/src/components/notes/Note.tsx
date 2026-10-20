@@ -208,7 +208,7 @@ const NOTE_CSS = `
   padding: 13px 15px; background: #fcfdfe;
 }
 .lt-note__keyterms dl {
-  display: grid; grid-template-columns: auto 1fr; gap: 5px 12px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 12px;
   font-size: 13px; margin: 0;
 }
 .lt-note__keyterms dt { font-weight: 700; color: var(--lt-note-navy); }
@@ -217,7 +217,7 @@ const NOTE_CSS = `
 /* concepts */
 .lt-note__concepts { display: grid; gap: 10px; }
 .lt-note__concept {
-  display: grid; grid-template-columns: auto 1fr; gap: 13px; align-items: start;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 13px; align-items: start;
   padding: 13px 15px; border: 1px solid var(--lt-note-line);
   border-radius: 11px; background: #fcfdfe;
 }
@@ -320,7 +320,7 @@ const NOTE_CSS = `
 .lt-note__ex-body { padding: 14px 16px; }
 .lt-note__steps { display: grid; gap: 9px; }
 .lt-note__step {
-  display: grid; grid-template-columns: auto 1fr auto; gap: 12px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px;
   padding: 11px 13px; border: 1px solid var(--lt-note-line); border-radius: 10px;
 }
 .lt-note__step-n {
@@ -351,7 +351,7 @@ const NOTE_CSS = `
 /* strategies */
 .lt-note__strat { display: grid; gap: 9px; }
 .lt-note__strat-row {
-  display: grid; grid-template-columns: auto 1fr; gap: 11px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 11px;
   align-items: start; font-size: 14px;
 }
 .lt-note__strat-arrow { color: var(--lt-note-green); font-weight: 700; margin-top: 1px; }
@@ -362,14 +362,14 @@ const NOTE_CSS = `
 .lt-note__block--pitfalls .lt-note__sec-label { color: var(--lt-note-rose-ink); }
 .lt-note__block--pitfalls .lt-note__sec { color: #7a2f31; }
 .lt-note__pit {
-  display: grid; grid-template-columns: auto 1fr; gap: 11px; font-size: 14px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 11px; font-size: 14px;
   padding: 9px 0; border-bottom: 1px solid var(--lt-note-rose-line);
 }
 .lt-note__pit:last-child { border-bottom: none; }
 .lt-note__pit-x { color: var(--lt-note-rose-ink); font-weight: 700; }
 
 /* formula strip */
-.lt-note__frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.lt-note__frow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 6px; }
 .lt-note__fitem {
   background: #fcfdfe; border: 1px solid var(--lt-note-green-line);
   border-radius: 11px; padding: 13px 15px;
@@ -379,10 +379,39 @@ const NOTE_CSS = `
   text-transform: uppercase; color: var(--lt-note-green-deep); margin-bottom: 7px;
 }
 .lt-note__flabel .katex { text-transform: none; }
-.lt-note__fval { font-size: 16px; color: var(--lt-note-navy); }
+/* MOBILE-FIT-1: a formula wider than its card scrolls INSIDE its own box — never
+   pushes the card past the screen, never clipped silently by an ancestor. The 3 px
+   padding / -3 px margin pair keeps KaTeX glyph ink that pokes past the line box
+   inside the scroll box without moving anything on desktop. */
+.lt-note__fval {
+  font-size: 16px; color: var(--lt-note-navy);
+  max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 3px 0; margin: -3px 0;
+}
+/* MOBILE-FIT-2: phones hide the scrollbar, so a formula that still overflows its
+   card (the trig-ratio table is ~385 px) needs a visible cue that it scrolls.
+   CSS-only scroll shadows: two card-coloured covers ride with the content
+   (background-attachment: local) and hide two navy edge shadows pinned to the box
+   (scroll). While more formula lies to the right, the right shadow shows; at the
+   end of the scroll the cover slides over it. Each cover is solid for the full
+   shadow width, so a formula that fits shows no trace of either shadow. Also,
+   the value box bleeds to the card's inner edges so the formula gets the FULL card
+   width. Scoped to phones and touch screens (where scrollbars are hidden); desktop
+   with a pointer is untouched. */
+@media (max-width: 560px), (hover: none) {
+  .lt-note__fval {
+    margin: -3px -15px; padding: 3px 15px; max-width: calc(100% + 30px);
+    background:
+      linear-gradient(to right, #fcfdfe 50%, rgba(252, 253, 254, 0)) left center / 36px 100% no-repeat local,
+      linear-gradient(to left, #fcfdfe 50%, rgba(252, 253, 254, 0)) right center / 36px 100% no-repeat local,
+      linear-gradient(to right, rgba(15, 36, 68, 0.28), rgba(15, 36, 68, 0)) left center / 18px 100% no-repeat scroll,
+      linear-gradient(to left, rgba(15, 36, 68, 0.28), rgba(15, 36, 68, 0)) right center / 18px 100% no-repeat scroll;
+    background-color: #fcfdfe;
+  }
+}
 
 /* third tab */
-.lt-note__signtable { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.lt-note__signtable { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 10px; }
 .lt-note__signcard {
   border: 1px solid var(--lt-note-line); border-radius: 11px;
   padding: 13px 15px; background: #fcfdfe;
@@ -395,7 +424,7 @@ const NOTE_CSS = `
 .lt-note__sign { font-weight: 700; min-width: 20px; }
 .lt-note__rulelist { display: grid; gap: 9px; margin-top: 8px; }
 .lt-note__rulei {
-  display: grid; grid-template-columns: auto 1fr; gap: 11px; font-size: 14px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 11px; font-size: 14px;
   padding: 10px 13px; border: 1px solid var(--lt-note-line);
   border-radius: 10px; background: #fcfdfe;
 }
@@ -444,7 +473,7 @@ const NOTE_CSS = `
 }
 
 @media (max-width: 560px) {
-  .lt-note__frow, .lt-note__signtable { grid-template-columns: 1fr; }
+  .lt-note__frow, .lt-note__signtable { grid-template-columns: minmax(0, 1fr); }
   /* Phones: a figure fills the FULL content width of the card that holds it,
      edge to edge inside that card's border — never past it, never over its
      edge (QUICK-FIXES-1 owner follow-up: "fit the screen width, never cut
@@ -456,8 +485,13 @@ const NOTE_CSS = `
   .lt-note__figure { border-left: 0; border-right: 0; border-radius: 0; }
   .lt-note__concept .lt-note__figure { margin-left: -56px; margin-right: -15px; }
   .lt-note__block > .lt-note__figure { margin-left: -14px; margin-right: -14px; }
-  .lt-note__keyterms dl { grid-template-columns: 1fr; }
+  .lt-note__keyterms dl { grid-template-columns: minmax(0, 1fr); }
   .lt-note__block { padding: 16px 14px; }
+}
+/* MOBILE-FIT-2: on a phone the note card's side padding drops to 12 px (vertical
+   padding unchanged) so the content gets ~330 px of a 360 px screen. */
+@media (max-width: 480px) {
+  .lt-note { padding-left: 12px; padding-right: 12px; }
 }
 
 /* ── tab bar + Download-PDF button (Part 3) ────────────────────────── */
@@ -465,7 +499,14 @@ const NOTE_CSS = `
   display: flex; align-items: center; gap: 10px;
   border-bottom: 1px solid var(--lt-note-line); margin-bottom: 18px; flex-wrap: wrap;
 }
-.lt-note__tabbar .lt-note__tabs { border-bottom: none; margin-bottom: 0; flex: 1 1 auto; }
+.lt-note__tabbar .lt-note__tabs { border-bottom: none; margin-bottom: 0; flex: 1 1 auto; min-width: 0; max-width: 100%; }
+/* MOBILE-FIT-1: on a phone the four tabs sit as a 2 x 2 block instead of running
+   past the right edge (their combined min-content is ~390 px; a 360 px phone has ~290).
+   Every tab stays fully visible; a long label wraps inside its own tab. */
+@media (max-width: 560px) {
+  .lt-note__tabs { flex-wrap: wrap; }
+  .lt-note__tab { flex: 1 1 calc(50% - 4px); min-width: 0; padding: 8px 10px; line-height: 1.3; }
+}
 .lt-note__pdf-btn {
   flex: 0 0 auto; font-family: var(--lt-note-sans); font-size: 12.5px; font-weight: 600;
   padding: 8px 12px; border-radius: 9px; border: 1px solid var(--lt-note-green-line);
@@ -580,7 +621,7 @@ button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a
 /* ── generated figure: parabola triptych (Part 2) ──────────────────── */
 .lt-note__fgen { margin: 4px 0; }
 .lt-note__triptych {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0;
   border: 1px solid var(--lt-note-line); border-radius: 12px; overflow: hidden; background: #fff;
 }
 .lt-note__gcol { border-right: 1px solid var(--lt-note-line); }
@@ -596,7 +637,7 @@ button.lt-note__mm-node--root:hover { background: #16305a; border-color: #16305a
 .lt-note__gt { font-size: 12px; font-weight: 600; color: var(--lt-note-navy); line-height: 1.3; }
 .lt-note__gsvg { display: block; width: 100%; height: auto; }
 @media (max-width: 560px) {
-  .lt-note__triptych { grid-template-columns: 1fr; }
+  .lt-note__triptych { grid-template-columns: minmax(0, 1fr); }
   .lt-note__gcol { border-right: none; border-bottom: 1px solid var(--lt-note-line); }
   .lt-note__gcol:last-child { border-bottom: none; }
 }
