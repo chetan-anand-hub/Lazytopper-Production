@@ -134,7 +134,8 @@ Always run these gates before reporting done:
 cd lazytopper
 npx tsc -p tsconfig.app.json --noEmit
 
-# Production build (Vite; base "/app/" is hardcoded in vite.config.ts — no env vars needed)
+# Production build (Vite; base "/" in vite.config.ts — no env vars needed. Corrected 2026-10-20:
+# this line said base "/app/" was hardcoded; [FU-CLAUDEMD-VITE-BASE], CLOSED)
 pnpm run build
 node scripts/verify-production-build.mjs        # post-build bundle verifier
 

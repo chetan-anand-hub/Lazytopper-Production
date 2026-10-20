@@ -23,6 +23,66 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-20 (daily) - #1273 MEASURE-1, #1275 MOBILE-FIT-1, #1274 FIRST-FEEDBACK-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `68970d84`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. relayed review findings and ads-account readings).
+
+### Closed / deferred / corrected today
+
+- **[FU-C6-TUTOR-WORD]** CLOSED by owner ruling 20 Oct ("if the current naming is not hurting seo then dont change anything"): `docs/SEO_DECISIONS.md` C6 amended in this PR - "Tutor" is allowed as the product's feature name; LazyTopper is never positioned against human tutors. The `/for-parents` tile stays.
+- **[FU-CLAUDEMD-VITE-BASE]** CLOSED in this PR (entry under Tooling below).
+- **[FU-CI-CLOCK-LEGS-INVESTIGATE]** DEFERRED by the owner as a separate repo task **[coordinator]**. Body unchanged (19 Oct daily section).
+- **Correction (standing rule 3):** the 19 Oct daily section lists CI-COST-3 `#1271` as "open, not merged at writing". It merged at 19 Oct 18:20:13Z as `e027751f` **[git/gh]**, one minute before that docs PR.
+
+### Analytics
+
+### [FU-MEASURE-GA4-KEYEVENT]
+Mark `first_graded` as a GA4 key event; register custom dimensions `surface`, `trigger` and `path` (event-scoped) so `#1273`'s payloads are reportable; optionally import `first_graded` into Google Ads as a SECONDARY conversion goal (observe, not bid). Owner / GA4 admin work, no code.
+
+### [FU-STUDENTDATAMAP-KEYS]
+`services/studentDataMap.ts` (the FEEDBACK-1 sentence at ~:713) does not yet describe two device keys from today: `lazytopper.firstGraded.<8-hex hash of uid>` (`#1273`, `analytics/firstGraded.ts`) and the `g` field FIRST-FEEDBACK-1 adds to `lazytopper.feedbackAsk.<uid>` (when "Was this useful?" was shown, once ever) **[git/gh]**. Add both so the data map stays complete (DPDP export / erasure copy).
+
+### [FU-FIRSTGRADED-TWO-DEFINITIONS]
+"First graded" has two definitions: the analytics marker (`analytics/firstGraded.ts`, once per account per device, marker key) and the feedback eligibility (`firstResultState` in `feedbackPromptModel.ts`, "no other graded record in the device's mirror", mirroring the same logic without importing it). They can disagree on some accounts (e.g. cleared storage, cross-device). Acceptable by review; recorded so nobody "fixes" one to match the other without a ruling.
+
+### [FU-QP-FIRSTGRADED-ABANDON]
+Quick Practice writes its session record only when the scorecard shows, so an MCQ set abandoned before the end never fires `first_graded` (nor the first-result question). Chapter Test and Full Mock fire at "partial". So QP under-counts first grades relative to CT / FM. Decide whether QP should record per answer or whether the metric is read with this caveat.
+
+### [FU-ENGAGED-ADMIN-TIMER]
+Low (from the `#1273` review **[coordinator]**; the dispatch gave only the name and the priority). Area: the 10 s visible-time timer of `engaged_visit` around `/admin`. `analytics/engagedVisit.ts` watches once per document; `trackEngagedVisit` in `analytics.ts` refuses to send on `/admin`, and a refused trigger "does not use up the visit" **[git/gh]**. Re-read the `#1273` review and confirm the timer's behaviour on and after an `/admin` page (armed, refused, re-armed) matches that comment; nothing is known to be wrong in student-facing traffic.
+
+### Mobile layout
+
+### [FU-MOBILE-SHELL-OTHER-PAGES]
+`#1275` narrowed phone padding in `MobileShell` main, but `/pricing`, `/for-parents`, `/` and `/check-improve` do not use that padding. Check each at 360 px and 390 px for anything cut on the right, separately; the owner's ruling is "throughout the product".
+
+### [FU-NCERT-DEV-ROUTE]
+`/ncert-solutions/trigonometry` renders a generic index in dev **[coordinator]**. Check whether production serves the chapter page (prerender / rewrite) and whether the dev route is simply missing; fix whichever is wrong.
+
+### Tooling
+
+### [FU-CLAUDEMD-VITE-BASE]
+CLOSED in this PR. CLAUDE.md section 6 said `base "/app/" is hardcoded in vite.config.ts`; `lazytopper/vite.config.ts` reads `base: "/"` at `68970d84` **[git/gh]**. The comment now says "/" with the date of the correction. (The section 7 rule "no hardcoded `/app/` route prefixes in source" is unaffected.)
+
+### [FU-SKILL-LSREMOTE-AUTH]
+`git ls-remote origin base/approved-thru-437` (the re-derive step in several handoff blocks and in the cofounder skill) no longer works unauthenticated while the repo is PRIVATE. Update the skill and the "re-derive with" lines to an authenticated fetch (`gh api repos/.../branches/base/approved-thru-437` or `git fetch` with the session's credentials).
+
+### Ads (owner, not code)
+
+### [FU-DUSSEHRA-UTM]
+The "Dussehra Moms Short – For Parents" ad's final-URL suffix says `utm_content=navratri_dandiya`, so its visits are credited to the Navratri creative **[coordinator]**. Ads-side fix; owner to decide on Wed 21 Oct together with the Dussehra wind-down.
+
+### [FU-CBQ-SEARCH-BUDGET]
+"competency based questions class 10" (14,800 / month, low competition) gets about 0 impressions because Max conversions spends the shared INR 600 on group 3a **[coordinator]**. A separate CBQ Search campaign at INR 300-400 / day needs the owner's OK.
+
+### [FU-ADS-BALANCE-LOW]
+Google Ads shows "Balance is running low" **[coordinator]**. Owner ruling 20 Oct: top up after the funnel is settled. Watch it so ads do not stop unannounced.
+
+### Carried forward (open, unchanged)
+
+- Everything in the 19 Oct daily section except `[FU-C6-TUTOR-WORD]` (closed above); `[FU-CI-CLOCK-LEGS-INVESTIGATE]` is deferred.
+- **Owner:** the live checks in `NEXT_ACTION.md` (20 Oct daily); confirm the repo is PRIVATE.
+
 ## 2026-10-19 (daily) - #1265 CI-COST-2, #1266 PAY-STATUS-1, #1267 START-HERE-ONE-TAP-1, #1268 PARENTS-CTA-1, #1269 HYGIENE-2, #1270 PAY-RECOVER-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10, the first daily handoff)
 
 *Readings are at trunk `1b4bc035`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. relayed review findings).

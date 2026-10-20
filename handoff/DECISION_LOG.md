@@ -1,3 +1,27 @@
+## 2026-10-20 (daily) - #1273 MEASURE-1, #1275 MOBILE-FIT-1, #1274 FIRST-FEEDBACK-1: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The owner rulings of 20 Oct and the ads changes as relayed in the coordinator's dispatch message, and the lanes' own build decisions as written in the squash commits on trunk, each with its reason. Where the dispatch gave no reason, none is invented.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner ruling, 20 Oct 2026: **keep "Tutor" naming** | the Tutor feature keeps its name; `docs/SEO_DECISIONS.md` C6 amended (this PR): "Tutor" is allowed as a feature name; never position LazyTopper against human tutors. Closes `[FU-C6-TUTOR-WORD]` | owner: "if the current naming is not hurting seo then dont change anything" |
+| owner ruling, 20 Oct 2026: **no FIRST-MINUTE build task** | no new lane to push a first test in the first minute | owner: students dismiss the Start-here card ("feel uncomfortable in getting tested") |
+| owner ruling, 20 Oct 2026: **parents budget PARKED** | no decision on the parents campaign budget for now | parked by the owner; no further reason given in the dispatch |
+| owner ruling, 20 Oct 2026: **Ads balance top-up after the funnel settles** | Google Ads balance is topped up only once the funnel is settled (`[FU-ADS-BALANCE-LOW]`) | owner ruling; no further reason was given in the dispatch, so none is invented here |
+| owner ruling, 20 Oct 2026: **repo PUBLIC for CI, then PRIVATE** | the repo was made PUBLIC for these merges' CI and returned to PRIVATE afterwards; this public -> private flip is the standing CI-minutes workaround | public repositories get free GitHub Actions minutes; PRIVATE is the standing state. Side effect: unauthenticated `git ls-remote` fails while private (`[FU-SKILL-LSREMOTE-AUTH]`) |
+| checked, 20 Oct 2026: **pen-and-paper claim is FALSE** | the claim that students must answer on pen and paper is false: for a Start-here written set or a signed-in student with zero graded answers the answer box defaults to "type" (`components/startHere/zeroGraded.ts` `typeFirstAnswerMode`, SHW-2) | measured in code before it could drive a build lane |
+| ads, 20 Oct 2026 (Google Ads 488-270-0343; no budget change) | Search age exclusions **18-24 and 55+ only**, on all v2 and Search Parents ad groups | owner ruling "Exclude 18–24 and 55+ only" |
+| ads, 20 Oct 2026 | shared negative list grown to **78 terms**, applied to both Search campaigns | no reason beyond the change was given in the dispatch |
+| ads, 20 Oct 2026 | YouTube Students audience gains the custom segment "Class 10 CBSE students - Oct 2026 searches"; age 35-54 + Unknown | Google cannot target ages 13-17; students come in through Unknown and the search segment |
+| ads, 20 Oct 2026 | NEW ad group "Parents – CBQ Electricity Short" in YouTube \| Students \| Sign-ups: video `xvPXx54IlOU`, audience "Parents of Class 10 - board-ready intent", YouTube only, lands on `/for-parents` with `utm_content=parents_cbq_short_electricity` | a parent-facing CBQ short sent to the page built for parents, with its own `utm_content` so it is measured on its own |
+| ads, 20 Oct 2026 | Demand Gen Parents images: Discover + Gmail only | no reason beyond the change was given in the dispatch |
+| Meta, 20 Oct 2026 | corrected fix report sent to the cofounder: Audience Network OFF; student ads -> `/check-improve`, parent ads -> `/for-parents`, with the given UTM pattern | no reason beyond the change was given in the dispatch; `#1273` makes Meta placements (incl. Audience Network) visible in Admin Students |
+| #1273: `engaged_visit` not sent to Meta | Vercel + GA4 only | no reason beyond the build decision was given; Meta gets only `FirstGraded` |
+| #1273: one-page tool visits counted as engaged | 10 s visible OR first real interaction, once per page load | Vercel's ~70% "bounce" counts one-page tool visits (`/check-improve`, the WhatsApp exit on `/for-parents`) as bounces |
+| #1273: `first_graded` once per account per device, no cloud read | existing students with a mirrored graded record set the marker silently; cross-device repeats accepted | 80%+ of sign-ups never get anything graded, so the first grade is the step to measure; cross-device repeats were accepted and no cloud read added (MEASURE-1 spec section 2B, as cited in `firstGraded.ts`) |
+| #1274: ask only on the FIRST graded result; exempt from the 24 h gap; never blocks paywall / trial prompts | `firstResultState`; writes only its own `g`; Escape closes only the question | in 7 days the old feedback prompt was shown 3 times with 1 answer; the review fixes (commit body) keep it from holding back the paywall / trial-end prompts and from closing the scorecard on Escape |
+| #1275: fix the layout once for the shell, not per page | grid `minmax(0, 1fr)` in `Note.tsx`; phone padding in `MobileShell` | owner: "correct this throughout the product. our students are mobile first." Pages outside the shell are checked separately (`[FU-MOBILE-SHELL-OTHER-PAGES]`) |
+
 ## 2026-10-19 (daily) - #1265 CI-COST-2, #1266 PAY-STATUS-1, #1267 START-HERE-ONE-TAP-1, #1268 PARENTS-CTA-1, #1269 HYGIENE-2, #1270 PAY-RECOVER-1: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner rulings of 19 Oct (as relayed in the coordinator's dispatch message) and the lanes' own build decisions as written in the squash commits on trunk, each with its reason.
