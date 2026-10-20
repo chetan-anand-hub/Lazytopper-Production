@@ -10,7 +10,8 @@
   margin: 0 0 12px;
   padding: 0;
 }
-.lt-parent-return__link {
+/* Two classes, so a host page's `.lt-x a { color }` (one class + one element) cannot recolour it. */
+.lt-parent-return .lt-parent-return__link {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -25,10 +26,10 @@
   line-height: 1.2;
   text-decoration: none;
 }
-.lt-parent-return__link:hover {
+.lt-parent-return .lt-parent-return__link:hover {
   text-decoration: underline;
 }
-.lt-parent-return__link:focus-visible {
+.lt-parent-return .lt-parent-return__link:focus-visible {
   outline: 2px solid var(--mob-accent-hover, #16a34a);
   outline-offset: 2px;
 }
