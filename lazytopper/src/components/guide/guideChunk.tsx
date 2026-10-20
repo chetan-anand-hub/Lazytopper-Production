@@ -17,7 +17,8 @@ import "./guide.css";
 import BlobCharacter from "./BlobCharacter";
 import { prefersReducedMotion, type Pose } from "./rig";
 import type { ChapterRef, GuideOption, GuideOptionId, GuidePlan } from "./intentMap";
-import { trackOnboardingEvent, type StartHereFocusSurface, type StartHereSurface } from "../../analytics/analytics";
+import type { StartHereFocusSurface, StartHereSurface } from "../../analytics/analytics";
+import { guidePreviewActive, trackGuideEvent } from "./guideVariant";
 import type { ZiggyReaction } from "./ziggyModel";
 
 /* ── small glyphs (24×24, currentColor) ─────────────────────────────────────────────── */
@@ -77,7 +78,19 @@ export const GUIDE_COPY = {
   chipClose: "Hide Byte for now",
   chipPing: "Need me? Tap!",
   welcomeBack: "Welcome back!",
+  /** PREVIEW-1 — on Byte's panel and Ziggy's strip while an admin preview is active, so a
+   *  screenshot can never pass for a real student's view. */
+  adminPreview: "Admin preview",
 } as const;
+
+/** PREVIEW-1 — the "Admin preview" pill (never rendered without an active preview). */
+function AdminPreviewPill({ className }: { className: string }) {
+  return (
+    <span className={className} data-testid="guide-admin-preview">
+      {GUIDE_COPY.adminPreview}
+    </span>
+  );
+}
 
 export interface ByteGuideProps {
   /** inline = in the page where Start-here was; focus = inside the focused shell; sheet = reopened from the chip. */
@@ -130,6 +143,7 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, ren
   const goTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const restTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reduce = useRef(prefersReducedMotion());
+  const [preview] = useState(() => guidePreviewActive());
 
   const say = (text: string, p?: Pose) => {
     setLine(text);
@@ -147,7 +161,7 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, ren
   }, []);
 
   const onPick = (o: GuideOption, rank: number) => {
-    trackOnboardingEvent("guide_option", { option: o.id, rank, surface: eventSurface });
+    trackGuideEvent("guide_option", { option: o.id, rank, surface: eventSurface });
     if (o.action.kind === "quick") {
       setQuickChapter(o.action.chapter);
       setStage("quick");
@@ -190,6 +204,7 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, ren
       <button ref={closeRef} type="button" className="lt-guide__x" aria-label={GUIDE_COPY.close} data-testid="guide-close" onClick={onClose}>
         ✕
       </button>
+      {preview ? <AdminPreviewPill className="lt-guide__admin" /> : null}
       <GuideHead
         pose={pose}
         line={line}
@@ -307,9 +322,10 @@ export const ZIGGY_BOUNCE_BACK_MS = 2500;
 export function ZiggyStrip({ reaction }: { reaction: ZiggyReaction }) {
   const [pose, setPose] = useState<Pose>(reaction.pose);
   const [line, setLine] = useState(reaction.line);
+  const [preview] = useState(() => guidePreviewActive());
   const id = useId();
   useEffect(() => {
-    trackOnboardingEvent("ziggy_reaction", { band: reaction.band });
+    trackGuideEvent("ziggy_reaction", { band: reaction.band });
     if (!reaction.after) return;
     const after = reaction.after;
     const t = setTimeout(() => {
@@ -322,6 +338,7 @@ export function ZiggyStrip({ reaction }: { reaction: ZiggyReaction }) {
   }, []);
   return (
     <div className="lt-ziggy" data-testid="ziggy-strip" data-band={reaction.band} role="group" aria-labelledby={id}>
+      {preview ? <AdminPreviewPill className="lt-ziggy__admin" /> : null}
       <BlobCharacter kind="ziggy" pose={pose} className="lt-ziggy__z" />
       <p className="lt-ziggy__say" id={id} aria-live="polite" data-testid="ziggy-line">
         {line}

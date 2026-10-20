@@ -8,7 +8,7 @@ import type { ScorecardScore } from "../results/scorecardVariants";
 import { FIRST_GRADED_DELAY_MS, isFirstGradedEligible } from "../feedback/useFirstGradedFeedback";
 import { firstResultState } from "../feedback/feedbackPromptModel";
 import { loadLocalSessionRecords } from "../../services/sessionRecords";
-import { guideAbActive, guideAccountTag, resolveGuideVariant } from "./guideVariant";
+import { guideAbActive, guideAccountTag, guidePreviewActive, resolveGuideVariant } from "./guideVariant";
 import { ziggyReactionFor, type ZiggyReaction } from "./ziggyModel";
 
 type Chunk = typeof import("./guideChunk");
@@ -78,7 +78,8 @@ export interface ZiggyFirstResultProps {
  *  - the host opted in (`askFirstFeedback`: a LIVE just-graded scorecard, never history, never
  *    the tutor overlay) and the result is a real graded one (FIRST-FEEDBACK-1's own rule);
  *  - a signed-in, non-anonymous student whose account is in the `guide` arm;
- *  - FIRST-FEEDBACK-1's `firstResultState` over the device's records says "first".
+ *  - FIRST-FEEDBACK-1's `firstResultState` over the device's records says "first"
+ *    (PREVIEW-1: skipped, with the once-per-device marker, while an admin preview is active).
  * It renders INSIDE the scorecard, in the flow above the score (never over a number, never a
  * modal), so it cannot collide with the "Was this useful?" card (its own fixed layer, 1.5 s later).
  */
@@ -96,9 +97,13 @@ export function ZiggyFirstResult({ ask, deferred, allPending, score }: ZiggyFirs
       void (async () => {
         const uid = await currentUid();
         if (!live || !uid || resolveGuideVariant(uid) !== "guide") return;
-        if (firstResultState(loadLocalSessionRecords(uid), Date.now()) !== "first") return;
+        // PREVIEW-1: under an admin preview ("Show Byte") Ziggy reacts on EVERY live graded
+        // scorecard: no first-result check, and the once-per-device marker is neither read nor
+        // written (so the account's real first result still gets him after the preview ends).
+        const preview = guidePreviewActive();
+        if (!preview && firstResultState(loadLocalSessionRecords(uid), Date.now()) !== "first") return;
         const r = ziggyReactionFor(score);
-        if (!r || !claimZiggy(uid)) return;
+        if (!r || (!preview && !claimZiggy(uid))) return;
         setReaction(r);
       })();
     }, ZIGGY_CHECK_DELAY_MS);

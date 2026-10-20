@@ -553,3 +553,23 @@
 .sa-btn-plain {
   background: transparent;
 }
+
+/* PREVIEW-1 — "Guide preview (this browser)": Off / Show Byte / Show control. */
+.gp-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gp-choice {
+  min-height: 44px;
+}
+.gp-choice.is-on {
+  background: var(--sa-green-soft);
+  border-color: var(--sa-green);
+  color: var(--sa-white);
+}
+.gp-state {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--sa-white-2);
+}

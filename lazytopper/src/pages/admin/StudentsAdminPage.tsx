@@ -38,6 +38,7 @@ import {
   type SummaryResponse,
 } from "./studentsAdminModel";
 import "./studentsAdmin.css";
+import { readGuidePreview, setGuidePreview, type GuidePreview } from "../../components/guide/guideVariant";
 
 type ListState =
   | { status: "loading" }
@@ -207,6 +208,57 @@ function Covered({ count, coverage, since }: { count: number | null; coverage: "
   );
 }
 
+/** PREVIEW-1 — the three choices of the "Guide preview" panel. */
+const GUIDE_PREVIEW_CHOICES = [
+  { value: "off", label: "Off" },
+  { value: "guide", label: "Show Byte" },
+  { value: "control", label: "Show control" },
+] as const;
+type GuidePreviewChoice = (typeof GUIDE_PREVIEW_CHOICES)[number]["value"];
+
+export const GUIDE_PREVIEW_HELP = "Applies to any account signed in on this browser for 7 days. Students never see this.";
+
+/**
+ * PREVIEW-1 — "Guide preview (this browser)". Rendered by the page ONLY once the admin API has
+ * answered OK (the server's ADMIN_FIREBASE_UIDS gate), never in a 401/403/503 state. It writes
+ * one DEVICE key (`lazytopper.guidePreview`, guideVariant.ts) that forces the Byte-guide arm for
+ * any account signed in on this browser for 7 days, with the guide's analytics suppressed. No
+ * server call, nothing about any student.
+ */
+export function GuidePreviewPanel() {
+  const [preview, setPreview] = useState<GuidePreview | null>(() => readGuidePreview());
+  const current: GuidePreviewChoice = preview ? preview.arm : "off";
+  const choose = (c: GuidePreviewChoice) => setPreview(setGuidePreview(c === "off" ? null : c));
+  return (
+    <section className="gh-card gp-card" aria-labelledby="gp-title" data-testid="guide-preview">
+      <h2 id="gp-title" className="gh-title">
+        Guide preview (this browser)
+      </h2>
+      <p className="sa-muted gh-note">{GUIDE_PREVIEW_HELP}</p>
+      <div className="gp-choices" role="radiogroup" aria-labelledby="gp-title">
+        {GUIDE_PREVIEW_CHOICES.map((c) => (
+          <button
+            key={c.value}
+            type="button"
+            role="radio"
+            aria-checked={current === c.value}
+            className={current === c.value ? "sa-btn gp-choice is-on" : "sa-btn gp-choice"}
+            data-testid={`guide-preview-${c.value}`}
+            onClick={() => choose(c.value)}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+      <p className="gp-state" data-testid="guide-preview-state" aria-live="polite">
+        {preview
+          ? `Now: ${preview.arm === "guide" ? "showing Byte" : "showing control"} on this browser until ${formatIstDateTime(preview.until)}.`
+          : "Now: off. Every account on this browser sees its own test group."}
+      </p>
+    </section>
+  );
+}
+
 export default function StudentsAdminPage() {
   const { getToken } = useAuth();
   const [period, setPeriod] = useState<Period>("all");
@@ -307,6 +359,9 @@ export default function StudentsAdminPage() {
 
           {/* HARDEN-1 PR-2: read-only, loads on request, only once the admin API has answered. */}
           {list.status === "ok" && <GraderHealthCard getToken={stableGetToken} />}
+
+          {/* PREVIEW-1: only once the admin API has answered OK (never on 401/403/503). */}
+          {list.status === "ok" && <GuidePreviewPanel />}
 
           {list.status === "loading" && <p className="sa-muted">Loading students…</p>}
           {list.status === "refused" && (
