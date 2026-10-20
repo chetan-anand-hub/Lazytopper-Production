@@ -801,7 +801,10 @@ export type NamedAnalyticsEvent =
   | "feedback_dismissed_first_graded"
   | "feedback_first_graded_yes"
   | "feedback_first_graded_not_really"
-  | "feedback_first_graded_too_hard";
+  | "feedback_first_graded_too_hard"
+  // GUIDE-1 — the Byte-guide A/B: which arm this account is in, once per account per device.
+  // The arm itself is a vendor param only (the first-party store keeps names, never values)
+  | "guide_variant_assigned";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -980,6 +983,54 @@ export function trackOnboardingEvent<E extends OnboardingEvent>(name: E, params:
   try {
     const data = onboardingData(params as unknown as Record<string, unknown>);
     send("event", { name, data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/* ------------------------------------------------------------------------- *
+ * GUIDE-1 — THE BYTE GUIDE A/B (owner ruling 20 Oct 2026).
+ *
+ * Half of new accounts see Byte in place of the Start-here card (components/guide/
+ * guideVariant.ts decides, deterministically per account). The events reuse the onboarding
+ * sender above (`trackOnboardingEvent`: coarse slugs and small counts only, no id, no text);
+ * their names are declared here by interface merging, so the onboarding section is untouched.
+ * None of them is a first-party activity name except `guide_variant_assigned`.
+ *
+ *   guide_shown     { surface, variant, intent }  — BOTH arms, at the moment Start-here (control)
+ *                                                    or Byte (guide) is shown, so both count alike
+ *   guide_option    { option, rank, surface }      — a guide option was tapped (rank from 1)
+ *   guide_dismissed { surface }                    — the guide was closed (today's dismiss keys)
+ *   guide_reopened  { surface }                    — the corner chip reopened it
+ *   ziggy_reaction  { band }                       — Ziggy reacted on the first scorecard
+ * ------------------------------------------------------------------------- */
+
+export type GuideVariant = "guide" | "control";
+export type GuideIntentParam = "cbq" | "chapter" | "papers" | "check_improve" | "default";
+export type ZiggyBand = "full" | "half_plus" | "under_half";
+
+export interface OnboardingEventParams {
+  guide_shown: { surface: StartHereSurface | StartHereFocusSurface; variant: GuideVariant; intent: GuideIntentParam };
+  guide_option: { option: string; rank: number; surface: StartHereSurface | StartHereFocusSurface };
+  guide_dismissed: { surface: StartHereSurface | StartHereFocusSurface };
+  guide_reopened: { surface: StartHereSurface };
+  ziggy_reaction: { band: ZiggyBand };
+}
+
+/**
+ * Once per account per device (guideVariant.ts holds the device marker): the GA4 user property
+ * `guide_variant`, then `guide_variant_assigned { variant }` to the vendors and the bare name to
+ * the first-party activity log (names only). Never throws.
+ */
+export function trackGuideVariantAssigned(variant: GuideVariant): void {
+  try {
+    if (variant !== "guide" && variant !== "control") return;
+    if (analyticsEnabled() && !window.location.pathname.startsWith("/admin")) {
+      const gtag = resolveGtag();
+      if (gtag) gtag("set", "user_properties", { guide_variant: variant });
+    }
+    const data = { variant };
+    send("event", { name: "guide_variant_assigned", data }, { ga4: data }, "guide_variant_assigned");
   } catch {
     /* analytics must never break the page */
   }

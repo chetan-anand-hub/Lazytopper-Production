@@ -148,6 +148,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'feedback_first_graded_yes',
   'feedback_first_graded_not_really',
   'feedback_first_graded_too_hard',
+  // GUIDE-1 - which Byte-guide A/B arm the account is in, once per account per device. Additive only.
+  'guide_variant_assigned',
 ]);
 
 /**

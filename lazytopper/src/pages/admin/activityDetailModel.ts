@@ -20,6 +20,7 @@ import {
   type FeedbackMoment,
   type FeedbackReason,
 } from "../../components/feedback/feedbackPromptModel";
+import { guideVariantFor } from "../../components/guide/guideVariant";
 
 const STATIC_PAGE_LABELS: Record<string, string> = {
   home: "Home",
@@ -130,7 +131,25 @@ const EVENT_LABELS: Record<string, string> = {
   trial_banner_click: "Tapped the trial-ending banner",
   // FEEDBACK-1 — the "help us improve" prompt (shown / dismissed / answered), built below.
   ...feedbackEventLabels(),
+  // GUIDE-1 — the stored name carries no arm (names only); guideTestGroupLabel(uid) derives it.
+  guide_variant_assigned: "Was put in the guide test",
 };
+
+/* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */
+
+export const GUIDE_TEST_GROUP_LABELS = {
+  guide: "Guide test group: Byte",
+  control: "Guide test group: control",
+} as const;
+
+/**
+ * The arm a student is in. The activity store keeps NAMES only, so `guide_variant_assigned`
+ * cannot carry the arm; but the arm is a pure function of the uid (guideVariant.ts), so the
+ * admin board derives it here — the same answer the student's device computed.
+ */
+export function guideTestGroupLabel(uid: string): string {
+  return GUIDE_TEST_GROUP_LABELS[guideVariantFor(uid)];
+}
 
 /* ── FEEDBACK-1 — the "help us improve" prompt ─────────────────────────────── */
 
@@ -191,13 +210,15 @@ export function feedbackAnswers(
 }
 
 /** A recorded event name in plain words, e.g. "check_graded" -> "Checked an answer". */
-export function activityEventLabel(name: string): string {
+export function activityEventLabel(name: string, uid?: string): string {
+  // GUIDE-1 — with the student's uid in hand, name the arm ("Guide test group: Byte").
+  if (name === "guide_variant_assigned" && uid) return guideTestGroupLabel(uid);
   return EVENT_LABELS[name] ?? name;
 }
 
 /** One feed line: "Opened Notes → Trigonometry" or "Checked an answer". */
-export function feedItemLabel(item: ActivityFeedItem): string {
-  return item.k === "page" ? `Opened ${pageLabel(item.n)}` : activityEventLabel(item.n);
+export function feedItemLabel(item: ActivityFeedItem, uid?: string): string {
+  return item.k === "page" ? `Opened ${pageLabel(item.n)}` : activityEventLabel(item.n, uid);
 }
 
 /** The "Pages visited" rows: most visits first; ties in label order. */
