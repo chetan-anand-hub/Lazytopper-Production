@@ -82,6 +82,9 @@ export const FREE_CHECK_TO = "/check-improve?from=for_parents&utm_source=for_par
 export const PRICING_LABEL = "See the price";
 export const PRICING_TO = withParentFlag("/pricing");
 
+/** PARENTS-NAV-1 review — the CBSE page's OWN back link (its return ticket) also leads here. */
+export const CBSE_PAGE_TO = withParentFlag(`/cbse/class-10?returnTo=${encodeURIComponent("/for-parents")}`);
+
 interface Tile {
   readonly title: string;
   /** An existing public page, or none. */
@@ -183,7 +186,7 @@ export default function ForParentsPage() {
             <summary>Does it follow the CBSE syllabus?</summary>
             <p>
               Yes. LazyTopper follows the 2026-27 CBSE Class 10 syllabus. The official sample papers and marking schemes
-              are on our <Link to={withParentFlag("/cbse/class-10")}>CBSE Class 10 page</Link>.
+              are on our <Link to={CBSE_PAGE_TO}>CBSE Class 10 page</Link>.
             </p>
           </details>
           <details>

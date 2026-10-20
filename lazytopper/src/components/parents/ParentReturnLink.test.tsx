@@ -54,7 +54,7 @@ describe("PARENTS-NAV-1 — ParentReturnLink", () => {
       </MemoryRouter>,
     );
     expect(html).toContain('href="/for-parents"');
-    expect(html).toContain("← Back to parents page");
+    expect(html).toContain('<span aria-hidden="true">←</span> Back to parents page');
   });
 
   it("with ?from=for_parents: shows, links to /for-parents, remembers the tab (session only), and navigates", () => {
@@ -87,7 +87,17 @@ describe("PARENTS-NAV-1 — ParentReturnLink", () => {
     const link = screen.getByTestId("ci-parent-return");
     expect(link.className).toBe("lt-ci-parent-return__link");
     expect(link.closest("nav")?.className).toBe("lt-ci-parent-return");
-    expect(link.closest("nav")?.getAttribute("aria-label")).toBe("Back to parents page");
+    expect(link.closest("nav")?.getAttribute("aria-label")).toBe("Parents page");
+  });
+
+  it("accessibility: the nav name does not repeat the link, the arrow is aria-hidden, the visible text is unchanged", () => {
+    renderAt("/somewhere?from=for_parents");
+    const link = screen.getByRole("link", { name: "Back to parents page" });
+    expect(link.textContent).toBe("← Back to parents page");
+    const arrow = link.querySelector('[aria-hidden="true"]');
+    expect(arrow?.textContent).toBe("←");
+    expect(screen.getByRole("navigation", { name: "Parents page" })).toBeTruthy();
+    expect(screen.queryByRole("navigation", { name: "Back to parents page" })).toBeNull();
   });
 
   it("is throw-safe when sessionStorage throws (private window)", () => {

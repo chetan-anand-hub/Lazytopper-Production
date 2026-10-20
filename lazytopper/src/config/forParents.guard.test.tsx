@@ -8,7 +8,8 @@ import { MemoryRouter } from "react-router-dom";
 // MUMMY-1 (f): the first-party activity log is not this suite's subject (the share-click test sends a real event).
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
-import ForParentsPage, { FREE_CHECK_TO, PARENT_SHARE_HREF, PRICING_LABEL, PRICING_TO } from "../pages/ForParentsPage";
+import ForParentsPage, { CBSE_PAGE_TO, FREE_CHECK_TO, PARENT_SHARE_HREF, PRICING_LABEL, PRICING_TO } from "../pages/ForParentsPage";
+import { FOOTER_SOCIAL } from "./socialProfiles";
 import { GUIDE_PREVIEW_KEY, GUIDE_PREVIEW_MS } from "../components/guide/guideVariant";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { SELF_CANONICAL_EXACT } from "./canonicalUrl";
@@ -460,7 +461,7 @@ describe("PARENTS-NAV-1 (g) — a visible price link, and every link leads back"
       "/check-your-answer?from=for_parents",
       "/practice-hub?from=for_parents",
       "/highly-probable/10/Maths?from=for_parents",
-      "/cbse/class-10?from=for_parents",
+      "/cbse/class-10?returnTo=%2Ffor-parents&amp;from=for_parents",
       "/legal/privacy?from=for_parents",
       "/exam-trends?from=for_parents",
       "/cbse/class-10?returnTo=%2Ffor-parents&amp;from=for_parents",
@@ -478,5 +479,59 @@ describe("PARENTS-NAV-1 (g) — a visible price link, and every link leads back"
     expect(unflaggedInternalHrefs('<a href="/pricing">x</a><a href="/for-parents">y</a>')).toEqual(["/pricing"]);
     expect(unflaggedInternalHrefs('<a href="/x?a=1&amp;from=for_parents">x</a><a href="https://wa.me/?text=a">w</a>')).toEqual([]);
     expect(unflaggedInternalHrefs('<a href="/x?from=other">x</a>')).toEqual(["/x?from=other"]);
+  });
+});
+
+describe("PARENTS-NAV-1 review — every link on the live page leads back (DOM guard)", () => {
+  /**
+   * Walks EVERY <a> the mounted page renders (router <Link>s render <a href>), so a new link added
+   * anywhere on /for-parents — a tile, an FAQ answer, an action, the footer — is caught without
+   * this list having to name it. Exempt: the footer's self-link, the WhatsApp share links and the
+   * social profile links (external). Everything else must carry from=for_parents.
+   */
+  function classify(anchors: HTMLAnchorElement[]) {
+    const social = new Set(FOOTER_SOCIAL.map((s) => s.href));
+    const internal: string[] = [];
+    const exempt: string[] = [];
+    const other: string[] = [];
+    for (const a of anchors) {
+      const href = a.getAttribute("href") ?? "";
+      if (href === "/for-parents" || href === PARENT_SHARE_HREF || social.has(href)) exempt.push(href);
+      else if (href.startsWith("/") && !href.startsWith("//")) internal.push(href);
+      else other.push(href);
+    }
+    return { internal, exempt, other };
+  }
+  const flagged = (href: string) =>
+    new URLSearchParams(href.includes("?") ? href.slice(href.indexOf("?") + 1).split("#")[0] : "").get("from") === "for_parents";
+
+  it("every internal anchor carries from=for_parents; nothing else links off-site", () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={["/for-parents"]}>
+        <ForParentsPage />
+      </MemoryRouter>,
+    );
+    const { internal, exempt, other } = classify([...container.querySelectorAll("a")]);
+    // Not vacuous: 3 free-check + 3 tiles + 2 "See the price" + 3 FAQ + 7 footer = 18 internal links.
+    expect(internal.length).toBe(18);
+    expect(internal.filter((h) => !flagged(h))).toEqual([]);
+    expect(exempt).toContain("/for-parents");
+    expect(exempt.filter((h) => h === PARENT_SHARE_HREF).length).toBe(3);
+    expect(other).toEqual([]);
+    // The FAQ's CBSE link hands the CBSE page a return ticket to /for-parents as well.
+    expect(CBSE_PAGE_TO).toBe("/cbse/class-10?returnTo=%2Ffor-parents&from=for_parents");
+    expect(internal.filter((h) => h === CBSE_PAGE_TO).length).toBe(2); // FAQ + footer "CBSE 2027"
+  });
+
+  it("CONTROL — the guard's classifier catches an unflagged link and ignores the exempt ones", () => {
+    const mk = (href: string) => Object.assign(document.createElement("a"), { href }) as HTMLAnchorElement;
+    const a = (href: string) => {
+      const el = mk(href);
+      el.setAttribute("href", href);
+      return el;
+    };
+    const { internal, exempt } = classify([a("/pricing"), a("/for-parents"), a(PARENT_SHARE_HREF), a(FOOTER_SOCIAL[0].href)]);
+    expect(internal.filter((h) => !flagged(h))).toEqual(["/pricing"]);
+    expect(exempt.length).toBe(3);
   });
 });
