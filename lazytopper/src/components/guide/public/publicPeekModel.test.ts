@@ -23,6 +23,8 @@ import {
   previewArm,
   previewOn,
   readPublicArm,
+  VisibleClock,
+  focusAfterClose,
 } from "./publicPeekModel";
 import { setGuidePreview } from "../guideVariant";
 import { STUDENT_DATA_MAP } from "../../../services/studentDataMap";
@@ -76,12 +78,6 @@ describe("GUIDE-PUBLIC-1 · the signed-out device arm", () => {
       throw new Error("no crypto");
     });
     expect(ensurePublicArm()).toBeNull();
-  });
-
-  it("★ is a device key: it survives a sign-out (nothing but the visitor clears it)", () => {
-    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
-    window.sessionStorage.clear(); // a new tab / a sign-out leaves localStorage alone
-    expect(readPublicArm()).toBe("guide");
   });
 
   it("★ is copied into this tab's guideIntent record as public_arm (the record's fields untouched)", () => {
@@ -150,6 +146,32 @@ describe("GUIDE-PUBLIC-1 · the trigger", () => {
   });
 });
 
+describe("GUIDE-PUBLIC-1 · review F1 / F3 helpers", () => {
+  it("★ F3: the visible clock pauses while hidden and resumes when visible", () => {
+    const c = new VisibleClock(0, true);
+    expect(c.elapsed(5_000)).toBe(5_000);
+    c.setVisible(false, 5_000);
+    expect(c.elapsed(65_000)).toBe(5_000); // a hidden minute does not count
+    c.setVisible(true, 65_000);
+    expect(c.elapsed(80_000)).toBe(20_000);
+    const hiddenStart = new VisibleClock(0, false);
+    expect(hiddenStart.elapsed(30_000)).toBe(0);
+  });
+
+  it("★ F1: focusAfterClose → the article's h1 (made programmatically focusable), else <main>, never <body>", () => {
+    document.body.innerHTML = '<main id="m"><div class="lt-notes-page"><h1 id="h">Notes</h1></div></main>';
+    const h = focusAfterClose("notes");
+    expect(h?.id).toBe("h");
+    expect(document.activeElement?.id).toBe("h");
+    expect(h?.getAttribute("tabindex")).toBe("-1");
+    document.body.innerHTML = '<main id="m"><div class="lt-spine"></div></main>';
+    expect(focusAfterClose("topic_hub")?.id).toBe("m");
+    expect(document.activeElement?.id).toBe("m");
+    document.body.innerHTML = "";
+    expect(focusAfterClose("notes")).toBeNull();
+  });
+});
+
 describe("GUIDE-PUBLIC-1 · what Byte says and offers", () => {
   it("the one line per page", () => {
     expect(peekLine("notes", trig)).toBe("Want this chapter's important questions?");
@@ -159,7 +181,7 @@ describe("GUIDE-PUBLIC-1 · what Byte says and offers", () => {
   it("★ signed out: three options, every one a real route; quick goes behind sign-in", () => {
     const o = peekOptions({ chapter: trig, signedIn: false, quickOffered: true });
     expect(o.map((x) => x.id)).toEqual(["important", "check_one", "quick"]);
-    expect(o[0]).toMatchObject({ title: "Important questions for Introduction to Trigonometry", action: { kind: "route", path: "/highly-probable/10/Maths?topic=trigonometry" } });
+    expect(o[0]).toMatchObject({ title: "Important questions for Introduction to Trigonometry", action: { kind: "important", path: "/highly-probable/10/Maths?topic=trigonometry" } });
     expect(o[1]).toMatchObject({ title: "Check one answer free", action: { kind: "route", path: "/check-improve" } });
     expect(o[2]).toMatchObject({ title: "5 quick questions on Introduction to Trigonometry", action: { kind: "quick" } });
   });

@@ -65,6 +65,48 @@ export function articleScrollFraction(rect: { top: number; height: number }, vie
   return Math.max(0, Math.min(1, passed / scrollable));
 }
 
+/**
+ * F3 — the dwell clock counts only VISIBLE time: it runs while `document.visibilityState` is
+ * "visible" and pauses while the tab is hidden (a background tab never earns the 20 s).
+ */
+export class VisibleClock {
+  private acc = 0;
+  private since: number | null;
+  constructor(now: number, visible: boolean) {
+    this.since = visible ? now : null;
+  }
+  setVisible(visible: boolean, now: number): void {
+    if (visible && this.since === null) this.since = now;
+    else if (!visible && this.since !== null) {
+      this.acc += now - this.since;
+      this.since = null;
+    }
+  }
+  elapsed(now: number): number {
+    return this.acc + (this.since === null ? 0 : now - this.since);
+  }
+}
+
+/** The article whose scroll depth counts, per page (each page's own root class). */
+export const ARTICLE_SELECTOR: Record<GuidePublicPage, string> = {
+  notes: ".lt-notes-page",
+  topic_hub: ".lt-spine",
+};
+
+/**
+ * F1 — where focus goes when the × removes the peek: a STABLE target on the page (never
+ * <body>): the article's own <h1>, else the page's <main>. A non-focusable heading is given
+ * tabIndex=-1 here (programmatic focus only; it stays out of the tab order). Null if neither.
+ */
+export function focusAfterClose(page: GuidePublicPage, doc: Document = document): HTMLElement | null {
+  const target =
+    doc.querySelector<HTMLElement>(`${ARTICLE_SELECTOR[page]} h1`) ?? doc.querySelector<HTMLElement>("main");
+  if (!target) return null;
+  if (!target.hasAttribute("tabindex")) target.tabIndex = -1;
+  target.focus({ preventScroll: true });
+  return target;
+}
+
 export function peekTriggerReached(idle: boolean, fraction: number, dwellMs: number): boolean {
   return idle && (fraction >= PEEK_SCROLL_FRACTION || dwellMs >= PEEK_DWELL_MS);
 }
@@ -217,8 +259,12 @@ export interface PeekOption {
   id: GuidePublicOption;
   title: string;
   sub: string;
-  /** route → navigate to `path`; quick → pick the chapter's Start-here set, then go. */
-  action: { kind: "route"; path: string } | { kind: "quick" };
+  /**
+   * route → navigate to `path`; important → `importantTargetFor(chapter)` (./importantTarget.ts,
+   * loaded on the tap; `path` is the chapter-level link it starts from); quick → pick the
+   * chapter's Start-here set, then go.
+   */
+  action: { kind: "route"; path: string } | { kind: "important"; path: string } | { kind: "quick" };
 }
 
 /**
@@ -239,7 +285,7 @@ export function peekOptions(args: { chapter: PeekChapter; signedIn: boolean; qui
       id: "important",
       title: PUBLIC_PEEK_COPY.important(chapter.name),
       sub: PUBLIC_PEEK_COPY.importantSub,
-      action: { kind: "route", path: importantPath(chapter) },
+      action: { kind: "important", path: importantPath(chapter) },
     },
     {
       id: "check_one",

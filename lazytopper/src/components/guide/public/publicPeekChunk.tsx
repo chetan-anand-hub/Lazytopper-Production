@@ -19,6 +19,8 @@ import { START_HERE_AVAILABILITY } from "../../startHere/startHereAvailability.g
 import { startHerePracticePath, startHereSetSize } from "../../startHere/startHereModel";
 import {
   PUBLIC_PEEK_COPY,
+  focusAfterClose,
+  importantPath,
   loginThen,
   peekLine,
   peekOptions,
@@ -56,6 +58,22 @@ async function quickPracticePath(chapter: PeekChapter, returnTo: string): Promis
   return startHerePracticePath({ subject: chapter.subject, chapter: chapter.slug, ids, qtype: "mcq", returnTo });
 }
 
+/** F2 — below the desktop breakpoint (1024px, the app's useIsDesktop) the panel is cramped. */
+const NARROW_QUERY = "(max-width: 1023.98px)";
+
+function useNarrow(): boolean {
+  const read = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(NARROW_QUERY).matches;
+  const [narrow, setNarrow] = useState(read);
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia(NARROW_QUERY);
+    const on = () => setNarrow(mq.matches);
+    mq.addEventListener?.("change", on);
+    return () => mq.removeEventListener?.("change", on);
+  }, []);
+  return narrow;
+}
+
 /** Hidden while a modal / dialog / scroll-locked overlay is open (the WhatsApp button's rule). */
 function useOverlayOpen(): boolean {
   const read = () =>
@@ -88,7 +106,12 @@ export function PublicPeekView({ page, chapter, signedIn, quiet, onClosed }: Pub
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const bubbleRef = useRef<HTMLButtonElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
   const hidden = useOverlayOpen();
+  const narrow = useNarrow();
+  // F2: on a phone the panel takes the bubble's place (Byte and × stay).
+  const showBubble = !(open && narrow);
   const options = peekOptions({ chapter, signedIn, quickOffered: quickOfferedFor(chapter) });
 
   // He waves ONCE as he arrives, then rests on the edge.
@@ -98,21 +121,29 @@ export function PublicPeekView({ page, chapter, signedIn, quiet, onClosed }: Pub
     return () => clearTimeout(t);
   }, [waving]);
 
-  // Esc closes the panel (not Byte) and gives focus back to his bubble.
+  // F1: the panel opens with focus on its first option.
+  useEffect(() => {
+    if (open) panelRef.current?.querySelector<HTMLButtonElement>(".lt-pp__opt")?.focus();
+  }, [open]);
+
+  // Esc closes the panel (not Byte). Focus returns to the bubble that opened it — or, on a phone,
+  // where the bubble was hidden while the panel was open (F2), to the ×.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       setOpen(false);
-      bubbleRef.current?.focus();
+      (narrow ? closeRef.current : bubbleRef.current)?.focus();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, narrow]);
 
   const close = () => {
     if (!quiet) trackOnboardingEvent("guide_public_dismissed", { page });
     onClosed();
+    // F1: focus never falls to <body> — the page's own heading (or <main>) takes it.
+    focusAfterClose(page);
   };
 
   const pick = async (o: PeekOption) => {
@@ -124,6 +155,19 @@ export function PublicPeekView({ page, chapter, signedIn, quiet, onClosed }: Pub
     }
     setBusy(true);
     setFailed(false);
+    if (o.action.kind === "important") {
+      // F5: chapter-scoped only when the HPQ page will actually match this chapter; if the
+      // check cannot run, the subject-level page (always a real route) rather than a guess.
+      let target = importantPath({ slug: null, subject: chapter.subject });
+      try {
+        const { importantTargetFor } = await import("./importantTarget");
+        target = importantTargetFor(chapter);
+      } catch {
+        /* keep the subject-level link */
+      }
+      navigate(target);
+      return;
+    }
     try {
       const path = await quickPracticePath(chapter, pathname);
       if (!path) throw new Error("no set");
@@ -137,9 +181,50 @@ export function PublicPeekView({ page, chapter, signedIn, quiet, onClosed }: Pub
   if (typeof document === "undefined" || hidden) return null;
   const line = peekLine(page, chapter);
   return createPortal(
-    <div className="lt-pp" data-testid="public-peek" data-page={page}>
+    <div className={open ? "lt-pp is-open" : "lt-pp"} data-testid="public-peek" data-page={page}>
+      {/* F1: the row (Byte, his line, ×) comes FIRST in the DOM and the panel AFTER it, so the
+          reading / tab order is opener → options; .lt-pp's column-reverse keeps the panel drawn
+          above Byte. */}
+      <div className="lt-pp__row" data-testid="public-peek-row">
+        <BlobCharacter
+          kind="byte"
+          pose="peek"
+          className={waving ? "lt-pp__byte is-wave" : "lt-pp__byte"}
+          onTap={() => setOpen((v) => !v)}
+        />
+        {showBubble ? (
+          <button
+            ref={bubbleRef}
+            type="button"
+            className="lt-pp__bub"
+            aria-expanded={open}
+            aria-controls={open ? panelId : undefined}
+            data-testid="public-peek-line"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {line}
+          </button>
+        ) : null}
+        <button
+          ref={closeRef}
+          type="button"
+          className="lt-pp__x"
+          aria-label={PUBLIC_PEEK_COPY.close}
+          data-testid="public-peek-close"
+          onClick={close}
+        >
+          ✕
+        </button>
+      </div>
       {open ? (
-        <section className="lt-pp__panel" id={panelId} role="group" aria-labelledby={headId} data-testid="public-peek-panel">
+        <section
+          ref={panelRef}
+          className="lt-pp__panel"
+          id={panelId}
+          role="group"
+          aria-labelledby={headId}
+          data-testid="public-peek-panel"
+        >
           {quiet ? (
             <span className="lt-pp__admin" data-testid="guide-admin-preview">
               {PUBLIC_PEEK_COPY.adminPreview}
@@ -176,28 +261,6 @@ export function PublicPeekView({ page, chapter, signedIn, quiet, onClosed }: Pub
           {PUBLIC_PEEK_COPY.adminPreview}
         </span>
       ) : null}
-      <div className="lt-pp__row">
-        <BlobCharacter
-          kind="byte"
-          pose="peek"
-          className={waving ? "lt-pp__byte is-wave" : "lt-pp__byte"}
-          onTap={() => setOpen((v) => !v)}
-        />
-        <button
-          ref={bubbleRef}
-          type="button"
-          className="lt-pp__bub"
-          aria-expanded={open}
-          aria-controls={open ? panelId : undefined}
-          data-testid="public-peek-line"
-          onClick={() => setOpen((v) => !v)}
-        >
-          {line}
-        </button>
-        <button type="button" className="lt-pp__x" aria-label={PUBLIC_PEEK_COPY.close} data-testid="public-peek-close" onClick={close}>
-          ✕
-        </button>
-      </div>
     </div>,
     document.body,
   );

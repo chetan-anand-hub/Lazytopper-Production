@@ -4,7 +4,7 @@ vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 const recordActivity = vi.hoisted(() => vi.fn());
 vi.mock("../../../services/activityClient", () => ({ recordActivity }));
 
-import { trackGuidePublicArmAssigned, trackOnboardingEvent, type GuideVariant } from "../../../analytics/analytics";
+import { trackGuidePublicArmAssigned, trackGuidePublicShown, trackOnboardingEvent, type GuideVariant } from "../../../analytics/analytics";
 
 /**
  * GUIDE-PUBLIC-1 — the public peek in analytics: the GA4 user property `guide_public_arm` with
@@ -81,12 +81,25 @@ describe("GUIDE-PUBLIC-1 · analytics", () => {
     expect(vercel).toEqual([]);
   });
 
-  it("★ the three events ride the onboarding sanitiser (slugs only)", () => {
-    trackOnboardingEvent("guide_public_shown", { page: "notes", arm: "guide", chapter: "trigonometry" });
+  it("★ F8: guide_public_shown carries signed_in as a real BOOLEAN (both vendors), the strings sanitised", () => {
+    trackGuidePublicShown({ page: "notes", arm: "guide", chapter: "trigonometry", signed_in: false });
+    trackGuidePublicShown({ page: "topic_hub", arm: "control", chapter: "electricity", signed_in: true });
+    expect(vercel).toEqual([
+      ["event", { name: "guide_public_shown", data: { page: "notes", arm: "guide", chapter: "trigonometry", signed_in: false } }],
+      ["event", { name: "guide_public_shown", data: { page: "topic_hub", arm: "control", chapter: "electricity", signed_in: true } }],
+    ]);
+    const ev = ga4Events();
+    expect(ev.map((e) => e[2].signed_in)).toEqual([false, true]);
+    // Free text cannot ride along: a non-slug chapter is dropped, signed_in stays a boolean.
+    vercel.length = 0;
+    trackGuidePublicShown({ page: "notes", arm: "guide", chapter: "a b <script>", signed_in: "yes" as unknown as boolean });
+    expect(vercel).toEqual([["event", { name: "guide_public_shown", data: { page: "notes", arm: "guide", signed_in: false } }]]);
+  });
+
+  it("★ the option / dismissed events ride the onboarding sanitiser (slugs only)", () => {
     trackOnboardingEvent("guide_public_option", { option: "quick", page: "topic_hub" });
     trackOnboardingEvent("guide_public_dismissed", { page: "notes" });
     expect(vercel).toEqual([
-      ["event", { name: "guide_public_shown", data: { page: "notes", arm: "guide", chapter: "trigonometry" } }],
       ["event", { name: "guide_public_option", data: { option: "quick", page: "topic_hub" } }],
       ["event", { name: "guide_public_dismissed", data: { page: "notes" } }],
     ]);

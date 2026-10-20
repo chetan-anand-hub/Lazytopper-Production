@@ -1013,7 +1013,9 @@ export function trackOnboardingEvent<E extends OnboardingEvent>(name: E, params:
  * Signed-out visitors are split per DEVICE (localStorage `lazytopper.guidePublicArm`); signed-in
  * students reuse their account arm. Same sanitiser, same rule: coarse slugs only.
  *
- *   guide_public_shown     { page, arm, chapter } — BOTH arms, at the same trigger moment
+ *   guide_public_shown     { page, arm, chapter, signed_in } — BOTH arms, at the same trigger
+ *                          moment (trackGuidePublicShown: the sanitiser keeps slugs + counts only,
+ *                          so the one boolean is added back explicitly)
  *   guide_public_option    { option, page }       — a peek option was tapped
  *   guide_public_dismissed { page }               — the peek was closed with its ×
  *   GA4 user property `guide_public_arm` + vendor event `guide_public_arm_assigned` once per device
@@ -1061,7 +1063,7 @@ export interface OnboardingEventParams {
   guide_reopened: { surface: StartHereSurface };
   ziggy_reaction: { band: ZiggyBand };
   mi_voice_shown: { state: MiVoiceState };
-  guide_public_shown: { page: GuidePublicPage; arm: GuideVariant; chapter: string };
+  guide_public_shown: { page: GuidePublicPage; arm: GuideVariant; chapter: string; signed_in: boolean };
   guide_public_option: { option: GuidePublicOption; page: GuidePublicPage };
   guide_public_dismissed: { page: GuidePublicPage };
 }
@@ -1084,6 +1086,25 @@ export function trackGuideVariantAssigned(variant: GuideVariant): void {
     }
     const data = { variant };
     send("event", { name: "guide_variant_assigned", data }, { ga4: data }, "guide_variant_assigned");
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * GUIDE-PUBLIC-1 (review F8) — `guide_public_shown { page, arm, chapter, signed_in }`. The three
+ * strings ride the onboarding sanitiser exactly as every guide event does; `signed_in` is a
+ * boolean, which that sanitiser would drop, so it is re-added here as a real boolean (nothing
+ * else can ride along). The caller suppresses it under the admin preview. Never throws.
+ */
+export function trackGuidePublicShown(params: OnboardingEventParams["guide_public_shown"]): void {
+  try {
+    const { signed_in, ...rest } = params;
+    const data: Record<string, string | number | boolean> = {
+      ...onboardingData(rest as unknown as Record<string, unknown>),
+      signed_in: signed_in === true,
+    };
+    send("event", { name: "guide_public_shown", data }, { ga4: data });
   } catch {
     /* analytics must never break the page */
   }

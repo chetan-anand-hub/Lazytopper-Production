@@ -10,6 +10,7 @@ vi.mock("../../../analytics/analytics", async (orig) => ({
   ...(await orig<typeof import("../../../analytics/analytics")>()),
   trackOnboardingEvent: (name: string, params: Record<string, unknown>) => events.onboarding.push([name, params]),
   trackGuidePublicArmAssigned: (arm: string) => events.arm.push(arm),
+  trackGuidePublicShown: (params: Record<string, unknown>) => events.onboarding.push(["guide_public_shown", params]),
 }));
 const bank = vi.hoisted(() => ({ ids: ["q1", "q2", "q3", "q4", "q5"] }));
 vi.mock("../../startHere/startHereBank", () => ({ pickStartHereSet: async () => bank.ids }));
@@ -37,6 +38,7 @@ function mount(page: "notes" | "topic_hub" = "notes", slug = "trigonometry") {
           path="*"
           element={
             <div className={page === "notes" ? "lt-notes-page" : "lt-spine"}>
+              <h1 data-testid="page-h1">Chapter</h1>
               <PublicPeek page={page} chapterSlug={slug} />
               <Where />
             </div>
@@ -72,18 +74,37 @@ beforeEach(() => {
   events.arm = [];
 });
 
+/** F2 — make the viewport "narrow" (below 1024px) or wide for matchMedia. */
+function setNarrow(narrow: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: (q: string) => ({
+      matches: narrow && q.includes("max-width"),
+      media: q,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }),
+  });
+}
+
+let visibility: DocumentVisibilityState = "visible";
+Object.defineProperty(document, "visibilityState", { configurable: true, get: () => visibility });
+
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
   __setGuideAbForTests(null);
   document.body.style.overflow = "";
+  visibility = "visible";
+  setNarrow(false);
 });
 
 describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
   it("★ renders NOTHING before the trigger (the prerendered page body is unchanged)", async () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
     const { container } = mount();
-    expect(container.querySelector(".lt-notes-page")!.children).toHaveLength(1); // only <Where/>
+    expect(container.querySelector(".lt-notes-page")!.children).toHaveLength(2); // only the h1 and <Where/>
     await act(async () => {
       await vi.advanceTimersByTimeAsync(PEEK_DWELL_MS - 3000);
     });
@@ -106,7 +127,7 @@ describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
     mount();
     await reachTrigger();
     await vi.waitFor(() => expect(shown()).toHaveLength(1), SLOW);
-    expect(shown()[0][1]).toEqual({ page: "notes", arm: "control", chapter: "trigonometry" });
+    expect(shown()[0][1]).toEqual({ page: "notes", arm: "control", chapter: "trigonometry", signed_in: false });
     await new Promise((r) => setTimeout(r, 50));
     expect(document.querySelector("[data-testid='public-peek']")).toBeNull();
     expect(JSON.parse(window.sessionStorage.getItem(GUIDE_INTENT_KEY)!).public_arm).toBe("control");
@@ -133,7 +154,7 @@ describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
     expect(peek.parentElement).toBe(document.body); // portalled, fixed: nothing in the flow moves
     expect(peek.querySelector("[data-testid='blob-byte']")!.getAttribute("data-pose")).toBe("peek");
     expect(screen.getByTestId("public-peek-line").textContent).toBe("Want this chapter's important questions?");
-    expect(shown()).toEqual([["guide_public_shown", { page: "notes", arm: "guide", chapter: "trigonometry" }]]);
+    expect(shown()).toEqual([["guide_public_shown", { page: "notes", arm: "guide", chapter: "trigonometry", signed_in: false }]]);
 
     fireEvent.click(screen.getByTestId("public-peek-line"));
     const opts = screen.getByTestId("public-peek-panel").querySelectorAll("button");
@@ -149,7 +170,7 @@ describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
 
     fireEvent.click(screen.getByTestId("public-peek-line"));
     fireEvent.click(screen.getByTestId("public-peek-opt-important"));
-    expect(screen.getByTestId("where").textContent).toBe("/highly-probable/10/Maths?topic=trigonometry");
+    await vi.waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/highly-probable/10/Maths?topic=trigonometry"), SLOW);
     expect(events.onboarding).toContainEqual(["guide_public_option", { option: "important", page: "notes" }]);
   });
 
@@ -188,7 +209,7 @@ describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
     mount();
     await reachTrigger();
     await vi.waitFor(() => expect(shown()).toHaveLength(1), SLOW);
-    expect(shown()[0][1]).toMatchObject({ arm: "control" });
+    expect(shown()[0][1]).toMatchObject({ arm: "control", signed_in: true });
     expect(document.querySelector("[data-testid='public-peek']")).toBeNull();
   });
 
@@ -267,6 +288,108 @@ describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
     await reachTrigger();
     await screen.findByTestId("public-peek", undefined, SLOW);
     expect(screen.queryByTestId("guide-admin-preview")).toBeNull();
+  });
+
+  it("★ F1: the panel comes AFTER the row in the DOM, and opens with focus on its first option", async () => {
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    mount();
+    await reachTrigger();
+    fireEvent.click(await screen.findByTestId("public-peek-line", undefined, SLOW));
+    const row = screen.getByTestId("public-peek-row");
+    const panel = screen.getByTestId("public-peek-panel");
+    expect(row.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByTestId("public-peek-opt-important"));
+  });
+
+  it("★ F1: × moves focus to the page's own <h1> (tabIndex -1), never <body>", async () => {
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    mount();
+    await reachTrigger();
+    const x = await screen.findByTestId("public-peek-close", undefined, SLOW);
+    x.focus();
+    fireEvent.click(x);
+    const h1 = screen.getByTestId("page-h1");
+    expect(document.activeElement).toBe(h1);
+    expect(document.activeElement).not.toBe(document.body);
+    expect(h1.getAttribute("tabindex")).toBe("-1");
+  });
+
+  it("★ F2: below 1024px the bubble hides while the panel is open (Byte and × stay); Esc → focus on ×", async () => {
+    setNarrow(true);
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    mount();
+    await reachTrigger();
+    fireEvent.click(await screen.findByTestId("public-peek-line", undefined, SLOW));
+    expect(screen.queryByTestId("public-peek-line")).toBeNull();
+    expect(screen.getByTestId("public-peek").querySelector("[data-testid='blob-byte']")).not.toBeNull();
+    expect(screen.getByTestId("public-peek-close")).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByTestId("public-peek-opt-important"));
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByTestId("public-peek-panel")).toBeNull();
+    expect(screen.getByTestId("public-peek-line")).toBeTruthy(); // the bubble is back
+    expect(document.activeElement).toBe(screen.getByTestId("public-peek-close"));
+  });
+
+  it("F2: at desktop width the bubble stays while the panel is open; Esc → focus back on the bubble", async () => {
+    setNarrow(false);
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    mount();
+    await reachTrigger();
+    fireEvent.click(await screen.findByTestId("public-peek-line", undefined, SLOW));
+    expect(screen.getByTestId("public-peek-line")).toBeTruthy();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(document.activeElement).toBe(screen.getByTestId("public-peek-line"));
+  });
+
+  it("★ F3: a HIDDEN tab never triggers (the 20 s pauses), and the clock resumes when visible", async () => {
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    visibility = "hidden";
+    mount();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(PEEK_DWELL_MS * 3);
+    });
+    expect(shown()).toEqual([]);
+    // Visible again: 15 s is not enough (the hidden minute did not count)…
+    visibility = "visible";
+    await act(async () => {
+      document.dispatchEvent(new Event("visibilitychange"));
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    expect(shown()).toEqual([]);
+    // …hidden for a while (paused), then visible: the remaining ~5 s completes it.
+    visibility = "hidden";
+    await act(async () => {
+      document.dispatchEvent(new Event("visibilitychange"));
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    expect(shown()).toEqual([]);
+    visibility = "visible";
+    await act(async () => {
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await reachTrigger();
+    await vi.waitFor(() => expect(shown()).toHaveLength(1), SLOW);
+  });
+
+  it("F3: scrolling in a hidden tab does not trigger either", async () => {
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    visibility = "hidden";
+    mount();
+    const art = document.querySelector(".lt-notes-page") as HTMLElement;
+    art.getBoundingClientRect = () => ({ top: -5000, height: 6000, left: 0, right: 0, bottom: 1000, width: 0, x: 0, y: 0, toJSON: () => ({}) });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
+      document.dispatchEvent(new Event("scroll"));
+      await vi.advanceTimersByTimeAsync(3000);
+    });
+    expect(shown()).toEqual([]);
+    visibility = "visible";
+    await act(async () => {
+      document.dispatchEvent(new Event("visibilitychange"));
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    vi.useRealTimers();
+    await vi.waitFor(() => expect(shown()).toHaveLength(1), SLOW); // 100 % scrolled, now visible
   });
 
   it("an unknown chapter → nothing", async () => {

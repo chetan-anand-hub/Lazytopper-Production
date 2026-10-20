@@ -10,10 +10,12 @@
  * guide arm: Byte peeks in. Once per tab per page type (publicPeekModel.ts).
  */
 import { lazy, Suspense, useEffect, useState, type ComponentType } from "react";
-import { trackGuidePublicArmAssigned, trackOnboardingEvent, type GuideVariant } from "../../../analytics/analytics";
+import { trackGuidePublicArmAssigned, trackGuidePublicShown, type GuideVariant } from "../../../analytics/analytics";
 import { desktopTopicBySlug } from "../../../lib/desktop/topics";
 import { guideAbActive, resolveGuideVariant } from "../guideVariant";
 import {
+  ARTICLE_SELECTOR,
+  VisibleClock,
   articleScrollFraction,
   copyArmToIntent,
   ensurePublicArm,
@@ -32,12 +34,6 @@ const loadChunk = (): Promise<Chunk> => import("./publicPeekChunk");
 const Nothing: ComponentType<PublicPeekViewProps> = () => null;
 /** The ONLY door into the peek chunk; a failed load renders nothing (never breaks the page). */
 const LazyPeekView = lazy(() => loadChunk().then((m) => ({ default: m.PublicPeekView }), () => ({ default: Nothing })));
-
-/** The article whose scroll depth counts, per page (each page's own root class). */
-const ARTICLE_SELECTOR: Record<GuidePublicPage, string> = {
-  notes: ".lt-notes-page",
-  topic_hub: ".lt-spine",
-};
 
 /** How often the trigger re-checks dwell time / a closed overlay once it is armed. */
 const POLL_MS = 1000;
@@ -118,7 +114,13 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
     let idle = false;
     let fraction = 0;
     let firing = false;
-    const start = performance.now();
+    const visible = () => typeof document === "undefined" || document.visibilityState === "visible";
+    // F3: the 20 s counts visible time only, and pauses while the tab is hidden.
+    const clock = new VisibleClock(performance.now(), visible());
+    const onVisibility = () => {
+      clock.setVisible(visible(), performance.now());
+      check();
+    };
     const article = () => document.querySelector<HTMLElement>(ARTICLE_SELECTOR[page]);
 
     const measure = () => {
@@ -150,21 +152,23 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
       if (!uid && !quiet) copyArmToIntent(arm);
       if (!quiet) {
         if (fresh) trackGuidePublicArmAssigned(arm);
-        trackOnboardingEvent("guide_public_shown", { page, arm, chapter: chapter!.slug });
+        trackGuidePublicShown({ page, arm, chapter: chapter!.slug, signed_in: !!uid });
       }
       if (arm === "guide") setShown({ arm, signedIn: !!uid });
     };
 
     const check = () => {
       if (!live || firing) return;
+      if (!visible()) return; // F3: neither trigger runs in a hidden tab
       measure();
-      if (!peekTriggerReached(idle, fraction, performance.now() - start)) return;
+      if (!peekTriggerReached(idle, fraction, clock.elapsed(performance.now()))) return;
       if (overlayOpen()) return; // wait: never over a modal, a dialog or the tutor overlay
       void fire();
     };
 
     const onScroll = () => check();
     document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    document.addEventListener("visibilitychange", onVisibility);
     const poll = setInterval(check, POLL_MS);
     const stopIdle = whenIdle(() => {
       idle = true;
@@ -173,6 +177,7 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
 
     function cleanup() {
       document.removeEventListener("scroll", onScroll, { capture: true });
+      document.removeEventListener("visibilitychange", onVisibility);
       clearInterval(poll);
       stopIdle();
     }
