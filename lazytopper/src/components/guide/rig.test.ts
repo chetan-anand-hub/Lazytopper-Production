@@ -18,8 +18,8 @@ afterEach(() => {
 });
 
 describe("GUIDE-1 · rig", () => {
-  it("draws an SVG body with eyes, mouth and arms for each pose, both characters", () => {
-    for (const kind of ["byte", "ziggy"] as const) {
+  it("draws an SVG body with eyes, mouth and arms for each pose, every character", () => {
+    for (const kind of ["byte", "ziggy", "mummy"] as const) {
       const r = new Rig(host(), kind, "hello", { still: true });
       rigs.push(r);
       for (const pose of Object.keys(EMO) as Array<keyof typeof EMO>) {

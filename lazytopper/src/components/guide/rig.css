@@ -1,0 +1,27 @@
+/* RIG-2 — the full cast's prop motion (ported from guide/v2.html). Imported by BlobCharacter, so it
+   travels with the lazy guide chunk only. guide.css keeps GUIDE-1's classes (tw, tear, glow, cf0..13).
+   Per-piece delays are classes (lt-gr-n1/n2), never inline styles. */
+
+.lt-gr-pr { transform-box: fill-box; transform-origin: center; }
+.lt-gr-drip { animation: lt-gr-drip 1.4s ease-in infinite; }
+.lt-gr-bob { animation: lt-gr-bob 1.2s ease-in-out infinite; }
+.lt-gr-zz { animation: lt-gr-zz 2.4s ease-out infinite; }
+.lt-gr-up { animation: lt-gr-up 2s ease-out infinite; }
+.lt-gr-fall { animation: lt-gr-fall 1.6s ease-in infinite; }
+.lt-gr-tw.lt-gr-n1 { animation-delay: .35s; } .lt-gr-tw.lt-gr-n2 { animation-delay: .7s; }
+.lt-gr-up.lt-gr-n1 { animation-delay: .65s; } .lt-gr-up.lt-gr-n2 { animation-delay: 1.3s; }
+.lt-gr-zz.lt-gr-n1 { animation-delay: .8s; } .lt-gr-zz.lt-gr-n2 { animation-delay: 1.6s; }
+.lt-gr-tear.lt-gr-n1 { animation-delay: .5s; }
+
+@keyframes lt-gr-drip { 0% { transform: translateY(-4px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(16px); opacity: 0; } }
+@keyframes lt-gr-bob { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-6px) rotate(8deg); } }
+@keyframes lt-gr-zz { 0% { transform: translate(-6px, 8px) scale(.6); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(10px, -26px) scale(1.2); opacity: 0; } }
+@keyframes lt-gr-up { 0% { transform: translateY(6px) scale(.6); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-40px) scale(1.1); opacity: 0; } }
+@keyframes lt-gr-fall { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 70% { transform: translate(18px, 44px) rotate(160deg); opacity: 1; }
+  100% { transform: translate(20px, 48px) rotate(170deg); opacity: 0; } }
+
+/* A still rig (reduced motion, or `still`) shows every prop at rest, fully visible. */
+.lt-gr-still .lt-gr-pr { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .lt-gr-pr { animation: none !important; }
+}
