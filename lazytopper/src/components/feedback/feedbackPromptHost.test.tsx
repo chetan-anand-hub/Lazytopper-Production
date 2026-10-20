@@ -24,6 +24,35 @@ import type { ScorecardVariant } from "../results/scorecardVariants";
 
 const card = () => document.querySelector("[data-testid='feedback-prompt']");
 
+/** Seed the device's session-record mirror (the key services/sessionRecords.ts reads). */
+function seedRecords(uid: string, rows: Array<{ id: string; status: string; ageMs: number }>): void {
+  const now = Date.now();
+  window.localStorage.setItem(
+    `lazytopper.user.${uid}.sessionRecords.v1`,
+    JSON.stringify(
+      rows.map((r) => ({
+        id: r.id,
+        worksheetId: r.id,
+        surface: "worksheet",
+        title: r.id,
+        subject: "maths",
+        topicKeys: [],
+        questionIds: [],
+        marksAwarded: 1,
+        marksTotal: 2,
+        status: r.status,
+        fourType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+        sectionBreakdown: null,
+        gradedAt: now - r.ageMs,
+        perQuestionRef: `ws:${r.id}`,
+        dedupKey: `${uid}::${r.id}`,
+      })),
+    ),
+  );
+}
+/** A brand-new student: only the record the current result just wrote. */
+const seedFirst = (uid: string) => seedRecords(uid, [{ id: "WS-M-01", status: "graded", ageMs: 1500 }]);
+
 beforeEach(() => {
   window.localStorage.clear();
   trackFeedbackEvent.mockClear();
@@ -146,6 +175,7 @@ describe("FIRST-FEEDBACK-1 · host", () => {
       fireEvent.click(screen.getByTestId("feedback-x"));
     });
     expect(card()).toBeNull();
+    seedFirst("u1");
     await act(async () => {
       shown = await requestFeedbackPrompt("first_graded", { uid: "u1" });
     });
@@ -164,6 +194,7 @@ describe("FIRST-FEEDBACK-1 · host", () => {
     });
     expect(shown).toBe(false);
     auth.currentUser = { uid: "u9" };
+    seedFirst("u9");
     await act(async () => {
       shown = await requestFeedbackPrompt("first_graded");
     });
@@ -173,6 +204,7 @@ describe("FIRST-FEEDBACK-1 · host", () => {
   it("the scorecard renders at once; the question follows after the pause, only with the opt-in", async () => {
     vi.useFakeTimers();
     auth.currentUser = { uid: "u5" };
+    seedFirst("u5");
     const variant = {
       surface: "worksheet",
       title: "Worksheet",
@@ -194,5 +226,95 @@ describe("FIRST-FEEDBACK-1 · host", () => {
     });
     expect(card()).not.toBeNull();
     expect(screen.getByText("Was this useful?")).toBeInTheDocument();
+  });
+
+  it("(a)/(b) an existing student is NOT asked; a brand-new student IS asked, once", async () => {
+    seedRecords("old", [
+      { id: "WS-M-02", status: "graded", ageMs: 1500 },
+      { id: "WS-M-01", status: "graded", ageMs: 3 * 86_400_000 },
+    ]);
+    let shown = true;
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "old" });
+    });
+    expect(shown).toBe(false);
+    expect(card()).toBeNull();
+    expect(window.localStorage.getItem(feedbackStorageKey("old"))).toBeNull(); // nothing recorded
+    seedFirst("new");
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "new" });
+    });
+    expect(shown).toBe(true);
+    act(() => {
+      fireEvent.click(screen.getByTestId("feedback-x"));
+    });
+    act(() => __resetFeedbackHostForTests()); // a reload
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "new" });
+    });
+    expect(shown).toBe(false); // once ever
+  });
+
+  it("(d) no records on the device yet (loading / unknown) -> not shown, and not used up", async () => {
+    let shown = true;
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "u3" });
+    });
+    expect(shown).toBe(false);
+    window.localStorage.setItem("lazytopper.user.u3.sessionRecords.v1", "{not json");
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "u3" });
+    });
+    expect(shown).toBe(false);
+    expect(window.localStorage.getItem(feedbackStorageKey("u3"))).toBeNull();
+    seedFirst("u3"); // control: once the current record is there, it is asked
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "u3" });
+    });
+    expect(shown).toBe(true);
+  });
+
+  it("(e) after first_graded, a paywall prompt in the same page load is still shown", async () => {
+    seedFirst("u1");
+    let shown = false;
+    await act(async () => {
+      shown = await requestFeedbackPrompt("first_graded", { uid: "u1" });
+    });
+    expect(shown).toBe(true);
+    act(() => {
+      fireEvent.click(screen.getByTestId("feedback-x"));
+    });
+    await act(async () => {
+      shown = await requestFeedbackPrompt("paywall", { uid: "u1" });
+    });
+    expect(shown).toBe(true);
+    expect(trackFeedbackEvent).toHaveBeenCalledWith("shown", "paywall");
+  });
+
+  it("one Escape closes only the question; the next Escape closes the scorecard", async () => {
+    auth.currentUser = { uid: "u7" };
+    seedFirst("u7");
+    const onClose = vi.fn();
+    const variant = {
+      surface: "worksheet",
+      title: "Worksheet",
+      subtitle: "WS-1",
+      score: { kind: "marks", awarded: 4, total: 10 },
+      actions: [],
+    } as unknown as ScorecardVariant;
+    render(<ResultsScorecard variant={variant} onClose={onClose} />);
+    await act(async () => {
+      expect(await requestFeedbackPrompt("first_graded")).toBe(true);
+    });
+    act(() => {
+      fireEvent.keyDown(document.body, { key: "Escape" });
+    });
+    await waitFor(() => expect(card()).toBeNull());
+    expect(onClose).not.toHaveBeenCalled();
+    expect(trackFeedbackEvent).toHaveBeenCalledWith("dismissed", "first_graded");
+    act(() => {
+      fireEvent.keyDown(document.body, { key: "Escape" });
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

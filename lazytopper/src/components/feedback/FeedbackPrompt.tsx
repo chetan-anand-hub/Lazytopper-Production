@@ -213,11 +213,17 @@ export function FeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap, moment 
   useEffect(() => {
     if (answered) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dismissRef.current();
+      if (e.key !== "Escape") return;
+      // FIRST-FEEDBACK-1 (review fix 3): "Was this useful?" sits on top of the scorecard,
+      // whose own Escape listener is on `window`. This listener is on `document`, so it runs
+      // first; stopping the event here makes one Escape close only the top card (a second
+      // Escape then closes the scorecard). The other moments are unchanged.
+      if (firstGraded) e.stopPropagation();
+      dismissRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [answered]);
+  }, [answered, firstGraded]);
 
   useEffect(() => {
     if (!answered) return;

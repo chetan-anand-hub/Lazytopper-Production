@@ -14,14 +14,18 @@
  *   3. `claimFeedbackMoment` — the once-per-moment rule, recorded on the device BEFORE the
  *      card renders; a device that cannot store the record gets no prompt (fail closed);
  *   4. render, and count `feedback_shown`.
+ * FIRST-FEEDBACK-1: `first_graded` also needs a FIRST graded result (`firstResultState`
+ * over the device's session records), and it neither checks nor sets step 2.
  * Every step is wrapped: nothing here can throw into the page that asked.
  */
 import { createRoot, type Root } from "react-dom/client";
 import { trackFeedbackEvent } from "../../analytics/analytics";
+import { loadLocalSessionRecords } from "../../services/sessionRecords";
 import { FeedbackPrompt } from "./FeedbackPrompt";
 import {
   FIRST_GRADED_MOMENT,
   claimFeedbackMoment,
+  firstResultState,
   type FeedbackMoment,
   type FeedbackStore,
 } from "./feedbackPromptModel";
@@ -105,8 +109,15 @@ export async function requestFeedbackPrompt(moment: FeedbackMoment, req: Feedbac
     const uid = req.uid ?? (await currentStudentUid());
     if (!uid) return false;
     if (blocked()) return false; // re-check after the await
-    if (!claimFeedbackMoment(deviceStore(), uid, moment, Date.now(), req.trialKey ?? null)) return false;
-    shownThisLoad = true;
+    const nowMs = Date.now();
+    // FIRST-FEEDBACK-1 (review fix 1): only on the student's FIRST graded result — an
+    // existing student with an earlier graded record on this device is never asked, and
+    // records that are missing or unreadable mean "unknown", so nothing is shown.
+    if (moment === FIRST_GRADED_MOMENT && firstResultState(loadLocalSessionRecords(uid), nowMs) !== "first") return false;
+    if (!claimFeedbackMoment(deviceStore(), uid, moment, nowMs, req.trialKey ?? null)) return false;
+    // FIRST-FEEDBACK-1 (review fix 2): `first_graded` does not use up this page load's one
+    // prompt, so a paywall or trial-end moment later in the load is still asked.
+    if (moment !== FIRST_GRADED_MOMENT) shownThisLoad = true;
     renderFeedbackPrompt(moment);
     return true;
   } catch {

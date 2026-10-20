@@ -7,8 +7,11 @@ import {
   FIRST_GRADED_COPY,
   QUIET_PERIOD_MS,
   allFeedbackActivityNames,
+  CURRENT_RESULT_WINDOW_MS,
   claimFeedbackMoment,
   feedbackActivityName,
+  firstResultState,
+  type GradedRecordLike,
   feedbackReasonsFor,
   feedbackStorageKey,
   FEEDBACK_REASONS,
@@ -60,13 +63,102 @@ describe("FIRST-FEEDBACK-1 · once ever, exempt from the 24 h gap", () => {
     expect(claimFeedbackMoment(s, "u1", "first_graded", T0 + 60_000)).toBe(true);
   });
 
-  it("stores only timing fields (`g` + `l`), never an answer; fails closed on a throwing store", () => {
+  it("stores only its own timing field `g` (never `l`, never an answer); fails closed on a throwing store", () => {
     const s = memStore();
     claimFeedbackMoment(s, "u1", "first_graded", T0);
-    expect(Object.keys(JSON.parse(s.map.get(feedbackStorageKey("u1"))!)).sort()).toEqual(["g", "l"]);
+    expect(Object.keys(JSON.parse(s.map.get(feedbackStorageKey("u1"))!)).sort()).toEqual(["g"]);
     const throwing: FeedbackStore = { getItem: () => null, setItem: () => { throw new Error("full"); } };
     expect(claimFeedbackMoment(throwing, "u1", "first_graded", T0)).toBe(false);
     expect(claimFeedbackMoment(memStore(), "", "first_graded", T0)).toBe(false);
+  });
+});
+
+describe("FIRST-FEEDBACK-1 · review fix 2 — first_graded never blocks the other moments", () => {
+  it("(e) after first_graded, paywall and trial-end are NOT held back by the 24 h gap (control: paywall still holds trial-end)", () => {
+    const s = memStore();
+    expect(claimFeedbackMoment(s, "u1", "first_graded", T0)).toBe(true);
+    expect(claimFeedbackMoment(s, "u1", "paywall", T0 + 60_000)).toBe(true);
+    const t = memStore();
+    expect(claimFeedbackMoment(t, "u1", "first_graded", T0)).toBe(true);
+    expect(claimFeedbackMoment(t, "u1", "trial_end", T0 + 60_000, "trial-A")).toBe(true);
+    // control: the shared gap between the two "help us improve" moments is unchanged
+    const c = memStore();
+    expect(claimFeedbackMoment(c, "u1", "paywall", T0)).toBe(true);
+    expect(claimFeedbackMoment(c, "u1", "trial_end", T0 + 60_000, "trial-A")).toBe(false);
+  });
+
+  it("the paywall and trial-end records are written exactly as before (`l` + their own field)", () => {
+    const s = memStore();
+    claimFeedbackMoment(s, "u1", "paywall", T0);
+    expect(JSON.parse(s.map.get(feedbackStorageKey("u1"))!)).toEqual({ l: T0, p: T0 });
+    const t = memStore();
+    claimFeedbackMoment(t, "u1", "trial_end", T0, "trial-A");
+    expect(JSON.parse(t.map.get(feedbackStorageKey("u1"))!)).toEqual({ l: T0, t: "trial-A" });
+  });
+});
+
+describe("FIRST-FEEDBACK-1 · review fix 1 — only the FIRST graded result", () => {
+  const rec = (id: string, gradedAt: number, status = "graded", dedupKey?: string): GradedRecordLike => ({
+    id,
+    status,
+    gradedAt,
+    ...(dedupKey ? { dedupKey } : {}),
+  });
+
+  it("(b) a brand-new student — only the current record — is first", () => {
+    expect(firstResultState([rec("WS-M-01", T0 - 2000)], T0)).toBe("first");
+  });
+
+  it("(a) an existing student with an earlier graded (or partial) record is NOT first", () => {
+    expect(firstResultState([rec("WS-M-02", T0 - 2000), rec("WS-M-01", T0 - 86_400_000)], T0)).toBe("not_first");
+    expect(firstResultState([rec("CT-M-01", T0 - 2000), rec("FM-S-01", T0 - 86_400_000, "partial")], T0)).toBe(
+      "not_first",
+    );
+  });
+
+  it("a downloaded paper awaiting upload (pending-upload) is not an earlier result", () => {
+    expect(firstResultState([rec("WS-M-02", T0 - 2000), rec("WS-M-01", T0 - 86_400_000, "pending-upload")], T0)).toBe(
+      "first",
+    );
+  });
+
+  it("(c) a Chapter Test partial then final (same id / same dedupKey) is ONE first result", () => {
+    // the mirror is idempotent by id: the final overwrote the partial
+    expect(firstResultState([rec("CT-M-01", T0 - 1000, "graded", "u1::CT-M-01")], T0)).toBe("first");
+    // the partial scorecard, before the upload
+    expect(firstResultState([rec("CT-M-01", T0 - 1000, "partial", "u1::CT-M-01")], T0)).toBe("first");
+    // both rows present (e.g. merged from two sources): still the same attempt
+    expect(
+      firstResultState(
+        [rec("CT-M-01", T0 - 1000, "graded", "u1::CT-M-01"), rec("CT-M-01", T0 - 5 * 60_000, "partial", "u1::CT-M-01")],
+        T0,
+      ),
+    ).toBe("first");
+    expect(
+      firstResultState(
+        [rec("FM-S-01", T0 - 1000, "graded", "u1::FM-S-01"), rec("FM-S-01b", T0 - 60_000, "partial", "u1::FM-S-01")],
+        T0,
+      ),
+    ).toBe("first");
+    // control: a different attempt is an earlier result
+    expect(
+      firstResultState(
+        [rec("CT-M-02", T0 - 1000, "graded", "u1::CT-M-02"), rec("CT-M-01", T0 - 60_000, "partial", "u1::CT-M-01")],
+        T0,
+      ),
+    ).toBe("not_first");
+  });
+
+  it("(d) records loading or unknown -> unknown (never 'first')", () => {
+    expect(firstResultState(null, T0)).toBe("unknown");
+    expect(firstResultState(undefined, T0)).toBe("unknown");
+    expect(firstResultState([], T0)).toBe("unknown"); // still loading / unreadable / not written yet
+    expect(firstResultState([rec("WS-M-01", T0, "pending-upload")], T0)).toBe("unknown");
+    // the newest record is not this result's (too old, or from a wrong clock far ahead)
+    expect(firstResultState([rec("WS-M-01", T0 - CURRENT_RESULT_WINDOW_MS - 1)], T0)).toBe("unknown");
+    expect(firstResultState([rec("WS-M-01", T0 + 5 * 60_000)], T0)).toBe("unknown");
+    // control: inside the window it is a real answer
+    expect(firstResultState([rec("WS-M-01", T0 - CURRENT_RESULT_WINDOW_MS + 1)], T0)).toBe("first");
   });
 });
 

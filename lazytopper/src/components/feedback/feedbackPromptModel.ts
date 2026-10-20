@@ -152,6 +152,71 @@ export function feedbackCallHref(whatsAppUrl: string): string {
   return `${whatsAppUrl}?text=${encodeURIComponent(FEEDBACK_CALL_MESSAGE)}`;
 }
 
+/* ── Is this the student's FIRST graded result? (review fix 1) ─────────────── */
+
+/**
+ * The fields of a SessionRecord this rule reads. A type-only shape, so this module stays
+ * pure; the host passes `loadLocalSessionRecords(uid)` (services/sessionRecords.ts), the
+ * device's record mirror that the surfaces write and the Firestore read refreshes.
+ */
+export interface GradedRecordLike {
+  id: string;
+  status: string;
+  gradedAt: number;
+  dedupKey?: string;
+}
+
+/**
+ * How recent the newest graded record must be to be THIS result's record. Every persist
+ * seam writes the record (gradedAt = Date.now()) before its scorecard appears, and the
+ * question follows 1.5 s later, so a newest record older than this means the current
+ * result's record is not on the device: unknown, so no prompt.
+ */
+export const CURRENT_RESULT_WINDOW_MS = 10 * 60 * 1000;
+/** A newest record this far in the FUTURE is not trusted as "now" either. */
+const CURRENT_RESULT_FUTURE_SLACK_MS = 60 * 1000;
+
+export type FirstResultState = "first" | "not_first" | "unknown";
+
+/**
+ * Mirrors MEASURE-1's `noteFirstGraded` (analytics/firstGraded.ts, a parallel branch): a
+ * result is the student's FIRST only if, apart from the record(s) of the current result,
+ * there is NO other graded record ("graded" or "partial"; a "pending-upload" download is
+ * not a result) for this uid on this device.
+ *
+ *   - THE CURRENT RESULT = the newest graded record, which must be recent. A Chapter Test or
+ *     Full Mock writes a "partial" record and later the "final" one under the SAME id (the
+ *     frozen code; the dedupKey is uid::code), so both are the one current result, never an
+ *     earlier one. Same id OR same dedupKey -> the same attempt.
+ *   - UNKNOWN -> NO PROMPT. No list, an empty list (still loading, unreadable, or the write
+ *     has not landed), or a newest record that is not recent: we cannot tell, so we do not ask.
+ *
+ * ⚠ CROSS-DEVICE: as in MEASURE-1, a student whose earlier records are not mirrored on this
+ * device yet looks new here. No cloud read is added.
+ */
+export function firstResultState(
+  records: ReadonlyArray<GradedRecordLike> | null | undefined,
+  nowMs: number,
+): FirstResultState {
+  if (!Array.isArray(records)) return "unknown";
+  const graded = records.filter(
+    (r) =>
+      !!r &&
+      typeof r.id === "string" &&
+      !!r.id &&
+      (r.status === "graded" || r.status === "partial") &&
+      typeof r.gradedAt === "number" &&
+      Number.isFinite(r.gradedAt),
+  );
+  if (graded.length === 0) return "unknown";
+  const current = graded.reduce((a, b) => (b.gradedAt > a.gradedAt ? b : a));
+  const age = nowMs - current.gradedAt;
+  if (age > CURRENT_RESULT_WINDOW_MS || age < -CURRENT_RESULT_FUTURE_SLACK_MS) return "unknown";
+  const sameAttempt = (r: GradedRecordLike) =>
+    r.id === current.id || (!!r.dedupKey && !!current.dedupKey && r.dedupKey === current.dedupKey);
+  return graded.some((r) => !sameAttempt(r)) ? "not_first" : "first";
+}
+
 /* ── Once-per-moment rule ────────────────────────────────────────────────────── */
 
 export const PAYWALL_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
@@ -203,7 +268,8 @@ export function parseFeedbackRecord(raw: string | null): FeedbackRecord {
  * `first_graded` (FIRST-FEEDBACK-1, controller ruling 0b.3) is ONCE EVER per student on
  * this device and is EXEMPT from the 24-hour gap: a prompt seen yesterday must not cost
  * us the one chance to ask about the first result. (The host still never shows it while
- * another prompt is open.)
+ * another prompt is open.) It is also invisible TO the gap: it never sets `l` (see
+ * markFeedbackShown), so it never holds the other two moments back either.
  */
 export function shouldShowFeedback(
   record: FeedbackRecord,
@@ -226,9 +292,12 @@ export function markFeedbackShown(
   nowMs: number,
   trialKey?: string | null,
 ): FeedbackRecord {
+  // FIRST-FEEDBACK-1 (review fix 2): `first_graded` records ONLY its own once-ever `g`. It
+  // does not touch the shared last-prompt time `l`, so it never holds back the paywall or
+  // trial-end prompt; those two moments write exactly what they wrote before.
+  if (moment === FIRST_GRADED_MOMENT) return { ...record, g: nowMs };
   const next: FeedbackRecord = { ...record, l: nowMs };
-  if (moment === FIRST_GRADED_MOMENT) next.g = nowMs;
-  else if (moment === "paywall") next.p = nowMs;
+  if (moment === "paywall") next.p = nowMs;
   else if (trialKey) next.t = trialKey;
   return next;
 }
@@ -259,7 +328,7 @@ export function claimFeedbackMoment(
     store.setItem(key, JSON.stringify(markFeedbackShown(record, moment, nowMs, trialKey)));
     // Read back: a store that silently drops writes would let the prompt repeat.
     const check = parseFeedbackRecord(store.getItem(key));
-    return check.l === nowMs;
+    return moment === FIRST_GRADED_MOMENT ? check.g === nowMs : check.l === nowMs;
   } catch {
     return false;
   }
