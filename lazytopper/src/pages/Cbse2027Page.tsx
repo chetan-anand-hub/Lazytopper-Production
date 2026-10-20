@@ -22,6 +22,7 @@ import {
   type CbsePaper,
   type CbseSubjectKey,
 } from "./cbse2027Sources";
+import ParentReturnLink from "../components/parents/ParentReturnLink";
 
 /**
  * Cbse2027Page — the public CBSE boards page at `/cbse/class-10` (CBSE-PAGE-1, Lane A).
@@ -395,6 +396,7 @@ export default function Cbse2027Page() {
       <style>{CBSE_CSS}</style>
 
       <div className="lt-cbse__w">
+        <ParentReturnLink />
         <Link to={backHref} className="lt-cbse__back">
           <span aria-hidden="true">←</span>
           <span>{backLabel}</span>

@@ -4,6 +4,7 @@ import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import MummyJourney from "../components/guide/mummy/MummyJourney";
 import { trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
+import { withParentFlag } from "../lib/parentReturn";
 import "./forParents.css";
 
 /**
@@ -33,6 +34,16 @@ import "./forParents.css";
  *   3. A fifth "What your child gets" tile, "A tutor for doubts, explained step by step", with
  *      NO link: the tutor needs an account, and this page offers no route to make one.
  * Still NO sign-up / login link or button on this page. The share button is unchanged.
+ *
+ * ★ PARENTS-NAV-1 (owner, 20 Oct 2026): "parents would like to see the price … and then every
+ * link of for parents page should navigate back to the for parents page."
+ *   1. A visible "See the price" link (hero and closing section, a quiet text link — never louder
+ *      than the share button) to `/pricing?from=for_parents`. The page itself STILL states no
+ *      rupee figure: the price lives on /pricing.
+ *   2. EVERY in-app link here (tiles, FAQ, the free-check and pricing links, and the footer via
+ *      `fromParents`) carries `from=for_parents` (`withParentFlag`), and each page they open shows
+ *      "← Back to parents page" (`components/parents/ParentReturnLink`). The WhatsApp share link
+ *      is external and unchanged.
  *
  * ★ THE SHARE LINK USES UTM TAGS, NOT `?ref=`. `referralService` reads `?ref=` as a
  * referral code and `visitSource.ref` is the referrer host; a third meaning would be a trap.
@@ -67,6 +78,13 @@ const SHARE_LABEL = "Send LazyTopper to my child";
 export const FREE_CHECK_LABEL = "Check one answer free";
 export const FREE_CHECK_TO = "/check-improve?from=for_parents&utm_source=for_parents";
 
+/** PARENTS-NAV-1 — the visible pricing link (hero + closing section). No figure on this page. */
+export const PRICING_LABEL = "See the price";
+export const PRICING_TO = withParentFlag("/pricing");
+
+/** PARENTS-NAV-1 review — the CBSE page's OWN back link (its return ticket) also leads here. */
+export const CBSE_PAGE_TO = withParentFlag(`/cbse/class-10?returnTo=${encodeURIComponent("/for-parents")}`);
+
 interface Tile {
   readonly title: string;
   /** An existing public page, or none. */
@@ -74,9 +92,9 @@ interface Tile {
 }
 
 const TILES: readonly Tile[] = [
-  { title: "Answer checking with step marks", to: "/check-your-answer" },
-  { title: "Chapter tests and full mocks in the CBSE pattern", to: "/practice-hub" },
-  { title: "Important Questions from 10 years of CBSE papers", to: "/highly-probable/10/Maths" },
+  { title: "Answer checking with step marks", to: withParentFlag("/check-your-answer") },
+  { title: "Chapter tests and full mocks in the CBSE pattern", to: withParentFlag("/practice-hub") },
+  { title: "Important Questions from 10 years of CBSE papers", to: withParentFlag("/highly-probable/10/Maths") },
   { title: "Practice on weak topics" },
   // PARENTS-CTA-1 (owner ruling 2026-10-19): deliberately NO link — the tutor needs an account,
   // and this page carries no sign-up route.
@@ -88,6 +106,15 @@ function FreeCheckLink({ placement }: { placement: ParentSharePlacement }) {
   return (
     <Link className="lt-fp__cta2" to={FREE_CHECK_TO} data-testid={`fp-free-check-${placement}`}>
       {FREE_CHECK_LABEL}
+    </Link>
+  );
+}
+
+/** PARENTS-NAV-1 — a quiet text link to /pricing (in the prerendered HTML), styled tertiary. */
+function PricingLink({ placement }: { placement: "hero" | "footer" }) {
+  return (
+    <Link className="lt-fp__cta3" to={PRICING_TO} data-testid={`fp-pricing-${placement}`}>
+      {PRICING_LABEL}
     </Link>
   );
 }
@@ -122,6 +149,7 @@ export default function ForParentsPage() {
           <div className="lt-fp__actions">
             <ShareButton placement="hero" />
             <FreeCheckLink placement="hero" />
+            <PricingLink placement="hero" />
           </div>
         </div>
       </header>
@@ -158,7 +186,7 @@ export default function ForParentsPage() {
             <summary>Does it follow the CBSE syllabus?</summary>
             <p>
               Yes. LazyTopper follows the 2026-27 CBSE Class 10 syllabus. The official sample papers and marking schemes
-              are on our <Link to="/cbse/class-10">CBSE Class 10 page</Link>.
+              are on our <Link to={CBSE_PAGE_TO}>CBSE Class 10 page</Link>.
             </p>
           </details>
           <details>
@@ -169,14 +197,14 @@ export default function ForParentsPage() {
             <summary>Is it safe?</summary>
             <p>
               There is no chat with other users, and no ads inside the app. How we handle your child’s data is in the{" "}
-              <Link to="/legal/privacy">privacy policy</Link>.
+              <Link to={withParentFlag("/legal/privacy")}>privacy policy</Link>.
             </p>
           </details>
           <details>
             <summary>What does it cost?</summary>
             <p>
               The first answer check is free, without an account. A new account gets a 7-day Premium trial.{" "}
-              <Link to="/pricing">See pricing</Link>
+              <Link to={PRICING_TO}>See pricing</Link>
             </p>
           </details>
           <details>
@@ -191,12 +219,13 @@ export default function ForParentsPage() {
           <div className="lt-fp__actions">
             <ShareButton placement="footer" />
             <FreeCheckLink placement="footer" />
+            <PricingLink placement="footer" />
           </div>
         </section>
 
         <p className="lt-fp__fine">LazyTopper is an independent platform and is not affiliated with CBSE.</p>
       </div>
-      <PublicLegalFooter />
+      <PublicLegalFooter fromParents />
     </main>
   );
 }

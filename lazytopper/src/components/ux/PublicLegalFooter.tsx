@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { FOOTER_SOCIAL } from "../../config/socialProfiles";
 import { LEGAL_ENTITY_NAME } from "../../config/legalEntity";
+import { withParentFlag } from "../../lib/parentReturn";
 
 /**
  * PublicLegalFooter — a slim, persistent legal row for the SIGNED-OUT public
@@ -90,13 +91,19 @@ const FOOTER_CSS = `
 /**
  * @param className optional extra class so a host page can tune spacing/contrast
  *                  without this component owning per-page layout.
+ * @param fromParents PARENTS-NAV-1 — set ONLY by /for-parents: every in-app link below then
+ *                  carries `from=for_parents`, so the page it opens shows "← Back to parents
+ *                  page". The link to /for-parents itself is left plain (it is already the
+ *                  parents page), and the external social links are untouched. Unset (every
+ *                  other page) the footer renders exactly as before.
  */
-export default function PublicLegalFooter({ className }: { className?: string }) {
+export default function PublicLegalFooter({ className, fromParents = false }: { className?: string; fromParents?: boolean }) {
   // CBSE-PAGE-1 — the return ticket for the CBSE link below. This footer renders on
   // three different surfaces, so the origin is read, never assumed. No backLabel is
   // passed: a site-wide row cannot honestly name where it was clicked from, and the
   // shared reader falls back to "Back".
   const { pathname } = useLocation();
+  const to = (path: string) => (fromParents ? withParentFlag(path) : path);
   return (
     <footer
       className={className ? `lt-public-legal ${className}` : "lt-public-legal"}
@@ -109,22 +116,22 @@ export default function PublicLegalFooter({ className }: { className?: string })
           on this site is this footer. Exam Trends lists every chapter, so this single
           link opens all 26 topic hubs to a signed-out crawler. An in-app route, so a
           router <Link> is correct here (unlike the retired static /questions link). */}
-      <Link to="/exam-trends">Chapters</Link>
+      <Link to={to("/exam-trends")}>Chapters</Link>
       {/* CBSE-PAGE-1 — beside Chapters for the same reason Chapters is here: this
           footer is the one crawl path Google has actually followed on this site. */}
-      <Link to={`/cbse/class-10?returnTo=${encodeURIComponent(pathname)}`}>CBSE 2027</Link>
+      <Link to={to(`/cbse/class-10?returnTo=${encodeURIComponent(pathname)}`)}>CBSE 2027</Link>
       {/* SEO-5 PR-4 — the answer-marking guide, for the same crawl-path reason. */}
-      <Link to="/check-your-answer">How CBSE marks answers</Link>
+      <Link to={to("/check-your-answer")}>How CBSE marks answers</Link>
       {/* PARENTS-1 — the parent landing page, same crawl-path reason as the guide above. */}
       <Link to="/for-parents">For parents</Link>
       {LEGAL_LINKS.map(({ label, slug }) => (
-        <Link key={slug} to={`/legal/${slug}`}>
+        <Link key={slug} to={to(`/legal/${slug}`)}>
           {label}
         </Link>
       ))}
       {/* CONTACT-INDEX-1 (owner ruling, 18 Oct 2026) — the contact page, beside the legal links,
           so /contact has an inbound crawl path from every page that carries this footer. */}
-      <Link to="/contact">Contact</Link>
+      <Link to={to("/contact")}>Contact</Link>
       {/* ORG-SAMEAS-1 — our own profiles, the same URLs the Organization `sameAs` declares
           (config/socialProfiles.ts is the one list). `rel="me"` says these are ours; there
           is deliberately no `nofollow` and no UTM tag on an identity link. */}

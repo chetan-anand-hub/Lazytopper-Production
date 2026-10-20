@@ -50,6 +50,7 @@ import {
 } from "../config/pricingCompare";
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
+import ParentReturnLink from "../components/parents/ParentReturnLink";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -1427,6 +1428,7 @@ function PricingPlansPage() {
       <div className="lt-pricing-inner">
         <div className="lt-pricing-band">
           <div className="lt-pricing-band-inner">
+            <ParentReturnLink />
             {carriedRedirect && backTo !== returnTarget.backTo ? (
               // Wrapped only when a redirect is carried, so the page's markup without one
               // (and so the prerendered /pricing) is unchanged. The capture runs before the

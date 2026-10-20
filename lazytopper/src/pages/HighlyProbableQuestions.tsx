@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 
 import { EVIDENCE_BASE_YEARS } from "../config/evidenceBase";
+import ParentReturnLink from "../components/parents/ParentReturnLink";
 import { navigateToPractice } from "../navigation/practiceNavigation";
 import { resolveCanonicalTopicKey, normalizeTopicSlug, getRuntimeTopicCandidates } from "../data/syllabus/topicAliasMap";
 import {
@@ -899,6 +900,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
             : "24px clamp(16px, 4vw, 32px) 48px",
         }}
       >
+        <ParentReturnLink />
         {isDesktop ? (
           <div
             style={{

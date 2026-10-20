@@ -274,3 +274,29 @@
     display: inline-flex;
   }
 }
+
+/*
+ * PARENTS-NAV-1 — "See the price": a TERTIARY text link on navy (hero + closing section).
+ * Quieter than both the green share button and the outlined free-check link: no fill, no
+ * border, underlined, still a 44px tap target.
+ */
+.lt-fp .lt-fp__cta3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  color: #cfe0f2;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lt-fp .lt-fp__cta3:hover {
+  color: #fff;
+}
+@media (min-width: 760px) {
+  .lt-fp .lt-fp__cta3 {
+    display: inline-flex;
+  }
+}

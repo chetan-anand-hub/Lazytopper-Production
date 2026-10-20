@@ -6,6 +6,7 @@ import {
   shouldShowParentReturn,
   storedParentFlag,
   urlHasParentFlag,
+  withParentFlag,
   type ParentReturnStorage,
 } from "./parentReturn";
 
@@ -77,5 +78,34 @@ describe("PARENTS-CTA-1 — parentReturn (the /check-improve back link flag)", (
     expect(urlHasParentFlag("from=for_parents")).toBe(true);
     expect(urlHasParentFlag("?x=from%3Dfor_parents")).toBe(false);
     expect(urlHasParentFlag("?from=for_parents_x")).toBe(false);
+  });
+});
+
+describe("PARENTS-NAV-1 — withParentFlag (every /for-parents link carries the flag)", () => {
+  it("adds from=for_parents to a bare path", () => {
+    expect(withParentFlag("/pricing")).toBe("/pricing?from=for_parents");
+    expect(withParentFlag("/highly-probable/10/Maths")).toBe("/highly-probable/10/Maths?from=for_parents");
+  });
+
+  it("merges with an existing query, keeping it first and encoded", () => {
+    expect(withParentFlag(`/cbse/class-10?returnTo=${encodeURIComponent("/for-parents")}`)).toBe(
+      "/cbse/class-10?returnTo=%2Ffor-parents&from=for_parents",
+    );
+    expect(withParentFlag("/x?a=1&b=2")).toBe("/x?a=1&b=2&from=for_parents");
+  });
+
+  it("replaces an existing `from` rather than duplicating it, and keeps a #hash last", () => {
+    expect(withParentFlag("/x?from=other")).toBe("/x?from=for_parents");
+    expect(withParentFlag("/x?from=for_parents")).toBe("/x?from=for_parents");
+    expect(withParentFlag("/cbse/class-10#papers")).toBe("/cbse/class-10?from=for_parents#papers");
+    expect(withParentFlag("/x?a=1#h")).toBe("/x?a=1&from=for_parents#h");
+  });
+
+  it("every output is read back as flagged by the same detector the destination uses", () => {
+    for (const to of ["/pricing", "/cbse/class-10?returnTo=%2Ffor-parents", "/legal/privacy", "/x?from=other#h"]) {
+      const out = withParentFlag(to);
+      const search = out.slice(out.indexOf("?"), out.includes("#") ? out.indexOf("#") : undefined);
+      expect(urlHasParentFlag(search), out).toBe(true);
+    }
   });
 });

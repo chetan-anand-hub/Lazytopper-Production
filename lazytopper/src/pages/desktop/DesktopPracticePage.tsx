@@ -50,6 +50,7 @@ import {
 } from "../../lib/desktop/learningSignals";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { EVIDENCE_BASE_YEARS } from "../../config/evidenceBase";
+import ParentReturnLink from "../../components/parents/ParentReturnLink";
 // DIAGRAMS-1 PR-2a — solution figure drawn from the question's own numbers (lazy; null when unbound).
 const SolutionFigure = lazyWithRetry(() => import("../../diagrams/SolutionFigure"));
 
@@ -2231,6 +2232,7 @@ export default function DesktopPracticePage() {
           gap: 20,
         }}
       >
+        <ParentReturnLink />
         <BackToParent />
 
         <div>
