@@ -15,9 +15,9 @@
  * 56 px slot when its chunk lands (a failed load leaves the slot empty, never a broken card).
  * Reserving only once the chunk is ready would push the card's text down mid-read.
  */
-import { lazy, Suspense, useEffect, useMemo, useState, type ComponentType } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentType, type RefObject } from "react";
 import { resolveGuideVariant } from "../guideVariant";
-import { miVoiceFor, type MiVoiceInput } from "./miVoiceModel";
+import { miVoiceFor, type MiVoiceInput, type MiVoiceLine } from "./miVoiceModel";
 import { noteMiVoiceShown } from "./miVoiceShown";
 import type { MiVoiceCharacterProps } from "./MiVoiceCharacter";
 import "./miVoice.css";
@@ -51,24 +51,61 @@ function useIdle(enabled: boolean): boolean {
   return idle;
 }
 
+/** In the layout (not display:none anywhere up the tree) and with a non-zero box. */
+function laidOut(el: HTMLElement): boolean {
+  if (el.offsetParent === null) return false;
+  const r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0;
+}
+
+/**
+ * Review F10 — `mi_voice_shown` only when the row is ACTUALLY visible: laid out and
+ * intersecting the viewport (IntersectionObserver). A sidebar hidden at a narrow width, or
+ * scrolled out of view, sends nothing. Without IntersectionObserver nothing can prove the row
+ * was seen, so nothing is sent.
+ */
+function useShownWhenVisible(ref: RefObject<HTMLDivElement | null>, state: MiVoiceLine["state"] | null): void {
+  useEffect(() => {
+    const el = ref.current;
+    if (!state || !el || typeof IntersectionObserver !== "function") return;
+    let done = false;
+    const io = new IntersectionObserver((entries) => {
+      if (done) return;
+      if (entries.some((e) => e.isIntersecting) && laidOut(el)) {
+        done = true;
+        io.disconnect();
+        noteMiVoiceShown(state);
+      }
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, state]);
+}
+
 export interface MiVoiceRowProps {
   uid: string | null;
   input: MiVoiceInput;
+  /**
+   * Review F2 — the account's cloud mistake history has been hydrated on this device
+   * (AuthContext `mistakeLogsHydrated` > 0). Before that the card may still be reading a
+   * cold device, so the character would voice a state ("No clues yet") that is about to
+   * change: no row and no event until hydration.
+   */
+  hydrated: boolean;
 }
 
-export function MiVoiceRow({ uid, input }: MiVoiceRowProps) {
-  const guideArm = resolveGuideVariant(uid) === "guide";
+export function MiVoiceRow({ uid, input, hydrated }: MiVoiceRowProps) {
+  const guideArm = hydrated && resolveGuideVariant(uid) === "guide";
   const voice = useMemo(() => (guideArm ? miVoiceFor(input) : null), [guideArm, input]);
   const idle = useIdle(voice !== null);
   const state = voice?.state ?? null;
-
-  useEffect(() => {
-    if (state) noteMiVoiceShown(state);
-  }, [state]);
+  const rowRef = useRef<HTMLDivElement | null>(null);
+  useShownWhenVisible(rowRef, state);
 
   if (!voice) return null;
   return (
     <div
+      ref={rowRef}
       className="lt-mi-voice"
       data-testid="mi-voice"
       data-state={voice.state}

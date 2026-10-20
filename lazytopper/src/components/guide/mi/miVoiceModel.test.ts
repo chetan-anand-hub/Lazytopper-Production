@@ -20,9 +20,9 @@ const TABLE: Array<{ input: MiVoiceInput; state: string | null; kind?: string; p
   { input: { kind: "untyped", lost: 1, lostText: "1" }, state: "untyped", kind: "ziggy", pose: "bag", line: "1 mark waiting for me.", bag: 1 },
   { input: { kind: "untyped", lost: 3.5, lostText: "3.5" }, state: "untyped", kind: "ziggy", pose: "bag", line: "3.5 marks waiting for me." },
   { input: { kind: "untyped", lost: 0, lostText: "0" }, state: null },
-  { input: { kind: "with-data", namesWeakness: true, topLoss: { group: "careless", amount: "1.5 marks" } }, state: "careless", kind: "ziggy", pose: "oops", line: "Oops! The method was fine. 1.5 marks went on slips." },
+  { input: { kind: "with-data", namesWeakness: true, topLoss: { group: "careless", amount: "1.5 marks" } }, state: "careless", kind: "ziggy", pose: "oops", line: "Oops! These were slips, not the method. 1.5 marks to win back." },
   { input: { kind: "with-data", namesWeakness: true, topLoss: { group: "knowledge", amount: "4 marks" } }, state: "knowledge", kind: "ziggy", pose: "confused", line: "4 marks went where I didn't get the idea yet." },
-  { input: { kind: "with-data", namesWeakness: true, topLoss: { group: "technique", amount: "3 mistakes" } }, state: "technique", kind: "byte", pose: "technique", line: "Your working was right. 3 mistakes went on what the examiner checks." },
+  { input: { kind: "with-data", namesWeakness: true, topLoss: { group: "technique", amount: "3 mistakes" } }, state: "technique", kind: "byte", pose: "technique", line: "On these, the working was right. 3 mistakes went on what the examiner checks." },
   { input: { kind: "with-data", namesWeakness: true, topLoss: null }, state: null },
 ];
 

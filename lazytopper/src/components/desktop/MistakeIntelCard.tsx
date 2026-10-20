@@ -313,8 +313,9 @@ export function MistakeIntelCard() {
       </div>
 
       {/* MI-VOICE-1 — guide arm only: Ziggy/Byte re-voice the fact below (renders nothing in
-          the control arm, so the control card is byte-identical). */}
-      <MiVoiceRow uid={uid} input={voiceInput} />
+          the control arm, so the control card is byte-identical; nothing before the cloud
+          mistake history has hydrated, so no pre-hydration "No clues yet" flash). */}
+      <MiVoiceRow uid={uid} input={voiceInput} hydrated={(Number(mistakeLogsHydrated) || 0) > 0} />
 
       {view.kind === "loading" && (
         <>

@@ -21,9 +21,10 @@ const h = vi.hoisted(() => ({
   entries: [] as unknown[],
   attempts: [] as unknown[],
   complete: true,
+  hydrated: 1,
 }));
 vi.mock("../../context/AuthContext", () => ({
-  useAuth: () => ({ user: h.user, loading: false, mistakeLogsHydrated: 0 }),
+  useAuth: () => ({ user: h.user, loading: false, mistakeLogsHydrated: h.hydrated }),
 }));
 vi.mock("../../services/mistakeLogService", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../services/mistakeLogService")>()),
@@ -81,7 +82,35 @@ async function settled(): Promise<void> {
   await waitFor(() => expect(screen.queryByText(/Looking for recent mistake patterns/)).toBeNull());
 }
 
+/**
+ * Review F10 — the event needs a laid-out, intersecting row. jsdom has neither layout nor
+ * IntersectionObserver, so both are stubbed: every observed row is laid out and intersects.
+ */
+class VisibleIO {
+  private cb: (e: Array<{ isIntersecting: boolean; target: Element }>) => void;
+  constructor(cb: (e: Array<{ isIntersecting: boolean; target: Element }>) => void) {
+    this.cb = cb;
+  }
+  observe(target: Element) {
+    queueMicrotask(() => this.cb([{ isIntersecting: true, target }]));
+  }
+  disconnect() {}
+  unobserve() {}
+}
+const realOffsetParent = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetParent");
 beforeEach(() => {
+  vi.stubGlobal("IntersectionObserver", VisibleIO);
+  Object.defineProperty(HTMLElement.prototype, "offsetParent", { configurable: true, get() { return this.parentElement; } });
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({ width: 194, height: 56, top: 0, left: 0, right: 194, bottom: 56, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+});
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+  if (realOffsetParent) Object.defineProperty(HTMLElement.prototype, "offsetParent", realOffsetParent);
+});
+
+beforeEach(() => {
+  h.hydrated = 1;
   h.user = { uid: "u0" };
   h.entries = [];
   h.attempts = [];
@@ -149,7 +178,7 @@ const CASES: Case[] = [
     state: "careless",
     kind: "ziggy",
     pose: "oops",
-    line: "Oops! The method was fine. 2 marks went on slips.",
+    line: "Oops! These were slips, not the method. 2 marks to win back.",
   },
   {
     name: "top loss Knowledge gap",
@@ -171,7 +200,7 @@ const CASES: Case[] = [
     state: "technique",
     kind: "byte",
     pose: "technique",
-    line: "Your working was right. 2 marks went on what the examiner checks.",
+    line: "On these, the working was right. 2 marks went on what the examiner checks.",
   },
 ];
 
@@ -211,7 +240,8 @@ describe("MI-VOICE-1 · guide arm — each state's pose and line, above the card
       expect(row.querySelector("a, button")).toBeNull();
 
       // Measurement: once per tab per state.
-      expect(track).toHaveBeenCalledWith("mi_voice_shown", { state: c.state });
+      await waitFor(() => expect(track).toHaveBeenCalledWith("mi_voice_shown", { state: c.state }));
+      expect(track).toHaveBeenCalledTimes(1);
     });
   }
 
@@ -299,5 +329,29 @@ describe("MI-VOICE-1 · the projection is the card's own strings", () => {
   it("with-data above the gate but no group named → the character says nothing (the card names nothing)", () => {
     const v: MiCardViewState = { kind: "with-data", summary: { checkedCount: 8, totalMarksLost: 0, namesWeakness: true, topLoss: null } };
     expect(miVoiceFor(miVoiceInputFor(v))).toBeNull();
+  });
+});
+
+describe("MI-VOICE-1 · review F2 — no pre-hydration flash", () => {
+  it("★ before the cloud mistake history hydrates: no row and no event; after: the right state, the event once", async () => {
+    // The account HAS a careless loss in the cloud; before hydration the card may read a cold device.
+    h.entries = [entry(2, { calculation: 2 }, v2({ calculation: 2 }))];
+    h.attempts = spread("graded");
+    h.hydrated = 0;
+    const view = renderCard("guide");
+    await settled();
+    await new Promise((r) => setTimeout(r, 400)); // past the idle wait and any observer callback
+    expect(screen.queryByTestId("mi-voice")).toBeNull();
+    expect(track).not.toHaveBeenCalled();
+
+    h.hydrated = 1;
+    view.rerender(<MemoryRouter><MistakeIntelCard /></MemoryRouter>);
+    const row = await screen.findByTestId("mi-voice");
+    await waitFor(() => expect(row.getAttribute("data-state")).toBe("careless"));
+    await waitFor(() => expect(track).toHaveBeenCalledWith("mi_voice_shown", { state: "careless" }));
+    // re-renders after the hydration bump never send it again
+    view.rerender(<MemoryRouter><MistakeIntelCard /></MemoryRouter>);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(track.mock.calls.filter((c) => c[0] === "mi_voice_shown")).toHaveLength(1);
   });
 });

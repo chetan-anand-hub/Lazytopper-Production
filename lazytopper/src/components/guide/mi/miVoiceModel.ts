@@ -13,9 +13,9 @@
  *   no-data      Ziggy      detective   No clues yet. Check one answer and I'll start looking.
  *   thin         Ziggy      detective   I need a few more clues before I can spot a pattern.
  *   untyped      Ziggy      bag         <N> marks waiting for me.        (N = the card's figure)
- *   careless     Ziggy      oops        Oops! The method was fine. <amount> went on slips.
+ *   careless     Ziggy      oops        Oops! These were slips, not the method. <amount> to win back.
  *   knowledge    Ziggy      confused    <amount> went where I didn't get the idea yet.
- *   technique    Byte       technique   Your working was right. <amount> went on what the examiner checks.
+ *   technique    Byte       technique   On these, the working was right. <amount> went on what the examiner checks.
  *
  * loading / error / signed-out → no character. A with-data card that names no biggest loss
  * (above the gate, but no group lost anything) → no character either: the card names nothing,
@@ -55,9 +55,9 @@ export const MI_VOICE_COPY = {
   noData: "No clues yet. Check one answer and I'll start looking.",
   thin: "I need a few more clues before I can spot a pattern.",
   untyped: (lostText: string, lost: number) => `${lostText} ${lost === 1 ? "mark" : "marks"} waiting for me.`,
-  careless: (amount: string) => `Oops! The method was fine. ${amount} went on slips.`,
+  careless: (amount: string) => `Oops! These were slips, not the method. ${amount} to win back.`,
   knowledge: (amount: string) => `${amount} went where I didn't get the idea yet.`,
-  technique: (amount: string) => `Your working was right. ${amount} went on what the examiner checks.`,
+  technique: (amount: string) => `On these, the working was right. ${amount} went on what the examiner checks.`,
 } as const;
 
 export function miVoiceFor(input: MiVoiceInput): MiVoiceLine | null {
