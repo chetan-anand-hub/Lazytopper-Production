@@ -23,6 +23,7 @@ import ShareScoreButton from "./share/ShareScoreButton";
 import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import { useFirstGradedFeedback } from "../feedback/useFirstGradedFeedback";
+import { ZiggyFirstResult } from "../guide/lazyGuide";
 import type {
   ScorecardVariant,
   ScorecardScore,
@@ -615,6 +616,15 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
             </div>
             <button type="button" className="lt-sc__x" onClick={onClose} aria-label="Close">✕</button>
           </div>
+          {/* GUIDE-1 §3D — Ziggy reacts to the student's FIRST graded result (guide arm only; the
+              component decides and renders nothing otherwise). In the flow, above the score:
+              never over a number, never a modal. No grade, mark or prompt is touched. */}
+          <ZiggyFirstResult
+            ask={askFirstFeedback}
+            deferred={variant.deferred}
+            allPending={!!variant.allPending}
+            score={variant.score}
+          />
 
           {allPending ? (
             <div className="lt-sc__allpend">

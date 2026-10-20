@@ -151,6 +151,24 @@ function rememberStartHereSubjectHint(search: string): void {
 }
 
 /**
+ * GUIDE-1 v1.1 (controller ruling) — the landing INTENT Byte orders his options by. A separate
+ * tab-scoped key because VISIT_SOURCE_KEY is deleted at sign-up, exactly when a brand-new
+ * student first meets Byte. It holds three coarse fields copied from the capture above — the
+ * landing PATH (already path-only: no query, no hash) and two utm values — and NEVER a click id,
+ * a referrer, a uid or anything typed. Sign-up does not clear it; it ends with the tab. Never sent.
+ */
+export const GUIDE_INTENT_KEY = "lazytopper.guideIntent";
+
+function rememberGuideIntent(captured: VisitSource): void {
+  try {
+    const intent = { landing: captured.landing, utm_content: captured.utm_content, utm_campaign: captured.utm_campaign };
+    window.sessionStorage.setItem(GUIDE_INTENT_KEY, JSON.stringify(intent));
+  } catch {
+    /* blocked storage: Byte falls back to his default order */
+  }
+}
+
+/**
  * Write `sessionStorage[VISIT_SOURCE_KEY]` only if the tab has not captured already.
  * Never throws; storage can be blocked. Defaults read the live page.
  */
@@ -165,7 +183,10 @@ export function rememberVisitSourceOnce(
   try {
     if (window.sessionStorage.getItem(VISIT_SOURCE_KEY) !== null) return;
     const captured = captureVisitSource(location, referrer, ownHost);
-    if (captured) window.sessionStorage.setItem(VISIT_SOURCE_KEY, JSON.stringify(captured));
+    if (captured) {
+      window.sessionStorage.setItem(VISIT_SOURCE_KEY, JSON.stringify(captured));
+      rememberGuideIntent(captured);
+    }
   } catch {
     /* blocked storage: the source simply is not recorded */
   }

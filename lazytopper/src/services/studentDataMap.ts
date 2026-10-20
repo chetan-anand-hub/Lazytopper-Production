@@ -718,7 +718,19 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "order id of the checkout this tab last opened, when it was opened and how many payment " +
       "status checks it has used, so a payment whose confirmation was lost can be re-checked; " +
       "never a tier, trial or pass date, never the uid; removed once the payment is confirmed, " +
-      "ignored and removed after 30 minutes; the order id is sent only to our own status check).",
+      "ignored and removed after 30 minutes; the order id is sent only to our own status check). " +
+      "GUIDE-1: plus localStorage `lazytopper.guideVariant.<tag>` (the single character 1 once this " +
+      "account's Byte-guide test group was reported from this device; <tag> is an 8-hex hash of the " +
+      "uid, never the uid; the group itself is never stored) and, in THIS TAB's sessionStorage, " +
+      "`lazytopper.guideChipClosed` (the single character 1 after the student hid the corner Byte " +
+      "with its own close button; never the uid) and `lazytopper.guideIntent` (GUIDE-1 v1.1: the " +
+      "landing PATH and the utm_content / utm_campaign tags of this visit, copied when the visit " +
+      "source is captured, so Byte can order his options after sign-up; never a query string, a " +
+      "click id or the uid; NOT cleared at sign-up, it ends with the tab), and localStorage `lazytopper.ziggyShown.<tag>` " +
+      "(the single character 1 once Ziggy reacted to this account's first scorecard on this device; " +
+      "<tag> is an 8-hex hash of the uid, never the uid). Dev server only, never read by a production " +
+      "build: localStorage `lazytopper.guideVariantOverride` (guide or control, to force a test " +
+      "group while developing). None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
     notes:

@@ -1,4 +1,14 @@
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import {
+  Suspense,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
@@ -8,6 +18,19 @@ import { useZeroGraded } from "./zeroGraded";
 import { trackOnboardingEvent, type StartHereFocusSurface, type StartHereSurface } from "../../analytics/analytics";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
+import {
+  closeGuideChipForTab,
+  guideFocusOpen,
+  isGuideChipClosed,
+  noteGuideVariantAssigned,
+  resolveGuideVariant,
+  setGuideFocusOpen,
+  subscribeGuideFocus,
+  type GuideVariant,
+} from "../guide/guideVariant";
+import { guidePlanFor } from "../guide/guideInputs";
+import type { ChapterRef } from "../guide/intentMap";
+import { LazyByteGuide, LazyGuideChip } from "../guide/lazyGuide";
 import {
   START_HERE_COPY,
   START_HERE_ONE_TAP_COPY,
@@ -166,6 +189,12 @@ export interface StartHereState {
   visible: boolean;
   /** "Not now": hide for the rest of this session. */
   dismiss: () => void;
+  /** GUIDE-1 — the audience rule WITHOUT the dismiss (signed in, zero graded): the corner chip's. */
+  eligible?: boolean;
+  /** GUIDE-1 — the uid the read was made for (the A/B arm is per account). */
+  uid?: string | null;
+  /** GUIDE-1 (review F2) — the student chose "Check one answer" here: no corner chip on this page. */
+  chipSuppressed?: boolean;
 }
 
 /**
@@ -183,6 +212,8 @@ export function useStartHere(uid?: string | null): StartHereState {
       dismissForSession();
       setDismissed(true);
     },
+    eligible: !!uid && graded === "none",
+    uid: uid ?? null,
   };
 }
 
@@ -220,8 +251,9 @@ export interface StartHereCardProps {
 export default function StartHereCard({ uid, focus = false, inProgress = false, checkOneAnswer, ...rest }: StartHereCardProps) {
   const state = useStartHere(uid);
   // ACTIVATION-2 A: the takeover on THIS page was closed → the inline card stands down here too.
-  const [hiddenHere, setHiddenHere] = useState(false);
-  const inlineState = hiddenHere ? { ...state, visible: false } : state;
+  // GUIDE-1 (review F2): which way it closed — after "Check one answer" no corner chip either.
+  const [hiddenHere, setHiddenHere] = useState<null | "closed" | "check_one">(null);
+  const inlineState = hiddenHere ? { ...state, visible: false, chipSuppressed: hiddenHere === "check_one" } : state;
   return (
     <>
       {focus && !inProgress && uid ? (
@@ -231,12 +263,52 @@ export default function StartHereCard({ uid, focus = false, inProgress = false, 
           returnTo={rest.returnTo}
           state={state}
           checkOneAnswer={checkOneAnswer}
-          onClosed={checkOneAnswer ? () => setHiddenHere(true) : undefined}
+          onClosed={checkOneAnswer ? (how) => setHiddenHere(how === "check_one" ? "check_one" : "closed") : undefined}
         />
       ) : null}
-      <StartHereView {...rest} state={inlineState} />
+      <StartHereView {...rest} state={inlineState} checkOneAnswer={checkOneAnswer} />
     </>
   );
+}
+
+/**
+ * GUIDE-1 — the A/B shown event, fired at the moment today's `start_here_shown` would be (same
+ * claim, same dedupe key). Control: today's event, byte-identical, PLUS `guide_shown` with
+ * variant "control". Guide: `guide_shown` with variant "guide" (Byte is shown, not Start-here).
+ * Either arm reports the account's arm once per device (GA4 user property + activity name).
+ */
+function trackShownForArm(
+  arm: GuideVariant | null,
+  uid: string | null | undefined,
+  surface: StartHereSurface | StartHereFocusSurface,
+  page: StartHereSurface,
+  todays: () => void,
+): void {
+  if (arm !== "guide") todays();
+  if (!arm || !uid) return;
+  trackOnboardingEvent("guide_shown", { surface, variant: arm, intent: guidePlanFor(page).intent });
+  noteGuideVariantAssigned(uid, arm);
+}
+
+/** GUIDE-1 — the EXISTING ready state (one-tap subjects + "Change chapter or question type"), reused in Byte's card. */
+function quickRenderer(testIdPrefix: string, returnTo: string, onNotNow: () => void): (chapter: ChapterRef | null) => ReactNode {
+  function QuickStartHere(chapter: ChapterRef | null): ReactNode {
+    return (
+      <>
+        <style>{CSS}</style>
+        <div className="lt-shc lt-guide__ready">
+          <StartHerePanel
+            testIdPrefix={testIdPrefix}
+            returnTo={returnTo}
+            onNotNow={onNotNow}
+            startOpen
+            preferChapter={chapter}
+          />
+        </div>
+      </>
+    );
+  }
+  return QuickStartHere;
 }
 
 /** The card, given an eligibility read the caller already made (Home). */
@@ -245,15 +317,33 @@ export function StartHereView({
   returnTo,
   spaced = false,
   state,
-}: Omit<StartHereCardProps, "uid" | "focus" | "inProgress" | "checkOneAnswer"> & { state: StartHereState }) {
+  checkOneAnswer,
+}: Omit<StartHereCardProps, "uid" | "focus" | "inProgress"> & { state: StartHereState }) {
   const visible = state.visible;
   const shownRef = useRef(false);
+  // GUIDE-1 — null when signed out or the split is off: then EVERYTHING below is today's card.
+  const arm = resolveGuideVariant(state.uid);
 
   useEffect(() => {
     if (!visible || shownRef.current) return;
     shownRef.current = true;
-    if (claimStartHereShown(surface)) trackOnboardingEvent("start_here_shown", { surface });
+    if (claimStartHereShown(surface)) {
+      trackShownForArm(arm, state.uid, surface, surface, () => trackOnboardingEvent("start_here_shown", { surface }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount, as before
   }, [visible, surface]);
+
+  if (arm === "guide") {
+    return (
+      <GuideInlineArm
+        surface={surface}
+        returnTo={returnTo}
+        spaced={spaced}
+        state={state}
+        checkOneAnswer={checkOneAnswer}
+      />
+    );
+  }
 
   if (!visible) return null;
 
@@ -269,6 +359,109 @@ export function StartHereView({
         <StartHerePanel testIdPrefix="start-here" returnTo={returnTo} onNotNow={onNotNow} />
       </section>
     </>
+  );
+}
+
+/* ── GUIDE-1 — the guide arm on the page (inline card, corner chip, reopened sheet) ───────── */
+
+/** "Welcome back!" — Byte's first words when the corner chip reopens him. */
+export const GUIDE_WELCOME_BACK = "Welcome back!";
+
+function GuideInlineArm({
+  surface,
+  returnTo,
+  spaced,
+  state,
+  checkOneAnswer,
+}: {
+  surface: StartHereSurface;
+  returnTo: string;
+  spaced: boolean;
+  state: StartHereState;
+  checkOneAnswer?: () => void;
+}) {
+  const plan = useMemo(() => guidePlanFor(surface, state.uid), [surface, state.uid]);
+  const focusOpen = useSyncExternalStore(subscribeGuideFocus, guideFocusOpen, () => false);
+  const [chipClosed, setChipClosed] = useState<boolean>(() => isGuideChipClosed());
+  const [sheetOpen, setSheetOpen] = useState(false);
+  // GUIDE-1 (review F2): after "Check one answer" from the reopened sheet, no chip on this page.
+  const [checkedOneHere, setCheckedOneHere] = useState(false);
+
+  // Esc closes the reopened sheet (it is not a modal: no trap, no scroll lock).
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") setSheetOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [sheetOpen]);
+
+  // The inline card: TODAY's "Not now" semantics and key (per-tab sessionStorage).
+  const closeInline = () => {
+    trackOnboardingEvent("guide_dismissed", { surface });
+    state.dismiss();
+  };
+
+  // Each state has its own keyed boundary, so a switch never keeps the previous Byte on screen.
+  if (state.visible) {
+    return (
+      <Suspense key="inline" fallback={null}>
+        <LazyByteGuide
+          mode="inline"
+          page={surface}
+          eventSurface={surface}
+          plan={plan}
+          onClose={closeInline}
+          renderQuick={quickRenderer("start-here", returnTo, closeInline)}
+          onCheckOne={checkOneAnswer}
+          spaced={spaced}
+        />
+      </Suspense>
+    );
+  }
+  // The chip: only for the Start-here audience (signed in, zero graded), only after the guide
+  // was closed on this page, never over an open focused guide, gone for the tab after its ×.
+  if (!state.eligible || chipClosed || focusOpen || state.chipSuppressed || checkedOneHere) return null;
+  if (sheetOpen) {
+    const closeSheet = () => setSheetOpen(false);
+    return (
+      <Suspense key="sheet" fallback={null}>
+        <LazyByteGuide
+          mode="sheet"
+          page={surface}
+          eventSurface={surface}
+          plan={plan}
+          greeting={GUIDE_WELCOME_BACK}
+          onClose={closeSheet}
+          onDone={closeSheet}
+          renderQuick={quickRenderer("start-here", returnTo, closeSheet)}
+          onCheckOne={
+            checkOneAnswer
+              ? () => {
+                  closeSheet();
+                  setCheckedOneHere(true);
+                  checkOneAnswer();
+                }
+              : undefined
+          }
+        />
+      </Suspense>
+    );
+  }
+  return (
+    <Suspense key="chip" fallback={null}>
+      <LazyGuideChip
+        onOpen={() => {
+          trackOnboardingEvent("guide_reopened", { surface });
+          setSheetOpen(true);
+        }}
+        onHide={() => {
+          closeGuideChipForTab();
+          setChipClosed(true);
+        }}
+      />
+    </Suspense>
   );
 }
 
@@ -451,6 +644,7 @@ function StartHerePanel({
   onNotNow,
   startOpen = false,
   headingId,
+  preferChapter = null,
 }: {
   testIdPrefix: string;
   returnTo: string;
@@ -458,6 +652,8 @@ function StartHerePanel({
   /** The focused surface opens straight onto the picker (it IS the dedicated first step). */
   startOpen?: boolean;
   headingId?: string;
+  /** GUIDE-1 — Byte's chapter (the student came from its notes): its ONE one-tap button, when it has a set. */
+  preferChapter?: ChapterRef | null;
 }) {
   const navigate = useNavigate();
   const chapterLabelId = useId();
@@ -483,10 +679,15 @@ function StartHerePanel({
 
   // START-HERE-ONE-TAP-1 §1.1: the hinted subject gets ONE button; no hint, one per subject.
   // Each launches that subject's pre-selected chapter (the picker's own default) on MCQ.
-  const readyTargets = useMemo(
-    () => (hint ? [hint] : (["Maths", "Science"] as const)).map(oneTapTarget).filter((t): t is OneTapTarget => !!t),
-    [hint],
-  );
+  const readyTargets = useMemo(() => {
+    // GUIDE-1: a chapter Byte already knows (the notes the student landed on) -> that chapter's
+    // one button, if it can host a full MCQ set; otherwise today's rule, unchanged.
+    if (preferChapter && offeredIn(preferChapter.subject, preferChapter.slug, "mcq")) {
+      return [{ subject: preferChapter.subject, slug: preferChapter.slug, name: preferChapter.name }];
+    }
+    return (hint ? [hint] : (["Maths", "Science"] as const)).map(oneTapTarget).filter((t): t is OneTapTarget => !!t);
+  }, [hint, preferChapter]);
+  const preferred = !!preferChapter && readyTargets.length === 1 && readyTargets[0].slug === preferChapter.slug;
   // Nothing can launch in one tap (no ready chapter) -> the picker, as before.
   const showPicker = picking || readyTargets.length === 0;
 
@@ -565,7 +766,7 @@ function StartHerePanel({
   };
 
   const oneTapLabel = (target: OneTapTarget): string =>
-    hint
+    hint || preferred
       ? `${START_HERE_ONE_TAP_COPY.hinted} · ${target.name}`
       : `${target.subject} · ${START_HERE_ONE_TAP_COPY.perSubjectSuffix}`;
 
@@ -793,8 +994,9 @@ export interface StartHereFocusViewProps {
   state: StartHereState;
   /** ACTIVATION-2 A — set on Check & Improve only: lead with "Check one answer". */
   checkOneAnswer?: () => void;
-  /** ACTIVATION-2 A — called once the takeover closes by any route (✕, Esc, Not now, Check one). */
-  onClosed?: () => void;
+  /** ACTIVATION-2 A — called once the takeover closes by any route (✕, Esc, Not now, Check one).
+   *  GUIDE-1: with how it closed ("check_one" = the student went to the question box). */
+  onClosed?: (how?: "not_now" | "check_one" | "done") => void;
 }
 
 /**
@@ -809,16 +1011,34 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
   const allowed = useMemo(() => (eligible ? focusAllowed(uid) : false), [eligible, uid]);
   if (!eligible || !allowed) return null;
   const checkOne = !!checkOneAnswer;
+  // GUIDE-1 — the arm (null: split off -> today's surface exactly).
+  const arm = resolveGuideVariant(uid);
   return (
     <StartHereFocusDialog
       surface={surface}
       returnTo={returnTo}
       checkOne={checkOne}
+      arm={arm}
+      uid={uid}
       onNotNow={() => {
-        trackFocus("start_here_dismissed", surface, checkOne);
+        // Guide arm: Byte was closed (guide_dismissed); the keys and the twice-offered cap are TODAY's.
+        if (arm === "guide") trackOnboardingEvent("guide_dismissed", { surface: focusSurfaceOf(surface) });
+        else trackFocus("start_here_dismissed", surface, checkOne);
         recordFocusNotNow(uid);
         setClosed(true);
-        onClosed?.();
+        onClosed?.("not_now");
+      }}
+      onDone={() => {
+        // GUIDE-1 (review F1): a POSITIVE choice that closes Byte (e.g. CBQ on the Practice hub
+        // opens the page's own chooser). Closed for this visit like "Check one answer": no
+        // dismissed event, the twice-offered count untouched.
+        try {
+          window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, "1");
+        } catch {
+          /* blocked storage: closed for this mount only */
+        }
+        setClosed(true);
+        onClosed?.("done");
       }}
       onCheckOne={
         checkOneAnswer
@@ -831,7 +1051,7 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
                 /* blocked storage: closed for this mount only */
               }
               setClosed(true);
-              onClosed?.();
+              onClosed?.("check_one");
               checkOneAnswer();
             }
           : undefined
@@ -849,6 +1069,9 @@ function StartHereFocusDialog({
   onNotNow,
   checkOne = false,
   onCheckOne,
+  onDone,
+  arm = null,
+  uid = null,
 }: {
   surface: StartHereSurface;
   returnTo: string;
@@ -856,6 +1079,11 @@ function StartHereFocusDialog({
   /** ACTIVATION-2 A — lead with "Check one answer" (Check & Improve only). */
   checkOne?: boolean;
   onCheckOne?: () => void;
+  /** GUIDE-1 (review F1) — a positive choice closed Byte: no event, no count. */
+  onDone?: () => void;
+  /** GUIDE-1 — the A/B arm (null = split off); "guide" puts Byte in this shell. */
+  arm?: GuideVariant | null;
+  uid?: string | null;
 }) {
   const isDesktop = useIsDesktop();
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -871,9 +1099,19 @@ function StartHereFocusDialog({
   useEffect(() => {
     if (shownRef.current) return;
     shownRef.current = true;
-    if (claimStartHereShown(focusSurfaceOf(surface))) trackFocus("start_here_shown", surface, checkOne);
+    if (claimStartHereShown(focusSurfaceOf(surface))) {
+      trackShownForArm(arm, uid, focusSurfaceOf(surface), surface, () => trackFocus("start_here_shown", surface, checkOne));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount; checkOne is fixed per page
   }, [surface]);
+
+  // GUIDE-1 — while Byte is open in this shell, the corner chip waits.
+  const guideArm = arm === "guide";
+  useEffect(() => {
+    if (!guideArm) return;
+    setGuideFocusOpen(true);
+    return () => setGuideFocusOpen(false);
+  }, [guideArm]);
 
   // The latest Not-now handler, for the document listeners below (mounted once).
   const notNowRef = useRef(onNotNow);
@@ -965,6 +1203,52 @@ function StartHereFocusDialog({
 
   // Portalled to <body>: a transformed ancestor (the phone layout's animated <main>) would
   // otherwise become the containing block of `position: fixed` (the ChapterPickerModal trap).
+  if (guideArm) {
+    return createPortal(
+      <div
+        className={isDesktop ? "lt-shcf lt-shcf--overlay" : "lt-shcf lt-shcf--gfull"}
+        data-testid="start-here-focus"
+        data-layout={isDesktop ? "overlay" : "full"}
+        data-arm="guide"
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) e.preventDefault();
+        }}
+      >
+        <style>{CSS}</style>
+        <div
+          ref={dialogRef}
+          className="lt-shcf-dlg lt-guide"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={headingId}
+          tabIndex={-1}
+        >
+          <Suspense fallback={null}>
+            <LazyByteGuide
+              mode="focus"
+              page={surface}
+              eventSurface={focusSurfaceOf(surface)}
+              plan={guidePlanFor(surface, uid)}
+              headingId={headingId}
+              onClose={onNotNow}
+              onDone={onDone}
+              renderQuick={quickRenderer("start-here-focus", returnTo, onNotNow)}
+              onCheckOne={
+                checkOne && onCheckOne
+                  ? () => {
+                      releasedRef.current = true;
+                      onCheckOne();
+                    }
+                  : undefined
+              }
+            />
+          </Suspense>
+        </div>
+      </div>,
+      document.body,
+    );
+  }
+
   return createPortal(
     <div
       className={isDesktop ? "lt-shcf lt-shcf--overlay" : "lt-shcf lt-shcf--full"}

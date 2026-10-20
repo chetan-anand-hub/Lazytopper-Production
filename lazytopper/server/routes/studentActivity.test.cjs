@@ -331,6 +331,17 @@ test('ACTIVATION-1 · practice_graded is an accepted event name (a graded practi
   assert.deepEqual(t.db.docs.get(dayPath('u1', '2030-06-15')).events, { practice_graded: 1 });
 });
 
+test('GUIDE-1 · guide_variant_assigned is an accepted event name, recorded as a bare name (no variant value)', async () => {
+  assert.ok(ACTIVITY_EVENTS.includes('guide_variant_assigned'));
+  const t = makeRoutes();
+  const r = await t.post({ token: 'tok-u1', body: { events: { guide_variant_assigned: 1 } } });
+  assert.equal(r.status, 200);
+  assert.deepEqual(t.db.docs.get(dayPath('u1', '2030-06-15')).events, { guide_variant_assigned: 1 });
+  // The arm itself is never a name: a value-bearing variant of the name is refused.
+  const bad = await t.post({ token: 'tok-u1', body: { events: { guide_variant_assigned_guide: 1 } } });
+  assert.equal(bad.status, 400);
+});
+
 test('every allowlisted section and event IS accepted (the allowlist is not dead)', async () => {
   const t = makeRoutes();
   const sections = Object.fromEntries(ACTIVITY_SECTIONS.map((n) => [n, 1]));

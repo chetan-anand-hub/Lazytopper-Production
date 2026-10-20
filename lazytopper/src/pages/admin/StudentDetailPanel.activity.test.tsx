@@ -164,3 +164,26 @@ describe("StudentDetailPanel — Actions chips in plain words (FOLLOWUPS-2 F3 [F
     expect(Array.from(sections.querySelectorAll(".sa-chip")).map((c) => c.textContent)).toEqual(["notes ×3", "check-improve ×1"]);
   });
 });
+
+describe("GUIDE-1 v1.1 · the Byte-guide test group on the admin board", () => {
+  it("★ names the student's group from their uid, in the day's actions and in the feed", async () => {
+    const { guideVariantFor } = await import("../../components/guide/guideVariant");
+    const uids = Array.from({ length: 40 }, (_, i) => `stu-guide-${i}`);
+    for (const [arm, label] of [
+      ["guide", "Guide test group: Byte"],
+      ["control", "Guide test group: control"],
+    ] as const) {
+      const uid = uids.find((u) => guideVariantFor(u) === arm)!;
+      const d = detail();
+      const a = d.timeline[1].activity as { events: Record<string, number>; feed: Array<{ t: number; k: string; n: string }> };
+      a.events = { guide_variant_assigned: 1 };
+      a.feed = [{ t: T0, k: "event", n: "guide_variant_assigned" }];
+      vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => d })));
+      render(<StudentDetailPanel uid={uid} getToken={async () => "admin-token"} onBack={() => {}} />);
+      const day = await screen.findByTestId("sa-day-2026-11-20");
+      expect(within(day).getByText(`${label} ×1`)).toBeTruthy();
+      expect(within(within(day).getByTestId("sa-feed")).getByRole("listitem").textContent).toBe(`10:00 am${label}`);
+      cleanup();
+    }
+  });
+});
