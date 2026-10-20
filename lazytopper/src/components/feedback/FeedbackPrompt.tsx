@@ -12,6 +12,10 @@
  *
  * Presentational: it reports `onAnswer(code)` / `onDismiss()` and the host decides what
  * those record. It never reads or writes storage.
+ *
+ * FIRST-FEEDBACK-1 — `moment="first_graded"` draws the short layout: "Was this useful?"
+ * with three one-tap answers in a row (Yes / Not really / Too hard) and the ×. No
+ * subtitle, no WhatsApp call offer, no text box. Every other moment is byte-unchanged.
  */
 import { useEffect, useRef, useState } from "react";
 import { WHATSAPP_URL } from "../../config/socialProfiles";
@@ -19,7 +23,11 @@ import {
   FEEDBACK_CALL_COPY,
   FEEDBACK_COPY,
   FEEDBACK_REASONS,
+  FIRST_GRADED_ANSWERS,
+  FIRST_GRADED_COPY,
+  FIRST_GRADED_MOMENT,
   feedbackCallHref,
+  type FeedbackMoment,
   type FeedbackReason,
 } from "./feedbackPromptModel";
 
@@ -164,6 +172,18 @@ const FEEDBACK_PROMPT_CSS = `
     outline: 2px solid var(--lt-green, #16b96a);
     outline-offset: 2px;
   }
+  .lt-fb__row {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .lt-fb__row .lt-fb__opt {
+    text-align: center;
+    padding: 10px 6px;
+  }
   @media (min-width: 1024px) {
     .lt-fb { left: auto; right: 24px; bottom: 24px; margin: 0; width: 400px; }
   }
@@ -179,9 +199,12 @@ export interface FeedbackPromptProps {
   onDone: () => void;
   /** The student tapped the 5-minute call offer (it only opens WhatsApp; nothing is granted). */
   onCallTap?: () => void;
+  /** Which moment this card asks about. Omitted -> the "help us improve" layout. */
+  moment?: FeedbackMoment;
 }
 
-export function FeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap }: FeedbackPromptProps) {
+export function FeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap, moment }: FeedbackPromptProps) {
+  const firstGraded = moment === FIRST_GRADED_MOMENT;
   const [answered, setAnswered] = useState(false);
   const settled = useRef(false);
 
@@ -190,11 +213,17 @@ export function FeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap }: Feedb
   useEffect(() => {
     if (answered) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dismissRef.current();
+      if (e.key !== "Escape") return;
+      // FIRST-FEEDBACK-1 (review fix 3): "Was this useful?" sits on top of the scorecard,
+      // whose own Escape listener is on `window`. This listener is on `document`, so it runs
+      // first; stopping the event here makes one Escape close only the top card (a second
+      // Escape then closes the scorecard). The other moments are unchanged.
+      if (firstGraded) e.stopPropagation();
+      dismissRef.current();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [answered]);
+  }, [answered, firstGraded]);
 
   useEffect(() => {
     if (!answered) return;
@@ -229,12 +258,37 @@ export function FeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap }: Feedb
       {answered ? (
         <div className="lt-fb__head">
           <p className="lt-fb__thanks" role="status" data-testid="feedback-thanks">
-            {FEEDBACK_COPY.thanks}
+            {firstGraded ? FIRST_GRADED_COPY.thanks : FEEDBACK_COPY.thanks}
           </p>
           <button type="button" className="lt-fb__x" aria-label="Close" onClick={onDone}>
             ×
           </button>
         </div>
+      ) : firstGraded ? (
+        <>
+          <div className="lt-fb__head">
+            <h2 className="lt-fb__title" id="lt-fb-title">
+              {FIRST_GRADED_COPY.title}
+            </h2>
+            <button type="button" className="lt-fb__x" aria-label="Close" onClick={dismiss} data-testid="feedback-x">
+              ×
+            </button>
+          </div>
+          <ul className="lt-fb__row" data-testid="feedback-first-graded">
+            {FIRST_GRADED_ANSWERS.map((a) => (
+              <li key={a.code}>
+                <button
+                  type="button"
+                  className="lt-fb__opt"
+                  onClick={() => answer(a.code)}
+                  data-testid={`feedback-opt-${a.code}`}
+                >
+                  {a.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
       ) : (
         <>
           <div className="lt-fb__head">

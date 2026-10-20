@@ -1711,6 +1711,7 @@ export default function FullMockPage() {
 
           {scorecardOpen && resultsPhase === "partial" && (
             <ResultsScorecard
+              askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               variant={fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,
@@ -1734,6 +1735,7 @@ export default function FullMockPage() {
 
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
+              askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               variant={withPaperTutorAsks(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,

@@ -3629,6 +3629,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             sheet" behind the primary action. */}
         {scorecardOpen && confirmed && ciCode && (
           <ResultsScorecard
+            askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
             variant={checkImproveScorecardVariant({
               returnTicket: overlay
                 ? { label: "Back to your tutor", onReturn: overlayReturn }
@@ -3988,6 +3989,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           bespoke graded view below stays byte-intact as "the graded sheet". */}
       {scorecardOpen && ciCode && (
         <ResultsScorecard
+          askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
           variant={checkImproveScorecardVariant({
               returnTicket: overlay
                 ? { label: "Back to your tutor", onReturn: overlayReturn }

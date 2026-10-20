@@ -571,6 +571,7 @@ export default function WorksheetGradePanel({
              worksheet variant (behaviour-identical to the shipped WorksheetScorecard) ── */}
       {response && response.ok && scorecardOpen && (
         <ResultsScorecard
+          askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
           variant={withPaperTutorAsks(
             worksheetScorecardVariant({
               name: nomen.name,

@@ -1306,6 +1306,7 @@ export default function ChapterTestPage() {
 
           {scorecardOpen && resultsPhase === "partial" && (
             <ResultsScorecard
+              askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               variant={chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,
@@ -1328,6 +1329,7 @@ export default function ChapterTestPage() {
 
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
+              askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               variant={withPaperTutorAsks(chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,

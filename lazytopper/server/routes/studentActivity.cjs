@@ -142,6 +142,12 @@ const ACTIVITY_EVENTS = Object.freeze([
   // FEEDBACK-1 - tapped the 5-minute feedback-call offer (opens WhatsApp only). Additive only.
   'feedback_call_tap_paywall',
   'feedback_call_tap_trial_end',
+  // FIRST-FEEDBACK-1 - "Was this useful?" after the first graded scorecard. Additive only.
+  'feedback_shown_first_graded',
+  'feedback_dismissed_first_graded',
+  'feedback_first_graded_yes',
+  'feedback_first_graded_not_really',
+  'feedback_first_graded_too_hard',
 ]);
 
 /**

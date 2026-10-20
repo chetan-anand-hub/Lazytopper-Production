@@ -3896,6 +3896,7 @@ const packTopicKey = useMemo(() => {
 
     return (
       <ResultsScorecard
+        askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
         variant={gradedVariant}
         onClose={closeScorecard}
         // QP-UPLOAD-LATER — written questions with nothing checked can be uploaded later.
@@ -4102,6 +4103,7 @@ const packTopicKey = useMemo(() => {
       });
   return (
     <ResultsScorecard
+      askFirstFeedback={!overlay && !isGuest} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
       variant={mcqVariant}
       onClose={closeScorecard}
       hideShare={isGuest} // SHARE-SCORE-1 — no "Share my score" on a signed-out guest's scorecard
