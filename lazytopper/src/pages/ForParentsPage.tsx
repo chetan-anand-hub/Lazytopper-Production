@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import MummyJourney from "../components/guide/mummy/MummyJourney";
 import { trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
 import "./forParents.css";
 
@@ -126,6 +127,7 @@ export default function ForParentsPage() {
       </header>
 
       <div className="lt-fp__w lt-fp__body">
+        <MummyJourney actions={<><ShareButton placement="journey" /><FreeCheckLink placement="journey" /></>} />
         <section aria-labelledby="fp-video">
           <TestimonialVideo
             headingId="fp-video"

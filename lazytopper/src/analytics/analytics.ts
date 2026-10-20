@@ -1134,8 +1134,28 @@ export function trackGuidePublicArmAssigned(arm: GuideVariant): void {
   }
 }
 
-/** Where on /for-parents the share button was tapped. */
-export type ParentSharePlacement = "hero" | "footer";
+/* ------------------------------------------------------------------------- *
+ * MUMMY-1 — Mummy's journey on /for-parents (components/guide/mummy). Same onboarding sender
+ * (coarse slugs and small counts only), declared by interface merging like GUIDE-1's names.
+ * Vendors only (GA4, Vercel): NOT first-party activity names — that list is mirrored by
+ * services/activityClient.ts and the server allowlist, and a signed-out parent is never
+ * recorded there anyway. Suppressed under the guide preview (mummyModel.mummyPreviewActive).
+ *
+ *   mummy_beat { beat }  — a visitor moved the story to beat 1..4 (once per beat per page load)
+ *   mummy_tap  {}        — a visitor tapped Mummy
+ *   mummy_seen { beat }  — the section first entered the viewport (beat 1; once per page load)
+ * ------------------------------------------------------------------------- */
+
+export type MummyBeatNumber = 1 | 2 | 3 | 4;
+
+export interface OnboardingEventParams {
+  mummy_beat: { beat: MummyBeatNumber };
+  mummy_tap: Record<string, never>;
+  mummy_seen: { beat: 1 };
+}
+
+/** Where on /for-parents the share button was tapped (MUMMY-1 added "journey": beat 4 of Mummy's story). */
+export type ParentSharePlacement = "hero" | "footer" | "journey";
 
 /**
  * PARENTS-1 — `parent_share_click`: a parent tapped "Send LazyTopper to my child". The
