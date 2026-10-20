@@ -20,9 +20,11 @@ import {
   peekOptions,
   peekTriggerReached,
   peekUsedInTab,
+  previewArm,
   previewOn,
   readPublicArm,
 } from "./publicPeekModel";
+import { setGuidePreview } from "../guideVariant";
 import { STUDENT_DATA_MAP } from "../../../services/studentDataMap";
 
 /**
@@ -136,8 +138,15 @@ describe("GUIDE-PUBLIC-1 · the trigger", () => {
     expect(window.sessionStorage.getItem(GUIDE_PUBLIC_PEEK_PREFIX + "notes")).toBe("1");
   });
 
-  it("PREVIEW-1 seam: off until PREVIEW-1 merges", () => {
+  it("★ PREVIEW-1: previewOn() / previewArm() follow a VALID, unexpired lazytopper.guidePreview only", () => {
     expect(previewOn()).toBe(false);
+    expect(previewArm()).toBeNull();
+    setGuidePreview("guide");
+    expect(previewOn()).toBe(true);
+    expect(previewArm()).toBe("guide");
+    window.localStorage.setItem("lazytopper.guidePreview", JSON.stringify({ arm: "guide", until: 1 }));
+    expect(previewOn()).toBe(false);
+    expect(previewArm()).toBeNull();
   });
 });
 

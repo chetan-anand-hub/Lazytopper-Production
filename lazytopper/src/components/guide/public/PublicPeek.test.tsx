@@ -15,7 +15,7 @@ const bank = vi.hoisted(() => ({ ids: ["q1", "q2", "q3", "q4", "q5"] }));
 vi.mock("../../startHere/startHereBank", () => ({ pickStartHereSet: async () => bank.ids }));
 
 import PublicPeek from "./PublicPeek";
-import { __setGuideAbForTests } from "../guideVariant";
+import { __setGuideAbForTests, setGuidePreview } from "../guideVariant";
 import { GUIDE_PUBLIC_ARM_KEY, PEEK_DWELL_MS, __resetPeekUsedForTests, __resetPublicArmForTests } from "./publicPeekModel";
 import { GUIDE_INTENT_KEY } from "../../../analytics/visitSource";
 
@@ -220,6 +220,53 @@ describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
     document.body.style.overflow = "";
     await reachTrigger();
     expect(await screen.findByTestId("public-peek", undefined, SLOW)).toBeTruthy();
+  });
+
+  it("★ PREVIEW-1 signed out, preview 'Show Byte': Byte + 'Admin preview' pill, NO event, device arm untouched", async () => {
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "control"); // this device's real arm
+    setGuidePreview("guide");
+    mount();
+    await reachTrigger();
+    await screen.findByTestId("public-peek", undefined, SLOW);
+    expect(screen.getByTestId("guide-admin-preview").textContent).toBe("Admin preview");
+    fireEvent.click(screen.getByTestId("public-peek-line"));
+    expect(screen.getByTestId("public-peek-panel").querySelector("[data-testid='guide-admin-preview']")).not.toBeNull();
+    fireEvent.click(screen.getByTestId("public-peek-opt-check_one"));
+    expect(screen.getByTestId("where").textContent).toBe("/check-improve");
+    expect(events.onboarding).toEqual([]); // no guide_public_shown / _option
+    expect(events.arm).toEqual([]);
+    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("control");
+    expect(window.sessionStorage.getItem(GUIDE_INTENT_KEY)).toBeNull();
+  });
+
+  it("★ PREVIEW-1: × under a preview sends no guide_public_dismissed; a fresh device is not assigned an arm", async () => {
+    const grv = vi.spyOn(globalThis.crypto, "getRandomValues");
+    setGuidePreview("guide");
+    mount("topic_hub");
+    await reachTrigger();
+    fireEvent.click(await screen.findByTestId("public-peek-close", undefined, SLOW));
+    expect(events.onboarding).toEqual([]);
+    expect(events.arm).toEqual([]);
+    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBeNull();
+    expect(grv).not.toHaveBeenCalled();
+  });
+
+  it("★ PREVIEW-1 signed in, preview 'Show control': nothing on screen and NO guide_public_shown", async () => {
+    auth.currentUser = { uid: "u-any", isAnonymous: false };
+    setGuidePreview("control");
+    mount();
+    await reachTrigger();
+    await new Promise((r) => setTimeout(r, 100));
+    expect(document.querySelector("[data-testid='public-peek']")).toBeNull();
+    expect(events.onboarding).toEqual([]);
+  });
+
+  it("no preview: no pill", async () => {
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    mount();
+    await reachTrigger();
+    await screen.findByTestId("public-peek", undefined, SLOW);
+    expect(screen.queryByTestId("guide-admin-preview")).toBeNull();
   });
 
   it("an unknown chapter → nothing", async () => {

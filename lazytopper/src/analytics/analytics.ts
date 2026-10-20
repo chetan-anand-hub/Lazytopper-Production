@@ -1097,6 +1097,8 @@ export function trackGuideVariantAssigned(variant: GuideVariant): void {
 export function trackGuidePublicArmAssigned(arm: GuideVariant): void {
   try {
     if (arm !== "guide" && arm !== "control") return;
+    // PREVIEW-1: a preview session never reports an arm (the caller also checks; belt and braces).
+    if (guidePreviewOnDevice()) return;
     if (analyticsEnabled() && !window.location.pathname.startsWith("/admin")) {
       const gtag = resolveGtag();
       if (gtag) gtag("set", "user_properties", { guide_public_arm: arm });

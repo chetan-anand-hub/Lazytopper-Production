@@ -67,6 +67,14 @@ describe("GUIDE-PUBLIC-1 · analytics", () => {
     expect(meta).toEqual([]);
   });
 
+  it("★ PREVIEW-1: under a valid preview the user property and the event are NOT sent", () => {
+    window.localStorage.setItem("lazytopper.guidePreview", JSON.stringify({ arm: "guide", until: Date.now() + 60_000 }));
+    trackGuidePublicArmAssigned("guide");
+    expect(ga4).toEqual([]);
+    expect(vercel).toEqual([]);
+    expect(recordActivity).not.toHaveBeenCalled();
+  });
+
   it("drops anything that is not one of the two arms", () => {
     trackGuidePublicArmAssigned("treatment" as GuideVariant);
     expect(ga4).toEqual([]);

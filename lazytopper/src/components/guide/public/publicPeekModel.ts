@@ -22,20 +22,27 @@
 import { GUIDE_INTENT_KEY, VISIT_SOURCE_KEY } from "../../../analytics/visitSource";
 import type { GuidePublicOption, GuidePublicPage, GuideVariant } from "../../../analytics/analytics";
 import { isSafeInternalPath } from "../../../utils/safeInternalPath";
+import { guidePreviewActive, readGuidePreview } from "../guideVariant";
 
 export type { GuidePublicOption, GuidePublicPage };
 
-/* ── PREVIEW-1 seam ────────────────────────────────────────────────────────────────────── */
+/* ── PREVIEW-1 ─────────────────────────────────────────────────────────────────────────── */
 
 /**
- * PREVIEW-1 (not merged at this lane's base 606ce86) exports `guidePreviewActive()` from
- * ../guideVariant.ts. Until it lands this is the ONE place the peek asks "is the admin preview
- * on?" — and the answer is no. When PREVIEW-1 merges, this body becomes
- * `return guidePreviewActive();`. Under preview every guide_public_* event and the GA4
- * `guide_public_arm` property are suppressed (PublicPeek.tsx).
+ * PREVIEW-1 (#1279): the owner's per-browser admin preview (`guidePreviewActive()`). Under it
+ * every guide_public_* event and the GA4 `guide_public_arm` property are suppressed
+ * (PublicPeek.tsx / publicPeekChunk.tsx; trackOnboardingEvent itself drops only start_here_*),
+ * the peek shows an "Admin preview" pill, and a SIGNED-OUT preview takes the previewed arm
+ * instead of this device's arm (no device arm is drawn or written, nothing is copied into the
+ * intent record), so the owner can see the public peek without touching the test.
  */
 export function previewOn(): boolean {
-  return false;
+  return guidePreviewActive();
+}
+
+/** The previewed arm while a valid preview is set on this browser, else null. */
+export function previewArm(): GuideVariant | null {
+  return readGuidePreview()?.arm ?? null;
 }
 
 /* ── the trigger ───────────────────────────────────────────────────────────────────────── */
@@ -198,6 +205,8 @@ export const PUBLIC_PEEK_COPY = {
   quickSubOut: "Free account · about 2 min",
   quickSubIn: "Tap to answer · about 2 min",
   quickFailed: "Couldn't get the questions. Try again?",
+  /** PREVIEW-1 — so a screenshot can never pass for a real visitor's view. */
+  adminPreview: "Admin preview",
 } as const;
 
 export function peekLine(page: GuidePublicPage, chapter: PeekChapter): string {

@@ -140,6 +140,11 @@ export function PublicPeekView({ page, chapter, signedIn, quiet, onClosed }: Pub
     <div className="lt-pp" data-testid="public-peek" data-page={page}>
       {open ? (
         <section className="lt-pp__panel" id={panelId} role="group" aria-labelledby={headId} data-testid="public-peek-panel">
+          {quiet ? (
+            <span className="lt-pp__admin" data-testid="guide-admin-preview">
+              {PUBLIC_PEEK_COPY.adminPreview}
+            </span>
+          ) : null}
           <h2 className="lt-pp__vh" id={headId}>
             {PUBLIC_PEEK_COPY.panelHeading}
           </h2>
@@ -165,6 +170,11 @@ export function PublicPeekView({ page, chapter, signedIn, quiet, onClosed }: Pub
             </p>
           ) : null}
         </section>
+      ) : null}
+      {quiet && !open ? (
+        <span className="lt-pp__admin" data-testid="guide-admin-preview">
+          {PUBLIC_PEEK_COPY.adminPreview}
+        </span>
       ) : null}
       <div className="lt-pp__row">
         <BlobCharacter

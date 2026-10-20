@@ -20,6 +20,7 @@ import {
   markPeekUsedInTab,
   peekTriggerReached,
   peekUsedInTab,
+  previewArm,
   previewOn,
   type GuidePublicPage,
   type PeekChapter,
@@ -134,8 +135,11 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
       if (!live || peekUsedInTab(page)) return;
       let arm: GuideVariant | null;
       let fresh = false;
+      const quiet = previewOn();
       if (uid) {
-        arm = resolveGuideVariant(uid);
+        arm = resolveGuideVariant(uid); // PREVIEW-1: the previewed arm under a preview
+      } else if (quiet) {
+        arm = previewArm(); // PREVIEW-1: the device's own arm is neither drawn nor touched
       } else {
         const a = ensurePublicArm();
         arm = a?.arm ?? null;
@@ -143,8 +147,8 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
       }
       if (!arm) return;
       markPeekUsedInTab(page);
-      if (!uid) copyArmToIntent(arm);
-      if (!previewOn()) {
+      if (!uid && !quiet) copyArmToIntent(arm);
+      if (!quiet) {
         if (fresh) trackGuidePublicArmAssigned(arm);
         trackOnboardingEvent("guide_public_shown", { page, arm, chapter: chapter!.slug });
       }
