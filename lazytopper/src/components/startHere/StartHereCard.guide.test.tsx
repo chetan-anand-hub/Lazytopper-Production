@@ -91,6 +91,7 @@ beforeEach(() => {
   auth.currentUser = null;
   location = "";
   setMatchMediaMatches(false);
+  __setGuideAbForTests(null);
 });
 afterEach(() => {
   cleanup();
@@ -137,21 +138,33 @@ describe("GUIDE-1 · who sees Byte (== who sees Start-here)", () => {
 
 describe("GUIDE-1 · the control arm is today's card", () => {
   it("★★ renders exactly what the split-off render does, fires today's start_here_shown plus guide_shown (control)", async () => {
+    // The shown event fires from a PASSIVE effect after the zero-graded read resolves, which can
+    // land after the card is in the DOM (CI shard 2/5 caught exactly that race). So each half
+    // waits for the EVENT, not just the card, and each half starts from clean storage and mocks.
+    const TODAY = [["start_here_shown", { surface: "practice_hub" }]];
     const off = mount();
     await screen.findByTestId("start-here-card");
+    await waitFor(() => expect(calls("start_here_shown")).toEqual(TODAY));
     const html = off.container.innerHTML;
     const offCalls = [...onboarding.mock.calls];
+    expect(offCalls).toEqual(TODAY); // split off: today's one event, nothing else
+    expect(assigned).not.toHaveBeenCalled();
     cleanup();
     window.sessionStorage.clear();
+    window.localStorage.clear();
     resetZeroGradedCacheForTests();
+    __resetGuideVariantSentForTests();
     onboarding.mockReset();
+    assigned.mockReset();
 
     __setGuideAbForTests(true, "control");
     const on = mount();
     await screen.findByTestId("start-here-card");
+    await waitFor(() => expect(calls("guide_shown")).toHaveLength(1));
     expect(on.container.innerHTML).toBe(html);
     expect(screen.getByTestId("start-here-start").textContent).toBe(START_HERE_COPY.start);
     expect(calls("start_here_shown")).toEqual(offCalls.filter((c) => c[0] === "start_here_shown"));
+    expect(calls("start_here_shown")).toEqual(TODAY);
     expect(calls("guide_shown")).toEqual([["guide_shown", { surface: "practice_hub", variant: "control", intent: "default" }]]);
     expect(assigned).toHaveBeenCalledWith("control");
     expect(screen.queryByTestId("byte-guide-inline")).toBeNull();
