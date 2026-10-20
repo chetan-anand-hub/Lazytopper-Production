@@ -48,6 +48,8 @@ export interface IntentDeps {
   chapterBySlug: (slug: string) => ChapterRef | null;
   /** Whether a path's route exists in App.tsx (see GUIDE_ROUTES). */
   routeExists: (path: string) => boolean;
+  /** GUIDE-1 v1.1 — the Tutor route will open for this student (Premium or an active trial). */
+  tutorOpens?: boolean;
 }
 
 export interface GuideOption {
@@ -179,6 +181,7 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           action: { kind: "route", path: "/exam-trends" },
         };
       case "tutor":
+        if (!deps.tutorOpens) return null; // behind RequirePremium: offered only when it will open
         return {
           id,
           title: "Tutor",

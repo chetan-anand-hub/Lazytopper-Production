@@ -112,7 +112,7 @@ function PagesVisited({ pages }: { pages: Record<string, number> | null | undefi
 }
 
 /** ACTIVITY-DETAIL-1 F3 — the day's feed in time order, IST clock times, plain words. */
-function ActivityFeed({ feed, truncated }: { feed: ActivityFeedItem[] | null | undefined; truncated: boolean }) {
+function ActivityFeed({ feed, truncated, uid }: { feed: ActivityFeedItem[] | null | undefined; truncated: boolean; uid: string }) {
   if (!feed) return <NotRecorded />;
   if (feed.length === 0) return <span className="sa-muted">none</span>;
   return (
@@ -121,7 +121,7 @@ function ActivityFeed({ feed, truncated }: { feed: ActivityFeedItem[] | null | u
         {orderedFeed(feed).map((item, i) => (
           <li key={i} className="sa-feed-item">
             <span className="sa-feed-time">{formatIstTime(item.t)}</span>
-            <span>{feedItemLabel(item)}</span>
+            <span>{feedItemLabel(item, uid)}</span>
           </li>
         ))}
       </ol>
@@ -152,7 +152,7 @@ function hasNoAiUse(data: DetailResponse): boolean {
   return data.reads.usageLedger === "complete" && data.timeline.every((d) => !d.ai);
 }
 
-function DayCard({ day }: { day: TimelineDay }) {
+function DayCard({ day, uid }: { day: TimelineDay; uid: string }) {
   return (
     <li className="sa-day" data-testid={`sa-day-${day.day}`}>
       <div className="sa-day-head">
@@ -186,7 +186,7 @@ function DayCard({ day }: { day: TimelineDay }) {
             <div className="sa-day-row">
               <dt>Actions</dt>
               <dd>
-                <Counts counts={day.activity.events} label={activityEventLabel} />
+                <Counts counts={day.activity.events} label={(name) => activityEventLabel(name, uid)} />
               </dd>
             </div>
             <div className="sa-day-row">
@@ -198,7 +198,7 @@ function DayCard({ day }: { day: TimelineDay }) {
             <div className="sa-day-row">
               <dt>Activity</dt>
               <dd>
-                <ActivityFeed feed={day.activity.feed} truncated={day.activity.feedTruncated === true} />
+                <ActivityFeed feed={day.activity.feed} truncated={day.activity.feedTruncated === true} uid={uid} />
               </dd>
             </div>
           </>
@@ -379,7 +379,7 @@ export default function StudentDetailPanel({
           ) : (
             <ol className="sa-timeline">
               {state.data.timeline.map((d) => (
-                <DayCard key={d.day} day={d} />
+                <DayCard key={d.day} day={d} uid={uid} />
               ))}
             </ol>
           )}

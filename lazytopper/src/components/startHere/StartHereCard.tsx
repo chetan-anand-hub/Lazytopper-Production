@@ -377,7 +377,7 @@ function GuideInlineArm({
   state: StartHereState;
   checkOneAnswer?: () => void;
 }) {
-  const plan = useMemo(() => guidePlanFor(surface), [surface]);
+  const plan = useMemo(() => guidePlanFor(surface, state.uid), [surface, state.uid]);
   const focusOpen = useSyncExternalStore(subscribeGuideFocus, guideFocusOpen, () => false);
   const [chipClosed, setChipClosed] = useState<boolean>(() => isGuideChipClosed());
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -1205,7 +1205,7 @@ function StartHereFocusDialog({
               mode="focus"
               page={surface}
               eventSurface={focusSurfaceOf(surface)}
-              plan={guidePlanFor(surface)}
+              plan={guidePlanFor(surface, uid)}
               headingId={headingId}
               onClose={onNotNow}
               renderQuick={quickRenderer("start-here-focus", returnTo, onNotNow)}

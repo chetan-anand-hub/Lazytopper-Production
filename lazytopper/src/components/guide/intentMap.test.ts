@@ -16,7 +16,7 @@ const CHAPTERS: Record<string, ChapterRef> = {
   trigonometry: { slug: "trigonometry", name: "Introduction to Trigonometry", subject: "Maths" },
   electricity: { slug: "electricity", name: "Electricity", subject: "Science" },
 };
-const deps: IntentDeps = { chapterBySlug: (s) => CHAPTERS[s] ?? null, routeExists: knownGuideRoute };
+const deps: IntentDeps = { chapterBySlug: (s) => CHAPTERS[s] ?? null, routeExists: knownGuideRoute, tutorOpens: true };
 const input = (over: Partial<IntentInput> = {}): IntentInput => ({
   landing: null,
   utmContent: null,
@@ -124,5 +124,12 @@ describe("GUIDE-1 · intent map rules", () => {
     }
     expect(knownGuideRoute("/mock-builder")).toBe(false);
     expect(knownGuideRoute("/notes/../admin")).toBe(false);
+  });
+
+  it("★ GUIDE-1 v1.1 — Tutor is offered only when it will open (Premium or an active trial); otherwise dropped", () => {
+    const noTrends = (tutorOpens: boolean): IntentDeps => ({ ...deps, tutorOpens, routeExists: (p) => p !== "/exam-trends" && knownGuideRoute(p) });
+    expect(ids(input(), noTrends(true))).toContain("tutor");
+    expect(ids(input(), noTrends(false))).not.toContain("tutor");
+    expect(ids(input(), { chapterBySlug: deps.chapterBySlug, routeExists: knownGuideRoute })).not.toContain("tutor");
   });
 });

@@ -10,14 +10,16 @@
  * (`utm_content=cbq_short` or `?cbq=1` → Maths) or a `sci_*` ad (→ Science). A "Maths" hint
  * is therefore read as the CBQ landing (rule 1). This module never writes either key.
  */
-import { VISIT_SOURCE_KEY } from "../../analytics/visitSource";
+import { GUIDE_INTENT_KEY, VISIT_SOURCE_KEY } from "../../analytics/visitSource";
+import { isPremiumAccess, loadSubscription } from "../../services/subscriptionService";
 import { readSubjectHint } from "../startHere/startHereModel";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { buildGuidePlan, knownGuideRoute, type GuidePlan, type GuideSurface, type IntentInput } from "./intentMap";
 
 function readVisit(): { landing: string | null; utmContent: string | null; utmCampaign: string | null } {
   try {
-    const raw = window.sessionStorage.getItem(VISIT_SOURCE_KEY);
+    // GUIDE-1 v1.1: the guide's own landing record first (it survives sign-up), then visitSource.
+    const raw = window.sessionStorage.getItem(GUIDE_INTENT_KEY) ?? window.sessionStorage.getItem(VISIT_SOURCE_KEY);
     if (!raw) return { landing: null, utmContent: null, utmCampaign: null };
     const v = JSON.parse(raw) as Record<string, unknown>;
     const str = (x: unknown): string | null => (typeof x === "string" && x ? x : null);
@@ -32,12 +34,28 @@ export function guideIntentInput(surface: GuideSurface): IntentInput {
   return { ...readVisit(), subjectHint: hint, cbqLanding: hint === "Maths", surface };
 }
 
-export function guidePlanFor(surface: GuideSurface): GuidePlan {
+/**
+ * GUIDE-1 v1.1 — the Tutor route sits behind RequirePremium, so the option is offered only when
+ * it will open: the EXISTING subscription model on this device says Premium or an active trial
+ * (loadSubscription applies trial expiry). Unknown / signed out / free → no Tutor option.
+ */
+export function tutorOpensFor(uid: string | null | undefined): boolean {
+  if (!uid) return false;
+  try {
+    return isPremiumAccess(loadSubscription(uid));
+  } catch {
+    return false;
+  }
+}
+
+export function guidePlanFor(surface: GuideSurface, uid?: string | null): GuidePlan {
+  const tutorOpens = tutorOpensFor(uid);
   return buildGuidePlan(guideIntentInput(surface), {
     chapterBySlug: (slug) => {
       const t = desktopTopicBySlug(slug);
       return t && (t.subject === "Maths" || t.subject === "Science") ? { slug: t.slug, name: t.name, subject: t.subject } : null;
     },
     routeExists: knownGuideRoute,
+    tutorOpens,
   });
 }
