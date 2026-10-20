@@ -78,6 +78,7 @@ describe("PREVIEW-1 · Ziggy under 'Show Byte'", () => {
     await show(5);
     expect((await screen.findByTestId("ziggy-strip")).getAttribute("data-band")).toBe("full");
     expect(screen.getByTestId("guide-admin-preview").textContent).toBe("Admin preview");
+    expect(screen.getByTestId("ziggy-strip").className).toBe("lt-ziggy lt-ziggy--preview");
     cleanup();
     await show(1); // a second graded scorecard: Ziggy again, band logic unchanged
     expect((await screen.findByTestId("ziggy-strip")).getAttribute("data-band")).toBe("under_half");
@@ -96,6 +97,15 @@ describe("PREVIEW-1 · Ziggy under 'Show Byte'", () => {
     preview("control");
     await show(5);
     expect(strip()).toBeNull();
+  });
+
+  it("★ F2 — no preview: Ziggy's strip is exactly today's (class 'lt-ziggy' only, no pill)", async () => {
+    __setGuideAbForTests(true, "guide");
+    localRows.mockReturnValue([{ id: "r1", status: "graded", gradedAt: Date.now() }]); // the first result
+    await show(5);
+    const s = await screen.findByTestId("ziggy-strip");
+    expect(s.className).toBe("lt-ziggy");
+    expect(screen.queryByTestId("guide-admin-preview")).toBeNull();
   });
 
   it("★ no preview: a used account in the guide arm gets no Ziggy (today's first-result rule)", async () => {

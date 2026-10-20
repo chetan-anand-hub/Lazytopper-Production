@@ -4,7 +4,7 @@ vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 const recordActivity = vi.hoisted(() => vi.fn());
 vi.mock("../../services/activityClient", () => ({ recordActivity }));
 
-import { trackOnboardingEvent } from "../../analytics/analytics";
+import { GUIDE_PREVIEW_STORAGE_KEY, trackOnboardingEvent } from "../../analytics/analytics";
 import {
   GUIDE_DEV_OVERRIDE_KEY,
   GUIDE_PREVIEW_KEY,
@@ -143,16 +143,40 @@ describe("PREVIEW-1 · analytics suppression (real analytics module)", () => {
     trackGuideEvent("guide_reopened", { surface: "home" });
     trackGuideEvent("ziggy_reaction", { band: "full" });
     noteGuideVariantAssigned("student-uid-1", "guide");
+    // F1 — and EVERY start_here_* funnel event (the card's, Byte's quick actions', the Practice
+    // page's start_here_graded), whichever arm is previewed.
+    for (const arm of ["guide", "control"] as const) {
+      live(arm);
+      trackOnboardingEvent("start_here_shown", { surface: "home" });
+      trackOnboardingEvent("start_here_shown", { surface: "check_improve_focus", variant: "check_one" });
+      trackOnboardingEvent("start_here_start", { subject: "maths", chapter: "real-numbers", qtype: "mcq", mode: "one_tap" });
+      trackOnboardingEvent("start_here_dismissed", { surface: "practice_hub" });
+      trackOnboardingEvent("start_here_graded", { subject: "maths", correct: 3, total: 5 });
+    }
     expect(ga4).toEqual([]);
     expect(vercel).toEqual([]);
     expect(recordActivity).not.toHaveBeenCalled();
     expect(Object.keys(window.localStorage).some((k) => k.startsWith(GUIDE_VARIANT_SENT_PREFIX))).toBe(false);
   });
 
-  it("★★ under a preview a NON-guide event still fires (start_here_shown)", () => {
-    live("control");
+  it("★★ NEGATIVE — with NO preview (absent, or expired) start_here_shown fires exactly as today", () => {
     trackOnboardingEvent("start_here_shown", { surface: "home" });
-    expect(vercel).toEqual([["event", { name: "start_here_shown", data: { surface: "home" } }]]);
+    store({ arm: "guide", until: Date.now() - 1 }); // expired: no effect
+    trackOnboardingEvent("start_here_shown", { surface: "practice_hub" });
+    expect(vercel).toEqual([
+      ["event", { name: "start_here_shown", data: { surface: "home" } }],
+      ["event", { name: "start_here_shown", data: { surface: "practice_hub" } }],
+    ]);
+  });
+
+  it("★★ under a preview a non-guide, non-Start-here event still fires (tutor_from_scorecard)", () => {
+    live("control");
+    trackOnboardingEvent("tutor_from_scorecard", { surface: "quick_practice" });
+    expect(vercel).toEqual([["event", { name: "tutor_from_scorecard", data: { surface: "quick_practice" } }]]);
+  });
+
+  it("the analytics layer reads the SAME key the guide module writes", () => {
+    expect(GUIDE_PREVIEW_STORAGE_KEY).toBe(GUIDE_PREVIEW_KEY);
   });
 
   it("★ with no preview the guide events and the arm report fire exactly as before", () => {

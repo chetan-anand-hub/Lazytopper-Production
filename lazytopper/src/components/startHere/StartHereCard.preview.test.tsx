@@ -16,7 +16,24 @@ const { cloudHas, localRows, onboarding, assigned, bank, auth, AVAIL } = vi.hois
   bank: { startHereAvailability: vi.fn(), pickStartHereSet: vi.fn() },
 }));
 vi.mock("../../services/sessionRecords", () => ({ cloudHasAnySessionRecord: cloudHas, loadLocalSessionRecords: localRows }));
-vi.mock("../../analytics/analytics", () => ({ trackOnboardingEvent: onboarding, trackGuideVariantAssigned: assigned }));
+// The REAL analytics module, with the two senders spied (call-through): `onboarding` records what
+// the card ASKED to send, `sent` (window.va) records what actually LEFT the device.
+vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
+vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
+vi.mock("../../analytics/analytics", async (orig) => {
+  const real = await orig<typeof import("../../analytics/analytics")>();
+  return {
+    ...real,
+    trackOnboardingEvent: (...a: Parameters<typeof real.trackOnboardingEvent>) => {
+      onboarding(...a);
+      real.trackOnboardingEvent(...a);
+    },
+    trackGuideVariantAssigned: (...a: Parameters<typeof real.trackGuideVariantAssigned>) => {
+      assigned(...a);
+      real.trackGuideVariantAssigned(...a);
+    },
+  };
+});
 vi.mock("./startHereBank", () => bank);
 vi.mock("./startHereAvailability.generated", () => ({ START_HERE_AVAILABILITY: AVAIL }));
 vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
@@ -51,6 +68,10 @@ const mount = (uid: string | null = "u1") =>
     </MemoryRouter>,
   );
 
+let sent: Array<[string, Record<string, unknown>]> = [];
+const sentNames = () => sent.map(([, p]) => p.name);
+const originalLocation = window.location;
+
 let seen: StartHereState | null = null;
 function Probe({ uid }: { uid: string | null }) {
   seen = useStartHere(uid);
@@ -71,10 +92,23 @@ beforeEach(() => {
   seen = null;
   setMatchMediaMatches(false);
   __setGuideAbForTests(true);
+  sent = [];
+  (window as unknown as { va?: unknown }).va = (kind: string, payload: Record<string, unknown>) => sent.push([kind, payload]);
+  vi.stubEnv("BASE_URL", "/");
+  Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: false });
+  const url = new URL("/practice-hub", "https://www.lazytopper.com");
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    writable: true,
+    value: { href: url.href, origin: url.origin, hostname: url.hostname, pathname: url.pathname, search: url.search, hash: url.hash },
+  });
 });
 afterEach(() => {
   cleanup();
   __setGuideAbForTests(null);
+  delete (window as unknown as { va?: unknown }).va;
+  Object.defineProperty(window, "location", { configurable: true, writable: true, value: originalLocation });
+  vi.unstubAllEnvs();
 });
 
 describe("PREVIEW-1 · visibility rule", () => {
@@ -136,6 +170,7 @@ describe("PREVIEW-1 · Show Byte", () => {
     expect(guideCalls()).toEqual([]);
     expect(calls("start_here_shown")).toHaveLength(0); // guide arm: today's card is not shown
     expect(assigned).not.toHaveBeenCalled();
+    expect(sent).toEqual([]); // nothing left the device
     expect(Object.keys(window.localStorage).some((k) => k.startsWith(GUIDE_VARIANT_SENT_PREFIX))).toBe(false);
   });
 
@@ -158,6 +193,10 @@ describe("PREVIEW-1 · Show Byte", () => {
     fireEvent.click(await screen.findByTestId("guide-opt-quick"));
     expect(screen.getByTestId("start-here-ready")).toBeTruthy();
     expect(guideCalls()).toEqual([]);
+    // F1 — Byte's quick action launches TODAY's path; its start_here_start is asked for and dropped.
+    fireEvent.click(screen.getByTestId("start-here-one-tap-maths"));
+    await waitFor(() => expect(calls("start_here_start")).toHaveLength(1));
+    expect(sent).toEqual([]);
   });
 
   it("the focused surface (Home) also shows Byte with the pill under preview", async () => {
@@ -192,15 +231,27 @@ describe("PREVIEW-1 · Show Byte", () => {
 });
 
 describe("PREVIEW-1 · Show control", () => {
-  it("★★ today's Start-here card shows on a graded account; today's start_here_shown still fires; NO guide_shown, NO arm report", async () => {
+  it("★★ today's Start-here card shows on a graded account; F1: NOTHING is sent (start_here_shown / _dismissed dropped), NO guide_shown, NO arm report", async () => {
     preview("control");
     graded();
     mount();
     expect(await screen.findByTestId("start-here-card")).toBeTruthy();
     expect(screen.queryByTestId("byte-guide-inline")).toBeNull();
+    // The card still asks at today's moment (unchanged code path); the analytics layer drops it.
     await waitFor(() => expect(calls("start_here_shown")).toEqual([["start_here_shown", { surface: "practice_hub" }]]));
+    fireEvent.click(screen.getByTestId("start-here-not-now"));
+    expect(calls("start_here_dismissed")).toHaveLength(1);
     expect(guideCalls()).toEqual([]);
     expect(assigned).not.toHaveBeenCalled();
+    expect(sent).toEqual([]);
+  });
+
+  it("★★ NEGATIVE — no preview: a zero-graded account's card sends start_here_shown exactly as today", async () => {
+    __setGuideAbForTests(true, "control");
+    mount();
+    expect(await screen.findByTestId("start-here-card")).toBeTruthy();
+    await waitFor(() => expect(sentNames()).toContain("start_here_shown"));
+    expect(sent.find(([, p]) => p.name === "start_here_shown")).toEqual(["event", { name: "start_here_shown", data: { surface: "practice_hub" } }]);
   });
 
   it("signed out with a preview set: nothing at all", async () => {

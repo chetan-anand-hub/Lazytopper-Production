@@ -100,7 +100,7 @@
   white-space: nowrap; pointer-events: none; }
 .lt-guide__admin { position: absolute; top: 15px; right: 52px; z-index: 1; }
 .lt-guide__admin + .lt-guide__head { padding-top: 30px; } /* the pill never sits on Byte's line */
-.lt-ziggy { position: relative; }
+.lt-ziggy--preview { position: relative; }
 .lt-ziggy__admin { position: absolute; top: 6px; right: 8px; }
 
 @media (prefers-reduced-motion: reduce) {

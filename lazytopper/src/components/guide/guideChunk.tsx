@@ -337,7 +337,7 @@ export function ZiggyStrip({ reaction }: { reaction: ZiggyReaction }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <div className="lt-ziggy" data-testid="ziggy-strip" data-band={reaction.band} role="group" aria-labelledby={id}>
+    <div className={preview ? "lt-ziggy lt-ziggy--preview" : "lt-ziggy"} data-testid="ziggy-strip" data-band={reaction.band} role="group" aria-labelledby={id}>
       {preview ? <AdminPreviewPill className="lt-ziggy__admin" /> : null}
       <BlobCharacter kind="ziggy" pose={pose} className="lt-ziggy__z" />
       <p className="lt-ziggy__say" id={id} aria-live="polite" data-testid="ziggy-line">
