@@ -726,7 +726,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "with its own close button; never the uid) and `lazytopper.guideIntent` (GUIDE-1 v1.1: the " +
       "landing PATH and the utm_content / utm_campaign tags of this visit, copied when the visit " +
       "source is captured, so Byte can order his options after sign-up; never a query string, a " +
-      "click id or the uid; NOT cleared at sign-up, it ends with the tab). Dev server only, never read by a production " +
+      "click id or the uid; NOT cleared at sign-up, it ends with the tab), and localStorage `lazytopper.ziggyShown.<tag>` " +
+      "(the single character 1 once Ziggy reacted to this account's first scorecard on this device; " +
+      "<tag> is an 8-hex hash of the uid, never the uid). Dev server only, never read by a production " +
       "build: localStorage `lazytopper.guideVariantOverride` (guide or control, to force a test " +
       "group while developing). None is ever sent anywhere.",
     mechanism: "client-local",

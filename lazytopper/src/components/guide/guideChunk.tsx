@@ -68,6 +68,7 @@ export const GUIDE_CHEER_MS = 450;
 
 export const GUIDE_COPY = {
   close: "Close the guide",
+  heading: "Byte's guide",
   forYou: "For you",
   cheerQuick: "Great pick! Tap a subject to start.",
   cheerGo: (title: string) => `Great pick! Opening ${title}…`,
@@ -87,6 +88,9 @@ export interface ByteGuideProps {
   eventSurface: StartHereSurface | StartHereFocusSurface;
   plan: GuidePlan;
   onClose: () => void;
+  /** Review F1 — a POSITIVE choice closed Byte (no dismissed event, no Not-now count). Absent:
+   *  Byte stays where he is (the inline card, under whatever the choice opened). */
+  onDone?: () => void;
   /** The EXISTING Start-here ready state (one-tap subject buttons + "Change chapter or question type"). */
   renderQuick: (chapter: ChapterRef | null) => ReactNode;
   /** Check & Improve: the page's own "Check one answer" (focus the question box, inside the tap). */
@@ -97,18 +101,26 @@ export interface ByteGuideProps {
   greeting?: string;
 }
 
-function GuideHead({ pose, line, bubbleKey, headingId, onByteTap }: { pose: Pose; line: string; bubbleKey: number; headingId?: string; onByteTap: () => void }) {
+function GuideHead({ pose, line, bubbleKey, onByteTap }: { pose: Pose; line: string; bubbleKey: number; onByteTap: () => void }) {
+  // Review F5: the bubble is NOT a live region (hover lines would chatter) and not the label.
   return (
     <div className="lt-guide__head">
       <BlobCharacter kind="byte" pose={pose} className="lt-guide__byte" onTap={onByteTap} />
-      <p key={bubbleKey} className="lt-guide__bub is-pop" id={headingId} aria-live="polite" data-testid="guide-line">
+      <p key={bubbleKey} className="lt-guide__bub is-pop" data-testid="guide-line">
         {line}
       </p>
     </div>
   );
 }
 
-export function ByteGuide({ mode, page, eventSurface, plan, onClose, renderQuick, onCheckOne, spaced, headingId, greeting }: ByteGuideProps) {
+export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, renderQuick, onCheckOne, spaced, headingId, greeting }: ByteGuideProps) {
+  const ownHeadingId = useId();
+  const labelId = headingId ?? ownHeadingId;
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  // Review F5: the reopened sheet takes focus (its ×) when it opens.
+  useEffect(() => {
+    if (mode === "sheet") closeRef.current?.focus();
+  }, [mode]);
   const navigate = useNavigate();
   const [pose, setPose] = useState<Pose>("hello");
   const [line, setLine] = useState(greeting ? `${greeting} ${plan.line}` : plan.line);
@@ -156,7 +168,7 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, renderQuick
         // Same page: its own "Competency-based questions" card opens the CBQ chooser.
         const card = document.querySelector<HTMLButtonElement>("button.lt-cbq-card:not(.lt-ct-card)");
         if (card) {
-          onClose();
+          onDone?.(); // a choice, not a dismissal (review F1)
           card.click();
           return;
         }
@@ -172,14 +184,16 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, renderQuick
 
   const body = (
     <>
-      <button type="button" className="lt-guide__x" aria-label={GUIDE_COPY.close} data-testid="guide-close" onClick={onClose}>
+      <h2 className="lt-guide__vh" id={labelId}>
+        {GUIDE_COPY.heading}
+      </h2>
+      <button ref={closeRef} type="button" className="lt-guide__x" aria-label={GUIDE_COPY.close} data-testid="guide-close" onClick={onClose}>
         ✕
       </button>
       <GuideHead
         pose={pose}
         line={line}
         bubbleKey={bubbleKey}
-        headingId={headingId}
         onByteTap={() => say(stage === "options" ? plan.line : GUIDE_COPY.cheerQuick)}
       />
       {stage === "options" ? (
@@ -233,8 +247,15 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, renderQuick
   );
 
   if (mode === "focus") return body; // the focused shell supplies the dialog element
+  if (mode === "sheet") {
+    return (
+      <section className={rootClass} data-testid="byte-guide-sheet" role="dialog" aria-modal="false" aria-labelledby={labelId}>
+        {body}
+      </section>
+    );
+  }
   return (
-    <section className={rootClass} data-testid={`byte-guide-${mode}`} aria-label="Byte's guide">
+    <section className={rootClass} data-testid={`byte-guide-${mode}`} aria-labelledby={labelId}>
       {body}
     </section>
   );

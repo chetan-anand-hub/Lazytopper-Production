@@ -250,7 +250,12 @@ describe("GUIDE-1 · close, the corner chip, reopen", () => {
     expect(chip.parentElement).toBe(document.body); // portalled: fixed to the viewport
     fireEvent.click(screen.getByTestId("guide-chip-open"));
     expect(calls("guide_reopened")).toEqual([["guide_reopened", { surface: "practice_hub" }]]);
-    expect(await screen.findByTestId("byte-guide-sheet")).toBeTruthy();
+    const sheet = await screen.findByTestId("byte-guide-sheet");
+    // Review F5: a (non-modal) dialog labelled by a fixed heading; focus moves to its ×.
+    expect(sheet.getAttribute("role")).toBe("dialog");
+    expect(document.getElementById(sheet.getAttribute("aria-labelledby")!)!.textContent).toBe("Byte's guide");
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId("guide-close")));
+    expect(screen.getByTestId("guide-line").getAttribute("aria-live")).toBeNull();
     expect(screen.getByTestId("guide-line").textContent).toBe(`Welcome back! ${GUIDE_LINES.default}`);
     fireEvent.click(screen.getByTestId("guide-close"));
     fireEvent.click(await screen.findByTestId("guide-chip-close"));
@@ -284,6 +289,9 @@ describe("GUIDE-1 · the focused surface (guide arm)", () => {
     mount("u1", "practice_hub", { focus: true });
     const shell = await screen.findByTestId("start-here-focus");
     expect(shell.getAttribute("data-arm")).toBe("guide");
+    // Review F5: the dialog is labelled by a fixed heading, never the changing bubble.
+    const dlg = shell.querySelector('[role="dialog"]')!;
+    await waitFor(() => expect(document.getElementById(dlg.getAttribute("aria-labelledby")!)?.textContent).toBe("Byte's guide"));
     await waitFor(() => expect(screen.getAllByTestId("guide-options")).toHaveLength(2)); // inline + focused
     expect(calls("guide_shown")).toContainEqual(["guide_shown", { surface: "practice_hub_focus", variant: "guide", intent: "default" }]);
     // While the focused Byte is open, no chip.
@@ -317,6 +325,38 @@ describe("GUIDE-1 · the focused surface (guide arm)", () => {
     await waitFor(() => expect(screen.queryByTestId("start-here-focus")).toBeNull());
     expect(window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY)).toBe("1");
     expect(window.localStorage.getItem(`${START_HERE_FOCUS_NOT_NOW_PREFIX}u1`)).toBeNull();
+    // Review F2: the student is at the question box — no corner chip on this page.
+    await flush();
+    expect(screen.queryByTestId("guide-chip")).toBeNull();
+  });
+
+  it("★★ review F1 — a positive choice that closes Byte (CBQ on the Practice hub) is NEVER a dismissal", async () => {
+    __setGuideAbForTests(true, "guide");
+    const cbqCard = document.createElement("button");
+    cbqCard.className = "lt-cbq-card";
+    const opened = vi.fn();
+    cbqCard.addEventListener("click", opened);
+    document.body.appendChild(cbqCard);
+    try {
+      mount("u1", "practice_hub", { focus: true });
+      await screen.findByTestId("start-here-focus");
+      await waitFor(() => expect(screen.getAllByTestId("guide-opt-cbq")).toHaveLength(2));
+      const all = screen.getAllByTestId("guide-opt-cbq");
+      fireEvent.click(all[all.length - 1]); // the focused Byte's option
+      await waitFor(() => expect(opened).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(screen.queryByTestId("start-here-focus")).toBeNull());
+      expect(calls("guide_dismissed")).toHaveLength(0);
+      expect(calls("start_here_dismissed")).toHaveLength(0);
+      expect(window.localStorage.getItem(`${START_HERE_FOCUS_NOT_NOW_PREFIX}u1`)).toBeNull();
+      expect(window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY)).toBe("1");
+      // A route choice is not a dismissal either.
+      fireEvent.click(screen.getByTestId("guide-opt-trends"));
+      await waitFor(() => expect(location).toBe("/exam-trends"));
+      expect(calls("guide_dismissed")).toHaveLength(0);
+      expect(window.sessionStorage.getItem(START_HERE_DISMISSED_KEY)).toBeNull();
+    } finally {
+      cbqCard.remove();
+    }
   });
 
   it("a check in progress: the focused Byte is not offered (today's rule); the inline guide still is", async () => {

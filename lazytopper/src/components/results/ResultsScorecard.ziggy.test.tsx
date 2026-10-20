@@ -22,6 +22,7 @@ import { quickPracticeScorecardVariant } from "./scorecardVariants";
 import { __setGuideAbForTests } from "../guide/guideVariant";
 import { ZIGGY_BOUNCE_BACK_MS } from "../guide/guideChunk";
 import { __resetFeedbackHostForTests } from "../feedback/feedbackPromptHost";
+import { ZIGGY_CHECK_DELAY_MS, ZIGGY_SHOWN_PREFIX, __resetZiggyShownForTests } from "../guide/lazyGuide";
 
 /**
  * GUIDE-1 §3D — Ziggy on the FIRST scorecard: guide arm only, first graded result only, the
@@ -49,6 +50,7 @@ beforeEach(() => {
   localRows.mockReset().mockReturnValue(firstRecord());
   onboarding.mockReset();
   window.localStorage.clear();
+  __resetZiggyShownForTests();
   setMatchMediaMatches(false);
 });
 afterEach(() => {
@@ -60,7 +62,8 @@ afterEach(() => {
 
 async function show(correct: number, ask = true) {
   render(<ResultsScorecard variant={variant(correct)} onClose={noop} askFirstFeedback={ask} />);
-  await flush();
+  // Review F4: the first-result check waits as long as the feedback card does.
+  await act(async () => new Promise((r) => setTimeout(r, ZIGGY_CHECK_DELAY_MS + 60)));
   await flush();
 }
 
@@ -126,5 +129,22 @@ describe("GUIDE-1 · Ziggy on the first scorecard", () => {
     __setGuideAbForTests(false);
     await show(5);
     expect(strip()).toBeNull();
+  });
+
+  it("★ review F4 — nothing before the 1.5 s check; once shown, a re-shown live scorecard neither shows Ziggy nor fires ziggy_reaction again", async () => {
+    __setGuideAbForTests(true, "guide");
+    render(<ResultsScorecard variant={variant(5)} onClose={noop} askFirstFeedback />);
+    await flush();
+    expect(strip()).toBeNull(); // not yet: the check waits
+    await act(async () => new Promise((r) => setTimeout(r, ZIGGY_CHECK_DELAY_MS + 60)));
+    expect(await screen.findByTestId("ziggy-strip")).toBeTruthy();
+    expect(Object.keys(window.localStorage).some((k) => k.startsWith(ZIGGY_SHOWN_PREFIX))).toBe(true);
+    expect(Object.keys(window.localStorage).filter((k) => k.startsWith(ZIGGY_SHOWN_PREFIX)).join(",")).not.toContain("u-first");
+    cleanup();
+    __resetZiggyShownForTests(); // a reload: memory gone, the device marker stays
+    onboarding.mockReset();
+    await show(5);
+    expect(strip()).toBeNull();
+    expect(onboarding.mock.calls.filter((c) => c[0] === "ziggy_reaction")).toHaveLength(0);
   });
 });

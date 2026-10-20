@@ -87,7 +87,7 @@
   white-space: nowrap; pointer-events: none; margin: 0; }
 
 /* ── Ziggy on the first scorecard ────────────────────────────────────────────── */
-.lt-ziggy { display: flex; align-items: flex-end; gap: 10px; min-height: 110px; margin: 2px 0 12px; padding: 6px 4px 0 24px;
+.lt-ziggy { display: flex; align-items: flex-end; overflow: hidden; gap: 10px; min-height: 110px; margin: 2px 0 12px; padding: 6px 4px 0 24px;
   border-radius: 14px; background: radial-gradient(130% 90% at 30% 110%, rgba(167, 217, 104, .28) 0%, rgba(255, 255, 255, .04) 70%); }
 .lt-ziggy__z { width: 104px; }
 .lt-ziggy__say { align-self: center; min-width: 0; margin: 0; background: #fff; color: #14213d; border: 2px solid #14213d;
@@ -99,3 +99,7 @@
   .lt-guide__opt { transition: none; }
 }
 @media print { .lt-guide-chip, .lt-guide--sheet { display: none; } }
+
+/* Review F5 — a fixed, visually hidden heading labels the guide (never the changing bubble). */
+.lt-guide__vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }

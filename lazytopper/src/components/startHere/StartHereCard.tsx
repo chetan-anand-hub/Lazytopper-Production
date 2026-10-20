@@ -193,6 +193,8 @@ export interface StartHereState {
   eligible?: boolean;
   /** GUIDE-1 — the uid the read was made for (the A/B arm is per account). */
   uid?: string | null;
+  /** GUIDE-1 (review F2) — the student chose "Check one answer" here: no corner chip on this page. */
+  chipSuppressed?: boolean;
 }
 
 /**
@@ -249,8 +251,9 @@ export interface StartHereCardProps {
 export default function StartHereCard({ uid, focus = false, inProgress = false, checkOneAnswer, ...rest }: StartHereCardProps) {
   const state = useStartHere(uid);
   // ACTIVATION-2 A: the takeover on THIS page was closed → the inline card stands down here too.
-  const [hiddenHere, setHiddenHere] = useState(false);
-  const inlineState = hiddenHere ? { ...state, visible: false } : state;
+  // GUIDE-1 (review F2): which way it closed — after "Check one answer" no corner chip either.
+  const [hiddenHere, setHiddenHere] = useState<null | "closed" | "check_one">(null);
+  const inlineState = hiddenHere ? { ...state, visible: false, chipSuppressed: hiddenHere === "check_one" } : state;
   return (
     <>
       {focus && !inProgress && uid ? (
@@ -260,7 +263,7 @@ export default function StartHereCard({ uid, focus = false, inProgress = false, 
           returnTo={rest.returnTo}
           state={state}
           checkOneAnswer={checkOneAnswer}
-          onClosed={checkOneAnswer ? () => setHiddenHere(true) : undefined}
+          onClosed={checkOneAnswer ? (how) => setHiddenHere(how === "check_one" ? "check_one" : "closed") : undefined}
         />
       ) : null}
       <StartHereView {...rest} state={inlineState} checkOneAnswer={checkOneAnswer} />
@@ -381,6 +384,8 @@ function GuideInlineArm({
   const focusOpen = useSyncExternalStore(subscribeGuideFocus, guideFocusOpen, () => false);
   const [chipClosed, setChipClosed] = useState<boolean>(() => isGuideChipClosed());
   const [sheetOpen, setSheetOpen] = useState(false);
+  // GUIDE-1 (review F2): after "Check one answer" from the reopened sheet, no chip on this page.
+  const [checkedOneHere, setCheckedOneHere] = useState(false);
 
   // Esc closes the reopened sheet (it is not a modal: no trap, no scroll lock).
   useEffect(() => {
@@ -417,7 +422,7 @@ function GuideInlineArm({
   }
   // The chip: only for the Start-here audience (signed in, zero graded), only after the guide
   // was closed on this page, never over an open focused guide, gone for the tab after its ×.
-  if (!state.eligible || chipClosed || focusOpen) return null;
+  if (!state.eligible || chipClosed || focusOpen || state.chipSuppressed || checkedOneHere) return null;
   if (sheetOpen) {
     const closeSheet = () => setSheetOpen(false);
     return (
@@ -429,11 +434,13 @@ function GuideInlineArm({
           plan={plan}
           greeting={GUIDE_WELCOME_BACK}
           onClose={closeSheet}
+          onDone={closeSheet}
           renderQuick={quickRenderer("start-here", returnTo, closeSheet)}
           onCheckOne={
             checkOneAnswer
               ? () => {
                   closeSheet();
+                  setCheckedOneHere(true);
                   checkOneAnswer();
                 }
               : undefined
@@ -987,8 +994,9 @@ export interface StartHereFocusViewProps {
   state: StartHereState;
   /** ACTIVATION-2 A — set on Check & Improve only: lead with "Check one answer". */
   checkOneAnswer?: () => void;
-  /** ACTIVATION-2 A — called once the takeover closes by any route (✕, Esc, Not now, Check one). */
-  onClosed?: () => void;
+  /** ACTIVATION-2 A — called once the takeover closes by any route (✕, Esc, Not now, Check one).
+   *  GUIDE-1: with how it closed ("check_one" = the student went to the question box). */
+  onClosed?: (how?: "not_now" | "check_one" | "done") => void;
 }
 
 /**
@@ -1018,7 +1026,19 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
         else trackFocus("start_here_dismissed", surface, checkOne);
         recordFocusNotNow(uid);
         setClosed(true);
-        onClosed?.();
+        onClosed?.("not_now");
+      }}
+      onDone={() => {
+        // GUIDE-1 (review F1): a POSITIVE choice that closes Byte (e.g. CBQ on the Practice hub
+        // opens the page's own chooser). Closed for this visit like "Check one answer": no
+        // dismissed event, the twice-offered count untouched.
+        try {
+          window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, "1");
+        } catch {
+          /* blocked storage: closed for this mount only */
+        }
+        setClosed(true);
+        onClosed?.("done");
       }}
       onCheckOne={
         checkOneAnswer
@@ -1031,7 +1051,7 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
                 /* blocked storage: closed for this mount only */
               }
               setClosed(true);
-              onClosed?.();
+              onClosed?.("check_one");
               checkOneAnswer();
             }
           : undefined
@@ -1049,6 +1069,7 @@ function StartHereFocusDialog({
   onNotNow,
   checkOne = false,
   onCheckOne,
+  onDone,
   arm = null,
   uid = null,
 }: {
@@ -1058,6 +1079,8 @@ function StartHereFocusDialog({
   /** ACTIVATION-2 A — lead with "Check one answer" (Check & Improve only). */
   checkOne?: boolean;
   onCheckOne?: () => void;
+  /** GUIDE-1 (review F1) — a positive choice closed Byte: no event, no count. */
+  onDone?: () => void;
   /** GUIDE-1 — the A/B arm (null = split off); "guide" puts Byte in this shell. */
   arm?: GuideVariant | null;
   uid?: string | null;
@@ -1208,6 +1231,7 @@ function StartHereFocusDialog({
               plan={guidePlanFor(surface, uid)}
               headingId={headingId}
               onClose={onNotNow}
+              onDone={onDone}
               renderQuick={quickRenderer("start-here-focus", returnTo, onNotNow)}
               onCheckOne={
                 checkOne && onCheckOne
