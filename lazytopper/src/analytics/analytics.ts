@@ -980,6 +980,8 @@ function onboardingData(params: Record<string, unknown>): Record<string, string 
 }
 
 export function trackOnboardingEvent<E extends OnboardingEvent>(name: E, params: OnboardingEventParams[E]): void {
+  // PREVIEW-1 (guide section below): an admin preview session adds nothing to the Start-here funnel.
+  if (String(name).startsWith("start_here_") && guidePreviewOnDevice()) return;
   try {
     const data = onboardingData(params as unknown as Record<string, unknown>);
     send("event", { name, data }, { ga4: data });
@@ -1006,6 +1008,34 @@ export function trackOnboardingEvent<E extends OnboardingEvent>(name: E, params:
  * ------------------------------------------------------------------------- */
 
 export type GuideVariant = "guide" | "control";
+
+/**
+ * PREVIEW-1 — the owner's per-browser guide preview (set only from /admin/students; the reader
+ * and writer live in components/guide/guideVariant.ts, which also drops every guide_* event,
+ * ziggy_reaction and the arm report). Checked HERE so that EVERY `start_here_*` event — the
+ * card's, Byte's quick actions', and `start_here_graded` from the Practice page — is dropped too:
+ * a preview session adds nothing to any Start-here funnel. Valid = `{ arm, until }` with `until`
+ * in the future; the clock is read only when the key exists. Never removes anything (the guide
+ * module owns the key). The literal is pinned equal to GUIDE_PREVIEW_KEY by guidePreview.test.ts.
+ */
+export const GUIDE_PREVIEW_STORAGE_KEY = "lazytopper.guidePreview";
+
+export function guidePreviewOnDevice(): boolean {
+  try {
+    const raw = window.localStorage.getItem(GUIDE_PREVIEW_STORAGE_KEY);
+    if (raw === null) return false;
+    const v = JSON.parse(raw) as { arm?: unknown; until?: unknown } | null;
+    return (
+      !!v &&
+      (v.arm === "guide" || v.arm === "control") &&
+      typeof v.until === "number" &&
+      Number.isFinite(v.until) &&
+      v.until > Date.now()
+    );
+  } catch {
+    return false;
+  }
+}
 export type GuideIntentParam = "cbq" | "chapter" | "papers" | "check_improve" | "default";
 export type ZiggyBand = "full" | "half_plus" | "under_half";
 

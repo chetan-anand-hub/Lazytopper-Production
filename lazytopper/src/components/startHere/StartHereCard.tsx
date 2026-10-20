@@ -21,11 +21,13 @@ import type { DesktopSubject } from "../../lib/desktop/navigation";
 import {
   closeGuideChipForTab,
   guideFocusOpen,
+  guidePreviewActive,
   isGuideChipClosed,
   noteGuideVariantAssigned,
   resolveGuideVariant,
   setGuideFocusOpen,
   subscribeGuideFocus,
+  trackGuideEvent,
   type GuideVariant,
 } from "../guide/guideVariant";
 import { guidePlanFor } from "../guide/guideInputs";
@@ -205,14 +207,18 @@ export function useStartHere(uid?: string | null): StartHereState {
   // The tri-state zero-graded read (./zeroGraded): local first, then ONE cloud ask per uid per tab.
   const graded = useZeroGraded(uid);
   const [dismissed, setDismissed] = useState<boolean>(() => isDismissedThisSession());
+  // PREVIEW-1: an admin preview on this browser relaxes ONLY the zero-graded rule (so the owner
+  // can re-see Byte / the card on a used account). Signed-out and "Not now" are unchanged; with
+  // no preview this is exactly `uid && graded === "none" && !dismissed`.
+  const audience = graded === "none" || (!!uid && guidePreviewActive());
 
   return {
-    visible: !!uid && graded === "none" && !dismissed,
+    visible: !!uid && audience && !dismissed,
     dismiss: () => {
       dismissForSession();
       setDismissed(true);
     },
-    eligible: !!uid && graded === "none",
+    eligible: !!uid && audience,
     uid: uid ?? null,
   };
 }
@@ -286,7 +292,7 @@ function trackShownForArm(
 ): void {
   if (arm !== "guide") todays();
   if (!arm || !uid) return;
-  trackOnboardingEvent("guide_shown", { surface, variant: arm, intent: guidePlanFor(page).intent });
+  trackGuideEvent("guide_shown", { surface, variant: arm, intent: guidePlanFor(page).intent });
   noteGuideVariantAssigned(uid, arm);
 }
 
@@ -399,7 +405,7 @@ function GuideInlineArm({
 
   // The inline card: TODAY's "Not now" semantics and key (per-tab sessionStorage).
   const closeInline = () => {
-    trackOnboardingEvent("guide_dismissed", { surface });
+    trackGuideEvent("guide_dismissed", { surface });
     state.dismiss();
   };
 
@@ -453,7 +459,7 @@ function GuideInlineArm({
     <Suspense key="chip" fallback={null}>
       <LazyGuideChip
         onOpen={() => {
-          trackOnboardingEvent("guide_reopened", { surface });
+          trackGuideEvent("guide_reopened", { surface });
           setSheetOpen(true);
         }}
         onHide={() => {
@@ -1022,7 +1028,7 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
       uid={uid}
       onNotNow={() => {
         // Guide arm: Byte was closed (guide_dismissed); the keys and the twice-offered cap are TODAY's.
-        if (arm === "guide") trackOnboardingEvent("guide_dismissed", { surface: focusSurfaceOf(surface) });
+        if (arm === "guide") trackGuideEvent("guide_dismissed", { surface: focusSurfaceOf(surface) });
         else trackFocus("start_here_dismissed", surface, checkOne);
         recordFocusNotNow(uid);
         setClosed(true);

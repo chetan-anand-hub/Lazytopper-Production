@@ -730,7 +730,11 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "(the single character 1 once Ziggy reacted to this account's first scorecard on this device; " +
       "<tag> is an 8-hex hash of the uid, never the uid). Dev server only, never read by a production " +
       "build: localStorage `lazytopper.guideVariantOverride` (guide or control, to force a test " +
-      "group while developing). None is ever sent anywhere.",
+      "group while developing). PREVIEW-1: plus localStorage `lazytopper.guidePreview` (DEVICE " +
+      "state, not student data: the test group, guide or control, and an expiry time 7 days ahead, " +
+      "set only from the admin Students page so the LazyTopper team can preview Byte on this " +
+      "browser; never the uid; deliberately NOT cleared at sign-out, removed by the admin's Off, " +
+      "on expiry, or by the device erasure sweep). None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
     notes:

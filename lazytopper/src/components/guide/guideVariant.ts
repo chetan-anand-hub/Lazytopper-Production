@@ -25,8 +25,30 @@
  * `localStorage["lazytopper.guideVariantOverride"] = "guide" | "control"` forces an arm, but
  * ONLY in a Vite dev server (`import.meta.env.DEV`); a production build compiles the branch
  * away, so the key is ignored there.
+ *
+ * ── ADMIN PREVIEW (PREVIEW-1) ─────────────────────────────────────────────────────────────
+ * `localStorage["lazytopper.guidePreview"] = { "arm": "guide" | "control", "until": <epoch ms> }`
+ * forces an arm for ANY account signed in on THIS browser until `until` (7 days from when it
+ * was set), in production too. It is written ONLY by the "Guide preview" panel on
+ * /admin/students, which renders only after the server's ADMIN_FIREBASE_UIDS gate answered OK.
+ * It is DEVICE state, not student data: sign-out does not clear it (the owner sets it as admin,
+ * signs out, signs in as a test student). While it is active:
+ *  - the guide's own analytics are SUPPRESSED (every guide_* event, ziggy_reaction, the GA4
+ *    `guide_variant` user property and the `guide_variant_assigned` activity), so a preview
+ *    never lands in the A/B numbers; non-guide events are untouched;
+ *  - Start-here / Byte show even on an account with graded results, and Ziggy reacts on every
+ *    live graded scorecard (no once-per-device marker), each with an "Admin preview" pill.
+ * An expired or malformed value is ignored and removed.
+ *
+ * PRECEDENCE in `resolveGuideVariant`: test seam > admin preview > dev override > uid hash.
  */
-import { trackGuideVariantAssigned, type GuideVariant } from "../../analytics/analytics";
+import {
+  trackGuideVariantAssigned,
+  trackOnboardingEvent,
+  type GuideVariant,
+  type OnboardingEvent,
+  type OnboardingEventParams,
+} from "../../analytics/analytics";
 
 export type { GuideVariant };
 
@@ -88,11 +110,95 @@ function devOverride(): GuideVariant | null {
   }
 }
 
-/** The arm for this signed-in account, or null (signed out, or the split is off). */
+/* ── PREVIEW-1 — the admin's per-browser preview ───────────────────────────────────────── */
+
+export const GUIDE_PREVIEW_KEY = "lazytopper.guidePreview";
+/** How long one "Show Byte" / "Show control" lasts on this browser. */
+export const GUIDE_PREVIEW_MS = 7 * 24 * 60 * 60 * 1000;
+
+export interface GuidePreview {
+  arm: GuideVariant;
+  /** epoch ms; the preview is ignored (and removed) from this instant on. */
+  until: number;
+}
+
+function removePreviewKey(): void {
+  try {
+    window.localStorage.removeItem(GUIDE_PREVIEW_KEY);
+  } catch {
+    /* blocked storage: nothing was stored either */
+  }
+}
+
+/** The valid, unexpired preview on this browser, or null. An expired or malformed value is removed. */
+export function readGuidePreview(now?: number): GuidePreview | null {
+  let raw: string | null;
+  try {
+    raw = window.localStorage.getItem(GUIDE_PREVIEW_KEY);
+  } catch {
+    return null;
+  }
+  // No key (every student's browser): return before the clock is read at all.
+  if (raw === null) return null;
+  const at = now ?? Date.now();
+  try {
+    const v = JSON.parse(raw) as Record<string, unknown> | null;
+    const arm = v && typeof v === "object" ? v.arm : undefined;
+    const until = v && typeof v === "object" ? v.until : undefined;
+    if ((arm === "guide" || arm === "control") && typeof until === "number" && Number.isFinite(until) && until > at) {
+      return { arm, until };
+    }
+  } catch {
+    /* malformed: removed below */
+  }
+  removePreviewKey();
+  return null;
+}
+
+/** True while a valid, unexpired admin preview is set on this browser. */
+export function guidePreviewActive(): boolean {
+  return readGuidePreview() !== null;
+}
+
+/** The admin panel's write: an arm for 7 days from `now`, or null (Off) to remove it. */
+export function setGuidePreview(arm: GuideVariant | null, now: number = Date.now()): GuidePreview | null {
+  if (arm === null) {
+    removePreviewKey();
+    return null;
+  }
+  const p: GuidePreview = { arm, until: now + GUIDE_PREVIEW_MS };
+  try {
+    window.localStorage.setItem(GUIDE_PREVIEW_KEY, JSON.stringify(p));
+  } catch {
+    return null; // blocked storage: no preview
+  }
+  return p;
+}
+
+/**
+ * The arm for this signed-in account, or null (signed out, or the split is off).
+ * Precedence: test seam > admin preview > dev override > uid hash.
+ */
 export function resolveGuideVariant(uid: string | null | undefined): GuideVariant | null {
   if (!uid || !guideAbActive()) return null;
   if (variantOverrideForTests) return variantOverrideForTests;
+  const preview = readGuidePreview();
+  if (preview) return preview.arm;
   return devOverride() ?? guideVariantFor(uid);
+}
+
+/* ── the guide's own analytics (suppressed under an admin preview) ───────────────────────── */
+
+/** Every event the guide owns. Nothing else goes through `trackGuideEvent`. */
+export type GuideEventName = Extract<
+  OnboardingEvent,
+  "guide_shown" | "guide_option" | "guide_dismissed" | "guide_reopened" | "ziggy_reaction"
+>;
+
+/** The guide's events: today's `trackOnboardingEvent`, dropped while an admin preview is active. */
+export function trackGuideEvent<E extends GuideEventName>(name: E, params: OnboardingEventParams[E]): void {
+  if (guidePreviewActive()) return;
+  trackOnboardingEvent(name, params);
 }
 
 /* ── once per account per device: the GA4 user property + the activity name ─────────────── */
@@ -102,6 +208,9 @@ export const GUIDE_VARIANT_SENT_PREFIX = "lazytopper.guideVariant.";
 const sentThisLoad = new Set<string>();
 
 export function noteGuideVariantAssigned(uid: string, variant: GuideVariant): void {
+  // PREVIEW-1: a previewed arm is not this account's arm — report nothing and write no marker,
+  // so the account's REAL arm is still reported once the preview ends.
+  if (guidePreviewActive()) return;
   try {
     const key = GUIDE_VARIANT_SENT_PREFIX + guideAccountTag(uid);
     if (sentThisLoad.has(key)) return;
