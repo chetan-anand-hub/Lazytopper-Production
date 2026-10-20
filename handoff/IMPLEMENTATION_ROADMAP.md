@@ -1,3 +1,12 @@
+## 2026-10-20 (daily) - MEASURE-1 (`#1273`), MOBILE-FIT-1 (`#1275`), FIRST-FEEDBACK-1 (`#1274`) - MERGED
+
+- DONE. `#1273` (`c31b1be4`): `engaged_visit` and `first_graded` events (Vercel + GA4; Meta gets `FirstGraded` only); Meta source labels in Admin Students. Owner check of the events owed.
+- DONE. `#1275` (`482c0ddb`): notes pages fit a phone (nothing cut on the right); narrower phone padding in MobileShell; 84 prerendered pages re-captured. Live on www [docs-builder-curl].
+- DONE. `#1274` (`68970d84`): "Was this useful?" after a student's first graded result, on all six surfaces. Railway deploy + owner live-verify owed.
+- LATE RECORD. CI-COST-3 (`#1271`, `e027751f`) merged 19 Oct, after the 19 Oct daily was written.
+- DEFERRED. `[FU-CI-CLOCK-LEGS-INVESTIGATE]` (owner: separate repo task). NOT PLANNED: FIRST-MINUTE build (owner ruling 20 Oct).
+- OPEN. `[FU-MEASURE-GA4-KEYEVENT]`, `[FU-STUDENTDATAMAP-KEYS]`, `[FU-FIRSTGRADED-TWO-DEFINITIONS]`, `[FU-QP-FIRSTGRADED-ABANDON]`, `[FU-ENGAGED-ADMIN-TIMER]`, `[FU-MOBILE-SHELL-OTHER-PAGES]`, `[FU-NCERT-DEV-ROUTE]`, `[FU-SKILL-LSREMOTE-AUTH]`, `[FU-DUSSEHRA-UTM]`, `[FU-CBQ-SEARCH-BUDGET]`, `[FU-ADS-BALANCE-LOW]`.
+
 ## 2026-10-19 (daily) - CI-COST-2 (`#1265`), PAY-STATUS-1 (`#1266`), START-HERE-ONE-TAP-1 (`#1267`), PARENTS-CTA-1 (`#1268`), HYGIENE-2 (`#1269`), PAY-RECOVER-1 (`#1270`) - MERGED
 
 - DONE. `#1266` (`417393d9`) + `#1270` (`1b4bc035`): payment recovery GAP 5 - `POST /api/pay/status` reconciles a student's own order with Razorpay through the same grant path; the checkout shows "Checking your payment…" instead of a false failure after a signed success, holds Pay while unconfirmed, and refreshes the subscription on return to the tab. Owner live-verify owed (a real payment).

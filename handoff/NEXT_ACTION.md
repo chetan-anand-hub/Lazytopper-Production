@@ -1,3 +1,19 @@
+## 2026-10-20 (daily) - AFTER #1273, #1275, #1274 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. CI-COST-3 `#1271`, listed as "open" in the 19 Oct daily block, merged on 19 Oct at `e027751f` [git/gh]. `[FU-CI-CLOCK-LEGS-INVESTIGATE]` is DEFERRED by the owner as a separate repo task.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
+
+- **Done today [git/gh]:** MEASURE-1 `#1273`, MOBILE-FIT-1 `#1275`, FIRST-FEEDBACK-1 `#1274`. `/version.json` = `482c0ddb` at writing **[docs-builder-curl]**.
+- **Owner, live checks owed:**
+  1. Vercel Events and GA4 Realtime show `engaged_visit` and `first_graded`.
+  2. Deploy the server to Railway (`#1274` adds 5 activity names to `ACTIVITY_EVENTS`). Then, on a fresh phone account: Start-here set -> scorecard -> "Was this useful?" appears once -> tap -> the admin student detail shows the answer.
+  3. `/notes/trigonometry` on Android Chrome: nothing cut on the right.
+  4. Re-request indexing for the changed notes pages on Google and Bing.
+- **Owner decisions owed:** `[FU-DUSSEHRA-UTM]` with the Dussehra wind-down (Wed 21 Oct); `[FU-CBQ-SEARCH-BUDGET]` (separate CBQ Search campaign at INR 300-400 / day); the Ads balance top-up after the funnel is settled (`[FU-ADS-BALANCE-LOW]`); the parents budget decision is PARKED. Confirm the repo is PRIVATE after this PR.
+- **Analytics setup (owner, GA4 / Ads):** `[FU-MEASURE-GA4-KEYEVENT]`.
+- **Not queued:** no FIRST-MINUTE build task (owner ruling 20 Oct; see DECISION_LOG).
+- **Follow-ups:** the 2026-10-20 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Process:** the next handoff is ONE docs PR at the end of the next day with merges (CLAUDE.md section 10).
+
 ## 2026-10-19 (daily) - AFTER #1265 - #1270 (written by the docs builder of the cofounder session under CLAUDE.md section 10, now once a day)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The "Owner ruling owed" item `[FU-OGSVG-FAKE-REVIEWS]` of the #1261-#1263 block is DONE by #1269. Its "repo back to private" note no longer holds: the repo is PUBLIC at writing by owner ruling 19 Oct, to return PRIVATE when the day's PRs are done.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.

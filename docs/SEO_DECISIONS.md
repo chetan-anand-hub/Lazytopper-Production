@@ -87,6 +87,12 @@ claim this rule forbids. Note: PARENTS-CTA-1 (#1268, owner ruling 19 Oct) put th
 "A tutor for doubts, explained step by step" on `/for-parents`; the "never a tutor"
 wording above is open against it as `[FU-C6-TUTOR-WORD]` (handoff board).*
 
+*C6 amended 2026-10-20 (owner ruling): **"Tutor" is allowed as a feature name** — the product's
+own Tutor surface and the `/for-parents` tile keep the word. What stays forbidden is the
+positioning: **never position LazyTopper against human tutors** (tutors are a distribution
+channel, not a competitor). Owner: "if the current naming is not hurting seo then dont change
+anything." Closes `[FU-C6-TUTOR-WORD]`; the "never a 'tutor'" wording above is read with this note.*
+
 ---
 
 ## 3 · SUPERSEDED
