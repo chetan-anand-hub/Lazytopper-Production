@@ -17,15 +17,17 @@ name: Quality Gate
 #   railway-build the ROOT `pnpm run build` exactly as the Railway backend image runs it (Node 24,
 #                 frozen install WITH devDependencies, no .git) — RAILWAY-BUILD-GATE
 #   vitest        the WHOLE vitest suite, sharded 1/4..4/4 (every file runs exactly once)
-#   clock         the date-sensitive manifest + the whole ops matrix, at 2030 and at IST midnight
+#   clock-changed the date-sensitive manifest tests THIS change touched, at 2030 and at IST midnight
+#                 (CI-CLOCK-CUT: replaced the six per-PR `clock (...)` legs; see the job's comment)
 #   quality-gate  the AGGREGATE. Its name is the REQUIRED status check in the trunk ruleset; it
 #                 fails unless every job above passed (or, on the docs path, was skipped BY DESIGN),
 #                 and unless the vitest shards together ran every test file on disk.
 #   nightly-full-clock  nightly (02:00 IST) + manual dispatch: the FULL vitest suite + ops matrix
 #                 under both clocks (schedule restored by FU-CI1-NIGHTLY-RESTORE).
-# NOTHING WAS REMOVED FROM THE FULL BAR. Every test the old single job ran still runs on every
-# full-bar run; only the two clock re-runs of vitest are narrowed to the manifest (the full set
-# runs in nightly-full-clock, every night and on manual dispatch), and lazytopper/scripts/testClock/clockRecorder.setup.mjs fails the normal run if
+# Every test the old single job ran still runs ONCE, at the real date, on every full-bar run. The
+# two clock RE-RUNS are narrowed: on a PR/push only the manifest tests the change touched
+# (clock-changed, CI-CLOCK-CUT 2026-10-22); the FULL suite + ops matrix at both clocks runs in
+# nightly-full-clock, every night and on manual dispatch; and lazytopper/scripts/testClock/clockRecorder.setup.mjs fails the normal run if
 # a test that reads the clock is missing from that manifest.
 #
 # ★★ THE FULL BAR IS STILL THIS PROJECT'S ONLY PRE-MERGE INTEGRATION CHECK, so the classifier is
@@ -414,53 +416,50 @@ jobs:
   # (vitest via src/test/setup.ts; node suites via the --import preload in NODE_OPTIONS). The
   # self-check runs FIRST and exits 1 if the switch is set but not in effect. Read the effective
   # now from the log: "[test-clock] SELF-CHECK OK ... effective now=2030-...".
-  # ★ CI-SPEED-1: vitest here runs ONLY the date-sensitive manifest (date-sensitive-tests.json);
-  # the whole ops matrix still runs. The nightly-full-clock job (nightly + manual dispatch) runs
-  # the FULL vitest suite.
-  clock:
+  # ★★ CI-CLOCK-CUT (owner ruling 2026-10-22, FU-CI-CLOCK-LEGS-INVESTIGATE): the six per-PR
+  # `clock (...)` legs (the whole manifest in two halves + the whole ops matrix, at each clock,
+  # ~22-29 billed min/PR, no product date bug ever caught) are OFF the PR path. What protects dates now:
+  #   - nightly-full-clock (below): the FULL vitest suite + the FULL ops matrix at BOTH clocks,
+  #     every night and on dispatch; a scheduled failure opens an issue;
+  #   - clockRecorder.setup.mjs in every vitest shard: a test that reads the clock but is missing
+  #     from date-sensitive-tests.json fails the normal run;
+  #   - dateSensitive.mjs --guard (build-ops): the static half of that rule;
+  #   - THIS job: at BOTH clocks, the manifest tests this change touched or added to the manifest
+  #     (lazytopper/scripts/ops/ci_clock_changed.mjs). The manifest maps no test to its source, so a
+  #     source-only change is reached by the nightly, not here.
+  # ★ "CLOCK_CHANGED: 0 date-sensitive tests changed" is an HONEST SKIP: printed, and counted as
+  #   success ONLY because nightly-full-clock covers the full suite. A missing base is never a skip:
+  #   the selector exits 1 (if a check matters, its absence must FAIL).
+  clock-changed:
     needs: classify
     if: needs.classify.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
-    strategy:
-      fail-fast: false
-      # Each clock is split in two halves of the manifest. The manifest is ~70% of the suite's test
-      # time (the runtime recorder found product code reading the clock in about half the files), so
-      # one job per clock would be the slowest job of the run.
-      # ★ CI-SPEED-2 (owner order 2026-10-18, wall time): the halves are planned by MEASURED
-      # duration (ci_shard_plan.mjs --source=clock), not `vitest --shard` file counts, and the ops
-      # matrix moved out of part 1 into its OWN leg per clock (part: ops) — part 1 carried both and
-      # was the critical path of every run (~11 min). Same clocks, same files, same ops matrix.
-      matrix:
-        include:
-          - name: '2030'
-            at: '2030-06-15T06:30:00.000Z'
-            part: '1'
-          - name: '2030'
-            at: '2030-06-15T06:30:00.000Z'
-            part: '2'
-          - name: '2030'
-            at: '2030-06-15T06:30:00.000Z'
-            part: ops
-          - name: ist-midnight
-            at: '2030-02-14T18:45:00.000Z'
-            part: '1'
-          - name: ist-midnight
-            at: '2030-02-14T18:45:00.000Z'
-            part: '2'
-          - name: ist-midnight
-            at: '2030-02-14T18:45:00.000Z'
-            part: ops
-    name: clock (${{ matrix.name }} ${{ matrix.part }})
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Fetch PR base branch (for the convergence gate's PR-scoped diff)
+      - name: Fetch PR base branch (for the changed-tests diff)
         if: github.event_name == 'pull_request'
         run: git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+      # None selected -> the selector prints "CLOCK_CHANGED: 0 date-sensitive tests changed" and the
+      # steps below skip: success ONLY because nightly-full-clock covers the full suite at both
+      # clocks. Base unresolvable -> the selector exits 1 and this job FAILS.
+      - name: Select the date-sensitive tests this change touched
+        id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          MERGE_GROUP_BASE_SHA: ${{ github.event.merge_group.base_sha }}
+        run: |
+          set -euo pipefail
+          node lazytopper/scripts/ops/ci_clock_changed.mjs --select > "$RUNNER_TEMP/clock-changed.txt"
+          n="$(grep -c . "$RUNNER_TEMP/clock-changed.txt" || true)"
+          echo "count=${n:-0}" >> "$GITHUB_OUTPUT"
       - name: Enable pnpm (corepack)
+        if: steps.select.outputs.count != '0'
         run: |
           corepack enable
           # Bounded retry: a Node/corepack stream flake (assert(!this.paused)) once failed this step.
@@ -472,30 +471,29 @@ jobs:
           if [ "$ok" -ne 1 ]; then echo "::error::corepack prepare pnpm@10.32.1 failed after 3 attempts"; exit 1; fi
           v="$(pnpm --version)"; echo "$v"; [ "$v" = "10.32.1" ] || { echo "::error::pnpm version $v != 10.32.1"; exit 1; }
       - name: Use Node.js 22
+        if: steps.select.outputs.count != '0'
         uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: pnpm
-      - name: Install ripgrep (required by ops-matrix audits)
-        if: matrix.part == 'ops'
-        run: sudo apt-get update && sudo apt-get install -y ripgrep
       - name: Install workspace (frozen lockfile)
+        if: steps.select.outputs.count != '0'
         run: pnpm install --frozen-lockfile
-      - name: Test clock (date-sensitive manifest + ops matrix, LT_TEST_CLOCK)
-        timeout-minutes: 30
-        env:
-          LT_TEST_CLOCK: ${{ matrix.at }}
+      - name: Date-sensitive tests this change touched, at both clocks (LT_TEST_CLOCK)
+        if: steps.select.outputs.count != '0'
+        timeout-minutes: 15
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          FILES="$(cat "$RUNNER_TEMP/clock-changed.txt")"
           PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
-          NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
-          if [ "${{ matrix.part }}" = "ops" ]; then
-            NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
-          else
-            FILES="$(node lazytopper/scripts/ops/ci_shard_plan.mjs --source=clock --shards=2 --index=${{ matrix.part }})"
-            echo "CLOCK_MANIFEST_FILES (this half): $(printf '%s\n' "$FILES" | wc -l)"
-            NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run $FILES
-          fi
+          rc=0
+          # Both clocks always run; either failing fails the job.
+          for AT in '2030-06-15T06:30:00.000Z' '2030-02-14T18:45:00.000Z'; do
+            echo "CLOCK_CHANGED_RUN: LT_TEST_CLOCK=$AT files=$(printf '%s\n' "$FILES" | wc -l)"
+            LT_TEST_CLOCK="$AT" NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs || { rc=1; continue; }
+            LT_TEST_CLOCK="$AT" NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run $FILES || rc=1
+          done
+          exit "$rc"
 
   # ★ THE REQUIRED CHECK. The trunk ruleset requires a check named exactly `quality-gate`; this
   # job carries that name. `if: always()` so it reports even when an upstream job failed, was
@@ -503,7 +501,7 @@ jobs:
   # upstream job succeeded — or, on the docs path only, the full-bar jobs were skipped — and,
   # on the full bar, unless all 4 vitest shards reported and together ran every test file.
   quality-gate:
-    needs: [classify, docs-lane, static, build-ops, railway-build, vitest, clock]
+    needs: [classify, docs-lane, static, build-ops, railway-build, vitest, clock-changed]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -532,7 +530,8 @@ jobs:
         run: node lazytopper/scripts/ops/ci_aggregate.mjs --aggregate
 
   # The FULL vitest suite and the FULL ops matrix under BOTH clocks — what every PR ran before
-  # CI-SPEED-1 narrowed the clock jobs to the manifest. Every night at 02:00 IST (`schedule:`,
+  # CI-SPEED-1 narrowed the clock jobs to the manifest, and since CI-CLOCK-CUT (2026-10-22) the
+  # ONLY full clock coverage: the per-PR clock legs are gone (clock-changed runs touched tests only). Every night at 02:00 IST (`schedule:`,
   # restored by FU-CI1-NIGHTLY-RESTORE) and on demand (Actions -> Quality Gate -> Run workflow).
   # Only a SCHEDULED failure opens an issue; a dispatch run reports in its own run page.
   nightly-full-clock:

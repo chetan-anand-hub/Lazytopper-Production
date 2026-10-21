@@ -10,7 +10,7 @@
  * skipped shard. So this FAILS CLOSED:
  *
  *   classify, docs-lane            must be `success`, always.
- *   static, build-ops, railway-build, vitest, clock
+ *   static, build-ops, railway-build, vitest, clock-changed
  *       (railway-build: the root build exactly as the Railway image runs it — RAILWAY-BUILD-GATE)
  *       docs-only path (classify said docs_only=true)  -> must be `skipped` (skipped BY DESIGN)
  *       anything else                                   -> must be `success`
@@ -31,7 +31,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ANCHOR = path.resolve(HERE, "..", ".."); // lazytopper/
 
 export const ALWAYS_JOBS = Object.freeze(["classify", "docs-lane"]);
-export const FULL_BAR_JOBS = Object.freeze(["static", "build-ops", "railway-build", "vitest", "clock"]);
+// CI-CLOCK-CUT (2026-10-22): `clock` (six per-PR legs) became `clock-changed` (one job, the manifest
+// tests this change touched, at both clocks). It is judged exactly as `clock` was.
+export const FULL_BAR_JOBS = Object.freeze(["static", "build-ops", "railway-build", "vitest", "clock-changed"]);
 
 /** Count the vitest files the default run collects (vitest.config.ts include: src/**\/*.test.{ts,tsx}). */
 export function countTestFilesOnDisk(anchor = ANCHOR) {
