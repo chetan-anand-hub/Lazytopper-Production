@@ -1,7 +1,8 @@
 /**
  * ASK-PARENTS-PAY-1 — where the two halves mount on /pricing.
  *
- *   "Ask your parents to pay": signed-in, hydrated, NOT Premium (Basic or trial), flags on.
+ *   "Share QR code" / "Forward link to parents" (PAYWALL-PAY-1): signed-in, hydrated, NOT
+ *   Premium (Basic or trial), flags on.
  *   The parent's page: `/pricing#pp=<token>` with flags on. Otherwise the plans page exactly
  *   as before — with the flags off a pay-link address is just /pricing.
  */
@@ -85,17 +86,23 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("PricingPage — Ask your parents to pay", () => {
+describe("PricingPage — Share QR code / Forward link to parents (PAYWALL-PAY-1)", () => {
   it.each([
     ["Basic", FREE],
     ["trial", TRIAL],
-  ])("shown to a signed-in %s student when switched on", async (_label, sub) => {
+  ])("shown to a signed-in %s student when switched on — next to the passes' own Pay buttons", async (_label, sub) => {
     flags(true);
     authState.user = { uid: UID };
     cloudHolds(sub);
     await renderAt("/pricing");
-    expect(await screen.findByTestId("ask-parents")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Ask your parents to pay" })).toBeInTheDocument();
+    expect(await screen.findByTestId("pricing-parent-share")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Share QR code" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Forward link to parents" })).toBeInTheDocument();
+    // "Pay" on /pricing is the pass tiles' own buttons — never a second, separate Pay.
+    expect(screen.queryByTestId("paywall-pay")).toBeNull();
+    expect(screen.getAllByRole("button", { name: /^Pay / }).length).toBeGreaterThan(0);
+    // ★ The owner's ruling: never the word "Ask" next to parents.
+    expect(document.body.textContent || "").not.toMatch(/\bask\b[^.]*parent/i);
   });
 
   it("never shown to a Premium student", async () => {
@@ -104,20 +111,21 @@ describe("PricingPage — Ask your parents to pay", () => {
     cloudHolds(PREMIUM);
     await renderAt("/pricing");
     await screen.findByText("Premium is active.");
-    expect(screen.queryByTestId("ask-parents")).toBeNull();
+    expect(screen.queryByTestId("pricing-parent-share")).toBeNull();
   });
 
   it("never shown signed out, nor while switched off", async () => {
     flags(true);
     await renderAt("/pricing");
-    expect(screen.queryByTestId("ask-parents")).toBeNull();
+    expect(screen.queryByTestId("pricing-parent-share")).toBeNull();
     cleanup();
     flags(false);
     authState.user = { uid: UID };
     cloudHolds(FREE);
     await renderAt("/pricing");
     await screen.findByRole("heading", { level: 1, name: "Simple, Student-Friendly Plans" });
-    expect(screen.queryByTestId("ask-parents")).toBeNull();
+    expect(screen.queryByTestId("pricing-parent-share")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Share QR code" })).toBeNull();
   });
 });
 

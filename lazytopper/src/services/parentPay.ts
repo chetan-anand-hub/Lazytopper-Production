@@ -1,5 +1,6 @@
 /**
- * parentPay — the browser half of "Ask your parents to pay" (ASK-PARENTS-PAY-1).
+ * parentPay — the browser half of parent pay (ASK-PARENTS-PAY-1): the link a student sends
+ * with "Share QR code" / "Forward link to parents" (PAYWALL-PAY-1), and the parent's page.
  *
  * ★★ DARK BY DEFAULT. `isParentPayClientEnabled()` is false unless BOTH build flags
  * `VITE_PAYMENTS_ENABLED` and `VITE_PARENT_PAY_ENABLED` are on. The server has its own pair.

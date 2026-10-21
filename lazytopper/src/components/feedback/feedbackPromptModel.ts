@@ -53,7 +53,9 @@ export type FeedbackReason = ImproveReason | FirstGradedAnswer;
 /** In the order the student sees them. Copy per owner ruling 18 Oct 2026. */
 export const FEEDBACK_REASONS: ReadonlyArray<{ code: ImproveReason; label: string }> = [
   { code: "not_tried", label: "I haven't tried checking an answer yet" },
-  { code: "ask_parents", label: "I need to ask my parents" },
+  // PAYWALL-PAY-1 (owner ruling 22 Oct 2026): never the word "Ask" in parent text. The
+  // stored code is unchanged, so earlier answers keep counting under the same name.
+  { code: "ask_parents", label: "My parents need to decide" },
   { code: "price", label: "The price is too high for me right now" },
   { code: "not_enough_help", label: "It didn't help me enough yet" },
   { code: "boards_far", label: "Boards still feel far away" },

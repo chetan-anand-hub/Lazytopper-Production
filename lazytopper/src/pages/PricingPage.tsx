@@ -28,7 +28,7 @@ import {
 } from "../config/pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import PassCheckout from "../components/pricing/PassCheckout";
-import AskParents from "../components/pricing/AskParents";
+import PaywallActions, { trackPricingPayTap } from "../components/pricing/PaywallActions";
 import ParentPayPanel from "../components/pricing/ParentPayPanel";
 import { isParentPayClientEnabled, readParentPayToken } from "../services/parentPay";
 import {
@@ -1498,7 +1498,9 @@ function PricingPlansPage() {
                   placed into the tiles by class (P23). Payments dark (VITE_PAYMENTS_ENABLED
                   unset): the tiles carry the prices only, and the exact manual-activation
                   paragraph (RAZORPAY-1 · P7) stands where the Pay buttons would be. */}
-              <div className="lt-pricing-passes" data-testid="pricing-passes">
+              {/* PAYWALL-PAY-1 — a tap on either pass's Pay button is the "pay" paywall action
+                  (capture phase, so PassCheckout is untouched; a disabled button fires nothing). */}
+              <div className="lt-pricing-passes" data-testid="pricing-passes" onClickCapture={trackPricingPayTap}>
                 <div className="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true" />
                 <div className="lt-pricing-pass-bg lt-pricing-pass-bg--boards" aria-hidden="true" />
                 <div className="lt-pricing-pass lt-pricing-pass--month">
@@ -1533,9 +1535,15 @@ function PricingPlansPage() {
                 {showTrialFootnote && <p className="lt-pricing-card-foot">{PREMIUM_FOOTNOTE}</p>}
                 {/* L2 — the P17 trial states, below the tiles. */}
                 <div className="lt-pricing-trial-slot">{premiumTrialAction}</div>
-                {/* ASK-PARENTS-PAY-1 — a signed-in student on a trial or Basic (never Premium)
-                    can send a parent a pay link. Renders nothing while parent pay is dark. */}
-                {user && subscription.hydrated && subscription.status.tier !== "premium" && <AskParents />}
+                {/* ASK-PARENTS-PAY-1 / PAYWALL-PAY-1 — a signed-in student on a trial or Basic
+                    (never Premium) can send a parent the pay link: "Share QR code" and
+                    "Forward link to parents". "Pay" is the pass tiles' own Pay buttons above.
+                    Renders nothing while parent pay is dark. */}
+                {user && subscription.hydrated && subscription.status.tier !== "premium" && paymentsOn && isParentPayClientEnabled() && (
+                  <div className="lt-parent-share" data-testid="pricing-parent-share">
+                    <PaywallActions surface="pricing" />
+                  </div>
+                )}
               </div>
             </div>
           </div>
