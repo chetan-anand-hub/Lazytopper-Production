@@ -90,8 +90,10 @@ export function resolveBaseSpec(env = {}) {
     if (!SHA.test(b) || ZERO_SHA.test(b)) return { mode: "fail", reason: `merge_group with no usable base_sha ("${b}")` };
     return { mode: "diff", base: b, reason: `merge group range ${b.slice(0, 12)}..HEAD` };
   }
-  if (event === "workflow_dispatch") {
-    return { mode: "na", reason: "workflow_dispatch: nightly-full-clock in this same run covers the FULL suite at both clocks" };
+  // schedule: review 2026-10-22 — classify routes schedule to the nightly path today, but a forced full bar
+  // (CI_FORCE_FULL_BAR) would run this job on schedule; nightly-full-clock in the same run covers it, so N/A, never a false red.
+  if (event === "workflow_dispatch" || event === "schedule") {
+    return { mode: "na", reason: `${event}: nightly-full-clock in this same run covers the FULL suite at both clocks` };
   }
   return { mode: "fail", reason: `event=${event || "(unset)"} has no defined base for clock-changed` };
 }

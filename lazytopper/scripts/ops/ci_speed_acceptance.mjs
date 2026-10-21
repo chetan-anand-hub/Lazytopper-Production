@@ -263,12 +263,14 @@ export const REAL_COMMITS = [
     const mg = resolveBaseSpec({ EVENT_NAME: "merge_group", MERGE_GROUP_BASE_SHA: "b".repeat(40) });
     const mgNone = resolveBaseSpec({ EVENT_NAME: "merge_group" });
     const disp = resolveBaseSpec({ EVENT_NAME: "workflow_dispatch" });
+    const sched = resolveBaseSpec({ EVENT_NAME: "schedule" });
     const unknown = resolveBaseSpec({ EVENT_NAME: "" });
     check("k2_a_missing_base_fails_never_skips",
       pr.mode === "diff" && pr.baseRef === "base/approved-thru-437" && push.mode === "diff" && mg.mode === "diff" &&
         prNoBase.mode === "fail" && pushZero.mode === "fail" && pushNone.mode === "fail" && mgNone.mode === "fail" &&
-        unknown.mode === "fail" && disp.mode === "na" && /nightly-full-clock/.test(disp.reason),
-      "PR without BASE_REF, push without/zero before, merge group without base_sha, unknown event: FAIL; dispatch: N/A (nightly-full-clock runs in the same run)");
+        unknown.mode === "fail" && disp.mode === "na" && /nightly-full-clock/.test(disp.reason) &&
+        sched.mode === "na" && /nightly-full-clock/.test(sched.reason),
+      "PR without BASE_REF, push without/zero before, merge group without base_sha, unknown event: FAIL; dispatch and schedule: N/A (nightly-full-clock runs in the same run)");
   }
   {
     // Live: the selector against THIS checkout. On CI's PR run it measures the real PR; locally

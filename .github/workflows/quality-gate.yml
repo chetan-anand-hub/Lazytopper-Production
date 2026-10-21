@@ -491,6 +491,7 @@ jobs:
           for AT in '2030-06-15T06:30:00.000Z' '2030-02-14T18:45:00.000Z'; do
             echo "CLOCK_CHANGED_RUN: LT_TEST_CLOCK=$AT files=$(printf '%s\n' "$FILES" | wc -l)"
             LT_TEST_CLOCK="$AT" NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs || { rc=1; continue; }
+            # $FILES is deliberately unquoted (word-split into paths): no manifest path contains a space (review 2026-10-22).
             LT_TEST_CLOCK="$AT" NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run $FILES || rc=1
           done
           exit "$rc"
