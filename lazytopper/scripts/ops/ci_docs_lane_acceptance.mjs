@@ -474,6 +474,9 @@ const FULL_BAR_STEPS = [
   "Vitest suites",
   // CI-SPEED-1: the date-sensitive selection guard is full-bar work like every step above.
   "Date-sensitive clock selection guard",
+  // CI-CLOCK-CUT: the per-PR clock run of the manifest tests a change touched (job clock-changed).
+  "Select the date-sensitive tests this change touched",
+  "Date-sensitive tests this change touched",
 ];
 
 // CI-SPEED-1: gating moved from every step to every full-bar JOB (job-level `if:`).
@@ -602,7 +605,7 @@ function runSuite(mutation) {
   {
     const agg = jobs.find((j) => j.id === "quality-gate");
     const docsLane = jobs.find((j) => j.id === "docs-lane");
-    const needsOk = Boolean(agg) && /needs:\s*\[classify, docs-lane, static, build-ops, railway-build, vitest, clock\]/.test(agg.block);
+    const needsOk = Boolean(agg) && /needs:\s*\[classify, docs-lane, static, build-ops, railway-build, vitest, clock-changed\]/.test(agg.block);
     check("a12b_the_required_check_is_an_always_running_aggregate",
       Boolean(agg) && agg.jobIf === "always()" && needsOk && /ci_aggregate\.mjs --aggregate/.test(agg.block) &&
         Boolean(docsLane) && docsLane.jobIf === "",

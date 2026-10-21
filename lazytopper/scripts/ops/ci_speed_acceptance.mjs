@@ -6,7 +6,7 @@
  *   (b) the date-sensitive manifest - static guard + the runtime recorder's call-site filter;
  *   (c) the aggregate behind the REQUIRED `quality-gate` check - fails closed on any failed,
  *       skipped or cancelled job and on shards that do not cover every test file;
- *   (d) the workflow wiring - shards, clock jobs, nightly full run, concurrency;
+ *   (d) the workflow wiring - shards, the clock-changed job (CI-CLOCK-CUT), nightly full run, concurrency;
  *   (e) search-ping's deploy-inert skip (searchping_inert_skip.mjs) - skips ONLY when what www
  *       serves is an ancestor and the whole range is deploy-inert by verdictForFiles; every other
  *       case (code in range, not an ancestor, unreadable live, git error) waits;
@@ -27,6 +27,7 @@ import { guard, dateSignalsIn, enumerateVitestFiles, readList, scan } from "../t
 import { planShards, readDurations, substringCollisions } from "./ci_shard_plan.mjs";
 import { isRepoFrame } from "../testClock/clockRecorderFrames.mjs";
 import { FULL_BAR_JOBS, evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
+import { ZERO_LINE, resolveBaseSpec, selectClockChanged } from "./ci_clock_changed.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ANCHOR = path.resolve(HERE, "..", "..");
@@ -176,19 +177,19 @@ export const REAL_COMMITS = [
 {
   const ok = { result: "success" };
   const skip = { result: "skipped" };
-  const fullNeeds = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, clock: ok };
+  const fullNeeds = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, "clock-changed": ok };
   const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
   const green = evaluate({ needs: fullNeeds, docsOnly: "false", shards, expectedShards: 4, filesOnDisk: 40 });
   check("g1_full_bar_all_green_passes", green.ok && green.totals.files === 40 && green.totals.tests === 400, green.problems.join("; "));
   const oneFailed = evaluate({ needs: { ...fullNeeds, vitest: { result: "failure" } }, docsOnly: "false", shards, filesOnDisk: 40 });
-  const oneSkipped = evaluate({ needs: { ...fullNeeds, clock: skip }, docsOnly: "false", shards, filesOnDisk: 40 });
+  const oneSkipped = evaluate({ needs: { ...fullNeeds, "clock-changed": skip }, docsOnly: "false", shards, filesOnDisk: 40 });
   const oneCancelled = evaluate({ needs: { ...fullNeeds, static: { result: "cancelled" } }, docsOnly: "false", shards, filesOnDisk: 40 });
   check("g2_a_failed_skipped_or_cancelled_upstream_job_fails_the_aggregate", !oneFailed.ok && !oneSkipped.ok && !oneCancelled.ok);
   const missingShard = evaluate({ needs: fullNeeds, docsOnly: "false", shards: shards.slice(0, 3), filesOnDisk: 30 });
   const droppedFile = evaluate({ needs: fullNeeds, docsOnly: "false", shards, filesOnDisk: 41 });
   const skippedTest = evaluate({ needs: fullNeeds, docsOnly: "false", shards: [...shards.slice(0, 3), { ...shards[3], skipped: 1 }], filesOnDisk: 40 });
   check("g3_shards_must_all_report_cover_every_file_and_skip_nothing", !missingShard.ok && !droppedFile.ok && !skippedTest.ok);
-  const docsNeeds = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, clock: skip };
+  const docsNeeds = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, "clock-changed": skip };
   const docsGreen = evaluate({ needs: docsNeeds, docsOnly: "true" });
   const docsMojibakeRed = evaluate({ needs: { ...docsNeeds, "docs-lane": { result: "failure" } }, docsOnly: "true" });
   const fullButSkipped = evaluate({ needs: docsNeeds, docsOnly: "false", shards, filesOnDisk: 40 });
@@ -214,16 +215,74 @@ export const REAL_COMMITS = [
   check("w2_concurrency_separates_events",
     /group:\s*quality-gate-\$\{\{\s*github\.event_name\s*\}\}-\$\{\{\s*github\.ref\s*\}\}/.test(wf),
     "a nightly/dispatched run must never cancel (or be cancelled by) a trunk push run");
-  const clock = jobBlock("clock");
-  // ★ CI-SPEED-2: per clock, two duration-planned halves of the manifest + one ops-matrix leg.
-  const count = (re) => (clock.match(re) || []).length;
-  check("w3_clock_jobs_run_the_manifest_and_the_whole_ops_matrix",
-    clock.includes("ci_shard_plan.mjs --source=clock --shards=2 --index=${{ matrix.part }}") &&
-      clock.includes("pnpm --filter lazytopper exec vitest run $FILES") &&
-      count(/\n            part: '1'\n/g) === 2 && count(/\n            part: '2'\n/g) === 2 && count(/\n            part: ops\n/g) === 2 &&
-      /if \[ "\$\{\{ matrix\.part \}\}" = "ops" \]; then\n\s+NODE_OPTIONS="\$PRELOAD" pnpm --filter lazytopper run test:matrix:all\n/.test(clock) &&
-      /selfCheck\.mjs/.test(clock) && count(/2030-06-15T06:30:00\.000Z/g) === 3 && count(/2030-02-14T18:45:00\.000Z/g) === 3,
-    "each clock: manifest halves 1 and 2 (planned by duration) + the whole ops matrix in its own leg");
+  // ★★ CI-CLOCK-CUT (owner ruling 2026-10-22): the six per-PR `clock (...)` legs are GONE; ONE job,
+  //   clock-changed, runs at BOTH clocks only the manifest tests the change touched (selector:
+  //   ci_clock_changed.mjs). The full suite + ops matrix at both clocks is nightly-full-clock (w4).
+  const cc = jobBlock("clock-changed");
+  const ccCode = cc.replace(/^\s*#.*$/gm, "");
+  const agg = jobBlock("quality-gate");
+  const aggNeeds = ((agg.match(/^ {4}needs:\s*\[([^\]]*)\]/m) || [])[1] || "").split(",").map((x) => x.trim());
+  check("w3_per_pr_clock_legs_removed_and_clock_changed_runs_touched_tests_at_both_clocks",
+    jobBlock("clock") === "" && !/ci_shard_plan\.mjs --source=clock/.test(wf) &&
+      /^ {4}needs: classify$/m.test(cc) && /^ {4}if: needs\.classify\.outputs\.docs_only != 'true'$/m.test(cc) &&
+      /fetch-depth: 0/.test(cc) && /git fetch --no-tags origin "\+refs\/heads\/\$\{\{ github\.base_ref \}\}/.test(cc) &&
+      /set -euo pipefail\n\s+node lazytopper\/scripts\/ops\/ci_clock_changed\.mjs --select > /.test(ccCode) &&
+      !/ci_clock_changed\.mjs --select[^\n]*\|\|/.test(ccCode) &&
+      /EVENT_BEFORE: \$\{\{ github\.event\.before \}\}/.test(cc) &&
+      /MERGE_GROUP_BASE_SHA: \$\{\{ github\.event\.merge_group\.base_sha \}\}/.test(cc) &&
+      /for AT in '2030-06-15T06:30:00\.000Z' '2030-02-14T18:45:00\.000Z'; do/.test(ccCode) &&
+      /selfCheck\.mjs/.test(ccCode) && /pnpm --filter lazytopper exec vitest run \$FILES/.test(ccCode) &&
+      /exit "\$rc"/.test(ccCode) &&
+      FULL_BAR_JOBS.includes("clock-changed") && !FULL_BAR_JOBS.includes("clock") &&
+      aggNeeds.includes("clock-changed") && !aggNeeds.includes("clock") &&
+      /0 date-sensitive tests changed/.test(cc) && /nightly-full-clock covers/.test(cc),
+    "no `clock` job; clock-changed: full-bar gated, base fetched, selector fail-closed (no ||), both clocks, self-check, judged by the aggregate");
+  // The selector, pure. A change to a manifest test selects it; a test ADDED to the manifest
+  // selects it; a non-manifest or deleted test does not; nothing relevant selects NOTHING.
+  {
+    const manifest = ["src/a.test.ts", "src/b.test.tsx", "src/gone.test.ts"];
+    const existing = ["src/a.test.ts", "src/b.test.tsx", "src/c.test.ts", "src/new.test.ts"];
+    const sel = (changedFiles, manifestHead = manifest, manifestBase = manifest) =>
+      selectClockChanged({ changedFiles, manifestHead, manifestBase, existing }).files;
+    const one = sel(["lazytopper/src/a.test.ts", "lazytopper/src/c.test.ts", "handoff/X.md"]);
+    const added = sel(["lazytopper/scripts/testClock/date-sensitive-tests.json"], [...manifest, "src/new.test.ts"]);
+    const none = sel(["lazytopper/src/pages/Home.tsx", "lazytopper/src/c.test.ts", ".github/workflows/quality-gate.yml"]);
+    const deleted = sel(["lazytopper/src/gone.test.ts"]);
+    check("k1_selector_picks_changed_and_newly_listed_manifest_tests_only",
+      JSON.stringify(one) === JSON.stringify(["src/a.test.ts"]) &&
+        JSON.stringify(added) === JSON.stringify(["src/new.test.ts"]) &&
+        none.length === 0 && deleted.length === 0 && ZERO_LINE === "CLOCK_CHANGED: 0 date-sensitive tests changed",
+      `changed=[${one}] added=[${added}] none=[${none}] deleted=[${deleted}]`);
+  }
+  {
+    const pr = resolveBaseSpec({ EVENT_NAME: "pull_request", BASE_REF: "base/approved-thru-437" });
+    const prNoBase = resolveBaseSpec({ EVENT_NAME: "pull_request", BASE_REF: "" });
+    const push = resolveBaseSpec({ EVENT_NAME: "push", EVENT_BEFORE: "a".repeat(40) });
+    const pushZero = resolveBaseSpec({ EVENT_NAME: "push", EVENT_BEFORE: "0".repeat(40) });
+    const pushNone = resolveBaseSpec({ EVENT_NAME: "push" });
+    const mg = resolveBaseSpec({ EVENT_NAME: "merge_group", MERGE_GROUP_BASE_SHA: "b".repeat(40) });
+    const mgNone = resolveBaseSpec({ EVENT_NAME: "merge_group" });
+    const disp = resolveBaseSpec({ EVENT_NAME: "workflow_dispatch" });
+    const sched = resolveBaseSpec({ EVENT_NAME: "schedule" });
+    const unknown = resolveBaseSpec({ EVENT_NAME: "" });
+    check("k2_a_missing_base_fails_never_skips",
+      pr.mode === "diff" && pr.baseRef === "base/approved-thru-437" && push.mode === "diff" && mg.mode === "diff" &&
+        prNoBase.mode === "fail" && pushZero.mode === "fail" && pushNone.mode === "fail" && mgNone.mode === "fail" &&
+        unknown.mode === "fail" && disp.mode === "na" && /nightly-full-clock/.test(disp.reason) &&
+        sched.mode === "na" && /nightly-full-clock/.test(sched.reason),
+      "PR without BASE_REF, push without/zero before, merge group without base_sha, unknown event: FAIL; dispatch and schedule: N/A (nightly-full-clock runs in the same run)");
+  }
+  {
+    // Live: the selector against THIS checkout. On CI's PR run it measures the real PR; locally
+    // (no EVENT_NAME) it must FAIL closed — the fail-closed half proven on the real script.
+    const r = (() => {
+      try {
+        return { code: 0, out: execFileSync(process.execPath, [path.join(HERE, "ci_clock_changed.mjs"), "--select"],
+          { cwd: REPO_ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, EVENT_NAME: "", GITHUB_EVENT_NAME: "" } }) };
+      } catch (e) { return { code: e.status, out: String(e.stderr || "") }; }
+    })();
+    check("k3_real_selector_exits_1_without_an_event_base", r.code === 1 && /CLOCK_CHANGED_FAIL/.test(r.out), `exit=${r.code}`);
+  }
   const nightly = jobBlock("nightly-full-clock");
   check("w4_nightly_job_runs_the_full_suites_under_both_clocks_and_opens_an_issue",
     /if: github\.event_name == 'schedule' \|\| github\.event_name == 'workflow_dispatch'/.test(nightly) &&
@@ -380,8 +439,8 @@ function railwayBuildPins(wfText) {
   const ok = { result: "success" };
   const skip = { result: "skipped" };
   const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
-  const full = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, clock: ok };
-  const docs = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, clock: skip };
+  const full = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, "clock-changed": ok };
+  const docs = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, "clock-changed": skip };
   const { "railway-build": _absent, ...missing } = full;
   const pass = (needs, docsOnly) => evaluate({ needs, docsOnly, shards, expectedShards: 4, filesOnDisk: 40 }).ok;
   check("r_aggregate_judges_railway_build",
