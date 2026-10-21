@@ -1,3 +1,27 @@
+## 2026-10-20 (daily, part 2) - #1277 GUIDE-1, #1278 RIG-2, #1279 PREVIEW-1, #1280 MI-VOICE-1, #1281 GUIDE-PUBLIC-1, #1282 MUMMY-1, #1283 PARENTS-NAV-1: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The owner decisions of 20-21 Oct and the ops changes as relayed in the coordinator's dispatch message, and the lanes' own build decisions as written in the squash commits on trunk, each with its reason. Where no reason was given, none is invented.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner, 20-21 Oct 2026: **mascot roles** | Byte = guide, Ziggy = student, Mummy = parent pages only; one character per screen; English + light Hinglish | no reason was given in the dispatch |
+| owner, 20 Oct 2026: **picker kept** | "5 quick questions" opens the existing Start-here ready state + picker (<= 2 taps); GUIDE-1 cites "owner 15:10" for this [git/gh] | no reason was given in the dispatch |
+| owner, 20-21 Oct 2026: **mascots across the product** | keep the 50/50 test for 2 weeks, then roll out | no reason was given in the dispatch |
+| owner, 20-21 Oct 2026: **mute per DEVICE** | saved per device, not per account; "Hide mascots" on every bubble + a switch in Me; muted = no characters, facts and buttons stay (to be built in MUTE-1) | no reason was given in the dispatch |
+| owner, 20-21 Oct 2026: **four mistake types, never three** | concept gap, calculation slip, silly slip, presentation; mascot copy never folds calculation into "careless". Shipped `#1280` copy conflicts: `[FU-MIVOICE-CARELESS-FOLDS-CALCULATION]` | no reason was given in the dispatch |
+| owner, 20 Oct 2026: **price on `/for-parents`** | a visible link to `/pricing`, no rupee figure on the page (built in `#1283`) | no reason was given in the dispatch |
+| owner, 20 Oct 2026: **notes SEO is DONE** | `#1206` (NCERT codes in titles), `#1184`, `#1171` / `#1182`, `#1221` / `#1226`; not reported as pending again | no reason was given in the dispatch |
+| owner, 20 Oct 2026: **parents ad budget still PARKED** | no change | no reason was given in the dispatch |
+| owner, 20 Oct 2026: **MI everywhere** | CLAUDE.md section 5 corrected in this PR: MI renders contextually on every surface (every grading surface's scorecard, Me / Progress, Practice hub, Worksheet, Home, the tutor, the desktop sidebar); the ONE exception is the Topic Hub page body. Replaces "MI is navy-sidebar chrome ONLY" | the owner's 3 Aug ruling locked contextual MI everywhere; re-confirmed by the owner 20 Oct ("MI is the soul of the product"). The old wording came from the Topic Hub rebuild `#270` / `#271` and was stale |
+| owner, 21 Oct 2026: **partner admin access** | the owner's partner (Pallabi) added to Railway `ADMIN_FIREBASE_UIDS` (full admin) and invited as a Vercel Viewer; her uid / email are not written into the repo | no reason was given in the dispatch; full admin because a read-only admin role does not exist (`[FU-ADMIN-READONLY-ROLE]`) |
+| ads, 20 Oct 2026 (no budget change) | negatives, ages, audience segment; new ad group "Parents – CBQ Electricity Short"; Demand Gen Parents on Discover + Gmail; Dussehra `utm_content` fixed to `dussehra_moms_check_improve` / `dussehra_moms_for_parents` | the Dussehra fix closes `[FU-DUSSEHRA-UTM]` (visits were credited to `navratri_dandiya`); no other reason was given |
+| #1277: A/B by uid hash; control byte-identical | `fmix32(FNV-1a("guide-1:"+uid)) % 2`; split off under Vitest unless a test turns it on | no reason beyond the build decision is given in the commit body |
+| #1277: Tutor option only with Premium or an active trial | `loadSubscription` + `isPremiumAccess` | "Tutor only when it opens" (commit title v1.1) |
+| #1279: preview suppresses guide and `start_here_*` events | every `guide_*`, `ziggy_reaction`, `guide_variant`, `guide_variant_assigned`, `start_here_*` dropped while a preview is on | no reason beyond the change is given in the commit body (the `start_here_*` part is review fix F1) |
+| #1281: signed-out arm is per DEVICE | `lazytopper.guidePublicArm` via `crypto.getRandomValues` | no reason beyond the build decision is given in the commit body |
+| #1282: Mummy's words in the prerendered HTML, SVG drawn after idle | beats' text server-rendered; drawing client-side, never in an automated browser | "the prerender capture renders twice" (commit body) |
+| #1282: honest beat-4 copy | "One tap opens WhatsApp with a message and a link. Your child tries a free check on their own phone." | review F1: the beat says what the button does |
+
 ## 2026-10-20 (daily) - #1273 MEASURE-1, #1275 MOBILE-FIT-1, #1274 FIRST-FEEDBACK-1: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner rulings of 20 Oct and the ads changes as relayed in the coordinator's dispatch message, and the lanes' own build decisions as written in the squash commits on trunk, each with its reason. Where the dispatch gave no reason, none is invented.

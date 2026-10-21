@@ -1,3 +1,16 @@
+## 2026-10-20 (daily, part 2) - GUIDE-1 (`#1277`), RIG-2 (`#1278`), PREVIEW-1 (`#1279`), MI-VOICE-1 (`#1280`), GUIDE-PUBLIC-1 (`#1281`), MUMMY-1 (`#1282`), PARENTS-NAV-1 (`#1283`) - MERGED
+
+- DONE. `#1277` (`69f09239`): Byte replaces Start-here for new students (50/50 A/B by uid hash); Ziggy on the first scorecard only. A/B re-read after a week; roll out after 2 weeks (owner ruling 20-21 Oct).
+- DONE. `#1278` (`606ce86d`): full cast in the SVG rig (31 brief poses, Mummy, props as paths, `bagLabel`). Drawing only.
+- DONE. `#1279` (`98600e3d`): admin-only guide preview switch on `/admin/students` (Off / Show Byte / Show control, 7 days, this browser).
+- DONE. `#1280` (`6b4cb9df`): MI moments - Ziggy / Byte voice the desktop sidebar MI card (guide arm). Copy question owed: `[FU-MIVOICE-CARELESS-FOLDS-CALCULATION]`.
+- DONE. `#1281` (`5ea430ce`): Byte peeks in on public `/notes/*` and `/topic-hub/:topicName` (device-arm A/B).
+- DONE. `#1282` (`6c21ea48`): Mummy's 4-beat journey on `/for-parents`.
+- DONE. `#1283` (`1c8e9d70`): "See the price" link on `/for-parents`; "← Back to parents page" on every destination. Live on www at writing [docs-builder-curl].
+- DONE (record). Notes SEO is complete (`#1206`, `#1184`, `#1171` / `#1182`, `#1221` / `#1226`) - owner ruling 20 Oct.
+- NEXT (queued, in order) [coordinator]: MUTE-1 + SCORECARD-VOICE (pending the owner's OK on the student-journey plan), EXAM-MOMENTS, NAVIGATE, ME-VOICE + mobile MI (after `[FU-MOBILE-MI-REAL-DATA]`), JOURNEY, tutor face / pricing.
+- OPEN. `[FU-GUIDE1-DEPLOY-GAP]`, `[FU-GUIDE-EVENTS-NOT-SERVER]`, `[FU-GUIDE-STORAGE-KEYS]`, `[FU-GUIDECHUNK-STALE-COMMENT]`, `[FU-PARENTS-DOUBLE-BACKLINK]`, `[FU-PARENT-FLAG-TAB-LIFETIME]`, `[FU-GUIDE-PUBLIC-ARM-NOT-SENT]`, `[FU-ADMIN-READONLY-ROLE]`, `[FU-MIVOICE-CARELESS-FOLDS-CALCULATION]`, `[FU-MI-DOCTRINE-STALE-COMMENTS]`.
+
 ## 2026-10-20 (daily) - MEASURE-1 (`#1273`), MOBILE-FIT-1 (`#1275`), FIRST-FEEDBACK-1 (`#1274`) - MERGED
 
 - DONE. `#1273` (`c31b1be4`): `engaged_visit` and `first_graded` events (Vercel + GA4; Meta gets `FirstGraded` only); Meta source labels in Admin Students. Owner check of the events owed.
