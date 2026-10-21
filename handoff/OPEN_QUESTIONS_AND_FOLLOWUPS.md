@@ -23,6 +23,60 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-20 (daily, part 2) - #1277 GUIDE-1, #1278 RIG-2, #1279 PREVIEW-1, #1280 MI-VOICE-1, #1281 GUIDE-PUBLIC-1, #1282 MUMMY-1, #1283 PARENTS-NAV-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `1c8e9d70`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. relayed review findings and ops readings).
+
+### Closed / noted today
+
+- **[FU-DUSSEHRA-UTM]** CLOSED: the Dussehra ads' `utm_content` was fixed on 20 Oct to `dussehra_moms_check_improve` / `dussehra_moms_for_parents` **[coordinator]**. Ads-side; no code.
+- **[FU-PACKAGE-JSON-DUP-MATRIX-KEY]** still open at `1c8e9d70`: `lazytopper/package.json` still has two `"test:matrix:all"` keys (lines 126 and 127) **[git/gh]**.
+- **[FU-ADS-BALANCE-LOW]** still owed: the Google Ads balance top-up **[coordinator]**.
+- **[FU-MOBILE-MI-REAL-DATA]** (opened 2026-07-22; a note, not a new entry): still open at `1c8e9d70` - `lazytopper/src/pages/app/MobileHome.tsx` `MistakeIntelligenceCard` (heading at :445, mounted at :817) is the SPEC section 4 empty state for every signed-in student, with no per-student MI wired [git/gh] (the coordinator's reading: a static "—" for every student). It now blocks the queued ME-VOICE + mobile MI lane, and the CLAUDE.md section 5 correction in this PR (MI everywhere) makes it a doctrine gap, not a polish item.
+
+### Guide A/B and analytics
+
+### [FU-GUIDE1-DEPLOY-GAP]
+On 20 Oct the website with `#1277` went live about 20 min before Railway **[coordinator]**. `#1277` added `guide_variant_assigned` to the server `ACTIVITY_EVENTS` allowlist (`server/routes/studentActivity.cjs`:152) [git/gh], so in that gap activity batches carrying it were rejected, and some 20 Oct accounts have no "Guide test group" label in Admin **[coordinator]**. The group is deterministic and can be recomputed from the uid (`fmix32(FNV-1a("guide-1:"+uid)) % 2`, `components/guide/guideVariant.ts`) [git/gh]. Decide whether to backfill the label or read the A/B with this caveat. For any lane that adds an allowlist name: deploy Railway first.
+
+### [FU-GUIDE-EVENTS-NOT-SERVER]
+The guide, MI-voice, public-peek and Mummy events (`guide_shown`, `guide_option`, `guide_dismissed`, `guide_reopened`, `ziggy_reaction`, `mi_voice_shown`, `guide_public_*`, `mummy_beat`, `mummy_tap`, `mummy_seen`) go to GA4 / Vercel only. Of these families, `NamedAnalyticsEvent` (`analytics/analytics.ts`:736) contains only `guide_variant_assigned` (plus `parent_share_click`), and the server allowlist only `guide_variant_assigned` [git/gh]. So the admin board shows only the group label, feedback, set starts, graded and tutor **[coordinator]**; reading the A/B per student needs GA4. Decide whether any guide event should enter the first-party log.
+
+### [FU-GUIDE-STORAGE-KEYS]
+**Corrected against trunk while writing:** the dispatch named `lazytopper.guideChipClosed` as missing from `services/studentDataMap.ts`; it is NOT missing - it is described at `studentDataMap.ts`:725, as are `lazytopper.guideVariant.<tag>`, `lazytopper.guideIntent`, `lazytopper.ziggyShown.<tag>`, `lazytopper.guidePublicArm`, `lazytopper.guidePublicPeek.<page>`, `lazytopper.guideVariantOverride` and `lazytopper.guidePreview` (lines 722-741) [git/gh]. A sweep of every `lazytopper.*` literal in the non-test source files touched by `#1277`-`#1283` found two keys they use that are NOT in the map: `lazytopper.miVoiceShown.<state>` (sessionStorage, `components/guide/mi/miVoiceShown.ts`:23, new in `#1280`) and `lazytopper.parentReturn` (sessionStorage, `lib/parentReturn.ts`; introduced by PARENTS-CTA-1 `#1268` on 19 Oct and now set from every `/for-parents` link by `#1283`) [git/gh]. (A third unmapped literal, `lazytopper.waitlist.` in `PricingPage.tsx`, predates today; not assessed here.) Add both so the data map stays complete (DPDP export / erasure copy). Related: `[FU-STUDENTDATAMAP-KEYS]` (20 Oct).
+
+### [FU-GUIDE-PUBLIC-ARM-NOT-SENT]
+`#1281` stores `public_arm` in `sessionStorage lazytopper.guideIntent` (`publicPeekModel.ts`) [git/gh], but it is not sent with sign-up, so a signed-out visitor's public-peek arm cannot be joined to the account it became **[coordinator]**. Also: Byte has no real arm wave in the peek pose - Round 2 art **[coordinator]**.
+
+### Guide copy and doctrine
+
+### [FU-MIVOICE-CARELESS-FOLDS-CALCULATION]
+Found while writing. Owner ruling 20-21 Oct: four mistake types, never three; mascot copy never folds calculation into "careless" **[coordinator]**. Shipped `#1280` copy does: `components/guide/mi/miVoiceModel.ts` has Ziggy say "Oops! These were slips, not the method. <amount> to win back." when the card's top loss is the `careless` group, and `lib/mistakeDisplay.ts`:7 defines `careless = calculation + silly` (`MistakeGroupKey` = knowledge / technique / careless, three groups) [git/gh]. The line is built from the MI card's own three-group view, so the card and the mascot share the grouping. Owner call: re-word the line (and decide whether the MI card's three groups change too), or confirm the ruling applies to new copy only. Not changed by the docs lane.
+
+### [FU-MI-DOCTRINE-STALE-COMMENTS]
+Found while writing. With CLAUDE.md section 5 corrected in this PR (MI everywhere, Topic Hub page body excepted), a code comment still cites the old rule: `components/guide/mi/MiVoiceRow.tsx`:5 "(navy-sidebar chrome - CLAUDE.md section 5: MI is never rendered on a page body)" [git/gh]. `components/topichub/ConceptSpine.tsx`:61, :480 and :708 keep MI off the Topic Hub (still correct) but justify it with the retired general rule ("navy-sidebar chrome ONLY"); re-word them to cite the Topic Hub page-body exception. `TopicProgressTrend.tsx`:20 only describes the sidebar card and can stay (fresh review, 21 Oct). No test or acceptance script pins the old CLAUDE.md wording (`git grep -i "navy-sidebar"` over the whole tree found only code comments and handoff history) [git/gh]. Fix the `MiVoiceRow.tsx` comment in the next product PR that touches it.
+
+### [FU-GUIDECHUNK-STALE-COMMENT]
+`components/guide/guideChunk.tsx`:2-3 says everything the guide draws is in ONE lazily loaded chunk, `assets/guideChunk-<hash>.js`, and `lazyGuide.tsx`:3 says Vite emits ONE `guideChunk-<hash>.js` [git/gh]. The drawing is now shared: the live entry chunk references `assets/BlobCharacter-*.js` and `assets/MiVoiceCharacter-*.js` [docs-builder-curl], and the `#1282` commit says "shared BlobCharacter chunk" [git/gh]. (The dispatch called the shared chunk `guide-*.js`; the served name is `BlobCharacter-*.js`.) Comment only; update both comments.
+
+### Parents page
+
+### [FU-PARENTS-DOUBLE-BACKLINK]
+Optional cleanup. Arriving from `/for-parents`, `/pricing` and `/cbse/class-10` show two back links: the page's own (`/pricing`'s "Back to home" in the plans band; the CBSE page's `returnTo` link, which `#1283` points at `/for-parents`) and the new "← Back to parents page" **[coordinator]**. Decide whether one should hide when both are shown.
+
+### [FU-PARENT-FLAG-TAB-LIFETIME]
+The parent-return flag (`lazytopper.parentReturn`, `lib/parentReturn.ts`) lasts the whole tab, so a parent who signs in later in that tab still sees "← Back to parents page" **[coordinator]**. This is by design so far: the `lib/parentReturn.ts` header says the flag is kept in the tab so it "survives in-page navigation and a reload that drops the query string (e.g. a sign-in round trip within the tab)" [git/gh]. Option: clear it on sign-in (owner call; it reverses that design).
+
+### Admin
+
+### [FU-ADMIN-READONLY-ROLE]
+No read-only admin role exists: admin routes authorize on `ADMIN_FIREBASE_UIDS` only (CLAUDE.md section 5). The owner's partner (Pallabi), added 21 Oct, therefore has full admin, including "Extend Premium (free)" and email Reveal **[coordinator]**. Owner decision owed: accept, or build a viewer role.
+
+### Carried forward (open, unchanged)
+
+- Everything in the 2026-10-20 (daily) section except `[FU-DUSSEHRA-UTM]` (closed above).
+- **Owner:** the items in `NEXT_ACTION.md` (20 Oct daily, part 2); confirm the repo is PRIVATE.
+
 ## 2026-10-20 (daily) - #1273 MEASURE-1, #1275 MOBILE-FIT-1, #1274 FIRST-FEEDBACK-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `68970d84`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. relayed review findings and ads-account readings).

@@ -1,3 +1,24 @@
+## 2026-10-20 (daily, part 2) - AFTER #1277 - #1283 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The 20 Oct daily block (`#1276`) covered `#1273`-`#1275` only; this part covers the seven guide / parents PRs merged after it.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
+
+- **Done [git/gh]:** GUIDE-1 `#1277`, RIG-2 `#1278`, PREVIEW-1 `#1279`, MI-VOICE-1 `#1280`, GUIDE-PUBLIC-1 `#1281`, MUMMY-1 `#1282`, PARENTS-NAV-1 `#1283` (the last merged 21 Oct 00:15 IST). `/version.json` = `1c8e9d70` at writing **[docs-builder-curl]**.
+- **Next (queued, in order) [coordinator]:**
+  1. **MUTE-1 + SCORECARD-VOICE together** - pending the owner's OK on the student-journey plan (21 Oct). MUTE-1 carries the owner ruling "mute saved per DEVICE" (DECISION_LOG, this part).
+  2. **EXAM-MOMENTS.**
+  3. **NAVIGATE.**
+  4. **ME-VOICE + mobile MI** - needs `[FU-MOBILE-MI-REAL-DATA]` first.
+  5. **JOURNEY.**
+  6. **Tutor face / pricing.**
+- **Owner:**
+  1. Confirm the repo is PRIVATE after this PR (it must be flipped public for this PR's CI).
+  2. Top up the Google Ads balance (`[FU-ADS-BALANCE-LOW]`, still owed).
+  3. Re-submit `/for-parents` on Bing after `#1283` (Bing Webmaster failed to load 21 Oct 00:15 IST); Google was re-requested after `#1282` and `#1283`, Bing after `#1282` only **[coordinator]**.
+  4. Re-read the guide A/B after a week; keep the 50/50 for 2 weeks, then roll out (DECISION_LOG, this part). Note `[FU-GUIDE1-DEPLOY-GAP]` and `[FU-GUIDE-EVENTS-NOT-SERVER]` when reading it.
+- **Owner decisions owed:** `[FU-ADMIN-READONLY-ROLE]` (the partner has full admin); `[FU-MIVOICE-CARELESS-FOLDS-CALCULATION]` (shipped MI-VOICE copy vs the 20 Oct "four mistake types" ruling). Parents ad budget: still PARKED.
+- **Follow-ups:** the 2026-10-20 (daily, part 2) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Process:** the next handoff is ONE docs PR at the end of the next day with merges (CLAUDE.md section 10).
+
 ## 2026-10-20 (daily) - AFTER #1273, #1275, #1274 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. CI-COST-3 `#1271`, listed as "open" in the 19 Oct daily block, merged on 19 Oct at `e027751f` [git/gh]. `[FU-CI-CLOCK-LEGS-INVESTIGATE]` is DEFERRED by the owner as a separate repo task.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
