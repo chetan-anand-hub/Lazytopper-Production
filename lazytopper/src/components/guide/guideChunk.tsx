@@ -63,6 +63,14 @@ const GLYPH: Record<GuideOptionId, ReactNode> = {
     </>
   ),
   tutor: <path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />,
+  // GUIDE-OPTS-1 — a clock face (a timed test) and a pencil (written on paper).
+  chapter_test: (
+    <>
+      <circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 9v4l3 2M10 3h4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </>
+  ),
+  worksheet: <path d="M4 20l1-4L16 5l3 3L8 19zM14 7l3 3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />,
 };
 
 /** How long Byte cheers before the page changes (0 under reduced motion). */
@@ -214,9 +222,11 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, ren
     const path = o.action.path;
     say(GUIDE_COPY.cheerGo(o.title), "cheer");
     const go = () => {
-      if (o.id === "cbq" && page === "practice_hub") {
-        // Same page: its own "Competency-based questions" card opens the CBQ chooser.
-        const card = document.querySelector<HTMLButtonElement>("button.lt-cbq-card:not(.lt-ct-card)");
+      // GUIDE-OPTS-1: the hub reads ?ct=1 only on mount, so the chapter chooser opens the same way.
+      const sameHubCard = o.id === "cbq" || (o.id === "chapter_test" && path === "/practice-hub?ct=1");
+      if (sameHubCard && page === "practice_hub") {
+        // Same page: its own "Competency-based questions" / "Chapter Tests" card opens the chooser.
+        const card = document.querySelector<HTMLButtonElement>(o.id === "cbq" ? "button.lt-cbq-card:not(.lt-ct-card)" : "button.lt-ct-card");
         if (card) {
           onDone?.(); // a choice, not a dismissal (review F1)
           card.click();

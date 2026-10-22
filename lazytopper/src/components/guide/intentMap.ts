@@ -18,9 +18,19 @@
  * Subject (important questions, tutor, full mock): the chapter's subject, else the subject the
  * landing path names (a segment equal to maths / science, any case), else Start-here's
  * subject hint, else Maths.
- * The remaining slots fill from: 5 quick questions, Check one answer, CBQ practice, Important
- * questions, Notes, Exam trends, Tutor — only options whose route EXISTS (`routeExists`),
- * at most 5, no repeats.
+ * GUIDE-OPTS-1 (owner, 22 Oct 2026) — each intent leads with up to five options, in this order:
+ *   default / Check & Improve: quick, check_one, worksheet, chapter_test, important
+ *                              (Check & Improve puts check_one first)
+ *   chapter:   quick (that chapter), chapter_test (that chapter), important, notes, worksheet
+ *   important: important, chapter_test, quick, check_one, worksheet
+ *   papers:    full_mock, chapter_test, important, worksheet, check_one
+ *   cbq:       cbq, quick, check_one, chapter_test, worksheet
+ * Any slot left (an option dropped because its route is missing, or it does not apply) fills
+ * from: 5 quick questions, Check one answer, Worksheet, Chapter Test, CBQ practice,
+ * Important questions, Notes, Exam trends, Tutor — only options whose route EXISTS
+ * (`routeExists`), at most 5, no repeats.
+ * Chapter Test opens THAT chapter's test when the chapter is known, else the Practice Hub's
+ * Chapter Test chooser (/practice-hub?ct=1).
  *
  * ★ HONEST COPY: no counts, no promised score, nothing about the student that is not known.
  */
@@ -29,7 +39,17 @@ export type GuideSubject = "Maths" | "Science";
 export type GuideSurface = "home" | "practice_hub" | "check_improve";
 export type GuideIntent = "cbq" | "chapter" | "important" | "papers" | "check_improve" | "default";
 
-export type GuideOptionId = "quick" | "check_one" | "cbq" | "important" | "notes" | "trends" | "tutor" | "full_mock";
+export type GuideOptionId =
+  | "quick"
+  | "check_one"
+  | "cbq"
+  | "important"
+  | "notes"
+  | "trends"
+  | "tutor"
+  | "full_mock"
+  | "chapter_test"
+  | "worksheet";
 
 export interface IntentInput {
   /** The landing PATH of this visit (no query), when this tab still knows it. */
@@ -96,6 +116,15 @@ export const GUIDE_ROUTES: ReadonlyArray<{ pattern: RegExp; route: string }> = [
   { pattern: /^\/exam-trends$/, route: "/exam-trends (App.tsx:1312)" },
   { pattern: /^\/tutor\/10\/(Maths|Science)$/, route: "/tutor/:grade/:subject (App.tsx:1135)" },
   { pattern: /^\/full-mock\/10\/(Maths|Science)$/, route: "/full-mock/:grade/:subject (App.tsx:1125)" },
+  // GUIDE-OPTS-1 (lines at 361d4320). The chapter segment is the desktop topic slug, the same
+  // topicKey Topic Hub's Chapter Test button builds (DesktopTopicHubPage.tsx:247
+  // buildDesktopChapterTestPath({ topicKey: topic.slug })).
+  { pattern: /^\/chapter-test\/10\/(Maths|Science)\/[a-z0-9-]+$/, route: "/chapter-test/:grade/:subject/:topicKey (App.tsx:1124)" },
+  {
+    pattern: /^\/practice-hub\?ct=1$/,
+    route: "/practice-hub (App.tsx:1255; ?ct=1 opens ChapterTestPicker, DesktopPracticePage.tsx:1711)",
+  },
+  { pattern: /^\/practice\/worksheets$/, route: "/practice/worksheets (App.tsx:1269; the one responsive WorksheetGenerator)" },
 ];
 
 export function knownGuideRoute(path: string): boolean {
@@ -217,6 +246,30 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           point: "A full paper, marked the way CBSE marks it.",
           action: { kind: "route", path: `/full-mock/10/${subject}` },
         };
+      case "chapter_test":
+        // Sections B-D are graded from the uploaded answer sheet with step marks; Section A is
+        // objective, 0-or-full (ChapterTestPage.tsx header) — hence "written answers".
+        return {
+          id,
+          title: "Chapter Test",
+          sub: "Board-pattern test on one chapter · written answers marked step by step",
+          point: "One chapter, board-style. See exactly where marks slip.",
+          action: {
+            kind: "route",
+            // A known chapter opens ITS test; otherwise the Practice Hub's chapter chooser.
+            path: chapter && intent === "chapter" ? `/chapter-test/10/${chapter.subject}/${encodeURIComponent(chapter.slug)}` : "/practice-hub?ct=1",
+          },
+        };
+      case "worksheet":
+        // /practice/worksheets builds the worksheet in place; the answer sheet goes up as one PDF
+        // or a photo per page (WorksheetGradePanel) to the shared step-marking grader.
+        return {
+          id,
+          title: "Worksheet",
+          sub: "Write on paper, upload a photo, get written answers marked step by step",
+          point: "Write it on paper like the real exam. I'll mark every written step.",
+          action: { kind: "route", path: "/practice/worksheets" },
+        };
       default:
         return null;
     }
@@ -224,17 +277,17 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
 
   const lead: GuideOptionId[] =
     intent === "cbq"
-      ? ["cbq"]
+      ? ["cbq", "quick", "check_one", "chapter_test", "worksheet"]
       : intent === "chapter"
-        ? ["quick", "important", "notes"]
+        ? ["quick", "chapter_test", "important", "notes", "worksheet"]
         : intent === "important"
-          ? ["important"]
+          ? ["important", "chapter_test", "quick", "check_one", "worksheet"]
           : intent === "papers"
-            ? ["full_mock", "important"]
+            ? ["full_mock", "chapter_test", "important", "worksheet", "check_one"]
             : intent === "check_improve"
-              ? ["check_one"]
-              : ["quick"];
-  const fill: GuideOptionId[] = ["quick", "check_one", "cbq", "important", "notes", "trends", "tutor"];
+              ? ["check_one", "quick", "worksheet", "chapter_test", "important"]
+              : ["quick", "check_one", "worksheet", "chapter_test", "important"];
+  const fill: GuideOptionId[] = ["quick", "check_one", "worksheet", "chapter_test", "cbq", "important", "notes", "trends", "tutor"];
 
   const options: GuideOption[] = [];
   const seen = new Set<GuideOptionId>();
