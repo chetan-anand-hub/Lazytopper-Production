@@ -138,6 +138,7 @@ const EVENT_LABELS: Record<string, string> = {
   paywall_action_pay: "Tapped Pay on a paywall",
   paywall_action_qr: "Tapped Share QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",
+  parent_report_shared: "Shared a result link with parents",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

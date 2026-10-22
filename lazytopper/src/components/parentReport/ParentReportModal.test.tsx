@@ -14,7 +14,7 @@ const { trackParentReportShown, trackParentReportShare, authUser } = vi.hoisted(
   trackParentReportShare: vi.fn(),
   authUser: { current: null as null | { uid: string; displayName: string | null; isLocalSession?: boolean } },
 }));
-vi.mock("../../analytics/analytics", () => ({ trackParentReportShown, trackParentReportShare }));
+vi.mock("../../analytics/analytics", () => ({ trackParentReportShown, trackParentReportShare, trackParentReportShared: vi.fn() }));
 vi.mock("../../context/AuthContext", () => ({
   useAuth: () => {
     if (!authUser.current) throw new Error("useAuth must be used inside AuthProvider");

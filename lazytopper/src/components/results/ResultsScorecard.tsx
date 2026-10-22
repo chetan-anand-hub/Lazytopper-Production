@@ -648,7 +648,11 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
               {/* PARENT-REPORT-1 — after a graded Check & Improve score: the weekly parent
                   report (the button renders nothing without a real signed-in account). */}
               {variant.surface === "check-improve" && canShareScore(variant) && (
-                <ShareWithParentsButton placement="check_improve" label={CHECK_IMPROVE_PARENTS_LABEL} />
+                <ShareWithParentsButton
+                  placement="check_improve"
+                  label={CHECK_IMPROVE_PARENTS_LABEL}
+                  resultRef={variant.parentResultRef ?? null}
+                />
               )}
 
               {variant.pending && (() => {

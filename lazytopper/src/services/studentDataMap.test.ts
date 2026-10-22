@@ -302,7 +302,13 @@ describe("studentDataMap — drift guard", () => {
     // ★ `usageCredits` JOINED this set with TOPUP-1. Written only by server/services/usageCredit.cjs
     // through the Admin SDK; no client reads or writes it, so it is undeclared on purpose (deny-all
     // catch-all). It IS student data (uid-keyed balance + grants) - in the map, erased and exported.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "parentPayLinks", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
+    //
+    // ★ `parentReports` JOINED this set with PARENT-REPORT-1. Written only by
+    // server/routes/parentReport.cjs through the Admin SDK; no client may read or write a
+    // parent result link (it holds the student's uid), so it is undeclared on purpose
+    // (deny-all catch-all; firestore.rules is NOT edited). It IS student data (a `uid`
+    // field) — in the map, deleted on erasure and exported.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
