@@ -96,7 +96,8 @@ describe("PricingPage — Share QR code / Forward link to parents (PAYWALL-PAY-1
     cloudHolds(sub);
     await renderAt("/pricing");
     expect(await screen.findByTestId("pricing-parent-share")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Share QR code" })).toBeInTheDocument();
+    // The actions are a lazy chunk (PAYWALL-PAY-1 follow-up): wait for it.
+    expect(await screen.findByRole("button", { name: "Share QR code" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Forward link to parents" })).toBeInTheDocument();
     // "Pay" on /pricing is the pass tiles' own buttons — never a second, separate Pay.
     expect(screen.queryByTestId("paywall-pay")).toBeNull();

@@ -41,6 +41,9 @@ import { RequirePremium } from "../auth/RequireAuth";
 import { UpgradeModal } from "../UpgradeModal";
 import { UpgradeSheet } from "../subscription/UpgradeSheet";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
+import TrialPaperNote from "../usage/TrialPaperNote";
+import MoreLikeThisPremiumNote from "../usage/MoreLikeThisPremiumNote";
+import TutorErrorView from "../../pages/tutor/TutorErrorView";
 import * as analytics from "../../analytics/analytics";
 import { FORWARD_LABEL, QR_LABEL } from "./PaywallActions";
 
@@ -73,8 +76,8 @@ function at(node: ReactNode, entry = "/tutor?q=1") {
   );
 }
 
-function expectThree() {
-  expect(screen.getByTestId("paywall-pay")).toHaveTextContent(/^Pay$/);
+async function expectThree() {
+  expect(await screen.findByTestId("paywall-pay")).toHaveTextContent(/^Pay$/);
   expect(screen.getByRole("button", { name: QR_LABEL })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: FORWARD_LABEL })).toBeInTheDocument();
   expect(document.body.textContent || "").not.toMatch(/\bask\b[^.]*parent/i);
@@ -107,7 +110,7 @@ describe("lock screen (RequirePremium)", () => {
   it("expired trial, switched on: Pay / Share QR code / Forward link to parents; Pay goes to /pricing", async () => {
     flags(true);
     at(gate);
-    expectThree();
+    await expectThree();
     expect(screen.queryByText("Unlock Full Access")).toBeNull();
     await act(async () => {
       fireEvent.click(screen.getByTestId("paywall-pay"));
@@ -123,11 +126,11 @@ describe("lock screen (RequirePremium)", () => {
     expectNone();
   });
 
-  it("never trialled: 'Start my free 7-day trial' stays FIRST, the three follow", () => {
+  it("never trialled: 'Start my free 7-day trial' stays FIRST, the three follow", async () => {
     flags(true);
     sub.value = NEVER_TRIALLED;
     at(gate);
-    expectThree();
+    await expectThree();
     const trial = screen.getByRole("button", { name: "Start my free 7-day trial" });
     const pay = screen.getByTestId("paywall-pay");
     expect(trial.compareDocumentPosition(pay) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -144,10 +147,10 @@ describe("lock screen (RequirePremium)", () => {
 });
 
 describe("upgrade popup (UpgradeModal)", () => {
-  it("switched on: the three replace 'Choose Plan'; 'Keep using Basic' stays", () => {
+  it("switched on: the three replace 'Choose Plan'; 'Keep using Basic' stays", async () => {
     flags(true);
     at(<UpgradeModal open onClose={vi.fn()} featureLabel="Full mock" />);
-    expectThree();
+    await expectThree();
     expect(screen.queryByText("Choose Plan")).toBeNull();
     expect(screen.getByTestId("upgrade-modal-keep-basic")).toBeInTheDocument();
   });
@@ -164,7 +167,7 @@ describe("upgrade sheet (UpgradeSheet)", () => {
   it("switched on: the three replace 'See plans'; Pay keeps the sheet's own plans URL", async () => {
     flags(true);
     at(<UpgradeSheet featureLabel="Checking your answer" onClose={vi.fn()} />, "/practice?topic=light");
-    expectThree();
+    await expectThree();
     expect(screen.queryByText("See plans")).toBeNull();
     await act(async () => {
       fireEvent.click(screen.getByTestId("paywall-pay"));
@@ -187,10 +190,10 @@ describe("usage / limit panel (FairUseLimitPanel)", () => {
   it.each([
     ["inline", LIMIT_INLINE],
     ["trial-day dialog", LIMIT_DIALOG],
-  ])("%s, switched on: the three replace 'See plans'; its own dismiss stays", (_l, limit) => {
+  ])("%s, switched on: the three replace 'See plans'; its own dismiss stays", async (_l, limit) => {
     flags(true);
     at(<FairUseLimitPanel limit={limit} onDismiss={vi.fn()} />);
-    expectThree();
+    await expectThree();
     expect(screen.queryByTestId("fair-use-see-plans")).toBeNull();
     expect(screen.getByRole("button", { name: "OK" })).toBeInTheDocument();
     expect(screen.getByTestId("paywall-pay")).toHaveAttribute("href", "/pricing");
@@ -203,6 +206,101 @@ describe("usage / limit panel (FairUseLimitPanel)", () => {
     flags(false);
     at(<FairUseLimitPanel limit={limit} onDismiss={vi.fn()} />);
     expect(screen.getByTestId("fair-use-see-plans")).toBeInTheDocument();
+    expectNone();
+  });
+});
+
+const TUTOR_PREMIUM = { kind: "premium" as const, message: "Your free week has ended." };
+const TUTOR_BUSY_PLANS = { kind: "busy" as const, resetAt: null, message: "busy", plans: true };
+const PAPER_CUT = { graded: 2, total: 4, notGradedIndices: [2, 3] };
+const tutor = (state: typeof TUTOR_PREMIUM | typeof TUTOR_BUSY_PLANS) => (
+  <TutorErrorView state={state} onRetry={vi.fn()} selfHref="/tutor?q=1" />
+);
+
+describe("tutor (TutorErrorView): the server-side Premium card and the busy-with-plans line", () => {
+  it.each([
+    ["Premium card", TUTOR_PREMIUM],
+    ["busy, server said plans", TUTOR_BUSY_PLANS],
+  ])("%s, switched on: the three; Pay keeps the tutor's own plans URL", async (_l, state) => {
+    flags(true);
+    at(tutor(state));
+    await expectThree();
+    expect(screen.queryByText("See Premium")).toBeNull();
+    expect(screen.queryByText("See plans")).toBeNull();
+    expect(screen.getByTestId("paywall-pay")).toHaveAttribute(
+      "href",
+      `/pricing?source=upgrade-sheet&returnTo=${encodeURIComponent("/tutor?q=1")}`,
+    );
+    fireEvent.click(screen.getByTestId("paywall-pay"));
+    expect(track.mock.calls).toEqual([["pay", "tutor"]]);
+  });
+
+  it.each([
+    ["Premium card", TUTOR_PREMIUM, "See Premium"],
+    ["busy, server said plans", TUTOR_BUSY_PLANS, "See plans"],
+  ])("CONTROL — %s, payments dark: '%s', nothing new", (_l, state, label) => {
+    flags(false);
+    at(tutor(state));
+    expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
+    expectNone();
+  });
+
+  it("busy WITHOUT the server's plans cue: no pay action at all (not a pay moment)", () => {
+    flags(true);
+    at(<TutorErrorView state={{ ...TUTOR_BUSY_PLANS, plans: false }} onRetry={vi.fn()} selfHref="/tutor" />);
+    expect(screen.getByTestId("tutor-error-busy")).toBeInTheDocument();
+    expectNone();
+  });
+});
+
+describe("trial-paper note (TrialPaperNote)", () => {
+  const note = <TrialPaperNote cut={PAPER_CUT} allowance={2} labels={["Q1", "Q2", "Q3", "Q4"]} />;
+
+  it("switched on: the three replace 'See plans'", async () => {
+    flags(true);
+    at(note);
+    await expectThree();
+    expect(screen.queryByTestId("trial-paper-see-plans")).toBeNull();
+    fireEvent.click(screen.getByTestId("paywall-pay"));
+    expect(track.mock.calls).toEqual([["pay", "trial_paper"]]);
+  });
+
+  it("CONTROL — payments dark: 'See plans', nothing new", () => {
+    flags(false);
+    at(note);
+    expect(screen.getByTestId("trial-paper-see-plans")).toHaveTextContent("See plans");
+    expectNone();
+  });
+});
+
+describe("More-like-this Premium note (MoreLikeThisPremiumNote)", () => {
+  it("trial used, switched on: the three replace 'See plans'; OK stays", async () => {
+    flags(true);
+    at(<MoreLikeThisPremiumNote trialUsed onDismiss={vi.fn()} />);
+    await expectThree();
+    expect(screen.queryByText("See plans")).toBeNull();
+    expect(screen.getByRole("button", { name: "OK" })).toBeInTheDocument();
+  });
+
+  it("trial unused, switched on: 'Start free trial' stays FIRST, the three follow", async () => {
+    flags(true);
+    at(<MoreLikeThisPremiumNote />);
+    await expectThree();
+    const trial = screen.getByTestId("more-like-this-start-trial");
+    expect(trial).toHaveTextContent("Start free trial");
+    expect(trial.compareDocumentPosition(screen.getByTestId("paywall-pay")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    fireEvent.click(screen.getByTestId("paywall-pay"));
+    expect(track.mock.calls).toEqual([["pay", "more_like_this"]]);
+  });
+
+  it.each([
+    [true, "See plans"],
+    [false, "Start free trial"],
+  ])("CONTROL — trialUsed=%s, payments dark: the single old link '%s', nothing new", (trialUsed, label) => {
+    flags(false);
+    at(<MoreLikeThisPremiumNote trialUsed={trialUsed} />);
+    expect(screen.getByTestId("more-like-this-start-trial")).toHaveTextContent(label);
+    expect(screen.getAllByRole("link")).toHaveLength(1);
     expectNone();
   });
 });

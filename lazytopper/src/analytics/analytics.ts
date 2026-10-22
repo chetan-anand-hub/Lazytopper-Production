@@ -1227,9 +1227,19 @@ export function trackWhatsAppContactTap(placement: WhatsAppContactPlacement): vo
 export type PaywallAction = "pay" | "qr" | "forward";
 /**
  * PAYWALL-PAY-1 — where it was tapped: the Premium lock screen (RequirePremium), the upgrade
- * popup (UpgradeModal), the upgrade sheet (UpgradeSheet), the fair-use limit panel, /pricing.
+ * popup (UpgradeModal), the upgrade sheet (UpgradeSheet), the fair-use limit panel, /pricing,
+ * the tutor's server-side Premium / busy card (TutorPage), the trial-paper note
+ * (TrialPaperNote) and the More-like-this Premium note (MoreLikeThisPremiumNote).
  */
-export type PaywallSurface = "lock" | "upgrade_modal" | "upgrade_sheet" | "usage_limit" | "pricing";
+export type PaywallSurface =
+  | "lock"
+  | "upgrade_modal"
+  | "upgrade_sheet"
+  | "usage_limit"
+  | "pricing"
+  | "tutor"
+  | "trial_paper"
+  | "more_like_this";
 
 const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",

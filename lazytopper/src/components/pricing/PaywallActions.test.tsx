@@ -22,18 +22,15 @@ vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({ user: authState.user, loading: false }),
 }));
 
-import PaywallActions, {
-  FORWARD_LABEL,
-  PAY_LABEL,
+import PaywallActions, { FORWARD_LABEL, PAY_LABEL, QR_LABEL, trackPricingPayTap } from "./PaywallActions";
+import {
   PaywallActionsView,
   QR_ALT,
   QR_FILENAME,
-  QR_LABEL,
   dataUrlToBlob,
-  trackPricingPayTap,
   type ParentShareDeps,
   type QrImage,
-} from "./PaywallActions";
+} from "./PaywallActionsView";
 import * as analytics from "../../analytics/analytics";
 import type { MintedParentLink } from "../../services/parentPay";
 
@@ -129,33 +126,44 @@ describe("switches", () => {
     expect(screen.queryByTestId("paywall-actions")).toBeNull();
   });
 
-  it("payments on, parent pay dark: Pay only (no QR, no Forward)", () => {
+  it("payments on, parent pay dark: Pay only (no QR, no Forward)", async () => {
     flags(true, false);
     mount();
-    expect(screen.getByRole("link", { name: "Pay" })).toHaveAttribute("href", "/pricing");
+    // The live actions are a lazy chunk: the old control stands in while it loads.
+    expect(await screen.findByRole("link", { name: "Pay" })).toHaveAttribute("href", "/pricing");
     expect(screen.queryByRole("button", { name: QR_LABEL })).toBeNull();
     expect(screen.queryByRole("button", { name: FORWARD_LABEL })).toBeNull();
     expect(screen.queryByText("See plans")).toBeNull();
   });
 
-  it("both on: all three; signed out: the parent actions are not offered (a link is per account)", () => {
+  it("both on: all three; signed out: the parent actions are not offered (a link is per account)", async () => {
     flags(true, true);
     mount();
-    expect(screen.getByRole("link", { name: "Pay" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Pay" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: QR_LABEL })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: FORWARD_LABEL })).toBeInTheDocument();
     cleanup();
     authState.user = null;
     mount();
-    expect(screen.getByRole("link", { name: "Pay" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Pay" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: QR_LABEL })).toBeNull();
   });
 
-  it("/pricing (no Pay given): the two parent actions only — the pass tiles carry Pay", () => {
+  it("/pricing (no Pay given): the two parent actions only — the pass tiles carry Pay", async () => {
     flags(true, true);
     mount({});
+    expect(await screen.findByRole("button", { name: QR_LABEL })).toBeInTheDocument();
     expect(screen.queryByTestId("paywall-pay")).toBeNull();
-    expect(screen.getByRole("button", { name: QR_LABEL })).toBeInTheDocument();
+  });
+
+  it("dark parity: the light gate renders the fallback with NO wrapper node", () => {
+    flags(false, true);
+    const { container } = render(
+      <MemoryRouter>
+        <PaywallActions surface="tutor" payTo="/pricing" fallback={<a href="/pricing">See Premium</a>} />
+      </MemoryRouter>,
+    );
+    expect(container.innerHTML).toBe('<a href="/pricing">See Premium</a>');
   });
 });
 
@@ -327,6 +335,11 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
   const SRC = path.join(HERE, "..", "..");
   const PAY_SURFACES = [
     "components/pricing/PaywallActions.tsx",
+    "components/pricing/PaywallActionsView.tsx",
+    "components/usage/TrialPaperNote.tsx",
+    "components/usage/MoreLikeThisPremiumNote.tsx",
+    "pages/tutor/TutorPage.tsx",
+    "pages/tutor/TutorErrorView.tsx",
     "components/pricing/PassCheckout.tsx",
     "components/pricing/ParentPayPanel.tsx",
     "components/pricing/BasicFreeList.tsx",
