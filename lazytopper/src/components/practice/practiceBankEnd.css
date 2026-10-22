@@ -1,0 +1,12 @@
+/* MLT-MUTE-1 — the honest end-of-bank note under a Quick Practice set that came back shorter
+   than asked. Soft white card, navy text, green accent (CLAUDE.md §5). */
+.qp-bank-end { padding: 18px 16px; border-radius: 14px; background: #ffffff; border: 1px solid var(--bg-card-border);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); text-align: center; }
+.qp-bank-end__title { margin: 0 0 4px; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.qp-bank-end__body { margin: 0 0 14px; font-size: 0.82rem; line-height: 1.5; color: var(--text-muted); }
+.qp-bank-end__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.qp-bank-end__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px;
+  border-radius: 10px; border: 1px solid hsl(220, 18%, 90%); background: #ffffff; color: hsl(220, 25%, 12%);
+  font-size: 0.82rem; font-weight: 700; text-decoration: none; }
+.qp-bank-end__btn--primary { border-color: hsl(152, 55%, 40%); background: hsl(152, 55%, 40%); color: #ffffff; }
+.qp-bank-end__btn:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }

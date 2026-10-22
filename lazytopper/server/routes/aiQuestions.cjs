@@ -1,84 +1,33 @@
 'use strict';
 
 /**
- * /api/ai-questions — read and write the generated_questions DB cache.
+ * /api/ai-questions — RETIRED by MLT-MUTE-1 (owner ruling 2026-10-22).
  *
- * GET  /api/ai-questions?topicKey=&subject=&difficulty=&marks=&n=
- *   Returns up to `n` cached questions for the given tags.
- *   Increments hit_count for any rows served.
+ * This route used to read and write the generated_questions cache for "More like this":
+ *   GET  served cached AI-written questions to the client's practice-set builder;
+ *   POST saved AI-written questions into that cache — with NO auth at all, so anyone on the
+ *        internet could write rows that the next student's set (and its marking key, and
+ *        Mistake Intelligence) would then serve.
  *
- * POST /api/ai-questions
- *   Body: { topicKey, subject, difficulty?, marks?, variants: [{text, marks?, difficulty?, bloomSkill?}] }
- *   Saves new AI-generated questions to the pool (deduplicated by question_hash).
+ * "More like this" now serves verified bank questions only (practiceQuestionBuilder.ts), so no
+ * product caller remains. Both methods are refused outright with 410 and a short JSON body:
+ * no flag, no body read, no pool read or write, no model call. A refusal costs nothing.
+ *
+ * The factory keeps its old name and signature so index.cjs wires it unchanged; it now uses
+ * only `sendJson`. Pinned by aiQuestions.route.test.cjs over the REAL index.cjs.
  */
 
-const { isCompleteVariant } = require('../services/questionCompleteness.cjs');
+const AI_QUESTIONS_GONE_BODY = Object.freeze({
+  ok: false,
+  error: 'gone',
+  message: 'This endpoint was retired. Practice sets serve verified bank questions only.',
+});
 
-function createAiQuestionsRoute({ sendJson, readJson, pickFromPool, markServed, saveToPool }) {
-  async function handleGet(req, res) {
-    const url = new URL(req.url, 'http://localhost');
-    const topicKey = url.searchParams.get('topicKey') || '';
-    const subject = url.searchParams.get('subject') || '';
-    const difficulty = url.searchParams.get('difficulty') || null;
-    const rawMarks = url.searchParams.get('marks');
-    const marks = rawMarks != null && rawMarks !== '' ? Number(rawMarks) : null;
-    const n = Math.min(Math.max(1, Number(url.searchParams.get('n') || '5')), 20);
-
-    if (!topicKey || !subject) {
-      return sendJson(res, 400, { ok: false, error: 'topicKey and subject are required' });
-    }
-
-    try {
-      const raw = await pickFromPool(topicKey, subject, marks, difficulty, n);
-      const candidates = raw.filter(isCompleteVariant);
-      if (candidates.length < raw.length) {
-        console.warn(`[ai-questions] GET: dropped ${raw.length - candidates.length} incomplete row(s) before serving`);
-      }
-      if (candidates.length > 0) {
-        const ids = candidates.map(q => q.id).filter(Boolean);
-        if (ids.length > 0) {
-          markServed(ids).catch(e =>
-            console.warn('[ai-questions] markServed error (non-fatal):', e.message)
-          );
-        }
-      }
-      return sendJson(res, 200, {
-        ok: true,
-        questions: candidates.map(({ id: _id, ...q }) => q),
-        total: candidates.length,
-      });
-    } catch (e) {
-      console.warn('[ai-questions] GET error:', e.message);
-      return sendJson(res, 200, { ok: true, questions: [], total: 0 });
-    }
+function createAiQuestionsRoute({ sendJson }) {
+  function refuse(_req, res) {
+    return sendJson(res, 410, { ...AI_QUESTIONS_GONE_BODY });
   }
-
-  async function handlePost(req, res) {
-    let body;
-    try {
-      body = await readJson(req);
-    } catch (e) {
-      return sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
-    }
-
-    const { topicKey, subject, difficulty, marks, variants } = body || {};
-    if (!topicKey || !subject || !Array.isArray(variants) || variants.length === 0) {
-      return sendJson(res, 400, {
-        ok: false,
-        error: 'topicKey, subject, and a non-empty variants array are required',
-      });
-    }
-
-    try {
-      await saveToPool(topicKey, subject, marks ?? null, difficulty ?? null, variants);
-      return sendJson(res, 200, { ok: true });
-    } catch (e) {
-      console.warn('[ai-questions] POST error (non-fatal):', e.message);
-      return sendJson(res, 200, { ok: true });
-    }
-  }
-
-  return { handleGet, handlePost };
+  return { handleGet: refuse, handlePost: refuse };
 }
 
-module.exports = { createAiQuestionsRoute };
+module.exports = { createAiQuestionsRoute, AI_QUESTIONS_GONE_BODY };

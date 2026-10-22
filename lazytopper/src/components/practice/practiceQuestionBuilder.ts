@@ -1,5 +1,5 @@
 import { type PracticeQuestion } from "../../data/predictionDataService";
-import type { BloomLevel, DifficultyLevel, LTSubjectKey } from "../../data/predictionTypes";
+import type { DifficultyLevel, LTSubjectKey } from "../../data/predictionTypes";
 import { generatePracticeSet, inferBoardPatternFromQuestion, normalizeBoardPattern } from "../../data/practiceSetGenerator";
 import { generateUnifiedPracticeQuestions } from "../../data/questionGenerator";
 import { questionKey } from "../../utils/questionKey";
@@ -8,12 +8,6 @@ import {
   resolveTopicKey as resolveCanonicalTopicKey,
   toPracticePackKey,
 } from "../../utils/topicResolver";
-import {
-  generateMoreLikeThis,
-  fetchCachedAiQuestions,
-  saveAiGeneratedQuestions,
-  type CachedAiQuestion,
-} from "../../ai/aiClient";
 import { getTrigRubric } from "../../data/contentStrategy/trigonometry/trigonometryRubrics";
 import { getTrianglesRubric } from "../../data/contentStrategy/triangles/trianglesRubrics";
 import type {
@@ -22,7 +16,7 @@ import type {
 } from "../../data/contentStrategy/types";
 import type { StudentMentorIntent } from "../../types/studentMentorIntent";
 import { PredictionCore } from "../../data/predictionCore";
-import { CBQ_FLAG_CLEARED, cbqFlagOf, filterCbqs, interleaveCbqsByMarks, isCbq } from "../../lib/cbq/cbqClassification";
+import { cbqFlagOf, filterCbqs, interleaveCbqsByMarks, isCbq } from "../../lib/cbq/cbqClassification";
 
 export type SubjectKey = "Maths" | "Science";
 export type DifficultyChoice = "All" | "Easy" | "Medium" | "Hard";
@@ -500,28 +494,6 @@ export interface AiTopupArgs {
   pyqOnly?: boolean;
 }
 
-function expandQuestionsForDrill(source: PracticeQuestion[], targetCount: number): PracticeQuestion[] {
-  if (!Array.isArray(source) || source.length === 0) return [];
-  const seen = new Set<string>();
-  const unique: PracticeQuestion[] = [];
-  for (const q of source) {
-    const key = String(q.questionText || "").trim().toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    unique.push(q);
-  }
-  return unique.slice(0, targetCount);
-}
-
-function normaliseQuestionText(s: string | undefined | null): string {
-  const text = String(s || "");
-  return text
-    .replace(/\s+/g, " ")
-    .replace(/[\u201d]/g, '"')
-    .replace(/[\u2018\u2019]/g, "'")
-    .trim();
-}
-
 export function enforceDifficultyFilter(questions: PracticeQuestion[], difficulty: DifficultyChoice): PracticeQuestion[] {
   if (difficulty === "All") return questions;
   const target = difficulty.toLowerCase();
@@ -702,205 +674,23 @@ export async function buildPracticeQuestionsWithAiTopup(
     mergedUnique.push(q);
   }
   const mergedWithCanonical = mergedUnique.slice(0, safeCount);
-  const missingAfterCanonical = safeCount - mergedWithCanonical.length;
 
-  if (missingAfterCanonical <= 0) {
-    return enforceDifficultyFilter(mergedWithCanonical.slice(0, safeCount), args.difficulty);
-  }
-
-  // Pick a varied seed so each AI top-up session generates different questions.
-  // We rotate through available canonical questions rather than always using
-  // index 0, which previously caused all AI variants to share the same template.
-  const seedPool = mergedWithCanonical.filter((q) => !!q.questionText);
-  const seedFromBank: PracticeQuestion | undefined =
-    seedPool.length > 1
-      ? seedPool[Math.floor(Math.random() * seedPool.length)]
-      : (seedPool[0] ?? mergedWithCanonical[0]);
-
-  const fallbackDifficulty: InternalDifficultyBucket =
-    args.difficulty === "All"
-      ? "Medium"
-      : (args.difficulty as InternalDifficultyBucket);
-
-  const seed: PracticeQuestion | undefined = seedFromBank;
-  const seedId = seed?.id ?? "GENERIC-SEED";
-  const seedMarks = seed?.marks ?? 3;
-  const seedDifficulty: InternalDifficultyBucket =
-    (seed?.difficulty as InternalDifficultyBucket) ?? fallbackDifficulty;
-  const seedBloomSkill = (seed as PracticeQuestion & { bloomSkill?: string })?.bloomSkill ?? "Understanding";
-  const seedQuestionText =
-    seed?.questionText ??
-    (`Generate a CBSE Class ${args.grade} ${args.subjectKey} question for topic "${args.topicLabel}" at ${fallbackDifficulty} level.` +
-      (desiredSection ? ` Focus ONLY on Board Section ${desiredSection}.` : ``));
-
-  const template: PracticeQuestion | undefined = seed ?? mergedWithCanonical[0];
-
-  type VariantShape = {
-    text?: string;
-    marks?: number | null;
-    difficulty?: string | null;
-    bloomSkill?: string | null;
-    answer?: string | null;
-    solutionSteps?: string[] | null;
-    finalAnswer?: string | null;
-  };
-
-  function isCompleteVariant(v: VariantShape): boolean {
-    const text = (v.text ?? "").trim();
-    const answer = (v.answer ?? "").trim();
-    const finalAnswer = (v.finalAnswer ?? "").trim();
-    const steps = v.solutionSteps;
-    return !!(
-      text &&
-      answer &&
-      finalAnswer &&
-      Array.isArray(steps) &&
-      steps.length > 0 &&
-      steps.some((s) => String(s ?? "").trim().length > 0)
-    );
-  }
-
-  function mapVariantToPracticeQuestion(
-    variant: VariantShape,
-    index: number,
-    idPrefix: string,
-  ): PracticeQuestion | null {
-    if (!template) return null;
-    if (!isCompleteVariant(variant)) return null;
-    const variantText = normaliseQuestionText(variant.text ?? "");
-    // variantText is guaranteed non-empty because isCompleteVariant checked it.
-    // We never fall back to template.questionText — a variant with missing text
-    // is rejected above so template question + variant solution is impossible.
-    if (!variantText) return null;
-    return {
-      ...template,
-      // CBQ-1 PR-1: an AI/cache variant is NOT a verified CBQ even when its seed was —
-      // never inherit the flag through the spread (no fake "CBQ" label).
-      ...CBQ_FLAG_CLEARED,
-      id: `${seedId}-${idPrefix}-${index + 1}`,
-      marks: variant.marks != null ? variant.marks : template.marks ?? seedMarks ?? 1,
-      difficulty: args.difficulty !== "All"
-        ? (args.difficulty as PracticeQuestion["difficulty"])
-        : ((variant.difficulty as PracticeQuestion["difficulty"]) ??
-            (template.difficulty as PracticeQuestion["difficulty"])) ??
-          (fallbackDifficulty as PracticeQuestion["difficulty"]),
-      section: desiredSection ?? template.section ?? "",
-      bloomSkill: (String(
-        variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding",
-      ) as BloomLevel),
-      questionText: variantText,
-      solutionSteps: variant.solutionSteps as string[],
-      finalAnswer: String(variant.finalAnswer),
-      explanation: template.explanation ?? "",
-      answer: String(variant.answer),
-    };
-  }
-
-  // --- Step 1: Check DB cache for already-generated questions ---
-  let cachedVariants: CachedAiQuestion[] = [];
-  try {
-    cachedVariants = await fetchCachedAiQuestions({
-      topicKey: args.topicLabel,
-      subject: args.subjectKey,
-      difficulty: fallbackDifficulty,
-      marks: seedMarks,
-      n: missingAfterCanonical,
-    });
-  } catch (_) { /* non-fatal: fall through to AI */ }
-
-  const cachedQuestions: PracticeQuestion[] = cachedVariants
-    .filter(isCompleteVariant)
-    .map((v, i) => mapVariantToPracticeQuestion(v, i, "CACHE"))
-    .filter((q): q is PracticeQuestion => q !== null);
-
-  const remainingShortfall = Math.max(0, missingAfterCanonical - cachedQuestions.length);
-
-  if (remainingShortfall === 0) {
-    // Full cache hit — skip AI call
-    const merged = [...mergedWithCanonical, ...cachedQuestions];
-    return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
-  }
-
-  // --- Step 2: Call AI only for the remaining shortfall ---
-  try {
-    const response = await generateMoreLikeThis({
-      subject: args.subjectKey,
-      topicKey: args.topicLabel,
-      seedQuestion: {
-        text: seedQuestionText ?? "",
-        marks: seedMarks,
-        difficulty: seedDifficulty,
-        bloomSkill: seedBloomSkill,
-      },
-      numVariants: remainingShortfall,
-      requestedDifficulty: args.difficulty !== "All" ? args.difficulty : undefined,
-      requestedSection: desiredSection ?? undefined,
-    });
-
-    const variants = response?.variants ?? [];
-
-    const aiQuestions: PracticeQuestion[] = variants
-      .map((v, i) => mapVariantToPracticeQuestion(v, i, "AI"))
-      .filter((q): q is PracticeQuestion => q !== null);
-
-    // --- Step 3: Persist ONLY complete AI variants fire-and-forget ---
-    // Filter with isCompleteVariant before saving so incomplete variants
-    // (blank text, missing answer/solutionSteps/finalAnswer) never reach the DB.
-    const completeForSave = variants.filter(isCompleteVariant);
-    if (completeForSave.length > 0) {
-      saveAiGeneratedQuestions({
-        topicKey: args.topicLabel,
-        subject: args.subjectKey,
-        difficulty: fallbackDifficulty,
-        marks: seedMarks,
-        variants: completeForSave.map((v) => ({
-          text: (v as { text?: string }).text ?? "",
-          marks: (v.marks ?? seedMarks) as number | null,
-          difficulty: (v.difficulty ?? fallbackDifficulty) as string | null,
-          bloomSkill: ((v as { bloomSkill?: string }).bloomSkill ?? null) as string | null,
-          answer: (v.answer ?? null) as string | null,
-          solutionSteps: (Array.isArray(v.solutionSteps) ? v.solutionSteps : null) as string[] | null,
-          finalAnswer: (v.finalAnswer ?? null) as string | null,
-        })),
-      });
-    }
-
-    const merged = [...mergedWithCanonical, ...cachedQuestions, ...aiQuestions];
-    return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
-  } catch (err) {
-    // ALL-AI-METERING-1: a fair-use refusal is expected operation, not a fault — the page is told
-    // (its limit panel) and the saved questions are returned exactly as on any other failure.
-    if (isMoreLikeThisLimit(err)) notifyMoreLikeThisLimit(err);
-    else console.error("AI top-up failed for practice set:", err);
-    const merged = [...mergedWithCanonical, ...cachedQuestions];
-    return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
-  }
+  // MLT-MUTE-1 (owner ruling 2026-10-22): the AI step is MUTED. When the bank and the canonical
+  // fallback above run out, the set is served SHORT - verified questions only, never AI-written
+  // ones. The three calls that lived here are gone: the generated_questions cache read
+  // (GET /api/ai-questions), the model top-up (POST /api/more-like-this) and the cache write
+  // (POST /api/ai-questions). Those questions had no syllabus check and no verified marking key,
+  // yet flowed into grading and Mistake Intelligence. The page then says honestly that this is
+  // every question it has like this (PracticeQuestionList `bankEnd`).
+  return enforceDifficultyFilter(mergedWithCanonical.slice(0, safeCount), args.difficulty);
 }
 
 /* ── ALL-AI-METERING-1 · a More-like-this refusal reaches the page ─────────────────────────────
-   buildPracticeQuestionsWithAiTopup returns QUESTIONS (bank + cache), never an error, so a fair-use
-   refusal of the AI top-up would otherwise vanish into the catch above. The page subscribes once
-   and shows its More-like-this limit panel; the questions it already has are untouched. Read by
-   `name` ("FairUseLimitError"), never instanceof — several suites mock aiClient partially. */
+   MLT-MUTE-1: the AI top-up is muted, so the builder makes no paid call and nothing NOTIFIES these
+   listeners any more. The subscription is kept (PracticePage subscribes once at mount) so this lane
+   changes no page wiring; removing it and the page's two More-like-this panels is a follow-up. */
 type MoreLikeThisLimitListener = (err: unknown) => void;
 const moreLikeThisLimitListeners = new Set<MoreLikeThisLimitListener>();
-
-function isMoreLikeThisLimit(err: unknown): boolean {
-  if (!err || typeof err !== "object") return false;
-  const name = (err as { name?: unknown }).name;
-  // FairUseLimitError = a trial/Premium cap; PremiumRequiredError = a FREE student's 402 (DECISION 29d).
-  return name === "FairUseLimitError" || name === "PremiumRequiredError";
-}
-
-function notifyMoreLikeThisLimit(err: unknown): void {
-  for (const listener of moreLikeThisLimitListeners) {
-    try {
-      listener(err);
-    } catch {
-      /* a listener must never break the practice set */
-    }
-  }
-}
 
 /** Subscribe to More-like-this fair-use refusals. Returns the unsubscribe. */
 export function subscribeMoreLikeThisLimit(listener: MoreLikeThisLimitListener): () => void {
