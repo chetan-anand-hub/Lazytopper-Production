@@ -96,19 +96,32 @@ const NARRATIVE_LEAD = new RegExp(
   "i",
 );
 
-// Science is stricter: the instruction must OPEN a sentence, a clause or a part label —
-// "(a) Show that …", "Using the data, show that …". In Science "… to show that …" is a
-// practical or a data-reading task ("Use the data to show that …", "asks them to show
-// that …"), whereas in Maths "Use Euclid's lemma to show that …" is a proof.
+// Science "prove / show that" must OPEN a sentence, a clause or a part label —
+// "(i) Prove that the graph follows Ohm's law", "With the help of a ray diagram, show that …".
 const CLAUSE_LEAD = /(?:^|[.?!:;,)\]\n—–-]|\b(?:and|then|hence|also|thus))\s*$/i;
 
-const hasInstructionThat = (text: string, science: boolean): boolean => {
+const hasInstructionThat = (text: string, clauseInitialOnly: boolean): boolean => {
   for (const m of text.matchAll(THAT_PHRASE)) {
     const before = text.slice(Math.max(0, (m.index ?? 0) - 40), m.index ?? 0);
-    if (science ? CLAUSE_LEAD.test(before) : !NARRATIVE_LEAD.test(before)) return true;
+    if (clauseInitialOnly ? CLAUSE_LEAD.test(before) : !NARRATIVE_LEAD.test(before)) return true;
   }
   return false;
 };
+
+// ── SCIENCE (controller ruling on #1298 review) ─────────────────────────────────────────────
+// A Science "show that" is mostly a reasoning task ("(a) Show that her conclusion is wrong"),
+// and a bare "derive" is often prose ("Plants derive their energy …"). So in Science:
+//   (a) derive / derivation counts only when an expression / formula / relation / equation
+//       or an "=" follows within ~40 characters ("Derive H = I²Rt", "Derive the relation …");
+//   (b) "obtain an expression / relation / formula" counts;
+//   (c) clause-initial "prove / show that" counts ONLY in the physics chapters below, with
+//       "activity / experiment to show that" still removed first.
+const SCIENCE_DERIVE = /\bderiv(?:e|ation)\b[^.?!\n]{0,40}?(?:expression|formula|relation|equation|=)/i;
+const OBTAIN_EXPRESSION = /\bobtain\s+(?:an?\s+|the\s+)?(?:expression|relation|formula)\b/i;
+const PHYSICS_CHAPTER = /^(?:electricity|light|human[\s_-]+eye|magnetic)/i;
+
+const isPhysicsRow = (q: PracticeQuestion): boolean =>
+  PHYSICS_CHAPTER.test(str((q as { topicKey?: unknown }).topicKey).trim());
 
 /**
  * Proof / Derivation — a question that asks the student to prove, show or derive a result
@@ -118,11 +131,19 @@ const hasInstructionThat = (text: string, science: boolean): boolean => {
 export const isProofOrDerivation = (q: PracticeQuestion): boolean => {
   // ISSUE-007: Section A (1-mark objective) is never a proof.
   if (str((q as { section?: unknown }).section).toUpperCase() === "A") return false;
+  const text = str((q as { questionText?: unknown }).questionText).replace(PRACTICAL_PHRASE, " ");
+  if (str((q as { subject?: unknown }).subject).trim().toLowerCase() === "science") {
+    return (
+      SCIENCE_DERIVE.test(text) ||
+      OBTAIN_EXPRESSION.test(text) ||
+      (isPhysicsRow(q) && hasInstructionThat(text, true))
+    );
+  }
+  // MATHS (unchanged by the review): proof id / proof subtopic, any derivation phrase, or an
+  // instruction "prove / show / deduce that" not led by narrative.
   if (/prf/i.test(str((q as { id?: unknown }).id))) return true;
   if (/proof|identit|tangent.propert/i.test(str((q as { subtopic?: unknown }).subtopic))) return true;
-  const text = str((q as { questionText?: unknown }).questionText).replace(PRACTICAL_PHRASE, " ");
-  const science = str((q as { subject?: unknown }).subject).trim().toLowerCase() === "science";
-  return DERIVE_PHRASE.test(text) || hasInstructionThat(text, science);
+  return DERIVE_PHRASE.test(text) || hasInstructionThat(text, false);
 };
 
 /** HOTS — higher-order thinking at ANY difficulty (the student may still add Hard). */

@@ -917,10 +917,14 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
         ? "cbq"
         : "all";
     // FILTER-FIX-1: Desktop Practice's "PYQ only" sends `pyq=1` (lib/desktop/navigation.ts,
-    // DesktopPracticePage) — it was never read here. An explicit `source` still wins.
-    const sourceUi = querySource && ["all", "pyq", "ncert", "others"].includes(querySource)
-      ? querySource
-      : !querySource && qp.get("pyq") === "1"
+    // DesktopPracticePage) — it was never read here. Desktop ALSO sends `source=practice`, an
+    // ORIGIN tag, not a filter value, so `pyq=1` applies whenever `source` is not a valid filter
+    // value (all / pyq / ncert / others). A valid explicit `source` filter still wins.
+    const SOURCE_FILTER_VALUES = ["all", "pyq", "ncert", "others"];
+    const sourceIsFilter = !!querySource && SOURCE_FILTER_VALUES.includes(querySource);
+    const sourceUi = sourceIsFilter
+      ? (querySource as string)
+      : qp.get("pyq") === "1"
         ? "pyq"
         : "all";
     const diffUi = queryDiff && ["all", "Easy", "Medium", "Hard"].includes(queryDiff)
@@ -1742,19 +1746,26 @@ const packTopicKey = useMemo(() => {
   // full served pool, through the one predicate (practiceFilters.chipCounts). A chip greys out
   // only when that count is 0; the Proof / Derivation chip is hidden when the pool has none.
   // null until the bank is loaded (then nothing is greyed — we do not guess).
-  const filterChipCounts = useMemo<ChipCounts | null>(() => {
-    if (!bank.ready || isBuilt) return null;
-    const labels = isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel];
+  // #1298 review (performance): the served pool is built ONCE per subject + chapter set and cached;
+  // a pending-filter change only re-runs the classifier over it. Keyed on the chapter labels as a
+  // string so a new-but-equal `multiTopics` array does not rebuild it (Full subject: ~50-75 ms).
+  const chipPoolLabelsKey = (isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]).join("\u0001");
+  const chipServedPool = useMemo<PracticeQuestion[] | null>(() => {
+    if (!bank.ready) return null;
+    const labels = chipPoolLabelsKey.split("\u0001");
     const pool = labels.flatMap((label) => buildChapterServedPool({ subjectKey, topicKey: label }));
-    if (pool.length === 0) return null;
-    return computeChipCounts(pool, {
+    return pool.length > 0 ? pool : null;
+  }, [subjectKey, chipPoolLabelsKey, bank.ready]);
+  const filterChipCounts = useMemo<ChipCounts | null>(() => {
+    if (!chipServedPool || isBuilt) return null;
+    return computeChipCounts(chipServedPool, {
       marks: pendingMarks,
       style: pendingStyle,
       source: pendingSource,
       diff: pendingDifficulty,
       range: pendingMarksRange,
     });
-  }, [subjectKey, topicLabel, isMultiTopic, multiTopics, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange, bank.ready, isBuilt]);
+  }, [chipServedPool, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange, isBuilt]);
 
   useEffect(() => {
     if (filteredQuestions.length === 0) {
@@ -2269,15 +2280,19 @@ const packTopicKey = useMemo(() => {
       subject: subjectKey,
       questionCount: f.count,
     });
+    // FILTER-FIX-1 (#1298 review): Desktop's "PYQ only" (`pyq=1`) lands HERE — `source=practice`
+    // always opens the preset chooser — so a preset with no source of its own ("all") keeps the
+    // URL's source instead of discarding it. Without `pyq=1` the URL source is "all": unchanged.
+    const presetSource = f.source === "all" ? initialPracticeDefaults.sourceUi : f.source;
     // Pending mirrors committed so a later "Edit filters" pre-fills the chips correctly.
     setPendingMarks(f.marks);
     setPendingStyle(f.style);
-    setPendingSource(f.source);
+    setPendingSource(presetSource);
     setPendingDifficulty(f.committedDifficulty);
     setPendingMarksRange(null);
     setCommittedMarks(f.marks);
     setCommittedStyle(f.style);
-    setCommittedSource(f.source);
+    setCommittedSource(presetSource);
     setCommittedDifficulty(f.committedDifficulty);
     setCommittedMarksRange(null);
     setQuestionCount(f.count);

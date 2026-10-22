@@ -214,10 +214,22 @@ describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
   });
 });
 
-describe("FILTER-FIX-1 · latent wiring", () => {
-  it("Desktop Practice's pyq=1 opens the PYQ source (it was sent and never read)", () => {
-    const src = readFileSync(resolve(__dirname, "../../pages/PracticePage.tsx"), "utf8");
-    const at = src.indexOf("const sourceUi =");
-    expect(src.slice(at, at + 400)).toMatch(/qp\.get\("pyq"\) === "1"\s*\?\s*"pyq"/);
+// Desktop pyq=1 is covered by a render test with the real desktop URL: pages/PracticePage.desktopPyq.test.tsx.
+
+describe("FILTER-FIX-1 · chip styling (CLAUDE.md §7)", () => {
+  it("chips carry CSS classes, not inline style objects", () => {
+    renderPanel(F({ marks: "1" }), {
+      marks: { all: 5, "1": 3, "23": 2, "5": 0, "4": 0 },
+      style: { all: 3, proof: 1, ar: 1, hots: 1, case: 0, cbq: 0 },
+      source: { all: 3, pyq: 1, ncert: 1, others: 1 },
+      diff: { all: 3, Easy: 1, Medium: 1, Hard: 1 },
+      proofInPool: 1,
+    });
+    const active = chip("1 mark")!;
+    expect(active.className).toContain("qp-filter-chip--active");
+    expect(active.getAttribute("style")).toBeNull();
+    const grey = chip("5 marks")!;
+    expect(grey.className).toContain("qp-filter-chip--disabled");
+    expect(grey.getAttribute("style")).toBeNull();
   });
 });

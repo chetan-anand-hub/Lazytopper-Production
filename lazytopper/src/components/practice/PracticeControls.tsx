@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { WORKSHEET_MAX_QUESTIONS } from "./worksheetGenerator";
 import { zeroCountChips, type ChipCounts } from "./practiceFilters";
+import "./practiceFilterChips.css";
 
 const MARKS_OPTIONS = [
   { value: "all", label: "All" },
@@ -101,25 +102,13 @@ export interface PracticeControlsProps {
   onRegenerate?: () => void;
 }
 
-function chipStyle(
-  active: boolean,
-  disabled: boolean,
-): React.CSSProperties {
-  return {
-    borderRadius: 999,
-    padding: "5px 11px",
-    border: active
-      ? "1px solid hsl(152, 55%, 45%)"
-      : "1px solid hsl(220, 18%, 90%)",
-    backgroundColor: active ? "hsl(152, 55%, 95%)" : "#ffffff",
-    color: active ? "hsl(152, 55%, 28%)" : "hsl(220, 15%, 42%)",
-    fontSize: "0.76rem",
-    cursor: disabled ? "default" : "pointer",
-    fontWeight: active ? 700 : 600,
-    whiteSpace: "nowrap",
-    opacity: disabled ? 0.3 : 1,
-    pointerEvents: disabled ? "none" : "auto",
-  };
+/** FILTER-FIX-1: chip look lives in practiceFilterChips.css (no inline style objects, CLAUDE.md §7). */
+function chipClass(active: boolean, disabled: boolean): string {
+  return [
+    "qp-filter-chip",
+    active ? "qp-filter-chip--active" : "",
+    disabled ? "qp-filter-chip--disabled" : "",
+  ].filter(Boolean).join(" ");
 }
 
 const ROW_LABEL_STYLE: React.CSSProperties = {
@@ -418,7 +407,7 @@ function FilterChip({
     <button
       type="button"
       onClick={() => { if (!disabled) onPick(); }}
-      style={{ ...chipStyle(active, disabled), pointerEvents: "auto" }}
+      className={chipClass(active, disabled)}
       aria-disabled={disabled}
       title={disabled ? NO_QUESTIONS_FOR_COMBINATION : undefined}
       aria-label={disabled ? `${label} - ${NO_QUESTIONS_FOR_COMBINATION}` : undefined}
@@ -781,7 +770,7 @@ function CountChip({ value, onSetCount, onOverflowChange }: CountChipProps) {
                   key={n}
                   type="button"
                   onClick={() => handlePreset(n)}
-                  style={chipStyle(active, false)}
+                  className={chipClass(active, false)}
                 >
                   {n}
                 </button>

@@ -10,7 +10,9 @@
 //   Proof   RN 44 · Poly 20->7 · PLE 23->2 · QE 17 · AP 29->24 · Tri 63->68 · CG 21->29 ·
 //           Trig 92->89 · Circles 66->98 · ARC/SAV/Stats/Prob ->0 (the "Long + Analysing in
 //           C/D" rule added 350 non-proofs; the start-anchored phrase missed 161 real ones).
-//   Science Electricity 8 (incl. both 2026 PYQ derivations) · Light 4 · Magnetic Effects 0.
+//   Science Electricity 8 (incl. both 2026 PYQ derivations) · Light 4 · Human Eye 1 · every
+//           other Science chapter 0 (#1298 review: derive needs an expression or "="; show-that
+//           only in the physics chapters).
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
 //   HOTS    the predicate is unchanged: bank-wide 4,105 at any difficulty; the old UI lock to
 //           Hard served 2,082 (the lock is removed in PracticePage / PracticeControls).
@@ -149,6 +151,26 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
     expect(light.has("2026-LIGHT-LA-07")).toBe(true); // "Derive the relation between magnification …"
     expect(light.size).toBe(4);
     expect(n("magnetic-effects-of-electric-current", "all", "proof", "all", "all")).toBe(0);
+    for (const id of ["EL-H01", "EL-H08", "EL-H10"]) expect(elec.has(id), id).toBe(true);
+  });
+
+  it("Science per chapter (#1298 review rulings): physics only, chemistry and biology 0 (chip hidden)", () => {
+    const want: Record<string, number> = {
+      "chemical-reactions-and-equations": 0,
+      "acids-bases-and-salts": 0,
+      "metals-and-non-metals": 0,
+      "carbon-and-its-compounds": 0,
+      "light-reflection-and-refraction": 4,
+      "human-eye-and-colourful-world": 1,
+      electricity: 8,
+      "magnetic-effects-of-electric-current": 0,
+      "life-processes": 0,
+      "control-and-coordination": 0,
+      "how-do-organisms-reproduce": 0,
+      heredity: 0,
+      "our-environment": 0,
+    };
+    for (const [slug, count] of Object.entries(want)) expect(n(slug, "all", "proof", "all", "all"), slug).toBe(count);
   });
 
   it("no Long + Analysing row is a proof on that alone", () => {
@@ -157,9 +179,15 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
   });
 
   it("practicals and narrative are not proofs; instructions are", () => {
-    const mk = (text: string, subject = "Science") =>
-      ({ id: "X-2", section: "C", marks: 3, format: "Short", questionText: text, subject } as unknown as PracticeQuestion);
-    const yes = (t: string, s?: string) => questionMatchesFilters(mk(t, s), "all", "proof", "all", "all", null);
+    const mk = (text: string, subject = "Science", topicKey = "light-reflection-and-refraction") =>
+      ({ id: "X-2", section: "C", marks: 3, format: "Short", questionText: text, subject, topicKey } as unknown as PracticeQuestion);
+    const yes = (t: string, s?: string, topic?: string) => questionMatchesFilters(mk(t, s, topic), "all", "proof", "all", "all", null);
+    // #1298 review rulings (Science): derive needs an expression / "=", show-that only in physics.
+    expect(yes("Plants derive their energy from sunlight. Explain.", "Science", "life-processes")).toBe(false);
+    expect(yes("(a) Show that her conclusion is wrong and name the metal.", "Science", "metals-and-non-metals")).toBe(false);
+    expect(yes("(a) Show that her conclusion is wrong and name the metal.", "Science", "electricity")).toBe(true);
+    expect(yes("Derive H = I²Rt for a resistor.", "Science", "electricity")).toBe(true);
+    expect(yes("State the laws he derived from these results.", "Science", "heredity")).toBe(false);
     expect(yes("Describe an activity to show that light is necessary for photosynthesis.")).toBe(false);
     expect(yes("With the help of an experiment to show that metals conduct heat, explain.")).toBe(false);
     expect(yes("Reports show that ozone thinning damages phytoplankton. Explain why.")).toBe(false);
