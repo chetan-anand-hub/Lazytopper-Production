@@ -229,8 +229,9 @@ describe("back-nav wiring — the built entry is a real, poppable history step",
 });
 
 // ── 2 · Each preset is a bundle of REAL PracticeControls values ───────────────
-// Mirrors of the compat matrices in PracticeControls.tsx (kept in sync by this test):
-// an invalid marks+style combo would be silently reset by PracticeControls' auto-reset.
+// FILTER-FIX-1: PracticeControls no longer has these tables nor an auto-reset (a chip greys out
+// only at a real bank count of 0 — see PracticeControls.chipCounts.test.tsx). The mirror below is
+// kept as a stricter sanity bound: every preset is a structurally ordinary marks+style pair.
 const STYLE_COMPAT: Record<string, string[]> = {
   all: ["all", "proof", "ar", "hots", "case", "cbq"],
   "1": ["all", "ar", "cbq"],

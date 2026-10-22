@@ -1,0 +1,24 @@
+/* FILTER-FIX-1 - the Quick Practice filter chips (PracticeControls). Moved out of the inline
+   chipStyle() object (CLAUDE.md section 7). A greyed chip stays hoverable so its
+   "No questions for this combination" title shows; the click is ignored in the component. */
+.qp-filter-chip {
+  border-radius: 999px;
+  padding: 5px 11px;
+  border: 1px solid hsl(220, 18%, 90%);
+  background-color: #ffffff;
+  color: hsl(220, 15%, 42%);
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.qp-filter-chip--active {
+  border-color: hsl(152, 55%, 45%);
+  background-color: hsl(152, 55%, 95%);
+  color: hsl(152, 55%, 28%);
+  font-weight: 700;
+}
+.qp-filter-chip--disabled {
+  cursor: default;
+  opacity: 0.3;
+}

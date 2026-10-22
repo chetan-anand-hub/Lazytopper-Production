@@ -127,7 +127,7 @@ describe("MLT-MUTE-2 follow-up · no one-frame flash of an empty state on a filt
     mockBuild.mockImplementation(() => held);
     tail.rows = TAIL;
     fireEvent.click(screen.getByRole("button", { name: /^Edit filters$/ }));
-    fireEvent.click(screen.getByRole("button", { name: /Proof \/ Identity/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Proof \/ Derivation/ }));
 
     // Watch every node the Build commits to the DOM — including one a LATER render in the same act
     // removes again (a one-frame flash is exactly that: added by the stale render, removed by the

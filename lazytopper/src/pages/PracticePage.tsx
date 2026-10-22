@@ -13,6 +13,13 @@ import {
   type CheckSolutionResponse,
   type StepSolutionResponse,
 } from "../ai/aiClient";
+import {
+  chipCounts as computeChipCounts,
+  marksTokenToBucketSet,
+  questionMatchesFilters,
+  type ChipCounts,
+  type MarksRange,
+} from "../components/practice/practiceFilters";
 
 const COUNT_SOFT_MAX = 50;
 const mapEngineMarks = (ui: string): number | undefined => {
@@ -42,11 +49,8 @@ export const parseMarksValue = (raw: string | null): string => {
   if (valid.length === 0) return "all";
   return valid.join(",");
 };
-/** The set of buckets active for a committed marks token ("all" -> empty set). */
-export const marksTokenToBucketSet = (token: string): Set<string> =>
-  token === "all" ? new Set() : new Set(token.split(",").filter(Boolean));
-
-export interface MarksRange { min: number; max: number; }
+// FILTER-FIX-1: the bucket-set helper and MarksRange live with the one predicate.
+export { marksTokenToBucketSet, type MarksRange };
 /**
  * Parse the concept-row EXACT mark-range params (`marksMin` / `marksMax`) into a
  * numeric {min,max} (PR-E1 amendment). PATH-CONDITIONAL: only the Topic Hub
@@ -79,133 +83,10 @@ const navMarksToUi = (n: number | undefined): string => {
   return "all";
 };
 
-/**
- * PURE filter predicate — does a single bank question pass the active filters?
- * Extracted to module scope (PR-E1 final-bug fix) so the SAME predicate drives
- * BOTH the "N available" hint AND the displayed set (see selectInRangeFromPool).
- * Previously the in-component `matchesFilters` useCallback was the only consumer;
- * the hint counted a SEPARATE engine draw, which let the two pools diverge. The
- * behaviour here is byte-for-byte the prior callback body — exact-range / bucket
- * logic is unchanged. Imported by PracticePage.marksFilter.test.ts.
- */
-export const questionMatchesFilters = (
-  q: PracticeQuestion,
-  marks: string,
-  style: string,
-  source: string,
-  diff: string,
-  range: MarksRange | null,
-): boolean => {
-  // EXACT concept mark-range filter (PR-E1 amendment) — path-conditional: only
-  // active when the concept-row entry supplied marksMin/marksMax. Filters on
-  // the real numeric `marks` field so "3-5" yields ONLY 3,4,5 (no coarse-bucket
-  // 2/3-mark fusion). Questions with no numeric marks fall through to section.
-  if (range) {
-    const rawMarks = (q as { marks?: unknown }).marks;
-    let m = Number(rawMarks ?? NaN);
-    if (!Number.isFinite(m) || m <= 0) {
-      // Fall back to the CBSE section -> canonical mark when marks is absent.
-      const section = String((q as { section?: unknown }).section ?? "").toUpperCase();
-      m = section === "A" ? 1 : section === "B" ? 2 : section === "C" ? 3
-        : section === "D" ? 5 : section === "E" ? 4 : NaN;
-    }
-    if (!Number.isFinite(m) || m < range.min || m > range.max) return false;
-  }
-  if (marks !== "all") {
-    const section = String((q as { section?: unknown }).section ?? "").toUpperCase();
-    const m = Number((q as { marks?: unknown }).marks ?? 0);
-    const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
-    const is1mk = section === "A" || m === 1 || fmt === "mcq" ||
-      fmt.includes("assertion") || fmt === "ar";
-    const is23mk = section === "B" || section === "C" || m === 2 || m === 3 ||
-      fmt === "short" || fmt === "vsa";
-    const is5mk = section === "D" || m === 5 || fmt === "long";
-    const is4mk = section === "E" || m === 4 || fmt.includes("case");
-    // `marks` is a bucket SET token ("1" | "23" | "5" | "4" or a comma set like
-    // "1,23"). A question passes if it matches ANY active bucket (union — a
-    // concept band spanning two buckets keeps both). Empty set = no match.
-    const active = marksTokenToBucketSet(marks);
-    const matchesAnyBucket =
-      (active.has("1") && is1mk) ||
-      (active.has("23") && is23mk) ||
-      (active.has("5") && is5mk) ||
-      (active.has("4") && is4mk);
-    if (!matchesAnyBucket) return false;
-  }
-
-  if (style !== "all") {
-    const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
-    const id = String((q as { id?: unknown }).id ?? "");
-    const sub = String((q as { subtopic?: unknown }).subtopic ?? "").toLowerCase();
-    const qtext = String((q as { questionText?: unknown }).questionText ?? "")
-      .toLowerCase().slice(0, 80);
-    const section = String((q as { section?: unknown }).section ?? "");
-    const bloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
-
-    if (style === "proof") {
-      // ISSUE-007 fix: Section A is never a Proof question.
-      if (section === "A") return false;
-      const isProof =
-        /prf/i.test(id) ||
-        /^prove\s+that|^show\s+that|^derive\s/i.test(qtext) ||
-        /proof|identit|tangent.propert/i.test(sub) ||
-        (fmt.includes("long") && bloom === "Analysing" &&
-         (section === "C" || section === "D"));
-      if (!isProof) return false;
-    }
-    if (style === "ar" &&
-        !fmt.includes("assertion") && !fmt.includes("ar")) return false;
-    if (style === "hots") {
-      const d = String((q as { difficulty?: unknown }).difficulty ?? "");
-      const isHots = d === "Hard" || bloom === "Analysing" || bloom === "Evaluating";
-      if (!isHots) return false;
-    }
-    if (style === "case" &&
-        !fmt.includes("case") && section !== "E") return false;
-    // CBQ-1 PR-1 — the CBQ filter: ONLY rows the one classifier calls a CBQ, of every
-    // mark value (the marks filter above still narrows when the student also picks one).
-    if (style === "cbq" && !isCbq(q)) return false;
-  }
-
-  if (source !== "all") {
-    const qid = String((q as { id?: unknown }).id ?? "").toLowerCase();
-    const pyqYear = (q as { pyqYear?: unknown }).pyqYear;
-    // BANK-FIX-1 ruling 2: a corrected / unconfirmed row is filed under "Others"
-    // only — never PYQ, never NCERT — whatever its id or year fields say.
-    const sourceOverridden = (q as { sourceOverride?: unknown }).sourceOverride === "others";
-    if (sourceOverridden && source !== "others") return false;
-    const isPYQ = !sourceOverridden && (Boolean(pyqYear) ||
-      Boolean((q as { isPYQ?: unknown }).isPYQ));
-
-    if (source === "pyq" && !isPYQ) return false;
-
-    if (source === "ncert") {
-      if (isPYQ) return false;
-      const isNcertExemplar =
-        /^(rn-n-|poly-n-|ple-n-|qe-n-|ap-n-|tri-n-|cg-n-|trig-n-|circ-n-|arc-n-|sav-n-|stat-n-|prob-n-)/.test(qid) ||
-        /ncert|exemplar/.test(qid) ||
-        /-exmplr-|-ncert-/.test(qid);
-      if (!isNcertExemplar) return false;
-    }
-
-    if (source === "others") {
-      if (isPYQ) return false;
-      // H3-bug fix: also exclude -EXEM- IDs (e.g. POLY-N-EXEM-2-MCQ-001),
-      // which contain neither "ncert" nor "exemplar" as substrings but are
-      // caught by the NCERT prefix regex above — without this they would
-      // appear in BOTH the NCERT and Others filters.
-      const isNcertSource = /ncert|exemplar|-exmplr-|-ncert-|-exem-/.test(qid);
-      if (isNcertSource && !sourceOverridden) return false;
-    }
-  }
-
-  if (diff !== "all") {
-    const d = String((q as { difficulty?: unknown }).difficulty ?? "");
-    if (d !== diff) return false;
-  }
-
-  return true;
-};
+// FILTER-FIX-1 — the filter predicate lives in ONE module (components/practice/practiceFilters.ts)
+// so the served set, the "N available" hint and the chip counts share it. Re-exported here for
+// the existing importers (tests, QuickPracticePresets, surfaceReachability guard).
+export { questionMatchesFilters };
 
 /** Rotate an array left by `offset` (a stable, non-destructive reordering). Empty and
  *  single-element arrays are returned as-is. `offset` is normalised, so any integer —
@@ -693,7 +574,6 @@ import {
   subscribeMoreLikeThisLimit,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
-import { isCbq } from "../lib/cbq/cbqClassification";
 import {
   parseTopicsParam,
   topicSetKey,
@@ -1036,9 +916,17 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       : !queryStyle && qp.get("questionType") === "Competency"
         ? "cbq"
         : "all";
-    const sourceUi = querySource && ["all", "pyq", "ncert", "others"].includes(querySource)
-      ? querySource
-      : "all";
+    // FILTER-FIX-1: Desktop Practice's "PYQ only" sends `pyq=1` (lib/desktop/navigation.ts,
+    // DesktopPracticePage) — it was never read here. Desktop ALSO sends `source=practice`, an
+    // ORIGIN tag, not a filter value, so `pyq=1` applies whenever `source` is not a valid filter
+    // value (all / pyq / ncert / others). A valid explicit `source` filter still wins.
+    const SOURCE_FILTER_VALUES = ["all", "pyq", "ncert", "others"];
+    const sourceIsFilter = !!querySource && SOURCE_FILTER_VALUES.includes(querySource);
+    const sourceUi = sourceIsFilter
+      ? (querySource as string)
+      : qp.get("pyq") === "1"
+        ? "pyq"
+        : "all";
     const diffUi = queryDiff && ["all", "Easy", "Medium", "Hard"].includes(queryDiff)
       ? queryDiff
       : navDifficultyPreset && navDifficultyPreset !== "All" ? navDifficultyPreset : "all";
@@ -1452,14 +1340,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
 
   const filteredQuestions = committedPoolSelection.displayed;
 
+  // FILTER-FIX-1 (owner ruling): HOTS is higher-order thinking at ANY difficulty — picking it
+  // no longer forces Hard (and leaving it no longer resets difficulty). The student may add Hard.
   const handleSetStyle = useCallback((v: string) => {
     setPendingStyle(v);
-    if (v === "hots") {
-      setPendingDifficulty("Hard");
-    } else if (pendingStyle === "hots" && v !== "hots") {
-      setPendingDifficulty("all");
-    }
-  }, [pendingStyle]);
+  }, []);
 
   const handleClearFilters = useCallback(() => {
     setPendingMarks("all");
@@ -1856,6 +1741,31 @@ const packTopicKey = useMemo(() => {
   const bankAvailableCount = isBuilt
     ? committedPoolSelection.available
     : preBuildAvailableCount;
+
+  // FILTER-FIX-1 (owner ruling) — chip availability is a REAL count over the chosen chapter(s)'
+  // full served pool, through the one predicate (practiceFilters.chipCounts). A chip greys out
+  // only when that count is 0; the Proof / Derivation chip is hidden when the pool has none.
+  // null until the bank is loaded (then nothing is greyed — we do not guess).
+  // #1298 review (performance): the served pool is built ONCE per subject + chapter set and cached;
+  // a pending-filter change only re-runs the classifier over it. Keyed on the chapter labels as a
+  // string so a new-but-equal `multiTopics` array does not rebuild it (Full subject: ~50-75 ms).
+  const chipPoolLabelsKey = (isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]).join("\u0001");
+  const chipServedPool = useMemo<PracticeQuestion[] | null>(() => {
+    if (!bank.ready) return null;
+    const labels = chipPoolLabelsKey.split("\u0001");
+    const pool = labels.flatMap((label) => buildChapterServedPool({ subjectKey, topicKey: label }));
+    return pool.length > 0 ? pool : null;
+  }, [subjectKey, chipPoolLabelsKey, bank.ready]);
+  const filterChipCounts = useMemo<ChipCounts | null>(() => {
+    if (!chipServedPool || isBuilt) return null;
+    return computeChipCounts(chipServedPool, {
+      marks: pendingMarks,
+      style: pendingStyle,
+      source: pendingSource,
+      diff: pendingDifficulty,
+      range: pendingMarksRange,
+    });
+  }, [chipServedPool, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange, isBuilt]);
 
   useEffect(() => {
     if (filteredQuestions.length === 0) {
@@ -2370,15 +2280,19 @@ const packTopicKey = useMemo(() => {
       subject: subjectKey,
       questionCount: f.count,
     });
+    // FILTER-FIX-1 (#1298 review): Desktop's "PYQ only" (`pyq=1`) lands HERE — `source=practice`
+    // always opens the preset chooser — so a preset with no source of its own ("all") keeps the
+    // URL's source instead of discarding it. Without `pyq=1` the URL source is "all": unchanged.
+    const presetSource = f.source === "all" ? initialPracticeDefaults.sourceUi : f.source;
     // Pending mirrors committed so a later "Edit filters" pre-fills the chips correctly.
     setPendingMarks(f.marks);
     setPendingStyle(f.style);
-    setPendingSource(f.source);
+    setPendingSource(presetSource);
     setPendingDifficulty(f.committedDifficulty);
     setPendingMarksRange(null);
     setCommittedMarks(f.marks);
     setCommittedStyle(f.style);
-    setCommittedSource(f.source);
+    setCommittedSource(presetSource);
     setCommittedDifficulty(f.committedDifficulty);
     setCommittedMarksRange(null);
     setQuestionCount(f.count);
@@ -3693,6 +3607,7 @@ const packTopicKey = useMemo(() => {
           pendingDifficulty={pendingDifficulty}
           pendingCount={questionCount}
           availableCount={bankAvailableCount}
+          chipCounts={filterChipCounts}
           onSetMarks={setPendingMarks}
           onSetStyle={handleSetStyle}
           onSetSource={setPendingSource}
