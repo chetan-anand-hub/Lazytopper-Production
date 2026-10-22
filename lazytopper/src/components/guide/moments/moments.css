@@ -1,0 +1,51 @@
+/* MOMENTS-1 — Byte & Ziggy moments. Lazy: travels with momentsChunk only.
+   Visual grammar: deep navy ink, soft white bubble, green accent (CLAUDE.md §5). In the page's flow:
+   one character slot + one bubble; never a modal, never over a number. */
+.lt-mom { position: relative; display: flex; align-items: flex-end; gap: 10px; min-width: 0; max-width: 100%;
+  box-sizing: border-box; margin: 4px 0 12px; padding: 4px 6px 0 2px; color: #14213d; }
+.lt-mom__char { flex: none; width: 84px; }
+.lt-mom__bub { position: relative; align-self: center; min-width: 0; background: #fff; border: 2px solid #14213d;
+  border-radius: 14px 14px 14px 4px; padding: 8px 12px 6px; box-shadow: 0 6px 18px -12px hsla(222, 47%, 20%, .45);
+  animation: lt-mom-pop .35s cubic-bezier(.3, 1.6, .5, 1); }
+.lt-mom--byte .lt-mom__bub { background: #e9f7fd; }
+.lt-mom--ziggy .lt-mom__bub { background: #f2faea; }
+.lt-mom__say { margin: 0; font-size: 14.5px; line-height: 1.3; font-weight: 700; }
+/* M11 — the moment's own button (an existing route), above "Hide mascots". */
+.lt-mom__cta { display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 100%;
+  box-sizing: border-box; min-height: 42px; margin: 8px 0 0; padding: 0 16px; border-radius: 10px; background: hsl(152, 55%, 38%);
+  color: #fff; font-size: 14px; font-weight: 800; text-decoration: none; text-align: center; }
+.lt-mom__cta:hover { background: hsl(152, 55%, 32%); }
+.lt-mom__cta:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
+.lt-mom__hide { display: block; margin: 4px 0 0; padding: 4px 0; min-height: 32px; border: 0; background: none;
+  color: #56627e; font: inherit; font-size: 12.5px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.lt-mom__hide:hover { color: #14213d; }
+.lt-mom__hide:focus-visible, .lt-mom-peek__x:focus-visible, .lt-mom-peek__cta:focus-visible {
+  outline: 3px solid hsl(152, 55%, 38%); outline-offset: 2px; }
+.lt-mom__admin { display: inline-block; margin: 0 0 4px; font-size: 10.5px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; line-height: 1; padding: 5px 8px; border-radius: 999px; background: #14213d; color: #fff; }
+@keyframes lt-mom-pop { 0% { transform: scale(.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@media (min-width: 1024px) { .lt-mom__char { width: 92px; } }
+
+/* M10 — Byte peeking in at the bottom-left corner (the public peek's place: the WhatsApp button owns
+   bottom-right; above the mobile bottom nav; right of the desktop sidebar). Fixed: no layout shift. */
+.lt-mom-peek { position: fixed; z-index: 18; left: 8px; bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: flex-end; gap: 4px; max-width: calc(100vw - 84px); color: #14213d; }
+@media (min-width: 1024px) { .lt-mom-peek { left: 284px; bottom: 0; max-width: 420px; } }
+.lt-mom-peek__byte { flex: none; width: 64px; }
+@media (min-width: 1024px) { .lt-mom-peek__byte { width: 96px; } }
+/* Screen-size pass (360 / 768 / 1280): on a phone the WhatsApp button owns the right edge, so the
+   bubble gets every pixel left of it and a slightly smaller type; the CTA never wraps. */
+.lt-mom-peek__bub { margin-bottom: 14px; flex: 1 1 auto; min-width: 0; padding: 7px 10px 5px; }
+.lt-mom-peek__bub .lt-mom__say { font-size: 13.5px; }
+@media (min-width: 1024px) { .lt-mom-peek__bub { padding: 8px 12px 6px; } .lt-mom-peek__bub .lt-mom__say { font-size: 14.5px; } }
+.lt-mom-peek__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 6px; }
+.lt-mom-peek__cta { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 10px;
+  background: hsl(152, 55%, 38%); color: #fff; font-size: 13.5px; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.lt-mom-peek__cta:hover { background: hsl(152, 55%, 32%); }
+.lt-mom-peek__x { align-self: flex-start; flex: none; width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff;
+  background: #14213d; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; padding: 0; line-height: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-mom__bub { animation: none !important; }
+}
+@media print { .lt-mom, .lt-mom-peek { display: none; } }
