@@ -35,7 +35,20 @@ const H = vi.hoisted(() => ({
   gradeWorksheet: vi.fn(),
   local: [] as unknown[],
   cloudHas: vi.fn(),
+  currentUser: null as null | { uid: string; isAnonymous: boolean; metadata: { creationTime?: string } },
 }));
+// The account's age (zeroGraded.accountIsNew) is read from Firebase Auth's currentUser.
+vi.mock("../../services/firebaseClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/firebaseClient")>();
+  return {
+    ...actual,
+    authClient: {
+      get currentUser() {
+        return H.currentUser;
+      },
+    },
+  };
+});
 
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => H.auth }));
 vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => H.sub }));
@@ -154,6 +167,7 @@ beforeEach(() => {
   H.auth = { user: SIGNED_IN, loading: false };
   H.local = [];
   H.cloudHas.mockReset().mockResolvedValue(false);
+  H.currentUser = null;
   H.detectQuestion.mockReset().mockResolvedValue(DETECTED);
   H.checkSolutionImage.mockReset().mockResolvedValue(GRADED);
   H.gradeWorksheet.mockReset();
@@ -197,6 +211,43 @@ describe("MOMENTS-1 M4 · the answer step (first session)", () => {
     await screen.findByLabelText("Type the question");
     await act(async () => {});
     expect(moment("m4")).toBeNull();
+  });
+});
+
+describe("MOMENTS-1 · first session = the SERVER's zero-graded answer (owner ruling, 22 Oct)", () => {
+  const M4_TYPE = "Write every step. CBSE gives marks for each one.";
+
+  it("★★ a brand-new account whose cloud read FAILS (local empty): no moment — never the account-age guess", async () => {
+    H.cloudHas.mockResolvedValue(null);
+    H.currentUser = { uid: SIGNED_IN.uid, isAnonymous: false, metadata: { creationTime: new Date().toUTCString() } };
+    render(page());
+    await screen.findByLabelText("Type the question");
+    // past the one retry: the answer box's own reader has fallen back to "new" (Type tab first) by now
+    await waitFor(() => expect(screen.getByLabelText("Type your answer")).toBeTruthy(), { timeout: 6000 });
+    await act(async () => {});
+    expect(moment("m4")).toBeNull();
+    expect(screen.queryByText(M4_TYPE)).toBeNull();
+  }, 15000);
+
+  it("★★ graded work only in the cloud (a new phone, local empty): no moment", async () => {
+    H.cloudHas.mockResolvedValue(true);
+    render(page());
+    await screen.findByLabelText("Type the question");
+    await waitFor(() => expect(H.cloudHas).toHaveBeenCalled());
+    await act(async () => {});
+    await act(async () => {});
+    expect(moment("m4")).toBeNull();
+  });
+
+  it("★★ loading: nothing while the server has not answered; the moment appears only once it says zero", async () => {
+    let answer: (v: boolean) => void = () => {};
+    H.cloudHas.mockReturnValue(new Promise<boolean>((r) => (answer = r)));
+    render(page());
+    await screen.findByLabelText("Type the question");
+    await act(async () => {});
+    expect(moment("m4")).toBeNull();
+    await act(async () => answer(false));
+    await waitFor(() => expect(lineOf("m4")).toBe(M4_TYPE));
   });
 });
 

@@ -18,6 +18,7 @@ import { __setGuideAbForTests } from "../components/guide/guideVariant";
 import { __resetSolutionMatchedForTests } from "../components/guide/moments/moments";
 import { GUIDE_PUBLIC_ARM_KEY, __resetPublicArmForTests } from "../components/guide/public/publicPeekModel";
 import { __resetMascotsForTests } from "../components/guide/mascotsMute";
+import { FREE_CHECK_USED_KEY } from "../services/freeCheckClient";
 
 const ROW = "tri-n-ncert-6-sa-001"; // a typed row opted in for a value verdict; key "EC = 2 cm."
 const LINE = "Got it right? See which step loses marks. First check free.";
@@ -99,5 +100,15 @@ describe("MOMENTS-1 M10 · the NCERT solutions page", () => {
     await screen.findByText("✓ Your answer matches.");
     await act(async () => {});
     expect(screen.queryByTestId("guide-moment-m10")).toBeNull();
+  });
+
+  it("★ REVIEW F1 — this device already used its free check → 'First check free' would be untrue → no Byte", async () => {
+    window.localStorage.setItem(FREE_CHECK_USED_KEY, "1");
+    const view = mount();
+    await check(view, "EC = 2 cm.");
+    await screen.findByText("✓ Your answer matches.");
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m10")).toBeNull();
+    expect(screen.queryByText(LINE)).toBeNull();
   });
 });

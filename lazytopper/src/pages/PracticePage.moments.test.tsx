@@ -103,6 +103,8 @@ const FIVE = [1, 2, 3, 4, 5].map(mkMcq);
 const BYTE_LINE = "Tap the answer you think is right. No typing.";
 const ZIGGY_LINE = "Yes! 1 of 5. Next one.";
 const M8_LINE = "Oops, the connection dropped.";
+/** ONE build of a single-topic set asks the builder once per blueprint section (A–E). */
+const CALLS_PER_BUILD = 5;
 
 function mount(count = 5) {
   setMatchMediaMatches(true);
@@ -166,6 +168,26 @@ describe("MOMENTS-1 M3 · the first Quick Practice question", () => {
     expect(screen.queryByText(ZIGGY_LINE)).toBeNull();
   });
 
+  it("★★ REVIEW M1 — correct tap → Refresh set → NO Ziggy and NO Byte line (0 answers on screen); a new first tap decides again", async () => {
+    await buildSet(FIVE);
+    await waitFor(() => expect(momentLine()).toBe(BYTE_LINE));
+    fireEvent.click(screen.getByText("q1-correct"));
+    await waitFor(() => expect(momentLine()).toBe(ZIGGY_LINE));
+    const callsBefore = mockBuild.mock.calls.length;
+    expect(callsBefore).toBe(CALLS_PER_BUILD); // one build so far
+    fireEvent.click(screen.getByRole("button", { name: /^Refresh set$/i }));
+    await waitFor(() => expect(mockBuild.mock.calls.length).toBe(callsBefore + CALLS_PER_BUILD));
+    await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
+    await act(async () => {});
+    // the refreshed set has no answer: "Yes! 1 of 5" would be untrue, and Byte's ask is over
+    expect(screen.queryByTestId("guide-moment-m3")).toBeNull();
+    expect(screen.queryByText(ZIGGY_LINE)).toBeNull();
+    expect(screen.queryByText(BYTE_LINE)).toBeNull();
+    // the refreshed set's own first tap, correct, is exactly one recorded answer → Ziggy is true again
+    fireEvent.click(screen.getByText("q1-correct"));
+    await waitFor(() => expect(momentLine()).toBe(ZIGGY_LINE));
+  });
+
   it("★★ CONTROL arm: no moment at all (today's page)", async () => {
     __setGuideAbForTests(true, "control");
     await buildSet(FIVE);
@@ -197,6 +219,45 @@ describe("MOMENTS-1 M3 · the first Quick Practice question", () => {
   });
 });
 
+describe("MOMENTS-1 M3 · the SERVER's zero-graded answer (owner ruling, 22 Oct)", () => {
+  beforeEach(() => {
+    resetZeroGradedCacheForTests(); // no answer kept from Home / the hub: this page must ask itself
+  });
+
+  it("★★ no kept answer, the server says zero graded → M3 (this page now asks the cloud, guide arm only)", async () => {
+    cloudHas.mockReset().mockResolvedValue(false);
+    await buildSet(FIVE);
+    await waitFor(() => expect(momentLine()).toBe(BYTE_LINE));
+    expect(cloudHas).toHaveBeenCalledTimes(1);
+  });
+
+  it("★★ graded work only in the cloud (local empty): no moment", async () => {
+    cloudHas.mockReset().mockResolvedValue(true);
+    await buildSet(FIVE);
+    await waitFor(() => expect(cloudHas).toHaveBeenCalled());
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m3")).toBeNull();
+  });
+
+  it("★★ loading: nothing until the server answers", async () => {
+    let answer: (v: boolean) => void = () => {};
+    cloudHas.mockReset().mockReturnValue(new Promise<boolean>((r) => (answer = r)));
+    await buildSet(FIVE);
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m3")).toBeNull();
+    await act(async () => answer(false));
+    await waitFor(() => expect(momentLine()).toBe(BYTE_LINE));
+  });
+
+  it("★★ CONTROL arm: this page still reads nothing new (no cloud ask)", async () => {
+    __setGuideAbForTests(true, "control");
+    cloudHas.mockReset().mockResolvedValue(false);
+    await buildSet(FIVE);
+    await act(async () => {});
+    expect(cloudHas).not.toHaveBeenCalled();
+  });
+});
+
 describe("MOMENTS-1 · a set that fails to load: Retry (everyone) + M8 (guide arm)", () => {
   it("★★ a generation failure shows a real Retry (BOTH arms) that re-runs the load; not a connection failure → no Ziggy", async () => {
     for (const arm of ["control", "guide"] as const) {
@@ -208,9 +269,12 @@ describe("MOMENTS-1 · a set that fails to load: Retry (everyone) + M8 (guide ar
       expect(screen.getByText("Could not generate practice questions right now. Please try again.")).toBeTruthy();
       expect(screen.queryByTestId("guide-moment-m8")).toBeNull(); // not a dropped connection
       const before = mockBuild.mock.calls.length;
+      expect(before).toBe(CALLS_PER_BUILD); // exactly the one failed build
       fireEvent.click(retry);
       await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
-      expect(mockBuild.mock.calls.length).toBeGreaterThan(before);
+      await act(async () => {});
+      // REVIEW F4: Retry runs EXACTLY ONE more build (+1 build = +CALLS_PER_BUILD section calls), never more
+      expect(mockBuild.mock.calls.length).toBe(before + CALLS_PER_BUILD);
       expect(screen.queryByTestId("qp-load-retry")).toBeNull();
       cleanup();
     }

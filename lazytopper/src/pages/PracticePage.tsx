@@ -742,6 +742,15 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     authUserForJourney && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null,
     { cloud: false, recheck: gradedBatchesThisMount },
   );
+  // MOMENTS-1 (owner ruling, 22 Oct) — the first-session moments use the SERVER's zero-graded answer
+  // (local rows, then the cloud; a failed read stays "loading" → no moment, never shown-then-retracted).
+  // Only a GUIDE-arm account reads it, so the control arm adds no read; it joins any read in flight.
+  const qpMomentGraded = useZeroGraded(
+    !overlay && authUserForJourney && !authUserForJourney.isLocalSession && inGuideArm(authUserForJourney.uid)
+      ? authUserForJourney.uid
+      : null,
+    { serverOnly: true, recheck: gradedBatchesThisMount },
+  );
 
   useEffect(() => {
     try {
@@ -1360,8 +1369,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [loadRetry, setLoadRetry] = useState(0);
   const [loadConnectionDropped, setLoadConnectionDropped] = useState(false);
   const [bankRetrying, setBankRetrying] = useState(false);
-  // MOMENTS-1 M3 — the FIRST MCQ tap of this mount (display only; grading is the card's, unchanged).
+  // MOMENTS-1 M3 — the FIRST MCQ tap of the set on screen (display only; grading is the card's,
+  // unchanged). Cleared with the results on every rebuild / refresh / filter change (review M1).
+  // `qpM3Asked`: Byte's "tap the answer" has been answered once on this mount, so it never re-asks.
   const [qpFirstTap, setQpFirstTap] = useState<null | { id: string; result: "correct" | "wrong" }>(null);
+  const [qpM3Asked, setQpM3Asked] = useState(false);
 
   const [expandedAnswers, setExpandedAnswers] = useState<
     Record<string, boolean>
@@ -2044,6 +2056,7 @@ const packTopicKey = useMemo(() => {
           setExpandedAnswers({});
           setMcqSelections({});
           setMcqResults({});
+          setQpFirstTap(null); // MOMENTS-1 (review M1): a new set has no first tap yet
           setGradedResults({});
           // A rebuilt/regenerated set is a NEW session: clear the write latch or the
           // new set would be silently skipped (and clear the grades with it, or they
@@ -2898,8 +2911,8 @@ const packTopicKey = useMemo(() => {
 
   // MOMENTS-1 — who sees Byte & Ziggy on this page (components/guide/moments). DISPLAY ONLY: the
   // MCQ is graded by the card exactly as before; nothing here touches a mark or a record.
-  //   M3 (first session): a signed-in GUIDE-arm student with ZERO graded results (the answer box's
-  //     own zero-graded read), on a built five-question MCQ set ("1 of 5" is then true). Byte asks
+  //   M3 (first session): a signed-in GUIDE-arm student with ZERO graded results on the SERVER's
+  //     answer (`qpMomentGraded`), on a built five-question MCQ set ("1 of 5" is then true). Byte asks
   //     for a tap; after the FIRST tap of this mount, Ziggy cheers in his place only if it was
   //     correct (and goes at the next tap); a wrong first tap → Byte simply goes.
   //   M8 (problem): the set failed to load on the bank chunk / the timeout, guide arm, every time.
@@ -2913,12 +2926,20 @@ const packTopicKey = useMemo(() => {
     !error &&
     filteredQuestions.length === 5 &&
     filteredQuestions.every((q) => Array.isArray(q.options) && q.options.length > 0) &&
-    firstSessionAudience(qpMomentUid, zeroGradedForAnswerBox);
+    firstSessionAudience(qpMomentUid, qpMomentGraded);
+  // Review M1: Ziggy's "1 of 5" needs EXACTLY ONE recorded answer on screen, and it must be the
+  // stored first tap, correct. After a refresh (0 answers) nobody speaks until a new first tap.
+  const qpAnswered = Object.keys(mcqResults);
   const qpM3Step: "byte" | "ziggy" | null = !qpM3Eligible
     ? null
     : qpFirstTap === null
-      ? "byte"
-      : qpFirstTap.result === "correct" && Object.keys(mcqResults).length <= 1
+      ? qpM3Asked || qpAnswered.length > 0
+        ? null
+        : "byte"
+      : qpFirstTap.result === "correct" &&
+          qpAnswered.length === 1 &&
+          qpAnswered[0] === qpFirstTap.id &&
+          mcqResults[qpFirstTap.id] === "correct"
         ? "ziggy"
         : null;
   const qpLoadMoment = inGuideArm(qpMomentUid);
@@ -3688,6 +3709,7 @@ const packTopicKey = useMemo(() => {
             setMcqResults((prev) => ({ ...prev, [qId]: result }));
             // MOMENTS-1 M3 — remember only the FIRST tap of this mount (display only).
             setQpFirstTap((prev) => prev ?? { id: qId, result });
+            setQpM3Asked(true);
           }}
           onGraded={(qId, result) => setGradedResults((prev) => ({ ...prev, [qId]: result }))}
           onAskTutor={overlay ? undefined : askTutorAboutQuestion}

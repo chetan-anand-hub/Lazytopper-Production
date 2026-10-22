@@ -12,7 +12,7 @@ import { hideMascots, showMascots, useMascotsHidden } from "./mascotsMute";
 import "./mascotsSetting.css";
 
 export const MASCOTS_SETTING_COPY = {
-  heading: "Settings",
+  heading: "Mascots",
   label: "Show Byte and Ziggy",
   sub: "The two mascots who guide you. This device only.",
 } as const;

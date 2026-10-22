@@ -113,6 +113,9 @@ export interface ByteGuideProps {
   headingId?: string;
   /** The first line (the chip's reopen says "Welcome back!" first). */
   greeting?: string;
+  /** MOMENTS-1 — the zero-graded answer is the SERVER's (or an admin preview): "5 quick questions"
+   *  plays the M2 moment (Byte points, Hide mascots, guide_moment_shown). Otherwise GUIDE-1's cheer. */
+  momentOk?: boolean;
 }
 
 function GuideHead({
@@ -152,7 +155,7 @@ function GuideHead({
   );
 }
 
-export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, renderQuick, onCheckOne, spaced, headingId, greeting }: ByteGuideProps) {
+export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, renderQuick, onCheckOne, spaced, headingId, greeting, momentOk = false }: ByteGuideProps) {
   const ownHeadingId = useId();
   const labelId = headingId ?? ownHeadingId;
   const closeRef = useRef<HTMLButtonElement | null>(null);
@@ -191,10 +194,16 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, ren
     if (o.action.kind === "quick") {
       setQuickChapter(o.action.chapter);
       setStage("quick");
-      // MOMENTS-1 M2 — Byte points at the subjects (the line is the moment's, word for word).
-      say(GUIDE_COPY.cheerQuick, "point");
       if (restTimer.current) clearTimeout(restTimer.current);
-      trackGuideEvent("guide_moment_shown", { moment: "m2" });
+      if (momentOk) {
+        // MOMENTS-1 M2 — Byte points at the subjects (the line is the moment's, word for word).
+        say(GUIDE_COPY.cheerQuick, "point");
+        trackGuideEvent("guide_moment_shown", { moment: "m2" });
+        return;
+      }
+      // Not server-confirmed zero-graded: GUIDE-1's plain cheer, exactly as before.
+      say(GUIDE_COPY.cheerQuick, "cheer");
+      restTimer.current = setTimeout(() => setPose("idle"), 1400);
       return;
     }
     if (o.action.kind === "check_one" && onCheckOne) {
@@ -237,7 +246,7 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, ren
         line={line}
         bubbleKey={bubbleKey}
         onByteTap={() => say(stage === "options" ? plan.line : GUIDE_COPY.cheerQuick)}
-        hideable={stage === "quick"}
+        hideable={momentOk && stage === "quick"}
       />
       {stage === "options" ? (
         <ul

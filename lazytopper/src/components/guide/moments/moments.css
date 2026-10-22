@@ -22,15 +22,19 @@
 
 /* M10 — Byte peeking in at the bottom-left corner (the public peek's place: the WhatsApp button owns
    bottom-right; above the mobile bottom nav; right of the desktop sidebar). Fixed: no layout shift. */
-.lt-mom-peek { position: fixed; z-index: 18; left: 10px; bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-  display: flex; align-items: flex-end; gap: 6px; max-width: calc(100vw - 96px); color: #14213d; }
+.lt-mom-peek { position: fixed; z-index: 18; left: 8px; bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: flex-end; gap: 4px; max-width: calc(100vw - 84px); color: #14213d; }
 @media (min-width: 1024px) { .lt-mom-peek { left: 284px; bottom: 0; max-width: 420px; } }
-.lt-mom-peek__byte { flex: none; width: 78px; }
+.lt-mom-peek__byte { flex: none; width: 64px; }
 @media (min-width: 1024px) { .lt-mom-peek__byte { width: 96px; } }
-.lt-mom-peek__bub { margin-bottom: 14px; }
+/* Screen-size pass (360 / 768 / 1280): on a phone the WhatsApp button owns the right edge, so the
+   bubble gets every pixel left of it and a slightly smaller type; the CTA never wraps. */
+.lt-mom-peek__bub { margin-bottom: 14px; flex: 1 1 auto; min-width: 0; padding: 7px 10px 5px; }
+.lt-mom-peek__bub .lt-mom__say { font-size: 13.5px; }
+@media (min-width: 1024px) { .lt-mom-peek__bub { padding: 8px 12px 6px; } .lt-mom-peek__bub .lt-mom__say { font-size: 14.5px; } }
 .lt-mom-peek__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 6px; }
 .lt-mom-peek__cta { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 10px;
-  background: hsl(152, 55%, 38%); color: #fff; font-size: 13.5px; font-weight: 800; text-decoration: none; }
+  background: hsl(152, 55%, 38%); color: #fff; font-size: 13.5px; font-weight: 800; text-decoration: none; white-space: nowrap; }
 .lt-mom-peek__cta:hover { background: hsl(152, 55%, 32%); }
 .lt-mom-peek__x { align-self: flex-start; flex: none; width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff;
   background: #14213d; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; padding: 0; line-height: 1; }

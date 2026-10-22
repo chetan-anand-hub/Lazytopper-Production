@@ -12,7 +12,7 @@ import "./mascotsToast.css";
 
 export const MASCOTS_TOAST_COPY = {
   hide: "Hide mascots",
-  hidden: "Mascots hidden. Turn them back on in Settings.",
+  hidden: "Mascots hidden. Turn them back on in Me.",
   undo: "Undo",
 } as const;
 

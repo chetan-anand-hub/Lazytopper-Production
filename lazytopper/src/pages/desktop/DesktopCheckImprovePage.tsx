@@ -1441,8 +1441,8 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   // MOMENTS-1 — who sees Byte & Ziggy here (components/guide/moments). DISPLAY ONLY: nothing below
   // reads or changes a grade, a mark, a prompt or a mistake type, on either grading path.
-  //   M4 / M5 (first session): a signed-in GUIDE-arm student with ZERO graded results — the same
-  //     zero-graded read the answer box already uses (`ciZeroGraded`); never in the tutor overlay.
+  //   M4 / M5 (first session): a signed-in GUIDE-arm student with ZERO graded results on the
+  //     SERVER's answer (`ciMomentGraded` below); never in the tutor overlay.
   //   M6 / M8 (problems): any signed-in GUIDE-arm student, every time.
   //   M9 (signed out): the free check opened from a shared link, public guide arm (device arm).
   const ciMomentUid = !freeCheck && user?.uid && !user.isLocalSession ? user.uid : null;
@@ -1451,7 +1451,11 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     if (status === "ready") setCiShownResultHere(true);
   }, [status]);
-  const ciFirstMoments = !overlay && !ciShownResultHere && firstSessionAudience(ciMomentUid, ciZeroGraded);
+  // MOMENTS-1 (owner ruling, 22 Oct) — the SERVER's zero-graded answer, never the account-age guess
+  // the answer box falls back to: a failed read stays "loading" → no moment. Guide arm only (it joins
+  // the Start-here card's read; the control arm reads nothing new).
+  const ciMomentGraded = useZeroGraded(!overlay && inGuideArm(ciMomentUid) ? ciMomentUid : null, { serverOnly: true });
+  const ciFirstMoments = !overlay && !ciShownResultHere && firstSessionAudience(ciMomentUid, ciMomentGraded);
   const ciProblemMoments = inGuideArm(ciMomentUid);
   const ciSharedVisit = useMemo(() => cameFromSharedLink(ciLocation.search), [ciLocation.search]);
   const ciSharedMoment = usePublicMomentAudience(isFreeMode && !overlay && ciSharedVisit, true);

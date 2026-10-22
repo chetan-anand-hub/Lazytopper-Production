@@ -116,6 +116,14 @@ export interface UseZeroGradedOptions {
    * rows first, then the kept answer. It never starts a read by itself beyond what `cloud` allows.
    */
   recheck?: number;
+  /**
+   * MOMENTS-1 (owner ruling, 22 Oct) — "none" ONLY on the SERVER's answer. When the cloud cannot
+   * answer (offline, a cached answer, any error — after the one retry), stay "loading" instead of
+   * guessing "none" from the account's age: a student whose graded work is only in the cloud, on a
+   * new phone with a bad connection, must never be shown a first-session moment. Default false
+   * (today's behaviour, unchanged for the Start-here card and the answer boxes).
+   */
+  serverOnly?: boolean;
 }
 
 /** Local rows first (no network), then the kept answer; undefined when neither can say. */
@@ -130,7 +138,7 @@ function knownWithoutNetwork(uid: string | null | undefined, recheck: number): Z
 
 export function useZeroGraded(
   uid?: string | null,
-  { cloud = true, recheck = 0 }: UseZeroGradedOptions = {},
+  { cloud = true, recheck = 0, serverOnly = false }: UseZeroGradedOptions = {},
 ): ZeroGraded {
   // What the device already knows, read once per uid / recheck (no network, no effect).
   const known = useMemo(() => knownWithoutNetwork(uid, recheck), [uid, recheck]);
@@ -163,13 +171,20 @@ export function useZeroGraded(
       // device, no network) so a weak connection never hides the card from a NEW student.
       let has = await askCloudOnce(uid);
       if (cancelled) return;
-      if (has === null) {
+      // MOMENTS-1: a server-only reader makes no retry of its own (it would be a SECOND read beside the
+      // card's retry); "could not tell" simply stays "loading" — no moment.
+      if (has === null && !serverOnly) {
         await new Promise((r) => setTimeout(r, START_HERE_RETRY_MS));
         if (cancelled) return;
         has = await askCloudOnce(uid);
         if (cancelled) return;
       }
       if (has === null) {
+        // MOMENTS-1: a server-only reader never guesses — no answer, no "none".
+        if (serverOnly) {
+          settle("loading");
+          return;
+        }
         // Still cannot tell: a young account with no local rows is almost certainly new; an older
         // or unknown one is never shown the card on a failed read.
         settle(accountIsNew(uid) ? "none" : "some");
@@ -180,7 +195,7 @@ export function useZeroGraded(
     return () => {
       cancelled = true;
     };
-  }, [uid, cloud, recheck, known]);
+  }, [uid, cloud, recheck, known, serverOnly]);
 
   if (!uid) return "loading";
   if (known !== undefined) return known;

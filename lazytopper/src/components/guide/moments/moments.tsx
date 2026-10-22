@@ -8,9 +8,10 @@
  * WHO SEES A MOMENT
  *   signed-in moments (M3–M6, M8) — only the GUIDE arm (`resolveGuideVariant(uid) === "guide"`,
  *     the admin preview included). The control arm renders exactly today's product.
- *   first-session moments (M3–M5) — and only while the account has ZERO graded results: the
- *     Start-here card's own signal (`useZeroGraded`, read by the host page). An admin preview
- *     relaxes the zero-graded rule exactly as it does for the Start-here card.
+ *   first-session moments (M2–M5) — and only while the account has ZERO graded results on the
+ *     SERVER's answer: `useZeroGraded(uid, { serverOnly: true })` read by the host page (local rows,
+ *     then the cloud; a failed read stays "loading", so nothing shows and nothing is retracted). An
+ *     admin preview relaxes the zero-graded rule exactly as it does for the Start-here card.
  *   problem moments (M6, M8) — every time, guide arm only.
  *   signed-out moments (M9, M10) — the public peek's arm rule (./public/publicPeekModel.ts): the
  *     previewed arm under an admin preview, else this DEVICE's arm (`ensurePublicArm`, drawn once).

@@ -31,7 +31,7 @@ import { compareAnswer, compareOption, correctOptionIndex, type Verdict } from "
 import "./solutions.css";
 // MOMENTS-1 M10 — Byte peeks in after a matching check (signed out, public guide arm; lazy chunk).
 import { SolutionsMoment, noteSolutionMatched } from "../components/guide/moments/moments";
-import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
+import { hasUsedFreeCheck, isFreeCheckClientEnabled } from "../services/freeCheckClient";
 
 /**
  * SolutionsPage — `/ncert-solutions/:chapter` and `/ncert-exemplar/:chapter` (SOLUTIONS-1, lane G;
@@ -302,8 +302,9 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
 
   return (
     <main className="lt-ncs" data-testid="ncert-solutions-page" data-book={book}>
-      {/* MOMENTS-1 M10 — "First check free" is said only while the signed-out free check is on. */}
-      <SolutionsMoment freeCheckOn={isFreeCheckClientEnabled()} />
+      {/* MOMENTS-1 M10 — "First check free" is said only while the signed-out free check is on AND
+          this device has not used its one free check (review F1). */}
+      <SolutionsMoment freeCheckOn={isFreeCheckClientEnabled() && !hasUsedFreeCheck()} />
       <header className="lt-ncs__hero">
         <div className="lt-ncs__w">
           <Link to={backHref} className="lt-ncs__back">
