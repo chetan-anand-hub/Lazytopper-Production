@@ -871,12 +871,19 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
  *     student. Written only by `server/services/trialEndingEmail.cjs` through the Admin SDK; no
  *     client rule matches it, so browsers are denied by the catch-all.
  *
+ *   - `opsReports` (OPS-REPORT-1): one document per IST day, id = the day key, holding ONLY
+ *     the day keys, a send status (`claimed` / `sent` / `released` / `failed`), timestamps and
+ *     the provider's message id — the claim that keeps the owner's daily health email to one
+ *     send per day. The report itself is never stored. No uid, no address, nothing joinable to
+ *     a student. Written only by `server/services/opsReport.cjs` through the Admin SDK; no
+ *     client rule matches it, so browsers are denied by the catch-all.
+ *
  * ★ This list is an EXEMPTION, and exemptions are how a drift guard dies. It is exact,
  * it is pinned by `studentDataMap.test.ts`, and a name belongs here only with a reason
  * of the kind above. A collection that could hold anything about a student goes in the
  * map, never here. ErasureMechanism and erasure/export behaviour are unchanged by it.
  */
-export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily"]);
+export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "opsReports"]);
 
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */
 export function adminOnlyLocations(): readonly StudentDataLocation[] {

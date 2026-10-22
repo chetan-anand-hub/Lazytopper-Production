@@ -427,6 +427,11 @@ const gradingJobsRoutes = createGradingJobsRoutes({ sendJson, verifiedCaller, gr
 // server.listen below; its unsubscribe route is matched in handleRequest. See the module.
 const { createTrialEndingEmailer, TRIAL_EMAIL_UNSUBSCRIBE_PATH } = require('./services/trialEndingEmail.cjs');
 const trialEndingEmailer = createTrialEndingEmailer({ adminFirestore, firebaseAdmin, telemetry });
+// OPS-REPORT-1: the owner's daily health email at 08:00 IST. OFF unless OPS_REPORT_ENABLED; a DRY
+// RUN until OPS_REPORT_DRY_RUN=0 with RESEND_API_KEY + sender + OPS_REPORT_TO. Armed in
+// server.listen below; its admin send-now route is matched in handleRequest. See the module.
+const { createOpsReporter, OPS_REPORT_SEND_NOW_PATH } = require('./services/opsReport.cjs');
+const opsReporter = createOpsReporter({ adminFirestore, firebaseAdmin, telemetry });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -829,6 +834,8 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && (reqPath === '/api/admin/students' || reqPath.startsWith('/api/admin/students/'))) return require('./routes/adminStudents.cjs').handleAdminStudents(req, res, { sendJson, sendJsonWithHeaders, firebaseAdmin, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // STUDENT-ACTIVITY-1 PR-2: admin "Students" page, READ-ONLY, behind the shared ADMIN_FIREBASE_UIDS gate (see the module)
   if (req.method === 'POST' && reqPath === '/api/admin/extend-premium') return require('./routes/adminExtendPremium.cjs').handleAdminExtendPremium(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-EXTEND-1: extend Premium by N days at price 0 (feedback-call reward), behind the SAME ADMIN_FIREBASE_UIDS gate as the Students page; same-origin from /admin/students, so no CORS preflight entry
 
+  if (req.method === 'POST' && reqPath === OPS_REPORT_SEND_NOW_PATH) return opsReporter.handleSendNow(req, res, { sendJson, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // OPS-REPORT-1: send the daily report now to OPS_REPORT_TO, behind the SAME ADMIN_FIREBASE_UIDS gate; owner tooling (curl), so no CORS preflight entry
+
   if (req.method === 'POST' && reqPath === '/api/admin/warm-question-pool') {
     const adminSecret = process.env.WARM_POOL_ADMIN_SECRET;
     if (!adminSecret) {
@@ -930,6 +937,8 @@ server.listen(config.PORT, () => {
 
   // TRIAL-END-1 — prints its mode (OFF / DRY RUN / SENDING) and arms nothing when OFF.
   trialEndingEmailer.schedule();
+  // OPS-REPORT-1 — prints its mode and arms nothing when OFF.
+  opsReporter.schedule();
 
   // ── Unattended question generation ────────────────────────────────────────
   // ★ GATE FIRST, SCHEMA SECOND. Resolve and PRINT the state of every path
