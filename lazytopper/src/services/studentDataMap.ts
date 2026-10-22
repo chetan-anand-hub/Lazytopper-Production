@@ -777,7 +777,14 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "state, not student data: the test group, guide or control, and an expiry time 7 days ahead, " +
       "set only from the admin Students page so the LazyTopper team can preview Byte on this " +
       "browser; never the uid; deliberately NOT cleared at sign-out, removed by the admin's Off, " +
-      "on expiry, or by the device erasure sweep). None is ever sent anywhere.",
+      "on expiry, or by the device erasure sweep). MOMENTS-1: plus localStorage " +
+      "`lazytopper.mascotsHidden` (the single character 1 after the student tapped Hide mascots, so " +
+      "Byte and Ziggy stay hidden on this device until they are turned back on; a DEVICE preference, " +
+      "never premium or trial state, never the uid; removed when they are shown again) and " +
+      "`lazytopper.m11Shown.<tag>` (the single character 1 once Byte's \"check a written answer\" " +
+      "nudge showed on this account's first tap-only scorecard on this device; <tag> is an 8-hex hash " +
+      "of the uid, never the uid). " +
+      "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
     notes:

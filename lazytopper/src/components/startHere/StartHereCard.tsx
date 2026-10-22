@@ -33,6 +33,7 @@ import {
 import { guidePlanFor } from "../guide/guideInputs";
 import type { ChapterRef } from "../guide/intentMap";
 import { LazyByteGuide, LazyGuideChip } from "../guide/lazyGuide";
+import { useMascotsHidden } from "../guide/mascotsMute";
 import {
   START_HERE_COPY,
   START_HERE_ONE_TAP_COPY,
@@ -197,6 +198,12 @@ export interface StartHereState {
   uid?: string | null;
   /** GUIDE-1 (review F2) — the student chose "Check one answer" here: no corner chip on this page. */
   chipSuppressed?: boolean;
+  /**
+   * MOMENTS-1 (owner ruling, 22 Oct) — the zero-graded answer came from the SERVER (or an admin
+   * preview is on): only then may Byte's M2 moment play. A card shown on the account-age fallback
+   * (the cloud could not answer) keeps GUIDE-1's plain cheer. Guide arm only (no read otherwise).
+   */
+  momentsConfirmed?: boolean;
 }
 
 /**
@@ -211,6 +218,8 @@ export function useStartHere(uid?: string | null): StartHereState {
   // can re-see Byte / the card on a used account). Signed-out and "Not now" are unchanged; with
   // no preview this is exactly `uid && graded === "none" && !dismissed`.
   const audience = graded === "none" || (!!uid && guidePreviewActive());
+  // MOMENTS-1: the server-confirmed read, for the guide arm only (it joins the read above: no new ask).
+  const confirmed = useZeroGraded(resolveGuideVariant(uid) === "guide" ? uid : null, { serverOnly: true });
 
   return {
     visible: !!uid && audience && !dismissed,
@@ -220,6 +229,7 @@ export function useStartHere(uid?: string | null): StartHereState {
     },
     eligible: !!uid && audience,
     uid: uid ?? null,
+    momentsConfirmed: !!uid && (confirmed === "none" || guidePreviewActive()),
   };
 }
 
@@ -329,6 +339,9 @@ export function StartHereView({
   const shownRef = useRef(false);
   // GUIDE-1 — null when signed out or the split is off: then EVERYTHING below is today's card.
   const arm = resolveGuideVariant(state.uid);
+  // MOMENTS-1 PART 0 — "Hide mascots" on this device: the guide arm SEES today's card (the plain
+  // content). The arm itself, and every event below, is unchanged (the A/B stays clean).
+  const mascotsHidden = useMascotsHidden();
 
   useEffect(() => {
     if (!visible || shownRef.current) return;
@@ -339,7 +352,7 @@ export function StartHereView({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount, as before
   }, [visible, surface]);
 
-  if (arm === "guide") {
+  if (arm === "guide" && !mascotsHidden) {
     return (
       <GuideInlineArm
         surface={surface}
@@ -354,7 +367,9 @@ export function StartHereView({
   if (!visible) return null;
 
   const onNotNow = () => {
-    trackOnboardingEvent("start_here_dismissed", { surface });
+    // MOMENTS-1: a guide-arm student with the mascots hidden still reports the guide arm's event.
+    if (arm === "guide") trackGuideEvent("guide_dismissed", { surface });
+    else trackOnboardingEvent("start_here_dismissed", { surface });
     state.dismiss();
   };
 
@@ -420,6 +435,7 @@ function GuideInlineArm({
           plan={plan}
           onClose={closeInline}
           renderQuick={quickRenderer("start-here", returnTo, closeInline)}
+          momentOk={state.momentsConfirmed}
           onCheckOne={checkOneAnswer}
           spaced={spaced}
         />
@@ -442,6 +458,7 @@ function GuideInlineArm({
           onClose={closeSheet}
           onDone={closeSheet}
           renderQuick={quickRenderer("start-here", returnTo, closeSheet)}
+          momentOk={state.momentsConfirmed}
           onCheckOne={
             checkOneAnswer
               ? () => {
@@ -1026,6 +1043,7 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
       checkOne={checkOne}
       arm={arm}
       uid={uid}
+      momentOk={state.momentsConfirmed}
       onNotNow={() => {
         // Guide arm: Byte was closed (guide_dismissed); the keys and the twice-offered cap are TODAY's.
         if (arm === "guide") trackGuideEvent("guide_dismissed", { surface: focusSurfaceOf(surface) });
@@ -1078,6 +1096,7 @@ function StartHereFocusDialog({
   onDone,
   arm = null,
   uid = null,
+  momentOk = false,
 }: {
   surface: StartHereSurface;
   returnTo: string;
@@ -1090,6 +1109,8 @@ function StartHereFocusDialog({
   /** GUIDE-1 — the A/B arm (null = split off); "guide" puts Byte in this shell. */
   arm?: GuideVariant | null;
   uid?: string | null;
+  /** MOMENTS-1 — the zero-graded answer is the server's: Byte's M2 moment may play. */
+  momentOk?: boolean;
 }) {
   const isDesktop = useIsDesktop();
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -1112,7 +1133,9 @@ function StartHereFocusDialog({
   }, [surface]);
 
   // GUIDE-1 — while Byte is open in this shell, the corner chip waits.
-  const guideArm = arm === "guide";
+  // MOMENTS-1 PART 0 — hidden mascots: the guide arm sees today's shell (its events stay the arm's).
+  const mascotsHidden = useMascotsHidden();
+  const guideArm = arm === "guide" && !mascotsHidden;
   useEffect(() => {
     if (!guideArm) return;
     setGuideFocusOpen(true);
@@ -1239,6 +1262,7 @@ function StartHereFocusDialog({
               onClose={onNotNow}
               onDone={onDone}
               renderQuick={quickRenderer("start-here-focus", returnTo, onNotNow)}
+              momentOk={momentOk}
               onCheckOne={
                 checkOne && onCheckOne
                   ? () => {

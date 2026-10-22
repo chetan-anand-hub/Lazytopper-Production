@@ -73,6 +73,8 @@ import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 // redirects here - so the student's export and erasure rights live on the one routed
 // page a signed-in student can already reach from the nav.
 import AccountDataControls from "../components/account/AccountDataControls";
+// MOMENTS-1 PART 0 — the "Hide mascots" way back (guide arm, or mascots hidden on this device).
+import MascotsSetting from "../components/guide/MascotsSetting";
 // FAIR-USE-UI-1 (UI4) - the student's fair-use limits. Renders NOTHING unless
 // /api/usage/me says `enforced: true`, so the page is unchanged while enforcement is off.
 import UsageCard from "../components/usage/UsageCard";
@@ -1351,6 +1353,8 @@ export default function MeProgressPage() {
           state, first-run included - a student's export and erasure rights do not
           depend on how much work they have done. */}
       <UsageCard />
+
+      <MascotsSetting uid={user?.uid ?? null} />
 
       <AccountDataControls />
 

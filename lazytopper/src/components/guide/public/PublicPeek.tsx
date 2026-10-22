@@ -13,6 +13,7 @@ import { lazy, Suspense, useEffect, useState, type ComponentType } from "react";
 import { trackGuidePublicArmAssigned, trackGuidePublicShown, type GuideVariant } from "../../../analytics/analytics";
 import { desktopTopicBySlug } from "../../../lib/desktop/topics";
 import { guideAbActive, resolveGuideVariant } from "../guideVariant";
+import { useMascotsHidden } from "../mascotsMute";
 import {
   ARTICLE_SELECTOR,
   VisibleClock,
@@ -107,6 +108,9 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
   const chapter = chapterFor(chapterSlug);
   const [shown, setShown] = useState<Shown | null>(null);
   const eligible = !!chapter && guideAbActive();
+  // MOMENTS-1 PART 0 — "Hide mascots" on this device: Byte is not drawn. The trigger, the arm and
+  // guide_public_shown run exactly as before, so hiding never changes the test's exposure count.
+  const mascotsHidden = useMascotsHidden();
 
   useEffect(() => {
     if (!eligible || peekUsedInTab(page)) return;
@@ -189,7 +193,7 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eligible, page]);
 
-  if (!shown || !chapter) return null;
+  if (!shown || !chapter || mascotsHidden) return null;
   return (
     <Suspense fallback={null}>
       <LazyPeekView
