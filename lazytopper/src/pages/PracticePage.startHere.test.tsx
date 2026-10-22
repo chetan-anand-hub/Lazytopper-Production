@@ -409,8 +409,12 @@ describe("FOLLOWUPS-5 review · the hero counts what a short exact set actually 
     expect(hero).toContain("3 questions in this set.");
   });
 
-  it("control: a non-exact set keeps the requested count even when fewer rows come back", async () => {
+  // MLT-MUTE-2 (owner ruling 2026-10-22) REVERSES this case: with the AI top-up muted (#1295) a
+  // short bank serves a short set, so the hero counts the rows actually in it on EVERY path, not
+  // only for an exact id set. "5 questions in this set" over 3 rows was the dishonest header.
+  it("MLT-MUTE-2: a non-exact set that comes back short states the rows it really has", async () => {
     const hero = await renderAt("/practice/10/maths?topic=real-numbers&count=5", [mkItem(1), mkItem(2), mkItem(3)]);
-    expect(hero).toContain("5 questions in this set.");
+    expect(hero).toContain("3 questions in this set.");
+    expect(hero).not.toContain("5 questions");
   });
 });
