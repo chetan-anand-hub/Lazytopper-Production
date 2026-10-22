@@ -217,7 +217,8 @@ describe("studentDataMap — drift guard", () => {
     // An exemption list that can grow silently is how a drift guard stops guarding.
     // Exact (toEqual), so adding a name here is a deliberate, reviewed edit.
     // TRIAL-END-1 (review finding 1): `trialEmailDaily` — one counter per IST day, no uid.
-    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily", "trialEmailDaily"]);
+    // OPS-REPORT-1: `opsReports` - the daily health email's send claim, one per IST day, no uid.
+    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily", "trialEmailDaily", "opsReports"]);
     // An exempt name must never ALSO be a student-data location.
     const mapped = new Set(firestoreCollectionNames());
     expect(NON_STUDENT_COLLECTIONS.filter((c) => mapped.has(c))).toEqual([]);
@@ -308,7 +309,12 @@ describe("studentDataMap — drift guard", () => {
     // parent result link (it holds the student's uid), so it is undeclared on purpose
     // (deny-all catch-all; firestore.rules is NOT edited). It IS student data (a `uid`
     // field) — in the map, deleted on erasure and exported.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
+    //
+    // ★ `opsReports` JOINED this set with OPS-REPORT-1. Written only by
+    // server/services/opsReport.cjs through the Admin SDK; no client reads or writes it, so it is
+    // undeclared on purpose (deny-all catch-all; firestore.rules is NOT edited). Uid-free and
+    // exempt (NON_STUDENT_COLLECTIONS), like `trialEmailDaily`.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "opsReports", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
