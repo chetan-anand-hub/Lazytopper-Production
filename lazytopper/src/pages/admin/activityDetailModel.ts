@@ -133,7 +133,8 @@ const EVENT_LABELS: Record<string, string> = {
   ...feedbackEventLabels(),
   // GUIDE-1 — the stored name carries no arm (names only); guideTestGroupLabel(uid) derives it.
   guide_variant_assigned: "Was put in the guide test",
-  // PAYWALL-PAY-1 — the three paywall actions (any surface: lock, upgrade popup / sheet, limit, /pricing).
+  // PAYWALL-PAY-1 — the three paywall actions (any surface: lock, upgrade popup / sheet, limit, /pricing,
+  // tutor, trial_paper, more_like_this).
   paywall_action_pay: "Tapped Pay on a paywall",
   paywall_action_qr: "Tapped Share QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",

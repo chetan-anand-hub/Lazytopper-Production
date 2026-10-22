@@ -8,7 +8,8 @@
  * parentShare.css) are a LAZY chunk fetched only once payments are on; while it loads, the
  * old control stands in its place and still works.
  */
-import { lazy, Suspense, type ReactNode } from "react";
+import { lazy, Suspense, type ComponentType, type ReactNode } from "react";
+import { importWithRetry } from "../../lib/lazyWithRetry";
 import { trackPaywallAction, type PaywallSurface } from "../../analytics/analytics";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { isParentPayClientEnabled } from "../../services/parentPay";
@@ -32,7 +33,23 @@ export interface PaywallActionsProps extends Omit<PaywallActionsLiveProps, "show
   fallback?: ReactNode;
 }
 
-const PaywallActionsLive = lazy(() => import("./PaywallActionsView"));
+/** The live component's props: the actions plus the old control, for a failed chunk load. */
+type PaywallActionsChunkProps = PaywallActionsLiveProps & { fallback?: ReactNode };
+
+/** A failed chunk load (offline, blocked, deploy skew) renders the surface's old control. */
+const OldControl = ({ fallback = null }: PaywallActionsChunkProps) => <>{fallback}</>;
+
+/**
+ * M1 — the actions chunk, with the CHUNK-RESILIENCE-1 retry (../../lib/lazyWithRetry) and a
+ * final catch (the lazyPart pattern, ../guide/lazyGuide.tsx): a load that still fails resolves
+ * to the old control instead of throwing to an error boundary (the tutor page or the global
+ * "Something went wrong").
+ */
+const PaywallActionsLive = lazy(() =>
+  importWithRetry<{ default: ComponentType<PaywallActionsChunkProps> }>(() => import("./PaywallActionsView")).catch(
+    () => ({ default: OldControl }),
+  ),
+);
 
 /**
  * /pricing — `paywall_action { action: "pay", surface: "pricing" }` for a tap on a pass's Pay
@@ -50,7 +67,13 @@ export default function PaywallActions({ surface, onPay, payTo, fallback = null 
   if (!isPaymentsClientEnabled()) return <>{fallback}</>;
   return (
     <Suspense fallback={fallback}>
-      <PaywallActionsLive surface={surface} onPay={onPay} payTo={payTo} showParent={isParentPayClientEnabled()} />
+      <PaywallActionsLive
+        surface={surface}
+        onPay={onPay}
+        payTo={payTo}
+        showParent={isParentPayClientEnabled()}
+        fallback={fallback}
+      />
     </Suspense>
   );
 }
