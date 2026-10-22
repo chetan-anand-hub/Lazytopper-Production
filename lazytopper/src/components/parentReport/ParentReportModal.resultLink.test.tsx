@@ -16,9 +16,22 @@ const { trackParentReportShown, trackParentReportShare, trackParentReportShared 
   trackParentReportShared: vi.fn(),
 }));
 vi.mock("../../analytics/analytics", () => ({ trackParentReportShown, trackParentReportShare, trackParentReportShared }));
+// The student's ID token for the real mint (mintParentResultLink imports this lazily).
+vi.mock("../../services/firebaseClient", () => ({
+  authClient: { currentUser: { getIdToken: async () => "id-token" } },
+}));
 
 import ParentReportModal from "./ParentReportModal";
-import { PARENT_RESULT_TOKEN_PATTERN, parentResultUrl, readParentResultToken, resultLinkLine, withResultLink } from "./parentResultLink";
+import {
+  MINT_TIMEOUT_MS,
+  PARENT_RESULT_TOKEN_PATTERN,
+  ParentResultError,
+  mintParentResultLink,
+  parentResultUrl,
+  readParentResultToken,
+  resultLinkLine,
+  withResultLink,
+} from "./parentResultLink";
 
 const TOKEN = "A".repeat(20) + "b_-" + "9".repeat(20);
 const RANGE = { start: Date.parse("2026-10-11T18:30:00Z"), end: Date.parse("2026-10-18T12:00:00Z") };
@@ -105,14 +118,47 @@ describe("ParentReportModal — the result link", () => {
     expect(trackParentReportShared).toHaveBeenCalledWith("written", "native");
   });
 
-  it("the Share button waits while the link is being made", async () => {
+  it("★★ a mint that NEVER answers: Share stays enabled and opens WhatsApp with the old message; the late link is dropped", async () => {
+    const open = vi.spyOn(window, "open").mockImplementation(() => ({ opener: {} }) as unknown as Window);
     let resolve: (v: { token: string; expiresAt: string; kind: "objective" }) => void = () => {};
     const mintLink = vi.fn(() => new Promise<{ token: string; expiresAt: string; kind: "objective" }>((r) => (resolve = r)));
     renderModal({ resultRef: "CI-M-QUAD-03", mintLink });
     await screen.findByTestId("prm-preview");
-    expect((screen.getByTestId("prm-share") as HTMLButtonElement).disabled).toBe(true);
+    const btn = screen.getByTestId("prm-share") as HTMLButtonElement;
+    expect(btn.getAttribute("data-result-link")).toBe("pending");
+    expect(btn.disabled).toBe(false);
+    await act(async () => {
+      fireEvent.click(btn);
+    });
+    expect(open).toHaveBeenCalledTimes(1);
+    const sent = decodeURIComponent(String(open.mock.calls[0][0]));
+    expect(sent).toMatch(/^https:\/\/wa\.me\/\?text=/);
+    expect(sent).not.toContain("See the full result");
+    expect(trackParentReportShared).not.toHaveBeenCalled();
+    // The link arrives late: it is dropped, and a second share still carries no line.
     await act(async () => resolve({ token: TOKEN, expiresAt: "x", kind: "objective" }));
-    await waitFor(() => expect((screen.getByTestId("prm-share") as HTMLButtonElement).disabled).toBe(false));
+    expect(screen.getByTestId("prm-share").getAttribute("data-result-link")).toBe("none");
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("prm-share"));
+    });
+    expect(decodeURIComponent(String(open.mock.calls[1][0]))).not.toContain("See the full result");
+  });
+
+  it("★★ an ABORTED mint (then a retry still in flight): Share is enabled throughout and sends the old message", async () => {
+    const share = nativeShare();
+    const mintLink = vi
+      .fn()
+      .mockImplementationOnce(async () => Promise.reject(new DOMException("The operation was aborted.", "AbortError")))
+      .mockImplementationOnce(() => new Promise(() => {}));
+    renderModal({ resultRef: "CI-M-QUAD-03", mintLink });
+    await screen.findByTestId("prm-preview");
+    expect((screen.getByTestId("prm-share") as HTMLButtonElement).disabled).toBe(false);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("prm-share"));
+    });
+    const payload = (share.mock.calls[0] as unknown as [{ text: string }])[0];
+    expect(payload.text).not.toContain("See the full result");
+    expect(trackParentReportShared).not.toHaveBeenCalled();
   });
 
   it("without resultRef (Me, Home): no mint, no line, no parent_report_shared", async () => {
@@ -143,5 +189,61 @@ describe("ParentReportModal — the result link", () => {
     const payload = (share.mock.calls[0] as unknown as [{ text: string }])[0];
     expect(payload.text).not.toContain("See the full result");
     expect(trackParentReportShared).not.toHaveBeenCalled();
+  });
+});
+
+describe("the mint has a timeout and is not retried after the sheet closes", () => {
+  it.each(["AbortSignal.timeout", "AbortController fallback"])("★★ a stalled mint fetch is ABORTED after MINT_TIMEOUT_MS (5 s) and rejects as a plain failure (%s)", async (mode) => {
+    vi.useFakeTimers();
+    const realTimeout = (AbortSignal as { timeout?: unknown }).timeout;
+    if (mode === "AbortController fallback") Object.defineProperty(AbortSignal, "timeout", { value: undefined, configurable: true });
+    else if (typeof realTimeout !== "function") {
+      // Give the environment a real AbortSignal.timeout built on (fake) timers.
+      Object.defineProperty(AbortSignal, "timeout", {
+        value: (ms: number) => {
+          const c = new AbortController();
+          setTimeout(() => c.abort(new DOMException("timeout", "TimeoutError")), ms);
+          return c.signal;
+        },
+        configurable: true,
+      });
+    }
+    let seenSignal: AbortSignal | undefined;
+    const fetchStub = vi.fn((_url: string, init?: RequestInit) => {
+      seenSignal = init?.signal ?? undefined;
+      // A connection that never answers — it only ends if the request is aborted.
+      return new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => reject(new DOMException("The operation was aborted.", "AbortError")));
+      });
+    });
+    vi.stubGlobal("fetch", fetchStub);
+    try {
+      const outcome = mintParentResultLink("CI-M-QUAD-03").then(
+        () => "resolved",
+        (e) => (e instanceof ParentResultError ? `rejected:${e.reason}` : `rejected:other`),
+      );
+      await vi.advanceTimersByTimeAsync(5050); // the owner's 5 s, plus a margin
+      const settled = await Promise.race([outcome, Promise.resolve("still-pending")]);
+      expect(fetchStub).toHaveBeenCalledTimes(1);
+      expect(seenSignal, "the mint fetch carries no abort signal").toBeDefined();
+      expect(settled).toBe("rejected:failed");
+      expect(MINT_TIMEOUT_MS).toBe(5000);
+    } finally {
+      Object.defineProperty(AbortSignal, "timeout", { value: realTimeout, configurable: true });
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
+  });
+
+  it("F2 · closing the sheet after a failed first mint does NOT retry", async () => {
+    const mintLink = vi.fn(async () => Promise.reject(new Error("offline")));
+    const renderPng = vi.fn(async (r: ParentReport) => new Blob([r.state], { type: "image/png" }));
+    const view = render(
+      <ParentReportModal uid="u1" displayName={null} placement="check_improve" onClose={vi.fn()} read={vi.fn(async () => model)} render={renderPng} resultRef="CI-M-QUAD-03" mintLink={mintLink} />,
+    );
+    await waitFor(() => expect(mintLink).toHaveBeenCalledTimes(1));
+    view.unmount();
+    await new Promise((r) => setTimeout(r, 1800)); // past the 1.5 s retry delay
+    expect(mintLink).toHaveBeenCalledTimes(1);
   });
 });

@@ -10,7 +10,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 const { trackParentReportViewed } = vi.hoisted(() => ({ trackParentReportViewed: vi.fn() }));
 vi.mock("../../analytics/analytics", () => ({ trackParentReportViewed }));
 
-import ParentResultPage from "./ParentResultPage";
+import ParentResultPage, { PARENT_RESULT_TAB_KEY } from "./ParentResultPage";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests } from "../guide/mascotsMute";
 import {
   MUMMY_LINE_OBJECTIVE,
@@ -65,6 +65,38 @@ afterEach(() => {
   cleanup();
   trackParentReportViewed.mockClear();
   __resetMascotsForTests();
+  window.sessionStorage.clear();
+  window.history.replaceState(null, "", "/");
+});
+
+describe("ParentResultPage — F4: the token leaves the address bar, a reload in the same tab still works", () => {
+  it("★ strips #r=… with replaceState, keeps the token for THIS tab only, and a reload re-reads it", async () => {
+    window.history.replaceState(null, "", `/u/report${HASH}`);
+    const view = viewOf(serverJson());
+    const first = render(<ParentResultPage view={view} drawFigure={false} />);
+    await screen.findByTestId("pr-title");
+    expect(view).toHaveBeenCalledWith(TOKEN);
+    expect(window.location.hash).toBe("");
+    expect(window.location.pathname).toBe("/u/report");
+    expect(window.location.href).not.toContain(TOKEN);
+    expect(window.sessionStorage.getItem(PARENT_RESULT_TAB_KEY)).toBe(TOKEN);
+    expect(window.localStorage.getItem(PARENT_RESULT_TAB_KEY)).toBeNull();
+    first.unmount();
+
+    // "Reload": same tab, no fragment any more.
+    const again = viewOf(serverJson());
+    render(<ParentResultPage view={again} drawFigure={false} />);
+    await screen.findByTestId("pr-title");
+    expect(again).toHaveBeenCalledWith(TOKEN);
+  });
+
+  it("a new tab (empty sessionStorage) with no fragment: the honest 'link isn't working' state", async () => {
+    window.history.replaceState(null, "", "/u/report");
+    const view = vi.fn();
+    render(<ParentResultPage view={view} drawFigure={false} />);
+    await waitFor(() => expect(screen.getByTestId("parent-result-page").getAttribute("data-phase")).toBe("invalid"));
+    expect(view).not.toHaveBeenCalled();
+  });
 });
 
 describe("ParentResultPage — only the allowed fields", () => {

@@ -83,6 +83,40 @@ function useNoindex(): void {
   }, []);
 }
 
+/** This TAB's copy of the token (sessionStorage: gone when the tab closes, never another tab). */
+export const PARENT_RESULT_TAB_KEY = "lazytopper.parentResultToken";
+
+/**
+ * F4 — read the token, then take `#r=…` OUT of the address bar and the tab's history entry
+ * (history.replaceState), so it is not left in a screenshot, a copied URL or the back stack.
+ * A reload in the same tab still opens the result: the token is kept in THIS tab's
+ * sessionStorage only. Blocked storage → a reload shows the honest "link isn't working" state.
+ */
+function takeToken(hash: string | undefined): string | null {
+  const fromHash = readParentResultToken(hash ?? (typeof window !== "undefined" ? window.location.hash : ""));
+  if (typeof window === "undefined") return fromHash;
+  if (fromHash) {
+    try {
+      window.sessionStorage.setItem(PARENT_RESULT_TAB_KEY, fromHash);
+    } catch {
+      /* blocked storage: this load still works */
+    }
+    try {
+      if (readParentResultToken(window.location.hash)) {
+        window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+      }
+    } catch {
+      /* an address bar we cannot rewrite still renders the page */
+    }
+    return fromHash;
+  }
+  try {
+    return readParentResultToken(`#r=${window.sessionStorage.getItem(PARENT_RESULT_TAB_KEY) ?? ""}`);
+  } catch {
+    return null;
+  }
+}
+
 type IdleWindow = Window & {
   requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
   cancelIdleCallback?: (h: number) => void;
@@ -223,7 +257,7 @@ export default function ParentResultPage({ hash, view = viewParentResult, drawFi
   const viewedSent = useRef(false);
 
   useEffect(() => {
-    const token = readParentResultToken(hash ?? (typeof window !== "undefined" ? window.location.hash : ""));
+    const token = takeToken(hash);
     if (!token) {
       setPhase("invalid");
       return;

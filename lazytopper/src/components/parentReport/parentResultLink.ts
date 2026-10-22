@@ -69,17 +69,55 @@ export class ParentResultError extends Error {
   }
 }
 
-async function postJson(url: string, body: unknown, headers: Record<string, string> = {}): Promise<Record<string, unknown>> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body),
-  });
+/** How long the student's mint may take before the share goes without the link. */
+export const MINT_TIMEOUT_MS = 5000;
+
+/**
+ * An abort signal that fires after `ms`: `AbortSignal.timeout` where the browser has it, else an
+ * AbortController + setTimeout (older Safari / WebViews). `clear` stops the fallback timer.
+ */
+export function timeoutSignal(ms: number): { signal: AbortSignal | undefined; clear: () => void } {
+  try {
+    if (typeof AbortSignal !== "undefined" && typeof (AbortSignal as { timeout?: unknown }).timeout === "function") {
+      return { signal: AbortSignal.timeout(ms), clear: () => {} };
+    }
+  } catch {
+    /* fall through to the controller */
+  }
+  if (typeof AbortController === "undefined") return { signal: undefined, clear: () => {} };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return { signal: controller.signal, clear: () => clearTimeout(timer) };
+}
+
+async function postJson(
+  url: string,
+  body: unknown,
+  headers: Record<string, string> = {},
+  timeoutMs?: number,
+): Promise<Record<string, unknown>> {
+  const t = timeoutMs ? timeoutSignal(timeoutMs) : { signal: undefined, clear: () => {} };
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...headers },
+      body: JSON.stringify(body),
+      ...(t.signal ? { signal: t.signal } : {}),
+    });
+  } catch {
+    // A network error or an abort (the timeout) is a plain failure: the share goes without the link.
+    t.clear();
+    throw new ParentResultError("failed");
+  }
   let parsed: Record<string, unknown> | null = null;
   try {
+    // Still under the same signal: a body that stalls is aborted too.
     parsed = (await res.json()) as Record<string, unknown>;
   } catch {
     parsed = null;
+  } finally {
+    t.clear();
   }
   if (res.ok && parsed && parsed.ok === true) return parsed;
   const reason = parsed && typeof parsed.reason === "string" ? parsed.reason : "";
@@ -104,7 +142,7 @@ export interface MintedResultLink {
 
 /** The signed-in student mints a link to ONE of their own results. Sends the id and the ID token only. */
 export async function mintParentResultLink(resultId: string): Promise<MintedResultLink> {
-  const json = await postJson(PARENT_RESULT_LINK_ENDPOINT, { resultId }, await studentAuthHeaders());
+  const json = await postJson(PARENT_RESULT_LINK_ENDPOINT, { resultId }, await studentAuthHeaders(), MINT_TIMEOUT_MS);
   if (typeof json.token !== "string" || !PARENT_RESULT_TOKEN_PATTERN.test(json.token) || typeof json.expiresAt !== "string") {
     throw new ParentResultError("failed");
   }

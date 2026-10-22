@@ -101,8 +101,13 @@ export default function ParentReportModal({
   mintLink = mintParentResultLink,
 }: ParentReportModalProps) {
   const [link, setLink] = useState<LinkState>(resultRef ? { kind: "pending" } : { kind: "none" });
+  // Set when the student shared while the link was still being made: that share went WITHOUT the
+  // link, and a link that arrives later is dropped (never added to a later share of this sheet).
+  const linkDropped = useRef(false);
 
-  // PARENT-REPORT-1 — mint the result link once per open, with one retry; never blocks for good.
+  // PARENT-REPORT-1 — mint the result link once per open, with one retry. It NEVER blocks Share:
+  // the mint has its own 5 s timeout, and a tap while it is pending shares the message as before.
+  // Closing the sheet (unmount) cancels the retry: a sheet closed without a share mints no more.
   useEffect(() => {
     if (!resultRef) return;
     let alive = true;
@@ -110,11 +115,11 @@ export default function ParentReportModal({
     const attempt = (left: number) => {
       mintLink(resultRef)
         .then((minted) => {
-          if (!alive) return;
+          if (!alive || linkDropped.current) return;
           setLink({ kind: "ready", url: parentResultUrl(minted.token, siteOrigin(), siteBase()), resultKind: minted.kind });
         })
         .catch(() => {
-          if (!alive) return;
+          if (!alive || linkDropped.current) return;
           if (left > 0) timer = setTimeout(() => attempt(left - 1), LINK_RETRY_MS);
           else setLink({ kind: "none" });
         });
@@ -198,7 +203,12 @@ export default function ParentReportModal({
   }, [onClose]);
 
   const onShare = async () => {
-    if (!report || !png || share === "busy" || link.kind === "pending") return;
+    if (!report || !png || share === "busy") return;
+    if (link.kind === "pending") {
+      // Never wait on the network inside the tap: share as before the link existed, drop the late link.
+      linkDropped.current = true;
+      setLink({ kind: "none" });
+    }
     const ready = link.kind === "ready" ? link : null;
     const text = withResultLink(parentReportShareText(report), ready ? ready.url : null);
     const sharedWith = (method: "native" | "whatsapp_link") => {
@@ -305,7 +315,7 @@ export default function ParentReportModal({
           type="button"
           className="lt-prm__share"
           onClick={onShare}
-          disabled={!png || share === "busy" || phase === "error" || link.kind === "pending"}
+          disabled={!png || share === "busy" || phase === "error"}
           data-testid="prm-share"
           data-result-link={link.kind}
         >
