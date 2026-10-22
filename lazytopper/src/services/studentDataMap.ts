@@ -484,6 +484,29 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "anonymised, in `payOrders`).",
   },
 
+  // ── Firestore: parent result links (server-only, PARENT-REPORT-1) ────────────────
+  {
+    id: "parentReports",
+    kind: "firestore-collection",
+    path: "parentReports/{reportId}",
+    holds:
+      "Links to ONE result that a student chose to share with a parent, keyed by the " +
+      "SHA-256 of the link's token (the token itself is never stored), with the student's " +
+      "`uid` as a FIELD: a copy of what the parent's page shows — the student's first name, " +
+      "the subject and chapter, the date, the score, the marks lost by mistake type, up to " +
+      "three question numbers with their marks and mistake type, and whether the result was " +
+      "tap-only — plus created and expiry times (30 days). No answer text and nothing about " +
+      "the parent.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "Written only by server/routes/parentReport.cjs through the Admin SDK, minted by the " +
+      "signed-in student for one of their OWN session records; NOT declared in " +
+      "firestore.rules, so browsers fall to the deny-all catch-all. Field-keyed like " +
+      "`parentPayLinks`: export and erasure QUERY `where('uid','==',uid)`. Deleted on " +
+      "erasure, so a parent's link stops working when the student deletes their account.",
+  },
+
   // ── Firestore: AI usage ledger (server-only, METER-1) ────────────────────────────
   {
     id: "usageLedger",

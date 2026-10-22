@@ -19,8 +19,9 @@
 // Honest states throughout: checking / ready / sending / sent / expired / failed.
 // Never a fake success.
 
-import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useParams } from "react-router-dom";
+import { PARENT_RESULT_SEGMENT } from "../components/parentReport/parentResultCopy";
 import {
   peekQrSlot,
   sendQrImage,
@@ -83,8 +84,28 @@ const COPY: Record<QrHandoffMode, { head: string; lead: string; cta: string; hin
   },
 };
 
+/**
+ * PARENT-REPORT-1 — `/u/report#r=<token>` is a parent's read-only result page, the other
+ * token-as-capability page for a device that is not signed in. It reuses THIS route (App.tsx is
+ * not edited) and its bare full-screen chrome, noindex shell and `/u/:token` analytics path. The
+ * literal segment `report` can never be a QR token (256 random bits), so it is handed to the
+ * lazily loaded page here and every other token reaches the upload flow exactly as before.
+ */
+const ParentResultPage = lazy(() => import("../components/parentReport/ParentResultPage"));
+
 export default function QrAnswerUploadPage() {
   const { token } = useParams<{ token: string }>();
+  if (token === PARENT_RESULT_SEGMENT) {
+    return (
+      <Suspense fallback={null}>
+        <ParentResultPage />
+      </Suspense>
+    );
+  }
+  return <QrAnswerUploadFlow token={token} />;
+}
+
+function QrAnswerUploadFlow({ token }: { token: string | undefined }) {
   const [phase, setPhase] = useState<Phase>("checking");
   const [mode, setMode] = useState<QrHandoffMode>("document");
   const [error, setError] = useState<string | null>(null);

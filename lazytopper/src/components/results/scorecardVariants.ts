@@ -327,6 +327,10 @@ export interface ScorecardVariant {
   /** A closing note under the actions (QP: what is / isn't saved). */
   footnote?: string;
   actions: ScorecardAction[];
+  /** PARENT-REPORT-1 — the saved session record's id (its surface code) when this scorecard IS a
+   *  saved result, so "Share with parents" can add a private link to it. Absent everywhere a
+   *  result was not saved (signed out, not synced) and on every other surface. */
+  parentResultRef?: string | null;
 }
 
 // ── Shared: four-type aggregation (identical to the shipped worksheet math) ───────
@@ -1828,6 +1832,8 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
               "Not saved — sign in to keep your checked papers in your history and progress.",
           }),
     actions: menu,
+    // PARENT-REPORT-1 — only a SAVED paper has a record the server can read (its id IS the code).
+    ...(saved && !input.signUpToSave ? { parentResultRef: code } : {}),
   };
 }
 

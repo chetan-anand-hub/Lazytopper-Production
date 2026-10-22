@@ -207,6 +207,9 @@ const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, 
 const {
   createParentPayRoutes, PARENT_LINK_PATH, PARENT_VIEW_PATH, PARENT_ORDER_PATH, PARENT_VERIFY_PATH,
 } = require('./routes/parentPay.cjs');
+// PARENT-REPORT-1: a parent's read-only page for ONE result the student chose to share. The
+// student mints (verified uid, own record only); the parent reads a stored snapshot by token.
+const { createParentReportRoutes, PARENT_REPORT_LINK_PATH, PARENT_REPORT_VIEW_PATH } = require('./routes/parentReport.cjs');
 // FAIR-USE-1: trial allowances + premium cost caps on the two grading endpoints, the
 // premium exemption from the 80% vision shed (U4), and GET /api/usage/me. Refusals are
 // DARK unless FAIR_USE_ENFORCE=1 (U8). cachedReadJson lets a grade-worksheet body that
@@ -399,6 +402,18 @@ const parentPayRoutes = createParentPayRoutes({
   adminFirestore,
   telemetry,
   // The child's display name from the server's own auth record — never from a request.
+  getDisplayName: async (uid) => {
+    if (!firebaseAdmin) return '';
+    const record = await firebaseAdmin.auth().getUser(uid);
+    return (record && record.displayName) || '';
+  },
+});
+const parentReportRoutes = createParentReportRoutes({
+  sendJson,
+  verifiedCaller,
+  adminFirestore,
+  telemetry,
+  // The student's display name from the server's own auth record — never from a request.
   getDisplayName: async (uid) => {
     if (!firebaseAdmin) return '';
     const record = await firebaseAdmin.auth().getUser(uid);
@@ -636,6 +651,10 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);
   if (req.method === 'POST' && reqPath === PARENT_ORDER_PATH) return parentPayRoutes.handleOrder(req, res);
   if (req.method === 'POST' && reqPath === PARENT_VERIFY_PATH) return parentPayRoutes.handleVerify(req, res);
+  // PARENT-REPORT-1 - self-gating: the link route resolves the verified uid itself (401 on
+  // none); the view route reads only the stored snapshot its token names.
+  if (req.method === 'POST' && reqPath === PARENT_REPORT_LINK_PATH) return parentReportRoutes.handleMintLink(req, res);
+  if (req.method === 'POST' && reqPath === PARENT_REPORT_VIEW_PATH) return parentReportRoutes.handleView(req, res);
 
   // ── QR answer handoff ────────────────────────────────────────────────────────
   // ORDER IS LOAD-BEARING: '/api/qr-upload/new' must be matched BEFORE the

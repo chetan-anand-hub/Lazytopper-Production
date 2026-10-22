@@ -27,9 +27,13 @@ function useOptionalUser() {
 export default function ShareWithParentsButton({
   placement,
   label = SHARE_WITH_PARENTS_LABEL,
+  resultRef = null,
 }: {
   placement: ParentReportPlacement;
   label?: string;
+  /** PARENT-REPORT-1 — the session record id of the ONE result on screen (a saved scorecard).
+   *  Present → the message also carries a private link to that result's parent page. */
+  resultRef?: string | null;
 }) {
   const user = useOptionalUser();
   const [open, setOpen] = useState(false);
@@ -56,7 +60,13 @@ export default function ShareWithParentsButton({
         typeof document !== "undefined" &&
         createPortal(
           <Suspense fallback={null}>
-            <ParentReportModal uid={uid} displayName={user?.displayName ?? null} placement={placement} onClose={close} />
+            <ParentReportModal
+              uid={uid}
+              displayName={user?.displayName ?? null}
+              placement={placement}
+              onClose={close}
+              resultRef={resultRef}
+            />
           </Suspense>,
           document.body,
         )}

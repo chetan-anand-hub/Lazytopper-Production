@@ -810,7 +810,11 @@ export type NamedAnalyticsEvent =
   // first-party log one name per action (it keeps names only). Sent by trackPaywallAction
   | "paywall_action_pay"
   | "paywall_action_qr"
-  | "paywall_action_forward";
+  | "paywall_action_forward"
+  // PARENT-REPORT-1 — the student shared a link to ONE result with a parent. The vendors get
+  // `parent_report_shared { kind, method }`, the first-party log the bare name. Sent by
+  // trackParentReportShared
+  | "parent_report_shared";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1361,6 +1365,41 @@ export function trackParentReportShare(placement: ParentReportPlacement, method:
   try {
     const data = { placement, method };
     send("event", { name: "parent_report_share", data }, { ga4: data });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/** PARENT-REPORT-1 (result link) — was the shared result tap-only or written (never a figure). */
+export type ParentResultKind = "objective" | "written";
+
+/**
+ * PARENT-REPORT-1 — `parent_report_shared`: the student shared a message that carried a link
+ * to ONE result (the OS sheet completed, or wa.me opened). Kind + method ONLY: never the link,
+ * its token, a score, a name or any text. Vendors get `{ kind, method }`; the first-party log
+ * (signed-in student only) records the bare name — it is in `NamedAnalyticsEvent` and in both
+ * activity allowlists.
+ */
+export function trackParentReportShared(kind: ParentResultKind, method: ScoreShareMethod): void {
+  try {
+    const data = { kind, method };
+    send("event", { name: "parent_report_shared", data }, { ga4: data }, "parent_report_shared");
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * PARENT-REPORT-1 — `parent_report_viewed`: a parent opened a LIVE result link (the server
+ * accepted it). Coarse: the kind only, never an id, the token, a score or a name. Vendors only:
+ * a parent is signed out, so it is deliberately NOT in `NamedAnalyticsEvent` (the first-party
+ * log never records it). The address carries the token in its FRAGMENT, which no vendor
+ * receives (GA4 / Vercel get `/u/:token`; Meta sends nothing from an address with a hash).
+ */
+export function trackParentReportViewed(kind: ParentResultKind): void {
+  try {
+    const data = { kind };
+    send("event", { name: "parent_report_viewed", data }, { ga4: data });
   } catch {
     /* analytics must never break the page */
   }

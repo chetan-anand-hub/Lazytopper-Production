@@ -154,6 +154,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'paywall_action_pay',
   'paywall_action_qr',
   'paywall_action_forward',
+  // PARENT-REPORT-1 - the student shared a link to one result with a parent. Additive only.
+  'parent_report_shared',
 ]);
 
 /**

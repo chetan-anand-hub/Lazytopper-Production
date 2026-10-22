@@ -188,6 +188,9 @@ function realSeed(uid = UID) {
     // ASK-PARENTS-PAY-1: FIELD-KEYED — the doc id is sha256(link token); the child is a `uid` FIELD.
     'parentPayLinks/sha-link-a': { uid, firstName: 'Aarav', status: 'paid', orderIds: ['order_A'] },
     'parentPayLinks/sha-link-z': { uid: OTHER, firstName: 'Zoya', status: 'open', orderIds: [] },
+    // PARENT-REPORT-1: FIELD-KEYED — the doc id is sha256(link token); the student is a `uid` FIELD.
+    'parentReports/sha-report-a': { uid, firstName: 'Aarav', subject: 'maths', awarded: 6, total: 10 },
+    'parentReports/sha-report-z': { uid: OTHER, firstName: 'Zoya', subject: 'maths', awarded: 9, total: 10 },
     // METER-1. The parent is seeded only so the map-driven "every location carries data"
     // test has a row to find; production never writes it (see the phantom-parent test).
     [`usageLedger/${uid}`]: {},

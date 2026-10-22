@@ -1,9 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   trackParentReportShare,
+  trackParentReportShared,
   trackParentReportShown,
   type ParentReportPlacement,
 } from "../../analytics/analytics";
+import {
+  mintParentResultLink,
+  parentResultUrl,
+  withResultLink,
+  type MintedResultLink,
+  type ParentResultKind,
+} from "./parentResultLink";
 import { readStudyModel, type StudyReadModel } from "../../services/progressReadModel";
 import {
   downloadBlob,
@@ -29,6 +37,14 @@ import { PARENT_REPORT_FILENAME, renderParentReportPng } from "./parentReportPng
  *
  * Student-initiated only: nothing is sent, stored or remembered about a parent. The first name
  * appears only when the student ticks the box (off by default).
+ *
+ * PARENT-REPORT-1 (result link, owner ask 22 Oct 2026) — opened from a scorecard with
+ * `resultRef` (the session record id), the sheet ALSO asks the server for a private link to
+ * THAT result and adds one line under the message: "See the full result: <link>". The link is
+ * minted when the student opens this sheet from "Share with parents" (their explicit tap), in
+ * parallel with drawing the image, so the Share tap still opens the OS sheet inside its own user
+ * activation. If the link cannot be made (offline, the server not deployed yet, the record not
+ * synced), the message goes exactly as before, without the line. The image is unchanged.
  */
 
 type Phase = "loading" | "ready" | "error";
@@ -43,6 +59,29 @@ export interface ParentReportModalProps {
   read?: (uid: string) => Promise<StudyReadModel>;
   /** Test seam: the PNG renderer. */
   render?: (report: ParentReport) => Promise<Blob>;
+  /** PARENT-REPORT-1 — the id of the ONE result this sheet was opened from (a scorecard). Absent
+   *  (Me, Home) → no result link; the sheet is exactly as before. */
+  resultRef?: string | null;
+  /** Test seam: mint the result link (default: POST /api/parent-report/link). */
+  mintLink?: (resultId: string) => Promise<MintedResultLink>;
+}
+
+/** The result link's state: being made, made, or not available (the message goes without it). */
+type LinkState = { kind: "pending" } | { kind: "ready"; url: string; resultKind: ParentResultKind } | { kind: "none" };
+
+/** One retry after this long: the record's cloud write is fire-and-forget at grade time. */
+const LINK_RETRY_MS = 1500;
+
+function siteOrigin(): string {
+  return typeof window !== "undefined" && window.location ? window.location.origin : "https://www.lazytopper.com";
+}
+
+function siteBase(): string {
+  try {
+    return String(import.meta.env.BASE_URL || "/");
+  } catch {
+    return "/";
+  }
 }
 
 function browserNavigator(): ShareNavigator | undefined {
@@ -58,7 +97,34 @@ export default function ParentReportModal({
   onClose,
   read = defaultRead,
   render = renderParentReportPng,
+  resultRef = null,
+  mintLink = mintParentResultLink,
 }: ParentReportModalProps) {
+  const [link, setLink] = useState<LinkState>(resultRef ? { kind: "pending" } : { kind: "none" });
+
+  // PARENT-REPORT-1 — mint the result link once per open, with one retry; never blocks for good.
+  useEffect(() => {
+    if (!resultRef) return;
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const attempt = (left: number) => {
+      mintLink(resultRef)
+        .then((minted) => {
+          if (!alive) return;
+          setLink({ kind: "ready", url: parentResultUrl(minted.token, siteOrigin(), siteBase()), resultKind: minted.kind });
+        })
+        .catch(() => {
+          if (!alive) return;
+          if (left > 0) timer = setTimeout(() => attempt(left - 1), LINK_RETRY_MS);
+          else setLink({ kind: "none" });
+        });
+    };
+    attempt(1);
+    return () => {
+      alive = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, [resultRef, mintLink]);
   const [phase, setPhase] = useState<Phase>("loading");
   const [model, setModel] = useState<StudyReadModel | null>(null);
   const [showName, setShowName] = useState(false);
@@ -132,8 +198,13 @@ export default function ParentReportModal({
   }, [onClose]);
 
   const onShare = async () => {
-    if (!report || !png || share === "busy") return;
-    const text = parentReportShareText(report);
+    if (!report || !png || share === "busy" || link.kind === "pending") return;
+    const ready = link.kind === "ready" ? link : null;
+    const text = withResultLink(parentReportShareText(report), ready ? ready.url : null);
+    const sharedWith = (method: "native" | "whatsapp_link") => {
+      trackParentReportShare(placement, method);
+      if (ready) trackParentReportShared(ready.resultKind, method);
+    };
     const file = new File([png.blob], PARENT_REPORT_FILENAME, { type: "image/png" });
     const nav = browserNavigator();
     const method = pickShareMethod(nav, file);
@@ -141,7 +212,7 @@ export default function ParentReportModal({
       setShare("busy");
       const outcome = await shareNative(nav, file, text);
       if (outcome === "shared") {
-        trackParentReportShare(placement, "native");
+        sharedWith("native");
         setShare("shared");
         return;
       }
@@ -158,7 +229,7 @@ export default function ParentReportModal({
       typeof window !== "undefined" && typeof window.open === "function"
         ? openWhatsAppLink(text, (url, target) => window.open(url, target))
         : false;
-    if (opened) trackParentReportShare(placement, "whatsapp_link");
+    if (opened) sharedWith("whatsapp_link");
     downloadBlob(png.blob, PARENT_REPORT_FILENAME);
     setShare("saved");
   };
@@ -194,6 +265,12 @@ export default function ParentReportModal({
           This week&rsquo;s totals only — no questions, no answers.
           {firstName ? " Your name is shown only if you tick the box." : ""}
         </p>
+        {link.kind === "ready" && (
+          <p className="lt-prm__sub" data-testid="prm-link-note">
+            The message also carries a private link to this result: your first name, the score and where marks
+            were lost — never your answers. It works for 30 days.
+          </p>
+        )}
 
         {phase === "error" ? (
           <p className="lt-prm__err" role="status" data-testid="prm-error">
@@ -228,8 +305,9 @@ export default function ParentReportModal({
           type="button"
           className="lt-prm__share"
           onClick={onShare}
-          disabled={!png || share === "busy" || phase === "error"}
+          disabled={!png || share === "busy" || phase === "error" || link.kind === "pending"}
           data-testid="prm-share"
+          data-result-link={link.kind}
         >
           {share === "busy" ? "Opening…" : "Share on WhatsApp"}
         </button>

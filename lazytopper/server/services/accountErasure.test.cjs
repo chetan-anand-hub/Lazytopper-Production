@@ -203,6 +203,10 @@ function realSeed(uid = UID) {
     // ASK-PARENTS-PAY-1: FIELD-KEYED pay links — DELETED with the account (not an accounting record).
     'parentPayLinks/sha-link-a': { uid, firstName: 'Aarav', status: 'paid', orderIds: ['order_A'] },
     'parentPayLinks/sha-link-z': { uid: OTHER, firstName: 'Zoya', status: 'open', orderIds: [] },
+    // PARENT-REPORT-1: FIELD-KEYED result snapshots a parent can open — DELETED with the account.
+    'parentReports/sha-report-a': { uid, firstName: 'Aarav', subject: 'maths', awarded: 6, total: 10 },
+    'parentReports/sha-report-b': { uid, firstName: 'Aarav', subject: 'science', awarded: 3, total: 5 },
+    'parentReports/sha-report-z': { uid: OTHER, firstName: 'Zoya', subject: 'maths', awarded: 9, total: 10 },
     // METER-1: production writes ONLY the day documents; the parent stays missing.
     [`usageLedger/${uid}/days/2026-09-27`]: { calls: 1, costMicroInr: 246400 },
     // ★ FIELD-KEYED. The doc id is sha256(uploadToken); the student is a `uid` FIELD.
@@ -679,6 +683,19 @@ test('★★ ASK-PARENTS-PAY-1: parentPayLinks are DELETED by the uid FIELD — 
   // The order the link started is an accounting record: kept, anonymised (Z7), not deleted.
   assert.equal(store.docs.get('payOrders/order_A').uid, 'erased');
   assert.ok(!result.remaining.some((r) => r.id === 'parentPayLinks'));
+});
+
+test('★★ PARENT-REPORT-1: parentReports snapshots are DELETED by the uid FIELD — a parent link stops working, another student’s survives', async () => {
+  const { service, store } = makeService();
+  const result = await service.eraseAccount(UID);
+  const row = byId(result, 'parentReports');
+  assert.ok(row, 'parentReports is not in the erasure plan');
+  assert.equal(store.docs.has('parentReports/sha-report-a'), false, "the student's result snapshot survived erasure");
+  assert.equal(store.docs.has('parentReports/sha-report-b'), false, "the student's result snapshot survived erasure");
+  assert.equal(store.docs.get('parentReports/sha-report-z').uid, OTHER, "another student's snapshot was touched");
+  const q = store.queriedByField.find((x) => x.collection === 'parentReports');
+  assert.deepEqual({ field: q.field, value: q.value }, { field: 'uid', value: UID });
+  assert.ok(!result.remaining.some((r) => r.id === 'parentReports'));
 });
 
 test('★ Z7: a second erasure finds no payOrders under the uid -> notFound, and rewrites nothing', async () => {
