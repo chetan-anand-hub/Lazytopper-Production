@@ -1,4 +1,4 @@
-import { use, useState, type FormEvent, type ReactNode } from "react";
+import { use, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 
 import { trackNamedEvent, type NamedAnalyticsEvent } from "../analytics/analytics";
@@ -29,6 +29,9 @@ import { ensureBankChapters, getBankRows, isBankChapterLoaded } from "../data/ba
 import type { CanonicalQuestion } from "../data/predictionTypes";
 import { compareAnswer, compareOption, correctOptionIndex, type Verdict } from "../lib/solutions/compareAnswer";
 import "./solutions.css";
+// MOMENTS-1 M10 — Byte peeks in after a matching check (signed out, public guide arm; lazy chunk).
+import { SolutionsMoment, noteSolutionMatched } from "../components/guide/moments/moments";
+import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
 
 /**
  * SolutionsPage — `/ncert-solutions/:chapter` and `/ncert-exemplar/:chapter` (SOLUTIONS-1, lane G;
@@ -158,6 +161,11 @@ function QuestionCard({ q, safe, refLabel }: { q: CanonicalQuestion; safe: Publi
   };
 
   const verdict: Verdict | null = options && pick !== null ? compareOption(pick, String(q.answer ?? ""), options) : submitted?.verdict ?? null;
+
+  // MOMENTS-1 M10 — the student's answer MATCHES (a ✓ verdict): the page's one Byte moment may show.
+  useEffect(() => {
+    if (verdict === "right") noteSolutionMatched();
+  }, [verdict]);
 
   return (
     <article
@@ -294,6 +302,8 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
 
   return (
     <main className="lt-ncs" data-testid="ncert-solutions-page" data-book={book}>
+      {/* MOMENTS-1 M10 — "First check free" is said only while the signed-out free check is on. */}
+      <SolutionsMoment freeCheckOn={isFreeCheckClientEnabled()} />
       <header className="lt-ncs__hero">
         <div className="lt-ncs__w">
           <Link to={backHref} className="lt-ncs__back">
