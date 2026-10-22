@@ -11,8 +11,9 @@
  *       serves is an ancestor and the whole range is deploy-inert by verdictForFiles; every other
  *       case (code in range, not an ancestor, unreadable live, git error) waits;
  *   (f) RAILWAY-BUILD-GATE - the `railway-build` job runs the ROOT build exactly as the Railway
- *       image does (Node 24, frozen install WITH devDependencies, unfiltered `pnpm run build`),
- *       and the aggregate `quality-gate` judges it.
+ *       image does (Node 24, frozen install WITH devDependencies, the SAME `pnpm run <script>` as
+ *       the Dockerfile's RUN line - `build:backend` since RAILWAY-SLIM-1), that script keeps every
+ *       deploy-blocking guard, build-ops still builds the website, and the aggregate judges it.
  *
  * Run by quality-gate.yml (build-ops job).   node scripts/ops/ci_speed_acceptance.mjs
  */
@@ -36,6 +37,8 @@ const WORKFLOW = path.join(REPO_ROOT, ".github", "workflows", "quality-gate.yml"
 const LANE_OVERLAP = path.join(REPO_ROOT, ".github", "workflows", "lane-overlap.yml");
 const GOLDEN_EVAL = path.join(REPO_ROOT, ".github", "workflows", "golden-eval.yml");
 const VERCEL_JSON =path.join(REPO_ROOT, "vercel.json");
+const DOCKERFILE = path.join(REPO_ROOT, "Dockerfile");
+const ROOT_PACKAGE_JSON = path.join(REPO_ROOT, "package.json");
 
 const checks = [];
 const check = (name, ok, detail = "") => checks.push({ name, ok: Boolean(ok), detail });
@@ -484,7 +487,17 @@ let WORKFLOW_SHARDS = 0; // set by w5 from the workflow's own matrix; w13/w14 pl
 // validateQuestionBanks, which no PR job ran. The `railway-build` job mirrors the Dockerfile.
 // Each pin is a pure function of the workflow text and runs on the REAL file AND on a MUTATED
 // copy that must fail it: a pin that cannot fail is not a pin.
-function railwayBuildPins(wfText) {
+// RAILWAY-SLIM-1 (2026-10-22): the image runs the root `build:backend` script, NOT `build` - the
+// lazytopper website build is unused by the backend image. The pins now read the Dockerfile and the
+// root package.json too: CI must run the SAME `pnpm run <script>` as the Dockerfile's RUN line, that
+// script must still carry every deploy-blocking guard, and build-ops must still build the website.
+const BACKEND_GUARDS = Object.freeze([
+  "pnpm run typecheck",
+  "pnpm --filter @workspace/scripts run syllabusGuard",
+  "pnpm --filter @workspace/scripts run validateQuestionBanks",
+  "pnpm --filter @workspace/api-server run build",
+]);
+function railwayBuildPins(wfText, dockerText, pkgText) {
   const blockOf = (id) => {
     const m = wfText.match(new RegExp(`\\n  ${id}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z][\\w-]*:\\n|$)`));
     return m ? m[1] : "";
@@ -494,6 +507,12 @@ function railwayBuildPins(wfText) {
   const lines = code.split("\n").map((l) => l.trim());
   const agg = blockOf("quality-gate");
   const needs = ((agg.match(/^ {4}needs:\s*\[([^\]]*)\]/m) || [])[1] || "").split(",").map((x) => x.trim());
+  const dockerRuns = [...dockerText.matchAll(/^RUN pnpm run ([\w:-]+)[ \t]*$/gm)].map((m) => m[1]);
+  const script = dockerRuns.length === 1 ? dockerRuns[0] : "";
+  let scripts = {};
+  try { scripts = JSON.parse(pkgText).scripts || {}; } catch { scripts = {}; }
+  const steps = String(scripts[script] || "").split("&&").map((s) => s.trim()).filter(Boolean);
+  const buildOps = blockOf("build-ops").replace(/^\s*#.*$/gm, "").split("\n").map((l) => l.trim());
   return {
     exists_and_full_bar: rb !== "" && /^ {4}needs: classify$/m.test(rb) &&
       /^ {4}if: needs\.classify\.outputs\.docs_only != 'true'$/m.test(rb),
@@ -501,26 +520,55 @@ function railwayBuildPins(wfText) {
       /corepack prepare pnpm@10\.32\.1 --activate/.test(code),
     install_frozen_with_dev_deps: lines.includes("run: pnpm install --frozen-lockfile") &&
       !/--prod\b|--production\b|pnpm prune|NODE_ENV=production/.test(code),
-    unfiltered_root_build: lines.includes("pnpm run build") &&
+    // CI runs the Dockerfile's OWN build command, unfiltered, as a root script.
+    same_command_as_dockerfile: script !== "" && lines.includes(`pnpm run ${script}`) &&
       !/--filter|pnpm -r\b|--dir\b|working-directory:/.test(code),
+    // That script still runs every deploy-blocking guard + the api-server bundle the image starts.
+    backend_script_keeps_guards: steps.length > 0 && BACKEND_GUARDS.every((g) => steps.includes(g)),
+    // The website the image no longer builds is still built on every full-bar run.
+    website_build_still_in_build_ops: buildOps.includes("run: pnpm --filter lazytopper run build"),
     in_aggregate_needs: needs.includes("railway-build"),
   };
 }
 {
   const wf = read(WORKFLOW);
-  const pins = railwayBuildPins(wf);
+  const docker = read(DOCKERFILE);
+  const pkg = read(ROOT_PACKAGE_JSON);
+  const pins = railwayBuildPins(wf, docker, pkg);
   const RB = /(\n  railway-build:\n[\s\S]*?)/.source;
+  const dropGuard = (text, guard) => {
+    try {
+      const j = JSON.parse(text);
+      const s = String(j.scripts?.["build:backend"] || "");
+      j.scripts["build:backend"] = s.split("&&").map((x) => x.trim()).filter((x) => x !== guard).join(" && ");
+      return JSON.stringify(j, null, 2);
+    } catch { return text; }
+  };
+  // Each mutant is { wf?, docker?, pkg? }; a pin bites only if EVERY one of its mutants fails it.
   const mutants = {
-    exists_and_full_bar: wf.replace(/(\n  railway-build:\n    needs: classify\n)    if: [^\n]*\n/, "$1"),
-    node_24: wf.replace(new RegExp(`${RB}node-version: '24'`), "$1node-version: '22'"),
-    install_frozen_with_dev_deps: wf.replace(new RegExp(`${RB}run: pnpm install --frozen-lockfile`), "$1run: pnpm install --prod --frozen-lockfile"),
-    unfiltered_root_build: wf.replace(new RegExp(`${RB}\\n {10}pnpm run build\\n`), "$1\n          pnpm --filter lazytopper run build\n"),
-    in_aggregate_needs: wf.replace(/(\n  quality-gate:\n    needs: \[[^\]]*?), railway-build/, "$1"),
+    exists_and_full_bar: [{ wf: wf.replace(/(\n  railway-build:\n    needs: classify\n)    if: [^\n]*\n/, "$1") }],
+    node_24: [{ wf: wf.replace(new RegExp(`${RB}node-version: '24'`), "$1node-version: '22'") }],
+    install_frozen_with_dev_deps: [{ wf: wf.replace(new RegExp(`${RB}run: pnpm install --frozen-lockfile`), "$1run: pnpm install --prod --frozen-lockfile") }],
+    same_command_as_dockerfile: [
+      // CI drifts back to the old root build while the image runs build:backend
+      { wf: wf.replace(new RegExp(`${RB}\\n {10}pnpm run build:backend\\n`), "$1\n          pnpm run build\n") },
+      // the Dockerfile changes its build command and CI is not updated
+      { docker: docker.replace(/^RUN pnpm run build:backend[ \t]*$/m, "RUN pnpm run build") },
+      // a filtered build in CI
+      { wf: wf.replace(new RegExp(`${RB}\\n {10}pnpm run build:backend\\n`), "$1\n          pnpm --filter @workspace/api-server run build\n") },
+    ],
+    backend_script_keeps_guards: BACKEND_GUARDS.map((g) => ({ pkg: dropGuard(pkg, g) })),
+    website_build_still_in_build_ops: [{ wf: wf.replace(/(\n  build-ops:\n[\s\S]*?)run: pnpm --filter lazytopper run build\n/, "$1run: echo skipped\n") }],
+    in_aggregate_needs: [{ wf: wf.replace(/(\n  quality-gate:\n    needs: \[[^\]]*?), railway-build/, "$1") }],
   };
   for (const [k, ok] of Object.entries(pins)) {
-    const m = mutants[k];
-    const bites = m !== wf && railwayBuildPins(m)[k] === false;
-    check(`r_${k}`, ok && bites, `real=${ok}; control (a mutant that must fail it) fails it=${bites}`);
+    const ms = mutants[k] || [];
+    const bites = ms.length > 0 && ms.every((m) => {
+      const t = { wf: m.wf ?? wf, docker: m.docker ?? docker, pkg: m.pkg ?? pkg };
+      const changed = t.wf !== wf || t.docker !== docker || t.pkg !== pkg;
+      return changed && railwayBuildPins(t.wf, t.docker, t.pkg)[k] === false;
+    });
+    check(`r_${k}`, ok && bites, `real=${ok}; controls (${ms.length} mutant(s) that must fail it) all fail it=${bites}`);
   }
   const ok = { result: "success" };
   const skip = { result: "skipped" };

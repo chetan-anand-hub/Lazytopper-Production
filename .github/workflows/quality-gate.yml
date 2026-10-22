@@ -15,7 +15,7 @@ name: Quality Gate
 #   static        mojibake (full bar; CI-SPEED-3 moved it here from docs-lane), Firestore rules, root
 #                 guard matrix, root typecheck, edge security tests, test typecheck
 #   build-ops     build + the lazytopper ops matrix
-#   railway-build the ROOT `pnpm run build` exactly as the Railway backend image runs it (Node 24,
+#   railway-build the ROOT `pnpm run build:backend` exactly as the Railway backend image runs it (Node 24,
 #                 frozen install WITH devDependencies, no .git) — RAILWAY-BUILD-GATE
 #   vitest        the WHOLE vitest suite, sharded 1/4..4/4 at 4 workers (every file runs exactly once)
 #   clock-changed the date-sensitive manifest tests THIS change touched, at 2030 and at IST midnight
@@ -339,10 +339,13 @@ jobs:
   #   pnpm install --frozen-lockfile          -> same, WITH devDependencies. NEVER `--prod`:
   #       the gateway needs `typescript` at runtime and the build starts with `tsc`; a --prod
   #       install fails at `tsc` where Railway passes (RAILWAY-BUILD-GATE R1, proven once).
-  #   pnpm run build (root, unfiltered)       -> same script: typecheck -> syllabusGuard ->
-  #       validateQuestionBanks -> api-server + lazytopper builds
-  #   .dockerignore drops .git                -> .git is moved aside for the build (the only
-  #       build step that reads git, writeVersion.ts, then logs its no-SHA warning, as in the image)
+  #   pnpm run build:backend (root script)    -> same script: typecheck -> syllabusGuard ->
+  #       validateQuestionBanks -> api-server bundle. RAILWAY-SLIM-1 (2026-10-22): the image no
+  #       longer builds the lazytopper WEBSITE (nothing in it reads artifacts/lazytopper-app/dist); the website
+  #       build still runs on every PR in build-ops above, and on Vercel. ci_speed_acceptance.mjs
+  #       pins this step's command to the Dockerfile's `RUN pnpm run <script>` line.
+  #   .dockerignore drops .git                -> .git is moved aside for the build, as in the image
+  #       (no step of build:backend reads git today; kept so a future one fails here first)
   # Skipped on the docs-only fast path: markdown under handoff/ ops/ docs/ cannot change any
   # input of the root build. Judged by the aggregate `quality-gate` below like every full-bar job.
   # fetch-depth 1: no step of the root build reads history.
@@ -374,13 +377,13 @@ jobs:
           cache: pnpm
       - name: Install workspace (frozen lockfile, WITH devDependencies, as the Dockerfile)
         run: pnpm install --frozen-lockfile
-      - name: Root build exactly as Railway runs it (pnpm run build, no .git like the image)
+      - name: Backend build exactly as Railway runs it (pnpm run build:backend, no .git like the image)
         run: |
           set -euo pipefail
           node --version
           mv .git "$RUNNER_TEMP/dotgit-hidden"
           trap 'mv "$RUNNER_TEMP/dotgit-hidden" .git' EXIT
-          pnpm run build
+          pnpm run build:backend
 
   # --- Vitest render/unit suites, SHARDED ---
   # ★ HOW MANY FILES AND TESTS? READ THEM FROM THE LOG — each shard prints vitest's "Test Files" /
