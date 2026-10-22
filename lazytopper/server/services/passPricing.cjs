@@ -157,7 +157,164 @@ function endOfIstDayMs(iso) {
   return Date.UTC(date.y, date.m, date.d + 1) - IST_OFFSET_MS - 1;
 }
 
+/* ── TOPUP-1 · extra-usage packs (the SERVER's price table; the client never sends an amount) ──────────
+   A pack is a one-time payment that adds AI-usage CREDIT, spent only after the plan's own window is at cap.
+   `priceInr` is what the student pays (GST included). `creditInr` is the BASE credit in rupees of AI COST (a launch bonus is added by topupCreditFor).
+   THE ARITHMETIC (OWNER DECISION 22 Oct 2026 - supersedes the 10 Oct 20 / 65 figures):
+     49  incl. 18% GST -> 49 / 1.18  = 41.53 net;  less the Razorpay fee (~2% + 18% GST ~ 2.4%) ~ 40.5
+                                                                              ->  credit 25  (~62% of net)
+     149 incl. 18% GST -> 149 / 1.18 = 126.27 net; less the fee ~ 123.3     ->  credit 80  (~65% of net)
+   Credit is held in MICRO-INR (1 rupee = 1,000,000), the unit usageLedger.cjs already meters in.
+   ★ The student NEVER sees the credit in rupees - only "about N answer checks / Tutor messages ..."
+     (topupBreakdownFor / usageCredit.creditView). The rupee figure is server-internal.
+   ★ Credit is metered at the REAL model cost in force at the call (modelPrices.priceFor), so when
+     gemini-3.8-flash doubles on 2027-01-01 a pack buys about half as many GRADING calls. The
+     "about N" figures are therefore computed at the VIEW instant (activityCostMicroInr), never stored. */
+const MICRO_INR_PER_INR = 1_000_000;
+const TOPUP_PRODUCTS = Object.freeze({
+  topup_49: Object.freeze({ priceInr: 49, creditInr: 25 }),
+  topup_149: Object.freeze({ priceInr: 149, creditInr: 80 }),
+});
+
+/**
+ * BONUS OFFER (owner 11 Oct 00:13 IST, TOPUP-1 v1.3): BUILT BUT OFF at launch. `TOPUP_BONUS_PERCENT` is 0, so
+ * a pack credits its base amount and no offer text exists anywhere. The owner plans +25% near the boards
+ * (around December) as a one-constant change in a later small PR - never an env var set by an agent.
+ * `TOPUP_BONUS_ENDS_ISO` is an optional last day (IST, "YYYY-MM-DD") after which the bonus stops by itself.
+ * It is NOT tied to FOUNDING_OFFER_OPEN: the founding price is a different thing and is untouched here.
+ * When on (e.g. +25%): 49 -> 25 + 6, 149 -> 80 + 20 (the bonus is floored to a whole rupee), recorded
+ * SEPARATELY from the base. Owner 22 Oct 2026: NO bonus at launch - the percent stays 0.
+ */
+const TOPUP_BONUS_PERCENT = 0;
+const TOPUP_BONUS_ENDS_ISO = null;
+
+/** Is the bonus running at `nowMs`? (percent > 0, and not past its optional last IST day) */
+function topupBonusActive(nowMs, percent = TOPUP_BONUS_PERCENT, endsIso = TOPUP_BONUS_ENDS_ISO) {
+  if (!(Number.isFinite(percent) && percent > 0)) return false;
+  if (endsIso == null) return true;
+  const end = endOfIstDayMs(endsIso);
+  return end !== null && Number.isFinite(nowMs) && nowMs <= end;
+}
+
+/**
+ * What a pack credits at `nowMs`: `{ baseMicroInr, bonusMicroInr, totalMicroInr, bonusPercent }`. Null for an
+ * unknown product. `bonus` overrides the two constants (a test seam; production passes nothing).
+ */
+function topupCreditFor(key, nowMs, bonus) {
+  if (!isTopupProduct(key)) return null;
+  const p = TOPUP_PRODUCTS[key];
+  const percent = bonus && bonus.percent !== undefined ? bonus.percent : TOPUP_BONUS_PERCENT;
+  const endsIso = bonus && bonus.endsIso !== undefined ? bonus.endsIso : TOPUP_BONUS_ENDS_ISO;
+  const pct = topupBonusActive(nowMs, percent, endsIso) ? percent : 0;
+  const bonusInr = Math.floor((p.creditInr * pct) / 100);
+  const baseMicroInr = p.creditInr * MICRO_INR_PER_INR;
+  const bonusMicroInr = bonusInr * MICRO_INR_PER_INR;
+  return { baseMicroInr, bonusMicroInr, totalMicroInr: baseMicroInr + bonusMicroInr, bonusPercent: pct };
+}
+
+/**
+ * What ONE activity costs, in rupees of AI cost, for the pack breakdown and the admission estimate (TOPUP-1 §2.5).
+ * ★ P12 is UNVERIFIED for the paper rows: the first four are METER-AUDIT-2's measured figures (Desktop\\diff\\a17\\
+ * report-meter-audit-2-2026-10-07.md §1-§2, ₹ at 96.5/$); the three paper rows are ESTIMATES (₹0.11 per graded question =
+ * METER-AUDIT-2's 38-question paper ≈ ₹4.1, times a typical paper size) until the owner-run ledger export (P12) replaces them.
+ * The sheet's "about N" is floor(credit / cost), computed here - never typed into the client.
+ *
+ * ★ `estimate: true` marks the three PAPER rows (D97): the client must read them as "about N" ESTIMATES.
+ *   (Every row is an "about" figure; the paper rows are additionally not measured.)
+ * ★ `model` is the model whose LIST PRICE the measured `costInr` was taken at (today's MODEL_PRICES row):
+ *   grading runs DEFAULT_GRADING_MODEL (gemini-3.8-flash, server/grading/modelConfig.cjs); the Tutor,
+ *   detection and More-like-this run GEMINI_MODEL's default (gemini-2.5-flash, serverConfig.cjs). The cost
+ *   at any instant is `costInr` scaled by priceFor(model, at) / priceFor(model) - see activityCostMicroInr.
+ */
+const GRADING_PRICE_MODEL = "gemini-3.8-flash";
+const GENERAL_PRICE_MODEL = "gemini-2.5-flash";
+const TOPUP_ACTIVITIES = Object.freeze({
+  answer_check: Object.freeze({ label: "answer checks", costInr: 2.05, model: GRADING_PRICE_MODEL, estimate: false, source: "METER-AUDIT-2" }),
+  tutor_message: Object.freeze({ label: "Tutor messages", costInr: 0.357, model: GENERAL_PRICE_MODEL, estimate: false, source: "METER-AUDIT-2" }),
+  question_detection: Object.freeze({ label: "question readings", costInr: 0.1, model: GENERAL_PRICE_MODEL, estimate: false, source: "METER-AUDIT-2" }),
+  more_like_this: Object.freeze({ label: "More like this sets", costInr: 0.5, model: GENERAL_PRICE_MODEL, estimate: false, source: "METER-AUDIT-2" }),
+  chapter_test_grading: Object.freeze({ label: "Chapter Test gradings", costInr: 1.65, model: GRADING_PRICE_MODEL, estimate: true, source: "ESTIMATE (15 Q x 0.11)" }),
+  full_mock_grading: Object.freeze({ label: "Full Mock gradings", costInr: 4.18, model: GRADING_PRICE_MODEL, estimate: true, source: "ESTIMATE (38 Q x 0.11)" }),
+  worksheet_grading: Object.freeze({ label: "Worksheet gradings", costInr: 1.1, model: GRADING_PRICE_MODEL, estimate: true, source: "ESTIMATE (10 Q x 0.11)" }),
+});
+/** Per graded question, for the admission estimate of a paper (ESTIMATE, see above; a grading cost). */
+const TOPUP_PER_QUESTION_COST_INR = 0.11;
+
+/**
+ * How much `model`'s list price at `atMs` is of its price today (1 = unchanged; 2 = doubled). Uses the
+ * OUTPUT rate: thinking bills at the output rate and is the largest line on every call (modelPrices.cjs).
+ * An unpriced model, or no finite instant, is 1 - never a guessed multiplier.
+ */
+function priceMultiplierAt(model, atMs) {
+  const { priceFor } = require("./modelPrices.cjs");
+  const today = priceFor(model);
+  const then = Number.isFinite(atMs) ? priceFor(model, atMs) : today;
+  if (!today || !then || !(today.outputUsdPerMillion > 0) || !(then.outputUsdPerMillion > 0)) return 1;
+  return then.outputUsdPerMillion / today.outputUsdPerMillion;
+}
+
+/** One activity's expected cost in micro-INR at `atMs` (the price in force then). Unknown activity -> answer_check. */
+function activityCostMicroInr(activity, atMs) {
+  const a = Object.prototype.hasOwnProperty.call(TOPUP_ACTIVITIES, activity) ? TOPUP_ACTIVITIES[activity] : TOPUP_ACTIVITIES.answer_check;
+  // Integer micro-INR first (2.05 * 1e6 is not exact in binary), then the multiplier.
+  return Math.ceil(Math.round(a.costInr * MICRO_INR_PER_INR) * priceMultiplierAt(a.model, atMs));
+}
+
+/**
+ * What a request is expected to cost in micro-INR at `atMs`, to decide whether credit COVERS it and how much to
+ * HOLD (the actual metered cost is what is charged).
+ */
+function creditEstimateMicroInr(activity, questionCount, atMs) {
+  if (activity === "papers") {
+    const n = Math.max(1, Math.floor(Number(questionCount) || 1));
+    return Math.ceil(Math.round(TOPUP_PER_QUESTION_COST_INR * MICRO_INR_PER_INR) * n * priceMultiplierAt(GRADING_PRICE_MODEL, atMs));
+  }
+  return activityCostMicroInr(activity, atMs);
+}
+
+/** "about N" of `activity` that `microInr` of credit buys at `atMs`. */
+function aboutCountFor(microInr, activity, atMs) {
+  const cost = activityCostMicroInr(activity, atMs);
+  return cost > 0 ? Math.floor(Math.max(0, Number(microInr) || 0) / cost) : 0;
+}
+
+/**
+ * The honest breakdown of one pack at `nowMs`: for every activity, "about N" = floor(credit / that activity's cost
+ * AT nowMs). Null for an unknown product. The bonus (0 at launch) is included when running, so the numbers follow it.
+ * No rupee figure of credit is in the result - only the pack's price.
+ */
+function topupBreakdownFor(key, nowMs, bonus) {
+  const credit = topupCreditFor(key, nowMs, bonus);
+  if (!credit) return null;
+  const rows = Object.entries(TOPUP_ACTIVITIES).map(([activity, a]) => ({
+    activity,
+    label: a.label,
+    about: aboutCountFor(credit.totalMicroInr, activity, nowMs),
+    estimate: a.estimate,
+  }));
+  return { key, priceInr: TOPUP_PRODUCTS[key].priceInr, bonusPercent: credit.bonusPercent, rows };
+}
+
+/** True for a key of the closed top-up table. */
+function isTopupProduct(key) {
+  return typeof key === 'string' && Object.prototype.hasOwnProperty.call(TOPUP_PRODUCTS, key);
+}
+
 module.exports = {
+  MICRO_INR_PER_INR,
+  TOPUP_PRODUCTS,
+  TOPUP_BONUS_PERCENT,
+  TOPUP_BONUS_ENDS_ISO,
+  topupBonusActive,
+  topupCreditFor,
+  TOPUP_ACTIVITIES,
+  TOPUP_PER_QUESTION_COST_INR,
+  priceMultiplierAt,
+  activityCostMicroInr,
+  aboutCountFor,
+  creditEstimateMicroInr,
+  topupBreakdownFor,
+  isTopupProduct,
   PRICE_MONTHLY_LIST_INR,
   PRICE_MONTHLY_FOUNDING_INR,
   FOUNDING_OFFER_OPEN,
