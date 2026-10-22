@@ -530,6 +530,61 @@ function createUsageLedger(deps = {}) {
   return { recordUsage, recordTrialUse, readDays };
 }
 
+/* ── COST-1 read helpers (pure; nothing here reads or writes Firestore) ───────
+ * The admin Students page totals AI cost from day documents it has already read. These
+ * helpers are the ONE place that says which ledger field is "AI cost", so the list column,
+ * the detail table and the summary can never disagree.
+ *
+ * ★ WHAT "AI COST" IS. `costMicroInr` — the meter, at list prices (modelPrices.cjs). For a
+ *   non-grading call (tutor, detect, step solution …) it is the call's full cost. For a
+ *   GRADING call it is scaled by the graded share of the questions (A17 ruling 5), so a
+ *   question that was not attempted / could not be read adds 0 here. The unscaled cost of
+ *   grading calls is kept apart in LEDGER_SPEND_FIELD (since #957), which covers grading
+ *   calls ONLY — it is NOT a total of all AI spend, so it is never summed in as one.
+ * ★ NOT RECORDED IS NOT ZERO. A day with no document is absent; a field a document does
+ *   not hold is null here (unknown), never 0. `sumLedgerCost` of no documents is null.
+ */
+
+function finiteNonNegative(value) {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.round(value) : null;
+}
+
+/** One day document's cost numbers. `costMicroInr` / `providerSpendMicroInr` null = not recorded. */
+function ledgerDayCost(data) {
+  const d = data && typeof data === 'object' ? data : {};
+  return {
+    calls: toCount(d.calls),
+    costMicroInr: finiteNonNegative(d.costMicroInr),
+    providerSpendMicroInr: finiteNonNegative(d[LEDGER_SPEND_FIELD]),
+  };
+}
+
+/**
+ * Sum the cost of the day documents that EXIST (pass only existing documents' data).
+ * `costMicroInr` is null when no document was given (no ledger in the window = not recorded);
+ * a document that exists but holds no cost field (only trial counters) adds 0 — the day was
+ * recorded and nothing was metered. `providerSpendMicroInr` is null when no document held it.
+ */
+function sumLedgerCost(dayDatas) {
+  const list = Array.isArray(dayDatas) ? dayDatas : [];
+  if (list.length === 0) return { days: 0, calls: 0, costMicroInr: null, providerSpendMicroInr: null };
+  let calls = 0;
+  let cost = 0;
+  let spend = null;
+  for (const data of list) {
+    const c = ledgerDayCost(data);
+    calls += c.calls;
+    cost += c.costMicroInr === null ? 0 : c.costMicroInr;
+    if (c.providerSpendMicroInr !== null) spend = (spend === null ? 0 : spend) + c.providerSpendMicroInr;
+  }
+  return { days: list.length, calls, costMicroInr: cost, providerSpendMicroInr: spend };
+}
+
+/** Micro-rupees -> rupees at 2 decimals (null stays null). */
+function microInrToInr(micro) {
+  return typeof micro === 'number' && Number.isFinite(micro) ? Math.round(micro / 10000) / 100 : null;
+}
+
 module.exports = {
   createUsageLedger,
   buildLedgerIncrement,
@@ -552,4 +607,7 @@ module.exports = {
   TRIAL_COUNTER_FIELDS,
   istHourKey,
   TELEMETRY,
+  ledgerDayCost,
+  sumLedgerCost,
+  microInrToInr,
 };

@@ -779,3 +779,36 @@ ${delta}`);
       `CONTROL: the admitted free check must really reach Gemini\n${res.status} ${res.text}\n${delta}`);
     assert.equal(count(delta, /LEDGER_SET/g), 0, `a free check was charged to someone\n${delta}`);
   });
+
+/* COST-1 read helpers: which ledger field is "AI cost", and "not recorded" is never 0. */
+test('COST-1 ledgerDayCost / sumLedgerCost / microInrToInr: the meter is AI cost; not recorded is null, never 0', () => {
+  const { ledgerDayCost, sumLedgerCost, microInrToInr, LEDGER_SPEND_FIELD } = require('./usageLedger.cjs');
+  assert.deepEqual(ledgerDayCost({ calls: 3, costMicroInr: 1_234_567, [LEDGER_SPEND_FIELD]: 2_000_000, trialChecks: 1 }), {
+    calls: 3,
+    costMicroInr: 1_234_567,
+    providerSpendMicroInr: 2_000_000,
+  });
+  // a document holding only trial counters: cost and spend not recorded (null), calls 0
+  assert.deepEqual(ledgerDayCost({ trialChecks: 2 }), { calls: 0, costMicroInr: null, providerSpendMicroInr: null });
+  // garbage is never a number
+  assert.deepEqual(ledgerDayCost({ costMicroInr: 'x', [LEDGER_SPEND_FIELD]: -5 }), { calls: 0, costMicroInr: null, providerSpendMicroInr: null });
+
+  // no documents in the window -> not recorded (null), never 0
+  assert.deepEqual(sumLedgerCost([]), { days: 0, calls: 0, costMicroInr: null, providerSpendMicroInr: null });
+  // existing documents: cost sums (a doc without the field adds 0); spend only where recorded
+  assert.deepEqual(
+    sumLedgerCost([
+      { calls: 2, costMicroInr: 1_000_000, [LEDGER_SPEND_FIELD]: 1_500_000 },
+      { calls: 1, costMicroInr: 250_000 },
+      { trialChecks: 1 },
+    ]),
+    { days: 3, calls: 3, costMicroInr: 1_250_000, providerSpendMicroInr: 1_500_000 },
+  );
+  // the grading-only spend field is NEVER added into the cost total
+  assert.equal(sumLedgerCost([{ costMicroInr: 0, [LEDGER_SPEND_FIELD]: 9_000_000 }]).costMicroInr, 0);
+
+  assert.equal(microInrToInr(1_234_567), 1.23);
+  assert.equal(microInrToInr(1_235_000), 1.24);
+  assert.equal(microInrToInr(0), 0);
+  assert.equal(microInrToInr(null), null);
+});
