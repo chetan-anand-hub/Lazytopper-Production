@@ -242,6 +242,33 @@ describe("COST-1 · AI cost summary card", () => {
     expect(card.textContent).not.toContain("₹0.00");
   });
 
+  it("★ a null total and null plan costs (nothing could be read / recorded) render '—', never ₹0.00", async () => {
+    const empty = {
+      ...AI_COST,
+      totalInr: null,
+      studentsWithCost: 0,
+      averageInr: null,
+      medianInr: null,
+      top: [],
+      byPlan: {
+        trial: { costInr: null, studentsWithCost: 0 },
+        premium: { costInr: null, studentsWithCost: 0 },
+        basic: { costInr: null, studentsWithCost: 0 },
+        unknown: { costInr: null, studentsWithCost: 0 },
+      },
+    };
+    const base = pageRoutes([row("stu1", cost(1))]);
+    routeFn = (url) => (url.includes("/ai-cost") ? { status: 200, body: empty } : base(url));
+    render(<StudentsAdminPage />);
+    const card = await screen.findByTestId("ai-cost-summary");
+    fireEvent.click(within(card).getByTestId("ai-cost-load"));
+    expect((await within(card).findByTestId("ai-cost-total")).textContent).toBe("—");
+    const plans = within(card).getByTestId("ai-cost-by-plan");
+    expect(within(plans).getAllByRole("row").slice(1, 4).map((r) => r.lastElementChild?.textContent)).toEqual(["—", "—", "—"]);
+    expect(card.textContent).not.toContain("₹0.00");
+    expect(within(card).getByTestId("ai-cost-top-empty")).toBeTruthy();
+  });
+
   it("a non-admin (403) never sees the card", async () => {
     routeFn = () => ({ status: 403, body: { ok: false, error: "Forbidden: not an admin uid" } });
     render(<StudentsAdminPage />);

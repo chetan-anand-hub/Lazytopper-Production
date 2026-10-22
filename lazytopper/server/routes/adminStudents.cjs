@@ -704,6 +704,10 @@ function createAdminStudentsRoutes(deps = {}) {
     let total = 0;
     let unknown = 0;
     let partial = 0;
+    // Review MUST-FIX 2: did ANY student's read succeed with at least one ledger day in the
+    // window? If not (every read failed, or nobody has a ledger day), the total and every plan
+    // cost are UNKNOWN (null, shown "—"), never ₹0. A day recorded with 0 cost is a real 0.
+    let ledgerDaysSeen = 0;
     const spenders = [];
     const byPlan = Object.create(null);
     for (const p of COST_PLANS) byPlan[p] = { costMicroInr: 0, studentsWithCost: 0 };
@@ -714,6 +718,7 @@ function createAdminStudentsRoutes(deps = {}) {
         continue;
       }
       if (plans[r.uid].coverage === 'partial') partial += 1;
+      ledgerDaysSeen += c.days;
       const micro = c.costMicroInr === null ? 0 : c.costMicroInr;
       if (!(micro > 0)) continue;
       total += micro;
@@ -726,15 +731,18 @@ function createAdminStudentsRoutes(deps = {}) {
     spenders.sort((a, b) => (b.micro !== a.micro ? b.micro - a.micro : compareNewestFirst(a.row, b.row)));
     const n = spenders.length;
 
+    const recorded = ledgerDaysSeen > 0;
     const planOut = {};
-    for (const p of COST_PLANS) planOut[p] = { costInr: microInrToInr(byPlan[p].costMicroInr), studentsWithCost: byPlan[p].studentsWithCost };
+    for (const p of COST_PLANS) {
+      planOut[p] = { costInr: recorded ? microInrToInr(byPlan[p].costMicroInr) : null, studentsWithCost: byPlan[p].studentsWithCost };
+    }
 
     return send(res, 200, {
       ok: true,
       generatedAtMs: nowMs,
       period,
       window: { from: windowFirst < ledgerSince ? ledgerSince : windowFirst, to: todayKey, capped, maxDays: MAX_COST_DAYS },
-      totalInr: microInrToInr(total),
+      totalInr: recorded ? microInrToInr(total) : null,
       studentsWithCost: n,
       averageInr: n === 0 ? null : microInrToInr(Math.round(total / n)),
       medianInr: n === 0 ? null : microInrToInr(medianOf(spenders.map((s) => s.micro))),

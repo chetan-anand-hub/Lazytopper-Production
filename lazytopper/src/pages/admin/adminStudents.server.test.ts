@@ -1216,6 +1216,34 @@ describe.each(INSTANTS)("COST-1 · AI cost @ now=%s", (C_NOW) => {
       expect(r.body.reads.ledgerDays).toBeLessThanOrEqual(4 * costMod.MAX_COST_DAYS);
     });
 
+    it("★ no student has any ledger day in the window -> total and plan costs are null (not recorded), never ₹0", async () => {
+      const created = C_NOW - 60 * DAY;
+      const w = buildRoutes({ now: C_NOW, users: [user("emptyA0001", created), user("emptyB0001", created)], store: {} });
+      const r = await w.get("/api/admin/students/ai-cost?period=30", "admin-token");
+      expect(r.status).toBe(200);
+      expect(r.body.studentsUnknown).toBe(0);
+      expect(r.body.studentsWithCost).toBe(0);
+      expect(r.body.totalInr).toBeNull();
+      for (const p of ["trial", "premium", "basic", "unknown"]) {
+        expect(r.body.byPlan[p]).toEqual({ costInr: null, studentsWithCost: 0 });
+      }
+      expect(r.body.averageInr).toBeNull();
+      expect(r.body.medianInr).toBeNull();
+    });
+
+    it("CONTROL: a ledger day recorded with ₹0 cost IS a recorded zero (total 0, not null)", async () => {
+      const created = C_NOW - 60 * DAY;
+      const w = buildRoutes({
+        now: C_NOW,
+        users: [user("zeroA00001", created)],
+        store: { ...ledger("zeroA00001", today, { calls: 1, costMicroInr: 0 }) },
+      });
+      const r = await w.get("/api/admin/students/ai-cost?period=30", "admin-token");
+      expect(r.body.totalInr).toBe(0);
+      expect(r.body.byPlan.basic).toEqual({ costInr: 0, studentsWithCost: 0 });
+      expect(r.body.studentsWithCost).toBe(0);
+    });
+
     it("rejects an unknown period with 400 and reads nothing from Firestore", async () => {
       const w = buildRoutes(costWorld());
       const r = await w.get("/api/admin/students/ai-cost?period=365", "admin-token");
@@ -1231,6 +1259,11 @@ describe.each(INSTANTS)("COST-1 · AI cost @ now=%s", (C_NOW) => {
       expect(r.body.studentsWithCost).toBe(0);
       expect(r.body.averageInr).toBeNull();
       expect(r.body.medianInr).toBeNull();
+      // Review MUST-FIX 2: every read failed -> the total and every plan cost are UNKNOWN, never ₹0.
+      expect(r.body.totalInr).toBeNull();
+      for (const p of ["trial", "premium", "basic", "unknown"]) {
+        expect(r.body.byPlan[p]).toEqual({ costInr: null, studentsWithCost: 0 });
+      }
       expect(r.body.readErrors).toEqual({ usageLedger: "permission-denied" });
       expect(r.raw).not.toContain("simulated");
     });

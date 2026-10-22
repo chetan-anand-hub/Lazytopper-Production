@@ -136,7 +136,7 @@ function Loaded({ data, onOpenStudent }: { data: AiCostResponse; onOpenStudent: 
           <span className="sa-card-value" data-testid="ai-cost-students">
             {data.studentsWithCost}
           </span>
-          <span className="sa-card-note">cost above ₹0 in this window</span>
+          <span className="sa-card-note">cost above zero in this window</span>
         </div>
         <div className="sa-card">
           <span className="sa-card-label">Average per student (INR)</span>

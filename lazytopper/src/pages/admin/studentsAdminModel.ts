@@ -77,12 +77,14 @@ export interface AiCostResponse {
   generatedAtMs: number;
   period: Period;
   window: { from: string; to: string; capped: boolean; maxDays: number };
-  totalInr: number;
+  /** null = no ledger day could be read in the window (every read failed, or none recorded) — shown "—", never ₹0.00. */
+  totalInr: number | null;
   studentsWithCost: number;
   averageInr: number | null;
   medianInr: number | null;
   top: { uid: string; email: string | null; phone: string | null; plan: Plan; costInr: number }[];
-  byPlan: Record<CostPlan, { costInr: number; studentsWithCost: number }>;
+  /** `costInr` null under the same rule as `totalInr`. */
+  byPlan: Record<CostPlan, { costInr: number | null; studentsWithCost: number }>;
   signedOut: { ledgered: boolean };
   studentsScanned: number;
   studentsUnknown: number;
