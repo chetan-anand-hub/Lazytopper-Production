@@ -469,19 +469,25 @@ async function collectReportData({ adminFirestore: db, firebaseAdmin, telemetry,
   }
 
   // e + payment errors: in-process counters (not stored per day) — labelled "since server start".
-  const counters = (() => {
-    try {
-      return telemetry && typeof telemetry.snapshot === 'function' ? telemetry.snapshot() || {} : {};
-    } catch {
-      return {};
+  // ★ F3: no telemetry, or a snapshot() that throws, is "couldn't read" — never a row of zeros.
+  let counters = null;
+  let countersCode = null;
+  try {
+    if (!telemetry || typeof telemetry.snapshot !== 'function') countersCode = 'telemetry-unavailable';
+    else {
+      const snap = telemetry.snapshot();
+      if (snap && typeof snap === 'object') counters = snap;
+      else countersCode = 'telemetry-unavailable';
     }
-  })();
+  } catch {
+    countersCode = 'telemetry-error';
+  }
   const LABEL = /^[a-z0-9_-]{1,40}$/;
   const refused = {};
   const wouldRefuse = {};
   const paymentErrors = {};
   let rateLimitHardBlocks = 0;
-  for (const [key, value] of Object.entries(counters)) {
+  for (const [key, value] of Object.entries(counters || {})) {
     const n = toCount(value);
     if (n === 0) continue;
     let m;
@@ -490,7 +496,9 @@ async function collectReportData({ adminFirestore: db, firebaseAdmin, telemetry,
     else if (/^rate_limit\.hard_block\.[a-z]{1,20}$/.test(key)) rateLimitHardBlocks += n;
     else if (/^payments\.[a-z0-9_.]{1,60}\.(grant_failed|store_failed|store_read_failed)$/.test(key)) paymentErrors[key] = n;
   }
-  const sinceBoot = { ok: true, refused, wouldRefuse, rateLimitHardBlocks, paymentErrors, uptimeSeconds };
+  const sinceBoot = counters
+    ? { ok: true, refused, wouldRefuse, rateLimitHardBlocks, paymentErrors, uptimeSeconds }
+    : { ok: false, code: countersCode, uptimeSeconds };
 
   // f. Trial emails: the durable day cap counter + the ledger's sent / failed stamps.
   let trialEmail;
@@ -537,13 +545,14 @@ function lookAtThis(d) {
     ['AI cost', d.aiCost],
     ['Payments', d.payments],
     ['Trial emails', d.trialEmail],
+    ['Since-start counters (fair use, payment errors)', d.sinceBoot],
   ];
   for (const [name, s] of sections) if (!s || !s.ok) out.push(`${name}: ${couldnt(s || {})}.`);
   if (d.aiCost && d.aiCost.ok && d.aiCost.prev7AvgMicro > 0 && d.aiCost.yesterdayMicro > 2 * d.aiCost.prev7AvgMicro) {
     out.push(`AI cost ${inr(d.aiCost.yesterdayMicro)} is more than 2x the 7-day average (${inr(d.aiCost.prev7AvgMicro)}).`);
   }
   if (d.gradings && d.gradings.ok && d.gradings.total === 0) out.push('0 gradings yesterday.');
-  const payErr = d.sinceBoot ? Object.values(d.sinceBoot.paymentErrors).reduce((a, b) => a + b, 0) : 0;
+  const payErr = d.sinceBoot && d.sinceBoot.ok ? Object.values(d.sinceBoot.paymentErrors).reduce((a, b) => a + b, 0) : 0;
   if (payErr > 0) out.push(`${payErr} payment error(s) since server start (${Object.keys(d.sinceBoot.paymentErrors).join(', ')}) - check the logs.`);
   if (d.trialEmail && d.trialEmail.ok && d.trialEmail.failed > 0) out.push(`${d.trialEmail.failed} trial email(s) failed yesterday.`);
   const capped = [];
@@ -588,12 +597,17 @@ function buildOpsReport(d) {
     rows.push(['Orders created', String(d.payments.ordersCreated), `${d.payments.ordersUnpaid} not paid`]);
   } else rows.push(['Payments', couldnt(d.payments), '']);
   const sb = d.sinceBoot;
-  rows.push([
-    'Fair-use refusals',
-    `${sumValues(sb.refused)}${ruleCounts(sb.refused)}`,
-    `since server start (${hours1(sb.uptimeSeconds)}); would-refuse ${sumValues(sb.wouldRefuse)}; rate-limit blocks ${sb.rateLimitHardBlocks}`,
-  ]);
-  rows.push(['Payment errors', String(sumValues(sb.paymentErrors)), `since server start (${hours1(sb.uptimeSeconds)})`]);
+  if (sb.ok) {
+    rows.push([
+      'Fair-use refusals',
+      `${sumValues(sb.refused)}${ruleCounts(sb.refused)}`,
+      `since server start (${hours1(sb.uptimeSeconds)}); would-refuse ${sumValues(sb.wouldRefuse)}; rate-limit blocks ${sb.rateLimitHardBlocks}`,
+    ]);
+    rows.push(['Payment errors', String(sumValues(sb.paymentErrors)), `since server start (${hours1(sb.uptimeSeconds)})`]);
+  } else {
+    rows.push(['Fair-use refusals', couldnt(sb), 'since server start']);
+    rows.push(['Payment errors', couldnt(sb), 'since server start']);
+  }
   rows.push([
     'Trial emails',
     d.trialEmail.ok ? `${d.trialEmail.sent} sent · ${d.trialEmail.failed} failed · ${d.trialEmail.claimed} claimed` : couldnt(d.trialEmail),
@@ -657,6 +671,10 @@ async function sendViaResend({ fetchImpl, apiKey, from, to, subject, text, html,
       return { ok: true, id };
     }
     const status = res ? res.status : 0;
+    // ★ F2: 409 = Resend already holds a request under this Idempotency-Key (an earlier attempt
+    // went out, or is going out; a retry's re-read body differs, so Resend refuses rather than
+    // replays). That is a suppressed DUPLICATE, not a failure.
+    if (status === 409) return { ok: false, duplicate: true, retryable: false, code: 'http_409' };
     return { ok: false, retryable: status === 429 || status >= 500, code: `http_${status}` };
   } catch (e) {
     return { ok: false, retryable: true, code: e && e.name === 'TimeoutError' ? 'timeout' : 'network' };
@@ -686,9 +704,16 @@ function createOpsReporter(deps = {}) {
     return FV && typeof FV.serverTimestamp === 'function' ? FV.serverTimestamp() : new Date(now());
   }
 
+  // Test seam: the data collector (default: the real bounded reads).
+  const collectData = typeof deps.collectData === 'function' ? deps.collectData : collectReportData;
   async function buildFor(nowMs) {
-    const data = await collectReportData({ adminFirestore, firebaseAdmin, telemetry, env, nowMs, uptimeSeconds: uptime() });
+    const data = await collectData({ adminFirestore, firebaseAdmin, telemetry, env, nowMs, uptimeSeconds: uptime() });
     return { data, report: buildOpsReport(data) };
+  }
+  /** A plain read of the day's ledger (no claim): skip all report reads once the day is done. */
+  async function ledgerStatus(sendDay) {
+    const snap = await adminFirestore.collection(OPS_REPORTS_COLLECTION).doc(sendDay).get();
+    return snap && snap.exists ? (snap.data() || {}).status || 'recorded' : null;
   }
 
   /** ★ The claim: one transaction on opsReports/{sendDay}. 'claimed' | 'already-<status>'. */
@@ -714,6 +739,16 @@ function createOpsReporter(deps = {}) {
     });
   }
 
+  /** Retry the day in RETRY_DELAY_MS, at most MAX_ATTEMPTS runs per IST day per process. */
+  function scheduleRetry(sendDay) {
+    if (attempts.day !== sendDay) attempts = { day: sendDay, n: 0 };
+    attempts.n += 1;
+    if (attempts.n >= MAX_ATTEMPTS) return false;
+    const t = setTimeoutFn(() => { void runScheduled(); }, RETRY_DELAY_MS);
+    if (t && typeof t.unref === 'function') t.unref();
+    return true;
+  }
+
   /** The 08:00 IST run. Never throws. */
   async function runScheduled() {
     if (config.mode === 'off') return { ran: false, reason: 'off' };
@@ -736,6 +771,22 @@ function createOpsReporter(deps = {}) {
         return { ran: false, reason: 'no-admin' };
       }
       const reportDay = addIstDays(sendDay, -1);
+      // A day already claimed/sent elsewhere costs one read, not a whole report's reads.
+      let existing;
+      try {
+        existing = await ledgerStatus(sendDay);
+      } catch (e) {
+        log(`[ops-report] ledger read failed: ${readErrorCode(e)}`);
+        return { ran: false, reason: 'ledger-error' };
+      }
+      if (existing && existing !== 'released') {
+        doneDay = sendDay;
+        return { ran: false, reason: `already-${existing}` };
+      }
+      // ★ F1: gather EVERYTHING before the claim. A restart or an exception during the reads
+      // leaves no claim behind, so the next run (boot catch-up or retry) still sends the day.
+      // The claim below is the ONLY thing between the reads and the send.
+      const { report } = await buildFor(nowMs);
       let claimed;
       try {
         claimed = await claim(sendDay, reportDay);
@@ -747,13 +798,13 @@ function createOpsReporter(deps = {}) {
         doneDay = sendDay;
         return { ran: false, reason: claimed };
       }
-      const { report } = await buildFor(nowMs);
       const result = fetchImpl
         ? await sendViaResend({ fetchImpl, apiKey: config.apiKey, from: config.from, to: config.to, subject: report.subject, text: report.text, html: report.html, idempotencyKey: `ops-report-${sendDay}` })
         : { ok: false, retryable: false, code: 'no-fetch' };
       const ref = adminFirestore.collection(OPS_REPORTS_COLLECTION).doc(sendDay);
       try {
         if (result.ok) await ref.set({ status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null }, { merge: true });
+        else if (result.duplicate) await ref.set({ status: 'sent', duplicateSuppressed: true, sentAt: serverTimestamp() }, { merge: true });
         else if (result.retryable) await release(sendDay);
         else await ref.set({ status: 'failed', failedAt: serverTimestamp(), error: result.code }, { merge: true });
       } catch {
@@ -764,19 +815,20 @@ function createOpsReporter(deps = {}) {
         log(`[ops-report] ops_report_sent day=${sendDay} warnings=${report.warnings.length}`);
         return { ran: true, mode: 'send', sent: true, subject: report.subject };
       }
+      if (result.duplicate) {
+        doneDay = sendDay;
+        log(`[ops-report] ops_report_sent day=${sendDay} (duplicate suppressed: HTTP 409 on the day's Idempotency-Key)`);
+        return { ran: true, mode: 'send', sent: true, duplicateSuppressed: true };
+      }
       log(`[ops-report] send failed day=${sendDay} code=${result.code} retry=${result.retryable ? 'yes' : 'never'}`);
       if (!result.retryable) doneDay = sendDay;
-      else {
-        if (attempts.day !== sendDay) attempts = { day: sendDay, n: 0 };
-        attempts.n += 1;
-        if (attempts.n < MAX_ATTEMPTS) {
-          const t = setTimeoutFn(() => { void runScheduled(); }, RETRY_DELAY_MS);
-          if (t && typeof t.unref === 'function') t.unref();
-        }
-      }
+      else scheduleRetry(sendDay);
       return { ran: true, mode: 'send', sent: false, code: result.code };
     } catch (e) {
+      // F1: the reads (or anything before the claim) threw — nothing was claimed, so a retry
+      // later today can still send the day.
       log(`[ops-report] run failed: ${e && e.message ? e.message : 'error'}`);
+      if (config.mode === 'send') scheduleRetry(istDayKey(now()));
       return { ran: false, reason: 'error' };
     } finally {
       running = false;

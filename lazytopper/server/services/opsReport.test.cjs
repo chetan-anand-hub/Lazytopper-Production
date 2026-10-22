@@ -444,3 +444,91 @@ test('admin send-now in dry run returns the preview and sends nothing', async ()
   assert.match(out.body.preview, /LazyTopper daily/);
   assert.equal(fetchImpl.calls.length, 0);
 });
+
+// ── Review round 1 (#1296 HOLD): F1, F2, F3 ─────────────────────────────────────────────
+
+test('F1: the reads run BEFORE the claim — reads that throw leave no claim, a retry is armed, and the next run sends', async () => {
+  const db = makeDb();
+  seed(db);
+  const fetchImpl = fakeFetch();
+  let throwReads = true;
+  const retries = [];
+  const r = createOpsReporter({
+    env: SEND_ENV,
+    adminFirestore: db,
+    firebaseAdmin: makeAdmin(USERS),
+    telemetry,
+    fetchImpl,
+    now: () => NOW,
+    log: () => {},
+    setTimeoutFn: (fn, ms) => { retries.push(ms); return {}; },
+    collectData: async (args) => {
+      if (throwReads) throw new Error('reads blew up mid-collection');
+      return collectReportData(args);
+    },
+  });
+  const first = await r.runScheduled();
+  assert.deepEqual([first.ran, first.reason], [false, 'error']);
+  assert.equal(db.docs.get(`${OPS_REPORTS_COLLECTION}/2030-06-15`), undefined, 'no claim is left behind');
+  assert.equal(fetchImpl.calls.length, 0);
+  assert.deepEqual(retries, [30 * MIN], 'a same-day retry is armed');
+  throwReads = false;
+  const second = await r.runScheduled();
+  assert.equal(second.sent, true);
+  assert.equal(fetchImpl.calls.length, 1);
+  assert.equal(db.docs.get(`${OPS_REPORTS_COLLECTION}/2030-06-15`).status, 'sent');
+  // ORDER PIN: a fresh instance whose reads throw on a day already claimed by nobody never
+  // writes the ledger; one whose day is already sent never even starts the reads.
+  let readsStarted = 0;
+  await createOpsReporter({
+    env: SEND_ENV, adminFirestore: db, firebaseAdmin: makeAdmin(USERS), fetchImpl, now: () => NOW + HOUR, log: () => {},
+    collectData: async () => { readsStarted += 1; throw new Error('x'); },
+  }).runScheduled();
+  assert.equal(readsStarted, 0, 'a sent day costs one ledger read, not a report');
+});
+
+test('F2: a retry answered HTTP 409 (the earlier send went out) marks the day "sent (duplicate suppressed)", not failed', async () => {
+  const db = makeDb();
+  let n = 0;
+  const fetchImpl = async () => {
+    n += 1;
+    return n === 1 ? { ok: false, status: 503 } : { ok: false, status: 409 };
+  };
+  const lines = [];
+  const r = createOpsReporter({ env: SEND_ENV, adminFirestore: db, firebaseAdmin: makeAdmin(USERS), fetchImpl, now: () => NOW, log: (l) => lines.push(l), setTimeoutFn: () => ({}) });
+  await r.runScheduled(); // 503 -> released
+  const second = await r.runScheduled(); // 409 -> duplicate suppressed
+  assert.deepEqual([second.sent, second.duplicateSuppressed], [true, true]);
+  const ledger = db.docs.get(`${OPS_REPORTS_COLLECTION}/2030-06-15`);
+  assert.equal(ledger.status, 'sent');
+  assert.equal(ledger.duplicateSuppressed, true);
+  assert.equal(ledger.error, undefined);
+  assert.match(lines.join('\n'), /duplicate suppressed/);
+  assert.doesNotMatch(lines.join('\n'), /send failed day=2030-06-15 code=http_409/);
+  // And the day is done: no third send.
+  assert.deepEqual(await r.runScheduled(), { ran: false, reason: 'done-today' });
+  assert.equal(n, 2);
+});
+
+test('F3: telemetry missing, or snapshot() throwing, makes the since-start counters "couldn\'t read" — never 0', async () => {
+  const db = makeDb();
+  seed(db);
+  const cases = [
+    [null, 'telemetry-unavailable'],
+    [{}, 'telemetry-unavailable'],
+    [{ snapshot: () => { throw new Error('boom'); } }, 'telemetry-error'],
+  ];
+  for (const [tel, code] of cases) {
+    const data = await collectReportData({ adminFirestore: db, firebaseAdmin: makeAdmin(USERS), telemetry: tel, env: {}, nowMs: NOW, uptimeSeconds: 60 });
+    assert.deepEqual([data.sinceBoot.ok, data.sinceBoot.code], [false, code]);
+    const rep = buildOpsReport(data);
+    assert.match(rep.text, new RegExp(`^Fair-use refusals: couldn't read \\(${code}\\) — since server start$`, 'm'));
+    assert.match(rep.text, new RegExp(`^Payment errors: couldn't read \\(${code}\\) — since server start$`, 'm'));
+    assert.doesNotMatch(rep.text, /^Fair-use refusals: 0/m);
+    assert.doesNotMatch(rep.text, /^Payment errors: 0/m);
+    assert.match(rep.text, new RegExp(`- Since-start counters \\(fair use, payment errors\\): couldn't read \\(${code}\\)\\.`));
+  }
+  // CONTROL: a working snapshot with no events IS a real 0.
+  const ok = buildOpsReport(await collectReportData({ adminFirestore: db, firebaseAdmin: makeAdmin(USERS), telemetry: { snapshot: () => ({}) }, env: {}, nowMs: NOW, uptimeSeconds: 60 }));
+  assert.match(ok.text, /^Payment errors: 0 — since server start/m);
+});
