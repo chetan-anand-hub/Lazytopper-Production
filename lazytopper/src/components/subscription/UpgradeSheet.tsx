@@ -47,6 +47,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { getPremiumFeatureList } from "../../services/featureGates";
 import { MONTHLY_INLINE } from "../../config/pricing";
+import PaywallActions from "../pricing/PaywallActions";
 
 export interface UpgradeSheetProps {
   /** What the student was trying to do, in their words. Names the blocked feature. */
@@ -258,9 +259,17 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
           </ul>
         </div>
 
-        <button type="button" className="lt-upsheet__cta" onClick={handleSeePlans}>
-          See plans
-        </button>
+        {/* PAYWALL-PAY-1 — Pay, Share QR code, Forward link to parents ("Pay" goes where
+            "See plans" went). Payments dark: "See plans", unchanged. */}
+        <PaywallActions
+          surface="upgrade_sheet"
+          onPay={handleSeePlans}
+          fallback={
+            <button type="button" className="lt-upsheet__cta" onClick={handleSeePlans}>
+              See plans
+            </button>
+          }
+        />
 
         {/* ★ NAME WHAT BASIC KEEPS, not what Premium withholds. And "Nothing you've
             done is locked" stays — a student's real fear at a paywall is losing

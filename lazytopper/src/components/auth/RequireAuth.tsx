@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
+import PaywallActions from "../pricing/PaywallActions";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
 import { isSafeInternalPath } from "../../utils/safeInternalPath";
@@ -73,6 +74,8 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
     // null) sees the trial CTA; an EXPIRED-trial user (trialStartDate set, tier free) must
     // NOT — otherwise they restart the 7-day trial forever, so they get the plans path only.
     const neverTrialled = !isTrialExpired;
+    // PAYWALL-PAY-1 — "Pay" goes where the old plans path went: /pricing's Pay buttons.
+    const lockPayTo = `/pricing?source=lock&returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
     return (
       <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
         <div style={{ fontSize: "3rem", marginBottom: 12 }}>🔒</div>
@@ -126,33 +129,47 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
             <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 9 }}>
               {TRIAL_WORDING.shortFragment}
             </div>
-            <button
-              type="button"
-              onClick={() => setShowUpgrade(true)}
-              style={{
-                display: "block", margin: "16px auto 0", background: "none",
-                border: "none", color: "var(--text)", fontSize: 13, fontWeight: 600,
-                textDecoration: "underline", cursor: "pointer",
-              }}
-            >
-              See plans instead
-            </button>
+            {/* PAYWALL-PAY-1 — under the trial (which stays first): Pay, Share QR code,
+                Forward link to parents. Payments dark: the old "See plans instead". */}
+            <PaywallActions
+              surface="lock"
+              payTo={lockPayTo}
+              fallback={
+                <button
+                  type="button"
+                  onClick={() => setShowUpgrade(true)}
+                  style={{
+                    display: "block", margin: "16px auto 0", background: "none",
+                    border: "none", color: "var(--text)", fontSize: 13, fontWeight: 600,
+                    textDecoration: "underline", cursor: "pointer",
+                  }}
+                >
+                  See plans instead
+                </button>
+              }
+            />
           </>
         ) : (
-          // Expired trial: plans path only. Existing button kept verbatim (not restyled,
-          // legacy palette not propagated to the new controls above).
-          <button
-            type="button"
-            onClick={() => setShowUpgrade(true)}
-            style={{
-              border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-              padding: "14px 28px", background: "#58cc02", color: "var(--text)",
-              fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-              textTransform: "uppercase",
-            }}
-          >
-            Unlock Full Access
-          </button>
+          // Expired trial: the paywall actions (PAYWALL-PAY-1). Payments dark: the plans
+          // path only, the existing button kept verbatim (not restyled).
+          <PaywallActions
+            surface="lock"
+            payTo={lockPayTo}
+            fallback={
+              <button
+                type="button"
+                onClick={() => setShowUpgrade(true)}
+                style={{
+                  border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
+                  padding: "14px 28px", background: "#58cc02", color: "var(--text)",
+                  fontSize: "1rem", fontWeight: 800, cursor: "pointer",
+                  textTransform: "uppercase",
+                }}
+              >
+                Unlock Full Access
+              </button>
+            }
+          />
         )}
         <UpgradeModal
           open={showUpgrade}
