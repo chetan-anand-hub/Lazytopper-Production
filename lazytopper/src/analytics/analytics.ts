@@ -1154,6 +1154,26 @@ export interface OnboardingEventParams {
   mummy_seen: { beat: 1 };
 }
 
+/* ------------------------------------------------------------------------- *
+ * MOMENTS-1 — Byte & Ziggy moments around the first graded result (components/guide/moments) and
+ * the device-wide "Hide mascots" switch (components/guide/mascotsMute.ts). Same onboarding sender,
+ * declared by interface merging. Vendors only (GA4, Vercel): NOT first-party activity names (the
+ * activityClient list and the server allowlist are untouched). Suppressed under the admin preview
+ * (guideVariant.trackGuideEvent).
+ *
+ *   guide_moment_shown { moment }  — a moment was shown (m2…m10; guide arm only)
+ *   mascots_hidden     {}          — "Hide mascots" tapped on this device
+ *   mascots_shown      {}          — Undo, or the setting turned them back on
+ * ------------------------------------------------------------------------- */
+
+export type GuideMomentId = "m2" | "m3" | "m4" | "m5" | "m6" | "m8" | "m9" | "m10";
+
+export interface OnboardingEventParams {
+  guide_moment_shown: { moment: GuideMomentId };
+  mascots_hidden: Record<string, never>;
+  mascots_shown: Record<string, never>;
+}
+
 /** Where on /for-parents the share button was tapped (MUMMY-1 added "journey": beat 4 of Mummy's story). */
 export type ParentSharePlacement = "hero" | "footer" | "journey";
 

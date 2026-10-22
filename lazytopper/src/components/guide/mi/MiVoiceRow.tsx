@@ -17,6 +17,7 @@
  */
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentType, type RefObject } from "react";
 import { resolveGuideVariant } from "../guideVariant";
+import { useMascotsHidden } from "../mascotsMute";
 import { miVoiceFor, type MiVoiceInput, type MiVoiceLine } from "./miVoiceModel";
 import { noteMiVoiceShown } from "./miVoiceShown";
 import type { MiVoiceCharacterProps } from "./MiVoiceCharacter";
@@ -95,7 +96,9 @@ export interface MiVoiceRowProps {
 }
 
 export function MiVoiceRow({ uid, input, hydrated }: MiVoiceRowProps) {
-  const guideArm = hydrated && resolveGuideVariant(uid) === "guide";
+  // MOMENTS-1 PART 0 — "Hide mascots" on this device: no row; the card's own text is unchanged.
+  const mascotsHidden = useMascotsHidden();
+  const guideArm = hydrated && !mascotsHidden && resolveGuideVariant(uid) === "guide";
   const voice = useMemo(() => (guideArm ? miVoiceFor(input) : null), [guideArm, input]);
   const idle = useIdle(voice !== null);
   const state = voice?.state ?? null;

@@ -192,7 +192,15 @@ export function resolveGuideVariant(uid: string | null | undefined): GuideVarian
 /** Every event the guide owns. Nothing else goes through `trackGuideEvent`. */
 export type GuideEventName = Extract<
   OnboardingEvent,
-  "guide_shown" | "guide_option" | "guide_dismissed" | "guide_reopened" | "ziggy_reaction"
+  | "guide_shown"
+  | "guide_option"
+  | "guide_dismissed"
+  | "guide_reopened"
+  | "ziggy_reaction"
+  // MOMENTS-1 — the moments and the "Hide mascots" switch (vendors only, like every guide event).
+  | "guide_moment_shown"
+  | "mascots_hidden"
+  | "mascots_shown"
 >;
 
 /** The guide's events: today's `trackOnboardingEvent`, dropped while an admin preview is active. */

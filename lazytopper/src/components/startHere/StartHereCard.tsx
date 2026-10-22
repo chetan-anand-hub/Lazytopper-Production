@@ -33,6 +33,7 @@ import {
 import { guidePlanFor } from "../guide/guideInputs";
 import type { ChapterRef } from "../guide/intentMap";
 import { LazyByteGuide, LazyGuideChip } from "../guide/lazyGuide";
+import { useMascotsHidden } from "../guide/mascotsMute";
 import {
   START_HERE_COPY,
   START_HERE_ONE_TAP_COPY,
@@ -329,6 +330,9 @@ export function StartHereView({
   const shownRef = useRef(false);
   // GUIDE-1 — null when signed out or the split is off: then EVERYTHING below is today's card.
   const arm = resolveGuideVariant(state.uid);
+  // MOMENTS-1 PART 0 — "Hide mascots" on this device: the guide arm SEES today's card (the plain
+  // content). The arm itself, and every event below, is unchanged (the A/B stays clean).
+  const mascotsHidden = useMascotsHidden();
 
   useEffect(() => {
     if (!visible || shownRef.current) return;
@@ -339,7 +343,7 @@ export function StartHereView({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount, as before
   }, [visible, surface]);
 
-  if (arm === "guide") {
+  if (arm === "guide" && !mascotsHidden) {
     return (
       <GuideInlineArm
         surface={surface}
@@ -354,7 +358,9 @@ export function StartHereView({
   if (!visible) return null;
 
   const onNotNow = () => {
-    trackOnboardingEvent("start_here_dismissed", { surface });
+    // MOMENTS-1: a guide-arm student with the mascots hidden still reports the guide arm's event.
+    if (arm === "guide") trackGuideEvent("guide_dismissed", { surface });
+    else trackOnboardingEvent("start_here_dismissed", { surface });
     state.dismiss();
   };
 
@@ -1112,7 +1118,9 @@ function StartHereFocusDialog({
   }, [surface]);
 
   // GUIDE-1 — while Byte is open in this shell, the corner chip waits.
-  const guideArm = arm === "guide";
+  // MOMENTS-1 PART 0 — hidden mascots: the guide arm sees today's shell (its events stay the arm's).
+  const mascotsHidden = useMascotsHidden();
+  const guideArm = arm === "guide" && !mascotsHidden;
   useEffect(() => {
     if (!guideArm) return;
     setGuideFocusOpen(true);
