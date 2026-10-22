@@ -83,6 +83,7 @@ import PracticePage from "./PracticePage";
 import { __resetM11ForTests } from "../components/guide/moments/moments";
 import { resetWrittenGradedForTests } from "../components/guide/moments/writtenGraded";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
+import { gradeWorksheet } from "../ai/aiClient";
 import { askCloudOnce, resetZeroGradedCacheForTests } from "../components/startHere/zeroGraded";
 import { __setGuideAbForTests } from "../components/guide/guideVariant";
 import { __resetMascotsForTests } from "../components/guide/mascotsMute";
@@ -180,23 +181,29 @@ describe("MOMENTS-1 M3 · the first Quick Practice question", () => {
     expect(screen.queryByText(ZIGGY_LINE)).toBeNull();
   });
 
-  it("★★ REVIEW M1 — correct tap → Refresh set → NO Ziggy and NO Byte line (0 answers on screen); a new first tap decides again", async () => {
-    await buildSet(FIVE);
+  it("★★ REVIEW M1 (delta FB) — correct tap → Refresh set → a DIFFERENT set: no Ziggy at 0 answers; the NEW set's correct first tap brings Ziggy", async () => {
+    // Build #1 (the first CALLS_PER_BUILD section calls) serves q-1..q-5; every later build serves q-6..q-10.
+    const NEXT = [6, 7, 8, 9, 10].map(mkMcq);
+    let calls = 0;
+    mockBuild.mockImplementation(async () => (++calls <= CALLS_PER_BUILD ? FIVE : NEXT));
+    mount(5);
+    await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
     await waitFor(() => expect(momentLine()).toBe(BYTE_LINE));
     fireEvent.click(screen.getByText("q1-correct"));
     await waitFor(() => expect(momentLine()).toBe(ZIGGY_LINE));
-    const callsBefore = mockBuild.mock.calls.length;
-    expect(callsBefore).toBe(CALLS_PER_BUILD); // one build so far
+    expect(calls).toBe(CALLS_PER_BUILD); // one build so far
     fireEvent.click(screen.getByRole("button", { name: /^Refresh set$/i }));
-    await waitFor(() => expect(mockBuild.mock.calls.length).toBe(callsBefore + CALLS_PER_BUILD));
-    await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
+    await waitFor(() => expect(calls).toBe(2 * CALLS_PER_BUILD));
+    // the refreshed set really is different: the new questions on screen, the old ones gone
+    await screen.findByText("Question 6: solve it.", {}, { timeout: 30000 });
+    expect(screen.queryByText("Question 1: solve it.")).toBeNull();
     await act(async () => {});
-    // the refreshed set has no answer: "Yes! 1 of 5" would be untrue, and Byte's ask is over
+    // (a) 0 answers on the new set: "Yes! 1 of 5" would be untrue, and Byte's ask is over
     expect(screen.queryByTestId("guide-moment-m3")).toBeNull();
     expect(screen.queryByText(ZIGGY_LINE)).toBeNull();
     expect(screen.queryByText(BYTE_LINE)).toBeNull();
-    // the refreshed set's own first tap, correct, is exactly one recorded answer → Ziggy is true again
-    fireEvent.click(screen.getByText("q1-correct"));
+    // (b) the NEW set's first question, tapped correctly, is exactly one recorded answer → Ziggy is true
+    fireEvent.click(screen.getByText("q6-correct"));
     await waitFor(() => expect(momentLine()).toBe(ZIGGY_LINE));
   });
 
@@ -339,6 +346,56 @@ describe("MOMENTS-1 M11 · the first written answer nudge on the MCQ-only scorec
     await finishTapOnly();
     await act(async () => {});
     expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
+  });
+});
+
+describe("MOMENTS-1 M11 · never on a WRITTEN result (delta FA)", () => {
+  /** A written (3-mark) question: no options, so it is graded by the batch, never by a tap. */
+  function mkWritten(n: number): PQ {
+    return {
+      id: `w-${n}`,
+      questionText: `Question ${n}: solve it.`,
+      marks: 3,
+      section: "C",
+      format: "vsa",
+      difficulty: "Easy",
+      subtopic: "seed",
+      topicKey: "real-numbers",
+    } as unknown as PQ;
+  }
+
+  it("★★ a set with a graded WRITTEN answer → the written-result scorecard never renders guide-moment-m11", async () => {
+    const grader = vi.mocked(gradeWorksheet);
+    grader.mockReset().mockResolvedValue({
+      ok: true,
+      results: [
+        {
+          qNumber: 5, couldNotRead: false, ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67,
+          annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 }, teacherNote: "",
+        },
+      ],
+      totalQuestions: 1, gradedCount: 1, pendingCount: 0, gradedMarksAwarded: 2, gradedMarksTotal: 3, worksheetTotalMarks: 3,
+    } as never);
+    await buildSet([mkMcq(1), mkMcq(2), mkMcq(3), mkMcq(4), mkWritten(5)]);
+    fireEvent.click(screen.getByText("q1-correct")); // a tap too: the nudge's own condition (an MCQ answered) holds
+    // the written answer, typed and saved on question 5
+    const triggers = () => screen.getAllByRole("button", { name: /^(Answer this question|Hide answer box)$/ });
+    fireEvent.click(triggers()[triggers().length - 1]);
+    const tabs = screen.getAllByRole("tab", { name: "Type my working" });
+    fireEvent.click(tabs[tabs.length - 1]);
+    const boxes = screen.getAllByLabelText("Type your working and answer");
+    await act(async () => {
+      fireEvent.change(boxes[boxes.length - 1], { target: { value: "HCF = 2, so the answer is 2." } });
+    });
+    fireEvent.click(await screen.findByTestId("qp-save-answer"));
+    await screen.findByTestId("qp-saved-confirmation");
+    fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(grader).toHaveBeenCalledTimes(1));
+    await screen.findByRole("dialog", {}, { timeout: 10000 });
+    // Give the nudge every chance it would have (the server read, the claim, the lazy chunk): it never comes.
+    await expect(screen.findByTestId("guide-moment-m11", {}, { timeout: 2000 })).rejects.toThrow();
+    expect(screen.queryByText("Check a written answer")).toBeNull();
   });
 });
 
