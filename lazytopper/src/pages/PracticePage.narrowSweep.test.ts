@@ -123,7 +123,8 @@ function record(
   const full = pools.fullPool.filter(match).length;
   const oldSel = selectInRangeFromPool(pools.draw, f.marks, f.style, f.source, f.diff, f.range, base.requested);
   const merged = mergeWithServedPool(pools.draw, pools.served);
-  const newSel = selectInRangeFromPool(merged, f.marks, f.style, f.source, f.diff, f.range, base.requested);
+  // The page passes the draw's length as the head (its matching rows lead; the tail rotates).
+  const newSel = selectInRangeFromPool(merged, f.marks, f.style, f.source, f.diff, f.range, base.requested, undefined, undefined, pools.draw.length);
   rows.push({
     ...base,
     full,

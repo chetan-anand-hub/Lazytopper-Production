@@ -263,11 +263,32 @@ export const selectInRangeFromPool = (
   seenIds?: ReadonlySet<string>,
   /** Deterministic per-session rotation offset. Omit → no rotation. */
   rotateOffset?: number,
+  /** MLT-MUTE-2 — the pool is the engine DRAW (its first `headSize` rows) + the chapter's served
+   *  TAIL. The draw's matching rows keep their order at the head — that order carries Mistake
+   *  Intelligence's wrong-concept priority and an HPQ focus list — and rotation only reorders the
+   *  tail that fills the remainder. Seen-first still applies across both: unseen head, unseen
+   *  tail, seen head, seen tail. Omit → today's ordering, byte-identical. */
+  headSize?: number,
 ): { available: number; displayed: PracticeQuestion[] } => {
   const matched = pool.filter((q) =>
     questionMatchesFilters(q, marks, style, source, diff, range)
   );
   const available = matched.length;
+
+  if (headSize !== undefined) {
+    const headIds = new Set(pool.slice(0, headSize));
+    const head = matched.filter((q) => headIds.has(q));
+    const tail = matched.filter((q) => !headIds.has(q));
+    const isSeen = (q: PracticeQuestion) => !!seenIds && seenIds.has(String(q.id));
+    const off = rotateOffset ?? 0;
+    const ordered = [
+      ...head.filter((q) => !isSeen(q)),
+      ...rotateBy(tail.filter((q) => !isSeen(q)), off),
+      ...head.filter(isSeen),
+      ...rotateBy(tail.filter(isSeen), off),
+    ];
+    return { available, displayed: ordered.slice(0, committedCount) };
+  }
 
   const offset = rotateOffset ?? 0;
   const hasSeen = !!seenIds && seenIds.size > 0;
@@ -1214,6 +1235,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [reviewMcqIds, setReviewMcqIds] = useState<Record<string, true>>({});
   const [reviewSavedIds, setReviewSavedIds] = useState<Record<string, true>>({});
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
+  // MLT-MUTE-2 — on the full-pool route, how many leading rows of `questions` are the engine
+  // DRAW (the rest is the served tail). Undefined on every other route (today's ordering).
+  const [poolHeadSize, setPoolHeadSize] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     if (didInitFromUrlRef.current) return;
@@ -1421,8 +1445,10 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       committedCount,
       exact ? undefined : seenQuestionIds,
       exact ? undefined : rotationOffset,
+      // MLT-MUTE-2: the full-pool route keeps the engine draw's matching rows at the head.
+      exact ? undefined : poolHeadSize,
     );
-  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
+  }, [questions, poolHeadSize, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
 
   const filteredQuestions = committedPoolSelection.displayed;
 
@@ -2146,6 +2172,7 @@ const packTopicKey = useMemo(() => {
         // both subjects, single-topic, multi-topic and Full subject alike. The draw stays first
         // (its shape, seen-set and canonical fallback unchanged). The board / default set, a CBQ
         // set (already the whole CBQ pool) and an exact id set are untouched.
+        let headSize: number | undefined;
         if (
           fullPoolRoute &&
           !cbqMode &&
@@ -2160,11 +2187,13 @@ const packTopicKey = useMemo(() => {
                 offset: rotationOffset,
               })
             : servedRowsForDraw(buildChapterServedPool({ subjectKey, topicKey: topicLabel }), difficulty);
+          headSize = next.length;
           next = mergeWithServedPool(next, served);
         }
 
         if (!cancelled) {
           setQuestions(next);
+          setPoolHeadSize(headSize);
           setSessionFinished(false);
           setScorecardDismissed(false);
           setReviewMode(false);
@@ -2188,6 +2217,7 @@ const packTopicKey = useMemo(() => {
         console.error("Error generating practice questions:", err);
         if (!cancelled) {
           setQuestions([]);
+          setPoolHeadSize(undefined);
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
@@ -2249,6 +2279,11 @@ const packTopicKey = useMemo(() => {
       const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
       if (key) previousQuestionKeys.current.add(key);
     }
+    // MLT-MUTE-2 — every rebuild trigger (Build, a preset, Build a fresh set / Refresh) comes
+    // through here, in the same event as its filter commit. Un-settle NOW, synchronously, so the
+    // render before the rebuild effect cannot paint the OLD pool through the NEW filters
+    // ("0 questions" / the filters-empty state for one frame).
+    setBuildSettled(false);
     setRegenerationKey((prev) => prev + 1);
   };
 
