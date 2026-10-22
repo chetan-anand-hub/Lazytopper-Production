@@ -35,7 +35,7 @@ import {
   type ParentLinkView,
   type ParentPayLang,
 } from "../../services/parentPay";
-import "./askParents.css";
+import "./parentShare.css";
 
 type Reason = ParentLinkReason;
 
@@ -214,7 +214,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
         </div>
       </div>
       <div className="lt-parent-pay-card">
-        <div className="lt-ask-parents-lang" role="group" aria-label="Language / भाषा">
+        <div className="lt-parent-share-lang" role="group" aria-label="Language / भाषा">
           <button type="button" aria-pressed={lang === "en"} lang="en" onClick={() => setLang("en")}>
             English
           </button>

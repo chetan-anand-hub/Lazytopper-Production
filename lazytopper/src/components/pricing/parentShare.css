@@ -1,8 +1,9 @@
-/* ASK-PARENTS-PAY-1 — "Ask your parents to pay" (the student's side, inside the pricing
-   page's Premium card) and the parent's pay page (/pricing#pp=…). Own class names; the
-   pricing page's tokens are used when present, with the same values as fallbacks. */
+/* ASK-PARENTS-PAY-1 / PAYWALL-PAY-1 — the student's "Share QR code" and "Forward link to
+   parents" (PaywallActions: every paywall and the pricing page's Premium card) and the
+   parent's pay page (/pricing#pp=…). Own class names; the pricing page's tokens are used
+   when present, with the same values as fallbacks. */
 
-.lt-ask-parents {
+.lt-parent-share {
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px dashed var(--lt-line, #e1e7ef);
@@ -11,7 +12,7 @@
   gap: 8px;
 }
 
-.lt-ask-parents-open {
+.lt-parent-share-open {
   appearance: none;
   width: 100%;
   min-height: 44px;
@@ -25,19 +26,19 @@
   cursor: pointer;
 }
 
-.lt-ask-parents-open:hover {
+.lt-parent-share-open:hover {
   background: var(--lt-mint, #eef8f2);
 }
 
-.lt-ask-parents-hint,
-.lt-ask-parents-note {
+.lt-parent-share-hint,
+.lt-parent-share-note {
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.45;
   color: var(--lt-ink-2, #4a5a73);
 }
 
-.lt-ask-parents-sheet {
+.lt-parent-share-sheet {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -47,7 +48,7 @@
   border: 1px solid var(--lt-line, #e1e7ef);
 }
 
-.lt-ask-parents-lang {
+.lt-parent-share-lang {
   display: inline-flex;
   align-self: flex-start;
   border: 1px solid var(--lt-line, #e1e7ef);
@@ -56,7 +57,7 @@
   background: var(--lt-surface, #ffffff);
 }
 
-.lt-ask-parents-lang button {
+.lt-parent-share-lang button {
   appearance: none;
   border: 0;
   background: transparent;
@@ -68,12 +69,12 @@
   cursor: pointer;
 }
 
-.lt-ask-parents-lang button[aria-pressed="true"] {
+.lt-parent-share-lang button[aria-pressed="true"] {
   background: var(--lt-ink, #0b1b3a);
   color: var(--lt-on-dark, #ffffff);
 }
 
-.lt-ask-parents-preview {
+.lt-parent-share-preview {
   margin: 0;
   padding: 10px 12px;
   border-radius: 10px;
@@ -89,15 +90,15 @@
   overflow-y: auto;
 }
 
-.lt-ask-parents-actions {
+.lt-parent-share-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.lt-ask-parents-send,
-.lt-ask-parents-copy,
-.lt-ask-parents-retry {
+.lt-parent-share-send,
+.lt-parent-share-copy,
+.lt-parent-share-retry {
   appearance: none;
   flex: 1 1 140px;
   min-height: 44px;
@@ -108,23 +109,126 @@
   cursor: pointer;
 }
 
-.lt-ask-parents-send {
+.lt-parent-share-send {
   border: 0;
   background: var(--lt-green-deep, #0e7c47);
   color: #ffffff;
 }
 
-.lt-ask-parents-copy,
-.lt-ask-parents-retry {
+.lt-parent-share-copy,
+.lt-parent-share-retry {
   border: 1px solid var(--lt-line, #e1e7ef);
   background: var(--lt-surface, #ffffff);
   color: var(--lt-ink, #0b1b3a);
 }
 
-.lt-ask-parents-send:disabled,
-.lt-ask-parents-copy:disabled {
+.lt-parent-share-send:disabled,
+.lt-parent-share-copy:disabled {
   opacity: 0.55;
   cursor: default;
+}
+
+/* ── PAYWALL-PAY-1 — the three actions: Pay, Share QR code, Forward link to parents ── */
+
+.lt-paywall-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 420px;
+  margin: 14px auto 0;
+  text-align: left;
+}
+
+/* Inside the pricing page's Premium card the wrapper already spaces it. */
+.lt-parent-share > .lt-paywall-actions {
+  margin-top: 0;
+}
+
+/* The upgrade popup / sheet: in the slot their own button held (its spacing kept). */
+.lt-upgrade__card .lt-paywall-actions {
+  margin-top: 0;
+}
+
+.lt-upsheet .lt-paywall-actions {
+  margin: 0 0 14px;
+}
+
+/* The fair-use limit panel, the trial-paper and More-like-this notes, the tutor's busy line:
+   a full row of their wrapping actions bar; their OK / Close wraps below. */
+.lt-tutor__limit > .lt-paywall-actions,
+.lt-usage__actions > .lt-paywall-actions {
+  flex: 1 1 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.lt-paywall-pay,
+.lt-paywall-parent {
+  appearance: none;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lt-paywall-pay {
+  border: 1px solid var(--lt-green-deep, #0e7c47);
+  background: var(--lt-green-deep, #0e7c47);
+  color: #ffffff;
+}
+
+.lt-paywall-parent {
+  border: 1.5px solid var(--lt-green-deep, #0e7c47);
+  background: var(--lt-surface, #ffffff);
+  color: var(--lt-green-deep, #0e7c47);
+}
+
+.lt-paywall-parent:hover {
+  background: var(--lt-mint, #eef8f2);
+}
+
+.lt-paywall-pay:focus-visible,
+.lt-paywall-parent:focus-visible {
+  outline: 3px solid var(--lt-green-deep, #0e7c47);
+  outline-offset: 2px;
+}
+
+.lt-paywall-parent:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.lt-parent-share-qr {
+  display: block;
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.lt-parent-share-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 140px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--lt-green-deep, #0e7c47);
+  color: #ffffff;
 }
 
 /* ── The parent's page ─────────────────────────────────────────────────────── */

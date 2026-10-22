@@ -18,6 +18,9 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
 import { formatResetIst, limitCopy, trialComeBackLine, type LimitState } from "./fairUseGate";
+// PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Share QR code / Forward link
+// to parents ("Pay" goes to the same plans page). Payments dark: "See plans", unchanged.
+import PaywallActions from "../pricing/PaywallActions";
 import "./usage.css";
 
 export const PLANS_PATH = "/pricing";
@@ -80,9 +83,15 @@ export default function FairUseLimitPanel({
         {copy.showPlans || onDismiss ? (
           <div className="lt-usage__actions">
             {copy.showPlans ? (
-              <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">
-                See plans
-              </Link>
+              <PaywallActions
+                surface="usage_limit"
+                payTo={PLANS_PATH}
+                fallback={
+                  <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">
+                    See plans
+                  </Link>
+                }
+              />
             ) : null}
             {onDismiss ? (
               <button type="button" className="lt-usage__btn lt-usage__btn--ghost" onClick={onDismiss}>
@@ -149,9 +158,15 @@ export default function FairUseLimitPanel({
           {trialComeBackLine(limit.resetAt ?? "", when, limit.allowance)}
         </p>
         <div className="lt-usage__actions">
-          <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">
-            See plans
-          </Link>
+          <PaywallActions
+            surface="usage_limit"
+            payTo={PLANS_PATH}
+            fallback={
+              <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="fair-use-see-plans">
+                See plans
+              </Link>
+            }
+          />
           <button
             type="button"
             className="lt-usage__btn lt-usage__btn--ghost"

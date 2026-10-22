@@ -3,6 +3,7 @@ import { useSubscription } from "../hooks/useSubscription";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BasicFreeList } from "./pricing/BasicFreeList";
 import { notifyPaywallDismissed } from "./feedback/feedbackPromptHost";
+import PaywallActions from "./pricing/PaywallActions";
 
 /**
  * FRICTION-FIX-1 · F3 (FU-UPGRADE-MODAL-NO-BASIC-EXIT) — the modal had ONE exit that was
@@ -170,19 +171,27 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
           <BasicFreeList />
         </div>
 
-        <button
-          type="button"
-          onClick={handleUpgrade}
-          style={{
-            width: "100%", border: "none", borderBottom: "4px solid #46a302",
-            borderRadius: 16, padding: "14px 20px",
-            background: "#58cc02", color: "var(--text)",
-            fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-            textTransform: "uppercase", letterSpacing: "0.5px",
-          }}
-        >
-          {tier === "free" && !isTrialExpired ? "View Plans" : "Choose Plan"}
-        </button>
+        {/* PAYWALL-PAY-1 — Pay, Share QR code, Forward link to parents. Payments dark: the
+            existing plans button, unchanged. */}
+        <PaywallActions
+          surface="upgrade_modal"
+          onPay={handleUpgrade}
+          fallback={
+            <button
+              type="button"
+              onClick={handleUpgrade}
+              style={{
+                width: "100%", border: "none", borderBottom: "4px solid #46a302",
+                borderRadius: 16, padding: "14px 20px",
+                background: "#58cc02", color: "var(--text)",
+                fontSize: "1rem", fontWeight: 800, cursor: "pointer",
+                textTransform: "uppercase", letterSpacing: "0.5px",
+              }}
+            >
+              {tier === "free" && !isTrialExpired ? "View Plans" : "Choose Plan"}
+            </button>
+          }
+        />
 
         <button
           type="button"

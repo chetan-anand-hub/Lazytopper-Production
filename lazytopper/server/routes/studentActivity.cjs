@@ -150,6 +150,10 @@ const ACTIVITY_EVENTS = Object.freeze([
   'feedback_first_graded_too_hard',
   // GUIDE-1 - which Byte-guide A/B arm the account is in, once per account per device. Additive only.
   'guide_variant_assigned',
+  // PAYWALL-PAY-1 - a tap on "Pay", "Share QR code" or "Forward link to parents". Additive only.
+  'paywall_action_pay',
+  'paywall_action_qr',
+  'paywall_action_forward',
 ]);
 
 /**
