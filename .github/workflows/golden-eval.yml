@@ -21,9 +21,14 @@ name: Golden Eval
 # ★ Node is preinstalled on ubuntu-latest and the gate loads only node built-ins plus
 #   lazytopper/server modules that have no npm dependencies — no install step.
 
+# ★★ CI-SPEED-3 (owner order 2026-10-22): NO `pull_request` TRIGGER. On a PR these exact suites
+#   already run inside the REQUIRED quality-gate: the lazytopper ops matrix (build-ops job) runs
+#   `test:server:golden-eval` (golden.test.cjs, whose §2 spawns goldenGate.cjs on the committed
+#   baseline and asserts calls=0 changed=0 verdict=PASS, plus shapes.test.cjs) and
+#   `test:server:eval-parity` (graderEval.parity.test.cjs). This workflow was never a required
+#   check; it stays on trunk pushes and manual dispatch. ci_speed_acceptance.mjs (w18) fails if the
+#   PR trigger is dropped while the ops matrix stops running any of the three suites.
 on:
-  pull_request:
-    branches: [base/approved-thru-437]
   push:
     branches: [base/approved-thru-437]
   workflow_dispatch:

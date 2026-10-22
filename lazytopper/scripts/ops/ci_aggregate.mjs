@@ -9,7 +9,13 @@
  * check that is satisfied by an aggregate with `if: always()` will happily report green over a
  * skipped shard. So this FAILS CLOSED:
  *
- *   classify, docs-lane            must be `success`, always.
+ *   classify                       must be `success`, always.
+ *   docs-lane                      docs-only path -> must be `success` (it carries that path's mojibake);
+ *                                  full bar -> must be `skipped` (CI-SPEED-3: the full bar's mojibake
+ *                                  step runs inside `static`, so this job no longer pays a runner there)
+ *   clock-changed                  full bar -> `success`, OR `skipped` ONLY when classify RECORDED the
+ *                                  explicit reason (CLOCK_COUNT=0 and CLOCK_SKIP_REASON starting with
+ *                                  CLOCK_ZERO_LINE). A skip without that record FAILS (CI-SPEED-3).
  *   static, build-ops, railway-build, vitest, clock-changed
  *       (railway-build: the root build exactly as the Railway image runs it — RAILWAY-BUILD-GATE)
  *       docs-only path (classify said docs_only=true)  -> must be `skipped` (skipped BY DESIGN)
@@ -19,7 +25,7 @@
  *       so sharding can never silently drop a file.
  *
  * MODES
- *   node scripts/ops/ci_aggregate.mjs --aggregate                       # env: NEEDS_JSON, DOCS_ONLY, SHARD_DIR, EXPECTED_SHARDS
+ *   node scripts/ops/ci_aggregate.mjs --aggregate                       # env: NEEDS_JSON, DOCS_ONLY, SHARD_DIR, EXPECTED_SHARDS, CLOCK_COUNT, CLOCK_SKIP_REASON
  *   node scripts/ops/ci_aggregate.mjs --shard-summary <vitest.json> <out.json> --shard=i/N
  */
 
@@ -30,7 +36,13 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ANCHOR = path.resolve(HERE, "..", ".."); // lazytopper/
 
-export const ALWAYS_JOBS = Object.freeze(["classify", "docs-lane"]);
+export const ALWAYS_JOBS = Object.freeze(["classify"]);
+// CI-SPEED-3 (2026-10-22): docs-lane runs ONLY on the docs-only path; the full bar's mojibake is in `static`.
+export const DOCS_PATH_JOBS = Object.freeze(["docs-lane"]);
+// CI-SPEED-3: classify computes the clock-changed selection; zero selected -> the job is not started and
+// classify records this reason. MUST equal ci_clock_changed.mjs ZERO_LINE (ci_speed_acceptance k4 pins it;
+// it is a literal here because the aggregate's sparse checkout has no testClock/).
+export const CLOCK_ZERO_LINE = "CLOCK_CHANGED: 0 date-sensitive tests changed";
 // CI-CLOCK-CUT (2026-10-22): `clock` (six per-PR legs) became `clock-changed` (one job, the manifest
 // tests this change touched, at both clocks). It is judged exactly as `clock` was.
 export const FULL_BAR_JOBS = Object.freeze(["static", "build-ops", "railway-build", "vitest", "clock-changed"]);
@@ -54,17 +66,28 @@ export function countTestFilesOnDisk(anchor = ANCHOR) {
  * The whole verdict, pure. `needs` = toJSON(needs) shape: { job: { result } }.
  * `shards` = array of shard summaries (full bar only). Returns { ok, problems[], totals }.
  */
-export function evaluate({ needs, docsOnly, shards = [], expectedShards = 4, filesOnDisk = null }) {
+export function evaluate({ needs, docsOnly, shards = [], expectedShards = 4, filesOnDisk = null, clockCount = "", clockSkipReason = "" }) {
   const problems = [];
   const result = (job) => (needs && needs[job] && needs[job].result) || "missing";
   for (const job of ALWAYS_JOBS) {
     if (result(job) !== "success") problems.push(`${job}: ${result(job)} (must be success on every path)`);
   }
   const docs = docsOnly === true || docsOnly === "true";
+  for (const job of DOCS_PATH_JOBS) {
+    const r = result(job);
+    if (docs) {
+      if (r !== "success") problems.push(`${job}: ${r} (docs-only path: must be success)`);
+    } else if (r !== "skipped") {
+      problems.push(`${job}: ${r} (full bar: expected skipped — its mojibake step runs in static)`);
+    }
+  }
+  const clockSkipRecorded = String(clockCount) === "0" && String(clockSkipReason || "").startsWith(CLOCK_ZERO_LINE);
   for (const job of FULL_BAR_JOBS) {
     const r = result(job);
     if (docs) {
       if (r !== "skipped") problems.push(`${job}: ${r} (docs-only path: expected skipped)`);
+    } else if (job === "clock-changed" && r === "skipped" && clockSkipRecorded) {
+      // skipped BY RECORD: classify selected 0 date-sensitive tests and said so (nightly-full-clock covers them).
     } else if (r !== "success") {
       problems.push(`${job}: ${r} (full bar: must be success)`);
     }
@@ -122,6 +145,8 @@ function runAggregate() {
   try { needs = JSON.parse(process.env.NEEDS_JSON || "{}"); } catch { needs = {}; }
   const docsOnly = process.env.DOCS_ONLY;
   const expectedShards = Number(process.env.EXPECTED_SHARDS || 4);
+  const clockCount = process.env.CLOCK_COUNT || "";
+  const clockSkipReason = process.env.CLOCK_SKIP_REASON || "";
   const dir = process.env.SHARD_DIR || "";
   const shards = [];
   try {
@@ -131,8 +156,9 @@ function runAggregate() {
   } catch { /* no summaries: the evaluate() shard check reports it */ }
   const filesOnDisk = countTestFilesOnDisk();
   for (const [job, v] of Object.entries(needs)) console.log(`CI_AGGREGATE_JOB: ${job}=${v && v.result}`);
-  const r = evaluate({ needs, docsOnly, shards, expectedShards, filesOnDisk });
+  const r = evaluate({ needs, docsOnly, shards, expectedShards, filesOnDisk, clockCount, clockSkipReason });
   console.log(`CI_AGGREGATE_PATH: ${r.docs ? "docs-only fast path" : "full bar"}`);
+  if (!r.docs) console.log(`CI_AGGREGATE_CLOCK: count=${clockCount || "(unset)"} skip_reason=${clockSkipReason || "(none)"}`);
   if (!r.docs) {
     const t = r.totals;
     console.log(`VITEST_TOTAL: shards=${t.shards}/${expectedShards} files=${t.files} (on disk ${filesOnDisk}) tests=${t.tests} passed=${t.passed} failed=${t.failed} skipped=${t.skipped} todo=${t.todo}`);

@@ -24,9 +24,9 @@ import { fileURLToPath } from "node:url";
 import { decide, isDeployInertPath, listChangedPaths, verdictForFiles } from "./vercel_ignore_build.mjs";
 import { CONFIRM_READS, SETTLE_READS, SKIP_LINE, classifyLiveRead, decideInertSkip } from "./searchping_inert_skip.mjs";
 import { guard, dateSignalsIn, enumerateVitestFiles, readList, scan } from "../testClock/dateSensitive.mjs";
-import { planShards, readDurations, substringCollisions } from "./ci_shard_plan.mjs";
+import { orderSlowestFirst, planShards, readDurations, substringCollisions } from "./ci_shard_plan.mjs";
 import { isRepoFrame } from "../testClock/clockRecorderFrames.mjs";
-import { FULL_BAR_JOBS, evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
+import { CLOCK_ZERO_LINE, DOCS_PATH_JOBS, FULL_BAR_JOBS, evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
 import { ZERO_LINE, resolveBaseSpec, selectClockChanged } from "./ci_clock_changed.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -34,6 +34,7 @@ const ANCHOR = path.resolve(HERE, "..", "..");
 const REPO_ROOT = path.resolve(ANCHOR, "..");
 const WORKFLOW = path.join(REPO_ROOT, ".github", "workflows", "quality-gate.yml");
 const LANE_OVERLAP = path.join(REPO_ROOT, ".github", "workflows", "lane-overlap.yml");
+const GOLDEN_EVAL = path.join(REPO_ROOT, ".github", "workflows", "golden-eval.yml");
 const VERCEL_JSON =path.join(REPO_ROOT, "vercel.json");
 
 const checks = [];
@@ -177,7 +178,8 @@ export const REAL_COMMITS = [
 {
   const ok = { result: "success" };
   const skip = { result: "skipped" };
-  const fullNeeds = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, "clock-changed": ok };
+  // CI-SPEED-3: on the full bar docs-lane is skipped BY DESIGN (its mojibake step runs in static).
+  const fullNeeds = { classify: ok, "docs-lane": skip, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, "clock-changed": ok };
   const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
   const green = evaluate({ needs: fullNeeds, docsOnly: "false", shards, expectedShards: 4, filesOnDisk: 40 });
   check("g1_full_bar_all_green_passes", green.ok && green.totals.files === 40 && green.totals.tests === 400, green.problems.join("; "));
@@ -196,7 +198,26 @@ export const REAL_COMMITS = [
   check("g4_docs_path_skips_are_by_design_only", docsGreen.ok && !docsMojibakeRed.ok && !fullButSkipped.ok);
   const s = summariseVitestJson({ numTotalTests: 5, numPassedTests: 4, numFailedTests: 0, numPendingTests: 0, numTodoTests: 1, testResults: [{}, {}] }, "2/4");
   check("g5_shard_summary_reads_the_vitest_json_reporter", s.files === 2 && s.tests === 5 && s.todo === 1 && s.shard === "2/4");
+  // ★ CI-SPEED-3: docs-lane is a DOCS-PATH job (full bar: must be skipped; a run there means classify's
+  //   outputs disagree), and clock-changed may be skipped on the full bar ONLY with classify's record.
+  const E = (needs, extra = {}) => evaluate({ needs, docsOnly: "false", shards, expectedShards: 4, filesOnDisk: 40, ...extra }).ok;
+  const ccSkip = { ...fullNeeds, "clock-changed": skip };
+  const REASON = `${CLOCK_ZERO_LINE} (recorded by classify)`;
+  check("g6_docs_lane_is_docs_path_only",
+    DOCS_PATH_JOBS.includes("docs-lane") && !E({ ...fullNeeds, "docs-lane": ok }) && !E({ ...fullNeeds, "docs-lane": { result: "failure" } }) &&
+      !evaluate({ needs: { ...docsNeeds, "docs-lane": skip }, docsOnly: "true" }).ok,
+    "full bar: docs-lane must be skipped; docs path: it must succeed");
+  check("g7_clock_changed_skip_needs_classifys_recorded_reason",
+    E(ccSkip, { clockCount: "0", clockSkipReason: REASON }) &&
+      !E(ccSkip) && !E(ccSkip, { clockCount: "0" }) && !E(ccSkip, { clockSkipReason: REASON }) &&
+      !E(ccSkip, { clockCount: "unresolved", clockSkipReason: REASON }) && !E(ccSkip, { clockCount: "3", clockSkipReason: REASON }) &&
+      !E({ ...fullNeeds, "clock-changed": { result: "failure" } }, { clockCount: "0", clockSkipReason: REASON }) &&
+      !E({ ...fullNeeds, "clock-changed": { result: "cancelled" } }, { clockCount: "0", clockSkipReason: REASON }),
+    "a skipped clock-changed passes only with count=0 AND the recorded reason; a failure or cancel never does");
+  check("k4_aggregate_zero_line_is_the_selectors_zero_line", CLOCK_ZERO_LINE === ZERO_LINE, `${CLOCK_ZERO_LINE} vs ${ZERO_LINE}`);
 }
+
+let WORKFLOW_SHARDS = 0; // set by w5 from the workflow's own matrix; w13/w14 plan that many bins
 
 // ---- (d) workflow wiring --------------------------------------------------------------------
 {
@@ -224,7 +245,8 @@ export const REAL_COMMITS = [
   const aggNeeds = ((agg.match(/^ {4}needs:\s*\[([^\]]*)\]/m) || [])[1] || "").split(",").map((x) => x.trim());
   check("w3_per_pr_clock_legs_removed_and_clock_changed_runs_touched_tests_at_both_clocks",
     jobBlock("clock") === "" && !/ci_shard_plan\.mjs --source=clock/.test(wf) &&
-      /^ {4}needs: classify$/m.test(cc) && /^ {4}if: needs\.classify\.outputs\.docs_only != 'true'$/m.test(cc) &&
+      /^ {4}needs: classify$/m.test(cc) &&
+      /^ {4}if: needs\.classify\.outputs\.docs_only != 'true' && needs\.classify\.outputs\.clock_count != '0'$/m.test(cc) &&
       /fetch-depth: 0/.test(cc) && /git fetch --no-tags origin "\+refs\/heads\/\$\{\{ github\.base_ref \}\}/.test(cc) &&
       /set -euo pipefail\n\s+node lazytopper\/scripts\/ops\/ci_clock_changed\.mjs --select > /.test(ccCode) &&
       !/ci_clock_changed\.mjs --select[^\n]*\|\|/.test(ccCode) &&
@@ -237,6 +259,21 @@ export const REAL_COMMITS = [
       aggNeeds.includes("clock-changed") && !aggNeeds.includes("clock") &&
       /0 date-sensitive tests changed/.test(cc) && /nightly-full-clock covers/.test(cc),
     "no `clock` job; clock-changed: full-bar gated, base fetched, selector fail-closed (no ||), both clocks, self-check, judged by the aggregate");
+  // ★ CI-SPEED-3: classify runs the SAME selector; only the literal count 0 skips clock-changed, and only
+  //   then is the reason recorded and handed to the aggregate. A selector failure -> "unresolved" -> runs.
+  {
+    const cl = jobBlock("classify");
+    const clCode = cl.replace(/^\s*#.*$/gm, "");
+    check("w19_classify_records_the_clock_selection_and_only_zero_skips",
+      /clock_count: \$\{\{ steps\.clock\.outputs\.clock_count \}\}/.test(cl) &&
+        /clock_skip_reason: \$\{\{ steps\.clock\.outputs\.clock_skip_reason \}\}/.test(cl) &&
+        /id: clock\n/.test(cl) && /if node lazytopper\/scripts\/ops\/ci_clock_changed\.mjs --select > /.test(clCode) &&
+        /n="unresolved"/.test(clCode) && /if \[ "\$n" = "0" \]; then\n\s+echo "clock_skip_reason=CLOCK_CHANGED: 0 date-sensitive tests changed/.test(clCode) &&
+        /EVENT_BEFORE: \$\{\{ github\.event\.before \}\}/.test(cl) && /MERGE_GROUP_BASE_SHA: \$\{\{ github\.event\.merge_group\.base_sha \}\}/.test(cl) &&
+        /CLOCK_COUNT: \$\{\{ needs\.classify\.outputs\.clock_count \}\}/.test(agg) &&
+        /CLOCK_SKIP_REASON: \$\{\{ needs\.classify\.outputs\.clock_skip_reason \}\}/.test(agg),
+      "classify computes the selection, records count + reason; only '0' skips; the aggregate receives both");
+  }
   // The selector, pure. A change to a manifest test selects it; a test ADDED to the manifest
   // selects it; a non-manifest or deleted test does not; nothing relevant selects NOTHING.
   {
@@ -342,15 +379,45 @@ export const REAL_COMMITS = [
     const listed = ((vitest.match(/\n        shard: \[([^\]]*)\]/) || [])[1] || "").split(",").map((x) => Number(x.trim())).filter(Boolean);
     const n = listed.length;
     const seq = listed.every((v, i) => v === i + 1);
+    // CI-SPEED-3 (2026-10-22): n >= 3 (was >= 4) — at 4 workers 3 shards carry the suite; the
+    //   coverage rule (files run == files on disk) is the aggregate's, unchanged.
     check("w5_default_vitest_runs_every_file_once_via_planned_shards",
-      n >= 4 && seq &&
+      n >= 3 && seq &&
         vitest.includes(`ci_shard_plan.mjs --source=all --shards=${n} --index=\${{ matrix.shard }}`) &&
-        vitest.includes("pnpm --filter lazytopper exec vitest run $FILES --reporter=default --reporter=json") &&
+        /pnpm --filter lazytopper exec vitest run \$FILES (?:--maxWorkers=\d+ )?--reporter=default --reporter=json/.test(vitest) &&
         vitest.includes(`--shard=\${{ matrix.shard }}/${n}`) && vitest.includes(`name: vitest (\${{ matrix.shard }}/${n})`) &&
         !/--exclude/.test(vitest) && new RegExp(`EXPECTED_SHARDS: '${n}'`).test(wf),
       `shards=${n}: matrix, planner, summary label and EXPECTED_SHARDS agree; the aggregate checks the shards cover every file`);
+    WORKFLOW_SHARDS = n;
+  }
+  // ★ CI-SPEED-3: WORKERS AND HEAP ARE ONE DECISION (vitest.config.ts). The CI vitest step sets the
+  //   worker count on the command line; workers x per-worker heap must stay <= 12288 MB (the 12 GB
+  //   worst case the config comment allows on the 16 GB runner) and workers <= the runner's 4 vCPUs.
+  {
+    const code = vitest.replace(/^\s*#.*$/gm, "");
+    const workers = Number((code.match(/vitest run \$FILES --maxWorkers=(\d+) /) || [])[1] || 0);
+    const heap = Number((code.match(/NODE_OPTIONS: --max-old-space-size=(\d+)/) || [])[1] || 0);
+    check("w17_ci_vitest_workers_times_heap_fit_the_runner",
+      workers >= 1 && workers <= 4 && heap > 0 && workers * heap <= 12288,
+      `--maxWorkers=${workers} x --max-old-space-size=${heap} = ${workers * heap} MB (limit 12288, <= 4 workers)`);
   }
   const buildOps = jobBlock("build-ops");
+  // ★ CI-SPEED-3: golden-eval.yml no longer runs on pull_request — ONLY because the ops matrix that the
+  //   required quality-gate runs (build-ops) carries the same three suites. Drop either and this fails.
+  {
+    const ge = read(GOLDEN_EVAL);
+    const pkg = JSON.parse(read(path.join(ANCHOR, "package.json"))).scripts || {};
+    const chain = String(pkg["test:matrix:all"] || "");
+    const prTrigger = /^\s{2}pull_request:/m.test(ge.replace(/^\s*#.*$/gm, ""));
+    const covered = /npm run test:server:golden-eval\b/.test(chain) && /npm run test:server:eval-parity\b/.test(chain) &&
+      /server\/eval\/golden\/golden\.test\.cjs/.test(pkg["test:server:golden-eval"] || "") &&
+      /server\/eval\/golden\/shapes\.test\.cjs/.test(pkg["test:server:golden-eval"] || "") &&
+      /server\/eval\/graderEval\.parity\.test\.cjs/.test(pkg["test:server:eval-parity"] || "") &&
+      /pnpm --filter lazytopper run test:matrix:all/.test(jobBlock("build-ops"));
+    check("w18_golden_suites_run_on_every_pr_inside_the_required_gate",
+      prTrigger || covered,
+      `golden-eval.yml pull_request trigger=${prTrigger}; ops matrix runs golden + shapes + parity=${covered}`);
+  }
   check("w6_static_guard_and_this_suite_run_on_the_full_bar",
     /dateSensitive\.mjs --guard/.test(buildOps) && /ci_speed_acceptance\.mjs/.test(buildOps) &&
       /if: needs\.classify\.outputs\.docs_only != 'true'/.test(buildOps));
@@ -368,11 +435,12 @@ export const REAL_COMMITS = [
     const seen = bins.flatMap((b) => b.files);
     return seen.length === new Set(files).size && new Set(seen).size === seen.length && files.every((f) => seen.includes(f));
   };
-  const allBins = planShards(all, durations, 5);
+  const N = WORKFLOW_SHARDS || 5; // the shard count the workflow actually runs (w5 reads it)
+  const allBins = planShards(all, durations, N);
   const clockBins = planShards(manifest, durations, 2);
   check("w13_planner_puts_every_file_in_exactly_one_shard",
     exactCover(all, allBins) && exactCover(manifest, clockBins) &&
-      JSON.stringify(planShards(all, durations, 5)) === JSON.stringify(allBins),
+      JSON.stringify(planShards(all, durations, N)) === JSON.stringify(allBins),
     `all: ${all.length} files -> [${allBins.map((b) => b.files.length).join(", ")}]; clock: ${manifest.length} -> [${clockBins.map((b) => b.files.length).join(", ")}]; deterministic`);
   // Balance: on the real table, no bin exceeds the lightest by more than the single slowest file.
   const slowest = Math.max(...all.map((f) => durations[f] || 0));
@@ -389,6 +457,24 @@ export const REAL_COMMITS = [
     "an empty bin would run the WHOLE suite; a substring path would select a second file — both refused");
   // A stale table (unknown file, deleted file) changes balance only, never coverage.
   const stale = planShards([...all.slice(0, 20), "src/__new__.test.ts"], { ...durations, "src/__deleted__.test.ts": 999 }, 3);
+  // ★ CI-SPEED-3: inside a shard the slowest files start first (CI only). ORDER ONLY: the sequencer
+  //   must return exactly the files it was given, slowest first, and vitest.config.ts may wire it only
+  //   behind CI === "true" (local runs keep vitest's order).
+  {
+    const sample = [...all.slice(0, 30), "src/__unknown__.test.ts"];
+    const ordered = orderSlowestFirst(sample, durations);
+    const cost = (f) => durations[f] ?? -1;
+    const known = ordered.filter((f) => durations[f] > 0); // 0 / unknown take the median, like the planner
+    const cfg = read(path.join(ANCHOR, "vitest.config.ts"));
+    check("w20_ci_sequencer_reorders_never_adds_or_drops",
+      ordered.length === sample.length && new Set(ordered).size === sample.length && sample.every((f) => ordered.includes(f)) &&
+        known.every((f, i) => i === 0 || cost(known[i - 1]) >= cost(f)) &&
+        JSON.stringify(orderSlowestFirst(sample.slice().reverse(), durations)) === JSON.stringify(ordered) &&
+        /import \{ SlowestFirstSequencer \} from "\.\/scripts\/ops\/ci_vitest_sequencer\.mjs"/.test(cfg) &&
+        /process\.env\.CI === "true" \? \{ sequence: \{ sequencer: SlowestFirstSequencer \} \} : \{\}/.test(cfg) &&
+        /return ordered\.map\(/.test(read(path.join(HERE, "ci_vitest_sequencer.mjs"))),
+      `${sample.length} files in, ${ordered.length} out, slowest first, deterministic; wired behind CI only`);
+  }
   check("w16_a_stale_durations_table_never_drops_or_adds_a_file",
     exactCover([...all.slice(0, 20), "src/__new__.test.ts"], stale) && !stale.some((b) => b.files.includes("src/__deleted__.test.ts")));
 }
@@ -439,7 +525,7 @@ function railwayBuildPins(wfText) {
   const ok = { result: "success" };
   const skip = { result: "skipped" };
   const shards = [1, 2, 3, 4].map((i) => ({ shard: `${i}/4`, files: 10, tests: 100, passed: 100, failed: 0, skipped: 0, todo: 0 }));
-  const full = { classify: ok, "docs-lane": ok, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, "clock-changed": ok };
+  const full = { classify: ok, "docs-lane": skip, static: ok, "build-ops": ok, "railway-build": ok, vitest: ok, "clock-changed": ok };
   const docs = { classify: ok, "docs-lane": ok, static: skip, "build-ops": skip, "railway-build": skip, vitest: skip, "clock-changed": skip };
   const { "railway-build": _absent, ...missing } = full;
   const pass = (needs, docsOnly) => evaluate({ needs, docsOnly, shards, expectedShards: 4, filesOnDisk: 40 }).ok;

@@ -481,6 +481,8 @@ const FULL_BAR_STEPS = [
 
 // CI-SPEED-1: gating moved from every step to every full-bar JOB (job-level `if:`).
 const GATE_EXPR = "needs.classify.outputs.docs_only != 'true'";
+// CI-SPEED-3: the docs-only path's half (docs-lane). The complement of GATE_EXPR, by construction.
+const DOCS_EXPR = "needs.classify.outputs.docs_only == 'true'";
 // The nightly job runs only on schedule / dispatch, where the classifier always says "full bar".
 const NIGHTLY_EXPR = "github.event_name == 'schedule'";
 
@@ -578,12 +580,18 @@ function runSuite(mutation) {
 
   const jobs = workflowJobs(wf);
   {
-    const mojibake = steps.find((s) => /Mojibake check/.test(s.name));
-    const mjob = mojibake ? jobOfLine(jobs, mojibake.start) : null;
+    // ★ CI-SPEED-3 (2026-10-22): mojibake still runs on EVERY path, now as two UNGATED steps whose JOBS
+    //   are gated on the two complementary halves of the classifier's verdict: docs-lane on the docs
+    //   path, static on the full bar. (Was: one ungated step in an ungated docs-lane job.) Either half
+    //   missing, either step gaining an `if:`, or the two jobs sharing a half, fails this check.
+    const mojis = steps.filter((s) => /Mojibake check/.test(s.name));
+    const owners = mojis.map((m) => ({ m, j: jobOfLine(jobs, m.start) }));
+    const ungated = owners.every(({ m }) => !/^\s{8}if:/m.test(m.block) && /run: pnpm --filter lazytopper run check:mojibake/.test(m.block));
+    const docsHalf = owners.some(({ j }) => j && j.id === "docs-lane" && j.jobIf === DOCS_EXPR);
+    const fullHalf = owners.some(({ j }) => j && j.id === "static" && j.jobIf === GATE_EXPR);
     check("a11_mojibake_runs_on_every_path",
-      Boolean(mojibake) && !/^\s{8}if:/m.test(mojibake.block) && Boolean(mjob) && mjob.jobIf === "",
-      mojibake ? "the Mojibake step carries no `if:` — it is the one gate a docs PR can fail"
-               : "the Mojibake step is missing from quality-gate.yml");
+      mojis.length === 2 && ungated && docsHalf && fullHalf,
+      `mojibake steps=${mojis.length} ungated=${ungated} docs-path(docs-lane)=${docsHalf} full-bar(static)=${fullHalf} — it is the one gate a docs PR can fail`);
   }
 
   {
@@ -608,7 +616,7 @@ function runSuite(mutation) {
     const needsOk = Boolean(agg) && /needs:\s*\[classify, docs-lane, static, build-ops, railway-build, vitest, clock-changed\]/.test(agg.block);
     check("a12b_the_required_check_is_an_always_running_aggregate",
       Boolean(agg) && agg.jobIf === "always()" && needsOk && /ci_aggregate\.mjs --aggregate/.test(agg.block) &&
-        Boolean(docsLane) && docsLane.jobIf === "",
+        Boolean(docsLane) && docsLane.jobIf === DOCS_EXPR,
       "the trunk ruleset requires a check named `quality-gate`; it must run on every path and judge every job");
   }
 
