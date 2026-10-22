@@ -3,6 +3,7 @@
  *
  *   GET /api/admin/students            the list: newest sign-ups first, 50 per page
  *   GET /api/admin/students/summary    the summary cards for a sign-up period
+ *   GET /api/admin/students/ai-cost    COST-1: AI cost from the usage ledger for a spend window
  *   GET /api/admin/students/{uid}      one student's day-by-day timeline
  *
  * ★★ ADMIN-ONLY, THROUGH THE ONE SHARED GATE. Every endpoint runs `requireAdmin` FIRST,
@@ -34,9 +35,15 @@
  * nothing still bills 1, a count() bills 1 per 1000 index entries):
  *   list    : 50 rows x 6 = 300            (+ up to MAX_PLAN_SCAN = 1000 with a plan filter)
  *             (the 6th is signupSources/{uid} — SOURCE-1, one getAll document read per row)
+ *             + COST-1: up to 30 ledger day documents per row = at most 1500 more
+ *             (fewer for a new account: its window starts on its sign-up day)
  *   summary : up to MAX_SUMMARY_STUDENTS = 500 subscriptions + 3 per eligible student
  *             = at most 2000
- *   detail  : 1 + 20 + 120 + 120 + 100 + 200 + 50 = 611
+ *   ai-cost : COST-1, loaded on request: up to MAX_COST_STUDENTS = 500 subscriptions +
+ *             500 x MAX_COST_DAYS (30) ledger day documents = at most 15,500; the response
+ *             returns the exact count in `reads`
+ *   detail  : 1 + 20 + 120 + 120 + 100 + 200 + 50 = 611 (the 30-day AI cost reuses the
+ *             ledger days already read — no extra read)
  * Auth `listUsers` is not a Firestore read; it is capped at MAX_AUTH_PAGES x 1000 users and
  * the response says when the cap was hit. No endpoint loops over every user's
  * subcollections.
@@ -56,12 +63,16 @@ const {
   LEDGER_SEGMENTS,
   TRIAL_COUNTER_FIELDS,
   LEDGER_SPEND_FIELD,
+  sumLedgerCost,
+  microInrToInr,
 } = require('../services/usageLedger.cjs');
 const { AI_TRIAL_COUNTER_FIELDS } = require('../services/fairUse.cjs');
 const { SIGNUP_SOURCES_COLLECTION } = require('./signupSource.cjs');
 
 const ADMIN_STUDENTS_PATH = '/api/admin/students';
 const ADMIN_STUDENTS_SUMMARY_PATH = '/api/admin/students/summary';
+/** COST-1: the AI-cost summary (loaded on request by the page; see handleAiCost). */
+const ADMIN_STUDENTS_AI_COST_PATH = '/api/admin/students/ai-cost';
 
 /* Top-level collections, named as constants so the studentDataMap drift guard sees them
  * (every one is already mapped). Subcollections are held as PROPERTIES, never as a
@@ -109,6 +120,22 @@ const DETAIL_LIMITS = Object.freeze({
 });
 const MAX_TOPICS_PER_SESSION = 5;
 
+/**
+ * COST-1 — AI cost from the usage ledger, by DAY KEY (the keyed getAll path fair use and the
+ * detail already use; never a days query — see readUsageDays for why).
+ *   ROW_COST_DAYS      the list column's window: the last 30 IST days, today included.
+ *   MAX_COST_DAYS      the summary's longest window; "all" is the ledger's start, capped here.
+ *   MAX_COST_STUDENTS  the summary reads the newest this many accounts (flagged when cut).
+ * Every window starts no earlier than the ledger's first day or the student's sign-up day, so
+ * a new account costs only its own days.
+ */
+const ROW_COST_DAYS = 30;
+const MAX_COST_DAYS = 30;
+const MAX_COST_STUDENTS = 500;
+const COST_TOP_N = 10;
+const COST_READ_CONCURRENCY = 4;
+const COST_PLANS = Object.freeze(['trial', 'premium', 'basic', 'unknown']);
+
 const PERIODS = Object.freeze({ all: null, 1: 1, 7: 7, 30: 30 });
 const PLAN_FILTERS = Object.freeze(['all', 'trial', 'premium', 'basic']);
 const TEST_SURFACES = Object.freeze(['chapter-test', 'full-mock']);
@@ -142,6 +169,29 @@ function finiteOrNull(value) {
 function countOf(value) {
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+
+/** gRPC status numbers -> the names Firestore errors carry (google.rpc.Code). */
+const GRPC_CODE_NAMES = Object.freeze({
+  1: 'cancelled', 2: 'unknown', 3: 'invalid-argument', 4: 'deadline-exceeded', 5: 'not-found',
+  6: 'already-exists', 7: 'permission-denied', 8: 'resource-exhausted', 9: 'failed-precondition',
+  10: 'aborted', 11: 'out-of-range', 12: 'unimplemented', 13: 'internal', 14: 'unavailable',
+  15: 'data-loss', 16: 'unauthenticated',
+});
+
+/**
+ * COST-1 — a read failure's CODE only, safe to return to the admin page: a known gRPC name
+ * ("permission-denied", "failed-precondition" …) or "error". Never the message (it can carry a
+ * document path, i.e. a uid).
+ */
+function readErrorCode(err) {
+  const code = err && err.code;
+  if (typeof code === 'number' && Object.prototype.hasOwnProperty.call(GRPC_CODE_NAMES, code)) return GRPC_CODE_NAMES[code];
+  if (typeof code === 'string') {
+    const name = code.toLowerCase().replace(/_/g, '-');
+    if (Object.values(GRPC_CODE_NAMES).includes(name)) return name;
+  }
+  return 'error';
 }
 
 /**
@@ -247,6 +297,32 @@ function coverageFor(source, createdMs) {
   return createdMs >= istDayStartMs(DATA_SOURCES[source].since) ? 'full' : 'partial';
 }
 
+/**
+ * COST-1 — the IST day keys one student's AI cost is read from: the window
+ * [windowFirst .. todayKey], starting no earlier than the ledger's first day or the student's
+ * sign-up day. `coverage` is "partial" when the window reaches back before the ledger existed
+ * for a student who was already signed up then (days the ledger could not have seen).
+ */
+function costKeysFor(todayKey, windowFirst, createdMs) {
+  const floors = [windowFirst, DATA_SOURCES.usageLedger.since];
+  const signupKey = createdMs !== null && Number.isFinite(createdMs) ? istDayKey(createdMs) : null;
+  if (signupKey) floors.push(signupKey);
+  const first = floors.sort()[floors.length - 1];
+  const keys = [];
+  for (let k = first; k <= todayKey && keys.length < MAX_COST_DAYS; k = addIstDays(k, 1)) keys.push(k);
+  const ledgerSince = DATA_SOURCES.usageLedger.since;
+  const coverage = windowFirst < ledgerSince && (signupKey === null || signupKey < ledgerSince) ? 'partial' : 'full';
+  return { keys, coverage };
+}
+
+/** Median of a non-empty list of numbers (the mean of the middle two for an even count). */
+function medianOf(values) {
+  const v = [...values].sort((a, b) => a - b);
+  if (v.length === 0) return null;
+  const mid = Math.floor(v.length / 2);
+  return v.length % 2 === 1 ? v[mid] : Math.round((v[mid - 1] + v[mid]) / 2);
+}
+
 function parseListQuery(searchParams) {
   const period = searchParams.get('period') || 'all';
   if (!Object.prototype.hasOwnProperty.call(PERIODS, period)) return { error: 'invalid period' };
@@ -320,9 +396,61 @@ function createAdminStudentsRoutes(deps = {}) {
       }
       return { docs, capped };
     } catch (err) {
-      console.warn('[adminStudents] usage ledger read failed:', err && (err.code || err.message));
-      return null;
+      // COST-1: the failure's Firestore CODE (never its message) is returned beside the
+      // "unavailable" state, so the next "usageLedger: could not be read" names its cause.
+      const errorCode = readErrorCode(err);
+      console.warn('[adminStudents] usage ledger read failed:', errorCode);
+      return { docs: null, capped: false, errorCode };
     }
+  }
+
+  /**
+   * COST-1 — many students' ledger days, by DAY KEY, in getAll chunks of GET_ALL_CHUNK
+   * (COST_READ_CONCURRENCY chunks in flight). `entries` = [{ uid, keys }].
+   * Returns { byUid, reads, failures, errorCode }: byUid[uid] is sumLedgerCost of the days that
+   * EXIST, or null when any chunk holding that student's keys failed (unknown, never 0).
+   * `reads` = document reads requested (a missing day document is still billed as one read).
+   */
+  async function readLedgerCosts(entries) {
+    const pairs = [];
+    for (const e of entries) for (const k of e.keys) pairs.push({ uid: e.uid, key: k });
+    const datas = Object.create(null);
+    const failed = Object.create(null);
+    for (const e of entries) datas[e.uid] = [];
+    let failures = 0;
+    let errorCode = null;
+    const chunks = [];
+    for (let i = 0; i < pairs.length; i += GET_ALL_CHUNK) chunks.push(pairs.slice(i, i + GET_ALL_CHUNK));
+    let next = 0;
+    async function worker() {
+      while (next < chunks.length) {
+        const chunk = chunks[next];
+        next += 1;
+        try {
+          const refs = chunk.map((p) =>
+            db().collection(USAGE_LEDGER_COLLECTION).doc(p.uid).collection(LEDGER_SEGMENTS.days).doc(p.key));
+          const snaps = await db().getAll(...refs);
+          chunk.forEach((p, j) => {
+            const s = snaps[j];
+            if (s && s.exists) {
+              const data = typeof s.data === 'function' ? s.data() : null;
+              datas[p.uid].push(data && typeof data === 'object' ? data : {});
+            }
+          });
+        } catch (err) {
+          failures += 1;
+          if (errorCode === null) errorCode = readErrorCode(err);
+          for (const p of chunk) failed[p.uid] = true;
+        }
+      }
+    }
+    const workers = [];
+    for (let w = 0; w < Math.min(COST_READ_CONCURRENCY, chunks.length); w += 1) workers.push(worker());
+    await Promise.all(workers);
+    if (failures > 0) console.warn('[adminStudents] ledger cost read failed:', errorCode, `(${failures} chunk(s))`);
+    const byUid = Object.create(null);
+    for (const e of entries) byUid[e.uid] = failed[e.uid] ? null : sumLedgerCost(datas[e.uid]);
+    return { byUid, reads: pairs.length, failures, errorCode };
   }
 
   async function safeCount(query) {
@@ -489,13 +617,31 @@ function createAdminStudentsRoutes(deps = {}) {
     }
 
     const sources = await readSignupSources(pageRows.map((r) => r.uid));
+
+    // COST-1: each row's AI cost over the last ROW_COST_DAYS IST days, by day key.
+    const todayKey = istDayKey(nowMs);
+    const rowWindowFirst = addIstDays(todayKey, -(ROW_COST_DAYS - 1));
+    const costPlans = Object.create(null);
+    for (const r of pageRows) costPlans[r.uid] = costKeysFor(todayKey, rowWindowFirst, r.createdMs);
+    const costs = await readLedgerCosts(pageRows.map((r) => ({ uid: r.uid, keys: costPlans[r.uid].keys })));
+
     const rows = await Promise.all(
-      pageRows.map(async (r) => ({
-        ...r,
-        plan: planOf(subs[r.uid], nowMs),
-        source: sources[r.uid] || null,
-        ...(await rowActivity(r)),
-      }))
+      pageRows.map(async (r) => {
+        const c = costs.byUid[r.uid];
+        return {
+          ...r,
+          plan: planOf(subs[r.uid], nowMs),
+          source: sources[r.uid] || null,
+          ...(await rowActivity(r)),
+          aiCost: {
+            source: 'usageLedger',
+            days: ROW_COST_DAYS,
+            coverage: costPlans[r.uid].coverage,
+            costInr: c ? microInrToInr(c.costMicroInr) : null,
+            readFailed: c === null,
+          },
+        };
+      })
     );
 
     return send(res, 200, {
@@ -514,6 +660,107 @@ function createAdminStudentsRoutes(deps = {}) {
         authTruncated,
         planScanTruncated,
         maxPlanScan: MAX_PLAN_SCAN,
+        ledgerDayReads: costs.reads,
+      },
+    });
+  }
+
+  /* ── GET /api/admin/students/ai-cost (COST-1) ─────────────────────────── */
+
+  /**
+   * AI cost for a SPEND window (not a sign-up cohort: a student who signed up months ago and
+   * used the tutor today is in today's cost). period 1 = today (IST), 7 / 30 = the last 7 / 30
+   * IST days, all = the ledger's first day, capped at MAX_COST_DAYS (flagged).
+   * Reads: subscriptions/{uid} for the newest MAX_COST_STUDENTS accounts (plan split) + one
+   * ledger day document per student per day in the window from the later of the window start,
+   * the ledger's start and the student's sign-up day. Worst case 500 + 500 x 30 = 15,500; the
+   * response states the exact count it read.
+   */
+  async function handleAiCost(req, res, searchParams) {
+    const period = searchParams.get('period') || 'all';
+    if (!Object.prototype.hasOwnProperty.call(PERIODS, period)) return send(res, 400, { ok: false, error: 'invalid period' });
+    const nowMs = now();
+    const todayKey = istDayKey(nowMs);
+    const ledgerSince = DATA_SOURCES.usageLedger.since;
+    const wanted = PERIODS[period];
+    let windowFirst;
+    let capped = false;
+    if (wanted === null) {
+      const capFirst = addIstDays(todayKey, -(MAX_COST_DAYS - 1));
+      capped = ledgerSince < capFirst;
+      windowFirst = capped ? capFirst : ledgerSince;
+    } else {
+      windowFirst = addIstDays(todayKey, -(Math.min(wanted, MAX_COST_DAYS) - 1));
+    }
+
+    const { rows: all, truncated: authTruncated } = await listAuthUsers();
+    const everyone = [...all].sort(compareNewestFirst);
+    const scanned = everyone.slice(0, MAX_COST_STUDENTS);
+    const subs = await readSubscriptions(scanned.map((r) => r.uid));
+    const plans = Object.create(null);
+    for (const r of scanned) plans[r.uid] = costKeysFor(todayKey, windowFirst, r.createdMs);
+    const costs = await readLedgerCosts(scanned.map((r) => ({ uid: r.uid, keys: plans[r.uid].keys })));
+
+    let total = 0;
+    let unknown = 0;
+    let partial = 0;
+    const spenders = [];
+    const byPlan = Object.create(null);
+    for (const p of COST_PLANS) byPlan[p] = { costMicroInr: 0, studentsWithCost: 0 };
+    for (const r of scanned) {
+      const c = costs.byUid[r.uid];
+      if (c === null) {
+        unknown += 1;
+        continue;
+      }
+      if (plans[r.uid].coverage === 'partial') partial += 1;
+      const micro = c.costMicroInr === null ? 0 : c.costMicroInr;
+      if (!(micro > 0)) continue;
+      total += micro;
+      const plan = planOf(subs[r.uid], nowMs);
+      const bucket = COST_PLANS.includes(plan.kind) ? plan.kind : 'unknown';
+      byPlan[bucket].costMicroInr += micro;
+      byPlan[bucket].studentsWithCost += 1;
+      spenders.push({ row: r, plan, micro });
+    }
+    spenders.sort((a, b) => (b.micro !== a.micro ? b.micro - a.micro : compareNewestFirst(a.row, b.row)));
+    const n = spenders.length;
+
+    const planOut = {};
+    for (const p of COST_PLANS) planOut[p] = { costInr: microInrToInr(byPlan[p].costMicroInr), studentsWithCost: byPlan[p].studentsWithCost };
+
+    return send(res, 200, {
+      ok: true,
+      generatedAtMs: nowMs,
+      period,
+      window: { from: windowFirst < ledgerSince ? ledgerSince : windowFirst, to: todayKey, capped, maxDays: MAX_COST_DAYS },
+      totalInr: microInrToInr(total),
+      studentsWithCost: n,
+      averageInr: n === 0 ? null : microInrToInr(Math.round(total / n)),
+      medianInr: n === 0 ? null : microInrToInr(medianOf(spenders.map((s) => s.micro))),
+      top: spenders.slice(0, COST_TOP_N).map((s) => ({
+        uid: s.row.uid,
+        email: s.row.email,
+        phone: s.row.phone,
+        plan: s.plan,
+        costInr: microInrToInr(s.micro),
+      })),
+      byPlan: planOut,
+      // Signed-out free checks have no uid to charge (usageLedger.cjs bindRequestUid), so the
+      // ledger holds none of their cost; it is never shown as 0.
+      signedOut: { ledgered: false },
+      studentsScanned: scanned.length,
+      studentsUnknown: unknown,
+      studentsPartialCoverage: partial,
+      reads: { subscriptions: scanned.length, ledgerDays: costs.reads, total: scanned.length + costs.reads },
+      readErrors: costs.errorCode ? { usageLedger: costs.errorCode } : {},
+      sources: DATA_SOURCES,
+      limits: {
+        authUsersScanned: all.length,
+        authTruncated,
+        studentsTruncated: everyone.length > scanned.length,
+        maxStudents: MAX_COST_STUDENTS,
+        maxDays: MAX_COST_DAYS,
       },
     });
   }
@@ -791,15 +1038,41 @@ function createAdminStudentsRoutes(deps = {}) {
 
     const truncatedSource = (list, cap) => (list === null ? 'unavailable' : list.length >= cap ? 'truncated' : 'complete');
 
+    // COST-1: the student's AI cost over the last ROW_COST_DAYS IST days, from the ledger days
+    // already read above (no extra read). null = could not be read / no ledger in the window.
+    const todayKey = istDayKey(nowMs);
+    const window30 = costKeysFor(todayKey, addIstDays(todayKey, -(ROW_COST_DAYS - 1)), profile.createdMs);
+    const inWindow = Object.create(null);
+    for (const k of window30.keys) inWindow[k] = true;
+    const usageOk = usageDays && usageDays.docs !== null;
+    const windowDatas = usageOk ? usageDays.docs.filter((d) => inWindow[d.id] === true).map((d) => d.data() || {}) : [];
+    const cost30 = usageOk ? sumLedgerCost(windowDatas) : null;
+    const aiCost30d = {
+      source: 'usageLedger',
+      days: ROW_COST_DAYS,
+      from: window30.keys.length > 0 ? window30.keys[0] : todayKey,
+      to: todayKey,
+      coverage: window30.coverage,
+      costInr: cost30 ? microInrToInr(cost30.costMicroInr) : null,
+      gradingFullCostInr: cost30 ? microInrToInr(cost30.providerSpendMicroInr) : null,
+      calls: cost30 ? cost30.calls : null,
+      readFailed: !usageOk,
+      breakdown: 'not-recorded',
+    };
+    const readErrors = {};
+    if (!usageOk && usageDays && usageDays.errorCode) readErrors.usageLedger = usageDays.errorCode;
+
     return send(res, 200, {
       ok: true,
       generatedAtMs: nowMs,
       student: { ...profile, plan: planOf(raw, nowMs) },
       timeline,
+      aiCost30d,
+      readErrors,
       sources: DATA_SOURCES,
       reads: {
         activityLog: truncatedSource(actDays, DETAIL_LIMITS.activityDays),
-        usageLedger: usageDays === null ? 'unavailable' : usageDays.capped ? 'truncated' : 'complete',
+        usageLedger: !usageDays || usageDays.docs === null ? 'unavailable' : usageDays.capped ? 'truncated' : 'complete',
         sessionRecords: truncatedSource(sessions, DETAIL_LIMITS.sessions),
         practiceAttempts: truncatedSource(attempts, DETAIL_LIMITS.attempts),
         mockEntries: truncatedSource(mocks, DETAIL_LIMITS.mockEntries),
@@ -826,6 +1099,8 @@ function createAdminStudentsRoutes(deps = {}) {
       const path = url.pathname.replace(/\/+$/, '');
       if (path === ADMIN_STUDENTS_PATH) return await handleList(req, res, url.searchParams);
       if (path === ADMIN_STUDENTS_SUMMARY_PATH) return await handleSummary(req, res, url.searchParams);
+      // COST-1: matched BEFORE the {uid} prefix ("ai-cost" would otherwise read as a uid).
+      if (path === ADMIN_STUDENTS_AI_COST_PATH) return await handleAiCost(req, res, url.searchParams);
       const prefix = `${ADMIN_STUDENTS_PATH}/`;
       if (path.startsWith(prefix)) {
         let uid;
@@ -866,6 +1141,13 @@ module.exports = {
   addIstDays,
   ADMIN_STUDENTS_PATH,
   ADMIN_STUDENTS_SUMMARY_PATH,
+  ADMIN_STUDENTS_AI_COST_PATH,
+  costKeysFor,
+  medianOf,
+  readErrorCode,
+  ROW_COST_DAYS,
+  MAX_COST_DAYS,
+  MAX_COST_STUDENTS,
   DATA_SOURCES,
   PAGE_SIZE,
   MAX_AUTH_PAGES,

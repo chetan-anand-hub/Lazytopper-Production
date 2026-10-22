@@ -38,6 +38,91 @@ export interface StudentRow {
   activity: { source: string; coverage: Coverage; daysActive: number | null; lastActiveMs: number | null };
   answerChecks: { source: string; coverage: Coverage; count: number | null };
   testsTaken: { source: string; coverage: Coverage; count: number | null };
+  /**
+   * COST-1 — AI cost over the last 30 IST days from the usage ledger (the meter at list
+   * prices). `costInr` null = no ledger day in the window (not recorded) or a failed read
+   * (`readFailed`); never 0 for either. Absent from a server before COST-1.
+   */
+  aiCost?: RowAiCost;
+}
+
+export interface RowAiCost {
+  source: string;
+  days: number;
+  coverage: Coverage;
+  costInr: number | null;
+  readFailed: boolean;
+}
+
+/** COST-1 — the student detail's 30-day total (from the ledger days the detail already read). */
+export interface DetailAiCost {
+  source: string;
+  days: number;
+  from: string;
+  to: string;
+  coverage: Coverage;
+  costInr: number | null;
+  gradingFullCostInr: number | null;
+  calls: number | null;
+  readFailed: boolean;
+  /** "not-recorded": the ledger keeps no per-feature cost. */
+  breakdown: "not-recorded";
+}
+
+export type CostPlan = "trial" | "premium" | "basic" | "unknown";
+
+/** COST-1 — GET /api/admin/students/ai-cost. */
+export interface AiCostResponse {
+  ok: true;
+  generatedAtMs: number;
+  period: Period;
+  window: { from: string; to: string; capped: boolean; maxDays: number };
+  totalInr: number;
+  studentsWithCost: number;
+  averageInr: number | null;
+  medianInr: number | null;
+  top: { uid: string; email: string | null; phone: string | null; plan: Plan; costInr: number }[];
+  byPlan: Record<CostPlan, { costInr: number; studentsWithCost: number }>;
+  signedOut: { ledgered: boolean };
+  studentsScanned: number;
+  studentsUnknown: number;
+  studentsPartialCoverage: number;
+  reads: { subscriptions: number; ledgerDays: number; total: number };
+  readErrors: Record<string, string>;
+  limits: { authUsersScanned: number; authTruncated: boolean; studentsTruncated: boolean; maxStudents: number; maxDays: number };
+}
+
+/**
+ * COST-1 — the honest note shown wherever AI cost appears. The first three sentences are the
+ * owner's wording; the rest says what the ledger does not hold.
+ */
+export const AI_COST_NOTE =
+  "Cost is our own meter at list prices (modelPrices.cjs). The Gemini bill may differ slightly. Content-generation and owner scripts are not included.";
+export const AI_COST_SCOPE_NOTE =
+  "Grading calls count only the graded share of each paper (questions not attempted or unreadable add nothing), signed-out free checks are not in this ledger, and the ledger does not record cost per feature.";
+
+/** COST-1 — rupees at 2 decimals for a cost cell; null/absent -> "—" (not recorded), never "₹0.00". */
+export function formatCostInr(value: number | null | undefined): string {
+  return typeof value === "number" && Number.isFinite(value) ? `₹${value.toFixed(2)}` : "—";
+}
+
+/** COST-1 — the list cell for a row's 30-day AI cost, with its hover note. */
+export function rowCostCell(cost: RowAiCost | undefined, since: string | undefined): { text: string; note: string | null } {
+  if (!cost) return { text: "—", note: "Not recorded" };
+  if (cost.readFailed) return { text: "—", note: "Could not be read" };
+  if (cost.costInr === null) return { text: "—", note: "Not recorded" };
+  const text = formatCostInr(cost.costInr);
+  if (cost.coverage === "partial") return { text, note: `since ${since ? formatDayKey(since) : "the ledger began"}` };
+  return { text, note: null };
+}
+
+/** The IST calendar day key (yyyy-mm-dd) of an instant. */
+export function istDayKeyOf(ms: number): string {
+  return new Date(ms + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+/** IST day key `n` days after `key`. */
+export function addDayKeys(key: string, n: number): string {
+  return new Date(Date.parse(`${key}T00:00:00.000Z`) + n * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 export interface ListResponse {
@@ -129,6 +214,10 @@ export interface DetailResponse {
   sources: Sources;
   reads: Record<"activityLog" | "usageLedger" | "sessionRecords" | "practiceAttempts" | "mockEntries" | "payments" | "subscription", ReadState>;
   limits: Record<string, number>;
+  /** COST-1 (absent from a server before COST-1). */
+  aiCost30d?: DetailAiCost;
+  /** COST-1: a failed source's Firestore error CODE (e.g. "permission-denied"), never a message. */
+  readErrors?: Record<string, string>;
 }
 
 /** What the page shows instead of data when the API refuses. */
@@ -166,6 +255,10 @@ export function listUrl(period: Period, plan: PlanFilter, page: number): string 
 }
 export function summaryUrl(period: Period): string {
   return `${STUDENTS_API}/summary?${new URLSearchParams({ period }).toString()}`;
+}
+/** COST-1 — the AI-cost summary for a spend window (the page's period choice). */
+export function aiCostUrl(period: Period): string {
+  return `${STUDENTS_API}/ai-cost?${new URLSearchParams({ period }).toString()}`;
 }
 export function detailUrl(uid: string): string {
   return `${STUDENTS_API}/${encodeURIComponent(uid)}`;

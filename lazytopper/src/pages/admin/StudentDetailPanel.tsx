@@ -6,9 +6,13 @@
  */
 import { useEffect, useState } from "react";
 import {
+  AI_COST_NOTE,
+  addDayKeys,
   detailUrl,
   fetchAdmin,
+  formatCostInr,
   formatDayKey,
+  istDayKeyOf,
   formatInr,
   formatIstDateTime,
   formatIstTime,
@@ -150,6 +154,69 @@ function TutorMessages({ ai }: { ai: TimelineDay["ai"] }) {
 /** TUTOR-FIX-2 T8 — the ledger read fine and holds no AI day at all: say so plainly. */
 function hasNoAiUse(data: DetailResponse): boolean {
   return data.reads.usageLedger === "complete" && data.timeline.every((d) => !d.ai);
+}
+
+/**
+ * COST-1 — the student's AI cost per IST day for the last 30 days, newest first, from the
+ * ledger days the detail already returned. The ledger keeps no per-feature cost, so the table
+ * shows the day total only and says so. A day with no ledger document is not listed; a ledger
+ * that could not be read says so instead of a table (never ₹0).
+ */
+function AiCostTable({ data }: { data: DetailResponse }) {
+  const today = istDayKeyOf(data.generatedAtMs);
+  const total = data.aiCost30d;
+  const from = total ? total.from : addDayKeys(today, -29);
+  const to = total ? total.to : today;
+  const days = data.timeline.filter((d) => d.ai && d.day >= from && d.day <= to).sort((a, b) => (a.day < b.day ? 1 : -1));
+  const unreadable = data.reads.usageLedger === "unavailable";
+  return (
+    <section className="ac-detail" aria-labelledby="ac-detail-title" data-testid="sa-ai-cost-table">
+      <h3 id="ac-detail-title" className="ac-subtitle">
+        AI cost, last 30 days (INR)
+        {total && !unreadable && (
+          <span className="ac-detail-total" data-testid="sa-ai-cost-total">
+            {" · "}
+            {formatCostInr(total.costInr)}
+          </span>
+        )}
+      </h3>
+      <p className="sa-muted ac-small">
+        {AI_COST_NOTE} The ledger does not record cost per feature, so each day shows its total only. Grading calls count
+        only the graded share of each paper; &ldquo;grading at full cost&rdquo; is what those grading calls cost in full
+        (&ldquo;—&rdquo; on a day before that was recorded), not a total of all AI use.
+      </p>
+      {unreadable ? (
+        <p className="sa-note sa-warn" data-testid="sa-ai-cost-unreadable">
+          The usage ledger could not be read, so AI cost is not shown.
+        </p>
+      ) : days.length === 0 ? (
+        <p className="sa-muted" data-testid="sa-ai-cost-none">
+          — No AI cost recorded in the last 30 days.
+        </p>
+      ) : (
+        <table className="sa-pages ac-table">
+          <thead>
+            <tr>
+              <th scope="col">Day</th>
+              <th scope="col">AI calls</th>
+              <th scope="col">AI cost (INR)</th>
+              <th scope="col">Grading at full cost (INR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {days.map((d) => (
+              <tr key={d.day} data-testid={`sa-ai-cost-${d.day}`}>
+                <td>{formatDayKey(d.day)}</td>
+                <td className="sa-num">{d.ai?.calls ?? "—"}</td>
+                <td className="sa-num">{formatCostInr(d.ai?.costInr)}</td>
+                <td className="sa-num">{formatCostInr(d.ai?.providerSpendInr)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
 }
 
 function DayCard({ day, uid }: { day: TimelineDay; uid: string }) {
@@ -367,8 +434,11 @@ export default function StudentDetailPanel({
             .map(([k, v]) => (
               <p key={k} className="sa-note sa-warn">
                 {k}: {v === "truncated" ? "only the most recent entries are shown" : "could not be read"}
+                {/* COST-1: the server names the Firestore error code, so the cause is visible. */}
+                {v === "unavailable" && state.data.readErrors?.[k] ? ` (Firestore: ${state.data.readErrors[k]})` : ""}
               </p>
             ))}
+          <AiCostTable data={state.data} />
           {hasNoAiUse(state.data) && (
             <p className="sa-note" data-testid="sa-no-tutor-use">
               AI usage: No tutor use yet.
