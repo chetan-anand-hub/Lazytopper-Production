@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   GUIDE_LINES,
   GUIDE_MAX_OPTIONS,
+  GUIDE_ROUTES,
   buildGuidePlan,
   chapterSlugFromLanding,
   knownGuideRoute,
@@ -46,10 +47,12 @@ describe("GUIDE-1 · intent map rules", () => {
     const p = buildGuidePlan(input({ landing: "/notes/trigonometry" }), deps);
     expect(p.intent).toBe("chapter");
     expect(p.line).toBe("Doing Introduction to Trigonometry? These will help:");
-    expect(p.options.slice(0, 3).map((o) => o.id)).toEqual(["quick", "important", "notes"]);
+    expect(p.options.map((o) => o.id)).toEqual(["quick", "chapter_test", "important", "notes", "worksheet"]);
     expect(p.options[0].action).toEqual({ kind: "quick", chapter: CHAPTERS.trigonometry });
-    expect(p.options[1].action).toEqual({ kind: "route", path: "/highly-probable/10/Maths" });
-    expect(p.options[2].action).toEqual({ kind: "route", path: "/notes/trigonometry" });
+    expect(p.options[1].action).toEqual({ kind: "route", path: "/chapter-test/10/Maths/trigonometry" });
+    expect(p.options[2].action).toEqual({ kind: "route", path: "/highly-probable/10/Maths" });
+    expect(p.options[3].action).toEqual({ kind: "route", path: "/notes/trigonometry" });
+    expect(p.options[4].action).toEqual({ kind: "route", path: "/practice/worksheets" });
   });
 
   it("rule 2 — /topic-hub/10/<subject>/<chapter> and /topic-hub/<chapter> are chapter landings; the subject follows the chapter", () => {
@@ -72,7 +75,7 @@ describe("GUIDE-1 · intent map rules", () => {
     expect(p.line).toBe(GUIDE_LINES.important);
     expect(p.options[0].id).toBe("important");
     expect(p.options[0].action).toEqual({ kind: "route", path: "/highly-probable/10/Science" });
-    expect(p.options.map((o) => o.id)).toEqual(["important", "quick", "check_one", "cbq", "trends"]);
+    expect(p.options.map((o) => o.id)).toEqual(["important", "chapter_test", "quick", "check_one", "worksheet"]);
     for (const o of p.options) {
       if (o.action.kind !== "quick") expect(o.action.path).not.toMatch(/Maths/);
       expect(o.sub).not.toMatch(/Maths/);
@@ -112,7 +115,7 @@ describe("GUIDE-1 · intent map rules", () => {
     const fm = buildGuidePlan(input({ landing: "/full-mock/10/Science" }), deps);
     expect(fm.intent).toBe("papers");
     expect(fm.options[0].action).toEqual({ kind: "route", path: "/full-mock/10/Science" });
-    expect(fm.options[1].action).toEqual({ kind: "route", path: "/highly-probable/10/Science" });
+    expect(fm.options.find((o) => o.id === "important")!.action).toEqual({ kind: "route", path: "/highly-probable/10/Science" });
     const tutor = buildGuidePlan(input({ landing: "/tutor/10/science" }), { ...deps, routeExists: () => true });
     expect(tutor.options.find((o) => o.id === "important")!.action).toEqual({ kind: "route", path: "/highly-probable/10/Science" });
     expect(subjectFromLanding("/practice/10/Science")).toBe("Science");
@@ -145,7 +148,7 @@ describe("GUIDE-1 · intent map rules", () => {
       const p = buildGuidePlan(i, deps);
       expect(p.intent).toBe("papers");
       expect(p.line).toBe(GUIDE_LINES.papers);
-      expect(p.options.slice(0, 2).map((o) => o.id)).toEqual(["full_mock", "important"]);
+      expect(p.options.map((o) => o.id)).toEqual(["full_mock", "chapter_test", "important", "worksheet", "check_one"]);
     }
   });
 
@@ -170,7 +173,8 @@ describe("GUIDE-1 · intent map rules", () => {
     const p = buildGuidePlan(input(), deps);
     expect(p.intent).toBe("default");
     expect(p.line).toBe("Hey! I'm Byte. What do you want to do today?");
-    expect(p.options.map((o) => o.id)).toEqual(["quick", "check_one", "cbq", "important", "trends"]);
+    expect(p.options.map((o) => o.id)).toEqual(["quick", "check_one", "worksheet", "chapter_test", "important"]);
+    expect(p.options.map((o) => o.id)).not.toContain("notes");
   });
 
   it("at most 5 options, never a repeat, the first always defined", () => {
@@ -183,10 +187,10 @@ describe("GUIDE-1 · intent map rules", () => {
   });
 
   it("★ an option whose route does not exist is DROPPED (never a link to a missing page) and the next fills its slot", () => {
-    const noTrends: IntentDeps = { ...deps, routeExists: (p) => p !== "/exam-trends" && knownGuideRoute(p) };
-    const o = ids(input(), noTrends);
-    expect(o).not.toContain("trends");
-    expect(o).toEqual(["quick", "check_one", "cbq", "important", "tutor"]);
+    const noWorksheets: IntentDeps = { ...deps, routeExists: (p) => p !== "/practice/worksheets" && knownGuideRoute(p) };
+    const o = ids(input(), noWorksheets);
+    expect(o).not.toContain("worksheet");
+    expect(o).toEqual(["quick", "check_one", "chapter_test", "important", "cbq"]); // cbq is next in the fill
     const nothing: IntentDeps = { ...deps, routeExists: () => false };
     expect(ids(input(), nothing)).toEqual(["quick"]); // the in-card ready state needs no route
     expect(ids(input({ utmContent: "mock" }), nothing)).toEqual(["quick"]);
@@ -203,9 +207,76 @@ describe("GUIDE-1 · intent map rules", () => {
   });
 
   it("★ GUIDE-1 v1.1 — Tutor is offered only when it will open (Premium or an active trial); otherwise dropped", () => {
-    const noTrends = (tutorOpens: boolean): IntentDeps => ({ ...deps, tutorOpens, routeExists: (p) => p !== "/exam-trends" && knownGuideRoute(p) });
-    expect(ids(input(), noTrends(true))).toContain("tutor");
-    expect(ids(input(), noTrends(false))).not.toContain("tutor");
-    expect(ids(input(), { chapterBySlug: deps.chapterBySlug, routeExists: knownGuideRoute })).not.toContain("tutor");
+    // Drop enough routes that the fill reaches Tutor: worksheets, both hub choosers, trends.
+    const gone = new Set(["/practice/worksheets", "/practice-hub?ct=1", "/practice-hub?cbq=1", "/exam-trends"]);
+    const thin = (tutorOpens: boolean): IntentDeps => ({ ...deps, tutorOpens, routeExists: (p) => !gone.has(p) && knownGuideRoute(p) });
+    expect(ids(input(), thin(true))).toEqual(["quick", "check_one", "important", "tutor"]);
+    expect(ids(input(), thin(false))).not.toContain("tutor");
+    expect(ids(input(), { chapterBySlug: deps.chapterBySlug, routeExists: (p) => !gone.has(p) && knownGuideRoute(p) })).not.toContain("tutor");
+  });
+
+  it("GUIDE-OPTS-1 — each intent's first five options, in the owner's order", () => {
+    expect(ids(input())).toEqual(["quick", "check_one", "worksheet", "chapter_test", "important"]);
+    expect(ids(input({ surface: "check_improve" }))).toEqual(["check_one", "quick", "worksheet", "chapter_test", "important"]);
+    expect(ids(input({ landing: "/notes/electricity" }))).toEqual(["quick", "chapter_test", "important", "notes", "worksheet"]);
+    expect(ids(input({ landing: "/highly-probable/10/Maths" }))).toEqual(["important", "chapter_test", "quick", "check_one", "worksheet"]);
+    expect(ids(input({ utmContent: "sample_maths" }))).toEqual(["full_mock", "chapter_test", "important", "worksheet", "check_one"]);
+    expect(ids(input({ utmContent: "cbq_short" }))).toEqual(["cbq", "quick", "check_one", "chapter_test", "worksheet"]);
+  });
+
+  it("GUIDE-OPTS-1 — CBQ practice and Exam trends stay reachable through the fill", () => {
+    const noCt: IntentDeps = { ...deps, routeExists: (p) => p !== "/practice-hub?ct=1" && p !== "/practice/worksheets" && knownGuideRoute(p) };
+    expect(ids(input(), noCt)).toEqual(["quick", "check_one", "important", "cbq", "trends"]);
+  });
+
+  it("GUIDE-OPTS-1 — a known chapter: Chapter Test opens THAT chapter's test (the Topic Hub topicKey = desktop slug)", () => {
+    const p = buildGuidePlan(input({ landing: "/topic-hub/10/Science/electricity" }), deps);
+    const ct = p.options.find((o) => o.id === "chapter_test")!;
+    expect(ct.action).toEqual({ kind: "route", path: "/chapter-test/10/Science/electricity" });
+    expect(ct.title).toBe("Chapter Test");
+    expect(ct.sub).toBe("Board-pattern test on one chapter · written answers marked step by step");
+    expect(ct.point).toBe("One chapter, board-style. See exactly where marks slip.");
+    expect(knownGuideRoute("/chapter-test/10/Science/electricity")).toBe(true);
+  });
+
+  it("GUIDE-OPTS-1 — no chapter known: Chapter Test opens the Practice Hub's chapter chooser (?ct=1), never a guessed chapter", () => {
+    for (const i of [input(), input({ landing: "/highly-probable/10/Science" }), input({ utmContent: "mock" }), input({ utmContent: "cbq_short" })]) {
+      const ct = buildGuidePlan(i, deps).options.find((o) => o.id === "chapter_test")!;
+      expect(ct.action).toEqual({ kind: "route", path: "/practice-hub?ct=1" });
+    }
+    expect(knownGuideRoute("/practice-hub?ct=1")).toBe(true);
+    expect(knownGuideRoute("/practice-hub?ct=2")).toBe(false);
+    expect(knownGuideRoute("/chapter-test/10/Maths/")).toBe(false);
+  });
+
+  it("GUIDE-OPTS-1 — Today's worksheet opens /practice/worksheets, a GUIDE_ROUTES entry", () => {
+    const ws = buildGuidePlan(input(), deps).options.find((o) => o.id === "worksheet")!;
+    expect(ws.title).toBe("Today's worksheet");
+    expect(ws.sub).toBe("Write on paper, upload a photo, get every step marked");
+    expect(ws.point).toBe("Write it on paper like the real exam. I'll mark every step.");
+    expect(ws.action).toEqual({ kind: "route", path: "/practice/worksheets" });
+    expect(GUIDE_ROUTES.some((r) => r.pattern.test("/practice/worksheets") && /App\.tsx:\d+/.test(r.route))).toBe(true);
+    expect(knownGuideRoute("/practice/worksheets/ready")).toBe(false);
+  });
+
+  it("GUIDE-OPTS-1 — every option route, on every intent (known and unknown chapter), passes knownGuideRoute", () => {
+    const all: IntentInput[] = [
+      input(),
+      input({ surface: "check_improve" }),
+      input({ landing: "/notes/trigonometry" }),
+      input({ landing: "/topic-hub/10/Science/electricity" }),
+      input({ landing: "/highly-probable/10/Science" }),
+      input({ utmContent: "preboard", subjectHint: "Science" }),
+      input({ utmContent: "cbq_short" }),
+    ];
+    const seenIds = new Set<string>();
+    for (const i of all) {
+      // routeExists: () => true so no option is pre-filtered; tutor on.
+      for (const o of buildGuidePlan(i, { ...deps, routeExists: () => true }).options) {
+        seenIds.add(o.id);
+        if (o.action.kind !== "quick") expect(knownGuideRoute(o.action.path), `${o.id} ${o.action.path}`).toBe(true);
+      }
+    }
+    expect([...seenIds]).toEqual(expect.arrayContaining(["chapter_test", "worksheet"]));
   });
 });
