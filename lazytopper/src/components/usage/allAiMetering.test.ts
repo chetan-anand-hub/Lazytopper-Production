@@ -1,8 +1,9 @@
 // @vitest-environment node
 /**
  * ALL-AI-METERING-1 — the client half: the new `tutor` / `more-like-this` scopes and their
- * owner copy, the `thirtyDay` window, the Tutor's inline limit message, the More-like-this
- * top-up refusal reaching the page, and aiClient keeping a 30-day window.
+ * owner copy, the `thirtyDay` window, the Tutor's inline limit message, and aiClient keeping a
+ * 30-day window. MLT-MUTE-1: the More-like-this AI top-up is muted, so its builder-level suite
+ * now pins that NO model call is made once the bank is exhausted.
  *
  * Node environment: nothing here touches the DOM (the C&I detection panel is asserted on the
  * real page in DesktopCheckImprovePage.funnelEvents.test.tsx).
@@ -28,8 +29,6 @@ vi.mock("../../ai/aiClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../ai/aiClient")>();
   return {
     ...actual,
-    fetchCachedAiQuestions: async () => [],
-    saveAiGeneratedQuestions: () => {},
     generateMoreLikeThis: (...args: unknown[]) => (H.moreLikeThis ? H.moreLikeThis() : actual.generateMoreLikeThis(...(args as [never]))),
   };
 });
@@ -171,60 +170,45 @@ describe("ALL-AI-METERING-1 · aiClient keeps a 30-day window", () => {
   });
 });
 
-describe("ALL-AI-METERING-1 · More-like-this — a refused top-up reaches the page; the saved questions stay", () => {
-  const ARGS = { grade: "10", subjectKey: "Maths" as const, topicLabel: "zz-no-such-topic-aam1", packTopicKey: "polynomials", count: 60, difficulty: "All" as const };
+describe("MLT-MUTE-1 · More like this serves verified bank questions only — the AI step is muted", () => {
+  // The bank and the Prompt-D pack together cannot fill 60: before MLT-MUTE-1 the builder then read
+  // the AI cache (GET /api/ai-questions), asked the model (generateMoreLikeThis) and wrote the
+  // result back (POST /api/ai-questions). Now it serves what it has, short, and calls nothing.
+  const EXHAUSTED = { grade: "10", subjectKey: "Maths" as const, topicLabel: "zz-no-such-topic-aam1", packTopicKey: "polynomials", count: 60, difficulty: "All" as const };
+  // Three fit inside the pack: the bank had enough, so no top-up was ever attempted (old or new).
+  const FULL = { ...EXHAUSTED, count: 3 };
 
-  it("★★ a FairUseLimitError is told to the subscriber (not console.error), and the questions are still returned", async () => {
+  it("★★ RED on the old code: with the bank exhausted, NO model call, NO network call, and the subscriber hears nothing", async () => {
     const called = vi.fn();
     H.moreLikeThis = () => { called(); return Promise.reject(new FairUseLimitError("trial_limit", 0, RESET, null)); };
+    const fetchSpy = vi.fn(async () => { throw new Error("no network call is expected"); });
+    vi.stubGlobal("fetch", fetchSpy);
     const seen: unknown[] = [];
     const off = subscribeMoreLikeThisLimit((e) => seen.push(e));
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-    const out = await buildPracticeQuestionsWithAiTopup(ARGS);
+    const out = await buildPracticeQuestionsWithAiTopup(EXHAUSTED);
     off();
-    expect(called).toHaveBeenCalledTimes(1);
-    expect(seen).toHaveLength(1);
-    expect(limitFromAiRefusal(readFairUseLimit(seen[0]), "more-like-this")?.scope).toBe("more-like-this");
-    expect(consoleError).not.toHaveBeenCalled();
+    expect(called).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(seen).toEqual([]);
+    // Served SHORT, and only verified rows: no AI or cache variant id is ever minted.
     expect(out.length).toBeGreaterThan(0);
+    expect(out.length).toBeLessThan(EXHAUSTED.count);
+    expect(out.filter((q) => /-(AI|CACHE)-\d+$/.test(String(q.id)))).toEqual([]);
   });
 
-  it("★ CONTROL: any other failure is NOT a limit (console.error as before), and an unsubscribed listener hears nothing", async () => {
-    H.moreLikeThis = () => Promise.reject(new Error("network"));
-    const seen: unknown[] = [];
-    const off = subscribeMoreLikeThisLimit((e) => seen.push(e));
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-    const out = await buildPracticeQuestionsWithAiTopup(ARGS);
-    off();
-    expect(seen).toEqual([]);
-    expect(consoleError).toHaveBeenCalled();
-    expect(out.length).toBeGreaterThan(0);
-    H.moreLikeThis = () => Promise.reject(new FairUseLimitError("trial_limit", 0, RESET, null));
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    await buildPracticeQuestionsWithAiTopup(ARGS);
-    expect(seen).toEqual([]);
+  it("★ CONTROL: with bank matches the set is unchanged — full count, no model call", async () => {
+    const called = vi.fn();
+    H.moreLikeThis = () => { called(); return Promise.resolve({ variants: [] }); };
+    const out = await buildPracticeQuestionsWithAiTopup(FULL);
+    expect(out).toHaveLength(FULL.count);
+    expect(called).not.toHaveBeenCalled();
   });
 });
 
-describe("ALL-AI-METERING-1 · DECISION 29d — a FREE student's More-like-this 402 is told to the page, with the owner copy", () => {
-  const ARGS = { grade: "10", subjectKey: "Maths" as const, topicLabel: "zz-no-such-topic-aam1", packTopicKey: "polynomials", count: 60, difficulty: "All" as const };
-
+describe("ALL-AI-METERING-1 · DECISION 29d — the owner copy for a FREE student's More-like-this 402", () => {
   it("★★ the owner-approved wording and link label are exact", () => {
     expect(MORE_LIKE_THIS_PREMIUM_ONLY_COPY).toBe("More practice like this is part of Premium. Try it free for 7 days.");
     expect(START_TRIAL_LABEL).toBe("Start free trial");
-  });
-
-  it("★★ a PremiumRequiredError reaches the subscriber (not swallowed, not console.error) and the saved questions are still returned", async () => {
-    H.moreLikeThis = () => Promise.reject(new PremiumRequiredError("Premium feature.", "more_like_this", "free", null));
-    const seen: unknown[] = [];
-    const off = subscribeMoreLikeThisLimit((e) => seen.push(e));
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-    const out = await buildPracticeQuestionsWithAiTopup(ARGS);
-    off();
-    expect(seen).toHaveLength(1);
-    expect(isPremiumRequiredRefusal(seen[0])).toBe(true);
-    expect(consoleError).not.toHaveBeenCalled();
-    expect(out.length).toBeGreaterThan(0);
   });
 
   it("★ CONTROL: a trial cap is NOT a premium-only refusal, and a plain Error is neither", () => {

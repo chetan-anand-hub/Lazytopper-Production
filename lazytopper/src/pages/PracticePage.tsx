@@ -3687,6 +3687,17 @@ const packTopicKey = useMemo(() => {
           isLoading={isLoading}
           error={error}
           onRetry={error && !isLoading ? () => setLoadRetry((n) => n + 1) : undefined}
+          // MLT-MUTE-1 - the set came back SHORTER than asked: the verified bank has no more like
+          // these (the AI top-up is muted). Say so honestly, with real next steps. Not in the
+          // tutor overlay, whose own close returns the student to the tutor.
+          bankEnd={
+            !overlay && filteredQuestions.length < committedCount
+              ? {
+                  chapterTestHref: isMultiTopic ? undefined : `/chapter-test/${grade}/${subjectKey}/${canonicalTopicKey || topicParam}`,
+                  practiceHubHref: "/practice-hub",
+                }
+              : undefined
+          }
           questions={questions}
           filteredQuestions={filteredQuestions}
           subjectKey={subjectKey}
