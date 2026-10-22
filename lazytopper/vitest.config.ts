@@ -15,8 +15,11 @@ export default defineConfig({
     // list the CI clock jobs run. Inactive under LT_TEST_CLOCK. See that file.
     setupFiles: ["./src/test/setup.ts", "./scripts/testClock/clockRecorder.setup.mjs"],
     include: ["src/**/*.test.{ts,tsx}"],
-    // WORKER CAP — paired with NODE_OPTIONS=--max-old-space-size=6144 on the CI
-    // vitest step. Each worker gets its own module registry, so whichever suites
+    // WORKER CAP — paired with NODE_OPTIONS=--max-old-space-size=2048 on the CI
+    // vitest step (it was 6144 when this comment was written; corrected CI-SPEED-3).
+    // CI passes `--maxWorkers=4` on the command line, which overrides the 2 below
+    // there only: 4 x 2048 MB = 8 GB on the 16 GB runner. Local runs keep 2.
+    // Each worker gets its own module registry, so whichever suites
     // import src/data (10.7 MB, 480 files) duplicate that graph per worker.
     //
     // ★ POOL-AGNOSTIC ON PURPOSE. The first attempt used
@@ -36,7 +39,8 @@ export default defineConfig({
     // never fired. Same shape as the FORBIDDEN-path prefix bug: a setting that
     // looks like protection and cannot match.
     //
-    // The runner has 16 GB and 4 vCPU. At 2 workers the worst case is 12 GB.
+    // The runner has 16 GB and 4 vCPU. At the old 2 x 6144 the worst case was 12 GB;
+    // ci_speed_acceptance.mjs (w17) keeps CI workers x heap at or under that 12 GB.
     // THESE TWO NUMBERS ARE ONE DECISION — raising the heap without a REAL worker
     // cap is worse than doing neither.
     //

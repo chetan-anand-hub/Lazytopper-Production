@@ -16,7 +16,7 @@ name: Quality Gate
 #   build-ops     build + the lazytopper ops matrix
 #   railway-build the ROOT `pnpm run build` exactly as the Railway backend image runs it (Node 24,
 #                 frozen install WITH devDependencies, no .git) — RAILWAY-BUILD-GATE
-#   vitest        the WHOLE vitest suite, sharded 1/4..4/4 (every file runs exactly once)
+#   vitest        the WHOLE vitest suite, sharded 1/3..3/3 at 4 workers (every file runs exactly once)
 #   clock-changed the date-sensitive manifest tests THIS change touched, at 2030 and at IST midnight
 #                 (CI-CLOCK-CUT: replaced the six per-PR `clock (...)` legs; see the job's comment)
 #   quality-gate  the AGGREGATE. Its name is the REQUIRED status check in the trunk ruleset; it
@@ -350,7 +350,12 @@ jobs:
   # (the shards summed) and fails unless that sum equals the test files on disk. No figure is
   # written here on purpose. [FU-CI-WORKFLOW-STALE-MATRIX-COUNT]
   # NEVER add a new --exclude here: a red vitest suite fails CI, which is the point.
-  # HEAP: maxWorkers 2 (vitest.config.ts) x 2048 MB per runner. [FU-VITEST-CI-HEAP-CEILING]
+  # HEAP: --maxWorkers=4 (the CLI flag below; vitest.config.ts keeps 2 for local runs) x 2048 MB
+  # = 8 GB worst case on the 16 GB / 4-vCPU ubuntu-latest runner. [FU-VITEST-CI-HEAP-CEILING]
+  # ★ CI-SPEED-3 (owner order 2026-10-22: fewer billed minutes, every test still runs): 4 workers use
+  # all 4 vCPUs (2 left half the runner idle), so fewer shards pay the ~1 min setup each. The worker
+  # count and the shard count are MEASURED in the CI-SPEED-3 trial; ci_speed_acceptance.mjs (w5, w17)
+  # pins them together with the heap.
   # SHARD COUNT 4 is MEASURED (CI-SPEED-1 report): the unsharded pass took 4.9-6.6 min over the
   # last 10 runs and the slowest file ~40 s; 4 shards put each near 1.5-2 min of tests.
   # ★ CI-SPEED-2 (owner order 2026-10-18, wall time): 5 shards, planned by MEASURED per-file duration
@@ -365,8 +370,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5]
-    name: vitest (${{ matrix.shard }}/5)
+        shard: [1, 2, 3]
+    name: vitest (${{ matrix.shard }}/3)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -396,13 +401,13 @@ jobs:
         timeout-minutes: 20
         run: |
           set -euo pipefail
-          FILES="$(node lazytopper/scripts/ops/ci_shard_plan.mjs --source=all --shards=5 --index=${{ matrix.shard }})"
-          pnpm --filter lazytopper exec vitest run $FILES --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-shard.json"
+          FILES="$(node lazytopper/scripts/ops/ci_shard_plan.mjs --source=all --shards=3 --index=${{ matrix.shard }})"
+          pnpm --filter lazytopper exec vitest run $FILES --maxWorkers=4 --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-shard.json"
         env:
           NODE_OPTIONS: --max-old-space-size=2048
       - name: Shard summary (files and tests this shard ran)
         if: ${{ !cancelled() }}
-        run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/5
+        run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/3
       - name: Upload shard summary
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
@@ -410,6 +415,17 @@ jobs:
           name: vitest-shard-${{ matrix.shard }}
           path: ${{ runner.temp }}/summary/vitest-shard-${{ matrix.shard }}.json
           retention-days: 7
+      # The raw vitest JSON (per-file start/end times): the input of
+      # `ci_shard_plan.mjs --refresh=<file>...`, so vitest-durations.json is refreshed from REAL CI
+      # timings. Named vitest-json-*, never vitest-shard-*: the aggregate downloads only the summaries.
+      - name: Upload raw vitest JSON (durations refresh input)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-json-${{ matrix.shard }}
+          path: ${{ runner.temp }}/vitest-shard.json
+          retention-days: 7
+          if-no-files-found: ignore
 
   # ★ NO TEST MAY DEPEND ON TODAY'S DATE (TEST-CLOCK-SWEEP). "now" moved to a fixed day in 2030
   # and to IST midnight in board season. How the clock moves: lazytopper/scripts/testClock/
@@ -500,7 +516,7 @@ jobs:
   # job carries that name. `if: always()` so it reports even when an upstream job failed, was
   # cancelled or was skipped; lazytopper/scripts/ops/ci_aggregate.mjs then FAILS unless every
   # upstream job succeeded — or, on the docs path only, the full-bar jobs were skipped — and,
-  # on the full bar, unless all 4 vitest shards reported and together ran every test file.
+  # on the full bar, unless all EXPECTED_SHARDS vitest shards reported and together ran every test file.
   quality-gate:
     needs: [classify, docs-lane, static, build-ops, railway-build, vitest, clock-changed]
     if: always()
@@ -527,7 +543,7 @@ jobs:
           NEEDS_JSON: ${{ toJSON(needs) }}
           DOCS_ONLY: ${{ needs.classify.outputs.docs_only }}
           SHARD_DIR: ${{ runner.temp }}/summary
-          EXPECTED_SHARDS: '5'
+          EXPECTED_SHARDS: '3'
         run: node lazytopper/scripts/ops/ci_aggregate.mjs --aggregate
 
   # The FULL vitest suite and the FULL ops matrix under BOTH clocks — what every PR ran before
@@ -587,7 +603,7 @@ jobs:
           NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-nightly.json"
           NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
       # ★ D7 (FU-CI1-NIGHTLY-RESTORE): the unsharded run must collect EVERY test file on disk — the
-      # same files-on-disk rule the PR's quality-gate aggregate applies to the 4 shards, counted by
+      # same files-on-disk rule the PR's quality-gate aggregate applies to the PR shards, counted by
       # ci_aggregate.mjs's own functions (one counter, never a second copy). It also refuses a run
       # that failed or skipped a test. Read NIGHTLY_VITEST_TOTAL / NIGHTLY_VITEST_COVERAGE here.
       - name: Every test file on disk ran (files = files on disk)

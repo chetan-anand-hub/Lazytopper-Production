@@ -198,6 +198,8 @@ export const REAL_COMMITS = [
   check("g5_shard_summary_reads_the_vitest_json_reporter", s.files === 2 && s.tests === 5 && s.todo === 1 && s.shard === "2/4");
 }
 
+let WORKFLOW_SHARDS = 0; // set by w5 from the workflow's own matrix; w13/w14 plan that many bins
+
 // ---- (d) workflow wiring --------------------------------------------------------------------
 {
   const wf = read(WORKFLOW);
@@ -342,13 +344,27 @@ export const REAL_COMMITS = [
     const listed = ((vitest.match(/\n        shard: \[([^\]]*)\]/) || [])[1] || "").split(",").map((x) => Number(x.trim())).filter(Boolean);
     const n = listed.length;
     const seq = listed.every((v, i) => v === i + 1);
+    // CI-SPEED-3 (2026-10-22): n >= 3 (was >= 4) — at 4 workers 3 shards carry the suite; the
+    //   coverage rule (files run == files on disk) is the aggregate's, unchanged.
     check("w5_default_vitest_runs_every_file_once_via_planned_shards",
-      n >= 4 && seq &&
+      n >= 3 && seq &&
         vitest.includes(`ci_shard_plan.mjs --source=all --shards=${n} --index=\${{ matrix.shard }}`) &&
-        vitest.includes("pnpm --filter lazytopper exec vitest run $FILES --reporter=default --reporter=json") &&
+        /pnpm --filter lazytopper exec vitest run \$FILES (?:--maxWorkers=\d+ )?--reporter=default --reporter=json/.test(vitest) &&
         vitest.includes(`--shard=\${{ matrix.shard }}/${n}`) && vitest.includes(`name: vitest (\${{ matrix.shard }}/${n})`) &&
         !/--exclude/.test(vitest) && new RegExp(`EXPECTED_SHARDS: '${n}'`).test(wf),
       `shards=${n}: matrix, planner, summary label and EXPECTED_SHARDS agree; the aggregate checks the shards cover every file`);
+    WORKFLOW_SHARDS = n;
+  }
+  // ★ CI-SPEED-3: WORKERS AND HEAP ARE ONE DECISION (vitest.config.ts). The CI vitest step sets the
+  //   worker count on the command line; workers x per-worker heap must stay <= 12288 MB (the 12 GB
+  //   worst case the config comment allows on the 16 GB runner) and workers <= the runner's 4 vCPUs.
+  {
+    const code = vitest.replace(/^\s*#.*$/gm, "");
+    const workers = Number((code.match(/vitest run \$FILES --maxWorkers=(\d+) /) || [])[1] || 0);
+    const heap = Number((code.match(/NODE_OPTIONS: --max-old-space-size=(\d+)/) || [])[1] || 0);
+    check("w17_ci_vitest_workers_times_heap_fit_the_runner",
+      workers >= 1 && workers <= 4 && heap > 0 && workers * heap <= 12288,
+      `--maxWorkers=${workers} x --max-old-space-size=${heap} = ${workers * heap} MB (limit 12288, <= 4 workers)`);
   }
   const buildOps = jobBlock("build-ops");
   check("w6_static_guard_and_this_suite_run_on_the_full_bar",
@@ -368,11 +384,12 @@ export const REAL_COMMITS = [
     const seen = bins.flatMap((b) => b.files);
     return seen.length === new Set(files).size && new Set(seen).size === seen.length && files.every((f) => seen.includes(f));
   };
-  const allBins = planShards(all, durations, 5);
+  const N = WORKFLOW_SHARDS || 5; // the shard count the workflow actually runs (w5 reads it)
+  const allBins = planShards(all, durations, N);
   const clockBins = planShards(manifest, durations, 2);
   check("w13_planner_puts_every_file_in_exactly_one_shard",
     exactCover(all, allBins) && exactCover(manifest, clockBins) &&
-      JSON.stringify(planShards(all, durations, 5)) === JSON.stringify(allBins),
+      JSON.stringify(planShards(all, durations, N)) === JSON.stringify(allBins),
     `all: ${all.length} files -> [${allBins.map((b) => b.files.length).join(", ")}]; clock: ${manifest.length} -> [${clockBins.map((b) => b.files.length).join(", ")}]; deterministic`);
   // Balance: on the real table, no bin exceeds the lightest by more than the single slowest file.
   const slowest = Math.max(...all.map((f) => durations[f] || 0));
