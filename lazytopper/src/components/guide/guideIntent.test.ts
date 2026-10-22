@@ -61,9 +61,11 @@ describe("GUIDE-1 v1.1 · landing intent through sign-up", () => {
     expect(window.sessionStorage.getItem(VISIT_SOURCE_KEY)).toBeNull();
     const plan = guidePlanFor("home");
     expect(plan.intent).toBe("chapter");
-    expect(plan.options.map((o) => o.id).slice(0, 3)).toEqual(["quick", "important", "notes"]);
+    // GUIDE-OPTS-1: that chapter's Chapter Test is second, via the REAL chapter registry slug.
+    expect(plan.options.map((o) => o.id)).toEqual(["quick", "chapter_test", "important", "notes", "worksheet"]);
     expect(plan.options[0].action).toMatchObject({ kind: "quick", chapter: { slug: "trigonometry" } });
-    expect(plan.options[2].action).toEqual({ kind: "route", path: "/notes/trigonometry" });
+    expect(plan.options[1].action).toEqual({ kind: "route", path: "/chapter-test/10/Maths/trigonometry" });
+    expect(plan.options[3].action).toEqual({ kind: "route", path: "/notes/trigonometry" });
   });
 
   it("a same-site hop with no tags captures nothing (as visitSource), so Byte keeps his default order", () => {

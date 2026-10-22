@@ -10,6 +10,7 @@ import { firstResultState } from "../feedback/feedbackPromptModel";
 import { loadLocalSessionRecords } from "../../services/sessionRecords";
 import { guideAbActive, guideAccountTag, guidePreviewActive, resolveGuideVariant } from "./guideVariant";
 import { ziggyReactionFor, type ZiggyReaction } from "./ziggyModel";
+import { useMascotsHidden } from "./mascotsMute";
 
 type Chunk = typeof import("./guideChunk");
 const load = (): Promise<Chunk> => import("./guideChunk");
@@ -89,6 +90,8 @@ export function ZiggyFirstResult({ ask, deferred, allPending, score }: ZiggyFirs
   const kind = score.kind;
   const a = score.kind === "marks" ? score.awarded : score.mcqCorrect;
   const b = score.kind === "marks" ? score.total : score.mcqAnswered;
+  // MOMENTS-1 PART 0 — "Hide mascots" on this device: no Ziggy (the scorecard is the plain one).
+  const mascotsHidden = useMascotsHidden();
 
   useEffect(() => {
     if (!eligible) return;
@@ -115,7 +118,7 @@ export function ZiggyFirstResult({ ask, deferred, allPending, score }: ZiggyFirs
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eligible, kind, a, b]);
 
-  if (!reaction) return null;
+  if (!reaction || mascotsHidden) return null;
   return (
     <Suspense fallback={null}>
       <LazyZiggyStrip reaction={reaction} />

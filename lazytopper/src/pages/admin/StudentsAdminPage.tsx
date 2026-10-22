@@ -17,7 +17,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import StudentDetailPanel from "./StudentDetailPanel";
 import GraderHealthCard from "./GraderHealthCard";
+import AiCostSummaryCard, { useAiCostSummary } from "./AiCostSummaryCard";
 import {
+  AI_COST_NOTE,
   coveredCount,
   fetchAdmin,
   formatDayKey,
@@ -29,6 +31,7 @@ import {
   planLabel,
   PERIOD_OPTIONS,
   PLAN_OPTIONS,
+  rowCostCell,
   summaryUrl,
   type ListResponse,
   type Period,
@@ -208,6 +211,17 @@ function Covered({ count, coverage, since }: { count: number | null; coverage: "
   );
 }
 
+/** COST-1 — a row's 30-day AI cost: "—" when not recorded or unreadable, never ₹0.00 for those. */
+function CostCell({ row, since }: { row: StudentRow; since?: string }) {
+  const c = rowCostCell(row.aiCost, since);
+  return (
+    <span className="sa-covered" title={c.note || undefined}>
+      {c.text}
+      {c.note && <span className="sa-covered-note">{c.note}</span>}
+    </span>
+  );
+}
+
 /** PREVIEW-1 — the three choices of the "Guide preview" panel. */
 const GUIDE_PREVIEW_CHOICES = [
   { value: "off", label: "Off" },
@@ -274,6 +288,10 @@ export default function StudentsAdminPage() {
   const getTokenRef = useRef(getToken);
   getTokenRef.current = getToken;
   const stableGetToken = useCallback(() => getTokenRef.current(), []);
+
+  // COST-1: the AI cost summary, held here so it survives the card re-mounting. It reads many
+  // ledger days, so it loads only when the admin asks, once per period per page visit.
+  const aiCost = useAiCostSummary(period, stableGetToken);
 
   useEffect(() => {
     let cancelled = false;
@@ -357,6 +375,17 @@ export default function StudentsAdminPage() {
 
           {list.status !== "refused" && <SummaryCards state={summary} periodLabel={periodLabel} />}
 
+          {/* COST-1: read-only, loads on request, only once the admin API has answered OK. */}
+          {list.status === "ok" && (
+            <AiCostSummaryCard
+              period={period}
+              state={aiCost.state}
+              onRequest={aiCost.request}
+              onRetry={aiCost.retry}
+              onOpenStudent={setSelected}
+            />
+          )}
+
           {/* HARDEN-1 PR-2: read-only, loads on request, only once the admin API has answered. */}
           {list.status === "ok" && <GraderHealthCard getToken={stableGetToken} />}
 
@@ -377,6 +406,10 @@ export default function StudentsAdminPage() {
                 Days active and last active are recorded since {formatDayKey(list.data.sources.activityLog.since)}. C&amp;I
                 sessions (one per checked Check &amp; Improve paper, however many questions it had) and tests taken (chapter tests + full mocks) are counted since{" "}
                 {formatDayKey(list.data.sources.sessionRecords.since)}. “—” means not recorded, not zero.
+              </p>
+              <p className="sa-note" data-testid="sa-cost-note">
+                AI cost (30 days) is the last 30 IST days from the usage ledger, recorded since{" "}
+                {formatDayKey(list.data.sources.usageLedger.since)}. {AI_COST_NOTE}
               </p>
               {list.data.limits.authTruncated && (
                 <p className="sa-note sa-warn">Only the first {list.data.limits.authUsersScanned} accounts were scanned.</p>
@@ -404,6 +437,7 @@ export default function StudentsAdminPage() {
                         <th scope="col">C&amp;I sessions</th>
                         <th scope="col">Tests</th>
                         <th scope="col">Last active</th>
+                        <th scope="col">AI cost (30 days, INR)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -458,6 +492,9 @@ export default function StudentsAdminPage() {
                             {row.activity.lastActiveMs === null && row.activity.coverage === "partial"
                               ? `— (no data before ${formatDayKey(list.data.sources.activityLog.since)})`
                               : formatIstDateTime(row.activity.lastActiveMs)}
+                          </td>
+                          <td data-label="AI cost (30 days, INR)" className="sa-num" data-testid="sa-ai-cost">
+                            <CostCell row={row} since={list.data.sources.usageLedger.since} />
                           </td>
                         </tr>
                       ))}

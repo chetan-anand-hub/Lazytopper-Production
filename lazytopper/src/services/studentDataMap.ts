@@ -542,6 +542,42 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "Student data: erased with the account and included in the export.",
   },
 
+  // ── Firestore: extra-usage credit (server-only, TOPUP-1; dark until TOPUP_ENABLED) ───────────
+  {
+    id: "usageCredits",
+    kind: "firestore-collection",
+    path: "usageCredits/{uid}",
+    holds:
+      "How much extra AI usage this student has bought with a top-up pack and how much is " +
+      "left: the balance, the total bought (base and any bonus, separately), the total spent, " +
+      "any expired remainder, the date it lapses (their board exam day) and short-lived holds " +
+      "for requests being served right now (each lapses within 15 minutes). Numbers only.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★ server/services/usageCredit.cjs, Admin SDK only. NOT declared in firestore.rules: no " +
+      "client reads or writes it, so browsers fall through to the deny-all catch-all; the " +
+      "student sees a derived 'about N' figure through GET /api/usage/me, never rupees. " +
+      "Written by a verified Razorpay payment (idempotent on the payment id) and by the " +
+      "metered spend of a served call. Student data: erased with the account and included " +
+      "in the export. Empty until the owner switches top-ups on.",
+  },
+  {
+    id: "usageCredits.grants",
+    kind: "firestore-subcollection",
+    parentId: "usageCredits",
+    path: "usageCredits/{uid}/grants/{paymentId}",
+    holds:
+      "One record per top-up payment: which pack, the price paid, the credit it added " +
+      "(base and bonus separately) and when. It is also the idempotency record: a payment " +
+      "already here is never credited twice.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★ Doc id = the Razorpay payment id. Same accounting character as the payments ledger. " +
+      "Student data: erased with the account and included in the export.",
+  },
+
   // ── Firestore: per-student activity log (server-only, STUDENT-ACTIVITY-1) ──────────
   {
     id: "activityLog",
@@ -764,7 +800,14 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "state, not student data: the test group, guide or control, and an expiry time 7 days ahead, " +
       "set only from the admin Students page so the LazyTopper team can preview Byte on this " +
       "browser; never the uid; deliberately NOT cleared at sign-out, removed by the admin's Off, " +
-      "on expiry, or by the device erasure sweep). None is ever sent anywhere.",
+      "on expiry, or by the device erasure sweep). MOMENTS-1: plus localStorage " +
+      "`lazytopper.mascotsHidden` (the single character 1 after the student tapped Hide mascots, so " +
+      "Byte and Ziggy stay hidden on this device until they are turned back on; a DEVICE preference, " +
+      "never premium or trial state, never the uid; removed when they are shown again) and " +
+      "`lazytopper.m11Shown.<tag>` (the single character 1 once Byte's \"check a written answer\" " +
+      "nudge showed on this account's first tap-only scorecard on this device; <tag> is an 8-hex hash " +
+      "of the uid, never the uid). " +
+      "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
     notes:

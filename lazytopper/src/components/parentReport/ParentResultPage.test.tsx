@@ -11,8 +11,8 @@ const { trackParentReportViewed } = vi.hoisted(() => ({ trackParentReportViewed:
 vi.mock("../../analytics/analytics", () => ({ trackParentReportViewed }));
 
 import ParentResultPage from "./ParentResultPage";
+import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests } from "../guide/mascotsMute";
 import {
-  MASCOTS_HIDDEN_KEY,
   MUMMY_LINE_OBJECTIVE,
   MUMMY_LINE_WRITTEN,
   PARENT_RESULT_CTA_HREF,
@@ -64,11 +64,7 @@ function viewOf(json: Record<string, unknown>) {
 afterEach(() => {
   cleanup();
   trackParentReportViewed.mockClear();
-  try {
-    window.localStorage.removeItem(MASCOTS_HIDDEN_KEY);
-  } catch {
-    /* none */
-  }
+  __resetMascotsForTests();
 });
 
 describe("ParentResultPage — only the allowed fields", () => {
@@ -95,7 +91,7 @@ describe("ParentResultPage — only the allowed fields", () => {
     const cta = screen.getByTestId("pr-cta") as HTMLAnchorElement;
     expect(cta.textContent).toBe(PARENT_RESULT_CTA_LABEL);
     expect(cta.getAttribute("href")).toBe(PARENT_RESULT_CTA_HREF);
-    expect(trackParentReportViewed).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(trackParentReportViewed).toHaveBeenCalledTimes(1));
     expect(trackParentReportViewed).toHaveBeenCalledWith("written");
   });
 

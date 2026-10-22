@@ -1,0 +1,14 @@
+/* MOMENTS-1 PART 0 — the "Mascots hidden" snackbar. Lazy (travels with the guide chunks only).
+   Deep navy, soft white text, green action (CLAUDE.md §5). Above the mobile bottom nav, below modals. */
+.lt-mascots-toast { position: fixed; z-index: 1001; left: 50%; transform: translateX(-50%);
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 14px;
+  box-sizing: border-box; max-width: calc(100vw - 24px); padding: 10px 12px 10px 16px; border-radius: 12px;
+  background: #14213d; color: #fff; font-size: 14px; line-height: 1.35; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(14, 23, 41, .35); }
+@media (min-width: 1024px) { .lt-mascots-toast { bottom: 24px; } }
+.lt-mascots-toast__t { min-width: 0; }
+.lt-mascots-toast__undo { flex: none; min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; cursor: pointer;
+  background: transparent; color: hsl(152, 60%, 62%); font: inherit; font-weight: 800; }
+.lt-mascots-toast__undo:hover { background: rgba(255, 255, 255, .08); }
+.lt-mascots-toast__undo:focus-visible { outline: 3px solid hsl(152, 55%, 48%); outline-offset: 2px; }
+@media print { .lt-mascots-toast { display: none; } }

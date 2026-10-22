@@ -185,14 +185,15 @@ describe("GUIDE-1 · Byte's options", () => {
   it("hover / focus → Byte points and says the option's line; tap a route → Byte cheers, then navigates to the real route", async () => {
     __setGuideAbForTests(true, "guide");
     mount();
-    const trends = await screen.findByTestId("guide-opt-trends");
-    fireEvent.pointerEnter(trends);
+    // GUIDE-OPTS-1: Worksheet is in the default first five (Exam trends moved to the fill).
+    const ws = await screen.findByTestId("guide-opt-worksheet");
+    fireEvent.pointerEnter(ws);
     await waitFor(() => expect(screen.getByTestId("blob-byte").getAttribute("data-pose")).toBe("point"));
-    expect(screen.getByTestId("guide-line").textContent).toBe("See what CBSE has asked, year by year.");
-    fireEvent.click(trends);
+    expect(screen.getByTestId("guide-line").textContent).toBe("Write it on paper like the real exam. I'll mark every written step.");
+    fireEvent.click(ws);
     expect(screen.getByTestId("blob-byte").getAttribute("data-pose")).toBe("cheer");
-    expect(calls("guide_option")).toEqual([["guide_option", { option: "trends", rank: Number(trends.getAttribute("data-rank")), surface: "practice_hub" }]]);
-    await waitFor(() => expect(location).toBe("/exam-trends"));
+    expect(calls("guide_option")).toEqual([["guide_option", { option: "worksheet", rank: Number(ws.getAttribute("data-rank")), surface: "practice_hub" }]]);
+    await waitFor(() => expect(location).toBe("/practice/worksheets"));
   });
 
   it("★★ OWNER 15:10 — '5 quick questions' opens the EXISTING ready state, and the picker is reachable in 2 taps", async () => {
@@ -350,6 +351,8 @@ describe("GUIDE-1 · the focused surface (guide arm)", () => {
     const opened = vi.fn();
     cbqCard.addEventListener("click", opened);
     document.body.appendChild(cbqCard);
+    // GUIDE-OPTS-1: CBQ practice left the default first five; a CBQ landing's hint brings it first.
+    window.sessionStorage.setItem(START_HERE_SUBJECT_HINT_KEY, "Maths");
     try {
       mount("u1", "practice_hub", { focus: true });
       await screen.findByTestId("start-here-focus");
@@ -363,12 +366,39 @@ describe("GUIDE-1 · the focused surface (guide arm)", () => {
       expect(window.localStorage.getItem(`${START_HERE_FOCUS_NOT_NOW_PREFIX}u1`)).toBeNull();
       expect(window.sessionStorage.getItem(START_HERE_FOCUS_CLOSED_KEY)).toBe("1");
       // A route choice is not a dismissal either.
-      fireEvent.click(screen.getByTestId("guide-opt-trends"));
-      await waitFor(() => expect(location).toBe("/exam-trends"));
+      fireEvent.click(screen.getByTestId("guide-opt-worksheet"));
+      await waitFor(() => expect(location).toBe("/practice/worksheets"));
       expect(calls("guide_dismissed")).toHaveLength(0);
       expect(window.sessionStorage.getItem(START_HERE_DISMISSED_KEY)).toBeNull();
     } finally {
       cbqCard.remove();
+    }
+  });
+
+  it("★ GUIDE-OPTS-1 — Chapter Test on the Practice hub opens the hub's own Chapter Tests chooser (the hub reads ?ct=1 only on mount)", async () => {
+    __setGuideAbForTests(true, "guide");
+    const cbqCard = document.createElement("button");
+    cbqCard.className = "lt-cbq-card";
+    const cbqOpened = vi.fn();
+    cbqCard.addEventListener("click", cbqOpened);
+    const ctCard = document.createElement("button");
+    ctCard.className = "lt-cbq-card lt-ct-card";
+    const ctOpened = vi.fn();
+    ctCard.addEventListener("click", ctOpened);
+    document.body.append(cbqCard, ctCard);
+    try {
+      mount("u1", "practice_hub", { focus: true });
+      await screen.findByTestId("start-here-focus");
+      await waitFor(() => expect(screen.getAllByTestId("guide-opt-chapter_test")).toHaveLength(2));
+      const all = screen.getAllByTestId("guide-opt-chapter_test");
+      fireEvent.click(all[all.length - 1]);
+      await waitFor(() => expect(ctOpened).toHaveBeenCalledTimes(1));
+      expect(cbqOpened).not.toHaveBeenCalled();
+      expect(calls("guide_option")[0][1]).toMatchObject({ option: "chapter_test" });
+      expect(calls("guide_dismissed")).toHaveLength(0);
+    } finally {
+      cbqCard.remove();
+      ctCard.remove();
     }
   });
 

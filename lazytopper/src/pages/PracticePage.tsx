@@ -545,6 +545,8 @@ import {
   type StartHereQType,
 } from "../components/startHere/startHereModel";
 import { typeFirstAnswerMode, useZeroGraded } from "../components/startHere/zeroGraded";
+// MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
+import { GuideMomentSlot, M11Nudge, firstSessionAudience, inGuideArm } from "../components/guide/moments/moments";
 import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
@@ -739,6 +741,15 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const zeroGradedForAnswerBox = useZeroGraded(
     authUserForJourney && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null,
     { cloud: false, recheck: gradedBatchesThisMount },
+  );
+  // MOMENTS-1 (owner ruling, 22 Oct) — the first-session moments use the SERVER's zero-graded answer
+  // (local rows, then the cloud; a failed read stays "loading" → no moment, never shown-then-retracted).
+  // Only a GUIDE-arm account reads it, so the control arm adds no read; it joins any read in flight.
+  const qpMomentGraded = useZeroGraded(
+    !overlay && authUserForJourney && !authUserForJourney.isLocalSession && inGuideArm(authUserForJourney.uid)
+      ? authUserForJourney.uid
+      : null,
+    { serverOnly: true, recheck: gradedBatchesThisMount },
   );
 
   useEffect(() => {
@@ -1351,6 +1362,18 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [isWhyPanelOpen, setIsWhyPanelOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  // MOMENTS-1 — the set failed to load: Retry re-runs the load (EVERYONE, both arms — a bug fix:
+  // there was no way to try again but a reload). `loadRetry` is a dependency of the build effect;
+  // `loadConnectionDropped` = the failure was the bank chunk not arriving or the 15 s timeout
+  // (the only failures Ziggy may call "the connection dropped").
+  const [loadRetry, setLoadRetry] = useState(0);
+  const [loadConnectionDropped, setLoadConnectionDropped] = useState(false);
+  const [bankRetrying, setBankRetrying] = useState(false);
+  // MOMENTS-1 M3 — the FIRST MCQ tap of the set on screen (display only; grading is the card's,
+  // unchanged). Cleared with the results on every rebuild / refresh / filter change (review M1).
+  // `qpM3Asked`: Byte's "tap the answer" has been answered once on this mount, so it never re-asks.
+  const [qpFirstTap, setQpFirstTap] = useState<null | { id: string; result: "correct" | "wrong" }>(null);
+  const [qpM3Asked, setQpM3Asked] = useState(false);
 
   const [expandedAnswers, setExpandedAnswers] = useState<
     Record<string, boolean>
@@ -1622,6 +1645,19 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     [isMultiTopic, multiTopics, topicLabel],
   );
   const bank = useBankChapters(bankTopicKeys);
+  // MOMENTS-1 — Retry when the chapter chunk failed: load it again; on success the hook reads it
+  // from the cache on this re-render and the build runs again.
+  const retryBankLoad = () => {
+    if (bankRetrying) return;
+    setBankRetrying(true);
+    ensureBankChapters(bankTopicKeys).then(
+      () => {
+        setBankRetrying(false);
+        setLoadRetry((n) => n + 1);
+      },
+      () => setBankRetrying(false),
+    );
+  };
 
   // CBQ-1 PR-1: live iff ANY chosen topic has >= 1 CBQ of ANY mark value (`isCbq`, the one
   // classifier), read from the SAME pool a CBQ set is served from (buildCbqPracticePool).
@@ -1728,6 +1764,8 @@ const packTopicKey = useMemo(() => {
     const run = async () => {
       setIsLoading(true);
       setError(null);
+      setLoadConnectionDropped(false);
+      let bankLoadFailed = false;
 
       const timeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("__timeout__")), 15000)
@@ -1736,7 +1774,12 @@ const packTopicKey = useMemo(() => {
       try {
         // BANK-SPLIT-1 PR-2 (L4): the boundary await. Every engine call below reads these
         // chapters synchronously from the per-chapter cache.
-        await ensureBankChapters(isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]);
+        try {
+          await ensureBankChapters(isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]);
+        } catch (loadErr) {
+          bankLoadFailed = true; // MOMENTS-1: the chapter chunk did not arrive
+          throw loadErr;
+        }
         if (cancelled) return;
 
         const adaptiveMix = difficulty === "All"
@@ -2013,6 +2056,7 @@ const packTopicKey = useMemo(() => {
           setExpandedAnswers({});
           setMcqSelections({});
           setMcqResults({});
+          setQpFirstTap(null); // MOMENTS-1 (review M1): a new set has no first tap yet
           setGradedResults({});
           // A rebuilt/regenerated set is a NEW session: clear the write latch or the
           // new set would be silently skipped (and clear the grades with it, or they
@@ -2030,6 +2074,7 @@ const packTopicKey = useMemo(() => {
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
+          setLoadConnectionDropped(bankLoadFailed || errMsg === "__timeout__");
           setError(
             errMsg === "__timeout__"
               ? "Loading took too long. Please try again or pick a different topic."
@@ -2063,6 +2108,8 @@ const packTopicKey = useMemo(() => {
     committedMarksRange,
     committedSource,
     regenerationKey,
+    // MOMENTS-1: Retry after a failed load re-runs this build.
+    loadRetry,
     // CBQ-1 PR-1: switching INTO / OUT OF a CBQ set changes the pool (other style
     // changes stay client-side only, exactly as before).
     cbqMode,
@@ -2861,6 +2908,41 @@ const packTopicKey = useMemo(() => {
   const answerBoxDefault = typeFirstAnswerMode(zeroGradedForAnswerBox, {
     startHereWritten: startHereSet && qp.get("qt") === "written",
   });
+
+  // MOMENTS-1 — who sees Byte & Ziggy on this page (components/guide/moments). DISPLAY ONLY: the
+  // MCQ is graded by the card exactly as before; nothing here touches a mark or a record.
+  //   M3 (first session): a signed-in GUIDE-arm student with ZERO graded results on the SERVER's
+  //     answer (`qpMomentGraded`), on a built five-question MCQ set ("1 of 5" is then true). Byte asks
+  //     for a tap; after the FIRST tap of this mount, Ziggy cheers in his place only if it was
+  //     correct (and goes at the next tap); a wrong first tap → Byte simply goes.
+  //   M8 (problem): the set failed to load on the bank chunk / the timeout, guide arm, every time.
+  //     No answer exists yet on this page, so Ziggy never says "Your answer is safe" here.
+  const qpMomentUid = authUserForJourney && !authUserForJourney.isLocalSession ? authUserForJourney.uid : null;
+  const qpM3Eligible =
+    !overlay &&
+    isBuilt &&
+    !reviewMode &&
+    !isLoading &&
+    !error &&
+    filteredQuestions.length === 5 &&
+    filteredQuestions.every((q) => Array.isArray(q.options) && q.options.length > 0) &&
+    firstSessionAudience(qpMomentUid, qpMomentGraded);
+  // Review M1: Ziggy's "1 of 5" needs EXACTLY ONE recorded answer on screen, and it must be the
+  // stored first tap, correct. After a refresh (0 answers) nobody speaks until a new first tap.
+  const qpAnswered = Object.keys(mcqResults);
+  const qpM3Step: "byte" | "ziggy" | null = !qpM3Eligible
+    ? null
+    : qpFirstTap === null
+      ? qpM3Asked || qpAnswered.length > 0
+        ? null
+        : "byte"
+      : qpFirstTap.result === "correct" &&
+          qpAnswered.length === 1 &&
+          qpAnswered[0] === qpFirstTap.id &&
+          mcqResults[qpFirstTap.id] === "correct"
+        ? "ziggy"
+        : null;
+  const qpLoadMoment = inGuideArm(qpMomentUid);
   const startHereGradedRef = useRef(false);
   useEffect(() => {
     if (!startHereSet || !showScorecard || startHereGradedRef.current) return;
@@ -3374,9 +3456,14 @@ const packTopicKey = useMemo(() => {
             load); the preset entry shows that same existing loading card. */}
         {!bank.ready || (cbqLanding && !cbqLandingSettled && !isBuilt && competencyAvailable) ? (
           isBuilt ? null : (
+            <>
+            {/* MOMENTS-1 M8 — the chapter chunk did not arrive (guide arm; no answer exists yet). */}
+            <GuideMomentSlot show={qpLoadMoment && !!bank.error} moment="m8" step="plain" />
             <PracticeQuestionList
               isLoading={!bank.error}
               error={bank.error ? "We couldn’t load the questions. Check your connection and reload the page." : null}
+              onRetry={bank.error ? retryBankLoad : undefined}
+              retrying={bankRetrying}
               questions={[]}
               filteredQuestions={[]}
               subjectKey={subjectKey}
@@ -3392,6 +3479,7 @@ const packTopicKey = useMemo(() => {
               onMcqSelect={() => {}}
               onMcqResult={() => {}}
             />
+            </>
           )
         ) : cbqLanding && !cbqLandingSettled && !isBuilt ? (
           // CBQ-ENTRY-1 (E3) — this chapter has no real CBQs: say so, never an empty set.
@@ -3588,11 +3676,17 @@ const packTopicKey = useMemo(() => {
           </>
         )}
 
+        {/* MOMENTS-1 M3 / M8 — above the question (display only). */}
+        {isBuilt && qpM3Step ? <GuideMomentSlot show moment="m3" step={qpM3Step} /> : null}
+        {isBuilt ? (
+          <GuideMomentSlot show={qpLoadMoment && !!error && !isLoading && loadConnectionDropped} moment="m8" step="plain" />
+        ) : null}
         {isBuilt && (
         <PracticeAttemptCountingProvider value={!reviewMode}>
         <PracticeQuestionList
           isLoading={isLoading}
           error={error}
+          onRetry={error && !isLoading ? () => setLoadRetry((n) => n + 1) : undefined}
           questions={questions}
           filteredQuestions={filteredQuestions}
           subjectKey={subjectKey}
@@ -3611,7 +3705,12 @@ const packTopicKey = useMemo(() => {
             // PRACTICE-REVIEW-HONEST-1 — a pick after the steps were seen: shown, not counted.
             if (reviewMode) setReviewMcqIds((prev) => ({ ...prev, [qId]: true }));
           }}
-          onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
+          onMcqResult={(qId, result) => {
+            setMcqResults((prev) => ({ ...prev, [qId]: result }));
+            // MOMENTS-1 M3 — remember only the FIRST tap of this mount (display only).
+            setQpFirstTap((prev) => prev ?? { id: qId, result });
+            setQpM3Asked(true);
+          }}
           onGraded={(qId, result) => setGradedResults((prev) => ({ ...prev, [qId]: result }))}
           onAskTutor={overlay ? undefined : askTutorAboutQuestion}
           // ★★ WIRE-2 · COLLECT MODE. The answer panel SAVES; nothing on this page grades
@@ -4142,6 +4241,9 @@ const packTopicKey = useMemo(() => {
               Not now
             </button>
           </div>
+        ) : !isGuest && !overlay && qpMomentUid ? (
+          // MOMENTS-1 M11 — the MCQ-only (tap-only) scorecard ONLY: never a written / C&I result.
+          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} />
         ) : undefined,
       )}
     />

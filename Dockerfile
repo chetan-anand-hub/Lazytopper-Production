@@ -30,11 +30,23 @@ COPY . .
 # do NOT run `--prod` / prune: pruning typescript here would break the gateway.
 RUN pnpm install --frozen-lockfile
 
-# Build: api-server (esbuild bundle → artifacts/api-server/dist/index.mjs) + the lazytopper
-# build + the in-repo guards. This is the same command CI runs on linux, so it is known-good
-# on Railway's linux runner. (The lazytopper frontend build is unused by this backend image
-# but harmless; using the root build avoids any "filtered build skipped a step" risk.)
-RUN pnpm run build
+# Build ONLY what this image runs (RAILWAY-SLIM-1, owner-approved 2026-10-22): the root
+# `build:backend` script = root typecheck (libs, api-server, scripts) -> syllabusGuard ->
+# validateQuestionBanks -> the api-server esbuild bundle (artifacts/api-server/dist/index.mjs).
+# The deploy-blocking guards stay IN the image build, unchanged.
+#
+# NOT built here any more: the lazytopper WEBSITE (`tsc -b && vite build && writeStaticHeads &&
+# applyPrerendered && writeVersion && perf3_entry_chunk_acceptance`). Its outputs land in
+# artifacts/lazytopper-app/dist/public/ (~70 MB) and nothing in this image reads them (no
+# runtime code under artifacts/api-server/src or lazytopper/server references that path, a
+# dist/ dir or version.json; the old image already wrote no version.json here,
+# [FU-SEARCHPING-DOCKER-NO-MARKER], which this change makes moot). The gateway transpiles
+# lazytopper/src/**/*.ts from SOURCE at runtime, reads visuals from lazytopper/public/visuals
+# (source), and lazytopper's `tsc -b` is noEmit. Vercel builds the website on its own, and CI
+# still builds it on every PR (quality-gate.yml build-ops: `pnpm --filter lazytopper run build`).
+# quality-gate.yml railway-build runs this SAME command, and ci_speed_acceptance.mjs pins the two
+# together - change one and you must change the other.
+RUN pnpm run build:backend
 
 ENV NODE_ENV=production
 # PORT default; the Railway dashboard also sets PORT=8080 explicitly (the api-server THROWS

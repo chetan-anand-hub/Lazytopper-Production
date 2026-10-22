@@ -1,0 +1,8 @@
+/* MOMENTS-1 — "Retry" under a Quick Practice set that failed to load (every student, both arms).
+   Green accent, soft white page (CLAUDE.md §5). */
+.qp-load-retry { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; margin: 0 0 14px;
+  padding: 0 20px; border-radius: 10px; border: 1px solid hsl(152, 55%, 40%); background: hsl(152, 55%, 40%);
+  color: #fff; font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.qp-load-retry:hover { background: hsl(152, 55%, 34%); }
+.qp-load-retry:disabled { opacity: .7; cursor: wait; }
+.qp-load-retry:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }

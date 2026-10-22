@@ -1,6 +1,6 @@
 /**
  * PARENT-REPORT-1 — every string the parent's result page adds, in one place, plus the small
- * decisions (which Mummy line, are the mascots hidden). Tiny and bank-free: the page imports it;
+ * decisions (which Mummy line, the date label). Tiny and bank-free: the page imports it;
  * Mummy's drawing code stays in the lazily loaded guide/mummy/mummyChunk.
  *
  * Copy rules (owner, 22 Oct 2026; pinned by ParentResultPage.test.tsx): never the word "Ask",
@@ -28,21 +28,6 @@ export const PARENT_RESULT_CTA_HREF = "/for-parents";
 
 export function mummyLineFor(kind: ParentResultKind): string {
   return kind === "objective" ? MUMMY_LINE_OBJECTIVE : MUMMY_LINE_WRITTEN;
-}
-
-/**
- * "Hide mascots" — the device-wide switch MOMENTS-1 (#1289) adds as guide/mascotsMute.ts. That
- * module is not on trunk yet, so this reads the SAME key with the SAME meaning ("1" = hidden),
- * read-only. ⚠ When MOMENTS-1 merges, replace this with `mascotsHidden()` from mascotsMute.
- */
-export const MASCOTS_HIDDEN_KEY = "lazytopper.mascotsHidden";
-
-export function mascotsHiddenOnThisDevice(): boolean {
-  try {
-    return window.localStorage.getItem(MASCOTS_HIDDEN_KEY) === "1";
-  } catch {
-    return false;
-  }
 }
 
 /** "22 Oct 2026", in India time. */

@@ -32,13 +32,8 @@ import {
 import { desktopTopicForWeakAreaKey } from "../../lib/desktop/topics";
 import { shouldDrawMummy } from "../guide/mummy/mummyModel";
 import type { MummyFigureProps } from "../guide/mummy/mummyChunk";
-import {
-  PARENT_RESULT_CTA_HREF,
-  PARENT_RESULT_CTA_LABEL,
-  mascotsHiddenOnThisDevice,
-  mummyLineFor,
-  resultDateLabel,
-} from "./parentResultCopy";
+import { useMascotsHidden } from "../guide/mascotsMute";
+import { PARENT_RESULT_CTA_HREF, PARENT_RESULT_CTA_LABEL, mummyLineFor, resultDateLabel } from "./parentResultCopy";
 import {
   ParentResultError,
   readParentResultToken,
@@ -93,11 +88,12 @@ type IdleWindow = Window & {
   cancelIdleCallback?: (h: number) => void;
 };
 
-function useDrawAfterIdle(forced: boolean | undefined): boolean {
+/** Draw Mummy after idle — never in an automated browser, never while "Hide mascots" is on. */
+function useDrawAfterIdle(forced: boolean | undefined, hidden: boolean): boolean {
   const [draw, setDraw] = useState(false);
   useEffect(() => {
     if (forced !== undefined) return;
-    if (!shouldDrawMummy() || mascotsHiddenOnThisDevice()) return;
+    if (!shouldDrawMummy() || hidden) return;
     const w = window as IdleWindow;
     if (typeof w.requestIdleCallback === "function") {
       const h = w.requestIdleCallback(() => setDraw(true), { timeout: 1500 });
@@ -105,9 +101,9 @@ function useDrawAfterIdle(forced: boolean | undefined): boolean {
     }
     const t = setTimeout(() => setDraw(true), 1);
     return () => clearTimeout(t);
-  }, [forced]);
-  if (forced !== undefined) return forced && !mascotsHiddenOnThisDevice();
-  return draw;
+  }, [forced, hidden]);
+  if (forced !== undefined) return forced && !hidden;
+  return draw && !hidden;
 }
 
 function chapterNames(slugs: string[]): string[] {
@@ -200,7 +196,9 @@ function SlipsBlock({ r }: { r: ParentResultView }) {
 }
 
 function MummyMoment({ kind, drawFigure }: { kind: ParentResultView["kind"]; drawFigure?: boolean }) {
-  const draw = useDrawAfterIdle(drawFigure);
+  // MOMENTS-1's one device-wide "Hide mascots" switch (re-renders when it flips).
+  const hidden = useMascotsHidden();
+  const draw = useDrawAfterIdle(drawFigure, hidden);
   const pose = kind === "objective" ? "mhappy" : "mproud";
   return (
     <section className="lt-pr__mummy" data-testid="pr-mummy" data-kind={kind}>
