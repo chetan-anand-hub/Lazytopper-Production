@@ -298,7 +298,11 @@ describe("studentDataMap — drift guard", () => {
     // writes it, so it is undeclared on purpose (deny-all catch-all). It IS student data (a doc
     // per uid) - in the map, erased and exported, not exempted. Its day counter
     // `trialEmailDaily` (review finding 1) is uid-free and exempt, like `freeCheckDaily`.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "parentPayLinks", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageLedger"]);
+    //
+    // ★ `usageCredits` JOINED this set with TOPUP-1. Written only by server/services/usageCredit.cjs
+    // through the Admin SDK; no client reads or writes it, so it is undeclared on purpose (deny-all
+    // catch-all). It IS student data (uid-keyed balance + grants) - in the map, erased and exported.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "parentPayLinks", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
