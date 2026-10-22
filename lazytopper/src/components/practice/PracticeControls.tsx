@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { WORKSHEET_MAX_QUESTIONS } from "./worksheetGenerator";
+import { zeroCountChips, type ChipCounts } from "./practiceFilters";
 
 const MARKS_OPTIONS = [
   { value: "all", label: "All" },
@@ -13,7 +14,8 @@ const MARKS_OPTIONS = [
 
 const STYLE_OPTIONS = [
   { value: "all", label: "All types" },
-  { value: "proof", label: "Proof / Identity" },
+  // FILTER-FIX-1: one label for both subjects — Maths proofs and Science derivations.
+  { value: "proof", label: "Proof / Derivation" },
   { value: "ar", label: "Assertion-Reason" },
   { value: "hots", label: "HOTS" },
   { value: "case", label: "Case-based" },
@@ -45,31 +47,18 @@ const SOURCE_NOTES: Record<string, string> = {
     "Practice questions from AI generation and reference books (RD Sharma, PW etc.) - useful when PYQ and NCERT run short.",
 };
 
-// "cbq" is compatible with EVERY marks bucket: a CBQ can be 1, 2, 3, 4 or 5 marks.
-const STYLE_COMPAT: Record<string, Set<string>> = {
-  all: new Set(["all", "proof", "ar", "hots", "case", "cbq"]),
-  "1": new Set(["all", "ar", "cbq"]),
-  "23": new Set(["all", "proof", "hots", "cbq"]),
-  "5": new Set(["all", "proof", "hots", "cbq"]),
-  "4": new Set(["all", "case", "cbq"]),
-};
-// Reverse direction: given a Style selection, which Marks chips are compatible?
-// Mirrors STYLE_COMPAT so chips grey out symmetrically in both directions.
-const MARKS_COMPAT_BY_STYLE: Record<string, Set<string>> = {
-  all: new Set(["all", "1", "23", "5", "4"]),
-  proof: new Set(["all", "23", "5"]),
-  ar: new Set(["all", "1"]),
-  hots: new Set(["all", "23", "5"]),
-  case: new Set(["all", "4"]),
-  cbq: new Set(["all", "1", "23", "5", "4"]),
-};
-const DIFF_COMPAT_BY_MARKS: Record<string, Set<string>> = {
-  all: new Set(["all", "Easy", "Medium", "Hard"]),
-  "1": new Set(["all", "Easy", "Medium"]),
-  "23": new Set(["all", "Easy", "Medium", "Hard"]),
-  "5": new Set(["all", "Medium", "Hard"]),
-  "4": new Set(["all", "Medium", "Hard"]),
-};
+// FILTER-FIX-1 (owner ruling) — there is no hand-written incompatibility table any more.
+// The old STYLE_COMPAT / MARKS_COMPAT_BY_STYLE / DIFF_COMPAT_BY_MARKS tables greyed out
+// combinations the bank DOES hold (HOTS + 1 mark: 1,097; HOTS + 4: 943; 1 mark + Hard: 270;
+// 4 marks + Easy: 81; proof + 4: 13). A chip now greys out ONLY when the chosen chapter(s)
+// really hold 0 questions for it (`chipCounts`, counted by the one predicate in
+// practiceFilters.ts); structural impossibilities count 0 on their own.
+export const NO_QUESTIONS_FOR_COMBINATION = "No questions for this combination";
+
+/** The chips of one row that are greyed out: count 0 (never "all"). Empty while counts are unknown. */
+function disabledChips(counts: Record<string, number> | undefined): Set<string> {
+  return counts ? zeroCountChips(counts) : new Set();
+}
 
 export interface PracticeControlsProps {
   // Pending state — drives chip UI and the live "N available" hint.
@@ -79,6 +68,8 @@ export interface PracticeControlsProps {
   pendingDifficulty: string;
   pendingCount: number;
   availableCount: number;
+  /** FILTER-FIX-1: real per-chip counts over the chosen chapter(s)' served pool; null = not known yet. */
+  chipCounts?: ChipCounts | null;
 
   onSetMarks: (v: string) => void;
   onSetStyle: (v: string) => void;
@@ -161,6 +152,7 @@ export function PracticeControls({
   pendingDifficulty,
   pendingCount,
   availableCount,
+  chipCounts,
   onSetMarks,
   onSetStyle,
   onSetSource,
@@ -185,33 +177,21 @@ export function PracticeControls({
   const willTruncate = visibleQuestionCount > WORKSHEET_MAX_QUESTIONS;
   const navigate = useNavigate();
 
-  const compatibleStyles = STYLE_COMPAT[pendingMarks] ?? STYLE_COMPAT.all;
-  const compatibleMarks = MARKS_COMPAT_BY_STYLE[pendingStyle] ?? MARKS_COMPAT_BY_STYLE.all;
-  // HOTS overrides the marks-based difficulty rules — only "Hard" is allowed.
-  const compatibleDiffs = pendingStyle === "hots"
-    ? new Set(["Hard"])
-    : (DIFF_COMPAT_BY_MARKS[pendingMarks] ?? DIFF_COMPAT_BY_MARKS.all);
+  // FILTER-FIX-1: greyed = the bank really holds 0 for that chip with the other rows as they stand.
+  const disabledMarks = disabledChips(chipCounts?.marks);
+  const disabledStyles = disabledChips(chipCounts?.style);
+  const disabledSources = disabledChips(chipCounts?.source);
+  const disabledDiffs = disabledChips(chipCounts?.diff);
+  // The Proof / Derivation chip shows only when the chosen chapter(s) hold >= 1 (e.g. it is
+  // hidden on Magnetic Effects and Statistics). Unknown counts -> shown.
+  const hideProof = !!chipCounts && chipCounts.proofInPool === 0;
 
-  // Auto-reset style/marks/difficulty when current selection becomes incompatible.
+  // A selection is never silently reset because another chip changed (the old auto-reset
+  // wiped e.g. HOTS + 1 mark although the bank holds 1,097 of them). The one exception: a
+  // pre-set Proof / Derivation on a chapter that has none, whose chip is not even shown.
   useEffect(() => {
-    if (pendingStyle !== "all" && !compatibleStyles.has(pendingStyle)) {
-      onSetStyle("all");
-    }
-    // `pendingMarks` may be a comma SET of buckets (a Topic Hub concept-row carries
-    // the concept's mark BAND as a bucket set — range -> set, PR-E1). A set is
-    // compatible iff EVERY one of its buckets is compatible with the current style;
-    // only then is it left intact (so the concept band is not wiped on mount).
-    const marksBuckets = pendingMarks === "all" ? [] : pendingMarks.split(",").filter(Boolean);
-    if (
-      pendingMarks !== "all" &&
-      !marksBuckets.every((b) => compatibleMarks.has(b))
-    ) {
-      onSetMarks("all");
-    }
-    if (pendingDifficulty !== "all" && !compatibleDiffs.has(pendingDifficulty)) {
-      onSetDifficulty(pendingStyle === "hots" ? "Hard" : "all");
-    }
-  }, [pendingMarks, pendingStyle, pendingDifficulty, compatibleStyles, compatibleMarks, compatibleDiffs, onSetStyle, onSetMarks, onSetDifficulty]);
+    if (hideProof && pendingStyle === "proof") onSetStyle("all");
+  }, [hideProof, pendingStyle, onSetStyle]);
 
   if (isBuilt) {
     const badges: { key: string; label: string }[] = [
@@ -359,12 +339,7 @@ export function PracticeControls({
     );
   }
 
-  const showStyleConstraintNote =
-    pendingMarks !== "all" &&
-    STYLE_OPTIONS.some((o) => !compatibleStyles.has(o.value));
-  const showMarksConstraintNote =
-    pendingStyle !== "all" &&
-    MARKS_OPTIONS.some((o) => !compatibleMarks.has(o.value));
+  const greyedNote = (row: Set<string>) => row.size > 0;
 
   return (
     <FilterPanel
@@ -374,11 +349,15 @@ export function PracticeControls({
       pendingDifficulty={pendingDifficulty}
       pendingCount={pendingCount}
       availableCount={availableCount}
-      compatibleStyles={compatibleStyles}
-      compatibleMarks={compatibleMarks}
-      compatibleDiffs={compatibleDiffs}
-      showStyleConstraintNote={showStyleConstraintNote}
-      showMarksConstraintNote={showMarksConstraintNote}
+      disabledMarks={disabledMarks}
+      disabledStyles={disabledStyles}
+      disabledSources={disabledSources}
+      disabledDiffs={disabledDiffs}
+      hideProof={hideProof}
+      showGreyedNote={
+        greyedNote(disabledMarks) || greyedNote(disabledStyles) ||
+        greyedNote(disabledSources) || greyedNote(disabledDiffs)
+      }
       onSetMarks={onSetMarks}
       onSetStyle={onSetStyle}
       onSetSource={onSetSource}
@@ -398,11 +377,12 @@ interface FilterPanelProps {
   pendingDifficulty: string;
   pendingCount: number;
   availableCount: number;
-  compatibleStyles: Set<string>;
-  compatibleMarks: Set<string>;
-  compatibleDiffs: Set<string>;
-  showStyleConstraintNote: boolean;
-  showMarksConstraintNote: boolean;
+  disabledMarks: Set<string>;
+  disabledStyles: Set<string>;
+  disabledSources: Set<string>;
+  disabledDiffs: Set<string>;
+  hideProof: boolean;
+  showGreyedNote: boolean;
   onSetMarks: (v: string) => void;
   onSetStyle: (v: string) => void;
   onSetSource: (v: string) => void;
@@ -413,6 +393,32 @@ interface FilterPanelProps {
   onOpenWorksheet: () => void;
 }
 
+/** One filter chip. A greyed chip stays hoverable (so its reason shows) but does nothing. */
+function FilterChip({
+  label,
+  active,
+  disabled,
+  onPick,
+}: {
+  label: string;
+  active: boolean;
+  disabled: boolean;
+  onPick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => { if (!disabled) onPick(); }}
+      style={{ ...chipStyle(active, disabled), pointerEvents: "auto" }}
+      aria-disabled={disabled}
+      title={disabled ? NO_QUESTIONS_FOR_COMBINATION : undefined}
+      aria-label={disabled ? `${label} - ${NO_QUESTIONS_FOR_COMBINATION}` : undefined}
+    >
+      {label}
+    </button>
+  );
+}
+
 function FilterPanel({
   pendingMarks,
   pendingStyle,
@@ -420,11 +426,12 @@ function FilterPanel({
   pendingDifficulty,
   pendingCount,
   availableCount,
-  compatibleStyles,
-  compatibleMarks,
-  compatibleDiffs,
-  showStyleConstraintNote,
-  showMarksConstraintNote,
+  disabledMarks,
+  disabledStyles,
+  disabledSources,
+  disabledDiffs,
+  hideProof,
+  showGreyedNote,
   onSetMarks,
   onSetStyle,
   onSetSource,
@@ -434,7 +441,6 @@ function FilterPanel({
   onBuildSet,
   onOpenWorksheet,
 }: FilterPanelProps) {
-  const isHots = pendingStyle === "hots";
   const [nudgeVisible, setNudgeVisible] = useState(false);
   const handleLocalClear = () => {
     setNudgeVisible(false);
@@ -485,69 +491,43 @@ function FilterPanel({
         {/* MARKS row */}
         <div style={ROW_STYLE}>
           <span style={ROW_LABEL_STYLE}>Marks</span>
-          {MARKS_OPTIONS.map((opt) => {
-            const active = pendingMarks === opt.value;
-            const disabled = !compatibleMarks.has(opt.value);
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => onSetMarks(opt.value)}
-                style={chipStyle(active, disabled)}
-                aria-disabled={disabled}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
+          {MARKS_OPTIONS.map((opt) => (
+            <FilterChip
+              key={opt.value}
+              label={opt.label}
+              active={pendingMarks === opt.value}
+              disabled={disabledMarks.has(opt.value)}
+              onPick={() => onSetMarks(opt.value)}
+            />
+          ))}
         </div>
-        {showMarksConstraintNote && (
-          <div style={NOTE_STYLE}>
-            Greyed chips not available for selected style
-          </div>
-        )}
 
-        {/* STYLE row */}
+        {/* STYLE row — Proof / Derivation only when the chosen chapter(s) hold one */}
         <div style={ROW_STYLE}>
           <span style={ROW_LABEL_STYLE}>Style</span>
-          {STYLE_OPTIONS.map((opt) => {
-            const active = pendingStyle === opt.value;
-            const disabled = !compatibleStyles.has(opt.value);
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => onSetStyle(opt.value)}
-                style={chipStyle(active, disabled)}
-                aria-disabled={disabled}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
+          {STYLE_OPTIONS.filter((opt) => !(hideProof && opt.value === "proof")).map((opt) => (
+            <FilterChip
+              key={opt.value}
+              label={opt.label}
+              active={pendingStyle === opt.value}
+              disabled={disabledStyles.has(opt.value)}
+              onPick={() => onSetStyle(opt.value)}
+            />
+          ))}
         </div>
-        {showStyleConstraintNote && (
-          <div style={NOTE_STYLE}>
-            Greyed chips not available for selected marks
-          </div>
-        )}
 
         {/* SOURCE row */}
         <div style={ROW_STYLE}>
           <span style={ROW_LABEL_STYLE}>Source</span>
-          {SOURCE_OPTIONS.map((opt) => {
-            const active = pendingSource === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => onSetSource(opt.value)}
-                style={chipStyle(active, false)}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
+          {SOURCE_OPTIONS.map((opt) => (
+            <FilterChip
+              key={opt.value}
+              label={opt.label}
+              active={pendingSource === opt.value}
+              disabled={disabledSources.has(opt.value)}
+              onPick={() => onSetSource(opt.value)}
+            />
+          ))}
         </div>
         {SOURCE_NOTES[pendingSource] && (
           <div style={NOTE_STYLE}>{SOURCE_NOTES[pendingSource]}</div>
@@ -556,24 +536,18 @@ function FilterPanel({
         {/* DIFFICULTY row */}
         <div style={ROW_STYLE}>
           <span style={ROW_LABEL_STYLE}>Difficulty</span>
-          {DIFFICULTY_OPTIONS.map((opt) => {
-            const active = pendingDifficulty === opt.value;
-            const disabled = !compatibleDiffs.has(opt.value);
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => onSetDifficulty(opt.value)}
-                style={chipStyle(active, disabled)}
-                aria-disabled={disabled}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
+          {DIFFICULTY_OPTIONS.map((opt) => (
+            <FilterChip
+              key={opt.value}
+              label={opt.label}
+              active={pendingDifficulty === opt.value}
+              disabled={disabledDiffs.has(opt.value)}
+              onPick={() => onSetDifficulty(opt.value)}
+            />
+          ))}
         </div>
-        {isHots && (
-          <div style={NOTE_STYLE}>HOTS questions are always Hard difficulty</div>
+        {showGreyedNote && (
+          <div style={NOTE_STYLE}>Greyed chips: no questions for this combination in this chapter</div>
         )}
 
         {/* QUESTIONS row */}

@@ -17,6 +17,7 @@ import type {
 import type { StudentMentorIntent } from "../../types/studentMentorIntent";
 import { PredictionCore } from "../../data/predictionCore";
 import { cbqFlagOf, filterCbqs, interleaveCbqsByMarks, isCbq } from "../../lib/cbq/cbqClassification";
+import { isProofOrDerivation } from "./practiceFilters";
 
 export type SubjectKey = "Maths" | "Science";
 export type DifficultyChoice = "All" | "Easy" | "Medium" | "Hard";
@@ -267,6 +268,8 @@ export function buildPracticeQuestionsFromEngine(args: {
       // because CanonicalQuestion type does not yet include it (K2H-8f-c follow-up).
       pyqYear: q.pyqYear as string | undefined,
       pyqSet: q.pyqSet as string | undefined,
+      // FILTER-FIX-1: carry the explicit PYQ flag too, so the source filter sees every signal it reads.
+      isPYQ: (q as { isPYQ?: boolean }).isPYQ,
       // BANK-FIX-1: carry the source override so the Practice source filter honours it.
       sourceOverride: (q as { sourceOverride?: "others" }).sourceOverride,
       isCompetencyBased: (q as { isCompetencyBased?: boolean }).isCompetencyBased,
@@ -297,6 +300,26 @@ export function buildCbqPracticePool(args: {
   const cbqs = filterCbqs(served);
   if (cbqs.length === 0) return [];
   return buildPracticeQuestionsFromEngineRows(interleaveCbqsByMarks(cbqs) as unknown as RawQuestion[]);
+}
+
+/**
+ * MLT-MUTE-2 — EVERY served row of one chapter (this subject), in the served (predictionScore)
+ * order: the pool a NARROW Quick Practice filter (a style, source or difficulty) is applied to.
+ * The engine draw is a `count`-sized blueprint SAMPLE of mixed questions; filtering that sample
+ * left e.g. 6 proofs out of a 30-question draw while Real Numbers holds 50, and the page then
+ * claimed the bank had run out. Same served pool as the CBQ pool and the exact-focus pool
+ * (PredictionCore). Real bank rows only — the page merges it AFTER the engine draw, so the
+ * engine's own canonical fallback is kept. The chapter must already be loaded (ensureBankChapters).
+ */
+export function buildChapterServedPool(args: {
+  subjectKey: SubjectKey;
+  topicKey: string;
+}): PracticeQuestion[] {
+  const want = args.subjectKey.toLowerCase();
+  const served = PredictionCore.getLikelyQuestionsForConcept(args.topicKey).filter(
+    (q) => String((q as { subject?: unknown }).subject ?? "").trim().toLowerCase() === want,
+  );
+  return buildPracticeQuestionsFromEngineRows(served as unknown as RawQuestion[]);
 }
 
 /**
@@ -344,6 +367,8 @@ function buildPracticeQuestionsFromEngineRows(rows: RawQuestion[]): PracticeQues
       format: q.format ?? "",
       pyqYear: q.pyqYear as string | undefined,
       pyqSet: q.pyqSet as string | undefined,
+      // FILTER-FIX-1: carry the explicit PYQ flag too, so the source filter sees every signal it reads.
+      isPYQ: (q as { isPYQ?: boolean }).isPYQ,
       sourceOverride: (q as { sourceOverride?: "others" }).sourceOverride,
       isCompetencyBased: (q as { isCompetencyBased?: boolean }).isCompetencyBased,
       ...cbqFlagOf(q),
@@ -582,28 +607,9 @@ export async function buildPracticeQuestionsWithAiTopup(
     const filtered = bankQuestionsFiltered.filter((q) => {
       const fmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
       if (qt === "MCQ") return fmt.includes("mcq") || fmt.includes("multiple");
-      if (qt === "Proof") {
-        const qId = String((q as { id?: unknown }).id ?? "").toLowerCase();
-        const qText = String((q as { questionText?: unknown }).questionText ?? "").toLowerCase().trim();
-        const qSub = String((q as { subtopic?: unknown }).subtopic ?? "").toLowerCase();
-        const qFmt = String((q as { format?: unknown }).format ?? "").toLowerCase();
-        const qBloom = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
-        const qSection = String((q as { section?: unknown }).section ?? "");
-        // ISSUE-007 fix: Section A is never a Proof question.
-        if (qSection === "A") return false;
-        return (
-          /prf/i.test(qId) ||
-          /^prove\s+that/i.test(qText) ||
-          /^show\s+that/i.test(qText) ||
-          /^derive\s+/i.test(qText) ||
-          /proof|identit|tangent.propert|geometric.proof/i.test(qSub) ||
-          (
-            (qFmt === "long" || qFmt === "short") &&
-            qBloom === "Analysing" &&
-            (qSection === "C" || qSection === "D")
-          )
-        );
-      }
+      // FILTER-FIX-1: the ONE Proof / Derivation classifier (practiceFilters.ts) — this was a
+      // second copy of the old rules ("Long/Short + Analysing in C/D", start-anchored phrases).
+      if (qt === "Proof") return isProofOrDerivation(q);
       // CBQ-1 PR-1: "Competency" means a CBQ — the one classifier (isCbq), every mark value.
       if (qt === "Competency") return isCbq(q);
       if (qt === "AR") return fmt.includes("assertion") || fmt === "ar";
