@@ -4,6 +4,7 @@ import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiCli
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
 import type { SolutionCheckerSavedWorking } from "../question/SolutionChecker";
 import "./practiceLoadRetry.css";
+import "./practiceBankEnd.css";
 
 export interface PracticeQuestionListProps {
   isLoading: boolean;
@@ -52,6 +53,41 @@ export interface PracticeQuestionListProps {
   /** SHW-2 — the answer box's first-selected tab, passed straight through to every card.
    *  Omitted ⇒ "upload", today's behaviour. */
   defaultAnswerMode?: "type" | "upload";
+  /** MLT-MUTE-1 — the host's set came back SHORTER than asked: the verified bank has no more
+   *  questions like these (the AI top-up is muted, so nothing is invented to fill the gap). The
+   *  note says so honestly and offers real next steps on existing routes. Omitted ⇒ no note. */
+  bankEnd?: BankEndLinks;
+}
+
+/** MLT-MUTE-1 — the honest end-of-bank note's real next steps (routes that exist in App.tsx). */
+export interface BankEndLinks {
+  /** `/chapter-test/:grade/:subject/:topicKey` — omitted for a multi-chapter set. */
+  chapterTestHref?: string;
+  /** `/practice-hub` — pick another chapter's question set or a Quick Practice. */
+  practiceHubHref: string;
+}
+
+/** The copy, exported so tests pin the exact words (owner ruling 2026-10-22). */
+export const BANK_END_TITLE = "That's every question we have like this for now.";
+export const BANK_END_BODY = "We only serve checked questions from our bank, so the set stops here instead of being padded with unchecked ones.";
+
+function BankEndNote({ chapterTestHref, practiceHubHref }: BankEndLinks) {
+  return (
+    <div className="qp-bank-end" role="status" data-testid="qp-bank-end">
+      <p className="qp-bank-end__title">{BANK_END_TITLE}</p>
+      <p className="qp-bank-end__body">{BANK_END_BODY}</p>
+      <div className="qp-bank-end__actions">
+        {chapterTestHref ? (
+          <Link to={chapterTestHref} className="qp-bank-end__btn qp-bank-end__btn--primary" data-testid="qp-bank-end-chapter-test">
+            Take the Chapter Test
+          </Link>
+        ) : null}
+        <Link to={practiceHubHref} className="qp-bank-end__btn" data-testid="qp-bank-end-practice-hub">
+          Practise another chapter
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 export function PracticeQuestionList(props: PracticeQuestionListProps) {
@@ -61,7 +97,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying,
+    onRetry, retrying, bankEnd,
   } = props;
 
   return (
@@ -190,6 +226,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               defaultAnswerMode={defaultAnswerMode}
             />
           ))}
+          {bankEnd && !isLoading && !error ? <BankEndNote {...bankEnd} /> : null}
         </div>
       )}
     </section>
