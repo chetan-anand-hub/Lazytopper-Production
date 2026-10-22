@@ -25,6 +25,7 @@ import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentRe
 import { useFirstGradedFeedback } from "../feedback/useFirstGradedFeedback";
 import { ZiggyFirstResult } from "../guide/lazyGuide";
 import type {
+  ScorecardAllPending,
   ScorecardVariant,
   ScorecardScore,
   ScorecardFourType,
@@ -70,6 +71,11 @@ interface ResultsScorecardProps {
    *  re-open, never inside the tutor overlay): may ask "Was this useful?" once ever.
    *  Absent on every other caller, so their scorecards are unchanged. */
   askFirstFeedback?: boolean;
+  /** MOMENTS-1 M6 — optional host content INSIDE the all-pending block (above its message), given
+   *  that message. Check & Improve passes Byte & Ziggy's "couldn't read" moment (guide arm only; it
+   *  renders nothing otherwise, or with the mascots hidden). Absent on every other caller, so their
+   *  scorecards are unchanged. Display only: no score, mark or action is touched. */
+  allPendingSlot?: (allPending: ScorecardAllPending) => ReactNode;
 }
 
 /** The score hero + descriptor — marks (worksheet/tests) or attempts (quick practice). */
@@ -573,7 +579,7 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
-export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback }: ResultsScorecardProps) {
+export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot }: ResultsScorecardProps) {
   // FIRST-FEEDBACK-1 — fire-and-forget, after the scorecard is up; renders nothing here.
   useFirstGradedFeedback({
     ask: askFirstFeedback,
@@ -628,6 +634,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
 
           {allPending ? (
             <div className="lt-sc__allpend">
+              {allPendingSlot ? allPendingSlot(allPending) : null}
               <div className="lt-sc__allpend-t">{allPending.title}</div>
               <p className="lt-sc__allpend-d">{allPending.detail}</p>
             </div>

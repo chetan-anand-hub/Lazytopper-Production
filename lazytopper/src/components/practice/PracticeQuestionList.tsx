@@ -3,10 +3,16 @@ import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiClient";
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
 import type { SolutionCheckerSavedWorking } from "../question/SolutionChecker";
+import "./practiceLoadRetry.css";
 
 export interface PracticeQuestionListProps {
   isLoading: boolean;
   error: string | null;
+  /** MOMENTS-1 — the set failed to load: a real "Retry" under the error re-runs the load (every
+   *  student, both arms). Omitted ⇒ no button (today's error line, unchanged). */
+  onRetry?: () => void;
+  /** MOMENTS-1 — a Retry is in flight (the button waits). */
+  retrying?: boolean;
   questions: PracticeQuestion[];
   filteredQuestions: PracticeQuestion[];
   subjectKey: string;
@@ -55,6 +61,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
+    onRetry, retrying,
   } = props;
 
   return (
@@ -86,6 +93,17 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
           {error}
         </p>
       )}
+      {error && onRetry ? (
+        <button
+          type="button"
+          className="qp-load-retry"
+          data-testid="qp-load-retry"
+          disabled={!!retrying}
+          onClick={onRetry}
+        >
+          {retrying ? "Retrying…" : "Retry"}
+        </button>
+      ) : null}
 
       {!isLoading && !error && questions.length === 0 ? (
         <div

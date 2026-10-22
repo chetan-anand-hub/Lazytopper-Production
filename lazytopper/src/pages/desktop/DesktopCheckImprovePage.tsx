@@ -126,6 +126,15 @@ import { clearCiDraft, saveCiDraft, sweepExpiredCiDraftImages, takeCiDraft } fro
 import EmailVerifyReminder from "../../components/auth/EmailVerifyReminder";
 import StartHereCard from "../../components/startHere/StartHereCard";
 import { typeFirstAnswerMode, useZeroGraded } from "../../components/startHere/zeroGraded";
+// MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
+import {
+  GuideMomentSlot,
+  cameFromSharedLink,
+  firstSessionAudience,
+  inGuideArm,
+  isUnreadAllPending,
+  usePublicMomentAudience,
+} from "../../components/guide/moments/moments";
 import {
   FREE_CHECK_COPY,
   FREE_CHECK_SIGNIN_PATH,
@@ -1149,6 +1158,9 @@ const DesktopCheckImprovePageInner: React.FC<{
   // grade call's own transport. Null before a grade starts and after a reset / failure.
   const [gradeStage, setGradeStage] = useState<GradingStage | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // MOMENTS-1 M8 — the failure on screen is a dropped connection (GradingNetworkError: the
+  // transport's own "connection dropped / timed out" after its retries). Display only.
+  const [connectionDropped, setConnectionDropped] = useState(false);
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
   const [resultCtx, setResultCtx] = useState<GradedContext | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -1426,6 +1438,27 @@ const DesktopCheckImprovePageInner: React.FC<{
   // student's own (uid-scoped, local-first then cloud via `loadCiRecords`); an unreadable one, or
   // a signed-out / overlay visit, leaves the plain page, silently.
   const ciLocation = useLocation();
+
+  // MOMENTS-1 — who sees Byte & Ziggy here (components/guide/moments). DISPLAY ONLY: nothing below
+  // reads or changes a grade, a mark, a prompt or a mistake type, on either grading path.
+  //   M4 / M5 (first session): a signed-in GUIDE-arm student with ZERO graded results on the
+  //     SERVER's answer (`ciMomentGraded` below); never in the tutor overlay.
+  //   M6 / M8 (problems): any signed-in GUIDE-arm student, every time.
+  //   M9 (signed out): the free check opened from a shared link, public guide arm (device arm).
+  const ciMomentUid = !freeCheck && user?.uid && !user.isLocalSession ? user.uid : null;
+  // A result shown on this mount ends the first session here too (the zero-graded read is per mount).
+  const [ciShownResultHere, setCiShownResultHere] = useState(false);
+  useEffect(() => {
+    if (status === "ready") setCiShownResultHere(true);
+  }, [status]);
+  // MOMENTS-1 (owner ruling, 22 Oct) — the SERVER's zero-graded answer, never the account-age guess
+  // the answer box falls back to: a failed read stays "loading" → no moment. Guide arm only (it joins
+  // the Start-here card's read; the control arm reads nothing new).
+  const ciMomentGraded = useZeroGraded(!overlay && inGuideArm(ciMomentUid) ? ciMomentUid : null, { serverOnly: true });
+  const ciFirstMoments = !overlay && !ciShownResultHere && firstSessionAudience(ciMomentUid, ciMomentGraded);
+  const ciProblemMoments = inGuideArm(ciMomentUid);
+  const ciSharedVisit = useMemo(() => cameFromSharedLink(ciLocation.search), [ciLocation.search]);
+  const ciSharedMoment = usePublicMomentAudience(isFreeMode && !overlay && ciSharedVisit, true);
   const ciReviewCode = overlay ? null : new URLSearchParams(ciLocation.search).get(SCORECARD_REVIEW_PARAM);
   const ciReviewConsumedRef = useRef<string | null>(null);
   useEffect(() => {
@@ -1990,6 +2023,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (!confirmed || !detectedQuestions || (!imageBase64 && !mode.resume)) return;
     setErrorMessage(null);
     fairUse.clearLimit();
+    setConnectionDropped(false);
     setStatus("loading");
     setGradeStage(null);
     setSaveStatus("idle");
@@ -2237,6 +2271,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       // LOW-END-1 R2: a dropped connection / timeout (after the transport's retries) says
       // so in a plain sentence; everything else keeps today's copy.
       setGradeStage(null);
+      setConnectionDropped(e instanceof Error && e.name === "GradingNetworkError");
       // J2b (verifier N2): a background grade that is gone (404 / past 24 h after a reload) says
       // so in its own honest sentence (isGradingJobGone), as Worksheets does.
       setErrorMessage(
@@ -2294,6 +2329,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     }
     setErrorMessage(null);
     fairUse.clearLimit();
+    setConnectionDropped(false);
     setStatus("loading");
     setGradeStage(null);
     setSaveStatus("idle");
@@ -2463,6 +2499,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       // LOW-END-1 R2: a dropped connection / timeout (after the transport's retries) says
       // so in a plain sentence; everything else keeps today's copy.
       setGradeStage(null);
+      setConnectionDropped(e instanceof Error && e.name === "GradingNetworkError");
       setErrorMessage(
         e instanceof Error && (e.name === "GradingNetworkError" || e.name === "UploadTooLargeError")
           ? e.message
@@ -2661,6 +2698,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             </button>
           }
         />
+        {/* MOMENTS-1 M9 — the signed-out free check (no sign-up by construction: free mode
+            renders only for a signed-out visitor) opened from a shared link. */}
+        <GuideMomentSlot show={ciSharedMoment} moment="m9" step="shared" />
 
         {/* C&I PR-1 — "Your checked papers": the overlay history panel (spec §6
             volume rule) + the read-only stored-scorecard reopen. Fixed-inset
@@ -3189,6 +3229,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                 })}
               </div>
 
+              {/* MOMENTS-1 M4 — first session: Byte's one line for the selected answer tab. */}
+              <GuideMomentSlot show={ciFirstMoments} moment="m4" step={tab === "upload" ? "upload" : "type"} />
+
               {tab === "upload" ? (
                 <div>
                   <input
@@ -3497,6 +3540,13 @@ const DesktopCheckImprovePageInner: React.FC<{
           </button>
         </div>
 
+        {/* MOMENTS-1 M5 — first session, while the grader works: Ziggy, then Byte in his place. */}
+        <GuideMomentSlot
+          show={ciFirstMoments && status === "loading"}
+          moment="m5"
+          step={detectedQuestions && detectedQuestions.length > 0 && detectedQuestions.every((q) => q.objective === true) ? "mcq" : "written"}
+        />
+
         {/* The grade-failure box — beside the action that failed, and unchanged:
             no score was invented, and Retry calls the grader again. */}
         {errorMessage && (
@@ -3523,6 +3573,10 @@ const DesktopCheckImprovePageInner: React.FC<{
             </div>
           </div>
         )}
+        {/* MOMENTS-1 M8 — a dropped connection (guide arm, every time). "Your answer is safe" is
+            TRUE here: no failure path clears the typed answer or the uploaded image, and Retry
+            grading re-sends exactly what is on screen (pinned by the MOMENTS-1 page test). */}
+        <GuideMomentSlot show={ciProblemMoments && status === "error" && !!errorMessage && connectionDropped} moment="m8" step="safe" />
         <GradingJobRows
           progress={ciJob.progress}
           interrupted={ciJob.interrupted}
@@ -3600,6 +3654,8 @@ const DesktopCheckImprovePageInner: React.FC<{
         {scorecardOpen && confirmed && ciCode && (
           <ResultsScorecard
             askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+            // MOMENTS-1 M6 — "We couldn't read any answers": Ziggy, then Byte (guide arm, every time).
+            allPendingSlot={(ap) => <GuideMomentSlot show={ciProblemMoments && isUnreadAllPending(ap)} moment="m6" step="unread" />}
             variant={checkImproveScorecardVariant({
               returnTicket: overlay
                 ? { label: "Back to your tutor", onReturn: overlayReturn }
@@ -3960,6 +4016,8 @@ const DesktopCheckImprovePageInner: React.FC<{
       {scorecardOpen && ciCode && (
         <ResultsScorecard
           askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+          // MOMENTS-1 M6 — "We couldn't read any answers": Ziggy, then Byte (guide arm, every time).
+          allPendingSlot={(ap) => <GuideMomentSlot show={ciProblemMoments && isUnreadAllPending(ap)} moment="m6" step="unread" />}
           variant={checkImproveScorecardVariant({
               returnTicket: overlay
                 ? { label: "Back to your tutor", onReturn: overlayReturn }
