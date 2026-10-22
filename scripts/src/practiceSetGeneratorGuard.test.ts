@@ -414,15 +414,32 @@ describe("unique sets — the pre-build \"N available\" hint must stay seen-set-
       .slice(start, end)
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/\/\/.*$/gm, "");
+    // MLT-MUTE-2 re-point: the memo now delegates to the module-level `preBuildAvailable`, which
+    // counts the chapter's whole served pool (buildChapterServedPool) instead of a 100-capped
+    // engine draw. The seen-set must stay out of BOTH the memo and that helper.
     assert.ok(
-      block.includes("buildPracticeQuestionsFromEngine"),
-      "the hint no longer calls the engine builder — re-point this guard"
+      block.includes("preBuildAvailable("),
+      "the hint no longer calls preBuildAvailable — re-point this guard"
     );
+    const helperStart = src.indexOf("export const preBuildAvailable");
+    assert.ok(helperStart > 0, "preBuildAvailable not found — this guard has gone stale");
+    const helperEnd = src.indexOf("\n};", helperStart);
+    assert.ok(helperEnd > helperStart, "could not bound preBuildAvailable");
+    const helper = src
+      .slice(helperStart, helperEnd)
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/.*$/gm, "");
     assert.ok(
-      !block.includes("seenQuestionIds"),
-      "the pre-build \"N available\" hint is passing seenQuestionIds — the number would " +
-        "FALL as the student practises. The hint counts the POOL, not the unseen remainder."
+      helper.includes("buildChapterServedPool"),
+      "the hint no longer counts the served pool — re-point this guard"
     );
+    for (const [name, text] of [["the memo", block], ["preBuildAvailable", helper]] as const) {
+      assert.ok(
+        !text.includes("seenQuestionIds"),
+        `the pre-build "N available" hint (${name}) is passing seenQuestionIds — the number would ` +
+          "FALL as the student practises. The hint counts the POOL, not the unseen remainder."
+      );
+    }
   });
 
   test("the two SET-BUILDING fetches DO pass seenQuestionIds (the guard above is not vacuous)", () => {
