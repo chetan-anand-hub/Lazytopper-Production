@@ -573,3 +573,53 @@
   font-size: 0.85rem;
   color: var(--sa-white-2);
 }
+
+/* ── COST-1: AI cost summary card + per-student cost table ─────────────── */
+.ac-card .sa-cards {
+  margin-top: 12px;
+}
+.ac-card .sa-card {
+  border-color: var(--sa-line);
+}
+.ac-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+.ac-subtitle {
+  margin: 12px 0 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.ac-table {
+  width: 100%;
+}
+.ac-small {
+  margin: 6px 0;
+  font-size: 0.75rem;
+}
+.ac-top {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.8rem;
+}
+.ac-top li {
+  margin: 2px 0;
+}
+.ac-top-btn {
+  text-align: left;
+  padding: 2px 4px;
+}
+.ac-top-cost {
+  font-weight: 700;
+  color: var(--sa-green);
+  font-variant-numeric: tabular-nums;
+}
+.ac-detail {
+  margin: 12px 0;
+}
+.ac-detail-total {
+  color: var(--sa-green);
+  font-variant-numeric: tabular-nums;
+}

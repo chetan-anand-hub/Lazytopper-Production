@@ -87,7 +87,9 @@ const {
   TRIAL_COUNTER_FIELDS,
   USAGE_LEDGER_COLLECTION,
   trackWrite,
+  markCreditMode,
 } = require('./usageLedger.cjs');
+const { creditEstimateMicroInr } = require('./passPricing.cjs');
 // GRADER-CORE-1 PR-3 (C9): the grading handler records how many questions it actually GRADED
 // (a non-enumerable count on `res`, set before it sends). Absent → the requested count, as before.
 const { chargeableCountOf } = require('../grading/charge.cjs');
@@ -969,6 +971,41 @@ function createFairUse(deps = {}) {
     }
   }
 
+  /**
+   * TOPUP-1 - the ONE place credit is spent. A PREMIUM request that the plan's window would refuse
+   * (usage_limit) is served from extra-usage credit instead, when BOTH dark switches are on and the live
+   * (unexpired) balance covers the request's estimate. It never runs while the window still has allowance
+   * (the caller reaches it only on a refusal), never for trial / free, and fails closed to the normal
+   * refusal on any read problem. The request is then marked credit-mode: its ACTUAL metered cost is charged
+   * to credit by the ledger, and the window bars are left as they are.
+   *
+   * ★★ FU-TOPUP-RACE. Admission is `reserveCredit` - a Firestore TRANSACTION that re-reads the balance, refuses
+   * when the available credit (balance less the holds of requests already admitted) does not cover this
+   * request's estimate (at the model price in force NOW), and otherwise holds the estimate. A plain read
+   * followed by a decision (the PR #1086 shape) let two parallel requests both be served on the same credit.
+   */
+  async function creditServes(uid, tier, decision, activity, questionCount, nowMs) {
+    try {
+      if (tier !== 'premium' || !decision || decision.allowed) return false;
+      if (!decision.body || decision.body.error !== 'usage_limit') return false;
+      const credit = require('./usageCredit.cjs');
+      if (!credit.isTopupLive(env)) return false;
+      const db = ledgerDb();
+      if (!db) return false;
+      const amountMicroInr = creditEstimateMicroInr(activity, questionCount, nowMs);
+      const held = await credit.reserveCredit({ uid, amountMicroInr, nowMs }, { firestore: db });
+      if (!held || !held.reserved) {
+        emit('fair_use.credit_short');
+        return false;
+      }
+      if (!markCreditMode(held.holdId)) return false;
+      emit('fair_use.credit_served');
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   let tierOf = deps.tierOf;
   // ALL-AI-METERING-1: the whole decision (tier + derived trial end, for the free 402's
   // `trialEndedAt`); null when the tier is injected (tests), which then gives the tier only.
@@ -1132,6 +1169,8 @@ function createFairUse(deps = {}) {
 
     if (!decision.allowed) {
       if (isEnforced(env)) {
+        // TOPUP-1: a Premium request at cap is served from credit when it covers the call.
+        if (await creditServes(uid, tier, decision, PER_QUESTION_SURFACES.has(surface) && countQuestions(reqPath, body) <= 1 ? 'answer_check' : 'papers', countQuestions(reqPath, body), nowMs)) return false;
         emit(`fair_use.refused.${decision.rule}`);
         if (typeof sendJson === 'function') sendJson(res, decision.status, decision.body);
         return true;
@@ -1227,7 +1266,10 @@ function createFairUse(deps = {}) {
     if (metered) {
       try {
         // A trial allowance is per IST day: today's document is all it needs.
-        days = await ledger.readDays(uid, tier === 'trial' ? [istDayKey(nowMs)] : windowDayKeys(nowMs));
+        // TOPUP-1 (owner 22 Oct: the 30-day Premium cap covers EVERY AI feature): a premium read spans 30
+        // days when FAIR_USE_PREMIUM_30DAY_INR is set, exactly as the grading path's read does. Before this
+        // the AI routes read 7 days, so their 30-day sum could never reach the cap. Unset -> 7 days, as before.
+        days = await ledger.readDays(uid, tier === 'trial' ? [istDayKey(nowMs)] : windowDayKeysFor(tier, nowMs, resolveLimits(env)));
       } catch {
         emit('fair_use.ledger_unreadable');
         readable = false;
@@ -1241,6 +1283,9 @@ function createFairUse(deps = {}) {
 
     if (!decision.allowed) {
       if (isAiEnforced(env)) {
+        // TOPUP-1: a Premium request at cap is served from credit when it covers the call.
+        const aiActivity = reqPath === '/api/tutor' ? 'tutor_message' : reqPath === '/api/more-like-this' ? 'more_like_this' : 'question_detection';
+        if (await creditServes(uid, tier, decision, aiActivity, 1, nowMs)) return false;
         emit(`fair_use.refused.${decision.rule}`);
         if (typeof sendJson === 'function') sendJson(res, decision.status, decision.body);
         return true;
@@ -1303,13 +1348,27 @@ function createFairUse(deps = {}) {
       emit('fair_use.ledger_unreadable');
       return sendJson(res, 503, { error: 'usage_unavailable' });
     }
-    return sendJson(res, 200, {
+    const body = {
       tier,
       // ALL-AI-METERING-1: + tutor / moreLikeThis / detect counts, resets and limits (additive).
       trial: tier === 'trial' ? withAiTrialState(trialState(days, nowMs, limits), days, nowMs, env) : null,
       premium: tier === 'premium' ? premiumState(days, nowMs, limits).view : null,
       enforced,
-    });
+    };
+    // TOPUP-1 (DARK): an additive `credit` view for Premium, present ONLY when payments AND top-ups are on
+    // and something was bought. With either switch unset the body is byte-identical to before.
+    if (tier === 'premium') {
+      try {
+        const credit = require('./usageCredit.cjs');
+        const db = credit.isTopupLive(env) ? ledgerDb() : null;
+        // The "about N" counts are priced at THIS instant (the model price in force when the student looks).
+        const view = db ? credit.creditView(await credit.readCredit(db, uid, nowMs), nowMs) : null;
+        if (view) body.credit = view;
+      } catch {
+        /* a credit read must never fail the usage view */
+      }
+    }
+    return sendJson(res, 200, body);
   }
 
   async function verifiedUidOf(req) {

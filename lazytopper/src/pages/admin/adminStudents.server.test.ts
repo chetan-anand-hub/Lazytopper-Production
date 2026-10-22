@@ -71,7 +71,7 @@ function getPath(obj: Data, field: string): unknown {
 /** TUTOR-FIX-2 T8: optional failure injection. `rejectQueryUnder` makes a collection QUERY's get()
  *  reject under that path prefix (the production symptom of the usageLedger days query);
  *  `rejectDocGetUnder` makes single-document get() reject there (a real read failure). */
-type FsOpts = { rejectQueryUnder?: string; rejectDocGetUnder?: string };
+type FsOpts = { rejectQueryUnder?: string; rejectDocGetUnder?: string; rejectDocGetCode?: number };
 
 function makeFirestore(store: Record<string, Data>, fsOpts: FsOpts = {}) {
   const calls: string[] = [];
@@ -170,7 +170,10 @@ function makeFirestore(store: Record<string, Data>, fsOpts: FsOpts = {}) {
       get: async () => {
         calls.push("get");
         if (fsOpts.rejectDocGetUnder && p.startsWith(fsOpts.rejectDocGetUnder)) {
-          throw new Error("14 UNAVAILABLE: simulated read failure");
+          // COST-1: optionally carry a gRPC code, as the real Firestore error does.
+          const err = new Error(`14 UNAVAILABLE: simulated read failure at ${p}`) as Error & { code?: number };
+          if (typeof fsOpts.rejectDocGetCode === "number") err.code = fsOpts.rejectDocGetCode;
+          throw err;
         }
         const exists = Object.prototype.hasOwnProperty.call(store, p);
         return { id, exists, data: () => (exists ? JSON.parse(JSON.stringify(store[p])) : undefined) };
@@ -316,7 +319,12 @@ afterEach(() => {
   else process.env.ADMIN_FIREBASE_UIDS = savedEnv;
 });
 
-const ENDPOINTS = ["/api/admin/students", "/api/admin/students/summary", `/api/admin/students/${STUDENT_TOKEN_UID}`];
+const ENDPOINTS = [
+  "/api/admin/students",
+  "/api/admin/students/summary",
+  "/api/admin/students/ai-cost", // COST-1
+  `/api/admin/students/${STUDENT_TOKEN_UID}`,
+];
 
 /** Two pinned instants: an IST afternoon, and one minute before IST midnight. */
 const INSTANTS = [Date.parse("2026-11-20T09:30:00.000Z"), Date.parse("2026-12-14T18:29:00.000Z")];
@@ -1077,5 +1085,252 @@ describe("TUTOR-FIX-2 T8 · usage ledger on the student detail", () => {
     expect([...new Set(w.fs.calls)].filter((m) => !FS_READ_METHODS.has(m))).toEqual([]);
     // sign-up 3 days ago -> 4 IST day documents (sign-up day .. today), one getAll.
     expect(w.fs.calls.filter((c) => c === "getAll").length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COST-1 — AI cost per student and in total, from usageLedger/{uid}/days/{dayKey}
+   costMicroInr, read by DAY KEY (getAll), never a days query. Not recorded is "—"
+   (null), never 0; a failed read is unknown (null) and names its Firestore code.
+   Run at both pinned instants (an IST afternoon and one minute before IST midnight).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const costMod = mod as unknown as {
+  costKeysFor: (today: string, first: string, createdMs: number | null) => { keys: string[]; coverage: string };
+  medianOf: (v: number[]) => number | null;
+  readErrorCode: (e: unknown) => string;
+  ROW_COST_DAYS: number;
+  MAX_COST_DAYS: number;
+};
+
+describe.each(INSTANTS)("COST-1 · AI cost @ now=%s", (C_NOW) => {
+  const today = istDayKey(C_NOW);
+  const dayAgo = (n: number) => mod.addIstDays(today, -n);
+  const ledger = (uid: string, key: string, data: Data) => ({ [`usageLedger/${uid}/days/${key}`]: data });
+
+  /** A = trial, ₹3.00 over 2 days (+ one day 40 days ago, outside every window);
+   *  B = premium ₹1.00 today; C = basic, a ledger day with ₹0 (recorded zero);
+   *  D = no ledger at all (not recorded). All signed up 60 days ago. */
+  function costWorld(fsOpts?: FsOpts): World {
+    const created = C_NOW - 60 * DAY;
+    return {
+      now: C_NOW,
+      fsOpts,
+      users: [user("costA00001", created), user("costB00001", created + 1000), user("costC00001", created + 2000), user("costD00001", created + 3000)],
+      store: {
+        "subscriptions/costA00001": { tier: "trial", plan: "trial_7day", trialStartDate: ts(C_NOW - 2 * DAY) },
+        "subscriptions/costB00001": { tier: "premium", plan: "pass_month", passEnd: ts(C_NOW + 20 * DAY) },
+        ...ledger("costA00001", today, { calls: 3, costMicroInr: 1_000_000, providerSpendMicroInr: 1_500_000 }),
+        ...ledger("costA00001", dayAgo(5), { calls: 2, costMicroInr: 2_000_000 }),
+        ...ledger("costA00001", dayAgo(40), { calls: 9, costMicroInr: 9_000_000 }),
+        ...ledger("costB00001", today, { calls: 1, costMicroInr: 1_000_000 }),
+        ...ledger("costC00001", dayAgo(2), { calls: 1, costMicroInr: 0, trialChecks: 1 }),
+      },
+    };
+  }
+
+  describe("list column — AI cost (30 days)", () => {
+    it("★ sums the last 30 IST days per row; a missing ledger is null ('—'), a recorded zero is 0", async () => {
+      const w = buildRoutes(costWorld());
+      const r = await w.get("/api/admin/students", "admin-token");
+      expect(r.status).toBe(200);
+      const by = Object.fromEntries((r.body.rows as Array<{ uid: string; aiCost: Data }>).map((x) => [x.uid, x.aiCost]));
+      expect(by.costA00001).toEqual({ source: "usageLedger", days: 30, coverage: "full", costInr: 3, readFailed: false }); // the 40-day-old ₹9 is outside
+      expect(by.costB00001.costInr).toBe(1);
+      expect(by.costC00001.costInr).toBe(0);
+      expect(by.costD00001).toMatchObject({ costInr: null, readFailed: false });
+      // 4 rows x 30 day keys, by key — and the response says so.
+      expect(r.body.limits.ledgerDayReads).toBe(4 * costMod.ROW_COST_DAYS);
+      expect(w.fs.writes).toEqual([]);
+      expect([...new Set(w.fs.calls)].filter((m) => !FS_READ_METHODS.has(m))).toEqual([]);
+    });
+
+    it("★ a days QUERY that would reject is never used (keyed reads only)", async () => {
+      const w = buildRoutes(costWorld({ rejectQueryUnder: "usageLedger/" }));
+      const r = await w.get("/api/admin/students", "admin-token");
+      const a = (r.body.rows as Array<{ uid: string; aiCost: Data }>).find((x) => x.uid === "costA00001")!;
+      expect(a.aiCost.costInr).toBe(3);
+    });
+
+    it("a failed ledger read is unknown (null + readFailed), never ₹0", async () => {
+      const w = buildRoutes(costWorld({ rejectDocGetUnder: "usageLedger/", rejectDocGetCode: 7 }));
+      const r = await w.get("/api/admin/students", "admin-token");
+      expect(r.status).toBe(200);
+      for (const row of r.body.rows as Array<{ aiCost: Data }>) expect(row.aiCost).toMatchObject({ costInr: null, readFailed: true });
+      expect(r.raw).not.toContain("simulated");
+    });
+
+    it("a new account reads only its own days (sign-up day .. today)", async () => {
+      const w = buildRoutes({ now: C_NOW, users: [user("costNew0001", C_NOW - 2 * DAY)], store: {} });
+      const r = await w.get("/api/admin/students", "admin-token");
+      const expected = costMod.costKeysFor(today, dayAgo(29), C_NOW - 2 * DAY).keys.length;
+      expect(expected).toBeLessThanOrEqual(3);
+      expect(r.body.limits.ledgerDayReads).toBe(expected);
+      expect(r.body.rows[0].aiCost.costInr).toBeNull();
+    });
+  });
+
+  describe("GET /api/admin/students/ai-cost — the summary", () => {
+    it("★ total, students with cost, average, median, top 10, plan split, reads", async () => {
+      const w = buildRoutes(costWorld());
+      const r = await w.get("/api/admin/students/ai-cost?period=30", "admin-token");
+      expect(r.status).toBe(200);
+      expect(r.body.totalInr).toBe(4);
+      expect(r.body.studentsWithCost).toBe(2);
+      expect(r.body.averageInr).toBe(2);
+      expect(r.body.medianInr).toBe(2);
+      expect(r.body.top.map((t: { uid: string }) => t.uid)).toEqual(["costA00001", "costB00001"]);
+      expect(r.body.top[0]).toMatchObject({ costInr: 3, plan: { kind: "trial" }, email: "costa00001@example.com" });
+      expect(r.body.byPlan).toEqual({
+        trial: { costInr: 3, studentsWithCost: 1 },
+        premium: { costInr: 1, studentsWithCost: 1 },
+        basic: { costInr: 0, studentsWithCost: 0 },
+        unknown: { costInr: 0, studentsWithCost: 0 },
+      });
+      expect(r.body.signedOut).toEqual({ ledgered: false });
+      expect(r.body.studentsScanned).toBe(4);
+      expect(r.body.studentsUnknown).toBe(0);
+      expect(r.body.reads).toEqual({ subscriptions: 4, ledgerDays: 4 * 30, total: 4 + 4 * 30 });
+      expect(r.body.window).toMatchObject({ from: dayAgo(29), to: today, capped: false });
+      expect(w.fs.writes).toEqual([]);
+      expect(w.fa.calls).not.toContain("getUser"); // "ai-cost" is never read as a uid
+    });
+
+    it("period=1 is today (IST) only; period=7 the last 7 IST days", async () => {
+      const w = buildRoutes(costWorld());
+      const one = await w.get("/api/admin/students/ai-cost?period=1", "admin-token");
+      expect(one.body.totalInr).toBe(2); // A ₹1 + B ₹1 today
+      expect(one.body.reads.ledgerDays).toBe(4);
+      const seven = await w.get("/api/admin/students/ai-cost?period=7", "admin-token");
+      expect(seven.body.totalInr).toBe(4);
+      expect(seven.body.window.from).toBe(dayAgo(6));
+    });
+
+    it("period=all starts at the ledger's first day, capped at MAX_COST_DAYS (flagged)", async () => {
+      const w = buildRoutes(costWorld());
+      const r = await w.get("/api/admin/students/ai-cost?period=all", "admin-token");
+      const capFirst = dayAgo(costMod.MAX_COST_DAYS - 1);
+      const since = mod.DATA_SOURCES.usageLedger.since;
+      expect(r.body.window.capped).toBe(since < capFirst);
+      expect(r.body.window.from).toBe(since < capFirst ? capFirst : since);
+      expect(r.body.reads.ledgerDays).toBeLessThanOrEqual(4 * costMod.MAX_COST_DAYS);
+    });
+
+    it("★ no student has any ledger day in the window -> total and plan costs are null (not recorded), never ₹0", async () => {
+      const created = C_NOW - 60 * DAY;
+      const w = buildRoutes({ now: C_NOW, users: [user("emptyA0001", created), user("emptyB0001", created)], store: {} });
+      const r = await w.get("/api/admin/students/ai-cost?period=30", "admin-token");
+      expect(r.status).toBe(200);
+      expect(r.body.studentsUnknown).toBe(0);
+      expect(r.body.studentsWithCost).toBe(0);
+      expect(r.body.totalInr).toBeNull();
+      for (const p of ["trial", "premium", "basic", "unknown"]) {
+        expect(r.body.byPlan[p]).toEqual({ costInr: null, studentsWithCost: 0 });
+      }
+      expect(r.body.averageInr).toBeNull();
+      expect(r.body.medianInr).toBeNull();
+    });
+
+    it("CONTROL: a ledger day recorded with ₹0 cost IS a recorded zero (total 0, not null)", async () => {
+      const created = C_NOW - 60 * DAY;
+      const w = buildRoutes({
+        now: C_NOW,
+        users: [user("zeroA00001", created)],
+        store: { ...ledger("zeroA00001", today, { calls: 1, costMicroInr: 0 }) },
+      });
+      const r = await w.get("/api/admin/students/ai-cost?period=30", "admin-token");
+      expect(r.body.totalInr).toBe(0);
+      expect(r.body.byPlan.basic).toEqual({ costInr: 0, studentsWithCost: 0 });
+      expect(r.body.studentsWithCost).toBe(0);
+    });
+
+    it("rejects an unknown period with 400 and reads nothing from Firestore", async () => {
+      const w = buildRoutes(costWorld());
+      const r = await w.get("/api/admin/students/ai-cost?period=365", "admin-token");
+      expect(r.status).toBe(400);
+      expect(w.fs.calls).toEqual([]);
+    });
+
+    it("★ a failed ledger read is counted as unknown (with its Firestore code), never as ₹0", async () => {
+      const w = buildRoutes(costWorld({ rejectDocGetUnder: "usageLedger/", rejectDocGetCode: 7 }));
+      const r = await w.get("/api/admin/students/ai-cost?period=30", "admin-token");
+      expect(r.status).toBe(200);
+      expect(r.body.studentsUnknown).toBe(4);
+      expect(r.body.studentsWithCost).toBe(0);
+      expect(r.body.averageInr).toBeNull();
+      expect(r.body.medianInr).toBeNull();
+      // Review MUST-FIX 2: every read failed -> the total and every plan cost are UNKNOWN, never ₹0.
+      expect(r.body.totalInr).toBeNull();
+      for (const p of ["trial", "premium", "basic", "unknown"]) {
+        expect(r.body.byPlan[p]).toEqual({ costInr: null, studentsWithCost: 0 });
+      }
+      expect(r.body.readErrors).toEqual({ usageLedger: "permission-denied" });
+      expect(r.raw).not.toContain("simulated");
+    });
+  });
+
+  describe("student detail — 30-day AI cost + the read error's code", () => {
+    it("★ aiCost30d sums the ledger days already read; breakdown is 'not-recorded'", async () => {
+      const w = buildRoutes(costWorld());
+      const r = await w.get("/api/admin/students/costA00001", "admin-token");
+      expect(r.status).toBe(200);
+      expect(r.body.aiCost30d).toMatchObject({
+        source: "usageLedger",
+        days: 30,
+        from: dayAgo(29),
+        to: today,
+        costInr: 3,
+        gradingFullCostInr: 1.5,
+        calls: 5,
+        readFailed: false,
+        breakdown: "not-recorded",
+      });
+      expect(r.body.readErrors).toEqual({});
+    });
+
+    it("no ledger -> costInr null (not recorded), never 0", async () => {
+      const r = await buildRoutes(costWorld()).get("/api/admin/students/costD00001", "admin-token");
+      expect(r.body.aiCost30d).toMatchObject({ costInr: null, gradingFullCostInr: null, readFailed: false });
+    });
+
+    it("★ 'usageLedger: could not be read' now carries the Firestore code (never the message)", async () => {
+      const r = await buildRoutes(costWorld({ rejectDocGetUnder: "usageLedger/", rejectDocGetCode: 9 })).get(
+        "/api/admin/students/costA00001",
+        "admin-token",
+      );
+      expect(r.body.reads.usageLedger).toBe("unavailable");
+      expect(r.body.readErrors).toEqual({ usageLedger: "failed-precondition" });
+      expect(r.body.aiCost30d).toMatchObject({ costInr: null, readFailed: true });
+      expect(r.raw).not.toContain("simulated");
+    });
+  });
+});
+
+describe("COST-1 · pure helpers", () => {
+  it("costKeysFor: window floors at the ledger start and the sign-up day; partial only when the window predates the ledger for an older account", () => {
+    const since = mod.DATA_SOURCES.usageLedger.since; // 2026-09-27
+    const today = mod.addIstDays(since, 10);
+    const first = mod.addIstDays(today, -29);
+    const old = costMod.costKeysFor(today, first, Date.parse("2026-09-01T06:00:00Z"));
+    expect(old.keys[0]).toBe(since);
+    expect(old.keys).toHaveLength(11);
+    expect(old.coverage).toBe("partial");
+    const fresh = costMod.costKeysFor(today, first, mod.istDayStartMs(mod.addIstDays(since, 8)) + 3600_000);
+    expect(fresh.keys).toEqual([mod.addIstDays(since, 8), mod.addIstDays(since, 9), today]);
+    expect(fresh.coverage).toBe("full");
+  });
+
+  it("medianOf: odd, even, empty", () => {
+    expect(costMod.medianOf([3, 1, 2])).toBe(2);
+    expect(costMod.medianOf([4, 1, 3, 2])).toBe(3); // round((2 + 3) / 2)
+    expect(costMod.medianOf([])).toBeNull();
+  });
+
+  it("readErrorCode: gRPC numbers and names map to a known code; anything else is 'error' (never a message)", () => {
+    expect(costMod.readErrorCode({ code: 7 })).toBe("permission-denied");
+    expect(costMod.readErrorCode({ code: "FAILED_PRECONDITION" })).toBe("failed-precondition");
+    expect(costMod.readErrorCode({ code: "usageLedger/uid123 secret" })).toBe("error");
+    expect(costMod.readErrorCode(new Error("boom at usageLedger/uid"))).toBe("error");
+    expect(costMod.readErrorCode(null)).toBe("error");
   });
 });

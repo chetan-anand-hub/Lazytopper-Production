@@ -414,6 +414,7 @@
     "src/pages/Welcome.evidenceBase.test.tsx",
     "src/pages/Welcome.freeCheckCta.test.tsx",
     "src/pages/Welcome.legalFooter.test.tsx",
+    "src/pages/admin/AiCost.test.tsx",
     "src/pages/admin/ExtendPremiumControl.test.tsx",
     "src/pages/admin/StudentDetailPanel.activity.test.tsx",
     "src/pages/admin/StudentDetailPanel.tutorUse.test.tsx",
