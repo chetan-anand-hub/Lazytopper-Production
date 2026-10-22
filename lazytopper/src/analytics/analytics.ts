@@ -1051,7 +1051,7 @@ export function guidePreviewOnDevice(): boolean {
     return false;
   }
 }
-export type GuideIntentParam = "cbq" | "chapter" | "papers" | "check_improve" | "default";
+export type GuideIntentParam = "cbq" | "chapter" | "important" | "papers" | "check_improve" | "default";
 export type ZiggyBand = "full" | "half_plus" | "under_half";
 /** MI-VOICE-1 — which Mistake Intel moment the character voiced (components/guide/mi). */
 export type MiVoiceState = "no_data" | "thin" | "untyped" | "careless" | "knowledge" | "technique";
