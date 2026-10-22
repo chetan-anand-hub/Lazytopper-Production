@@ -30,6 +30,13 @@
 .lt-guide__bub { position: relative; align-self: center; min-width: 0; background: #e9f7fd; border: 2px solid #14213d;
   border-radius: 14px 14px 14px 4px; padding: 7px 11px; font-size: 14.5px; line-height: 1.3; font-weight: 700; margin: 0; }
 .lt-guide__bub.is-pop { animation: lt-guide-pop .35s cubic-bezier(.3, 1.6, .5, 1); }
+/* MOMENTS-1 — a moment's bubble (M2) with its "Hide mascots" button under it. */
+.lt-guide__bubwrap { align-self: center; min-width: 0; display: grid; justify-items: start; }
+.lt-guide__bubwrap .lt-guide__bub { align-self: auto; }
+.lt-guide__hide { margin: 2px 0 0; padding: 4px 2px; min-height: 32px; border: 0; background: none; color: #56627e;
+  font: inherit; font-size: 12.5px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.lt-guide__hide:hover { color: #14213d; }
+.lt-guide__hide:focus-visible { outline: 3px solid hsl(152, 55%, 38%); outline-offset: 2px; }
 @keyframes lt-guide-pop { 0% { transform: scale(.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .lt-guide__x { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 999px; border: 0;
   background: #eef1f7; color: #14213d; font-size: 16px; font-weight: 700; cursor: pointer; z-index: 1; }

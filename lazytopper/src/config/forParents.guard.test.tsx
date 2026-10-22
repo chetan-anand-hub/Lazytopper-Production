@@ -227,7 +227,8 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
       expect(mediaProblems(pre), rel).toEqual([]);
       expect(copyProblems(pre), rel).toEqual([]);
       // PARENTS-CTA-1 — the free-check links and the pricing link are in the frozen HTML too.
-      expect(freeCheckHrefs(pre), rel).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF]);
+      // MOMENTS-1 M11b — a fourth, beside Mummy's "one written answer" line (the same URL).
+      expect(freeCheckHrefs(pre), rel).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF]);
       expect(pricingHrefs(pre), rel).toEqual([PRICING_HREF]);
       // PARENTS-NAV-1 — "See the price" (hero + closing) and every in-app link flagged, frozen too.
       expect(seePriceHrefs(pre), rel).toEqual([PRICING_HREF, PRICING_HREF]);
@@ -243,6 +244,10 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
       expect(pre, rel).toContain('data-testid="fp-share-journey"');
       expect(pre, rel).toContain('data-testid="fp-free-check-journey"');
       expect(pre, rel).toContain('<div class="lt-mj__fig" data-testid="mummy-slot" aria-hidden="true"></div>');
+      // MOMENTS-1 M11b — Mummy's line and its action are in the frozen HTML (crawlers read it).
+      expect(pre, rel).toContain('data-testid="mummy-check-nudge"');
+      expect(pre, rel).toContain("Have your child write one answer on paper. One photo");
+      expect(pre, rel).toContain('data-testid="fp-free-check-mummy_check"');
     }
   });
 
@@ -291,9 +296,9 @@ describe("PARENTS-1 (c) — the forbidden copy, ref=parent, a price and a sign-u
 describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /pricing link", () => {
   const html = renderedPage();
 
-  it("EXACTLY three 'Check one answer free' links (hero, Mummy's journey, footer), all to the tagged free-check URL (entity-encoded &amp; in HTML)", () => {
+  it("EXACTLY four 'Check one answer free' links (hero, Mummy's journey, Mummy's written-answer line, footer), all to the tagged free-check URL (entity-encoded &amp; in HTML)", () => {
     expect(FREE_CHECK_TO).toBe(FREE_CHECK_HREF);
-    expect(freeCheckHrefs(html)).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF]);
+    expect(freeCheckHrefs(html)).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF]);
     expect(html).toContain('href="/check-improve?from=for_parents&amp;utm_source=for_parents"');
     expect(html).toContain('data-testid="fp-free-check-hero"');
     expect(html).toContain('data-testid="fp-free-check-footer"');
@@ -301,11 +306,12 @@ describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /p
     expect(html.indexOf('data-testid="fp-share-hero"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-hero"'));
     expect(html.indexOf('data-testid="fp-free-check-hero"')).toBeLessThan(html.indexOf('data-testid="fp-share-journey"'));
     expect(html.indexOf('data-testid="fp-share-journey"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-journey"'));
-    expect(html.indexOf('data-testid="fp-free-check-journey"')).toBeLessThan(html.indexOf('data-testid="fp-share-footer"'));
+    expect(html.indexOf('data-testid="fp-free-check-journey"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-mummy_check"'));
+    expect(html.indexOf('data-testid="fp-free-check-mummy_check"')).toBeLessThan(html.indexOf('data-testid="fp-share-footer"'));
     expect(html.indexOf('data-testid="fp-share-footer"')).toBeLessThan(html.indexOf('data-testid="fp-free-check-footer"'));
     // Secondary styling by class, never an inline style object.
     const anchors = html.match(/<a\b[^>]*>\s*Check one answer free\s*<\/a>/g) ?? [];
-    expect(anchors.length).toBe(3);
+    expect(anchors.length).toBe(4);
     for (const anchor of anchors) {
       expect(anchor).toContain('class="lt-fp__cta2"');
       expect(anchor).not.toMatch(/\bstyle=/);
@@ -512,8 +518,9 @@ describe("PARENTS-NAV-1 review — every link on the live page leads back (DOM g
       </MemoryRouter>,
     );
     const { internal, exempt, other } = classify([...container.querySelectorAll("a")]);
-    // Not vacuous: 3 free-check + 3 tiles + 2 "See the price" + 3 FAQ + 7 footer = 18 internal links.
-    expect(internal.length).toBe(18);
+    // Not vacuous: 4 free-check (MOMENTS-1 M11b added Mummy's) + 3 tiles + 2 "See the price" + 3 FAQ
+    // + 7 footer = 19 internal links.
+    expect(internal.length).toBe(19);
     expect(internal.filter((h) => !flagged(h))).toEqual([]);
     expect(exempt).toContain("/for-parents");
     expect(exempt.filter((h) => h === PARENT_SHARE_HREF).length).toBe(3);

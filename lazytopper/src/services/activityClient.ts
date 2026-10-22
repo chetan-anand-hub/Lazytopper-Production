@@ -144,6 +144,10 @@ export const ACTIVITY_EVENTS = [
   "feedback_first_graded_too_hard",
   // GUIDE-1 — which Byte-guide A/B arm the account is in, once per account per device. Additive.
   "guide_variant_assigned",
+  // PAYWALL-PAY-1 — a tap on "Pay", "Share QR code" or "Forward link to parents". Additive.
+  "paywall_action_pay",
+  "paywall_action_qr",
+  "paywall_action_forward",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 
