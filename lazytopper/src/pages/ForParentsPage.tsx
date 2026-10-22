@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import MummyJourney from "../components/guide/mummy/MummyJourney";
+// MOMENTS-1 M11b — Mummy's "one written answer" line, beside the page's own free-check action.
+import MummyCheckNudge from "../components/guide/mummy/MummyCheckNudge";
 import { trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
 import { withParentFlag } from "../lib/parentReturn";
 import "./forParents.css";
@@ -102,7 +104,7 @@ const TILES: readonly Tile[] = [
 ];
 
 /** A plain link (in the prerendered HTML, works with no JavaScript), styled secondary. */
-function FreeCheckLink({ placement }: { placement: ParentSharePlacement }) {
+function FreeCheckLink({ placement }: { placement: ParentSharePlacement | "mummy_check" }) {
   return (
     <Link className="lt-fp__cta2" to={FREE_CHECK_TO} data-testid={`fp-free-check-${placement}`}>
       {FREE_CHECK_LABEL}
@@ -156,6 +158,7 @@ export default function ForParentsPage() {
 
       <div className="lt-fp__w lt-fp__body">
         <MummyJourney actions={<><ShareButton placement="journey" /><FreeCheckLink placement="journey" /></>} />
+        <MummyCheckNudge action={<FreeCheckLink placement="mummy_check" />} />
         <section aria-labelledby="fp-video">
           <TestimonialVideo
             headingId="fp-video"

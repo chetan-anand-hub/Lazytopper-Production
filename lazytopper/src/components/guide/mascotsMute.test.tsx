@@ -166,5 +166,6 @@ describe("PART 0 · the device key is registered", () => {
     expect(local.holds).toContain("`lazytopper.mascotsHidden`");
     expect(local.holds).toMatch(/never premium or trial state/);
     expect(MASCOTS_HIDDEN_KEY).toBe("lazytopper.mascotsHidden");
+    expect(local.holds).toContain("`lazytopper.m11Shown.<tag>`");
   });
 });

@@ -1161,15 +1161,17 @@ export interface OnboardingEventParams {
  * activityClient list and the server allowlist are untouched). Suppressed under the admin preview
  * (guideVariant.trackGuideEvent).
  *
- *   guide_moment_shown { moment }  — a moment was shown (m2…m10; guide arm only)
+ *   guide_moment_shown { moment }  — a moment was shown (m2…m11; guide arm only)
+ *   guide_moment_click { moment }  — a moment's own button was tapped (M11 "Check a written answer")
  *   mascots_hidden     {}          — "Hide mascots" tapped on this device
  *   mascots_shown      {}          — Undo, or the setting turned them back on
  * ------------------------------------------------------------------------- */
 
-export type GuideMomentId = "m2" | "m3" | "m4" | "m5" | "m6" | "m8" | "m9" | "m10";
+export type GuideMomentId = "m2" | "m3" | "m4" | "m5" | "m6" | "m8" | "m9" | "m10" | "m11";
 
 export interface OnboardingEventParams {
   guide_moment_shown: { moment: GuideMomentId };
+  guide_moment_click: { moment: GuideMomentId };
   mascots_hidden: Record<string, never>;
   mascots_shown: Record<string, never>;
 }

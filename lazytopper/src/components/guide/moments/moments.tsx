@@ -24,8 +24,9 @@ import { lazy, Suspense, useEffect, useState, useSyncExternalStore, type Compone
 import { trackGuidePublicArmAssigned, type GuideMomentId, type GuideVariant } from "../../../analytics/analytics";
 import { VISIT_SOURCE_KEY } from "../../../analytics/visitSource";
 import type { ZeroGraded } from "../../startHere/zeroGraded";
-import { guideAbActive, guidePreviewActive, resolveGuideVariant } from "../guideVariant";
-import { useMascotsHidden } from "../mascotsMute";
+import { guideAbActive, guideAccountTag, guidePreviewActive, resolveGuideVariant } from "../guideVariant";
+import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
+import { useWrittenGraded } from "./writtenGraded";
 import { copyArmToIntent, ensurePublicArm, previewArm, previewOn } from "../public/publicPeekModel";
 import type { GuideMomentProps, SolutionsPeekProps } from "./momentsChunk";
 
@@ -78,6 +79,51 @@ export function GuideMomentSlot(props: GuideMomentSlotProps) {
       <LazyGuideMoment {...which} />
     </Suspense>
   );
+}
+
+/* ── M11 — the "first written answer" nudge on an MCQ-only Quick Practice scorecard ──────────── */
+
+/** localStorage `lazytopper.m11Shown.<tag>` = "1" once the nudge showed for this account on this
+ *  device (<tag> = 8-hex hash of the uid, never the uid) — the FIRST MCQ-only result only. */
+export const M11_SHOWN_PREFIX = "lazytopper.m11Shown.";
+const m11ShownThisLoad = new Set<string>();
+
+function claimM11(uid: string): boolean {
+  if (guidePreviewActive()) return true; // PREVIEW-1: every time, no marker read or written
+  const key = M11_SHOWN_PREFIX + guideAccountTag(uid);
+  if (m11ShownThisLoad.has(key)) return false;
+  try {
+    if (window.localStorage.getItem(key) === "1") return false;
+    window.localStorage.setItem(key, "1");
+  } catch {
+    /* blocked storage: this page load only */
+  }
+  m11ShownThisLoad.add(key);
+  return true;
+}
+
+export function __resetM11ForTests(): void {
+  m11ShownThisLoad.clear();
+}
+
+/**
+ * M11 — on the MCQ-only (tap-only) Quick Practice / Start-here scorecard, right after the result:
+ * a signed-in GUIDE-arm student who has answered at least one MCQ, whose account has NEVER had a
+ * written answer graded on the SERVER's answer (./writtenGraded.ts; nothing while it is loading or
+ * if the read fails), once per account per device. Respects "Hide mascots" (no claim while hidden).
+ * The host renders it ONLY on the MCQ-only scorecard — never on a written / Check & Improve result.
+ */
+export function M11Nudge({ uid, mcqAnswered }: { uid: string | null | undefined; mcqAnswered: number }) {
+  const eligible = !!uid && mcqAnswered > 0 && inGuideArm(uid);
+  const written = useWrittenGraded(eligible ? uid : null);
+  const hidden = useMascotsHidden();
+  const [claimed, setClaimed] = useState(false);
+  useEffect(() => {
+    if (!eligible || !uid || written !== "none" || claimed || mascotsHidden()) return;
+    if (claimM11(uid)) setClaimed(true);
+    // claimed once per mount
+  }, [eligible, uid, written, claimed, hidden]);
+  return <GuideMomentSlot show={eligible && written === "none" && claimed} moment="m11" step="nudge" />;
 }
 
 /* ── M6 — "We couldn't read any answers" ──────────────────────────────────────────────────── */

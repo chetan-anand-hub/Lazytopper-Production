@@ -546,7 +546,7 @@ import {
 } from "../components/startHere/startHereModel";
 import { typeFirstAnswerMode, useZeroGraded } from "../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
-import { GuideMomentSlot, firstSessionAudience, inGuideArm } from "../components/guide/moments/moments";
+import { GuideMomentSlot, M11Nudge, firstSessionAudience, inGuideArm } from "../components/guide/moments/moments";
 import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
@@ -4241,6 +4241,9 @@ const packTopicKey = useMemo(() => {
               Not now
             </button>
           </div>
+        ) : !isGuest && !overlay && qpMomentUid ? (
+          // MOMENTS-1 M11 — the MCQ-only (tap-only) scorecard ONLY: never a written / C&I result.
+          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} />
         ) : undefined,
       )}
     />

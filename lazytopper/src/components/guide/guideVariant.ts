@@ -199,6 +199,7 @@ export type GuideEventName = Extract<
   | "ziggy_reaction"
   // MOMENTS-1 — the moments and the "Hide mascots" switch (vendors only, like every guide event).
   | "guide_moment_shown"
+  | "guide_moment_click"
   | "mascots_hidden"
   | "mascots_shown"
 >;

@@ -45,6 +45,8 @@ export const MOMENT_COPY = {
   m9: "Someone sent you this! Check one answer free. No sign-up.",
   m10: "Got it right? See which step loses marks. First check free.",
   m10Cta: "Check my answer",
+  m11: "Nice! Now write one answer in your notebook, snap a photo, and I'll show where marks slip — step by step, the way a CBSE examiner marks it.",
+  m11Cta: "Check a written answer",
   close: "Close Byte",
   adminPreview: "Admin preview",
 } as const;
@@ -82,11 +84,23 @@ export const MOMENT_SCRIPTS = {
   m9: {
     shared: [{ kind: "byte", pose: "hello", line: MOMENT_COPY.m9 }],
   },
+  m11: {
+    nudge: [{ kind: "byte", pose: "cheer", line: MOMENT_COPY.m11 }],
+  },
 } as const satisfies Partial<Record<GuideMomentId, Record<string, readonly Beat[]>>>;
 
 type Scripts = typeof MOMENT_SCRIPTS;
 export type ScriptedMoment = keyof Scripts;
 export type MomentStep<M extends ScriptedMoment> = keyof Scripts[M] & string;
+
+/**
+ * A moment's own button (M11 only). The target is an EXISTING route: Check & Improve, where a
+ * student with a graded record opens on "Upload image" by today's rule (typeFirstAnswerMode). No
+ * deep link prefills a question there today, so none is invented.
+ */
+export const MOMENT_CTA: Partial<Record<GuideMomentId, { label: string; to: string }>> = {
+  m11: { label: MOMENT_COPY.m11Cta, to: "/check-improve" },
+};
 
 /** How long the first beat of a two-beat moment holds before the second replaces it ("about 2 s"). */
 export const BEAT_MS = 2000;
@@ -154,6 +168,16 @@ export function GuideMoment({ moment, step }: GuideMomentProps) {
         <p className="lt-mom__say" aria-live="polite" data-testid="guide-moment-line">
           {beat.line}
         </p>
+        {MOMENT_CTA[moment] ? (
+          <Link
+            to={MOMENT_CTA[moment]!.to}
+            className="lt-mom__cta"
+            data-testid={`guide-moment-${moment}-cta`}
+            onClick={() => trackGuideEvent("guide_moment_click", { moment })}
+          >
+            {MOMENT_CTA[moment]!.label}
+          </Link>
+        ) : null}
         <HideButton />
       </div>
     </div>

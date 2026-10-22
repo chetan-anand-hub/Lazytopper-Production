@@ -164,6 +164,23 @@ describe("MOMENTS-1 · guide_moment_shown", () => {
   });
 });
 
+describe("MOMENTS-1 M11 · the written-answer nudge (the moment itself)", () => {
+  it("★★ Byte (cheer), the owner's line, 'Check a written answer' → /check-improve; the tap sends guide_moment_click m11", async () => {
+    render(<Slot uid="u1" moment="m11" step="nudge" />);
+    const m = await screen.findByTestId("guide-moment-m11");
+    expect(m.getAttribute("data-pose")).toBe("cheer");
+    expect(line()).toBe(
+      "Nice! Now write one answer in your notebook, snap a photo, and I'll show where marks slip — step by step, the way a CBSE examiner marks it.",
+    );
+    const cta = screen.getByTestId("guide-moment-m11-cta");
+    expect(cta.textContent).toBe("Check a written answer");
+    expect(cta.getAttribute("href")).toBe("/check-improve");
+    fireEvent.click(cta);
+    expect(onboarding.mock.calls.filter((c) => c[0] === "guide_moment_click")).toEqual([["guide_moment_click", { moment: "m11" }]]);
+    expect(momentCalls()).toEqual([["guide_moment_shown", { moment: "m11" }]]);
+  });
+});
+
 describe("MOMENTS-1 PART 0 · Hide mascots from a moment's bubble", () => {
   it("★★ one tap: hidden on this device, the moment goes, the snackbar says so; Undo brings it back", async () => {
     render(<Slot uid="u1" moment="m4" step="type" />);

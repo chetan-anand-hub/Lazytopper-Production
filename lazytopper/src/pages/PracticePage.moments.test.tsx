@@ -15,7 +15,8 @@ import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-libra
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
-const { authUser, cloudHas, localRows, failBank } = vi.hoisted(() => ({
+const { authUser, cloudHas, localRows, failBank, writtenCloud } = vi.hoisted(() => ({
+  writtenCloud: vi.fn(),
   authUser: { current: null as null | { uid: string; isLocalSession: boolean; email?: string } },
   cloudHas: vi.fn(),
   localRows: vi.fn(),
@@ -72,7 +73,15 @@ vi.mock("../data/bankChapters/loader", async (importActual) => {
   };
 });
 
+// MOMENTS-1 M11 — the server's "any written answer graded?" read.
+vi.mock("../components/guide/moments/writtenGradedCloud", async (importActual) => {
+  const actual = await importActual<typeof import("../components/guide/moments/writtenGradedCloud")>();
+  return { ...actual, cloudHasWrittenGraded: (...a: unknown[]) => writtenCloud(...a) };
+});
+
 import PracticePage from "./PracticePage";
+import { __resetM11ForTests } from "../components/guide/moments/moments";
+import { resetWrittenGradedForTests } from "../components/guide/moments/writtenGraded";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
 import { askCloudOnce, resetZeroGradedCacheForTests } from "../components/startHere/zeroGraded";
 import { __setGuideAbForTests } from "../components/guide/guideVariant";
@@ -134,6 +143,9 @@ beforeEach(async () => {
   cloudHas.mockReset().mockResolvedValue(false);
   localRows.mockReset().mockReturnValue([]);
   await askCloudOnce(UID); // the zero-graded answer Home / the hub already read in this tab
+  writtenCloud.mockReset().mockResolvedValue(false);
+  resetWrittenGradedForTests();
+  __resetM11ForTests();
   __setGuideAbForTests(true, "guide");
 });
 afterEach(() => {
@@ -255,6 +267,78 @@ describe("MOMENTS-1 M3 · the SERVER's zero-graded answer (owner ruling, 22 Oct)
     await buildSet(FIVE);
     await act(async () => {});
     expect(cloudHas).not.toHaveBeenCalled();
+  });
+});
+
+describe("MOMENTS-1 M11 · the first written answer nudge on the MCQ-only scorecard", () => {
+  const M11_LINE =
+    "Nice! Now write one answer in your notebook, snap a photo, and I'll show where marks slip — step by step, the way a CBSE examiner marks it.";
+  async function finishTapOnly() {
+    await buildSet(FIVE);
+    for (let n = 1; n <= 5; n += 1) fireEvent.click(screen.getByText(`q${n}-correct`));
+    const finish = screen.queryByRole("button", { name: /Finish session/i });
+    if (finish) fireEvent.click(finish);
+    await screen.findByRole("dialog", {}, { timeout: 10000 });
+  }
+
+  it("★★ guide arm, never a written answer graded (server says so): Byte (cheer) + 'Check a written answer' → /check-improve", async () => {
+    await finishTapOnly();
+    const m = await screen.findByTestId("guide-moment-m11", {}, { timeout: 5000 });
+    expect(m.getAttribute("data-kind")).toBe("byte");
+    expect(m.getAttribute("data-pose")).toBe("cheer");
+    expect(m.querySelector('[data-testid="guide-moment-line"]')!.textContent).toBe(M11_LINE);
+    const cta = screen.getByTestId("guide-moment-m11-cta");
+    expect(cta.textContent).toBe("Check a written answer");
+    expect(cta.getAttribute("href")).toBe("/check-improve");
+    expect(writtenCloud).toHaveBeenCalledWith(UID);
+  });
+
+  it("★★ CONTROL arm: absent (and the server is not asked)", async () => {
+    __setGuideAbForTests(true, "control");
+    await finishTapOnly();
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
+    expect(screen.queryByText(M11_LINE)).toBeNull();
+    expect(writtenCloud).not.toHaveBeenCalled();
+  });
+
+  it("★★ a written answer was graded once (only in the cloud): absent", async () => {
+    writtenCloud.mockResolvedValue(true);
+    await finishTapOnly();
+    await waitFor(() => expect(writtenCloud).toHaveBeenCalled());
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
+  });
+
+  it("★★ a written answer was graded on THIS device (a C&I record): absent, no read", async () => {
+    localRows.mockReturnValue([{ id: "CI-M-REAL-01", surface: "check-improve", topicKeys: [], questionIds: [], gradedAt: 1 }]);
+    await finishTapOnly();
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
+    expect(writtenCloud).not.toHaveBeenCalled();
+  });
+
+  it("★★ the server read is pending, or fails: absent", async () => {
+    writtenCloud.mockReturnValue(new Promise(() => {}));
+    await finishTapOnly();
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
+    cleanup();
+    resetWrittenGradedForTests();
+    writtenCloud.mockReset().mockResolvedValue(null);
+    await finishTapOnly();
+    await waitFor(() => expect(writtenCloud).toHaveBeenCalled());
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
+  });
+
+  it("once per account per device: the next MCQ-only result does not repeat it", async () => {
+    await finishTapOnly();
+    await screen.findByTestId("guide-moment-m11", {}, { timeout: 5000 });
+    cleanup();
+    await finishTapOnly();
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
   });
 });
 
