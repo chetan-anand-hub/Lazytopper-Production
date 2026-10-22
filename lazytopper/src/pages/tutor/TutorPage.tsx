@@ -19,7 +19,7 @@ import { Link, useLocation, useNavigate, useParams, useSearchParams } from "reac
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { offerForTutorTurn } from "./tutorIntent";
-import { backAtLine, limitHeadline, type TutorErrorState } from "./tutorErrorState";
+import TutorErrorView from "./TutorErrorView";
 import { useAuth } from "../../context/AuthContext";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
@@ -663,56 +663,6 @@ function TutorSession() {
         onClose={closeQuickPractice}
         seedUrl={quickPracticeHref}
       />
-    </div>
-  );
-}
-
-/**
- * TUTOR-FIX-2 T7 — one typed failure, rendered as what it is:
- *   premium  → an upgrade card to the EXISTING pricing entry (UpgradeSheet's own URL), no retry;
- *   limit    → "You've used today's tutor messages. Back at <IST time>" / "Back tomorrow.", no retry;
- *   busy     → the same family ("very busy today", back at …), + "See plans" when the server said so;
- *   offline  → a connection line + "Try again";
- *   reauth / failed → the honest line + "Try again" (today's behaviour).
- * The UsageWarning above the stream is unchanged.
- */
-function TutorErrorView({ state, onRetry, selfHref }: { state: TutorErrorState; onRetry: () => void; selfHref: string }) {
-  const pricingHref = `/pricing?source=upgrade-sheet&returnTo=${encodeURIComponent(selfHref)}`;
-  if (state.kind === "premium") {
-    return (
-      <div className="lt-tutor__upgrade" role="status" data-testid="tutor-error-premium">
-        <p className="lt-tutor__upgrade-h">The tutor is part of Premium</p>
-        <p className="lt-tutor__upgrade-p">{state.message}</p>
-        <Link to={pricingHref} className="lt-tutor__action">
-          See Premium
-        </Link>
-      </div>
-    );
-  }
-  if (state.kind === "limit" || state.kind === "busy") {
-    return (
-      <div className="lt-tutor__limit" role="status" data-testid={`tutor-error-${state.kind}`}>
-        <span>
-          {limitHeadline(state)} {backAtLine(state.resetAt)}
-        </span>
-        {state.kind === "busy" && state.plans && (
-          <Link to={pricingHref} className="lt-tutor__retry">
-            See plans
-          </Link>
-        )}
-      </div>
-    );
-  }
-  const line =
-    state.kind === "offline"
-      ? "You seem to be offline. Check your connection and try again."
-      : state.message;
-  return (
-    <div className="lt-tutor__err" data-testid={`tutor-error-${state.kind}`}>
-      <span>{line}</span>
-      <button type="button" className="lt-tutor__retry" onClick={onRetry}>
-        Try again
-      </button>
     </div>
   );
 }

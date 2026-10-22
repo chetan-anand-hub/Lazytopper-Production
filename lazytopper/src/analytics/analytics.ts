@@ -804,7 +804,13 @@ export type NamedAnalyticsEvent =
   | "feedback_first_graded_too_hard"
   // GUIDE-1 — the Byte-guide A/B: which arm this account is in, once per account per device.
   // The arm itself is a vendor param only (the first-party store keeps names, never values)
-  | "guide_variant_assigned";
+  | "guide_variant_assigned"
+  // PAYWALL-PAY-1 — a tap on one of the three paywall actions (Pay, Share QR code, Forward
+  // link to parents). The vendors get the generic `paywall_action { action, surface }`, the
+  // first-party log one name per action (it keeps names only). Sent by trackPaywallAction
+  | "paywall_action_pay"
+  | "paywall_action_qr"
+  | "paywall_action_forward";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1239,20 +1245,41 @@ export function trackWhatsAppContactTap(placement: WhatsAppContactPlacement): vo
   send("event", { name: "whatsapp_contact_tap", data: { placement } });
 }
 
-/** ASK-PARENTS-PAY-1 — where "Ask your parents to pay" was used, and which step. */
-export type AskParentSurface = "pricing";
-export type AskParentAction = "open" | "whatsapp" | "copy";
+/** PAYWALL-PAY-1 — which of the three paywall actions was tapped. */
+export type PaywallAction = "pay" | "qr" | "forward";
+/**
+ * PAYWALL-PAY-1 — where it was tapped: the Premium lock screen (RequirePremium), the upgrade
+ * popup (UpgradeModal), the upgrade sheet (UpgradeSheet), the fair-use limit panel, /pricing,
+ * the tutor's server-side Premium / busy card (TutorPage), the trial-paper note
+ * (TrialPaperNote) and the More-like-this Premium note (MoreLikeThisPremiumNote).
+ */
+export type PaywallSurface =
+  | "lock"
+  | "upgrade_modal"
+  | "upgrade_sheet"
+  | "usage_limit"
+  | "pricing"
+  | "tutor"
+  | "trial_paper"
+  | "more_like_this";
+
+const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
+  pay: "paywall_action_pay",
+  qr: "paywall_action_qr",
+  forward: "paywall_action_forward",
+};
 
 /**
- * ASK-PARENTS-PAY-1 — `ask_parent_tap`: a student opened "Ask your parents to pay", or sent
- * / copied the message. Surface + action ONLY: never the message, the link, its token, a
- * count or a contact. Vendors only (GA4 / Vercel), like `score_share`: NOT in
- * `NamedAnalyticsEvent`, so the first-party log drops it and no server change is needed.
+ * PAYWALL-PAY-1 — `paywall_action { action, surface }`: ONE event per tap on "Pay", "Share QR
+ * code" or "Forward link to parents". Action + surface ONLY: never the message, the link, its
+ * token, a count or a contact. The vendors read `data` (Vercel) / the params (GA4); the
+ * first-party log, which keeps names only, records `paywall_action_<action>` (the
+ * `activityName` mechanism FEEDBACK-1 added), so the admin board can tell the three apart.
  */
-export function trackAskParentTap(surface: AskParentSurface, action: AskParentAction): void {
+export function trackPaywallAction(action: PaywallAction, surface: PaywallSurface): void {
   try {
-    const data = { surface, action };
-    send("event", { name: "ask_parent_tap", data }, { ga4: data });
+    const data = { action, surface };
+    send("event", { name: "paywall_action", data }, { ga4: data }, PAYWALL_ACTIVITY_NAME[action]);
   } catch {
     /* analytics must never break the page */
   }
@@ -1260,8 +1287,8 @@ export function trackAskParentTap(surface: AskParentSurface, action: AskParentAc
 
 /**
  * ASK-PARENTS-PAY-1 — `parent_pay_page_view`: a parent opened a LIVE pay link (the server
- * accepted it). The name plus a one-value surface, never an id or the token. Vendors only,
- * like `ask_parent_tap` (a parent is signed out, so the first-party log never records it, and
+ * accepted it). The name plus a one-value surface, never an id or the token. Vendors only
+ * (a parent is signed out, so the first-party log never records it, and
  * the name is deliberately NOT in `NamedAnalyticsEvent`). The page's address carries the
  * token in its FRAGMENT, which no vendor receives: GA4 and Vercel get the redacted path
  * (`/pricing`), and Meta sends nothing at all from an address with a hash

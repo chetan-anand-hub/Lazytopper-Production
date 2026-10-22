@@ -10,7 +10,7 @@ describe("admin labels for FEEDBACK-1", () => {
 
   it("labels say the moment and quote the exact words the student tapped", () => {
     expect(activityEventLabel("feedback_paywall_ask_parents")).toBe(
-      "Feedback (after closing an upgrade screen): “I need to ask my parents”",
+      "Feedback (after closing an upgrade screen): “My parents need to decide”",
     );
     expect(activityEventLabel("feedback_trial_end_price")).toBe(
       "Feedback (after the trial ended): “The price is too high for me right now”",

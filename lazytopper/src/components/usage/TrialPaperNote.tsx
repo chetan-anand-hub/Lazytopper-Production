@@ -9,6 +9,7 @@
 
 import { Link } from "react-router-dom";
 import { PLANS_PATH } from "./FairUseLimitPanel";
+import PaywallActions from "../pricing/PaywallActions";
 import { trialPaperNoteCopy, type TrialPaperCut } from "./fairUseGate";
 import "./usage.css";
 
@@ -39,9 +40,17 @@ export default function TrialPaperNote({
       </ul>
       <p className="lt-usage__body">{copy.upgrade}</p>
       <div className="lt-usage__actions">
-        <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="trial-paper-see-plans">
-          See plans
-        </Link>
+        {/* PAYWALL-PAY-1 — Pay / Share QR code / Forward link to parents; payments dark:
+            "See plans", unchanged. */}
+        <PaywallActions
+          surface="trial_paper"
+          payTo={PLANS_PATH}
+          fallback={
+            <Link to={PLANS_PATH} className="lt-usage__btn" data-testid="trial-paper-see-plans">
+              See plans
+            </Link>
+          }
+        />
       </div>
     </section>
   );
