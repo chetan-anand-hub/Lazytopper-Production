@@ -263,11 +263,32 @@ export const selectInRangeFromPool = (
   seenIds?: ReadonlySet<string>,
   /** Deterministic per-session rotation offset. Omit → no rotation. */
   rotateOffset?: number,
+  /** MLT-MUTE-2 — the pool is the engine DRAW (its first `headSize` rows) + the chapter's served
+   *  TAIL. The draw's matching rows keep their order at the head — that order carries Mistake
+   *  Intelligence's wrong-concept priority and an HPQ focus list — and rotation only reorders the
+   *  tail that fills the remainder. Seen-first still applies across both: unseen head, unseen
+   *  tail, seen head, seen tail. Omit → today's ordering, byte-identical. */
+  headSize?: number,
 ): { available: number; displayed: PracticeQuestion[] } => {
   const matched = pool.filter((q) =>
     questionMatchesFilters(q, marks, style, source, diff, range)
   );
   const available = matched.length;
+
+  if (headSize !== undefined) {
+    const headIds = new Set(pool.slice(0, headSize));
+    const head = matched.filter((q) => headIds.has(q));
+    const tail = matched.filter((q) => !headIds.has(q));
+    const isSeen = (q: PracticeQuestion) => !!seenIds && seenIds.has(String(q.id));
+    const off = rotateOffset ?? 0;
+    const ordered = [
+      ...head.filter((q) => !isSeen(q)),
+      ...rotateBy(tail.filter((q) => !isSeen(q)), off),
+      ...head.filter(isSeen),
+      ...rotateBy(tail.filter(isSeen), off),
+    ];
+    return { available, displayed: ordered.slice(0, committedCount) };
+  }
 
   const offset = rotateOffset ?? 0;
   const hasSeen = !!seenIds && seenIds.size > 0;
@@ -298,13 +319,111 @@ export const isExactFocusSet = (
   strictFocus && !!focusBankIds && focusBankIds.length >= count && marks === "all" && !range;
 
 /**
- * FOLLOWUPS-5 (review of #1220) — the hero's "N questions in this set". An exact id set where a
- * withheld id did not resolve serves FEWER rows than requested (the builder never tops it up with
- * an unrelated question), so the hero counts the rows actually shown. Every other path (not exact,
- * nothing shown yet, or a full set) keeps the requested count, unchanged.
+ * The set size the page STATES ("N questions in this set", the "N questions" chip).
+ * FOLLOWUPS-5 counted the rows shown for an exact id set only; MLT-MUTE-2 makes it every path:
+ * once the set has SETTLED (built, loaded, no error) the page states the rows actually in it —
+ * a short bank serves a short set (the AI top-up is muted, #1295), and 0 is a real 0. Until then
+ * (building, loading, failed) it states the requested count. The requested count itself (filters,
+ * URL, session identity) is never changed — it is what the student asked for.
  */
-const practiceHeroCount = (exact: boolean, requested: number, displayed: number): number =>
-  exact && displayed > 0 && displayed < requested ? displayed : requested;
+export const practiceSetSizeCount = (settled: boolean, requested: number, displayed: number): number =>
+  settled ? displayed : requested;
+
+/** MLT-MUTE-2 — the end-of-bank note is TRUE only when the filter's matches in the whole pool
+ *  (`available`) are fewer than asked, and it is for a set of 1..N-1: a 0-question set gets the
+ *  filters-empty state instead. Shared by the page and the all-chapter sweep test. */
+export const shouldShowBankEnd = (displayed: number, available: number, requested: number): boolean =>
+  displayed > 0 && available < requested;
+
+/** MLT-MUTE-2 — a NARROW filter (style, source or difficulty) is one the engine draw does not
+ *  apply, so it must be applied to the chapter's whole served pool, never to a sample. */
+export const hasNarrowFilters = (style: string, source: string, diff: string): boolean =>
+  style !== "all" || source !== "all" || diff !== "all";
+
+/**
+ * MLT-MUTE-2 — does this set need the chapter's WHOLE served pool behind its draw? Yes for every
+ * filter the engine draw does not fully apply before its count-sized take:
+ *   · a style / source / difficulty chip (applied client-side, after the draw);
+ *   · an exact marks range (a Topic Hub concept row sends only marksMin/marksMax: the marks UI
+ *     stays "all", so the board mix drew 10 and the range kept 4);
+ *   · a difficulty PRESET (Weak Area's `difficulty=X`): each section's quota is drawn small and
+ *     then cut to that difficulty, so the set came back short.
+ * No for the board / default set (nothing narrowed): that path is byte-identical. A marks BUCKET
+ * alone (the Quick drill / High-marks presets) is not on this route: its draw is already
+ * section-targeted and over-fetched (x5, or 100), and it was not measured short.
+ */
+export const needsFullPool = (
+  style: string,
+  source: string,
+  diff: string,
+  range: MarksRange | null,
+  engineDifficulty: string,
+): boolean =>
+  hasNarrowFilters(style, source, diff) || !!range || engineDifficulty !== "All";
+
+/**
+ * MLT-MUTE-2 — the served rows that may join the draw. A difficulty PRESET (engine difficulty, not
+ * a committed chip) is enforced by the builder on the draw, never by selectInRangeFromPool, so the
+ * served rows are held to the same difficulty here — otherwise a Hard set would gain Easy rows.
+ */
+export const servedRowsForDraw = (served: PracticeQuestion[], engineDifficulty: string): PracticeQuestion[] =>
+  engineDifficulty === "All"
+    ? served
+    : served.filter((q) => String(q.difficulty ?? "").toLowerCase() === engineDifficulty.toLowerCase());
+
+/**
+ * The pre-build "N available" hint over the PENDING filters, summed across the chosen chapter(s).
+ * CBQ-1 PR-1: a CBQ set counts the topic's whole CBQ pool (what it will serve). MLT-MUTE-2: every
+ * other set counts the chapter's WHOLE served pool — the pool a filtered set is now drawn from.
+ * The old count was an engine draw that asked for 200 but is capped at MAX_QUESTION_COUNT (100),
+ * so a big chapter was undercounted (Real Numbers: "Proof 3" against 44 proofs, "PYQ 0" against
+ * 14). Exported for the all-chapter sweep test. The chapters must already be loaded.
+ */
+export const preBuildAvailable = (
+  subjectKey: SubjectKey,
+  labels: readonly string[],
+  marks: string,
+  style: string,
+  source: string,
+  diff: string,
+  range: MarksRange | null,
+): number => {
+  let total = 0;
+  for (const label of labels) {
+    const bankQuestions = style === "cbq"
+      ? buildCbqPracticePool({ subjectKey, topicKey: label })
+      : buildChapterServedPool({ subjectKey, topicKey: label });
+    total += bankQuestions.filter((q) => questionMatchesFilters(q, marks, style, source, diff, range)).length;
+  }
+  return total;
+};
+
+/**
+ * MLT-MUTE-2 — the engine draw, kept first and AS IS (its blueprint shape, seen-set and canonical
+ * fallback unchanged), followed by every served row of the chapter(s) that is not already in it —
+ * matched by id, or by the WHOLE question text. Not an 80-character prefix: case-based and A/R
+ * rows share long stems, and a prefix key silently dropped distinct questions (the sweep caught
+ * it). selectInRangeFromPool then applies the committed filters, orders seen-last + rotation,
+ * and slices.
+ */
+export const mergeWithServedPool = (
+  draw: PracticeQuestion[],
+  served: PracticeQuestion[],
+): PracticeQuestion[] => {
+  const textOf = (q: PracticeQuestion) => String(q.questionText || "").trim().toLowerCase();
+  const ids = new Set(draw.map((q) => String(q.id ?? "")).filter(Boolean));
+  const texts = new Set(draw.map(textOf).filter(Boolean));
+  const out: PracticeQuestion[] = [...draw];
+  for (const q of served) {
+    const id = String(q.id ?? "");
+    const text = textOf(q);
+    if ((id && ids.has(id)) || (text && texts.has(text))) continue;
+    if (id) ids.add(id);
+    if (text) texts.add(text);
+    out.push(q);
+  }
+  return out;
+};
 
 const uiMarksToSectionScope = (ui: string): "A" | "B" | "C" | "D" | "E" | "All" => {
   if (ui === "1") return "A";
@@ -564,8 +683,8 @@ import {
   MAX_QUESTION_COUNT,
   resolvePracticePackKey,
   buildPracticeQuestionsWithAiTopup,
-  buildPracticeQuestionsFromEngine,
   buildCbqPracticePool,
+  buildChapterServedPool,
   normaliseSubject,
   parseDifficultyChoice,
   parsePositiveInt,
@@ -1116,6 +1235,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [reviewMcqIds, setReviewMcqIds] = useState<Record<string, true>>({});
   const [reviewSavedIds, setReviewSavedIds] = useState<Record<string, true>>({});
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
+  // MLT-MUTE-2 — on the full-pool route, how many leading rows of `questions` are the engine
+  // DRAW (the rest is the served tail). Undefined on every other route (today's ordering).
+  const [poolHeadSize, setPoolHeadSize] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     if (didInitFromUrlRef.current) return;
@@ -1290,6 +1412,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const engineMarksFilter = useMemo(() => mapEngineMarks(committedMarks), [committedMarks]);
   // CBQ-1 PR-1 — a committed CBQ filter serves from the topic's CBQ pool (see the fetch).
   const cbqMode = committedStyle === "cbq";
+  // MLT-MUTE-2 — any filter the engine draw does not fully apply (a style / source / difficulty
+  // chip, an exact marks range, a difficulty preset) draws from the whole chapter.
+  const fullPoolRoute = needsFullPool(committedStyle, committedSource, committedDifficulty, committedMarksRange, difficulty);
 
   // PR-E1 FINAL-BUG FIX — derive BOTH the displayed set AND the post-build "N
   // available" hint from this ONE realized pool (`questions`), via the shared
@@ -1320,8 +1445,10 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       committedCount,
       exact ? undefined : seenQuestionIds,
       exact ? undefined : rotationOffset,
+      // MLT-MUTE-2: the full-pool route keeps the engine draw's matching rows at the head.
+      exact ? undefined : poolHeadSize,
     );
-  }, [questions, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
+  }, [questions, poolHeadSize, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
 
   const filteredQuestions = committedPoolSelection.displayed;
 
@@ -1361,7 +1488,14 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [isWhyPanelOpen, setIsWhyPanelOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  // MLT-MUTE-2 — a build has FINISHED (not merely "not loading": isLoading is false on the first
+  // render, before the build effect starts). Gates the set-size count the page states.
+  const [buildSettled, setBuildSettled] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  // The built set is on screen as it really is: what the page states as its size is then the
+  // rows in it (practiceSetSizeCount). `displayedSetSize` is what every "N questions" reads.
+  const setSettled = isBuilt && buildSettled && !isLoading && !error;
+  const displayedSetSize = practiceSetSizeCount(setSettled, committedCount, filteredQuestions.length);
   // MOMENTS-1 — the set failed to load: Retry re-runs the load (EVERYONE, both arms — a bug fix:
   // there was no way to try again but a reload). `loadRetry` is a dependency of the build effect;
   // `loadConnectionDropped` = the failure was the bank chunk not arriving or the 15 s timeout
@@ -1707,7 +1841,6 @@ const packTopicKey = useMemo(() => {
   // filters on the builder, before the first Build).
   const preBuildAvailableCount = useMemo(() => {
     if (!bank.ready) return 0;
-    const sectionForMarks = uiMarksToSectionScope(pendingMarks);
     // ⚠ DELIBERATELY NO `seenQuestionIds` HERE — do not "complete" this call by adding it.
     // "N available" is a faithful count of the POOL, not of what is left FOR YOU. Passing
     // the seen-set would make the number FALL as the student practises ("42 available" →
@@ -1717,23 +1850,7 @@ const packTopicKey = useMemo(() => {
     // Multi-topic: SUM the honest per-topic availability (the merged pool spans them all);
     // single-topic: the one topic, byte-identical.
     const labels = isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel];
-    let total = 0;
-    for (const label of labels) {
-      // CBQ-1 PR-1: a CBQ set counts the topic's whole CBQ pool (what it will serve).
-      const bankQuestions = pendingStyle === "cbq"
-        ? buildCbqPracticePool({ subjectKey, topicKey: label })
-        : buildPracticeQuestionsFromEngine({
-            subjectKey,
-            topicKey: label,
-            count: 200,
-            difficulty: "All",
-            boardPattern: sectionForMarks === "All" ? undefined : sectionForMarks,
-          });
-      total += bankQuestions.filter((q) =>
-        questionMatchesFilters(q, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange)
-      ).length;
-    }
-    return total;
+    return preBuildAvailable(subjectKey, labels, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange);
   }, [subjectKey, topicLabel, isMultiTopic, multiTopics, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange, bank.ready]);
 
   const bankAvailableCount = isBuilt
@@ -1763,6 +1880,7 @@ const packTopicKey = useMemo(() => {
 
     const run = async () => {
       setIsLoading(true);
+      setBuildSettled(false);
       setError(null);
       setLoadConnectionDropped(false);
       let bankLoadFailed = false;
@@ -2046,8 +2164,36 @@ const packTopicKey = useMemo(() => {
           ]);
         }
 
+        // MLT-MUTE-2 — the engine draw above is a count-sized SAMPLE, and every narrowing the
+        // draw does not fully apply (a style / source / difficulty chip, an exact marks range, a
+        // difficulty preset) ran over that sample: Real Numbers + Proof + count 30 drew
+        // 30, kept 6, while the chapter holds 44 served proofs. So the pool selectInRangeFromPool
+        // filters also holds EVERY served row of the chosen chapter(s) — for every chapter of
+        // both subjects, single-topic, multi-topic and Full subject alike. The draw stays first
+        // (its shape, seen-set and canonical fallback unchanged). The board / default set, a CBQ
+        // set (already the whole CBQ pool) and an exact id set are untouched.
+        let headSize: number | undefined;
+        if (
+          fullPoolRoute &&
+          !cbqMode &&
+          !isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange)
+        ) {
+          const served = isMultiTopic
+            ? mergeMultiTopicDeep({
+                pools: multiTopics.map((t) => ({
+                  key: t.canonicalSlug,
+                  questions: servedRowsForDraw(buildChapterServedPool({ subjectKey, topicKey: t.label }), difficulty),
+                })),
+                offset: rotationOffset,
+              })
+            : servedRowsForDraw(buildChapterServedPool({ subjectKey, topicKey: topicLabel }), difficulty);
+          headSize = next.length;
+          next = mergeWithServedPool(next, served);
+        }
+
         if (!cancelled) {
           setQuestions(next);
+          setPoolHeadSize(headSize);
           setSessionFinished(false);
           setScorecardDismissed(false);
           setReviewMode(false);
@@ -2071,6 +2217,7 @@ const packTopicKey = useMemo(() => {
         console.error("Error generating practice questions:", err);
         if (!cancelled) {
           setQuestions([]);
+          setPoolHeadSize(undefined);
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
@@ -2084,6 +2231,7 @@ const packTopicKey = useMemo(() => {
       } finally {
         if (!cancelled) {
           setIsLoading(false);
+          setBuildSettled(true);
         }
       }
     };
@@ -2113,6 +2261,8 @@ const packTopicKey = useMemo(() => {
     // CBQ-1 PR-1: switching INTO / OUT OF a CBQ set changes the pool (other style
     // changes stay client-side only, exactly as before).
     cbqMode,
+    // MLT-MUTE-2: switching the whole-chapter pool ON / OFF changes the pool.
+    fullPoolRoute,
     // Multi-topic fan-out deps (the single-topic path never reads these).
     isMultiTopic,
     isFullSubject,
@@ -2129,6 +2279,11 @@ const packTopicKey = useMemo(() => {
       const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
       if (key) previousQuestionKeys.current.add(key);
     }
+    // MLT-MUTE-2 — every rebuild trigger (Build, a preset, Build a fresh set / Refresh) comes
+    // through here, in the same event as its filter commit. Un-settle NOW, synchronously, so the
+    // render before the rebuild effect cannot paint the OLD pool through the NEW filters
+    // ("0 questions" / the filters-empty state for one frame).
+    setBuildSettled(false);
     setRegenerationKey((prev) => prev + 1);
   };
 
@@ -3415,11 +3570,9 @@ const packTopicKey = useMemo(() => {
           subjectKey={subjectKey}
           title={title}
           topicParam={topicParam}
-          questionCount={practiceHeroCount(
-            isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange),
-            questionCount,
-            filteredQuestions.length,
-          )}
+          // MLT-MUTE-2: once the set has settled, the rows actually in it (a short bank serves a
+          // short set; 0 is a real 0). Before that, the count being asked for.
+          questionCount={practiceSetSizeCount(setSettled, questionCount, filteredQuestions.length)}
         />
 
         {isTargetedSession && ((() => {
@@ -3554,6 +3707,7 @@ const packTopicKey = useMemo(() => {
           committedSource={committedSource}
           committedDifficulty={committedDifficulty}
           committedCount={committedCount}
+          setSizeCount={displayedSetSize}
           onBuildSet={() => {
             trackUxEvent("practice_regenerate_click", "practice", {
               action: "build_set",
@@ -3690,11 +3844,28 @@ const packTopicKey = useMemo(() => {
           // MLT-MUTE-1 - the set came back SHORTER than asked: the verified bank has no more like
           // these (the AI top-up is muted). Say so honestly, with real next steps. Not in the
           // tutor overlay, whose own close returns the student to the tutor.
+          // MLT-MUTE-2: only when it is TRUE - `available` counts the filter's matches in the
+          // chapter's whole served pool (a narrowed set no longer runs over a sample) - and only
+          // for 1..N-1 questions: 0 is the filters-empty state below, not "the bank ran out".
           bankEnd={
-            !overlay && filteredQuestions.length < committedCount
+            !overlay &&
+            shouldShowBankEnd(filteredQuestions.length, committedPoolSelection.available, committedCount)
               ? {
-                  chapterTestHref: isMultiTopic ? undefined : `/chapter-test/${grade}/${subjectKey}/${canonicalTopicKey || topicParam}`,
+                  chapterTestHref: isMultiTopic
+                    ? undefined
+                    : `/chapter-test/${grade}/${subjectKey}/${encodeURIComponent(canonicalTopicKey || topicParam)}`,
                   practiceHubHref: "/practice-hub",
+                }
+              : undefined
+          }
+          // MLT-MUTE-2 - the filters matched NOTHING in a pool that has questions: say so, and
+          // offer the filter editor. (The old "No questions found" card keys on the unfiltered
+          // pool being empty, so it never showed here.) In the tutor overlay, no hub link.
+          filtersEmpty={
+            setSettled && questions.length > 0 && filteredQuestions.length === 0
+              ? {
+                  onEditFilters: handleEditFilters,
+                  practiceHubHref: overlay ? undefined : "/practice-hub",
                 }
               : undefined
           }
