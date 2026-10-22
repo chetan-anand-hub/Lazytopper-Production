@@ -67,6 +67,16 @@ export function planShards(files, durations, n) {
   return bins;
 }
 
+/**
+ * Pure (CI-SPEED-3): the same files, slowest first (unknown files get the median, like planShards; ties
+ * by path, so the order is deterministic). Used by ci_vitest_sequencer.mjs to order files INSIDE a shard.
+ */
+export function orderSlowestFirst(files, durations) {
+  const fallback = medianOf(Object.values(durations));
+  const cost = (f) => (Number.isFinite(durations[f]) && durations[f] > 0 ? durations[f] : fallback);
+  return files.map(toPosix).sort((a, b) => cost(b) - cost(a) || (a < b ? -1 : a > b ? 1 : 0));
+}
+
 /** Pure: any planned path that is a substring of a DIFFERENT test path (vitest filter collision). */
 export function substringCollisions(planned, allTestFiles) {
   const out = [];

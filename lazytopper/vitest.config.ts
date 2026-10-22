@@ -1,5 +1,7 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+// CI-SPEED-3: CI only — each shard starts its slowest files first (order only; see the module).
+import { SlowestFirstSequencer } from "./scripts/ops/ci_vitest_sequencer.mjs";
 
 // Render-test config — kept SEPARATE from vite.config.ts on purpose.
 // This drives `npm test` (Vitest) and must never pick up the Node `node:test`
@@ -15,6 +17,10 @@ export default defineConfig({
     // list the CI clock jobs run. Inactive under LT_TEST_CLOCK. See that file.
     setupFiles: ["./src/test/setup.ts", "./scripts/testClock/clockRecorder.setup.mjs"],
     include: ["src/**/*.test.{ts,tsx}"],
+    // CI-SPEED-3: on CI (GitHub sets CI=true) start the slowest files first, by
+    // scripts/ops/vitest-durations.json. ORDER ONLY: the same files run, each still
+    // isolated. Local runs keep vitest's default order.
+    ...(process.env.CI === "true" ? { sequence: { sequencer: SlowestFirstSequencer } } : {}),
     // WORKER CAP — paired with NODE_OPTIONS=--max-old-space-size=2048 on the CI
     // vitest step (it was 6144 when this comment was written; corrected CI-SPEED-3).
     // CI passes `--maxWorkers=4` on the command line, which overrides the 2 below

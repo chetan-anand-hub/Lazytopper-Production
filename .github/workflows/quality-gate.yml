@@ -11,14 +11,17 @@ name: Quality Gate
 # everything in sequence on one 4-vCPU runner (~20-26 min; the vitest suite ran three times,
 # ~6.4 min each, and the ops matrix three times). It is now parallel jobs:
 #   classify      decides docs-only fast path vs the full bar (the module below)
-#   docs-lane     mojibake (EVERY path) + the classifier's own acceptance + root guard matrix (docs path)
-#   static        Firestore rules, root guard matrix, root typecheck, edge security tests, test typecheck
+#   docs-lane     DOCS PATH ONLY: mojibake + the classifier's own acceptance + root guard matrix
+#   static        mojibake (full bar; CI-SPEED-3 moved it here from docs-lane), Firestore rules, root
+#                 guard matrix, root typecheck, edge security tests, test typecheck
 #   build-ops     build + the lazytopper ops matrix
 #   railway-build the ROOT `pnpm run build` exactly as the Railway backend image runs it (Node 24,
 #                 frozen install WITH devDependencies, no .git) — RAILWAY-BUILD-GATE
 #   vitest        the WHOLE vitest suite, sharded 1/3..3/3 at 4 workers (every file runs exactly once)
 #   clock-changed the date-sensitive manifest tests THIS change touched, at 2030 and at IST midnight
-#                 (CI-CLOCK-CUT: replaced the six per-PR `clock (...)` legs; see the job's comment)
+#                 (CI-CLOCK-CUT: replaced the six per-PR `clock (...)` legs; see the job's comment).
+#                 CI-SPEED-3: classify computes the selection; 0 selected -> the job is not started,
+#                 and classify RECORDS why (the aggregate fails a clock-changed skip with no record).
 #   quality-gate  the AGGREGATE. Its name is the REQUIRED status check in the trunk ruleset; it
 #                 fails unless every job above passed (or, on the docs path, was skipped BY DESIGN),
 #                 and unless the vitest shards together ran every test file on disk.
@@ -106,6 +109,8 @@ jobs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
       verdict: ${{ steps.classify.outputs.verdict }}
       inspected: ${{ steps.classify.outputs.inspected }}
+      clock_count: ${{ steps.clock.outputs.clock_count }}
+      clock_skip_reason: ${{ steps.clock.outputs.clock_skip_reason }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -130,10 +135,39 @@ jobs:
           echo "CI_DOCS_LANE_PATH_TAKEN: ${{ steps.classify.outputs.verdict || 'unclassified (full bar)' }}"
           echo "CI_DOCS_LANE_PATH_INSPECTED_FILES: ${{ steps.classify.outputs.inspected || 'n/a' }}"
           echo "CI_DOCS_LANE_PATH_FULL_BAR_RAN: ${{ steps.classify.outputs.docs_only != 'true' }}"
+      # ★ CI-SPEED-3: the clock-changed SELECTION runs here (this job already has full history and the
+      # PR base), so a PR that touched no date-sensitive test never starts a runner for it. Polarity:
+      # ONLY the literal count 0 skips the job, and only then is clock_skip_reason recorded. A selector
+      # failure (missing base) yields count=unresolved: the clock-changed job then RUNS, and its own
+      # selector call fails it — if a check matters, its absence must fail.
+      - name: Clock-changed selection (does clock-changed need a runner?)
+        id: clock
+        if: steps.classify.outputs.docs_only != 'true'
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          MERGE_GROUP_BASE_SHA: ${{ github.event.merge_group.base_sha }}
+        run: |
+          set -uo pipefail
+          if node lazytopper/scripts/ops/ci_clock_changed.mjs --select > "$RUNNER_TEMP/clock-changed.txt"; then
+            n="$(grep -c . "$RUNNER_TEMP/clock-changed.txt" || true)"; n="${n:-0}"
+          else
+            n="unresolved"
+          fi
+          echo "CLOCK_CHANGED_SELECTED: $n"
+          echo "clock_count=$n" >> "$GITHUB_OUTPUT"
+          if [ "$n" = "0" ]; then
+            echo "clock_skip_reason=CLOCK_CHANGED: 0 date-sensitive tests changed (recorded by classify; nightly-full-clock covers the full suite at both clocks)" >> "$GITHUB_OUTPUT"
+          fi
 
-  # Runs on EVERY path. The mojibake step is the one gate a markdown-only change can fail.
+  # DOCS-ONLY PATH ONLY (CI-SPEED-3, 2026-10-22). The mojibake step is the one gate a markdown-only
+  # change can fail; on the full bar the SAME step runs in `static`, so mojibake still runs on EVERY
+  # path (ci_docs_lane_acceptance.mjs a11 pins both halves). The aggregate requires this job to be
+  # `success` on the docs path and `skipped` on the full bar.
   docs-lane:
     needs: classify
+    if: needs.classify.outputs.docs_only == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -161,9 +195,9 @@ jobs:
           cache: pnpm
       - name: Install workspace (frozen lockfile)
         run: pnpm install --frozen-lockfile
-      # ★★ UNGATED, ON EVERY PATH, DELIBERATELY. ENFORCED on the tracked tree, REPORT-ONLY on
-      # handoff/ (deliberate mojibake specimens). Read `enforced_hits` / `report_only_hits` from
-      # this step's log. DO NOT PUT AN `if:` ON THIS STEP.
+      # ★★ UNGATED STEP, DELIBERATELY (its twin in `static` covers the full bar). ENFORCED on the
+      # tracked tree, REPORT-ONLY on handoff/ (deliberate mojibake specimens). Read `enforced_hits` /
+      # `report_only_hits` from this step's log. DO NOT PUT AN `if:` ON THIS STEP.
       - name: Mojibake check (lazytopper)
         run: pnpm --filter lazytopper run check:mojibake
       # ★ THE FAST PATH'S OWN GATES. On the full bar the docs-lane suite runs inside the ops matrix
@@ -212,6 +246,10 @@ jobs:
           java-version: '21'
       - name: Install workspace (frozen lockfile)
         run: pnpm install --frozen-lockfile
+      # ★★ THE FULL BAR'S MOJIBAKE (CI-SPEED-3: moved here from docs-lane, which now runs on the docs
+      # path only). Same command as the docs-lane step. DO NOT PUT AN `if:` ON THIS STEP.
+      - name: Mojibake check (lazytopper, full bar)
+        run: pnpm --filter lazytopper run check:mojibake
       # The REAL Firestore emulator against the REAL firestore.rules. MERGING THIS DOES NOT DEPLOY
       # IT: firestore.rules ships only via `deploy:firestore-rules`, an owner action outside CI.
       - name: Firestore rules tests (subscriptions premium self-grant)
@@ -446,9 +484,11 @@ jobs:
   # ★ "CLOCK_CHANGED: 0 date-sensitive tests changed" is an HONEST SKIP: printed, and counted as
   #   success ONLY because nightly-full-clock covers the full suite. A missing base is never a skip:
   #   the selector exits 1 (if a check matters, its absence must FAIL).
+  # ★ CI-SPEED-3: started only when classify's selection is not the literal 0 (an unset or
+  #   "unresolved" count RUNS the job, whose own selector then fails closed).
   clock-changed:
     needs: classify
-    if: needs.classify.outputs.docs_only != 'true'
+    if: needs.classify.outputs.docs_only != 'true' && needs.classify.outputs.clock_count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -515,7 +555,8 @@ jobs:
   # ★ THE REQUIRED CHECK. The trunk ruleset requires a check named exactly `quality-gate`; this
   # job carries that name. `if: always()` so it reports even when an upstream job failed, was
   # cancelled or was skipped; lazytopper/scripts/ops/ci_aggregate.mjs then FAILS unless every
-  # upstream job succeeded — or, on the docs path only, the full-bar jobs were skipped — and,
+  # upstream job succeeded — or was skipped BY DESIGN (docs path: the full-bar jobs; full bar:
+  # docs-lane, and clock-changed only with classify's recorded 0-selected reason) — and,
   # on the full bar, unless all EXPECTED_SHARDS vitest shards reported and together ran every test file.
   quality-gate:
     needs: [classify, docs-lane, static, build-ops, railway-build, vitest, clock-changed]
@@ -544,6 +585,8 @@ jobs:
           DOCS_ONLY: ${{ needs.classify.outputs.docs_only }}
           SHARD_DIR: ${{ runner.temp }}/summary
           EXPECTED_SHARDS: '3'
+          CLOCK_COUNT: ${{ needs.classify.outputs.clock_count }}
+          CLOCK_SKIP_REASON: ${{ needs.classify.outputs.clock_skip_reason }}
         run: node lazytopper/scripts/ops/ci_aggregate.mjs --aggregate
 
   # The FULL vitest suite and the FULL ops matrix under BOTH clocks — what every PR ran before
