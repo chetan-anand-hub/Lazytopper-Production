@@ -57,6 +57,44 @@ export interface PracticeQuestionListProps {
    *  questions like these (the AI top-up is muted, so nothing is invented to fill the gap). The
    *  note says so honestly and offers real next steps on existing routes. Omitted ⇒ no note. */
   bankEnd?: BankEndLinks;
+  /** MLT-MUTE-2 — the student's filters matched NOTHING in a pool that has questions. Shown in
+   *  place of the (empty) list and never together with `bankEnd`. Omitted ⇒ no state. */
+  filtersEmpty?: FiltersEmptyActions;
+}
+
+/** MLT-MUTE-2 — the filters-empty state's actions. */
+export interface FiltersEmptyActions {
+  /** Opens the existing filter editor (the toolbar's "Edit filters"). */
+  onEditFilters: () => void;
+  /** `/practice-hub` — omitted inside the tutor overlay. */
+  practiceHubHref?: string;
+}
+
+export const FILTERS_EMPTY_TITLE = "No questions match these filters.";
+export const FILTERS_EMPTY_BODY = "Try fewer filters, or another chapter.";
+
+function FiltersEmptyState({ onEditFilters, practiceHubHref }: FiltersEmptyActions) {
+  return (
+    <div className="qp-bank-end" role="status" data-testid="qp-filters-empty">
+      <p className="qp-bank-end__title">{FILTERS_EMPTY_TITLE}</p>
+      <p className="qp-bank-end__body">{FILTERS_EMPTY_BODY}</p>
+      <div className="qp-bank-end__actions">
+        <button
+          type="button"
+          className="qp-bank-end__btn qp-bank-end__btn--primary"
+          data-testid="qp-filters-empty-edit"
+          onClick={onEditFilters}
+        >
+          Edit filters
+        </button>
+        {practiceHubHref ? (
+          <Link to={practiceHubHref} className="qp-bank-end__btn" data-testid="qp-filters-empty-practice-hub">
+            Practise another chapter
+          </Link>
+        ) : null}
+      </div>
+    </div>
+  );
 }
 
 /** MLT-MUTE-1 — the honest end-of-bank note's real next steps (routes that exist in App.tsx). */
@@ -97,7 +135,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying, bankEnd,
+    onRetry, retrying, bankEnd, filtersEmpty,
   } = props;
 
   return (
@@ -226,7 +264,11 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               defaultAnswerMode={defaultAnswerMode}
             />
           ))}
-          {bankEnd && !isLoading && !error ? <BankEndNote {...bankEnd} /> : null}
+          {filtersEmpty && !isLoading && !error && filteredQuestions.length === 0 ? (
+            <FiltersEmptyState {...filtersEmpty} />
+          ) : bankEnd && !isLoading && !error && filteredQuestions.length > 0 ? (
+            <BankEndNote {...bankEnd} />
+          ) : null}
         </div>
       )}
     </section>

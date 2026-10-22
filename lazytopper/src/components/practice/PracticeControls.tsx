@@ -93,6 +93,10 @@ export interface PracticeControlsProps {
   committedSource: string;
   committedDifficulty: string;
   committedCount: number;
+  /** MLT-MUTE-2 — the size of the set actually on screen, for the "N questions" chip. The host
+   *  passes the real row count once the set has settled (a short bank serves a short set) and
+   *  the requested count before that. Omitted ⇒ `committedCount`. */
+  setSizeCount?: number;
 
   onBuildSet: () => void;
   isBuilt: boolean;
@@ -172,6 +176,7 @@ export function PracticeControls({
   committedSource,
   committedDifficulty,
   committedCount,
+  setSizeCount,
   onBuildSet,
   isBuilt,
   onEditFilters,
@@ -215,7 +220,10 @@ export function PracticeControls({
 
   if (isBuilt) {
     const badges: { key: string; label: string }[] = [
-      { key: "count", label: `${committedCount} questions` },
+      { key: "count", label: (() => {
+        const n = setSizeCount ?? committedCount;
+        return `${n} questions`;
+      })() },
     ];
     if (committedMarks !== "all") badges.push({ key: "marks", label: labelFor(MARKS_OPTIONS, committedMarks) });
     if (committedStyle !== "all") badges.push({ key: "style", label: labelFor(STYLE_OPTIONS, committedStyle) });
@@ -246,6 +254,7 @@ export function PracticeControls({
           {badges.map((b) => (
             <span
               key={b.key}
+              data-testid={`qp-chip-${b.key}`}
               style={{
                 fontSize: "0.76rem",
                 fontWeight: 700,

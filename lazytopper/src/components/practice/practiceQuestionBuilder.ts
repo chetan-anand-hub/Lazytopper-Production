@@ -300,6 +300,26 @@ export function buildCbqPracticePool(args: {
 }
 
 /**
+ * MLT-MUTE-2 — EVERY served row of one chapter (this subject), in the served (predictionScore)
+ * order: the pool a NARROW Quick Practice filter (a style, source or difficulty) is applied to.
+ * The engine draw is a `count`-sized blueprint SAMPLE of mixed questions; filtering that sample
+ * left e.g. 6 proofs out of a 30-question draw while Real Numbers holds 50, and the page then
+ * claimed the bank had run out. Same served pool as the CBQ pool and the exact-focus pool
+ * (PredictionCore). Real bank rows only — the page merges it AFTER the engine draw, so the
+ * engine's own canonical fallback is kept. The chapter must already be loaded (ensureBankChapters).
+ */
+export function buildChapterServedPool(args: {
+  subjectKey: SubjectKey;
+  topicKey: string;
+}): PracticeQuestion[] {
+  const want = args.subjectKey.toLowerCase();
+  const served = PredictionCore.getLikelyQuestionsForConcept(args.topicKey).filter(
+    (q) => String((q as { subject?: unknown }).subject ?? "").trim().toLowerCase() === want,
+  );
+  return buildPracticeQuestionsFromEngineRows(served as unknown as RawQuestion[]);
+}
+
+/**
  * CONCEPT-MAP-FILL-1 PR-2 — the served rows of one chapter whose id is in `ids`, in the order of `ids`
  * (no engine draw). `generatePracticeSet` draws a random-ish `count` from the chapter and a focus list can
  * only REORDER that draw, so ids outside it were never served; a Topic Hub concept's Practise needs the

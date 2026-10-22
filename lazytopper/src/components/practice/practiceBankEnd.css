@@ -9,4 +9,6 @@
   border-radius: 10px; border: 1px solid hsl(220, 18%, 90%); background: #ffffff; color: hsl(220, 25%, 12%);
   font-size: 0.82rem; font-weight: 700; text-decoration: none; }
 .qp-bank-end__btn--primary { border-color: hsl(152, 55%, 40%); background: hsl(152, 55%, 40%); color: #ffffff; }
+/* MLT-MUTE-2 — the filters-empty state reuses this card; its "Edit filters" is a <button>. */
+button.qp-bank-end__btn { cursor: pointer; font-family: inherit; }
 .qp-bank-end__btn:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }

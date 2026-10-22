@@ -166,7 +166,14 @@ describe("CONTROL — the ordinary chapter draw is unchanged", () => {
 
 // Recorded 2026-10-11 by running this CONTROL test on trunk 11e7614c (same FIXED_NOW, same LCG seed, no
 // attempts; repeated twice, identical). A later bank change to this chapter may move it: re-record on trunk.
+//
+// RE-RECORDED 2026-10-22 (MLT-MUTE-2). The draw did not change; the LCG stream did. The pre-build
+// "N available" hint used to run an engine draw (generatePracticeSet, count 200) on every render
+// with the chapter loaded, and that draw consumed Math.random BEFORE the set's own draw. The hint
+// now counts the chapter's served pool (no draw, no randomness), so the set's draw starts at an
+// earlier point of the same seeded stream. Proven on the lane branch: re-adding the old hint's
+// engine call (and nothing else) reproduced the 11e7614c ids exactly.
 const TRUNK_CONTROL_IDS: string[] = [
-  "BX-MNM-EX-A-017", "LTG-S-METAL-268", "METAL-NCERT-3-VSA-015", "METAL-NCERT-3-SA-002", "LTG-S-METAL-291",
-  "LTG-S-METAL-237", "LTG-S-METAL-298", "BX-MNM-E-017", "LTG-S-METAL-226", "LTG-S-METAL-224",
+  "BX-MNM-EX-A-017", "LTG-S-METAL-268", "METAL-NCERT-3-VSA-015", "LTG-S-METAL-291", "METAL-NCERT-3-SA-002",
+  "LTG-S-METAL-298", "LTG-S-METAL-237", "BX-MNM-E-019", "LTG-S-METAL-224", "LTG-S-METAL-226",
 ];
