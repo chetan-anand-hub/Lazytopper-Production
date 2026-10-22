@@ -26,7 +26,7 @@
  *   papers:    full_mock, chapter_test, important, worksheet, check_one
  *   cbq:       cbq, quick, check_one, chapter_test, worksheet
  * Any slot left (an option dropped because its route is missing, or it does not apply) fills
- * from: 5 quick questions, Check one answer, Today's worksheet, Chapter Test, CBQ practice,
+ * from: 5 quick questions, Check one answer, Worksheet, Chapter Test, CBQ practice,
  * Important questions, Notes, Exam trends, Tutor — only options whose route EXISTS
  * (`routeExists`), at most 5, no repeats.
  * Chapter Test opens THAT chapter's test when the chapter is known, else the Practice Hub's
@@ -265,9 +265,9 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
         // or a photo per page (WorksheetGradePanel) to the shared step-marking grader.
         return {
           id,
-          title: "Today's worksheet",
-          sub: "Write on paper, upload a photo, get every step marked",
-          point: "Write it on paper like the real exam. I'll mark every step.",
+          title: "Worksheet",
+          sub: "Write on paper, upload a photo, get written answers marked step by step",
+          point: "Write it on paper like the real exam. I'll mark every written step.",
           action: { kind: "route", path: "/practice/worksheets" },
         };
       default:

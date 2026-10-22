@@ -185,11 +185,11 @@ describe("GUIDE-1 · Byte's options", () => {
   it("hover / focus → Byte points and says the option's line; tap a route → Byte cheers, then navigates to the real route", async () => {
     __setGuideAbForTests(true, "guide");
     mount();
-    // GUIDE-OPTS-1: Today's worksheet is in the default first five (Exam trends moved to the fill).
+    // GUIDE-OPTS-1: Worksheet is in the default first five (Exam trends moved to the fill).
     const ws = await screen.findByTestId("guide-opt-worksheet");
     fireEvent.pointerEnter(ws);
     await waitFor(() => expect(screen.getByTestId("blob-byte").getAttribute("data-pose")).toBe("point"));
-    expect(screen.getByTestId("guide-line").textContent).toBe("Write it on paper like the real exam. I'll mark every step.");
+    expect(screen.getByTestId("guide-line").textContent).toBe("Write it on paper like the real exam. I'll mark every written step.");
     fireEvent.click(ws);
     expect(screen.getByTestId("blob-byte").getAttribute("data-pose")).toBe("cheer");
     expect(calls("guide_option")).toEqual([["guide_option", { option: "worksheet", rank: Number(ws.getAttribute("data-rank")), surface: "practice_hub" }]]);

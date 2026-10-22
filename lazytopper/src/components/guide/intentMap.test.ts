@@ -249,11 +249,11 @@ describe("GUIDE-1 · intent map rules", () => {
     expect(knownGuideRoute("/chapter-test/10/Maths/")).toBe(false);
   });
 
-  it("GUIDE-OPTS-1 — Today's worksheet opens /practice/worksheets, a GUIDE_ROUTES entry", () => {
+  it("GUIDE-OPTS-1 — Worksheet opens /practice/worksheets, a GUIDE_ROUTES entry (no 'Today's': there is no daily logic)", () => {
     const ws = buildGuidePlan(input(), deps).options.find((o) => o.id === "worksheet")!;
-    expect(ws.title).toBe("Today's worksheet");
-    expect(ws.sub).toBe("Write on paper, upload a photo, get every step marked");
-    expect(ws.point).toBe("Write it on paper like the real exam. I'll mark every step.");
+    expect(ws.title).toBe("Worksheet");
+    expect(ws.sub).toBe("Write on paper, upload a photo, get written answers marked step by step");
+    expect(ws.point).toBe("Write it on paper like the real exam. I'll mark every written step.");
     expect(ws.action).toEqual({ kind: "route", path: "/practice/worksheets" });
     expect(GUIDE_ROUTES.some((r) => r.pattern.test("/practice/worksheets") && /App\.tsx:\d+/.test(r.route))).toBe(true);
     expect(knownGuideRoute("/practice/worksheets/ready")).toBe(false);
