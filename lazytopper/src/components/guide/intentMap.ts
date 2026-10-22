@@ -8,10 +8,16 @@
  *   1. CBQ     — utm_content contains "cbq", or the landing carried ?cbq=1 → CBQ practice first.
  *   2. Chapter — landing /notes/<chapter> or /topic-hub/…/<chapter> → that chapter's 5 quick
  *                questions first, then important questions and that chapter's notes.
- *   3. Papers  — landing contains sample-paper / mock / highly-probable, or utm_content
- *                contains sample / mock / preboard → full mock, then important questions.
- *   4. Check & Improve surface → "Check one answer" first.
- *   5. Default → "5 quick questions" first.
+ *   3. Important — landing path is /highly-probable/… (the important-questions page) →
+ *                important questions first. The landing wins over a sample / mock / preboard
+ *                utm_content (GUIDE-IQ-1).
+ *   4. Papers  — landing contains sample-paper / mock, or utm_content contains sample / mock /
+ *                preboard → full mock, then important questions.
+ *   5. Check & Improve surface → "Check one answer" first.
+ *   6. Default → "5 quick questions" first.
+ * Subject (important questions, tutor, full mock): the chapter's subject, else the subject the
+ * landing path names (a segment equal to maths / science, any case), else Start-here's
+ * subject hint, else Maths.
  * The remaining slots fill from: 5 quick questions, Check one answer, CBQ practice, Important
  * questions, Notes, Exam trends, Tutor — only options whose route EXISTS (`routeExists`),
  * at most 5, no repeats.
@@ -21,7 +27,7 @@
 
 export type GuideSubject = "Maths" | "Science";
 export type GuideSurface = "home" | "practice_hub" | "check_improve";
-export type GuideIntent = "cbq" | "chapter" | "papers" | "check_improve" | "default";
+export type GuideIntent = "cbq" | "chapter" | "important" | "papers" | "check_improve" | "default";
 
 export type GuideOptionId = "quick" | "check_one" | "cbq" | "important" | "notes" | "trends" | "tutor" | "full_mock";
 
@@ -74,6 +80,7 @@ export const GUIDE_LINES = {
   default: "Hey! I'm Byte. What do you want to do today?",
   cbq: "Came from the CBQ Short? Start here:",
   chapter: (name: string) => `Doing ${name}? These will help:`,
+  important: "Important questions? Start here:",
   papers: "Sample paper prep? Try these:",
 } as const;
 
@@ -107,6 +114,16 @@ export function chapterSlugFromLanding(landing: string | null): string | null {
   return null;
 }
 
+/** The subject a landing path names (a segment equal to maths / science, any case), if any. */
+export function subjectFromLanding(landing: string | null): GuideSubject | null {
+  for (const seg of String(landing || "").split("/")) {
+    const s = seg.toLowerCase();
+    if (s === "maths") return "Maths";
+    if (s === "science") return "Science";
+  }
+  return null;
+}
+
 function classify(input: IntentInput, deps: IntentDeps): { intent: GuideIntent; chapter: ChapterRef | null } {
   const content = lower(input.utmContent);
   const landing = lower(input.landing);
@@ -114,8 +131,11 @@ function classify(input: IntentInput, deps: IntentDeps): { intent: GuideIntent; 
   const slug = chapterSlugFromLanding(input.landing);
   const chapter = slug ? deps.chapterBySlug(slug) : null;
   if (chapter) return { intent: "chapter", chapter };
+  // The landing wins over the ad's utm_content: an important-questions landing is "important"
+  // even when utm_content says sample / mock / preboard.
+  if (/^\/highly-probable(\/|$)/.test(landing)) return { intent: "important", chapter: null };
   if (
-    ["sample-paper", "mock", "highly-probable"].some((k) => landing.includes(k)) ||
+    ["sample-paper", "mock"].some((k) => landing.includes(k)) ||
     ["sample", "mock", "preboard"].some((k) => content.includes(k))
   ) {
     return { intent: "papers", chapter: null };
@@ -127,7 +147,7 @@ function classify(input: IntentInput, deps: IntentDeps): { intent: GuideIntent; 
 /** Byte's options for this student, in order, plus his opening line. */
 export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan {
   const { intent, chapter } = classify(input, deps);
-  const subject: GuideSubject = chapter?.subject ?? input.subjectHint ?? "Maths";
+  const subject: GuideSubject = chapter?.subject ?? subjectFromLanding(input.landing) ?? input.subjectHint ?? "Maths";
 
   const make = (id: GuideOptionId): GuideOption | null => {
     switch (id) {
@@ -207,11 +227,13 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
       ? ["cbq"]
       : intent === "chapter"
         ? ["quick", "important", "notes"]
-        : intent === "papers"
-          ? ["full_mock", "important"]
-          : intent === "check_improve"
-            ? ["check_one"]
-            : ["quick"];
+        : intent === "important"
+          ? ["important"]
+          : intent === "papers"
+            ? ["full_mock", "important"]
+            : intent === "check_improve"
+              ? ["check_one"]
+              : ["quick"];
   const fill: GuideOptionId[] = ["quick", "check_one", "cbq", "important", "notes", "trends", "tutor"];
 
   const options: GuideOption[] = [];
@@ -231,8 +253,10 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
       ? GUIDE_LINES.cbq
       : intent === "chapter" && chapter
         ? GUIDE_LINES.chapter(chapter.name)
-        : intent === "papers"
-          ? GUIDE_LINES.papers
-          : GUIDE_LINES.default;
+        : intent === "important"
+          ? GUIDE_LINES.important
+          : intent === "papers"
+            ? GUIDE_LINES.papers
+            : GUIDE_LINES.default;
   return { intent, line, options };
 }
