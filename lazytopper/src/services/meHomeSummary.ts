@@ -33,6 +33,7 @@ import {
 import type { ConceptRung, RungTrend } from "./progressStore";
 import { conceptSetPath, type ConceptSetContext, type ConceptSetRef } from "../lib/desktop/conceptSetPath";
 import type { MistakeLogEntry } from "./mistakeLogService";
+import { studyDataVersion } from "./studyDataSignal";
 import { lostMarksOf, splitPaperMarks, viewRowsFrom, type PaperSplit, type ViewRow } from "./meSplit";
 import { entryMarksLost, isStoredMistakeType, type StoredMistakeType } from "../lib/mistakeDisplay";
 import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
@@ -283,6 +284,9 @@ export function computeMeHomeSummary(
 /* ───────────────────────── the shared, memoised read ───────────────────────── */
 
 const MEMO_MS = 60_000;
+// MI-CONSISTENCY-1 — every key carries `studyDataVersion()`: a write on this device (an attempt,
+// a mistake, a session record, the wrong-answer log) starts ONE fresh read once the burst settles instead of
+// serving the pre-write read for up to MEMO_MS (services/studyDataSignal).
 const memo = new Map<string, { at: number; p: Promise<unknown> }>();
 
 function memoised<T>(key: string, run: () => Promise<T>): Promise<T> {
@@ -290,6 +294,8 @@ function memoised<T>(key: string, run: () => Promise<T>): Promise<T> {
   const hit = memo.get(key);
   if (hit && now - hit.at < MEMO_MS) return hit.p as Promise<T>;
   const p = run();
+  // Superseded versions' reads are never asked for again: drop the expired ones as we go.
+  for (const [k, v] of memo) if (now - v.at >= MEMO_MS) memo.delete(k);
   memo.set(key, { at: now, p });
   // A failed read is never cached.
   p.catch(() => {
@@ -308,11 +314,11 @@ export function resetMeHomeMemo(): void {
 export type MeHomeReader = (query: StudyReadQuery) => Promise<StudyReadModel>;
 
 function readAll(uid: string, gen: number, reader: MeHomeReader): Promise<StudyReadModel> {
-  return memoised(`all|${uid}|${gen}`, () => reader({ window: ME_DEFAULT_WINDOW, tutor: false }));
+  return memoised(`all|${uid}|${gen}|v${studyDataVersion()}`, () => reader({ window: ME_DEFAULT_WINDOW, tutor: false }));
 }
 
 function readPaper(uid: string, gen: number, paper: DesktopSubject, reader: MeHomeReader): Promise<StudyReadModel> {
-  return memoised(`paper|${uid}|${gen}|${paper}`, () =>
+  return memoised(`paper|${uid}|${gen}|v${studyDataVersion()}|${paper}`, () =>
     reader({ window: ME_DEFAULT_WINDOW, subject: mePaperScopeKey(paper), mistakes: false, tutor: false }),
   );
 }

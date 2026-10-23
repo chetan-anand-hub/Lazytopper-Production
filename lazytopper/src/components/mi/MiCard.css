@@ -1,0 +1,167 @@
+/* MI-CONSISTENCY-1 — the ONE Mistake Intelligence card. Phone-first: the tiles are 2 columns by
+   default and widen with the CARD's own width (container queries), so the same component fits the
+   260px sidebar, a 320px phone and a 1366px Home. No horizontal scroll: every grid child is
+   min-width 0 and every label wraps. Tap targets (switch, links, actions) are at least 44px. */
+.lt-micard {
+  container-type: inline-size;
+  position: relative;
+  min-width: 0;
+  border-radius: 16px;
+  padding: 16px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.lt-micard--light {
+  background: linear-gradient(168deg, hsl(222, 45%, 96%), #fff 52%);
+  border: 1px solid hsl(222, 35%, 84%);
+  color: hsl(220, 45%, 14%);
+  box-shadow: 0 2px 9px -5px hsla(222, 40%, 30%, 0.2);
+}
+.lt-micard--dark {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.88);
+  padding: 14px;
+}
+.lt-micard__kicker {
+  margin: 0 0 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.lt-micard--light .lt-micard__kicker { color: hsl(222, 47%, 24%); }
+.lt-micard--dark .lt-micard__kicker { color: #22c55e; }
+
+.lt-micard__switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  margin: 0 0 12px;
+}
+.lt-micard--light .lt-micard__switch { background: hsl(222, 35%, 92%); }
+.lt-micard--dark .lt-micard__switch { background: rgba(255, 255, 255, 0.06); }
+.lt-micard__scope {
+  min-height: 44px;
+  min-width: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.75;
+}
+.lt-micard__scope[aria-pressed="true"] { opacity: 1; }
+.lt-micard--light .lt-micard__scope[aria-pressed="true"] { background: #fff; color: hsl(222, 47%, 20%); box-shadow: 0 1px 3px hsla(222, 40%, 20%, 0.15); }
+.lt-micard--dark .lt-micard__scope[aria-pressed="true"] { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.lt-micard__scope:focus-visible { outline: 2px solid hsl(152, 55%, 45%); outline-offset: 1px; }
+
+.lt-micard__title {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.lt-micard--dark .lt-micard__title { color: #fff; font-size: 15px; }
+.lt-micard__body { margin: 6px 0 0; overflow-wrap: anywhere; }
+.lt-micard__note { display: block; margin: 4px 0 0; font-size: 11.5px; opacity: 0.75; overflow-wrap: anywhere; }
+
+.lt-micard__tiles {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.lt-micard__tile {
+  min-width: 0;
+  border-radius: 11px;
+  padding: 8px 9px;
+  border: 1px solid;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lt-micard__tile[data-zero="true"] { opacity: 0.55; }
+.lt-micard__n { font-family: "Fraunces", Georgia, serif; font-size: 18px; font-weight: 800; line-height: 1.1; }
+.lt-micard__t { font-size: 11px; font-weight: 650; overflow-wrap: anywhere; }
+
+/* Tile tones: the shipped MI bucket grammar (conceptual blue · calculation amber · silly red ·
+   presentation purple) plus three neutral non-mistake tones. */
+.lt-micard--light .lt-micard__tile[data-row="conceptual"] { background: hsl(215, 75%, 95%); color: hsl(215, 65%, 32%); border-color: hsl(215, 60%, 88%); }
+.lt-micard--light .lt-micard__tile[data-row="calculation"] { background: hsl(38, 92%, 95%); color: hsl(38, 65%, 30%); border-color: hsl(38, 70%, 85%); }
+.lt-micard--light .lt-micard__tile[data-row="silly"] { background: hsl(0, 75%, 96%); color: hsl(0, 60%, 36%); border-color: hsl(0, 60%, 89%); }
+.lt-micard--light .lt-micard__tile[data-row="presentation"] { background: hsl(280, 60%, 96%); color: hsl(280, 50%, 33%); border-color: hsl(280, 45%, 89%); }
+.lt-micard--light .lt-micard__tile[data-row="wrongTap"] { background: hsl(190, 55%, 95%); color: hsl(190, 60%, 24%); border-color: hsl(190, 45%, 85%); }
+.lt-micard--light .lt-micard__tile[data-row="blank"] { background: hsl(40, 30%, 94%); color: hsl(35, 30%, 28%); border-color: hsl(40, 25%, 84%); }
+.lt-micard--light .lt-micard__tile[data-row="unrecorded"] { background: hsl(215, 15%, 95%); color: hsl(215, 15%, 30%); border-color: hsl(215, 15%, 86%); }
+.lt-micard--dark .lt-micard__tile { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); }
+.lt-micard--dark .lt-micard__tile[data-row="conceptual"] .lt-micard__n { color: hsl(215, 85%, 75%); }
+.lt-micard--dark .lt-micard__tile[data-row="calculation"] .lt-micard__n { color: hsl(38, 85%, 66%); }
+.lt-micard--dark .lt-micard__tile[data-row="silly"] .lt-micard__n { color: hsl(0, 80%, 76%); }
+.lt-micard--dark .lt-micard__tile[data-row="presentation"] .lt-micard__n { color: hsl(280, 65%, 78%); }
+.lt-micard--dark .lt-micard__tile[data-row="wrongTap"] .lt-micard__n { color: hsl(190, 60%, 70%); }
+.lt-micard--dark .lt-micard__tile[data-row="blank"] .lt-micard__n,
+.lt-micard--dark .lt-micard__tile[data-row="unrecorded"] .lt-micard__n { color: rgba(255, 255, 255, 0.8); }
+
+.lt-micard__chance {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+.lt-micard--light .lt-micard__chance { background: #fff; border: 1px dashed hsl(222, 35%, 84%); }
+.lt-micard--dark .lt-micard__chance { background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.25); }
+.lt-micard__chance-lead { margin: 0; font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8; }
+.lt-micard__chance-what { margin: 4px 0 0; font-weight: 600; overflow-wrap: anywhere; }
+
+.lt-micard__ctas { display: flex; flex-wrap: wrap; gap: 6px; }
+.lt-micard__cta,
+.lt-micard__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
+  font-weight: 700;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.lt-micard__cta {
+  margin-top: 8px;
+  padding: 0 14px;
+  border-radius: 11px;
+  font-size: 12.5px;
+}
+.lt-micard--light .lt-micard__cta { background: linear-gradient(140deg, hsl(222, 47%, 24%), hsl(222, 47%, 16%)); color: #fff; }
+.lt-micard--dark .lt-micard__cta { background: #22c55e; color: hsl(222, 55%, 13%); }
+.lt-micard--light .lt-micard__cta--ghost { background: #fff; color: hsl(222, 47%, 20%); border: 1px solid hsl(222, 35%, 84%); }
+.lt-micard--dark .lt-micard__cta--ghost { background: transparent; color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.5); }
+.lt-micard__link { font-size: 12.5px; margin-top: 4px; }
+.lt-micard--light .lt-micard__link { color: hsl(222, 47%, 24%); }
+.lt-micard--dark .lt-micard__link { color: #22c55e; }
+.lt-micard__link--inline { display: inline-flex; min-height: 44px; margin: 0; padding: 0; text-decoration: underline; vertical-align: middle; }
+
+.lt-micard__gaps {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid currentColor;
+  border-top-color: rgba(128, 128, 128, 0.25);
+  overflow-wrap: anywhere;
+}
+.lt-micard__gaps b { font-family: "Fraunces", Georgia, serif; font-size: 16px; }
+
+/* Wider cards: 4 tiles across (tablet / a wide sidebar), then all 7 in one row (desktop Home). */
+@container (min-width: 520px) {
+  .lt-micard__tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@container (min-width: 900px) {
+  .lt-micard__tiles { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .lt-micard__switch { max-width: 360px; }
+}

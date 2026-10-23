@@ -1,5 +1,11 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+// MI-CONSISTENCY-1 — the ONE MI card, its selector hook and its shared scope.
+import { MiCard } from "../mi/MiCard";
+import { miVoiceInputForCard } from "../mi/miCardVoice";
+import { useMiCard } from "../../lib/mi/useMiCard";
+import { useMiScope } from "../../lib/mi/miScope";
+import type { DesktopRouteContext } from "../../lib/desktop/navigation";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   modelNamesWeakness,
@@ -7,15 +13,12 @@ import {
   topLossGroup,
   type StudyReadModel,
 } from "../../services/progressReadModel";
-// MI-HOME-SYNC — the sidebar reads the SAME memoised pair Home reads (Me's window, Me's paper).
-import { useMeHome } from "../../services/useMeHomeSummary";
 import type { MeHomeSummary } from "../../services/meHomeSummary";
 import {
   groupCounts,
   marksWithUnit,
   countWithUnit,
   mistakeGroupByKey,
-  UNTYPED_MARKS_WHY,
   type MistakeGroupKey,
 } from "../../lib/mistakeDisplay";
 // MI-VOICE-1 — the guide arm's character row (eager decision + bubble; the drawing is lazy).
@@ -93,10 +96,6 @@ import type { MiVoiceInput } from "../guide/mi/miVoiceModel";
  *   - Only show a top pattern when its real count is greater than zero.
  */
 
-/** MI-HOME-SYNC — Me's DEFAULT window (`ME_DEFAULT_WINDOW`, "month"), read through
- *  services/meHomeSummary; it was the 7-day window, so the card and the Me page a student opens
- *  next spoke for different windows. */
-const WINDOW_PHRASE = "Last 30 days"; // the window is a rolling 30 days, not a calendar month
 
 /** The biggest loss, in the owner's groups (lib/mistakeDisplay), with its real unit. */
 export interface MiCardTopLoss {
@@ -272,151 +271,72 @@ function SparklesIcon() {
   );
 }
 
+/** Me's own action hrefs, carrying the page the student is on as `returnTo` (the sidebar sits on
+ *  every page, so "back" must return to THAT page, not to /me). An internal path only. */
+function sidebarCtx(pathname: string, search: string): DesktopRouteContext {
+  const here = pathname.startsWith("/") && !pathname.startsWith("//") ? `${pathname}${search}` : "/me";
+  return { source: "me", returnTo: here };
+}
+
+function withCtx(path: string, ctx: DesktopRouteContext): string {
+  const params = new URLSearchParams();
+  if (ctx.source) params.set("source", ctx.source);
+  if (ctx.returnTo) params.set("returnTo", ctx.returnTo);
+  return `${path}?${params.toString()}`;
+}
+
+/**
+ * MI-CONSISTENCY-1 — the sidebar renders THE ONE MI card (components/mi/MiCard, dark), over the
+ * same selector, the same shared scope and the same memoised read as Home and phone Home, so on
+ * any page the sidebar and Home print the same figures. Ziggy's row voices only the card's own
+ * strings (components/mi/miCardVoice). `computeMiCardSummary` and `miVoiceInputFor` above stay
+ * exported and unchanged (other readers and the H3 pins); the card no longer prints them.
+ */
 export function MistakeIntelCard() {
   const { user, loading: authLoading, mistakeLogsHydrated } = useAuth();
-
-  const uid = user?.uid ?? null;
-
-  // MI-HOME-SYNC — the ONE shared read model through the memoised pair Home also reads (both
-  // papers for the checked-answer / biggest-loss line, Me's paper for Me's numbers), Me's window.
-  // Re-read when the user changes, and again after Firestore hydration completes
-  // (mistakeLogsHydrated bumps from AuthContext) so newly imported cloud entries show.
-  const { status, read } = useMeHome(uid, Number(mistakeLogsHydrated) || 0, (query) =>
-    // ME-ENGINE-1 — the ONE source, the shared read model (Me's default window, via the memo).
-    readStudyModel(uid, query),
+  const signedInUid = user?.uid ?? null;
+  // Home's rule: only a REAL account is read — a local / browse session gets the honest empty state.
+  const uid = user && !user.isLocalSession ? user.uid : null;
+  const [scope, setScope] = useMiScope();
+  const gen = Number(mistakeLogsHydrated) || 0;
+  const { pathname, search } = useLocation();
+  const ctx = useMemo(() => sidebarCtx(pathname, search), [pathname, search]);
+  // ME-ENGINE-1 — the ONE source, the shared read model (Me's default window, via the memo). The
+  // route is the refresh hint: the always-mounted sidebar re-asks the memo on every page change.
+  const { status, cards } = useMiCard(uid, gen, ctx, (query) => readStudyModel(uid, query), pathname);
+  const summary = cards ? cards[scope] : null;
+  const voiceInput = useMemo(
+    () => (authLoading ? ({ kind: "loading" } as const) : !signedInUid ? ({ kind: "signed-out" } as const) : miVoiceInputForCard(status, summary)),
+    [authLoading, signedInUid, status, summary],
   );
+  const voice = <MiVoiceRow uid={signedInUid} input={voiceInput} hydrated={gen > 0} />;
 
-  const view: ViewState = useMemo(() => {
-    if (authLoading) return { kind: "loading" };
-    if (!uid) return { kind: "signed-out" };
-    const model: StudyReadModel | null = read?.all ?? null;
-    const entries = model?.mistakes.entries ?? [];
-    if ((status === "loading" || status === "idle") && !model) return { kind: "loading" };
-    // A mistake history that could not be read is an error, never "no patterns yet".
-    if (status === "error" || (model && !model.mistakes.complete)) return { kind: "error" };
-    // State 2 — Me has marks on the table but no mistake entry names a type for them (an MCQ
-    // pick writes none): say what Me says, never "no mistake patterns yet". With entries the
-    // with-data line below is unchanged.
-    if (entries.length === 0 && read && read.summary.lost > 0 && !read.summary.hasTyped) {
-      return { kind: "untyped", me: read.summary };
-    }
-    if (!model || entries.length === 0) return { kind: "no-data" };
-    return { kind: "with-data", summary: computeMiCardSummary(model) };
-  }, [authLoading, uid, status, read]);
-  const voiceInput = useMemo(() => miVoiceInputFor(view), [view]);
+  if (!authLoading && !signedInUid) {
+    return (
+      <div style={CARD_STYLE}>
+        <div style={HEADER_ROW_STYLE}>
+          <SparklesIcon />
+          <span style={HEADER_LABEL_STYLE}>Mistake Intel</span>
+        </div>
+        <p style={BODY_STYLE}>Sign in to see mistake patterns from your checked answers.</p>
+        <Link to="/login?reason=mistake-aware&redirect=/me" style={CTA_STYLE}>
+          Sign in →
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div style={CARD_STYLE}>
-      <div style={HEADER_ROW_STYLE}>
-        <SparklesIcon />
-        <span style={HEADER_LABEL_STYLE}>Mistake Intel</span>
-      </div>
-
-      {/* MI-VOICE-1 — guide arm only: Ziggy/Byte re-voice the fact below (renders nothing in
-          the control arm, so the control card is byte-identical; nothing before the cloud
-          mistake history has hydrated, so no pre-hydration "No clues yet" flash). */}
-      <MiVoiceRow uid={uid} input={voiceInput} hydrated={(Number(mistakeLogsHydrated) || 0) > 0} />
-
-      {view.kind === "loading" && (
-        <>
-          <p style={BODY_STYLE}>Looking for recent mistake patterns…</p>
-        </>
-      )}
-
-      {view.kind === "signed-out" && (
-        <>
-          <p style={BODY_STYLE}>
-            Sign in to see mistake patterns from your checked answers.
-          </p>
-          <Link to="/login?reason=mistake-aware&redirect=/me" style={CTA_STYLE}>
-            Sign in →
-          </Link>
-        </>
-      )}
-
-      {view.kind === "error" && (
-        <>
-          <p style={BODY_STYLE}>
-            Couldn&rsquo;t load mistake patterns. Try Me / Progress.
-          </p>
-          <Link to="/me" style={CTA_STYLE}>
-            Open Me →
-          </Link>
-        </>
-      )}
-
-      {view.kind === "no-data" && (
-        <>
-          <p style={BODY_STYLE}>
-            No mistake patterns yet. Check an answer to build your mistake
-            history.
-          </p>
-          <Link to="/check-improve" style={CTA_STYLE}>
-            Check an answer →
-          </Link>
-        </>
-      )}
-
-      {view.kind === "untyped" && (
-        <>
-          <p style={BODY_STYLE} data-testid="mi-card-untyped">
-            <span style={{ color: "#fff", fontWeight: 700 }}>
-              {formatMarks(view.me.lost)} {view.me.lost === 1 ? "mark" : "marks"} on the table
-            </span>
-            {(() => {
-              const top = view.me.concepts[0]?.label ?? view.me.topChapter?.label ?? null;
-              return top ? <> &mdash; top: <span data-testid="mi-card-untyped-top">{top}</span></> : null;
-            })()}
-            .
-          </p>
-          {/* MI-COPY (owner ask, 16 Oct 2026) — why these marks carry no mistake type, in the
-              shared sentence (lib/mistakeDisplay); the action names a written answer. */}
-          <p style={{ ...BODY_STYLE, fontSize: 12, color: "rgba(255,255,255,0.7)" }} data-testid="mi-card-untyped-why">
-            {UNTYPED_MARKS_WHY}
-          </p>
-          <Link to="/check-improve" style={CTA_STYLE} data-testid="mi-card-check">
-            Check a written answer →
-          </Link>
-        </>
-      )}
-
-      {view.kind === "with-data" && (
-        <>
-          <p style={BODY_STYLE} data-testid="mi-card-summary">
-            {WINDOW_PHRASE}:{" "}
-            {view.summary.checkedCount > 0 ? (
-              <span style={{ color: "#fff", fontWeight: 700 }} data-testid="mi-card-checked">
-                {view.summary.checkedCount} checked{" "}
-                {view.summary.checkedCount === 1 ? "answer" : "answers"}
-              </span>
-            ) : null}
-            {view.summary.namesWeakness && view.summary.totalMarksLost > 0 ? (
-              <>
-                {view.summary.checkedCount > 0 ? ", " : ""}
-                <span style={{ color: "#fff", fontWeight: 700 }}>
-                  {formatMarks(view.summary.totalMarksLost)} {view.summary.totalMarksLost === 1 ? "mark" : "marks"} lost
-                </span>
-              </>
-            ) : null}
-            .
-            {!view.summary.namesWeakness ? (
-              <span data-testid="mi-card-withheld"> We will not name a weakness from one or two questions.</span>
-            ) : null}
-            {view.summary.namesWeakness && view.summary.topLoss ? (
-              <>
-                {" "}Biggest loss:{" "}
-                <span style={{ color: "#fff", fontWeight: 700 }} data-testid="mi-card-top" data-basis={view.summary.topLoss.basis}>
-                  {view.summary.topLoss.label} ({view.summary.topLoss.amount})
-                </span>
-                .
-              </>
-            ) : null}
-          </p>
-          <Link to="/me" style={CTA_STYLE}>
-            See where →
-          </Link>
-        </>
-      )}
-    </div>
+    <MiCard
+      variant="dark"
+      status={authLoading ? "loading" : status}
+      summary={authLoading ? null : summary}
+      scope={scope}
+      onScope={setScope}
+      meHref={withCtx("/me", ctx)}
+      checkHref={withCtx("/check-improve", ctx)}
+      voice={voice}
+      testId="sidebar-mi-card"
+    />
   );
 }
