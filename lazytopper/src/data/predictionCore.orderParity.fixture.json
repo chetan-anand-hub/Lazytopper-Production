@@ -137,8 +137,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 526,
-   "sha256": "16f0e40aef3fe20c12d9d20666bd4516e8a62fff12fbeeafeaecc91801774a23",
+   "n": 525,
+   "sha256": "f07432a2e14593d155ae60548753c3d564560769806ee5ba15f7ea42ed45e64d",
    "head": [
     "BX-MNM-E-014",
     "SQP-S-2023-MNM-E-001",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 406,
-   "sha256": "dd2ed6556bf2e7086c8158dc73066a17b45753a552984b6d58d60d106c91b9f9",
+   "n": 405,
+   "sha256": "709979bb53b223ce0cf657595eebe7eb9c536abd12b34e50e8a58821f0275dac",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -191,8 +191,8 @@
    ]
   },
   "life-processes": {
-   "n": 597,
-   "sha256": "b83a5674d58d926c139fab2599c88a75335ffab1c612a86011852b0bda56763d",
+   "n": 596,
+   "sha256": "075577e9060f0f6edde2b57ff0e6923654cc917a1e028e80e18a05a0b6905e8e",
    "head": [
     "LTG-S-LIFE-257",
     "LTG-S-LIFE-216",
@@ -373,8 +373,8 @@
    ]
   },
   "metals-and-non-metals": {
-   "n": 113,
-   "sha256": "7ed13cb16710e523dc8e8582ed07a15f5be81f68de30f42d2f8a20ddf1cd6dd3",
+   "n": 112,
+   "sha256": "fb33b33e21de9d55ea252d96dbfab18c998e01e98c7ff8453d428afc8e7497df",
    "head": [
     "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
     "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
@@ -409,8 +409,8 @@
    ]
   },
   "electricity": {
-   "n": 148,
-   "sha256": "4c8aacded04e95ad33a29277c5cfb2fe15e3e2cceda6df70e7386d2a6159fe30",
+   "n": 147,
+   "sha256": "7ed59962fa1fe02bbd8d9c5c127c488cb2784211c0a47eaacc572cdb926d072a",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
@@ -427,8 +427,8 @@
    ]
   },
   "life-processes": {
-   "n": 133,
-   "sha256": "5f86886bc468509fc71b1d1a49a9afd46294dd1ed88c7a73e90172a8e1df34ec",
+   "n": 132,
+   "sha256": "3a35501c9b6cf019e1ae692cc72de7e6671da8e04cc145398f9cafde20221ec7",
    "head": [
     "ATP\tLIFE-EXMPLR-5-SA-026",
     "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",

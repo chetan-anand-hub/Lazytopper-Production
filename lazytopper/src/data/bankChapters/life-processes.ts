@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "life-processes" (Science): 584 served rows from 21 source arrays, 18 withheld.
+// Chapter "life-processes" (Science): 583 served rows from 21 source arrays, 19 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -60,6 +60,7 @@ export default defineChapter("life-processes", [
   "LIFE-EXMPLR-5-MCQ-034",
   "LPX-A-035",
   "LPX-A-063",
+  "SQP-S-LP-003",
   "SCO-S-LIFE-003",
   "SCO-S-LIFE-009",
   "SCO-S-LIFE-020",

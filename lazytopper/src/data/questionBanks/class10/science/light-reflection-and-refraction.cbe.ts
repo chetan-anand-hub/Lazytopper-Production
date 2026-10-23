@@ -231,7 +231,7 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "answer": "f = 15 cm",
     "solutionSteps": [
       "[1 mark] Substitution into the lens equation: 1/30 + 1/30 = 2/30.",
-      "[1 mark] Rearrange and calculate: 30/2 = 15 cm. (If answer = 15 cm, award full 2 marks.)"
+      "[1 mark] Rearrange and calculate: 30/2 = 15 cm."
     ],
     "finalAnswer": "f = 15 cm",
     "isCompetencyBased": true

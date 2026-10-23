@@ -15,12 +15,15 @@
  *                    "(Award marks if ...)", "official marking scheme", an answer that is only "(Any other)"
  *   dangling-or    - an answer field or step that ends with "OR", or an answer that starts with "OR" (only the alternative)
  *   section/page   - a "SECTION B" header, "Page 3" or "P.T.O." in a row
+ *   mark-note      - an examiner mark note in an answer, step or explanation: "(½ mark)", "(1 mark each)", "(½ + ½ mark)",
+ *                    "(2 marks; deduct ½ mark ...)". Students never see examiner notes (review of #1325); the [N mark] prefix stays.
  *   partial        - a non-objective answer/finalAnswer that starts at a later part ((ii), (b), (II), (2) ...) and never
  *                    gives the first part, or that is exactly the last step while the stem has two or more parts
  *   mark-sum       - every step carries an [N mark] tag and neither all the steps nor the non-OR steps add up to the marks
  *
- * Out of scope (house conventions, not residue): a trailing "[1]" / "[½]" per-step mark tag, an explicit "(1 mark)" or
- * "(½ + ½ mark)" annotation, an equation label "... (1)", "OR (alternative):" steps, frequency lists "5, 8, 20".
+ * Out of scope (house conventions, not residue): a trailing "[1]" / "[½]" per-step mark tag, a stem's "(2 marks)" part
+ * allocation, an equation label "... (1)", "OR (alternative):" steps, frequency lists "5, 8, 20", answers like "(b) ½" or
+ * "(b) 2 ½", arithmetic "= ½ + ½ = 1" / "sum of 4 + 6", a ratio "2 : 3 (i)", a data list ". 12 15 18 20", "Marks: 0-10".
  *
  * KNOWN_RESIDUE_ROWS is a ratchet: empty means no served row may carry residue. A new one goes red: clean it from the
  * row's own steps or withhold it (owner bank policy).
@@ -33,17 +36,29 @@ type Row = (typeof canonicalQuestionBank)[number];
 type Finding = { pattern: string; field: string; text: string };
 
 const STEP_TAG = /^\s*(?:OR\s*)?\[\s*([\d.½]+)\s*marks?\s*\]\s*/;
-const IS_OR_STEP = /^\s*(?:OR\b|\[[^\]]*\]\s*OR\b)/;
+// An OR alternative step ("OR (b) ...", "[1 mark] OR ..."); "OR = √..." names the segment OR and is not one.
+const IS_OR_STEP = /^\s*(?:OR\b|\[[^\]]*\]\s*OR\b)(?!\s*=)/;
 
-const HALF_RUN = /½\s*\+\s*½(?!\s*marks?\b)|½\s*,\s*\+?\s*½|\d\s*½\s*\+(?!\s*\d)|½\s*\+\s*$|\b1\s+1\s+½/;
+// A tally is never arithmetic: "= ½ + ½ = 1" (an equation) is not one, "½ +½ ½;" is.
+const HALF_RUN = /(?<![=+×(]\s*)½\s*\+\s*½(?!\s*(?:marks?\b|=|[+×]))|½\s*,\s*\+?\s*½|\d\s*½\s*\+(?!\s*[\d½(])|½\s*\+\s*$|\b1\s+1\s+½/;
 const TALLY_RUN_END = /(?<![\w=×÷/·.^\-−+*:])\s((?:(?:\d\s*½|½|\d)\s*[+,;]?\s*)+)$/;
-const TALLY_INT_PLUS_END = /[.)a-z]\s+\d\s*\+\s*\d\s*$/;
-const STEM_MARKS_BEFORE_PART = /[?.:]\s+[1-5]\s+(?=OR\b|\((?:i|ii|iii|iv|a|b|c)\))/;
-const STEM_MARKS_END = /[?.]\s+\d{1,2}(?:\s+\d{1,2})*\s*$/;
+// "... decrease. 1+1" (after a sentence) is a tally; "sum of 4 + 6" (after a word) is arithmetic.
+const TALLY_INT_PLUS_END = /[.)]\s+\d\s*\+\s*\d\s*$/;
+// "... beings : 2 (i)" is a marks column; "ratio 2 : 3 (i)" (a digit before the colon) is a ratio.
+const STEM_MARKS_BEFORE_PART = /(?<!\d\s*)[?.:]\s+[1-5]\s+(?=OR\b|\((?:i|ii|iii|iv|a|b|c)\))/;
+// A marks column starts with the question's marks (1-5), then page numbers: "? 3 18 34". A data list ". 12 15 18 20" is not one.
+const STEM_MARKS_END = /[?.]\s+[1-5](?:\s+\d{1,2})*\s*$/;
 const SCHEME_NOTE =
   /Correct figure\s*(?:[½\d]\s*)?Marks?\b|\bmarks? for (?:the )?correct figure|Diagram\s*:\s*\d\s+Labelling\s*:\s*\d|official marking scheme|\(Award marks\b/i;
 const ONLY_ANY_OTHER = /^\s*\(Any other\)\s*$/i;
-const MARKS_COLON = /\bMarks?\s*:/;
+// "Marks: 1" is a scheme note; "Marks: 0-10, 10-20" is a statistics class column.
+const MARKS_COLON = /\bMarks?\s*:\s*(?:½|\d+(?:\.5)?)\s*(?:marks?\b|$|[;,)])/;
+// An examiner mark note in student-visible text: "(½ mark)", "(1 mark each)", "(½ + ½ mark)", "(2 marks; deduct ½ mark ...)".
+// Stems keep their "(2 marks)" part allocations (CBSE prints them); the [N mark] step prefix is stripped before this runs.
+const MARK_NOTE = /\(\s*(?:½|\d+(?:\.5)?|\d\s*½)(?:\s*\+\s*(?:½|\d+))*\s*marks?\b[^)]*\)/i;
+// The same notes in words: "(Deduct half mark if ...)", "(... award full 2 marks)", "the rubric awards", "0.5 marks each for:",
+// "1 mark for each point:". A count of marks in an answer ("mean = 61.1 marks") is not one.
+const EXAMINER_NOTE = /\b(?:award(?:ed|s)?|deduct)\b[^.]*\bmarks?\b|\brubric\b|\b(?:½|half|\d+(?:\.5)?) marks? each\b|\b(?:½|half|\d+(?:\.5)?) marks? for\b/i;
 const SECTION = /\bSECTION\s*[-–—]?\s*[A-E]\b/;
 const PAGE = /\bPage\s+\d+\b|\bP\.\s?T\.\s?O\b/;
 const FIRST_LABEL = /\((?:i|a|I|A|1)\)/;
@@ -64,6 +79,7 @@ export function residueFindings(q: Row): Finding[] {
     ["questionText", strings(r.questionText)],
     ["answer", strings(r.answer)],
     ["finalAnswer", strings(r.finalAnswer)],
+    ["explanation", strings(r.explanation)],
     ["solutionSteps", steps.map((s) => s.replace(STEP_TAG, ""))],
   ];
   for (const [field, values] of fields) {
@@ -71,11 +87,14 @@ export function residueFindings(q: Row): Finding[] {
       for (const line of lines(value)) {
         if (HALF_RUN.test(line)) add("tally", field, line);
         const run = TALLY_RUN_END.exec(line);
-        if (run && !objective && (run[1].includes("½") || run[1].trim().endsWith("+"))) add("tally", field, line);
+        // A lone "½" or "2 ½" is an answer ("(b) ½"); a tally has two or more mark tokens, or ends with "+".
+        const runTokens = run ? (run[1].match(/\d\s*½|½|\d+/g) ?? []).length : 0;
+        if (run && !objective && (run[1].trim().endsWith("+") || (runTokens >= 2 && run[1].includes("½")))) add("tally", field, line);
         if (field !== "questionText" && TALLY_INT_PLUS_END.test(line)) add("tally", field, line);
         if (field === "questionText" && (STEM_MARKS_BEFORE_PART.test(line) || STEM_MARKS_END.test(line))) add("stem-marks", field, line);
         if (SCHEME_NOTE.test(line)) add("scheme-note", field, line);
         if (field !== "questionText" && MARKS_COLON.test(line)) add("scheme-note", field, line);
+        if (field !== "questionText" && (MARK_NOTE.test(line) || EXAMINER_NOTE.test(line))) add("mark-note", field, line);
         if (SECTION.test(line) || PAGE.test(line)) add("section/page", field, line);
         if (field !== "questionText" && /\bOR\s*$/.test(line)) add("dangling-or", field, line);
       }
@@ -100,7 +119,9 @@ export function residueFindings(q: Row): Finding[] {
     const all = tags.reduce((a, m) => a + val(m as RegExpExecArray), 0);
     const nonOr = tags.reduce((a, m, i) => (IS_OR_STEP.test(steps[i]) ? a : a + val(m as RegExpExecArray)), 0);
     const marks = Number(r.marks ?? 0);
-    if (Math.abs(all - marks) > 1e-6 && Math.abs(nonOr - marks) > 1e-6) add("mark-sum", "solutionSteps", `sum=${all} non-OR=${nonOr} marks=${marks}`);
+    // With OR alternatives the non-OR steps must carry the marks (one path through the question); without them, all steps.
+    const hasOr = steps.some((s) => IS_OR_STEP.test(s));
+    if (Math.abs((hasOr ? nonOr : all) - marks) > 1e-6) add("mark-sum", "solutionSteps", `sum=${all} non-OR=${nonOr} marks=${marks}`);
   }
   return out;
 }
@@ -143,8 +164,8 @@ describe("served rows carry no marking-scheme residue (BANK-RESIDUE-1)", () => {
         expect(residueFindings(served.get(e.id) as Row), e.id).toEqual([]);
       }
     }
-    expect(BANK_RESIDUE_1_WITHHELD_IDS.size).toBe(25);
-    expect(BANK_RESIDUE_1_LEDGER.filter((e) => e.verdict === "cleaned").length).toBe(61);
+    expect(BANK_RESIDUE_1_WITHHELD_IDS.size).toBe(28);
+    expect(BANK_RESIDUE_1_LEDGER.filter((e) => e.verdict === "cleaned").length).toBe(145);
     expect(new Set(BANK_RESIDUE_1_LEDGER.map((e) => e.id)).size).toBe(BANK_RESIDUE_1_LEDGER.length);
   });
 
@@ -153,6 +174,11 @@ describe("served rows carry no marking-scheme residue (BANK-RESIDUE-1)", () => {
     const pats = (o: Record<string, unknown>) => residueFindings(row(o)).map((f) => f.pattern);
     expect(pats({ answer: "(2) magnetic field strength at Q is more than R. 1 ½ +" })).toContain("tally");
     expect(pats({ answer: "Water ½ +½ ½;" })).toContain("tally");
+    expect(pats({ answer: "(Deduct half mark if arrows are not marked)" })).toContain("mark-note");
+    expect(pats({ solutionSteps: ["[1 mark] (b) 0.5 marks each for: bulb 3; bulb 4."] })).toContain("mark-note");
+    expect(pats({ solutionSteps: ["[2 marks] (b) 1 mark for each point: the muscles need oxygen."] })).toContain("mark-note");
+    expect(pats({ solutionSteps: ["[1 mark] 30/2 = 15 cm. (If answer = 15 cm, award full 2 marks.)"] })).toContain("mark-note");
+    expect(pats({ solutionSteps: ["[2 marks] R = 20 Ω. [1.5 marks for the steps, 0.5 mark for final answer with unit]"] })).toContain("mark-note");
     expect(pats({ answer: "(ii) Axon – carries the impulse. ½ , ½ ½ ," })).toContain("tally");
     expect(pats({ answer: "(Any two) 1 1 1 ½ +" })).toContain("tally");
     expect(pats({ answer: "Tiger will decrease. 1+1" })).toContain("tally");
@@ -166,15 +192,40 @@ describe("served rows carry no marking-scheme residue (BANK-RESIDUE-1)", () => {
     expect(pats({ finalAnswer: "(b) Electrolytic refining" })).toContain("partial");
     expect(pats({ answer: "Electrolytic refining", solutionSteps: ["[1 mark] (a) Displacement", "[1 mark] Electrolytic refining"] })).toContain("partial");
     expect(pats({ solutionSteps: ["[1.5 marks] (i) a", "[1.5 marks] (ii) b"], marks: 2 })).toContain("mark-sum");
+    // review of #1325: an OR row whose non-OR steps miss the marks (PYQ-S-2026-ELEC-002 had (c) at 1 of 2)
+    expect(pats({ marks: 4, solutionSteps: ["[1 mark] (a) x", "[1 mark] (b) y", "[1 mark] (c) (i) z", "[1 mark] OR (c) (ii) w"] })).toContain("mark-sum");
+    // examiner mark notes in student-visible text (review of #1325)
+    expect(pats({ solutionSteps: ["[1 mark] (a) Spirogyra (½ mark); fragmentation (½ mark)."] })).toContain("mark-note");
+    expect(pats({ solutionSteps: ["[1 mark] (a) DC flows one way; AC reverses. (½ mark each)"] })).toContain("mark-note");
+    expect(pats({ answer: "Na⁺ + e⁻ → Na (½ + ½ mark)." })).toContain("mark-note");
+    expect(pats({ solutionSteps: ["[2 marks] Diagram of the lens (2 marks; deduct ½ mark for not showing the direction of light)."] })).toContain("mark-note");
+    expect(pats({ answer: "Water ½ +½ ½;" })).toContain("tally");
+    expect(pats({ answer: "(b) Electrolytic refining 3Fe + 4H2 ½+½" })).toContain("tally");
+    expect(pats({ questionText: "(a) Why ? 5 OR (b) How ? 3 3 3 3 3 16" })).toContain("stem-marks");
+    expect(pats({ questionText: "(a) State the role. (b) Give the function. 1" })).toContain("stem-marks");
+    expect(pats({ questionText: "Write the functions in human beings : 2 (i) Renal artery (ii) Urethra" })).toContain("stem-marks");
   });
 
   it("controls: house conventions are not residue", () => {
     const row = (o: Record<string, unknown>) => ({ id: "X", marks: 4, questionText: "Solve.", ...o }) as unknown as Row;
     const pats = (o: Record<string, unknown>) => residueFindings(row(o));
-    expect(pats({ solutionSteps: ["[2 marks] x + y = 15 ... (1)", "[2 marks] Na⁺ + e⁻ → Na (½ + ½ mark)."] })).toEqual([]);
+    expect(pats({ solutionSteps: ["[2 marks] x + y = 15 ... (1)", "[2 marks] Na⁺ + e⁻ → Na."] })).toEqual([]);
+    // review of #1325: legitimate strings the first version of this guard flagged
+    const prob = (o: Record<string, unknown>) => residueFindings(row({ questionText: "Find the probability.", solutionSteps: ["[4 marks] P = 1/2"], ...o }));
+    expect(prob({ finalAnswer: "(b) ½" })).toEqual([]);
+    expect(prob({ answer: "(b) 2 ½" })).toEqual([]);
+    expect(prob({ answer: "(a) ½ (b) ½" })).toEqual([]);
+    expect(pats({ solutionSteps: ["[2 marks] OP = 10 units", "[2 marks] OR = √(400 + 441) = 29 units"] })).toEqual([]);
+    expect(pats({ solutionSteps: ["[4 marks] P(A) + P(B) = ½ + ½ = 1"] })).toEqual([]);
+    expect(pats({ questionText: "The sides are in the ratio 2 : 3 (i) Find the scale factor. (ii) Find the area ratio." })).toEqual([]);
+    expect(pats({ questionText: "Find the mean of the data. 12 15 18 20" })).toEqual([]);
+    expect(pats({ solutionSteps: ["[4 marks] Marks: 0-10, 10-20, 20-30; frequencies 5, 8, 12"] })).toEqual([]);
+    expect(pats({ solutionSteps: ["[4 marks] The required total is the sum of 4 + 6"] })).toEqual([]);
+    expect(pats({ questionText: "(a) Name it (2 marks). (b) Explain why (2 marks)." })).toEqual([]);
+    expect(pats({ answer: "Correct mean = 61.1 marks", solutionSteps: ["[4 marks] Mean = 61.1 marks. [1 mark]"] })).toEqual([]);
     expect(pats({ questionText: "Class: 0-10, 10-20\nFrequency: 5, 8, 20" })).toEqual([]);
     expect(pats({ solutionSteps: ["[2 marks] (A) a = 2", "[2 marks] (A) n = 20", "[2 marks] OR (B) a = 65", "[2 marks] OR n = 18"] })).toEqual([]);
     expect(pats({ answer: "(i) x + y = 50 (ii) x = 15, y = 35", questionText: "(i) Form. (ii) Solve." })).toEqual([]);
-    expect(pats({ solutionSteps: ["[4 marks] OR (alternative): Let x = 2. [1]"] })).toEqual([]);
+    expect(pats({ solutionSteps: ["[4 marks] Main: x = 1. [1]", "[4 marks] OR (alternative): Let x = 2. [1]"] })).toEqual([]);
   });
 });

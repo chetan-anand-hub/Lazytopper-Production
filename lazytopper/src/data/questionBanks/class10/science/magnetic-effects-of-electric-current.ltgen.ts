@@ -510,8 +510,8 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) DC flows in one direction only, AC reverses periodically; DC comes from a cell or battery, AC from power stations. (b) 50 Hz, 100 times; (c) AC can be transmitted over long distances without much loss of energy; (d) I = 5 A; a 4 A fuse is not suitable because it will melt",
     "solutionSteps": [
-      "[1 mark] (a) DC flows in one direction only; AC reverses its direction periodically. DC comes from a cell or battery; AC is supplied from power stations. (½ mark each)",
-      "[1 mark] (b) Frequency = 50 Hz; it changes direction 2 × 50 = 100 times per second. (½ mark each)",
+      "[1 mark] (a) DC flows in one direction only; AC reverses its direction periodically. DC comes from a cell or battery; AC is supplied from power stations.",
+      "[1 mark] (b) Frequency = 50 Hz; it changes direction 2 × 50 = 100 times per second.",
       "[1 mark] (c) AC can be transmitted over long distances without much loss of energy.",
       "[1 mark] (d) I = P/V = 1100 W ÷ 220 V = 5 A.",
       "[1 mark] 5 A is more than the 4 A rating, so the fuse wire will melt and break the circuit each time the heater is switched on — the fuse is not suitable (a fuse of slightly more than 5 A is needed)."

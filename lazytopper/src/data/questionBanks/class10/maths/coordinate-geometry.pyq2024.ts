@@ -56,7 +56,7 @@ export const COORDINATE_GEOMETRY_PYQ_2024: CanonicalQuestion[] = [
     solutionSteps: [
       "[1 mark] (i) From the figure F(−3, 0) and G(1, 4): mid-point of FG = ((−3 + 1)/2, (0 + 4)/2) = (−1, 2).",
       "[1 mark] (ii)(a) A(3, 4) and C(−1, −2): AC = √[(−1 − 3)² + (−2 − 4)²].",
-      "[1 mark] (ii)(a) AC = √(16 + 36) = √52 = 2√13 units. [OR (b): A(3, 4), B(3, 2); the point dividing AB in the ratio 1 : 3 is ((1 × 3 + 3 × 3)/(1 + 3), (1 × 2 + 3 × 4)/(1 + 3)) (1 mark), i.e. (3, 7/2) (1 mark).]",
+      "[1 mark] (ii)(a) AC = √(16 + 36) = √52 = 2√13 units. [OR (b): A(3, 4), B(3, 2); the point dividing AB in the ratio 1: 3 is ((1 × 3 + 3 × 3)/(1 + 3), (1 × 2 + 3 × 4)/(1 + 3)), i.e. (3, 7/2).]",
       "[1 mark] (iii) Reading the figure, D is (−2, −5).",
     ],
     finalAnswer: "(i) (−1, 2); (ii)(a) AC = 2√13 units [OR (b) (3, 7/2)]; (iii) D(−2, −5).",

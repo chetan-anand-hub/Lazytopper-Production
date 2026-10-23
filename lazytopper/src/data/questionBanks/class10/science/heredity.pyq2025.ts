@@ -75,9 +75,9 @@ export const heredityPYQ2025: CanonicalQuestion[] = [
     pyqYear: "2025", pyqSet: "3" },
   { id: "PYQ-S-2025-HERED-010", subject: "Science", topicKey: "heredity", subtopic: "Mendelian Crosses", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A pure pea plant having round (R), yellow (Y) seeds is crossed with another pure pea plant having wrinkled (r), green (y) seeds. Subsequently F1 progeny is self-pollinated to obtain F2 progeny. (a) What do the seeds of F1 generation look like ? (b) Give the possible combinations of traits in seeds of F2 generation. Also give their ratio. (c) State the reason of obtaining seeds of new combination of traits in F2 generation.",
-    answer: "(Deduct half mark if arrows are not marked)",
+    answer: "(a) Round, yellow (b) Round yellow : round green : wrinkled yellow : wrinkled green = 9 : 3 : 3 : 1 (c) Traits are inherited independently (independent assortment of the traits).",
     solutionSteps: ["[1 mark] (a) Round, yellow", "[1 mark] (b) Round yellow : round green : wrinkled yellow : wrinkled green = 9 : 3 : 3 : 1", "[1 mark] (c) Traits are inherited independently / independent assortment of the traits."],
-    finalAnswer: "(Deduct half mark if arrows are not marked)",
+    finalAnswer: "(a) Round, yellow (b) Round yellow : round green : wrinkled yellow : wrinkled green = 9 : 3 : 3 : 1 (c) Traits are inherited independently (independent assortment of the traits).",
     ncertRef: "PYQ 31/3/1 Q30", isCompetencyBased: false,
     pyqYear: "2025", pyqSet: "1" },
 ];

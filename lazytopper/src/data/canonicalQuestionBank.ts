@@ -2055,6 +2055,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-CHEM-011",               // residue: stem ends in page/mark residue "3 3 3 3 3 16"; three parts tagged 1.5 + 1.5; answer covers only (ii) and (iii)
   "PYQ-S-EYE-001",                // residue: stem "2 OR"; answer is only OR (b)(ii); (a) rainbow has no diagram step; steps untagged
   "PYQ-S-REPR-005",               // residue: stem "5 OR"; answer is only OR (b)(ii); 5-mark steps untagged
+  "SQP-S-MNM-003",                // residue: mark tags: the main path sums to 2 of 3 marks and the OR (alternative) question is one [1 mark] step; the SQP marking scheme is not in the repo (review of #1325)
+  "SQP-S-LP-003",                 // residue: mark tags: the main path is one [1 mark] step on a 2-mark question and the OR (alternative) is one [1 mark] step; the SQP marking scheme is not in the repo (review of #1325)
+  "SQP-S-ELEC-004",               // residue: mark tags: part (iii) is tagged 0.5 + 0.5 so the main path sums to 3 of 4 marks; the OR (alternative) is one [1 mark] step; the SQP marking scheme is not in the repo (review of #1325)
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
   // SCI-BACKLOG-1 batch 3 (F, 14 Oct, D252): GDR-L-CBJ-011 paused, repair is a diagrams-plus-text change [FU-GDR-L-CBJ-011-OBJECT-AT-F]
   "GDR-L-CBJ-011",                // wrong-content vs NCERT 2026-27: key says object at F gives a real, inverted, highly enlarged image at infinity; the 2026-27 table says "image would not be formed". Its computed figure (diagrams/registry/lightSolutionFigures.ts, opticsCase) expects an enlarged real image, so text and figure are repaired together later
