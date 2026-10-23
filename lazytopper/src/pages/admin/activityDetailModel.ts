@@ -132,7 +132,7 @@ const EVENT_LABELS: Record<string, string> = {
   // FEEDBACK-1 — the "help us improve" prompt (shown / dismissed / answered), built below.
   ...feedbackEventLabels(),
   // GUIDE-1 — the stored name carries no arm (names only); guideTestGroupLabel(uid) derives it.
-  guide_variant_assigned: "Was put in the guide test",
+  guide_variant_assigned: "Was put in the guide test (A/B ended 22 Oct 2026 — all students on guide)",
   // PAYWALL-PAY-1 — the three paywall actions (any surface: lock, upgrade popup / sheet, limit, /pricing,
   // tutor, trial_paper, more_like_this).
   paywall_action_pay: "Tapped Pay on a paywall",
@@ -145,15 +145,21 @@ const EVENT_LABELS: Record<string, string> = {
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */
 
+/** GUIDE-ALL-1 — appended to every historical test-group label (owner ruling 22 Oct 2026). */
+export const GUIDE_AB_ENDED_NOTE = "A/B ended 22 Oct 2026 — all students on guide";
+
 export const GUIDE_TEST_GROUP_LABELS = {
-  guide: "Guide test group: Byte",
-  control: "Guide test group: control",
+  guide: `Guide test group: Byte (${GUIDE_AB_ENDED_NOTE})`,
+  control: `Guide test group: control (${GUIDE_AB_ENDED_NOTE})`,
 } as const;
 
 /**
- * The arm a student is in. The activity store keeps NAMES only, so `guide_variant_assigned`
- * cannot carry the arm; but the arm is a pure function of the uid (guideVariant.ts), so the
- * admin board derives it here — the same answer the student's device computed.
+ * The arm a student WAS in during the test. The activity store keeps NAMES only, so
+ * `guide_variant_assigned` cannot carry the arm; but the arm was a pure function of the uid
+ * (guideVariant.ts `guideVariantFor`), so the admin board derives it here — the same answer the
+ * student's device computed. GUIDE-ALL-1: the device stopped sending `guide_variant_assigned` on
+ * 22 Oct 2026, so every such row is pre-ruling and this label stays historically exact; the
+ * suffix says the split is over (every student now gets the guide).
  */
 export function guideTestGroupLabel(uid: string): string {
   return GUIDE_TEST_GROUP_LABELS[guideVariantFor(uid)];

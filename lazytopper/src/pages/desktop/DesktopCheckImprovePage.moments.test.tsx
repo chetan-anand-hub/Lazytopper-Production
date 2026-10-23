@@ -103,7 +103,7 @@ import { checkImproveScorecardVariant } from "../../components/results/scorecard
 import { GradingNetworkError } from "../../ai/gradingTransport";
 import { resetZeroGradedCacheForTests } from "../../components/startHere/zeroGraded";
 import { __setGuideAbForTests } from "../../components/guide/guideVariant";
-import { __resetMascotsForTests } from "../../components/guide/mascotsMute";
+import { __resetMascotsForTests, hideMascots } from "../../components/guide/mascotsMute";
 import { GuideMomentSlot, inGuideArm, isUnreadAllPending } from "../../components/guide/moments/moments";
 import { GUIDE_PUBLIC_ARM_KEY, __resetPublicArmForTests } from "../../components/guide/public/publicPeekModel";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
@@ -343,8 +343,15 @@ describe("MOMENTS-1 M9 · the signed-out free check from a shared link", () => {
     expect(moment("m9")).toBeNull();
   });
 
-  it("★★ CONTROL device arm → nothing", async () => {
+  it("★★ GUIDE-ALL-1: a device the A/B put in CONTROL now gets Byte from a shared link", async () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "control");
+    render(page("/check-improve?utm_source=parent_share&utm_medium=whatsapp"));
+    await waitFor(() => expect(lineOf("m9")).toBe("Someone sent you this! Check one answer free. No sign-up."));
+    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("guide");
+  });
+
+  it("★★ 'Hide mascots' on the device → nothing", async () => {
+    hideMascots();
     render(page("/check-improve?utm_source=parent_share&utm_medium=whatsapp"));
     await screen.findByRole("button", { name: "Upload image" });
     await act(async () => {});

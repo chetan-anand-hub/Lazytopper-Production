@@ -17,7 +17,7 @@ import { ensureBankChapters } from "../data/bankChapters/loader";
 import { __setGuideAbForTests } from "../components/guide/guideVariant";
 import { __resetSolutionMatchedForTests } from "../components/guide/moments/moments";
 import { GUIDE_PUBLIC_ARM_KEY, __resetPublicArmForTests } from "../components/guide/public/publicPeekModel";
-import { __resetMascotsForTests } from "../components/guide/mascotsMute";
+import { __resetMascotsForTests, hideMascots } from "../components/guide/mascotsMute";
 import { FREE_CHECK_USED_KEY } from "../services/freeCheckClient";
 
 const ROW = "tri-n-ncert-6-sa-001"; // a typed row opted in for a value verdict; key "EC = 2 cm."
@@ -83,8 +83,17 @@ describe("MOMENTS-1 M10 · the NCERT solutions page", () => {
     expect(screen.queryByTestId("guide-moment-m10")).toBeNull();
   });
 
-  it("★★ CONTROL device arm: a matching check → no Byte", async () => {
+  it("★★ GUIDE-ALL-1: a device the A/B put in CONTROL now gets Byte after a matching check", async () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "control");
+    const view = mount();
+    await check(view, "EC = 2 cm.");
+    await screen.findByText("✓ Your answer matches.");
+    await waitFor(() => expect(screen.getByTestId("guide-moment-m10")).toBeTruthy());
+    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("guide");
+  });
+
+  it("★★ 'Hide mascots' on the device: a matching check → no Byte (the plain page)", async () => {
+    hideMascots();
     const view = mount();
     await check(view, "EC = 2 cm.");
     await screen.findByText("✓ Your answer matches.");
