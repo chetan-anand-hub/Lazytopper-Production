@@ -312,8 +312,9 @@ export default function ChapterTestPage() {
   // Autosave restore (honest "✓ saved") — CT-RELOAD-1. A reload mid-test used to land on the
   // setup screen with a NEW draw and then restore the saved answers (keyed by question NUMBER)
   // onto it, so answers landed on the wrong questions. The in-progress attempt now saves ITS
-  // paper (ids, order, text) beside the answers, and a reload restores exactly that paper and
-  // goes straight back into the test, where it left off — the Full Mock resume model. A saved
+  // paper (ids, order, text) beside the answers, and a reload restores exactly that paper with its
+  // answers, offered as "Resume your test" on the start screen — the Full Mock resume model (an
+  // explicit resume, never an automatic jump, and never counted as a new start). A saved
   // entry without its paper (written before this fix) is dropped: its answers belong to a
   // paper that no longer exists on this page, and guessing would put them on the wrong rows.
   useEffect(() => {
@@ -341,8 +342,6 @@ export default function ChapterTestPage() {
       if (typeof saved.timerEnabled === "boolean") setTimerEnabled(saved.timerEnabled);
       const qn = Number(saved.currentQNumber);
       setCurrentQNumber(sp.questions.some((q) => q.qNumber === qn) ? qn : 1);
-      // A resume, not a new start: never re-counted against the fair-use allowance.
-      setPhase((ph) => (ph === "setup" ? "taking" : ph));
     } catch {
       /* best-effort */
     }
@@ -479,6 +478,35 @@ export default function ChapterTestPage() {
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
   }, [topicKey, subject, fairUse.blockPaperStart]);
+
+  // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
+  // never re-counted against the fair-use allowance.
+  const resumeTest = useCallback(async () => {
+    if (!restoredPaper) return;
+    setStarting(true);
+    try {
+      await loadKatex();
+    } catch {
+      /* MathText fetches it again when a question needs it */
+    }
+    setStarting(false);
+    setPhase("taking");
+  }, [restoredPaper]);
+  /** Drop the restored attempt (unsubmitted, nothing graded) and show this visit's fresh draw. */
+  const discardRestored = useCallback(() => {
+    if (progressKey && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.removeItem(progressKey);
+      } catch {
+        /* best-effort */
+      }
+    }
+    setRestoredPaper(null);
+    setAnswers({});
+    setFlags(new Set());
+    setElapsed(0);
+    setCurrentQNumber(1);
+  }, [progressKey]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
@@ -1040,10 +1068,28 @@ export default function ChapterTestPage() {
                     {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
                     {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
                     <PreTestSlot surface="chapter_test" />
+                    {restoredPaper && (
+                      <div className="lt-ct__honest" data-testid="ct-resume-note">
+                        <span>·</span>
+                        <span>
+                          You were part-way through this test — it&rsquo;s saved exactly as you left it (Q
+                          {currentQNumber} of {restoredPaper.questions.length}, {Object.keys(answers).length} answered).{" "}
+                          <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={discardRestored}>
+                            Start a fresh test instead
+                          </button>
+                        </span>
+                      </div>
+                    )}
                     <div className="lt-ct__startrow">
-                      <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void startTest()} disabled={starting}>
-                        Start the test →
-                      </button>
+                      {restoredPaper ? (
+                        <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void resumeTest()} disabled={starting}>
+                          Resume your test →
+                        </button>
+                      ) : (
+                        <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void startTest()} disabled={starting}>
+                          Start the test →
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"

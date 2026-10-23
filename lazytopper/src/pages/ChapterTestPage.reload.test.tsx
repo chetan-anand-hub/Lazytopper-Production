@@ -1,5 +1,5 @@
 // CT-RELOAD-1 — a reload during a Chapter Test must come back to the SAME paper with the SAME
-// answers. Before the fix, a reload landed on the setup screen with a NEW draw and then restored
+// answers (offered as "Resume your test", the Full Mock resume model). Before the fix, a reload landed on the setup screen with a NEW draw and then restored
 // the saved answers (keyed by question number) onto it, so they sat on the wrong questions.
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
@@ -77,6 +77,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  window.sessionStorage.clear();
   vi.unstubAllGlobals();
 });
 
@@ -107,13 +108,38 @@ describe("CT-RELOAD-1 · reload mid-test", () => {
     cleanup();
     mount();
 
-    await waitFor(() => expect(inTest()).toBe(true)); // straight back into the test, not setup
+    // The start screen offers the SAVED attempt (no new draw, no new start), the Full Mock way.
+    const note = await screen.findByTestId("ct-resume-note");
+    expect(note.textContent).toContain("Q5");
+    expect(note.textContent).toContain("3 answered");
+    expect(screen.queryByRole("button", { name: /Start the test/ })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Resume your test/ }));
+    await waitFor(() => expect(inTest()).toBe(true));
     expect(document.querySelector(".lt-ct__qnum")?.textContent).toContain("Q5"); // where it left off
     for (let n = 1; n <= 3; n += 1) {
       await goTo(n);
       expect(qText()).toBe(before[n - 1].text);
       expect(selected()).toBe(before[n - 1].picked);
     }
+  });
+
+  it("★ 'Start a fresh test instead' drops the saved attempt and starts clean", async () => {
+    mount();
+    const start = await screen.findByRole("button", { name: /Start the test/ });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    fireEvent.click(start);
+    await waitFor(() => expect(inTest()).toBe(true));
+    fireEvent.click(document.querySelectorAll<HTMLButtonElement>(".lt-ct__opt")[0]);
+    await act(async () => {});
+    cleanup();
+    mount();
+    fireEvent.click(await screen.findByRole("button", { name: /Start a fresh test instead/ }));
+    expect(screen.queryByTestId("ct-resume-note")).toBeNull();
+    fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }));
+    await waitFor(() => expect(inTest()).toBe(true));
+    expect(selected()).toBe("");
   });
 
   it("★ an old saved entry WITHOUT its paper never pours answers onto a new draw", async () => {
