@@ -80,6 +80,20 @@ export interface MistakeLogEntry {
    */
   resolvedAt?: string;
   resolvedBy?: MistakeResolution;
+  /**
+   * MCQ-TYPE-2 (owner ruling 23 Oct 2026, ~20:45 IST) — a 0-MARK HABIT: a RIGHT MCQ with flawed
+   * working, typed, `marksLost` 0 and every marksLostByType bucket 0. Absent on every other entry.
+   * ★ NOT A LIVE MISTAKE for any existing reader: `getMistakeLogs` and the shared read model leave
+   *   it out by default (so every marks figure, entry count, weak area and gap is unchanged), and it
+   *   is never resolved as "won back". Type-count readers opt in (`includeHabits` /
+   *   `MistakeView.habits`) — it counts in the type mix and the careless-habit counts only.
+   */
+  habitOnly?: boolean;
+}
+
+/** MCQ-TYPE-2 — a 0-mark habit entry (see `MistakeLogEntry.habitOnly`). */
+export function isHabitOnlyEntry(e: Pick<MistakeLogEntry, "habitOnly"> | null | undefined): boolean {
+  return e?.habitOnly === true;
 }
 
 /**
@@ -274,6 +288,8 @@ export async function resolveEarlierMistakesForQuestion(
   const eligible = (e: Partial<MistakeLogEntry> & { id: string }): boolean => {
     if (e.id === options.exceptId || !isStableMistakeLogId(e.id)) return false;
     if (String(e.questionId ?? "").trim() !== qid || e.resolvedAt) return false;
+    // MCQ-TYPE-2: a 0-mark habit lost nothing, so there is nothing to win back.
+    if (isHabitOnlyEntry(e)) return false;
     const ts = Date.parse(String(e.timestamp ?? ""));
     return Number.isFinite(ts) && ts < options.beforeMs;
   };
@@ -455,8 +471,11 @@ async function hydrateMistakeLogEntriesFromCloud(uid: string): Promise<void> {
  */
 export async function getMistakeLogs(
   uid: string,
-  days: number
+  days: number,
+  options: { includeHabits?: boolean } = {}
 ): Promise<MistakeLogEntry[]> {
+  // MCQ-TYPE-2: a 0-mark habit is not a live mistake — left out unless the reader asks for it.
+  const keep = (e: MistakeLogEntry): boolean => options.includeHabits === true || !isHabitOnlyEntry(e);
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
   const cutoffIso = new Date(cutoff).toISOString();
 
@@ -478,7 +497,7 @@ export async function getMistakeLogs(
       // resolved is history, not a live mistake: left out exactly as when it was deleted.
       return merged.filter((e) => {
         try {
-          return new Date(e.timestamp).getTime() >= cutoff && !isSupersededByRegrade(e);
+          return new Date(e.timestamp).getTime() >= cutoff && !isSupersededByRegrade(e) && keep(e);
         } catch {
           return false;
         }
@@ -496,7 +515,7 @@ export async function getMistakeLogs(
   return readLocal(uid)
     .filter((e) => {
       try {
-        return new Date(e.timestamp).getTime() >= cutoff && !isSupersededByRegrade(e);
+        return new Date(e.timestamp).getTime() >= cutoff && !isSupersededByRegrade(e) && keep(e);
       } catch {
         return false;
       }

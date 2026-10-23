@@ -2192,11 +2192,12 @@ test('§20.7 the DIAGNOSIS on flawed working still reaches the mistake summary',
   const b = h.body();
 
   assert.equal(b.marksAwarded, 1, 'full marks');
-  // GRADER-CORE-1 PR-2: a right option scores FULL and carries NO mistake type (owner
-  // position in audit GA-15: "Right-option MCQs with flawed working carry a type … (owner: no
-  // type)"; golden consistency C07 "no type on full marks"). The DIAGNOSIS survives as text.
-  assert.equal(b.mistakeSummary.calculation, 0, 'no mistake is logged against a full-marks answer');
-  assert.equal(b.annotatedSteps[0].mistakeType, null);
+  // MCQ-TYPE-2 (owner ruling 23 Oct 2026, ~20:45 IST) SUPERSEDES the GA-15 position ("no type on a
+  // right-option MCQ"): a RIGHT MCQ with flawed working shows its type and is saved to MI as a
+  // mistake with 0 marks lost — a habit to fix. The mark stays FULL; nothing counts as lost.
+  assert.equal(b.mistakeSummary.calculation, 1, 'the habit is counted');
+  assert.equal(b.annotatedSteps[0].mistakeType, 'calculation');
+  assert.equal(b.annotatedSteps[0].marksDeducted, 0, 'and it costs nothing');
   assert.match(b.annotatedSteps[0].teacherAnnotation, /Sign slip/, 'the student still sees what was wrong with the working');
 });
 

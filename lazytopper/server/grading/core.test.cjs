@@ -2145,12 +2145,13 @@ test('§MCQ-TYPE-1.4 CONTROL: an EMPTY step stays untyped even when the question
 test('§MCQ-TYPE-1.5 ★ MARKS UNCHANGED: wrong+working 0, right+working full, bare pick 0, unreadable option ungraded — both endpoints', async () => {
   // wrong + working (the probe) → 0
   for (const r of await bothPaths(PROBE_STEPS())) assert.deepEqual([r.marksAwarded, r.percentage, r.objectiveResolved], [0, 0, true]);
-  // right + working, even with the model's verdict saying wrong and a type on the line → FULL, no type
-  // (a right MCQ's types are cleared today at postprocess.cjs "objectiveVerdict.correct"; this lane does not touch that)
+  // right + working, even with the model's verdict saying wrong and a type on the line → FULL.
+  // MCQ-TYPE-2 (owner ruling 23 Oct): the flawed working's type is KEPT as a 0-mark habit;
+  // nothing is lost, so marksLostByType stays all-zero.
   for (const r of await bothPaths(PROBE_STEPS('(a)'), { raw: { finalAnswerCorrect: false } })) {
     assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
     assert.deepEqual(r.marksLostByType, grading.zeroLost());
-    assert.ok(r.annotatedSteps.every((s) => s.mistakeType === null));
+    assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), [null, null, 'conceptual']);
   }
   // wrong + working with the model's verdict saying RIGHT → still 0: the key decides, working never rescues
   for (const r of await bothPaths(PROBE_STEPS(), { raw: { finalAnswerCorrect: true } })) assert.equal(r.marksAwarded, 0);
@@ -2221,4 +2222,48 @@ test('§MCQ-TYPE-1.7 ONE objective question is ONE mistake: two typed steps → 
     assert.equal(r.mistakeSummary.conceptual, 1);
     assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 1 });
   }
+});
+
+/* ══ §MCQ-TYPE-2 · A RIGHT MCQ WITH FLAWED WORKING SHOWS ITS TYPE AT 0 MARKS LOST ══════════════
+   Owner ruling (23 Oct 2026, ~20:45 IST): a RIGHT MCQ with flawed uploaded working shows the
+   mistake category and is saved to MI as a mistake with 0 marks lost — a habit to fix, never lost
+   marks. The mark stays FULL. Before: postprocess cleared every type on a right objective. */
+
+test('§MCQ-TYPE-2.1 ★ right option + flawed working → FULL mark, type kept, marksLostByType all zero — both endpoints', async () => {
+  const steps = [
+    S({ description: 'Compares the slopes', studentWork: 'm1 = 2 and m2 = 3, so the slopes are equal', status: 'incorrect', marksAwarded: 0, mistakeType: 'calculation' }),
+    S({ description: 'Option chosen', studentWork: '(a)', status: 'correct', marksAwarded: 1 }),
+  ];
+  for (const r of await bothPaths(steps, { single: { textAnswer: 'm1 = 2 and m2 = 3, so the slopes are equal\n(a)' }, sheet: { textAnswer: 'm1 = 2 and m2 = 3, so the slopes are equal\n(a)' } })) {
+    assert.deepEqual([r.marksAwarded, r.percentage, r.objectiveResolved], [1, 100, true], 'the mark stays full');
+    assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), ['calculation', null]);
+    assert.equal(r.mistakeSummary.calculation, 1, 'one habit counted');
+    assert.deepEqual(r.marksLostByType, grading.zeroLost(), 'nothing lost, in any bucket');
+    for (const s of r.annotatedSteps) assert.deepEqual([s.marksAwarded, s.marksDeducted], [0, 0]);
+  }
+});
+
+test('§MCQ-TYPE-2.2 CONTROLS: a RIGHT bare pick (letter, option text, restated declaration) stays untyped; a right PHOTO bare pick too', async () => {
+  for (const [work, text] of [['(a)', '(a)'], ['Parallel', 'Parallel'], ['Ans: (a)', '(a)\nAns: (a)'], ['Answer is (a) Parallel', 'Answer is (a) Parallel']]) {
+    const steps = [S({ description: 'Option chosen', studentWork: work, status: 'correct', marksAwarded: 1, mistakeType: 'silly' })];
+    for (const r of await bothPaths(steps, { single: { textAnswer: text }, sheet: { textAnswer: text } })) {
+      assert.equal(r.marksAwarded, 1, work);
+      assert.ok(r.annotatedSteps.every((s) => s.mistakeType === null), work + ': a right bare pick has nothing to diagnose');
+      assert.equal(r.mistakeSummary.silly, 0, work);
+    }
+  }
+  const photo = [S({ description: 'Option chosen', studentWork: '(a)', status: 'correct', marksAwarded: 1, mistakeType: 'silly' })];
+  for (const r of await bothPaths(photo, { single: { textAnswer: '', ...PHOTO }, sheet: { textAnswer: '' }, doc: { imageBase64: 'UERG', imageMimeType: 'application/pdf' } })) {
+    assert.equal(r.marksAwarded, 1);
+    assert.ok(r.annotatedSteps.every((s) => s.mistakeType === null));
+  }
+});
+
+test('§MCQ-TYPE-2.3 a PARTIAL restatement of the option on a declaration line is not working ("Answer is (c) 7k", (c) = "only k, 7k and k^3")', () => {
+  const K = ['k', '3k', 'only k, 7k and k^3', 'k^3'];
+  assert.equal(O.objectiveHasWorking('Answer is (c) 7k', K), false);
+  assert.equal(O.objectiveHasWorking('(c) only k and 7k', K), false);
+  // CONTROL: real working on the same option still counts
+  assert.equal(O.objectiveHasWorking('7k / k = 7 so 7k is a multiple', K), true);
+  assert.equal(O.objectiveHasWorking('k^3 = k x k x k', K), true);
 });

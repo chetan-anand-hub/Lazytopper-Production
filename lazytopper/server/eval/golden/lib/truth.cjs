@@ -155,7 +155,9 @@ function consistencyFailures(result, opts = {}) {
   const summary = result.mistakeSummary || {};
   const shownNotCarried = TYPES.filter((t) => (Number(summary[t]) || 0) > 0 && stepTypeCounts[t] === 0);
   if (shownNotCarried.length) out.push({ id: 'C06-no-type-shown-that-no-step-carries', detail: shownNotCarried.join(',') });
-  if (lost === 0 && TYPES.some((t) => (Number(summary[t]) || 0) > 0)) out.push({ id: 'C07-no-type-on-full-marks', detail: JSON.stringify(summary) });
+  // MCQ-TYPE-2 (owner ruling 2026-10-23): an OBJECTIVE question answered right with flawed working
+  // keeps its type as a 0-mark habit — exempt from C07, which stands for every subjective answer.
+  if (lost === 0 && !objective && TYPES.some((t) => (Number(summary[t]) || 0) > 0)) out.push({ id: 'C07-no-type-on-full-marks', detail: JSON.stringify(summary) });
   if (opts.v2 && unattemptedSteps.length) out.push({ id: 'C08-unattempted-is-a-fourth-state', detail: 'steps ' + unattemptedSteps.join(',') });
   return out;
 }

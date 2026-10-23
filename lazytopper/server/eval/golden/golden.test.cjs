@@ -304,12 +304,13 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     // A17 owner rulings 1 and 2 (GRADING-JOBS-1 J0) add two declared classes: the one fixed unit comment,
     // and a subjective non-attempt that is now NOT ATTEMPTED instead of a graded 0; ruling 3 as changed by the
     // owner 2026-10-06 adds the medium class (a Hinglish answer: ½ once, one fixed comment).
-    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1'];
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted', 'a17-r1-units', 'a17-r2-not-attempted', 'a17-r3-medium', 'a17-rb-cap', 'g-conseq-1', 'g-mcq-habit-1'];
     assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
     // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
     // slot → unattempted) or an A17 owner ruling (1: the unit comment; 2: not attempted); the v2 field
     // and the detect restore never touch one.
-    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-)/.test(c))), 'a legacy body changes only under D38 or an A17 ruling');
+    // MCQ-TYPE-2 (owner ruling 2026-10-23) adds g-mcq-habit-1: a RIGHT MCQ with flawed working keeps its type at 0 marks.
+    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => rb.entries[k].class.split('+').every((c) => /^(?:d38-|a17-|g-mcq-habit-1$)/.test(c))), 'a legacy body changes only under D38, an A17 ruling or the MCQ-TYPE-2 ruling');
     const ok = await evaluateRun(runDir);
     assert.deepStrictEqual([ok.integrity.changed, ok.integrity.rebaselined, ok.integrity.rebaselineStale.length], [0, keys.length, 0]);
     // CONTROL 1: one tampered `to` → that body counts as changed again.
@@ -319,10 +320,11 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     assert.strictEqual(bad.integrity.changed, 1);
     assert.deepStrictEqual(bad.integrity.rebaselineStale, [keys[0]]);
     // CONTROL 2: an entry for a body that did not change is STALE (the gate names it).
-    const s = JSON.parse(original); s.entries['run1:S.CI.GS-M01-a'] = { from: 'x', to: 'y', class: 'v2-notGraded-field' };
+    // (MCQ-TYPE-2: run1's GS-M01-a body now changes under g-mcq-habit-1; run2's — the model typed nothing — does not.)
+    const s = JSON.parse(original); s.entries['run2:S.CI.GS-M01-a'] = { from: 'x', to: 'y', class: 'v2-notGraded-field' };
     fs.writeFileSync(rbFile, JSON.stringify(s));
     const stale = await evaluateRun(runDir);
-    assert.deepStrictEqual(stale.integrity.rebaselineStale, ['run1:S.CI.GS-M01-a']);
+    assert.deepStrictEqual(stale.integrity.rebaselineStale, ['run2:S.CI.GS-M01-a']);
   } finally {
     fs.writeFileSync(rbFile, original);
     console.warn = quiet.warn; console.error = quiet.error;
@@ -340,7 +342,7 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     const R = loadRun(runDir);
     const rb = R.rebaseline;
     const plan = Object.fromEntries(buildPlan({ includeDetect: true }).map((j) => [j.jobKey, j]));
-    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class) || rb.entries[k].conseq);
+    const keys = Object.keys(rb.entries).filter((k) => /(^|\+)a17-/.test(rb.entries[k].class) || rb.entries[k].conseq || rb.entries[k].habit);
     assert.ok(keys.length > 0, 'CONTROL: there are A17 entries to verify');
     const byKey = {};
     for (const run of Object.keys(R.runs)) for (const rec of R.runs[run]) byKey['run' + run + ':' + rec.jobKey] = rec;
@@ -348,6 +350,16 @@ test('§11b ★ J0-FIXUP — every A17 re-baseline entry is VERIFIED against its
     let sample = null;
     for (const k of keys) {
       const e = rb.entries[k];
+      if (!/(^|\+)a17-/.test(e.class) && e.habit && !e.conseq) {
+        // MCQ-TYPE-2: a g-mcq-habit-1-ONLY entry replays to the pinned digest, undoing the delta lands on habit.base, the rules hold
+        const repH = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
+        assert.strictEqual(digest(repH.body), e.to, k + ': the replayed body is the pinned one');
+        const priorH = undoDelta(repH.body, e.habit.delta);
+        assert.ok(priorH && digest(priorH) === e.habit.base && e.habit.base === e.from, k + ': undoing the g-mcq-habit-1 delta must land exactly on habit.base (the stored body)');
+        assert.deepStrictEqual(require('./lib/rebaselineClasses.cjs').habitViolations(e.habit.delta, repH.body), [], k + ' (g-mcq-habit-1)');
+        checked += 1;
+        continue;
+      }
       if (!/(^|\+)a17-/.test(e.class)) {
         // a g-conseq-1-ONLY entry (no A17 part): it replays to the pinned digest, undoing the delta lands on conseq.base, the rules hold
         const rep0 = await replayJob(plan[byKey[k].jobKey], byKey[k], { config: R.manifest && R.manifest.config });
@@ -492,4 +504,25 @@ test('§11c ★ g-conseq-1 accepts exactly the consequential change and REFUSES 
   assert.ok(mut((d) => { d.push([['results', 3, 'marksAwarded'], 2, 3]); }).some((v) => /outside the g-conseq-1 rules/.test(v)), 'any other node is refused');
   // D248: the bucket that gained must be the pointed-to step's type (here conceptual); moving the gain to silly is refused
   assert.ok(mut((d) => { d[bucketIdx][0] = d[bucketIdx][0].slice(0, -1).concat(['silly']); }).length > 0, 'a gain in a bucket other than the pointed-to step type is refused');
+});
+
+// ── §11d MCQ-TYPE-2: the g-mcq-habit-1 class can FAIL ─────────────────────────
+test('§11d ★ g-mcq-habit-1 accepts exactly the 0-mark habit type on a RIGHT objective answer and REFUSES anything else', async () => {
+  const { habitViolations, undoDelta } = require('./lib/rebaselineClasses.cjs');
+  const rb = JSON.parse(fs.readFileSync(path.join(GOLDEN, 'runs', floor.runId, 'rebaseline.json'), 'utf8'));
+  const keys = Object.keys(rb.entries).filter((k) => rb.entries[k].habit);
+  assert.ok(keys.length > 0, 'CONTROL: GS-M01-a (right option, flawed working) is re-baselined under g-mcq-habit-1');
+  const delta = rb.entries[keys[0]].habit.delta;
+  // rebuild the new body from a minimal right-MCQ shape the delta applies to
+  const body = { objective: true, totalMarks: 1, marksAwarded: 1, mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, annotatedSteps: [{ mistakeType: null }, { mistakeType: null }, { mistakeType: null }] };
+  for (const [p, , to] of delta) { let o = body; for (const k of p.slice(0, -1)) o = o[k]; o[p[p.length - 1]] = to; }
+  assert.deepStrictEqual(habitViolations(delta, body), [], 'the real delta is accepted');
+  assert.ok(undoDelta(body, delta), 'CONTROL: the delta undoes cleanly');
+  const wrong = { ...body, marksAwarded: 0 };
+  assert.ok(habitViolations(delta, wrong).some((v) => /not a full-mark answer/.test(v)), 'a type on a question that lost its mark is refused');
+  assert.ok(habitViolations(delta, { ...body, objective: false }).some((v) => /not an objective question/.test(v)), 'a subjective answer is refused');
+  assert.ok(habitViolations(delta.concat([[['marksAwarded'], 0, 1]]), body).some((v) => /outside the g-mcq-habit-1 rules/.test(v)), 'a mark moved is refused');
+  assert.ok(habitViolations(delta.concat([[['marksLostByType', 'conceptual'], 0, 1]]), body).some((v) => /outside/.test(v)), 'a marks-lost bucket moved is refused');
+  assert.ok(habitViolations(delta.filter((d) => d[0][0] !== 'mistakeSummary'), body).some((v) => /summary moved 0 but steps gained 1/.test(v)), 'a step type with no summary count is refused');
+  assert.ok(habitViolations(delta.concat([[['annotatedSteps', 2, 'mistakeType'], null, 'silly'], [['mistakeSummary', 'silly'], 0, 1]]), body).some((v) => /2 steps gained a type/.test(v)), 'two habit types on one question are refused');
 });

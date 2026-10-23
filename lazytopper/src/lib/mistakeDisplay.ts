@@ -12,7 +12,8 @@
  *   - ONE display name per stored type (no "Silly slip" here and "Careless slip" there);
  *   - the per-question chip picker, used by the screen AND the PDF (GA-34);
  *   - the per-step display state, including "Not attempted" and an unknown status;
- *   - the counts a surface may show (no type on a full-mark question — GA-15/D3);
+ *   - the counts a surface may show (no type on a full-mark question — GA-15/D3 — EXCEPT the
+ *     MCQ-TYPE-2 habit: a RIGHT objective answer with flawed working shows its type at 0 marks);
  *   - the coaching line (never "Clean" while marks were lost — GA-24).
  *
  * WHAT IT DOES NOT CHANGE: the STORED type names stay `conceptual | calculation | silly |
@@ -517,10 +518,14 @@ export function readRubric(raw: unknown): RubricPoint[] | null {
  */
 export function v2GradeFields<G extends GradedQuestionLike>(
   g: G | null | undefined,
-): Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric" | "notGraded">> {
-  const out: Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric" | "notGraded">> = {};
+): Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric" | "notGraded" | "objective">> {
+  const out: Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric" | "notGraded" | "objective">> = {};
   if (!g) return out;
   if (g.couldNotRead === true) out.couldNotRead = g.couldNotRead;
+  // MCQ-TYPE-2: the server's objective flag travels with the grade, so MI can tell a RIGHT MCQ
+  // with flawed working (a 0-mark habit) on EVERY set surface — the worksheet and C&I multi
+  // adapters dropped it, while the single path and Quick Practice carried it (§4a).
+  if (g.objective === true) out.objective = g.objective;
   if (g.notGraded !== undefined) out.notGraded = g.notGraded;
   if (g.answerMismatch !== undefined) out.answerMismatch = g.answerMismatch;
   if (g.objectiveResolved !== undefined) out.objectiveResolved = g.objectiveResolved;
@@ -556,11 +561,24 @@ export function stepTypeCounts(steps: ReadonlyArray<StepLike> | null | undefined
 }
 
 /**
+ * MCQ-TYPE-2 (owner ruling 23 Oct 2026, ~20:45 IST) · A 0-MARK HABIT. A RIGHT objective answer
+ * (MCQ / A-R) whose uploaded working the grader typed: the mark is FULL and nothing was lost, but
+ * the type is shown and saved to MI as a habit to fix — never as lost marks. The server keeps at
+ * most one type on such a question and none on a bare pick, so a type here is real working's.
+ * Only an objective question qualifies: a subjective full-mark answer still carries no type.
+ */
+export function isHabitOnlyQuestion(q: GradedQuestionLike | null | undefined): boolean {
+  if (!q || !isGradedQuestion(q) || q.objective !== true) return false;
+  if (marksLostOn(q) > 0) return false;
+  return totalCount(stepTypeCounts(q.annotatedSteps)) > 0;
+}
+
+/**
  * The type counts a surface may SHOW for one question — the SAME numbers on the scorecard,
  * both PDFs, the C&I chips, the session record and MI (G3: one function, applied once).
  *   - not graded (couldNotRead / unread option / answerMismatch) → nothing;
- *   - full marks (nothing lost, which includes a right-option MCQ) → nothing: a type is never
- *     shown on a question that lost no mark (owner ruling; D3);
+ *   - full marks (nothing lost) → nothing: a type is never shown on a question that lost no
+ *     mark (owner ruling; D3) — EXCEPT a 0-mark habit (`isHabitOnlyQuestion`, MCQ-TYPE-2);
  *   - otherwise, per type, the larger of the grader's reconciled summary and the number of
  *     its steps carrying that type — the grader's own rule (max of claim and steps), applied
  *     identically everywhere so MI and the scorecard can no longer disagree (GA-20).
@@ -568,7 +586,7 @@ export function stepTypeCounts(steps: ReadonlyArray<StepLike> | null | undefined
  */
 export function effectiveTypeCounts(q: GradedQuestionLike): MistakeTypeCounts {
   if (!isGradedQuestion(q)) return zeroCounts();
-  if (marksLostOn(q) <= 0) return zeroCounts();
+  if (marksLostOn(q) <= 0 && !isHabitOnlyQuestion(q)) return zeroCounts();
   const summary = toCounts(q.mistakeSummary);
   const steps = stepTypeCounts(q.annotatedSteps);
   const out = zeroCounts();
@@ -729,8 +747,11 @@ export function entryMarksLost(entry: { marksLostByType?: unknown; marksLostByTy
  * (not graded, full marks, or a loss with no mistake type — not attempted / reason not given).
  */
 export function questionChipType(q: GradedQuestionLike): StoredMistakeType | null {
-  if (!isGradedQuestion(q) || marksLostOn(q) <= 0) return null;
-  const marks = questionMarksLost(q);
+  if (!isGradedQuestion(q)) return null;
+  const habit = isHabitOnlyQuestion(q);
+  if (marksLostOn(q) <= 0 && !habit) return null;
+  // MCQ-TYPE-2: a 0-mark habit has no marks to rank by — its (one) type is picked by count.
+  const marks = habit ? null : questionMarksLost(q);
   const score: Record<StoredMistakeType, number> = marks
     ? { conceptual: marks.conceptual, calculation: marks.calculation, silly: marks.silly, presentation: marks.presentation }
     : effectiveTypeCounts(q);
@@ -820,7 +841,7 @@ export function splitWithdrawnSteps<S extends StepLike>(steps: ReadonlyArray<S> 
  *  crossed-out or unknown-status step. */
 export function stepShowsType(step: StepLike, q: GradedQuestionLike): boolean {
   if (!isStoredMistakeType(step?.mistakeType)) return false;
-  if (marksLostOn(q) <= 0) return false;
+  if (marksLostOn(q) <= 0 && !isHabitOnlyQuestion(q)) return false;
   const k = stepDisplay(step?.status, step?.mistakeType).kind;
   return k !== "not-attempted" && k !== "unknown" && k !== "withdrawn";
 }

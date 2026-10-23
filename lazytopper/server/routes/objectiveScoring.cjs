@@ -384,9 +384,16 @@ function lineHasWorking(line, opts) {
     const needle = ' ' + t + ' ';
     while (rest.includes(needle)) rest = rest.replace(needle, ' ');
   }
-  const left = rest.trim().split(' ').filter((tok) =>
+  const toks = rest.trim().split(' ');
+  const left = toks.filter((tok) =>
     tok && /[a-z0-9]/i.test(tok) && !DECLARATION_WORDS.has(tok) && !/^[a-h]$/.test(tok));
-  return left.length > 0;
+  if (left.length === 0) return false;
+  // MCQ-TYPE-2 (review follow-up) · a PARTIAL restatement of an option on a declaration line —
+  // "Answer is (c) 7k" when (c) is "only k, 7k and k^3" — is still the pick, not working: when the
+  // line declares (a letter or a declaration word) and every token left is a token of ONE option.
+  const declares = toks.some((tok) => DECLARATION_WORDS.has(tok) || /^[a-h]$/.test(tok));
+  if (declares && texts.some((t) => { const ot = new Set(t.split(' ')); return left.every((tok) => ot.has(tok)); })) return false;
+  return true;
 }
 function objectiveHasWorking(studentWork, options) {
   const opts = Array.isArray(options) ? options : [];
@@ -449,7 +456,9 @@ function applyObjectiveMistakeGuard(steps, opts) {
     const hasWorking = objective
       ? questionHasWorking && nonEmpty
       : nonEmpty;
-    if (s.status === 'incorrect' && !hasWorking) {
+    // MCQ-TYPE-2: an objective question with NO working is untyped whatever its verdict — a RIGHT
+    // bare pick is now no longer cleared later (postprocess), so it is cleared here.
+    if ((s.status === 'incorrect' || (objective && !questionHasWorking)) && !hasWorking) {
       if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
         noWorkingNulled[s.mistakeType] += 1;
       }

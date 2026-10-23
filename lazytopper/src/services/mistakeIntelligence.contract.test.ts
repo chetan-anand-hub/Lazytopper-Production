@@ -645,12 +645,38 @@ describe("additive-shape openness — this suite must NOT freeze the entry shape
 
    Both directions are mutation-verified. */
 describe("T6 · intake predicate — type admits, deduction does not gate", () => {
-  it("★ SCORECARD-MI-1 — a RIGHT answer reached by a flawed method is NOT recorded (owner ruling: no type on a right-option MCQ)", async () => {
+  it("★ SCORECARD-MI-1 — a full-mark answer that is NOT objective is NOT recorded, even with a stray type (no type on full marks)", async () => {
     const r = await recordMistake(
       USER,
       graded({ total: 1, awarded: 1, steps: [{ n: 1, type: "conceptual", deducted: 0 }] }),
-      ctx({ questionId: "objective-correct-but-flawed" }),
+      ctx({ questionId: "subjective-full-marks-stray-type" }),
     );
+    expect(r.outcome).toBe("skipped-clean");
+    expect(logMistakesMock).not.toHaveBeenCalled();
+  });
+
+  // MCQ-TYPE-2 (owner ruling 23 Oct 2026, ~20:45 IST) SUPERSEDES SCORECARD-MI-1's "no type on a
+  // right-option MCQ": a RIGHT MCQ with flawed working is saved as a mistake with 0 marks lost.
+  it("★ MCQ-TYPE-2 — a RIGHT MCQ with flawed working is logged as a 0-mark HABIT: typed, marksLost 0, habitOnly, never bridged", async () => {
+    const result = { ...(graded({ total: 1, awarded: 1, steps: [{ n: 1, type: "conceptual", deducted: 0 }], summary: { conceptual: 1 } }) as object), objective: true, marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 0 } } as never;
+    const c = ctx({ questionId: "objective-correct-but-flawed" });
+    const r = await recordMistake(USER, result, c);
+    expect(r).toMatchObject({ outcome: "logged", bridged: false, habit: true });
+    expect(logMistakesMock).toHaveBeenCalledTimes(1);
+    const entry = logMistakesMock.mock.calls[0][1];
+    expect(entry).toMatchObject({ marksLost: 0, habitOnly: true, mistakeCounts: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 } });
+    expect(entry.stepDetails).toEqual([{ stepNumber: 1, mistakeType: "conceptual", marksDeducted: 0 }]);
+    expect(entry.marksLostByType).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 0 });
+    // a conceptual habit is NOT a knowledge gap: no wrong-answer entry, no weak-area signal
+    expect(recordWrongAnswerMock).not.toHaveBeenCalled();
+    // CONTROL: the same grade restored again is a duplicate, never a second entry
+    expect((await recordMistake(USER, result, c)).outcome).toBe("duplicate");
+    expect(logMistakesMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("MCQ-TYPE-2 CONTROL — a RIGHT MCQ with NO type (a bare pick) is still clean: nothing logged", async () => {
+    const result = { ...(graded({ total: 1, awarded: 1, steps: [{ n: 1, type: null, deducted: 0 }] }) as object), objective: true } as never;
+    const r = await recordMistake(USER, result, ctx({ questionId: "objective-correct-bare" }));
     expect(r.outcome).toBe("skipped-clean");
     expect(logMistakesMock).not.toHaveBeenCalled();
   });

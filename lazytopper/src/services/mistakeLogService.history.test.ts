@@ -275,3 +275,47 @@ describe("history read — won back THIS week, made LAST month", () => {
     expect(got.entries).toEqual([]);
   });
 });
+
+/* ── MCQ-TYPE-2: a 0-mark HABIT (a right MCQ with flawed working) ─────────────── */
+describe("MCQ-TYPE-2 — a right MCQ with flawed working is a 0-mark HABIT: stored, kept out of the live mistakes, never won back", () => {
+  const USER = { uid: UID } as never;
+  const ctx = (sub: string, gradedAt: number) => ({
+    subject: "Maths", topic: "Real Numbers", topicKey: "real-numbers", question: "Which option?", questionId: "b7",
+    surface: "quick-practice", submissionId: sub, gradedAt,
+  });
+  const mcq = (awarded: 0 | 1, type: string | null): CheckSolutionResponse =>
+    ({
+      ok: true, totalMarks: 1, marksAwarded: awarded, percentage: awarded * 100, teacherNote: "", objective: true,
+      mistakeSummary: { conceptual: 0, calculation: type === "calculation" ? 1 : 0, silly: 0, presentation: 0 },
+      annotatedSteps: [
+        { stepNumber: 1, studentWork: "m = 2 + 3 = 6", mistakeType: type, marksDeducted: 0, status: "incorrect" },
+        { stepNumber: 2, studentWork: "(a)", mistakeType: null, marksDeducted: 0, status: awarded ? "correct" : "incorrect" },
+      ],
+    }) as unknown as CheckSolutionResponse;
+
+  it("★ END TO END: the habit is STORED (typed, marksLost 0, habitOnly) but getMistakeLogs leaves it out unless asked", async () => {
+    const r = await recordMistake(USER, mcq(1, "calculation"), ctx("H1", Date.now() - DAY));
+    expect(r).toMatchObject({ outcome: "logged", bridged: false, habit: true });
+    const stored = [...H.store.values()];
+    expect(stored).toHaveLength(1);
+    expect(stored[0]).toMatchObject({ marksLost: 0, habitOnly: true, mistakeCounts: { calculation: 1 }, stepDetails: [{ mistakeType: "calculation", marksDeducted: 0 }] });
+    expect(await getMistakeLogs(UID, 7)).toEqual([]);
+    expect((await getMistakeLogs(UID, 7, { includeHabits: true })).map((e) => e.habitOnly)).toEqual([true]);
+  });
+
+  it("★ a habit is never 'won back' (it lost nothing) — while a real earlier mistake on the same question still is", async () => {
+    put(entry("quick-practice::H0::b7", { questionId: "b7", timestamp: iso(3 * DAY), marksLost: 0, habitOnly: true }));
+    put(entry("quick-practice::M0::b7", { questionId: "b7", timestamp: iso(3 * DAY) }));
+    const n = await resolveEarlierMistakesForQuestion(UID, "b7", { beforeMs: Date.now(), resolvedAt: iso(0) });
+    expect(n).toBe(1);
+    expect(H.store.get(PATH("quick-practice::H0::b7"))?.resolvedAt).toBeUndefined();
+    expect(H.store.get(PATH("quick-practice::M0::b7"))).toMatchObject({ resolvedBy: "later-correct-attempt" });
+  });
+
+  it("the habit grade still wins back an EARLIER real mistake on the same question (it scored full marks, as the clean path did)", async () => {
+    put(entry("quick-practice::M1::b7", { questionId: "b7", timestamp: iso(3 * DAY) }));
+    const r = await recordMistake(USER, mcq(1, "calculation"), ctx("H2", Date.now() - DAY));
+    expect(r).toMatchObject({ outcome: "logged", habit: true, wonBack: 1 });
+    expect(H.store.get(PATH("quick-practice::M1::b7"))).toMatchObject({ resolvedBy: "later-correct-attempt" });
+  });
+});

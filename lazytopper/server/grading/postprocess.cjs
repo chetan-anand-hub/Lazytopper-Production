@@ -1217,9 +1217,14 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     }
   }
 
-  // Types are owed only where marks were lost (owner: no type where none is due).
+  // Types are owed only where marks were lost (owner: no type where none is due) — EXCEPT an
+  // OBJECTIVE question with real working (MCQ-TYPE-2, owner ruling 23 Oct 2026): a RIGHT option
+  // reached by flawed working KEEPS the type the working earned, as a 0-mark habit. The mark stays
+  // full (the clamp above is untouched) and marksLostByType stays all-zero (nothing was lost).
+  // applyObjectiveMistakeGuard has already cleared every type on an objective question with no
+  // working (a bare pick, right or wrong) and kept at most ONE type per question.
   if (questionIsObjective) {
-    if (objectiveVerdict.correct) for (const s of steps) s.mistakeType = null;
+    // nothing to clear here
   } else {
     // An accepted departure step keeps its type even when it lost nothing itself: its cost is
     // the work zeroed below it, and that cost is charged to its type (controller D26, defect (a)).

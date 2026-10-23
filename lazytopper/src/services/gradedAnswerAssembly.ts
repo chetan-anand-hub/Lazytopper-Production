@@ -46,7 +46,8 @@ export const MISTAKE_KIND_LABEL: Readonly<Record<ScorecardMistakeKind, string>> 
 /** PURE. The single mistake kind to badge one answer with — SCORECARD-MI-1 (GA-34): the
  *  ONE picker in lib/mistakeDisplay, the same one the graded PDF uses. Null when nothing may
  *  be shown: no mistakes, or a question that lost no mark (owner ruling: no type on full
- *  marks or on a right-option MCQ). */
+ *  marks) — except a right MCQ with flawed working, whose type shows as a 0-mark habit
+ *  (MCQ-TYPE-2, `isHabitOnlyQuestion`). */
 export const dominantMistakeKind = (
   q: GradedQuestionLike | null | undefined,
 ): ScorecardMistakeKind | null => (q ? questionChipType(q) : null);

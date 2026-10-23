@@ -3112,6 +3112,60 @@
      ]
     ]
    }
+  },
+  "run1:S.CI.GS-M01-a": {
+   "from": "a5be91472f29026084aeb4a8f82a5b86bf3a8da2a538d11d10348e81c9fa0fa4",
+   "to": "f42ff37f7736bab7f5c6a594198a099595ca7ae6f3671efa88af3ac449c9852e",
+   "class": "g-mcq-habit-1",
+   "habit": {
+    "base": "a5be91472f29026084aeb4a8f82a5b86bf3a8da2a538d11d10348e81c9fa0fa4",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       0,
+       "mistakeType"
+      ],
+      null,
+      "conceptual"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "run3:S.CI.GS-M01-a": {
+   "from": "354ae8857adfc1c0089b33bce80a3b01978f7f50305c6c67e065e8d0de952550",
+   "to": "63cacb94dc33ba570be41464714a41371b22252876e7749d55e7d6f9de3003d2",
+   "class": "g-mcq-habit-1",
+   "habit": {
+    "base": "354ae8857adfc1c0089b33bce80a3b01978f7f50305c6c67e065e8d0de952550",
+    "delta": [
+     [
+      [
+       "annotatedSteps",
+       1,
+       "mistakeType"
+      ],
+      null,
+      "conceptual"
+     ],
+     [
+      [
+       "mistakeSummary",
+       "conceptual"
+      ],
+      0,
+      1
+     ]
+    ]
+   }
   }
  },
  "a17": {
@@ -3129,5 +3183,11 @@
   "generator": "server/eval/golden/goldenRebaselineConseq.cjs",
   "count": 3,
   "about": "g-conseq-1: a loss that follows from an earlier typed error moves from \"untyped\" to that error's type, and the step records consequentialOf. No mark, status, type, note or annotation changes (lib/rebaselineClasses.cjs conseqViolations)."
+ },
+ "habit": {
+  "pr": "MCQ-TYPE-2 (owner ruling 2026-10-23)",
+  "generator": "server/eval/golden/goldenRebaselineHabit.cjs",
+  "count": 2,
+  "about": "g-mcq-habit-1: a RIGHT objective answer with flawed working keeps its type as a 0-mark habit: one step gains a type and its summary count goes up by one. No mark, status, annotation, marksLostByType or note changes (lib/rebaselineClasses.cjs habitViolations)."
  }
 }

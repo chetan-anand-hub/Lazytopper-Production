@@ -27,6 +27,7 @@ import {
   groupCounts,
   isCarelessType,
   isGradedQuestion,
+  isHabitOnlyQuestion,
   isKnowledgeGapType,
   isNotAttemptedStatus,
   isQuestionNotAttempted,
@@ -44,6 +45,7 @@ import {
   stepDisplay,
   stepForDisplay,
   stepShowsType,
+  v2GradeFields,
   withEffectiveCounts,
   zeroMarksLost,
   type MarksLostByType,
@@ -111,12 +113,42 @@ describe("what a question may show (D3, GA-15, GA-20)", () => {
   const steps = (...types: Array<string | null>) =>
     types.map((t, i) => ({ stepNumber: i + 1, status: "incorrect", mistakeType: t, marksDeducted: 1 }));
 
-  it("no type on a full-mark question (withdrawn work, a right-option MCQ)", () => {
+  it("no type on a full-mark question that is NOT objective (withdrawn work, a full-mark written answer)", () => {
     const q = { totalMarks: 4, marksAwarded: 4, mistakeSummary: { conceptual: 1 }, annotatedSteps: steps("conceptual") };
     expect(effectiveTypeCounts(q)).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
     expect(questionChipType(q)).toBeNull();
     expect(stepShowsType(q.annotatedSteps[0], q)).toBe(false);
     expect(stepForDisplay(q.annotatedSteps[0], q).mistakeType).toBeNull();
+  });
+
+  // MCQ-TYPE-2 (owner ruling 23 Oct 2026): a RIGHT MCQ with flawed working shows its type as a
+  // 0-MARK HABIT — on the scorecard, both PDFs, the chips and MI — while nothing counts as lost.
+  it("★ MCQ-TYPE-2 — a RIGHT objective answer with a typed working step shows its type (a 0-mark habit)", () => {
+    const q = { objective: true, totalMarks: 1, marksAwarded: 1, mistakeSummary: { calculation: 1 },
+      annotatedSteps: [{ stepNumber: 1, status: "incorrect", mistakeType: "calculation", marksDeducted: 0 }, { stepNumber: 2, status: "correct", mistakeType: null, marksDeducted: 0 }] };
+    expect(isHabitOnlyQuestion(q)).toBe(true);
+    expect(effectiveTypeCounts(q)).toEqual({ conceptual: 0, calculation: 1, silly: 0, presentation: 0 });
+    expect(questionChipType(q)).toBe("calculation");
+    expect(stepShowsType(q.annotatedSteps[0], q)).toBe(true);
+    expect(stepForDisplay(q.annotatedSteps[0], q).mistakeType).toBe("calculation");
+    // ...and NOTHING is lost: no marks to work, no "marks lost", not a not-attempted state
+    expect(marksLostToWork(q)).toBe(0);
+    const pm = paperMarksLost([{ ...q, marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 0 } }]);
+    expect(pm).not.toBeNull();
+    expect(pm!.lost).toBe(0);
+  });
+
+  it("★ MCQ-TYPE-2 §4a — the objective flag travels through v2GradeFields (the worksheet / C&I multi / paper adapters), so MI sees the habit on every set surface", () => {
+    expect(v2GradeFields({ objective: true, totalMarks: 1, marksAwarded: 1 })).toEqual({ objective: true });
+    expect(v2GradeFields({ objective: false, totalMarks: 3, marksAwarded: 1 })).toEqual({});
+    expect(v2GradeFields({ totalMarks: 3, marksAwarded: 1 })).toEqual({});
+  });
+
+  it("MCQ-TYPE-2 CONTROLS — not a habit: a right MCQ with no type, a wrong MCQ (a real loss), an ungraded one", () => {
+    expect(isHabitOnlyQuestion({ objective: true, totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ status: "correct", mistakeType: null }] })).toBe(false);
+    expect(isHabitOnlyQuestion({ objective: true, totalMarks: 1, marksAwarded: 0, annotatedSteps: [{ status: "incorrect", mistakeType: "silly" }] })).toBe(false);
+    expect(isHabitOnlyQuestion({ objective: true, couldNotRead: true, totalMarks: 1, marksAwarded: 0 })).toBe(false);
+    expect(isHabitOnlyQuestion(null)).toBe(false);
   });
 
   it("CONTROL — the same question that LOST a mark shows its type", () => {
