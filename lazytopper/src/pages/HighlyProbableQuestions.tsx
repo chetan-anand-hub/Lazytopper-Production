@@ -992,7 +992,8 @@ const HighlyProbableQuestionsPage: React.FC = () => {
               marginBottom: 10,
             }}
           >
-              Important Questions
+              {/* IMPQ-PAGE-1 (owner ruling 23 Oct 2026): the H1 matches the search title. */}
+              Class {grade} {subjectKey} Important Questions for 2027 Boards
             </h1>
             <p
             style={{
@@ -1017,7 +1018,10 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                 lineHeight: 1.45,
               }}
             >
-              These are important question patterns to prioritise — not predictions of the exact 2027 paper. Full preparation still matters.
+              {/* IMPQ-PAGE-1 (owner ruling 23 Oct 2026): ONE honesty line — what chose these
+                  questions, and that it is a guide, never the paper. Replaces the earlier
+                  "not predictions of the exact 2027 paper" line rather than stacking a second. */}
+              Chosen by our prediction model from {EVIDENCE_BASE_YEARS} years of CBSE paper trends and the 2026-27 syllabus. A strong guide, not the actual paper.
             </div>
             {topicFilter !== "all" ? (
               <div
