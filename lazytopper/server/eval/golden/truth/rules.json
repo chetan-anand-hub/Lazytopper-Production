@@ -159,7 +159,7 @@
       "id": "C07-no-type-on-full-marks",
       "kind": "consistency",
       "check": "deterministic",
-      "text": "A full-mark answer carries no mistake type.",
+      "text": "A full-mark answer carries no mistake type — except an OBJECTIVE answer with flawed working, which keeps its type as a 0-mark habit (owner ruling MCQ-TYPE-2, 2026-10-23).",
       "source": "S4 pipeline gradeChecks"
     },
     {

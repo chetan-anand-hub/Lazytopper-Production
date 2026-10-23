@@ -512,7 +512,7 @@ export const shouldResetBuiltOnPop = (
 type StrategyResolver = typeof import("../services/questionTypeFirstResolver");
 import { trackUxEvent } from "../services/uxTelemetry";
 import { stashGuestScore, takeGuestScore, type GuestScore } from "../services/guestScoreStash";
-import { isGradedQuestion, mistakeTypeLabel } from "../lib/mistakeDisplay";
+import { isGradedQuestion, isHabitOnlyQuestion, mistakeTypeLabel, questionChipText } from "../lib/mistakeDisplay";
 import {
   MISTAKE_KIND_LABEL,
   buildGradedAnswer,
@@ -3090,7 +3090,10 @@ const packTopicKey = useMemo(() => {
         tag: `Q${saved.qNumber}`,
         detail: (saved.objective
           ? kind
-            ? `${MISTAKE_KIND_LABEL[kind]} \u2014 read from your working`
+            ? isHabitOnlyQuestion(graded)
+              // MCQ-TYPE-2 — right option, flawed working: the habit, with the kept mark.
+              ? (questionChipText(graded) ?? MISTAKE_KIND_LABEL[kind])
+              : `${MISTAKE_KIND_LABEL[kind]} \u2014 read from your working`
             : "Working read \u2014 no mistake type found"
           : `${graded.marksAwarded} / ${graded.totalMarks}${kind ? ` \u00b7 ${MISTAKE_KIND_LABEL[kind]}` : ""}`),
         tone: saved.objective ? "diagnose" : "pending",

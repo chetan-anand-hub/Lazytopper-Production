@@ -9,9 +9,11 @@
 //
 //   1. POLICY  — log only for a signed-in, non-local user whose graded answer
 //                actually LOST MARKS. SCORECARD-MI-1 (owner ruling 5 Oct): a type is
-//                never recorded on a question that lost nothing (a right-option MCQ,
-//                withdrawn work on a full-mark answer), and a question the student did
-//                not attempt is its own state, never an MI entry.
+//                never recorded on a question that lost nothing (withdrawn work on a
+//                full-mark answer), and a question the student did not attempt is its
+//                own state, never an MI entry. ONE EXCEPTION — MCQ-TYPE-2 (owner ruling
+//                23 Oct): a RIGHT MCQ with flawed working is logged as a 0-mark HABIT
+//                (`habitOnly`: typed, marksLost 0, never bridged to weak areas).
 //   2. BUILDER — one consolidated `MistakeLogEntry` builder: `marksLost` from
 //                the score, `stepDetails` from `annotatedSteps`, `mistakeCounts`
 //                from the reconciled summary (client mirrors the server's
@@ -49,6 +51,7 @@ import {
   effectiveTypeCounts,
   isGradedQuestion,
   isKnowledgeGapType,
+  isHabitOnlyQuestion,
   isLossOnlyNotAttempted,
   marksLostToWork,
   questionMarksLost,
@@ -128,6 +131,8 @@ export interface RecordMistakeResult {
   /** ME-ENGINE-1 PR-1 (G7): how many EARLIER mistakes on this same question this full-mark grade
    *  resolved as won back (`later-correct-attempt`). Present only when > 0. */
   wonBack?: number;
+  /** MCQ-TYPE-2: the entry written is a 0-mark HABIT (a right MCQ with flawed working). Present only then. */
+  habit?: true;
 }
 
 type ReconciledCounts = MistakeTypeCounts;
@@ -195,12 +200,16 @@ function buildEntry(
   // `clampObjectiveResult` sets `marksDeducted = 0` on EVERY step of an MCQ /
   // 1-mark item by design (objective steps carry no per-step marks — the
   // whole-question mark lives at the question level), while
-  // `applyObjectiveMistakeGuard` deliberately KEEPS the mistakeType whenever
-  // there is real working to classify. So a student who answers correctly by a
-  // flawed method — or wrongly but with working — was diagnosed by the grader
-  // and then had that diagnosis dropped here. It also left `stepDetails`
-  // contradicting `mistakeCounts` on the same entry, since `reconcileCounts`
-  // never had a deduction guard.
+  // `applyObjectiveMistakeGuard` KEEPS the mistakeType whenever the question has
+  // real working to classify (MCQ-TYPE-1: decided for the whole question; a bare
+  // pick or a restated option is not working). Two cases reach this builder:
+  //   - a WRONG MCQ with working — the type is recorded with the lost mark;
+  //   - a RIGHT MCQ with flawed working — since MCQ-TYPE-2 (owner ruling 23 Oct)
+  //     the server keeps its type and recordMistake logs it as a 0-mark HABIT
+  //     (`habitOnly`). Between SCORECARD-MI-1 and MCQ-TYPE-2 the server cleared
+  //     every type on a right MCQ, so this case logged nothing.
+  // Dropping the deduction test also stopped `stepDetails` contradicting
+  // `mistakeCounts` on the same entry (`reconcileCounts` never had one).
   //
   // The type test STAYS: an untyped step is nothing to record, and inventing a
   // type would be fabrication.
@@ -454,7 +463,11 @@ export async function recordMistake(
   // ONE predicate (lib/mistakeDisplay), shared with the attempt store (H11), so MI and the
   // attempt can never disagree about the same question.
   const notAttempted = isLossOnlyNotAttempted(gradeResult);
-  if (notAttempted || !hasMistakeSignal(gradeResult)) {
+  // MCQ-TYPE-2 (owner ruling 23 Oct 2026, ~20:45 IST): a RIGHT MCQ with flawed working is saved as
+  // a mistake with 0 marks lost — a HABIT. It lost nothing, so it is not a "mistake signal"; it is
+  // logged on its own path below (typed, 0 marks, `habitOnly`, never bridged to weak areas).
+  const habit = !notAttempted && !hasMistakeSignal(gradeResult) && isHabitOnlyQuestion(gradeResult);
+  if (notAttempted || (!hasMistakeSignal(gradeResult) && !habit)) {
     // Read BEFORE the re-grade resolve below writes its own clean marker into the ring.
     const joinedBefore = alreadyJoinedOnThisDevice(user.uid, context, gradeResult);
     const cleared = await clearSupersededEntry(user.uid, context, gradeResult, notAttempted);
@@ -485,6 +498,22 @@ export async function recordMistake(
   const entry = buildEntry(context, gradeResult, counts, concept);
   if (!isSafeEntry({ id: "pending", ...entry })) {
     return { outcome: "error", bridged: false };
+  }
+
+  // ── MCQ-TYPE-2 — the 0-mark habit ─────────────────────────────────────
+  // The grade is FULL marks, so it still wins back earlier mistakes on this question exactly as the
+  // clean path does (marks figures unchanged); then the habit is written under the same stable id
+  // (a re-grade replaces it), flagged `habitOnly`. NO weak-area / wrong-answer bridge: a habit on a
+  // right answer is never a gap. `marksLost` is 0 and every marksLostByType bucket is 0.
+  if (habit) {
+    const wonBack = await resolveEarlierOnFullMarks(user.uid, context, gradeResult);
+    try {
+      await logMistakes(user.uid, { ...entry, marksLost: 0, habitOnly: true }, { id: entryId });
+    } catch {
+      return { outcome: "error", bridged: false };
+    }
+    writeDedup([key, ...readDedup().filter((k) => k !== key)]);
+    return { outcome: "logged", bridged: false, habit: true, ...(wonBack > 0 ? { wonBack } : {}) };
   }
 
   // ── Stream 1 — mistake log ────────────────────────────────────────────

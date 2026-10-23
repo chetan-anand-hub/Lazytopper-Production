@@ -26,6 +26,8 @@ import { hashAttemptString } from "../../services/attemptDedupKey";
 import {
   countWithUnit,
   effectiveTypeCounts,
+  isHabitOnlyQuestion,
+  questionChipText,
   groupRows,
   mistakeGroupOf,
   mistakeTypeLabel,
@@ -463,7 +465,9 @@ function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["a
 
 /** SCORECARD-MI-1 — the owner's groups from lib/mistakeDisplay, each count with its unit. */
 function MistakeSummaryLine({ result }: { result: CheckSolutionResponse }) {
-  const parts = groupRows(effectiveTypeCounts(result))
+  // MCQ-TYPE-2 — a right MCQ with flawed working: the habit, with the kept mark (one line).
+  const habit = isHabitOnlyQuestion(result) ? questionChipText(result) : null;
+  const parts = habit ? [habit] : groupRows(effectiveTypeCounts(result))
     .filter((r) => r.count > 0)
     .map((r) => `${r.group.label} · ${countWithUnit(r.count)}`);
   if (parts.length === 0) return null;

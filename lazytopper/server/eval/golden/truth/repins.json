@@ -8,7 +8,8 @@
     "6": "Maths units follow the question's scheme; a silent scheme means no deduction. Science keeps unit deductions.",
     "7": "Mistake type: copied wrongly = silly, performed wrongly = calculation, method misunderstood = conceptual, CBSE format only = presentation, unattempted = no type.",
     "A17-1": "A17 owner ruling (GRADING-JOBS-1, 2026-10-06): a missing or wrong unit on the FINAL answer of a quantity-valued answer costs exactly ½ in Maths AND Science, at most ½ per question, typed presentation; never on a pure number. SUPERSEDES ruling 6's Maths half.",
-    "A17-3": "A17 owner ruling 3 AS CHANGED BY THE OWNER 2026-10-06 (supersedes the spec text \"Hinglish never deducted\"): CBSE answers are in English or in Hindi in Devanagari; an answer written in Hinglish (Roman-script Hindi mixed with English) keeps its content marks and loses exactly 1/2 once per answer, typed presentation (exam technique), comment \"Write in English (or Hindi in Devanagari): board examiners expect one medium.\" English with technical terms and Devanagari Hindi are never penalised; no other language deduction."
+    "A17-3": "A17 owner ruling 3 AS CHANGED BY THE OWNER 2026-10-06 (supersedes the spec text \"Hinglish never deducted\"): CBSE answers are in English or in Hindi in Devanagari; an answer written in Hinglish (Roman-script Hindi mixed with English) keeps its content marks and loses exactly 1/2 once per answer, typed presentation (exam technique), comment \"Write in English (or Hindi in Devanagari): board examiners expect one medium.\" English with technical terms and Devanagari Hindi are never penalised; no other language deduction.",
+    "MCQ-TYPE-2": "Owner ruling 2026-10-23 (~20:45 IST), MCQ-TYPE-2: a RIGHT MCQ with flawed uploaded working shows the mistake category and is saved to MI as a mistake with 0 marks lost (a habit to fix, never lost marks); the mark stays full. SUPERSEDES, for objective questions with working only, the earlier position 'no type on full marks' (audit GA-15)."
   },
   "repins": [
     {
@@ -341,6 +342,33 @@
       "new": "presentation",
       "ruling": "A17-3",
       "basis": "The 1/2 for the medium is typed exam technique (presentation), per A17 ruling 3."
+    },
+    {
+      "caseId": "GS-M01-a",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": null,
+      "new": "conceptual",
+      "ruling": "MCQ-TYPE-2",
+      "basis": "Right option (D), flawed working: the student writes αβ = k instead of αβ = c/a = k/3 and then picks the option by approximating 4/3 — the zeroes-coefficients relation is misapplied, a method not understood (ruling 7: conceptual), exactly the comment the verified case already allows ('αβ should be k/3 (c/a), not k'). The mark stays 1/1; the type is a 0-mark habit (MCQ-TYPE-2)."
+    },
+    {
+      "caseId": "GS-M03-b",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": null,
+      "new": "conceptual",
+      "ruling": "MCQ-TYPE-2",
+      "basis": "Right option (C), flawed justification: the student rejects R because 'the total surface area of a sphere is 2πr²' — the TSA of a sphere is 4πr², so the reason rests on a wrong formula, a principle not understood (ruling 7: conceptual), exactly the comment the verified case already allows ('TSA of a sphere is 4πr², not 2πr²'). Not presentation (it changes whether the reasoning is right), not calculation (no operation performed wrongly), not silly (nothing copied from the student's own line). The mark stays 1/1; the type is a 0-mark habit (MCQ-TYPE-2)."
+    },
+    {
+      "caseId": "GS-S01-a",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": null,
+      "new": "conceptual",
+      "ruling": "MCQ-TYPE-2",
+      "basis": "Right option (C), flawed working: the student writes the F1 genotype as Rryy (it is RrYy) and says round and yellow appear 'because round and yellow are recessive traits' — they are DOMINANT. Dominance, the principle the answer rests on, is not understood (ruling 7: conceptual), exactly the comment the verified case already allows ('round and yellow are DOMINANT, not recessive'). The mark stays 1/1; the type is a 0-mark habit (MCQ-TYPE-2)."
     }
   ],
   "unsettled": [

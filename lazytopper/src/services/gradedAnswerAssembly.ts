@@ -32,6 +32,8 @@ import {
   gradeStateOf,
   isNotAttemptedStatus,
   isWithdrawnStatus,
+  isHabitOnlyQuestion,
+  questionChipText,
   questionChipType,
   questionMarksLost,
   readRubric,
@@ -46,7 +48,8 @@ export const MISTAKE_KIND_LABEL: Readonly<Record<ScorecardMistakeKind, string>> 
 /** PURE. The single mistake kind to badge one answer with — SCORECARD-MI-1 (GA-34): the
  *  ONE picker in lib/mistakeDisplay, the same one the graded PDF uses. Null when nothing may
  *  be shown: no mistakes, or a question that lost no mark (owner ruling: no type on full
- *  marks or on a right-option MCQ). */
+ *  marks) — except a right MCQ with flawed working, whose type shows as a 0-mark habit
+ *  (MCQ-TYPE-2, `isHabitOnlyQuestion`). */
 export const dominantMistakeKind = (
   q: GradedQuestionLike | null | undefined,
 ): ScorecardMistakeKind | null => (q ? questionChipType(q) : null);
@@ -178,13 +181,16 @@ export function buildGradedAnswer(src: GradedAnswerSource): ScorecardGradedAnswe
   if (gradeStateOf(src) !== "graded") {
     return notGradedAnswer(src.label, descriptor, src);
   }
-  const kind = dominantMistakeKind({
+  // MCQ-TYPE-2: `objective` travels too, so a right MCQ with flawed working is seen as a 0-mark habit.
+  const chipSrc = {
     totalMarks: src.totalMarks,
     marksAwarded: src.marksAwarded,
     mistakeSummary: src.mistakeSummary,
     annotatedSteps: src.annotatedSteps,
     marksLostByType: src.marksLostByType,
-  });
+    objective: src.objective === true,
+  };
+  const kind = dominantMistakeKind(chipSrc);
   const stepDetail = firstMistakeDetail(src.annotatedSteps);
   const detail = src.lostFromStepsOnly ? stepDetail : (stepDetail || src.teacherNote || null);
   const awarded = typeof src.marksAwarded === "number" ? src.marksAwarded : null;
@@ -227,8 +233,9 @@ export function buildGradedAnswer(src: GradedAnswerSource): ScorecardGradedAnswe
       : src.teacherNote || null,
     lostLabel: detail ? (src.objective ? "What your working shows:" : "Where the mark went:") : null,
     lostDetail: detail,
-    mistakeType: kind ? MISTAKE_KIND_LABEL[kind] : null,
+    mistakeType: kind ? questionChipText(chipSrc) : null,
     mistakeKind: kind,
+    ...(kind && isHabitOnlyQuestion(chipSrc) ? { habit: true } : {}),
     steps,
     ...(withdrawn.length > 0 ? { withdrawnSteps: withdrawn } : {}),
     ...(readRubric(src.rubric) ? { rubric: readRubric(src.rubric) } : {}),

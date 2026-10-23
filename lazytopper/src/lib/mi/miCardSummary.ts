@@ -24,6 +24,14 @@
  *
  * A paper below Me's naming gate (`splitPaperMarks` → null) is NOT added: the card says it is not
  * counted yet ("We will not name a weakness from one or two questions"), as Me does.
+ *
+ * MCQ-TYPE-2 · 0-MARK HABITS (a right MCQ with flawed working, `habitOnly`) ARE DELIBERATELY ABSENT.
+ * Owner ruling: a habit counts in type COUNTS only, never in marks, gaps or weak areas. This card
+ * prints no type counts — the tiles, the headline and the costliest type are MARKS, and the gap
+ * count is the wrong-answer log, which a habit never reaches — so `model.mistakes.entries` (which
+ * leaves habits out; they are in `model.mistakes.habits`) is exactly right. Should the card ever show
+ * per-type COUNTS, those counts add `model.mistakes.habits`; its marks never do.
+ * (Pinned by src/services/mcqHabit.characterization.test.tsx: every card, every scope, unchanged.)
  */
 import { buildMistakeView, subjectRungOf, type ReadSubject, type StudyReadModel } from "../../services/progressReadModel";
 import { splitPaperMarks } from "../../services/meSplit";

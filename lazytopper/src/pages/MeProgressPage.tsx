@@ -627,7 +627,10 @@ export default function MeProgressPage() {
 
   const split = useMemo(() => splitPaperMarks(paperRung, paperLogs), [paperRung, paperLogs]);
 
-  const careless = useMemo(() => summarizeCareless(paperLogs), [paperLogs]);
+  // MCQ-TYPE-2 — the careless-HABIT counts include the 0-mark habits (a right MCQ with flawed
+  // working); their marks are 0, so the careless marks (and the card's gate on them) are unchanged.
+  const paperHabits = useMemo(() => paperMistakes?.habits ?? [], [paperMistakes]);
+  const careless = useMemo(() => summarizeCareless([...paperLogs, ...paperHabits]), [paperLogs, paperHabits]);
 
   const chapters = useMemo(
     () => buildChapters(data?.topics ?? [], paper, paperByChapter),

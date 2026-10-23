@@ -4,6 +4,7 @@ import {
   addMarksLost,
   entryMarksLost,
   groupMarks,
+  isHabitOnlyEntry,
   mistakeGroupOf,
   zeroMarksLost,
   type MarksLostByType,
@@ -180,9 +181,13 @@ function buildHotspots(entries: MistakeLogEntry[]): TopicHotspot[] {
 
 export async function getMistakeInsights(uid: string, days: number): Promise<MistakeInsights> {
   try {
-    const raw = await getMistakeLogs(uid, days);
-    const entries = raw.filter(isSafeEntry);
+    // MCQ-TYPE-2 — the 0-mark habits join the TYPE COUNTS only (`mistakeCounts`). Every other figure
+    // — the checked total, marks, hotspots, the top type, enough-data — reads the live mistakes.
+    const raw = await getMistakeLogs(uid, days, { includeHabits: true });
+    const safe = raw.filter(isSafeEntry);
+    const entries = safe.filter((e) => !isHabitOnlyEntry(e));
     const counts = aggregateCounts(entries);
+    const typeCounts = aggregateCounts(safe);
     const hotspots = buildHotspots(entries);
     // Already marks on every entry version (see MistakeInsights.totalMarksLost) — summed as stored.
     const totalMarksLost = entries.reduce((s, e) => s + (Number(e.marksLost) || 0), 0);
@@ -198,7 +203,7 @@ export async function getMistakeInsights(uid: string, days: number): Promise<Mis
     return {
       totalChecked: entries.length,
       totalMarksLost,
-      mistakeCounts: counts,
+      mistakeCounts: typeCounts,
       topMistakeType,
       topMistakeBasis: byMarks ? "marks" : byCounts ? "counts" : null,
       marksLostByType,
@@ -226,7 +231,9 @@ export async function getMistakeTrend(
 ): Promise<MistakeTrend> {
   try {
     const now = Date.now();
-    const allRaw = await getMistakeLogs(uid, currentDays + previousDays);
+    // MCQ-TYPE-2 — habits count in the per-type COUNT trend; their marks are 0, so the marks trend
+    // (overallPctChange, direction) is unchanged.
+    const allRaw = await getMistakeLogs(uid, currentDays + previousDays, { includeHabits: true });
     const all = allRaw.filter(isSafeEntry);
 
     const currentCutoff = now - currentDays * 86400000;
@@ -348,7 +355,8 @@ export function summarizeCareless(entries: MistakeLogEntry[]): CarelessInsight {
 /** Async wrapper for surfaces that need to fetch first. */
 export async function getCarelessInsight(uid: string, days: number): Promise<CarelessInsight> {
   try {
-    const raw = await getMistakeLogs(uid, days);
+    // MCQ-TYPE-2 — the careless-habit COUNTS include the 0-mark habits; their marks are 0.
+    const raw = await getMistakeLogs(uid, days, { includeHabits: true });
     return summarizeCareless(raw.filter(isSafeEntry));
   } catch {
     return { calculationCount: 0, sillyCount: 0, count: 0, marksLost: 0, hasData: false };

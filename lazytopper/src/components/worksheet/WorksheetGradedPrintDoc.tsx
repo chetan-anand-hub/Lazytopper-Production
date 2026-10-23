@@ -18,6 +18,8 @@ import {
   notGradedSummaryLine,
   paperMarksLost,
   pendingBreakdown,
+  isHabitOnlyQuestion,
+  questionChipText,
   questionChipType,
   splitWithdrawnSteps,
   stepDisplay,
@@ -83,9 +85,11 @@ function markPill(g: WorksheetQuestionGrade): string {
  *  Null on a question that lost no mark (owner ruling). */
 function mistakeTag(g: WorksheetQuestionGrade): { label: string; cls: string } | null {
   const type = questionChipType(g);
-  const label = mistakeTypeLabel(type);
+  // MCQ-TYPE-2: a 0-mark habit's tag reads "1/1 · Silly slip — mark kept, fix the habit".
+  const label = questionChipText(g);
   const group = mistakeGroupOf(type);
-  return label && group ? { label, cls: group.cls } : null;
+  // MCQ-TYPE-2 design ruling: a kept-mark habit is never drawn in the rose "gap" colour.
+  return label && group ? { label, cls: isHabitOnlyQuestion(g) ? "habit" : group.cls } : null;
 }
 
 /* SCORECARD-MI-1 — step states and type names come from lib/mistakeDisplay, the same
@@ -509,11 +513,12 @@ const GRADED_CSS = `
 .lt-gp__qrow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .lt-gp__qbox { font-size: 12.5px; }
 .lt-gp__bl { font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gp-muted); margin-bottom: 4px; }
-.lt-gp__tag { display: inline-block; font-weight: 700; font-size: 11px; padding: 1px 8px; border-radius: 20px; margin-right: 6px; }
+.lt-gp__tag { display: inline-block; font-weight: 700; font-size: 11px; padding: 1px 8px; border-radius: 20px; margin-right: 6px; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 .lt-gp__tag--con { background: var(--gp-rose-bg); color: var(--gp-rose); }
 .lt-gp__tag--cal { background: var(--gp-amber-bg); color: var(--gp-amber); }
 .lt-gp__tag--care { background: #eef0f7; color: #5b63b0; }
 .lt-gp__tag--tech { background: #e7f0fe; color: #2459a8; }
+.lt-gp__tag--habit { background: #fff4e0; color: #8a5a00; box-shadow: inset 0 0 0 1px #f0d49a; }
 .lt-gp__fb { color: var(--gp-ink); display: block; margin-top: 6px; }
 
 /* Binary verdict — objective / 1-mark questions (no step marking, by CBSE rule). */

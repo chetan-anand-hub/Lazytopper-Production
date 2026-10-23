@@ -32,6 +32,11 @@
 //                         no typed bucket down; (2) a step node gains the single new key `consequentialOf`
 //                         (an integer pointing at an EARLIER step) and nothing else about it changes.
 //                         No mark, status, type, note or annotation changes anywhere.
+//
+//   g-mcq-habit-1         (MCQ-TYPE-2, owner ruling 2026-10-23; NOT an A17 class, checked on its own, an
+//                         entry carries `habit: { base, delta }`). A RIGHT objective answer with flawed
+//                         working keeps its type as a 0-mark habit: on a full-mark objective question ONE
+//                         step's type goes null → a type and its summary count goes up by one. Nothing else.
 
 const R = require('../../../grading/rules.cjs');
 
@@ -111,6 +116,43 @@ function conseqViolations(delta, toBody) {
   return out;
 }
 
+const HABIT_CLASS = 'g-mcq-habit-1';
+const HABIT_TYPES = ['conceptual', 'calculation', 'silly', 'presentation'];
+/** g-mcq-habit-1 (MCQ-TYPE-2, owner ruling 2026-10-23) rule violations for ONE delta. A RIGHT objective
+ *  answer with flawed working keeps its type as a 0-mark habit. ONLY, per question: the question is
+ *  objective and scores FULL in the new body; exactly one step's `mistakeType` goes null → a type;
+ *  `mistakeSummary.<that type>` goes up by exactly one and nothing else in the summary moves. No mark,
+ *  status, annotation, marksLostByType, note or any other field changes anywhere. */
+function habitViolations(delta, toBody) {
+  const out = [];
+  const perResult = new Map(); // key -> { result, stepGains: {type: n}, summaryGains: {type: n} }
+  for (const [p, from, to] of delta) {
+    const at = p[0] === 'results' && Number.isInteger(p[1]) ? { prefix: p.slice(0, 2), rest: p.slice(2) } : { prefix: [], rest: p };
+    const key = JSON.stringify(at.prefix);
+    if (!perResult.has(key)) perResult.set(key, { result: getAt(toBody, at.prefix), stepGains: {}, summaryGains: {} });
+    const pr = perResult.get(key);
+    if (at.rest.length === 3 && at.rest[0] === 'annotatedSteps' && Number.isInteger(at.rest[1]) && at.rest[2] === 'mistakeType') {
+      if (from !== null || !HABIT_TYPES.includes(to)) { out.push(p.join('.') + ': a step type may only go from null to a mistake type'); continue; }
+      pr.stepGains[to] = (pr.stepGains[to] || 0) + 1;
+      continue;
+    }
+    if (at.rest.length === 2 && at.rest[0] === 'mistakeSummary' && HABIT_TYPES.includes(at.rest[1])) {
+      pr.summaryGains[at.rest[1]] = (Number(to) || 0) - (Number(from) || 0);
+      continue;
+    }
+    out.push(p.join('.') + ': outside the ' + HABIT_CLASS + ' rules');
+  }
+  for (const [key, pr] of perResult) {
+    const r = pr.result;
+    if (!isObj(r) || r.objective !== true) { out.push(key + ': not an objective question'); continue; }
+    if (!(Number(r.marksAwarded) === Number(r.totalMarks) && Number(r.totalMarks) > 0)) out.push(key + ': not a full-mark answer');
+    const gained = Object.values(pr.stepGains).reduce((a, b) => a + b, 0);
+    if (gained !== 1) out.push(key + ': ' + gained + ' steps gained a type (exactly one may)');
+    for (const t of HABIT_TYPES) if ((pr.stepGains[t] || 0) !== (pr.summaryGains[t] || 0)) out.push(key + ': ' + t + ' summary moved ' + (pr.summaryGains[t] || 0) + ' but steps gained ' + (pr.stepGains[t] || 0));
+  }
+  return out;
+}
+
 /** Rule violations of `classes` (array) for one entry's delta; [] = accepted. */
 function classViolations(classes, delta, toBody) {
   const cls = new Set(classes);
@@ -175,4 +217,4 @@ function classesFor(delta, toBody) {
   return null;
 }
 
-module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations };
+module.exports = { diffBodies, undoDelta, classViolations, classesFor, A17_CLASSES, CONSEQ_CLASS, conseqViolations, HABIT_CLASS, habitViolations };

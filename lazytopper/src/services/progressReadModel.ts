@@ -63,7 +63,7 @@ import {
 } from "./mistakeLogService";
 import { isSafeEntry } from "./mistakeInsightsService";
 import { getTutorTurnsFromCloud, tutorSessionCount, type TutorTurnEvent } from "./tutorSessionStore";
-import { entryMarksLost, groupMarks, mistakeGroupOf, type MistakeGroupKey } from "../lib/mistakeDisplay";
+import { entryMarksLost, groupMarks, isHabitOnlyEntry, mistakeGroupOf, type MistakeGroupKey } from "../lib/mistakeDisplay";
 
 export { boardChapterKey };
 export type { ReadWindow, WindowTotal };
@@ -169,6 +169,12 @@ export interface MistakeView {
   byConcept: Record<string, ConceptMistakeRow>;
   /** False when the history read failed or was cut short: the figures may be partial. */
   complete: boolean;
+  /** MCQ-TYPE-2 — the 0-MARK HABITS in the window and scope (a right MCQ with flawed working;
+   *  `habitOnly`), newest first. They are in NO other field: not `entries`, `marksLost`, `byGroup`,
+   *  `byChapter`, `byConcept` or `wonBack` — a habit is never a lost mark, a gap or a weak area.
+   *  A reader that shows TYPE COUNTS (the type mix, the careless-habit count) adds these. Absent on
+   *  a view built before this field existed. */
+  habits?: MistakeLogEntry[];
 }
 
 export interface StudyReadModel {
@@ -351,11 +357,14 @@ export function buildMistakeView(
     if (scope.topicKey && boardChapterKey(e.topic) !== scope.topicKey) return false;
     return true;
   };
-  const safe = history.filter((e) => isSafeEntry(e) && inScope(e));
+  const inScopeSafe = history.filter((e) => isSafeEntry(e) && inScope(e));
+  // MCQ-TYPE-2: a 0-mark habit is not a live mistake — kept apart, in `habits` only.
+  const safe = inScopeSafe.filter((e) => !isHabitOnlyEntry(e));
+  const live = (e: MistakeLogEntry): boolean => inRange(e.timestamp, scope.start, scope.end) && !isSupersededByRegrade(e);
+  const newestFirst = (a: MistakeLogEntry, b: MistakeLogEntry): number => Date.parse(b.timestamp) - Date.parse(a.timestamp);
 
-  const entries = safe
-    .filter((e) => inRange(e.timestamp, scope.start, scope.end) && !isSupersededByRegrade(e))
-    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
+  const entries = safe.filter(live).sort(newestFirst);
+  const habits = inScopeSafe.filter((e) => isHabitOnlyEntry(e) && live(e)).sort(newestFirst);
 
   const byChapter: Record<string, MistakeLogEntry[]> = {};
   for (const e of entries) {
@@ -382,6 +391,7 @@ export function buildMistakeView(
     wonBack,
     byConcept: {},
     complete,
+    habits,
   };
 }
 
