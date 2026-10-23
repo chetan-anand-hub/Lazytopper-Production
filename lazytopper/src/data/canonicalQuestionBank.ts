@@ -1166,7 +1166,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
   // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
-  "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
   "2026-STAT-SA-03",              // unsolvable-as-printed (D170): mean 18 with f: 3, f, 7, 5 gives 3f = 25; the row's own last step says 'adjust numbers accordingly'
   // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
   "PYQ-S-2025-ACID-010",          // garbled-extraction: parts (b)/(c) reduced to residue
@@ -1175,7 +1174,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-CHEMRXN-020",       // garbled-extraction: structures damaged, triple bond lost
   "PYQ-S-2025-REPR-007",          // garbled-extraction: OR alternative reduced to residue
   "PYQ-S-2026-REPR-005",          // garbled-extraction: OR alternative reduced to residue
-  "PYQ-S-LIFE-013",               // garbled-extraction: empty dangling sub-parts
   "PYQ-S-2024-LIFEP-008",         // garbled-extraction: words dropped from the stem
   "PYQ-S-2026-LIFEP-014",         // garbled-extraction: stem reduced to empty brackets
   "PYQ-M-AP-003",            // mojibake — part (B) Hindi gibberish (dup of clean AP-002)
@@ -1202,40 +1200,18 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-ACID-044",              // garbled: trailing-op
   // -- arithmetic-progression --
   // -- chemical-reactions-and-equations --
-  "PYQ-S-2024-CHEMRXN-006",      // garbled: pua
-  "PYQ-S-2024-CHEMRXN-007",      // garbled: pua+trailing-op
-  "PYQ-S-2024-CHEMRXN-012",      // garbled: pua
-  "PYQ-S-2024-CHEMRXN-014",      // garbled: trailing-op
   "PYQ-S-2024-CHEMRXN-015",      // garbled: pua+trailing-op
-  "PYQ-S-2024-CHEMRXN-016",      // garbled: pua
-  "PYQ-S-2024-CHEMRXN-017",      // garbled: pua
-  "PYQ-S-2025-CHEMRXN-010",      // garbled: pua+trailing-op
   "PYQ-S-2025-CHEMRXN-018",      // garbled: pua
-  "PYQ-S-2025-CHEMRXN-019",      // garbled: pua
   "PYQ-S-CHEM-002",              // garbled: truncated-options
-  "PYQ-S-CHEM-006",              // garbled: pua
   "PYQ-S-CHEM-013",              // garbled: pua
-  "PYQ-S-CHEM-016",              // garbled: trailing-op
   "SCQ-S-CHEM-026",              // garbled: trailing-op
   "SCQ-S-CHEM-039",              // garbled: trailing-op
   // -- electricity --
-  "PYQ-S-ELEC-005",              // garbled: pua
-  "SCQ-S-ELEC-037",              // garbled: trailing-op
   // -- life-processes --
-  "PYQ-S-2025-LIFEP-004",        // garbled: pua
-  "PYQ-S-2026-LIFEP-006",        // garbled: pua
-  "PYQ-S-LIFE-010",              // garbled: trailing-op
-  "PYQ-S-LIFE-015",              // garbled: pua+trailing-op
-  "PYQ-S-LIFE-016",              // garbled: pua+trailing-op
-  "PYQ-S-LIFE-017",              // garbled: trailing-op
   // -- light-reflection-and-refraction --
-  "PYQ-S-LIGHT-011",             // garbled: pua
-  "PYQ-S-LIGHT-012",             // garbled: pua
-  "PYQ-S-LIGHT-013",             // garbled: pua
   // -- metals-and-non-metals --
   "CBE-S-MNM-B-006",             // garbled: trailing-op
   "PYQ-S-2024-METAL-001",        // garbled: pua
-  "PYQ-S-2025-METAL-005",        // garbled: pua
   "PYQ-S-2026-METAL-010",        // garbled: pua+trailing-op
   "PYQ-S-2026-METAL-011",        // garbled: pua
   "SCQ-S-METAL-044",             // garbled: trailing-op
@@ -1244,19 +1220,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // (a "See marking scheme" stub, CBSE evaluator boilerplate, or diagram captions only);
   // spliced-solution = the steps splice in the marking scheme of a DIFFERENT question.
   "LIGHT-EXMPLR-9-MCQ-004",      // answer-mismatch: Fig 10.1 gives sin 60°/sin 45° = 1.22 and no option matches (the official key 3/2 is the sin² ratio); owner ruling pending
-  "PYQ-S-LIGHT-010",             // placeholder-solution: "See marking scheme."
-  "PYQ-S-LIGHT-014",             // placeholder-solution: ~48 steps of CBSE evaluator instructions after the first
-  "PYQ-S-LIGHT-015",             // placeholder-solution: evaluator boilerplate; stem also lost the minus signs on the powers
-  "PYQ-S-2024-LIGHT-002",        // placeholder-solution: the only step is evaluator boilerplate
-  "PYQ-S-2024-LIGHT-003",        // placeholder-solution: the only step is evaluator boilerplate
-  "PYQ-S-2025-LIGHT-007",        // placeholder-solution: "See marking scheme."; options also lost the ×10^8 and fraction bars
-  "PYQ-S-2025-LIGHT-009",        // placeholder-solution: "See marking scheme."
-  "PYQ-S-2025-LIGHT-012",        // spliced-solution: electricity kettle/fuse marking scheme pasted in
-  "PYQ-S-2025-LIGHT-013",        // spliced-solution: electricity heating-element marking scheme pasted in
-  "PYQ-S-2025-LIGHT-014",        // placeholder-solution: diagram captions only ("IMAGE OBJECT")
-  "PYQ-S-2025-LIGHT-018",        // placeholder-solution: "See marking scheme."
-  "PYQ-S-2026-LIGHT-008",        // placeholder-solution: formula fragment + "Refer to CBSE official marking scheme"
-  "PYQ-S-2026-LIGHT-014",        // placeholder-solution: "Refer to CBSE official marking scheme"
   "SCO-S-LIGHT-018",             // garbled: stem lost the radius of curvature (R = 5 cm in its source item FND-L-QB-175); underivable as printed
   "SCQ-S-LIGHT-022",             // garbled: stem says seven one-mark parts (7 marks) but the row carries 2; answer truncated mid-word
   "SCQ-S-LIGHT-034",             // garbled: solution is formula soup ("3 108 # =", "v . / m s 1 24 108 # ="); part (a) reasoning inverted
@@ -1313,7 +1276,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-ELEC-013",         // out-of-syllabus: (A)(ii) key names Electric Motor / Electric Generator
   "SCQ-S-ELEC-036",              // answer-mismatch: answer is another question's text
   "APQ-S-ELEC-001",              // garbled: ambiguous stem — topology of R1, R2, R3 never stated
-  "PYQ-S-2025-ELEC-008",         // garbled: answer 'm', steps three fragments
   "PYQ-S-2025-ELEC-009",         // garbled: Hindi remnant, graphs A-D unbound (RECOVER-1 row, untouched)
   "PYQ-S-ELEC-004",              // garbled: part (a) empty
   "SCQ-S-ELEC-034",              // garbled: numerics in stem and answer
@@ -1331,47 +1293,19 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // Remove an id only when its row is repaired from the source paper — NEVER when a
   // gate merely goes green.
   // -- placeholder-solution (CBSE 2022-23 / 2024-25 / 2025-26 PYQ packs) --
-  "PYQ-S-LIFE-012",              // placeholder-solution
-  "PYQ-S-LIFE-014",              // placeholder-solution
-  "PYQ-S-CTRL-003",              // placeholder-solution
-  "PYQ-S-EYE-002",               // placeholder-solution
-  "PYQ-S-ENV-003",               // placeholder-solution
-  "PYQ-S-ENV-004",               // placeholder-solution
   "PYQ-M-CIRC-011",              // placeholder-solution
   "PYQ-M-STAT-007",              // placeholder-solution
-  "PYQ-S-2026-LIFEP-007",        // placeholder-solution
-  "PYQ-S-2025-CHEMRXN-008",      // placeholder-solution
-  "PYQ-S-2025-CHEMRXN-014",      // placeholder-solution
-  "PYQ-S-2025-CHEMRXN-015",      // placeholder-solution
-  "PYQ-S-2025-ACID-006",         // placeholder-solution
-  "PYQ-S-2025-CTRL-008",         // placeholder-solution
-  "PYQ-S-2025-HERED-004",        // placeholder-solution
-  "PYQ-S-2025-EYE-002",          // placeholder-solution
-  "PYQ-S-2025-ENV-003",          // placeholder-solution
-  "PYQ-S-2026-METAL-004",        // placeholder-solution — (i)(ii) are electron-dot diagrams, not carried
-  "PYQ-S-2025-LIFEP-006",        // placeholder-solution — only part (a) survives of 3 marks
-  "PYQ-S-2026-HERED-006",        // placeholder-solution — cross diagram not carried
-  "PYQ-S-2026-HERED-007",        // placeholder-solution — parts (b)(c) missing
-  "PYQ-S-2025-REPR-006",         // placeholder-solution — "diagram labelling" only
-  "PYQ-S-2025-HERED-008",        // placeholder-solution — cross not carried
-  "PYQ-S-2024-CHEMRXN-010",      // placeholder-solution — "(a) (b) (c)" then two MS pointers
-  "PYQ-S-2026-LIFEP-012",        // placeholder-solution — step (a) is the examiner note "(Award ½ mark for each labelling)"
-  "PYQ-S-EYE-005",               // placeholder-solution — step is MS tallies + page stamp + "(1 mark for diagram…)"
   // -- spliced-solution --
   "PYQ-M-2026-CIRC-003",         // spliced-solution — a probability solution ("m + 6 / 36") under a circles stem
   "PYQ-S-2026-EYE-003",          // spliced-solution — stem is bilingual residue; steps solve a 4 Ω + 1 Ω series circuit
   // -- blank / garbled / bilingual (fragments; re-transcribe from the cited MS) --
-  "PYQ-S-MAG-008",               // blank — part (c) field-line diagram not carried; step is "(c)"
-  "PYQ-S-2026-HERED-011",        // garbled — 9:3:3:1 split across fragment steps, cross not carried
   "PYQ-S-ACID-011",              // garbled — stem lost sub-part (b) entirely ("(b) (c) Why do…")
-  "PYQ-S-2026-CHEMRXN-022",      // garbled — (c) esterification equation missing; OR(c) carries the (b) equation
   "SCQ-S-METAL-034",             // garbled — step truncated mid-word ("froth floatio"); part (b) incomplete
   "PYQ-S-2026-METAL-009",        // bilingual — Hindi column residue in the stem ("A, B C A, B C , ? 5 () (i) (I) B, K, R XY ?")
   // -- garbled-options / answer-mismatch --
   "SCO-S-ACID-014",              // garbled-options — "the formation of salt H O 2 +" (flattened H2O)
   "SCQ-S-ACID-034",              // answer-mismatch — stem says pH 14; its own answer says "No salt has pH = 14"
   // -- stage 4: skeptic pass 2026-09-11 (report-skeptic-rekey-clean-2026-09-11.md) --
-  "PYQ-S-METAL-003",             // garbled — part (i) MgCl₂ electron-transfer diagram lost; step 1 begins "i) (ii)"
   "SCO-S-HERED-005",             // out-of-syllabus — origin of life / earliest organisms = Evolution (formative-only, 2026-27)
   // -- BANK-SPLIT-1 PR-1 (2026-10-03): true duplicates within one chapter, scout N1 normalisation (equal marks,
   //    option set and answer). Keeper = pyqYear row, else a row NOT in AI_GENERATED_QUESTION_IDS, else the oldest id.
