@@ -957,7 +957,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       return out;
     }
   }
-  applyObjectiveMistakeGuard(steps, { objective: questionIsObjective, options: q.options });
+  applyObjectiveMistakeGuard(steps, { objective: questionIsObjective, options: q.options, typedAnswer: q.textAnswer });
   // A17 ruling 1, deterministic: a missing/wrong unit costs exactly ½ once per question, in Maths
   // AND Science, never on a pure number, and says so in one fixed comment (applyUnitRuling).
   const unitRuling = questionIsObjective ? { charged: 0, restored: 0 } : applyUnitRuling(steps, q);

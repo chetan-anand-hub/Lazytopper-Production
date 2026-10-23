@@ -180,9 +180,10 @@ const HEDGE_IN_DECLARATION = /(?:\banswer\b|\bans\b|\boption\b|\bopt\b|\bpicked\
 // "actually a mistake" is never read as option (a).
 const SELF_CORRECTION =
   /(?:\bno\s*,?\s*wait\b|\bwait\b|\bactually\b|\bsorry\b|\bcorrection\b|\bchanged?\s+(?:it\s+)?to\b|\binstead\b|\bfinal(?:\s+answer)?\b)[\s,:\-–—]*(?:\(\s*([a-hA-H])\s*\)|\b([a-hA-H])\b\s*[.)]?\s*$)/i;
-// MCQ-EXTRACT-1: "(c) Coincident" / "c) 7k" / "C. 7" — a leading letter, a closing bracket or a
-// dot/colon/dash, then the rest of the line (checked against that letter's option text).
-const LETTER_THEN_TEXT = /^\s*\(?\s*([a-hA-H])\s*(?:\)|\.|:|-|–|—)\s*(.+?)\s*$/;
+// MCQ-EXTRACT-1: "(c) Coincident" / "c) 7k" — a leading letter, a CLOSING BRACKET, then the rest of
+// the line (checked against that letter's option text). ONLY a bracket: ":", ".", "-" also follow
+// letter VARIABLES in working ("a: 2", "b - b"), and reading those as picks moved marks both ways.
+const LETTER_THEN_TEXT = /^\s*\(?\s*([a-hA-H])\s*\)\s*(.+?)\s*$/;
 // A line that DISCUSSES an option ("option (b) is wrong because…") is not a declaration of it.
 const NEGATED_MENTION = /\b(?:is|was|are)\s+(?:wrong|incorrect|not)\b|\bnot\b|\bwrong\b|\bincorrect\b|\beliminat|\brule[sd]? out\b|\breject/i;
 
@@ -200,7 +201,7 @@ function declarationOn(line, opts) {
   // (2) whole line is an option's text.
   if (opts.some((o) => N(o) === norm)) return { pick: w };
   // (2b) MCQ-EXTRACT-1 · a leading option letter followed by THAT option's text — "(c) Coincident",
-  // "c) only k, 7k and k^3", "C. 7". Only when the text is exactly the letter's own option: a
+  // "c) only k, 7k and k^3". Only when the text is exactly the letter's own option: a
   // letter with another option's text is contradictory, and a letter with prose is working.
   const lt = LETTER_THEN_TEXT.exec(w);
   if (lt) {
@@ -375,13 +376,33 @@ function clampObjectiveResult(question, steps, totalMarks, modelFinalAnswerCorre
 // the option text and nothing more — has nothing to classify, so a wrong bare pick
 // must NEVER carry a fabricated mistake type (MI honesty doctrine). Reasoning written
 // alongside a wrong pick DOES carry a classifiable mistake — that is the feature.
+//
+// MCQ-TYPE-1 (review fix) · A LINE THAT ONLY DECLARES THE OPTION IS NOT WORKING. "Ans: (c)",
+// "Option C", "Answer is (c) Coincident", "Ans = b" restate the pick; once "has working" is
+// decided for the whole question, counting them as working would let a tap written twice carry
+// a fabricated type (DECISION-MCQ-WRONG; no fake MI). So each LINE counts as working only if
+// something is left after removing: every option's text (whole-token sequences, longest first),
+// the declaration words, single option letters, and punctuation-only tokens.
+const DECLARATION_WORDS = new Set([
+  'ans', 'answer', 'answers', 'option', 'options', 'opt', 'correct', 'is', 'the', 'my', 'final',
+  'i', 'picked', 'pick', 'chose', 'choose', 'chosen', 'choice', 'selected', 'select',
+]);
+function lineHasWorking(line, opts) {
+  const norm = normaliseOption(line);
+  if (!norm) return false;
+  let rest = ' ' + norm + ' ';
+  const texts = opts.map((o) => normaliseOption(o)).filter(Boolean).sort((a, b) => b.length - a.length);
+  for (const t of texts) {
+    const needle = ' ' + t + ' ';
+    while (rest.includes(needle)) rest = rest.replace(needle, ' ');
+  }
+  const left = rest.trim().split(' ').filter((tok) =>
+    tok && /[a-z0-9]/i.test(tok) && !DECLARATION_WORDS.has(tok) && !/^[a-h]$/.test(tok));
+  return left.length > 0;
+}
 function objectiveHasWorking(studentWork, options) {
-  const norm = normaliseOption(studentWork);
-  if (!norm) return false; // blank → no working
-  if (/^[a-h]$/.test(norm)) return false; // bare letter pick: "a", "(b)", "c."
   const opts = Array.isArray(options) ? options : [];
-  if (opts.some((o) => normaliseOption(o) === norm)) return false; // bare text pick
-  return true; // substantive text beyond a pick → working (prompt handles compound picks)
+  return String(studentWork == null ? '' : studentWork).split(/\n/).some((line) => lineHasWorking(line, opts));
 }
 
 // applyObjectiveMistakeGuard(steps, { objective, options }) → noWorkingNulled tally.
@@ -394,21 +415,69 @@ function objectiveHasWorking(studentWork, options) {
 // Marks are NOT touched here — they are already fixed (objective by clampObjectiveResult,
 // subjective by the step sum). Returns the per-category count of the types it nulled so
 // the caller's additive-floor reconcile can subtract them from the model's raw summary.
+//
+// MCQ-TYPE-1 (owner rule 23 Oct 2026) · FOR AN OBJECTIVE QUESTION, "HAS WORKING" IS DECIDED
+// FOR THE WHOLE QUESTION, NOT LINE BY LINE. The prompt asks the model to quote only the option
+// on the answer line, and the model often puts the question's mistake type on that line. Judged
+// line by line, that line is a "bare pick", so the type was deleted even when real working sat
+// on the other lines, and the lost mark fell into "reason not recorded". Now: if ANY step of an
+// objective question carries working beyond the bare pick, every non-empty step keeps its type,
+// the answer line included. A question that is ONLY a bare pick still loses its type
+// (DECISION-MCQ-WRONG: a tap is attempt-only, untyped). An EMPTY step is still undiagnosable.
+// Marks are not read or written here.
+//
+// WHERE THE EVIDENCE COMES FROM (review fix, golden-checked):
+//   • a TYPED answer (`typedAnswer`): the server can read the student's own text, so the strict
+//     test applies to it and to the quoted steps — a declaration ("Ans: (c)", "Option C") is
+//     not working, and a typed tap restated over two lines stays untyped;
+//   • a PHOTO (no typed text): the server cannot see the page. The prompt tells the model to
+//     quote ONLY the option on the answer step (rules.cjs OBJECTIVE_PROMPT), so a one-step
+//     "Ans: (B)" is how a fully worked photo answer normally comes back (golden paper-04 Q1:
+//     "Favourable … = 9, P = 9/36" on the page, truth `silly`). There the model's reading is the
+//     only witness: a typed step that is MORE than a bare pick keeps its type, exactly as on
+//     trunk. A bare "(c)" is still untyped, and NO_WORKING_PROMPT tells the model to leave a
+//     working-free page untyped.
+function barePick(studentWork, opts) {
+  const norm = normaliseOption(studentWork);
+  if (!norm) return true;
+  if (/^[a-h]$/.test(norm)) return true;
+  return opts.some((o) => normaliseOption(o) === norm);
+}
 function applyObjectiveMistakeGuard(steps, opts) {
   const objective = Boolean(opts && opts.objective);
   const options = opts && opts.options;
+  const optList = Array.isArray(options) ? options : [];
+  const typedAnswer = opts && opts.typedAnswer != null ? String(opts.typedAnswer).trim() : '';
   const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
   const list = Array.isArray(steps) ? steps : [];
+  const questionHasWorking = objective && (
+    list.some((s) => s && objectiveHasWorking(s.studentWork, options))
+    || (typedAnswer
+      ? objectiveHasWorking(typedAnswer, options)
+      : list.some((s) => s && s.mistakeType && !barePick(s.studentWork, optList))));
   for (const s of list) {
     if (!s) continue;
+    const nonEmpty = Boolean(s.studentWork && String(s.studentWork).trim());
     const hasWorking = objective
-      ? objectiveHasWorking(s.studentWork, options)
-      : Boolean(s.studentWork && String(s.studentWork).trim());
+      ? questionHasWorking && nonEmpty
+      : nonEmpty;
     if (s.status === 'incorrect' && !hasWorking) {
       if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
         noWorkingNulled[s.mistakeType] += 1;
       }
       s.mistakeType = null;
+    }
+  }
+  // MCQ-TYPE-1 (review fix) · ONE OBJECTIVE QUESTION IS ONE MISTAKE. A 1-mark MCQ split over
+  // several lines or parts may come back with a type on more than one step; mistakeSummary and
+  // MI's stepDetails count every typed step, while marksLostByType takes only the FIRST typed
+  // step. So only that primary type stays; the others are cleared (not tallied as no-working).
+  if (objective) {
+    let primarySeen = false;
+    for (const s of list) {
+      if (!s || !s.mistakeType) continue;
+      if (primarySeen) s.mistakeType = null;
+      primarySeen = true;
     }
   }
   return noWorkingNulled;
