@@ -24,7 +24,7 @@
 }
 
 /* GUIDE-FILTER-1 - the "?" beside the panel heading, and the hosts the filter explainer / Byte's
-   greyed-chip line hang from (position: relative; the anchor itself is absolute: no layout shift). */
+   greyed-chip line open in (in flow since the #1302 mobile review: they push, never overlay). */
 .qp-filter-head { position: relative; }
 .qp-filter-head__row { display: flex; align-items: center; gap: 8px; }
 .qp-filter-row { position: relative; }
@@ -45,8 +45,10 @@
 }
 .qp-filter-help-btn[aria-expanded="true"] { background-color: hsl(152, 55%, 45%); color: #ffffff; }
 .qp-filter-help-btn:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
-/* A comfortable tap target on touch screens without changing the drawn size. */
-@media (pointer: coarse) {
+/* GUIDE-FILTER-1 #1302 mobile review (owner ruling 23 Oct): 44px touch targets on phones and tablets.
+   The "?" keeps its drawn size with an invisible 44px hit area; the chips grow to 44px tall. */
+@media (pointer: coarse), (max-width: 1024px) {
   .qp-filter-help-btn { position: relative; }
   .qp-filter-help-btn::after { content: ""; position: absolute; inset: -8px; }
+  .qp-filter-chip { min-height: 44px; padding: 8px 14px; }
 }

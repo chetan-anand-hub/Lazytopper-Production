@@ -1,7 +1,10 @@
-/* GUIDE-FILTER-1 - the eager half: the zero-height anchor the filter explainer hangs from, and the
-   empty-state Ziggy's row reserved at its final height (no layout shift when the chunk arrives). */
-/* Absolutely positioned itself, so a flex / grid host gives it no slot and no gap: the host only
-   needs `position: relative`. The panel hangs from the host's bottom edge. */
-.lt-fh-anchor { position: absolute; left: 0; right: 0; top: 100%; height: 0; z-index: 20; }
-.lt-fe-slot { min-height: 84px; margin: 4px 0 10px; display: flex; align-items: center; }
+
+/* GUIDE-FILTER-1 - the eager half: the slot the filter explainer / Byte's greyed-chip line opens in,
+   and the empty-state Ziggy's row reserved at its final height (no shift when the chunk arrives).
+   #1302 mobile review (owner ruling 23 Oct 18:31): the explainer opens IN FLOW below the heading
+   (or below the greyed chip's row), pushing the chips down, so on a 360x640 phone it never covers
+   a chip or the Build button. It opens only after a tap (Customise / Edit filters / "?" / a greyed
+   chip), so the move follows the student's own action. In a flex row it takes a full line. */
+.lt-fh-anchor { position: relative; flex: 0 0 100%; width: 100%; min-width: 0; }
+.lt-fe-slot { min-height: 84px; margin: 4px 0 10px; display: flex; align-items: center; min-width: 0; }
 @media print { .lt-fh-anchor, .lt-fe-slot { display: none; } }

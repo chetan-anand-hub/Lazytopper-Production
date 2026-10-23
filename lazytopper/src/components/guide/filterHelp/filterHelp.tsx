@@ -20,8 +20,11 @@
  *   Under an admin preview it opens every time and nothing is read or written (PREVIEW-1's rule).
  *   Blocked storage → once per page load.
  *
- * NO LAYOUT SHIFT — the panel is absolutely positioned from a zero-height anchor; the empty-state
- * Ziggy's row is reserved at its final height on the first render (the arm is known synchronously).
+ * LAYOUT (#1302 mobile review, owner ruling 23 Oct 18:31) — the explainer and the greyed-chip line
+ * open IN FLOW (they push the chips down, never overlay a chip or the Build button on a 360x640
+ * phone), and only after the student's own tap; the chunk is preloaded when the filter panel mounts
+ * so the open lands at once. The empty-state Ziggy's row is reserved at its final height on the
+ * first render (who sees him is known synchronously), so nothing moves when the chunk arrives.
  */
 import { lazy, Suspense, type ComponentType } from "react";
 import { guidePreviewActive, resolveGuideVariant, trackGuideEvent } from "../guideVariant";
@@ -38,6 +41,11 @@ const load = (): Promise<Chunk> => import("./filterHelpChunk");
 function lazyPart<P extends object>(pick: (m: Chunk) => ComponentType<P>) {
   const Nothing: ComponentType<P> = () => null;
   return lazy(() => load().then((m) => ({ default: pick(m) }), () => ({ default: Nothing })));
+}
+
+/** Warm the chunk (the filter panel calls this on mount). A failed load is ignored here. */
+export function preloadFilterHelp(): void {
+  load().catch(() => {});
 }
 
 const LazyPanel = lazyPart((m) => m.FilterHelpPanel);
@@ -109,7 +117,7 @@ export function noteFilterEmptyClick(): void {
 export type FilterHelpDoorProps = Omit<FilterHelpPanelProps, "withCharacter"> & { uid: string | null | undefined };
 
 /**
- * The explainer / greyed-chip line, from a zero-height anchor (absolutely positioned: no shift).
+ * The explainer / greyed-chip line, in flow (a full line of its host row; see filterHelpEager.css).
  * The host mounts it only while open. A failed chunk load renders nothing.
  */
 export function FilterHelpDoor({ uid, ...rest }: FilterHelpDoorProps) {

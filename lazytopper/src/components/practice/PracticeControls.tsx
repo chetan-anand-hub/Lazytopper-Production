@@ -7,6 +7,7 @@ import {
   FilterHelpDoor,
   claimFilterHelpAutoOpen,
   noteFilterHelpClick,
+  preloadFilterHelp,
   type FilterGroup,
 } from "../guide/filterHelp/filterHelp";
 import "./practiceFilterChips.css";
@@ -470,6 +471,7 @@ function FilterPanel({
   const [greyedTip, setGreyedTip] = useState<{ group: FilterGroup; label: string } | null>(null);
   // Auto-opens ONCE per device, the first time a filter panel is shown (then only via "?").
   useEffect(() => {
+    preloadFilterHelp();
     if (claimFilterHelpAutoOpen()) setHelpOpen(true);
   }, []);
   const closeHelp = useCallback(() => setHelpOpen(false), []);
