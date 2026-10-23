@@ -15,11 +15,17 @@
  * A NOTIFICATION ONLY: it carries no data, writes nothing and stores nothing.
  */
 
+/** Writes come in bursts (a graded worksheet writes an attempt, a mistake and a record per
+ *  question; a Quick Practice session writes after every answer). The version moves ONCE, after
+ *  this much quiet, so a burst costs ONE re-read — shared by every card through the memo. */
+export const STUDY_DATA_QUIET_MS = 1000;
+
 let version = 0;
+let timer: ReturnType<typeof setTimeout> | null = null;
 const listeners = new Set<() => void>();
 
-/** Something a Mistake Intelligence figure reads was written on this device. */
-export function noteStudyDataChanged(): void {
+function publish(): void {
+  timer = null;
   version += 1;
   for (const l of [...listeners]) {
     try {
@@ -28,6 +34,13 @@ export function noteStudyDataChanged(): void {
       /* a listener's failure never blocks a write */
     }
   }
+}
+
+/** Something a Mistake Intelligence figure reads was written on this device. Debounced: the
+ *  version moves once, STUDY_DATA_QUIET_MS after the last call of a burst. */
+export function noteStudyDataChanged(): void {
+  if (timer !== null) clearTimeout(timer);
+  timer = setTimeout(publish, STUDY_DATA_QUIET_MS);
 }
 
 /** The current version (bumps on every change; starts at 0). */
@@ -41,4 +54,12 @@ export function subscribeStudyData(listener: () => void): () => void {
   return () => {
     listeners.delete(listener);
   };
+}
+
+/** Test seam: publish a pending change now (as if the quiet period had passed). */
+export function flushStudyDataSignalForTests(): void {
+  if (timer !== null) {
+    clearTimeout(timer);
+    publish();
+  }
 }

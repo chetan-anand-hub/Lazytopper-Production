@@ -285,7 +285,7 @@ export function computeMeHomeSummary(
 
 const MEMO_MS = 60_000;
 // MI-CONSISTENCY-1 — every key carries `studyDataVersion()`: a write on this device (an attempt,
-// a mistake, a session record, the wrong-answer log) starts a fresh read at once instead of
+// a mistake, a session record, the wrong-answer log) starts ONE fresh read once the burst settles instead of
 // serving the pre-write read for up to MEMO_MS (services/studyDataSignal).
 const memo = new Map<string, { at: number; p: Promise<unknown> }>();
 

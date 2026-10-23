@@ -44,7 +44,7 @@ vi.mock("../../services/mistakeLogService", async (importOriginal) => ({
 }));
 
 import { MiCardHost } from "./MiCardHost";
-import { MiCard } from "./MiCard";
+import { MiCard, MI_CARD_COPY } from "./MiCard";
 import { MistakeIntelCard } from "../desktop/MistakeIntelCard";
 import { miVoiceInputForCard } from "./miCardVoice";
 import { miVoiceFor } from "../guide/mi/miVoiceModel";
@@ -55,6 +55,7 @@ import { readStudyModel } from "../../services/progressReadModel";
 import { recordAttempt, type PracticeAttempt } from "../../services/practiceInsights";
 import { recordWrongAnswer } from "../../services/adaptivePracticeEngine";
 import { setActiveProgressUser } from "../../services/studentProgressStore";
+import { STUDY_DATA_QUIET_MS, studyDataVersion } from "../../services/studyDataSignal";
 import { Link } from "react-router-dom";
 import { act } from "react";
 
@@ -238,5 +239,65 @@ describe("the always-mounted sidebar and Home never disagree on one screen (no r
     await waitFor(() => expect(screen.getByTestId("sidebar-mi-card").getAttribute("data-state")).toBe("empty"));
     expect(screen.getByTestId("home-mi-card").getAttribute("data-state")).toBe("empty");
     expect(H.reads).toBe(0);
+  });
+});
+
+describe("the signal never blanks a card and never storms the read (re-review of 98ea7b53)", () => {
+  /** Every data-state a card takes from now on (attribute changes and re-mounts alike). */
+  function watchStates(): string[] {
+    const seen: string[] = [];
+    const note = () => {
+      for (const id of ["home-mi-card", "sidebar-mi-card"]) {
+        const el = document.querySelector(`[data-testid="${id}"]`);
+        if (el) seen.push(`${id}:${el.getAttribute("data-state")}`);
+      }
+    };
+    const obs = new MutationObserver(note);
+    obs.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-state"] });
+    return Object.assign(seen, { stop: () => obs.disconnect() });
+  }
+
+  it("★ a write keeps the old figures on screen until the new ones land — no 'loading' in between", async () => {
+    renderBoth();
+    const home = () => screen.getByTestId("home-mi-card");
+    const side = () => screen.getByTestId("sidebar-mi-card");
+    await waitFor(() => expect([home().getAttribute("data-state"), side().getAttribute("data-state")]).toEqual(["ready", "ready"]));
+    const before = lostOf(home());
+    const states = watchStates();
+    const pick = wrongPick("w3");
+    H.s.attempts.push(pick);
+    act(() => {
+      recordAttempt({ uid: MI_FIXTURE_UID } as never, { subject: "Maths", topic: "Real Numbers", questionId: pick.questionId, question: "tap", marksScored: 0, marksAvailable: 1, mode: "mcq" });
+    });
+    await waitFor(() => expect([lostOf(home()), lostOf(side())].every((t) => t !== before)).toBe(true));
+    (states as unknown as { stop: () => void }).stop();
+    expect(states.filter((x) => !x.endsWith(":ready"))).toEqual([]);
+    expect(screen.queryByText(MI_CARD_COPY.loading)).toBeNull();
+  });
+
+  it("★ 10 writes 60 ms apart → the version moves ONCE and Home + sidebar share ONE re-read", async () => {
+    renderBoth();
+    const home = () => screen.getByTestId("home-mi-card");
+    const side = () => screen.getByTestId("sidebar-mi-card");
+    await waitFor(() => expect([home().getAttribute("data-state"), side().getAttribute("data-state")]).toEqual(["ready", "ready"]));
+    const before = lostOf(home());
+    const v0 = studyDataVersion();
+    const reads0 = H.reads;
+    for (let i = 0; i < 10; i++) {
+      const pick = wrongPick(`burst${i}`);
+      H.s.attempts.push(pick);
+      act(() => {
+        recordAttempt({ uid: MI_FIXTURE_UID } as never, { subject: "Maths", topic: "Real Numbers", questionId: pick.questionId, question: `tap ${i}`, marksScored: 0, marksAvailable: 1, mode: "mcq" });
+      });
+      await new Promise((r) => setTimeout(r, 60));
+    }
+    expect(H.reads).toBe(reads0); // nothing re-read during the burst
+    await waitFor(() => expect([lostOf(home()), lostOf(side())].every((t) => t !== before)).toBe(true));
+    await new Promise((r) => setTimeout(r, STUDY_DATA_QUIET_MS + 300)); // and nothing after it
+    expect(studyDataVersion()).toBe(v0 + 1);
+    // ONE shared read for the new version: Me's unscoped read + its paper read (meHomeSummary), each
+    // reading the attempts stream once — the same two the first render made, never one per card.
+    expect(H.reads - reads0).toBe(2);
+    expect(lostOf(side())).toBe(lostOf(home()));
   });
 });

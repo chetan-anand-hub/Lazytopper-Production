@@ -25,7 +25,7 @@ export function useMiCard(
   const { status, read } = useMeHome(uid, gen, reader, refresh);
   // A wrong-answer-log write moves "concept gaps still to clear" without a new read: re-select.
   const dataVersion = useSyncExternalStore(subscribeStudyData, studyDataVersion, studyDataVersion);
-  const [cards, setCards] = useState<{ for: unknown; value: Record<MiScope, MiCardSummary> } | null>(null);
+  const [cards, setCards] = useState<{ for: unknown; uid: string; value: Record<MiScope, MiCardSummary> } | null>(null);
   const [failed, setFailed] = useState<unknown>(null);
   const source = ctx.source;
   const returnTo = ctx.returnTo;
@@ -36,7 +36,7 @@ export function useMiCard(
     void (async () => {
       try {
         const { selectMiCards } = await import("./miCardSummary");
-        if (!cancelled) setCards({ for: all, value: selectMiCards(all, { source, returnTo }) });
+        if (!cancelled && uid) setCards({ for: all, uid, value: selectMiCards(all, { source, returnTo }) });
       } catch {
         if (!cancelled) setFailed(all);
       }
@@ -44,7 +44,7 @@ export function useMiCard(
     return () => {
       cancelled = true;
     };
-  }, [read, source, returnTo, dataVersion]);
+  }, [read, source, returnTo, dataVersion, uid]);
 
   // No read to make (no real account, or the shared read reports nothing to read): the empty state.
   if (!uid || status === "idle") return { status: "idle", cards: null };
@@ -53,5 +53,9 @@ export function useMiCard(
   if (all && !all.mistakes.complete) return { status: "error", cards: null };
   if (all && failed === all) return { status: "error", cards: null };
   if (all && cards && cards.for === all) return { status: "ok", cards: cards.value };
+  // A fresh read (a write on this device, a route change) is being selected: keep THIS student's
+  // previous figures on screen until the new selection is ready — "loading" is for the very
+  // first read only, so a Quick Practice session never blanks the card after each answer.
+  if (cards && cards.uid === uid) return { status: "ok", cards: cards.value };
   return { status: "loading", cards: null };
 }
