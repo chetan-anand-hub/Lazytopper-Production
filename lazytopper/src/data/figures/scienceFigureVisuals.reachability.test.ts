@@ -116,12 +116,16 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
     // PYQ-S-MAG-003) + 1 APQ 2023-24 crop (APQ-S-CARB-005), all bound but withheld; pinned in the diagrams1 test.
     // 53 -> 55 at RULE5-BIND-1 (11 Oct): +1 CBSE SQP 2023-24 crop (SQP-S-HER-003, ear-lobe photographs) and +1 APQ 2023-24 crop
     // (APQ-S-ELEC-006, the A/B/A1/A2 circuit), both for served rows; pinned in rule5Bind.test.ts.
-    expect(batch2).toHaveLength(55);
+    // 55 -> 62 at PYQ-RESTORE-B PR-2 (2026-10-23): +6 board-paper crops (PYQ-S-ELEC-001, -MAG-002, -2026-CHEMRXN-013,
+    // -2026-ACID-012, -2026-MAG-001, -2025-CARB-001) and PYQ-S-2026-EYE-002's existing file re-bound, all for served rows;
+    // pinned in bankFix/pyqRestoreBScience.test.ts.
+    expect(batch2).toHaveLength(62);
     // 147 -> 138: -9 at DIAGRAMS-1 PR-3 (2026-10-07): third-party chapter-wise booklet figures unbound (owner ruling)
     // 140 -> 151: +11 at C3 DIAGRAMS PR-S1 (2026-10-07)
     // 151 -> 162: +11 at DIAGRAMS-RESUME-B step 3 (2026-10-10)
     // 162 -> 164: +2 at RULE5-BIND-1 (11 Oct)
-    expect(batch).toHaveLength(109 + 55);
+    // 164 -> 171: +7 at PYQ-RESTORE-B PR-2 (23 Oct)
+    expect(batch).toHaveLength(109 + 62);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);
