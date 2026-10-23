@@ -508,7 +508,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "(a) Write two differences between direct current and alternating current.\n(b) State the frequency of the AC supplied in India and the number of times it changes direction in one second.\n(c) Why is AC preferred for transmitting power over long distances?\n(d) An electric heater of power 1100 W is used on a 220 V supply line having a fuse of rating 4 A. Calculate the current drawn by the heater and state whether the fuse is suitable. Justify your answer.",
     "options": [],
-    "answer": "(b) 50 Hz, 100 times; (d) I = 5 A; a 4 A fuse is not suitable because it will melt",
+    "answer": "(a) DC flows in one direction only, AC reverses periodically; DC comes from a cell or battery, AC from power stations. (b) 50 Hz, 100 times; (c) AC can be transmitted over long distances without much loss of energy; (d) I = 5 A; a 4 A fuse is not suitable because it will melt",
     "solutionSteps": [
       "[1 mark] (a) DC flows in one direction only; AC reverses its direction periodically. DC comes from a cell or battery; AC is supplied from power stations. (½ mark each)",
       "[1 mark] (b) Frequency = 50 Hz; it changes direction 2 × 50 = 100 times per second. (½ mark each)",
@@ -516,7 +516,7 @@ export const MAGNETIC_EFFECTS_LT_GENERATED: CanonicalQuestion[] = [
       "[1 mark] (d) I = P/V = 1100 W ÷ 220 V = 5 A.",
       "[1 mark] 5 A is more than the 4 A rating, so the fuse wire will melt and break the circuit each time the heater is switched on — the fuse is not suitable (a fuse of slightly more than 5 A is needed)."
     ],
-    "finalAnswer": "(b) 50 Hz, 100 reversals per second; (d) 5 A — the 4 A fuse is not suitable (it will blow).",
+    "finalAnswer": "(a) DC flows in one direction only, AC reverses periodically; DC comes from a cell or battery, AC from power stations. (b) 50 Hz, 100 reversals per second; (c) AC can be transmitted over long distances without much loss of energy; (d) 5 A — the 4 A fuse is not suitable (it will blow).",
     "isCompetencyBased": true,
     "questionProvenance": "authored",
     "shapedFrom": "SCQ-S-MAG-039",

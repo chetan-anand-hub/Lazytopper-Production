@@ -57,7 +57,7 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ_2024: CanonicalQuestion[] = [
       "[1 mark] (i) Volume of cuboidal carton = 30 × 32 × 15 = 14400 cm³.",
       "[1 mark] (ii)(a) Total surface area of a milk packet = 2(lb + bh + hl) = 2(15 × 8 + 8 × 5 + 5 × 15). [OR (ii)(b): Number of packets = (30 × 32 × 15)/(15 × 8 × 5) (1 mark).]",
       "[1 mark] (ii)(a) = 2 × 235 = 470 cm². [OR (ii)(b): = 14400/600 = 24 milk packets (1 mark).]",
-      "[1 mark] (iii) The cup in the figure is a cylinder marked 5 cm and 7 cm; the official marking scheme takes radius 5 cm and height 7 cm: capacity = πr²h = (22/7) × 5 × 5 × 7 (½ mark) = 550 cm³ or 550 mL (½ mark).",
+      "[1 mark] (iii) The cup in the figure is a cylinder marked 5 cm and 7 cm; taking radius 5 cm and height 7 cm: capacity = πr²h = (22/7) × 5 × 5 × 7 (½ mark) = 550 cm³ or 550 mL (½ mark).",
     ],
     finalAnswer: "(i) Volume of the carton = 30 × 32 × 15 = 14400 cm³ (ii) (a) Total surface area of a milk packet = 2(15×8 + 8×5 + 5×15) = 470 cm² OR (b) Number of packets = 14400/600 = 24 (iii) Capacity of the cup = (22/7) × 5 × 5 × 7 = 550 cm³ or 550 mL",
     ncertRef: "PYQ 30/4/1 Q38", isCompetencyBased: true, pyqYear: "2024", pyqSet: "1",

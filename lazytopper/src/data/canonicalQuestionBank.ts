@@ -2028,6 +2028,33 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // PYQ-RESTORE-B PR-2 dedupe (controller ruling, 23 Oct): served-twice duplicates - one copy withheld (ledger bankFix/pyqRestoreBLedger.ts PYQ_RESTORE_B_DEDUPE_WITHHELD)
   "PYQ-M-2024-TRIG-010b",         // duplicate: set repeat of 2024-TRIG-011b (30/4/1 Q23(b) = 30/4/2 Q21(b))
   "APQ-M-TRI-004",                // duplicate: same question served as PYQ-M-2025-TRI-009 (2025 board paper)
+  // ---- BANK-RESIDUE-1 (23 Oct): marking-scheme residue in served answers that cannot be cleaned without the source paper (owner bank policy: in a healthy chapter,
+  // hide a flawed row rather than a long repair). Ledger and reasons: bankFix/bankResidue1Ledger.ts. Each id leaves this block in the PR that re-reads it from its paper.
+  "PYQ-M-2024-CIRC-008b",         // residue: garbled working (∠90° extracted as "900"); answer is the last fragment of a two-line proof; steps carry no [mark] tags
+  "PYQ-M-RN-005",                 // residue: garbled: every √7 lost its radical ("6 – 7 is rational", "q p") in answer, finalAnswer and the one step
+  "PYQ-M-CG-007",                 // residue: scheme note "1 mark for correct figure" in the answer; a Circles tangent theorem filed under coordinate-geometry; steps carry no [mark] tags
+  "PYQ-S-2024-ACID-004",          // residue: dangling "OR" in step 1; answer covers only alternative (b); the [1 mark] tags give each 2-mark alternative 1 mark
+  "PYQ-S-2024-ACID-005",          // residue: answer is only the OR (c)(ii) alternative; an examiner note sits in step 3; non-OR steps sum to 3 for a 4-mark question
+  "PYQ-S-2024-CTRL-004",          // residue: scheme tally "1 ½ 1+½ 1 ½; ½ ½ 1 ½ 1 ½+½ ½+½" as the answer; steps untagged and split mid-sentence ("Spinal Nerves OR")
+  "PYQ-S-2024-LIFEP-006",         // residue: scheme tally "(Any two) 1 1 1 ½ +" as the answer; steps untagged and split mid-list ("Functions : i.")
+  "PYQ-S-2024-LIFEP-007",         // residue: stem carries "5 OR" and a figure label "5 Lime water"; answer is only OR (b)(i); (b)(ii) has no step; (a) steps sum to 4 of 5 marks
+  "PYQ-S-2024-MAG-003",           // residue: flattened comparison table ("Solenoid Circular coil ... Strong magnetic field Weak magnetic field") as the answer; steps untagged
+  "PYQ-S-2024-MAG-004",           // residue: steps split mid-sentence ("only when current" / "passes through the solenoid."); answer covers only (b); steps untagged
+  "PYQ-S-2024-REPR-006",          // residue: scheme tally "1 1 ½ ½ ½ + ½ ½ +" in the answer; the OR (b)(iii) Testis part has no answer; steps untagged
+  "PYQ-S-2024-REPR-007",          // residue: scheme tally "1 ½ +" in the answer; flattened self/cross-pollination table; steps untagged
+  "PYQ-S-2025-CTRL-009",          // residue: answer is "(Any other)"; steps untagged; stem carries "2 OR"
+  "PYQ-S-2025-ELEC-001",          // residue: stem "2 OR" and dangling "OR" in step 1; the two OR alternatives are tagged 1.5 + 0.5 marks, which the scheme does not support
+  "PYQ-S-2025-ELEC-002",          // residue: stem "2 OR"; (a) and its OR (b) are fused in one [1.5 marks] step, a split the scheme does not support
+  "PYQ-S-2025-HERED-006",         // residue: garbled ratio working ("𝟐𝟕𝟓 𝟗𝟎= 3", "90 90= 1") and an examiner note in answer and steps; steps untagged
+  "PYQ-S-2025-LIFEP-007",         // residue: stem "5 OR"; answer is only OR (b)(ii)-(iii); the (a)(ii) pancreas part has no step; (a) steps sum to 3.5 of 5 marks
+  "PYQ-S-2025-LIFEP-009",         // residue: stem "2 OR"; answer is the last fragment of OR (c)(ii); (a) and (b) share one [1 mark] step; non-OR steps sum to 2.5 of 4 marks
+  "PYQ-S-2025-MAG-005",           // residue: scheme residue "Diagram : 1 Labelling : 1" in step 1; answer is the last sentence of (b); steps untagged
+  "PYQ-S-ACID-009",               // residue: three 1-mark parts tagged 1.5 + 1.5; answer covers only (ii) and (iii)
+  "PYQ-S-CARB-003",               // residue: stem carries "5 OR" and "5 >"; flattened soap/detergent table; answer is the last micelle sentence; steps untagged
+  "PYQ-S-CHEM-009",               // residue: flattened roasting/calcination table with row numbers ("carbonate ores. 2 Ore is heated") in answer and steps
+  "PYQ-S-CHEM-011",               // residue: stem ends in page/mark residue "3 3 3 3 3 16"; three parts tagged 1.5 + 1.5; answer covers only (ii) and (iii)
+  "PYQ-S-EYE-001",                // residue: stem "2 OR"; answer is only OR (b)(ii); (a) rainbow has no diagram step; steps untagged
+  "PYQ-S-REPR-005",               // residue: stem "5 OR"; answer is only OR (b)(ii); 5-mark steps untagged
   // BANK-STEPS-1 PAUSE — spliced-solution; each id leaves this block in the PR that repairs it
   // SCI-BACKLOG-1 batch 3 (F, 14 Oct, D252): GDR-L-CBJ-011 paused, repair is a diagrams-plus-text change [FU-GDR-L-CBJ-011-OBJECT-AT-F]
   "GDR-L-CBJ-011",                // wrong-content vs NCERT 2026-27: key says object at F gives a real, inverted, highly enlarged image at infinity; the 2026-27 table says "image would not be formed". Its computed figure (diagrams/registry/lightSolutionFigures.ts, opticsCase) expects an enlarged real image, so text and figure are repaired together later

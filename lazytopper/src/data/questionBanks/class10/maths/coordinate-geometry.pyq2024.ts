@@ -51,7 +51,7 @@ export const COORDINATE_GEOMETRY_PYQ_2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "2",
   },
   { id: "PYQ-M-2024-CG-006", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Ryan, from a very young age, was fascinated by the twinkling of stars and the vastness of space. He always dreamt of becoming an astronaut one day. So he started to sketch his own rocket designs on the graph sheet. One such design is given below : Based on the above, answer the following questions : (i) Find the midpoint of the segment joining F and G. 1 (ii) (a) What is the distance between the points A and C ? 2 OR (b) Find the coordinates of the point which divides the line segment joining the points A and B in the ratio 1 : 3 internally. 2 (iii) What are the coordinates of the point D ?",
+    questionText: "Ryan, from a very young age, was fascinated by the twinkling of stars and the vastness of space. He always dreamt of becoming an astronaut one day. So he started to sketch his own rocket designs on the graph sheet. One such design is given below : Based on the above, answer the following questions : (i) Find the midpoint of the segment joining F and G. (ii) (a) What is the distance between the points A and C ? OR (b) Find the coordinates of the point which divides the line segment joining the points A and B in the ratio 1 : 3 internally. (iii) What are the coordinates of the point D ?",
     answer: "(i) (−1, 2); (ii)(a) AC = √52 = 2√13 units [OR (b) (3, 7/2)]; (iii) D(−2, −5)",
     solutionSteps: [
       "[1 mark] (i) From the figure F(−3, 0) and G(1, 4): mid-point of FG = ((−3 + 1)/2, (0 + 4)/2) = (−1, 2).",
