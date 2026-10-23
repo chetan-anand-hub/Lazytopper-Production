@@ -8,7 +8,9 @@
 
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation, useNavigationType } from "react-router-dom";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { setMatchMediaMatches } from "../test/setup";
 
 vi.mock("../context/AuthContext", () => ({
@@ -61,7 +63,19 @@ afterEach(() => cleanup());
 
 function Loc() {
   const l = useLocation();
-  return <output data-testid="loc">{l.search}</output>;
+  const nav = useNavigationType();
+  return <output data-testid="loc" data-nav={nav}>{l.search}</output>;
+}
+
+/** #1302 review: records whether the filters-empty state (or Ziggy) EVER reached the DOM. */
+function watchForEmptyFlash() {
+  const seen = { empty: false };
+  const check = () => {
+    if (document.querySelector('[data-testid="qp-filters-empty"], [data-testid="filter-empty-ziggy-slot"]')) seen.empty = true;
+  };
+  const mo = new MutationObserver(check);
+  mo.observe(document.body, { childList: true, subtree: true });
+  return { seen, stop: () => mo.disconnect() };
 }
 
 function open(url: string) {
@@ -80,12 +94,19 @@ function open(url: string) {
 describe("GUIDE-FILTER-1 · a URL / preset filter the chapter holds none of falls back to All", () => {
   it("★★ RED on trunk: Magnetic Effects + style=proof → a real set, no Proof badge, no filters-empty, URL cleaned", async () => {
     expect(magProofs).toBe(0); // the premise: the panel hides the Proof chip on this chapter
+    const flash = watchForEmptyFlash();
     open("/practice/10/Science?topic=magnetic-effects-of-electric-current&count=10&style=proof");
     const cards = await screen.findAllByTestId("practice-question-card", {}, { timeout: 60000 });
+    flash.stop();
     expect(cards.length).toBeGreaterThan(0);
     expect(screen.queryByTestId("qp-chip-style")).toBeNull();
     expect(screen.queryByTestId("qp-filters-empty")).toBeNull();
-    const search = screen.getByTestId("loc").textContent ?? "";
+    // #1302 review: no one-build flash of "No questions match" / Ziggy before the fallback lands.
+    expect(flash.seen.empty).toBe(false);
+    const loc = screen.getByTestId("loc");
+    // #1302 review: the URL clean-up REPLACES the entry (no extra history step for back).
+    expect(loc.getAttribute("data-nav")).toBe("REPLACE");
+    const search = loc.textContent ?? "";
     expect(search).not.toMatch(/style=/);
     expect(search).toMatch(/topic=magnetic-effects-of-electric-current/);
     expect(search).toMatch(/count=10/);
@@ -112,6 +133,17 @@ describe("GUIDE-FILTER-1 · filtersTheChapterLacks — only what the chapter hol
   it("an empty COMBINATION is not reset (that is the honest filters-empty state)", () => {
     // PYQ exists, Hard exists, but no Hard PYQ: each row on its own is held, so nothing resets.
     expect(filtersTheChapterLacks(pool, { style: "all", source: "pyq", diff: "Hard" })).toEqual({ style: false, source: false, diff: false });
+  });
+
+  it("#1302 review: a Difficulty fallback resets the ENGINE difficulty (Weak Area preset) and its param too", () => {
+    const src = readFileSync(resolve(__dirname, "./PracticePage.tsx"), "utf8");
+    const start = src.search(/useEffect\(\(\) => \{\s+if \(!chipServedPool\) return;/);
+    const end = src.indexOf("setSearchParams(next, { replace: true, state: location.state });");
+    expect(start).toBeGreaterThan(0);
+    expect(end).toBeGreaterThan(start);
+    const block = src.slice(start, end);
+    expect(block).toMatch(/if \(c\.diff\) \{[\s\S]*setCommittedDifficulty\("all"\);[\s\S]*setDifficulty\("All"\);[\s\S]*\}/);
+    expect(block).toMatch(/c\.diff \? \["diff", "difficulty"\]/);
   });
 
   it("CBQ is exempt (its own honest landing); 'all' and an unloaded (empty) pool never reset", () => {

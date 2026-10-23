@@ -6,7 +6,7 @@
  * hit each rule are run through `questionMatchesFilters`); (2) the explainer auto-opens once per
  * device, then only via "?"; (3) "Hide mascots" removes Byte but keeps every line as plain text;
  * (4) a tapped greyed chip gets Byte's one line and changes no filter; (5) Ziggy shows beside the
- * filters-empty state only (0 results), guide arm only; (6) guide_moment_shown / _click carry
+ * filters-empty state only (0 results), never when the plain experience is forced; (6) guide_moment_shown / _click carry
  * "filter_help" / "filter_empty".
  *
  * RED on trunk: ./filterHelp, ./filterHelpChunk and the "?" (filter-help-open) do not exist there.
@@ -134,7 +134,8 @@ describe("GUIDE-FILTER-1 · each line says what practiceFilters.ts actually does
   it("HOTS — higher-order at Medium or Hard ONLY (owner ruling 23 Oct): no Easy row, no routine Hard row", () => {
     const l = lineOf("style", "hots");
     expect(l).toMatch(/Higher-order thinking/);
-    expect(l).toMatch(/analyse, judge or explain why/);
+    // Analysing / Evaluating / Creating — the three bloom skills isHotsRow accepts.
+    expect(l).toMatch(/analyse, judge, create or explain why/);
     expect(l).toMatch(/Medium or Hard only/);
     expect(l).not.toMatch(/any difficulty/i);
     expect(passes(row({ difficulty: "Medium", bloomSkill: "Analysing" }), { style: "hots" })).toBe(true);
@@ -231,7 +232,17 @@ describe("GUIDE-FILTER-1 · each line says what practiceFilters.ts actually does
 
 /* ── 2–4. the panel on the real filter panel ─────────────────────────────────────────────── */
 
-function Panel({ uid = "u1", counts = null, onSetMarks = () => {} }: { uid?: string | null; counts?: ChipCounts | null; onSetMarks?: (v: string) => void }) {
+function Panel({
+  uid = "u1",
+  counts = null,
+  onSetMarks = () => {},
+  marksRange = null,
+}: {
+  uid?: string | null;
+  counts?: ChipCounts | null;
+  onSetMarks?: (v: string) => void;
+  marksRange?: { min: number; max: number } | null;
+}) {
   const noop = () => {};
   return (
     <MemoryRouter>
@@ -263,6 +274,7 @@ function Panel({ uid = "u1", counts = null, onSetMarks = () => {} }: { uid?: str
         onCopyLink={noop}
         onDownloadPdf={noop}
         guideUid={uid}
+        marksRange={marksRange}
       />
     </MemoryRouter>
   );
@@ -304,8 +316,8 @@ describe("GUIDE-FILTER-1 · the explainer opens once per device, then on demand"
   });
 });
 
-describe("GUIDE-FILTER-1 · Byte is drawn only for the guide arm; Hide mascots keeps the words", () => {
-  it("guide arm: Byte beside the lines; guide_moment_shown filter_help; the '?' tap is guide_moment_click", async () => {
+describe("GUIDE-FILTER-1 · Byte is drawn in the guide experience (everyone since GUIDE-ALL-1); Hide mascots keeps the words", () => {
+  it("guide experience: Byte beside the lines; guide_moment_shown filter_help; the '?' tap is guide_moment_click", async () => {
     window.localStorage.setItem(FILTER_HELP_SEEN_KEY, "1");
     render(<Panel />);
     fireEvent.click(screen.getByTestId("filter-help-open"));
@@ -334,7 +346,7 @@ describe("GUIDE-FILTER-1 · Byte is drawn only for the guide arm; Hide mascots k
     expect((await screen.findByTestId("filter-help-panel")).getAttribute("data-character")).toBe("none");
   });
 
-  it("control arm: the same words, no character, no guide events", async () => {
+  it("plain experience forced (admin Show control; A/B ended): the same words, no character, no guide events", async () => {
     __setGuideAbForTests(true, "control");
     render(<Panel />);
     const p = await screen.findByTestId("filter-help-panel");
@@ -379,6 +391,21 @@ describe("GUIDE-FILTER-1 · a tapped greyed chip: Byte's one line, no filter cha
     fireEvent.click(screen.getByText("1 mark", { selector: "button" }));
     expect(onSetMarks).toHaveBeenCalledWith("1");
     expect(screen.queryByTestId("filter-help-nudge")).toBeNull();
+  });
+
+  it("#1302 review: under a Topic Hub mark band the line names the band, not 'None here'", async () => {
+    window.localStorage.setItem(FILTER_HELP_SEEN_KEY, "1");
+    render(<Panel counts={counts} marksRange={{ min: 3, max: 5 }} />);
+    fireEvent.click(screen.getByText("5 marks", { selector: "button" }));
+    const line = (await screen.findByTestId("filter-help-nudge-line")).textContent ?? "";
+    expect(line).toBe(greyedChipLine("marks", "5 marks", { min: 3, max: 5 }));
+    expect(line).toMatch(/This set is limited to 3-5 marks\.$/);
+    expect(line).not.toMatch(/None here/);
+    expect(greyedChipLine("style", "Case-based", { min: 2, max: 2 })).toMatch(/limited to 2 marks\.$/);
+    for (const e of FILTER_HELP_LINES) {
+      const l = greyedChipLine(e.group, e.label, { min: 3, max: 5 });
+      expect(wordCount(l), l).toBeLessThanOrEqual(22);
+    }
   });
 
   it("with mascots hidden the greyed-chip line still shows, as plain text", async () => {
@@ -440,7 +467,7 @@ describe("GUIDE-FILTER-1 · Ziggy beside the filters-empty state — only at 0",
     expect(screen.queryByTestId("qp-filters-empty")).toBeNull();
   });
 
-  it("control arm or hidden mascots: the state as today, no Ziggy", async () => {
+  it("plain experience forced or hidden mascots: the state as today, no Ziggy", async () => {
     __setGuideAbForTests(true, "control");
     const a = render(<List filtersEmpty />);
     await act(async () => {});

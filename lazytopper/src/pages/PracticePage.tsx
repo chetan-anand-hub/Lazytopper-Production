@@ -1814,13 +1814,27 @@ const packTopicKey = useMemo(() => {
   // auto-builds). Here, once the chapter pool is known, such a row falls back to "all" — committed
   // AND pending — and its URL param is dropped (replace, no history entry). Converges in one pass:
   // "all" is never reset, so there is no loop. An empty COMBINATION is untouched (filters-empty).
+  // #1302 review: `presetFallbackPending` (below) holds back the filters-empty state (and Ziggy) for
+  // any render that still carries the doomed filter, so there is no one-build flash. This stays a
+  // PASSIVE effect on purpose: it must run after the URL-init effect above, which (on mount) writes
+  // the URL's style back; a layout effect ran first and was overwritten by it (the reset was lost).
+  const presetFallbackPending = useMemo(() => {
+    if (!chipServedPool) return false;
+    const c = filtersTheChapterLacks(chipServedPool, { style: committedStyle, source: committedSource, diff: committedDifficulty });
+    return c.style || c.source || c.diff;
+  }, [chipServedPool, committedStyle, committedSource, committedDifficulty]);
   useEffect(() => {
     if (!chipServedPool) return;
     const c = filtersTheChapterLacks(chipServedPool, { style: committedStyle, source: committedSource, diff: committedDifficulty });
     const p = filtersTheChapterLacks(chipServedPool, { style: pendingStyle, source: pendingSource, diff: pendingDifficulty });
     if (c.style) setCommittedStyle("all");
     if (c.source) setCommittedSource("all");
-    if (c.diff) setCommittedDifficulty("all");
+    if (c.diff) {
+      setCommittedDifficulty("all");
+      // #1302 review: a Weak Area / nav difficulty preset also drives the ENGINE draw (`difficulty`);
+      // left behind, the engine would keep drawing that level. Reset both together.
+      setDifficulty("All");
+    }
     if (p.style) setPendingStyle("all");
     if (p.source) setPendingSource("all");
     if (p.diff) setPendingDifficulty("all");
@@ -1829,7 +1843,7 @@ const packTopicKey = useMemo(() => {
     const drop = [
       ...(c.style ? ["style", "questionType"] : []),
       ...(c.source ? ["pyq"] : []),
-      ...(c.diff ? ["diff"] : []),
+      ...(c.diff ? ["diff", "difficulty"] : []),
     ];
     // `source` is only a FILTER when it holds a filter value (`source=practice` is an origin tag).
     if (c.source && ["pyq", "ncert", "others"].includes(next.get("source") ?? "")) drop.push("source");
@@ -3747,6 +3761,8 @@ const packTopicKey = useMemo(() => {
           visibleQuestionCount={filteredQuestions.length}
           // GUIDE-FILTER-1 — only decides whether Byte is drawn beside the filter explainer.
           guideUid={qpMomentUid}
+          // #1302 review: a Topic Hub concept band limits the chip counts; Byte's greyed line names it.
+          marksRange={pendingMarksRange}
         />
         </>
         )}
@@ -3867,11 +3883,12 @@ const packTopicKey = useMemo(() => {
           // offer the filter editor. (The old "No questions found" card keys on the unfiltered
           // pool being empty, so it never showed here.) In the tutor overlay, no hub link.
           filtersEmpty={
-            setSettled && questions.length > 0 && filteredQuestions.length === 0
+            // GUIDE-FILTER-1: never while a hidden-chip filter is about to fall back to "all".
+            setSettled && questions.length > 0 && filteredQuestions.length === 0 && !presetFallbackPending
               ? {
                   onEditFilters: handleEditFilters,
                   practiceHubHref: overlay ? undefined : "/practice-hub",
-                  // GUIDE-FILTER-1 — Ziggy beside this 0-result state (guide arm only).
+                  // GUIDE-FILTER-1 — Ziggy beside this 0-result state (guide experience only).
                   guideUid: qpMomentUid,
                 }
               : undefined

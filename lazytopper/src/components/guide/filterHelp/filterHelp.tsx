@@ -7,11 +7,12 @@
  *
  * WHO SEES WHAT
  *   The "?" and its words — EVERY student. The filters must always be explained.
- *   Byte beside those words — only the GUIDE arm (`resolveGuideVariant(uid) === "guide"`, the admin
- *     preview included) and only while the mascots are not hidden ("Hide mascots", ../mascotsMute.ts).
- *     Otherwise the same words render as plain text. The control arm's analytics are untouched.
- *   Ziggy beside the filters-empty state — guide arm, mascots not hidden; the host renders the slot
- *     ONLY when a committed filter combination returned 0.
+ *   Byte beside those words — every student since GUIDE-ALL-1 ended the A/B (22 Oct 2026:
+ *     `resolveGuideVariant` is "guide" unless the admin preview's "Show control" forces the plain
+ *     experience), and only while the mascots are not hidden ("Hide mascots", ../mascotsMute.ts).
+ *     Otherwise the same words render as plain text, with no guide events.
+ *   Ziggy beside the filters-empty state — same rule; the host renders the slot ONLY when a
+ *     committed filter combination returned 0.
  *   prefers-reduced-motion → the characters are drawn still.
  *
  * AUTO-OPEN — once per DEVICE, the first time the filter panel is shown:
@@ -44,7 +45,8 @@ const LazyEmptyLine = lazyPart((m) => m.FilterEmptyLine);
 
 /* ── who sees the character ──────────────────────────────────────────────────────────────── */
 
-/** Byte / Ziggy are drawn for this account: guide arm (preview included) and mascots not hidden. */
+/** Byte / Ziggy are drawn: the account resolves to "guide" (everyone since GUIDE-ALL-1, unless the
+ *  admin preview forces the plain experience) and the mascots are not hidden. */
 export function useFilterGuideCharacter(uid: string | null | undefined): boolean {
   const hidden = useMascotsHidden();
   return !hidden && resolveGuideVariant(uid) === "guide";
@@ -91,7 +93,8 @@ export function __resetFilterHelpForTests(): void {
   seenThisLoad = false;
 }
 
-/** The "?" was tapped (guide arm only, like every guide event; dropped under the admin preview). */
+/** The "?" was tapped (only when the account resolves to "guide", like every guide event; dropped
+ *  under the admin preview). */
 export function noteFilterHelpClick(uid: string | null | undefined): void {
   if (resolveGuideVariant(uid) === "guide") trackGuideEvent("guide_moment_click", { moment: "filter_help" });
 }
@@ -121,7 +124,8 @@ export function FilterHelpDoor({ uid, ...rest }: FilterHelpDoorProps) {
 }
 
 /**
- * Ziggy beside the filters-empty state. Renders nothing for the control arm or hidden mascots;
+ * Ziggy beside the filters-empty state. Renders nothing when the plain experience is forced
+ * (admin preview "Show control") or the mascots are hidden;
  * otherwise reserves its row at the final height and the chunk draws into it.
  */
 export function FilterEmptyZiggy({ uid }: { uid: string | null | undefined }) {

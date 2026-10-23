@@ -70,7 +70,7 @@ export interface FiltersEmptyActions {
   /** `/practice-hub` — omitted inside the tutor overlay. */
   practiceHubHref?: string;
   /** GUIDE-FILTER-1 — the signed-in uid, ONLY to decide whether Ziggy appears beside this state
-   *  (guide arm, mascots not hidden). Omitted ⇒ no Ziggy; the state itself is unchanged. */
+   *  (guide experience, mascots not hidden). Omitted ⇒ no Ziggy; the state itself is unchanged. */
   guideUid?: string | null;
 }
 

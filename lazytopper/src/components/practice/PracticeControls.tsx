@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { WORKSHEET_MAX_QUESTIONS } from "./worksheetGenerator";
-import { zeroCountChips, type ChipCounts } from "./practiceFilters";
+import { zeroCountChips, type ChipCounts, type MarksRange } from "./practiceFilters";
 import {
   FilterHelpDoor,
   claimFilterHelpAutoOpen,
@@ -57,7 +57,7 @@ const SOURCE_NOTES: Record<string, string> = {
 
 // FILTER-FIX-1 (owner ruling) — there is no hand-written incompatibility table any more.
 // The old STYLE_COMPAT / MARKS_COMPAT_BY_STYLE / DIFF_COMPAT_BY_MARKS tables greyed out
-// combinations the bank DOES hold (HOTS + 1 mark: 971; HOTS + 4: 822 under GUIDE-FILTER-1's
+// combinations the bank DOES hold (HOTS + 1 mark: 972; HOTS + 4: 825 under GUIDE-FILTER-1's
 // Medium/Hard HOTS rule; 1 mark + Hard: 270;
 // 4 marks + Easy: 81; proof + 4: 13). A chip now greys out ONLY when the chosen chapter(s)
 // really hold 0 questions for it (`chipCounts`, counted by the one predicate in
@@ -109,8 +109,11 @@ export interface PracticeControlsProps {
   onDownloadPdf: () => void;
   onRegenerate?: () => void;
   /** GUIDE-FILTER-1 — the signed-in uid, ONLY to decide whether Byte is drawn beside the filter
-   *  explainer (guide arm). The "?" and its words show for everyone. Omitted ⇒ plain text. */
+   *  explainer (guide experience). The "?" and its words show for everyone. Omitted ⇒ plain text. */
   guideUid?: string | null;
+  /** GUIDE-FILTER-1 — the Topic Hub concept's exact mark band (pending), when one limits the set:
+   *  chip counts are taken inside it, so Byte's greyed-chip line names it. */
+  marksRange?: MarksRange | null;
 }
 
 /** FILTER-FIX-1: chip look lives in practiceFilterChips.css (no inline style objects, CLAUDE.md §7). */
@@ -179,6 +182,7 @@ export function PracticeControls({
   onDownloadPdf,
   onRegenerate,
   guideUid,
+  marksRange,
 }: PracticeControlsProps) {
   const willTruncate = visibleQuestionCount > WORKSHEET_MAX_QUESTIONS;
   const navigate = useNavigate();
@@ -377,6 +381,7 @@ export function PracticeControls({
       onBuildSet={onBuildSet}
       onOpenWorksheet={() => navigate("/practice/worksheets")}
       guideUid={guideUid}
+      marksRange={marksRange ?? null}
     />
   );
 }
@@ -403,6 +408,7 @@ interface FilterPanelProps {
   onBuildSet: () => void;
   onOpenWorksheet: () => void;
   guideUid?: string | null;
+  marksRange: MarksRange | null;
 }
 
 /** One filter chip. A greyed chip stays hoverable (so its reason shows) and never changes a filter;
@@ -456,6 +462,7 @@ function FilterPanel({
   onBuildSet,
   onOpenWorksheet,
   guideUid,
+  marksRange,
 }: FilterPanelProps) {
   const [nudgeVisible, setNudgeVisible] = useState(false);
   // GUIDE-FILTER-1 — the "?" explainer, and Byte's line for one tapped greyed chip (never both).
@@ -483,7 +490,7 @@ function FilterPanel({
   };
   const tipAfter = (group: FilterGroup) =>
     greyedTip && greyedTip.group === group ? (
-      <FilterHelpDoor uid={guideUid} mode="nudge" chip={greyedTip} onClose={closeTip} />
+      <FilterHelpDoor uid={guideUid} mode="nudge" chip={greyedTip} marksRange={marksRange} onClose={closeTip} />
     ) : null;
 
   const handleLocalClear = () => {
@@ -521,7 +528,7 @@ function FilterPanel({
           >
             Build this set
           </h2>
-          {/* GUIDE-FILTER-1 — "?" opens the explainer (Byte in the guide arm; plain text otherwise). */}
+          {/* GUIDE-FILTER-1 — "?" opens the explainer (Byte, or plain text when mascots are hidden). */}
           <button
             type="button"
             className="qp-filter-help-btn"

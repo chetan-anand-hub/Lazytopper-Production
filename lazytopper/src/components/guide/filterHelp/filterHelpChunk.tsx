@@ -5,7 +5,7 @@
  *
  *   FilterHelpPanel — the "?" explainer (one line per filter value) and, in `nudge` mode, the one
  *                     line Byte says when a greyed chip is tapped. Byte is drawn only when the host
- *                     says so (`withCharacter`: guide arm, mascots not hidden); otherwise the SAME
+ *                     says so (`withCharacter`: guide experience, mascots not hidden); otherwise the SAME
  *                     words render as plain text — the filters are always explained.
  *   FilterEmptyLine — Ziggy's one line beside the existing filters-empty state (0 results).
  *
@@ -54,7 +54,7 @@ export const FILTER_HELP_LINES: readonly FilterHelpEntry[] = [
     line: "Maths: prove or show that a result is true. Science: derive an expression or formula, plus Physics \"show that\" questions.",
   },
   { group: "style", value: "ar", label: "Assertion-Reason", line: "Two statements, an Assertion and a Reason. You decide if each is true, and if the Reason explains it." },
-  { group: "style", value: "hots", label: "HOTS", line: "Higher-order thinking: questions that make you analyse, judge or explain why. Medium or Hard only." },
+  { group: "style", value: "hots", label: "HOTS", line: "Higher-order thinking: questions that make you analyse, judge, create or explain why. Medium or Hard only." },
   { group: "style", value: "case", label: "Case-based", line: "A short passage, table or real-life situation with questions on it, including every Section E case study." },
   { group: "style", value: "cbq", label: "CBQ (competency)", line: "Competency-based: use what you know in a real-life situation, as CBSE's new pattern asks. Any mark value." },
   // Source — exactly one bucket per question (sourceBucketOf).
@@ -92,13 +92,22 @@ const OTHER_ROWS: Record<FilterGroup, string> = {
   diff: "Marks, Style or Source",
 };
 
+/** A Topic Hub concept's exact mark band (marksMin / marksMax), as practiceFilters.MarksRange. */
+export interface FilterMarksRange { min: number; max: number; }
+
+/** "3" or "3-5" — the band as the student reads it. */
+export const marksRangeText = (r: FilterMarksRange): string => (r.min === r.max ? `${r.min}` : `${r.min}-${r.max}`);
+
 /**
  * Byte's one line for a greyed chip. True by construction: a chip greys out when the pool holds 0
  * questions for it WITH THE OTHER ROWS AS THEY STAND (chipCounts); with every other row on "All"
- * its count is the pool's own, so a chip still grey then has none here.
+ * its count is the pool's own, so a chip still grey then has none here. EXCEPT under a Topic Hub
+ * concept's mark band (`range`): chipCounts counts inside that band too, so a chip can be grey
+ * because of the band, not the chapter — the last sentence then names the band instead.
  */
-export function greyedChipLine(group: FilterGroup, label: string): string {
-  return `"${label}" has nothing with your other picks. Set ${OTHER_ROWS[group]} to All. Still grey? None here.`;
+export function greyedChipLine(group: FilterGroup, label: string, range?: FilterMarksRange | null): string {
+  const last = range ? `This set is limited to ${marksRangeText(range)} marks.` : "Still grey? None here.";
+  return `"${label}" has nothing with your picks. Set ${OTHER_ROWS[group]} to All. ${last}`;
 }
 
 /** Words in a line, as the 22-word rule counts them. */
@@ -117,17 +126,19 @@ export interface FilterHelpPanelProps {
   mode: "help" | "nudge";
   /** nudge mode: the greyed chip. */
   chip?: { group: FilterGroup; label: string };
-  /** Draw Byte (guide arm, mascots not hidden). False → the same words as plain text. */
+  /** Draw Byte (guide experience, mascots not hidden). False → the same words as plain text. */
   withCharacter: boolean;
+  /** nudge mode: the Topic Hub concept's mark band, when one limits this set. */
+  marksRange?: FilterMarksRange | null;
   onClose: () => void;
 }
 
-export function FilterHelpPanel({ mode, chip, withCharacter, onClose }: FilterHelpPanelProps) {
+export function FilterHelpPanel({ mode, chip, withCharacter, marksRange, onClose }: FilterHelpPanelProps) {
   const reduce = useRef(prefersReducedMotion());
   const [preview] = useState(() => guidePreviewActive());
-  const nudgeLine = mode === "nudge" && chip ? greyedChipLine(chip.group, chip.label) : null;
+  const nudgeLine = mode === "nudge" && chip ? greyedChipLine(chip.group, chip.label, marksRange) : null;
 
-  // guide_moment_shown — once per shown line, only when Byte is drawn (guide-arm events only).
+  // guide_moment_shown — once per shown line, only when Byte is drawn (guide events only).
   useEffect(() => {
     if (withCharacter) trackGuideEvent("guide_moment_shown", { moment: "filter_help" });
   }, [withCharacter, nudgeLine]);
