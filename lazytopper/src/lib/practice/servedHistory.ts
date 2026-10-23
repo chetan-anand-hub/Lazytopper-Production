@@ -30,13 +30,11 @@
 // Deterministic: no Math.random (CLAUDE.md §7). Order ties fall back to the pool's own order.
 
 import { isFirestoreEnabled, withFirestore } from "../../services/firestoreSdk";
+import type { ServedQuestionEntry } from "../served/servedTypes";
 
-export interface ServedEntry {
-  /** The bank question id. */
-  id: string;
-  /** When it was last served (ms since epoch). */
-  at: number;
-}
+/** One question served: its bank id and when it was last served (ms since epoch). The shared
+ *  shape (lib/served/servedTypes, SERVED-TYPES-1) — the name is kept for every existing caller. */
+export type ServedEntry = ServedQuestionEntry;
 
 /** How many served ids are kept per user per chapter (most recent kept). A Board-mix set is 8, so
  *  this is ~37 sets of history. ⚠ It is SMALLER than many chapters' served pools (Real Numbers 334,
