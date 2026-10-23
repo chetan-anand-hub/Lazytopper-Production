@@ -804,6 +804,10 @@ describe("T6 · intake predicate — type admits, deduction does not gate", () =
         "services/mistakeIntelligence.ts",
         // the type declaration
         "services/mistakeLogService.ts",
+        // MI-MODE-MARKS-1 — a TEST FIXTURE (src/test, imported only by tests, never bundled): it
+        // WRITES `stepDetails: []` onto synthetic entries so they have the real entry shape; it reads
+        // and sums nothing
+        "test/miFixture.ts",
       ].sort(),
     );
   });

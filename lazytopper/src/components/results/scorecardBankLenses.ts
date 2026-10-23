@@ -125,6 +125,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
       title: name,
       subtitle: `${code} · submitted & scored`,
       score: { kind: "marks", awarded: response.gradedMarksAwarded, total: response.gradedMarksTotal },
+      awaitingSheet: true,
       message:
         `Objective section scored (${objectiveMarks}). Upload your written answers ` +
         `(Sections B–D) to complete your score — with a full mistake breakdown.`,
@@ -224,6 +225,8 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     gradedAnswers: ctGradedAnswers.length > 0 ? ctGradedAnswers : null,
     pending: pendingStrip(response),
     allPending: null,
+    // GUIDE-SCORE-1 — the honest change since the last same-total test of this chapter.
+    ...(input.deltaLine ? { message: input.deltaLine } : {}),
     actionsHeading: "What next?",
     stackActions: true,
     actions: menu,
@@ -255,6 +258,7 @@ export function storedChapterTestScorecardVariant(
       title: record.title,
       subtitle: `${record.id} · ${gradedDateLabel}`,
       score: { kind: "marks", awarded: record.marksAwarded, total: record.marksTotal },
+      awaitingSheet: true,
       message:
         awaitingDetail ??
         "Objective section scored — upload your written answers (Sections B–D) to complete this test.",
@@ -379,6 +383,7 @@ export function storedFullMockScorecardVariant(
       title: record.title,
       subtitle: `${record.id} · ${gradedDateLabel}`,
       score: { kind: "marks", awarded: record.marksAwarded, total: record.marksTotal },
+      awaitingSheet: true,
       message:
         input.awaitingDetail ??
         "Objective section scored — upload your written answers (Sections B–E) to complete this mock.",

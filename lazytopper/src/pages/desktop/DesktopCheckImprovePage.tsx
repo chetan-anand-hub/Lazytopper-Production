@@ -116,6 +116,7 @@ import ResultsScorecard from "../../components/results/ResultsScorecard";
 import { StepAnnotation } from "../../components/results/StepAnnotation";
 import {
   checkImproveScorecardVariant,
+  withGuideTarget,
   ciPaperMixLabel,
   storedCheckImproveScorecardVariant,
 } from "../../components/results/scorecardVariants";
@@ -2560,16 +2561,19 @@ const DesktopCheckImprovePageInner: React.FC<{
       },
     };
   }
+  // GUIDE-SCORE-1 — ONE topic-worksheet route: the scorecard's "Practise {topic}" action and
+  // Byte's link both use it.
+  function worksheetForTopicPath(subject: DesktopSubject, topicSlug: string) {
+    return buildDesktopWorksheetPath({
+      scope: "topic",
+      subject,
+      topic: topicSlug,
+      mistakeAware: true,
+      ...ROUTE_CTX,
+    });
+  }
   function gotoWorksheetForTopic(subject: DesktopSubject, topicSlug: string) {
-    navigate(
-      buildDesktopWorksheetPath({
-        scope: "topic",
-        subject,
-        topic: topicSlug,
-        mistakeAware: true,
-        ...ROUTE_CTX,
-      }),
-    );
+    navigate(worksheetForTopicPath(subject, topicSlug));
   }
   function gotoTopicHubForResult() {
     if (!resultCtx) return;
@@ -3656,7 +3660,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
             // MOMENTS-1 M6 — "We couldn't read any answers": Ziggy, then Byte (guide arm, every time).
             allPendingSlot={(ap) => <GuideMomentSlot show={ciProblemMoments && isUnreadAllPending(ap)} moment="m6" step="unread" />}
-            variant={checkImproveScorecardVariant({
+            variant={withGuideTarget(checkImproveScorecardVariant({
               returnTicket: overlay
                 ? { label: "Back to your tutor", onReturn: overlayReturn }
                 : returnTicketInput,
@@ -3683,7 +3687,11 @@ const DesktopCheckImprovePageInner: React.FC<{
                 const r = ws.results.find((x) => x.qNumber === n);
                 return ciTutorAsk(r?.topicSubject ?? confirmed.subject, r?.topicSlug || confirmed.topicSlug, n);
               },
-            })}
+            }),
+            // GUIDE-SCORE-1 — Byte's link: the same topic worksheet as "Practise {topic}".
+            confirmed.topicSlug && ciTopicSource !== "mixed"
+              ? { to: worksheetForTopicPath(confirmed.subject, confirmed.topicSlug), chapter: confirmed.topicName }
+              : null)}
             onClose={() => setScorecardOpen(false)}
           />
         )}
@@ -4018,7 +4026,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
           // MOMENTS-1 M6 — "We couldn't read any answers": Ziggy, then Byte (guide arm, every time).
           allPendingSlot={(ap) => <GuideMomentSlot show={ciProblemMoments && isUnreadAllPending(ap)} moment="m6" step="unread" />}
-          variant={checkImproveScorecardVariant({
+          variant={withGuideTarget(checkImproveScorecardVariant({
               returnTicket: overlay
                 ? { label: "Back to your tutor", onReturn: overlayReturn }
                 : returnTicketInput,
@@ -4033,7 +4041,11 @@ const DesktopCheckImprovePageInner: React.FC<{
             onDownloadGraded: () => void downloadGraded(buildSinglePrintProps()),
             ...(resultCtx.topicSlug ? { onPractiseTopic: gotoWorksheetForResult } : {}),
             tutorAskFor: (n) => ciTutorAsk(resultCtx.subject, resultCtx.topicSlug, n),
-          })}
+          }),
+          // GUIDE-SCORE-1 — Byte's link: the same topic worksheet as "Practise {topic}".
+          resultCtx.topicSlug
+            ? { to: worksheetForTopicPath(resultCtx.subject, resultCtx.topicSlug), chapter: resultCtx.topicName }
+            : null)}
           onClose={() => setScorecardOpen(false)}
         />
       )}

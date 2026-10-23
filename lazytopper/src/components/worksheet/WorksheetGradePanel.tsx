@@ -6,7 +6,13 @@ import { getWorksheetGrade, listStoredWorksheetsLite } from "../../services/work
 import { worksheetNomenclature } from "./worksheetModel";
 import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
 import ResultsScorecard from "../results/ResultsScorecard";
-import { withPaperTutorAsks, worksheetScorecardVariant, type ScorecardTutorAsk } from "../results/scorecardVariants";
+import {
+  singleChapterPracticeTarget,
+  withGuideTarget,
+  withPaperTutorAsks,
+  worksheetScorecardVariant,
+  type ScorecardTutorAsk,
+} from "../results/scorecardVariants";
 import {
   MISTAKE_TYPE_LABEL,
   coachingLine,
@@ -573,17 +579,22 @@ export default function WorksheetGradePanel({
         <ResultsScorecard
           askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
           variant={withPaperTutorAsks(
-            worksheetScorecardVariant({
-              name: nomen.name,
-              code: nomen.code,
-              response,
-              downloading,
-              onRead: () => setScorecardOpen(false),
-              onDownload: () => {
-                setScorecardOpen(false);
-                void handleDownload();
-              },
-            }),
+            withGuideTarget(
+              worksheetScorecardVariant({
+                name: nomen.name,
+                code: nomen.code,
+                response,
+                downloading,
+                onRead: () => setScorecardOpen(false),
+                onDownload: () => {
+                  setScorecardOpen(false);
+                  void handleDownload();
+                },
+              }),
+              // GUIDE-SCORE-1 — a one-chapter worksheet: Byte points at that chapter's weak-pattern
+              // practice; a mixed worksheet falls back to the Quick Practice hub.
+              singleChapterPracticeTarget(ws.subject, ws.questions.map((q) => q.topicKey)),
+            ),
             response,
             tutorAskFor?.(nomen.code, response),
           )}

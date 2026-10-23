@@ -57,7 +57,13 @@ import { getActiveProgressUser } from "./studentProgressStore";
 import { conceptEvidenceKey, normalizeSection, type BankConcept, type ConceptRowRef } from "./progressBankShape";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { isBoardChapterKey } from "../config/syllabus2026-27";
-import { MISTAKE_TYPE_LABEL, isGradedQuestion, isLossOnlyNotAttempted } from "../lib/mistakeDisplay";
+import {
+  MISTAKE_TYPE_LABEL,
+  isGradedQuestion,
+  isLossOnlyNotAttempted,
+  questionMarksLost,
+  type GradedQuestionLike,
+} from "../lib/mistakeDisplay";
 
 // ── Per-surface history (§3a) ────────────────────────────────────────────────
 
@@ -287,6 +293,9 @@ interface MarkPoint {
   available: number;
   /** SCORECARD-MI-1 PR-2 (H11) — marks on this point lost ONLY to work not attempted. */
   notAttempted?: number;
+  /** MI-MODE-MARKS-1 — marks on this point lost to a WRONG objective pick recorded attempt-only
+   *  (see `GradedPoint.wrongObjective`). 0 / absent when none, or unknown. */
+  wrongObjective?: number;
 }
 
 /** Marks % over a set of MarkPoints. null when nothing measurable (marksAvailable≤0).
@@ -298,21 +307,23 @@ interface MarkPoint {
  *  two are different units and conflating them is what the control test pins. */
 function marksPercentOf(
   points: MarkPoint[],
-): { pct: number; sample: number; scored: number; available: number; notAttempted: number } | null {
+): { pct: number; sample: number; scored: number; available: number; notAttempted: number; wrongObjective: number } | null {
   let scored = 0;
   let available = 0;
   let sample = 0;
   let notAttempted = 0;
+  let wrongObjective = 0;
   for (const p of points) {
     const avail = Number(p.available) || 0;
     if (avail <= 0) continue;
     scored += Number(p.scored) || 0;
     available += avail;
     notAttempted += Number(p.notAttempted) || 0;
+    wrongObjective += Number(p.wrongObjective) || 0;
     sample += 1;
   }
   if (available <= 0 || sample === 0) return null;
-  return { pct: Math.round((scored / available) * 1000) / 10, sample, scored, available, notAttempted };
+  return { pct: Math.round((scored / available) * 1000) / 10, sample, scored, available, notAttempted, wrongObjective };
 }
 
 interface SplitTrend {
@@ -330,6 +341,8 @@ interface SplitTrend {
   marksAvailableNow: number;
   /** SCORECARD-MI-1 PR-2 (H11) — present only when > 0: see RungTrend.marksNotAttempted. */
   marksNotAttempted?: number;
+  /** MI-MODE-MARKS-1 — present only when > 0: see RungTrend.marksWrongObjective. */
+  marksWrongObjective?: number;
 }
 
 /**
@@ -376,6 +389,11 @@ function splitTrendOf(points: MarkPoint[]): SplitTrend | null {
     // record questions the same predicate marks so). Additive: absent when there are none.
     ...(before.notAttempted + later.notAttempted > 0
       ? { marksNotAttempted: Math.round((before.notAttempted + later.notAttempted) * 100) / 100 }
+      : {}),
+    // MI-MODE-MARKS-1 — marks lost to wrong objective picks recorded attempt-only. Additive: absent
+    // when there are none (and on every rung but the subject rung, whose points alone carry it).
+    ...(before.wrongObjective + later.wrongObjective > 0
+      ? { marksWrongObjective: Math.round((before.wrongObjective + later.wrongObjective) * 100) / 100 }
       : {}),
   };
 }
@@ -524,6 +542,17 @@ export interface RungTrend {
    *  these questions have no MI entry and are never counted twice). Lets Me show them as "Not
    *  attempted" instead of "no reason recorded". Absent = none recorded (every pre-PR-2 attempt). */
   marksNotAttempted?: number;
+  /** MI-MODE-MARKS-1 — SUBJECT rungs only, ADDITIVE OPTIONAL, derived at READ time from what the
+   *  streams already store (no write changes): of the marks LOST in the window, those lost to a
+   *  WRONG objective pick that is recorded ATTEMPT-ONLY, so it carries no mistake type and has no
+   *  MI entry (owner ruling DECISION-MCQ-WRONG, #237):
+   *    - a Quick Practice MCQ click (`mode: "mcq"`, 0 of 1);
+   *    - a Chapter Test / Full Mock Section-A pick scored on submit (the record's objective row:
+   *      no attempt, no MI entry — see `wrongObjectivePickMarks`).
+   *  It is PART of the remainder Me calls "no reason recorded" (never added to the loss, never a
+   *  type, never "not attempted": a blank pick stays in `marksNotAttempted`). A legacy attempt
+   *  with no `mode` is UNKNOWN and never counted here. Absent = none. */
+  marksWrongObjective?: number;
 }
 
 /** Deduped mistakeLog readout — ENRICHMENT ONLY. Never feeds a before→now rate
@@ -549,6 +578,9 @@ export interface WindowTotal {
   marksLost: number;
   /** Of `marksLost`, marks lost ONLY to work not attempted (H11) — 0 when none recorded. */
   marksNotAttempted: number;
+  /** MI-MODE-MARKS-1 — ADDITIVE OPTIONAL: of `marksLost`, marks lost to wrong objective picks
+   *  recorded attempt-only (see RungTrend.marksWrongObjective). Present only when > 0. */
+  marksWrongObjective?: number;
   /** n — measurable graded answers (POINTS, not marks) the total is over. */
   answers: number;
 }
@@ -690,6 +722,10 @@ interface GradedPoint {
   topicLabel?: string;
   /** H11 — marks this point lost ONLY to work not attempted (0 when none, or unknown). */
   notAttempted: number;
+  /** MI-MODE-MARKS-1 — marks this point lost to a WRONG objective pick recorded attempt-only (no
+   *  MI entry, no type): a Quick Practice MCQ click, or a Chapter Test / Full Mock Section-A pick
+   *  scored on submit. 0 when none — and 0 when UNKNOWN (an attempt with no `mode`). */
+  wrongObjective: number;
 }
 
 /** The synthetic per-question id prefix each session surface fans through
@@ -803,6 +839,31 @@ async function loadBankResolvers(needed: boolean, conceptNeeded: boolean): Promi
   return { lookup, rowOf: conceptRowOf };
 }
 
+/** MI-MODE-MARKS-1 — the surfaces whose Section A is scored ON SUBMIT, client-side (the Chapter
+ *  Test / Full Mock objective scorer). Those picks are never sent to the grader, never fanned
+ *  through recordAttempt and never recorded as an MI entry: they reach progress ONLY as the
+ *  record's objective rows (chapterTestGradeService / fullMockGradeService `objectiveGradeRows`). */
+const OBJECTIVE_ON_SUBMIT_SURFACES: readonly SessionSurface[] = ["chapter-test", "full-mock"];
+
+/**
+ * MI-MODE-MARKS-1 — the marks a record row lost to a WRONG objective pick scored on submit, else 0.
+ * Conservative by construction (a row that is not provably such a pick stays in the remainder):
+ *   - the surface scores Section A on submit, and the bank says the question IS Section A;
+ *   - the row has the shape the objective scorer writes and the grader never does — no annotated
+ *     steps, and a v2 split that puts the WHOLE loss in "reason not recorded" (`objectiveMarksLost`
+ *     for an attempted wrong pick). A blank pick is "not attempted" there, so it is never counted.
+ */
+function wrongObjectivePickMarks(surface: SessionSurface, res: GradedQuestionLike, bank: BankConcept | null): number {
+  if (!OBJECTIVE_ON_SUBMIT_SURFACES.includes(surface)) return 0;
+  if (!bank || normalizeSection(bank.section) !== "A") return 0;
+  if ((res.annotatedSteps ?? []).length > 0) return 0;
+  const lost = Math.max(0, (Number(res.totalMarks) || 0) - (Number(res.marksAwarded) || 0));
+  if (lost <= 0) return 0;
+  const m = questionMarksLost(res);
+  if (!m || m.unattempted > 0) return 0;
+  return Math.abs(m.untyped - lost) < 1e-9 ? lost : 0;
+}
+
 /**
  * Union the attempts stream with the per-question marks stored in sessionRecords
  * payloads, deduped DETERMINISTICALLY: a record-derived question is added only when
@@ -842,6 +903,9 @@ function buildUnifiedGradedPoints(
       topicLabel: a.topicName || a.topicKey,
       // H11 — the attempt says its whole loss was not attempted (never inferred for an old one).
       notAttempted: a.notAttempted === true ? Math.max(0, aAvailable - aScored) : 0,
+      // MI-MODE-MARKS-1 — a Quick Practice MCQ click is attempt-only (#237): its loss is a wrong
+      // pick with no MI entry. Read from the stored `mode`; an attempt without one is unknown.
+      wrongObjective: a.mode === "mcq" && a.notAttempted !== true ? Math.max(0, aAvailable - aScored) : 0,
     });
   }
 
@@ -879,6 +943,7 @@ function buildUnifiedGradedPoints(
         subject: r.subject === "science" ? "science" : "maths",
         topicKey,
         notAttempted: isLossOnlyNotAttempted(res) ? Math.max(0, available - rScored) : 0,
+        wrongObjective: wrongObjectivePickMarks(r.surface, res, bank),
       });
     }
   }
@@ -890,7 +955,7 @@ function buildSubjectRung(points: GradedPoint[]): RungTrend[] {
   const groups = new Map<"maths" | "science", MarkPoint[]>();
   for (const p of points) {
     const arr = groups.get(p.subject) ?? [];
-    arr.push({ ts: p.ts, scored: p.scored, available: p.available, notAttempted: p.notAttempted });
+    arr.push({ ts: p.ts, scored: p.scored, available: p.available, notAttempted: p.notAttempted, wrongObjective: p.wrongObjective });
     groups.set(p.subject, arr);
   }
   const out: RungTrend[] = [];
@@ -1128,6 +1193,7 @@ function windowTotalOf(points: GradedPoint[]): WindowTotal | null {
     marksAvailable: Math.round(m.available * 100) / 100,
     marksLost: Math.max(0, Math.round((m.available - m.scored) * 10) / 10),
     marksNotAttempted: Math.round(m.notAttempted * 100) / 100,
+    ...(m.wrongObjective > 0 ? { marksWrongObjective: Math.round(m.wrongObjective * 100) / 100 } : {}),
     answers: m.sample,
   };
 }
