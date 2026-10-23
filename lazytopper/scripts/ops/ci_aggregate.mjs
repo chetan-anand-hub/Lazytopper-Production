@@ -23,10 +23,18 @@
  *   vitest shards (full bar only)  every one of the EXPECTED_SHARDS reported a summary, none
  *       failed or skipped a test, and the files they ran, summed, equal the test files on disk —
  *       so sharding can never silently drop a file.
+ *   RE-RUNS (CI-AGG-1)             each shard is judged on its LATEST attempt only. A shard uploads
+ *       `vitest-shard-<i>-attempt-<github.run_attempt>`; "Re-run failed jobs" leaves the passing
+ *       shards' attempt-1 artifacts in place and adds the re-run shard's attempt-N one beside the
+ *       failed attempt-1 one. Before CI-AGG-1 every attempt uploaded the SAME name and the aggregate
+ *       downloaded with merge-multiple, so which copy of a re-run shard it judged was arbitrary
+ *       (run 39967755784 attempt 2 judged shard 3's FAILED attempt-1 summary and stayed red).
+ *       selectLatestShardSummaries() keeps, per shard, the highest attempt; two summaries for one
+ *       shard at the same attempt FAIL (never summed, never guessed).
  *
  * MODES
  *   node scripts/ops/ci_aggregate.mjs --aggregate                       # env: NEEDS_JSON, DOCS_ONLY, SHARD_DIR, EXPECTED_SHARDS, CLOCK_COUNT, CLOCK_SKIP_REASON
- *   node scripts/ops/ci_aggregate.mjs --shard-summary <vitest.json> <out.json> --shard=i/N
+ *   node scripts/ops/ci_aggregate.mjs --shard-summary <vitest.json> <out.json> --shard=i/N [--attempt=A]
  */
 
 import fs from "node:fs";
@@ -96,6 +104,7 @@ export function evaluate({ needs, docsOnly, shards = [], expectedShards = 4, fil
   if (!docs) {
     const seen = new Set();
     for (const s of shards) {
+      if (seen.has(s.shard)) problems.push(`vitest shard ${s.shard}: more than one summary judged (duplicate attempt?) — refusing to sum them`);
       seen.add(s.shard);
       totals.shards += 1;
       for (const k of ["files", "tests", "passed", "failed", "skipped", "todo"]) totals[k] += Number(s[k] || 0);
@@ -110,6 +119,63 @@ export function evaluate({ needs, docsOnly, shards = [], expectedShards = 4, fil
     }
   }
   return { ok: problems.length === 0, problems, totals, docs };
+}
+
+// CI-AGG-1: the artifact each shard uploads, one per run attempt (quality-gate.yml, vitest job).
+export const SHARD_ARTIFACT_RE = /^vitest-shard-(\d+)-attempt-(\d+)$/;
+const SHARD_FILE_RE = /^vitest-shard-\d+\.json$/;
+
+/**
+ * CI-AGG-1. entries = [{ summary, attempt }] (every summary downloaded, from every run attempt).
+ * Returns { shards, judged, problems }: per shard, ONLY the summaries of its highest attempt. A tie
+ * (two summaries for one shard at its highest attempt) keeps both, so evaluate() fails it.
+ */
+export function selectLatestShardSummaries(entries = []) {
+  const byShard = new Map();
+  for (const e of entries) {
+    const key = String(e && e.summary && e.summary.shard);
+    if (!byShard.has(key)) byShard.set(key, []);
+    byShard.get(key).push(e);
+  }
+  const shards = [];
+  const judged = [];
+  for (const [shard, list] of [...byShard.entries()].sort(([a], [b]) => a.localeCompare(b, "en", { numeric: true }))) {
+    const attempts = list.map((e) => Number(e.attempt) || 0);
+    const latest = Math.max(...attempts);
+    for (const e of list) if ((Number(e.attempt) || 0) === latest) shards.push(e.summary);
+    judged.push({ shard, attempt: latest, attempts: [...attempts].sort((a, b) => a - b) });
+  }
+  return { shards, judged };
+}
+
+/**
+ * CI-AGG-1. Read every shard summary under `dir`: one sub-directory per downloaded artifact
+ * (`vitest-shard-<i>-attempt-<A>/vitest-shard-<i>.json`, no merge-multiple), or a flat legacy file
+ * (attempt 0). A summary whose own `attempt` disagrees with its artifact name is a problem.
+ */
+export function readShardSummaries(dir) {
+  const entries = [];
+  const problems = [];
+  let names = [];
+  try { names = fs.readdirSync(dir, { withFileTypes: true }); } catch { return { entries, problems }; }
+  for (const d of names) {
+    const m = d.isDirectory() ? SHARD_ARTIFACT_RE.exec(d.name) : null;
+    if (m) {
+      const attempt = Number(m[2]);
+      for (const f of fs.readdirSync(path.join(dir, d.name))) {
+        if (!SHARD_FILE_RE.test(f)) continue;
+        const summary = JSON.parse(fs.readFileSync(path.join(dir, d.name, f), "utf8"));
+        if (summary.attempt !== undefined && Number(summary.attempt) !== attempt) {
+          problems.push(`vitest summary ${d.name}/${f}: says attempt ${summary.attempt} but was uploaded as attempt ${attempt}`);
+        }
+        entries.push({ summary, attempt });
+      }
+    } else if (d.isFile() && SHARD_FILE_RE.test(d.name)) {
+      const summary = JSON.parse(fs.readFileSync(path.join(dir, d.name), "utf8"));
+      entries.push({ summary, attempt: Number(summary.attempt) || 0 });
+    }
+  }
+  return { entries, problems };
 }
 
 /** vitest JSON reporter output -> the per-shard summary the aggregate reads. */
@@ -135,9 +201,11 @@ function runShardSummary(argv) {
     return;
   }
   const s = summariseVitestJson(json, shard);
+  const attemptArg = argv.find((a) => a.startsWith("--attempt="));
+  if (attemptArg) s.attempt = Number(attemptArg.slice("--attempt=".length)) || 0;
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, JSON.stringify(s) + "\n");
-  console.log(`VITEST_SHARD_SUMMARY: shard=${s.shard} files=${s.files} tests=${s.tests} passed=${s.passed} failed=${s.failed} skipped=${s.skipped} todo=${s.todo}`);
+  console.log(`VITEST_SHARD_SUMMARY: shard=${s.shard}${s.attempt !== undefined ? ` attempt=${s.attempt}` : ""} files=${s.files} tests=${s.tests} passed=${s.passed} failed=${s.failed} skipped=${s.skipped} todo=${s.todo}`);
 }
 
 function runAggregate() {
@@ -148,15 +216,15 @@ function runAggregate() {
   const clockCount = process.env.CLOCK_COUNT || "";
   const clockSkipReason = process.env.CLOCK_SKIP_REASON || "";
   const dir = process.env.SHARD_DIR || "";
-  const shards = [];
-  try {
-    for (const f of fs.readdirSync(dir)) {
-      if (/^vitest-shard-\d+\.json$/.test(f)) shards.push(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")));
-    }
-  } catch { /* no summaries: the evaluate() shard check reports it */ }
+  // No summaries (or an unreadable one): the evaluate() shard check reports the missing shard.
+  let read = { entries: [], problems: [] };
+  try { read = readShardSummaries(dir); } catch (err) { read.problems.push(`vitest summaries unreadable: ${err.message}`); }
+  const { shards, judged } = selectLatestShardSummaries(read.entries);
   const filesOnDisk = countTestFilesOnDisk();
   for (const [job, v] of Object.entries(needs)) console.log(`CI_AGGREGATE_JOB: ${job}=${v && v.result}`);
+  for (const j of judged) console.log(`VITEST_SHARD_JUDGED: shard=${j.shard} attempt=${j.attempt} (attempts seen: ${j.attempts.join(",")})`);
   const r = evaluate({ needs, docsOnly, shards, expectedShards, filesOnDisk, clockCount, clockSkipReason });
+  if (!r.docs) for (const p of read.problems) { r.problems.push(p); r.ok = false; }
   console.log(`CI_AGGREGATE_PATH: ${r.docs ? "docs-only fast path" : "full bar"}`);
   if (!r.docs) console.log(`CI_AGGREGATE_CLOCK: count=${clockCount || "(unset)"} skip_reason=${clockSkipReason || "(none)"}`);
   if (!r.docs) {
