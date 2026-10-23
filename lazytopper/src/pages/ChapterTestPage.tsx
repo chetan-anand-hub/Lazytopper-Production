@@ -51,6 +51,16 @@ import {
 } from "../components/chaptertest/chapterTestBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import {
+  attemptsLogged,
+  freshnessLine,
+  loadServedLog,
+  mintDrawSeed,
+  recordServed,
+  servedAtFor,
+  servedOwner,
+  type ServedAt,
+} from "../lib/freshSet/servedHistory";
+import {
   scoreObjectiveSection,
   buildChapterTestResponse,
   writeChapterTestPartialRecord,
@@ -198,6 +208,9 @@ export default function ChapterTestPage() {
 
   // ── Durable identity + the fresh draw ────────────────────────────────────────
   const [nomen, setNomen] = useState<{ code: string; name: string } | null>(null);
+  // FRESH-SET-TESTS — the served history + seed, snapshotted ONCE with the nomenclature so the
+  // drawn paper never changes under the student (a later records reload must not redraw it).
+  const [freshInputs, setFreshInputs] = useState<{ servedAt: ServedAt; seed: number } | null>(null);
   const [records, setRecords] = useState<SessionRecord[]>([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
   const [drawNonce] = useState(0);
@@ -223,6 +236,18 @@ export default function ChapterTestPage() {
       if (!live) return;
       const seq = chapterTestSequence(all, sessionSubject, topicKey);
       const nm = chapterTestNomenclature(sessionSubject, topicKey, topicName, seq);
+      const owner = servedOwner(isSignedIn ? user?.uid : null);
+      const log = loadServedLog(owner);
+      const scope = resolveCanonicalSlug(topicKey) || topicKey;
+      setFreshInputs({
+        servedAt: servedAtFor({ surface: "chapter-test", records: all, log }),
+        seed: mintDrawSeed({
+          owner,
+          surface: "chapter-test",
+          scope,
+          attempt: seq + attemptsLogged(log, "chapter-test", scope),
+        }),
+      });
       setNomen({ code: nm.code, name: nm.name });
       setRecordsLoading(false);
     })();
@@ -246,9 +271,31 @@ export default function ChapterTestPage() {
       worksheetId: mintChapterTestId(),
       code: nomen.code,
       name: nomen.name,
+      // FRESH-SET-TESTS — unseen questions first; seeded, never Math.random.
+      seed: freshInputs?.seed,
+      servedAt: freshInputs?.servedAt,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nomen, bank.ready, subject, topicKey, grade, drawNonce]);
+
+  /** FRESH-SET-TESTS — log this paper as served on this device (start / download). */
+  const markServed = useCallback((p: PersistedWorksheet | null) => {
+    if (!p) return;
+    recordServed(servedOwner(isSignedIn ? user?.uid : null), {
+      surface: "chapter-test",
+      scope: resolveCanonicalSlug(topicKey) || topicKey,
+      ids: p.questions.map((q) => String(q.id ?? "")),
+    });
+  }, [isSignedIn, user?.uid, topicKey]);
+  const freshLine = draw
+    ? freshnessLine({
+        repeats: draw.repeatCount,
+        total: draw.paper.questions.length,
+        hasHistory: draw.hasServedHistory,
+        scopeNoun: "chapter",
+        setNoun: "test",
+      })
+    : null;
 
   const topicRecords = useMemo(() => {
     const slug = resolveCanonicalSlug(topicKey);
@@ -446,10 +493,11 @@ export default function ChapterTestPage() {
       /* MathText fetches it again when a question needs it */
     }
     setStarting(false);
+    markServed(paper);
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart]);
+  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
@@ -557,6 +605,7 @@ export default function ChapterTestPage() {
     setDownloading(true);
     try {
       await exportWorksheetPdf(paper, "questions", nomen.code);
+      markServed(paper);
       // AWAIT-1-PAPERS: the downloaded paper is kept under the code PRINTED on it — a
       // pending-upload record (nothing graded) + the paper with no Section A result yet — so
       // "Upload" can come back to THIS paper. Signed out: export only (the note says so).
@@ -593,7 +642,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1053,8 +1102,15 @@ export default function ChapterTestPage() {
                       <span>·</span>
                       <span>
                         Prefer paper? Download this test, solve it, and upload the whole thing. Opens
-                        full-screen so you can focus. <b>Each test is a fresh draw</b> — different questions
-                        from your last {topicName} test.
+                        full-screen so you can focus.{" "}
+                        {draw && draw.repeatCount > 0 ? (
+                          // FRESH-SET-TESTS — the honest line when this chapter's unseen pool ran out.
+                          <b data-testid="ct-fresh-line" data-tone="repeats">{freshLine?.text}</b>
+                        ) : (
+                          <span data-testid="ct-fresh-line" data-tone="fresh">
+                            <b>Each test is a fresh draw</b> — different questions from your last {topicName} test.
+                          </span>
+                        )}
                       </span>
                     </div>
                   </>

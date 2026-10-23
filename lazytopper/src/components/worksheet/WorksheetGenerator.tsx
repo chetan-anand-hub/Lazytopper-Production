@@ -55,6 +55,16 @@ import {
 } from "./worksheetMiSelector";
 import { exportWorksheetPdf } from "./worksheetPdfExport";
 import { readyShortfallText } from "./worksheetShape";
+import {
+  attemptsLogged,
+  countRepeats,
+  freshnessLine,
+  loadServedLog,
+  mintDrawSeed,
+  recordServed,
+  servedAtFor,
+  servedOwner,
+} from "../../lib/freshSet/servedHistory";
 import { MathText } from "../question/MathText";
 import WorksheetGradePanel, { type WorksheetReopenGrade } from "./WorksheetGradePanel";
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
@@ -310,6 +320,8 @@ function WorksheetGeneratorInner() {
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<View>("build");
   const [drawNonce, setDrawNonce] = useState(0); // bumped by Shuffle to redraw the candidate
+  // FRESH-SET-TESTS — bumped when a sheet is generated, so the next draw sees it as served.
+  const [servedNonce, setServedNonce] = useState(0);
   const [generated, setGenerated] = useState<PersistedWorksheet | null>(null);
   /** WORKSHEET-FIX-2 (b): how many questions the student asked for when this sheet was generated (null when it was
    *  re-opened from history: unknown), so the ready card can repeat the preview's "only N available" line. */
@@ -554,20 +566,57 @@ function WorksheetGeneratorInner() {
   // The single drawn set that the hero chips, the preview step, and Generate all
   // read — so every number shown is exactly the number generated (honest counts).
   // Redrawn only when the plan-affecting inputs change or Shuffle bumps drawNonce.
+  // FRESH-SET-TESTS — every question this student had on an earlier worksheet (the session
+  // records mirrored to this device + this device's served log), newest time per id.
+  const servedOwnerId = servedOwner(user?.uid && !user.isLocalSession ? user.uid : null);
+  const servedLog = useMemo(
+    () => loadServedLog(servedOwnerId),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [servedOwnerId, servedNonce],
+  );
+  const servedAt = useMemo(
+    () => servedAtFor({ surface: "worksheet", records: getSurfaceHistory("worksheet", user?.uid), log: servedLog }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [servedLog, user?.uid, historyNonce],
+  );
+
   const candidate: PersistedWorksheetQuestion[] = useMemo(() => {
     if (blocker || !plan) return [];
     const labelFor = (key: string) => topics.find((t) => t.key === key)?.label ?? key;
     // Inject the within-topic section skew onto the (skew-independent) plan just for the
     // draw; plan.pools/rows are unchanged, so the honest counts and distribution hold.
-    const ordered = [...generateFromPlan({ ...plan, sectionBoosts, topicSectionBoosts: perTopicSectionBoosts })].sort(
+    const ordered = [...generateFromPlan(
+      { ...plan, sectionBoosts, topicSectionBoosts: perTopicSectionBoosts },
+      {
+        // Seeded (never Math.random): owner + attempt counter + clock; unseen questions first.
+        seed: mintDrawSeed({
+          owner: servedOwnerId,
+          surface: "worksheet",
+          scope: String(subject),
+          attempt: drawNonce + attemptsLogged(servedLog, "worksheet", String(subject)),
+        }),
+        servedAt,
+      },
+    )].sort(
       (a, b) => (SECTION_RANK[a.section] ?? 9) - (SECTION_RANK[b.section] ?? 9),
     );
     // PAPER-REBUILD-1 (P12): the ONE bank-row -> question map, shared with the rebuild.
     return ordered.map((q, i) => worksheetQuestionFromBankRow(q, i + 1, labelFor(q.topicKey)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan, blocker, drawNonce, JSON.stringify(sectionBoosts), JSON.stringify(perTopicSectionBoosts)]);
+  }, [plan, blocker, drawNonce, servedAt, JSON.stringify(sectionBoosts), JSON.stringify(perTopicSectionBoosts)]);
 
   const totalCount = candidate.length;
+  const freshLine = useMemo(
+    () =>
+      freshnessLine({
+        repeats: countRepeats(candidate.map((q) => String(q.id ?? "")), servedAt),
+        total: candidate.length,
+        hasHistory: servedAt.size > 0,
+        scopeNoun: "chapter",
+        setNoun: "worksheet",
+      }),
+    [candidate, servedAt],
+  );
   const totalMarks = useMemo(() => candidate.reduce((s, q) => s + q.marks, 0), [candidate]);
   const shortfall = totalCount > 0 && totalCount < effCount;
   const noQuestions = !blocker && bank.ready && totalCount === 0;
@@ -750,6 +799,12 @@ function WorksheetGeneratorInner() {
         questions,
       };
       saveWorksheetSession(ws);
+      recordServed(servedOwnerId, {
+        surface: "worksheet",
+        scope: String(subject),
+        ids: questions.map((q) => String(q.id ?? "")),
+      });
+      setServedNonce((n) => n + 1);
       setAskedCount(effCount);
       setGenerated(ws);
       setView("generated");
@@ -1347,6 +1402,17 @@ function WorksheetGeneratorInner() {
             {enrichCount > 0 && drawnWeakSecs.length > 0 && (
               <div className="lt-ws__warn">
                 <span aria-hidden="true">⚡</span> <strong>Enriched:</strong> {enrichCount} of {totalCount} question{enrichCount === 1 ? "" : "s"} target Section{drawnWeakSecs.length === 1 ? "" : "s"} {formatNameList(drawnWeakSecs)} — where you&rsquo;ve lost the most marks in {scopeLabel}.
+              </div>
+            )}
+
+            {freshLine && (
+              // FRESH-SET-TESTS — honest about repeats: only when this scope's unseen pool ran out.
+              <div
+                className={freshLine.tone === "repeats" ? "lt-ws__note lt-ws__note--warn" : "lt-ws__note"}
+                data-testid="ws-fresh-line"
+                data-tone={freshLine.tone}
+              >
+                {freshLine.text}
               </div>
             )}
 

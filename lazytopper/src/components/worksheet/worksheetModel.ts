@@ -45,6 +45,14 @@ import { needsMissingFigure } from "../../lib/figureSafe";
 import { isAiGeneratedBankId } from "../../data/bankChapters/loader";
 import { isCbq } from "../../lib/cbq/cbqClassification";
 import {
+  EMPTY_SERVED,
+  fallbackDrawSeed,
+  freshnessOrder,
+  mulberry32,
+  seededShuffle,
+  type ServedAt,
+} from "../../lib/freshSet/servedHistory";
+import {
   SECTION_LETTERS,
   aiCapFor,
   drawFromSpec,
@@ -575,12 +583,34 @@ export function planWorksheet(params: WorksheetPlanParams): WorksheetPlan {
 }
 
 // ── WS-DRAW-1: the draw's inputs ─────────────────────────────────────────────
-const DRAW_TOOLS = {
-  isAi: (q: PracticeQuestion): boolean => isAiGeneratedBankId(q.id),
-  /** CBQ-1's single CBQ flag. The legacy `isCompetencyBased` is not read (P14: ~45% precise). */
-  isCbq: (q: PracticeQuestion): boolean => isCbq(q),
-  shuffle: <T,>(arr: T[]): T[] => shuffleInPlace(arr),
-};
+/** The row order every worksheet draw takes the first N of. FRESH-SET-TESTS: a SEEDED shuffle
+ *  (never Math.random, CLAUDE.md §7) with never-served rows first and the least-recently-served
+ *  last, so a sheet repeats an earlier sheet's question only once the unseen pool runs out. */
+type RowOrder = <T>(arr: T[]) => T[];
+const idOfRow = (q: unknown): string => String((q as { id?: unknown } | null)?.id ?? "");
+function makeOrder(rand: () => number, servedAt: ServedAt): RowOrder {
+  return <T,>(arr: T[]): T[] => freshnessOrder(arr, rand, servedAt, idOfRow);
+}
+function makeDrawTools(order: RowOrder, servedAt: ServedAt = EMPTY_SERVED) {
+  return {
+    isAi: (q: PracticeQuestion): boolean => isAiGeneratedBankId(q.id),
+    /** CBQ-1's single CBQ flag. The legacy `isCompetencyBased` is not read (P14: ~45% precise). */
+    isCbq: (q: PracticeQuestion): boolean => isCbq(q),
+    shuffle: order,
+    ...(servedAt.size > 0 ? { isServed: (q: PracticeQuestion): boolean => servedAt.has(q.id) } : {}),
+  };
+}
+/** planWorksheet's planDraw reads only isAi / isCbq; its order is never used to pick rows. */
+const DRAW_TOOLS = makeDrawTools(makeOrder(mulberry32(0), EMPTY_SERVED));
+
+/** FRESH-SET-TESTS — the per-draw inputs of `generateFromPlan`. */
+export interface WorksheetDrawOptions {
+  /** PRNG seed — same seed (and history), same sheet. Absent → `fallbackDrawSeed` (a per-call
+   *  counter; the generator always passes `mintDrawSeed`). */
+  seed?: number;
+  /** question id → when it was last served on an earlier worksheet. */
+  servedAt?: ServedAt;
+}
 
 /** "All" (undefined) → every section; otherwise the valid letters asked for, in order. */
 function resolveSections(sections?: string[]): string[] {
@@ -618,13 +648,6 @@ export {
   type WorksheetNomenclature,
 } from "./worksheetNaming";
 
-function shuffleInPlace<T>(arr: T[]): T[] {
-  for (let i = arr.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
 
 /** Does this boost map actually raise any section above the neutral 1.0? */
 function hasEffectiveBoost(sectionBoosts?: Record<string, number> | null): boolean {
@@ -645,6 +668,7 @@ function orderPoolBySectionBoost(
   pool: PracticeQuestion[],
   allocated: number,
   sectionBoosts: Record<string, number>,
+  order: RowOrder,
 ): PracticeQuestion[] {
   const bySection = new Map<string, PracticeQuestion[]>();
   for (const q of pool) {
@@ -653,8 +677,8 @@ function orderPoolBySectionBoost(
     if (arr) arr.push(q);
     else bySection.set(s, [q]);
   }
-  if (bySection.size <= 1) return shuffleInPlace([...pool]); // nothing to skew between
-  for (const arr of bySection.values()) shuffleInPlace(arr);
+  if (bySection.size <= 1) return order([...pool]); // nothing to skew between
+  for (const [s, arr] of bySection) bySection.set(s, order(arr));
 
   const total = pool.length || 1;
   const inputs: TopicAllocInput[] = [...bySection.entries()].map(([s, arr]) => ({
@@ -674,7 +698,7 @@ function orderPoolBySectionBoost(
   }
   // head.length === min(allocated, total), so taking the first `allocated` from the
   // returned list yields exactly the boosted per-section counts.
-  return [...shuffleInPlace(head), ...shuffleInPlace(tail)];
+  return [...order(head), ...order(tail)];
 }
 
 /**
@@ -688,7 +712,11 @@ function orderPoolBySectionBoost(
  * topic's draw is skewed toward the boosted sections via `orderPoolBySectionBoost`;
  * otherwise the draw is the original uniform pool sample (unchanged behaviour).
  */
-export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
+export function generateFromPlan(plan: WorksheetPlan, opts: WorksheetDrawOptions = {}): PracticeQuestion[] {
+  const rand = mulberry32(opts.seed ?? fallbackDrawSeed("ws"));
+  const servedAt = opts.servedAt ?? EMPTY_SERVED;
+  const order = makeOrder(rand, servedAt);
+  const DRAW_TOOLS = makeDrawTools(order, servedAt);
   // WS-DRAW-1: a plan that carries a draw spec is drawn by it (section shape, verified rows
   // before AI rows, CBQ target, no repeats). Plans without one use the original per-topic draw.
   if (plan.draw) {
@@ -730,8 +758,8 @@ export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
     const basePool = plan.pools.get(row.key) ?? [];
     const boosts = plan.topicSectionBoosts?.[row.key] ?? plan.sectionBoosts ?? null;
     const ordered = hasEffectiveBoost(boosts)
-      ? orderPoolBySectionBoost(basePool, row.allocated, boosts as Record<string, number>)
-      : shuffleInPlace([...basePool]);
+      ? orderPoolBySectionBoost(basePool, row.allocated, boosts as Record<string, number>, order)
+      : order([...basePool]);
     let taken = 0;
     for (const q of ordered) {
       if (taken >= row.allocated) break;
@@ -758,7 +786,7 @@ export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
   if (guarded && collected.length < guardTotal) {
     // a row skipped for the cap or a repeated stem can leave the sheet short: fill it, verified rows first, then (only if
     // the pools hold nothing else) the AI rows that were over the cap, so the count stays exact.
-    const rest: PracticeQuestion[] = shuffleInPlace([...plan.pools.values()].flat());
+    const rest: PracticeQuestion[] = order([...plan.pools.values()].flat());
     const tryAdd = (q: PracticeQuestion): void => {
       if (collected.length >= guardTotal) return;
       const key = questionKey(q);
@@ -775,5 +803,6 @@ export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
     for (const q of rest) if (DRAW_TOOLS.isAi(q) && aiUsed < aiLimit) tryAdd(q);
     for (const q of [...overCap, ...rest.filter((x) => DRAW_TOOLS.isAi(x))]) tryAdd(q);
   }
-  return shuffleInPlace(collected);
+  // The final interleave is a plain seeded shuffle (freshness already chose the rows).
+  return seededShuffle(collected, rand);
 }

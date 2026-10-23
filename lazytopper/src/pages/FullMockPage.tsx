@@ -79,6 +79,16 @@ import {
 } from "../components/fullmock/fullMockBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import {
+  attemptsLogged,
+  freshnessLine,
+  loadServedLog,
+  mintDrawSeed,
+  recordServed,
+  servedAtFor,
+  servedOwner,
+  type ServedAt,
+} from "../lib/freshSet/servedHistory";
+import {
   saveFullMockSession,
   loadFullMockSession,
   clearFullMockSession,
@@ -229,6 +239,22 @@ export default function FullMockPage() {
 
   const [nomen, setNomen] = useState<{ code: string; name: string } | null>(null);
   const [drawNonce] = useState(0);
+  // FRESH-SET-TESTS — the served history + seed, snapshotted with each nomenclature mint (mount,
+  // and the re-mint after a submit) so a drawn paper never changes under the student.
+  const [freshInputs, setFreshInputs] = useState<{ servedAt: ServedAt; seed: number } | null>(null);
+  const servedOwnerId = servedOwner(isSignedIn ? user?.uid : null);
+  const snapshotFresh = (all: SessionRecord[], seq: number) => {
+    const log = loadServedLog(servedOwnerId);
+    setFreshInputs({
+      servedAt: servedAtFor({ surface: "full-mock", records: all, log }),
+      seed: mintDrawSeed({
+        owner: servedOwnerId,
+        surface: "full-mock",
+        scope: sessionSubject,
+        attempt: seq + attemptsLogged(log, "full-mock", sessionSubject),
+      }),
+    });
+  };
 
   useEffect(() => {
     let live = true;
@@ -238,6 +264,7 @@ export default function FullMockPage() {
       if (!live) return;
       const seq = fullMockSequence(all, sessionSubject);
       const nm = fullMockNomenclature(sessionSubject, seq);
+      snapshotFresh(all, seq);
       setNomen({ code: nm.code, name: nm.name });
       setRecordsLoading(false);
     })();
@@ -268,9 +295,10 @@ export default function FullMockPage() {
       worksheetId: mintFullMockId(),
       code: nomen.code,
       name: nomen.name,
-      // A fresh random seed per draw — the spec-mandated fresh paper. The seeded
-      // engine underneath keeps the DRAW itself deterministic + unit-testable.
-      seed: (Math.random() * 0xffffffff) >>> 0,
+      // FRESH-SET-TESTS — a seeded paper (owner + attempt + clock, never Math.random) that
+      // draws questions this student has not had in an earlier mock first.
+      seed: freshInputs?.seed ?? mintDrawSeed({ owner: servedOwnerId, surface: "full-mock", scope: sessionSubject, attempt: 0 }),
+      servedAt: freshInputs?.servedAt,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nomen, bank.ready, subject, grade, drawNonce]);
@@ -503,6 +531,7 @@ export default function FullMockPage() {
       void loadRecords().then((all) => {
         const seq = fullMockSequence(all, sessionSubject);
         const nm = fullMockNomenclature(sessionSubject, seq);
+        snapshotFresh(all, seq);
         setNomen({ code: nm.code, name: nm.name });
       });
     },
@@ -557,9 +586,14 @@ export default function FullMockPage() {
     setCurrentQNumber(1);
     setFocusSeed({ ...EMPTY_FOCUS });
     focusRef.current = { ...EMPTY_FOCUS };
+    recordServed(servedOwnerId, {
+      surface: "full-mock",
+      scope: sessionSubject,
+      ids: draw.paper.questions.map((q) => String(q.id ?? "")),
+    });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -899,6 +933,11 @@ export default function FullMockPage() {
     setDownloading(true);
     try {
       await exportWorksheetPdf(paperForExport, "questions", codeForExport);
+      recordServed(servedOwnerId, {
+        surface: "full-mock",
+        scope: sessionSubject,
+        ids: paperForExport.questions.map((q) => String(q.id ?? "")),
+      });
       // AWAIT-1-PAPERS: the downloaded paper is kept under the code PRINTED on it — a
       // pending-upload record (nothing graded) + the paper with no Section A result, no
       // timer and no focus — so "Upload now" can come back to THIS paper. Signed out: export
@@ -948,7 +987,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1392,7 +1431,22 @@ export default function FullMockPage() {
                         This is a 3-hour paper. Your answers and timer are saved — if you’re
                         interrupted you can resume exactly where you left off. Your on-screen time is
                         recorded, like the real exam hall; leaving doesn’t pause the clock.{" "}
-                        <b>Each mock is a fresh draw</b> — different from your last.
+                        {draw && draw.repeatCount > 0 ? (
+                          // FRESH-SET-TESTS — the honest line when a section's unseen pool ran out.
+                          <b data-testid="fm-fresh-line" data-tone="repeats">
+                            {freshnessLine({
+                              repeats: draw.repeatCount,
+                              total: draw.paper.questions.length,
+                              hasHistory: draw.hasServedHistory,
+                              scopeNoun: "subject",
+                              setNoun: "mock",
+                            })?.text}
+                          </b>
+                        ) : (
+                          <span data-testid="fm-fresh-line" data-tone="fresh">
+                            <b>Each mock is a fresh draw</b> — different from your last.
+                          </span>
+                        )}
                       </span>
                     </div>
                   </>

@@ -62,6 +62,7 @@ import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { cbqFlagOf } from "../../lib/cbq/cbqClassification";
 import { needsMissingFigure } from "../../lib/figureSafe";
 import { balanceCbqShare } from "../../lib/cbq/cbqPaperBalance";
+import { EMPTY_SERVED, countRepeats, preferUnserved, type ServedAt } from "../../lib/freshSet/servedHistory";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -150,6 +151,11 @@ export interface DrawnFullMock {
   plainMcqMarks: number;
   /** Section B-E marks that are not CBQs (CBSE: ~30%). */
   constructedMarks: number;
+  /** FRESH-SET-TESTS — rows of THIS paper the student was served in an earlier mock (> 0 only
+   *  when a cell's unseen pool ran out and its least-recently-served questions kept the blueprint). */
+  repeatCount: number;
+  /** True when a non-empty served history was supplied (the honest copy needs it). */
+  hasServedHistory: boolean;
 }
 
 // ── The union pool ───────────────────────────────────────────────────────────
@@ -498,8 +504,18 @@ export function drawFullMock(args: {
   seed: number;
   pyqTargetFraction?: number;
   createdAt?: string;
+  /** FRESH-SET-TESTS — question id → when it was last served in an earlier Full Mock. Each
+   *  (section x chapter) cell draws never-served rows first; only an exhausted cell takes its
+   *  least-recently-served rows. The unit allocation reads the WHOLE pool, so the blueprint
+   *  (sections, unit marks, counts) is exactly what it is without history. */
+  servedAt?: ServedAt;
 }): DrawnFullMock {
   const { subject, worksheetId, code, name, seed } = args;
+  const servedAt = args.servedAt ?? EMPTY_SERVED;
+  const idOf = (q: FMPoolQuestion) => String(q.id || q.questionText);
+  const fresh = (cell: FMPoolQuestion[], count: number, salt: string) =>
+    preferUnserved({ pool: cell, count, servedAt, idOf, keyOf: questionKey, rand: mulberry32(seed ^ hashCell(`fresh:${salt}`)) })
+      .candidates;
   const chapterWeights = fullMockChapterWeights(subject);
   const slugSet = new Set(chapterWeights.map((c) => c.slug));
   const pool = buildUnionPool(subject, slugSet);
@@ -548,7 +564,7 @@ export function drawFullMock(args: {
         if (n <= 0) continue;
         const cell = sectionPools[i].filter((q) => q.topicSlug === c.slug && notUsed(q));
         const r = drawBalancedSet({
-          pool: cell,
+          pool: fresh(cell, n, `${spec.section}:${c.slug}`),
           count: n,
           pyqTargetFraction: args.pyqTargetFraction,
           seed: seed ^ hashCell(`${spec.section}:${c.slug}`),
@@ -564,7 +580,7 @@ export function drawFullMock(args: {
     const shortfall = spec.targetCount - chosen.length;
     if (shortfall > 0) {
       const r = drawBalancedSet({
-        pool: sectionPools[i].filter(notUsed),
+        pool: fresh(sectionPools[i].filter(notUsed), shortfall, `${spec.section}:redistribute`),
         count: shortfall,
         pyqTargetFraction: args.pyqTargetFraction,
         seed: seed ^ hashCell(`${spec.section}:redistribute`),
@@ -590,20 +606,34 @@ export function drawFullMock(args: {
       else groupPools.set(g, [q]);
     }
   });
-  const balanced = balanceCbqShare({
-    slots: FM_BLUEPRINT.flatMap((spec) =>
+  // FRESH-SET-TESTS — swaps first draw only on never-served rows; the whole pool is used
+  // only when that leaves a CBQ shortfall (the CBSE share is never traded for freshness).
+  const balanceWith = (
+    slots: Array<{ group: string; objective: boolean; item: FMPoolQuestion }>,
+    pools: Map<string, FMPoolQuestion[]>,
+  ) =>
+    balanceCbqShare({
+      slots,
+      groupPools: pools,
+      keyOf: questionKey,
+      isPyq: isPYQQuestion,
+      affinityOf: (q) => q.topicSlug,
+      seed: seed ^ hashCell("FM:cbq"),
+    });
+  const unservedGroupPools = new Map(
+    [...groupPools].map(([g, list]) => [g, list.filter((q) => !servedAt.has(idOf(q)))] as const),
+  );
+  let balanced = balanceWith(
+    FM_BLUEPRINT.flatMap((spec) =>
       (bySection.get(spec.section) ?? []).map((q) => ({
         group: `${spec.section}:${unitOf(q)}`,
         objective: spec.section === "A",
         item: q,
       })),
     ),
-    groupPools,
-    keyOf: questionKey,
-    isPyq: isPYQQuestion,
-    affinityOf: (q) => q.topicSlug,
-    seed: seed ^ hashCell("FM:cbq"),
-  });
+    servedAt.size > 0 ? unservedGroupPools : groupPools,
+  );
+  if (servedAt.size > 0 && balanced.share.cbqShortfall > 0) balanced = balanceWith(balanced.slots, groupPools);
   for (const spec of FM_BLUEPRINT) {
     bySection.set(
       spec.section,
@@ -693,6 +723,8 @@ export function drawFullMock(args: {
     cbqShortfall: balanced.share.cbqShortfall,
     plainMcqMarks: balanced.share.plainMcqMarks,
     constructedMarks: balanced.share.constructedMarks,
+    repeatCount: countRepeats(questions.map((q) => String(q.id || q.questionText)), servedAt),
+    hasServedHistory: servedAt.size > 0,
   };
 }
 

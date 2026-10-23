@@ -26,6 +26,14 @@ import { questionKey } from "../../utils/questionKey";
 import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { balanceCbqShare, type CbqShare } from "../../lib/cbq/cbqPaperBalance";
 import { needsMissingFigure } from "../../lib/figureSafe";
+import {
+  EMPTY_SERVED,
+  countRepeats,
+  fallbackDrawSeed,
+  mulberry32,
+  preferUnserved,
+  type ServedAt,
+} from "../../lib/freshSet/servedHistory";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -162,6 +170,12 @@ export interface DrawnChapterTest {
   plainMcqMarks: number;
   /** Section B-D marks that are not CBQs (CBSE: ~30%). */
   constructedMarks: number;
+  /** FRESH-SET-TESTS — rows of THIS paper the student was served in an earlier test (0 while
+   *  the chapter still has unseen questions for every section; > 0 only when a section's
+   *  unseen pool ran out and its least-recently-served questions filled the blueprint). */
+  repeatCount: number;
+  /** True when a served history was supplied and non-empty (the honest copy needs it). */
+  hasServedHistory: boolean;
 }
 
 /**
@@ -185,13 +199,19 @@ export function drawChapterTest(args: {
   code?: string;
   name?: string;
   createdAt?: string;
-  /** PRNG seed — same seed, same paper (the unit-test seam). Absent → minted
-   *  fresh per draw, the Full Mock page's exact recipe, kept in-blueprint so
-   *  callers stay unchanged. */
+  /** PRNG seed — same seed, same paper (the unit-test seam). Absent → `fallbackDrawSeed`
+   *  (FRESH-SET-TESTS: never Math.random, CLAUDE.md §7); the page passes `mintDrawSeed`
+   *  (owner + attempt + clock). */
   seed?: number;
+  /** FRESH-SET-TESTS — question id → when it was last served in an earlier Chapter Test.
+   *  Each section draws from never-served rows first; only an exhausted section takes its
+   *  least-recently-served rows, so the blueprint is never bent. Absent → no history. */
+  servedAt?: ServedAt;
 }): DrawnChapterTest {
   const { subject, topicKey, topicLabel } = args;
-  const seed = args.seed ?? (Math.random() * 0xffffffff) >>> 0;
+  const seed = args.seed ?? fallbackDrawSeed(`ct|${args.worksheetId}`);
+  const servedAt = args.servedAt ?? EMPTY_SERVED;
+  const idOf = (q: CanonicalQuestion) => String(q.id ?? "");
   const all = selectBankQuestions({ subject, topicKeys: [topicKey] });
   // Every pool comes from the ONE exported predicate above (Section A must be
   // auto-gradeable 0-or-full — key resolves to an option; B/C/D are exact numeric
@@ -214,7 +234,16 @@ export function drawChapterTest(args: {
   // keys on questionKey (BANK-SPLIT-1): the same proof at 3 and 5 marks is one question.
   for (const spec of CT_BLUEPRINT) {
     const cell = pools[spec.section].filter((q) => !used.has(questionKey(q)));
-    const r = drawCTSection(cell, spec.targetCount, seed ^ hashCell(`CT:${spec.section}`));
+    // FRESH-SET-TESTS — unseen rows first; the least-recently-served only when they run out.
+    const { candidates } = preferUnserved({
+      pool: cell,
+      count: spec.targetCount,
+      servedAt,
+      idOf,
+      keyOf: questionKey,
+      rand: mulberry32(seed ^ hashCell(`CT:fresh:${spec.section}`)),
+    });
+    const r = drawCTSection(candidates, spec.targetCount, seed ^ hashCell(`CT:${spec.section}`));
     for (const q of r.drawn) {
       used.add(questionKey(q));
       chosen.push({ q, section: spec.section });
@@ -224,13 +253,29 @@ export function drawChapterTest(args: {
   // CBQ-1 PR-2 — CBSE's 50 / 20 / 30 marks typology. Swaps stay INSIDE a section and use
   // only that section's real eligible pool, so every rule above (bands, Section A key bar,
   // counts, no repeat) still holds; a short chapter keeps its real rows and reports it.
-  const balanced = balanceCbqShare({
+  //
+  // FRESH-SET-TESTS — the swaps first draw only on never-served rows; a second pass over the
+  // whole pool runs only when that leaves a CBQ shortfall, so the CBSE share is never traded
+  // for freshness. With no history both pools are the same and the paper is unchanged.
+  const unservedPools = new Map(
+    Object.entries(pools).map(([g, list]) => [g, list.filter((q) => !servedAt.has(idOf(q)))]),
+  );
+  let balanced = balanceCbqShare({
     slots: chosen.map((c) => ({ group: c.section, objective: c.section === "A", item: c.q })),
-    groupPools: new Map(Object.entries(pools)),
+    groupPools: servedAt.size > 0 ? unservedPools : new Map(Object.entries(pools)),
     keyOf: questionKey,
     isPyq: isPYQQuestion,
     seed: seed ^ hashCell("CT:cbq"),
   });
+  if (servedAt.size > 0 && balanced.share.cbqShortfall > 0) {
+    balanced = balanceCbqShare({
+      slots: balanced.slots,
+      groupPools: new Map(Object.entries(pools)),
+      keyOf: questionKey,
+      isPyq: isPYQQuestion,
+      seed: seed ^ hashCell("CT:cbq"),
+    });
+  }
   const final = balanced.slots.map((s) => ({ q: s.item, section: s.group as BoardSection }));
 
   // Board order A→B→C→D, numbered 1..N.
@@ -289,6 +334,8 @@ export function drawChapterTest(args: {
     totalMarks,
     enoughQuestions: questions.length >= MIN_TEST_QUESTIONS,
     ...cbqFields(balanced.share),
+    repeatCount: countRepeats(questions.map((q) => String(q.id ?? "")), servedAt),
+    hasServedHistory: servedAt.size > 0,
   };
 }
 

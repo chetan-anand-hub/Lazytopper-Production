@@ -96,6 +96,10 @@ export interface DrawTools {
   isAi: (q: PracticeQuestion) => boolean;
   isCbq: (q: PracticeQuestion) => boolean;
   shuffle: <T>(arr: T[]) => T[];
+  /** FRESH-SET-TESTS — was this row served on an earlier worksheet? Absent → no history, and
+   *  the draw is exactly the WS-DRAW-1 draw. Present → a cell takes never-served verified rows,
+   *  then never-served AI rows while the sheet is under its AI cap, and only then repeats. */
+  isServed?: (q: PracticeQuestion) => boolean;
 }
 
 export interface TopicBudget {
@@ -476,6 +480,15 @@ export function drawFromSpec(
     return { cbq: tools.shuffle(cbq), ver: tools.shuffle(ver), ai: tools.shuffle(ai) };
   };
 
+  // FRESH-SET-TESTS: the AI-cap headroom the plan left unused (rows it planned as AI are its own).
+  let spareAi = Math.max(
+    0,
+    spec.aiCap -
+      spec.cells.reduce((sum, c) => {
+        const { cbq, ver } = candidates(c.topic, c.section);
+        return sum + Math.max(0, c.n - (ver.length + cbq.length));
+      }, 0),
+  );
   for (const c of spec.cells) {
     const { cbq, ver, ai } = candidates(c.topic, c.section);
     let got = 0;
@@ -490,7 +503,18 @@ export function drawFromSpec(
     };
     pick(cbq, c.cbq);
     // the rest of the cell: other verified rows and the not-yet-used CBQ rows, mixed, then AI
-    pick(tools.shuffle([...ver, ...cbq.filter((q) => !seenId.has(q.id))]), c.n);
+    const rest = tools.shuffle([...ver, ...cbq.filter((q) => !seenId.has(q.id))]);
+    const isServed = tools.isServed;
+    if (isServed) {
+      // FRESH-SET-TESTS: an unseen AI row before a repeated verified row — only up to the AI rows
+      // this cell was planned to take plus the sheet's spare AI-cap headroom, so the cap holds.
+      pick(rest.filter((q) => !isServed(q)), c.n);
+      const plannedAi = Math.max(0, c.n - (ver.length + cbq.length));
+      const before = got;
+      pick(ai.filter((q) => !isServed(q)), Math.min(c.n, got + plannedAi + spareAi));
+      spareAi -= Math.max(0, got - before - plannedAi);
+    }
+    pick(rest, c.n);
     pick(ai, c.n);
   }
 
