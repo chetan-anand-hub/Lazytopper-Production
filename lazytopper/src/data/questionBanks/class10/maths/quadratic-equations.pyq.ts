@@ -10,10 +10,12 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const QUADRATIC_EQUATIONS_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Which of the following quadratic equations has sum of its roots as 4 ?",
-    options: ["2x2 4x + 8 =", "x2 + 4x + 4 =", "2 x2 2 4 x + 1 =", "4x2 4x + 4 ="],
-    answer: "– x2 + 4x + 4 = 0",
-    solutionSteps: ["Correct option: (b) – x2 + 4x + 4 = 0."],
-    finalAnswer: "(b) – x2 + 4x + 4 = 0",
+    options: ["2x² − 4x + 8 = 0", "−x² + 4x + 4 = 0", "√2x² − (4/√2)x + 1 = 0", "4x² − 4x + 4 = 0"],
+    answer: "−x² + 4x + 4 = 0",
+    solutionSteps: [
+      "[1 mark] Sum of roots = −b/a: (a) 4/2 = 2, (b) −4/(−1) = 4, (c) (4/√2)/√2 = 2, (d) 4/4 = 1. Correct option: (b) −x² + 4x + 4 = 0.",
+    ],
+    finalAnswer: "(b) −x² + 4x + 4 = 0",
     ncertRef: "PYQ 30/2/1 Q1", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-QE-002", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",

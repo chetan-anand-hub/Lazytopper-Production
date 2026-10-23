@@ -9,11 +9,11 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const TRIANGLES_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-TRI-001", subject: "Maths", topicKey: "triangles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "In the given figure, DE BC. If AD = 2 units, DB = AE = 3 units and EC = x units, then the value of x is :",
-    options: ["2", "3", "5", "2"],
-    answer: "9 2",
-    solutionSteps: ["Correct option: (d) 9 2."],
-    finalAnswer: "(d) 9 2",
+    questionText: "In the given figure, DE ∥ BC. If AD = 2 units, DB = AE = 3 units and EC = x units, then the value of x is :",
+    options: ["2", "3", "5", "9/2"],
+    answer: "9/2",
+    solutionSteps: ["[1 mark] By BPT, AD/DB = AE/EC ⟹ 2/3 = 3/x ⟹ x = 9/2. Correct option: (d) 9/2."],
+    finalAnswer: "(d) 9/2",
     ncertRef: "PYQ 30/2/1 Q12", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-TRI-002", subject: "Maths", topicKey: "triangles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",

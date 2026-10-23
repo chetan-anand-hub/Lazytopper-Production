@@ -10,11 +10,13 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const PAIR_LINEAR_EQUATIONS_PYQ_2026: CanonicalQuestion[] = [
   { id: "PYQ-M-2026-PLE-001", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If pair of linear equations given by a1x + b1y + c1 = 0 and a2x + b2y + c2 = 0 has infinitely many solutions, then which of the following is definitely true ?",
-    options: ["1 2 2 1 c c a a", "a1a2 ≠ b1b2", "2 1 2 1 b b a a", "a1b2 = a2b1"],
-    answer: "a1b2 = a2b1",
-    solutionSteps: ["Correct option: (d) a1b2 = a2b1."],
-    finalAnswer: "(d) a1b2 = a2b1",
+    questionText: "If pair of linear equations given by a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0 has infinitely many solutions, then which of the following is definitely true ?",
+    options: ["a₁/a₂ = c₂/c₁", "a₁a₂ ≠ b₁b₂", "a₁/a₂ ≠ b₁/b₂", "a₁b₂ = a₂b₁"],
+    answer: "a₁b₂ = a₂b₁",
+    solutionSteps: [
+      "[1 mark] Infinitely many solutions ⟹ a₁/a₂ = b₁/b₂ = c₁/c₂, so a₁b₂ = a₂b₁ must hold. Correct option: (D) a₁b₂ = a₂b₁.",
+    ],
+    finalAnswer: "(D) a₁b₂ = a₂b₁",
     ncertRef: "PYQ 30(B) Q3", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },
   { id: "PYQ-M-2026-PLE-002", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Conditions for Parallel Lines", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Applying",
