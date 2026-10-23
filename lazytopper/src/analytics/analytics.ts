@@ -1214,7 +1214,11 @@ export type GuideMomentId =
   | "c_welcome_back"
   | "c_late_night"
   | "c_rhythm"
-  | "c_countdown";
+  | "c_countdown"
+  // GUIDE-FILTER-1 - `filter_help` (Byte explains the Quick Practice filters / a greyed chip; click
+  // = the "?") and `filter_empty` (Ziggy beside a 0-result filter combination; click = Edit filters).
+  | "filter_help"
+  | "filter_empty";
 
 /**
  * GUIDE-SCORE-1 - Byte & Ziggy on every graded scorecard: `guide_moment_shown { moment: "score",

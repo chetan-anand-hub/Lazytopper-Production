@@ -14,13 +14,15 @@
 //           other Science chapter 0 (#1298 review: derive needs an expression or "="; show-that
 //           only in the physics chapters).
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
-//   HOTS    the predicate is unchanged: bank-wide 4,105 at any difficulty; the old UI lock to
-//           Hard served 2,082 (the lock is removed in PracticePage / PracticeControls).
+//   HOTS    FILTER-FIX-1 left the predicate at 4,105 (any Hard row, or Analysing / Evaluating at
+//           any difficulty). GUIDE-FILTER-1 (owner ruling 23 Oct 2026): higher-order bloom at
+//           Medium / Hard only (pinned below, measured on the merged tree after PYQ-RESTORE-A part 2).
 // PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 13 Maths PYQ rows repaired from the
-//   row are served again: PYQ AP 11->12, SAV 18->19, Stats 19->22; Proof RN 47->49, Poly 7->8, Tri 79->80; HOTS any
-//   4,135->4,147, Hard 2,094->2,101, 4-mark HOTS 949->951 (measured on top of PYQ-RESTORE-B PR-2; ledger: data/bankFix/pyqRestoreALedger.ts).
-// PYQ-RESTORE-A part 2 (Science): Proof Electricity 8->9 (SCQ-S-ELEC-037, a W = VIt derivation, served again); HOTS any
-//   4,147->4,164, Hard 2,101->2,115, 4-mark HOTS 951->957.
+//   row are served again: PYQ AP 11->12, SAV 18->19, Stats 19->22; Proof RN 47->49, Poly 7->8, Tri 79->80; under the OLD
+//   HOTS rule: any 4,135->4,147, Hard 2,094->2,101, 4-mark HOTS 949->951 (measured on top of PYQ-RESTORE-B PR-2; ledger:
+//   data/bankFix/pyqRestoreALedger.ts).
+// PYQ-RESTORE-A part 2 (Science): Proof Electricity 8->9 (SCQ-S-ELEC-037, a W = VIt derivation, served again); under the
+//   OLD HOTS rule: any 4,147->4,164, Hard 2,101->2,115, 4-mark HOTS 951->957.
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -229,25 +231,38 @@ describe("FILTER-FIX-1 · Marks bucket 4", () => {
   });
 });
 
-describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
-  it("HOTS without the Hard lock reaches far more questions than the locked set", () => {
+// GUIDE-FILTER-1 — OWNER RULING 23 Oct 2026: HOTS = higher-order bloom (Analysing / Evaluating /
+// Creating) at Medium or Hard ONLY. RED on trunk 6fe85765 (old rule: any Hard row, or Analysing /
+// Evaluating at any difficulty), on trunk ad55ebb1 (after PYQ-RESTORE-B #1300/#1303 + PYQ-RESTORE-A #1309/#1312): 4,164 total /
+// 2,115 Hard / 1,097 with 1 mark / 957 with 4 marks.
+describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 23 Oct)", () => {
+  it("served pools, 26 chapters: 3,372 (Maths 678 Hard + 824 Medium; Science 769 Hard + 1,101 Medium); Easy 0", () => {
+    const by = (subject: string, d: string) =>
+      BANK_CHAPTER_SLUGS.filter((slug) => BANK_CHAPTER_SUBJECT[slug] === subject).reduce((t, slug) => t + n(slug, "all", "hots", "all", d), 0);
+    expect(by("Maths", "Hard")).toBe(678);
+    expect(by("Maths", "Medium")).toBe(824);
+    expect(by("Science", "Hard")).toBe(769);
+    expect(by("Science", "Medium")).toBe(1101);
     let any = 0;
-    let hard = 0;
     for (const slug of BANK_CHAPTER_SLUGS) {
       any += n(slug, "all", "hots", "all", "all");
-      hard += n(slug, "all", "hots", "all", "Hard");
+      // With HOTS chosen the Easy chip is a REAL zero in every chapter (it greys out via chipCounts).
+      expect(n(slug, "all", "hots", "all", "Easy"), `${slug} HOTS + Easy`).toBe(0);
     }
-    // PYQ-RESTORE-B PR-1 (2026-10-23): +11 Hard / +29 any (restored PYQs and the new 2025 Triangles rows).
-    // PYQ-RESTORE-B PR-2 (2026-10-23): net +1 Hard / +1 any (Science PYQ rows served again; APQ-M-TRI-004 and
-    // PYQ-M-2024-TRIG-010b withheld as served-twice duplicates).
-    // PYQ-RESTORE-A part 1 (23 Oct): 13 Maths rows served again on top of B.
-    // PYQ-RESTORE-A part 2 (Science): +14 Hard / +17 any.
-    expect(hard).toBe(2115);
-    expect(any).toBe(4164);
+    expect(any).toBe(3372);
+    // Every HOTS row really is higher-order bloom at Medium / Hard (no Hard-only Applying row).
+    for (const slug of BANK_CHAPTER_SLUGS) {
+      for (const q of pools.get(slug)!) {
+        if (!questionMatchesFilters(q, "all", "hots", "all", "all", null)) continue;
+        const b = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
+        expect(["Analysing", "Evaluating", "Creating"].includes(b), `${slug} ${q.id} bloom ${b}`).toBe(true);
+        expect(["Medium", "Hard"].includes(String(q.difficulty)), `${slug} ${q.id} ${q.difficulty}`).toBe(true);
+      }
+    }
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
-    expect(sum("1", "hots", "all")).toBe(1097);
-    expect(sum("4", "hots", "all")).toBe(957);
+    expect(sum("1", "hots", "all")).toBe(971);
+    expect(sum("4", "hots", "all")).toBe(825);
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);
     expect(sum("4", "proof", "all")).toBeGreaterThan(0);
