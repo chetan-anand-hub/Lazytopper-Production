@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { RequirePremium } from "../auth/RequireAuth";
+import { PageGuide } from "../guide/pages/pageGuides";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import type { LTSubjectKey } from "../../data/predictionTypes";
 import type { DifficultyChoice } from "../../data/predictionDataService";
@@ -1001,7 +1002,10 @@ function WorksheetGeneratorInner() {
         <>
           <header className="lt-ws__head">
             <div className="lt-ws__headrow">
-              <div className="lt-ws__headtx">
+              <div className="lt-ws__headtx lt-ws__headtx--guide">
+                {/* GUIDE-PAGES-1 — Byte's "?" helper, in this block's reserved top-right corner
+                    (first visit opens once; the card is fixed, so nothing moves). */}
+                <PageGuide id="ws_entry" step="page" uid={user && !user.isLocalSession ? user.uid : null} placement="corner" />
                 <div className="lt-ws__crumb">Practice · Worksheet</div>
                 <h1 className="lt-ws__title">{scopeLabel} worksheet</h1>
                 <p className="lt-ws__lead">A board-pattern worksheet, ready to generate. Solve on paper, upload, get it graded.</p>
@@ -1529,6 +1533,9 @@ const WS_CSS = `
 .lt-ws__head { margin-bottom: 16px; }
 .lt-ws__headrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .lt-ws__headtx { min-width: 0; }
+/* GUIDE-PAGES-1 — the "?" corner is reserved whether or not it shows, so it never moves the title. */
+.lt-ws__headtx--guide { position: relative; padding-right: 42px; }
+.lt-ws__headtx--guide > .lt-pg-door--corner { top: 0; right: 0; }
 .lt-ws__crumb { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ws-green-fg); margin-bottom: 6px; }
 .lt-ws__title { font-family: var(--ws-fd); font-size: 25px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
 .lt-ws__lead { font-size: 13.5px; color: var(--ws-muted); margin: 0; max-width: 560px; line-height: 1.55; }

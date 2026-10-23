@@ -1179,9 +1179,42 @@ export interface OnboardingEventParams {
  *   guide_moment_click { moment }  — a moment's own button was tapped (M11 "Check a written answer")
  *   mascots_hidden     {}          — "Hide mascots" tapped on this device
  *   mascots_shown      {}          — Undo, or the setting turned them back on
+ *
+ * GUIDE-PAGES-1 (owner ruling 22 Oct 2026, components/guide/pages) adds five moment ids, same two events:
+ *   m7          — Byte on the fair-use LIMIT panel / trial-day dialog (shown only; no click)
+ *   ws_entry    — the Worksheet entry helper
+ *   ct_entry    — the Chapter Test helper (the Practice Hub chooser and the per-chapter page)
+ *   fm_entry    — the Full Mock start helper
+ *   trends_help — the Exam Trends "?" helper
+ *   For the four helpers: shown = it opened (first visit on this device, or via "?");
+ *   click = the "?" was tapped to open it.
  * ------------------------------------------------------------------------- */
 
-export type GuideMomentId = "m2" | "m3" | "m4" | "m5" | "m6" | "m8" | "m9" | "m10" | "m11";
+export type GuideMomentId =
+  | "m2"
+  | "m3"
+  | "m4"
+  | "m5"
+  | "m6"
+  | "m7"
+  | "m8"
+  | "m9"
+  | "m10"
+  | "m11"
+  // GUIDE-PAGES-1 — Byte's page helpers (components/guide/pages), same two events.
+  | "ws_entry"
+  | "ct_entry"
+  | "fm_entry"
+  | "trends_help"
+  // COMPANION-1 — Byte & Ziggy's companion moments (components/guide/companion), same two events.
+  | "c_low_score"
+  | "c_breathe"
+  | "c_improve"
+  | "c_milestone"
+  | "c_welcome_back"
+  | "c_late_night"
+  | "c_rhythm"
+  | "c_countdown";
 
 export interface OnboardingEventParams {
   guide_moment_shown: { moment: GuideMomentId };

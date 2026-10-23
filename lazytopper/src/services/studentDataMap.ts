@@ -806,7 +806,21 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "never premium or trial state, never the uid; removed when they are shown again) and " +
       "`lazytopper.m11Shown.<tag>` (the single character 1 once Byte's \"check a written answer\" " +
       "nudge showed on this account's first tap-only scorecard on this device; <tag> is an 8-hex hash " +
-      "of the uid, never the uid). " +
+      "of the uid, never the uid). GUIDE-PAGES-1: plus localStorage " +
+      "`lazytopper.pageGuideSeen.<id>.<step>` (the single character 1 once Byte's page helper — " +
+      "Worksheet, Chapter Test, Full Mock or Exam Trends — opened by itself on this device, so it " +
+      "opens only on request after that; a DEVICE key, never the uid). " +
+      "COMPANION-1: plus localStorage `lazytopper.companion.<tag>` (which of Byte and Ziggy's companion " +
+      "moments already showed for this account on this device, so each stays rare: the milestone ids " +
+      "already celebrated, and the times the welcome-back, practice-rhythm and countdown moments and the " +
+      "late-night note last showed, plus when this account last opened a page here and last opened " +
+      "Home here, and today's board-exam-date read with the day it was read (so Home does not fetch it " +
+      "again that day); <tag> is an 8-hex hash of the uid, never the uid; never a mark, a score or " +
+      "premium or trial state) and, in THIS TAB's sessionStorage, `lazytopper.companionSession` (the " +
+      "8-hex account tag and when this account's ACTIVE study session started and last saw a tap, key " +
+      "or scroll, so the late-night note can wait for 30 active minutes; never the uid) and " +
+      "`lazytopper.guideScene` (the name of the one two-character Byte and Ziggy scene this tab " +
+      "already showed, so there is at most one per app session; never the uid). " +
       "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,

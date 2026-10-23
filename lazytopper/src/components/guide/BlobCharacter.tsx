@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Rig, type CharacterKind, type Pose } from "./rig";
+import { Rig, type CharacterKind, type Pose, type Prop } from "./rig";
+import { noteMascotHost } from "./mascotPresence";
 import "./rig.css";
 
 /**
@@ -27,9 +28,11 @@ export interface BlobCharacterProps {
   still?: boolean;
   /** The number on the sack (the `bag` pose). Omitted → an empty slot. */
   bagLabel?: number;
+  /** COMPANION-1 — props drawn on top of the pose's own (e.g. FESTIVAL_PROPS: diya, rangoli). */
+  extraProps?: readonly Prop[];
 }
 
-export default function BlobCharacter({ kind, pose, className, onTap, still, bagLabel }: BlobCharacterProps) {
+export default function BlobCharacter({ kind, pose, className, onTap, still, bagLabel, extraProps }: BlobCharacterProps) {
   const hostRef = useRef<HTMLSpanElement | null>(null);
   const rigRef = useRef<Rig | null>(null);
   const tapRef = useRef(onTap);
@@ -41,9 +44,13 @@ export default function BlobCharacter({ kind, pose, className, onTap, still, bag
     const rig = new Rig(host, kind, pose, {
       ...(still === undefined ? {} : { still }),
       ...(bagLabel === undefined ? {} : { bagLabel }),
+      ...(extraProps === undefined ? {} : { extraProps }),
     });
     rigRef.current = rig;
+    // COMPANION-1: announce this drawing, so other surfaces can keep ONE character on screen.
+    noteMascotHost(host, true);
     return () => {
+      noteMascotHost(host, false);
       rig.destroy();
       rigRef.current = null;
     };
@@ -59,6 +66,17 @@ export default function BlobCharacter({ kind, pose, className, onTap, still, bag
   useEffect(() => {
     rigRef.current?.setBagLabel(bagLabel);
   }, [bagLabel]);
+
+  // COMPANION-1: a change of extra props redraws them (the list is compared by its contents).
+  const extraKey = extraProps ? extraProps.join(",") : "";
+  const firstExtra = useRef(true);
+  useEffect(() => {
+    if (firstExtra.current) {
+      firstExtra.current = false;
+      return;
+    }
+    rigRef.current?.setExtraProps(extraKey ? (extraKey.split(",") as Prop[]) : []);
+  }, [extraKey]);
 
   return (
     <span
