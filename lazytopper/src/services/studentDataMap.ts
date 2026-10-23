@@ -810,10 +810,12 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "COMPANION-1: plus localStorage `lazytopper.companion.<tag>` (which of Byte and Ziggy's companion " +
       "moments already showed for this account on this device, so each stays rare: the milestone ids " +
       "already celebrated, and the times the welcome-back, practice-rhythm and countdown moments and the " +
-      "late-night note last showed, plus when this account last opened a page here; <tag> is an 8-hex " +
-      "hash of the uid, never the uid; never a mark, a score or premium or trial state) and, in THIS " +
-      "TAB's sessionStorage, `lazytopper.companionSession` (when this tab's signed-in session started, " +
-      "so the late-night note can wait for a 30-minute session; never the uid) and " +
+      "late-night note last showed, plus when this account last opened a page here and last opened " +
+      "Home here, and today's board-exam-date read with the day it was read (so Home does not fetch it " +
+      "again that day); <tag> is an 8-hex hash of the uid, never the uid; never a mark, a score or " +
+      "premium or trial state) and, in THIS TAB's sessionStorage, `lazytopper.companionSession` (the " +
+      "8-hex account tag and when this account's ACTIVE study session started and last saw a tap, key " +
+      "or scroll, so the late-night note can wait for 30 active minutes; never the uid) and " +
       "`lazytopper.guideScene` (the name of the one two-character Byte and Ziggy scene this tab " +
       "already showed, so there is at most one per app session; never the uid). " +
       "None is ever sent anywhere.",

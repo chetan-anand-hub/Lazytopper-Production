@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Rig, type CharacterKind, type Pose, type Prop } from "./rig";
+import { noteMascotHost } from "./mascotPresence";
 import "./rig.css";
 
 /**
@@ -46,7 +47,10 @@ export default function BlobCharacter({ kind, pose, className, onTap, still, bag
       ...(extraProps === undefined ? {} : { extraProps }),
     });
     rigRef.current = rig;
+    // COMPANION-1: announce this drawing, so other surfaces can keep ONE character on screen.
+    noteMascotHost(host, true);
     return () => {
+      noteMascotHost(host, false);
       rig.destroy();
       rigRef.current = null;
     };

@@ -166,9 +166,9 @@ export const COMPANION_POSE_IDS: Record<string, { kind: "byte" | "ziggy"; pose: 
   byte_sorry: { kind: "byte", pose: "sorry" },
   ziggy_aha: { kind: "ziggy", pose: "aha" },
   ziggy_examday: { kind: "ziggy", pose: "examday" },
-  // A yawning Ziggy (pairs with byte_moon). The designer brief's `ziggy_sleepy` (BRIEF_POSE_IDS)
-  // stays the dozing `sleepy`; this companion entry draws the yawn.
-  ziggy_sleepy: { kind: "ziggy", pose: "yawn" },
+  // A yawning Ziggy (pairs with byte_moon). Named `ziggy_yawn`, NOT `ziggy_sleepy`: that id is the
+  // designer brief's dozing `sleepy` (BRIEF_POSE_IDS) — one id, one drawing.
+  ziggy_yawn: { kind: "ziggy", pose: "yawn" },
 };
 
 /**

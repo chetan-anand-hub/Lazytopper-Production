@@ -12,7 +12,16 @@ import {
   DAY_MS,
   __resetCompanionForTests,
   achievedMilestones,
+  activeMsFor,
+  activeSessionAfter,
+  activeSessionMs,
+  cachedExamDate,
   claimStage,
+  isLateNightQuietPath,
+  istDayIndex,
+  milestoneCrossings,
+  noteActivity,
+  readActiveSession,
   companionScoreMoment,
   countdownDue,
   daysToBoards,
@@ -32,7 +41,6 @@ import {
   releaseStage,
   rhythmDue,
   scorePct,
-  sessionStartMs,
   stageHolder,
   warmUpPath,
   welcomeBackDue,
@@ -40,6 +48,7 @@ import {
   type CompanionMarks,
 } from "./companionModel";
 import { GUIDE_PREVIEW_KEY, guideAccountTag } from "../guideVariant";
+import { __resetMascotHostsForTests, noteMascotHost, subscribeMascotHosts } from "../mascotPresence";
 
 /** An instant from an IST wall-clock time (IST = UTC+05:30). */
 const ist = (y: number, mo: number, d: number, h: number, mi = 0) => Date.UTC(y, mo - 1, d, h, mi) - 330 * 60_000;
@@ -70,27 +79,52 @@ describe("6 · late night, 23:00–05:00 IST, a session past 30 minutes, once a 
     expect(nightKey(ist(2026, 10, 21, 23, 0))).toBe(nightKey(ist(2026, 10, 20, 23, 0)) + 1);
   });
 
-  it("★ the session must be LONGER than 30 minutes; shown once per night", () => {
+  it("★ the ACTIVE session must be LONGER than 30 minutes; shown once per night", () => {
     const now = ist(2026, 10, 20, 23, 40);
-    expect(lateNightDue({ now, sessionStart: now - 30 * MIN, lastNight: null })).toBe(false);
-    expect(lateNightDue({ now, sessionStart: now - 31 * MIN, lastNight: null })).toBe(true);
-    expect(lateNightDue({ now, sessionStart: null, lastNight: null })).toBe(false);
-    expect(lateNightDue({ now, sessionStart: now - 60 * MIN, lastNight: nightKey(now) })).toBe(false);
+    expect(lateNightDue({ now, activeMs: 30 * MIN, lastNight: null })).toBe(false);
+    expect(lateNightDue({ now, activeMs: 31 * MIN, lastNight: null })).toBe(true);
+    expect(lateNightDue({ now, activeMs: 0, lastNight: null })).toBe(false);
+    expect(lateNightDue({ now, activeMs: 60 * MIN, lastNight: nightKey(now) })).toBe(false);
     // the next night it may show again
-    const next = now + DAY_MS;
-    expect(lateNightDue({ now: next, sessionStart: next - 60 * MIN, lastNight: nightKey(now) })).toBe(true);
+    expect(lateNightDue({ now: now + DAY_MS, activeMs: 60 * MIN, lastNight: nightKey(now) })).toBe(true);
     // daytime, however long the session: never
-    const noon = ist(2026, 10, 21, 12, 0);
-    expect(lateNightDue({ now: noon, sessionStart: noon - 300 * MIN, lastNight: null })).toBe(false);
+    expect(lateNightDue({ now: ist(2026, 10, 21, 12, 0), activeMs: 300 * MIN, lastNight: null })).toBe(false);
   });
 
-  it("the tab's session start is written once and kept", () => {
-    const t0 = ist(2026, 10, 20, 22, 0);
-    expect(sessionStartMs(t0)).toBe(t0);
-    expect(window.sessionStorage.getItem(COMPANION_SESSION_KEY)).toBe(String(t0));
-    expect(sessionStartMs(t0 + 50 * MIN)).toBe(t0);
+  it("★ active time, not tab-open time: activity extends; > 20 idle minutes starts afresh", () => {
+    const t0 = ist(2026, 10, 20, 22, 50);
+    let s = activeSessionAfter(null, "aaaa0001", t0);
+    s = activeSessionAfter(s, "aaaa0001", t0 + 15 * MIN);
+    s = activeSessionAfter(s, "aaaa0001", t0 + 35 * MIN); // 20 min gap exactly: still the same session
+    expect(s.start).toBe(t0);
+    expect(activeSessionMs(s, "aaaa0001", t0 + 40 * MIN)).toBe(40 * MIN);
+    // idle more than 20 minutes → 0, and the next activity starts a NEW session
+    expect(activeSessionMs(s, "aaaa0001", t0 + 35 * MIN + 20 * MIN + 1)).toBe(0);
+    const fresh = activeSessionAfter(s, "aaaa0001", t0 + 35 * MIN + 20 * MIN + 1);
+    expect(fresh.start).toBe(t0 + 55 * MIN + 1);
+  });
+
+  it("★ keyed to the account: a sign-out / sign-in in the same tab starts fresh", () => {
+    const t0 = ist(2026, 10, 20, 22, 50);
+    noteActivity("student-a", t0);
+    noteActivity("student-a", t0 + 15 * MIN);
+    noteActivity("student-a", t0 + 32 * MIN);
+    expect(activeMsFor("student-a", t0 + 33 * MIN)).toBe(33 * MIN);
+    expect(activeMsFor("student-b", t0 + 33 * MIN)).toBe(0);
+    noteActivity("student-b", t0 + 33 * MIN);
+    expect(activeMsFor("student-b", t0 + 34 * MIN)).toBe(MIN);
+    expect(activeMsFor("student-a", t0 + 34 * MIN)).toBe(0);
+    // stored as the 8-hex tag, never the uid; a reload keeps it
+    expect(window.sessionStorage.getItem(COMPANION_SESSION_KEY)).not.toContain("student-b");
     __resetCompanionForTests();
-    expect(sessionStartMs(t0 + 60 * MIN)).toBe(t0); // a reload in the same tab keeps it
+    expect(readActiveSession()?.u).toBe(guideAccountTag("student-b"));
+  });
+
+  it("★ quiet routes: tests, papers, Quick Practice / worksheets, Check & Improve — not Home or Me", () => {
+    for (const p of ["/chapter-test/10/Maths/polynomials", "/full-mock/10/Maths", "/mock-paper/x", "/practice/10/Maths", "/practice/worksheets", "/check-improve"]) {
+      expect(isLateNightQuietPath(p), p).toBe(true);
+    }
+    for (const p of ["/", "/browse", "/me", "/practice-hub", "/topic/10/maths/polynomials"]) expect(isLateNightQuietPath(p), p).toBe(false);
   });
 });
 
@@ -154,6 +188,34 @@ describe("4 · milestones — once each, ONE badge at a time", () => {
     expect(milestoneToShow(["firstWritten", "answers10"], ["firstWritten", "answers10"])).toEqual({ show: null, mark: [] });
     expect(milestoneToShow(["firstWritten", "answers10", "answers50"], ["firstWritten", "answers10"]).show).toBe("answers50");
   });
+
+  it("★ veterans: only a milestone CROSSED since the last Home visit is celebrated; older ones are marked silently", () => {
+    const now = ist(2026, 10, 20, 18, 0);
+    const lastHome = now - 2 * DAY_MS;
+    const times = Array.from({ length: 10 }, (_, i) => now - 40 * DAY_MS + i * DAY_MS); // first: 40 days ago
+    times[9] = now - DAY_MS; // the 10th answer: yesterday
+    const crossings = milestoneCrossings([], times);
+    expect(crossings.firstWritten).toBe(now - 40 * DAY_MS);
+    expect(crossings.answers10).toBe(now - DAY_MS);
+    expect(milestoneToShow(["firstWritten", "answers10"], [], { crossings, since: lastHome })).toEqual({
+      show: "answers10",
+      mark: ["firstWritten", "answers10"],
+    });
+    // nothing new since the last visit → no badge, everything marked
+    expect(milestoneToShow(["firstWritten"], [], { crossings, since: lastHome })).toEqual({ show: null, mark: ["firstWritten"] });
+    // and through the Home pick: silent marks come back to the caller
+    const ancient = { records: [{ surface: "chapter-test", status: "graded", gradedAt: now - 30 * DAY_MS, topicKeys: ["x"], subject: "maths" }] as never[], gradedAnswers: 0 };
+    const r = pickHomeMoment({ now, facts: ancient, attemptTimes: [now - DAY_MS / 2], prevSeen: now - DAY_MS / 2, prevHome: lastHome, marks: EMPTY, returnTo: "/" });
+    expect(r.pick).toBeNull();
+    expect(r.silent).toEqual(["firstChapterTest"]);
+  });
+
+  it("no Home visit recorded yet → the last day counts as 'since' (a new student's first test is news)", () => {
+    const now = ist(2026, 10, 20, 18, 0);
+    const today = { records: [{ surface: "chapter-test", status: "graded", gradedAt: now - 3_600_000, topicKeys: ["x"], subject: "maths" }] as never[], gradedAnswers: 0 };
+    const r = pickHomeMoment({ now, facts: today, attemptTimes: [], prevSeen: null, prevHome: null, marks: EMPTY, returnTo: "/" });
+    expect(r.pick?.moment).toBe("milestone");
+  });
 });
 
 describe("5 · welcome back after ≥ 3 days away, once per return", () => {
@@ -213,14 +275,23 @@ describe("8 · countdown — an official date only, weekly", () => {
 describe("the Home pick and the device memory", () => {
   it("priority on Home: milestone > welcome back > rhythm", () => {
     const now = ist(2026, 10, 20, 18, 0);
-    const recs = [
-      { surface: "chapter-test", status: "graded", gradedAt: now - 10 * DAY_MS, topicKeys: ["polynomials"], subject: "maths" },
-    ] as never[];
-    const a = { now, facts: { records: recs, gradedAnswers: 0 }, attemptTimes: [], prevSeen: null, marks: EMPTY, returnTo: "/" };
-    expect(pickHomeMoment(a)?.moment).toBe("milestone");
-    expect(pickHomeMoment({ ...a, marks: { ...EMPTY, m: ["firstChapterTest"] } })?.moment).toBe("welcomeBack");
+    const ct = { surface: "chapter-test", status: "graded", gradedAt: now - 2 * 3_600_000, topicKeys: ["polynomials"], subject: "maths" };
+    const old = { surface: "worksheet", status: "graded", gradedAt: now - 10 * DAY_MS, topicKeys: ["polynomials"], subject: "maths" };
+    const a = { now, facts: { records: [ct] as never[], gradedAnswers: 0 }, attemptTimes: [], prevSeen: null, marks: EMPTY, returnTo: "/" };
+    expect(pickHomeMoment(a).pick?.moment).toBe("milestone");
+    const away = { ...a, facts: { records: [old] as never[], gradedAnswers: 0 } };
+    expect(pickHomeMoment(away).pick?.moment).toBe("welcomeBack");
     const recent = [now - DAY_MS, now - 2 * DAY_MS, now - 3 * DAY_MS];
-    expect(pickHomeMoment({ ...a, attemptTimes: recent, marks: { ...EMPTY, m: ["firstChapterTest"] } })?.moment).toBe("rhythm");
+    expect(pickHomeMoment({ ...away, attemptTimes: recent }).pick?.moment).toBe("rhythm");
+  });
+
+  it("the exam-date read is kept for the IST day only", () => {
+    const now = ist(2026, 10, 20, 18, 0);
+    const x = { d: istDayIndex(now), date: "2027-02-17", src: "predicted" as const };
+    expect(cachedExamDate({ ...EMPTY, x }, now)).toEqual(x);
+    expect(cachedExamDate({ ...EMPTY, x }, ist(2026, 10, 21, 0, 1))).toBeNull(); // next IST day: read again
+    writeMarks("u9", { x });
+    expect(readMarks("u9").x).toEqual(x);
   });
 
   it("★ stored per account under an 8-hex tag (never the uid); the visit is recorded once per load", () => {
@@ -256,21 +327,25 @@ describe("★ one character at a time: the stage", () => {
     expect(stageHolder()).toBeNull();
   });
 
-  it("another mascot on the page blocks; the sidebar MI voice (chrome) and companion cards do not", () => {
+  it("★ another REGISTERED mascot blocks (an event, not a poll); the sidebar MI voice and companion cards do not", () => {
+    const heard = vi.fn();
+    const off = subscribeMascotHosts(heard);
     expect(otherMascotOnScreen()).toBe(false);
     const chrome = document.createElement("span");
     chrome.className = "lt-gr-host lt-mi-voice__char";
-    document.body.appendChild(chrome);
     const own = document.createElement("span");
     own.className = "lt-gr-host lt-cmp__char";
-    document.body.appendChild(own);
+    noteMascotHost(chrome, true);
+    noteMascotHost(own, true);
     expect(otherMascotOnScreen()).toBe(false);
-    const other = document.createElement("span");
-    other.className = "lt-gr-host lt-mom__char";
-    document.body.appendChild(other);
+    const moment = document.createElement("span");
+    moment.className = "lt-gr-host lt-mom__char";
+    noteMascotHost(moment, true);
     expect(otherMascotOnScreen()).toBe(true);
-    chrome.remove();
-    own.remove();
-    other.remove();
+    noteMascotHost(moment, false);
+    expect(otherMascotOnScreen()).toBe(false);
+    expect(heard).toHaveBeenCalledTimes(4);
+    off();
+    __resetMascotHostsForTests();
   });
 });

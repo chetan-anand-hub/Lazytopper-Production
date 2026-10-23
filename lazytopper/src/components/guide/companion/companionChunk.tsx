@@ -44,7 +44,7 @@ export const COMPANION_COPY = {
   milestoneFirstFullMock: "A whole Full Mock, done! Badge earned.",
   milestoneAnswers10: "10 answers checked! You're building a real habit.",
   milestoneAnswers50: "50 answers checked! Proper topper energy.",
-  welcomeBack: "Missed you! 5 quick questions to warm up?",
+  welcomeBack: "Welcome back! 5 quick questions to warm up?",
   welcomeBackCta: "Warm up: 5 questions",
   lateNight: "It's late — sleep helps memory. Stop here and come back fresh?",
   rhythm: "{days} days this week — nice rhythm!",
@@ -115,6 +115,8 @@ export interface CompanionCardProps {
   fixed?: boolean;
   /** Drawn: the door spends the once-only marker now (never before the drawing exists). */
   onShown?: () => void;
+  /** false → no guide_moment_shown on this mount (the late note re-appearing after a quiet route). */
+  trackShown?: boolean;
   onClose: () => void;
 }
 
@@ -145,7 +147,7 @@ export const COMPANION_CTA_LABEL: Partial<Record<CompanionMomentId, string>> = {
   welcomeBack: COMPANION_COPY.welcomeBackCta,
 };
 
-export function CompanionCard({ moment, milestone, vars, ctaTo, fixed, onShown, onClose }: CompanionCardProps) {
+export function CompanionCard({ moment, milestone, vars, ctaTo, fixed, onShown, trackShown = true, onClose }: CompanionCardProps) {
   const beats = companionBeats(moment, { milestone });
   const reduce = useRef(prefersReducedMotion());
   const [index, setIndex] = useState(() => (reduce.current ? Math.max(0, beats.length - 1) : 0));
@@ -157,7 +159,7 @@ export function CompanionCard({ moment, milestone, vars, ctaTo, fixed, onShown, 
 
   useEffect(() => {
     if (missing) return;
-    trackGuideEvent("guide_moment_shown", { moment: COMPANION_EVENT_ID[moment] });
+    if (trackShown) trackGuideEvent("guide_moment_shown", { moment: COMPANION_EVENT_ID[moment] });
     shownRef.current?.();
     // Once per mount of this moment.
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,32 +1,44 @@
 /**
  * COMPANION-1 — the moments on screen: the ONE copy table's rules, guide arm only (ABSENT in the
  * control arm), "Hide mascots", reduced motion = the final frame, ONE character at a time outside a
- * scene (Ziggy first, then Byte in the same slot), at most ONE duet scene per session, the once-only
- * markers, the official-date-only countdown, and the late-night note on any signed-in page.
+ * scene (Ziggy first, then Byte in the same slot; any other mascot appearing → the card steps aside,
+ * by event), at most ONE duet scene per session, the once-only markers, the veteran milestone rule,
+ * the Start-here race, the admin preview, the official-date-only countdown (read once a day), and
+ * the late-night note: active time only, per account, hidden (not dismissed) on quiet routes.
  */
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup, act, waitFor, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { setMatchMediaMatches } from "../../../test/setup";
 
 const h = vi.hoisted(() => ({
   onboarding: vi.fn(),
   records: [] as unknown[],
   attempts: [] as unknown[],
+  cloudHas: true as boolean | null | "pending",
   exam: { examDate: "2027-02-17", source: "predicted" as "predicted" | "official" },
+  fetches: 0,
   user: { uid: "u1", isAnonymous: false } as null | { uid: string; isAnonymous: boolean },
 }));
 vi.mock("../../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../../analytics/analytics")>();
   return { ...actual, trackOnboardingEvent: h.onboarding };
 });
-vi.mock("../../../services/sessionRecords", () => ({ loadLocalSessionRecords: () => h.records }));
+vi.mock("../../../services/sessionRecords", () => ({
+  loadLocalSessionRecords: () => h.records,
+  cloudHasAnySessionRecord: () => (h.cloudHas === "pending" ? new Promise(() => {}) : Promise.resolve(h.cloudHas)),
+}));
 vi.mock("../../../services/practiceInsights", () => ({ getAttempts: () => h.attempts }));
 vi.mock("../../../services/cbseExamDate", () => ({
-  fetchCbseExamDate: vi.fn(async () => ({ studentClass: "10", ...h.exam })),
+  fetchCbseExamDate: vi.fn(async () => {
+    h.fetches += 1;
+    return { studentClass: "10", ...h.exam };
+  }),
 }));
 vi.mock("../../../services/firebaseClient", () => ({
   authClient: {
+    currentUser: null,
     onAuthStateChanged: (cb: (u: unknown) => void) => {
       cb(h.user);
       return () => {};
@@ -36,11 +48,14 @@ vi.mock("../../../services/firebaseClient", () => ({
 
 import { CompanionHome, CompanionNightDoor, CompanionScoreSlot } from "./companion";
 import { BEAT_MS, COMPANION_COPY, MILESTONE_COPY } from "./companionChunk";
-import { COMPANION_SESSION_KEY, __resetCompanionForTests } from "./companionModel";
+import { COMPANION_KEY_PREFIX, COMPANION_SESSION_KEY, __resetCompanionForTests, readMarks } from "./companionModel";
 import { __resetSceneGuardForTests } from "../sceneGuard";
-import { GUIDE_PREVIEW_KEY, __setGuideAbForTests } from "../guideVariant";
+import { GUIDE_PREVIEW_KEY, __setGuideAbForTests, guideAccountTag } from "../guideVariant";
 import { __resetMascotsForTests, hideMascots } from "../mascotsMute";
+import { __resetMascotHostsForTests } from "../mascotPresence";
 import { __removeMascotsToastForTests } from "../moments/mascotsToast";
+import { resetZeroGradedCacheForTests } from "../../startHere/zeroGraded";
+import BlobCharacter from "../BlobCharacter";
 import { CommandPalette } from "../../../ui/components/CommandPalette";
 
 const REDUCED = "(prefers-reduced-motion: reduce)";
@@ -51,6 +66,7 @@ const media = (o: { reduced?: boolean; narrow?: boolean } = {}) =>
 const hosts = () => document.querySelectorAll(".lt-gr-host").length;
 const shown = () => h.onboarding.mock.calls.filter((c) => c[0] === "guide_moment_shown");
 const ist = (y: number, mo: number, d: number, hh: number, mi = 0) => Date.UTC(y, mo - 1, d, hh, mi) - 330 * 60_000;
+const MIN = 60_000;
 const graded = (surface: string, gradedAt: number, topic = "polynomials") => ({
   id: `${surface}-${gradedAt}`, surface, status: "graded", gradedAt, topicKeys: [topic], subject: "maths", marksAwarded: 1, marksTotal: 2,
 });
@@ -66,9 +82,13 @@ beforeEach(() => {
   __resetCompanionForTests();
   __resetSceneGuardForTests();
   __resetMascotsForTests();
+  __resetMascotHostsForTests();
+  resetZeroGradedCacheForTests();
   h.onboarding.mockReset();
   h.records = [];
   h.attempts = [];
+  h.cloudHas = true;
+  h.fetches = 0;
   h.exam = { examDate: "2027-02-17", source: "predicted" };
   h.user = { uid: "u1", isAnonymous: false };
   media();
@@ -94,7 +114,7 @@ describe("§D · THE ONE COPY TABLE", () => {
     expect(COMPANION_COPY.lowScore).toBe("Tough one. Let's fix just one thing first.");
     expect(COMPANION_COPY.breathe).toBe("Breathe in… and out. You've prepared for this.");
     expect(COMPANION_COPY.improveZiggy).toBe("Up from {from}% to {to}%! High five!");
-    expect(COMPANION_COPY.welcomeBack).toBe("Missed you! 5 quick questions to warm up?");
+    expect(COMPANION_COPY.welcomeBack).toBe("Welcome back! 5 quick questions to warm up?");
     expect(COMPANION_COPY.lateNight).toBe("It's late — sleep helps memory. Stop here and come back fresh?");
     expect(COMPANION_COPY.rhythm).toBe("{days} days this week — nice rhythm!");
   });
@@ -187,10 +207,14 @@ function Home(p: { startHereUp?: boolean } = {}) {
     </MemoryRouter>
   );
 }
+const settle = async () => {
+  for (let i = 0; i < 4; i += 1) await act(async () => {});
+};
+const marksKey = () => COMPANION_KEY_PREFIX + guideAccountTag("u1");
 
 describe("4 · 5 · 7 · 8 · Home", () => {
-  it("★ a milestone shows ONCE (the duet: Byte cheering beside Ziggy's badge), then never again", async () => {
-    h.records = [graded("chapter-test", 1000)];
+  it("★ a milestone crossed since the last Home visit shows ONCE (the duet: Byte beside Ziggy's badge)", async () => {
+    h.records = [graded("chapter-test", Date.now() - 3_600_000)];
     render(<Home />);
     const m = await screen.findByTestId("guide-companion-milestone");
     expect(screen.getByTestId("guide-companion-line").textContent).toBe(MILESTONE_COPY.firstChapterTest);
@@ -200,20 +224,55 @@ describe("4 · 5 · 7 · 8 · Home", () => {
     cleanup();
     __resetCompanionForTests();
     render(<Home />);
-    await act(async () => {});
+    await settle();
     expect(screen.queryByTestId("guide-companion-milestone")).toBeNull();
   });
 
+  it("★ VETERAN: a milestone reached long ago is marked SILENTLY — never announced as news", async () => {
+    h.records = [graded("chapter-test", Date.now() - 40 * 86_400_000)];
+    window.localStorage.setItem(marksKey(), JSON.stringify({ m: [], h: Date.now() - 2 * 86_400_000 }));
+    render(<Home />);
+    await settle();
+    expect(screen.queryByTestId("guide-companion-milestone")).toBeNull();
+    expect(readMarks("u1").m).toEqual(["firstChapterTest"]);
+    // (40 days away, so the welcome-back may play instead — but never the old badge)
+    expect(shown().filter((c) => (c[1] as { moment: string }).moment === "c_milestone")).toEqual([]);
+  });
+
+  it("★ Start-here race: nothing is evaluated or marked while Start-here's zero-graded read is loading", async () => {
+    h.records = [];
+    h.attempts = [{ timestamp: Date.now() - 3_600_000, mode: "graded" }];
+    h.cloudHas = "pending";
+    render(<Home />);
+    await settle();
+    expect(screen.queryByTestId(/guide-companion-/)).toBeNull();
+    expect(window.localStorage.getItem(marksKey())).toBeNull(); // not even the Home visit
+  });
+
   it("Start-here's audience, a brand-new account, or Hide mascots → nothing on Home", async () => {
-    h.records = [graded("chapter-test", 1000)];
+    h.records = [graded("chapter-test", Date.now() - 3_600_000)];
     render(<Home startHereUp />);
-    await act(async () => {});
+    await settle();
     expect(screen.queryByTestId("guide-companion-milestone")).toBeNull();
     cleanup();
-    h.records = [];
+    hideMascots();
     render(<Home />);
-    await act(async () => {});
+    await settle();
     expect(hosts()).toBe(0);
+  });
+
+  it("★ admin preview: Start-here's always-eligible state does NOT hide the companion (both stack)", async () => {
+    window.localStorage.setItem(GUIDE_PREVIEW_KEY, JSON.stringify({ arm: "guide", until: Date.now() + 3_600_000 }));
+    h.records = [graded("full-mock", Date.now() - 3_600_000)];
+    render(
+      <MemoryRouter>
+        <BlobCharacter kind="byte" pose="hello" className="lt-mom__char" />
+        <CompanionHome uid="u1" startHereUp />
+      </MemoryRouter>,
+    );
+    await screen.findByTestId("guide-companion-milestone", {}, { timeout: 3000 });
+    expect(screen.getByTestId("guide-admin-preview")).toBeTruthy();
+    expect(shown()).toEqual([]); // analytics suppressed under preview
   });
 
   it("★ the rhythm counts only what was done (3 days this week)", async () => {
@@ -228,13 +287,12 @@ describe("4 · 5 · 7 · 8 · Home", () => {
     expect(screen.getByTestId("guide-companion-line").textContent).toBe("3 days this week — nice rhythm!");
   });
 
-  it("★ welcome back after 3+ days → ziggy_study and 5 questions in Quick Practice", async () => {
+  it("★ welcome back after 3+ days → ziggy_study and 5 questions in Quick Practice; once per return", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const now = ist(2026, 10, 20, 18, 0);
     vi.setSystemTime(now);
     h.records = [graded("worksheet", now - 4 * 86_400_000, "triangles")];
     h.attempts = [{ timestamp: now - 4 * 86_400_000, mode: "mcq" }];
-    // a worksheet and tap-only answers reach no milestone, so the welcome back is the one due
     render(<Home />);
     const m = await screen.findByTestId("guide-companion-welcomeBack");
     expect(m.getAttribute("data-kind")).toBe("ziggy");
@@ -246,56 +304,62 @@ describe("4 · 5 · 7 · 8 · Home", () => {
     cleanup();
     __resetCompanionForTests();
     render(<Home />);
-    await act(async () => {});
-    await act(async () => {});
-    expect(screen.queryByTestId("guide-companion-welcomeBack")).toBeNull(); // once per return
+    await settle();
+    expect(screen.queryByTestId("guide-companion-welcomeBack")).toBeNull();
   });
 
-  it("★ countdown ONLY from an official date; a predicted date → no countdown at all", async () => {
+  it("★ countdown ONLY from an official date; the read is made ONCE a day, not on every Home mount", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const now = ist(2027, 2, 7, 18, 0);
     vi.setSystemTime(now);
     h.attempts = [{ timestamp: now - 20 * 86_400_000, mode: "mcq" }];
-    window.localStorage.clear();
-    // nothing else due: welcome-back has no single chapter, no milestone, no rhythm
     render(<Home />);
-    await act(async () => {});
-    await act(async () => {});
-    expect(screen.queryByTestId("guide-companion-countdown")).toBeNull();
+    await settle();
+    expect(screen.queryByTestId("guide-companion-countdown")).toBeNull(); // predicted → nothing
+    expect(h.fetches).toBe(1);
     cleanup();
     __resetCompanionForTests();
+    render(<Home />);
+    await settle();
+    expect(h.fetches).toBe(1); // same IST day: the kept read, no refetch
+    cleanup();
+    __resetCompanionForTests();
+    window.localStorage.clear();
     h.exam = { examDate: "2027-02-17", source: "official" };
     render(<Home />);
     const m = await screen.findByTestId("guide-companion-countdown");
     expect(m.getAttribute("data-pose")).toBe("calendar");
     expect(screen.getByTestId("guide-companion-line").textContent).toBe("10 days to your boards. Chalo, one chapter at a time.");
   });
-
-  it("admin preview: the pill shows and no guide_moment_shown leaves the device", async () => {
-    window.localStorage.setItem(GUIDE_PREVIEW_KEY, JSON.stringify({ arm: "guide", until: Date.now() + 3_600_000 }));
-    h.records = [graded("full-mock", 1000)];
-    render(<Home />);
-    await screen.findByTestId("guide-companion-milestone");
-    expect(screen.getByTestId("guide-admin-preview")).toBeTruthy();
-    expect(shown()).toEqual([]);
-  });
 });
 
+/** Exposes the router's navigate to the test (the palette never remounts on navigation). */
+let go: (to: string) => void = () => {};
+function Nav() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    go = (to) => navigate(to);
+  }, [navigate]);
+  return null;
+}
+
 describe("6 · late night, on any signed-in page (mounted by the app-wide CommandPalette)", () => {
-  const palette = (path = "/") => {
-    window.history.pushState({}, "", path);
-    return render(
-      <MemoryRouter>
+  /** An ACTIVE session for `uid` that started `startAgo` and last saw activity `lastAgo` before now. */
+  const seed = (uid: string, now: number, startAgo: number, lastAgo = MIN) =>
+    window.sessionStorage.setItem(COMPANION_SESSION_KEY, JSON.stringify({ u: guideAccountTag(uid), start: now - startAgo, last: now - lastAgo }));
+  const palette = (path = "/") =>
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <Nav />
         <CommandPalette isOpen={false} onClose={() => {}} onSelect={() => {}} />
       </MemoryRouter>,
     );
-  };
+  const night = ist(2026, 10, 20, 23, 40);
 
-  it("★ 23:40 IST, a 40-minute session → byte_moon; dismissable; once a night", async () => {
+  it("★ 23:40 IST, 40 ACTIVE minutes → byte_moon; dismissable; once a night", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
-    const now = ist(2026, 10, 20, 23, 40);
-    vi.setSystemTime(now);
-    window.sessionStorage.setItem(COMPANION_SESSION_KEY, String(now - 40 * 60_000));
+    vi.setSystemTime(night);
+    seed("u1", night, 40 * MIN);
     palette();
     const m = await screen.findByTestId("guide-companion-lateNight");
     expect(m.getAttribute("data-pose")).toBe("moon");
@@ -306,53 +370,105 @@ describe("6 · late night, on any signed-in page (mounted by the app-wide Comman
     cleanup();
     __resetCompanionForTests();
     palette();
-    await act(async () => {});
-    await act(async () => {});
+    await settle();
     expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
   });
 
-  it("★ 22:59 IST → nothing; a 30-minute session → nothing; during a test → nothing", async () => {
+  it("★★ shown on '/', navigate into a test → HIDDEN; back to '/' → back again (not dismissed)", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
-    let now = ist(2026, 10, 20, 22, 59);
-    vi.setSystemTime(now);
-    window.sessionStorage.setItem(COMPANION_SESSION_KEY, String(now - 120 * 60_000));
-    palette();
-    await act(async () => {});
-    await act(async () => {});
+    vi.setSystemTime(night);
+    seed("u1", night, 40 * MIN);
+    palette("/");
+    await screen.findByTestId("guide-companion-lateNight");
+    act(() => go("/chapter-test/10/Maths/polynomials"));
     expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
-    cleanup();
-    __resetCompanionForTests();
-    now = ist(2026, 10, 20, 23, 30);
-    vi.setSystemTime(now);
-    window.sessionStorage.setItem(COMPANION_SESSION_KEY, String(now - 30 * 60_000));
-    palette();
-    await act(async () => {});
-    await act(async () => {});
+    act(() => go("/practice/worksheets"));
     expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
-    cleanup();
-    __resetCompanionForTests();
-    window.sessionStorage.setItem(COMPANION_SESSION_KEY, String(now - 90 * 60_000));
-    palette("/full-mock/10/Maths");
-    await act(async () => {});
-    await act(async () => {});
+    act(() => go("/check-improve"));
     expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
-    window.history.pushState({}, "", "/");
+    act(() => go("/"));
+    await screen.findByTestId("guide-companion-lateNight");
+    expect(shown()).toHaveLength(1); // re-appearing is not a second "shown"
+    fireEvent.click(screen.getByTestId("guide-companion-close"));
+    act(() => go("/me"));
+    expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull(); // dismissed stays gone
   });
 
-  it("signed out, or the split off (every existing suite) → the palette renders exactly as before", async () => {
+  it("★ a MOMENTS-1 / any other mascot appears → the note steps aside at once; it leaves → back", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(night);
+    seed("u1", night, 40 * MIN);
+    const { rerender } = palette();
+    await screen.findByTestId("guide-companion-lateNight");
+    const tree = (withMoment: boolean) => (
+      <MemoryRouter initialEntries={["/"]}>
+        <Nav />
+        <CommandPalette isOpen={false} onClose={() => {}} onSelect={() => {}} />
+        {withMoment ? <BlobCharacter kind="ziggy" pose="excited" className="lt-mom__char" /> : null}
+      </MemoryRouter>
+    );
+    rerender(tree(true));
+    await waitFor(() => expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull());
+    expect(hosts()).toBe(1);
+    rerender(tree(false));
+    await screen.findByTestId("guide-companion-lateNight");
+  });
+
+  it("★ tab-open time does not count: 30 active minutes, or > 20 idle minutes → nothing", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(night);
+    seed("u1", night, 30 * MIN, 0); // exactly 30 active minutes
+    palette();
+    await settle();
+    expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
+    cleanup();
+    __resetCompanionForTests();
+    seed("u1", night, 120 * MIN, 21 * MIN); // the tab was open 2 h but idle 21 min → fresh session
+    palette();
+    await settle();
+    expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
+    expect(JSON.parse(window.sessionStorage.getItem(COMPANION_SESSION_KEY)!).start).toBe(night);
+  });
+
+  it("★ the session belongs to the account: another student signing in to this tab starts fresh", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(night);
+    seed("someone-else", night, 90 * MIN);
+    palette();
+    await settle();
+    expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
+  });
+
+  it("22:59 IST → nothing; on a test route from the start → nothing", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const early = ist(2026, 10, 20, 22, 59);
+    vi.setSystemTime(early);
+    seed("u1", early, 120 * MIN);
+    palette();
+    await settle();
+    expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
+    cleanup();
+    __resetCompanionForTests();
+    vi.setSystemTime(night);
+    seed("u1", night, 90 * MIN);
+    palette("/full-mock/10/Maths");
+    await settle();
+    expect(screen.queryByTestId("guide-companion-lateNight")).toBeNull();
+  });
+
+  it("signed out, or the guide off (every existing suite) → the palette renders exactly as before", async () => {
     h.user = null;
     vi.useFakeTimers({ toFake: ["Date"] });
-    const now = ist(2026, 10, 20, 23, 40);
-    vi.setSystemTime(now);
-    window.sessionStorage.setItem(COMPANION_SESSION_KEY, String(now - 90 * 60_000));
+    vi.setSystemTime(night);
+    seed("u1", night, 90 * MIN);
     const { container } = palette();
-    await act(async () => {});
+    await settle();
     expect(container.innerHTML).toBe("");
     cleanup();
     __setGuideAbForTests(null);
     h.user = { uid: "u1", isAnonymous: false };
     const again = palette();
-    await act(async () => {});
+    await settle();
     expect(again.container.innerHTML).toBe("");
   });
 });

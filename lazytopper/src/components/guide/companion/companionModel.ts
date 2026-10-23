@@ -16,6 +16,7 @@
 import type { GuideMomentId } from "../../../analytics/analytics";
 import type { SessionRecord } from "../../../services/sessionRecords";
 import { guideAccountTag, guidePreviewActive } from "../guideVariant";
+import { anyMascotHost } from "../mascotPresence";
 
 export type CompanionMomentId =
   | "lowScore"
@@ -61,7 +62,7 @@ export const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
 export const LOW_SCORE_PCT = 40;
 /** At least this many points up on the same surface + chapter → the high five. */
 export const IMPROVE_POINTS = 10;
-/** Away at least this long → "Missed you!". */
+/** Away at least this long → "Welcome back!". */
 export const RETURN_AWAY_DAYS = 3;
 /** Practised on at least this many distinct IST days in the last seven → the rhythm moment. */
 export const RHYTHM_DAYS = 3;
@@ -69,8 +70,10 @@ export const RHYTHM_WINDOW_DAYS = 7;
 /** The late-night window in IST: 23:00 up to (not including) 05:00. */
 export const LATE_NIGHT_START_HOUR = 23;
 export const LATE_NIGHT_END_HOUR = 5;
-/** …and only once this tab's signed-in session is longer than this. */
+/** …and only once the student has been ACTIVELY studying longer than this… */
 export const LATE_NIGHT_SESSION_MS = 30 * 60 * 1000;
+/** …where a gap of more than this with no activity ends the session (it starts afresh). */
+export const LATE_NIGHT_IDLE_MS = 20 * 60 * 1000;
 /** The breathe moment's length before it steps aside on its own. */
 export const BREATHE_TOTAL_MS = 10_000;
 
@@ -98,11 +101,56 @@ export function nightKey(ms: number): number {
   return Math.floor((ms + IST_OFFSET_MS - LATE_NIGHT_END_HOUR * 3_600_000) / DAY_MS);
 }
 
-/** 6. Late night: in the window, a session past 30 minutes, not yet shown this night. */
-export function lateNightDue(a: { now: number; sessionStart: number | null; lastNight: number | null }): boolean {
+/**
+ * The ACTIVE session (controller ruling 23 Oct): it starts and extends only on the student's own
+ * activity (a tap, a key, a scroll, the tab coming back into view), ends after 20 idle minutes, and
+ * belongs to ONE account (`u` = the 8-hex account tag) — a sign-out / sign-in in the same tab starts
+ * afresh. Tab-open time never counts.
+ */
+export interface ActiveSession {
+  u: string;
+  start: number;
+  last: number;
+}
+
+/** Pure: the session after activity by account `u` at `now`. */
+export function activeSessionAfter(prev: ActiveSession | null, u: string, now: number): ActiveSession {
+  if (!prev || prev.u !== u || now < prev.last || now - prev.last > LATE_NIGHT_IDLE_MS) return { u, start: now, last: now };
+  return { u, start: prev.start, last: now };
+}
+
+/** Pure: how long account `u` has been actively studying at `now` (0 once idle > 20 min). */
+export function activeSessionMs(s: ActiveSession | null, u: string, now: number): number {
+  if (!s || s.u !== u || now < s.last || now - s.last > LATE_NIGHT_IDLE_MS) return 0;
+  return now - s.start;
+}
+
+/** 6. Late night: in the window, actively studying past 30 minutes, not yet shown this night. */
+export function lateNightDue(a: { now: number; activeMs: number; lastNight: number | null }): boolean {
   if (!isLateNightIst(a.now)) return false;
-  if (a.sessionStart === null || a.now - a.sessionStart <= LATE_NIGHT_SESSION_MS) return false;
+  if (!(a.activeMs > LATE_NIGHT_SESSION_MS)) return false;
   return a.lastNight !== nightKey(a.now);
+}
+
+/**
+ * Where the late-night note never shows (controller rulings 23 Oct), checked on EVERY render against
+ * the current route — so it HIDES (is not dismissed) when the student navigates into one and comes
+ * back when they leave: a timed paper (Chapter Test, Full Mock, a mock paper), Quick Practice and
+ * worksheets (`/practice/…`, including `/practice/worksheets`), and Check & Improve.
+ * ⚠ Quick Practice and Check & Improve are quiet for the WHOLE route, not only "mid-set" / "while
+ * grading": no page-independent busy signal exists for those states, and the note must never cover
+ * their action buttons — so the safe superset is used.
+ */
+export const LATE_NIGHT_QUIET_PATHS: readonly RegExp[] = [
+  /^\/chapter-test(\/|$)/,
+  /^\/full-mock(\/|$)/,
+  /^\/mock-paper(\/|$)/,
+  /^\/practice(\/|$)/,
+  /^\/check-improve(\/|$)/,
+];
+
+export function isLateNightQuietPath(pathname: string): boolean {
+  return LATE_NIGHT_QUIET_PATHS.some((re) => re.test(pathname || ""));
 }
 
 /* ── 1 & 3 — the scorecard's numbers (exported for GUIDE-SCORE-1 to adopt) ───────────────────── */
@@ -186,13 +234,49 @@ export function achievedMilestones(f: ActivityFacts): MilestoneId[] {
 }
 
 /**
+ * WHEN each milestone was crossed (epoch ms), from the same facts: the first graded written answer
+ * (or graded Check & Improve paper), the first graded Chapter Test / Full Mock, the 10th and 50th
+ * answer checked. `gradedTimes` are the checked answers' timestamps.
+ */
+export function milestoneCrossings(records: readonly FactRecord[], gradedTimes: readonly number[]): Partial<Record<MilestoneId, number>> {
+  const t = gradedTimes.filter((x) => Number.isFinite(x)).slice().sort((a, b) => a - b);
+  const first = (surface: SessionRecord["surface"]): number | undefined => {
+    let best: number | undefined;
+    for (const r of records) if (r.surface === surface && r.status === "graded" && (best === undefined || r.gradedAt < best)) best = r.gradedAt;
+    return best;
+  };
+  const out: Partial<Record<MilestoneId, number>> = {};
+  const ci = first("check-improve");
+  const fw = [t[0], ci].filter((x): x is number => x !== undefined);
+  if (fw.length) out.firstWritten = Math.min(...fw);
+  const ct = first("chapter-test");
+  if (ct !== undefined) out.firstChapterTest = ct;
+  const fm = first("full-mock");
+  if (fm !== undefined) out.firstFullMock = fm;
+  if (t.length >= 10) out.answers10 = t[9];
+  if (t.length >= 50) out.answers50 = t[49];
+  return out;
+}
+
+/**
  * Once each, and rare: of the reached-but-not-yet-celebrated milestones, ONE badge shows (the
  * furthest along), and all of them are marked — so a student who arrives with several reached
  * gets one badge, not a week of them.
+ * Controller ruling 23 Oct (veterans): with `crossings` + `since`, only a milestone CROSSED AFTER
+ * `since` (the last Home visit) is celebrated; an older one is marked silently — a veteran's first
+ * written answer from weeks ago is never announced as news.
  */
-export function milestoneToShow(achieved: readonly MilestoneId[], shown: readonly MilestoneId[]): { show: MilestoneId | null; mark: MilestoneId[] } {
+export function milestoneToShow(
+  achieved: readonly MilestoneId[],
+  shown: readonly MilestoneId[],
+  recent?: { crossings: Partial<Record<MilestoneId, number>>; since: number },
+): { show: MilestoneId | null; mark: MilestoneId[] } {
   const fresh = MILESTONES.filter((m) => achieved.includes(m) && !shown.includes(m));
   if (fresh.length === 0) return { show: null, mark: [] };
+  if (recent) {
+    const news = fresh.filter((m) => (recent.crossings[m] ?? -Infinity) > recent.since);
+    return { show: news.length ? news[news.length - 1] : null, mark: fresh };
+  }
   return { show: fresh[fresh.length - 1], mark: fresh };
 }
 
@@ -279,16 +363,26 @@ export type HomePick =
   | { moment: "welcomeBack"; ref: number; to: string }
   | { moment: "rhythm"; days: number };
 
+/**
+ * The Home pick. `gradedTimes` = timestamps of the answers checked; `prevHome` = this account's
+ * previous Home visit on this device (null → none recorded: the last day counts as "since").
+ * `silent` = milestones reached BEFORE that visit: marked without a badge (veteran rule).
+ */
 export function pickHomeMoment(a: {
   now: number;
   facts: ActivityFacts;
   attemptTimes: readonly number[];
+  gradedTimes?: readonly number[];
   prevSeen: number | null;
+  prevHome?: number | null;
   marks: CompanionMarks;
   returnTo: string;
-}): HomePick | null {
-  const ms = milestoneToShow(achievedMilestones(a.facts), a.marks.m);
-  if (ms.show) return { moment: "milestone", milestone: ms.show, mark: ms.mark };
+}): { pick: HomePick | null; silent: MilestoneId[] } {
+  const since = a.prevHome ?? a.now - DAY_MS;
+  const crossings = milestoneCrossings(a.facts.records, a.gradedTimes ?? []);
+  const ms = milestoneToShow(achievedMilestones(a.facts), a.marks.m, { crossings, since });
+  if (ms.show) return { pick: { moment: "milestone", milestone: ms.show, mark: ms.mark }, silent: [] };
+  const silent = ms.mark;
   const ref = welcomeBackDue({
     now: a.now,
     prevSeen: a.prevSeen,
@@ -296,10 +390,10 @@ export function pickHomeMoment(a: {
     lastWelcomeFor: a.marks.wb,
   });
   const to = ref !== null ? warmUpPath(a.facts.records, a.returnTo) : null;
-  if (ref !== null && to) return { moment: "welcomeBack", ref, to };
+  if (ref !== null && to) return { pick: { moment: "welcomeBack", ref, to }, silent };
   const days = practiceDaysThisWeek([...a.facts.records.map((r) => r.gradedAt), ...a.attemptTimes], a.now);
-  if (rhythmDue({ now: a.now, days, lastRhythmAt: a.marks.r })) return { moment: "rhythm", days };
-  return null;
+  if (rhythmDue({ now: a.now, days, lastRhythmAt: a.marks.r })) return { pick: { moment: "rhythm", days }, silent };
+  return { pick: null, silent };
 }
 
 /* ── the device memory (`lazytopper.companion.<tag>`, `lazytopper.companionSession`) ─────────── */
@@ -320,9 +414,32 @@ export interface CompanionMarks {
   n: number | null;
   /** when this account last opened a signed-in page on this device */
   s: number | null;
+  /** when this account last opened Home on this device (the milestone "since") */
+  h?: number | null;
+  /** today's exam-date read, kept for the IST day so Home never refetches it on every mount */
+  x?: ExamDateCache | null;
 }
 
-const EMPTY: CompanionMarks = { m: [], wb: null, r: null, c: null, n: null, s: null };
+export interface ExamDateCache {
+  /** the IST day index it was read on */
+  d: number;
+  date: string;
+  src: "official" | "predicted";
+}
+
+const EMPTY: CompanionMarks = { m: [], wb: null, r: null, c: null, n: null, s: null, h: null, x: null };
+
+function examCacheOf(v: unknown): ExamDateCache | null {
+  if (!v || typeof v !== "object") return null;
+  const o = v as Record<string, unknown>;
+  if (typeof o.d !== "number" || typeof o.date !== "string" || (o.src !== "official" && o.src !== "predicted")) return null;
+  return { d: o.d, date: o.date, src: o.src };
+}
+
+/** Today's cached exam-date read (same IST day), or null → read once and `writeMarks({ x })`. */
+export function cachedExamDate(marks: CompanionMarks, now: number): ExamDateCache | null {
+  return marks.x && marks.x.d === istDayIndex(now) ? marks.x : null;
+}
 const memory = new Map<string, CompanionMarks>();
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
@@ -338,7 +455,7 @@ export function readMarks(uid: string): CompanionMarks {
       const v = JSON.parse(raw) as Record<string, unknown> | null;
       if (v && typeof v === "object") {
         const m = Array.isArray(v.m) ? (v.m.filter((x) => (MILESTONES as readonly unknown[]).includes(x)) as MilestoneId[]) : [];
-        return { m, wb: num(v.wb), r: num(v.r), c: num(v.c), n: num(v.n), s: num(v.s) };
+        return { m, wb: num(v.wb), r: num(v.r), c: num(v.c), n: num(v.n), s: num(v.s), h: num(v.h), x: examCacheOf(v.x) };
       }
     }
   } catch {
@@ -365,21 +482,49 @@ export function marksFor(uid: string): CompanionMarks {
   return guidePreviewActive() ? { ...EMPTY } : readMarks(uid);
 }
 
-let sessionStartMemo: number | null = null;
+let sessionMemo: ActiveSession | null = null;
 
-/** When this tab's signed-in session started (set on the first call of the tab). */
-export function sessionStartMs(now: number): number {
-  if (sessionStartMemo !== null) return sessionStartMemo;
-  let start = now;
+/** This tab's active session (sessionStorage `lazytopper.companionSession`: account tag + times). */
+export function readActiveSession(): ActiveSession | null {
+  if (sessionMemo) return sessionMemo;
   try {
-    const raw = Number(window.sessionStorage.getItem(COMPANION_SESSION_KEY));
-    if (Number.isFinite(raw) && raw > 0 && raw <= now) start = raw;
-    else window.sessionStorage.setItem(COMPANION_SESSION_KEY, String(now));
+    const raw = window.sessionStorage.getItem(COMPANION_SESSION_KEY);
+    const v = raw ? (JSON.parse(raw) as Record<string, unknown> | null) : null;
+    if (v && typeof v.u === "string" && typeof v.start === "number" && typeof v.last === "number") {
+      sessionMemo = { u: v.u, start: v.start, last: v.last };
+    }
+  } catch {
+    /* blocked or malformed: no session yet */
+  }
+  return sessionMemo;
+}
+
+/** The student did something (tap, key, scroll, the tab came back): start or extend the session. */
+export function noteActivity(uid: string, now: number): ActiveSession {
+  const next = activeSessionAfter(readActiveSession(), guideAccountTag(uid), now);
+  sessionMemo = next;
+  try {
+    window.sessionStorage.setItem(COMPANION_SESSION_KEY, JSON.stringify(next));
   } catch {
     /* blocked storage: this page load */
   }
-  sessionStartMemo = start;
-  return start;
+  return next;
+}
+
+/** How long THIS account has been actively studying in this tab at `now`. */
+export function activeMsFor(uid: string, now: number): number {
+  return activeSessionMs(readActiveSession(), guideAccountTag(uid), now);
+}
+
+const prevHomeMemo = new Map<string, number | null>();
+
+/** The account's previous HOME visit on this device, read once per page load (then moved to `now`). */
+export function previousHomeVisit(uid: string, now: number): number | null {
+  if (prevHomeMemo.has(uid)) return prevHomeMemo.get(uid) ?? null;
+  const prev = readMarks(uid).h ?? null;
+  prevHomeMemo.set(uid, prev);
+  writeMarks(uid, { h: now });
+  return prev;
 }
 
 const prevSeenMemo = new Map<string, number | null>();
@@ -442,22 +587,20 @@ export const CHROME_MASCOT_CLASS = "lt-mi-voice__char";
 /** Every companion card's own character carries this class (the stage already keeps those to one). */
 export const COMPANION_CHAR_CLASS = "lt-cmp__char";
 
-/** Another Byte / Ziggy / Mummy is already on the page (not a companion card's, not the sidebar chrome). */
+/**
+ * Another Byte / Ziggy / Mummy is on the page (not a companion card's, not the sidebar chrome) —
+ * read from the BlobCharacter registry (../mascotPresence.ts), which is EVENT-driven: subscribe with
+ * `subscribeMascotHosts` to hear the moment one comes or goes.
+ */
 export function otherMascotOnScreen(): boolean {
-  if (typeof document === "undefined") return false;
-  const hosts = document.querySelectorAll(".lt-gr-host");
-  for (let i = 0; i < hosts.length; i += 1) {
-    const h = hosts[i];
-    if (h.classList.contains(COMPANION_CHAR_CLASS) || h.classList.contains(CHROME_MASCOT_CLASS)) continue;
-    return true;
-  }
-  return false;
+  return anyMascotHost((h) => !h.classList.contains(COMPANION_CHAR_CLASS) && !h.classList.contains(CHROME_MASCOT_CLASS));
 }
 
 export function __resetCompanionForTests(): void {
   memory.clear();
   prevSeenMemo.clear();
-  sessionStartMemo = null;
+  prevHomeMemo.clear();
+  sessionMemo = null;
   wants.clear();
   emitStage();
 }

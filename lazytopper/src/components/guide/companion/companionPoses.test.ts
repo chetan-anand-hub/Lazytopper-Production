@@ -24,7 +24,7 @@ const COMPANION_IDS = [
   "byte_comfort", "byte_breathe", "byte_calendar", "byte_moon", "byte_care", "byte_highfive",
   "ziggy_highfive", "ziggy_relieved", "ziggy_proud_badge", "ziggy_study", "ziggy_streak",
   // owner ruling 23 Oct 16:40 — exported for MOMENTS-3
-  "byte_marking", "byte_sorry", "ziggy_aha", "ziggy_examday", "ziggy_sleepy",
+  "byte_marking", "byte_sorry", "ziggy_aha", "ziggy_examday", "ziggy_yawn",
 ];
 
 describe("COMPANION-1 · the new poses", () => {
@@ -37,6 +37,9 @@ describe("COMPANION-1 · the new poses", () => {
     }
     expect(Object.keys(BRIEF_POSE_IDS)).toHaveLength(31);
     expect(BRIEF_POSE_IDS.ziggy_sleepy.pose).toBe("sleepy");
+    // ★ no id means two drawings: a companion id never reuses a designer-brief id
+    for (const id of Object.keys(COMPANION_POSE_IDS)) expect(Object.keys(BRIEF_POSE_IDS), id).not.toContain(id);
+    expect(COMPANION_POSE_IDS.ziggy_yawn.pose).toBe("yawn");
   });
 
   it("★ each renders: paths only, no <text>, no inline style, still and mid-animation", () => {

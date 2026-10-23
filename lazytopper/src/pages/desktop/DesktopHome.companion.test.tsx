@@ -39,7 +39,8 @@ const PAGES = [
   { name: "MobileHome", el: () => <MobileHome />, desktop: false },
 ] as const;
 
-const CT = { id: "CT-M-POLY-001", surface: "chapter-test", status: "graded", gradedAt: 1_000, topicKeys: ["polynomials"], questionIds: [], subject: "maths", marksAwarded: 30, marksTotal: 40 };
+// Graded an hour ago: a milestone crossed since the last Home visit (an old one is marked silently).
+const CT = () => ({ id: "CT-M-POLY-001", surface: "chapter-test", status: "graded", gradedAt: Date.now() - 3_600_000, topicKeys: ["polynomials"], questionIds: [], subject: "maths", marksAwarded: 30, marksTotal: 40 });
 
 // The companion chunk is a dynamic import; load it once up front so its first transform is not
 // raced against findBy's timeout (a failed load renders nothing, by design).
@@ -48,7 +49,7 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  state.local = [CT];
+  state.local = [CT()];
   state.cloudHas = true;
   window.localStorage.clear();
   window.sessionStorage.clear();
