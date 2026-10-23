@@ -18,13 +18,22 @@
  *     - 1 Chapter Test: Section A scored on submit (2 wrong picks, 1 blank, 1 right — rows that
  *       reach progress ONLY through the record, with no attempt and no MI entry) and 2 written
  *       answers fanned through recordAttempt (`ct:` ids) with v2 MI entries.
+ *
+ * MI-CARELESS-1 — every MI entry carries the `stepDetails` the grader really writes. By default
+ * they mirror the typed losses one step per type; three entries carry the shapes where the
+ * per-step marks UNDER-state the loss (the typed marks live only in `marksLostByType`):
+ *   - a CONSEQUENTIAL slip (Polynomials, calculation 2): one typed step deducts 1; the
+ *     inherited mark is typed only in the v2 split (postprocess);
+ *   - two DEPARTURE-ZEROED concept gaps (Light): the typed step carries 0 marks;
+ *   - a STRIPPED-STEP slip (Light, silly 1): the step keeps its type with 0 marks, as the
+ *     objective clamp writes it.
  */
 import type { PracticeAttempt } from "../services/practiceInsights";
 import type { MistakeLogEntry } from "../services/mistakeLogService";
 import type { SessionPerQuestionPayload, SessionRecord } from "../services/sessionRecords";
 import { bankIndexEntries } from "../data/bankChapters/bankIdIndex";
 import { normalizeSection } from "../services/progressBankShape";
-import { zeroMarksLost, type MarksLostByType } from "../lib/mistakeDisplay";
+import { STORED_MISTAKE_TYPES, zeroMarksLost, type MarksLostByType } from "../lib/mistakeDisplay";
 
 /** The fixture's clock: 20 Oct 2026, 12:00 IST. Tests pin Date to it (vi.setSystemTime). */
 export const MI_FIXTURE_NOW = Date.UTC(2026, 9, 20, 6, 30, 0);
@@ -65,8 +74,11 @@ function entry(e: {
   totalMarks: number;
   m: Partial<MarksLostByType>;
   questionId?: string;
+  /** The grader's typed steps; default = one step per typed loss, carrying its marks. */
+  steps?: Array<{ mistakeType: string; marksDeducted: number }>;
 }): MistakeLogEntry {
   const m = marks(e.m);
+  const steps = e.steps ?? STORED_MISTAKE_TYPES.filter((t) => m[t] > 0).map((t) => ({ mistakeType: t, marksDeducted: m[t] }));
   const counts = { conceptual: m.conceptual > 0 ? 1 : 0, calculation: m.calculation > 0 ? 1 : 0, silly: m.silly > 0 ? 1 : 0, presentation: m.presentation > 0 ? 1 : 0 };
   return {
     id: e.id,
@@ -78,7 +90,7 @@ function entry(e: {
     totalMarks: e.totalMarks,
     marksLost: Object.values(m).reduce((s, v) => s + v, 0),
     mistakeCounts: counts,
-    stepDetails: [],
+    stepDetails: steps.map((st, i) => ({ stepNumber: i + 1, ...st })),
     marksLostByType: m,
     marksLostByTypeVersion: 1,
   } as unknown as MistakeLogEntry;
@@ -103,11 +115,12 @@ export function miFixtureStudent(): MiFixtureStreams {
   const mistakes: MistakeLogEntry[] = [];
 
   // ── MATHS: 8 written answers (1 of 3 each) with their MI entries ──
-  const mathsWritten: Array<{ topic: string; topicKey: string; qid: string; hours: number; m: Partial<MarksLostByType> }> = [
+  const mathsWritten: Array<{ topic: string; topicKey: string; qid: string; hours: number; m: Partial<MarksLostByType>; steps?: Array<{ mistakeType: string; marksDeducted: number }> }> = [
     { topic: "Real Numbers", topicKey: "real-numbers", qid: rn[0], hours: 2, m: { conceptual: 2 } },
     { topic: "Real Numbers", topicKey: "real-numbers", qid: rn[1], hours: 30, m: { conceptual: 2 } },
     { topic: "Real Numbers", topicKey: "real-numbers", qid: rn[2], hours: 60, m: { conceptual: 2 } },
-    { topic: "Polynomials", topicKey: "polynomials", qid: poly[0], hours: 90, m: { calculation: 2 } },
+    // A CONSEQUENTIAL slip: one typed step deducts 1, the inherited mark is typed only in the v2 split.
+    { topic: "Polynomials", topicKey: "polynomials", qid: poly[0], hours: 90, m: { calculation: 2 }, steps: [{ mistakeType: "calculation", marksDeducted: 1 }] },
     { topic: "Polynomials", topicKey: "polynomials", qid: poly[1], hours: 120, m: { calculation: 2 } },
     { topic: "Polynomials", topicKey: "polynomials", qid: poly[2], hours: 150, m: { silly: 1, untyped: 1 } },
     { topic: "Real Numbers", topicKey: "real-numbers", qid: rn[3], hours: 180, m: { presentation: 2 } },
@@ -119,7 +132,7 @@ export function miFixtureStudent(): MiFixtureStreams {
       subject: "maths", marksScored: 1, marksAvailable: 3, mode: "graded",
       marksLostByType: marks(w.m), marksLostByTypeVersion: 1,
     }));
-    mistakes.push(entry({ id: `mm${i}`, hours: w.hours, topic: w.topic, subject: "Maths", totalMarks: 3, m: w.m, questionId: w.qid }));
+    mistakes.push(entry({ id: `mm${i}`, hours: w.hours, topic: w.topic, subject: "Maths", totalMarks: 3, m: w.m, questionId: w.qid, steps: w.steps }));
   });
   // 5 wrong + 3 right Quick Practice MCQ picks (attempt-only).
   [5, 40, 75, 110, 140].forEach((h, i) => attempts.push(attempt({
@@ -143,7 +156,9 @@ export function miFixtureStudent(): MiFixtureStreams {
       topicName: "Light – Reflection and Refraction", subject: "science", marksScored: 1, marksAvailable: 2, mode: "graded",
       marksLostByType: marks(m), marksLostByTypeVersion: 1,
     }));
-    mistakes.push(entry({ id: `sm${i}`, hours: h, topic: "Light – Reflection and Refraction", subject: "Science", totalMarks: 2, m, questionId: light[i] }));
+    // Entries 0-1: DEPARTURE-ZEROED concept gaps; entry 2: a STRIPPED-STEP slip (0 marks on its step).
+    const zeroed = i <= 2 ? [{ mistakeType: i <= 1 ? "conceptual" : "silly", marksDeducted: 0 }] : undefined;
+    mistakes.push(entry({ id: `sm${i}`, hours: h, topic: "Light – Reflection and Refraction", subject: "Science", totalMarks: 2, m, questionId: light[i], steps: zeroed }));
   });
   // 2 wrong Quick Practice MCQ picks.
   [12, 99].forEach((h, i) => attempts.push(attempt({

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
+import { MISTAKE_TYPE_LABEL, STORED_MISTAKE_TYPES } from "../../lib/mistakeDisplay";
+import type { TypeMarks } from "../../services/meHomeSummary";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
@@ -1140,21 +1141,17 @@ function buildMistakeTrend(entries: MistakeLogEntry[]): MistakeTrend | null {
   return { points, changePct };
 }
 
-/**
- * Marks (not mistake COUNTS) attributable to one bucket, read from real
- * `stepDetails`. Returns 0 when entries carry no step detail — the caller
- * then omits the "marks to reclaim" line rather than inventing a number.
- */
-function marksLostForBucket(entries: MistakeLogEntry[], bucket: BucketKey): number {
-  let total = 0;
-  for (const e of entries) {
-    for (const s of e?.stepDetails ?? []) {
-      const type = (s?.mistakeType ?? "").toLowerCase();
-      const marks = typeof s?.marksDeducted === "number" ? s.marksDeducted : 0;
-      if (type.includes(bucket) && Number.isFinite(marks) && marks > 0) total += marks;
-    }
+/** MI-CARELESS-2 — the type that cost the most MARKS (fixed type order breaks a tie), from the
+ *  per-type marks Me reads (`mistakeLossByType`: a v2 entry by its own marks, a count-only legacy
+ *  entry by its typed step deductions). Null when no type lost a mark — the line is then omitted,
+ *  never faked. Exported for its test. */
+export function costliestMistakeType(typeMarks: TypeMarks | null): { key: BucketKey; label: string; marks: number } | null {
+  if (!typeMarks) return null;
+  let best: BucketKey | null = null;
+  for (const t of STORED_MISTAKE_TYPES) {
+    if (typeMarks[t] > 0 && (best === null || typeMarks[t] > typeMarks[best])) best = t;
   }
-  return Math.round(total * 2) / 2;
+  return best ? { key: best, label: BUCKET_LABELS[best], marks: typeMarks[best] } : null;
 }
 
 // ── MistakeTrendCard — DESKTOP-ONLY rail card, real series only ───────────
@@ -1280,9 +1277,9 @@ interface MistakePanelProps {
   buckets: ReturnType<typeof aggregateBuckets>;
   weakTopic: string | null;
   drillTopicSlug: string | null;
-  /** Real marks attributable to the top bucket, or 0 when entries carry no
-   *  step detail. 0 means the "marks to reclaim" line is omitted, never faked. */
-  reclaimableMarks: number;
+  /** MI-CARELESS-2 — the type that cost the most MARKS in these entries (Me's per-type marks),
+   *  or null when none did: the marks line is then omitted, never faked. */
+  costliest: { key: BucketKey; label: string; marks: number } | null;
   worksheetMistakeAwarePath: string;
   checkPath: string;
   drillPath: string;
@@ -1306,7 +1303,7 @@ function MistakeIntelligencePanel({
   buckets,
   weakTopic,
   drillTopicSlug,
-  reclaimableMarks,
+  costliest,
   worksheetMistakeAwarePath,
   checkPath,
   drillPath,
@@ -1536,8 +1533,8 @@ function MistakeIntelligencePanel({
         classed as {top.label.toLowerCase()}.
       </p>
 
-      {/* Only shown when real step-level marks exist — never a derived guess. */}
-      {reclaimableMarks > 0 ? (
+      {/* MI-CARELESS-2 — only when a type really lost marks (Me's per-type marks), never a guess. */}
+      {costliest ? (
         <div
           style={{
             display: "inline-flex",
@@ -1552,10 +1549,10 @@ function MistakeIntelligencePanel({
             position: "relative",
           }}
         >
-          <b style={{ fontFamily: FONT_DISPLAY, fontSize: 16, color: "#fff" }}>
-            {reclaimableMarks} mark{reclaimableMarks === 1 ? "" : "s"}
+          <b style={{ fontFamily: FONT_DISPLAY, fontSize: 16, color: "#fff" }} data-testid="practice-mi-costliest-marks">
+            {costliest.marks} mark{costliest.marks === 1 ? "" : "s"}
           </b>{" "}
-          lost to {top.label.toLowerCase()} slips
+          <span data-testid="practice-mi-costliest">lost to {costliest.label.toLowerCase()} — your costliest mistake type</span>
         </div>
       ) : null}
 
@@ -1947,11 +1944,15 @@ export default function DesktopPracticePage() {
   // Real mistake intelligence — last 7 days for the signed-in uid only.
   const [mistakes, setMistakes] = useState<MistakeLogEntry[]>([]);
   const [mistakesLoading, setMistakesLoading] = useState<boolean>(true);
+  // MI-CARELESS-2 — the same entries' marks per type, by Me's rule (loaded on demand, so the hub's
+  // chunk does not carry the read model; a failed load leaves the marks line out, never a guess).
+  const [mistakeTypeMarks, setMistakeTypeMarks] = useState<TypeMarks | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     if (!user?.uid) {
       setMistakes([]);
+      setMistakeTypeMarks(null);
       setMistakesLoading(false);
       return () => {
         cancelled = true;
@@ -1961,13 +1962,24 @@ export default function DesktopPracticePage() {
     void (async () => {
       try {
         const entries = await getMistakeLogs(user.uid, 7);
+        const list = Array.isArray(entries) ? entries : [];
         if (!cancelled) {
-          setMistakes(Array.isArray(entries) ? entries : []);
+          setMistakes(list);
+          setMistakeTypeMarks(null);
           setMistakesLoading(false);
+        }
+        // The card shows at once; the marks line joins when the per-type rule's chunk lands
+        // (a failed load leaves the line out — never a guess).
+        try {
+          const { mistakeLossByType } = await import("../../services/meHomeSummary");
+          if (!cancelled) setMistakeTypeMarks(mistakeLossByType(list));
+        } catch {
+          /* the marks line stays omitted */
         }
       } catch {
         if (!cancelled) {
           setMistakes([]);
+          setMistakeTypeMarks(null);
           setMistakesLoading(false);
         }
       }
@@ -1980,12 +1992,9 @@ export default function DesktopPracticePage() {
   const buckets = useMemo(() => aggregateBuckets(mistakes), [mistakes]);
   // Desktop rail trend — real per-day marks-lost series, or null (no card).
   const mistakeTrend = useMemo(() => buildMistakeTrend(mistakes), [mistakes]);
-  // Real marks behind the top bucket; 0 when entries carry no step detail, in
-  // which case the MI card omits the line rather than inventing a number.
-  const reclaimableMarks = useMemo(
-    () => (buckets.topRow ? marksLostForBucket(mistakes, buckets.topRow.key) : 0),
-    [mistakes, buckets.topRow],
-  );
+  // MI-CARELESS-2 — the type that cost the most MARKS (not the most frequent one), from the
+  // entries' own v2 marks; null when none did, and the MI card then omits the line.
+  const costliest = useMemo(() => costliestMistakeType(mistakeTypeMarks), [mistakeTypeMarks]);
   const weakTopic = useMemo(() => topMistakeTopic(mistakes), [mistakes]);
   // Best-effort slug for the targeted-drill CTA — only when the topic name
   // matches our curated catalogue. We never fabricate a topic.
@@ -3120,7 +3129,7 @@ export default function DesktopPracticePage() {
               buckets={buckets}
               weakTopic={weakTopic}
               drillTopicSlug={weakTopicSlug}
-              reclaimableMarks={reclaimableMarks}
+              costliest={costliest}
               worksheetMistakeAwarePath={mistakeAwareWorksheetPath}
               checkPath={checkLinkPath}
               drillPath={drillFromMistakePath}
