@@ -1213,7 +1213,14 @@ export type ScoreGuideMomentSurface =
   | "chapter_test"
   | "full_mock"
   | "quick_practice";
-export type ScoreGuideMomentSituation = "great" | "mixed" | "low" | "improved" | "all-pending" | "objective-only";
+export type ScoreGuideMomentSituation =
+  | "great"
+  | "mixed"
+  | "low"
+  | "improved"
+  | "all-pending"
+  | "objective-only"
+  | "awaiting-sheet";
 
 export interface OnboardingEventParams {
   guide_moment_shown:

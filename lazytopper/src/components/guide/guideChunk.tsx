@@ -371,6 +371,9 @@ export const SCORE_GUIDE_BEAT_MS = 2000;
 
 export interface ScoreGuideBeatsProps {
   plan: ScoreGuidePlan;
+  /** "byte" — Ziggy has already reacted (the FIRST graded result's own Ziggy strip played just
+   *  before), so Byte's next step shows at once. Default "ziggy": Ziggy, then Byte. */
+  startAt?: "ziggy" | "byte";
 }
 
 /** A Link inside a router; a plain anchor otherwise (a scorecard rendered on its own). */
@@ -396,13 +399,13 @@ function GuideCtaLink({ to, label }: { to: string; label: string }) {
  * character slot, one bubble, in the scorecard's flow (never over a number, never a modal).
  * Reduced motion → Byte's final frame at once, still. The bubble carries "Hide mascots".
  */
-export function ScoreGuideBeats({ plan }: ScoreGuideBeatsProps) {
+export function ScoreGuideBeats({ plan, startAt = "ziggy" }: ScoreGuideBeatsProps) {
   const reduce = useRef(prefersReducedMotion());
-  const [beat, setBeat] = useState<"ziggy" | "byte">(() => (reduce.current ? "byte" : "ziggy"));
+  const [beat, setBeat] = useState<"ziggy" | "byte">(() => (reduce.current || startAt === "byte" ? "byte" : "ziggy"));
   const [preview] = useState(() => guidePreviewActive());
   useEffect(() => {
     trackGuideEvent("guide_moment_shown", { moment: "score", surface: plan.surface, situation: plan.situation });
-    if (reduce.current) return;
+    if (reduce.current || startAt === "byte") return;
     const t = setTimeout(() => setBeat("byte"), SCORE_GUIDE_BEAT_MS);
     return () => clearTimeout(t);
     // Once per mount: the plan is fixed for this result.
@@ -426,7 +429,22 @@ export function ScoreGuideBeats({ plan }: ScoreGuideBeatsProps) {
         <p className="lt-scg__say" aria-live="polite" data-testid="score-guide-line">
           {line.text}
         </p>
-        {beat === "byte" && plan.cta ? <GuideCtaLink to={plan.cta.to} label={plan.cta.label} /> : null}
+        {beat === "byte" && plan.cta?.action ? (
+          // The host's in-page action (e.g. back to the missed MCQs) — a button, not a route.
+          <button
+            type="button"
+            className="lt-scg__cta"
+            data-testid="score-guide-cta"
+            onClick={() => {
+              trackGuideEvent("guide_moment_click", { moment: "score" });
+              plan.cta?.action?.();
+            }}
+          >
+            {plan.cta.label}
+          </button>
+        ) : beat === "byte" && plan.cta?.to ? (
+          <GuideCtaLink to={plan.cta.to} label={plan.cta.label} />
+        ) : null}
         <button type="button" className="lt-scg__hide" data-testid="mascots-hide" onClick={hideMascotsWithUndo}>
           {MASCOTS_TOAST_COPY.hide}
         </button>

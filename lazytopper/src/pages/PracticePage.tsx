@@ -644,6 +644,8 @@ import {
   quickPracticeGradedScorecardVariant,
   quickPracticeScorecardVariant,
   reopenedQuickPracticeScorecardVariant,
+  singleChapterPracticeTarget,
+  withGuideTarget,
   storedPickedOption,
   storedTapMarksLost,
   type ScorecardAction,
@@ -3915,6 +3917,22 @@ const packTopicKey = useMemo(() => {
   if (!showScorecard) return null;
   const topicK = canonicalTopicKey || topicParam;
   const back = { state: { back: location.pathname + location.search, backLabel: "Back to practice" } };
+  // GUIDE-SCORE-1 — Byte's link: this ONE chapter's weak-pattern practice (a multi-topic set → the
+  // Quick Practice hub). And, on a tap-only card with missed MCQs, the in-page way back to them:
+  // the set in review (the existing "Back to this set"), scrolled to the first missed question.
+  const qpGuideTarget = multiTopics.length > 0 ? null : singleChapterPracticeTarget(String(subjectKey), [topicK], () => topicLabel);
+  const firstMissedId =
+    filteredQuestions.map((q) => String(q.id)).find((id) => mcqResults[id] === "wrong" && !reviewMcqIds[id]) ?? null;
+  const showMissed =
+    firstMissedId && !overlay && !isGuest
+      ? () => {
+          backToSetForReview();
+          window.setTimeout(() => {
+            const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-question-id]"));
+            cards.find((el) => el.dataset.questionId === firstMissedId)?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+          }, 80);
+        }
+      : null;
   const closeScorecard = () => {
     setScorecardDismissed(true);
     setSessionFinished(false);
@@ -4146,7 +4164,7 @@ const packTopicKey = useMemo(() => {
     return (
       <ResultsScorecard
         askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-        variant={gradedVariant}
+        variant={withGuideTarget(gradedVariant, qpGuideTarget)}
         onClose={closeScorecard}
         // QP-UPLOAD-LATER — written questions with nothing checked can be uploaded later.
         belowScore={uploadLaterBlock ?? undefined}
@@ -4353,7 +4371,12 @@ const packTopicKey = useMemo(() => {
   return (
     <ResultsScorecard
       askFirstFeedback={!overlay && !isGuest} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-      variant={mcqVariant}
+      variant={{
+        ...withGuideTarget(mcqVariant, qpGuideTarget),
+        onShowMissed: showMissed,
+        // Owner ruling 23 Oct 17:57 — the set's own working box, never another page.
+        onAddWorking: !overlay && !isGuest ? backToSetForReview : null,
+      }}
       onClose={closeScorecard}
       hideShare={isGuest} // SHARE-SCORE-1 — no "Share my score" on a signed-out guest's scorecard
       // QP-UPLOAD-LATER — the guest card (unchanged) plus the "Upload later" block when written
@@ -4483,7 +4506,7 @@ const packTopicKey = useMemo(() => {
       });
   return (
     <ResultsScorecard
-      variant={reopenVariant}
+      variant={withGuideTarget(reopenVariant, singleChapterPracticeTarget(recSubject, record.topicKeys || []))}
       onClose={close}
       // QP-UPLOAD-LATER — this set still has written questions waiting.
       belowScore={

@@ -24,6 +24,7 @@ import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import { useFirstGradedFeedback } from "../feedback/useFirstGradedFeedback";
 import { ScorecardGuide } from "../guide/lazyGuide";
+import { formatScoreNumber } from "./scoreNumber";
 import type {
   ScorecardAllPending,
   ScorecardVariant,
@@ -88,8 +89,9 @@ function ScoreHero({ score }: { score: ScorecardScore }) {
     return (
       <div className="lt-sc__top">
         <div className="lt-sc__big">
-          {score.awarded}
-          <small> / {score.total}</small>
+          {/* GUIDE-SCORE-1 — one number format for the hero and the guide's lines (no float noise). */}
+          {formatScoreNumber(score.awarded)}
+          <small> / {formatScoreNumber(score.total)}</small>
         </div>
         {hasCounts && (
           <div className="lt-sc__desc">

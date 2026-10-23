@@ -14,7 +14,7 @@
  *
  * Pure module state + a hook; no storage, no network. Display only.
  */
-import { useEffect, useSyncExternalStore } from "react";
+import { useLayoutEffect, useSyncExternalStore } from "react";
 
 export type StageOwner = "scorecard" | "m11";
 
@@ -57,9 +57,13 @@ export function useStageHeld(...owners: StageOwner[]): boolean {
   return owners.some((o) => held[o] > 0);
 }
 
-/** Hold the stage for `owner` while `active` (released on false or unmount). */
+/**
+ * Hold the stage for `owner` while `active` (released on false or unmount). A LAYOUT effect, so
+ * the hold lands in the same commit, before the browser paints: a subscriber that must step aside
+ * re-renders synchronously, and two characters never share a painted frame.
+ */
 export function useHoldStage(owner: StageOwner, active: boolean): void {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!active) return;
     return holdStage(owner);
   }, [owner, active]);

@@ -13,7 +13,8 @@ import {
   seedHash,
   setScoreComfortProvider,
 } from "./scoreGuideModel";
-import type { ScorecardVariant } from "../results/scorecardVariants";
+import { chapterTestDeltaLine, singleChapterPracticeTarget, type ScorecardVariant } from "../results/scorecardVariants";
+import { formatScoreNumber } from "../results/scoreNumber";
 import { MISTAKE_TYPE_LABEL, type PaperMarksLost } from "../../lib/mistakeDisplay";
 
 afterEach(() => setScoreComfortProvider(null));
@@ -44,7 +45,16 @@ const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 
 describe("GUIDE-SCORE-1 · the copy table", () => {
   it("★★ every line: ≤ 22 words even with the longest real values, no literal digit, no '½', no 'Ask'", () => {
-    const longest = { got: "37.5", total: "80", delta: "12.5 marks", loss: "12.5 marks", pending: "12 questions" };
+    const longest = {
+      got: "37.5",
+      total: "80",
+      delta: "12.5 marks",
+      loss: "12.5 marks",
+      pending: "12 questions",
+      lead: SCORE_GUIDE_LINES.lead.mostMistake, // the longest lead
+      wrong: "12 taps",
+      chapter: "Quadratic Equations",
+    };
     for (const t of allLines()) {
       expect(t, t).not.toMatch(/\d/); // every number comes from a placeholder the scorecard prints
       expect(t, t).not.toContain("½");
@@ -85,6 +95,52 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     expect(p.byte.text).toContain("3 marks");
     expect(p.byte.text).toContain(MISTAKE_TYPE_LABEL.silly);
     expect(p.cta).toEqual({ label: "Practise more like these", to: "/practice-hub" });
+    // 4 marks "reason not recorded" outrank the 3 Silly-slip marks → never "Biggest loss".
+    expect(p.byte.text.startsWith("Most marks lost to a mistake: Silly slip")).toBe(true);
+  });
+
+  it("★★ 'Biggest loss' ONLY when the type's marks are ≥ every other lost-marks row (Not attempted included)", () => {
+    const lead = (m: PaperMarksLost) => scoreGuidePlan(base({ marksLost: m }))!.byte.text.split(":")[0];
+    expect(lead(marks({ calculation: 3, silly: 1 }))).toBe("Biggest loss");
+    expect(lead(marks({ calculation: 3, unattempted: 3 }))).toBe("Biggest loss"); // a tie is still the biggest
+    expect(lead(marks({ calculation: 3, unattempted: 5 }))).toBe("Most marks lost to a mistake");
+    expect(lead(marks({ conceptual: 2, untyped: 2.5 }))).toBe("Most marks lost to a mistake");
+    // A count-only grade claims no marks at all.
+    expect(scoreGuidePlan(base({ fourType: { conceptual: 2, calculation: 1, silly: 0, presentation: 0 } }))!.byte.text.split(":")[0]).toBe(
+      "Most common mistake",
+    );
+  });
+
+  it("★★ hero parity: numbers print exactly as the hero prints them (no float noise)", () => {
+    const p = scoreGuidePlan(base({ score: { kind: "marks", awarded: 7.000000001, total: 20.0000000004 } }))!;
+    expect(p.ziggy.text).toMatch(/(^|\D)7 out of 20(\D|$)/);
+    expect(p.ziggy.text).not.toContain("000");
+  });
+
+  it("★★ Byte's link is the host's OWN chapter route (guideTarget), labelled with the chapter", () => {
+    const t = { to: "/practice/10/maths?topic=quadratic-equations&weakMode=1", chapter: "Quadratic Equations" };
+    const p = scoreGuidePlan(base({ marksLost: marks({ calculation: 2 }), guideTarget: t }))!;
+    expect(p.cta).toEqual({ label: "Practise Quadratic Equations →", to: t.to });
+    expect(scoreGuidePlan(base({ marksLost: marks({ calculation: 2 }), guideTarget: { to: t.to } }))!.cta).toEqual({
+      label: "Practise more like these",
+      to: t.to,
+    });
+    // Never an external or protocol-relative URL — the hub instead.
+    for (const bad of ["https://evil.example", "//evil.example", "javascript:alert(1)", "/a\\b"]) {
+      expect(scoreGuidePlan(base({ marksLost: marks({ calculation: 2 }), guideTarget: { to: bad } }))!.cta!.to).toBe("/practice-hub");
+    }
+  });
+
+  it("★★ awaiting-sheet (objective scored, sheet awaited): no pattern claimed, Upload line, NO link", () => {
+    for (const surface of ["chapter-test", "full-mock"] as const) {
+      const p = scoreGuidePlan(base({ surface, subtitle: "CT-M-QE-01", awaitingSheet: true, score: { kind: "marks", awarded: 8, total: 10 } }))!;
+      expect(p.situation).toBe("awaiting-sheet");
+      expect(p.byteStep).toBe("awaitingSheet");
+      expect(p.byte.text).toContain("Upload your written answers to see where marks went.");
+      expect(p.cta).toBeNull();
+      expect(p.scene).toBeNull();
+      expect(p.ziggy.text + p.byte.text).not.toMatch(/\d/);
+    }
   });
 
   it("a count-only grade names the biggest type in MISTAKES (the count block's unit)", () => {
@@ -111,14 +167,64 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     expect(p.cta).toBeNull();
   });
 
-  it("★★ objective-only (tap-only Quick Practice): MCQ numbers, Check a written answer", () => {
+  it("★★ objective-only, ALL right (tap-only Quick Practice): MCQ numbers, Check a written answer", () => {
     const p = scoreGuidePlan(
-      base({ surface: "quick-practice", subtitle: "Session scorecard", score: { kind: "attempts", attempted: 5, ofN: 5, mcqAnswered: 5, mcqCorrect: 3 } }),
+      base({ surface: "quick-practice", subtitle: "Session scorecard", score: { kind: "attempts", attempted: 5, ofN: 5, mcqAnswered: 5, mcqCorrect: 5 } }),
     )!;
     expect(p.situation).toBe("objective-only");
     expect(p.byteStep).toBe("objective");
-    expect(p.ziggy.text).toMatch(/3 out of 5/);
-    expect(p.cta!.to).toBe("/check-improve");
+    expect(p.ziggy.text).toMatch(/5 out of 5/);
+    // Owner ruling 23 Oct 17:57: Quick Practice never sends a student to Check & Improve. With no
+    // in-page action from the host there is no link; with one, Byte's button opens the working box.
+    expect(p.cta).toBeNull();
+    const onAddWorking = () => {};
+    const q = scoreGuidePlan(
+      base({ surface: "quick-practice", subtitle: "Session scorecard", score: { kind: "attempts", attempted: 5, ofN: 5, mcqAnswered: 5, mcqCorrect: 5 }, onAddWorking }),
+    )!;
+    expect(q.cta).toEqual({ label: "Add working to one →", action: onAddWorking });
+    for (const l of SCORE_GUIDE_LINES.byte.objective) expect(l.text).toMatch(/here/);
+  });
+
+  it("★★ Quick Practice NEVER links to /check-improve (owner ruling 23 Oct 17:57), whatever the step", () => {
+    const qpPlans = [
+      scoreGuidePlan(base({ surface: "quick-practice", subtitle: "Quick practice", marksLost: marks({ presentation: 2 }) }))!,
+      scoreGuidePlan(base({ surface: "quick-practice", subtitle: "Quick practice", score: { kind: "attempts", attempted: 4, ofN: 4, mcqAnswered: 4, mcqCorrect: 1 } }))!,
+      scoreGuidePlan(base({ surface: "quick-practice", subtitle: "Quick practice", score: { kind: "attempts", attempted: 4, ofN: 4, mcqAnswered: 4, mcqCorrect: 4 } }))!,
+    ];
+    for (const p of qpPlans) expect(p.cta?.to ?? null).not.toBe("/check-improve");
+  });
+
+  it("★★ objective-only with WRONG taps: the count from the card, 'your mark won't change', the in-page way back", () => {
+    const qp = (over: Partial<ScorecardVariant>) =>
+      scoreGuidePlan(
+        base({ surface: "quick-practice", subtitle: "Session scorecard", score: { kind: "attempts", attempted: 5, ofN: 5, mcqAnswered: 5, mcqCorrect: 3 }, ...over }),
+      )!;
+    // No printed rows → the "3/5 MCQs correct" line: 2 missed.
+    const p = qp({});
+    expect(p.situation).toBe("objective-only");
+    expect(p.byteStep).toBe("objectiveWrong");
+    expect(p.byte.text).toMatch(/(^|\D)2 taps(\D|$)/);
+    expect(p.byte.text).toMatch(/mark (won't change|stays as it is)/i);
+    expect(p.cta).toBeNull(); // no in-page action from the host → no link (never /check-improve)
+    // The MCQ-MARKS hero ("3 / 5") with no missed rows on the card: no count can be read off it
+    // (marks are not taps) → today's generic line, never a guessed count.
+    expect(qp({ score: { kind: "marks", awarded: 3, total: 5, gradedCount: 5, totalQuestions: 5 } }).byteStep).toBe("objective");
+    // Printed "Where marks slipped" rows win: one per missed MCQ.
+    const row = { label: "Question 2", yourAnswer: "x", correctAnswer: "y", steps: [] };
+    expect(qp({ wrongAnswers: [row] }).byte.text).toMatch(/(^|\D)1 tap(\D|$)/);
+    // The host's in-page action → Byte's button calls it (no route).
+    const onShowMissed = () => {};
+    const q = qp({ onShowMissed });
+    expect(q.cta).toEqual({ label: "Show me the first one I missed →", action: onShowMissed });
+    // Every objectiveWrong line says the mark does not change (CLAUDE.md §13).
+    for (const l of SCORE_GUIDE_LINES.byte.objectiveWrong) expect(l.text).toMatch(/mark (won't change|stays as it is)/i);
+  });
+
+  it("★ Chapter Test: its own printed ▲ line (since the last same-total test) makes it 'improved'", () => {
+    const p = scoreGuidePlan(base({ surface: "chapter-test", subtitle: "CT-M-QE-02", score: { kind: "marks", awarded: 30, total: 40 }, message: "▲ 4 marks since your last Quadratic Equations test" }))!;
+    expect(p.situation).toBe("improved");
+    expect(p.ziggy.text).toContain("4 marks");
+    expect(p.scene).toBe("improvement"); // 10 points of 40
   });
 
   it("★★ improved: ONLY from Full Mock's own printed ▲ delta", () => {
@@ -206,6 +312,40 @@ describe("GUIDE-SCORE-1 · the scene hook (owner ruling 23 Oct 16:40 IST)", () =
     expect(fm("▲ 7 marks vs Maths · Mock #3").scene).toBeNull(); // 8.75 points
     expect(fm("▼ 9 marks vs Maths · Mock #3").scene).toBeNull();
     expect(scoreGuidePlan(base({ allPending: { title: "x", detail: "y" } }))!.scene).toBeNull();
+  });
+});
+
+describe("GUIDE-SCORE-1 · host helpers (scorecardVariants)", () => {
+  it("★ chapterTestDeltaLine: the newest OTHER graded test with the SAME total; else silent", () => {
+    const prev = [
+      { id: "CT-M-QE-03", status: "graded", marksAwarded: 26, marksTotal: 40 }, // this test itself
+      { id: "CT-M-QE-02", status: "partial", marksAwarded: 10, marksTotal: 40 },
+      { id: "CT-M-QE-01", status: "graded", marksAwarded: 22, marksTotal: 30 }, // a different paper
+      { id: "CT-M-QE-00", status: "graded", marksAwarded: 21.9999999, marksTotal: 40 },
+    ];
+    const cur = { code: "CT-M-QE-03", awarded: 26, total: 40 };
+    expect(chapterTestDeltaLine(cur, prev, "Quadratic Equations")).toBe("▲ 4 marks since your last Quadratic Equations test");
+    expect(chapterTestDeltaLine({ ...cur, awarded: 21 }, prev, "QE")).toBe("▼ 1 mark since your last QE test");
+    expect(chapterTestDeltaLine({ ...cur, awarded: 22 }, prev, "QE")).toBeNull(); // no change → silent
+    expect(chapterTestDeltaLine({ ...cur, total: 50 }, prev, "QE")).toBeNull(); // no same-total paper
+  });
+
+  it("★ singleChapterPracticeTarget: ONE chapter → its weak-pattern practice; several → null (the hub)", () => {
+    expect(singleChapterPracticeTarget("Maths", ["quadratic-equations", "quadratic-equations"], () => "Quadratic Equations")).toEqual({
+      to: "/practice/10/maths?topic=quadratic-equations&weakMode=1",
+      chapter: "Quadratic Equations",
+    });
+    expect(singleChapterPracticeTarget("science", ["light", "light"], () => "Light")!.to).toBe("/practice/10/science?topic=light&weakMode=1");
+    expect(singleChapterPracticeTarget("Maths", ["quadratic-equations", "real-numbers"])).toBeNull();
+    expect(singleChapterPracticeTarget("Maths", [])).toBeNull();
+    expect(singleChapterPracticeTarget("Maths", ["mixed:abc"])).toBeNull();
+  });
+
+  it("★ formatScoreNumber: the hero's format — float noise dropped, no padding", () => {
+    expect(formatScoreNumber(7.000000001)).toBe("7");
+    expect(formatScoreNumber(7.499999999)).toBe("7.5");
+    expect(formatScoreNumber(12.5)).toBe("12.5");
+    expect(formatScoreNumber(0)).toBe("0");
   });
 });
 

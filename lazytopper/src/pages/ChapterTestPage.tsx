@@ -80,7 +80,12 @@ import {
 } from "../components/results/scorecardBankLenses";
 import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
 // FOLLOWUPS-1 B — the scorecard's tutor hop + the tutor's return to THIS saved scorecard.
-import { withPaperTutorAsks, type ScorecardTutorAsk } from "../components/results/scorecardVariants";
+import {
+  chapterTestDeltaLine,
+  withGuideTarget,
+  withPaperTutorAsks,
+  type ScorecardTutorAsk,
+} from "../components/results/scorecardVariants";
 import { trackOnboardingEvent } from "../analytics/analytics";
 import { buildTutorPath } from "./tutor/tutorPath";
 import {
@@ -678,9 +683,26 @@ export default function ChapterTestPage() {
     }
   }, [paper, nomen, fullResponse, downloading]);
 
+  // GUIDE-SCORE-1 — ONE practice route for this chapter: the menu's "Practise the marks you
+  // lost" and Byte's link on the scorecard both go here.
+  const practiseTopicPath = `/practice/${grade}/${subject.toLowerCase()}?topic=${encodeURIComponent(topicKey)}`;
   const practiseTopic = useCallback(() => {
-    navigate(`/practice/${grade}/${subject.toLowerCase()}?topic=${encodeURIComponent(topicKey)}`);
-  }, [navigate, grade, subject, topicKey]);
+    navigate(practiseTopicPath);
+  }, [navigate, practiseTopicPath]);
+  const ctGuideTarget = useMemo(() => ({ to: practiseTopicPath, chapter: topicName }), [practiseTopicPath, topicName]);
+  // GUIDE-SCORE-1 — the honest change since the last same-total test of THIS chapter, from the
+  // history this page already loaded (topicRecords); nothing is fetched.
+  const ctDeltaLine = useMemo(
+    () =>
+      fullResponse && nomen
+        ? chapterTestDeltaLine(
+            { code: nomen.code, awarded: fullResponse.gradedMarksAwarded, total: fullResponse.gradedMarksTotal },
+            topicRecords,
+            topicName,
+          )
+        : null,
+    [fullResponse, nomen, topicRecords, topicName],
+  );
 
   // ── Re-open a stored test read-only ──────────────────────────────────────────
   // PENDING-UPLOAD-1: a pending test re-opens ITS OWN paper on the upload step (this device's
@@ -853,7 +875,7 @@ export default function ChapterTestPage() {
       {/* Read-only re-open scorecard (from a history card), any phase. */}
       {reopen && (
         <ResultsScorecard
-          variant={withPaperTutorAsks(storedChapterTestScorecardVariant(reopen.record, {
+          variant={withPaperTutorAsks(withGuideTarget(storedChapterTestScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
@@ -876,7 +898,7 @@ export default function ChapterTestPage() {
                 }
               : undefined,
             onDone: () => setReopen(null),
-          }), reopen.response, ctTutorAskFor(reopen.record, reopen.response))}
+          }), ctGuideTarget), reopen.response, ctTutorAskFor(reopen.record, reopen.response))}
           onClose={() => setReopen(null)}
         />
       )}
@@ -1330,11 +1352,12 @@ export default function ChapterTestPage() {
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-              variant={withPaperTutorAsks(chapterTestScorecardVariant({
+              variant={withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,
                 phase: "full",
                 response: fullResponse,
+                deltaLine: ctDeltaLine,
                 // qNumber + canonical id per question → the by-concept lens join
                 // ([FU-CT-CONCEPT-LENS]); PersistedWorksheetQuestion satisfies
                 // ConceptLensQuestion structurally.
@@ -1357,7 +1380,7 @@ export default function ChapterTestPage() {
                   void downloadSolution();
                 },
                 onRevisit: () => navigate(backTo),
-              }), fullResponse, liveTutorAskFor)}
+              }), ctGuideTarget), fullResponse, liveTutorAskFor)}
               onClose={() => setScorecardOpen(false)}
             />
           )}
