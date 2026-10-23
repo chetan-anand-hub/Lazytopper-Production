@@ -12,8 +12,8 @@ import {
   GUIDE_VARIANT_SENT_PREFIX,
   __resetGuideVariantSentForTests,
   __setGuideAbForTests,
+  __setGuideArmReportsForTests,
   guidePreviewActive,
-  guideVariantFor,
   noteGuideVariantAssigned,
   readGuidePreview,
   resolveGuideVariant,
@@ -67,6 +67,7 @@ afterEach(() => {
   Object.defineProperty(window, "location", { configurable: true, writable: true, value: originalLocation });
   vi.unstubAllEnvs();
   __setGuideAbForTests(null);
+  __setGuideArmReportsForTests(false);
 });
 
 describe("PREVIEW-1 · the stored preview", () => {
@@ -97,22 +98,28 @@ describe("PREVIEW-1 · the stored preview", () => {
   });
 });
 
-describe("PREVIEW-1 · precedence: test seam > preview > dev override > hash", () => {
+describe("PREVIEW-1 · precedence: test seam > preview > dev override > guide (GUIDE-ALL-1)", () => {
   it("★★ each layer wins over the ones below it", () => {
-    __setGuideAbForTests(true); // the split on (as in production), no forced arm
-    const hashed = guideVariantFor("u1");
-    const other = hashed === "guide" ? "control" : "guide";
-    // hash only
-    expect(resolveGuideVariant("u1")).toBe(hashed);
-    // dev override > hash
-    window.localStorage.setItem(GUIDE_DEV_OVERRIDE_KEY, other);
-    expect(resolveGuideVariant("u1")).toBe(other);
+    __setGuideAbForTests(true); // the guide on (as in production), no forced arm
+    // GUIDE-ALL-1: the bottom layer is "guide" for every uid (the hash no longer decides)
+    expect(resolveGuideVariant("u1")).toBe("guide");
+    // dev override > guide
+    window.localStorage.setItem(GUIDE_DEV_OVERRIDE_KEY, "control");
+    expect(resolveGuideVariant("u1")).toBe("control");
     // preview > dev override
-    live(hashed);
-    expect(resolveGuideVariant("u1")).toBe(hashed);
+    live("guide");
+    expect(resolveGuideVariant("u1")).toBe("guide");
     // test seam > preview
-    __setGuideAbForTests(true, other);
-    expect(resolveGuideVariant("u1")).toBe(other);
+    __setGuideAbForTests(true, "control");
+    expect(resolveGuideVariant("u1")).toBe("control");
+  });
+
+  it("★★ GUIDE-ALL-1: the admin preview can still force CONTROL for any account (the plain experience)", () => {
+    __setGuideAbForTests(true);
+    live("control");
+    expect(resolveGuideVariant("u1")).toBe("control");
+    setGuidePreview(null);
+    expect(resolveGuideVariant("u1")).toBe("guide");
   });
 
   it("★ the preview applies to ANY signed-in uid on the browser, never to signed-out", () => {
@@ -125,10 +132,10 @@ describe("PREVIEW-1 · precedence: test seam > preview > dev override > hash", (
     expect(resolveGuideVariant("")).toBeNull();
   });
 
-  it("an expired preview falls back to the hash (and is removed)", () => {
+  it("an expired preview falls back to the guide (and is removed)", () => {
     __setGuideAbForTests(true);
-    store({ arm: guideVariantFor("u1") === "guide" ? "control" : "guide", until: Date.now() - 1 });
-    expect(resolveGuideVariant("u1")).toBe(guideVariantFor("u1"));
+    store({ arm: "control", until: Date.now() - 1 });
+    expect(resolveGuideVariant("u1")).toBe("guide");
     expect(window.localStorage.getItem(GUIDE_PREVIEW_KEY)).toBeNull();
   });
 });
@@ -179,19 +186,31 @@ describe("PREVIEW-1 · analytics suppression (real analytics module)", () => {
     expect(GUIDE_PREVIEW_STORAGE_KEY).toBe(GUIDE_PREVIEW_KEY);
   });
 
-  it("★ with no preview the guide events and the arm report fire exactly as before", () => {
+  it("★ with no preview the guide events fire exactly as before", () => {
     trackGuideEvent("guide_shown", { surface: "home", variant: "control", intent: "cbq" });
     trackGuideEvent("ziggy_reaction", { band: "half_plus" });
     expect(vercel).toEqual([
       ["event", { name: "guide_shown", data: { surface: "home", variant: "control", intent: "cbq" } }],
       ["event", { name: "ziggy_reaction", data: { band: "half_plus" } }],
     ]);
+  });
+
+  it("★★ GUIDE-ALL-1: with no preview the ARM REPORT no longer fires (no GA4 guide_variant, no activity)", () => {
+    noteGuideVariantAssigned("student-uid-1", "guide");
+    expect(ga4.some((c) => JSON.stringify(c).includes("guide_variant"))).toBe(false);
+    expect(recordActivity).not.toHaveBeenCalled();
+    expect(vercel).toEqual([]);
+  });
+
+  it("(retired mechanics, seam on) with no preview the arm report reaches GA4 and the activity log", () => {
+    __setGuideArmReportsForTests(true);
     noteGuideVariantAssigned("student-uid-1", "guide");
     expect(ga4).toContainEqual(["set", "user_properties", { guide_variant: "guide" }]);
     expect(recordActivity).toHaveBeenCalledWith("event", { name: "guide_variant_assigned" });
   });
 
-  it("★ after the preview ends, the account's REAL arm is still reported (no marker was written during it)", () => {
+  it("(retired mechanics, seam on) after the preview ends, the account's REAL arm is still reported (no marker was written during it)", () => {
+    __setGuideArmReportsForTests(true);
     live("guide");
     noteGuideVariantAssigned("student-uid-1", "control");
     expect(recordActivity).not.toHaveBeenCalled();

@@ -8,12 +8,12 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Coverage: 9 text-extractable QPs (30/2/x, 30/4/x, 30/5/x); 6 scanned QPs (30/1/x, 30/6/x) and 30-B-5 skipped — require OCR
 
 export const TRIANGLES_PYQ: CanonicalQuestion[] = [
-  { id: "PYQ-M-TRI-001", subject: "Maths", topicKey: "triangles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "In the given figure, DE BC. If AD = 2 units, DB = AE = 3 units and EC = x units, then the value of x is :",
-    options: ["2", "3", "5", "2"],
-    answer: "9 2",
-    solutionSteps: ["Correct option: (d) 9 2."],
-    finalAnswer: "(d) 9 2",
+  { id: "PYQ-M-TRI-001", subject: "Maths", topicKey: "triangles", subtopic: "Basic Proportionality Theorem — Application", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "In the given figure, DE ∥ BC. If AD = 2 units, DB = AE = 3 units and EC = x units, then the value of x is :",
+    options: ["2", "3", "5", "9/2"],
+    answer: "9/2",
+    solutionSteps: ["[1 mark] By BPT, AD/DB = AE/EC ⟹ 2/3 = 3/x ⟹ x = 9/2. Correct option: (d) 9/2."],
+    finalAnswer: "(d) 9/2",
     ncertRef: "PYQ 30/2/1 Q12", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-TRI-002", subject: "Maths", topicKey: "triangles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
