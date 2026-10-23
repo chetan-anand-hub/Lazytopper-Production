@@ -381,7 +381,9 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
         </div>
       )}
       {answer.lostDetail && (
-        <div className="lt-sc__ga-lost">
+        // MCQ-TYPE-2 design ruling — on a FULL-mark answer (a kept-mark habit included) the
+        // working note is not a loss: calm habit styling, never the red "lost" box.
+        <div className={answer.habit || tone === "full" ? "lt-sc__ga-lost lt-sc__ga-lost--kept" : "lt-sc__ga-lost"}>
           {answer.lostLabel && <b>{answer.lostLabel}</b>}
           {answer.lostLabel ? " " : ""}
           <MathText text={answer.lostDetail} />
@@ -395,8 +397,9 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
       {answer.marksLost && <MarksLostLines marks={answer.marksLost} dark />}
       {answer.mistakeType && (
         <div
-          className={`lt-sc__ga-mtype lt-sc__ga-mtype--${colorKey}`}
+          className={answer.habit ? "lt-sc__ga-mtype lt-sc__ga-mtype--habit" : `lt-sc__ga-mtype lt-sc__ga-mtype--${colorKey}`}
           data-mistake-kind={answer.mistakeKind ?? undefined}
+          data-habit={answer.habit ? "true" : undefined}
         >
           {answer.mistakeType}
         </div>
@@ -953,6 +956,11 @@ const SC_CSS = `
   padding: 9px 12px; margin-top: 9px; font-size: 12.5px; color: #f2d3d8; line-height: 1.55;
 }
 .lt-sc__ga-lost b { color: #ff9aa8; }
+/* MCQ-TYPE-2 design ruling: the working note on a FULL-mark answer (a kept-mark habit) — neutral, not red. */
+.lt-sc__ga-lost--kept {
+  background: rgba(255, 255, 255, 0.04); border-left-color: rgba(232, 183, 101, 0.55); color: #dfe5ee;
+}
+.lt-sc__ga-lost--kept b { color: #f0cf9a; }
 .lt-sc__ga-ungraded {
   background: rgba(232, 183, 101, 0.12); border-left: 3px solid #e8b765; border-radius: 0 8px 8px 0;
   padding: 9px 12px; margin-top: 9px; font-size: 12.5px; color: #f0cf9a; line-height: 1.55;
@@ -967,6 +975,12 @@ const SC_CSS = `
 .lt-sc__ga-mtype--gap { background: rgba(239, 68, 68, 0.16); color: #ffb3b3; }
 .lt-sc__ga-mtype--technique { background: rgba(59, 130, 246, 0.16); color: #b6d2ff; }
 .lt-sc__ga-mtype--careless { background: rgba(232, 147, 12, 0.16); color: #ffd28a; }
+/* MCQ-TYPE-2 design ruling: a KEPT-mark habit is a habit to fix, not a loss — calm amber outline,
+   never the red loss / "gap" fill, whatever its type. */
+.lt-sc__ga-mtype--habit {
+  background: rgba(232, 183, 101, 0.08); color: #f0cf9a;
+  box-shadow: inset 0 0 0 1px rgba(232, 183, 101, 0.38);
+}
 .lt-sc__gst-state { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 10px; background: rgba(148, 163, 184, 0.18); color: #c9d4e3; }
 .lt-sc__wr-right {
   background: rgba(61, 170, 110, 0.12); border-left: 3px solid #3daa6e; border-radius: 0 8px 8px 0;

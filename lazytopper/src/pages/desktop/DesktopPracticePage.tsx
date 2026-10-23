@@ -1449,6 +1449,10 @@ function MistakeIntelligencePanel({
   const shown = mix && mix.topRow ? mix : buckets;
   const total = shown.total;
   const top = shown.topRow ?? buckets.topRow;
+  // MCQ-TYPE-2 (review MUST-FIX) · the HEADLINE names the weak area, so its type comes from the
+  // LIVE (marks-losing) mistakes ONLY. A kept-mark habit never becomes a weak-area statement; it
+  // may join the sentence's mix and the bars below, never the headline.
+  const headline = buckets.topRow ?? top;
   return (
     <section
       className="lt-mi-card"
@@ -1524,7 +1528,7 @@ function MistakeIntelligencePanel({
         }}
       >
         {weakTopic ?? "Across your saved attempts"}{" "}
-        <span style={{ color: "hsl(152, 60%, 68%)" }}>{top.label.toLowerCase()}</span>
+        <span style={{ color: "hsl(152, 60%, 68%)" }} data-testid="practice-mi-headline-type">{headline.label.toLowerCase()}</span>
       </div>
       <p
         style={{

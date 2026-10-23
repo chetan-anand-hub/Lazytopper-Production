@@ -18,6 +18,7 @@ import {
   notGradedSummaryLine,
   paperMarksLost,
   pendingBreakdown,
+  isHabitOnlyQuestion,
   questionChipText,
   questionChipType,
   splitWithdrawnSteps,
@@ -87,7 +88,8 @@ function mistakeTag(g: WorksheetQuestionGrade): { label: string; cls: string } |
   // MCQ-TYPE-2: a 0-mark habit's tag reads "1/1 · Silly slip — mark kept, fix the habit".
   const label = questionChipText(g);
   const group = mistakeGroupOf(type);
-  return label && group ? { label, cls: group.cls } : null;
+  // MCQ-TYPE-2 design ruling: a kept-mark habit is never drawn in the rose "gap" colour.
+  return label && group ? { label, cls: isHabitOnlyQuestion(g) ? "habit" : group.cls } : null;
 }
 
 /* SCORECARD-MI-1 — step states and type names come from lib/mistakeDisplay, the same
@@ -516,6 +518,7 @@ const GRADED_CSS = `
 .lt-gp__tag--cal { background: var(--gp-amber-bg); color: var(--gp-amber); }
 .lt-gp__tag--care { background: #eef0f7; color: #5b63b0; }
 .lt-gp__tag--tech { background: #e7f0fe; color: #2459a8; }
+.lt-gp__tag--habit { background: #fff4e0; color: #8a5a00; box-shadow: inset 0 0 0 1px #f0d49a; }
 .lt-gp__fb { color: var(--gp-ink); display: block; margin-top: 6px; }
 
 /* Binary verdict — objective / 1-mark questions (no step marking, by CBSE rule). */

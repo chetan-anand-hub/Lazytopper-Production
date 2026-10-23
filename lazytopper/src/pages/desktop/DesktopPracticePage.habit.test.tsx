@@ -84,7 +84,10 @@ describe("Practice hub MI card — a 0-mark habit joins the type mix only", () =
     H.entries = [entry("conceptual", 2), entry("silly", 0, true), entry("silly", 0, true)] as never;
     renderHub();
     const card = await screen.findByLabelText("Your latest weak area");
-    // 3 tagged = 1 live conceptual + 2 silly habits; silly now leads the mix.
+    // ★ the HEADLINE names the weak area from the LIVE mistakes only: concept gap, never the habit.
+    expect(screen.getByTestId("practice-mi-headline-type").textContent).toBe("concept gap");
+    expect(card.textContent).not.toMatch(/Across your saved attempts\s*silly slip/);
+    // the sentence (and the bars) may add habits: 3 tagged = 1 live conceptual + 2 silly habits.
     expect(card.textContent).toMatch(/2 of 3 tagged mistakes in the last 7 days were\s+classed as silly slip/);
     // the marks line still reads the live mistake alone
     expect((await screen.findByTestId("practice-mi-costliest-marks")).textContent).toBe("2 marks");
@@ -96,5 +99,6 @@ describe("Practice hub MI card — a 0-mark habit joins the type mix only", () =
     renderHub();
     const card = await screen.findByLabelText("Your latest weak area");
     expect(card.textContent).toMatch(/1 of 1 tagged mistake in the last 7 days were\s+classed as concept gap/);
+    expect(screen.getByTestId("practice-mi-headline-type").textContent).toBe("concept gap");
   });
 });

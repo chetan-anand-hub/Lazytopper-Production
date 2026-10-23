@@ -245,6 +245,9 @@ export interface ScorecardGradedAnswer {
   mistakeType?: string | null;
   /** ★ The KIND behind the chip — drives the careless-vs-knowledge-gap framing. */
   mistakeKind?: ScorecardMistakeKind | null;
+  /** MCQ-TYPE-2 — the chip is a 0-MARK HABIT (a right MCQ with flawed working; the mark was KEPT).
+   *  The card draws it in the calm habit style, never the red loss / "gap" colour. */
+  habit?: boolean;
   /** ★ THE HONEST UNGRADED STATE. A question the batch could not grade says so, in the
    *  student's words, and carries NO mark. Today's live reason is `typed-no-channel`:
    *  `WorksheetGradeQuestionInput` has no `textAnswer` field, so a typed answer has no
