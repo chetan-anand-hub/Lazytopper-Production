@@ -19,6 +19,8 @@ import {
   FX_LOW,
   FX_OBJECTIVE_ONLY,
   FX_PENDING,
+  FX_PARTIAL_QP,
+  FX_UNTYPED_BIGGEST,
 } from "../../../test/shareFixtures";
 
 /** SHARE-CARD-1 - the share model is an allow-list over the scorecard's OWN data. */
@@ -150,7 +152,30 @@ describe("buildShareCardModel - honest edges", () => {
     expect([m.awarded, m.total]).toEqual([6, 10]);
     expect(JSON.stringify(m)).not.toMatch(/17|pending/i);
     expect(m.untypedMarks).toBe(2);
-    expect(m.biggest).toMatchObject({ kind: "calculation", marks: 2 });
+    // 2 marks with no recorded reason tie the 2 calculation marks: nothing is crowned.
+    expect(m.biggest).toBeNull();
+    expect(m.coverage).toEqual({ graded: 3, total: 5 });
+  });
+  it("partial grading (QP: 3 of 10 MCQs answered, all right) is never a whole, board-ready result", () => {
+    const m = buildShareCardModel(FX_PARTIAL_QP, D)!;
+    expect([m.awarded, m.total]).toEqual([3, 3]);
+    expect(m.coverage).toEqual({ graded: 3, total: 10 });
+    expect(m.ziggy.mood).toBe("keepgoing");
+    expect(m.ziggy.line).not.toMatch(/board-ready/i);
+    // Full coverage keeps "great"; >= 80% graded counts as full.
+    expect(buildShareCardModel({ ...FX_PARTIAL_QP, score: { kind: "marks", awarded: 3, total: 3, gradedCount: 8, totalQuestions: 10 } }, D)!.ziggy.mood).toBe("great");
+    expect(buildShareCardModel(FX_GREAT, D)!.coverage).toBeNull();
+  });
+  it("marks with no recorded reason as the largest bucket: no chip, Byte's generic tip", () => {
+    const m = buildShareCardModel(FX_UNTYPED_BIGGEST, D)!;
+    expect(m.biggest).toBeNull();
+    expect(m.rows!.some((r) => r.biggest)).toBe(false);
+    expect(m.byte.key).toBe("none");
+  });
+  it("zero marks lost to the four types: one 'No marks lost to mistakes' line (rows kept in the model)", () => {
+    expect(buildShareCardModel(FX_ALL_ZERO, D)!.noMistakeLoss).toBe(true);
+    expect(buildShareCardModel(FX_FOUR_TYPES, D)!.noMistakeLoss).toBe(false);
+    expect(buildShareCardModel(FX_COUNT_ONLY, D)!.noMistakeLoss).toBe(false);
   });
   it("count-only grade: counts shown, marks null (never invented), biggest by count", () => {
     const m = buildShareCardModel(FX_COUNT_ONLY, D)!;

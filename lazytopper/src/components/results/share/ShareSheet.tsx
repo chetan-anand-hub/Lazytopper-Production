@@ -124,10 +124,10 @@ export default function ShareSheet({ variant: liveVariant, onClose }: { variant:
     // Called synchronously in the tap: the sheet / window opens inside this activation.
     void runShareChannel(channel, { surface: variant.surface, image, nav, open })
       .then((outcome) => {
-        if (outcome === "needs-tap") setHint("Tap again to share.");
+        if (outcome === "needs-tap") setHint(L.tapAgain);
         else if (outcome === "failed") setHint(L.failed);
         else if (channel === "instagram" && outcome === "downloaded") setHint(L.instagramHint);
-        else if (channel === "whatsapp") setHint(L.whatsappHint);
+        else if (channel === "whatsapp" && outcome !== "shared" && outcome !== "cancelled") setHint(L.whatsappHint);
       })
       .catch(() => setHint(L.failed))
       .finally(() => setBusy(false));
@@ -192,7 +192,8 @@ export default function ShareSheet({ variant: liveVariant, onClose }: { variant:
             {L.whatsapp}
           </button>
           <button type="button" className="lt-shs__act" disabled={!images.story || busy} onClick={() => go("instagram")} data-testid="share-ch-instagram">
-            {L.instagram}
+            {/* Desktop cannot hand a file to Instagram: say what the button really does. */}
+            {canShareFiles ? L.instagram : L.saveStory}
           </button>
           <button type="button" className="lt-shs__act" disabled={!current || busy} onClick={() => go("download")} data-testid="share-ch-download">
             {L.download}

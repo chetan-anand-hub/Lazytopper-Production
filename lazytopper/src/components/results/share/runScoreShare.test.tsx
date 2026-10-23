@@ -87,11 +87,27 @@ describe("runShareChannel", () => {
     expect(out).toBe("downloaded");
     expect(trackScorecardShare).toHaveBeenCalledWith("worksheet", "story", "download");
   });
-  it("instagram without file sharing (desktop): the STORY image is saved", async () => {
+  it("instagram without file sharing (desktop): the STORY image is saved, logged honestly as a download", async () => {
     const out = await runShareChannel("instagram", { surface: "chapter-test", image: await img("story") });
     expect(out).toBe("downloaded");
     expect(click).toHaveBeenCalledTimes(1);
+    expect(trackScorecardShare).toHaveBeenCalledWith("chapter_test", "story", "download");
+  });
+  it("instagram on a phone (files shareable): the story PNG through the sheet, logged as instagram", async () => {
+    const share = vi.fn(async () => {});
+    const out = await runShareChannel("instagram", { surface: "chapter-test", image: await img("story"), nav: { canShare: () => true, share } });
+    expect(out).toBe("shared");
     expect(trackScorecardShare).toHaveBeenCalledWith("chapter_test", "story", "instagram");
+  });
+  it("whatsapp on a phone (files shareable): the PNG itself through the sheet - no wa.me, no download", async () => {
+    const share = vi.fn(async () => {});
+    const open = vi.fn(() => ({ opener: {} as unknown }));
+    const out = await runShareChannel("whatsapp", { surface: "worksheet", image: await img(), nav: { canShare: () => true, share }, open });
+    expect(out).toBe("shared");
+    expect(share).toHaveBeenCalledWith({ files: [expect.any(File)], text: expect.stringContaining("utm_source=share") });
+    expect(open).not.toHaveBeenCalled();
+    expect(click).not.toHaveBeenCalled();
+    expect(trackScorecardShare).toHaveBeenCalledWith("worksheet", "story", "whatsapp");
   });
   it("download: the PNG saved", async () => {
     await runShareChannel("download", { surface: "quick-practice", image: await img("square") });

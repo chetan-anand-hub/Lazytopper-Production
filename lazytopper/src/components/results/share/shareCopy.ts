@@ -11,12 +11,14 @@
  */
 import type { Pose } from "../../guide/rig";
 
-export type ZiggyMood = "great" | "mixed" | "oops" | "hide";
+export type ZiggyMood = "great" | "mixed" | "keepgoing" | "oops" | "hide";
 
-/** Ziggy (the student) sits with the SCORE. His pose and line follow the result. */
+/** Ziggy (the student) sits with the SCORE. His pose and line follow the result - and how much
+ *  of the set was graded ("keepgoing": a good score on a partly graded set). */
 export const ZIGGY_LINES: Readonly<Record<ZiggyMood, { pose: Pose; line: string }>> = {
   great: { pose: "excited", line: "Board-ready vibes! Full josh." },
   mixed: { pose: "determined", line: "Good going! A few marks to grab back." },
+  keepgoing: { pose: "determined", line: "Good start! Finish the rest to see your full score." },
   oops: { pose: "oops", line: "Oops! Every mark lost here can be won back." },
   hide: { pose: "hide", line: "Some answers left blank. Next time, attempt them all!" },
 };
@@ -54,6 +56,9 @@ export const SHARE_LABELS = {
   miHeading: "Mistake Intelligence",
   miSub: "Mistakes found, and marks lost to each",
   biggest: "Biggest loss",
+  noMistakeLoss: "No marks lost to mistakes",
+  coverageOne: "question graded",
+  coverageMany: "questions graded",
   notAttempted: "Not attempted (not a mistake)",
   untyped: "Marks lost, reason not recorded",
   objectiveRight: "Right",
@@ -77,11 +82,13 @@ export const SHARE_PANEL_LABELS = {
   share: "Share",
   whatsapp: "WhatsApp",
   instagram: "Instagram story",
+  saveStory: "Save story image",
   download: "Download image",
   making: "Making your image...",
   failed: "Couldn't make the image just now. Try again.",
   instagramHint: "Saved. Open Instagram, add to your Story and pick this image.",
   whatsappHint: "Image saved - attach it in WhatsApp.",
+  tapAgain: "Tap again to share.",
   close: "Close",
 } as const;
 

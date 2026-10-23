@@ -1379,7 +1379,7 @@ export type ParentReportState = "empty" | "activity" | "pattern";
 /**
  * PARENT-REPORT-1 — `parent_report_shown`: the weekly parent report card was shown to the
  * student (once per open). Placement + state ONLY: never a number, a name, a chapter or any
- * text. Vendors only (GA4 / Vercel), like `score_share`: NOT in `NamedAnalyticsEvent`, so the
+ * text. Vendors only (GA4 / Vercel), like `whatsapp_contact_tap`: NOT in `NamedAnalyticsEvent`, so the
  * first-party log drops it and no server allow-list change is needed.
  */
 export function trackParentReportShown(placement: ParentReportPlacement, state: ParentReportState): void {

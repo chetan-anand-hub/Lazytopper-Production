@@ -61,7 +61,14 @@ export interface ShareCardModel {
   context: string | null;
   awarded: number;
   total: number;
+  /** "G of T questions graded" - present ONLY when the scorecard itself shows that descriptor
+   *  (both counts known) AND not every question was graded, so a partial result is never
+   *  dressed up as a whole one (3 of 10 MCQs answered is not "3 / 3, board-ready"). */
+  coverage: { graded: number; total: number } | null;
   mi: ShareMiMode;
+  /** Marks mode with ZERO marks lost to the four types: the image shows one line ("No marks
+   *  lost to mistakes") instead of four 0-mark rows. The rows stay in the model. */
+  noMistakeLoss: boolean;
   /** The four types in the product's order, or null (objective / none). */
   rows: ShareTypeRow[] | null;
   /** Marks lost on questions not attempted (never a mistake). 0 = not shown. */
@@ -241,8 +248,10 @@ function miOf(variant: ScorecardVariant): {
 }
 
 /** The biggest loss: the type (or not-attempted) with the most MARKS lost; in a count-only
- *  grade, the type with the most mistakes. Ties keep the product's type order. None lost -> null. */
-function biggestOf(mi: ShareMiMode, rows: ShareTypeRow[] | null, notAttemptedMarks: number): ShareBiggest | null {
+ *  grade, the type with the most mistakes. Ties keep the product's type order. None lost -> null.
+ *  When the marks lost with NO recorded reason are as large as (or larger than) every named
+ *  bucket, nothing is crowned: a smaller type is never called "the biggest loss". */
+function biggestOf(mi: ShareMiMode, rows: ShareTypeRow[] | null, notAttemptedMarks: number, untypedMarks: number): ShareBiggest | null {
   if (!rows) return null;
   let best: ShareBiggest | null = null;
   if (mi === "marks") {
@@ -253,6 +262,7 @@ function biggestOf(mi: ShareMiMode, rows: ShareTypeRow[] | null, notAttemptedMar
     if (notAttemptedMarks > 0 && (!best || notAttemptedMarks > (best.marks ?? 0))) {
       best = { kind: "unattempted", label: "Not attempted", marks: notAttemptedMarks, count: null };
     }
+    if (best && untypedMarks >= (best.marks ?? 0)) return null;
     return best;
   }
   for (const r of rows) {
@@ -262,12 +272,34 @@ function biggestOf(mi: ShareMiMode, rows: ShareTypeRow[] | null, notAttemptedMar
   return best;
 }
 
-/** Ziggy's mood from the score's own fraction (and a not-attempted biggest loss). */
-export function ziggyMoodOf(awarded: number, total: number, biggest: ShareBiggest | null): ZiggyMood {
+/** Below this share of the questions graded, a high score is a START, not a result. */
+export const FULL_COVERAGE = 0.8;
+
+/** The scorecard's own "across G of T questions graded", when it shows it and G < T. */
+export function coverageOf(variant: ScorecardVariant): { graded: number; total: number } | null {
+  if (variant.score.kind !== "marks") return null;
+  const { gradedCount, totalQuestions } = variant.score;
+  if (!isNum(gradedCount) || !isNum(totalQuestions) || totalQuestions <= 0) return null;
+  return gradedCount < totalQuestions ? { graded: gradedCount, total: totalQuestions } : null;
+}
+
+/**
+ * Ziggy's mood from the score's own fraction AND how much of the set was graded. "great" only
+ * when coverage is full or at least 80% of the questions were graded; a partial set with a
+ * good score gets "keep going" (3 of 10 MCQs right is not board-ready). A not-attempted
+ * biggest loss -> "hide".
+ */
+export function ziggyMoodOf(
+  awarded: number,
+  total: number,
+  biggest: ShareBiggest | null,
+  coverage: { graded: number; total: number } | null = null,
+): ZiggyMood {
   const pct = total > 0 ? awarded / total : 0;
-  if (pct >= 0.8) return "great";
+  const covered = !coverage || coverage.graded / coverage.total >= FULL_COVERAGE;
+  if (pct >= 0.8 && covered) return "great";
   if (biggest?.kind === "unattempted") return "hide";
-  if (pct >= 0.5) return "mixed";
+  if (pct >= 0.5) return covered ? "mixed" : "keepgoing";
   return "oops";
 }
 
@@ -304,9 +336,11 @@ export function buildShareCardModel(variant: ScorecardVariant, opts: ShareModelO
   const awarded = roundMarks(variant.score.awarded);
   const total = roundMarks(variant.score.total);
   const { mi, rows, notAttemptedMarks, untypedMarks, objective } = miOf(variant);
-  const biggest = biggestOf(mi, rows, notAttemptedMarks);
+  const biggest = biggestOf(mi, rows, notAttemptedMarks, untypedMarks);
   const markedRows = rows ? rows.map((r) => ({ ...r, biggest: biggest?.kind === r.type })) : null;
-  const mood = ziggyMoodOf(awarded, total, biggest);
+  const coverage = coverageOf(variant);
+  const noMistakeLoss = mi === "marks" && !!rows && rows.every((r) => (r.marks ?? 0) <= 0);
+  const mood = ziggyMoodOf(awarded, total, biggest, coverage);
   const tipKey = byteTipKey(mi, biggest, objective, roundMarks(total - awarded));
   const tip = BYTE_TIPS[tipKey];
   const line = fillLine(tip.line, {
@@ -321,7 +355,9 @@ export function buildShareCardModel(variant: ScorecardVariant, opts: ShareModelO
     context: shareContextOf(variant),
     awarded,
     total,
+    coverage,
     mi,
+    noMistakeLoss,
     rows: markedRows,
     notAttemptedMarks,
     untypedMarks,

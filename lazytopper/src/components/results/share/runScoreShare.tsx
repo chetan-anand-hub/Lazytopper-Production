@@ -136,8 +136,10 @@ export interface ShareChannelContext {
  *
  *   native     the OS sheet with the PNG + text (WhatsApp, Instagram, anything installed);
  *              a refusal that is not a cancel saves the PNG instead
- *   whatsapp   wa.me with the text + public link, and the PNG saved to attach
- *   instagram  the STORY image: the OS sheet where files can be shared, else saved to post
+ *   whatsapp   phones that share files: the PNG + text through the OS sheet; desktop: wa.me
+ *              with the text + public link, and the PNG saved to attach
+ *   instagram  the STORY image through the OS sheet where files can be shared; desktop: the
+ *              story image is saved and logged as "download" (the sheet labels it so)
  *   download   the PNG saved
  */
 export async function runShareChannel(channel: ScorecardShareChannel, ctx: ShareChannelContext): Promise<ShareChannelOutcome> {
@@ -147,6 +149,18 @@ export async function runShareChannel(channel: ScorecardShareChannel, ctx: Share
     downloadBlob(image.blob, image.file.name);
     return "downloaded";
   };
+
+  // WhatsApp on a phone that can share FILES: the PNG itself goes through the OS sheet (the
+  // student picks WhatsApp there) - the image, not just a text link.
+  if (channel === "whatsapp" && nav && pickShareMethod(nav, image.file) === "native") {
+    const outcome = await shareNative(nav, image.file, image.text);
+    if (outcome === "shared") {
+      reportScorecardShare(surface, size, "whatsapp");
+      return "shared";
+    }
+    if (outcome !== "failed") return outcome;
+    // A refusal that is not a cancel falls through to the link + saved PNG below.
+  }
 
   if (channel === "whatsapp") {
     const opened = ctx.open ? openWhatsAppLink(image.text, ctx.open) : false;
@@ -175,8 +189,9 @@ export async function runShareChannel(channel: ScorecardShareChannel, ctx: Share
     }
     return outcome;
   }
-  // No file sharing here (desktop): save the image - for Instagram, the story image to post.
+  // No file sharing here (desktop): the image is SAVED (for Instagram, the story image to post
+  // from the phone) - logged honestly as a download, not as an Instagram share.
   save();
-  reportScorecardShare(surface, size, channel === "instagram" ? "instagram" : "download");
+  reportScorecardShare(surface, size, "download");
   return "downloaded";
 }

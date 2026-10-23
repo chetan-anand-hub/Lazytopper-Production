@@ -2,7 +2,16 @@ import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
 import ShareCard from "./ShareCard";
 import { buildShareCardModel, type ShareSize } from "./shareCardModel";
-import { ALL_SHARE_FIXTURES, FX_ALL_ZERO, FX_FOUR_TYPES, FX_OBJECTIVE_ONLY, FX_PENDING, numbersCarriedBy } from "../../../test/shareFixtures";
+import {
+  ALL_SHARE_FIXTURES,
+  FX_ALL_ZERO,
+  FX_FOUR_TYPES,
+  FX_OBJECTIVE_ONLY,
+  FX_PARTIAL_QP,
+  FX_PENDING,
+  FX_UNTYPED_BIGGEST,
+  numbersCarriedBy,
+} from "../../../test/shareFixtures";
 
 /** SHARE-CARD-1 - the share image's DOM (drawn off-screen, then turned into a PNG). */
 afterEach(cleanup);
@@ -45,10 +54,24 @@ describe("ShareCard - content", () => {
     expect(screen.getByTestId("share-row-calculation").textContent).toBe("Calculation slip1 mistake0.5 marks");
     expect(screen.getByTestId("share-row-unattempted").textContent).toContain("0.5 marks");
     cleanup();
+    // Zero marks lost to mistakes: ONE line, not four 0-mark rows.
     card(FX_ALL_ZERO);
-    for (const t of ["conceptual", "calculation", "silly", "presentation"]) {
-      expect(screen.getByTestId(`share-row-${t}`).textContent).toMatch(/0 mistakes0 marks$/);
-    }
+    expect(screen.getByTestId("share-no-mistake-loss").textContent).toBe("No marks lost to mistakes");
+    expect(screen.queryByTestId("share-row-silly")).toBeNull();
+  });
+  it("partial grading: 'G of T questions graded' under the score, and no board-ready line (QP 3 of 10)", () => {
+    card(FX_PARTIAL_QP);
+    expect(screen.getByTestId("share-score").textContent).toBe("3 / 3");
+    expect(screen.getByTestId("share-coverage").textContent).toBe("3 of 10 questions graded");
+    expect(screen.getByTestId("share-ziggy-line").textContent).toBe("Good start! Finish the rest to see your full score.");
+    cleanup();
+    card(FX_FOUR_TYPES); // 8 of 8 graded: no coverage line
+    expect(screen.queryByTestId("share-coverage")).toBeNull();
+  });
+  it("no 'Biggest loss' chip when marks with no recorded reason are the largest bucket", () => {
+    const { container } = card(FX_UNTYPED_BIGGEST);
+    expect(visibleText(container)).not.toContain("Biggest loss");
+    expect(screen.getByTestId("share-row-untyped").textContent).toContain("7 marks");
   });
   it("objective-only: right / wrong + one MI line, no type rows", () => {
     card(FX_OBJECTIVE_ONLY);

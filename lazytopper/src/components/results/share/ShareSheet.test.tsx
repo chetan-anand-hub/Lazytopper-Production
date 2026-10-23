@@ -69,6 +69,8 @@ describe("ShareSheet", () => {
   it("desktop (no file sharing): WhatsApp / Instagram / Download, no native Share button", async () => {
     render(<ShareSheet variant={FX_FOUR_TYPES} onClose={() => {}} />);
     expect(screen.queryByTestId("share-ch-native")).toBeNull();
+    // Desktop cannot hand a file to Instagram: the button says what it does.
+    expect(screen.getByTestId("share-ch-instagram").textContent).toBe("Save story image");
     await waitFor(() => expect((screen.getByTestId("share-ch-whatsapp") as HTMLButtonElement).disabled).toBe(false));
     fireEvent.click(screen.getByTestId("share-ch-whatsapp"));
     await waitFor(() => expect(runShareChannel).toHaveBeenCalledTimes(1));
@@ -92,6 +94,7 @@ describe("ShareSheet", () => {
     nav.share = async () => {};
     render(<ShareSheet variant={FX_FOUR_TYPES} onClose={() => {}} />);
     expect(screen.getByTestId("share-ch-native")).toBeInTheDocument();
+    expect(screen.getByTestId("share-ch-instagram").textContent).toBe("Instagram story");
   });
 
   it("Escape closes the sheet only", () => {

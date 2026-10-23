@@ -62,6 +62,12 @@ export default function ShareCard({ model, qrDataUrl = null }: { model: ShareCar
               <span className="lt-share__of"> / {m.total}</span>
             </div>
             <div className="lt-share__marks">{SHARE_LABELS.marksWord}</div>
+            {m.coverage && (
+              <div className="lt-share__cov" data-testid="share-coverage">
+                {m.coverage.graded} of {m.coverage.total}{" "}
+                {m.coverage.total === 1 ? SHARE_LABELS.coverageOne : SHARE_LABELS.coverageMany}
+              </div>
+            )}
           </div>
           {m.showMascots && (
             <div className="lt-share__ziggy">
@@ -78,7 +84,12 @@ export default function ShareCard({ model, qrDataUrl = null }: { model: ShareCar
           {m.rows && (
             <>
               <div className="lt-share__misub">{SHARE_LABELS.miSub}</div>
-              {m.rows.map((r) => (
+              {m.noMistakeLoss && (
+                <div className="lt-share__clean" data-testid="share-no-mistake-loss">
+                  {SHARE_LABELS.noMistakeLoss}
+                </div>
+              )}
+              {!m.noMistakeLoss && m.rows.map((r) => (
                 <div
                   key={r.type}
                   className={`lt-share__row lt-share__row--${r.type}${r.biggest ? " lt-share__row--big" : ""}`}
@@ -172,7 +183,18 @@ const SHARE_CSS = `
 .lt-share--square .lt-share__tag { font-size: 22px; }
 
 .lt-share__grid { flex: 1; display: grid; gap: 22px; margin: 32px 0 28px; min-height: 0; }
-.lt-share--story .lt-share__grid { grid-template-rows: auto 1fr auto; }
+/* Story: every panel sizes to its content; the grid centres them (no empty MI card). */
+.lt-share--story .lt-share__grid { grid-template-rows: auto auto auto; align-content: center; gap: 28px; }
+.lt-share--story .lt-share__row { padding: 24px 28px; margin-bottom: 14px; font-size: 37px; }
+.lt-share--story .lt-share__mascot--ziggy { width: 280px; }
+.lt-share--story .lt-share__mascot--byte { width: 200px; }
+.lt-share__cov { margin-top: 10px; font-size: 28px; font-weight: 700; color: #f0cf9a; }
+.lt-share--square .lt-share__cov { font-size: 19px; margin-top: 6px; }
+.lt-share__clean {
+  font-size: 36px; font-weight: 700; color: var(--white); padding: 26px 28px; border-radius: 22px;
+  border: 2px solid var(--green); background: rgba(52, 199, 138, 0.12); margin-bottom: 14px;
+}
+.lt-share--square .lt-share__clean { font-size: 24px; padding: 16px 18px; border-radius: 16px; }
 .lt-share--square .lt-share__grid {
   gap: 20px; margin: 26px 0 24px;
   grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto;

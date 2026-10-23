@@ -108,7 +108,30 @@ export const FX_CI_SINGLE = base({
   marksLost: ml({ conceptual: 0, calculation: 1, silly: 0, presentation: 0, unattempted: 0, untyped: 0 }),
 });
 
+/** Quick Practice, 3 of 10 MCQs answered, all 3 right: the app shows "3 / 3 across 3 of 10
+ *  questions graded". The image must not read as a whole, board-ready result. */
+export const FX_PARTIAL_QP = base({
+  surface: "quick-practice",
+  title: "Session scorecard",
+  subtitle: "Quick practice",
+  score: { kind: "marks", awarded: 3, total: 3, gradedCount: 3, totalQuestions: 10 },
+  fourType: null,
+  marksLost: null,
+});
+
+/** Most marks lost with NO recorded reason (a v2 paper with locally scored rows). */
+export const FX_UNTYPED_BIGGEST = base({
+  surface: "chapter-test",
+  title: "Light · Test #2",
+  subtitle: "CT-S-LI-02 · graded just now",
+  score: { kind: "marks", awarded: 30, total: 40, gradedCount: 12, totalQuestions: 12 },
+  fourType: { conceptual: 1, calculation: 0, silly: 1, presentation: 0 },
+  marksLost: ml({ conceptual: 2, calculation: 0, silly: 1, presentation: 0, unattempted: 0, untyped: 7 }),
+});
+
 export const ALL_SHARE_FIXTURES: Record<string, ScorecardVariant> = {
+  FX_PARTIAL_QP,
+  FX_UNTYPED_BIGGEST,
   FX_FOUR_TYPES,
   FX_ALL_ZERO,
   FX_OBJECTIVE_ONLY,
@@ -127,6 +150,8 @@ export function numbersCarriedBy(v: ScorecardVariant): Set<number> {
     out.add(v.score.awarded);
     out.add(v.score.total);
     out.add(v.score.total - v.score.awarded);
+    if (v.score.gradedCount != null) out.add(v.score.gradedCount);
+    if (v.score.totalQuestions != null) out.add(v.score.totalQuestions);
   }
   for (const n of Object.values(v.fourType ?? {})) out.add(Number(n));
   for (const n of Object.values(v.marksLost?.byType ?? {})) out.add(Number(n));
