@@ -43,6 +43,7 @@ import { buildActionableDesktopTopicHubContent } from "../../lib/desktop/topicHu
 import { buildDesktopConceptPracticePath } from "../../lib/desktop/navigation";
 import { buildQuickPracticeRoundTripHref } from "../../pages/tutor/tutorRoundTrip";
 import type { PracticeQuestion } from "../../data/predictionDataService";
+import * as fs from "node:fs";
 
 type Mode = "trunk" | "lane";
 type Range = { min: number; max: number } | null;
@@ -235,11 +236,8 @@ const CARDS_WITH_NO_BANK_CONCEPT: ReadonlyArray<{ slug: string; prefix: string; 
     prefix: "Standard form",
     reason: "its bank label 'Standard Form' is a reviewed concept-gap (UNMAPPED_LABELS_REVIEWED): no concept holds it",
   },
-  {
-    slug: "arithmetic-progression",
-    prefix: "Common difference",
-    reason: "'test for an AP' rows are the reviewed concept-gap labels (Identifying an AP …): no concept holds them",
-  },
+  // QP-CONCEPT-3: AP "Common difference … (test for an AP)" is no longer an exception — it maps to nth Term
+  // with the same keywords as HPQ "Basics of AP" (the bank files "Common Difference" under nth Term).
 ];
 const isListedException = (e: Entry): boolean =>
   (e.surface !== "hpq" &&
@@ -378,39 +376,96 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
     return kws.some((k) => text.includes(k.toLowerCase()));
   };
 
-  it("★ F3: for every card with practiseKeywords, ≥ min(available, 5) of the first 5 contain a card keyword", async () => {
+  // ── QP-CONCEPT-3 · the keyword target is NOT self-derived ────────────────────────────────────────
+  // #1310's test counted hits against each card's OWN keywords, so a broad keyword ("radius", "lens",
+  // "plants") passed itself. Now: (a) every card's keywords must cover ≥ min(5, on-concept rows in its
+  // band), and ≥ 4 of its first 5 (or all, when fewer exist) carry one; (b) for the weak cards the
+  // review read, and for the broad HPQ aliases, the first 5 are checked against an ORACLE written HERE
+  // (the reviewer's specific phrases), independent of the product's keyword lists.
+  // RED on trunk 2f0a5535 (#1310): the oracle cards / HPQ aliases and the ≥3-of-5 sibling test fail.
+  const inBand = (e: Entry, q: PracticeQuestion) => !e.range || (Number(q.marks) >= e.range.min && Number(q.marks) <= e.range.max);
+  const ORACLE_CARDS: ReadonlyArray<{ slug: string; prefix: string; phrases: string[] }> = [
+    { slug: "circles", prefix: "Tangent ⟂ radius", phrases: ["perpendicular to the radius", "tangent at any point", "point of contact", "radius through the point", "perpendicular to the tangent"] },
+    { slug: "light-reflection-and-refraction", prefix: "Lens formula", phrases: ["lens formula", "focal length of the lens", "1/v − 1/u", "1/f", "magnification produced by a lens", "convex lens", "concave lens"] },
+    { slug: "light-reflection-and-refraction", prefix: "Mirror formula", phrases: ["mirror formula", "1/v + 1/u", "concave mirror", "convex mirror"] },
+    { slug: "trigonometry", prefix: "Trigonometric ratios of an acute angle", phrases: ["acute angle", "right-angled", "right triangle"] },
+    { slug: "trigonometry", prefix: "Relationships between the ratios", phrases: ["relationships between", "reciprocal", "1/cos", "1/sec", "1/cosec", "1/cot", "sin θ/cos θ", "cos θ/sin θ"] },
+    { slug: "how-do-organisms-reproduce", prefix: "Sexual reproduction in a flower", phrases: ["flower", "pollination", "pollen", "stigma", "ovule"] },
+    { slug: "how-do-organisms-reproduce", prefix: "Human reproductive system", phrases: ["testes", "uterus", "sperm", "male reproductive", "female reproductive", "human reproductive", "oviduct", "vas deferens"] },
+    { slug: "real-numbers", prefix: "Fundamental Theorem of Arithmetic (every", phrases: ["fundamental theorem", "product of primes", "composite", "prime factorisation", "prime factorization"] },
+    { slug: "quadratic-equations", prefix: "Quadratic formula", phrases: ["quadratic formula"] },
+    { slug: "arithmetic-progression", prefix: "Common difference", phrases: ["common difference", "is an ap", "are in ap", "an a.p.", "arithmetic progression"] },
+  ];
+  const ORACLE_HPQ: ReadonlyArray<{ slug: string; label: string; phrases: string[] }> = [
+    { slug: "chemical-reactions-and-equations", label: "Oxidation/Reduction", phrases: ["oxidation", "reduction", "redox", "oxidis", "rust", "corros"] },
+    { slug: "life-processes", label: "Nutrition in Plants", phrases: ["photosynthesis", "chlorophyll", "stomata"] },
+    { slug: "life-processes", label: "Cell organelles", phrases: ["mitochondri", "atp", "energy currency", "cell organelle"] },
+    { slug: "life-processes", label: "Circulation", phrases: ["heart", "double circulation", "circulation"] },
+    { slug: "human-eye-and-colourful-world", label: "Structure of Eye", phrases: ["accommodation", "retina", "cornea", "iris", "pupil", "ciliary", "structure"] },
+    { slug: "light-reflection-and-refraction", label: "Lens Formula & Diagrams", phrases: ["lens formula", "focal length of the lens", "1/v − 1/u", "1/f", "convex lens", "concave lens"] },
+    { slug: "light-reflection-and-refraction", label: "Mirror Formula & Diagrams", phrases: ["mirror formula", "1/v + 1/u", "concave mirror", "convex mirror"] },
+    { slug: "electricity", label: "Resistance in Series/Parallel", phrases: ["series", "parallel", "equivalent resistance"] },
+    { slug: "carbon-and-its-compounds", label: "Important Reactions", phrases: ["soap", "detergent"] },
+    { slug: "magnetic-effects-of-electric-current", label: "Electromagnet & Solenoid", phrases: ["solenoid", "electromagnet"] },
+    { slug: "arithmetic-progression", label: "Basics of AP", phrases: ["common difference", "is an ap", "are in ap", "an a.p.", "arithmetic progression"] },
+  ];
+  const first5Lines: string[] = [];
+  const dumpFirst5 = (title: string, shown: PracticeQuestion[], kws: readonly string[]) => {
+    first5Lines.push(`## ${title}  (keyword hits ${shown.slice(0, 5).filter((q) => hasKw(q, kws)).length}/5)`);
+    shown.slice(0, 5).forEach((q, i) =>
+      first5Lines.push(`   ${i + 1}. ${hasKw(q, kws) ? "+" : "-"} [${q.subtopic}] ${String(q.questionText).replace(/\s+/g, " ").slice(0, 140)}`),
+    );
+  };
+
+  it("★ F3: every card's keywords cover its band and lead (≥ 4 of the first 5); oracle cards match the reviewer's phrases", async () => {
     const hub = ENTRIES.filter((e) => e.surface === "hub" && (cardOf(e)?.practiseKeywords?.length ?? 0) > 0);
-    expect(hub.length).toBeGreaterThanOrEqual(70);
+    expect(hub.length).toBeGreaterThanOrEqual(80);
     const misses: string[] = [];
     let hits = 0;
-    let possible = 0;
-    let trunkLikeHits = 0;
+    let slots = 0;
     for (const e of hub) {
       await new Promise((r) => setTimeout(r, 0));
       const kws = cardOf(e)!.practiseKeywords!;
       const { displayed, onConcept } = await pageSet(e, "lane");
-      const avail = servedPool(e).filter(
-        (q) =>
-          onConcept.has(String(q.id)) &&
-          hasKw(q, kws) &&
-          (!e.range || (Number(q.marks) >= e.range.min && Number(q.marks) <= e.range.max)),
-      ).length;
-      const want = Math.min(avail, 5);
+      const band = servedPool(e).filter((q) => onConcept.has(String(q.id)) && inBand(e, q));
+      const kwRows = band.filter((q) => hasKw(q, kws)).length;
+      if (kwRows < Math.min(5, band.length)) misses.push(`${e.name}: keywords cover ${kwRows} of ${band.length} band rows`);
       const got = displayed.slice(0, 5).filter((q) => hasKw(q, kws)).length;
+      if (got < Math.min(4, kwRows)) misses.push(`${e.name}: ${got}/5 lead`);
+      const oracle = ORACLE_CARDS.find((o) => o.slug === e.slug && (e.focus ?? "").startsWith(o.prefix));
+      if (oracle) {
+        const o = displayed.slice(0, 5).filter((q) => hasKw(q, oracle.phrases)).length;
+        if (o < 4) misses.push(`${e.name}: oracle ${o}/5`);
+      }
       hits += got;
-      possible += want;
-      if (got < want) misses.push(`${e.name}: ${got}/${want}`);
-      // The #1308 order (no keyword tier), measured for the report.
-      const old = await pageSet({ ...e, focus: e.focus }, "lane", { noKeyword: true });
-      trunkLikeHits += old.displayed.slice(0, 5).filter((q) => hasKw(q, kws)).length;
+      slots += Math.min(5, displayed.length);
+      dumpFirst5(`HUB ${e.slug} · ${e.focus}`, displayed, kws);
     }
-    console.info(
-      `[QP-CONCEPT-2] hub keyword hits in the first 5: #1308 order ${trunkLikeHits}/${possible} -> lane ${hits}/${possible} over ${hub.length} cards`,
-    );
+    console.info(`[QP-CONCEPT-3] hub: first-5 keyword hits ${hits}/${slots} over ${hub.length} cards`);
     expect(misses).toEqual([]);
+    const missingOracle = ORACLE_CARDS.filter((o) => !hub.some((e) => e.slug === o.slug && (e.focus ?? "").startsWith(o.prefix)));
+    expect(missingOracle.map((o) => o.prefix), "oracle cards with no keywords").toEqual([]);
   }, 900_000);
 
-  it("★ F3: sibling cards that share one concept bucket no longer get the SAME first 5", async () => {
+  it("★ F3: HPQ aliases on a broad bucket lead with their own topic (oracle: ≥ 4 of the first 5)", async () => {
+    const misses: string[] = [];
+    let hits = 0;
+    for (const o of ORACLE_HPQ) {
+      const e = ENTRIES.find((x) => x.surface === "hpq" && x.slug === o.slug && (x.hint ?? "").trim() === o.label);
+      expect(e, `${o.slug} · ${o.label}`).toBeDefined();
+      const { displayed } = await pageSet(e!, "lane");
+      const got = displayed.slice(0, 5).filter((q) => hasKw(q, o.phrases)).length;
+      hits += got;
+      if (got < 4) misses.push(`${o.label}: ${got}/5`);
+      dumpFirst5(`HPQ ${o.slug} · ${o.label}`, displayed, o.phrases);
+    }
+    console.info(`[QP-CONCEPT-3] HPQ oracle: first-5 hits ${hits}/${ORACLE_HPQ.length * 5} over ${ORACLE_HPQ.length} aliases`);
+    const dump = process.env.QP_FIRST5_DUMP;
+    if (dump) fs.writeFileSync(dump, first5Lines.join("\n"), "utf8");
+    expect(misses).toEqual([]);
+  }, 600_000);
+
+  it("★ F3: sibling cards in one concept bucket share at most 2 of their first 5", async () => {
     const hub = ENTRIES.filter((e) => e.surface === "hub");
     const byBucket = new Map<string, Entry[]>();
     for (const e of hub) {
@@ -419,19 +474,25 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
       const k = `${e.slug}|${c.practiseConceptKeys.join("+")}`;
       byBucket.set(k, [...(byBucket.get(k) ?? []), e]);
     }
-    const same: string[] = [];
+    const close: string[] = [];
     for (const [k, es] of byBucket) {
       if (es.length < 2) continue;
-      const firsts = new Map<string, string>();
-      for (const e of es) {
-        const ids = (await pageSet(e, "lane")).displayed.slice(0, 5).map((q) => String(q.id)).join(",");
-        const twin = firsts.get(ids);
-        if (twin) same.push(`${k}: "${twin}" == "${e.focus}"`);
-        firsts.set(ids, e.focus ?? "");
-      }
+      const firsts: Array<[string, Set<string>]> = [];
+      for (const e of es) firsts.push([e.focus ?? "", new Set((await pageSet(e, "lane")).displayed.slice(0, 5).map((q) => String(q.id)))]);
+      for (let i = 0; i < firsts.length; i++)
+        for (let j = i + 1; j < firsts.length; j++) {
+          const shared = [...firsts[i][1]].filter((id) => firsts[j][1].has(id)).length;
+          if (shared > 2) close.push(`${k}: "${firsts[i][0]}" ~ "${firsts[j][0]}" share ${shared}/5`);
+        }
     }
-    expect(same).toEqual([]);
+    expect(close).toEqual([]);
   }, 600_000);
+
+  it("F4: the honest note names the concept an HPQ entry's questions come from", async () => {
+    const e = ENTRIES.find((x) => x.surface === "hpq" && (x.hint ?? "") === "Lens Formula & Diagrams")!;
+    const t = await loadConceptHintTiers(servedPool(e), practiceTopicLabel(e.subjectKey, e.slug), [e.focus, e.hint]);
+    expect((t as { conceptName?: string }).conceptName).toBe("Mirror / Lens Formula & Ray Diagrams");
+  }, 120_000);
 
   it("F2: the honest note — how many rows lead, and its words", async () => {
     const { conceptRowsShown, conceptEndNote } = await import("./conceptHintTiers");
