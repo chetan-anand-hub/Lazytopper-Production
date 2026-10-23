@@ -8,6 +8,14 @@
 .lt-gr-zz { animation: lt-gr-zz 2.4s ease-out infinite; }
 .lt-gr-up { animation: lt-gr-up 2s ease-out infinite; }
 .lt-gr-fall { animation: lt-gr-fall 1.6s ease-in infinite; }
+/* COMPANION-1 — the streak flame flickers gently (still under reduced motion, below). */
+.lt-gr-flick { animation: lt-gr-flick .9s ease-in-out infinite; transform-origin: center bottom; }
+@keyframes lt-gr-flick { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(.92, 1.08); } }
+/* COMPANION-1 — byte_marking's red pen ticks down the three step lines, on a loop. */
+.lt-gr-tick { animation: lt-gr-tick 2.4s ease-in-out infinite; }
+@keyframes lt-gr-tick { 0%, 10% { transform: translate(0, -14px); } 25% { transform: translate(3px, -10px); }
+  40%, 50% { transform: translate(0, -2px); } 65% { transform: translate(3px, 2px); } 80%, 90% { transform: translate(0, 10px); }
+  100% { transform: translate(0, -14px); } }
 .lt-gr-tw.lt-gr-n1 { animation-delay: .35s; } .lt-gr-tw.lt-gr-n2 { animation-delay: .7s; }
 .lt-gr-up.lt-gr-n1 { animation-delay: .65s; } .lt-gr-up.lt-gr-n2 { animation-delay: 1.3s; }
 .lt-gr-zz.lt-gr-n1 { animation-delay: .8s; } .lt-gr-zz.lt-gr-n2 { animation-delay: 1.6s; }

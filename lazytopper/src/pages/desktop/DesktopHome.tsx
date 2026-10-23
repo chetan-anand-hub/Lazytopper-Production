@@ -27,6 +27,7 @@ import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
 import { TrialEndBannerView, useTrialEndBanner } from "../../components/trial/TrialEndBanner";
+import { CompanionHome } from "../../components/guide/companion/companion";
 
 
 /**
@@ -398,6 +399,8 @@ export default function DesktopHome() {
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
             renders nothing for a signed-out visitor or an existing student. */}
         {user ? <StartHereFocusView uid={user.uid} surface="home" returnTo="/" state={startHere} /> : null}
+        {/* COMPANION-1 — Byte & Ziggy's companion moments (guide arm; renders nothing otherwise). */}
+        <CompanionHome uid={realUid} startHereUp={!!startHere.eligible} returnTo="/" />
 
         {/* ── Start here — 4 hero cards ──────────────────────────
             AUTH-2-FU §4: the heroes now come BEFORE the merged card, so a new
