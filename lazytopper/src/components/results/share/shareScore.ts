@@ -17,7 +17,10 @@ export interface ShareNavigator {
   share?: (data: { files?: File[]; text?: string }) => Promise<void>;
 }
 
-export const SHARE_FILENAME = "lazytopper-score.png";
+/** SHARE-CARD-1 - the saved / shared file's name, per size. */
+export function shareFilename(size: "story" | "square"): string {
+  return `lazytopper-result-${size}.png`;
+}
 
 /** Native only when the browser says it can share THIS file; anything doubtful -> link. */
 export function pickShareMethod(nav: ShareNavigator | undefined, file: File): ShareMethod {
