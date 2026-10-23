@@ -226,6 +226,17 @@ export function loadWrongAnswerLog(): WrongAnswerLog {
   return readWrongAnswerLogFor(activeUid()) ?? { version: 1, entries: {} };
 }
 
+/**
+ * MI-CARD-UID-1 — ONE named account's log, for a reader that knows whose figures it shows (the MI
+ * card). It never follows the device's "active" marker, which on a shared phone can still name
+ * the previous account, and never reads the unscoped signed-out key: no uid → an empty log.
+ */
+export function loadWrongAnswerLogFor(uid: string | null | undefined): WrongAnswerLog {
+  const id = typeof uid === "string" ? uid.trim() : "";
+  if (!id) return { version: 1, entries: {} };
+  return readWrongAnswerLogFor(id) ?? { version: 1, entries: {} };
+}
+
 export function saveWrongAnswerLog(log: WrongAnswerLog): void {
   if (typeof window === "undefined") return;
   const uid = activeUid();
