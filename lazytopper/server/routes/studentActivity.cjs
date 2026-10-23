@@ -156,6 +156,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'paywall_action_forward',
   // PARENT-REPORT-1 - the student shared a link to one result with a parent. Additive only.
   'parent_report_shared',
+  // SHARE-CARD-1 - the student shared a scorecard image (any surface, size, channel). Additive only.
+  'scorecard_share',
 ]);
 
 /**
