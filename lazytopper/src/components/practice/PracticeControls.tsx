@@ -124,15 +124,41 @@ export function filterOptionLabel(options: { value: string; label: string }[], v
   return options.find((o) => o.value === value)?.label ?? value;
 }
 
+/** One filter the page dropped: which row it was on, and the chip's label. */
+export interface DroppedFilter {
+  row: "style" | "source" | "diff";
+  label: string;
+}
+
+const WIDENED_TO: Record<DroppedFilter["row"], string> = {
+  style: "question types",
+  source: "sources",
+  diff: "levels",
+};
+
+const joinOr = (xs: readonly string[]) =>
+  xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} or ${xs[xs.length - 1]}`;
+const joinAnd = (xs: readonly string[]) =>
+  xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
+
 /**
  * GUIDE-FILTER-1 (#1302 review) — the honest line shown when a requested filter was dropped because
- * the chosen chapter(s) hold none of it (practiceFilters.filtersTheChapterLacks), e.g.
- * "No Proof / Derivation questions in this chapter — showing a mixed set."
+ * the chosen chapter(s) hold none of it (practiceFilters.filtersTheChapterLacks). It must be TRUE
+ * for the set actually built:
+ *   nothing else narrows the set  → "No Proof / Derivation questions in this chapter — showing a mixed set."
+ *   another filter still applies   → "… — showing all question types." (only the dropped row widened;
+ *                                     e.g. marks=1&style=proof is still a 1-mark set, not a mixed one).
  */
-export function droppedFilterNote(labels: readonly string[], multiChapter = false): string | null {
-  if (labels.length === 0) return null;
-  const what = labels.length === 1 ? labels[0] : `${labels.slice(0, -1).join(", ")} or ${labels[labels.length - 1]}`;
-  return `No ${what} questions in ${multiChapter ? "these chapters" : "this chapter"} — showing a mixed set.`;
+export function droppedFilterNote(
+  dropped: readonly DroppedFilter[],
+  opts: { multiChapter?: boolean; othersApply?: boolean } = {},
+): string | null {
+  if (dropped.length === 0) return null;
+  const where = opts.multiChapter ? "these chapters" : "this chapter";
+  const showing = opts.othersApply
+    ? `showing all ${joinAnd(dropped.map((d) => WIDENED_TO[d.row]))}`
+    : "showing a mixed set";
+  return `No ${joinOr(dropped.map((d) => d.label))} questions in ${where} — ${showing}.`;
 }
 
 /** FILTER-FIX-1: chip look lives in practiceFilterChips.css (no inline style objects, CLAUDE.md §7). */

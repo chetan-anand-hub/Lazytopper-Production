@@ -763,7 +763,7 @@ export interface PracticeOverlayProps {
   onClose: () => void;
 }
 
-const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay }) => {
+const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: string }> = ({ overlay, arrivalKey }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
@@ -1833,15 +1833,25 @@ const packTopicKey = useMemo(() => {
   const presetFallbackNote = useMemo(() => {
     if (!chipServedPool) return null;
     const c = filtersTheChapterLacks(chipServedPool, { style: committedStyle, source: committedSource, diff: committedDifficulty });
+    // #1302 re-review: the line must be true for the set actually built — "a mixed set" only when
+    // nothing else narrows it (marks, a concept band or focus, a kept style / source / level).
+    const othersApply =
+      committedMarks !== "all" ||
+      committedMarksRange !== null ||
+      Boolean(subtopicHint || conceptFocusLabel) ||
+      Boolean(strictFocus && focusBankIds && focusBankIds.length > 0) ||
+      (!c.style && committedStyle !== "all") ||
+      (!c.source && committedSource !== "all") ||
+      (!c.diff && committedDifficulty !== "all");
     return droppedFilterNote(
       [
-        ...(c.style ? [filterOptionLabel(STYLE_OPTIONS, committedStyle)] : []),
-        ...(c.source ? [filterOptionLabel(SOURCE_OPTIONS, committedSource)] : []),
-        ...(c.diff ? [filterOptionLabel(DIFFICULTY_OPTIONS, committedDifficulty)] : []),
+        ...(c.style ? [{ row: "style" as const, label: filterOptionLabel(STYLE_OPTIONS, committedStyle) }] : []),
+        ...(c.source ? [{ row: "source" as const, label: filterOptionLabel(SOURCE_OPTIONS, committedSource) }] : []),
+        ...(c.diff ? [{ row: "diff" as const, label: filterOptionLabel(DIFFICULTY_OPTIONS, committedDifficulty) }] : []),
       ],
-      isMultiTopic,
+      { multiChapter: isMultiTopic, othersApply },
     );
-  }, [chipServedPool, committedStyle, committedSource, committedDifficulty, isMultiTopic]);
+  }, [chipServedPool, committedStyle, committedSource, committedDifficulty, committedMarks, committedMarksRange, subtopicHint, conceptFocusLabel, strictFocus, focusBankIds, isMultiTopic]);
   const presetFallbackPending = presetFallbackNote !== null;
   const shownDroppedFilterLine = presetFallbackNote ?? droppedFilterLine;
   useEffect(() => {
@@ -1872,11 +1882,11 @@ const packTopicKey = useMemo(() => {
     const present = drop.filter((k) => next.has(k));
     if (present.length === 0) return;
     for (const k of present) next.delete(k);
-    // The route element is keyed by the arrival's search (`practiceArrivalKey`), so dropping a param
-    // would REMOUNT the page (a second build, and this fallback's line lost). The clean-up is not a
-    // new arrival: hold the arrival's key in the history state so the page stays mounted.
+    // The route element is keyed per ARRIVAL (PracticePageRoute), so dropping a param would REMOUNT
+    // the page (a second build, and this fallback's line lost). The clean-up is not a new arrival:
+    // hold THIS mount's route key in the history state so the page stays mounted.
     const prev = location.state && typeof location.state === "object" ? (location.state as Record<string, unknown>) : {};
-    const heldKey = typeof prev[QP_ARRIVAL_KEY_STATE] === "string" ? prev[QP_ARRIVAL_KEY_STATE] : practiceArrivalKey(location.search);
+    const heldKey = arrivalKey ?? practiceArrivalKey(location.search);
     setSearchParams(next, { replace: true, state: { ...prev, [QP_ARRIVAL_KEY_STATE]: heldKey } });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chipServedPool, committedStyle, committedSource, committedDifficulty, pendingStyle, pendingSource, pendingDifficulty]);
@@ -4716,11 +4726,35 @@ export const practiceArrivalKey = (search: string): string => {
  */
 export const QP_ARRIVAL_KEY_STATE = "qpArrivalKey";
 
+/** A held key is `<arrival key>` or `<arrival key>@<navigation key>`; '@' never occurs in an encoded search. */
+const arrivalBaseOf = (heldKey: string): string => heldKey.split("@")[0];
+
+/**
+ * The route key, decided ONCE per navigation (`location.key`):
+ *   · our own clean-up (a `replace` carrying QP_ARRIVAL_KEY_STATE) → the held key: NO remount;
+ *   · a NEW navigation to the same arrival while the page is on its cleaned entry (the student taps
+ *     the same `…&style=proof` link again; #1302 re-review) → `<arrival>@<this navigation's key>`:
+ *     a remount, so a FRESH set is built and the URL is cleaned again;
+ *   · anything else → the arrival key (unchanged behaviour: built markers, back / forward, refresh).
+ */
 const PracticePageRoute: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay }) => {
   const location = useLocation();
+  const decided = useRef<{ locKey: string; key: string; base: string; held: boolean } | null>(null);
   if (overlay) return <PracticePage overlay={overlay} />;
-  const held = (location.state as Record<string, unknown> | null)?.[QP_ARRIVAL_KEY_STATE];
-  return <PracticePage key={typeof held === "string" ? held : practiceArrivalKey(location.search)} />;
+  const heldRaw = (location.state as Record<string, unknown> | null)?.[QP_ARRIVAL_KEY_STATE];
+  const held = typeof heldRaw === "string" ? heldRaw : null;
+  const last = decided.current;
+  let key: string;
+  if (last && last.locKey === location.key) {
+    key = last.key;
+  } else {
+    const base = practiceArrivalKey(location.search);
+    if (held) key = held;
+    else if (last && last.held && last.base === base) key = `${base}@${location.key}`;
+    else key = base;
+    decided.current = { locKey: location.key, key, base: held ? arrivalBaseOf(held) : base, held: Boolean(held) };
+  }
+  return <PracticePage key={key} arrivalKey={key} />;
 };
 
 export default PracticePageRoute;

@@ -7,8 +7,8 @@
 // "Proof / Derivation" badge and the filters-empty state.
 
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation, useNavigationType } from "react-router-dom";
+import { render, screen, cleanup, act, fireEvent, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
 vi.mock("../context/AuthContext", () => ({
@@ -77,6 +77,16 @@ function watchForEmptyFlash() {
   return { seen, stop: () => mo.disconnect() };
 }
 
+/** A link to the ORIGINAL url, tapped again from the fallen-back page (a new PUSH navigation). */
+function TapLink({ to }: { to: string }) {
+  const navigate = useNavigate();
+  return (
+    <button type="button" data-testid="tap-link" onClick={() => navigate(to)}>
+      again
+    </button>
+  );
+}
+
 function open(url: string) {
   setMatchMediaMatches(true);
   render(
@@ -86,6 +96,7 @@ function open(url: string) {
         <Route path="*" element={null} />
       </Routes>
       <Loc />
+      <TapLink to={url} />
     </MemoryRouter>,
   );
 }
@@ -115,6 +126,39 @@ describe("GUIDE-FILTER-1 · a URL / preset filter the chapter holds none of fall
     );
   }, 120000);
 
+  it("★★ #1302 re-review: marks=1&style=proof — the line says 'all question types', not 'a mixed set' (the set is still 1-mark)", async () => {
+    open("/practice/10/Science?topic=magnetic-effects-of-electric-current&count=10&marks=1&style=proof");
+    await screen.findAllByTestId("practice-question-card", {}, { timeout: 60000 });
+    expect(screen.getByTestId("qp-chip-marks")).toHaveTextContent("1 mark");
+    expect(screen.getByTestId("qp-filter-dropped").textContent).toBe(
+      "No Proof / Derivation questions in this chapter — showing all question types.",
+    );
+  }, 120000);
+
+  it("★★ #1302 re-review: tapping the SAME link again on the fallen-back page builds a fresh set and cleans the URL again", async () => {
+    const LINK = "/practice/10/Science?topic=magnetic-effects-of-electric-current&count=10&style=proof";
+    open(LINK);
+    const first = await screen.findAllByTestId("practice-question-card", {}, { timeout: 60000 });
+    const firstCard = first[0];
+    expect(screen.getByTestId("loc").textContent ?? "").not.toMatch(/style=/);
+    // The student taps the original link again (a new PUSH navigation to the same URL).
+    act(() => {
+      fireEvent.click(screen.getByTestId("tap-link"));
+    });
+    // A fresh mount: the first card node is gone, a new set is built, and the URL is cleaned again.
+    await waitFor(() => expect(firstCard.isConnected).toBe(false), { timeout: 60000 });
+    const again = await screen.findAllByTestId("practice-question-card", {}, { timeout: 60000 });
+    expect(again[0]).not.toBe(firstCard);
+    await waitFor(() => expect(screen.getByTestId("loc").textContent ?? "").not.toMatch(/style=/), { timeout: 60000 });
+    expect(screen.getByTestId("qp-filter-dropped").textContent).toBe(
+      "No Proof / Derivation questions in this chapter — showing a mixed set.",
+    );
+    // …and the clean-up itself still does not remount (the line survives; one more check after settle).
+    const settled = screen.getAllByTestId("practice-question-card")[0];
+    await new Promise((r) => setTimeout(r, 300));
+    expect(settled.isConnected).toBe(true);
+  }, 180000);
+
   it("★ CONTROL: Electricity + style=proof keeps the Proof / Derivation filter (the chapter has them)", async () => {
     expect(elecProofs).toBeGreaterThan(0);
     open("/practice/10/Science?topic=electricity&count=5&style=proof");
@@ -141,13 +185,24 @@ describe("GUIDE-FILTER-1 · filtersTheChapterLacks — only what the chapter hol
 
   // The Difficulty fallback (engine difficulty reset) is a RENDERED test: PracticePage.diffFallback.test.tsx.
 
-  it("#1302 review: the dropped-filter line names every dropped filter, chapter or chapters", () => {
+  it("#1302 review: the dropped-filter line names every dropped filter, and is true for the set built", () => {
+    const proof = { row: "style" as const, label: "Proof / Derivation" };
+    const pyq = { row: "source" as const, label: "Board exam (PYQ)" };
     expect(droppedFilterNote([])).toBeNull();
-    expect(droppedFilterNote(["Proof / Derivation"])).toBe(
-      "No Proof / Derivation questions in this chapter — showing a mixed set.",
-    );
-    expect(droppedFilterNote(["Proof / Derivation", "Board exam (PYQ)"], true)).toBe(
+    // Nothing else narrows the set → a mixed set.
+    expect(droppedFilterNote([proof])).toBe("No Proof / Derivation questions in this chapter — showing a mixed set.");
+    expect(droppedFilterNote([proof, pyq], { multiChapter: true })).toBe(
       "No Proof / Derivation or Board exam (PYQ) questions in these chapters — showing a mixed set.",
+    );
+    // #1302 re-review: another filter still applies (e.g. marks=1) → only the dropped row widened.
+    expect(droppedFilterNote([proof], { othersApply: true })).toBe(
+      "No Proof / Derivation questions in this chapter — showing all question types.",
+    );
+    expect(droppedFilterNote([proof, pyq], { othersApply: true })).toBe(
+      "No Proof / Derivation or Board exam (PYQ) questions in this chapter — showing all question types and sources.",
+    );
+    expect(droppedFilterNote([{ row: "diff", label: "Hard" }], { othersApply: true })).toBe(
+      "No Hard questions in this chapter — showing all levels.",
     );
   });
 
