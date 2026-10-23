@@ -78,7 +78,8 @@ import {
   type FMSubject,
 } from "../components/fullmock/fullMockBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
-import { claimNewPaperView, NEW_PAPER_LIMIT_LINE } from "../components/auth/MockViewGate";
+import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { useSubscription } from "../hooks/useSubscription";
 import {
   attemptsLogged,
   freshnessLine,
@@ -221,6 +222,8 @@ export default function FullMockPage() {
   const sessionSubject: SessionSubject = subject === "Science" ? "science" : "maths";
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("full-mock", isSignedIn);
+  // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
+  const { isPremium } = useSubscription();
   const sessionUid = user?.uid ?? null;
   const backTo = "/practice-hub";
 
@@ -571,8 +574,8 @@ export default function FullMockPage() {
     if (fairUse.blockPaperStart()) return;
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null)) {
-      setPaperNotice(NEW_PAPER_LIMIT_LINE);
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+      setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
     submittedRef.current = false;
@@ -600,7 +603,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, user?.uid]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, user?.uid, isPremium, inProgress]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -938,8 +941,8 @@ export default function FullMockPage() {
   const downloadPaper = useCallback(async () => {
     if (!paperForExport || downloading) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
-    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null)) {
-      setPaperNotice(NEW_PAPER_LIMIT_LINE);
+    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+      setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
     setDownloading(true);
@@ -999,7 +1002,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and

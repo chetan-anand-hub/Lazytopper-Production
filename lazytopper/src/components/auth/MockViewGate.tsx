@@ -120,18 +120,27 @@ function writeUncounted(list: string[]): void {
  * Visit not marked → it was already counted → true. Marked → counts it now (true), or, with
  * today's allowance spent, refuses (false: the page keeps the saved paper and says why).
  */
-export function claimNewPaperView(pathname: string, uid: string | null): boolean {
+export function claimNewPaperView(pathname: string, uid: string | null, isPremium: boolean): boolean {
   const route = paperRouteKey(pathname);
   const marked = readUncounted();
   if (!marked.includes(route)) return true;
+  // Premium is unlimited — including a student who paid mid-session (isPremium flipped with no
+  // reload) or whose cloud status arrived after the gate ran on the local cache.
+  if (isPremium) {
+    writeUncounted(marked.filter((r) => r !== route));
+    return true;
+  }
   if (getDailyMockViews(uid) >= dailyLimitFor(!!uid)) return false;
   incrementDailyMockViews(uid);
   writeUncounted(marked.filter((r) => r !== route));
   return true;
 }
 
-/** The line a page shows when `claimNewPaperView` refuses. */
+/** The line a page shows when `claimNewPaperView` refuses a new paper. */
 export const NEW_PAPER_LIMIT_LINE =
+  "You've opened today's papers already — a new paper opens again tomorrow.";
+/** The same refusal while a saved, unfinished paper is on offer (it can still be resumed). */
+export const NEW_PAPER_LIMIT_SAVED_LINE =
   "You've opened today's papers already — your saved test is still here to finish.";
 
 /** Premium is unlimited and never reaches this. */
@@ -186,6 +195,13 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       if (!marked.includes(route)) writeUncounted([...marked, route]);
       setReady(true);
       return;
+    }
+    // Not a resume: any earlier "uncounted" mark for this route (a resume visit earlier in this
+    // tab) is stale — this visit is judged and counted here, so the page must never count it again.
+    {
+      const route = paperRouteKey(location.pathname);
+      const marked = readUncounted();
+      if (marked.includes(route)) writeUncounted(marked.filter((r) => r !== route));
     }
     const views = getDailyMockViews(uid);
     if (views >= dailyLimitFor(!!user)) {

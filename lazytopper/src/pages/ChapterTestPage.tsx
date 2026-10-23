@@ -53,7 +53,8 @@ import {
 } from "../components/chaptertest/chapterTestBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { CT_PROGRESS_PREFIX, paperRouteKey } from "../lib/papers/resumablePaper";
-import { claimNewPaperView, NEW_PAPER_LIMIT_LINE } from "../components/auth/MockViewGate";
+import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { useSubscription } from "../hooks/useSubscription";
 import {
   attemptsLogged,
   freshnessLine,
@@ -205,6 +206,9 @@ export default function ChapterTestPage() {
   const topicName = resolveTopicDisplayName(subject, topicKey);
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("chapter-test", isSignedIn);
+  // CT-RESUME-2: premium is unlimited on the daily paper gate — read live, so a student who pays
+  // mid-session (or whose cloud status lands after the gate ran) is never refused a new paper.
+  const { isPremium } = useSubscription();
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const backTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
@@ -338,6 +342,8 @@ export default function ChapterTestPage() {
   const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
   const [pickPaper, setPickPaper] = useState<ChapterTestPaperSnapshot | null>(null);
   const [paperNotice, setPaperNotice] = useState<string | null>(null);
+  // CT-RESUME-2: a daily-paper-limit refusal, shown right under the button that was tapped.
+  const [limitNotice, setLimitNotice] = useState<string | null>(null);
   // `openStored` is declared further down; the picks guard reaches it through this ref.
   const openStoredRef = useRef<((record: SessionRecord) => Promise<void>) | null>(null);
   const [reopen, setReopen] = useState<{
@@ -552,6 +558,12 @@ export default function ChapterTestPage() {
   const startTest = useCallback(async () => {
     // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper.
     if (fairUse.blockPaperStart()) return;
+    // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
+    // (it looked like a resume) is counted now — or refused at today's limit.
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+      setLimitNotice(NEW_PAPER_LIMIT_LINE);
+      return;
+    }
     // LOW-END-1 R6 / CT-KATEX-2: the first question renders KaTeX on its FIRST paint. Usually
     // already in flight (the first interaction started it — pressing Start is one); if not,
     // this starts it. A failed fetch still starts the paper — MathText then retries.
@@ -566,7 +578,7 @@ export default function ChapterTestPage() {
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper]);
+  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, user?.uid, isPremium]);
 
   // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
   // never re-counted against the fair-use allowance.
@@ -585,8 +597,8 @@ export default function ChapterTestPage() {
   const discardRestored = useCallback(() => {
     // CT-RESUME-2: this visit was let through as a RESUME (not counted). A new paper instead is
     // counted now — or refused when today's papers are used up (the saved test stays).
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null)) {
-      setPaperNotice(NEW_PAPER_LIMIT_LINE);
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+      setLimitNotice(NEW_PAPER_LIMIT_SAVED_LINE);
       return;
     }
     if (progressKey && typeof window !== "undefined") {
@@ -601,7 +613,7 @@ export default function ChapterTestPage() {
     setFlags(new Set());
     setElapsed(0);
     setCurrentQNumber(1);
-  }, [progressKey, location.pathname, user?.uid]);
+  }, [progressKey, location.pathname, user?.uid, isPremium]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
@@ -706,6 +718,11 @@ export default function ChapterTestPage() {
   // ── Downloads ────────────────────────────────────────────────────────────────
   const downloadTest = useCallback(async () => {
     if (!paper || !nomen || downloading) return;
+    // CT-RESUME-2: downloading THIS visit's draw is a new paper (the saved paper on offer is not).
+    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+      setLimitNotice(NEW_PAPER_LIMIT_LINE);
+      return;
+    }
     setDownloading(true);
     try {
       await exportWorksheetPdf(paper, "questions", nomen.code);
@@ -746,7 +763,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1195,6 +1212,12 @@ export default function ChapterTestPage() {
                         {downloading ? "Preparing…" : "↓ Download this test (PDF)"}
                       </button>
                     </div>
+                    {limitNotice && (
+                      <div className="lt-ct__honest" role="alert" data-testid="ct-limit-notice">
+                        <span>·</span>
+                        <span>{limitNotice}</span>
+                      </div>
+                    )}
 
                     {downloadedNote && (
                       <PaperDownloadedNote

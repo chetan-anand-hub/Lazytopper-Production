@@ -138,7 +138,7 @@ describe("CT-RESUME-2 · the daily paper gate counts only NEW papers", () => {
     spendAllThree();
     saveCtProgress();
     expect(visit(CT_ROUTE)).toBe(true);
-    expect(claimNewPaperView(CT_ROUTE, UID)).toBe(false);
+    expect(claimNewPaperView(CT_ROUTE, UID, false)).toBe(false);
     expect(viewsToday()).toBe(3);
 
     // Under the limit: the new paper is counted once, and only once.
@@ -148,16 +148,50 @@ describe("CT-RESUME-2 · the daily paper gate counts only NEW papers", () => {
     saveCtProgress();
     expect(visit(CT_ROUTE)).toBe(true);
     expect(viewsToday()).toBe(1);
-    expect(claimNewPaperView(CT_ROUTE, UID)).toBe(true);
+    expect(claimNewPaperView(CT_ROUTE, UID, false)).toBe(true);
     expect(viewsToday()).toBe(2);
-    expect(claimNewPaperView(CT_ROUTE, UID)).toBe(true);
+    expect(claimNewPaperView(CT_ROUTE, UID, false)).toBe(true);
     expect(viewsToday()).toBe(2);
   });
 
   it("★ a visit that WAS counted never counts again when the page starts its paper", () => {
     expect(visit(CT_ROUTE)).toBe(true);
-    expect(claimNewPaperView(CT_ROUTE, UID)).toBe(true);
+    expect(claimNewPaperView(CT_ROUTE, UID, false)).toBe(true);
     expect(viewsToday()).toBe(1);
+  });
+
+  it("★★ HOLD 2: a resume mark never outlives the resume — a later NEW visit to that route is counted ONCE", () => {
+    expect(visit("/chapter-test/10/maths/real-numbers")).toBe(true);
+    saveCtProgress();
+    expect(visit(CT_ROUTE)).toBe(true); // resume: uncounted, marked
+    expect(viewsToday()).toBe(1);
+    // The saved test was submitted (its autosave is gone); the tab — and its marks — stay.
+    sessionStorage.removeItem("lazytopper.ct.progress.CT-S-CAIC-02");
+    expect(visit(CT_ROUTE)).toBe(true); // a genuinely new paper: the GATE counts it…
+    expect(viewsToday()).toBe(2);
+    expect(claimNewPaperView(CT_ROUTE, UID, false)).toBe(true); // …and the page's start never counts it again
+    expect(viewsToday()).toBe(2);
+  });
+
+  it("★★ HOLD 2: at the limit, a stale mark never turns a counted visit into a refusal", () => {
+    expect(visit("/chapter-test/10/maths/real-numbers")).toBe(true);
+    expect(visit("/chapter-test/10/maths/polynomials")).toBe(true);
+    saveCtProgress();
+    expect(visit(CT_ROUTE)).toBe(true); // resume, uncounted (2 of 3)
+    sessionStorage.removeItem("lazytopper.ct.progress.CT-S-CAIC-02");
+    expect(visit(CT_ROUTE)).toBe(true); // new paper, counted by the gate: 3 of 3
+    expect(viewsToday()).toBe(3);
+    expect(claimNewPaperView(CT_ROUTE, UID, false)).toBe(true); // not refused, not double-counted
+    expect(viewsToday()).toBe(3);
+  });
+
+  it("★★ HOLD 3: a student who is premium NOW (paid mid-session / cloud status arrived late) is never refused", () => {
+    spendAllThree();
+    saveCtProgress();
+    expect(visit(CT_ROUTE)).toBe(true); // gate ran as non-premium: resume, marked
+    expect(claimNewPaperView(CT_ROUTE, UID, true)).toBe(true);
+    expect(viewsToday()).toBe(3); // premium is never counted
+    expect(sessionStorage.getItem("lazytopper.dailyMockViews.uncounted")).toBeNull();
   });
 
   it("★ premium is unlimited and never marked", () => {
