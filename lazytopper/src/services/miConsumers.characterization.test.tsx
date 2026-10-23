@@ -122,12 +122,12 @@ describe("Me / Progress", () => {
           "calculationCount": 2,
           "count": 3,
           "hasData": true,
-          "marksLost": 0,
+          "marksLost": 4,
           "sillyCount": 1,
         },
         "chapters": [
           {
-            "gapType": null,
+            "gapType": "conceptual",
             "key": "real-numbers",
             "label": "Real Numbers",
             "lost": 17,
@@ -163,7 +163,7 @@ describe("Me / Progress", () => {
           "calculationCount": 2,
           "count": 4,
           "hasData": true,
-          "marksLost": 0,
+          "marksLost": 3,
           "sillyCount": 2,
         },
         "chapters": [
