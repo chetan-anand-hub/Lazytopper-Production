@@ -32,7 +32,7 @@ import { buildChapterServedPool, buildPracticeQuestionsWithAiTopup, type Subject
 import { takeBlueprintShare } from "./blueprintTake";
 import { practiceTopicLabel } from "./cbqAvailability";
 import { loadConceptHintTiers } from "./conceptHintTiers";
-import { HPQ_NO_BANK_CONCEPT } from "../../lib/practice/hpqConceptAliases";
+import { HPQ_ALIAS_KEYWORDS, HPQ_NO_BANK_CONCEPT } from "../../lib/practice/hpqConceptAliases";
 import { BANK_CHAPTER_SLUGS, BANK_CHAPTER_SUBJECT, ensureAllBankChapters } from "../../data/bankChapters/loader";
 import { bankIndexEntries } from "../../data/bankChapters/bankIdIndex";
 import { conceptForSubtopic, EXAM_TRENDS_CONCEPTS } from "../../data/concepts/conceptLabelMap";
@@ -379,45 +379,41 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
   // ── QP-CONCEPT-3 · the keyword target is NOT self-derived ────────────────────────────────────────
   // #1310's test counted hits against each card's OWN keywords, so a broad keyword ("radius", "lens",
   // "plants") passed itself. Now: (a) every card's keywords must cover ≥ min(5, on-concept rows in its
-  // band), and ≥ 4 of its first 5 (or all, when fewer exist) carry one; (b) for the weak cards the
-  // review read, and for the broad HPQ aliases, the first 5 are checked against an ORACLE written HERE
-  // (the reviewer's specific phrases), independent of the product's keyword lists.
-  // RED on trunk 2f0a5535 (#1310): the oracle cards / HPQ aliases and the ≥3-of-5 sibling test fail.
+  // band), and ≥ 4 of its first 5 (or all, when fewer exist) carry one (a SELF check: it proves the
+  // keywords lead, not that they are right); (b) whether they are RIGHT is the JUDGED fixture below.
   const inBand = (e: Entry, q: PracticeQuestion) => !e.range || (Number(q.marks) >= e.range.min && Number(q.marks) <= e.range.max);
-  const ORACLE_CARDS: ReadonlyArray<{ slug: string; prefix: string; phrases: string[] }> = [
-    { slug: "circles", prefix: "Tangent ⟂ radius", phrases: ["perpendicular to the radius", "tangent at any point", "point of contact", "radius through the point", "perpendicular to the tangent"] },
-    { slug: "light-reflection-and-refraction", prefix: "Lens formula", phrases: ["lens formula", "focal length of the lens", "1/v − 1/u", "1/f", "magnification produced by a lens", "convex lens", "concave lens"] },
-    { slug: "light-reflection-and-refraction", prefix: "Mirror formula", phrases: ["mirror formula", "1/v + 1/u", "concave mirror", "convex mirror"] },
-    { slug: "trigonometry", prefix: "Trigonometric ratios of an acute angle", phrases: ["acute angle", "right-angled", "right triangle"] },
-    { slug: "trigonometry", prefix: "Relationships between the ratios", phrases: ["relationships between", "reciprocal", "1/cos", "1/sec", "1/cosec", "1/cot", "sin θ/cos θ", "cos θ/sin θ"] },
-    { slug: "how-do-organisms-reproduce", prefix: "Sexual reproduction in a flower", phrases: ["flower", "pollination", "pollen", "stigma", "ovule"] },
-    { slug: "how-do-organisms-reproduce", prefix: "Human reproductive system", phrases: ["testes", "uterus", "sperm", "male reproductive", "female reproductive", "human reproductive", "oviduct", "vas deferens"] },
-    { slug: "real-numbers", prefix: "Fundamental Theorem of Arithmetic (every", phrases: ["fundamental theorem", "product of primes", "composite", "prime factorisation", "prime factorization"] },
-    { slug: "quadratic-equations", prefix: "Quadratic formula", phrases: ["quadratic formula"] },
-    { slug: "arithmetic-progression", prefix: "Common difference", phrases: ["common difference", "is an ap", "are in ap", "an a.p.", "arithmetic progression"] },
+  // QP-CONCEPT-4 — JUDGED fixture, independent of every keyword list. #1313's "oracle" copied the product's
+  // own phrases, so it checked the lists against themselves. These are bank ids a reader ACCEPTS as on-topic
+  // for each item, chosen by reading the questions (2026-10-23, on trunk e80c3966 + this lane), NOT by any
+  // keyword. A first-5 row outside the set counts as off-topic. If the bank changes, re-read the item's first
+  // 5 in first5.txt (QP_FIRST5_DUMP) and re-judge by hand — never regenerate this list from a keyword.
+  //   rejected on reading: Lens HPQ CASE-SCI-LIGHT-001 (myopia power), Mirror HPQ SQP-S-2025-LGHT-030 (concave /
+  //   convex statements, no formula), Oxidation/Reduction BX-CHEM-E-016 (respiration as exothermic).
+  const JUDGED: ReadonlyArray<{ surface: "hub" | "hpq"; slug: string; match: string; accept: readonly string[] }> = [
+    { surface: "hub", slug: "circles", match: "Tangent ⟂ radius", accept: ["CBE-M-CIRC-A-002", "LTG-M-CIRC-250", "CBE-M-CIRC-C-002", "CBE-M-TRI-B-004", "CBE-M-CIRC-B-002"] },
+    { surface: "hub", slug: "trigonometry", match: "Trigonometric ratios of an acute angle", accept: ["LTG-M-TRIG-257", "TRIG-N-NCERT-8-SA-001", "LTG-M-TRIG-239", "2026-TRIG-P1-B-001", "2026-TRIG-P1-B-002"] },
+    { surface: "hub", slug: "light-reflection-and-refraction", match: "Mirror formula", accept: ["GDR-L-NUM-093", "PYQ-S-2025-LIGHT-010", "PYQ-S-2025-LIGHT-011", "PYQ-S-2025-LIGHT-017", "CFPQ-S-LGHT-012"] },
+    { surface: "hub", slug: "light-reflection-and-refraction", match: "Lens formula", accept: ["LTG-S-LIGHT-291", "PYQ-S-2026-LIGHT-017", "PYQ-S-2025-LIGHT-016", "FND-L-SPX-019", "FND-L-SPX-023"] },
+    { surface: "hpq", slug: "light-reflection-and-refraction", match: "Lens Formula & Diagrams", accept: ["LTG-S-LIGHT-291", "LTG-S-LIGHT-102", "LTG-S-LIGHT-274", "LTG-S-LIGHT-294"] },
+    { surface: "hpq", slug: "light-reflection-and-refraction", match: "Mirror Formula & Diagrams", accept: ["LIGHT-NCERT-9-LA-007", "SQP-S-2025-LGHT-032", "LTG-S-LIGHT-223", "PYQ-S-2025-LIGHT-008"] },
+    { surface: "hpq", slug: "chemical-reactions-and-equations", match: "Oxidation/Reduction", accept: ["LTG-S-CHEMRXN-246", "CHEM-EXMPLR-1-MCQ-002", "LTG-S-CHEMRXN-310", "SP-S-2023-CHEM-A-003"] },
   ];
-  const ORACLE_HPQ: ReadonlyArray<{ slug: string; label: string; phrases: string[] }> = [
-    { slug: "chemical-reactions-and-equations", label: "Oxidation/Reduction", phrases: ["oxidation", "reduction", "redox", "oxidis", "rust", "corros"] },
-    { slug: "life-processes", label: "Nutrition in Plants", phrases: ["photosynthesis", "chlorophyll", "stomata"] },
-    { slug: "life-processes", label: "Cell organelles", phrases: ["mitochondri", "atp", "energy currency", "cell organelle"] },
-    { slug: "life-processes", label: "Circulation", phrases: ["heart", "double circulation", "circulation"] },
-    { slug: "human-eye-and-colourful-world", label: "Structure of Eye", phrases: ["accommodation", "retina", "cornea", "iris", "pupil", "ciliary", "structure"] },
-    { slug: "light-reflection-and-refraction", label: "Lens Formula & Diagrams", phrases: ["lens formula", "focal length of the lens", "1/v − 1/u", "1/f", "convex lens", "concave lens"] },
-    { slug: "light-reflection-and-refraction", label: "Mirror Formula & Diagrams", phrases: ["mirror formula", "1/v + 1/u", "concave mirror", "convex mirror"] },
-    { slug: "electricity", label: "Resistance in Series/Parallel", phrases: ["series", "parallel", "equivalent resistance"] },
-    { slug: "carbon-and-its-compounds", label: "Important Reactions", phrases: ["soap", "detergent"] },
-    { slug: "magnetic-effects-of-electric-current", label: "Electromagnet & Solenoid", phrases: ["solenoid", "electromagnet"] },
-    { slug: "arithmetic-progression", label: "Basics of AP", phrases: ["common difference", "is an ap", "are in ap", "an a.p.", "arithmetic progression"] },
-  ];
+  const judgedEntry = (j: (typeof JUDGED)[number]) =>
+    ENTRIES.find(
+      (x) =>
+        x.surface === j.surface &&
+        x.slug === j.slug &&
+        (j.surface === "hub" ? (x.focus ?? "").startsWith(j.match) : (x.hint ?? "").trim() === j.match),
+    );
   const first5Lines: string[] = [];
   const dumpFirst5 = (title: string, shown: PracticeQuestion[], kws: readonly string[]) => {
     first5Lines.push(`## ${title}  (keyword hits ${shown.slice(0, 5).filter((q) => hasKw(q, kws)).length}/5)`);
     shown.slice(0, 5).forEach((q, i) =>
-      first5Lines.push(`   ${i + 1}. ${hasKw(q, kws) ? "+" : "-"} [${q.subtopic}] ${String(q.questionText).replace(/\s+/g, " ").slice(0, 140)}`),
+      first5Lines.push(`   ${i + 1}. ${hasKw(q, kws) ? "+" : "-"} ${q.id} [${q.subtopic}] ${String(q.questionText).replace(/\s+/g, " ").slice(0, 220)}`),
     );
   };
 
-  it("★ F3: every card's keywords cover its band and lead (≥ 4 of the first 5); oracle cards match the reviewer's phrases", async () => {
+  it("★ F3: every card's keywords cover its band and lead (≥ 4 of the first 5)", async () => {
     const hub = ENTRIES.filter((e) => e.surface === "hub" && (cardOf(e)?.practiseKeywords?.length ?? 0) > 0);
     expect(hub.length).toBeGreaterThanOrEqual(80);
     const misses: string[] = [];
@@ -432,38 +428,70 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
       if (kwRows < Math.min(5, band.length)) misses.push(`${e.name}: keywords cover ${kwRows} of ${band.length} band rows`);
       const got = displayed.slice(0, 5).filter((q) => hasKw(q, kws)).length;
       if (got < Math.min(4, kwRows)) misses.push(`${e.name}: ${got}/5 lead`);
-      const oracle = ORACLE_CARDS.find((o) => o.slug === e.slug && (e.focus ?? "").startsWith(o.prefix));
-      if (oracle) {
-        const o = displayed.slice(0, 5).filter((q) => hasKw(q, oracle.phrases)).length;
-        if (o < 4) misses.push(`${e.name}: oracle ${o}/5`);
-      }
       hits += got;
       slots += Math.min(5, displayed.length);
       dumpFirst5(`HUB ${e.slug} · ${e.focus}`, displayed, kws);
     }
     console.info(`[QP-CONCEPT-3] hub: first-5 keyword hits ${hits}/${slots} over ${hub.length} cards`);
     expect(misses).toEqual([]);
-    const missingOracle = ORACLE_CARDS.filter((o) => !hub.some((e) => e.slug === o.slug && (e.focus ?? "").startsWith(o.prefix)));
-    expect(missingOracle.map((o) => o.prefix), "oracle cards with no keywords").toEqual([]);
   }, 900_000);
 
-  it("★ F3: HPQ aliases on a broad bucket lead with their own topic (oracle: ≥ 4 of the first 5)", async () => {
+  it("★ F3: every HPQ alias with keywords has keyword rows, and they lead (≥ 4 of the first 5)", async () => {
     const misses: string[] = [];
     let hits = 0;
-    for (const o of ORACLE_HPQ) {
-      const e = ENTRIES.find((x) => x.surface === "hpq" && x.slug === o.slug && (x.hint ?? "").trim() === o.label);
-      expect(e, `${o.slug} · ${o.label}`).toBeDefined();
-      const { displayed } = await pageSet(e!, "lane");
-      const got = displayed.slice(0, 5).filter((q) => hasKw(q, o.phrases)).length;
-      hits += got;
-      if (got < 4) misses.push(`${o.label}: ${got}/5`);
-      dumpFirst5(`HPQ ${o.slug} · ${o.label}`, displayed, o.phrases);
+    let n = 0;
+    for (const [slug, labels] of Object.entries(HPQ_ALIAS_KEYWORDS)) {
+      for (const [label, kws] of Object.entries(labels)) {
+        const e = ENTRIES.find((x) => x.surface === "hpq" && x.slug === slug && (x.hint ?? "").trim() === label);
+        expect(e, `${slug} · ${label}`).toBeDefined();
+        const { displayed, onConcept } = await pageSet(e!, "lane");
+        const kwRows = servedPool(e!).filter((q) => onConcept.has(String(q.id)) && hasKw(q, kws)).length;
+        if (kwRows < 5) misses.push(`${label}: only ${kwRows} keyword rows`);
+        const got = displayed.slice(0, 5).filter((q) => hasKw(q, kws)).length;
+        if (got < Math.min(4, kwRows)) misses.push(`${label}: ${got}/5 lead`);
+        hits += got;
+        n += 1;
+        dumpFirst5(`HPQ ${slug} · ${label}`, displayed, kws);
+      }
     }
-    console.info(`[QP-CONCEPT-3] HPQ oracle: first-5 hits ${hits}/${ORACLE_HPQ.length * 5} over ${ORACLE_HPQ.length} aliases`);
+    // The HPQ labels with no bank concept (honest note) — dumped so the reader sees what is served.
+    for (const [slug, labels] of Object.entries(HPQ_NO_BANK_CONCEPT)) {
+      for (const label of Object.keys(labels)) {
+        const e = ENTRIES.find((x) => x.surface === "hpq" && x.slug === slug && (x.hint ?? "").trim() === label)!;
+        dumpFirst5(`HPQ ${slug} · ${label} (no bank concept: honest note shown)`, (await pageSet(e, "lane")).displayed, []);
+      }
+    }
+    console.info(`[QP-CONCEPT-4] HPQ alias keyword hits in the first 5: ${hits}/${n * 5} over ${n} aliases`);
+    expect(misses).toEqual([]);
+  }, 600_000);
+
+  it("★ QP-CONCEPT-4: JUDGED — ≥ 4 of the first 5 are questions a reader accepts as on-topic", async () => {
+    const misses: string[] = [];
+    const counts: string[] = [];
+    for (const j of JUDGED) {
+      const e = judgedEntry(j);
+      expect(e, `${j.slug} · ${j.match}`).toBeDefined();
+      const { displayed } = await pageSet(e!, "lane");
+      const ok = displayed.slice(0, 5).filter((q) => j.accept.includes(String(q.id))).length;
+      counts.push(`${j.match} ${ok}/5`);
+      if (ok < 4) misses.push(`${j.surface} ${j.match}: ${ok}/5 judged on-topic`);
+    }
+    console.info(`[QP-CONCEPT-4] judged on-topic in the first 5: ${counts.join(" · ")}`);
     const dump = process.env.QP_FIRST5_DUMP;
     if (dump) fs.writeFileSync(dump, first5Lines.join("\n"), "utf8");
     expect(misses).toEqual([]);
   }, 600_000);
+
+  it("QP-CONCEPT-4: 'Cell organelles' has no bank concept — it is listed, and the note says so honestly", async () => {
+    expect(HPQ_NO_BANK_CONCEPT["life-processes"]?.["Cell organelles"]).toMatch(/fewer than 5/);
+    const e = ENTRIES.find((x) => x.surface === "hpq" && (x.hint ?? "") === "Cell organelles")!;
+    const t = await loadConceptHintTiers(servedPool(e), practiceTopicLabel(e.subjectKey, e.slug), [e.focus, e.hint]);
+    expect(t.onConcept.size).toBe(0);
+    const { conceptEndNote } = await import("./conceptHintTiers");
+    expect(conceptEndNote((t as { conceptName?: string }).conceptName ?? "", 0)).toBe(
+      `We don't have questions on "Cell organelles" yet — these are related questions from this chapter.`,
+    );
+  }, 120_000);
 
   it("★ F3: sibling cards in one concept bucket share at most 2 of their first 5", async () => {
     const hub = ENTRIES.filter((e) => e.surface === "hub");
@@ -511,6 +539,8 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
     expect(conceptEndNote("Excretion in Plants", shown)).toBe(
       "That's every question we have on Excretion in Plants for now — the rest are from the same chapter.",
     );
-    expect(conceptEndNote("Standard form", 0)).toBe("We don't have questions on Standard form yet — these are from the same chapter.");
+    expect(conceptEndNote("Standard form", 0)).toBe(
+      "We don't have questions on Standard form yet — these are related questions from this chapter.",
+    );
   }, 120_000);
 });

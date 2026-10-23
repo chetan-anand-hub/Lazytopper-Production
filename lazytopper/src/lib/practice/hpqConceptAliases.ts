@@ -71,8 +71,6 @@ export const HPQ_CONCEPT_ALIASES: Readonly<Record<string, Readonly<Record<string
   },
   "life-processes": {
     "Circulation": ["Transportation & Excretion in Humans"],
-    // lp-hpq-101 — "powerhouse of the cell" (mitochondria, the site of respiration).
-    "Cell organelles": ["Nutrition & Respiration (Human + Plants)"],
     "Nutrition in Plants": ["Nutrition & Respiration (Human + Plants)"],
   },
   "light-reflection-and-refraction": {
@@ -108,7 +106,15 @@ export const HPQ_CONCEPT_ALIASES: Readonly<Record<string, Readonly<Record<string
 };
 
 /** An HPQ label that names no concept the bank has: chapter -> label -> reason. */
-export const HPQ_NO_BANK_CONCEPT: Readonly<Record<string, Readonly<Record<string, string>>>> = {};
+export const HPQ_NO_BANK_CONCEPT: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  "life-processes": {
+    // QP-CONCEPT-4 (reviewer read): lp-hpq-101 asks for the "powerhouse of the cell". The bank holds only
+    // 3 genuine rows on it (2 on mitochondria, 1 on ATP as energy currency) — fewer than a set of 5 — so
+    // the label is NOT mapped onto the 313-row Nutrition & Respiration bucket; the page serves related
+    // questions from this chapter under the honest note instead.
+    "Cell organelles": "only 3 bank rows on mitochondria / ATP (fewer than 5): served with the honest note",
+  },
+};
 
 /** The concept(s) an HPQ label stands for in `chapterSlug`, or undefined. Exact, then case-insensitive. */
 export function hpqConceptAlias(chapterSlug: string, label: string): readonly string[] | undefined {
@@ -128,8 +134,8 @@ export function hpqConceptAlias(chapterSlug: string, label: string): readonly st
 // row's subtopic or question text, as on the Topic Hub cards) rank the HPQ question's OWN topic first
 // inside the bucket. Chosen from phrases that occur in the bank (checked by conceptHint.realBank.test.ts:
 // each label has keyword rows, and they lead its set).
-const LENS_KEYWORDS = ["lens formula", "focal length of the lens", "1/v − 1/u", "1/f", "magnification produced by a lens", "convex lens", "concave lens"];
-const MIRROR_KEYWORDS = ["mirror formula", "1/v + 1/u", "concave mirror", "convex mirror"];
+const LENS_KEYWORDS = ["lens formula", "converging lens"];
+const MIRROR_KEYWORDS = ["mirror formula", "mirror of focal length"];
 export const AP_TEST_KEYWORDS = ["common difference", "is an ap", "are in ap", "an a.p.", "arithmetic progression"];
 
 export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> = {
@@ -147,7 +153,7 @@ export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string,
     "Probability axioms": ["complement", "not ", "p(not"],
   },
   "chemical-reactions-and-equations": {
-    "Oxidation/Reduction": ["oxidation", "reduction", "redox", "oxidis", "rust", "corros"],
+    "Oxidation/Reduction": ["oxidation and reduction", "oxidation-reduction", "redox", "oxidised", "reducing agent", "oxidising agent"],
   },
   "acids-bases-and-salts": {
     "Indicators & pH": ["indicator", "litmus", "ph "],
@@ -158,7 +164,6 @@ export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string,
   },
   "life-processes": {
     "Circulation": ["heart", "double circulation", "circulation"],
-    "Cell organelles": ["mitochondri", "atp", "energy currency", "cell organelle"],
     "Nutrition in Plants": ["photosynthesis", "chlorophyll", "stomata"],
   },
   "light-reflection-and-refraction": {
