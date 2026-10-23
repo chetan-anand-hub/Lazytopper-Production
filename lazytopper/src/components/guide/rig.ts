@@ -66,6 +66,32 @@ export const POSES = [
   "down",
   "melted",
   "peek",
+  // COMPANION-1 (owner ruling 22 Oct 2026) — the companion emotions. SOLO poses only: Byte and
+  // Ziggy are never on screen together, so the high five is two poses played one after the other.
+  "comfort",
+  "breathe",
+  "calendar",
+  "moon",
+  "care",
+  "highfiveL",
+  "highfive",
+  "relieved",
+  "badge",
+  "study",
+  "streak",
+  // COMPANION-1 DUET (owner ruling 23 Oct 16:40): the two halves of a short two-character SCENE —
+  // Byte's hand on Ziggy's shoulder, and each one's side of a real high five (hands meet in the
+  // middle). Used only through the session-scoped scene guard (./sceneGuard.ts).
+  "comfortDuet",
+  "highfiveDuetL",
+  "highfiveDuetR",
+  "cheerDuet",
+  // COMPANION-1 — new emotions for MOMENTS-3 (exported, not wired here).
+  "marking",
+  "sorry",
+  "aha",
+  "examday",
+  "yawn",
 ] as const;
 export type Pose = (typeof POSES)[number];
 
@@ -74,8 +100,8 @@ export type Pose = (typeof POSES)[number];
  * draw any pose; this is the cast sheet surface lanes should pick from.
  */
 export const POSES_BY_KIND: Record<CharacterKind, readonly Pose[]> = {
-  byte: ["idle", "hello", "point", "explain", "think", "cool", "wink", "cheer", "technique", "peek", "stretch", "melted"],
-  ziggy: ["idle", "happy", "excited", "determined", "oops", "confused", "nervous", "hide", "sad", "drippy", "detective", "bag", "sleepy", "zcool", "proud", "cheer", "down", "melted"],
+  byte: ["idle", "hello", "point", "explain", "think", "cool", "wink", "cheer", "technique", "peek", "stretch", "melted", "comfort", "breathe", "calendar", "moon", "care", "highfiveL", "comfortDuet", "highfiveDuetL", "cheerDuet", "marking", "sorry"],
+  ziggy: ["idle", "happy", "excited", "determined", "oops", "confused", "nervous", "hide", "sad", "drippy", "detective", "bag", "sleepy", "zcool", "proud", "cheer", "down", "melted", "highfive", "relieved", "badge", "study", "streak", "highfiveDuetR", "aha", "examday", "yawn"],
   mummy: ["idle", "worried", "surprised", "mhappy", "mproud", "stern", "laugh", "melted"],
 };
 
@@ -117,6 +143,52 @@ export const BRIEF_POSE_IDS: Record<string, { kind: CharacterKind; pose: Pose }>
   mummy_laugh: { kind: "mummy", pose: "laugh" },
 };
 
+/**
+ * COMPANION-1 — the companion pose IDs (controller-approved, 22 Oct 2026) → the rig pose that
+ * draws each. Kept apart from BRIEF_POSE_IDS, which is the designer brief's 31 verbatim. Every one
+ * is a SOLO pose: `byte_highfive` and `ziggy_highfive` each raise a hand toward the edge of the
+ * frame and are played one after the other, never side by side.
+ */
+export const COMPANION_POSE_IDS: Record<string, { kind: "byte" | "ziggy"; pose: Pose }> = {
+  byte_comfort: { kind: "byte", pose: "comfort" },
+  byte_breathe: { kind: "byte", pose: "breathe" },
+  byte_calendar: { kind: "byte", pose: "calendar" },
+  byte_moon: { kind: "byte", pose: "moon" },
+  byte_care: { kind: "byte", pose: "care" },
+  byte_highfive: { kind: "byte", pose: "highfiveL" },
+  ziggy_highfive: { kind: "ziggy", pose: "highfive" },
+  ziggy_relieved: { kind: "ziggy", pose: "relieved" },
+  ziggy_proud_badge: { kind: "ziggy", pose: "badge" },
+  ziggy_study: { kind: "ziggy", pose: "study" },
+  ziggy_streak: { kind: "ziggy", pose: "streak" },
+  // Owner ruling 23 Oct 16:40 — new emotions, exported for MOMENTS-3 (not wired by COMPANION-1).
+  byte_marking: { kind: "byte", pose: "marking" },
+  byte_sorry: { kind: "byte", pose: "sorry" },
+  ziggy_aha: { kind: "ziggy", pose: "aha" },
+  ziggy_examday: { kind: "ziggy", pose: "examday" },
+  // A yawning Ziggy (pairs with byte_moon). The designer brief's `ziggy_sleepy` (BRIEF_POSE_IDS)
+  // stays the dozing `sleepy`; this companion entry draws the yawn.
+  ziggy_sleepy: { kind: "ziggy", pose: "yawn" },
+};
+
+/**
+ * COMPANION-1 DUET — the two-character SCENES (owner ruling 23 Oct 16:40). Each scene is two rigs
+ * side by side, one pose each; the left is always Byte, the right Ziggy. A scene may show only when
+ * ./sceneGuard.ts `canShowScene()` says so (at most one per app session, never during a question or
+ * a test, never below 360 px — the solo poses stand in there).
+ */
+export const DUET_SCENES = {
+  // Ziggy starts `down` (sad, drooping — not `sad`, whose melt leaves no shoulder for Byte's hand).
+  comfort: { byte: "comfortDuet", ziggy: ["down", "relieved"] },
+  highfive: { byte: "highfiveDuetL", ziggy: ["highfiveDuetR"] },
+  milestone: { byte: "cheerDuet", ziggy: ["badge"] },
+} as const satisfies Record<string, { byte: Pose; ziggy: readonly Pose[] }>;
+export type DuetScene = keyof typeof DUET_SCENES;
+
+/** COMPANION-1 — byte_breathe's cycle: the body grows for 4 s (breathe in), shrinks for 4 s (out). */
+export const BREATHE_IN_MS = 4000;
+export const BREATHE_CYCLE_MS = 2 * BREATHE_IN_MS;
+
 const NS = "http://www.w3.org/2000/svg";
 
 interface Palette {
@@ -141,9 +213,9 @@ export const PAL: Record<CharacterKind, Palette> = {
   mummy: { fill: "#b0de5c", shade: "#92c444", line: "#1b2433", hi: "#e6f7c2", blush: "#f5ada6", W: 60, H: 134, flare: 0.24, lobes: 5, eye: 6.8 },
 };
 
-type EyeType = "dot" | "wide" | "happy" | "closed" | "heart" | "spiral" | "none";
-type BrowType = "raised" | "worried" | "angry" | "plain" | "none";
-type MouthType = "smile" | "open" | "talk" | "grin" | "flat" | "frown" | "pout" | "o" | "wobbly" | "smirk";
+type EyeType = "dot" | "wide" | "happy" | "closed" | "heart" | "spiral" | "none" | "soft";
+type BrowType = "raised" | "worried" | "angry" | "plain" | "none" | "care";
+type MouthType = "smile" | "open" | "talk" | "grin" | "flat" | "frown" | "pout" | "o" | "wobbly" | "smirk" | "soft" | "sorry" | "yawn";
 type ArmMode =
   | "rest"
   | "wave"
@@ -161,7 +233,12 @@ type ArmMode =
   | "raise"
   | "foldL"
   | "foldR"
-  | "edge";
+  | "edge"
+  // COMPANION-1: an open, reaching "there there" hand; a hand raised toward the edge of the frame.
+  | "reach"
+  | "hi5"
+  // COMPANION-1 DUET: a long arm out sideways onto the partner's shoulder.
+  | "shoulder";
 type Motion =
   | "bounce"
   | "lean"
@@ -178,7 +255,9 @@ type Motion =
   | "peek"
   | "drip"
   | "stretch"
-  | "rise";
+  | "rise"
+  // COMPANION-1: byte_breathe — the body grows for 4 s and shrinks for 4 s (BREATHE_CYCLE_MS).
+  | "slowbreathe";
 export type { Prop };
 
 /** Arms drawn in FRONT of the body (hands on the chin, clasped, holding, folded, on the edge). */
@@ -230,6 +309,29 @@ export const EMO: Record<Pose, Emotion> = {
   melted: { eyes: ["spiral", "spiral"], mouth: "wobbly", brows: "worried", arms: { l: "droop", r: "droop" }, motion: "melt", props: [] },
   // RIG-2: Byte peeks in from a bottom edge (GUIDE-PUBLIC-1) — eyes up over the edge, forearms on it.
   peek: { eyes: ["dot", "dot"], look: [1.2, -2.6], mouth: "smile", brows: "raised", arms: { l: "edge", r: "edge" }, motion: "rise", props: [] },
+  // COMPANION-1 — solo companion poses. Byte wears no sunglasses in any of them.
+  comfort: { eyes: ["soft", "soft"], look: [0, 1], mouth: "smile", brows: "care", arms: { l: "rest", r: "reach" }, motion: "breathe", props: [] },
+  breathe: { eyes: ["closed", "closed"], mouth: "smile", arms: { l: "rest", r: "rest" }, motion: "slowbreathe", props: [] },
+  calendar: { eyes: ["dot", "dot"], look: [0, 1.5], mouth: "smile", brows: "raised", arms: { l: "hold", r: "hold" }, motion: "sway", props: ["calendar"] },
+  moon: { eyes: ["soft", "soft"], look: [1.5, -1.5], mouth: "soft", arms: { l: "rest", r: "rest" }, motion: "breathe", props: ["moon"] },
+  care: { eyes: ["dot", "dot"], look: [0, 1], mouth: "soft", brows: "care", arms: { l: "clasp", r: "clasp" }, motion: "breathe", props: [] },
+  highfiveL: { eyes: ["happy", "happy"], mouth: "grin", arms: { l: "hi5", r: "rest" }, motion: "hop", props: ["sparkle"] },
+  highfive: { eyes: ["happy", "happy"], mouth: "grin", arms: { l: "rest", r: "hi5" }, motion: "hop", props: ["sparkle"] },
+  relieved: { eyes: ["closed", "closed"], mouth: "smile", brows: "raised", arms: { l: "droop", r: "droop" }, motion: "breathe", props: ["sweat"] },
+  badge: { eyes: ["happy", "happy"], mouth: "grin", arms: { l: "hips", r: "hips" }, motion: "sway", props: ["badge", "sparkle"] },
+  study: { eyes: ["dot", "dot"], look: [0, 2.5], mouth: "pout", brows: "raised", arms: { l: "hold", r: "hold" }, motion: "breathe", props: ["book", "pen"] },
+  streak: { eyes: ["happy", "happy"], mouth: "open", arms: { l: "rest", r: "fist" }, motion: "bounce", props: ["flame"] },
+  // DUET halves — Byte stands LEFT (his right arm faces Ziggy), Ziggy RIGHT (his left arm faces Byte).
+  comfortDuet: { eyes: ["soft", "soft"], look: [2, 0.5], mouth: "smile", brows: "care", arms: { l: "rest", r: "shoulder" }, motion: "breathe", props: [] },
+  highfiveDuetL: { eyes: ["happy", "happy"], mouth: "grin", arms: { l: "rest", r: "hi5" }, motion: "hop", props: [] },
+  highfiveDuetR: { eyes: ["happy", "happy"], mouth: "grin", arms: { l: "hi5", r: "rest" }, motion: "hop", props: ["sparkle"] },
+  cheerDuet: { eyes: ["happy", "happy"], mouth: "grin", arms: { l: "up", r: "up" }, motion: "bounce", props: ["sparkle"] },
+  // New emotions (owner ruling 23 Oct 16:40) — exported for MOMENTS-3.
+  marking: { eyes: ["dot", "dot"], look: [1, 2.5], mouth: "pout", brows: "raised", arms: { l: "hold", r: "hold" }, motion: "breathe", props: ["sheet", "redpen"] },
+  sorry: { eyes: ["dot", "dot"], look: [0, 2], mouth: "sorry", brows: "worried", arms: { l: "clasp", r: "clasp" }, motion: "breathe", props: ["sweat"] },
+  aha: { eyes: ["wide", "wide"], mouth: "open", brows: "raised", arms: { l: "rest", r: "raise" }, motion: "hop", props: ["bulb", "sparkle"] },
+  examday: { eyes: ["closed", "closed"], mouth: "o", arms: { l: "hold", r: "hold" }, motion: "slowbreathe", props: ["admit"] },
+  yawn: { eyes: ["closed", "closed"], mouth: "yawn", arms: { l: "droop", r: "droop" }, motion: "droop", props: ["zzz"] },
 };
 
 const MOUTH: Record<MouthType, { d: string; fill: boolean; tongue?: boolean }> = {
@@ -243,6 +345,9 @@ const MOUTH: Record<MouthType, { d: string; fill: boolean; tongue?: boolean }> =
   pout: { d: "M-5,2 Q0,-2 5,2", fill: false },
   wobbly: { d: "M-11,3 q2.75,-4 5.5,0 q2.75,4 5.5,0 q2.75,-4 5.5,0 q2.75,4 5.5,0", fill: false },
   smirk: { d: "M-8,3 Q2,7 9,-2", fill: false },
+  soft: { d: "M-6,1 Q0,5 6,1", fill: false },
+  sorry: { d: "M-6,4 Q0,0 6,4", fill: false },
+  yawn: { d: "M0,-7 C7,-7 7,10 0,10 C-7,10 -7,-7 0,-7 Z", fill: true, tongue: true },
 };
 
 /* ── helpers ─────────────────────────────────────────────────────────────────────────── */
@@ -283,6 +388,9 @@ function eyeSVG(type: EyeType, r: number, L: string): string {
       return `<path d="M0,0 m-1,0 a1,1 0 1,1 2,0 a2.5,2.5 0 1,1 -5,0 a4,4 0 1,1 8,0 a5.5,5.5 0 1,1 -11,0" fill="none" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/>`;
     case "none":
       return "";
+    case "soft":
+      // COMPANION-1: a calm, half-lidded eye — the lower half of the pupil under a soft lid line.
+      return `<g class="pu"><path d="M${-r * 0.92},${-r * 0.12} A${r * 0.92},${r * 0.92} 0 0 0 ${r * 0.92},${-r * 0.12} Z" fill="${L}"/><circle cx="${-r * 0.3}" cy="${r * 0.22}" r="${r * 0.24}" fill="#fff"/></g><path d="M${-r * 1.15},${-r * 0.12} Q0,${-r * 0.8} ${r * 1.15},${-r * 0.12}" fill="none" stroke="${L}" stroke-width="3" stroke-linecap="round"/>`;
     default:
       return `<g class="pu"><ellipse rx="${r}" ry="${r * 1.18}" fill="${L}"/><circle cx="${-r * 0.32}" cy="${-r * 0.44}" r="${r * 0.36}" fill="#fff"/></g>`;
   }
@@ -294,6 +402,8 @@ function browSVG(type: BrowType, r: number, side: number, L: string): string {
   const a = r * 1.1;
   let d: string;
   if (type === "worried") d = `M${-a * side},${y + 3} L${a * side * 0.9},${y - 4}`;
+  // COMPANION-1: caring — the inner ends lift a little, softer than worried.
+  else if (type === "care") d = `M${-a * side},${y + 1.5} Q${-a * side * 0.1},${y - 1} ${a * side * 0.9},${y - 2.5}`;
   else if (type === "angry") d = `M${-a * side},${y - 4} L${a * side * 0.9},${y + 3}`;
   else if (type === "raised") d = `M${-a},${y - 5} Q0,${y - 10} ${a},${y - 5}`;
   else d = `M${-a},${y} L${a},${y}`; // plain (Mummy's resting brows)
@@ -335,6 +445,15 @@ function armTarget(mode: ArmMode, t: number, side: number): [number, number] {
       return [-84 + 3 * w(t * 2 + 1), 44];
     case "edge":
       return [-98, 26];
+    case "reach":
+      // COMPANION-1: an open hand reaching out, a little below the shoulder, gently.
+      return [70 + 4 * w(t * 2), 33];
+    case "hi5":
+      // COMPANION-1: a hand raised up and out toward the edge of the frame.
+      return [128 + 5 * w(t * 5), 34];
+    case "shoulder":
+      // COMPANION-1 DUET: out sideways, a touch above level, long enough to rest on Ziggy's shoulder.
+      return [104 + 2 * w(t * 2), 58];
     default:
       return [18 + 3 * w(t * 2.2 + side), 24];
   }
@@ -449,6 +568,11 @@ export interface RigOptions {
   still?: boolean;
   /** The sack's number (the `bag` pose); see `setBagLabel`. */
   bagLabel?: number;
+  /**
+   * COMPANION-1 — props drawn ON TOP of any pose's own (e.g. the festival `diya` / `rangoli` with
+   * `happy` or `cheer`). Paths only, like every prop. See `setExtraProps`.
+   */
+  extraProps?: readonly Prop[];
 }
 
 /**
@@ -492,6 +616,7 @@ export class Rig {
   private readonly mummy: MummyParts | null;
   private E: Emotion;
   private bagLabel: number | null;
+  private extra: Prop[];
   private peeking = false;
   private rise = 0;
   private riseV = 0;
@@ -512,6 +637,7 @@ export class Rig {
     this.E = EMO[pose];
     this.still = opts.still ?? prefersReducedMotion();
     this.bagLabel = normaliseBagLabel(opts.bagLabel);
+    this.extra = [...(opts.extraProps ?? [])];
     rigSeq += 1;
     const id = `ltgr${rigSeq}`;
     this.rand = makeSeq(0x9e3779b1 ^ (rigSeq * 2654435761));
@@ -598,6 +724,13 @@ export class Rig {
     if (slot) slot.innerHTML = bagNumberSVG(this.bagLabel);
   }
 
+  /** COMPANION-1 — replace the extra props drawn on top of the pose's own (none → []). */
+  setExtraProps(list: readonly Prop[] | null | undefined): void {
+    this.extra = [...(list ?? [])];
+    this.applyPose(this.pose);
+    if (this.still) this.settle();
+  }
+
   /** Tap: a damped squash-and-stretch (skipped in reduced motion). */
   squish(): void {
     this.imp = typeof performance !== "undefined" ? performance.now() : 0;
@@ -660,12 +793,13 @@ export class Rig {
     const b = E.brows ?? (this.kind === "mummy" ? "plain" : "none");
     this.brows.innerHTML = `<g class="bl">${browSVG(b, r, 1, c.line)}</g><g class="br">${browSVG(b, r, -1, c.line)}</g>`;
     const g = { W: c.W, H: c.H, line: c.line, r };
+    const all = [...E.props, ...this.extra.filter((p) => !E.props.includes(p))];
     this.props.innerHTML = facePropsSVG(
-      E.props.filter((p) => !ROOT_PROPS.has(p)),
+      all.filter((p) => !ROOT_PROPS.has(p)),
       g,
     );
     this.rootProps.innerHTML = rootPropsSVG(
-      E.props.filter((p) => ROOT_PROPS.has(p)),
+      all.filter((p) => ROOT_PROPS.has(p)),
       g,
       this.bagLabel,
     );
@@ -762,6 +896,14 @@ export class Rig {
       T.sy = 1 - 0.04 * q * amp;
       T.sx = 1 + 0.03 * q * amp;
       T.rot = 3 * Math.sin(t * 3) * amp;
+    }
+    if (mo === "slowbreathe") {
+      // COMPANION-1 byte_breathe: 0 → 1 over BREATHE_IN_MS (in), 1 → 0 over the next (out).
+      // Still frame (reduced motion): drawn mid-breath so the pose reads without motion.
+      const s = amp ? (1 - Math.cos((now / BREATHE_IN_MS) * Math.PI)) / 2 : 0.5;
+      T.sy = 1 + 0.12 * s;
+      T.sx = 1 + 0.06 * s;
+      T.y = -2 * s;
     }
     if (mo === "puff") {
       T.sx = 1.07 + 0.015 * Math.sin(t * 3) * amp;

@@ -807,6 +807,15 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "`lazytopper.m11Shown.<tag>` (the single character 1 once Byte's \"check a written answer\" " +
       "nudge showed on this account's first tap-only scorecard on this device; <tag> is an 8-hex hash " +
       "of the uid, never the uid). " +
+      "COMPANION-1: plus localStorage `lazytopper.companion.<tag>` (which of Byte and Ziggy's companion " +
+      "moments already showed for this account on this device, so each stays rare: the milestone ids " +
+      "already celebrated, and the times the welcome-back, practice-rhythm and countdown moments and the " +
+      "late-night note last showed, plus when this account last opened a page here; <tag> is an 8-hex " +
+      "hash of the uid, never the uid; never a mark, a score or premium or trial state) and, in THIS " +
+      "TAB's sessionStorage, `lazytopper.companionSession` (when this tab's signed-in session started, " +
+      "so the late-night note can wait for a 30-minute session; never the uid) and " +
+      "`lazytopper.guideScene` (the name of the one two-character Byte and Ziggy scene this tab " +
+      "already showed, so there is at most one per app session; never the uid). " +
       "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
