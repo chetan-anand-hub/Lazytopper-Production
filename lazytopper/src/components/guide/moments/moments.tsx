@@ -27,6 +27,7 @@ import type { ZeroGraded } from "../../startHere/zeroGraded";
 import { guideAbActive, guideAccountTag, guidePreviewActive, resolveGuideVariant } from "../guideVariant";
 import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
 import { useWrittenGraded } from "./writtenGraded";
+import { useHoldStage } from "../scoreGuideStage";
 import { copyArmToIntent, ensurePublicArm, previewArm, previewOn } from "../public/publicPeekModel";
 import type { GuideMomentProps, SolutionsPeekProps } from "./momentsChunk";
 
@@ -123,7 +124,11 @@ export function M11Nudge({ uid, mcqAnswered }: { uid: string | null | undefined;
     if (claimM11(uid)) setClaimed(true);
     // claimed once per mount
   }, [eligible, uid, written, claimed, hidden]);
-  return <GuideMomentSlot show={eligible && written === "none" && claimed} moment="m11" step="nudge" />;
+  const show = eligible && written === "none" && claimed;
+  // GUIDE-SCORE-1 — while Byte's nudge shows, it owns the scorecard: the scorecard's own
+  // character slot yields (never two characters on screen at once).
+  useHoldStage("m11", show && !hidden);
+  return <GuideMomentSlot show={show} moment="m11" step="nudge" />;
 }
 
 /* ── M6 — "We couldn't read any answers" ──────────────────────────────────────────────────── */

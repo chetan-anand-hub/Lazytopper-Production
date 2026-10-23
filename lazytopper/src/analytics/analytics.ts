@@ -1179,9 +1179,25 @@ export interface OnboardingEventParams {
 
 export type GuideMomentId = "m2" | "m3" | "m4" | "m5" | "m6" | "m8" | "m9" | "m10" | "m11";
 
+/**
+ * GUIDE-SCORE-1 - Byte & Ziggy on every graded scorecard: `guide_moment_shown { moment: "score",
+ * surface, situation }` once per scorecard mount, and `guide_moment_click { moment: "score" }` when
+ * Byte's link is tapped. Same vendors-only sender, same preview suppression.
+ */
+export type ScoreGuideMomentSurface =
+  | "check_improve_single"
+  | "check_improve_multi"
+  | "worksheet"
+  | "chapter_test"
+  | "full_mock"
+  | "quick_practice";
+export type ScoreGuideMomentSituation = "great" | "mixed" | "low" | "improved" | "all-pending" | "objective-only";
+
 export interface OnboardingEventParams {
-  guide_moment_shown: { moment: GuideMomentId };
-  guide_moment_click: { moment: GuideMomentId };
+  guide_moment_shown:
+    | { moment: GuideMomentId }
+    | { moment: "score"; surface: ScoreGuideMomentSurface; situation: ScoreGuideMomentSituation };
+  guide_moment_click: { moment: GuideMomentId | "score" };
   mascots_hidden: Record<string, never>;
   mascots_shown: Record<string, never>;
 }

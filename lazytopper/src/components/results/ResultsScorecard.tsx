@@ -23,7 +23,7 @@ import ShareScoreButton from "./share/ShareScoreButton";
 import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import { useFirstGradedFeedback } from "../feedback/useFirstGradedFeedback";
-import { ZiggyFirstResult } from "../guide/lazyGuide";
+import { ScorecardGuide } from "../guide/lazyGuide";
 import type {
   ScorecardAllPending,
   ScorecardVariant,
@@ -622,15 +622,13 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
             </div>
             <button type="button" className="lt-sc__x" onClick={onClose} aria-label="Close">✕</button>
           </div>
-          {/* GUIDE-1 §3D — Ziggy reacts to the student's FIRST graded result (guide arm only; the
-              component decides and renders nothing otherwise). In the flow, above the score:
-              never over a number, never a modal. No grade, mark or prompt is touched. */}
-          <ZiggyFirstResult
-            ask={askFirstFeedback}
-            deferred={variant.deferred}
-            allPending={!!variant.allPending}
-            score={variant.score}
-          />
+          {/* GUIDE-1 §3D + GUIDE-SCORE-1 — the character slot. The FIRST graded result keeps
+              Ziggy's first-result strip; every other graded scorecard (all six surfaces, this one
+              call site) gets Ziggy's reaction, then Byte's one next step, from THIS variant's own
+              numbers. Guide arm only; the component decides and renders nothing otherwise. In the
+              flow, above the score: never over a number, never a modal. Display only — no grade,
+              mark or prompt is touched. */}
+          <ScorecardGuide variant={variant} ask={askFirstFeedback} hostOwnsUnreadAllPending={!!allPendingSlot} />
 
           {allPending ? (
             <div className="lt-sc__allpend">
@@ -816,6 +814,11 @@ const SC_CSS = `
 .lt-sc__nm { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 18px; }
 .lt-sc__code { font-size: 11.5px; color: #9fb0c6; letter-spacing: 0.05em; margin-top: 5px; }
 .lt-sc__x { color: #8090a6; font-size: 18px; cursor: pointer; padding: 2px 6px; background: none; border: none; flex-shrink: 0; }
+
+/* GUIDE-SCORE-1 — the character slot, RESERVED from the first frame (no layout shift when Byte or
+   Ziggy fills it): the height of the tallest beat (character + bubble + link + Hide mascots). */
+.lt-sc__guide { min-height: 168px; margin: 0 0 6px; }
+@media (min-width: 600px) { .lt-sc__guide { min-height: 140px; } }
 
 .lt-sc__top { display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; }
 .lt-sc__big { font-family: "Fraunces", Georgia, serif; font-size: 58px; font-weight: 700; line-height: 0.95; }

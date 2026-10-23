@@ -9,10 +9,12 @@
  *                EXISTING Start-here ready state (owner, 20 Oct 15:10: keep the picker).
  *   GuideChip  — the small Byte in the corner after a close: waves once, reopens on tap.
  *   ZiggyStrip — Ziggy's reaction on the student's first scorecard.
+ *   ScoreGuideBeats — GUIDE-SCORE-1: Ziggy's reaction, then Byte's next step, on every other
+ *                graded scorecard (the lines come from ./scoreGuideModel.ts).
  */
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useInRouterContext, useNavigate } from "react-router-dom";
 import "./guide.css";
 import BlobCharacter from "./BlobCharacter";
 import { prefersReducedMotion, type Pose } from "./rig";
@@ -20,6 +22,7 @@ import type { ChapterRef, GuideOption, GuideOptionId, GuidePlan } from "./intent
 import type { StartHereFocusSurface, StartHereSurface } from "../../analytics/analytics";
 import { guidePreviewActive, trackGuideEvent } from "./guideVariant";
 import type { ZiggyReaction } from "./ziggyModel";
+import type { ScoreGuidePlan } from "./scoreGuideModel";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "./moments/mascotsToast";
 
 /* ── small glyphs (24×24, currentColor) ─────────────────────────────────────────────── */
@@ -358,6 +361,77 @@ export function GuideChip({ onOpen, onHide }: GuideChipProps) {
       </button>
     </div>,
     document.body,
+  );
+}
+
+/* ── GUIDE-SCORE-1 — Byte & Ziggy on every scorecard ────────────────────────────────── */
+
+/** How long Ziggy's reaction holds before Byte replaces him in the same spot (MOMENTS-1's beat). */
+export const SCORE_GUIDE_BEAT_MS = 2000;
+
+export interface ScoreGuideBeatsProps {
+  plan: ScoreGuidePlan;
+}
+
+/** A Link inside a router; a plain anchor otherwise (a scorecard rendered on its own). */
+function GuideCtaLink({ to, label }: { to: string; label: string }) {
+  const inRouter = useInRouterContext();
+  const onClick = () => trackGuideEvent("guide_moment_click", { moment: "score" });
+  if (inRouter) {
+    return (
+      <Link to={to} className="lt-scg__cta" data-testid="score-guide-cta" onClick={onClick}>
+        {label}
+      </Link>
+    );
+  }
+  return (
+    <a href={to} className="lt-scg__cta" data-testid="score-guide-cta" onClick={onClick}>
+      {label}
+    </a>
+  );
+}
+
+/**
+ * Ziggy reacts (his line), then Byte REPLACES him with the one next step and its link — one
+ * character slot, one bubble, in the scorecard's flow (never over a number, never a modal).
+ * Reduced motion → Byte's final frame at once, still. The bubble carries "Hide mascots".
+ */
+export function ScoreGuideBeats({ plan }: ScoreGuideBeatsProps) {
+  const reduce = useRef(prefersReducedMotion());
+  const [beat, setBeat] = useState<"ziggy" | "byte">(() => (reduce.current ? "byte" : "ziggy"));
+  const [preview] = useState(() => guidePreviewActive());
+  useEffect(() => {
+    trackGuideEvent("guide_moment_shown", { moment: "score", surface: plan.surface, situation: plan.situation });
+    if (reduce.current) return;
+    const t = setTimeout(() => setBeat("byte"), SCORE_GUIDE_BEAT_MS);
+    return () => clearTimeout(t);
+    // Once per mount: the plan is fixed for this result.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const line = beat === "ziggy" ? plan.ziggy : plan.byte;
+  return (
+    <div
+      className={`lt-scg lt-scg--${beat}${preview ? " lt-scg--preview" : ""}`}
+      data-testid="score-guide"
+      data-kind={beat}
+      data-pose={line.pose}
+      data-situation={plan.situation}
+      data-step={plan.byteStep}
+      role="group"
+      aria-label={beat === "byte" ? "Byte" : "Ziggy"}
+    >
+      <BlobCharacter key={beat} kind={beat} pose={line.pose} className="lt-scg__char" still={reduce.current || undefined} />
+      <div className="lt-scg__bub">
+        {preview ? <AdminPreviewPill className="lt-scg__admin" /> : null}
+        <p className="lt-scg__say" aria-live="polite" data-testid="score-guide-line">
+          {line.text}
+        </p>
+        {beat === "byte" && plan.cta ? <GuideCtaLink to={plan.cta.to} label={plan.cta.label} /> : null}
+        <button type="button" className="lt-scg__hide" data-testid="mascots-hide" onClick={hideMascotsWithUndo}>
+          {MASCOTS_TOAST_COPY.hide}
+        </button>
+      </div>
+    </div>
   );
 }
 
