@@ -71,9 +71,11 @@ export const HPQ_CONCEPT_ALIASES: Readonly<Record<string, Readonly<Record<string
   },
   "life-processes": {
     "Circulation": ["Transportation & Excretion in Humans"],
-    // lp-hpq-101 — "powerhouse of the cell" (mitochondria, the site of respiration).
-    "Cell organelles": ["Nutrition & Respiration (Human + Plants)"],
     "Nutrition in Plants": ["Nutrition & Respiration (Human + Plants)"],
+    // lp-hpq-101 — "powerhouse of the cell". QP-CONCEPT-4 (review): the bank's organelle questions are filed
+    // under Respiration / Nutrition / Photosynthesis (mitochondria, chloroplast as the site of photosynthesis,
+    // ATP) and Excretion (contractile vacuole), so both buckets; the keywords below pick exactly those rows.
+    "Cell organelles": ["Nutrition & Respiration (Human + Plants)", "Transportation & Excretion in Humans"],
   },
   "light-reflection-and-refraction": {
     "Mirror Formula & Diagrams": ["Mirror / Lens Formula & Ray Diagrams"],
@@ -128,8 +130,8 @@ export function hpqConceptAlias(chapterSlug: string, label: string): readonly st
 // row's subtopic or question text, as on the Topic Hub cards) rank the HPQ question's OWN topic first
 // inside the bucket. Chosen from phrases that occur in the bank (checked by conceptHint.realBank.test.ts:
 // each label has keyword rows, and they lead its set).
-const LENS_KEYWORDS = ["lens formula", "focal length of the lens", "1/v − 1/u", "1/f", "magnification produced by a lens", "convex lens", "concave lens"];
-const MIRROR_KEYWORDS = ["mirror formula", "1/v + 1/u", "concave mirror", "convex mirror"];
+const LENS_KEYWORDS = ["lens formula"];
+const MIRROR_KEYWORDS = ["mirror formula"];
 export const AP_TEST_KEYWORDS = ["common difference", "is an ap", "are in ap", "an a.p.", "arithmetic progression"];
 
 export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> = {
@@ -147,7 +149,7 @@ export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string,
     "Probability axioms": ["complement", "not ", "p(not"],
   },
   "chemical-reactions-and-equations": {
-    "Oxidation/Reduction": ["oxidation", "reduction", "redox", "oxidis", "rust", "corros"],
+    "Oxidation/Reduction": ["oxidation and reduction", "oxidation-reduction", "redox", "oxidised", "reducing agent", "oxidising agent"],
   },
   "acids-bases-and-salts": {
     "Indicators & pH": ["indicator", "litmus", "ph "],
@@ -158,8 +160,13 @@ export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string,
   },
   "life-processes": {
     "Circulation": ["heart", "double circulation", "circulation"],
-    "Cell organelles": ["mitochondri", "atp", "energy currency", "cell organelle"],
     "Nutrition in Plants": ["photosynthesis", "chlorophyll", "stomata"],
+    // QP-CONCEPT-4: 10 on-concept rows match (bank at aaedc901), each read: 9 organelle questions (LP2-009, LP2-059,
+    // LP2-038, LPSE-017, LPSE-019, LTG-S-LIFE-258 (c), LIFE-EXMPLR-5-SA-001 (c), LIFE-EXMPLR-5-SA-026, LPX-A-005) and
+    // 1 that is not (PYQ-S-LIFE-015). "chloroplast" is NOT a keyword: its 2 rows are a CAM-plant case and a CO2
+    // experiment. SCO-S-LIFE-007 / -019 are on-topic but filed under the chapter-echo label "Chapter Practice - Life
+    // Processes", which resolves to no concept, so they cannot be served as on-concept rows (a data re-tag).
+    "Cell organelles": ["organelle", "mitochondri", "powerhouse", "contractile vacuole", "energy currency"],
   },
   "light-reflection-and-refraction": {
     "Mirror Formula & Diagrams": MIRROR_KEYWORDS,
