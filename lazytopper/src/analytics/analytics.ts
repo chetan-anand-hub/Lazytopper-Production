@@ -1181,11 +1181,29 @@ export interface OnboardingEventParams {
  *   mascots_shown      {}          — Undo, or the setting turned them back on
  * ------------------------------------------------------------------------- */
 
-/** GUIDE-FILTER-1 adds `filter_help` (Byte explains the Quick Practice filters / a greyed chip; click
- *  = the "?") and `filter_empty` (Ziggy beside a 0-result filter combination; click = Edit filters). */
 export type GuideMomentId =
-  | "m2" | "m3" | "m4" | "m5" | "m6" | "m8" | "m9" | "m10" | "m11"
-  | "filter_help" | "filter_empty";
+  | "m2"
+  | "m3"
+  | "m4"
+  | "m5"
+  | "m6"
+  | "m8"
+  | "m9"
+  | "m10"
+  | "m11"
+  // COMPANION-1 — Byte & Ziggy's companion moments (components/guide/companion), same two events.
+  | "c_low_score"
+  | "c_breathe"
+  | "c_improve"
+  | "c_milestone"
+  | "c_welcome_back"
+  | "c_late_night"
+  | "c_rhythm"
+  | "c_countdown"
+  // GUIDE-FILTER-1 - `filter_help` (Byte explains the Quick Practice filters / a greyed chip; click
+  // = the "?") and `filter_empty` (Ziggy beside a 0-result filter combination; click = Edit filters).
+  | "filter_help"
+  | "filter_empty";
 
 export interface OnboardingEventParams {
   guide_moment_shown: { moment: GuideMomentId };

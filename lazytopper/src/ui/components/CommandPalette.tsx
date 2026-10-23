@@ -15,6 +15,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { QuickAction } from '../../services/commandPaletteConfig';
 import { defaultQuickActions } from '../../services/commandPaletteConfig';
 import { vibeCommandBadgeCopy } from '../microcopy/vibeCommandBadgeCopy';
+// COMPANION-1: App renders this palette on every signed-in route (open or closed), so it hosts
+// the ONE app-wide mount of Byte's late-night note. Renders nothing unless the guide split is live.
+import { CompanionNightDoor } from '../../components/guide/companion/companion';
 
 export interface CommandPaletteProps {
   isOpen: boolean;
@@ -64,9 +67,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
     }
   };
 
-  if (!isOpen) return null;
+  // The night door sits first in both shapes, so opening the palette never remounts it.
+  if (!isOpen) return <><CompanionNightDoor /></>;
 
   return (
+    <>
+    <CompanionNightDoor />
     <div className="command-palette-backdrop" onClick={handleClose}>
       <div
         className="command-palette"
@@ -110,6 +116,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
         </ul>
       </div>
     </div>
+    </>
   );
 };
 

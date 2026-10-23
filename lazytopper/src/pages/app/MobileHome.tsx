@@ -20,6 +20,7 @@ import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
+import { CompanionHome } from "../../components/guide/companion/companion";
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
 import PendingBell from "../../components/home/PendingBell";
@@ -713,6 +714,8 @@ export default function MobileHome() {
         {/* QP-SCORECARD-2 E1 — the focused first run for the SAME audience (the same read):
             renders nothing for a signed-out visitor or an existing student. */}
         {user ? <StartHereFocusView uid={user.uid} surface="home" returnTo="/browse" state={startHere} /> : null}
+        {/* COMPANION-1 — Byte & Ziggy's companion moments (guide arm; renders nothing otherwise). */}
+        <CompanionHome uid={user && !user.isLocalSession ? user.uid : null} startHereUp={!!startHere.eligible} returnTo="/browse" />
 
         {/* ── Hero carousel — the SHARED four cards ─────────────── */}
         <div style={sectionLabelStyle()}>Start here</div>
