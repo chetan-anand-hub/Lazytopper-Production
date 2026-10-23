@@ -106,7 +106,7 @@ describe("the owner's card: headline 101.5, typed 43.5, untyped 58 — the tiles
   });
 
   it("★ Both equals Maths when Science has no answers; Science alone is the honest empty state", () => {
-    const cards = selectMiCards(m(), CTX);
+    const cards = selectMiCards(m(), CTX, "u-card");
     expect(cards.both.rows).toEqual(cards.maths.rows);
     expect(cards.both.lost).toBe(cards.maths.lost);
     expect(cards.science.state).toBe("empty");
@@ -124,7 +124,7 @@ describe("scope: Maths / Science by the stored subject key — Both is their exa
     ]);
 
   it("★ a Science-only mistake never shows under Maths (and vice versa)", () => {
-    const { maths, science } = selectMiCards(m(), CTX);
+    const { maths, science } = selectMiCards(m(), CTX, "u-card");
     expect(row(maths, "presentation")).toBe(0);
     expect(row(maths, "calculation")).toBe(0);
     expect(row(science, "conceptual")).toBe(0);
@@ -133,7 +133,7 @@ describe("scope: Maths / Science by the stored subject key — Both is their exa
   });
 
   it("★ every scope's tiles add up to its own headline, and Both = Maths + Science, tile by tile", () => {
-    const cards = selectMiCards(m(), CTX);
+    const cards = selectMiCards(m(), CTX, "u-card");
     for (const s of Object.values(cards)) expect(sum(s.rows)).toBe(s.lost);
     expect(cards.both.lost).toBe(cards.maths.lost + cards.science.lost);
     cards.both.rows.forEach((r, i) => expect(r.marks).toBe(cards.maths.rows[i].marks + cards.science.rows[i].marks));
@@ -233,12 +233,12 @@ describe("Measure leg — concept gaps still to clear (all time, concept only, a
     recordWrongAnswer("graded:real-numbers", "real-numbers", "real-numbers", "Medium", 2);
     recordWrongAnswer("graded:light-reflection-and-refraction", "light-reflection-and-refraction", "light-reflection-and-refraction", "Medium");
     const m = model({ maths: { available: 10, scored: 6 } }, [entry("Maths", "Real Numbers", { conceptual: 4 })]);
-    expect(conceptGapsIn("both")).toBe(3);
-    expect(conceptGapsIn("maths")).toBe(2);
-    expect(conceptGapsIn("science")).toBe(1);
-    const before = selectMiCard(m, "maths", CTX);
+    expect(conceptGapsIn("both", "u-card")).toBe(3);
+    expect(conceptGapsIn("maths", "u-card")).toBe(2);
+    expect(conceptGapsIn("science", "u-card")).toBe(1);
+    const before = selectMiCard(m, "maths", CTX, undefined, "u-card");
     recordAttempt({ uid: "u-card" } as never, { subject: "Maths", topic: "Real Numbers", question: "clean drill", marksScored: 3, marksAvailable: 3, mode: "graded" });
-    const after = selectMiCard(m, "maths", CTX);
+    const after = selectMiCard(m, "maths", CTX, undefined, "u-card");
     expect([before.conceptGaps, after.conceptGaps]).toEqual([2, 1]);
     expect(after.lost).toBe(before.lost);
   });
@@ -246,6 +246,29 @@ describe("Measure leg — concept gaps still to clear (all time, concept only, a
   it("a slug the registry cannot place counts only under Both — never guessed into a paper", () => {
     recordWrongAnswer("x", "not-a-chapter", "not-a-chapter", "Medium");
     expect(Object.keys(loadWrongAnswerLog().entries)).toHaveLength(1);
-    expect([conceptGapsIn("both"), conceptGapsIn("maths"), conceptGapsIn("science")]).toEqual([1, 0, 0]);
+    expect([conceptGapsIn("both", "u-card"), conceptGapsIn("maths", "u-card"), conceptGapsIn("science", "u-card")]).toEqual([1, 0, 0]);
+  });
+});
+
+describe("MI-CARD-UID-1 — the gaps are the CARD'S account's, never the device's last active account", () => {
+  it("★ account A has 2 gaps; the device switches to B (empty): B's card shows 0, never A's 2", () => {
+    setActiveProgressUser("u-a");
+    recordWrongAnswer("graded:real-numbers", "real-numbers", "real-numbers", "Medium", 2);
+    recordWrongAnswer("graded:polynomials", "polynomials", "polynomials", "Medium", 2);
+    const m = model({ maths: { available: 10, scored: 6 } }, []);
+    expect(selectMiCards(m, CTX, "u-a").both.conceptGaps).toBe(2);
+    // B signs in on the same phone. Even while the device's active marker still names A (the
+    // shared-phone case the reviewer reproduced), B's card reads B's log: empty.
+    expect(selectMiCards(m, CTX, "u-b").both.conceptGaps).toBe(0);
+    setActiveProgressUser("u-b");
+    expect(selectMiCards(m, CTX, "u-b").both.conceptGaps).toBe(0);
+    expect(selectMiCards(m, CTX, "u-a").both.conceptGaps).toBe(2);
+  });
+
+  it("no account → 0 gaps, never the unscoped signed-out log", () => {
+    setActiveProgressUser(null);
+    recordWrongAnswer("x", "real-numbers", "real-numbers", "Medium");
+    expect(conceptGapsIn("both", null)).toBe(0);
+    expect(selectMiCard(model({ maths: { available: 10, scored: 6 } }, []), "both", CTX, undefined, null).conceptGaps).toBe(0);
   });
 });

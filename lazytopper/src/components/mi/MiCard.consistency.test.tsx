@@ -150,7 +150,7 @@ describe("the switch — default Both, shared, a per-viewer convenience only", (
 describe("Ziggy's line uses only numbers printed on the card", () => {
   it("★ for every scope (and the untyped and thin shapes), each number in the line is on the card", async () => {
     const model = await readStudyModel(MI_FIXTURE_UID, { window: "month", tutor: false });
-    const cards = selectMiCards(model, { source: "home", returnTo: "/" });
+    const cards = selectMiCards(model, { source: "home", returnTo: "/" }, MI_FIXTURE_UID);
     const untyped: MiCardSummary = { ...cards.maths, rows: cards.maths.rows.map((r) => (r.key === "unrecorded" ? { ...r, marks: cards.maths.lost } : { ...r, marks: 0 })), typed: 0, chance: null };
     for (const summary of [cards.both, cards.maths, cards.science, untyped]) {
       const voice = miVoiceFor(miVoiceInputForCard("ok", summary));
@@ -299,5 +299,26 @@ describe("the signal never blanks a card and never storms the read (re-review of
     // reading the attempts stream once — the same two the first render made, never one per card.
     expect(H.reads - reads0).toBe(2);
     expect(lostOf(side())).toBe(lostOf(home()));
+  });
+});
+
+describe("MI-CARD-UID-1 — a shared phone: the new account never sees the previous account's gaps", () => {
+  it("★ A has 2 gaps; B signs in on the same device (active marker still A) → both of B's cards show no gaps", async () => {
+    recordWrongAnswer("graded:real-numbers", "real-numbers", "real-numbers", "Medium", 2);
+    recordWrongAnswer("graded:real-numbers", "real-numbers", "real-numbers", "Medium", 2);
+    const a = renderBoth();
+    await waitFor(() => expect(gapsOf(screen.getByTestId("sidebar-mi-card"))).toBe("2"));
+    a.unmount();
+    H.user = { uid: "u-b" };
+    render(
+      <MemoryRouter>
+        <MiCardHost uid="u-b" gen={1} returnTo="/" />
+        <MistakeIntelCard />
+      </MemoryRouter>,
+    );
+    const home = () => screen.getByTestId("home-mi-card");
+    const side = () => screen.getByTestId("sidebar-mi-card");
+    await waitFor(() => expect([home().getAttribute("data-state"), side().getAttribute("data-state")]).toEqual(["ready", "ready"]));
+    expect([gapsOf(home()), gapsOf(side())]).toEqual([null, null]);
   });
 });

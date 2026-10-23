@@ -36,7 +36,7 @@ export function useMiCard(
     void (async () => {
       try {
         const { selectMiCards } = await import("./miCardSummary");
-        if (!cancelled && uid) setCards({ for: all, uid, value: selectMiCards(all, { source, returnTo }) });
+        if (!cancelled && uid) setCards({ for: all, uid, value: selectMiCards(all, { source, returnTo }, uid) });
       } catch {
         if (!cancelled) setFailed(all);
       }
