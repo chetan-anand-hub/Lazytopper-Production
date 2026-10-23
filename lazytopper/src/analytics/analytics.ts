@@ -1201,10 +1201,20 @@ export type GuideMomentId =
   | "m9"
   | "m10"
   | "m11"
+  // GUIDE-PAGES-1 — Byte's page helpers (components/guide/pages), same two events.
   | "ws_entry"
   | "ct_entry"
   | "fm_entry"
-  | "trends_help";
+  | "trends_help"
+  // COMPANION-1 — Byte & Ziggy's companion moments (components/guide/companion), same two events.
+  | "c_low_score"
+  | "c_breathe"
+  | "c_improve"
+  | "c_milestone"
+  | "c_welcome_back"
+  | "c_late_night"
+  | "c_rhythm"
+  | "c_countdown";
 
 export interface OnboardingEventParams {
   guide_moment_shown: { moment: GuideMomentId };

@@ -1,0 +1,33 @@
+/* COMPANION-1 — Byte & Ziggy's companion moments. Lazy: travels with companionChunk only. Builds on the
+   MOMENTS-1 card grammar (moments.css: deep navy ink, soft white bubble, green accent). Never a modal. */
+
+.lt-cmp__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; }
+.lt-cmp__close { display: block; margin: 4px 0 0; padding: 4px 0; min-height: 32px; border: 0; background: none;
+  color: #14213d; font: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; }
+.lt-cmp__close:hover { text-decoration: underline; }
+.lt-cmp__close:focus-visible { outline: 3px solid hsl(152, 55%, 38%); outline-offset: 2px; }
+
+/* The late-night note: bottom-left (the WhatsApp button owns bottom-right), above the mobile bottom nav,
+   right of the desktop sidebar. Fixed + portalled: nothing in the page moves, nothing is covered
+   but a corner, and it never blocks a tap elsewhere. */
+.lt-cmp--fixed { position: fixed; z-index: 18; left: 8px; bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  margin: 0; max-width: min(420px, calc(100vw - 84px)); }
+@media (min-width: 1024px) { .lt-cmp--fixed { left: 284px; bottom: 16px; } }
+
+/* A DUET scene: Byte left, Ziggy right, overlapping by 22% of a character's width (44 of the rig's
+   200 viewBox units) so Byte's hand lands on Ziggy's shoulder / their high five meets in the middle.
+   Byte is painted above Ziggy so his hand shows on the shoulder. */
+.lt-cmp-duet__pair { flex: none; display: flex; align-items: flex-end; }
+.lt-cmp-duet__pair .lt-mom__char { width: 84px; }
+.lt-cmp-duet__byte { position: relative; z-index: 2; }
+.lt-cmp-duet__ziggy { margin-left: -18.5px; }
+@media (min-width: 1024px) {
+  .lt-cmp-duet__pair .lt-mom__char { width: 92px; }
+  .lt-cmp-duet__ziggy { margin-left: -20.2px; }
+}
+
+/* ONE character on screen: while a companion card is up, the sidebar's MI voice character (chrome)
+   steps out of sight. Its words and numbers stay; only the drawing hides. */
+body[data-lt-companion="on"] .lt-mi-voice__char { visibility: hidden; }
+
+@media print { .lt-cmp { display: none; } }

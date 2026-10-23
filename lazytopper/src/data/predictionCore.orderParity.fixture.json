@@ -47,8 +47,8 @@
    ]
   },
   "triangles": {
-   "n": 434,
-   "sha256": "b93a4602b0753909ef9de80b461bfef42e92acc738ee30d4b5ba42a1b7071d86",
+   "n": 433,
+   "sha256": "429e83908fc65c8f8626a1a56152e6a84b7b4ba01d0a7c8886b49758f7328f49",
    "head": [
     "BX-TRI-E-028",
     "BX-TRI-E-036",
@@ -65,8 +65,8 @@
    ]
   },
   "trigonometry": {
-   "n": 505,
-   "sha256": "8da64b1edbc0ad4846693ec9788ac76cfd5a6de95d265cc879ff2467cbcc3ce1",
+   "n": 504,
+   "sha256": "f031709bfe9110abdef3527bde7a757445a86e82829d61a04795d92534d15579",
    "head": [
     "Z3-TG-003",
     "Z3-TG-006",
@@ -128,8 +128,8 @@
    ]
   },
   "acids-bases-and-salts": {
-   "n": 559,
-   "sha256": "d8a10517568a2e114260b07bd66ca2617d583a786f32bb186a6131bc6bd8d506",
+   "n": 560,
+   "sha256": "80d59e330c36fdd0def84c8b478050ea194c2241f9805fcd34de9980375db517",
    "head": [
     "BX-ABS-E-002",
     "BX-ABS-E-004",
@@ -146,8 +146,8 @@
    ]
   },
   "carbon-and-its-compounds": {
-   "n": 367,
-   "sha256": "ede0c330e4623293bc89dbf1e56c0a1a9305f8744f22ef7682e90474c1851ea7",
+   "n": 368,
+   "sha256": "e52044636d023f23bd61ae7ce25a9e0a6811e373977e79446fd6888fd5f43b63",
    "head": [
     "LTG-S-CARB-274",
     "LTG-S-CARB-273",
@@ -164,8 +164,8 @@
    ]
   },
   "human-eye-and-colourful-world": {
-   "n": 303,
-   "sha256": "90afff4f32044116584da6a6d2993d7fd0eaf13f3d21ae456591844e8d1eb66a",
+   "n": 304,
+   "sha256": "0fbdf305fa504a2843a756b8ff25117d528732b656e79296283b08c38d6c5fe2",
    "head": [
     "LTG-S-EYE-104",
     "LTG-S-EYE-233",
@@ -173,8 +173,8 @@
    ]
   },
   "electricity": {
-   "n": 403,
-   "sha256": "8f922fb3a20d821455c4b6ea215c58beec0b1a9209179f41ed294b0e50e483f3",
+   "n": 404,
+   "sha256": "94a828bac8c6d00ea477cca0df2ed5d639498e7eebd78f4c57f53b3d4b5a6253",
    "head": [
     "LTG-S-ELEC-233",
     "LTG-S-ELEC-237",
@@ -182,8 +182,8 @@
    ]
   },
   "magnetic-effects-of-electric-current": {
-   "n": 274,
-   "sha256": "025a3f1bb84c9d4a9be19d4542561a87463e1b7d666592fc41a4b254a9af8cea",
+   "n": 276,
+   "sha256": "4454eb5125c3105bb44b62d9a29a419e3d2f529d3805cdfb1fabccb2407d64db",
    "head": [
     "LTG-S-MAG-253",
     "LTG-S-MAG-254",
@@ -191,8 +191,8 @@
    ]
   },
   "life-processes": {
-   "n": 587,
-   "sha256": "cad7a0f4c0892fc848fcff397b6e82ff79b647613808b3c900f46913b4c95f6f",
+   "n": 590,
+   "sha256": "2d0aaf78c396d4e91819c14402b32e77e2a316d8a89f4c004adf1d042c6cc6e4",
    "head": [
     "LTG-S-LIFE-257",
     "LTG-S-LIFE-216",
@@ -227,8 +227,8 @@
    ]
   },
   "our-environment": {
-   "n": 371,
-   "sha256": "26440b05b7883271d88288488955ebab31cfd8d87563abe23c0240f303e9dc68",
+   "n": 372,
+   "sha256": "98174830b56b060aa196df989c1a6fe16a29ab1ee7d0f9b66a2ac18843fd3db0",
    "head": [
     "LTG-S-ENV-235",
     "LTG-S-ENV-236",
@@ -284,7 +284,7 @@
   },
   "triangles": {
    "n": 39,
-   "sha256": "42fee26ea24d034c593223e35afe3e219d3a57c4ff3f2b6da381928ee36f27be",
+   "sha256": "e590bea8b7bdd2744d894e26c99e4c842793add14dd7f55b2cb12ecb3da73b25",
    "head": [
     "BPT & Similar Triangles\tCBE-M-TRI-A-002,CBE-M-TRI-C-003,CBE-M-TRI-C-007,CBE-M-TRI-C-004,CBE-M-TRI-C-005,2026-TRIANGLE-LA-03",
     "BPT (Basic Proportionality Theorem)\tBX-TRI-E-028,BX-TRI-E-036,LTG-M-TRI-276,LTG-M-TRI-283,BX-TRI-E-012,BX-TRI-E-013,LTG-M-TRI-296,LTG-M-TRI-282,AR-TRI-007,AR-TRI-001,BX-TRI-EX-A-010,PYQ-M-2024-TRI-002,LTG-M-TRI-208,LTG-M-TRI-220,PYQ-M-2025-TRI-004,CBE-M-TRI-A-001,CBE-M-TRI-A-003,LTG-M-TRI-201,APQ-M-TRI-003,TRI-N-NCERT-6-LA-002,TRI-N-EXMPLR-6-LA-004,BX-TRI-D-042,LTG-M-TRI-306,PYQ-M-2025-TRI-007,TRI-PRF-D-001,TRI-PRF-D-005,BX-TRI-D-001,BX-TRI-D-002,BX-TRI-D-023,BX-TRI-PF-003,CBE-M-TRI-C-001,LTG-M-TRI-241,PYQ-M-2025-TRI-008a,LTG-M-TRI-255,TRI-N-EXMPLR-6-SA-009,TRI-PRF-C-001,BX-TRI-EX-B-001,BX-TRI-EX-B-003,BX-TRI-PF-012,CBE-M-TRI-B-003,LTG-M-TRI-252,LTG-M-TRI-260,BX-TRI-EX-A-008,TRI-N-NCERT-6-SA-001,LTG-M-TRI-240,CBE-M-TRI-B-001,2026-TRI-SA-07,TR3-054,TR3-021,TR3-050,TR3-008,TR3-009,TR3-039,TR3-040,TR3-057,TR3-007,TR3-006,TR3-038",
@@ -302,7 +302,7 @@
   },
   "trigonometry": {
    "n": 48,
-   "sha256": "7e404374f42ebef57a43b10597c8ad580044124c38bae9b5ef1044a37a41dc7a",
+   "sha256": "b31ea60218b6f03a7bee57b0f12d8d876536971a3fa4b05693308f4d08163e64",
    "head": [
     "Angle of Depression\tTRIG-N-NCERT-9-CB-002,TRIG-N-NCERT-9-CB-001,LTG-M-TRIG-268,LTG-M-TRIG-285,LTG-M-TRIG-273,APQ-M-TRIG-009",
     "Angle of Elevation\tLTG-M-TRIG-269,LTG-M-TRIG-266,LTG-M-TRIG-282,LTG-M-TRIG-284,LTG-M-TRIG-232,TRIG-N-EXMPLR-9-MCQ-001,SQP-M-TRIG-003,TRIG-N-EXMPLR-9-SA-001,TRIG-N-EXMPLR-9-SA-002,TRIG-N-EXMPLR-9-SA-003,LTG-M-TRIG-247,TRIG-N-NCERT-9-LA-003,TRIG-N-EXMPLR-9-SA-006,TRIG-N-NCERT-9-SA-004,TRIG-N-EXMPLR-9-SA-004",
@@ -365,7 +365,7 @@
   },
   "acids-bases-and-salts": {
    "n": 153,
-   "sha256": "583d9da64f1a17008de9a28ba9e6589048fb65989398516900b098a34feb80f1",
+   "sha256": "593c4b8743f9a75a369ffde46b8269df23c50c1634f1617ba0955acca4823dc0",
    "head": [
     "Acid Rain\tPYQ-S-2026-ACID-004,LTG-S-ACID-305,BX-ABS-D-016",
     "Acid-Base Indicators (Litmus)\tBX-ABS-E-002,BX-ABS-E-004,LTG-S-ACID-217,BX-ABS-E-001,BX-ABS-E-003,BX-ABS-E-006,LTG-S-ACID-213,BX-ABS-EX-A-036,LTG-S-ACID-214,BX-ABS-E-005,LTG-S-ACID-205,LTG-S-ACID-206,PYQ-S-2026-ACID-009,PYQ-S-2024-ACID-001,LTG-S-ACID-203,ACID-EXMPLR-2-MCQ-002,ACID-EXMPLR-2-MCQ-017,LTG-S-ACID-201,LTG-S-ACID-204,SCO-S-ACID-009,BX-ABS-EX-A-014,BX-ABS-EX-A-019,LTG-S-ACID-210,ACID-EXMPLR-2-SA-003,ACID-EXMPLR-2-SA-006,BX-ABS-EX-C-011,PYQ-S-2026-ACID-015,PYQ-S-2025-ACID-005,PYQ-S-2024-ACID-004,LTG-S-ACID-211,BX-ABS-EX-A-027,LTG-S-ACID-208,LTG-S-ACID-212,LTG-S-ACID-207,BX-ABS-EX-B-006,BX-ABS-D-018,CBE-S-ACID-A-001",
@@ -383,7 +383,7 @@
   },
   "carbon-and-its-compounds": {
    "n": 111,
-   "sha256": "7b7e8868f9a6805bbe2c8fec3065803da2047c8b178963b62bea9282021e045c",
+   "sha256": "8b8d61fb2a5b5c72eead4730c5a79d688594f77b458f328487748be78baf70eb",
    "head": [
     "Acid Properties\tCARB-EXMPLR-4-LONG-001",
     "Action of Soap in Hard Water\tCBE-S-CARB-C-005",
@@ -401,7 +401,7 @@
   },
   "human-eye-and-colourful-world": {
    "n": 50,
-   "sha256": "09e96784b41e00af928c3d9011ce0e082499e5405609671a836da9825710b088",
+   "sha256": "10266240d42e4f9ac7996a810eddb22ebf12a902a517cfb05c97eeaa638ba505",
    "head": [
     "Accommodation of Eye\tPYQ-S-2024-EYE-004",
     "Accommodation of the Eye\tCFPQ-S-EYE-008,CFPQ-S-EYE-002",
@@ -410,7 +410,7 @@
   },
   "electricity": {
    "n": 148,
-   "sha256": "79fdaefc3fa886b30605709f338c05c59efe4784395772b0f34180efeadc41ad",
+   "sha256": "5fb0ba7e03740025bf430d94b1fa5fa2f9bea2d9d6785d0857c3206620c860b9",
    "head": [
     "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
     "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
@@ -419,7 +419,7 @@
   },
   "magnetic-effects-of-electric-current": {
    "n": 55,
-   "sha256": "00dbfc3ca871e7c110fc71c3a87a0000ba43574c50088042bfa0a5de1e1f53f7",
+   "sha256": "e8a7c26bfd86bc09a05dc1030437e56f2e999a00b558e8154ebf6aeac5372b02",
    "head": [
     "AC Frequency\tLTG-S-MAG-296,LTG-S-MAG-005,LTG-S-MAG-002,LTG-S-MAG-003,LTG-S-MAG-283,LTG-S-MAG-001,LTG-S-MAG-006,LTG-S-MAG-008,LTG-S-MAG-009,LTG-S-MAG-288,LTG-S-MAG-010,LTG-S-MAG-004,LTG-S-MAG-007",
     "AC and DC\tLTG-S-MAG-292,PYQ-S-2026-ACID-018,ME2-048,ME2-017,ME2-039,ME2-041",
@@ -428,7 +428,7 @@
   },
   "life-processes": {
    "n": 133,
-   "sha256": "df61f5d33204387ec9252526532169e3e2444869d90efd7576331f6d8e8d54c8",
+   "sha256": "eef2194655d16d3e052f2c90bc021fdb6951f82478ed823efbc7aa9d1946fdd5",
    "head": [
     "ATP\tLIFE-EXMPLR-5-SA-026",
     "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",
@@ -464,7 +464,7 @@
   },
   "our-environment": {
    "n": 71,
-   "sha256": "b34126b8e3d1904a6d80ae1d620f94a480dcbd4056bb69838ab8fe4e0a2b798e",
+   "sha256": "5ed841ffe54cccab5307640dd227eccce11b3d169186b72a5e733ee8f287913d",
    "head": [
     "Biodegradability\tOE-E01a,OE2-036,OE-M02,OE2-011,OE-M05,OE2-017,OE2-030,OE-E06,OE-E07,OE-E12,OE2-005,OE2-007,OE-D03,OE2-034,OE-B04,OE2-028,OE-B01,OE2-021",
     "Biodegradable and Non-biodegradable\tLTG-S-ENV-296,LTG-S-ENV-297,LTG-S-ENV-109,LTG-S-ENV-293,LTG-S-ENV-295,OEX-A-033,LTG-S-ENV-281,PYQ-S-2026-ENV-005,PYQ-S-2026-ENV-007,CFPQ-S-ENV-006,PYQ-S-2024-ENV-001,LTG-S-ENV-282,LTG-S-ENV-287,LTG-S-ENV-290,PYQ-S-ENV-006,PYQ-S-2024-ENV-003,OEX-A-001,OEX-A-024,LTG-S-ENV-283,LTG-S-ENV-299,LTG-S-ENV-288,OE-NCERT-13-SA-012,LTG-S-ENV-292,OE-NCERT-13-SA-003,OE-NCERT-13-SA-004,OE-NCERT-13-SA-005,OE-NCERT-13-SA-011,OESE-024,OESE-009,OESE-017,OESE-020",
