@@ -185,8 +185,10 @@ describe("SHW-2 · Quick Practice answer box - type-first", () => {
     fireEvent.click(await screen.findByTestId("qp-grade-batch"));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.queryByTestId("qp-grade-batch")).toBeNull()); // the graded sheet is up
-    fireEvent.click(await screen.findByRole("button", { name: /Back to this set \(see the steps\)/ }));
-    const triggers = await screen.findAllByRole("button", { name: /^Answer this question$/ });
+    // QP-WORKING-AFTER-1 — owner ruling 23 Oct 2026 22:48 IST ("after the final scorecard, working
+    // isn't graded"): this set's review has no answer box, so the NEXT box is a fresh set's (same mount).
+    fireEvent.click(await screen.findByRole("button", { name: /Build a fresh set/ }));
+    const triggers = await screen.findAllByRole("button", { name: /^Answer this question$/ }, { timeout: 15000 });
     fireEvent.click(triggers[triggers.length - 1]); // an unanswered question's box
     expect(selectedTab()).toEqual(["Upload a photo"]);
     expect(cloudHas).toHaveBeenCalledTimes(1); // the recheck read no cloud

@@ -231,6 +231,19 @@ describe("QP-WORKING-AFTER-1 · the Finish gate", () => {
     await waitFor(() => expect(miWritesFor("q-1")).toBe(1));
   }, 60_000);
 
+  it("★ the in-set nudge is behind the sheet, so the GATE's nudge gets Ziggy (one character on screen)", async () => {
+    await buildSet([mkItem(1, false), mkItem(2, true)]);
+    fireEvent.click(screen.getByText("q2-correct"));
+    await typeIn(card(1), "x = 4", false);
+    await wait(SAVE_NUDGE_IDLE_MS + 200);
+    expect(within(card(1)).getByTestId("save-nudge").getAttribute("data-kind")).toBe("ziggy");
+    finish();
+    const gateNudge = await within(gateItem(1)).findByTestId("save-nudge");
+    await waitFor(() => expect(gateNudge.getAttribute("data-kind")).toBe("ziggy"));
+    expect(within(card(1)).queryByTestId("save-nudge")).toBeNull(); // the set's own stood down
+    expect(document.querySelectorAll('[data-testid="save-nudge"][data-kind="ziggy"]').length).toBe(1);
+  }, 60_000);
+
   it("★★ Skip shows the scorecard at once (nothing graded); the next Finish never re-opens the gate", async () => {
     await buildSet([mkItem(1, false), mkItem(2, true), mkItem(3, true)]);
     fireEvent.click(screen.getByText("q2-correct"));
