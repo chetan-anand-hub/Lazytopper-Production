@@ -45,11 +45,16 @@ import {
 } from "../services/sessionRecords";
 import {
   drawChapterTest,
+  describeChapterTestPaper,
+  type ChapterTestPaperFacts,
   objectiveQuestions,
   subjectiveQuestions,
   type DrawnChapterTest,
 } from "../components/chaptertest/chapterTestBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
+import { CT_PROGRESS_PREFIX, paperRouteKey } from "../lib/papers/resumablePaper";
+import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { useSubscription } from "../hooks/useSubscription";
 import {
   attemptsLogged,
   freshnessLine,
@@ -201,6 +206,9 @@ export default function ChapterTestPage() {
   const topicName = resolveTopicDisplayName(subject, topicKey);
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("chapter-test", isSignedIn);
+  // CT-RESUME-2: premium is unlimited on the daily paper gate — read live, so a student who pays
+  // mid-session (or whose cloud status lands after the gate ran) is never refused a new paper.
+  const { isPremium } = useSubscription();
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const backTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
@@ -334,6 +342,8 @@ export default function ChapterTestPage() {
   const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
   const [pickPaper, setPickPaper] = useState<ChapterTestPaperSnapshot | null>(null);
   const [paperNotice, setPaperNotice] = useState<string | null>(null);
+  // CT-RESUME-2: a daily-paper-limit refusal, shown right under the button that was tapped.
+  const [limitNotice, setLimitNotice] = useState<string | null>(null);
   // `openStored` is declared further down; the picks guard reaches it through this ref.
   const openStoredRef = useRef<((record: SessionRecord) => Promise<void>) | null>(null);
   const [reopen, setReopen] = useState<{
@@ -355,6 +365,23 @@ export default function ChapterTestPage() {
   // CT-RELOAD-1 — the paper of an in-progress attempt, restored after a reload (see below).
   const [restoredPaper, setRestoredPaper] = useState<PersistedWorksheet | null>(null);
   const paper = resumedCt?.paper ?? restoredPaper ?? draw?.paper ?? null;
+  // CT-RESUME-2 — the start screen describes the paper the student will actually sit: the SAVED
+  // paper when one is being offered for resume (its counts, marks, sections and CBQ share), else
+  // this visit's fresh draw. Never the hidden new draw behind a resume.
+  const shownFacts: ChapterTestPaperFacts | null = useMemo(() => {
+    if (restoredPaper) return bank.ready ? describeChapterTestPaper(restoredPaper) : null;
+    if (!draw) return null;
+    return {
+      questionCount: draw.paper.questions.length,
+      totalMarks: draw.totalMarks,
+      blueprint: draw.blueprint,
+      cbqMarks: draw.cbqMarks,
+      cbqTarget: draw.cbqTarget,
+      cbqShortfall: draw.cbqShortfall,
+      plainMcqMarks: draw.plainMcqMarks,
+      constructedMarks: draw.constructedMarks,
+    };
+  }, [restoredPaper, bank.ready, draw]);
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
   const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}` : null;
 
@@ -369,6 +396,22 @@ export default function ChapterTestPage() {
   useEffect(() => {
     if (!progressKey || typeof window === "undefined") return;
     try {
+      // CT-RESUME-2: an older in-progress entry for THIS route under another test code (its
+      // number moved on since) can never be resumed here; drop it, so the daily paper gate
+      // never treats this visit as a resume of a paper this page will not offer.
+      const route = paperRouteKey(location.pathname);
+      for (let i = window.sessionStorage.length - 1; i >= 0; i -= 1) {
+        const key = window.sessionStorage.key(i);
+        if (!key || key === progressKey || !key.startsWith(CT_PROGRESS_PREFIX)) continue;
+        try {
+          const other = JSON.parse(window.sessionStorage.getItem(key) || "null") as { route?: unknown } | null;
+          if (other && typeof other.route === "string" && paperRouteKey(other.route) === route) {
+            window.sessionStorage.removeItem(key);
+          }
+        } catch {
+          /* leave an unreadable entry alone */
+        }
+      }
       const raw = window.sessionStorage.getItem(progressKey);
       if (!raw) return;
       const saved = JSON.parse(raw) as {
@@ -394,7 +437,7 @@ export default function ChapterTestPage() {
     } catch {
       /* best-effort */
     }
-  }, [progressKey]);
+  }, [progressKey, location.pathname]);
 
   // Autosave write while taking — the paper rides along so a reload restores THIS paper.
   useEffect(() => {
@@ -402,12 +445,14 @@ export default function ChapterTestPage() {
     try {
       window.sessionStorage.setItem(
         progressKey,
-        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper }),
+        // CT-RESUME-2: `route` lets the daily paper gate (MockViewGate) recognise a reload of THIS
+        // chapter's saved paper as a resume — not a new paper (lib/papers/resumablePaper).
+        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname) }),
       );
     } catch {
       /* quota — best-effort */
     }
-  }, [answers, flags, elapsed, currentQNumber, timerEnabled, phase, progressKey, paper]);
+  }, [answers, flags, elapsed, currentQNumber, timerEnabled, phase, progressKey, paper, location.pathname]);
 
   const objectiveQs = useMemo(() => (paper ? objectiveQuestions(paper) : []), [paper]);
   const subjectiveQs = useMemo(() => (paper ? subjectiveQuestions(paper) : []), [paper]);
@@ -513,6 +558,12 @@ export default function ChapterTestPage() {
   const startTest = useCallback(async () => {
     // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper.
     if (fairUse.blockPaperStart()) return;
+    // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
+    // (it looked like a resume) is counted now — or refused at today's limit.
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+      setLimitNotice(NEW_PAPER_LIMIT_LINE);
+      return;
+    }
     // LOW-END-1 R6 / CT-KATEX-2: the first question renders KaTeX on its FIRST paint. Usually
     // already in flight (the first interaction started it — pressing Start is one); if not,
     // this starts it. A failed fetch still starts the paper — MathText then retries.
@@ -527,7 +578,7 @@ export default function ChapterTestPage() {
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper]);
+  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, user?.uid, isPremium]);
 
   // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
   // never re-counted against the fair-use allowance.
@@ -544,6 +595,12 @@ export default function ChapterTestPage() {
   }, [restoredPaper]);
   /** Drop the restored attempt (unsubmitted, nothing graded) and show this visit's fresh draw. */
   const discardRestored = useCallback(() => {
+    // CT-RESUME-2: this visit was let through as a RESUME (not counted). A new paper instead is
+    // counted now — or refused when today's papers are used up (the saved test stays).
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+      setLimitNotice(NEW_PAPER_LIMIT_SAVED_LINE);
+      return;
+    }
     if (progressKey && typeof window !== "undefined") {
       try {
         window.sessionStorage.removeItem(progressKey);
@@ -556,7 +613,7 @@ export default function ChapterTestPage() {
     setFlags(new Set());
     setElapsed(0);
     setCurrentQNumber(1);
-  }, [progressKey]);
+  }, [progressKey, location.pathname, user?.uid, isPremium]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
@@ -661,6 +718,11 @@ export default function ChapterTestPage() {
   // ── Downloads ────────────────────────────────────────────────────────────────
   const downloadTest = useCallback(async () => {
     if (!paper || !nomen || downloading) return;
+    // CT-RESUME-2: downloading THIS visit's draw is a new paper (the saved paper on offer is not).
+    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+      setLimitNotice(NEW_PAPER_LIMIT_LINE);
+      return;
+    }
     setDownloading(true);
     try {
       await exportWorksheetPdf(paper, "questions", nomen.code);
@@ -701,7 +763,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1042,13 +1104,13 @@ export default function ChapterTestPage() {
                   get your full graded result with a mistake breakdown.
                 </div>
 
-                {!draw && bank.error ? (
+                {!shownFacts && bank.error ? (
                   <div className="lt-ct__empty">
                     We couldn’t load the {topicName} questions. Check your connection and reload the page.
                   </div>
-                ) : !draw ? (
+                ) : !shownFacts ? (
                   <div className="lt-ct__empty">Building your test…</div>
-                ) : !draw.enoughQuestions ? (
+                ) : !restoredPaper && draw && !draw.enoughQuestions ? (
                   <div className="lt-ct__empty">
                     We don’t have enough {topicName} questions in the bank to build a fair test yet. This
                     chapter is still being expanded — check back soon.
@@ -1057,10 +1119,10 @@ export default function ChapterTestPage() {
                   <>
                     <div className="lt-ct__metarow">
                       <span className="lt-ct__chip">
-                        <b>{draw.paper.questions.length}</b> questions
+                        <b>{shownFacts.questionCount}</b> questions
                       </span>
                       <span className="lt-ct__chip">
-                        <b>{draw.totalMarks}</b> marks
+                        <b>{shownFacts.totalMarks}</b> marks
                       </span>
                       <span className="lt-ct__chip">
                         <b>~{Math.round(timeLimitSeconds / 60)}</b> min
@@ -1070,8 +1132,8 @@ export default function ChapterTestPage() {
                       </span>
                     </div>
 
-                    <div className="lt-ct__blueprint">
-                      {draw.blueprint.map((row) => (
+                    <div className="lt-ct__blueprint" data-testid="ct-blueprint">
+                      {shownFacts.blueprint.map((row) => (
                         <div
                           key={row.section}
                           className={`lt-ct__bp-row${row.actualCount === 0 ? " lt-ct__bp-row--empty" : ""}`}
@@ -1093,11 +1155,11 @@ export default function ChapterTestPage() {
 
                     {/* CBQ-1 PR-2: the paper's REAL CBQ share (target ≥ 50%; CBSE pattern 50% competency); an honest note when short. */}
                     <CbqShareNote
-                      cbqMarks={draw.cbqMarks}
-                      totalMarks={draw.totalMarks}
-                      cbqShortfall={draw.cbqShortfall}
-                      plainMcqMarks={draw.plainMcqMarks}
-                      constructedMarks={draw.constructedMarks}
+                      cbqMarks={shownFacts.cbqMarks}
+                      totalMarks={shownFacts.totalMarks}
+                      cbqShortfall={shownFacts.cbqShortfall}
+                      plainMcqMarks={shownFacts.plainMcqMarks}
+                      constructedMarks={shownFacts.constructedMarks}
                       scope="chapter"
                       scopeName={topicName}
                     />
@@ -1150,6 +1212,12 @@ export default function ChapterTestPage() {
                         {downloading ? "Preparing…" : "↓ Download this test (PDF)"}
                       </button>
                     </div>
+                    {limitNotice && (
+                      <div className="lt-ct__honest" role="alert" data-testid="ct-limit-notice">
+                        <span>·</span>
+                        <span>{limitNotice}</span>
+                      </div>
+                    )}
 
                     {downloadedNote && (
                       <PaperDownloadedNote
@@ -1180,7 +1248,7 @@ export default function ChapterTestPage() {
                       <span>
                         Prefer paper? Download this test, solve it, and upload the whole thing. Opens
                         full-screen so you can focus.{" "}
-                        {draw && draw.repeatCount > 0 ? (
+                        {restoredPaper ? null /* CT-RESUME-2: the freshness line describes the NEW draw — not shown while a saved paper is offered */ : draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when this chapter's unseen pool ran out.
                           <b data-testid="ct-fresh-line" data-tone="repeats">{freshLine?.text}</b>
                         ) : draw?.hasServedHistory ? (

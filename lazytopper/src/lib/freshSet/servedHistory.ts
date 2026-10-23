@@ -28,23 +28,19 @@
 //
 // Pure apart from the localStorage helpers, which are best-effort and never throw.
 
-/** The surfaces whose sets must not repeat. Quick Practice is a separate lane (FRESH-SET-QP). */
-export type ServedSurface = "chapter-test" | "full-mock" | "worksheet";
+import type { ServedPaperEntry, ServedPaperSurface } from "../served/servedTypes";
+
+/** The surfaces whose sets must not repeat. Quick Practice is a separate lane (FRESH-SET-QP).
+ *  The shared shape (lib/served/servedTypes, SERVED-TYPES-1); the name is kept for callers. */
+export type ServedSurface = ServedPaperSurface;
 
 /** question id -> the last time (ms epoch) it was served on the surface. */
 export type ServedAt = ReadonlyMap<string, number>;
 
 export const EMPTY_SERVED: ServedAt = new Map<string, number>();
 
-/** One logged paper on this device. */
-export interface ServedEntry {
-  surface: ServedSurface;
-  /** Chapter slug (Chapter Test / single-topic Worksheet), subject (Full Mock, multi-topic Worksheet). */
-  scope: string;
-  ids: string[];
-  /** ms epoch the paper was served. */
-  at: number;
-}
+/** One logged paper on this device — the shared shape (lib/served/servedTypes, SERVED-TYPES-1). */
+export type ServedEntry = ServedPaperEntry;
 
 /** The fields of a session record this module reads (SessionRecord satisfies it). */
 export interface ServedRecordLike {

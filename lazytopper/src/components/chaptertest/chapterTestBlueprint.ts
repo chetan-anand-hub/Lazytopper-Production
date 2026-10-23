@@ -24,7 +24,7 @@ import { isAutoGradeableObjective, isMcqShaped } from "../practice/autoGradeable
 import { drawBalancedSet, type BalancedDrawResult } from "../../utils/balancedMockDraw";
 import { questionKey } from "../../utils/questionKey";
 import { isPYQQuestion } from "../../utils/isPYQQuestion";
-import { balanceCbqShare, type CbqShare } from "../../lib/cbq/cbqPaperBalance";
+import { balanceCbqShare, cbqShareOf, type CbqShare } from "../../lib/cbq/cbqPaperBalance";
 import { needsMissingFigure } from "../../lib/figureSafe";
 import {
   EMPTY_SERVED,
@@ -354,6 +354,59 @@ export function drawChapterTest(args: {
       return { servedShare: share, hasServedHistory: share > 0 };
     })(),
     repeatSections: new Set(questions.filter((q) => servedAt.has(String(q.id ?? ""))).map((q) => q.section)).size,
+  };
+}
+
+/** CT-RESUME-2 — the facts the start screen shows, for ANY paper (a fresh draw or a saved one). */
+export interface ChapterTestPaperFacts {
+  questionCount: number;
+  totalMarks: number;
+  blueprint: CTBlueprintRow[];
+  cbqMarks: number;
+  cbqTarget: number;
+  cbqShortfall: number;
+  plainMcqMarks: number;
+  constructedMarks: number;
+}
+
+/**
+ * CT-RESUME-2 — describe a SAVED Chapter Test paper (an in-progress attempt restored after a
+ * reload) from its own rows, so the resume screen states that paper's counts, marks, sections
+ * and CBQ share — never the facts of the new draw sitting behind it. Each row's CBQ flag is read
+ * from its bank row (matched by id); a row no longer in the bank counts as not-CBQ (never
+ * claimed as one). Marks are the saved row's own marks, exactly as the grader uses them.
+ */
+export function describeChapterTestPaper(paper: PersistedWorksheet): ChapterTestPaperFacts {
+  const subject = String(paper.subject) === "Science" ? "Science" : "Maths";
+  const topicKeys = [...new Set(paper.questions.map((q) => String(q.topicKey ?? "")).filter(Boolean))];
+  const bankById = new Map(
+    (topicKeys.length ? selectBankQuestions({ subject, topicKeys }) : []).map((q) => [String(q.id), q]),
+  );
+  const blueprint: CTBlueprintRow[] = CT_BLUEPRINT.map((spec) => {
+    const rows = paper.questions.filter((q) => String(q.section).toUpperCase() === spec.section);
+    return {
+      ...spec,
+      actualCount: rows.length,
+      actualMarks: rows.reduce((sum, q) => sum + (Number(q.marks) || 0), 0),
+    };
+  });
+  const share = cbqShareOf(
+    paper.questions.map((q) => {
+      const bank = bankById.get(String(q.id));
+      return {
+        group: String(q.section),
+        objective: String(q.section).toUpperCase() === "A",
+        // The bank row carries the CBQ flag (read only through lib/cbq's isCbq); the marks are the
+        // saved row's own. A row no longer in the bank is a plain row, never a claimed CBQ.
+        item: bank ? { ...bank, marks: Number(q.marks) || 0 } : { marks: Number(q.marks) || 0 },
+      };
+    }),
+  );
+  return {
+    questionCount: paper.questions.length,
+    totalMarks: paper.questions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0),
+    blueprint,
+    ...cbqFields(share),
   };
 }
 
