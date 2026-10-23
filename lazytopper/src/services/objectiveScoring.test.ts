@@ -248,6 +248,28 @@ describe("applyObjectiveMistakeGuard — MI honesty + the feature", () => {
     expect(nulled).toEqual({ conceptual: 1, calculation: 0, silly: 0, presentation: 0 });
   });
 
+  // MCQ-TYPE-1: "has working" is decided for the WHOLE objective question, not line by line.
+  it("★ objective: working on OTHER lines + the type on the bare answer line -> type KEPT, mark still 0", () => {
+    const steps = [
+      step({ studentWork: "7 x 0 = 0 so the product is zero", status: "correct", mistakeType: null }),
+      step({ studentWork: "(a)", status: "incorrect", mistakeType: "conceptual" }),
+    ];
+    const v = O.clampObjectiveResult({ section: "A", answer: "7", options: opts }, steps, 1);
+    const nulled = O.applyObjectiveMistakeGuard(steps, { objective: true, options: opts });
+    expect(v).toEqual({ marksAwarded: 0, correct: false, resolved: true });
+    expect(steps.map((s) => s.mistakeType)).toEqual([null, "conceptual"]);
+    expect(nulled).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+  });
+
+  it("objective: several bare picks and no working anywhere -> every type nulled", () => {
+    const steps = [
+      step({ studentWork: "(c)", status: "incorrect", mistakeType: "silly" }),
+      step({ studentWork: "(a)", status: "incorrect", mistakeType: "conceptual" }),
+    ];
+    O.applyObjectiveMistakeGuard(steps, { objective: true, options: opts });
+    expect(steps.map((s) => s.mistakeType)).toEqual([null, null]);
+  });
+
   it("SUBJECTIVE unchanged: a wrong worked answer keeps its type AND its step marks", () => {
     const steps = [step({ studentWork: "used F=ma (wrong)", status: "incorrect", marksAwarded: 0, marksDeducted: 3, mistakeType: "conceptual" })];
     const nulled = O.applyObjectiveMistakeGuard(steps, { objective: false });

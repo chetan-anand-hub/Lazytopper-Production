@@ -383,16 +383,28 @@ function objectiveHasWorking(studentWork, options) {
 // Marks are NOT touched here — they are already fixed (objective by clampObjectiveResult,
 // subjective by the step sum). Returns the per-category count of the types it nulled so
 // the caller's additive-floor reconcile can subtract them from the model's raw summary.
+//
+// MCQ-TYPE-1 (owner rule 23 Oct 2026) · FOR AN OBJECTIVE QUESTION, "HAS WORKING" IS DECIDED
+// FOR THE WHOLE QUESTION, NOT LINE BY LINE. The prompt asks the model to quote only the option
+// on the answer line, and the model often puts the question's mistake type on that line. Judged
+// line by line, that line is a "bare pick", so the type was deleted even when real working sat
+// on the other lines, and the lost mark fell into "reason not recorded". Now: if ANY step of an
+// objective question carries working beyond the bare pick, every non-empty step keeps its type,
+// the answer line included. A question that is ONLY a bare pick still loses its type
+// (DECISION-MCQ-WRONG: a tap is attempt-only, untyped). An EMPTY step is still undiagnosable.
+// Marks are not read or written here.
 function applyObjectiveMistakeGuard(steps, opts) {
   const objective = Boolean(opts && opts.objective);
   const options = opts && opts.options;
   const noWorkingNulled = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
   const list = Array.isArray(steps) ? steps : [];
+  const questionHasWorking = objective && list.some((s) => s && objectiveHasWorking(s.studentWork, options));
   for (const s of list) {
     if (!s) continue;
+    const nonEmpty = Boolean(s.studentWork && String(s.studentWork).trim());
     const hasWorking = objective
-      ? objectiveHasWorking(s.studentWork, options)
-      : Boolean(s.studentWork && String(s.studentWork).trim());
+      ? questionHasWorking && nonEmpty
+      : nonEmpty;
     if (s.status === 'incorrect' && !hasWorking) {
       if (s.mistakeType && Object.prototype.hasOwnProperty.call(noWorkingNulled, s.mistakeType)) {
         noWorkingNulled[s.mistakeType] += 1;

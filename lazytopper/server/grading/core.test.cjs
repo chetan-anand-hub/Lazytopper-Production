@@ -2059,3 +2059,108 @@ test('GRD.6 ★ review 2 controls: a multi-value key is never matched by re-read
   assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true }), []);
   assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true, source: HCF_TYPED }), []);
 });
+
+/* ══ §MCQ-TYPE-1 · AN MCQ WITH WORKING KEEPS ITS MISTAKE TYPE — THE MARK NEVER MOVES ═════════
+   Owner rule (23 Oct 2026): a student who uploads working for an MCQ is shown the mistake under
+   the designed categories; the score is 0 or full and does not change. Before this lane the
+   no-working guard judged ONE STEP AT A TIME: the model puts the question's type on the bare
+   answer line ("(c)"), that line alone is a "bare pick", so the type was deleted even when real
+   working sat on the other lines, and the lost mark landed in `untyped`. Both endpoints are
+   driven: /api/check-solution (handleCheckSolution) and /api/grade-worksheet
+   (handleGradeWorksheet → gradeStructuredSet); both reach core.gradeSet →
+   postprocess.normaliseQuestionResult → applyObjectiveMistakeGuard. */
+
+const MCQ_QTEXT = 'Two lines with equal slopes and different intercepts are: (a) Parallel (b) Intersecting (c) Coincident (d) Skew';
+const MCQ_OPTS = ['Parallel', 'Intersecting', 'Coincident', 'Skew'];
+// The probe: working lines UNTYPED, the type on the bare answer line.
+const PROBE_STEPS = (pick = '(c)', type = 'conceptual') => [
+  S({ description: 'Compares the slopes', studentWork: 'm1 = 2 and m2 = 2, so the slopes are equal', status: 'correct', marksAwarded: 0 }),
+  S({ description: 'Draws the conclusion', studentWork: 'Equal slopes means the lines are the same line', status: 'incorrect', marksAwarded: 0 }),
+  S({ description: 'Option chosen', studentWork: pick, status: 'incorrect', marksAwarded: 0, mistakeType: type }),
+];
+const MCQ_SINGLE = (o = {}) => ({ question: MCQ_QTEXT, marks: 1, subject: 'Maths', topic: TOPIC, section: 'A', format: 'mcq',
+  options: MCQ_OPTS, answer: 'Parallel', textAnswer: 'm1 = 2 and m2 = 2, so the slopes are equal. Equal slopes means the lines are the same line. (c)', acceptsV2: true, ...o });
+const MCQ_SHEETQ = (o = {}) => LETTER_MCQ({ questionText: MCQ_QTEXT, textAnswer: MCQ_SINGLE().textAnswer, ...o });
+// Both endpoints, one reply → [singleBody, sheetResult].
+async function bothPaths(steps, { single: so = {}, sheet: wo = {}, raw = {} } = {}) {
+  const reply = REPLY(R(1, steps, raw));
+  const a = (await harness({ replies: [reply] }).single(MCQ_SINGLE(so))).body;
+  const b = (await harness({ replies: [reply] }).sheet(sheet([MCQ_SHEETQ(wo)], { acceptsV2: true }))).body.results[0];
+  return [a, b];
+}
+
+test('§MCQ-TYPE-1.1 ★ THE PROBE: type on the bare "(c)" line + real working on other lines → type KEPT, loss typed, mark 0 — on BOTH endpoints', async () => {
+  for (const [name, r] of (await bothPaths(PROBE_STEPS())).map((r, i) => [i ? 'grade-worksheet' : 'check-solution', r])) {
+    assert.equal(r.marksAwarded, 0, name + ': a wrong option is 0, working or not');
+    assert.equal(r.objectiveResolved, true, name);
+    assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), [null, null, 'conceptual'], name + ': the answer-line type survives');
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 1 }, name + ': the lost mark is typed, not "reason not recorded"');
+    assert.equal(r.mistakeSummary.conceptual, 1, name);
+    for (const s of r.annotatedSteps) assert.deepEqual([s.marksAwarded, s.marksDeducted], [0, 0], name + ': objective steps carry no marks');
+  }
+});
+
+test('§MCQ-TYPE-1.2 multi-line working inside ONE step with the type on a separate answer step → kept; every type category survives', async () => {
+  for (const type of ['conceptual', 'calculation', 'silly', 'presentation']) {
+    const steps = [
+      S({ description: 'Working', studentWork: 'slope of line 1 = 4/2 = 2\nslope of line 2 = 6/3 = 3\nso they intersect', status: 'incorrect', marksAwarded: 0 }),
+      S({ description: 'Option chosen', studentWork: '(b)', status: 'incorrect', marksAwarded: 0, mistakeType: type }),
+    ];
+    for (const r of await bothPaths(steps)) {
+      assert.equal(r.marksAwarded, 0, type);
+      assert.equal(r.annotatedSteps[1].mistakeType, type);
+      assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), [type]: 1 }, type);
+    }
+  }
+});
+
+test('§MCQ-TYPE-1.3 CONTROL: a BARE PICK alone (no working anywhere) stays UNTYPED on both endpoints — DECISION-MCQ-WRONG', async () => {
+  const bare = [S({ description: 'Option chosen', studentWork: '(c)', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' })];
+  for (const r of await bothPaths(bare, { single: { textAnswer: '(c)' }, sheet: { textAnswer: '(c)' } })) {
+    assert.equal(r.marksAwarded, 0);
+    assert.equal(r.annotatedSteps[0].mistakeType, null);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), untyped: 1 });
+    assert.equal(r.mistakeSummary.conceptual, 0, 'the model\'s own summary may not walk the type back in');
+  }
+  // the option TEXT as the bare pick is still a bare pick
+  const text = [S({ description: 'Option chosen', studentWork: 'Coincident', status: 'incorrect', marksAwarded: 0, mistakeType: 'silly' })];
+  for (const r of await bothPaths(text, { single: { textAnswer: 'Coincident' }, sheet: { textAnswer: 'Coincident' } })) {
+    assert.equal(r.annotatedSteps[0].mistakeType, null);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), untyped: 1 });
+  }
+});
+
+test('§MCQ-TYPE-1.4 CONTROL: an EMPTY step stays untyped even when the question has working elsewhere', async () => {
+  const steps = [
+    S({ description: 'Working', studentWork: 'equal slopes so the same line', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' }),
+    S({ description: 'Blank', studentWork: '', status: 'incorrect', marksAwarded: 0, mistakeType: 'silly' }),
+    S({ description: 'Option chosen', studentWork: '(c)', status: 'incorrect', marksAwarded: 0 }),
+  ];
+  for (const r of await bothPaths(steps)) {
+    assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), ['conceptual', null, null]);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 1 });
+  }
+});
+
+test('§MCQ-TYPE-1.5 ★ MARKS UNCHANGED: wrong+working 0, right+working full, bare pick 0, unreadable option ungraded — both endpoints', async () => {
+  // wrong + working (the probe) → 0
+  for (const r of await bothPaths(PROBE_STEPS())) assert.deepEqual([r.marksAwarded, r.percentage, r.objectiveResolved], [0, 0, true]);
+  // right + working, even with the model's verdict saying wrong and a type on the line → FULL, no type
+  // (a right MCQ's types are cleared today at postprocess.cjs "objectiveVerdict.correct"; this lane does not touch that)
+  for (const r of await bothPaths(PROBE_STEPS('(a)'), { raw: { finalAnswerCorrect: false } })) {
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+    assert.deepEqual(r.marksLostByType, grading.zeroLost());
+    assert.ok(r.annotatedSteps.every((s) => s.mistakeType === null));
+  }
+  // wrong + working with the model's verdict saying RIGHT → still 0: the key decides, working never rescues
+  for (const r of await bothPaths(PROBE_STEPS(), { raw: { finalAnswerCorrect: true } })) assert.equal(r.marksAwarded, 0);
+  // bare pick → 0
+  const bare = [S({ studentWork: '(c)', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' })];
+  for (const r of await bothPaths(bare, { single: { textAnswer: '(c)' }, sheet: { textAnswer: '(c)' } })) assert.equal(r.marksAwarded, 0);
+  // unreadable option (working, but no option declared, no model verdict) → objectiveResolved false, 0, nothing typed
+  const unread = [S({ description: 'Working', studentWork: 'equal slopes so the same line', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' })];
+  for (const r of await bothPaths(unread, { single: { textAnswer: 'equal slopes so the same line' }, sheet: { textAnswer: 'equal slopes so the same line' } })) {
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+    assert.deepEqual(r.marksLostByType, grading.zeroLost());
+  }
+});
