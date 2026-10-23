@@ -448,12 +448,17 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=2048
       - name: Shard summary (files and tests this shard ran)
         if: ${{ !cancelled() }}
-        run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/4
+        run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/4 --attempt=${{ github.run_attempt }}
+      # ★ CI-AGG-1: ONE ARTIFACT PER RUN ATTEMPT. "Re-run failed jobs" re-runs only the failed shard
+      # (and quality-gate); the passing shards keep their attempt-1 artifacts. With one name for every
+      # attempt the run held two `vitest-shard-3` artifacts and the aggregate judged an arbitrary one
+      # (run 39967755784 attempt 2: the FAILED attempt-1 copy, so a green re-run stayed red). The
+      # aggregate now judges each shard on its highest attempt (ci_aggregate.mjs selectLatestShardSummaries).
       - name: Upload shard summary
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: vitest-shard-${{ matrix.shard }}
+          name: vitest-shard-${{ matrix.shard }}-attempt-${{ github.run_attempt }}
           path: ${{ runner.temp }}/summary/vitest-shard-${{ matrix.shard }}.json
           retention-days: 7
       # The raw vitest JSON (per-file start/end times): the input of
@@ -463,7 +468,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: vitest-json-${{ matrix.shard }}
+          name: vitest-json-${{ matrix.shard }}-attempt-${{ github.run_attempt }}
           path: ${{ runner.temp }}/vitest-shard.json
           retention-days: 7
           if-no-files-found: ignore
@@ -574,14 +579,17 @@ jobs:
             lazytopper/scripts/ops
             lazytopper/src
           fetch-depth: 1
-      - name: Download vitest shard summaries
+      # ★ CI-AGG-1: NO merge-multiple. Every attempt's summary lands in its own directory
+      # (summary/vitest-shard-<i>-attempt-<A>/), and the aggregate keeps each shard's highest attempt
+      # — a shard that is red on its latest attempt still fails; a red attempt a re-run superseded does not.
+      # Read VITEST_SHARD_JUDGED in the next step's log for the attempt each shard was judged on.
+      - name: Download vitest shard summaries (every attempt; the aggregate judges the latest)
         if: needs.classify.outputs.docs_only != 'true'
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           pattern: vitest-shard-*
           path: ${{ runner.temp }}/summary
-          merge-multiple: true
       - name: Every upstream job passed (or was skipped by the docs fast path)
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
