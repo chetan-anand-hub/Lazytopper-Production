@@ -15,6 +15,7 @@
 import type { ScorecardScore } from "../results/scorecardVariants";
 import type { ZiggyBand } from "../../analytics/analytics";
 import type { Pose } from "./rig";
+import { formatScoreNumber } from "../results/scoreNumber";
 
 export type { ZiggyBand };
 
@@ -26,10 +27,8 @@ export interface ZiggyReaction {
   after?: { pose: Pose; line: string };
 }
 
-/** A number as the scorecard prints it (no trailing ".0"). */
-function n(x: number): string {
-  return String(Math.round(x * 100) / 100);
-}
+/** A number as the scorecard prints it — the hero's ONE formatter (GUIDE-SCORE-1, scoreNumber.ts). */
+const n = formatScoreNumber;
 
 export function ziggyReactionFor(score: ScorecardScore): ZiggyReaction | null {
   let got: number;
