@@ -7,7 +7,7 @@
  *
  * What is pinned (spec §2.5), one TABLE plus the edges it cannot express:
  *   TABLE  tier (anonymous free check / free / trial / premium) × route (tutor /
- *          more-like-this / detect-question / step-solution) × switch (FAIR_USE_ENFORCE_ALL_AI
+ *          more-like-this [retired, MLT-RETIRE-1: pinned untouched] / detect-question / step-solution) × switch (FAIR_USE_ENFORCE_ALL_AI
  *          unset / "1") × counter state (under / at cap) -> served, or refused with its status
  *          and body. Refused => answered before dispatch (no model) and NOTHING counted.
  *          Served => a trial counter moves by exactly one, only on a 2xx; dark refusals are
@@ -54,7 +54,8 @@ const AI_SWITCH = 'FAIR_USE_ENFORCE_ALL_AI';
 /** The trial ledger field and default per-day limit of each AI route (owner ruling 10 Oct). */
 const ROUTE = {
   [TUTOR]: { field: 'trialTutor', key: 'tutor', limit: 15, rule: 'tutor' },
-  [MLT]: { field: 'trialMoreLikeThis', key: 'moreLikeThis', limit: 5, rule: 'more_like_this' },
+  // MLT-RETIRE-1: no MLT row. POST /api/more-like-this answers 410 and is no longer an AI_ROUTES
+  // entry, so the TABLE pins it exactly like Show steps: untouched (no tier read, no ledger read).
   [DETECT]: { field: 'trialDetect', key: 'detect', limit: 10, rule: 'detect' },
 };
 
@@ -163,7 +164,7 @@ function expected(tier, reqPath, switchOn, atCap) {
     if (reqPath === TUTOR) return served(); // the Tutor's free 402 is entitlement.cjs's, untouched
     const body = {
       error: 'premium_required',
-      feature: reqPath === MLT ? 'more-like-this' : 'detect-question',
+      feature: 'detect-question',
       tier: 'free',
       message: entitlement.AI_TIER_GATED_ROUTES
         ? entitlement.AI_TIER_GATED_ROUTES[reqPath].message
@@ -218,7 +219,7 @@ for (const tier of TIERS) {
             if (exp.wouldRefuse) assert.equal(r.telemetry.count(`fair_use.would_refuse.${exp.wouldRefuse}`), 1, 'dark: counted as a would-refuse');
             else assert.deepEqual(r.telemetry.startingWith('fair_use.would_refuse.'), []);
           }
-          if (tier === 'anon-free-check' || reqPath === STEPS) {
+          if (tier === 'anon-free-check' || reqPath === STEPS || reqPath === MLT) {
             assert.equal(r.tierReads(), 0, 'untouched: not even a tier read');
             assert.deepEqual(r.reads, [], 'untouched: no ledger read');
           }
@@ -233,7 +234,7 @@ for (const tier of TIERS) {
    ══════════════════════════════════════════════════════════════════════════ */
 
 test('EDGE · a trial counter moves ONLY on a served 2xx (500 / 402 / 429 downstream cost nothing)', async () => {
-  for (const reqPath of [TUTOR, MLT, DETECT]) {
+  for (const reqPath of [TUTOR, DETECT]) {
     const r = rig({ env: { [AI_SWITCH]: '1' } });
     await run(r, { reqPath, serve: 500 });
     await run(r, { reqPath, serve: 402 });
@@ -251,7 +252,6 @@ test('EDGE · each route spends only its OWN allowance (a spent Tutor day does n
   const env = { [AI_SWITCH]: '1' };
   assert.equal((await run(rig({ days, env }), { reqPath: TUTOR })).answered, true);
   assert.equal((await run(rig({ days, env }), { reqPath: DETECT })).answered, false);
-  assert.equal((await run(rig({ days, env }), { reqPath: MLT })).answered, false);
 });
 
 test('EDGE · the trial limits come from env (FAIR_USE_TRIAL_*_PER_DAY), with the owner\'s defaults', async () => {
@@ -263,7 +263,9 @@ test('EDGE · the trial limits come from env (FAIR_USE_TRIAL_*_PER_DAY), with th
   const days = { [TODAY]: { trialTutor: 15, trialMoreLikeThis: 2, trialDetect: 3 } };
   assert.equal((await run(rig({ days, env: { [AI_SWITCH]: '1' } }), { reqPath: TUTOR })).answered, true);
   assert.equal((await run(rig({ days, env }), { reqPath: TUTOR })).answered, false);
-  assert.equal((await run(rig({ days, env }), { reqPath: MLT })).answered, true, 'a LOWER env limit refuses earlier');
+  // MLT-RETIRE-1: FAIR_USE_TRIAL_MLT_PER_DAY is still RESOLVED (GET /api/usage/me reports it) but
+  // no route is decided on it any more — a spent MLT day refuses nothing.
+  assert.equal((await run(rig({ days, env }), { reqPath: MLT })).answered, false, 'retired: never decided');
   assert.equal((await run(rig({ days, env }), { reqPath: DETECT })).answered, true);
   // Junk env -> the default, never 0 / NaN.
   assert.deepEqual(fairUse.resolveAiLimits({ FAIR_USE_TRIAL_TUTOR_PER_DAY: 'abc', FAIR_USE_TRIAL_MLT_PER_DAY: '0', FAIR_USE_TRIAL_DETECT_PER_DAY: '-4' }),
@@ -294,7 +296,7 @@ test('EDGE · Premium is refused on EVERY window grading refuses on (5-hour / da
     ['fiveHour', { [TODAY]: { costMicroInr: 25 * INR, hourCostMicroInr: { 11: 25 * INR } } }],
   ];
   for (const [window, days] of cases) {
-    for (const reqPath of [TUTOR, MLT, DETECT]) {
+    for (const reqPath of [TUTOR, DETECT]) {
       const r = rig({ tier: 'premium', days, env });
       const out = await run(r, { reqPath });
       assert.equal(out.answered, true, `${window} ${reqPath}`);
@@ -345,13 +347,13 @@ test('EDGE · detection inside an admitted anonymous free check is admitted exac
   assert.equal(r.tierReads(), 0);
   // An unverified caller (no uid, App Check) is not metered here either.
   const anon = rig({ tier: 'free', env: { [AI_SWITCH]: '1' } });
-  assert.equal((await run(anon, { reqPath: MLT, uid: '' })).answered, false);
+  assert.equal((await run(anon, { reqPath: DETECT, uid: '' })).answered, false);
   assert.equal(anon.tierReads(), 0);
 });
 
 test('EDGE · FAIL-OPEN: an unknown tier or an unreadable ledger serves (and the served call still counts)', async () => {
   const unknown = rig({ tier: null, env: { [AI_SWITCH]: '1' } });
-  assert.equal((await run(unknown, { reqPath: MLT })).answered, false);
+  assert.equal((await run(unknown, { reqPath: DETECT })).answered, false);
   assert.equal(unknown.telemetry.count('fair_use.tier_unknown'), 1);
   const down = rig({ failRead: true, env: { [AI_SWITCH]: '1' } });
   assert.equal((await run(down, { reqPath: TUTOR })).answered, false);
@@ -363,7 +365,7 @@ test('EDGE · FAIL-OPEN: an unknown tier or an unreadable ledger serves (and the
 
 test('EDGE · the free 402 is the entitlement gate\'s OWN body shape (premium_required + feature + tier + message)', async () => {
   const gate = entitlement.createEntitlementGate({ adminFirestore: null, logger: { warn() {}, info() {} } });
-  for (const reqPath of [MLT, DETECT]) {
+  for (const reqPath of [DETECT]) {
     const out = await run(rig({ tier: 'free', env: { [AI_SWITCH]: '1' } }), { reqPath });
     assert.equal(out.res.sent.status, 402);
     assert.deepEqual(out.res.sent.body, gate.denialBody(entitlement.AI_TIER_GATED_ROUTES[reqPath], { tier: 'free' }));
@@ -570,14 +572,16 @@ test('WIRING · REAL index.cjs, FAIR_USE_ENFORCE_ALL_AI=1: refused BEFORE Gemini
     assert.deepEqual(Object.keys(JSON.parse(res.text)).sort(), ['error', 'resetAt', 'window']);
     assert.equal(count(delta, /GEMINI_FETCH/g), 0, delta);
 
-    // Free signed-in student: More-like-this -> 402 premium_required, no model call.
+    // Free signed-in student: More-like-this -> 410 gone (MLT-RETIRE-1; was 402 premium_required),
+    // no model call and nothing counted.
     before = srv.log();
     res = await request(port, 'POST', MLT, { question: 'x' }, { authorization: 'Bearer free-token' });
     await wait(300);
     delta = srv.log().slice(before.length);
-    assert.equal(res.status, 402, res.text);
-    assert.equal(JSON.parse(res.text).error, 'premium_required');
+    assert.equal(res.status, 410, res.text);
+    assert.equal(JSON.parse(res.text).error, 'gone');
     assert.equal(count(delta, /GEMINI_FETCH/g), 0, delta);
+    assert.equal(count(delta, /trialMoreLikeThis/g), 0, delta);
 
     // Trial with detection left -> SERVED (CONTROL: the gate is not refusing everything).
     before = srv.log();
@@ -610,7 +614,7 @@ test('WIRING · REAL index.cjs, FAIR_USE_ENFORCE_ALL_AI UNSET (the ship state): 
     assert.ok(count(delta, /GEMINI_FETCH/g) >= 1, `the Tutor turn must reach the model\n${delta}`);
     assert.ok(delta.includes(`LEDGER_SET usageLedger/trial-student/days/${today} {"trialTutor":{"increment":1}}`),
       `the served turn is counted once\n${delta}`);
-    // Free student MLT while dark: served (today's behaviour), not 402.
+    // Free student MLT while dark: 410 gone (MLT-RETIRE-1), not 402 and not served.
     const free = await request(port, 'POST', MLT, { question: 'x' }, { authorization: 'Bearer free-token' });
-    assert.notEqual(free.status, 402, free.text);
+    assert.equal(free.status, 410, free.text);
   });

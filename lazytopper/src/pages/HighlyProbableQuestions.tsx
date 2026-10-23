@@ -969,7 +969,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
             gap: 24,
           }}
         >
-          <div style={{ flex: "1 1 560px", maxWidth: 720 }}>
+          <div style={{ flex: "1 1 560px", maxWidth: 720, containerType: "inline-size" }}>
             <div
             style={{
               fontSize: "0.7rem",
@@ -985,14 +985,18 @@ const HighlyProbableQuestionsPage: React.FC = () => {
             <h1
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "2.1rem",
+              // IMPQ-PAGE-1: the H1 is now the full search phrase, so it scales with the HERO
+              // COLUMN (container units, not the viewport: below desktop the app is a narrow
+              // column even on a tablet) — 1.5rem (three lines) on phones, 2.1rem on desktop.
+              fontSize: "clamp(1.5rem, 8.5cqi, 2.1rem)",
               lineHeight: 1.15,
               fontWeight: 600,
               letterSpacing: "-0.01em",
               marginBottom: 10,
             }}
           >
-              Important Questions
+              {/* IMPQ-PAGE-1 (owner ruling 23 Oct 2026): the H1 matches the search title. */}
+              Class {grade} {subjectKey} Important Questions for 2027 Boards
             </h1>
             <p
             style={{
@@ -1003,12 +1007,13 @@ const HighlyProbableQuestionsPage: React.FC = () => {
               margin: "0 0 6px",
             }}
           >
-              {/* [FU-EVIDENCE-BASE-CLAIM-INCONSISTENT] — Predicted Questions rests on the
-                  SAME corpus as Exam Trends; it read "4 years" while Exam Trends read
-                  "Ten". Both now read the one authoritative constant. */}
-              The question shapes that recur most on CBSE boards — drawn from {EVIDENCE_BASE_YEARS} years of papers, the official blueprint, and examiner-pattern analysis.
-              <br />
-              Master these patterns first.
+              {/* IMPQ-PAGE-1 (controller ruling 23 Oct 2026): the intro says what the page
+                  offers and carries NO source claim. It used to name the paper corpus as its
+                  source, which repeated the honesty line's figure and hinted these were
+                  past-paper questions; they are LazyTopper-written, chosen by our model. The
+                  one evidence-base figure is the honesty line below, which reads the
+                  authoritative constant ([FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]). */}
+              Chapter-wise board-pattern questions to practise for the 2027 boards. Try each one first, then check your answer.
             </p>
             <div
               style={{
@@ -1017,7 +1022,11 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                 lineHeight: 1.45,
               }}
             >
-              These are important question patterns to prioritise — not predictions of the exact 2027 paper. Full preparation still matters.
+              {/* IMPQ-PAGE-1 (owner ruling 23 Oct 2026): ONE honesty line — what chose these
+                  questions, and that it is a guide, never the paper. Replaces the earlier
+                  "not predictions of the exact 2027 paper" line rather than stacking a second. */}
+              Chosen by our prediction model from {EVIDENCE_BASE_YEARS} years of CBSE paper trends and the{" "}
+              <span style={{ whiteSpace: "nowrap" }}>2026-27</span> syllabus. A strong guide, not the actual paper.
             </div>
             {topicFilter !== "all" ? (
               <div

@@ -684,24 +684,9 @@ export async function buildPracticeQuestionsWithAiTopup(
   // MLT-MUTE-1 (owner ruling 2026-10-22): the AI step is MUTED. When the bank and the canonical
   // fallback above run out, the set is served SHORT - verified questions only, never AI-written
   // ones. The three calls that lived here are gone: the generated_questions cache read
-  // (GET /api/ai-questions), the model top-up (POST /api/more-like-this) and the cache write
+  // (GET /api/ai-questions), the model top-up (POST /api/more-like-this; retired 410 by MLT-RETIRE-1) and the cache write
   // (POST /api/ai-questions). Those questions had no syllabus check and no verified marking key,
   // yet flowed into grading and Mistake Intelligence. The page then says honestly that this is
   // every question it has like this (PracticeQuestionList `bankEnd`).
   return enforceDifficultyFilter(mergedWithCanonical.slice(0, safeCount), args.difficulty);
-}
-
-/* ── ALL-AI-METERING-1 · a More-like-this refusal reaches the page ─────────────────────────────
-   MLT-MUTE-1: the AI top-up is muted, so the builder makes no paid call and nothing NOTIFIES these
-   listeners any more. The subscription is kept (PracticePage subscribes once at mount) so this lane
-   changes no page wiring; removing it and the page's two More-like-this panels is a follow-up. */
-type MoreLikeThisLimitListener = (err: unknown) => void;
-const moreLikeThisLimitListeners = new Set<MoreLikeThisLimitListener>();
-
-/** Subscribe to More-like-this fair-use refusals. Returns the unsubscribe. */
-export function subscribeMoreLikeThisLimit(listener: MoreLikeThisLimitListener): () => void {
-  moreLikeThisLimitListeners.add(listener);
-  return () => {
-    moreLikeThisLimitListeners.delete(listener);
-  };
 }

@@ -439,10 +439,15 @@ describe("static heads — the writer refuses to no-op silently", () => {
   it("★ SEO-PAGES-1 (B) — /highly-probable titles and descriptions are the owner's 'Important Questions' text, never 'Predicted'", () => {
     for (const subject of ["Maths", "Science"]) {
       const head = headForPath(`/highly-probable/10/${subject}`);
-      expect(head?.title).toBe(`Class 10 ${subject} Important Questions for Boards 2027 | LazyTopper`);
+      // IMPQ-PAGE-1 (owner ruling 23 Oct 2026): the title matches the page's H1.
+      expect(head?.title).toBe(`Class 10 ${subject} Important Questions for 2027 Boards | LazyTopper`);
       expect(head?.title).not.toMatch(/predicted/i);
-      // D106a (DECISION 110 on #973): the owner's exact description text.
-      expect(head?.description).toBe(`Important questions for CBSE Class 10 ${subject} boards 2027, chapter by chapter.`);
+      // IMPQ-PAGE-1 supersedes D106a: the description carries the page's honesty line.
+      expect(head?.description).toBe(
+        `Class 10 ${subject} important questions for the 2027 boards, chosen by our prediction model ` +
+          "from 10 years of CBSE paper trends. A guide, not the actual paper.",
+      );
+      expect(head?.description).toContain("not the actual paper");
       expect(head?.description).not.toMatch(/predicted/i);
       expect(renderedLength(head?.description ?? "")).toBeLessThanOrEqual(155);
     }

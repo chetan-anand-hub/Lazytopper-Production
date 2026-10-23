@@ -1,9 +1,7 @@
-const { createMoreLikeThisRoute, extractVariantsJson } = require('./moreLikeThis.cjs');
 const { createStepSolutionRoute, getOrCreateModelSolution } = require('./stepSolution.cjs');
 const { createCheckSolutionRoute } = require('./checkSolution.cjs');
 
 function createQuestionRoutes(deps) {
-  const { handleMoreLikeThis } = createMoreLikeThisRoute(deps);
   const { handleStepSolution } = createStepSolutionRoute(deps);
   // C&I PR-3: hand the grader the shared model-solution cache THROUGH deps —
   // checkSolution.cjs itself gains no import (its hooks are skipped whenever
@@ -15,7 +13,9 @@ function createQuestionRoutes(deps) {
   };
   const { handleCheckSolution, handleDetectQuestion, handleGradeWorksheet } = createCheckSolutionRoute({ ...deps, solutionCache });
 
-  return { handleMoreLikeThis, handleStepSolution, handleCheckSolution, handleDetectQuestion, handleGradeWorksheet };
+  // MLT-RETIRE-1: handleMoreLikeThis is gone; POST /api/more-like-this is answered 410 by
+  // routes/moreLikeThis.cjs, wired directly in index.cjs.
+  return { handleStepSolution, handleCheckSolution, handleDetectQuestion, handleGradeWorksheet };
 }
 
-module.exports = { createQuestionRoutes, extractVariantsJson };
+module.exports = { createQuestionRoutes };

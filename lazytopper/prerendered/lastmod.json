@@ -24,12 +24,12 @@
     "lastmod": "2026-10-22"
   },
   "/highly-probable/10/Maths": {
-    "sha256": "269c0cc598e3a557a2b41b094cbbf0615a87f0dad501ca2201b342ce499c6ea9",
-    "lastmod": "2026-10-20"
+    "sha256": "6d2b94ef895ada71da730c0823b7c3c71f4c9522276bb01386529fffd2de98a4",
+    "lastmod": "2026-10-23"
   },
   "/highly-probable/10/Science": {
-    "sha256": "95eb999aebdacf2c89fb385a5caf2e4988f95eadf30df1a08e3d8806e506dc1d",
-    "lastmod": "2026-10-20"
+    "sha256": "272d5903d8dd258d1ee875e63e705ae5636cabc27bddb0b31f52484e464fd3b8",
+    "lastmod": "2026-10-23"
   },
   "/legal/privacy": {
     "sha256": "7c1fb080d1ed89f50c1eb3ae6d0f87f75ea00214ec75776240fbd3978da9f94c",
@@ -272,7 +272,7 @@
     "lastmod": "2026-10-19"
   },
   "/topic-hub/acids-bases-and-salts": {
-    "sha256": "d6b15eeb45a378d60f9855afe11fae00ea40922f1eb9219b8fb295d778e88f44",
+    "sha256": "5e3dc88b41f2bb6501660a468a2ebf75b5de26396830dafba572ee89e61381ba",
     "lastmod": "2026-10-23"
   },
   "/topic-hub/areas-related-to-circles": {
@@ -284,8 +284,8 @@
     "lastmod": "2026-10-20"
   },
   "/topic-hub/carbon-and-its-compounds": {
-    "sha256": "119deb16cbcbf8ae4e348fd664259381bad6fd2472441695d37b6dab22d091ac",
-    "lastmod": "2026-10-20"
+    "sha256": "f14813751ff7fd0a9449ff3a2348871869bc200073c9e97ceabdeb73c8a19900",
+    "lastmod": "2026-10-23"
   },
   "/topic-hub/chemical-reactions-and-equations": {
     "sha256": "6eb42000bb563dba48e0eebb6317c8183666f6d43ebad13bd6b8c3eee4c65252",
@@ -296,15 +296,15 @@
     "lastmod": "2026-10-20"
   },
   "/topic-hub/control-and-coordination": {
-    "sha256": "21d1b31647de5aa00ea9e8571b8125ed5ee91710f1216229290e61988256fd4f",
-    "lastmod": "2026-10-20"
+    "sha256": "be8c13c3b53ea89edb4cebfd502e6a4516708bb74b3ebccf7c09c060722149dc",
+    "lastmod": "2026-10-23"
   },
   "/topic-hub/coordinate-geometry": {
     "sha256": "f45b24a4171794f5afbc7f99dcf73138e00e4c489732f705177b389f0bd46937",
     "lastmod": "2026-10-20"
   },
   "/topic-hub/electricity": {
-    "sha256": "4ca605775d4191d2e5c3b88e10510602971fe22b8881a952d23538ea4e267adc",
+    "sha256": "a85b6701924ec25c549b640f232284bf7fbc4d57865c7e9f640e76949dad62f4",
     "lastmod": "2026-10-23"
   },
   "/topic-hub/heredity": {
@@ -316,12 +316,12 @@
     "lastmod": "2026-10-20"
   },
   "/topic-hub/human-eye-and-colourful-world": {
-    "sha256": "551b3c49f43619c8ee016da212ae319125f4bb15185d52e23199b71ba2ce75b3",
-    "lastmod": "2026-10-20"
+    "sha256": "99e0352113ddf9b5a7b9ad3c1b9b64db86815d4fbb321d643e14472576caa9d0",
+    "lastmod": "2026-10-23"
   },
   "/topic-hub/life-processes": {
-    "sha256": "3d70485a054c1ecba5738b80563308ad45175ed086f7bfee1d7869634baa6d44",
-    "lastmod": "2026-10-20"
+    "sha256": "47b937bec2d74c64f3de8a5a0ad08329c133618520941d8c55e92e931aa719ab",
+    "lastmod": "2026-10-23"
   },
   "/topic-hub/light-reflection-and-refraction": {
     "sha256": "679f6ca5ed137c29790c6501f5fcd305e2d9768902a55f8266852c6b1f5b373b",
@@ -332,8 +332,8 @@
     "lastmod": "2026-10-23"
   },
   "/topic-hub/metals-and-non-metals": {
-    "sha256": "902443fe727797b45135b3b49d815b7133a8f020e9b7f164148df7ea28a7b072",
-    "lastmod": "2026-10-20"
+    "sha256": "6780ae1d4ed4c2b291e40ff1a0ea8fd0bffee1ab2f0a87dbe33a6b844b454d56",
+    "lastmod": "2026-10-23"
   },
   "/topic-hub/our-environment": {
     "sha256": "b903b99071cbe93fdc7a4cdd1f4d4f1c838282ee47e7d082cc7cdcae938d895c",

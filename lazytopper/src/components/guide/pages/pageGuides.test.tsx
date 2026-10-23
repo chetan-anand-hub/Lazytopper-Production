@@ -97,7 +97,6 @@ describe("GUIDE-PAGES-1 · the copy tables (owner review)", () => {
       "full-mock": "Your full mock allowance for this week is used up.",
       worksheet: "Your worksheet allowance for this week is used up.",
       tutor: "Your Tutor messages for today are used up.",
-      "more-like-this": "Your new practice questions for today are used up.",
     });
     expect(M7_COPY.still).toBe("Notes, Topic Hub, Exam Trends and NCERT solutions still work. Reading them never uses your limit.");
     // No Premium line of Byte's: the panel's own lead already carries it (no repeat, no pressure).

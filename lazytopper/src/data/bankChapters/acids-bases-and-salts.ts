@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "acids-bases-and-salts" (Science): 552 served rows from 23 source arrays, 18 withheld.
+// Chapter "acids-bases-and-salts" (Science): 560 served rows from 26 source arrays, 18 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -19,11 +19,14 @@ import { ACID_SP } from "../questionBanks/class10/science/acids-bases-and-salts.
 import { ACIDS_BASES_SALTS_APQ } from "../questionBanks/class10/science/acids-bases-and-salts.additionalPQ";
 import { CHEMICAL_REACTIONS_CHAPTERWISE } from "../questionBanks/class10/science/chemical-reactions-and-equations.chapterwise";
 import { ACIDS_BASES_SALTS_CHAPTERWISE } from "../questionBanks/class10/science/acids-bases-and-salts.chapterwise";
+import { CHEMICAL_REACTIONS_PYQ } from "../questionBanks/class10/science/chemical-reactions-and-equations.pyq";
 import { ACIDS_BASES_SALTS_PYQ } from "../questionBanks/class10/science/acids-bases-and-salts.pyq";
 import { CARBON_COMPOUNDS_PYQ } from "../questionBanks/class10/science/carbon-and-its-compounds.pyq";
 import { chemicalReactionsPYQ2026 } from "../questionBanks/class10/science/chemicalReactions.pyq2026";
 import { acidsBasesSaltsPYQ2026 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2026";
+import { chemicalReactionsPYQ2025 } from "../questionBanks/class10/science/chemicalReactions.pyq2025";
 import { acidsBasesSaltsPYQ2025 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2025";
+import { chemicalReactionsPYQ2024 } from "../questionBanks/class10/science/chemicalReactions.pyq2024";
 import { acidsBasesSaltsPYQ2024 } from "../questionBanks/class10/science/acidsBasesSalts.pyq2024";
 import { ABS_CFPQ } from "../questionBanks/class10/science/acids-bases-and-salts.cfpq";
 import { CURATED_INLINE_QUESTIONS } from "../questionBanks/class10/curatedInline";
@@ -44,11 +47,14 @@ export default defineChapter("acids-bases-and-salts", [
   [270, ACIDS_BASES_SALTS_APQ, false],
   [282, CHEMICAL_REACTIONS_CHAPTERWISE, false],
   [283, ACIDS_BASES_SALTS_CHAPTERWISE, false],
+  [295, CHEMICAL_REACTIONS_PYQ, false],
   [296, ACIDS_BASES_SALTS_PYQ, false],
   [298, CARBON_COMPOUNDS_PYQ, false],
   [359, chemicalReactionsPYQ2026, false],
   [360, acidsBasesSaltsPYQ2026, false],
+  [372, chemicalReactionsPYQ2025, false],
   [373, acidsBasesSaltsPYQ2025, false],
+  [385, chemicalReactionsPYQ2024, false],
   [386, acidsBasesSaltsPYQ2024, false],
   [398, ABS_CFPQ, false],
   [415, CURATED_INLINE_QUESTIONS, false],
@@ -67,10 +73,10 @@ export default defineChapter("acids-bases-and-salts", [
   "PYQ-S-ACID-011",
   "PYQ-S-ACID-013",
   "PYQ-S-2026-ACID-019",
-  "PYQ-S-2025-ACID-006",
   "PYQ-S-2025-ACID-008",
   "PYQ-S-2025-ACID-009",
   "PYQ-S-2025-ACID-010",
   "PYQ-S-2025-ACID-011",
   "PYQ-S-2025-ACID-012",
+  "PYQ-S-2024-CHEMRXN-015",
 ]);
