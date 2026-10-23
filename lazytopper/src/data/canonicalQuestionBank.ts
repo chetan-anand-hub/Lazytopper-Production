@@ -1199,7 +1199,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2025-ACID-010",          // garbled-extraction: parts (b)/(c) reduced to residue
   "PYQ-S-2026-ACID-019",          // garbled-extraction: stripped Hindi block left residue
   "PYQ-S-2024-CARB-002",          // garbled-extraction: structural formulas flattened
-  "PYQ-S-2025-CARB-001",          // garbled-extraction: structural formulas flattened
   "PYQ-S-2026-CHEMRXN-020",       // garbled-extraction: structures damaged, triple bond lost
   "PYQ-S-2025-REPR-007",          // garbled-extraction: OR alternative reduced to residue
   "PYQ-S-2026-REPR-005",          // garbled-extraction: OR alternative reduced to residue
@@ -1405,7 +1404,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-CHEMRXN-022",      // garbled — (c) esterification equation missing; OR(c) carries the (b) equation
   "SCQ-S-METAL-034",             // garbled — step truncated mid-word ("froth floatio"); part (b) incomplete
   "PYQ-S-2026-METAL-009",        // bilingual — Hindi column residue in the stem ("A, B C A, B C , ? 5 () (i) (I) B, K, R XY ?")
-  "PYQ-S-2026-LIFEP-011",        // bilingual — Hindi column residue in the stem ("of (a) (b) ( 180 L ) , ? (c) / ?")
   // -- garbled-options / answer-mismatch --
   "PYQ-M-PLE-003",               // garbled-options — option (d) "ab =" truncated; key "ab = 6"
   "PYQ-M-QE-001",                // garbled-options — operator signs stripped ("2x2 4x + 8 =")
@@ -1966,11 +1964,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // are withheld too (official CBSE sex-determination questions are not capped) ----
   "LTG-S-HERED-102", "LTG-S-HERED-106",
   // ---- BANK-FIX-1 PR-2 (2026-10-07): broken tagging, duplicates, missing figures, out-of-syllabus (withholds2.json) ----
-  "PYQ-S-2026-ACID-012",        // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "APQ-M-ARC-001",              // figure: Answer depends on a figure (shaded region/angle/lengths) that is not in the text and cannot be recovered without inventing its contents; official APQ row, so withhold.
   "Z3-ARC-004",                 // figure: Figure shows a rounded-corner table but the inset corner looks square and no corner radius is given; text describes a plain rectangle (no circle content). Key still ca...
   "SCO-S-CARB-010",             // figure: Stem relies on 'structures of three hydrocarbons given below' which are absent; the answer cannot be determined without them.
-  "PYQ-S-2026-CHEMRXN-013",     // figure: Part (i) asks to identify 'P' in a leaf cross-section diagram not present; answer fields are also truncated ('photosynthesis.'). Also mis-chaptered (Life Processes).
   "APQ-M-CIRC-009",             // figure: the official APQ item is internally inconsistent (D37): KL = 6, KM = LM = 5 force ∠K ≈ 53.13°, but the figure labels ∠K = 50° and the key 80° relies on that label.
   "PYQ-M-2026-CIRC-005",        // figure: Two-circle configuration (points P, A, S, positions of M,N,T) needs the figure; scheme itself notes ambiguity of TB (45 vs 56 cm).
   "CTRL-EXMPLR-6-SA-003",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
@@ -1979,21 +1975,16 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-CG-006",          // figure: Case depends on the rocket design drawn on graph paper; coordinates of A–G are not in the text, so parts cannot be answered without the figure.
   "PYQ-M-2024-CG-007",          // figure: Case asks for P, Q, R read off the chart figure (not in text); stem also has Hindi page-header junk and the answer is garbled.
   "SCO-S-ELEC-011",             // figure: Depends on three circuit diagrams (I, II, III) whose topology is not in the text; cannot be answered or reconstructed without them.
-  "PYQ-S-ELEC-001",             // figure: Which wire (A or B) has higher resistivity depends entirely on the slopes in the V-I graph, which is not in the text; answer is also mojibake-damaged.
   "SCQ-S-HERED-043",            // figure: Part (a) 'Fill in the boxes' depends on a cross diagram not present in the text; boxes cannot be answered without inventing the figure.
   "SCQ-S-HERED-042",            // figure: Asks to identify male/female 'in the figures' and fill blanks 3 to 8 that exist only in the absent figure; cannot be answered from text.
   "HERED-EXMPLR-8-LA-002",      // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "SCO-S-REPR-014",             // figure: Options are numbered labels 1-5 of a carpel diagram that is not provided; unanswerable.
   "SCO-S-REPR-015",             // figure: Options are bare letters A-D referring to a missing table of conditions; option content not recoverable.
-  "PYQ-S-LIFE-002",             // figure: Asks to identify cells I-IV in a diagram that is not provided or described; option (d) also garbled.
   "SCO-S-LIFE-003",             // figure: Asks which numbered cells (1-4) of a leaf diagram contain chloroplasts; diagram neither provided nor described.
   "SCO-S-LIFE-020",             // figure: Labels W, X, Y, Z exist only in the missing diagram of the gas-exchange system; stem is also garbled. Cannot be answered without inventing the figure.
-  "PYQ-S-2026-MAG-001",         // figure: Part (a)(i) depends on an undrawn diagram of magnets X and Y, and the OR block is Hindi-stripped garble. The answer only covers part of the question. Not authored.
-  "PYQ-S-MAG-002",              // figure: Answer depends on the alpha particle's direction 'as shown' (no figure or text given). The options are also generic Assertion-Reason residue, so neither options nor ke...
   "PYQ-S-MAG-003",              // official-key-mismatch (cofounder D58c, 2026-10-10, stays withheld): the official stem asks the direction of MOTION, the marking-scheme key (d) is the direction of FORCE. Earlier reason (figure, now bound): The directions of the field and the particle's entry exist only in the absent figure ('as shown'), so the direction of force cannot be derived from the row text.
   "SCQ-S-MAG-024",              // figure: 'Identify the poles of the magnet in the given figure' — the figure (labels A1, B1, field-line directions) is not in the row's text and cannot be reconstructed from it.
   "SCQ-S-MAG-041",              // figure: Part (b) asks the direction of the alpha-particle's deflection 'as shown below'; field and velocity directions exist only in the unbound figure, and the row's steps ju...
-  "PYQ-S-2026-ENV-001",         // figure: Stem relies on 'the given figure' of trophic levels T1–T5; no figure or description is carried by the row, so which label is the top level cannot be determined from text.
   "SCO-S-ENV-015",              // figure: Needs the river/sewage diagram and graph locating points A-D; row carries no description of where A-D are, so the answer cannot be determined.
   "SCO-S-ENV-017",              // figure: Needs the numbered energy-flow arrow diagram; row does not say which arrow is which, so options '4 3', '2 1' etc. are unanswerable.
   "PYQ-M-2026-POLY-005",        // figure: Bound figure is a cuboidal lamp shade (24×12×17 cm), not the Chenab parabolic arch with A, P, Q. Zeroes/span must be read from the arch diagram, so the row is unanswer...
@@ -2105,7 +2096,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PB-M-2-TRIG-C-001",          // limit: Transcribed preboard (not authored) with three right triangles from one post (30°, 60°, 45°) — breaches ≤2-triangle LIMIT.
   "CARB-EXMPLR-4-MCQ-011",      // garbled: Options (b)-(d) are placeholders ('different option'); original structures not recoverable from the row and would have to be invented.
   "SCO-S-CTRL-013",             // garbled: Stem/options garbled (', , , P Q R S and T', ', P Q and T'), T's function missing, labels only in missing figure, and explanation contradicts the table; not reliably r...
-  "PYQ-S-2026-EYE-002",         // garbled: Figure matches (near point shifted N to N', rays converge behind retina = hypermetropia), but stem is garbled ('() () ,'), part (b) is absent, and 3 marks cannot be re...
   "PYQ-M-2026-PLE-001",         // garbled: Options (a) "1 2 2 1 c c a a" and (c) "2 1 2 1 b b a a" are fraction extractions whose relation symbol (= or ≠) and order cannot be recovered; if either were an equali...
   "CBE-M-RN-A-002",             // garbled: Premise is mathematically flawed: a cube of volume 15 m³ cannot fill a cube of 165/195/285 m³ with no space left; HCF of volumes is not a valid answer. Official CBSE i...
   "PYQ-M-2025-TRIG-004",        // garbled: Sub-parts (i) and (ii) have no text (only mark residues); their wording and the figure labels B, C, D, E, h are not recoverable from the row without guessing. Cannot s...
@@ -2181,6 +2171,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // wrong-content rows (D178/D179, found by B while splitting single-step rows; rewrite owner: A, from NCERT)
   "SCQ-S-ENV-037",                // wrong-content (D178): ozone 'height from the equator 10 to 16 km' is not the NCERT figure; 'Global wanning' is not the effect of depletion
   // FIND-3 (D179, D189): SCQ-S booklet rows judged WRONG (scientific error, empty or mismatched key, garbled stem); rewrite owner A, from NCERT
+  // PYQ-RESTORE-B PR-2 (23 Oct): 10 Science PYQ rows (figure / garbled / bilingual-residue stems) re-read from the official CBSE papers and marking schemes and served again (ledger bankFix/pyqRestoreBScienceLedger.ts; ids leave this block)
 ]);
 
 /**

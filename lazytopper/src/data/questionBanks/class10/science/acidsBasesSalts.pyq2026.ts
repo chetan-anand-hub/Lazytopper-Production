@@ -97,7 +97,7 @@ export const acidsBasesSaltsPYQ2026: CanonicalQuestion[] = [
     finalAnswer: "(d) hydrochloric acid and sodium hydroxide",
     ncertRef: "PYQ 31/5/1 Q22", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },
-  { id: "PYQ-S-2026-ACID-012", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-2026-ACID-012", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Reaction of Acids with Metals", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In the following diagram, if acetic acid of same concentration is taken in place of dilute sulphuric acid, then",
     options: ["Same amount of H2 gas will be evolved.", "H2 gas will not be evolved.", "The amount of H2 gas evolved in less amount.", "In place of H2 gas, O2 gas will be evolved."],
     answer: "The amount of H2 gas evolved in less amount.",

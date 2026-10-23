@@ -226,8 +226,9 @@ describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
       any += n(slug, "all", "hots", "all", "all");
       hard += n(slug, "all", "hots", "all", "Hard");
     }
-    expect(hard).toBe(2082);
-    expect(any).toBe(4105);
+    // PYQ-RESTORE-B PR-2 (2026-10-23): +1 Hard / +2 any (Science PYQ rows served again).
+    expect(hard).toBe(2083);
+    expect(any).toBe(4107);
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
     expect(sum("1", "hots", "all")).toBe(1097);

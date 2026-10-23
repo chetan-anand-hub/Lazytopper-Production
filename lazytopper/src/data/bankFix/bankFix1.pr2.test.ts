@@ -64,6 +64,7 @@ import {
 } from "./bankFix1Ledger";
 import { BANK_STEPS_1 } from "./bankSteps1Ledger";
 import { PYQ_RESTORE_1_RESTORED_IDS } from "./pyqRestore1Ledger";
+import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
 import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
@@ -179,7 +180,9 @@ describe("BANK-FIX-1 PR-2 · withheld rows are withheld", () => {
       // DIAGRAMS-1 PR-1b: eight figure-withheld rows served again once their official figure is bound.
       || UNWITHHELD_BY_DIAGRAMS1_PR1B.has(id)
       // BANK-UNWITHHOLD-1: twenty more figure-withheld rows served again after a blind re-solve.
-      || UNWITHHELD_BY_BANK_UNWITHHOLD_1.has(id);
+      || UNWITHHELD_BY_BANK_UNWITHHOLD_1.has(id)
+      // PYQ-RESTORE-B PR-2 (2026-10-23): Science rows re-read from the official paper + MS and served again (pyqRestoreBScienceLedger.ts).
+      || PYQ_RESTORE_B_SCIENCE_IDS.has(id);
     const bad = BANK_FIX_1_PR2.filter((e) => e.verdict === "withheld" && !(e.surface === "bank" && servedAgain(e.id))).filter((e) => {
       const set = e.surface === "bank" ? WITHHELD_QUESTION_IDS : e.surface === "hpq" ? HPQ_WITHHELD_IDS : PROMPT_D_WITHHELD_IDS;
       return !set.has(e.id) || isServedOn(e) || !e.category;
@@ -223,7 +226,7 @@ describe("BANK-FIX-1 PR-2 · ruling 2: Others rows are never PYQ / NCERT / year-
   // BANK-FIX-3 (2026-10-07): PYQ-M-2025-SAV-004 verified verbatim against the official 30/3/1 paper — official again.
   // PYQ-RESTORE-1 (2026-10-18, owner ruling (a) amends ruling 2): rows whose question was confirmed
   // against the official CBSE paper are PYQ again - pinned the other way in pyqRestore1.test.ts.
-  const others = BANK_FIX_1_PR2.filter((e) => e.others && e.surface === "bank" && servedIds.has(e.id) && !BANK_FIX_3_OFFICIAL_RESOURCED_IDS.has(e.id) && !PYQ_RESTORE_1_RESTORED_IDS.has(e.id));
+  const others = BANK_FIX_1_PR2.filter((e) => e.others && e.surface === "bank" && servedIds.has(e.id) && !BANK_FIX_3_OFFICIAL_RESOURCED_IDS.has(e.id) && !PYQ_RESTORE_1_RESTORED_IDS.has(e.id) && !PYQ_RESTORE_B_SCIENCE_IDS.has(e.id));
   // Floor lowered 800 -> 700 by PYQ-RESTORE-1 PR-2 (2026-10-18): 81 Science rows confirmed against the
   // official papers left this set (753 served Others rows measured after the lane).
   it("has served Others rows (non-vacuous)", () => expect(others.length).toBeGreaterThan(700));
@@ -363,7 +366,8 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   );
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>
-      ids.filter((id) => !WITHHELD_QUESTION_IDS.has(id) || servedIds.has(id) || String(bankById.get(id)?.topicKey) !== chapter));
+      // PYQ-RESTORE-B PR-2 (2026-10-23): Science ids it re-read from the official paper and served again are no longer withholds.
+      ids.filter((id) => !PYQ_RESTORE_B_SCIENCE_IDS.has(id)).filter((id) => !WITHHELD_QUESTION_IDS.has(id) || servedIds.has(id) || String(bankById.get(id)?.topicKey) !== chapter));
     expect(bad).toEqual([]);
   });
   it("today's served bank count per chapter is at least the lane's 'after' (minus later-lane withholds)", () => {
