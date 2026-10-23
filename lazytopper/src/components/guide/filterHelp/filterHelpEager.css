@@ -1,0 +1,7 @@
+/* GUIDE-FILTER-1 - the eager half: the zero-height anchor the filter explainer hangs from, and the
+   empty-state Ziggy's row reserved at its final height (no layout shift when the chunk arrives). */
+/* Absolutely positioned itself, so a flex / grid host gives it no slot and no gap: the host only
+   needs `position: relative`. The panel hangs from the host's bottom edge. */
+.lt-fh-anchor { position: absolute; left: 0; right: 0; top: 100%; height: 0; z-index: 20; }
+.lt-fe-slot { min-height: 84px; margin: 4px 0 10px; display: flex; align-items: center; }
+@media print { .lt-fh-anchor, .lt-fe-slot { display: none; } }

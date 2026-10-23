@@ -21,8 +21,9 @@
 //     "Long + Analysing in section C/D" rule added 350 non-proofs and is gone.
 //   · Marks "4" = section E or exactly 4 marks. "Formatted Case-Based" alone no longer
 //     qualifies (a 2-mark and a 3-mark case item sat in the 4-mark bucket).
-//   · HOTS is no longer tied to Hard — that lock lived in the UI, not here; the predicate
-//     is unchanged.
+//   · HOTS is no longer tied to Hard — that lock lived in the UI, not here.
+//   GUIDE-FILTER-1 (owner ruling 23 Oct 2026): HOTS = higher-order bloom at Medium / Hard only
+//   (see isHotsRow).
 
 import type { PracticeQuestion } from "../../data/predictionDataService";
 import { isCbq } from "../../lib/cbq/cbqClassification";
@@ -146,11 +147,22 @@ export const isProofOrDerivation = (q: PracticeQuestion): boolean => {
   return DERIVE_PHRASE.test(text) || hasInstructionThat(text, false);
 };
 
-/** HOTS — higher-order thinking at ANY difficulty (the student may still add Hard). */
+/**
+ * HOTS — OWNER RULING 23 Oct 2026 (GUIDE-FILTER-1): a higher-order thinking question
+ * (bloomSkill Analysing / Evaluating / Creating) at Medium or Hard difficulty ONLY.
+ *   · The old "every Hard row is HOTS" clause is gone: a Hard row tagged Applying /
+ *     Understanding is routine, not higher-order (controller census: 645 such rows).
+ *   · Easy is excluded: the 127 higher-order rows tagged Easy are likely mis-tagged (listed for a
+ *     content review; question data is not edited here). With HOTS chosen the Easy chip therefore
+ *     counts 0 and greys out through `chipCounts` — no hand-written lock.
+ * Served pools, 26 chapters (trunk 6fe85765): 4,105 -> 3,336 (Maths 672 Hard + 802 Medium;
+ * Science 765 Hard + 1,097 Medium).
+ */
+const HOTS_BLOOM = new Set(["Analysing", "Evaluating", "Creating"]);
 export const isHotsRow = (q: PracticeQuestion): boolean => {
   const d = str((q as { difficulty?: unknown }).difficulty);
   const bloom = str((q as { bloomSkill?: unknown }).bloomSkill);
-  return d === "Hard" || bloom === "Analysing" || bloom === "Evaluating";
+  return HOTS_BLOOM.has(bloom) && (d === "Medium" || d === "Hard");
 };
 
 /**
@@ -262,6 +274,31 @@ export const chipCounts = (pool: readonly PracticeQuestion[], f: PendingFilters)
   for (const v of DIFF_FILTER_VALUES) out.diff[v] = count(f.marks, f.style, f.source, v);
   for (const q of pool) if (isProofOrDerivation(q)) out.proofInPool += 1;
   return out;
+};
+
+/**
+ * GUIDE-FILTER-1 (live defect, 23 Oct 2026) — the Style / Source / Difficulty values a URL or
+ * preset asked for that the chosen chapter(s) hold NONE of, whatever the other rows say. Such a
+ * value can only ever serve 0 questions (and Proof / Derivation's chip is not even drawn then:
+ * `proofInPool === 0` hides it), so the page falls that row back to "all" instead of landing the
+ * student on "0 questions" under a filter they cannot see. A COMBINATION that is empty is NOT
+ * reset here (that is the honest filters-empty state). CBQ is exempt: a CBQ request has its own
+ * honest landing (CBQ-1 / CBQ-ENTRY-1). An empty pool (bank not loaded) resets nothing.
+ */
+export interface FilterRowsToReset { style: boolean; source: boolean; diff: boolean; }
+export const filtersTheChapterLacks = (
+  pool: readonly PracticeQuestion[],
+  f: { style: string; source: string; diff: string },
+): FilterRowsToReset => {
+  const none: FilterRowsToReset = { style: false, source: false, diff: false };
+  if (pool.length === 0) return none;
+  const lacks = (style: string, source: string, diff: string) =>
+    !pool.some((q) => questionMatchesFilters(q, "all", style, source, diff, null));
+  return {
+    style: f.style !== "all" && f.style !== "cbq" && lacks(f.style, "all", "all"),
+    source: f.source !== "all" && lacks("all", f.source, "all"),
+    diff: f.diff !== "all" && lacks("all", "all", f.diff),
+  };
 };
 
 /** The chip values a row may NOT be set to: a count of 0. "all" is never disabled (it only widens). */

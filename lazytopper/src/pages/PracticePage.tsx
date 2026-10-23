@@ -15,6 +15,7 @@ import {
 } from "../ai/aiClient";
 import {
   chipCounts as computeChipCounts,
+  filtersTheChapterLacks,
   marksTokenToBucketSet,
   questionMatchesFilters,
   type ChipCounts,
@@ -1340,8 +1341,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
 
   const filteredQuestions = committedPoolSelection.displayed;
 
-  // FILTER-FIX-1 (owner ruling): HOTS is higher-order thinking at ANY difficulty — picking it
-  // no longer forces Hard (and leaving it no longer resets difficulty). The student may add Hard.
+  // FILTER-FIX-1 (owner ruling): picking HOTS no longer forces Hard (and leaving it no longer
+  // resets difficulty). GUIDE-FILTER-1 (owner ruling 23 Oct): HOTS is higher-order at Medium /
+  // Hard, so under HOTS the Easy chip greys out by its real count (practiceFilters.isHotsRow).
   const handleSetStyle = useCallback((v: string) => {
     setPendingStyle(v);
   }, []);
@@ -1766,6 +1768,39 @@ const packTopicKey = useMemo(() => {
       range: pendingMarksRange,
     });
   }, [chipServedPool, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange, isBuilt]);
+
+  // GUIDE-FILTER-1 (live defect 23 Oct 2026) — a URL / preset Style, Source or Difficulty the chosen
+  // chapter(s) hold NONE of (e.g. `?topic=magnetic-effects-of-electric-current&style=proof`: 0
+  // proofs, so the panel hides the chip) fell into "0 questions / No questions match" with that chip
+  // active. FILTER-FIX-1's reset lived in the filter PANEL only, which a targeted link skips (it
+  // auto-builds). Here, once the chapter pool is known, such a row falls back to "all" — committed
+  // AND pending — and its URL param is dropped (replace, no history entry). Converges in one pass:
+  // "all" is never reset, so there is no loop. An empty COMBINATION is untouched (filters-empty).
+  useEffect(() => {
+    if (!chipServedPool) return;
+    const c = filtersTheChapterLacks(chipServedPool, { style: committedStyle, source: committedSource, diff: committedDifficulty });
+    const p = filtersTheChapterLacks(chipServedPool, { style: pendingStyle, source: pendingSource, diff: pendingDifficulty });
+    if (c.style) setCommittedStyle("all");
+    if (c.source) setCommittedSource("all");
+    if (c.diff) setCommittedDifficulty("all");
+    if (p.style) setPendingStyle("all");
+    if (p.source) setPendingSource("all");
+    if (p.diff) setPendingDifficulty("all");
+    if (!(c.style || c.source || c.diff)) return;
+    const next = new URLSearchParams(location.search);
+    const drop = [
+      ...(c.style ? ["style", "questionType"] : []),
+      ...(c.source ? ["pyq"] : []),
+      ...(c.diff ? ["diff"] : []),
+    ];
+    // `source` is only a FILTER when it holds a filter value (`source=practice` is an origin tag).
+    if (c.source && ["pyq", "ncert", "others"].includes(next.get("source") ?? "")) drop.push("source");
+    const present = drop.filter((k) => next.has(k));
+    if (present.length === 0) return;
+    for (const k of present) next.delete(k);
+    setSearchParams(next, { replace: true, state: location.state });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chipServedPool, committedStyle, committedSource, committedDifficulty, pendingStyle, pendingSource, pendingDifficulty]);
 
   useEffect(() => {
     if (filteredQuestions.length === 0) {
@@ -3657,6 +3692,8 @@ const packTopicKey = useMemo(() => {
           linkCopied={linkCopied}
           hasQuestions={filteredQuestions.length > 0}
           visibleQuestionCount={filteredQuestions.length}
+          // GUIDE-FILTER-1 — only decides whether Byte is drawn beside the filter explainer.
+          guideUid={qpMomentUid}
         />
         </>
         )}
@@ -3781,6 +3818,8 @@ const packTopicKey = useMemo(() => {
               ? {
                   onEditFilters: handleEditFilters,
                   practiceHubHref: overlay ? undefined : "/practice-hub",
+                  // GUIDE-FILTER-1 — Ziggy beside this 0-result state (guide arm only).
+                  guideUid: qpMomentUid,
                 }
               : undefined
           }

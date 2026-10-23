@@ -1177,7 +1177,11 @@ export interface OnboardingEventParams {
  *   mascots_shown      {}          — Undo, or the setting turned them back on
  * ------------------------------------------------------------------------- */
 
-export type GuideMomentId = "m2" | "m3" | "m4" | "m5" | "m6" | "m8" | "m9" | "m10" | "m11";
+/** GUIDE-FILTER-1 adds `filter_help` (Byte explains the Quick Practice filters / a greyed chip; click
+ *  = the "?") and `filter_empty` (Ziggy beside a 0-result filter combination; click = Edit filters). */
+export type GuideMomentId =
+  | "m2" | "m3" | "m4" | "m5" | "m6" | "m8" | "m9" | "m10" | "m11"
+  | "filter_help" | "filter_empty";
 
 export interface OnboardingEventParams {
   guide_moment_shown: { moment: GuideMomentId };

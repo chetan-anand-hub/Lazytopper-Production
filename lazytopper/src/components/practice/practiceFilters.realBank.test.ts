@@ -14,8 +14,9 @@
 //           other Science chapter 0 (#1298 review: derive needs an expression or "="; show-that
 //           only in the physics chapters).
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
-//   HOTS    the predicate is unchanged: bank-wide 4,105 at any difficulty; the old UI lock to
-//           Hard served 2,082 (the lock is removed in PracticePage / PracticeControls).
+//   HOTS    FILTER-FIX-1 left the predicate at 4,105 (any Hard row, or Analysing / Evaluating at
+//           any difficulty). GUIDE-FILTER-1 (owner ruling 23 Oct 2026): higher-order bloom at
+//           Medium / Hard only -> 3,336 (pinned below, measured on trunk 6fe85765's bank).
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -218,20 +219,36 @@ describe("FILTER-FIX-1 · Marks bucket 4", () => {
   });
 });
 
-describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
-  it("HOTS without the Hard lock reaches far more questions than the locked set", () => {
+// GUIDE-FILTER-1 — OWNER RULING 23 Oct 2026: HOTS = higher-order bloom (Analysing / Evaluating /
+// Creating) at Medium or Hard ONLY. RED on trunk 6fe85765 (old rule: any Hard row, or Analysing /
+// Evaluating at any difficulty): 4,105 total / 2,082 Hard / 1,097 with 1 mark / 943 with 4 marks.
+describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 23 Oct)", () => {
+  it("served pools, 26 chapters: 3,336 (Maths 672 Hard + 802 Medium; Science 765 Hard + 1,097 Medium); Easy 0", () => {
+    const by = (subject: string, d: string) =>
+      BANK_CHAPTER_SLUGS.filter((slug) => BANK_CHAPTER_SUBJECT[slug] === subject).reduce((t, slug) => t + n(slug, "all", "hots", "all", d), 0);
+    expect(by("Maths", "Hard")).toBe(672);
+    expect(by("Maths", "Medium")).toBe(802);
+    expect(by("Science", "Hard")).toBe(765);
+    expect(by("Science", "Medium")).toBe(1097);
     let any = 0;
-    let hard = 0;
     for (const slug of BANK_CHAPTER_SLUGS) {
       any += n(slug, "all", "hots", "all", "all");
-      hard += n(slug, "all", "hots", "all", "Hard");
+      // With HOTS chosen the Easy chip is a REAL zero in every chapter (it greys out via chipCounts).
+      expect(n(slug, "all", "hots", "all", "Easy"), `${slug} HOTS + Easy`).toBe(0);
     }
-    expect(hard).toBe(2082);
-    expect(any).toBe(4105);
-    // and the combinations the old chip tables blocked are really in the bank
+    expect(any).toBe(3336);
+    // Every HOTS row really is higher-order bloom at Medium / Hard (no Hard-only Applying row).
+    for (const slug of BANK_CHAPTER_SLUGS) {
+      for (const q of pools.get(slug)!) {
+        if (!questionMatchesFilters(q, "all", "hots", "all", "all", null)) continue;
+        const b = String((q as { bloomSkill?: unknown }).bloomSkill ?? "");
+        expect(["Analysing", "Evaluating", "Creating"].includes(b), `${slug} ${q.id} bloom ${b}`).toBe(true);
+        expect(["Medium", "Hard"].includes(String(q.difficulty)), `${slug} ${q.id} ${q.difficulty}`).toBe(true);
+      }
+    }
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
-    expect(sum("1", "hots", "all")).toBe(1097);
-    expect(sum("4", "hots", "all")).toBe(943);
+    expect(sum("1", "hots", "all")).toBe(971);
+    expect(sum("4", "hots", "all")).toBe(822);
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);
     expect(sum("4", "proof", "all")).toBeGreaterThan(0);

@@ -806,7 +806,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "never premium or trial state, never the uid; removed when they are shown again) and " +
       "`lazytopper.m11Shown.<tag>` (the single character 1 once Byte's \"check a written answer\" " +
       "nudge showed on this account's first tap-only scorecard on this device; <tag> is an 8-hex hash " +
-      "of the uid, never the uid). " +
+      "of the uid, never the uid). GUIDE-FILTER-1: plus localStorage `lazytopper.filterHelpSeen` " +
+      "(the single character 1 once the Quick Practice filter explainer opened by itself on this " +
+      "device, so it opens on its own only once; a DEVICE flag, never the uid). " +
       "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
