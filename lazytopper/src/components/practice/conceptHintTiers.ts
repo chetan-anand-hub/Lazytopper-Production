@@ -15,6 +15,13 @@
 //   2. related — the old soft rule over the whole pool: the row's subtopic contains the hint.
 //   3. the rest — the draw as before.
 // Selection only: nothing here grades, and nothing changes a row.
+//
+// QP-CONCEPT-2:
+//   F1 — an HPQ label that names no concept resolves through lib/practice/hpqConceptAliases.ts (hand-
+//        mapped to existing concept names) before the raw-label fallback.
+//   F3 — a Topic Hub card stands for a coarse 2–3-concept bucket, so sibling cards served the SAME set.
+//        A card's own `practiseKeywords` now rank first inside the on-concept tier: the rows whose
+//        subtopic or question text contains one of them (the `keyword` tier).
 
 import {
   CONCEPT_BY_LABEL,
@@ -24,12 +31,14 @@ import {
 } from "../../data/concepts/conceptLabelMap";
 import { TRACKING_CONCEPTS } from "../../data/concepts/trackingConcepts";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
+import { hpqConceptAlias } from "../../lib/practice/hpqConceptAliases";
 
-/** A Topic Hub concept card as the resolver needs it (BoardConcept's name + keys). */
+/** A Topic Hub concept card as the resolver needs it (BoardConcept's name, keys and keywords). */
 export interface HintCard {
   name: string;
   conceptKeys?: readonly string[];
   practiseConceptKeys?: readonly string[];
+  practiseKeywords?: readonly string[];
 }
 
 /** What a hint resolves to: concept names (rows whose subtopic maps to one), or a raw bank label. */
@@ -76,6 +85,8 @@ export function resolveConceptHint(
     : {};
   const label = Object.keys(labels).find((l) => fold(l) === f);
   if (label) return { kind: "concepts", keys: [labels[label]] };
+  const alias = hpqConceptAlias(chapterSlug, h);
+  if (alias && alias.length > 0) return { kind: "concepts", keys: [...alias] };
   return { kind: "label", label: h };
 }
 
@@ -101,6 +112,14 @@ export function resolveConceptHints(
 interface HintRow {
   id?: unknown;
   subtopic?: unknown;
+  questionText?: unknown;
+}
+
+/** The tiers of one entry: `keyword` ⊆ `onConcept` (the card's own keywords), then `related`. */
+export interface ConceptHintTierSets {
+  keyword: Set<string>;
+  onConcept: Set<string>;
+  related: Set<string>;
 }
 
 /** Is this row on the resolved target? (The concept lookup itself, or the raw label.) */
@@ -111,45 +130,75 @@ export function rowOnTarget(chapterSlug: string, target: ConceptHintTarget, subt
   return c !== undefined && target.keys.includes(c);
 }
 
-/** The ids of `rows` in tier 1 (on-concept) and tier 2 (related) for the entry's hints. */
+/** The Topic Hub card one of the hints names (exact, then case-insensitive), if any. */
+export function hintCard(
+  hints: ReadonlyArray<string | null | undefined>,
+  cards: readonly HintCard[],
+): HintCard | undefined {
+  for (const h of hints) {
+    const s = String(h ?? "").trim();
+    if (!s) continue;
+    const c = cards.find((x) => x.name.trim() === s) ?? cards.find((x) => fold(x.name) === fold(s));
+    if (c) return c;
+  }
+  return undefined;
+}
+
+/** Does the row's subtopic or question text contain one of the keywords (case-insensitive)? */
+export function rowHasKeyword(row: HintRow, keywords: readonly string[]): boolean {
+  if (keywords.length === 0) return false;
+  const text = `${String(row.subtopic ?? "")}\n${String(row.questionText ?? "")}`.toLowerCase();
+  // Not trimmed: a keyword's spaces are part of it ("ph " must not match "phosphate", "sec " not "second").
+  return keywords.some((k) => k.trim() !== "" && text.includes(k.toLowerCase()));
+}
+
+/** The ids of `rows` in each tier for the entry's hints. */
 export function conceptHintTiers(
   rows: readonly HintRow[],
   chapterSlug: string,
   hints: ReadonlyArray<string | null | undefined>,
   cards: readonly HintCard[] = [],
-): { onConcept: Set<string>; related: Set<string> } {
+): ConceptHintTierSets {
+  const keyword = new Set<string>();
   const onConcept = new Set<string>();
   const related = new Set<string>();
   const target = resolveConceptHints(chapterSlug, hints, cards);
-  if (!target) return { onConcept, related };
+  if (!target) return { keyword, onConcept, related };
+  const keywords = hintCard(hints, cards)?.practiseKeywords ?? [];
   // The related tier is the old soft rule: the subtopic contains the `subtopicHint` (last hint).
   const soft = fold(String(hints[hints.length - 1] ?? ""));
   for (const q of rows) {
     const id = String(q.id ?? "");
     if (!id) continue;
     const sub = String(q.subtopic ?? "");
-    if (rowOnTarget(chapterSlug, target, sub)) onConcept.add(id);
-    else if (soft && sub && fold(sub).includes(soft)) related.add(id);
+    if (rowOnTarget(chapterSlug, target, sub)) {
+      onConcept.add(id);
+      if (rowHasKeyword(q, keywords)) keyword.add(id);
+    } else if (soft && sub && fold(sub).includes(soft)) related.add(id);
   }
-  return { onConcept, related };
+  return { keyword, onConcept, related };
 }
 
-/** True when the Topic Hub cards are worth loading: no hint already names a concept. */
+/**
+ * True when the Topic Hub cards are worth loading: unless the first hint is already a concept name
+ * verbatim, it may be a card's name (whose keys and keywords live in the hub content).
+ */
 export function hintsNeedCards(chapterSlug: string, hints: ReadonlyArray<string | null | undefined>): boolean {
-  const t = resolveConceptHints(chapterSlug, hints);
-  return t !== null && t.kind === "label";
+  const first = hints.map((h) => String(h ?? "").trim()).find((h) => h !== "");
+  if (!first) return false;
+  return !conceptKindOf(chapterSlug, first);
 }
 
 /**
  * The tiers for the page's built pool (`topic` is the page's topic label or slug). The Topic Hub cards
- * (~100KB of hub copy that Quick Practice does not otherwise load) are imported only when no hint
- * already names a concept.
+ * (~90KB of hub copy that Quick Practice does not otherwise load) are imported only when a hint may
+ * name one.
  */
 export async function loadConceptHintTiers(
   rows: readonly HintRow[],
   topic: string,
   hints: ReadonlyArray<string | null | undefined>,
-): Promise<{ onConcept: Set<string>; related: Set<string> }> {
+): Promise<ConceptHintTierSets> {
   const chapterSlug = resolveCanonicalSlug(topic);
   let cards: readonly HintCard[] = [];
   if (hintsNeedCards(chapterSlug, hints)) {
@@ -162,3 +211,27 @@ export async function loadConceptHintTiers(
   }
   return conceptHintTiers(rows, chapterSlug, hints, cards);
 }
+
+/**
+ * F2 — how many of the displayed rows (a prefix, since the tiers lead) are on the concept or related.
+ * The page shows the honest "rest are from the same chapter" note after them when it is short of the set.
+ */
+export function conceptRowsShown(
+  displayed: ReadonlyArray<{ id?: unknown }>,
+  tiers: ReadonlyArray<ReadonlySet<string>> | undefined,
+): number {
+  if (!tiers) return displayed.length;
+  let n = 0;
+  for (const q of displayed) {
+    const id = String(q.id ?? "");
+    if (tiers.some((t) => t.has(id))) n += 1;
+    else break;
+  }
+  return n;
+}
+
+/** F2 — the honest note's words (owner-review wording, after #1297's bank-end note). */
+export const conceptEndNote = (concept: string, shown: number): string =>
+  shown > 0
+    ? `That's every question we have on ${concept} for now — the rest are from the same chapter.`
+    : `We don't have questions on ${concept} yet — these are from the same chapter.`;

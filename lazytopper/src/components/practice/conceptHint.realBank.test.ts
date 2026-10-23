@@ -32,6 +32,7 @@ import { buildChapterServedPool, buildPracticeQuestionsWithAiTopup, type Subject
 import { takeBlueprintShare } from "./blueprintTake";
 import { practiceTopicLabel } from "./cbqAvailability";
 import { loadConceptHintTiers } from "./conceptHintTiers";
+import { HPQ_NO_BANK_CONCEPT } from "../../lib/practice/hpqConceptAliases";
 import { BANK_CHAPTER_SLUGS, BANK_CHAPTER_SUBJECT, ensureAllBankChapters } from "../../data/bankChapters/loader";
 import { bankIndexEntries } from "../../data/bankChapters/bankIdIndex";
 import { conceptForSubtopic, EXAM_TRENDS_CONCEPTS } from "../../data/concepts/conceptLabelMap";
@@ -92,8 +93,8 @@ function entryFromUrl(surface: Entry["surface"], url: string, name: string): Ent
 async function pageSet(
   e: Entry,
   mode: Mode,
-  opts: { offset?: number; seen?: ReadonlySet<string> } = {},
-): Promise<{ displayed: PracticeQuestion[]; onConcept: Set<string> }> {
+  opts: { offset?: number; seen?: ReadonlySet<string>; noKeyword?: boolean } = {},
+): Promise<{ displayed: PracticeQuestion[]; onConcept: Set<string>; keyword: Set<string>; tiers?: Array<Set<string>> }> {
   resetRandom();
   const topicLabel = practiceTopicLabel(e.subjectKey, e.slug);
   const sectionResults = await Promise.all(
@@ -126,11 +127,23 @@ async function pageSet(
   // The on-concept rows, by the lane's resolver over the WHOLE pool (the metric for both modes).
   const metric = await loadConceptHintTiers(mergeWithServedPool(next, served), topicLabel, [e.focus, e.hint]);
   const tiers = hinted ? await loadConceptHintTiers(next, topicLabel, [e.focus, e.hint]) : null;
+  // QP-CONCEPT-2: the page's tiers are [keyword, onConcept, related] (`keyword` is absent on #1308).
+  const pageTiers = tiers
+    ? [
+        opts.noKeyword ? new Set<string>() : (tiers as { keyword?: Set<string> }).keyword ?? new Set<string>(),
+        tiers.onConcept,
+        tiers.related,
+      ]
+    : undefined;
   const sel = selectInRangeFromPool(
-    next, "all", "all", "all", "all", e.range, e.count, opts.seen, opts.offset ?? OFFSET, headSize,
-    tiers ? [tiers.onConcept, tiers.related] : undefined,
+    next, "all", "all", "all", "all", e.range, e.count, opts.seen, opts.offset ?? OFFSET, headSize, pageTiers,
   );
-  return { displayed: sel.displayed, onConcept: metric.onConcept };
+  return {
+    displayed: sel.displayed,
+    onConcept: metric.onConcept,
+    keyword: (metric as { keyword?: Set<string> }).keyword ?? new Set<string>(),
+    tiers: pageTiers,
+  };
 }
 
 const servedCache = new Map<string, PracticeQuestion[]>();
@@ -210,10 +223,32 @@ interface Tally {
   zero: number;
   zeroOfPossible: number;
   short: string[];
+  /** QP-CONCEPT-2 — entries whose concept resolved to 0 rows and are NOT a listed exception. */
+  noConcept: string[];
 }
 
+// QP-CONCEPT-2 (F1) — no `want > 0` escape: an entry with 0 on-concept rows FAILS the sweep unless it is
+// listed here (Topic Hub / Tutor card names) or in HPQ_NO_BANK_CONCEPT (HPQ labels), each with its reason.
+const CARDS_WITH_NO_BANK_CONCEPT: ReadonlyArray<{ slug: string; prefix: string; reason: string }> = [
+  {
+    slug: "quadratic-equations",
+    prefix: "Standard form",
+    reason: "its bank label 'Standard Form' is a reviewed concept-gap (UNMAPPED_LABELS_REVIEWED): no concept holds it",
+  },
+  {
+    slug: "arithmetic-progression",
+    prefix: "Common difference",
+    reason: "'test for an AP' rows are the reviewed concept-gap labels (Identifying an AP …): no concept holds them",
+  },
+];
+const isListedException = (e: Entry): boolean =>
+  (e.surface !== "hpq" &&
+    CARDS_WITH_NO_BANK_CONCEPT.some((x) => x.slug === e.slug && (e.focus ?? "").startsWith(x.prefix))) ||
+  (e.surface === "hpq" &&
+    Object.prototype.hasOwnProperty.call(HPQ_NO_BANK_CONCEPT[e.slug] ?? {}, (e.hint ?? "").trim()));
+
 async function sweep(mode: Mode, surface: Entry["surface"]): Promise<Tally> {
-  const t: Tally = { sets: 0, delivered: 0, possible: 0, zero: 0, zeroOfPossible: 0, short: [] };
+  const t: Tally = { sets: 0, delivered: 0, possible: 0, zero: 0, zeroOfPossible: 0, short: [], noConcept: [] };
   for (const e of ENTRIES.filter((x) => x.surface === surface)) {
     // Yield to the event loop between sets: a long synchronous sweep starves vitest's worker RPC.
     await new Promise((r) => setTimeout(r, 0));
@@ -223,10 +258,9 @@ async function sweep(mode: Mode, surface: Entry["surface"]): Promise<Tally> {
     t.sets += 1;
     t.delivered += delivered;
     t.possible += want;
-    if (want > 0) {
-      t.zeroOfPossible += 1;
-      if (delivered === 0) t.zero += 1;
-    }
+    t.zeroOfPossible += 1;
+    if (delivered === 0) t.zero += 1;
+    if (want === 0 && !isListedException(e)) t.noConcept.push(`${e.name} (hint "${e.focus ?? e.hint}")`);
     if (delivered !== want) t.short.push(`${e.name}: ${delivered}/${want}`);
   }
   return t;
@@ -244,6 +278,8 @@ describe("QP-CONCEPT-1 · real-bank sweep — every chapter's Tutor, HPQ and Top
       console.info(`[QP-CONCEPT-1] ${surface} lane : ${fmt(lane)}`);
       expect(lane.sets).toBeGreaterThan(50);
       expect(lane.short, "lane sets short of the concept").toEqual([]);
+      console.info(`[QP-CONCEPT-2] ${surface} entries with no concept rows (unlisted): ${lane.noConcept.length}`);
+      expect(lane.noConcept, "entries that resolve to 0 on-concept rows and are not a listed exception").toEqual([]);
       expect(lane.delivered).toBe(lane.possible);
       // The measured trunk baseline: the same invariant FAILS there.
       expect(trunk.short.length, "trunk is short on many sets").toBeGreaterThan(lane.sets / 4);
@@ -314,4 +350,106 @@ describe("QP-CONCEPT-1 · real-bank sweep — every chapter's Tutor, HPQ and Top
     expect(hpqIds.length).toBe(126);
     expect(hpqIds.filter((id) => bankIds.has(id))).toEqual([]);
   });
+});
+
+// ── QP-CONCEPT-2 ─────────────────────────────────────────────────────────────────────────────────────
+// RED on trunk c0aeee1a (#1308): F1 — 40 HPQ labels resolve to no concept (the raw-label fallback);
+// F3 — the cards' keywords do not lead (run this file with trunk's conceptHintTiers.ts + PracticePage.tsx
+// and this lane's data: the keyword hit-rate and sibling-distinctness tests fail).
+
+describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves its own keywords first", () => {
+  it("★ F1: all 126 HPQ entries resolve to a concept (or are listed in HPQ_NO_BANK_CONCEPT with a reason)", async () => {
+    const hpq = ENTRIES.filter((e) => e.surface === "hpq");
+    expect(hpq.length).toBe(126);
+    const unresolved: string[] = [];
+    for (const e of hpq) {
+      const { onConcept } = await pageSet(e, "lane");
+      if (availableOnConcept(e, onConcept) === 0 && !isListedException(e)) unresolved.push(`${e.name} "${e.hint}"`);
+    }
+    console.info(`[QP-CONCEPT-2] HPQ resolved: ${hpq.length - unresolved.length}/${hpq.length}`);
+    expect(unresolved).toEqual([]);
+  }, 600_000);
+
+  /** The card a hub entry came from, and its keywords (read from the data, not the product helper). */
+  const cardOf = (e: Entry) =>
+    (buildActionableDesktopTopicHubContent(e.slug)?.boardEssentials ?? []).find((c) => c.name === e.focus);
+  const hasKw = (q: PracticeQuestion, kws: readonly string[]) => {
+    const text = `${String(q.subtopic ?? "")}\n${String(q.questionText ?? "")}`.toLowerCase();
+    return kws.some((k) => text.includes(k.toLowerCase()));
+  };
+
+  it("★ F3: for every card with practiseKeywords, ≥ min(available, 5) of the first 5 contain a card keyword", async () => {
+    const hub = ENTRIES.filter((e) => e.surface === "hub" && (cardOf(e)?.practiseKeywords?.length ?? 0) > 0);
+    expect(hub.length).toBeGreaterThanOrEqual(70);
+    const misses: string[] = [];
+    let hits = 0;
+    let possible = 0;
+    let trunkLikeHits = 0;
+    for (const e of hub) {
+      await new Promise((r) => setTimeout(r, 0));
+      const kws = cardOf(e)!.practiseKeywords!;
+      const { displayed, onConcept } = await pageSet(e, "lane");
+      const avail = servedPool(e).filter(
+        (q) =>
+          onConcept.has(String(q.id)) &&
+          hasKw(q, kws) &&
+          (!e.range || (Number(q.marks) >= e.range.min && Number(q.marks) <= e.range.max)),
+      ).length;
+      const want = Math.min(avail, 5);
+      const got = displayed.slice(0, 5).filter((q) => hasKw(q, kws)).length;
+      hits += got;
+      possible += want;
+      if (got < want) misses.push(`${e.name}: ${got}/${want}`);
+      // The #1308 order (no keyword tier), measured for the report.
+      const old = await pageSet({ ...e, focus: e.focus }, "lane", { noKeyword: true });
+      trunkLikeHits += old.displayed.slice(0, 5).filter((q) => hasKw(q, kws)).length;
+    }
+    console.info(
+      `[QP-CONCEPT-2] hub keyword hits in the first 5: #1308 order ${trunkLikeHits}/${possible} -> lane ${hits}/${possible} over ${hub.length} cards`,
+    );
+    expect(misses).toEqual([]);
+  }, 900_000);
+
+  it("★ F3: sibling cards that share one concept bucket no longer get the SAME first 5", async () => {
+    const hub = ENTRIES.filter((e) => e.surface === "hub");
+    const byBucket = new Map<string, Entry[]>();
+    for (const e of hub) {
+      const c = cardOf(e);
+      if (!c?.practiseConceptKeys?.length || !c.practiseKeywords?.length) continue;
+      const k = `${e.slug}|${c.practiseConceptKeys.join("+")}`;
+      byBucket.set(k, [...(byBucket.get(k) ?? []), e]);
+    }
+    const same: string[] = [];
+    for (const [k, es] of byBucket) {
+      if (es.length < 2) continue;
+      const firsts = new Map<string, string>();
+      for (const e of es) {
+        const ids = (await pageSet(e, "lane")).displayed.slice(0, 5).map((q) => String(q.id)).join(",");
+        const twin = firsts.get(ids);
+        if (twin) same.push(`${k}: "${twin}" == "${e.focus}"`);
+        firsts.set(ids, e.focus ?? "");
+      }
+    }
+    expect(same).toEqual([]);
+  }, 600_000);
+
+  it("F2: the honest note — how many rows lead, and its words", async () => {
+    const { conceptRowsShown, conceptEndNote } = await import("./conceptHintTiers");
+    const e = entryFromUrl(
+      "tutor",
+      buildQuickPracticeRoundTripHref({ returnTo: "/tutor", subject: "science", topicKey: "life-processes", concept: "Excretion in Plants", count: 10 }),
+      "excretion in plants",
+    );
+    const { displayed, onConcept, tiers } = await pageSet(e, "lane");
+    const avail = availableOnConcept(e, onConcept);
+    expect(avail).toBeGreaterThan(0);
+    expect(avail).toBeLessThan(10);
+    const shown = conceptRowsShown(displayed, tiers);
+    expect(shown).toBeGreaterThanOrEqual(avail);
+    expect(shown).toBeLessThan(displayed.length);
+    expect(conceptEndNote("Excretion in Plants", shown)).toBe(
+      "That's every question we have on Excretion in Plants for now — the rest are from the same chapter.",
+    );
+    expect(conceptEndNote("Standard form", 0)).toBe("We don't have questions on Standard form yet — these are from the same chapter.");
+  }, 120_000);
 });

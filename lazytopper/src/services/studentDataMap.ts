@@ -806,7 +806,10 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "never premium or trial state, never the uid; removed when they are shown again) and " +
       "`lazytopper.m11Shown.<tag>` (the single character 1 once Byte's \"check a written answer\" " +
       "nudge showed on this account's first tap-only scorecard on this device; <tag> is an 8-hex hash " +
-      "of the uid, never the uid). " +
+      "of the uid, never the uid). GUIDE-PAGES-1: plus localStorage " +
+      "`lazytopper.pageGuideSeen.<id>.<step>` (the single character 1 once Byte's page helper — " +
+      "Worksheet, Chapter Test, Full Mock or Exam Trends — opened by itself on this device, so it " +
+      "opens only on request after that; a DEVICE key, never the uid). " +
       "COMPANION-1: plus localStorage `lazytopper.companion.<tag>` (which of Byte and Ziggy's companion " +
       "moments already showed for this account on this device, so each stays rare: the milestone ids " +
       "already celebrated, and the times the welcome-back, practice-rhythm and countdown moments and the " +

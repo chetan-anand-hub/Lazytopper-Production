@@ -609,7 +609,7 @@ import {
   subscribeMoreLikeThisLimit,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
-import { loadConceptHintTiers } from "../components/practice/conceptHintTiers";
+import { conceptEndNote, conceptRowsShown, loadConceptHintTiers } from "../components/practice/conceptHintTiers";
 import {
   parseTopicsParam,
   topicSetKey,
@@ -1378,6 +1378,16 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   }, [questions, poolHeadSize, poolHintTiers, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
 
   const filteredQuestions = committedPoolSelection.displayed;
+
+  // QP-CONCEPT-2 (F2) — a concept set short of on-concept / related rows is topped up from the same
+  // chapter; say so after the last on-concept row instead of padding silently under "Practising X".
+  const conceptEnd = useMemo(() => {
+    if (!poolHintTiers || filteredQuestions.length === 0) return undefined;
+    const shown = conceptRowsShown(filteredQuestions, poolHintTiers);
+    if (shown >= filteredQuestions.length) return undefined;
+    const concept = conceptFocusLabel || subtopicHint || "this concept";
+    return { after: shown, text: conceptEndNote(concept, shown) };
+  }, [poolHintTiers, filteredQuestions, conceptFocusLabel, subtopicHint]);
 
   // FILTER-FIX-1 (owner ruling): picking HOTS no longer forces Hard (and leaving it no longer
   // resets difficulty). GUIDE-FILTER-1 (owner ruling 23 Oct): HOTS is higher-order at Medium /
@@ -2196,7 +2206,8 @@ const packTopicKey = useMemo(() => {
         }
         if (conceptHinted) {
           const t = await loadConceptHintTiers(next, topicLabel, [conceptFocusLabel, subtopicHint]);
-          hintTiers = [t.onConcept, t.related];
+          // QP-CONCEPT-2 (F3): a Topic Hub card's own keywords lead inside its concept bucket.
+          hintTiers = [t.keyword, t.onConcept, t.related];
         }
 
         if (!cancelled) {
@@ -3893,6 +3904,7 @@ const packTopicKey = useMemo(() => {
                 }
               : undefined
           }
+          conceptEnd={conceptEnd}
           questions={questions}
           filteredQuestions={filteredQuestions}
           subjectKey={subjectKey}
