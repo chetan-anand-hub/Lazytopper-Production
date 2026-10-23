@@ -16,6 +16,8 @@ import {
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
 import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
+// MI-CONSISTENCY-1 — phone Home shows the SAME real MI card as desktop Home and the sidebar.
+import { MiCardHost } from "../../components/mi/MiCardHost";
 import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
@@ -420,102 +422,8 @@ function SampleMistakeCard() {
   );
 }
 
-/**
- * Mistake Intelligence — SIGNED-IN: SPEC §4 empty state. Unchanged from PR-A.
- *
- * Four fixed buckets keeping their semantic colours with a soft em dash where
- * the number goes, so a student learns what MI will tell them. Never
- * fabricates counts. NO "Ask the tutor about these" CTA — MistakeLogEntry spans
- * many topics while buildTutorPath needs exactly one, so there is no single
- * honest destination (see SPEC §4).
- */
-function MistakeIntelligenceCard() {
-  return (
-    <div className="lt-mhome-mi" data-testid="mobile-home-mistake-panel">
-      <p
-        style={{
-          fontSize: 9,
-          fontWeight: 800,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "hsl(222, 47%, 24%)",
-          opacity: 0.8,
-          margin: "0 0 5px",
-        }}
-      >
-        Mistake Intelligence
-      </p>
-      <h3
-        style={{
-          fontFamily: FONT_DISPLAY,
-          margin: "0 0 3px",
-          fontSize: 15,
-          fontWeight: 700,
-          color: "hsl(222, 47%, 16%)",
-        }}
-      >
-        Your mistake patterns will show here
-      </h3>
-      <p style={{ margin: "0 0 13px", fontSize: 11.5, color: MUTED }}>
-        Built from your real attempts — never guessed.
-      </p>
-
-      <div className="lt-mhome-bks">
-        {MI_BUCKETS.map((b) => (
-          <div
-            key={b.key}
-            className="lt-mhome-bk"
-            data-testid="mobile-home-mi-bucket"
-            style={{ background: b.bg, color: b.fg, borderColor: b.border }}
-          >
-            <div className="lt-n" style={{ opacity: 0.4 }}>—</div>
-            <div className="lt-t">{b.label}</div>
-          </div>
-        ))}
-      </div>
-
-      <div
-        style={{
-          marginTop: 12,
-          background: CARD_BG,
-          border: "1px dashed hsl(222, 35%, 84%)",
-          borderRadius: 12,
-          padding: "10px 12px",
-          fontSize: 11.5,
-          color: "hsl(222, 47%, 16%)",
-          lineHeight: 1.5,
-          textAlign: "center",
-        }}
-      >
-        Practise a set to see your mistakes.
-      </div>
-
-      <Link
-        to={`/practice-hub?${HOME_QS}`}
-        data-testid="mobile-home-mi-first-set"
-        style={{
-          marginTop: 12,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "11px 16px",
-          borderRadius: 12,
-          background: "linear-gradient(140deg, hsl(222,47%,24%), hsl(222,47%,16%))",
-          color: "#fff",
-          textDecoration: "none",
-          fontSize: 12.5,
-          fontWeight: 700,
-          boxShadow: "0 4px 12px -5px hsla(222, 47%, 20%, 0.55)",
-        }}
-      >
-        Practise my first set <ArrowRight />
-      </Link>
-    </div>
-  );
-}
-
 export default function MobileHome() {
-  const { user } = useAuth();
+  const { user, mistakeLogsHydrated } = useAuth();
   // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
   // while it is up (two start cards for the same student is noise).
   const startHere = useStartHere(user?.uid ?? null);
@@ -817,7 +725,19 @@ export default function MobileHome() {
           {startHere.visible ? null : (
             <FirstSession
               uid={user?.uid ?? null}
-              fallback={isSignedIn ? <MistakeIntelligenceCard /> : <SampleMistakeCard />}
+              fallback={
+                isSignedIn ? (
+                  // MI-CONSISTENCY-1 — the real card (a local session reads nothing: honest empty state).
+                  <MiCardHost
+                    uid={user && !user.isLocalSession ? user.uid : null}
+                    gen={Number(mistakeLogsHydrated) || 0}
+                    returnTo="/browse"
+                    testId="mobile-home-mistake-panel"
+                  />
+                ) : (
+                  <SampleMistakeCard />
+                )
+              }
             />
           )}
         </div>

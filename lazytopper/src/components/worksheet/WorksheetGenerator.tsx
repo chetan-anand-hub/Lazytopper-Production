@@ -607,23 +607,24 @@ function WorksheetGeneratorInner() {
   }, [plan, blocker, drawNonce, servedAt, JSON.stringify(sectionBoosts), JSON.stringify(perTopicSectionBoosts)]);
 
   const totalCount = candidate.length;
-  const freshLine = useMemo(
-    () =>
-      freshnessLine({
-        repeats: countRepeats(candidate.map((q) => String(q.id ?? "")), servedAt),
-        total: candidate.length,
-        hasHistory: servedAt.size > 0,
-        // "most of this chapter" only when >= 75% of the sheet's scope pool really was served.
-        servedShare: servedShare(
-          [...(plan?.pools.values() ?? [])].flatMap((list) => list.map((q) => String(q.id ?? ""))),
-          servedAt,
-        ),
-        repeatSections: new Set(candidate.filter((q) => servedAt.has(String(q.id ?? ""))).map((q) => q.section)).size,
-        scopeNoun: "chapter",
-        setNoun: "worksheet",
-      }),
-    [candidate, servedAt, plan],
-  );
+  const freshLine = useMemo(() => {
+    // "most of this chapter" only when >= 75% of the sheet's scope pool really was served, and
+    // any "earlier worksheets" claim only when THIS scope has history (another chapter's sheets
+    // do not count).
+    const share = servedShare(
+      [...(plan?.pools.values() ?? [])].flatMap((list) => list.map((q) => String(q.id ?? ""))),
+      servedAt,
+    );
+    return freshnessLine({
+      repeats: countRepeats(candidate.map((q) => String(q.id ?? "")), servedAt),
+      total: candidate.length,
+      hasHistory: share > 0,
+      servedShare: share,
+      repeatSections: new Set(candidate.filter((q) => servedAt.has(String(q.id ?? ""))).map((q) => q.section)).size,
+      scopeNoun: "chapter",
+      setNoun: "worksheet",
+    });
+  }, [candidate, servedAt, plan]);
   const totalMarks = useMemo(() => candidate.reduce((s, q) => s + q.marks, 0), [candidate]);
   const shortfall = totalCount > 0 && totalCount < effCount;
   const noQuestions = !blocker && bank.ready && totalCount === 0;

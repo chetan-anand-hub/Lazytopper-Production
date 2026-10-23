@@ -49,9 +49,18 @@ function stubUsage() {
   );
 }
 
-async function mountAndStart(): Promise<string[]> {
+/** Submit the test in progress (Submit & exit -> Submit now), as a student finishing it would.
+ *  CT-RELOAD-1 (#1332): an UNSUBMITTED test is offered back as "Resume your test" on the next
+ *  visit, so "the next test" means one taken after this one was submitted. */
+async function submitCurrent() {
+  fireEvent.click(screen.getAllByRole("button", { name: /Submit & exit/ })[0]);
+  fireEvent.click(await screen.findByRole("button", { name: /Submit now/ }));
+  await waitFor(() => expect(document.querySelector(".lt-ct__exit")).toBeNull());
+}
+
+async function mountAndStart(path = `/chapter-test/10/science/${SLUG}`): Promise<string[]> {
   render(
-    <MemoryRouter initialEntries={[`/chapter-test/10/science/${SLUG}`]}>
+    <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route path="/chapter-test/:grade/:subject/:topicKey" element={<ChapterTestPage />} />
       </Routes>
@@ -84,6 +93,7 @@ afterEach(() => {
 describe("FRESH-SET-TESTS · Chapter Test page", () => {
   it("★★ two Carbon tests started in a row share NO question (device log, no records)", async () => {
     const first = await mountAndStart();
+    await submitCurrent();
     cleanup();
     const second = await mountAndStart();
     expect(first.length).toBeGreaterThanOrEqual(10);
@@ -93,6 +103,7 @@ describe("FRESH-SET-TESTS · Chapter Test page", () => {
 
   it("★★ cross-device: an earlier test known only from the session records is excluded too", async () => {
     const first = await mountAndStart();
+    await submitCurrent();
     cleanup();
     window.localStorage.clear(); // a different device: no served log, only the cloud records
     records.list = [
@@ -133,6 +144,7 @@ describe("FRESH-SET-TESTS · Chapter Test page", () => {
 
   it("★ honest copy: a first-ever test makes NO 'different from your last' claim; the next one does, and it holds", async () => {
     await mountAndStart();
+    await submitCurrent();
     cleanup();
     render(
       <MemoryRouter initialEntries={[`/chapter-test/10/science/${SLUG}`]}>
@@ -144,6 +156,23 @@ describe("FRESH-SET-TESTS · Chapter Test page", () => {
     const second = await screen.findByTestId("ct-fresh-line");
     expect(second.getAttribute("data-tone")).toBe("fresh");
     expect(second.textContent).toContain("different questions from your last");
+  });
+
+  it("★★ per chapter: a first Polynomials test taken after a Real Numbers test makes NO 'last Polynomials test' claim", async () => {
+    await mountAndStart("/chapter-test/10/maths/real-numbers");
+    await submitCurrent();
+    cleanup();
+    expect(loadServedLog(servedOwner(USER.uid)).length).toBe(1); // history exists — for Real Numbers only
+    render(
+      <MemoryRouter initialEntries={["/chapter-test/10/maths/polynomials"]}>
+        <Routes>
+          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<ChapterTestPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const line = await screen.findByTestId("ct-fresh-line");
+    expect(line.getAttribute("data-tone")).toBe("first");
+    expect(line.textContent).not.toContain("your last");
   });
 
   it("★ honest copy: first-ever line; then 'most of this chapter' only once the whole chapter was served", async () => {

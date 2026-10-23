@@ -108,6 +108,20 @@ describe("Chapter Test — three in a row never repeat while the chapter has uns
     }
   });
 
+  it("★★ history is per chapter: Real Numbers tests do not make a first Polynomials test 'have history'", () => {
+    const rn = ctDraw("Maths", "real-numbers", "Real Numbers", 5);
+    const servedAt = servedAtFor({
+      surface: "chapter-test",
+      log: [{ surface: "chapter-test", scope: "real-numbers", ids: ctIds(rn), at: 1 }],
+    });
+    const poly = ctDraw("Maths", "polynomials", "Polynomials", 6, servedAt);
+    expect(poly.hasServedHistory).toBe(false);
+    expect(poly.servedShare).toBe(0);
+    expect(lineFor(poly)).toBeNull(); // no "earlier tests" claim of any kind
+    const rn2 = ctDraw("Maths", "real-numbers", "Real Numbers", 7, servedAt);
+    expect(rn2.hasServedHistory).toBe(true);
+  });
+
   it("★ an exhausted chapter reuses the LEAST-recently-served questions, keeps the blueprint, and says so", () => {
     const slug = "carbon-and-its-compounds";
     const all = selectBankQuestions({ subject: "Science", topicKeys: [slug] });
@@ -190,6 +204,20 @@ describe("Full Mock — three in a row never repeat per section while the subjec
       }
     }, 600_000); // six real-bank Full Mock draws (each walks the whole subject pool)
   }
+});
+
+describe("Full Mock — history is per subject", () => {
+  it("★★ a Maths mock does not give a first Science mock 'history'", () => {
+    const maths = drawFullMock({ subject: "Maths", worksheetId: "fm", code: "FM", name: "FM", seed: 11, createdAt: CREATED });
+    const servedAt = servedAtFor({
+      surface: "full-mock",
+      log: [{ surface: "full-mock", scope: "maths", ids: maths.paper.questions.map((q) => String(q.id)), at: 1 }],
+    });
+    const sci = drawFullMock({ subject: "Science", worksheetId: "fm", code: "FM", name: "FM", seed: 12, servedAt, createdAt: CREATED });
+    expect(sci.hasServedHistory).toBe(false);
+    const maths2 = drawFullMock({ subject: "Maths", worksheetId: "fm", code: "FM", name: "FM", seed: 13, servedAt, createdAt: CREATED });
+    expect(maths2.hasServedHistory).toBe(true);
+  }, 600_000);
 });
 
 describe("Worksheet — three sheets in a row never repeat while the chapter has unseen questions", () => {

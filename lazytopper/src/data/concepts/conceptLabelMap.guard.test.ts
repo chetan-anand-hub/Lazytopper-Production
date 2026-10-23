@@ -82,6 +82,10 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   // 17 Oct WITHHOLD-TRI-GDR-1 (#1222): the label's only row, LIGHT-EXMPLR-9-LA-002, is paused (object at F: NCERT 2026-27 Table 9.4
   // "Image would not be formed"). Its repair PR serves the row again and drops this entry.
   { chapter: "light-reflection-and-refraction", label: "Convex Lens — All Object Positions" },
+  // 23 Oct BANK-RESIDUE-1 (review of #1325): each label's only row is withheld for under-tagged step marks (SQP-S-ELEC-004, SQP-S-LP-003;
+  // ledger bankFix/bankResidue1Ledger.ts). The PR that serves the row again drops the entry.
+  { chapter: "electricity", label: "Case-Based — Parallel Circuit with Headlights and Sidelights" },
+  { chapter: "life-processes", label: "Excretion — Urine and Urinary System (or Circulation — Arteries vs Veins)" },
 ];
 const MAX_REVIEWED_LABELS = 138; // 14 Oct SCI-BACKLOG-1 batch 4 (F): +2 reviewed generic labels "Statistics" and "Pair of Linear Equations in Two Variables" (2026-STAT-SA-02, 2026-PLE-SA-02 serve again)
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */

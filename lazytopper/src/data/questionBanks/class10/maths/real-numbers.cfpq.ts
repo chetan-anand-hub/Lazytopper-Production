@@ -290,7 +290,7 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
     answer: "75 cm, that is 0.75 m",
     solutionSteps: [
       "[1 mark] Identifies and reasons that the length of the longest ruler should be equal to the HCF of the three lengths.",
-      "[1 mark] Finds the HCF of the three numbers, working in centimetres: 825 = 3 × 5² × 11, 675 = 3³ × 5², 450 = 2 × 3² × 5², so the highest common factor is 3 × 5² = 75. Mentions the length of the longest ruler as 75 cm or 0.75 m. (The rubric awards 0.5 marks if the length is correct but the unit is incorrect.)",
+      "[1 mark] Finds the HCF of the three numbers, working in centimetres: 825 = 3 × 5² × 11, 675 = 3³ × 5², 450 = 2 × 3² × 5², so the highest common factor is 3 × 5² = 75. Mentions the length of the longest ruler as 75 cm or 0.75 m.",
     ],
     finalAnswer: "75 cm (0.75 m)",
     isCompetencyBased: true,

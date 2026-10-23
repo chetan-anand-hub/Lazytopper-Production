@@ -176,7 +176,9 @@ export interface DrawnChapterTest {
    *  the chapter still has unseen questions for every section; > 0 only when a section's
    *  unseen pool ran out and its least-recently-served questions filled the blueprint). */
   repeatCount: number;
-  /** True when a served history was supplied and non-empty (the honest copy needs it). */
+  /** True when THIS chapter has served history (some of its questions were in an earlier
+   *  Chapter Test). Another chapter's tests do not count: "different questions from your last
+   *  {chapter} test" needs a last test of this chapter. */
   hasServedHistory: boolean;
   /** Share (0..1) of this chapter's drawable questions already served — gates "most of". */
   servedShare: number;
@@ -344,11 +346,13 @@ export function drawChapterTest(args: {
     enoughQuestions: questions.length >= MIN_TEST_QUESTIONS,
     ...cbqFields(balanced.share),
     repeatCount: countRepeats(questions.map((q) => String(q.id ?? "")), servedAt),
-    hasServedHistory: servedAt.size > 0,
-    servedShare: servedShare(
-      Object.values(pools).flatMap((list) => list.map(idOf)),
-      servedAt,
-    ),
+    ...(() => {
+      const share = servedShare(
+        Object.values(pools).flatMap((list) => list.map(idOf)),
+        servedAt,
+      );
+      return { servedShare: share, hasServedHistory: share > 0 };
+    })(),
     repeatSections: new Set(questions.filter((q) => servedAt.has(String(q.id ?? ""))).map((q) => q.section)).size,
   };
 }

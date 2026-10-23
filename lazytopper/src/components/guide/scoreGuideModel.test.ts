@@ -53,7 +53,7 @@ describe("GUIDE-SCORE-1 · the copy table", () => {
       pending: "12 questions",
       lead: SCORE_GUIDE_LINES.lead.mostMistake, // the longest lead
       wrong: "12 questions wrong",
-      prev: "your earlier attempt",
+      prev: "your last test on this chapter", // the longest {prev}
       chapter: "Quadratic Equations",
     };
     for (const t of allLines()) {
@@ -229,8 +229,17 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     const p = scoreGuidePlan(base({ surface: "chapter-test", subtitle: "CT-M-QE-02", score: { kind: "marks", awarded: 30, total: 40 }, message: "▲ 4 marks since your last Quadratic Equations test" }))!;
     expect(p.situation).toBe("improved");
     expect(p.ziggy.text).toContain("4 marks");
-    expect(p.ziggy.text).toContain("your earlier attempt");
+    // GUIDE-SCORE-2: the comparison is the last test on this chapter (maybe a different paper).
+    expect(p.ziggy.text).toContain("your last test on this chapter");
+    expect(p.ziggy.text).not.toContain("earlier attempt");
     expect(p.scene).toBe("improvement"); // 10 points of 40
+  });
+
+  it("★★ GUIDE-SCORE-2: no line promises step marks for every answer (objective answers score on the answer alone, §13)", () => {
+    for (const t of allLines()) expect(t, t).not.toMatch(/mark (them|it|each|every)\w* step by step/i);
+    expect(SCORE_GUIDE_LINES.byte.allPending.map((l) => l.text)).toContain(
+      "Read the note below, then send the answers again. I'll check every written step.",
+    );
   });
 
   it("★★ improved: ONLY from Full Mock's own printed ▲ delta", () => {

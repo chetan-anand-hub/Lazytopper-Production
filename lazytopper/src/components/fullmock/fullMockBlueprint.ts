@@ -161,7 +161,7 @@ export interface DrawnFullMock {
   /** FRESH-SET-TESTS — rows of THIS paper the student was served in an earlier mock (> 0 only
    *  when a cell's unseen pool ran out and its least-recently-served questions kept the blueprint). */
   repeatCount: number;
-  /** True when a non-empty served history was supplied (the honest copy needs it). */
+  /** True when THIS subject has served history (an earlier mock of this subject). */
   hasServedHistory: boolean;
   /** Share (0..1) of the subject's drawable questions already served — gates "most of". */
   servedShare: number;
@@ -740,8 +740,10 @@ export function drawFullMock(args: {
     plainMcqMarks: balanced.share.plainMcqMarks,
     constructedMarks: balanced.share.constructedMarks,
     repeatCount: countRepeats(questions.map((q) => String(q.id || q.questionText)), servedAt),
-    hasServedHistory: servedAt.size > 0,
-    servedShare: servedShare(sectionPools.flatMap((list) => list.map(idOf)), servedAt),
+    ...(() => {
+      const share = servedShare(sectionPools.flatMap((list) => list.map(idOf)), servedAt);
+      return { servedShare: share, hasServedHistory: share > 0 };
+    })(),
     repeatSections: new Set(
       questions.filter((q) => servedAt.has(String(q.id || q.questionText))).map((q) => q.section),
     ).size,

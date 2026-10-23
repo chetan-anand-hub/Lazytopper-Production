@@ -69,8 +69,13 @@ vi.mock("../context/AuthContext", () => ({
 }));
 
 import MeProgressPage from "../pages/MeProgressPage";
-import { MistakeIntelligenceCard } from "../pages/desktop/DesktopHome";
+// MI-CONSISTENCY-1 — Home renders the ONE MI card (MiCardHost); the sidebar renders the same card.
+import { MiCardHost } from "../components/mi/MiCardHost";
 import { MistakeIntelCard } from "../components/desktop/MistakeIntelCard";
+import { MI_CARD_COPY, MiCard } from "../components/mi/MiCard";
+import { selectMiCard } from "../lib/mi/miCardSummary";
+import { resetMiScopeForTests, setMiScope } from "../lib/mi/miScope";
+import { within } from "@testing-library/react";
 import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
 import { weakAreasCardFrom } from "../components/practice/weakAreasCard";
 import {
@@ -205,6 +210,9 @@ beforeAll(async () => {
 
 beforeEach(() => {
   resetMeHomeMemo();
+  // Me is paper-scoped: the cards are read on Me's paper (Maths in every fixture here).
+  resetMiScopeForTests();
+  setMiScope("maths");
   H.attempts = [];
   H.mistakes = [];
 });
@@ -218,51 +226,31 @@ describe("MI-HOME-SYNC — MCQ-only (owner's live case): Home == sidebar == Me",
     H.attempts = mcqOnlyStudent();
   });
 
-  it("★★ Home shows Me's marks on the table, Me's biggest win, Me's top concept and Me's Practise href", async () => {
+  it("★★ Home and the sidebar print Me's marks on the table — every one of them a wrong tap, no type invented", async () => {
     const me = await renderMe();
     const s = await summary();
     expect(s.lost).toBeGreaterThan(0);
     expect(s.hasTyped).toBe(false);
     // Me's hero sentence is "<name>, there are <N> marks on the table."
     expect(me.title).toContain(`${s.lost} marks on the table`);
-    expect(me.firstChapter).not.toBeNull();
-    expect(me.firstConcept).not.toBeNull();
-
     render(
       <MemoryRouter>
-        <MistakeIntelligenceCard summary={s} />
-      </MemoryRouter>,
-    );
-    expect(screen.getByTestId("home-mi-card").getAttribute("data-state")).toBe("untyped");
-    expect(screen.getByTestId("home-mi-lost").textContent).toBe(`${s.lost} marks on the table`);
-    expect(screen.getByTestId("home-mi-top-chapter").textContent).toContain(me.firstChapter!.label);
-    expect(screen.getByTestId("home-mi-top-chapter").textContent).toContain(me.firstChapter!.marks);
-    expect(screen.getByTestId("home-mi-top-concept").textContent).toContain(me.firstConcept!.label);
-    expect(screen.getByTestId("home-mi-top-concept").textContent).toContain(me.firstConcept!.marks);
-    // The SAME href Me's start-here Practise button carries.
-    expect(screen.getByTestId("home-mi-practise").getAttribute("href")).toBe(me.firstChapter!.practise);
-    // No type is invented: all four tiles "—"; the honest line points at Check & Improve.
-    for (const tile of screen.getAllByTestId("home-mi-bucket")) {
-      expect(tile.querySelector(".lt-n")!.textContent).toBe("—");
-    }
-    expect(screen.getByTestId("home-mi-check").getAttribute("href")).toMatch(/^\/check-improve/);
-    expect(screen.getByTestId("home-mi-check").textContent).toBe("Check a written answer to see why you lose them");
-    expect(screen.queryByText("Practise a set to see your mistakes.")).toBeNull();
-  });
-
-  it("★★ the sidebar says Me's marks on the table and Me's top concept — never 'No mistake patterns yet'", async () => {
-    const me = await renderMe();
-    const s = await summary();
-    render(
-      <MemoryRouter>
+        <MiCardHost uid={H.uid} gen={0} returnTo="/" />
         <MistakeIntelCard />
       </MemoryRouter>,
     );
-    const line = await screen.findByTestId("mi-card-untyped");
-    expect(line.textContent).toContain(`${s.lost} marks on the table`);
-    expect(screen.getByTestId("mi-card-untyped-top").textContent).toBe(me.firstConcept!.label);
-    expect(screen.getByTestId("mi-card-check").getAttribute("href")).toBe("/check-improve");
-    expect(screen.queryByText(/No mistake patterns yet/)).toBeNull();
+    for (const id of ["home-mi-card", "sidebar-mi-card"]) {
+      await waitFor(() => expect(screen.getByTestId(id).getAttribute("data-state")).toBe("ready"));
+      const card = within(screen.getByTestId(id));
+      expect(card.getByTestId("mi-card-lost").textContent).toBe(`${s.lost} marks lost`);
+      const tile = (k: string) => Number(card.getAllByTestId("mi-card-tile").find((t) => t.getAttribute("data-row") === k)!.querySelector(".lt-micard__n")!.textContent);
+      // MCQ picks are attempt-only: their whole loss is the wrong-tap tile; no type is invented.
+      expect(tile("wrongTap")).toBe(s.lost);
+      for (const k of ["conceptual", "calculation", "silly", "presentation"]) expect(tile(k)).toBe(0);
+      // The honest action: check a written answer.
+      expect(card.getByTestId("mi-card-check").getAttribute("href")).toMatch(/^\/check-improve/);
+      expect(card.queryByText(MI_CARD_COPY.emptyTitle)).toBeNull();
+    }
   });
 
   it("★★ B — Quick Practice 'My weak areas' is LIVE on Me's top concept, with Me's concept Practise href", async () => {
@@ -322,24 +310,22 @@ describe("MI-HOME-SYNC — typed mistakes: Home's tiles carry Me's split", () =>
 
     render(
       <MemoryRouter>
-        <MistakeIntelligenceCard summary={s} />
+        <MiCardHost uid={H.uid} gen={0} returnTo="/" />
       </MemoryRouter>,
     );
-    expect(screen.getByTestId("home-mi-card").getAttribute("data-state")).toBe("typed");
-    expect(screen.getByTestId("home-mi-lost").textContent).toBe(`${s.lost} marks on the table`);
-    const tile = (k: string) => {
-      const el = screen.getAllByTestId("home-mi-bucket").find((t) => t.getAttribute("data-type") === k)!;
-      const v = el.querySelector(".lt-n")!.textContent ?? "";
-      return v === "—" ? 0 : Number(v);
-    };
+    await waitFor(() => expect(screen.getByTestId("home-mi-card").getAttribute("data-state")).toBe("ready"));
+    expect(screen.getByTestId("mi-card-lost").textContent).toBe(`${s.lost} marks lost`);
+    const tile = (k: string) => Number(screen.getAllByTestId("mi-card-tile").find((t) => t.getAttribute("data-row") === k)!.querySelector(".lt-micard__n")!.textContent);
     expect(tile("conceptual")).toBe(knowledge);
     expect(tile("presentation")).toBe(technique);
     expect(tile("calculation") + tile("silly")).toBe(careless);
+    expect(tile("blank")).toBe(s.split!.notAttempted);
+    // Me's remainder is split HONESTLY into wrong taps (attempt-only picks) and no reason recorded.
+    expect(Math.round((tile("wrongTap") + tile("unrecorded")) * 10) / 10).toBe(s.split!.unclassified);
     expect(tile("conceptual")).toBe(1);
     expect(tile("silly")).toBe(1);
-    // No "why" line once Me names a type.
-    expect(screen.queryByTestId("home-mi-check")).toBeNull();
-    expect(screen.getByTestId("home-mi-practise").getAttribute("href")).toBe(me.firstChapter!.practise);
+    // A type is named: the chance is the biggest type (a tie goes to concept gap first).
+    expect(screen.getByTestId("mi-card-chance").getAttribute("data-type")).toBe("conceptual");
   });
 });
 
@@ -359,20 +345,15 @@ describe("MI-HOME-SYNC — no graded work: every surface keeps today's empty sta
     expect(s.lost).toBe(0);
     render(
       <MemoryRouter>
-        <MistakeIntelligenceCard summary={s} />
-      </MemoryRouter>,
-    );
-    expect(screen.getByTestId("home-mi-card").getAttribute("data-state")).toBe("empty");
-    expect(screen.getByText("Your mistake patterns will show here")).toBeTruthy();
-    expect(screen.getByText("Practise a set to see your mistakes.")).toBeTruthy();
-    expect(screen.getByTestId("home-mi-first-set")).toBeTruthy();
-    cleanup();
-    render(
-      <MemoryRouter>
+        <MiCardHost uid={H.uid} gen={0} returnTo="/" />
         <MistakeIntelCard />
       </MemoryRouter>,
     );
-    expect(await screen.findByText(/No mistake patterns yet/)).toBeTruthy();
+    for (const id of ["home-mi-card", "sidebar-mi-card"]) {
+      await waitFor(() => expect(screen.getByTestId(id).getAttribute("data-state")).toBe("empty"));
+      expect(within(screen.getByTestId(id)).getByText(MI_CARD_COPY.emptyTitle)).toBeTruthy();
+      expect(within(screen.getByTestId(id)).queryAllByTestId("mi-card-tile")).toHaveLength(0);
+    }
     expect(weakAreasCardFrom(true, await loadMeConceptRows(H.uid, "Maths"))).toEqual({ kind: "locked" });
   });
 });
@@ -440,12 +421,23 @@ describe("MI-HOME-SYNC — hasTyped follows the typed entries, not the split's s
     expect(s.split?.splitKnown).toBe(false); // precondition: the log names more than was lost
     expect(s.lost).toBe(2);
     expect(s.hasTyped).toBe(true);
+    // MI-CONSISTENCY-1 — the ONE card, over the same withheld split: the whole loss is "no reason
+    // recorded" and the card says Me's own sentence instead of asking for a written answer.
+    const model = {
+      progress: { subjects: [rung], subjectTotals: { maths: { answers: 6 } } },
+      mistakes: { entries, complete: true },
+      range: { start: NOW - 30 * 86400000, end: NOW },
+    } as unknown as StudyReadModel;
+    const card = selectMiCard(model, "maths", { source: "home", returnTo: "/" }, 0);
+    expect(card.splitWithheld).toBe(true);
+    expect(card.rows.find((r) => r.key === "unrecorded")!.marks).toBe(2);
     render(
       <MemoryRouter>
-        <MistakeIntelligenceCard summary={s} />
+        <MiCard variant="light" status="ok" summary={card} scope="maths" onScope={() => {}} meHref="/me" checkHref="/check-improve" />
       </MemoryRouter>,
     );
-    expect(screen.queryByTestId("home-mi-check")).toBeNull();
+    expect(screen.getByTestId("mi-card-split-withheld")).toBeTruthy();
+    expect(screen.queryByTestId("mi-card-check")).toBeNull();
   });
 });
 

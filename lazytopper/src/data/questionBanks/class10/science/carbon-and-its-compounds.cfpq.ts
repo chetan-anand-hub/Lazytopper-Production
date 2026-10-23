@@ -161,7 +161,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
       "(i) The compound being unsaturated will burn with a sooty or smoky flame. (ii) CH₂=C=CH₂ and H–C≡C–CH₃",
     solutionSteps: [
       "[1 mark] (i) The compound being unsaturated will burn with a sooty or smoky flame.",
-      "[2 marks] (ii) 1 mark each for the following two straight-chain structures: CH₂=C=CH₂ (each terminal carbon carrying two H atoms, with two C=C double bonds); H–C≡C–CH₃ (a C≡C triple bond with a terminal CH₃ group).",
+      "[2 marks] (ii) CH₂=C=CH₂ (each terminal carbon carrying two H atoms, with two C=C double bonds); H–C≡C–CH₃ (a C≡C triple bond with a terminal CH₃ group).",
     ],
     finalAnswer:
       "(i) a sooty/smoky flame, because it is unsaturated; (ii) CH₂=C=CH₂ and H–C≡C–CH₃",
@@ -236,7 +236,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     solutionSteps: [
       "[1 mark] (a) two",
       "[1 mark] (b)(i) ester",
-      "[1 mark] (b)(ii) sweet smell (0.5 mark); (b)(iii) 0.5 marks for any of: perfumes; flavouring agents. (Any other correct use should also be awarded full marks.)",
+      "[1 mark] (b)(ii) sweet smell; (b)(iii) any of: perfumes; flavouring agents.",
     ],
     finalAnswer:
       "(a) two carbon atoms; (b)(i) an ester; (ii) it has a sweet smell; (iii) used in perfumes or as a flavouring agent.",
@@ -260,7 +260,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     answer: "(a) four; (b) CH₃–CH₂–CH₂–CH₃ and CH₃–CH(CH₃)–CH₃",
     solutionSteps: [
       "[1 mark] (a) four",
-      "[2 marks] (b) 1 mark each for the following isomers: CH₃–CH₂–CH₂–CH₃ (straight chain); CH₃–CH(CH₃)–CH₃ (branched, with a methyl group on the middle carbon).",
+      "[2 marks] (b) CH₃–CH₂–CH₂–CH₃ (straight chain); CH₃–CH(CH₃)–CH₃ (branched, with a methyl group on the middle carbon).",
     ],
     finalAnswer: "(a) four; (b) CH₃–CH₂–CH₂–CH₃ and CH₃–CH(CH₃)–CH₃",
     isCompetencyBased: true,
@@ -283,7 +283,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     answer: "(a) 2 moles; (b) two C-C double bonds, or one C-C triple bond",
     solutionSteps: [
       "[1 mark] (a) 2 moles",
-      "[2 marks] (b) 1 mark for each of the following: two C-C double bonds; one C-C triple bond.",
+      "[2 marks] (b) two C-C double bonds; one C-C triple bond.",
     ],
     finalAnswer: "(a) 2 moles of hydrogen; (b) either two C–C double bonds or one C–C triple bond.",
     isCompetencyBased: true,
@@ -306,8 +306,8 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Q and S, because they have the same functional group; (b) none of them, because they are all different chemical substances.",
     solutionSteps: [
-      "[1.5 marks] (a) Q and S (0.5 mark); They have the same functional group. (1 mark)",
-      "[1.5 marks] (b) none of them (0.5 mark); They are all different chemical substances. (1 mark)",
+      "[1.5 marks] (a) Q and S; They have the same functional group.",
+      "[1.5 marks] (b) none of them; They are all different chemical substances.",
     ],
     finalAnswer:
       "(a) Q and S - they share the same functional group; (b) none - they are all different substances.",
@@ -457,7 +457,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) wine - hydroxyl / alcohol / -OH; vinegar - carboxyl / carboxylic acid / -COOH. (b) oxidation. (c) potassium permanganate / KMnO₄ or potassium dichromate / K₂Cr₂O₇.",
     solutionSteps: [
-      "[2 marks] (a) 1 mark for each of the following: wine - hydroxyl / alcohol / -OH; vinegar - carboxyl / carboxylic acid / -COOH.",
+      "[2 marks] (a) wine - hydroxyl / alcohol / -OH; vinegar - carboxyl / carboxylic acid / -COOH.",
       "[1 mark] (b) oxidation",
       "[1 mark] (c) any oxidising agent such as: potassium permanganate / KMnO₄; potassium dichromate / K₂Cr₂O₇.",
     ],
@@ -509,7 +509,7 @@ export const CARB_CFPQ: CanonicalQuestion[] = [
     solutionSteps: [
       "[½ mark] (a) CH₃CH₂OH",
       "[½ mark] (b) carbon dioxide / CO₂",
-      "[2 marks] (c) carbon dioxide and water / CO₂ and H₂O (0.5 mark for each product); CH₃CH₂OH + 3 O₂ --> 2 CO₂ + 3 H₂O (1 mark)",
+      "[2 marks] (c) carbon dioxide and water / CO₂ and H₂O; CH₃CH₂OH + 3 O₂ --> 2 CO₂ + 3 H₂O",
     ],
     finalAnswer:
       "(a) CH₃CH₂OH; (b) carbon dioxide; (c) CO₂ and H₂O — CH₃CH₂OH + 3 O₂ --> 2 CO₂ + 3 H₂O",
