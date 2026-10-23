@@ -432,6 +432,8 @@ import { AREAS_RELATED_TO_CIRCLES_PYQ_2025 } from './questionBanks/class10/maths
 import { SURFACE_AREAS_AND_VOLUMES_PYQ_2025 } from './questionBanks/class10/maths/surface-areas-and-volumes.pyq2025';
 import { STATISTICS_PYQ_2025 } from './questionBanks/class10/maths/statistics.pyq2025';
 import { PROBABILITY_PYQ_2025 } from './questionBanks/class10/maths/probability.pyq2025';
+// PYQ-RESTORE-B (2026-10-23): the 13th Maths 2025 file - Triangles (similarity, BPT), 17 rows from 30/1/x, 30/2/x, 30/3/x QPs + MS 2024-25
+import { TRIANGLES_PYQ_2025 } from './questionBanks/class10/maths/triangles.pyq2025';
 
 // P4 Science PYQ 2026 — CBSE 2025-26 board papers (31/2/x, 31/3/x, 31/4/x, 31/5/x), 2026-05-25
 // 13 Science topic files; verbatim from QP + matched English marking schemes (X_086 Set-N ENGLISH)
@@ -1106,6 +1108,8 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED,
   // OUR-ENV-NCERT-1 (2026-10-17): NCERT Ch 13 in-text + exercise questions (15; Exercise Q1 skipped, non-unique key).
   ...OE_TEXTBOOK,
+  // PYQ-RESTORE-B (2026-10-23): CBSE 2025 Maths Standard Triangles (17 rows; appended last so no other array's spread position moves).
+  ...TRIANGLES_PYQ_2025,
 ];
 
 // ---------------------------------------------------------------------------
@@ -1154,28 +1158,16 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2025-LIFEP-008",    // bilingual
   "PYQ-S-2025-LIGHT-021",    // bilingual
   "PYQ-S-2025-METAL-006",    // bilingual
-  // PYQ-RESTORE-A part 1 (22 Oct, owner approval 23:15 IST): 25 Maths PYQ rows repaired from the row itself (symbols, LaTeX, tables, step-marked solutions), blind re-solved and served again (ledger: bankFix/pyqRestoreALedger.ts; ids leave this block)
   // ---- Maths: blank / garbled expression / answer-mismatch (owner real-paper lookup) ----
-  "PYQ-M-2025-REALNUM-003",  // blank — both expressions missing
-  "PYQ-M-2024-REALNUM-004",  // answer-mismatch — answer proves (2−√3)/5, body reads 5√3−2
-  "PYQ-M-2025-QE-001",       // garbled — second root missing
-  "PYQ-M-2025-TRIG-001",     // blank — tan A value and expression both missing
-  "PYQ-M-2025-CG-003",       // garbled — mid-sentence scramble
-  "PYQ-M-CG-002",            // garbled — coordinate fractions/signs lost
   "PYQ-M-TRIG-007",          // garbled — prove (A) scrambled (dup of -006 + bleed)
   // ---- Maths: subset-font mojibake (Hindi-as-Latin gibberish body) ----
-  "PYQ-M-TRIG-005",          // mojibake
-  "PYQ-M-2024-TRIG-010a",    // mojibake
-  "PYQ-M-2024-TRIG-010b",    // mojibake
   "PYQ-M-2024-TRIG-013",     // mojibake
-  "PYQ-M-2024-TRIG-019",     // mojibake
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
   // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
   "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
   "2026-STAT-SA-03",              // unsolvable-as-printed (D170): mean 18 with f: 3, f, 7, 5 gives 3f = 25; the row's own last step says 'adjust numbers accordingly'
   // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
-  "PYQ-M-2026-TRI-005",           // garbled-extraction: angle symbols lost
   "PYQ-S-2025-ACID-010",          // garbled-extraction: parts (b)/(c) reduced to residue
   "PYQ-S-2026-ACID-019",          // garbled-extraction: stripped Hindi block left residue
   "PYQ-S-2024-CARB-002",          // garbled-extraction: structural formulas flattened
@@ -1200,15 +1192,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   //      stay intact in their packs for the pymupdf re-extraction pass
   //      ([FU-BANK-MCQ-REEXTRACT]) — delete each id here as its real text is recovered.
   "CTRL-EXMPLR-6-MCQ-025",   // figure — options are "Option (a) as in figure" placeholders (Fig. 7.1)
-  "PYQ-M-TRI-001",           // garbled-options — ["2","3","5","2"] dup; stem lost the ∥ in "DE ∥ BC"
-  "PYQ-M-ARC-002",           // garbled-options — ["4","2","35","70"]; key "( 35 2 ) °" = (35/2)°
-  "PYQ-M-ARC-003",           // garbled-options — all four options identical ("2 1 πd")
-  "PYQ-M-PROB-002",          // garbled-options — all four options identical ("8")
-  "PYQ-M-PROB-003",          // garbled-options — all four options identical ("9")
-  "PYQ-M-PROB-005",          // garbled-options — ["1","2","1","1"]; key "1 6 1" = 1/6 + marks digit
-  "PYQ-M-PROB-006",          // garbled-options — ["1","9","4",…]; "/13" denominators lost, MS DIRECTIONS swept into (d)
-  "PYQ-M-PROB-008",          // garbled-options — ["4","2","4","1"]; key "𝟑 𝟒" in mathematical-bold unicode
-  "PYQ-M-PROB-010",          // garbled-options — ["13","52","13","26"] dup; key "𝟒 𝟓𝟐 1"
   "PYQ-S-2024-LIGHT-001",    // garbled — stem ("2 3 and 3 4") + options both damaged; key = MS boilerplate
   "PYQ-S-2024-ELEC-001",     // figure — "as shown"; attract-vs-repel is undecidable without the figure; key = MS boilerplate
   "PYQ-S-2024-MAG-002",      // out-of-syllabus — positron (e⁻/p⁺) is not Class-10 CBSE 2026-27 (owner ruling 2026-07-15)
@@ -1386,9 +1369,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-METAL-009",        // bilingual — Hindi column residue in the stem ("A, B C A, B C , ? 5 () (i) (I) B, K, R XY ?")
   "PYQ-S-2026-LIFEP-011",        // bilingual — Hindi column residue in the stem ("of (a) (b) ( 180 L ) , ? (c) / ?")
   // -- garbled-options / answer-mismatch --
-  "PYQ-M-QE-001",                // garbled-options — operator signs stripped ("2x2 4x + 8 =")
-  "PYQ-M-CIRC-004",              // garbled-options — √ lost ("2 3 cm", "2 2 cm"); key "2√3 cm 1"
-  "PYQ-M-STAT-004",              // garbled-options — two options both "decreases by"
   "SCO-S-ACID-014",              // garbled-options — "the formation of salt H O 2 +" (flattened H2O)
   "SCQ-S-ACID-034",              // answer-mismatch — stem says pH 14; its own answer says "No salt has pH = 14"
   // -- stage 4: skeptic pass 2026-09-11 (report-skeptic-rekey-clean-2026-09-11.md) --
@@ -1952,8 +1932,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CTRL-EXMPLR-6-SA-003",       // figure: the answer needs the source figure, which is absent; a figure rebuilt from memory is not used (no fabricated figures)
   "SCO-S-CTRL-012",             // figure: Positions of anaesthetic blocks X, Y, Z exist only in the missing figure; answer 'At Z' cannot be determined from text.
   "APQ-M-CG-005",               // figure: The ring radii and point values of the target board are figure-only. Parts (i)-(iii) depend on them, and the 2/3 boundary radii in the steps come from the unseen figure.
-  "PYQ-M-2024-CG-006",          // figure: Case depends on the rocket design drawn on graph paper; coordinates of A–G are not in the text, so parts cannot be answered without the figure.
-  "PYQ-M-2024-CG-007",          // figure: Case asks for P, Q, R read off the chart figure (not in text); stem also has Hindi page-header junk and the answer is garbled.
   "SCO-S-ELEC-011",             // figure: Depends on three circuit diagrams (I, II, III) whose topology is not in the text; cannot be answered or reconstructed without them.
   "PYQ-S-ELEC-001",             // figure: Which wire (A or B) has higher resistivity depends entirely on the slopes in the V-I graph, which is not in the text; answer is also mojibake-damaged.
   "SCQ-S-HERED-043",            // figure: Part (a) 'Fill in the boxes' depends on a cross diagram not present in the text; boxes cannot be answered without inventing the figure.
@@ -1972,11 +1950,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-ENV-001",         // figure: Stem relies on 'the given figure' of trophic levels T1–T5; no figure or description is carried by the row, so which label is the top level cannot be determined from text.
   "SCO-S-ENV-015",              // figure: Needs the river/sewage diagram and graph locating points A-D; row carries no description of where A-D are, so the answer cannot be determined.
   "SCO-S-ENV-017",              // figure: Needs the numbered energy-flow arrow diagram; row does not say which arrow is which, so options '4 3', '2 1' etc. are unanswerable.
-  "PYQ-M-2026-POLY-005",        // figure: Bound figure is a cuboidal lamp shade (24×12×17 cm), not the Chenab parabolic arch with A, P, Q. Zeroes/span must be read from the arch diagram, so the row is unanswer...
   "APQ-M-TRI-005",              // figure: x and y are undefined in the stem and the row carries no figure description ('REQUIRES-FIGURE' placeholder). Unanswerable.
   "APQ-M-TRI-008",              // figure: Figure matches (right angle B, PT∥AB, SR∥BC, QT = 8 cm) but gives no AB/BC or position of P; with only AC = 25 and QT = 8 the area of ΔPQR is not determined. Steps' RC...
   "APQ-M-TRIG-003",             // figure: The 'solved problem shown below' (its steps) is not included in the row; question cannot be answered.
-  "PYQ-M-2026-TRIG-002",        // figure: Refers to 'the diagram given above'; d, y, h, x and point X are defined only in the figure (none bound), sub-parts depend on them, and answer omits parts. Not reconstr...
   "APQ-M-TRIG-017",             // figure: Row itself says REQUIRES-FIGURE; positions of planes relative to Anuja/Sarthak (e.g. C between them) are not in the text, and OR (iii) altitude of plane A (≈591 m) con...
   "ARC-M06",                    // duplicate: Near-verbatim duplicate of ARC-M02 (same table cover, r = 28, ₹0.35). ARC-M02 is repaired and kept; this copy also depends on the missing figure.
   "CIR-M08",                    // duplicate: duplicate of CIRC-N-NCERT-10-SA-004 (kept): Same AB+CD=AD+BC proof; keep official NCERT over LT-authored (pending fix is a step edit, not a withhold).
@@ -2082,14 +2058,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "CARB-EXMPLR-4-MCQ-011",      // garbled: Options (b)-(d) are placeholders ('different option'); original structures not recoverable from the row and would have to be invented.
   "SCO-S-CTRL-013",             // garbled: Stem/options garbled (', , , P Q R S and T', ', P Q and T'), T's function missing, labels only in missing figure, and explanation contradicts the table; not reliably r...
   "PYQ-S-2026-EYE-002",         // garbled: Figure matches (near point shifted N to N', rays converge behind retina = hypermetropia), but stem is garbled ('() () ,'), part (b) is absent, and 3 marks cannot be re...
-  "PYQ-M-2026-PLE-001",         // garbled: Options (a) "1 2 2 1 c c a a" and (c) "2 1 2 1 b b a a" are fraction extractions whose relation symbol (= or ≠) and order cannot be recovered; if either were an equali...
   "CBE-M-RN-A-002",             // garbled: Premise is mathematically flawed: a cube of volume 15 m³ cannot fill a cube of 165/195/285 m³ with no space left; HCF of volumes is not a valid answer. Official CBSE i...
-  "PYQ-M-2025-TRIG-004",        // garbled: Sub-parts (i) and (ii) have no text (only mark residues); their wording and the figure labels B, C, D, E, h are not recoverable from the row without guessing. Cannot s...
   // BANK-FIX-1 PR-2 phase B (2026-10-07): rows the independent re-solve could not confirm (ambiguous wording / two defensible keys)
   "EL2-004",                    // ambiguous: the options are ambiguous; the independent re-solve could not single out one key (phase B, b03)
   "SCO-S-HERED-002",            // ambiguous: two options are defensible keys (independent re-solve, phase B, b03)
   "CBE-S-CTRL-A-005",           // ambiguous: the figure shows an upright seedling and no light source, so light vs gravity is undecidable (figure pass, phase B)
-  "PYQ-M-RN-002",               // ambiguous: R ("prime factorisation of 5 has only two factors") supports (c) literally and (a) by intent; key and re-solve disagree (phase B, b06)
   // BANK-FIX-2 (2026-10-07, controller D24): exam-technique prompts, not board content (no fair MCQ; not a Class 10 question)
   "2026-TRIG-P1-A-041",         // not-board-content: "from which side should you start a proof" is proof-writing advice, not a question on the syllabus
   "2026-TRIG-P1-A-043",         // not-board-content: "what final phrase ends a proof" (Hence proved) is exam etiquette, not syllabus content
@@ -2157,6 +2130,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // wrong-content rows (D178/D179, found by B while splitting single-step rows; rewrite owner: A, from NCERT)
   "SCQ-S-ENV-037",                // wrong-content (D178): ozone 'height from the equator 10 to 16 km' is not the NCERT figure; 'Global wanning' is not the effect of depletion
   // FIND-3 (D179, D189): SCQ-S booklet rows judged WRONG (scientific error, empty or mismatched key, garbled stem); rewrite owner A, from NCERT
+  // PYQ-RESTORE-B PR-1 (23 Oct): 41 Maths PYQ rows (blank / garbled / mojibake / answer-mismatch / garbled-options / figure) re-read from the official CBSE papers and marking schemes and served again (ledger bankFix/pyqRestoreBLedger.ts; ids leave this block)
 ]);
 
 /**

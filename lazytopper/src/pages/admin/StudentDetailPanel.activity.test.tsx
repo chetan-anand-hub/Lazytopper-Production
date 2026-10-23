@@ -170,8 +170,9 @@ describe("GUIDE-1 v1.1 · the Byte-guide test group on the admin board", () => {
     const { guideVariantFor } = await import("../../components/guide/guideVariant");
     const uids = Array.from({ length: 40 }, (_, i) => `stu-guide-${i}`);
     for (const [arm, label] of [
-      ["guide", "Guide test group: Byte"],
-      ["control", "Guide test group: control"],
+      // GUIDE-ALL-1: the historical group, with the "A/B ended" note.
+      ["guide", "Guide test group: Byte (A/B ended 22 Oct 2026 — all students on guide)"],
+      ["control", "Guide test group: control (A/B ended 22 Oct 2026 — all students on guide)"],
     ] as const) {
       const uid = uids.find((u) => guideVariantFor(u) === arm)!;
       const d = detail();

@@ -9,11 +9,16 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Section A MCQ answers absent on 30/4/x MS (rendered as images by CBSE); kept where 30/5/x or 30(B) MS produced text.
 
 export const QUADRATIC_EQUATIONS_PYQ_2026: CanonicalQuestion[] = [
-  { id: "PYQ-M-2026-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-2026-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant and Nature of Roots", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     // Recovered from MS_X_041_Mathematics_30-4-1_2025-26, pp.8-9; the stored text stopped at the page break, dropping 'D = 0' and the conclusion.
-    questionText: "Verify that roots of the quadratic equation (p – q)x² + (q – r)x + (r – p) = 0 are equal when q + r = 2p.",
-    answer: "Discriminant D = (q − r)² − 4(p − q)(r − p) = (q + r − 2p)². When q + r = 2p, D = (2p − 2p)² = 0, so the roots of the given equation are equal.",
-    solutionSteps: ["[1 mark] Discriminant D = (q − r)² − 4(p − q)(r − p) = q² − 2qr + r² − 4pr + 4p² + 4qr − 4pq = q² + 2qr + r² − 4p(q + r) + 4p² = (q + r − 2p)².","[1 mark] Substituting q + r = 2p gives D = (2p − 2p)² = 0. ∴ The roots of the given equation are equal."],
+    questionText: "Verify that roots of the quadratic equation (p − q)x² + (q − r)x + (r − p) = 0 are equal when q + r = 2p.",
+    answer: "D = (q − r)² − 4(p − q)(r − p) = (q + r − 2p)² = 0 when q + r = 2p, so the roots are equal.",
+    solutionSteps: [
+      "[0.5 marks] Discriminant D = (q − r)² − 4(p − q)(r − p).",
+      "[0.5 marks] = q² − 2qr + r² − 4(pr − p² − qr + pq) = (q + r − 2p)².",
+      "[0.5 marks] Substituting q + r = 2p: D = (2p − 2p)² = 0.",
+      "[0.5 marks] D = 0, so the roots of the given equation are equal.",
+    ],
     finalAnswer: "D = 0, so the roots of the given equation are equal.",
     ncertRef: "PYQ 30/4/1 Q21", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },

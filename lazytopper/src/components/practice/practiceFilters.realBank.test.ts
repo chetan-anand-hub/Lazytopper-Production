@@ -16,9 +16,9 @@
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
 //   HOTS    the predicate is unchanged: bank-wide 4,105 at any difficulty; the old UI lock to
 //           Hard served 2,082 (the lock is removed in PracticePage / PracticeControls).
-// PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 25 repaired Maths PYQ rows are served
-//   again, so these bank-measured cells move: PYQ AP 11->12, SAV 17->18, Stats 15->20; Proof RN 44->47, Poly 7->8,
-//   Tri 68->69, Trig 89->90; HOTS any 4,105->4,126, Hard 2,082->2,091, 4-mark HOTS 943->945 (ledger: data/bankFix/pyqRestoreALedger.ts).
+// PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 14 Maths PYQ rows repaired from the
+//   row are served again: PYQ AP 11->12, SAV 18->19, Stats 19->22; Proof RN 47->49, Poly 7->8, Tri 79->80; HOTS any
+//   4,134->4,147, Hard 2,093->2,100, 4-mark HOTS 949->951 (ledger: data/bankFix/pyqRestoreALedger.ts).
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -91,9 +91,11 @@ describe("FILTER-FIX-1 · Others", () => {
   it("drops exactly the -EXEM2- exemplar rows (AP 386, CG 288, ARC 226, SAV 220, Stats 251)", () => {
     expect(n("arithmetic-progression", "all", "all", "others", "all")).toBe(386);
     expect(n("coordinate-geometry", "all", "all", "others", "all")).toBe(288);
-    expect(n("areas-related-to-circles", "all", "all", "others", "all")).toBe(226);
-    expect(n("surface-areas-and-volumes", "all", "all", "others", "all")).toBe(220);
-    expect(n("statistics", "all", "all", "others", "all")).toBe(251);
+    // PYQ-RESTORE-B PR-1 (2026-10-23): ARC 226 -> 225, SAV 220 -> 219, Stats 251 -> 250 - one Others-filed board row each
+    // (PYQ-M-2026-CIRC-002, PYQ-M-2024-SAV-006, PYQ-M-2026-STAT-002) re-read from the official paper and restored as PYQ.
+    expect(n("areas-related-to-circles", "all", "all", "others", "all")).toBe(225);
+    expect(n("surface-areas-and-volumes", "all", "all", "others", "all")).toBe(219);
+    expect(n("statistics", "all", "all", "others", "all")).toBe(250);
     for (const slug of ["arithmetic-progression", "coordinate-geometry", "areas-related-to-circles", "surface-areas-and-volumes", "statistics"]) {
       // An exemplar id stays in Others ONLY when BANK-FIX-1 overrode its source (unconfirmed row).
       for (const q of pools.get(slug)!) {
@@ -107,10 +109,12 @@ describe("FILTER-FIX-1 · Others", () => {
   it("PYQ and NCERT are unchanged (pinned for the five moved chapters)", () => {
     const pin: Record<string, [number, number]> = {
       "arithmetic-progression": [12, 69],
-      "coordinate-geometry": [21, 61],
-      "areas-related-to-circles": [18, 57],
-      "surface-areas-and-volumes": [18, 47],
-      statistics: [20, 51],
+      // PYQ-RESTORE-B PR-1 (2026-10-23): PYQ rows restored from the official papers - CG 21 -> 25, ARC 18 -> 21, SAV 17 -> 18,
+      // Stats 15 -> 19 (pyqRestoreBLedger.ts). NCERT unchanged.
+      "coordinate-geometry": [25, 61],
+      "areas-related-to-circles": [21, 57],
+      "surface-areas-and-volumes": [19, 47],
+      statistics: [22, 51],
     };
     for (const [slug, [pyq, ncert]] of Object.entries(pin)) {
       expect(n(slug, "all", "all", "pyq", "all"), `${slug} pyq`).toBe(pyq);
@@ -121,15 +125,17 @@ describe("FILTER-FIX-1 · Others", () => {
 
 describe("FILTER-FIX-1 · Proof / Derivation", () => {
   it("Maths chapter counts after removing the Long+Analysing rule and matching the phrase anywhere", () => {
+    // PYQ-RESTORE-B PR-1 (2026-10-23): real-numbers 44 -> 47, triangles 68 -> 79, trigonometry 89 -> 92 (restored proof
+    // PYQs and the new 2025 Triangles rows).
     const want: Record<string, number> = {
-      "real-numbers": 47,
+      "real-numbers": 49,
       polynomials: 8,
       "pair-of-linear-equations": 2,
       "quadratic-equations": 17,
       "arithmetic-progression": 24,
-      triangles: 69,
+      triangles: 80,
       "coordinate-geometry": 29,
-      trigonometry: 90,
+      trigonometry: 92,
       circles: 98,
       "areas-related-to-circles": 0,
       "surface-areas-and-volumes": 0,
@@ -229,12 +235,13 @@ describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
       any += n(slug, "all", "hots", "all", "all");
       hard += n(slug, "all", "hots", "all", "Hard");
     }
-    expect(hard).toBe(2091);
-    expect(any).toBe(4126);
+    // PYQ-RESTORE-B PR-1 (2026-10-23): +11 Hard / +29 any (restored PYQs and the new 2025 Triangles rows).
+    expect(hard).toBe(2100);
+    expect(any).toBe(4147);
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
-    expect(sum("1", "hots", "all")).toBe(1097);
-    expect(sum("4", "hots", "all")).toBe(945);
+    expect(sum("1", "hots", "all")).toBe(1098);
+    expect(sum("4", "hots", "all")).toBe(951);
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);
     expect(sum("4", "proof", "all")).toBeGreaterThan(0);

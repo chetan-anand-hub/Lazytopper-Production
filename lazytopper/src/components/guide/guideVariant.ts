@@ -40,7 +40,22 @@
  *    live graded scorecard (no once-per-device marker), each with an "Admin preview" pill.
  * An expired or malformed value is ignored and removed.
  *
- * PRECEDENCE in `resolveGuideVariant`: test seam > admin preview > dev override > uid hash.
+ * PRECEDENCE in `resolveGuideVariant`: test seam > admin preview > dev override > "guide".
+ *
+ * ── GUIDE-ALL-1 — THE A/B HAS ENDED (owner ruling 22 Oct 2026, 23:25 IST) ─────────────────
+ * Byte and Ziggy are part of the product for EVERY student. `resolveGuideVariant` no longer
+ * consults the uid hash: after the test seam, the admin preview and the dev override, every
+ * signed-in account resolves to "guide" (the signed-out device arm does the same, see
+ * public/publicPeekModel.ts `ensurePublicArm`). `guideVariantFor` stays exported, unchanged, for
+ * HISTORY: the admin board still uses it to name the group a student was in DURING the test
+ * (activityDetailModel.ts). The control code paths are kept: they are reached through the admin
+ * preview ("Show control") and the per-device "Hide mascots" switch (mascotsMute.ts).
+ *
+ * Analytics: the arm is NO LONGER REPORTED. `noteGuideVariantAssigned` sends neither the GA4
+ * `guide_variant` property nor the `guide_variant_assigned` activity (and the public peek sends no
+ * `guide_public_arm`), because there is no split left to measure; every `guide_variant_assigned`
+ * row already stored is therefore pre-ruling and still names its test group correctly. The
+ * guide_* events (guide_shown, guide_option, ziggy_reaction, the moments, …) keep firing.
  */
 import {
   trackGuideVariantAssigned,
@@ -175,16 +190,38 @@ export function setGuidePreview(arm: GuideVariant | null, now: number = Date.now
   return p;
 }
 
+/** GUIDE-ALL-1 (owner ruling 22 Oct 2026): the arm every account gets once nothing forces one. */
+export const GUIDE_FOR_EVERY_STUDENT: GuideVariant = "guide";
+
 /**
- * The arm for this signed-in account, or null (signed out, or the split is off).
- * Precedence: test seam > admin preview > dev override > uid hash.
+ * The arm for this signed-in account, or null (signed out, or the guide is off — Vitest only).
+ * Precedence: test seam > admin preview > dev override > "guide" (GUIDE-ALL-1: the A/B ended
+ * 22 Oct 2026; the uid hash `guideVariantFor` is no longer consulted).
  */
 export function resolveGuideVariant(uid: string | null | undefined): GuideVariant | null {
   if (!uid || !guideAbActive()) return null;
   if (variantOverrideForTests) return variantOverrideForTests;
   const preview = readGuidePreview();
   if (preview) return preview.arm;
-  return devOverride() ?? guideVariantFor(uid);
+  return devOverride() ?? GUIDE_FOR_EVERY_STUDENT;
+}
+
+/* ── GUIDE-ALL-1 — the arm report is off (there is no split left to measure) ─────────────── */
+
+let armReportsForTests = false;
+
+/**
+ * False in production since GUIDE-ALL-1 (22 Oct 2026): neither the account arm
+ * (`noteGuideVariantAssigned`) nor the signed-out device arm (PublicPeek / moments) is reported.
+ * Only a test turns it back on, to keep the reporting mechanics themselves under test.
+ */
+export function guideArmReportsOn(): boolean {
+  return armReportsForTests;
+}
+
+/** Test seam: switch the (retired) arm report back on for a suite. */
+export function __setGuideArmReportsForTests(on: boolean): void {
+  armReportsForTests = on;
 }
 
 /* ── the guide's own analytics (suppressed under an admin preview) ───────────────────────── */
@@ -217,6 +254,9 @@ export const GUIDE_VARIANT_SENT_PREFIX = "lazytopper.guideVariant.";
 const sentThisLoad = new Set<string>();
 
 export function noteGuideVariantAssigned(uid: string, variant: GuideVariant): void {
+  // GUIDE-ALL-1: the A/B ended 22 Oct 2026 — no arm is reported (no GA4 `guide_variant`, no
+  // `guide_variant_assigned`), and no marker is written.
+  if (!guideArmReportsOn()) return;
   // PREVIEW-1: a previewed arm is not this account's arm — report nothing and write no marker,
   // so the account's REAL arm is still reported once the preview ends.
   if (guidePreviewActive()) return;

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "triangles" (Maths): 410 served rows from 23 source arrays, 119 withheld.
+// Chapter "triangles" (Maths): 429 served rows from 24 source arrays, 117 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -29,6 +29,7 @@ import { TRIANGLES_PYQ_2026 } from "../questionBanks/class10/maths/triangles.pyq
 import { TRIANGLES_PYQ_2024 } from "../questionBanks/class10/maths/triangles.pyq2024";
 import { TRIANGLES_LT_GENERATED } from "../questionBanks/class10/maths/triangles.ltgen";
 import { TRIANGLES_CBQ_LT_GENERATED } from "../questionBanks/class10/maths/triangles.cbq.ltgen";
+import { TRIANGLES_PYQ_2025 } from "../questionBanks/class10/maths/triangles.pyq2025";
 
 export default defineChapter("triangles", [
   [0, TRIANGLES_PACK1_QUESTIONS, true],
@@ -54,6 +55,7 @@ export default defineChapter("triangles", [
   [339, TRIANGLES_PYQ_2024, false],
   [417, TRIANGLES_LT_GENERATED, false],
   [437, TRIANGLES_CBQ_LT_GENERATED, false],
+  [460, TRIANGLES_PYQ_2025, false],
 ], [
   "2026-TRI-P1-A-004",
   "2026-TRI-P1-A-009",
@@ -172,6 +174,4 @@ export default defineChapter("triangles", [
   "PB-M-2-TRI-A-002",
   "APQ-M-TRI-005",
   "APQ-M-TRI-008",
-  "PYQ-M-TRI-001",
-  "PYQ-M-2026-TRI-005",
 ]);
