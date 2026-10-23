@@ -100,17 +100,11 @@ export function buildChapters(
       .slice()
       .sort((a, b) => Date.parse(b.timestamp || "") - Date.parse(a.timestamp || ""));
 
-    let conceptual = 0;
-    let calculation = 0;
-    for (const entry of entries) {
-      for (const step of entry.stepDetails ?? []) {
-        const type = String(step?.mistakeType ?? "").trim().toLowerCase();
-        const marks = Number(step?.marksDeducted);
-        if (!Number.isFinite(marks) || marks <= 0) continue;
-        if (type === "conceptual") conceptual += marks;
-        else if (type === "calculation") calculation += marks;
-      }
-    }
+    // MI-CARELESS-1 — the chapter's marks per type by `mistakeLossByType` (below): a v2 entry by
+    // its OWN marks, a count-only legacy entry by its step deductions. The per-step deductions
+    // alone UNDER-state a v2 loss (departure-zeroed work, a consequential slip's inherited marks
+    // and objective steps carry 0 or less on the step), which left a concept-gap chapter untagged.
+    const { conceptual, calculation } = mistakeLossByType(entries);
     // A chapter is tagged ONLY with a knowledge-gap type — owner ruling: that is
     // `conceptual` alone. Calculation is careless ("you already know this"), so a
     // calculation-dominant chapter carries no tag at all: naming a chapter after a slip
