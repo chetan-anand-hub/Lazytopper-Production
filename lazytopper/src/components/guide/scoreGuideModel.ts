@@ -83,7 +83,8 @@ export const SCORE_GUIDE_LINES = {
       { pose: "determined", text: "{got} out of {total}. Hard papers teach the most. We'll fix it step by step." },
     ],
     improved: [
-      // {prev}: "your last mock" on Full Mock, "your earlier attempt" on Chapter Test.
+      // {prev}: "your last mock" on Full Mock, "your last test on this chapter" on Chapter Test (an
+      // earlier test of the same chapter, which may be a different paper).
       { pose: "excited", text: "Up {delta} on {prev}! Keep it going." },
       { pose: "proud", text: "{delta} more than {prev}. That's real progress!" },
     ],
@@ -140,7 +141,7 @@ export const SCORE_GUIDE_LINES = {
       { pose: "explain", text: "A clearer photo for {pending} will finish your score. Flat page, good light." },
     ],
     allPending: [
-      { pose: "explain", text: "Read the note below, then send the answers again. I'll mark them step by step." },
+      { pose: "explain", text: "Read the note below, then send the answers again. I'll check every written step." },
       { pose: "think", text: "Check the note below, fix that one thing, and try again. I'll be ready." },
     ],
     awaitingSheet: [
@@ -432,7 +433,8 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
   const z: GuideLine = comfort ?? (delta ? pick(L.ziggy.improved, hz) : pick(L.ziggy[band], hz));
   if (delta) {
     vals.delta = delta.text;
-    vals.prev = v.surface === "full-mock" ? "your last mock" : "your earlier attempt";
+    // A delta is read only on Full Mock and Chapter Test (printedDelta).
+    vals.prev = v.surface === "full-mock" ? "your last mock" : "your last test on this chapter";
   }
   // The scene: COMPANION-1's OWN rule (companionScoreMoment) over whole percentages — the previous
   // result is the card's printed ▲ (both hosts print one only for an equal paper total, so the

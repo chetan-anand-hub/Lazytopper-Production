@@ -108,7 +108,7 @@ export const HEYE_CBE: CanonicalQuestion[] = [
     "solutionSteps": [
       "[1 mark] Diagram: labelled white light ray incident on a raindrop, refracting and dispersing as it enters the drop.",
       "[1 mark] Internal reflection of the ray at the back of the raindrop.",
-      "[1 mark] Dispersion and refraction as the light leaves the drop into the air, giving the correct sequence of colours (red at top, violet at bottom). [All correct → award full 3 marks; otherwise any two from the listed points.]"
+      "[1 mark] Dispersion and refraction as the light leaves the drop into the air, giving the correct sequence of colours (red at top, violet at bottom)."
     ],
     "finalAnswer": "Sunlight is refracted and dispersed entering a raindrop, internally reflected at the back, then dispersed again on exit — producing a rainbow with red at the top and violet at the bottom.",
     "isCompetencyBased": true,

@@ -1,115 +1,77 @@
 // @vitest-environment jsdom
 /**
- * MI-COPY (owner ask, 16 Oct 2026) — Home's Mistake Intelligence card explains its empty tiles.
- *
- * A student whose lost marks all come from tap-the-answer MCQs saw four type tiles all "—" and
- * asked "are these by design? when do they get populated?". With lost marks and NO typed marks
- * the card now says, once, why the tiles are empty (an MCQ pick records the option, not a
- * reason) and the existing "Check a written answer" link is the action; the tiles get a muted
- * dashed style and a tooltip with the same meaning. Typed marks and the no-data state render as
- * before. Display only — no number here is derived differently.
+ * MI-COPY (owner ask, 16 Oct 2026) — Home's Mistake Intelligence card explains marks with no type.
+ * Re-formed by MI-CONSISTENCY-1 (owner ask, 23 Oct 2026): Home now renders the ONE MI card
+ * (components/mi/MiCard). The owner's question ("are these tiles empty by design?") is answered by
+ * the card's rows themselves: a wrong tap is its OWN tile ("Wrong MCQ taps", with the nudge to add
+ * working), the honest remainder is "No reason recorded", and "Biggest chance to gain" says it shows
+ * once a checked written answer tells us why — with the "Check a written answer" action. Typed marks
+ * and the no-data state render as designed. Display only — no number here is derived differently.
  */
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { describe, it, expect, afterEach } from "vitest";
+import { render, screen, cleanup, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-
-vi.mock("../../context/AuthContext", () => ({
-  useAuth: () => ({ user: null, loading: false, mistakeLogsHydrated: 0 }),
-}));
-
-import { MistakeIntelligenceCard, HOME_MI_UNTYPED_NOTE, HOME_MI_UNTYPED_TILE_TITLE } from "./DesktopHome";
-import { UNTYPED_MARKS_WHY } from "../../lib/mistakeDisplay";
-import type { MeHomeSummary } from "../../services/meHomeSummary";
-
-const base: MeHomeSummary = {
-  paper: "Maths",
-  split: null,
-  lost: 7,
-  typeMarks: null,
-  hasTyped: false,
-  topChapter: null,
-  concepts: [],
-};
-
-const renderCard = (summary: MeHomeSummary | null) =>
-  render(
-    <MemoryRouter>
-      <MistakeIntelligenceCard summary={summary} />
-    </MemoryRouter>,
-  );
+import { MiCard, MI_CARD_COPY } from "../../components/mi/MiCard";
+import { MI_ROW_LABEL, type MiCardSummary } from "../../lib/mi/miCardSummary";
+import { MISTAKE_TYPE_LABEL, STORED_MISTAKE_TYPES } from "../../lib/mistakeDisplay";
 
 afterEach(cleanup);
 
-describe("MI-COPY — Home MI card, lost marks with no mistake type (MCQ-only)", () => {
-  it("★ one explanatory line under the tiles, carrying the shared tap-the-answer sentence", () => {
-    renderCard(base);
-    const note = screen.getByTestId("home-mi-untyped-note");
-    expect(note.textContent).toContain(HOME_MI_UNTYPED_NOTE);
-    expect(HOME_MI_UNTYPED_NOTE).toContain(UNTYPED_MARKS_WHY);
-    // FOLLOWUPS-4 C [FU-HOME-MI-NOTE-NO-LOSS] — true also for a student who HAS checked written
-    // answers that lost no marks: the tiles fill in when a checked written answer LOSES marks.
-    // FOLLOWUPS-5 M — and only when we can NAME the mistake behind those marks (marks lost only
-    // to missing steps carry no type), so "loses marks" alone still overclaimed.
-    expect(HOME_MI_UNTYPED_NOTE).toBe(
-      `These fill in when we can name the mistake behind marks lost in a checked written answer. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`,
-    );
-    expect(note.textContent).not.toMatch(/when you check a written answer/);
-    expect(note.textContent).not.toMatch(/when a checked written answer loses marks/);
-    expect(screen.getAllByTestId("home-mi-untyped-note")).toHaveLength(1);
+function summary(over: Partial<Record<string, number>>, extra: Partial<MiCardSummary> = {}): MiCardSummary {
+  const rows = [
+    ...STORED_MISTAKE_TYPES.map((t) => ({ key: t, label: MISTAKE_TYPE_LABEL[t], marks: over[t] ?? 0 })),
+    { key: "wrongTap" as const, label: MI_ROW_LABEL.wrongTap, marks: over.wrongTap ?? 0 },
+    { key: "blank" as const, label: MI_ROW_LABEL.blank, marks: over.blank ?? 0 },
+    { key: "unrecorded" as const, label: MI_ROW_LABEL.unrecorded, marks: over.unrecorded ?? 0 },
+  ];
+  const lost = rows.reduce((s, r) => s + r.marks, 0);
+  const typed = STORED_MISTAKE_TYPES.reduce((s, t) => s + (over[t] ?? 0), 0);
+  return { scope: "maths", state: "ready", lost, rows, typed, chance: null, withheld: [], splitWithheld: false, conceptGaps: 0, ...extra };
+}
+
+const renderCard = (s: MiCardSummary | null, status: "ok" | "idle" = "ok") =>
+  render(
+    <MemoryRouter>
+      <MiCard variant="light" status={status} summary={s} scope="maths" onScope={() => {}} meHref="/me" checkHref="/check-improve?source=home&returnTo=%2F" testId="home-mi-card" />
+    </MemoryRouter>,
+  );
+
+describe("MI-COPY — lost marks with no mistake type (MCQ-only)", () => {
+  it("★ the wrong taps are their own tile, with the nudge to add working (linking to Check & Improve)", () => {
+    renderCard(summary({ wrongTap: 7 }));
+    const tap = screen.getAllByTestId("mi-card-tile").find((t) => t.getAttribute("data-row") === "wrongTap")!;
+    expect(tap.textContent).toBe(`7${MI_ROW_LABEL.wrongTap}`);
+    const nudge = screen.getByTestId("mi-card-tap-nudge");
+    expect(nudge.textContent).toBe(`${MI_ROW_LABEL.wrongTap}: ${MI_CARD_COPY.tapNudge}`);
+    expect(within(nudge).getByRole("link").getAttribute("href")).toBe("/check-improve?source=home&returnTo=%2F");
   });
 
-  it("★ the existing 'Check a written answer' link is the action, inside that line", () => {
-    renderCard(base);
-    const line = screen.getByTestId("home-mi-why");
-    const link = screen.getByTestId("home-mi-check");
-    expect(line.contains(screen.getByTestId("home-mi-untyped-note"))).toBe(true);
-    expect(line.contains(link)).toBe(true);
-    expect(link.getAttribute("href")).toMatch(/^\/check-improve/);
-    expect(link.textContent).toBe("Check a written answer to see why you lose them");
+  it("★ 'Biggest chance to gain' says why it is empty, and 'Check a written answer' is the action", () => {
+    renderCard(summary({ wrongTap: 4, unrecorded: 3 }));
+    const chance = screen.getByTestId("mi-card-chance");
+    expect(chance.getAttribute("data-empty")).toBe("true");
+    expect(chance.textContent).toContain(MI_CARD_COPY.chanceEmpty);
+    expect(within(chance).getByTestId("mi-card-check").textContent).toBe("Check a written answer →");
   });
 
-  it("★ each tile is marked empty (muted, dashed) with a tooltip saying why", () => {
-    renderCard(base);
-    const tiles = screen.getAllByTestId("home-mi-bucket");
-    expect(tiles).toHaveLength(4);
-    for (const t of tiles) {
-      expect(t.getAttribute("data-empty")).toBe("true");
-      expect(t.getAttribute("title")).toBe(HOME_MI_UNTYPED_TILE_TITLE);
-      expect(t.style.borderStyle).toBe("dashed");
-      expect(t.querySelector(".lt-n")!.textContent).toBe("—");
+  it("the four type tiles show 0 — never a guessed type", () => {
+    renderCard(summary({ wrongTap: 4, unrecorded: 3 }));
+    for (const t of screen.getAllByTestId("mi-card-tile").filter((x) => STORED_MISTAKE_TYPES.includes(x.getAttribute("data-row") as never))) {
+      expect(t.getAttribute("data-zero")).toBe("true");
     }
-    expect(HOME_MI_UNTYPED_TILE_TITLE).toBe(`Fills in when we can name a mistake in a checked written answer. ${UNTYPED_MARKS_WHY}`);
   });
 });
 
-describe("MI-COPY — CONTROLS: typed marks and the no-data state are unchanged", () => {
-  it("typed marks: tiles show values, no note, no empty marking, no tooltip", () => {
-    renderCard({
-      ...base,
-      hasTyped: true,
-      typeMarks: { conceptual: 4, calculation: 2, silly: 1, presentation: 0 },
-    });
-    expect(screen.queryByTestId("home-mi-untyped-note")).toBeNull();
-    expect(screen.queryByTestId("home-mi-check")).toBeNull();
-    for (const t of screen.getAllByTestId("home-mi-bucket")) {
-      expect(t.getAttribute("data-empty")).toBeNull();
-      expect(t.getAttribute("title")).toBeNull();
-    }
-    const concept = screen.getAllByTestId("home-mi-bucket").find((t) => t.getAttribute("data-type") === "conceptual")!;
-    expect(concept.querySelector(".lt-n")!.textContent).toBe("4");
+describe("MI-COPY — CONTROLS: typed marks and the no-data state", () => {
+  it("typed marks: the chance is named, no empty-chance line, no tap nudge when there are no taps", () => {
+    renderCard(summary({ silly: 2 }, { chance: { type: "silly", group: "careless", label: MISTAKE_TYPE_LABEL.silly, marks: 2, amount: "2 marks", action: { kind: "tip", text: "x" } } }));
+    expect(screen.getByTestId("mi-card-chance-what").textContent).toBe(`${MISTAKE_TYPE_LABEL.silly} — 2 marks`);
+    expect(screen.queryByTestId("mi-card-tap-nudge")).toBeNull();
   });
 
-  it("no lost marks (no data): no note, tiles not marked empty — the first-set prompt as before", () => {
-    renderCard(null);
-    expect(screen.queryByTestId("home-mi-untyped-note")).toBeNull();
-    for (const t of screen.getAllByTestId("home-mi-bucket")) {
-      expect(t.getAttribute("data-empty")).toBeNull();
-    }
-    expect(screen.getByText("Practise a set to see your mistakes.")).toBeTruthy();
-  });
-
-  it("typed but split withheld (typeMarks null, hasTyped true): no note", () => {
-    renderCard({ ...base, hasTyped: true, typeMarks: null });
-    expect(screen.queryByTestId("home-mi-untyped-note")).toBeNull();
+  it("no real account to read: the honest empty state, no tiles", () => {
+    renderCard(null, "idle");
+    expect(screen.getByText(MI_CARD_COPY.emptyTitle)).toBeInTheDocument();
+    expect(screen.queryAllByTestId("mi-card-tile")).toHaveLength(0);
   });
 });

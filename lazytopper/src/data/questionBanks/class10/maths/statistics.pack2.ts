@@ -1103,7 +1103,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) Rs 145.2 (ii) 120-140 (iii) Rs 125 (iv) Rs 138.57",
     "solutionSteps": ["(i) Σfx = 12(110)+14(130)+8(150)+6(170)+10(190) = 1320+1820+1200+1020+1900 = 7260. Mean = 7260/50 = 145.2", "(ii) Modal class: 120-140 (highest freq = 14)", "(iii) f₀=12,f₁=14,f₂=8; Mode = 120+(14-12)/(28-12-8)×20 = 120+5 = 125", "(iv) n/2=25, CF: 12,26. Median class: 120-140. Median = 120+(25-12)/14×20 = 120+18.57 = 138.57"],
-    "finalAnswer": "(ii) 120-140 (iii) Rs 125 (iv) Rs 138.57",
+    "finalAnswer": "(i) Rs 145.2 (ii) 120-140 (iii) Rs 125 (iv) Rs 138.57",
     "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "ncertRef": "Ex 14.1, Ex 14.2, Ex 14.3"

@@ -36,7 +36,8 @@ export const RULE5_REVIEWED_NOT_NEEDED: Readonly<Record<string, string>> = {
   "CBE-M-STAT-B-001": "2026-10-10 B/D47c: the frequency table is printed in the stem; blind re-solve agreed (160-165)",
   "CBE-M-STAT-C-001": "2026-10-10 B/D47c: the frequency table is printed in the stem; blind re-solve agreed (160.83 cm)",
   "CBE-M-STAT-C-004": "2026-10-10 B/D47c: the frequency table is printed in the stem; blind re-solve agreed (37.5 years)",
-  "PYQ-M-CIRC-012": "2026-10-10 B/D47c: \"figure\" only in the marking-scheme answer (\"Correct figure 1 Mark\"); the proof needs no printed figure; blind re-solve agreed",
+  // PYQ-M-CIRC-012 left this list (BANK-RESIDUE-1, 2026-10-23): its only "figure" was the marking-scheme note "Correct figure 1 Mark",
+  // which that lane deleted from the row, so Rule 5 no longer flags it and the entry would be dead weight.
   "PYQ-S-2024-LIGHT-009": "2026-10-10 B/D47c: object and mirror data are printed; part (b) asks the student to draw the ray; blind re-solve agreed",
   "LTG-S-MAG-209": "2026-10-10 B/D47c: compass and magnet set-up described in words; blind re-solve agreed",
   "LTG-M-ARC-272": "2026-10-10 B/D47c: radius, arc and angle data printed; blind re-solve agreed (300 deg, 110 m)",

@@ -1138,7 +1138,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) 2x-3t=-12 and x-t=6 (ii) 30 km/h (iii) 24 h (iv) 720 km",
     "solutionSteps": ["Let speed = x km/h, time = t h, distance = xt", "xt = (x+6)(t-4) → 4x-6t = -24 → 2x-3t = -12 ...(1)", "xt = (x-6)(t+6) → 6x-6t = 36 → x-t = 6 ...(2)", "From (2): x = t+6, substitute: 2(t+6)-3t = -12 → t = 24", "x = 30, distance = 720 km"],
-    "finalAnswer": "(ii) 30 km/h (iii) 24 h (iv) 720 km",
+    "finalAnswer": "(i) 2x − 3t = −12 and x − t = 6 (ii) 30 km/h (iii) 24 h (iv) 720 km",
     "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.5"

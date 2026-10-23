@@ -278,7 +278,7 @@ export const PAIR_LINEAR_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "(ii) From (1): y = 50 − x. Sub in (2): 5x + 150 − 3x = 180 → 2x = 30 → x = 15, y = 35 [1]",
       "(iii) Tuesday: pens = 15 + 5 = 20, pencils = 50 − 20 = 30 [1]",
       "(iv) 5(20) + 3(30) = 100 + 90 = ₹190 = 180 + 10 ✓ [1]",
-    ], finalAnswer: "(ii) x=15, y=35 (iii) 20 pens, 30 pencils (iv) ₹190" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
+    ], finalAnswer: "(i) x + y = 50, 5x + 3y = 180 (ii) x = 15, y = 35 (iii) 20 pens, 30 pencils (iv) ₹190" , visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true },
   { id: "PLE-AR05", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Graphical Solutions/Nature", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The pair of equations 2x + 3y = 5 and 4x + 6y = 10 has infinitely many solutions.\nReason (R): The ratios a₁/a₂ = b₁/b₂ = c₁/c₂ indicate coincident lines.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
     solutionSteps: [
       "For 2x + 3y = 5 and 4x + 6y = 10, calculate the ratios of coefficients.",

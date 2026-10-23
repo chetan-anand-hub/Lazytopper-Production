@@ -22,7 +22,7 @@ export const TRIGONOMETRY_PYQ: CanonicalQuestion[] = [
     answer: "(A) 67/12 OR (B) A = 30°, B = 30°",
     solutionSteps: [
       "[1.5 marks] (A) Substituting values: [5(1/2)² + 4(2/√3)² − (1)²]/[(1/2)² + (√3/2)²] = (5/4 + 16/3 − 1)/1.",
-      "[0.5 marks] = (15 + 64 − 12)/12 = 67/12. [OR (B): sin (A − B) = 0 ⟹ A − B = 0° (½ mark); cos (A + B) = 1/2 ⟹ A + B = 60° (½ mark); so A = 30°, B = 30° (1 mark).]",
+      "[0.5 marks] = (15 + 64 − 12)/12 = 67/12. [OR (B): sin (A − B) = 0 ⟹ A − B = 0°; cos (A + B) = 1/2 ⟹ A + B = 60°; so A = 30°, B = 30°.]",
     ],
     finalAnswer: "(A) 67/12 [OR (B) A = 30°, B = 30°]",
     ncertRef: "PYQ 30/4/1 Q25", isCompetencyBased: true,
@@ -32,7 +32,7 @@ export const TRIGONOMETRY_PYQ: CanonicalQuestion[] = [
     answer: "(A) 4 OR (B) 0",
     solutionSteps: [
       "[1 mark] (A) = 5/(√3)² + 1/(√3/2)² − (1)² + 2(1)² = 5/3 + 4/3 − 1 + 2.",
-      "[1 mark] = 9/3 + 1 = 4. [OR (B): sin θ = cos θ ⟹ tan θ = 1 ⟹ cot θ = 1 (1 mark); tan² θ + cot² θ − 2 = 1 + 1 − 2 = 0 (1 mark).]",
+      "[1 mark] = 9/3 + 1 = 4. [OR (B): sin θ = cos θ ⟹ tan θ = 1 ⟹ cot θ = 1; tan² θ + cot² θ − 2 = 1 + 1 − 2 = 0.]",
     ],
     finalAnswer: "(A) 4 [OR (B) 0]",
     ncertRef: "PYQ 30/4/2 Q21", isCompetencyBased: true,
@@ -51,7 +51,7 @@ export const TRIGONOMETRY_PYQ: CanonicalQuestion[] = [
     solutionSteps: [
       "[0.5 marks] (a) m² + n² = (a cos θ + b sin θ)² + (a sin θ − b cos θ)².",
       "[1 mark] = a² cos² θ + b² sin² θ + 2ab sin θ cos θ + a² sin² θ + b² cos² θ − 2ab sin θ cos θ = a²(cos² θ + sin² θ) + b²(sin² θ + cos² θ).",
-      "[0.5 marks] = a² + b². Hence a² + b² = m² + n². [OR (b): LHS = [(sec A − 1) + (sec A + 1)]/√(sec² A − 1) (1 mark) = 2 sec A/tan A (½ mark) = 2 × (1/cos A) × (cos A/sin A) = 2 cosec A = RHS (½ mark).]",
+      "[0.5 marks] = a² + b². Hence a² + b² = m² + n². [OR (b): LHS = [(sec A − 1) + (sec A + 1)]/√(sec² A − 1) = 2 sec A/tan A = 2 × (1/cos A) × (cos A/sin A) = 2 cosec A = RHS.]",
     ],
     finalAnswer: "a² + b² = m² + n² [OR (b) LHS = 2 cosec A]",
     ncertRef: "PYQ 30/5/3 Q22", isCompetencyBased: true,
@@ -62,7 +62,7 @@ export const TRIGONOMETRY_PYQ: CanonicalQuestion[] = [
     solutionSteps: [
       "[1 mark] (A) LHS = (sin A − 2 sin³ A)/(2 cos³ A − cos A) = sin A (1 − 2 sin² A)/[cos A (2 cos² A − 1)].",
       "[1 mark] = sin A [1 − 2(1 − cos² A)]/[cos A (2 cos² A − 1)] = sin A [2 cos² A − 1]/[cos A (2 cos² A − 1)].",
-      "[1 mark] = sin A/cos A = tan A = RHS. [OR (B): LHS = (1/cos A)(1 − sin A)(1/cos A + sin A/cos A) (1 mark) = (1/cos A)(1 − sin A)(1 + sin A)/cos A (1 mark) = (1 − sin² A)/cos² A = cos² A/cos² A = 1 = RHS (1 mark).]",
+      "[1 mark] = sin A/cos A = tan A = RHS. [OR (B): LHS = (1/cos A)(1 − sin A)(1/cos A + sin A/cos A) = (1/cos A)(1 − sin A)(1 + sin A)/cos A = (1 − sin² A)/cos² A = cos² A/cos² A = 1 = RHS.]",
     ],
     finalAnswer: "(A) LHS = tan A [OR (B) LHS = 1]",
     ncertRef: "PYQ 30/4/1 Q29", isCompetencyBased: true,

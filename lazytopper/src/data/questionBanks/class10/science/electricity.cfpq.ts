@@ -207,9 +207,9 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Meter 2, because it is connected in series with the unknown resistor through which the current needs to be measured. (b) A circuit diagram with cell, rheostat, unknown resistor, ammeter in series and voltmeter across the resistor. (c) (i) a straight line through the origin; (ii) a curved line with an increasing slope.",
     solutionSteps: [
-      "[1 mark] (a) Meter 2 (0.5 mark); because it is connected in series with the unknown resistor through which the current needs to be measured (0.5 mark).",
-      "[2 marks] (b) Correct connections for the cell, the unknown resistor and the rheostat in the diagram (0.5 mark); correct connections for the two meters in the diagram (0.5 mark); use of correct symbols for all components (1 mark).",
-      "[2 marks] (c)(i) straight line passing through origin (1 mark); (ii) curved line with an increasing slope (1 mark).",
+      "[1 mark] (a) Meter 2; because it is connected in series with the unknown resistor through which the current needs to be measured.",
+      "[2 marks] (b) Correct connections for the cell, the unknown resistor and the rheostat in the diagram; correct connections for the two meters in the diagram; use of correct symbols for all components.",
+      "[2 marks] (c)(i) straight line passing through origin; (ii) curved line with an increasing slope.",
     ],
     finalAnswer:
       "(a) Meter 2 - it is in series with the resistor; (b) cell, rheostat, resistor and ammeter in series with the voltmeter in parallel across the resistor; (c) (i) straight line through the origin, (ii) upward-curving line.",
@@ -236,7 +236,7 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
       "(a) The voltage reading on voltmeter 1 will be the same as the reading on voltmeter 2. (b) bulb 3 and bulb 4.",
     solutionSteps: [
       "[1 mark] (a) The voltage reading on voltmeter 1 will be the same as the reading on voltmeter 2.",
-      "[1 mark] (b) 0.5 marks each for: bulb 3; bulb 4. (No marks to be awarded if Bulb 1 and/or 2 is included in the answer.)",
+      "[1 mark] (b) bulb 3; bulb 4.",
     ],
     finalAnswer: "(a) the two readings are equal; (b) bulbs 3 and 4.",
     isCompetencyBased: true,
@@ -339,8 +339,8 @@ export const ELEC_CFPQ: CanonicalQuestion[] = [
       "(a) The resistors are connected in parallel. (b) R_E = V/I = 6/0.3 = 20 Ω. (c) Total current = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A",
     solutionSteps: [
       "[1 mark] (a) The resistors are connected in parallel.",
-      "[2 marks] (b) Each branch has the full 6 V across it. I = V/R ⇒ R_E = V/I = 6/0.3 = 20 Ω. [1.5 marks for the steps, 0.5 mark for final answer with unit]",
-      "[2 marks] (c) Total current I = V/R_E + V/R_F + V/R_G = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A. [1.5 marks for the steps, 0.5 mark for final answer with unit]"
+      "[2 marks] (b) Each branch has the full 6 V across it. I = V/R ⇒ R_E = V/I = 6/0.3 = 20 Ω.",
+      "[2 marks] (c) Total current I = V/R_E + V/R_F + V/R_G = 6/20 + 6/10 + 6/5 = 0.3 + 0.6 + 1.2 = 2.1 A."
     ],
     finalAnswer: "(a) parallel; (b) 20 Ω; (c) 2.1 A",
     isCompetencyBased: true,

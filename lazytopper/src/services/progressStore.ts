@@ -657,6 +657,12 @@ export interface WindowedProgress {
   /** ME-CONCEPT-1 — won-back / mistake-resolution evidence for the read model (absent on an
    *  empty read). Not a figure; never rendered. */
   conceptEvidence?: ConceptEvidence;
+  /** MI-CONSISTENCY-1 — the wrong objective picks behind `marksWrongObjective`, one per graded
+   *  point, with the question id it was recorded under ("" when the attempt carried none), per
+   *  paper. Lets the MI card count a pick as a "wrong MCQ tap" only when no TYPED mistake entry
+   *  holds the same question (a re-tap after a checked answer). Absent on an empty read and
+   *  when there are none. Not a figure; never rendered. */
+  wrongObjectiveEvidence?: Partial<Record<"maths" | "science", WrongObjectivePick[]>>;
   /** CBSE A–E marks before→now. */
   sections: RungTrend[];
   /** Four-type mistake COMPOSITION share (%) before→now (idempotent, fully-graded). */
@@ -699,6 +705,12 @@ export function emptyWindowed(window: ReadWindow): WindowedProgress {
   };
 }
 
+/** MI-CONSISTENCY-1 — one wrong objective pick (see WindowedProgress.wrongObjectiveEvidence). */
+export interface WrongObjectivePick {
+  qid: string;
+  marks: number;
+}
+
 /** Split MarkPoints at the activity median → a marks before→now RungTrend, or null
  *  (SILENT) unless BOTH halves carry ≥ MIN_HALF_SAMPLE measurable points.
  *  The spread carries SplitTrend's raw marks through, so every rung built here is
@@ -726,6 +738,10 @@ interface GradedPoint {
    *  MI entry, no type): a Quick Practice MCQ click, or a Chapter Test / Full Mock Section-A pick
    *  scored on submit. 0 when none — and 0 when UNKNOWN (an attempt with no `mode`). */
   wrongObjective: number;
+  /** MI-CONSISTENCY-1 — the question id the point was recorded under ("" when none): an attempt's
+   *  `questionId`, or a session record's synthetic `{ws|ct|fm}:{worksheetId}:q{n}` (the id its
+   *  mistake entry carries). Evidence only (WindowedProgress.wrongObjectiveEvidence). */
+  qid: string;
 }
 
 /** The synthetic per-question id prefix each session surface fans through
@@ -906,6 +922,7 @@ function buildUnifiedGradedPoints(
       // MI-MODE-MARKS-1 — a Quick Practice MCQ click is attempt-only (#237): its loss is a wrong
       // pick with no MI entry. Read from the stored `mode`; an attempt without one is unknown.
       wrongObjective: a.mode === "mcq" && a.notAttempted !== true ? Math.max(0, aAvailable - aScored) : 0,
+      qid,
     });
   }
 
@@ -944,6 +961,7 @@ function buildUnifiedGradedPoints(
         topicKey,
         notAttempted: isLossOnlyNotAttempted(res) ? Math.max(0, available - rScored) : 0,
         wrongObjective: wrongObjectivePickMarks(r.surface, res, bank),
+        qid: `${prefix}:${r.worksheetId}:q${res.qNumber}`,
       });
     }
   }
@@ -1183,6 +1201,16 @@ function dedupMistakeLogCount(mistakes: MistakeLogEntry[], start: number, end: n
   return count;
 }
 
+/** MI-CONSISTENCY-1 — the per-paper wrong objective picks (spread in only when there are any). */
+function wrongObjectiveEvidenceOf(points: GradedPoint[]): Pick<WindowedProgress, "wrongObjectiveEvidence"> {
+  const out: Partial<Record<"maths" | "science", WrongObjectivePick[]>> = {};
+  for (const p of points) {
+    if (!(p.wrongObjective > 0)) continue;
+    (out[p.subject] ??= []).push({ qid: p.qid, marks: p.wrongObjective });
+  }
+  return Object.keys(out).length ? { wrongObjectiveEvidence: out } : {};
+}
+
 /** G4 — the ungated total over a set of graded points (null when none is measurable). The
  *  SAME `marksPercentOf` the gated split uses, so the two can never disagree on a sum. */
 function windowTotalOf(points: GradedPoint[]): WindowTotal | null {
@@ -1301,6 +1329,7 @@ export async function getWindowedProgress(
     topics: buildTopicRung(unified),
     concepts,
     conceptEvidence: evidence,
+    ...wrongObjectiveEvidenceOf(unified),
     sections,
     mistakeTypes: buildMistakeTypeRung(winRecords),
     activity: {

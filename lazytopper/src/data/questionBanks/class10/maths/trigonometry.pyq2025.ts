@@ -39,10 +39,10 @@ export const TRIGONOMETRY_PYQ_2025: CanonicalQuestion[] = [
     questionText: "Amrita stood near the base of a lighthouse, gazing up at its towering height. She measured the angle of elevation to the top and found it to be 60°. Then, she climbed a nearby observation deck, 40 metres higher than her original position and noticed the angle of elevation to the top of lighthouse to be 45°.\nBased on the above given information, answer the following questions :\n(i) If CD is h metres, find the distance BD in terms of 'h'.\n(ii) Find distance BC in terms of 'h'.\n(iii) (a) Find the height CE of the lighthouse [Use √3 = 1·73]\nOR\n(iii) (b) Find distance AE, if AC = 100 m.",
     answer: "(i) BD = h m; (ii) BC = √2h m; (iii)(a) CE = 94.6 m [OR (b) AE = 50 m]",
     solutionSteps: [
-      "[1 mark] (i) In right ∆BDC, h/BD = tan 45° = 1 (½ mark) ⟹ BD = h m (½ mark).",
-      "[1 mark] (ii) h/BC = sin 45° = 1/√2 (½ mark) ⟹ BC = √2h m (½ mark).",
+      "[1 mark] (i) In right ∆BDC, h/BD = tan 45° = 1 ⟹ BD = h m.",
+      "[1 mark] (ii) h/BC = sin 45° = 1/√2 ⟹ BC = √2h m.",
       "[1 mark] (iii)(a) AE = BD = h and CE = h + 40, so tan 60° = EC/AE ⟹ √3 = (h + 40)/h.",
-      "[1 mark] ⟹ h = 40/(√3 − 1) = 20(√3 + 1) = 20 × 2.73 = 54.6 m (½ mark), so CE = 54.6 + 40 = 94.6 m (½ mark). [OR (iii)(b): cos 60° = AE/AC ⟹ 1/2 = AE/100 (1 mark) ⟹ AE = 50 m (1 mark).]",
+      "[1 mark] ⟹ h = 40/(√3 − 1) = 20(√3 + 1) = 20 × 2.73 = 54.6 m, so CE = 54.6 + 40 = 94.6 m. [OR (iii)(b): cos 60° = AE/AC ⟹ 1/2 = AE/100 ⟹ AE = 50 m.]",
     ],
     finalAnswer: "(i) BD = h m; (ii) BC = √2h m; (iii)(a) CE = 94.6 m [OR (iii)(b) AE = 50 m]",
     ncertRef: "PYQ 30/1/1 Q38", isCompetencyBased: true,

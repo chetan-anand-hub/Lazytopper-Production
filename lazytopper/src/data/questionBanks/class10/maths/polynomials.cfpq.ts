@@ -421,7 +421,7 @@ export const POLYNOMIALS_CFPQ: CanonicalQuestion[] = [
     answer: "7/2 units",
     solutionSteps: [
       "[1 mark] Factorises f(x) as (x - 2)(2x + 3).",
-      "[0.5 mark] Writes f(x) = 0 and finds the coordinates of the zeroes as (2, 0) and (-3/2, 0). (The rubric awards full marks if only the zeroes of f(x) are written.)",
+      "[0.5 mark] Writes f(x) = 0 and finds the coordinates of the zeroes as (2, 0) and (-3/2, 0).",
       "[0.5 mark] Finds the distance between the zeroes as 7/2 units.",
     ],
     finalAnswer: "7/2 units",
