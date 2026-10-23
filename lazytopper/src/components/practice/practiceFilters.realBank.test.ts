@@ -16,7 +16,11 @@
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
 //   HOTS    FILTER-FIX-1 left the predicate at 4,105 (any Hard row, or Analysing / Evaluating at
 //           any difficulty). GUIDE-FILTER-1 (owner ruling 23 Oct 2026): higher-order bloom at
-//           Medium / Hard only -> 3,336 (pinned below, measured on trunk 6fe85765's bank).
+//           Medium / Hard only (pinned below, measured on the merged tree after PYQ-RESTORE-A part 1).
+// PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 13 Maths PYQ rows repaired from the
+//   row are served again: PYQ AP 11->12, SAV 18->19, Stats 19->22; Proof RN 47->49, Poly 7->8, Tri 79->80; under the OLD
+//   HOTS rule: any 4,135->4,147, Hard 2,094->2,101, 4-mark HOTS 949->951 (measured on top of PYQ-RESTORE-B PR-2; ledger:
+//   data/bankFix/pyqRestoreALedger.ts).
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -106,13 +110,13 @@ describe("FILTER-FIX-1 · Others", () => {
 
   it("PYQ and NCERT are unchanged (pinned for the five moved chapters)", () => {
     const pin: Record<string, [number, number]> = {
-      "arithmetic-progression": [11, 69],
+      "arithmetic-progression": [12, 69],
       // PYQ-RESTORE-B PR-1 (2026-10-23): PYQ rows restored from the official papers - CG 21 -> 25, ARC 18 -> 21, SAV 17 -> 18,
       // Stats 15 -> 19 (pyqRestoreBLedger.ts). NCERT unchanged.
       "coordinate-geometry": [25, 61],
       "areas-related-to-circles": [21, 57],
-      "surface-areas-and-volumes": [18, 47],
-      statistics: [19, 51],
+      "surface-areas-and-volumes": [19, 47],
+      statistics: [22, 51],
     };
     for (const [slug, [pyq, ncert]] of Object.entries(pin)) {
       expect(n(slug, "all", "all", "pyq", "all"), `${slug} pyq`).toBe(pyq);
@@ -126,12 +130,12 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
     // PYQ-RESTORE-B PR-1 (2026-10-23): real-numbers 44 -> 47, triangles 68 -> 79, trigonometry 89 -> 92 (restored proof
     // PYQs and the new 2025 Triangles rows).
     const want: Record<string, number> = {
-      "real-numbers": 47,
-      polynomials: 7,
+      "real-numbers": 49,
+      polynomials: 8,
       "pair-of-linear-equations": 2,
       "quadratic-equations": 17,
       "arithmetic-progression": 24,
-      triangles: 79,
+      triangles: 80,
       "coordinate-geometry": 29,
       trigonometry: 92,
       circles: 98,
@@ -227,14 +231,14 @@ describe("FILTER-FIX-1 · Marks bucket 4", () => {
 
 // GUIDE-FILTER-1 — OWNER RULING 23 Oct 2026: HOTS = higher-order bloom (Analysing / Evaluating /
 // Creating) at Medium or Hard ONLY. RED on trunk 6fe85765 (old rule: any Hard row, or Analysing /
-// Evaluating at any difficulty), on trunk 3a5c9cd9 (after PYQ-RESTORE-B #1300 + #1303): 4,135 total /
-// 2,094 Hard / 1,097 with 1 mark / 949 with 4 marks.
+// Evaluating at any difficulty), on trunk 80487072 (after PYQ-RESTORE-B #1300/#1303 + PYQ-RESTORE-A part 1 #1309): 4,147 total /
+// 2,101 Hard / 1,097 with 1 mark / 951 with 4 marks.
 describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 23 Oct)", () => {
-  it("served pools, 26 chapters: 3,361 (Maths 678 Hard + 819 Medium; Science 766 Hard + 1,098 Medium); Easy 0", () => {
+  it("served pools, 26 chapters: 3,366 (Maths 678 Hard + 824 Medium; Science 766 Hard + 1,098 Medium); Easy 0", () => {
     const by = (subject: string, d: string) =>
       BANK_CHAPTER_SLUGS.filter((slug) => BANK_CHAPTER_SUBJECT[slug] === subject).reduce((t, slug) => t + n(slug, "all", "hots", "all", d), 0);
     expect(by("Maths", "Hard")).toBe(678);
-    expect(by("Maths", "Medium")).toBe(819);
+    expect(by("Maths", "Medium")).toBe(824);
     expect(by("Science", "Hard")).toBe(766);
     expect(by("Science", "Medium")).toBe(1098);
     let any = 0;
@@ -243,7 +247,7 @@ describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 2
       // With HOTS chosen the Easy chip is a REAL zero in every chapter (it greys out via chipCounts).
       expect(n(slug, "all", "hots", "all", "Easy"), `${slug} HOTS + Easy`).toBe(0);
     }
-    expect(any).toBe(3361);
+    expect(any).toBe(3366);
     // Every HOTS row really is higher-order bloom at Medium / Hard (no Hard-only Applying row).
     for (const slug of BANK_CHAPTER_SLUGS) {
       for (const q of pools.get(slug)!) {

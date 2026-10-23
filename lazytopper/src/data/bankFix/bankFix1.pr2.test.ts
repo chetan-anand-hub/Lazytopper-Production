@@ -63,6 +63,7 @@ import {
   type BankFix1Pr2Entry,
 } from "./bankFix1Ledger";
 import { BANK_STEPS_1 } from "./bankSteps1Ledger";
+import { GARBLE_1_WITHHOLD_CATEGORY } from "./garble1Withholds";
 import { PYQ_RESTORE_1_RESTORED_IDS } from "./pyqRestore1Ledger";
 import { PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
 import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
@@ -350,7 +351,9 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
     "metals-and-non-metals": ["METAL-NCERT-3-VSA-006"],
   };
   // GARBLE-1 PR-3 (FIND-2, 13-14 Oct 2026): 34 PYQ rows whose stems lost symbols / fractions / structures at extraction are withheld until rewritten from the paper.
-  const GARBLE1_PR3: Record<string, readonly string[]> = {
+  // PYQ-RESTORE-A (22 Oct 2026): a row that lane repaired and served again leaves GARBLE_1_WITHHOLD_CATEGORY, and so leaves this list
+  // (read from the map, never retyped; the ledger is bankFix/pyqRestoreALedger.ts).
+  const GARBLE1_PR3_LISTED: Record<string, readonly string[]> = {
     "real-numbers": ["PYQ-M-2026-REALNUM-005", "PYQ-M-RN-004"],
     "statistics": ["PYQ-M-STAT-009", "PYQ-M-2025-STAT-003", "PYQ-M-2025-STAT-006"],
     "triangles": ["PYQ-M-2026-TRI-003", "PYQ-M-2026-TRI-005"],
@@ -364,6 +367,9 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
     "how-do-organisms-reproduce": ["PYQ-S-2025-REPR-007", "PYQ-S-2026-REPR-005"],
     "life-processes": ["PYQ-S-LIFE-013", "PYQ-S-2024-LIFEP-008", "PYQ-S-2026-LIFEP-014"],
   };
+  const GARBLE1_PR3: Record<string, readonly string[]> = Object.fromEntries(
+    Object.entries(GARBLE1_PR3_LISTED).map(([c, ids]) => [c, ids.filter((id) => GARBLE_1_WITHHOLD_CATEGORY.has(id))]),
+  );
   const LATER_WITHHOLDS: Record<string, readonly string[]> = Object.fromEntries(
     [...new Set([...Object.keys(LATER_WITHHOLDS_BASE), ...Object.keys(STEPS1_PAUSED_BY_CHAPTER), ...Object.keys(GARBLE1_PR3)])].map((c) => [c, [...(LATER_WITHHOLDS_BASE[c] ?? []), ...(STEPS1_PAUSED_BY_CHAPTER[c] ?? []), ...(GARBLE1_PR3[c] ?? [])]]),
   );

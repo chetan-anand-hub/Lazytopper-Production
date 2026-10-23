@@ -41,7 +41,7 @@ export const SURFACE_AREAS_AND_VOLUMES_PYQ_2025: CanonicalQuestion[] = [
     pyqYear: "2025", pyqSet: "1",
   },
   { id: "PYQ-M-2025-SAV-005", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination of Solids", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "A solid toy is in the form of a hemisphere surmounted by a right circular cone. The height of the cone is 2 cm and the diameter of the base is 4 cm. Determine the volume of the toy. Also, find the surface area of the toy. (Take = 3·14)",
+    questionText: "A solid toy is in the form of a hemisphere surmounted by a right circular cone. The height of the cone is 2 cm and the diameter of the base is 4 cm. Determine the volume of the toy. Also, find the surface area of the toy. (Take π = 3·14)",
     answer: "Height of the cone h = 2 cm, radius r = 2 cm; Volume of the toy = (1/3) × 3.14 × 2² × 2 + (2/3) × 3.14 × 2³ = 25.12 cm³; slant height l = √(2² + 2²) = 2√2 cm; Surface area of the toy = 3.14 × 2 × 2√2 + 2 × 3.14 × 2² = 12.56(2 + √2) cm²",
     solutionSteps: ["[1 mark] Height of the cone h = 2 cm; radius of the hemisphere = radius of the base of the cone = r = 4/2 = 2 cm.", "[1 mark] Volume of the toy = volume of cone + volume of hemisphere = (1/3) × 3.14 × 2² × 2 + (2/3) × 3.14 × 2³.", "[1 mark] = 8.37 + 16.75 = 25.12 cm³.", "[1 mark] Slant height of the cone l = √(r² + h²) = √(2² + 2²) = 2√2 cm.", "[1 mark] Surface area of the toy = CSA of cone + CSA of hemisphere = πrl + 2πr² = 3.14 × 2 × 2√2 + 2 × 3.14 × 2² = 12.56(2 + √2) ≈ 42.88 cm²."],
     finalAnswer: "Volume of the toy = 25.12 cm³; surface area = 12.56(2 + √2) ≈ 42.88 cm².",
