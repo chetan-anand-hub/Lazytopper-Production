@@ -821,6 +821,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "or scroll, so the late-night note can wait for 30 active minutes; never the uid) and " +
       "`lazytopper.guideScene` (the name of the one two-character Byte and Ziggy scene this tab " +
       "already showed, so there is at most one per app session; never the uid). " +
+      "GUIDE-FILTER-1: plus localStorage `lazytopper.filterHelpSeen` " +
+      "(the single character 1 once the Quick Practice filter explainer opened by itself on this " +
+      "device, so it opens on its own only once; a DEVICE flag, never the uid). " +
       "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,

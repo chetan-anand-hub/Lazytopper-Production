@@ -1,11 +1,19 @@
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { WORKSHEET_MAX_QUESTIONS } from "./worksheetGenerator";
-import { zeroCountChips, type ChipCounts } from "./practiceFilters";
+import { zeroCountChips, type ChipCounts, type MarksRange } from "./practiceFilters";
+import {
+  FilterHelpDoor,
+  claimFilterHelpAutoOpen,
+  noteFilterHelpClick,
+  preloadFilterHelp,
+  type FilterGroup,
+} from "../guide/filterHelp/filterHelp";
 import "./practiceFilterChips.css";
 
-const MARKS_OPTIONS = [
+// Exported for GUIDE-FILTER-1's copy test (every chip has a line; labels agree).
+export const MARKS_OPTIONS = [
   { value: "all", label: "All" },
   { value: "1", label: "1 mark" },
   { value: "23", label: "2-3 marks" },
@@ -13,7 +21,7 @@ const MARKS_OPTIONS = [
   { value: "4", label: "Case-based (4)" },
 ];
 
-const STYLE_OPTIONS = [
+export const STYLE_OPTIONS = [
   { value: "all", label: "All types" },
   // FILTER-FIX-1: one label for both subjects — Maths proofs and Science derivations.
   { value: "proof", label: "Proof / Derivation" },
@@ -24,14 +32,14 @@ const STYLE_OPTIONS = [
   { value: "cbq", label: "CBQ (competency)" },
 ];
 
-const SOURCE_OPTIONS = [
+export const SOURCE_OPTIONS = [
   { value: "all", label: "All questions" },
   { value: "pyq", label: "Board exam (PYQ)" },
   { value: "ncert", label: "NCERT / Exemplar" },
   { value: "others", label: "Others" },
 ];
 
-const DIFFICULTY_OPTIONS = [
+export const DIFFICULTY_OPTIONS = [
   { value: "all", label: "All levels" },
   { value: "Easy", label: "Easy" },
   { value: "Medium", label: "Medium" },
@@ -50,7 +58,8 @@ const SOURCE_NOTES: Record<string, string> = {
 
 // FILTER-FIX-1 (owner ruling) — there is no hand-written incompatibility table any more.
 // The old STYLE_COMPAT / MARKS_COMPAT_BY_STYLE / DIFF_COMPAT_BY_MARKS tables greyed out
-// combinations the bank DOES hold (HOTS + 1 mark: 1,097; HOTS + 4: 943; 1 mark + Hard: 270;
+// combinations the bank DOES hold (HOTS + 1 mark: 971; HOTS + 4: 825 under GUIDE-FILTER-1's
+// Medium/Hard HOTS rule; 1 mark + Hard: 270;
 // 4 marks + Easy: 81; proof + 4: 13). A chip now greys out ONLY when the chosen chapter(s)
 // really hold 0 questions for it (`chipCounts`, counted by the one predicate in
 // practiceFilters.ts); structural impossibilities count 0 on their own.
@@ -100,6 +109,56 @@ export interface PracticeControlsProps {
   onCopyLink: () => void;
   onDownloadPdf: () => void;
   onRegenerate?: () => void;
+  /** GUIDE-FILTER-1 — the signed-in uid, ONLY to decide whether Byte is drawn beside the filter
+   *  explainer (guide experience). The "?" and its words show for everyone. Omitted ⇒ plain text. */
+  guideUid?: string | null;
+  /** GUIDE-FILTER-1 — the Topic Hub concept's exact mark band (pending), when one limits the set:
+   *  chip counts are taken inside it, so Byte's greyed-chip line names it. */
+  marksRange?: MarksRange | null;
+  /** GUIDE-FILTER-1 (#1302 review) — the dropped-filter line (droppedFilterNote), built set only. */
+  droppedNote?: string | null;
+}
+
+/** A chip's visible label for a filter value (the value itself when unknown). */
+export function filterOptionLabel(options: { value: string; label: string }[], value: string): string {
+  return options.find((o) => o.value === value)?.label ?? value;
+}
+
+/** One filter the page dropped: which row it was on, and the chip's label. */
+export interface DroppedFilter {
+  row: "style" | "source" | "diff";
+  label: string;
+}
+
+const WIDENED_TO: Record<DroppedFilter["row"], string> = {
+  style: "question types",
+  source: "sources",
+  diff: "levels",
+};
+
+const joinOr = (xs: readonly string[]) =>
+  xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} or ${xs[xs.length - 1]}`;
+const joinAnd = (xs: readonly string[]) =>
+  xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
+
+/**
+ * GUIDE-FILTER-1 (#1302 review) — the honest line shown when a requested filter was dropped because
+ * the chosen chapter(s) hold none of it (practiceFilters.filtersTheChapterLacks). It must be TRUE
+ * for the set actually built:
+ *   nothing else narrows the set  → "No Proof / Derivation questions in this chapter — showing a mixed set."
+ *   another filter still applies   → "… — showing all question types." (only the dropped row widened;
+ *                                     e.g. marks=1&style=proof is still a 1-mark set, not a mixed one).
+ */
+export function droppedFilterNote(
+  dropped: readonly DroppedFilter[],
+  opts: { multiChapter?: boolean; othersApply?: boolean } = {},
+): string | null {
+  if (dropped.length === 0) return null;
+  const where = opts.multiChapter ? "these chapters" : "this chapter";
+  const showing = opts.othersApply
+    ? `showing all ${joinAnd(dropped.map((d) => WIDENED_TO[d.row]))}`
+    : "showing a mixed set";
+  return `No ${joinOr(dropped.map((d) => d.label))} questions in ${where} — ${showing}.`;
 }
 
 /** FILTER-FIX-1: chip look lives in practiceFilterChips.css (no inline style objects, CLAUDE.md §7). */
@@ -167,6 +226,9 @@ export function PracticeControls({
   onCopyLink,
   onDownloadPdf,
   onRegenerate,
+  guideUid,
+  marksRange,
+  droppedNote,
 }: PracticeControlsProps) {
   const willTruncate = visibleQuestionCount > WORKSHEET_MAX_QUESTIONS;
   const navigate = useNavigate();
@@ -253,6 +315,13 @@ export function PracticeControls({
             </span>
           )}
         </div>
+        {/* GUIDE-FILTER-1 — rendered in the same render as this bar (the page draws the bar only once the
+            chapter pool is known), so it never shifts the page after it appears. */}
+        {droppedNote ? (
+          <p className="qp-filter-dropped" role="status" data-testid="qp-filter-dropped">
+            {droppedNote}
+          </p>
+        ) : null}
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
           {onCopyLink && hasQuestions && (
             <button
@@ -364,6 +433,8 @@ export function PracticeControls({
       onClearFilters={onClearFilters}
       onBuildSet={onBuildSet}
       onOpenWorksheet={() => navigate("/practice/worksheets")}
+      guideUid={guideUid}
+      marksRange={marksRange ?? null}
     />
   );
 }
@@ -389,24 +460,29 @@ interface FilterPanelProps {
   onClearFilters: () => void;
   onBuildSet: () => void;
   onOpenWorksheet: () => void;
+  guideUid?: string | null;
+  marksRange: MarksRange | null;
 }
 
-/** One filter chip. A greyed chip stays hoverable (so its reason shows) but does nothing. */
+/** One filter chip. A greyed chip stays hoverable (so its reason shows) and never changes a filter;
+ *  GUIDE-FILTER-1: tapping it asks Byte for the one line on what to change (`onGreyedTap`). */
 function FilterChip({
   label,
   active,
   disabled,
   onPick,
+  onGreyedTap,
 }: {
   label: string;
   active: boolean;
   disabled: boolean;
   onPick: () => void;
+  onGreyedTap?: () => void;
 }) {
   return (
     <button
       type="button"
-      onClick={() => { if (!disabled) onPick(); }}
+      onClick={() => { if (disabled) onGreyedTap?.(); else onPick(); }}
       className={chipClass(active, disabled)}
       aria-disabled={disabled}
       title={disabled ? NO_QUESTIONS_FOR_COMBINATION : undefined}
@@ -438,16 +514,48 @@ function FilterPanel({
   onClearFilters,
   onBuildSet,
   onOpenWorksheet,
+  guideUid,
+  marksRange,
 }: FilterPanelProps) {
   const [nudgeVisible, setNudgeVisible] = useState(false);
+  // GUIDE-FILTER-1 — the "?" explainer, and Byte's line for one tapped greyed chip (never both).
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [greyedTip, setGreyedTip] = useState<{ group: FilterGroup; label: string } | null>(null);
+  // Auto-opens ONCE per device, the first time a filter panel is shown (then only via "?").
+  useEffect(() => {
+    preloadFilterHelp();
+    if (claimFilterHelpAutoOpen()) setHelpOpen(true);
+  }, []);
+  const closeHelp = useCallback(() => setHelpOpen(false), []);
+  const closeTip = useCallback(() => setGreyedTip(null), []);
+  const toggleHelp = () => {
+    setGreyedTip(null);
+    if (!helpOpen) noteFilterHelpClick(guideUid);
+    setHelpOpen(!helpOpen);
+  };
+  const greyedTap = (group: FilterGroup, label: string) => () => {
+    setHelpOpen(false);
+    setGreyedTip({ group, label });
+  };
+  // A real pick closes Byte's greyed-chip line (the situation it described has changed).
+  const pick = (fn: () => void) => () => {
+    setGreyedTip(null);
+    fn();
+  };
+  const tipAfter = (group: FilterGroup) =>
+    greyedTip && greyedTip.group === group ? (
+      <FilterHelpDoor uid={guideUid} mode="nudge" chip={greyedTip} marksRange={marksRange} onClose={closeTip} />
+    ) : null;
+
   const handleLocalClear = () => {
     setNudgeVisible(false);
+    setGreyedTip(null);
     onClearFilters();
   };
 
   return (
     <section
-      className="practice-controls-root"
+      className="practice-controls-root qp-filter-panel"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -460,22 +568,37 @@ function FilterPanel({
         boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
       }}
     >
-      <div>
-        <h2
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1.12rem",
-            fontWeight: 600,
-            color: "hsl(220, 25%, 12%)",
-            letterSpacing: "-0.01em",
-            margin: "0 0 4px",
-          }}
-        >
-          Build this set
-        </h2>
+      <div className="qp-filter-head">
+        <div className="qp-filter-head__row">
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "1.12rem",
+              fontWeight: 600,
+              color: "hsl(220, 25%, 12%)",
+              letterSpacing: "-0.01em",
+              margin: "0 0 4px",
+            }}
+          >
+            Build this set
+          </h2>
+          {/* GUIDE-FILTER-1 — "?" opens the explainer (Byte, or plain text when mascots are hidden). */}
+          <button
+            type="button"
+            className="qp-filter-help-btn"
+            data-testid="filter-help-open"
+            aria-label="What do the filters mean?"
+            aria-expanded={helpOpen}
+            title="What do the filters mean?"
+            onClick={toggleHelp}
+          >
+            ?
+          </button>
+        </div>
         <p style={{ margin: 0, fontSize: "0.8rem", color: "hsl(220, 15%, 42%)", lineHeight: 1.55 }}>
           Filters are optional - tap Build for a balanced mixed set, or narrow down by marks, style or source.
         </p>
+        {helpOpen ? <FilterHelpDoor uid={guideUid} mode="help" onClose={closeHelp} /> : null}
       </div>
 
       <div
@@ -487,7 +610,7 @@ function FilterPanel({
         }}
       >
         {/* MARKS row */}
-        <div style={ROW_STYLE}>
+        <div className="qp-filter-row" style={ROW_STYLE}>
           <span style={ROW_LABEL_STYLE}>Marks</span>
           {MARKS_OPTIONS.map((opt) => (
             <FilterChip
@@ -495,13 +618,15 @@ function FilterPanel({
               label={opt.label}
               active={pendingMarks === opt.value}
               disabled={disabledMarks.has(opt.value)}
-              onPick={() => onSetMarks(opt.value)}
+              onPick={pick(() => onSetMarks(opt.value))}
+              onGreyedTap={greyedTap("marks", opt.label)}
             />
           ))}
+          {tipAfter("marks")}
         </div>
 
         {/* STYLE row — Proof / Derivation only when the chosen chapter(s) hold one */}
-        <div style={ROW_STYLE}>
+        <div className="qp-filter-row" style={ROW_STYLE}>
           <span style={ROW_LABEL_STYLE}>Style</span>
           {STYLE_OPTIONS.filter((opt) => !(hideProof && opt.value === "proof")).map((opt) => (
             <FilterChip
@@ -509,13 +634,15 @@ function FilterPanel({
               label={opt.label}
               active={pendingStyle === opt.value}
               disabled={disabledStyles.has(opt.value)}
-              onPick={() => onSetStyle(opt.value)}
+              onPick={pick(() => onSetStyle(opt.value))}
+              onGreyedTap={greyedTap("style", opt.label)}
             />
           ))}
+          {tipAfter("style")}
         </div>
 
         {/* SOURCE row */}
-        <div style={ROW_STYLE}>
+        <div className="qp-filter-row" style={ROW_STYLE}>
           <span style={ROW_LABEL_STYLE}>Source</span>
           {SOURCE_OPTIONS.map((opt) => (
             <FilterChip
@@ -523,16 +650,18 @@ function FilterPanel({
               label={opt.label}
               active={pendingSource === opt.value}
               disabled={disabledSources.has(opt.value)}
-              onPick={() => onSetSource(opt.value)}
+              onPick={pick(() => onSetSource(opt.value))}
+              onGreyedTap={greyedTap("source", opt.label)}
             />
           ))}
+          {tipAfter("source")}
         </div>
         {SOURCE_NOTES[pendingSource] && (
           <div style={NOTE_STYLE}>{SOURCE_NOTES[pendingSource]}</div>
         )}
 
         {/* DIFFICULTY row */}
-        <div style={ROW_STYLE}>
+        <div className="qp-filter-row" style={ROW_STYLE}>
           <span style={ROW_LABEL_STYLE}>Difficulty</span>
           {DIFFICULTY_OPTIONS.map((opt) => (
             <FilterChip
@@ -540,9 +669,11 @@ function FilterPanel({
               label={opt.label}
               active={pendingDifficulty === opt.value}
               disabled={disabledDiffs.has(opt.value)}
-              onPick={() => onSetDifficulty(opt.value)}
+              onPick={pick(() => onSetDifficulty(opt.value))}
+              onGreyedTap={greyedTap("diff", opt.label)}
             />
           ))}
+          {tipAfter("diff")}
         </div>
         {showGreyedNote && (
           <div style={NOTE_STYLE}>Greyed chips: no questions for this combination in this chapter</div>

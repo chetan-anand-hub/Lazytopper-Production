@@ -195,14 +195,20 @@ describe("FILTER-FIX-1 · Proof / Derivation chip", () => {
   });
 });
 
-describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
-  it("HOTS leaves Easy / Medium open, never resets difficulty, and has no 'always Hard' note", () => {
+// GUIDE-FILTER-1 — OWNER RULING 23 Oct 2026: HOTS = higher-order at Medium / Hard only. The Easy
+// chip greys out under HOTS through the REAL chip count (0), not a lock; Medium and Hard stay open.
+// RED on trunk 6fe85765: HOTS + Easy counted > 0 there, so Easy stayed open.
+describe("GUIDE-FILTER-1 · HOTS = Medium / Hard: Easy greys out by its real count", () => {
+  it("HOTS greys Easy (count 0), leaves Medium / Hard open, never resets difficulty, no 'always Hard' note", () => {
     const onDiff = vi.fn();
-    const counts = chipCounts(poolOf("real-numbers"), F({ style: "hots", diff: "Easy" }));
-    expect(counts.diff.Easy).toBeGreaterThan(0);
-    renderPanel(F({ style: "hots", diff: "Easy" }), counts, { diff: onDiff });
-    expect(isGrey("Easy")).toBe(false);
+    const counts = chipCounts(poolOf("real-numbers"), F({ style: "hots" }));
+    expect(counts.diff.Easy).toBe(0);
+    expect(counts.diff.Medium).toBeGreaterThan(0);
+    expect(counts.diff.Hard).toBeGreaterThan(0);
+    renderPanel(F({ style: "hots" }), counts, { diff: onDiff });
+    expect(isGrey("Easy")).toBe(true);
     expect(isGrey("Medium")).toBe(false);
+    expect(isGrey("Hard")).toBe(false);
     expect(onDiff).not.toHaveBeenCalled();
     expect(screen.queryByText(/always Hard/i)).toBeNull();
   });

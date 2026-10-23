@@ -6,6 +6,7 @@ import { PracticeQuestionCard } from "./PracticeQuestionCard";
 import type { SolutionCheckerSavedWorking } from "../question/SolutionChecker";
 import "./practiceLoadRetry.css";
 import "./practiceBankEnd.css";
+import { FilterEmptyZiggy, noteFilterEmptyClick, useFilterGuideCharacter } from "../guide/filterHelp/filterHelp";
 
 export interface PracticeQuestionListProps {
   /** GUIDE-SCORE-1 — open THIS question's working box (scroll + focus); a new `nonce` is a new
@@ -84,22 +85,31 @@ export interface FiltersEmptyActions {
   onEditFilters: () => void;
   /** `/practice-hub` — omitted inside the tutor overlay. */
   practiceHubHref?: string;
+  /** GUIDE-FILTER-1 — the signed-in uid, ONLY to decide whether Ziggy appears beside this state
+   *  (guide experience, mascots not hidden). Omitted ⇒ no Ziggy; the state itself is unchanged. */
+  guideUid?: string | null;
 }
 
 export const FILTERS_EMPTY_TITLE = "No questions match these filters.";
 export const FILTERS_EMPTY_BODY = "Try fewer filters, or another chapter.";
 
-function FiltersEmptyState({ onEditFilters, practiceHubHref }: FiltersEmptyActions) {
+function FiltersEmptyState({ onEditFilters, practiceHubHref, guideUid }: FiltersEmptyActions) {
+  // GUIDE-FILTER-1 — Ziggy's one line beside the existing copy (this state renders only at 0).
+  const ziggy = useFilterGuideCharacter(guideUid);
   return (
     <div className="qp-bank-end" role="status" data-testid="qp-filters-empty">
       <p className="qp-bank-end__title">{FILTERS_EMPTY_TITLE}</p>
       <p className="qp-bank-end__body">{FILTERS_EMPTY_BODY}</p>
+      <FilterEmptyZiggy uid={guideUid} />
       <div className="qp-bank-end__actions">
         <button
           type="button"
           className="qp-bank-end__btn qp-bank-end__btn--primary"
           data-testid="qp-filters-empty-edit"
-          onClick={onEditFilters}
+          onClick={() => {
+            if (ziggy) noteFilterEmptyClick();
+            onEditFilters();
+          }}
         >
           Edit filters
         </button>
