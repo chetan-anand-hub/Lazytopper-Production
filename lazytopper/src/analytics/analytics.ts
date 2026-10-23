@@ -1292,7 +1292,8 @@ export type PaywallAction = "pay" | "qr" | "forward";
  * PAYWALL-PAY-1 — where it was tapped: the Premium lock screen (RequirePremium), the upgrade
  * popup (UpgradeModal), the upgrade sheet (UpgradeSheet), the fair-use limit panel, /pricing,
  * the tutor's server-side Premium / busy card (TutorPage), the trial-paper note
- * (TrialPaperNote) and the More-like-this Premium note (MoreLikeThisPremiumNote).
+ * (TrialPaperNote). `more_like_this` was the More-like-this Premium note, deleted by MLT-RETIRE-1;
+ * the name stays so stored paywall_action_* rows that carry it still type-check and read back.
  */
 export type PaywallSurface =
   | "lock"

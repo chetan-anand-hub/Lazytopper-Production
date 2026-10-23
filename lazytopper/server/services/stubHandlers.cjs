@@ -75,39 +75,6 @@ function buildStubText() {
   return 'Stub mentor response active. Provide AI_PROVIDER and API_KEY to enable live responses.';
 }
 
-function buildStubMoreLikeThis(payload) {
-  const seedQuestion = payload?.seedQuestion || {};
-  const baseText = String(seedQuestion.text || seedQuestion.questionText || '').trim();
-  const marks = seedQuestion.marks;
-  const difficulty = seedQuestion.difficulty;
-  const bloomSkill = seedQuestion.bloomSkill;
-  const subject = payload?.subject || 'Maths/Science';
-  const topicKey = payload?.topicKey || null;
-  const requested = Number(payload?.numVariants || 3);
-  const numVariants = Number.isFinite(requested) && requested > 0 ? Math.min(requested, 6) : 3;
-  const seedLine =
-    baseText ||
-    'Write a CBSE Class 10 triangles question that uses AA/SAS/SSS similarity.';
-  const mentorSeed = loadTrianglesMentorSeed();
-  const mentor = mentorSeed && mentorSeed.mentorResponse ? mentorSeed.mentorResponse : mentorSeed || {};
-  const hints = normalizeLines([
-    ...(mentor.nextStepSuggestion || []),
-    ...(mentor.examinerWarning || []),
-  ]);
-  const variants = Array.from({ length: numVariants }).map((_, idx) => {
-    const hint = hints.length ? ` Focus: ${hints[idx % hints.length]}` : '';
-    const text = `${seedLine}${hint}`.trim();
-    return {
-      index: idx,
-      text,
-      marks,
-      difficulty,
-      bloomSkill,
-    };
-  });
-  return { subject, topicKey, variants, model: 'stub' };
-}
-
 function buildFallbackSteps(answer, explanation, totalMarks, qType, section, subject) {
   const isObj = isObjectiveType(qType, section);
 
@@ -275,7 +242,6 @@ function isStubMode() {
   return {
     buildStubTutorStructured,
     buildStubText,
-    buildStubMoreLikeThis,
     buildFallbackSteps,
     buildStubStepSolution,
     isStubMode,

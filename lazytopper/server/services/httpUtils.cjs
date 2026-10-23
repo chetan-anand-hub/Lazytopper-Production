@@ -15,8 +15,8 @@
  * and the second is the one that matters. First, `sendJson` is the single exit
  * every route body passes through, so one guard covers all of them. Second, a
  * per-call-site fix is only ever as complete as the grep behind it: the same
- * `details:` shape is emitted from THREE places today (`index.cjs` x2,
- * `moreLikeThis.cjs`; `diagrams.cjs` was deleted 2026-10-11 by HARDEN-1 PR-2), and the next one added would ship
+ * `details:` shape is emitted from TWO places today (`index.cjs` x2;
+ * `moreLikeThis.cjs` became a 410 stub in MLT-RETIRE-1, and `diagrams.cjs` was deleted 2026-10-11 by HARDEN-1 PR-2), and the next one added would ship
  * unguarded. A sink-side guard cannot be forgotten by a new caller.
  *
  * ★★ THE RESPONSE CONTRACT IS PRESERVED EXACTLY. `aiClient.ts` parses this body

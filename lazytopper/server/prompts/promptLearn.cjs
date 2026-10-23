@@ -502,86 +502,8 @@ function buildLearnMindmapPrompt(payload) {
     buildLearnKeyDefinitionsPrompt,
     buildLearnProofPrompt,
     buildLearnMindmapPrompt,
-    buildMoreLikeThisUserPrompt,
   };
 }
-// MLT-FIX-1: buildMoreLikeThisUserPrompt is PURE (it reads nothing from the factory ctx), so it lives at
-// module scope and is exported directly. index.cjs requires it by name; while it lived only inside
-// createLearnPrompts() that import was undefined and /api/more-like-this answered 500 (since #516).
-function buildMoreLikeThisUserPrompt(payload) {
-  const subject = payload.subject || 'Maths/Science';
-  const topicKey = payload.topicKey || '';
-  const seed = payload.seedQuestion || {};
-  const seedText = seed.text || seed.questionText || '';
-  const marks = seed.marks != null ? seed.marks : '';
-  const difficulty = seed.difficulty || '';
-  const bloom = seed.bloomSkill || '';
-  const numVariantsRaw = payload.numVariants != null ? payload.numVariants : 3;
-  const numVariants = Math.max(1, Math.min(10, Number(numVariantsRaw) || 3));
-
-  const requestedDifficulty = payload.requestedDifficulty || difficulty || '';
-  const enforcedDifficulty = requestedDifficulty || 'same as seed';
-
-  const requestedSection = payload.requestedSection || '';
-  const SECTION_DESCRIPTIONS = {
-    A: 'Section A — 1 mark, objective/MCQ single-sentence question',
-    B: 'Section B — 2 marks, short-answer, 2–3 lines',
-    C: 'Section C — 3 marks, short-answer with working, 4–6 lines',
-    D: 'Section D — 5 marks, long-answer with full working and multiple sub-steps',
-    E: 'Section E — 4 marks, case-based / competency-focused with a scenario passage',
-  };
-  const sectionDesc = requestedSection && SECTION_DESCRIPTIONS[requestedSection]
-    ? SECTION_DESCRIPTIONS[requestedSection]
-    : null;
-
-  const lines = [
-    `We are building an exam-style practice set for CBSE Class 10 ${subject}.`,
-    topicKey ? `Topic key (chapter) in our system: ${topicKey}.` : '',
-    'You will receive a seed board-style question from our highly-probable-question (HPQ) bank.',
-    'Generate NEW questions on exactly the same underlying concept, not random other concepts.',
-    '',
-    'Seed question:',
-    seedText,
-    '',
-    `Metadata: marks=${marks || 'same as seed'}, difficulty=${enforcedDifficulty}, bloomSkill=${bloom || 'same as seed'}${requestedSection ? `, section=${requestedSection}` : ''}.`,
-    '',
-    `Generate ${numVariants} new CBSE board-style questions that:`,
-    '- Keep the same marks value as the seed (or as close as reasonable).',
-    `- MANDATORY: Every generated question MUST have difficulty "${enforcedDifficulty}". Do NOT vary the difficulty across variants.`,
-    `  Difficulty rubric (CBSE Class 10 board standard):`,
-    `  Easy: 1-mark MCQ or Assertion-Reasoning. Direct recall, single formula, plug-and-chug. Student only needs to remember a definition or fact. No multi-step working required.`,
-    `  Medium: 2–3 marks. 2–3 steps of working. Student must apply a concept to a slightly varied scenario. Needs understanding beyond rote recall.`,
-    `  Hard: 5 marks. Multi-step proof, derivation, or novel real-world application. Requires synthesis across two or more concepts. No single-step path to the answer. Student must plan the full solution strategy.`,
-    sectionDesc ? `- MANDATORY: Every question MUST be in CBSE ${sectionDesc}. Match the question format, length, and style strictly.` : '',
-    '- Stay in the same Bloom level as the seed.',
-    '- Change numbers, scenarios, or wording so they are not copies of the seed.',
-    '- Avoid near-duplicate questions: each variant must test a meaningfully different aspect, use different numerical values, or present a different scenario.',
-    '',
-    'For EACH question you MUST also provide:',
-    '  - "answer": the concise correct answer (for MCQ: the exact option text; for short/long: key result with unit)',
-    '  - "solutionSteps": an array of strings, each string being one numbered working step a student must write (CBSE marking-scheme style)',
-    '  - "finalAnswer": one sentence stating the final result with unit (e.g. "∴ AC = 10 cm")',
-    '',
-    'Return ONLY a single JSON object with this exact shape:',
-    '{',
-    '  "questions": [',
-    '    {',
-    '      "questionText": "...",',
-    '      "marks": <number>,',
-    `      "difficulty": "${enforcedDifficulty}",`,
-    requestedSection ? `      "section": "${requestedSection}",` : '',
-    '      "bloomSkill": "Remembering | Understanding | Applying | Analysing | Evaluating | Creating",',
-    '      "answer": "...",',
-    '      "solutionSteps": ["Step 1 working...", "Step 2 working...", "..."],',
-    '      "finalAnswer": "∴ ..."',
-    '    }',
-    '  ]',
-    '}',
-    '',
-    'Do not include any text outside this JSON.',
-  ].filter(l => l !== '');
-
-  return { userPrompt: lines.join('\n'), numVariants };
-}
-
-module.exports = { createLearnPrompts, buildMoreLikeThisUserPrompt };
+// MLT-RETIRE-1: buildMoreLikeThisUserPrompt (the "More like this" generation prompt) was deleted with
+// POST /api/more-like-this, which now answers 410 (routes/moreLikeThis.cjs).
+module.exports = { createLearnPrompts };

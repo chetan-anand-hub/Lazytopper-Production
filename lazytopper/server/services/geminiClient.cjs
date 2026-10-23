@@ -89,9 +89,8 @@ const CALL_CLASS_BY_HANDLER = Object.freeze({
   handleDetectQuestion: 'practice',
   // routes/tutor.cjs
   handleTutorRequest: 'tutor',
-  // routes/stepSolution.cjs + routes/moreLikeThis.cjs
+  // routes/stepSolution.cjs (MLT-RETIRE-1: handleMoreLikeThis gone — /api/more-like-this answers 410)
   handleStepSolution: 'practice',
-  handleMoreLikeThis: 'practice',
 });
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -142,8 +141,8 @@ const UNCLASSIFIED_WORKLOAD = 'unclassified';
 const WORKLOAD_BY_HANDLER = Object.freeze({
   // routes/tutor.cjs
   handleTutorRequest: 'tutor',
-  // routes/moreLikeThis.cjs
-  handleMoreLikeThis: 'more-like-this',
+  // MLT-RETIRE-1: handleMoreLikeThis removed with the route. 'more-like-this' stays in
+  // WORKLOAD_CLASSES so stored telemetry rows that carry it remain a member of the closed set.
   // routes/stepSolution.cjs — mapped by FUNCTION, see the note above. Innermost
   // frame wins, so this beats whichever route handler is further out.
   generateModelSolution: 'step-solution',

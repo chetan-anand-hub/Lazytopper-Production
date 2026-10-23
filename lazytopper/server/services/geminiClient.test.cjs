@@ -395,7 +395,7 @@ test('every paid endpoint maps to the same class in BOTH modules', () => {
     '/api/grade-worksheet': 'handleGradeWorksheet',
     '/api/tutor': 'handleTutorRequest',
     '/api/step-solution': 'handleStepSolution',
-    '/api/more-like-this': 'handleMoreLikeThis',
+    // MLT-RETIRE-1: '/api/more-like-this' removed — retired (410), no longer a paid endpoint.
     // 2026-10-11 HARDEN-1 PR-2: generate-diagram / generate-visual removed with routes/diagrams.cjs.
   };
 
@@ -448,7 +448,7 @@ test('classifyCall falls back to the nearest route handler on the stack', () => 
 
   const cases = [
     ['handleStepSolution', 'routes/stepSolution.cjs:514:9', 'practice'],
-    ['handleMoreLikeThis', 'routes/moreLikeThis.cjs:80:9', 'practice'],
+    // MLT-RETIRE-1: the handleMoreLikeThis case removed with the handler (routes/moreLikeThis.cjs is a 410 stub).
     // 2026-10-11 HARDEN-1 PR-2: the two routes/diagrams.cjs handler cases removed with the file.
     ['handleTutorRequest', 'routes/tutor.cjs:188:9', 'tutor'],
     ['handleGradeWorksheet', 'routes/checkSolution.cjs:1053:9', 'vision'],

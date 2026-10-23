@@ -1,9 +1,10 @@
 // @vitest-environment node
 /**
- * ALL-AI-METERING-1 — the client half: the new `tutor` / `more-like-this` scopes and their
- * owner copy, the `thirtyDay` window, the Tutor's inline limit message, and aiClient keeping a
- * 30-day window. MLT-MUTE-1: the More-like-this AI top-up is muted, so its builder-level suite
- * now pins that NO model call is made once the bank is exhausted.
+ * ALL-AI-METERING-1 — the client half: the `tutor` scope and its owner copy, the `thirtyDay`
+ * window, the Tutor's inline limit message, and aiClient keeping a 30-day window. MLT-MUTE-1: the
+ * More-like-this AI top-up is muted, so its builder-level suite pins that NO network call is made
+ * once the bank is exhausted. MLT-RETIRE-1: POST /api/more-like-this answers 410, so the
+ * `more-like-this` scope, its copy, the free-tier Premium note and generateMoreLikeThis are gone.
  *
  * Node environment: nothing here touches the DOM (the C&I detection panel is asserted on the
  * real page in DesktopCheckImprovePage.funnelEvents.test.tsx).
@@ -14,24 +15,12 @@
 
 import { describe, it, expect, vi, afterEach } from "vitest";
 
-const H = vi.hoisted(() => ({
-  moreLikeThis: null as null | (() => Promise<unknown>),
-}));
-
 vi.mock("../../ai/paidCallHeaders", () => ({
   UID_HEADER: "X-Lazytopper-Uid",
   paidJsonHeaders: async () => ({ "Content-Type": "application/json" }),
   SignInAgainError: class SignInAgainError extends Error {},
   REAUTH_MESSAGE: "Please sign in again to continue.",
 }));
-
-vi.mock("../../ai/aiClient", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../ai/aiClient")>();
-  return {
-    ...actual,
-    generateMoreLikeThis: (...args: unknown[]) => (H.moreLikeThis ? H.moreLikeThis() : actual.generateMoreLikeThis(...(args as [never]))),
-  };
-});
 
 import {
   fullPremiumWindow,
@@ -40,19 +29,12 @@ import {
   tutorLimitMessage,
   PREMIUM_WINDOW_LABEL,
   TUTOR_TRIAL_LIMIT_COPY,
-  MORE_LIKE_THIS_TRIAL_LIMIT_COPY,
-  MORE_LIKE_THIS_PREMIUM_ONLY_COPY,
-  START_TRIAL_LABEL,
-  SEE_PLANS_LABEL,
-  MORE_LIKE_THIS_PREMIUM_ONLY_TRIAL_USED_COPY,
-  moreLikeThisPremiumNoteCopy,
-  isPremiumRequiredRefusal,
   type LimitState,
 } from "./fairUseGate";
 import { readFairUseLimit, type UsageSnapshot } from "../../services/usageClient";
 import { callTutor, type TutorRequest } from "../../ai/tutorClient";
-import { FairUseLimitError, PremiumRequiredError } from "../../ai/aiClient";
-import { buildPracticeQuestionsWithAiTopup, subscribeMoreLikeThisLimit } from "../practice/practiceQuestionBuilder";
+import { FairUseLimitError, fetchStepSolution } from "../../ai/aiClient";
+import { buildPracticeQuestionsWithAiTopup } from "../practice/practiceQuestionBuilder";
 
 // A reset far in the future, so no assertion here depends on what "today" is.
 const RESET = "2099-03-14T18:30:00.000Z";
@@ -60,24 +42,19 @@ const RESET = "2099-03-14T18:30:00.000Z";
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
-  H.moreLikeThis = null;
 });
 
 describe("ALL-AI-METERING-1 · scopes and owner copy", () => {
-  it("★★ trial Tutor / More-like-this read the owner's sentence, word for word, with no invented reset line", () => {
+  it("★★ trial Tutor reads the owner's sentence, word for word, with no invented reset line", () => {
     const tutor = limitCopy({ tier: "trial", scope: "tutor", resetAt: RESET, window: null });
     expect(tutor.lead).toBe("You've reached today's Tutor limit. It resets at midnight.");
     expect(tutor.resetPrefix).toBeNull();
     expect(tutor.tail).toBeNull();
-    const mlt = limitCopy({ tier: "trial", scope: "more-like-this", resetAt: RESET, window: null });
-    expect(mlt.lead).toBe("You've reached today's limit for new practice questions. Your saved questions still work.");
-    expect(mlt.resetPrefix).toBeNull();
     expect(TUTOR_TRIAL_LIMIT_COPY).toBe(tutor.lead);
-    expect(MORE_LIKE_THIS_TRIAL_LIMIT_COPY).toBe(mlt.lead);
   });
 
-  it("★ Premium on the new scopes reads the EXISTING Premium window copy (a week cap is not 'today's')", () => {
-    for (const scope of ["tutor", "more-like-this"] as const) {
+  it("★ Premium on the Tutor scope reads the EXISTING Premium window copy (a week cap is not 'today's')", () => {
+    for (const scope of ["tutor"] as const) {
       const c = limitCopy({ tier: "premium", scope, resetAt: RESET, window: "week" });
       expect(c.lead).toBe("You've reached this week fair-use limit.");
       expect(c.resetPrefix).toBe("It resets at");
@@ -104,8 +81,8 @@ describe("ALL-AI-METERING-1 · scopes and owner copy", () => {
 
 describe("ALL-AI-METERING-1 · limitFromAiRefusal — the refusal itself is the positive fact", () => {
   it("★★ a trial refusal is a panel with NO enforced snapshot (the AI switch is not the grading switch)", () => {
-    const l = limitFromAiRefusal({ kind: "trial_limit", remaining: 0, resetAt: RESET, window: null }, "more-like-this", null);
-    expect(l).toEqual({ tier: "trial", scope: "more-like-this", resetAt: RESET, window: null, allowance: null });
+    const l = limitFromAiRefusal({ kind: "trial_limit", remaining: 0, resetAt: RESET, window: null }, "tutor", null);
+    expect(l).toEqual({ tier: "trial", scope: "tutor", resetAt: RESET, window: null, allowance: null });
   });
   it("★ Premium names its window from the error; without one (and no snapshot) -> null, never a guessed window", () => {
     expect(limitFromAiRefusal({ kind: "usage_limit", remaining: null, resetAt: RESET, window: "day" }, "tutor"))
@@ -162,8 +139,8 @@ describe("ALL-AI-METERING-1 · Tutor — a refusal surfaces the Tutor limit copy
 describe("ALL-AI-METERING-1 · aiClient keeps a 30-day window", () => {
   it("★ a 429 usage_limit with window thirtyDay is read with its window, not dropped to null", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 429, text: async () => JSON.stringify({ error: "usage_limit", window: "thirtyDay", resetAt: RESET }) })));
-    const { generateMoreLikeThis } = await vi.importActual<typeof import("../../ai/aiClient")>("../../ai/aiClient");
-    const err = await generateMoreLikeThis({ subject: "Maths", topicKey: "x", seedQuestion: { text: "q", marks: 1 }, numVariants: 1 } as never)
+    // MLT-RETIRE-1: read through Show steps (generateMoreLikeThis is deleted); same handleJsonResponse.
+    const err = await fetchStepSolution({ subject: "Maths", topic: "x", question: "q", marks: 2 })
       .then(() => null, (e: unknown) => e as FairUseLimitError);
     expect(err?.name).toBe("FairUseLimitError");
     expect(err?.window).toBe("thirtyDay");
@@ -172,24 +149,17 @@ describe("ALL-AI-METERING-1 · aiClient keeps a 30-day window", () => {
 
 describe("MLT-MUTE-1 · More like this serves verified bank questions only — the AI step is muted", () => {
   // The bank and the Prompt-D pack together cannot fill 60: before MLT-MUTE-1 the builder then read
-  // the AI cache (GET /api/ai-questions), asked the model (generateMoreLikeThis) and wrote the
+  // the AI cache (GET /api/ai-questions), asked the model (POST /api/more-like-this) and wrote the
   // result back (POST /api/ai-questions). Now it serves what it has, short, and calls nothing.
   const EXHAUSTED = { grade: "10", subjectKey: "Maths" as const, topicLabel: "zz-no-such-topic-aam1", packTopicKey: "polynomials", count: 60, difficulty: "All" as const };
   // Three fit inside the pack: the bank had enough, so no top-up was ever attempted (old or new).
   const FULL = { ...EXHAUSTED, count: 3 };
 
-  it("★★ RED on the old code: with the bank exhausted, NO model call, NO network call, and the subscriber hears nothing", async () => {
-    const called = vi.fn();
-    H.moreLikeThis = () => { called(); return Promise.reject(new FairUseLimitError("trial_limit", 0, RESET, null)); };
+  it("★★ RED on the old code: with the bank exhausted, NO model call and NO network call", async () => {
     const fetchSpy = vi.fn(async () => { throw new Error("no network call is expected"); });
     vi.stubGlobal("fetch", fetchSpy);
-    const seen: unknown[] = [];
-    const off = subscribeMoreLikeThisLimit((e) => seen.push(e));
     const out = await buildPracticeQuestionsWithAiTopup(EXHAUSTED);
-    off();
-    expect(called).not.toHaveBeenCalled();
     expect(fetchSpy).not.toHaveBeenCalled();
-    expect(seen).toEqual([]);
     // Served SHORT, and only verified rows: no AI or cache variant id is ever minted.
     expect(out.length).toBeGreaterThan(0);
     expect(out.length).toBeLessThan(EXHAUSTED.count);
@@ -197,47 +167,21 @@ describe("MLT-MUTE-1 · More like this serves verified bank questions only — t
   });
 
   it("★ CONTROL: with bank matches the set is unchanged — full count, no model call", async () => {
-    const called = vi.fn();
-    H.moreLikeThis = () => { called(); return Promise.resolve({ variants: [] }); };
+    const fetchSpy = vi.fn(async () => { throw new Error("no network call is expected"); });
+    vi.stubGlobal("fetch", fetchSpy);
     const out = await buildPracticeQuestionsWithAiTopup(FULL);
     expect(out).toHaveLength(FULL.count);
-    expect(called).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
 
-describe("ALL-AI-METERING-1 · DECISION 29d — the owner copy for a FREE student's More-like-this 402", () => {
-  it("★★ the owner-approved wording and link label are exact", () => {
-    expect(MORE_LIKE_THIS_PREMIUM_ONLY_COPY).toBe("More practice like this is part of Premium. Try it free for 7 days.");
-    expect(START_TRIAL_LABEL).toBe("Start free trial");
+describe("MLT-RETIRE-1 · the More-like-this client code is gone", () => {
+  it("★ aiClient no longer exports generateMoreLikeThis (POST /api/more-like-this answers 410)", async () => {
+    const mod = await import("../../ai/aiClient");
+    expect("generateMoreLikeThis" in mod).toBe(false);
   });
-
-  it("★ CONTROL: a trial cap is NOT a premium-only refusal, and a plain Error is neither", () => {
-    expect(isPremiumRequiredRefusal(new FairUseLimitError("trial_limit", 0, RESET, null))).toBe(false);
-    expect(isPremiumRequiredRefusal(new Error("network"))).toBe(false);
-    expect(isPremiumRequiredRefusal(null)).toBe(false);
-  });
-});
-
-describe("ALL-AI-METERING-1 · D78b — a student whose trial is USED is never offered one", () => {
-  const NOW = Date.parse("2026-10-11T06:00:00Z");
-  const err = (trialEndedAt: string | null) => new PremiumRequiredError("Premium feature.", "more-like-this", "free", trialEndedAt);
-
-  it("★★ no trialEndedAt (a trial can still be started) -> the approved offer + Start free trial", () => {
-    const c = moreLikeThisPremiumNoteCopy(err(null), NOW);
-    expect(c).toEqual({ lead: MORE_LIKE_THIS_PREMIUM_ONLY_COPY, linkLabel: START_TRIAL_LABEL, trialUsed: false });
-  });
-
-  it("★★ a past trialEndedAt (trial used) -> the Premium sentence + See plans, and NO trial wording", () => {
-    const c = moreLikeThisPremiumNoteCopy(err("2026-10-01T00:00:00.000Z"), NOW);
-    expect(c).toEqual({ lead: "More practice like this is part of Premium.", linkLabel: "See plans", trialUsed: true });
-    expect(c.lead).toBe(MORE_LIKE_THIS_PREMIUM_ONLY_TRIAL_USED_COPY);
-    expect(c.linkLabel).toBe(SEE_PLANS_LABEL);
-    expect(c.lead + " " + c.linkLabel).not.toMatch(/trial|free for/i);
-  });
-
-  it("★ CONTROL: an unparseable trialEndedAt counts as used (never offer what may not be takeable); a non-refusal value offers the trial", () => {
-    expect(moreLikeThisPremiumNoteCopy(err("not-a-date"), NOW).trialUsed).toBe(true);
-    expect(moreLikeThisPremiumNoteCopy(new Error("x"), NOW).trialUsed).toBe(false);
-    expect(moreLikeThisPremiumNoteCopy(null, NOW).trialUsed).toBe(false);
+  it("★ the practice-set builder no longer exports the More-like-this limit subscription", async () => {
+    const mod = await import("../practice/practiceQuestionBuilder");
+    expect("subscribeMoreLikeThisLimit" in mod).toBe(false);
   });
 });
