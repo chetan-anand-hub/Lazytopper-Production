@@ -782,6 +782,23 @@ function rubricStatesValue(point, rightRaw) {
  * @returns {object} one per-question result in the legacy or v2 shape. Internal facts for the
  *          caller (`_graded`, `_withheld`) are non-enumerable.
  */
+/** MCQ-TYPE-2 (review should-fix b) · does this objective question OFFER OPTIONS — an MCQ or an
+ *  Assertion-Reason item? Read from the bank's options array or format when present; otherwise from
+ *  the question TEXT, which is how Check & Improve sends an MCQ (detect marks it objective, and the
+ *  options live in the text: "(A) −8  (B) 8  (C) −4  (D) 4"). A fill-in-the-blank or a Section-A
+ *  one-liner offers none, so it never carries a 0-mark habit. */
+function objectiveOffersOptions(q) {
+  if (!q) return false;
+  if (Array.isArray(q.options) && q.options.some((o) => o != null && String(o).trim())) return true;
+  const t = String(q.format || q.qType || '').toLowerCase();
+  if (t === 'mcq' || t === 'ar' || t === 'assertionreason' || t === 'assertion-reason') return true;
+  const text = String(q.questionText || q.question || '');
+  if (/\bassertion\b/i.test(text) && /\breason\b/i.test(text)) return true;
+  const letters = new Set();
+  for (const m of text.matchAll(/\(\s*([a-dA-D])\s*\)/g)) letters.add(m[1].toLowerCase());
+  return letters.size >= 2;
+}
+
 function normaliseQuestionResult(q, raw, ctx = {}) {
   const v2 = ctx.acceptsV2 === true;
   const totalMarks = Number(q.marks) > 0 ? Number(q.marks) : 1;
@@ -1223,8 +1240,21 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // full (the clamp above is untouched) and marksLostByType stays all-zero (nothing was lost).
   // applyObjectiveMistakeGuard has already cleared every type on an objective question with no
   // working (a bare pick, right or wrong) and kept at most ONE type per question.
+  //
+  // A habit must be EARNED (MCQ-TYPE-2 review, should-fix a + b). On a RIGHT objective answer the
+  // type is kept ONLY when
+  //   (a) at least one step that carries working was NOT judged correct (incorrect / partial) — a
+  //       type on working the model itself marked all-correct is unsupported, so it is cleared;
+  //   (b) the question OFFERS OPTIONS (an MCQ / A-R; see objectiveOffersOptions) — a bare 1-mark
+  //       fill-in or a Section-A one-liner keeps no habit.
+  // A WRONG objective answer is unaffected (its type is the lost mark's). Marks are not touched.
   if (questionIsObjective) {
-    // nothing to clear here
+    if (objectiveVerdict && objectiveVerdict.correct) {
+      const hasOptions = objectiveOffersOptions(q);
+      const flawedWorking = steps.some((s) => s && s.studentWork != null && String(s.studentWork).trim()
+        && (s.status === 'incorrect' || s.status === 'partial'));
+      if (!hasOptions || !flawedWorking) for (const s of steps) s.mistakeType = null;
+    }
   } else {
     // An accepted departure step keeps its type even when it lost nothing itself: its cost is
     // the work zeroed below it, and that cost is charged to its type (controller D26, defect (a)).
