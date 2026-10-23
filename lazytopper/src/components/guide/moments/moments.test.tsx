@@ -165,8 +165,9 @@ describe("MOMENTS-1 · guide_moment_shown", () => {
 });
 
 describe("MOMENTS-1 M11 · the written-answer nudge (the moment itself)", () => {
-  it("★★ Byte (cheer), the owner's line, 'Check a written answer' → /check-improve; the tap sends guide_moment_click m11", async () => {
-    render(<Slot uid="u1" moment="m11" step="nudge" />);
+  it("★★ Byte (cheer), the owner's line, 'Check a written answer' runs the host's IN-PAGE action (no route); the tap sends guide_moment_click m11", async () => {
+    const onCta = vi.fn();
+    render(<Slot uid="u1" moment="m11" step="nudge" onCta={onCta} />);
     const m = await screen.findByTestId("guide-moment-m11");
     expect(m.getAttribute("data-pose")).toBe("cheer");
     expect(line()).toBe(
@@ -174,10 +175,20 @@ describe("MOMENTS-1 M11 · the written-answer nudge (the moment itself)", () => 
     );
     const cta = screen.getByTestId("guide-moment-m11-cta");
     expect(cta.textContent).toBe("Check a written answer");
-    expect(cta.getAttribute("href")).toBe("/check-improve");
+    expect(cta.tagName).toBe("BUTTON");
+    expect(cta.getAttribute("href")).toBeNull();
+    expect(document.querySelector('a[href="/check-improve"]')).toBeNull();
     fireEvent.click(cta);
+    expect(onCta).toHaveBeenCalledTimes(1);
     expect(onboarding.mock.calls.filter((c) => c[0] === "guide_moment_click")).toEqual([["guide_moment_click", { moment: "m11" }]]);
     expect(momentCalls()).toEqual([["guide_moment_shown", { moment: "m11" }]]);
+  });
+
+  it("★★ GUIDE-SCORE-2: no host action → no button at all (never an off-page /check-improve link)", async () => {
+    render(<Slot uid="u1" moment="m11" step="nudge" />);
+    await screen.findByTestId("guide-moment-m11");
+    expect(screen.queryByTestId("guide-moment-m11-cta")).toBeNull();
+    expect(document.querySelector('a[href="/check-improve"]')).toBeNull();
   });
 });
 

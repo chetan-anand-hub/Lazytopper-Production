@@ -288,7 +288,7 @@ describe("MOMENTS-1 M11 · the first written answer nudge on the MCQ-only scorec
     await screen.findByRole("dialog", {}, { timeout: 10000 });
   }
 
-  it("★★ guide arm, never a written answer graded (server says so): Byte (cheer) + 'Check a written answer' → /check-improve", async () => {
+  it("★★ guide arm, never a written answer graded (server says so): Byte (cheer) + 'Check a written answer' opens THIS set's working box (GUIDE-SCORE-2: never /check-improve)", async () => {
     await finishTapOnly();
     const m = await screen.findByTestId("guide-moment-m11", {}, { timeout: 5000 });
     expect(m.getAttribute("data-kind")).toBe("byte");
@@ -296,8 +296,19 @@ describe("MOMENTS-1 M11 · the first written answer nudge on the MCQ-only scorec
     expect(m.querySelector('[data-testid="guide-moment-line"]')!.textContent).toBe(M11_LINE);
     const cta = screen.getByTestId("guide-moment-m11-cta");
     expect(cta.textContent).toBe("Check a written answer");
-    expect(cta.getAttribute("href")).toBe("/check-improve");
+    expect(cta.tagName).toBe("BUTTON");
+    expect(document.querySelector('a[href="/check-improve"]')).toBeNull();
     expect(writtenCloud).toHaveBeenCalledWith(UID);
+    // The tap: back to the set, the FIRST question's working box open, scrolled to and focused.
+    fireEvent.click(cta);
+    const box = await waitFor(() => {
+      const el = document.querySelector('[data-question-id="q-1"] [data-testid="practice-checker"]') as HTMLElement | null;
+      expect(el).not.toBeNull();
+      return el!;
+    });
+    await waitFor(() => expect(document.activeElement).toBe(box));
+    expect(document.querySelectorAll('[data-testid="practice-checker"]').length).toBe(1);
+    expect(screen.queryByTestId("guide-moment-m11")).toBeNull(); // the scorecard closed
   });
 
   it("★★ CONTROL arm: absent (and the server is not asked)", async () => {

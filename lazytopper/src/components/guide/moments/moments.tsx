@@ -74,7 +74,7 @@ export type GuideMomentSlotProps = GuideMomentProps & { show: boolean };
 export function GuideMomentSlot(props: GuideMomentSlotProps) {
   const hidden = useMascotsHidden();
   if (!props.show || hidden) return null;
-  const which = { moment: props.moment, step: props.step } as GuideMomentProps;
+  const which = { moment: props.moment, step: props.step, onCta: props.onCta } as GuideMomentProps;
   return (
     <Suspense fallback={null}>
       <LazyGuideMoment {...which} />
@@ -114,7 +114,16 @@ export function __resetM11ForTests(): void {
  * if the read fails), once per account per device. Respects "Hide mascots" (no claim while hidden).
  * The host renders it ONLY on the MCQ-only scorecard — never on a written / Check & Improve result.
  */
-export function M11Nudge({ uid, mcqAnswered }: { uid: string | null | undefined; mcqAnswered: number }) {
+export function M11Nudge({
+  uid,
+  mcqAnswered,
+  onOpenWorking,
+}: {
+  uid: string | null | undefined;
+  mcqAnswered: number;
+  /** GUIDE-SCORE-2 — the host's in-page "open the working box" action (no action → no button). */
+  onOpenWorking?: (() => void) | null;
+}) {
   const eligible = !!uid && mcqAnswered > 0 && inGuideArm(uid);
   const written = useWrittenGraded(eligible ? uid : null);
   const hidden = useMascotsHidden();
@@ -128,7 +137,7 @@ export function M11Nudge({ uid, mcqAnswered }: { uid: string | null | undefined;
   // GUIDE-SCORE-1 — while Byte's nudge shows, it owns the scorecard: the scorecard's own
   // character slot yields (never two characters on screen at once).
   useHoldStage("m11", show && !hidden);
-  return <GuideMomentSlot show={show} moment="m11" step="nudge" />;
+  return <GuideMomentSlot show={show} moment="m11" step="nudge" onCta={onOpenWorking} />;
 }
 
 /* ── M6 — "We couldn't read any answers" ──────────────────────────────────────────────────── */

@@ -4415,7 +4415,8 @@ const packTopicKey = useMemo(() => {
           </div>
         ) : !isGuest && !overlay && qpMomentUid ? (
           // MOMENTS-1 M11 — the MCQ-only (tap-only) scorecard ONLY: never a written / C&I result.
-          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} />
+          // GUIDE-SCORE-2 — its button opens THIS set's working box (first question), never another page.
+          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} onOpenWorking={addWorking} />
         ) : undefined,
       )}
     />
