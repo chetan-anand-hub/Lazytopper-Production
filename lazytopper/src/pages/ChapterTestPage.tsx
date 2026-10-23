@@ -303,34 +303,63 @@ export default function ChapterTestPage() {
   const [resumedCt, setResumedCt] = useState<ChapterTestJobContext | null>(null);
   const [resumePending, setResumePending] = useState(false);
   const lastUploadRef = useRef<{ imageBase64: string; imageMimeType: string } | null>(null);
-  const paper = resumedCt?.paper ?? draw?.paper ?? null;
+  // CT-RELOAD-1 — the paper of an in-progress attempt, restored after a reload (see below).
+  const [restoredPaper, setRestoredPaper] = useState<PersistedWorksheet | null>(null);
+  const paper = resumedCt?.paper ?? restoredPaper ?? draw?.paper ?? null;
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
   const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}` : null;
 
-  // Autosave restore (honest "✓ saved"): pull any in-flight answers for this test.
+  // Autosave restore (honest "✓ saved") — CT-RELOAD-1. A reload mid-test used to land on the
+  // setup screen with a NEW draw and then restore the saved answers (keyed by question NUMBER)
+  // onto it, so answers landed on the wrong questions. The in-progress attempt now saves ITS
+  // paper (ids, order, text) beside the answers, and a reload restores exactly that paper and
+  // goes straight back into the test, where it left off — the Full Mock resume model. A saved
+  // entry without its paper (written before this fix) is dropped: its answers belong to a
+  // paper that no longer exists on this page, and guessing would put them on the wrong rows.
   useEffect(() => {
     if (!progressKey || typeof window === "undefined") return;
     try {
       const raw = window.sessionStorage.getItem(progressKey);
       if (!raw) return;
-      const saved = JSON.parse(raw) as { answers?: Record<number, string>; flags?: number[]; elapsed?: number };
-      if (saved.answers) setAnswers(saved.answers);
-      if (Array.isArray(saved.flags)) setFlags(new Set(saved.flags));
+      const saved = JSON.parse(raw) as {
+        answers?: Record<number, string>;
+        flags?: number[];
+        elapsed?: number;
+        currentQNumber?: number;
+        timerEnabled?: boolean;
+        paper?: PersistedWorksheet;
+      };
+      const sp = saved.paper;
+      if (!sp || !Array.isArray(sp.questions) || sp.questions.length === 0 || typeof sp.worksheetId !== "string") {
+        window.sessionStorage.removeItem(progressKey);
+        return;
+      }
+      setRestoredPaper(sp);
+      setAnswers(saved.answers ?? {});
+      setFlags(new Set(Array.isArray(saved.flags) ? saved.flags : []));
       if (typeof saved.elapsed === "number") setElapsed(saved.elapsed);
+      if (typeof saved.timerEnabled === "boolean") setTimerEnabled(saved.timerEnabled);
+      const qn = Number(saved.currentQNumber);
+      setCurrentQNumber(sp.questions.some((q) => q.qNumber === qn) ? qn : 1);
+      // A resume, not a new start: never re-counted against the fair-use allowance.
+      setPhase((ph) => (ph === "setup" ? "taking" : ph));
     } catch {
       /* best-effort */
     }
   }, [progressKey]);
 
-  // Autosave write while taking.
+  // Autosave write while taking — the paper rides along so a reload restores THIS paper.
   useEffect(() => {
-    if (phase !== "taking" || !progressKey || typeof window === "undefined") return;
+    if (phase !== "taking" || !progressKey || !paper || typeof window === "undefined") return;
     try {
-      window.sessionStorage.setItem(progressKey, JSON.stringify({ answers, flags: [...flags], elapsed }));
+      window.sessionStorage.setItem(
+        progressKey,
+        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper }),
+      );
     } catch {
       /* quota — best-effort */
     }
-  }, [answers, flags, elapsed, phase, progressKey]);
+  }, [answers, flags, elapsed, currentQNumber, timerEnabled, phase, progressKey, paper]);
 
   const objectiveQs = useMemo(() => (paper ? objectiveQuestions(paper) : []), [paper]);
   const subjectiveQs = useMemo(() => (paper ? subjectiveQuestions(paper) : []), [paper]);
