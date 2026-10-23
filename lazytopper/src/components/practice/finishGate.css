@@ -1,0 +1,29 @@
+/* QP-WORKING-AFTER-1 — the Finish gate. Phone-first: a bottom sheet under 640 px; centred card above. */
+.qp-gate {
+  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(20, 35, 58, 0.5); box-sizing: border-box; overflow: hidden;
+}
+.qp-gate__sheet {
+  width: 100%; max-height: 92vh; overflow-y: auto; overflow-x: hidden; box-sizing: border-box;
+  background: #fff; color: hsl(220, 25%, 12%); border-radius: 18px 18px 0 0; padding: 18px 16px 16px;
+  box-shadow: 0 -12px 40px rgba(20, 35, 58, 0.3);
+}
+@media (min-width: 640px) {
+  .qp-gate { align-items: center; padding: 24px; }
+  .qp-gate__sheet { max-width: 640px; border-radius: 18px; padding: 22px 24px; }
+}
+.qp-gate__t { margin: 0 0 6px; font-size: 1.1rem; font-weight: 800; outline: none; }
+.qp-gate__lede { margin: 0 0 12px; font-size: 0.88rem; line-height: 1.5; color: hsl(220, 15%, 32%); }
+.qp-gate__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.qp-gate__item { border: 1px solid hsl(220, 18%, 90%); border-radius: 12px; padding: 12px; min-width: 0; }
+.qp-gate__qn { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: hsl(220, 15%, 42%); }
+.qp-gate__qt { margin: 4px 0 2px; font-size: 0.9rem; line-height: 1.45; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.qp-gate__note { margin: 8px 0 0; font-size: 0.82rem; color: hsl(220, 15%, 32%); }
+.qp-gate__acts { position: sticky; bottom: -16px; display: flex; flex-direction: column; gap: 8px;
+  margin: 14px -16px -16px; padding: 12px 16px 16px; background: #fff; border-top: 1px solid hsl(220, 18%, 92%); }
+@media (min-width: 640px) { .qp-gate__acts { margin: 16px -24px -22px; padding: 14px 24px 22px; bottom: -22px; } }
+.qp-gate__btn { min-height: 44px; width: 100%; border-radius: 12px; font: inherit; font-size: 0.92rem; font-weight: 800; cursor: pointer; }
+.qp-gate__btn--primary { border: 1px solid hsl(152, 45%, 32%); background: hsl(152, 45%, 32%); color: #fff; }
+.qp-gate__btn--skip { border: 1px solid hsl(220, 18%, 82%); background: #fff; color: hsl(220, 25%, 18%); }
+.qp-gate__btn:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }

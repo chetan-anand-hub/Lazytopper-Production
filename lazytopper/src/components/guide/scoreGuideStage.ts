@@ -16,9 +16,11 @@
  */
 import { useLayoutEffect, useSyncExternalStore } from "react";
 
-export type StageOwner = "scorecard" | "m11";
+export type StageOwner = "scorecard" | "m11" | "nudge";
 
-const held: Record<StageOwner, number> = { scorecard: 0, m11: 0 };
+/* "nudge" — QP-WORKING-AFTER-1: Ziggy's "Don't forget to save your answer!" beside an answer box
+   (./saveNudge/saveNudge.tsx); the sidebar's MI character steps aside while he shows. */
+const held: Record<StageOwner, number> = { scorecard: 0, m11: 0, nudge: 0 };
 const listeners = new Set<() => void>();
 let version = 0;
 
@@ -72,5 +74,6 @@ export function useHoldStage(owner: StageOwner, active: boolean): void {
 export function __resetStageForTests(): void {
   held.scorecard = 0;
   held.m11 = 0;
+  held.nudge = 0;
   emit();
 }

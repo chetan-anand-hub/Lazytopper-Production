@@ -1,0 +1,24 @@
+/* QP-WORKING-AFTER-1 — the save nudge, in place under an answer box. Phone-first: wraps at 320. */
+.lt-savenudge {
+  display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px;
+  border-radius: 12px; background: hsl(42, 90%, 95%); border: 1px solid hsl(38, 70%, 78%);
+  color: hsl(220, 25%, 12%); box-sizing: border-box; max-width: 100%;
+}
+.lt-savenudge__char { width: 56px; height: 56px; flex: none; }
+.lt-savenudge__body { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; flex: 1; }
+.lt-savenudge__say { margin: 0; font-size: 0.86rem; font-weight: 700; line-height: 1.4; flex: 1 1 160px; }
+.lt-savenudge__save {
+  min-height: 44px; min-width: 44px; padding: 0 16px; border-radius: 10px; cursor: pointer;
+  border: 1px solid hsl(152, 55%, 38%); background: hsl(152, 55%, 38%); color: #fff;
+  font: inherit; font-size: 0.86rem; font-weight: 800;
+}
+.lt-savenudge__save:hover { background: hsl(152, 55%, 32%); }
+.lt-savenudge__save:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
+/* The wrong-tap nudge: its three actions wrap (never a horizontal scroll at 320 px). */
+.lt-savenudge__acts { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.lt-savenudge__save--alt { background: #fff; color: hsl(152, 55%, 26%); }
+.lt-savenudge__save--alt:hover { background: hsl(152, 55%, 95%); }
+.lt-savenudge__dismiss {
+  min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 0.82rem; font-weight: 700; color: hsl(220, 15%, 38%); text-decoration: underline;
+}

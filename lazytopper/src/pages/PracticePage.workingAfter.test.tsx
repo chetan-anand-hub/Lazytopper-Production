@@ -1,16 +1,15 @@
-// QP-WORKING-AFTER-1 — working a student adds AROUND Finish on the REAL Quick Practice page.
+// QP-WORKING-AFTER-1 — the owner's design (23 Oct 22:48 IST) on the REAL Quick Practice page.
 //
-// Owner live test (23 Oct, prod 190d8271): all-MCQ set, 2 wrong → scorecard → "Show me the first
-// one I missed" → working typed in Q2's box → "Finish session" → the SAME scorecard came back. The
-// working was typed but never saved, so Finish silently dropped it: never graded, no mistake type.
-//
-// Cofounder ruling (23 Oct, consistent with PRACTICE-REVIEW-HONEST-1 / decision 27a):
-//   • unsaved working at Finish is SAVED and goes through the normal session grading; on a
-//     question whose steps / answer were NOT yet seen it is recorded to MI as usual;
-//   • working entered after the scorecard showed the answer (review) is graded and SHOWN
-//     ("Checked after you saw the answer …"), NEVER recorded (no MI, no attempt), mark unchanged;
-//   • after a graded set, "Check this working" grades that ONE answer through the same path,
-//     under the same show-not-record rule; the same working is never graded twice.
+// Owner live test (23 Oct, prod 190d8271): working typed in a box but never SAVED was silently
+// dropped at "Finish session". The owner's design:
+//   1. FINISH GATE — Finish with written (subjective) questions that have no saved working shows a
+//      gate first: those questions, each with its answer box in place, and "Skip — show my
+//      scorecard". Saving there is the set's ordinary save → normal grading → recorded as usual.
+//      Skip shows the scorecard at once. One gate per Finish, never a loop.
+//   2. ZIGGY SAVE NUDGE — typed / attached but not saved: "Don't forget to save your answer!" with
+//      a Save button, in place; gone on Save; Hide mascots → the same line as plain text.
+//   3. No post-scorecard grading path ("Check this working" is gone).
+//   4. Kept: the same working is never graded twice; an MCQ tap keeps its mark when working is added.
 //
 // ★ The harness of PracticePage.finishReview.test.tsx (real page, real services, the grader mocked).
 
@@ -70,8 +69,13 @@ vi.mock("../components/practice/practiceQuestionBuilder", async (importActual) =
   return { ...actual, buildPracticeQuestionsWithAiTopup: vi.fn() };
 });
 
-import PracticePage, { QP_REVIEW_NOTE } from "./PracticePage";
+import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
+import { __setGuideAbForTests } from "../components/guide/guideVariant";
+import { __resetMascotsForTests, hideMascots } from "../components/guide/mascotsMute";
+import { SAVE_NUDGE_COPY, SAVE_NUDGE_IDLE_MS, __resetSaveNudgeForTests } from "../components/guide/saveNudge/saveNudge";
+import { FINISH_GATE_COPY } from "../components/practice/FinishGate";
+import { __resetStageForTests } from "../components/guide/scoreGuideStage";
 
 const STUDENT = { uid: "student-wa", isLocalSession: false, email: "s@x.com" };
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
@@ -127,42 +131,40 @@ async function buildSet(pool: PQ[]) {
   await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 30000 });
 }
 
-const card = (n: number) => document.querySelector(`[data-question-id="q-${n}"]`) as HTMLElement;
+const card = (n: number) => document.querySelector(`[data-testid="practice-question-card"][data-question-id="q-${n}"]`) as HTMLElement;
+const gate = () => screen.queryByTestId("qp-finish-gate");
+const gateItem = (n: number) => document.querySelector(`[data-testid="qp-gate-item"][data-question-id="q-${n}"]`) as HTMLElement;
 const finish = () => fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
-/** Every question answered opens the scorecard by itself (no Finish button then). */
-const finishIfOffered = () => {
-  const b = screen.queryByRole("button", { name: /Finish session/i });
-  if (b) fireEvent.click(b);
-};
 const backToSet = async () =>
   fireEvent.click(await screen.findByRole("button", { name: (n: string) => n.includes("Back to this set") }));
 const lastBatchArgs = () => batchSpy.mock.calls[batchSpy.mock.calls.length - 1][0] as BatchArgs;
+const wait = (ms: number) => act(async () => new Promise((r) => setTimeout(r, ms)));
 
-/** Open question `n`'s box and TYPE working — `save` false is the owner's case (never saved). */
-async function typeWorking(n: number, text: string, save: boolean) {
-  const c = card(n);
-  const open = within(c).queryByRole("button", { name: /^Answer this question$/ });
+/** Type working in a box (`root`: a set card or a gate row); `save` taps "Save my answer". */
+async function typeIn(root: HTMLElement, text: string, save: boolean) {
+  const open = within(root).queryByRole("button", { name: /^Answer this question$/ });
   if (open) fireEvent.click(open);
-  await waitFor(() => expect(within(card(n)).getAllByRole("tab", { name: "Type my working" }).length).toBeGreaterThan(0));
-  fireEvent.click(within(card(n)).getByRole("tab", { name: "Type my working" }));
+  await waitFor(() => expect(within(root).getAllByRole("tab", { name: "Type my working" }).length).toBeGreaterThan(0));
+  fireEvent.click(within(root).getByRole("tab", { name: "Type my working" }));
   await act(async () => {
-    fireEvent.change(within(card(n)).getByLabelText("Type your working and answer"), { target: { value: text } });
+    fireEvent.change(within(root).getByLabelText("Type your working and answer"), { target: { value: text } });
   });
   if (save) {
-    fireEvent.click(within(card(n)).getByTestId("qp-save-answer"));
-    await within(card(n)).findByTestId("qp-saved-confirmation");
+    fireEvent.click(within(root).getByTestId("qp-save-answer"));
+    await within(root).findByTestId("qp-saved-confirmation");
   }
 }
-/** The MI front door, for one question. */
 const miWritesFor = (id: string) =>
-  recordMistakeSpy.mock.calls.filter((c) => (c as unknown[])[2] && ((c as unknown[])[2] as { questionId?: string }).questionId === id).length;
-const attemptsFor = (id: string) =>
-  recordAttemptSpy.mock.calls.filter((c) => (c as unknown[])[1] && ((c as unknown[])[1] as { questionId?: string }).questionId === id).length;
+  recordMistakeSpy.mock.calls.filter((c) => ((c as unknown[])[2] as { questionId?: string } | undefined)?.questionId === id).length;
 
 beforeEach(() => {
   authUser.current = STUDENT;
   window.localStorage.clear();
   window.sessionStorage.clear();
+  __resetMascotsForTests();
+  __resetStageForTests();
+  __resetSaveNudgeForTests();
+  __setGuideAbForTests(true, "guide");
   recordAttemptSpy.mockClear();
   recordMistakeSpy.mockClear();
   batchSpy.mockClear();
@@ -172,130 +174,162 @@ afterEach(() => {
   mockBuild.mockReset();
   gradeWorksheet.mockReset();
   setMatchMediaMatches(false);
+  __setGuideAbForTests(null);
 });
 
-describe("QP-WORKING-AFTER-1 · unsaved working at Finish", () => {
-  it("★★ typed but never saved (not reviewed): Finish SAVES it, it is graded and RECORDED as usual", async () => {
+describe("QP-WORKING-AFTER-1 · the Finish gate", () => {
+  it("★★ Finish with a written question that has NO working: the gate lists it (not the MCQ), with its box in place", async () => {
+    await buildSet([mkItem(1, false), mkItem(2, true)]);
+    fireEvent.click(screen.getByText("q2-correct"));
+    finish();
+    const g = await screen.findByTestId("qp-finish-gate");
+    expect(g.getAttribute("role")).toBe("dialog");
+    expect(within(g).getByText(FINISH_GATE_COPY.title)).toBeInTheDocument();
+    expect(Array.from(g.querySelectorAll('[data-testid="qp-gate-item"]')).map((e) => e.getAttribute("data-question-id"))).toEqual(["q-1"]);
+    expect(within(gateItem(1)).getAllByRole("tab", { name: "Type my working" }).length).toBeGreaterThan(0);
+    expect(within(g).getByTestId("qp-gate-skip").textContent).toBe(FINISH_GATE_COPY.skip);
+    expect(screen.queryByRole("dialog", { name: "Session scorecard" })).toBeNull(); // not yet
+  }, 60_000);
+
+  it("★★ typed in the set but NOT saved: the gate shows it with the save nudge; Save there → graded and RECORDED once", async () => {
     gradeWorksheet.mockResolvedValue(batch([grade(1, 3, 2, "calculation")]));
     await buildSet([mkItem(1, false), mkItem(2, true)]);
     fireEvent.click(screen.getByText("q2-correct"));
-    await typeWorking(1, "x + 2 = 5 so x = 4", false);
+    await typeIn(card(1), "x + 2 = 5 so x = 4", false);
     finish();
-    // The working was NOT dropped: the confirm card offers to check it.
+    const row = gateItem(1);
+    expect(within(row).getByText(FINISH_GATE_COPY.draftNote)).toBeInTheDocument();
+    const nudge = within(row).getByTestId("save-nudge");
+    expect(within(nudge).getByTestId("save-nudge-save").textContent).toBe(SAVE_NUDGE_COPY.save);
+    fireEvent.click(within(nudge).getByTestId("save-nudge-save"));
+    fireEvent.click(await screen.findByTestId("qp-gate-continue"));
+    expect(gate()).toBeNull();
     fireEvent.click(await screen.findByTestId("qp-grade-batch", {}, { timeout: 8000 }));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
     const sent = gradeWorksheet.mock.calls[0][0] as { questions: Array<{ qNumber: number }> };
     expect(sent.questions.map((q) => q.qNumber)).toEqual([1]);
     expect(lastBatchArgs().record).toBeUndefined(); // recorded as usual
     await waitFor(() => expect(miWritesFor("q-1")).toBe(1));
-    expect(await screen.findByText(/^Question 1$/)).toBeInTheDocument();
     expect(screen.queryByText(/Review attempt/)).toBeNull();
   }, 60_000);
 
-  it("★★ typed after opening that question's steps: saved and graded, but a review attempt (NOT recorded)", async () => {
-    gradeWorksheet.mockResolvedValue(batch([grade(1, 1, 1, "silly")]));
-    await buildSet([mkItem(1, true), mkItem(2, true)]);
-    fireEvent.click(screen.getByText("q1-wrong"));
-    fireEvent.click(await within(card(1)).findByRole("button", { name: /^Show steps$/ }));
-    await typeWorking(1, "I picked b", false);
-    fireEvent.click(screen.getByText("q2-correct")); // every question answered: the card opens
-    finishIfOffered();
-    fireEvent.click(await screen.findByTestId("qp-grade-batch", {}, { timeout: 8000 }));
-    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
-    expect(lastBatchArgs().record).toBe(false);
-    expect(await screen.findByTestId("qp-review-note")).toHaveTextContent(QP_REVIEW_NOTE);
-    expect(miWritesFor("q-1")).toBe(0);
-  }, 60_000);
-});
-
-describe("QP-WORKING-AFTER-1 · the owner's loop (all MCQ, 2 wrong → first missed → working → Finish)", () => {
-  it("★★ graded and SHOWN (the type appears), NOT recorded (MI writes = 0), the MCQ mark unchanged", async () => {
-    // The grader even says FULL marks for the wrong pick: the objective invariant must hold.
-    gradeWorksheet.mockResolvedValue(batch([grade(2, 1, 1, "silly")]));
-    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true), mkItem(4, true), mkItem(5, true)]);
-    for (const n of [1, 2, 3, 4, 5]) fireEvent.click(screen.getByText(n === 2 || n === 4 ? `q${n}-wrong` : `q${n}-correct`));
-    const finishBtn = screen.queryByRole("button", { name: /Finish session/i });
-    if (finishBtn) fireEvent.click(finishBtn);
-    await screen.findByRole("dialog", {}, { timeout: 10000 });
-    const hero = () => document.querySelector(".lt-sc__big")?.textContent ?? "";
-    await waitFor(() => expect(hero()).toBe("3 / 5"));
-    const attemptsBefore = recordAttemptSpy.mock.calls.length;
-    // Back to the set (Byte's "first one I missed" does the same), Q2's box, working typed, NOT saved.
-    await backToSet();
-    await waitFor(() => expect(card(2)).toBeTruthy());
-    await typeWorking(2, "I thought the sign stays", false);
-    finish();
-    fireEvent.click(await screen.findByTestId("qp-grade-batch", {}, { timeout: 8000 }));
-    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
-    expect(lastBatchArgs().record).toBe(false);
-    // Shown: Q2's row carries the type, labelled honestly.
-    const card2 = await screen.findByText(/Question 2 · Review attempt/);
-    expect(card2).toBeInTheDocument();
-    expect(document.body.textContent).toMatch(/Silly slip/i);
-    expect(screen.getByTestId("qp-review-note")).toHaveTextContent(QP_REVIEW_NOTE);
-    // The mark: still 3 / 5 (the working never rescues a wrong pick).
-    expect(hero()).toBe("3 / 5");
-    // NOT recorded: no MI write, no attempt for the review working.
-    expect(recordMistakeSpy).not.toHaveBeenCalled();
-    expect(recordAttemptSpy.mock.calls.length).toBe(attemptsBefore);
-  }, 90_000);
-});
-
-describe("QP-WORKING-AFTER-1 · after a graded set: 'Check this working', and never twice", () => {
-  async function gradedSet() {
-    gradeWorksheet.mockResolvedValueOnce(batch([grade(1, 3, 2, "calculation")]));
+  it("★★ nothing written: typed and saved IN the gate → graded and recorded once", async () => {
+    gradeWorksheet.mockResolvedValue(batch([grade(1, 3, 2, "calculation")]));
     await buildSet([mkItem(1, false), mkItem(2, true)]);
-    fireEvent.click(screen.getByText("q2-wrong"));
-    await typeWorking(1, "x = 4", true);
+    fireEvent.click(screen.getByText("q2-correct"));
     finish();
+    await screen.findByTestId("qp-finish-gate");
+    await typeIn(gateItem(1), "x = 4", true);
+    fireEvent.click(screen.getByTestId("qp-gate-continue"));
     fireEvent.click(await screen.findByTestId("qp-grade-batch", {}, { timeout: 8000 }));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
-    await screen.findByText(/^Question 1$/);
     await waitFor(() => expect(miWritesFor("q-1")).toBe(1));
-  }
+  }, 60_000);
 
-  it("★★ working added after the grade: the box checks THAT ONE answer (record:false), the scorecard shows it", async () => {
-    await gradedSet();
-    await backToSet();
-    await waitFor(() => expect(card(2)).toBeTruthy());
-    await typeWorking(2, "picked b, sign error", true);
-    const check = await within(card(2)).findByTestId("qp-check-now");
-    expect(check.textContent).toBe("Check this working");
-    gradeWorksheet.mockResolvedValueOnce(batch([grade(2, 1, 1, "silly")]));
-    fireEvent.click(check);
-    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(2));
-    const sent = gradeWorksheet.mock.calls[1][0] as { questions: Array<{ qNumber: number }> };
-    expect(sent.questions.map((q) => q.qNumber)).toEqual([2]); // ONLY the new working
-    expect(lastBatchArgs().record).toBe(false);
-    // Back on the scorecard, shown with the honest line; Q1's grade untouched; nothing recorded.
-    expect(await screen.findByText(/Question 2 · Review attempt/)).toBeInTheDocument();
-    expect(screen.getByTestId("qp-review-note")).toHaveTextContent(QP_REVIEW_NOTE);
-    expect(screen.getByText(/^Question 1$/)).toBeInTheDocument();
-    expect(miWritesFor("q-2")).toBe(0);
-    expect(miWritesFor("q-1")).toBe(1);
-    expect(attemptsFor("q-2")).toBeLessThanOrEqual(1); // the MCQ tap itself, never the working
-  }, 90_000);
-
-  it("★★ the same working is never graded twice: Back to this set → Finish offers no second grade", async () => {
-    // A set NOT fully answered (Q3 left), so the graded card offers "Keep practicing this set".
-    gradeWorksheet.mockResolvedValueOnce(batch([grade(1, 3, 2, "calculation")]));
+  it("★★ Skip shows the scorecard at once (nothing graded); the next Finish never re-opens the gate", async () => {
     await buildSet([mkItem(1, false), mkItem(2, true), mkItem(3, true)]);
-    fireEvent.click(screen.getByText("q2-wrong"));
-    await typeWorking(1, "x = 4", true);
+    fireEvent.click(screen.getByText("q2-correct"));
     finish();
-    fireEvent.click(await screen.findByTestId("qp-grade-batch", {}, { timeout: 8000 }));
-    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
-    await screen.findByText(/^Question 1$/);
-    await waitFor(() => expect(miWritesFor("q-1")).toBe(1));
-    // The graded card's "Back to this set" (its keep-practicing action): on trunk it DISCARDED the
-    // grade, so the next Finish offered to grade the same working again.
+    fireEvent.click(await screen.findByTestId("qp-gate-skip"));
+    expect(gate()).toBeNull();
+    await screen.findByRole("dialog", {}, { timeout: 8000 });
+    expect(screen.queryByTestId("qp-grade-batch")).toBeNull();
+    expect(gradeWorksheet).not.toHaveBeenCalled();
     await backToSet();
     await waitFor(() => expect(card(1)).toBeTruthy());
     finish();
+    await screen.findByRole("dialog", {}, { timeout: 8000 });
+    expect(gate()).toBeNull(); // one gate per Finish, never a loop
+  }, 60_000);
+
+  it("CONTROL: every written question already saved → no gate", async () => {
+    await buildSet([mkItem(1, false), mkItem(2, true), mkItem(3, true)]);
+    await typeIn(card(1), "x = 4", true);
+    finish();
+    await screen.findByTestId("qp-confirm", {}, { timeout: 8000 });
+    expect(gate()).toBeNull();
+  }, 60_000);
+});
+
+describe("QP-WORKING-AFTER-1 · the save nudge", () => {
+  it("★★ typed, not saved: after a pause Ziggy says 'Don't forget to save your answer!'; its Save saves; then it is gone", async () => {
+    await buildSet([mkItem(1, false), mkItem(2, true)]);
+    await typeIn(card(1), "x = 4", false);
+    expect(within(card(1)).queryByTestId("save-nudge")).toBeNull(); // not on the keystroke
+    await wait(SAVE_NUDGE_IDLE_MS + 200);
+    const nudge = within(card(1)).getByTestId("save-nudge");
+    expect(nudge.getAttribute("data-kind")).toBe("ziggy");
+    expect(within(nudge).getByTestId("save-nudge-line").textContent).toBe(SAVE_NUDGE_COPY.ziggy);
+    fireEvent.click(within(nudge).getByTestId("save-nudge-save"));
+    await within(card(1)).findByTestId("qp-saved-confirmation");
+    expect(within(card(1)).queryByTestId("save-nudge")).toBeNull();
+  }, 60_000);
+
+  it("★★ Hide mascots: the SAME reminder and Save, as plain text (no character)", async () => {
+    hideMascots();
+    await buildSet([mkItem(1, false), mkItem(2, true)]);
+    await typeIn(card(1), "x = 4", false);
+    await wait(SAVE_NUDGE_IDLE_MS + 200);
+    const nudge = within(card(1)).getByTestId("save-nudge");
+    expect(nudge.getAttribute("data-kind")).toBe("plain");
+    expect(within(nudge).getByTestId("save-nudge-line").textContent).toBe(SAVE_NUDGE_COPY.plain);
+    expect(nudge.querySelector('[data-testid^="blob-"]')).toBeNull();
+    fireEvent.click(within(nudge).getByTestId("save-nudge-save"));
+    await within(card(1)).findByTestId("qp-saved-confirmation");
+  }, 60_000);
+
+  it("★ two unsaved answers at once: ONE Ziggy, the other reminder is plain text", async () => {
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, true)]);
+    await typeIn(card(1), "x = 4", false);
+    await typeIn(card(2), "y = 5", false);
+    await wait(SAVE_NUDGE_IDLE_MS + 200);
+    const kinds = Array.from(document.querySelectorAll('[data-testid="save-nudge"]')).map((n) => n.getAttribute("data-kind"));
+    expect(kinds.sort()).toEqual(["plain", "ziggy"]);
+  }, 60_000);
+});
+
+describe("QP-WORKING-AFTER-1 · no grading after the scorecard; never twice; MCQ marks kept", () => {
+  it("★★ after a graded set: no 'Check this working' anywhere, and Back to this set → Finish offers no second grade", async () => {
+    gradeWorksheet.mockResolvedValueOnce(batch([grade(1, 3, 2, "calculation")]));
+    await buildSet([mkItem(1, false), mkItem(2, true)]);
+    fireEvent.click(screen.getByText("q2-wrong"));
+    await typeIn(card(1), "x = 4", true);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch", {}, { timeout: 8000 }));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    await screen.findByText(/^Question 1$/);
+    await waitFor(() => expect(miWritesFor("q-1")).toBe(1));
+    await backToSet();
+    await waitFor(() => expect(card(1)).toBeTruthy());
+    expect(screen.queryByText(/Check this working/)).toBeNull();
+    finish();
     await screen.findByText(/^Question 1$/, {}, { timeout: 8000 });
     expect(screen.queryByTestId("qp-grade-batch")).toBeNull();
-    expect(screen.queryByTestId("qp-scorecard-check-now")).toBeNull();
+    expect(screen.queryByText(/Check this working/)).toBeNull();
     expect(gradeWorksheet).toHaveBeenCalledTimes(1);
     expect(miWritesFor("q-1")).toBe(1);
+  }, 90_000);
+
+  it("★★ an MCQ tapped before Finish keeps its mark when working is added afterwards (3 / 5, never 3 / 4)", async () => {
+    gradeWorksheet.mockResolvedValue(batch([grade(2, 1, 1, "silly")]));
+    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true), mkItem(4, true), mkItem(5, true)]);
+    for (const n of [1, 2, 3, 4, 5]) fireEvent.click(screen.getByText(n === 2 || n === 4 ? `q${n}-wrong` : `q${n}-correct`));
+    const f = screen.queryByRole("button", { name: /Finish session/i });
+    if (f) fireEvent.click(f);
+    await screen.findByRole("dialog", {}, { timeout: 10000 });
+    const hero = () => document.querySelector(".lt-sc__big")?.textContent ?? "";
+    await waitFor(() => expect(hero()).toBe("3 / 5"));
+    await backToSet();
+    await waitFor(() => expect(card(2)).toBeTruthy());
+    await typeIn(card(2), "I thought the sign stays", true);
+    finish();
+    const grade1 = screen.queryByTestId("qp-grade-batch");
+    if (grade1) {
+      fireEvent.click(grade1);
+      await waitFor(() => expect(gradeWorksheet).toHaveBeenCalled());
+    }
+    await screen.findByRole("dialog", {}, { timeout: 8000 });
+    await waitFor(() => expect(hero()).toBe("3 / 5"));
+    expect(recordMistakeSpy).not.toHaveBeenCalled(); // after the scorecard: never recorded
   }, 90_000);
 });

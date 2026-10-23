@@ -49,11 +49,10 @@ export interface PracticeQuestionListProps {
   savedAnswers?: Record<string, SolutionCheckerSavedWorking>;
   onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
   onRemoveAnswer?: (qId: string) => void;
-  /** QP-WORKING-AFTER-1 — each box's unsaved draft, so the host can save it at Finish. */
+  /** QP-WORKING-AFTER-1 — each box's unsaved draft (the Finish gate lists typed-but-unsaved ones). */
   onDraftAnswer?: (qId: string, working: SolutionCheckerSavedWorking | null) => void;
-  /** QP-WORKING-AFTER-1 — after a graded set: the questions whose saved working is not checked
-   *  yet ("Check this working" on that box), the check, and the one being checked. */
-  afterGradeCheck?: { pendingIds: Record<string, true>; busyId: string | null; onCheck: (qId: string) => void } | null;
+  /** QP-WORKING-AFTER-1 — the save nudge's student (undefined: no nudge). */
+  saveNudgeUid?: string | null;
   /**
    * PRACTICE-HONESTY-1 — the host's per-question steps lock, passed straight through to
    * `PracticeQuestionCard.stepsLocked`. The host owns the rule (it alone holds every attempt
@@ -166,7 +165,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, onDraftAnswer, afterGradeCheck,
+    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, onDraftAnswer, saveNudgeUid,
   } = props;
 
   return (
@@ -296,14 +295,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onSaveAnswer={onSaveAnswer}
               onRemoveAnswer={onRemoveAnswer}
               onDraftAnswer={onDraftAnswer}
-              onCheckWorking={
-                afterGradeCheck
-                  ? afterGradeCheck.pendingIds[String(q.id)]
-                    ? () => afterGradeCheck.onCheck(String(q.id))
-                    : null
-                  : undefined
-              }
-              checkWorkingBusy={!!afterGradeCheck && afterGradeCheck.busyId === String(q.id)}
+              saveNudgeUid={saveNudgeUid}
               stepsLocked={isStepsLocked ? isStepsLocked(String(q.id)) : false}
               defaultAnswerMode={defaultAnswerMode}
             />

@@ -137,6 +137,14 @@ import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practi
 // throws "No X export is defined on the mock".
 import { MAX_BATCH_UPLOADS } from "../config/gradingLimits";
 
+/** QP-WORKING-AFTER-1 — Finish with written questions that have no saved working opens the gate
+ *  first; these flows test what comes AFTER it, so they take its "Skip — show my scorecard". */
+function skipFinishGate() {
+  const skip = screen.queryByTestId("qp-gate-skip");
+  if (skip) fireEvent.click(skip);
+}
+
+
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
 type PQ = import("../data/predictionDataService").PracticeQuestion;
 
@@ -269,7 +277,7 @@ async function saveTypedFor(n: number, text = "x = 4 and x = -2") {
 }
 
 function finish() {
-  fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+  fireEvent.click(screen.getByRole("button", { name: /Finish session/i })); skipFinishGate(); // QP-WORKING-AFTER-1 — past the gate
 }
 
 /** PRACTICE-HONESTY-1 — the confirm CTA reads "Check my written answers" (no count in the

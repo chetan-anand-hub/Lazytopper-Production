@@ -75,6 +75,14 @@ import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
 import { STEPS_LOCKED_COPY } from "../components/practice/StepsLockedNote";
 
+/** QP-WORKING-AFTER-1 — Finish with written questions that have no saved working opens the gate
+ *  first; these flows test what comes AFTER it, so they take its "Skip — show my scorecard". */
+function skipFinishGate() {
+  const skip = screen.queryByTestId("qp-gate-skip");
+  if (skip) fireEvent.click(skip);
+}
+
+
 authUser.current = { uid: "student-1", isLocalSession: false, email: "s@x.com" };
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
 type PQ = import("../data/predictionDataService").PracticeQuestion;
@@ -143,7 +151,10 @@ const cards = () => screen.getAllByTestId("practice-question-card");
 const lockedNotes = (el: HTMLElement | Document = document) =>
   Array.from(el.querySelectorAll('[data-testid="steps-locked-note"]'));
 const showStepsIn = (card: HTMLElement) => within(card).queryByRole("button", { name: /^(Show|Hide) steps$/ });
-const finish = () => fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+const finish = () => {
+  fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+  skipFinishGate(); // QP-WORKING-AFTER-1 — past the gate (written questions with no saved working)
+};
 
 /** Save typed working on question `n` (collect mode — no API call). */
 async function saveTypedFor(n: number) {
@@ -323,7 +334,7 @@ async function reachScorecard(overlay?: { onClose: () => void }) {
 async function answerAndFinish() {
   fireEvent.click(screen.getByText("q1-correct"));
   fireEvent.click(screen.getByText("q2-wrong"));
-  fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+  fireEvent.click(screen.getByRole("button", { name: /Finish session/i })); skipFinishGate(); // QP-WORKING-AFTER-1 — past the gate
   await screen.findByRole("button", { name: (n: string) => n.includes(BACK_TO_SET) });
 }
 

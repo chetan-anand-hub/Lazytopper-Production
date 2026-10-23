@@ -67,6 +67,14 @@ import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practi
 import { gradeWorksheet } from "../ai/aiClient";
 import { askCloudOnce, resetZeroGradedCacheForTests } from "../components/startHere/zeroGraded";
 
+/** QP-WORKING-AFTER-1 — Finish with written questions that have no saved working opens the gate
+ *  first; these flows test what comes AFTER it, so they take its "Skip — show my scorecard". */
+function skipFinishGate() {
+  const skip = screen.queryByTestId("qp-gate-skip");
+  if (skip) fireEvent.click(skip);
+}
+
+
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
 type PQ = import("../data/predictionDataService").PracticeQuestion;
 const SIGNED_IN = { uid: "qp-new", isLocalSession: false, email: "s@x.com" };
@@ -173,7 +181,7 @@ describe("SHW-2 · Quick Practice answer box - type-first", () => {
     });
     fireEvent.click(await screen.findByTestId("qp-save-answer"));
     await screen.findByTestId("qp-saved-confirmation");
-    fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Finish session/i })); skipFinishGate(); // QP-WORKING-AFTER-1 — past the gate
     fireEvent.click(await screen.findByTestId("qp-grade-batch"));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.queryByTestId("qp-grade-batch")).toBeNull()); // the graded sheet is up

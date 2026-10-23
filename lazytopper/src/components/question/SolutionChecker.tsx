@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import "./solutionCheckerCheckNow.css";
+import "./solutionCheckerSaved.css";
 import { Link, useLocation } from "react-router-dom";
 import {
   checkSolutionImage,
@@ -155,18 +155,10 @@ interface SolutionCheckerProps {
   defaultAnswerMode?: "type" | "upload";
   /**
    * QP-WORKING-AFTER-1 — collect mode only. Called with what the ACTIVE tab holds while the
-   * working is NOT yet saved (null once it is saved, cleared or the box closes), so the host can
-   * save a typed or attached draft at Finish instead of silently dropping it. No API call.
+   * working is NOT yet saved (null once it is saved, cleared, or the box closes), so the host can
+   * nudge "Don't forget to save" and list it at the Finish gate. No API call.
    */
   onDraftChange?: (working: SolutionCheckerSavedWorking | null) => void;
-  /**
-   * QP-WORKING-AFTER-1 — collect mode only: the set was ALREADY graded and this saved working
-   * is not checked yet. The confirmed state then offers "Check this working" (the host grades
-   * this ONE answer through its existing grading path). Omitted: today's "Graded when you finish."
-   */
-  onCheckNow?: (() => void) | null;
-  /** While the host is checking this working: the button reads "Checking…" and is disabled. */
-  checkNowBusy?: boolean;
 }
 
 /**
@@ -522,7 +514,7 @@ function SignInToCheckCta() {
 export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer, attemptIdentity,
-  defaultAnswerMode, onDraftChange, onCheckNow, checkNowBusy = false,
+  defaultAnswerMode, onDraftChange,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   /**
@@ -976,9 +968,7 @@ export function SolutionChecker({
           {collectMode ? "Your answer" : "Check my answer"}
         </strong>
         <span style={{ fontSize: "0.72rem", color: "hsl(220, 15%, 42%)" }}>
-          {collectMode && onCheckNow !== undefined
-            ? "Upload or type your working, then check it here"
-            : collectMode
+          {collectMode
             ? "Upload or type your working — graded at the end of the session"
             : "Upload or type your working"}
         </span>
@@ -1305,7 +1295,7 @@ export function SolutionChecker({
           >✓</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "hsl(220, 25%, 12%)" }}>
-              {onCheckNow ? "Saved. Your set is already graded, so check this one now." : "Saved. Graded when you finish."}
+              Saved. Graded when you finish.
             </div>
             <div style={{ fontSize: "0.76rem", color: "hsl(152, 55%, 26%)", marginTop: 2 }}>
               {savedAnswer.kind === "typed"
@@ -1347,18 +1337,6 @@ export function SolutionChecker({
                 }}
               >Remove</button>
             </div>
-            {/* QP-WORKING-AFTER-1 — the set is graded: this ONE answer is checked on its own tap. */}
-            {onCheckNow ? (
-              <button
-                type="button"
-                className="qp-check-now"
-                data-testid="qp-check-now"
-                disabled={checkNowBusy}
-                onClick={() => onCheckNow()}
-              >
-                {checkNowBusy ? "Checking your working…" : "Check this working"}
-              </button>
-            ) : null}
           </div>
         </div>
       )}
