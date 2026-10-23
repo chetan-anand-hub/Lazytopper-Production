@@ -1,3 +1,17 @@
+## 2026-10-22 (daily) - CI-CLOCK-CUT (`#1285`), PAYWALL-PAY-1 (`#1286`), CI-SPEED-3 (`#1287`), GUIDE-IQ-1 (`#1288`), MOMENTS-1 (`#1289`), COST-1 (`#1290`), TOPUP-1 PR-1 (`#1291`), GUIDE-OPTS-1 (`#1292`), RAILWAY-SLIM-1 (`#1293`), PARENT-REPORT-1 (`#1294`), MLT-MUTE-1 (`#1295`), OPS-REPORT-1 (`#1296`), MLT-MUTE-2 (`#1297`), FILTER-FIX-1 (`#1298`) - MERGED
+
+- DONE. `#1285` (`2b4cacef`) + `#1287` (`5a42118b`): CI - one `clock-changed` job instead of six clock legs; 4 x 4 vitest shards; every test still runs. `#1293` (`3de8d414`): the Railway image builds only the backend.
+- DONE. `#1286` (`361d4320`): Pay / Share QR code / Forward link to parents at every lock point (dark until `VITE_PAYMENTS_ENABLED`). Live owner check of the payment round-trip and the share sheet on a real Android phone and iPhone owed (PR body).
+- DONE. `#1291` (`8db39ba4`): TOPUP-1 PR-1, server top-ups, dark behind `TOPUP_ENABLED`. NEXT: TOPUP-1 part 2 (`[FU-TOPUP1-PART2]`).
+- DONE. `#1288` (`8a7b4cc9`), `#1292` (`dca13e31`): Byte's first screen - important-questions intent; Chapter Test and Today's worksheet options.
+- DONE. `#1289` (`e24cb359`): MOMENTS-1 - Byte & Ziggy before the first grade; Hide mascots; Quick Practice Retry.
+- DONE. `#1290` (`4b232e98`): COST-1 - per-student AI cost on `/admin/students`.
+- DONE. `#1294` (`5f37697e`): PARENT-REPORT-1 - a private result page for parents from a saved C&I result.
+- DONE. `#1295` (`f84a2bd2`), `#1297` (`6280766a`), `#1298` (`6fe85765`): More like this = verified bank only; narrow filters draw from the whole chapter; Proof / Derivation, Others, HOTS, chips fixed. Live on www at writing (`/version.json` = `6fe85765`) [docs-builder-curl].
+- DONE. `#1296` (`49e82c5e`): OPS-REPORT-1 daily health email; switched on 22 Oct, first run 23 Oct 08:00 IST [coordinator].
+- IN FLIGHT (builders running, no PRs at writing) [coordinator]: PYQ-RESTORE-A, PYQ-RESTORE-B, GUIDE-ALL-1, GUIDE-SCORE-1, GUIDE-PAGES-1, GUIDE-FILTER-1, SHARE-CARD-1, COMPANION-1, QP-CONCEPT-1.
+- OPEN. The 2026-10-22 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-20 (daily, part 2) - GUIDE-1 (`#1277`), RIG-2 (`#1278`), PREVIEW-1 (`#1279`), MI-VOICE-1 (`#1280`), GUIDE-PUBLIC-1 (`#1281`), MUMMY-1 (`#1282`), PARENTS-NAV-1 (`#1283`) - MERGED
 
 - DONE. `#1277` (`69f09239`): Byte replaces Start-here for new students (50/50 A/B by uid hash); Ziggy on the first scorecard only. A/B re-read after a week; roll out after 2 weeks (owner ruling 20-21 Oct).
