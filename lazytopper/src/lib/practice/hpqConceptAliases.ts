@@ -72,6 +72,10 @@ export const HPQ_CONCEPT_ALIASES: Readonly<Record<string, Readonly<Record<string
   "life-processes": {
     "Circulation": ["Transportation & Excretion in Humans"],
     "Nutrition in Plants": ["Nutrition & Respiration (Human + Plants)"],
+    // lp-hpq-101 — "powerhouse of the cell". QP-CONCEPT-4 (review): the bank's organelle questions are filed
+    // under Respiration / Nutrition / Photosynthesis (mitochondria, chloroplast as the site of photosynthesis,
+    // ATP) and Excretion (contractile vacuole), so both buckets; the keywords below pick exactly those rows.
+    "Cell organelles": ["Nutrition & Respiration (Human + Plants)", "Transportation & Excretion in Humans"],
   },
   "light-reflection-and-refraction": {
     "Mirror Formula & Diagrams": ["Mirror / Lens Formula & Ray Diagrams"],
@@ -106,15 +110,7 @@ export const HPQ_CONCEPT_ALIASES: Readonly<Record<string, Readonly<Record<string
 };
 
 /** An HPQ label that names no concept the bank has: chapter -> label -> reason. */
-export const HPQ_NO_BANK_CONCEPT: Readonly<Record<string, Readonly<Record<string, string>>>> = {
-  "life-processes": {
-    // QP-CONCEPT-4 (reviewer read): lp-hpq-101 asks for the "powerhouse of the cell". The bank holds only
-    // 3 genuine rows on it (2 on mitochondria, 1 on ATP as energy currency) — fewer than a set of 5 — so
-    // the label is NOT mapped onto the 313-row Nutrition & Respiration bucket; the page serves related
-    // questions from this chapter under the honest note instead.
-    "Cell organelles": "only 3 bank rows on mitochondria / ATP (fewer than 5): served with the honest note",
-  },
-};
+export const HPQ_NO_BANK_CONCEPT: Readonly<Record<string, Readonly<Record<string, string>>>> = {};
 
 /** The concept(s) an HPQ label stands for in `chapterSlug`, or undefined. Exact, then case-insensitive. */
 export function hpqConceptAlias(chapterSlug: string, label: string): readonly string[] | undefined {
@@ -134,8 +130,8 @@ export function hpqConceptAlias(chapterSlug: string, label: string): readonly st
 // row's subtopic or question text, as on the Topic Hub cards) rank the HPQ question's OWN topic first
 // inside the bucket. Chosen from phrases that occur in the bank (checked by conceptHint.realBank.test.ts:
 // each label has keyword rows, and they lead its set).
-const LENS_KEYWORDS = ["lens formula", "converging lens"];
-const MIRROR_KEYWORDS = ["mirror formula", "mirror of focal length"];
+const LENS_KEYWORDS = ["lens formula"];
+const MIRROR_KEYWORDS = ["mirror formula"];
 export const AP_TEST_KEYWORDS = ["common difference", "is an ap", "are in ap", "an a.p.", "arithmetic progression"];
 
 export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> = {
@@ -165,6 +161,12 @@ export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string,
   "life-processes": {
     "Circulation": ["heart", "double circulation", "circulation"],
     "Nutrition in Plants": ["photosynthesis", "chlorophyll", "stomata"],
+    // QP-CONCEPT-4: 9 on-concept rows match (LP2-009, LP2-059, LP2-038, LPSE-017, LPSE-019, LIFE-EXMPLR-5-SA-001,
+    // LIFE-EXMPLR-5-SA-026, LPX-A-005, LTG-S-LIFE-258). "chloroplast" is NOT a keyword: its 2 rows are a CAM-plant
+    // case and a CO2 experiment, not organelle questions. SCO-S-LIFE-007 / -019 are on-topic but filed under the
+    // chapter-echo label "Chapter Practice - Life Processes", which resolves to no concept, so they cannot be served
+    // as on-concept rows (a data re-tag, outside this lane).
+    "Cell organelles": ["organelle", "mitochondri", "powerhouse", "contractile vacuole", "energy currency"],
   },
   "light-reflection-and-refraction": {
     "Mirror Formula & Diagrams": MIRROR_KEYWORDS,

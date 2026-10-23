@@ -382,21 +382,42 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
   // band), and ≥ 4 of its first 5 (or all, when fewer exist) carry one (a SELF check: it proves the
   // keywords lead, not that they are right); (b) whether they are RIGHT is the JUDGED fixture below.
   const inBand = (e: Entry, q: PracticeQuestion) => !e.range || (Number(q.marks) >= e.range.min && Number(q.marks) <= e.range.max);
-  // QP-CONCEPT-4 — JUDGED fixture, independent of every keyword list. #1313's "oracle" copied the product's
-  // own phrases, so it checked the lists against themselves. These are bank ids a reader ACCEPTS as on-topic
-  // for each item, chosen by reading the questions (2026-10-23, on trunk e80c3966 + this lane), NOT by any
-  // keyword. A first-5 row outside the set counts as off-topic. If the bank changes, re-read the item's first
-  // 5 in first5.txt (QP_FIRST5_DUMP) and re-judge by hand — never regenerate this list from a keyword.
-  //   rejected on reading: Lens HPQ CASE-SCI-LIGHT-001 (myopia power), Mirror HPQ SQP-S-2025-LGHT-030 (concave /
-  //   convex statements, no formula), Oxidation/Reduction BX-CHEM-E-016 (respiration as exothermic).
-  const JUDGED: ReadonlyArray<{ surface: "hub" | "hpq"; slug: string; match: string; accept: readonly string[] }> = [
-    { surface: "hub", slug: "circles", match: "Tangent ⟂ radius", accept: ["CBE-M-CIRC-A-002", "LTG-M-CIRC-250", "CBE-M-CIRC-C-002", "CBE-M-TRI-B-004", "CBE-M-CIRC-B-002"] },
-    { surface: "hub", slug: "trigonometry", match: "Trigonometric ratios of an acute angle", accept: ["LTG-M-TRIG-257", "TRIG-N-NCERT-8-SA-001", "LTG-M-TRIG-239", "2026-TRIG-P1-B-001", "2026-TRIG-P1-B-002"] },
-    { surface: "hub", slug: "light-reflection-and-refraction", match: "Mirror formula", accept: ["GDR-L-NUM-093", "PYQ-S-2025-LIGHT-010", "PYQ-S-2025-LIGHT-011", "PYQ-S-2025-LIGHT-017", "CFPQ-S-LGHT-012"] },
-    { surface: "hub", slug: "light-reflection-and-refraction", match: "Lens formula", accept: ["LTG-S-LIGHT-291", "PYQ-S-2026-LIGHT-017", "PYQ-S-2025-LIGHT-016", "FND-L-SPX-019", "FND-L-SPX-023"] },
-    { surface: "hpq", slug: "light-reflection-and-refraction", match: "Lens Formula & Diagrams", accept: ["LTG-S-LIGHT-291", "LTG-S-LIGHT-102", "LTG-S-LIGHT-274", "LTG-S-LIGHT-294"] },
-    { surface: "hpq", slug: "light-reflection-and-refraction", match: "Mirror Formula & Diagrams", accept: ["LIGHT-NCERT-9-LA-007", "SQP-S-2025-LGHT-032", "LTG-S-LIGHT-223", "PYQ-S-2025-LIGHT-008"] },
-    { surface: "hpq", slug: "chemical-reactions-and-equations", match: "Oxidation/Reduction", accept: ["LTG-S-CHEMRXN-246", "CHEM-EXMPLR-1-MCQ-002", "LTG-S-CHEMRXN-310", "SP-S-2023-CHEM-A-003"] },
+  // QP-CONCEPT-4 — JUDGED ON-TOPIC fixture, independent of every keyword list. For each item, EVERY row of its
+  // keyword tier (the rows that can lead its set) was READ on 2026-10-23 (trunk 0ace8c36 + this lane) and judged:
+  // `accept` = on-topic, `reject` = off-topic with the reason. The ids are hand-judged data, never derived from a
+  // keyword at test time. A first-5 row outside `accept` counts as off-topic. If this fails, the bank, the seed or
+  // the engine changed: re-dump (QP_FIRST5_DUMP), re-read the new rows and re-judge by hand.
+  const JUDGED: ReadonlyArray<{
+    surface: "hub" | "hpq";
+    slug: string;
+    match: string;
+    reject: Readonly<Record<string, string>>;
+    accept: readonly string[];
+  }> = [
+    { surface: "hub", slug: "circles", match: "Tangent ⟂ radius",
+      reject: {"CBE-M-CIRC-B-003":"tangent–chord angle (alternate segment), not tangent ⟂ radius","CI2-036":"chord–tangent angle to central angle"},
+      accept: ["LTG-M-CIRC-219", "LTG-M-CIRC-227", "PYQ-M-CIRC-002", "LTG-M-CIRC-226", "LTG-M-CIRC-102", "LTG-M-CIRC-209", "CBE-M-CIRC-A-001", "CBE-M-CIRC-A-002", "LTG-M-CIRC-250", "CBE-M-CIRC-C-002", "CBE-M-TRI-B-004", "CBE-M-CIRC-B-002", "LTG-M-CIRC-241", "LTG-M-CIRC-231", "LTG-M-CIRC-217", "2026-CIRC-SA-01b", "CI2-015", "CIR-E05", "CI2-005", "CI2-010", "CIR-E01", "CI2-044", "CI2-027", "CI2-020", "CI2-002", "CI2-041", "CI2-001", "CI2-024"] },
+    { surface: "hub", slug: "trigonometry", match: "Trigonometric ratios of an acute angle",
+      reject: {},
+      accept: ["TRIG-N-NCERT-8-SA-003", "TRIG-N-NCERT-8-SA-005", "CBE-M-TRIG-B-001", "CBE-M-TRIG-B-002", "CBE-M-TRIG-C-001", "LTG-M-TRIG-240", "LTG-M-TRIG-257", "TRIG-N-NCERT-8-SA-001", "LTG-M-TRIG-239", "2026-TRIG-P1-B-001", "2026-TRIG-P1-B-002", "2026-TRIG-P1-B-003", "2026-TRIG-P1-B-004", "2026-TRIG-P1-B-005", "TG3-010", "TG3-029", "TRIG2-E07"] },
+    { surface: "hub", slug: "light-reflection-and-refraction", match: "Mirror formula",
+      reject: {},
+      accept: ["FND-L-SPX-008", "LTG-S-LIGHT-230", "GDR-L-NUM-052", "GDR-L-NUM-079", "GDR-L-NUM-090", "GDR-L-NUM-091", "GDR-L-NUM-093", "PYQ-S-2025-LIGHT-010", "PYQ-S-2025-LIGHT-011", "PYQ-S-2025-LIGHT-017", "CFPQ-S-LGHT-012", "GDR-L-EQ-27", "GDR-L-NUM-056", "GDR-L-NUM-075", "GDR-L-NUM-076", "GDR-L-NUM-078", "GDR-L-NUM-081", "GDR-L-NUM-083", "GDR-L-NUM-084", "GDR-L-NUM-085", "GDR-L-NUM-086", "GDR-L-NUM-088", "GDR-L-NUM-092", "GDR-L-NUM-094", "GDR-L-CBJ-015", "GDR-L-CBJ-017", "GDR-L-CBJ-033", "GDR-L-CBJ-035", "GDR-L-CBJ-037", "GDR-L-CBJ-041", "GDR-L-CBJ-043", "FND-L-SPX-014", "FND-L-SPX-040", "GDR-L-NUM-051", "GDR-L-NUM-077", "LTG-S-LIGHT-229", "LTG-S-LIGHT-232", "FND-L-SPQ-002", "2026-LIGHT-SA-03", "GDR-L-CBJ-012", "LT2-007", "LT2-031", "LT-M01"] },
+    { surface: "hub", slug: "light-reflection-and-refraction", match: "Lens formula",
+      reject: {},
+      accept: ["LTG-S-LIGHT-291", "CBE-S-LGHT-C-004", "GDR-L-NUM-026", "GDR-L-NUM-013", "GDR-L-NUM-035", "APQ-S-LIGHT-007", "PYQ-S-2026-LIGHT-013", "PYQ-S-2026-LIGHT-017", "PYQ-S-2025-LIGHT-016", "FND-L-SPX-019", "FND-L-SPX-023", "FND-L-SPX-033", "FND-L-SPQ-003", "FND-L-SPQ-011", "FND-L-SPQ-015", "FND-L-SPQ-018", "FND-L-SPQ-021", "FND-L-BD-06", "SQP-S-2025-LGHT-033", "GDR-L-NUM-001", "GDR-L-NUM-002", "GDR-L-NUM-003", "GDR-L-NUM-004", "GDR-L-NUM-005", "GDR-L-NUM-006", "GDR-L-NUM-008", "GDR-L-NUM-009", "GDR-L-NUM-010", "GDR-L-NUM-011", "GDR-L-NUM-012", "GDR-L-NUM-014", "GDR-L-NUM-015", "GDR-L-NUM-023", "GDR-L-NUM-027", "GDR-L-NUM-028", "GDR-L-NUM-030", "GDR-L-NUM-042", "GDR-L-NUM-054", "GDR-L-NUM-064", "GDR-L-CBJ-020", "GDR-L-CBJ-031", "GDR-L-CBJ-036", "GDR-L-CBJ-038", "GDR-L-CBJ-040", "LTG-S-LIGHT-290", "LTG-S-LIGHT-292", "CBE-S-LGHT-C-001", "CFPQ-S-LGHT-013", "CBE-S-LGHT-B-005", "CBE-S-LGHT-B-006", "LTG-S-LIGHT-268", "LTG-S-LIGHT-271", "2026-LIGHT-SA-10", "FND-L-SPX-032", "GDR-L-CBJ-013", "LT2-016", "LT2-038"] },
+    { surface: "hpq", slug: "light-reflection-and-refraction", match: "Lens Formula & Diagrams",
+      reject: {"LTG-S-LIGHT-297":"power of lenses in contact","CASE-SCI-LIGHT-001":"myopia / hypermetropia lens power","PYQ-S-2025-LIGHT-020":"glass slab / prism refraction","LT2-018":"power of a lens (A–R)","LT2-048":"power of a lens","LT2-017":"concave lens image nature, no formula","LTG-S-LIGHT-299":"spectacle powers in contact"},
+      accept: ["LTG-S-LIGHT-273", "LTG-S-LIGHT-276", "LTG-S-LIGHT-296", "FND-L-SPQ-022", "SQP-S-2025-LGHT-038", "LTG-S-LIGHT-277", "LTG-S-LIGHT-102", "LTG-S-LIGHT-274", "LTG-S-LIGHT-294", "LTG-S-LIGHT-291", "CBE-S-LGHT-C-004", "FND-L-QB-158", "CFPQ-S-LGHT-014", "FND-L-QB-133", "FND-L-QB-142", "FND-L-QB-161", "FND-L-QB-163", "LTG-S-LIGHT-284", "FND-L-WS4-209", "FND-L-WS4-210", "FND-L-QB-184", "GDR-L-NUM-026", "GDR-L-NUM-013", "GDR-L-NUM-035", "LIGHT-EXMPLR-9-LA-009", "FND-L-SPQ-020", "APQ-S-LIGHT-007", "PYQ-S-2026-LIGHT-013", "PYQ-S-2026-LIGHT-017", "PYQ-S-2025-LIGHT-016", "FND-L-SPX-019", "FND-L-SPX-023", "FND-L-SPX-033", "FND-L-SPQ-003", "FND-L-SPQ-011", "FND-L-SPQ-015", "FND-L-SPQ-018", "FND-L-SPQ-021", "FND-L-BD-06", "SQP-S-2025-LGHT-033", "GDR-L-NUM-001", "GDR-L-NUM-002", "GDR-L-NUM-003", "GDR-L-NUM-004", "GDR-L-NUM-005", "GDR-L-NUM-006", "GDR-L-NUM-008", "GDR-L-NUM-009", "GDR-L-NUM-010", "GDR-L-NUM-011", "GDR-L-NUM-012", "GDR-L-NUM-014", "GDR-L-NUM-015", "GDR-L-NUM-023", "GDR-L-NUM-027", "GDR-L-NUM-028", "GDR-L-NUM-030", "GDR-L-NUM-042", "GDR-L-NUM-054", "GDR-L-NUM-064", "GDR-L-CBJ-020", "GDR-L-CBJ-031", "GDR-L-CBJ-036", "GDR-L-CBJ-038", "GDR-L-CBJ-040", "LTG-S-LIGHT-290", "LTG-S-LIGHT-292", "FND-L-SPQ-008", "GDR-L-NUM-007", "GDR-L-NUM-024", "GDR-L-NUM-029", "GDR-L-NUM-031", "GDR-L-NUM-058", "GDR-L-NUM-060", "GDR-L-CBJ-029", "CBE-S-LGHT-C-001", "CFPQ-S-LGHT-013", "LIGHT-EXMPLR-9-LA-006", "LTG-S-LIGHT-298", "CBE-S-LGHT-B-005", "CBE-S-LGHT-B-006", "LTG-S-LIGHT-268", "LTG-S-LIGHT-271", "2026-LIGHT-SA-10", "FND-L-SPX-032", "GDR-L-CBJ-013", "LT2-041", "LT2-037", "LT2-015", "LT2-016", "LT2-038", "LT2-024", "LT2-014", "LT2-036", "LT2-044"] },
+    { surface: "hpq", slug: "light-reflection-and-refraction", match: "Mirror Formula & Diagrams",
+      reject: {"SQP-S-2025-LGHT-030":"statements on concave / convex images, no formula","PYQ-S-2025-LIGHT-020":"glass slab / prism refraction","LT2-009":"convex-mirror image nature (A–R), no formula"},
+      accept: ["LTG-S-LIGHT-236", "LTG-S-LIGHT-233", "LTG-S-LIGHT-237", "LTG-S-LIGHT-101", "SQP-S-2025-LGHT-032", "FND-L-SPX-008", "FND-L-QB-069", "LTG-S-LIGHT-223", "FND-L-QB-037", "FND-L-QB-139", "FND-L-QB-147", "FND-L-QB-155", "FND-L-QB-165", "FND-L-SPM-009", "FND-L-SPM-018", "FND-L-WS4-107", "FND-L-WS4-108", "FND-L-WS4-109", "LTG-S-LIGHT-221", "FND-L-WSF-10", "FND-L-WS4-208", "FND-L-WS4-310", "FND-L-WSF-11", "LIGHT-EXMPLR-9-MCQ-002", "FND-L-WS4-309", "LTG-S-LIGHT-224", "LTG-S-LIGHT-230", "GDR-L-NUM-052", "GDR-L-NUM-079", "GDR-L-NUM-090", "GDR-L-NUM-091", "GDR-L-NUM-093", "FND-L-SPQ-030", "FND-L-QB-111", "FND-L-SPM-025", "PYQ-S-2025-LIGHT-010", "PYQ-S-2025-LIGHT-011", "PYQ-S-2025-LIGHT-017", "CFPQ-S-LGHT-012", "GDR-L-EQ-27", "GDR-L-NUM-056", "GDR-L-NUM-075", "GDR-L-NUM-076", "GDR-L-NUM-078", "GDR-L-NUM-081", "GDR-L-NUM-083", "GDR-L-NUM-084", "GDR-L-NUM-085", "GDR-L-NUM-086", "GDR-L-NUM-088", "GDR-L-NUM-092", "GDR-L-NUM-094", "GDR-L-CBJ-015", "GDR-L-CBJ-017", "GDR-L-CBJ-033", "GDR-L-CBJ-035", "GDR-L-CBJ-037", "GDR-L-CBJ-041", "GDR-L-CBJ-043", "FND-L-SPQ-012", "GDR-L-CBJ-042", "FND-L-SPX-014", "FND-L-SPX-040", "GDR-L-NUM-051", "GDR-L-NUM-077", "LIGHT-EXMPLR-9-LA-007", "LTG-S-LIGHT-107", "LTG-S-LIGHT-238", "LTG-S-LIGHT-229", "LTG-S-LIGHT-232", "LTG-S-LIGHT-239", "FND-L-SPQ-002", "GDR-L-CBJ-034", "2026-LIGHT-SA-03", "GDR-L-CBJ-012", "LT2-030", "LT2-008", "LT2-007", "LT2-031", "LT2-021", "LT-M01", "LT-E10", "LT2-061"] },
+    { surface: "hpq", slug: "chemical-reactions-and-equations", match: "Oxidation/Reduction",
+      reject: {"LTG-S-CHEMRXN-295":"respiration as exothermic","BX-CHEM-E-016":"respiration as exothermic","BX-CHEM-D-035":"combustion vs respiration","CR2-052":"respiration exothermic (A–R)","CR-D03":"all five reaction types","CR-M05":"compost as exothermic","CR-H01":"five unrelated terms","CR-H05":"decomposition vs combination","CR-E07":"corrosion is called rusting (recall)","CR-H07":"mixed displacement / photolysis"},
+      accept: ["BX-CHEM-E-056", "CHEM-EXMPLR-1-MCQ-002", "BX-CHEM-E-054", "LTG-S-CHEMRXN-253", "LTG-S-CHEMRXN-254", "BX-CHEM-E-064", "BX-CHEM-E-062", "LTG-S-CHEMRXN-310", "SP-S-2023-CHEM-A-003", "LTG-S-CHEMRXN-246", "BX-CHEM-E-047", "BX-CHEM-EX-A-004", "BX-CHEM-EX-A-010", "BX-CHEM-EX-A-022", "BX-CHEM-EX-A-025", "BX-CHEM-EX-A-026", "CHEM-NCERT-1-MCQ-001", "CHEM-EXMPLR-1-MCQ-003", "CHEM-EXMPLR-1-MCQ-006", "SQP-S-2023-CHEM-A-001", "SP-S-2023-CHEM-A-002", "BX-CHEM-EX-A-016", "CBE-S-CHEM-A-011", "PYQ-S-CHEM-005", "PYQ-S-2024-CHEMRXN-003", "LTG-S-CHEMRXN-241", "BX-CHEM-EX-A-014", "LTG-S-CHEMRXN-244", "CHEM-NCERT-1-SA-004", "CHEM-EXMPLR-1-SA-003", "CHEM-EXMPLR-1-SA-010", "LTG-S-CHEMRXN-248", "LTG-S-CHEMRXN-250", "BX-CHEM-D-017", "SCQ-S-CHEM-027", "PYQ-S-2026-CHEMRXN-008", "LTG-S-CHEMRXN-303", "BX-CHEM-EX-A-029", "CBE-S-CHEM-A-006", "BX-CHEM-D-008", "BX-CHEM-D-016", "BX-CHEM-D-027", "LTG-S-CHEMRXN-258", "LTG-S-CHEMRXN-252", "BX-CHEM-EX-A-002", "BX-CHEM-EX-A-006", "CHEM-NCERT-1-LONG-002", "CHEM-NCERT-1-VSA-006", "CR2-040", "CR2-020", "MNM2-045", "CR-AR05", "CR-AR06", "CR2-042", "CR2-033", "CR2-048", "CR-M15", "CR2-007", "CR-M02", "CR-M13", "CR2-013", "CR2-006", "CR-M08", "CR2-038", "CR2-029", "CR2-045", "CR2-024", "CR-H03", "CR-E04", "CR-E17", "CR2-051", "CR2-049"] },
+    { surface: "hpq", slug: "life-processes", match: "Cell organelles",
+      reject: {"LTG-S-LIFE-258":"yeast aerobic / anaerobic samples, not an organelle question"},
+      accept: ["LPX-A-005", "LPSE-019", "LIFE-EXMPLR-5-SA-001", "LIFE-EXMPLR-5-SA-026", "LP2-038", "LP2-009", "LP2-059", "LPSE-017"] },
   ];
   const judgedEntry = (j: (typeof JUDGED)[number]) =>
     ENTRIES.find(
@@ -406,9 +427,9 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
         (j.surface === "hub" ? (x.focus ?? "").startsWith(j.match) : (x.hint ?? "").trim() === j.match),
     );
   const first5Lines: string[] = [];
-  const dumpFirst5 = (title: string, shown: PracticeQuestion[], kws: readonly string[]) => {
+  const dumpFirst5 = (title: string, shown: PracticeQuestion[], kws: readonly string[], n = 5) => {
     first5Lines.push(`## ${title}  (keyword hits ${shown.slice(0, 5).filter((q) => hasKw(q, kws)).length}/5)`);
-    shown.slice(0, 5).forEach((q, i) =>
+    shown.slice(0, n).forEach((q, i) =>
       first5Lines.push(`   ${i + 1}. ${hasKw(q, kws) ? "+" : "-"} ${q.id} [${q.subtopic}] ${String(q.questionText).replace(/\s+/g, " ").slice(0, 220)}`),
     );
   };
@@ -465,32 +486,39 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
     expect(misses).toEqual([]);
   }, 600_000);
 
-  it("★ QP-CONCEPT-4: JUDGED — ≥ 4 of the first 5 are questions a reader accepts as on-topic", async () => {
+  it("★ QP-CONCEPT-4: JUDGED ON-TOPIC — ≥ 4 of the first 5 are accepted questions at rotation offsets 0, 3, 7 and 11", async () => {
     const misses: string[] = [];
     const counts: string[] = [];
     for (const j of JUDGED) {
       const e = judgedEntry(j);
       expect(e, `${j.slug} · ${j.match}`).toBeDefined();
-      const { displayed } = await pageSet(e!, "lane");
-      const ok = displayed.slice(0, 5).filter((q) => j.accept.includes(String(q.id))).length;
-      counts.push(`${j.match} ${ok}/5`);
-      if (ok < 4) misses.push(`${j.surface} ${j.match}: ${ok}/5 judged on-topic`);
+      const per: number[] = [];
+      for (const offset of [0, 3, 7, 11]) {
+        const { displayed } = await pageSet(e!, "lane", { offset });
+        const first5 = displayed.slice(0, 5);
+        const ok = first5.filter((q) => j.accept.includes(String(q.id))).length;
+        per.push(ok);
+        if (ok < 4) {
+          const off = first5.filter((q) => !j.accept.includes(String(q.id))).map((q) => `${q.id}${j.reject[String(q.id)] ? ` (rejected: ${j.reject[String(q.id)]})` : " (not yet judged)"}`);
+          misses.push(`${j.surface} ${j.match} @offset ${offset}: ${ok}/5 on-topic; off: ${off.join(", ")} — re-judge by reading; bank, seed or engine changed`);
+        }
+        if (offset === 7) dumpFirst5(`JUDGED ${j.surface} ${j.slug} · ${j.match} (offset 7, first 10)`, displayed, [], 10);
+      }
+      counts.push(`${j.match} ${per.join("/")}`);
     }
-    console.info(`[QP-CONCEPT-4] judged on-topic in the first 5: ${counts.join(" · ")}`);
+    console.info(`[QP-CONCEPT-4] judged on-topic in the first 5 (offsets 0/3/7/11): ${counts.join(" · ")}`);
     const dump = process.env.QP_FIRST5_DUMP;
     if (dump) fs.writeFileSync(dump, first5Lines.join("\n"), "utf8");
     expect(misses).toEqual([]);
-  }, 600_000);
+  }, 900_000);
 
-  it("QP-CONCEPT-4: 'Cell organelles' has no bank concept — it is listed, and the note says so honestly", async () => {
-    expect(HPQ_NO_BANK_CONCEPT["life-processes"]?.["Cell organelles"]).toMatch(/fewer than 5/);
+  it("QP-CONCEPT-4: 'Cell organelles' is mapped (the bank has organelle questions) and its keyword rows lead", async () => {
+    expect(HPQ_NO_BANK_CONCEPT["life-processes"]?.["Cell organelles"]).toBeUndefined();
     const e = ENTRIES.find((x) => x.surface === "hpq" && (x.hint ?? "") === "Cell organelles")!;
     const t = await loadConceptHintTiers(servedPool(e), practiceTopicLabel(e.subjectKey, e.slug), [e.focus, e.hint]);
-    expect(t.onConcept.size).toBe(0);
-    const { conceptEndNote } = await import("./conceptHintTiers");
-    expect(conceptEndNote((t as { conceptName?: string }).conceptName ?? "", 0)).toBe(
-      `We don't have questions on "Cell organelles" yet — these are related questions from this chapter.`,
-    );
+    for (const id of ["LP2-009", "LP2-038", "LP2-059", "LPSE-017", "LIFE-EXMPLR-5-SA-026", "LPX-A-005"]) {
+      expect(t.keyword.has(id), id).toBe(true);
+    }
   }, 120_000);
 
   it("★ F3: sibling cards in one concept bucket share at most 2 of their first 5", async () => {
@@ -540,7 +568,7 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
       "That's every question we have on Excretion in Plants for now — the rest are from the same chapter.",
     );
     expect(conceptEndNote("Standard form", 0)).toBe(
-      "We don't have questions on Standard form yet — these are related questions from this chapter.",
+      "We don't have questions on Standard form yet — these are from the same chapter.",
     );
   }, 120_000);
 });

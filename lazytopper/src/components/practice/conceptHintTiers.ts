@@ -127,7 +127,7 @@ export interface ConceptHintTierSets {
 
 /** The name the honest note uses for a resolved target. */
 export function targetName(target: ConceptHintTarget): string {
-  return target.kind === "concepts" ? target.keys.join(" / ") : `"${target.label}"`;
+  return target.kind === "concepts" ? target.keys.join(" / ") : `"${target.label}" or related topics`;
 }
 
 /** Is this row on the resolved target? (The concept lookup itself, or the raw label.) */
@@ -246,4 +246,4 @@ export function conceptRowsShown(
 export const conceptEndNote = (concept: string, shown: number): string =>
   shown > 0
     ? `That's every question we have on ${concept} for now — the rest are from the same chapter.`
-    : `We don't have questions on ${concept} yet — these are related questions from this chapter.`;
+    : `We don't have questions on ${concept} yet — these are from the same chapter.`;
