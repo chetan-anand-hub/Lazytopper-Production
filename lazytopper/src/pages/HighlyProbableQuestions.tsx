@@ -698,8 +698,10 @@ const HighlyProbableQuestionsPage: React.FC = () => {
       topicName,
       backPath,
       backLabel: "Back to Question Patterns",
+      // QP-CONCEPT-1: the concept travels as the hint; Practice serves the chapter's rows on it first.
+      // No `focusBankIds`: an HPQ id (`ple-hpq-*`, `rn-hpq-*`, ...) is not a bank id and there is no
+      // HPQ-to-bank id mapping, so the focus matched nothing (0/126) and only added noise to the URL.
       subtopicHint: q.subtopic || q.concept || bucket.topic,
-      focusBankIds: q.id ? [q.id] : undefined,
       recommendedCount,
       difficultyPreset: "All",
       source: "hpq_similar",

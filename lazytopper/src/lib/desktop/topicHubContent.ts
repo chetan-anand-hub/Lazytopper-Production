@@ -186,6 +186,14 @@ export interface BoardConcept {
    * served bank rows that resolve to these concepts (conceptPractice.ts) instead of the name + mark band.
    */
   conceptKeys?: string[];
+  /**
+   * QP-CONCEPT-1 (data only): for a card WITHOUT `conceptKeys`, the concept(s) its rows belong to -
+   * Exam Trends or tracking names from conceptLabelMap.ts, verbatim. Read ONLY by Quick Practice's
+   * concept-hint selection (components/practice/conceptHintTiers.ts): the card's Practise path is
+   * unchanged (name + mark band); the page now serves these concepts' rows first within that band.
+   * Absent: the card names no concept the bank vocabulary has (it is served as before).
+   */
+  practiseConceptKeys?: string[];
 }
 
 export type FormulaUseCardKind =
@@ -250,11 +258,11 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward labelled triangles, identity-driven proofs and clean two-step heights & distances workings.",
     },
     boardEssentials: [
-      { name: "Trigonometric ratios of an acute angle (sin, cos, tan and their reciprocals)", oneLineUse: "Define each ratio from the labelled right triangle and find all six from one — well defined because the triangle's size cancels.", marks: "2–3" },
-      { name: "Relationships between the ratios (cosec = 1/sin, sec = 1/cos, cot = 1/tan = cos/sin)", oneLineUse: "Swap a ratio for its reciprocal or quotient form before evaluating or simplifying.", marks: "1–2" },
-      { name: "Ratios at standard angles (0°, 30°, 45°, 60°, 90°)", oneLineUse: "Plug straight into evaluation and 1-mark MCQs.", marks: "1–2" },
-      { name: "Pythagorean identities (sin²θ+cos²θ=1, 1+tan²θ=sec²θ)", oneLineUse: "Replace one ratio with another to simplify or prove.", marks: "2–3" },
-      { name: "Heights & distances setup (angle of elevation / depression)", oneLineUse: "Translate the picture into a tan or sin equation in one step — only 30°, 45°, 60°; at most two right triangles.", marks: "3–5" },
+      { name: "Trigonometric ratios of an acute angle (sin, cos, tan and their reciprocals)", oneLineUse: "Define each ratio from the labelled right triangle and find all six from one — well defined because the triangle's size cancels.", marks: "2–3", practiseConceptKeys: ["Trig Ratios/Values"] },
+      { name: "Relationships between the ratios (cosec = 1/sin, sec = 1/cos, cot = 1/tan = cos/sin)", oneLineUse: "Swap a ratio for its reciprocal or quotient form before evaluating or simplifying.", marks: "1–2", practiseConceptKeys: ["Trig Ratios/Values"] },
+      { name: "Ratios at standard angles (0°, 30°, 45°, 60°, 90°)", oneLineUse: "Plug straight into evaluation and 1-mark MCQs.", marks: "1–2", practiseConceptKeys: ["Trig Ratios/Values"] },
+      { name: "Pythagorean identities (sin²θ+cos²θ=1, 1+tan²θ=sec²θ)", oneLineUse: "Replace one ratio with another to simplify or prove.", marks: "2–3", practiseConceptKeys: ["Trig Identities/Proofs"] },
+      { name: "Heights & distances setup (angle of elevation / depression)", oneLineUse: "Translate the picture into a tan or sin equation in one step — only 30°, 45°, 60°; at most two right triangles.", marks: "3–5", practiseConceptKeys: ["Application/Heights & Distances"] },
     ],
     formulaUsePreview: {
       kind: "identity",
@@ -302,12 +310,12 @@ const SEEDED: Record<string, ActionableSeed> = {
     boardEssentials: [
       { name: "Electric Current and Circuit", oneLineUse: "Use I = Q/t, the ammeter in series and the + to − direction of conventional current in a closed circuit.", marks: "1–4", conceptKeys: ["Electric Current and Circuit"] },
       { name: "Electric Potential and Potential Difference", oneLineUse: "Use V = W/Q (1 volt = 1 joule per coulomb) and place the voltmeter in parallel across the part measured.", marks: "1–5", conceptKeys: ["Electric Potential and Potential Difference"] },
-      { name: "Ohm's law V = IR", oneLineUse: "Bridge any two of V, I, R when the third is known.", marks: "1–3" },
+      { name: "Ohm's law V = IR", oneLineUse: "Bridge any two of V, I, R when the third is known.", marks: "1–3", practiseConceptKeys: ["Ohm’s Law & Circuit Numericals"] },
       { name: "Resistivity ρ and the factors resistance depends on (R = ρl/A)", oneLineUse: "Scale R with length, cross-section area and material, and compute ρ with its unit Ω m.", marks: "2–3", conceptKeys: ["Factors on Which the Resistance of a Conductor Depends"] },
-      { name: "Resistors in series (R = R₁ + R₂ + …)", oneLineUse: "Collapse a chain into one equivalent resistor before applying Ohm's law.", marks: "2–3" },
-      { name: "Resistors in parallel (1/R = 1/R₁ + 1/R₂ + …)", oneLineUse: "Find equivalent resistance and branch currents.", marks: "3–5" },
-      { name: "Electrical power (P = VI = I²R = V²/R)", oneLineUse: "Pick the form that matches the two known quantities.", marks: "2–3" },
-      { name: "Joule's heating (H = I²Rt)", oneLineUse: "Compute heat produced by a current over time.", marks: "2–3" },
+      { name: "Resistors in series (R = R₁ + R₂ + …)", oneLineUse: "Collapse a chain into one equivalent resistor before applying Ohm's law.", marks: "2–3", practiseConceptKeys: ["Ohm’s Law & Circuit Numericals"] },
+      { name: "Resistors in parallel (1/R = 1/R₁ + 1/R₂ + …)", oneLineUse: "Find equivalent resistance and branch currents.", marks: "3–5", practiseConceptKeys: ["Ohm’s Law & Circuit Numericals"] },
+      { name: "Electrical power (P = VI = I²R = V²/R)", oneLineUse: "Pick the form that matches the two known quantities.", marks: "2–3", practiseConceptKeys: ["Heating Effect & Power Calculations"] },
+      { name: "Joule's heating (H = I²Rt)", oneLineUse: "Compute heat produced by a current over time.", marks: "2–3", practiseConceptKeys: ["Heating Effect & Power Calculations"] },
     ],
     formulaUsePreview: {
       kind: "law",
@@ -363,12 +371,12 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Marks are awarded for accurate labels, direction arrows and cause-effect language.",
     },
     boardEssentials: [
-      { name: "Nutrition in humans (digestion + enzymes)", oneLineUse: "Track which enzyme acts where (mouth → stomach → small intestine).", marks: "2–3" },
-      { name: "Respiration (aerobic vs anaerobic + alveoli exchange)", oneLineUse: "Compare end-products and write the gas-exchange equation.", marks: "2–3" },
-      { name: "Transportation (heart chambers + double circulation)", oneLineUse: "Label the four chambers and trace blood flow with arrows.", marks: "3–5" },
-      { name: "Excretion (nephron + filtration → reabsorption → urine)", oneLineUse: "Describe each step and name the structure responsible.", marks: "3–5" },
+      { name: "Nutrition in humans (digestion + enzymes)", oneLineUse: "Track which enzyme acts where (mouth → stomach → small intestine).", marks: "2–3", practiseConceptKeys: ["Nutrition & Respiration (Human + Plants)"] },
+      { name: "Respiration (aerobic vs anaerobic + alveoli exchange)", oneLineUse: "Compare end-products and write the gas-exchange equation.", marks: "2–3", practiseConceptKeys: ["Nutrition & Respiration (Human + Plants)"] },
+      { name: "Transportation (heart chambers + double circulation)", oneLineUse: "Label the four chambers and trace blood flow with arrows.", marks: "3–5", practiseConceptKeys: ["Transportation & Excretion in Humans"] },
+      { name: "Excretion (nephron + filtration → reabsorption → urine)", oneLineUse: "Describe each step and name the structure responsible.", marks: "3–5", practiseConceptKeys: ["Transportation & Excretion in Humans"] },
       { name: "Transport in plants (xylem vs phloem)", oneLineUse: "State what each transports and the driving force.", marks: "1–2", conceptKeys: ["Transportation in Plants"] },
-      { name: "Photosynthesis — autotrophic nutrition in plants", oneLineUse: "Write CO₂ + H₂O → glucose + O₂ (sunlight, chlorophyll) and explain the role of stomata and guard cells.", marks: "2–3" },
+      { name: "Photosynthesis — autotrophic nutrition in plants", oneLineUse: "Write CO₂ + H₂O → glucose + O₂ (sunlight, chlorophyll) and explain the role of stomata and guard cells.", marks: "2–3", practiseConceptKeys: ["Nutrition & Respiration (Human + Plants)"] },
       { name: "Excretion in plants", oneLineUse: "List how plants shed waste: O₂ from photosynthesis, excess water by transpiration, wastes stored in leaves that fall or as resins and gums, or released into the soil.", marks: "1–2", conceptKeys: ["Excretion in Plants"] },
     ],
     formulaUsePreview: {
@@ -413,10 +421,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Long-answer marks come from stating the criterion explicitly before using it.",
     },
     boardEssentials: [
-      { name: "Similar triangles — definition, examples and counter-examples", oneLineUse: "Check BOTH conditions (equal corresponding angles AND proportional sides) before calling two triangles similar; congruent figures are similar, not the converse.", marks: "1–2" },
-      { name: "Similarity criteria (AA, SAS, SSS)", oneLineUse: "Pick the right criterion to prove two triangles similar in one line.", marks: "2–3" },
-      { name: "Basic Proportionality Theorem (BPT)", oneLineUse: "Apply when a line is parallel to one side of a triangle.", marks: "3–5" },
-      { name: "Converse of BPT (stated without proof)", oneLineUse: "A line dividing two sides of a triangle in the same ratio is parallel to the third side — use it to prove DE ∥ BC.", marks: "2–3" },
+      { name: "Similar triangles — definition, examples and counter-examples", oneLineUse: "Check BOTH conditions (equal corresponding angles AND proportional sides) before calling two triangles similar; congruent figures are similar, not the converse.", marks: "1–2", practiseConceptKeys: ["Similarity Criteria"] },
+      { name: "Similarity criteria (AA, SAS, SSS)", oneLineUse: "Pick the right criterion to prove two triangles similar in one line.", marks: "2–3", practiseConceptKeys: ["Similarity Criteria"] },
+      { name: "Basic Proportionality Theorem (BPT)", oneLineUse: "Apply when a line is parallel to one side of a triangle.", marks: "3–5", practiseConceptKeys: ["BPT (Basic Proportionality Theorem)"] },
+      { name: "Converse of BPT (stated without proof)", oneLineUse: "A line dividing two sides of a triangle in the same ratio is parallel to the third side — use it to prove DE ∥ BC.", marks: "2–3", practiseConceptKeys: ["BPT (Basic Proportionality Theorem)"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -451,9 +459,9 @@ const SEEDED: Record<string, ActionableSeed> = {
     },
     boardEssentials: [
       { name: "Standard form ax² + bx + c = 0", oneLineUse: "Identify a, b, c before applying any other tool.", marks: "1–2" },
-      { name: "Quadratic formula x = [−b ± √(b²−4ac)] / 2a", oneLineUse: "Use when factoring is unclear or asked explicitly.", marks: "3–5" },
-      { name: "Discriminant D = b² − 4ac (nature of roots)", oneLineUse: "Decide if roots are real & distinct, equal, or non-real.", marks: "2–3" },
-      { name: "Factorisation method", oneLineUse: "Fastest route when a, b, c are small integers.", marks: "2–3" },
+      { name: "Quadratic formula x = [−b ± √(b²−4ac)] / 2a", oneLineUse: "Use when factoring is unclear or asked explicitly.", marks: "3–5", practiseConceptKeys: ["Algebraic Solution"] },
+      { name: "Discriminant D = b² − 4ac (nature of roots)", oneLineUse: "Decide if roots are real & distinct, equal, or non-real.", marks: "2–3", practiseConceptKeys: ["Nature of Roots (Discriminant)"] },
+      { name: "Factorisation method", oneLineUse: "Fastest route when a, b, c are small integers.", marks: "2–3", practiseConceptKeys: ["Algebraic Solution"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -488,9 +496,9 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Most questions are 2- or 3-mark substitution problems with one careful sign step.",
     },
     boardEssentials: [
-      { name: "Distance formula √[(x₂−x₁)² + (y₂−y₁)²]", oneLineUse: "Find the length between two coordinate points.", marks: "2–3" },
-      { name: "Section formula (internal division)", oneLineUse: "Find the point that divides a segment in a given ratio.", marks: "2–3" },
-      { name: "Midpoint formula", oneLineUse: "Special case of section formula with ratio 1:1.", marks: "1–2" },
+      { name: "Distance formula √[(x₂−x₁)² + (y₂−y₁)²]", oneLineUse: "Find the length between two coordinate points.", marks: "2–3", practiseConceptKeys: ["Distance Formula"] },
+      { name: "Section formula (internal division)", oneLineUse: "Find the point that divides a segment in a given ratio.", marks: "2–3", practiseConceptKeys: ["Section Formula"] },
+      { name: "Midpoint formula", oneLineUse: "Special case of section formula with ratio 1:1.", marks: "1–2", practiseConceptKeys: ["Section Formula"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -524,8 +532,8 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Marks come from picking the right pair of formulas and keeping units consistent throughout.",
     },
     boardEssentials: [
-      { name: "Cylinder, cone and sphere — surface area and volume", oneLineUse: "Memorise the four core formulas; everything else builds on them.", marks: "1–3" },
-      { name: "Combinations of solids (cone on cylinder, hemisphere on cube, …)", oneLineUse: "Add the visible surface areas and add the volumes — never both for the joining face.", marks: "3–5" },
+      { name: "Cylinder, cone and sphere — surface area and volume", oneLineUse: "Memorise the four core formulas; everything else builds on them.", marks: "1–3", practiseConceptKeys: ["Cylinder/Cone/Sphere"] },
+      { name: "Combinations of solids (cone on cylinder, hemisphere on cube, …)", oneLineUse: "Add the visible surface areas and add the volumes — never both for the joining face.", marks: "3–5", practiseConceptKeys: ["Combination of Solids"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -549,14 +557,14 @@ const SEEDED: Record<string, ActionableSeed> = {
     },
     boardEssentials: [
       { name: "Reflection of Light", oneLineUse: "Apply the laws of reflection and state the image a plane mirror forms — virtual, erect, same size, as far behind as the object is in front.", marks: "1–4", conceptKeys: ["Reflection of Light"] },
-      { name: "Mirror formula 1/v + 1/u = 1/f and magnification m = −v/u", oneLineUse: "Solve image-position numericals for spherical mirrors.", marks: "2–3" },
-      { name: "Lens formula 1/v − 1/u = 1/f and m = v/u", oneLineUse: "Solve image-position numericals for thin lenses.", marks: "2–3" },
-      { name: "Sign convention (New Cartesian)", oneLineUse: "Decide signs of u, v, f, h before substituting.", marks: "1–2" },
-      { name: "Ray diagrams (concave/convex mirror & lens)", oneLineUse: "Use two of the standard rays through F or C / 2F to locate the image.", marks: "3–5" },
-      { name: "Refraction of light and the laws of refraction (Snell's law: sin i / sin r = constant)", oneLineUse: "State the two laws and predict the bend — towards the normal into a denser medium, away from it into a rarer one.", marks: "2–3" },
-      { name: "Refractive index n = c/v (absolute) and n₂₁ = v₁/v₂ (relative)", oneLineUse: "Compare optical densities and compute the speed of light in a medium.", marks: "1–3" },
-      { name: "Power of a lens P = 1/f (dioptre); lenses in contact P = P₁ + P₂", oneLineUse: "Convert f in metres to dioptres with the right sign, and add powers for lenses in contact.", marks: "1–2" },
-      { name: "Applications of spherical mirrors and lenses (headlights, solar furnace — concave; rear-view mirror — convex; magnifier and spectacle lenses)", oneLineUse: "Name the mirror or lens used in a situation and give the one-line reason.", marks: "1–2" },
+      { name: "Mirror formula 1/v + 1/u = 1/f and magnification m = −v/u", oneLineUse: "Solve image-position numericals for spherical mirrors.", marks: "2–3", practiseConceptKeys: ["Mirror / Lens Formula & Ray Diagrams"] },
+      { name: "Lens formula 1/v − 1/u = 1/f and m = v/u", oneLineUse: "Solve image-position numericals for thin lenses.", marks: "2–3", practiseConceptKeys: ["Mirror / Lens Formula & Ray Diagrams"] },
+      { name: "Sign convention (New Cartesian)", oneLineUse: "Decide signs of u, v, f, h before substituting.", marks: "1–2", practiseConceptKeys: ["Mirror / Lens Formula & Ray Diagrams"] },
+      { name: "Ray diagrams (concave/convex mirror & lens)", oneLineUse: "Use two of the standard rays through F or C / 2F to locate the image.", marks: "3–5", practiseConceptKeys: ["Mirror / Lens Formula & Ray Diagrams"] },
+      { name: "Refraction of light and the laws of refraction (Snell's law: sin i / sin r = constant)", oneLineUse: "State the two laws and predict the bend — towards the normal into a denser medium, away from it into a rarer one.", marks: "2–3", practiseConceptKeys: ["Refraction through Glass Slab / Prism"] },
+      { name: "Refractive index n = c/v (absolute) and n₂₁ = v₁/v₂ (relative)", oneLineUse: "Compare optical densities and compute the speed of light in a medium.", marks: "1–3", practiseConceptKeys: ["Refraction through Glass Slab / Prism"] },
+      { name: "Power of a lens P = 1/f (dioptre); lenses in contact P = P₁ + P₂", oneLineUse: "Convert f in metres to dioptres with the right sign, and add powers for lenses in contact.", marks: "1–2", practiseConceptKeys: ["Mirror / Lens Formula & Ray Diagrams"] },
+      { name: "Applications of spherical mirrors and lenses (headlights, solar furnace — concave; rear-view mirror — convex; magnifier and spectacle lenses)", oneLineUse: "Name the mirror or lens used in a situation and give the one-line reason.", marks: "1–2", practiseConceptKeys: ["Mirror / Lens Formula & Ray Diagrams", "Reflection of Light"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -599,8 +607,8 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Direction questions are marked strictly — name the rule before applying it.",
     },
     boardEssentials: [
-      { name: "Right-hand thumb rule (field around a straight conductor)", oneLineUse: "Find direction of magnetic field from current direction.", marks: "1–2" },
-      { name: "Solenoid as a bar magnet", oneLineUse: "Use the right-hand grip rule to identify N and S poles of a current-carrying solenoid.", marks: "2–3" },
+      { name: "Right-hand thumb rule (field around a straight conductor)", oneLineUse: "Find direction of magnetic field from current direction.", marks: "1–2", practiseConceptKeys: ["Right-hand Rules & Field Lines"] },
+      { name: "Solenoid as a bar magnet", oneLineUse: "Use the right-hand grip rule to identify N and S poles of a current-carrying solenoid.", marks: "2–3", practiseConceptKeys: ["Right-hand Rules & Field Lines"] },
       { name: "Force on a current-carrying conductor (Fleming's left-hand rule)", oneLineUse: "Find direction of force on a conductor in a magnetic field.", marks: "2–3", conceptKeys: ["Force on a Current-carrying Conductor in a Magnetic Field"] },
       { name: "Direct current vs alternating current (AC frequency in India 50 Hz; advantage of AC over DC)", oneLineUse: "Contrast one-way DC with periodically reversing AC and state why AC is transmitted over long distances.", marks: "1–2", conceptKeys: ["Direct Current and Alternating Current"] },
       { name: "Domestic electric circuits (live / neutral / earth wires, fuse, earthing, overloading and short-circuit)", oneLineUse: "Name each wire by colour and job, and explain the two safety devices — earthing and the fuse.", marks: "2–3", conceptKeys: ["Domestic Electric Circuits"] },
@@ -626,11 +634,11 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Balanced equations earn the mark only when state symbols and arrows are written correctly.",
     },
     boardEssentials: [
-      { name: "Balancing chemical equations", oneLineUse: "Balance atoms one element at a time, then check overall.", marks: "1–2" },
-      { name: "Types of reactions (combination, decomposition, displacement, double displacement)", oneLineUse: "Identify the type from the form of reactants and products.", marks: "1–2" },
-      { name: "Exothermic and endothermic reactions", oneLineUse: "Say whether heat is released (burning, respiration, quicklime + water) or absorbed (decomposition by heat, light or electricity).", marks: "1–2" },
-      { name: "Oxidation and reduction (redox)", oneLineUse: "Mark which species gains/loses oxygen or hydrogen.", marks: "2–3" },
-      { name: "Effects of oxidation in daily life (corrosion)", oneLineUse: "Quick recall question — name the effect on a metal and a prevention method.", marks: "1–2" },
+      { name: "Balancing chemical equations", oneLineUse: "Balance atoms one element at a time, then check overall.", marks: "1–2", practiseConceptKeys: ["Balancing Equations & Types of Reactions"] },
+      { name: "Types of reactions (combination, decomposition, displacement, double displacement)", oneLineUse: "Identify the type from the form of reactants and products.", marks: "1–2", practiseConceptKeys: ["Balancing Equations & Types of Reactions"] },
+      { name: "Exothermic and endothermic reactions", oneLineUse: "Say whether heat is released (burning, respiration, quicklime + water) or absorbed (decomposition by heat, light or electricity).", marks: "1–2", practiseConceptKeys: ["Balancing Equations & Types of Reactions"] },
+      { name: "Oxidation and reduction (redox)", oneLineUse: "Mark which species gains/loses oxygen or hydrogen.", marks: "2–3", practiseConceptKeys: ["Balancing Equations & Types of Reactions"] },
+      { name: "Effects of oxidation in daily life (corrosion)", oneLineUse: "Quick recall question — name the effect on a metal and a prevention method.", marks: "1–2", practiseConceptKeys: ["Applications & Daily-life Context"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -666,11 +674,11 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Properties of acids and bases", oneLineUse: "List two distinguishing properties each (taste, indicator, conduction).", marks: "1–2", conceptKeys: ["Understanding the Chemical Properties of Acids and Bases"] },
       { name: "What All Acids and All Bases Have in Common", oneLineUse: "Explain why acids give H⁺ (H₃O⁺) and bases OH⁻ only in water, and why such solutions conduct while glucose and alcohol do not.", marks: "1–5", conceptKeys: ["What All Acids and All Bases Have in Common"] },
       { name: "Examples and Uses of Acids and Bases", oneLineUse: "Name common acids with their natural sources (e.g. citric acid in lemon) and common bases with one use (e.g. milk of magnesia as an antacid).", marks: "1–4", conceptKeys: ["Examples and Uses of Acids and Bases"] },
-      { name: "pH scale (0–14)", oneLineUse: "Interpret a given pH value as acidic / neutral / basic with strength.", marks: "1–2" },
-      { name: "Acid + base → salt + water (neutralisation)", oneLineUse: "Write the balanced equation and identify products.", marks: "2–3" },
-      { name: "Common salts (NaCl, NaOH, NaHCO₃, Na₂CO₃, bleaching powder, plaster of Paris)", oneLineUse: "Recall preparation and one industrial use of each.", marks: "2–3" },
-      { name: "Indicators (litmus, turmeric, phenolphthalein, methyl orange; olfactory indicators)", oneLineUse: "Name the indicator and its colour change in an acid and in a base.", marks: "1–2" },
-      { name: "Importance of pH in everyday life (digestion and antacids, tooth decay, soil pH, acid rain)", oneLineUse: "Link a pH value to the everyday situation and its remedy (e.g. a mild base neutralises excess stomach acid).", marks: "2–3" },
+      { name: "pH scale (0–14)", oneLineUse: "Interpret a given pH value as acidic / neutral / basic with strength.", marks: "1–2", practiseConceptKeys: ["pH, Indicators & Strength"] },
+      { name: "Acid + base → salt + water (neutralisation)", oneLineUse: "Write the balanced equation and identify products.", marks: "2–3", practiseConceptKeys: ["Understanding the Chemical Properties of Acids and Bases"] },
+      { name: "Common salts (NaCl, NaOH, NaHCO₃, Na₂CO₃, bleaching powder, plaster of Paris)", oneLineUse: "Recall preparation and one industrial use of each.", marks: "2–3", practiseConceptKeys: ["Important Salts (Na₂CO₃, NaHCO₃, Plaster of Paris)"] },
+      { name: "Indicators (litmus, turmeric, phenolphthalein, methyl orange; olfactory indicators)", oneLineUse: "Name the indicator and its colour change in an acid and in a base.", marks: "1–2", practiseConceptKeys: ["pH, Indicators & Strength"] },
+      { name: "Importance of pH in everyday life (digestion and antacids, tooth decay, soil pH, acid rain)", oneLineUse: "Link a pH value to the everyday situation and its remedy (e.g. a mild base neutralises excess stomach acid).", marks: "2–3", practiseConceptKeys: ["pH, Indicators & Strength"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -707,10 +715,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       { name: "Tetravalency and catenation of carbon", oneLineUse: "Explain why carbon forms so many compounds.", marks: "1–2", conceptKeys: ["Versatile Nature of Carbon"] },
       { name: "Saturated and Unsaturated Carbon Compounds", oneLineUse: "Tell alkanes (only single bonds) from alkenes and alkynes (double / triple bonds) and write their structures.", marks: "1–5", conceptKeys: ["Saturated and Unsaturated Carbon Compounds"] },
       { name: "Chains, Branches and Rings", oneLineUse: "Draw straight-chain, branched and ring skeletons, and the structural isomers of a formula such as C₄H₁₀.", marks: "1–5", conceptKeys: ["Chains, Branches and Rings"] },
-      { name: "Homologous series (general formula, e.g. CₙH₂ₙ₊₂)", oneLineUse: "Predict the next member's formula and properties trend.", marks: "2–3" },
-      { name: "Functional groups (–OH, –CHO, –COOH, >C=O, –Cl, –Br)", oneLineUse: "Identify and name the group; predict typical reactions.", marks: "2–3" },
+      { name: "Homologous series (general formula, e.g. CₙH₂ₙ₊₂)", oneLineUse: "Predict the next member's formula and properties trend.", marks: "2–3", practiseConceptKeys: ["Homologous Series & Nomenclature"] },
+      { name: "Functional groups (–OH, –CHO, –COOH, >C=O, –Cl, –Br)", oneLineUse: "Identify and name the group; predict typical reactions.", marks: "2–3", practiseConceptKeys: ["Homologous Series & Nomenclature"] },
       { name: "Chemical Properties of Carbon Compounds", oneLineUse: "Write combustion, oxidation, addition (hydrogenation) and substitution reactions, and tell the clean flame of saturated from the sooty flame of unsaturated.", marks: "1–5", conceptKeys: ["Chemical Properties of Carbon Compounds"] },
-      { name: "Reactions of ethanol and ethanoic acid", oneLineUse: "Write esterification and oxidation equations precisely.", marks: "2–3" },
+      { name: "Reactions of ethanol and ethanoic acid", oneLineUse: "Write esterification and oxidation equations precisely.", marks: "2–3", practiseConceptKeys: ["Properties of Ethanol & Ethanoic Acid"] },
       { name: "Soaps vs detergents (cleansing action)", oneLineUse: "Describe micelle formation and hard-water behaviour.", marks: "2–3", conceptKeys: ["Soaps and Detergents"] },
     ],
     formulaUsePreview: {
@@ -745,11 +753,11 @@ const SEEDED: Record<string, ActionableSeed> = {
     },
     boardEssentials: [
       { name: "Accumulation of Variation during Reproduction", oneLineUse: "Explain why imperfect DNA copying brings small variations, why sexual reproduction adds more, and that they pass to the next generation.", marks: "1–5", conceptKeys: ["Accumulation of Variation during Reproduction"] },
-      { name: "Mendel's monohybrid cross (3:1 phenotypic ratio in F₂)", oneLineUse: "Set up parents and gametes, then a 2×2 Punnett square.", marks: "3–5" },
-      { name: "Dominant vs recessive traits", oneLineUse: "Identify which trait expresses in the F₁ generation.", marks: "1–2" },
+      { name: "Mendel's monohybrid cross (3:1 phenotypic ratio in F₂)", oneLineUse: "Set up parents and gametes, then a 2×2 Punnett square.", marks: "3–5", practiseConceptKeys: ["Mendel's Experiments & Ratios"] },
+      { name: "Dominant vs recessive traits", oneLineUse: "Identify which trait expresses in the F₁ generation.", marks: "1–2", practiseConceptKeys: ["Mendel's Experiments & Ratios"] },
       { name: "How Traits Get Expressed", oneLineUse: "Link gene → protein (enzyme) → trait, and explain why both parents contribute equally through paired chromosomes.", marks: "1–5", conceptKeys: ["How Traits Get Expressed"] },
-      { name: "Sex determination in humans (XX vs XY)", oneLineUse: "Show that the father determines the sex of the child.", marks: "2–3" },
-      { name: "Genotype vs phenotype", oneLineUse: "Distinguish the genetic makeup from the observable trait.", marks: "1–2" },
+      { name: "Sex determination in humans (XX vs XY)", oneLineUse: "Show that the father determines the sex of the child.", marks: "2–3", practiseConceptKeys: ["Sex Determination"] },
+      { name: "Genotype vs phenotype", oneLineUse: "Distinguish the genetic makeup from the observable trait.", marks: "1–2", practiseConceptKeys: ["Mendel's Experiments & Ratios"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -782,12 +790,12 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Diagram and table answers earn marks for clear arrows and complete name + function rows.",
     },
     boardEssentials: [
-      { name: "Reflex arc (sensory → spinal cord → motor)", oneLineUse: "Trace the pathway with arrows; explain why the brain is bypassed.", marks: "3–5" },
-      { name: "Structure of a neuron (dendrite, cell body, axon, synapse)", oneLineUse: "Label the parts and state the direction of impulse flow.", marks: "2–3" },
+      { name: "Reflex arc (sensory → spinal cord → motor)", oneLineUse: "Trace the pathway with arrows; explain why the brain is bypassed.", marks: "3–5", practiseConceptKeys: ["Nervous System & Reflex Actions"] },
+      { name: "Structure of a neuron (dendrite, cell body, axon, synapse)", oneLineUse: "Label the parts and state the direction of impulse flow.", marks: "2–3", practiseConceptKeys: ["Nervous System & Reflex Actions"] },
       { name: "Human endocrine glands and their hormones", oneLineUse: "Match gland → hormone → one function for each major gland.", marks: "2–3", conceptKeys: ["Hormones in Animals"] },
-      { name: "Tropisms in plants (phototropism, geotropism, hydrotropism, chemotropism)", oneLineUse: "Identify the stimulus and the direction of growth.", marks: "1–2" },
-      { name: "Plant hormones (auxin, gibberellin, cytokinin, abscisic acid) and their roles", oneLineUse: "Match each hormone to growth, cell division or inhibition, and explain how auxin bends a shoot towards light.", marks: "2–3" },
-      { name: "Voluntary, involuntary and reflex actions", oneLineUse: "State which part of the nervous system controls each and why a reflex bypasses the brain.", marks: "2–3" },
+      { name: "Tropisms in plants (phototropism, geotropism, hydrotropism, chemotropism)", oneLineUse: "Identify the stimulus and the direction of growth.", marks: "1–2", practiseConceptKeys: ["Plant Hormones & Movements"] },
+      { name: "Plant hormones (auxin, gibberellin, cytokinin, abscisic acid) and their roles", oneLineUse: "Match each hormone to growth, cell division or inhibition, and explain how auxin bends a shoot towards light.", marks: "2–3", practiseConceptKeys: ["Plant Hormones & Movements"] },
+      { name: "Voluntary, involuntary and reflex actions", oneLineUse: "State which part of the nervous system controls each and why a reflex bypasses the brain.", marks: "2–3", practiseConceptKeys: ["Nervous System & Reflex Actions"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -819,10 +827,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Examiners reward complete stepwise prime factorisations, the explicit coprime assumption in proofs, and a clearly stated contradiction; marks are lost when irrationality is asserted without actually deriving the contradiction.",
     },
     boardEssentials: [
-      { name: "Fundamental Theorem of Arithmetic (every composite = a unique product of primes)", oneLineUse: "Express any composite as primes and justify why its HCF/LCM factorisation is unique.", marks: "1–2" },
-      { name: "HCF & LCM by prime factorisation (HCF = product of smallest common prime powers; LCM = greatest powers)", oneLineUse: "Read HCF and LCM straight off the prime factorisations of the numbers.", marks: "2–3" },
-      { name: "HCF × LCM = product of the two numbers", oneLineUse: "Recover the fourth quantity when the other three are given.", marks: "1–3" },
-      { name: "Irrationality of √2, √3, √5 by contradiction", oneLineUse: "Prove a surd is irrational using the coprime assumption and FTA.", marks: "2–3" },
+      { name: "Fundamental Theorem of Arithmetic (every composite = a unique product of primes)", oneLineUse: "Express any composite as primes and justify why its HCF/LCM factorisation is unique.", marks: "1–2", practiseConceptKeys: ["Fundamental Theorem of Arithmetic"] },
+      { name: "HCF & LCM by prime factorisation (HCF = product of smallest common prime powers; LCM = greatest powers)", oneLineUse: "Read HCF and LCM straight off the prime factorisations of the numbers.", marks: "2–3", practiseConceptKeys: ["Fundamental Theorem of Arithmetic"] },
+      { name: "HCF × LCM = product of the two numbers", oneLineUse: "Recover the fourth quantity when the other three are given.", marks: "1–3", practiseConceptKeys: ["Fundamental Theorem of Arithmetic"] },
+      { name: "Irrationality of √2, √3, √5 by contradiction", oneLineUse: "Prove a surd is irrational using the coprime assumption and FTA.", marks: "2–3", practiseConceptKeys: ["Irrationality Proofs"] },
     ],
     formulaUsePreview: {
       kind: "law",
@@ -868,10 +876,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward stating α+β and αβ explicitly, keeping the correct sign on −b/a, and adding a clean verification step after factorising.",
     },
     boardEssentials: [
-      { name: "Geometrical meaning of zeroes (graph cuts the x-axis)", oneLineUse: "Read the number of zeroes straight off a graph in a 1-mark MCQ.", marks: "1–2" },
-      { name: "Relationship between zeroes and coefficients (α+β = −b/a, αβ = c/a)", oneLineUse: "Get sum and product of zeroes without solving the quadratic.", marks: "2–3" },
-      { name: "Finding zeroes by factorisation and verifying the relationship", oneLineUse: "Split the middle term to get α, β, then confirm against the coefficients.", marks: "2–3" },
-      { name: "Forming a quadratic from its zeroes: k[x² − (α+β)x + αβ]", oneLineUse: "Build a quadratic when the two zeroes (or their sum and product) are given.", marks: "1–3" },
+      { name: "Geometrical meaning of zeroes (graph cuts the x-axis)", oneLineUse: "Read the number of zeroes straight off a graph in a 1-mark MCQ.", marks: "1–2", practiseConceptKeys: ["Graph & Type of Polynomial"] },
+      { name: "Relationship between zeroes and coefficients (α+β = −b/a, αβ = c/a)", oneLineUse: "Get sum and product of zeroes without solving the quadratic.", marks: "2–3", practiseConceptKeys: ["Coefficient–root Relations"] },
+      { name: "Finding zeroes by factorisation and verifying the relationship", oneLineUse: "Split the middle term to get α, β, then confirm against the coefficients.", marks: "2–3", practiseConceptKeys: ["Zeros & Factorisation"] },
+      { name: "Forming a quadratic from its zeroes: k[x² − (α+β)x + αβ]", oneLineUse: "Build a quadratic when the two zeroes (or their sum and product) are given.", marks: "1–3", practiseConceptKeys: ["Coefficient–root Relations"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -916,11 +924,11 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward clearly chosen and stated method, comparison of the a₁/a₂, b₁/b₂, c₁/c₂ ratios before concluding, and word problems where both equations are framed with defined variables before solving.",
     },
     boardEssentials: [
-      { name: "Graphical method (two lines: intersecting → unique, parallel → none, coincident → infinite)", oneLineUse: "Plot both lines and read the solution off the intersection point.", marks: "2–3" },
-      { name: "Consistency conditions (a₁/a₂ vs b₁/b₂ vs c₁/c₂)", oneLineUse: "Decide the number of solutions or find k without solving.", marks: "1–3" },
-      { name: "Substitution method", oneLineUse: "Express one variable and plug into the other equation.", marks: "2–3" },
-      { name: "Elimination method", oneLineUse: "Match coefficients, add/subtract to knock out one variable.", marks: "2–3" },
-      { name: "Framing & solving word problems (ages, speed, digits, fractions)", oneLineUse: "Turn a real situation into a solvable pair of equations.", marks: "3–5" },
+      { name: "Graphical method (two lines: intersecting → unique, parallel → none, coincident → infinite)", oneLineUse: "Plot both lines and read the solution off the intersection point.", marks: "2–3", practiseConceptKeys: ["Graphical Solutions/Nature"] },
+      { name: "Consistency conditions (a₁/a₂ vs b₁/b₂ vs c₁/c₂)", oneLineUse: "Decide the number of solutions or find k without solving.", marks: "1–3", practiseConceptKeys: ["Graphical Solutions/Nature"] },
+      { name: "Substitution method", oneLineUse: "Express one variable and plug into the other equation.", marks: "2–3", practiseConceptKeys: ["Algebraic Solution Methods"] },
+      { name: "Elimination method", oneLineUse: "Match coefficients, add/subtract to knock out one variable.", marks: "2–3", practiseConceptKeys: ["Algebraic Solution Methods"] },
+      { name: "Framing & solving word problems (ages, speed, digits, fractions)", oneLineUse: "Turn a real situation into a solvable pair of equations.", marks: "3–5", practiseConceptKeys: ["Word & Application Problems"] },
     ],
     formulaUsePreview: {
       kind: "process",
@@ -967,9 +975,9 @@ const SEEDED: Record<string, ActionableSeed> = {
     },
     boardEssentials: [
       { name: "Common difference d = aₙ − aₙ₋₁ (test for an AP)", oneLineUse: "Confirm a list is an AP and read off a and d before anything else.", marks: "1–2" },
-      { name: "nth term aₙ = a + (n−1)d", oneLineUse: "Find any term, the number of terms, or set up an equation from a given term.", marks: "1–3" },
-      { name: "Sum of first n terms Sₙ = n/2[2a + (n−1)d]", oneLineUse: "Total the first n terms straight from a, d and n.", marks: "2–5" },
-      { name: "Sum with last term Sₙ = n/2(a + l)", oneLineUse: "Add terms quickly when the last term l is known instead of d.", marks: "2–3" },
+      { name: "nth term aₙ = a + (n−1)d", oneLineUse: "Find any term, the number of terms, or set up an equation from a given term.", marks: "1–3", practiseConceptKeys: ["nth Term"] },
+      { name: "Sum of first n terms Sₙ = n/2[2a + (n−1)d]", oneLineUse: "Total the first n terms straight from a, d and n.", marks: "2–5", practiseConceptKeys: ["Sum of n Terms"] },
+      { name: "Sum with last term Sₙ = n/2(a + l)", oneLineUse: "Add terms quickly when the last term l is known instead of d.", marks: "2–3", practiseConceptKeys: ["Sum of n Terms"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -1020,10 +1028,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward stating the theorem/criterion before using it, a clean labelled figure, and marking the right angle at the point of contact; missing the ⟂ justification loses the reasoning mark.",
     },
     boardEssentials: [
-      { name: "Tangent ⟂ radius at the point of contact (∠ between radius and tangent = 90°)", oneLineUse: "Introduce a right angle so Pythagoras or angle-chasing can start.", marks: "1–3" },
-      { name: "Two tangents from an external point are equal (PA = PB)", oneLineUse: "Equate the two tangent lengths to set up or close a proof.", marks: "2–3" },
-      { name: "Length of tangent from external point: ℓ = √(d² − r²)", oneLineUse: "Compute the tangent length once the radius and centre-distance are known.", marks: "2–3" },
-      { name: "Number of tangents from a point (0 inside, 1 on, 2 outside the circle)", oneLineUse: "Decide how many tangents exist from a given point in 1-mark MCQs.", marks: "1" },
+      { name: "Tangent ⟂ radius at the point of contact (∠ between radius and tangent = 90°)", oneLineUse: "Introduce a right angle so Pythagoras or angle-chasing can start.", marks: "1–3", practiseConceptKeys: ["Tangent Properties"] },
+      { name: "Two tangents from an external point are equal (PA = PB)", oneLineUse: "Equate the two tangent lengths to set up or close a proof.", marks: "2–3", practiseConceptKeys: ["Tangent Properties", "Tangent Theorems & Proofs"] },
+      { name: "Length of tangent from external point: ℓ = √(d² − r²)", oneLineUse: "Compute the tangent length once the radius and centre-distance are known.", marks: "2–3", practiseConceptKeys: ["Tangent Properties"] },
+      { name: "Number of tangents from a point (0 inside, 1 on, 2 outside the circle)", oneLineUse: "Decide how many tangents exist from a given point in 1-mark MCQs.", marks: "1", practiseConceptKeys: ["Number/Type of Tangents"] },
     ],
     formulaUsePreview: {
       kind: "law",
@@ -1061,10 +1069,10 @@ const SEEDED: Record<string, ActionableSeed> = {
     },
     boardEssentials: [
       { name: "Perimeter and Area of a Circle — A Review", oneLineUse: "Use C = 2πr and A = πr² for circle and wheel problems — the distance covered in one revolution is the circumference, so revolutions = distance ÷ circumference.", marks: "1–4", conceptKeys: ["Perimeter and Area of a Circle — A Review"] },
-      { name: "Radius from a given circumference, diameter or area", oneLineUse: "Convert a given circumference, diameter or area into the radius you actually need.", marks: "1–2" },
-      { name: "Length of an arc of a sector (l = (θ/360)×2πr)", oneLineUse: "Find arc length or the sector's perimeter (arc + two radii) in one step.", marks: "1–3" },
-      { name: "Area of a sector (A = (θ/360)×πr²)", oneLineUse: "Turn a central angle and radius straight into the sector's area.", marks: "2–3" },
-      { name: "Area of a segment (sector area − area of triangle)", oneLineUse: "Split a shaded design into standard pieces: subtract the triangle from the sector to get a minor segment; add it for the major.", marks: "3–5" },
+      { name: "Radius from a given circumference, diameter or area", oneLineUse: "Convert a given circumference, diameter or area into the radius you actually need.", marks: "1–2", practiseConceptKeys: ["Perimeter and Area of a Circle — A Review"] },
+      { name: "Length of an arc of a sector (l = (θ/360)×2πr)", oneLineUse: "Find arc length or the sector's perimeter (arc + two radii) in one step.", marks: "1–3", practiseConceptKeys: ["Sectors and Segments"] },
+      { name: "Area of a sector (A = (θ/360)×πr²)", oneLineUse: "Turn a central angle and radius straight into the sector's area.", marks: "2–3", practiseConceptKeys: ["Sectors and Segments"] },
+      { name: "Area of a segment (sector area − area of triangle)", oneLineUse: "Split a shaded design into standard pieces: subtract the triangle from the sector to get a minor segment; add it for the major.", marks: "3–5", practiseConceptKeys: ["Sectors and Segments"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -1111,9 +1119,9 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward a correctly-built frequency / cumulative-frequency table, correct continuous class boundaries, explicit identification of the median or modal class, and clean substitution with the final measure stated.",
     },
     boardEssentials: [
-      { name: "Mean of grouped data — direct, assumed-mean & step-deviation (x̄ = Σfᵢxᵢ/Σfᵢ)", oneLineUse: "Compute the average from a frequency table — pick the method that keeps the arithmetic lightest.", marks: "2–3" },
-      { name: "Median of grouped data: Median = l + ((n/2 − cf)/f)×h", oneLineUse: "Find the middle value from the cumulative-frequency table in one substitution.", marks: "3–5" },
-      { name: "Mode of grouped data: Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂))×h", oneLineUse: "Locate the most frequent value using the modal (highest-frequency) class.", marks: "2–3" },
+      { name: "Mean of grouped data — direct, assumed-mean & step-deviation (x̄ = Σfᵢxᵢ/Σfᵢ)", oneLineUse: "Compute the average from a frequency table — pick the method that keeps the arithmetic lightest.", marks: "2–3", practiseConceptKeys: ["Mean (Step Deviation)"] },
+      { name: "Median of grouped data: Median = l + ((n/2 − cf)/f)×h", oneLineUse: "Find the middle value from the cumulative-frequency table in one substitution.", marks: "3–5", practiseConceptKeys: ["Median of Grouped Data"] },
+      { name: "Mode of grouped data: Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂))×h", oneLineUse: "Locate the most frequent value using the modal (highest-frequency) class.", marks: "2–3", practiseConceptKeys: ["Mode of Grouped Data"] },
       { name: "Empirical relationship: Mode = 3 Median − 2 Mean", oneLineUse: "Recover the third measure when two are already known, with no fresh table.", marks: "1–2", conceptKeys: ["Empirical Relationship between Mean, Median and Mode"] },
     ],
     formulaUsePreview: {
@@ -1160,11 +1168,11 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward writing the total number of outcomes and the favourable count explicitly before dividing, keeping probabilities as reduced fractions, and stating P(not E) = 1 − P(E) rather than recounting.",
     },
     boardEssentials: [
-      { name: "Theoretical probability P(E) = number of favourable outcomes / total number of outcomes", oneLineUse: "The default engine for every coin, die, card or marble question — count both totals and divide.", marks: "1–3" },
-      { name: "Complement rule P(not E) = 1 − P(E)", oneLineUse: "Get the 'at least / not' probability without recounting outcomes.", marks: "1–2" },
-      { name: "Range and event types: sure event = 1, impossible event = 0, 0 ≤ P(E) ≤ 1", oneLineUse: "Sanity-check any answer and settle 1-mark true/false or fill-in items.", marks: "1–2" },
-      { name: "Equally likely outcomes on standard experiments (coins, dice, cards, marbles)", oneLineUse: "Justify why each outcome carries the same weight before you count.", marks: "1–2" },
-      { name: "Sample space of compound experiments (two coins, two dice, drawing a card)", oneLineUse: "List all 4, 36 or 52 outcomes to fix the denominator for 3-mark problems.", marks: "3–5" },
+      { name: "Theoretical probability P(E) = number of favourable outcomes / total number of outcomes", oneLineUse: "The default engine for every coin, die, card or marble question — count both totals and divide.", marks: "1–3", practiseConceptKeys: ["Single Event Probability"] },
+      { name: "Complement rule P(not E) = 1 − P(E)", oneLineUse: "Get the 'at least / not' probability without recounting outcomes.", marks: "1–2", practiseConceptKeys: ["Single Event Probability"] },
+      { name: "Range and event types: sure event = 1, impossible event = 0, 0 ≤ P(E) ≤ 1", oneLineUse: "Sanity-check any answer and settle 1-mark true/false or fill-in items.", marks: "1–2", practiseConceptKeys: ["Single Event Probability"] },
+      { name: "Equally likely outcomes on standard experiments (coins, dice, cards, marbles)", oneLineUse: "Justify why each outcome carries the same weight before you count.", marks: "1–2", practiseConceptKeys: ["Single Event Probability"] },
+      { name: "Sample space of compound experiments (two coins, two dice, drawing a card)", oneLineUse: "List all 4, 36 or 52 outcomes to fix the denominator for 3-mark problems.", marks: "3–5", practiseConceptKeys: ["Combined/Word Problem Probability"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -1211,11 +1219,11 @@ const SEEDED: Record<string, ActionableSeed> = {
     },
     boardEssentials: [
       { name: "Physical properties of metals vs non-metals (lustre, malleability, ductility, conduction — with the exceptions)", oneLineUse: "Differentiate the two classes and quote an exception (mercury is liquid, iodine is lustrous, graphite conducts).", marks: "1–2", conceptKeys: ["Physical Properties of Metals and Non-metals"] },
-      { name: "Reactivity series (K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Ag > Au)", oneLineUse: "Predict displacement and decide reaction with water/acids and extraction route.", marks: "1–3" },
+      { name: "Reactivity series (K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Ag > Au)", oneLineUse: "Predict displacement and decide reaction with water/acids and extraction route.", marks: "1–3", practiseConceptKeys: ["Reactivity Series & Displacement"] },
       { name: "Reactions of metals — with O₂, water, acids & salt solutions (displacement)", oneLineUse: "Write balanced equations and predict products in reaction-based questions.", marks: "2–3", conceptKeys: ["Chemical Properties of Metals and Non-metals"] },
       { name: "Ionic (electrovalent) bond & properties of ionic compounds (e.g. Na → Na⁺ + e⁻)", oneLineUse: "Explain electron transfer and justify high melting point / conductivity in molten state.", marks: "2–3", conceptKeys: ["Formation and Properties of Ionic Compounds"] },
       { name: "Extraction of metals — roasting, calcination, reduction, electrolytic refining", oneLineUse: "Sequence the metallurgy steps for a given ore and its reactivity.", marks: "3–5", conceptKeys: ["Basic Metallurgical Processes", "Refining of Metals"] },
-      { name: "Corrosion & its prevention (rusting needs both air and moisture)", oneLineUse: "State rusting conditions and prevention methods (galvanisation, painting, oiling).", marks: "1–3" },
+      { name: "Corrosion & its prevention (rusting needs both air and moisture)", oneLineUse: "State rusting conditions and prevention methods (galvanisation, painting, oiling).", marks: "1–3", practiseConceptKeys: ["Corrosion & Prevention"] },
       { name: "Alloys", oneLineUse: "State what an alloy is and why metals are alloyed — steel (iron + carbon), stainless steel (+ nickel, chromium); an amalgam when mercury is one metal.", marks: "1–5", conceptKeys: ["Alloys"] },
     ],
     formulaUsePreview: {
@@ -1264,12 +1272,12 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward the correct lens type stated WITH the sign of its power, labelled ray diagrams, and cause-based reasoning (why the sky is blue, why danger signals are red) rather than one-word answers.",
     },
     boardEssentials: [
-      { name: "Power of accommodation (ciliary muscles vary focal length; near point 25 cm, far point ∞)", oneLineUse: "Explain how a normal eye focuses near and distant objects on the retina.", marks: "1–3" },
-      { name: "Defects of vision and correction — myopia (concave, −P), hypermetropia (convex, +P), presbyopia", oneLineUse: "Name the defect, pick the corrective lens and justify its sign of power.", marks: "3–5" },
-      { name: "Lens power P = 1/f (dioptre) for the corrective lens", oneLineUse: "Compute the lens needed once the required focal length is fixed.", marks: "2–3" },
+      { name: "Power of accommodation (ciliary muscles vary focal length; near point 25 cm, far point ∞)", oneLineUse: "Explain how a normal eye focuses near and distant objects on the retina.", marks: "1–3", practiseConceptKeys: ["Structure & Defects of Vision"] },
+      { name: "Defects of vision and correction — myopia (concave, −P), hypermetropia (convex, +P), presbyopia", oneLineUse: "Name the defect, pick the corrective lens and justify its sign of power.", marks: "3–5", practiseConceptKeys: ["Structure & Defects of Vision"] },
+      { name: "Lens power P = 1/f (dioptre) for the corrective lens", oneLineUse: "Compute the lens needed once the required focal length is fixed.", marks: "2–3", practiseConceptKeys: ["Structure & Defects of Vision"] },
       { name: "Refraction through a prism and dispersion of white light (VIBGYOR spectrum)", oneLineUse: "Explain the spectrum and angle of deviation on a prism diagram.", marks: "2–3", conceptKeys: ["Refraction of Light through a Prism", "Dispersion of White Light by a Glass Prism"] },
-      { name: "Atmospheric refraction (twinkling of stars, advance sunrise, delayed sunset)", oneLineUse: "Give the refraction-based cause for everyday sky phenomena.", marks: "2–3" },
-      { name: "Scattering of light (Tyndall effect, blue sky, red danger signals)", oneLineUse: "Use wavelength-dependent scattering to explain the sky's colour and why red signals carry far.", marks: "2–3" },
+      { name: "Atmospheric refraction (twinkling of stars, advance sunrise, delayed sunset)", oneLineUse: "Give the refraction-based cause for everyday sky phenomena.", marks: "2–3", practiseConceptKeys: ["Atmospheric Refraction Phenomena"] },
+      { name: "Scattering of light (Tyndall effect, blue sky, red danger signals)", oneLineUse: "Use wavelength-dependent scattering to explain the sky's colour and why red signals carry far.", marks: "2–3", practiseConceptKeys: ["Atmospheric Refraction Phenomena"] },
     ],
     formulaUsePreview: {
       kind: "formula",
@@ -1317,10 +1325,10 @@ const SEEDED: Record<string, ActionableSeed> = {
       examinerNotes: "Boards reward correctly labelled diagrams (flower L.S., male & female systems), exact technical terms (stamen, carpel, oviduct, vas deferens), and one-function-per-organ answers; vague wording and unlabelled diagrams forfeit the separately-marked label credit.",
     },
     boardEssentials: [
-      { name: "Asexual reproduction modes (fission, budding, fragmentation, regeneration, spore formation, vegetative propagation)", oneLineUse: "Match each organism to its mode and justify why offspring are near-identical.", marks: "1–3" },
-      { name: "Sexual reproduction in a flower — parts of a flower, pollination, fertilisation", oneLineUse: "Label the L.S. of a flower and trace pollen → pollen tube → zygote.", marks: "3–5" },
-      { name: "Human reproductive system (male & female) and its functions", oneLineUse: "Name each organ and state its one function in a labelled-diagram answer.", marks: "3–5" },
-      { name: "Reproductive health — contraception / family planning and STD (HIV/AIDS) prevention", oneLineUse: "Classify contraceptive methods and link barrier methods to STD prevention.", marks: "2–3" },
+      { name: "Asexual reproduction modes (fission, budding, fragmentation, regeneration, spore formation, vegetative propagation)", oneLineUse: "Match each organism to its mode and justify why offspring are near-identical.", marks: "1–3", practiseConceptKeys: ["Asexual Reproduction & Diagrams"] },
+      { name: "Sexual reproduction in a flower — parts of a flower, pollination, fertilisation", oneLineUse: "Label the L.S. of a flower and trace pollen → pollen tube → zygote.", marks: "3–5", practiseConceptKeys: ["Sexual Reproduction in Humans & Plants"] },
+      { name: "Human reproductive system (male & female) and its functions", oneLineUse: "Name each organ and state its one function in a labelled-diagram answer.", marks: "3–5", practiseConceptKeys: ["Sexual Reproduction in Humans & Plants"] },
+      { name: "Reproductive health — contraception / family planning and STD (HIV/AIDS) prevention", oneLineUse: "Classify contraceptive methods and link barrier methods to STD prevention.", marks: "2–3", practiseConceptKeys: ["Sexual Reproduction in Humans & Plants"] },
       { name: "Variation and the role of DNA copying in reproduction", oneLineUse: "Explain why DNA copying with slight variation helps a species survive.", marks: "1–3", conceptKeys: ["Do Organisms Create Exact Copies of Themselves?"] },
     ],
     formulaUsePreview: {
@@ -1368,11 +1376,11 @@ const SEEDED: Record<string, ActionableSeed> = {
     },
     boardEssentials: [
       { name: "Ecosystem components — biotic (producers, consumers, decomposers) & abiotic", oneLineUse: "Classify any given organism/factor and define an ecosystem in short-answer questions.", marks: "1–3", conceptKeys: ["Ecosystem and Its Components"] },
-      { name: "Food chains, food webs and trophic levels", oneLineUse: "Build or read a chain, assign trophic levels, and tell a chain from a web.", marks: "1–3" },
-      { name: "Ten percent law of energy flow (only ~10% passes to the next level)", oneLineUse: "Calculate energy available up a chain and explain why chains are short (3–4 levels).", marks: "1–3" },
-      { name: "Biological magnification", oneLineUse: "Explain why non-biodegradable toxins concentrate most in top consumers.", marks: "2–3" },
-      { name: "Biodegradable vs non-biodegradable waste & its disposal", oneLineUse: "Sort given wastes into the two classes and justify the environmental impact.", marks: "1–3" },
-      { name: "Ozone-layer depletion and its cause (CFCs)", oneLineUse: "State ozone's protective role and how CFCs break it down.", marks: "1–2" },
+      { name: "Food chains, food webs and trophic levels", oneLineUse: "Build or read a chain, assign trophic levels, and tell a chain from a web.", marks: "1–3", practiseConceptKeys: ["Food Chains, Trophic Levels & Energy Flow"] },
+      { name: "Ten percent law of energy flow (only ~10% passes to the next level)", oneLineUse: "Calculate energy available up a chain and explain why chains are short (3–4 levels).", marks: "1–3", practiseConceptKeys: ["Food Chains, Trophic Levels & Energy Flow"] },
+      { name: "Biological magnification", oneLineUse: "Explain why non-biodegradable toxins concentrate most in top consumers.", marks: "2–3", practiseConceptKeys: ["Pollution, Waste Management & Ozone Depletion"] },
+      { name: "Biodegradable vs non-biodegradable waste & its disposal", oneLineUse: "Sort given wastes into the two classes and justify the environmental impact.", marks: "1–3", practiseConceptKeys: ["Pollution, Waste Management & Ozone Depletion"] },
+      { name: "Ozone-layer depletion and its cause (CFCs)", oneLineUse: "State ozone's protective role and how CFCs break it down.", marks: "1–2", practiseConceptKeys: ["Pollution, Waste Management & Ozone Depletion"] },
     ],
     formulaUsePreview: {
       kind: "law",
