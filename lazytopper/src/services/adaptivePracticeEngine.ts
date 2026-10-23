@@ -1,5 +1,6 @@
 import { loadTopicMasterySnapshot } from "./topicHubMastery";
 import { roundMarks } from "../lib/mistakeDisplay";
+import { noteStudyDataChanged } from "./studyDataSignal";
 
 export type AdaptiveLevel = "building_foundations" | "exam_ready" | "challenge_mode";
 
@@ -236,6 +237,8 @@ export function saveWrongAnswerLog(log: WrongAnswerLog): void {
   }
   // G11 — the signed-in student's log is synced (never the unscoped signed-out key).
   if (isCloudUid(uid)) void pushWrongAnswerLog(uid, stamped);
+  // MI-CONSISTENCY-1 — "concept gaps still to clear" reads this log: every MI card recomputes.
+  noteStudyDataChanged();
 }
 
 /** A usable conceptual-marks figure (finite, > 0), else null — never an invented 0. */

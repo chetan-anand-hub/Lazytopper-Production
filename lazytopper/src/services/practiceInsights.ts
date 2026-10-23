@@ -29,6 +29,7 @@ import {
   type GradedQuestionLike,
   type MarksLostByType,
 } from "../lib/mistakeDisplay";
+import { noteStudyDataChanged } from "./studyDataSignal";
 
 export type LTSubject = "maths" | "science";
 export type DifficultyLevel = "Easy" | "Medium" | "Hard";
@@ -417,7 +418,11 @@ export function recordAttempt(
       }
     }
     void withFirestore(({ fs, db }) => fs.setDoc(fs.doc(db, "practiceInsights", uid, "attempts", attemptId), attemptDoc))
-      .catch((e) => console.warn("[practiceInsights] attempt write failed", e));
+      .catch((e) => console.warn("[practiceInsights] attempt write failed", e))
+      // MI-CONSISTENCY-1 — once the durable write lands, every MI card re-reads (studyDataSignal).
+      .finally(noteStudyDataChanged);
+  } else {
+    noteStudyDataChanged();
   }
 
   // ── Loop-closer (MI-Loop Stage 2 PR 2) ────────────────────────────────
