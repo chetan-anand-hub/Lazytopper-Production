@@ -28,7 +28,7 @@
 import { buildMistakeView, subjectRungOf, type ReadSubject, type StudyReadModel } from "../../services/progressReadModel";
 import { splitPaperMarks } from "../../services/meSplit";
 import { meChapterPractisePath, mistakeLossByType } from "../../services/meHomeSummary";
-import { loadWrongAnswerLog } from "../../services/adaptivePracticeEngine";
+import { loadWrongAnswerLogFor } from "../../services/adaptivePracticeEngine";
 import { desktopTopicForWeakAreaKey } from "../desktop/topics";
 import {
   buildDesktopWorksheetPath,
@@ -103,10 +103,15 @@ const PAPER_OF: Record<ReadSubject, DesktopSubject> = { maths: "Maths", science:
 const papersOf = (scope: MiScope): ReadSubject[] => (scope === "both" ? ["maths", "science"] : [scope]);
 const tenths = (n: number): number => Math.round((Number(n) || 0) * 10);
 
-/** The open concept gaps on the wrong-answer log, in scope. Every entry is a concept gap (the MI
- *  front door bridges conceptual mistakes only); a chapter the registry cannot place counts only
- *  under Both — never guessed into a paper. */
-export function conceptGapsIn(scope: MiScope, entries = Object.values(loadWrongAnswerLog().entries)): number {
+/** The open concept gaps on THE CARD'S OWN account's wrong-answer log, in scope (MI-CARD-UID-1:
+ *  never the device's "active" account, which on a shared phone can be someone else). Every entry
+ *  is a concept gap (the MI front door bridges conceptual mistakes only); a chapter the registry
+ *  cannot place counts only under Both — never guessed into a paper. */
+export function conceptGapsIn(
+  scope: MiScope,
+  uid: string | null | undefined,
+  entries = Object.values(loadWrongAnswerLogFor(uid).entries),
+): number {
   let n = 0;
   for (const e of entries) {
     const count = Math.max(0, Math.floor(Number(e?.count) || 0));
@@ -120,13 +125,14 @@ export function conceptGapsIn(scope: MiScope, entries = Object.values(loadWrongA
   return n;
 }
 
-/** The card for ONE scope, from the unscoped month read. Pure (the gap count reads the device's
- *  synced wrong-answer log unless `gaps` is passed). */
+/** The card for ONE scope, from the unscoped month read of `uid`. Pure (the gap count reads that
+ *  account's synced wrong-answer log unless `gaps` is passed; no uid → 0, never another account's). */
 export function selectMiCard(
   model: Pick<StudyReadModel, "progress" | "mistakes" | "range">,
   scope: MiScope,
   ctx: DesktopRouteContext,
   gaps?: number,
+  uid?: string | null,
 ): MiCardSummary {
   const typeT: Record<StoredMistakeType, number> = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
   let lostT = 0;
@@ -215,7 +221,7 @@ export function selectMiCard(
     chance,
     withheld,
     splitWithheld,
-    conceptGaps: typeof gaps === "number" ? gaps : conceptGapsIn(scope),
+    conceptGaps: typeof gaps === "number" ? gaps : conceptGapsIn(scope, uid),
   };
 }
 
@@ -252,9 +258,10 @@ function tapTenths(
 export function selectMiCards(
   model: Pick<StudyReadModel, "progress" | "mistakes" | "range">,
   ctx: DesktopRouteContext,
+  uid: string | null,
 ): Record<MiScope, MiCardSummary> {
   const out = {} as Record<MiScope, MiCardSummary>;
-  for (const s of MI_SCOPES) out[s] = selectMiCard(model, s, ctx);
+  for (const s of MI_SCOPES) out[s] = selectMiCard(model, s, ctx, undefined, uid);
   return out;
 }
 
