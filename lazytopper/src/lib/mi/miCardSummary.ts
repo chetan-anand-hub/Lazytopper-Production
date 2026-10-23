@@ -15,8 +15,8 @@
  *     here, under its type (owner rule, 23 Oct) — never as a wrong tap;
  *   - "Wrong MCQ taps": a wrong objective pick recorded with NO working (a Quick Practice tap, a
  *     Chapter Test / Full Mock Section-A pick) — the subject rung's `marksWrongObjective`
- *     (MI-MODE-MARKS-1), CLAMPED to Me's remainder (a tap and a later checked answer share one
- *     attempt identity, so the field can exceed what is left untyped);
+ *     (MI-MODE-MARKS-1), counted per pick and only when no TYPED mistake entry holds the same
+ *     question id (`progress.wrongObjectiveEvidence`), then CLAMPED to Me's remainder;
  *   - "Left blank": Me's "Not attempted" (never a mistake);
  *   - "No reason recorded": the TRUE remainder — lost marks with no type, no tap and no blank.
  * When Me withholds a paper's split (the log names more than the graded stream lost), that paper's
@@ -138,6 +138,8 @@ export function selectMiCard(
   let anyAnswers = false;
   let splitWithheld = false;
   const byPaperEntries: Partial<Record<ReadSubject, ReturnType<typeof buildMistakeView>>> = {};
+  let typedQidSet: Set<string> | null = null;
+  const typedQids = (): Set<string> => (typedQidSet ??= typedQuestionIds(model.mistakes.entries));
 
   for (const p of papersOf(scope)) {
     const answers = Number(model.progress.subjectTotals?.[p]?.answers) || 0;
@@ -167,7 +169,7 @@ export function selectMiCard(
     }
     const blank = tenths(split.notAttempted);
     const unclassified = tenths(split.unclassified);
-    const tap = Math.min(tenths(rung?.marksWrongObjective ?? 0), unclassified);
+    const tap = Math.min(tapTenths(model, p, rung?.marksWrongObjective, typedQids()), unclassified);
     const rest = lost - typedSum - blank - tap;
     if (rest < 0) {
       restT += lost; // per-type rounding would overshoot the paper: refuse to split, never clamp.
@@ -215,6 +217,35 @@ export function selectMiCard(
     splitWithheld,
     conceptGaps: typeof gaps === "number" ? gaps : conceptGapsIn(scope),
   };
+}
+
+/** Question ids that carry a TYPED mistake entry in the window (any of the four types > 0). */
+function typedQuestionIds(entries: Parameters<typeof mistakeLossByType>[0]): Set<string> {
+  const out = new Set<string>();
+  for (const e of entries) {
+    const qid = String((e as { questionId?: unknown })?.questionId ?? "").trim();
+    if (!qid) continue;
+    const t = mistakeLossByType([e]);
+    if (STORED_MISTAKE_TYPES.some((k) => t[k] > 0)) out.add(qid);
+  }
+  return out;
+}
+
+/** "Wrong MCQ taps" for one paper, in tenths, BEFORE the clamp: each wrong objective pick counts
+ *  only when no typed mistake entry holds the same question (a question re-tapped after a checked
+ *  answer keeps its typed entry; its pick is not a tap). Without the per-pick evidence (an older
+ *  read), the rung's aggregate is the figure, as before; the caller clamps either way. */
+function tapTenths(
+  model: Pick<StudyReadModel, "progress">,
+  paper: ReadSubject,
+  aggregate: number | undefined,
+  typed: Set<string>,
+): number {
+  const picks = model.progress.wrongObjectiveEvidence?.[paper];
+  if (!picks) return tenths(aggregate ?? 0);
+  let sum = 0;
+  for (const pick of picks) if (!(pick.qid && typed.has(pick.qid))) sum += Number(pick.marks) || 0;
+  return tenths(sum);
 }
 
 /** Every scope at once (the switch flips between them without a re-read). */

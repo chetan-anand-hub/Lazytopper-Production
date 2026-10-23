@@ -165,6 +165,22 @@ describe("wrong MCQ taps — clamped to Me's remainder (reviewer #1316)", () => 
     expect(row(s, "unrecorded")).toBe(0);
   });
 
+  it("★ a question re-tapped after a checked answer is NOT a tap: another question's untyped marks stay 'No reason recorded'", () => {
+    // q1: checked with working (typed conceptual 1), then re-tapped wrong in Quick Practice — the
+    // pick and the typed entry share the question id. q2: a worksheet objective wrong, no reason.
+    // The aggregate (1) would fit inside the remainder (1) and wrongly move q2's mark into taps.
+    const m = model({ maths: { available: 2, scored: 0, taps: 1 } }, [{ ...entry("Maths", "Real Numbers", { conceptual: 1 }), questionId: "q1" } as MistakeLogEntry]);
+    m.progress.wrongObjectiveEvidence = { maths: [{ qid: "q1", marks: 1 }] };
+    const s = selectMiCard(m, "maths", CTX, 0);
+    expect(row(s, "conceptual")).toBe(1);
+    expect(row(s, "wrongTap")).toBe(0);
+    expect(row(s, "unrecorded")).toBe(1);
+    expect(sum(s.rows)).toBe(s.lost);
+    // Control: the same pick on a question with NO typed entry is a tap.
+    m.progress.wrongObjectiveEvidence = { maths: [{ qid: "q9", marks: 1 }] };
+    expect(row(selectMiCard(m, "maths", CTX, 0), "wrongTap")).toBe(1);
+  });
+
   it("a wrong tap WITHOUT working stays a tap; unattempted stays 'Left blank', never a mistake type", () => {
     const s = selectMiCard(model({ maths: { available: 3, scored: 0, taps: 1, blank: 2 } }, []), "maths", CTX, 0);
     expect(row(s, "wrongTap")).toBe(1);

@@ -1,5 +1,6 @@
 import type { QueryConstraint } from "firebase/firestore";
 import { isFirestoreEnabled, withFirestore, type FirestoreSdk } from "./firestoreSdk";
+import { noteStudyDataChanged } from "./studyDataSignal";
 
 const LOCAL_KEY_PREFIX = "lazytopper.mistakeLogs.v1";
 const MAX_LOCAL_ENTRIES = 200;
@@ -189,6 +190,8 @@ export async function logMistakes(
       // Firestore write failed — localStorage copy remains the source of truth
     }
   }
+  // MI-CONSISTENCY-1 — every MI card re-reads (services/studyDataSignal).
+  noteStudyDataChanged();
 }
 
 /**
@@ -238,6 +241,7 @@ export async function resolveStableMistakeLog(
       // Firestore update failed (or the entry never reached the cloud) — best effort, as the write
     }
   }
+  noteStudyDataChanged(); // MI-CONSISTENCY-1
   return true;
 }
 

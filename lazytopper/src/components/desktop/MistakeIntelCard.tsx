@@ -5,7 +5,7 @@ import { miVoiceInputForCard } from "../mi/miCardVoice";
 import { useMiCard } from "../../lib/mi/useMiCard";
 import { useMiScope } from "../../lib/mi/miScope";
 import type { DesktopRouteContext } from "../../lib/desktop/navigation";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   modelNamesWeakness,
@@ -271,8 +271,19 @@ function SparklesIcon() {
   );
 }
 
-/** Me's own back-nav context — the sidebar's actions reuse Me's hrefs exactly. */
-const ME_CTX: DesktopRouteContext = { source: "me", returnTo: "/me" };
+/** Me's own action hrefs, carrying the page the student is on as `returnTo` (the sidebar sits on
+ *  every page, so "back" must return to THAT page, not to /me). An internal path only. */
+function sidebarCtx(pathname: string, search: string): DesktopRouteContext {
+  const here = pathname.startsWith("/") && !pathname.startsWith("//") ? `${pathname}${search}` : "/me";
+  return { source: "me", returnTo: here };
+}
+
+function withCtx(path: string, ctx: DesktopRouteContext): string {
+  const params = new URLSearchParams();
+  if (ctx.source) params.set("source", ctx.source);
+  if (ctx.returnTo) params.set("returnTo", ctx.returnTo);
+  return `${path}?${params.toString()}`;
+}
 
 /**
  * MI-CONSISTENCY-1 — the sidebar renders THE ONE MI card (components/mi/MiCard, dark), over the
@@ -283,19 +294,24 @@ const ME_CTX: DesktopRouteContext = { source: "me", returnTo: "/me" };
  */
 export function MistakeIntelCard() {
   const { user, loading: authLoading, mistakeLogsHydrated } = useAuth();
-  const uid = user?.uid ?? null;
+  const signedInUid = user?.uid ?? null;
+  // Home's rule: only a REAL account is read — a local / browse session gets the honest empty state.
+  const uid = user && !user.isLocalSession ? user.uid : null;
   const [scope, setScope] = useMiScope();
   const gen = Number(mistakeLogsHydrated) || 0;
-  // ME-ENGINE-1 — the ONE source, the shared read model (Me's default window, via the memo).
-  const { status, cards } = useMiCard(uid, gen, ME_CTX, (query) => readStudyModel(uid, query));
+  const { pathname, search } = useLocation();
+  const ctx = useMemo(() => sidebarCtx(pathname, search), [pathname, search]);
+  // ME-ENGINE-1 — the ONE source, the shared read model (Me's default window, via the memo). The
+  // route is the refresh hint: the always-mounted sidebar re-asks the memo on every page change.
+  const { status, cards } = useMiCard(uid, gen, ctx, (query) => readStudyModel(uid, query), pathname);
   const summary = cards ? cards[scope] : null;
   const voiceInput = useMemo(
-    () => (authLoading ? ({ kind: "loading" } as const) : !uid ? ({ kind: "signed-out" } as const) : miVoiceInputForCard(status, summary)),
-    [authLoading, uid, status, summary],
+    () => (authLoading ? ({ kind: "loading" } as const) : !signedInUid ? ({ kind: "signed-out" } as const) : miVoiceInputForCard(status, summary)),
+    [authLoading, signedInUid, status, summary],
   );
-  const voice = <MiVoiceRow uid={uid} input={voiceInput} hydrated={gen > 0} />;
+  const voice = <MiVoiceRow uid={signedInUid} input={voiceInput} hydrated={gen > 0} />;
 
-  if (!authLoading && !uid) {
+  if (!authLoading && !signedInUid) {
     return (
       <div style={CARD_STYLE}>
         <div style={HEADER_ROW_STYLE}>
@@ -317,8 +333,8 @@ export function MistakeIntelCard() {
       summary={authLoading ? null : summary}
       scope={scope}
       onScope={setScope}
-      meHref="/me"
-      checkHref="/check-improve"
+      meHref={withCtx("/me", ctx)}
+      checkHref={withCtx("/check-improve", ctx)}
       voice={voice}
       testId="sidebar-mi-card"
     />

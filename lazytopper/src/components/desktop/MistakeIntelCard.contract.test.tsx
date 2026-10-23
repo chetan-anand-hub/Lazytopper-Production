@@ -212,7 +212,8 @@ describe("MI-HOME-SYNC — MCQ-only marks on the table (owner's live case) are n
     expect(chance.textContent).toContain(MI_CARD_COPY.chanceEmpty);
     const check = screen.getByTestId("mi-card-check");
     expect(check.textContent).toBe("Check a written answer →");
-    expect(check.getAttribute("href")).toBe("/check-improve");
+    // MI-CONSISTENCY-1 — the sidebar's links come back to the page the student is on (here "/").
+    expect(check.getAttribute("href")).toBe("/check-improve?source=me&returnTo=%2F");
   });
 
   it("MI-COPY CONTROL — the no-data and typed states carry no untyped line", async () => {

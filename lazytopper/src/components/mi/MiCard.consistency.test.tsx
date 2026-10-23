@@ -15,15 +15,19 @@ import { MI_FIXTURE_NOW, MI_FIXTURE_UID, miFixtureStudent, type MiFixtureStreams
 
 configure({ asyncUtilTimeout: 8000 });
 
-const H = vi.hoisted(() => ({ s: null as unknown as MiFixtureStreams }));
+const H = vi.hoisted(() => ({
+  s: null as unknown as MiFixtureStreams,
+  user: { uid: "u-mi-fixture" } as { uid: string; isLocalSession?: boolean },
+  reads: 0,
+}));
 
 vi.mock("../../context/AuthContext", () => ({
-  useAuth: () => ({ user: { uid: "u-mi-fixture" }, loading: false, mistakeLogsHydrated: 1 }),
+  useAuth: () => ({ user: H.user, loading: false, mistakeLogsHydrated: 1 }),
 }));
 vi.mock("../../services/practiceInsights", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../services/practiceInsights")>()),
   getAttemptsFromCloud: async (_uid: string, { start }: { start?: number } = {}) =>
-    H.s.attempts.filter((a) => start === undefined || a.timestamp >= start).map((a) => ({ ...a })),
+    (H.reads++, H.s.attempts).filter((a) => start === undefined || a.timestamp >= start).map((a) => ({ ...a })),
 }));
 vi.mock("../../services/sessionRecords", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../services/sessionRecords")>()),
@@ -48,6 +52,11 @@ import { resetMeHomeMemo } from "../../services/meHomeSummary";
 import { MI_SCOPE_STORAGE_KEY, resetMiScopeForTests, type MiScope } from "../../lib/mi/miScope";
 import { selectMiCards, type MiCardSummary } from "../../lib/mi/miCardSummary";
 import { readStudyModel } from "../../services/progressReadModel";
+import { recordAttempt, type PracticeAttempt } from "../../services/practiceInsights";
+import { recordWrongAnswer } from "../../services/adaptivePracticeEngine";
+import { setActiveProgressUser } from "../../services/studentProgressStore";
+import { Link } from "react-router-dom";
+import { act } from "react";
 
 beforeAll(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -59,6 +68,10 @@ beforeEach(() => {
   resetMeHomeMemo();
   localStorage.clear();
   resetMiScopeForTests();
+  H.user = { uid: MI_FIXTURE_UID };
+  H.reads = 0;
+  setActiveProgressUser(MI_FIXTURE_UID);
+  vi.setSystemTime(MI_FIXTURE_NOW);
 });
 afterEach(cleanup);
 
@@ -151,5 +164,79 @@ describe("Ziggy's line uses only numbers printed on the card", () => {
       for (const phrase of voice!.line.match(/\d+(?:\.\d+)? marks?/g) ?? []) expect(printed).toContain(phrase);
       unmount();
     }
+  });
+});
+
+/** A wrong Quick Practice MCQ pick an hour ago, as the cloud stream will return it. */
+function wrongPick(id: string): PracticeAttempt {
+  return {
+    id, questionId: `new-${id}`, topicKey: "real-numbers", topicName: "Real Numbers", subject: "maths",
+    correct: false, marksScored: 0, marksAvailable: 1, mode: "mcq", timestamp: Date.now() - 3600000,
+  } as unknown as PracticeAttempt;
+}
+const lostOf = (card: HTMLElement) => within(card).getByTestId("mi-card-lost").textContent;
+const gapsOf = (card: HTMLElement) => within(card).queryByTestId("mi-card-gaps-n")?.textContent ?? null;
+
+describe("the always-mounted sidebar and Home never disagree on one screen (no reload)", () => {
+  it("★ a clean drill clears a concept gap on BOTH cards at once", async () => {
+    recordWrongAnswer("graded:real-numbers", "real-numbers", "real-numbers", "Medium", 2);
+    recordWrongAnswer("graded:real-numbers", "real-numbers", "real-numbers", "Medium", 2);
+    renderBoth();
+    const home = () => screen.getByTestId("home-mi-card");
+    const side = () => screen.getByTestId("sidebar-mi-card");
+    await waitFor(() => expect([gapsOf(home()), gapsOf(side())]).toEqual(["2", "2"]));
+    act(() => {
+      recordAttempt({ uid: MI_FIXTURE_UID } as never, { subject: "Maths", topic: "Real Numbers", question: "clean drill", marksScored: 3, marksAvailable: 3, mode: "graded" });
+    });
+    await waitFor(() => expect([gapsOf(home()), gapsOf(side())]).toEqual(["1", "1"]));
+  });
+
+  it("★ a new attempt moves the 30-day headline on BOTH cards at once (no 60 s stale read)", async () => {
+    renderBoth();
+    const home = () => screen.getByTestId("home-mi-card");
+    const side = () => screen.getByTestId("sidebar-mi-card");
+    await waitFor(() => expect(side().getAttribute("data-state")).toBe("ready"));
+    await waitFor(() => expect(home().getAttribute("data-state")).toBe("ready"));
+    const before = lostOf(home());
+    expect(lostOf(side())).toBe(before);
+    const pick = wrongPick("w1");
+    H.s.attempts.push(pick);
+    act(() => {
+      recordAttempt({ uid: MI_FIXTURE_UID } as never, { subject: "Maths", topic: "Real Numbers", questionId: pick.questionId, question: "tap", marksScored: 0, marksAvailable: 1, mode: "mcq" });
+    });
+    await waitFor(() => expect(lostOf(home())).not.toBe(before));
+    await waitFor(() => expect(lostOf(side())).toBe(lostOf(home())));
+  });
+
+  it("★ the sidebar re-asks the read on a route change once the 60 s read has expired; its links return to THIS page", async () => {
+    render(
+      <MemoryRouter initialEntries={["/practice"]}>
+        <MistakeIntelCard />
+        <Link to="/worksheets">go</Link>
+      </MemoryRouter>,
+    );
+    const side = () => screen.getByTestId("sidebar-mi-card");
+    await waitFor(() => expect(side().getAttribute("data-state")).toBe("ready"));
+    expect(within(side()).getByTestId("mi-card-breakdown").getAttribute("href")).toBe("/me?source=me&returnTo=%2Fpractice");
+    const before = lostOf(side());
+    H.s.attempts.push(wrongPick("w2")); // written elsewhere (another device): no signal on this one
+    vi.setSystemTime(MI_FIXTURE_NOW + 61_000);
+    fireEvent.click(screen.getByText("go"));
+    await waitFor(() => expect(lostOf(side())).not.toBe(before));
+    expect(within(side()).getByTestId("mi-card-breakdown").getAttribute("href")).toBe("/me?source=me&returnTo=%2Fworksheets");
+  });
+
+  it("★ a local session is never read in the sidebar either — the honest empty state, as on Home", async () => {
+    H.user = { uid: MI_FIXTURE_UID, isLocalSession: true };
+    // Home passes `user && !user.isLocalSession ? user.uid : null` (DesktopHome / MobileHome).
+    render(
+      <MemoryRouter>
+        <MiCardHost uid={null} gen={1} returnTo="/" />
+        <MistakeIntelCard />
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.getByTestId("sidebar-mi-card").getAttribute("data-state")).toBe("empty"));
+    expect(screen.getByTestId("home-mi-card").getAttribute("data-state")).toBe("empty");
+    expect(H.reads).toBe(0);
   });
 });

@@ -15,6 +15,7 @@ import type { MiCardStatus } from "../../lib/mi/useMiCard";
 export function miVoiceInputForCard(status: MiCardStatus | "signed-out", summary: MiCardSummary | null): MiVoiceInput {
   if (status === "signed-out") return { kind: "signed-out" };
   if (status === "error") return { kind: "error" };
+  if (status === "idle") return { kind: "no-data" }; // no real account to read (a local session)
   if (!summary) return { kind: "loading" };
   if (summary.state === "empty") return { kind: "no-data" };
   if (summary.state === "thin") return { kind: "with-data", namesWeakness: false, topLoss: null };

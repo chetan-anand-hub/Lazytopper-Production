@@ -4,9 +4,10 @@
  * selector (./miCardSummary) for every scope. The selector and the read model behind it load ON
  * DEMAND, so the cards' chunks never carry them; a failed load is an honest "error", never a guess.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useMeHome } from "../../services/useMeHomeSummary";
 import type { MeHomeReader } from "../../services/meHomeSummary";
+import { studyDataVersion, subscribeStudyData } from "../../services/studyDataSignal";
 import type { DesktopRouteContext } from "../desktop/navigation";
 import type { MiCardSummary } from "./miCardSummary";
 import type { MiScope } from "./miScope";
@@ -18,8 +19,12 @@ export function useMiCard(
   gen: number,
   ctx: DesktopRouteContext,
   reader?: MeHomeReader,
+  /** The host's current route: a route change re-asks the shared read (see useMeHome). */
+  refresh?: string,
 ): { status: MiCardStatus; cards: Record<MiScope, MiCardSummary> | null } {
-  const { status, read } = useMeHome(uid, gen, reader);
+  const { status, read } = useMeHome(uid, gen, reader, refresh);
+  // A wrong-answer-log write moves "concept gaps still to clear" without a new read: re-select.
+  const dataVersion = useSyncExternalStore(subscribeStudyData, studyDataVersion, studyDataVersion);
   const [cards, setCards] = useState<{ for: unknown; value: Record<MiScope, MiCardSummary> } | null>(null);
   const [failed, setFailed] = useState<unknown>(null);
   const source = ctx.source;
@@ -39,7 +44,7 @@ export function useMiCard(
     return () => {
       cancelled = true;
     };
-  }, [read, source, returnTo]);
+  }, [read, source, returnTo, dataVersion]);
 
   // No read to make (no real account, or the shared read reports nothing to read): the empty state.
   if (!uid || status === "idle") return { status: "idle", cards: null };
