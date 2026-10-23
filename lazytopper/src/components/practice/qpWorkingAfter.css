@@ -1,0 +1,13 @@
+/* QP-WORKING-AFTER-1 — working checked after the set was graded (scorecard, dark card). */
+.qp-wa { margin: 4px 0 18px; display: flex; flex-direction: column; gap: 10px; }
+.qp-wa__note { margin: 0; font-size: 12.5px; line-height: 1.5; color: #cfd7e2; font-style: italic; }
+.qp-wa__check {
+  min-height: 44px; width: 100%; padding: 10px 16px; border-radius: 12px; cursor: pointer;
+  border: 1.5px solid hsl(152, 55%, 45%); background: hsl(152, 55%, 45%); color: #fff;
+  font: inherit; font-size: 14px; font-weight: 700; text-align: center;
+}
+.qp-wa__check:disabled { opacity: 0.7; cursor: progress; }
+.qp-wa__check:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.qp-wa__err { margin: 0; font-size: 13px; line-height: 1.45; color: #f0cf9a; }
+/* On the page (the box's own check failed), light background. */
+.qp-wa__err--page { margin: 12px 0 0; color: hsl(0, 65%, 40%); }

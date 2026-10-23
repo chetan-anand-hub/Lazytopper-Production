@@ -1,0 +1,12 @@
+/* QP-WORKING-AFTER-1 — "Check this working" on a saved answer after the set was graded.
+   A 44 px tap target, the product's green. */
+.qp-check-now {
+  display: block; width: 100%; min-height: 44px; margin-top: 10px; padding: 10px 14px;
+  border-radius: 10px; border: 1px solid hsl(152, 55%, 38%); background: hsl(152, 55%, 38%);
+  color: #fff; font: inherit; font-size: 0.84rem; font-weight: 700; cursor: pointer;
+}
+.qp-check-now:hover { background: hsl(152, 55%, 32%); }
+.qp-check-now:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
+.qp-check-now:disabled { opacity: 0.7; cursor: progress; }
+/* Replace / Remove on a saved answer: 44 px tap targets (the underlined text is unchanged). */
+.qp-saved-act { min-height: 44px; min-width: 44px; }

@@ -49,6 +49,11 @@ export interface PracticeQuestionListProps {
   savedAnswers?: Record<string, SolutionCheckerSavedWorking>;
   onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
   onRemoveAnswer?: (qId: string) => void;
+  /** QP-WORKING-AFTER-1 — each box's unsaved draft, so the host can save it at Finish. */
+  onDraftAnswer?: (qId: string, working: SolutionCheckerSavedWorking | null) => void;
+  /** QP-WORKING-AFTER-1 — after a graded set: the questions whose saved working is not checked
+   *  yet ("Check this working" on that box), the check, and the one being checked. */
+  afterGradeCheck?: { pendingIds: Record<string, true>; busyId: string | null; onCheck: (qId: string) => void } | null;
   /**
    * PRACTICE-HONESTY-1 — the host's per-question steps lock, passed straight through to
    * `PracticeQuestionCard.stepsLocked`. The host owns the rule (it alone holds every attempt
@@ -161,7 +166,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor,
+    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, onDraftAnswer, afterGradeCheck,
   } = props;
 
   return (
@@ -290,6 +295,15 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               savedAnswer={savedAnswers ? savedAnswers[String(q.id)] ?? null : null}
               onSaveAnswer={onSaveAnswer}
               onRemoveAnswer={onRemoveAnswer}
+              onDraftAnswer={onDraftAnswer}
+              onCheckWorking={
+                afterGradeCheck
+                  ? afterGradeCheck.pendingIds[String(q.id)]
+                    ? () => afterGradeCheck.onCheck(String(q.id))
+                    : null
+                  : undefined
+              }
+              checkWorkingBusy={!!afterGradeCheck && afterGradeCheck.busyId === String(q.id)}
               stepsLocked={isStepsLocked ? isStepsLocked(String(q.id)) : false}
               defaultAnswerMode={defaultAnswerMode}
             />

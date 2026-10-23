@@ -85,6 +85,12 @@ export interface PracticeQuestionCardProps {
   onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
   /** Collect mode: the student dropped the working saved for this question. */
   onRemoveAnswer?: (qId: string) => void;
+  /** QP-WORKING-AFTER-1 — collect mode: the box's unsaved draft (null once saved / cleared). */
+  onDraftAnswer?: (qId: string, working: SolutionCheckerSavedWorking | null) => void;
+  /** QP-WORKING-AFTER-1 — the set is graded and this question's saved working is not checked
+   *  yet: "Check this working" grades it on its own. Undefined: today's collect mode. */
+  onCheckWorking?: (() => void) | null;
+  checkWorkingBusy?: boolean;
   /**
    * PRACTICE-HONESTY-1 — the solution steps are locked until the student has tried the
    * question. The HOST decides (it alone knows every attempt signal and whether the
@@ -186,6 +192,7 @@ export function PracticeQuestionCard({
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
   onAskTutor,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
+  onDraftAnswer, onCheckWorking, checkWorkingBusy,
   stepsLocked = false,
   hideSteps = false,
   countsAsAttempt: countsAsAttemptProp,
@@ -742,6 +749,10 @@ export function PracticeQuestionCard({
           savedAnswer={savedAnswer}
           onSaveAnswer={(working) => onSaveAnswer?.(String(q.id), working)}
           onRemoveAnswer={() => onRemoveAnswer?.(String(q.id))}
+          // QP-WORKING-AFTER-1 — the unsaved draft (saved at Finish), and the after-grade check.
+          onDraftChange={onDraftAnswer ? (w) => onDraftAnswer(String(q.id), w) : undefined}
+          onCheckNow={onCheckWorking}
+          checkNowBusy={checkWorkingBusy}
           // N2 — the SAME attempt identity the MCQ click above records under.
           attemptIdentity={practiceCardAttemptIdentity(String(q.id))}
           // SHW-2 — which answer tab is selected first (undefined = upload, unchanged).

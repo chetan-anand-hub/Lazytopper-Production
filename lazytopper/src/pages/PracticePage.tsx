@@ -669,6 +669,8 @@ import {
 } from "../services/quickPracticeGradedSheet";
 import type { SolutionCheckerSavedWorking } from "../components/question/SolutionChecker";
 import { UpgradeSheet, labelForFeature } from "../components/subscription/UpgradeSheet";
+import { QpWorkingAfterBlock } from "../components/practice/QpWorkingAfterBlock";
+export { QP_REVIEW_NOTE } from "../components/practice/QpWorkingAfterBlock";
 
 /**
  * ★ WIRE-2 · the confirmation step's stylesheet. A module-scope CSS string injected by
@@ -681,6 +683,17 @@ import { UpgradeSheet, labelForFeature } from "../components/subscription/Upgrad
 const QP_REVIEW_LINE_CSS = `
 .qp-review-line{margin:0 0 12px;font-size:0.8rem;line-height:1.5;color:hsl(220,15%,42%)}
 `;
+
+/** QP-WORKING-AFTER-1 — does this answer carry working (a photo / PDF or typed text)? */
+function hasWorking(a: { imageBase64?: string | null; textAnswer?: string | null }): boolean {
+  return (typeof a.imageBase64 === "string" && a.imageBase64.length > 0) || (typeof a.textAnswer === "string" && a.textAnswer.trim().length > 0);
+}
+/** QP-WORKING-AFTER-1 — a cheap identity of the working itself (not a hash of the whole photo:
+ *  its length and tail), so the SAME working is never graded twice and NEW working is seen. */
+function workingSignature(a: { imageBase64?: string | null; textAnswer?: string | null }): string {
+  const img = typeof a.imageBase64 === "string" ? `${a.imageBase64.length}:${a.imageBase64.slice(-48)}` : "";
+  return `${img}|${(a.textAnswer ?? "").trim()}`;
+}
 
 const QP_CONFIRM_CSS = `
 .qp-cf{border:1px solid hsl(220,18%,90%);border-radius:15px;overflow:hidden;margin-top:20px;background:#fff}
@@ -1478,6 +1491,16 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   const [batchResult, setBatchResult] = useState<QuickPracticeBatchResult | null>(null);
   const [batchGrading, setBatchGrading] = useState<boolean>(false);
   const [batchError, setBatchError] = useState<string | null>(null);
+  /* QP-WORKING-AFTER-1 — (1) each answer box's UNSAVED draft, so Finish saves it instead of
+     silently dropping it; (2) the questions whose steps the student opened (a draft saved for
+     one of them is a review attempt: shown, never recorded — PRACTICE-REVIEW-HONEST-1);
+     (3) the working each graded question was graded ON, so the same working is never graded
+     twice and NEW working after a graded set can be checked on its own. */
+  const draftAnswersRef = useRef<Record<string, SolutionCheckerSavedWorking>>({});
+  const stepsSeenRef = useRef<Record<string, true>>({});
+  const [gradedWorking, setGradedWorking] = useState<Record<string, string>>({});
+  const [checkingWorkingId, setCheckingWorkingId] = useState<string | null>(null);
+  const [checkWorkingError, setCheckWorkingError] = useState<string | null>(null);
   // J2 — the batch's background grade (only used when the batch has MORE than one question).
   const qpJob = useGradingJob();
   const qpJobStore = useMemo(() => quickPracticeJobStore(), []);
@@ -2258,6 +2281,11 @@ const packTopicKey = useMemo(() => {
           setMcqResults({});
           setQpFirstTap(null); // MOMENTS-1 (review M1): a new set has no first tap yet
           setGradedResults({});
+          // QP-WORKING-AFTER-1 — a new set starts with no drafts, no seen steps, nothing graded.
+          draftAnswersRef.current = {};
+          stepsSeenRef.current = {};
+          setGradedWorking({});
+          setCheckWorkingError(null);
           // A rebuilt/regenerated set is a NEW session: clear the write latch or the
           // new set would be silently skipped (and clear the grades with it, or they
           // would leak across the boundary into the next record).
@@ -2566,6 +2594,7 @@ const packTopicKey = useMemo(() => {
 
   const handleToggleAnswer = async (id: string, q?: PracticeQuestion) => {
     const willOpen = !expandedAnswers[id];
+    if (willOpen) stepsSeenRef.current[id] = true; // QP-WORKING-AFTER-1 — the steps were seen
     setExpandedAnswers((prev) => ({
       ...prev,
       [id]: willOpen,
@@ -2843,6 +2872,10 @@ const packTopicKey = useMemo(() => {
         delete next.graded;
         delete next.notGraded;
         delete next.notGradedReason;
+        // QP-WORKING-AFTER-1 — review WORKING on an MCQ tapped BEFORE Finish: the tap is a real
+        // attempt and keeps its mark (§13: working never changes an objective mark). Without
+        // this the batch's graded row was stripped and the tap's mark vanished from the total.
+        if (!reviewMcqIds[id] && !next.mcq && mcqResults[id]) next.mcq = mcqResults[id];
       }
       if (reviewMcqIds[id]) {
         delete next.mcq;
@@ -2850,7 +2883,7 @@ const packTopicKey = useMemo(() => {
       }
       return next;
     });
-  }, [batchResult, reviewSavedIds, reviewMcqIds]);
+  }, [batchResult, reviewSavedIds, reviewMcqIds, mcqResults]);
 
   const handleSaveAnswer = useCallback((qId: string, working: SolutionCheckerSavedWorking) => {
     setSavedAnswers((prev) => ({ ...prev, [qId]: working }));
@@ -2866,6 +2899,41 @@ const packTopicKey = useMemo(() => {
       return next;
     });
   }, []);
+
+  /** QP-WORKING-AFTER-1 — a box's unsaved draft (no API call; null once saved / cleared). */
+  const handleDraftAnswer = useCallback((qId: string, working: SolutionCheckerSavedWorking | null) => {
+    if (working) draftAnswersRef.current[qId] = working;
+    else delete draftAnswersRef.current[qId];
+  }, []);
+  /**
+   * QP-WORKING-AFTER-1 — at Finish, working the student typed or attached but never tapped
+   * "Save" on is SAVED, not dropped (owner live test, 23 Oct). No API call: it then reaches the
+   * normal session grading (the explicit "Check my written answers" tap). A draft is a review
+   * attempt (shown, never recorded) when it was entered after the steps or the scorecard were
+   * seen: review mode, or that question's steps were opened.
+   */
+  const saveDraftsAtFinish = useCallback(() => {
+    const drafts = draftAnswersRef.current;
+    const ids = Object.keys(drafts).filter((id) => !savedAnswers[id]);
+    if (ids.length === 0) return;
+    const add: Record<string, SolutionCheckerSavedWorking> = {};
+    for (const id of ids) add[id] = drafts[id];
+    setSavedAnswers((prev) => ({ ...prev, ...add }));
+    const review = ids.filter((id) => reviewMode || stepsSeenRef.current[id]);
+    if (review.length > 0) {
+      setReviewSavedIds((prev) => {
+        const next = { ...prev };
+        for (const id of review) next[id] = true;
+        return next;
+      });
+    }
+    for (const id of ids) delete drafts[id];
+  }, [savedAnswers, reviewMode]);
+  // The scorecard also opens WITHOUT the Finish tap (every question answered — `allDone`): the
+  // drafts are saved then too. (The Finish tap saves them first, so this finds none after it.)
+  useEffect(() => {
+    if (showScorecard) saveDraftsAtFinish();
+  }, [showScorecard, saveDraftsAtFinish]);
 
   /**
    * \u2605\u2605 THE ONE PAID CALL. Fired by the student's explicit "Grade my N answers" tap and
@@ -2963,6 +3031,12 @@ const packTopicKey = useMemo(() => {
     }
     setBatchResult(result);
     if (result.outcome === "graded") {
+      // QP-WORKING-AFTER-1 — the working each answer was graded ON (never graded twice).
+      setGradedWorking((prev) => {
+        const next = { ...prev };
+        for (const a of answersToSend) if (hasWorking(a)) next[String(a.questionId)] = workingSignature(a);
+        return next;
+      });
       fairUse.noteGraded();
       // ACTIVATION-1 · L4 — once per graded set; the bare event name only.
       trackPracticeGraded(worksheetId);
@@ -3006,6 +3080,100 @@ const packTopicKey = useMemo(() => {
     }
     await runGradeBatch(null);
   }, [batchGrading, batchResult, batchSelection.batch.length, fairUse.planGrade, fairUse.showLimit, runGradeBatch]);
+
+  /* QP-WORKING-AFTER-1 — AFTER A GRADED SET. Working the student adds (or re-adds after an
+     unreadable photo) is not lost behind the finished grade: its box offers "Check this working",
+     which grades THAT ONE answer through the same grading path (`gradeQuickPracticeBatch`, the
+     same prompt and objective clamp). The student has seen the scorecard by now, so it is a review
+     attempt: graded and SHOWN on the scorecard, NEVER recorded (record: false — no Mistake
+     Intelligence entry, no attempt, no accuracy), and an MCQ's mark never changes (§13). */
+  const pendingCheckIds = useMemo<Record<string, true>>(() => {
+    const out: Record<string, true> = {};
+    if (!batchResult || batchResult.outcome !== "graded") return out;
+    for (const a of batchSelection.batch) {
+      const id = String(a.questionId);
+      if (batchResult.entries[a.qNumber - 1]?.graded) continue; // graded once: never again
+      if (gradedWorking[id] === workingSignature(a)) continue; // this exact working was sent
+      out[id] = true;
+    }
+    return out;
+  }, [batchResult, batchSelection.batch, gradedWorking]);
+
+  const checkWorking = useCallback(async (qId: string) => {
+    if (checkingWorkingId || batchGrading || !batchResult || batchResult.outcome !== "graded") return;
+    if (!pendingCheckIds[qId]) return;
+    const target = sessionAnswers.find((a) => String(a.questionId) === qId);
+    if (!target || !hasWorking(target)) return;
+    const plan = fairUse.planGrade(1);
+    if (plan.action === "blocked") {
+      fairUse.showLimit(plan.limit);
+      return;
+    }
+    setCheckingWorkingId(qId);
+    setCheckWorkingError(null);
+    fairUse.clearLimit();
+    // ONLY this answer carries working; every other answer is sent without it, so the service's
+    // own selection (by working) grades this one and nothing else.
+    const answers = sessionAnswers.map((a) =>
+      String(a.questionId) === qId ? a : { ...a, imageBase64: null, imageMimeType: null, textAnswer: null },
+    );
+    const result = await gradeQuickPracticeBatch({
+      worksheetId: quickPracticeBatchId(filterSignature, sessionStartedAt),
+      subject: subjectKey,
+      answers,
+      user: authUserForJourney,
+      record: false, // PRACTICE-REVIEW-HONEST-1 — shown, never recorded
+    });
+    setCheckingWorkingId(null);
+    if (result.outcome === "skipped-signin-required") {
+      setSignInToGrade(true);
+      return;
+    }
+    if (result.outcome === "skipped-premium-required") {
+      setPremiumBlock(result.premiumRequired ?? { feature: "unknown", trialEndedAt: null });
+      return;
+    }
+    if (result.outcome !== "graded") {
+      if (result.errorName === "FairUseLimitError" && (await fairUse.handleRefusal({ name: result.errorName }))) return;
+      setCheckWorkingError(
+        (result.errorName === "SignInAgainError" || result.errorName === "UploadTooLargeError") && result.error
+          ? result.error
+          : "We could not check this working just now. Nothing has changed. Try again in a moment.",
+      );
+      return;
+    }
+    const fresh = result.entries[target.qNumber - 1];
+    setBatchResult((prev) => {
+      if (!prev || prev.outcome !== "graded") return prev;
+      return {
+        ...prev,
+        entries: prev.entries.map((e, i) => {
+          if (i !== target.qNumber - 1) return e;
+          const { graded: _g, notGraded: _n, notGradedReason: _r, ...rest } = e;
+          void _g; void _n; void _r;
+          return {
+            ...rest,
+            ...(fresh?.graded ? { graded: fresh.graded } : {}),
+            ...(fresh?.notGraded ? { notGraded: fresh.notGraded, notGradedReason: fresh.notGradedReason } : {}),
+          };
+        }),
+      };
+    });
+    setGradedWorking((prev) => ({ ...prev, [qId]: workingSignature(target) }));
+    setReviewSavedIds((prev) => (prev[qId] ? prev : { ...prev, [qId]: true }));
+    fairUse.noteGraded();
+    // Back to the scorecard, where "Where marks slipped" now shows what the working says.
+    setScorecardDismissed(false);
+    setSessionFinished(true);
+  }, [checkingWorkingId, batchGrading, batchResult, pendingCheckIds, sessionAnswers, fairUse.planGrade, fairUse.showLimit, fairUse.clearLimit, fairUse.handleRefusal, fairUse.noteGraded, filterSignature, sessionStartedAt, subjectKey, authUserForJourney]);
+
+  const afterGradeCheck = useMemo(
+    () =>
+      batchResult && batchResult.outcome === "graded"
+        ? { pendingIds: pendingCheckIds, busyId: checkingWorkingId, onCheck: (id: string) => void checkWorking(id) }
+        : null,
+    [batchResult, pendingCheckIds, checkingWorkingId, checkWorking],
+  );
 
   // \u2500\u2500 The QP session record (LOCKED \u00a71a as amended \u2014 NON-COUNTING) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   // Written when the scorecard FIRST appears, not on the "Finish session" click alone:
@@ -3971,11 +4139,19 @@ const packTopicKey = useMemo(() => {
           savedAnswers={savedAnswers}
           onSaveAnswer={handleSaveAnswer}
           onRemoveAnswer={handleRemoveAnswer}
+          onDraftAnswer={handleDraftAnswer}
+          afterGradeCheck={afterGradeCheck}
           isStepsLocked={isStepsLocked}
         />
         </PracticeAttemptCountingProvider>
         )}
 
+        {/* QP-WORKING-AFTER-1 — a box's "Check this working" failed: said here, nothing changed. */}
+        {checkWorkingError && !showScorecard ? (
+          <p className="qp-wa__err qp-wa__err--page" role="alert">
+            {checkWorkingError}
+          </p>
+        ) : null}
         {isBuilt && filteredQuestions.length > 0 && !showScorecard && (
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 8 }}>
             <button
@@ -3987,6 +4163,8 @@ const packTopicKey = useMemo(() => {
                   attempted: sessionStats.attemptedInSet,
                   total: filteredQuestions.length, // the DISPLAYED set, not the pool
                 });
+                // QP-WORKING-AFTER-1 — unsaved working is saved, never silently dropped.
+                saveDraftsAtFinish();
                 setScorecardDismissed(false);
                 setSessionFinished(true);
                 setReviewMode(true);
@@ -4124,6 +4302,17 @@ const packTopicKey = useMemo(() => {
         : `Question ${saved.qNumber}`;
       const objective = saved.objective === true;
       const descriptor = marksDescriptor(marks, objective);
+      // QP-WORKING-AFTER-1 — working added AFTER this grade: honestly "not checked yet" (never
+      // "could not read", never a 0), with "Check this working" below the score and on its box.
+      if (pendingCheckIds[String(saved.questionId)]) {
+        answers.push(ungradedAnswer(
+          label, descriptor,
+          "added-after-grade",
+          "Not checked yet",
+          "You added this working after your set was graded. Check it to see what went wrong. Nothing has been scored for it.",
+        ));
+        continue;
+      }
       if (!graded && entry?.notGraded) {
         // SCORECARD-MI-1 PR-2 (B8 + owner addendum) — the grader answered but did NOT grade it
         // (could not read it, could not read the option, or the answer does not match the
@@ -4234,7 +4423,9 @@ const packTopicKey = useMemo(() => {
           fourType: aggregateFourType(response),
           // PR-2 (B7) — "Where your marks went" in MARKS when the grade carries them.
           marksLost: aggregateMarksLost(response),
-          onKeepPracticing: () => { setBatchResult(null); backToSetForReview(); },
+          // QP-WORKING-AFTER-1 — the grade is KEPT (clearing it re-graded the same working at the
+          // next Finish); new working is checked on its own ("Check this working").
+          onKeepPracticing: () => backToSetForReview(),
           onFreshSet: () => buildFreshSet(),
           // QP-SCORECARD-2 A - the rest of the what-next floor (hidden in the tutor overlay).
           appNav: {
@@ -4260,13 +4451,36 @@ const packTopicKey = useMemo(() => {
             : {}),
         });
 
+    // QP-WORKING-AFTER-1 — the honesty line for review attempts, and the check for new working.
+    const reviewShown = batchSelection.batch.some(
+      (a) => reviewSavedIds[String(a.questionId)] && !!batchResult.entries[a.qNumber - 1]?.graded,
+    );
+    const pendingRows = batchSelection.batch.filter((a) => pendingCheckIds[String(a.questionId)]);
+    const workingAfterBlock =
+      reviewShown || pendingRows.length > 0 || checkWorkingError ? (
+        <QpWorkingAfterBlock
+          reviewShown={reviewShown}
+          pending={pendingRows.map((a) => ({ id: String(a.questionId), qNumber: a.qNumber }))}
+          busyId={checkingWorkingId}
+          error={checkWorkingError}
+          onCheck={(id) => void checkWorking(id)}
+        />
+      ) : null;
+
     return (
       <ResultsScorecard
         askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
         variant={withGuideTarget(gradedVariant, qpGuideTarget)}
         onClose={closeScorecard}
         // QP-UPLOAD-LATER — written questions with nothing checked can be uploaded later.
-        belowScore={uploadLaterBlock ?? undefined}
+        belowScore={
+          workingAfterBlock || uploadLaterBlock ? (
+            <>
+              {workingAfterBlock}
+              {uploadLaterBlock}
+            </>
+          ) : undefined
+        }
       />
     );
   }
