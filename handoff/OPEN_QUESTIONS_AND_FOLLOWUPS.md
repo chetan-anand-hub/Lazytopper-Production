@@ -23,6 +23,62 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-24 (daily) - #1321 - #1335 (14 product merges after #1329: #1321, #1324, #1325 on 23 Oct IST; #1322, #1326, #1333, #1332, #1330, #1327, #1328, #1335, #1334, #1323, #1331 on 24 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `2cd690f0`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk / the PR bodies while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. live findings by the owner and the cofounder).
+
+### Closed / noted today
+
+### [FU-FRESH-SET-NOT-MET] - CLOSED (code); owner live check owed
+"Unique set every time" is now built on all four surfaces: `#1330` FRESH-SET-QP (`3abe8d2e`, Quick Practice served-history rotation) and `#1327` FRESH-SET-TESTS (`a0961459`, Chapter Test / Full Mock / Worksheet, never-served first then least-recently-served) [git/gh]. The live check is carried in `[FU-OWNER-LIVE-1024-CHECKS]`. Its 23 Oct body is left as written.
+
+### [FU-MCQ-TYPE-2-RIGHT-MCQ-FLAWED-WORKING] - CLOSED (code); owner live check owed
+Built by `#1331` MCQ-TYPE-2 (`2cd690f0`): a right MCQ with flawed working keeps its type as a 0-mark habit (`habitOnly: true`, `marksLost: 0`), shown with the amber chip "1/1 · <type> — mark kept, fix the habit"; never a weak area or a wrong-answer log entry; the clamp untouched (PR body, squash message) [git/gh]. Live check carried in `[FU-OWNER-LIVE-1024-CHECKS]` (4). Its 23 Oct body is left as written.
+
+### [FU-MCQ-HABIT-COUNT-READERS] - CLOSED
+Named in the `#1333` PR body and done inside `#1331` (PR body table) [git/gh]: the merged count readers (Practice hub mix sentence and bars, `getMistakeInsights` counts, `getCarelessInsight` counts, `getMistakeTrend` count trend) add habits to COUNTS only; marks and every weak-area signal read live mistakes only. The single MI card (`lib/mi/miCardSummary.ts`) prints no type counts, so habits are deliberately absent there (header comment at `:28` on trunk `2cd690f0`), pinned identical with and without habits.
+
+### [FU-QP-TIMEOUT-UNCAUGHT] - CLOSED
+`#1330` marks the 15 s `__timeout__` promise handled: `timeout.catch(() => {});` at `lazytopper/src/pages/PracticePage.tsx:2109` on trunk `2cd690f0`, with a comment that a run cancelled before it raced the timeout left the rejection unhandled; the race still sees it [git/gh].
+
+### [FU-CI-AGG-THROWAWAY-BRANCH] - CLOSED
+`git ls-remote origin ci/ci-agg-1-proof-throwaway` returns nothing at writing: the branch is gone [git/gh]. Who deleted it was not read.
+
+### Owner live checks
+
+### [FU-OWNER-LIVE-1024-CHECKS]
+Owed by the owner on the deployed product **[coordinator]**: (1) `#1328`: a wrong MCQ tap -> Ziggy -> save working -> Finish -> the category shows, mark unchanged; the Finish gate on a set with written questions; the desktop sidebar character steps aside while Ziggy nudges. (2) `#1330` / `#1327`: two Quick Practice sets in a row differ; two Chapter Tests / Full Mocks / Worksheets in a row differ. (3) `#1334`: reload mid Chapter Test at 3/3 keeps the count; the resume screen shows the saved paper; the same for Full Mock. (4) `#1323` / `#1331`: an MCQ with working in Check & Improve AND Worksheet - right pick + flawed working -> amber habit chip at 1/1, full marks, MI saves it with 0 marks, marks lost / weak areas / wrong-answer list unchanged; a right bare letter shows nothing (`#1331` PR body). Section 4a: (4) names two surfaces on the two different prompt paths.
+
+### Grading
+
+### [FU-MCQ-OPTION-TEXT-LINE]
+**[coordinator]**: a working line "(c)" followed by a line of just "4", where "4" is option b's text, reads as b. Pre-existing trunk behaviour (not introduced by `#1323`, whose new form needs the letter and the text on the SAME line). Needs a rule for which line wins when a bare option text sits on a later line; a grading change (section 4a, both paths).
+
+### [FU-HABIT-OPTIONS-DETECT]
+**[coordinator]**: since `#1331`, `objectiveOffersOptions` (`lazytopper/server/grading/postprocess.cjs:790` on trunk `2cd690f0` [git/gh]) detects options in the question text only from "(a)"-style letters, so Check & Improve habits are dropped for "A)", "a)", "A.", one-option-per-line and "(i)(ii)" styles. Fails safe (drops a habit, never invents one). Suggested fix: treat `q.objective === true` as offering options.
+
+### [FU-MCQ-CONTRADICTORY-LINE-MODEL-VERDICT]
+From the `#1323` PR body [git/gh]: a contradictory letter / text line ("(c) Parallel" where option c is Coincident, key a) is not read as a pick, so the question is scored on the model's `finalAnswerCorrect` alone, or left unresolved when the model gives no verdict. Unchanged by `#1323`. Decide whether it is a resolved wrong answer (like a hedge) or stays with the model.
+
+### MI / wording
+
+### [FU-ME-HOME-MARKS-WORDING]
+**[coordinator]**: Me says "marks on the table" where Home says "marks lost" for the same figure. Pick one wording. (Carried from the coordinator's list; not measured by this writer.)
+
+### Papers / served history
+
+### [FU-CT-REFUSAL-NOTICE-STYLE]
+**[coordinator]**: the Chapter Test refusal notice added by `#1334` (at the fair-use limit, under the start buttons) is muted italic 12 px with `role=alert`, and never clears. Restyle to a readable notice and clear it when the state changes.
+
+### [FU-FM-RESUME-MATCH]
+**[coordinator]**: after `#1334`, the Full Mock `MockViewGate` matches the saved mock by SUBJECT, while the page's resume card matches ANY in-progress mock. Safe today, because every new-paper action claims the view (`claimNewPaperView`), but the two rules should agree.
+
+### [FU-SERVEDENTRY-ALIAS]
+**[coordinator]**: `#1335` made `ServedEntry` a type ALIAS of the shared types (`lib/served/servedTypes.ts`), so it no longer supports declaration merging as an interface would. At trunk `2cd690f0` no `interface ServedEntry` declaration exists anywhere under `lazytopper/src` (the two modules hold `export type ServedEntry = ...` at `lib/practice/servedHistory.ts:37` and `lib/freshSet/servedHistory.ts:43`) [git/gh]; note it for anyone extending the type.
+
+### Carried (bodies in earlier sections, still open)
+`[FU-SCORECARD-WRONG-MCQ-WORDING]` and `[FU-WS-QP-OBJECTIVE-STORE]` (2026-10-23); `[FU-MCQ-PHOTO-STRICT-PROMPT]` (2026-10-23; now Decision D, DECISION_LOG 24 Oct); `[FU-MOMENTS-3-EMOTIONS]`, `[FU-SERVED-DUPLICATE-GROUPS]`, `[FU-PYQ-RESTORE-A-REFILES-PENDING]` (2026-10-23).
+
 ## 2026-10-23 (daily) - #1300 - #1320 (20 product/CI merges (+ #1299, the 22 Oct docs PR, merged 15:49 IST): #1300, #1301, #1302, #1303, #1304, #1305, #1306, #1307, #1308, #1309, #1310, #1311, #1312, #1313, #1314, #1315, #1316, #1317, #1319, #1320) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `a2974c99`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk / the PR bodies while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. live findings by the owner and the cofounder).

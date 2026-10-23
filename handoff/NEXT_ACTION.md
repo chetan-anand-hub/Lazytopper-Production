@@ -1,3 +1,26 @@
+## 2026-10-24 (daily) - AFTER #1321 - #1335 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The 23 Oct open queue items 2, 3, 4 and 7 are done: `#1321`, `#1324`, `#1326`, `#1322`, `#1323`, `#1325`, `#1327`, FRESH-SET-QP (`#1330`) and the reworked `#1328` all merged; item 5, MCQ-TYPE-2, merged as `#1331`.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
+
+- **Done [git/gh]:** 14 product merges after `#1329`: `#1321`, `#1324`, `#1325` (23 Oct IST) and `#1322`, `#1326`, `#1333`, `#1332`, `#1330`, `#1327`, `#1328`, `#1335`, `#1334`, `#1323`, `#1331` (24 Oct IST). Last: MCQ-TYPE-2 `#1331` at 24 Oct 03:23 IST, trunk `2cd690f0`. `/version.json` = `2cd690f0` at writing **[docs-builder-curl]**.
+- **MCQ-TYPE-2 merged [git/gh]:** `#1331` (`2cd690f0`): right MCQ + flawed working -> amber habit chip at 1/1, logged to MI with 0 marks lost (owner ruling, DECISION_LOG 24 Oct). Golden PASS, changed=0, type=92.2 (floor 85) after the approved re-pin; 0 mark diffs **[coordinator]**. No product PR is open at writing (only the audits `#960`, `#963`).
+- **Owner live checks OWED [coordinator]:**
+  1. `#1328`: wrong MCQ tap -> Ziggy -> save working -> Finish -> the category shows (mark unchanged); the Finish gate on a set with written questions; the desktop sidebar character steps aside while Ziggy nudges.
+  2. `#1330` / `#1327`: two Quick Practice sets in a row differ; two Chapter Tests / Full Mocks / Worksheets in a row differ.
+  3. `#1334`: reload mid Chapter Test at 3/3 keeps the count (no "Limit Reached"); the resume screen shows the saved paper; the same for Full Mock.
+  4. `#1323` / `#1331`: an MCQ with working in Check & Improve AND Worksheet - right pick + flawed working -> amber habit chip at 1/1, full marks, MI saves it with 0 marks, no change to marks lost / weak areas / wrong-answer list; a right bare letter shows nothing.
+- **Next session queue, in order (owner agreed) [coordinator]:**
+  1. **Laptop worktree / branch cleanup, in parallel to other work** (scripts and logs in `C:\Users\Chetan\OneDrive\Desktop\diff\`): run `lt_cleanup2.ps1` for the 238 merged-but-tip-differs branches; finish the 26 half-removed unregistered worktree folders; the 9 still-registered worktrees; then refresh the main checkout - copy its 81 untracked planning notes to the diff folder, restore the 898 missing tracked files from git, move it to trunk. (Owner ruling 24 Oct 03:03 IST moved this remainder to the next session.)
+  2. **MOMENTS-3** with the mascot personality guide H1-H4 and the owner's "more emotionally appealing, human-like mascot states" (`[FU-MOMENTS-3-EMOTIONS]`).
+  3. **WS-LINK-1.**
+  4. **Content:** 127 Easy HOTS rows; 55 duplicate groups (`[FU-SERVED-DUPLICATE-GROUPS]`); 11 re-files (`[FU-PYQ-RESTORE-A-REFILES-PENDING]`); source-paper recovery (Acids E, Reproduction C, Life Processes D; SQP-S-ELEC-004 / LP-003 re-tag).
+  5. **Decision D** (`[FU-MCQ-PHOTO-STRICT-PROMPT]`): photo-MCQ prompt change so the model quotes working lines, then typed-answer strictness on photos. A GRADING change: draft + before/after golden eval, both prompt paths (section 4a).
+  6. **M4 copy; Quick Practice list CLS 0.68; Me / Home wording** (`[FU-ME-HOME-MARKS-WORDING]`).
+  7. **Earlier open list:** TOPUP-1 part 2, founding-price notices, spend dashboard, ops automation, trial emails live, small follow-ups.
+- **Railway before Vercel:** `#1323` and `#1331` change the server; Railway's deployed version was not read by this writer.
+- **Follow-ups:** the 2026-10-24 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Process:** the next handoff is ONE docs PR at the end of the next day with merges (CLAUDE.md section 10).
+
 ## 2026-10-23 (daily) - AFTER #1300 - #1320 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The 22 Oct "in flight" list is done: all nine lanes it named merged on 23 Oct.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
