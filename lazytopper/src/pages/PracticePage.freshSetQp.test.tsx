@@ -51,6 +51,16 @@ vi.mock("../services/firestoreSdk", () => {
       setDoc: async (path: string, data: unknown) => {
         cloud.docs.set(path, data);
       },
+      runTransaction: async (_db: unknown, fn: (tx: unknown) => Promise<unknown>) =>
+        fn({
+          get: async (path: string) => {
+            await new Promise((r) => setTimeout(r, cloud.readDelayMs));
+            return { exists: () => cloud.docs.has(path), data: () => cloud.docs.get(path), id: path };
+          },
+          set: (path: string, data: unknown) => {
+            cloud.docs.set(path, data);
+          },
+        }),
       getDocs: async () => ({ docs: [], empty: true, size: 0, forEach: () => {} }),
       onSnapshot: () => () => {},
     } as Record<string, unknown>,
@@ -336,5 +346,48 @@ describe("FRESH-SET-QP · a COLD device of a signed-in student (#1330 review)", 
       const stored = ((cloud.docs.get(path) as { entries?: Array<{ id: string }> })?.entries ?? []).map((e) => e.id);
       expect(stored, "the cloud history was overwritten").toEqual(expect.arrayContaining([...setA, ...setB]));
     }, { timeout: 10000 });
+  }, 240000);
+});
+
+describe("FRESH-SET-QP · a WARM device never waits for the cloud (#1330 re-review)", () => {
+  async function timedArrival(url: string): Promise<{ ms: number; ids: string[] }> {
+    cleanup();
+    vi.setSystemTime(new Date(Date.now() + 60_000));
+    const t0 = performance.now();
+    mount(url);
+    await screen.findAllByTestId("practice-question-card", {}, { timeout: 60000 });
+    await waitFor(() => expect(screen.queryByText(/Preparing your questions/)).toBeNull(), { timeout: 60000 });
+    const ms = performance.now() - t0;
+    const ids = screen.getAllByTestId("practice-question-card").map((c) => c.getAttribute("data-question-id") ?? "");
+    return { ms, ids };
+  }
+
+  it("★ warm signed-in MI arrival with a 1.2 s cloud ≈ the signed-out baseline; a cold one waits", async () => {
+    const url = `/practice/10/maths?topic=${RN.slug}&targeted=1&targetMistakeType=conceptual`;
+    await timedArrival(url); // warm the bank chunk / module graph so both timings compare like for like
+    const baseline = await timedArrival(url); // signed out: no cloud at all
+
+    const path = `practiceInsights/u1/servedHistory/${RN.slug}`;
+    cloud.enabled = true;
+    cloud.readDelayMs = 1200;
+    auth.user = { uid: "u1", isLocalSession: false, email: "s@x.com" };
+    // WARM: this device already holds served history for the chapter.
+    window.localStorage.setItem(
+      `lt:qpServed:v1:u1:${RN.slug}`,
+      JSON.stringify(baseline.ids.map((id, i) => ({ id, at: Date.now() - 3_600_000 + i }))),
+    );
+    cloud.docs.set(path, { entries: [] });
+    const warm = await timedArrival(url);
+    // eslint-disable-next-line no-console
+    console.log(`[TIMING] signed-out ${Math.round(baseline.ms)} ms · warm signed-in (1.2 s cloud) ${Math.round(warm.ms)} ms`);
+    expect(warm.ms, "a warm device waited for the cloud").toBeLessThan(baseline.ms + 700);
+    expect(overlap(warm.ids, baseline.ids)).toBe(0); // and it still used its own history
+
+    // CONTROL: a COLD device (nothing local) does wait for the cloud read (≥ ~1.2 s, ≤ the bound).
+    window.localStorage.clear();
+    const cold = await timedArrival(url);
+    // eslint-disable-next-line no-console
+    console.log(`[TIMING] cold signed-in (1.2 s cloud) ${Math.round(cold.ms)} ms`);
+    expect(cold.ms).toBeGreaterThan(baseline.ms + 900);
   }, 240000);
 });

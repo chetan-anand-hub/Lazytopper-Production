@@ -138,9 +138,9 @@ async function readServedCloud(uid: string, chapter: string): Promise<ServedEntr
 
 /**
  * Record that `ids` were SERVED (shown in a built set) at `at`. Device first, synchronously. Then, only
- * for a real signed-in student (the auth check), the cloud mirror is updated by READ-MERGE-WRITE on the
- * chapter's serial chain: the cloud copy is read, unioned with the device copy (latest `at` per id,
- * capped), written back to both. A cold device therefore can never overwrite the history another device
+ * for a real signed-in student (the auth check), the cloud mirror is updated by READ-MERGE-WRITE in one
+ * Firestore transaction, on the chapter's serial chain: the cloud copy is read, unioned with the device
+ * copy (latest `at` per id, capped), written back to both. A cold device therefore can never overwrite the history another device
  * wrote — and when the cloud cannot be READ, nothing is written to it (the device keeps the record).
  * Resolves (`cloudDone`) when the cloud step has finished or been skipped.
  */
@@ -162,16 +162,20 @@ export function recordServed(args: {
     const uid = args.uid;
     const chapter = args.chapter;
     merged.cloudDone = onChain(cloudKey(uid, chapter), async () => {
-      const cloud = await readServedCloud(uid, chapter);
-      if (cloud === null) return; // unreadable: never write blind over it
-      const union = mergeServedEntries(readServedDevice(uid, chapter), cloud);
-      writeServedDevice(uid, chapter, union);
-      await withFirestore(({ fs, db }) =>
-        fs.setDoc(fs.doc(db, "practiceInsights", uid, SERVED_HISTORY_COLLECTION, chapterKey(chapter)), {
-          entries: union,
-          updatedAt: new Date(args.at).toISOString(),
-        }),
-      );
+      // A Firestore TRANSACTION: the read and the write are one atomic step, so two devices writing
+      // at the same moment retry instead of dropping each other's set. Offline, the transaction
+      // fails and nothing is written (never blind); the device copy keeps the record.
+      const union = await withFirestore(({ fs, db }) => {
+        const ref = fs.doc(db, "practiceInsights", uid, SERVED_HISTORY_COLLECTION, chapterKey(chapter));
+        return fs.runTransaction(db, async (tx) => {
+          const snap = await tx.get(ref);
+          const cloud = sanitize(snap.exists() ? (snap.data() as { entries?: unknown }).entries : undefined);
+          const next = mergeServedEntries(readServedDevice(uid, chapter), cloud);
+          tx.set(ref, { entries: next, updatedAt: new Date(args.at).toISOString() });
+          return next;
+        });
+      });
+      writeServedDevice(uid, chapter, mergeServedEntries(readServedDevice(uid, chapter), union));
     }).then(
       () => undefined,
       () => undefined, // honest degrade: the device copy still holds it
@@ -381,21 +385,25 @@ function lexLess(a: number[], b: number[]): boolean {
 /**
  * The honest note for a set that contains repeats.
  *   "fully-served"  — the set's whole scope has no never-met question left: "You've seen every
- *                     question here — some repeats are mixed in."
+ *                     question here — some repeats are mixed in." when the whole set repeats, and
+ *                     "N question(s) repeat — you've now seen every question here." when only some do.
  *   "section"       — each repeat's own section ran out of unseen questions (the draw's rule):
  *                     "N question(s) repeat — the unseen ones in this section ran out."
  *   "other"         — repeats for another reason (e.g. a concept set keeps its own seen rows ahead of
  *                     the rest of the chapter): only the count, nothing more is claimed.
  */
 export type RepeatsScope = "fully-served" | "section" | "other";
-export function repeatsNote(repeatCount: number, scope: RepeatsScope): string | null {
+export function repeatsNote(repeatCount: number, scope: RepeatsScope, shownCount?: number): string | null {
   if (repeatCount <= 0) return null;
-  if (scope === "fully-served") return "You've seen every question here — some repeats are mixed in.";
-  if (scope === "section") {
-    return repeatCount === 1
-      ? "1 question repeats — the unseen ones in this section ran out."
-      : `${repeatCount} questions repeat — the unseen ones in this section ran out.`;
+  const n = repeatCount === 1 ? "1 question repeats" : `${repeatCount} questions repeat`;
+  if (scope === "fully-served") {
+    // Only SOME of the set repeats: the count leads ("2 questions repeat — you've now seen every
+    // question here"); the whole set repeats: the plain line.
+    return shownCount !== undefined && repeatCount < shownCount
+      ? `${n} — you've now seen every question here.`
+      : "You've seen every question here — some repeats are mixed in.";
   }
+  if (scope === "section") return `${n} — the unseen ones in this section ran out.`;
   return repeatCount === 1
     ? "1 question in this set is one you've seen before."
     : `${repeatCount} questions in this set are ones you've seen before.`;

@@ -1970,7 +1970,7 @@ const packTopicKey = useMemo(() => {
         : unmet.some((q) => sections.has(inferBoardPatternFromQuestion(q) ?? ""))
           ? "other"
           : "section";
-    return repeatsNote(repeats.length, scopeKind);
+    return repeatsNote(repeats.length, scopeKind, filteredQuestions.length);
   }, [setSettled, filteredQuestions, freshness, strictFocus, focusBankIds, questionCount, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, cbqMode, questions, chipServedPool]);
 
   const filterChipCounts = useMemo<ChipCounts | null>(() => {
@@ -2112,7 +2112,11 @@ const packTopicKey = useMemo(() => {
         // #1330 review — a COLD device (served history only in the cloud) must still avoid repeats
         // on its first set: wait for the cloud read, at most CLOUD_FRESHNESS_WAIT_MS, then go on with
         // the device copy (an auto-served arrival must never hang on the network).
-        const cloudFresh = cloudFreshnessRef.current
+        // #1330 re-review — only a COLD device waits (no served history of these chapters on it):
+        // a warm device draws at once from its own copy; the cloud read still lands in the
+        // background and is merged into the index for the next draw.
+        const coldDevice = freshTopics.every((t) => readServedDevice(freshUid, t).length === 0);
+        const cloudFresh = cloudFreshnessRef.current && coldDevice
           ? await withinMs(cloudFreshnessRef.current, CLOUD_FRESHNESS_WAIT_MS, EMPTY_FRESHNESS)
           : EMPTY_FRESHNESS;
         if (cancelled) return;

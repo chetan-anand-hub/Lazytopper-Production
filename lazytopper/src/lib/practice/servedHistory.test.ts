@@ -9,6 +9,7 @@ const cloud = vi.hoisted(() => ({
   writes: [] as string[],
   readDelayMs: 0,
   readFails: false,
+  txWrites: 0,
 }));
 
 vi.mock("../../services/firestoreSdk", () => ({
@@ -26,6 +27,21 @@ vi.mock("../../services/firestoreSdk", () => ({
           await new Promise((r) => setTimeout(r, cloud.readDelayMs));
           if (cloud.readFails) throw new Error("offline");
           return { exists: () => cloud.docs.has(path), data: () => cloud.docs.get(path) };
+        },
+        // A transaction over the same store: its writes are counted as transactional.
+        runTransaction: async (_db: unknown, fn: (tx: unknown) => Promise<unknown>) => {
+          return fn({
+            get: async (path: string) => {
+              await new Promise((r) => setTimeout(r, cloud.readDelayMs));
+              if (cloud.readFails) throw new Error("offline");
+              return { exists: () => cloud.docs.has(path), data: () => cloud.docs.get(path) };
+            },
+            set: (path: string, data: unknown) => {
+              cloud.writes.push(path);
+              cloud.txWrites += 1;
+              cloud.docs.set(path, data);
+            },
+          });
         },
       },
     }),
@@ -54,6 +70,7 @@ beforeEach(() => {
   cloud.writes.length = 0;
   cloud.readDelayMs = 0;
   cloud.readFails = false;
+  cloud.txWrites = 0;
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -75,6 +92,8 @@ describe("served history · storage", () => {
     cloud.enabled = true;
     await recordServed({ uid: "u1", chapter: "Real-Numbers", ids: ["a"], at: 100 }).cloudDone;
     expect(cloud.writes).toEqual(["practiceInsights/u1/servedHistory/real-numbers"]);
+    // #1330 re-review: the merge-write is ONE transaction (two devices cannot drop each other's set).
+    expect(cloud.txWrites).toBe(1);
   });
 
   it("re-serving moves an id to its latest time; the list is capped to the most recent", () => {
@@ -242,6 +261,10 @@ describe("served history · the honest line", () => {
   it("'seen every question' ONLY when the whole scope is served; a section run-out says so with the count", () => {
     expect(repeatsNote(0, "fully-served")).toBeNull();
     expect(repeatsNote(3, "fully-served")).toBe("You've seen every question here — some repeats are mixed in.");
+    expect(repeatsNote(8, "fully-served", 8)).toBe("You've seen every question here — some repeats are mixed in.");
+    // #1330 re-review: only SOME repeat as the scope runs out → the count leads.
+    expect(repeatsNote(2, "fully-served", 10)).toBe("2 questions repeat — you've now seen every question here.");
+    expect(repeatsNote(1, "fully-served", 10)).toBe("1 question repeats — you've now seen every question here.");
     expect(repeatsNote(1, "section")).toBe("1 question repeats — the unseen ones in this section ran out.");
     expect(repeatsNote(2, "section")).toBe("2 questions repeat — the unseen ones in this section ran out.");
     expect(repeatsNote(1, "other")).toBe("1 question in this set is one you've seen before.");
