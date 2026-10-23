@@ -233,11 +233,13 @@ describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
       hard += n(slug, "all", "hots", "all", "Hard");
     }
     // PYQ-RESTORE-B PR-1 (2026-10-23): +11 Hard / +29 any (restored PYQs and the new 2025 Triangles rows).
-    expect(hard).toBe(2093);
-    expect(any).toBe(4134);
+    // PYQ-RESTORE-B PR-2 (2026-10-23): net +1 Hard / +1 any (Science PYQ rows served again; APQ-M-TRI-004 and
+    // PYQ-M-2024-TRIG-010b withheld as served-twice duplicates).
+    expect(hard).toBe(2094);
+    expect(any).toBe(4135);
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
-    expect(sum("1", "hots", "all")).toBe(1098);
+    expect(sum("1", "hots", "all")).toBe(1097);
     expect(sum("4", "hots", "all")).toBe(949);
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);

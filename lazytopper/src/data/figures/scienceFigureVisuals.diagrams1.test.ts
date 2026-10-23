@@ -51,7 +51,8 @@ const PR3_NOT_BOUND = [
 const CENSUS_WRONG_IDS = [
   "CTRL-EXMPLR-6-SA-003", "Z3-CG-004", "Z3-ARC-004", "CBE-M-STAT-B-001", "CBE-M-STAT-C-001", "CBE-S-CTRL-A-005",
   "CBE-S-CTRL-E-001", "CBE-S-MAGN-B-005", "PB-M-1-TRIG-C-001", "APQ-M-TRI-008", "SCO-S-CTRL-013", "SCO-S-EYE-007",
-  "PYQ-S-2026-EYE-002",
+  // PYQ-S-2026-EYE-002 left this list at PYQ-RESTORE-B PR-2 (2026-10-23): its stem was re-extracted in English from the official
+  // 31/3/1 Q35 and the figure already in the repo under its id (N, N', image behind the retina) was opened and confirmed.
   // PYQ-M-2026-POLY-005 left this list at PYQ-RESTORE-B PR-1 (2026-10-23): the WRONG figure was a lamp-shade image; it was
   // replaced at the same path by the Chenab arch cropped from the official 2026 30/5/1 paper (p21) and bound after eye-confirmation.
 ];
@@ -282,11 +283,9 @@ const CENSUS_NOT_BOUND = [
   "PYQ-S-2026-ELEC-010", // NO-FIGURE: 31-3-3.pdf (2026) p29 Q39 - the served part (a) prints no figure
   "PYQ-S-2026-MAG-002", // NO-FIGURE: 31-3-1.pdf (2026) p31 Q39 - the served part (a) asks the student to DRAW
   "PYQ-S-2024-LIGHT-009", // NO-FIGURE: 31_4_3_Science.pdf (2024) p21 Q36 prints no figure
-  "PYQ-S-2026-ACID-012", // SKIP-BROKEN: option (d) carries page residue '{ } of 32'
-  "PYQ-S-2026-CHEMRXN-013", // SKIP-OTHER-REASON: answer truncated, mis-chaptered (Life Processes)
-  "PYQ-S-ELEC-001", // SKIP-OTHER-REASON: answer mojibake-damaged
-  "PYQ-S-MAG-002", // SKIP-BROKEN: options are Assertion-Reason residue, not the paper's four directions
-  "PYQ-S-2026-MAG-001", // SKIP-BROKEN: OR block is Hindi-stripped garble; answer covers part only
+  // PYQ-RESTORE-B PR-2 (2026-10-23): PYQ-S-2026-ACID-012, -2026-CHEMRXN-013, -ELEC-001, -MAG-002 and -2026-MAG-001 left this
+  // list - their text defects were repaired by BANK-FIX-6 group H, and their official figures are now cropped and bound
+  // (pinned in bankFix/pyqRestoreBScience.test.ts).
   "HERED-EXMPLR-8-LA-002", // NOT-FOUND (PR-4): no drawn figure exists
 ];
 

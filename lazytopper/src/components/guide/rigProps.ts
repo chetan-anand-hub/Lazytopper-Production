@@ -25,9 +25,45 @@ export type Prop =
   | "books"
   | "bag"
   | "magnifier"
-  | "phone";
+  | "phone"
+  // COMPANION-1 — paths only, no text: a small moon, a streak flame (face); a calendar, a badge,
+  // an open book and a held pencil (root).
+  | "moon"
+  | "flame"
+  | "calendar"
+  | "badge"
+  | "book"
+  | "pen"
+  // Owner ruling 23 Oct 16:40 — a marking sheet + looping red pen, an admit card (root), and the
+  // festival props (Diwali, 8 Nov 2026): a lit diya and a small rangoli, usable with any pose
+  // through the rig's `extraProps`.
+  | "sheet"
+  | "redpen"
+  | "admit"
+  | "diya"
+  | "rangoli";
 
-export const ROOT_PROPS: ReadonlySet<Prop> = new Set<Prop>(["confetti", "phone", "books", "bag", "magnifier", "clipboard", "pencil"]);
+export const ROOT_PROPS: ReadonlySet<Prop> = new Set<Prop>([
+  "confetti",
+  "phone",
+  "books",
+  "bag",
+  "magnifier",
+  "clipboard",
+  "pencil",
+  "calendar",
+  "badge",
+  "book",
+  "pen",
+  "sheet",
+  "redpen",
+  "admit",
+  "diya",
+  "rangoli",
+]);
+
+/** COMPANION-1 — the festival props a surface may add to any pose (paths only, no text). */
+export const FESTIVAL_PROPS: readonly Prop[] = ["diya", "rangoli"];
 
 /** The measurements a prop needs from the character. */
 export interface PropGeom {
@@ -97,6 +133,17 @@ export function facePropsSVG(list: readonly Prop[], g: PropGeom): string {
     if (p === "bulb") {
       s += `<g transform="translate(${W * 0.15},${-H * 0.62})"><g class="lt-gr-pr lt-gr-glow"><path d="M0,-22a12,12 0 0 0-7,21.5V5h14V-.5A12,12 0 0 0 0,-22z" fill="#ffd84a" stroke="${L}" stroke-width="2.2"/><path d="M-6,9h12M-4,13h8" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/><path d="M-17,-24l-5,-4M17,-24l5,-4M0,-30v-6" stroke="#f0b400" stroke-width="2.2" stroke-linecap="round"/></g></g>`;
     }
+    if (p === "moon") {
+      // COMPANION-1 byte_moon: a small, gentle crescent and two tiny stars, up by the head.
+      s +=
+        `<g class="lt-gr-moon" transform="translate(${W * 0.95},${-H * 0.5})"><path d="M5,-10 A11,11 0 1 0 5,10 A8.5,8.5 0 1 1 5,-10Z" fill="#ffe28a" stroke="${L}" stroke-width="1.6" stroke-linejoin="round"/></g>` +
+        `<g transform="translate(${W * 0.55},${-H * 0.66})"><path class="lt-gr-pr lt-gr-tw" d="M0,-5 L1.4,-1.4 5,0 1.4,1.4 0,5 -1.4,1.4 -5,0 -1.4,-1.4Z" fill="#fff6c2" stroke="${L}" stroke-width="1"/></g>` +
+        `<g transform="translate(${W * 1.25},${-H * 0.72})"><path class="lt-gr-pr lt-gr-tw lt-gr-n1" d="M0,-4 L1.1,-1.1 4,0 1.1,1.1 0,4 -1.1,1.1 -4,0 -1.1,-1.1Z" fill="#fff6c2" stroke="${L}" stroke-width="1"/></g>`;
+    }
+    if (p === "flame") {
+      // COMPANION-1 ziggy_streak: a small flame by the head — a rhythm, never a count to lose.
+      s += `<g transform="translate(${W * 0.85},${-H * 0.5})"><g class="lt-gr-pr lt-gr-flick"><path d="M0,-16 C6,-9 9,-4 7,2 C5,8 -5,8 -7,2 C-9,-4 -3,-6 0,-16Z" fill="#ff9a3c" stroke="${L}" stroke-width="1.6" stroke-linejoin="round"/><path d="M0,-6 C3,-2 4,1 3,3 C2,6 -2,6 -3,3 C-4,1 -2,-1 0,-6Z" fill="#ffd84a"/></g></g>`;
+    }
   }
   return s;
 }
@@ -160,6 +207,79 @@ export function rootPropsSVG(list: readonly Prop[], g: PropGeom, bagLabel: numbe
   }
   if (list.includes("clipboard")) {
     s += `<g transform="translate(0,${-H * 0.28})"><rect x="-19" y="-24" width="38" height="46" rx="4" fill="#c99a5b" stroke="${L}" stroke-width="2.2"/><rect x="-15" y="-19" width="30" height="37" rx="2" fill="#fff"/><rect x="-7" y="-28" width="14" height="7" rx="2" fill="#9aa3b5" stroke="${L}" stroke-width="1.6"/><path d="M-11,-11l3,3 5,-6M-11,0l3,3 5,-6" stroke="#2fae74" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M-11,9l6,6M-5,9l-6,6" stroke="#e23b3b" stroke-width="2.2" stroke-linecap="round"/><path d="M2,-9h9M2,2h9M2,12h9" stroke="#9aa3b5" stroke-width="2" stroke-linecap="round"/></g>`;
+  }
+  if (list.includes("calendar")) {
+    // COMPANION-1 byte_calendar: a small desk calendar held in front — rings, a header band and a
+    // grid of days with one ringed. Paths and shapes only; no digits, no text.
+    let grid = "";
+    for (let row = 0; row < 3; row += 1) {
+      for (let col = 0; col < 4; col += 1) {
+        grid += `<rect x="${-14 + col * 7.5}" y="${-6 + row * 7.5}" width="5" height="5" rx="1" fill="#d7dde8"/>`;
+      }
+    }
+    s +=
+      `<g class="lt-gr-calendar" transform="translate(0,${-H * 0.28})"><rect x="-19" y="-20" width="38" height="40" rx="4" fill="#fff" stroke="${L}" stroke-width="2.2"/>` +
+      `<path d="M-19,-16 Q-19,-20 -15,-20 H15 Q19,-20 19,-16 V-11 H-19Z" fill="#e2574c" stroke="${L}" stroke-width="2.2" stroke-linejoin="round"/>` +
+      `<path d="M-9,-24 V-16 M9,-24 V-16" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/>${grid}` +
+      `<circle cx="${-14 + 2 * 7.5 + 2.5}" cy="${-6 + 7.5 + 2.5}" r="5" fill="none" stroke="#2fae74" stroke-width="2"/></g>`;
+  }
+  if (list.includes("badge")) {
+    // COMPANION-1 ziggy_proud_badge: a ribboned medal on the chest with a star. No text.
+    s +=
+      `<g class="lt-gr-badge" transform="translate(0,${-H * 0.3})"><path d="M-9,-20 L-4,-4 L1,-6 L-3,-20Z" fill="#3b82f6" stroke="${L}" stroke-width="1.6" stroke-linejoin="round"/>` +
+      `<path d="M9,-20 L4,-4 L-1,-6 L3,-20Z" fill="#e2574c" stroke="${L}" stroke-width="1.6" stroke-linejoin="round"/>` +
+      `<circle cx="0" cy="5" r="12" fill="#ffd84a" stroke="${L}" stroke-width="2.2"/><circle cx="0" cy="5" r="8.5" fill="none" stroke="#f0b400" stroke-width="1.6"/>` +
+      `<path d="M0,-1.5 L1.9,2.6 6.3,3 3,5.9 4,10.3 0,8 -4,10.3 -3,5.9 -6.3,3 -1.9,2.6Z" fill="#fff6c2" stroke="${L}" stroke-width="1.2" stroke-linejoin="round"/></g>`;
+  }
+  if (list.includes("book")) {
+    // COMPANION-1 ziggy_study: an open book held in front, ruled lines on both pages.
+    s +=
+      `<g class="lt-gr-book" transform="translate(0,${-H * 0.24})"><path d="M0,-9 C-8,-14 -18,-13 -25,-9 V12 C-18,8 -8,8 0,12Z" fill="#fff" stroke="${L}" stroke-width="2.2" stroke-linejoin="round"/>` +
+      `<path d="M0,-9 C8,-14 18,-13 25,-9 V12 C18,8 8,8 0,12Z" fill="#fff" stroke="${L}" stroke-width="2.2" stroke-linejoin="round"/>` +
+      `<path d="M-20,-4 H-5 M-20,1 H-5 M-20,6 H-9 M5,-4 H20 M5,1 H20 M5,6 H16" stroke="#9aa3b5" stroke-width="1.6" stroke-linecap="round"/>` +
+      `<path d="M0,-9 V12" stroke="${L}" stroke-width="1.6"/></g>`;
+  }
+  if (list.includes("pen")) {
+    // COMPANION-1 ziggy_study: a pencil held still (the oops pencil falls; this one does not).
+    s += `<g class="lt-gr-pen" transform="translate(${W * 0.62},${-H * 0.36}) rotate(28)"><rect x="-3" y="-16" width="6" height="26" rx="1" fill="#ffd84a" stroke="${L}" stroke-width="1.6"/><path d="M-3,10 L0,17 L3,10Z" fill="#f2c9a0" stroke="${L}" stroke-width="1.4"/><rect x="-3" y="-19" width="6" height="4" fill="#ff8fa3" stroke="${L}" stroke-width="1.4"/></g>`;
+  }
+  if (list.includes("sheet")) {
+    // byte_marking: an answer sheet held in front — three step lines, two already ticked.
+    s +=
+      `<g class="lt-gr-sheet" transform="translate(0,${-H * 0.27})"><rect x="-18" y="-22" width="36" height="44" rx="3" fill="#fff" stroke="${L}" stroke-width="2.2"/>` +
+      `<path d="M-12,-13 H6 M-12,-1 H6 M-12,11 H6" stroke="#9aa3b5" stroke-width="2" stroke-linecap="round"/>` +
+      `<path d="M9,-15 l2.5,3 4,-6 M9,-3 l2.5,3 4,-6" stroke="#e23b3b" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+  }
+  if (list.includes("redpen")) {
+    // byte_marking: the red pen ticks down the steps, over and over (still under reduced motion).
+    s += `<g transform="translate(12,${-H * 0.27 + 6})"><g class="lt-gr-pr lt-gr-tick"><g transform="rotate(35)"><rect x="-2.5" y="-20" width="5" height="22" rx="1" fill="#e23b3b" stroke="${L}" stroke-width="1.5"/><path d="M-2.5,2 L0,8 L2.5,2Z" fill="#f2c9a0" stroke="${L}" stroke-width="1.2"/></g></g></g>`;
+  }
+  if (list.includes("admit")) {
+    // ziggy_examday: an admit card held in front — a photo box, two lines and a round stamp. No text.
+    s +=
+      `<g class="lt-gr-admit" transform="translate(0,${-H * 0.27})"><rect x="-22" y="-15" width="44" height="30" rx="3" fill="#f5f0e1" stroke="${L}" stroke-width="2.2"/>` +
+      `<rect x="-17" y="-10" width="12" height="15" rx="1.5" fill="#cfd8e6" stroke="${L}" stroke-width="1.4"/><circle cx="-11" cy="-5" r="3" fill="#9aa3b5"/>` +
+      `<path d="M-1,-7 H16 M-1,-1 H12 M-1,5 H14" stroke="#9aa3b5" stroke-width="1.8" stroke-linecap="round"/>` +
+      `<circle cx="13" cy="8" r="4.5" fill="none" stroke="#3b82f6" stroke-width="1.4"/></g>`;
+  }
+  if (list.includes("rangoli")) {
+    // Festival: a small rangoli on the floor by the left foot — petals round a centre dot.
+    let petals = "";
+    const cols = ["#ff7aa8", "#ffd84a", "#7fd2f0", "#2fae74"];
+    for (let k = 0; k < 8; k += 1) {
+      const a = (k * Math.PI) / 4;
+      const x = Math.round(Math.cos(a) * 15 * 10) / 10;
+      const y = Math.round(Math.sin(a) * 4.5 * 10) / 10;
+      petals += `<ellipse cx="${x}" cy="${y}" rx="5" ry="2.2" fill="${cols[k % 4]}" stroke="${L}" stroke-width="1"/>`;
+    }
+    s += `<g class="lt-gr-rangoli" transform="translate(-70,6)"><ellipse rx="24" ry="7" fill="none" stroke="#ff9a3c" stroke-width="1.6" stroke-dasharray="3 2.5"/>${petals}<ellipse rx="4" ry="1.8" fill="#e2574c" stroke="${L}" stroke-width="1"/></g>`;
+  }
+  if (list.includes("diya")) {
+    // Festival: a clay diya on the floor beside the character, its flame flickering gently.
+    s +=
+      `<g class="lt-gr-diya" transform="translate(76,4)"><path d="M-13,-6 Q0,-2 13,-6 Q11,5 0,6 Q-11,5 -13,-6Z" fill="#c8693a" stroke="${L}" stroke-width="1.8" stroke-linejoin="round"/>` +
+      `<path d="M-9,-3 Q0,0 9,-3" fill="none" stroke="#e8a25c" stroke-width="1.4"/>` +
+      `<g transform="translate(9,-7)"><g class="lt-gr-pr lt-gr-flick"><path d="M0,-12 C4,-7 5,-3 3,0 C1,2 -1,2 -3,0 C-5,-3 -3,-6 0,-12Z" fill="#ff9a3c" stroke="${L}" stroke-width="1.2"/><path d="M0,-6 C1.5,-4 2,-2 1,0 C0,1 -1,1 -1.5,0 C-2,-2 -1,-3 0,-6Z" fill="#ffd84a"/></g></g></g>`;
   }
   if (list.includes("pencil")) {
     s += `<g transform="translate(${W * 0.7},${-H * 0.35})"><g class="lt-gr-pr lt-gr-fall"><rect x="-3" y="-16" width="6" height="26" rx="1" fill="#ffd84a" stroke="${L}" stroke-width="1.6"/><path d="M-3,10 L0,17 L3,10Z" fill="#f2c9a0" stroke="${L}" stroke-width="1.4"/><rect x="-3" y="-19" width="6" height="4" fill="#ff8fa3" stroke="${L}" stroke-width="1.4"/></g></g>`;
