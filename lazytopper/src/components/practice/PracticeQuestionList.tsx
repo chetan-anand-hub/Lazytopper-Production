@@ -8,6 +8,9 @@ import "./practiceLoadRetry.css";
 import "./practiceBankEnd.css";
 
 export interface PracticeQuestionListProps {
+  /** GUIDE-SCORE-1 — open THIS question's working box (scroll + focus); a new `nonce` is a new
+   *  request. Passed straight through to that one card. */
+  openCheckerFor?: { id: string; nonce: number } | null;
   isLoading: boolean;
   error: string | null;
   /** MOMENTS-1 — the set failed to load: a real "Retry" under the error re-runs the load (every
@@ -148,7 +151,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd,
+    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor,
   } = props;
 
   return (
@@ -257,6 +260,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
             <PracticeQuestionCard
               q={q}
               idx={idx}
+              openCheckerRequest={openCheckerFor && openCheckerFor.id === String(q.id) ? openCheckerFor.nonce : undefined}
               subjectKey={subjectKey}
               topicLabel={topicLabel}
               difficultyFilter={difficultyFilter}

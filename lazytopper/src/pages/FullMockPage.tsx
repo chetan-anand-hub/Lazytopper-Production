@@ -98,6 +98,7 @@ import {
   deriveFullMockChapterLens,
   fullMockFocusLine,
   withPaperTutorAsks,
+  withGuideTarget,
   type ScorecardTutorAsk,
 } from "../components/results/scorecardVariants";
 // FOLLOWUPS-1 B — the scorecard's tutor hop + the tutor's return to THIS saved scorecard.
@@ -121,6 +122,7 @@ import {
 import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
+import { formatScoreNumber } from "../components/results/scoreNumber";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
@@ -1087,7 +1089,8 @@ export default function FullMockPage() {
     if (!prev) return null;
     const d = fullResponse.gradedMarksAwarded - prev.marksAwarded;
     if (d === 0) return null;
-    return `${d > 0 ? "▲" : "▼"} ${Math.abs(d)} mark${Math.abs(d) === 1 ? "" : "s"} vs ${prev.title || prev.id}`;
+    // GUIDE-SCORE-1 — the hero's number format (no float noise), so Ziggy's line quotes it exactly.
+    return `${d > 0 ? "▲" : "▼"} ${formatScoreNumber(Math.abs(d))} mark${Math.abs(d) === 1 ? "" : "s"} vs ${prev.title || prev.id}`;
   }, [fullResponse, activeMock, mockRecords, sessionSubject]);
 
   // Cheap per-render read: focusRef is frozen once the test ends, which is the
@@ -1095,21 +1098,26 @@ export default function FullMockPage() {
   // AWAIT-1: a mock sat on paper shows no on-screen time line (none was measured).
   const focusLine = downloadedRef.current ? null : fullMockFocusLine(focusRef.current);
 
-  const practiseWorstChapter = useCallback(() => {
+  // GUIDE-SCORE-1 — ONE worst-chapter route: the menu's practise action and Byte's link both use
+  // it. Byte's link exists only when there IS a worst chapter (a single topic); else his
+  // fallback is the Quick Practice hub.
+  const worstChapterPractice = () => {
     const a = activeRef.current;
     const lens =
       a && fullResponse ? deriveFullMockChapterLens(fullResponse, a.paper.questions) : null;
     const worst = lens?.[0];
-    navigate(
-      buildDesktopWorksheetPath({
-        ...(worst && worst.lost > 0
-          ? { scope: "topic" as const, topic: worst.key }
-          : { scope: "full-subject" as const }),
-        subject,
-        source: "full-mock",
-        returnTo: `/full-mock/${grade}/${subject}`,
-      }),
-    );
+    const single = !!worst && worst.lost > 0;
+    const to = buildDesktopWorksheetPath({
+      ...(single ? { scope: "topic" as const, topic: worst!.key } : { scope: "full-subject" as const }),
+      subject,
+      source: "full-mock",
+      returnTo: `/full-mock/${grade}/${subject}`,
+    });
+    return { to, target: single ? { to, chapter: worst!.label } : null };
+  };
+  const practiseWorstChapter = useCallback(() => {
+    navigate(worstChapterPractice().to);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, subject, grade, fullResponse]);
 
   const currentQuestion = activeMock?.paper.questions.find((q) => q.qNumber === currentQNumber) ?? null;
@@ -1742,7 +1750,7 @@ export default function FullMockPage() {
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-              variant={withPaperTutorAsks(fullMockScorecardVariant({
+              variant={withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "full",
@@ -1770,7 +1778,7 @@ export default function FullMockPage() {
                   setScorecardOpen(false);
                   void downloadSolution();
                 },
-              }), fullResponse, liveTutorAskFor)}
+              }), worstChapterPractice().target), fullResponse, liveTutorAskFor)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

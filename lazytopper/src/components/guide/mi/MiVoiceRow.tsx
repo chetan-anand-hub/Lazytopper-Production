@@ -18,6 +18,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentType, type RefObject } from "react";
 import { resolveGuideVariant } from "../guideVariant";
 import { useMascotsHidden } from "../mascotsMute";
+import { useStageHeld } from "../scoreGuideStage";
 import { miVoiceFor, type MiVoiceInput, type MiVoiceLine } from "./miVoiceModel";
 import { noteMiVoiceShown } from "./miVoiceShown";
 import type { MiVoiceCharacterProps } from "./MiVoiceCharacter";
@@ -104,6 +105,7 @@ export function MiVoiceRow({ uid, input, hydrated }: MiVoiceRowProps) {
   const state = voice?.state ?? null;
   const rowRef = useRef<HTMLDivElement | null>(null);
   useShownWhenVisible(rowRef, state);
+  const scorecardOnStage = useStageHeld("scorecard", "m11");
 
   if (!voice) return null;
   return (
@@ -116,7 +118,9 @@ export function MiVoiceRow({ uid, input, hydrated }: MiVoiceRowProps) {
       data-pose={voice.pose}
     >
       <span className="lt-mi-voice__slot" data-testid="mi-voice-slot">
-        {idle ? (
+        {/* GUIDE-SCORE-1: a scorecard's character (or M11's Byte) holds the stage → this one steps
+            aside (never two characters on screen); the line itself stays. */}
+        {idle && !scorecardOnStage ? (
           <Suspense fallback={null}>
             {/* key: one character at a time — Ziggy and Byte never share the slot. */}
             <LazyMiVoiceCharacter key={voice.kind} kind={voice.kind} pose={voice.pose} bagLabel={voice.bagLabel} />
