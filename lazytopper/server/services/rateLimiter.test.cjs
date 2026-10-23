@@ -187,6 +187,8 @@ test("non-paid endpoints are never limited, at any count", () => {
     "/api/qr-upload/new",
     "/api/questions/report",
     "/api/ai-questions",
+    // MLT-RETIRE-1: retired (410), like /api/ai-questions — never limited, never metered.
+    "/api/more-like-this",
     "/api/cbse-exam-date",
     "/api/health",
     "/api/session/start",
@@ -212,7 +214,7 @@ test("non-paid endpoints are never limited, at any count", () => {
       "/api/detect-question",
       // 2026-10-11 HARDEN-1 PR-2: /api/generate-diagram + /api/generate-visual removed (D8/D75).
       "/api/grade-worksheet",
-      "/api/more-like-this",
+      // MLT-RETIRE-1: /api/more-like-this removed — it answers 410 with no model call.
       "/api/step-solution",
       "/api/tutor",
     ],

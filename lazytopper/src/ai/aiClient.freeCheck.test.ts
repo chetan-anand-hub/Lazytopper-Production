@@ -50,7 +50,7 @@ import {
   checkSolutionImage,
   detectQuestion,
   gradeWorksheet,
-  generateMoreLikeThis,
+  fetchStepSolution,
 } from "./aiClient";
 import { resolvePerQuestionGradeTopics } from "../utils/checkImproveDetection";
 import {
@@ -184,9 +184,10 @@ describe("the free-check headers are OPT-IN and scoped to the C&I calls (N13)", 
     expect(H.initializeAppCheck).not.toHaveBeenCalled();
   });
 
-  it("…never on a non-C&I call (more-like-this), signed out", async () => {
-    nextResponse = () => ({ status: 200, body: { ok: true, variants: [] } });
-    await generateMoreLikeThis({ questionId: "q1" } as never);
+  it("…never on a non-C&I call (step solution), signed out", async () => {
+    // MLT-RETIRE-1: was generateMoreLikeThis (deleted); Show steps is the remaining non-C&I paid call.
+    nextResponse = () => ({ status: 200, body: { steps: [] } });
+    await fetchStepSolution({ subject: "Maths", topic: "t", question: "Q", marks: 2 });
     expect(calls).toHaveLength(1);
     expect(calls[0].headers).toEqual({ "Content-Type": "application/json" });
     expect(calls[0].headers[FREE_CHECK_MARKER_HEADER]).toBeUndefined();

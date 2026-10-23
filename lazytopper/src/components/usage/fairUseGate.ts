@@ -9,8 +9,9 @@
 import type { FairUseLimitInfo, PremiumWindow, UsageSnapshot } from "../../services/usageClient";
 
 /** Which allowance a surface spends. Per-question surfaces spend `checks`.
- *  ALL-AI-METERING-1: `tutor` and `more-like-this` (question detection refusals use `checks`). */
-export type LimitScope = "checks" | "chapter-test" | "full-mock" | "worksheet" | "tutor" | "more-like-this";
+ *  ALL-AI-METERING-1: `tutor` (question detection refusals use `checks`). MLT-RETIRE-1: the
+ *  `more-like-this` scope is gone with POST /api/more-like-this (410) - nothing can be refused on it. */
+export type LimitScope = "checks" | "chapter-test" | "full-mock" | "worksheet" | "tutor";
 
 /** The three paper allowances (the scopes a paper start can be blocked on). */
 type PaperScope = "chapter-test" | "full-mock" | "worksheet";
@@ -69,44 +70,8 @@ export const PREMIUM_WINDOW_LABEL: Record<PremiumWindow, string> = {
 };
 
 /** ALL-AI-METERING-1 — owner copy (owner approves later), word for word. Trial only: a Premium
- *  refusal on these scopes reads the existing Premium window copy (a week cap is not "today's"). */
+ *  refusal on this scope reads the existing Premium window copy (a week cap is not "today's"). */
 export const TUTOR_TRIAL_LIMIT_COPY = "You've reached today's Tutor limit. It resets at midnight.";
-export const MORE_LIKE_THIS_TRIAL_LIMIT_COPY =
-  "You've reached today's limit for new practice questions. Your saved questions still work.";
-
-/** ALL-AI-METERING-1 (DECISION 29d, owner-approved wording) - a FREE signed-in student's More-like-this call is a
- *  402 premium_required. It is a plan fact, not a limit: no reset time, a link to the free trial. */
-export const MORE_LIKE_THIS_PREMIUM_ONLY_COPY = "More practice like this is part of Premium. Try it free for 7 days.";
-export const START_TRIAL_LABEL = "Start free trial";
-/** Cofounder D78b - a student whose trial is ALREADY USED must not be offered one (no fake offers). */
-export const MORE_LIKE_THIS_PREMIUM_ONLY_TRIAL_USED_COPY = "More practice like this is part of Premium.";
-export const SEE_PLANS_LABEL = "See plans";
-
-/**
- * PURE. The note's sentence and link label for a free student's More-like-this 402. The server puts
- * `trialEndedAt` on the 402 body only when it derived a trial end for this account (entitlement.cjs
- * premiumRequiredBody), so its presence - at or before now, or unparseable - means the trial is used.
- * No trialEndedAt = a trial can still be started: the approved offer wording.
- */
-export function moreLikeThisPremiumNoteCopy(
-  err: unknown,
-  nowMs: number,
-): { lead: string; linkLabel: string; trialUsed: boolean } {
-  const raw = err && typeof err === "object" ? (err as { trialEndedAt?: unknown }).trialEndedAt : null;
-  let trialUsed = false;
-  if (typeof raw === "string" && raw !== "") {
-    const t = Date.parse(raw);
-    trialUsed = Number.isNaN(t) || t <= nowMs;
-  }
-  return trialUsed
-    ? { lead: MORE_LIKE_THIS_PREMIUM_ONLY_TRIAL_USED_COPY, linkLabel: SEE_PLANS_LABEL, trialUsed }
-    : { lead: MORE_LIKE_THIS_PREMIUM_ONLY_COPY, linkLabel: START_TRIAL_LABEL, trialUsed };
-}
-
-/** True for the typed error aiClient throws on a 402 premium_required. Read by name (suites mock aiClient partially). */
-export function isPremiumRequiredRefusal(err: unknown): boolean {
-  return !!err && typeof err === "object" && (err as { name?: unknown }).name === "PremiumRequiredError";
-}
 
 const PAPER_NOUN: Record<PaperScope, { when: string; one: string; many: string }> = {
   "chapter-test": { when: "today's", one: "chapter test", many: "chapter tests" },
@@ -130,7 +95,6 @@ export function trialUsedLine(scope: LimitScope, allowance: number | null | unde
     return `You've used today's ${n} answer ${n === 1 ? "check" : "checks"}.`;
   }
   if (scope === "tutor") return TUTOR_TRIAL_LIMIT_COPY;
-  if (scope === "more-like-this") return MORE_LIKE_THIS_TRIAL_LIMIT_COPY;
   const noun = PAPER_NOUN[scope];
   if (n === null || n === 1) return `You've used ${noun.when} ${noun.one}.`;
   return `You've used ${noun.when} ${n} ${noun.many}.`;
@@ -143,11 +107,10 @@ const TRIAL_PREMIUM_LINE: Record<LimitScope, string> = {
   worksheet: "Premium removes the weekly limit.",
   // ALL-AI-METERING-1: the owner's sentence is the whole message — no follow-on line.
   tutor: "",
-  "more-like-this": "",
 };
 
 /** ALL-AI-METERING-1: the owner's trial copy already says when it resets — no <time> sentence. */
-const SELF_CONTAINED_TRIAL_COPY: ReadonlySet<LimitScope> = new Set<LimitScope>(["tutor", "more-like-this"]);
+const SELF_CONTAINED_TRIAL_COPY: ReadonlySet<LimitScope> = new Set<LimitScope>(["tutor"]);
 
 export interface LimitCopy {
   /** The used/limit sentence. */
@@ -255,7 +218,6 @@ function trialScopeState(
     case "worksheet":
       return { left: t.worksheetsLeft, resetAt: t.resets.worksheets, allowance: limits.worksheetsPerWeek };
     case "tutor":
-    case "more-like-this":
       // ALL-AI-METERING-1: decided from the refusal itself (limitFromAiRefusal), never pre-blocked.
       return null;
   }
@@ -343,8 +305,8 @@ function premiumResetFor(snapshot: UsageSnapshot | null, window: PremiumWindow):
 }
 
 /**
- * PURE. ALL-AI-METERING-1 — the panel (or the Tutor's inline message) for a refusal on the Tutor,
- * More-like-this or question detection.
+ * PURE. ALL-AI-METERING-1 — the panel (or the Tutor's inline message) for a refusal on the Tutor
+ * or question detection.
  *
  * ★ NOT GATED ON AN ENFORCED SNAPSHOT, deliberately unlike limitFromRefusal. Those refusals sit
  *   behind their OWN server switch (FAIR_USE_ENFORCE_ALL_AI), while `snapshot.enforced` follows

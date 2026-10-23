@@ -1670,7 +1670,8 @@ const reqSignedOut = (extra = {}) => ({ method: 'POST', headers: { ...extra }, s
 
 // 2026-10-11 HARDEN-1 PR-2: four routes -> two; /api/generate-diagram and /api/generate-visual removed.
 test('AG2-0 · the two routes, the header name and the wire constants are exactly the spec\'s', () => {
-  assert.deepEqual([...AI_ROUTES].sort(), ['/api/detect-question', '/api/more-like-this']);
+  // MLT-RETIRE-1: two routes -> one; /api/more-like-this is retired (410) and ungated.
+  assert.deepEqual([...AI_ROUTES].sort(), ['/api/detect-question']);
   assert.deepEqual([...ENT.NON_CONSUMING_APP_CHECK_ROUTES], ['/api/detect-question']);
   assert.equal(ENT.AI_APP_CHECK_HEADER, FC.APP_CHECK_HEADER, 'one App Check header name, server-wide');
   const clientHeader = /export const APP_CHECK_HEADER = "([^"]+)"/
@@ -1885,7 +1886,7 @@ function bootAuthGate2Server(port) {
 
 const AG2_BODIES = {
   '/api/detect-question': { question: 'Find the resistance of a 2 m wire of resistivity 1.6e-8.' },
-  '/api/more-like-this': { subject: 'Maths', seedQuestion: { question: 'Solve x^2 - 5x + 6 = 0.', marks: 2 } },
+  // MLT-RETIRE-1: the /api/more-like-this body removed with the route (retired, 410).
   // 2026-10-11 HARDEN-1 PR-2: generate-visual / generate-diagram bodies removed with the routes (see §13).
 };
 const modelCalls = (log) => (log.match(/MODEL_FETCH/g) || []).length;
@@ -1981,15 +1982,6 @@ test('AG2-H4 · ★ over REAL HTTP: a signed-in Premium student is unchanged on 
       await settle();
       const delta = srv.log().slice(before);
       assert.ok(![401, 402, 403, 429].includes(r.status), `${p}: ${r.status} ${r.text}`);
-      // ⚠ more-like-this is EXCLUDED from the model-call control, and not because of
-      // AUTHGATE-2: on trunk its handler throws before any model call (index.cjs takes
-      // buildMoreLikeThisUserPrompt from promptLearn.cjs, which exports only
-      // createLearnPrompts) — FU-MORE-LIKE-THIS-PROMPT-UNDEFINED. Its gate behaviour is
-      // still pinned: the call passed the gate and reached the limiter as a VERIFIED caller.
-      if (p === '/api/more-like-this') {
-        assert.match(delta, /rate_limit\.uid_source\.verified/, `${p}: reached the limiter as a verified caller\n${delta}`);
-        continue;
-      }
       assert.ok(modelCalls(delta) >= 1, `${p}: CONTROL — a Premium call reaches the model\n${r.status} ${r.text}\n${delta}`);
     }
   });
@@ -2002,9 +1994,11 @@ test('AG2-H5 · ★ over REAL HTTP: a refused call charges 0 — five refusals f
     t.after(() => srv.child.kill());
     await srv.ready;
     const ip = { 'x-forwarded-for': '198.51.100.250' };
-    const body = AG2_BODIES['/api/more-like-this'];
+    // MLT-RETIRE-1: was /api/more-like-this (retired, 410); detect-question is the remaining AI route.
+    const AG2_H5_ROUTE = '/api/detect-question';
+    const body = AG2_BODIES[AG2_H5_ROUTE];
     for (let i = 0; i < 5; i += 1) {
-      const r = await post(port, '/api/more-like-this', body, i % 2 ? { ...ip, [APPCHECK]: 'forged' } : ip);
+      const r = await post(port, AG2_H5_ROUTE, body, i % 2 ? { ...ip, [APPCHECK]: 'forged' } : ip);
       assert.ok([401, 403].includes(r.status), `refusal ${i}: ${r.status} ${r.text}`);
     }
     // All three anonymous slots are still there (consuming App Check, a fresh token each).
@@ -2012,12 +2006,12 @@ test('AG2-H5 · ★ over REAL HTTP: a refused call charges 0 — five refusals f
     // header must key nothing (MUTATION AG2-M5 at the wiring: index.cjs drops `signedOut`
     // ⇒ every call gets its own header bucket ⇒ the 4th is not 429 ⇒ RED here).
     for (let i = 0; i < 3; i += 1) {
-      const r = await post(port, '/api/more-like-this', body, { ...ip, [APPCHECK]: `${AC_GOOD}.slot${i}`, [UID_HEADER]: `typed-${i}` });
+      const r = await post(port, AG2_H5_ROUTE, body, { ...ip, [APPCHECK]: `${AC_GOOD}.slot${i}`, [UID_HEADER]: `typed-${i}` });
       assert.notEqual(r.status, 429, `slot ${i} was spent by a refused call: ${r.text}`);
       assert.ok(![401, 403].includes(r.status), `slot ${i}: ${r.status} ${r.text}`);
     }
     // CONTROL: the 4th admitted call from that address does hit the cap, so the bucket is real.
-    const fourth = await post(port, '/api/more-like-this', body, { ...ip, [APPCHECK]: `${AC_GOOD}.slot3`, [UID_HEADER]: 'typed-3' });
+    const fourth = await post(port, AG2_H5_ROUTE, body, { ...ip, [APPCHECK]: `${AC_GOOD}.slot3`, [UID_HEADER]: 'typed-3' });
     assert.equal(fourth.status, 429, `${fourth.status} ${fourth.text}`);
   });
 
@@ -2073,9 +2067,10 @@ test('HARDEN1-PR2 · ★ over REAL HTTP: POST /api/generate-diagram and /api/gen
    keeps the register, and the body is the gated routes' own shape.
    ────────────────────────────────────────────────────────────────────────── */
 
-test('AAM1 · More-like-this and detection are NOT in GATED_ROUTES (an always-on 402 would refuse students while the switch is off)', () => {
+test('AAM1 · detection is NOT in GATED_ROUTES (an always-on 402 would refuse students while the switch is off); More-like-this is gone from both (MLT-RETIRE-1)', () => {
   assert.ok(ENT.AI_TIER_GATED_ROUTES, 'AI_TIER_GATED_ROUTES is exported');
-  for (const p of ['/api/more-like-this', '/api/detect-question']) {
+  assert.ok(!Object.prototype.hasOwnProperty.call(ENT.AI_TIER_GATED_ROUTES, '/api/more-like-this'), 'MLT-RETIRE-1: retired, no copy');
+  for (const p of ['/api/detect-question']) {
     assert.ok(Object.prototype.hasOwnProperty.call(ENT.AI_TIER_GATED_ROUTES, p), `${p} has its copy`);
     assert.ok(!Object.prototype.hasOwnProperty.call(ENT.GATED_ROUTES, p), `${p} must not be an always-on gated route`);
   }
@@ -2083,9 +2078,9 @@ test('AAM1 · More-like-this and detection are NOT in GATED_ROUTES (an always-on
     'the Tutor keeps its existing gate; nothing else joined it');
 });
 
-test('AAM1 · the More-like-this / detection 402 copy keeps the register — plain English, says Premium, no fault words', () => {
+test('AAM1 · the detection 402 copy keeps the register — plain English, says Premium, no fault words', () => {
   const entries = Object.entries(ENT.AI_TIER_GATED_ROUTES || {});
-  assert.equal(entries.length, 2, 'both routes carry copy (a loop over nothing proves nothing)');
+  assert.equal(entries.length, 1, 'detection carries copy (a loop over nothing proves nothing); MLT-RETIRE-1 removed More-like-this');
   for (const [p, spec] of entries) {
     assert.ok(typeof spec.feature === 'string' && spec.feature, p);
     assert.ok(!spec.message.includes('_'), `${p}: ${spec.message}`);

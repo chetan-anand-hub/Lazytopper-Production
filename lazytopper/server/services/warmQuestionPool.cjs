@@ -344,7 +344,7 @@ function buildWarmPrompt(topicKey, subject, marks, difficulty) {
 }
 
 // ---------------------------------------------------------------------------
-// JSON extraction (mirrors logic in moreLikeThis.cjs)
+// JSON extraction (mirrored the retired moreLikeThis.cjs extractor, deleted by MLT-RETIRE-1)
 // ---------------------------------------------------------------------------
 function extractQuestionsFromReply(replyText) {
   if (!replyText) return [];

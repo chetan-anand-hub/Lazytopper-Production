@@ -124,10 +124,11 @@ const { createQuestionRoutes } = require('./routes/questions.cjs');
 // helpers used by LIVE surfaces, so they are now required from where they are
 // actually defined instead of being passed through the retired mentor route.
 const { ensureDiagramFields } = require('./prompts/promptDiagram.cjs');
-const { buildMoreLikeThisUserPrompt } = require('./prompts/promptLearn.cjs');
 const { createAiQuestionsRoute } = require('./routes/aiQuestions.cjs');
+// MLT-RETIRE-1: POST /api/more-like-this is retired (410), like /api/ai-questions.
+const { createMoreLikeThisRoute } = require('./routes/moreLikeThis.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
-const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
+const { saveToPool } = require('./services/generatedQuestionPool.cjs');
 const {
   createWarmPoolRunner,
   resolveWarmPoolGates,
@@ -276,7 +277,7 @@ const warmPoolRunner = createWarmPoolRunner({
 let _warmPoolRunning = false;
 
 const {
-  buildStubTutorStructured, buildStubText, buildStubMoreLikeThis,
+  buildStubTutorStructured, buildStubText,
   buildFallbackSteps, buildStubStepSolution, isStubMode,
 } = createStubHandlers({
   STUB_MODE: config.STUB_MODE,
@@ -322,11 +323,6 @@ const routeDeps = {
   VISUALS_DIR: config.VISUALS_DIR,
   MANIFEST_PATH: config.MANIFEST_PATH,
   isStubMode,
-  buildStubMoreLikeThis,
-  buildMoreLikeThisUserPrompt,
-  pickFromPool,
-  markServed,
-  saveToPool,
   buildFallbackSteps, buildStubStepSolution,
   isObjectiveType, extractJsonObjectFromText,
   buildGeminiImagePart, validateMentorImagePayload,
@@ -334,6 +330,7 @@ const routeDeps = {
 };
 const shareRoutes = createShareRoutes(routeDeps);
 const aiQuestionsRoute = createAiQuestionsRoute(routeDeps);
+const moreLikeThisRoute = createMoreLikeThisRoute(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
 const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
 // C&I PR-3 (Gate 2b): admin-gated eviction/regeneration for the model-solution
@@ -515,7 +512,7 @@ async function handleRequest(req, res) {
     if (entitlementGate.rejectUnverifiedToken(req, res, reqPath, verification)) return;
 
     // ── A verified caller, or App Check (AUTHGATE-2, HARDEN-1 PR-1) ─────────────
-    // detect-question, more-like-this: a token that
+    // detect-question: a token that
     // did not verify is 401, and a signed-out caller needs a valid App Check token
     // (401 missing / 403 invalid). Refused HERE, before idempotency, the free check,
     // the limiter and dispatch, so a refused call reaches no model and spends nothing.
@@ -691,7 +688,7 @@ async function handleRequest(req, res) {
           active: !config.STUB_MODE,
           model: config.GEMINI_MODEL,
           auth: config.HAS_DIRECT_KEY ? 'direct-key' : (config.HAS_REPLIT_PROXY ? 'replit-proxy' : 'none'),
-          routes: ['tutoring_chat', 'more_like_this', 'step_solution'],
+          routes: ['tutoring_chat', 'step_solution'],
         },
         anthropic: {
           active: config.HAS_ANTHROPIC_PROXY,
@@ -763,8 +760,9 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && req.url === '/api/tutor') {
     return tutorRoute.handleTutorRequest(req, res);
   }
-  if (req.method === 'POST' && req.url === '/api/more-like-this') {
-    return questionRoutes.handleMoreLikeThis(req, res);
+  // MLT-RETIRE-1: retired — 410, no body read, no model, no pool, no meter (routes/moreLikeThis.cjs).
+  if (req.method === 'POST' && reqPath === '/api/more-like-this') {
+    return moreLikeThisRoute.handlePost(req, res);
   }
   if (req.method === 'POST' && req.url === '/api/step-solution') {
     return questionRoutes.handleStepSolution(req, res);
@@ -961,9 +959,9 @@ server.listen(config.PORT, () => {
   });
 
   // Schema, AFTER the gate. DDL only — no Gemini call, nothing scheduled.
-  // The student-triggered pool readers/writers (pickFromPool / saveToPool on
-  // "More like this") need this table too, so it is ensured whenever a
-  // database is configured, independently of whether the warm pool is armed.
+  // The table is ensured whenever a database is configured, independently of whether the
+  // warm pool is armed. (MLT-RETIRE-1: the student-triggered "More like this" pool reader and
+  // writer are gone; the warm pool's saveToPool is the remaining writer.)
   if (!config.STUB_MODE && process.env.DATABASE_URL) {
     ensureGeneratedQuestionsTable().catch(
       (e) => console.warn('[gen-q-schema] ensure failed:', e.message)
