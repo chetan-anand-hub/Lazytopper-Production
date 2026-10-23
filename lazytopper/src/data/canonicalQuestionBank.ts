@@ -1154,22 +1154,15 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2025-LIFEP-008",    // bilingual
   "PYQ-S-2025-LIGHT-021",    // bilingual
   "PYQ-S-2025-METAL-006",    // bilingual
+  // PYQ-RESTORE-A part 1 (22 Oct, owner approval 23:15 IST): 25 Maths PYQ rows repaired from the row itself (symbols, LaTeX, tables, step-marked solutions), blind re-solved and served again (ledger: bankFix/pyqRestoreALedger.ts; ids leave this block)
   // ---- Maths: blank / garbled expression / answer-mismatch (owner real-paper lookup) ----
   "PYQ-M-2025-REALNUM-003",  // blank — both expressions missing
   "PYQ-M-2024-REALNUM-004",  // answer-mismatch — answer proves (2−√3)/5, body reads 5√3−2
-  "PYQ-M-2024-REALNUM-005b", // garbled — (√2+√3)² bracket/exponent unrecoverable
   "PYQ-M-2025-QE-001",       // garbled — second root missing
   "PYQ-M-2025-TRIG-001",     // blank — tan A value and expression both missing
   "PYQ-M-2025-CG-003",       // garbled — mid-sentence scramble
   "PYQ-M-CG-002",            // garbled — coordinate fractions/signs lost
-  "PYQ-M-POLY-001",          // garbled — Greek α/β + ± signs dropped
-  "PYQ-M-2025-POLY-003",     // garbled — operator signs lost
-  "PYQ-M-TRIG-002",          // garbled — evaluate expression token order destroyed
-  "PYQ-M-TRIG-003",          // garbled — evaluate expression scrambled
-  "PYQ-M-TRIG-006",          // garbled — prove (A) numerator/denominator scrambled
   "PYQ-M-TRIG-007",          // garbled — prove (A) scrambled (dup of -006 + bleed)
-  "PYQ-M-2024-TRIG-012",     // garbled — evaluate expression token order destroyed
-  "PYQ-M-2024-TRIG-011a",    // garbled — evaluate expression token order destroyed
   // ---- Maths: subset-font mojibake (Hindi-as-Latin gibberish body) ----
   "PYQ-M-TRIG-005",          // mojibake
   "PYQ-M-2024-TRIG-010a",    // mojibake
@@ -1178,24 +1171,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2024-TRIG-019",     // mojibake
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
-  "PYQ-M-2025-STAT-006",          // garbled-extraction: class-interval dashes lost in the table
-  "PYQ-M-2025-TRIG-005",          // garbled-extraction: degree/angle signs lost, marks digits inline
   // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
-  "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
-  "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
-  "PYQ-M-2026-QE-001",            // garbled-extraction: exponent flattened ((p-q)x2)
-  "PYQ-M-2025-SAV-005",           // garbled-extraction: pi symbol dropped (Take = 3.14)
   "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
   "2026-STAT-SA-03",              // unsolvable-as-printed (D170): mean 18 with f: 3, f, 7, 5 gives 3f = 25; the row's own last step says 'adjust numbers accordingly'
   // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
-  "PYQ-M-2026-REALNUM-005",       // garbled-extraction: fraction bar lost (2 + 3√5 7)
-  "PYQ-M-STAT-009",               // garbled-extraction: class-interval dashes lost; wording broken
-  "PYQ-M-2025-STAT-003",          // garbled-extraction: class-interval dashes lost in the table
-  "PYQ-M-2026-TRI-003",           // garbled-extraction: triangle/angle/product symbols lost
   "PYQ-M-2026-TRI-005",           // garbled-extraction: angle symbols lost
-  "PYQ-M-TRIG-010",               // garbled-extraction: degree signs lost
-  "PYQ-M-RN-004",                 // garbled-extraction: exponent lost (4n for 4^n)
-  "PYQ-M-2025-POLY-002",          // garbled-extraction: exponents flattened (12a2 = 49b ambiguous)
   "PYQ-S-2025-ACID-010",          // garbled-extraction: parts (b)/(c) reduced to residue
   "PYQ-S-2026-ACID-019",          // garbled-extraction: stripped Hindi block left residue
   "PYQ-S-2024-CARB-002",          // garbled-extraction: structural formulas flattened
@@ -1238,7 +1218,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // -- acids-bases-and-salts --
   "SCQ-S-ACID-044",              // garbled: trailing-op
   // -- arithmetic-progression --
-  "PYQ-M-AP-007",                // garbled: pua
   // -- chemical-reactions-and-equations --
   "PYQ-S-2024-CHEMRXN-006",      // garbled: pua
   "PYQ-S-2024-CHEMRXN-007",      // garbled: pua+trailing-op
@@ -1407,7 +1386,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-METAL-009",        // bilingual — Hindi column residue in the stem ("A, B C A, B C , ? 5 () (i) (I) B, K, R XY ?")
   "PYQ-S-2026-LIFEP-011",        // bilingual — Hindi column residue in the stem ("of (a) (b) ( 180 L ) , ? (c) / ?")
   // -- garbled-options / answer-mismatch --
-  "PYQ-M-PLE-003",               // garbled-options — option (d) "ab =" truncated; key "ab = 6"
   "PYQ-M-QE-001",                // garbled-options — operator signs stripped ("2x2 4x + 8 =")
   "PYQ-M-CIRC-004",              // garbled-options — √ lost ("2 3 cm", "2 2 cm"); key "2√3 cm 1"
   "PYQ-M-STAT-004",              // garbled-options — two options both "decreases by"
@@ -1415,8 +1393,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-ACID-034",              // answer-mismatch — stem says pH 14; its own answer says "No salt has pH = 14"
   // -- stage 4: skeptic pass 2026-09-11 (report-skeptic-rekey-clean-2026-09-11.md) --
   "PYQ-S-METAL-003",             // garbled — part (i) MgCl₂ electron-transfer diagram lost; step 1 begins "i) (ii)"
-  "PYQ-M-2025-STAT-004",         // garbled — stem drops the last class frequency; unsolvable from the stem
-  "PYQ-M-2025-STAT-005",         // garbled — stem drops the last class frequency; unsolvable from the stem
   "SCO-S-HERED-005",             // out-of-syllabus — origin of life / earliest organisms = Evolution (formative-only, 2026-27)
   // -- BANK-SPLIT-1 PR-1 (2026-10-03): true duplicates within one chapter, scout N1 normalisation (equal marks,
   //    option set and answer). Keeper = pyqYear row, else a row NOT in AI_GENERATED_QUESTION_IDS, else the oldest id.

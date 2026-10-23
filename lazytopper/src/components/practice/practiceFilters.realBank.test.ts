@@ -16,6 +16,9 @@
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
 //   HOTS    the predicate is unchanged: bank-wide 4,105 at any difficulty; the old UI lock to
 //           Hard served 2,082 (the lock is removed in PracticePage / PracticeControls).
+// PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 25 repaired Maths PYQ rows are served
+//   again, so these bank-measured cells move: PYQ AP 11->12, SAV 17->18, Stats 15->20; Proof RN 44->47, Poly 7->8,
+//   Tri 68->69, Trig 89->90; HOTS any 4,105->4,126, Hard 2,082->2,091, 4-mark HOTS 943->945 (ledger: data/bankFix/pyqRestoreALedger.ts).
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -103,11 +106,11 @@ describe("FILTER-FIX-1 · Others", () => {
 
   it("PYQ and NCERT are unchanged (pinned for the five moved chapters)", () => {
     const pin: Record<string, [number, number]> = {
-      "arithmetic-progression": [11, 69],
+      "arithmetic-progression": [12, 69],
       "coordinate-geometry": [21, 61],
       "areas-related-to-circles": [18, 57],
-      "surface-areas-and-volumes": [17, 47],
-      statistics: [15, 51],
+      "surface-areas-and-volumes": [18, 47],
+      statistics: [20, 51],
     };
     for (const [slug, [pyq, ncert]] of Object.entries(pin)) {
       expect(n(slug, "all", "all", "pyq", "all"), `${slug} pyq`).toBe(pyq);
@@ -119,14 +122,14 @@ describe("FILTER-FIX-1 · Others", () => {
 describe("FILTER-FIX-1 · Proof / Derivation", () => {
   it("Maths chapter counts after removing the Long+Analysing rule and matching the phrase anywhere", () => {
     const want: Record<string, number> = {
-      "real-numbers": 44,
-      polynomials: 7,
+      "real-numbers": 47,
+      polynomials: 8,
       "pair-of-linear-equations": 2,
       "quadratic-equations": 17,
       "arithmetic-progression": 24,
-      triangles: 68,
+      triangles: 69,
       "coordinate-geometry": 29,
-      trigonometry: 89,
+      trigonometry: 90,
       circles: 98,
       "areas-related-to-circles": 0,
       "surface-areas-and-volumes": 0,
@@ -226,12 +229,12 @@ describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
       any += n(slug, "all", "hots", "all", "all");
       hard += n(slug, "all", "hots", "all", "Hard");
     }
-    expect(hard).toBe(2082);
-    expect(any).toBe(4105);
+    expect(hard).toBe(2091);
+    expect(any).toBe(4126);
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
     expect(sum("1", "hots", "all")).toBe(1097);
-    expect(sum("4", "hots", "all")).toBe(943);
+    expect(sum("4", "hots", "all")).toBe(945);
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);
     expect(sum("4", "proof", "all")).toBeGreaterThan(0);
