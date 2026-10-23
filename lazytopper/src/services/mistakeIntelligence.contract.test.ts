@@ -761,8 +761,8 @@ describe("T6 · intake predicate — type admits, deduction does not gate", () =
      one that SUMS `marksDeducted` into a student-visible number re-filters to a
      POSITIVE value first, so a zero-deduction entry contributes exactly nothing:
 
-       · pages/desktop/DesktopPracticePage.tsx  `marksLostForBucket`
-           `if (type.includes(bucket) && Number.isFinite(marks) && marks > 0) total += marks;`
+       · (pages/desktop/DesktopPracticePage.tsx `marksLostForBucket` — REMOVED in MI-CARELESS-2;
+           the Practice hub MI line now reads `mistakeLossByType`, services/meHomeSummary.ts)
        · pages/MeProgressPage.tsx  (the chapter gap type)
            `if (!Number.isFinite(marks) || marks <= 0) continue;`
        · services/progressReadModel.ts  `mistakeLossByGroup` (ME-ENGINE-1 PR-1 — Me's paper
@@ -787,8 +787,8 @@ describe("T6 · intake predicate — type admits, deduction does not gate", () =
       [
         // doc comment only — describes the intake rule, reads nothing
         "pages/desktop/DesktopCheckImprovePage.tsx",
-        // consumer — sums, guarded `marks > 0`
-        "pages/desktop/DesktopPracticePage.tsx",
+        // (pages/desktop/DesktopPracticePage.tsx left this set in MI-CARELESS-2: its MI line reads
+        // Me's per-type marks, `mistakeLossByType`, and no longer touches `stepDetails`.)
         // consumer — the chapter gap type, guarded `marks <= 0 continue` (its paper split
         // moved to services/progressReadModel.ts in ME-ENGINE-1 PR-1)
         "pages/MeProgressPage.tsx",
