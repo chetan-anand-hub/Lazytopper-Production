@@ -110,6 +110,26 @@ export function buildSeenQuestionIds(attempts: PracticeAttempt[], topicKey: stri
 }
 
 /**
+ * FRESH-SET-QP — the same seen-set WITH TIMES: bank id → when it was last answered on this topic.
+ * The draw uses the time to bring back the LEAST recently answered question first once a chapter's
+ * unseen questions run out (see lib/practice/servedHistory.ts). Pure — the caller supplies attempts.
+ */
+export function buildAnsweredAt(attempts: PracticeAttempt[], topicKey: string): Map<string, number> {
+  const target = canonicalKey(topicKey);
+  const out = new Map<string, number>();
+  if (!target) return out;
+  for (const a of attempts) {
+    if (canonicalKey(a.topicKey || a.topicName) !== target) continue;
+    const qid = String(a.questionId || "").trim();
+    if (!qid) continue;
+    const ts = Number(a.timestamp);
+    const at = Number.isFinite(ts) ? ts : 0;
+    out.set(qid, Math.max(out.get(qid) ?? 0, at));
+  }
+  return out;
+}
+
+/**
  * The per-session rotation offset — a deterministic function of the session's identity,
  * never `Math.random()` (CLAUDE.md §7). Same topic + same filters + same visit → the
  * same offset, so the set is stable while the student works; a new visit or a new

@@ -141,9 +141,11 @@ async function buildFirstSet() {
       </Routes>
     </MemoryRouter>,
   );
-  fireEvent.click(await screen.findByRole("button", { name: /Quick drill/i }));
+  // The preset chooser waits on `bank.ready` (the chapter chunk), so the 1 s default wait was a
+  // race on a cold or loaded runner (FRESH-SET-QP: the flake). Wait as long as the page may take.
+  fireEvent.click(await screen.findByRole("button", { name: /Quick drill/i }, { timeout: 60000 }));
   fireEvent.click(screen.getByRole("button", { name: /Start practising/i }));
-  await screen.findAllByText(/^Question \d+: solve it\.$/);
+  await screen.findAllByText(/^Question \d+: solve it\.$/, {}, { timeout: 60000 });
   return displayedSet();
 }
 
@@ -235,17 +237,12 @@ describe('QP toolbar "Refresh set" — the refreshed set must not be the set on 
     expect(second).toEqual([...first.slice(1), first[0]]);
   }, 90000);
 
-  it("NO-REGRESSION: the NORMAL build paths still call the bare regenerate (nothing marked seen)", async () => {
-    // `onBuildSet` (Edit filters → Build new set) and `applyPreset` commit the pending
-    // filters, so when the student actually changes something `filterSignature` — and
-    // therefore the seed — moves on its own. They never needed, and must not acquire,
-    // the fresh-set advance. What is pinned here is the OBSERVABLE no-regression fact:
-    // going round the Edit-filters → Build-new-set loop WITHOUT changing a filter
-    // reproduces the IDENTICAL set, exactly as it did before this change. That is the
-    // pre-existing behaviour of the bare-regenerate path (nothing moved, so nothing
-    // changes) and it is deliberately left alone. It is also the sensitive assertion:
-    // if the fresh-set advance had been applied globally, `freshSetNonce` would tick
-    // here too and set #2 would differ — this test goes RED (verified by mutation).
+  it("FRESH-SET-QP (Defect C, owner requirement): Edit filters → Build new set with NO change → a NEW set", async () => {
+    // This case used to be pinned the other way ("reproduces the IDENTICAL set … deliberately left
+    // alone"). The owner's requirement — every arrival at a Quick Practice set is a unique set —
+    // reverses it: the set on screen is SERVED, so the rebuild must move past it. What is still
+    // pinned from the old test: the filters did not move, so the SEED does not move and the
+    // fresh-set nonce does not tick; the new set comes from the served history alone.
     mockBuild.mockResolvedValue(POOL);
     const first = await buildFirstSet();
     expect(first).toHaveLength(5);
@@ -253,7 +250,7 @@ describe('QP toolbar "Refresh set" — the refreshed set must not be the set on 
 
     const callsBefore = mockBuild.mock.calls.length;
     fireEvent.click(screen.getByRole("button", { name: /Edit filters/i }));
-    fireEvent.click(await screen.findByRole("button", { name: /^Build new set$/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /^Build new set$/i }, { timeout: 60000 }));
     await awaitRebuild(callsBefore);
 
     const second = displayedSet();
@@ -262,17 +259,18 @@ describe('QP toolbar "Refresh set" — the refreshed set must not be the set on 
 
     /* eslint-disable no-console */
     console.log(
-      `[TRACE · normal build] seed #1 = ${seedBefore} · seed #2 = ${seedAfter} · seen @ fetch = ${
+      `[TRACE · build new set] seed #1 = ${seedBefore} · seed #2 = ${seedAfter} · seen @ fetch = ${
         seenAtBuildFetch ? seenAtBuildFetch.size : "undefined"
       } · set #1 = [${first.join(", ")}] · set #2 = [${second.join(", ")}]`,
     );
     /* eslint-enable no-console */
 
-    // The bare-regenerate path is untouched: no set was swept into the seen partition…
-    expect(seenAtBuildFetch ? seenAtBuildFetch.size : 0).toBe(0);
+    // The set on screen reached the fetch as SERVED…
+    expect(seenAtBuildFetch ? seenAtBuildFetch.size : 0).toBe(5);
     // …the seed is re-derived unchanged (the filters did not move)…
     expect(seedAfter).toBe(seedBefore);
-    // …and the rebuild therefore reproduces the SAME set, byte-for-byte, as before.
-    expect(second.join(",")).toBe(first.join(","));
+    // …and the rebuild is a NEW set: 25 in the pool, 5 served, so no overlap at all.
+    expect(second).toHaveLength(5);
+    expect(second.filter((n) => first.includes(n))).toEqual([]);
   }, 90000);
 });

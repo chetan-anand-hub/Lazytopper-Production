@@ -69,6 +69,8 @@ export interface PracticeQuestionListProps {
    *  concept; the rest are from the same chapter. The note sits after them (or above the list when 0).
    *  Omitted ⇒ no note. */
   conceptEnd?: { after: number; text: string };
+  /** FRESH-SET-QP — the set holds questions the student has met before; the honest line above the list. */
+  repeatsNote?: string;
 }
 
 function ConceptEndNote({ text }: { text: string }) {
@@ -161,7 +163,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor,
+    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, repeatsNote,
   } = props;
 
   return (
@@ -262,6 +264,11 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {repeatsNote && !isLoading && !error && filteredQuestions.length > 0 ? (
+            <div className="qp-bank-end" role="status" data-testid="qp-repeats-note">
+              <p className="qp-bank-end__title">{repeatsNote}</p>
+            </div>
+          ) : null}
           {filteredQuestions.map((q, idx) => (
             <Fragment key={q.id}>
             {conceptEnd && !isLoading && !error && conceptEnd.after === idx ? (
