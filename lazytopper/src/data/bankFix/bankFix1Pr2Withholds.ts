@@ -4,6 +4,8 @@
  * The blocks in canonicalQuestionBank.ts keep the human-readable reason per id; this map is what code may
  * branch on. "ambiguous" = the wording admits two defensible keys (independent re-solve could not confirm one).
  * Pinned equal to those blocks by bankFix1.pr2.withholds.test.ts.
+ * PYQ-RESTORE-B PR-1 (2026-10-23): 7 rows re-read from the official paper + MS and served again leave the map with
+ * their block lines (PYQ-M-RN-002, -2024-CG-006, -2024-CG-007, -2025-TRIG-004, -2026-POLY-005, -2026-PLE-001, -2026-TRIG-002).
  * PYQ-RESTORE-B PR-2 (2026-10-23): 8 Science rows re-read from the official paper + MS and served again leave the map with
  * their block lines (PYQ-S-LIFE-002, -ELEC-001, -MAG-002, -2026-ACID-012, -2026-ENV-001, -2026-CHEMRXN-013, -2026-MAG-001, -2026-EYE-002).
  */
@@ -80,17 +82,10 @@ export const BANK_FIX_1_PR2_WITHHOLD_CATEGORY: ReadonlyMap<string, BankFix1Pr2Wi
   ["PLE-M02", "duplicate"],
   ["PROB-E06", "duplicate"],
   ["PROB-M04", "duplicate"],
-  ["PYQ-M-2024-CG-006", "figure"],
-  ["PYQ-M-2024-CG-007", "figure"],
   ["PYQ-M-2024-CIRC-011a", "duplicate"],
   ["PYQ-M-2025-REALNUM-001", "duplicate"],
-  ["PYQ-M-2025-TRIG-004", "garbled"],
   ["PYQ-M-2026-CIRC-005", "figure"],
-  ["PYQ-M-2026-PLE-001", "garbled"],
-  ["PYQ-M-2026-POLY-005", "figure"],
-  ["PYQ-M-2026-TRIG-002", "figure"],
   ["PYQ-M-POLY-006", "duplicate"],
-  ["PYQ-M-RN-002", "ambiguous"],
   ["2026-TRIG-P1-A-041", "not-board-content"],
   ["2026-TRIG-P1-A-043", "not-board-content"],
   ["2026-TRIG-P1-A-044", "not-board-content"],

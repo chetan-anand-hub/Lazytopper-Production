@@ -60,9 +60,10 @@ const C3_NOT_BOUND = [
 const CENSUS_WRONG_IDS = [
   "CTRL-EXMPLR-6-SA-003", "Z3-CG-004", "Z3-ARC-004", "CBE-M-STAT-B-001", "CBE-M-STAT-C-001", "CBE-S-CTRL-A-005",
   "CBE-S-CTRL-E-001", "CBE-S-MAGN-B-005", "PB-M-1-TRIG-C-001", "APQ-M-TRI-008", "SCO-S-CTRL-013", "SCO-S-EYE-007",
-  "PYQ-M-2026-POLY-005",
   // PYQ-S-2026-EYE-002 left this list at PYQ-RESTORE-B PR-2 (2026-10-23): its stem was re-extracted in English from the official
   // 31/3/1 Q35 and the figure already in the repo under its id (N, N', image behind the retina) was opened and confirmed.
+  // PYQ-M-2026-POLY-005 left this list at PYQ-RESTORE-B PR-1 (2026-10-23): the WRONG figure was a lamp-shade image; it was
+  // replaced at the same path by the Chenab arch cropped from the official 2026 30/5/1 paper (p21) and bound after eye-confirmation.
 ];
 
 // `title` is rendered as the figure's <img alt>: it must DESCRIBE the figure, never be the generic placeholder.

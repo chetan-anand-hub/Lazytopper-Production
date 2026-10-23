@@ -23,8 +23,9 @@ describe("BANK-FIX-1 PR-2 · withhold categories", () => {
   it("the PR-2 blocks are non-empty and every id in them has a category (and vice versa)", () => {
     // 180 -> 172 at DIAGRAMS-1 PR-1b (2026-10-10): exactly the 8 figure rows it un-withholds (trunk 181 -> 173).
     // 172 -> 152 at BANK-UNWITHHOLD-1 (2026-10-10): exactly the 20 figure rows it un-withholds (trunk 173 -> 153).
-    // 153 -> 145 at PYQ-RESTORE-B PR-2 (2026-10-23): exactly the 8 Science rows it re-reads from the official paper and serves again.
-    expect(blockIds.length).toBeGreaterThan(144);
+    // 153 -> 146 at PYQ-RESTORE-B PR-1 (2026-10-23): exactly the 7 rows it re-reads from the official paper and serves again.
+    // 146 -> 138 at PYQ-RESTORE-B PR-2 (2026-10-23): exactly the 8 Science rows it re-reads from the official paper and serves again.
+    expect(blockIds.length).toBeGreaterThan(137);
     expect([...BANK_FIX_1_PR2_WITHHOLD_CATEGORY.keys()].sort()).toEqual([...blockIds].sort());
   });
 
@@ -35,7 +36,8 @@ describe("BANK-FIX-1 PR-2 · withhold categories", () => {
   });
 
   it("phase B's re-solve withholds are 'ambiguous'", () => {
-    for (const id of ["EL2-004", "SCO-S-HERED-002", "CBE-S-CTRL-A-005", "PYQ-M-RN-002"]) {
+    // PYQ-M-RN-002 left this list at PYQ-RESTORE-B PR-1 (2026-10-23): the official MS key (c) settled it and it is served again.
+    for (const id of ["EL2-004", "SCO-S-HERED-002", "CBE-S-CTRL-A-005"]) {
       expect(BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id), id).toBe("ambiguous");
     }
   });

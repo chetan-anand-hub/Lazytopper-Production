@@ -9,11 +9,11 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const POLYNOMIALS_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-POLY-001", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes of Polynomial", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If and are the zeroes of the quadratic polynomial p(x) = x2 ax b, then the value of 2 + 2 is :",
-    options: ["a2 2b", "a2 + 2b", "b2 2a", "b2 + 2a"],
-    answer: "a2 + 2b",
-    solutionSteps: ["Correct option: (b) a2 + 2b."],
-    finalAnswer: "(b) a2 + 2b",
+    questionText: "If α and β are the zeroes of the quadratic polynomial p(x) = x² − ax − b, then the value of α² + β² is :",
+    options: ["a² − 2b", "a² + 2b", "b² − 2a", "b² + 2a"],
+    answer: "a² + 2b",
+    solutionSteps: ["[1 mark] α + β = a and αβ = −b, so α² + β² = (α + β)² − 2αβ = a² + 2b. Correct option: (b) a² + 2b."],
+    finalAnswer: "(b) a² + 2b",
     ncertRef: "PYQ 30/2/1 Q16", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-POLY-002", subject: "Maths", topicKey: "polynomials", subtopic: "Quadratic Polynomial", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Applying",

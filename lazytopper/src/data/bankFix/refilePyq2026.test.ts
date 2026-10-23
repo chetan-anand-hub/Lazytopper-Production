@@ -27,6 +27,7 @@ import { FM_BLUEPRINT, buildUnionPool, sectionPool } from "../../components/full
 import { getTopics, planWorksheet } from "../../components/worksheet/worksheetModel";
 import { isOfferableRow, type BoardTryRow } from "../../components/checkimprove/boardQuestionPick";
 import { BANK_STEPS_1 } from "./bankSteps1Ledger";
+import { PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
 import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
 import { REFILE_PYQ2026, REFILE_PYQ2026_COUNTS, REFILE_PYQ2026_SOURCES, REFILE_PYQ2026_ZIPS, type RefilePyq2026Entry } from "./refilePyq2026Ledger";
 
@@ -84,7 +85,8 @@ describe("REFILE-PYQ2026-1 census ledger", () => {
       if (!q) { bad.push(`${e.id}: not in the raw bank`); continue; }
       if (!["R", "F", "W", "K"].includes(e.outcome)) bad.push(`${e.id}: outcome ${e.outcome}`);
       if (!SLUGS.has(e.chapterBefore) || !SLUGS.has(e.trueChapter)) bad.push(`${e.id}: chapter ${e.chapterBefore} / ${e.trueChapter}`);
-      if (q.ncertRef !== e.ref) bad.push(`${e.id}: ref ${String(q.ncertRef)} != ${e.ref}`);
+      // PYQ-RESTORE-B (2026-10-23) corrected PYQ-M-2026-STAT-002's reference to the official 30/5/3 Q33(b); its ledger pins the new one.
+      if (q.ncertRef !== e.ref && !PYQ_RESTORE_B_IDS.has(e.id)) bad.push(`${e.id}: ref ${String(q.ncertRef)} != ${e.ref}`);
       if (e.why.trim().length < 20) bad.push(`${e.id}: why`);
       if ((e.outcome === "K" || e.outcome === "F") && e.trueChapter !== e.chapterBefore) bad.push(`${e.id}: ${e.outcome} row with a chapter move`);
       if (e.outcome === "R" && e.trueChapter === e.chapterBefore) bad.push(`${e.id}: R row without a chapter move`);
@@ -149,8 +151,8 @@ describe("REFILE-PYQ2026-1 outcomes hold in the assembled bank", () => {
     const bad: string[] = [];
     for (const e of REFILE_PYQ2026) {
       const q = RAW.get(e.id)!;
-      // PYQ-RESTORE-B PR-2 (2026-10-23): W rows it re-read from the official paper + MS and served again (pyqRestoreBScienceLedger.ts) are exempt.
-      if (e.outcome === "W" && !PYQ_RESTORE_B_SCIENCE_IDS.has(e.id) && (!WITHHELD_QUESTION_IDS.has(e.id) || SERVED.has(e.id))) bad.push(`${e.id}: W but served`);
+      // PYQ-RESTORE-B PR-1 + PR-2 (2026-10-23): W rows re-read from the official paper + MS and served again (pyqRestoreB*Ledger.ts) are exempt.
+      if (e.outcome === "W" && !PYQ_RESTORE_B_IDS.has(e.id) && !PYQ_RESTORE_B_SCIENCE_IDS.has(e.id) && (!WITHHELD_QUESTION_IDS.has(e.id) || SERVED.has(e.id))) bad.push(`${e.id}: W but served`);
       if ((e.outcome === "K" || e.outcome === "F") && (!SERVED.has(e.id) || q.topicKey !== e.trueChapter)) bad.push(`${e.id}: ${e.outcome} not served under ${e.trueChapter}`);
     }
     expect(bad).toEqual([]);

@@ -91,9 +91,10 @@ const GARBLE_1_BOUND_BUT_WITHHELD: readonly string[] = ["PYQ-M-2025-STAT-006"];
 const CENSUS_WRONG_IDS = [
   "CTRL-EXMPLR-6-SA-003", "Z3-CG-004", "Z3-ARC-004", "CBE-M-STAT-B-001", "CBE-M-STAT-C-001", "CBE-S-CTRL-A-005",
   "CBE-S-CTRL-E-001", "CBE-S-MAGN-B-005", "PB-M-1-TRIG-C-001", "APQ-M-TRI-008", "SCO-S-CTRL-013", "SCO-S-EYE-007",
-  "PYQ-M-2026-POLY-005",
   // PYQ-S-2026-EYE-002 left this list at PYQ-RESTORE-B PR-2 (2026-10-23): its stem was re-extracted in English from the official
   // 31/3/1 Q35 and the figure already in the repo under its id (N, N', image behind the retina) was opened and confirmed.
+  // PYQ-M-2026-POLY-005 left this list at PYQ-RESTORE-B PR-1 (2026-10-23): the WRONG figure was a lamp-shade image; it was
+  // replaced at the same path by the Chenab arch cropped from the official 2026 30/5/1 paper (p21) and bound after eye-confirmation.
 ];
 
 // `title` is rendered as the figure's <img alt>: it must DESCRIBE the figure, never be the generic placeholder.
@@ -208,11 +209,10 @@ const PR6_BINDINGS: ReadonlyArray<readonly [string, string]> = [
 
 // Looked at and deliberately NOT bound (SKIP-BROKEN / NO-MATCH / NOT-FOUND / computed-figure rows / WRONG ids) — must
 // keep resolving to NO figure. Reasons are in the PR-6 eye-confirm table.
-const PR6_NOT_BOUND = [
-  "PYQ-M-2026-TRIG-002", // SKIP-BROKEN: stem lost its degree signs ('is 45 and ... is 30'); answer glyph-garbled
-  "PYQ-M-2025-TRIG-004", // withheld as garbled (sub-parts have no text), not for a figure
-  "PYQ-M-2024-CG-007", // SKIP-BROKEN: 'D PQR' lost the triangle sign; Hindi page-header junk in the stem; answer garbled
-];
+// PYQ-RESTORE-B PR-1 (2026-10-23): PYQ-M-2026-TRIG-002, PYQ-M-2025-TRIG-004 and PYQ-M-2024-CG-007 left this list - their
+// stems were restored from the official papers and their figures cropped from the same pages and bound (pinned in
+// bankFix/pyqRestoreB.test.ts). The list is kept, empty, so a future SKIP-BROKEN row has a home.
+const PR6_NOT_BOUND: string[] = [];
 
 const pr6Paths = new Set(PR6_BINDINGS.map(([, p]) => p));
 const pr6Entries = MATHS_FIGURE_VISUALS.filter((f) => pr6Paths.has(f.filePath));

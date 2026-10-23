@@ -145,7 +145,8 @@ export const LIFE_PROCESSES_PYQ: CanonicalQuestion[] = [
     solutionSteps: [
       "[0.5 marks] (i) P – Chloroplasts.",
       "[0.5 marks] Role: chloroplasts absorb light energy and help in photosynthesis.",
-      "[1 mark] (ii) 6CO₂ + 12H₂O → C₆H₁₂O₆ + 6O₂ + 6H₂O (in the presence of chlorophyll and sunlight).",
+      "[0.5 marks] (ii) Balanced equation: 6CO₂ + 12H₂O → C₆H₁₂O₆ + 6O₂ + 6H₂O.",
+      "[0.5 marks] Conditions written over the arrow: in the presence of sunlight and chlorophyll.",
     ],
     finalAnswer: "P = chloroplasts (absorb light energy for photosynthesis); 6CO₂ + 12H₂O → C₆H₁₂O₆ + 6O₂ + 6H₂O (in presence of chlorophyll and sunlight).",
     ncertRef: "PYQ 31/5/2 Q12", isCompetencyBased: true,
