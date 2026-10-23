@@ -61,7 +61,7 @@ export const MAGNETIC_EFFECTS_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-S-MAG-007", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Solenoid", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What is a solenoid ? Draw a diagram to show the pattern of magnetic field around a current carrying solenoid. Name the region of uniform magnetic field.",
     answer: "A solenoid is a coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder. The magnetic field is uniform inside the solenoid.",
-    solutionSteps: ["[1 mark] Definition: a coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder is called a solenoid.", "[1 mark] Diagram: parallel straight field lines inside the solenoid; outside, lines run from the N end to the S end like a bar magnet. (Deduct ½ mark if the direction of current or magnetic field is not marked.)", "[1 mark] Region of uniform magnetic field: inside the solenoid."],
+    solutionSteps: ["[1 mark] Definition: a coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder is called a solenoid.", "[1 mark] Diagram: parallel straight field lines inside the solenoid; outside, lines run from the N end to the S end like a bar magnet.", "[1 mark] Region of uniform magnetic field: inside the solenoid."],
     finalAnswer: "Solenoid: closely wound cylindrical coil of insulated copper wire; the field is uniform inside the solenoid.",
     ncertRef: "PYQ 31/2/2 Q32", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "2",

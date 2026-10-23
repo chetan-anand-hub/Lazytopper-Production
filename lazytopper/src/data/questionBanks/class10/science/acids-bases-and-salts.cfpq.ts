@@ -116,7 +116,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
       "The pH of three solutions is given in the table. Answer the questions that follow.\n\nSolution | pH\nP | 1\nQ | 7\nR | 14\n\n(a) Which of these solutions could possibly react with zinc metal to produce hydrogen gas?\n(b) Which of these solutions could be formed by the reaction of a metal oxide with water?\n(c) Which of these solutions could be the raw material for the industrial manufacture of chlorine?",
     answer: "(a) solution P and solution R; (b) solution R; (c) solution Q",
     solutionSteps: [
-      "[1 mark] (a) 0.5 marks each for: solution P; solution R.",
+      "[1 mark] (a) solution P; solution R.",
       "[1 mark] (b) solution R",
       "[1 mark] (c) solution Q",
     ],
@@ -141,8 +141,8 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Bubbling is seen, because hydrogen is produced (or the vessel becomes warm, because it is an exothermic reaction); (b) No - the metal is present as a part of a salt solution; (c) Metal dissolving in acid is a chemical change while sugar dissolving in water is a physical change.",
     solutionSteps: [
-      "[2 marks] (a) 1 mark each for observation and reason: Observation: Bubbling is seen. Reason: Because hydrogen is produced. OR Observation: The vessel becomes warm. Reason: Because it is an exothermic reaction.",
-      "[2 marks] (b) 1 mark each for stating yes/no and for reason: No. The metal is present as a part of a salt solution.",
+      "[2 marks] (a) Observation: Bubbling is seen. Reason: Because hydrogen is produced. OR Observation: The vessel becomes warm. Reason: Because it is an exothermic reaction.",
+      "[2 marks] (b) No. The metal is present as a part of a salt solution.",
       "[1 mark] (c) Metal dissolving in acid is a chemical change while sugar dissolving in water is a physical change.",
     ],
     finalAnswer:

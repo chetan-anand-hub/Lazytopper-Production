@@ -137,7 +137,7 @@ export const LGHT_CFPQ_SQP25: CanonicalQuestion[] = [
     subtopic: "Ray Diagrams and Lens Formula (Convex Lens)", section: "D", marks: 5, format: "Long",
     difficulty: "Hard", bloomSkill: "Creating",
     questionText: "(a) Copy the scaled ray diagram given (a pencil of length 4 cm held horizontally, 2 cm above the principal axis; its pointed end is 5 cm from a thin convex lens of focal length 3 cm). Draw more required incident rays from the pencil to illustrate the formation of the image of the pencil by the convex lens. Your completed diagram should show the image of the whole pencil. (Note: assume the lens is a thin lens.)\n(b) What is the distance of the image of the pointed end of the pencil from the lens?\n(c) What is the length of the image of the pencil?",
-    answer: "(b) 7.5 cm from the lens (c) about 3.6 cm",
+    answer: "(a) Ray diagram: the image of the whole pencil is inverted, magnified and tilted (b) 7.5 cm from the lens (c) about 3.6 cm",
     solutionSteps: [
       "[1 mark] (a) Draw one more correctly drawn incident ray from the pointed end of the pencil (e.g. through the optical centre, undeviated).",
       "[2 marks] (a) Draw two correctly drawn rays from the blunt/rear end (parallel-to-axis ray refracting through F, and the ray through the optical centre) to locate its image point.",
@@ -145,7 +145,7 @@ export const LGHT_CFPQ_SQP25: CanonicalQuestion[] = [
       "[½ mark] (b) The image of the pointed end is 7.5 cm from the lens (on the far side).",
       "[½ mark] (c) Image length = distance between the two image points = sqrt((7.5 - 4.5)^2 + (3 - 1)^2) = sqrt(13) which is approximately 3.6 cm."
     ],
-    finalAnswer: "(b) 7.5 cm (c) about 3.6 cm",
+    finalAnswer: "(a) Ray diagram: the image of the whole pencil is inverted, magnified and tilted (b) 7.5 cm (c) about 3.6 cm",
     isCompetencyBased: true, requiresDiagram: true,
     diagramDescription: "Scaled ray diagram: a horizontal pencil 4 cm long, 2 cm above the principal axis, its tip 5 cm in front of a thin convex lens (f = 3 cm); one ray from the tip through the optical centre is already drawn.",
     visualExplainerId: "science-light-reflection-and-refraction-fig-cfpq-s-lght-014" },
