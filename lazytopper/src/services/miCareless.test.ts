@@ -76,6 +76,29 @@ describe("easy marks (summarizeCareless) — the entry's own marks, the SAME rul
     expect(summarizeCareless([entry(null, [["calculation", 1.5], ["silly", 0.5], ["conceptual", 2]])]).marksLost).toBe(2);
   });
 
+  // MI-CARELESS-1 review — the LEGACY step path follows the split's rule exactly (mistakeLossByGroup).
+  it("★ legacy: a step type in another case ('Silly', ' Calculation ') is still careless — as in Me's split", () => {
+    const entries = [entry(null, [["Silly", 1], [" Calculation ", 0.5]])];
+    expect(summarizeCareless(entries).marksLost).toBe(1.5);
+    expect(summarizeCareless(entries).marksLost).toBe(mistakeLossByGroup(entries).careless);
+  });
+
+  it("★ legacy: a negative or non-numeric deduction never subtracts or counts — as in Me's split", () => {
+    const entries = [entry(null, [["silly", -2], ["calculation", Number.NaN], ["silly", 1]])];
+    expect(summarizeCareless(entries).marksLost).toBe(1);
+    expect(summarizeCareless(entries).marksLost).toBe(mistakeLossByGroup(entries).careless);
+  });
+
+  it("★ an entry without mistakeCounts still counts its MARKS (as in Me's split) — and adds no count", () => {
+    const bare = { ...entry({ silly: 1 }, [["silly", 0]]) } as unknown as Record<string, unknown>;
+    delete bare.mistakeCounts;
+    const entries = [bare as unknown as MistakeLogEntry];
+    const s = summarizeCareless(entries);
+    expect(s.marksLost).toBe(1);
+    expect(s.marksLost).toBe(mistakeLossByGroup(entries).careless);
+    expect(s.count).toBe(0);
+  });
+
   it("CONTROL — the counts are unchanged (they come from mistakeCounts, never from marks)", () => {
     const s = summarizeCareless([entry({ silly: 1 }, [["silly", 0]]), entry({ calculation: 3 }, [["calculation", 1]])]);
     expect({ calculationCount: s.calculationCount, sillyCount: s.sillyCount, count: s.count }).toEqual({ calculationCount: 1, sillyCount: 1, count: 2 });

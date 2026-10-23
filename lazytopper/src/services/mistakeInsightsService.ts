@@ -4,7 +4,7 @@ import {
   addMarksLost,
   entryMarksLost,
   groupMarks,
-  isCarelessType,
+  mistakeGroupOf,
   zeroMarksLost,
   type MarksLostByType,
 } from "../lib/mistakeDisplay";
@@ -310,9 +310,14 @@ export function summarizeCareless(entries: MistakeLogEntry[]): CarelessInsight {
   let sillyCount = 0;
   let marksLost = 0;
   for (const e of entries) {
-    if (!isSafeEntry(e)) continue;
-    calculationCount += Number(e.mistakeCounts?.calculation) || 0;
-    sillyCount += Number(e.mistakeCounts?.silly) || 0;
+    if (!e || typeof e !== "object") continue;
+    // The COUNTS come from mistakeCounts, as before (an entry without them adds no count).
+    if (isSafeEntry(e)) {
+      calculationCount += Number(e.mistakeCounts?.calculation) || 0;
+      sillyCount += Number(e.mistakeCounts?.silly) || 0;
+    }
+    // The MARKS follow `mistakeLossByGroup` (progressReadModel — Me's hero split) EXACTLY, for
+    // every entry, so the easy-marks card and the split can never disagree:
     // MI-CARELESS-1 — a v2 entry is read by its own marks: the per-step deductions UNDER-state
     // the loss (the objective clamp strips step marks, a consequential slip's inherited marks and
     // departure-zeroed work are typed only in `marksLostByType`), which hid Me's easy-marks card.
@@ -321,10 +326,13 @@ export function summarizeCareless(entries: MistakeLogEntry[]): CarelessInsight {
       marksLost += groupMarks(v2).careless;
       continue;
     }
+    // A count-only LEGACY entry: its step deductions, read with the split's own rule — the type
+    // trimmed and lower-cased ("Silly" is silly), only a finite deduction above 0 counts.
     for (const s of e.stepDetails ?? []) {
-      if (isCarelessType(String(s.mistakeType))) {
-        marksLost += Number(s.marksDeducted) || 0;
-      }
+      const type = String(s?.mistakeType ?? "").trim().toLowerCase();
+      const marks = Number(s?.marksDeducted);
+      if (!Number.isFinite(marks) || marks <= 0) continue;
+      if (mistakeGroupOf(type)?.key === "careless") marksLost += marks;
     }
   }
   const count = calculationCount + sillyCount;
