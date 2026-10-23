@@ -1,0 +1,18 @@
+/* GUIDE-PAGES-1 — the EAGER half: the "?" door and the M7 slot reservation only. Everything Byte
+   draws and says lives in pageGuides.css, which travels with the lazy pageGuidesChunk. */
+.lt-pg-door { display: inline-flex; align-items: center; flex: none; position: relative; vertical-align: middle; }
+/* In a row or a line: negative vertical margins keep its box at 24px, so its arrival never makes
+   the row taller (the Chapter Test / Full Mock page bar, the chooser's heading). */
+.lt-pg-door--end, .lt-pg-door--inline { margin-top: -4px; margin-bottom: -4px; }
+.lt-pg-door--end { margin-left: auto; }
+.lt-pg-door--inline { margin-left: 8px; }
+.lt-pg-door--corner { position: absolute; top: 12px; right: 12px; z-index: 2; }
+.lt-pg-door__q { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+  padding: 0; border-radius: 50%; border: 2px solid #14213d; background: #e9f7fd; color: #14213d;
+  font: inherit; font-size: 15px; font-weight: 800; line-height: 1; cursor: pointer; }
+.lt-pg-door__q:hover { background: #d6effa; }
+.lt-pg-door__q[aria-expanded="true"] { background: #14213d; color: #fff; }
+.lt-pg-door__q:focus-visible { outline: 3px solid hsl(152, 55%, 38%); outline-offset: 2px; }
+/* M7: Byte's row inside the limit panel is RESERVED before the chunk arrives (no layout shift). */
+.lt-pg-m7slot { min-height: 76px; margin: 10px 0 4px; }
+@media print { .lt-pg-door, .lt-pg-m7slot { display: none; } }

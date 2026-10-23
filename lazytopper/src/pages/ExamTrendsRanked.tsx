@@ -22,6 +22,7 @@ import {
 } from "../data/highlyProbableQuestions";
 import MobileShell from "../components/mobile/MobileShell";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
+import { PageGuide } from "../components/guide/pages/pageGuides";
 import { notesHref } from "../seo/notesLinks";
 import { ncertReadPath, ncertRowsForSlug } from "../config/ncertBooks";
 
@@ -1011,6 +1012,9 @@ const STYLES = `
 function PageHero({ children, subject }: { children: React.ReactNode; subject: DesktopSubject }) {
   return (
     <header className="lt-et-hero">
+      {/* GUIDE-PAGES-1 — Byte's "?" in the hero's top-right corner (absolute, so it moves nothing;
+          the card it opens is fixed). First visit on this device opens it once. */}
+      <PageGuide id="trends_help" step="page" placement="corner" />
       <span className="lt-et-cred">
         <IconAward />
         {/* [FU-EVIDENCE-BASE-CLAIM-INCONSISTENT] — never a literal; ten is authoritative. */}
