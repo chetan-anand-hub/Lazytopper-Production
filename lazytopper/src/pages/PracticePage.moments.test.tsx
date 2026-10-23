@@ -288,27 +288,19 @@ describe("MOMENTS-1 M11 · the first written answer nudge on the MCQ-only scorec
     await screen.findByRole("dialog", {}, { timeout: 10000 });
   }
 
-  it("★★ guide arm, never a written answer graded (server says so): Byte (cheer) + 'Check a written answer' opens THIS set's working box (GUIDE-SCORE-2: never /check-improve)", async () => {
+  it("★★ GUIDE-SCORE-2 (cofounder ruling): where Byte's OBJECTIVE line shows, M11 is SUPPRESSED — no false step-marking promise, no duplicate nudge", async () => {
     await finishTapOnly();
-    const m = await screen.findByTestId("guide-moment-m11", {}, { timeout: 5000 });
-    expect(m.getAttribute("data-kind")).toBe("byte");
-    expect(m.getAttribute("data-pose")).toBe("cheer");
-    expect(m.querySelector('[data-testid="guide-moment-line"]')!.textContent).toBe(M11_LINE);
-    const cta = screen.getByTestId("guide-moment-m11-cta");
-    expect(cta.textContent).toBe("Check a written answer");
-    expect(cta.tagName).toBe("BUTTON");
+    // Byte's owner-approved objective line takes the slot: it tells the truth (§13) and opens the box.
+    const byte = await screen.findByTestId("score-guide-cta", {}, { timeout: 8000 });
+    expect(byte.textContent).toBe("Add working to one →");
+    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
+    expect(screen.queryByText(M11_LINE)).toBeNull();
     expect(document.querySelector('a[href="/check-improve"]')).toBeNull();
-    expect(writtenCloud).toHaveBeenCalledWith(UID);
-    // The tap: back to the set, the FIRST question's working box open, scrolled to and focused.
-    fireEvent.click(cta);
-    const box = await waitFor(() => {
-      const el = document.querySelector('[data-question-id="q-1"] [data-testid="practice-checker"]') as HTMLElement | null;
-      expect(el).not.toBeNull();
-      return el!;
-    });
-    await waitFor(() => expect(document.activeElement).toBe(box));
-    expect(document.querySelectorAll('[data-testid="practice-checker"]').length).toBe(1);
-    expect(screen.queryByTestId("guide-moment-m11")).toBeNull(); // the scorecard closed
+    // Suppressed, not shown-and-hidden: the once-per-device marker is never spent.
+    expect(Object.keys(window.localStorage).some((k) => k.startsWith("lazytopper.m11Shown."))).toBe(false);
+    // …and the server is never asked (M11 is not mounted at all). Its own eligibility rules stay
+    // pinned by components/guide/moments/moments.test.tsx.
+    expect(writtenCloud).not.toHaveBeenCalled();
   });
 
   it("★★ CONTROL arm: absent (and the server is not asked)", async () => {
@@ -320,14 +312,6 @@ describe("MOMENTS-1 M11 · the first written answer nudge on the MCQ-only scorec
     expect(writtenCloud).not.toHaveBeenCalled();
   });
 
-  it("★★ a written answer was graded once (only in the cloud): absent", async () => {
-    writtenCloud.mockResolvedValue(true);
-    await finishTapOnly();
-    await waitFor(() => expect(writtenCloud).toHaveBeenCalled());
-    await act(async () => {});
-    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
-  });
-
   it("★★ a written answer was graded on THIS device (a C&I record): absent, no read", async () => {
     localRows.mockReturnValue([{ id: "CI-M-REAL-01", surface: "check-improve", topicKeys: [], questionIds: [], gradedAt: 1 }]);
     await finishTapOnly();
@@ -336,28 +320,6 @@ describe("MOMENTS-1 M11 · the first written answer nudge on the MCQ-only scorec
     expect(writtenCloud).not.toHaveBeenCalled();
   });
 
-  it("★★ the server read is pending, or fails: absent", async () => {
-    writtenCloud.mockReturnValue(new Promise(() => {}));
-    await finishTapOnly();
-    await act(async () => {});
-    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
-    cleanup();
-    resetWrittenGradedForTests();
-    writtenCloud.mockReset().mockResolvedValue(null);
-    await finishTapOnly();
-    await waitFor(() => expect(writtenCloud).toHaveBeenCalled());
-    await act(async () => {});
-    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
-  });
-
-  it("once per account per device: the next MCQ-only result does not repeat it", async () => {
-    await finishTapOnly();
-    await screen.findByTestId("guide-moment-m11", {}, { timeout: 5000 });
-    cleanup();
-    await finishTapOnly();
-    await act(async () => {});
-    expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
-  });
 });
 
 describe("MOMENTS-1 M11 · never on a WRITTEN result (delta FA)", () => {

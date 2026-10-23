@@ -315,3 +315,22 @@ describe("MOMENTS-1 M10 · the solutions page corner peek", () => {
     expect(screen.queryByTestId("guide-moment-m10")).toBeNull();
   });
 });
+
+/**
+ * GUIDE-SCORE-2 (cofounder ruling, #1322 re-review) — no step-marking promise where the target is
+ * an OBJECTIVE question. CBSE scores an MCQ / 1-marker on the answer alone; working only sets the
+ * mistake type (CLAUDE.md §13). The moments whose target is a tap (M3 on the question, M5's MCQ
+ * beat) must not promise step marks; M11's owner copy DOES promise them, so M11 is never mounted on
+ * the tap-only Quick Practice scorecard (pinned on the real page: PracticePage.moments.test.tsx).
+ */
+describe("GUIDE-SCORE-2 · moments copy on objective targets", () => {
+  const STEP_PROMISE = /step by step|each step|every step|marks? (each|every) step|step[- ]mark/i;
+  it("★★ M3 (the tap) and M5's MCQ beat promise no step marking", () => {
+    for (const key of ["m3Byte", "m3Ziggy", "m5ByteMcq"] as const) {
+      expect(MOMENT_COPY[key], key).not.toMatch(STEP_PROMISE);
+    }
+  });
+  it("★ M11's owner copy promises step marking — which is exactly why it is suppressed on tap-only cards", () => {
+    expect(MOMENT_COPY.m11).toMatch(STEP_PROMISE);
+  });
+});
