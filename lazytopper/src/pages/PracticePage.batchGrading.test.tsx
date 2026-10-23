@@ -642,8 +642,13 @@ describe("12 · typed working rides the batch (AMEND-621)", () => {
     finish();
     expect(await screen.findByRole("button", { name: CHECK_CTA })).toBeInTheDocument();
     expect(readyToGradeCount(screen.getByTestId("qp-confirm"))).toBe(1);
-    // CONTROL — a SECOND typed answer moves the count, so the "1" was not a constant.
-    fireEvent.click(screen.getByRole("button", { name: BACK_TO_SET }));
+    // CONTROL — a SECOND typed answer moves the count, so the "1" was not a constant. QP-NO-REVIEW-
+    // GRADE-1 (owner ruling 23 Oct 2026 22:48 IST: "after the final scorecard, working isn't graded"):
+    // the second answer is saved BEFORE Finish in a fresh set — one saved after the scorecard is now
+    // kept as notes and is never counted or sent.
+    cleanup();
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveTypedFor(1);
     await saveTypedFor(2, "y = 9");
     finish();
     expect(await screen.findByRole("button", { name: CHECK_CTA })).toBeInTheDocument();

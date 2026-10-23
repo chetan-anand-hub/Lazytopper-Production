@@ -93,6 +93,10 @@ export interface PracticeQuestionCardProps {
   /** QP-WORKING-AFTER-1 — collect mode: offer the "Don't forget to save" nudge (Ziggy for this
    *  signed-in student, else plain text). Undefined: no nudge (every other host, review mode). */
   saveNudgeUid?: string | null;
+  /** QP-WORKING-AFTER-1 — owner ruling 23 Oct 22:48 ("after the final scorecard, working isn't
+   *  graded"): in Quick Practice review there is NO answer box — no "Answer this question", no
+   *  "Want to know why?", nothing collected. Default false (every other host, unchanged). */
+  answerBoxOff?: boolean;
   /**
    * PRACTICE-HONESTY-1 — the solution steps are locked until the student has tried the
    * question. The HOST decides (it alone knows every attempt signal and whether the
@@ -194,7 +198,7 @@ export function PracticeQuestionCard({
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
   onAskTutor,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
-  onDraftAnswer, saveNudgeUid,
+  onDraftAnswer, saveNudgeUid, answerBoxOff = false,
   stepsLocked = false,
   hideSteps = false,
   countsAsAttempt: countsAsAttemptProp,
@@ -586,7 +590,7 @@ export function PracticeQuestionCard({
               onDismiss={() => setWrongNudgeGone(true)}
             />
           ) : null
-        ) : result === "wrong" && hasStructuredOptions && !showChecker && (
+        ) : result === "wrong" && hasStructuredOptions && !showChecker && !answerBoxOff && (
           <button
             type="button"
             onClick={() => {
@@ -726,7 +730,7 @@ export function PracticeQuestionCard({
         display: "flex", flexWrap: "wrap", gap: 8,
         alignItems: "center", marginBottom: 10,
       }}>
-        {!hasStructuredOptions && (
+        {!hasStructuredOptions && !answerBoxOff && (
           <button
             type="button"
             onClick={() => {
@@ -769,7 +773,7 @@ export function PracticeQuestionCard({
           <span>{isOpen ? "Hide steps" : "Show steps"}</span>
         </button>
         )}
-        {hasStructuredOptions && (
+        {hasStructuredOptions && !answerBoxOff && (
           <button
             type="button"
             onClick={() => {
@@ -791,7 +795,7 @@ export function PracticeQuestionCard({
         )}
       </div>
 
-      {showChecker && (
+      {showChecker && !answerBoxOff && (
         <div ref={checkerRef} tabIndex={-1} className="pqc-checker" data-testid="practice-checker" aria-label="Your working for this question">
         <SolutionChecker
           question={q.questionText}
@@ -829,7 +833,7 @@ export function PracticeQuestionCard({
           defaultAnswerMode={checkerMode ?? defaultAnswerMode}
           onDraftChange={collectMode ? handleDraft : undefined}
         />
-        {nudgeOn && draft && !savedAnswer ? (
+        {nudgeEnabled && nudgeOn && draft && !savedAnswer ? (
           <SaveNudge id={String(q.id)} uid={saveNudgeUid} onSave={() => onSaveAnswer?.(String(q.id), draft)} />
         ) : null}
         </div>

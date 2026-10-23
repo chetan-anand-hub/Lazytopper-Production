@@ -55,6 +55,8 @@ export interface PracticeQuestionListProps {
   onDraftAnswer?: (qId: string, working: SolutionCheckerSavedWorking | null) => void;
   /** QP-WORKING-AFTER-1 — the save nudge's student (undefined: no nudge). */
   saveNudgeUid?: string | null;
+  /** QP-WORKING-AFTER-1 — no answer box at all (Quick Practice review, after the final scorecard). */
+  answerBoxOff?: boolean;
   /**
    * PRACTICE-HONESTY-1 — the host's per-question steps lock, passed straight through to
    * `PracticeQuestionCard.stepsLocked`. The host owns the rule (it alone holds every attempt
@@ -167,7 +169,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, openStepsFor, onDraftAnswer, saveNudgeUid,
+    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, openStepsFor, onDraftAnswer, saveNudgeUid, answerBoxOff,
   } = props;
 
   return (
@@ -299,6 +301,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onRemoveAnswer={onRemoveAnswer}
               onDraftAnswer={onDraftAnswer}
               saveNudgeUid={saveNudgeUid}
+              answerBoxOff={answerBoxOff}
               stepsLocked={isStepsLocked ? isStepsLocked(String(q.id)) : false}
               defaultAnswerMode={defaultAnswerMode}
             />

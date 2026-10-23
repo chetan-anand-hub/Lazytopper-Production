@@ -518,42 +518,47 @@ describe("PRACTICE-REVIEW-HONEST-1 · review-mode answers are not counted", () =
     window.sessionStorage.clear();
   });
 
-  it("(d) a written answer graded in review mode: record:false, labelled 'Review attempt', NOT in the persisted record", async () => {
+  // QP-WORKING-AFTER-1 — OWNER RULING 23 Oct 2026 22:48 IST: "after the final scorecard, working
+  // isn't graded". It supersedes PRACTICE-REVIEW-HONEST-1's review attempts (working saved in review
+  // was graded, labelled "Review attempt", and not recorded): in Quick Practice review there is no
+  // answer box at all, so nothing is collected, sent for grading or recorded.
+  it("(d) after the scorecard there is NO answer box: no 'Answer this question', no 'Want to know why?'; Finish sends nothing (owner ruling 23 Oct 22:48)", async () => {
     gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
-    await buildSet([mkItem(1, false), mkItem(2, true)]);
+    await buildSet([mkItem(1, false), mkItem(2, true), mkItem(3, true)]);
     fireEvent.click(screen.getByText("q2-correct"));
+    fireEvent.click(screen.getByText("q3-wrong"));
     finish();
     await backToSet();
-    await waitFor(() => expect(cards()).toHaveLength(2));
-    await saveTypedFor(1);
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    expect(screen.queryByRole("button", { name: /^Answer this question$/ })).toBeNull();
+    expect(screen.queryByText(/Want to know why\?/)).toBeNull();
+    expect(screen.queryByTestId("wrong-tap-nudge")).toBeNull();
+    expect(screen.queryByTestId("practice-checker")).toBeNull();
     finish();
-    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
-    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
-    expect(lastBatchArgs().record).toBe(false);
-    expect(await screen.findByText(/Question 1 · Review attempt/)).toBeInTheDocument();
+    await screen.findByRole("dialog", {}, { timeout: 8000 });
+    expect(screen.queryByTestId("qp-grade-batch")).toBeNull();
+    expect(gradeWorksheet).not.toHaveBeenCalled();
+    expect(batchSpy).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Review attempt ·|· Review attempt/)).toBeNull();
     await waitFor(() => expect(persistSpy).toHaveBeenCalled());
     expect(entryFor("q-1")?.graded).toBeUndefined();
-    expect(entryFor("q-2")?.mcq).toBe("correct");
   });
 
-  it("(d) MIXED batch: the pre-Finish answer is recorded and persisted, the review answer is neither", async () => {
-    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1), okGrade(2)]));
+  it("(d) working saved BEFORE Finish is still graded and recorded as usual; review offers no box to add more (owner ruling 23 Oct 22:48)", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
     await buildSet([mkItem(1, false), mkItem(2, false)]);
     await saveTypedFor(1);
     finish();
     fireEvent.click(await screen.findByTestId("qp-back-to-set"));
     await waitFor(() => expect(cards()).toHaveLength(2));
-    await saveTypedFor(2);
+    expect(screen.queryByRole("button", { name: /^Answer this question$/ })).toBeNull();
     finish();
     fireEvent.click(await screen.findByTestId("qp-grade-batch"));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
     const { record, answers } = lastBatchArgs();
-    expect(typeof record).toBe("function");
-    const rec = record as (a: BatchArgs["answers"][number]) => boolean;
-    expect(rec(answers.find((a) => a.questionId === "q-1")!)).toBe(true);
-    expect(rec(answers.find((a) => a.questionId === "q-2")!)).toBe(false);
-    expect(await screen.findByText(/Question 2 · Review attempt/)).toBeInTheDocument();
-    expect(screen.queryByText(/Question 1 · Review attempt/)).toBeNull();
+    expect(record).toBeUndefined(); // a real (pre-Finish) attempt
+    expect(answers.filter((a) => a.textAnswer || a.imageBase64).map((a) => a.questionId)).toEqual(["q-1"]);
+    expect(screen.queryByText(/Review attempt/)).toBeNull();
     await waitFor(() => expect(persistSpy).toHaveBeenCalled());
     expect(entryFor("q-1")?.graded).toBeDefined();
     expect(entryFor("q-2")?.graded).toBeUndefined();

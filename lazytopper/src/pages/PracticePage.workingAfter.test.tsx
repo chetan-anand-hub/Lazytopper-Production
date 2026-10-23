@@ -8,7 +8,9 @@
 //      Skip shows the scorecard at once. One gate per Finish, never a loop.
 //   2. ZIGGY SAVE NUDGE — typed / attached but not saved: "Don't forget to save your answer!" with
 //      a Save button, in place; gone on Save; Hide mascots → the same line as plain text.
-//   3. No post-scorecard grading path ("Check this working" is gone).
+//   3. No post-scorecard grading path: in review there is no answer box at all (owner ruling 22:48,
+//      "after the final scorecard, working isn't graded" — supersedes PRACTICE-REVIEW-HONEST-1's
+//      graded review attempts).
 //   5. (owner ruling 23:11) ZIGGY ON A WRONG MCQ TAP — "Want to know where it went wrong? …" opens
 //      that question's working box; saved before Finish → graded at Finish, the mark stays 0
 //      (§13), the mistake type is SHOWN and RECORDED once.
@@ -313,8 +315,7 @@ describe("QP-WORKING-AFTER-1 · no grading after the scorecard; never twice; MCQ
     expect(miWritesFor("q-1")).toBe(1);
   }, 90_000);
 
-  it("★★ an MCQ tapped before Finish keeps its mark when working is added afterwards (3 / 5, never 3 / 4)", async () => {
-    gradeWorksheet.mockResolvedValue(batch([grade(2, 1, 1, "silly")]));
+  it("★★ after the scorecard there is no answer box (owner ruling 23 Oct 22:48): nothing to grade, the MCQ marks stay 3 / 5", async () => {
     await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true), mkItem(4, true), mkItem(5, true)]);
     for (const n of [1, 2, 3, 4, 5]) fireEvent.click(screen.getByText(n === 2 || n === 4 ? `q${n}-wrong` : `q${n}-correct`));
     const f = screen.queryByRole("button", { name: /Finish session/i });
@@ -324,16 +325,15 @@ describe("QP-WORKING-AFTER-1 · no grading after the scorecard; never twice; MCQ
     await waitFor(() => expect(hero()).toBe("3 / 5"));
     await backToSet();
     await waitFor(() => expect(card(2)).toBeTruthy());
-    await typeIn(card(2), "I thought the sign stays", true);
+    expect(within(card(2)).queryByRole("button", { name: /^Answer this question$/ })).toBeNull();
+    expect(within(card(2)).queryByText(/Want to know why/)).toBeNull();
+    expect(within(card(2)).queryByTestId("wrong-tap-nudge")).toBeNull();
     finish();
-    const grade1 = screen.queryByTestId("qp-grade-batch");
-    if (grade1) {
-      fireEvent.click(grade1);
-      await waitFor(() => expect(gradeWorksheet).toHaveBeenCalled());
-    }
     await screen.findByRole("dialog", {}, { timeout: 8000 });
     await waitFor(() => expect(hero()).toBe("3 / 5"));
-    expect(recordMistakeSpy).not.toHaveBeenCalled(); // after the scorecard: never recorded
+    expect(screen.queryByTestId("qp-grade-batch")).toBeNull();
+    expect(gradeWorksheet).not.toHaveBeenCalled();
+    expect(recordMistakeSpy).not.toHaveBeenCalled();
   }, 90_000);
 });
 
