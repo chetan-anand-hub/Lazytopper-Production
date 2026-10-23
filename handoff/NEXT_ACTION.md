@@ -1,3 +1,30 @@
+## 2026-10-22 (daily) - AFTER #1285 - #1298 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The 20-21 Oct "keep the guide 50/50 for 2 weeks, then roll out" item is REPLACED: the owner ended the A/B on 22 Oct 23:25 IST - see DECISION_LOG, this day.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
+
+- **Done [git/gh]:** `#1285` - `#1298` (fourteen PRs, all merged 22 Oct IST; the last, FILTER-FIX-1 `#1298`, at 23:39 IST). `/version.json` = `6fe85765` at writing **[docs-builder-curl]**.
+- **In flight (builders running; no PR open for any of them at writing - the only open PRs are the report-only audits `#960` and `#963`) [coordinator] [git/gh]:**
+  1. **PYQ-RESTORE-A** - 94 recoverable PYQs + Science re-filing.
+  2. **PYQ-RESTORE-B** - 84 PYQs from official papers + the 2025 Triangles file (Pythagoras / area-of-similar-triangles proofs OUT; BPT / similarity proofs IN). Figures: reuse by file name, else crop from the official paper page.
+  3. **GUIDE-ALL-1** - Byte guides every student (the A/B is over).
+  4. **GUIDE-SCORE-1** - the characters on every scorecard.
+  5. **GUIDE-PAGES-1** - limit screen, test / worksheet / mock entry, Exam Trends (takes over `[FU-MOMENTS-M7-AFTER-1286]`).
+  6. **GUIDE-FILTER-1** - the filter explainer; also fixes `[FU-FILTER-DEEPLINK-ZERO-PRESET]`.
+  7. **SHARE-CARD-1** - a shareable scorecard with MI + mascots.
+  8. **COMPANION-1** - companion emotions / moments (moment approval delegated to the cofounder).
+  9. **QP-CONCEPT-1** - `[FU-QP-CONCEPT-HINTS-REORDER-ONLY]`.
+  (The dispatch counts "nine lanes plus QP-CONCEPT-1"; it names the eight above plus QP-CONCEPT-1, and no further lane is invented here.)
+- **Owner:**
+  1. **Repo visibility.** The ruling (22 Oct) is PRIVATE permanently, but the GitHub API reads `private: false` at writing [git/gh]. Set it back to private once this PR's CI has run (on 21 Oct `#1284` recorded that its CI needed the repo public). The CI move to Ubicloud runners stays parked (signed up, billing not added).
+  2. Confirm the first OPS-REPORT-1 email arrived (23 Oct 08:00 IST) with real numbers - not checked by this writer.
+  3. Send yourself one real trial email; trial emails stay dry-run until then.
+  4. Live checks owed (from the PR bodies) [git/gh]: the `#1286` payment round-trip and share sheet on a real Android phone and iPhone; a `#1294` parent result page opened from a saved C&I result; `#1295` a narrow set on a thin chapter with no `/api/more-like-this` / `/api/ai-questions` request in the network tab; `#1297` / `#1298` a Topic Hub concept row and a Weak Area difficulty link; `#1288` a real `/highly-probable/10/Science` ad landing; `#1292` Byte's Chapter Test and worksheet options on Home and the Practice hub; the `#1289` moments list.
+  5. Re-test the Real Numbers Proof page signed in (`[FU-RN-PROOF-SIGNEDIN-LOADING]`).
+  6. Re-request indexing of `/for-parents` on Google and Bing: `#1289` (M11b) re-stamped its prerender and lastmod to 2026-10-22 [git/gh].
+  7. Top-ups stay dark until `TOPUP_ENABLED=1` (with `FAIR_USE_ENFORCE_ALL_AI=1`, and `FAIR_USE_ENFORCE=1` confirmed) - the `#1291` PR body's list; not re-read here.
+- **Follow-ups:** the 2026-10-22 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Process:** the next handoff is ONE docs PR at the end of the next day with merges (CLAUDE.md section 10).
+
 ## 2026-10-20 (daily, part 2) - AFTER #1277 - #1283 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The 20 Oct daily block (`#1276`) covered `#1273`-`#1275` only; this part covers the seven guide / parents PRs merged after it.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
