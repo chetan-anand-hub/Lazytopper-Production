@@ -20,7 +20,7 @@
  *     nothing it would not give a trial-ended student.
  *   - Byte and Ziggy are never drawn together: the Exam Trends closing tip is Byte's own line.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import BlobCharacter from "../BlobCharacter";
 import { prefersReducedMotion } from "../rig";
@@ -140,10 +140,102 @@ function entryCopyFor(id: PageGuidePopProps["id"], step: PageGuideStep): EntryCo
   return byStep[step] ?? byStep.page ?? null;
 }
 
+/* ── GUIDE-PAGES-FLAKE-1: the card never covers the page's primary action ──────────────────── */
+
+/**
+ * The element the card must never sit on, per helper: the start row / button a student came to
+ * press. Exam Trends has no single primary action (its card covers the left of the list only).
+ */
+export const PAGE_GUIDE_AVOID: Partial<Record<string, string>> = {
+  "ct_entry:page": ".lt-ct__startrow",
+  "ct_entry:chooser": "[data-testid='ct-picker-open']",
+  "fm_entry:page": ".lt-ct__startrow",
+  "ws_entry:page": ".lt-ws__herobot",
+};
+
+export interface PlaceInput {
+  /** viewport height */
+  vh: number;
+  /** the primary action's rect (viewport coordinates) */
+  avoid: { top: number; bottom: number; left: number; right: number };
+  /** the card's own horizontal extent (it does not move sideways) */
+  card: { left: number; right: number };
+  /** the card's gap from the bottom edge when bottom-placed (phone nav 68, desktop 16) */
+  bottomGap: number;
+  /** the card's gap from the top edge when top-placed */
+  topGap: number;
+}
+
+/** Breathing room kept between the card and the primary action. */
+const AVOID_MARGIN = 8;
+
+/**
+ * PURE. Where the card goes so it never covers the primary action: `null` = no conflict (the
+ * default bottom placement and height stand); otherwise the side with more free room, with the
+ * bubble's max height capped to that room (it scrolls inside). Never covers the action.
+ */
+export function placePageGuide(p: PlaceInput): { place: "top" | "bottom"; maxH: number } | null {
+  const { vh, avoid, card } = p;
+  if (!(avoid.bottom > avoid.top)) return null; // not laid out (or zero size)
+  if (avoid.bottom <= 0 || avoid.top >= vh) return null; // off screen: nothing to cover
+  if (avoid.right <= card.left || avoid.left >= card.right) return null; // beside the card
+  const below = Math.floor(vh - p.bottomGap - avoid.bottom - AVOID_MARGIN);
+  const above = Math.floor(avoid.top - p.topGap - AVOID_MARGIN);
+  return below >= above ? { place: "bottom", maxH: Math.max(0, below) } : { place: "top", maxH: Math.max(0, above) };
+}
+
+/** Keeps the card off the primary action while it is open (scroll, resize, the page filling in). */
+function useAvoidPrimary(popRef: RefObject<HTMLDivElement | null>, selector: string | undefined): void {
+  useLayoutEffect(() => {
+    const pop = popRef.current;
+    if (!pop || !selector || typeof window === "undefined") return;
+    let raf = 0;
+    const apply = () => {
+      raf = 0;
+      const target = document.querySelector(selector);
+      const desktop = window.innerWidth >= 1024;
+      const r = target ? target.getBoundingClientRect() : null;
+      const c = pop.getBoundingClientRect();
+      const placed = r
+        ? placePageGuide({
+            vh: window.innerHeight,
+            avoid: { top: r.top, bottom: r.bottom, left: r.left, right: r.right },
+            card: { left: c.left, right: c.right },
+            bottomGap: desktop ? 16 : 68,
+            topGap: desktop ? 16 : 8,
+          })
+        : null;
+      if (placed) {
+        pop.dataset.place = placed.place;
+        pop.style.setProperty("--lt-pg-max", `${placed.maxH}px`);
+      } else {
+        delete pop.dataset.place;
+        pop.style.removeProperty("--lt-pg-max");
+      }
+    };
+    const schedule = () => {
+      if (!raf) raf = window.requestAnimationFrame(apply);
+    };
+    apply();
+    window.addEventListener("resize", schedule);
+    window.addEventListener("scroll", schedule, { capture: true, passive: true });
+    const mo = typeof MutationObserver === "function" ? new MutationObserver(schedule) : null;
+    mo?.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, { capture: true });
+      mo?.disconnect();
+    };
+  }, [popRef, selector]);
+}
+
 export function PageGuidePop({ id, step, bare, onClose }: PageGuidePopProps) {
   const reduce = useRef(prefersReducedMotion());
   const [preview] = useState(() => guidePreviewActive());
   const gotIt = useRef<HTMLButtonElement | null>(null);
+  const popRef = useRef<HTMLDivElement | null>(null);
+  useAvoidPrimary(popRef, PAGE_GUIDE_AVOID[`${id}:${step}`]);
 
   // While this card is open it is the page's one focused guide (guideVariant's focus counter — the
   // same signal StartHereCard uses), so another character can wait instead of appearing beside it.
@@ -164,6 +256,7 @@ export function PageGuidePop({ id, step, bare, onClose }: PageGuidePopProps) {
 
   return createPortal(
     <div
+      ref={popRef}
       className={`lt-pg-pop${bare ? " lt-pg-pop--bare" : ""}${id === "trends_help" ? " lt-pg-pop--list" : ""}`}
       data-testid={`page-guide-pop-${id}`}
       data-step={step}

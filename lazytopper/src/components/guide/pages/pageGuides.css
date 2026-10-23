@@ -41,6 +41,12 @@
   .lt-pg-pop--bare { left: 16px; }
   .lt-pg-pop__bub { max-height: calc(100vh - 16px - 16px); max-height: calc(100dvh - 16px - 16px); }
 }
+/* GUIDE-PAGES-FLAKE-1 — the card never covers the page's primary action (Start the test / mock,
+   Preview worksheet, Start Chapter Test): useAvoidPrimary moves it to the side with more room and
+   caps its height to that room (it scrolls inside). No data-place = no conflict, defaults above. */
+.lt-pg-pop[data-place] .lt-pg-pop__bub { max-height: var(--lt-pg-max); }
+.lt-pg-pop[data-place="top"] { top: 8px; bottom: auto; align-items: flex-start; }
+@media (min-width: 1024px) { .lt-pg-pop[data-place="top"] { top: 16px; } }
 
 @keyframes lt-pg-pop { 0% { transform: scale(.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .lt-pg__bub { animation: none !important; } }

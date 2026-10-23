@@ -34,7 +34,7 @@ import {
   __resetPageGuidesForTests,
   inGuideArm,
 } from "./pageGuides";
-import { ENTRY_COPY, M7_COPY, POP_COPY, TRENDS_COPY, m7Lines } from "./pageGuidesChunk";
+import { ENTRY_COPY, M7_COPY, PAGE_GUIDE_AVOID, POP_COPY, TRENDS_COPY, m7Lines, placePageGuide } from "./pageGuidesChunk";
 import { isNextMidnight, m7DialogLine } from "./m7Copy";
 import { inGuideArm as momentsInGuideArm } from "../moments/moments";
 import { __removeMascotsToastForTests } from "../moments/mascotsToast";
@@ -408,5 +408,57 @@ describe("GUIDE-PAGES-1 · no layout shift (slot reserved / out of flow)", () =>
       expect(inGuideArm("u1")).toBe(momentsInGuideArm("u1"));
       expect(inGuideArm(null)).toBe(false);
     }
+  });
+});
+
+describe("GUIDE-PAGES-FLAKE-1 · the card never covers the page's primary action", () => {
+  // 360×640 phone: the card spans 8…352 and sits 68px above the bottom (nav) by default.
+  const phone = { vh: 640, card: { left: 8, right: 352 }, bottomGap: 68, topGap: 8 };
+
+  it("Full Mock at 360×640 (start row 326–372, measured): flips to the TOP with its height capped above the row", () => {
+    const p = placePageGuide({ ...phone, avoid: { top: 326, bottom: 372, left: 24, right: 336 } });
+    expect(p).toEqual({ place: "top", maxH: 326 - 8 - 8 });
+    // the card's bottom (top gap + capped height) stays above the row
+    expect(8 + p!.maxH).toBeLessThan(326);
+  });
+
+  it("Worksheet at 1366×768 (Preview row near the top): stays at the bottom, capped below the row", () => {
+    const p = placePageGuide({ vh: 768, card: { left: 284, right: 744 }, bottomGap: 16, topGap: 16, avoid: { top: 294, bottom: 337, left: 300, right: 900 } });
+    expect(p).toEqual({ place: "bottom", maxH: 768 - 16 - 337 - 8 });
+    expect(768 - 16 - p!.maxH).toBeGreaterThan(337);
+  });
+
+  it("no conflict → no change: action off screen, beside the card, or not laid out (jsdom)", () => {
+    expect(placePageGuide({ ...phone, avoid: { top: 900, bottom: 950, left: 24, right: 336 } })).toBeNull();
+    expect(placePageGuide({ ...phone, avoid: { top: -80, bottom: -20, left: 24, right: 336 } })).toBeNull();
+    expect(placePageGuide({ vh: 768, card: { left: 284, right: 744 }, bottomGap: 16, topGap: 16, avoid: { top: 600, bottom: 650, left: 800, right: 1000 } })).toBeNull();
+    expect(placePageGuide({ ...phone, avoid: { top: 0, bottom: 0, left: 0, right: 0 } })).toBeNull();
+  });
+
+  it("every avoided selector really exists in its host (a renamed class would silently stop the dodge)", () => {
+    const src = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
+    expect(PAGE_GUIDE_AVOID["ct_entry:page"]).toBe(".lt-ct__startrow");
+    expect(src("src/pages/ChapterTestPage.tsx")).toContain('className="lt-ct__startrow"');
+    expect(PAGE_GUIDE_AVOID["fm_entry:page"]).toBe(".lt-ct__startrow");
+    expect(src("src/pages/FullMockPage.tsx")).toContain('className="lt-ct__startrow"');
+    expect(PAGE_GUIDE_AVOID["ws_entry:page"]).toBe(".lt-ws__herobot");
+    expect(src("src/components/worksheet/WorksheetGenerator.tsx")).toContain('className="lt-ws__herobot"');
+    expect(PAGE_GUIDE_AVOID["ct_entry:chooser"]).toBe("[data-testid='ct-picker-open']");
+    expect(src("src/components/practice/ChapterTestPicker.tsx")).toContain('testId="ct-picker"');
+    expect(src("src/lib/desktop/homeDestinations.tsx")).toContain("data-testid={`${testId}-open`}");
+  });
+
+  it("the card stays non-modal and dismissible: aria-modal false, Got it / Esc close it, focus is not moved on a first-visit open", async () => {
+    render(<Door id="fm_entry" step="page" first="" uid="u1" />);
+    const pop = await screen.findByTestId("page-guide-pop-fm_entry");
+    expect(pop.getAttribute("aria-modal")).toBe("false");
+    expect(document.activeElement === document.body || document.activeElement === null).toBe(true);
+    fireEvent.keyDown(pop, { key: "Escape" });
+    expect(screen.queryByTestId("page-guide-pop-fm_entry")).toBeNull();
+  });
+
+  it("CSS: a placed card uses the computed cap; top placement anchors to the top", () => {
+    expect(popCss).toMatch(/\.lt-pg-pop\[data-place\] \.lt-pg-pop__bub\s*\{\s*max-height:\s*var\(--lt-pg-max\)/);
+    expect(popCss).toMatch(/\.lt-pg-pop\[data-place="top"\]\s*\{\s*top:\s*8px;\s*bottom:\s*auto/);
   });
 });
