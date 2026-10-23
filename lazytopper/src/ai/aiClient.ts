@@ -1,5 +1,6 @@
 // src/ai/aiClient.ts
-// Thin client for talking to LazyTopper AI gateway (mentor + more-like-this)
+// Thin client for talking to LazyTopper AI gateway (mentor, step solution, grading, detection).
+// MLT-RETIRE-1: generateMoreLikeThis was deleted - POST /api/more-like-this now answers 410.
 // Uses relative /api/* calls so it works in dev (Vite proxy) and prod.
 
 import type {
@@ -50,38 +51,6 @@ export interface MentorResponse {
     personaId?: string;
     model?: string;
   };
-}
-
-export interface MoreLikeThisSeedQuestion {
-  text: string;
-  marks?: number;
-  difficulty?: "Easy" | "Medium" | "Hard";
-  bloomSkill?: string; // "Remembering" | "Understanding" | "Applying" | ...
-}
-
-export interface MoreLikeThisRequest {
-  subject: string;
-  topicKey: string;
-  seedQuestion: MoreLikeThisSeedQuestion;
-  numVariants: number;
-  requestedDifficulty?: string;
-  requestedSection?: string;
-}
-
-export interface MoreLikeThisVariant extends MoreLikeThisSeedQuestion {
-  index: number;
-  answer?: string;
-  solutionSteps?: string[];
-  finalAnswer?: string;
-}
-
-export interface MoreLikeThisResponse {
-  subject: string;
-  topicKey: string;
-  model?: string;
-  provider?: string;
-  variants: MoreLikeThisVariant[];
-  error?: string;
 }
 
 import { paidJsonHeaders, UID_HEADER, SignInAgainError, REAUTH_MESSAGE } from "./paidCallHeaders";
@@ -570,21 +539,6 @@ export async function callMentor(
   });
 
   return handleJsonResponse<MentorResponse>(res);
-}
-
-/**
- * Generate HPQ-respecting variants for "More like this" using the backend gateway.
- */
-export async function generateMoreLikeThis(
-  req: MoreLikeThisRequest
-): Promise<MoreLikeThisResponse> {
-  const res = await sendWithTokenRefresh(
-    await paidJsonHeaders(),
-    (headers) => fetch(`${API_BASE}/more-like-this`, { method: "POST", headers, body: JSON.stringify(req) }),
-    refreshedPaidHeaders(),
-  );
-
-  return handleJsonResponse<MoreLikeThisResponse>(res);
 }
 
 export interface StepSolutionStep {

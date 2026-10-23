@@ -38,7 +38,7 @@ function run() {
   const llmRefs = rg("src/llm|/llm/|generateQuestionsViaLLM|LLM_CONFIG");
   checks.push(check("no_legacy_llm_refs", llmRefs.length === 0, llmRefs.length ? llmRefs.join(" | ") : "none"));
 
-  const aiClientRefs = rg("generateMoreLikeThis|MENTOR_ENDPOINT");
+  const aiClientRefs = rg("MENTOR_ENDPOINT"); // MLT-RETIRE-1: generateMoreLikeThis was deleted
   checks.push(check("ai_client_path_still_connected", aiClientRefs.length > 0, aiClientRefs.length ? `${aiClientRefs.length} refs` : "missing"));
 
   const failed = checks.filter((c) => !c.ok);

@@ -1,18 +1,11 @@
 /**
- * Generated question pool — caches AI-generated "More like this" questions.
+ * Generated question pool — the generated_questions table.
  *
- * Lifecycle:
- *  1. moreLikeThis route calls pickFromPool() BEFORE calling Gemini.
- *     pickFromPool returns candidate rows (with their DB ids) WITHOUT yet
- *     incrementing hit_count — the route has not decided to use them yet.
- *  2. If pool has >= numVariants rows, route calls markServed(ids) to
- *     increment hit_count on the rows it is about to return, then serves them.
- *  3. On a pool miss (or partial miss), route calls Gemini, then calls
- *     saveToPool() fire-and-forget to persist all generated variants.
- *
- * Pool rotation: questions are returned in ascending hit_count order so the
- * least-used variants surface first. hit_count is only incremented for rows
- * that are actually served to the client.
+ * MLT-RETIRE-1 (owner ruling 2026-10-23): this used to back the student-triggered "More like
+ * this" route — pickFromPool() before the model call, markServed() on a hit, saveToPool() after.
+ * POST /api/more-like-this now answers 410 (routes/moreLikeThis.cjs) and /api/ai-questions
+ * answers 410 (MLT-MUTE-1), so pickFromPool and markServed had no caller and were deleted.
+ * saveToPool() remains: the admin / scheduled warm pool (warmQuestionPool.cjs) still writes here.
  *
  * Deduplication: saveToPool() stores an MD5 hash of the question_text and the
  * DB has a unique index on (topic_key, subject, question_hash), so concurrent
@@ -59,80 +52,6 @@ function hashKey(topicKey, subject, marks, difficulty, questionText) {
     String(questionText),
   ].join('|');
   return crypto.createHash('md5').update(composite).digest('hex');
-}
-
-/**
- * Pick up to `n` questions from the pool for the given key.
- * Returns candidates with their DB ids but does NOT yet increment hit_count.
- * Call markServed(ids) if and only if you decide to serve these rows.
- *
- * @returns {Promise<Array<{id, text, marks, difficulty, bloomSkill, answer, solutionSteps, finalAnswer}>>}
- */
-async function pickFromPool(topicKey, subject, marks, difficulty, n) {
-  const pool = getPool();
-  if (!pool) return [];
-  if (!topicKey || !subject) return [];
-
-  const normTopic = norm(topicKey);
-  const normSubject = norm(subject);
-  const normMarks = marks != null ? Number(marks) : null;
-  const normDiff = norm(difficulty);
-
-  try {
-    const result = await pool.query(
-      `SELECT id, question_text, marks, difficulty, bloom_skill, answer, solution_steps, final_answer
-       FROM generated_questions
-       WHERE topic_key = $1
-         AND subject   = $2
-         AND (marks    = $3 OR ($3 IS NULL AND marks IS NULL))
-         AND (difficulty = $4 OR ($4 IS NULL AND difficulty IS NULL))
-         AND question_text IS NOT NULL AND question_text <> ''
-         AND answer IS NOT NULL AND answer <> ''
-         AND solution_steps IS NOT NULL AND jsonb_array_length(solution_steps) > 0
-         AND final_answer IS NOT NULL AND final_answer <> ''
-       ORDER BY hit_count ASC, created_at DESC
-       LIMIT $5`,
-      [normTopic, normSubject, normMarks, normDiff, n]
-    );
-
-    return result.rows
-      .map(r => ({
-        id: r.id,
-        text: r.question_text,
-        marks: r.marks,
-        difficulty: r.difficulty,
-        bloomSkill: r.bloom_skill,
-        answer: r.answer || undefined,
-        solutionSteps: Array.isArray(r.solution_steps) ? r.solution_steps : undefined,
-        finalAnswer: r.final_answer || undefined,
-      }))
-      .filter(isCompleteVariant);
-  } catch (e) {
-    console.warn('[gen-q-pool] pickFromPool error:', e.message);
-    return [];
-  }
-}
-
-/**
- * Increment hit_count on the rows that were actually served to the client.
- * Call this AFTER deciding the pool result is sufficient.
- *
- * @param {number[]} ids  DB ids of served rows
- */
-async function markServed(ids) {
-  if (!ids || ids.length === 0) return;
-  const pool = getPool();
-  if (!pool) return;
-  try {
-    await pool.query(
-      `UPDATE generated_questions SET hit_count = hit_count + 1
-       WHERE id = ANY($1::int[])`,
-      [ids]
-    );
-    console.info(`[gen-q-pool] markServed ids=[${ids.join(',')}]`);
-  } catch (e) {
-    console.warn('[gen-q-pool] markServed error:', e.message);
-  }
 }
 
 /**
@@ -198,4 +117,4 @@ async function saveToPool(topicKey, subject, marks, difficulty, variants) {
   }
 }
 
-module.exports = { pickFromPool, markServed, saveToPool };
+module.exports = { saveToPool };

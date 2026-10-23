@@ -6,8 +6,8 @@
  * Every line is built from the panel's OWN LimitState (scope, tier, window, resetAt) and its own
  * formatted reset (formatResetIst); nothing is guessed. What "still works" rests on:
  * server/services/fairUse.cjs meters ONLY /api/check-solution + /api/grade-worksheet (:187-188) and
- * /api/tutor, /api/more-like-this, /api/detect-question (AI_ROUTES :786-802); /api/step-solution is
- * not metered (:780). Notes, Topic Hub, Exam Trends and the NCERT pages call none of them.
+ * /api/tutor, /api/detect-question (AI_ROUTES); /api/step-solution is not metered. POST
+ * /api/more-like-this is retired (410, MLT-RETIRE-1) and is no longer an AI_ROUTES entry. Notes, Topic Hub, Exam Trends and the NCERT pages call none of them.
  * Worksheets are NOT named: a worksheet's GRADE is metered.
  */
 import { PREMIUM_WINDOW_LABEL, isMidnightIst, type LimitScope, type LimitState } from "../../usage/fairUseGate";
@@ -22,7 +22,6 @@ export const M7_COPY = {
     "full-mock": "Your full mock allowance for this week is used up.",
     worksheet: "Your worksheet allowance for this week is used up.",
     tutor: "Your Tutor messages for today are used up.",
-    "more-like-this": "Your new practice questions for today are used up.",
   } satisfies Record<LimitScope, string>,
   /** A Premium student at a fair-use window: {window} is the panel's own window label. */
   premiumHit: "You've reached Premium's {window} fair-use limit.",

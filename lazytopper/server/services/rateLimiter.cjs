@@ -72,7 +72,8 @@ const PAID_ENDPOINTS = Object.freeze({
   "/api/tutor": "tutor",
   // Per-question help.
   "/api/step-solution": "practice",
-  "/api/more-like-this": "practice",
+  // MLT-RETIRE-1: "/api/more-like-this" removed — the route answers 410 with no model call, so it
+  // is no longer a paid endpoint (no rate-limit bucket, no usage-ledger bind).
   // ★ detect-question is a BILLING-BUCKET decision, not a feature one. It runs at
   // thinkingBudget 0 / 4096 max — about $0.001 against ~$0.013 for a grade — so it
   // never belonged in the expensive class. It matters because ONE advertised

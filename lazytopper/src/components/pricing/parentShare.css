@@ -154,7 +154,7 @@
   margin: 0 0 14px;
 }
 
-/* The fair-use limit panel, the trial-paper and More-like-this notes, the tutor's busy line:
+/* The fair-use limit panel, the trial-paper note, the tutor's busy line:
    a full row of their wrapping actions bar; their OK / Close wraps below. */
 .lt-tutor__limit > .lt-paywall-actions,
 .lt-usage__actions > .lt-paywall-actions {
