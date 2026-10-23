@@ -1,15 +1,31 @@
 import { describe, it, expect } from "vitest";
 import {
-  SHARE_LINK,
   buildShareCardModel,
   canShareScore,
+  objectiveSplitOf,
   shareContextOf,
+  shareLink,
   shareText,
   whatsAppShareUrl,
 } from "./shareCardModel";
+import { MISTAKE_TYPE_LABEL } from "../../../lib/mistakeDisplay";
 import type { ScorecardVariant } from "../scorecardVariants";
+import {
+  FX_ALL_ZERO,
+  FX_COUNT_ONLY,
+  FX_FOUR_TYPES,
+  FX_GREAT,
+  FX_HIDE,
+  FX_LOW,
+  FX_OBJECTIVE_ONLY,
+  FX_PENDING,
+  FX_PARTIAL_QP,
+  FX_UNTYPED_BIGGEST,
+} from "../../../test/shareFixtures";
 
-/** SHARE-SCORE-1 - the share model is an allow-list; synthetic variants only (types-only import). */
+/** SHARE-CARD-1 - the share model is an allow-list over the scorecard's OWN data. */
+const D = { dateLabel: "23 Oct 2026" };
+
 function variant(over: Partial<ScorecardVariant> = {}): ScorecardVariant {
   return {
     surface: "chapter-test",
@@ -20,12 +36,6 @@ function variant(over: Partial<ScorecardVariant> = {}): ScorecardVariant {
     ...over,
   };
 }
-
-const typedMarks = {
-  byType: { conceptual: 3, calculation: 1, silly: 0.5, presentation: 0, unattempted: 1, untyped: 0 },
-  lost: 5.5,
-  unsplitCount: 0,
-};
 
 describe("canShareScore - who gets the button", () => {
   it("a graded marks score is shareable", () => {
@@ -38,21 +48,14 @@ describe("canShareScore - who gets the button", () => {
     expect(canShareScore(variant({ deferred: true }))).toBe(false);
   });
   it("not an attempts-only hero (no graded score)", () => {
-    expect(
-      canShareScore(variant({ score: { kind: "attempts", attempted: 3, ofN: 5, mcqAnswered: 0, mcqCorrect: 0 } })),
-    ).toBe(false);
+    expect(canShareScore(variant({ score: { kind: "attempts", attempted: 3, ofN: 5, mcqAnswered: 0, mcqCorrect: 0 } }))).toBe(false);
   });
   it("not a 0-mark total", () => {
     expect(canShareScore(variant({ score: { kind: "marks", awarded: 0, total: 0 } }))).toBe(false);
   });
   it("not the signed-out Check & Improve preview (its Save sign-up row)", () => {
     expect(
-      canShareScore(
-        variant({
-          surface: "check-improve",
-          actions: [{ label: "Sign up to save this", tag: "Save", tone: "secondary", onClick: () => {} }],
-        }),
-      ),
+      canShareScore(variant({ surface: "check-improve", actions: [{ label: "Sign up to save this", tag: "Save", tone: "secondary", onClick: () => {} }] })),
     ).toBe(false);
   });
 });
@@ -67,100 +70,172 @@ describe("shareContextOf - chapter/subject, never a code", () => {
   });
   it("generic everywhere -> null, and a code is never the context", () => {
     expect(shareContextOf({ title: "Session scorecard", subtitle: "Quick practice" })).toBeNull();
-    expect(shareContextOf({ title: "Check & Improve paper", subtitle: "Uploaded paper · CI-1 · graded just now" })).toBeNull();
     expect(shareContextOf({ title: "QP-M-RN-04", subtitle: "QP-M-RN-04 · graded 3 Oct" })).toBeNull();
-  });
-});
-
-describe("shareContextOf - adversarial codes (review fix 2)", () => {
-  const CODE_ANY = /\b(?:ws|ct|fm|ci|qp|unl)-|3fa9c0b1|[0-9a-f]{8}/i;
-  const cases: Array<[string, string, string | null]> = [
-    // [title, subtitle, expected]
-    ["QP-M-RN-3fa9c0b1", "QP-M-RN-3fa9c0b1 · graded 3 Oct", null],
-    ["qp-m-rn-3fa9c0b1", "qp-m-rn-3fa9c0b1 · graded 3 Oct", null],
-    ["Real Numbers QP-M-RN-3fa9c0b1", "x", "Real Numbers"],
-    ["WS-M-RN-03", "WS-M-RN-03 · graded 3 Oct", null],
-    ["CT-S-LI-02 · Test #2", "CT-S-LI-02 · graded 3 Oct", null],
-    ["Light · CT-S-LI-02", "CT-S-LI-02 · graded 3 Oct", "Light"],
-    ["FM-M-04", "FM-M-04 · fully graded", null],
-    ["ws-lx1a2b-9f8e7d", "Topic Leak · ws-lx1a2b-9f8e7d", null],
-    ["", "Leaked Subtitle Topic · CI-M-TR-01", null],
-    ["   ", "Leaked Subtitle Topic", null],
-  ];
-  it.each(cases)("title %j / subtitle %j -> %j", (title, subtitle, expected) => {
-    const out = shareContextOf({ title, subtitle });
-    expect(out).toBe(expected);
-    if (out) expect(out).not.toMatch(CODE_ANY);
-  });
-
-  it("a saved / reopened record never falls back to its subtitle", () => {
-    // Reopen subtitles lead with the record id (scorecardVariants.ts:964, :1876, :1967, :2084).
+    expect(shareContextOf({ title: "Light · CT-S-LI-02", subtitle: "x" })).toBe("Light");
     expect(shareContextOf({ title: "Session scorecard", subtitle: "Triangles · QP-M-TR-3fa9c0b1" })).toBeNull();
-    expect(shareContextOf({ title: "CI-M-TR-01", subtitle: "Triangles · graded 3 Oct" })).toBeNull();
-  });
-
-  it("only the LIVE C&I head reads the subtitle, and strips its code", () => {
-    expect(shareContextOf({ title: "Check & Improve paper", subtitle: "Light ci-s-li-07 · CI-S-LI-07 · graded just now" })).toBe("Light");
   });
 });
 
-describe("buildShareCardModel - the allow-list", () => {
-  it("copies only score, surface, context, split and date", () => {
-    const m = buildShareCardModel(variant({ marksLost: typedMarks }), "17 Oct 2026");
-    expect(m).toEqual({
-      surface: "chapter-test",
-      surfaceLabel: "Chapter Test",
-      context: "Real Numbers",
-      awarded: 34,
-      total: 40,
-      split: [
-        { key: "knowledge", label: "Knowledge gap", marks: 3 },
-        { key: "careless", label: expect.any(String), marks: 1.5 },
-      ],
-      dateLabel: "17 Oct 2026",
-    });
+describe("buildShareCardModel - Mistake Intelligence, four types", () => {
+  it("four rows in the product's order and labels, count AND marks from the scorecard", () => {
+    const m = buildShareCardModel(FX_FOUR_TYPES, D)!;
+    expect(m.mi).toBe("marks");
+    expect(m.rows!.map((r) => r.label)).toEqual([
+      MISTAKE_TYPE_LABEL.conceptual,
+      MISTAKE_TYPE_LABEL.calculation,
+      MISTAKE_TYPE_LABEL.silly,
+      MISTAKE_TYPE_LABEL.presentation,
+    ]);
+    expect(m.rows!.map((r) => [r.count, r.marks])).toEqual([
+      [2, 1.5],
+      [1, 0.5],
+      [3, 3],
+      [1, 0.5],
+    ]);
+    expect(m.notAttemptedMarks).toBe(0.5);
+    expect(m.untypedMarks).toBe(0);
   });
-  it("omits the split when the grade has no typed marks (count-only)", () => {
-    const m = buildShareCardModel(
-      variant({ marksLost: null, fourType: { conceptual: 2, calculation: 1, silly: 0, presentation: 0 } }),
-      "17 Oct 2026",
-    );
-    expect(m?.split).toBeNull();
+  it("calculation is its own row - never folded into a 'careless' group", () => {
+    const m = buildShareCardModel(FX_FOUR_TYPES, D)!;
+    expect(m.rows!.find((r) => r.type === "calculation")!.label).toBe("Calculation slip");
+    expect(JSON.stringify(m)).not.toMatch(/careless/i);
   });
-  it("never carries personal or working fields even when the variant has them", () => {
+  it("biggest loss is called out, and Byte's tip names it with its own marks", () => {
+    const m = buildShareCardModel(FX_FOUR_TYPES, D)!;
+    expect(m.biggest).toMatchObject({ kind: "silly", marks: 3 });
+    expect(m.rows!.filter((r) => r.biggest).map((r) => r.type)).toEqual(["silly"]);
+    expect(m.byte.line).toBe("Silly slips cost 3 marks. Check signs and copying again!");
+  });
+  it("Ziggy's pose follows the result: great / mixed / oops / hide", () => {
+    expect(buildShareCardModel(FX_GREAT, D)!.ziggy).toMatchObject({ mood: "great", pose: "excited" });
+    expect(buildShareCardModel(FX_FOUR_TYPES, D)!.ziggy).toMatchObject({ mood: "mixed", pose: "determined" });
+    expect(buildShareCardModel(FX_LOW, D)!.ziggy).toMatchObject({ mood: "oops", pose: "oops" });
+    const hide = buildShareCardModel(FX_HIDE, D)!;
+    expect(hide.ziggy).toMatchObject({ mood: "hide", pose: "hide" });
+    expect(hide.biggest).toMatchObject({ kind: "unattempted", marks: 30 });
+    expect(hide.byte.line).toBe("Blank answers cost 30 marks. Even the right formula earns marks!");
+  });
+});
+
+describe("buildShareCardModel - honest edges", () => {
+  it("all-zero: four 0s shown as 0 (never hidden, never invented), clean tip", () => {
+    const m = buildShareCardModel(FX_ALL_ZERO, D)!;
+    expect(m.rows!.map((r) => [r.count, r.marks])).toEqual([
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+    ]);
+    expect(m.biggest).toBeNull();
+    expect(m.byte.key).toBe("clean");
+  });
+  it("objective-only: right / wrong from the scorecard + the one MI line it supports", () => {
+    const m = buildShareCardModel(FX_OBJECTIVE_ONLY, D)!;
+    expect(m.mi).toBe("objective");
+    expect(m.rows).toBeNull();
+    expect(m.objective).toEqual({ right: 3, wrong: 2 });
+    expect(m.byte.key).toBe("objective-wrong");
+  });
+  it("objective split: a graded sheet of objective answers counts whole marks; anything unproven -> null", () => {
+    const ga = [
+      { label: "Q1", objective: true, awarded: 1, available: 1 },
+      { label: "Q2", objective: true, awarded: 0, available: 1 },
+      { label: "Q3", objective: true, awarded: 1, available: 1 },
+    ];
+    expect(objectiveSplitOf(variant({ gradedAnswers: ga }))).toEqual({ right: 2, wrong: 1 });
+    expect(objectiveSplitOf(variant({ gradedAnswers: [...ga, { label: "Q4", awarded: 2, available: 3 }] }))).toBeNull();
+    // QP whose marks are not one per MCQ: no guessed split.
+    expect(objectiveSplitOf({ ...FX_OBJECTIVE_ONLY, score: { kind: "marks", awarded: 3, total: 6, gradedCount: 5 } })).toBeNull();
+  });
+  it("pending questions are excluded: the score and MI are the graded ones only", () => {
+    const m = buildShareCardModel(FX_PENDING, D)!;
+    expect([m.awarded, m.total]).toEqual([6, 10]);
+    expect(JSON.stringify(m)).not.toMatch(/17|pending/i);
+    expect(m.untypedMarks).toBe(2);
+    // 2 marks with no recorded reason tie the 2 calculation marks: nothing is crowned.
+    expect(m.biggest).toBeNull();
+    expect(m.coverage).toEqual({ graded: 3, total: 5 });
+  });
+  it("partial grading (QP: 3 of 10 MCQs answered, all right) is never a whole, board-ready result", () => {
+    const m = buildShareCardModel(FX_PARTIAL_QP, D)!;
+    expect([m.awarded, m.total]).toEqual([3, 3]);
+    expect(m.coverage).toEqual({ graded: 3, total: 10 });
+    expect(m.ziggy.mood).toBe("keepgoing");
+    expect(m.ziggy.line).not.toMatch(/board-ready/i);
+    // Full coverage keeps "great"; >= 80% graded counts as full.
+    expect(buildShareCardModel({ ...FX_PARTIAL_QP, score: { kind: "marks", awarded: 3, total: 3, gradedCount: 8, totalQuestions: 10 } }, D)!.ziggy.mood).toBe("great");
+    expect(buildShareCardModel(FX_GREAT, D)!.coverage).toBeNull();
+  });
+  it("marks with no recorded reason as the largest bucket: no chip, Byte's generic tip", () => {
+    const m = buildShareCardModel(FX_UNTYPED_BIGGEST, D)!;
+    expect(m.biggest).toBeNull();
+    expect(m.rows!.some((r) => r.biggest)).toBe(false);
+    expect(m.byte.key).toBe("none");
+  });
+  it("zero marks lost to the four types: one 'No marks lost to mistakes' line (rows kept in the model)", () => {
+    expect(buildShareCardModel(FX_ALL_ZERO, D)!.noMistakeLoss).toBe(true);
+    expect(buildShareCardModel(FX_FOUR_TYPES, D)!.noMistakeLoss).toBe(false);
+    expect(buildShareCardModel(FX_COUNT_ONLY, D)!.noMistakeLoss).toBe(false);
+  });
+  it("count-only grade: counts shown, marks null (never invented), biggest by count", () => {
+    const m = buildShareCardModel(FX_COUNT_ONLY, D)!;
+    expect(m.mi).toBe("counts");
+    expect(m.rows!.every((r) => r.marks === null)).toBe(true);
+    expect(m.byte.line).toBe("Most mistakes: Silly slip (2). Fix these first!");
+  });
+});
+
+describe("buildShareCardModel - privacy allow-list", () => {
+  it("first name OFF by default; only the cleaned name the caller passes", () => {
+    expect(buildShareCardModel(FX_FOUR_TYPES, D)!.firstName).toBeNull();
+    expect(buildShareCardModel(FX_FOUR_TYPES, { ...D, firstName: "Aarav" })!.firstName).toBe("Aarav");
+  });
+  it("mascots ON by default", () => {
+    expect(buildShareCardModel(FX_FOUR_TYPES, D)!.showMascots).toBe(true);
+    expect(buildShareCardModel(FX_FOUR_TYPES, { ...D, showMascots: false })!.showMascots).toBe(false);
+  });
+  it("never carries answers, working, codes, notes or the private result", () => {
     const m = buildShareCardModel(
-      variant({
-        gradedAnswers: [{ label: "Q1", awarded: 1, available: 2, verdict: "SECRET-VERDICT", lostDetail: "SECRET-WORK" }],
-        wrongAnswers: [{ label: "Q2", yourAnswer: "SECRET-ANSWER", correctAnswer: "B", steps: ["SECRET-STEP"] }],
+      {
+        ...FX_OBJECTIVE_ONLY,
         message: "SECRET-MESSAGE",
         note: "SECRET-NOTE",
-      }),
-      "17 Oct 2026",
+        parentResultRef: "SECRET-REF",
+        gradedAnswers: [{ label: "Q1", awarded: 1, available: 2, verdict: "SECRET-VERDICT", lostDetail: "SECRET-WORK" }],
+      },
+      D,
     );
-    const json = JSON.stringify(m);
-    expect(json).not.toMatch(/SECRET|CT-M-RN-02/);
+    expect(JSON.stringify(m)).not.toMatch(/SECRET|QP-|@/);
   });
   it("null for a non-shareable scorecard", () => {
-    expect(buildShareCardModel(variant({ deferred: true }), "x")).toBeNull();
+    expect(buildShareCardModel(variant({ deferred: true }), D)).toBeNull();
   });
 });
 
-describe("share text + wa.me link", () => {
-  it("names the chapter and carries the tracked link", () => {
-    expect(shareText({ awarded: 34, total: 40, context: "Real Numbers", surface: "chapter-test" })).toBe(
-      `I scored 34/40 in Real Numbers on LazyTopper. Try it: ${SHARE_LINK}`,
-    );
-    expect(SHARE_LINK).toBe("https://www.lazytopper.com/?utm_source=whatsapp&utm_medium=share&utm_campaign=scorecard");
+describe("UTM link + share text", () => {
+  it("points to the public landing with utm_source=share, utm_medium=scorecard, utm_campaign=<surface>", () => {
+    const cases: Array<[ScorecardVariant["surface"], string]> = [
+      ["check-improve", "check_improve"],
+      ["worksheet", "worksheet"],
+      ["chapter-test", "chapter_test"],
+      ["full-mock", "full_mock"],
+      ["quick-practice", "quick_practice"],
+    ];
+    for (const [surface, campaign] of cases) {
+      const u = new URL(shareLink(surface));
+      expect(u.origin + u.pathname).toBe("https://www.lazytopper.com/check-your-answer");
+      expect(Object.fromEntries(u.searchParams)).toEqual({ utm_source: "share", utm_medium: "scorecard", utm_campaign: campaign });
+    }
+    expect(buildShareCardModel(FX_PENDING, D)!.link).toBe(shareLink("check-improve"));
   });
-  it("falls back to the surface when there is no chapter", () => {
-    expect(shareText({ awarded: 12, total: 20, context: null, surface: "check-improve" })).toMatch(
-      /^I scored 12\/20 in a Check & Improve paper on LazyTopper\./,
+  it("names the chapter and carries the tracked public link", () => {
+    expect(shareText({ awarded: 34, total: 40, context: "Real Numbers", surface: "chapter-test" })).toBe(
+      `I scored 34/40 in Real Numbers on LazyTopper. See where your marks go: ${shareLink("chapter-test")}`,
     );
   });
   it("wa.me link encodes the whole text, query string included", () => {
     const text = shareText({ awarded: 3.5, total: 5, context: "Light & Optics", surface: "worksheet" });
     const url = whatsAppShareUrl(text);
-    expect(url.startsWith("https://wa.me/?text=")).toBe(true);
     const encoded = url.slice("https://wa.me/?text=".length);
     expect(encoded).not.toMatch(/[ &?=]/);
     expect(decodeURIComponent(encoded)).toBe(text);

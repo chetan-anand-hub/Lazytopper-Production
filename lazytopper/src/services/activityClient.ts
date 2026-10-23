@@ -150,6 +150,8 @@ export const ACTIVITY_EVENTS = [
   "paywall_action_forward",
   // PARENT-REPORT-1 — the student shared a link to one result with a parent. Additive.
   "parent_report_shared",
+  // SHARE-CARD-1 — the student shared a scorecard image (any surface, size, channel). Additive.
+  "scorecard_share",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

@@ -1,71 +1,116 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { runScoreShare } from "./runScoreShare";
-import type { ScorecardVariant } from "../scorecardVariants";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { makeShareImage, runShareChannel, type ShareImage } from "./runScoreShare";
+import { FX_FOUR_TYPES, FX_OBJECTIVE_ONLY, FX_PENDING } from "../../../test/shareFixtures";
 
-/** SHARE-SCORE-1 - `score_share` {surface, method} fires only when a share went out. */
-const { trackScoreShare, toBlob } = vi.hoisted(() => ({
-  trackScoreShare: vi.fn(),
+/** SHARE-CARD-1 - drawing sizes, the four channels and `scorecard_share` {surface,size,channel}. */
+const { trackScorecardShare, toBlob } = vi.hoisted(() => ({
+  trackScorecardShare: vi.fn(),
   toBlob: vi.fn(async () => new Blob([new Uint8Array([137, 80, 78, 71])], { type: "image/png" })),
 }));
-vi.mock("../../../analytics/analytics", () => ({ trackScoreShare }));
+vi.mock("../../../analytics/analytics", () => ({ trackScorecardShare }));
 vi.mock("html-to-image", () => ({ toBlob }));
 
+let click: ReturnType<typeof vi.spyOn>;
+const origCreate = URL.createObjectURL;
+const origRevoke = URL.revokeObjectURL;
+beforeEach(() => {
+  URL.createObjectURL = vi.fn(() => "blob:lt");
+  URL.revokeObjectURL = vi.fn();
+  click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+});
 afterEach(() => {
-  trackScoreShare.mockClear();
+  trackScorecardShare.mockClear();
   toBlob.mockClear();
+  click.mockRestore();
+  URL.createObjectURL = origCreate;
+  URL.revokeObjectURL = origRevoke;
 });
 
-function variant(over: Partial<ScorecardVariant> = {}): ScorecardVariant {
-  return {
-    surface: "check-improve",
-    title: "Check & Improve paper",
-    subtitle: "Triangles · CI-M-TR-01 · graded just now",
-    score: { kind: "marks", awarded: 12, total: 20 },
-    actions: [],
-    ...over,
-  };
-}
+const img = async (size: "story" | "square" = "story", v = FX_FOUR_TYPES): Promise<ShareImage> =>
+  (await makeShareImage(v, { size, showMascots: true, firstName: null, dateLabel: "23 Oct 2026" }))!;
 
-describe("runScoreShare - score_share analytics", () => {
-  it("desktop link: fires {check_improve, whatsapp_link} and renders the 1080x1350 PNG", async () => {
-    const r = await runScoreShare(variant(), { method: "whatsapp_link", linkOpened: true, dateLabel: "17 Oct 2026" });
-    expect(r.outcome).toBe("downloaded");
-    expect(trackScoreShare).toHaveBeenCalledTimes(1);
-    expect(trackScoreShare).toHaveBeenCalledWith("check_improve", "whatsapp_link");
-    expect(toBlob).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ width: 1080, height: 1350, pixelRatio: 1 }));
+describe("makeShareImage - sizes", () => {
+  it("story 1080 x 1920 and square 1080 x 1080, named per size", async () => {
+    const s = await img("story");
+    expect(toBlob).toHaveBeenLastCalledWith(expect.anything(), expect.objectContaining({ width: 1080, height: 1920, pixelRatio: 1 }));
+    expect(s.file.name).toBe("lazytopper-result-story.png");
+    const q = await img("square");
+    expect(toBlob).toHaveBeenLastCalledWith(expect.anything(), expect.objectContaining({ width: 1080, height: 1080 }));
+    expect(q.file.name).toBe("lazytopper-result-square.png");
   });
-
-  it("desktop link with a blocked popup (window.open returned null): no event, PNG still saved", async () => {
-    const r = await runScoreShare(variant(), { method: "whatsapp_link", linkOpened: false, dateLabel: "x" });
-    expect(r.outcome).toBe("downloaded");
-    expect(trackScoreShare).not.toHaveBeenCalled();
-    const r2 = await runScoreShare(variant(), { method: "whatsapp_link", dateLabel: "x" });
-    expect(r2.outcome).toBe("downloaded");
-    expect(trackScoreShare).not.toHaveBeenCalled();
+  it("the share text carries the public UTM link, never a private result", async () => {
+    const s = await img("story", FX_OBJECTIVE_ONLY);
+    expect(s.text).toContain("https://www.lazytopper.com/check-your-answer?utm_source=share&utm_medium=scorecard&utm_campaign=quick_practice");
+    expect(s.text).not.toMatch(/\/u\/|report|QP-/);
   });
+});
 
-  it("native: fires {quick_practice, native} only once the sheet completes", async () => {
+describe("runShareChannel", () => {
+  it("native: the OS sheet with the PNG + text; event only once it completes", async () => {
     const share = vi.fn(async () => {});
-    const r = await runScoreShare(variant({ surface: "quick-practice" }), { method: "native", nav: { share }, dateLabel: "x" });
-    expect(r.outcome).toBe("shared");
-    expect(share).toHaveBeenCalledWith({ files: [expect.any(File)], text: expect.stringContaining("I scored 12/20") });
-    expect(trackScoreShare).toHaveBeenCalledWith("quick_practice", "native");
+    const out = await runShareChannel("native", { surface: "worksheet", image: await img(), nav: { canShare: () => true, share } });
+    expect(out).toBe("shared");
+    expect(share).toHaveBeenCalledWith({ files: [expect.any(File)], text: expect.stringContaining("utm_source=share") });
+    expect(trackScorecardShare).toHaveBeenCalledWith("worksheet", "story", "native");
   });
-
-  it("native cancel or lost activation: no event", async () => {
-    const abort = vi.fn(async () => { throw new DOMException("x", "AbortError"); });
-    await runScoreShare(variant(), { method: "native", nav: { share: abort }, dateLabel: "x" });
-    const late = vi.fn(async () => { throw new DOMException("x", "NotAllowedError"); });
-    const r = await runScoreShare(variant(), { method: "native", nav: { share: late }, dateLabel: "x" });
-    expect(r.outcome).toBe("needs-tap");
-    expect(r.file).toBeInstanceOf(File);
-    expect(trackScoreShare).not.toHaveBeenCalled();
+  it("native cancel: no event, nothing saved", async () => {
+    const share = vi.fn(async () => {
+      throw new DOMException("x", "AbortError");
+    });
+    const out = await runShareChannel("native", { surface: "worksheet", image: await img(), nav: { canShare: () => true, share } });
+    expect(out).toBe("cancelled");
+    expect(trackScorecardShare).not.toHaveBeenCalled();
+    expect(click).not.toHaveBeenCalled();
   });
-
-  it("a non-shareable scorecard sends nothing and draws nothing", async () => {
-    const r = await runScoreShare(variant({ allPending: { title: "t", detail: "d" } }), { method: "whatsapp_link", dateLabel: "x" });
-    expect(r.outcome).toBe("failed");
-    expect(trackScoreShare).not.toHaveBeenCalled();
-    expect(toBlob).not.toHaveBeenCalled();
+  it("fallback: a sheet that fails (not a cancel) saves the PNG", async () => {
+    const share = vi.fn(async () => {
+      throw new Error("target crashed");
+    });
+    const out = await runShareChannel("native", { surface: "full-mock", image: await img("square"), nav: { canShare: () => true, share } });
+    expect(out).toBe("downloaded");
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(trackScorecardShare).toHaveBeenCalledWith("full_mock", "square", "download");
+  });
+  it("whatsapp: wa.me with the text + link, PNG saved to attach", async () => {
+    const win = { opener: {} as unknown };
+    const open = vi.fn(() => win);
+    const out = await runShareChannel("whatsapp", { surface: "check-improve", image: await img("story", FX_PENDING), open });
+    expect(out).toBe("opened");
+    const url = (open.mock.calls[0] as unknown as [string])[0];
+    expect(url.startsWith("https://wa.me/?text=")).toBe(true);
+    expect(decodeURIComponent(url)).toContain("utm_campaign=check_improve");
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(trackScorecardShare).toHaveBeenCalledWith("check_improve", "story", "whatsapp");
+  });
+  it("whatsapp with a blocked popup: the PNG is still saved, counted as a download", async () => {
+    const out = await runShareChannel("whatsapp", { surface: "worksheet", image: await img(), open: () => null });
+    expect(out).toBe("downloaded");
+    expect(trackScorecardShare).toHaveBeenCalledWith("worksheet", "story", "download");
+  });
+  it("instagram without file sharing (desktop): the STORY image is saved, logged honestly as a download", async () => {
+    const out = await runShareChannel("instagram", { surface: "chapter-test", image: await img("story") });
+    expect(out).toBe("downloaded");
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(trackScorecardShare).toHaveBeenCalledWith("chapter_test", "story", "download");
+  });
+  it("instagram on a phone (files shareable): the story PNG through the sheet, logged as instagram", async () => {
+    const share = vi.fn(async () => {});
+    const out = await runShareChannel("instagram", { surface: "chapter-test", image: await img("story"), nav: { canShare: () => true, share } });
+    expect(out).toBe("shared");
+    expect(trackScorecardShare).toHaveBeenCalledWith("chapter_test", "story", "instagram");
+  });
+  it("whatsapp on a phone (files shareable): the PNG itself through the sheet - no wa.me, no download", async () => {
+    const share = vi.fn(async () => {});
+    const open = vi.fn(() => ({ opener: {} as unknown }));
+    const out = await runShareChannel("whatsapp", { surface: "worksheet", image: await img(), nav: { canShare: () => true, share }, open });
+    expect(out).toBe("shared");
+    expect(share).toHaveBeenCalledWith({ files: [expect.any(File)], text: expect.stringContaining("utm_source=share") });
+    expect(open).not.toHaveBeenCalled();
+    expect(click).not.toHaveBeenCalled();
+    expect(trackScorecardShare).toHaveBeenCalledWith("worksheet", "story", "whatsapp");
+  });
+  it("download: the PNG saved", async () => {
+    await runShareChannel("download", { surface: "quick-practice", image: await img("square") });
+    expect(trackScorecardShare).toHaveBeenCalledWith("quick_practice", "square", "download");
   });
 });

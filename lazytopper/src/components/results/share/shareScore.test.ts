@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { SHARE_FILENAME, openWhatsAppLink, pickShareMethod, shareNative, type ShareNavigator } from "./shareScore";
+import { shareFilename, openWhatsAppLink, pickShareMethod, shareNative, type ShareNavigator } from "./shareScore";
+
+const SHARE_FILENAME = shareFilename("story");
 
 /** SHARE-SCORE-1 - native OS sheet when the browser can share FILES, else download + wa.me. */
 const png = () => new File([new Uint8Array([137, 80, 78, 71])], SHARE_FILENAME, { type: "image/png" });
