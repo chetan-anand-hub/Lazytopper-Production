@@ -446,6 +446,19 @@ jobs:
           pnpm --filter lazytopper exec vitest run $FILES --maxWorkers=4 --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/vitest-shard.json"
         env:
           NODE_OPTIONS: --max-old-space-size=2048
+      # THROWAWAY (CI-AGG-1 proof, never merged): shard 3 reports 1 failed test. CI_AGG_PROOF_MODE
+      # flaky -> only on run attempt 1; always -> on every attempt.
+      - name: CI-AGG-1 PROOF simulated shard-3 failure
+        if: ${{ !cancelled() && matrix.shard == 3 }}
+        env:
+          CI_AGG_PROOF_MODE: flaky
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          if [ "$CI_AGG_PROOF_MODE" = always ] || [ "$RUN_ATTEMPT" = 1 ]; then
+            node -e 'const f=process.env.RUNNER_TEMP+"/vitest-shard.json";const j=JSON.parse(require("fs").readFileSync(f,"utf8"));j.numFailedTests=(j.numFailedTests||0)+1;j.numPassedTests-=1;require("fs").writeFileSync(f,JSON.stringify(j));'
+            echo "CI_AGG_PROOF: shard 3 FAILS on attempt $RUN_ATTEMPT (mode $CI_AGG_PROOF_MODE)"; exit 1
+          fi
+          echo "CI_AGG_PROOF: shard 3 passes on attempt $RUN_ATTEMPT (mode $CI_AGG_PROOF_MODE)"
       - name: Shard summary (files and tests this shard ran)
         if: ${{ !cancelled() }}
         run: node lazytopper/scripts/ops/ci_aggregate.mjs --shard-summary "$RUNNER_TEMP/vitest-shard.json" "$RUNNER_TEMP/summary/vitest-shard-${{ matrix.shard }}.json" --shard=${{ matrix.shard }}/4 --attempt=${{ github.run_attempt }}
