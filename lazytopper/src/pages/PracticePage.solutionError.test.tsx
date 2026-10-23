@@ -54,6 +54,14 @@ vi.mock("../components/practice/practiceQuestionBuilder", async (importActual) =
 import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
 
+/** QP-WORKING-AFTER-1 — Finish with written questions that have no saved working opens the gate
+ *  first; these flows test what comes AFTER it, so they take its "Skip — show my scorecard". */
+function skipFinishGate() {
+  const skip = screen.queryByTestId("qp-gate-skip");
+  if (skip) fireEvent.click(skip);
+}
+
+
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
 type PQ = import("../data/predictionDataService").PracticeQuestion;
 
@@ -101,7 +109,7 @@ async function openStepsOnFirstQuestion() {
   // finished. This suite is about the error copy, so it finishes the (unattempted) session,
   // goes back to the set, and opens the now-unlocked steps.
   expect(screen.queryByRole("button", { name: /Show steps/i })).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+  fireEvent.click(screen.getByRole("button", { name: /Finish session/i })); skipFinishGate(); // QP-WORKING-AFTER-1 — past the gate
   fireEvent.click(await screen.findByRole("button", { name: /Keep practicing this set/i }));
   fireEvent.click(screen.getAllByRole("button", { name: /Show steps/i })[0]);
 }

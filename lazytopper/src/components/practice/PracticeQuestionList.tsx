@@ -12,6 +12,8 @@ export interface PracticeQuestionListProps {
   /** GUIDE-SCORE-1 — open THIS question's working box (scroll + focus); a new `nonce` is a new
    *  request. Passed straight through to that one card. */
   openCheckerFor?: { id: string; nonce: number } | null;
+  /** QP-WORKING-AFTER-1 — open ONE question's solution (steps), scrolled to (a new nonce per request). */
+  openStepsFor?: { id: string; nonce: number } | null;
   isLoading: boolean;
   error: string | null;
   /** MOMENTS-1 — the set failed to load: a real "Retry" under the error re-runs the load (every
@@ -49,6 +51,12 @@ export interface PracticeQuestionListProps {
   savedAnswers?: Record<string, SolutionCheckerSavedWorking>;
   onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
   onRemoveAnswer?: (qId: string) => void;
+  /** QP-WORKING-AFTER-1 — each box's unsaved draft (the Finish gate lists typed-but-unsaved ones). */
+  onDraftAnswer?: (qId: string, working: SolutionCheckerSavedWorking | null) => void;
+  /** QP-WORKING-AFTER-1 — the save nudge's student (undefined: no nudge). */
+  saveNudgeUid?: string | null;
+  /** QP-WORKING-AFTER-1 — no answer box at all (Quick Practice review, after the final scorecard). */
+  answerBoxOff?: boolean;
   /**
    * PRACTICE-HONESTY-1 — the host's per-question steps lock, passed straight through to
    * `PracticeQuestionCard.stepsLocked`. The host owns the rule (it alone holds every attempt
@@ -164,6 +172,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
     onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, repeatsNote,
+    openStepsFor, onDraftAnswer, saveNudgeUid, answerBoxOff,
   } = props;
 
   return (
@@ -278,6 +287,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               q={q}
               idx={idx}
               openCheckerRequest={openCheckerFor && openCheckerFor.id === String(q.id) ? openCheckerFor.nonce : undefined}
+              openStepsRequest={openStepsFor && openStepsFor.id === String(q.id) ? openStepsFor.nonce : undefined}
               subjectKey={subjectKey}
               topicLabel={topicLabel}
               difficultyFilter={difficultyFilter}
@@ -297,6 +307,9 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               savedAnswer={savedAnswers ? savedAnswers[String(q.id)] ?? null : null}
               onSaveAnswer={onSaveAnswer}
               onRemoveAnswer={onRemoveAnswer}
+              onDraftAnswer={onDraftAnswer}
+              saveNudgeUid={saveNudgeUid}
+              answerBoxOff={answerBoxOff}
               stepsLocked={isStepsLocked ? isStepsLocked(String(q.id)) : false}
               defaultAnswerMode={defaultAnswerMode}
             />
