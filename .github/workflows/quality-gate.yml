@@ -451,7 +451,7 @@ jobs:
       - name: CI-AGG-1 PROOF simulated shard-3 failure
         if: ${{ !cancelled() && matrix.shard == 3 }}
         env:
-          CI_AGG_PROOF_MODE: flaky
+          CI_AGG_PROOF_MODE: always
           RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           if [ "$CI_AGG_PROOF_MODE" = always ] || [ "$RUN_ATTEMPT" = 1 ]; then
