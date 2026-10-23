@@ -180,6 +180,9 @@ const HEDGE_IN_DECLARATION = /(?:\banswer\b|\bans\b|\boption\b|\bopt\b|\bpicked\
 // "actually a mistake" is never read as option (a).
 const SELF_CORRECTION =
   /(?:\bno\s*,?\s*wait\b|\bwait\b|\bactually\b|\bsorry\b|\bcorrection\b|\bchanged?\s+(?:it\s+)?to\b|\binstead\b|\bfinal(?:\s+answer)?\b)[\s,:\-–—]*(?:\(\s*([a-hA-H])\s*\)|\b([a-hA-H])\b\s*[.)]?\s*$)/i;
+// MCQ-EXTRACT-1: "(c) Coincident" / "c) 7k" / "C. 7" — a leading letter, a closing bracket or a
+// dot/colon/dash, then the rest of the line (checked against that letter's option text).
+const LETTER_THEN_TEXT = /^\s*\(?\s*([a-hA-H])\s*(?:\)|\.|:|-|–|—)\s*(.+?)\s*$/;
 // A line that DISCUSSES an option ("option (b) is wrong because…") is not a declaration of it.
 const NEGATED_MENTION = /\b(?:is|was|are)\s+(?:wrong|incorrect|not)\b|\bnot\b|\bwrong\b|\bincorrect\b|\beliminat|\brule[sd]? out\b|\breject/i;
 
@@ -196,6 +199,14 @@ function declarationOn(line, opts) {
   if (/^[a-h]$/i.test(norm)) return { pick: norm.toLowerCase() };
   // (2) whole line is an option's text.
   if (opts.some((o) => N(o) === norm)) return { pick: w };
+  // (2b) MCQ-EXTRACT-1 · a leading option letter followed by THAT option's text — "(c) Coincident",
+  // "c) only k, 7k and k^3", "C. 7". Only when the text is exactly the letter's own option: a
+  // letter with another option's text is contradictory, and a letter with prose is working.
+  const lt = LETTER_THEN_TEXT.exec(w);
+  if (lt) {
+    const idx = lt[1].toLowerCase().charCodeAt(0) - 97;
+    if (idx < opts.length && N(lt[2]) && N(lt[2]) === N(opts[idx])) return { pick: lt[1].toLowerCase() };
+  }
   const sc = SELF_CORRECTION.exec(w);
   if (sc) return { pick: String(sc[1] || sc[2]).toLowerCase() };
   if (NEGATED_MENTION.test(w)) return null;

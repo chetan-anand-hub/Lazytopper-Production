@@ -2059,3 +2059,46 @@ test('GRD.6 ★ review 2 controls: a multi-value key is never matched by re-read
   assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true }), []);
   assert.deepEqual(falseEqualities('96 = 2^5 x 3 404 = 2^2 x 101', { quoted: true, source: HCF_TYPED }), []);
 });
+
+/* ══ §MCQ-EXTRACT-1 · "(c) Coincident" IS A PICK ═══════════════════════════════════════════════
+   A single answer line made of an option LETTER followed by THAT option's text — "(c) Coincident",
+   "c) only k, 7k and k^3" — was not recognised, so an answered MCQ came back UNGRADED
+   (objectiveResolved:false). It is now read as the letter's pick; the mark follows the 0/full
+   clamp exactly. A letter followed by ANOTHER option's text is contradictory and is not read. */
+
+const EX_OPTS = ['k', '3k', 'only k, 7k and k^3', 'k^3'];
+const EX_Q = (o = {}) => MCQ({ options: EX_OPTS, answer: 'only k, 7k and k^3', textAnswer: 'c) only k, 7k and k^3', ...o });
+const EX_SINGLE = (o = {}) => ({ question: 'Which of these are multiples of k? (a) k (b) 3k (c) only k, 7k and k^3 (d) k^3', marks: 1, subject: 'Maths', topic: TOPIC,
+  section: 'A', format: 'mcq', options: EX_OPTS, answer: 'only k, 7k and k^3', textAnswer: 'c) only k, 7k and k^3', acceptsV2: true, ...o });
+async function exBoth(work, { answer, options, raw = {} } = {}) {
+  const reply = REPLY(R(1, [S({ description: 'Option chosen', studentWork: work, status: 'correct', marksAwarded: 0 })], raw));
+  const qo = { textAnswer: work, ...(answer ? { answer } : {}), ...(options ? { options } : {}) };
+  const a = (await harness({ replies: [reply] }).single(EX_SINGLE(qo))).body;
+  const b = (await harness({ replies: [reply] }).sheet(sheet([EX_Q(qo)], { acceptsV2: true }))).body.results[0];
+  return [a, b];
+}
+
+test('§MCQ-EXTRACT-1.1 ★ "c) only k, 7k and k^3" and "(c) Coincident" are read as option c — graded, not unresolved — on both endpoints', async () => {
+  assert.equal(O.extractOptionPick([{ studentWork: 'c) only k, 7k and k^3' }], EX_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) Coincident' }], ['Parallel', 'Intersecting', 'Coincident', 'Skew']).pick, 'c');
+  for (const r of await exBoth('c) only k, 7k and k^3')) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // the clamp decides: same line, key is (a) → 0, resolved
+  for (const r of await exBoth('c) only k, 7k and k^3', { answer: 'k' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+  const LINES = ['Parallel', 'Intersecting', 'Coincident', 'Skew'];
+  for (const r of await exBoth('(c) Coincident', { options: LINES, answer: 'Coincident' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  for (const r of await exBoth('(c) Coincident', { options: LINES, answer: 'Parallel' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+});
+
+test('§MCQ-EXTRACT-1.2 CONTROLS: a letter with ANOTHER option\'s text is not read; prose after a letter is not read; the model verdict never outranks the key', async () => {
+  const LINES = ['Parallel', 'Intersecting', 'Coincident', 'Skew'];
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) Parallel' }], LINES).pick, '', 'contradictory: not a pick');
+  assert.equal(O.extractOptionPick([{ studentWork: 'a) the slopes are equal' }], LINES).pick, '', 'working, not a pick');
+  // contradictory line, no model verdict → honestly unresolved (unchanged behaviour)
+  for (const r of await exBoth('(c) Parallel', { options: LINES, answer: 'Parallel' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // the key outranks the model: model says correct, the read pick (c) is wrong against key (a)
+  for (const r of await exBoth('(c) Coincident', { options: LINES, answer: 'Parallel', raw: { finalAnswerCorrect: true } })) assert.equal(r.marksAwarded, 0);
+  // existing forms unchanged
+  assert.equal(O.extractOptionPick([{ studentWork: '(c)' }], LINES).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: 'Coincident' }], LINES).pick, 'Coincident');
+  assert.equal(O.extractOptionPick([{ studentWork: '(a) or (c)' }], LINES).pick, '', 'a hedge is still a hedge');
+});
