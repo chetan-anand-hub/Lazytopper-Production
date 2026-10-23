@@ -12,7 +12,7 @@
 import { lazy, Suspense, useEffect, useState, type ComponentType } from "react";
 import { trackGuidePublicArmAssigned, trackGuidePublicShown, type GuideVariant } from "../../../analytics/analytics";
 import { desktopTopicBySlug } from "../../../lib/desktop/topics";
-import { guideAbActive, resolveGuideVariant } from "../guideVariant";
+import { guideAbActive, guideArmReportsOn, resolveGuideVariant } from "../guideVariant";
 import { useMascotsHidden } from "../mascotsMute";
 import {
   ARTICLE_SELECTOR,
@@ -155,7 +155,8 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
       markPeekUsedInTab(page);
       if (!uid && !quiet) copyArmToIntent(arm);
       if (!quiet) {
-        if (fresh) trackGuidePublicArmAssigned(arm);
+        // GUIDE-ALL-1 (22 Oct 2026): the A/B ended — the device arm is no longer reported.
+        if (fresh && guideArmReportsOn()) trackGuidePublicArmAssigned(arm);
         trackGuidePublicShown({ page, arm, chapter: chapter!.slug, signed_in: !!uid });
       }
       if (arm === "guide") setShown({ arm, signedIn: !!uid });
