@@ -27,7 +27,7 @@ export const AREAS_RELATED_TO_CIRCLES_PYQ: CanonicalQuestion[] = [
     finalAnswer: "(b) (35/2)°",
     ncertRef: "PYQ 30/2/1 Q13", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
-  { id: "PYQ-M-ARC-003", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-ARC-003", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Sector", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What is the area of a semi-circle of diameter 'd' ?",
     options: ["(1/16)πd²", "(1/4)πd²", "(1/8)πd²", "(1/2)πd²"],
     answer: "(1/8)πd²",

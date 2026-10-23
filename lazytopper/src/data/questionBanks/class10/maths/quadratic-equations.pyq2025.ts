@@ -8,7 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Coverage: 9 text-extractable Standard QPs (30/1/x, 30/2/x, 30/3/x); 10 scanned QPs (30/4/x, 30/5/x, 30/6/x, 30(B)) skipped — require OCR; Maths Basic (241) not in scope
 
 export const QUADRATIC_EQUATIONS_PYQ_2025: CanonicalQuestion[] = [
-  { id: "PYQ-M-2025-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-2025-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Forming Quadratic Equations", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The quadratic equation whose roots are 7 and 1/7 is :",
     options: ["7x² − 50x + 7 = 0", "7x² − 50x + 1 = 0", "7x² + 50x − 7 = 0", "7x² + 50x − 1 = 0"],
     answer: "7x² − 50x + 7 = 0",

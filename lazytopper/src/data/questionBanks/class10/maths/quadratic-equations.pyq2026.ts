@@ -9,7 +9,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Section A MCQ answers absent on 30/4/x MS (rendered as images by CBSE); kept where 30/5/x or 30(B) MS produced text.
 
 export const QUADRATIC_EQUATIONS_PYQ_2026: CanonicalQuestion[] = [
-  { id: "PYQ-M-2026-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-2026-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Discriminant and Nature of Roots", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     // Recovered from MS_X_041_Mathematics_30-4-1_2025-26, pp.8-9; the stored text stopped at the page break, dropping 'D = 0' and the conclusion.
     questionText: "Verify that roots of the quadratic equation (p − q)x² + (q − r)x + (r − p) = 0 are equal when q + r = 2p.",
     answer: "D = (q − r)² − 4(p − q)(r − p) = (q + r − 2p)² = 0 when q + r = 2p, so the roots are equal.",

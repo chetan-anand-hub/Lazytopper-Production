@@ -8,7 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Coverage: 9 text-extractable Standard QPs (30/1/x, 30/2/x, 30/3/x); 10 scanned QPs (30/4/x, 30/5/x, 30/6/x, 30(B)) skipped — require OCR; Maths Basic (241) not in scope
 
 export const TRIGONOMETRY_PYQ_2025: CanonicalQuestion[] = [
-  { id: "PYQ-M-2025-TRIG-001", subject: "Maths", topicKey: "trigonometry", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
+  { id: "PYQ-M-2025-TRIG-001", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Ratios of Specific Angles", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "If tan A = √3; where A is an acute angle, then find the value of sin² A/(1 + cos² A).",
     answer: "3/5",
     solutionSteps: [

@@ -26,7 +26,7 @@ export const COORDINATE_GEOMETRY_PYQ_2025: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/2/1 Q6", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1",
   },
-  { id: "PYQ-M-2025-CG-003", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
+  { id: "PYQ-M-2025-CG-003", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Distance Formula", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "The coordinates of the centre of a circle are (2a, a − 7). Find the value(s) of 'a' if the circle passes through the point (11, − 9) and has diameter 10√2 units.",
     answer: "a = 5, 3",
     solutionSteps: [

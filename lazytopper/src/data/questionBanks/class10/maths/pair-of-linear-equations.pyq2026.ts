@@ -9,7 +9,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Section A MCQ answers absent on 30/4/x MS (rendered as images by CBSE); kept where 30/5/x or 30(B) MS produced text.
 
 export const PAIR_LINEAR_EQUATIONS_PYQ_2026: CanonicalQuestion[] = [
-  { id: "PYQ-M-2026-PLE-001", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-2026-PLE-001", subject: "Maths", topicKey: "pair-of-linear-equations", subtopic: "Conditions for Infinitely Many Solutions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If pair of linear equations given by a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0 has infinitely many solutions, then which of the following is definitely true ?",
     options: ["a₁/a₂ = c₂/c₁", "a₁a₂ ≠ b₁b₂", "a₁/a₂ ≠ b₁/b₂", "a₁b₂ = a₂b₁"],
     answer: "a₁b₂ = a₂b₁",

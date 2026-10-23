@@ -8,7 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Coverage: 9 text-extractable QPs (30/2/x, 30/4/x, 30/5/x); 6 scanned QPs (30/1/x, 30/6/x) and 30-B-5 skipped — require OCR
 
 export const TRIANGLES_PYQ: CanonicalQuestion[] = [
-  { id: "PYQ-M-TRI-001", subject: "Maths", topicKey: "triangles", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-TRI-001", subject: "Maths", topicKey: "triangles", subtopic: "Basic Proportionality Theorem — Application", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In the given figure, DE ∥ BC. If AD = 2 units, DB = AE = 3 units and EC = x units, then the value of x is :",
     options: ["2", "3", "5", "9/2"],
     answer: "9/2",

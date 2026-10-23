@@ -86,7 +86,7 @@ export const TRIGONOMETRY_PYQ_2024: CanonicalQuestion[] = [
     finalAnswer: "67/12",
     ncertRef: "PYQ 30/4/1 Q23(a)", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
-  { id: "PYQ-M-2024-TRIG-010b", subject: "Maths", topicKey: "trigonometry", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-2024-TRIG-010b", subject: "Maths", topicKey: "trigonometry", subtopic: "Trig Equations — Standard Angles", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If sin (A − B) = 1/2, cos (A + B) = 1/2; 0 < A + B ≤ 90°, A > B; find ∠A and ∠B.",
     answer: "∠A = 45°, ∠B = 15°",
     solutionSteps: [
@@ -169,7 +169,7 @@ export const TRIGONOMETRY_PYQ_2024: CanonicalQuestion[] = [
     finalAnswer: "(sin θ − cos θ + 1)/(sin θ + cos θ − 1) = 1/(sec θ − tan θ) (proved)",
     ncertRef: "PYQ 30/4/1 Q26", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
-  { id: "PYQ-M-2024-TRIG-019", subject: "Maths", topicKey: "trigonometry", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-2024-TRIG-019", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identity Proofs", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Prove that √(sec² θ + cosec² θ) = tan θ + cot θ.",
     answer: "√(sec² θ + cosec² θ) = √(1 + tan² θ + 1 + cot² θ) = √(tan θ + cot θ)² = tan θ + cot θ",
     solutionSteps: [

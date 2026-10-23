@@ -57,7 +57,7 @@ export const CIRCLES_PYQ_2025: CanonicalQuestion[] = [
     finalAnswer: "∠CBA = 70°, ∠BCO = 70°",
     ncertRef: "PYQ 30/3/1 Q31", isCompetencyBased: true, pyqYear: "2025", pyqSet: "1",
   },
-  { id: "PYQ-M-2025-CIRC-007", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-2025-CIRC-007", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In the given figure, PB is a tangent to the circle with centre O at B. AB is a chord of the circle of length 24 cm and at a distance of 5 cm from the centre of the circle. If the length PB of the tangent is 20 cm, find the length of OP.",
     answer: "OP = √569 cm",
     solutionSteps: [

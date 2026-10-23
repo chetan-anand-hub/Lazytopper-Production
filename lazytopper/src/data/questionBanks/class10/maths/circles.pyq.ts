@@ -74,7 +74,7 @@ export const CIRCLES_PYQ: CanonicalQuestion[] = [
     finalAnswer: "(c) Assertion (A) is true, but Reason (R) is false",
     ncertRef: "PYQ 30/5/1 Q19", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "1" },
-  { id: "PYQ-M-CIRC-009", subject: "Maths", topicKey: "circles", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-CIRC-009", subject: "Maths", topicKey: "circles", subtopic: "Angle Between Tangents", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In the given figure, O is the centre of the circle. AB and AC are tangents drawn to the circle from point A. If ∠BAC = 65°, then find the measure of ∠BOC.",
     answer: "∠BOC = 115°",
     solutionSteps: [
@@ -84,7 +84,7 @@ export const CIRCLES_PYQ: CanonicalQuestion[] = [
     finalAnswer: "∠BOC = 115°",
     ncertRef: "PYQ 30/2/1 Q25", isCompetencyBased: true, pyqYear: "2023", pyqSet: "1",
   },
-  { id: "PYQ-M-CIRC-010", subject: "Maths", topicKey: "circles", subtopic: "Chord Properties", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
+  { id: "PYQ-M-CIRC-010", subject: "Maths", topicKey: "circles", subtopic: "Tangent and Chord", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "In the given figure, PT is a tangent to the circle centered at O. OC is perpendicular to chord AB. Prove that PA . PB = PC² − AC².",
     answer: "PA · PB = (PC − AC)(PC + CB) = (PC − AC)(PC + AC) = PC² − AC²",
     solutionSteps: [

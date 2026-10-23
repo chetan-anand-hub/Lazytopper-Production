@@ -45,7 +45,7 @@ export const TRIGONOMETRY_PYQ: CanonicalQuestion[] = [
     ncertRef: "PYQ 30/4/3 Q22", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "3",
   },
-  { id: "PYQ-M-TRIG-005", subject: "Maths", topicKey: "trigonometry", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-TRIG-005", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identity Proofs", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "(a) If a cos θ + b sin θ = m and a sin θ − b cos θ = n, then prove that a² + b² = m² + n².\nOR\n(b) Prove that : √[(sec A − 1)/(sec A + 1)] + √[(sec A + 1)/(sec A − 1)] = 2 cosec A",
     answer: "(a) m² + n² = a²(cos² θ + sin² θ) + b²(sin² θ + cos² θ) = a² + b² OR (b) LHS = 2 sec A/tan A = 2 cosec A",
     solutionSteps: [

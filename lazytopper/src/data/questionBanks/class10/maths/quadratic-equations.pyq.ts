@@ -8,7 +8,7 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 // Coverage: 9 text-extractable QPs (30/2/x, 30/4/x, 30/5/x); 6 scanned QPs (30/1/x, 30/6/x) and 30-B-5 skipped — require OCR
 
 export const QUADRATIC_EQUATIONS_PYQ: CanonicalQuestion[] = [
-  { id: "PYQ-M-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Sum and Product of Roots", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-M-QE-001", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Roots of a Quadratic Equation", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Which of the following quadratic equations has sum of its roots as 4 ?",
     options: ["2x² − 4x + 8 = 0", "−x² + 4x + 4 = 0", "√2x² − (4/√2)x + 1 = 0", "4x² − 4x + 4 = 0"],
     answer: "−x² + 4x + 4 = 0",
