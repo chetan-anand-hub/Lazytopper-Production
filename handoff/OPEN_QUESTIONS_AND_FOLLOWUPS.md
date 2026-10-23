@@ -23,6 +23,108 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-22 (daily) - #1285 CI-CLOCK-CUT, #1286 PAYWALL-PAY-1, #1287 CI-SPEED-3, #1288 GUIDE-IQ-1, #1289 MOMENTS-1, #1290 COST-1, #1291 TOPUP-1 PR-1, #1292 GUIDE-OPTS-1, #1293 RAILWAY-SLIM-1, #1294 PARENT-REPORT-1, #1295 MLT-MUTE-1, #1296 OPS-REPORT-1, #1297 MLT-MUTE-2, #1298 FILTER-FIX-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `6fe85765`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk / the PR bodies while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. live checks done by the cofounder).
+
+### Closed / noted today
+
+### [FU-CI-CLOCK-LEGS-INVESTIGATE] - CLOSED
+Closed by `#1285` CI-CLOCK-CUT (`2b4cacef`), on the owner's 22 Oct ruling: the six per-PR clock legs are replaced by one `clock-changed` job; `nightly-full-clock` keeps the full suite at both clocks [git/gh]. Its 19 Oct body is left as written.
+
+### [FU-TOPUP-RACE] - CLOSED (in dark code)
+`#1291` (`8db39ba4`) admits credit through `usageCredit.reserveCredit`, one Firestore transaction with holds; the `RACE` test was RED on the old `#1086` head `fae478b7` and is green on trunk (PR body) [git/gh]. Top-ups stay dark behind `TOPUP_ENABLED`; the live owner round-trip in the PR body is still owed.
+
+### [FU-SEARCHPING-DOCKER-NO-MARKER] - CLOSED
+`#1293` RAILWAY-SLIM-1 (`3de8d414`): `writeVersion` no longer runs in the Railway image, so the finding no longer applies (PR body) [git/gh].
+
+- **[FU-PACKAGE-JSON-DUP-MATRIX-KEY]** still open at `6fe85765`, now at lines 130 and 131 of `lazytopper/package.json` - and the two values **differ**: only line 131 contains `test:server:fair-use-30day` [git/gh]. JSON keeps the last key, so the chain that runs is line 131; a lane editing line 130 alone changes nothing.
+
+### Practice filters and More like this
+
+### [FU-FILTER-DEEPLINK-ZERO-PRESET]
+Live 23 Oct **[coordinator]**: a deep link with a preset style the chapter has 0 of (e.g. Magnetic Effects `&style=proof`) shows "No questions match these filters" instead of falling back to all questions. Since `#1298` the Proof / Derivation chip is hidden on Magnetic Effects (0 rows) [git/gh], so a student cannot clear the preset from the chip row. Being fixed in GUIDE-FILTER-1.
+
+### [FU-RN-PROOF-SIGNEDIN-LOADING]
+The signed-in Real Numbers Proof page hung on "Loading..." once on 22 Oct night; a signed-out re-test on 23 Oct was fine **[coordinator]**. Signed-in re-test pending. Not reproduced by this writer.
+
+### [FU-QP-CONCEPT-HINTS-REORDER-ONLY]
+Tutor / HPQ concept hints only reorder the Quick Practice draw; they do not narrow it. HPQ `focusBankIds` is dead: 0 of 126 resolve **[coordinator]**. Lane QP-CONCEPT-1 (in flight).
+
+### [FU-MLT-ENDPOINT-RETIRE]
+After `#1295`, `POST /api/more-like-this` is uncalled by the product but still live (authenticated, metered). The PR body asks whether to retire it together with `warmQuestionPool`, the `generated_questions` pool and PracticePage's two More-like-this limit panels (their listener can no longer fire) [git/gh]. Owner call; a separate lane.
+
+### [FU-QP-TEMPLATED-FALLBACK]
+`#1295` PR body: the canonical fallback (`generateUnifiedPracticeQuestions`, `mixMode: "generated-first"`) still serves **templated** generated questions ahead of bank rows when the engine is short. They are deterministic code templates, not AI, so outside the MLT ruling, but they are not bank-verified either [git/gh]. Owner call.
+
+### [FU-PRACTICESETGEN-SOURCEOVERRIDE]
+`#1298` PR body, listed and not fixed: `data/practiceSetGenerator.ts` ~:90 ignores `sourceOverride` (`src/data/` is globally forbidden); Desktop also sends `questionType=Proof|AR|Case`, which PracticePage reads only for Competency; `PYQ-M-2025-CG-005` loses its PYQ tag by dedupe into `CG-N-NCERT-7-EX-009` [git/gh]. Needs a lane scoped to `src/data/`.
+
+### Guide and mascots
+
+### [FU-MOMENTS-M7-AFTER-1286]
+`#1289` did not build M7 (the daily-limit screen) because `FairUseLimitPanel` was owned by `#1286`; `#1286` has since merged (`361d4320`) [git/gh]. The limit screen is now in GUIDE-PAGES-1's scope **[coordinator]**.
+
+### [FU-MOMENTS-MUTE-CLOCK-TESTS]
+`#1289`: the Ziggy-first-result and PublicPeek mute guards are one-line render returns with no test; testing them needs the CI clock manifest (PR body) [git/gh].
+
+### [FU-MOMENTS-RETAKE-ACTIONS]
+`#1289`: the spec names "Retake photo / Type it instead" on the unread result (M6); those actions do not exist - only "Back to my paper" and the return ticket (PR body) [git/gh]. Owner / spec call.
+
+### [FU-MOMENTS-M11-QP-WRITTEN]
+`#1289`: a written answer graded inside a Quick Practice batch does not count as "written graded" for M11; only C&I, Worksheet, Chapter Test and Full Mock records do (PR body) [git/gh].
+
+### [FU-MOMENTS-HIDDEN-STILL-REPORTS-ARM]
+`#1289` review F3, left as is: with mascots hidden, a guide-arm student still sends the guide arm's events (`guide_shown` with variant `guide`, `guide_dismissed`) (PR body) [git/gh]. With the A/B ended 22 Oct, decide whether hidden devices should report at all.
+
+### Payments, top-ups and pricing
+
+### [FU-TOPUP1-PART2]
+TOPUP-1 part 2: the ribbon, the pack sheet and the Me usage meter (client half; `#1291` is server only) **[coordinator]** [git/gh].
+
+### [FU-TOPUP-EDGE-CASES]
+Top-up edge cases still to be worked through before the switch is turned on **[coordinator]**. (No list was given in the dispatch.)
+
+### [FU-FOUNDING-PRICE-NOTICES]
+Founding-price notices from 1 Dec: tell students the ₹599 founding price ends (₹999 list from January) and that existing ₹599 subscribers keep their price (owner ruling 22 Oct) **[coordinator]**.
+
+### Ops and platform
+
+### [FU-PLATFORM-SPEND-DASHBOARD]
+A platform spend dashboard (all paid services, not only AI cost) **[coordinator]**. COST-1 `#1290` covers per-student AI cost only [git/gh].
+
+### [FU-AI-SPEND-LOGGING-FULL]
+Full AI spend logging. Today `usageLedger` has no per-feature breakdown and does not record signed-out spend (`#1290` PR body) [git/gh] **[coordinator]**.
+
+### [FU-SENTRY]
+Error monitoring (Sentry) - not set up **[coordinator]**.
+
+### [FU-DEPLOY-FAILURE-EMAILS]
+Email the owner when a Railway or Vercel deploy fails **[coordinator]**.
+
+### [FU-NIGHTLY-BACKUP]
+A nightly backup (Firestore) **[coordinator]**.
+
+### [FU-DEPENDABOT-STATUS-PAGE]
+Dependabot and a public status page **[coordinator]**. Uptime itself is now watched by UptimeRobot (free, every 5 min; owner ruling 22 Oct).
+
+### [FU-RETIRE-SHARE-CJS]
+Retire `server/routes/share.cjs` (`/api/share-token`, `/api/verify-share-token`, `/api/shared-report`): a legacy HMAC token carrying the uid, reading the child's live data; no `src/` caller. `#1294` named it the opposite of its privacy pattern (PR body) [git/gh] **[coordinator]**.
+
+### [FU-PARENT-LINKS-AUTO-DELETE]
+Auto-delete expired parent links. `#1294` deletes an expired `parentReports` snapshot only when it is read, and lists a Firestore TTL policy on `parentReports.expiresAt` as optional hardening (an owner console action) (PR body) [git/gh] **[coordinator]**.
+
+### [FU-GRADING-SKIP-BLANK-PAGES]
+Skip grading on blank pages (no model call for an empty upload) **[coordinator]**. Touches grading: the lane must meet CLAUDE.md section 4a (all six surfaces).
+
+### [FU-TRIAL-EMAIL-LIVE-TEST]
+Trial emails stay dry-run until the owner has seen one real test email (owner ruling 22 Oct) **[coordinator]**.
+
+### Carried forward (open, unchanged)
+
+- Everything in the 2026-10-20 (daily, part 2) section, except that the guide A/B read is superseded by the 22 Oct roll-out ruling (DECISION_LOG).
+- **Owner:** the items in `NEXT_ACTION.md` (22 Oct daily); set the repo back to PRIVATE.
+
 ## 2026-10-20 (daily, part 2) - #1277 GUIDE-1, #1278 RIG-2, #1279 PREVIEW-1, #1280 MI-VOICE-1, #1281 GUIDE-PUBLIC-1, #1282 MUMMY-1, #1283 PARENTS-NAV-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `1c8e9d70`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. relayed review findings and ops readings).
