@@ -150,11 +150,45 @@ export const selectInRangeFromPool = (
    *  tail that fills the remainder. Seen-first still applies across both: unseen head, unseen
    *  tail, seen head, seen tail. Omit → today's ordering, byte-identical. */
   headSize?: number,
+  /** QP-CONCEPT-1 — a concept hint's tiers (on-concept ids, then related ids). Each tier is served
+   *  before the next and before the rest; inside a tier the draw's rows stay ahead of the served
+   *  tail (head-size rule), unseen ahead of seen, each group rotated so Refresh moves the set.
+   *  The rest keeps the ordering above. Omit (or all empty) → byte-identical. */
+  priorityTiers?: ReadonlyArray<ReadonlySet<string>>,
 ): { available: number; displayed: PracticeQuestion[] } => {
   const matched = pool.filter((q) =>
     questionMatchesFilters(q, marks, style, source, diff, range)
   );
   const available = matched.length;
+
+  if (priorityTiers && priorityTiers.some((t) => t.size > 0)) {
+    const tierOf = (q: PracticeQuestion) => {
+      const i = priorityTiers.findIndex((t) => t.has(String(q.id)));
+      return i < 0 ? priorityTiers.length : i;
+    };
+    const headSet = new Set(headSize !== undefined ? pool.slice(0, headSize) : []);
+    const isSeen = (q: PracticeQuestion) => !!seenIds && seenIds.has(String(q.id));
+    const off = rotateOffset ?? 0;
+    const ordered: PracticeQuestion[] = [];
+    priorityTiers.forEach((_, i) => {
+      const tier = matched.filter((q) => tierOf(q) === i);
+      const head = tier.filter((q) => headSet.has(q));
+      const tail = tier.filter((q) => !headSet.has(q));
+      ordered.push(
+        ...rotateBy(head.filter((q) => !isSeen(q)), off),
+        ...rotateBy(tail.filter((q) => !isSeen(q)), off),
+        ...rotateBy(head.filter(isSeen), off),
+        ...rotateBy(tail.filter(isSeen), off),
+      );
+    });
+    const rest = pool.filter((q) => tierOf(q) === priorityTiers.length);
+    const restHead = headSize !== undefined ? rest.filter((q) => headSet.has(q)).length : undefined;
+    const restSel = selectInRangeFromPool(
+      rest, marks, style, source, diff, range, Number.MAX_SAFE_INTEGER, seenIds, rotateOffset, restHead,
+    );
+    ordered.push(...restSel.displayed);
+    return { available, displayed: ordered.slice(0, committedCount) };
+  }
 
   if (headSize !== undefined) {
     const headIds = new Set(pool.slice(0, headSize));
@@ -574,6 +608,7 @@ import {
   subscribeMoreLikeThisLimit,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
+import { loadConceptHintTiers } from "../components/practice/conceptHintTiers";
 import {
   parseTopicsParam,
   topicSetKey,
@@ -1126,6 +1161,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // MLT-MUTE-2 — on the full-pool route, how many leading rows of `questions` are the engine
   // DRAW (the rest is the served tail). Undefined on every other route (today's ordering).
   const [poolHeadSize, setPoolHeadSize] = useState<number | undefined>(undefined);
+  // QP-CONCEPT-1 — a concept hint's tiers over the built pool (on-concept ids, related ids).
+  const [poolHintTiers, setPoolHintTiers] = useState<Array<Set<string>> | undefined>(undefined);
 
   useEffect(() => {
     if (didInitFromUrlRef.current) return;
@@ -1335,8 +1372,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       exact ? undefined : rotationOffset,
       // MLT-MUTE-2: the full-pool route keeps the engine draw's matching rows at the head.
       exact ? undefined : poolHeadSize,
+      exact ? undefined : poolHintTiers,
     );
-  }, [questions, poolHeadSize, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
+  }, [questions, poolHeadSize, poolHintTiers, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
 
   const filteredQuestions = committedPoolSelection.displayed;
 
@@ -2082,9 +2120,16 @@ const packTopicKey = useMemo(() => {
         // both subjects, single-topic, multi-topic and Full subject alike. The draw stays first
         // (its shape, seen-set and canonical fallback unchanged). The board / default set, a CBQ
         // set (already the whole CBQ pool) and an exact id set are untouched.
+        // QP-CONCEPT-1 — a concept entry (Tutor "Practise this", HPQ "More like this", a Topic Hub card's
+        // `focus` + `subtopicHint`) also draws from the whole chapter: the hint's rows were only a
+        // REORDER of the draw, so a concept the draw missed was never served. Single topic only.
+        const conceptHinted =
+          (!!subtopicHint || !!conceptFocusLabel) && !isMultiTopic && !cbqMode &&
+          !isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange);
+        let hintTiers: Array<Set<string>> | undefined;
         let headSize: number | undefined;
         if (
-          fullPoolRoute &&
+          (fullPoolRoute || conceptHinted) &&
           !cbqMode &&
           !isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange)
         ) {
@@ -2100,10 +2145,15 @@ const packTopicKey = useMemo(() => {
           headSize = next.length;
           next = mergeWithServedPool(next, served);
         }
+        if (conceptHinted) {
+          const t = await loadConceptHintTiers(next, topicLabel, [conceptFocusLabel, subtopicHint]);
+          hintTiers = [t.onConcept, t.related];
+        }
 
         if (!cancelled) {
           setQuestions(next);
           setPoolHeadSize(headSize);
+          setPoolHintTiers(hintTiers);
           setSessionFinished(false);
           setScorecardDismissed(false);
           setReviewMode(false);
@@ -2128,6 +2178,7 @@ const packTopicKey = useMemo(() => {
         if (!cancelled) {
           setQuestions([]);
           setPoolHeadSize(undefined);
+          setPoolHintTiers(undefined);
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
@@ -2159,6 +2210,8 @@ const packTopicKey = useMemo(() => {
     questionCount,
     difficulty,
     subtopicHint,
+    // QP-CONCEPT-1: a Topic Hub card's `focus` names the concept its set is drawn for.
+    conceptFocusLabel,
     focusBankIds,
     strictFocus,
     engineMarksFilter,
