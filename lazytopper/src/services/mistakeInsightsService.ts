@@ -1,9 +1,10 @@
-import { getMistakeLogs, isHabitOnlyEntry, type MistakeLogEntry } from "./mistakeLogService";
+import { getMistakeLogs, type MistakeLogEntry } from "./mistakeLogService";
 import {
   MISTAKE_GROUPS,
   addMarksLost,
   entryMarksLost,
   groupMarks,
+  isHabitOnlyEntry,
   mistakeGroupOf,
   zeroMarksLost,
   type MarksLostByType,

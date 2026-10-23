@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { MISTAKE_TYPE_LABEL, STORED_MISTAKE_TYPES } from "../../lib/mistakeDisplay";
+import { MISTAKE_TYPE_LABEL, STORED_MISTAKE_TYPES, isHabitOnlyEntry } from "../../lib/mistakeDisplay";
 import type { TypeMarks } from "../../services/meHomeSummary";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -27,7 +27,6 @@ import {
 } from "../../lib/desktop/topics";
 import {
   getMistakeLogs,
-  isHabitOnlyEntry,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";

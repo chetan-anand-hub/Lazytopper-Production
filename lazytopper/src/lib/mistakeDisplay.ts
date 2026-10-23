@@ -736,6 +736,12 @@ export function isLossOnlyNotAttempted(q: GradedQuestionLike): boolean {
   return isQuestionNotAttempted(q) || (marksLostOn(q) > 0 && marksLostToWork(q) <= 0);
 }
 
+/** MCQ-TYPE-2 — a stored MI entry that is a 0-MARK HABIT (a right MCQ with flawed working,
+ *  `habitOnly`). Pure, here (not in the log service) so readers that mock the store still have it. */
+export function isHabitOnlyEntry(e: { habitOnly?: unknown } | null | undefined): boolean {
+  return e?.habitOnly === true;
+}
+
 /** A stored MI entry's marks per bucket — ONLY when it carries the versioned field (PR-2). An
  *  entry without it is COUNT-ONLY: null, and the reader shows its counts (G5). */
 export function entryMarksLost(entry: { marksLostByType?: unknown; marksLostByTypeVersion?: unknown } | null | undefined): MarksLostByType | null {

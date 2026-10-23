@@ -44,9 +44,11 @@ beforeEach(() => {
 
 describe("insights readers — a habit counts in TYPE COUNTS only", () => {
   it("★ getMistakeInsights: mistakeCounts gain the habits; checked total, marks, top type, hotspot and enough-data do not move", async () => {
-    H.entries = LIVE();
+    // ONE set of live entries for both reads (fresh entries would carry different timestamps)
+    const live = LIVE();
+    H.entries = live;
     const base = await getMistakeInsights("u", 7);
-    H.entries = [...LIVE(), ...HABITS()];
+    H.entries = [...live, ...HABITS()];
     const withHabits = await getMistakeInsights("u", 7);
     expect(withHabits.mistakeCounts).toEqual({ ...base.mistakeCounts, silly: base.mistakeCounts.silly + 1, calculation: base.mistakeCounts.calculation + 1 });
     const { mistakeCounts: _a, ...restBase } = base;
@@ -64,9 +66,10 @@ describe("insights readers — a habit counts in TYPE COUNTS only", () => {
   });
 
   it("★ getCarelessInsight: careless COUNTS gain the habits; careless MARKS do not", async () => {
-    H.entries = LIVE();
+    const live = LIVE();
+    H.entries = live;
     const base = await getCarelessInsight("u", 7);
-    H.entries = [...LIVE(), ...HABITS()];
+    H.entries = [...live, ...HABITS()];
     const c = await getCarelessInsight("u", 7);
     expect(c.marksLost).toBe(base.marksLost);
     expect([c.calculationCount, c.sillyCount, c.count]).toEqual([base.calculationCount + 1, base.sillyCount + 1, base.count + 2]);
@@ -74,9 +77,10 @@ describe("insights readers — a habit counts in TYPE COUNTS only", () => {
 
   it("getMistakeTrend: the marks trend (direction, overall change) is unchanged by habits", async () => {
     const prev = [entry("conceptual", 4, { hoursAgo: 24 * 10 })];
-    H.entries = [...LIVE(), ...prev];
+    const live = LIVE();
+    H.entries = [...live, ...prev];
     const base = await getMistakeTrend("u", 7, 7);
-    H.entries = [...LIVE(), ...prev, ...HABITS()];
+    H.entries = [...live, ...prev, ...HABITS()];
     const t = await getMistakeTrend("u", 7, 7);
     expect([t.direction, t.overallPctChange]).toEqual([base.direction, base.overallPctChange]);
   });

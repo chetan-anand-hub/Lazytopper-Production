@@ -57,14 +57,13 @@ import {
 import { conceptEvidenceKey, type ConceptRowRef } from "./progressBankShape";
 import {
   getMistakeLogHistoryFromCloud,
-  isHabitOnlyEntry,
   isSupersededByRegrade,
   isWonBack,
   type MistakeLogEntry,
 } from "./mistakeLogService";
 import { isSafeEntry } from "./mistakeInsightsService";
 import { getTutorTurnsFromCloud, tutorSessionCount, type TutorTurnEvent } from "./tutorSessionStore";
-import { entryMarksLost, groupMarks, mistakeGroupOf, type MistakeGroupKey } from "../lib/mistakeDisplay";
+import { entryMarksLost, groupMarks, isHabitOnlyEntry, mistakeGroupOf, type MistakeGroupKey } from "../lib/mistakeDisplay";
 
 export { boardChapterKey };
 export type { ReadWindow, WindowTotal };

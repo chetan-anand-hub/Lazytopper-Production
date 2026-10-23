@@ -1,3 +1,4 @@
+import { isHabitOnlyEntry } from "../lib/mistakeDisplay";
 import type { QueryConstraint } from "firebase/firestore";
 import { isFirestoreEnabled, withFirestore, type FirestoreSdk } from "./firestoreSdk";
 import { noteStudyDataChanged } from "./studyDataSignal";
@@ -92,10 +93,9 @@ export interface MistakeLogEntry {
   habitOnly?: boolean;
 }
 
-/** MCQ-TYPE-2 — a 0-mark habit entry (see `MistakeLogEntry.habitOnly`). */
-export function isHabitOnlyEntry(e: Pick<MistakeLogEntry, "habitOnly"> | null | undefined): boolean {
-  return e?.habitOnly === true;
-}
+/** MCQ-TYPE-2 — a 0-mark habit entry (see `MistakeLogEntry.habitOnly`); the pure predicate lives in
+ *  lib/mistakeDisplay so a reader that mocks this store still has it. */
+export { isHabitOnlyEntry };
 
 /**
  * How a mistake was resolved (ME-ENGINE-1 PR-1, G7):
