@@ -114,6 +114,10 @@ export const MISTAKE_TYPE_LABEL: Readonly<Record<StoredMistakeType, string>> = {
   presentation: "Presentation",
 };
 
+/** MCQ-TYPE-2 (owner copy ruling 23 Oct 2026, 23:50 IST) — the chip on a 0-MARK HABIT (a right MCQ
+ *  with flawed working): the type, and that the mark was KEPT. Never a lost-marks claim. */
+export const HABIT_KEPT_COPY = "mark kept, fix the habit";
+
 /** The heading over the per-kind block of a COUNT-ONLY grade or record. It counts MISTAKES, so
  *  it must not claim marks (D2). */
 export const MISTAKES_BY_KIND_HEADING = "Mistakes the examiner found, by kind";
@@ -766,6 +770,20 @@ export function questionChipType(q: GradedQuestionLike): StoredMistakeType | nul
     }
   }
   return best;
+}
+
+/**
+ * THE per-question chip TEXT — screen, PDFs and chips call this (the type from `questionChipType`).
+ * On a 0-mark habit (MCQ-TYPE-2) it carries the kept mark and the habit copy, e.g.
+ * "1/1 · Silly slip — mark kept, fix the habit"; otherwise the type's display name. Null when
+ * nothing may be shown.
+ */
+export function questionChipText(q: GradedQuestionLike): string | null {
+  const label = mistakeTypeLabel(questionChipType(q));
+  if (!label) return null;
+  if (!isHabitOnlyQuestion(q)) return label;
+  const n = (v: unknown): string => String(Number(v) || 0);
+  return `${n(q.marksAwarded)}/${n(q.totalMarks)} · ${label} — ${HABIT_KEPT_COPY}`;
 }
 
 /* ── per-step display state ─────────────────────────────────────────────────── */

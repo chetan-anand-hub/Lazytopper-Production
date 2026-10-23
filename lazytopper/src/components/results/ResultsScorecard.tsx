@@ -948,6 +948,8 @@ const SC_CSS = `
 .lt-sc__ga-mtype {
   display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
   padding: 3px 9px; border-radius: 6px; margin-top: 9px;
+  /* MCQ-TYPE-2: the habit chip is a short sentence — it wraps inside the card, never scrolls. */
+  max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.45;
 }
 .lt-sc__ga-mtype--gap { background: rgba(239, 68, 68, 0.16); color: #ffb3b3; }
 .lt-sc__ga-mtype--technique { background: rgba(59, 130, 246, 0.16); color: #b6d2ff; }

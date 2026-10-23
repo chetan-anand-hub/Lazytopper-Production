@@ -32,6 +32,7 @@ import {
   gradeStateOf,
   isNotAttemptedStatus,
   isWithdrawnStatus,
+  questionChipText,
   questionChipType,
   questionMarksLost,
   readRubric,
@@ -179,13 +180,16 @@ export function buildGradedAnswer(src: GradedAnswerSource): ScorecardGradedAnswe
   if (gradeStateOf(src) !== "graded") {
     return notGradedAnswer(src.label, descriptor, src);
   }
-  const kind = dominantMistakeKind({
+  // MCQ-TYPE-2: `objective` travels too, so a right MCQ with flawed working is seen as a 0-mark habit.
+  const chipSrc = {
     totalMarks: src.totalMarks,
     marksAwarded: src.marksAwarded,
     mistakeSummary: src.mistakeSummary,
     annotatedSteps: src.annotatedSteps,
     marksLostByType: src.marksLostByType,
-  });
+    objective: src.objective === true,
+  };
+  const kind = dominantMistakeKind(chipSrc);
   const stepDetail = firstMistakeDetail(src.annotatedSteps);
   const detail = src.lostFromStepsOnly ? stepDetail : (stepDetail || src.teacherNote || null);
   const awarded = typeof src.marksAwarded === "number" ? src.marksAwarded : null;
@@ -228,7 +232,7 @@ export function buildGradedAnswer(src: GradedAnswerSource): ScorecardGradedAnswe
       : src.teacherNote || null,
     lostLabel: detail ? (src.objective ? "What your working shows:" : "Where the mark went:") : null,
     lostDetail: detail,
-    mistakeType: kind ? MISTAKE_KIND_LABEL[kind] : null,
+    mistakeType: kind ? questionChipText(chipSrc) : null,
     mistakeKind: kind,
     steps,
     ...(withdrawn.length > 0 ? { withdrawnSteps: withdrawn } : {}),

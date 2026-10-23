@@ -11,6 +11,7 @@ import {
   gradeStateOf,
   groupRows,
   isGradedQuestion,
+  isHabitOnlyQuestion,
   isQuestionNotAttempted,
   marksGroupRows,
   marksWithUnit,
@@ -18,6 +19,7 @@ import {
   notGradedSummaryLine,
   paperMarksLost,
   pendingBreakdown,
+  questionChipText,
   splitWithdrawnSteps,
   stepDisplay,
   stepShowsType,
@@ -326,6 +328,8 @@ export function CheckImproveGradedPrintDoc({
               {q.questionText && (
                 <div className="lt-cigp__qtext"><MathText text={q.questionText} /></div>
               )}
+              {/* MCQ-TYPE-2 — a right MCQ with flawed working: the habit, with the kept mark. */}
+              {isHabitOnlyQuestion(q) && <div className="lt-cigp__habit">{questionChipText(q)}</div>}
 
               {steps.length === 0 ? (
                 <div className="lt-cigp__nosteps">No step-level annotation was returned for this answer.</div>
@@ -471,6 +475,7 @@ const CIGP_CSS = `
 .lt-cigp__stbadge--bad { background: var(--cg-rose-bg); color: var(--cg-rose); }
 .lt-cigp__stbadge--na { background: #f1f3f6; color: #4b5563; }
 .lt-cigp__stbadge--unk { background: #f1f3f6; color: #4b5563; }
+.lt-cigp__habit { display: inline-block; max-width: 100%; white-space: normal; overflow-wrap: anywhere; font-size: 11px; font-weight: 700; padding: 2px 9px; margin: 0 0 8px; border-radius: 20px; background: #fff4e0; color: #8a5a00; }
 .lt-cigp__sttag { font-size: 10.5px; font-weight: 700; padding: 1px 8px; border-radius: 20px; background: #eef0f7; color: #5b63b0; }
 .lt-cigp__stmk { margin-left: auto; font-size: 11.5px; font-weight: 700; color: var(--cg-green-d); }
 .lt-cigp__stmkd { color: var(--cg-rose); }
