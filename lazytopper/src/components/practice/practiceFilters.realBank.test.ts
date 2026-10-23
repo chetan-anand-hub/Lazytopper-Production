@@ -16,11 +16,13 @@
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
 //   HOTS    FILTER-FIX-1 left the predicate at 4,105 (any Hard row, or Analysing / Evaluating at
 //           any difficulty). GUIDE-FILTER-1 (owner ruling 23 Oct 2026): higher-order bloom at
-//           Medium / Hard only (pinned below, measured on the merged tree after PYQ-RESTORE-A part 1).
+//           Medium / Hard only (pinned below, measured on the merged tree after PYQ-RESTORE-A part 2).
 // PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 13 Maths PYQ rows repaired from the
 //   row are served again: PYQ AP 11->12, SAV 18->19, Stats 19->22; Proof RN 47->49, Poly 7->8, Tri 79->80; under the OLD
 //   HOTS rule: any 4,135->4,147, Hard 2,094->2,101, 4-mark HOTS 949->951 (measured on top of PYQ-RESTORE-B PR-2; ledger:
 //   data/bankFix/pyqRestoreALedger.ts).
+// PYQ-RESTORE-A part 2 (Science): Proof Electricity 8->9 (SCQ-S-ELEC-037, a W = VIt derivation, served again); under the
+//   OLD HOTS rule: any 4,147->4,164, Hard 2,101->2,115, 4-mark HOTS 951->957.
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -154,7 +156,7 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
   it("Science derivations: Electricity >= 2 with both 2026 PYQs; Light; Magnetic Effects 0 (chip hidden)", () => {
     const elec = ids("electricity", "all", "proof", "all", "all");
     expect(elec.size).toBeGreaterThanOrEqual(2);
-    expect(elec.size).toBe(8);
+    expect(elec.size).toBe(9); // PYQ-RESTORE-A part 2: SCQ-S-ELEC-037 (derive W = VIt) served again
     expect(elec.has("PYQ-S-2026-ELEC-011")).toBe(true); // "Prove that the graph follows Ohm's law"
     expect(elec.has("PYQ-S-2026-ELEC-012")).toBe(true); // "Derive an expression for the equivalent resistance"
     const light = ids("light-reflection-and-refraction", "all", "proof", "all", "all");
@@ -173,7 +175,7 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
       "carbon-and-its-compounds": 0,
       "light-reflection-and-refraction": 4,
       "human-eye-and-colourful-world": 1,
-      electricity: 8,
+      electricity: 9,
       "magnetic-effects-of-electric-current": 0,
       "life-processes": 0,
       "control-and-coordination": 0,
@@ -231,23 +233,23 @@ describe("FILTER-FIX-1 · Marks bucket 4", () => {
 
 // GUIDE-FILTER-1 — OWNER RULING 23 Oct 2026: HOTS = higher-order bloom (Analysing / Evaluating /
 // Creating) at Medium or Hard ONLY. RED on trunk 6fe85765 (old rule: any Hard row, or Analysing /
-// Evaluating at any difficulty), on trunk 80487072 (after PYQ-RESTORE-B #1300/#1303 + PYQ-RESTORE-A part 1 #1309): 4,147 total /
-// 2,101 Hard / 1,097 with 1 mark / 951 with 4 marks.
+// Evaluating at any difficulty), on trunk ad55ebb1 (after PYQ-RESTORE-B #1300/#1303 + PYQ-RESTORE-A #1309/#1312): 4,164 total /
+// 2,115 Hard / 1,097 with 1 mark / 957 with 4 marks.
 describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 23 Oct)", () => {
-  it("served pools, 26 chapters: 3,366 (Maths 678 Hard + 824 Medium; Science 766 Hard + 1,098 Medium); Easy 0", () => {
+  it("served pools, 26 chapters: 3,372 (Maths 678 Hard + 824 Medium; Science 769 Hard + 1,101 Medium); Easy 0", () => {
     const by = (subject: string, d: string) =>
       BANK_CHAPTER_SLUGS.filter((slug) => BANK_CHAPTER_SUBJECT[slug] === subject).reduce((t, slug) => t + n(slug, "all", "hots", "all", d), 0);
     expect(by("Maths", "Hard")).toBe(678);
     expect(by("Maths", "Medium")).toBe(824);
-    expect(by("Science", "Hard")).toBe(766);
-    expect(by("Science", "Medium")).toBe(1098);
+    expect(by("Science", "Hard")).toBe(769);
+    expect(by("Science", "Medium")).toBe(1101);
     let any = 0;
     for (const slug of BANK_CHAPTER_SLUGS) {
       any += n(slug, "all", "hots", "all", "all");
       // With HOTS chosen the Easy chip is a REAL zero in every chapter (it greys out via chipCounts).
       expect(n(slug, "all", "hots", "all", "Easy"), `${slug} HOTS + Easy`).toBe(0);
     }
-    expect(any).toBe(3366);
+    expect(any).toBe(3372);
     // Every HOTS row really is higher-order bloom at Medium / Hard (no Hard-only Applying row).
     for (const slug of BANK_CHAPTER_SLUGS) {
       for (const q of pools.get(slug)!) {

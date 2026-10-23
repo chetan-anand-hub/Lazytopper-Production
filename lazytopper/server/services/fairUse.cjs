@@ -784,6 +784,10 @@ function decide({ tier, surface, questionCount, days, nowMs, limits }) {
    so DPDP erasure / export reach them with no new location. */
 
 const TUTOR_PATH = '/api/tutor';
+// MLT-RETIRE-1: POST /api/more-like-this answers 410 (routes/moreLikeThis.cjs), so it is no longer an
+// AI_ROUTES entry — nothing there can be decided, refused or counted. The READ side is kept on purpose:
+// the trialMoreLikeThis counter field, the moreLikeThisPerDay limit and GET /api/usage/me's
+// moreLikeThisLeftToday stay, so that response is byte-identical and stored day documents still read.
 const MORE_LIKE_THIS_PATH = '/api/more-like-this';
 const DETECT_QUESTION_PATH = '/api/detect-question';
 
@@ -797,7 +801,6 @@ const AI_TRIAL_COUNTER_FIELDS = Object.freeze({
 /** Per route: its counter key, its rule suffix, its limit, and whether the free tier is refused. */
 const AI_ROUTES = Object.freeze({
   [TUTOR_PATH]: Object.freeze({ key: 'tutor', rule: 'tutor', limit: 'tutorPerDay', freeGated: false }),
-  [MORE_LIKE_THIS_PATH]: Object.freeze({ key: 'moreLikeThis', rule: 'more_like_this', limit: 'moreLikeThisPerDay', freeGated: true }),
   [DETECT_QUESTION_PATH]: Object.freeze({ key: 'detect', rule: 'detect', limit: 'detectPerDay', freeGated: true }),
 });
 
@@ -1242,8 +1245,8 @@ function createFairUse(deps = {}) {
   }
 
   /**
-   * ALL-AI-METERING-1: the route-boundary check for /api/tutor, /api/more-like-this and
-   * /api/detect-question. Returns true only when FAIR_USE_ENFORCE_ALL_AI=1 and it has
+   * ALL-AI-METERING-1: the route-boundary check for /api/tutor and /api/detect-question
+   * (/api/more-like-this until MLT-RETIRE-1). Returns true only when FAIR_USE_ENFORCE_ALL_AI=1 and it has
    * already answered (402 / 409 / 429). See the block above AI_ROUTES.
    */
   async function applyToAiRequest(req, res, reqPath, verifiedUid, options) {
@@ -1284,7 +1287,7 @@ function createFairUse(deps = {}) {
     if (!decision.allowed) {
       if (isAiEnforced(env)) {
         // TOPUP-1: a Premium request at cap is served from credit when it covers the call.
-        const aiActivity = reqPath === '/api/tutor' ? 'tutor_message' : reqPath === '/api/more-like-this' ? 'more_like_this' : 'question_detection';
+        const aiActivity = reqPath === '/api/tutor' ? 'tutor_message' : 'question_detection';
         if (await creditServes(uid, tier, decision, aiActivity, 1, nowMs)) return false;
         emit(`fair_use.refused.${decision.rule}`);
         if (typeof sendJson === 'function') sendJson(res, decision.status, decision.body);

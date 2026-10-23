@@ -42,7 +42,6 @@ import { UpgradeModal } from "../UpgradeModal";
 import { UpgradeSheet } from "../subscription/UpgradeSheet";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import TrialPaperNote from "../usage/TrialPaperNote";
-import MoreLikeThisPremiumNote from "../usage/MoreLikeThisPremiumNote";
 import TutorErrorView from "../../pages/tutor/TutorErrorView";
 import * as analytics from "../../analytics/analytics";
 import { FORWARD_LABEL, QR_LABEL } from "./PaywallActions";
@@ -269,38 +268,6 @@ describe("trial-paper note (TrialPaperNote)", () => {
     flags(false);
     at(note);
     expect(screen.getByTestId("trial-paper-see-plans")).toHaveTextContent("See plans");
-    expectNone();
-  });
-});
-
-describe("More-like-this Premium note (MoreLikeThisPremiumNote)", () => {
-  it("trial used, switched on: the three replace 'See plans'; OK stays", async () => {
-    flags(true);
-    at(<MoreLikeThisPremiumNote trialUsed onDismiss={vi.fn()} />);
-    await expectThree();
-    expect(screen.queryByText("See plans")).toBeNull();
-    expect(screen.getByRole("button", { name: "OK" })).toBeInTheDocument();
-  });
-
-  it("trial unused, switched on: 'Start free trial' stays FIRST, the three follow", async () => {
-    flags(true);
-    at(<MoreLikeThisPremiumNote />);
-    await expectThree();
-    const trial = screen.getByTestId("more-like-this-start-trial");
-    expect(trial).toHaveTextContent("Start free trial");
-    expect(trial.compareDocumentPosition(screen.getByTestId("paywall-pay")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    fireEvent.click(screen.getByTestId("paywall-pay"));
-    expect(track.mock.calls).toEqual([["pay", "more_like_this"]]);
-  });
-
-  it.each([
-    [true, "See plans"],
-    [false, "Start free trial"],
-  ])("CONTROL — trialUsed=%s, payments dark: the single old link '%s', nothing new", (trialUsed, label) => {
-    flags(false);
-    at(<MoreLikeThisPremiumNote trialUsed={trialUsed} />);
-    expect(screen.getByTestId("more-like-this-start-trial")).toHaveTextContent(label);
-    expect(screen.getAllByRole("link")).toHaveLength(1);
     expectNone();
   });
 });

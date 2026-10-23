@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "human-eye-and-colourful-world" (Science): 304 served rows from 25 source arrays, 38 withheld.
+// Chapter "human-eye-and-colourful-world" (Science): 312 served rows from 26 source arrays, 35 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -22,6 +22,7 @@ import { HUMAN_EYE_PYQ } from "../questionBanks/class10/science/human-eye-and-co
 import { controlCoordinationPYQ2026 } from "../questionBanks/class10/science/controlCoordination.pyq2026";
 import { lightReflectionPYQ2026 } from "../questionBanks/class10/science/lightReflection.pyq2026";
 import { humanEyePYQ2026 } from "../questionBanks/class10/science/humanEye.pyq2026";
+import { controlCoordinationPYQ2025 } from "../questionBanks/class10/science/controlCoordination.pyq2025";
 import { lightReflectionPYQ2025 } from "../questionBanks/class10/science/lightReflection.pyq2025";
 import { humanEyePYQ2025 } from "../questionBanks/class10/science/humanEye.pyq2025";
 import { lightReflectionPYQ2024 } from "../questionBanks/class10/science/lightReflection.pyq2024";
@@ -49,6 +50,7 @@ export default defineChapter("human-eye-and-colourful-world", [
   [364, controlCoordinationPYQ2026, false],
   [367, lightReflectionPYQ2026, false],
   [368, humanEyePYQ2026, false],
+  [377, controlCoordinationPYQ2025, false],
   [380, lightReflectionPYQ2025, false],
   [381, humanEyePYQ2025, false],
   [393, lightReflectionPYQ2024, false],
@@ -89,10 +91,7 @@ export default defineChapter("human-eye-and-colourful-world", [
   "SCQ-S-EYE-034",
   "SCQ-S-EYE-036",
   "SCQ-S-EYE-038",
-  "PYQ-S-EYE-002",
-  "PYQ-S-EYE-005",
   "PYQ-S-2026-EYE-003",
-  "PYQ-S-2025-EYE-002",
   "LTG-S-EYE-202",
   "LTG-S-EYE-207",
   "LTG-S-EYE-212",

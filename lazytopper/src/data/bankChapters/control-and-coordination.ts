@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "control-and-coordination" (Science): 374 served rows from 20 source arrays, 16 withheld.
+// Chapter "control-and-coordination" (Science): 376 served rows from 20 source arrays, 14 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -63,6 +63,4 @@ export default defineChapter("control-and-coordination", [
   "SCQ-S-CTRL-029",
   "SCQ-S-CTRL-037",
   "SCQ-S-CTRL-042",
-  "PYQ-S-CTRL-003",
-  "PYQ-S-2025-CTRL-008",
 ]);

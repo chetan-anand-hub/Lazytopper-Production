@@ -203,14 +203,15 @@ describe("every PAID endpoint's client call site attaches identity", () => {
       src.indexOf("});", src.indexOf("const PAID_ENDPOINTS")),
     );
     const paths = [...block.matchAll(/"(\/api\/[a-z-]+)":/g)].map(m => m[1]);
-    expect(paths.length, "failed to parse PAID_ENDPOINTS").toBeGreaterThan(5);
+    expect(paths.length, "failed to parse PAID_ENDPOINTS").toBeGreaterThan(4); // MLT-RETIRE-1: 6 -> 5 paid endpoints
     return paths;
   }
 
   /** Client files that call a paid endpoint, mapped to the endpoints they call. */
   const CALL_SITES: Record<string, string[]> = {
     "src/ai/aiClient.ts": [
-      "/api/more-like-this",
+      // MLT-RETIRE-1: "/api/more-like-this" removed - the route answers 410 and is no longer a
+      // paid endpoint; aiClient.generateMoreLikeThis() was deleted.
       "/api/step-solution",
       "/api/check-solution",
       "/api/detect-question",

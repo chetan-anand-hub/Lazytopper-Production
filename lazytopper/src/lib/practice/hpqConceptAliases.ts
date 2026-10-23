@@ -34,6 +34,8 @@ export const HPQ_CONCEPT_ALIASES: Readonly<Record<string, Readonly<Record<string
   },
   "arithmetic-progression": {
     // math-ap-hpq-1 — identify an AP and its common difference (the bank files "Common Difference" under nth Term).
+    // QP-CONCEPT-3: the Topic Hub card "Common difference … (test for an AP)" now maps the SAME way
+    // (practiseConceptKeys ["nth Term"] + the same keywords), so the two entries agree.
     "Basics of AP": ["nth Term"],
   },
   "statistics": {
@@ -64,8 +66,8 @@ export const HPQ_CONCEPT_ALIASES: Readonly<Record<string, Readonly<Record<string
     "Ores & Extraction": ["Basic Metallurgical Processes"],
   },
   "carbon-and-its-compounds": {
-    // sci-cic-hpq-4 — soap vs detergent in hard water.
-    "Important Reactions": ["Soaps and Detergents", "Chemical Properties of Carbon Compounds"],
+    // sci-cic-hpq-4 — soap vs detergent in hard water (QP-CONCEPT-3: Soaps and Detergents only).
+    "Important Reactions": ["Soaps and Detergents"],
   },
   "life-processes": {
     "Circulation": ["Transportation & Excretion in Humans"],
@@ -118,5 +120,74 @@ export function hpqConceptAlias(chapterSlug: string, label: string): readonly st
   if (Object.prototype.hasOwnProperty.call(table, h)) return table[h];
   const f = h.toLowerCase();
   const key = Object.keys(table).find((k) => k.toLowerCase() === f);
+  return key ? table[key] : undefined;
+}
+
+// QP-CONCEPT-3 — an alias lands on a whole concept bucket (100–540 rows), so the first questions of
+// e.g. "Lens Formula & Diagrams" were mirror questions. These keywords (lower-case substrings of the
+// row's subtopic or question text, as on the Topic Hub cards) rank the HPQ question's OWN topic first
+// inside the bucket. Chosen from phrases that occur in the bank (checked by conceptHint.realBank.test.ts:
+// each label has keyword rows, and they lead its set).
+const LENS_KEYWORDS = ["lens formula", "focal length of the lens", "1/v − 1/u", "1/f", "magnification produced by a lens", "convex lens", "concave lens"];
+const MIRROR_KEYWORDS = ["mirror formula", "1/v + 1/u", "concave mirror", "convex mirror"];
+export const AP_TEST_KEYWORDS = ["common difference", "is an ap", "are in ap", "an a.p.", "arithmetic progression"];
+
+export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> = {
+  "pair-of-linear-equations": {
+    "Consistency of System": ["consistent", "inconsistent", "consistency", "no solution", "infinitely many", "unique solution", "coincident"],
+  },
+  "trigonometry": {
+    "Trig ratios": ["acute angle", "right-angled", "right triangle"],
+  },
+  "arithmetic-progression": {
+    "Basics of AP": AP_TEST_KEYWORDS,
+  },
+  "probability": {
+    "Combined events": ["two dice", "two coins", "both", "sum of the numbers"],
+    "Probability axioms": ["complement", "not ", "p(not"],
+  },
+  "chemical-reactions-and-equations": {
+    "Oxidation/Reduction": ["oxidation", "reduction", "redox", "oxidis", "rust", "corros"],
+  },
+  "acids-bases-and-salts": {
+    "Indicators & pH": ["indicator", "litmus", "ph "],
+    "pH and Indicators": ["indicator", "litmus", "ph "],
+  },
+  "carbon-and-its-compounds": {
+    "Important Reactions": ["soap", "detergent"],
+  },
+  "life-processes": {
+    "Circulation": ["heart", "double circulation", "circulation"],
+    "Cell organelles": ["mitochondri", "atp", "energy currency", "cell organelle"],
+    "Nutrition in Plants": ["photosynthesis", "chlorophyll", "stomata"],
+  },
+  "light-reflection-and-refraction": {
+    "Mirror Formula & Diagrams": MIRROR_KEYWORDS,
+    "Lens Formula & Diagrams": LENS_KEYWORDS,
+    "Refraction/Sign Convention": ["refraction", "glass slab", "ray diagram"],
+  },
+  "human-eye-and-colourful-world": {
+    "Defects & Correction": ["myopia", "hypermetropia", "presbyopia", "defect"],
+    "Structure of Eye": ["accommodation", "retina", "cornea", "iris", "pupil", "ciliary", "structure"],
+  },
+  "electricity": {
+    "Ohm’s Law & V–I Graph": ["ohm's law", "ohm’s law", "v–i", "v-i", "v = ir"],
+    "Resistance in Series/Parallel": ["series", "parallel", "equivalent resistance"],
+  },
+  "magnetic-effects-of-electric-current": {
+    "Electromagnet & Solenoid": ["solenoid", "electromagnet"],
+    "Field Lines & Rules": ["field line", "thumb", "right-hand"],
+  },
+};
+
+/** The keywords of an HPQ label in `chapterSlug`, or undefined. Exact, then case-insensitive. */
+export function hpqAliasKeywords(chapterSlug: string, label: string): readonly string[] | undefined {
+  const table = Object.prototype.hasOwnProperty.call(HPQ_ALIAS_KEYWORDS, chapterSlug)
+    ? HPQ_ALIAS_KEYWORDS[chapterSlug]
+    : undefined;
+  if (!table) return undefined;
+  const h = label.trim();
+  if (Object.prototype.hasOwnProperty.call(table, h)) return table[h];
+  const key = Object.keys(table).find((k) => k.toLowerCase() === h.toLowerCase());
   return key ? table[key] : undefined;
 }
