@@ -158,14 +158,13 @@ const REAUTH_MESSAGE = 'Please sign in again to continue.';
    A refused call never reaches the limiter, the meter or a handler: it costs nothing.
 
    ★ detect-question verifies WITHOUT consuming the token (spec §2 PR-1), so a token
-   verified here is still fresh for any later consuming check. more-like-this consumes
-   it: one attestation, one call. A MARKED free-check request is not decided here at
+   verified here is still fresh for any later consuming check. (more-like-this, which consumed
+   it, was retired by MLT-RETIRE-1: POST /api/more-like-this now answers 410 and is ungated.) A MARKED free-check request is not decided here at
    all — freeCheck.cjs already requires App Check for it, fail-closed and consuming,
    behind its own wire contract, which this lane must not change (P6).
    ──────────────────────────────────────────────────────────────────────────── */
 const AI_CALLER_ROUTES = Object.freeze([
   '/api/detect-question',
-  '/api/more-like-this',
 ]);
 /** Routes whose App Check verify must not consume the token. */
 const NON_CONSUMING_APP_CHECK_ROUTES = Object.freeze(['/api/detect-question']);
@@ -236,7 +235,8 @@ const GATED_ROUTES = {
 };
 
 /**
- * ALL-AI-METERING-1 — More-like-this and question detection need trial or Premium.
+ * ALL-AI-METERING-1 — question detection needs trial or Premium (More-like-this did too, until
+ * MLT-RETIRE-1 retired its route).
  *
  * ★ NOT IN GATED_ROUTES, ON PURPOSE. This gate does NOT decide them: fairUse.cjs does, at
  * the same route boundary, behind its OWN switch (FAIR_USE_ENFORCE_ALL_AI === "1"). While
@@ -246,11 +246,8 @@ const GATED_ROUTES = {
  * above, and the 402 body is built by the same `premiumRequiredBody` every gated route uses.
  * An admitted anonymous free check never reaches that decision (no verified uid).
  */
+// MLT-RETIRE-1: '/api/more-like-this' removed — the route answers 410 before any gate decides it.
 const AI_TIER_GATED_ROUTES = Object.freeze({
-  '/api/more-like-this': Object.freeze({
-    feature: 'more-like-this',
-    message: "New practice questions like this are a Premium feature. You can unlock them whenever you're ready.",
-  }),
   '/api/detect-question': Object.freeze({
     feature: 'detect-question',
     message: "Reading questions from your photo is a Premium feature. You can unlock it whenever you're ready.",

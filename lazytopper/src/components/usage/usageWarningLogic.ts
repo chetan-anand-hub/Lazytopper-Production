@@ -108,8 +108,8 @@ export function usageWarning(
 
 /* ── Copy (DRAFT — the owner approves it at the end of the lane) ─────────────── */
 
-/** P10: the premium meter sums EVERY paid AI call (tutor, step solution, more-like-this,
- *  detect, grading), so the true word is "AI use", not "marking". */
+/** P10: the premium meter sums EVERY paid AI call (tutor, step solution,
+ *  detect, grading; more-like-this until MLT-RETIRE-1 retired it), so the true word is "AI use", not "marking". */
 export const PREMIUM_NOUN = "AI use";
 
 function resetWhen(resetAt: string | null, nowMs: number): string {

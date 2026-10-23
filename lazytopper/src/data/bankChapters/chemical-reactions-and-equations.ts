@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "chemical-reactions-and-equations" (Science): 516 served rows from 22 source arrays, 58 withheld.
+// Chapter "chemical-reactions-and-equations" (Science): 515 served rows from 23 source arrays, 39 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -21,6 +21,7 @@ import { CHEMICAL_REACTIONS_APQ } from "../questionBanks/class10/science/chemica
 import { CHEMICAL_REACTIONS_CHAPTERWISE } from "../questionBanks/class10/science/chemical-reactions-and-equations.chapterwise";
 import { OUR_ENVIRONMENT_CHAPTERWISE } from "../questionBanks/class10/science/our-environment.chapterwise";
 import { CHEMICAL_REACTIONS_PYQ } from "../questionBanks/class10/science/chemical-reactions-and-equations.pyq";
+import { METALS_NON_METALS_PYQ } from "../questionBanks/class10/science/metals-and-non-metals.pyq";
 import { chemicalReactionsPYQ2026 } from "../questionBanks/class10/science/chemicalReactions.pyq2026";
 import { chemicalReactionsPYQ2025 } from "../questionBanks/class10/science/chemicalReactions.pyq2025";
 import { chemicalReactionsPYQ2024 } from "../questionBanks/class10/science/chemicalReactions.pyq2024";
@@ -45,6 +46,7 @@ export default defineChapter("chemical-reactions-and-equations", [
   [282, CHEMICAL_REACTIONS_CHAPTERWISE, false],
   [294, OUR_ENVIRONMENT_CHAPTERWISE, false],
   [295, CHEMICAL_REACTIONS_PYQ, false],
+  [297, METALS_NON_METALS_PYQ, false],
   [359, chemicalReactionsPYQ2026, false],
   [372, chemicalReactionsPYQ2025, false],
   [385, chemicalReactionsPYQ2024, false],
@@ -80,10 +82,6 @@ export default defineChapter("chemical-reactions-and-equations", [
   "SCQ-S-CHEM-026",
   "SCQ-S-CHEM-039",
   "PYQ-S-CHEM-002",
-  "PYQ-S-CHEM-006",
-  "PYQ-S-CHEM-010",
-  "PYQ-S-CHEM-013",
-  "PYQ-S-CHEM-016",
   "PYQ-S-2026-CHEMRXN-001",
   "PYQ-S-2026-CHEMRXN-004",
   "PYQ-S-2026-CHEMRXN-009",
@@ -92,23 +90,8 @@ export default defineChapter("chemical-reactions-and-equations", [
   "PYQ-S-2026-CHEMRXN-017",
   "PYQ-S-2026-CHEMRXN-019",
   "PYQ-S-2026-CHEMRXN-020",
-  "PYQ-S-2026-CHEMRXN-022",
-  "PYQ-S-2025-CHEMRXN-008",
-  "PYQ-S-2025-CHEMRXN-010",
-  "PYQ-S-2025-CHEMRXN-014",
-  "PYQ-S-2025-CHEMRXN-015",
   "PYQ-S-2025-CHEMRXN-016",
   "PYQ-S-2025-CHEMRXN-017",
-  "PYQ-S-2025-CHEMRXN-018",
-  "PYQ-S-2025-CHEMRXN-019",
   "PYQ-S-2025-CHEMRXN-022",
   "PYQ-S-2025-CHEMRXN-023",
-  "PYQ-S-2024-CHEMRXN-006",
-  "PYQ-S-2024-CHEMRXN-007",
-  "PYQ-S-2024-CHEMRXN-010",
-  "PYQ-S-2024-CHEMRXN-012",
-  "PYQ-S-2024-CHEMRXN-014",
-  "PYQ-S-2024-CHEMRXN-015",
-  "PYQ-S-2024-CHEMRXN-016",
-  "PYQ-S-2024-CHEMRXN-017",
 ]);

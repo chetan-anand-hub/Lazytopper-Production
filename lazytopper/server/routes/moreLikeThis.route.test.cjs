@@ -1,30 +1,21 @@
 /**
- * moreLikeThis.route.test — /api/more-like-this over the REAL index.cjs (MLT-FIX-1).
+ * moreLikeThis.route.test — MLT-RETIRE-1 over the REAL index.cjs.
  *
- * ★ THE DEFECT THIS SUITE PINS. #516 (a86feda9, 2026-07-21) deleted the mentor route
- * that used to hand `buildMoreLikeThisUserPrompt` to index.cjs, and replaced it with
+ * ★ WHAT THIS SUITE PINS. POST /api/more-like-this (the old AI "More like this" generator) is
+ * RETIRED: owner ruling 2026-10-23. MLT-MUTE-1 (#1295) had already stopped every client call to
+ * it, but the route itself was still live — authenticated, metered and able to call the model for
+ * anyone who POSTed to it. It now answers 410 with a short JSON body, exactly like
+ * /api/ai-questions (aiQuestions.route.test.cjs): no body read, no pool read or write, no model
+ * call, no usage-ledger write, no trial counter, no rate-limit bucket.
  *
- *     const { buildMoreLikeThisUserPrompt } = require('./prompts/promptLearn.cjs');
+ * RED on the old code: a signed-in POST answered 200, called the model (MODEL_MARKER) and wrote
+ * the usage ledger (LEDGER_MARKER); an unauthenticated POST answered 401 (AUTHGATE-2), not 410.
  *
- * but promptLearn.cjs exported only `{ createLearnPrompts }` — the builder lived INSIDE
- * that factory. The destructured name was `undefined`, so `handleMoreLikeThis` threw
- * `TypeError: buildMoreLikeThisUserPrompt is not a function` and the server answered
- * 500 on every non-stub request. The call sits BEFORE the pool check, so a pool HIT
- * failed exactly like a miss. Stub mode (no key) never reaches the builder, which is
- * why nothing local ever saw it.
- *
- * ★ WHY OVER THE REAL index.cjs. The defect is in the WIRING (what index.cjs imports),
- * not in the builder or the route factory, each of which is fine on its own. A test
- * that builds the route with a hand-passed builder would stay green on the broken
- * trunk. So this suite boots index.cjs in a child process and talks HTTP to it.
- *
- * Stubbed, and only these: the model's HTTP endpoint (globalThis.fetch, for
- * generativelanguage.googleapis.com only), firebase-admin (no network, one accepted
- * test token), and — in the pool-HIT case only — the pool module, because the real
- * pool needs Postgres. The key is a FAKE value; no request leaves the machine.
- *
- * Sign-in behaviour on this route is AUTHGATE-2's to test; every request here is a
- * verified caller so the suite is indifferent to that gate.
+ * ★ WHY OVER THE REAL index.cjs: a refusal in the route factory proves nothing if index.cjs
+ * dispatches the path somewhere else, or a gate in front of dispatch meters it first. Stubbed,
+ * and only these: firebase-admin (no network; every Firestore write is logged), the pool module
+ * (it would need Postgres; every call is logged) and the model's HTTP endpoint (every call is
+ * logged). No request leaves the machine.
  */
 
 const test = require('node:test');
@@ -36,29 +27,17 @@ const { spawn } = require('child_process');
 
 const INDEX_CJS = path.resolve(__dirname, '..', 'index.cjs');
 const ROUTE = '/api/more-like-this';
-const GOOD_TOKEN = 'mlt-fix-1-test-token';
-const FAKE_KEY = 'fake-key-mlt-fix-1-not-real';
+const GOOD_TOKEN = 'mlt-retire-1-test-token';
+const FAKE_KEY = 'fake-key-mlt-retire-1-not-real';
 
-const MODEL_MARKER = '[MLT-TEST] MODEL_CALL';
-const SERVED_MARKER = '[MLT-TEST] MARK_SERVED';
+const MODEL_MARKER = '[MLT-RETIRE-TEST] MODEL_CALL';
+const LEDGER_MARKER = '[MLT-RETIRE-TEST] LEDGER_WRITE';
+const WRITE_MARKER = '[MLT-RETIRE-TEST] FIRESTORE_WRITE';
+const PICK_MARKER = '[MLT-RETIRE-TEST] POOL_PICK';
+const SAVE_MARKER = '[MLT-RETIRE-TEST] POOL_SAVE';
 
-/** Three COMPLETE variants (text + answer + solutionSteps + finalAnswer) as the model returns them. */
-const MODEL_QUESTIONS = [1, 2, 3].map((n) => ({
-  questionText: `Find the ${n}th term of the AP 3, 7, 11, ...`,
-  marks: 2,
-  difficulty: 'Medium',
-  bloomSkill: 'Applying',
-  answer: String(3 + (n - 1) * 4),
-  solutionSteps: ['a = 3, d = 4', `a_${n} = a + (${n} - 1)d = ${3 + (n - 1) * 4}`],
-  finalAnswer: `∴ a_${n} = ${3 + (n - 1) * 4}`,
-}));
-
-const PAYLOAD = {
-  subject: 'Maths',
-  topicKey: 'arithmetic-progressions',
-  seedQuestion: { text: 'Find the 10th term of the AP 2, 7, 12, ...', marks: 2, difficulty: 'Medium', bloomSkill: 'Applying' },
-  numVariants: 3,
-};
+/** A body the OLD handler accepted and generated variants for. */
+const SEED = { subject: 'Maths', topicKey: 'arithmetic-progressions', seedQuestion: { text: 'Find the 10th term of 2, 5, 8, ...', marks: 2 }, numVariants: 3 };
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -71,56 +50,55 @@ function freePort() {
   });
 }
 
-/**
- * Boot the REAL index.cjs. `poolRows` > 0 replaces the pool module with one that holds
- * that many stored rows (the pool-HIT case); otherwise the real pool module runs with no
- * DATABASE_URL, i.e. a genuine pool miss.
- */
-function bootServer({ port, poolRows = 0 }) {
+function bootServer({ port }) {
   const launcher = `
     const Module = require('module');
+    const say = (m) => process.stdout.write(m + '\\n');
+    const logWrite = (key) => say((/usageLedger/.test(key) ? ${JSON.stringify(LEDGER_MARKER)} : ${JSON.stringify(WRITE_MARKER)}) + ' ' + key);
     const mkRef = (key) => ({ key, collection: (s) => ({ doc: (id) => mkRef(key + '/' + s + '/' + id) }),
-      async get() { return { exists: false, data: () => undefined }; }, async set() {} });
+      async get() { return { exists: false, data: () => undefined }; },
+      async set() { logWrite(key); }, async update() { logWrite(key); }, async create() { logWrite(key); } });
+    const db = { collection: (n) => ({ doc: (id) => mkRef(n + '/' + id) }),
+      async runTransaction() { say(${JSON.stringify(WRITE_MARKER)} + ' transaction'); throw new Error('unused'); } };
+    const firestore = () => db;
+    firestore.FieldValue = { increment: (n) => ({ __increment: n }), serverTimestamp: () => ({ __ts: true }) };
     const fake = {
       apps: [],
       credential: { cert: () => ({}) },
       initializeApp() { fake.apps.push({}); },
-      auth: () => ({ verifyIdToken: async (t) => { if (t === ${JSON.stringify(GOOD_TOKEN)}) return { uid: 'u-mlt-1' }; throw new Error('bad token'); } }),
+      auth: () => ({ verifyIdToken: async (t) => { if (t === ${JSON.stringify(GOOD_TOKEN)}) return { uid: 'u-mlt-retire-1' }; throw new Error('bad token'); } }),
       appCheck: () => ({ verifyToken: async () => { throw new Error('no app check in this test'); } }),
-      firestore: () => ({ collection: (n) => ({ doc: (id) => mkRef(n + '/' + id) }), async runTransaction() { throw new Error('unused'); } }),
+      firestore,
     };
-    const poolRows = ${Number(poolRows) || 0};
     const fakePool = {
-      async pickFromPool(topicKey, subject, marks, difficulty, n) {
-        return Array.from({ length: poolRows }, (_, i) => ({ id: 900 + i, text: 'Pooled question ' + i, marks, difficulty,
-          answer: 'x', solutionSteps: ['s'], finalAnswer: 'f' })).slice(0, n);
-      },
-      async markServed(ids) { process.stdout.write(${JSON.stringify(SERVED_MARKER)} + ' ' + ids.length + '\\n'); },
-      async saveToPool() {},
+      async pickFromPool() { say(${JSON.stringify(PICK_MARKER)}); return []; },
+      async markServed() {},
+      async saveToPool() { say(${JSON.stringify(SAVE_MARKER)}); },
     };
     const orig = Module._load;
     Module._load = function (r) {
       if (r === 'firebase-admin') return fake;
-      if (poolRows > 0 && /generatedQuestionPool\\.cjs$/.test(r)) return { ...orig.apply(this, arguments), ...fakePool };
+      if (/generatedQuestionPool\\.cjs$/.test(r)) return { ...orig.apply(this, arguments), ...fakePool };
       return orig.apply(this, arguments);
     };
     const realFetch = globalThis.fetch;
-    const modelText = ${JSON.stringify(JSON.stringify({ questions: MODEL_QUESTIONS }))};
     globalThis.fetch = async (url, init) => {
       if (String(url).includes('generativelanguage.googleapis.com')) {
-        process.stdout.write(${JSON.stringify(MODEL_MARKER)} + '\\n');
+        say(${JSON.stringify(MODEL_MARKER)});
+        const q = { questionText: 'Find the 12th term of 3, 7, 11, ...', marks: 2, answer: '47', solutionSteps: ['a=3, d=4', 'a12 = 3 + 11x4 = 47'], finalAnswer: '47' };
         return new Response(JSON.stringify({
-          candidates: [{ content: { role: 'model', parts: [{ text: modelText }] }, finishReason: 'STOP' }],
-          usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 10, totalTokenCount: 20 },
+          candidates: [{ content: { role: 'model', parts: [{ text: JSON.stringify({ questions: [q, q, q] }) }] }, finishReason: 'STOP' }],
+          usageMetadata: { promptTokenCount: 100, candidatesTokenCount: 100, totalTokenCount: 200 },
         }), { status: 200, headers: { 'content-type': 'application/json' } });
       }
       return realFetch(url, init);
     };
     require(${JSON.stringify(INDEX_CJS)});
   `;
-  const env = { ...process.env, PORT: String(port), VITE_FIREBASE_PROJECT_ID: 'demo-mlt-fix-1', API_KEY: FAKE_KEY, AI_PROVIDER: 'gemini' };
+  const env = { ...process.env, PORT: String(port), VITE_FIREBASE_PROJECT_ID: 'demo-mlt-retire-1', API_KEY: FAKE_KEY, AI_PROVIDER: 'gemini' };
   for (const k of ['GEMINI_API_KEY', 'DIRECT_GEMINI_API_KEY', 'AI_INTEGRATIONS_GEMINI_BASE_URL', 'AI_INTEGRATIONS_GEMINI_API_KEY',
-    'AI_INTEGRATIONS_ANTHROPIC_BASE_URL', 'AI_INTEGRATIONS_ANTHROPIC_API_KEY', 'DATABASE_URL', 'STUB_MODE']) delete env[k];
+    'AI_INTEGRATIONS_ANTHROPIC_BASE_URL', 'AI_INTEGRATIONS_ANTHROPIC_API_KEY', 'DATABASE_URL', 'STUB_MODE',
+    'FAIR_USE_ENFORCE', 'FAIR_USE_ENFORCE_ALL_AI']) delete env[k];
   const child = spawn(process.execPath, ['-e', launcher], { env, cwd: path.dirname(INDEX_CJS) });
   const srv = { child, out: '' };
   child.stdout.on('data', (d) => { srv.out += d; });
@@ -136,82 +114,113 @@ function bootServer({ port, poolRows = 0 }) {
   return srv;
 }
 
-function post(port, body) {
+function request(port, { method, route, body, token }) {
   return new Promise((resolve, reject) => {
-    const payload = JSON.stringify(body);
-    const req = http.request(
-      { host: '127.0.0.1', port, path: ROUTE, method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload), Authorization: `Bearer ${GOOD_TOKEN}` } },
-      (res) => {
-        let text = '';
-        res.on('data', (c) => { text += c; });
-        res.on('end', () => {
-          let json = null;
-          try { json = JSON.parse(text); } catch {}
-          resolve({ status: res.statusCode, json, text });
-        });
-      }
-    );
+    const payload = body === undefined ? '' : JSON.stringify(body);
+    const headers = { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const req = http.request({ host: '127.0.0.1', port, path: route, method, headers }, (res) => {
+      let text = '';
+      res.on('data', (c) => { text += c; });
+      res.on('end', () => {
+        let json = null;
+        try { json = JSON.parse(text); } catch {}
+        resolve({ status: res.statusCode, json, text, headers: res.headers });
+      });
+    });
     req.on('error', reject);
     req.end(payload);
   });
 }
 
-/** The MoreLikeThisResponse / MoreLikeThisVariant shape the client reads (src/ai/aiClient.ts generateMoreLikeThis). */
-function assertClientShape(json, n) {
-  assert.ok(json && typeof json === 'object', 'a JSON body');
-  assert.equal(typeof json.subject, 'string');
-  assert.equal(json.topicKey, PAYLOAD.topicKey);
-  assert.ok(Array.isArray(json.variants), 'variants is an array');
-  assert.equal(json.variants.length, n);
-  json.variants.forEach((v, i) => {
-    assert.equal(typeof v.text, 'string');
-    assert.ok(v.text.length > 0, 'variant text is non-empty');
-    assert.equal(v.index, i);
-    assert.equal(typeof v.answer, 'string');
-    assert.ok(Array.isArray(v.solutionSteps) && v.solutionSteps.length > 0, 'solutionSteps');
-    assert.equal(typeof v.finalAnswer, 'string');
-    assert.equal(v.id, undefined, 'no pool row id leaks to the client');
-  });
+/** Let any fire-and-forget work (ledger write, pool save) the handler started land in the output. */
+const settle = () => new Promise((r) => setTimeout(r, 500));
+
+function assertNothingSpent(srv, r) {
+  const ctx = `\n--- response ---\n${r.status} ${r.text}\n--- server output ---\n${srv.out}`;
+  assert.equal(srv.count(MODEL_MARKER), 0, `no model call${ctx}`);
+  assert.equal(srv.count(LEDGER_MARKER), 0, `no usage-ledger write (no metering)${ctx}`);
+  assert.equal(srv.count(WRITE_MARKER), 0, `no Firestore write of any kind (no trial counter)${ctx}`);
+  assert.equal(srv.count(PICK_MARKER), 0, `the generated_questions pool is not read${ctx}`);
+  assert.equal(srv.count(SAVE_MARKER), 0, `nothing is written to the generated_questions pool${ctx}`);
 }
 
-test('POOL MISS over the REAL index.cjs: 200, the model is called ONCE, variants in the client shape', { timeout: 90000 }, async (t) => {
-  const port = await freePort();
-  const srv = bootServer({ port });
-  t.after(() => srv.child.kill());
+let srv;
+let port;
+test.before(async () => {
+  port = await freePort();
+  srv = bootServer({ port });
   await srv.ready;
-  const r = await post(port, PAYLOAD);
-  assert.equal(r.status, 200, `expected 200, got ${r.status}: ${r.text}\n--- server output ---\n${srv.out}`);
-  assert.equal(srv.count(MODEL_MARKER), 1, 'exactly one model call on a pool miss');
-  assert.equal(r.json.provider, 'gemini');
-  assertClientShape(r.json, 3);
-  assert.equal(r.json.variants[0].text, MODEL_QUESTIONS[0].questionText, 'the variants are the model\'s, not invented');
-  assert.ok(!r.text.includes(FAKE_KEY), 'the key never appears in a response');
+});
+test.after(() => { if (srv) srv.child.kill(); });
+
+test('★ RED on the old code: a SIGNED-IN POST /api/more-like-this is refused 410 — no model call, no ledger write, no pool', { timeout: 90000 }, async () => {
+  const r = await request(port, { method: 'POST', route: ROUTE, body: SEED, token: GOOD_TOKEN });
+  await settle();
+  assert.equal(r.status, 410, `expected 410, got ${r.status}: ${r.text}\n--- server output ---\n${srv.out}`);
+  assert.equal(r.json && r.json.ok, false);
+  assert.equal(r.json && r.json.error, 'gone');
+  assert.equal(typeof (r.json && r.json.message), 'string');
+  assert.equal(r.json && r.json.variants, undefined, 'no variants are served');
+  assert.ok(!r.text.includes(FAKE_KEY));
+  assertNothingSpent(srv, r);
 });
 
-test('POOL HIT over the REAL index.cjs: 200 from the pool, NO model call, rows marked served', { timeout: 90000 }, async (t) => {
-  const port = await freePort();
-  const srv = bootServer({ port, poolRows: 3 });
-  t.after(() => srv.child.kill());
-  await srv.ready;
-  const r = await post(port, PAYLOAD);
-  assert.equal(r.status, 200, `expected 200, got ${r.status}: ${r.text}\n--- server output ---\n${srv.out}`);
-  assert.equal(srv.count(MODEL_MARKER), 0, 'a pool hit never calls the model');
-  assert.equal(srv.count(SERVED_MARKER), 1, 'the served rows are marked once');
-  assert.equal(r.json.provider, 'pool');
-  assertClientShape(r.json, 3);
+test('★ RED on the old code: an UNAUTHENTICATED POST (a stale cached client) gets the same clean 410, not a 401', { timeout: 90000 }, async () => {
+  const r = await request(port, { method: 'POST', route: ROUTE, body: SEED });
+  await settle();
+  assert.equal(r.status, 410, `expected 410, got ${r.status}: ${r.text}`);
+  assert.equal(r.json && r.json.error, 'gone');
+  assertNothingSpent(srv, r);
 });
 
-test('the module index.cjs imports the builder from exports it as a function (the wiring, statically)', () => {
-  const src = require('fs').readFileSync(INDEX_CJS, 'utf8');
-  const m = src.match(/const\s*\{\s*buildMoreLikeThisUserPrompt\s*\}\s*=\s*require\('(\.\/prompts\/[^']+)'\)/);
-  assert.ok(m, 'index.cjs still imports buildMoreLikeThisUserPrompt by destructuring a require — re-read this test if that changed');
-  const mod = require(path.resolve(path.dirname(INDEX_CJS), m[1]));
-  assert.equal(typeof mod.buildMoreLikeThisUserPrompt, 'function', `${m[1]} must export buildMoreLikeThisUserPrompt`);
-  const { userPrompt, numVariants } = mod.buildMoreLikeThisUserPrompt({ ...PAYLOAD, numVariants: 99 });
-  assert.equal(numVariants, 10, 'numVariants is clamped to 10');
-  assert.match(userPrompt, /Find the 10th term of the AP 2, 7, 12/);
-  // The factory still hands out the SAME builder (one source, not a copy).
-  assert.equal(typeof mod.createLearnPrompts, 'function');
-  assert.strictEqual(mod.createLearnPrompts({}).buildMoreLikeThisUserPrompt, mod.buildMoreLikeThisUserPrompt);
+test('a POST with a query string or an unparseable body is refused the same way (no body is read)', { timeout: 90000 }, async () => {
+  const q = await request(port, { method: 'POST', route: `${ROUTE}?v=2`, body: SEED, token: GOOD_TOKEN });
+  assert.equal(q.status, 410, `got ${q.status}: ${q.text}`);
+  const bad = await new Promise((resolve, reject) => {
+    const req = http.request({ host: '127.0.0.1', port, path: ROUTE, method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GOOD_TOKEN}` } }, (res) => {
+      let text = ''; res.on('data', (c) => { text += c; }); res.on('end', () => resolve({ status: res.statusCode, text }));
+    });
+    req.on('error', reject);
+    req.end('{not json');
+  });
+  await settle();
+  assert.equal(bad.status, 410, `got ${bad.status}: ${bad.text}`);
+  assertNothingSpent(srv, bad);
+});
+
+test('the CORS preflight still answers 204, so a browser that still POSTs reads the 410 instead of a network error', { timeout: 90000 }, async () => {
+  const r = await request(port, { method: 'OPTIONS', route: ROUTE });
+  assert.equal(r.status, 204);
+});
+
+test('the path is gone from every metering / gate table; the read side of fair use is kept', () => {
+  const { PAID_ENDPOINTS } = require('../services/rateLimiter.cjs');
+  assert.equal(Object.prototype.hasOwnProperty.call(PAID_ENDPOINTS, ROUTE), false, 'not a paid (rate-limited, ledger-bound) endpoint');
+  const fairUse = require('../services/fairUse.cjs');
+  assert.equal(Object.prototype.hasOwnProperty.call(fairUse.AI_ROUTES, ROUTE), false, 'not an ALL-AI-METERING route');
+  assert.deepEqual(Object.keys(fairUse.AI_ROUTES).sort(), ['/api/detect-question', '/api/tutor'], 'the other two AI routes are untouched');
+  // Read side kept (GET /api/usage/me stays byte-identical): the trial view still reports the field.
+  assert.equal(fairUse.resolveAiLimits({}).moreLikeThisPerDay, 5);
+  const entitlement = require('../services/entitlement.cjs');
+  for (const name of ['AI_CALLER_ROUTES', 'AI_TIER_GATED_ROUTES']) {
+    const t = entitlement[name];
+    if (!t) continue;
+    const keys = Array.isArray(t) ? t : Object.keys(t);
+    assert.equal(keys.includes(ROUTE), false, `${name} no longer names ${ROUTE}`);
+  }
+  const { classifyCall, UNCLASSIFIED_CALL_CLASS, WORKLOAD_BY_HANDLER } = require('../services/geminiClient.cjs');
+  assert.equal(classifyCall({}, '    at async handleMoreLikeThis (/app/x.cjs:1:1)'), UNCLASSIFIED_CALL_CLASS, 'no billing class for the retired handler');
+  assert.equal('handleMoreLikeThis' in WORKLOAD_BY_HANDLER, false);
+});
+
+test('the retired route module keeps no generation code (no model, prompt or pool dependency)', () => {
+  const fs = require('node:fs');
+  const src = fs.readFileSync(path.join(__dirname, 'moreLikeThis.cjs'), 'utf8');
+  for (const name of ['callGemini', 'buildMoreLikeThisUserPrompt', 'pickFromPool', 'saveToPool', 'readJson', 'extractVariantsJson']) {
+    assert.equal(src.includes(name), false, `routes/moreLikeThis.cjs must not reference ${name}`);
+  }
+  const prompts = require('../prompts/promptLearn.cjs');
+  assert.equal(prompts.buildMoreLikeThisUserPrompt, undefined, 'the More-like-this prompt builder is deleted');
 });

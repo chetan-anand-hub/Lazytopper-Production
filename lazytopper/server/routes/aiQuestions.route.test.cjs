@@ -166,11 +166,11 @@ test('★ RED on the old code: GET /api/ai-questions no longer serves the unveri
   assert.ok(!r.text.includes('Pooled'), 'no cached question is served');
 });
 
-test('control: an UNAUTHENTICATED POST /api/more-like-this is refused before any model call (AUTHGATE-2, unchanged)', { timeout: 90000 }, async () => {
+test('control: an UNAUTHENTICATED POST /api/more-like-this is refused before any model call (MLT-RETIRE-1: now 410, retired like this route)', { timeout: 90000 }, async () => {
   const r = await request(port, { method: 'POST', route: '/api/more-like-this',
     body: { subject: 'Maths', topicKey: 'arithmetic-progressions', seedQuestion: { text: 'Seed', marks: 2 }, numVariants: 3 } });
   await settle();
-  assert.ok(r.status === 401 || r.status === 403, `expected 401/403, got ${r.status}: ${r.text}`);
+  assert.equal(r.status, 410, `expected 410, got ${r.status}: ${r.text}`);
   assert.equal(srv.count(MODEL_MARKER), 0, 'no model call');
 });
 

@@ -585,10 +585,6 @@ import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
-// ALL-AI-METERING-1 - a More-like-this refusal shows its own panel; the saved questions stay.
-import { isPremiumRequiredRefusal, limitFromAiRefusal, moreLikeThisPremiumNoteCopy, type LimitState } from "../components/usage/fairUseGate";
-import MoreLikeThisPremiumNote from "../components/usage/MoreLikeThisPremiumNote";
-import { readFairUseLimit } from "../services/usageClient";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -605,7 +601,6 @@ import {
   parsePositiveInt,
   parseFocusBankIds,
   parseBooleanFlag,
-  subscribeMoreLikeThisLimit,
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
 import { conceptEndNote, conceptRowsShown, loadConceptHintTiers } from "../components/practice/conceptHintTiers";
@@ -1163,6 +1158,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [poolHeadSize, setPoolHeadSize] = useState<number | undefined>(undefined);
   // QP-CONCEPT-1 — a concept hint's tiers over the built pool (on-concept ids, related ids).
   const [poolHintTiers, setPoolHintTiers] = useState<Array<Set<string>> | undefined>(undefined);
+  // QP-CONCEPT-3 — what those on-concept rows are (the resolved concept), for the honest note.
+  const [poolHintConcept, setPoolHintConcept] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (didInitFromUrlRef.current) return;
@@ -1384,9 +1381,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     if (!poolHintTiers || filteredQuestions.length === 0) return undefined;
     const shown = conceptRowsShown(filteredQuestions, poolHintTiers);
     if (shown >= filteredQuestions.length) return undefined;
-    const concept = conceptFocusLabel || subtopicHint || "this concept";
+    // A Tutor / Topic Hub entry names its concept in `focus`; an HPQ entry's label is the HPQ file's own
+    // wording, so the note names the concept the questions actually come from (QP-CONCEPT-3).
+    const concept = conceptFocusLabel || poolHintConcept || subtopicHint || "this concept";
     return { after: shown, text: conceptEndNote(concept, shown) };
-  }, [poolHintTiers, filteredQuestions, conceptFocusLabel, subtopicHint]);
+  }, [poolHintTiers, poolHintConcept, filteredQuestions, conceptFocusLabel, subtopicHint]);
 
   // FILTER-FIX-1 (owner ruling): HOTS is higher-order thinking at ANY difficulty — picking it
   // no longer forces Hard (and leaving it no longer resets difficulty). The student may add Hard.
@@ -1511,18 +1510,6 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     paper: subjectKey,
     returnTo: location.pathname + location.search,
   });
-  /** ALL-AI-METERING-1 - the More-like-this limit panel (the AI top-up was refused). */
-  const [moreLikeThisLimit, setMoreLikeThisLimit] = useState<LimitState | null>(null);
-  /** DECISION 29d - a FREE student's 402 premium_required: a plan note with a trial link, not a limit. */
-  const [moreLikeThisPremiumOnly, setMoreLikeThisPremiumOnly] = useState<{ trialUsed: boolean } | null>(null);
-  useEffect(
-    () =>
-      subscribeMoreLikeThisLimit((err) => {
-        if (isPremiumRequiredRefusal(err)) setMoreLikeThisPremiumOnly({ trialUsed: moreLikeThisPremiumNoteCopy(err, Date.now()).trialUsed });
-        else setMoreLikeThisLimit(limitFromAiRefusal(readFairUseLimit(err), "more-like-this"));
-      }),
-    [],
-  );
   /** UI2 - R, while the student is being asked "we'll mark the first R". */
   const [fairUseConfirm, setFairUseConfirm] = useState<number | null>(null);
   // Which session identity has already been written. A one-shot latch: the scorecard
@@ -2137,6 +2124,7 @@ const packTopicKey = useMemo(() => {
           (!!subtopicHint || !!conceptFocusLabel) && !isMultiTopic && !cbqMode &&
           !isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange);
         let hintTiers: Array<Set<string>> | undefined;
+        let hintConcept: string | undefined;
         let headSize: number | undefined;
         if (
           (fullPoolRoute || conceptHinted) &&
@@ -2159,12 +2147,14 @@ const packTopicKey = useMemo(() => {
           const t = await loadConceptHintTiers(next, topicLabel, [conceptFocusLabel, subtopicHint]);
           // QP-CONCEPT-2 (F3): a Topic Hub card's own keywords lead inside its concept bucket.
           hintTiers = [t.keyword, t.onConcept, t.related];
+          hintConcept = t.conceptName;
         }
 
         if (!cancelled) {
           setQuestions(next);
           setPoolHeadSize(headSize);
           setPoolHintTiers(hintTiers);
+          setPoolHintConcept(hintConcept);
           setSessionFinished(false);
           setScorecardDismissed(false);
           setReviewMode(false);
@@ -2190,6 +2180,7 @@ const packTopicKey = useMemo(() => {
           setQuestions([]);
           setPoolHeadSize(undefined);
           setPoolHintTiers(undefined);
+          setPoolHintConcept(undefined);
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
@@ -3496,13 +3487,6 @@ const packTopicKey = useMemo(() => {
           <span>Class {grade} - {subjectTitle}</span>
         </nav>
         )}
-
-        {moreLikeThisLimit ? (
-          <FairUseLimitPanel limit={moreLikeThisLimit} onDismiss={() => setMoreLikeThisLimit(null)} />
-        ) : null}
-        {moreLikeThisPremiumOnly ? (
-          <MoreLikeThisPremiumNote trialUsed={moreLikeThisPremiumOnly.trialUsed} onDismiss={() => setMoreLikeThisPremiumOnly(null)} />
-        ) : null}
 
         {/* Applied-band indicator (PR-E1 amendment item 6/7) — concept-row entry
             ONLY: shown when this session arrived from the Topic Hub with an exact
