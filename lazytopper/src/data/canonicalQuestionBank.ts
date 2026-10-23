@@ -1160,27 +1160,15 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2025-METAL-006",    // bilingual
   // ---- Maths: blank / garbled expression / answer-mismatch (owner real-paper lookup) ----
   "PYQ-M-TRIG-007",          // garbled — prove (A) scrambled (dup of -006 + bleed)
-  "PYQ-M-2024-TRIG-011a",    // garbled — evaluate expression token order destroyed
+  "PYQ-M-2024-TRIG-011a",    // duplicate - read correctly (sin²30° + sin²60° denominator) it is word-for-word the served PYQ-M-2024-TRIG-010a (30/4/2 Q21(a) = 30/4/1 Q23(a)); PYQ-RESTORE-A review
   // ---- Maths: subset-font mojibake (Hindi-as-Latin gibberish body) ----
   "PYQ-M-2024-TRIG-013",     // mojibake
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
   // ---- GARBLE-1 PR-3d (D171): rows entangled with a CBQ tag, a figure binding or a generated-row template (their pins are handled in the same PR) ----
-  "PYQ-M-2025-STAT-006",          // garbled-extraction: class-interval dashes lost in the table
-  "PYQ-M-2025-TRIG-005",          // garbled-extraction: degree/angle signs lost, marks digits inline
   // ---- GARBLE-1 PR-3b (D169, cofounder rule): flattened exponents / dropped pi / lost arrows - ambiguous to a student and to the grader ----
-  "PYQ-M-QE-004",                 // garbled-extraction: exponents flattened (x2 for x^2) in the options
-  "PYQ-M-QE-008",                 // garbled-extraction: exponent flattened (px2)
-  "PYQ-M-2025-SAV-005",           // garbled-extraction: pi symbol dropped (Take = 3.14)
   "PYQ-S-CHEM-010",               // garbled-extraction: reaction arrows lost
   "2026-STAT-SA-03",              // unsolvable-as-printed (D170): mean 18 with f: 3, f, 7, 5 gives 3f = 25; the row's own last step says 'adjust numbers accordingly'
   // ---- GARBLE-1 PR-3 (FIND-2 readability judge, D152 step 3): symbols/fractions/operators/structures lost; the stem cannot be read as printed ----
-  "PYQ-M-2026-REALNUM-005",       // garbled-extraction: fraction bar lost (2 + 3√5 7)
-  "PYQ-M-STAT-009",               // garbled-extraction: class-interval dashes lost; wording broken
-  "PYQ-M-2025-STAT-003",          // garbled-extraction: class-interval dashes lost in the table
-  "PYQ-M-2026-TRI-003",           // garbled-extraction: triangle/angle/product symbols lost
-  "PYQ-M-TRIG-010",               // garbled-extraction: degree signs lost
-  "PYQ-M-RN-004",                 // garbled-extraction: exponent lost (4n for 4^n)
-  "PYQ-M-2025-POLY-002",          // garbled-extraction: exponents flattened (12a2 = 49b ambiguous)
   "PYQ-S-2025-ACID-010",          // garbled-extraction: parts (b)/(c) reduced to residue
   "PYQ-S-2026-ACID-019",          // garbled-extraction: stripped Hindi block left residue
   "PYQ-S-2024-CARB-002",          // garbled-extraction: structural formulas flattened
@@ -1213,7 +1201,6 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // -- acids-bases-and-salts --
   "SCQ-S-ACID-044",              // garbled: trailing-op
   // -- arithmetic-progression --
-  "PYQ-M-AP-007",                // garbled: pua
   // -- chemical-reactions-and-equations --
   "PYQ-S-2024-CHEMRXN-006",      // garbled: pua
   "PYQ-S-2024-CHEMRXN-007",      // garbled: pua+trailing-op

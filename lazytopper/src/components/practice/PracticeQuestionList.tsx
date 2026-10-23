@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiClient";
@@ -60,6 +61,18 @@ export interface PracticeQuestionListProps {
   /** MLT-MUTE-2 — the student's filters matched NOTHING in a pool that has questions. Shown in
    *  place of the (empty) list and never together with `bankEnd`. Omitted ⇒ no state. */
   filtersEmpty?: FiltersEmptyActions;
+  /** QP-CONCEPT-2 (F2) — a concept set (Tutor / HPQ / Topic Hub) has only `after` questions on its
+   *  concept; the rest are from the same chapter. The note sits after them (or above the list when 0).
+   *  Omitted ⇒ no note. */
+  conceptEnd?: { after: number; text: string };
+}
+
+function ConceptEndNote({ text }: { text: string }) {
+  return (
+    <div className="qp-bank-end" role="status" data-testid="qp-concept-end">
+      <p className="qp-bank-end__title">{text}</p>
+    </div>
+  );
 }
 
 /** MLT-MUTE-2 — the filters-empty state's actions. */
@@ -135,7 +148,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying, bankEnd, filtersEmpty,
+    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd,
   } = props;
 
   return (
@@ -237,8 +250,11 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {filteredQuestions.map((q, idx) => (
+            <Fragment key={q.id}>
+            {conceptEnd && !isLoading && !error && conceptEnd.after === idx ? (
+              <ConceptEndNote text={conceptEnd.text} />
+            ) : null}
             <PracticeQuestionCard
-              key={q.id}
               q={q}
               idx={idx}
               subjectKey={subjectKey}
@@ -263,6 +279,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               stepsLocked={isStepsLocked ? isStepsLocked(String(q.id)) : false}
               defaultAnswerMode={defaultAnswerMode}
             />
+            </Fragment>
           ))}
           {filtersEmpty && !isLoading && !error && filteredQuestions.length === 0 ? (
             <FiltersEmptyState {...filtersEmpty} />

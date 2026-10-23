@@ -13,7 +13,7 @@ export interface PracticeNavRequest {
   backLabel?: string; // label for back button
   subtopicHint?: string; // e.g. bucket.topic, concept tag
   sectionFilter?: PracticeSectionFilter; // CBSE board section/pattern filter
-  focusBankIds?: string[]; // HPQ / predictive engine IDs to bias sampling from
+  focusBankIds?: string[]; // BANK question ids to lead the set (NOT HPQ ids — those are not bank ids)
   strictFocus?: boolean; // if true, treat focusBankIds as strict-first filter
   recommendedCount?: number; // suggested number of questions (UI can override)
   difficultyPreset?: PracticeDifficultyPreset;
@@ -64,7 +64,8 @@ export function navigateToPractice(
     search.set("section", sectionFilter);
   }
 
-  // HPQ / predictive IDs to bias sampling from
+  // Bank question ids to lead the set. HPQ "More like this" no longer sends any (QP-CONCEPT-1): HPQ
+  // ids (`ple-hpq-*`, ...) are not bank ids, so they matched nothing; the concept travels as subtopicHint.
   if (focusBankIds && focusBankIds.length > 0) {
     search.set("focusBankIds", focusBankIds.join(","));
   }

@@ -21,6 +21,9 @@ import { formatResetIst, limitCopy, trialComeBackLine, type LimitState } from ".
 // PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Share QR code / Forward link
 // to parents ("Pay" goes to the same plans page). Payments dark: "See plans", unchanged.
 import PaywallActions from "../pricing/PaywallActions";
+// GUIDE-PAGES-1 M7 — Byte explains the limit from this panel's own data (display only; words
+// render with the panel, only his drawing is lazy; nothing with "Hide mascots"). The actions are unchanged.
+import { LimitByte } from "../guide/pages/pageGuides";
 import "./usage.css";
 
 export const PLANS_PATH = "/pricing";
@@ -80,6 +83,7 @@ export default function FairUseLimitPanel({
       <section className="lt-usage" role="status" aria-live="polite" data-testid="fair-use-limit-panel">
         <div className="lt-usage__eyebrow">Fair use</div>
         {lead}
+        <LimitByte limit={limit} when={when} />
         {copy.showPlans || onDismiss ? (
           <div className="lt-usage__actions">
             {copy.showPlans ? (
@@ -176,6 +180,9 @@ export default function FairUseLimitPanel({
             {onDismiss ? dismissLabel : "Close"}
           </button>
         </div>
+        {/* GUIDE-PAGES-1 M7 — AFTER the actions, so Pay / Share QR code / Forward link / Close stay
+            exactly where they were; no "still works" here (the line above already says it). */}
+        <LimitByte limit={limit} when={when} variant="dialog" />
       </section>
     </div>
   );
