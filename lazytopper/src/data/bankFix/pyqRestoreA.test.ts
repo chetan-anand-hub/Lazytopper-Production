@@ -55,7 +55,7 @@ describe("PYQ-RESTORE-A · ledger", () => {
     const ids = PYQ_RESTORE_A_MATHS.map((e) => e.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids.length).toBe(PYQ_RESTORE_A_COUNTS.mathsRestored);
-    expect(PYQ_RESTORE_A_COUNTS.mathsRestored).toBe(14);
+    expect(PYQ_RESTORE_A_COUNTS.mathsRestored).toBe(13);
     const bad: string[] = [];
     for (const e of PYQ_RESTORE_A_MATHS) {
       const q = RAW.get(e.id);
@@ -105,7 +105,6 @@ describe("PYQ-RESTORE-A · restored rows hold in the assembled bank", () => {
     const fin = (id: string) => `${String(RAW.get(id)!.finalAnswer ?? "")} ${String(RAW.get(id)!.answer ?? "")}`;
     expect(fin("PYQ-M-QE-004")).toContain("x² – 6x + 7 = 0");
     expect(fin("PYQ-M-QE-008")).toContain("p = 3");
-    expect(fin("PYQ-M-2024-TRIG-011a")).toContain("67/12");
     expect(fin("PYQ-M-STAT-009")).toContain("b = 8");
     expect(fin("PYQ-M-2025-STAT-003")).toContain("146.75");
     expect(fin("PYQ-M-2025-STAT-006")).toContain("775");

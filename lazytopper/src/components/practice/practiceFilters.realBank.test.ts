@@ -16,9 +16,9 @@
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
 //   HOTS    the predicate is unchanged: bank-wide 4,105 at any difficulty; the old UI lock to
 //           Hard served 2,082 (the lock is removed in PracticePage / PracticeControls).
-// PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 14 Maths PYQ rows repaired from the
+// PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 13 Maths PYQ rows repaired from the
 //   row are served again: PYQ AP 11->12, SAV 18->19, Stats 19->22; Proof RN 47->49, Poly 7->8, Tri 79->80; HOTS any
-//   4,134->4,147, Hard 2,093->2,100, 4-mark HOTS 949->951 (ledger: data/bankFix/pyqRestoreALedger.ts).
+//   4,134->4,146, Hard 2,093->2,100, 4-mark HOTS 949->951 (ledger: data/bankFix/pyqRestoreALedger.ts).
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -237,7 +237,7 @@ describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
     }
     // PYQ-RESTORE-B PR-1 (2026-10-23): +11 Hard / +29 any (restored PYQs and the new 2025 Triangles rows).
     expect(hard).toBe(2100);
-    expect(any).toBe(4147);
+    expect(any).toBe(4146);
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
     expect(sum("1", "hots", "all")).toBe(1098);

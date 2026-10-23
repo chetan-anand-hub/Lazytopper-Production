@@ -1160,6 +1160,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2025-METAL-006",    // bilingual
   // ---- Maths: blank / garbled expression / answer-mismatch (owner real-paper lookup) ----
   "PYQ-M-TRIG-007",          // garbled — prove (A) scrambled (dup of -006 + bleed)
+  "PYQ-M-2024-TRIG-011a",    // duplicate - read correctly (sin²30° + sin²60° denominator) it is word-for-word the served PYQ-M-2024-TRIG-010a (30/4/2 Q21(a) = 30/4/1 Q23(a)); PYQ-RESTORE-A review
   // ---- Maths: subset-font mojibake (Hindi-as-Latin gibberish body) ----
   "PYQ-M-2024-TRIG-013",     // mojibake
   // ---- GARBLE-1 (D152): fractions flattened at PDF extraction; the stem is unreadable ----
