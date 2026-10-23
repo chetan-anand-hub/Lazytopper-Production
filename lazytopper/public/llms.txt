@@ -8,7 +8,7 @@ Key facts:
 - Check & Improve: a student photographs or uploads a written answer and sees the marks for every step and where marks were lost. The first check is free without an account.
 - Free without an account: chapter notes, chapter pages, Exam Trends, the CBSE Class 10 papers page and the practice hub.
 - Signing up starts a 7-day Premium trial with no card needed; after it the student keeps the free Basic plan or upgrades to Premium.
-- Important Questions: chapter-wise important questions drawn from ten years of CBSE board papers. LazyTopper does not claim to know the questions of any upcoming exam.
+- Important Questions: chapter-wise important questions written by LazyTopper in CBSE question shapes, chosen by its prediction model from ten years of CBSE paper trends and the 2026-27 syllabus. A strong guide, not the actual paper: LazyTopper does not claim to know the questions of any upcoming exam.
 - LazyTopper is an independent platform and is not affiliated with CBSE.
 
 ## Start here
