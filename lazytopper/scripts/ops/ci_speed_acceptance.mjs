@@ -27,7 +27,8 @@ import { CONFIRM_READS, SETTLE_READS, SKIP_LINE, classifyLiveRead, decideInertSk
 import { guard, dateSignalsIn, enumerateVitestFiles, readList, scan } from "../testClock/dateSensitive.mjs";
 import { orderSlowestFirst, planShards, readDurations, substringCollisions } from "./ci_shard_plan.mjs";
 import { isRepoFrame } from "../testClock/clockRecorderFrames.mjs";
-import { CLOCK_ZERO_LINE, DOCS_PATH_JOBS, FULL_BAR_JOBS, evaluate, summariseVitestJson } from "./ci_aggregate.mjs";
+import { CLOCK_ZERO_LINE, DOCS_PATH_JOBS, FULL_BAR_JOBS, SHARD_ARTIFACT_RE, evaluate, readShardSummaries, selectLatestShardSummaries, summariseVitestJson } from "./ci_aggregate.mjs";
+import os from "node:os";
 import { ZERO_LINE, resolveBaseSpec, selectClockChanged } from "./ci_clock_changed.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -201,6 +202,44 @@ export const REAL_COMMITS = [
   check("g4_docs_path_skips_are_by_design_only", docsGreen.ok && !docsMojibakeRed.ok && !fullButSkipped.ok);
   const s = summariseVitestJson({ numTotalTests: 5, numPassedTests: 4, numFailedTests: 0, numPendingTests: 0, numTodoTests: 1, testResults: [{}, {}] }, "2/4");
   check("g5_shard_summary_reads_the_vitest_json_reporter", s.files === 2 && s.tests === 5 && s.todo === 1 && s.shard === "2/4");
+  // ★ CI-AGG-1: "Re-run failed jobs" — each shard is judged on its LATEST attempt only. The case is
+  //   run 39967755784: shard 3 red on attempt 1, green on attempt 2, shards 1/2/4 only on attempt 1.
+  {
+    const at = (summary, attempt) => ({ summary: { ...summary, attempt }, attempt });
+    const red3 = { ...shards[2], passed: 97, failed: 3 };
+    const rerunGreen = [at(shards[0], 1), at(shards[1], 1), at(red3, 1), at(shards[3], 1), at(shards[2], 2)];
+    const rerunRed = [at(shards[0], 1), at(shards[1], 1), at(red3, 1), at(shards[3], 1), at(red3, 2)];
+    const greenOrderings = [rerunGreen, [...rerunGreen].reverse()];
+    const judge = (entries) => evaluate({ needs: fullNeeds, docsOnly: "false", shards: selectLatestShardSummaries(entries).shards, expectedShards: 4, filesOnDisk: 40 });
+    const sel = selectLatestShardSummaries(rerunGreen);
+    check("g8_rerun_judges_each_shards_latest_attempt",
+      greenOrderings.every((e) => judge(e).ok) && sel.shards.length === 4 &&
+        sel.judged.find((j) => j.shard === "3/4").attempt === 2 && sel.judged.find((j) => j.shard === "1/4").attempt === 1,
+      "shard 3 red@1 green@2 -> PASS in either download order; untouched shards judged on attempt 1");
+    const tie = [at(shards[0], 1), at(shards[1], 1), at(shards[2], 2), at(red3, 2), at(shards[3], 1)];
+    check("g9_a_shard_red_on_its_latest_attempt_still_fails_and_ties_fail",
+      !judge(rerunRed).ok && !judge([at(shards[0], 1), at(shards[1], 1), at(shards[2], 1), at(shards[3], 1), at(red3, 2)]).ok &&
+        !judge(tie).ok && !judge(rerunGreen.filter((e) => e.summary.shard !== "4/4")).ok,
+      "red on latest -> FAIL; green@1 then red@2 -> FAIL; two summaries at one attempt -> FAIL; missing shard -> FAIL");
+    // The on-disk layout download-artifact (no merge-multiple) produces: one directory per artifact.
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ci-agg-1-"));
+    try {
+      for (const e of rerunGreen) {
+        const n = e.summary.shard.split("/")[0];
+        const d = path.join(tmp, `vitest-shard-${n}-attempt-${e.attempt}`);
+        fs.mkdirSync(d, { recursive: true });
+        fs.writeFileSync(path.join(d, `vitest-shard-${n}.json`), JSON.stringify(e.summary));
+      }
+      const r = readShardSummaries(tmp);
+      const liar = path.join(tmp, "vitest-shard-1-attempt-3");
+      fs.mkdirSync(liar);
+      fs.writeFileSync(path.join(liar, "vitest-shard-1.json"), JSON.stringify({ ...shards[0], attempt: 1 }));
+      check("g10_reads_one_directory_per_attempt_artifact",
+        r.entries.length === 5 && r.problems.length === 0 && judge(r.entries).ok && readShardSummaries(tmp).problems.length === 1 &&
+          SHARD_ARTIFACT_RE.test("vitest-shard-3-attempt-2") && !SHARD_ARTIFACT_RE.test("vitest-json-3-attempt-2"),
+        `${r.entries.length} summaries read; a summary whose attempt disagrees with its artifact name is a problem`);
+    } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  }
   // ★ CI-SPEED-3: docs-lane is a DOCS-PATH job (full bar: must be skipped; a run there means classify's
   //   outputs disagree), and clock-changed may be skipped on the full bar ONLY with classify's record.
   const E = (needs, extra = {}) => evaluate({ needs, docsOnly: "false", shards, expectedShards: 4, filesOnDisk: 40, ...extra }).ok;
@@ -392,6 +431,16 @@ let WORKFLOW_SHARDS = 0; // set by w5 from the workflow's own matrix; w13/w14 pl
         !/--exclude/.test(vitest) && new RegExp(`EXPECTED_SHARDS: '${n}'`).test(wf),
       `shards=${n}: matrix, planner, summary label and EXPECTED_SHARDS agree; the aggregate checks the shards cover every file`);
     WORKFLOW_SHARDS = n;
+  }
+  // ★ CI-AGG-1: one summary artifact PER ATTEMPT, and the aggregate downloads them WITHOUT
+  //   merge-multiple (one directory each) so it can judge each shard's latest attempt.
+  {
+    const agg = jobBlock("quality-gate");
+    check("w21_shard_summaries_are_per_attempt_and_never_merged",
+      vitest.includes("name: vitest-shard-${{ matrix.shard }}-attempt-${{ github.run_attempt }}") &&
+        vitest.includes("--attempt=${{ github.run_attempt }}") &&
+        /pattern: vitest-shard-\*/.test(agg) && !/merge-multiple/.test(agg.replace(/^\s*#.*$/gm, "")),
+      "upload name carries github.run_attempt; the aggregate's download keeps one directory per artifact");
   }
   // ★ CI-SPEED-3: WORKERS AND HEAP ARE ONE DECISION (vitest.config.ts). The CI vitest step sets the
   //   worker count on the command line; workers x per-worker heap must stay <= 12288 MB (the 12 GB

@@ -1,0 +1,62 @@
+/* GUIDE-FILTER-1 - the filter explainer and the empty-state Ziggy. Lazy: travels with
+   filterHelpChunk only. Visual grammar: deep navy ink, soft white card, green accent (CLAUDE.md 5).
+   #1302 mobile review: the explainer sits IN FLOW (it pushes, never overlays a chip or a button) and
+   scrolls inside itself on a short phone screen. */
+.lt-fh { position: relative; margin-top: 8px; width: 100%; box-sizing: border-box; max-height: min(60vh, 520px);
+  overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px 12px; border-radius: 14px; background: #fff;
+  border: 2px solid #14213d; color: #14213d; box-shadow: 0 14px 34px -14px hsla(222, 47%, 20%, .5);
+  animation: lt-fh-pop .22s ease-out; }
+.lt-fh--byte { background: #f4fbfe; }
+.lt-fh--nudge { max-width: 520px; }
+.lt-fh__x { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; border: 0;
+  background: #14213d; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; padding: 0; line-height: 1; }
+.lt-fh__x:focus-visible, .lt-fh__hide:focus-visible { outline: 3px solid hsl(152, 55%, 38%); outline-offset: 2px; }
+.lt-fh__head { display: flex; align-items: center; gap: 10px; padding-right: 40px; min-width: 0; }
+.lt-fh__char { flex: none; width: 64px; }
+.lt-fh--nudge .lt-fh__char { width: 56px; }
+.lt-fh__headtext { min-width: 0; }
+.lt-fh__say { margin: 0; font-size: 14.5px; line-height: 1.35; font-weight: 700; }
+.lt-fh__hide { display: inline-block; margin: 2px 0 0; padding: 4px 0; min-height: 32px; border: 0; background: none;
+  color: #56627e; font: inherit; font-size: 12.5px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.lt-fh__hide:hover { color: #14213d; }
+.lt-fh__admin { display: inline-block; margin: 0 0 4px; font-size: 10.5px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; line-height: 1; padding: 5px 8px; border-radius: 999px; background: #14213d; color: #fff; }
+.lt-fh__body { margin-top: 8px; display: grid; gap: 10px; }
+.lt-fh__group-h { margin: 0 0 4px; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+  color: hsl(152, 55%, 28%); }
+.lt-fh__list { margin: 0; display: grid; gap: 6px; }
+.lt-fh__row { display: grid; grid-template-columns: minmax(0, 9.5rem) minmax(0, 1fr); gap: 2px 12px; }
+.lt-fh__term { margin: 0; font-size: 13px; font-weight: 800; }
+.lt-fh__def { margin: 0; font-size: 13px; line-height: 1.45; color: #2b3757; }
+.lt-fh__combine { margin: 2px 0 0; padding-top: 8px; border-top: 1px dashed hsl(220, 18%, 85%); font-size: 13px;
+  font-weight: 700; line-height: 1.45; }
+@media (max-width: 560px) {
+  .lt-fh { padding: 10px 12px; }
+}
+/* #1302 review: the term | definition columns key on the PANEL's own width, not the viewport (on a
+   768 tablet the panel can sit in a narrow column, which squeezed each definition to ~105px). */
+.lt-fh { container-type: inline-size; container-name: lt-fh; }
+@container lt-fh (max-width: 559px) {
+  .lt-fh__row { grid-template-columns: minmax(0, 1fr); }
+  .lt-fh__char { width: 52px; }
+}
+/* #1302 mobile review: 44px touch targets (the close button and Hide mascots) on phones and tablets. */
+@media (pointer: coarse), (max-width: 1024px) {
+  .lt-fh__x::after { content: ""; position: absolute; inset: -6px; }
+  .lt-fh__hide { min-height: 44px; }
+}
+
+/* Ziggy beside the filters-empty state, inside the slot reserved by filterHelpEager.css. */
+.lt-fe { display: flex; align-items: center; gap: 10px; min-width: 0; color: #14213d; }
+.lt-fe__char { flex: none; width: 64px; }
+.lt-fe__bub { min-width: 0; text-align: left; background: #f2faea; border: 2px solid #14213d; border-radius: 14px 14px 14px 4px;
+  padding: 7px 12px 4px; animation: lt-fh-pop .3s ease-out; }
+.lt-fe__say { margin: 0; font-size: 14px; line-height: 1.35; font-weight: 700; }
+.lt-fe__bub .lt-fh__hide { min-height: 28px; }
+@media (pointer: coarse), (max-width: 1024px) { .lt-fe__bub .lt-fh__hide { min-height: 44px; } }
+
+@keyframes lt-fh-pop { 0% { transform: translateY(-4px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .lt-fh, .lt-fe__bub { animation: none !important; }
+}
+@media print { .lt-fh, .lt-fe { display: none; } }
