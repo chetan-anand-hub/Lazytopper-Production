@@ -519,6 +519,9 @@ describe("GATE-3 - every render site of SolutionChecker is gated, by constructio
     // Not a count - the identity. A new site is not forbidden; it must be SEEN, and
     // this is what makes it visible in review instead of arriving silently.
     expect(renderSites).toEqual([
+      // QP-WORKING-AFTER-1 — the Finish gate: the SAME collect-mode box (saving only, no grade, the
+      // lock deliberately not rendered in collect mode), for the set's unsaved written questions.
+      "components/practice/FinishGate.tsx",
       "components/practice/PracticeQuestionCard.tsx",
       "pages/HighlyProbableQuestions.tsx",
     ]);

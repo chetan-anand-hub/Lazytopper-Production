@@ -27,3 +27,6 @@
 .qp-gate__btn--primary { border: 1px solid hsl(152, 45%, 32%); background: hsl(152, 45%, 32%); color: #fff; }
 .qp-gate__btn--skip { border: 1px solid hsl(220, 18%, 82%); background: #fff; color: hsl(220, 25%, 18%); }
 .qp-gate__btn:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
+/* Every tap target inside a gate row is at least 44 px tall — the answer box's tabs (34 px in the
+   set, inline) and its "scan with your phone" link included. */
+.qp-gate__item button, .qp-gate__item [role="tab"] { min-height: 44px !important; height: auto !important; }

@@ -50,6 +50,8 @@ export interface PracticeQuestionCardProps {
    *  and focus it (Byte's "Show me the first one I missed" / "Add working to one"). Each new
    *  number is one request; undefined / unchanged → nothing. Opening the box changes no mark. */
   openCheckerRequest?: number;
+  /** QP-WORKING-AFTER-1 — a new number: open THIS card's solution (steps), scroll to it and focus it. */
+  openStepsRequest?: number;
   subjectKey: string;
   topicLabel: string;
   isOpen: boolean;
@@ -198,6 +200,7 @@ export function PracticeQuestionCard({
   countsAsAttempt: countsAsAttemptProp,
   defaultAnswerMode,
   openCheckerRequest,
+  openStepsRequest,
 }: PracticeQuestionCardProps) {
   const countsAsAttemptDefault = useContext(AttemptCountingContext);
   const countsAsAttempt = countsAsAttemptProp ?? countsAsAttemptDefault;
@@ -330,6 +333,24 @@ export function PracticeQuestionCard({
     },
     [onDraftAnswer, q.id],
   );
+
+  // QP-WORKING-AFTER-1 — the host asked to show THIS card's solution: the steps open (the working box
+  // closes, as "Show steps" does), then the card is brought into view and focused.
+  const lastStepsRequest = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (openStepsRequest === undefined || openStepsRequest === lastStepsRequest.current) return;
+    lastStepsRequest.current = openStepsRequest;
+    setShowChecker(false);
+    if (!isOpen) onToggleAnswer(q.id, q);
+    const t = window.setTimeout(() => {
+      const el = cardRef.current;
+      el?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      el?.focus?.({ preventScroll: true });
+    }, 60);
+    return () => window.clearTimeout(t);
+    // One request per new number.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openStepsRequest]);
 
   const handleToggleSteps = useCallback(() => {
     if (!isOpen) {
@@ -596,6 +617,7 @@ export function PracticeQuestionCard({
   return (
     <article
       ref={cardRef}
+      tabIndex={-1} // QP-WORKING-AFTER-1 — focusable for "Show me the first one I missed" (not in tab order)
       data-testid="practice-question-card"
       data-question-id={String(q.id)}
       onClick={() => onSetActiveQuestion(String(q.id))}

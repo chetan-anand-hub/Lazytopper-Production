@@ -12,6 +12,8 @@ export interface PracticeQuestionListProps {
   /** GUIDE-SCORE-1 — open THIS question's working box (scroll + focus); a new `nonce` is a new
    *  request. Passed straight through to that one card. */
   openCheckerFor?: { id: string; nonce: number } | null;
+  /** QP-WORKING-AFTER-1 — open ONE question's solution (steps), scrolled to (a new nonce per request). */
+  openStepsFor?: { id: string; nonce: number } | null;
   isLoading: boolean;
   error: string | null;
   /** MOMENTS-1 — the set failed to load: a real "Retry" under the error re-runs the load (every
@@ -165,7 +167,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
-    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, onDraftAnswer, saveNudgeUid,
+    onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, openStepsFor, onDraftAnswer, saveNudgeUid,
   } = props;
 
   return (
@@ -275,6 +277,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               q={q}
               idx={idx}
               openCheckerRequest={openCheckerFor && openCheckerFor.id === String(q.id) ? openCheckerFor.nonce : undefined}
+              openStepsRequest={openStepsFor && openStepsFor.id === String(q.id) ? openStepsFor.nonce : undefined}
               subjectKey={subjectKey}
               topicLabel={topicLabel}
               difficultyFilter={difficultyFilter}

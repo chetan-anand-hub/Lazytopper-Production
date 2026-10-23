@@ -1161,7 +1161,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // "Back to this set" action, and cleared ONLY on a fresh build/regenerate (the reset below).
   const [reviewMode, setReviewMode] = useState<boolean>(false);
   /** GUIDE-SCORE-1 — Byte asked to open ONE question's working box (a new nonce per request). */
-  const [checkerRequest, setCheckerRequest] = useState<{ id: string; nonce: number } | null>(null);
+  /** QP-WORKING-AFTER-1 (owner 23:11 "B") — Byte asked to show ONE question's SOLUTION (steps). */
+  const [stepsRequest, setStepsRequest] = useState<{ id: string; nonce: number } | null>(null);
   // PRACTICE-REVIEW-HONEST-1 (cofounder DECISION 27a, owner-approved; scope 30b) — "An answer
   // given after the student has seen the steps is not a real attempt. Counting it would put
   // invented accuracy into Mistake Intelligence (CLAUDE.md §5, no fake data)." The ids of the
@@ -3951,7 +3952,7 @@ const packTopicKey = useMemo(() => {
         {isBuilt && (
         <PracticeAttemptCountingProvider value={!reviewMode}>
         <PracticeQuestionList
-          openCheckerFor={checkerRequest} // GUIDE-SCORE-1 — Byte's "add working" opens this box
+          openStepsFor={stepsRequest} // QP-WORKING-AFTER-1 — Byte's "first one I missed" opens its solution
           isLoading={isLoading}
           error={error}
           onRetry={error && !isLoading ? () => setLoadRetry((n) => n + 1) : undefined}
@@ -4086,16 +4087,14 @@ const packTopicKey = useMemo(() => {
   const qpGuideTarget = multiTopics.length > 0 ? null : singleChapterPracticeTarget(String(subjectKey), [topicK], () => topicLabel);
   const firstMissedId =
     filteredQuestions.map((q) => String(q.id)).find((id) => mcqResults[id] === "wrong" && !reviewMcqIds[id]) ?? null;
-  const firstQuestionId = filteredQuestions[0] ? String(filteredQuestions[0].id) : null;
-  // Back to the set (review: the existing "Back to this set"), with THAT question's working box
-  // OPEN, scrolled to and focused (PracticeQuestionCard `openCheckerRequest`). Changes no mark.
-  const openWorkingFor = (id: string) => {
+  // QP-WORKING-AFTER-1 (owner ruling 23:11 "B") — back to the set (review: the existing "Back to
+  // this set"), THAT question's SOLUTION open, scrolled to and focused. No working box: after the
+  // scorecard, written working is not graded. Changes no mark.
+  const openSolutionFor = (id: string) => {
     backToSetForReview();
-    setCheckerRequest((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }));
+    setStepsRequest((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }));
   };
-  const canOpenWorking = !overlay && !isGuest;
-  const showMissed = firstMissedId && canOpenWorking ? () => openWorkingFor(firstMissedId) : null;
-  const addWorking = firstQuestionId && canOpenWorking ? () => openWorkingFor(firstQuestionId) : null;
+  const showMissed = firstMissedId && !overlay ? () => openSolutionFor(firstMissedId) : null;
   const closeScorecard = () => {
     setScorecardDismissed(true);
     setSessionFinished(false);
@@ -4536,8 +4535,7 @@ const packTopicKey = useMemo(() => {
   const tapOnlyVariant: ScorecardVariant = {
     ...withGuideTarget(mcqVariant, qpGuideTarget),
     onShowMissed: showMissed,
-    // Owner ruling 23 Oct 17:57 — the set's own working box, never another page.
-    onAddWorking: addWorking,
+    // QP-WORKING-AFTER-1 (owner 23:11 "B") — no post-scorecard working box: Byte looks forward.
   };
   // GUIDE-SCORE-2 (cofounder ruling, #1322 re-review) — where Byte's OBJECTIVE line shows ("Add
   // working to one…" / "N questions wrong. Add working…": the owner-approved 17:57 lines, true
@@ -4591,7 +4589,7 @@ const packTopicKey = useMemo(() => {
         ) : !isGuest && !overlay && qpMomentUid && !objectiveLineShows ? (
           // MOMENTS-1 M11 — the MCQ-only (tap-only) scorecard ONLY: never a written / C&I result.
           // GUIDE-SCORE-2 — its button opens THIS set's working box (first question), never another page.
-          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} onOpenWorking={addWorking} />
+          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} onOpenWorking={null} />
         ) : undefined,
       )}
     />

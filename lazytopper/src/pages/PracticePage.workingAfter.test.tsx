@@ -9,6 +9,9 @@
 //   2. ZIGGY SAVE NUDGE — typed / attached but not saved: "Don't forget to save your answer!" with
 //      a Save button, in place; gone on Save; Hide mascots → the same line as plain text.
 //   3. No post-scorecard grading path ("Check this working" is gone).
+//   5. (owner ruling 23:11) ZIGGY ON A WRONG MCQ TAP — "Want to know where it went wrong? …" opens
+//      that question's working box; saved before Finish → graded at Finish, the mark stays 0
+//      (§13), the mistake type is SHOWN and RECORDED once.
 //   4. Kept: the same working is never graded twice; an MCQ tap keeps its mark when working is added.
 //
 // ★ The harness of PracticePage.finishReview.test.tsx (real page, real services, the grader mocked).
@@ -73,7 +76,7 @@ import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
 import { __setGuideAbForTests } from "../components/guide/guideVariant";
 import { __resetMascotsForTests, hideMascots } from "../components/guide/mascotsMute";
-import { SAVE_NUDGE_COPY, SAVE_NUDGE_IDLE_MS, __resetSaveNudgeForTests } from "../components/guide/saveNudge/saveNudge";
+import { SAVE_NUDGE_COPY, SAVE_NUDGE_IDLE_MS, WRONG_TAP_COPY, __resetSaveNudgeForTests } from "../components/guide/saveNudge/saveNudge";
 import { FINISH_GATE_COPY } from "../components/practice/FinishGate";
 import { __resetStageForTests } from "../components/guide/scoreGuideStage";
 
@@ -331,5 +334,83 @@ describe("QP-WORKING-AFTER-1 · no grading after the scorecard; never twice; MCQ
     await screen.findByRole("dialog", {}, { timeout: 8000 });
     await waitFor(() => expect(hero()).toBe("3 / 5"));
     expect(recordMistakeSpy).not.toHaveBeenCalled(); // after the scorecard: never recorded
+  }, 90_000);
+});
+
+describe("QP-WORKING-AFTER-1 · Ziggy on a wrong MCQ tap (owner ruling 23 Oct 23:11)", () => {
+  async function wrongTapThenType(n: number, mode: "type" | "upload" = "type") {
+    fireEvent.click(screen.getByText(`q${n}-wrong`));
+    const pop = await within(card(n)).findByTestId("wrong-tap-nudge");
+    expect(within(pop).getByTestId("wrong-tap-line").textContent).toBe(WRONG_TAP_COPY.ziggy);
+    expect(pop.contains(document.activeElement)).toBe(false); // never steals focus
+    fireEvent.click(within(pop).getByTestId(mode === "type" ? "wrong-tap-type" : "wrong-tap-upload"));
+    return pop;
+  }
+
+  it("★★ wrong tap → Ziggy → working saved → Finish: graded, the type SHOWN and RECORDED once, the mark stays 0", async () => {
+    // The grader even awards FULL marks for the wrong pick: the objective invariant must hold.
+    gradeWorksheet.mockResolvedValue(batch([grade(2, 1, 1, "silly")]));
+    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true), mkItem(4, true), mkItem(5, true)]);
+    fireEvent.click(screen.getByText("q1-correct"));
+    const pop = await wrongTapThenType(2);
+    expect(pop.getAttribute("data-kind")).toBe("ziggy");
+    expect(within(card(2)).queryByTestId("wrong-tap-nudge")).toBeNull(); // gone once the box opens
+    // The box opened on the tab picked; typed, then the save nudge's own Save (after the pause).
+    expect(within(card(2)).getByRole("tab", { name: "Type my working" }).getAttribute("aria-selected")).toBe("true");
+    await act(async () => {
+      fireEvent.change(within(card(2)).getByLabelText("Type your working and answer"), { target: { value: "I copied the sign wrongly" } });
+    });
+    await wait(SAVE_NUDGE_IDLE_MS + 200);
+    fireEvent.click(within(card(2)).getByTestId("save-nudge-save"));
+    await within(card(2)).findByTestId("qp-saved-confirmation");
+    for (const n of [3, 4, 5]) fireEvent.click(screen.getByText(n === 4 ? `q${n}-wrong` : `q${n}-correct`));
+    const f = screen.queryByRole("button", { name: /Finish session/i });
+    if (f) fireEvent.click(f);
+    expect(gate()).toBeNull(); // MCQs are never in the gate
+    fireEvent.click(await screen.findByTestId("qp-grade-batch", {}, { timeout: 8000 }));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect(lastBatchArgs().record).toBeUndefined(); // saved BEFORE Finish: recorded as usual
+    expect(await screen.findByText(/^Question 2$/)).toBeInTheDocument();
+    expect(document.body.textContent).toMatch(/Silly slip/i); // the type is SHOWN
+    await waitFor(() => expect(miWritesFor("q-2")).toBe(1)); // and RECORDED, once
+    await waitFor(() => expect(document.querySelector(".lt-sc__big")?.textContent).toBe("3 / 5")); // mark stays 0
+  }, 90_000);
+
+  it("★★ Hide mascots: the same offer as plain text; Not now dismisses it", async () => {
+    hideMascots();
+    await buildSet([mkItem(1, true), mkItem(2, true)]);
+    fireEvent.click(screen.getByText("q1-wrong"));
+    const pop = await within(card(1)).findByTestId("wrong-tap-nudge");
+    expect(pop.getAttribute("data-kind")).toBe("plain");
+    expect(pop.querySelector('[data-testid^="blob-"]')).toBeNull();
+    fireEvent.click(within(pop).getByTestId("wrong-tap-dismiss"));
+    expect(within(card(1)).queryByTestId("wrong-tap-nudge")).toBeNull();
+    expect(screen.getByText("q2-correct")).toBeInTheDocument(); // the next question is not blocked
+  }, 60_000);
+
+  it("★★ the same working saved twice (Save, Replace, Save again) is graded and recorded ONCE", async () => {
+    gradeWorksheet.mockResolvedValue(batch([grade(1, 1, 0, "silly")]));
+    await buildSet([mkItem(1, true), mkItem(2, true)]);
+    await wrongTapThenType(1);
+    await act(async () => {
+      fireEvent.change(within(card(1)).getByLabelText("Type your working and answer"), { target: { value: "sign slip" } });
+    });
+    fireEvent.click(within(card(1)).getByTestId("qp-save-answer"));
+    await within(card(1)).findByTestId("qp-saved-confirmation");
+    fireEvent.click(within(card(1)).getByRole("button", { name: "Replace" }));
+    await act(async () => {
+      fireEvent.change(within(card(1)).getByLabelText("Type your working and answer"), { target: { value: "sign slip" } });
+    });
+    fireEvent.click(within(card(1)).getByTestId("qp-save-answer"));
+    await within(card(1)).findByTestId("qp-saved-confirmation");
+    fireEvent.click(screen.getByText("q2-correct"));
+    const f = screen.queryByRole("button", { name: /Finish session/i });
+    if (f) fireEvent.click(f);
+    fireEvent.click(await screen.findByTestId("qp-grade-batch", {}, { timeout: 8000 }));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(miWritesFor("q-1")).toBe(1));
+    await wait(300);
+    expect(miWritesFor("q-1")).toBe(1);
+    expect(gradeWorksheet).toHaveBeenCalledTimes(1);
   }, 90_000);
 });
