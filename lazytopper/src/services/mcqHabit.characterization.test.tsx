@@ -60,6 +60,7 @@ import { computeMiCardSummary, miVoiceInputFor } from "../components/desktop/Mis
 import { assembleTutorBrief } from "../pages/tutor/tutorContextBrief";
 import { areaEvidence, learningPathAreas, weakAreasFromModel } from "../pages/WeakAreaPracticePage";
 import { buildParentReport } from "../components/parentReport/parentReportModel";
+import { selectMiCards } from "../lib/mi/miCardSummary";
 import { MARKS_LOST_BY_TYPE_VERSION, zeroMarksLost } from "../lib/mistakeDisplay";
 import type { MistakeLogEntry } from "./mistakeLogService";
 import type { DesktopSubject } from "../lib/desktop/navigation";
@@ -136,6 +137,10 @@ async function everything() {
     science: mePaper("Science"),
     home: (await loadMeHome(MI_FIXTURE_UID, 0, reader)).summary,
     card: computeMiCardSummary(ALL),
+    // MI-CONSISTENCY-1's ONE selector (Home, phone Home, sidebar), every scope. It shows MARKS only
+    // (tiles, headline, the costliest type) and the wrong-answer log's gap count — no type counts —
+    // so a habit must leave every figure exactly as it is.
+    cards: selectMiCards(ALL, ME_ROUTE_CTX, MI_FIXTURE_UID),
     voice: miVoiceInputFor({ kind: "with-data", summary: computeMiCardSummary(ALL) }),
     conceptRows: { maths: await loadMeConceptRows(MI_FIXTURE_UID, "Maths", 0, reader), science: await loadMeConceptRows(MI_FIXTURE_UID, "Science", 0, reader) },
     tutor: {
@@ -195,9 +200,13 @@ describe("MCQ-TYPE-2 · a 0-mark habit changes TYPE COUNTS only", () => {
     expect(HABIT.conceptRows).toEqual(BASE.conceptRows);
   });
 
-  it("★ every other consumer is identical: Home, the sidebar card + Ziggy's input, the tutor brief, the parent report, the paywall count, progress", () => {
+  it("★ every other consumer is identical: Home, the MI card selector (every scope), the sidebar card + Ziggy's input, the tutor brief, the parent report, the paywall count, progress", () => {
     expect(HABIT.home).toEqual(BASE.home);
     expect(HABIT.card).toEqual(BASE.card);
+    expect(HABIT.cards).toEqual(BASE.cards);
+    // CONTROL: the selector really read this student (a ready card that lost marks), so equality is not vacuous
+    expect(BASE.cards.both.state).toBe("ready");
+    expect(BASE.cards.both.lost).toBeGreaterThan(0);
     expect(HABIT.voice).toEqual(BASE.voice);
     expect(HABIT.tutor).toEqual(BASE.tutor);
     expect(HABIT.parent).toEqual(BASE.parent);
