@@ -1,3 +1,16 @@
+## 2026-10-24 (daily) - MI-CARELESS-1 (`#1321`), MI-CARELESS-2 (`#1324`), BANK-RESIDUE-1 (`#1325`), GUIDE-SCORE-2 (`#1322`), MI-CONSISTENCY-1 (`#1326`), MI-CARD-UID-1 (`#1333`), CT-RELOAD-1 (`#1332`), FRESH-SET-QP (`#1330`), FRESH-SET-TESTS (`#1327`), QP-WORKING-AFTER-1 (`#1328`), SERVED-TYPES-1 (`#1335`), CT-RESUME-2 (`#1334`), MCQ-EXTRACT-1 (`#1323`), MCQ-TYPE-2 (`#1331`) - MERGED
+
+- DONE. `#1321` (`72b39dc8`), `#1324` (`c74bca7b`), `#1326` (`04068587`), `#1333` (`2f4d6388`): the MI card fix (option A) is complete - one card on Home, phone Home and the sidebar, Me's figures, tiles that add up, own-account concept gaps. Owner live-verified the totals on 23 Oct **[coordinator]**. NEXT: `[FU-ME-HOME-MARKS-WORDING]`.
+- DONE. `#1330` (`3abe8d2e`), `#1327` (`a0961459`), `#1335` (`5eca5132`): "unique set every time" on Quick Practice, Chapter Test, Full Mock and Worksheet. NEXT: owner live check (`[FU-OWNER-LIVE-1024-CHECKS]`), `[FU-SERVEDENTRY-ALIAS]`.
+- DONE. `#1332` (`0e414b1a`), `#1334` (`a52194c9`): Chapter Test reload / resume keeps its paper; the daily paper gate counts only new papers. NEXT: `[FU-CT-REFUSAL-NOTICE-STYLE]`, `[FU-FM-RESUME-MATCH]`, owner live check.
+- DONE. `#1328` (`b8b666e5`): QP-WORKING-AFTER-1 to the owner's 22:48 / 23:11 IST design. NEXT: owner live check.
+- DONE. `#1322` (`16f866a8`): GUIDE-SCORE-2. NEXT: MOMENTS-3 (`[FU-MOMENTS-3-EMOTIONS]`) with H1-H4.
+- DONE. `#1325` (`d13bd6d6`): BANK-RESIDUE-1 - 145 cleaned, 28 withheld, permanent guard. NEXT: source-paper recovery of the withheld rows.
+- DONE. `#1323` (`aed739ca`): MCQ-EXTRACT-1. NEXT: `[FU-MCQ-OPTION-TEXT-LINE]`, `[FU-MCQ-CONTRADICTORY-LINE-MODEL-VERDICT]`.
+- DONE. `#1331` (`2cd690f0`): MCQ-TYPE-2 - a right MCQ with flawed working shows its type as a 0-mark habit (amber chip, MI habit entry, 0 marks); golden type 92.2 (floor 85), changed=0. NEXT: owner live check (`[FU-OWNER-LIVE-1024-CHECKS]` (4)), `[FU-HABIT-OPTIONS-DETECT]`, then Decision D (`[FU-MCQ-PHOTO-STRICT-PROMPT]`), a grading change.
+- IN FLIGHT [git/gh]: no product PR open at writing.
+- OPEN. The 2026-10-24 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-23 (daily) - GUIDE-ALL-1 (`#1301`), PYQ-RESTORE-B PR-1 (`#1300`), QP-CONCEPT-1 (`#1308`), SHARE-CARD-1 (`#1304`), PYQ-RESTORE-B PR-2 (`#1303`), COMPANION-1 (`#1306`), GUIDE-PAGES-1 (`#1307`), QP-CONCEPT-2 (`#1310`), PYQ-RESTORE-A part 1 (`#1309`), QP-CONCEPT-3 (`#1313`), MLT-RETIRE-1 (`#1314`), PYQ-RESTORE-A part 2 (`#1312`), IMPQ-PAGE-1 (`#1311`), QP-CONCEPT-4 (`#1315`), MI-MODE-MARKS-1 (`#1316`), GUIDE-SCORE-1 (`#1305`), CI-AGG-1 (`#1319`), GUIDE-FILTER-1 (`#1302`), GUIDE-PAGES-FLAKE-1 (`#1317`), MCQ-TYPE-1 (`#1320`) - MERGED
 
 - DONE. `#1301` (`128b48dc`), `#1305` (`190d8271`), `#1307` (`12ead4c6`), `#1302` (`cd05b95a`), `#1306` (`3f7cac7f`), `#1317` (`7344da19`): Byte & Ziggy for every student; on every scorecard; on the limit panel, test / worksheet / mock entry and Exam Trends; explaining filters; companion poses and duet scenes; page helper never covers the start button. NEXT: GUIDE-SCORE-2 (`#1322`, open), MOMENTS-3 (`[FU-MOMENTS-3-EMOTIONS]`), `[FU-COMPANION-BREATHE-MOUNT]`.
