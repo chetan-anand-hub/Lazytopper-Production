@@ -3,6 +3,7 @@ import {
   MISTAKE_GROUPS,
   addMarksLost,
   entryMarksLost,
+  groupMarks,
   isCarelessType,
   zeroMarksLost,
   type MarksLostByType,
@@ -295,7 +296,10 @@ export interface CarelessInsight {
   calculationCount: number;
   sillyCount: number;
   count: number;
-  /** MARKS from the step deductions the grader wrote on careless steps. */
+  /** MARKS lost to careless mistakes — MI-CARELESS-1: the entry's own v2 marks
+   *  (`marksLostByType`, grouped by lib/mistakeDisplay) when it carries them, else (a count-only
+   *  legacy entry) the step deductions the grader wrote on careless steps. The SAME rule as Me's
+   *  hero split (`mistakeLossByGroup`), so the easy-marks card and the split can never disagree. */
   marksLost: number;
   hasData: boolean;
 }
@@ -309,6 +313,14 @@ export function summarizeCareless(entries: MistakeLogEntry[]): CarelessInsight {
     if (!isSafeEntry(e)) continue;
     calculationCount += Number(e.mistakeCounts?.calculation) || 0;
     sillyCount += Number(e.mistakeCounts?.silly) || 0;
+    // MI-CARELESS-1 — a v2 entry is read by its own marks: the per-step deductions UNDER-state
+    // the loss (the objective clamp strips step marks, a consequential slip's inherited marks and
+    // departure-zeroed work are typed only in `marksLostByType`), which hid Me's easy-marks card.
+    const v2 = entryMarksLost(e);
+    if (v2) {
+      marksLost += groupMarks(v2).careless;
+      continue;
+    }
     for (const s of e.stepDetails ?? []) {
       if (isCarelessType(String(s.mistakeType))) {
         marksLost += Number(s.marksDeducted) || 0;

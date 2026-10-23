@@ -122,7 +122,7 @@ describe("Me / Progress", () => {
           "calculationCount": 2,
           "count": 3,
           "hasData": true,
-          "marksLost": 4,
+          "marksLost": 5,
           "sillyCount": 1,
         },
         "chapters": [
@@ -163,12 +163,12 @@ describe("Me / Progress", () => {
           "calculationCount": 2,
           "count": 4,
           "hasData": true,
-          "marksLost": 3,
+          "marksLost": 4,
           "sillyCount": 2,
         },
         "chapters": [
           {
-            "gapType": null,
+            "gapType": "conceptual",
             "key": "light-reflection-and-refraction",
             "label": "Light - Reflection & Refraction",
             "lost": 8,
