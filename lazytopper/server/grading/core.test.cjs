@@ -2222,3 +2222,129 @@ test('§MCQ-TYPE-1.7 ONE objective question is ONE mistake: two typed steps → 
     assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 1 });
   }
 });
+
+/* ══ §MCQ-EXTRACT-1 · "(c) Coincident" IS A PICK ═══════════════════════════════════════════════
+   A single answer line made of an option LETTER followed by THAT option's text — "(c) Coincident",
+   "c) only k, 7k and k^3" — was not recognised, so an answered MCQ came back UNGRADED
+   (objectiveResolved:false). It is now read as the letter's pick; the mark follows the 0/full
+   clamp exactly. A letter followed by ANOTHER option's text is contradictory and is not read. */
+
+const EX_OPTS = ['k', '3k', 'only k, 7k and k^3', 'k^3'];
+const EX_Q = (o = {}) => MCQ({ options: EX_OPTS, answer: 'only k, 7k and k^3', textAnswer: 'c) only k, 7k and k^3', ...o });
+const EX_SINGLE = (o = {}) => ({ question: 'Which of these are multiples of k? (a) k (b) 3k (c) only k, 7k and k^3 (d) k^3', marks: 1, subject: 'Maths', topic: TOPIC,
+  section: 'A', format: 'mcq', options: EX_OPTS, answer: 'only k, 7k and k^3', textAnswer: 'c) only k, 7k and k^3', acceptsV2: true, ...o });
+async function exBoth(work, { answer, options, raw = {} } = {}) {
+  const reply = REPLY(R(1, [S({ description: 'Option chosen', studentWork: work, status: 'correct', marksAwarded: 0 })], raw));
+  const qo = { textAnswer: work, ...(answer ? { answer } : {}), ...(options ? { options } : {}) };
+  const a = (await harness({ replies: [reply] }).single(EX_SINGLE(qo))).body;
+  const b = (await harness({ replies: [reply] }).sheet(sheet([EX_Q(qo)], { acceptsV2: true }))).body.results[0];
+  return [a, b];
+}
+
+test('§MCQ-EXTRACT-1.1 ★ "c) only k, 7k and k^3" and "(c) Coincident" are read as option c — graded, not unresolved — on both endpoints', async () => {
+  assert.equal(O.extractOptionPick([{ studentWork: 'c) only k, 7k and k^3' }], EX_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) Coincident' }], ['Parallel', 'Intersecting', 'Coincident', 'Skew']).pick, 'c');
+  for (const r of await exBoth('c) only k, 7k and k^3')) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // the clamp decides: same line, key is (a) → 0, resolved
+  for (const r of await exBoth('c) only k, 7k and k^3', { answer: 'k' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+  const LINES = ['Parallel', 'Intersecting', 'Coincident', 'Skew'];
+  for (const r of await exBoth('(c) Coincident', { options: LINES, answer: 'Coincident' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  for (const r of await exBoth('(c) Coincident', { options: LINES, answer: 'Parallel' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+});
+
+test('§MCQ-EXTRACT-1.2 CONTROLS: a letter with ANOTHER option\'s text is not read; prose after a letter is not read; the model verdict never outranks the key', async () => {
+  const LINES = ['Parallel', 'Intersecting', 'Coincident', 'Skew'];
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) Parallel' }], LINES).pick, '', 'contradictory: not a pick');
+  assert.equal(O.extractOptionPick([{ studentWork: 'a) the slopes are equal' }], LINES).pick, '', 'working, not a pick');
+  // contradictory line, no model verdict → honestly unresolved (unchanged behaviour)
+  for (const r of await exBoth('(c) Parallel', { options: LINES, answer: 'Parallel' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // the key outranks the model: model says correct, the read pick (c) is wrong against key (a)
+  for (const r of await exBoth('(c) Coincident', { options: LINES, answer: 'Parallel', raw: { finalAnswerCorrect: true } })) assert.equal(r.marksAwarded, 0);
+  // existing forms unchanged
+  assert.equal(O.extractOptionPick([{ studentWork: '(c)' }], LINES).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: 'Coincident' }], LINES).pick, 'Coincident');
+  assert.equal(O.extractOptionPick([{ studentWork: '(a) or (c)' }], LINES).pick, '', 'a hedge is still a hedge');
+});
+
+test('§MCQ-EXTRACT-1.3 ★ ONLY A CLOSING BRACKET: working lines with letter VARIABLES ("a: 2", "b - b") are never picks', async () => {
+  const VAR_OPTS = ['2', 'b', 'a + b', 'ab'];
+  for (const w of ['a: 2', 'b - b', 'a. 2', 'b – b', 'c: a + b']) assert.equal(O.extractOptionPick([{ studentWork: w }], VAR_OPTS).pick, '', w);
+  // "(c)" then "a: 2", key c → FULL: the last declaration is still (c); "a: 2" is working (review M1)
+  const two = async (works, answer) => {
+    const reply = REPLY(R(1, works.map((w) => S({ description: 'Line', studentWork: w, status: 'correct', marksAwarded: 0 }))));
+    const qo = { options: VAR_OPTS, answer, textAnswer: works.join('\n') };
+    const a = (await harness({ replies: [reply] }).single(EX_SINGLE(qo))).body;
+    const b = (await harness({ replies: [reply] }).sheet(sheet([EX_Q(qo)], { acceptsV2: true }))).body.results[0];
+    return [a, b];
+  };
+  for (const r of await two(['(c)', 'a: 2'], 'a + b')) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // the line "b - b" alone, key b → NOT a pick, so never an unearned full mark from it
+  for (const r of await two(['b - b'], 'b')) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // the positives still hold with brackets
+  assert.equal(O.extractOptionPick([{ studentWork: 'c) a + b' }], VAR_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) a + b' }], VAR_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: 'c) only k, 7k and k^3' }], EX_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) Coincident' }], ['Parallel', 'Intersecting', 'Coincident', 'Skew']).pick, 'c');
+});
+
+/* ══ §MCQ-EXTRACT-1 · REVIEW HOLD — A LETTER+TEXT LINE IS A FALLBACK, NEVER AN OVERRIDE ══════════
+   "(b) 4" is ALSO how a working line looks when option (b) happens to be "4". With the last
+   declaration winning, "(c)" followed by a working line "(b) 4" read b and a student lost an
+   earned mark. The letter+text form is now read ONLY when nothing else in the answer declares an
+   option; if several such lines name different options, the answer is left unresolved. */
+
+const FB_OPTS = ['2', '4', '6', '8'];
+const FB_VAR_OPTS = ['a', 'b', 'a + b', 'ab'];
+async function fbBoth(works, { options, answer, raw = {} }) {
+  const reply = REPLY(R(1, works.map((w) => S({ description: 'Line', studentWork: w, status: 'correct', marksAwarded: 0 })), raw));
+  const qo = { options, answer, textAnswer: works.join('\n') };
+  const a = (await harness({ replies: [reply] }).single(EX_SINGLE(qo))).body;
+  const b = (await harness({ replies: [reply] }).sheet(sheet([EX_Q(qo)], { acceptsV2: true }))).body.results[0];
+  return [a, b];
+}
+
+test('§MCQ-EXTRACT-1.4 ★ "(c)" then a working line "(b) 4" (option b is "4"), key c → c, FULL — on handleCheckSolution AND handleGradeWorksheet', async () => {
+  assert.equal(O.extractOptionPick([{ studentWork: '(c)' }, { studentWork: '(b) 4' }], FB_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: '(c)\n(b) 4' }], FB_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: '(b) 4' }, { studentWork: '(c)' }], FB_OPTS).pick, 'c', 'order does not matter');
+  for (const r of await fbBoth(['(c)', '(b) 4'], { options: FB_OPTS, answer: '6' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // and the reverse direction: key b, declared (c) → 0 (the working line never RESCUES either)
+  for (const r of await fbBoth(['(c)', '(b) 4'], { options: FB_OPTS, answer: '4' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+});
+
+test('§MCQ-EXTRACT-1.5 ★ "(c)" then "b) b" (option b is "b"), key c → c, FULL — on both endpoints', async () => {
+  assert.equal(O.extractOptionPick([{ studentWork: '(c)' }, { studentWork: 'b) b' }], FB_VAR_OPTS).pick, 'c');
+  for (const r of await fbBoth(['(c)', 'b) b'], { options: FB_VAR_OPTS, answer: 'a + b' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // "Answer: c" outranks a later letter+text line too
+  assert.equal(O.extractOptionPick([{ studentWork: 'Answer: c' }, { studentWork: 'b) b' }], FB_VAR_OPTS).pick, 'c');
+});
+
+test('§MCQ-EXTRACT-1.6 ★ several letter+text lines naming DIFFERENT options, nothing else declared → unresolved (never a guess)', async () => {
+  assert.equal(O.extractOptionPick([{ studentWork: '(b) 4' }, { studentWork: '(c) 6' }], FB_OPTS).pick, '');
+  for (const r of await fbBoth(['(b) 4', '(c) 6'], { options: FB_OPTS, answer: '6' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  for (const r of await fbBoth(['(b) 4', '(c) 6'], { options: FB_OPTS, answer: '4' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // the SAME option twice is not a conflict
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) 6' }, { studentWork: 'c) 6' }], FB_OPTS).pick, 'c');
+  // a hedge is an ordinary declaration and still outranks a fallback line
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) 6' }, { studentWork: '(a) or (b)' }], FB_OPTS).pick, '');
+  assert.equal(O.isHedgedPick([{ studentWork: '(c) 6' }, { studentWork: '(a) or (b)' }], FB_OPTS), true);
+});
+
+test('§MCQ-EXTRACT-1.7 previous positives still read as the letter when they stand alone', async () => {
+  const P = (w, opts) => O.extractOptionPick([{ studentWork: w }], opts).pick;
+  assert.equal(P('(c) Coincident', ['Parallel', 'Intersecting', 'Coincident', 'Skew']), 'c');
+  assert.equal(P('c) only k, 7k and k^3', EX_OPTS), 'c');
+  assert.equal(P('(a) (x+1)', ['(x+1)', '(x-1)', '(x+2)', '(x-2)']), 'a');
+  assert.equal(P('(a) (x+1)(x-2)', ['(x+1)(x-2)', '(x-1)(x+2)', '(x+1)(x+2)', '(x-1)(x-2)']), 'a');
+  assert.equal(P('d) (a) and (b) both', ['only (a)', 'only (b)', 'neither (a) nor (b)', '(a) and (b) both']), 'd');
+  const AR = [
+    'Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).',
+    'Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).',
+    'Assertion (A) is true but Reason (R) is false.',
+    'Assertion (A) is false but Reason (R) is true.',
+  ];
+  assert.equal(P('(c) Assertion (A) is true but Reason (R) is false.', AR), 'c');
+  // a positive through both endpoints, alone → FULL
+  for (const r of await fbBoth(['(a) (x+1)(x-2)'], { options: ['(x+1)(x-2)', '(x-1)(x+2)', '(x+1)(x+2)', '(x-1)(x-2)'], answer: '(x+1)(x-2)' }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});
