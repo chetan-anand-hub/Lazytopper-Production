@@ -110,7 +110,47 @@
 .lt-ziggy--preview { position: relative; }
 .lt-ziggy__admin { position: absolute; top: 6px; right: 8px; }
 
+/* GUIDE-SCORE-1 - Byte & Ziggy on every scorecard: one character slot + one bubble on the navy
+   scorecard body, in the flow above the score (never over a number). The slot height is reserved by
+   the scorecard itself (.lt-sc__guide), so filling it never moves the score. */
+.lt-scg { position: relative; display: flex; align-items: flex-end; gap: 10px; min-width: 0; max-width: 100%;
+  box-sizing: border-box; padding: 4px 4px 0 2px; color: #14213d; }
+.lt-scg__char { flex: none; width: 80px; }
+.lt-scg__bub { position: relative; align-self: center; min-width: 0; flex: 0 1 auto; background: #fff;
+  border: 2px solid #14213d; border-radius: 14px 14px 14px 4px; padding: 8px 12px 4px;
+  animation: lt-scg-pop .35s cubic-bezier(.3, 1.6, .5, 1); }
+.lt-scg--ziggy .lt-scg__bub { background: #f2faea; }
+.lt-scg--byte .lt-scg__bub { background: #e9f7fd; }
+.lt-scg__say { margin: 0; font-size: 14px; line-height: 1.32; font-weight: 700; overflow-wrap: anywhere; }
+.lt-scg__cta { display: inline-flex; align-items: center; justify-content: center; max-width: 100%; box-sizing: border-box;
+  min-height: 44px; min-width: 44px; margin: 6px 0 0; padding: 0 14px; border-radius: 10px; background: hsl(152, 55%, 38%);
+  color: #fff; font-size: 13.5px; font-weight: 800; text-decoration: none; text-align: center; }
+.lt-scg__cta:hover { background: hsl(152, 55%, 32%); }
+button.lt-scg__cta { border: 0; cursor: pointer; font-family: inherit; }
+.lt-scg__cta:focus-visible, .lt-scg__hide:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
+.lt-scg__hide { display: flex; align-items: center; margin: 0; padding: 0 2px; min-height: 44px; min-width: 44px; border: 0; background: none;
+  color: #56627e; font: inherit; font-size: 12px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.lt-scg__hide:hover { color: #14213d; }
+/* The link and "Hide mascots" share one row when they fit (44 px targets, no taller bubble). */
+.lt-scg__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
+.lt-scg__acts .lt-scg__cta { margin: 4px 0; }
+.lt-scg__admin { display: inline-block; margin: 0 0 4px; font-size: 10.5px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; line-height: 1; padding: 5px 8px; border-radius: 999px; background: #14213d; color: #fff; }
+@keyframes lt-scg-pop { 0% { transform: scale(.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@media (min-width: 600px) { .lt-scg__char { width: 92px; } .lt-scg__say { font-size: 14.5px; } }
+/* Small phones: a smaller character and a tighter bubble give the words room, so the beat stays
+   inside the slot the scorecard reserves for this width (ResultsScorecard SC_CSS). */
+@media (max-width: 419.98px) {
+  .lt-scg { gap: 8px; padding: 2px 0 0; }
+  .lt-scg__char { width: 56px; }
+  .lt-scg__bub { padding: 7px 10px 2px; }
+  .lt-scg__say { font-size: 13.5px; line-height: 1.3; }
+  .lt-scg__acts { gap: 0 10px; }
+}
+@media print { .lt-scg { display: none; } }
+
 @media (prefers-reduced-motion: reduce) {
+  .lt-scg__bub { animation: none !important; }
   .lt-gr-pr, .lt-guide__bub.is-pop { animation: none !important; }
   .lt-guide__opt { transition: none; }
 }

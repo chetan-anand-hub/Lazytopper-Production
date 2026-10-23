@@ -647,6 +647,8 @@ import {
   quickPracticeGradedScorecardVariant,
   quickPracticeScorecardVariant,
   reopenedQuickPracticeScorecardVariant,
+  singleChapterPracticeTarget,
+  withGuideTarget,
   storedPickedOption,
   storedTapMarksLost,
   type ScorecardAction,
@@ -1156,6 +1158,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // moment the student went back to review. This flag is set by the Finish tap and by every
   // "Back to this set" action, and cleared ONLY on a fresh build/regenerate (the reset below).
   const [reviewMode, setReviewMode] = useState<boolean>(false);
+  /** GUIDE-SCORE-1 — Byte asked to open ONE question's working box (a new nonce per request). */
+  const [checkerRequest, setCheckerRequest] = useState<{ id: string; nonce: number } | null>(null);
   // PRACTICE-REVIEW-HONEST-1 (cofounder DECISION 27a, owner-approved; scope 30b) — "An answer
   // given after the student has seen the steps is not a real attempt. Counting it would put
   // invented accuracy into Mistake Intelligence (CLAUDE.md §5, no fake data)." The ids of the
@@ -3898,6 +3902,7 @@ const packTopicKey = useMemo(() => {
         {isBuilt && (
         <PracticeAttemptCountingProvider value={!reviewMode}>
         <PracticeQuestionList
+          openCheckerFor={checkerRequest} // GUIDE-SCORE-1 — Byte's "add working" opens this box
           isLoading={isLoading}
           error={error}
           onRetry={error && !isLoading ? () => setLoadRetry((n) => n + 1) : undefined}
@@ -4011,6 +4016,22 @@ const packTopicKey = useMemo(() => {
   if (!showScorecard) return null;
   const topicK = canonicalTopicKey || topicParam;
   const back = { state: { back: location.pathname + location.search, backLabel: "Back to practice" } };
+  // GUIDE-SCORE-1 — Byte's link: this ONE chapter's weak-pattern practice (a multi-topic set → the
+  // Quick Practice hub). And, on a tap-only card with missed MCQs, the in-page way back to them:
+  // the set in review (the existing "Back to this set"), scrolled to the first missed question.
+  const qpGuideTarget = multiTopics.length > 0 ? null : singleChapterPracticeTarget(String(subjectKey), [topicK], () => topicLabel);
+  const firstMissedId =
+    filteredQuestions.map((q) => String(q.id)).find((id) => mcqResults[id] === "wrong" && !reviewMcqIds[id]) ?? null;
+  const firstQuestionId = filteredQuestions[0] ? String(filteredQuestions[0].id) : null;
+  // Back to the set (review: the existing "Back to this set"), with THAT question's working box
+  // OPEN, scrolled to and focused (PracticeQuestionCard `openCheckerRequest`). Changes no mark.
+  const openWorkingFor = (id: string) => {
+    backToSetForReview();
+    setCheckerRequest((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }));
+  };
+  const canOpenWorking = !overlay && !isGuest;
+  const showMissed = firstMissedId && canOpenWorking ? () => openWorkingFor(firstMissedId) : null;
+  const addWorking = firstQuestionId && canOpenWorking ? () => openWorkingFor(firstQuestionId) : null;
   const closeScorecard = () => {
     setScorecardDismissed(true);
     setSessionFinished(false);
@@ -4242,7 +4263,7 @@ const packTopicKey = useMemo(() => {
     return (
       <ResultsScorecard
         askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-        variant={gradedVariant}
+        variant={withGuideTarget(gradedVariant, qpGuideTarget)}
         onClose={closeScorecard}
         // QP-UPLOAD-LATER — written questions with nothing checked can be uploaded later.
         belowScore={uploadLaterBlock ?? undefined}
@@ -4449,7 +4470,12 @@ const packTopicKey = useMemo(() => {
   return (
     <ResultsScorecard
       askFirstFeedback={!overlay && !isGuest} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-      variant={mcqVariant}
+      variant={{
+        ...withGuideTarget(mcqVariant, qpGuideTarget),
+        onShowMissed: showMissed,
+        // Owner ruling 23 Oct 17:57 — the set's own working box, never another page.
+        onAddWorking: addWorking,
+      }}
       onClose={closeScorecard}
       hideShare={isGuest} // SHARE-SCORE-1 — no "Share my score" on a signed-out guest's scorecard
       // QP-UPLOAD-LATER — the guest card (unchanged) plus the "Upload later" block when written
@@ -4579,7 +4605,7 @@ const packTopicKey = useMemo(() => {
       });
   return (
     <ResultsScorecard
-      variant={reopenVariant}
+      variant={withGuideTarget(reopenVariant, singleChapterPracticeTarget(recSubject, record.topicKeys || []))}
       onClose={close}
       // QP-UPLOAD-LATER — this set still has written questions waiting.
       belowScore={

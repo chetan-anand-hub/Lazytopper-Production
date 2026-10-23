@@ -3,14 +3,27 @@
  * the same dynamic import, so Vite emits ONE `guideChunk-<hash>.js` that is fetched only when
  * Byte or Ziggy is about to render. A failed chunk load renders nothing (never breaks a page).
  */
-import { lazy, Suspense, useEffect, useState, type ComponentType } from "react";
-import type { ScorecardScore } from "../results/scorecardVariants";
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
+import { CompanionScoreSlot } from "./companion/companion";
+import { COMPANION_CHAR_CLASS, COMPANION_PRIORITY, otherMascotOnScreen, stageHolder } from "./companion/companionModel";
+import { anyMascotHost, mascotHostsVersion, subscribeMascotHosts } from "./mascotPresence";
+import { canShowScene } from "./sceneGuard";
+import type { ScorecardVariant } from "../results/scorecardVariants";
 import { FIRST_GRADED_DELAY_MS, isFirstGradedEligible } from "../feedback/useFirstGradedFeedback";
 import { firstResultState } from "../feedback/feedbackPromptModel";
 import { loadLocalSessionRecords } from "../../services/sessionRecords";
-import { guideAbActive, guideAccountTag, guidePreviewActive, resolveGuideVariant } from "./guideVariant";
+import {
+  guideAbActive,
+  guideAccountTag,
+  guideFocusOpen,
+  guidePreviewActive,
+  resolveGuideVariant,
+  trackGuideEvent,
+} from "./guideVariant";
 import { ziggyReactionFor, type ZiggyReaction } from "./ziggyModel";
-import { useMascotsHidden } from "./mascotsMute";
+import { scoreGuidePlan, type ScoreGuidePlan, type ScoreScene } from "./scoreGuideModel";
+import { mascotsHidden as mascotsHiddenNow, useMascotsHidden } from "./mascotsMute";
+import { useHoldStage, useStageHeld } from "./scoreGuideStage";
 
 type Chunk = typeof import("./guideChunk");
 const load = (): Promise<Chunk> => import("./guideChunk");
@@ -21,9 +34,37 @@ function lazyPart<P extends object>(pick: (m: Chunk) => ComponentType<P>) {
   return lazy(() => load().then((m) => ({ default: pick(m) }), () => ({ default: Nothing })));
 }
 
+type LoadFail = { onLoadFail?: () => void };
+
+/** As `lazyPart`, but a failed load ALSO calls `onLoadFail` (the scorecard slot then releases the
+ *  stage it holds, so the sidebar's character is not hidden for nothing). */
+function lazyPartReporting<P extends object>(pick: (m: Chunk) => ComponentType<P>) {
+  const Failed: ComponentType<P & LoadFail> = ({ onLoadFail }) => {
+    useEffect(() => {
+      onLoadFail?.();
+    }, [onLoadFail]);
+    return null;
+  };
+  return lazy(() =>
+    load().then(
+      (m) => {
+        const C = pick(m);
+        const Loaded: ComponentType<P & LoadFail> = (props) => {
+          const { onLoadFail: _unused, ...rest } = props;
+          void _unused;
+          return <C {...(rest as P)} />;
+        };
+        return { default: Loaded };
+      },
+      () => ({ default: Failed }),
+    ),
+  );
+}
+
 export const LazyByteGuide = lazyPart((m) => m.ByteGuide);
 export const LazyGuideChip = lazyPart((m) => m.GuideChip);
-const LazyZiggyStrip = lazyPart((m) => m.ZiggyStrip);
+const LazyZiggyStrip = lazyPartReporting((m) => m.ZiggyStrip);
+const LazyScoreGuideBeats = lazyPartReporting((m) => m.ScoreGuideBeats);
 
 /** The signed-in student's uid from Firebase Auth (the feedbackPromptHost pattern), or null. */
 async function currentUid(): Promise<string | null> {
@@ -67,61 +108,283 @@ export function __resetZiggyShownForTests(): void {
  *  of a slow persist seam has landed by then). */
 export const ZIGGY_CHECK_DELAY_MS = FIRST_GRADED_DELAY_MS;
 
-export interface ZiggyFirstResultProps {
+/** GUIDE-SCORE-1 (owner: "EVERY scorecard") — how long the FIRST result's Ziggy strip holds before
+ *  Byte's next step replaces it in the same slot (the strip's own bounce-back is 2.5 s). */
+export const FIRST_STRIP_HOLD_MS = 4000;
+
+/**
+ * GUIDE-ALL-1 (22 Oct 2026, the A/B ended) — the arm no longer depends on WHO is signed in:
+ * `resolveGuideVariant` returns the test seam / admin preview / dev override, else "guide", for
+ * ANY uid. So the scorecard can decide SYNCHRONOUSLY, before the first paint, whether a character
+ * will draw (and reserve its slot only then). The probe uid is never stored or sent.
+ */
+const ARM_PROBE_UID = "scorecard-arm-probe";
+function scorecardArmIsGuide(): boolean {
+  return resolveGuideVariant(ARM_PROBE_UID) === "guide";
+}
+
+export interface ScorecardGuideProps {
+  variant: ScorecardVariant;
+  /** The host's FIRST-FEEDBACK-1 opt-in (`askFirstFeedback`): a LIVE, just-graded scorecard. */
   ask: boolean | undefined;
-  deferred: boolean | undefined;
-  allPending: boolean;
-  score: ScorecardScore;
+  /** The host draws its own all-pending moment (MOMENTS-1 M6) inside the all-pending block. */
+  hostOwnsUnreadAllPending?: boolean;
+}
+
+type Mode =
+  | { kind: "deciding" }
+  | { kind: "none" }
+  | { kind: "first"; reaction: ZiggyReaction }
+  | { kind: "every"; startAt: "ziggy" | "byte" }
+  | { kind: "scene"; scene: ScoreScene; uid: string | null };
+
+/**
+ * ★ SCENES (owner ruling 23 Oct 2026 16:40 IST). Byte and Ziggy may stand TOGETHER only in a
+ * short scene, at most ONE per app session (COMPANION-1's ../sceneGuard.ts). On a scorecard the
+ * two candidates are the plan's `scene`, decided by COMPANION-1's own rule
+ * (companionScoreMoment over the card's whole percentages): "comfort" below 40 %, "improvement"
+ * ≥ 10 points over the previous same-total result the card prints (Full Mock ▲, Chapter Test ▲).
+ *
+ * DEFAULT: COMPANION-1's `CompanionScoreSlot` draws the duet in this slot when `canShowScene()`
+ * holds (it marks the session's scene itself, when the duet is actually drawn); otherwise the
+ * default Ziggy-then-Byte sequence plays. `registerScoreScene` swaps the renderer (tests; a future
+ * scene) — `null` restores the default. The first graded result keeps its own Ziggy strip.
+ */
+export interface ScoreSceneProps {
+  plan: ScoreGuidePlan;
+  scene: ScoreScene;
+  /** The signed-in student (CompanionScoreSlot draws for a guide-arm account only). */
+  uid: string | null;
+}
+export interface ScoreSceneRegistration {
+  /** May the scene show for this plan? `uid` is `undefined` at the synchronous pre-check (before
+   *  the signed-in uid is known) and the uid (or null) at the claim. */
+  canShowScene: (plan: ScoreGuidePlan, uid: string | null | undefined) => boolean;
+  markSceneShown: () => void;
+  Scene: ComponentType<ScoreSceneProps>;
+  /** Watch the drawing (mascotPresence): never drawn → the sequence; closed → the slot collapses. */
+  watchDrawn?: boolean;
+}
+
+/** COMPANION-1's duet in the scorecard slot: comfort (low score) or the high five (improvement). */
+function CompanionScene({ plan, uid }: ScoreSceneProps) {
+  return (
+    <CompanionScoreSlot
+      uid={uid}
+      pct={plan.pct}
+      previousPct={plan.previousPct}
+      // "Fix one thing": Byte's own next-step route (an internal path), never a guess.
+      fixTo={plan.cta?.to ?? null}
+      busy={false} // a scorecard: the test or question is over
+    />
+  );
+}
+/**
+ * Will COMPANION-1's CompanionScoreSlot actually DRAW the duet? Every rule it applies, checked up
+ * front so the slot never sits empty: the shared scene guard (one scene per session, wide enough),
+ * a signed-in GUIDE-arm uid (`uid === undefined` = the synchronous pre-check, before the uid is
+ * known), no focused guide open, no other mascot on the page, and its own stage — only a
+ * higher-priority companion card (the late-night note) can hold it against the score moment.
+ */
+function companionWillDraw(plan: ScoreGuidePlan, uid: string | null | undefined): boolean {
+  if (!canShowScene({ busy: false })) return false;
+  if (uid !== undefined && !(uid && resolveGuideVariant(uid) === "guide")) return false;
+  if (guideFocusOpen() || otherMascotOnScreen()) return false;
+  const mine = COMPANION_PRIORITY[plan.scene === "improvement" ? "improve" : "lowScore"];
+  const holder = stageHolder();
+  if (holder) {
+    const p = (COMPANION_PRIORITY as Record<string, number>)[holder.replace(/^score-/, "")];
+    if (typeof p === "number" && p > mine) return false;
+  }
+  return true;
+}
+
+const COMPANION_SCENE: ScoreSceneRegistration = {
+  canShowScene: companionWillDraw,
+  markSceneShown: () => {}, // CompanionScoreSlot marks it when the duet is DRAWN
+  Scene: CompanionScene,
+  watchDrawn: true,
+};
+let sceneRegistration: ScoreSceneRegistration = COMPANION_SCENE;
+export function registerScoreScene(r: ScoreSceneRegistration | null): void {
+  sceneRegistration = r ?? COMPANION_SCENE;
+}
+
+/** Could a scene play for this plan right now (read only — nothing is consumed; uid not known yet)? */
+function sceneAvailable(plan: ScoreGuidePlan | null): boolean {
+  const r = sceneRegistration;
+  if (!plan?.scene || mascotsHiddenNow()) return false;
+  try {
+    return r.canShowScene(plan, undefined);
+  } catch {
+    return false;
+  }
+}
+
+/** The scene to play for this plan and this uid right now, consuming the session's one scene. */
+function claimScene(plan: ScoreGuidePlan | null, uid: string | null): ScoreScene | null {
+  const r = sceneRegistration;
+  if (!plan?.scene || mascotsHiddenNow()) return null;
+  try {
+    if (!r.canShowScene(plan, uid)) return null;
+    r.markSceneShown();
+    return plan.scene;
+  } catch {
+    return null; // a broken guard never breaks the scorecard: the default sequence plays
+  }
+}
+
+/** How long the slot waits for the duet to actually draw before playing the sequence instead. */
+export const SCENE_DRAW_TIMEOUT_MS = 2500;
+
+/**
+ * Watches the duet through ../mascotPresence (every BlobCharacter registers): it never drew →
+ * `onDecline` (the normal one-character sequence plays); it drew and then went away (the
+ * student tapped its Close) → `onEnd` (the slot collapses and the stage is released).
+ */
+function SceneWatch({ watch, onDecline, onEnd, children }: { watch: boolean; onDecline: () => void; onEnd: () => void; children: ReactNode }) {
+  useSyncExternalStore(subscribeMascotHosts, mascotHostsVersion, () => 0);
+  const drawn = watch ? anyMascotHost((h) => h.classList.contains(COMPANION_CHAR_CLASS)) : true;
+  const seen = useRef(false);
+  useEffect(() => {
+    if (!watch) return;
+    if (drawn) {
+      seen.current = true;
+      return;
+    }
+    if (seen.current) {
+      onEnd();
+      return;
+    }
+    const t = window.setTimeout(onDecline, SCENE_DRAW_TIMEOUT_MS);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch, drawn]);
+  return <>{children}</>;
 }
 
 /**
- * GUIDE-1 §3D — Ziggy on the FIRST scorecard, guide arm only. Shows only when ALL hold:
- *  - the host opted in (`askFirstFeedback`: a LIVE just-graded scorecard, never history, never
- *    the tutor overlay) and the result is a real graded one (FIRST-FEEDBACK-1's own rule);
- *  - a signed-in, non-anonymous student whose account is in the `guide` arm;
- *  - FIRST-FEEDBACK-1's `firstResultState` over the device's records says "first"
- *    (PREVIEW-1: skipped, with the once-per-device marker, while an admin preview is active).
- * It renders INSIDE the scorecard, in the flow above the score (never over a number, never a
- * modal), so it cannot collide with the "Was this useful?" card (its own fixed layer, 1.5 s later).
+ * The scorecard's character slot — ONE place, rendered by the ONE <ResultsScorecard>, so it
+ * reaches all six grading surfaces (Check & Improve single and multi, Worksheet, Chapter Test,
+ * Full Mock, Quick Practice) through the same call site.
+ *
+ * GUIDE-1 §3D — the student's FIRST graded result gets today's Ziggy strip: the host opted in (a
+ * live, just-graded scorecard), a signed-in student, FIRST-FEEDBACK-1's `firstResultState` says
+ * "first" after the 1.5 s wait, once per account per device (PREVIEW-1: every live scorecard, no
+ * marker, while an admin preview is active). GUIDE-SCORE-1: Byte's next step then REPLACES the
+ * strip in the same slot (owner: EVERY scorecard gets it).
+ *
+ * GUIDE-SCORE-1 (owner ruling, 22 Oct 23:32 IST) — EVERY OTHER graded scorecard gets Ziggy's
+ * reaction and then Byte's one next step, built ONLY from the scorecard's own numbers
+ * (./scoreGuideModel.ts). "Hide mascots" → nothing; the admin preview's control arm → nothing.
+ *
+ * NO LAYOUT SHIFT, NO EMPTY GAP: whether a character will draw is decided SYNCHRONOUSLY on the
+ * first render (the arm is "guide" for everyone since GUIDE-ALL-1, so it needs no uid), and the
+ * slot is reserved only then. A hidden-mascots device, a control preview or a plan-less result
+ * reserve nothing. ONE character at a time: MOMENTS-1 M11's Byte owns the card while it shows.
  */
-export function ZiggyFirstResult({ ask, deferred, allPending, score }: ZiggyFirstResultProps) {
-  const eligible = guideAbActive() && isFirstGradedEligible({ ask, deferred, allPending, score });
-  const [reaction, setReaction] = useState<ZiggyReaction | null>(null);
-  const kind = score.kind;
-  const a = score.kind === "marks" ? score.awarded : score.mcqCorrect;
-  const b = score.kind === "marks" ? score.total : score.mcqAnswered;
-  // MOMENTS-1 PART 0 — "Hide mascots" on this device: no Ziggy (the scorecard is the plain one).
+export function ScorecardGuide({ variant, ask, hostOwnsUnreadAllPending }: ScorecardGuideProps) {
   const mascotsHidden = useMascotsHidden();
+  const m11OnStage = useStageHeld("m11");
+  const plan: ScoreGuidePlan | null = scoreGuidePlan(variant, { hostOwnsUnreadAllPending });
+  const score = variant.score;
+  const firstEligible =
+    guideAbActive() && isFirstGradedEligible({ ask, deferred: variant.deferred, allPending: !!variant.allPending, score });
+  // Decided synchronously, before the first paint.
+  const willDraw =
+    guideAbActive() && !variant.deferred && !mascotsHidden && (plan !== null || firstEligible) && scorecardArmIsGuide();
+  const planKey = plan ? `${plan.seed}|${plan.situation}|${plan.byteStep}|${plan.ziggy.text}|${plan.cta?.to ?? ""}` : "";
+  // A scene candidate (a scene that can show now — read only) starts "deciding": the reserved slot
+  // stays empty and the default sequence is NOT mounted (so it reports nothing) until the scene is
+  // claimed or declined, once the signed-in uid is known.
+  const sceneCandidate = !firstEligible && sceneAvailable(plan);
+  const initial = (): Mode =>
+    firstEligible || sceneCandidate ? { kind: "deciding" } : plan ? { kind: "every", startAt: "ziggy" } : { kind: "none" };
+  const [mode, setMode] = useState<Mode>(initial);
+  const [loadFailed, setLoadFailed] = useState(false);
 
+  // The FIRST graded result (today's check: uid + records, after the feedback card's wait), or a
+  // scene candidate (needs the uid for CompanionScoreSlot's guide-arm check).
   useEffect(() => {
-    if (!eligible) return;
+    if (!willDraw || !(firstEligible || sceneCandidate)) return;
     let live = true;
-    const t = setTimeout(() => {
-      void (async () => {
-        const uid = await currentUid();
-        if (!live || !uid || resolveGuideVariant(uid) !== "guide") return;
-        // PREVIEW-1: under an admin preview ("Show Byte") Ziggy reacts on EVERY live graded
-        // scorecard: no first-result check, and the once-per-device marker is neither read nor
-        // written (so the account's real first result still gets him after the preview ends).
+    let t: ReturnType<typeof setTimeout> | null = null;
+    let t2: ReturnType<typeof setTimeout> | null = null;
+    const every = () => setMode(plan ? { kind: "every", startAt: "ziggy" } : { kind: "none" });
+    void (async () => {
+      const uid = await currentUid();
+      if (!live) return;
+      if (!firstEligible) {
+        const scene = plan ? claimScene(plan, uid) : null;
+        if (!scene || !plan) {
+          every();
+          return;
+        }
+        // The scene replaces ScoreGuideBeats, so the score moment is reported here (same shape,
+        // same sender — trackGuideEvent suppresses it under an admin preview).
+        trackGuideEvent("guide_moment_shown", { moment: "score", surface: plan.surface, situation: plan.situation });
+        setMode({ kind: "scene", scene, uid });
+        return;
+      }
+      if (!uid) {
+        every();
+        return;
+      }
+      t = setTimeout(() => {
+        if (!live) return;
+        // PREVIEW-1: under an admin preview ("Show Byte") Ziggy's first-result strip shows on EVERY
+        // live graded scorecard: no first-result check, and the once-per-device marker is neither
+        // read nor written (so the account's real first result still gets him after the preview).
         const preview = guidePreviewActive();
-        if (!preview && firstResultState(loadLocalSessionRecords(uid), Date.now()) !== "first") return;
-        const r = ziggyReactionFor(score);
-        if (!r || (!preview && !claimZiggy(uid))) return;
-        setReaction(r);
-      })();
-    }, ZIGGY_CHECK_DELAY_MS);
+        if (preview || firstResultState(loadLocalSessionRecords(uid), Date.now()) === "first") {
+          const r = ziggyReactionFor(score);
+          if (r && (preview || claimZiggy(uid))) {
+            setMode({ kind: "first", reaction: r });
+            // GUIDE-SCORE-1: then Byte's next step, in the same slot (Ziggy has already reacted).
+            if (plan) t2 = setTimeout(() => live && setMode({ kind: "every", startAt: "byte" }), FIRST_STRIP_HOLD_MS);
+            return;
+          }
+        }
+        every();
+      }, ZIGGY_CHECK_DELAY_MS);
+    })();
     return () => {
       live = false;
-      clearTimeout(t);
+      if (t) clearTimeout(t);
+      if (t2) clearTimeout(t2);
     };
-    // The reaction is decided once per result (its kind and its two numbers).
+    // Decided once per result (its plan key and the first-result inputs).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligible, kind, a, b]);
+  }, [willDraw, planKey, firstEligible]);
 
-  if (!reaction || mascotsHidden) return null;
+  const showing = willDraw && !m11OnStage && !loadFailed && mode.kind !== "none";
+  // While a character is (about to be) drawn here, the sidebar's MI voice steps aside. A layout
+  // effect: the hold lands before the browser paints this card.
+  useHoldStage("scorecard", showing && mode.kind !== "deciding");
+
+  if (!showing) return null;
+  const onLoadFail = () => setLoadFailed(true);
   return (
-    <Suspense fallback={null}>
-      <LazyZiggyStrip reaction={reaction} />
-    </Suspense>
+    <div className="lt-sc__guide" data-testid="score-guide-slot" data-mode={mode.kind}>
+      {mode.kind === "first" ? (
+        <Suspense fallback={null}>
+          <LazyZiggyStrip reaction={mode.reaction} onLoadFail={onLoadFail} />
+        </Suspense>
+      ) : mode.kind === "every" && plan ? (
+        <Suspense fallback={null}>
+          <LazyScoreGuideBeats key={`${planKey}|${mode.startAt}`} plan={plan} startAt={mode.startAt} onLoadFail={onLoadFail} />
+        </Suspense>
+      ) : mode.kind === "scene" && plan ? (
+        <SceneWatch
+          watch={!!sceneRegistration.watchDrawn}
+          onDecline={() => setMode({ kind: "every", startAt: "ziggy" })}
+          onEnd={() => setMode({ kind: "none" })}
+        >
+          <Suspense fallback={null}>
+            <sceneRegistration.Scene plan={plan} scene={mode.scene} uid={mode.uid} />
+          </Suspense>
+        </SceneWatch>
+      ) : null}
+    </div>
   );
 }

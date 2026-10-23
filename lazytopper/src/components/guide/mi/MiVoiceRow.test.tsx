@@ -85,3 +85,26 @@ describe("MI-VOICE-1 · F10 — the event needs a visible row", () => {
     expect(track).not.toHaveBeenCalled();
   });
 });
+
+describe("GUIDE-SCORE-1 · one character on screen: the sidebar steps aside for a scorecard's character", () => {
+  it("★★ while a scorecard (or M11) holds the stage, the sidebar draws no character; the line stays", async () => {
+    const { holdStage, __resetStageForTests } = await import("../scoreGuideStage");
+    __resetStageForTests();
+    render(<MiVoiceRow uid="u1" input={NO_DATA} hydrated />);
+    expect(await screen.findByTestId(/^blob-/, undefined, { timeout: 3000 })).toBeTruthy();
+    let release = () => {};
+    act(() => {
+      release = holdStage("scorecard");
+    });
+    expect(screen.queryByTestId(/^blob-/)).toBeNull();
+    expect(screen.getByTestId("mi-voice-line").textContent).not.toBe("");
+    act(() => release());
+    expect(await screen.findByTestId(/^blob-/)).toBeTruthy();
+    act(() => {
+      release = holdStage("m11");
+    });
+    expect(screen.queryByTestId(/^blob-/)).toBeNull();
+    act(() => release());
+    __resetStageForTests();
+  }, 10_000);
+});

@@ -31,6 +31,7 @@ import type {
 import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
+import { formatScoreNumber } from "./scoreNumber";
 import {
   ANSWER_MISMATCH_COPY,
   NOT_GRADED_TRY_AGAIN_COPY,
@@ -331,6 +332,54 @@ export interface ScorecardVariant {
    *  saved result, so "Share with parents" can add a private link to it. Absent everywhere a
    *  result was not saved (signed out, not synced) and on every other surface. */
   parentResultRef?: string | null;
+  /** GUIDE-SCORE-1 — where Byte's "practise" link goes: the host's OWN existing practice route
+   *  for this result's single chapter (CT practiseTopic, FM worst chapter, C&I topic worksheet,
+   *  QP / Worksheet weak-pattern practice). Absent → the Quick Practice hub. Display only. */
+  guideTarget?: ScorecardGuideTarget | null;
+  /** GUIDE-SCORE-1 — the objective part is scored and the written answer sheet is still awaited
+   *  (a live partial Chapter Test / Full Mock, or a re-opened "⏳ Awaiting sheet" record). */
+  awaitingSheet?: boolean;
+  /** GUIDE-SCORE-1 — tap-only Quick Practice with missed MCQs: the host's IN-PAGE way back to
+   *  the set (review, working box open) at the first missed question. Byte's button calls it.
+   *  Absent → no link (Quick Practice never sends a student to Check & Improve — owner ruling
+   *  23 Oct 17:57). Never changes a mark (CLAUDE.md §13). */
+  onShowMissed?: (() => void) | null;
+  /** GUIDE-SCORE-1 (owner ruling 23 Oct 17:57) — tap-only Quick Practice: the host's IN-PAGE way
+   *  into the set's review, where the working box takes a written answer. Byte's button calls it.
+   *  Quick Practice never sends a student to Check & Improve. */
+  onAddWorking?: (() => void) | null;
+}
+
+/** GUIDE-SCORE-1 — an internal route (a host's existing practice link) and its chapter's name. */
+export interface ScorecardGuideTarget {
+  to: string;
+  chapter?: string | null;
+}
+
+/** GUIDE-SCORE-1 — a host attaches its own practice route to a built variant (null → unchanged,
+ *  Byte falls back to the Quick Practice hub). */
+export function withGuideTarget<V extends ScorecardVariant>(variant: V, target: ScorecardGuideTarget | null | undefined): V {
+  return target ? { ...variant, guideTarget: target } : variant;
+}
+
+/**
+ * GUIDE-SCORE-1 — the chapter's weak-pattern Quick Practice (WeakAreaPracticePage's route shape,
+ * `weakMode=1`), for a Quick Practice set or a worksheet whose questions are ALL from ONE chapter.
+ * Several chapters (or none) → null: Byte falls back to the Quick Practice hub.
+ */
+export function singleChapterPracticeTarget(
+  subject: string,
+  topicKeys: ReadonlyArray<string | null | undefined>,
+  chapterName?: (topicKey: string) => string,
+): ScorecardGuideTarget | null {
+  const distinct = Array.from(new Set(topicKeys.filter((k): k is string => typeof k === "string" && k.length > 0 && !k.startsWith("mixed:"))));
+  if (distinct.length !== 1) return null;
+  const subj = /sci/i.test(subject) ? "science" : "maths";
+  const key = distinct[0];
+  return {
+    to: `/practice/10/${subj}?topic=${encodeURIComponent(key)}&weakMode=1`,
+    chapter: chapterName ? chapterName(key) : resolveTopicDisplayName(subj, key),
+  };
 }
 
 // ── Shared: four-type aggregation (identical to the shipped worksheet math) ───────
@@ -1163,6 +1212,31 @@ export interface ChapterTestVariantInput {
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
   onRevisit?: () => void;
+  /** GUIDE-SCORE-1 — FULL phase only: the honest change since the last graded test of the SAME
+   *  chapter with the SAME paper total (`chapterTestDeltaLine`), shown under the hero. */
+  deltaLine?: string | null;
+}
+
+/**
+ * GUIDE-SCORE-1 — "▲ 4 marks since your last Light test": the change against the most recent
+ * OTHER graded test of this chapter whose paper total equals this one (else null — a different
+ * total is a different paper, never compared). `previous` is the host's already-loaded
+ * chapter history, newest first (ChapterTestPage `topicRecords`); nothing is fetched.
+ */
+export function chapterTestDeltaLine(
+  current: { code: string; awarded: number; total: number },
+  previous: ReadonlyArray<{ id: string; status: string; marksAwarded: number; marksTotal: number }>,
+  chapter: string,
+): string | null {
+  if (!(current.total > 0)) return null;
+  const prev = previous.find(
+    (r) => r.status === "graded" && r.id !== current.code && r.marksTotal === current.total && r.marksTotal > 0,
+  );
+  if (!prev) return null;
+  const d = Math.round((current.awarded - prev.marksAwarded) * 100) / 100;
+  if (d === 0) return null;
+  const n = Math.abs(d);
+  return `${d > 0 ? "▲" : "▼"} ${formatScoreNumber(n)} mark${n === 1 ? "" : "s"} since your last ${chapter} test`;
 }
 
 // ── STORED re-open variant: read-only chapter-test scorecard from a SessionRecord ──
@@ -1375,6 +1449,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       title: name,
       subtitle: `${code} · submitted & scored`,
       score: { kind: "marks", awarded: response.gradedMarksAwarded, total: response.gradedMarksTotal },
+      awaitingSheet: true,
       message:
         `Objective section scored (${objectiveMarks}). Upload your written answers ` +
         `(Sections B–E, ${notYetGraded} marks) to complete your score — with a ` +
