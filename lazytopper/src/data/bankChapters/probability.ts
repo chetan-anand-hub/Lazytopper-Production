@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "probability" (Maths): 322 served rows from 16 source arrays, 11 withheld.
+// Chapter "probability" (Maths): 328 served rows from 16 source arrays, 5 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -46,10 +46,4 @@ export default defineChapter("probability", [
   "PROB-H15",
   "PR2-014",
   "PR2-045",
-  "PYQ-M-PROB-002",
-  "PYQ-M-PROB-003",
-  "PYQ-M-PROB-005",
-  "PYQ-M-PROB-006",
-  "PYQ-M-PROB-008",
-  "PYQ-M-PROB-010",
 ]);
