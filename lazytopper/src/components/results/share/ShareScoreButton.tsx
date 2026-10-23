@@ -1,104 +1,66 @@
-import { useState } from "react";
+import { Suspense, lazy, useCallback, useState, type ComponentType } from "react";
+import { createPortal } from "react-dom";
 import type { ScorecardVariant } from "../scorecardVariants";
-import { buildShareCardModel, shareText } from "./shareCardModel";
-import { SHARE_FILENAME, downloadBlob, openWhatsAppLink, pickShareMethod, shareNative, type ShareNavigator } from "./shareScore";
+import { importWithRetry } from "../../../lib/lazyWithRetry";
 
 /**
- * SHARE-SCORE-1 - "Share my score" on the scorecard. The host (ResultsScorecard) mounts it
- * only when canShareScore(variant) holds.
+ * SHARE-CARD-1 - "Share result" on every graded scorecard (the ONE shared ResultsScorecard
+ * shell mounts it when canShareScore(variant) holds, so all six grading surfaces reach it:
+ * Check & Improve single + multi, Worksheet, Chapter Test, Full Mock, Quick Practice).
  *
- * The method is chosen SYNCHRONOUSLY in the tap (a 1-byte probe PNG against
- * navigator.canShare), so the desktop fallback opens wa.me inside the tap's user activation
- * (no popup block). The image pipeline - ShareCard, html-to-image - is imported only now.
- * If drawing the image outlived the activation (NotAllowedError), the image is kept and the
- * button asks for one more tap, which shares at once.
+ * PERF: this button is the ONLY share code in the scorecard's bundle. The share sheet - the
+ * card, the mascot rig, html-to-image, qrcode - is a separate chunk imported on the tap
+ * (through importWithRetry; a failed chunk shows an honest line, never a broken page).
+ *
+ * Display only (CLAUDE.md 4a): it reads the built variant; no grade, mark or prompt is touched.
  */
-type Phase = "idle" | "busy" | "ready" | "failed";
+export const SHARE_RESULT_LABEL = "Share result";
 
-const LABEL: Record<Phase, string> = {
-  idle: "Share my score",
-  busy: "Preparing your image…",
-  ready: "Image ready - tap to share",
-  failed: "Share my score",
-};
+type SheetProps = { variant: ScorecardVariant; onClose: () => void };
 
-function browserNavigator(): ShareNavigator | undefined {
-  return typeof navigator === "undefined" ? undefined : (navigator as unknown as ShareNavigator);
+function ChunkFailed({ onClose }: SheetProps) {
+  return (
+    <div className="lt-ss__dim" role="dialog" aria-modal="true" aria-label={SHARE_RESULT_LABEL} onClick={onClose}>
+      <div className="lt-ss__fail" role="status">
+        Couldn&rsquo;t open sharing just now. Check your connection and try again.
+      </div>
+    </div>
+  );
 }
 
+const ShareSheet = lazy(
+  (): Promise<{ default: ComponentType<SheetProps> }> =>
+    importWithRetry(() => import("./ShareSheet")).catch(() => ({ default: ChunkFailed })),
+);
+
 export default function ShareScoreButton({ variant }: { variant: ScorecardVariant }) {
-  const [phase, setPhase] = useState<Phase>("idle");
-  const [readyFile, setReadyFile] = useState<File | null>(null);
-
-  const onTap = async () => {
-    if (phase === "busy") return;
-    // Text needs no date, so a placeholder date label is fine for it.
-    const model = buildShareCardModel(variant, "");
-    if (!model) return;
-    const text = shareText(model);
-    const nav = browserNavigator();
-
-    if (phase === "ready" && readyFile && nav) {
-      setPhase("busy");
-      const outcome = await shareNative(nav, readyFile, text);
-      if (outcome === "shared") {
-        // Already loaded by the first tap - this import resolves from the module cache.
-        void import("./runScoreShare").then((m) => m.reportScoreShare(variant.surface, "native")).catch(() => {});
-      }
-      if (outcome === "failed") {
-        // The sheet refused for a reason other than a cancel: still give the student their
-        // image, exactly as the first tap's failure path does (runScoreShare).
-        downloadBlob(readyFile, SHARE_FILENAME);
-      }
-      setReadyFile(outcome === "needs-tap" ? readyFile : null);
-      setPhase(outcome === "needs-tap" ? "ready" : "idle");
-      return;
-    }
-
-    const probe = new File([new Uint8Array([0])], SHARE_FILENAME, { type: "image/png" });
-    const method = pickShareMethod(nav, probe);
-    let linkOpened = false;
-    if (method === "whatsapp_link" && typeof window !== "undefined" && typeof window.open === "function") {
-      linkOpened = openWhatsAppLink(text, (url, target) => window.open(url, target));
-    }
-
-    setPhase("busy");
-    try {
-      const { runScoreShare } = await import("./runScoreShare");
-      const result = await runScoreShare(variant, { method, nav, linkOpened });
-      if (result.outcome === "needs-tap" && result.file) {
-        setReadyFile(result.file);
-        setPhase("ready");
-        return;
-      }
-      setReadyFile(null);
-      setPhase(result.outcome === "failed" ? "failed" : "idle");
-    } catch {
-      setPhase("failed");
-    }
-  };
+  const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
 
   return (
     <div className="lt-ss">
       <style>{SS_CSS}</style>
       <button
         type="button"
-        className={`lt-ss__btn${phase === "ready" ? " lt-ss__btn--ready" : ""}`}
+        className="lt-ss__btn"
         data-testid="sc-share-score"
-        onClick={onTap}
-        disabled={phase === "busy"}
-        aria-busy={phase === "busy"}
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
       >
         <svg className="lt-ss__ic" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M18 8a3 3 0 1 0-2.83-4H15a3 3 0 0 0 .09.73L8.6 8.04a3 3 0 1 0 0 3.92l6.49 3.31A3 3 0 1 0 16 13.5a3 3 0 0 0-.4.03L9 10.2a3 3 0 0 0 0-.4l6.6-3.37A3 3 0 0 0 18 8Z" />
         </svg>
-        {LABEL[phase]}
+        {SHARE_RESULT_LABEL}
       </button>
-      {phase === "failed" && (
-        <p className="lt-ss__err" role="status">
-          Couldn&rsquo;t make the image just now. Tap to try again.
-        </p>
-      )}
+      {/* Portalled to <body>: the scorecard is a fixed, transformed overlay. */}
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <Suspense fallback={null}>
+            <ShareSheet variant={variant} onClose={close} />
+          </Suspense>,
+          document.body,
+        )}
     </div>
   );
 }
@@ -112,10 +74,9 @@ const SS_CSS = `
   background: rgba(52, 199, 138, 0.14); border: 1.5px solid hsl(152, 55%, 45%);
 }
 .lt-ss__btn:hover { background: rgba(52, 199, 138, 0.24); }
-.lt-ss__btn--ready { background: hsl(152, 55%, 45%); }
-.lt-ss__btn:disabled { opacity: 0.7; cursor: progress; }
 .lt-ss__ic { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
-.lt-ss__err { font-size: 12px; color: #f0cf9a; margin: 8px 0 0; }
+.lt-ss__dim { position: fixed; inset: 0; z-index: 2147483000; background: rgba(6, 12, 24, 0.72); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.lt-ss__fail { background: #15233a; color: #f0cf9a; border-radius: 14px; padding: 18px 20px; font: 600 14px/1.4 "Inter", ui-sans-serif, system-ui, sans-serif; max-width: 360px; }
 @media (max-width: 1023px) {
   .lt-ss__btn { width: 100%; justify-content: center; padding: 12px 16px; }
 }
