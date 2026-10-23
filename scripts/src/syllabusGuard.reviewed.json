@@ -219,6 +219,15 @@
       "evidence": "lazytopper/src/config/syllabus2026-27.ts:701"
     },
     {
+      "rule": "G4-HD-TRIANGLES",
+      "surface": "bank",
+      "rowId": "PYQ-M-2025-TRIG-005",
+      "matched": "3 elevation/depression angles",
+      "verdict": "review",
+      "reason": "Official CBSE 2025 board case study (30/3/1 Q37): one 50 m lighthouse, ship at depression 30° (P) and 45° (Q) - two right triangles APB and AQB sharing AB; the third angle the guard counts is the 45° restated in part (i). Angles only 30°/45°. The degree signs became readable to the guard only after PYQ-RESTORE-A part 1 restored them.",
+      "evidence": "lazytopper/src/config/syllabus2026-27.ts:701; PYQ-RESTORE-A ledger (lazytopper/src/data/bankFix/pyqRestoreALedger.ts, PYQ-M-2025-TRIG-005)"
+    },
+    {
       "rule": "G4-R1-IRRATIONAL",
       "surface": "bank",
       "rowId": "RN-H01",
