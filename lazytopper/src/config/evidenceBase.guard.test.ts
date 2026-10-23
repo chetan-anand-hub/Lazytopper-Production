@@ -33,7 +33,9 @@ const SCANNED_DIRS = [join(SRC, "pages"), join(SRC, "components")];
  * "years of <corpus>". Deliberately anchored on the CORPUS nouns so unrelated copy
  * ("at least 13 years old", "months per board year") cannot match.
  */
-const CLAIM = /([^\s{}$]+)\s*\}?\s*years?\s+of\s+(?:real\s+CBSE\s+papers|papers|board\s+data|CBSE\s+board\s+exam\s+data)/gi;
+// IMPQ-PAGE-1: "years of CBSE paper trends" is the Important Questions honesty line's
+// phrasing (it replaced that page's "years of papers" intro), so it is a claim too.
+const CLAIM = /([^\s{}$]+)\s*\}?\s*years?\s+of\s+(?:real\s+CBSE\s+papers|papers|board\s+data|CBSE\s+board\s+exam\s+data|CBSE\s+paper\s+trends)/gi;
 
 /** Quantifiers that are acceptable: the constant by name, or the authoritative literal. */
 const ALLOWED = new Set([
@@ -88,6 +90,13 @@ describe("CONTROL — the scanner can actually find a competing figure", () => {
     const hits = scan("sub: `9 years of board data visualised`", "synthetic.tsx");
     expect(hits).toHaveLength(1);
     expect(hits[0].quantifier).toBe("9");
+  });
+
+  it("flags a synthetic '7 years of CBSE paper trends' claim (IMPQ-PAGE-1 phrasing)", () => {
+    const hits = scan("Chosen by our prediction model from 7 years of CBSE paper trends.", "synthetic.tsx");
+    expect(hits).toHaveLength(1);
+    expect(hits[0].quantifier).toBe("7");
+    expect(ALLOWED.has(hits[0].quantifier)).toBe(false);
   });
 
   it("does NOT flag unrelated year copy (no false positives)", () => {
