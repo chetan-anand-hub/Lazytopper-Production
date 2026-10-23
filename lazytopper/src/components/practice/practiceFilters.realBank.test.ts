@@ -16,6 +16,9 @@
 //   Marks 4 AP 104->102 (CBE-M-AP-B-003, 2 marks, and CBE-M-AP-C-001, 3 marks, leave).
 //   HOTS    the predicate is unchanged: bank-wide 4,105 at any difficulty; the old UI lock to
 //           Hard served 2,082 (the lock is removed in PracticePage / PracticeControls).
+// PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 13 Maths PYQ rows repaired from the
+//   row are served again: PYQ AP 11->12, SAV 18->19, Stats 19->22; Proof RN 47->49, Poly 7->8, Tri 79->80; HOTS any
+//   4,135->4,147, Hard 2,094->2,101, 4-mark HOTS 949->951 (measured on top of PYQ-RESTORE-B PR-2; ledger: data/bankFix/pyqRestoreALedger.ts).
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -105,13 +108,13 @@ describe("FILTER-FIX-1 · Others", () => {
 
   it("PYQ and NCERT are unchanged (pinned for the five moved chapters)", () => {
     const pin: Record<string, [number, number]> = {
-      "arithmetic-progression": [11, 69],
+      "arithmetic-progression": [12, 69],
       // PYQ-RESTORE-B PR-1 (2026-10-23): PYQ rows restored from the official papers - CG 21 -> 25, ARC 18 -> 21, SAV 17 -> 18,
       // Stats 15 -> 19 (pyqRestoreBLedger.ts). NCERT unchanged.
       "coordinate-geometry": [25, 61],
       "areas-related-to-circles": [21, 57],
-      "surface-areas-and-volumes": [18, 47],
-      statistics: [19, 51],
+      "surface-areas-and-volumes": [19, 47],
+      statistics: [22, 51],
     };
     for (const [slug, [pyq, ncert]] of Object.entries(pin)) {
       expect(n(slug, "all", "all", "pyq", "all"), `${slug} pyq`).toBe(pyq);
@@ -125,12 +128,12 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
     // PYQ-RESTORE-B PR-1 (2026-10-23): real-numbers 44 -> 47, triangles 68 -> 79, trigonometry 89 -> 92 (restored proof
     // PYQs and the new 2025 Triangles rows).
     const want: Record<string, number> = {
-      "real-numbers": 47,
-      polynomials: 7,
+      "real-numbers": 49,
+      polynomials: 8,
       "pair-of-linear-equations": 2,
       "quadratic-equations": 17,
       "arithmetic-progression": 24,
-      triangles: 79,
+      triangles: 80,
       "coordinate-geometry": 29,
       trigonometry: 92,
       circles: 98,
@@ -235,12 +238,13 @@ describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
     // PYQ-RESTORE-B PR-1 (2026-10-23): +11 Hard / +29 any (restored PYQs and the new 2025 Triangles rows).
     // PYQ-RESTORE-B PR-2 (2026-10-23): net +1 Hard / +1 any (Science PYQ rows served again; APQ-M-TRI-004 and
     // PYQ-M-2024-TRIG-010b withheld as served-twice duplicates).
-    expect(hard).toBe(2094);
-    expect(any).toBe(4135);
+    // PYQ-RESTORE-A part 1 (23 Oct): 13 Maths rows served again on top of B.
+    expect(hard).toBe(2101);
+    expect(any).toBe(4147);
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
     expect(sum("1", "hots", "all")).toBe(1097);
-    expect(sum("4", "hots", "all")).toBe(949);
+    expect(sum("4", "hots", "all")).toBe(951);
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);
     expect(sum("4", "proof", "all")).toBeGreaterThan(0);

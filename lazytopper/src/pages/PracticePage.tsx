@@ -1158,6 +1158,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   const [poolHeadSize, setPoolHeadSize] = useState<number | undefined>(undefined);
   // QP-CONCEPT-1 — a concept hint's tiers over the built pool (on-concept ids, related ids).
   const [poolHintTiers, setPoolHintTiers] = useState<Array<Set<string>> | undefined>(undefined);
+  // QP-CONCEPT-3 — what those on-concept rows are (the resolved concept), for the honest note.
+  const [poolHintConcept, setPoolHintConcept] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (didInitFromUrlRef.current) return;
@@ -1379,9 +1381,11 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     if (!poolHintTiers || filteredQuestions.length === 0) return undefined;
     const shown = conceptRowsShown(filteredQuestions, poolHintTiers);
     if (shown >= filteredQuestions.length) return undefined;
-    const concept = conceptFocusLabel || subtopicHint || "this concept";
+    // A Tutor / Topic Hub entry names its concept in `focus`; an HPQ entry's label is the HPQ file's own
+    // wording, so the note names the concept the questions actually come from (QP-CONCEPT-3).
+    const concept = conceptFocusLabel || poolHintConcept || subtopicHint || "this concept";
     return { after: shown, text: conceptEndNote(concept, shown) };
-  }, [poolHintTiers, filteredQuestions, conceptFocusLabel, subtopicHint]);
+  }, [poolHintTiers, poolHintConcept, filteredQuestions, conceptFocusLabel, subtopicHint]);
 
   // FILTER-FIX-1 (owner ruling): HOTS is higher-order thinking at ANY difficulty — picking it
   // no longer forces Hard (and leaving it no longer resets difficulty). The student may add Hard.
@@ -2120,6 +2124,7 @@ const packTopicKey = useMemo(() => {
           (!!subtopicHint || !!conceptFocusLabel) && !isMultiTopic && !cbqMode &&
           !isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange);
         let hintTiers: Array<Set<string>> | undefined;
+        let hintConcept: string | undefined;
         let headSize: number | undefined;
         if (
           (fullPoolRoute || conceptHinted) &&
@@ -2142,12 +2147,14 @@ const packTopicKey = useMemo(() => {
           const t = await loadConceptHintTiers(next, topicLabel, [conceptFocusLabel, subtopicHint]);
           // QP-CONCEPT-2 (F3): a Topic Hub card's own keywords lead inside its concept bucket.
           hintTiers = [t.keyword, t.onConcept, t.related];
+          hintConcept = t.conceptName;
         }
 
         if (!cancelled) {
           setQuestions(next);
           setPoolHeadSize(headSize);
           setPoolHintTiers(hintTiers);
+          setPoolHintConcept(hintConcept);
           setSessionFinished(false);
           setScorecardDismissed(false);
           setReviewMode(false);
@@ -2173,6 +2180,7 @@ const packTopicKey = useMemo(() => {
           setQuestions([]);
           setPoolHeadSize(undefined);
           setPoolHintTiers(undefined);
+          setPoolHintConcept(undefined);
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
