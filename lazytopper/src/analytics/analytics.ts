@@ -814,7 +814,11 @@ export type NamedAnalyticsEvent =
   // PARENT-REPORT-1 — the student shared a link to ONE result with a parent. The vendors get
   // `parent_report_shared { kind, method }`, the first-party log the bare name. Sent by
   // trackParentReportShared
-  | "parent_report_shared";
+  | "parent_report_shared"
+  // SHARE-CARD-1 — a student shared a scorecard image. The vendors get
+  // `scorecard_share { surface, size, channel }`, the first-party log the bare name. Sent by
+  // trackScorecardShare
+  | "scorecard_share";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1357,19 +1361,27 @@ export function __resetPracticeGradedForTests(): void {
   practiceGradedSent.clear();
 }
 
-/** SHARE-SCORE-1 — how a scorecard was shared: the OS share sheet, or the desktop wa.me link. */
+/** SHARE-SCORE-1 — how an image was shared: the OS share sheet, or the desktop wa.me link
+ *  (still used by PARENT-REPORT-1's `parent_report_share`). */
 export type ScoreShareMethod = "native" | "whatsapp_link";
 
+/** SHARE-CARD-1 — which image size was shared: 1080 x 1920 story, or 1080 x 1080 square. */
+export type ScorecardShareSize = "story" | "square";
+/** SHARE-CARD-1 — how it went out: the OS share sheet, the WhatsApp link (+ saved PNG), the
+ *  Instagram-story path (sheet or saved story PNG), or a plain download. */
+export type ScorecardShareChannel = "native" | "whatsapp" | "instagram" | "download";
+
 /**
- * SHARE-SCORE-1 — `score_share`: a student shared a scorecard image. The surface and the
- * method only; never the score, a code, an id or any text. Vendors only (GA4 / Vercel), like
- * `whatsapp_contact_tap`: deliberately NOT in `NamedAnalyticsEvent`, so the first-party log
- * drops it and no server allow-list change is needed.
+ * SHARE-CARD-1 — `scorecard_share { surface, size, channel }`: a student shared a scorecard
+ * image (replaces SHARE-SCORE-1's vendor-only `score_share`). Surface, size and channel ONLY:
+ * never the score, a code, an id, a name or any text. The vendors read `data` (Vercel) / the
+ * params (GA4); the first-party log, which keeps names only, records the bare
+ * `scorecard_share` (in `NamedAnalyticsEvent`, activityClient and the server allow-list).
  */
-export function trackScoreShare(surface: ScorecardSurface, method: ScoreShareMethod): void {
+export function trackScorecardShare(surface: ScorecardSurface, size: ScorecardShareSize, channel: ScorecardShareChannel): void {
   try {
-    const data = { surface, method };
-    send("event", { name: "score_share", data }, { ga4: data });
+    const data = { surface, size, channel };
+    send("event", { name: "scorecard_share", data }, { ga4: data }, "scorecard_share");
   } catch {
     /* analytics must never break the page */
   }
@@ -1383,7 +1395,7 @@ export type ParentReportState = "empty" | "activity" | "pattern";
 /**
  * PARENT-REPORT-1 — `parent_report_shown`: the weekly parent report card was shown to the
  * student (once per open). Placement + state ONLY: never a number, a name, a chapter or any
- * text. Vendors only (GA4 / Vercel), like `score_share`: NOT in `NamedAnalyticsEvent`, so the
+ * text. Vendors only (GA4 / Vercel), like `whatsapp_contact_tap`: NOT in `NamedAnalyticsEvent`, so the
  * first-party log drops it and no server allow-list change is needed.
  */
 export function trackParentReportShown(placement: ParentReportPlacement, state: ParentReportState): void {
