@@ -115,7 +115,8 @@ describe("FILTER-FIX-1 · Others", () => {
       "arithmetic-progression": [12, 69],
       // PYQ-RESTORE-B PR-1 (2026-10-23): PYQ rows restored from the official papers - CG 21 -> 25, ARC 18 -> 21, SAV 17 -> 18,
       // Stats 15 -> 19 (pyqRestoreBLedger.ts). NCERT unchanged.
-      "coordinate-geometry": [25, 61],
+      // BANK-RESIDUE-1 (2026-10-23): CG PYQ 25 -> 24 (PYQ-M-CG-007, a Circles tangent proof carrying scheme residue, withheld).
+      "coordinate-geometry": [24, 61],
       "areas-related-to-circles": [21, 57],
       "surface-areas-and-volumes": [19, 47],
       statistics: [22, 51],
@@ -132,13 +133,14 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
     // PYQ-RESTORE-B PR-1 (2026-10-23): real-numbers 44 -> 47, triangles 68 -> 79, trigonometry 89 -> 92 (restored proof
     // PYQs and the new 2025 Triangles rows).
     const want: Record<string, number> = {
-      "real-numbers": 49,
+      // BANK-RESIDUE-1 (2026-10-23): real-numbers 49 -> 48 and coordinate-geometry 29 -> 28 (PYQ-M-RN-005, PYQ-M-CG-007 withheld).
+      "real-numbers": 48,
       polynomials: 8,
       "pair-of-linear-equations": 2,
       "quadratic-equations": 17,
       "arithmetic-progression": 24,
       triangles: 80,
-      "coordinate-geometry": 29,
+      "coordinate-geometry": 28,
       trigonometry: 92,
       circles: 98,
       "areas-related-to-circles": 0,
@@ -236,12 +238,13 @@ describe("FILTER-FIX-1 · Marks bucket 4", () => {
 // Evaluating at any difficulty), on trunk ad55ebb1 (after PYQ-RESTORE-B #1300/#1303 + PYQ-RESTORE-A #1309/#1312): 4,164 total /
 // 2,115 Hard / 1,097 with 1 mark / 957 with 4 marks.
 describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 23 Oct)", () => {
-  it("served pools, 26 chapters: 3,372 (Maths 678 Hard + 824 Medium; Science 769 Hard + 1,101 Medium); Easy 0", () => {
+  it("served pools, 26 chapters: 3,369 (Maths 678 Hard + 822 Medium; Science 768 Hard + 1,101 Medium); Easy 0", () => {
     const by = (subject: string, d: string) =>
       BANK_CHAPTER_SLUGS.filter((slug) => BANK_CHAPTER_SUBJECT[slug] === subject).reduce((t, slug) => t + n(slug, "all", "hots", "all", d), 0);
     expect(by("Maths", "Hard")).toBe(678);
-    expect(by("Maths", "Medium")).toBe(824);
-    expect(by("Science", "Hard")).toBe(769);
+    // BANK-RESIDUE-1 (2026-10-23): 25 residue rows withheld - Maths Medium 824 -> 822, Science Hard 769 -> 768, total 3,372 -> 3,369.
+    expect(by("Maths", "Medium")).toBe(822);
+    expect(by("Science", "Hard")).toBe(768);
     expect(by("Science", "Medium")).toBe(1101);
     let any = 0;
     for (const slug of BANK_CHAPTER_SLUGS) {
@@ -249,7 +252,7 @@ describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 2
       // With HOTS chosen the Easy chip is a REAL zero in every chapter (it greys out via chipCounts).
       expect(n(slug, "all", "hots", "all", "Easy"), `${slug} HOTS + Easy`).toBe(0);
     }
-    expect(any).toBe(3372);
+    expect(any).toBe(3369);
     // Every HOTS row really is higher-order bloom at Medium / Hard (no Hard-only Applying row).
     for (const slug of BANK_CHAPTER_SLUGS) {
       for (const q of pools.get(slug)!) {
