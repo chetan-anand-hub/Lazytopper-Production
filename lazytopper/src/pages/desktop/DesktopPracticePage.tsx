@@ -27,6 +27,7 @@ import {
 } from "../../lib/desktop/topics";
 import {
   getMistakeLogs,
+  isHabitOnlyEntry,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
@@ -1275,6 +1276,10 @@ interface MistakePanelProps {
   isSignedIn: boolean;
   loading: boolean;
   buckets: ReturnType<typeof aggregateBuckets>;
+  /** MCQ-TYPE-2 — the per-type MIX the card draws (the sentence and the bars): `buckets` plus the
+   *  0-mark habits (a right MCQ with flawed working). The card's EXISTENCE still follows `buckets`
+   *  alone, so a habit never creates a weak area on its own. Absent → `buckets`. */
+  mix?: ReturnType<typeof aggregateBuckets>;
   weakTopic: string | null;
   drillTopicSlug: string | null;
   /** MI-CARELESS-2 — the type that cost the most MARKS in these entries (Me's per-type marks),
@@ -1301,6 +1306,7 @@ function MistakeIntelligencePanel({
   isSignedIn,
   loading,
   buckets,
+  mix,
   weakTopic,
   drillTopicSlug,
   costliest,
@@ -1441,8 +1447,9 @@ function MistakeIntelligencePanel({
   }
 
   // ── State 3 — signed in, real data. The navy intelligence surface.
-  const total = buckets.total;
-  const top = buckets.topRow;
+  const shown = mix && mix.topRow ? mix : buckets;
+  const total = shown.total;
+  const top = shown.topRow ?? buckets.topRow;
   return (
     <section
       className="lt-mi-card"
@@ -1567,7 +1574,7 @@ function MistakeIntelligencePanel({
           position: "relative",
         }}
       >
-        {buckets.rows.map((r, i) => {
+        {shown.rows.map((r, i) => {
           const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
           return (
             <li key={r.key} style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 11.5 }}>
@@ -1943,6 +1950,8 @@ export default function DesktopPracticePage() {
 
   // Real mistake intelligence — last 7 days for the signed-in uid only.
   const [mistakes, setMistakes] = useState<MistakeLogEntry[]>([]);
+  // MCQ-TYPE-2 — the 0-mark habits of the same 7 days: they join the type MIX only.
+  const [habits, setHabits] = useState<MistakeLogEntry[]>([]);
   const [mistakesLoading, setMistakesLoading] = useState<boolean>(true);
   // MI-CARELESS-2 — the same entries' marks per type, by Me's rule (loaded on demand, so the hub's
   // chunk does not carry the read model; a failed load leaves the marks line out, never a guess).
@@ -1952,6 +1961,7 @@ export default function DesktopPracticePage() {
     let cancelled = false;
     if (!user?.uid) {
       setMistakes([]);
+      setHabits([]);
       setMistakeTypeMarks(null);
       setMistakesLoading(false);
       return () => {
@@ -1961,10 +1971,14 @@ export default function DesktopPracticePage() {
     setMistakesLoading(true);
     void (async () => {
       try {
-        const entries = await getMistakeLogs(user.uid, 7);
-        const list = Array.isArray(entries) ? entries : [];
+        // MCQ-TYPE-2 — read the habits too, and keep them apart: every figure below reads the LIVE
+        // mistakes (`list`); only the type mix adds the habits.
+        const entries = await getMistakeLogs(user.uid, 7, { includeHabits: true });
+        const all = Array.isArray(entries) ? entries : [];
+        const list = all.filter((e) => !isHabitOnlyEntry(e));
         if (!cancelled) {
           setMistakes(list);
+          setHabits(all.filter((e) => isHabitOnlyEntry(e)));
           setMistakeTypeMarks(null);
           setMistakesLoading(false);
         }
@@ -1979,6 +1993,7 @@ export default function DesktopPracticePage() {
       } catch {
         if (!cancelled) {
           setMistakes([]);
+          setHabits([]);
           setMistakeTypeMarks(null);
           setMistakesLoading(false);
         }
@@ -1990,6 +2005,8 @@ export default function DesktopPracticePage() {
   }, [user?.uid]);
 
   const buckets = useMemo(() => aggregateBuckets(mistakes), [mistakes]);
+  // MCQ-TYPE-2 — the type mix with the habits (counts only; the card's gate stays on `buckets`).
+  const mix = useMemo(() => aggregateBuckets([...mistakes, ...habits]), [mistakes, habits]);
   // Desktop rail trend — real per-day marks-lost series, or null (no card).
   const mistakeTrend = useMemo(() => buildMistakeTrend(mistakes), [mistakes]);
   // MI-CARELESS-2 — the type that cost the most MARKS (not the most frequent one), from the
@@ -3127,6 +3144,7 @@ export default function DesktopPracticePage() {
               isSignedIn={isSignedIn}
               loading={mistakesLoading && isSignedIn}
               buckets={buckets}
+              mix={mix}
               weakTopic={weakTopic}
               drillTopicSlug={weakTopicSlug}
               costliest={costliest}
