@@ -1007,7 +1007,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
       "[1 mark] (d) The field of a straight wire decreases with distance, so at 6 cm it is weaker (about half) but still points west.",
       "[1 mark] (e) The east and west compasses: the wire's field there is along the north–south line (north at the east compass, south at the west one), adding to or partly cancelling the larger Earth's field without changing its direction."
     ],
-    "finalAnswer": "(b) N: west, E: north, S: east, W: south; (c) all reversed; (d) weaker, west; (e) east and west compasses.",
+    "finalAnswer": "(a) Thumb along the current, curled fingers give the field direction; (b) N: west, E: north, S: east, W: south; (c) all reversed; (d) weaker, west; (e) east and west compasses.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",
@@ -1035,7 +1035,7 @@ export const MAGNETIC_EFFECTS_CBQ_B1_LT_GENERATED: CanonicalQuestion[] = [
       "[1 mark] (d) Clockwise current seen from a face makes the field at the centre point along the axis away from the observer, so field lines enter that face: it is a south pole.",
       "[1 mark] (e) A straight wire gives concentric circles around it and has no poles; a loop gives nearly straight lines perpendicular to its plane at the centre, and its faces behave as north and south poles."
     ],
-    "finalAnswer": "(b) 126 μT; (c) 252 μT; (d) away from Rajat, south pole; (e) circles with no poles vs straight lines at centre and two pole faces.",
+    "finalAnswer": "(a) Every part of the loop gives a field in the same direction at the centre, so they add; (b) 126 μT; (c) 252 μT; (d) away from Rajat, south pole; (e) circles with no poles vs straight lines at centre and two pole faces.",
     "isCompetencyBased": true,
     "competencyVerified": true,
     "questionProvenance": "authored",

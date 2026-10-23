@@ -94,12 +94,13 @@ export type ScriptedMoment = keyof Scripts;
 export type MomentStep<M extends ScriptedMoment> = keyof Scripts[M] & string;
 
 /**
- * A moment's own button (M11 only). The target is an EXISTING route: Check & Improve, where a
- * student with a graded record opens on "Upload image" by today's rule (typeFirstAnswerMode). No
- * deep link prefills a question there today, so none is invented.
+ * A moment's own button (M11 only). GUIDE-SCORE-2 (owner ruling 23 Oct 17:57): Quick Practice has
+ * its OWN working upload, so M11 never sends the student to another page — its button is the
+ * host's IN-PAGE action (`onCta`: the set's working box, opened, scrolled to and focused). A
+ * moment with no `to` and no host action draws no button at all (never a dead or off-page link).
  */
-export const MOMENT_CTA: Partial<Record<GuideMomentId, { label: string; to: string }>> = {
-  m11: { label: MOMENT_COPY.m11Cta, to: "/check-improve" },
+export const MOMENT_CTA: Partial<Record<GuideMomentId, { label: string; to?: string }>> = {
+  m11: { label: MOMENT_COPY.m11Cta },
 };
 
 /** How long the first beat of a two-beat moment holds before the second replaces it ("about 2 s"). */
@@ -107,7 +108,10 @@ export const BEAT_MS = 2000;
 
 export type GuideMomentProps = {
   [M in ScriptedMoment]: { moment: M; step: MomentStep<M> };
-}[ScriptedMoment];
+}[ScriptedMoment] & {
+  /** The host's in-page action for the moment's button (MOMENT_CTA) — wins over any route. */
+  onCta?: (() => void) | null;
+};
 
 function beatsFor(moment: ScriptedMoment, step: string): readonly Beat[] {
   const byStep = MOMENT_SCRIPTS[moment] as Record<string, readonly Beat[]>;
@@ -123,7 +127,7 @@ function HideButton() {
   );
 }
 
-export function GuideMoment({ moment, step }: GuideMomentProps) {
+export function GuideMoment({ moment, step, onCta }: GuideMomentProps) {
   const beats = beatsFor(moment, step);
   const reduce = useRef(prefersReducedMotion());
   // Reduced motion: the FINAL frame at once (no beat change, the rig still).
@@ -146,6 +150,7 @@ export function GuideMoment({ moment, step }: GuideMomentProps) {
   }, [moment, step]);
 
   const beat = beats[Math.min(index, beats.length - 1)];
+  const cta = MOMENT_CTA[moment];
   if (!beat) return null;
   return (
     <div
@@ -168,14 +173,26 @@ export function GuideMoment({ moment, step }: GuideMomentProps) {
         <p className="lt-mom__say" aria-live="polite" data-testid="guide-moment-line">
           {beat.line}
         </p>
-        {MOMENT_CTA[moment] ? (
+        {cta && onCta ? (
+          <button
+            type="button"
+            className="lt-mom__cta"
+            data-testid={`guide-moment-${moment}-cta`}
+            onClick={() => {
+              trackGuideEvent("guide_moment_click", { moment });
+              onCta();
+            }}
+          >
+            {cta.label}
+          </button>
+        ) : cta?.to ? (
           <Link
-            to={MOMENT_CTA[moment]!.to}
+            to={cta.to}
             className="lt-mom__cta"
             data-testid={`guide-moment-${moment}-cta`}
             onClick={() => trackGuideEvent("guide_moment_click", { moment })}
           >
-            {MOMENT_CTA[moment]!.label}
+            {cta.label}
           </Link>
         ) : null}
         <HideButton />

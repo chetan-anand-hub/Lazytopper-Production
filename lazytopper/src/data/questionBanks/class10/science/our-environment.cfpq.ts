@@ -214,7 +214,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Any two of: as heat; in maintaining life processes; utilised in growth and storage. (b) biological magnification or biomagnification",
     solutionSteps: [
-      "[2 marks] (a) 1 mark for each correct answer such as: as heat; in maintaining life processes; utilised in growth and storage.",
+      "[2 marks] (a) as heat; in maintaining life processes; utilised in growth and storage.",
       "[1 mark] (b) biological magnification or biomagnification",
     ],
     finalAnswer: "(a) as heat and in maintaining life processes; (b) biomagnification",
@@ -238,7 +238,7 @@ export const ENV_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) High-energy UV radiation splits molecular oxygen into free oxygen atoms, which then combine with molecular oxygen to form ozone. (b) Because the rate of destruction is higher than the rate of formation. (c) Rise in polar temperature might restrict the formation of PSCs and reduce the depletion of the ozone layer. (d) Removal of ozone layer allows harmful UV radiations to enter and cause diseases like skin cancer.",
     solutionSteps: [
-      "[2 marks] (a) 1 mark for each correct step of the process: The higher energy UV radiations in the higher levels of atmosphere split apart some molecular oxygen (O₂) into free oxygen (O) atoms. These atoms then combine with the molecular oxygen to form ozone.",
+      "[2 marks] (a) The higher energy UV radiations in the higher levels of atmosphere split apart some molecular oxygen (O₂) into free oxygen (O) atoms. These atoms then combine with the molecular oxygen to form ozone.",
       "[1 mark] (b) because the rate of destruction is higher than the rate of formation",
       "[1 mark] (c) Rise in polar temperature might restrict the formation of PSCs and reduce the depletion of the ozone layer.",
       "[1 mark] (d) Removal of ozone layer allows harmful UV radiations to enter and cause diseases like skin cancer.",

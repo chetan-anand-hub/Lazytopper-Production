@@ -16,9 +16,15 @@
  * ME-ENGINE-1 PR-1 — the card now reads the ONE shared read model (services/progressReadModel),
  * so `computeMiCardSummary` takes a `StudyReadModel`, and the rendered card is driven through the
  * REAL read model over mocked CLOUD streams (attempts, session records, the mistake history).
+ *
+ * MI-CONSISTENCY-1 (owner ask, 23 Oct 2026) — the sidebar now RENDERS the ONE MI card
+ * (components/mi/MiCard: the four stored types + wrong MCQ taps + left blank + no reason
+ * recorded, adding up to Me's marks on the table; the same figures as Home). `computeMiCardSummary`
+ * is unchanged and still pinned PURE here (checked answers = graded answers; the biggest group in
+ * marks, else in counts); the rendered assertions below are re-formed onto the card it now shows.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, configure } from "@testing-library/react";
+import { render, screen, waitFor, configure, cleanup } from "@testing-library/react";
 // The first render pays the read model's cold import; the 1 s default wait is a flake source.
 configure({ asyncUtilTimeout: 8000 });
 import { MemoryRouter } from "react-router-dom";
@@ -46,7 +52,11 @@ vi.mock("../../services/sessionRecords", async (importOriginal) => ({
 }));
 
 import { MistakeIntelCard, computeMiCardSummary } from "./MistakeIntelCard";
-import { mistakeGroupByKey, UNTYPED_MARKS_WHY } from "../../lib/mistakeDisplay";
+import { mistakeGroupByKey, MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
+import { readStudyModel } from "../../services/progressReadModel";
+import { MI_CARD_COPY } from "../mi/MiCard";
+import { MI_ROW_LABEL } from "../../lib/mi/miCardSummary";
+import { resetMiScopeForTests } from "../../lib/mi/miScope";
 import type { MistakeLogEntry } from "../../services/mistakeLogService";
 import type { PracticeAttempt } from "../../services/practiceInsights";
 import { buildMistakeView, buildStudyActivity, type StudyReadModel } from "../../services/progressReadModel";
@@ -96,6 +106,8 @@ const renderCard = () => render(<MemoryRouter><MistakeIntelCard /></MemoryRouter
 beforeEach(() => {
   // MI-HOME-SYNC — the card's read is memoised per tab; each test is a fresh tab.
   resetMeHomeMemo();
+  resetMiScopeForTests();
+  localStorage.clear();
   h.user = { uid: "u1" };
   h.entries = [];
   h.attempts = [];
@@ -105,8 +117,8 @@ describe("H3 — checked answers are GRADED ANSWERS, not log entries", () => {
   it("★ 5 graded attempts and 2 MI entries → 5 checked answers (MCQ clicks are not checked answers)", async () => {
     h.entries = [entry(1, { silly: 1 }), entry(2, { conceptual: 1 })];
     h.attempts = [attempt("graded"), attempt("graded"), attempt("graded"), attempt("graded"), attempt("graded"), attempt("mcq")];
-    renderCard();
-    await waitFor(() => expect(screen.getByTestId("mi-card-checked").textContent).toBe("5 checked answers"));
+    const m = await readStudyModel("u1", { window: "month", tutor: false });
+    expect(computeMiCardSummary(m).checkedCount).toBe(5);
   });
 
   it("★ ME-ENGINE-1 G3 — 'marks lost' is the window's graded-stream loss (Me's 'on the table'), not the MI-entry sum", async () => {
@@ -116,25 +128,25 @@ describe("H3 — checked answers are GRADED ANSWERS, not log entries", () => {
     h.entries = [entry(1, { silly: 1 }), entry(2, { conceptual: 1 })];
     h.attempts = [...aboveGate(), attempt("mcq")];
     renderCard();
-    await waitFor(() => expect(screen.getByTestId("mi-card-summary").textContent).toContain("9 marks lost"));
+    await waitFor(() => expect(screen.getByTestId("mi-card-lost").textContent).toBe("9 marks lost"));
   });
 
   it("★ ME-ENGINE-1 PR-2b (C-W1) — below Me's gate (2 graded answers) the card names NOTHING: no group, no marks figure", async () => {
     h.entries = [entry(2, { conceptual: 1 }, v2({ conceptual: 2 })), entry(2, { conceptual: 1 }, v2({ conceptual: 2 }))];
     h.attempts = [attempt("graded"), attempt("graded")];
     renderCard();
-    await waitFor(() => expect(screen.getByTestId("mi-card-checked").textContent).toBe("2 checked answers"));
-    expect(screen.getByTestId("mi-card-withheld").textContent).toMatch(/We will not name a weakness from one or two questions/);
-    expect(screen.queryByTestId("mi-card-top")).toBeNull();
-    expect(screen.getByTestId("mi-card-summary").textContent).not.toMatch(/marks? lost|Biggest loss/);
+    await waitFor(() => expect(screen.getByTestId("mi-card-thin").textContent).toMatch(/We will not name a weakness from one or two questions/));
+    expect(screen.queryByTestId("mi-card-chance")).toBeNull();
+    expect(screen.queryAllByTestId("mi-card-tile")).toHaveLength(0);
+    expect(screen.getByTestId("sidebar-mi-card").textContent).not.toMatch(/\d/);
   });
 
   it("the rendered card says it, and never a legacy label", async () => {
     h.entries = [entry(1, { silly: 1 }, v2({ silly: 1 }))];
-    h.attempts = [attempt("graded"), attempt("graded"), attempt("graded")];
+    h.attempts = aboveGate();
     renderCard();
-    await waitFor(() => expect(screen.getByTestId("mi-card-checked").textContent).toBe("3 checked answers"));
-    expect(screen.getByTestId("mi-card-summary").textContent).not.toMatch(LEGACY);
+    await waitFor(() => expect(screen.getByTestId("sidebar-mi-card").getAttribute("data-state")).toBe("ready"));
+    expect(screen.getByTestId("sidebar-mi-card").textContent).not.toMatch(LEGACY);
   });
 });
 
@@ -153,9 +165,10 @@ describe("H3 — the biggest loss, in the owner's groups and in MARKS when entri
     h.entries = [entry(2, { calculation: 2 }, v2({ calculation: 2 }))];
     h.attempts = aboveGate();
     renderCard();
-    const top = await screen.findByTestId("mi-card-top");
-    expect(top.textContent).toBe(`${mistakeGroupByKey("careless").label} (2 marks)`);
-    expect(top.getAttribute("data-basis")).toBe("marks");
+    const what = await screen.findByTestId("mi-card-chance-what");
+    expect(what.textContent).toBe(`${MISTAKE_TYPE_LABEL.calculation} — 2 marks`);
+    // careless → Me's "Take these marks back" sheet (a slip-fixing worksheet), never a concept drill
+    expect(screen.getByTestId("mi-card-action").getAttribute("href")).toMatch(/^\/practice\/worksheets\?.*mistakeAware=1/);
   });
 
   it("CONTROL — a count-only window is decided in MISTAKES, with the unit (never called marks)", () => {
@@ -177,43 +190,43 @@ describe("honest states unchanged", () => {
   });
   it("no entries → the no-data prompt", async () => {
     renderCard();
-    expect(await screen.findByText(/No mistake patterns yet/)).toBeTruthy();
+    expect(await screen.findByText(MI_CARD_COPY.emptyTitle)).toBeTruthy();
   });
 });
 
 describe("MI-HOME-SYNC — MCQ-only marks on the table (owner's live case) are never 'no patterns yet'", () => {
-  it("★★ MCQ picks lost marks, no MI entry → '<N> marks on the table — top: <Me's chapter>' + Check an answer", async () => {
+  it("★★ MCQ picks lost marks, no MI entry → '<N> marks lost', all of it a wrong-tap tile, never 'no patterns yet'", async () => {
     // Eight MCQ picks spread over the week, each 1 of 2 → 8 marks on the table in Me; no MI entry.
     h.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((hr) => attempt("mcq", hr * 60 * 60 * 1000));
     renderCard();
-    const line = await screen.findByTestId("mi-card-untyped");
-    expect(line.textContent).toContain("8 marks on the table");
-    expect(screen.getByTestId("mi-card-untyped-top").textContent).toBe("Real Numbers");
-    expect(screen.getByTestId("mi-card-check").getAttribute("href")).toBe("/check-improve");
-    expect(screen.queryByText(/No mistake patterns yet/)).toBeNull();
+    await waitFor(() => expect(screen.getByTestId("mi-card-lost").textContent).toBe("8 marks lost"));
+    const tap = screen.getAllByTestId("mi-card-tile").find((t) => t.getAttribute("data-row") === "wrongTap")!;
+    expect(tap.textContent).toBe(`8${MI_ROW_LABEL.wrongTap}`);
+    expect(screen.queryByText(MI_CARD_COPY.emptyTitle)).toBeNull();
   });
 
-  // MI-COPY (owner ask, 16 Oct 2026) — the untyped state says WHY there is no mistake type,
-  // in the shared tap-the-answer sentence, and the action names a written answer.
-  it("★ MI-COPY — untyped: the short honest line (shared sentence) + 'Check a written answer →'", async () => {
+  it("★ MI-COPY — untyped: the honest line, and 'Check a written answer →' to Check & Improve", async () => {
     h.attempts = [0.2, 0.4, 20, 30, 50, 70, 100, 130].map((hr) => attempt("mcq", hr * 60 * 60 * 1000));
     renderCard();
-    const why = await screen.findByTestId("mi-card-untyped-why");
-    expect(why.textContent).toBe(UNTYPED_MARKS_WHY);
-    expect(screen.getByTestId("mi-card-check").textContent).toBe("Check a written answer →");
-    expect(screen.getByTestId("mi-card-check").getAttribute("href")).toBe("/check-improve");
+    const chance = await screen.findByTestId("mi-card-chance");
+    expect(chance.textContent).toContain(MI_CARD_COPY.chanceEmpty);
+    const check = screen.getByTestId("mi-card-check");
+    expect(check.textContent).toBe("Check a written answer →");
+    // MI-CONSISTENCY-1 — the sidebar's links come back to the page the student is on (here "/").
+    expect(check.getAttribute("href")).toBe("/check-improve?source=me&returnTo=%2F");
   });
 
-  it("MI-COPY CONTROL — the no-data and with-data states carry no untyped line", async () => {
+  it("MI-COPY CONTROL — the no-data and typed states carry no untyped line", async () => {
     renderCard();
-    expect(await screen.findByText(/No mistake patterns yet/)).toBeTruthy();
-    expect(screen.queryByTestId("mi-card-untyped-why")).toBeNull();
+    expect(await screen.findByText(MI_CARD_COPY.emptyTitle)).toBeTruthy();
+    expect(screen.queryByTestId("mi-card-chance")).toBeNull();
+    cleanup();
     h.entries = [entry(1, { silly: 1 }, v2({ silly: 1 }))];
-    h.attempts = [attempt("graded"), attempt("graded"), attempt("graded")];
+    h.attempts = aboveGate();
     resetMeHomeMemo();
     h.user = { uid: "u2" };
     renderCard();
-    await waitFor(() => expect(screen.getByTestId("mi-card-checked").textContent).toBe("3 checked answers"));
-    expect(screen.queryByTestId("mi-card-untyped-why")).toBeNull();
+    await waitFor(() => expect(screen.getByTestId("mi-card-chance").getAttribute("data-type")).toBe("silly"));
+    expect(screen.getByTestId("mi-card-chance").textContent).not.toContain(MI_CARD_COPY.chanceEmpty);
   });
 });

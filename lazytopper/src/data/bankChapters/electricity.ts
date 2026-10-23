@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "electricity" (Science): 396 served rows from 19 source arrays, 20 withheld.
+// Chapter "electricity" (Science): 393 served rows from 19 source arrays, 23 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -49,6 +49,7 @@ export default defineChapter("electricity", [
 ], [
   "EL2-002",
   "EL2-004",
+  "SQP-S-ELEC-004",
   "CBE-S-ELEC-A-003",
   "APQ-S-ELEC-001",
   "SCO-S-ELEC-003",
@@ -65,6 +66,8 @@ export default defineChapter("electricity", [
   "PYQ-S-ELEC-007",
   "PYQ-S-2026-ELEC-010",
   "PYQ-S-2026-ELEC-013",
+  "PYQ-S-2025-ELEC-001",
+  "PYQ-S-2025-ELEC-002",
   "PYQ-S-2025-ELEC-009",
   "PYQ-S-2024-ELEC-001",
 ]);

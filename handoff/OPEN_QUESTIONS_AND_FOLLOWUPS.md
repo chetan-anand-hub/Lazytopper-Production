@@ -23,6 +23,92 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-23 (daily) - #1300 - #1320 (20 product/CI merges (+ #1299, the 22 Oct docs PR, merged 15:49 IST): #1300, #1301, #1302, #1303, #1304, #1305, #1306, #1307, #1308, #1309, #1310, #1311, #1312, #1313, #1314, #1315, #1316, #1317, #1319, #1320) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `a2974c99`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk / the PR bodies while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. live findings by the owner and the cofounder).
+
+### Closed / noted today
+
+### [FU-MLT-ENDPOINT-RETIRE] - CLOSED
+Closed by `#1314` MLT-RETIRE-1 (`0ace8c36`), owner ruling 23 Oct 18:22 IST: `POST /api/more-like-this` returns 410; the generation handler, prompt, stub, pool reader and the dead client panels are removed; read-side metering names kept (PR body) [git/gh]. Its 22 Oct body is left as written.
+
+### [FU-FILTER-DEEPLINK-ZERO-PRESET] - CLOSED
+Closed by `#1302` GUIDE-FILTER-1 (`cd05b95a`): `filtersTheChapterLacks` + an effect in PracticePage drop a Style / Source / Difficulty value the chapter holds none of back to "all", URL cleaned with `replace`; rendered test on Magnetic Effects + `style=proof` [git/gh].
+
+### [FU-QP-CONCEPT-HINTS-REORDER-ONLY] - CLOSED
+Closed by `#1308` QP-CONCEPT-1 (`c0aeee1a`) and `#1310` QP-CONCEPT-2 (`2f0a5535`): concept entries now draw on-concept rows from the whole served chapter pool; HPQ `focusBankIds` dropped; 126 of 126 HPQ entries resolve to a concept [git/gh]. Keyword follow-ups landed in `#1313` and `#1315`.
+
+### [FU-MOMENTS-M7-AFTER-1286] - CLOSED
+`#1307` GUIDE-PAGES-1 (`12ead4c6`) mounts M7 on the fair-use limit panel and, after the Pay / Share QR code / Forward link actions, on the trial-day dialog (PR body mount table) [git/gh].
+
+### Owner live checks and decisions
+
+### [FU-OWNER-LIVE-MCQ-WORKING-CATEGORY]
+`#1320` MCQ-TYPE-1 asks for one owner live check: grade one wrong MCQ with written working on Check & Improve single (`/api/check-solution`) AND on Worksheet (`/api/grade-worksheet`). Confirm on both: mark 0, a mistake category shown, the scorecard's marks lost not "reason not recorded". A bare-letter wrong MCQ must stay untyped (PR body) [git/gh]. Owed by the owner **[coordinator]**.
+
+### [FU-OWNER-LIVE-SCORECARD-PHONE]
+The scorecard on a real phone: the Byte / Ziggy slot (`#1305`: reserved height, 44x44 targets, no layout shift) and "Share result" (`#1304`: one share from Android to WhatsApp status / Instagram story, one from desktop) **[coordinator]** [git/gh]. Owed by the owner.
+
+### [FU-MCQ-PHOTO-STRICT-PROMPT]
+`#1320` keeps the per-step rule on PHOTO answers: the server cannot see the page, and the prompt has the model quote only the option on the answer step. Applying the strict rule to photos dropped golden `type` 97 -> 95.5 and `papers_type` 93.8 -> 93.3 (FAIL) (PR body) [git/gh]. A photo-strict MCQ rule needs a prompt change (ask the model to quote the working) + a live golden run (`eval:golden:live`). Owner decision.
+
+### [FU-MCQ-TYPE-2-RIGHT-MCQ-FLAWED-WORKING]
+Owner ruling 23 Oct: a RIGHT MCQ with flawed working shows the category and is logged to MI with 0 marks lost **[coordinator]**. Not built: `#1320` left `postprocess.cjs:1221-1222` (clears all types on a right objective answer) untouched and names MCQ-TYPE-2 as its own PR (PR body) [git/gh]. Section 4a applies: enumerate all six surfaces.
+
+### [FU-SCORECARD-WRONG-MCQ-WORDING]
+Recorded from the coordinator's dispatch **[coordinator]**: the scorecard's wording for marks lost to a wrong MCQ needs settling (related: `#1316` will feed a "Wrong MCQ answers" row in MI-CONSISTENCY-1). No further detail was given; not measured by this writer.
+
+### [FU-WS-QP-OBJECTIVE-STORE]
+Recorded from the coordinator's dispatch **[coordinator]**: how Worksheet and Quick Practice store objective (MCQ) results. Context on trunk: `#1316` notes a worksheet / C&I objective answer graded with no reason lands in the v2 `untyped` bucket and "can't be told apart from a written answer without a write-side flag" [git/gh]. No further detail was given.
+
+### Content
+
+### [FU-PYQ-SECTION-ZERO-RECOVERY]
+After BANK-RESIDUE-1 (`#1325`, open), some sections' PYQ rows drop to 0: Life Processes Section D, Acids Section E, Reproduction Section C **[coordinator]**. Recover those rows from the source papers (official CBSE QP + MS), as PYQ-RESTORE-B did. Not re-measured by this writer.
+
+### [FU-PYQ-RESTORE-A-REFILES-PENDING]
+`#1312` lists 11 re-files NOT applied (e.g. PYQ-S-2024-METAL-001 -> Electricity, kept out by B as "wrong-chapter"; the PR body gives the repaired text) [git/gh]. Each needs its own re-file + serve.
+
+### [FU-SERVED-DUPLICATE-GROUPS]
+`#1303`'s guard found 55 existing served duplicate groups (119 rows) - some true duplicates, some generic stems with different options; reported, not fixed (PR body) [git/gh].
+
+### [FU-QP-CHAPTER-ECHO-LABEL-RETAG]
+`#1315`: SCO-S-LIFE-007 and SCO-S-LIFE-019 are on-topic for Cell organelles but filed under the chapter-echo label "Chapter Practice - Life Processes", which resolves to no concept; a data re-tag is needed (PR body) [git/gh].
+
+### Quick Practice and guide
+
+### [FU-FRESH-SET-NOT-MET]
+"Unique set every time" (owner requirement) is NOT met on trunk at `a2974c99` **[coordinator]**. FRESH-SET-TESTS (`#1327`, open: Chapter Test, Full Mock, Worksheet) and FRESH-SET-QP (no PR at writing) are in flight.
+
+### [FU-QP-BACK-AFTER-REFRESH]
+A Back-after-Refresh quirk on Quick Practice found during `#1302` GUIDE-FILTER-1 **[coordinator]**. `#1302` changed the route key to be decided once per navigation (`location.key`, `qpArrivalKey`) and states back / forward / refresh otherwise unchanged [git/gh]. Not reproduced by this writer.
+
+### [FU-QP-TIMEOUT-UNCAUGHT]
+An uncaught `__timeout__` error in `lazytopper/src/pages/PracticePage.tsx:1927/2280` **[coordinator]**. At `a2974c99` the reject is at `lazytopper/src/pages/PracticePage.tsx:1927` (`setTimeout(() => reject(new Error("__timeout__")), 15000)`) and it is read at `:2280` [git/gh]. Find the path where the rejection is not caught.
+
+### [FU-GUIDE-SCORE-WEAKMODE-UNREAD]
+`#1305`: Byte's Worksheet / Quick Practice link carries `weakMode=1`, which the practice page does not read yet (PR body) [git/gh].
+
+### [FU-GUIDE-SCORE-REOPENED-FALLBACK]
+`#1305`: re-opened Full Mock and Check & Improve results still send Byte's link to `/practice-hub` (PR body) [git/gh].
+
+### [FU-COMPANION-BREATHE-MOUNT]
+`#1306`: `CompanionBreathe` (10 s, Skip) is exported, not mounted; `#1307` reserved the pre-test slot (`preTestSlot.tsx`, renders nothing today) [git/gh].
+
+### [FU-MOMENTS-3-EMOTIONS]
+`#1306` exports byte_marking, byte_sorry, ziggy_aha, ziggy_examday, ziggy_yawn and the diya / rangoli props for MOMENTS-3; not wired (PR body) [git/gh].
+
+### [FU-GUIDE-PAGES-SCOREGUIDESTAGE]
+`#1307`: register the entry / Exam Trends cards with `scoreGuideStage` (now on trunk via `#1305`) so the sidebar Ziggy hides while one is open (PR body, follow-up for the controller) [git/gh].
+
+### CI
+
+### [FU-CI-AGG-THROWAWAY-BRANCH]
+The branch `ci/ci-agg-1-proof-throwaway` (head `0cc4026e`) from the `#1318` live proof of CI-AGG-1 still exists at writing [git/gh]; the owner deletes it (branch deletion is never auto-approved, CLAUDE.md section 3).
+
+### Open PRs at writing [git/gh]
+`#1321` MI-CARELESS-1, `#1324` MI-CARELESS-2, `#1326` MI-CONSISTENCY-1 (draft, stacked on `#1321`) - awaiting the owner; `#1322` GUIDE-SCORE-2, `#1323` MCQ-EXTRACT-1 (draft), `#1325` BANK-RESIDUE-1 - in progress; `#1327` FRESH-SET-TESTS, `#1328` QP-WORKING-AFTER-1 - open, being reworked to the owner's 22:48 IST Finish-gate design; FRESH-SET-QP - no PR.
+
 ## 2026-10-22 (daily) - #1285 CI-CLOCK-CUT, #1286 PAYWALL-PAY-1, #1287 CI-SPEED-3, #1288 GUIDE-IQ-1, #1289 MOMENTS-1, #1290 COST-1, #1291 TOPUP-1 PR-1, #1292 GUIDE-OPTS-1, #1293 RAILWAY-SLIM-1, #1294 PARENT-REPORT-1, #1295 MLT-MUTE-1, #1296 OPS-REPORT-1, #1297 MLT-MUTE-2, #1298 FILTER-FIX-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `6fe85765`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk / the PR bodies while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. live checks done by the cofounder).

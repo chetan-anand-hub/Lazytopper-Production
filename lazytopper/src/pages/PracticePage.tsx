@@ -582,6 +582,7 @@ import {
 import { typeFirstAnswerMode, useZeroGraded } from "../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
 import { GuideMomentSlot, M11Nudge, firstSessionAudience, inGuideArm } from "../components/guide/moments/moments";
+import { scoreGuidePlan } from "../components/guide/scoreGuideModel";
 import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
@@ -4470,15 +4471,24 @@ const packTopicKey = useMemo(() => {
         }),
         extraActions: startHereExtras(topicK),
       });
+  const tapOnlyVariant: ScorecardVariant = {
+    ...withGuideTarget(mcqVariant, qpGuideTarget),
+    onShowMissed: showMissed,
+    // Owner ruling 23 Oct 17:57 — the set's own working box, never another page.
+    onAddWorking: addWorking,
+  };
+  // GUIDE-SCORE-2 (cofounder ruling, #1322 re-review) — where Byte's OBJECTIVE line shows ("Add
+  // working to one…" / "N questions wrong. Add working…": the owner-approved 17:57 lines, true
+  // under §13), MOMENTS-1 M11 is SUPPRESSED. Its owner copy promises step-by-step marking, which a
+  // tap-only set's MCQ working never gets (§13), and it is the same nudge twice.
+  const objectiveLineShows = (() => {
+    const step = scoreGuidePlan(tapOnlyVariant)?.byteStep;
+    return step === "objective" || step === "objectiveWrong";
+  })();
   return (
     <ResultsScorecard
       askFirstFeedback={!overlay && !isGuest} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-      variant={{
-        ...withGuideTarget(mcqVariant, qpGuideTarget),
-        onShowMissed: showMissed,
-        // Owner ruling 23 Oct 17:57 — the set's own working box, never another page.
-        onAddWorking: addWorking,
-      }}
+      variant={tapOnlyVariant}
       onClose={closeScorecard}
       hideShare={isGuest} // SHARE-SCORE-1 — no "Share my score" on a signed-out guest's scorecard
       // QP-UPLOAD-LATER — the guest card (unchanged) plus the "Upload later" block when written
@@ -4516,9 +4526,10 @@ const packTopicKey = useMemo(() => {
               Not now
             </button>
           </div>
-        ) : !isGuest && !overlay && qpMomentUid ? (
+        ) : !isGuest && !overlay && qpMomentUid && !objectiveLineShows ? (
           // MOMENTS-1 M11 — the MCQ-only (tap-only) scorecard ONLY: never a written / C&I result.
-          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} />
+          // GUIDE-SCORE-2 — its button opens THIS set's working box (first question), never another page.
+          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} onOpenWorking={addWorking} />
         ) : undefined,
       )}
     />

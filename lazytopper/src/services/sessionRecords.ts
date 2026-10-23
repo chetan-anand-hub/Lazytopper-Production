@@ -72,6 +72,7 @@ import {
   paperMarksLost,
   type MarksLostByType,
 } from "../lib/mistakeDisplay";
+import { noteStudyDataChanged } from "./studyDataSignal";
 
 // ── The LOCKED §1 data contract ──────────────────────────────────────────────
 
@@ -452,7 +453,7 @@ export function writeSessionRecord(
         const data = stripUndefined({ ...record, updatedAt: queuedAt });
         return withFirestore(({ fs, db }) =>
           fs.setDoc(fs.doc(db, "sessionRecords", uid, "records", sanitizeDocId(record.id)), data),
-        );
+        ).finally(noteStudyDataChanged); // MI-CONSISTENCY-1 — MI cards re-read once it lands
       },
       // the body travels WITH the entry (the mirror is capped and cloud-wins on read); a record that is
       // not yet a graded result (a worksheet download, status "pending-upload") is tracked but never announced
@@ -514,7 +515,7 @@ export function writeSessionPerQuestion(
         const data = stripUndefined({ ...payload, updatedAt: queuedAt });
         return withFirestore(({ fs, db }) =>
           fs.setDoc(fs.doc(db, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)), data),
-        );
+        ).finally(noteStudyDataChanged); // MI-CONSISTENCY-1 — MI cards re-read once it lands
       },
       { body: payload },
     );

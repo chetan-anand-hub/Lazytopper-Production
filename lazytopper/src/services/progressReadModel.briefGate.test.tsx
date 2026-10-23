@@ -172,9 +172,12 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
         <MistakeIntelCard />
       </MemoryRouter>,
     );
-    expect((await screen.findByTestId("mi-card-withheld", {}, { timeout: 8000 })).textContent).toMatch(WITHHOLD);
-    expect(screen.queryByTestId("mi-card-top")).toBeNull();
-    expect(screen.getByTestId("mi-card-summary").textContent).not.toMatch(/marks? lost|Biggest loss/);
+    // MI-CONSISTENCY-1 — the sidebar renders the ONE MI card: below the gate it is the thin state,
+    // Me's sentence, with no tile, no chance and no figure at all.
+    expect((await screen.findByTestId("mi-card-thin", {}, { timeout: 8000 })).textContent).toMatch(WITHHOLD);
+    expect(screen.queryByTestId("mi-card-chance")).toBeNull();
+    expect(screen.queryAllByTestId("mi-card-tile")).toHaveLength(0);
+    expect(screen.getByTestId("sidebar-mi-card").textContent).not.toMatch(/marks? lost|\d/);
     cleanup();
   });
 
@@ -221,9 +224,12 @@ describe("[FU-ME2-BRIEF-CONCEPTS-BELOW-GATE] Me and the Tutor brief share ONE ga
         <MistakeIntelCard />
       </MemoryRouter>,
     );
-    expect((await screen.findByTestId("mi-card-top", {}, { timeout: 8000 })).textContent).toMatch(/^Knowledge gap/);
-    expect(screen.getByTestId("mi-card-summary").textContent).toContain(`${card.totalMarksLost} marks lost`);
-    expect(screen.queryByTestId("mi-card-withheld")).toBeNull();
+    // MI-CONSISTENCY-1 — the ONE MI card names the same weakness: its biggest chance is the
+    // concept gap (Me's knowledge group), and its headline is Me's marks on the table.
+    const chance = await screen.findByTestId("mi-card-chance", {}, { timeout: 8000 });
+    expect(chance.getAttribute("data-type")).toBe("conceptual");
+    expect(screen.getByTestId("mi-card-lost").textContent).toBe(`${split!.lost} marks lost`);
+    expect(screen.queryByTestId("mi-card-thin")).toBeNull();
     cleanup();
   });
 });

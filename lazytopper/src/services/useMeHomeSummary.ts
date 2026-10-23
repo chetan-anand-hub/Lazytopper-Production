@@ -10,7 +10,8 @@
 // with NO read (one student's numbers never appear under another uid); a gen bump for the SAME
 // uid keeps the previous read on screen while the fresh one loads.
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { studyDataVersion, subscribeStudyData } from "./studyDataSignal";
 import type { DesktopSubject } from "../lib/desktop/navigation";
 import type { MeHomeRead, MeHomeReader, MeHomeRow } from "./meHomeSummary";
 
@@ -30,7 +31,13 @@ export function useMeHome(
   uid: string | null,
   gen = 0,
   reader?: MeHomeReader,
+  /** MI-CONSISTENCY-1 — a change (the host's route) re-asks the memo: a read older than its
+   *  60 s life is refreshed, a fresh one is served as is. Not part of the state key. */
+  refresh?: string,
 ): { status: MeHomeStatus; read: MeHomeRead | null } {
+  // MI-CONSISTENCY-1 — a write on this device (services/studyDataSignal) re-reads at once; the
+  // previous read stays on screen (same key) until the fresh one lands — no loading flash.
+  const dataVersion = useSyncExternalStore(subscribeStudyData, studyDataVersion, studyDataVersion);
   const [state, setState] = useState<Keyed<MeHomeRead | null> | null>(null);
   // The reader is the same `readStudyModel` call every render; held in a ref (synced after
   // render, before the read effect below runs) so a new closure never triggers a re-read.
@@ -55,7 +62,7 @@ export function useMeHome(
     return () => {
       cancelled = true;
     };
-  }, [uid, gen]);
+  }, [uid, gen, dataVersion, refresh]);
   return useMemo(() => {
     if (!uid) return { status: "idle" as const, read: null };
     if (state && state.key === key) return { status: state.status, read: state.value };

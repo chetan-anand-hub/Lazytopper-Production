@@ -815,21 +815,34 @@ const SC_CSS = `
 .lt-sc__head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 12px; }
 .lt-sc__nm { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 18px; }
 .lt-sc__code { font-size: 11.5px; color: #9fb0c6; letter-spacing: 0.05em; margin-top: 5px; }
-.lt-sc__x { color: #8090a6; font-size: 18px; cursor: pointer; padding: 2px 6px; background: none; border: none; flex-shrink: 0; }
+/* GUIDE-SCORE-2 — a 44 x 44 tap target (was 27 x 28 on a phone); the glyph is unchanged, the
+   negative margin keeps the head row's layout where it was. */
+.lt-sc__x { color: #8090a6; font-size: 18px; cursor: pointer; padding: 0; background: none; border: none; flex-shrink: 0;
+  min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; margin: -8px -10px -8px 0; }
 
 /* GUIDE-SCORE-1 — the character slot, RESERVED from the first frame (no layout shift when Byte or
    Ziggy fills it): the height of the tallest beat (character + bubble + link + Hide mascots). */
 /* Reserved PER WIDTH at the tallest thing that can fill it — Ziggy's beat, Byte's longest line
    with its link and "Hide mascots", or COMPANION-1's duet — measured with Playwright at
    320/360/390/768/1366 (PR #1305 body): 199 / 227 (duet) / 181 / 141 / 173 px. */
-.lt-sc__guide { min-height: 200px; margin: 0 0 6px; }
+/* GUIDE-SCORE-2 — the content sits at the BOTTOM of the reserved height, next to the score: any
+   spare reserved space is above the character, never a gap between Byte and the score. */
+.lt-sc__guide { min-height: 200px; margin: 0 0 12px; display: flex; flex-direction: column; justify-content: flex-end; }
+/* A flex box does not collapse its children's margins, so the beat's own margins are dropped here
+   (the slot's margin gives the gap to the score) — the reserved height is the content's. */
+.lt-sc__guide > * { margin-top: 0; margin-bottom: 0; }
 @media (min-width: 360px) { .lt-sc__guide { min-height: 228px; } }
 @media (min-width: 420px) { .lt-sc__guide { min-height: 184px; } }
 @media (min-width: 600px) { .lt-sc__guide { min-height: 144px; } }
 @media (min-width: 1024px) { .lt-sc__guide { min-height: 176px; } }
 /* Every tap target in the slot is at least 44 x 44 px — the duet's (COMPANION-1) included, which
    draws here with the moments grammar. */
-.lt-sc__guide .lt-mom__cta, .lt-sc__guide .lt-mom__hide, .lt-sc__guide .lt-cmp__close {
+/* GUIDE-SCORE-2 — every tap target on the card is at least 44 px tall: Share result (was 42), the
+   what-next menu rows (was 43) and the 2-up actions, alongside the moments below. */
+.lt-sc__card .lt-ss__btn, .lt-sc__mi, .lt-sc__btn { min-height: 44px; box-sizing: border-box; }
+/* GUIDE-SCORE-2 — and on any moment drawn elsewhere on the card (M11 below the score, M6). */
+.lt-sc__guide .lt-mom__cta, .lt-sc__guide .lt-mom__hide, .lt-sc__guide .lt-cmp__close,
+.lt-sc__card .lt-mom__cta, .lt-sc__card .lt-mom__hide {
   min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; box-sizing: border-box; }
 
 .lt-sc__top { display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; }
@@ -963,7 +976,7 @@ const SC_CSS = `
 .lt-sc__wr-steps { margin: 9px 0 0; padding-left: 20px; font-size: 12.5px; color: #d6dee9; line-height: 1.55; }
 .lt-sc__wr-steps li { margin-bottom: 4px; }
 .lt-sc__tutorask {
-  display: block; width: 100%; margin-top: 11px; padding: 11px 14px; border-radius: 10px;
+  display: block; width: 100%; min-height: 44px; margin-top: 11px; padding: 11px 14px; border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.28); background: transparent; color: #fff;
   font-size: 13.5px; font-weight: 700; cursor: pointer; text-align: center;
 }

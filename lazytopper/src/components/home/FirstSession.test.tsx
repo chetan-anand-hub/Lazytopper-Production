@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 /**
@@ -222,40 +222,26 @@ describe("5 · Mistake Intelligence shows a waiting message, never hollow zeroes
   // AUTH-2-FU §3: MI and the first-session card now share ONE slot, so the MI
   // empty state is what a student WITH graded attempts but no logged mistakes
   // sees. `records = ONE_RECORD` puts the page in exactly that state.
-  it("DesktopHome: em-dash placeholders and an explicit waiting message", async () => {
+  // MI-CONSISTENCY-1 (owner ask, 23 Oct 2026): both Homes render the ONE MI card. Its empty state
+  // keeps this contract — an explicit waiting message and NO tiles at all, so never a row of
+  // hollow zeroes (and no digit anywhere on the card).
+  it("DesktopHome: an explicit waiting message, and no tiles (never hollow zeroes)", async () => {
     sessions.records = ONE_RECORD;
     renderIn(<DesktopHome />);
     const mi = await screen.findByTestId("home-mi-card");
-
-    expect(mi).toHaveTextContent("Your mistake patterns will show here");
+    await waitFor(() => expect(mi).toHaveTextContent("Your mistake patterns will show here"));
     expect(mi).toHaveTextContent("Built from your real attempts");
-    expect(mi).toHaveTextContent("Practise a set to see your mistakes.");
-
-    // ★ THE ANTI-ZERO ASSERTION. A panel of zeroes reads as "you have scored
-    // nothing" rather than "there is nothing yet" — different messages to an
-    // anxious student. Each of the four buckets must carry the placeholder.
-    const buckets = screen.getAllByTestId("home-mi-bucket");
-    expect(buckets).toHaveLength(4);
-    for (const b of buckets) {
-      const n = b.querySelector(".lt-n")?.textContent?.trim();
-      expect(n).toBe("—");
-      expect(n).not.toBe("0");
-    }
+    expect(within(mi).queryAllByTestId("mi-card-tile")).toHaveLength(0);
+    expect(mi.textContent).not.toMatch(/\d/);
   });
 
   it("MobileHome: same contract on the signed-in empty state", async () => {
     sessions.records = ONE_RECORD;
     renderIn(<MobileHome />);
     const mi = await screen.findByTestId("mobile-home-mistake-panel");
-
-    expect(mi).toHaveTextContent("Your mistake patterns will show here");
-    const buckets = screen.getAllByTestId("mobile-home-mi-bucket");
-    expect(buckets).toHaveLength(4);
-    for (const b of buckets) {
-      const n = b.querySelector(".lt-n")?.textContent?.trim();
-      expect(n).toBe("—");
-      expect(n).not.toBe("0");
-    }
+    await waitFor(() => expect(mi).toHaveTextContent("Your mistake patterns will show here"));
+    expect(within(mi).queryAllByTestId("mi-card-tile")).toHaveLength(0);
+    expect(mi.textContent).not.toMatch(/\d/);
   });
 });
 

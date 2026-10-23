@@ -546,10 +546,10 @@ describe("G3 — the sidebar MI widget joins the pin: widget == Me == brief == t
         <MistakeIntelCard />
       </MemoryRouter>,
     );
-    await waitFor(() =>
-      expect(screen.getByTestId("mi-card-checked").textContent).toBe(`${card.checkedCount} checked answers`),
-    );
-    expect(screen.getByTestId("mi-card-summary").textContent).toContain(`${card.totalMarksLost} marks lost`);
+    // MI-CONSISTENCY-1 — the sidebar renders the ONE MI card (Both by default): its headline is
+    // the sum of Me's per-paper marks on the table — the same figure as the pure summary.
+    await waitFor(() => expect(screen.getByTestId("mi-card-lost").textContent).toBe(`${meSum} marks lost`));
+    expect(screen.getByTestId("mi-card-lost").textContent).toBe(`${card.totalMarksLost} marks lost`);
     cleanup();
   });
 });

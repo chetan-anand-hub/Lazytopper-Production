@@ -235,7 +235,8 @@ function claimScene(plan: ScoreGuidePlan | null, uid: string | null): ScoreScene
 }
 
 /** How long the slot waits for the duet to actually draw before playing the sequence instead. */
-export const SCENE_DRAW_TIMEOUT_MS = 2500;
+// GUIDE-SCORE-2: ~1 s — the reserved slot sits blank while it waits, so the wait is kept short.
+export const SCENE_DRAW_TIMEOUT_MS = 1000;
 
 /**
  * Watches the duet through ../mascotPresence (every BlobCharacter registers): it never drew →
@@ -359,8 +360,10 @@ export function ScorecardGuide({ variant, ask, hostOwnsUnreadAllPending }: Score
 
   const showing = willDraw && !m11OnStage && !loadFailed && mode.kind !== "none";
   // While a character is (about to be) drawn here, the sidebar's MI voice steps aside. A layout
-  // effect: the hold lands before the browser paints this card.
-  useHoldStage("scorecard", showing && mode.kind !== "deciding");
+  // effect: the hold lands before the browser paints this card. GUIDE-SCORE-2: held from the
+  // FIRST frame (the "deciding" wait included), so the sidebar's character is never drawn behind
+  // the card while the slot is about to fill.
+  useHoldStage("scorecard", showing);
 
   if (!showing) return null;
   const onLoadFail = () => setLoadFailed(true);

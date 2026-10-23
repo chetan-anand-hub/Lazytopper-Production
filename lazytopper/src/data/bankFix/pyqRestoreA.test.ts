@@ -32,6 +32,7 @@ import { RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS, canonicalQuestionBa
 import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { questionMatchesFilters } from "../../pages/PracticePage";
 import { isPublishable } from "../../../scripts/seo/publishability";
+import { BANK_RESIDUE_1_WITHHELD_IDS } from "./bankResidue1Ledger";
 import { PYQ_RESTORE_A_MATHS, PYQ_RESTORE_A_MATHS_KEPT, PYQ_RESTORE_A_COUNTS, PYQ_RESTORE_A_SCIENCE, PYQ_RESTORE_A_REFILED, PYQ_RESTORE_A_SCIENCE_KEPT } from "./pyqRestoreALedger";
 
 type Row = Record<string, unknown> & { id: string; marks: number; section?: string; questionText: string };
@@ -171,7 +172,9 @@ describe("PYQ-RESTORE-A part 2 · Science ledger", () => {
     for (const e of PYQ_RESTORE_A_REFILED) {
       const q = RAW.get(e.id)!;
       if (q.topicKey !== e.chapterAfter) bad.push(`${e.id}: ${q.topicKey}`);
-      const keptOut = e.resolve.startsWith("n/a: row stays withheld");
+      // BANK-RESIDUE-1 (2026-10-23) withheld three re-filed rows (PYQ-S-CHEM-009, PYQ-S-CHEM-011, PYQ-S-2025-LIFEP-009) for marking-scheme
+      // residue that needs the source paper; their chapter re-filing stands.
+      const keptOut = e.resolve.startsWith("n/a: row stays withheld") || BANK_RESIDUE_1_WITHHELD_IDS.has(e.id);
       if (keptOut !== WITHHELD_QUESTION_IDS.has(e.id)) bad.push(`${e.id}: withheld state changed`);
     }
     expect(bad).toEqual([]);
