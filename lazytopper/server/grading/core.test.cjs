@@ -2082,10 +2082,10 @@ const MCQ_SINGLE = (o = {}) => ({ question: MCQ_QTEXT, marks: 1, subject: 'Maths
   options: MCQ_OPTS, answer: 'Parallel', textAnswer: 'm1 = 2 and m2 = 2, so the slopes are equal. Equal slopes means the lines are the same line. (c)', acceptsV2: true, ...o });
 const MCQ_SHEETQ = (o = {}) => LETTER_MCQ({ questionText: MCQ_QTEXT, textAnswer: MCQ_SINGLE().textAnswer, ...o });
 // Both endpoints, one reply → [singleBody, sheetResult].
-async function bothPaths(steps, { single: so = {}, sheet: wo = {}, raw = {} } = {}) {
+async function bothPaths(steps, { single: so = {}, sheet: wo = {}, doc = {}, raw = {} } = {}) {
   const reply = REPLY(R(1, steps, raw));
   const a = (await harness({ replies: [reply] }).single(MCQ_SINGLE(so))).body;
-  const b = (await harness({ replies: [reply] }).sheet(sheet([MCQ_SHEETQ(wo)], { acceptsV2: true }))).body.results[0];
+  const b = (await harness({ replies: [reply] }).sheet(sheet([MCQ_SHEETQ(wo)], { acceptsV2: true, ...doc }))).body.results[0];
   return [a, b];
 }
 
@@ -2162,5 +2162,63 @@ test('§MCQ-TYPE-1.5 ★ MARKS UNCHANGED: wrong+working 0, right+working full, b
   for (const r of await bothPaths(unread, { single: { textAnswer: 'equal slopes so the same line' }, sheet: { textAnswer: 'equal slopes so the same line' } })) {
     assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
     assert.deepEqual(r.marksLostByType, grading.zeroLost());
+  }
+});
+
+test('§MCQ-TYPE-1.6 ★ HONESTY: lines that only DECLARE the option are not working — a restated tap stays UNTYPED on both endpoints', async () => {
+  const K_OPTS = ['k', '3k', '7k', 'k^3'];
+  const cases = [
+    ['Ans: (c)', [['(c)'], ['Ans: (c)']], {}],
+    ['Option C', [['(c)'], ['Option C']], {}],
+    ['Answer is (c) Coincident', [['Answer is (c) Coincident']], {}],
+    ['"(c)" + "Answer is (c) 7k"', [['(c)'], ['Answer is (c) 7k']], { options: K_OPTS, answer: 'k' }],
+    ['Ans = c + "c is correct"', [['Ans = c'], ['c is correct']], {}],
+  ];
+  for (const [name, lines, qo] of cases) {
+    const steps = lines.map(([w], i) => S({ description: 'Line ' + (i + 1), studentWork: w, status: 'incorrect', marksAwarded: 0, mistakeType: i ? 'silly' : 'conceptual' }));
+    const text = lines.map(([w]) => w).join('\n');
+    for (const r of await bothPaths(steps, { single: { textAnswer: text, ...qo }, sheet: { textAnswer: text, ...qo } })) {
+      assert.equal(r.marksAwarded, 0, name);
+      assert.ok(r.annotatedSteps.every((s) => s.mistakeType === null), name + ': a declaration is not working');
+      assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), untyped: 1 }, name);
+    }
+  }
+  // PHOTO (no typed text): the server cannot see the page; the prompt makes the model quote only
+  // the option, so a typed "Ans: (B)" step is the model's witness of working on the page (golden
+  // paper-04 Q1) and keeps its type — a BARE "(c)" photo step still does not.
+  const photo = { textAnswer: '', ...PHOTO };
+  const decl = [S({ description: 'Answer', studentWork: 'Ans: (c)', status: 'incorrect', marksAwarded: 0, mistakeType: 'silly' })];
+  const pdf = { imageBase64: 'UERG', imageMimeType: 'application/pdf' };
+  for (const r of await bothPaths(decl, { single: photo, sheet: { textAnswer: '' }, doc: pdf })) {
+    assert.equal(r.marksAwarded, 0);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), silly: 1 });
+  }
+  const barePhoto = [S({ description: 'Answer', studentWork: '(c)', status: 'incorrect', marksAwarded: 0, mistakeType: 'silly' })];
+  for (const r of await bothPaths(barePhoto, { single: photo, sheet: { textAnswer: '' }, doc: pdf })) {
+    assert.equal(r.marksAwarded, 0);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), untyped: 1 });
+  }
+  // CONTROL: the same declaration plus ONE real working line → typed.
+  const steps = [S({ description: 'Working', studentWork: 'slopes 2 and 2 so the lines coincide', status: 'incorrect', marksAwarded: 0 }),
+    S({ description: 'Answer', studentWork: 'Answer is (c) Coincident', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' })];
+  for (const r of await bothPaths(steps)) {
+    assert.equal(r.marksAwarded, 0);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 1 });
+  }
+});
+
+test('§MCQ-TYPE-1.7 ONE objective question is ONE mistake: two typed steps → only the primary type counts (summary, steps, marksLostByType agree)', async () => {
+  const steps = [
+    S({ part: '(i)', description: 'Working', studentWork: 'slopes 2 and 2 so the lines coincide', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' }),
+    S({ part: '(ii)', description: 'More working', studentWork: 'copied m2 as 2 instead of 3', status: 'incorrect', marksAwarded: 0, mistakeType: 'silly' }),
+    S({ description: 'Answer', studentWork: '(c)', status: 'incorrect', marksAwarded: 0, mistakeType: 'calculation' }),
+  ];
+  for (const r of await bothPaths(steps)) {
+    assert.equal(r.marksAwarded, 0);
+    assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), ['conceptual', null, null]);
+    const counted = ['conceptual', 'calculation', 'silly', 'presentation'].reduce((a, k) => a + r.mistakeSummary[k], 0);
+    assert.equal(counted, 1, 'mistakeSummary counts one mistake');
+    assert.equal(r.mistakeSummary.conceptual, 1);
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 1 });
   }
 });

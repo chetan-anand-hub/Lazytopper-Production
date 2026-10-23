@@ -114,6 +114,18 @@ describe("objectiveHasWorking — bare pick vs real reasoning", () => {
   it("substantive reasoning IS working", () => {
     expect(O.objectiveHasWorking("I chose d because the reaction is exothermic", opts)).toBe(true);
   });
+
+  // MCQ-TYPE-1 review fix: a line that only DECLARES the option is not working.
+  it("declaration-only lines are NOT working; a real working line is", () => {
+    const lines = ["Parallel", "Intersecting", "Coincident", "Skew"];
+    for (const w of ["Ans: (c)", "Option C", "Answer is (c) Coincident", "(c)\nAnswer is (c) Coincident", "Ans = b", "c is correct", "My final answer: (d)"]) {
+      expect(O.objectiveHasWorking(w, lines)).toBe(false);
+    }
+    expect(O.objectiveHasWorking("(c)\nAnswer is (c) 7k", ["k", "3k", "7k", "k^3"])).toBe(false);
+    expect(O.objectiveHasWorking("(a) Both A and R are true", ["Both A and R are true", "A true R false"])).toBe(false);
+    expect(O.objectiveHasWorking("Answer is (c)\nslopes 2 and 2 so the lines coincide", lines)).toBe(true);
+    expect(O.objectiveHasWorking("m1 = 2, m2 = 2", lines)).toBe(true);
+  });
 });
 
 describe("clampObjectiveResult — 0/full verdict, per-step marks stripped", () => {
