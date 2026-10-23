@@ -507,6 +507,7 @@
     "src/services/geminiThinkingConfig.test.ts",
     "src/services/gradeConsistency.pipeline.test.ts",
     "src/services/gradeConsistency.v2.pipeline.test.ts",
+    "src/services/mcqHabit.characterization.test.tsx",
     "src/services/meHomeSummary.sync.test.tsx",
     "src/services/miConsumers.characterization.test.tsx",
     "src/services/mistakeInsightsService.marks.test.ts",

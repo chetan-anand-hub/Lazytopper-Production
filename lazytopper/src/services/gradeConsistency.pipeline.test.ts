@@ -232,7 +232,10 @@ function facts(r: Any, qNumber = r.qNumber ?? 1): Facts {
     }
   }
   const shown: Record<string, number> = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  if (!r.couldNotRead && lost > 0) {
+  // MCQ-TYPE-2 (owner ruling 23 Oct 2026): a RIGHT objective answer with typed working shows its
+  // type as a 0-mark habit (computed here independently of lib/mistakeDisplay).
+  const habit = r.objective === true && lost === 0 && TYPES.some((t) => stepCount[t] > 0);
+  if (!r.couldNotRead && (lost > 0 || habit)) {
     for (const t of TYPES) shown[t] = Math.max(Number(r.mistakeSummary?.[t]) || 0, stepCount[t]);
   }
   const missingSteps = steps.filter((s) => s.status === "missing").length;
@@ -291,6 +294,11 @@ const docsUnder = (prefix: string) =>
 // `miHistory` is everything in the store, resolved entries included.
 const miHistory = () => docsUnder(`learnerProfiles/${UID}/mistakeLogs/`);
 const miEntries = () => miHistory().filter((e) => !isSupersededByRegrade(e));
+// The MI entries a graded paper should leave: one per question that LOST marks to its work and —
+// MCQ-TYPE-2 (owner ruling 23 Oct 2026) — one per RIGHT objective question with flawed working,
+// a 0-mark habit (p4-bs1-worksheet Q1: 1/1 with typed working "RRyy × rrYY → all F1 plants are Rryy").
+const miWant = (results: Any[], fs: Facts[]) =>
+  results.filter((r: Any, i: number) => !fs[i].couldNotRead && !fs[i].notAttempted && (fs[i].lost > 0 || (r.objective === true && TYPES.some((t) => fs[i].shown[t] > 0)))).length;
 const records = () => docsUnder(`sessionRecords/${UID}/records/`);
 // H1 — one durable attempt doc per SUBMISSION (its id is the submission identity).
 const attempts = () => docsUnder(`practiceInsights/${UID}/attempts/`);
@@ -660,7 +668,7 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     H.gradeWorksheet.mockResolvedValue(clone(fx.body));
     const first: Any = await gradeWorksheetAndRecord(USER as never, ws, { imageBase64: "AAAA", imageMimeType: "application/pdf" });
     const fs: Facts[] = fx.body.results.map((r: Any) => facts(r));
-    const want = fs.filter((f) => !f.couldNotRead && f.lost > 0 && !f.notAttempted).length;
+    const want = miWant(fx.body.results, fs);
     expect(miEntries()).toHaveLength(want);
     const shown = sumShown(fs);
     check(S, "scorecard.fourType=shown", JSON.stringify(aggregateFourType(first.response)) === JSON.stringify(shown), JSON.stringify(aggregateFourType(first.response)));
@@ -702,7 +710,7 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     H.gradeWorksheet.mockResolvedValue(clone(fx.body));
     await gradeWorksheetAndRecord(USER as never, ws, upload);
     const fs: Facts[] = fx.body.results.map((r: Any) => facts(r));
-    const want = fs.filter((f) => !f.couldNotRead && f.lost > 0 && !f.notAttempted).length;
+    const want = miWant(fx.body.results, fs);
     const firstPaths = stable().map((e) => e.path).sort();
     check(S, "flip.first.entries", firstPaths.length === want, `${firstPaths.length} vs ${want}`);
 
@@ -761,7 +769,7 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     };
     await run(fx.body);
     const fs: Facts[] = fx.body.results.map((r: Any) => facts(r));
-    const want = fs.filter((f) => !f.couldNotRead && f.lost > 0 && !f.notAttempted).length;
+    const want = miWant(fx.body.results, fs);
     check(S, "mi.oneEntryPerLosingQuestion", miEntries().length === want, `${miEntries().length} vs ${want}`);
     const regraded = clone(fx.body);
     const t = regraded.results.find((r: Any) => facts(r).lost > 0);
