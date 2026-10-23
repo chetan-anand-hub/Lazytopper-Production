@@ -56,28 +56,37 @@ describe("GUIDE-PUBLIC-1 · the signed-out device arm", () => {
     expect(armFromByte(255)).toBe("control");
   });
 
-  it("★ is drawn ONCE from crypto.getRandomValues (never Math.random) and then read back", () => {
+  it("★★ GUIDE-ALL-1: every device is 'guide' — written once, then read back; no random draw at all", () => {
     const rnd = vi.spyOn(Math, "random");
-    const grv = vi.spyOn(globalThis.crypto, "getRandomValues").mockImplementation(<T extends ArrayBufferView | null>(a: T): T => {
-      (a as unknown as Uint8Array)[0] = 200;
-      return a;
-    });
-    expect(ensurePublicArm()).toEqual({ arm: "control", fresh: true });
-    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("control");
-    expect(ensurePublicArm()).toEqual({ arm: "control", fresh: false });
+    const grv = vi.spyOn(globalThis.crypto, "getRandomValues");
+    expect(ensurePublicArm()).toEqual({ arm: "guide", fresh: true });
+    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("guide");
+    expect(ensurePublicArm()).toEqual({ arm: "guide", fresh: false });
     __resetPublicArmForTests();
-    expect(ensurePublicArm()).toEqual({ arm: "control", fresh: false });
-    expect(grv).toHaveBeenCalledTimes(1);
+    expect(ensurePublicArm()).toEqual({ arm: "guide", fresh: false });
+    expect(grv).not.toHaveBeenCalled();
     expect(rnd).not.toHaveBeenCalled();
   });
 
-  it("a garbage stored value is not an arm (a fresh one is drawn); no CSPRNG → no arm at all", () => {
+  it("★★ GUIDE-ALL-1: a device the A/B stored as 'control' is rewritten to 'guide' once", () => {
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "control");
+    expect(readPublicArm()).toBe("control");
+    expect(ensurePublicArm()).toEqual({ arm: "guide", fresh: true });
+    expect(readPublicArm()).toBe("guide");
+    expect(ensurePublicArm()).toEqual({ arm: "guide", fresh: false });
+  });
+
+  it("a garbage stored value is not an arm; no CSPRNG and blocked storage still give the guide", () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "treatment");
     expect(readPublicArm()).toBeNull();
     vi.spyOn(globalThis.crypto, "getRandomValues").mockImplementation(() => {
       throw new Error("no crypto");
     });
-    expect(ensurePublicArm()).toBeNull();
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    expect(ensurePublicArm()).toEqual({ arm: "guide", fresh: true });
+    expect(ensurePublicArm()).toEqual({ arm: "guide", fresh: false }); // the in-memory arm holds this load
   });
 
   it("★ is copied into this tab's guideIntent record as public_arm (the record's fields untouched)", () => {

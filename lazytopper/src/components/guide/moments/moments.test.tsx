@@ -236,25 +236,25 @@ describe("MOMENTS-1 M9 · a shared link", () => {
     return <span data-testid="aud">{show ? "yes" : "no"}</span>;
   }
 
-  it("★★ the public peek's arm rule: the device arm decides; control → nothing; drawn fresh → reported once", async () => {
+  it("★★ GUIDE-ALL-1: the public arm rule gives EVERY device the guide (ex-control, fresh); the arm is never reported", async () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
     const view = render(<Public enabled />);
     await waitFor(() => expect(screen.getByTestId("aud").textContent).toBe("yes"));
     view.unmount();
 
-    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "control");
-    render(<Public enabled />);
-    await act(async () => {});
-    expect(screen.getByTestId("aud").textContent).toBe("no");
-    expect(armAssigned).not.toHaveBeenCalled(); // a stored arm is never re-reported
-    cleanup();
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "control"); // a device the A/B put in control
+    __resetPublicArmForTests();
+    const ex = render(<Public enabled />);
+    await waitFor(() => expect(screen.getByTestId("aud").textContent).toBe("yes"));
+    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("guide");
+    ex.unmount();
 
-    window.localStorage.removeItem(GUIDE_PUBLIC_ARM_KEY);
+    window.localStorage.removeItem(GUIDE_PUBLIC_ARM_KEY); // a fresh device
     __resetPublicArmForTests();
     render(<Public enabled />);
-    await act(async () => {});
-    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toMatch(/^(guide|control)$/);
-    expect(armAssigned).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(screen.getByTestId("aud").textContent).toBe("yes"));
+    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("guide");
+    expect(armAssigned).not.toHaveBeenCalled(); // GUIDE-ALL-1: no arm report
   });
 
   it("not enabled → no arm is drawn at all", async () => {
@@ -288,13 +288,13 @@ describe("MOMENTS-1 M10 · the solutions page corner peek", () => {
     expect(screen.queryByTestId("guide-moment-m10")).toBeNull();
   });
 
-  it("control device arm → nothing after a match", async () => {
+  it("GUIDE-ALL-1: an ex-control device arm now gets Byte after a match", async () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "control");
     render(tree());
     act(() => noteSolutionMatched());
-    await act(async () => {});
-    expect(screen.queryByTestId("guide-moment-m10")).toBeNull();
+    expect(await screen.findByTestId("guide-moment-m10")).toBeTruthy();
   });
+
 
   it("★ honesty: 'First check free' only while the free check is on — off → nothing", async () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");

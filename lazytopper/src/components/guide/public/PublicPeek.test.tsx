@@ -122,28 +122,26 @@ describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
     expect(shown()).toEqual([]);
   });
 
-  it("★ signed-out CONTROL: nothing on screen, but guide_public_shown fires at the same moment", async () => {
+  it("★★ GUIDE-ALL-1: a device the A/B put in CONTROL now gets Byte (its stored arm is rewritten to guide)", async () => {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "control");
     mount();
     await reachTrigger();
-    await vi.waitFor(() => expect(shown()).toHaveLength(1), SLOW);
-    expect(shown()[0][1]).toEqual({ page: "notes", arm: "control", chapter: "trigonometry", signed_in: false });
-    await new Promise((r) => setTimeout(r, 50));
-    expect(document.querySelector("[data-testid='public-peek']")).toBeNull();
-    expect(JSON.parse(window.sessionStorage.getItem(GUIDE_INTENT_KEY)!).public_arm).toBe("control");
-    expect(events.arm).toEqual([]); // not freshly assigned on this device
+    await screen.findByTestId("public-peek", undefined, SLOW);
+    expect(shown()).toEqual([["guide_public_shown", { page: "notes", arm: "guide", chapter: "trigonometry", signed_in: false }]]);
+    expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("guide");
+    expect(JSON.parse(window.sessionStorage.getItem(GUIDE_INTENT_KEY)!).public_arm).toBe("guide");
+    expect(events.arm).toEqual([]); // GUIDE-ALL-1: the device arm is no longer reported
   });
 
-  it("★ a fresh device arm reports the GA4 user property once", async () => {
-    vi.spyOn(globalThis.crypto, "getRandomValues").mockImplementation(<T extends ArrayBufferView | null>(a: T): T => {
-      (a as unknown as Uint8Array)[0] = 3;
-      return a;
-    });
+  it("★★ GUIDE-ALL-1: a FRESH device sees the peek — no random draw, arm 'guide' written, NOT reported", async () => {
+    const grv = vi.spyOn(globalThis.crypto, "getRandomValues");
     mount();
     await reachTrigger();
     await screen.findByTestId("public-peek", undefined, SLOW);
-    expect(events.arm).toEqual(["guide"]);
+    expect(grv).not.toHaveBeenCalled();
+    expect(events.arm).toEqual([]);
     expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("guide");
+    expect(shown()[0][1]).toMatchObject({ arm: "guide", signed_in: false });
   });
 
   it("★ signed-out GUIDE: Byte peeks in (pose peek) with the notes line; the panel has 3 real routes", async () => {

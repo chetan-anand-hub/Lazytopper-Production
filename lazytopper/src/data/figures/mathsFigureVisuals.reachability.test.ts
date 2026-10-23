@@ -65,7 +65,10 @@ describe("FIG-MATHS-1 bindings are served and reachable", () => {
     // in BOUND_BUT_WITHHELD and pinned in mathsFigureVisuals.c3.test.ts. APQ-M-ARC-004 and APQ-M-POLY-001 carry two each.
     // 140 -> 141 at RULE5-BIND-1 (11 Oct): +1 APQ PQ_2022 Q29 (OR) crop (APQ-M-CIRC-012, two semicircles and the common tangent),
     // a served row, pinned in rule5Bind.test.ts.
-    expect(batch).toHaveLength(141); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
+    // 141 -> 159 at PYQ-RESTORE-B PR-1 (2026-10-23): +18 official board-paper crops (12 Triangles incl. 10 for the new 2025
+    // Triangles rows, 1 Circles, 2 Trigonometry, 1 Coordinate Geometry, 1 Probability, 1 Polynomials) for served rows,
+    // pinned one by one in bankFix/pyqRestoreB.test.ts.
+    expect(batch).toHaveLength(159); // count history in the comments above; CBE-M-CG-A-001 / -B-002 (Item Bank p230) are inside the 82
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {

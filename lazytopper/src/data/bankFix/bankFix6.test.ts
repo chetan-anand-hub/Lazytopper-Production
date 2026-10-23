@@ -157,7 +157,9 @@ describe("BANK-FIX-6 placeholders and decisions", () => {
       // BANK-UNWITHHOLD-1 (2026-10-10): CARB-EXMPLR-4-MCQ-010/-016/-022/-023 left this list. Their figures are bound
       // (DIAGRAMS-RESUME-B Science census, eye-confirmed) and a blind re-solve from stem + figure matched the key.
       "PYQ-S-2026-ACID-012", "PYQ-S-MAG-002", "PYQ-S-ELEC-001", "PYQ-S-2026-MAG-001", "PYQ-S-2026-CHEMRXN-013",
-      "PYQ-M-2024-CG-007", "PYQ-M-2026-TRIG-002", "TRI-N-EXMPLR-6-LA-002", "APQ-M-TRIG-011", "APQ-M-TRIG-016",
+      // PYQ-RESTORE-B PR-1 (2026-10-23): PYQ-M-2024-CG-007 and PYQ-M-2026-TRIG-002 left this list. Their figures were cropped
+      // from the official paper and bound; a blind re-solve from stem + figure matched the official marking scheme.
+      "TRI-N-EXMPLR-6-LA-002", "APQ-M-TRIG-011", "APQ-M-TRIG-016",
     ];
     expect(NEEDS_FIGURE.filter((id) => !WITHHELD_QUESTION_IDS.has(id) || servedIds.has(id))).toEqual([]);
   });

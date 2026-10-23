@@ -14,6 +14,12 @@
  *                attributed.
  * Both arms fire `guide_public_shown` at the same trigger moment, so both count alike.
  *
+ *   GUIDE-ALL-1 (owner ruling 22 Oct 2026, 23:25 IST — the A/B ended): the signed-out device arm
+ *   is now ALWAYS "guide" (no random draw; a stored "control" is rewritten once), and signed-in
+ *   accounts resolve to "guide" too. The GA4 `guide_public_arm` property is no longer reported
+ *   (`guideArmReportsOn()` is off). The control rendering stays reachable via the admin preview
+ *   and "Hide mascots".
+ *
  * ── WHEN ──────────────────────────────────────────────────────────────────────────────────
  * After the page is idle AND the reader has scrolled ≥ 40 % of the article or spent 20 s,
  * whichever first. Once per tab per page type (sessionStorage `lazytopper.guidePublicPeek.<page>`);
@@ -115,20 +121,13 @@ export function peekTriggerReached(idle: boolean, fraction: number, dwellMs: num
 
 export const GUIDE_PUBLIC_ARM_KEY = "lazytopper.guidePublicArm";
 
-/** One random byte → an arm. 0..127 guide, 128..255 control: exactly 50/50. */
+/**
+ * One random byte → an arm. 0..127 guide, 128..255 control: exactly 50/50. HISTORY: this was the
+ * GUIDE-PUBLIC-1 device draw (over a `crypto.getRandomValues` byte); GUIDE-ALL-1 (22 Oct 2026)
+ * retired the draw — `ensurePublicArm` no longer calls it. Kept so the old split stays readable.
+ */
 export function armFromByte(byte: number): GuideVariant {
   return (byte & 0xff) < 128 ? "guide" : "control";
-}
-
-/** A fresh random byte from the platform CSPRNG, or null when there is none. */
-function randomByte(): number | null {
-  try {
-    const c = globalThis.crypto;
-    if (!c || typeof c.getRandomValues !== "function") return null;
-    return c.getRandomValues(new Uint8Array(1))[0];
-  } catch {
-    return null;
-  }
 }
 
 export function readPublicArm(): GuideVariant | null {
@@ -144,17 +143,17 @@ export function readPublicArm(): GuideVariant | null {
 let memoryArm: GuideVariant | null = null;
 
 /**
- * This device's arm, assigning it once when there is none (`fresh` = it was assigned just now,
- * the moment to report the GA4 user property). No CSPRNG → null (no arm, nothing shows, nothing
- * is reported): an arm is never invented from a weak source.
+ * This device's arm (`fresh` = it was written just now). GUIDE-ALL-1 (owner ruling 22 Oct 2026,
+ * 23:25 IST — Byte and Ziggy for every student, the A/B ended): EVERY device is "guide". No
+ * random draw any more, so a device with no CSPRNG gets the guide too; a device the test put in
+ * "control" (or with a malformed value) is rewritten to "guide" once. The key is still written so
+ * the existing readers (the intent record's `public_arm`, PublicPeek's tests) keep their shape.
+ * Never null since GUIDE-ALL-1 (the `| null` stays for the callers' existing guards).
  */
 export function ensurePublicArm(): { arm: GuideVariant; fresh: boolean } | null {
-  const stored = readPublicArm();
-  if (stored) return { arm: stored, fresh: false };
-  if (memoryArm) return { arm: memoryArm, fresh: false };
-  const byte = randomByte();
-  if (byte === null) return null;
-  const arm = armFromByte(byte);
+  const arm: GuideVariant = "guide";
+  if (readPublicArm() === arm) return { arm, fresh: false };
+  if (memoryArm === arm) return { arm, fresh: false };
   try {
     window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, arm);
   } catch {
