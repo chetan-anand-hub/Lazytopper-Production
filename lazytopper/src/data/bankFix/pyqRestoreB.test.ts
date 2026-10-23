@@ -17,11 +17,12 @@ import { RAW_CANONICAL_QUESTION_BANK, canonicalQuestionBank, WITHHELD_QUESTION_I
 import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { getFiguresForQuestion } from "../visualConceptRegistry";
 import { TRIANGLES_PYQ_2025 } from "../questionBanks/class10/maths/triangles.pyq2025";
-import { PYQ_RESTORE_B_MATHS, PYQ_RESTORE_B_MATHS_COUNTS, PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
+import { PYQ_RESTORE_B_MATHS, PYQ_RESTORE_B_MATHS_COUNTS, PYQ_RESTORE_B_IDS, PYQ_RESTORE_B_DEDUPE_WITHHELD } from "./pyqRestoreBLedger";
 
 type Row = Record<string, unknown> & { id: string; marks: number; solutionSteps?: string[] };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
 const servedIds = new Set(canonicalQuestionBank.map((q) => q.id));
+const DEDUPED = new Set(PYQ_RESTORE_B_DEDUPE_WITHHELD.map((d) => d.id));
 const STEP = /^\[(\d+(?:\.\d+)?) marks?\] /;
 const PUBLIC = path.resolve(__dirname, "../../../public");
 
@@ -48,6 +49,8 @@ describe("PYQ-RESTORE-B · Maths ledger", () => {
     for (const e of PYQ_RESTORE_B_MATHS) {
       const q = bankById.get(e.id);
       if (!q) { bad.push(`${e.id}: not in the bank`); continue; }
+      // PR-2 dedupe ruling: PYQ-M-2024-TRIG-010b is withheld as a set repeat of the served 2024-TRIG-011b (checked below).
+      if (DEDUPED.has(e.id)) { if (servedIds.has(e.id) || !WITHHELD_QUESTION_IDS.has(e.id)) bad.push(`${e.id}: deduped but served`); continue; }
       if (!servedIds.has(e.id) || WITHHELD_QUESTION_IDS.has(e.id)) bad.push(`${e.id}: not served`);
       if (q.pyqYear !== e.year || q.pyqSet !== e.set) bad.push(`${e.id}: year/set ${String(q.pyqYear)}/${String(q.pyqSet)}`);
       if (q.ncertRef !== e.ref) bad.push(`${e.id}: ref ${String(q.ncertRef)}`);
@@ -76,6 +79,15 @@ describe("PYQ-RESTORE-B · Maths ledger", () => {
       if (!fs.existsSync(path.join(PUBLIC, e.figurePath!))) bad.push(`${e.id}: missing ${e.figurePath}`);
     }
     expect(bad).toEqual([]);
+  });
+
+  it("dedupe ruling: each withheld duplicate is withheld and its kept twin is served", () => {
+    expect(PYQ_RESTORE_B_DEDUPE_WITHHELD).toHaveLength(2);
+    for (const d of PYQ_RESTORE_B_DEDUPE_WITHHELD) {
+      expect(WITHHELD_QUESTION_IDS.has(d.id), d.id).toBe(true);
+      expect(servedIds.has(d.id), d.id).toBe(false);
+      expect(servedIds.has(d.keep), d.keep).toBe(true);
+    }
   });
 
   it("the 2025 Triangles file: 17 rows, triangles / 2025 / Standard paper, every row 'added' in the ledger", () => {

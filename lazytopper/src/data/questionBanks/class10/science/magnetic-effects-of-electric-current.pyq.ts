@@ -16,7 +16,7 @@ export const MAGNETIC_EFFECTS_PYQ: CanonicalQuestion[] = [
     finalAnswer: "(c) into the page",
     ncertRef: "PYQ 31/2/2 Q7", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "2" },
-  { id: "PYQ-S-MAG-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "General", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+  { id: "PYQ-S-MAG-002", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Fleming's Left-hand Rule", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An alpha particle enters a uniform magnetic field as shown. The direction of force experienced by the alpha particle is :",
     options: ["towards right", "towards left", "into the page", "out of the page"],
     answer: "out of the page",

@@ -6,6 +6,8 @@
  * Pinned equal to those blocks by bankFix1.pr2.withholds.test.ts.
  * PYQ-RESTORE-B PR-1 (2026-10-23): 7 rows re-read from the official paper + MS and served again leave the map with
  * their block lines (PYQ-M-RN-002, -2024-CG-006, -2024-CG-007, -2025-TRIG-004, -2026-POLY-005, -2026-PLE-001, -2026-TRIG-002).
+ * PYQ-RESTORE-B PR-2 (2026-10-23): 8 Science rows re-read from the official paper + MS and served again leave the map with
+ * their block lines (PYQ-S-LIFE-002, -ELEC-001, -MAG-002, -2026-ACID-012, -2026-ENV-001, -2026-CHEMRXN-013, -2026-MAG-001, -2026-EYE-002).
  */
 export type BankFix1Pr2WithholdCategory =
   | "ambiguous"
@@ -87,14 +89,6 @@ export const BANK_FIX_1_PR2_WITHHOLD_CATEGORY: ReadonlyMap<string, BankFix1Pr2Wi
   ["2026-TRIG-P1-A-041", "not-board-content"],
   ["2026-TRIG-P1-A-043", "not-board-content"],
   ["2026-TRIG-P1-A-044", "not-board-content"],
-  ["PYQ-S-2026-ACID-012", "figure"],
-  ["PYQ-S-2026-CHEMRXN-013", "figure"],
-  ["PYQ-S-2026-ENV-001", "figure"],
-  ["PYQ-S-2026-EYE-002", "garbled"],
-  ["PYQ-S-2026-MAG-001", "figure"],
-  ["PYQ-S-ELEC-001", "figure"],
-  ["PYQ-S-LIFE-002", "figure"],
-  ["PYQ-S-MAG-002", "figure"],
   ["PYQ-S-MAG-003", "figure"],
   ["QE-M06", "duplicate"],
   ["QE-M13", "duplicate"],

@@ -28,6 +28,7 @@ import { getTopics, planWorksheet } from "../../components/worksheet/worksheetMo
 import { isOfferableRow, type BoardTryRow } from "../../components/checkimprove/boardQuestionPick";
 import { BANK_STEPS_1 } from "./bankSteps1Ledger";
 import { PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
+import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
 import { REFILE_PYQ2026, REFILE_PYQ2026_COUNTS, REFILE_PYQ2026_SOURCES, REFILE_PYQ2026_ZIPS, type RefilePyq2026Entry } from "./refilePyq2026Ledger";
 
 type Row = Record<string, unknown> & { id: string; topicKey: string; subject: string; marks: number; questionText: string };
@@ -150,8 +151,8 @@ describe("REFILE-PYQ2026-1 outcomes hold in the assembled bank", () => {
     const bad: string[] = [];
     for (const e of REFILE_PYQ2026) {
       const q = RAW.get(e.id)!;
-      // PYQ-RESTORE-B (2026-10-23): W rows it re-read from the official paper + MS and served again (pyqRestoreBLedger.ts) are exempt.
-      if (e.outcome === "W" && !PYQ_RESTORE_B_IDS.has(e.id) && (!WITHHELD_QUESTION_IDS.has(e.id) || SERVED.has(e.id))) bad.push(`${e.id}: W but served`);
+      // PYQ-RESTORE-B PR-1 + PR-2 (2026-10-23): W rows re-read from the official paper + MS and served again (pyqRestoreB*Ledger.ts) are exempt.
+      if (e.outcome === "W" && !PYQ_RESTORE_B_IDS.has(e.id) && !PYQ_RESTORE_B_SCIENCE_IDS.has(e.id) && (!WITHHELD_QUESTION_IDS.has(e.id) || SERVED.has(e.id))) bad.push(`${e.id}: W but served`);
       if ((e.outcome === "K" || e.outcome === "F") && (!SERVED.has(e.id) || q.topicKey !== e.trueChapter)) bad.push(`${e.id}: ${e.outcome} not served under ${e.trueChapter}`);
     }
     expect(bad).toEqual([]);
@@ -240,7 +241,9 @@ const SERVED_SCI_2026 = (canonicalQuestionBank as unknown as Row[]).filter((q) =
 
 describe("REFILE-PYQ2026-1 chapter keyword guard", () => {
   it("covers every served 2026 Science row, and the anchor table covers the 13 Science chapters", () => {
-    expect(SERVED_SCI_2026.length).toBe(115); // 118 at REFILE-PYQ2026-1; HIDE8-FIG8-1 Part A (19 Oct) withholds the 3 WRONG-CHAPTER rows (measured)
+    // 118 at REFILE-PYQ2026-1; HIDE8-FIG8-1 Part A (19 Oct) withholds the 3 WRONG-CHAPTER rows -> 115 (measured);
+    // PYQ-RESTORE-B PR-2 (23 Oct) serves 6 withheld 2026 Science rows again (ACID-012, ENV-001, CHEMRXN-013, MAG-001, EYE-002, LIFEP-011) -> 121.
+    expect(SERVED_SCI_2026.length).toBe(121);
     expect(Object.keys(ANCHORS).sort()).toEqual(getTopics("Science").map((t) => t.key).sort());
   });
 
