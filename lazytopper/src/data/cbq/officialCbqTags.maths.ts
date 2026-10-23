@@ -12,6 +12,8 @@
 // 14 Oct 2026, GARBLE-1 (D171): PYQ-M-2025-STAT-006 and PYQ-M-2025-TRIG-005 are WITHHELD (class-interval dashes lost; degree/angle signs lost), so they
 // leave this list (45 -> 43): the tagged set is read from the SERVED bank. Both rows keep `competencyVerified: true`; the REPAIR PR that serves one again
 // puts its id back here (ledger `restore-on-repair`, bankSteps1Ledger.ts). Pinned by RESTORE_ON_REPAIR in officialCbqTags.maths.test.ts.
+// 22 Oct 2026, PYQ-RESTORE-A part 1: both stems repaired from the row (table dashes / degree and angle signs restored; values, key and
+// steps unchanged) and served again, so both ids are back in this list (43 -> 45). Ledger: bankFix/pyqRestoreALedger.ts.
 export const OFFICIAL_CBQ_MATHS_IDS: readonly string[] = [
   "AP-N-EXEM-5-LA-002",
   "APQ-M-STAT-004",
@@ -42,6 +44,8 @@ export const OFFICIAL_CBQ_MATHS_IDS: readonly string[] = [
   "CFPQ-M-REALNUM-010",
   "PROB-N-EXEM-14-LA-001",
   "PYQ-M-2025-PROB-008",
+  "PYQ-M-2025-STAT-006",
+  "PYQ-M-2025-TRIG-005",
   "SAV-N-EXEM2-12-LA-002",
   "SAV-N-EXEM2-12-LA-003",
   "SAV-N-EXEM2-12-LA-004",

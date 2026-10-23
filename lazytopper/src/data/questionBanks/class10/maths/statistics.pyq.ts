@@ -83,7 +83,7 @@ export const STATISTICS_PYQ: CanonicalQuestion[] = [
     pyqYear: "2023", pyqSet: "1" },
   { id: "PYQ-M-STAT-009", subject: "Maths", topicKey: "statistics", subtopic: "Mode", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     // answer recovered from MS 041_30-2-3 Mathematics 2022-23, p.12 (b = 8).
-    questionText: "The mode of the following frequency distribution is 55. Find the missing Class Interval 0 15 15 30 30 45 45 60 60 75 75 90 Total Frequency 6 7 a 15 10 b 51",
+    questionText: "The mode of the following frequency distribution is 55. Find the missing frequencies a and b.\nClass Interval: 0–15, 15–30, 30–45, 45–60, 60–75, 75–90 (Total)\nFrequency: 6, 7, a, 15, 10, b (51)",
     answer: "Modal Class: 45 – 60. Mode = 55 ⇒ 55 = 45 + ((15 – a)/(30 – a – 10)) × 15 ⇒ a = 5. 6 + 7 + a + 15 + 10 + b = 51 ⇒ a + b = 13 ⇒ b = 13 – 5 = 8.",
     solutionSteps: [
       "[1 mark] Since the mode 55 lies in the class 45 – 60, the modal class is 45 – 60: l = 45, f1 = 15, f0 = a, f2 = 10, h = 15.",

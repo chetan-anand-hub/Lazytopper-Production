@@ -30,7 +30,9 @@ const stepSum = (steps: readonly string[]) =>
 const OFFICIAL_ID = /^(CFPQ|CBE|APQ|SQP|SP-|PYQ)|ncert|exem|exmplr|-n-/i;
 
 // GARBLE-1 (D171, 14 Oct 2026): withheld rows that keep `competencyVerified: true` but are out of the pinned list until a REPAIR PR serves them again.
-const RESTORE_ON_REPAIR: readonly string[] = ["PYQ-M-2025-STAT-006", "PYQ-M-2025-TRIG-005"];
+// PYQ-RESTORE-A part 1 (22 Oct 2026): both rows were repaired and served again, and are back in OFFICIAL_CBQ_MATHS_IDS (RESTORED_ON_REPAIR below).
+const RESTORE_ON_REPAIR: readonly string[] = [];
+const RESTORED_ON_REPAIR: readonly string[] = ["PYQ-M-2025-STAT-006", "PYQ-M-2025-TRIG-005"];
 
 describe("CBQ-1 · official Maths CBQ tags", () => {
   const byId = new Map(canonicalQuestionBank.map((q) => [q.id, q]));
@@ -50,8 +52,14 @@ describe("CBQ-1 · official Maths CBQ tags", () => {
       expect(raw.get(id)?.competencyVerified, `${id} keeps its tag`).toBe(true);
       expect(OFFICIAL_CBQ_MATHS_IDS.includes(id), `${id} is not in the pinned list`).toBe(false);
     }
-    // mutation: serve STAT-006 again and the tagged-set pin must go RED
-    const served = [...tagged.map((q) => q.id), "PYQ-M-2025-STAT-006"].sort();
+    // the repaired rows are served, still tagged, and listed
+    for (const id of RESTORED_ON_REPAIR) {
+      expect(WITHHELD_QUESTION_IDS.has(id), `${id} is served again`).toBe(false);
+      expect(byId.get(id)?.competencyVerified, `${id} keeps its tag`).toBe(true);
+      expect(OFFICIAL_CBQ_MATHS_IDS.includes(id), `${id} is back in the pinned list`).toBe(true);
+    }
+    // mutation: drop STAT-006 from the served tagged set and the tagged-set pin must go RED
+    const served = tagged.map((q) => q.id).filter((id) => id !== "PYQ-M-2025-STAT-006").sort();
     expect(served).not.toEqual([...OFFICIAL_CBQ_MATHS_IDS].sort());
   });
 
