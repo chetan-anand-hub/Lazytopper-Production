@@ -1,3 +1,17 @@
+## 2026-10-23 (daily) - GUIDE-ALL-1 (`#1301`), PYQ-RESTORE-B PR-1 (`#1300`), QP-CONCEPT-1 (`#1308`), SHARE-CARD-1 (`#1304`), PYQ-RESTORE-B PR-2 (`#1303`), COMPANION-1 (`#1306`), GUIDE-PAGES-1 (`#1307`), QP-CONCEPT-2 (`#1310`), PYQ-RESTORE-A part 1 (`#1309`), QP-CONCEPT-3 (`#1313`), MLT-RETIRE-1 (`#1314`), PYQ-RESTORE-A part 2 (`#1312`), IMPQ-PAGE-1 (`#1311`), QP-CONCEPT-4 (`#1315`), MI-MODE-MARKS-1 (`#1316`), GUIDE-SCORE-1 (`#1305`), CI-AGG-1 (`#1319`), GUIDE-FILTER-1 (`#1302`), GUIDE-PAGES-FLAKE-1 (`#1317`), MCQ-TYPE-1 (`#1320`) - MERGED
+
+- DONE. `#1301` (`128b48dc`), `#1305` (`190d8271`), `#1307` (`12ead4c6`), `#1302` (`cd05b95a`), `#1306` (`3f7cac7f`), `#1317` (`7344da19`): Byte & Ziggy for every student; on every scorecard; on the limit panel, test / worksheet / mock entry and Exam Trends; explaining filters; companion poses and duet scenes; page helper never covers the start button. NEXT: GUIDE-SCORE-2 (`#1322`, open), MOMENTS-3 (`[FU-MOMENTS-3-EMOTIONS]`), `[FU-COMPANION-BREATHE-MOUNT]`.
+- DONE. `#1304` (`fec8c566`): SHARE-CARD-1 - shareable scorecard with MI + mascots. Live phone share owed (`[FU-OWNER-LIVE-SCORECARD-PHONE]`).
+- DONE. `#1300` (`10223b90`), `#1303` (`3a5c9cd9`), `#1309` (`80487072`), `#1312` (`aaedc901`): PYQ-RESTORE-B (54 Maths + 17-row 2025 Triangles file; 15 Science) and PYQ-RESTORE-A (13 Maths; 66 Science). NEXT: `[FU-PYQ-RESTORE-A-REFILES-PENDING]`, `[FU-PYQ-SECTION-ZERO-RECOVERY]`; BANK-RESIDUE-1 (`#1325`, open).
+- DONE. `#1308` (`c0aeee1a`), `#1310` (`2f0a5535`), `#1313` (`e80c3966`), `#1315` (`215e2c1a`): QP-CONCEPT-1..4 - concept entries serve their own concept. NEXT: `[FU-QP-CHAPTER-ECHO-LABEL-RETAG]`.
+- DONE. `#1314` (`0ace8c36`): MLT-RETIRE-1 - `POST /api/more-like-this` -> 410.
+- DONE. `#1311` (`ad55ebb1`): IMPQ-PAGE-1 - Important Questions for 2027 Boards + honest prediction-model line.
+- DONE. `#1316` (`0a155187`): MI-MODE-MARKS-1, PR 1 of 2 of the MI card fix (option A). NEXT: MI-CONSISTENCY-1 (`#1326`, draft) after MI-CARELESS-1 (`#1321`) and MI-CARELESS-2 (`#1324`).
+- DONE. `#1320` (`a2974c99`): MCQ-TYPE-1 - an MCQ with working keeps its mistake type; marks unchanged. NEXT: MCQ-TYPE-2 (`[FU-MCQ-TYPE-2-RIGHT-MCQ-FLAWED-WORKING]`); MCQ-EXTRACT-1 (`#1323`, draft); owner live check (`[FU-OWNER-LIVE-MCQ-WORKING-CATEGORY]`).
+- DONE. `#1319` (`00b4547a`): CI-AGG-1 - "Re-run failed jobs" judged on each shard's latest attempt.
+- IN FLIGHT [coordinator] [git/gh]: FRESH-SET-QP (no PR at writing), FRESH-SET-TESTS (`#1327`), QP-WORKING-AFTER-1 (`#1328`).
+- OPEN. The 2026-10-23 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-22 (daily) - CI-CLOCK-CUT (`#1285`), PAYWALL-PAY-1 (`#1286`), CI-SPEED-3 (`#1287`), GUIDE-IQ-1 (`#1288`), MOMENTS-1 (`#1289`), COST-1 (`#1290`), TOPUP-1 PR-1 (`#1291`), GUIDE-OPTS-1 (`#1292`), RAILWAY-SLIM-1 (`#1293`), PARENT-REPORT-1 (`#1294`), MLT-MUTE-1 (`#1295`), OPS-REPORT-1 (`#1296`), MLT-MUTE-2 (`#1297`), FILTER-FIX-1 (`#1298`) - MERGED
 
 - DONE. `#1285` (`2b4cacef`) + `#1287` (`5a42118b`): CI - one `clock-changed` job instead of six clock legs; 4 x 4 vitest shards; every test still runs. `#1293` (`3de8d414`): the Railway image builds only the backend.

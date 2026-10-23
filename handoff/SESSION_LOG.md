@@ -1,3 +1,32 @@
+## 2026-10-23 (daily) - #1300 - #1320: Byte & Ziggy for every student and on every scorecard, page and filter; a shareable MI scorecard; 148 PYQ rows restored from the official papers and the rows themselves; concept practice serves its own concept; the AI More-like-this endpoint retired; an MCQ with working keeps its mistake type (marks unchanged); CI re-runs judged on the latest attempt (trunk `a2974c99`)
+
+**PROVENANCE.** Daily handoff (CLAUDE.md section 10). Written 23 Oct by the docs builder of the cofounder session, docs-only, covering twenty PRs merged 23 Oct IST. Facts marked **[git/gh]** were re-read from the squash commits and the GitHub REST API while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message. Written at trunk **`a2974c99`** (`a2974c99f2706f65e7f9af9a957b475b8c49cda8`).
+- **#1301 GUIDE-ALL-1 [git/gh]:** squash `128b48dc` (11:43:42Z = 17:13 IST). Guide for every student; A/B over; arm no longer reported.
+- **#1300 PYQ-RESTORE-B PR-1 [git/gh]:** squash `10223b90` (11:45:43Z). 54 Maths PYQ rows from the official papers + the 2025 Triangles file (17 rows).
+- **#1308 QP-CONCEPT-1 [git/gh]:** squash `c0aeee1a` (11:58:37Z). Concept entries draw on-concept rows from the whole chapter pool.
+- **#1304 SHARE-CARD-1 [git/gh]:** squash `fec8c566` (12:06:00Z). Shareable scorecard image with MI + mascots on all six surfaces.
+- **#1303 PYQ-RESTORE-B PR-2 [git/gh]:** squash `3a5c9cd9` (12:24:15Z). 15 Science PYQ rows from the official papers; 25 kept out with reasons.
+- **#1306 COMPANION-1 [git/gh]:** squash `3f7cac7f` (12:29:26Z). New poses, duet scenes, scene guard.
+- **#1307 GUIDE-PAGES-1 [git/gh]:** squash `12ead4c6` (12:44:14Z). Byte on the limit panel, test / worksheet / mock entry, Exam Trends.
+- **#1310 QP-CONCEPT-2 [git/gh]:** squash `2f0a5535` (12:45:07Z). 126 of 126 HPQ entries resolve to a concept; card keywords lead.
+- **#1309 PYQ-RESTORE-A part 1 [git/gh]:** squash `80487072` (12:54:33Z). 13 Maths class-A rows served (11 superseded by B).
+- **#1313 QP-CONCEPT-3 [git/gh]:** squash `e80c3966` (13:16:38Z). HPQ alias keywords; sharper weak-card keywords.
+- **#1314 MLT-RETIRE-1 [git/gh]:** squash `0ace8c36` (13:37:52Z). `POST /api/more-like-this` -> 410; dead client code removed.
+- **#1312 PYQ-RESTORE-A part 2 [git/gh]:** squash `aaedc901` (13:40:45Z). 66 Science class-A rows served; re-filing; derivations.
+- **#1311 IMPQ-PAGE-1 [git/gh]:** squash `ad55ebb1` (13:47:15Z). "Important Questions for 2027 Boards" + one honest prediction-model line.
+- **#1315 QP-CONCEPT-4 [git/gh]:** squash `215e2c1a` (14:01:37Z). Reviewer-verified keywords for the last weak items.
+- **#1316 MI-MODE-MARKS-1 [git/gh]:** squash `0a155187` (14:43:49Z). `marksWrongObjective` derived at read time (records only).
+- **#1305 GUIDE-SCORE-1 [git/gh]:** squash `190d8271` (14:50:01Z). Byte & Ziggy on every scorecard from the result's own MI.
+- **#1319 CI-AGG-1 [git/gh]:** squash `00b4547a` (15:17:40Z). Aggregate judges each shard's latest attempt.
+- **#1302 GUIDE-FILTER-1 [git/gh]:** squash `cd05b95a` (15:27:11Z). Byte explains filters; Ziggy on empty; HOTS rule; preset fallback.
+- **#1317 GUIDE-PAGES-FLAKE-1 [git/gh]:** squash `7344da19` (15:30:30Z). Page helper never covers the start button; KaTeX suite deterministic.
+- **#1320 MCQ-TYPE-1 [git/gh]:** squash `a2974c99` (17:07:14Z = 22:37 IST). MCQ with working keeps its mistake type; marks unchanged. Live: `/version.json` = `a2974c99` **[docs-builder-curl]**.
+- **Grading [git/gh]:** only `#1320` (mistake type on C&I single, C&I multi, Worksheet, Quick Practice; Chapter Test / Full Mock N/A). No mark, clamp or prompt changed by any of the twenty.
+- **Owner / cofounder decisions, 23 Oct [coordinator]:** HOTS rule; mascot duet scenes; Important Questions wording; MLT endpoint retired; mobile superb at every size; unified MI card (option A); MCQ working category (score 0/1) and MCQ-TYPE-2; review-working shown not recorded (cofounder); M11 nudge suppressed beside Byte's objective line (cofounder); bank residue policy (cofounder). Full list with reasons: DECISION_LOG, this day.
+- **Found (new FUs):** `[FU-OWNER-LIVE-MCQ-WORKING-CATEGORY]`, `[FU-OWNER-LIVE-SCORECARD-PHONE]`, `[FU-MCQ-PHOTO-STRICT-PROMPT]`, `[FU-MCQ-TYPE-2-RIGHT-MCQ-FLAWED-WORKING]`, `[FU-PYQ-SECTION-ZERO-RECOVERY]`, `[FU-CI-AGG-THROWAWAY-BRANCH]`, `[FU-QP-BACK-AFTER-REFRESH]`, `[FU-QP-TIMEOUT-UNCAUGHT]`, `[FU-SCORECARD-WRONG-MCQ-WORDING]`, `[FU-WS-QP-OBJECTIVE-STORE]`, `[FU-FRESH-SET-NOT-MET]`, `[FU-GUIDE-SCORE-WEAKMODE-UNREAD]`, `[FU-GUIDE-SCORE-REOPENED-FALLBACK]`, `[FU-COMPANION-BREATHE-MOUNT]`, `[FU-MOMENTS-3-EMOTIONS]`, `[FU-GUIDE-PAGES-SCOREGUIDESTAGE]`, `[FU-PYQ-RESTORE-A-REFILES-PENDING]`, `[FU-SERVED-DUPLICATE-GROUPS]`, `[FU-QP-CHAPTER-ECHO-LABEL-RETAG]`. Closed: `[FU-MLT-ENDPOINT-RETIRE]` (`#1314`), `[FU-FILTER-DEEPLINK-ZERO-PRESET]` (`#1302`), `[FU-QP-CONCEPT-HINTS-REORDER-ONLY]` (`#1308` + `#1310`), `[FU-MOMENTS-M7-AFTER-1286]` (`#1307`).
+- **Lessons:** (1) a rule checked one step at a time misses evidence spread across steps: `#1320` found the MCQ type deleted because the type sat on the bare answer line while the working sat on other lines. (2) A CI re-run is only as good as the artifact the aggregate picks: `#1319` found two `vitest-shard-3` artifacts in one run, chosen arbitrarily.
+- **Docs:** this entry (branch `docs/post-pr-1320-daily-2026-10-23`). CLAUDE.md untouched.
+
 ## 2026-10-22 (daily) - #1285 - #1298: parents can pay from every lock point and see a real result page; More like this serves verified questions only and narrow filters draw from the whole chapter; Byte & Ziggy moments + Hide mascots; admin AI cost; daily health email; top-ups built dark; CI and Railway builds slimmer (trunk `6fe85765`)
 
 **PROVENANCE.** Daily handoff (CLAUDE.md section 10). Written 23 Oct by the docs builder of the cofounder session, docs-only, covering fourteen PRs merged 22 Oct IST. Facts marked **[git/gh]** were re-read from the squash commits and the GitHub REST API while writing; **[docs-builder-curl]** were fetched from www while writing (markup and status only); **[coordinator]** come from the coordinator's dispatch message. Written at trunk **`6fe85765`** (`6fe857658ddb79bbadb7016fab2ecd802265864e`).

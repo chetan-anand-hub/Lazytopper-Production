@@ -1,3 +1,22 @@
+## 2026-10-23 (daily) - AFTER #1300 - #1320 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The 22 Oct "in flight" list is done: all nine lanes it named merged on 23 Oct.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
+
+- **Done [git/gh]:** twenty PRs merged 23 Oct IST (`#1300`-`#1317`, `#1319`, `#1320`; not `#1318`, a closed throwaway). Last: MCQ-TYPE-1 `#1320` at 22:37 IST, trunk `a2974c99`. `/version.json` = `a2974c99` at writing **[docs-builder-curl]**.
+- **Open queue, in priority order [coordinator] [git/gh]:**
+  1. **Owner live checks** (`[FU-OWNER-LIVE-MCQ-WORKING-CATEGORY]`, `[FU-OWNER-LIVE-SCORECARD-PHONE]`): one wrong MCQ with written working on Check & Improve single AND on Worksheet - mark 0, a mistake category shown, not "reason not recorded" (`#1320`); the scorecard (Byte / Ziggy slot, Share result) on a real phone (`#1305`, `#1304`).
+  2. **Open PRs awaiting the owner (MI):** `#1321` MI-CARELESS-1, `#1324` MI-CARELESS-2, `#1326` MI-CONSISTENCY-1 (the unified MI card, PR 2 of option A; draft at writing, stacked on `#1321` - rebase after `#1321` merges).
+  3. **In progress:** `#1322` GUIDE-SCORE-2 (incl. M11 opening the working box), `#1323` MCQ-EXTRACT-1 (draft), `#1325` BANK-RESIDUE-1 (strip marking-scheme residue + guard).
+  4. **In progress:** FRESH-SET-QP (no PR at writing) and FRESH-SET-TESTS (`#1327`, open at writing) - "unique set every time" is NOT met on trunk until both land.
+  5. **MCQ-TYPE-2** (`[FU-MCQ-TYPE-2-RIGHT-MCQ-FLAWED-WORKING]`): right MCQ + flawed working -> show the category and log it to MI with 0 marks lost (owner ruling 23 Oct). Not yet built; `#1320` left `postprocess.cjs:1221-1222` alone.
+  6. **Owner decision:** photo-strict MCQ rule (`[FU-MCQ-PHOTO-STRICT-PROMPT]`) - needs a prompt change + a live golden run.
+  7. **Owner:** confirm the cofounder ruling "working added after the answer was seen is shown, not recorded" (DECISION_LOG, this day). Note: `#1328` QP-WORKING-AFTER-1 (open) builds this rule and its body already calls it "owner-approved" [git/gh]; the dispatch says "owner to confirm" [coordinator]. Not reconciled here.
+  8. **Owner:** delete the throwaway branch `ci/ci-agg-1-proof-throwaway` (still present at writing, `0cc4026e`) [git/gh] (`[FU-CI-AGG-THROWAWAY-BRANCH]`).
+  9. **Owner:** repo visibility - the API still reads `private: false` [git/gh]; the 22 Oct ruling is PRIVATE permanently (carried from the 22 Oct block).
+- **Railway before Vercel [git/gh]:** `#1304` adds `scorecard_share` to the server activity allowlist (`[FU-GUIDE1-DEPLOY-GAP]`); Railway's deployed version was not read by this writer.
+- **Follow-ups:** the 2026-10-23 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Process:** the next handoff is ONE docs PR at the end of the next day with merges (CLAUDE.md section 10).
+
 ## 2026-10-22 (daily) - AFTER #1285 - #1298 (written by the docs builder of the cofounder session under CLAUDE.md section 10, once a day)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The 20-21 Oct "keep the guide 50/50 for 2 weeks, then roll out" item is REPLACED: the owner ended the A/B on 22 Oct 23:25 IST - see DECISION_LOG, this day.)* Facts marked **[git/gh]** were re-read while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message.
