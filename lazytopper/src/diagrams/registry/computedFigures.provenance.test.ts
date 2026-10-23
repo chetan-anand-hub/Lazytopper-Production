@@ -20,6 +20,7 @@ import { highlyProbableQuestions } from "../../data/highlyProbableQuestions";
 import { ALL_COMPUTED_FIGURE_BINDINGS, ALL_CROP_FIGURE_BINDINGS, ALL_SOLUTION_FIGURE_BINDINGS, buildComputedFigure } from "./index";
 import type { CropFigureBinding, ProvenanceField } from "./computedFigureTypes";
 import { BANK_STEPS_1 } from "../../data/bankFix/bankSteps1Ledger";
+import { BANK_RESIDUE_1_WITHHELD_IDS } from "../../data/bankFix/bankResidue1Ledger";
 
 type Row = Record<string, unknown>;
 
@@ -135,7 +136,8 @@ function cropProblems(c: CropFigureBinding): string[] {
 describe("solution figure CROPS — file and row checks", () => {
   // 13 Oct BANK-STEPS-1 PR-3: a crop bound to a row whose steps are paused (withheld until its repair PR) is skipped while paused and checked again the
   // moment the id leaves the ledger's `paused` state; the control proves a paused crop's row is genuinely not served.
-  const CROP_PAUSED = new Set(BANK_STEPS_1.filter((e) => e.state === "paused").map((e) => e.id));
+  // 23 Oct BANK-RESIDUE-1: likewise a crop bound to a row that lane withheld for marking-scheme residue (until it is re-read from its paper).
+  const CROP_PAUSED = new Set([...BANK_STEPS_1.filter((e) => e.state === "paused").map((e) => e.id), ...BANK_RESIDUE_1_WITHHELD_IDS]);
   it("a crop is skipped only while its row is paused, and a paused row is not served", () => {
     for (const c of ALL_CROP_FIGURE_BINDINGS.filter((x) => CROP_PAUSED.has(x.questionId))) {
       expect(cropProblems(c), `${c.questionId} is paused`).toContain("row not served");
