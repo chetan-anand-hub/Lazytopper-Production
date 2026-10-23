@@ -161,11 +161,11 @@ export const HPQ_ALIAS_KEYWORDS: Readonly<Record<string, Readonly<Record<string,
   "life-processes": {
     "Circulation": ["heart", "double circulation", "circulation"],
     "Nutrition in Plants": ["photosynthesis", "chlorophyll", "stomata"],
-    // QP-CONCEPT-4: 9 on-concept rows match (LP2-009, LP2-059, LP2-038, LPSE-017, LPSE-019, LIFE-EXMPLR-5-SA-001,
-    // LIFE-EXMPLR-5-SA-026, LPX-A-005, LTG-S-LIFE-258). "chloroplast" is NOT a keyword: its 2 rows are a CAM-plant
-    // case and a CO2 experiment, not organelle questions. SCO-S-LIFE-007 / -019 are on-topic but filed under the
-    // chapter-echo label "Chapter Practice - Life Processes", which resolves to no concept, so they cannot be served
-    // as on-concept rows (a data re-tag, outside this lane).
+    // QP-CONCEPT-4: 10 on-concept rows match (bank at aaedc901), each read: 9 organelle questions (LP2-009, LP2-059,
+    // LP2-038, LPSE-017, LPSE-019, LTG-S-LIFE-258 (c), LIFE-EXMPLR-5-SA-001 (c), LIFE-EXMPLR-5-SA-026, LPX-A-005) and
+    // 1 that is not (PYQ-S-LIFE-015). "chloroplast" is NOT a keyword: its 2 rows are a CAM-plant case and a CO2
+    // experiment. SCO-S-LIFE-007 / -019 are on-topic but filed under the chapter-echo label "Chapter Practice - Life
+    // Processes", which resolves to no concept, so they cannot be served as on-concept rows (a data re-tag).
     "Cell organelles": ["organelle", "mitochondri", "powerhouse", "contractile vacuole", "energy currency"],
   },
   "light-reflection-and-refraction": {
