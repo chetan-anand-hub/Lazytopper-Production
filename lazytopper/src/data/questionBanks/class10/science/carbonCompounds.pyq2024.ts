@@ -11,9 +11,9 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const carbonCompoundsPYQ2024: CanonicalQuestion[] = [
   { id: "PYQ-S-2024-CARB-001", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Saturated and Unsaturated Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Distinguish between a saturated and an unsaturated hydrocarbon by flame test. List the products of combustion reaction of a saturated hydrocarbon.",
-    answer: "Water ½ +½ ½;",
+    answer: "Saturated hydrocarbons burn with a clean blue flame; unsaturated hydrocarbons burn with a yellow, sooty flame. Products of combustion of a saturated hydrocarbon: carbon dioxide and water.",
     solutionSteps: ["[1 mark] Saturated hydrocarbons burn with a clean blue flame (complete combustion); unsaturated hydrocarbons burn with a yellow flame with lots of black smoke / sooty flame (incomplete combustion).", "[1 mark] Products of combustion of a saturated hydrocarbon: carbon dioxide and water."],
-    finalAnswer: "Water ½ +½ ½;",
+    finalAnswer: "Saturated hydrocarbons burn with a clean blue flame; unsaturated hydrocarbons burn with a yellow, sooty flame. Products of combustion of a saturated hydrocarbon: carbon dioxide and water.",
     ncertRef: "PYQ 31/4/1 Q22", isCompetencyBased: false,
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-S-2024-CARB-002", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Functional Groups", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

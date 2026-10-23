@@ -343,5 +343,7 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
   "CTRL-EXMPLR-6-MCQ-025": "withheld for its missing figure; options (a)-(d) are the bound Fig. 7.1 drawings, but the key names no option letter ('Option showing: Dendrite -> Cell body -> Axon -> Axonal end') - fix the key, then un-withhold",
   // C3 DIAGRAMS PR-S1 (2026-10-10, B-21): BANK-FIX-5 (#1041) withheld this row after C3 bound it
   // DIAGRAMS-RESUME-B step 3 (Science census)
+  // BANK-RESIDUE-1 (2026-10-23): withheld for marking-scheme residue (ledger bankFix/bankResidue1Ledger.ts); the binding stays in place
+  "PYQ-S-2024-LIFEP-007": "withheld by BANK-RESIDUE-1: stem residue '5 OR' / '5 Lime water', answer is only OR (b)(i), (b)(ii) has no step and the (a) steps sum to 4 of 5 marks - re-read the 31/5/1 (2024) scheme, then un-withhold",
   "PYQ-S-MAG-003": "stays withheld (cofounder D58c, reason official-key-mismatch): figure bound, key (d) agrees with the 31/4/3 MS, but the official stem asks the direction of MOTION while the MS key is the direction of FORCE",
 };
