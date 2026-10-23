@@ -15,6 +15,7 @@
 import { useNavigate } from "react-router-dom";
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import { buildDesktopChapterTestPath, type DesktopSubject } from "../../lib/desktop/navigation";
+import { PageGuide } from "../guide/pages/pageGuides";
 
 /** The hub's switch on /practice-hub: `?ct=1` opens this chooser (mirrors `?cbq=1`). */
 export const CT_HUB_PARAM = "ct" as const;
@@ -41,6 +42,8 @@ export function ChapterTestPicker({ open, onClose }: ChapterTestPickerProps) {
       testId="ct-picker"
       idPrefix="lt-ct"
       onGo={(s, slug) => navigate(chapterTestLandingPath(s, slug))}
+      // GUIDE-PAGES-1 — Byte's "?" beside the heading (first open on this device shows it once).
+      headingAside={open ? <PageGuide id="ct_entry" step="chooser" placement="inline" /> : null}
     />
   );
 }

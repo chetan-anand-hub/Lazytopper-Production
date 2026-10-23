@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useMemo, useState, type ReactElement, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import type { DesktopSubject } from "./navigation";
@@ -344,6 +344,8 @@ export interface ChapterPickerModalProps {
   lockSubject?: boolean;
   /** QP-SCORECARD-2 D2 (additive) — an extra overlay class (to stack above a caller's own overlay). */
   overlayClassName?: string;
+  /** GUIDE-PAGES-1 (additive) — rendered at the end of the heading (Byte's "?"). Omitted → nothing. */
+  headingAside?: ReactNode;
 }
 
 export function ChapterPickerModal({
@@ -362,6 +364,7 @@ export function ChapterPickerModal({
   initialTopicKey,
   lockSubject = false,
   overlayClassName,
+  headingAside,
 }: ChapterPickerModalProps) {
   const [subject, setSubject] = useState<DesktopSubject>(initialSubject ?? "Maths");
   const [topicKey, setTopicKey] = useState<string>(initialTopicKey ?? "");
@@ -410,7 +413,10 @@ export function ChapterPickerModal({
         <button type="button" className="lt-tutor-x" aria-label="Close" onClick={onClose}>
           ✕
         </button>
-        <h2>{title}</h2>
+        <h2>
+          {title}
+          {headingAside}
+        </h2>
         <p className="lt-tutor-sub">{sub}</p>
 
         {!lockSubject && (

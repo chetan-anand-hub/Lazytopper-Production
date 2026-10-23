@@ -20,6 +20,8 @@ import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolv
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { PageGuide } from "../components/guide/pages/pageGuides";
+import { PreTestSlot } from "../components/guide/pages/preTestSlot";
 import { MathText, loadKatex } from "../components/question/MathText";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
@@ -911,6 +913,8 @@ export default function ChapterTestPage() {
               ← {backLabel}
             </button>
             <span className="lt-ct__pagetitle">Chapter Test</span>
+            {/* GUIDE-PAGES-1 — Byte's "?" helper (first visit opens once; a fixed card, no shift). */}
+            <PageGuide id="ct_entry" step="page" uid={user && !user.isLocalSession ? user.uid : null} placement="end" bare />
           </div>
 
           <div className="lt-ct__setup">
@@ -1005,6 +1009,8 @@ export default function ChapterTestPage() {
                     </div>
 
                     {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
+                    {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
+                    <PreTestSlot surface="chapter_test" />
                     <div className="lt-ct__startrow">
                       <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void startTest()} disabled={starting}>
                         Start the test →

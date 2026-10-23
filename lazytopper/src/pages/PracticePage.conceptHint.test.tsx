@@ -69,7 +69,7 @@ async function displayedIds(): Promise<string[]> {
 }
 
 beforeAll(async () => {
-  await ensureBankChapters(["real-numbers", "trigonometry", "arithmetic-progression"]);
+  await ensureBankChapters(["real-numbers", "trigonometry", "arithmetic-progression", "life-processes"]);
   for (const slug of ["real-numbers", "trigonometry", "arithmetic-progression"]) {
     for (const q of buildChapterServedPool({ subjectKey: "Maths", topicKey: practiceTopicLabel("Maths", slug) })) {
       rows.set(String(q.id), { subtopic: String(q.subtopic ?? ""), marks: Number(q.marks) });
@@ -141,5 +141,25 @@ describe("QP-CONCEPT-1 · a concept entry serves the concept on the real page", 
     const ids = await displayedIds();
     expect(ids).toHaveLength(10);
     expect(ids.filter((id) => conceptOf("arithmetic-progression", id) !== "Sum of n Terms")).toEqual([]);
+  }, 120000);
+});
+
+describe("QP-CONCEPT-2 (F2) · a short concept set says so instead of padding silently", () => {
+  it("★ Tutor 'Practise this' (Excretion in Plants, count 10): the honest note follows the on-concept rows", async () => {
+    mount(
+      buildQuickPracticeRoundTripHref({
+        returnTo: "/tutor/10/science/life-processes",
+        subject: "science",
+        topicKey: "life-processes",
+        concept: "Excretion in Plants",
+        count: 10,
+      }),
+    );
+    const ids = await displayedIds();
+    expect(ids).toHaveLength(10);
+    const note = await screen.findByTestId("qp-concept-end", undefined, { timeout: 60000 });
+    expect(note.textContent).toBe(
+      "That's every question we have on Excretion in Plants for now — the rest are from the same chapter.",
+    );
   }, 120000);
 });

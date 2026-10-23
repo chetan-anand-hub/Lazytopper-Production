@@ -28,8 +28,11 @@ import { getTopics, planWorksheet } from "../../components/worksheet/worksheetMo
 import { isOfferableRow, type BoardTryRow } from "../../components/checkimprove/boardQuestionPick";
 import { BANK_STEPS_1 } from "./bankSteps1Ledger";
 import { PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
+import { PYQ_RESTORE_A_MATHS } from "./pyqRestoreALedger";
 import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
 import { REFILE_PYQ2026, REFILE_PYQ2026_COUNTS, REFILE_PYQ2026_SOURCES, REFILE_PYQ2026_ZIPS, type RefilePyq2026Entry } from "./refilePyq2026Ledger";
+
+const RESTORED_BY_PYQ_RESTORE_A = new Set(PYQ_RESTORE_A_MATHS.map((e) => e.id));
 
 type Row = Record<string, unknown> & { id: string; topicKey: string; subject: string; marks: number; questionText: string };
 const RAW = new Map((RAW_CANONICAL_QUESTION_BANK as unknown as Row[]).map((q) => [q.id, q]));
@@ -152,6 +155,8 @@ describe("REFILE-PYQ2026-1 outcomes hold in the assembled bank", () => {
     for (const e of REFILE_PYQ2026) {
       const q = RAW.get(e.id)!;
       // PYQ-RESTORE-B PR-1 + PR-2 (2026-10-23): W rows re-read from the official paper + MS and served again (pyqRestoreB*Ledger.ts) are exempt.
+      // PYQ-RESTORE-A (2026-10-23): W rows that lane repaired from the row itself and served again are pinned by pyqRestoreA.test.ts; they must be served.
+      if (e.outcome === "W" && RESTORED_BY_PYQ_RESTORE_A.has(e.id)) { if (!SERVED.has(e.id) || WITHHELD_QUESTION_IDS.has(e.id)) bad.push(`${e.id}: PYQ-RESTORE-A row not served`); continue; }
       if (e.outcome === "W" && !PYQ_RESTORE_B_IDS.has(e.id) && !PYQ_RESTORE_B_SCIENCE_IDS.has(e.id) && (!WITHHELD_QUESTION_IDS.has(e.id) || SERVED.has(e.id))) bad.push(`${e.id}: W but served`);
       if ((e.outcome === "K" || e.outcome === "F") && (!SERVED.has(e.id) || q.topicKey !== e.trueChapter)) bad.push(`${e.id}: ${e.outcome} not served under ${e.trueChapter}`);
     }

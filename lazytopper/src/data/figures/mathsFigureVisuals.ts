@@ -376,5 +376,6 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
   "APQ-M-ARC-001": "stays withheld: the stem reads '(some fraction)' - the official APQ PDF itself prints no fraction there, so the row is unanswerable; 'REQUIRES-FIGURE' placeholder in strategyHint",
 
   // GARBLE-1 (D171, 14 Oct 2026) - statistics rows withheld for a damaged stem; the bound figure is kept so the REPAIR PR only un-withholds.
-  "PYQ-M-2025-STAT-006": "withheld by GARBLE-1: the class-interval dashes of the table were lost at extraction (200 400 3 400 600 4 ...); figure bound - un-withhold once the table is rewritten from the paper",
+  // PYQ-RESTORE-A part 1 (22 Oct 2026): PYQ-M-2025-STAT-006 is served again - its table was rewritten in the stem and checked cell by cell
+  // against this bound figure (the official table), so its entry leaves this list.
 };

@@ -21,6 +21,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { PageGuide } from "../components/guide/pages/pageGuides";
+import { PreTestSlot } from "../components/guide/pages/preTestSlot";
 import { MathText } from "../components/question/MathText";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
 import "../components/question/katexEager";
@@ -1202,6 +1204,8 @@ export default function FullMockPage() {
               ← Practice
             </button>
             <span className="lt-ct__pagetitle">Full Mock</span>
+            {/* GUIDE-PAGES-1 — Byte's "?" helper (first visit opens once; a fixed card, no shift). */}
+            <PageGuide id="fm_entry" step="page" uid={user && !user.isLocalSession ? user.uid : null} placement="end" bare />
           </div>
 
           <div className="lt-ct__setup">
@@ -1344,6 +1348,8 @@ export default function FullMockPage() {
                     />
 
                     {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
+                    {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
+                    <PreTestSlot surface="full_mock" />
                     <div className="lt-ct__startrow">
                       <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={startTest}>
                         Start the mock →
