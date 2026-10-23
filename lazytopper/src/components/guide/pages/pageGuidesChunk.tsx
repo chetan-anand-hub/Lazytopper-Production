@@ -120,7 +120,7 @@ export const TRENDS_COPY = {
     { key: "marks", label: "~ marks", line: "About how many of the 80 board marks this chapter carries. CBSE gives unit marks; we split them by chapter." },
     { key: "tier", label: "High / Medium / Low", line: "How strongly this chapter shows up in past CBSE papers. Never a made-up percentage." },
     { key: "expect", label: "Expect", line: "The question shape that keeps coming back in this chapter. A pattern to prepare, not a promised question." },
-    { key: "hpq", label: "Important Qs", line: "Highly probable questions for this chapter. Open them from the ⋯ menu to practise the likely ones." },
+    { key: "hpq", label: "Important Qs", line: "This chapter's Important Questions, the ones most likely to come. Open them from the ⋯ menu." },
     { key: "learn", label: "Learn", line: "Opens this chapter's Topic Hub, where you learn it concept by concept." },
     { key: "notes", label: "Notes and NCERT", line: "Short revision notes and the NCERT chapter itself, for quick reading before you practise." },
     { key: "select", label: "+", line: "Tap + on a few chapters to practise them together, build one worksheet or see their important questions." },
