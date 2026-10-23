@@ -31,7 +31,7 @@ import {
 } from "../../data/concepts/conceptLabelMap";
 import { TRACKING_CONCEPTS } from "../../data/concepts/trackingConcepts";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
-import { hpqConceptAlias } from "../../lib/practice/hpqConceptAliases";
+import { hpqAliasKeywords, hpqConceptAlias } from "../../lib/practice/hpqConceptAliases";
 
 /** A Topic Hub concept card as the resolver needs it (BoardConcept's name, keys and keywords). */
 export interface HintCard {
@@ -120,6 +120,14 @@ export interface ConceptHintTierSets {
   keyword: Set<string>;
   onConcept: Set<string>;
   related: Set<string>;
+  /** QP-CONCEPT-3 — what the on-concept rows are: the resolved concept name(s), or the raw label
+   *  and its related questions. The honest note names THIS (an HPQ label is not a bank concept). */
+  conceptName?: string;
+}
+
+/** The name the honest note uses for a resolved target. */
+export function targetName(target: ConceptHintTarget): string {
+  return target.kind === "concepts" ? target.keys.join(" / ") : `"${target.label}" or related topics`;
 }
 
 /** Is this row on the resolved target? (The concept lookup itself, or the raw label.) */
@@ -164,7 +172,11 @@ export function conceptHintTiers(
   const related = new Set<string>();
   const target = resolveConceptHints(chapterSlug, hints, cards);
   if (!target) return { keyword, onConcept, related };
-  const keywords = hintCard(hints, cards)?.practiseKeywords ?? [];
+  // A Topic Hub card's own keywords; else (QP-CONCEPT-3) an HPQ alias label's keywords.
+  const keywords =
+    hintCard(hints, cards)?.practiseKeywords ??
+    hints.map((h) => hpqAliasKeywords(chapterSlug, String(h ?? ""))).find((k) => k && k.length > 0) ??
+    [];
   // The related tier is the old soft rule: the subtopic contains the `subtopicHint` (last hint).
   const soft = fold(String(hints[hints.length - 1] ?? ""));
   for (const q of rows) {
@@ -176,7 +188,7 @@ export function conceptHintTiers(
       if (rowHasKeyword(q, keywords)) keyword.add(id);
     } else if (soft && sub && fold(sub).includes(soft)) related.add(id);
   }
-  return { keyword, onConcept, related };
+  return { keyword, onConcept, related, conceptName: targetName(target) };
 }
 
 /**
