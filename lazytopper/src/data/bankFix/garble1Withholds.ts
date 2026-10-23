@@ -15,8 +15,6 @@ export const GARBLE_1_WITHHOLD_CATEGORY: ReadonlyMap<string, "garbled"> = new Ma
   ["PYQ-S-2026-CHEMRXN-020", "garbled"],
   ["PYQ-S-2025-REPR-007", "garbled"],
   ["PYQ-S-2026-REPR-005", "garbled"],
-  ["PYQ-S-LIFE-013", "garbled"],
   ["PYQ-S-2024-LIFEP-008", "garbled"],
   ["PYQ-S-2026-LIFEP-014", "garbled"],
-  ["PYQ-S-CHEM-010", "garbled"],
 ]);

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "how-do-organisms-reproduce" (Science): 516 served rows from 21 source arrays, 14 withheld.
+// Chapter "how-do-organisms-reproduce" (Science): 518 served rows from 22 source arrays, 13 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -21,6 +21,7 @@ import { HOW_DO_ORGANISMS_REPRODUCE_APQ } from "../questionBanks/class10/science
 import { HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE } from "../questionBanks/class10/science/how-do-organisms-reproduce.chapterwise";
 import { HOW_DO_ORGANISMS_REPRODUCE_PYQ } from "../questionBanks/class10/science/how-do-organisms-reproduce.pyq";
 import { howOrganismsReproducePYQ2026 } from "../questionBanks/class10/science/howOrganismsReproduce.pyq2026";
+import { lifeProcessesPYQ2025 } from "../questionBanks/class10/science/lifeProcesses.pyq2025";
 import { howOrganismsReproducePYQ2025 } from "../questionBanks/class10/science/howOrganismsReproduce.pyq2025";
 import { howOrganismsReproducePYQ2024 } from "../questionBanks/class10/science/howOrganismsReproduce.pyq2024";
 import { REPR_CFPQ } from "../questionBanks/class10/science/how-do-organisms-reproduce.cfpq";
@@ -44,6 +45,7 @@ export default defineChapter("how-do-organisms-reproduce", [
   [288, HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE, false],
   [301, HOW_DO_ORGANISMS_REPRODUCE_PYQ, false],
   [365, howOrganismsReproducePYQ2026, false],
+  [376, lifeProcessesPYQ2025, false],
   [378, howOrganismsReproducePYQ2025, false],
   [391, howOrganismsReproducePYQ2024, false],
   [403, REPR_CFPQ, false],
@@ -61,7 +63,6 @@ export default defineChapter("how-do-organisms-reproduce", [
   "SCO-S-REPR-018",
   "SCQ-S-REPR-041",
   "PYQ-S-2026-REPR-005",
-  "PYQ-S-2025-REPR-006",
   "PYQ-S-2025-REPR-007",
   "PYQ-S-2025-REPR-009",
   "PYQ-S-2025-REPR-010",

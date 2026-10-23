@@ -278,7 +278,7 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq12 Q97 (Section D, 5mk)
   { id: "SCQ-S-ELEC-037", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Derive the formula for the calculation of work done when current flows through a resistor. (b) One electric bulb is rated 40 W and 240 V and other 25 W and 240 V. Which bulb has higher resistance and how many times?",
-    answer: "a. Let R is the resistance of the resistor in which I current is passed for a time t by applying a p.d. ( V ) across the resistor. The work done in bringing a charge Q from one end to another of the conductor W QV = But t Q I = Q It = W VIt b. 40 W–240 V 25 W–240 V P1 R V 1 1 2 =",
+    answer: "(a) W = VIt (= I²Rt = V²t/R). (b) The 25 W bulb has the higher resistance: 2304 Ω against 1440 Ω, i.e. 8/5 = 1.6 times that of the 40 W bulb.",
     solutionSteps: [
       "[1 mark] a. Let a resistor of resistance R carry a current I for time t when a potential difference V is applied across it. The work done in moving a charge Q from one end of the resistor to the other is W = QV.",
       "[1 mark] Since current I = Q/t, the charge that flows is Q = It.",

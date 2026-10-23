@@ -19,6 +19,8 @@
 // PYQ-RESTORE-A part 1 (23 Oct 2026, bank content only - the predicate is untouched): 13 Maths PYQ rows repaired from the
 //   row are served again: PYQ AP 11->12, SAV 18->19, Stats 19->22; Proof RN 47->49, Poly 7->8, Tri 79->80; HOTS any
 //   4,135->4,147, Hard 2,094->2,101, 4-mark HOTS 949->951 (measured on top of PYQ-RESTORE-B PR-2; ledger: data/bankFix/pyqRestoreALedger.ts).
+// PYQ-RESTORE-A part 2 (Science): Proof Electricity 8->9 (SCQ-S-ELEC-037, a W = VIt derivation, served again); HOTS any
+//   4,147->4,164, Hard 2,101->2,115, 4-mark HOTS 951->957.
 // RED on trunk: run this file against trunk's PracticePage.tsx (its own predicate) — the
 // Others, Proof and Marks-4 cells and the source-partition invariant fail.
 // CLOCK: PredictionCore reads the year; Date is pinned (as cbqChapterFloor.test.ts).
@@ -152,7 +154,7 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
   it("Science derivations: Electricity >= 2 with both 2026 PYQs; Light; Magnetic Effects 0 (chip hidden)", () => {
     const elec = ids("electricity", "all", "proof", "all", "all");
     expect(elec.size).toBeGreaterThanOrEqual(2);
-    expect(elec.size).toBe(8);
+    expect(elec.size).toBe(9); // PYQ-RESTORE-A part 2: SCQ-S-ELEC-037 (derive W = VIt) served again
     expect(elec.has("PYQ-S-2026-ELEC-011")).toBe(true); // "Prove that the graph follows Ohm's law"
     expect(elec.has("PYQ-S-2026-ELEC-012")).toBe(true); // "Derive an expression for the equivalent resistance"
     const light = ids("light-reflection-and-refraction", "all", "proof", "all", "all");
@@ -171,7 +173,7 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
       "carbon-and-its-compounds": 0,
       "light-reflection-and-refraction": 4,
       "human-eye-and-colourful-world": 1,
-      electricity: 8,
+      electricity: 9,
       "magnetic-effects-of-electric-current": 0,
       "life-processes": 0,
       "control-and-coordination": 0,
@@ -239,12 +241,13 @@ describe("FILTER-FIX-1 · HOTS at any difficulty", () => {
     // PYQ-RESTORE-B PR-2 (2026-10-23): net +1 Hard / +1 any (Science PYQ rows served again; APQ-M-TRI-004 and
     // PYQ-M-2024-TRIG-010b withheld as served-twice duplicates).
     // PYQ-RESTORE-A part 1 (23 Oct): 13 Maths rows served again on top of B.
-    expect(hard).toBe(2101);
-    expect(any).toBe(4147);
+    // PYQ-RESTORE-A part 2 (Science): +14 Hard / +17 any.
+    expect(hard).toBe(2115);
+    expect(any).toBe(4164);
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
     expect(sum("1", "hots", "all")).toBe(1097);
-    expect(sum("4", "hots", "all")).toBe(951);
+    expect(sum("4", "hots", "all")).toBe(957);
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);
     expect(sum("4", "proof", "all")).toBeGreaterThan(0);

@@ -28,11 +28,11 @@ import { getTopics, planWorksheet } from "../../components/worksheet/worksheetMo
 import { isOfferableRow, type BoardTryRow } from "../../components/checkimprove/boardQuestionPick";
 import { BANK_STEPS_1 } from "./bankSteps1Ledger";
 import { PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
-import { PYQ_RESTORE_A_MATHS } from "./pyqRestoreALedger";
+import { PYQ_RESTORE_A_MATHS, PYQ_RESTORE_A_SCIENCE } from "./pyqRestoreALedger";
 import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
 import { REFILE_PYQ2026, REFILE_PYQ2026_COUNTS, REFILE_PYQ2026_SOURCES, REFILE_PYQ2026_ZIPS, type RefilePyq2026Entry } from "./refilePyq2026Ledger";
 
-const RESTORED_BY_PYQ_RESTORE_A = new Set(PYQ_RESTORE_A_MATHS.map((e) => e.id));
+const RESTORED_BY_PYQ_RESTORE_A = new Set([...PYQ_RESTORE_A_MATHS, ...PYQ_RESTORE_A_SCIENCE].map((e) => e.id));
 
 type Row = Record<string, unknown> & { id: string; topicKey: string; subject: string; marks: number; questionText: string };
 const RAW = new Map((RAW_CANONICAL_QUESTION_BANK as unknown as Row[]).map((q) => [q.id, q]));
@@ -248,7 +248,7 @@ describe("REFILE-PYQ2026-1 chapter keyword guard", () => {
   it("covers every served 2026 Science row, and the anchor table covers the 13 Science chapters", () => {
     // 118 at REFILE-PYQ2026-1; HIDE8-FIG8-1 Part A (19 Oct) withholds the 3 WRONG-CHAPTER rows -> 115 (measured);
     // PYQ-RESTORE-B PR-2 (23 Oct) serves 6 withheld 2026 Science rows again (ACID-012, ENV-001, CHEMRXN-013, MAG-001, EYE-002, LIFEP-011) -> 121.
-    expect(SERVED_SCI_2026.length).toBe(121);
+    expect(SERVED_SCI_2026.length).toBe(131); // PYQ-RESTORE-A part 2 (23 Oct) serves 10 repaired W rows again (121 -> 131, measured).
     expect(Object.keys(ANCHORS).sort()).toEqual(getTopics("Science").map((t) => t.key).sort());
   });
 
