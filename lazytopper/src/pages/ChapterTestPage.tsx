@@ -1066,8 +1066,6 @@ export default function ChapterTestPage() {
                     </div>
 
                     {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
-                    {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
-                    <PreTestSlot surface="chapter_test" />
                     {restoredPaper && (
                       <div className="lt-ct__honest" data-testid="ct-resume-note">
                         <span>·</span>
@@ -1080,6 +1078,8 @@ export default function ChapterTestPage() {
                         </span>
                       </div>
                     )}
+                    {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
+                    <PreTestSlot surface="chapter_test" />
                     <div className="lt-ct__startrow">
                       {restoredPaper ? (
                         <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void resumeTest()} disabled={starting}>
