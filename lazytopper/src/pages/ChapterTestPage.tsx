@@ -292,6 +292,8 @@ export default function ChapterTestPage() {
         repeats: draw.repeatCount,
         total: draw.paper.questions.length,
         hasHistory: draw.hasServedHistory,
+        servedShare: draw.servedShare,
+        repeatSections: draw.repeatSections,
         scopeNoun: "chapter",
         setNoun: "test",
       })
@@ -1106,9 +1108,14 @@ export default function ChapterTestPage() {
                         {draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when this chapter's unseen pool ran out.
                           <b data-testid="ct-fresh-line" data-tone="repeats">{freshLine?.text}</b>
-                        ) : (
+                        ) : draw?.hasServedHistory ? (
                           <span data-testid="ct-fresh-line" data-tone="fresh">
                             <b>Each test is a fresh draw</b> — different questions from your last {topicName} test.
+                          </span>
+                        ) : (
+                          // A first-ever test: no "last test" to compare against, so no such claim.
+                          <span data-testid="ct-fresh-line" data-tone="first">
+                            <b>Each test is a fresh draw</b> from this chapter&rsquo;s question bank.
                           </span>
                         )}
                       </span>

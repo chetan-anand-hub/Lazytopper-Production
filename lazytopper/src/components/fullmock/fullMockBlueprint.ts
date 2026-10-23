@@ -62,7 +62,14 @@ import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { cbqFlagOf } from "../../lib/cbq/cbqClassification";
 import { needsMissingFigure } from "../../lib/figureSafe";
 import { balanceCbqShare } from "../../lib/cbq/cbqPaperBalance";
-import { EMPTY_SERVED, countRepeats, preferUnserved, type ServedAt } from "../../lib/freshSet/servedHistory";
+import {
+  EMPTY_SERVED,
+  countRepeats,
+  freshnessRank,
+  preferUnserved,
+  servedShare,
+  type ServedAt,
+} from "../../lib/freshSet/servedHistory";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -156,6 +163,10 @@ export interface DrawnFullMock {
   repeatCount: number;
   /** True when a non-empty served history was supplied (the honest copy needs it). */
   hasServedHistory: boolean;
+  /** Share (0..1) of the subject's drawable questions already served — gates "most of". */
+  servedShare: number;
+  /** Distinct sections the repeated rows sit in (copy wording). */
+  repeatSections: number;
 }
 
 // ── The union pool ───────────────────────────────────────────────────────────
@@ -608,9 +619,11 @@ export function drawFullMock(args: {
   });
   // FRESH-SET-TESTS — swaps first draw only on never-served rows; the whole pool is used
   // only when that leaves a CBQ shortfall (the CBSE share is never traded for freshness).
+  // The whole-pool pass ranks candidates unseen-first, then least-recently-served (`preferOf`).
   const balanceWith = (
     slots: Array<{ group: string; objective: boolean; item: FMPoolQuestion }>,
     pools: Map<string, FMPoolQuestion[]>,
+    preferOf?: (q: FMPoolQuestion) => number,
   ) =>
     balanceCbqShare({
       slots,
@@ -618,6 +631,7 @@ export function drawFullMock(args: {
       keyOf: questionKey,
       isPyq: isPYQQuestion,
       affinityOf: (q) => q.topicSlug,
+      preferOf,
       seed: seed ^ hashCell("FM:cbq"),
     });
   const unservedGroupPools = new Map(
@@ -633,7 +647,9 @@ export function drawFullMock(args: {
     ),
     servedAt.size > 0 ? unservedGroupPools : groupPools,
   );
-  if (servedAt.size > 0 && balanced.share.cbqShortfall > 0) balanced = balanceWith(balanced.slots, groupPools);
+  if (servedAt.size > 0 && balanced.share.cbqShortfall > 0) {
+    balanced = balanceWith(balanced.slots, groupPools, freshnessRank(servedAt, idOf));
+  }
   for (const spec of FM_BLUEPRINT) {
     bySection.set(
       spec.section,
@@ -725,6 +741,10 @@ export function drawFullMock(args: {
     constructedMarks: balanced.share.constructedMarks,
     repeatCount: countRepeats(questions.map((q) => String(q.id || q.questionText)), servedAt),
     hasServedHistory: servedAt.size > 0,
+    servedShare: servedShare(sectionPools.flatMap((list) => list.map(idOf)), servedAt),
+    repeatSections: new Set(
+      questions.filter((q) => servedAt.has(String(q.id || q.questionText))).map((q) => q.section),
+    ).size,
   };
 }
 

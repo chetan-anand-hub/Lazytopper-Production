@@ -30,8 +30,10 @@ import {
   EMPTY_SERVED,
   countRepeats,
   fallbackDrawSeed,
+  freshnessRank,
   mulberry32,
   preferUnserved,
+  servedShare,
   type ServedAt,
 } from "../../lib/freshSet/servedHistory";
 import type {
@@ -176,6 +178,10 @@ export interface DrawnChapterTest {
   repeatCount: number;
   /** True when a served history was supplied and non-empty (the honest copy needs it). */
   hasServedHistory: boolean;
+  /** Share (0..1) of this chapter's drawable questions already served — gates "most of". */
+  servedShare: number;
+  /** Distinct sections the repeated rows sit in (copy wording). */
+  repeatSections: number;
 }
 
 /**
@@ -256,7 +262,9 @@ export function drawChapterTest(args: {
   //
   // FRESH-SET-TESTS — the swaps first draw only on never-served rows; a second pass over the
   // whole pool runs only when that leaves a CBQ shortfall, so the CBSE share is never traded
-  // for freshness. With no history both pools are the same and the paper is unchanged.
+  // for freshness. That pass still ranks every candidate unseen-first, then least-recently-
+  // served (`preferOf`), so a served row enters only where no unseen row can do the job.
+  // With no history both pools are the same and the paper is unchanged.
   const unservedPools = new Map(
     Object.entries(pools).map(([g, list]) => [g, list.filter((q) => !servedAt.has(idOf(q)))]),
   );
@@ -273,6 +281,7 @@ export function drawChapterTest(args: {
       groupPools: new Map(Object.entries(pools)),
       keyOf: questionKey,
       isPyq: isPYQQuestion,
+      preferOf: freshnessRank(servedAt, idOf),
       seed: seed ^ hashCell("CT:cbq"),
     });
   }
@@ -336,6 +345,11 @@ export function drawChapterTest(args: {
     ...cbqFields(balanced.share),
     repeatCount: countRepeats(questions.map((q) => String(q.id ?? "")), servedAt),
     hasServedHistory: servedAt.size > 0,
+    servedShare: servedShare(
+      Object.values(pools).flatMap((list) => list.map(idOf)),
+      servedAt,
+    ),
+    repeatSections: new Set(questions.filter((q) => servedAt.has(String(q.id ?? ""))).map((q) => q.section)).size,
   };
 }
 

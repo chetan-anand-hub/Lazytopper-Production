@@ -131,7 +131,9 @@ describe("FRESH-SET-TESTS · Chapter Test page", () => {
     expect(saved[0].paper.questions.map((q) => q.id)).toEqual(started);
   });
 
-  it("★ honest copy: 'fresh draw' while unseen questions remain; the repeats line once the chapter is used up", async () => {
+  it("★ honest copy: a first-ever test makes NO 'different from your last' claim; the next one does, and it holds", async () => {
+    await mountAndStart();
+    cleanup();
     render(
       <MemoryRouter initialEntries={[`/chapter-test/10/science/${SLUG}`]}>
         <Routes>
@@ -139,9 +141,23 @@ describe("FRESH-SET-TESTS · Chapter Test page", () => {
         </Routes>
       </MemoryRouter>,
     );
-    const fresh = await screen.findByTestId("ct-fresh-line");
-    expect(fresh.getAttribute("data-tone")).toBe("fresh");
-    expect(fresh.textContent).toContain("Each test is a fresh draw");
+    const second = await screen.findByTestId("ct-fresh-line");
+    expect(second.getAttribute("data-tone")).toBe("fresh");
+    expect(second.textContent).toContain("different questions from your last");
+  });
+
+  it("★ honest copy: first-ever line; then 'most of this chapter' only once the whole chapter was served", async () => {
+    render(
+      <MemoryRouter initialEntries={[`/chapter-test/10/science/${SLUG}`]}>
+        <Routes>
+          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<ChapterTestPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const first = await screen.findByTestId("ct-fresh-line");
+    expect(first.getAttribute("data-tone")).toBe("first");
+    expect(first.textContent).toContain("Each test is a fresh draw");
+    expect(first.textContent).not.toContain("your last");
     cleanup();
 
     // Every Carbon question already served in earlier tests -> repeats are unavoidable, and said.

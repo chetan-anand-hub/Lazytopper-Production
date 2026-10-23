@@ -501,21 +501,31 @@ export function drawFromSpec(
         }
       }
     };
+    // FRESH-SET-TESTS (only with a served history): unseen rows before repeats. An unseen AI row
+    // may stand in for a repeated verified one, but only up to the AI rows this cell was planned
+    // to take plus the sheet's spare AI-cap headroom, so the cap holds.
+    const isServed = tools.isServed;
+    const plannedAi = Math.max(0, c.n - (ver.length + cbq.length));
+    let aiInCell = 0;
+    const pickAi = (list: PracticeQuestion[], limit: number) => {
+      const before = got;
+      pick(list, Math.min(limit, got + Math.max(0, plannedAi + spareAi - aiInCell)));
+      aiInCell += got - before;
+    };
+    if (isServed) {
+      pick(cbq.filter((q) => !isServed(q)), c.cbq);
+      pickAi(ai.filter((q) => tools.isCbq(q) && !isServed(q)), c.cbq);
+    }
     pick(cbq, c.cbq);
     // the rest of the cell: other verified rows and the not-yet-used CBQ rows, mixed, then AI
     const rest = tools.shuffle([...ver, ...cbq.filter((q) => !seenId.has(q.id))]);
-    const isServed = tools.isServed;
     if (isServed) {
-      // FRESH-SET-TESTS: an unseen AI row before a repeated verified row — only up to the AI rows
-      // this cell was planned to take plus the sheet's spare AI-cap headroom, so the cap holds.
       pick(rest.filter((q) => !isServed(q)), c.n);
-      const plannedAi = Math.max(0, c.n - (ver.length + cbq.length));
-      const before = got;
-      pick(ai.filter((q) => !isServed(q)), Math.min(c.n, got + plannedAi + spareAi));
-      spareAi -= Math.max(0, got - before - plannedAi);
+      pickAi(ai.filter((q) => !isServed(q)), c.n);
     }
     pick(rest, c.n);
     pick(ai, c.n);
+    if (isServed) spareAi -= Math.max(0, aiInCell - plannedAi);
   }
 
   // Top-up: a dedupe skip (or a pool that shrank) can leave a section short. Fill it from the SAME

@@ -266,6 +266,29 @@ export function preferUnserved<T>(args: {
   return { candidates: [...fresh, ...fill], repeatsForced: fill.length };
 }
 
+/**
+ * The freshness rank `balanceCbqShare` takes (`preferOf`): never-served rows rank highest, then
+ * served rows least-recently-served first. Ranks are compared, never mixed with marks.
+ */
+export function freshnessRank<T>(servedAt: ServedAt, idOf: (q: T) => string): (q: T) => number {
+  return (q: T) => {
+    const at = servedAt.get(idOf(q));
+    return at === undefined ? Number.MAX_SAFE_INTEGER : -at;
+  };
+}
+
+/** The share (0..1) of a scope's pool the student has already been served (distinct ids). */
+export function servedShare(poolIds: Iterable<string>, servedAt: ServedAt): number {
+  const ids = new Set(poolIds);
+  if (ids.size === 0 || servedAt.size === 0) return 0;
+  let n = 0;
+  for (const id of ids) if (servedAt.has(id)) n += 1;
+  return n / ids.size;
+}
+
+/** At or above this share served, "you've done most of this chapter" is a true sentence. */
+export const MOST_SERVED_SHARE = 0.75;
+
 /** How many of a paper's question ids were served before. */
 export function countRepeats(ids: readonly string[], servedAt: ServedAt): number {
   if (servedAt.size === 0) return 0;
@@ -273,26 +296,43 @@ export function countRepeats(ids: readonly string[], servedAt: ServedAt): number
 }
 
 /**
- * The honest freshness line for a drawn paper. `null` = nothing to claim (no history yet,
- * or nothing drawn). Wording is shared by the three surfaces so they never drift apart.
+ * The honest freshness line for a drawn paper. `null` = nothing to claim (no history yet, or
+ * nothing drawn — the page then makes no "different from your last" claim either).
+ *   - repeats, and >= 75% of the scope already served → "You've done most of this chapter's…".
+ *   - repeats otherwise → names the count and the true cause: the unseen questions of the
+ *     section(s) those rows came from ran out (the blueprint keeps each section's size).
+ *   - no repeats, with history → "Every question is new".
+ * Wording is shared by the three surfaces so they never drift apart.
  */
 export function freshnessLine(args: {
   repeats: number;
   total: number;
   hasHistory: boolean;
+  /** Share of the chapter's / subject's pool already served (0..1) — gates "most of". */
+  servedShare: number;
+  /** Distinct sections the repeated rows sit in (wording only: "that section" / "those sections"). */
+  repeatSections: number;
   /** "chapter" for Chapter Test / Worksheet, "subject" for Full Mock. */
   scopeNoun: "chapter" | "subject";
   /** "test" | "mock" | "worksheet". */
   setNoun: string;
 }): { tone: "fresh" | "repeats"; text: string } | null {
   if (args.total <= 0) return null;
-  if (args.repeats > 0) {
-    const n = args.repeats;
+  const n = args.repeats;
+  if (n > 0) {
+    if (args.servedShare >= MOST_SERVED_SHARE) {
+      return {
+        tone: "repeats",
+        text:
+          `You've done most of this ${args.scopeNoun}'s questions — ${n} repeat${n === 1 ? "" : "s"} ` +
+          `from your earlier ${args.setNoun}s ${n === 1 ? "is" : "are"} mixed in.`,
+      };
+    }
     return {
       tone: "repeats",
       text:
-        `You've done most of this ${args.scopeNoun}'s questions — ${n} repeat${n === 1 ? "" : "s"} ` +
-        `from your earlier ${args.setNoun}s ${n === 1 ? "is" : "are"} mixed in.`,
+        `${n} question${n === 1 ? " repeats" : "s repeat"} from your earlier ${args.setNoun}s — the unseen ones ` +
+        `in ${args.repeatSections > 1 ? "those sections" : "that section"} ran out.`,
     };
   }
   if (!args.hasHistory) return null;

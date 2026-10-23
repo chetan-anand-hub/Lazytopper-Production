@@ -64,6 +64,7 @@ import {
   recordServed,
   servedAtFor,
   servedOwner,
+  servedShare,
 } from "../../lib/freshSet/servedHistory";
 import { MathText } from "../question/MathText";
 import WorksheetGradePanel, { type WorksheetReopenGrade } from "./WorksheetGradePanel";
@@ -612,10 +613,16 @@ function WorksheetGeneratorInner() {
         repeats: countRepeats(candidate.map((q) => String(q.id ?? "")), servedAt),
         total: candidate.length,
         hasHistory: servedAt.size > 0,
+        // "most of this chapter" only when >= 75% of the sheet's scope pool really was served.
+        servedShare: servedShare(
+          [...(plan?.pools.values() ?? [])].flatMap((list) => list.map((q) => String(q.id ?? ""))),
+          servedAt,
+        ),
+        repeatSections: new Set(candidate.filter((q) => servedAt.has(String(q.id ?? ""))).map((q) => q.section)).size,
         scopeNoun: "chapter",
         setNoun: "worksheet",
       }),
-    [candidate, servedAt],
+    [candidate, servedAt, plan],
   );
   const totalMarks = useMemo(() => candidate.reduce((s, q) => s + q.marks, 0), [candidate]);
   const shortfall = totalCount > 0 && totalCount < effCount;

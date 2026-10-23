@@ -16,7 +16,9 @@ import { aiCapFor } from "../../components/worksheet/worksheetShape";
 import { isAiGeneratedBankId } from "../../data/bankChapters/loader";
 import { selectBankQuestions } from "../../data/bankQuery";
 import { desktopTopicsBySubject } from "../desktop/topics";
-import { servedAtFor, type ServedEntry, type ServedSurface } from "./servedHistory";
+import { chapterTestSectionFor } from "../../components/chaptertest/chapterTestBlueprint";
+import { isCbq } from "../cbq/cbqClassification";
+import { freshnessLine, servedAtFor, MOST_SERVED_SHARE, type ServedEntry, type ServedSurface } from "./servedHistory";
 
 /** A pinned paper date — the draws never read the clock in this suite. */
 const CREATED = "2026-10-23T00:00:00.000Z";
@@ -45,6 +47,16 @@ function threeInARow<T>(
   return { sets, ids };
 }
 
+const lineFor = (d: DrawnChapterTest) =>
+  freshnessLine({
+    repeats: d.repeatCount,
+    total: d.paper.questions.length,
+    hasHistory: d.hasServedHistory,
+    servedShare: d.servedShare,
+    repeatSections: d.repeatSections,
+    scopeNoun: "chapter",
+    setNoun: "test",
+  });
 const ctIds = (d: DrawnChapterTest) => d.paper.questions.map((q) => String(q.id));
 const ctDraw = (subject: "Maths" | "Science", slug: string, name: string, seed: number, servedAt?: Map<string, number>) =>
   drawChapterTest({ subject, topicKey: slug, topicLabel: name, worksheetId: "ct-fresh", seed, servedAt, createdAt: CREATED });
@@ -110,6 +122,42 @@ describe("Chapter Test — three in a row never repeat while the chapter has uns
     // Least-recently-served first: the paper leans on the long-ago half.
     const old = d.paper.questions.filter((q) => (servedAt.get(String(q.id)) ?? 0) < 9_000_000).length;
     expect(old).toBeGreaterThan(d.paper.questions.length / 2);
+    // All of the chapter served -> "most of this chapter" is true here.
+    expect(d.servedShare).toBe(1);
+    expect(lineFor(d)?.text).toMatch(/^You've done most of this chapter's questions/);
+  });
+
+  it("★★ a long run (14 Polynomials tests): a row repeats ONLY when its section had no unseen row of its CBQ class left, and then least-recently-served first", () => {
+    const slug = "polynomials";
+    const all = selectBankQuestions({ subject: "Maths", topicKeys: [slug] });
+    const log: ServedEntry[] = [];
+    const problems: string[] = [];
+    for (let t = 0; t < 14; t += 1) {
+      const servedAt = servedAtFor({ surface: "chapter-test", log });
+      const d = ctDraw("Maths", slug, "Polynomials", 900 + t * 7919, servedAt);
+      const onPaper = new Set(d.paper.questions.map((q) => String(q.id)));
+      for (const q of d.paper.questions) {
+        const id = String(q.id);
+        const at = servedAt.get(id);
+        if (at === undefined) continue; // not a repeat
+        const row = all.find((r) => String(r.id) === id)!;
+        const sameCell = all.filter(
+          (r) => chapterTestSectionFor(r) === q.section && isCbq(r) === isCbq(row) && !onPaper.has(String(r.id)),
+        );
+        const unseenLeft = sameCell.filter((r) => !servedAt.has(String(r.id))).length;
+        const olderLeft = sameCell.filter((r) => (servedAt.get(String(r.id)) ?? Infinity) < at).length;
+        if (unseenLeft > 0) problems.push(`test ${t + 1}: ${id} (${q.section}, cbq=${isCbq(row)}) repeated with ${unseenLeft} unseen left`);
+        else if (olderLeft > 0) problems.push(`test ${t + 1}: ${id} (${q.section}) not least-recently-served (${olderLeft} older left)`);
+      }
+      // The honest line is true to the measured share every time.
+      const line = lineFor(d);
+      if (d.repeatCount > 0 && d.servedShare < MOST_SERVED_SHARE) {
+        expect(line?.text).toMatch(/^\d+ questions? repeats? from your earlier tests — the unseen ones in (that section|those sections) ran out\.$/);
+      }
+      if (line?.text.startsWith("You've done most")) expect(d.servedShare).toBeGreaterThanOrEqual(MOST_SERVED_SHARE);
+      log.push({ surface: "chapter-test", scope: slug, ids: [...onPaper], at: 1000 + t });
+    }
+    expect(problems).toEqual([]);
   });
 });
 
@@ -179,6 +227,33 @@ describe("Worksheet — three sheets in a row never repeat while the chapter has
       }
     });
   }
+
+  it("★★ Probability after ONE sheet: any repeat is reported truthfully, never as 'most of this chapter'", () => {
+    const t = getTopics("Maths").find((x) => x.key === "probability")!;
+    const plan = planWorksheet({ subject: "Maths", scope: "topic", topics: [t], requested: 25 });
+    const poolIds = [...plan.pools.values()].flat().map((q) => String(q.id));
+    for (let k = 0; k < 6; k += 1) {
+      const first = generateFromPlan(plan, { seed: 300 + k });
+      const servedAt = servedAtFor({
+        surface: "worksheet",
+        log: [{ surface: "worksheet", scope: "Maths", ids: first.map((q) => String(q.id)), at: 1 }],
+      });
+      const second = generateFromPlan(plan, { seed: 900 + k, servedAt });
+      const repeats = second.filter((q) => servedAt.has(String(q.id)));
+      const share = poolIds.filter((id) => servedAt.has(id)).length / new Set(poolIds).size;
+      expect(share).toBeLessThan(MOST_SERVED_SHARE);
+      const line = freshnessLine({
+        repeats: repeats.length,
+        total: second.length,
+        hasHistory: true,
+        servedShare: share,
+        repeatSections: new Set(repeats.map((q) => String(q.section))).size,
+        scopeNoun: "chapter",
+        setNoun: "worksheet",
+      });
+      expect(line?.text ?? "").not.toMatch(/most of this chapter/);
+    }
+  });
 
   it("★ seeded: the same seed and history draw the same sheet (no Math.random)", () => {
     const t = getTopics("Maths").find((x) => x.key === "polynomials")!;

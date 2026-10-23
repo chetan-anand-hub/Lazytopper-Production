@@ -1438,13 +1438,20 @@ export default function FullMockPage() {
                               repeats: draw.repeatCount,
                               total: draw.paper.questions.length,
                               hasHistory: draw.hasServedHistory,
+                              servedShare: draw.servedShare,
+                              repeatSections: draw.repeatSections,
                               scopeNoun: "subject",
                               setNoun: "mock",
                             })?.text}
                           </b>
-                        ) : (
+                        ) : draw?.hasServedHistory ? (
                           <span data-testid="fm-fresh-line" data-tone="fresh">
                             <b>Each mock is a fresh draw</b> — different from your last.
+                          </span>
+                        ) : (
+                          // A first-ever mock: no "last" to compare against, so no such claim.
+                          <span data-testid="fm-fresh-line" data-tone="first">
+                            <b>Each mock is a fresh draw</b> from the {subject} question bank.
                           </span>
                         )}
                       </span>

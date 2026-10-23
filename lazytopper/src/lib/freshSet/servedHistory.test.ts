@@ -6,6 +6,7 @@ import {
   countRepeats,
   freshnessLine,
   freshnessOrder,
+  freshnessRank,
   loadServedLog,
   mintDrawSeed,
   mulberry32,
@@ -13,6 +14,7 @@ import {
   recordServed,
   servedAtFor,
   servedOwner,
+  servedShare,
 } from "./servedHistory";
 
 type Row = { id: string; text: string };
@@ -123,24 +125,44 @@ describe("mintDrawSeed — seeded, reproducible, distinct per attempt", () => {
 });
 
 describe("the honest copy states", () => {
-  it("repeats -> the 'you've done most of this chapter' line, with the real count", () => {
-    expect(
-      freshnessLine({ repeats: 3, total: 15, hasHistory: true, scopeNoun: "chapter", setNoun: "test" }),
-    ).toEqual({
+  const base = { hasHistory: true, repeatSections: 1, scopeNoun: "chapter" as const, setNoun: "test" };
+
+  it("repeats with >= 75% of the chapter served -> 'you've done most of this chapter'", () => {
+    expect(freshnessLine({ ...base, repeats: 3, total: 15, servedShare: 0.8 })).toEqual({
       tone: "repeats",
       text: "You've done most of this chapter's questions — 3 repeats from your earlier tests are mixed in.",
     });
     expect(
-      freshnessLine({ repeats: 1, total: 38, hasHistory: true, scopeNoun: "subject", setNoun: "mock" })?.text,
+      freshnessLine({ ...base, repeats: 1, total: 38, servedShare: 0.75, scopeNoun: "subject", setNoun: "mock" })?.text,
     ).toBe("You've done most of this subject's questions — 1 repeat from your earlier mocks is mixed in.");
   });
 
-  it("history but no repeat -> the 'every question is new' line; no history -> no claim", () => {
-    expect(
-      freshnessLine({ repeats: 0, total: 25, hasHistory: true, scopeNoun: "chapter", setNoun: "worksheet" }),
-    ).toEqual({ tone: "fresh", text: "Every question is new — none were in your earlier worksheets." });
-    expect(freshnessLine({ repeats: 0, total: 25, hasHistory: false, scopeNoun: "chapter", setNoun: "worksheet" })).toBeNull();
-    expect(freshnessLine({ repeats: 0, total: 0, hasHistory: true, scopeNoun: "chapter", setNoun: "test" })).toBeNull();
+  it("repeats with LESS than 75% served -> the count and the true cause, never 'most of'", () => {
+    expect(freshnessLine({ ...base, repeats: 1, total: 25, servedShare: 0.08, setNoun: "worksheet" })).toEqual({
+      tone: "repeats",
+      text: "1 question repeats from your earlier worksheets — the unseen ones in that section ran out.",
+    });
+    expect(freshnessLine({ ...base, repeats: 4, total: 15, servedShare: 0.5, repeatSections: 2 })?.text).toBe(
+      "4 questions repeat from your earlier tests — the unseen ones in those sections ran out.",
+    );
+    expect(freshnessLine({ ...base, repeats: 4, total: 15, servedShare: 0.74 })?.text).not.toMatch(/most of/);
+  });
+
+  it("history but no repeat -> 'every question is new'; no history -> no claim at all", () => {
+    expect(freshnessLine({ ...base, repeats: 0, total: 25, servedShare: 0.1, setNoun: "worksheet" })).toEqual({
+      tone: "fresh",
+      text: "Every question is new — none were in your earlier worksheets.",
+    });
+    expect(freshnessLine({ ...base, hasHistory: false, repeats: 0, total: 25, servedShare: 0 })).toBeNull();
+    expect(freshnessLine({ ...base, repeats: 0, total: 0, servedShare: 0 })).toBeNull();
+  });
+
+  it("servedShare counts distinct pool ids served; freshnessRank puts unseen first, then oldest", () => {
+    expect(servedShare(["a", "b", "b", "c", "d"], new Map([["a", 1], ["zz", 1]]))).toBe(0.25);
+    expect(servedShare([], new Map([["a", 1]]))).toBe(0);
+    const rank = freshnessRank(new Map([["old", 10], ["new", 99]]), (q: string) => q);
+    expect(rank("unseen")).toBeGreaterThan(rank("old"));
+    expect(rank("old")).toBeGreaterThan(rank("new"));
   });
 
   it("countRepeats counts only ids served before", () => {
