@@ -133,4 +133,16 @@ if (typeof window !== "undefined") {
 
 afterEach(() => {
   currentMatches = () => DEFAULT_MATCHES;
+  // FRESH-SET-QP — the Quick Practice served history (lib/practice/servedHistory) is NEW device
+  // state that every rendered set writes. Clear ONLY its keys between tests, so one test's served
+  // set never turns the next test's fixture rows into "repeats". Every other key is left as is.
+  if (typeof window !== "undefined") {
+    try {
+      for (const k of Object.keys(window.localStorage)) {
+        if (k.startsWith("lt:qpServed:")) window.localStorage.removeItem(k);
+      }
+    } catch {
+      /* no storage in this environment */
+    }
+  }
 });
