@@ -29,6 +29,7 @@ import { isPYQQuestion as engineIsPYQQuestion } from "../practiceSetGenerator";
 import { questionMatchesFilters } from "../../pages/PracticePage";
 import { BANK_FIX_1_PR1, BANK_FIX_1_RAW_COUNT } from "./bankFix1Ledger";
 import { PYQ_RESTORE_1_RESTORED_IDS } from "./pyqRestore1Ledger";
+import { PYQ_RESTORE_B_MATHS } from "./pyqRestoreBLedger";
 import type { CanonicalQuestion } from "../predictionTypes";
 import type { SelectableQuestion } from "../../lib/boardQuestions/selectionRule";
 
@@ -68,6 +69,8 @@ describe("BANK-FIX-1 PR-1 · ids unchanged", () => {
       "OE-NCERT-13-SA-001", "OE-NCERT-13-SA-002", "OE-NCERT-13-SA-003", "OE-NCERT-13-SA-004", "OE-NCERT-13-SA-005",
       "OE-NCERT-13-SA-006", "OE-NCERT-13-SA-007", "OE-NCERT-13-SA-008", "OE-NCERT-13-SA-009", "OE-NCERT-13-SA-010",
       "OE-NCERT-13-SA-011", "OE-NCERT-13-SA-012", "OE-NCERT-13-SA-013", "OE-NCERT-13-MCQ-001", "OE-NCERT-13-MCQ-002",
+      // 2026-10-23 PYQ-RESTORE-B PR-1: the 17 CBSE 2025 Triangles rows of maths/triangles.pyq2025.ts (read from the ledger, not retyped).
+      ...PYQ_RESTORE_B_MATHS.filter((e) => e.verdict === "added").map((e) => e.id),
     ]);
     const preexisting = RAW_CANONICAL_QUESTION_BANK.filter(
       (q) => (q as CanonicalQuestion).origin !== "lt-generated" && !ADDED_AFTER_BANK_FIX_1.has(q.id),

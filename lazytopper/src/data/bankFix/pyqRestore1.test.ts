@@ -48,6 +48,7 @@ import {
   PYQ_RESTORE_1_RESTORED_IDS,
 } from "./pyqRestore1Ledger";
 import { BANK_STEPS_1 } from "./bankSteps1Ledger";
+import { PYQ_RESTORE_B_IDS, PYQ_RESTORE_B_MATHS } from "./pyqRestoreBLedger";
 
 type Row = Record<string, unknown> & { id: string };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
@@ -126,7 +127,9 @@ describe.each(SUBJECTS)("PYQ-RESTORE-1 · $name", ({ name, ledger, sources, coun
 
   it("kept-others rows stay Others with no year", () => {
     const bad: string[] = [];
-    for (const e of ledger.filter((x) => x.verdict === "kept-others")) {
+    // PYQ-RESTORE-B (2026-10-23) re-read 13 of these figure-bound / unconfirmed rows from the official paper and restored
+    // them under its own ledger (pyqRestoreBLedger.ts, pinned by pyqRestoreB.test.ts); they are exempt here.
+    for (const e of ledger.filter((x) => x.verdict === "kept-others" && !PYQ_RESTORE_B_IDS.has(x.id))) {
       const q = bankById.get(e.id)!;
       if (q.sourceOverride !== "others") bad.push(`${e.id}: no override`);
       if (q.pyqYear || q.pyqSet) bad.push(`${e.id}: has a year`);
@@ -180,9 +183,11 @@ describe("PYQ-RESTORE-1 · #1236 review rulings", () => {
     expect(q.finalAnswer).toBe("(b) 3");
     expect(q.solutionSteps).toEqual(["[1 mark] Correct option: (b) 3."]);
   });
-  it("PYQ-M-2026-STAT-002 stays Others (kept-others, no year)", () => {
+  it("PYQ-M-2026-STAT-002: kept Others here (claimed 30/5/3 Q36 unconfirmed); PYQ-RESTORE-B found it as Q33(b) and restored it", () => {
     expect(PYQ_RESTORE_1_MATHS.find((e) => e.id === "PYQ-M-2026-STAT-002")?.verdict).toBe("kept-others");
-    expect(bankById.get("PYQ-M-2026-STAT-002")?.pyqYear).toBeUndefined();
+    // Superseded 2026-10-23 by PYQ-RESTORE-B PR-1: the official paper prints it as 30/5/3 Q33(b), a 5-mark Section D OR part.
+    expect(PYQ_RESTORE_B_MATHS.find((e) => e.id === "PYQ-M-2026-STAT-002")?.ref).toBe("PYQ 30/5/3 Q33(b)");
+    expect(bankById.get("PYQ-M-2026-STAT-002")?.pyqYear).toBe("2026");
   });
 });
 

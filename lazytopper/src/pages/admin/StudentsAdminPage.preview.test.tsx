@@ -6,7 +6,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import StudentsAdminPage, { GUIDE_PREVIEW_HELP } from "./StudentsAdminPage";
+import StudentsAdminPage, { GUIDE_AB_ENDED_LABEL, GUIDE_PREVIEW_HELP } from "./StudentsAdminPage";
 import { formatIstDateTime } from "./studentsAdminModel";
 import { GUIDE_PREVIEW_KEY, GUIDE_PREVIEW_MS } from "../../components/guide/guideVariant";
 
@@ -100,6 +100,16 @@ describe("PREVIEW-1 · who sees the panel", () => {
     expect(GUIDE_PREVIEW_HELP).toBe("Applies to any account signed in on this browser for 7 days. Students never see this.");
     expect(screen.getByTestId("guide-preview-off").getAttribute("aria-checked")).toBe("true");
     expect(screen.getByTestId("guide-preview-state").textContent).toContain("off");
+  });
+
+  it("★★ GUIDE-ALL-1: the panel says the A/B ended (22 Oct 2026) and that every student is on the guide", async () => {
+    render(<StudentsAdminPage />);
+    await screen.findByTestId("guide-preview");
+    expect(GUIDE_AB_ENDED_LABEL).toBe("A/B ended 22 Oct 2026 — all students on guide");
+    expect(screen.getByTestId("guide-ab-ended").textContent).toBe(GUIDE_AB_ENDED_LABEL);
+    expect(screen.getByTestId("guide-preview-state").textContent).toContain("sees Byte, like every student");
+    // the preview can still force control
+    expect(screen.getByTestId("guide-preview-control")).toBeTruthy();
   });
 });
 
