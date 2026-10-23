@@ -41,6 +41,18 @@
   .lt-pg-pop--bare { left: 16px; }
   .lt-pg-pop__bub { max-height: calc(100vh - 16px - 16px); max-height: calc(100dvh - 16px - 16px); }
 }
+/* GUIDE-PAGES-FLAKE-1 — the card never covers the page's primary action (Start the test / mock,
+   Preview worksheet, Start Chapter Test): only when its DEFAULT box would cover one, useAvoidPrimary
+   moves it into the largest free band that holds neither the action nor the "?" that closes it, and
+   caps its height to that band (it scrolls inside). No data-place = no conflict, defaults above. */
+.lt-pg-pop[data-place] .lt-pg-pop__bub { max-height: var(--lt-pg-max); }
+.lt-pg-pop[data-place="top"] { top: var(--lt-pg-top, 8px); bottom: auto; align-items: flex-start; }
+
+/* Owner rule: mobile must be superb — every tap target in the card is at least 44px on touch. */
+@media (pointer: coarse), (max-width: 1023px) {
+  .lt-pg-pop__ok { min-height: 44px; }
+  .lt-pg__hide { min-height: 44px; padding: 0 4px; }
+}
 
 @keyframes lt-pg-pop { 0% { transform: scale(.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .lt-pg__bub { animation: none !important; } }

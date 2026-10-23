@@ -53,8 +53,14 @@ vi.mock("../services/sessionRecords", async (importOriginal) => {
 import ChapterTestPage from "./ChapterTestPage";
 import { isKatexLoaded } from "../components/question/MathText";
 import { __resetUsageClientForTests } from "../services/usageClient";
+import { __setGuideAbForTests } from "../components/guide/guideVariant";
 
 beforeEach(() => {
+  // GUIDE-PAGES-FLAKE-1 — stubbing MODE off "test" (above) also switches the Byte guide ON
+  // (guideAbActive: MODE !== "test"), so its first-visit card + lazy rig loaded in the same second
+  // as the paper draw and pushed "Start the test" past findByRole's 1 s. This suite is about KaTeX,
+  // not the guide: switch the guide off explicitly (the guide's own suites cover it).
+  __setGuideAbForTests(false);
   __resetUsageClientForTests();
   K.calls = 0;
   K.release = null;
@@ -63,6 +69,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  __setGuideAbForTests(null);
 });
 
 const paperBegan = () => document.querySelector(".lt-ct__exit") !== null;
@@ -75,7 +82,9 @@ async function mountSetup() {
       </Routes>
     </MemoryRouter>,
   );
-  const start = await screen.findByRole("button", { name: /Start the test/ });
+  // The start row appears once the paper is drawn from the (lazily loaded) bank chapter — slower
+  // than findByRole's 1 s default on a loaded machine or CI shard. Same assertion, realistic wait.
+  const start = await screen.findByRole("button", { name: /Start the test/ }, { timeout: 15000 });
   await act(async () => { await new Promise((r) => setTimeout(r, 20)); });
   return start;
 }

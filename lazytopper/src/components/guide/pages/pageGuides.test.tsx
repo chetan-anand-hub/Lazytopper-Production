@@ -34,7 +34,7 @@ import {
   __resetPageGuidesForTests,
   inGuideArm,
 } from "./pageGuides";
-import { ENTRY_COPY, M7_COPY, POP_COPY, TRENDS_COPY, m7Lines } from "./pageGuidesChunk";
+import { ENTRY_COPY, M7_COPY, PAGE_GUIDE_AVOID, POP_COPY, TRENDS_COPY, m7Lines, placePageGuide } from "./pageGuidesChunk";
 import { isNextMidnight, m7DialogLine } from "./m7Copy";
 import { inGuideArm as momentsInGuideArm } from "../moments/moments";
 import { __removeMascotsToastForTests } from "../moments/mascotsToast";
@@ -408,5 +408,167 @@ describe("GUIDE-PAGES-1 · no layout shift (slot reserved / out of flow)", () =>
       expect(inGuideArm("u1")).toBe(momentsInGuideArm("u1"));
       expect(inGuideArm(null)).toBe(false);
     }
+  });
+});
+
+describe("GUIDE-PAGES-FLAKE-1 · the card never covers the page's primary action (or the '?' that closes it)", () => {
+  // 360×640 phone, measured: the default card spans 8…352 and 330…572 (68px above the bottom).
+  const phone = { vh: 640, card: { top: 330, bottom: 572, left: 8, right: 352 }, bottomGap: 68, topGap: 8 };
+  const door = { top: 10, bottom: 42, left: 310, right: 342 }; // the "?" in the page bar
+
+  it("Full Mock at 360×640 (start row 326–372, measured): moves into the band between the '?' and the row", () => {
+    const p = placePageGuide({ ...phone, avoid: [{ top: 326, bottom: 372, left: 24, right: 336 }], keep: [door] });
+    // bands: [42+8, 326-8] = 268 tall, [372+8, 572] = 192 tall → the upper band, below the "?"
+    expect(p).toEqual({ anchor: "top", top: 50, maxH: 268 });
+    expect(p!.top).toBeGreaterThanOrEqual(door.bottom + 8); // never over the "?"
+    expect(p!.top + p!.maxH).toBeLessThanOrEqual(326 - 8); // never over the row
+  });
+
+  it("REGRESSION guard: the default box does not touch the action → nothing moves (Worksheet hero row above the card)", () => {
+    // Preview row at 160–203 while the card sits at 330–572: no overlap, so the '?' keeps working.
+    expect(placePageGuide({ ...phone, avoid: [{ top: 160, bottom: 203, left: 24, right: 336 }], keep: [door] })).toBeNull();
+  });
+
+  it("the action below the card's band: stays bottom-anchored, capped below the action", () => {
+    const p = placePageGuide({ vh: 768, card: { top: 567, bottom: 752, left: 284, right: 744 }, bottomGap: 16, topGap: 16, avoid: [{ top: 600, bottom: 650, left: 300, right: 900 }], keep: [] });
+    // bands: [16, 592] = 576 vs [658, 752] = 94 → the top band (anchored at its top)
+    expect(p).toEqual({ anchor: "top", top: 16, maxH: 576 });
+  });
+
+  it("several actions (hero + drawer Preview): the card avoids all of them", () => {
+    const p = placePageGuide({
+      ...phone,
+      avoid: [
+        { top: 120, bottom: 163, left: 24, right: 336 },
+        { top: 470, bottom: 513, left: 24, right: 336 },
+      ],
+      keep: [door],
+    });
+    // bands: [50,112]=62, [171,462]=291, [521,572]=51 → the middle band
+    expect(p).toEqual({ anchor: "top", top: 171, maxH: 291 });
+  });
+
+  it("no conflict → no change: action off screen, beside the card, or not laid out (jsdom)", () => {
+    expect(placePageGuide({ ...phone, avoid: [{ top: 900, bottom: 950, left: 24, right: 336 }], keep: [door] })).toBeNull();
+    expect(placePageGuide({ ...phone, avoid: [{ top: -80, bottom: -20, left: 24, right: 336 }], keep: [door] })).toBeNull();
+    expect(placePageGuide({ ...phone, avoid: [{ top: 400, bottom: 450, left: 400, right: 500 }], keep: [door] })).toBeNull();
+    expect(placePageGuide({ ...phone, avoid: [{ top: 0, bottom: 0, left: 0, right: 0 }], keep: [] })).toBeNull();
+  });
+
+  it("every avoided selector really exists in its host (a renamed class would silently stop the dodge)", () => {
+    const src = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
+    expect(PAGE_GUIDE_AVOID["ct_entry:page"]).toBe(".lt-ct__startrow");
+    expect(src("src/pages/ChapterTestPage.tsx")).toContain('className="lt-ct__startrow"');
+    expect(PAGE_GUIDE_AVOID["fm_entry:page"]).toBe(".lt-ct__startrow");
+    expect(src("src/pages/FullMockPage.tsx")).toContain('className="lt-ct__startrow"');
+    expect(PAGE_GUIDE_AVOID["ws_entry:page"]).toBe(".lt-ws__herobot, .lt-ws__drawerfoot");
+    const ws = src("src/components/worksheet/WorksheetGenerator.tsx");
+    expect(ws).toContain('className="lt-ws__herobot"');
+    expect(ws).toContain('className="lt-ws__drawerfoot"'); // the Customise drawer's own Preview
+    expect(PAGE_GUIDE_AVOID["ct_entry:chooser"]).toBe("[data-testid='ct-picker-open']");
+    expect(src("src/components/practice/ChapterTestPicker.tsx")).toContain('testId="ct-picker"');
+    expect(src("src/lib/desktop/homeDestinations.tsx")).toContain("data-testid={`${testId}-open`}");
+  });
+});
+
+describe("GUIDE-PAGES-FLAKE-1 · mounted: the open card really moves off the start row", () => {
+  type R = { top: number; bottom: number; left: number; right: number };
+  const box = (r: R) => ({ ...r, x: r.left, y: r.top, width: r.right - r.left, height: r.bottom - r.top, toJSON: () => r }) as DOMRect;
+  let restore: (() => void) | null = null;
+
+  function fakeLayout(map: (el: Element) => R | null, vh = 640, vw = 360) {
+    const orig = Element.prototype.getBoundingClientRect;
+    const spy = vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const r = map(this);
+      return r ? box(r) : orig.call(this);
+    });
+    const h = window.innerHeight;
+    const w = window.innerWidth;
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: vh });
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: vw });
+    restore = () => {
+      spy.mockRestore();
+      Object.defineProperty(window, "innerHeight", { configurable: true, value: h });
+      Object.defineProperty(window, "innerWidth", { configurable: true, value: w });
+    };
+  }
+  afterEach(() => {
+    restore?.();
+    restore = null;
+  });
+
+  function Host() {
+    return (
+      <MemoryRouter>
+        <div className="lt-ct__pagebar">
+          <PageGuide id="fm_entry" step="page" uid="u1" placement="end" bare />
+        </div>
+        <div className="lt-ct__startrow">
+          <button type="button">Start the mock →</button>
+        </div>
+      </MemoryRouter>
+    );
+  }
+
+  it("Full Mock 360×640: the card gets data-place='top' between the '?' and the start row (RED without useAvoidPrimary)", async () => {
+    fakeLayout((el) => {
+      if (el.classList.contains("lt-pg-pop")) return { top: 330, bottom: 572, left: 8, right: 352 };
+      if (el.classList.contains("lt-ct__startrow")) return { top: 326, bottom: 372, left: 24, right: 336 };
+      if (el.getAttribute("data-testid") === "page-guide-fm_entry-help") return { top: 10, bottom: 42, left: 310, right: 342 };
+      return null;
+    });
+    render(<Host />);
+    const pop = await screen.findByTestId("page-guide-pop-fm_entry");
+    await waitFor(() => expect(pop.getAttribute("data-place")).toBe("top"));
+    expect(pop.style.getPropertyValue("--lt-pg-top")).toBe("50px");
+    expect(pop.style.getPropertyValue("--lt-pg-max")).toBe("268px");
+    // the '?' still works: it closes the card
+    fireEvent.click(screen.getByTestId("page-guide-fm_entry-help"));
+    expect(screen.queryByTestId("page-guide-pop-fm_entry")).toBeNull();
+  });
+
+  it("no overlap with the start row → the card is left exactly where the CSS puts it", async () => {
+    fakeLayout((el) => {
+      if (el.classList.contains("lt-pg-pop")) return { top: 330, bottom: 572, left: 8, right: 352 };
+      if (el.classList.contains("lt-ct__startrow")) return { top: 160, bottom: 203, left: 24, right: 336 };
+      return null;
+    });
+    render(<Host />);
+    const pop = await screen.findByTestId("page-guide-pop-fm_entry");
+    await act(async () => {});
+    expect(pop.hasAttribute("data-place")).toBe(false);
+    expect(pop.style.getPropertyValue("--lt-pg-max")).toBe("");
+  });
+});
+
+describe("GUIDE-PAGES-FLAKE-1 · dismissal and tap targets", () => {
+  it("non-modal; Esc closes the card wherever focus is — but not while typing in a field", async () => {
+    render(
+      <MemoryRouter>
+        <input data-testid="field" />
+        <button type="button" data-testid="elsewhere">elsewhere</button>
+        <PageGuide id="fm_entry" step="page" uid="u1" />
+      </MemoryRouter>,
+    );
+    const pop = await screen.findByTestId("page-guide-pop-fm_entry");
+    expect(pop.getAttribute("aria-modal")).toBe("false");
+    // typing in a field: Esc belongs to the field
+    const field = screen.getByTestId("field");
+    field.focus();
+    fireEvent.keyDown(field, { key: "Escape" });
+    expect(screen.queryByTestId("page-guide-pop-fm_entry")).not.toBeNull();
+    // focus elsewhere on the page (not in the card): Esc still closes it
+    const other = screen.getByTestId("elsewhere");
+    other.focus();
+    fireEvent.keyDown(other, { key: "Escape" });
+    expect(screen.queryByTestId("page-guide-pop-fm_entry")).toBeNull();
+  });
+
+  it("CSS: placed cards use the computed cap and top; Got it and Hide mascots are ≥44px on touch; the '?' has a ≥44px hit ring", () => {
+    expect(popCss).toMatch(/\.lt-pg-pop\[data-place\] \.lt-pg-pop__bub\s*\{\s*max-height:\s*var\(--lt-pg-max\)/);
+    expect(popCss).toMatch(/\.lt-pg-pop\[data-place="top"\]\s*\{\s*top:\s*var\(--lt-pg-top, 8px\);\s*bottom:\s*auto/);
+    expect(popCss).toMatch(/@media \(pointer: coarse\), \(max-width: 1023px\)\s*\{\s*\.lt-pg-pop__ok\s*\{\s*min-height:\s*44px;\s*\}\s*\.lt-pg__hide\s*\{\s*min-height:\s*44px;/);
+    // 32px circle + 8px ring each side = 48px tap area, with no layout change
+    expect(doorCss).toMatch(/\.lt-pg-door__q::after\s*\{[^}]*inset:\s*-8px/);
   });
 });
