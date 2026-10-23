@@ -13,6 +13,21 @@
 .lt-pg-door__q:hover { background: #d6effa; }
 .lt-pg-door__q[aria-expanded="true"] { background: #14213d; color: #fff; }
 .lt-pg-door__q:focus-visible { outline: 3px solid hsl(152, 55%, 38%); outline-offset: 2px; }
-/* M7: Byte's row inside the limit panel is RESERVED before the chunk arrives (no layout shift). */
-.lt-pg-m7slot { min-height: 76px; margin: 10px 0 4px; }
-@media print { .lt-pg-door, .lt-pg-m7slot { display: none; } }
+/* M7: Byte's row in the limit panel. EAGER — its words render in the same commit as the panel; only
+   Byte's drawing arrives later, into a FIXED box (no layout shift). Compact: two short lines. No
+   motion in this row, so reduced motion needs nothing extra here (the drawing itself goes still). */
+.lt-pg-m7 { display: flex; align-items: flex-start; gap: 8px; min-width: 0; margin: 10px 0 2px; color: #14213d; }
+.lt-pg-m7--dialog { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid rgba(20, 33, 61, .12); }
+.lt-pg-m7__box { flex: none; display: block; width: 40px; height: 48px; overflow: hidden; }
+.lt-pg-m7__box > * { width: 40px; height: 48px; }
+.lt-pg-m7__bub { flex: 1 1 auto; min-width: 0; background: #e9f7fd; border: 1.5px solid #14213d;
+  border-radius: 12px 12px 12px 4px; padding: 6px 10px 2px; text-align: left; }
+.lt-pg-m7__say { margin: 0 0 2px; font-size: 13px; line-height: 1.35; font-weight: 700; }
+.lt-pg-m7__say--soft { font-weight: 600; color: #2b3a5c; }
+.lt-pg-m7__admin { display: inline-block; margin: 0 0 3px; font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; line-height: 1; padding: 4px 7px; border-radius: 999px; background: #14213d; color: #fff; }
+.lt-pg-m7__hide { display: inline-block; margin: 0; padding: 2px 0; min-height: 28px; border: 0; background: none;
+  color: #56627e; font: inherit; font-size: 12px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.lt-pg-m7__hide:hover { color: #14213d; }
+.lt-pg-m7__hide:focus-visible { outline: 3px solid hsl(152, 55%, 38%); outline-offset: 2px; }
+@media print { .lt-pg-door, .lt-pg-m7 { display: none; } }

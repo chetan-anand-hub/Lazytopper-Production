@@ -13,11 +13,8 @@
   text-transform: uppercase; line-height: 1; padding: 5px 8px; border-radius: 999px; background: #14213d; color: #fff; }
 .lt-pg__hide:focus-visible, .lt-pg-pop__ok:focus-visible { outline: 3px solid hsl(152, 55%, 38%); outline-offset: 2px; }
 
-/* M7 — Byte's row inside the limit panel (its slot is reserved by pageGuidesDoor.css). */
-.lt-pg-m7 { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
-.lt-pg-m7__char { flex: none; width: 56px; }
-.lt-pg-m7__bub { flex: 1 1 auto; }
-.lt-pg-m7__bub .lt-pg__say { font-size: 13.5px; }
+/* M7 — only Byte's drawing comes from here; it fills the eager fixed box (pageGuidesDoor.css). */
+.lt-pg-m7__char { display: block; width: 40px; height: 48px; }
 
 /* The entry / Exam Trends card — FIXED, so opening it never moves the page. Bottom-left (the M10
    peek's place): the WhatsApp button owns bottom-right; above the phone bottom nav; right of the
@@ -30,10 +27,6 @@
 .lt-pg-pop__item { margin: 0 0 6px; }
 .lt-pg-pop__item dt { margin: 0; font-size: 12.5px; font-weight: 800; color: hsl(152, 60%, 26%); }
 .lt-pg-pop__item dd { margin: 0; font-size: 13px; line-height: 1.35; font-weight: 600; color: #2b3a5c; }
-.lt-pg-pop__ziggy { margin: 6px 0 2px; padding: 6px 8px; border-radius: 10px; background: #f2faea; font-size: 13px;
-  font-weight: 700; line-height: 1.35; }
-.lt-pg-pop__zname { display: inline-block; margin-right: 4px; padding: 2px 7px; border-radius: 999px; background: hsl(100, 45%, 42%);
-  color: #fff; font-size: 11px; font-weight: 800; }
 .lt-pg-pop__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 6px; }
 .lt-pg-pop__ok { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 0; border-radius: 10px;
   background: hsl(152, 55%, 38%); color: #fff; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
@@ -43,4 +36,4 @@
 
 @keyframes lt-pg-pop { 0% { transform: scale(.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .lt-pg__bub { animation: none !important; } }
-@media print { .lt-pg-pop, .lt-pg-m7 { display: none; } }
+@media print { .lt-pg-pop { display: none; } }

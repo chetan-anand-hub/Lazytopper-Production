@@ -8,7 +8,7 @@
  * RED on trunk: none of these hosts renders a `page-guide-*` / `guide-m7-slot` node there.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { render, screen, cleanup, act } from "@testing-library/react";
+import { render, screen, cleanup, act, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 const { onboarding } = vi.hoisted(() => ({ onboarding: vi.fn() }));
@@ -40,7 +40,7 @@ vi.mock("../../auth/RequireAuth", () => ({
   RequireAuth: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-import FairUseLimitPanel from "../../usage/FairUseLimitPanel";
+import FairUseLimitPanel, { TRIAL_PREMIUM_NOTE } from "../../usage/FairUseLimitPanel";
 import { ChapterTestPicker } from "../../practice/ChapterTestPicker";
 import ChapterTestPage from "../../../pages/ChapterTestPage";
 import FullMockPage from "../../../pages/FullMockPage";
@@ -48,7 +48,7 @@ import ExamTrendsRanked from "../../../pages/ExamTrendsRanked";
 import WorksheetGenerator from "../../worksheet/WorksheetGenerator";
 import { __resetBankChaptersForTest } from "../../../data/bankChapters/loader";
 import { __setGuideAbForTests } from "../guideVariant";
-import { __resetMascotsForTests } from "../mascotsMute";
+import { __resetMascotsForTests, hideMascots } from "../mascotsMute";
 import { __resetGuideUidForTests, __resetPageGuidesForTests } from "./pageGuides";
 import { ENTRY_COPY, M7_COPY, TRENDS_COPY } from "./pageGuidesChunk";
 import { PreTestSlot, registerPreTestMoment } from "./preTestSlot";
@@ -97,45 +97,70 @@ function Panel({ limit }: { limit: LimitState }) {
 }
 
 describe("GUIDE-PAGES-1 M7 · FairUseLimitPanel", () => {
-  it("inline panel: Byte inside the panel, ABOVE the unchanged actions (See plans while payments are dark)", async () => {
+  it("inline panel: Byte inside the panel with BOTH lines in the first commit, above the unchanged actions", () => {
     render(<Panel limit={TRIAL_PAPER} />);
     const panel = screen.getByTestId("fair-use-limit-panel");
-    const slot = screen.getByTestId("guide-m7-slot");
-    expect(panel.contains(slot)).toBe(true);
-    await screen.findByTestId("guide-moment-m7");
+    const row = screen.getByTestId("guide-moment-m7"); // synchronous: present with the panel itself
+    expect(panel.contains(row)).toBe(true);
     expect(screen.getByTestId("guide-m7-hit").textContent).toBe(M7_COPY.trialHit["chapter-test"]);
-    expect(screen.getByTestId("guide-m7-premium").textContent).toBe(M7_COPY.premiumLine);
+    expect(screen.getByTestId("guide-m7-still").textContent).toBe(M7_COPY.still);
     const plans = screen.getByTestId("fair-use-see-plans");
-    expect(slot.compareDocumentPosition(plans) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(row.compareDocumentPosition(plans) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(row.textContent ?? "").not.toMatch(/Premium/);
+    const note = screen.getByTestId("fair-use-premium-note");
+    expect(note.textContent).toBe(TRIAL_PREMIUM_NOTE);
+    expect(note.nextElementSibling?.classList.contains("lt-usage__actions")).toBe(true);
   });
 
-  it("trial-day dialog: Byte sits next to the dialog's actions, with the reset from the panel's own time", async () => {
+  it("Hide mascots: Byte goes, the panel's own Premium note stays (it is panel text, not Byte's)", () => {
+    hideMascots();
+    render(<Panel limit={TRIAL_PAPER} />);
+    expect(screen.queryByTestId("guide-moment-m7")).toBeNull();
+    expect(screen.getByTestId("fair-use-premium-note").textContent).toBe(TRIAL_PREMIUM_NOTE);
+  });
+
+  it("Tutor / new-questions trial limits keep their owner sentence alone — no Premium note", () => {
+    render(<Panel limit={{ tier: "trial", scope: "tutor", resetAt: null, window: null, allowance: 15 }} />);
+    expect(screen.queryByTestId("fair-use-premium-note")).toBeNull();
+  });
+
+  it("trial-day dialog: Byte AFTER the actions (they keep their place); one line; no second 'still works' or Premium line", () => {
     render(<Panel limit={TRIAL_CHECKS} />);
     const dialog = screen.getByRole("dialog");
-    await screen.findByTestId("guide-moment-m7");
-    expect(dialog.contains(screen.getByTestId("guide-moment-m7"))).toBe(true);
+    const row = screen.getByTestId("guide-moment-m7");
+    expect(dialog.contains(row)).toBe(true);
+    expect(row.getAttribute("data-variant")).toBe("dialog");
+    // every existing action precedes Byte's row
+    const actions = dialog.querySelector(".lt-usage__actions") as HTMLElement;
+    expect(actions.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(actions.contains(row)).toBe(false);
     const hit = screen.getByTestId("guide-m7-hit").textContent ?? "";
     expect(hit.startsWith(M7_COPY.trialHit.checks)).toBe(true);
+    expect(screen.queryByTestId("guide-m7-still")).toBeNull();
+    // Byte never SAYS Premium; the panel's own plain note does, directly above the pay buttons
+    expect(row.textContent ?? "").not.toMatch(/Premium/);
+    const note = screen.getByTestId("fair-use-premium-note");
+    expect(note.textContent).toBe(TRIAL_PREMIUM_NOTE);
+    expect(note.nextElementSibling).toBe(actions);
+    // the reset Byte names is the panel's own (3 h away, not a midnight → its own time)
     const shownTime = screen.getByTestId("fair-use-come-back").textContent ?? "";
-    // the same reset the panel itself states (midnight → "after midnight", else its exact time)
-    if (/after midnight/.test(shownTime)) expect(hit).toContain("after midnight");
-    else expect(shownTime).toContain(hit.replace(/^.*It comes back at /, "").replace(/\.$/, ""));
-    expect(screen.getByTestId("guide-m7-still").textContent).toBe(M7_COPY.still);
+    expect(shownTime).toContain(hit.replace(/^.*It comes back at /, "").replace(/\.$/, ""));
+    // the dialog's own Close is still the first focus target
+    expect(document.activeElement?.hasAttribute("data-dialog-close")).toBe(true);
   });
 
-  it("premium refusal: no Premium line", async () => {
+  it("premium refusal: no Premium line", () => {
     render(<Panel limit={{ tier: "premium", scope: "checks", resetAt: null, window: "week" }} />);
-    await screen.findByTestId("guide-moment-m7");
     expect(screen.getByTestId("guide-m7-hit").textContent).toBe("You've reached Premium's week fair-use limit.");
-    expect(screen.queryByTestId("guide-m7-premium")).toBeNull();
+    expect(screen.getByTestId("fair-use-limit-panel").textContent ?? "").not.toMatch(/Premium removes/);
+    expect(screen.queryByTestId("fair-use-premium-note")).toBeNull();
   });
 
-  it("control arm: today's panel exactly — no slot", async () => {
+  it("admin 'Show control' preview arm: today's panel exactly — no Byte", async () => {
     __setGuideAbForTests(true, "control");
     render(<Panel limit={TRIAL_PAPER} />);
-    await act(async () => {});
     expect(screen.getByTestId("fair-use-limit-panel")).toBeTruthy();
-    expect(screen.queryByTestId("guide-m7-slot")).toBeNull();
+    await waitFor(() => expect(screen.queryByTestId("guide-moment-m7")).toBeNull());
   });
 });
 

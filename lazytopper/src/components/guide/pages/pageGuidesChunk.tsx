@@ -2,77 +2,38 @@
  * GUIDE-PAGES-1 — everything the page helpers DRAW and SAY, in ONE lazily loaded chunk (Vite emits
  * `assets/pageGuidesChunk-<hash>.js` + CSS). Reached only through the dynamic import in ./pageGuides.tsx.
  *
- *   LimitByteBody — M7: Byte's row inside the fair-use limit panel / trial-day dialog. Every line is
- *                   built from the panel's OWN LimitState (scope, tier, window, resetAt) and its own
- *                   formatted reset time; nothing is guessed. Display only, beside the existing
- *                   Pay / Share QR code / Forward link actions (never a payment control of its own).
- *   PageGuidePop  — the entry / Exam Trends helper: a fixed card at the bottom-left (portalled; it never
- *                   moves the page), closed with "Got it", Esc, or the "?" again.
+ *   M7Character  — M7: ONLY Byte's drawing for the limit panel row. The row, its words (./m7Copy.ts)
+ *                  and its fixed-size character box are EAGER (./pageGuides.tsx), so the panel never
+ *                  grows when this chunk arrives.
+ *   PageGuidePop — the entry / Exam Trends helper: a fixed card at the bottom-left (portalled; it never
+ *                  moves the page), closed with "Got it", Esc, or the "?" again.
  *
- * ALL COPY IS IN THE THREE TABLES BELOW (M7_COPY, ENTRY_COPY, TRENDS_COPY) for owner review; tests pin
- * them, and pin every line at 22 words or fewer with no "½". What each line claims was read in code:
- *   - "never uses your limit": server/services/fairUse.cjs refuses ONLY /api/check-solution,
- *     /api/grade-worksheet (CHECK_SOLUTION_PATH / GRADE_WORKSHEET_PATH) and /api/tutor,
- *     /api/more-like-this, /api/detect-question (AI_ROUTES). Notes, Topic Hub, Exam Trends and the
- *     NCERT reader call none of them. Worksheets are NOT named: a worksheet's GRADE is metered.
+ * COPY TABLES for owner review: M7_COPY (./m7Copy.ts, re-exported here), ENTRY_COPY, TRENDS_COPY.
+ * Tests pin them, and pin every line at 22 words or fewer with no "½". What each line claims was read in code:
  *   - Chapter Test / Full Mock objective: tapped on screen, "scored the moment you submit"
  *     (ChapterTestPage / FullMockPage setup copy); the rest is written on paper and uploaded.
  *   - Section A objective = 0 or full (CLAUDE.md §13 objective invariant).
- *   - Exam Trends: each item is what ExamTrendsRanked.tsx renders and where its link goes.
+ *   - Exam Trends: each item is what ExamTrendsRanked.tsx renders and where its link goes. "Learn" goes
+ *     to /topic-hub/:slug (ExamTrendsRanked.tsx learnHref; buildDesktopTopicHubPath), the route at
+ *     App.tsx `path="/topic-hub/:topicName"` → DesktopTopicHubPage with NO RequirePremium (only the
+ *     legacy /topic-hub/:grade/:subject[/:topicKey] routes are premium-gated), so the line promises
+ *     nothing it would not give a trial-ended student.
+ *   - Byte and Ziggy are never drawn together: the Exam Trends closing tip is Byte's own line.
  */
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import BlobCharacter from "../BlobCharacter";
 import { prefersReducedMotion } from "../rig";
-import { guidePreviewActive, trackGuideEvent } from "../guideVariant";
+import { guidePreviewActive, setGuideFocusOpen, trackGuideEvent } from "../guideVariant";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "../moments/mascotsToast";
-import { PREMIUM_WINDOW_LABEL, isMidnightIst, type LimitScope, type LimitState } from "../../usage/fairUseGate";
 import "../guide.css";
 import "./pageGuides.css";
+
+export { M7_COPY, m7Lines } from "./m7Copy";
 
 export type PageGuideId = "m7" | "ws_entry" | "ct_entry" | "fm_entry" | "trends_help";
 /** `chooser` is the Practice Hub's Chapter Test picker; every other helper is `page`. */
 export type PageGuideStep = "page" | "chooser";
-
-/* ── COPY TABLE 1 — M7, Byte on the limit panel ───────────────────────────────────────────── */
-
-export const M7_COPY = {
-  /** Which trial limit was hit — the panel's own `limit.scope`. */
-  trialHit: {
-    checks: "Your answer checks for today are used up.",
-    "chapter-test": "Your chapter test allowance for today is used up.",
-    "full-mock": "Your full mock allowance for this week is used up.",
-    worksheet: "Your worksheet allowance for this week is used up.",
-    tutor: "Your Tutor messages for today are used up.",
-    "more-like-this": "Your new practice questions for today are used up.",
-  } satisfies Record<LimitScope, string>,
-  /** A Premium student at a fair-use window: {window} is the panel's own window label. */
-  premiumHit: "You've reached Premium's {window} fair-use limit.",
-  /** When it resets — only from the panel's own resetAt; omitted when the server sent none. */
-  resetMidnight: "It comes back after midnight.",
-  resetAt: "It comes back at {when}.",
-  /** What still works now (none of these pages calls a metered route — see the header). */
-  still: "Notes, Topic Hub, Exam Trends and NCERT solutions still work. Reading them never uses your limit.",
-  /** Trial only: Premium in one line, beside the existing actions. No price, no urgency. */
-  premiumLine: "Premium removes the trial's daily and weekly limits. A fair-use limit still applies.",
-  adminPreview: "Admin preview",
-} as const;
-
-/** PURE. Byte's lines for a limit, from the panel's own data only. */
-export function m7Lines(limit: LimitState, when: string): { hit: string; still: string; premium: string | null } {
-  const head =
-    limit.tier === "premium"
-      ? M7_COPY.premiumHit.replace("{window}", PREMIUM_WINDOW_LABEL[limit.window ?? "day"])
-      : M7_COPY.trialHit[limit.scope];
-  let reset = "";
-  if (limit.resetAt && isMidnightIst(limit.resetAt)) reset = M7_COPY.resetMidnight;
-  else if (limit.resetAt && when) reset = M7_COPY.resetAt.replace("{when}", when);
-  return {
-    hit: reset ? `${head} ${reset}` : head,
-    still: M7_COPY.still,
-    premium: limit.tier === "trial" ? M7_COPY.premiumLine : null,
-  };
-}
 
 /* ── COPY TABLE 2 — the entry helpers (Worksheet, Chapter Test, Full Mock) ────────────────── */
 
@@ -120,20 +81,20 @@ export const TRENDS_COPY = {
     { key: "marks", label: "~ marks", line: "About how many of the 80 board marks this chapter carries. CBSE gives unit marks; we split them by chapter." },
     { key: "tier", label: "High / Medium / Low", line: "How strongly this chapter shows up in past CBSE papers. Never a made-up percentage." },
     { key: "expect", label: "Expect", line: "The question shape that keeps coming back in this chapter. A pattern to prepare, not a promised question." },
-    { key: "hpq", label: "Important Qs", line: "This chapter's Important Questions, the ones most likely to come. Open them from the ⋯ menu." },
+    { key: "hpq", label: "Important Qs", line: "This chapter's Important Questions, picked from what past papers ask most. Open them from the ⋯ menu." },
     { key: "learn", label: "Learn", line: "Opens this chapter's Topic Hub, where you learn it concept by concept." },
     { key: "notes", label: "Notes and NCERT", line: "Short revision notes and the NCERT chapter itself, for quick reading before you practise." },
     { key: "select", label: "+", line: "Tap + on a few chapters to practise them together, build one worksheet or see their important questions." },
     { key: "weightage", label: "CBSE's official unit weightage", line: "CBSE's own marks for each unit, so you can see where the 80 marks come from." },
     { key: "guide", label: "Marking guide", line: "How examiners give marks step by step, so you know what to write in the exam." },
   ],
-  ziggy: "Pick one Must-crack chapter today. Small steps add up!",
+  /** Byte's own closing tip (no second character in this card). */
+  tip: "My tip: pick one Must-crack chapter today and finish it. Small steps add up.",
 } as const;
 
 export const POP_COPY = {
   gotIt: "Got it",
   label: "Byte explains this page",
-  ziggy: "Ziggy",
   adminPreview: "Admin preview",
 } as const;
 
@@ -158,39 +119,10 @@ function AdminPill({ on }: { on: boolean }) {
 
 /* ── M7 ───────────────────────────────────────────────────────────────────────────────────── */
 
-export interface LimitByteBodyProps {
-  limit: LimitState;
-  when: string;
-}
-
-export function LimitByteBody({ limit, when }: LimitByteBodyProps) {
+/** Byte's drawing only, inside the eager row's fixed-size box (so its arrival moves nothing). */
+export function M7Character() {
   const reduce = useRef(prefersReducedMotion());
-  const [preview] = useState(() => guidePreviewActive());
-  // guide_moment_shown — once per refusal shown (a NEW limit object is a new refusal).
-  useEffect(() => {
-    trackGuideEvent("guide_moment_shown", { moment: "m7" });
-  }, [limit]);
-  const lines = m7Lines(limit, when);
-  return (
-    <div className="lt-pg-m7" data-testid="guide-moment-m7" data-tier={limit.tier} data-scope={limit.scope} role="group" aria-label="Byte">
-      <BlobCharacter kind="byte" pose="explain" className="lt-pg-m7__char" still={reduce.current || undefined} />
-      <div className="lt-pg__bub lt-pg-m7__bub">
-        <AdminPill on={preview} />
-        <p className="lt-pg__say" data-testid="guide-m7-hit">
-          {lines.hit}
-        </p>
-        <p className="lt-pg__say lt-pg__say--soft" data-testid="guide-m7-still">
-          {lines.still}
-        </p>
-        {lines.premium ? (
-          <p className="lt-pg__say lt-pg__say--soft" data-testid="guide-m7-premium">
-            {lines.premium}
-          </p>
-        ) : null}
-        <HideButton />
-      </div>
-    </div>
-  );
+  return <BlobCharacter kind="byte" pose="explain" className="lt-pg-m7__char" still={reduce.current || undefined} />;
 }
 
 /* ── the entry / Exam Trends card ─────────────────────────────────────────────────────────── */
@@ -212,6 +144,13 @@ export function PageGuidePop({ id, step, bare, onClose }: PageGuidePopProps) {
   const reduce = useRef(prefersReducedMotion());
   const [preview] = useState(() => guidePreviewActive());
   const gotIt = useRef<HTMLButtonElement | null>(null);
+
+  // While this card is open it is the page's one focused guide (guideVariant's focus counter — the
+  // same signal StartHereCard uses), so another character can wait instead of appearing beside it.
+  useEffect(() => {
+    setGuideFocusOpen(true);
+    return () => setGuideFocusOpen(false);
+  }, []);
 
   useEffect(() => {
     trackGuideEvent("guide_moment_shown", { moment: id });
@@ -266,8 +205,8 @@ export function PageGuidePop({ id, step, bare, onClose }: PageGuidePopProps) {
                 </div>
               ))}
             </dl>
-            <p className="lt-pg-pop__ziggy" data-testid="page-guide-ziggy">
-              <span className="lt-pg-pop__zname">{POP_COPY.ziggy}</span> {TRENDS_COPY.ziggy}
+            <p className="lt-pg__say lt-pg__say--first" data-testid="page-guide-tip">
+              {TRENDS_COPY.tip}
             </p>
           </>
         )}

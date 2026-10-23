@@ -21,12 +21,20 @@ import { formatResetIst, limitCopy, trialComeBackLine, type LimitState } from ".
 // PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Share QR code / Forward link
 // to parents ("Pay" goes to the same plans page). Payments dark: "See plans", unchanged.
 import PaywallActions from "../pricing/PaywallActions";
-// GUIDE-PAGES-1 M7 — Byte explains the limit from this panel's own data (display only; a lazy
-// chunk; nothing for the control arm or with "Hide mascots"). The actions below are unchanged.
+// GUIDE-PAGES-1 M7 — Byte explains the limit from this panel's own data (display only; words
+// render with the panel, only his drawing is lazy; nothing with "Hide mascots"). The actions are unchanged.
 import { LimitByte } from "../guide/pages/pageGuides";
 import "./usage.css";
 
 export const PLANS_PATH = "/pricing";
+
+/**
+ * GUIDE-PAGES-1 (controller ruling, 23 Oct) — the panel's OWN plain line next to the pay buttons.
+ * It used to be Byte's; a mascot saying it read as selling. Trial only, and only where the panel
+ * already carries a Premium follow-on (not the Tutor / new-practice-questions copy, whose owner
+ * sentence is the whole message). No price, no urgency.
+ */
+export const TRIAL_PREMIUM_NOTE = "Premium removes the trial's daily and weekly limits. A fair-use limit still applies.";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -65,6 +73,13 @@ export default function FairUseLimitPanel({
     };
   }, [asDialog, open]);
 
+  const premiumNote =
+    limit.tier === "trial" && copy.showPlans && copy.tail ? (
+      <p className="lt-usage__body lt-usage__premium-note" data-testid="fair-use-premium-note">
+        {TRIAL_PREMIUM_NOTE}
+      </p>
+    ) : null;
+
   const lead = (
     <p className="lt-usage__lead">
       {copy.lead}
@@ -84,6 +99,7 @@ export default function FairUseLimitPanel({
         <div className="lt-usage__eyebrow">Fair use</div>
         {lead}
         <LimitByte limit={limit} when={when} />
+        {premiumNote}
         {copy.showPlans || onDismiss ? (
           <div className="lt-usage__actions">
             {copy.showPlans ? (
@@ -161,7 +177,7 @@ export default function FairUseLimitPanel({
         <p className="lt-usage__body" data-testid="fair-use-come-back">
           {trialComeBackLine(limit.resetAt ?? "", when, limit.allowance)}
         </p>
-        <LimitByte limit={limit} when={when} />
+        {premiumNote}
         <div className="lt-usage__actions">
           <PaywallActions
             surface="usage_limit"
@@ -181,6 +197,9 @@ export default function FairUseLimitPanel({
             {onDismiss ? dismissLabel : "Close"}
           </button>
         </div>
+        {/* GUIDE-PAGES-1 M7 — AFTER the actions, so Pay / Share QR code / Forward link / Close stay
+            exactly where they were; no "still works" here (the line above already says it). */}
+        <LimitByte limit={limit} when={when} variant="dialog" />
       </section>
     </div>
   );

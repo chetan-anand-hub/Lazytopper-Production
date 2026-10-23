@@ -2,12 +2,13 @@
  * GUIDE-PAGES-1 — Byte where a student needs help (owner ruling, 22 Oct 2026 23:32 IST: "wherever a
  * student needs help, Byte and/or Ziggy should be there"). THIS FILE IS THE EAGER HALF, exactly the
  * MOMENTS-1 split (../moments/moments.tsx): who sees a helper, the "?" door and the device marker.
- * It holds no copy and no drawing — every line, the rig and the CSS live in ./pageGuidesChunk.tsx,
+ * No drawing lives here — the rig, the entry/Exam Trends copy and their CSS are in ./pageGuidesChunk.tsx,
  * which Vite emits as its own `pageGuidesChunk-<hash>.js`, fetched only when a helper is about to show.
+ * The one exception is M7's two short lines (./m7Copy.ts), eager so the limit panel never grows late.
  *
- *   LimitByte  (m7)          — Byte inside the fair-use LIMIT panel and the trial-day dialog
- *                              (components/usage/FairUseLimitPanel.tsx). Shown with the panel, every
- *                              time; its slot is RESERVED in the panel (eager CSS) so nothing jumps.
+ *   LimitByte  (m7)          — Byte inside the fair-use LIMIT panel (what was hit + what still works)
+ *                              and AFTER the trial-day dialog's actions (what was hit, one line).
+ *                              Words render with the panel; Byte's drawing fills a fixed box.
  *   PageGuide  (ws_entry,    — a small "?" on the entry page. On this DEVICE's first visit the helper
  *               ct_entry,      opens once by itself; after that only the "?" opens it. It is a FIXED
  *               fm_entry,      card (portalled, bottom-left — the M10 peek's place), so opening it never
@@ -30,6 +31,8 @@ import type { GuideMomentId } from "../../../analytics/analytics";
 import type { LimitState } from "../../usage/fairUseGate";
 import { guideAbActive, guidePreviewActive, resolveGuideVariant, trackGuideEvent } from "../guideVariant";
 import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
+import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "../moments/mascotsToast";
+import { M7_COPY, m7Lines } from "./m7Copy";
 import type { PageGuideId, PageGuidePopProps, PageGuideStep } from "./pageGuidesChunk";
 import "./pageGuidesDoor.css";
 
@@ -45,7 +48,7 @@ function lazyPart<P extends object>(pick: (m: Chunk) => ComponentType<P>) {
 }
 
 const LazyPageGuidePop = lazyPart((m) => m.PageGuidePop);
-const LazyLimitByteBody = lazyPart((m) => m.LimitByteBody);
+const LazyM7Character = lazyPart((m) => m.M7Character);
 
 /** moments.tsx's `inGuideArm`, restated here so this tiny door does not pull the moments module
  *  (and its readers) into every page that renders a limit panel. Pinned equal by the tests. */
@@ -234,26 +237,76 @@ export interface LimitByteProps {
   limit: LimitState;
   /** The panel's own formatted reset time (formatResetIst), "" when the server sent none. */
   when: string;
+  /**
+   * `inline` (the panel): what was hit + what still works. `dialog` (the trial-day dialog, which
+   * already says what still works and carries the Premium line): what was hit, AFTER its actions.
+   */
+  variant?: "inline" | "dialog";
 }
 
+/** Stand-in while Firebase's uid is read: a fair-use refusal only reaches a verified signed-in student. */
+const PENDING_SIGNED_IN = "pending-signed-in";
+
 /**
- * Inside FairUseLimitPanel (inline panel and trial-day dialog). The slot is reserved by eager CSS
- * while the uid is read and the chunk loads, so the panel never grows under the student's finger.
- * A signed-in account outside the guide arm (or the split off) → nothing, not even the slot.
+ * Inside FairUseLimitPanel. The row and its words are EAGER and render in the SAME commit as the
+ * panel; only Byte's drawing is lazy, into a fixed 40×48 box — so nothing grows or jumps when the
+ * chunk arrives. A fair-use refusal only ever reaches a verified, signed-in student, so the row draws
+ * while Firebase's uid is still being read; it goes if the account resolves signed out, or the arm is
+ * forced off (an admin "Show control" preview) — every student is in the guide arm since GUIDE-ALL-1.
  */
-export function LimitByte({ limit, when }: LimitByteProps) {
+export function LimitByte({ limit, when, variant = "inline" }: LimitByteProps) {
   const hidden = useMascotsHidden();
   const active = !hidden && guideAbActive();
   const uid = useGuideUid(active);
-  if (!active) return null;
-  if (uid !== undefined && !inGuideArm(uid)) return null;
+  // Since GUIDE-ALL-1 the arm no longer depends on WHICH account (only on a test seam / admin preview
+  // / dev override), so while the uid is still being read the arm is resolved for "a signed-in
+  // account" — an admin "Show control" preview never flashes Byte; a resolved signed-out → nothing.
+  const out = !active || !inGuideArm(uid === undefined ? PENDING_SIGNED_IN : uid);
+  const [preview] = useState(() => guidePreviewActive());
+
+  // guide_moment_shown — once per refusal shown (a NEW limit object is a new refusal).
+  useEffect(() => {
+    if (!out) trackGuideEvent("guide_moment_shown", { moment: "m7" });
+  }, [limit, out]);
+
+  if (out) return null;
+  const lines = m7Lines(limit, when);
+  // The dialog already says what still works (and the panel's own lead carries the Premium line),
+  // so there Byte says ONE line; the inline panel adds what still works.
+  const second = variant === "dialog" ? null : lines.still;
   return (
-    <div className="lt-pg-m7slot" data-testid="guide-m7-slot">
-      {uid !== undefined ? (
+    <div
+      className={`lt-pg-m7 lt-pg-m7--${variant}`}
+      data-testid="guide-moment-m7"
+      data-variant={variant}
+      data-tier={limit.tier}
+      data-scope={limit.scope}
+      role="group"
+      aria-label="Byte"
+    >
+      <span className="lt-pg-m7__box" aria-hidden="true">
         <Suspense fallback={null}>
-          <LazyLimitByteBody limit={limit} when={when} />
+          <LazyM7Character />
         </Suspense>
-      ) : null}
+      </span>
+      <div className="lt-pg-m7__bub">
+        {preview ? (
+          <span className="lt-pg-m7__admin" data-testid="guide-admin-preview">
+            {M7_COPY.adminPreview}
+          </span>
+        ) : null}
+        <p className="lt-pg-m7__say" data-testid="guide-m7-hit">
+          {lines.hit}
+        </p>
+        {second ? (
+          <p className="lt-pg-m7__say lt-pg-m7__say--soft" data-testid="guide-m7-still">
+            {second}
+          </p>
+        ) : null}
+        <button type="button" className="lt-pg-m7__hide" data-testid="mascots-hide" onClick={hideMascotsWithUndo}>
+          {MASCOTS_TOAST_COPY.hide}
+        </button>
+      </div>
     </div>
   );
 }

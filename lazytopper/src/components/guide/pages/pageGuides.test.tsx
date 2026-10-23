@@ -35,10 +35,11 @@ import {
   inGuideArm,
 } from "./pageGuides";
 import { ENTRY_COPY, M7_COPY, POP_COPY, TRENDS_COPY, m7Lines } from "./pageGuidesChunk";
+import { isNextMidnight } from "./m7Copy";
 import { inGuideArm as momentsInGuideArm } from "../moments/moments";
 import { __removeMascotsToastForTests } from "../moments/mascotsToast";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, hideMascots } from "../mascotsMute";
-import { GUIDE_PREVIEW_KEY, __setGuideAbForTests } from "../guideVariant";
+import { GUIDE_PREVIEW_KEY, __setGuideAbForTests, guideFocusOpen } from "../guideVariant";
 import type { LimitState } from "../../usage/fairUseGate";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -99,7 +100,8 @@ describe("GUIDE-PAGES-1 · the copy tables (owner review)", () => {
       "more-like-this": "Your new practice questions for today are used up.",
     });
     expect(M7_COPY.still).toBe("Notes, Topic Hub, Exam Trends and NCERT solutions still work. Reading them never uses your limit.");
-    expect(M7_COPY.premiumLine).toBe("Premium removes the trial's daily and weekly limits. A fair-use limit still applies.");
+    // No Premium line of Byte's: the panel's own lead already carries it (no repeat, no pressure).
+    expect(strings(M7_COPY).join(" ")).not.toMatch(/Premium removes/);
     // Never claims that worksheets are free: a worksheet GRADE is metered (fairUse.cjs GRADE_WORKSHEET_PATH).
     expect(M7_COPY.still).not.toMatch(/worksheet/i);
   });
@@ -118,75 +120,103 @@ describe("GUIDE-PAGES-1 · the copy tables (owner review)", () => {
       "bands", "marks", "tier", "expect", "hpq", "learn", "notes", "select", "weightage", "guide",
     ]);
     expect(strings(TRENDS_COPY).join(" ")).not.toMatch(/\bPYQ|\bCBQ/);
+    expect(TRENDS_COPY.items.find((i) => i.key === "hpq")?.line).toBe(
+      "This chapter's Important Questions, picked from what past papers ask most. Open them from the ⋯ menu.",
+    );
+    // Byte's own closing tip — no second character, no Ziggy name anywhere in the card's copy.
+    expect(TRENDS_COPY.tip).toBe("My tip: pick one Must-crack chapter today and finish it. Small steps add up.");
+    expect([...strings(TRENDS_COPY), ...strings(POP_COPY)].join(" ")).not.toMatch(/ziggy/i);
+    // Learn opens /topic-hub/:slug (App.tsx path="/topic-hub/:topicName", no RequirePremium): no Premium caveat.
+    expect(TRENDS_COPY.items.find((i) => i.key === "learn")?.line).toBe("Opens this chapter's Topic Hub, where you learn it concept by concept.");
   });
 });
 
 describe("GUIDE-PAGES-1 M7 · Byte's lines come from the panel's own data", () => {
   const trial = (scope: LimitState["scope"], resetAt: string | null): LimitState => ({ tier: "trial", scope, resetAt, window: null, allowance: 5 });
+  // Fixed clocks (IST = UTC+5:30). Thu 22 Oct 2026, 9:00 pm IST.
+  const THU_9PM_IST = Date.parse("2026-10-22T15:30:00.000Z");
+  // Mon 19 Oct 2026, 10:00 am IST.
+  const MON_10AM_IST = Date.parse("2026-10-19T04:30:00.000Z");
 
-  it("trial, midnight reset → 'after midnight', the still-works line and the Premium line", () => {
-    const l = m7Lines(trial("checks", "2026-10-22T18:30:00.000Z"), "12:00 am on Fri 23 Oct");
+  it("trial, reset at the NEXT midnight (under 24 h away) → 'after midnight' and the still-works line", () => {
+    const l = m7Lines(trial("checks", "2026-10-22T18:30:00.000Z"), "12:00 am on Fri 23 Oct", THU_9PM_IST);
     expect(l).toEqual({
       hit: "Your answer checks for today are used up. It comes back after midnight.",
       still: M7_COPY.still,
-      premium: M7_COPY.premiumLine,
     });
   });
 
-  it("trial weekly, not midnight → the panel's own time; no resetAt → no reset sentence (never guessed)", () => {
-    expect(m7Lines(trial("full-mock", "2026-10-25T09:00:00.000Z"), "2:30 pm on Sun 25 Oct").hit).toBe(
-      "Your full mock allowance for this week is used up. It comes back at 2:30 pm on Sun 25 Oct.",
-    );
-    expect(m7Lines(trial("worksheet", null), "").hit).toBe("Your worksheet allowance for this week is used up.");
+  it("★ weekly mock used Monday, reset Sun 00:00 IST (days away) → NO 'after midnight'; the day is named", () => {
+    const sundayMidnightIst = "2026-10-24T18:30:00.000Z"; // 00:00 IST Sun 25 Oct
+    const l = m7Lines(trial("full-mock", sundayMidnightIst), "12:00 am on Sun 25 Oct", MON_10AM_IST);
+    expect(l.hit).not.toContain("after midnight");
+    expect(l.hit).toBe("Your full mock allowance for this week is used up. It comes back at 12:00 am on Sun 25 Oct.");
+    expect(isNextMidnight(sundayMidnightIst, MON_10AM_IST)).toBe(false);
+    expect(isNextMidnight("2026-10-22T18:30:00.000Z", THU_9PM_IST)).toBe(true);
+    expect(isNextMidnight("2026-10-22T18:30:00.000Z", Date.parse("2026-10-22T19:00:00.000Z"))).toBe(false); // already past
   });
 
-  it("premium → its window, and NO Premium sales line", () => {
-    const l = m7Lines({ tier: "premium", scope: "checks", resetAt: "2026-10-22T10:00:00.000Z", window: "fiveHour" }, "3:30 pm");
+  it("trial weekly, not midnight → the panel's own time; no resetAt → no reset sentence (never guessed)", () => {
+    expect(m7Lines(trial("full-mock", "2026-10-25T09:00:00.000Z"), "2:30 pm on Sun 25 Oct", MON_10AM_IST).hit).toBe(
+      "Your full mock allowance for this week is used up. It comes back at 2:30 pm on Sun 25 Oct.",
+    );
+    expect(m7Lines(trial("worksheet", null), "", MON_10AM_IST).hit).toBe("Your worksheet allowance for this week is used up.");
+  });
+
+  it("premium → its window", () => {
+    const l = m7Lines({ tier: "premium", scope: "checks", resetAt: "2026-10-22T10:00:00.000Z", window: "fiveHour" }, "3:30 pm", THU_9PM_IST);
     expect(l.hit).toBe("You've reached Premium's 5-hour fair-use limit. It comes back at 3:30 pm.");
-    expect(l.premium).toBeNull();
   });
 });
 
-function Limit({ limit, when = "" }: { limit: LimitState; when?: string }) {
-  return <LimitByte limit={limit} when={when} />;
+function Limit({ limit, when = "", variant }: { limit: LimitState; when?: string; variant?: "inline" | "dialog" }) {
+  return <LimitByte limit={limit} when={when} variant={variant} />;
 }
 const TRIAL_CT: LimitState = { tier: "trial", scope: "chapter-test", resetAt: null, window: null, allowance: 1 };
+const m7Rows = () => document.querySelectorAll("[data-testid='guide-moment-m7'] .lt-pg-m7__say").length;
 
 describe("GUIDE-PAGES-1 M7 · LimitByte", () => {
-  it("guide arm: the slot is reserved at once, then Byte says the lines; guide_moment_shown m7 once", async () => {
+  it("inline: the words are there in the FIRST commit (nothing grows later); then Byte is drawn; shown m7 once", async () => {
     render(<Limit limit={TRIAL_CT} />);
-    expect(screen.getByTestId("guide-m7-slot")).toBeTruthy(); // reserved before the chunk / uid
-    const m = await screen.findByTestId("guide-moment-m7");
+    // synchronous — no await: the row and both lines exist before the chunk or the uid arrive
     expect(screen.getByTestId("guide-m7-hit").textContent).toBe(M7_COPY.trialHit["chapter-test"]);
     expect(screen.getByTestId("guide-m7-still").textContent).toBe(M7_COPY.still);
-    expect(screen.getByTestId("guide-m7-premium").textContent).toBe(M7_COPY.premiumLine);
-    expect(m.querySelector("[data-testid='blob-byte']")).toBeTruthy();
+    expect(m7Rows()).toBe(2); // compact: two lines
     expect(screen.getByTestId("mascots-hide")).toBeTruthy();
+    const m = screen.getByTestId("guide-moment-m7");
+    expect(m.getAttribute("data-variant")).toBe("inline");
+    await waitFor(() => expect(m.querySelector(".lt-pg-m7__box [data-testid='blob-byte'], .lt-pg-m7__box .lt-gr-host")).toBeTruthy());
     await waitFor(() => expect(calls("guide_moment_shown")).toEqual([["guide_moment_shown", { moment: "m7" }]]));
   });
 
-  it("control arm / split off / signed out → nothing at all, not even the slot", async () => {
+  it("dialog: ONE line — what was hit; no 'still works' (the dialog already says it)", () => {
+    render(<Limit limit={TRIAL_CT} variant="dialog" />);
+    expect(screen.getByTestId("guide-m7-hit").textContent).toBe(M7_COPY.trialHit["chapter-test"]);
+    expect(screen.queryByTestId("guide-m7-still")).toBeNull();
+    expect(m7Rows()).toBe(1);
+  });
+
+  it("control arm / split off / signed out → nothing at all", async () => {
     __setGuideAbForTests(true, "control");
     const v = render(<Limit limit={TRIAL_CT} />);
     await act(async () => {});
-    expect(screen.queryByTestId("guide-m7-slot")).toBeNull();
+    expect(screen.queryByTestId("guide-moment-m7")).toBeNull();
     v.unmount();
     __setGuideAbForTests(false);
     render(<Limit limit={TRIAL_CT} />);
-    expect(screen.queryByTestId("guide-m7-slot")).toBeNull();
+    expect(screen.queryByTestId("guide-moment-m7")).toBeNull();
     cleanup();
     __setGuideAbForTests(true, "guide");
     __resetGuideUidForTests();
     auth.currentUser = null;
     render(<Limit limit={TRIAL_CT} />);
-    await waitFor(() => expect(screen.queryByTestId("guide-m7-slot")).toBeNull());
+    await waitFor(() => expect(screen.queryByTestId("guide-moment-m7")).toBeNull());
   });
 
   it("Hide mascots → none", async () => {
     window.localStorage.setItem(MASCOTS_HIDDEN_KEY, "1");
     render(<Limit limit={TRIAL_CT} />);
     await act(async () => {});
-    expect(screen.queryByTestId("guide-m7-slot")).toBeNull();
     expect(screen.queryByTestId("guide-moment-m7")).toBeNull();
   });
 
@@ -255,13 +285,24 @@ describe("GUIDE-PAGES-1 · the '?' door: once per device, then on demand", () =>
     });
   }
 
-  it("Exam Trends: every item and Ziggy's one line", async () => {
+  it("Exam Trends: every item and Byte's own tip — ONE character in the card (no Ziggy)", async () => {
     render(<Door id="trends_help" step="page" first="" />);
-    await screen.findByTestId("page-guide-pop-trends_help");
+    const pop = await screen.findByTestId("page-guide-pop-trends_help");
     for (const it of TRENDS_COPY.items) {
       expect(screen.getByTestId(`trends-help-${it.key}`).textContent).toBe(`${it.label}${it.line}`);
     }
-    expect(screen.getByTestId("page-guide-ziggy").textContent).toBe(`Ziggy ${TRENDS_COPY.ziggy}`);
+    expect(screen.getByTestId("page-guide-tip").textContent).toBe(TRENDS_COPY.tip);
+    expect(screen.queryByTestId("page-guide-ziggy")).toBeNull();
+    expect(pop.textContent ?? "").not.toMatch(/ziggy/i);
+    await waitFor(() => expect(pop.querySelectorAll(".lt-gr-host").length).toBe(1));
+  });
+
+  it("an open card is the page's one focused guide (guideFocusOpen), released on close", async () => {
+    render(<Door id="ws_entry" step="page" first="" uid="u1" />);
+    await screen.findByTestId("page-guide-pop-ws_entry");
+    await waitFor(() => expect(guideFocusOpen()).toBe(true));
+    fireEvent.click(screen.getByTestId("page-guide-close"));
+    expect(guideFocusOpen()).toBe(false);
   });
 
   it("a host-passed uid is used as is: null (signed out / local session) → nothing", async () => {
@@ -329,8 +370,11 @@ describe("GUIDE-PAGES-1 · the '?' door: once per device, then on demand", () =>
 });
 
 describe("GUIDE-PAGES-1 · no layout shift (slot reserved / out of flow)", () => {
-  it("the M7 slot is reserved by EAGER css; the card is position:fixed; the corner door is absolute", () => {
-    expect(doorCss).toMatch(/\.lt-pg-m7slot\s*\{[^}]*min-height:\s*76px/);
+  it("M7's row is EAGER css with a FIXED character box; the card is position:fixed; the corner door is absolute", () => {
+    expect(doorCss).toMatch(/\.lt-pg-m7\s*\{[^}]*display:\s*flex/);
+    expect(doorCss).toMatch(/\.lt-pg-m7__box\s*\{[^}]*width:\s*40px;\s*height:\s*48px/);
+    expect(doorCss).toMatch(/\.lt-pg-m7__say\s*\{/);
+    expect(doorCss).not.toMatch(/animation/);
     expect(doorCss).toMatch(/\.lt-pg-door--corner\s*\{[^}]*position:\s*absolute/);
     expect(doorCss).toMatch(/\.lt-pg-door--end, \.lt-pg-door--inline\s*\{[^}]*margin-top:\s*-4px;\s*margin-bottom:\s*-4px/);
     expect(popCss).toMatch(/\.lt-pg-pop\s*\{[^}]*position:\s*fixed/);
