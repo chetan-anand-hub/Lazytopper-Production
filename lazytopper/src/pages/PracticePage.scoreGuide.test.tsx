@@ -1,9 +1,11 @@
 // GUIDE-SCORE-1 — Byte's in-page actions on the REAL Quick Practice page (PracticePage → the
 // Universal scorecard → back to the set → PracticeQuestionCard). Owner ruling 23 Oct 17:57: Quick
-// Practice never sends a student to /check-improve — Byte opens THIS set's own working box:
-//   missed taps  → "Show me the first one I missed →"  opens the FIRST MISSED question's box;
-//   all right    → "Add working to one →"               opens the FIRST question's box.
-// The box must be OPEN (rendered) and FOCUSED — not just a handler called. Marks never change.
+// Practice never sends a student to /check-improve.
+// QP-WORKING-AFTER-1 (owner ruling 23 Oct 23:11 "B"): after the scorecard, written working is not
+// graded, so Byte no longer opens a working box:
+//   missed taps  → "Show me the first one I missed →"  opens the FIRST MISSED question's SOLUTION;
+//   all right    → a forward-looking line and the next practice link (no box).
+// Marks never change.
 //
 // ★ The harness of PracticePage.moments.test.tsx.
 
@@ -152,29 +154,26 @@ afterEach(() => {
 });
 
 describe("GUIDE-SCORE-1 · Byte opens THIS set's working box (Quick Practice, real page)", () => {
-  it("★★ missed taps: 'Show me the first one I missed →' opens Q2's working box, scrolled to and focused", async () => {
+  it("★★ missed taps: 'Show me the first one I missed →' opens Q2's SOLUTION (no working box), focused", async () => {
     await finishTaps([2, 4]);
     const cta = await byteButton();
     expect(cta.textContent).toBe("Show me the first one I missed →");
     expect(cta.tagName).toBe("BUTTON"); // in-page: never a link to another page
     expect(screen.getByTestId("score-guide-line").textContent).toMatch(/2 questions wrong/);
-    expect(checkerIn("q-2")).toBeNull(); // closed before the tap
     fireEvent.click(cta);
-    await waitFor(() => expect(checkerIn("q-2")).not.toBeNull(), { timeout: 5000 });
-    // ONLY the target question's box opened.
-    expect(checkerIn("q-1")).toBeNull();
-    expect(checkerIn("q-4")).toBeNull();
-    await waitFor(() => expect(document.activeElement).toBe(checkerIn("q-2")), { timeout: 3000 });
+    await waitFor(() => expect(card("q-2")?.textContent).toContain("Bank step one of question 2."), { timeout: 5000 });
+    // The solution only: no working box anywhere, and only Q2's steps opened.
+    expect(document.querySelectorAll('[data-testid="practice-checker"]').length).toBe(0);
+    expect(card("q-4")?.textContent).not.toContain("Bank step one of question 4.");
+    await waitFor(() => expect(document.activeElement).toBe(card("q-2")), { timeout: 3000 });
   }, 60_000);
 
-  it("★★ all taps right: 'Add working to one →' opens the FIRST question's working box, focused", async () => {
+  it("★★ all taps right: a forward-looking line and the next-practice link — no working box", async () => {
     await finishTaps([]);
     const cta = await byteButton();
-    expect(cta.textContent).toBe("Add working to one →");
-    fireEvent.click(cta);
-    await waitFor(() => expect(checkerIn("q-1")).not.toBeNull(), { timeout: 5000 });
-    expect(checkerIn("q-2")).toBeNull();
-    await waitFor(() => expect(document.activeElement).toBe(checkerIn("q-1")), { timeout: 3000 });
+    expect(cta.textContent).not.toMatch(/Add working/);
+    expect(screen.getByTestId("score-guide-line").textContent).toMatch(/Next time/);
+    expect(cta.getAttribute("href")).not.toBe("/check-improve");
   }, 60_000);
 
   it("★ never a /check-improve link on the Quick Practice scorecard", async () => {

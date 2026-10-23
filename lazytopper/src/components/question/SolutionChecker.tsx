@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import "./solutionCheckerSaved.css";
 import { Link, useLocation } from "react-router-dom";
 import {
   checkSolutionImage,
@@ -154,6 +155,12 @@ interface SolutionCheckerProps {
    * signal was still loading) moves the tab only while the student has not touched the box.
    */
   defaultAnswerMode?: "type" | "upload";
+  /**
+   * QP-WORKING-AFTER-1 — collect mode only. Called with what the ACTIVE tab holds while the
+   * working is NOT yet saved (null once it is saved, cleared, or the box closes), so the host can
+   * nudge "Don't forget to save" and list it at the Finish gate. No API call.
+   */
+  onDraftChange?: (working: SolutionCheckerSavedWorking | null) => void;
 }
 
 /**
@@ -511,7 +518,7 @@ function SignInToCheckCta() {
 export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer, attemptIdentity,
-  defaultAnswerMode,
+  defaultAnswerMode, onDraftChange,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   /**
@@ -926,6 +933,28 @@ export function SolutionChecker({
    */
   const inputPhaseOpen = collectMode ? !savedAnswer : !result;
 
+  // QP-WORKING-AFTER-1 — the unsaved draft, handed up (collect mode only; no API call). The same
+  // what-you-see-is-what-you-send rule as "Save my answer": only the ACTIVE tab's content.
+  const draftCbRef = useRef(onDraftChange);
+  draftCbRef.current = onDraftChange;
+  useEffect(() => {
+    if (!collectMode || !draftCbRef.current) return;
+    const draftImage = inputPhaseOpen && answerTab === "upload" && !!imageBase64;
+    const draftTyped = inputPhaseOpen && answerTab === "type" && textAnswer.trim().length > 0;
+    draftCbRef.current(
+      draftImage || draftTyped
+        ? {
+            imageBase64: draftImage ? imageBase64 : null,
+            imageMimeType: draftImage ? imageMimeType : null,
+            textAnswer: draftTyped ? textAnswer.trim() : null,
+            kind: draftImage ? (isPdf ? "pdf" : "photo") : "typed",
+          }
+        : null,
+    );
+  }, [collectMode, inputPhaseOpen, answerTab, imageBase64, imageMimeType, isPdf, textAnswer]);
+  // The box closes (unmounts): no draft is left behind.
+  useEffect(() => () => draftCbRef.current?.(null), []);
+
   // SCORECARD-MI-1 — the ONE count function (no type on a question that lost nothing).
   const totalMistakes = result ? totalCount(effectiveTypeCounts(result)) : 0;
 
@@ -1287,6 +1316,7 @@ export function SolutionChecker({
             <div style={{ display: "flex", gap: 14, marginTop: 8 }}>
               <button
                 type="button"
+                className="qp-saved-act"
                 onClick={() => {
                   const wasTyped = savedAnswer.kind === "typed";
                   handleClear();
@@ -1302,6 +1332,7 @@ export function SolutionChecker({
               >Replace</button>
               <button
                 type="button"
+                className="qp-saved-act"
                 onClick={() => { handleClear(); onRemoveAnswer?.(); }}
                 style={{
                   background: "none", border: "none", padding: 0, cursor: "pointer",

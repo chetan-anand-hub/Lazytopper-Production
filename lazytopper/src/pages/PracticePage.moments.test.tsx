@@ -292,7 +292,9 @@ describe("MOMENTS-1 M11 · the first written answer nudge on the MCQ-only scorec
     await finishTapOnly();
     // Byte's owner-approved objective line takes the slot: it tells the truth (§13) and opens the box.
     const byte = await screen.findByTestId("score-guide-cta", {}, { timeout: 8000 });
-    expect(byte.textContent).toBe("Add working to one →");
+    // QP-WORKING-AFTER-1 (owner 23:11 "B"): the forward-looking line, no post-scorecard working box.
+    expect(byte.textContent).not.toMatch(/Add working/);
+    expect(screen.getByTestId("score-guide-line").textContent).toMatch(/Next time/);
     expect(screen.queryByTestId("guide-moment-m11")).toBeNull();
     expect(screen.queryByText(M11_LINE)).toBeNull();
     expect(document.querySelector('a[href="/check-improve"]')).toBeNull();

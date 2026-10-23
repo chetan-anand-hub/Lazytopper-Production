@@ -15,6 +15,7 @@ import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
 // CBQ-1 PR-1: the visible "CBQ" label, shown iff isCbq(q) (the one classifier).
 import { CbqLabel } from "../../lib/cbq/CbqLabel";
 import { StepsLockedNote } from "./StepsLockedNote";
+import { SAVE_NUDGE_IDLE_MS, SaveNudge, WrongTapNudge } from "../guide/saveNudge/saveNudge";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
 // DIAGRAMS-1 PR-2a — a solution figure drawn from the question's own numbers; lazy, so it
 // loads only when a solution is opened (null when the row has no bound figure).
@@ -49,6 +50,8 @@ export interface PracticeQuestionCardProps {
    *  and focus it (Byte's "Show me the first one I missed" / "Add working to one"). Each new
    *  number is one request; undefined / unchanged → nothing. Opening the box changes no mark. */
   openCheckerRequest?: number;
+  /** QP-WORKING-AFTER-1 — a new number: open THIS card's solution (steps), scroll to it and focus it. */
+  openStepsRequest?: number;
   subjectKey: string;
   topicLabel: string;
   isOpen: boolean;
@@ -85,6 +88,15 @@ export interface PracticeQuestionCardProps {
   onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
   /** Collect mode: the student dropped the working saved for this question. */
   onRemoveAnswer?: (qId: string) => void;
+  /** QP-WORKING-AFTER-1 — collect mode: the box's unsaved draft (null once saved / cleared). */
+  onDraftAnswer?: (qId: string, working: SolutionCheckerSavedWorking | null) => void;
+  /** QP-WORKING-AFTER-1 — collect mode: offer the "Don't forget to save" nudge (Ziggy for this
+   *  signed-in student, else plain text). Undefined: no nudge (every other host, review mode). */
+  saveNudgeUid?: string | null;
+  /** QP-WORKING-AFTER-1 — owner ruling 23 Oct 22:48 ("after the final scorecard, working isn't
+   *  graded"): in Quick Practice review there is NO answer box — no "Answer this question", no
+   *  "Want to know why?", nothing collected. Default false (every other host, unchanged). */
+  answerBoxOff?: boolean;
   /**
    * PRACTICE-HONESTY-1 — the solution steps are locked until the student has tried the
    * question. The HOST decides (it alone knows every attempt signal and whether the
@@ -186,11 +198,13 @@ export function PracticeQuestionCard({
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
   onAskTutor,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
+  onDraftAnswer, saveNudgeUid, answerBoxOff = false,
   stepsLocked = false,
   hideSteps = false,
   countsAsAttempt: countsAsAttemptProp,
   defaultAnswerMode,
   openCheckerRequest,
+  openStepsRequest,
 }: PracticeQuestionCardProps) {
   const countsAsAttemptDefault = useContext(AttemptCountingContext);
   const countsAsAttempt = countsAsAttemptProp ?? countsAsAttemptDefault;
@@ -281,6 +295,66 @@ export function PracticeQuestionCard({
     // One request per new number.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openCheckerRequest]);
+
+  // QP-WORKING-AFTER-1 (owner ruling 23:11) — a WRONG tap: Ziggy offers this question's working box
+  // on the tab the student picks (dismissible; once per wrong tap — a question is tapped once).
+  const [wrongNudgeGone, setWrongNudgeGone] = useState(false);
+  const [checkerMode, setCheckerMode] = useState<"type" | "upload" | undefined>(undefined);
+  const openWorkingOn = useCallback(
+    (mode: "type" | "upload") => {
+      setCheckerMode(mode);
+      setWrongNudgeGone(true);
+      onSetActiveQuestion(String(q.id));
+      if (isOpen) onToggleAnswer(q.id, q);
+      setShowChecker(true);
+    },
+    [isOpen, q, onToggleAnswer, onSetActiveQuestion],
+  );
+
+  // QP-WORKING-AFTER-1 — working typed or attached but not saved: after a pause, a nudge to save it
+  // (once per question; gone on Save). Its Save saves exactly the working on screen.
+  const [draft, setDraft] = useState<SolutionCheckerSavedWorking | null>(null);
+  const [nudgeOn, setNudgeOn] = useState(false);
+  const nudgeDone = useRef(false);
+  const nudgeEnabled = collectMode && saveNudgeUid !== undefined;
+  useEffect(() => {
+    if (!nudgeEnabled || nudgeDone.current) return;
+    if (!draft || savedAnswer) {
+      if (nudgeOn) {
+        setNudgeOn(false);
+        nudgeDone.current = true; // once per question
+      }
+      return;
+    }
+    if (nudgeOn) return;
+    const t = window.setTimeout(() => setNudgeOn(true), SAVE_NUDGE_IDLE_MS);
+    return () => window.clearTimeout(t);
+  }, [nudgeEnabled, draft, savedAnswer, nudgeOn]);
+  const handleDraft = useCallback(
+    (w: SolutionCheckerSavedWorking | null) => {
+      setDraft(w);
+      onDraftAnswer?.(String(q.id), w);
+    },
+    [onDraftAnswer, q.id],
+  );
+
+  // QP-WORKING-AFTER-1 — the host asked to show THIS card's solution: the steps open (the working box
+  // closes, as "Show steps" does), then the card is brought into view and focused.
+  const lastStepsRequest = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (openStepsRequest === undefined || openStepsRequest === lastStepsRequest.current) return;
+    lastStepsRequest.current = openStepsRequest;
+    setShowChecker(false);
+    if (!isOpen) onToggleAnswer(q.id, q);
+    const t = window.setTimeout(() => {
+      const el = cardRef.current;
+      el?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      el?.focus?.({ preventScroll: true });
+    }, 60);
+    return () => window.clearTimeout(t);
+    // One request per new number.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openStepsRequest]);
 
   const handleToggleSteps = useCallback(() => {
     if (!isOpen) {
@@ -507,7 +581,16 @@ export function PracticeQuestionCard({
         )}
         {/* Discoverability nudge after a wrong MCQ: point at the EXISTING inline
             Check-my-answer box. No new data path — just reveals the checker. */}
-        {result === "wrong" && hasStructuredOptions && !showChecker && (
+        {result === "wrong" && hasStructuredOptions && !showChecker && nudgeEnabled && countsAsAttempt ? (
+          !wrongNudgeGone ? (
+            <WrongTapNudge
+              id={`wrong:${String(q.id)}`}
+              uid={saveNudgeUid}
+              onOpen={openWorkingOn}
+              onDismiss={() => setWrongNudgeGone(true)}
+            />
+          ) : null
+        ) : result === "wrong" && hasStructuredOptions && !showChecker && !answerBoxOff && (
           <button
             type="button"
             onClick={() => {
@@ -538,6 +621,7 @@ export function PracticeQuestionCard({
   return (
     <article
       ref={cardRef}
+      tabIndex={-1} // QP-WORKING-AFTER-1 — focusable for "Show me the first one I missed" (not in tab order)
       data-testid="practice-question-card"
       data-question-id={String(q.id)}
       onClick={() => onSetActiveQuestion(String(q.id))}
@@ -646,7 +730,7 @@ export function PracticeQuestionCard({
         display: "flex", flexWrap: "wrap", gap: 8,
         alignItems: "center", marginBottom: 10,
       }}>
-        {!hasStructuredOptions && (
+        {!hasStructuredOptions && !answerBoxOff && (
           <button
             type="button"
             onClick={() => {
@@ -689,7 +773,7 @@ export function PracticeQuestionCard({
           <span>{isOpen ? "Hide steps" : "Show steps"}</span>
         </button>
         )}
-        {hasStructuredOptions && (
+        {hasStructuredOptions && !answerBoxOff && (
           <button
             type="button"
             onClick={() => {
@@ -711,7 +795,7 @@ export function PracticeQuestionCard({
         )}
       </div>
 
-      {showChecker && (
+      {showChecker && !answerBoxOff && (
         <div ref={checkerRef} tabIndex={-1} className="pqc-checker" data-testid="practice-checker" aria-label="Your working for this question">
         <SolutionChecker
           question={q.questionText}
@@ -745,8 +829,13 @@ export function PracticeQuestionCard({
           // N2 — the SAME attempt identity the MCQ click above records under.
           attemptIdentity={practiceCardAttemptIdentity(String(q.id))}
           // SHW-2 — which answer tab is selected first (undefined = upload, unchanged).
-          defaultAnswerMode={defaultAnswerMode}
+          // QP-WORKING-AFTER-1 — or the tab the student picked on Ziggy's wrong-tap nudge.
+          defaultAnswerMode={checkerMode ?? defaultAnswerMode}
+          onDraftChange={collectMode ? handleDraft : undefined}
         />
+        {nudgeEnabled && nudgeOn && draft && !savedAnswer ? (
+          <SaveNudge id={String(q.id)} uid={saveNudgeUid} onSave={() => onSaveAnswer?.(String(q.id), draft)} />
+        ) : null}
         </div>
       )}
 
