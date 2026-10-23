@@ -20,7 +20,7 @@
  *     nothing it would not give a trial-ended student.
  *   - Byte and Ziggy are never drawn together: the Exam Trends closing tip is Byte's own line.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import BlobCharacter from "../BlobCharacter";
 import { prefersReducedMotion } from "../rig";
@@ -140,10 +140,167 @@ function entryCopyFor(id: PageGuidePopProps["id"], step: PageGuideStep): EntryCo
   return byStep[step] ?? byStep.page ?? null;
 }
 
+/* ── GUIDE-PAGES-FLAKE-1: the card never covers the page's primary action ──────────────────── */
+
+/**
+ * The element the card must never sit on, per helper: the start row / button a student came to
+ * press. Exam Trends has no single primary action (its card covers the left of the list only).
+ */
+export const PAGE_GUIDE_AVOID: Partial<Record<string, string>> = {
+  "ct_entry:page": ".lt-ct__startrow",
+  "ct_entry:chooser": "[data-testid='ct-picker-open']",
+  "fm_entry:page": ".lt-ct__startrow",
+  // the hero's Preview row AND the Customise drawer's own Preview row (FIX B)
+  "ws_entry:page": ".lt-ws__herobot, .lt-ws__drawerfoot",
+};
+
+export interface Box {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+export interface PlaceInput {
+  /** viewport height */
+  vh: number;
+  /** the card's DEFAULT box (bottom-placed, natural height) — measured, never assumed */
+  card: Box;
+  /** the primary action(s) the card must not cover */
+  avoid: Box[];
+  /** what the card must never cover when it moves: the "?" toggle that closes it */
+  keep: Box[];
+  /** the card's measured gap from the bottom edge (the CSS bottom offset, incl. safe-area) */
+  bottomGap: number;
+  /** the gap kept from the top edge when it moves up */
+  topGap: number;
+}
+
+/** Breathing room kept between the card and anything it must not cover. */
+const AVOID_MARGIN = 8;
+
+const laidOut = (b: Box, vh: number) => b.bottom > b.top && b.bottom > 0 && b.top < vh;
+const sideBySide = (a: Box, b: Box) => a.right <= b.left || a.left >= b.right;
+const overlaps = (a: Box, b: Box) => !sideBySide(a, b) && a.top < b.bottom && a.bottom > b.top;
+
+/**
+ * PURE. Where the card goes so it never covers the primary action:
+ *   `null` — the DEFAULT box covers no primary action: nothing moves (the default stands).
+ *   otherwise — the largest free vertical band between the top gap and the bottom offset that
+ *   holds none of the primary actions NOR the "?" toggle (only what is in the card's columns
+ *   counts), with the bubble capped to that band (it scrolls inside). `anchor: "bottom"` keeps the
+ *   default bottom edge when that band reaches it; otherwise the card's top is `top`.
+ */
+export function placePageGuide(p: PlaceInput): { anchor: "top" | "bottom"; top: number; maxH: number } | null {
+  const { vh, card } = p;
+  const avoid = p.avoid.filter((b) => laidOut(b, vh));
+  if (!avoid.some((b) => overlaps(b, card))) return null;
+  const limitTop = p.topGap;
+  const limitBottom = vh - p.bottomGap;
+  const blocks = [...avoid, ...p.keep.filter((b) => laidOut(b, vh))]
+    .filter((b) => !sideBySide(b, card))
+    .map((b) => ({ top: b.top - AVOID_MARGIN, bottom: b.bottom + AVOID_MARGIN }))
+    .sort((a, b) => a.top - b.top);
+  const bands: { top: number; bottom: number }[] = [];
+  let cursor = limitTop;
+  for (const b of blocks) {
+    if (b.top > cursor) bands.push({ top: cursor, bottom: Math.min(b.top, limitBottom) });
+    cursor = Math.max(cursor, b.bottom);
+  }
+  if (cursor < limitBottom) bands.push({ top: cursor, bottom: limitBottom });
+  const best = bands.filter((b) => b.bottom > b.top).sort((a, b) => b.bottom - b.top - (a.bottom - a.top))[0];
+  if (!best) return { anchor: "top", top: limitTop, maxH: 0 };
+  const maxH = Math.floor(best.bottom - best.top);
+  return best.bottom >= limitBottom
+    ? { anchor: "bottom", top: Math.floor(best.top), maxH }
+    : { anchor: "top", top: Math.ceil(best.top), maxH };
+}
+
+const boxOf = (el: Element): Box => {
+  const r = el.getBoundingClientRect();
+  return { top: r.top, bottom: r.bottom, left: r.left, right: r.right };
+};
+
+/** Keeps the card off the primary action while it is open (scroll, resize, the page filling in). */
+function useAvoidPrimary(popRef: RefObject<HTMLDivElement | null>, selector: string | undefined, doorSelector: string): void {
+  useLayoutEffect(() => {
+    const pop = popRef.current;
+    if (!pop || !selector || typeof window === "undefined") return;
+    let raf = 0;
+    const apply = () => {
+      raf = 0;
+      // Measure the DEFAULT box first (the CSS placement, natural height), so the card only moves
+      // when where it really is would cover the primary action.
+      delete pop.dataset.place;
+      pop.style.removeProperty("--lt-pg-max");
+      pop.style.removeProperty("--lt-pg-top");
+      const vh = window.innerHeight;
+      const card = boxOf(pop);
+      // The bottom offset the CSS really applied (68px + env(safe-area-inset-bottom) on a phone,
+      // 16px on desktop): read from the laid-out card, else from its computed style.
+      const cssBottom = parseFloat(window.getComputedStyle(pop).bottom);
+      const bottomGap = card.bottom > card.top ? vh - card.bottom : Number.isFinite(cssBottom) ? cssBottom : 68;
+      const placed = placePageGuide({
+        vh,
+        card,
+        avoid: Array.from(document.querySelectorAll(selector)).map(boxOf),
+        keep: Array.from(document.querySelectorAll(doorSelector)).map(boxOf),
+        bottomGap,
+        topGap: window.innerWidth >= 1024 ? 16 : 8,
+      });
+      if (!placed) return;
+      pop.dataset.place = placed.anchor;
+      pop.style.setProperty("--lt-pg-max", `${placed.maxH}px`);
+      if (placed.anchor === "top") pop.style.setProperty("--lt-pg-top", `${placed.top}px`);
+    };
+    const schedule = () => {
+      if (!raf) raf = window.requestAnimationFrame(apply);
+    };
+    apply();
+    window.addEventListener("resize", schedule);
+    window.addEventListener("scroll", schedule, { capture: true, passive: true });
+    const mo = typeof MutationObserver === "function" ? new MutationObserver(schedule) : null;
+    mo?.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, { capture: true });
+      mo?.disconnect();
+    };
+  }, [popRef, selector, doorSelector]);
+}
+
+/** True while the student is typing somewhere (Esc there belongs to that field, not the card). */
+function typingIn(el: Element | null): boolean {
+  if (!el) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (el as HTMLElement).isContentEditable === true;
+}
+
+/** Esc closes the open card wherever focus is — unless the student is typing in a field. */
+function useEscAnywhere(onClose: () => void): void {
+  const close = useRef(onClose);
+  close.current = onClose;
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || typingIn(document.activeElement)) return;
+      // The card goes first: one Esc closes it (a host overlay behind it gets the next Esc).
+      e.stopPropagation();
+      close.current();
+    };
+    document.addEventListener("keydown", onKey, true);
+    return () => document.removeEventListener("keydown", onKey, true);
+  }, []);
+}
+
 export function PageGuidePop({ id, step, bare, onClose }: PageGuidePopProps) {
   const reduce = useRef(prefersReducedMotion());
   const [preview] = useState(() => guidePreviewActive());
   const gotIt = useRef<HTMLButtonElement | null>(null);
+  const popRef = useRef<HTMLDivElement | null>(null);
+  useAvoidPrimary(popRef, PAGE_GUIDE_AVOID[`${id}:${step}`], `[data-testid='page-guide-${id}-help']`);
+  useEscAnywhere(onClose);
 
   // While this card is open it is the page's one focused guide (guideVariant's focus counter — the
   // same signal StartHereCard uses), so another character can wait instead of appearing beside it.
@@ -164,18 +321,13 @@ export function PageGuidePop({ id, step, bare, onClose }: PageGuidePopProps) {
 
   return createPortal(
     <div
+      ref={popRef}
       className={`lt-pg-pop${bare ? " lt-pg-pop--bare" : ""}${id === "trends_help" ? " lt-pg-pop--list" : ""}`}
       data-testid={`page-guide-pop-${id}`}
       data-step={step}
       role="dialog"
       aria-modal="false"
       aria-label={POP_COPY.label}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") {
-          e.stopPropagation();
-          onClose();
-        }
-      }}
     >
       <BlobCharacter kind="byte" pose={id === "trends_help" ? "point" : "explain"} className="lt-pg-pop__byte" still={reduce.current || undefined} />
       <div className="lt-pg__bub lt-pg-pop__bub">
