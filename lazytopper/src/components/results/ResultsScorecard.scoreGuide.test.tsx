@@ -202,7 +202,7 @@ function expectNumbersPrinted(text: string) {
   const rows = document.querySelectorAll('[data-testid="sc-wrong-answer"]').length;
   if (rows > 0) derived.add(String(rows));
   for (const n of text.match(/\d+(?:\.\d+)?/g) ?? []) {
-    if (/taps? missed|missed \d+ taps?/.test(text) && derived.has(n)) continue;
+    if (/\d+ questions? wrong/.test(text) && derived.has(n)) continue;
     const re = new RegExp(`(^|[^\\d.])${n.replace(".", "\\.")}([^\\d]|$)`);
     expect(re.test(printed), `"${n}" from "${text}" is not on the scorecard`).toBe(true);
   }
@@ -343,7 +343,7 @@ describe("GUIDE-SCORE-1 · every one of the six surfaces shows the character, fr
     expect(g.getAttribute("data-situation")).toBe("objective-only");
     await wait(SCORE_GUIDE_BEAT_MS + 50);
     expect(screen.getByTestId("score-guide").getAttribute("data-step")).toBe("objectiveWrong");
-    expect(line()).toMatch(/(^|\D)2 taps(\D|$)/);
+    expect(line()).toMatch(/(^|\D)2 questions wrong\./);
     expect(line()).toMatch(/mark (won't change|stays as it is)/i);
     expectNumbersPrinted(line());
     expect(screen.queryByTestId("score-guide-cta")).toBeNull(); // never /check-improve from Quick Practice
@@ -374,7 +374,7 @@ describe("GUIDE-SCORE-1 · every one of the six surfaces shows the character, fr
     await screen.findByTestId("score-guide");
     await wait(SCORE_GUIDE_BEAT_MS + 50);
     expect(screen.getByTestId("score-guide").getAttribute("data-step")).toBe("objective");
-    expect(line()).toMatch(/here/);
+    expect(line()).toMatch(/Add working to one/);
     const cta = screen.getByTestId("score-guide-cta");
     expect(cta.tagName).toBe("BUTTON");
     expect(cta.textContent).toBe("Add working to one →");

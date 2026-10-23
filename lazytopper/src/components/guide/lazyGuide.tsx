@@ -3,14 +3,23 @@
  * the same dynamic import, so Vite emits ONE `guideChunk-<hash>.js` that is fetched only when
  * Byte or Ziggy is about to render. A failed chunk load renders nothing (never breaks a page).
  */
-import { lazy, Suspense, useEffect, useState, type ComponentType } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
 import { CompanionScoreSlot } from "./companion/companion";
+import { COMPANION_CHAR_CLASS, COMPANION_PRIORITY, otherMascotOnScreen, stageHolder } from "./companion/companionModel";
+import { anyMascotHost, mascotHostsVersion, subscribeMascotHosts } from "./mascotPresence";
 import { canShowScene } from "./sceneGuard";
 import type { ScorecardVariant } from "../results/scorecardVariants";
 import { FIRST_GRADED_DELAY_MS, isFirstGradedEligible } from "../feedback/useFirstGradedFeedback";
 import { firstResultState } from "../feedback/feedbackPromptModel";
 import { loadLocalSessionRecords } from "../../services/sessionRecords";
-import { guideAbActive, guideAccountTag, guidePreviewActive, resolveGuideVariant, trackGuideEvent } from "./guideVariant";
+import {
+  guideAbActive,
+  guideAccountTag,
+  guideFocusOpen,
+  guidePreviewActive,
+  resolveGuideVariant,
+  trackGuideEvent,
+} from "./guideVariant";
 import { ziggyReactionFor, type ZiggyReaction } from "./ziggyModel";
 import { scoreGuidePlan, type ScoreGuidePlan, type ScoreScene } from "./scoreGuideModel";
 import { mascotsHidden as mascotsHiddenNow, useMascotsHidden } from "./mascotsMute";
@@ -148,9 +157,13 @@ export interface ScoreSceneProps {
   uid: string | null;
 }
 export interface ScoreSceneRegistration {
-  canShowScene: () => boolean;
+  /** May the scene show for this plan? `uid` is `undefined` at the synchronous pre-check (before
+   *  the signed-in uid is known) and the uid (or null) at the claim. */
+  canShowScene: (plan: ScoreGuidePlan, uid: string | null | undefined) => boolean;
   markSceneShown: () => void;
   Scene: ComponentType<ScoreSceneProps>;
+  /** Watch the drawing (mascotPresence): never drawn → the sequence; closed → the slot collapses. */
+  watchDrawn?: boolean;
 }
 
 /** COMPANION-1's duet in the scorecard slot: comfort (low score) or the high five (improvement). */
@@ -166,38 +179,88 @@ function CompanionScene({ plan, uid }: ScoreSceneProps) {
     />
   );
 }
+/**
+ * Will COMPANION-1's CompanionScoreSlot actually DRAW the duet? Every rule it applies, checked up
+ * front so the slot never sits empty: the shared scene guard (one scene per session, wide enough),
+ * a signed-in GUIDE-arm uid (`uid === undefined` = the synchronous pre-check, before the uid is
+ * known), no focused guide open, no other mascot on the page, and its own stage — only a
+ * higher-priority companion card (the late-night note) can hold it against the score moment.
+ */
+function companionWillDraw(plan: ScoreGuidePlan, uid: string | null | undefined): boolean {
+  if (!canShowScene({ busy: false })) return false;
+  if (uid !== undefined && !(uid && resolveGuideVariant(uid) === "guide")) return false;
+  if (guideFocusOpen() || otherMascotOnScreen()) return false;
+  const mine = COMPANION_PRIORITY[plan.scene === "improvement" ? "improve" : "lowScore"];
+  const holder = stageHolder();
+  if (holder) {
+    const p = (COMPANION_PRIORITY as Record<string, number>)[holder.replace(/^score-/, "")];
+    if (typeof p === "number" && p > mine) return false;
+  }
+  return true;
+}
+
 const COMPANION_SCENE: ScoreSceneRegistration = {
-  canShowScene: () => canShowScene({ busy: false }),
+  canShowScene: companionWillDraw,
   markSceneShown: () => {}, // CompanionScoreSlot marks it when the duet is DRAWN
   Scene: CompanionScene,
+  watchDrawn: true,
 };
 let sceneRegistration: ScoreSceneRegistration = COMPANION_SCENE;
 export function registerScoreScene(r: ScoreSceneRegistration | null): void {
   sceneRegistration = r ?? COMPANION_SCENE;
 }
 
-/** Could a scene play for this plan right now (read only — nothing is consumed)? */
+/** Could a scene play for this plan right now (read only — nothing is consumed; uid not known yet)? */
 function sceneAvailable(plan: ScoreGuidePlan | null): boolean {
   const r = sceneRegistration;
-  if (!plan?.scene || !r || mascotsHiddenNow()) return false;
+  if (!plan?.scene || mascotsHiddenNow()) return false;
   try {
-    return r.canShowScene();
+    return r.canShowScene(plan, undefined);
   } catch {
     return false;
   }
 }
 
-/** The scene to play for this plan right now, consuming the session's one scene; else null. */
-function claimScene(plan: ScoreGuidePlan | null): ScoreScene | null {
+/** The scene to play for this plan and this uid right now, consuming the session's one scene. */
+function claimScene(plan: ScoreGuidePlan | null, uid: string | null): ScoreScene | null {
   const r = sceneRegistration;
-  if (!plan?.scene || !r || mascotsHiddenNow()) return null;
+  if (!plan?.scene || mascotsHiddenNow()) return null;
   try {
-    if (!r.canShowScene()) return null;
+    if (!r.canShowScene(plan, uid)) return null;
     r.markSceneShown();
     return plan.scene;
   } catch {
     return null; // a broken guard never breaks the scorecard: the default sequence plays
   }
+}
+
+/** How long the slot waits for the duet to actually draw before playing the sequence instead. */
+export const SCENE_DRAW_TIMEOUT_MS = 2500;
+
+/**
+ * Watches the duet through ../mascotPresence (every BlobCharacter registers): it never drew →
+ * `onDecline` (the normal one-character sequence plays); it drew and then went away (the
+ * student tapped its Close) → `onEnd` (the slot collapses and the stage is released).
+ */
+function SceneWatch({ watch, onDecline, onEnd, children }: { watch: boolean; onDecline: () => void; onEnd: () => void; children: ReactNode }) {
+  useSyncExternalStore(subscribeMascotHosts, mascotHostsVersion, () => 0);
+  const drawn = watch ? anyMascotHost((h) => h.classList.contains(COMPANION_CHAR_CLASS)) : true;
+  const seen = useRef(false);
+  useEffect(() => {
+    if (!watch) return;
+    if (drawn) {
+      seen.current = true;
+      return;
+    }
+    if (seen.current) {
+      onEnd();
+      return;
+    }
+    const t = window.setTimeout(onDecline, SCENE_DRAW_TIMEOUT_MS);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch, drawn]);
+  return <>{children}</>;
 }
 
 /**
@@ -252,7 +315,7 @@ export function ScorecardGuide({ variant, ask, hostOwnsUnreadAllPending }: Score
       const uid = await currentUid();
       if (!live) return;
       if (!firstEligible) {
-        const scene = plan ? claimScene(plan) : null;
+        const scene = plan ? claimScene(plan, uid) : null;
         if (!scene || !plan) {
           every();
           return;
@@ -312,9 +375,15 @@ export function ScorecardGuide({ variant, ask, hostOwnsUnreadAllPending }: Score
           <LazyScoreGuideBeats key={`${planKey}|${mode.startAt}`} plan={plan} startAt={mode.startAt} onLoadFail={onLoadFail} />
         </Suspense>
       ) : mode.kind === "scene" && plan ? (
-        <Suspense fallback={null}>
-          <sceneRegistration.Scene plan={plan} scene={mode.scene} uid={mode.uid} />
-        </Suspense>
+        <SceneWatch
+          watch={!!sceneRegistration.watchDrawn}
+          onDecline={() => setMode({ kind: "every", startAt: "ziggy" })}
+          onEnd={() => setMode({ kind: "none" })}
+        >
+          <Suspense fallback={null}>
+            <sceneRegistration.Scene plan={plan} scene={mode.scene} uid={mode.uid} />
+          </Suspense>
+        </SceneWatch>
       ) : null}
     </div>
   );

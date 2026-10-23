@@ -83,8 +83,9 @@ export const SCORE_GUIDE_LINES = {
       { pose: "determined", text: "{got} out of {total}. Hard papers teach the most. We'll fix it step by step." },
     ],
     improved: [
-      { pose: "excited", text: "Up {delta} on your earlier attempt! Your practice is working." },
-      { pose: "proud", text: "{delta} more than your earlier attempt. That's real progress!" },
+      // {prev}: "your last mock" on Full Mock, "your earlier attempt" on Chapter Test.
+      { pose: "excited", text: "Up {delta} on {prev}! Keep it going." },
+      { pose: "proud", text: "{delta} more than {prev}. That's real progress!" },
     ],
     allPending: [
       { pose: "confused", text: "Hmm, nothing got marked this time. So nothing is lost either." },
@@ -92,7 +93,7 @@ export const SCORE_GUIDE_LINES = {
     ],
     awaitingSheet: [
       { pose: "happy", text: "Objective part done! Your written answers will complete the picture." },
-      { pose: "determined", text: "That's the objective part scored. The written half comes next." },
+      { pose: "determined", text: "That's the objective part scored. Your written answers come next." },
     ],
   },
   byte: {
@@ -123,14 +124,16 @@ export const SCORE_GUIDE_LINES = {
     // Owner ruling 23 Oct 17:57: Quick Practice lets the student add working IN the session, so
     // these point to the set's own working box — never to another page.
     objective: [
-      { pose: "point", text: "Taps done! Write one answer's working here, and I'll mark every step like a CBSE examiner." },
-      { pose: "explain", text: "Taps show the right option, not why. Add working to one question here and I'll mark each step." },
+      // MCQ working sets the mistake type only; it is never step-marked (CLAUDE.md §13).
+      { pose: "point", text: "Taps done! Add working to one, and I'll check your method is solid too." },
+      { pose: "explain", text: "Taps show the right option, not why. Add working to one and I'll check your reasoning." },
     ],
     // Owner idea (23 Oct): a wrong tap has no mistake type until working is added. The working is
     // read for Mistake Intelligence ONLY — the mark never changes (CLAUDE.md §13), and the line says so.
+    // {wrong} reads "1 question wrong" / "3 questions wrong".
     objectiveWrong: [
-      { pose: "detective", text: "{wrong} missed. Add working to one and I'll say: concept gap or slip? Your mark won't change." },
-      { pose: "explain", text: "You missed {wrong}. Show me your working for one and I'll find what went wrong. The mark stays as it is." },
+      { pose: "detective", text: "{wrong}. Add working to one and I'll say: concept gap or slip? Your mark won't change." },
+      { pose: "explain", text: "{wrong}. Show me your working for one and I'll find what went wrong. The mark stays as it is." },
     ],
     pending: [
       { pose: "point", text: "First, re-upload the {pending} that couldn't be read. Then your score is complete." },
@@ -427,7 +430,10 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     if (comfort && (typeof comfort.text !== "string" || /\d/.test(comfort.text))) comfort = null;
   }
   const z: GuideLine = comfort ?? (delta ? pick(L.ziggy.improved, hz) : pick(L.ziggy[band], hz));
-  if (delta) vals.delta = delta.text;
+  if (delta) {
+    vals.delta = delta.text;
+    vals.prev = v.surface === "full-mock" ? "your last mock" : "your earlier attempt";
+  }
   // The scene: COMPANION-1's OWN rule (companionScoreMoment) over whole percentages — the previous
   // result is the card's printed ▲ (both hosts print one only for an equal paper total, so the
   // previous mark is this total's got − delta). Improvement ≥ 10 points wins; else comfort < 40 %.
@@ -448,7 +454,7 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     const wrong = printedWrongTaps(v);
     if (wrong > 0) {
       byteStep = "objectiveWrong";
-      vals.wrong = countWithUnit(wrong, "tap");
+      vals.wrong = `${countWithUnit(wrong, "question")} wrong`;
       // The host's in-page way back to the missed questions (working box); none → no link.
       cta = typeof v.onShowMissed === "function" ? { label: L.cta.showMissed, action: v.onShowMissed } : null;
     } else {

@@ -819,8 +819,18 @@ const SC_CSS = `
 
 /* GUIDE-SCORE-1 — the character slot, RESERVED from the first frame (no layout shift when Byte or
    Ziggy fills it): the height of the tallest beat (character + bubble + link + Hide mascots). */
-.lt-sc__guide { min-height: 168px; margin: 0 0 6px; }
-@media (min-width: 600px) { .lt-sc__guide { min-height: 140px; } }
+/* Reserved PER WIDTH at the tallest thing that can fill it — Ziggy's beat, Byte's longest line
+   with its link and "Hide mascots", or COMPANION-1's duet — measured with Playwright at
+   320/360/390/768/1366 (PR #1305 body): 199 / 227 (duet) / 181 / 141 / 173 px. */
+.lt-sc__guide { min-height: 200px; margin: 0 0 6px; }
+@media (min-width: 360px) { .lt-sc__guide { min-height: 228px; } }
+@media (min-width: 420px) { .lt-sc__guide { min-height: 184px; } }
+@media (min-width: 600px) { .lt-sc__guide { min-height: 144px; } }
+@media (min-width: 1024px) { .lt-sc__guide { min-height: 176px; } }
+/* Every tap target in the slot is at least 44 x 44 px — the duet's (COMPANION-1) included, which
+   draws here with the moments grammar. */
+.lt-sc__guide .lt-mom__cta, .lt-sc__guide .lt-mom__hide, .lt-sc__guide .lt-cmp__close {
+  min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; box-sizing: border-box; }
 
 .lt-sc__top { display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; }
 .lt-sc__big { font-family: "Fraunces", Georgia, serif; font-size: 58px; font-weight: 700; line-height: 0.95; }

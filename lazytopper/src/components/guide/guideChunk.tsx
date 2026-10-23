@@ -429,6 +429,7 @@ export function ScoreGuideBeats({ plan, startAt = "ziggy" }: ScoreGuideBeatsProp
         <p className="lt-scg__say" aria-live="polite" data-testid="score-guide-line">
           {line.text}
         </p>
+        <div className="lt-scg__acts">
         {beat === "byte" && plan.cta?.action ? (
           // The host's in-page action (e.g. back to the missed MCQs) — a button, not a route.
           <button
@@ -448,6 +449,7 @@ export function ScoreGuideBeats({ plan, startAt = "ziggy" }: ScoreGuideBeatsProp
         <button type="button" className="lt-scg__hide" data-testid="mascots-hide" onClick={hideMascotsWithUndo}>
           {MASCOTS_TOAST_COPY.hide}
         </button>
+        </div>
       </div>
     </div>
   );

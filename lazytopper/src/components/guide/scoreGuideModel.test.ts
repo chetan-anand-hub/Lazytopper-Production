@@ -52,7 +52,8 @@ describe("GUIDE-SCORE-1 · the copy table", () => {
       loss: "12.5 marks",
       pending: "12 questions",
       lead: SCORE_GUIDE_LINES.lead.mostMistake, // the longest lead
-      wrong: "12 taps",
+      wrong: "12 questions wrong",
+      prev: "your earlier attempt",
       chapter: "Quadratic Equations",
     };
     for (const t of allLines()) {
@@ -182,7 +183,11 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
       base({ surface: "quick-practice", subtitle: "Session scorecard", score: { kind: "attempts", attempted: 5, ofN: 5, mcqAnswered: 5, mcqCorrect: 5 }, onAddWorking }),
     )!;
     expect(q.cta).toEqual({ label: "Add working to one →", action: onAddWorking });
-    for (const l of SCORE_GUIDE_LINES.byte.objective) expect(l.text).toMatch(/here/);
+    // §13: MCQ working is read for the mistake type only — never "mark every step".
+    for (const l of SCORE_GUIDE_LINES.byte.objective) {
+      expect(l.text).toMatch(/Add working to one/);
+      expect(l.text).not.toMatch(/mark (every|each) step/i);
+    }
   });
 
   it("★★ Quick Practice NEVER links to /check-improve (owner ruling 23 Oct 17:57), whatever the step", () => {
@@ -203,7 +208,7 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     const p = qp({});
     expect(p.situation).toBe("objective-only");
     expect(p.byteStep).toBe("objectiveWrong");
-    expect(p.byte.text).toMatch(/(^|\D)2 taps(\D|$)/);
+    expect(p.byte.text).toMatch(/(^|\D)2 questions wrong\./);
     expect(p.byte.text).toMatch(/mark (won't change|stays as it is)/i);
     expect(p.cta).toBeNull(); // no in-page action from the host → no link (never /check-improve)
     // The MCQ-MARKS hero ("3 / 5") with no missed rows on the card: no count can be read off it
@@ -211,7 +216,7 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     expect(qp({ score: { kind: "marks", awarded: 3, total: 5, gradedCount: 5, totalQuestions: 5 } }).byteStep).toBe("objective");
     // Printed "Where marks slipped" rows win: one per missed MCQ.
     const row = { label: "Question 2", yourAnswer: "x", correctAnswer: "y", steps: [] };
-    expect(qp({ wrongAnswers: [row] }).byte.text).toMatch(/(^|\D)1 tap(\D|$)/);
+    expect(qp({ wrongAnswers: [row] }).byte.text).toMatch(/(^|\D)1 question wrong\./);
     // The host's in-page action → Byte's button calls it (no route).
     const onShowMissed = () => {};
     const q = qp({ onShowMissed });
@@ -224,6 +229,7 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     const p = scoreGuidePlan(base({ surface: "chapter-test", subtitle: "CT-M-QE-02", score: { kind: "marks", awarded: 30, total: 40 }, message: "▲ 4 marks since your last Quadratic Equations test" }))!;
     expect(p.situation).toBe("improved");
     expect(p.ziggy.text).toContain("4 marks");
+    expect(p.ziggy.text).toContain("your earlier attempt");
     expect(p.scene).toBe("improvement"); // 10 points of 40
   });
 
@@ -231,6 +237,7 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     const p = scoreGuidePlan(base({ surface: "full-mock", subtitle: "FM-M-04", message: "▲ 9 marks vs Maths · Mock #3" }))!;
     expect(p.situation).toBe("improved");
     expect(p.ziggy.text).toContain("9 marks");
+    expect(p.ziggy.text).toContain("your last mock"); // Full Mock names its own comparison
     expect(scoreGuidePlan(base({ surface: "full-mock", subtitle: "FM-M-04", message: "▼ 4 marks vs Mock #3" }))!.situation).not.toBe("improved");
     // Any other surface: no previous result on the card → never "improved".
     expect(scoreGuidePlan(base({ message: "▲ 9 marks vs Mock #3" }))!.situation).not.toBe("improved");

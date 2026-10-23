@@ -8,19 +8,44 @@
  * its markSceneShown are COMPANION-1's, tested in its lane).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, act } from "@testing-library/react";
+import { render, screen, cleanup, act, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 
 const { slotProps } = vi.hoisted(() => ({ slotProps: [] as Array<Record<string, unknown>> }));
-vi.mock("../guide/companion/companion", async (orig) => ({
-  ...(await orig<typeof import("../guide/companion/companion")>()),
-  CompanionScoreSlot: (p: Record<string, unknown>) => {
-    slotProps.push(p);
-    return <div data-testid="companion-score-slot" />;
-  },
-}));
-vi.mock("../../services/firebaseClient", () => ({ authClient: { currentUser: { uid: "u-companion", isAnonymous: false } } }));
+vi.mock("../guide/companion/companion", async (orig) => {
+  const React = await import("react");
+  const { noteMascotHost } = await import("../guide/mascotPresence");
+  /** Draws like the duet: a registered companion character (lt-cmp__char) and its Close. */
+  function StubDuet() {
+    const [closed, setClosed] = React.useState(false);
+    const ref = React.useRef<HTMLDivElement>(null);
+    React.useEffect(() => {
+      const el = ref.current;
+      if (!el) return undefined;
+      noteMascotHost(el, true);
+      return () => noteMascotHost(el, false);
+    }, [closed]);
+    if (closed) return null;
+    return (
+      <div data-testid="companion-score-slot">
+        <div ref={ref} className="lt-cmp__char" />
+        <button type="button" data-testid="duet-close" onClick={() => setClosed(true)}>
+          Close
+        </button>
+      </div>
+    );
+  }
+  return {
+    ...(await orig<typeof import("../guide/companion/companion")>()),
+    CompanionScoreSlot: (p: Record<string, unknown>) => {
+      slotProps.push(p);
+      return <StubDuet />;
+    },
+  };
+});
+const { auth } = vi.hoisted(() => ({ auth: { currentUser: { uid: "u-companion", isAnonymous: false } as null | { uid: string; isAnonymous: boolean } } }));
+vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
 import ResultsScorecard from "./ResultsScorecard";
 import { chapterTestDeltaLine, fullMockScorecardVariant, type ScorecardVariant } from "./scorecardVariants";
@@ -29,6 +54,9 @@ import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { __setGuideAbForTests } from "../guide/guideVariant";
 import { SCENE_SESSION_KEY, __resetSceneGuardForTests } from "../guide/sceneGuard";
 import { __resetStageForTests, stageHeld } from "../guide/scoreGuideStage";
+import { SCENE_DRAW_TIMEOUT_MS, registerScoreScene } from "../guide/lazyGuide";
+import { COMPANION_PRIORITY, claimStage, releaseStage } from "../guide/companion/companionModel";
+import { __resetMascotHostsForTests } from "../guide/mascotPresence";
 
 const ML = (o: Record<string, number>) => ({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 0, ...o });
 function paper(rows: Array<{ total: number; awarded: number; lost?: Record<string, number> }>): WorksheetGradeResponse {
@@ -63,6 +91,7 @@ async function open(v: ScorecardVariant) {
 }
 
 beforeEach(() => {
+  auth.currentUser = { uid: "u-companion", isAnonymous: false };
   slotProps.length = 0;
   window.sessionStorage.clear();
   window.localStorage.clear();
@@ -74,6 +103,7 @@ afterEach(() => {
   cleanup();
   __setGuideAbForTests(null);
   __resetStageForTests();
+  __resetMascotHostsForTests();
 });
 
 describe("GUIDE-SCORE-1 × COMPANION-1 — the scorecard's scenes", () => {
@@ -129,6 +159,55 @@ describe("GUIDE-SCORE-1 × COMPANION-1 — the scorecard's scenes", () => {
     await open(LOW_CT());
     expect(screen.queryByTestId("companion-score-slot")).toBeNull();
     expect(await screen.findByTestId("score-guide")).toBeTruthy();
+  });
+
+  it("★★ A · a GUEST with a low score (no uid): no duet, no empty slot — the one-character sequence", async () => {
+    auth.currentUser = null;
+    await open(LOW_CT());
+    expect(slotProps).toHaveLength(0); // CompanionScoreSlot (which draws nothing without a uid) is never mounted
+    const g = await screen.findByTestId("score-guide");
+    expect(g.getAttribute("data-kind")).toBe("ziggy");
+    expect(screen.getByTestId("score-guide-slot").getAttribute("data-mode")).toBe("every");
+    expect(window.sessionStorage.getItem(SCENE_SESSION_KEY)).toBeNull(); // the session's scene is not spent
+  });
+
+  it("★★ A · the companion's own stage is held by a higher priority (the late-night note): the sequence, never a blank slot", async () => {
+    claimStage("lateNight", COMPANION_PRIORITY.lateNight);
+    try {
+      await open(LOW_CT());
+      expect(slotProps).toHaveLength(0);
+      expect(await screen.findByTestId("score-guide")).toBeTruthy();
+    } finally {
+      releaseStage("lateNight");
+    }
+  });
+
+  it("★★ A · Close on the duet: the slot collapses and the stage is released (the sidebar voice may return)", async () => {
+    await open(LOW_CT());
+    expect(screen.getByTestId("companion-score-slot")).toBeTruthy();
+    expect(stageHeld("scorecard")).toBe(true);
+    fireEvent.click(screen.getByTestId("duet-close"));
+    await wait(30);
+    expect(screen.queryByTestId("score-guide-slot")).toBeNull();
+    expect(screen.queryByTestId("score-guide")).toBeNull();
+    expect(stageHeld("scorecard")).toBe(false);
+  });
+
+  it("★ A · the duet never draws (its chunk fails): after the wait, the one-character sequence plays", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      // A plan whose scene renderer draws nothing (no registered character).
+      registerScoreScene({ canShowScene: () => true, markSceneShown: () => {}, Scene: () => null, watchDrawn: true });
+      await open(LOW_CT());
+      expect(screen.queryByTestId("score-guide")).toBeNull();
+      await act(async () => {
+        vi.advanceTimersByTime(SCENE_DRAW_TIMEOUT_MS + 50);
+      });
+      expect(await screen.findByTestId("score-guide")).toBeTruthy();
+    } finally {
+      registerScoreScene(null);
+      vi.useRealTimers();
+    }
   });
 
   it("★ a middling result (no scene) never asks for one", async () => {

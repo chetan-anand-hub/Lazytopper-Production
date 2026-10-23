@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, Suspense, createContext, useContext, type ReactNode } from "react";
+import { useState, useRef, useCallback, useEffect, Suspense, createContext, useContext, type ReactNode } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
@@ -45,6 +45,10 @@ const AMBER_FG = "hsl(35, 80%, 35%)";
 export interface PracticeQuestionCardProps {
   q: PracticeQuestion;
   idx: number;
+  /** GUIDE-SCORE-1 — a host request to OPEN this card's working box (the checker), scroll to it
+   *  and focus it (Byte's "Show me the first one I missed" / "Add working to one"). Each new
+   *  number is one request; undefined / unchanged → nothing. Opening the box changes no mark. */
+  openCheckerRequest?: number;
   subjectKey: string;
   topicLabel: string;
   isOpen: boolean;
@@ -186,6 +190,7 @@ export function PracticeQuestionCard({
   hideSteps = false,
   countsAsAttempt: countsAsAttemptProp,
   defaultAnswerMode,
+  openCheckerRequest,
 }: PracticeQuestionCardProps) {
   const countsAsAttemptDefault = useContext(AttemptCountingContext);
   const countsAsAttempt = countsAsAttemptProp ?? countsAsAttemptDefault;
@@ -257,6 +262,25 @@ export function PracticeQuestionCard({
     }
     setShowChecker(newShow);
   }, [showChecker, isOpen, q, onToggleAnswer]);
+
+  // GUIDE-SCORE-1 — the host asked to open THIS card's working box: open it (closing the steps,
+  // exactly as "Check my answer" does), then bring it into view and give it focus.
+  const checkerRef = useRef<HTMLDivElement>(null);
+  const lastCheckerRequest = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (openCheckerRequest === undefined || openCheckerRequest === lastCheckerRequest.current) return;
+    lastCheckerRequest.current = openCheckerRequest;
+    if (isOpen) onToggleAnswer(q.id, q);
+    setShowChecker(true);
+    const t = window.setTimeout(() => {
+      const el = checkerRef.current ?? cardRef.current;
+      el?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      el?.focus?.({ preventScroll: true });
+    }, 60);
+    return () => window.clearTimeout(t);
+    // One request per new number.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openCheckerRequest]);
 
   const handleToggleSteps = useCallback(() => {
     if (!isOpen) {
@@ -688,6 +712,7 @@ export function PracticeQuestionCard({
       </div>
 
       {showChecker && (
+        <div ref={checkerRef} tabIndex={-1} className="pqc-checker" data-testid="practice-checker" aria-label="Your working for this question">
         <SolutionChecker
           question={q.questionText}
           marks={q.marks}
@@ -722,6 +747,7 @@ export function PracticeQuestionCard({
           // SHW-2 — which answer tab is selected first (undefined = upload, unchanged).
           defaultAnswerMode={defaultAnswerMode}
         />
+        </div>
       )}
 
       {stepsOpen && (
