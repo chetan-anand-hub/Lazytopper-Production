@@ -117,7 +117,7 @@ describe("GUIDE-1 · who sees Byte (== who sees Start-here)", () => {
     expect(screen.queryByTestId("guide-chip")).toBeNull();
   });
 
-  it("★★ zero graded + guide arm: Byte replaces the card; guide_shown (variant guide), NO start_here_shown; arm reported once", async () => {
+  it("★★ zero graded + guide arm: Byte replaces the card; guide_shown (variant guide), NO start_here_shown; arm NOT reported (GUIDE-ALL-1)", async () => {
     __setGuideAbForTests(true, "guide");
     mount();
     expect(await screen.findByTestId("byte-guide-inline")).toBeTruthy();
@@ -125,8 +125,8 @@ describe("GUIDE-1 · who sees Byte (== who sees Start-here)", () => {
     expect(screen.getByTestId("guide-line").textContent).toBe(GUIDE_LINES.default);
     expect(calls("guide_shown")).toEqual([["guide_shown", { surface: "practice_hub", variant: "guide", intent: "default" }]]);
     expect(calls("start_here_shown")).toHaveLength(0);
-    expect(assigned).toHaveBeenCalledTimes(1);
-    expect(assigned).toHaveBeenCalledWith("guide");
+    // GUIDE-ALL-1 (22 Oct 2026): the A/B ended — the arm is no longer reported.
+    expect(assigned).not.toHaveBeenCalled();
     const opts = screen.getByTestId("guide-options").querySelectorAll("button");
     expect(opts.length).toBeGreaterThanOrEqual(4);
     expect(opts.length).toBeLessThanOrEqual(5);
@@ -166,7 +166,7 @@ describe("GUIDE-1 · the control arm is today's card", () => {
     expect(calls("start_here_shown")).toEqual(offCalls.filter((c) => c[0] === "start_here_shown"));
     expect(calls("start_here_shown")).toEqual(TODAY);
     expect(calls("guide_shown")).toEqual([["guide_shown", { surface: "practice_hub", variant: "control", intent: "default" }]]);
-    expect(assigned).toHaveBeenCalledWith("control");
+    expect(assigned).not.toHaveBeenCalled(); // GUIDE-ALL-1: no arm report
     expect(screen.queryByTestId("byte-guide-inline")).toBeNull();
   });
 
@@ -420,6 +420,6 @@ describe("GUIDE-1 · the focused surface (guide arm)", () => {
     await screen.findByTestId("start-here-focus");
     await waitFor(() => expect(calls("guide_shown")).toHaveLength(2));
     expect(calls("guide_shown").map((c) => c[1].surface).sort()).toEqual(["home", "home_focus"]);
-    expect(assigned).toHaveBeenCalledTimes(1);
+    expect(assigned).not.toHaveBeenCalled(); // GUIDE-ALL-1: no arm report
   });
 });

@@ -38,7 +38,8 @@ vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
 import StartHereCard from "../startHere/StartHereCard";
 import { resetZeroGradedCacheForTests } from "../startHere/zeroGraded";
-import { __resetGuideVariantSentForTests, __setGuideAbForTests } from "./guideVariant";
+import { __resetGuideVariantSentForTests, __setGuideAbForTests, guideVariantFor } from "./guideVariant";
+import { GuideMomentSlot } from "./moments/moments";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, hideMascots, mascotsHidden } from "./mascotsMute";
 import { __removeMascotsToastForTests } from "./moments/mascotsToast";
 import { MiVoiceRow } from "./mi/MiVoiceRow";
@@ -113,7 +114,7 @@ describe("PART 0 · the Start-here Byte card", () => {
     await flush();
     expect(calls("guide_shown")).toEqual([["guide_shown", { surface: "practice_hub", variant: "guide", intent: "default" }]]);
     expect(calls("start_here_shown")).toEqual([]);
-    expect(assigned).toHaveBeenCalledWith("guide");
+    expect(assigned).not.toHaveBeenCalled(); // GUIDE-ALL-1: the arm is no longer reported
   });
 
   it("CONTROL: the control arm is untouched by the switch (today's card either way)", async () => {
@@ -157,6 +158,52 @@ describe("PART 0 · the way back on /me", () => {
     act(() => hideMascots());
     await waitFor(() => expect(screen.getByTestId("mascots-switch").getAttribute("aria-checked")).toBe("false"));
     view.unmount();
+  });
+});
+
+describe("GUIDE-ALL-1 · every student gets the guide, and 'Hide mascots' still hides every character", () => {
+  /** A uid the retired A/B put in CONTROL — the case GUIDE-ALL-1 changes. */
+  const exControl = () => Array.from({ length: 60 }, (_, i) => `ga1-${i}`).find((u) => guideVariantFor(u) === "control")!;
+  const cardFor = (uid: string) =>
+    render(
+      <MemoryRouter initialEntries={["/practice-hub"]}>
+        <Routes>
+          <Route path="*" element={<StartHereCard uid={uid} surface="practice_hub" returnTo="/practice-hub" />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+  it("★★ an ex-control uid (no forced arm, as in production) now sees Byte on the Start-here card", async () => {
+    __setGuideAbForTests(true); // the guide on, nothing forced: resolveGuideVariant decides
+    const uid = exControl();
+    cardFor(uid);
+    expect(await screen.findByTestId("byte-guide-inline")).toBeTruthy();
+    expect(screen.queryByTestId("start-here-card")).toBeNull();
+  });
+
+  // The admin preview "Show control" → the plain card (split on, nothing forced) is pinned in
+  // startHere/StartHereCard.preview.test.tsx "PREVIEW-1 · Show control" (a date-sensitive suite).
+
+  it("★★ hidden on the device → no Byte, no MI voice, no moment, the /me switch shows OFF — for that same student", async () => {
+    __setGuideAbForTests(true);
+    const uid = exControl();
+    window.localStorage.setItem(MASCOTS_HIDDEN_KEY, "1");
+    vi.stubGlobal("IntersectionObserver", undefined);
+    cardFor(uid);
+    expect(await screen.findByTestId("start-here-card")).toBeTruthy();
+    expect(screen.queryByTestId("byte-guide-inline")).toBeNull();
+    expect(screen.queryByTestId("blob-byte")).toBeNull();
+    cleanup();
+    render(<MiVoiceRow uid={uid} input={{ kind: "no-data" }} hydrated />);
+    expect(screen.queryByTestId("mi-voice")).toBeNull();
+    cleanup();
+    const slot = render(<GuideMomentSlot show moment="m6" step="unread" />);
+    await flush();
+    expect(slot.container.innerHTML).toBe("");
+    cleanup();
+    render(<MascotsSetting uid={uid} />);
+    expect(screen.getByTestId("mascots-switch").getAttribute("aria-checked")).toBe("false");
+    vi.unstubAllGlobals();
   });
 });
 

@@ -24,7 +24,7 @@ import { lazy, Suspense, useEffect, useState, useSyncExternalStore, type Compone
 import { trackGuidePublicArmAssigned, type GuideMomentId, type GuideVariant } from "../../../analytics/analytics";
 import { VISIT_SOURCE_KEY } from "../../../analytics/visitSource";
 import type { ZeroGraded } from "../../startHere/zeroGraded";
-import { guideAbActive, guideAccountTag, guidePreviewActive, resolveGuideVariant } from "../guideVariant";
+import { guideAbActive, guideAccountTag, guideArmReportsOn, guidePreviewActive, resolveGuideVariant } from "../guideVariant";
 import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
 import { useWrittenGraded } from "./writtenGraded";
 import { useHoldStage } from "../scoreGuideStage";
@@ -162,8 +162,8 @@ async function currentUid(): Promise<string | null> {
 
 /**
  * The arm of a SIGNED-OUT visitor, by the public peek's rule (publicPeekModel.ts): under an admin
- * preview the previewed arm (no device arm drawn or written); otherwise this DEVICE's arm, drawn
- * once from the CSPRNG — and, when it was drawn just now, reported once (GA4 user property) and
+ * preview the previewed arm (no device arm drawn or written); otherwise this DEVICE's arm —
+ * "guide" on every device since GUIDE-ALL-1 (22 Oct 2026; no random draw, no arm report) —
  * copied into this tab's guide-intent record, exactly as the peek does. Null → no arm (nothing shows).
  */
 export function publicMomentArm(): GuideVariant | null {
@@ -172,7 +172,8 @@ export function publicMomentArm(): GuideVariant | null {
   const a = ensurePublicArm();
   if (!a) return null;
   copyArmToIntent(a.arm);
-  if (a.fresh) trackGuidePublicArmAssigned(a.arm);
+  // GUIDE-ALL-1 (22 Oct 2026): the A/B ended — the device arm is no longer reported.
+  if (a.fresh && guideArmReportsOn()) trackGuidePublicArmAssigned(a.arm);
   return a.arm;
 }
 
