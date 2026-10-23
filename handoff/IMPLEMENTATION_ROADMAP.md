@@ -9,7 +9,7 @@
 - DONE. `#1316` (`0a155187`): MI-MODE-MARKS-1, PR 1 of 2 of the MI card fix (option A). NEXT: MI-CONSISTENCY-1 (`#1326`, draft) after MI-CARELESS-1 (`#1321`) and MI-CARELESS-2 (`#1324`).
 - DONE. `#1320` (`a2974c99`): MCQ-TYPE-1 - an MCQ with working keeps its mistake type; marks unchanged. NEXT: MCQ-TYPE-2 (`[FU-MCQ-TYPE-2-RIGHT-MCQ-FLAWED-WORKING]`); MCQ-EXTRACT-1 (`#1323`, draft); owner live check (`[FU-OWNER-LIVE-MCQ-WORKING-CATEGORY]`).
 - DONE. `#1319` (`00b4547a`): CI-AGG-1 - "Re-run failed jobs" judged on each shard's latest attempt.
-- IN FLIGHT [coordinator] [git/gh]: FRESH-SET-QP (no PR at writing), FRESH-SET-TESTS (`#1327`), QP-WORKING-AFTER-1 (`#1328`).
+- IN FLIGHT [coordinator] [git/gh]: FRESH-SET-QP (no PR at writing), FRESH-SET-TESTS (`#1327`), QP-WORKING-AFTER-1 (`#1328`, being reworked to the owner's 22:48 IST Finish-session save gate).
 - OPEN. The 2026-10-23 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
 
 ## 2026-10-22 (daily) - CI-CLOCK-CUT (`#1285`), PAYWALL-PAY-1 (`#1286`), CI-SPEED-3 (`#1287`), GUIDE-IQ-1 (`#1288`), MOMENTS-1 (`#1289`), COST-1 (`#1290`), TOPUP-1 PR-1 (`#1291`), GUIDE-OPTS-1 (`#1292`), RAILWAY-SLIM-1 (`#1293`), PARENT-REPORT-1 (`#1294`), MLT-MUTE-1 (`#1295`), OPS-REPORT-1 (`#1296`), MLT-MUTE-2 (`#1297`), FILTER-FIX-1 (`#1298`) - MERGED

@@ -23,7 +23,7 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-10-23 (daily) - #1300 - #1320 (twenty merges: #1300, #1301, #1302, #1303, #1304, #1305, #1306, #1307, #1308, #1309, #1310, #1311, #1312, #1313, #1314, #1315, #1316, #1317, #1319, #1320) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+## 2026-10-23 (daily) - #1300 - #1320 (20 product/CI merges (+ #1299, the 22 Oct docs PR, merged 15:49 IST): #1300, #1301, #1302, #1303, #1304, #1305, #1306, #1307, #1308, #1309, #1310, #1311, #1312, #1313, #1314, #1315, #1316, #1317, #1319, #1320) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `a2974c99`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from trunk / the PR bodies while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the coordinator's dispatch message (incl. live findings by the owner and the cofounder).
 
@@ -84,7 +84,7 @@ After BANK-RESIDUE-1 (`#1325`, open), some sections' PYQ rows drop to 0: Life Pr
 A Back-after-Refresh quirk on Quick Practice found during `#1302` GUIDE-FILTER-1 **[coordinator]**. `#1302` changed the route key to be decided once per navigation (`location.key`, `qpArrivalKey`) and states back / forward / refresh otherwise unchanged [git/gh]. Not reproduced by this writer.
 
 ### [FU-QP-TIMEOUT-UNCAUGHT]
-An uncaught `__timeout__` error in `PracticePage.tsx` **[coordinator]** (the dispatch says ~line 1834). At `a2974c99` the reject is at `lazytopper/src/pages/PracticePage.tsx:1927` (`setTimeout(() => reject(new Error("__timeout__")), 15000)`) and it is read at `:2280` [git/gh]. Find the path where the rejection is not caught.
+An uncaught `__timeout__` error in `lazytopper/src/pages/PracticePage.tsx:1927/2280` **[coordinator]**. At `a2974c99` the reject is at `lazytopper/src/pages/PracticePage.tsx:1927` (`setTimeout(() => reject(new Error("__timeout__")), 15000)`) and it is read at `:2280` [git/gh]. Find the path where the rejection is not caught.
 
 ### [FU-GUIDE-SCORE-WEAKMODE-UNREAD]
 `#1305`: Byte's Worksheet / Quick Practice link carries `weakMode=1`, which the practice page does not read yet (PR body) [git/gh].
@@ -107,7 +107,7 @@ An uncaught `__timeout__` error in `PracticePage.tsx` **[coordinator]** (the dis
 The branch `ci/ci-agg-1-proof-throwaway` (head `0cc4026e`) from the `#1318` live proof of CI-AGG-1 still exists at writing [git/gh]; the owner deletes it (branch deletion is never auto-approved, CLAUDE.md section 3).
 
 ### Open PRs at writing [git/gh]
-`#1321` MI-CARELESS-1, `#1324` MI-CARELESS-2, `#1326` MI-CONSISTENCY-1 (draft, stacked on `#1321`) - awaiting the owner; `#1322` GUIDE-SCORE-2, `#1323` MCQ-EXTRACT-1 (draft), `#1325` BANK-RESIDUE-1 - in progress; `#1327` FRESH-SET-TESTS, `#1328` QP-WORKING-AFTER-1 - open; FRESH-SET-QP - no PR.
+`#1321` MI-CARELESS-1, `#1324` MI-CARELESS-2, `#1326` MI-CONSISTENCY-1 (draft, stacked on `#1321`) - awaiting the owner; `#1322` GUIDE-SCORE-2, `#1323` MCQ-EXTRACT-1 (draft), `#1325` BANK-RESIDUE-1 - in progress; `#1327` FRESH-SET-TESTS, `#1328` QP-WORKING-AFTER-1 - open, being reworked to the owner's 22:48 IST Finish-gate design; FRESH-SET-QP - no PR.
 
 ## 2026-10-22 (daily) - #1285 CI-CLOCK-CUT, #1286 PAYWALL-PAY-1, #1287 CI-SPEED-3, #1288 GUIDE-IQ-1, #1289 MOMENTS-1, #1290 COST-1, #1291 TOPUP-1 PR-1, #1292 GUIDE-OPTS-1, #1293 RAILWAY-SLIM-1, #1294 PARENT-REPORT-1, #1295 MLT-MUTE-1, #1296 OPS-REPORT-1, #1297 MLT-MUTE-2, #1298 FILTER-FIX-1 FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
