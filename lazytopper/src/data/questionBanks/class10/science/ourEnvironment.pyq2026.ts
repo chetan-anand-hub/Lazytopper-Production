@@ -12,7 +12,9 @@ export const ourEnvironmentPYQ2026: CanonicalQuestion[] = [
     questionText: "In the given figure, identify the trophic level having maximum concentration of harmful chemicals.",
     options: ["T1", "T5", "T4", "T3"],
     answer: "T5",
-    solutionSteps: ["Correct option: (b) T5."],
+    solutionSteps: [
+      "[1 mark] Harmful chemicals such as pesticides are not biodegradable; they accumulate progressively at each trophic level (biological magnification), so the highest trophic level, T5, has the maximum concentration. Correct option: (b) T5.",
+    ],
     finalAnswer: "(b) T5",
     ncertRef: "PYQ 31/2/1 Q6", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },

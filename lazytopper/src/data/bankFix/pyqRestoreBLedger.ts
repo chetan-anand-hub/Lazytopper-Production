@@ -123,5 +123,15 @@ export const PYQ_RESTORE_B_MATHS: readonly PyqRestoreBEntry[] = [
 
 export const PYQ_RESTORE_B_MATHS_COUNTS = { restored: 54, added: 17, figuresNew: 18, figuresReused: 12 } as const;
 
+/**
+ * PYQ-RESTORE-B PR-2 (controller ruling, 23 Oct 2026): served-twice duplicates found in review. One copy of each pair is
+ * WITHHELD (canonicalQuestionBank.ts); the kept copy stays served. Pinned by pyqRestoreB.test.ts and the bank-wide
+ * served-duplicate guard (bankFix/servedDuplicateText.guard.test.ts).
+ */
+export const PYQ_RESTORE_B_DEDUPE_WITHHELD: readonly { id: string; keep: string; why: string }[] = [
+  { id: "PYQ-M-2024-TRIG-010b", keep: "PYQ-M-2024-TRIG-011b", why: "set repeat of 2024-TRIG-011b (30/4/1 Q23(b) = 30/4/2 Q21(b))" },
+  { id: "APQ-M-TRI-004", keep: "PYQ-M-2025-TRI-009", why: "same question served as PYQ-M-2025-TRI-009 (2025 board paper)" },
+];
+
 /** Rows PYQ-RESTORE-B served again or added (both PRs append here). */
 export const PYQ_RESTORE_B_IDS: ReadonlySet<string> = new Set(PYQ_RESTORE_B_MATHS.map((e) => e.id));
