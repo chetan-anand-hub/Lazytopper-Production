@@ -32,16 +32,23 @@ export const MI_FIXTURE_UID = "u-mi-fixture";
 const HOUR = 60 * 60 * 1000;
 const ago = (hours: number): number => MI_FIXTURE_NOW - hours * HOUR;
 
+/** The served bank ids per chapter, in index order, each with its normalized section (built once). */
+let idsByChapter: Map<string, Array<{ id: string; section: string }>> | null = null;
+
 /** The first `n` served bank ids of a chapter (optionally one section), in index order. */
 export function bankIds(topicKey: string, n: number, section?: string): string[] {
-  const out: string[] = [];
-  for (const [id, meta] of bankIndexEntries()) {
-    if (meta.topicKey !== topicKey) continue;
-    if (section && normalizeSection(meta.section) !== section) continue;
-    out.push(id);
-    if (out.length >= n) break;
+  if (!idsByChapter) {
+    idsByChapter = new Map();
+    for (const [id, meta] of bankIndexEntries()) {
+      const list = idsByChapter.get(meta.topicKey) ?? [];
+      list.push({ id, section: normalizeSection(meta.section) });
+      idsByChapter.set(meta.topicKey, list);
+    }
   }
-  return out;
+  return (idsByChapter.get(topicKey) ?? [])
+    .filter((row) => !section || row.section === section)
+    .slice(0, n)
+    .map((row) => row.id);
 }
 
 const marks = (m: Partial<MarksLostByType>): MarksLostByType => ({ ...zeroMarksLost(), ...m });
