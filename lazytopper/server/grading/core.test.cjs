@@ -2286,3 +2286,65 @@ test('§MCQ-EXTRACT-1.3 ★ ONLY A CLOSING BRACKET: working lines with letter VA
   assert.equal(O.extractOptionPick([{ studentWork: 'c) only k, 7k and k^3' }], EX_OPTS).pick, 'c');
   assert.equal(O.extractOptionPick([{ studentWork: '(c) Coincident' }], ['Parallel', 'Intersecting', 'Coincident', 'Skew']).pick, 'c');
 });
+
+/* ══ §MCQ-EXTRACT-1 · REVIEW HOLD — A LETTER+TEXT LINE IS A FALLBACK, NEVER AN OVERRIDE ══════════
+   "(b) 4" is ALSO how a working line looks when option (b) happens to be "4". With the last
+   declaration winning, "(c)" followed by a working line "(b) 4" read b and a student lost an
+   earned mark. The letter+text form is now read ONLY when nothing else in the answer declares an
+   option; if several such lines name different options, the answer is left unresolved. */
+
+const FB_OPTS = ['2', '4', '6', '8'];
+const FB_VAR_OPTS = ['a', 'b', 'a + b', 'ab'];
+async function fbBoth(works, { options, answer, raw = {} }) {
+  const reply = REPLY(R(1, works.map((w) => S({ description: 'Line', studentWork: w, status: 'correct', marksAwarded: 0 })), raw));
+  const qo = { options, answer, textAnswer: works.join('\n') };
+  const a = (await harness({ replies: [reply] }).single(EX_SINGLE(qo))).body;
+  const b = (await harness({ replies: [reply] }).sheet(sheet([EX_Q(qo)], { acceptsV2: true }))).body.results[0];
+  return [a, b];
+}
+
+test('§MCQ-EXTRACT-1.4 ★ "(c)" then a working line "(b) 4" (option b is "4"), key c → c, FULL — on handleCheckSolution AND handleGradeWorksheet', async () => {
+  assert.equal(O.extractOptionPick([{ studentWork: '(c)' }, { studentWork: '(b) 4' }], FB_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: '(c)\n(b) 4' }], FB_OPTS).pick, 'c');
+  assert.equal(O.extractOptionPick([{ studentWork: '(b) 4' }, { studentWork: '(c)' }], FB_OPTS).pick, 'c', 'order does not matter');
+  for (const r of await fbBoth(['(c)', '(b) 4'], { options: FB_OPTS, answer: '6' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // and the reverse direction: key b, declared (c) → 0 (the working line never RESCUES either)
+  for (const r of await fbBoth(['(c)', '(b) 4'], { options: FB_OPTS, answer: '4' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, true]);
+});
+
+test('§MCQ-EXTRACT-1.5 ★ "(c)" then "b) b" (option b is "b"), key c → c, FULL — on both endpoints', async () => {
+  assert.equal(O.extractOptionPick([{ studentWork: '(c)' }, { studentWork: 'b) b' }], FB_VAR_OPTS).pick, 'c');
+  for (const r of await fbBoth(['(c)', 'b) b'], { options: FB_VAR_OPTS, answer: 'a + b' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+  // "Answer: c" outranks a later letter+text line too
+  assert.equal(O.extractOptionPick([{ studentWork: 'Answer: c' }, { studentWork: 'b) b' }], FB_VAR_OPTS).pick, 'c');
+});
+
+test('§MCQ-EXTRACT-1.6 ★ several letter+text lines naming DIFFERENT options, nothing else declared → unresolved (never a guess)', async () => {
+  assert.equal(O.extractOptionPick([{ studentWork: '(b) 4' }, { studentWork: '(c) 6' }], FB_OPTS).pick, '');
+  for (const r of await fbBoth(['(b) 4', '(c) 6'], { options: FB_OPTS, answer: '6' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  for (const r of await fbBoth(['(b) 4', '(c) 6'], { options: FB_OPTS, answer: '4' })) assert.deepEqual([r.marksAwarded, r.objectiveResolved], [0, false]);
+  // the SAME option twice is not a conflict
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) 6' }, { studentWork: 'c) 6' }], FB_OPTS).pick, 'c');
+  // a hedge is an ordinary declaration and still outranks a fallback line
+  assert.equal(O.extractOptionPick([{ studentWork: '(c) 6' }, { studentWork: '(a) or (b)' }], FB_OPTS).pick, '');
+  assert.equal(O.isHedgedPick([{ studentWork: '(c) 6' }, { studentWork: '(a) or (b)' }], FB_OPTS), true);
+});
+
+test('§MCQ-EXTRACT-1.7 previous positives still read as the letter when they stand alone', async () => {
+  const P = (w, opts) => O.extractOptionPick([{ studentWork: w }], opts).pick;
+  assert.equal(P('(c) Coincident', ['Parallel', 'Intersecting', 'Coincident', 'Skew']), 'c');
+  assert.equal(P('c) only k, 7k and k^3', EX_OPTS), 'c');
+  assert.equal(P('(a) (x+1)', ['(x+1)', '(x-1)', '(x+2)', '(x-2)']), 'a');
+  assert.equal(P('(a) (x+1)(x-2)', ['(x+1)(x-2)', '(x-1)(x+2)', '(x+1)(x+2)', '(x-1)(x-2)']), 'a');
+  assert.equal(P('d) (a) and (b) both', ['only (a)', 'only (b)', 'neither (a) nor (b)', '(a) and (b) both']), 'd');
+  const AR = [
+    'Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).',
+    'Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).',
+    'Assertion (A) is true but Reason (R) is false.',
+    'Assertion (A) is false but Reason (R) is true.',
+  ];
+  assert.equal(P('(c) Assertion (A) is true but Reason (R) is false.', AR), 'c');
+  // a positive through both endpoints, alone → FULL
+  for (const r of await fbBoth(['(a) (x+1)(x-2)'], { options: ['(x+1)(x-2)', '(x-1)(x+2)', '(x+1)(x+2)', '(x-1)(x-2)'], answer: '(x+1)(x-2)' }))
+    assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
+});

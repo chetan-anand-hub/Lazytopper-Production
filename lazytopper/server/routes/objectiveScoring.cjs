@@ -203,10 +203,13 @@ function declarationOn(line, opts) {
   // (2b) MCQ-EXTRACT-1 · a leading option letter followed by THAT option's text — "(c) Coincident",
   // "c) only k, 7k and k^3". Only when the text is exactly the letter's own option: a
   // letter with another option's text is contradictory, and a letter with prose is working.
+  // ★ A FALLBACK, NEVER AN OVERRIDE: "(b) 4" is also how a WORKING line looks when option (b)
+  // happens to be "4". It is marked `fallback` and lastDeclaration reads it ONLY when nothing
+  // else in the answer declares an option (review HOLD: "(c)" then "(b) 4" read b).
   const lt = LETTER_THEN_TEXT.exec(w);
   if (lt) {
     const idx = lt[1].toLowerCase().charCodeAt(0) - 97;
-    if (idx < opts.length && N(lt[2]) && N(lt[2]) === N(opts[idx])) return { pick: lt[1].toLowerCase() };
+    if (idx < opts.length && N(lt[2]) && N(lt[2]) === N(opts[idx])) return { pick: lt[1].toLowerCase(), fallback: true };
   }
   const sc = SELF_CORRECTION.exec(w);
   if (sc) return { pick: String(sc[1] || sc[2]).toLowerCase() };
@@ -227,19 +230,35 @@ function declarationOn(line, opts) {
 // first declaration). A student who changes their answer is marked on the answer they ended
 // with, exactly as an examiner reads the page. Every line of every step is read in order and
 // the LAST declaration is the pick; if that last declaration is a hedge, the pick is a hedge.
+//
+// MCQ-EXTRACT-1 · a letter+text line ("(c) Coincident") is a FALLBACK declaration: it is read
+// only when NO other line declares an option. Any ordinary declaration — "(c)", "Answer: c",
+// a hedge, a self-correction — outranks every fallback line, wherever it sits. If several
+// fallback lines name DIFFERENT options and nothing else declares, the answer is left
+// UNRESOLVED (null): we never guess which of two working-shaped lines was the answer.
 function lastDeclaration(steps, options) {
   const list = Array.isArray(steps) ? steps : [];
   const opts = Array.isArray(options) ? options : [];
   let last = null;
+  let lastFallback = null;
+  let fallbackConflict = false;
   for (let i = 0; i < list.length; i += 1) {
     const s = list[i];
     const w = s && s.studentWork != null ? String(s.studentWork) : '';
     for (const line of w.split(/\n/)) {
       const d = declarationOn(line, opts);
-      if (d) last = { ...d, stepIndex: i };
+      if (!d) continue;
+      if (d.fallback) {
+        if (lastFallback && lastFallback.pick !== d.pick) fallbackConflict = true;
+        lastFallback = { pick: d.pick, stepIndex: i };
+      } else {
+        last = { ...d, stepIndex: i };
+      }
     }
   }
-  return last;
+  if (last) return last;
+  if (lastFallback && !fallbackConflict) return lastFallback;
+  return null;
 }
 
 // The public shape is unchanged — { pick, stepIndex } — and a hedge reads as "no single
