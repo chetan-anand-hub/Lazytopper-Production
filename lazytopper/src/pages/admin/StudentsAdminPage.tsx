@@ -230,6 +230,9 @@ const GUIDE_PREVIEW_CHOICES = [
 ] as const;
 type GuidePreviewChoice = (typeof GUIDE_PREVIEW_CHOICES)[number]["value"];
 
+/** GUIDE-ALL-1 — the A/B panel's status line (the uid-hash split ended 22 Oct 2026). */
+export const GUIDE_AB_ENDED_LABEL = "A/B ended 22 Oct 2026 — all students on guide";
+
 export const GUIDE_PREVIEW_HELP = "Applies to any account signed in on this browser for 7 days. Students never see this.";
 
 /**
@@ -248,6 +251,10 @@ export function GuidePreviewPanel() {
       <h2 id="gp-title" className="gh-title">
         Guide preview (this browser)
       </h2>
+      {/* GUIDE-ALL-1 (owner ruling 22 Oct 2026): the split is over; history is kept on each student. */}
+      <p className="gh-note" data-testid="guide-ab-ended">
+        <strong>{GUIDE_AB_ENDED_LABEL}</strong>
+      </p>
       <p className="sa-muted gh-note">{GUIDE_PREVIEW_HELP}</p>
       <div className="gp-choices" role="radiogroup" aria-labelledby="gp-title">
         {GUIDE_PREVIEW_CHOICES.map((c) => (
@@ -267,7 +274,7 @@ export function GuidePreviewPanel() {
       <p className="gp-state" data-testid="guide-preview-state" aria-live="polite">
         {preview
           ? `Now: ${preview.arm === "guide" ? "showing Byte" : "showing control"} on this browser until ${formatIstDateTime(preview.until)}.`
-          : "Now: off. Every account on this browser sees its own test group."}
+          : "Now: off. Every account on this browser sees Byte, like every student."}
       </p>
     </section>
   );
