@@ -396,7 +396,9 @@ export function describeChapterTestPaper(paper: PersistedWorksheet): ChapterTest
       return {
         group: String(q.section),
         objective: String(q.section).toUpperCase() === "A",
-        item: { marks: Number(q.marks) || 0, competencyVerified: bank?.competencyVerified },
+        // The bank row carries the CBQ flag (read only through lib/cbq's isCbq); the marks are the
+        // saved row's own. A row no longer in the bank is a plain row, never a claimed CBQ.
+        item: bank ? { ...bank, marks: Number(q.marks) || 0 } : { marks: Number(q.marks) || 0 },
       };
     }),
   );
