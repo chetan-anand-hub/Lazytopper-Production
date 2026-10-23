@@ -40,7 +40,8 @@ vi.mock("../../auth/RequireAuth", () => ({
   RequireAuth: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-import FairUseLimitPanel, { TRIAL_PREMIUM_NOTE } from "../../usage/FairUseLimitPanel";
+import FairUseLimitPanel from "../../usage/FairUseLimitPanel";
+import { m7DialogLine } from "./m7Copy";
 import { ChapterTestPicker } from "../../practice/ChapterTestPicker";
 import ChapterTestPage from "../../../pages/ChapterTestPage";
 import FullMockPage from "../../../pages/FullMockPage";
@@ -106,25 +107,19 @@ describe("GUIDE-PAGES-1 M7 · FairUseLimitPanel", () => {
     expect(screen.getByTestId("guide-m7-still").textContent).toBe(M7_COPY.still);
     const plans = screen.getByTestId("fair-use-see-plans");
     expect(row.compareDocumentPosition(plans) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Byte never SAYS Premium; the panel's own first line already mentions it, exactly once
     expect(row.textContent ?? "").not.toMatch(/Premium/);
-    const note = screen.getByTestId("fair-use-premium-note");
-    expect(note.textContent).toBe(TRIAL_PREMIUM_NOTE);
-    expect(note.nextElementSibling?.classList.contains("lt-usage__actions")).toBe(true);
+    expect((panel.textContent ?? "").match(/Premium removes/g)?.length).toBe(1);
   });
 
-  it("Hide mascots: Byte goes, the panel's own Premium note stays (it is panel text, not Byte's)", () => {
+  it("Hide mascots: Byte goes; the panel is today's panel", () => {
     hideMascots();
     render(<Panel limit={TRIAL_PAPER} />);
     expect(screen.queryByTestId("guide-moment-m7")).toBeNull();
-    expect(screen.getByTestId("fair-use-premium-note").textContent).toBe(TRIAL_PREMIUM_NOTE);
+    expect(screen.getByTestId("fair-use-limit-panel")).toBeTruthy();
   });
 
-  it("Tutor / new-questions trial limits keep their owner sentence alone — no Premium note", () => {
-    render(<Panel limit={{ tier: "trial", scope: "tutor", resetAt: null, window: null, allowance: 15 }} />);
-    expect(screen.queryByTestId("fair-use-premium-note")).toBeNull();
-  });
-
-  it("trial-day dialog: Byte AFTER the actions (they keep their place); one line; no second 'still works' or Premium line", () => {
+  it("trial-day dialog: Byte AFTER the actions (they keep their place); ONE companion line, nothing repeated", () => {
     render(<Panel limit={TRIAL_CHECKS} />);
     const dialog = screen.getByRole("dialog");
     const row = screen.getByTestId("guide-moment-m7");
@@ -134,17 +129,13 @@ describe("GUIDE-PAGES-1 M7 · FairUseLimitPanel", () => {
     const actions = dialog.querySelector(".lt-usage__actions") as HTMLElement;
     expect(actions.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(actions.contains(row)).toBe(false);
-    const hit = screen.getByTestId("guide-m7-hit").textContent ?? "";
-    expect(hit.startsWith(M7_COPY.trialHit.checks)).toBe(true);
+    // the panel's own count (allowance 5): companion value, not a repeat of the dialog's lines
+    expect(screen.getByTestId("guide-m7-dialog").textContent).toBe(m7DialogLine(TRIAL_CHECKS));
+    expect(screen.getByTestId("guide-m7-dialog").textContent).toContain("You checked 5 answers today.");
+    expect(screen.queryByTestId("guide-m7-hit")).toBeNull();
     expect(screen.queryByTestId("guide-m7-still")).toBeNull();
-    // Byte never SAYS Premium; the panel's own plain note does, directly above the pay buttons
-    expect(row.textContent ?? "").not.toMatch(/Premium/);
-    const note = screen.getByTestId("fair-use-premium-note");
-    expect(note.textContent).toBe(TRIAL_PREMIUM_NOTE);
-    expect(note.nextElementSibling).toBe(actions);
-    // the reset Byte names is the panel's own (3 h away, not a midnight → its own time)
-    const shownTime = screen.getByTestId("fair-use-come-back").textContent ?? "";
-    expect(shownTime).toContain(hit.replace(/^.*It comes back at /, "").replace(/\.$/, ""));
+    expect(row.textContent ?? "").not.toMatch(/Premium|used up|comes back/);
+    expect((dialog.textContent ?? "").match(/Premium removes/g)?.length).toBe(1);
     // the dialog's own Close is still the first focus target
     expect(document.activeElement?.hasAttribute("data-dialog-close")).toBe(true);
   });
@@ -153,7 +144,6 @@ describe("GUIDE-PAGES-1 M7 · FairUseLimitPanel", () => {
     render(<Panel limit={{ tier: "premium", scope: "checks", resetAt: null, window: "week" }} />);
     expect(screen.getByTestId("guide-m7-hit").textContent).toBe("You've reached Premium's week fair-use limit.");
     expect(screen.getByTestId("fair-use-limit-panel").textContent ?? "").not.toMatch(/Premium removes/);
-    expect(screen.queryByTestId("fair-use-premium-note")).toBeNull();
   });
 
   it("admin 'Show control' preview arm: today's panel exactly — no Byte", async () => {

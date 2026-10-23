@@ -28,14 +28,6 @@ import "./usage.css";
 
 export const PLANS_PATH = "/pricing";
 
-/**
- * GUIDE-PAGES-1 (controller ruling, 23 Oct) — the panel's OWN plain line next to the pay buttons.
- * It used to be Byte's; a mascot saying it read as selling. Trial only, and only where the panel
- * already carries a Premium follow-on (not the Tutor / new-practice-questions copy, whose owner
- * sentence is the whole message). No price, no urgency.
- */
-export const TRIAL_PREMIUM_NOTE = "Premium removes the trial's daily and weekly limits. A fair-use limit still applies.";
-
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** 32e: only a trial student at today's answer-check limit, with a reset time to name. */
@@ -73,13 +65,6 @@ export default function FairUseLimitPanel({
     };
   }, [asDialog, open]);
 
-  const premiumNote =
-    limit.tier === "trial" && copy.showPlans && copy.tail ? (
-      <p className="lt-usage__body lt-usage__premium-note" data-testid="fair-use-premium-note">
-        {TRIAL_PREMIUM_NOTE}
-      </p>
-    ) : null;
-
   const lead = (
     <p className="lt-usage__lead">
       {copy.lead}
@@ -99,7 +84,6 @@ export default function FairUseLimitPanel({
         <div className="lt-usage__eyebrow">Fair use</div>
         {lead}
         <LimitByte limit={limit} when={when} />
-        {premiumNote}
         {copy.showPlans || onDismiss ? (
           <div className="lt-usage__actions">
             {copy.showPlans ? (
@@ -177,7 +161,6 @@ export default function FairUseLimitPanel({
         <p className="lt-usage__body" data-testid="fair-use-come-back">
           {trialComeBackLine(limit.resetAt ?? "", when, limit.allowance)}
         </p>
-        {premiumNote}
         <div className="lt-usage__actions">
           <PaywallActions
             surface="usage_limit"

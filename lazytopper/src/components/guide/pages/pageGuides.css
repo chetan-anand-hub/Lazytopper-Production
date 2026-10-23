@@ -22,7 +22,11 @@
 .lt-pg-pop { position: fixed; z-index: 70; left: 8px; right: 8px; bottom: calc(68px + env(safe-area-inset-bottom, 0px));
   display: flex; align-items: flex-end; gap: 6px; max-width: 460px; color: #14213d; }
 .lt-pg-pop__byte { flex: none; width: 60px; }
-.lt-pg-pop__bub { flex: 1 1 auto; max-height: min(64vh, 520px); overflow-y: auto; overscroll-behavior: contain; }
+/* The card is bottom-anchored, so its tallest safe height is the viewport minus its bottom offset
+   minus a 16px top gap: every item stays reachable by scrolling INSIDE the card (never cut). */
+.lt-pg-pop__bub { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain;
+  max-height: calc(100vh - 68px - env(safe-area-inset-bottom, 0px) - 16px);
+  max-height: calc(100dvh - 68px - env(safe-area-inset-bottom, 0px) - 16px); }
 .lt-pg-pop__list { margin: 4px 0 6px; padding: 0; }
 .lt-pg-pop__item { margin: 0 0 6px; }
 .lt-pg-pop__item dt { margin: 0; font-size: 12.5px; font-weight: 800; color: hsl(152, 60%, 26%); }
@@ -32,7 +36,11 @@
   background: hsl(152, 55%, 38%); color: #fff; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
 .lt-pg-pop__ok:hover { background: hsl(152, 55%, 32%); }
 @media (min-width: 768px) { .lt-pg-pop { right: auto; width: 460px; } .lt-pg-pop__byte { width: 76px; } }
-@media (min-width: 1024px) { .lt-pg-pop { left: 284px; bottom: 16px; } .lt-pg-pop--bare { left: 16px; } }
+@media (min-width: 1024px) {
+  .lt-pg-pop { left: 284px; bottom: 16px; }
+  .lt-pg-pop--bare { left: 16px; }
+  .lt-pg-pop__bub { max-height: calc(100vh - 16px - 16px); max-height: calc(100dvh - 16px - 16px); }
+}
 
 @keyframes lt-pg-pop { 0% { transform: scale(.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .lt-pg__bub { animation: none !important; } }

@@ -35,7 +35,7 @@ import {
   inGuideArm,
 } from "./pageGuides";
 import { ENTRY_COPY, M7_COPY, POP_COPY, TRENDS_COPY, m7Lines } from "./pageGuidesChunk";
-import { isNextMidnight } from "./m7Copy";
+import { isNextMidnight, m7DialogLine } from "./m7Copy";
 import { inGuideArm as momentsInGuideArm } from "../moments/moments";
 import { __removeMascotsToastForTests } from "../moments/mascotsToast";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, hideMascots } from "../mascotsMute";
@@ -120,9 +120,13 @@ describe("GUIDE-PAGES-1 · the copy tables (owner review)", () => {
       "bands", "marks", "tier", "expect", "hpq", "learn", "notes", "select", "weightage", "guide",
     ]);
     expect(strings(TRENDS_COPY).join(" ")).not.toMatch(/\bPYQ|\bCBQ/);
-    expect(TRENDS_COPY.items.find((i) => i.key === "hpq")?.line).toBe(
-      "This chapter's Important Questions, picked from what past papers ask most. Open them from the ⋯ menu.",
+    // IMPQ-RENAME-1 (#1102, owner rulings D2/D116): the public wording never claims to know an
+    // upcoming paper — "patterns to practise, not the 2027 paper". The line describes the button.
+    const hpq = TRENDS_COPY.items.find((i) => i.key === "hpq")?.line ?? "";
+    expect(hpq).toBe(
+      "Important Qs opens this chapter's Important Questions page: board-pattern questions built from 10 years of CBSE papers. Patterns, not the actual paper.",
     );
+    expect(hpq).not.toMatch(/predict|2027|highly probable|will come|guarantee/i);
     // Byte's own closing tip — no second character, no Ziggy name anywhere in the card's copy.
     expect(TRENDS_COPY.tip).toBe("My tip: pick one Must-crack chapter today and finish it. Small steps add up.");
     expect([...strings(TRENDS_COPY), ...strings(POP_COPY)].join(" ")).not.toMatch(/ziggy/i);
@@ -189,11 +193,26 @@ describe("GUIDE-PAGES-1 M7 · LimitByte", () => {
     await waitFor(() => expect(calls("guide_moment_shown")).toEqual([["guide_moment_shown", { moment: "m7" }]]));
   });
 
-  it("dialog: ONE line — what was hit; no 'still works' (the dialog already says it)", () => {
-    render(<Limit limit={TRIAL_CT} variant="dialog" />);
-    expect(screen.getByTestId("guide-m7-hit").textContent).toBe(M7_COPY.trialHit["chapter-test"]);
+  it("dialog: ONE companion line from the panel's own count — never a repeat of what the dialog says", () => {
+    const checks: LimitState = { tier: "trial", scope: "checks", resetAt: null, window: null, allowance: 5 };
+    render(<Limit limit={checks} variant="dialog" />);
+    const line = screen.getByTestId("guide-m7-dialog").textContent ?? "";
+    expect(line).toBe("You checked 5 answers today. Good work! Rest now, or tap through some MCQs; tapping an answer doesn't use checks.");
+    expect(line).not.toMatch(/used up|after midnight|comes back|Premium/);
+    expect(screen.queryByTestId("guide-m7-hit")).toBeNull();
     expect(screen.queryByTestId("guide-m7-still")).toBeNull();
     expect(m7Rows()).toBe(1);
+  });
+
+  it("m7DialogLine: the real count; 1 → singular; unknown allowance → no number (never guessed)", () => {
+    const base: LimitState = { tier: "trial", scope: "checks", resetAt: null, window: null, allowance: 5 };
+    expect(m7DialogLine({ ...base, allowance: 8 })).toBe(M7_COPY.dialogDone.replace("{n}", "8"));
+    expect(m7DialogLine({ ...base, allowance: 1 })).toBe(M7_COPY.dialogDoneOne);
+    expect(m7DialogLine({ ...base, allowance: null })).toBe(M7_COPY.dialogDoneUnknown);
+    expect(m7DialogLine({ ...base, allowance: undefined })).toBe(M7_COPY.dialogDoneUnknown);
+    for (const s of [M7_COPY.dialogDone.replace("{n}", "12"), M7_COPY.dialogDoneOne, M7_COPY.dialogDoneUnknown]) {
+      expect(words(s), s).toBeLessThanOrEqual(22);
+    }
   });
 
   it("control arm / split off / signed out → nothing at all", async () => {
@@ -378,6 +397,9 @@ describe("GUIDE-PAGES-1 · no layout shift (slot reserved / out of flow)", () =>
     expect(doorCss).toMatch(/\.lt-pg-door--corner\s*\{[^}]*position:\s*absolute/);
     expect(doorCss).toMatch(/\.lt-pg-door--end, \.lt-pg-door--inline\s*\{[^}]*margin-top:\s*-4px;\s*margin-bottom:\s*-4px/);
     expect(popCss).toMatch(/\.lt-pg-pop\s*\{[^}]*position:\s*fixed/);
+    // the card never runs past the viewport: bottom offset + 16px top gap, scrolling inside
+    expect(popCss).toMatch(/\.lt-pg-pop__bub\s*\{[^}]*overflow-y:\s*auto;[^}]*max-height:\s*calc\(100vh - 68px - env\(safe-area-inset-bottom, 0px\) - 16px\)/);
+    expect(popCss).toMatch(/\.lt-pg-pop__bub\s*\{\s*max-height:\s*calc\(100vh - 16px - 16px\)/); // desktop: bottom 16 + top 16
     expect(popCss).toMatch(/prefers-reduced-motion: reduce\)\s*\{\s*\.lt-pg__bub\s*\{\s*animation:\s*none/);
   });
 

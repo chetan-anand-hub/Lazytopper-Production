@@ -7,7 +7,7 @@
  * The one exception is M7's two short lines (./m7Copy.ts), eager so the limit panel never grows late.
  *
  *   LimitByte  (m7)          — Byte inside the fair-use LIMIT panel (what was hit + what still works)
- *                              and AFTER the trial-day dialog's actions (what was hit, one line).
+ *                              and AFTER the trial-day dialog's actions (one companion line).
  *                              Words render with the panel; Byte's drawing fills a fixed box.
  *   PageGuide  (ws_entry,    — a small "?" on the entry page. On this DEVICE's first visit the helper
  *               ct_entry,      opens once by itself; after that only the "?" opens it. It is a FIXED
@@ -32,7 +32,7 @@ import type { LimitState } from "../../usage/fairUseGate";
 import { guideAbActive, guidePreviewActive, resolveGuideVariant, trackGuideEvent } from "../guideVariant";
 import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "../moments/mascotsToast";
-import { M7_COPY, m7Lines } from "./m7Copy";
+import { M7_COPY, m7DialogLine, m7Lines } from "./m7Copy";
 import type { PageGuideId, PageGuidePopProps, PageGuideStep } from "./pageGuidesChunk";
 import "./pageGuidesDoor.css";
 
@@ -239,7 +239,7 @@ export interface LimitByteProps {
   when: string;
   /**
    * `inline` (the panel): what was hit + what still works. `dialog` (the trial-day dialog, which
-   * already says what still works and carries the Premium line): what was hit, AFTER its actions.
+   * already says all of that): ONE companion line (m7DialogLine), AFTER its actions.
    */
   variant?: "inline" | "dialog";
 }
@@ -271,8 +271,10 @@ export function LimitByte({ limit, when, variant = "inline" }: LimitByteProps) {
 
   if (out) return null;
   const lines = m7Lines(limit, when);
-  // The dialog already says what still works (and the panel's own lead carries the Premium line),
-  // so there Byte says ONE line; the inline panel adds what still works.
+  // The dialog already says what was used, when it comes back, what still works and the Premium
+  // line — so there Byte says ONE companion line (m7DialogLine) instead of repeating any of it.
+  // The inline panel: what was hit + what still works.
+  const first = variant === "dialog" ? m7DialogLine(limit) : lines.hit;
   const second = variant === "dialog" ? null : lines.still;
   return (
     <div
@@ -295,8 +297,8 @@ export function LimitByte({ limit, when, variant = "inline" }: LimitByteProps) {
             {M7_COPY.adminPreview}
           </span>
         ) : null}
-        <p className="lt-pg-m7__say" data-testid="guide-m7-hit">
-          {lines.hit}
+        <p className="lt-pg-m7__say" data-testid={variant === "dialog" ? "guide-m7-dialog" : "guide-m7-hit"}>
+          {first}
         </p>
         {second ? (
           <p className="lt-pg-m7__say lt-pg-m7__say--soft" data-testid="guide-m7-still">
