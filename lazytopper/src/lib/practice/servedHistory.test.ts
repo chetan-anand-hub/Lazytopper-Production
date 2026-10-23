@@ -7,6 +7,8 @@ const cloud = vi.hoisted(() => ({
   enabled: false,
   docs: new Map<string, unknown>(),
   writes: [] as string[],
+  readDelayMs: 0,
+  readFails: false,
 }));
 
 vi.mock("../../services/firestoreSdk", () => ({
@@ -20,10 +22,11 @@ vi.mock("../../services/firestoreSdk", () => ({
           cloud.writes.push(path);
           cloud.docs.set(path, data);
         },
-        getDoc: async (path: string) => ({
-          exists: () => cloud.docs.has(path),
-          data: () => cloud.docs.get(path),
-        }),
+        getDoc: async (path: string) => {
+          await new Promise((r) => setTimeout(r, cloud.readDelayMs));
+          if (cloud.readFails) throw new Error("offline");
+          return { exists: () => cloud.docs.has(path), data: () => cloud.docs.get(path) };
+        },
       },
     }),
 }));
@@ -40,6 +43,7 @@ import {
   refreshSectionDraw,
   repeatsNote,
   syncServedFromCloud,
+  withinMs,
   type FreshnessIndex,
 } from "./servedHistory";
 
@@ -48,6 +52,8 @@ beforeEach(() => {
   cloud.enabled = false;
   cloud.docs.clear();
   cloud.writes.length = 0;
+  cloud.readDelayMs = 0;
+  cloud.readFails = false;
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -65,9 +71,9 @@ describe("served history · storage", () => {
     expect(cloud.writes).toEqual([]);
   });
 
-  it("a signed-in student is mirrored to their OWN practiceInsights tree", () => {
+  it("a signed-in student is mirrored to their OWN practiceInsights tree", async () => {
     cloud.enabled = true;
-    recordServed({ uid: "u1", chapter: "Real-Numbers", ids: ["a"], at: 100 });
+    await recordServed({ uid: "u1", chapter: "Real-Numbers", ids: ["a"], at: 100 }).cloudDone;
     expect(cloud.writes).toEqual(["practiceInsights/u1/servedHistory/real-numbers"]);
   });
 
@@ -84,15 +90,55 @@ describe("served history · storage", () => {
     expect(capped[0].id).toBe("q20");
   });
 
-  it("the cloud copy is merged INTO the device copy (cross-device)", async () => {
+  it("★ COLD DEVICE (#1330 review): a write issued before any sync never overwrites the cloud history", async () => {
+    cloud.enabled = true;
+    cloud.readDelayMs = 50; // the cloud is slow; the set is recorded first
+    const path = "practiceInsights/u1/servedHistory/c";
+    cloud.docs.set(path, { entries: [{ id: "phone-1", at: 3 }, { id: "phone-2", at: 4 }] });
+    const sync = syncServedFromCloud({ uid: "u1", chapter: "c" }); // the page's load, in flight
+    const rec = recordServed({ uid: "u1", chapter: "c", ids: ["laptop"], at: 9 }); // lands first on the device
+    await Promise.all([sync, rec.cloudDone]);
+    const stored = (cloud.docs.get(path) as { entries: Array<{ id: string; at: number }> }).entries;
+    expect(stored.map((e) => e.id)).toEqual(["phone-1", "phone-2", "laptop"]);
+    expect(readServedDevice("u1", "c").map((e) => e.id)).toEqual(["phone-1", "phone-2", "laptop"]);
+  });
+
+  it("★ COLD DEVICE: the union keeps the NEWEST time per id and stays capped", async () => {
+    cloud.enabled = true;
+    const path = "practiceInsights/u1/servedHistory/c";
+    const many = Array.from({ length: SERVED_HISTORY_CAP }, (_, i) => ({ id: `old${i}`, at: i + 1 }));
+    cloud.docs.set(path, { entries: [...many, { id: "x", at: 5000 }] });
+    await recordServed({ uid: "u1", chapter: "c", ids: ["x", "new"], at: 9000 }).cloudDone;
+    const stored = (cloud.docs.get(path) as { entries: Array<{ id: string; at: number }> }).entries;
+    expect(stored).toHaveLength(SERVED_HISTORY_CAP);
+    expect(stored.find((e) => e.id === "x")?.at).toBe(9000);
+    expect(stored[stored.length - 1].id).toBe("x");
+    expect(stored.some((e) => e.id === "new")).toBe(true);
+  });
+
+  it("★ an UNREADABLE cloud is never written blind (the device keeps the record)", async () => {
+    cloud.enabled = true;
+    cloud.readFails = true;
+    const path = "practiceInsights/u1/servedHistory/c";
+    cloud.docs.set(path, { entries: [{ id: "phone", at: 3 }] });
+    await recordServed({ uid: "u1", chapter: "c", ids: ["laptop"], at: 9 }).cloudDone;
+    expect(cloud.writes).toEqual([]);
+    expect(readServedDevice("u1", "c").map((e) => e.id)).toEqual(["laptop"]);
+  });
+
+  it("the cloud copy is merged INTO the device copy on sync (cross-device)", async () => {
     cloud.enabled = true;
     cloud.docs.set("practiceInsights/u1/servedHistory/c", { entries: [{ id: "phone", at: 3 }] });
-    recordServed({ uid: "u1", chapter: "c", ids: ["laptop"], at: 4 });
-    // recordServed overwrote the doc with the device list; restore the phone's copy to simulate the race.
-    cloud.docs.set("practiceInsights/u1/servedHistory/c", { entries: [{ id: "phone", at: 3 }] });
+    window.localStorage.setItem("lt:qpServed:v1:u1:c", JSON.stringify([{ id: "laptop", at: 4 }]));
     const merged = await syncServedFromCloud({ uid: "u1", chapter: "c" });
     expect(merged.map((e) => e.id)).toEqual(["phone", "laptop"]);
     expect(readServedDevice("u1", "c").map((e) => e.id)).toEqual(["phone", "laptop"]);
+  });
+
+  it("withinMs: a slow promise falls back after the bound", async () => {
+    const slow = new Promise<string>((r) => setTimeout(() => r("late"), 200));
+    expect(await withinMs(slow, 20, "fallback")).toBe("fallback");
+    expect(await withinMs(Promise.resolve("fast"), 20, "fallback")).toBe("fast");
   });
 
   it("an unreadable device copy degrades to empty, never throws", () => {
@@ -193,10 +239,11 @@ describe("served history · refreshSectionDraw (the rule, Defect B)", () => {
 });
 
 describe("served history · the honest line", () => {
-  it("says 'seen every question' only when the scope is exhausted", () => {
-    expect(repeatsNote(0, true)).toBeNull();
-    expect(repeatsNote(3, true)).toBe("You've seen every question here — some repeats are mixed in.");
-    expect(repeatsNote(1, false)).toBe("One question in this set is one you've seen before.");
-    expect(repeatsNote(2, false)).toBe("2 questions in this set are ones you've seen before.");
+  it("'seen every question' ONLY when the whole scope is served; a section run-out says so with the count", () => {
+    expect(repeatsNote(0, "fully-served")).toBeNull();
+    expect(repeatsNote(3, "fully-served")).toBe("You've seen every question here — some repeats are mixed in.");
+    expect(repeatsNote(1, "section")).toBe("1 question repeats — the unseen ones in this section ran out.");
+    expect(repeatsNote(2, "section")).toBe("2 questions repeat — the unseen ones in this section ran out.");
+    expect(repeatsNote(1, "other")).toBe("1 question in this set is one you've seen before.");
   });
 });

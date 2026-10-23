@@ -39,7 +39,11 @@ export interface ServedEntry {
 }
 
 /** How many served ids are kept per user per chapter (most recent kept). A Board-mix set is 8, so
- *  this is ~37 sets of history; the largest chapters hold ~600 questions. */
+ *  this is ~37 sets of history. ⚠ It is SMALLER than many chapters' served pools (Real Numbers 334,
+ *  Polynomials 358, Chemical Reactions 520, Life Processes 599): once a student has been served more
+ *  than 300 questions of one chapter, the OLDEST served-but-unanswered ids drop off and rank as
+ *  never-served again. That only affects SKIPPED questions — ANSWERED ones are known from the attempts
+ *  stream, which has no cap — and by then those ids are the least recently seen anyway. */
 export const SERVED_HISTORY_CAP = 300;
 
 const DEVICE_KEY_PREFIX = "lt:qpServed:v1";
@@ -105,9 +109,40 @@ function canMirror(uid: string | null | undefined, isLocalSession?: boolean): ui
   return !!uid && uid !== "anonymous" && !isLocalSession && isFirestoreEnabled();
 }
 
+function cloudKey(uid: string, chapter: string): string {
+  return `${uid}\u0001${chapterKey(chapter)}`;
+}
+
+/** Per (uid, chapter): every cloud step (read-merge, read-merge-write) runs one after another, so a
+ *  write can never land between another step's read and its write. */
+const cloudChains = new Map<string, Promise<unknown>>();
+function onChain<T>(key: string, step: () => Promise<T>): Promise<T> {
+  const prev = cloudChains.get(key) ?? Promise.resolve();
+  const next = prev.then(step, step);
+  cloudChains.set(key, next.catch(() => undefined));
+  return next;
+}
+
+/** The cloud copy, or `null` when it could not be read (never treated as "empty"). */
+async function readServedCloud(uid: string, chapter: string): Promise<ServedEntry[] | null> {
+  try {
+    const snap = await withFirestore(({ fs, db }) =>
+      fs.getDoc(fs.doc(db, "practiceInsights", uid, SERVED_HISTORY_COLLECTION, chapterKey(chapter))),
+    );
+    const data = snap.exists() ? (snap.data() as { entries?: unknown }) : undefined;
+    return sanitize(data?.entries);
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Record that `ids` were SERVED (shown in a built set) at `at`. Device first; then, only for a real
- * signed-in student (the auth check), the merged list is mirrored to their own practiceInsights tree.
+ * Record that `ids` were SERVED (shown in a built set) at `at`. Device first, synchronously. Then, only
+ * for a real signed-in student (the auth check), the cloud mirror is updated by READ-MERGE-WRITE on the
+ * chapter's serial chain: the cloud copy is read, unioned with the device copy (latest `at` per id,
+ * capped), written back to both. A cold device therefore can never overwrite the history another device
+ * wrote — and when the cloud cannot be READ, nothing is written to it (the device keeps the record).
+ * Resolves (`cloudDone`) when the cloud step has finished or been skipped.
  */
 export function recordServed(args: {
   uid: string | null | undefined;
@@ -115,24 +150,32 @@ export function recordServed(args: {
   chapter: string;
   ids: readonly string[];
   at: number;
-}): ServedEntry[] {
+}): ServedEntry[] & { cloudDone?: Promise<void> } {
   const ids = args.ids.map((id) => String(id || "").trim()).filter(Boolean);
   if (ids.length === 0 || !chapterKey(args.chapter)) return [];
-  const merged = mergeServedEntries(
+  const merged: ServedEntry[] & { cloudDone?: Promise<void> } = mergeServedEntries(
     readServedDevice(args.uid, args.chapter),
     ids.map((id) => ({ id, at: args.at })),
   );
   writeServedDevice(args.uid, args.chapter, merged);
   if (canMirror(args.uid, args.isLocalSession)) {
     const uid = args.uid;
-    void withFirestore(({ fs, db }) =>
-      fs.setDoc(
-        fs.doc(db, "practiceInsights", uid, SERVED_HISTORY_COLLECTION, chapterKey(args.chapter)),
-        { entries: merged, updatedAt: new Date(args.at).toISOString() },
-      ),
-    ).catch(() => {
-      /* honest degrade: the device copy still holds it */
-    });
+    const chapter = args.chapter;
+    merged.cloudDone = onChain(cloudKey(uid, chapter), async () => {
+      const cloud = await readServedCloud(uid, chapter);
+      if (cloud === null) return; // unreadable: never write blind over it
+      const union = mergeServedEntries(readServedDevice(uid, chapter), cloud);
+      writeServedDevice(uid, chapter, union);
+      await withFirestore(({ fs, db }) =>
+        fs.setDoc(fs.doc(db, "practiceInsights", uid, SERVED_HISTORY_COLLECTION, chapterKey(chapter)), {
+          entries: union,
+          updatedAt: new Date(args.at).toISOString(),
+        }),
+      );
+    }).then(
+      () => undefined,
+      () => undefined, // honest degrade: the device copy still holds it
+    );
   }
   return merged;
 }
@@ -140,29 +183,41 @@ export function recordServed(args: {
 /**
  * The cloud copy for one chapter, merged INTO the device copy (so the next device write carries both
  * devices' history). Returns the merged list. A signed-out / local session, a disabled cloud or a
- * failed read returns the device copy unchanged.
+ * failed read returns the device copy unchanged. Runs on the chapter's serial chain.
  */
 export async function syncServedFromCloud(args: {
   uid: string | null | undefined;
   isLocalSession?: boolean;
   chapter: string;
 }): Promise<ServedEntry[]> {
-  const device = readServedDevice(args.uid, args.chapter);
-  if (!canMirror(args.uid, args.isLocalSession)) return device;
+  if (!canMirror(args.uid, args.isLocalSession)) return readServedDevice(args.uid, args.chapter);
   const uid = args.uid;
-  try {
-    const snap = await withFirestore(({ fs, db }) =>
-      fs.getDoc(fs.doc(db, "practiceInsights", uid, SERVED_HISTORY_COLLECTION, chapterKey(args.chapter))),
-    );
-    const data = snap.exists() ? (snap.data() as { entries?: unknown }) : undefined;
-    const cloud = sanitize(data?.entries);
-    if (cloud.length === 0) return device;
-    const merged = mergeServedEntries(readServedDevice(args.uid, args.chapter), cloud);
-    writeServedDevice(args.uid, args.chapter, merged);
+  const chapter = args.chapter;
+  return onChain(cloudKey(uid, chapter), async () => {
+    const cloud = await readServedCloud(uid, chapter);
+    const device = readServedDevice(uid, chapter);
+    if (!cloud || cloud.length === 0) return device;
+    const merged = mergeServedEntries(device, cloud);
+    writeServedDevice(uid, chapter, merged);
     return merged;
-  } catch {
-    return device;
-  }
+  });
+}
+
+/** Wait for `p` at most `ms`; `fallback` after that (a cold device's first draw must not hang). */
+export function withinMs<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise<T>((resolve) => {
+    const t = setTimeout(() => resolve(fallback), ms);
+    p.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      () => {
+        clearTimeout(t);
+        resolve(fallback);
+      },
+    );
+  });
 }
 
 // ── The freshness index ───────────────────────────────────────────────────────────────────────
@@ -324,15 +379,24 @@ function lexLess(a: number[], b: number[]): boolean {
 }
 
 /**
- * The honest note for a set that contains repeats. `exhausted` is true only when the scoped pool has
- * no never-met question left that could have taken a repeat's place; then the page may say "You've
- * seen every question here". Otherwise it says only what is true: some questions are repeats.
+ * The honest note for a set that contains repeats.
+ *   "fully-served"  — the set's whole scope has no never-met question left: "You've seen every
+ *                     question here — some repeats are mixed in."
+ *   "section"       — each repeat's own section ran out of unseen questions (the draw's rule):
+ *                     "N question(s) repeat — the unseen ones in this section ran out."
+ *   "other"         — repeats for another reason (e.g. a concept set keeps its own seen rows ahead of
+ *                     the rest of the chapter): only the count, nothing more is claimed.
  */
-export function repeatsNote(repeatCount: number, exhausted: boolean): string | null {
+export type RepeatsScope = "fully-served" | "section" | "other";
+export function repeatsNote(repeatCount: number, scope: RepeatsScope): string | null {
   if (repeatCount <= 0) return null;
-  return exhausted
-    ? "You've seen every question here — some repeats are mixed in."
-    : repeatCount === 1
-      ? "One question in this set is one you've seen before."
-      : `${repeatCount} questions in this set are ones you've seen before.`;
+  if (scope === "fully-served") return "You've seen every question here — some repeats are mixed in.";
+  if (scope === "section") {
+    return repeatCount === 1
+      ? "1 question repeats — the unseen ones in this section ran out."
+      : `${repeatCount} questions repeat — the unseen ones in this section ran out.`;
+  }
+  return repeatCount === 1
+    ? "1 question in this set is one you've seen before."
+    : `${repeatCount} questions in this set are ones you've seen before.`;
 }

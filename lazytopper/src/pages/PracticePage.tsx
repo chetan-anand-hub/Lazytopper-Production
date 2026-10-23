@@ -641,8 +641,11 @@ import {
   refreshSectionDraw,
   repeatsNote,
   syncServedFromCloud,
+  withinMs,
   type FreshnessIndex,
 } from "../lib/practice/servedHistory";
+/** #1330 review — the longest a first draw waits for the cloud served history (then: device copy). */
+const CLOUD_FRESHNESS_WAIT_MS = 1500;
 import { inferBoardPatternFromQuestion } from "../data/practiceSetGenerator";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import {
@@ -1646,12 +1649,17 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // draw less well — it never produces a wrong or fabricated question.
   // Records from THIS visit are excluded (`sessionStartedAt`): the set on screen must not reorder
   // when this effect re-runs (e.g. auth resolving after the set was built and recorded).
+  /** The in-flight cloud read of the freshness index (null when there is no cloud for this student). */
+  const cloudFreshnessRef = useRef<Promise<FreshnessIndex> | null>(null);
   useEffect(() => {
     let cancelled = false;
     if (freshTopics.length === 0) return;
     setFreshness((prev) => mergeFreshness(prev, deviceFreshness(sessionStartedAt)));
-    if (!freshUid || freshLocal) return;
-    void Promise.all([
+    if (!freshUid || freshLocal) {
+      cloudFreshnessRef.current = null;
+      return;
+    }
+    const cloudRead = Promise.all([
       getAttemptsFromCloud(freshUid).catch(() => []),
       Promise.all(
         freshTopics.map((t) =>
@@ -1659,18 +1667,18 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
         ),
       ),
     ])
-      .then(([cloudAttempts, servedLists]) => {
-        if (cancelled) return;
+      .then(([cloudAttempts, servedLists]): FreshnessIndex => {
         const answered = new Map<string, number>();
         for (const t of freshTopics) {
           for (const [id, at] of buildAnsweredAt(cloudAttempts, t)) answered.set(id, Math.max(answered.get(id) ?? 0, at));
         }
         const fromCloud = freshnessFrom(mergeServedEntries(...servedLists), answered, sessionStartedAt);
-        setFreshness((local) => mergeFreshness(local, fromCloud));
+        if (!cancelled) setFreshness((local) => mergeFreshness(local, fromCloud));
+        return fromCloud;
       })
-      .catch(() => {
-        /* honest degrade: keep the device-local index */
-      });
+      .catch(() => EMPTY_FRESHNESS /* honest degrade: keep the device-local index */);
+    // #1330 review (cold device): the build waits for this, bounded, before its first draw.
+    cloudFreshnessRef.current = cloudRead;
     return () => {
       cancelled = true;
     };
@@ -1947,14 +1955,22 @@ const packTopicKey = useMemo(() => {
     const shown = new Set(filteredQuestions.map((q) => String(q.id)));
     const sections = new Set(repeats.map((q) => inferBoardPatternFromQuestion(q) ?? ""));
     const scope = cbqMode ? questions : chipServedPool ?? questions;
-    const freshLeft = scope.some(
+    // The never-met questions of the set's scope that are NOT on screen.
+    const unmet = scope.filter(
       (q) =>
         !shown.has(String(q.id)) &&
         freshTier(freshness, String(q.id)) === 0 &&
-        sections.has(inferBoardPatternFromQuestion(q) ?? "") &&
         questionMatchesFilters(q, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange),
     );
-    return repeatsNote(repeats.length, !freshLeft);
+    // #1330 review: "seen every question" only when the WHOLE scope is served; when only the repeats'
+    // own sections ran out, say exactly that; anything else, only the count.
+    const scopeKind =
+      unmet.length === 0
+        ? "fully-served"
+        : unmet.some((q) => sections.has(inferBoardPatternFromQuestion(q) ?? ""))
+          ? "other"
+          : "section";
+    return repeatsNote(repeats.length, scopeKind);
   }, [setSettled, filteredQuestions, freshness, strictFocus, focusBankIds, questionCount, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, cbqMode, questions, chipServedPool]);
 
   const filterChipCounts = useMemo<ChipCounts | null>(() => {
@@ -2093,7 +2109,17 @@ const packTopicKey = useMemo(() => {
         // FRESH-SET-QP — what this draw must move past: the index state (earlier visits + the sets
         // this visit has folded in) unioned with the DEVICE copy read now, so an auto-built first set
         // (Topic Hub / tutor / MI arrival) is informed even before the load effect's state lands.
-        const drawFresh = mergeFreshness(freshnessRef.current, deviceFreshness(sessionStartedAt));
+        // #1330 review — a COLD device (served history only in the cloud) must still avoid repeats
+        // on its first set: wait for the cloud read, at most CLOUD_FRESHNESS_WAIT_MS, then go on with
+        // the device copy (an auto-served arrival must never hang on the network).
+        const cloudFresh = cloudFreshnessRef.current
+          ? await withinMs(cloudFreshnessRef.current, CLOUD_FRESHNESS_WAIT_MS, EMPTY_FRESHNESS)
+          : EMPTY_FRESHNESS;
+        if (cancelled) return;
+        const drawFresh = mergeFreshness(
+          mergeFreshness(freshnessRef.current, deviceFreshness(sessionStartedAt)),
+          cloudFresh,
+        );
         const seenForDraw: ReadonlySet<string> = metIds(drawFresh);
 
         const adaptiveMix = difficulty === "All"

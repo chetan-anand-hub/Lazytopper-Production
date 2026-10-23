@@ -22,12 +22,48 @@ import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/re
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
+const cloud = vi.hoisted(() => ({
+  enabled: false,
+  readDelayMs: 0,
+  docs: new Map<string, unknown>(),
+}));
+const auth = vi.hoisted(() => ({
+  user: null as null | { uid: string; isLocalSession: boolean; email: string },
+}));
+
 const trace = vi.hoisted(() => ({
   attempts: [] as Array<{ questionId: string; topicKey: string; topicName?: string; timestamp: number }>,
   weakConcepts: [] as Array<{ conceptKey: string }>,
 }));
 
-vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
+vi.mock("../context/AuthContext", () => ({
+  useAuth: () => ({ user: auth.user, loading: false, getToken: async () => "tok" }),
+}));
+// The cloud: only the served-history docs are real; every other Firestore read is empty.
+vi.mock("../services/firestoreSdk", () => {
+  const fs: Record<string, unknown> = new Proxy(
+    {
+      doc: (_db: unknown, ...path: string[]) => path.join("/"),
+      getDoc: async (path: string) => {
+        await new Promise((r) => setTimeout(r, cloud.readDelayMs));
+        return { exists: () => cloud.docs.has(path), data: () => cloud.docs.get(path), id: path };
+      },
+      setDoc: async (path: string, data: unknown) => {
+        cloud.docs.set(path, data);
+      },
+      getDocs: async () => ({ docs: [], empty: true, size: 0, forEach: () => {} }),
+      onSnapshot: () => () => {},
+    } as Record<string, unknown>,
+    { get: (t, k: string) => (k in t ? t[k] : () => ({})) },
+  );
+  const handle = { db: {}, fs };
+  return {
+    isFirestoreEnabled: () => cloud.enabled,
+    withFirestore: async (use: (h: unknown) => unknown) => use(handle),
+    getFirestore: async () => handle,
+    __setFirestoreSdkLoaderForTests: () => {},
+  };
+});
 vi.mock("../hooks/useSubscription", () => ({
   useSubscription: () => ({ isPremium: false, status: { tier: "free" } }),
 }));
@@ -74,6 +110,10 @@ beforeAll(async () => {
 
 beforeEach(() => {
   window.localStorage.clear();
+  auth.user = null;
+  cloud.enabled = false;
+  cloud.readDelayMs = 0;
+  cloud.docs.clear();
   trace.attempts.length = 0;
   trace.weakConcepts.length = 0;
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -226,6 +266,17 @@ describe("FRESH-SET-QP · honest when the pool is exhausted", () => {
     expect(note.textContent).toBe("You've seen every question here — some repeats are mixed in.");
   }, 180000);
 
+  it("★ only Section E ran out → the count line, never 'seen every question' (#1330 review)", async () => {
+    let t = Date.now() - 86_400_000;
+    for (const q of poolOf(RN.slug).filter((p) => sectionOf(p) === "E")) {
+      trace.attempts.push({ questionId: String(q.id), topicKey: RN.slug, timestamp: t++ });
+    }
+    const ids = await arriveBoardMix(RN);
+    expect(ids).toHaveLength(8);
+    const note = await screen.findByTestId("qp-repeats-note");
+    expect(note.textContent).toBe("1 question repeats — the unseen ones in this section ran out.");
+  }, 180000);
+
   it("CONTROL: a student with no history sees no repeats line", async () => {
     await arriveBoardMix(RN);
     expect(screen.queryByTestId("qp-repeats-note")).toBeNull();
@@ -257,5 +308,33 @@ describe("FRESH-SET-QP · Mistake Intelligence targeted arrivals still auto-serv
       expect(overlap(ids, sets.flat())).toBe(0);
       sets.push(ids);
     }
+  }, 240000);
+});
+
+describe("FRESH-SET-QP · a COLD device of a signed-in student (#1330 review)", () => {
+  it("★ cloud history + empty device: the auto-served first set avoids the cloud-served ids, and the cloud is unioned, not overwritten", async () => {
+    const url = `/practice/10/maths?topic=${RN.slug}&targeted=1&targetMistakeType=conceptual`;
+    // Another device served set A (recorded signed out here only to learn the set the bank draws first).
+    mount(url);
+    const setA = await settledIds();
+    cleanup();
+    window.localStorage.clear(); // a COLD device: nothing on this one
+    const path = `practiceInsights/u1/servedHistory/${RN.slug}`;
+    const before = Date.now() - 3_600_000;
+    cloud.docs.set(path, { entries: setA.map((id, i) => ({ id, at: before + i })) });
+    cloud.enabled = true;
+    cloud.readDelayMs = 300; // slower than the page's own build, inside the 1.5 s bound
+    auth.user = { uid: "u1", isLocalSession: false, email: "s@x.com" };
+
+    vi.setSystemTime(new Date(Date.now() + 60_000));
+    mount(url); // AUTO-SERVED: no tap, the draw starts at mount
+    const setB = await settledIds();
+    expect(setB.length).toBeGreaterThan(0);
+    expect(overlap(setB, setA), `first set on the cold device repeats the cloud's: [${setB.join(", ")}]`).toBe(0);
+
+    await waitFor(() => {
+      const stored = ((cloud.docs.get(path) as { entries?: Array<{ id: string }> })?.entries ?? []).map((e) => e.id);
+      expect(stored, "the cloud history was overwritten").toEqual(expect.arrayContaining([...setA, ...setB]));
+    }, { timeout: 10000 });
   }, 240000);
 });
