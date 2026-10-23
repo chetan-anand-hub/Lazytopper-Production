@@ -5,6 +5,7 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import { MONTHLY_INLINE } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
+import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 
 /**
  * Per-DAY paper views (AUTH-GATE-MOVE-1). This gate used to allow 1 per WEEK while the
@@ -86,6 +87,53 @@ function incrementDailyMockViews(uid: string | null): void {
   } catch {}
 }
 
+/**
+ * CT-RESUME-2 — a gated route this tab opened WITHOUT counting (a resume of a saved paper). If
+ * the student then sets the saved paper aside and starts a NEW one on that same visit, the new
+ * paper must be counted then — `claimNewPaperView` does it. Premium never sets the mark (the
+ * gate returns before it), so premium stays unlimited.
+ */
+const UNCOUNTED_KEY = "lazytopper.dailyMockViews.uncounted";
+
+function readUncounted(): string[] {
+  try {
+    const raw = sessionStorage.getItem(UNCOUNTED_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeUncounted(list: string[]): void {
+  try {
+    if (list.length) sessionStorage.setItem(UNCOUNTED_KEY, JSON.stringify(list));
+    else sessionStorage.removeItem(UNCOUNTED_KEY);
+  } catch {
+    /* best-effort */
+  }
+}
+
+/**
+ * A page calls this when the student starts a NEW paper on a visit the gate let through as a
+ * resume (Chapter Test "Start a fresh test instead", a new Full Mock instead of the saved one).
+ * Visit not marked → it was already counted → true. Marked → counts it now (true), or, with
+ * today's allowance spent, refuses (false: the page keeps the saved paper and says why).
+ */
+export function claimNewPaperView(pathname: string, uid: string | null): boolean {
+  const route = paperRouteKey(pathname);
+  const marked = readUncounted();
+  if (!marked.includes(route)) return true;
+  if (getDailyMockViews(uid) >= dailyLimitFor(!!uid)) return false;
+  incrementDailyMockViews(uid);
+  writeUncounted(marked.filter((r) => r !== route));
+  return true;
+}
+
+/** The line a page shows when `claimNewPaperView` refuses. */
+export const NEW_PAPER_LIMIT_LINE =
+  "You've opened today's papers already — your saved test is still here to finish.";
+
 /** Premium is unlimited and never reaches this. */
 function dailyLimitFor(signedIn: boolean): number {
   return signedIn ? SIGNED_IN_DAILY_MOCK_LIMIT : ANON_DAILY_MOCK_LIMIT;
@@ -123,6 +171,22 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       setReady(true);
       return;
     }
+    /**
+     * CT-RESUME-2 — COUNT ONLY NEW PAPERS. A reload of a Chapter Test / Full Mock the student is
+     * part-way through is a RESUME of a paper already counted when it was opened, not a new
+     * paper: it neither spends an allowance nor is blocked (a student on their last paper of
+     * the day can always get back to it). Decided from the SAME saved in-progress state the
+     * page resumes from (lib/papers/resumablePaper). A genuinely new paper has none and is
+     * counted below exactly as before; server metering (the paper pass minted at grading) is
+     * untouched.
+     */
+    if (isResumingSavedPaper(location.pathname, uid)) {
+      const route = paperRouteKey(location.pathname);
+      const marked = readUncounted();
+      if (!marked.includes(route)) writeUncounted([...marked, route]);
+      setReady(true);
+      return;
+    }
     const views = getDailyMockViews(uid);
     if (views >= dailyLimitFor(!!user)) {
       setLimitReached(true);
@@ -132,6 +196,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       incrementedRef.current = true;
       setReady(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the route is read once per gate mount
   }, [loading, user, isPremium, uid]);
 
   if (loading || !ready) {
