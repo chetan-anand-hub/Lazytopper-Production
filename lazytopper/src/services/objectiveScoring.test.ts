@@ -114,6 +114,18 @@ describe("objectiveHasWorking — bare pick vs real reasoning", () => {
   it("substantive reasoning IS working", () => {
     expect(O.objectiveHasWorking("I chose d because the reaction is exothermic", opts)).toBe(true);
   });
+
+  // MCQ-TYPE-1 review fix: a line that only DECLARES the option is not working.
+  it("declaration-only lines are NOT working; a real working line is", () => {
+    const lines = ["Parallel", "Intersecting", "Coincident", "Skew"];
+    for (const w of ["Ans: (c)", "Option C", "Answer is (c) Coincident", "(c)\nAnswer is (c) Coincident", "Ans = b", "c is correct", "My final answer: (d)"]) {
+      expect(O.objectiveHasWorking(w, lines)).toBe(false);
+    }
+    expect(O.objectiveHasWorking("(c)\nAnswer is (c) 7k", ["k", "3k", "7k", "k^3"])).toBe(false);
+    expect(O.objectiveHasWorking("(a) Both A and R are true", ["Both A and R are true", "A true R false"])).toBe(false);
+    expect(O.objectiveHasWorking("Answer is (c)\nslopes 2 and 2 so the lines coincide", lines)).toBe(true);
+    expect(O.objectiveHasWorking("m1 = 2, m2 = 2", lines)).toBe(true);
+  });
 });
 
 describe("clampObjectiveResult — 0/full verdict, per-step marks stripped", () => {
@@ -246,6 +258,28 @@ describe("applyObjectiveMistakeGuard — MI honesty + the feature", () => {
     const nulled = O.applyObjectiveMistakeGuard(steps, { objective: true, options: opts });
     expect(steps[0].mistakeType).toBeNull();
     expect(nulled).toEqual({ conceptual: 1, calculation: 0, silly: 0, presentation: 0 });
+  });
+
+  // MCQ-TYPE-1: "has working" is decided for the WHOLE objective question, not line by line.
+  it("★ objective: working on OTHER lines + the type on the bare answer line -> type KEPT, mark still 0", () => {
+    const steps = [
+      step({ studentWork: "7 x 0 = 0 so the product is zero", status: "correct", mistakeType: null }),
+      step({ studentWork: "(a)", status: "incorrect", mistakeType: "conceptual" }),
+    ];
+    const v = O.clampObjectiveResult({ section: "A", answer: "7", options: opts }, steps, 1);
+    const nulled = O.applyObjectiveMistakeGuard(steps, { objective: true, options: opts });
+    expect(v).toEqual({ marksAwarded: 0, correct: false, resolved: true });
+    expect(steps.map((s) => s.mistakeType)).toEqual([null, "conceptual"]);
+    expect(nulled).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+  });
+
+  it("objective: several bare picks and no working anywhere -> every type nulled", () => {
+    const steps = [
+      step({ studentWork: "(c)", status: "incorrect", mistakeType: "silly" }),
+      step({ studentWork: "(a)", status: "incorrect", mistakeType: "conceptual" }),
+    ];
+    O.applyObjectiveMistakeGuard(steps, { objective: true, options: opts });
+    expect(steps.map((s) => s.mistakeType)).toEqual([null, null]);
   });
 
   it("SUBJECTIVE unchanged: a wrong worked answer keeps its type AND its step marks", () => {
