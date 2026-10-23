@@ -24,7 +24,8 @@ describe("BANK-FIX-1 PR-2 · withhold categories", () => {
     // 180 -> 172 at DIAGRAMS-1 PR-1b (2026-10-10): exactly the 8 figure rows it un-withholds (trunk 181 -> 173).
     // 172 -> 152 at BANK-UNWITHHOLD-1 (2026-10-10): exactly the 20 figure rows it un-withholds (trunk 173 -> 153).
     // 153 -> 146 at PYQ-RESTORE-B PR-1 (2026-10-23): exactly the 7 rows it re-reads from the official paper and serves again.
-    expect(blockIds.length).toBeGreaterThan(145);
+    // 146 -> 138 at PYQ-RESTORE-B PR-2 (2026-10-23): exactly the 8 Science rows it re-reads from the official paper and serves again.
+    expect(blockIds.length).toBeGreaterThan(137);
     expect([...BANK_FIX_1_PR2_WITHHOLD_CATEGORY.keys()].sort()).toEqual([...blockIds].sort());
   });
 

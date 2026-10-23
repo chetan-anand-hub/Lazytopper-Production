@@ -9,10 +9,14 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const carbonCompoundsPYQ2025: CanonicalQuestion[] = [
   { id: "PYQ-S-2025-CARB-001", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Homologous Series", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "(a) Select from the following the members of same homologous series : (1) H H H – C – C – C = O H H H (2) H H – C – C – C – H O H H H (3) O H H – C – C – C – OH H H H (4) H H H H – C – C – C – C = O H H H H (b) What happens to (i) the melting point, and (ii) the solubility of compounds as the molecular mass of the compounds in a homologous series increases ?",
-    answer: "(ii) Solubility shows regular gradation/ decreases with increase in molecular mass. 1 ½ ½ 2 23 • Pons, Medulla, Cerebellum • Medulla",
-    solutionSteps: ["a) (1) and (4) (b) (i) melting point increases with increasing molecular mass.", "(ii) Solubility shows regular gradation/ decreases with increase in molecular mass. 1 ½ ½ 2 23 • Pons, Medulla, Cerebellum • Medulla"],
-    finalAnswer: "(ii) Solubility shows regular gradation/ decreases with increase in molecular mass. 1 ½ ½ 2 23 • Pons, Medulla, Cerebellum • Medulla",
+    questionText: "(a) Select from the following the members of same homologous series (the structural formulas are shown in the figure) :\n(1) CH₃–CH₂–CHO\n(2) CH₃–CO–CH₃\n(3) CH₃–CH₂–COOH\n(4) CH₃–CH₂–CH₂–CHO\n(b) What happens to (i) the melting point, and (ii) the solubility of compounds as the molecular mass of the compounds in a homologous series increases ?",
+    answer: "(a) (1) and (4) — both are aldehydes (–CHO group) and differ by one –CH₂– unit. (b) (i) The melting point increases with increasing molecular mass. (ii) The solubility shows a regular gradation / decreases with increasing molecular mass.",
+    solutionSteps: [
+      "[1 mark] (a) (1) and (4): both carry the same functional group, –CHO (aldehyde), and differ by one –CH₂– unit, so they belong to the same homologous series. (2) is a ketone and (3) a carboxylic acid.",
+      "[0.5 marks] (b) (i) The melting point increases as the molecular mass increases.",
+      "[0.5 marks] (ii) The solubility shows a regular gradation — it decreases as the molecular mass increases.",
+    ],
+    finalAnswer: "(a) (1) and (4). (b) (i) Melting point increases; (ii) solubility decreases with increasing molecular mass.",
     ncertRef: "PYQ 31/2/1 Q22", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1" },
 ];

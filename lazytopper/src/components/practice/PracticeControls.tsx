@@ -57,7 +57,7 @@ const SOURCE_NOTES: Record<string, string> = {
 
 // FILTER-FIX-1 (owner ruling) — there is no hand-written incompatibility table any more.
 // The old STYLE_COMPAT / MARKS_COMPAT_BY_STYLE / DIFF_COMPAT_BY_MARKS tables greyed out
-// combinations the bank DOES hold (HOTS + 1 mark: 972; HOTS + 4: 825 under GUIDE-FILTER-1's
+// combinations the bank DOES hold (HOTS + 1 mark: 971; HOTS + 4: 825 under GUIDE-FILTER-1's
 // Medium/Hard HOTS rule; 1 mark + Hard: 270;
 // 4 marks + Easy: 81; proof + 4: 13). A chip now greys out ONLY when the chosen chapter(s)
 // really hold 0 questions for it (`chipCounts`, counted by the one predicate in

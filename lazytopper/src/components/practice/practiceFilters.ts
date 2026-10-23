@@ -155,8 +155,8 @@ export const isProofOrDerivation = (q: PracticeQuestion): boolean => {
  *   · Easy is excluded: the 127 higher-order rows tagged Easy are likely mis-tagged (listed for a
  *     content review; question data is not edited here). With HOTS chosen the Easy chip therefore
  *     counts 0 and greys out through `chipCounts` — no hand-written lock.
- * Served pools, 26 chapters (trunk 10223b90, after PYQ-RESTORE-B): 4,134 -> 3,360 (Maths 678
- * Hard + 820 Medium; Science 765 Hard + 1,097 Medium).
+ * Served pools, 26 chapters (trunk 3a5c9cd9, after PYQ-RESTORE-B #1300/#1303): 4,135 -> 3,361 (Maths 678
+ * Hard + 819 Medium; Science 766 Hard + 1,098 Medium).
  */
 const HOTS_BLOOM = new Set(["Analysing", "Evaluating", "Creating"]);
 export const isHotsRow = (q: PracticeQuestion): boolean => {

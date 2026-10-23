@@ -227,23 +227,23 @@ describe("FILTER-FIX-1 · Marks bucket 4", () => {
 
 // GUIDE-FILTER-1 — OWNER RULING 23 Oct 2026: HOTS = higher-order bloom (Analysing / Evaluating /
 // Creating) at Medium or Hard ONLY. RED on trunk 6fe85765 (old rule: any Hard row, or Analysing /
-// Evaluating at any difficulty), on trunk 10223b90 (after PYQ-RESTORE-B #1300): 4,134 total /
-// 2,093 Hard / 1,098 with 1 mark / 949 with 4 marks.
+// Evaluating at any difficulty), on trunk 3a5c9cd9 (after PYQ-RESTORE-B #1300 + #1303): 4,135 total /
+// 2,094 Hard / 1,097 with 1 mark / 949 with 4 marks.
 describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 23 Oct)", () => {
-  it("served pools, 26 chapters: 3,360 (Maths 678 Hard + 820 Medium; Science 765 Hard + 1,097 Medium); Easy 0", () => {
+  it("served pools, 26 chapters: 3,361 (Maths 678 Hard + 819 Medium; Science 766 Hard + 1,098 Medium); Easy 0", () => {
     const by = (subject: string, d: string) =>
       BANK_CHAPTER_SLUGS.filter((slug) => BANK_CHAPTER_SUBJECT[slug] === subject).reduce((t, slug) => t + n(slug, "all", "hots", "all", d), 0);
     expect(by("Maths", "Hard")).toBe(678);
-    expect(by("Maths", "Medium")).toBe(820);
-    expect(by("Science", "Hard")).toBe(765);
-    expect(by("Science", "Medium")).toBe(1097);
+    expect(by("Maths", "Medium")).toBe(819);
+    expect(by("Science", "Hard")).toBe(766);
+    expect(by("Science", "Medium")).toBe(1098);
     let any = 0;
     for (const slug of BANK_CHAPTER_SLUGS) {
       any += n(slug, "all", "hots", "all", "all");
       // With HOTS chosen the Easy chip is a REAL zero in every chapter (it greys out via chipCounts).
       expect(n(slug, "all", "hots", "all", "Easy"), `${slug} HOTS + Easy`).toBe(0);
     }
-    expect(any).toBe(3360);
+    expect(any).toBe(3361);
     // Every HOTS row really is higher-order bloom at Medium / Hard (no Hard-only Applying row).
     for (const slug of BANK_CHAPTER_SLUGS) {
       for (const q of pools.get(slug)!) {
@@ -255,7 +255,7 @@ describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 2
     }
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
-    expect(sum("1", "hots", "all")).toBe(972);
+    expect(sum("1", "hots", "all")).toBe(971);
     expect(sum("4", "hots", "all")).toBe(825);
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);

@@ -49,6 +49,7 @@ import {
 } from "./pyqRestore1Ledger";
 import { BANK_STEPS_1 } from "./bankSteps1Ledger";
 import { PYQ_RESTORE_B_IDS, PYQ_RESTORE_B_MATHS } from "./pyqRestoreBLedger";
+import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
 
 type Row = Record<string, unknown> & { id: string };
 const bankById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q as unknown as Row]));
@@ -129,7 +130,9 @@ describe.each(SUBJECTS)("PYQ-RESTORE-1 · $name", ({ name, ledger, sources, coun
     const bad: string[] = [];
     // PYQ-RESTORE-B (2026-10-23) re-read 13 of these figure-bound / unconfirmed rows from the official paper and restored
     // them under its own ledger (pyqRestoreBLedger.ts, pinned by pyqRestoreB.test.ts); they are exempt here.
-    for (const e of ledger.filter((x) => x.verdict === "kept-others" && !PYQ_RESTORE_B_IDS.has(x.id))) {
+    // PYQ-RESTORE-B PR-2 (2026-10-23) re-read 5 of these figure-bound Science rows from the official paper and restored them
+    // under its own ledger (pyqRestoreBScienceLedger.ts, pinned by pyqRestoreBScience.test.ts); they are exempt here.
+    for (const e of ledger.filter((x) => x.verdict === "kept-others" && !PYQ_RESTORE_B_IDS.has(x.id) && !PYQ_RESTORE_B_SCIENCE_IDS.has(x.id))) {
       const q = bankById.get(e.id)!;
       if (q.sourceOverride !== "others") bad.push(`${e.id}: no override`);
       if (q.pyqYear || q.pyqSet) bad.push(`${e.id}: has a year`);
