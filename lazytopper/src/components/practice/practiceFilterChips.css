@@ -45,6 +45,19 @@
 }
 .qp-filter-help-btn[aria-expanded="true"] { background-color: hsl(152, 55%, 45%); color: #ffffff; }
 .qp-filter-help-btn:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
+/* GUIDE-FILTER-1 (#1302 review) - the honest "No X questions in this chapter - showing a mixed set."
+   line under the built-set badges: a full line of the flex-wrap bar, wraps at 320px. */
+.qp-filter-dropped {
+  flex: 1 1 100%;
+  order: 3;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: hsl(220, 20%, 28%);
+  overflow-wrap: anywhere;
+}
+
 /* GUIDE-FILTER-1 #1302 mobile review (owner ruling 23 Oct): 44px touch targets on phones and tablets.
    The "?" keeps its drawn size with an invisible 44px hit area; the chips grow to 44px tall. */
 @media (pointer: coarse), (max-width: 1024px) {

@@ -622,7 +622,14 @@ import { signedOutTutorPath, stashSignedOutAsk } from "./tutor/signedOutScorecar
 import TutorSignupPrompt from "../components/auth/TutorSignupPrompt";
 import { bankChaptersFor, ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
-import { PracticeControls } from "../components/practice/PracticeControls";
+import {
+  DIFFICULTY_OPTIONS,
+  PracticeControls,
+  SOURCE_OPTIONS,
+  STYLE_OPTIONS,
+  droppedFilterNote,
+  filterOptionLabel,
+} from "../components/practice/PracticeControls";
 import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
 import { weakAreasCardFrom, type WeakAreasCard } from "../components/practice/weakAreasCard";
 import { useMeConceptRows } from "../services/useMeHomeSummary";
@@ -1058,6 +1065,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     () => conceptMarksRange
   );
   const [isBuilt, setIsBuilt] = useState<boolean>(false);
+  // GUIDE-FILTER-1 (#1302 review) — the dropped-filter line, kept after the fallback reset it (see
+  // `presetFallbackNote`); cleared when the student builds or edits filters themselves.
+  const [droppedFilterLine, setDroppedFilterLine] = useState<string | null>(null);
 
   // ── Progressive-disclosure entry (QP A1) — PRESENTATION-ONLY ───────────────
   // The direct-visit entry shows preset cards (entryMode "preset") with the full
@@ -1408,6 +1418,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
 
   const handleEditFilters = useCallback(() => {
     setIsBuilt(false);
+    setDroppedFilterLine(null); // GUIDE-FILTER-1: the student now picks the filters themselves.
     // "Edit filters" always opens the FULL advanced filter (pre-filled from committed),
     // never the preset picker — even for a set that was built from a preset. The student
     // is refining a concrete set, so the five-dimension filter is the right surface.
@@ -1815,13 +1826,27 @@ const packTopicKey = useMemo(() => {
   // any render that still carries the doomed filter, so there is no one-build flash. This stays a
   // PASSIVE effect on purpose: it must run after the URL-init effect above, which (on mount) writes
   // the URL's style back; a layout effect ran first and was overwritten by it (the reset was lost).
-  const presetFallbackPending = useMemo(() => {
-    if (!chipServedPool) return false;
+  // #1302 review: the honest line ("No Proof / Derivation questions in this chapter — showing a mixed
+  // set."). Derived in RENDER while the doomed filter is still committed, then kept in state once the
+  // effect has reset it, so it appears in the same render as the built-set bar (no shift) and stays
+  // until the student builds or edits filters themselves.
+  const presetFallbackNote = useMemo(() => {
+    if (!chipServedPool) return null;
     const c = filtersTheChapterLacks(chipServedPool, { style: committedStyle, source: committedSource, diff: committedDifficulty });
-    return c.style || c.source || c.diff;
-  }, [chipServedPool, committedStyle, committedSource, committedDifficulty]);
+    return droppedFilterNote(
+      [
+        ...(c.style ? [filterOptionLabel(STYLE_OPTIONS, committedStyle)] : []),
+        ...(c.source ? [filterOptionLabel(SOURCE_OPTIONS, committedSource)] : []),
+        ...(c.diff ? [filterOptionLabel(DIFFICULTY_OPTIONS, committedDifficulty)] : []),
+      ],
+      isMultiTopic,
+    );
+  }, [chipServedPool, committedStyle, committedSource, committedDifficulty, isMultiTopic]);
+  const presetFallbackPending = presetFallbackNote !== null;
+  const shownDroppedFilterLine = presetFallbackNote ?? droppedFilterLine;
   useEffect(() => {
     if (!chipServedPool) return;
+    if (presetFallbackNote) setDroppedFilterLine(presetFallbackNote);
     const c = filtersTheChapterLacks(chipServedPool, { style: committedStyle, source: committedSource, diff: committedDifficulty });
     const p = filtersTheChapterLacks(chipServedPool, { style: pendingStyle, source: pendingSource, diff: pendingDifficulty });
     if (c.style) setCommittedStyle("all");
@@ -1847,7 +1872,12 @@ const packTopicKey = useMemo(() => {
     const present = drop.filter((k) => next.has(k));
     if (present.length === 0) return;
     for (const k of present) next.delete(k);
-    setSearchParams(next, { replace: true, state: location.state });
+    // The route element is keyed by the arrival's search (`practiceArrivalKey`), so dropping a param
+    // would REMOUNT the page (a second build, and this fallback's line lost). The clean-up is not a
+    // new arrival: hold the arrival's key in the history state so the page stays mounted.
+    const prev = location.state && typeof location.state === "object" ? (location.state as Record<string, unknown>) : {};
+    const heldKey = typeof prev[QP_ARRIVAL_KEY_STATE] === "string" ? prev[QP_ARRIVAL_KEY_STATE] : practiceArrivalKey(location.search);
+    setSearchParams(next, { replace: true, state: { ...prev, [QP_ARRIVAL_KEY_STATE]: heldKey } });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chipServedPool, committedStyle, committedSource, committedDifficulty, pendingStyle, pendingSource, pendingDifficulty]);
 
@@ -2388,6 +2418,7 @@ const packTopicKey = useMemo(() => {
     // always opens the preset chooser — so a preset with no source of its own ("all") keeps the
     // URL's source instead of discarding it. Without `pyq=1` the URL source is "all": unchanged.
     const presetSource = f.source === "all" ? initialPracticeDefaults.sourceUi : f.source;
+    setDroppedFilterLine(null); // GUIDE-FILTER-1: a fresh pick; the fallback (if any) re-derives it.
     // Pending mirrors committed so a later "Edit filters" pre-fills the chips correctly.
     setPendingMarks(f.marks);
     setPendingStyle(f.style);
@@ -3721,6 +3752,7 @@ const packTopicKey = useMemo(() => {
           committedCount={committedCount}
           setSizeCount={displayedSetSize}
           onBuildSet={() => {
+            setDroppedFilterLine(null); // GUIDE-FILTER-1: the student's own pick replaces the fallback line.
             trackUxEvent("practice_regenerate_click", "practice", {
               action: "build_set",
               topic: topicParam,
@@ -3758,6 +3790,8 @@ const packTopicKey = useMemo(() => {
           guideUid={qpMomentUid}
           // #1302 review: a Topic Hub concept band limits the chip counts; Byte's greyed line names it.
           marksRange={pendingMarksRange}
+          // #1302 review: the honest line when a requested filter was dropped (the chapter has none).
+          droppedNote={isBuilt ? shownDroppedFilterLine : null}
         />
         </>
         )}
@@ -4674,10 +4708,19 @@ export const practiceArrivalKey = (search: string): string => {
   return sp.toString();
 };
 
+/**
+ * GUIDE-FILTER-1 — history-state field holding the ARRIVAL's key across the page's own URL clean-up
+ * (a dropped filter the chapter holds none of, replaced in place). Only PracticePage writes it, and
+ * only on a `replace` of its own entry, so a real new arrival (a link, back/forward to another entry)
+ * still carries its own search as the key.
+ */
+export const QP_ARRIVAL_KEY_STATE = "qpArrivalKey";
+
 const PracticePageRoute: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay }) => {
   const location = useLocation();
   if (overlay) return <PracticePage overlay={overlay} />;
-  return <PracticePage key={practiceArrivalKey(location.search)} />;
+  const held = (location.state as Record<string, unknown> | null)?.[QP_ARRIVAL_KEY_STATE];
+  return <PracticePage key={typeof held === "string" ? held : practiceArrivalKey(location.search)} />;
 };
 
 export default PracticePageRoute;

@@ -9,8 +9,6 @@
 import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigationType } from "react-router-dom";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { setMatchMediaMatches } from "../test/setup";
 
 vi.mock("../context/AuthContext", () => ({
@@ -46,6 +44,7 @@ import { buildChapterServedPool } from "../components/practice/practiceQuestionB
 import { practiceTopicLabel } from "../components/practice/cbqAvailability";
 import { ensureBankChapters } from "../data/bankChapters/loader";
 import { filtersTheChapterLacks, isProofOrDerivation } from "../components/practice/practiceFilters";
+import { droppedFilterNote } from "../components/practice/PracticeControls";
 import type { PracticeQuestion } from "../data/predictionDataService";
 
 let magProofs = -1;
@@ -110,6 +109,10 @@ describe("GUIDE-FILTER-1 · a URL / preset filter the chapter holds none of fall
     expect(search).not.toMatch(/style=/);
     expect(search).toMatch(/topic=magnetic-effects-of-electric-current/);
     expect(search).toMatch(/count=10/);
+    // #1302 review: the honest line says what was dropped.
+    expect(screen.getByTestId("qp-filter-dropped").textContent).toBe(
+      "No Proof / Derivation questions in this chapter — showing a mixed set.",
+    );
   }, 120000);
 
   it("★ CONTROL: Electricity + style=proof keeps the Proof / Derivation filter (the chapter has them)", async () => {
@@ -118,6 +121,7 @@ describe("GUIDE-FILTER-1 · a URL / preset filter the chapter holds none of fall
     await screen.findAllByTestId("practice-question-card", {}, { timeout: 60000 });
     expect(screen.getByTestId("qp-chip-style")).toHaveTextContent("Proof / Derivation");
     expect(screen.getByTestId("loc").textContent ?? "").toMatch(/style=proof/);
+    expect(screen.queryByTestId("qp-filter-dropped")).toBeNull();
   }, 120000);
 });
 
@@ -135,15 +139,16 @@ describe("GUIDE-FILTER-1 · filtersTheChapterLacks — only what the chapter hol
     expect(filtersTheChapterLacks(pool, { style: "all", source: "pyq", diff: "Hard" })).toEqual({ style: false, source: false, diff: false });
   });
 
-  it("#1302 review: a Difficulty fallback resets the ENGINE difficulty (Weak Area preset) and its param too", () => {
-    const src = readFileSync(resolve(__dirname, "./PracticePage.tsx"), "utf8");
-    const start = src.search(/useEffect\(\(\) => \{\s+if \(!chipServedPool\) return;/);
-    const end = src.indexOf("setSearchParams(next, { replace: true, state: location.state });");
-    expect(start).toBeGreaterThan(0);
-    expect(end).toBeGreaterThan(start);
-    const block = src.slice(start, end);
-    expect(block).toMatch(/if \(c\.diff\) \{[\s\S]*setCommittedDifficulty\("all"\);[\s\S]*setDifficulty\("All"\);[\s\S]*\}/);
-    expect(block).toMatch(/c\.diff \? \["diff", "difficulty"\]/);
+  // The Difficulty fallback (engine difficulty reset) is a RENDERED test: PracticePage.diffFallback.test.tsx.
+
+  it("#1302 review: the dropped-filter line names every dropped filter, chapter or chapters", () => {
+    expect(droppedFilterNote([])).toBeNull();
+    expect(droppedFilterNote(["Proof / Derivation"])).toBe(
+      "No Proof / Derivation questions in this chapter — showing a mixed set.",
+    );
+    expect(droppedFilterNote(["Proof / Derivation", "Board exam (PYQ)"], true)).toBe(
+      "No Proof / Derivation or Board exam (PYQ) questions in these chapters — showing a mixed set.",
+    );
   });
 
   it("CBQ is exempt (its own honest landing); 'all' and an unloaded (empty) pool never reset", () => {

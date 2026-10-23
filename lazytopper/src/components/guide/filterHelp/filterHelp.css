@@ -32,6 +32,11 @@
   font-weight: 700; line-height: 1.45; }
 @media (max-width: 560px) {
   .lt-fh { padding: 10px 12px; }
+}
+/* #1302 review: the term | definition columns key on the PANEL's own width, not the viewport (on a
+   768 tablet the panel can sit in a narrow column, which squeezed each definition to ~105px). */
+.lt-fh { container-type: inline-size; container-name: lt-fh; }
+@container lt-fh (max-width: 559px) {
   .lt-fh__row { grid-template-columns: minmax(0, 1fr); }
   .lt-fh__char { width: 52px; }
 }

@@ -115,6 +115,24 @@ export interface PracticeControlsProps {
   /** GUIDE-FILTER-1 — the Topic Hub concept's exact mark band (pending), when one limits the set:
    *  chip counts are taken inside it, so Byte's greyed-chip line names it. */
   marksRange?: MarksRange | null;
+  /** GUIDE-FILTER-1 (#1302 review) — the dropped-filter line (droppedFilterNote), built set only. */
+  droppedNote?: string | null;
+}
+
+/** A chip's visible label for a filter value (the value itself when unknown). */
+export function filterOptionLabel(options: { value: string; label: string }[], value: string): string {
+  return options.find((o) => o.value === value)?.label ?? value;
+}
+
+/**
+ * GUIDE-FILTER-1 (#1302 review) — the honest line shown when a requested filter was dropped because
+ * the chosen chapter(s) hold none of it (practiceFilters.filtersTheChapterLacks), e.g.
+ * "No Proof / Derivation questions in this chapter — showing a mixed set."
+ */
+export function droppedFilterNote(labels: readonly string[], multiChapter = false): string | null {
+  if (labels.length === 0) return null;
+  const what = labels.length === 1 ? labels[0] : `${labels.slice(0, -1).join(", ")} or ${labels[labels.length - 1]}`;
+  return `No ${what} questions in ${multiChapter ? "these chapters" : "this chapter"} — showing a mixed set.`;
 }
 
 /** FILTER-FIX-1: chip look lives in practiceFilterChips.css (no inline style objects, CLAUDE.md §7). */
@@ -184,6 +202,7 @@ export function PracticeControls({
   onRegenerate,
   guideUid,
   marksRange,
+  droppedNote,
 }: PracticeControlsProps) {
   const willTruncate = visibleQuestionCount > WORKSHEET_MAX_QUESTIONS;
   const navigate = useNavigate();
@@ -270,6 +289,13 @@ export function PracticeControls({
             </span>
           )}
         </div>
+        {/* GUIDE-FILTER-1 — rendered in the same render as this bar (the page draws the bar only once the
+            chapter pool is known), so it never shifts the page after it appears. */}
+        {droppedNote ? (
+          <p className="qp-filter-dropped" role="status" data-testid="qp-filter-dropped">
+            {droppedNote}
+          </p>
+        ) : null}
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
           {onCopyLink && hasQuestions && (
             <button
