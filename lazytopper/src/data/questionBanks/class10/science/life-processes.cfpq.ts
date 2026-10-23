@@ -247,8 +247,8 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) First circulation: oxygenated blood from lungs comes to the left atrium then the left ventricle to pass to the body. Second circulation: deoxygenated blood from the body comes to the right atrium and then the right ventricle to pass for oxygenation to the lungs again. It allows for separation of oxygenated and deoxygenated blood in the body. (b)(i) pulmonary vein (ii) pulmonary artery",
     solutionSteps: [
-      "[2 marks] (a) During first circulation: oxygenated blood from lungs come to the left atrium to left ventricle to pass to the body. During second circulation: deoxygenated blood from body comes to right atrium and then right ventricle to pass for oxygenation to the lungs again. (0.5 mark for each point) Allows for separation of oxygenated and deoxygenated blood in the body. (1 mark)",
-      "[1 mark] (b) 0.5 marks for each correct answer: (i) pulmonary vein; (ii) pulmonary artery",
+      "[2 marks] (a) During first circulation: oxygenated blood from lungs come to the left atrium to left ventricle to pass to the body. During second circulation: deoxygenated blood from body comes to right atrium and then right ventricle to pass for oxygenation to the lungs again. Allows for separation of oxygenated and deoxygenated blood in the body.",
+      "[1 mark] (b) (i) pulmonary vein; (ii) pulmonary artery",
     ],
     finalAnswer:
       "(a) lungs → left atrium → left ventricle → body, and body → right atrium → right ventricle → lungs, keeping oxygenated and deoxygenated blood apart; (b)(i) pulmonary vein, (ii) pulmonary artery.",
@@ -272,7 +272,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     answer:
       "Sugar from the storage organ is moved to the phloem using ATP/energy. This increases osmotic pressure of phloem, which results in intake of water into the phloem. The increased pressure inside the phloem cells moves sugar to cells with lower pressure to reach other organs.",
     solutionSteps: [
-      "[2 marks] 0.5 marks for each point: Sugar from storage organ is moved to phloem using ATP/energy. This increases osmotic pressure of phloem. This results in intake of water into the phloem. Increased pressure inside the phloem cells moves sugar to cells with lower pressure to reach other organs.",
+      "[2 marks] Sugar from storage organ is moved to phloem using ATP/energy. This increases osmotic pressure of phloem. This results in intake of water into the phloem. Increased pressure inside the phloem cells moves sugar to cells with lower pressure to reach other organs.",
     ],
     finalAnswer:
       "Translocation - sugar is actively loaded into the phloem, water follows osmotically, and the resulting pressure drives the sap to organs that need it.",
@@ -324,7 +324,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
       "(a) transpiration; (b) Since stored carbon dioxide can be used, stomata need not be open for photosynthesis to occur during the day, and keeping the stomata closed during the day helps to minimise water loss due to transpiration; (c) during the night",
     solutionSteps: [
       "[1 mark] (a) transpiration",
-      "[2 marks] (b) 1 mark for each of the following points: Since stored carbon dioxide can be used, stomata need not be open for photosynthesis to occur during the day. Keeping the stomata closed during the day helps to minimise water loss due to transpiration.",
+      "[2 marks] (b) Since stored carbon dioxide can be used, stomata need not be open for photosynthesis to occur during the day. Keeping the stomata closed during the day helps to minimise water loss due to transpiration.",
       "[1 mark] (c) during the night",
     ],
     finalAnswer:
@@ -350,7 +350,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     solutionSteps: [
       "[0.5 mark] (a) involuntary",
       "[0.5 mark] (b) reflex arc",
-      "[1 mark] (c) 0.5 marks for each correct answer: (i) effector; (ii) forebrain",
+      "[1 mark] (c) (i) effector; (ii) forebrain",
     ],
     finalAnswer: "(a) involuntary; (b) the reflex arc; (c)(i) effector, (ii) forebrain.",
     isCompetencyBased: true,
@@ -373,8 +373,8 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Respiration is mostly aerobic in the first 20 minutes, and mostly anaerobic after the first 20 minutes, because lactic acid is a product of anaerobic respiration and its concentration rises sharply after 20 minutes. (b) Most of the energy needed for swimming is produced by the muscles, and since most of the blood does not reach the muscles during a dive, the oxygen stored in the blood is not as useful for swimming as the oxygen stored in the muscles.",
     solutionSteps: [
-      "[3 marks] (a) Respiration is mostly aerobic in the first 20 minutes, and mostly anaerobic after the first 20 minutes. (1 mark) Justification: Lactic acid is a product of anaerobic respiration. (1 mark) The sharp rise in lactic acid concentration after 20 minutes indicates anaerobic respiration happening after 20 minutes. (1 mark)",
-      "[2 marks] (b) 1 mark for each point: Most of the energy needed for swimming is produced by the muscles. Since most of the blood does not reach the muscles during a dive, the oxygen stored in the blood is not as useful for swimming as the oxygen stored in the muscles.",
+      "[3 marks] (a) Respiration is mostly aerobic in the first 20 minutes, and mostly anaerobic after the first 20 minutes. Justification: Lactic acid is a product of anaerobic respiration. The sharp rise in lactic acid concentration after 20 minutes indicates anaerobic respiration happening after 20 minutes.",
+      "[2 marks] (b) Most of the energy needed for swimming is produced by the muscles. Since most of the blood does not reach the muscles during a dive, the oxygen stored in the blood is not as useful for swimming as the oxygen stored in the muscles.",
     ],
     finalAnswer:
       "(a) it switches from aerobic to mostly anaerobic after 20 minutes, shown by the sharp lactic-acid rise; (b) swimming energy comes from muscle, which the restricted blood flow does not reach.",
@@ -502,7 +502,7 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) It has villi on the embryo side; it has blood spaces on the mother's side. (b) No, the waste generated by the developing embryo is transferred out through the placental tissue.",
     solutionSteps: [
-      "[2 marks] (a) 1 mark for each correct point: It has villi on the embryo side. It has blood spaces on the mother's side.",
+      "[2 marks] (a) It has villi on the embryo side. It has blood spaces on the mother's side.",
       "[1 mark] (b) No, the waste generated by the developing embryo is transferred out through the placental tissue.",
     ],
     finalAnswer:

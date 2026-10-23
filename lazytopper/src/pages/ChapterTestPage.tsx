@@ -51,6 +51,16 @@ import {
 } from "../components/chaptertest/chapterTestBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import {
+  attemptsLogged,
+  freshnessLine,
+  loadServedLog,
+  mintDrawSeed,
+  recordServed,
+  servedAtFor,
+  servedOwner,
+  type ServedAt,
+} from "../lib/freshSet/servedHistory";
+import {
   scoreObjectiveSection,
   buildChapterTestResponse,
   writeChapterTestPartialRecord,
@@ -198,6 +208,9 @@ export default function ChapterTestPage() {
 
   // ── Durable identity + the fresh draw ────────────────────────────────────────
   const [nomen, setNomen] = useState<{ code: string; name: string } | null>(null);
+  // FRESH-SET-TESTS — the served history + seed, snapshotted ONCE with the nomenclature so the
+  // drawn paper never changes under the student (a later records reload must not redraw it).
+  const [freshInputs, setFreshInputs] = useState<{ servedAt: ServedAt; seed: number } | null>(null);
   const [records, setRecords] = useState<SessionRecord[]>([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
   const [drawNonce] = useState(0);
@@ -223,6 +236,18 @@ export default function ChapterTestPage() {
       if (!live) return;
       const seq = chapterTestSequence(all, sessionSubject, topicKey);
       const nm = chapterTestNomenclature(sessionSubject, topicKey, topicName, seq);
+      const owner = servedOwner(isSignedIn ? user?.uid : null);
+      const log = loadServedLog(owner);
+      const scope = resolveCanonicalSlug(topicKey) || topicKey;
+      setFreshInputs({
+        servedAt: servedAtFor({ surface: "chapter-test", records: all, log }),
+        seed: mintDrawSeed({
+          owner,
+          surface: "chapter-test",
+          scope,
+          attempt: seq + attemptsLogged(log, "chapter-test", scope),
+        }),
+      });
       setNomen({ code: nm.code, name: nm.name });
       setRecordsLoading(false);
     })();
@@ -246,9 +271,33 @@ export default function ChapterTestPage() {
       worksheetId: mintChapterTestId(),
       code: nomen.code,
       name: nomen.name,
+      // FRESH-SET-TESTS — unseen questions first; seeded, never Math.random.
+      seed: freshInputs?.seed,
+      servedAt: freshInputs?.servedAt,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nomen, bank.ready, subject, topicKey, grade, drawNonce]);
+
+  /** FRESH-SET-TESTS — log this paper as served on this device (start / download). */
+  const markServed = useCallback((p: PersistedWorksheet | null) => {
+    if (!p) return;
+    recordServed(servedOwner(isSignedIn ? user?.uid : null), {
+      surface: "chapter-test",
+      scope: resolveCanonicalSlug(topicKey) || topicKey,
+      ids: p.questions.map((q) => String(q.id ?? "")),
+    });
+  }, [isSignedIn, user?.uid, topicKey]);
+  const freshLine = draw
+    ? freshnessLine({
+        repeats: draw.repeatCount,
+        total: draw.paper.questions.length,
+        hasHistory: draw.hasServedHistory,
+        servedShare: draw.servedShare,
+        repeatSections: draw.repeatSections,
+        scopeNoun: "chapter",
+        setNoun: "test",
+      })
+    : null;
 
   const topicRecords = useMemo(() => {
     const slug = resolveCanonicalSlug(topicKey);
@@ -303,34 +352,62 @@ export default function ChapterTestPage() {
   const [resumedCt, setResumedCt] = useState<ChapterTestJobContext | null>(null);
   const [resumePending, setResumePending] = useState(false);
   const lastUploadRef = useRef<{ imageBase64: string; imageMimeType: string } | null>(null);
-  const paper = resumedCt?.paper ?? draw?.paper ?? null;
+  // CT-RELOAD-1 — the paper of an in-progress attempt, restored after a reload (see below).
+  const [restoredPaper, setRestoredPaper] = useState<PersistedWorksheet | null>(null);
+  const paper = resumedCt?.paper ?? restoredPaper ?? draw?.paper ?? null;
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
   const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}` : null;
 
-  // Autosave restore (honest "✓ saved"): pull any in-flight answers for this test.
+  // Autosave restore (honest "✓ saved") — CT-RELOAD-1. A reload mid-test used to land on the
+  // setup screen with a NEW draw and then restore the saved answers (keyed by question NUMBER)
+  // onto it, so answers landed on the wrong questions. The in-progress attempt now saves ITS
+  // paper (ids, order, text) beside the answers, and a reload restores exactly that paper with its
+  // answers, offered as "Resume your test" on the start screen — the Full Mock resume model (an
+  // explicit resume, never an automatic jump, and never counted as a new start). A saved
+  // entry without its paper (written before this fix) is dropped: its answers belong to a
+  // paper that no longer exists on this page, and guessing would put them on the wrong rows.
   useEffect(() => {
     if (!progressKey || typeof window === "undefined") return;
     try {
       const raw = window.sessionStorage.getItem(progressKey);
       if (!raw) return;
-      const saved = JSON.parse(raw) as { answers?: Record<number, string>; flags?: number[]; elapsed?: number };
-      if (saved.answers) setAnswers(saved.answers);
-      if (Array.isArray(saved.flags)) setFlags(new Set(saved.flags));
+      const saved = JSON.parse(raw) as {
+        answers?: Record<number, string>;
+        flags?: number[];
+        elapsed?: number;
+        currentQNumber?: number;
+        timerEnabled?: boolean;
+        paper?: PersistedWorksheet;
+      };
+      const sp = saved.paper;
+      if (!sp || !Array.isArray(sp.questions) || sp.questions.length === 0 || typeof sp.worksheetId !== "string") {
+        window.sessionStorage.removeItem(progressKey);
+        return;
+      }
+      setRestoredPaper(sp);
+      setAnswers(saved.answers ?? {});
+      setFlags(new Set(Array.isArray(saved.flags) ? saved.flags : []));
       if (typeof saved.elapsed === "number") setElapsed(saved.elapsed);
+      if (typeof saved.timerEnabled === "boolean") setTimerEnabled(saved.timerEnabled);
+      const qn = Number(saved.currentQNumber);
+      setCurrentQNumber(sp.questions.some((q) => q.qNumber === qn) ? qn : 1);
     } catch {
       /* best-effort */
     }
   }, [progressKey]);
 
-  // Autosave write while taking.
+  // Autosave write while taking — the paper rides along so a reload restores THIS paper.
   useEffect(() => {
-    if (phase !== "taking" || !progressKey || typeof window === "undefined") return;
+    if (phase !== "taking" || !progressKey || !paper || typeof window === "undefined") return;
     try {
-      window.sessionStorage.setItem(progressKey, JSON.stringify({ answers, flags: [...flags], elapsed }));
+      window.sessionStorage.setItem(
+        progressKey,
+        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper }),
+      );
     } catch {
       /* quota — best-effort */
     }
-  }, [answers, flags, elapsed, phase, progressKey]);
+  }, [answers, flags, elapsed, currentQNumber, timerEnabled, phase, progressKey, paper]);
 
   const objectiveQs = useMemo(() => (paper ? objectiveQuestions(paper) : []), [paper]);
   const subjectiveQs = useMemo(() => (paper ? subjectiveQuestions(paper) : []), [paper]);
@@ -446,10 +523,40 @@ export default function ChapterTestPage() {
       /* MathText fetches it again when a question needs it */
     }
     setStarting(false);
+    markServed(paper);
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart]);
+  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper]);
+
+  // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
+  // never re-counted against the fair-use allowance.
+  const resumeTest = useCallback(async () => {
+    if (!restoredPaper) return;
+    setStarting(true);
+    try {
+      await loadKatex();
+    } catch {
+      /* MathText fetches it again when a question needs it */
+    }
+    setStarting(false);
+    setPhase("taking");
+  }, [restoredPaper]);
+  /** Drop the restored attempt (unsubmitted, nothing graded) and show this visit's fresh draw. */
+  const discardRestored = useCallback(() => {
+    if (progressKey && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.removeItem(progressKey);
+      } catch {
+        /* best-effort */
+      }
+    }
+    setRestoredPaper(null);
+    setAnswers({});
+    setFlags(new Set());
+    setElapsed(0);
+    setCurrentQNumber(1);
+  }, [progressKey]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
@@ -557,6 +664,7 @@ export default function ChapterTestPage() {
     setDownloading(true);
     try {
       await exportWorksheetPdf(paper, "questions", nomen.code);
+      markServed(paper);
       // AWAIT-1-PAPERS: the downloaded paper is kept under the code PRINTED on it — a
       // pending-upload record (nothing graded) + the paper with no Section A result yet — so
       // "Upload" can come back to THIS paper. Signed out: export only (the note says so).
@@ -593,7 +701,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1009,12 +1117,30 @@ export default function ChapterTestPage() {
                     </div>
 
                     {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
+                    {restoredPaper && (
+                      <div className="lt-ct__honest" data-testid="ct-resume-note">
+                        <span>·</span>
+                        <span>
+                          You were part-way through this test — it&rsquo;s saved exactly as you left it (Q
+                          {currentQNumber} of {restoredPaper.questions.length}, {Object.keys(answers).length} answered).{" "}
+                          <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={discardRestored}>
+                            Start a fresh test instead
+                          </button>
+                        </span>
+                      </div>
+                    )}
                     {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
                     <PreTestSlot surface="chapter_test" />
                     <div className="lt-ct__startrow">
-                      <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void startTest()} disabled={starting}>
-                        Start the test →
-                      </button>
+                      {restoredPaper ? (
+                        <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void resumeTest()} disabled={starting}>
+                          Resume your test →
+                        </button>
+                      ) : (
+                        <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void startTest()} disabled={starting}>
+                          Start the test →
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1053,8 +1179,20 @@ export default function ChapterTestPage() {
                       <span>·</span>
                       <span>
                         Prefer paper? Download this test, solve it, and upload the whole thing. Opens
-                        full-screen so you can focus. <b>Each test is a fresh draw</b> — different questions
-                        from your last {topicName} test.
+                        full-screen so you can focus.{" "}
+                        {draw && draw.repeatCount > 0 ? (
+                          // FRESH-SET-TESTS — the honest line when this chapter's unseen pool ran out.
+                          <b data-testid="ct-fresh-line" data-tone="repeats">{freshLine?.text}</b>
+                        ) : draw?.hasServedHistory ? (
+                          <span data-testid="ct-fresh-line" data-tone="fresh">
+                            <b>Each test is a fresh draw</b> — different questions from your last {topicName} test.
+                          </span>
+                        ) : (
+                          // A first-ever test: no "last test" to compare against, so no such claim.
+                          <span data-testid="ct-fresh-line" data-tone="first">
+                            <b>Each test is a fresh draw</b> from this chapter&rsquo;s question bank.
+                          </span>
+                        )}
                       </span>
                     </div>
                   </>

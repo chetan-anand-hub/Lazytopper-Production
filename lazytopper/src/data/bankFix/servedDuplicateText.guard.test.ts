@@ -76,7 +76,7 @@ const KNOWN_SERVED_TEXT_DUPLICATES: readonly (readonly string[])[] = [
   ["CIR-PRF-C-005", "CIRC-N-NCERT-10-LA-002"],
   ["CBE-M-PROB-A-005", "PROB-N-EXEM-14-MCQ-002", "PROB-N-NCERT-14-MCQ-001"],
   ["BX-TRI-EX-A-003", "LTG-M-TRI-003"],
-  ["PYQ-M-2024-CIRC-008b", "PYQ-M-2025-CIRC-004", "PYQ-M-CIRC-012"],
+  ["PYQ-M-2025-CIRC-004", "PYQ-M-CIRC-012"], // BANK-RESIDUE-1 (23 Oct): PYQ-M-2024-CIRC-008b (garbled) withheld from this group
   ["FND-L-SPM-023", "FND-L-WSF-08"],
   ["FND-L-SPM-027", "FND-L-WSF-07"],
 ];

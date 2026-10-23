@@ -153,3 +153,24 @@ describe("the Section-A rule is conservative — a row that is not provably a pi
     expect(paperOf(await read(), "science").rung?.marksWrongObjective).toBe(2);
   });
 });
+
+describe("MI-CONSISTENCY-1 — the per-pick evidence behind the aggregate (each pick keeps its question id)", () => {
+  it("★ the picks sum to the aggregate on every paper, and each carries the id its MI entry would carry", async () => {
+    const model = await read();
+    for (const p of ["maths", "science"] as const) {
+      const picks = model.progress.wrongObjectiveEvidence?.[p] ?? [];
+      const sum = Math.round(picks.reduce((s, x) => s + x.marks, 0) * 100) / 100;
+      expect(sum).toBe(subjectRungOf(model.progress, p)?.marksWrongObjective ?? 0);
+    }
+    const science = model.progress.wrongObjectiveEvidence?.science ?? [];
+    // Section-A picks scored on submit carry the record's synthetic id (ct:/fm:{worksheetId}:q{n}).
+    expect(science.some((x) => /^(ct|fm):.+:q\d+$/.test(x.qid))).toBe(true);
+  });
+
+  it("CONTROL — no wrong pick at all → the evidence is ABSENT (additive, like the aggregate)", async () => {
+    H.s.attempts = H.s.attempts.filter((a) => a.mode !== "mcq");
+    H.s.records = [];
+    H.s.payloads = [];
+    expect((await read()).progress).not.toHaveProperty("wrongObjectiveEvidence");
+  });
+});

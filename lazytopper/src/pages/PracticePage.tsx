@@ -156,11 +156,24 @@ export const selectInRangeFromPool = (
    *  tail (head-size rule), unseen ahead of seen, each group rotated so Refresh moves the set.
    *  The rest keeps the ordering above. Omit (or all empty) → byte-identical. */
   priorityTiers?: ReadonlyArray<ReadonlySet<string>>,
+  /** FRESH-SET-QP — the repeat order: a rank per id (served-but-unanswered before answered, least
+   *  recent first; see lib/practice/servedHistory). When given, every SEEN group is sorted by it
+   *  instead of rotated, so a repeat is always the one met longest ago. Omit → byte-identical. */
+  seenRank?: (id: string) => number,
 ): { available: number; displayed: PracticeQuestion[] } => {
   const matched = pool.filter((q) =>
     questionMatchesFilters(q, marks, style, source, diff, range)
   );
   const available = matched.length;
+  // Ties (e.g. a whole set folded in at the same moment) keep the rotation, so an exhausted pool
+  // still recombines instead of repeating in the identical order.
+  const orderSeen = (group: PracticeQuestion[], off: number): PracticeQuestion[] =>
+    seenRank
+      ? rotateBy(group, off)
+          .map((q, i) => ({ q, i, r: seenRank(String(q.id)) }))
+          .sort((a, b) => a.r - b.r || a.i - b.i)
+          .map((x) => x.q)
+      : rotateBy(group, off);
 
   if (priorityTiers && priorityTiers.some((t) => t.size > 0)) {
     const tierOf = (q: PracticeQuestion) => {
@@ -171,21 +184,28 @@ export const selectInRangeFromPool = (
     const isSeen = (q: PracticeQuestion) => !!seenIds && seenIds.has(String(q.id));
     const off = rotateOffset ?? 0;
     const ordered: PracticeQuestion[] = [];
+    // FRESH-SET-QP — every tier's UNSEEN rows first (on-concept, then related), and only then the
+    // tiers' SEEN rows. Before, a tier's seen rows ranked above the next tier's unseen ones, so a
+    // concept link served the same on-concept questions on every arrival, even once all answered.
     priorityTiers.forEach((_, i) => {
-      const tier = matched.filter((q) => tierOf(q) === i);
-      const head = tier.filter((q) => headSet.has(q));
-      const tail = tier.filter((q) => !headSet.has(q));
+      const tier = matched.filter((q) => tierOf(q) === i && !isSeen(q));
       ordered.push(
-        ...rotateBy(head.filter((q) => !isSeen(q)), off),
-        ...rotateBy(tail.filter((q) => !isSeen(q)), off),
-        ...rotateBy(head.filter(isSeen), off),
-        ...rotateBy(tail.filter(isSeen), off),
+        ...rotateBy(tier.filter((q) => headSet.has(q)), off),
+        ...rotateBy(tier.filter((q) => !headSet.has(q)), off),
+      );
+    });
+    priorityTiers.forEach((_, i) => {
+      const tier = matched.filter((q) => tierOf(q) === i && isSeen(q));
+      ordered.push(
+        ...orderSeen(tier.filter((q) => headSet.has(q)), off),
+        ...orderSeen(tier.filter((q) => !headSet.has(q)), off),
       );
     });
     const rest = pool.filter((q) => tierOf(q) === priorityTiers.length);
     const restHead = headSize !== undefined ? rest.filter((q) => headSet.has(q)).length : undefined;
     const restSel = selectInRangeFromPool(
       rest, marks, style, source, diff, range, Number.MAX_SAFE_INTEGER, seenIds, rotateOffset, restHead,
+      undefined, seenRank,
     );
     ordered.push(...restSel.displayed);
     return { available, displayed: ordered.slice(0, committedCount) };
@@ -200,8 +220,10 @@ export const selectInRangeFromPool = (
     const ordered = [
       ...head.filter((q) => !isSeen(q)),
       ...rotateBy(tail.filter((q) => !isSeen(q)), off),
-      ...head.filter(isSeen),
-      ...rotateBy(tail.filter(isSeen), off),
+      // FRESH-SET-QP — with a repeat order, the seen rows of head and tail are ONE least-recent-first group.
+      ...(seenRank
+        ? orderSeen(head.filter(isSeen).concat(tail.filter(isSeen)), off)
+        : [...head.filter(isSeen), ...rotateBy(tail.filter(isSeen), off)]),
     ];
     return { available, displayed: ordered.slice(0, committedCount) };
   }
@@ -214,7 +236,7 @@ export const selectInRangeFromPool = (
 
   const unseen = hasSeen ? matched.filter((q) => !seenIds!.has(String(q.id))) : matched;
   const seen = hasSeen ? matched.filter((q) => seenIds!.has(String(q.id))) : [];
-  const ordered = rotateBy(unseen, offset).concat(rotateBy(seen, offset));
+  const ordered = rotateBy(unseen, offset).concat(orderSeen(seen, offset));
 
   // `ordered` is a permutation of `matched` — same length, same members — so
   // `available` is untouched and the invariant holds exactly as before.
@@ -510,7 +532,7 @@ import type {
 import { recordDetour } from "../services/guidedJourneyService";
 import { getAttempts, getAttemptsFromCloud } from "../services/practiceInsights";
 import {
-  buildSeenQuestionIds,
+  buildAnsweredAt,
   buildQuickPracticeResponse,
   gradeQuickPracticeBatch,
   persistQuickPracticeSession,
@@ -582,6 +604,7 @@ import {
 import { typeFirstAnswerMode, useZeroGraded } from "../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
 import { GuideMomentSlot, M11Nudge, firstSessionAudience, inGuideArm } from "../components/guide/moments/moments";
+import { scoreGuidePlan } from "../components/guide/scoreGuideModel";
 import UsageWarning from "../components/usage/UsageWarning";
 import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
@@ -605,6 +628,27 @@ import {
 } from "../components/practice/practiceQuestionBuilder";
 import { takeBlueprintShare } from "../components/practice/blueprintTake";
 import { conceptEndNote, conceptRowsShown, loadConceptHintTiers } from "../components/practice/conceptHintTiers";
+// FRESH-SET-QP — the served history + the freshness order every draw follows (reusable module).
+import {
+  EMPTY_FRESHNESS,
+  freshTier,
+  freshnessFrom,
+  freshnessRank,
+  mergeFreshness,
+  mergeServedEntries,
+  metIds,
+  readServedDevice,
+  recordServed,
+  refreshSectionDraw,
+  repeatsNote,
+  syncServedFromCloud,
+  withinMs,
+  type FreshnessIndex,
+} from "../lib/practice/servedHistory";
+/** #1330 review — the longest a first draw waits for the cloud served history (then: device copy). */
+const CLOUD_FRESHNESS_WAIT_MS = 1500;
+import { inferBoardPatternFromQuestion } from "../data/practiceSetGenerator";
+import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import {
   parseTopicsParam,
   topicSetKey,
@@ -669,6 +713,7 @@ import {
 } from "../services/quickPracticeGradedSheet";
 import type { SolutionCheckerSavedWorking } from "../components/question/SolutionChecker";
 import { UpgradeSheet, labelForFeature } from "../components/subscription/UpgradeSheet";
+import { FinishGate, type FinishGateItem } from "../components/practice/FinishGate";
 
 /**
  * ★ WIRE-2 · the confirmation step's stylesheet. A module-scope CSS string injected by
@@ -1114,7 +1159,18 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // attempts blob so the very first draw is already informed, then unioned with the
   // cross-device cloud read below. Honest degradation: if the cloud read fails, the
   // set is merely smaller → a less-optimal rotation, never a wrong or invented one.
-  const [seenQuestionIds, setSeenQuestionIds] = useState<ReadonlySet<string>>(() => new Set());
+  // FRESH-SET-QP — the seen-set is now DERIVED from the freshness index: every id this student has
+  // been SERVED (shown in a built set, lib/practice/servedHistory) or has ANSWERED on this topic, each
+  // with when. A shown-and-skipped question used to stay "unseen", so re-entering without answering
+  // returned the identical set. The index is a SNAPSHOT of what happened before this visit, plus the
+  // sets this visit has already moved past (folded in by `foldShownIntoFreshness` at every rebuild) —
+  // never the set on screen, so the set never reorders under the student.
+  const [freshness, setFreshness] = useState<FreshnessIndex>(EMPTY_FRESHNESS);
+  const seenQuestionIds = useMemo<ReadonlySet<string>>(() => metIds(freshness), [freshness]);
+  // The repeat order (served-but-unanswered before answered, least recent first).
+  const seenRank = useCallback((id: string) => freshnessRank(freshness, id), [freshness]);
+  const freshnessRef = useRef<FreshnessIndex>(freshness);
+  freshnessRef.current = freshness;
   // How many times the student has asked for a FRESH set within this visit
   // ([FU-PRACTICE-FRESH-SET-NOT-FRESH]). The session identity deliberately cannot move
   // in-session — `sessionStartedAt` is captured once and `filterSignature` only changes
@@ -1159,7 +1215,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // "Back to this set" action, and cleared ONLY on a fresh build/regenerate (the reset below).
   const [reviewMode, setReviewMode] = useState<boolean>(false);
   /** GUIDE-SCORE-1 — Byte asked to open ONE question's working box (a new nonce per request). */
-  const [checkerRequest, setCheckerRequest] = useState<{ id: string; nonce: number } | null>(null);
+  /** QP-WORKING-AFTER-1 (owner 23:11 "B") — Byte asked to show ONE question's SOLUTION (steps). */
+  const [stepsRequest, setStepsRequest] = useState<{ id: string; nonce: number } | null>(null);
   // PRACTICE-REVIEW-HONEST-1 (cofounder DECISION 27a, owner-approved; scope 30b) — "An answer
   // given after the student has seen the steps is not a real attempt. Counting it would put
   // invented accuracy into Mistake Intelligence (CLAUDE.md §5, no fake data)." The ids of the
@@ -1385,8 +1442,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
       // MLT-MUTE-2: the full-pool route keeps the engine draw's matching rows at the head.
       exact ? undefined : poolHeadSize,
       exact ? undefined : poolHintTiers,
+      exact ? undefined : seenRank,
     );
-  }, [questions, poolHeadSize, poolHintTiers, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, rotationOffset, strictFocus, focusBankIds, questionCount]);
+  }, [questions, poolHeadSize, poolHintTiers, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, seenRank, rotationOffset, strictFocus, focusBankIds, questionCount]);
 
   const filteredQuestions = committedPoolSelection.displayed;
 
@@ -1478,6 +1536,16 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   const [batchResult, setBatchResult] = useState<QuickPracticeBatchResult | null>(null);
   const [batchGrading, setBatchGrading] = useState<boolean>(false);
   const [batchError, setBatchError] = useState<string | null>(null);
+  /* QP-WORKING-AFTER-1 (owner design, 23 Oct 22:48 IST) — each answer box's UNSAVED draft (typed or
+     attached, never saved), and the Finish gate: open while a Finish tap waits on written questions
+     with no saved working (null otherwise). */
+  const draftAnswersRef = useRef<Record<string, SolutionCheckerSavedWorking>>({});
+  const [finishGate, setFinishGate] = useState<FinishGateItem[] | null>(null);
+  /* QP-NO-REVIEW-GRADE-1 (owner ruling 23 Oct 22:48: "after the final scorecard, working isn't
+     graded") — the saved working exactly as it stood at the FIRST Finish. Working saved after the
+     scorecard (review mode) is kept as the student's notes and never sent for grading; a pre-Finish
+     answer replaced in review is still graded as it stood at Finish. */
+  const [workingAtFinish, setWorkingAtFinish] = useState<Record<string, SolutionCheckerSavedWorking>>({});
   // J2 — the batch's background grade (only used when the batch has MORE than one question).
   const qpJob = useGradingJob();
   const qpJobStore = useMemo(() => quickPracticeJobStore(), []);
@@ -1559,41 +1627,121 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // phone would see the same set again on their laptop.
   // Honest degradation: a failed/absent cloud read just leaves the set smaller, which
   // biases the draw less well — it never produces a wrong or fabricated question.
+  // FRESH-SET-QP — the chapter(s) this set draws from: the freshness index (served + answered) is
+  // read and written per chapter. Multi-topic: every chosen chapter; single: the one chapter.
+  const freshTopics = useMemo(
+    () =>
+      (isMultiTopic ? multiTopics.map((t) => t.canonicalSlug) : [canonicalTopicKey || topicParam]).filter(Boolean),
+    [isMultiTopic, multiTopics, canonicalTopicKey, topicParam],
+  );
+  const freshUid = authUserForJourney?.uid ?? null;
+  const freshLocal = !!authUserForJourney?.isLocalSession;
+
+  /** The DEVICE part of the freshness index for these chapters: served history + answered attempts.
+   *  `before` excludes this visit's own records (see the `freshness` state). Synchronous. */
+  const deviceFreshness = useCallback(
+    (before?: number): FreshnessIndex => {
+      const attempts = getAttempts();
+      const answered = new Map<string, number>();
+      let served: ReturnType<typeof readServedDevice> = [];
+      for (const t of freshTopics) {
+        for (const [id, at] of buildAnsweredAt(attempts, t)) answered.set(id, Math.max(answered.get(id) ?? 0, at));
+        served = mergeServedEntries(served, readServedDevice(freshUid, t));
+      }
+      return freshnessFrom(served, answered, before);
+    },
+    [freshTopics, freshUid],
+  );
+
+  // Load the freshness index for THIS topic: the device copy first (synchronous, offline-safe), then
+  // the durable cloud copies unioned on top for cross-device (the attempts subcollection and the
+  // served history, which is also merged back into the device copy). There is no other hydration
+  // path from cloud → device, so without the cloud read a student who practises on their phone would
+  // see the same set again on their laptop.
+  // Honest degradation: a failed/absent cloud read just leaves the index smaller, which biases the
+  // draw less well — it never produces a wrong or fabricated question.
+  // Records from THIS visit are excluded (`sessionStartedAt`): the set on screen must not reorder
+  // when this effect re-runs (e.g. auth resolving after the set was built and recorded).
+  /** The in-flight cloud read of the freshness index (null when there is no cloud for this student). */
+  const cloudFreshnessRef = useRef<Promise<FreshnessIndex> | null>(null);
   useEffect(() => {
     let cancelled = false;
-    // Multi-topic: UNION the seen-set across every chosen topic, so a question from ANY
-    // of them is recognised as seen and deprioritised. Single-topic: the one topic, exactly
-    // as before. `buildSeenQuestionIds` is per-topic, so we fold it over the set.
-    const topicsForSeen = isMultiTopic
-      ? multiTopics.map((t) => t.canonicalSlug)
-      : [canonicalTopicKey || topicParam];
-    const seedTopics = topicsForSeen.filter(Boolean);
-    if (seedTopics.length === 0) return;
-    const unionOver = (attempts: Parameters<typeof buildSeenQuestionIds>[0]) => {
-      const u = new Set<string>();
-      for (const t of seedTopics) for (const id of buildSeenQuestionIds(attempts, t)) u.add(id);
-      return u;
-    };
-    setSeenQuestionIds(unionOver(getAttempts()));
-    const uid = authUserForJourney?.uid;
-    if (!uid || authUserForJourney?.isLocalSession) return;
-    void getAttemptsFromCloud(uid)
-      .then((cloudAttempts) => {
-        if (cancelled) return;
-        const fromCloud = unionOver(cloudAttempts);
-        setSeenQuestionIds((local) => {
-          const union = new Set(local);
-          for (const id of fromCloud) union.add(id);
-          return union;
-        });
+    if (freshTopics.length === 0) return;
+    setFreshness((prev) => mergeFreshness(prev, deviceFreshness(sessionStartedAt)));
+    if (!freshUid || freshLocal) {
+      cloudFreshnessRef.current = null;
+      return;
+    }
+    const cloudRead = Promise.all([
+      getAttemptsFromCloud(freshUid).catch(() => []),
+      Promise.all(
+        freshTopics.map((t) =>
+          syncServedFromCloud({ uid: freshUid, isLocalSession: freshLocal, chapter: t }).catch(() => []),
+        ),
+      ),
+    ])
+      .then(([cloudAttempts, servedLists]): FreshnessIndex => {
+        const answered = new Map<string, number>();
+        for (const t of freshTopics) {
+          for (const [id, at] of buildAnsweredAt(cloudAttempts, t)) answered.set(id, Math.max(answered.get(id) ?? 0, at));
+        }
+        const fromCloud = freshnessFrom(mergeServedEntries(...servedLists), answered, sessionStartedAt);
+        if (!cancelled) setFreshness((local) => mergeFreshness(local, fromCloud));
+        return fromCloud;
       })
-      .catch(() => {
-        /* honest degrade: keep the device-local set */
-      });
+      .catch(() => EMPTY_FRESHNESS /* honest degrade: keep the device-local index */);
+    // #1330 review (cold device): the build waits for this, bounded, before its first draw.
+    cloudFreshnessRef.current = cloudRead;
     return () => {
       cancelled = true;
     };
-  }, [canonicalTopicKey, topicParam, isMultiTopic, multiTopics, authUserForJourney?.uid, authUserForJourney?.isLocalSession]);
+  }, [freshTopics, freshUid, freshLocal, deviceFreshness, sessionStartedAt]);
+
+  // The ids of the set most recently ON SCREEN (settled). Kept after "Edit filters" / "Back to quick
+  // practice" hide it, so the next build can still move past it.
+  const lastShownRef = useRef<string[]>([]);
+  /** FRESH-SET-QP — every rebuild folds the set the student just had (served now) and every answer
+   *  so far (the device attempts, this visit included) into the index, so the next draw moves past
+   *  them. Called from `regenerateQuestions` — the one funnel of every rebuild trigger. */
+  const foldShownIntoFreshness = useCallback(() => {
+    const shown = lastShownRef.current;
+    const now = Date.now();
+    const device = deviceFreshness();
+    setFreshness((prev) => {
+      const served = new Map(prev.served);
+      for (const id of shown) served.set(id, Math.max(served.get(id) ?? 0, now));
+      return mergeFreshness({ served, answered: prev.answered }, { served: new Map(), answered: device.answered });
+    });
+  }, [deviceFreshness]);
+
+  // FRESH-SET-QP — record every settled set as SERVED, per chapter (device + the signed-in student's
+  // own cloud mirror). Recorded once per distinct set. It does NOT touch the in-memory index (the set
+  // on screen must not reorder); the next visit reads it, and this visit folds it in on a rebuild.
+  const recordedServedRef = useRef<string>("");
+  useEffect(() => {
+    if (!setSettled || filteredQuestions.length === 0) return;
+    const ids = filteredQuestions.map((q) => String(q.id));
+    lastShownRef.current = ids;
+    const sig = ids.join("|");
+    if (recordedServedRef.current === sig) return;
+    recordedServedRef.current = sig;
+    const at = Date.now();
+    const byChapter = new Map<string, string[]>();
+    if (freshTopics.length === 1) {
+      byChapter.set(freshTopics[0], ids);
+    } else {
+      const known = new Set(freshTopics.map((t) => resolveCanonicalSlug(t)));
+      for (const q of filteredQuestions) {
+        const slug = resolveCanonicalSlug(String(q.topicKey || ""));
+        const chapter = known.has(slug) ? freshTopics.find((t) => resolveCanonicalSlug(t) === slug) : undefined;
+        if (!chapter) continue;
+        byChapter.set(chapter, [...(byChapter.get(chapter) ?? []), String(q.id)]);
+      }
+    }
+    for (const [chapter, chIds] of byChapter) {
+      recordServed({ uid: freshUid, isLocalSession: freshLocal, chapter, ids: chIds, at });
+    }
+  }, [setSettled, filteredQuestions, freshTopics, freshUid, freshLocal]);
 
   // ── Hand a question's concept to the TUTOR (2026-07-15) ────────────────────
   // Replaces QP's own ConceptTeachDrawer mount ("Revise this topic") and the inline
@@ -1808,6 +1956,36 @@ const packTopicKey = useMemo(() => {
     const pool = labels.flatMap((label) => buildChapterServedPool({ subjectKey, topicKey: label }));
     return pool.length > 0 ? pool : null;
   }, [subjectKey, chipPoolLabelsKey, bank.ready]);
+  // FRESH-SET-QP — the honest repeats line. A set holds a repeat only when its scope ran out of
+  // never-met questions (the draw orders fresh first); say so, and never call such a set fresh.
+  // "You've seen every question here" only when it is TRUE: no never-met question of a repeat's
+  // section is left in the set's scope. Otherwise the line says only how many are repeats.
+  const repeatsLine = useMemo(() => {
+    if (!setSettled || filteredQuestions.length === 0) return null;
+    if (isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange)) return null;
+    const repeats = filteredQuestions.filter((q) => freshTier(freshness, String(q.id)) > 0);
+    if (repeats.length === 0) return null;
+    const shown = new Set(filteredQuestions.map((q) => String(q.id)));
+    const sections = new Set(repeats.map((q) => inferBoardPatternFromQuestion(q) ?? ""));
+    const scope = cbqMode ? questions : chipServedPool ?? questions;
+    // The never-met questions of the set's scope that are NOT on screen.
+    const unmet = scope.filter(
+      (q) =>
+        !shown.has(String(q.id)) &&
+        freshTier(freshness, String(q.id)) === 0 &&
+        questionMatchesFilters(q, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange),
+    );
+    // #1330 review: "seen every question" only when the WHOLE scope is served; when only the repeats'
+    // own sections ran out, say exactly that; anything else, only the count.
+    const scopeKind =
+      unmet.length === 0
+        ? "fully-served"
+        : unmet.some((q) => sections.has(inferBoardPatternFromQuestion(q) ?? ""))
+          ? "other"
+          : "section";
+    return repeatsNote(repeats.length, scopeKind, filteredQuestions.length);
+  }, [setSettled, filteredQuestions, freshness, strictFocus, focusBankIds, questionCount, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, cbqMode, questions, chipServedPool]);
+
   const filterChipCounts = useMemo<ChipCounts | null>(() => {
     if (!chipServedPool || isBuilt) return null;
     return computeChipCounts(chipServedPool, {
@@ -1926,6 +2104,9 @@ const packTopicKey = useMemo(() => {
       const timeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("__timeout__")), 15000)
       );
+      // A run cancelled before it raced the timeout (or an exact / CBQ set that never races it) left
+      // this rejection unhandled 15 s later. The race still sees it; this only marks it handled.
+      timeout.catch(() => {});
 
       try {
         // BANK-SPLIT-1 PR-2 (L4): the boundary await. Every engine call below reads these
@@ -1937,6 +2118,26 @@ const packTopicKey = useMemo(() => {
           throw loadErr;
         }
         if (cancelled) return;
+
+        // FRESH-SET-QP — what this draw must move past: the index state (earlier visits + the sets
+        // this visit has folded in) unioned with the DEVICE copy read now, so an auto-built first set
+        // (Topic Hub / tutor / MI arrival) is informed even before the load effect's state lands.
+        // #1330 review — a COLD device (served history only in the cloud) must still avoid repeats
+        // on its first set: wait for the cloud read, at most CLOUD_FRESHNESS_WAIT_MS, then go on with
+        // the device copy (an auto-served arrival must never hang on the network).
+        // #1330 re-review — only a COLD device waits (no served history of these chapters on it):
+        // a warm device draws at once from its own copy; the cloud read still lands in the
+        // background and is merged into the index for the next draw.
+        const coldDevice = freshTopics.every((t) => readServedDevice(freshUid, t).length === 0);
+        const cloudFresh = cloudFreshnessRef.current && coldDevice
+          ? await withinMs(cloudFreshnessRef.current, CLOUD_FRESHNESS_WAIT_MS, EMPTY_FRESHNESS)
+          : EMPTY_FRESHNESS;
+        if (cancelled) return;
+        const drawFresh = mergeFreshness(
+          mergeFreshness(freshnessRef.current, deviceFreshness(sessionStartedAt)),
+          cloudFresh,
+        );
+        const seenForDraw: ReadonlySet<string> = metIds(drawFresh);
 
         const adaptiveMix = difficulty === "All"
           ? computeAdaptiveDifficultyMix(canonicalTopicKey || topicParam)
@@ -2034,7 +2235,7 @@ const packTopicKey = useMemo(() => {
                         marksFilter: engineMarksFilter,
                         pyqOnly: committedSource === "pyq" || undefined,
                         excludeKeys: mtExclude,
-                        seenQuestionIds,
+                        seenQuestionIds: seenForDraw,
                       }),
                     ),
                   );
@@ -2085,7 +2286,7 @@ const packTopicKey = useMemo(() => {
                     marksFilter: engineMarksFilter,
                     pyqOnly: committedSource === "pyq" || undefined,
                     excludeKeys: mtExclude,
-                    seenQuestionIds,
+                    seenQuestionIds: seenForDraw,
                   }),
                 })),
               ),
@@ -2149,7 +2350,7 @@ const packTopicKey = useMemo(() => {
                   // The seen-set at the FETCH layer: the engine skips already-attempted
                   // questions BEFORE its head-take, so repeat sessions walk DOWN the
                   // predictionScore list instead of re-serving its head forever.
-                  seenQuestionIds,
+                  seenQuestionIds: seenForDraw,
                 })
               )
             ),
@@ -2196,10 +2397,37 @@ const packTopicKey = useMemo(() => {
               pyqOnly: committedSource === "pyq" || undefined,
               excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
               // Fetch-layer seen-set — see the blueprint branch above.
-              seenQuestionIds,
+              seenQuestionIds: seenForDraw,
             }),
             timeout,
           ]);
+        }
+
+        // FRESH-SET-QP (Defect B) — the engine fills each DIFFICULTY quota from unseen rows, then from
+        // seen rows OF THE SAME DIFFICULTY, before it tries another difficulty, so an answered question
+        // came back while dozens of unseen ones of its section waited. Keep the draw's shape and fix
+        // its freshness: a repeat slot takes the freshest row of the SAME SECTION (same difficulty,
+        // then adjacent, then any; MI's weak concept preferred) from the chapter's served pool under
+        // the same marks / source / range / difficulty-preset scope. A repeat stays only when its
+        // section has nothing fresher. Single chapter only; a CBQ set and an exact id set keep theirs.
+        if (
+          !cbqMode &&
+          !isMultiTopic &&
+          !isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange)
+        ) {
+          const scopePool = servedRowsForDraw(buildChapterServedPool({ subjectKey, topicKey: topicLabel }), difficulty)
+            .filter((q) => questionMatchesFilters(q, committedMarks, "all", committedSource, "all", committedMarksRange));
+          const weak = new Set((priorityConceptKeys ?? []).map((k) => String(k).toLowerCase()));
+          next = refreshSectionDraw({
+            draw: next,
+            pool: scopePool,
+            ix: drawFresh,
+            idOf: (q) => String(q.id),
+            sectionOf: (q) => inferBoardPatternFromQuestion(q) ?? "",
+            difficultyOf: (q) => String(q.difficulty ?? ""),
+            textKeyOf: (q) => String(q.questionText || "").trim().toLowerCase().slice(0, 80),
+            preferred: weak.size > 0 ? (q) => weak.has(String(q.subtopic || "").toLowerCase()) : undefined,
+          });
         }
 
         // MLT-MUTE-2 — the engine draw above is a count-sized SAMPLE, and every narrowing the
@@ -2258,6 +2486,10 @@ const packTopicKey = useMemo(() => {
           setMcqResults({});
           setQpFirstTap(null); // MOMENTS-1 (review M1): a new set has no first tap yet
           setGradedResults({});
+          // QP-WORKING-AFTER-1 — a new set starts with no drafts and no gate.
+          draftAnswersRef.current = {};
+          setFinishGate(null);
+          setWorkingAtFinish({});
           // A rebuilt/regenerated set is a NEW session: clear the write latch or the
           // new set would be silently skipped (and clear the grades with it, or they
           // would leak across the boundary into the next record).
@@ -2333,6 +2565,11 @@ const packTopicKey = useMemo(() => {
   }, [topicParam, subjectKey]);
 
   const regenerateQuestions = () => {
+    // FRESH-SET-QP — the set the student just had is SERVED; the next draw moves past it. This is
+    // also what fixes "Edit filters → Build new set" with unchanged filters (Defect C): the dead
+    // `previousQuestionKeys` exclusion below is cleared by the build effect before it is ever read
+    // ([FU-PRACTICE-EXCLUDEKEYS-DEAD]); the fold is what actually excludes the current set.
+    foldShownIntoFreshness();
     for (const q of questions) {
       const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
       if (key) previousQuestionKeys.current.add(key);
@@ -2365,11 +2602,9 @@ const packTopicKey = useMemo(() => {
   // Plain function (like `applyPreset` / `onBuildSet`) so it closes over the CURRENT
   // render's `filteredQuestions` and `regenerateQuestions`.
   const buildFreshSet = () => {
-    setSeenQuestionIds((prev) => {
-      const next = new Set(prev);
-      for (const q of filteredQuestions) next.add(String(q.id));
-      return next;
-    });
+    // FRESH-SET-QP — the set on screen joins the index as SERVED (via `regenerateQuestions` →
+    // `foldShownIntoFreshness`); make sure it is the set on screen now, even before it settled.
+    if (filteredQuestions.length > 0) lastShownRef.current = filteredQuestions.map((q) => String(q.id));
     setFreshSetNonce((n) => n + 1);
     regenerateQuestions();
   };
@@ -2399,8 +2634,10 @@ const packTopicKey = useMemo(() => {
   //     matched POOL and is provably untouched by the partition, so no number on screen
   //     moves and nothing is invented. The state is session-local and never persisted.
   //
-  // So the two triggers share ONE implementation. Nothing else changes: every other
-  // build path still calls the bare `regenerateQuestions()` and is byte-identical.
+  // So the two triggers share ONE implementation. Every other build path calls
+  // `regenerateQuestions()`, which since FRESH-SET-QP also folds the set the student just had into
+  // the served history (so "Build new set" / a preset re-pick with unchanged filters is new too);
+  // only the nonce advance is particular to these two triggers.
   const refreshSet = () => buildFreshSet();
 
   // Alt+R is the keyboard twin of the same button, but its listener effect is mounted
@@ -2693,7 +2930,10 @@ const packTopicKey = useMemo(() => {
       // mark of working saved BEFORE Finish (a recorded answer): `applyLocalObjectiveMark`
       // reads `pickedOption`, so it is withheld there and the answer is marked as it stood
       // at Finish. A review pick on a review answer (or with no working) is unaffected.
-      const reviewPickOnRecordedAnswer = !!reviewMcqIds[qId] && !!saved && !reviewSavedIds[qId];
+      // QP-NO-REVIEW-GRADE-1 — working saved after the scorecard is NOT sent: the answer is graded
+      // as it stood at Finish (if it had working then), else it carries no working at all.
+      const gradable = reviewSavedIds[qId] ? workingAtFinish[qId] : saved;
+      const reviewPickOnRecordedAnswer = !!reviewMcqIds[qId] && !!gradable;
       const pickedOption =
         !reviewPickOnRecordedAnswer && opts && pickedIdx != null && pickedIdx >= 0 ? opts[pickedIdx] ?? null : null;
       const mcq = mcqResults[qId];
@@ -2718,12 +2958,12 @@ const packTopicKey = useMemo(() => {
         finalAnswer: q.finalAnswer ?? null,
         pickedOption,
         pickedCorrect: mcq ? mcq === "correct" : null,
-        imageBase64: saved?.imageBase64 ?? null,
-        imageMimeType: saved?.imageMimeType ?? null,
-        textAnswer: saved?.textAnswer ?? null,
+        imageBase64: gradable?.imageBase64 ?? null,
+        imageMimeType: gradable?.imageMimeType ?? null,
+        textAnswer: gradable?.textAnswer ?? null,
       };
     });
-  }, [committedPoolSelection.displayed, savedAnswers, mcqSelections, mcqResults, topicLabel, canonicalTopicKey, topicParam, reviewMcqIds, reviewSavedIds]);
+  }, [committedPoolSelection.displayed, savedAnswers, mcqSelections, mcqResults, topicLabel, canonicalTopicKey, topicParam, reviewMcqIds, reviewSavedIds, workingAtFinish]);
 
   /** \u2605\u2605 INCLUSION IS BY WORKING, NEVER BY TYPE \u2014 and the decision is the SERVICE's, not
    *  this page's. `selectQuickPracticeBatch` inspects only what the student produced. */
@@ -2797,6 +3037,38 @@ const packTopicKey = useMemo(() => {
    *  The scorecard is DISMISSED (not merely un-finished): on a set where every question is
    *  attempted, `allDone` alone would re-raise it at once and the student could never get
    *  back to the list. "Finish session" un-dismisses it, so the result is one tap away. */
+  /** Show the scorecard (the Finish tap's own work; the gate's Continue / Skip lands here too). */
+  const finishNow = useCallback(() => {
+    // QP-NO-REVIEW-GRADE-1 — the gradable working is fixed at the first Finish (never in review).
+    if (!reviewMode) setWorkingAtFinish({ ...savedAnswers });
+    setFinishGate(null);
+    setScorecardDismissed(false);
+    setSessionFinished(true);
+    setReviewMode(true);
+  }, [reviewMode, savedAnswers]);
+  /**
+   * QP-WORKING-AFTER-1 (owner design) — "Finish session": if any WRITTEN (subjective) question has
+   * no saved working, the gate first (once per Finish tap; never a loop — its Continue and Skip go
+   * straight to the scorecard). Only BEFORE the scorecard: once it has been seen (review mode) or
+   * the set is graded, Finish shows the scorecard as it always did.
+   */
+  const requestFinish = useCallback(() => {
+    if (!reviewMode && !batchResult) {
+      const items: FinishGateItem[] = [];
+      filteredQuestions.forEach((q, index) => {
+        const id = String(q.id);
+        const opts = Array.isArray(q.options) ? q.options.map(String) : null;
+        if (isObjectiveQuestion(q.format, q.section, opts) || savedAnswers[id]) return;
+        items.push({ q, qNumber: index + 1, draft: draftAnswersRef.current[id] ?? null });
+      });
+      if (items.length > 0) {
+        setFinishGate(items);
+        return;
+      }
+    }
+    finishNow();
+  }, [reviewMode, batchResult, filteredQuestions, savedAnswers, finishNow]);
+
   const backToSetForReview = useCallback(() => {
     setReviewMode(true);
     setSessionFinished(false);
@@ -2814,10 +3086,9 @@ const packTopicKey = useMemo(() => {
       const graded = batchResult.entries[saved.qNumber - 1]?.graded;
       if (!graded) continue;
       const kind = dominantMistakeKind(graded);
-      const reviewPrefix = reviewSavedIds[String(saved.questionId)] ? "Review attempt \u00b7 " : "";
       rows.push({
         tag: `Q${saved.qNumber}`,
-        detail: reviewPrefix + (saved.objective
+        detail: (saved.objective
           ? kind
             ? `${MISTAKE_KIND_LABEL[kind]} \u2014 read from your working`
             : "Working read \u2014 no mistake type found"
@@ -2826,7 +3097,7 @@ const packTopicKey = useMemo(() => {
       });
     }
     return rows;
-  }, [batchResult, batchSelection.batch, reviewSavedIds]);
+  }, [batchResult, batchSelection.batch]);
 
   /** PRACTICE-REVIEW-HONEST-1 — the batch's entries with every review-mode outcome removed:
    *  a review answer's `graded` (working saved in review) and a review pick's `mcq`. What is
@@ -2837,20 +3108,17 @@ const packTopicKey = useMemo(() => {
     if (!batchResult) return null;
     return batchResult.entries.map((e) => {
       const id = String(e.questionId);
-      if (!reviewSavedIds[id] && !reviewMcqIds[id]) return e;
+      // QP-NO-REVIEW-GRADE-1 — no review WORKING is ever graded (it is never sent), so only a review
+      // PICK is stripped here; a graded entry is always working as it stood at Finish.
+      if (!reviewMcqIds[id]) return e;
       const next: QuickPracticeEntry = { ...e };
-      if (reviewSavedIds[id]) {
-        delete next.graded;
-        delete next.notGraded;
-        delete next.notGradedReason;
-      }
       if (reviewMcqIds[id]) {
         delete next.mcq;
         delete next.pickedOption; // FOLLOWUPS-1 C1 — a review pick is never stored either
       }
       return next;
     });
-  }, [batchResult, reviewSavedIds, reviewMcqIds]);
+  }, [batchResult, reviewMcqIds]);
 
   const handleSaveAnswer = useCallback((qId: string, working: SolutionCheckerSavedWorking) => {
     setSavedAnswers((prev) => ({ ...prev, [qId]: working }));
@@ -2858,6 +3126,11 @@ const packTopicKey = useMemo(() => {
     // (a pre-Finish answer RE-saved in review becomes one too: the working sent is post-steps).
     if (reviewMode) setReviewSavedIds((prev) => (prev[qId] ? prev : { ...prev, [qId]: true }));
   }, [reviewMode]);
+  /** QP-WORKING-AFTER-1 — a box's unsaved draft (no API call; null once saved / cleared). */
+  const handleDraftAnswer = useCallback((qId: string, working: SolutionCheckerSavedWorking | null) => {
+    if (working) draftAnswersRef.current[qId] = working;
+    else delete draftAnswersRef.current[qId];
+  }, []);
   const handleRemoveAnswer = useCallback((qId: string) => {
     setSavedAnswers((prev) => {
       if (!(qId in prev)) return prev;
@@ -2920,24 +3193,14 @@ const packTopicKey = useMemo(() => {
         startedAt: sessionStartedAt,
       },
     };
-    // PRACTICE-REVIEW-HONEST-1 — review-mode working is graded but never recorded. All
-    // review → `record: false`; none → omitted (today's call, byte-identical); MIXED (answers
-    // saved before Finish AND in review, e.g. after "Keep practicing") → a per-answer
-    // predicate, so the real attempts are still recorded and the review ones are not.
-    const batchIds = batchSelection.batch.map((a) => String(a.questionId));
-    const reviewInBatch = batchIds.filter((id) => reviewSavedIds[id]).length;
-    const record =
-      reviewInBatch === 0
-        ? undefined
-        : reviewInBatch === batchIds.length
-          ? false
-          : (a: QuickPracticeSavedAnswer) => !reviewSavedIds[String(a.questionId)];
+    // QP-NO-REVIEW-GRADE-1 (owner ruling 23 Oct 22:48) — working saved after the scorecard is never
+    // sent (see `sessionAnswers`), so every answer in this batch is a real attempt, recorded as
+    // usual. (Replaces PRACTICE-REVIEW-HONEST-1's "graded but not recorded" review attempts.)
     const result = await gradeQuickPracticeBatch({
       worksheetId,
       subject: subjectKey,
       answers: answersToSend,
       user: authUserForJourney,
-      ...(record === undefined ? {} : { record }),
       job: {
         store: qpJobStore,
         paperKey: worksheetId,
@@ -2988,7 +3251,7 @@ const packTopicKey = useMemo(() => {
           : "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
       );
     }
-  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney, isMultiTopic, multiTopics, isFullSubject, topicLabel, canonicalTopicKey, topicParam, qpJobStore, qpJob.reset, qpJob.onProgress, qpJob.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal, reviewSavedIds]);
+  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney, isMultiTopic, multiTopics, isFullSubject, topicLabel, canonicalTopicKey, topicParam, qpJobStore, qpJob.reset, qpJob.onProgress, qpJob.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
 
   /** The student's "Grade my N answers" tap. FAIR-USE-UI-1 (UI2): with fewer checks left
    *  than answers, ask first; with none left, show the limit panel and send nothing.
@@ -3902,7 +4165,7 @@ const packTopicKey = useMemo(() => {
         {isBuilt && (
         <PracticeAttemptCountingProvider value={!reviewMode}>
         <PracticeQuestionList
-          openCheckerFor={checkerRequest} // GUIDE-SCORE-1 — Byte's "add working" opens this box
+          openStepsFor={stepsRequest} // QP-WORKING-AFTER-1 — Byte's "first one I missed" opens its solution
           isLoading={isLoading}
           error={error}
           onRetry={error && !isLoading ? () => setLoadRetry((n) => n + 1) : undefined}
@@ -3938,6 +4201,7 @@ const packTopicKey = useMemo(() => {
               : undefined
           }
           conceptEnd={conceptEnd}
+          repeatsNote={repeatsLine ?? undefined}
           questions={questions}
           filteredQuestions={filteredQuestions}
           subjectKey={subjectKey}
@@ -3971,11 +4235,32 @@ const packTopicKey = useMemo(() => {
           savedAnswers={savedAnswers}
           onSaveAnswer={handleSaveAnswer}
           onRemoveAnswer={handleRemoveAnswer}
+          onDraftAnswer={handleDraftAnswer}
+          // QP-WORKING-AFTER-1 — "Don't forget to save" before the scorecard only (not in review,
+          // not in the tutor overlay): after the scorecard, written working is not graded.
+          // While the Finish gate is open its own nudge gets Ziggy (the set's are behind the sheet).
+          saveNudgeUid={!reviewMode && !overlay && !finishGate ? qpMomentUid : undefined}
+          // QP-WORKING-AFTER-1 / owner ruling 23 Oct 22:48 ("after the final scorecard, working isn't
+          // graded") — in review there is no answer box at all: nothing is collected or sent.
+          answerBoxOff={reviewMode}
           isStepsLocked={isStepsLocked}
         />
         </PracticeAttemptCountingProvider>
         )}
 
+        {finishGate && !showScorecard ? (
+          <FinishGate
+            items={finishGate}
+            savedAnswers={savedAnswers}
+            subjectKey={String(subjectKey)}
+            topicLabel={topicLabel}
+            uid={qpMomentUid}
+            defaultAnswerMode={answerBoxDefault}
+            onSave={handleSaveAnswer}
+            onRemove={handleRemoveAnswer}
+            onContinue={finishNow}
+          />
+        ) : null}
         {isBuilt && filteredQuestions.length > 0 && !showScorecard && (
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 8 }}>
             <button
@@ -3987,9 +4272,7 @@ const packTopicKey = useMemo(() => {
                   attempted: sessionStats.attemptedInSet,
                   total: filteredQuestions.length, // the DISPLAYED set, not the pool
                 });
-                setScorecardDismissed(false);
-                setSessionFinished(true);
-                setReviewMode(true);
+                requestFinish();
               }}
               style={{
                 width: "100%",
@@ -4022,16 +4305,14 @@ const packTopicKey = useMemo(() => {
   const qpGuideTarget = multiTopics.length > 0 ? null : singleChapterPracticeTarget(String(subjectKey), [topicK], () => topicLabel);
   const firstMissedId =
     filteredQuestions.map((q) => String(q.id)).find((id) => mcqResults[id] === "wrong" && !reviewMcqIds[id]) ?? null;
-  const firstQuestionId = filteredQuestions[0] ? String(filteredQuestions[0].id) : null;
-  // Back to the set (review: the existing "Back to this set"), with THAT question's working box
-  // OPEN, scrolled to and focused (PracticeQuestionCard `openCheckerRequest`). Changes no mark.
-  const openWorkingFor = (id: string) => {
+  // QP-WORKING-AFTER-1 (owner ruling 23:11 "B") — back to the set (review: the existing "Back to
+  // this set"), THAT question's SOLUTION open, scrolled to and focused. No working box: after the
+  // scorecard, written working is not graded. Changes no mark.
+  const openSolutionFor = (id: string) => {
     backToSetForReview();
-    setCheckerRequest((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }));
+    setStepsRequest((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }));
   };
-  const canOpenWorking = !overlay && !isGuest;
-  const showMissed = firstMissedId && canOpenWorking ? () => openWorkingFor(firstMissedId) : null;
-  const addWorking = firstQuestionId && canOpenWorking ? () => openWorkingFor(firstQuestionId) : null;
+  const showMissed = firstMissedId && !overlay ? () => openSolutionFor(firstMissedId) : null;
   const closeScorecard = () => {
     setScorecardDismissed(true);
     setSessionFinished(false);
@@ -4119,9 +4400,7 @@ const packTopicKey = useMemo(() => {
       const entry = batchResult.entries[saved.qNumber - 1];
       const graded = entry?.graded;
       const marks = Number(saved.marks) || 0;
-      const label = reviewSavedIds[String(saved.questionId)]
-        ? `Question ${saved.qNumber} \u00b7 Review attempt`
-        : `Question ${saved.qNumber}`;
+      const label = `Question ${saved.qNumber}`;
       const objective = saved.objective === true;
       const descriptor = marksDescriptor(marks, objective);
       if (!graded && entry?.notGraded) {
@@ -4136,17 +4415,12 @@ const packTopicKey = useMemo(() => {
           // sentence ("please try again"), so a timeout never reads "retake the photo".
           notGraded: entry.notGradedReason ?? (entry.notGraded === "not-graded" ? "error" : null),
         }));
-        // QP-GRADED-SHEET-1 — the same row on the graded sheet: not graded, no mark (display only;
-        // a review attempt stays off the sheet, as its graded twin does — the totals exclude it).
-        if (!reviewSavedIds[String(saved.questionId)]) {
-          sheetUngraded.push({ qNumber: saved.qNumber, totalMarks: marks, state: entry.notGraded, reason: entry.notGradedReason ?? null });
-        }
+        // QP-GRADED-SHEET-1 — the same row on the graded sheet: not graded, no mark (display only).
+        sheetUngraded.push({ qNumber: saved.qNumber, totalMarks: marks, state: entry.notGraded, reason: entry.notGradedReason ?? null });
         continue;
       }
       if (!graded) {
-        if (!reviewSavedIds[String(saved.questionId)]) {
-          sheetUngraded.push({ qNumber: saved.qNumber, totalMarks: marks, state: "could-not-read" });
-        }
+        sheetUngraded.push({ qNumber: saved.qNumber, totalMarks: marks, state: "could-not-read" });
         // ★ HONEST-UNGRADED. The grader could not read this answer, so there is NO mark.
         // Rendering a 0 would be the fabrication (CLAUDE.md §5).
         answers.push(ungradedAnswer(
@@ -4234,7 +4508,9 @@ const packTopicKey = useMemo(() => {
           fourType: aggregateFourType(response),
           // PR-2 (B7) — "Where your marks went" in MARKS when the grade carries them.
           marksLost: aggregateMarksLost(response),
-          onKeepPracticing: () => { setBatchResult(null); backToSetForReview(); },
+          // QP-WORKING-AFTER-1 — the grade is KEPT. Clearing it re-offered the SAME working for a
+          // second grade at the next Finish (never grade the same working twice).
+          onKeepPracticing: () => backToSetForReview(),
           onFreshSet: () => buildFreshSet(),
           // QP-SCORECARD-2 A - the rest of the what-next floor (hidden in the tutor overlay).
           appNav: {
@@ -4467,15 +4743,23 @@ const packTopicKey = useMemo(() => {
         }),
         extraActions: startHereExtras(topicK),
       });
+  const tapOnlyVariant: ScorecardVariant = {
+    ...withGuideTarget(mcqVariant, qpGuideTarget),
+    onShowMissed: showMissed,
+    // QP-WORKING-AFTER-1 (owner 23:11 "B") — no post-scorecard working box: Byte looks forward.
+  };
+  // GUIDE-SCORE-2 (cofounder ruling, #1322 re-review) — where Byte's OBJECTIVE line shows ("Add
+  // working to one…" / "N questions wrong. Add working…": the owner-approved 17:57 lines, true
+  // under §13), MOMENTS-1 M11 is SUPPRESSED. Its owner copy promises step-by-step marking, which a
+  // tap-only set's MCQ working never gets (§13), and it is the same nudge twice.
+  const objectiveLineShows = (() => {
+    const step = scoreGuidePlan(tapOnlyVariant)?.byteStep;
+    return step === "objective" || step === "objectiveWrong";
+  })();
   return (
     <ResultsScorecard
       askFirstFeedback={!overlay && !isGuest} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-      variant={{
-        ...withGuideTarget(mcqVariant, qpGuideTarget),
-        onShowMissed: showMissed,
-        // Owner ruling 23 Oct 17:57 — the set's own working box, never another page.
-        onAddWorking: addWorking,
-      }}
+      variant={tapOnlyVariant}
       onClose={closeScorecard}
       hideShare={isGuest} // SHARE-SCORE-1 — no "Share my score" on a signed-out guest's scorecard
       // QP-UPLOAD-LATER — the guest card (unchanged) plus the "Upload later" block when written
@@ -4513,9 +4797,10 @@ const packTopicKey = useMemo(() => {
               Not now
             </button>
           </div>
-        ) : !isGuest && !overlay && qpMomentUid ? (
+        ) : !isGuest && !overlay && qpMomentUid && !objectiveLineShows ? (
           // MOMENTS-1 M11 — the MCQ-only (tap-only) scorecard ONLY: never a written / C&I result.
-          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} />
+          // GUIDE-SCORE-2 — its button opens THIS set's working box (first question), never another page.
+          <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} onOpenWorking={null} />
         ) : undefined,
       )}
     />

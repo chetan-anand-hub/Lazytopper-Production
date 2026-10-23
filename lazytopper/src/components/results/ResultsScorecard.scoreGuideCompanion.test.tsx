@@ -200,6 +200,8 @@ describe("GUIDE-SCORE-1 × COMPANION-1 — the scorecard's scenes", () => {
       registerScoreScene({ canShowScene: () => true, markSceneShown: () => {}, Scene: () => null, watchDrawn: true });
       await open(LOW_CT());
       expect(screen.queryByTestId("score-guide")).toBeNull();
+      // GUIDE-SCORE-2: the reserved slot sits blank for this wait, so it is about one second.
+      expect(SCENE_DRAW_TIMEOUT_MS).toBeLessThanOrEqual(1000);
       await act(async () => {
         vi.advanceTimersByTime(SCENE_DRAW_TIMEOUT_MS + 50);
       });

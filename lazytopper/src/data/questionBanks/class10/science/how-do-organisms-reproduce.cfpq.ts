@@ -183,7 +183,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) R or S; (b) whether the embryo gets nutrition directly from the mother's body",
     solutionSteps: [
-      "[1 mark] (a) R or S [0.5 marks for each]",
+      "[1 mark] (a) R or S",
       "[1 mark] (b) whether the embryo gets nutrition directly from the mother's body",
     ],
     finalAnswer:
@@ -330,7 +330,7 @@ export const REPR_CFPQ: CanonicalQuestion[] = [
       "(a) meristematic tissue; (b) They will be the same, because regeneration does not involve the mixing of gametes.",
     solutionSteps: [
       "[1 mark] (a) meristematic tissue",
-      "[2 marks] (b) 1 mark each for the following: They will be the same. Regeneration does not involve the mixing of gametes.",
+      "[2 marks] (b) They will be the same. Regeneration does not involve the mixing of gametes.",
     ],
     finalAnswer:
       "(a) meristematic tissue; (b) identical, because regeneration involves no mixing of gametes.",

@@ -2125,7 +2125,8 @@ export const UNMAPPED_LABELS_REVIEWED: Readonly<
     "Electrolysis and Electroplating": { reason: "concept-gap", note: "audit (verified): metallurgy — propose 'Occurrence & Extraction of Metals (Metallurgy)'" },
     "Electrolytic Extraction of Aluminium (Electrode Half-Equations)": { reason: "concept-gap", note: "audit (verified): metallurgy — propose 'Occurrence & Extraction of Metals (Metallurgy)'" },
     "Identification from Clues": { reason: "generic", note: "audit (verified): generic catch-all label, mixed content — needs per-row retagging" },
-    "Ionic Bonding and Electrical Conductivity — Group 13 Metal": { reason: "concept-gap", note: "audit (verified): ionic compounds — propose 'Ionic Compounds: Formation & Properties'" },
+    // 23 Oct BANK-RESIDUE-1: "Ionic Bonding and Electrical Conductivity — Group 13 Metal" left this list with its only row, SQP-S-MNM-003 (withheld for under-tagged
+    // step marks). Restore the entry (reason "concept-gap", proposed concept 'Ionic Compounds: Formation & Properties') when the row serves again.
     "Metals and Non-Metals": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Metals and Non-metals": { reason: "generic", note: "generic: chapter-name / format label, carries no concept — re-tag per row" },
     "Non-metals": { reason: "concept-gap", note: "audit (verified): physical/chemical properties of metals & non-metals — propose 'Properties of Metals and Non-metals'" },

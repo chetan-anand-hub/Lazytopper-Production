@@ -23,8 +23,8 @@ export const electricityPYQ2024: CanonicalQuestion[] = [
     solutionSteps: [
       "[1 mark] (a) The 4 Ω, 6 Ω and 16 Ω resistors are in series: R_AB = 4 Ω + 6 Ω + 16 Ω = 26 Ω.",
       "[1 mark] (b) The two 8 Ω resistors are in parallel: 1/R_BC = 1/8 + 1/8 = 1/4 ⟹ R_BC = 4 Ω.",
-      "[1 mark] (c) (i) Total resistance R = 26 Ω + 4 Ω = 30 Ω; with V = 6 V, I = V/R = 6 V / 30 Ω. [OR (c) (ii) The 16 Ω resistor: the same current flows through it and the parallel pair, and by Ohm's law V = IR the larger resistance has the larger potential difference (1 mark).]",
-      "[1 mark] I = 1/5 A = 0.2 A. [OR V(16 Ω) = 0.2 × 16 = 3.2 V while V(parallel pair) = 0.2 × 4 = 0.8 V, so the 16 Ω resistor has more potential difference (1 mark).]",
+      "[1 mark] (c) (i) Total resistance R = 26 Ω + 4 Ω = 30 Ω; with V = 6 V, I = V/R = 6 V / 30 Ω. [OR (c) (ii) The 16 Ω resistor: the same current flows through it and the parallel pair, and by Ohm's law V = IR the larger resistance has the larger potential difference.]",
+      "[1 mark] I = 1/5 A = 0.2 A. [OR V(16 Ω) = 0.2 × 16 = 3.2 V while V(parallel pair) = 0.2 × 4 = 0.8 V, so the 16 Ω resistor has more potential difference.]",
     ],
     finalAnswer: "(a) 26 Ω (b) 4 Ω (c)(i) I = 6 V/30 Ω = 0.2 A. OR (c)(ii) The 16 Ω resistor: the same current (0.2 A) flows through both, and by Ohm's law (V = IR) the larger resistance has the larger potential difference — 0.2 × 16 = 3.2 V across 16 Ω versus 0.2 × 4 = 0.8 V across the parallel pair.",
     ncertRef: "PYQ 31/4/1 Q39", isCompetencyBased: true, pyqYear: "2024", pyqSet: "1",

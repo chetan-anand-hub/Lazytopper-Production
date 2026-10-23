@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup, renderHook, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, renderHook, fireEvent, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 
@@ -219,22 +219,16 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
     expect(screen.queryByText(/Most marks lost: Trigonometry, concept gaps/i)).toBeNull();
     expect(screen.queryByTestId("mobile-home-mi-sample-cta")).toBeNull();
 
-    // PR-A's empty state, unchanged: a dash where a real count would go.
-    expect(screen.getByText("Your mistake patterns will show here")).toBeInTheDocument();
-    expect(screen.getByText(/Built from your real attempts — never guessed/i)).toBeInTheDocument();
-    expect(screen.getByText("Practise a set to see your mistakes.")).toBeInTheDocument();
-
-    const buckets = screen.getAllByTestId("mobile-home-mi-bucket");
-    expect(buckets).toHaveLength(4);
-    expect(buckets.map((b) => b.textContent)).toEqual([
-      "—Concept gap",
-      "—Calculation slip",
-      "—Silly slip",
-      "—Presentation",
-    ]);
-    // No invented counts anywhere in the signed-in card.
-    for (const b of buckets) {
-      expect(b.textContent).not.toMatch(/\d/);
+    // MI-CONSISTENCY-1 (owner ask, 23 Oct): phone Home now carries the SAME real MI card as
+    // desktop Home and the sidebar (components/mi/MiCard via MiCardHost). Before its read lands it
+    // shows NO number at all — never an invented count — and the Both / Maths / Science switch.
+    const panel = screen.getByTestId("mobile-home-mistake-panel");
+    expect(panel.getAttribute("data-state")).toMatch(/^(loading|empty)$/);
+    expect(within(panel).queryAllByTestId("mi-card-tile")).toHaveLength(0);
+    expect(panel.textContent).not.toMatch(/\d/);
+    expect(within(panel).getByTestId("mi-scope-both").getAttribute("aria-pressed")).toBe("true");
+    for (const s of ["both", "maths", "science"]) {
+      expect(within(panel).getByTestId(`mi-scope-${s}`)).toBeInTheDocument();
     }
   });
 

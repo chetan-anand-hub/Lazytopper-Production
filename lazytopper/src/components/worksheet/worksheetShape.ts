@@ -96,6 +96,10 @@ export interface DrawTools {
   isAi: (q: PracticeQuestion) => boolean;
   isCbq: (q: PracticeQuestion) => boolean;
   shuffle: <T>(arr: T[]) => T[];
+  /** FRESH-SET-TESTS — was this row served on an earlier worksheet? Absent → no history, and
+   *  the draw is exactly the WS-DRAW-1 draw. Present → a cell takes never-served verified rows,
+   *  then never-served AI rows while the sheet is under its AI cap, and only then repeats. */
+  isServed?: (q: PracticeQuestion) => boolean;
 }
 
 export interface TopicBudget {
@@ -476,6 +480,15 @@ export function drawFromSpec(
     return { cbq: tools.shuffle(cbq), ver: tools.shuffle(ver), ai: tools.shuffle(ai) };
   };
 
+  // FRESH-SET-TESTS: the AI-cap headroom the plan left unused (rows it planned as AI are its own).
+  let spareAi = Math.max(
+    0,
+    spec.aiCap -
+      spec.cells.reduce((sum, c) => {
+        const { cbq, ver } = candidates(c.topic, c.section);
+        return sum + Math.max(0, c.n - (ver.length + cbq.length));
+      }, 0),
+  );
   for (const c of spec.cells) {
     const { cbq, ver, ai } = candidates(c.topic, c.section);
     let got = 0;
@@ -488,10 +501,31 @@ export function drawFromSpec(
         }
       }
     };
+    // FRESH-SET-TESTS (only with a served history): unseen rows before repeats. An unseen AI row
+    // may stand in for a repeated verified one, but only up to the AI rows this cell was planned
+    // to take plus the sheet's spare AI-cap headroom, so the cap holds.
+    const isServed = tools.isServed;
+    const plannedAi = Math.max(0, c.n - (ver.length + cbq.length));
+    let aiInCell = 0;
+    const pickAi = (list: PracticeQuestion[], limit: number) => {
+      const before = got;
+      pick(list, Math.min(limit, got + Math.max(0, plannedAi + spareAi - aiInCell)));
+      aiInCell += got - before;
+    };
+    if (isServed) {
+      pick(cbq.filter((q) => !isServed(q)), c.cbq);
+      pickAi(ai.filter((q) => tools.isCbq(q) && !isServed(q)), c.cbq);
+    }
     pick(cbq, c.cbq);
     // the rest of the cell: other verified rows and the not-yet-used CBQ rows, mixed, then AI
-    pick(tools.shuffle([...ver, ...cbq.filter((q) => !seenId.has(q.id))]), c.n);
+    const rest = tools.shuffle([...ver, ...cbq.filter((q) => !seenId.has(q.id))]);
+    if (isServed) {
+      pick(rest.filter((q) => !isServed(q)), c.n);
+      pickAi(ai.filter((q) => !isServed(q)), c.n);
+    }
+    pick(rest, c.n);
     pick(ai, c.n);
+    if (isServed) spareAi -= Math.max(0, aiInCell - plannedAi);
   }
 
   // Top-up: a dedupe skip (or a pool that shrank) can leave a section short. Fill it from the SAME

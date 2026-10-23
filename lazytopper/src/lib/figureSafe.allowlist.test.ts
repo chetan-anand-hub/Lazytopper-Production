@@ -37,8 +37,9 @@ const STILL_BLOCKED = [ // RULE5-BIND-1: all ten (twelve before BANK-FIX-7 PR-2)
 describe("D47c — Rule 5 reviewed allow-list", () => {
   const ids = Object.keys(RULE5_REVIEWED_NOT_NEEDED);
 
-  it("has the 10 reviewed rows, each with a dated, attributed reason", () => {
-    expect(ids).toHaveLength(10);
+  // BANK-RESIDUE-1 (2026-10-23): 10 -> 9, PYQ-M-CIRC-012 left the list (its "Correct figure 1 Mark" note was deleted from the row).
+  it("has the 9 reviewed rows, each with a dated, attributed reason", () => {
+    expect(ids).toHaveLength(9);
     for (const id of ids) expect(RULE5_REVIEWED_NOT_NEEDED[id], id).toMatch(/^\d{4}-\d{2}-\d{2} B\/D47c: .{20,}/);
   });
 

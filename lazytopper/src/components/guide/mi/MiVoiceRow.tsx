@@ -105,7 +105,7 @@ export function MiVoiceRow({ uid, input, hydrated }: MiVoiceRowProps) {
   const state = voice?.state ?? null;
   const rowRef = useRef<HTMLDivElement | null>(null);
   useShownWhenVisible(rowRef, state);
-  const scorecardOnStage = useStageHeld("scorecard", "m11");
+  const scorecardOnStage = useStageHeld("scorecard", "m11", "nudge");
 
   if (!voice) return null;
   return (

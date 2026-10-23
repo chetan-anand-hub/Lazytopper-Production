@@ -78,6 +78,13 @@ export interface BalanceCbqArgs<T extends CbqRowLike> {
   isPyq: (q: T) => boolean;
   /** Optional affinity (Full Mock: the chapter) — a swap prefers the same affinity. */
   affinityOf?: (q: T) => string;
+  /**
+   * FRESH-SET-TESTS — optional freshness rank of an incoming row (higher = preferred): a row the
+   * student has never been served outranks a served one, and among served rows the
+   * least-recently-served wins. It ranks right after "fits the marks still wanted", so it never
+   * trades the CBSE share for freshness. Absent → every row ranks equal (the draw is unchanged).
+   */
+  preferOf?: (q: T) => number;
   seed: number;
 }
 
@@ -204,6 +211,7 @@ export function balanceCbqShare<T extends CbqRowLike>(
         const delta = up ? inM : outM;
         const score = [
           delta <= want ? 1 : 0,
+          args.preferOf ? args.preferOf(cand) : 0,
           delta <= want ? delta : -delta,
           inM === outM ? 1 : 0,
           args.affinityOf && args.affinityOf(cand) === args.affinityOf(outQ) ? 1 : 0,

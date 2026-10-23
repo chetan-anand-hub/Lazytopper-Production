@@ -83,7 +83,8 @@ export const SCORE_GUIDE_LINES = {
       { pose: "determined", text: "{got} out of {total}. Hard papers teach the most. We'll fix it step by step." },
     ],
     improved: [
-      // {prev}: "your last mock" on Full Mock, "your earlier attempt" on Chapter Test.
+      // {prev}: "your last mock" on Full Mock, "your last test on this chapter" on Chapter Test (an
+      // earlier test of the same chapter, which may be a different paper).
       { pose: "excited", text: "Up {delta} on {prev}! Keep it going." },
       { pose: "proud", text: "{delta} more than {prev}. That's real progress!" },
     ],
@@ -121,26 +122,25 @@ export const SCORE_GUIDE_LINES = {
       { pose: "explain", text: "Practise a fresh set, then check one written answer. I'll show which step earns each mark." },
       { pose: "think", text: "Keep going with a fresh set. Written answers show me exactly where marks slip." },
     ],
-    // Owner ruling 23 Oct 17:57: Quick Practice lets the student add working IN the session, so
-    // these point to the set's own working box — never to another page.
+    // QP-WORKING-AFTER-1 (owner ruling 23 Oct 23:11, "B"): after the scorecard, working is no longer
+    // graded, so these look FORWARD — working is saved while answering (Ziggy asks on a wrong tap),
+    // and graded at Finish. MCQ working sets the mistake type only, never the mark (CLAUDE.md §13).
     objective: [
-      // MCQ working sets the mistake type only; it is never step-marked (CLAUDE.md §13).
-      { pose: "point", text: "Taps done! Add working to one, and I'll check your method is solid too." },
-      { pose: "explain", text: "Taps show the right option, not why. Add working to one and I'll check your reasoning." },
+      { pose: "point", text: "Taps done! Next time, add working to one as you answer, and I'll check your method too." },
+      { pose: "explain", text: "Taps show the right option, not why. Next time, save working on one and I'll check your reasoning." },
     ],
-    // Owner idea (23 Oct): a wrong tap has no mistake type until working is added. The working is
-    // read for Mistake Intelligence ONLY — the mark never changes (CLAUDE.md §13), and the line says so.
-    // {wrong} reads "1 question wrong" / "3 questions wrong".
+    // {wrong} reads "1 question wrong" / "3 questions wrong". "Show me the first one I missed" now
+    // opens that question's SOLUTION (no working box).
     objectiveWrong: [
-      { pose: "detective", text: "{wrong}. Add working to one and I'll say: concept gap or slip? Your mark won't change." },
-      { pose: "explain", text: "{wrong}. Show me your working for one and I'll find what went wrong. The mark stays as it is." },
+      { pose: "detective", text: "{wrong}. Next time, add working when Ziggy asks. I'll say: concept gap or slip?" },
+      { pose: "explain", text: "{wrong}. Next time Ziggy asks, save your working and I'll find what went wrong." },
     ],
     pending: [
       { pose: "point", text: "First, re-upload the {pending} that couldn't be read. Then your score is complete." },
       { pose: "explain", text: "A clearer photo for {pending} will finish your score. Flat page, good light." },
     ],
     allPending: [
-      { pose: "explain", text: "Read the note below, then send the answers again. I'll mark them step by step." },
+      { pose: "explain", text: "Read the note below, then send the answers again. I'll check every written step." },
       { pose: "think", text: "Check the note below, fix that one thing, and try again. I'll be ready." },
     ],
     awaitingSheet: [
@@ -432,7 +432,8 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
   const z: GuideLine = comfort ?? (delta ? pick(L.ziggy.improved, hz) : pick(L.ziggy[band], hz));
   if (delta) {
     vals.delta = delta.text;
-    vals.prev = v.surface === "full-mock" ? "your last mock" : "your earlier attempt";
+    // A delta is read only on Full Mock and Chapter Test (printedDelta).
+    vals.prev = v.surface === "full-mock" ? "your last mock" : "your last test on this chapter";
   }
   // The scene: COMPANION-1's OWN rule (companionScoreMoment) over whole percentages — the previous
   // result is the card's printed ▲ (both hosts print one only for an equal paper total, so the
@@ -455,12 +456,13 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     if (wrong > 0) {
       byteStep = "objectiveWrong";
       vals.wrong = `${countWithUnit(wrong, "question")} wrong`;
-      // The host's in-page way back to the missed questions (working box); none → no link.
+      // The host's in-page way back to the first missed question's SOLUTION; none → no link.
       cta = typeof v.onShowMissed === "function" ? { label: L.cta.showMissed, action: v.onShowMissed } : null;
     } else {
       byteStep = "objective";
-      // The host's in-page way into the set's review, working box open; none → no link.
-      cta = typeof v.onAddWorking === "function" ? { label: L.cta.addWorking, action: v.onAddWorking } : null;
+      // QP-WORKING-AFTER-1 — no post-scorecard working box any more: the host's action, if it still
+      // passes one, is honoured; the Quick Practice host passes none (the line looks forward).
+      cta = typeof v.onAddWorking === "function" ? { label: L.cta.addWorking, action: v.onAddWorking } : practise;
     }
   } else if (biggest) {
     byteStep = biggest.type;

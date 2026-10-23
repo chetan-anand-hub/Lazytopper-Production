@@ -67,6 +67,7 @@ import { GARBLE_1_WITHHOLD_CATEGORY } from "./garble1Withholds";
 import { PYQ_RESTORE_1_RESTORED_IDS } from "./pyqRestore1Ledger";
 import { PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
 import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
+import { BANK_RESIDUE_1_WITHHELD_IDS } from "./bankResidue1Ledger";
 import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
@@ -370,8 +371,12 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   const GARBLE1_PR3: Record<string, readonly string[]> = Object.fromEntries(
     Object.entries(GARBLE1_PR3_LISTED).map(([c, ids]) => [c, ids.filter((id) => GARBLE_1_WITHHOLD_CATEGORY.has(id))]),
   );
+  // BANK-RESIDUE-1 (2026-10-23): rows withheld for marking-scheme residue that needs the source paper. Read from the ledger by
+  // chapter (never retyped); a row that a later lane re-reads and serves again leaves the ledger's withheld set.
+  const RESIDUE1_BY_CHAPTER: Record<string, string[]> = {};
+  for (const id of BANK_RESIDUE_1_WITHHELD_IDS) (RESIDUE1_BY_CHAPTER[String(bankById.get(id)?.topicKey)] ??= []).push(id);
   const LATER_WITHHOLDS: Record<string, readonly string[]> = Object.fromEntries(
-    [...new Set([...Object.keys(LATER_WITHHOLDS_BASE), ...Object.keys(STEPS1_PAUSED_BY_CHAPTER), ...Object.keys(GARBLE1_PR3)])].map((c) => [c, [...(LATER_WITHHOLDS_BASE[c] ?? []), ...(STEPS1_PAUSED_BY_CHAPTER[c] ?? []), ...(GARBLE1_PR3[c] ?? [])]]),
+    [...new Set([...Object.keys(LATER_WITHHOLDS_BASE), ...Object.keys(STEPS1_PAUSED_BY_CHAPTER), ...Object.keys(GARBLE1_PR3), ...Object.keys(RESIDUE1_BY_CHAPTER)])].map((c) => [c, [...(LATER_WITHHOLDS_BASE[c] ?? []), ...(STEPS1_PAUSED_BY_CHAPTER[c] ?? []), ...(GARBLE1_PR3[c] ?? []), ...(RESIDUE1_BY_CHAPTER[c] ?? [])]]),
   );
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>

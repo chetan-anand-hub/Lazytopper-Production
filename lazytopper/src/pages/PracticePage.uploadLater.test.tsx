@@ -73,6 +73,14 @@ vi.mock("../components/practice/practiceQuestionBuilder", async (importActual) =
 import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
 
+/** QP-WORKING-AFTER-1 — Finish with written questions that have no saved working opens the gate
+ *  first; these flows test what comes AFTER it, so they take its "Skip — show my scorecard". */
+function skipFinishGate() {
+  const skip = screen.queryByTestId("qp-gate-skip");
+  if (skip) fireEvent.click(skip);
+}
+
+
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
 type PQ = import("../data/predictionDataService").PracticeQuestion;
 
@@ -144,7 +152,7 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
     gradeWorksheet.mockResolvedValueOnce(okBatch([1]));
     await buildSet();
     await saveTypedFor(1);
-    fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Finish session/i })); skipFinishGate(); // QP-WORKING-AFTER-1 — past the gate
     fireEvent.click(await screen.findByTestId("qp-grade-batch"));
     await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
     const firstWorksheetId = (gradeWorksheet.mock.calls[0][0] as { worksheetId: string }).worksheetId;
@@ -214,7 +222,7 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
 
   it("★ nothing attempted: the set is kept, but the notice never claims marks went to history (review nit 1)", async () => {
     await buildSet();
-    fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Finish session/i })); skipFinishGate(); // QP-WORKING-AFTER-1 — past the gate
     // FOLLOWUPS-4 A [FU-QP-UPLOAD-LATER-PRETAP-COPY] — nothing attempted ⇒ there are no "marks so
     // far", so the line under the button never claims them.
     await screen.findByTestId("qp-upload-later");
@@ -236,7 +244,7 @@ describe("QP-UPLOAD-LATER · Quick Practice", () => {
   it("★ signed out: Upload later keeps nothing and says so", async () => {
     auth.user = null;
     await buildSet();
-    fireEvent.click(screen.getByRole("button", { name: /Finish session/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Finish session/i })); skipFinishGate(); // QP-WORKING-AFTER-1 — past the gate
     fireEvent.click(await screen.findByTestId("qp-upload-later"));
     expect((await screen.findByTestId("qp-upload-later-notice")).textContent).toContain(
       "Sign in to keep this set and upload your written answers later. Nothing from this set is kept on this device.",

@@ -53,7 +53,7 @@ describe("GUIDE-SCORE-1 · the copy table", () => {
       pending: "12 questions",
       lead: SCORE_GUIDE_LINES.lead.mostMistake, // the longest lead
       wrong: "12 questions wrong",
-      prev: "your earlier attempt",
+      prev: "your last test on this chapter", // the longest {prev}
       chapter: "Quadratic Equations",
     };
     for (const t of allLines()) {
@@ -175,9 +175,11 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     expect(p.situation).toBe("objective-only");
     expect(p.byteStep).toBe("objective");
     expect(p.ziggy.text).toMatch(/5 out of 5/);
-    // Owner ruling 23 Oct 17:57: Quick Practice never sends a student to Check & Improve. With no
-    // in-page action from the host there is no link; with one, Byte's button opens the working box.
-    expect(p.cta).toBeNull();
+    // Owner ruling 23 Oct 17:57: Quick Practice never sends a student to Check & Improve.
+    // QP-WORKING-AFTER-1 (owner 23:11 "B"): no post-scorecard working box — with no host action,
+    // Byte's link is the next practice (where working is saved as you answer).
+    expect(p.cta?.to ?? null).not.toBe("/check-improve");
+    expect(p.cta?.action).toBeUndefined();
     const onAddWorking = () => {};
     const q = scoreGuidePlan(
       base({ surface: "quick-practice", subtitle: "Session scorecard", score: { kind: "attempts", attempted: 5, ofN: 5, mcqAnswered: 5, mcqCorrect: 5 }, onAddWorking }),
@@ -185,8 +187,8 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     expect(q.cta).toEqual({ label: "Add working to one →", action: onAddWorking });
     // §13: MCQ working is read for the mistake type only — never "mark every step".
     for (const l of SCORE_GUIDE_LINES.byte.objective) {
-      expect(l.text).toMatch(/Add working to one/);
-      expect(l.text).not.toMatch(/mark (every|each) step/i);
+      expect(l.text).toMatch(/Next time/); // forward-looking: never a post-scorecard promise
+      expect(l.text).not.toMatch(/mark (every|each) step|step by step/i);
     }
   });
 
@@ -199,7 +201,7 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     for (const p of qpPlans) expect(p.cta?.to ?? null).not.toBe("/check-improve");
   });
 
-  it("★★ objective-only with WRONG taps: the count from the card, 'your mark won't change', the in-page way back", () => {
+  it("★★ objective-only with WRONG taps: the count from the card, a forward-looking line (owner 23:11 'B'), the in-page way back", () => {
     const qp = (over: Partial<ScorecardVariant>) =>
       scoreGuidePlan(
         base({ surface: "quick-practice", subtitle: "Session scorecard", score: { kind: "attempts", attempted: 5, ofN: 5, mcqAnswered: 5, mcqCorrect: 3 }, ...over }),
@@ -209,7 +211,7 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     expect(p.situation).toBe("objective-only");
     expect(p.byteStep).toBe("objectiveWrong");
     expect(p.byte.text).toMatch(/(^|\D)2 questions wrong\./);
-    expect(p.byte.text).toMatch(/mark (won't change|stays as it is)/i);
+    expect(p.byte.text).toMatch(/Next time/);
     expect(p.cta).toBeNull(); // no in-page action from the host → no link (never /check-improve)
     // The MCQ-MARKS hero ("3 / 5") with no missed rows on the card: no count can be read off it
     // (marks are not taps) → today's generic line, never a guessed count.
@@ -221,16 +223,30 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     const onShowMissed = () => {};
     const q = qp({ onShowMissed });
     expect(q.cta).toEqual({ label: "Show me the first one I missed →", action: onShowMissed });
-    // Every objectiveWrong line says the mark does not change (CLAUDE.md §13).
-    for (const l of SCORE_GUIDE_LINES.byte.objectiveWrong) expect(l.text).toMatch(/mark (won't change|stays as it is)/i);
+    // QP-WORKING-AFTER-1 — every objectiveWrong line looks forward (working is saved when Ziggy asks,
+    // graded at Finish); none promises step marks or a post-scorecard check (§13).
+    for (const l of SCORE_GUIDE_LINES.byte.objectiveWrong) {
+      expect(l.text).toMatch(/Next time/);
+      expect(l.text).toMatch(/Ziggy asks/);
+      expect(l.text).not.toMatch(/step by step|mark (each|every) step|show me your working/i);
+    }
   });
 
   it("★ Chapter Test: its own printed ▲ line (since the last same-total test) makes it 'improved'", () => {
     const p = scoreGuidePlan(base({ surface: "chapter-test", subtitle: "CT-M-QE-02", score: { kind: "marks", awarded: 30, total: 40 }, message: "▲ 4 marks since your last Quadratic Equations test" }))!;
     expect(p.situation).toBe("improved");
     expect(p.ziggy.text).toContain("4 marks");
-    expect(p.ziggy.text).toContain("your earlier attempt");
+    // GUIDE-SCORE-2: the comparison is the last test on this chapter (maybe a different paper).
+    expect(p.ziggy.text).toContain("your last test on this chapter");
+    expect(p.ziggy.text).not.toContain("earlier attempt");
     expect(p.scene).toBe("improvement"); // 10 points of 40
+  });
+
+  it("★★ GUIDE-SCORE-2: no line promises step marks for every answer (objective answers score on the answer alone, §13)", () => {
+    for (const t of allLines()) expect(t, t).not.toMatch(/mark (them|it|each|every)\w* step by step/i);
+    expect(SCORE_GUIDE_LINES.byte.allPending.map((l) => l.text)).toContain(
+      "Read the note below, then send the answers again. I'll check every written step.",
+    );
   });
 
   it("★★ improved: ONLY from Full Mock's own printed ▲ delta", () => {

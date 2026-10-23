@@ -337,14 +337,14 @@ describe("GUIDE-SCORE-1 · every one of the six surfaces shows the character, fr
     expect(line()).toContain("9 marks");
   });
 
-  it("★★ Quick Practice tap-only, 2 missed: the count from the card, 'mark won't change'; no host action → no link", async () => {
+  it("★★ Quick Practice tap-only, 2 missed: the count from the card, a forward-looking line; no host action → no link", async () => {
     await open(SURFACES[5].build());
     const g = await screen.findByTestId("score-guide");
     expect(g.getAttribute("data-situation")).toBe("objective-only");
     await wait(SCORE_GUIDE_BEAT_MS + 50);
     expect(screen.getByTestId("score-guide").getAttribute("data-step")).toBe("objectiveWrong");
     expect(line()).toMatch(/(^|\D)2 questions wrong\./);
-    expect(line()).toMatch(/mark (won't change|stays as it is)/i);
+    expect(line()).toMatch(/Next time/); // QP-WORKING-AFTER-1 (owner 23:11 "B")
     expectNumbersPrinted(line());
     expect(screen.queryByTestId("score-guide-cta")).toBeNull(); // never /check-improve from Quick Practice
   }, 10_000);
@@ -374,7 +374,7 @@ describe("GUIDE-SCORE-1 · every one of the six surfaces shows the character, fr
     await screen.findByTestId("score-guide");
     await wait(SCORE_GUIDE_BEAT_MS + 50);
     expect(screen.getByTestId("score-guide").getAttribute("data-step")).toBe("objective");
-    expect(line()).toMatch(/Add working to one/);
+    expect(line()).toMatch(/Next time/); // QP-WORKING-AFTER-1 (owner 23:11 "B")
     const cta = screen.getByTestId("score-guide-cta");
     expect(cta.tagName).toBe("BUTTON");
     expect(cta.textContent).toBe("Add working to one →");

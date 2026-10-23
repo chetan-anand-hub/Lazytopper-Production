@@ -37,6 +37,7 @@ import type { CanonicalQuestion } from "./predictionTypes";
 import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix/bankFix1Pr2Withholds";
 import { RULE5_BIND_1_WITHHOLD_CATEGORY } from "./bankFix/rule5Bind1Withholds"; // RULE5-BIND-1 (11 Oct): its category also feeds the template rule
 import { GARBLE_1_WITHHOLD_CATEGORY } from "./bankFix/garble1Withholds"; // GARBLE-1 (13 Oct): its category also feeds the template rule
+import { BANK_RESIDUE_1_WITHHOLD_CATEGORY } from "./bankFix/bankResidue1Ledger"; // BANK-RESIDUE-1 (23 Oct): residue withholds are "garbled" templates
 import { BANK_FIX_5, type BankFix5Entry } from "./bankFix/bankFix5Ledger";
 import { BANK_STEPS_1 } from "./bankFix/bankSteps1Ledger"; // HIDE8-FIG8-1 Part A: paused WRONG-CHAPTER rows are "misfiled" withheld templates
 import { REFILE_PYQ2026 } from "./bankFix/refilePyq2026Ledger"; // HIDE8-FIG8-1 Part A: misfiled ids must be blocked outcome-R rows
@@ -104,7 +105,7 @@ export const LIMIT_TEMPLATE_REVIEWED: ReadonlySet<string> = new Set(["LTG-M-TRIG
 const templateOf = (q: CanonicalQuestion, ledger: readonly BankFix5Entry[] = BANK_FIX_5): CanonicalQuestion | undefined => {
   const id = String(q.shapedFrom);
   if (BANK_BY_ID.has(id)) return BANK_BY_ID.get(id);
-  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? RULE5_BIND_1_WITHHOLD_CATEGORY.get(id) ?? GARBLE_1_WITHHOLD_CATEGORY.get(id) ?? MISFILED_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
+  const cat = BANK_FIX_1_PR2_WITHHOLD_CATEGORY.get(id) ?? RULE5_BIND_1_WITHHOLD_CATEGORY.get(id) ?? GARBLE_1_WITHHOLD_CATEGORY.get(id) ?? BANK_RESIDUE_1_WITHHOLD_CATEGORY.get(id) ?? MISFILED_WITHHOLD_CATEGORY.get(id) ?? ledger.find((e) => e.id === id && e.verdict === "withheld")?.category;
   const allowed = cat !== undefined && (TEMPLATE_MAY_BE_WITHHELD.has(cat) || (cat === "limit" && LIMIT_TEMPLATE_REVIEWED.has(q.id)) || (cat === "misfiled" && MISFILED_WITHHOLD_CATEGORY.has(id)));
   return allowed && WITHHELD_QUESTION_IDS.has(id) ? RAW_BY_ID.get(id) : undefined;
 };

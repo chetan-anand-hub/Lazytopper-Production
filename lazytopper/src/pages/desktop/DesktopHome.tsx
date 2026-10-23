@@ -7,7 +7,9 @@ import { useTrialEndFeedback } from "../../components/feedback/useTrialEndFeedba
 // Me's paper, Me's split / chapters / concepts and Me's Practise hrefs), loaded on demand.
 import { useMeHome } from "../../services/useMeHomeSummary";
 import ShareWithParentsButton from "../../components/parentReport/ShareWithParentsButton";
-import type { MeHomeSummary, TypeMarks } from "../../services/meHomeSummary";
+import type { TypeMarks } from "../../services/meHomeSummary";
+// MI-CONSISTENCY-1 — the ONE MI card (same selector, scope and figures as the sidebar and phone Home).
+import { MiCardHost } from "../../components/mi/MiCardHost";
 import {
   hasMeaningfulMemory,
   readLandingMemory,
@@ -19,7 +21,7 @@ import {
   PRIMARY_CARDS,
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
-import { MISTAKE_TYPE_LABEL, UNTYPED_MARKS_WHY } from "../../lib/mistakeDisplay";
+import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
@@ -66,8 +68,9 @@ import { CompanionHome } from "../../components/guide/companion/companion";
  *     async API whose date may be `"predicted"` rather than `"official"`, and
  *     students have an existing `hideCountdown` preference. Rendering it here
  *     would add an API dependency AND override that choice.
- *   - Mistake intelligence shows Me/Progress's numbers (MI-HOME-SYNC: services/meHomeSummary,
- *     Me's window, paper, split, chapters and concepts); anonymous / local sessions / nothing on
+ *   - Mistake intelligence is the ONE MI card (MI-CONSISTENCY-1: components/mi/MiCardHost over
+ *     lib/mi/miCardSummary — Me's figures, the same scope and window as the sidebar and phone
+ *     Home); before it, MI-HOME-SYNC (Me's window, paper, split); anonymous / local sessions / nothing on
  *     the table → honest empty state, never invented counts.
  *   - "Latest saved worksheet" never says "score" / "attempt" — saved
  *     worksheets capture the plan, not a graded result.
@@ -176,7 +179,6 @@ function topTypeLabel(typeMarks: TypeMarks | null | undefined): string | null {
   return best ? best.label : null;
 }
 
-const marksWord = (n: number): string => `${n} mark${n === 1 ? "" : "s"}`;
 
 // ── DATE FORMAT (saved-on label) ────────────────────────────────
 function formatSavedOn(iso: string): string | null {
@@ -263,24 +265,6 @@ const HOME_CSS = `
   }
   .lt-home-card .lt-go { margin-top: 11px; font-size: 11.5px; font-weight: 750; }
 
-  .lt-home-mi {
-    background: linear-gradient(168deg, hsl(222,45%,96%), #fff 52%);
-    border: 1px solid hsl(222, 35%, 84%); border-radius: 18px; padding: 18px;
-    position: relative; overflow: hidden; min-width: 0;
-    box-shadow: 0 2px 9px -5px hsla(222, 40%, 30%, 0.2);
-  }
-  .lt-home-mi::before {
-    content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
-    background: linear-gradient(180deg, hsl(222,47%,24%), hsl(222,47%,16%));
-  }
-  .lt-home-bks {
-    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px;
-  }
-  .lt-home-bk { border-radius: 13px; padding: 12px; border: 1px solid; min-width: 0; }
-  .lt-home-bk .lt-n {
-    font-family: ${FONT_DISPLAY}; font-size: 20px; font-weight: 800; line-height: 1.05;
-  }
-  .lt-home-bk .lt-t { font-size: 10.5px; font-weight: 650; margin-top: 3px; opacity: 0.9; }
 
 `;
 
@@ -476,7 +460,7 @@ export default function DesktopHome() {
         {startHere.visible ? null : (
           <FirstSession
             uid={user?.uid ?? null}
-            fallback={<MistakeIntelligenceCard summary={miSummary} />}
+            fallback={<MiCardHost uid={realUid} gen={Number(mistakeLogsHydrated) || 0} returnTo="/" />}
           />
         )}
 
@@ -706,230 +690,6 @@ export default function DesktopHome() {
             papers waiting for answers are the strip at the TOP of this page. */}
       </div>
       {tutorPicker}
-    </div>
-  );
-}
-
-// ── MISTAKE INTELLIGENCE CARD (SPEC §4) ────────────────────────
-//
-// Navy frame + spine, four fixed buckets in the VERBATIM semantic tones of the
-// shipped MistakeIntelligencePanel. Real data only.
-//
-// There is deliberately NO "Ask the tutor about these" CTA. MistakeLogEntry
-// aggregates across many topic/subject values, but buildTutorPath needs exactly
-// ONE subject + ONE topicKey, and `topic` is a display string with no guaranteed
-// slug mapping. There is no single honest destination — adding one would need a
-// disambiguation picker (a new feature) or a guess (dishonest). Omitted.
-//
-// MI-HOME-SYNC — the card shows Me/Progress's numbers, never its own (services/meHomeSummary):
-//   1. no marks on the table in Me (no graded work, or below Me's gate) → today's empty state;
-//   2. marks on the table, none typed (an MCQ pick carries no mistake type) → Me's "<N> marks on
-//      the table", Me's biggest-win chapter and top concept, Me's Practise href, all four tiles
-//      "—" (no type is ever invented) and one honest line pointing at Check & Improve;
-//   3. typed marks → the same, with each tile the MARKS Me's split puts on that type.
-//
-// MI-COPY (owner ask, 16 Oct 2026) — in state 2 the tiles look empty, so the card says why, once:
-// a tap-the-answer pick records the option, not a reason (lib/mistakeDisplay's shared sentence),
-// the "Check a written answer" link is the action, and each tile is muted + dashed with a
-// tooltip saying the same. Display only.
-
-// FOLLOWUPS-4 C [FU-HOME-MI-NOTE-NO-LOSS] — "when you check a written answer" was false for a
-// student who HAS checked written answers that lost nothing; a type fills in only when a checked
-// written answer LOSES marks, which is true in both cases.
-// FOLLOWUPS-5 M — still an overclaim: marks lost only to missing steps carry no type, so a type
-// fills in only when we can NAME the mistake behind the lost marks.
-/** State 2's one explanatory line (the link follows it). */
-export const HOME_MI_UNTYPED_NOTE = `These fill in when we can name the mistake behind marks lost in a checked written answer. ${UNTYPED_MARKS_WHY} We don't guess a mistake type.`;
-/** State 2's tile tooltip. */
-export const HOME_MI_UNTYPED_TILE_TITLE = `Fills in when we can name a mistake in a checked written answer. ${UNTYPED_MARKS_WHY}`;
-
-export function MistakeIntelligenceCard({ summary }: { summary: MeHomeSummary | null }) {
-  const hasData = !!summary && summary.lost > 0;
-  // State 2 — lost marks, no typed mark behind them (exactly when the "why" line showed before).
-  const untyped = hasData && !summary.hasTyped;
-  const typeMarks = hasData ? summary.typeMarks : null;
-  const topConcept = hasData ? summary.concepts[0] ?? null : null;
-  const practisePath = hasData
-    ? summary.topChapter?.practisePath ?? topConcept?.practisePath ?? `/practice-hub${HOME_QS_LEAD}`
-    : `/practice-hub${HOME_QS_LEAD}`;
-  return (
-    <div className="lt-home-mi" data-testid="home-mi-card" data-state={!hasData ? "empty" : summary.hasTyped ? "typed" : "untyped"}>
-      <p
-        style={{
-          fontSize: 9.5,
-          fontWeight: 800,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: PRIMARY,
-          opacity: 0.8,
-          margin: "0 0 5px",
-        }}
-      >
-        Mistake Intelligence
-      </p>
-      <h3
-        style={{
-          fontFamily: FONT_DISPLAY,
-          margin: "0 0 3px",
-          fontSize: 16,
-          fontWeight: 700,
-          color: "hsl(222, 47%, 16%)",
-        }}
-      >
-        {hasData ? (
-          <span data-testid="home-mi-lost">{`${marksWord(summary.lost)} on the table`}</span>
-        ) : (
-          "Your mistake patterns will show here"
-        )}
-      </h3>
-      <p style={{ margin: "0 0 14px", fontSize: 12, color: TEXT_MUTED }}>
-        {hasData
-          ? `Your ${summary.paper} paper, the last month · the same figures as Me / Progress`
-          : "Built from your real attempts — never guessed."}
-      </p>
-
-      {hasData && (summary.topChapter || topConcept) ? (
-        <div style={{ margin: "0 0 14px", fontSize: 12.5, color: TEXT, lineHeight: 1.6 }}>
-          {summary.topChapter ? (
-            <div data-testid="home-mi-top-chapter">
-              <span style={{ fontWeight: 700 }}>Your biggest win:</span>{" "}
-              {summary.topChapter.label}, {marksWord(summary.topChapter.lost)} on the table
-            </div>
-          ) : null}
-          {topConcept ? (
-            <div data-testid="home-mi-top-concept">
-              <span style={{ fontWeight: 700 }}>Top concept:</span> {topConcept.label} ·{" "}
-              {marksWord(topConcept.lost)}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      <div className="lt-home-bks">
-        {MI_BUCKETS.map((b) => (
-          <div
-            key={b.key}
-            className="lt-home-bk"
-            data-testid="home-mi-bucket"
-            data-type={b.key}
-            data-empty={untyped ? "true" : undefined}
-            title={untyped ? HOME_MI_UNTYPED_TILE_TITLE : undefined}
-            style={
-              untyped
-                ? { background: b.bg, color: b.fg, borderColor: b.border, borderStyle: "dashed", opacity: 0.75 }
-                : { background: b.bg, color: b.fg, borderColor: b.border }
-            }
-          >
-            <div className="lt-n" style={{ opacity: typeMarks && typeMarks[b.key] > 0 ? 1 : 0.4 }}>
-              {typeMarks && typeMarks[b.key] > 0 ? typeMarks[b.key] : "—"}
-            </div>
-            <div className="lt-t">
-              {b.label}
-              {typeMarks && typeMarks[b.key] > 0 ? ` · ${typeMarks[b.key] === 1 ? "mark" : "marks"}` : ""}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {untyped ? (
-        <p style={{ margin: "12px 0 0", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.55 }} data-testid="home-mi-why">
-          <span data-testid="home-mi-untyped-note">{HOME_MI_UNTYPED_NOTE}</span>{" "}
-          <Link
-            to={`/check-improve${HOME_QS_LEAD}`}
-            data-testid="home-mi-check"
-            style={{ color: PRIMARY, fontWeight: 700, textDecoration: "underline" }}
-          >
-            Check a written answer to see why you lose them
-          </Link>
-        </p>
-      ) : null}
-
-      {hasData ? (
-        <div
-          style={{
-            marginTop: 14,
-            display: "flex",
-            gap: 10,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          {/* MI-HOME-SYNC — Me's own Practise href for its biggest win (else its top concept). */}
-          <Link
-            to={practisePath}
-            data-testid="home-mi-practise"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "10px 15px",
-              borderRadius: 12,
-              background: `linear-gradient(140deg, ${PRIMARY}, hsl(222,47%,16%))`,
-              color: "#fff",
-              textDecoration: "none",
-              fontSize: 12.5,
-              fontWeight: 700,
-              boxShadow: "0 4px 12px -5px hsla(222, 47%, 20%, 0.55)",
-            }}
-          >
-            <TargetIcon size={13} /> Practise
-            {summary.topChapter ? ` ${summary.topChapter.label}` : topConcept ? ` ${topConcept.label}` : ""}
-          </Link>
-          <Link
-            to={`/me${HOME_QS_LEAD}`}
-            data-testid="home-mi-breakdown"
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: PRIMARY,
-              textDecoration: "none",
-              borderBottom: "1px solid hsl(222, 35%, 84%)",
-              paddingBottom: 1,
-            }}
-          >
-            Full breakdown in Me / Progress →
-          </Link>
-        </div>
-      ) : (
-        <>
-          <div
-            style={{
-              marginTop: 13,
-              background: CARD_BG,
-              border: "1px dashed hsl(222, 35%, 84%)",
-              borderRadius: 12,
-              padding: "11px 13px",
-              fontSize: 12,
-              color: "hsl(222, 47%, 16%)",
-              lineHeight: 1.55,
-              textAlign: "center",
-            }}
-          >
-            Practise a set to see your mistakes.
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <Link
-              to={`/practice-hub${HOME_QS_LEAD}`}
-              data-testid="home-mi-first-set"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "10px 15px",
-                borderRadius: 12,
-                background: `linear-gradient(140deg, ${PRIMARY}, hsl(222,47%,16%))`,
-                color: "#fff",
-                textDecoration: "none",
-                fontSize: 12.5,
-                fontWeight: 700,
-                boxShadow: "0 4px 12px -5px hsla(222, 47%, 20%, 0.55)",
-              }}
-            >
-              Practise my first set <ArrowRightIcon size={13} />
-            </Link>
-          </div>
-        </>
-      )}
     </div>
   );
 }
