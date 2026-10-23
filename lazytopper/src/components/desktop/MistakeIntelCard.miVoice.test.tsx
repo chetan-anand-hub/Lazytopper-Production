@@ -79,7 +79,8 @@ function renderCard(arm: GuideVariant | "off") {
 
 /** Wait until the card has left its loading line. */
 async function settled(): Promise<void> {
-  await waitFor(() => expect(screen.queryByText(/Looking for recent mistake patterns/)).toBeNull());
+  // MI-CONSISTENCY-1 — the card is now THE ONE MI card (components/mi/MiCard); its loading line.
+  await waitFor(() => expect(screen.queryByText(/Looking for your mistake patterns/)).toBeNull());
 }
 
 /**
@@ -218,9 +219,10 @@ describe("MI-VOICE-1 · guide arm — each state's pose and line, above the card
       expect(row.getAttribute("data-pose")).toBe(c.pose);
       expect(screen.getByTestId("mi-voice-line").textContent).toBe(c.line);
 
-      // ABOVE the card's existing text: the row precedes every body paragraph and link.
+      // ABOVE the card's existing text: the row precedes every body paragraph and link (only the
+      // card's kicker heading sits above it — MI-CONSISTENCY-1, the ONE MI card's layout).
       const card = container.firstElementChild!;
-      const body = [...card.querySelectorAll("p, a")].filter((el) => !row.contains(el));
+      const body = [...card.querySelectorAll("p, a")].filter((el) => !row.contains(el) && !el.classList.contains("lt-micard__kicker"));
       expect(body.length).toBeGreaterThan(0);
       for (const el of body) expect(row.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
