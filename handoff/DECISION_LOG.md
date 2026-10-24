@@ -1,3 +1,22 @@
+## 2026-10-24 (daily, part 4) - #1347 - #1348 (2 product merges after #1346, 24 Oct IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The owner rulings (24 Oct evening, binding) and the cofounder rulings relayed by the cofounder **[coordinator]**, with the lane's own reasoning where the squash message on trunk records it **[git/gh]**. Where no reason was given, none is invented.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner, 24 Oct 2026 18:23 IST **[coordinator]**: **Check & Improve friction must be softened** | the opening request behind CI-SOFT-1 | no reason was given in the message beyond the friction itself; the measured baseline is 1 real check / 57 sign-ups (24 Oct) [coordinator] |
+| owner, 18:50 IST **[coordinator]**: **tap a board question -> show a generated handwritten solution with obvious mistakes, told to the student, graded -> "yes to all four"** | the sample is OURS and labelled; it uses the free check only when the student checks their own answer; it targets the ad-arrival audience; the replay is a fixed animation, not an AI call | the owner's ruling; the squash message records "display only: ... no grader call, no AI call" [git/gh] |
+| owner, 18:56 IST **[coordinator]**: **design "v2" approved** | the card design built in `#1347` | the owner's ruling |
+| owner, 19:06 IST **[coordinator]**: **"refer to scorecards"** | the result reuses the product's real marks block (`MarksLostLines` with `heading={false}` under our own "Where the marks went", squash N2 [git/gh]) | so the sample looks like what the student will really get; our own heading because it is a sample, not theirs (squash message N2) |
+| owner, 19:52 IST **[coordinator]**: **merge after an independent review**; 19:53 IST: **full approvals while away** | both PRs were reviewed by a fresh reviewer, then merged by the cofounder | the owner's ruling; the daily docs PR's self-merge was granted at 18:31 IST (lane spec) |
+| owner, 19:52 IST **[coordinator]**: **"git is public"** | the repo is public at writing (`private: false` [git/gh]); the 16:23 IST "go PRIVATE once all PRs merge" ruling (DECISION_LOG, part 3) is not carried out and is not recorded as done | no reason was given in the message; recorded as stated |
+| owner / cofounder **[coordinator]**: **the "send ad sign-ups to Home" idea stays HELD** | CI-SOFT-1 wants ad sign-ups on Check & Improve | the card is built for them to land there |
+| cofounder ruling **[coordinator]**: **self-host Kalam** | Kalam 400 / 700 latin woff2 + OFL in `lazytopper/public/fonts/kalam/`, declared in `ciDemo.css`; the Google Fonts link is removed | a Google Fonts request would send student IPs to Google and make the card a third-party request (squash message FONT [git/gh] records the change; the reason is the coordinator's) |
+| cofounder ruling **[coordinator]**: **shared-link visitors stay in the audience; other Byte moments (M4, M9) stand down while the card shows** | one Byte at most on the page | review round 1 found two Bytes via a shared link (S2, squash message [git/gh]) |
+| cofounder ruling **[coordinator]**: **organic first-landers on `/check-improve` are in the audience** | not only `utm_campaign=yt_students` | the page is `noindex` and the intent is the same |
+| `#1347` [git/gh]: **a real result or grade closes the card for the tab for good** | the closed key `lazytopper.ciDemoClosed` is written (review S1); it is a tab-scoped sessionStorage key registered in `studentDataMap.ts` | so the sample card cannot return after a student has had a real grade |
+| `#1348` [git/gh]: **after the card closes, Start-here renders without its full-screen focus surface for that tab** | accepted trade-off `[FU-CIDEMO-CLOSED-TAB-SCOPE]`: it also holds after a sign-up in the same tab | the card's own audience was meant to see one surface, not the sample card and then a full-screen Byte |
+
 ## 2026-10-24 (daily, part 3) - #1345 (1 product merge after #1344, 24 Oct IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner ruling relayed by the cofounder **[coordinator]**, with the lane's own reasoning where the PR body or squash message on trunk records it **[git/gh]**. Where no reason was given, none is invented.

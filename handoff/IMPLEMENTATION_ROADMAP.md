@@ -1,3 +1,10 @@
+## 2026-10-24 (daily, part 4) - CI-SOFT-1 (`#1347`), CI-SOFT-1b (`#1348`) - MERGED
+
+- DONE. `#1347` (`8f910775`): CI-SOFT-1 - on `/check-improve`, an ad-arrival visitor who has not checked an answer picks one of three real CBSE board questions and watches a labelled sample answer get marked step by step; no grader or AI call. NEXT: owner live checks (new sign-up from the ad URL on a phone; iPhone keyboard), then MEASURE after about a week (`[FU-CIDEMO-MEASURE]`).
+- DONE. `#1348` (`8f8b0a5a`): CI-SOFT-1b - no full-screen Byte after the sample card closes in a tab; dead CSS removed; scoped answer ref. NEXT: `[FU-CIDEMO-AUTOCLOSE-TEST]`, `[FU-CIDEMO-CSS-HYGIENE-TEST]`; the signed-in zero-graded path is not live-checked (`[FU-CIDEMO-SIGNEDIN-LIVE]`).
+- IN FLIGHT: no product PR open at writing [git/gh] (only the report-only audits `#960`, `#963`). The "go PRIVATE once all PRs merge" ruling of 16:23 IST is not carried out: the repo reads public and the owner said "git is public" at 19:52 IST [coordinator]. HELD: sending ad sign-ups to Home.
+- OPEN. The 2026-10-24 (daily, part 4) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-24 (daily, part 3) - FEEDBACK-NUDGE-1 (`#1345`) - MERGED
 
 - DONE. `#1345` (`01376a2c`): FEEDBACK-NUDGE-1 - the paywall / trial-end "help us improve" card slides up, gets a silent Ziggy when the mascot budget allows, and uses a compact layout under 400 px wide or 700 px tall. Moved from IN FLIGHT (part 2 block) to merged. NEXT: owner live check (close the upgrade sheet on a real phone), `[FU-NUDGE-HOST-ZIGGY-TEST]`, `[FU-VIEWPORT-FIT-COVER]`, `[FU-NUDGE-LANDSCAPE]`, `[FU-NUDGE-STALE-COMMENT]`.
