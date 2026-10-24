@@ -104,19 +104,6 @@ describe("FEEDBACK-2 card · one character on screen at a time", () => {
     expect(screen.getByTestId("feedback-prompt").getAttribute("data-ziggy")).toBe("1");
     other.remove();
   });
-
-  it("the budget is told once, when Ziggy is actually drawn — never for a plain card", () => {
-    const shown = vi.fn();
-    const base = { onAnswer: vi.fn(), onDismiss: vi.fn(), onDone: vi.fn(), onNext: vi.fn(), onSaveNote: vi.fn() };
-    render(<FeedbackPrompt moment="after_graded" flow={makeCtx()} withZiggy onZiggyShown={shown} {...base} />);
-    tap("feedback-opt-yes");
-    tap("feedback-close");
-    expect(shown).toHaveBeenCalledTimes(1);
-    cleanup();
-    const plain = vi.fn();
-    render(<FeedbackPrompt moment="after_graded" flow={makeCtx()} withZiggy={false} onZiggyShown={plain} {...base} />);
-    expect(plain).not.toHaveBeenCalled();
-  });
 });
 
 describe("FEEDBACK-2 card · step 2 (every answer leads somewhere)", () => {

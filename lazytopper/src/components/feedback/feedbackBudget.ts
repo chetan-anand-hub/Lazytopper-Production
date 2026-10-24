@@ -1,29 +1,27 @@
 /**
- * feedbackBudget — the ONE place FEEDBACK-2 asks "may a mascot appear for this card right now?".
+ * feedbackBudget - the ONE place FEEDBACK-2's card talks to the mascot director
+ * (`components/guide/mascotBudget.ts`, MOMENTS-3; owner H3: at most 3 UNPROMPTED mascot appearances
+ * per browser session).
  *
- * The owner's H3 rule (mascot guide, approved 23 Oct 2026): at most 3 UNPROMPTED mascot appearances
- * per session. The director that counts them is MOMENTS-3's `components/guide/mascotBudget.ts`
- * (`requestAppearance` / `noteShown`), which is not on this branch's trunk yet. Rather than wait for
- * it or build a second counter, the card talks to THIS tiny adapter only, so wiring the real budget
- * later is a five-line change in this file and nothing else moves.
+ * The "Was this useful?" card is an UNPROMPTED appearance at SCORECARD priority. The budget limits the
+ * CHARACTER, never the QUESTION: with no slot left the same card, words and buttons show PLAIN.
  *
- *   feedbackMayAppear()  — may the card appear (with Ziggy) now? Called BEFORE the device record is
- *                          claimed, so a "no" costs the student nothing (the ask can come later).
- *   noteFeedbackShown()  — the card appeared WITH Ziggy. Called once, after it rendered. A card shown
- *                          plain (mascots hidden, or another mascot already on screen) is not a mascot
- *                          appearance and is never noted.
- *
- * TODO(MOMENTS-3): replace the two bodies with `requestAppearance(...)` / `noteShown(...)` from
- * ../guide/mascotBudget once PR #1341 has merged (feedback card = an UNPROMPTED appearance at
- * scorecard priority). Until then the budget is not enforced here: both functions are no-ops.
+ *   useFeedbackAppearance(wanted)  reserves a slot while `wanted` (before paint) and gives it back on
+ *                                  unmount or when no longer wanted. Returns the appearance KEY once the
+ *                                  reservation is confirmed (draw Ziggy only then), else null. Hidden
+ *                                  mascots -> always null, nothing counted. StrictMode's double mount
+ *                                  keeps ONE occurrence, so it never counts twice.
+ *   FeedbackShownNote              render-nothing sibling placed INSIDE the Suspense around Ziggy's
+ *                                  drawing: its effect runs only once he has actually committed, and it
+ *                                  spends the slot the key holds (a refused door can never spend).
  */
+import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "../guide/mascotBudget";
 
-/** TODO(MOMENTS-3): ask the shared director. Today: always yes. */
-export function feedbackMayAppear(): boolean {
-  return true;
+/** The kind recorded in this tab's budget list (a kind name only - no uid, no mark). */
+export const FEEDBACK_APPEARANCE_KIND = "feedback:graded";
+
+export function useFeedbackAppearance(wanted: boolean): string | null {
+  return useAppearance(wanted ? FEEDBACK_APPEARANCE_KIND : null, APPEARANCE_PRIORITY.scorecard);
 }
 
-/** TODO(MOMENTS-3): tell the shared director a mascot appeared. Today: nothing. */
-export function noteFeedbackShown(): void {
-  /* intentionally empty until MOMENTS-3 lands */
-}
+export const FeedbackShownNote = NoteShown;

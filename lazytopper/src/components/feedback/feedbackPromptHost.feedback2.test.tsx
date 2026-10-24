@@ -8,10 +8,6 @@ vi.mock("../../analytics/analytics", () => ({ trackFeedbackEvent }));
 const auth = vi.hoisted(() => ({ currentUser: null as null | { uid: string; isAnonymous?: boolean } }));
 vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
-// The H3 budget adapter, driven by the tests (the real one is a no-op until MOMENTS-3 lands).
-const budget = vi.hoisted(() => ({ may: vi.fn(() => true), noted: vi.fn() }));
-vi.mock("./feedbackBudget", () => ({ feedbackMayAppear: budget.may, noteFeedbackShown: budget.noted }));
-
 // The server read behind "has this account ever had a written answer graded?".
 const cloudWritten = vi.hoisted(() => ({ fn: vi.fn(async (_uid: string): Promise<boolean | null> => false) }));
 vi.mock("../guide/moments/writtenGradedCloud", async (orig) => ({
@@ -35,6 +31,15 @@ import { AFTER_GRADED_COOLDOWN_MS, feedbackStorageKey } from "./feedbackPromptMo
 import { FIRST_GRADED_DELAY_MS } from "./useFirstGradedFeedback";
 import { MASCOTS_HIDDEN_KEY } from "../guide/mascotsMute";
 import { __resetMascotHostsForTests, noteMascotHost } from "../guide/mascotPresence";
+import {
+  __resetMascotBudgetForTests,
+  __setMascotBudgetForTests,
+  noteShown,
+  requestAppearance,
+  unpromptedShownCount,
+} from "../guide/mascotBudget";
+import { FeedbackPrompt } from "./FeedbackPrompt";
+import { StrictMode } from "react";
 import ResultsScorecard from "../results/ResultsScorecard";
 import type { ScorecardVariant } from "../results/scorecardVariants";
 import type { GradedFeedbackContextInput } from "./gradedFeedbackFlow";
@@ -110,8 +115,8 @@ beforeEach(() => {
   window.localStorage.clear();
   window.sessionStorage.clear();
   trackFeedbackEvent.mockClear();
-  budget.may.mockReset().mockReturnValue(true);
-  budget.noted.mockClear();
+  __resetMascotBudgetForTests();
+  __setMascotBudgetForTests(true); // the REAL director (MOMENTS-3), switched on for these suites
   cloudWritten.fn.mockReset().mockResolvedValue(false);
   saveNote.fn.mockClear();
   auth.currentUser = null;
@@ -121,6 +126,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  __resetMascotBudgetForTests();
   act(() => __resetFeedbackHostForTests());
   vi.useRealTimers();
   vi.restoreAllMocks();
@@ -225,34 +231,84 @@ describe("FEEDBACK-2 · when it is asked", () => {
   });
 });
 
-describe("FEEDBACK-2 · H3: at most 3 unprompted mascot appearances per session", () => {
-  it("the fourth appearance is blocked — and costs the student nothing (nothing is claimed)", async () => {
-    let appearances = 0;
-    budget.may.mockImplementation(() => appearances < 3);
-    budget.noted.mockImplementation(() => void (appearances += 1));
-    const shown: boolean[] = [];
-    for (const uid of ["a1", "a2", "a3", "a4"]) {
-      seedFirst(uid);
-      await act(async () => {
-        shown.push(await requestFeedbackPrompt("first_graded", { uid, graded: flowInput() }));
-      });
-      cleanup();
-      act(() => __resetFeedbackHostForTests());
-    }
-    expect(shown).toEqual([true, true, true, false]);
-    expect(budget.noted).toHaveBeenCalledTimes(3);
-    expect(window.localStorage.getItem(feedbackStorageKey("a4"))).toBeNull(); // may be asked later
+/** Spend `n` of the session's 3 unprompted slots on other appearances. */
+function spendSlots(n: number): void {
+  for (let i = 0; i < n; i += 1) {
+    const key = `moment:m${i}#${i}`;
+    requestAppearance(key, 200);
+    noteShown(key);
+  }
+}
+
+describe("FEEDBACK-2 · H3 (the real MOMENTS-3 budget): the character is limited, the question never is", () => {
+  it("with a slot free, Ziggy draws and EXACTLY ONE slot is spent", async () => {
+    seedLater("u1");
+    expect(await ask("u1")).toBe(true);
+    expect(card()?.getAttribute("data-ziggy")).toBe("1");
+    expect(await screen.findByTestId("fb-ziggy")).toBeInTheDocument();
+    expect(unpromptedShownCount()).toBe(1);
+    await tap("feedback-opt-yes"); // moving between steps re-draws him: still one slot
+    await tap("feedback-close");
+    expect(unpromptedShownCount()).toBe(1);
   });
 
-  it("hidden mascots: the plain card with the same flow, not a mascot, not counted, and the budget is not even consulted", async () => {
-    window.localStorage.setItem(MASCOTS_HIDDEN_KEY, "1");
-    budget.may.mockReturnValue(false); // an exhausted budget does not stop a plain card
+  it("with the budget spent, the card shows PLAIN with the same flow, is still asked and claimed, and spends nothing", async () => {
+    spendSlots(3);
     seedLater("u1");
     expect(await ask("u1")).toBe(true);
     expect(card()?.getAttribute("data-ziggy")).toBe("0");
     expect(screen.queryByTestId("fb-ziggy")).toBeNull();
-    expect(budget.may).not.toHaveBeenCalled();
-    expect(budget.noted).not.toHaveBeenCalled();
+    expect(unpromptedShownCount()).toBe(3);
+    await tap("feedback-opt-too_easy"); // the same flow, the same buttons
+    expect(screen.getByTestId("feedback-go-harder")).toBeInTheDocument();
+    expect(window.localStorage.getItem(feedbackStorageKey("u1"))).not.toBeNull(); // asked: claimed on the device
+  });
+
+  it("three cards in a session draw Ziggy; the fourth appearance is plain but still asks", async () => {
+    const drew: Array<string | null | undefined> = [];
+    for (const uid of ["a1", "a2", "a3", "a4"]) {
+      seedFirst(uid);
+      await act(async () => {
+        expect(await requestFeedbackPrompt("first_graded", { uid, graded: flowInput() })).toBe(true);
+      });
+      if (card()?.getAttribute("data-ziggy") === "1") await screen.findByTestId("fb-ziggy");
+      drew.push(card()?.getAttribute("data-ziggy"));
+      cleanup();
+      act(() => __resetFeedbackHostForTests());
+    }
+    expect(drew).toEqual(["1", "1", "1", "0"]);
+    expect(unpromptedShownCount()).toBe(3);
+  });
+
+  it("closing the card after Ziggy drew leaves exactly the one spent slot, and nothing reserved behind it", async () => {
+    const base = { onAnswer: vi.fn(), onDismiss: vi.fn(), onDone: vi.fn(), onNext: vi.fn(), onSaveNote: vi.fn() };
+    const view = render(<FeedbackPrompt moment="after_graded" flow={flowInput() as never} withZiggy {...base} />);
+    await screen.findByTestId("fb-ziggy");
+    view.unmount();
+    expect(unpromptedShownCount()).toBe(1);
+    // two slots remain for others: a leaked reservation would refuse the third request
+    expect(["a#1", "b#2"].map((k) => requestAppearance(k, 200))).toEqual([true, true]);
+    // (a reservation released BEFORE drawing is pinned by components/guide/mascotBudget.test.tsx)
+  });
+
+  it("StrictMode's double mount does not double-count", async () => {
+    const base = { onAnswer: vi.fn(), onDismiss: vi.fn(), onDone: vi.fn(), onNext: vi.fn(), onSaveNote: vi.fn() };
+    render(
+      <StrictMode>
+        <FeedbackPrompt moment="after_graded" flow={flowInput() as never} withZiggy {...base} />
+      </StrictMode>,
+    );
+    expect(await screen.findByTestId("fb-ziggy")).toBeInTheDocument();
+    expect(unpromptedShownCount()).toBe(1);
+  });
+
+  it("hidden mascots: the plain card with the same flow, not a mascot, not counted", async () => {
+    window.localStorage.setItem(MASCOTS_HIDDEN_KEY, "1");
+    seedLater("u1");
+    expect(await ask("u1")).toBe(true);
+    expect(card()?.getAttribute("data-ziggy")).toBe("0");
+    expect(screen.queryByTestId("fb-ziggy")).toBeNull();
+    expect(unpromptedShownCount()).toBe(0);
     await tap("feedback-opt-too_easy"); // the same flow
     expect(screen.getByTestId("feedback-go-harder")).toBeInTheDocument();
   });
@@ -264,16 +320,8 @@ describe("FEEDBACK-2 · H3: at most 3 unprompted mascot appearances per session"
     seedLater("u1");
     expect(await ask("u1")).toBe(true);
     expect(card()?.getAttribute("data-ziggy")).toBe("0");
-    expect(budget.noted).not.toHaveBeenCalled();
+    expect(unpromptedShownCount()).toBe(0);
     host.remove();
-  });
-
-  it("control: with mascots shown, the budget allowing and nothing else on screen, Ziggy is drawn and counted once", async () => {
-    seedLater("u1");
-    expect(await ask("u1")).toBe(true);
-    expect(card()?.getAttribute("data-ziggy")).toBe("1");
-    expect(await screen.findByTestId("fb-ziggy")).toBeInTheDocument();
-    expect(budget.noted).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -16,7 +16,7 @@
  *   the same flow as a plain card: the same words, the same buttons, no character. Even when he is
  *   drawn he steps aside the instant ANOTHER mascot appears (the scorecard's own Ziggy / Byte, which
  *   load lazily and may arrive after this card) - one character on screen at a time (COMPANION-1,
- *   guide/mascotPresence.ts). The H3 budget is told only when he is actually drawn (`onZiggyShown`).
+ *   guide/mascotPresence.ts). The H3 budget (feedbackBudget.ts) reserves a slot, and spends it only when he is actually drawn.
  * ★ NO `style={{}}`: a `<style>` block and class names. Targets >= 44 px. On a phone (< 1024 px) it is
  *   drawn IN FLOW at the end of the scorecard sheet (the scorecard's `data-lt-feedback-slot`, below its
  *   buttons) so it can never cover them; with no slot it falls back to a fixed bottom sheet of at most 50%
@@ -29,6 +29,7 @@ import { Suspense, lazy, useEffect, useRef, useState, useSyncExternalStore } fro
 import { createPortal } from "react-dom";
 import { anyMascotHost, mascotHostsVersion, subscribeMascotHosts } from "../guide/mascotPresence";
 import { isSidebarMascot } from "./feedbackMascots";
+import { FeedbackShownNote, useFeedbackAppearance } from "./feedbackBudget";
 import {
   FIRST_GRADED_ANSWERS,
   FIRST_GRADED_COPY,
@@ -227,13 +228,11 @@ export interface GradedFeedbackCardProps {
   onSaveNote: (kind: "marks" | "other", text: string) => Promise<boolean>;
   /** The card should be removed. */
   onDone: () => void;
-  /** Ziggy was actually drawn (once): the host tells the mascot budget. Never called for a plain card. */
-  onZiggyShown?: () => void;
   /** The card is naming where to tap on the page the scorecard opened, so it outlives that scorecard briefly. */
   onHandOff?: () => void;
 }
 
-export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss, onNext, onSaveNote, onDone, onZiggyShown, onHandOff }: GradedFeedbackCardProps) {
+export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss, onNext, onSaveNote, onDone, onHandOff }: GradedFeedbackCardProps) {
   const [step, setStep] = useState<Step>({ t: "ask" });
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -360,17 +359,17 @@ export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss
   // One character on screen at a time: Ziggy steps aside while a mascot that is NOT his own is drawn.
   useSyncExternalStore(subscribeMascotHosts, mascotHostsVersion, mascotHostsVersion);
   const othersPresent = anyMascotHost((el) => !root.current?.contains(el) && !isSidebarMascot(el));
-  const showZiggy = withZiggy && !othersPresent && step.t !== "note";
-  const ziggyNoted = useRef(false);
-  useEffect(() => {
-    if (!showZiggy || ziggyNoted.current) return;
-    ziggyNoted.current = true;
-    onZiggyShown?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showZiggy]);
+  // The H3 budget (MOMENTS-3) limits the CHARACTER, never the question: a slot is reserved while Ziggy is
+  // wanted, he is drawn only once it is confirmed, the slot is spent when his drawing has committed
+  // (FeedbackShownNote, inside the Suspense) and is given back on unmount. No slot left -> the same
+  // card, plain. Hidden mascots -> plain, nothing counted.
+  const wantsZiggy = withZiggy && !othersPresent && step.t !== "note";
+  const budgetKey = useFeedbackAppearance(wantsZiggy);
+  const showZiggy = wantsZiggy && budgetKey !== null;
   const ziggy = showZiggy ? (
     <Suspense fallback={<span className="lt-fbg__z" aria-hidden="true" />}>
       <FeedbackZiggy />
+      <FeedbackShownNote kind={budgetKey} />
     </Suspense>
   ) : null;
 

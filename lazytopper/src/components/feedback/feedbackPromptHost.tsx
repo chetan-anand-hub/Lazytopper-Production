@@ -20,7 +20,7 @@
  * FEEDBACK-2: after the first ask, "Was this useful?" returns as `after_graded` on a LATER graded result
  * (`firstResultState` = "not_first"): at most once per 7 days per student per device (the device
  * record, claimFeedbackMoment), never twice in one browser session (a this-tab flag), never while a
- * card is open, and only when the mascot budget allows it (feedbackBudget.ts). The scorecard hands in
+ * card is open, and, if the mascot budget has no slot left, as a PLAIN card (feedbackBudget.ts: the budget limits the character, not the question). The scorecard hands in
  * a context (`GradedFeedbackContextInput`: the router's navigate and the result's chapter / tutor hop),
  * so every answer can lead to a real page; the card itself has no router.
  * Every step is wrapped: nothing here can throw into the page that asked.
@@ -33,7 +33,6 @@ import { anyMascotHost } from "../guide/mascotPresence";
 import { isSidebarMascot } from "./feedbackMascots";
 import { mascotsHidden } from "../guide/mascotsMute";
 import { FeedbackPrompt } from "./FeedbackPrompt";
-import { feedbackMayAppear, noteFeedbackShown } from "./feedbackBudget";
 import { saveFeedbackNote } from "./feedbackNotes";
 import {
   FIRST_GRADED_MOMENT,
@@ -147,7 +146,7 @@ export function dismissFeedbackPromptFor(owner: object): void {
 /** Render the card for `moment`. Exported for tests; callers use requestFeedbackPrompt. */
 export function renderFeedbackPrompt(
   moment: FeedbackMoment,
-  opts: { flow?: GradedFeedbackContext | null; withZiggy?: boolean; uid?: string | null; onZiggyShown?: () => void } = {},
+  opts: { flow?: GradedFeedbackContext | null; withZiggy?: boolean; uid?: string | null } = {},
 ): void {
   if (typeof document === "undefined" || mounted) return;
   const el = document.createElement("div");
@@ -183,7 +182,6 @@ export function renderFeedbackPrompt(
         // The card is staying a moment past its scorecard (it is naming where to tap): do not remove it with that scorecard.
         if (mounted && mounted.root === root) mounted.handedOff = true;
       }}
-      onZiggyShown={opts.onZiggyShown}
     />,
   );
   trackFeedbackEvent("shown", moment);
@@ -223,7 +221,6 @@ export async function requestFeedbackPrompt(moment: FeedbackMoment, req: Feedbac
     let flow: GradedFeedbackContext | null = null;
     if (graded) {
       const hidden = mascotsHidden();
-      if (!hidden && !feedbackMayAppear()) return false;
       // Another mascot on screen (the scorecard's own Ziggy / Byte) -> a plain card, which is better than not
       // asking. The sidebar's always-on voice row does not count.
       withZiggy = !hidden && !anyMascotHost((el) => !isSidebarMascot(el));
@@ -240,7 +237,7 @@ export async function requestFeedbackPrompt(moment: FeedbackMoment, req: Feedbac
     if (graded) markGradedAskedThisSession();
     // The budget is told when Ziggy is actually DRAWN (the card calls back once), not when it is asked for:
     // he steps aside if another mascot turns up, and then nothing was spent.
-    renderFeedbackPrompt(moment, { flow, withZiggy, uid, onZiggyShown: noteFeedbackShown });
+    renderFeedbackPrompt(moment, { flow, withZiggy, uid });
     return true;
   } catch {
     return false;
