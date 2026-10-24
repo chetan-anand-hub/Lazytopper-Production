@@ -29,6 +29,15 @@ function readVisit(): { landing: string | null; utmContent: string | null; utmCa
   }
 }
 
+/**
+ * CI-SOFT-1 — the landing record of THIS TAB (read-only): the same read the guide uses, so the
+ * Check & Improve sample card can tell an ad arrival. All-null when absent or storage is blocked.
+ */
+export function readVisitLanding(): { landing: string | null; utmCampaign: string | null } {
+  const v = readVisit();
+  return { landing: v.landing, utmCampaign: v.utmCampaign };
+}
+
 export function guideIntentInput(surface: GuideSurface): IntentInput {
   const hint = readSubjectHint();
   return { ...readVisit(), subjectHint: hint, cbqLanding: hint === "Maths", surface };

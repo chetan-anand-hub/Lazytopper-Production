@@ -180,6 +180,13 @@ const ACTIVITY_EVENTS = Object.freeze([
   'parent_report_shared',
   // SHARE-CARD-1 - the student shared a scorecard image (any surface, size, channel). Additive only.
   'scorecard_share',
+  // CI-SOFT-1 - the Check & Improve "pick a board question, watch it get marked" card. Names only. Additive only.
+  'ci_demo_shown',
+  'ci_demo_pick',
+  'ci_demo_result',
+  'ci_demo_check_own',
+  'ci_demo_another',
+  'ci_demo_close',
 ]);
 
 /**

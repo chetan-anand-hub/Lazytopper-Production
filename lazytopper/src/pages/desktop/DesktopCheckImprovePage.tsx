@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ReturnTicketStrip, useReturnTicket } from "../../components/navigation/ReturnTicket";
 import {
@@ -126,6 +127,10 @@ import {
 import { clearCiDraft, saveCiDraft, sweepExpiredCiDraftImages, takeCiDraft } from "../../services/checkImproveDraft";
 import EmailVerifyReminder from "../../components/auth/EmailVerifyReminder";
 import StartHereCard from "../../components/startHere/StartHereCard";
+// CI-SOFT-1 — "Pick a board question, watch it get marked": the eager door + the audience rule only.
+// Every line, sample and drawing is in the lazy ciDemoChunk. Display only: no grader / AI call.
+import CiDemoCard, { type CiDemoOwnPick } from "../../components/ciDemo/CiDemoCard";
+import { useCiDemoAudience } from "../../components/ciDemo/ciDemoModel";
 import { typeFirstAnswerMode, useZeroGraded } from "../../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
 import {
@@ -1482,7 +1487,9 @@ const DesktopCheckImprovePageInner: React.FC<{
   // interrupted, a read paper, a saved-paper reopen, or any question / answer / image entered.
   const ciInProgress =
     returnTicket !== null ||
-    ciDraftCheck !== "none" ||
+    // CI-SOFT-1: the draft restore only runs for a signed-in student (the effect above returns for
+    // `!user`), so for a signed-out visitor it sits at "pending" for ever; that is NOT work in progress.
+    (!!user && ciDraftCheck !== "none") ||
     status !== "idle" ||
     (detectedQuestions?.length ?? 0) > 0 ||
     !!ciJob.interrupted ||
@@ -1492,6 +1499,16 @@ const DesktopCheckImprovePageInner: React.FC<{
     !!qImageBase64 ||
     textAnswer.trim() !== "" ||
     !!imageBase64;
+
+  // CI-SOFT-1 — the sample-marking card for an ad arrival who has not checked an answer yet. While it
+  // shows, Start-here is not rendered (one Byte per screen); once closed, Start-here comes back.
+  const ciDemo = useCiDemoAudience({
+    overlay: !!overlay,
+    uid: ciMomentUid,
+    freeMode: isFreeMode,
+    inProgress: ciInProgress,
+    resultSeen: ciShownResultHere || status !== "idle",
+  });
 
   // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
   const [downloading, setDownloading] = useState(false);
@@ -1657,6 +1674,25 @@ const DesktopCheckImprovePageInner: React.FC<{
     } finally {
       setBoardBusy(false);
     }
+  }
+
+  // CI-SOFT-1 — "Check my own answer" after a sample: fill the question exactly like "Try a board
+  // question" (the row's text and its marks, the same provenance line), close the card for this tab,
+  // put the answer on Type, and focus the answer box INSIDE the tap (flushSync commits the new tab
+  // first, so iOS still raises the keyboard). Nothing is graded until the student taps Check.
+  function ciDemoCheckOwn(pick: CiDemoOwnPick) {
+    flushSync(() => {
+      setQuestionTab("type");
+      clearDetection();
+      setQuestion(pick.text);
+      setBoardSource({ id: pick.bankId, text: pick.text, label: pick.label });
+      ciAnswerTouchedRef.current = true;
+      setTab("type");
+      ciDemo.close();
+    });
+    const box = document.querySelector<HTMLTextAreaElement>('textarea[aria-label="Type your answer"]');
+    box?.focus({ preventScroll: true });
+    box?.scrollIntoView?.({ behavior: "smooth", block: "center" });
   }
 
   // ACTIVATION-2 A — Start here's "Check one answer": focus the question box SYNCHRONOUSLY, inside
@@ -2677,7 +2713,15 @@ const DesktopCheckImprovePageInner: React.FC<{
         <ReturnTicketStrip ticket={returnTicket} onNavigate={(p) => navigate(p)} />
         {/* START-HERE-1 — a signed-in student with no graded result yet; nothing for anyone
             else. Never inside the tutor overlay. */}
-        {!overlay && (
+        {!overlay && ciDemo.show && (
+          <CiDemoCard
+            onClose={ciDemo.close}
+            onCheckOwn={ciDemoCheckOwn}
+            onJumpToOwn={focusQuestionBox}
+            signedOut={!ciMomentUid}
+          />
+        )}
+        {!overlay && !ciDemo.show && (
           <StartHereCard
             uid={user?.uid ?? null}
             surface="check_improve"
@@ -2704,7 +2748,8 @@ const DesktopCheckImprovePageInner: React.FC<{
         />
         {/* MOMENTS-1 M9 — the signed-out free check (no sign-up by construction: free mode
             renders only for a signed-out visitor) opened from a shared link. */}
-        <GuideMomentSlot show={ciSharedMoment} moment="m9" step="shared" />
+        {/* CI-SOFT-1: one Byte per screen: the shared-link moment waits while the sample card shows. */}
+        <GuideMomentSlot show={ciSharedMoment && !ciDemo.show} moment="m9" step="shared" />
 
         {/* C&I PR-1 — "Your checked papers": the overlay history panel (spec §6
             volume rule) + the read-only stored-scorecard reopen. Fixed-inset
@@ -3234,7 +3279,8 @@ const DesktopCheckImprovePageInner: React.FC<{
               </div>
 
               {/* MOMENTS-1 M4 — first session: Byte's one line for the selected answer tab. */}
-              <GuideMomentSlot show={ciFirstMoments} moment="m4" step={tab === "upload" ? "upload" : "type"} />
+              {/* CI-SOFT-1: one Byte per screen: the answer-step moment waits while the sample card shows. */}
+              <GuideMomentSlot show={ciFirstMoments && !ciDemo.show} moment="m4" step={tab === "upload" ? "upload" : "type"} />
 
               {tab === "upload" ? (
                 <div>

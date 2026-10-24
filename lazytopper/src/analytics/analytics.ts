@@ -840,7 +840,14 @@ export type NamedAnalyticsEvent =
   // SHARE-CARD-1 — a student shared a scorecard image. The vendors get
   // `scorecard_share { surface, size, channel }`, the first-party log the bare name. Sent by
   // trackScorecardShare
-  | "scorecard_share";
+  | "scorecard_share"
+  // CI-SOFT-1 — the Check & Improve sample-marking card (names only, first-party log only).
+  | "ci_demo_shown"
+  | "ci_demo_pick"
+  | "ci_demo_result"
+  | "ci_demo_check_own"
+  | "ci_demo_another"
+  | "ci_demo_close";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
