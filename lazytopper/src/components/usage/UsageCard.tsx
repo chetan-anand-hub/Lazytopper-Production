@@ -1,5 +1,5 @@
 /**
- * UsageCard — FAIR-USE-UI-1 UI4, on Me / Progress.
+ * UsageCard — FAIR-USE-UI-1 UI4. Lives in Settings (SETTINGS-USAGE-1; it was on Me / Progress).
  *
  * ★ DARK: renders nothing at all unless /api/usage/me said `enforced: true` — no
  * placeholder, no spinner, no reserved space, so the page is exactly as today while the
@@ -33,14 +33,27 @@ function leftWord(n: number) {
   return `${n} left`;
 }
 
-export function UsageCardView({ snapshot, nowMs = Date.now() }: { snapshot: UsageSnapshot | null; nowMs?: number }) {
+export function UsageCardView({
+  snapshot,
+  nowMs = Date.now(),
+  inSettings = false,
+}: {
+  snapshot: UsageSnapshot | null;
+  nowMs?: number;
+  /** Inside the Settings window: the title is an h3 with the neighbours' class. */
+  inSettings?: boolean;
+}) {
   if (!snapshot || snapshot.enforced !== true) return null;
   if (snapshot.tier !== "trial" && snapshot.tier !== "premium") return null;
 
   const heading = (
     <>
       <div className="lt-usage__eyebrow">Fair use</div>
-      <p className="lt-usage__lead">Your limits</p>
+      {inSettings ? (
+        <h3 className="lt-usage__lead lt-set__h">Your limits</h3>
+      ) : (
+        <p className="lt-usage__lead">Your limits</p>
+      )}
     </>
   );
 
@@ -120,8 +133,15 @@ export function UsageCardView({ snapshot, nowMs = Date.now() }: { snapshot: Usag
   );
 }
 
+export interface UsageCardProps {
+  /** "settings": sit inside the Settings window as one of its cards. */
+  variant?: "page" | "settings";
+  /** Scroll the card into view once it has rendered ("See usage" opened Settings at the limits). */
+  autoScroll?: boolean;
+}
+
 /** Reads once on mount (cached), then renders the view — or nothing. */
-export default function UsageCard() {
+export default function UsageCard({ variant = "page", autoScroll = false }: UsageCardProps = {}) {
   const [snapshot, setSnapshot] = useState<UsageSnapshot | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -132,19 +152,20 @@ export default function UsageCard() {
       cancelled = true;
     };
   }, []);
-  // "See usage" (/me#usage) lands ON the card: once the card has rendered, scroll it into view.
   const showCard = Boolean(snapshot && snapshot.enforced === true && (snapshot.tier === "trial" || snapshot.tier === "premium"));
   useEffect(() => {
-    if (!showCard || typeof window === "undefined" || window.location.hash !== "#usage") return;
+    if (!showCard || !autoScroll) return;
     document.getElementById("usage")?.scrollIntoView?.({ block: "start" });
-  }, [showCard]);
+  }, [showCard, autoScroll]);
+  if (variant === "settings" && !showCard) return null;
   // FAIR-USE-WARN-1 §2.5 — under the card (only when the card shows): what a limit never touches.
-  return (
+  const body = (
     <>
-      <UsageCardView snapshot={snapshot} />
+      <UsageCardView snapshot={snapshot} inSettings={variant === "settings"} />
       {snapshot && (snapshot.tier === "trial" || snapshot.tier === "premium") ? (
         <p className="lt-usage-always" data-testid="usage-always-works">Practice, MCQs, CBQs, notes, Topic Hub and saved solutions always work, even at 100%.</p>
       ) : null}
     </>
   );
+  return variant === "settings" ? <div className="lt-usage-settings">{body}</div> : body;
 }

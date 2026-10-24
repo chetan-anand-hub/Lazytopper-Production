@@ -18,8 +18,9 @@
  * at the bottom, which reads the real App.tsx source.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { useState } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -91,7 +92,18 @@ vi.mock("../context/AuthContext", () => ({
   useAuth: () => ({ user: mockUser, loading: false, mistakeLogsHydrated: true }),
 }));
 
+vi.mock("../services/usageClient", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../services/usageClient")>()),
+  fetchUsageMe: vi.fn(async () => ({ enforced: true, tier: "premium", premium: null })),
+}));
+
 import MeProgressPage from "./MeProgressPage";
+import { __resetSettingsDoorForTests, subscribeSettingsRequest } from "../components/account/settingsDoor";
+
+function HashProbe() {
+  const l = useLocation();
+  return <div data-testid="hash">{`${l.pathname}|${l.hash}`}</div>;
+}
 
 function renderPage() {
   return render(
@@ -127,6 +139,73 @@ describe("SETTINGS-1 · DPDP controls moved OFF /me (owner ruling 24 Oct 2026)",
     expect(screen.queryByRole("button", { name: /delete my account/i })).toBeNull();
     expect(screen.queryByRole("region", { name: /your data and your account/i })).toBeNull();
     expect(screen.queryByTestId("mascots-setting")).toBeNull();
+  });
+});
+
+describe("SETTINGS-USAGE-1 · fair use moved OFF /me", () => {
+  it("★★ even for an enforced premium student, /me carries no limits card", async () => {
+    renderPage();
+    expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(screen.queryByTestId("usage-card")).toBeNull();
+    expect(screen.queryByTestId("usage-always-works")).toBeNull();
+  });
+
+  it("★★ an old /me#usage link opens Settings at the limits ONCE and clears the hash THROUGH THE ROUTER", async () => {
+    __resetSettingsDoorForTests();
+    const asked = vi.fn();
+    subscribeSettingsRequest(asked);
+    const { unmount } = render(
+      <MemoryRouter initialEntries={["/me#usage"]}>
+        <MeProgressPage />
+        <HashProbe />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
+    expect(asked).toHaveBeenCalledTimes(1);
+    expect(asked.mock.calls[0][0].section).toBe("usage");
+    // the router itself no longer carries #usage (so links built from it do not either)
+    await waitFor(() => expect(screen.getByTestId("hash").textContent).toBe("/me|"));
+    unmount();
+    __resetSettingsDoorForTests();
+  });
+
+  it("★★ a REMOUNT after the clear (shell swap at the 1024 px breakpoint) does NOT reopen Settings", async () => {
+    __resetSettingsDoorForTests();
+    const asked = vi.fn();
+    subscribeSettingsRequest(asked);
+    function Swap() {
+      const [desktop, setDesktop] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setDesktop(true)}>swap</button>
+          {desktop ? <div data-testid="desktop-wrap"><MeProgressPage /></div> : <section><MeProgressPage /></section>}
+        </>
+      );
+    }
+    render(
+      <MemoryRouter initialEntries={["/me#usage"]}>
+        <Swap />
+        <HashProbe />
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(asked).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getByTestId("hash").textContent).toBe("/me|"));
+    fireEvent.click(screen.getByText("swap"));
+    expect(await screen.findByTestId("desktop-wrap")).toBeTruthy();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(asked).toHaveBeenCalledTimes(1);
+    __resetSettingsDoorForTests();
+  });
+
+  it("★ a plain /me visit asks for nothing", async () => {
+    __resetSettingsDoorForTests();
+    const asked = vi.fn();
+    subscribeSettingsRequest(asked);
+    renderPage();
+    expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
+    expect(asked).not.toHaveBeenCalled();
+    __resetSettingsDoorForTests();
   });
 });
 
