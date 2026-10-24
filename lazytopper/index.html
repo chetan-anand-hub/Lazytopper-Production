@@ -140,10 +140,29 @@
           window.location.reload();
         }
         window.setTimeout(go, 3000);
+        var urls = [src];
         try {
-          window.fetch(src, { cache: "reload" }).then(go, go);
-        } catch (fetchError) {
-          go();
+          var pre = window.location.origin + "/assets/";
+          var es = window.performance.getEntriesByType("resource");
+          for (var i = 0; i < es.length && urls.length < 10; i++) {
+            var e = es[i];
+            var n = e.name || "";
+            if (n.indexOf(pre) !== 0 || urls.indexOf(n) >= 0) continue;
+            if (e.responseStatus > 0 ? e.responseStatus >= 400 :
+                e.transferSize === 0 && e.decodedBodySize === 0 && e.encodedBodySize === 0 && /\.(js|css)$/.test(n.split("?")[0])) urls.push(n);
+          }
+        } catch (timingError) {}
+        var left = urls.length;
+        function one() {
+          left -= 1;
+          if (left <= 0) go();
+        }
+        for (var j = 0; j < urls.length; j++) {
+          try {
+            window.fetch(urls[j], { cache: "reload" }).then(one, one);
+          } catch (fetchError) {
+            one();
+          }
         }
       }, true);
     </script>

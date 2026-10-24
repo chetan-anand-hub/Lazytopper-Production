@@ -43,7 +43,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError && this.state.recovering) {
-      return <p role="status">Updating LazyTopper…</p>;
+      return (
+        <p role="status" className={`error-boundary-updating${this.props.level === "global" ? " error-boundary-updating--global" : ""}`}>
+          Updating LazyTopper…
+        </p>
+      );
     }
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;

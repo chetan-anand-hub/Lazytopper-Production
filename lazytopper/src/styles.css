@@ -7072,3 +7072,23 @@ span.ux-return-bar__chip {
   border-color: var(--mob-accent);
   background: var(--mob-success-soft);
 }
+
+/* ASSET-RELOAD-1: interim state while ErrorBoundary reloads once after a lost chunk. */
+.error-boundary-updating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 200px;
+  margin: 0;
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.error-boundary-updating--global {
+  min-height: 100vh;
+  background: var(--bg);
+}

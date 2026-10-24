@@ -28,6 +28,84 @@ export const CHUNK_RELOAD_WINDOW_MS = 60_000;
 /** How long the cache-overwrite fetches may hold the reload back. */
 export const CACHE_REFRESH_TIMEOUT_MS = 3000;
 
+/** At most this many URLs are re-fetched before a reload (error URL first, then failed entries). */
+export const MAX_REFRESH_URLS = 10;
+
+/** The slice of a PerformanceResourceTiming that failure detection reads. */
+export interface ResourceEntryLike {
+  name: string;
+  responseStatus?: number;
+  transferSize?: number;
+  decodedBodySize?: number;
+  encodedBodySize?: number;
+}
+
+/**
+ * Same-origin /assets/ resources that FAILED to load, from resource timing: `responseStatus`
+ * >= 400 where the browser reports it, otherwise (status absent or 0) an all-zero-size .js/.css
+ * entry. De-duplicated, in order, at most `cap`. Never throws. This is what covers WebKit,
+ * whose chunk error names no URL.
+ */
+export function collectFailedAssetUrls(
+  entries: ReadonlyArray<ResourceEntryLike>,
+  origin: string,
+  cap: number = MAX_REFRESH_URLS,
+): string[] {
+  const out: string[] = [];
+  try {
+    for (const entry of entries) {
+      if (out.length >= cap) break;
+      let url: URL;
+      try {
+        url = new URL(entry.name);
+      } catch {
+        continue;
+      }
+      if (url.origin !== origin || !url.pathname.startsWith("/assets/")) continue;
+      const status = entry.responseStatus;
+      const failed =
+        typeof status === "number" && status > 0
+          ? status >= 400
+          : entry.transferSize === 0 &&
+            entry.decodedBodySize === 0 &&
+            entry.encodedBodySize === 0 &&
+            /\.(js|css)$/i.test(url.pathname);
+      if (failed && !out.includes(entry.name)) out.push(entry.name);
+    }
+  } catch {
+    // best effort
+  }
+  return out;
+}
+
+function defaultEntries(): ReadonlyArray<ResourceEntryLike> {
+  try {
+    return typeof performance === "undefined" ? [] : (performance.getEntriesByType("resource") as ResourceEntryLike[]);
+  } catch {
+    return [];
+  }
+}
+
+function defaultOrigin(): string {
+  try {
+    return window.location.origin;
+  } catch {
+    return "";
+  }
+}
+
+let reloadPending = false;
+
+/** True once this page has started its one automatic reload. */
+export function isChunkReloadPending(): boolean {
+  return reloadPending;
+}
+
+/** Test-only: forget a pending reload. */
+export function resetChunkReloadPending(): void {
+  reloadPending = false;
+}
+
 type StorageLike = Pick<Storage, "getItem" | "setItem">;
 
 export interface ChunkReloadDeps {
@@ -38,6 +116,9 @@ export interface ChunkReloadDeps {
   reload?: () => void;
   /** Cap on the cache-overwrite fetches. */
   timeoutMs?: number;
+  /** Resource-timing entries (default: performance.getEntriesByType("resource")). */
+  entries?: () => ReadonlyArray<ResourceEntryLike>;
+  origin?: string;
 }
 
 function defaultStorage(): StorageLike | null {
@@ -65,13 +146,20 @@ export function claimChunkReload(storage: StorageLike | null, now: number): bool
   }
 }
 
-/** The failed chunk's URL and the `?retry=<n>` variants the retries may have cached a 404 for. */
-export function urlsToRefresh(error: unknown): string[] {
+/**
+ * What to re-fetch before reloading: the failed chunk's URL and its `?retry=<n>` variants (when
+ * the engine names the URL), then every failed same-origin /assets/ entry in `failed`.
+ * De-duplicated, capped at MAX_REFRESH_URLS.
+ */
+export function urlsToRefresh(error: unknown, failed: ReadonlyArray<string> = []): string[] {
+  const urls: string[] = [];
   const url = failedModuleUrl(error);
-  if (url === null) return [];
-  const urls = [url];
-  for (let attempt = 1; attempt <= RETRY_DELAYS_MS.length; attempt += 1) urls.push(retryUrl(url, attempt));
-  return urls;
+  if (url !== null) {
+    urls.push(url);
+    for (let attempt = 1; attempt <= RETRY_DELAYS_MS.length; attempt += 1) urls.push(retryUrl(url, attempt));
+  }
+  for (const u of failed) if (!urls.includes(u)) urls.push(u);
+  return urls.slice(0, MAX_REFRESH_URLS);
 }
 
 /**
@@ -83,9 +171,12 @@ export function urlsToRefresh(error: unknown): string[] {
 export function recoverFromChunkError(error: unknown, deps: ChunkReloadDeps = {}): boolean {
   try {
     if (!isChunkLoadError(error)) return false;
+    // A second boundary on the same page: the reload is already under way; do not claim again.
+    if (reloadPending) return true;
     const storage = deps.storage === undefined ? defaultStorage() : deps.storage;
     const now = (deps.now ?? Date.now)();
     if (!claimChunkReload(storage, now)) return false;
+    reloadPending = true;
 
     const reload = deps.reload ?? (() => window.location.reload());
     const fetchFn = deps.fetchFn ?? ((url, init) => fetch(url, init));
@@ -102,7 +193,8 @@ export function recoverFromChunkError(error: unknown, deps: ChunkReloadDeps = {}
       }
     };
     setTimeout(go, timeoutMs);
-    const settled = urlsToRefresh(error).map((url) => {
+    const failed = collectFailedAssetUrls((deps.entries ?? defaultEntries)(), deps.origin ?? defaultOrigin());
+    const settled = urlsToRefresh(error, failed).map((url) => {
       try {
         return Promise.resolve(fetchFn(url, { cache: "reload" })).then(
           () => undefined,

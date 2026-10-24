@@ -133,8 +133,15 @@ describe("ASSET-RELOAD-1 — a failed entry script reloads once instead of leavi
   });
 
   it("overwrites the cached response with cache: reload, then reloads", () => {
-    expect(net!.body).toMatch(/fetch\(src,\s*\{\s*cache:\s*"reload"/);
+    expect(net!.body).toMatch(/fetch\(urls\[j\],\s*\{\s*cache:\s*"reload"/);
     expect(net!.body).toContain("window.location.reload()");
+  });
+
+  it("also re-fetches failed /assets/ resource-timing entries, capped at 10, same-origin only", () => {
+    expect(net!.body).toContain('getEntriesByType("resource")');
+    expect(net!.body).toMatch(/urls\.length\s*<\s*10/);
+    expect(net!.body).toContain("responseStatus");
+    expect(net!.body).toContain('window.location.origin + "/assets/"');
   });
 
   it("uses the same storage key and window as src/lib/chunkReload.ts", () => {

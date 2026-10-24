@@ -1,8 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { isChunkLoadError } from "./lazyWithRetry";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CHUNK_RELOAD_KEY,
   CHUNK_RELOAD_WINDOW_MS,
   claimChunkReload,
+  collectFailedAssetUrls,
+  isChunkReloadPending,
+  MAX_REFRESH_URLS,
+  resetChunkReloadPending,
   recoverFromChunkError,
   urlsToRefresh,
 } from "./chunkReload";
@@ -101,3 +106,100 @@ describe("recoverFromChunkError", () => {
   });
 });
 
+
+const ORIGIN = "https://www.lazytopper.com";
+const A = (n: string) => `${ORIGIN}/assets/${n}`;
+const bad = (name: string) => ({ name, responseStatus: 404, transferSize: 0, decodedBodySize: 0, encodedBodySize: 0 });
+const good = (name: string) => ({ name, responseStatus: 200, transferSize: 900, decodedBodySize: 2000, encodedBodySize: 900 });
+
+afterEach(() => resetChunkReloadPending());
+
+describe("collectFailedAssetUrls", () => {
+  it("takes same-origin /assets/ entries with responseStatus >= 400 and skips good, foreign and non-asset ones", () => {
+    const got = collectFailedAssetUrls(
+      [
+        bad(A("PricingPage-BvCbdRTL.js")),
+        good(A("index-Dv2RY8qK.js")),
+        bad("https://cdn.example.com/assets/x.js"),
+        bad(`${ORIGIN}/api/thing`),
+        { ...bad(A("styles-AbC.css")), responseStatus: 500 },
+        bad("not a url"),
+      ],
+      ORIGIN,
+    );
+    expect(got).toEqual([A("PricingPage-BvCbdRTL.js"), A("styles-AbC.css")]);
+  });
+
+  it("falls back to all-zero sizes for a .js/.css entry when responseStatus is absent or 0, but not for others", () => {
+    const zero = { transferSize: 0, decodedBodySize: 0, encodedBodySize: 0 };
+    const got = collectFailedAssetUrls(
+      [
+        { name: A("a-1.js"), ...zero },
+        { name: A("b-2.css?x=1"), responseStatus: 0, ...zero },
+        { name: A("logo-3.png"), ...zero },
+        { name: A("cached-4.js"), transferSize: 0, decodedBodySize: 5000, encodedBodySize: 1500 },
+        { name: A("ok-5.js"), responseStatus: 200, ...zero },
+      ],
+      ORIGIN,
+    );
+    expect(got).toEqual([A("a-1.js"), A("b-2.css?x=1")]);
+  });
+
+  it("de-duplicates and caps at 10", () => {
+    const many = Array.from({ length: 25 }, (_, i) => bad(A(`c-${i}.js`)));
+    const got = collectFailedAssetUrls([bad(A("c-0.js")), ...many], ORIGIN);
+    expect(got.length).toBe(MAX_REFRESH_URLS);
+    expect(new Set(got).size).toBe(got.length);
+  });
+
+  it("never throws on junk entries", () => {
+    expect(collectFailedAssetUrls([null as never, undefined as never, {} as never], ORIGIN)).toEqual([]);
+  });
+});
+
+describe("urlsToRefresh / recoverFromChunkError with failed entries", () => {
+  const webkit = () => new TypeError("Importing a module script failed.");
+
+  it("a WebKit-style error with no URL still collects the failed entries", () => {
+    expect(isChunkLoadError(webkit())).toBe(true);
+    expect(urlsToRefresh(webkit(), [A("x.js"), A("y.js")])).toEqual([A("x.js"), A("y.js")]);
+    expect(urlsToRefresh(webkit())).toEqual([]);
+  });
+
+  it("error URL and its retry variants come first, failed entries are appended without duplicates, total capped", () => {
+    const failed = Array.from({ length: 20 }, (_, i) => (i === 0 ? URL_ : A(`f-${i}.js`)));
+    const urls = urlsToRefresh(chunkError(), failed);
+    expect(urls.slice(0, 3)).toEqual([URL_, `${URL_}?retry=1`, `${URL_}?retry=2`]);
+    expect(urls.length).toBe(MAX_REFRESH_URLS);
+    expect(new Set(urls).size).toBe(urls.length);
+  });
+
+  it("recoverFromChunkError re-fetches resource-timing failures (WebKit error, no URL) before the one reload", async () => {
+    const { reload, fetchFn, d } = deps(memoryStorage());
+    const entries = () => [bad(A("DesktopPracticePage-Cid2pRiK.js")), good(A("index-ok.js"))];
+    expect(recoverFromChunkError(webkit(), { ...d, entries, origin: ORIGIN })).toBe(true);
+    await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+    expect(fetchFn.mock.calls.map((c) => c[0])).toEqual([A("DesktopPracticePage-Cid2pRiK.js")]);
+  });
+});
+
+describe("reloadPending: a second boundary on the same page", () => {
+  it("returns true (recovering) without claiming the guard or reloading again", async () => {
+    const storage = memoryStorage();
+    const { reload, d } = deps(storage);
+    expect(recoverFromChunkError(chunkError(), d)).toBe(true);
+    expect(isChunkReloadPending()).toBe(true);
+    const stamp = storage.data[CHUNK_RELOAD_KEY];
+    const second = deps(storage, 2_000_000);
+    expect(recoverFromChunkError(chunkError(), second.d)).toBe(true);
+    expect(storage.data[CHUNK_RELOAD_KEY]).toBe(stamp);
+    await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+    expect(second.reload).not.toHaveBeenCalled();
+    expect(second.fetchFn).not.toHaveBeenCalled();
+  });
+
+  it("a non-chunk error is still false while a reload is pending", () => {
+    recoverFromChunkError(chunkError(), deps(memoryStorage()).d);
+    expect(recoverFromChunkError(new Error("render bug"), deps(memoryStorage()).d)).toBe(false);
+  });
+});

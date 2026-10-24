@@ -25,7 +25,7 @@ vi.mock("./chunkReload", async () => {
 
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { lazyWithRetry } from "./lazyWithRetry";
-import { CHUNK_RELOAD_KEY } from "./chunkReload";
+import { CHUNK_RELOAD_KEY, resetChunkReloadPending } from "./chunkReload";
 
 const chunkError = () =>
   new TypeError("Failed to fetch dynamically imported module: https://www.lazytopper.com/assets/PricingPage-BvCbdRTL.js?retry=2");
@@ -37,6 +37,7 @@ function Failing(): never {
 afterEach(() => {
   cleanup();
   reload.mockReset();
+  resetChunkReloadPending();
   window.sessionStorage.removeItem(CHUNK_RELOAD_KEY);
   vi.restoreAllMocks();
 });
@@ -95,5 +96,38 @@ describe("ErrorBoundary + lazyWithRetry (jsdom)", () => {
     );
     await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1), { timeout: 3000 });
     expect(screen.queryByText("This section ran into an issue")).toBeNull();
+  });
+
+  it("a second boundary catching a chunk error on the same page shows the updating state, not its section error, and the page reloads once", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    render(
+      <>
+        <ErrorBoundary level="global">
+          <Failing />
+        </ErrorBoundary>
+        <ErrorBoundary level="section">
+          <Failing />
+        </ErrorBoundary>
+      </>,
+    );
+    expect(screen.getAllByRole("status")).toHaveLength(2);
+    expect(screen.queryByText("This section ran into an issue")).toBeNull();
+    expect(screen.queryByText("Something went wrong")).toBeNull();
+    await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+    await new Promise((r) => setTimeout(r, 60));
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it("the updating state carries the CSS class (global level adds the full-height modifier), no inline style", () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    render(
+      <ErrorBoundary level="global">
+        <Failing />
+      </ErrorBoundary>,
+    );
+    const node = screen.getByRole("status");
+    expect(node.className).toContain("error-boundary-updating");
+    expect(node.className).toContain("error-boundary-updating--global");
+    expect(node.getAttribute("style")).toBeNull();
   });
 });
