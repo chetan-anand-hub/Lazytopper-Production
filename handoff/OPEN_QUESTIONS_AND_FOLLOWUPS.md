@@ -23,6 +23,31 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-24 (daily, part 3) - #1345 (1 product merge after #1344, 24 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `01376a2c`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from the GitHub REST API and the squash commit while writing; **[docs-builder-curl]** were fetched from www with `curl` while writing; **[coordinator]** come from the cofounder's message (measurements, follow-ups, the owner's 16:23 IST ruling).
+
+### [FU-NUDGE-HOST-ZIGGY-TEST]
+**[coordinator]**: no host test proves that the paywall / trial_end moments request Ziggy. Flipping `let withZiggy = true;` at `lazytopper/src/components/feedback/feedbackPromptHost.tsx:230` (read on trunk `01376a2c` [git/gh]) leaves every test green; `FeedbackPrompt.nudge.test.tsx` and `FeedbackPrompt.nudgeSlot.test.tsx` test the card and the slot, not the host's claim flow (the `#1345` body: "the harness proves layout and animation, not the host's claim flow"). Add a host test that mounts the non-graded moment and expects the nudge slot to be requested.
+
+### [FU-NUDGE-STALE-COMMENT]
+**[coordinator]**: `lazytopper/src/components/feedback/FeedbackPrompt.tsx:233` reads "FEEDBACK-2 (graded moments only) — draw Ziggy. Default true; false = the plain card." [git/gh]. Since `#1345` the non-graded moments also pass `withZiggy=true`, so "(graded moments only)" is stale. Comment only.
+
+### [FU-VIEWPORT-FIT-COVER]
+**[coordinator]**: `lazytopper/index.html:9` is `<meta name="viewport" content="width=device-width, initial-scale=1.0" />` [git/gh] - it lacks `viewport-fit=cover`, so `env(safe-area-inset-bottom)` is 0 and the safe-area padding `#1345` added (card bottom, bottom-right panel) does nothing on a notched iPhone. Adding it changes every page's safe-area behaviour; check the fixed bars before flipping.
+
+### [FU-NUDGE-LANDSCAPE]
+**[coordinator]**: the card still scrolls inside at 568x320 and 844x390 (landscape phones); `#1345`'s compact layout fits portrait phones (320x568: 451 / 451).
+
+### [FU-PKG-DUP-MATRIX-KEY]
+**[coordinator]**: `lazytopper/package.json:130-131` carries two `"test:matrix:all"` keys [git/gh]. In JSON the later key wins and a parser may drop the first silently; confirm which chain CI and `pnpm run test:matrix:all` actually run and delete the other.
+
+### Owner live check owed (no new ID minted)
+`#1345`: close the upgrade sheet on a real phone while signed in - the card slides up with Ziggy; a second session in the same tab after three mascot appearances shows it plain (PR body) [git/gh]. The earlier `[FU-OWNER-LIVE-1024-CHECKS]` and the part 2 owner checks stand.
+
+### Carried
+The part 2 follow-ups (`[FU-FEEDBACK-NOTES-READER]`, `[FU-CI-ONE-FEEDBACK-BATCH]`, `[FU-PR-FOOTER-PROXY]`, `[FU-CI-AUTOFOCUS-CI-BOX]`, `[FU-HANDOVER-STALE-KEY]`, `[FU-BREATHE-FONT-SCALE]`) and everything earlier stay open as written.
+
 ## 2026-10-24 (daily, part 2) - #1337 - #1343 (7 product merges after #1336, all on 24 Oct IST: #1337, #1339, #1338, #1340, #1343, #1341, #1342) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `f897f020`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from the GitHub REST API while writing; **[docs-builder-curl]** were fetched from www while writing; **[coordinator]** come from the cofounder's afternoon handoff note (incl. live findings by the cofounder). `#1342` FEEDBACK-2 merged (`f897f020`, 16:09 IST) after the first version of this entry; FEEDBACK-NUDGE-1 (owner ruling 24 Oct 16:00 IST) is in flight.
