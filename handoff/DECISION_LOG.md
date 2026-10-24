@@ -1,3 +1,20 @@
+## 2026-10-24 (daily, part 5) - #1350 - #1351 - #1352 (3 product merges after #1349, 24 Oct IST; #1352 at 25 Oct 01:23 IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The owner rulings (24 Oct evening, binding) relayed by the cofounder **[coordinator]**, with the lane's own reasoning where the squash message on trunk records it **[git/gh]**. Where no reason was given, none is invented.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner, 24 Oct 2026 21:51 IST **[coordinator]**: **fix the stale payment status on all llms / Google / Bing surfaces** | built as `#1350` (`llms.txt`) plus IndexNow and Search Console requests; Google and Bing copies are refreshed by their own re-crawl, which this repo does not control | ChatGPT quoted an old `/pricing` ("checkout isn't connected, activation manual") in an owner screenshot [coordinator]; the live pages were already correct (squash message [git/gh]) |
+| owner, 23:08 IST **[coordinator]**: **fair use belongs in Settings** | `#1351`: "Your limits" moves from Me / Progress to Settings, after "Your pass" | no reason was given in the message beyond the placement; the PR states Me / Progress no longer carries it [git/gh] |
+| owner, 23:19 IST **[coordinator]**: **yes to the privacy page and `llms.txt` stating the self-serve DPDP controls and how answers are handled** | `#1352` | the owner's ruling |
+| owner, 23:24 and 23:26 IST **[coordinator]**: **never name Google or Gemini in student-facing copy; say "LLM provider"** | the privacy page, the in-app delete disclosure and the downloaded data file say "AI language model (LLM) provider" and "Email provider"; the row ids in `studentDataMap.ts` are unchanged (squash message [git/gh]) | no reason was given in the message |
+| owner, 23:31 IST **[coordinator]**: **link the marking guide from pricing** | `#1352`: one line under the Premium features linking `/check-your-answer` | the owner's ruling |
+| owner, 23:36 IST **[coordinator]**: **every product change must work at every screen size** | standing check: 320 / 360 / 390 / 768 / 1024 / 1280, no sideways scroll, taps 44 px or more; `#1352` pins the marking-guide link's padding by a test (squash message [git/gh]) | the owner's ruling; it restates the COMMON rules for builders |
+| owner **[coordinator]**: **ACCURACY-1 is parked until the owner has human-marked answers** | no accuracy study is published; `[FU-ACCURACY-1]` | no fake data: the study needs about 30 answers marked by the owner or a teacher [coordinator] |
+| `#1351` [git/gh]: **a tiny eager door, `settingsDoor.ts`, instead of importing Settings into the warning** | no React, no imports; one opener only; a request made before any shell subscribes waits 1.5 s, then is dropped; the window itself stays lazy | the file's own header: it is pulled into the entry chunk by both shells, so it must stay a few hundred bytes |
+| `#1351` [git/gh]: **`/me#usage` is cleared through the router and opens Settings once** | a remount or a router-built link no longer reopens Settings | review fix (squash message) |
+| `#1352` [git/gh]: **phone-uploaded answer photos are said to be deleted with the account; provider-held copies are said to be outside our deletion** | privacy page "Answers you submit" (`LegalPage.tsx:293-294`) | so the policy tells a student what deletion does and does not reach; how long a photo lives BEFORE deletion is not stated and is `[FU-PRIVACY-PHOTO-RETENTION]` |
+
 ## 2026-10-24 (daily, part 4) - #1347 - #1348 (2 product merges after #1346, 24 Oct IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner rulings (24 Oct evening, binding) and the cofounder rulings relayed by the cofounder **[coordinator]**, with the lane's own reasoning where the squash message on trunk records it **[git/gh]**. Where no reason was given, none is invented.
