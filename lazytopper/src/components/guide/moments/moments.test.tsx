@@ -10,6 +10,7 @@
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup, act, fireEvent, waitFor } from "@testing-library/react";
+import { StrictMode } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../../test/setup";
 
@@ -36,6 +37,7 @@ import { BEAT_MS, MOMENT_COPY } from "./momentsChunk";
 import { MASCOTS_TOAST_COPY, __removeMascotsToastForTests } from "./mascotsToast";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, mascotsHidden } from "../mascotsMute";
 import { __setGuideAbForTests } from "../guideVariant";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, noteShown, requestAppearance, unpromptedShownCount } from "../mascotBudget";
 import { GUIDE_PUBLIC_ARM_KEY, __resetPublicArmForTests } from "../public/publicPeekModel";
 import { allPendingMessage } from "../../results/scorecardVariants";
 import { VISIT_SOURCE_KEY } from "../../../analytics/visitSource";
@@ -79,8 +81,8 @@ describe("MOMENTS-1 · every moment's exact line, guide arm only", () => {
     [{ moment: "m3", step: "ziggy" }, "ziggy", "excited", "Yes! 1 of 5. Next one."],
     [{ moment: "m4", step: "type" }, "byte", "explain", "Write every step. CBSE gives marks for each one."],
     [{ moment: "m4", step: "upload" }, "byte", "explain", "Flat page, good light, whole answer in the photo."],
-    [{ moment: "m8", step: "safe" }, "ziggy", "sad", "Oops, the connection dropped. Your answer is safe."],
-    [{ moment: "m8", step: "plain" }, "ziggy", "sad", "Oops, the connection dropped."],
+    [{ moment: "m8", step: "safe" }, "byte", "sorry", "Sorry, the connection dropped. Your answer is safe."],
+    [{ moment: "m8", step: "plain" }, "byte", "sorry", "Sorry, the connection dropped. Please try again."],
     [{ moment: "m9", step: "shared" }, "byte", "hello", "Someone sent you this! Check one answer free. No sign-up."],
   ];
 
@@ -122,8 +124,8 @@ describe("MOMENTS-1 · every moment's exact line, guide arm only", () => {
 
 describe("MOMENTS-1 · two speakers, ONE spot: Ziggy first, then Byte replaces him", () => {
   const TWO: Array<[GuideMomentProps, string, string, string, string]> = [
-    [{ moment: "m5", step: "written" }, "nervous", "Fingers crossed…", "think", "Marking it step by step, like a CBSE examiner."],
-    [{ moment: "m5", step: "mcq" }, "nervous", "Fingers crossed…", "think", "Checking your answers, like a CBSE examiner."],
+    [{ moment: "m5", step: "written" }, "nervous", "Fingers crossed…", "marking", "Marking it step by step, like a CBSE examiner."],
+    [{ moment: "m5", step: "mcq" }, "nervous", "Fingers crossed…", "marking", "Checking your answers, like a CBSE examiner."],
     [{ moment: "m6", step: "unread" }, "confused", "Hmm. Even I can't read that one.", "explain", "Flat page, good light, whole answer in the photo. Try again?"],
   ];
   for (const [props, zPose, zLine, bPose, bLine] of TWO) {
@@ -171,7 +173,7 @@ describe("MOMENTS-1 M11 · the written-answer nudge (the moment itself)", () => 
     const m = await screen.findByTestId("guide-moment-m11");
     expect(m.getAttribute("data-pose")).toBe("cheer");
     expect(line()).toBe(
-      "Nice! Now write one answer in your notebook, snap a photo, and I'll show where marks slip — step by step, the way a CBSE examiner marks it.",
+      "Nice! Write one answer in your notebook and snap a photo. I'll mark it step by step.",
     );
     const cta = screen.getByTestId("guide-moment-m11-cta");
     expect(cta.textContent).toBe("Check a written answer");
@@ -332,5 +334,92 @@ describe("GUIDE-SCORE-2 · moments copy on objective targets", () => {
   });
   it("★ M11's owner copy promises step marking — which is exactly why it is suppressed on tap-only cards", () => {
     expect(MOMENT_COPY.m11).toMatch(STEP_PROMISE);
+  });
+});
+
+describe("MOMENTS-3 - the budget limits the CHARACTER, never the information", () => {
+  afterEach(() => {
+    __resetMascotBudgetForTests();
+  });
+  const spend = () => {
+    __setMascotBudgetForTests(true);
+    for (const k of ["x1", "x2", "x3"]) {
+      requestAppearance(k, 200);
+      noteShown(k);
+    }
+  };
+
+  it("★★ budget spent: m8 (dropped connection) still tells the student, as a plain line - no mascot, no event", async () => {
+    spend();
+    render(<Slot uid="u1" moment="m8" step="safe" />);
+    const plain = await screen.findByTestId("guide-moment-m8-plain");
+    expect(plain.textContent).toBe(MOMENT_COPY.m8Safe);
+    expect(screen.queryByTestId("guide-moment-m8")).toBeNull();
+    expect(screen.queryByTestId("mascots-hide")).toBeNull();
+    expect(document.querySelector("[data-testid='guide-moment-m8-plain'] svg")).toBeNull();
+    expect(momentCalls()).toEqual([]);
+  });
+
+  it("★★ budget spent: m5 (waiting) and m6 (unreadable) keep their information as plain lines; m4 (an explainer) stays silent", async () => {
+    spend();
+    render(<Slot uid="u1" moment="m5" step="written" />);
+    expect((await screen.findByTestId("guide-moment-m5-plain")).textContent).toBe(MOMENT_COPY.m5Byte);
+    cleanup();
+    render(<Slot uid="u1" moment="m6" step="unread" />);
+    expect((await screen.findByTestId("guide-moment-m6-plain")).textContent).toBe(MOMENT_COPY.m6Byte);
+    cleanup();
+    render(<Slot uid="u1" moment="m4" step="type" />);
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m4")).toBeNull();
+    expect(document.querySelector("[class*='lt-mom-plain']")).toBeNull();
+  });
+
+  it("a free slot: the character draws (and no plain line is shown)", async () => {
+    __setMascotBudgetForTests(true);
+    render(<Slot uid="u1" moment="m8" step="safe" />);
+    expect(await screen.findByTestId("guide-moment-m8")).toBeTruthy();
+    expect(screen.queryByTestId("guide-moment-m8-plain")).toBeNull();
+  });
+
+  it("★★ the host keeps the slot MOUNTED and toggles show: each false -> true is a NEW occurrence (count 2, not a free re-show)", async () => {
+    __setMascotBudgetForTests(true);
+    const toggled = (on: boolean) => (
+      <MemoryRouter>
+        <GuideMomentSlot show={on} moment="m8" step="safe" />
+      </MemoryRouter>
+    );
+    const v = render(toggled(true));
+    await screen.findByTestId("guide-moment-m8");
+    expect(unpromptedShownCount()).toBe(1);
+    v.rerender(toggled(false));
+    expect(screen.queryByTestId("guide-moment-m8")).toBeNull();
+    v.rerender(toggled(true));
+    await screen.findByTestId("guide-moment-m8");
+    expect(unpromptedShownCount()).toBe(2);
+    v.rerender(toggled(true)); // a plain re-render of the same occurrence is not a new one
+    await act(async () => {});
+    expect(unpromptedShownCount()).toBe(2);
+  });
+
+  it("a StrictMode double mount counts ONCE", async () => {
+    __setMascotBudgetForTests(true);
+    render(
+      <StrictMode>
+        <MemoryRouter>
+          <GuideMomentSlot show moment="m8" step="safe" />
+        </MemoryRouter>
+      </StrictMode>,
+    );
+    await screen.findByTestId("guide-moment-m8");
+    await act(async () => {});
+    expect(unpromptedShownCount()).toBe(1);
+  });
+
+  it("hidden mascots: nothing at all (the plain line is the budget's fallback, not a way around Hide)", async () => {
+    window.localStorage.setItem(MASCOTS_HIDDEN_KEY, "1");
+    __setMascotBudgetForTests(true);
+    render(<Slot uid="u1" moment="m8" step="safe" />);
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m8-plain")).toBeNull();
   });
 });

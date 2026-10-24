@@ -25,11 +25,13 @@
  */
 import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
+import { isResumingSavedPaper } from "../../../lib/papers/resumablePaper";
 import { loadLocalSessionRecords } from "../../../services/sessionRecords";
 import { getAttempts, type PracticeAttempt } from "../../../services/practiceInsights";
 import { useZeroGraded } from "../../startHere/zeroGraded";
 import { guideAbActive, guideFocusOpen, guidePreviewActive, resolveGuideVariant, subscribeGuideFocus } from "../guideVariant";
-import { useMascotsHidden } from "../mascotsMute";
+import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
 import { mascotHostsVersion, subscribeMascotHosts } from "../mascotPresence";
 import {
   COMPANION_PRIORITY,
@@ -39,6 +41,8 @@ import {
   companionScoreMoment,
   countdownDue,
   daysToBoards,
+  examWeekDays,
+  examWeekDue,
   istDayIndex,
   isLateNightQuietPath,
   lateNightDue,
@@ -59,6 +63,9 @@ import {
 } from "./companionModel";
 import type { BreatheCardProps, CompanionCardProps } from "./companionChunk";
 import { canShowScene, markSceneShown } from "../sceneGuard";
+import "./companionDoor.css";
+import { APPEARANCE_PRIORITY, NoteShown, shownThisSession, useAppearance } from "../mascotBudget";
+import { registerPreTestMoment, type PreTestMomentProps } from "../pages/preTestSlot";
 
 type Chunk = typeof import("./companionChunk");
 const load = (): Promise<Chunk> => import("./companionChunk");
@@ -87,17 +94,28 @@ function useOtherMascot(): boolean {
  * while it holds it, no focused guide is open, and no other mascot is on the page. `stacked`
  * (admin preview on Home only) lets the owner see it under Start-here's Byte.
  */
-function Staged({ id, priority, stacked, children }: { id: string; priority: number; stacked?: boolean; children: ReactNode }) {
+function Staged({ id, priority, stacked, budgeted = true, children }: { id: string; priority: number; stacked?: boolean; budgeted?: boolean; children: ReactNode }) {
   const holder = useSyncExternalStore(subscribeStage, stageHolder, () => null);
   const focus = useSyncExternalStore(subscribeGuideFocus, guideFocusOpen, () => false);
   const other = useOtherMascot();
+  const exempt = !budgeted || id === "lateNight";
   useEffect(() => {
     claimStage(id, priority);
     return () => releaseStage(id);
   }, [id, priority]);
-  if (holder !== id) return null;
-  if (!stacked && (focus || other)) return null;
-  return <Suspense fallback={null}>{children}</Suspense>;
+  const wantsDraw = holder === id && (stacked || (!focus && !other));
+  // MOMENTS-3 - the director: a companion card is an UNPROMPTED appearance (at most 3 a session).
+  // EXEMPT: the late-night wellbeing note (Ziggy's yawn + Byte's moon) is never counted or refused -
+  // safety first, and it is already once per night. A card whose caller already holds the appearance
+  // (the scorecard's duet) passes `budgeted={false}`.
+  const allowed = useAppearance(!exempt && wantsDraw ? `companion:${id}` : null, APPEARANCE_PRIORITY.companion);
+  if (!wantsDraw || (!exempt && !allowed)) return null;
+  return (
+    <Suspense fallback={null}>
+      {children}
+      {allowed ? <NoteShown kind={allowed} /> : null}
+    </Suspense>
+  );
 }
 
 function safeAttempts(): PracticeAttempt[] {
@@ -119,7 +137,7 @@ export interface CompanionHomeProps {
   returnTo?: "/" | "/browse";
 }
 
-type HomeShow = HomePick | { moment: "countdown"; days: number };
+type HomeShow = HomePick | { moment: "countdown"; days: number } | { moment: "examWeek"; days: number };
 
 export function CompanionHome({ uid, startHereUp, returnTo = "/" }: CompanionHomeProps) {
   const hidden = useMascotsHidden();
@@ -168,13 +186,23 @@ function CompanionHomeInner({ uid, returnTo, preview }: { uid: string; returnTo:
     }
     // 8 — weekly, and ONLY from an OFFICIAL date (the server's CBSE read or an admin-confirmed date);
     // the read is kept for the IST day, so Home never refetches it on every mount.
-    if (!countdownDue({ now, lastCountdownAt: marks.c })) return undefined;
+    const cached = cachedExamDate(marks, now);
+    // MOMENTS-3: a cached read also lets the exam-week check run (it never triggers a fetch on its own).
+    if (!countdownDue({ now, lastCountdownAt: marks.c }) && !cached) return undefined;
     const applyDate = (date: string, src: "official" | "predicted") => {
+      // Never an invented date: only an OFFICIAL one (the server's CBSE read or an admin-confirmed date).
       if (!live || src !== "official") return;
-      const days = daysToBoards(Date.now(), date);
+      const at = Date.now();
+      // ziggy_examday: the week of the exam (0–6 IST days before it), once per exam week.
+      const week = examWeekDays(at, date);
+      if (week !== null && examWeekDue({ now: at, lastAt: marks.e ?? null })) {
+        setShow({ moment: "examWeek", days: week });
+        return;
+      }
+      if (!countdownDue({ now: at, lastCountdownAt: marks.c })) return;
+      const days = daysToBoards(at, date);
       if (days !== null) setShow({ moment: "countdown", days });
     };
-    const cached = cachedExamDate(marks, now);
     if (cached) {
       applyDate(cached.date, cached.src);
       return undefined;
@@ -201,6 +229,7 @@ function CompanionHomeInner({ uid, returnTo, preview }: { uid: string; returnTo:
     if (show.moment === "milestone") writeMarks(uid, { m: Array.from(new Set([...readMarks(uid).m, ...show.mark])) });
     else if (show.moment === "welcomeBack") writeMarks(uid, { wb: show.ref });
     else if (show.moment === "rhythm") writeMarks(uid, { r: at });
+    else if (show.moment === "examWeek") writeMarks(uid, { e: at });
     else writeMarks(uid, { c: at });
   };
   if (show.moment === "milestone" && scene) {
@@ -329,6 +358,8 @@ function CompanionNight() {
 /* ── 1 & 3 — for GUIDE-SCORE-1 to mount on the scorecard ──────────────────────────────────────── */
 
 export interface CompanionScoreSlotProps {
+  /** MOMENTS-3: false when the caller already holds the appearance (the scorecard guide). Default true. */
+  budgeted?: boolean;
   uid: string | null | undefined;
   /** This result's whole percentage (companionModel.scorePct over the scorecard's own marks). */
   pct: number | null;
@@ -340,7 +371,7 @@ export interface CompanionScoreSlotProps {
   busy?: boolean;
 }
 
-export function CompanionScoreSlot({ uid, pct, previousPct, fixTo, busy }: CompanionScoreSlotProps) {
+export function CompanionScoreSlot({ uid, pct, previousPct, fixTo, busy, budgeted = true }: CompanionScoreSlotProps) {
   const hidden = useMascotsHidden();
   const [closed, setClosed] = useState(false);
   // Comfort and the high five play as a short duet SCENE when the shared guard allows one (decided
@@ -352,7 +383,7 @@ export function CompanionScoreSlot({ uid, pct, previousPct, fixTo, busy }: Compa
   const id: CompanionMomentId = m.moment;
   if (scene) {
     return (
-      <Staged id={`score-${id}`} priority={COMPANION_PRIORITY[id]}>
+      <Staged id={`score-${id}`} priority={COMPANION_PRIORITY[id]} budgeted={budgeted}>
         <LazyDuetCard
           moment={m.moment}
           vars={m.moment === "improve" ? { from: m.from, to: m.to } : undefined}
@@ -364,7 +395,7 @@ export function CompanionScoreSlot({ uid, pct, previousPct, fixTo, busy }: Compa
     );
   }
   return (
-    <Staged id={`score-${id}`} priority={COMPANION_PRIORITY[id]}>
+    <Staged id={`score-${id}`} priority={COMPANION_PRIORITY[id]} budgeted={budgeted}>
       {m.moment === "improve" ? (
         <LazyCompanionCard moment="improve" vars={{ from: m.from, to: m.to }} onClose={() => setClosed(true)} />
       ) : (
@@ -385,14 +416,58 @@ export interface CompanionBreatheProps {
 export function CompanionBreathe({ uid, onDone }: CompanionBreatheProps) {
   const hidden = useMascotsHidden();
   const [done, setDone] = useState(false);
-  if (hidden || done || !inGuideArm(uid)) return null;
+  // Once per session - decided at mount, so finishing it never makes it vanish mid-way.
+  const [again] = useState(() => shownThisSession("companion:breathe"));
+  const [hiddenAtMount] = useState(() => mascotsHidden());
+  const key = useAppearance(!hidden && !hiddenAtMount && !done && !again && inGuideArm(uid) ? "companion:breathe" : null, APPEARANCE_PRIORITY.companion);
+  if (!key) return null;
   const finish: BreatheCardProps["onDone"] = () => {
     setDone(true);
     onDone?.();
   };
+  // IN FLOW, and its height is reserved from the first paint (companionDoor.css), so the Start row below
+  // never moves while the chunk loads; the card collapses only on the student's own Skip / Done tap.
   return (
-    <Staged id="breathe" priority={COMPANION_PRIORITY.breathe}>
-      <LazyBreatheCard onDone={finish} />
-    </Staged>
+    <div className="lt-cmp-pretest" data-testid="guide-pretest-slot">
+      <div className="lt-cmp-pretest__in">
+        <Suspense fallback={null}>
+          <LazyBreatheCard onDone={finish} />
+          <NoteShown kind={key} />
+        </Suspense>
+      </div>
+    </div>
   );
 }
+
+/**
+ * MOMENTS-3 - the pre-test breathe, through the reserved slot (pages/preTestSlot.tsx): Chapter Test and
+ * Full Mock ENTRY screens only (the slot is rendered before the Start row, never during a test). It is
+ * optional (Skip), never blocks, delays or changes Start, shows once per session, and the director counts it.
+ * Eligibility is decided SYNCHRONOUSLY from what is already in memory (auth context uid, the session
+ * flag, hidden mascots, the saved-test signal), never after an async read. It stays out of the way of:
+ *   - a RESUME screen (a saved test in progress: lib/papers/resumablePaper isResumingSavedPaper);
+ *   - the page's own first-visit helper (one character at a time: the helper owns the first visit).
+ */
+export function PreTestBreathe({ surface }: PreTestMomentProps) {
+  const { user } = useAuth();
+  const { pathname } = useLocation();
+  const uid = user?.uid || null;
+  // Decided ONCE, at mount: a later re-render (a marker written, the session resolving) must never insert
+  // the card above Start. It can only stay eligible or stay out; it never flips to true afterwards.
+  const [eligible] = useState(() => !!uid && guideAbActive() && !isResumingSavedPaper(pathname, uid) && !firstVisitHelperPending(surface));
+  if (!eligible || !uid) return null;
+  return <CompanionBreathe uid={uid} />;
+}
+
+/** The page helper for this entry screen has not auto-opened on this device yet: it owns the first visit. */
+/** pages/pageGuides.tsx PAGE_GUIDE_SEEN_PREFIX (not imported: that door is not in the entry chunk; a test pins the two equal). */
+export const PAGE_GUIDE_SEEN = "lazytopper.pageGuideSeen.";
+
+function firstVisitHelperPending(surface: PreTestMomentProps["surface"]): boolean {
+  try {
+    return window.localStorage.getItem(`${PAGE_GUIDE_SEEN}${surface === "full_mock" ? "fm_entry" : "ct_entry"}.page`) !== "1";
+  } catch {
+    return false;
+  }
+}
+registerPreTestMoment(PreTestBreathe);

@@ -9,11 +9,12 @@
  * page) → no modal / overlay open → who is this? → arm → `guide_public_shown` (both arms) →
  * guide arm: Byte peeks in. Once per tab per page type (publicPeekModel.ts).
  */
-import { lazy, Suspense, useEffect, useState, type ComponentType } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type ComponentType } from "react";
 import { trackGuidePublicArmAssigned, trackGuidePublicShown, type GuideVariant } from "../../../analytics/analytics";
 import { desktopTopicBySlug } from "../../../lib/desktop/topics";
 import { guideAbActive, guideArmReportsOn, resolveGuideVariant } from "../guideVariant";
 import { useMascotsHidden } from "../mascotsMute";
+import { APPEARANCE_PRIORITY, NoteShown, useAppearance, wouldGrant } from "../mascotBudget";
 import {
   ARTICLE_SELECTOR,
   VisibleClock,
@@ -107,6 +108,7 @@ interface Shown {
 export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
   const chapter = chapterFor(chapterSlug);
   const [shown, setShown] = useState<Shown | null>(null);
+  const report = useRef<Parameters<typeof trackGuidePublicShown>[0] | null>(null);
   const eligible = !!chapter && guideAbActive();
   // MOMENTS-1 PART 0 — "Hide mascots" on this device: Byte is not drawn. The trigger, the arm and
   // guide_public_shown run exactly as before, so hiding never changes the test's exposure count.
@@ -153,11 +155,16 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
       }
       if (!arm) return;
       markPeekUsedInTab(page);
+      // MOMENTS-3: the session budget is spent -> the peek will not draw, so nothing is reported as shown.
+      if (arm === "guide" && !wouldGrant(`public-peek:${page}`, APPEARANCE_PRIORITY.explainer)) return;
       if (!uid && !quiet) copyArmToIntent(arm);
       if (!quiet) {
         // GUIDE-ALL-1 (22 Oct 2026): the A/B ended — the device arm is no longer reported.
         if (fresh && guideArmReportsOn()) trackGuidePublicArmAssigned(arm);
-        trackGuidePublicShown({ page, arm, chapter: chapter!.slug, signed_in: !!uid });
+        // Reported once the director CONFIRMS the appearance (see the effect below), not before.
+        const params = { page, arm, chapter: chapter!.slug, signed_in: !!uid };
+        if (arm === "guide") report.current = params;
+        else trackGuidePublicShown(params); // a non-drawn arm has nothing to confirm
       }
       if (arm === "guide") setShown({ arm, signedIn: !!uid });
     };
@@ -194,9 +201,18 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eligible, page]);
 
-  if (!shown || !chapter || mascotsHidden) return null;
+  // MOMENTS-3 — signed-out peeks count too: the SAME session budget as every other unprompted appearance.
+  const peekKind = `public-peek:${page}`;
+  const allowed = useAppearance(shown && chapter && !mascotsHidden ? peekKind : null, APPEARANCE_PRIORITY.explainer);
+  useEffect(() => {
+    if (!allowed || !report.current) return;
+    trackGuidePublicShown(report.current);
+    report.current = null;
+  }, [allowed]);
+  if (!shown || !chapter || mascotsHidden || !allowed) return null;
   return (
     <Suspense fallback={null}>
+      <NoteShown kind={allowed} />
       <LazyPeekView
         page={page}
         chapter={chapter}

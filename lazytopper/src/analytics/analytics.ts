@@ -1215,6 +1215,13 @@ export type GuideMomentId =
   | "c_late_night"
   | "c_rhythm"
   | "c_countdown"
+  // MOMENTS-3 - distinct ids for the new emotions (never folded into an older moment's metric).
+  // GA4 / Vercel only: none of these is on the server activity allowlist.
+  | "c_exam_week" // Ziggy's exam-week / exam-day note (official date only)
+  | "c_breathe_test" // Breathe on the Chapter Test / Full Mock entry screen
+  | "aha" // Ziggy's aha + Byte's nod on a scorecard (a repeated mistake type stopped)
+  | "byte_marking" // Byte marking, shown beside m5 (m5 itself is still reported)
+  | "byte_sorry" // Byte apologising, shown beside m8 (m8 itself is still reported)
   // GUIDE-FILTER-1 - `filter_help` (Byte explains the Quick Practice filters / a greyed chip; click
   // = the "?") and `filter_empty` (Ziggy beside a 0-result filter combination; click = Edit filters).
   | "filter_help"

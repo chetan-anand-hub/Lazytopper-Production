@@ -205,7 +205,7 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           id,
           title: "CBQ practice",
           sub: "Competency-based questions, chapter-wise",
-          point: "Half the board paper is competency-based. Practise here.",
+          point: "Competency-based questions are a big part of the board paper. Practise here.",
           action: { kind: "route", path: "/practice-hub?cbq=1" },
         };
       case "important":
@@ -238,8 +238,8 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
         return {
           id,
           title: "Tutor",
-          sub: "Stuck? English or Hinglish is fine",
-          point: "Ask me anything. Hinglish chalega!",
+          sub: "English or Hinglish is fine",
+          point: "Stuck? Ask the AI Tutor to explain it step by step.",
           action: { kind: "route", path: `/tutor/10/${subject}` },
         };
       case "full_mock":

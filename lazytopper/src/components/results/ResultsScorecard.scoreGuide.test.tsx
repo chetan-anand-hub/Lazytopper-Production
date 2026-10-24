@@ -49,6 +49,7 @@ import { FIRST_STRIP_HOLD_MS, ZIGGY_CHECK_DELAY_MS, __resetZiggyShownForTests, r
 import { ziggyReactionFor } from "../guide/ziggyModel";
 import { SCORE_GUIDE_BEAT_MS } from "../guide/guideChunk";
 import { __resetMascotsForTests, MASCOTS_HIDDEN_KEY } from "../guide/mascotsMute";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, noteShown, requestAppearance } from "../guide/mascotBudget";
 import { __removeMascotsToastForTests } from "../guide/moments/mascotsToast";
 import { __resetStageForTests, holdStage, stageHeld } from "../guide/scoreGuideStage";
 
@@ -569,5 +570,35 @@ describe("GUIDE-SCORE-1 · stable, hideable, still, honest", () => {
     await wait(50);
     expect(screen.getByTestId("host-m6")).toBeTruthy();
     expect(guide()).toBeNull();
+  });
+});
+
+describe("MOMENTS-3 - the scorecard and the session budget", () => {
+  afterEach(() => {
+    __resetMascotBudgetForTests();
+  });
+
+  it("★★ budget spent: no character on the scorecard, and NO shown event for the refused door (the scorecard itself is untouched)", async () => {
+    __setMascotBudgetForTests(true);
+    for (const k of ["x1", "x2", "x3"]) {
+      requestAppearance(k, 200);
+      noteShown(k);
+    }
+    await open(SURFACES[0].build());
+    await wait(SCORE_GUIDE_BEAT_MS + 50);
+    expect(screen.queryByTestId("score-guide")).toBeNull();
+    expect(screen.queryByTestId("score-guide-slot")).toBeNull();
+    expect(onboarding.mock.calls.filter((c) => c[0] === "guide_moment_shown")).toEqual([]);
+    expect(document.querySelector(".lt-sc__card")).not.toBeNull();
+  });
+
+  it("★★ a free slot: the scorecard shows, is counted once as 'score:<seed>', and reports once", async () => {
+    __setMascotBudgetForTests(true);
+    await open(SURFACES[0].build());
+    await screen.findByTestId("score-guide");
+    const shown = JSON.parse(window.sessionStorage.getItem("lazytopper.mascotBudget") ?? "{}").shown as string[];
+    expect(shown).toHaveLength(1);
+    expect(shown[0].startsWith("score:")).toBe(true);
+    expect(onboarding.mock.calls.filter((c) => c[0] === "guide_moment_shown")).toHaveLength(1);
   });
 });

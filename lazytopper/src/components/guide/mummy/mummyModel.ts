@@ -68,7 +68,7 @@ export const MUMMY_COPY = {
   steps: "The story, step by step",
   stepLabel: (n: number) => `Step ${n} of ${MUMMY_BEATS.length}`,
   /** Tapped: she laughs (prototype). */
-  tapLine: "Hehe! Arre, careful!",
+  tapLine: "Hehe! Arre, careful.",
 } as const;
 
 /** Tap → `laugh` for this long, then back to the beat's pose (spec §2). */
