@@ -238,7 +238,7 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
         return {
           id,
           title: "Tutor",
-          sub: "Stuck? English or Hinglish is fine",
+          sub: "English or Hinglish is fine",
           point: "Stuck? Ask the AI Tutor to explain it step by step.",
           action: { kind: "route", path: `/tutor/10/${subject}` },
         };
