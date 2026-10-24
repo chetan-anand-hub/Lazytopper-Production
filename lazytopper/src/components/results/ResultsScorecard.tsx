@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
 import { MathText } from "../question/MathText";
@@ -22,7 +22,7 @@ import { MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "./GradeStatePar
 import ShareScoreButton from "./share/ShareScoreButton";
 import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
-import { useFirstGradedFeedback } from "../feedback/useFirstGradedFeedback";
+import FirstGradedAsk from "../feedback/FirstGradedAsk";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
 import type {
@@ -585,14 +585,9 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
 }
 
 export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot }: ResultsScorecardProps) {
-  // FIRST-FEEDBACK-1 — fire-and-forget, after the scorecard is up; renders nothing here.
-  useFirstGradedFeedback({
-    ask: askFirstFeedback,
-    deferred: variant.deferred,
-    allPending: !!variant.allPending,
-    score: variant.score,
-  });
-
+  // FEEDBACK-2 - the in-flow slot BELOW the buttons where "Was this useful?" sits on a phone, so it can
+  // never cover the scorecard's own buttons. Empty (and hidden) unless the card is portaled into it.
+  const feedbackSlotRef = useRef<HTMLDivElement | null>(null);
   // Close on Escape — modal etiquette without a modal library.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -617,6 +612,13 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
       onClick={onClose}
     >
       <style>{SC_CSS}</style>
+      {/* FIRST-FEEDBACK-1 / FEEDBACK-2 — fire-and-forget, after the scorecard is up; renders nothing. It
+          sits here, inside the router, so the card's buttons navigate with the router's own navigate. */}
+      <FirstGradedAsk
+        input={{ ask: askFirstFeedback, deferred: variant.deferred, allPending: !!variant.allPending, score: variant.score }}
+        variant={variant}
+        slotRef={feedbackSlotRef}
+      />
       <div className="lt-sc__card" onClick={(e) => e.stopPropagation()}>
         <div className="lt-sc__grab" aria-hidden="true" />
         <div className="lt-sc__body">
@@ -781,6 +783,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
             ))}
           </div>
         )}
+        <div ref={feedbackSlotRef} className="lt-sc__fbslot" data-lt-feedback-slot="" />
       </div>
     </div>
   );
@@ -1071,6 +1074,7 @@ const SC_CSS = `
 .lt-sc__mitag { font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em; min-width: 34px; opacity: 0.7; }
 .lt-sc__mi--primary .lt-sc__mitag { opacity: 0.85; }
 .lt-sc__milbl { flex: 1; }
+.lt-sc__fbslot:empty { display: none; }
 .lt-sc__foot { font-size: 11.5px; color: #6b7a90; margin: 14px 0 0; line-height: 1.5; }
 
 /* ── Mobile: bottom sheet + stacked groups/buttons (reflow at 1024px) ── */

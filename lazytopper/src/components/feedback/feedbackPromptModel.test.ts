@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  AFTER_GRADED_COOLDOWN_MS,
   FEEDBACK_COPY,
   FEEDBACK_REASONS,
   PAYWALL_COOLDOWN_MS,
@@ -118,9 +119,10 @@ describe("FEEDBACK-1 · names and copy", () => {
     expect(feedbackVendorName("dismissed")).toBe("feedback_dismissed");
   });
 
-  it("every name the prompt can record is in the activity allow-list (18 names, incl. the 2 call taps, + FIRST-FEEDBACK-1's 5)", () => {
+  it("every name the prompt can record is in the activity allow-list (18 names, incl. the 2 call taps, + FIRST-FEEDBACK-1's 5, + FEEDBACK-2's 21)", () => {
     const names = allFeedbackActivityNames();
-    expect(names).toHaveLength(23);
+    expect(names).toHaveLength(44);
+    expect(new Set(names).size).toBe(44);
     for (const n of names) expect(ACTIVITY_EVENTS as readonly string[]).toContain(n);
   });
 
@@ -135,6 +137,63 @@ describe("FEEDBACK-1 · names and copy", () => {
     ]);
     for (const text of [FEEDBACK_COPY.title, FEEDBACK_COPY.subtitle, FEEDBACK_COPY.thanks]) {
       expect(text).not.toMatch(/pay|paid|premium|upgrade|₹|offer|hurry|only today|last chance/i);
+    }
+  });
+});
+
+describe("FEEDBACK-2 · the repeat ask (after_graded) — once per 7 days, invisible to the other moments", () => {
+  it("asked at most once per 7 days after the LATEST 'Was this useful?' of either kind (control: day 7 asks)", () => {
+    const s = memStore();
+    expect(claimFeedbackMoment(s, "u1", "after_graded", T0)).toBe(true); // never asked before: fine
+    expect(claimFeedbackMoment(s, "u1", "after_graded", T0 + 1)).toBe(false);
+    expect(claimFeedbackMoment(s, "u1", "after_graded", T0 + AFTER_GRADED_COOLDOWN_MS - 1)).toBe(false);
+    expect(claimFeedbackMoment(s, "u1", "after_graded", T0 + AFTER_GRADED_COOLDOWN_MS)).toBe(true);
+    const t = memStore();
+    expect(claimFeedbackMoment(t, "u1", "first_graded", T0)).toBe(true);
+    expect(claimFeedbackMoment(t, "u1", "after_graded", T0 + 3 * DAY)).toBe(false); // the first ask counts
+    expect(claimFeedbackMoment(t, "u1", "after_graded", T0 + 7 * DAY)).toBe(true);
+  });
+
+  it("another student on the same device is asked independently; a wrong (future) clock can only make it rarer", () => {
+    const s = memStore();
+    expect(claimFeedbackMoment(s, "u1", "after_graded", T0)).toBe(true);
+    expect(claimFeedbackMoment(s, "u2", "after_graded", T0 + 1)).toBe(true);
+    expect(shouldShowFeedback({ a: T0 + 400 * DAY }, "after_graded", T0)).toBe(false);
+    expect(shouldShowFeedback({ a: T0 - 8 * DAY }, "after_graded", T0)).toBe(true);
+  });
+
+  it("it writes ONLY its own timing field `a`, and holds back neither the paywall nor the trial-end prompt (control: paywall still holds trial-end)", () => {
+    const s = memStore();
+    claimFeedbackMoment(s, "u1", "after_graded", T0);
+    expect(JSON.parse(s.map.get(feedbackStorageKey("u1"))!)).toEqual({ a: T0 });
+    expect(claimFeedbackMoment(s, "u1", "paywall", T0 + 60_000)).toBe(true);
+    const t = memStore();
+    claimFeedbackMoment(t, "u1", "paywall", T0);
+    expect(claimFeedbackMoment(t, "u1", "trial_end", T0 + 60_000, "trial-A")).toBe(false);
+    // and the 24 h gap does not hold IT back either
+    expect(claimFeedbackMoment(t, "u1", "after_graded", T0 + 60_000)).toBe(true);
+  });
+
+  it("fails closed on a throwing store, an empty uid, and a store that drops writes", () => {
+    const throwing: FeedbackStore = { getItem: () => null, setItem: () => { throw new Error("full"); } };
+    expect(claimFeedbackMoment(throwing, "u1", "after_graded", T0)).toBe(false);
+    expect(claimFeedbackMoment(memStore(), "", "after_graded", T0)).toBe(false);
+    const dropping: FeedbackStore = { getItem: () => null, setItem: () => undefined };
+    expect(claimFeedbackMoment(dropping, "u1", "after_graded", T0)).toBe(false);
+  });
+
+  it("the record parser keeps `a` and drops junk", () => {
+    expect(parseFeedbackRecord(JSON.stringify({ a: 5, g: 4, x: 1 }))).toEqual({ a: 5, g: 4 });
+    expect(parseFeedbackRecord(JSON.stringify({ a: "soon" }))).toEqual({});
+  });
+
+  it("the next-step names follow the pattern, for both graded moments, and are all in the client allow-list", () => {
+    expect(feedbackActivityName("next", "after_graded", undefined, "harder")).toBe("feedback_after_graded_next_harder");
+    expect(feedbackActivityName("next", "first_graded", undefined, "note_saved")).toBe("feedback_first_graded_next_note_saved");
+    expect(feedbackVendorName("next")).toBe("feedback_next");
+    const names = allFeedbackActivityNames();
+    for (const m of ["first_graded", "after_graded"]) for (const a of ["more", "harder", "easier", "tutor", "written", "picker", "note_saved"]) {
+      expect(names).toContain(`feedback_${m}_next_${a}`);
     }
   });
 });

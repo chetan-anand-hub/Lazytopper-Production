@@ -166,6 +166,8 @@ function realSeed(uid = UID) {
     [`sessionRecords/${uid}/worksheetPapers/w1`]: {},
     [`practiceInsights/${uid}`]: {},
     [`practiceInsights/${uid}/attempts/at1`]: { correct: false },
+    // FEEDBACK-2: the optional "Tell us more" note is student data, exported with the account.
+    [`practiceInsights/${uid}/feedbackNotes/n1`]: { text: 'a note', kind: 'other' },
     [`mockScoreHistory/${uid}`]: {},
     [`mockScoreHistory/${uid}/entries/e1`]: { score: 61 },
     [`weakAreaSummary/${uid}`]: {},
@@ -751,6 +753,24 @@ test('★ SOURCE-1: signupSources/{uid} is exported, and only this one', async (
   assert.equal(row.status, EXPORT_STATUS.EXPORTED);
   assert.equal(row.records[0].data.utm_source, 'google');
   assert.ok(!JSON.stringify(result).includes('other.example'), "another student's source leaked into this export");
+});
+
+/* FEEDBACK-2 — the optional "Tell us more" note is the student's own words, so it is IN the export
+   (and only theirs). MUTATION: drop the `practiceInsights.feedbackNotes` entry from studentDataMap.ts => RED. */
+test('★ FEEDBACK-2: a saved feedback note appears in the export, and another student\'s does not', async () => {
+  const seed = {
+    [`practiceInsights/${UID}/feedbackNotes/n1`]: { text: 'The second step was confusing', kind: 'other', surface: 'worksheet' },
+    [`practiceInsights/${OTHER}/feedbackNotes/n9`]: { text: 'someone else\'s private note', kind: 'marks' },
+  };
+  const { service } = makeService({ seed, files: [], users: {} });
+  const result = await service.exportAccount(UID);
+  const row = byId(result, 'practiceInsights.feedbackNotes');
+  assert.ok(row, 'practiceInsights.feedbackNotes is missing from the export entirely');
+  assert.equal(row.status, EXPORT_STATUS.EXPORTED);
+  assert.equal(row.records.length, 1);
+  assert.equal(row.records[0].data.text, 'The second step was confusing');
+  assert.ok(JSON.stringify(result).includes('The second step was confusing'));
+  assert.ok(!JSON.stringify(result).includes("someone else's private note"), "another student's note leaked into this export");
 });
 
 /* METER-1 (M4/M5) — the usage ledger is student data, so it is IN the export.
