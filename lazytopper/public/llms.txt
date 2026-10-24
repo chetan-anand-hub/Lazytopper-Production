@@ -8,6 +8,7 @@ Key facts:
 - Check & Improve: a student photographs or uploads a written answer and sees the marks for every step and where marks were lost. The first check is free without an account.
 - Free without an account: chapter notes, chapter pages, Exam Trends, the CBSE Class 10 papers page and the practice hub.
 - Signing up starts a 7-day Premium trial with no card needed; after it the student keeps the free Basic plan or upgrades to Premium.
+- Paying for Premium: online payment is live. Premium is bought on the Pricing page and paid in Razorpay's secure checkout (UPI, card or netbanking), and Premium turns on straight away. Passes: a Month pass at the founding-member price of ₹599 for a month (the regular price, once the founding offer ends, is ₹999), or one payment that covers Premium until the student's first board exam, at 20% less than paying monthly. Passes are one-time payments, never renew automatically, and are non-refundable except for billing errors (see the Cancellation and refund policy).
 - Important Questions: chapter-wise important questions written by LazyTopper in CBSE question shapes, chosen by its prediction model from ten years of CBSE paper trends and the 2026-27 syllabus. A strong guide, not the actual paper: LazyTopper does not claim to know the questions of any upcoming exam.
 - LazyTopper is an independent platform and is not affiliated with CBSE.
 
@@ -49,7 +50,7 @@ Key facts:
 - [Practice hub](https://www.lazytopper.com/practice-hub): choose a subject and chapter, then practise questions, worksheets or mock papers
 - [Class 10 Maths Important Questions](https://www.lazytopper.com/highly-probable/10/Maths): chapter-wise important questions for the 2027 boards
 - [Class 10 Science Important Questions](https://www.lazytopper.com/highly-probable/10/Science): chapter-wise important questions for the 2027 boards
-- [Pricing](https://www.lazytopper.com/pricing): what the free plan includes and what Premium adds
+- [Pricing](https://www.lazytopper.com/pricing): what the free plan includes, what Premium adds, and secure online payment through Razorpay (UPI, card or netbanking)
 
 ## Class 10 Maths chapters
 - [Real Numbers notes](https://www.lazytopper.com/notes/real-numbers): chapter notes, key formulas and competency-based questions
