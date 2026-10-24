@@ -27,6 +27,8 @@ export interface PracticeTutorAsk {
   pick: string | null;
   /** Whether that pick was the right option; null whenever `pick` is null. */
   correct: boolean | null;
+  /** `practiceOwnerTag` of the account that tapped (never the uid). */
+  owner: string;
   /** When it was stored (ms). */
   at: number;
 }
@@ -42,7 +44,7 @@ function clear(): void {
 /** Store the one-shot. Called ONLY on the student's tap. Best effort: without it the tutor still opens
  *  on the question's chapter and concept, exactly as before. */
 export function stashPracticeTutorAsk(
-  ask: { q: string; qNumber?: number | null; pick?: string | null; correct?: boolean | null },
+  ask: { q: string; owner: string; qNumber?: number | null; pick?: string | null; correct?: boolean | null },
   now: number = Date.now(),
 ): void {
   const pick = typeof ask.pick === "string" && ask.pick.trim() ? ask.pick.trim().slice(0, 500) : null;
@@ -53,6 +55,7 @@ export function stashPracticeTutorAsk(
     qNumber: Number.isInteger(ask.qNumber) && (ask.qNumber as number) > 0 ? (ask.qNumber as number) : null,
     pick: correct === null ? null : pick,
     correct,
+    owner: String(ask.owner).slice(0, 40),
     at: now,
   };
   try {
@@ -64,7 +67,7 @@ export function stashPracticeTutorAsk(
 
 /** Read the one-shot for `questionId` and delete it (consumed once). A one-shot for another question is
  *  left for its own hop; a stale or malformed one is dropped. */
-export function takePracticeTutorAsk(questionId: string, now: number = Date.now()): PracticeTutorAsk | null {
+export function takePracticeTutorAsk(questionId: string, owner: string, now: number = Date.now()): PracticeTutorAsk | null {
   let raw: string | null = null;
   try {
     raw = sessionStorage.getItem(PRACTICE_ASK_KEY);
@@ -90,14 +93,30 @@ export function takePracticeTutorAsk(questionId: string, now: number = Date.now(
   }
   if (parsed.q !== questionId) return null;
   clear();
+  // Another account's tap on this tab: dropped (above), never shown to this account.
+  if (parsed.owner !== owner) return null;
   const pick = typeof parsed.pick === "string" && typeof parsed.correct === "boolean" ? parsed.pick : null;
   return {
     q: parsed.q,
     qNumber: typeof parsed.qNumber === "number" ? parsed.qNumber : null,
     pick,
     correct: pick === null ? null : (parsed.correct as boolean),
+    owner,
     at: parsed.at,
   };
+}
+
+/** Delete the one-shot if it is for `questionId` (another path handled that hop, so it must not wait to
+ *  be read later). A one-shot for another question is left alone. */
+export function discardPracticeTutorAsk(questionId: string): void {
+  try {
+    const raw = sessionStorage.getItem(PRACTICE_ASK_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as { q?: unknown };
+    if (parsed && parsed.q === questionId) clear();
+  } catch {
+    clear();
+  }
 }
 
 function shorten(text: string, max: number): string {

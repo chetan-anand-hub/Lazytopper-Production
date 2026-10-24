@@ -667,7 +667,9 @@ import { signedOutTutorPath, stashSignedOutAsk } from "./tutor/signedOutScorecar
 import { stashPracticeTutorAsk } from "./tutor/practiceTutorAsk";
 import {
   clearPracticeReturn,
+  hasPracticeReturn,
   peekPracticeReturn,
+  practiceOwnerTag,
   savePracticeReturn,
   type PracticeReturnSnapshot,
 } from "../lib/practice/practiceReturnSnapshot";
@@ -1123,7 +1125,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // (read, never consumed here: it is deleted once the restored set is on screen, so a render that runs
   // twice reads it twice). Never in the tutor overlay. When present the page opens BUILT, on the saved ids.
   const [restoreSnap] = useState<PracticeReturnSnapshot | null>(() =>
-    overlay ? null : peekPracticeReturn(location.pathname + location.search),
+    overlay ? null : peekPracticeReturn(location.pathname + location.search, practiceOwnerTag(authUserForJourney?.uid)),
   );
   // The ids the build rebuilds the set from; cleared by `regenerateQuestions` (every rebuild trigger).
   const restoreIdsRef = useRef<string[] | null>(restoreSnap ? restoreSnap.ids : null);
@@ -1162,7 +1164,14 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // reshuffle the set under the student mid-session.
   // TUTOR-Q-1: a set restored after the tutor CONTINUES its visit (same start), so the session record it
   // may write is the same idempotent document as before - never a second record for one set.
-  const [sessionStartedAt] = useState<number>(() => restoreSnap?.startedAt ?? Date.now());
+  const [sessionStartedAt] = useState<number>(() => Date.now());
+  // TUTOR-Q-1: the session IDENTITY (record id, batch id) of a set restored after the tutor continues the
+  // saved visit's, so the one session record it may write is the same idempotent document. It is used ONLY
+  // for identity: the freshness cutoff and the rotation above keep this mount's own `sessionStartedAt`, so
+  // everything served before this mount (the saved visit's sets included) stays excluded from the next draw.
+  const [sessionIdentityAt] = useState<number>(() => restoreSnap?.startedAt ?? sessionStartedAt);
+  // `start_here_graded` fires at most once per set, even across a tutor round trip (restored from the snapshot).
+  const startHereGradedRef = useRef<boolean>(restoreSnap?.startHereGraded === true);
   // The COMMITTED filters that decide WHICH questions this set contains. Change any of
   // them and it is a different set → a different session identity → a different draw.
   // `pending*` is deliberately absent (it hasn't been applied yet), as are nav/display
@@ -1833,6 +1842,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
     const verdict = mcqResults[qId];
     stashPracticeTutorAsk({
       q: qId,
+      owner: practiceOwnerTag(authUserForJourney?.uid),
       qNumber: at >= 0 ? at + 1 : null,
       pick: typeof picked === "number" && opts[picked] ? opts[picked] : null,
       correct: verdict === "correct" ? true : verdict === "wrong" ? false : null,
@@ -1846,7 +1856,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
       savePracticeReturn({
         url: here,
         at: Date.now(),
-        startedAt: sessionStartedAt,
+        owner: practiceOwnerTag(authUserForJourney?.uid),
+        startHereGraded: startHereGradedRef.current,
+        startedAt: sessionIdentityAt,
         scorecardDismissed,
         ids,
         filters: {
@@ -1883,7 +1895,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
     navigate, location.pathname, location.search, subjectKey, canonicalTopicKey, topicParam, grade, conceptFocusLabel,
     filteredQuestions, mcqSelections, mcqResults, reviewMode, sessionFinished, batchResult, savedAnswers, expandedAnswers,
     practiceSolutionData, committedMarks, committedStyle, committedSource, committedDifficulty, difficulty, committedCount,
-    committedMarksRange, sessionStartedAt, scorecardDismissed,
+    committedMarksRange, sessionIdentityAt, scorecardDismissed, authUserForJourney?.uid,
   ]);
 
   const strategyTopicSeed = useMemo(() => {
@@ -3342,7 +3354,7 @@ const packTopicKey = useMemo(() => {
         keep.has(a.qNumber) ? a : { ...a, imageBase64: null, imageMimeType: null, textAnswer: null },
       );
     }
-    const worksheetId = quickPracticeBatchId(filterSignature, sessionStartedAt);
+    const worksheetId = quickPracticeBatchId(filterSignature, sessionIdentityAt);
     // J2 — stored with the job (text only) so a reload can finish THIS grade: the session's
     // record identity, the same values the record effect below writes with.
     const mtId = isMultiTopic
@@ -3364,7 +3376,7 @@ const packTopicKey = useMemo(() => {
         topicSlug: mtId ? mtId.topicSlug : canonicalTopicKey || topicParam,
         ...(mtId ? { topicKeys: mtId.topicKeys } : {}),
         filterSignature,
-        startedAt: sessionStartedAt,
+        startedAt: sessionIdentityAt,
       },
     };
     // QP-NO-REVIEW-GRADE-1 (owner ruling 23 Oct 22:48) — working saved after the scorecard is never
@@ -3425,7 +3437,7 @@ const packTopicKey = useMemo(() => {
           : "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
       );
     }
-  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney, isMultiTopic, multiTopics, isFullSubject, topicLabel, canonicalTopicKey, topicParam, qpJobStore, qpJob.reset, qpJob.onProgress, qpJob.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
+  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionIdentityAt, subjectKey, sessionAnswers, authUserForJourney, isMultiTopic, multiTopics, isFullSubject, topicLabel, canonicalTopicKey, topicParam, qpJobStore, qpJob.reset, qpJob.onProgress, qpJob.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
 
   /** The student's "Grade my N answers" tap. FAIR-USE-UI-1 (UI2): with fewer checks left
    *  than answers, ask first; with none left, show the limit panel and send nothing.
@@ -3529,13 +3541,13 @@ const packTopicKey = useMemo(() => {
       // existing `[slug]` default, byte-identical).
       topicKeys: mtIdentity ? mtIdentity.topicKeys : undefined,
       filterSignature,
-      startedAt: sessionStartedAt,
+      startedAt: sessionIdentityAt,
       entries,
     });
   }, [
     showScorecard, committedPoolSelection.displayed, gradedResults, mcqResults,
     authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
-    filterSignature, sessionStartedAt, isMultiTopic, isFullSubject, multiTopics,
+    filterSignature, sessionIdentityAt, isMultiTopic, isFullSubject, multiTopics,
     batchResult, batchSelection.batch.length, scoredBatchEntries, reviewSavedIds, reviewMcqIds,
     sessionAnswers,
   ]);
@@ -3551,9 +3563,9 @@ const packTopicKey = useMemo(() => {
       topicSlug: canonicalTopicKey || topicParam,
       filterSignature,
       questionIds: displayed.map((q) => String(q.id)),
-      startedAt: sessionStartedAt,
+      startedAt: sessionIdentityAt,
     });
-  }, [committedPoolSelection.displayed, isMultiTopic, subjectKey, canonicalTopicKey, topicParam, filterSignature, sessionStartedAt]);
+  }, [committedPoolSelection.displayed, isMultiTopic, subjectKey, canonicalTopicKey, topicParam, filterSignature, sessionIdentityAt]);
 
   // (b) `start_here_graded`, ONCE per Start-here set, when its scorecard first shows with at
   // least one counted answer. Counts only — no id, no text.
@@ -3598,7 +3610,6 @@ const packTopicKey = useMemo(() => {
         ? "ziggy"
         : null;
   const qpLoadMoment = inGuideArm(qpMomentUid);
-  const startHereGradedRef = useRef(false);
   useEffect(() => {
     if (!startHereSet || !showScorecard || startHereGradedRef.current) return;
     // START-HERE-WRITTEN: a written answer is graded in the batch at Finish (it never lands in
@@ -3718,9 +3729,9 @@ const packTopicKey = useMemo(() => {
       topicSlug: mtId ? mtId.topicSlug : canonicalTopicKey || topicParam,
       ...(mtId ? { topicKeys: mtId.topicKeys } : {}),
       filterSignature,
-      startedAt: sessionStartedAt,
+      startedAt: sessionIdentityAt,
     };
-  }, [isMultiTopic, multiTopics, isFullSubject, subjectKey, topicLabel, canonicalTopicKey, topicParam, filterSignature, sessionStartedAt]);
+  }, [isMultiTopic, multiTopics, isFullSubject, subjectKey, topicLabel, canonicalTopicKey, topicParam, filterSignature, sessionIdentityAt]);
 
   /** The outcomes the record holds right now, one per displayed question — the same derivation
    *  (and the same review-mode exclusions) as the record effect above. */
@@ -3759,7 +3770,7 @@ const packTopicKey = useMemo(() => {
     if (overlay) return;
     const out = saveQuickPracticeUploadLater({
       user: authUserForJourney,
-      worksheetId: quickPracticeBatchId(filterSignature, sessionStartedAt),
+      worksheetId: quickPracticeBatchId(filterSignature, sessionIdentityAt),
       subject: subjectKey,
       persist: liveRecordIdentity,
       answers: sessionAnswers,
@@ -3783,7 +3794,7 @@ const packTopicKey = useMemo(() => {
         ? `Saved for later. Your marks so far are in your history now. When your written answers are ready, open "Awaiting your written answers" on the practice page.${photosNote}`
         : `Your set is saved. Upload your written answers when you're ready.${photosNote}`,
     );
-  }, [overlay, authUserForJourney, filterSignature, sessionStartedAt, subjectKey, liveRecordIdentity, sessionAnswers, liveEntriesSoFar, pendingWrittenNow, uploadLaterKey]);
+  }, [overlay, authUserForJourney, filterSignature, sessionIdentityAt, subjectKey, liveRecordIdentity, sessionAnswers, liveEntriesSoFar, pendingWrittenNow, uploadLaterKey]);
 
   // Kept in step: a set saved for later and then graded here after all — the snapshot follows
   // (cleared when nothing waits, else the waiting list shrinks). Same ids, so nothing doubles.
@@ -3796,7 +3807,7 @@ const packTopicKey = useMemo(() => {
     } else {
       saveQuickPracticeUploadLater({
         user: authUserForJourney,
-        worksheetId: quickPracticeBatchId(filterSignature, sessionStartedAt),
+        worksheetId: quickPracticeBatchId(filterSignature, sessionIdentityAt),
         subject: subjectKey,
         persist: liveRecordIdentity,
         answers: sessionAnswers,
@@ -3805,7 +3816,7 @@ const packTopicKey = useMemo(() => {
       });
     }
     setAwaitingRefresh((n) => n + 1);
-  }, [uploadLaterSaved, batchResult?.outcome, uploadLaterKey, pendingWrittenNow, authUserForJourney, filterSignature, sessionStartedAt, subjectKey, liveRecordIdentity, sessionAnswers, liveEntriesSoFar]);
+  }, [uploadLaterSaved, batchResult?.outcome, uploadLaterKey, pendingWrittenNow, authUserForJourney, filterSignature, sessionIdentityAt, subjectKey, liveRecordIdentity, sessionAnswers, liveEntriesSoFar]);
 
   // The reopened scorecard offers "Upload written answers" when its set is still waiting.
   useEffect(() => {
@@ -4513,7 +4524,7 @@ const packTopicKey = useMemo(() => {
         topicSlug: liveRecordIdentity.topicSlug,
         filterSignature,
         questionIds: entries.map((e) => e.questionId),
-        startedAt: sessionStartedAt,
+        startedAt: sessionIdentityAt,
       }),
       subject: subjectKey,
       grade: String(grade),
@@ -5224,8 +5235,12 @@ const arrivalBaseOf = (heldKey: string): string => heldKey.split("@")[0];
  */
 const PracticePageRoute: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay }) => {
   const location = useLocation();
+  const { loading: routeAuthLoading } = useAuth();
   const decided = useRef<{ locKey: string; key: string; base: string; held: boolean } | null>(null);
   if (overlay) return <PracticePage overlay={overlay} />;
+  // TUTOR-Q-1: a return snapshot belongs to one account, so the page waits for auth to resolve before it
+  // mounts (and reads it); otherwise its owner could not be checked. Only when a snapshot is waiting.
+  if (routeAuthLoading && hasPracticeReturn()) return null;
   const heldRaw = (location.state as Record<string, unknown> | null)?.[QP_ARRIVAL_KEY_STATE];
   const held = typeof heldRaw === "string" ? heldRaw : null;
   const last = decided.current;

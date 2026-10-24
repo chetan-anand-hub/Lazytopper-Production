@@ -49,7 +49,13 @@ import {
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
 import { composeSignedOutAskOpener, takeSignedOutAsk, type SignedOutAsk } from "./signedOutScorecardAsk";
-import { composePracticeAskOpener, takePracticeTutorAsk, type PracticeTutorAsk } from "./practiceTutorAsk";
+import {
+  composePracticeAskOpener,
+  discardPracticeTutorAsk,
+  takePracticeTutorAsk,
+  type PracticeTutorAsk,
+} from "./practiceTutorAsk";
+import { practiceOwnerTag } from "../../lib/practice/practiceReturnSnapshot";
 import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
 import { renderableFiguresForTopic } from "./tutorFigures";
@@ -516,13 +522,22 @@ export function useTutorSession({
   // ONCE for this `q` (a ref keeps it across a StrictMode effect re-run), the bank text becomes the
   // one-shot returnedWork and ONE opener turn names the question and the pick. The scorecard (`from`)
   // path and the signed-out path are left alone; no one-shot -> the normal tutor, unchanged.
+  // The one-shot carries an opaque owner tag: another account's tap on this tab is dropped unread.
+  // If another path owns this `q` (a `from=` hop, or a signed-out one-shot for it), the practice
+  // one-shot is DELETED unread, so a later topicKey change cannot turn it into a second opener.
   const practiceAskRef = useRef<{ q: string; ask: PracticeTutorAsk | null } | null>(null);
   useEffect(() => {
-    if (!uid || fromRecordId || !fromQuestionId) return;
-    // A signed-out one-shot for this question owns the hop (the two are never both written for one tap).
-    if (signedOutAskRef.current) return;
+    if (!uid || !fromQuestionId) return;
+    // Another path handles this hop: the scorecard record path (`from=`), or a signed-out one-shot for the
+    // same question (both can exist only if one tab stashed a signed-out ask and a practice ask for the
+    // same question; the other path wins). Either way the practice one-shot is deleted unread.
+    if (fromRecordId || signedOutAskRef.current) {
+      discardPracticeTutorAsk(fromQuestionId);
+      practiceAskRef.current = { q: fromQuestionId, ask: null };
+      return;
+    }
     if (!practiceAskRef.current || practiceAskRef.current.q !== fromQuestionId) {
-      practiceAskRef.current = { q: fromQuestionId, ask: takePracticeTutorAsk(fromQuestionId) };
+      practiceAskRef.current = { q: fromQuestionId, ask: takePracticeTutorAsk(fromQuestionId, practiceOwnerTag(uid)) };
     }
     const ask = practiceAskRef.current.ask;
     if (!ask) return;

@@ -38,7 +38,12 @@ vi.mock("./conceptVisualCatalogue", () => ({ catalogueFiguresForTopic: () => [] 
 
 import { useTutorSession } from "./useTutorSession";
 import { SIGNED_OUT_ASK_KEY, stashSignedOutAsk } from "./signedOutScorecardAsk";
-import { PRACTICE_ASK_KEY, stashPracticeTutorAsk } from "./practiceTutorAsk";
+import { PRACTICE_ASK_KEY, stashPracticeTutorAsk as stashRaw } from "./practiceTutorAsk";
+import { practiceOwnerTag } from "../../lib/practice/practiceReturnSnapshot";
+
+// The signed-in account of these tests is "u-new"; the one-shot is stamped with its opaque owner tag.
+const stashPracticeTutorAsk = (a: Omit<Parameters<typeof stashRaw>[0], "owner">, owner = practiceOwnerTag("u-new")) =>
+  stashRaw({ ...a, owner });
 
 const USER = { uid: "u-new", isLocalSession: false } as never;
 
@@ -127,13 +132,21 @@ describe("TUTOR-Q-1 · Quick Practice's ask opens the tutor on the question", ()
     expect(r.result.current.messages).toHaveLength(0);
   });
 
-  it("★★ with from= the scorecard path owns the hop; the practice one-shot is left untouched", async () => {
+  it("★★ ANOTHER account's one-shot (same tab) opens no practice opener and is removed", async () => {
+    stashPracticeTutorAsk({ q: "q-3", qNumber: 3, pick: "2", correct: false }, practiceOwnerTag("someone-else"));
+    const r = render({ q: "q-3" });
+    await settle();
+    expect(opener(r)).toHaveLength(0);
+    expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).toBeNull();
+  });
+
+  it("★★ with from= the scorecard path owns the hop; the practice one-shot is DELETED unread (no later second opener)", async () => {
     stashPracticeTutorAsk({ q: "q-3", qNumber: 3, pick: "2", correct: false });
     const r = render({ q: "q-3", from: "QP-1" });
     await settle();
     expect(opener(r)).toHaveLength(0);
     expect(getRecords).toHaveBeenCalledWith("u-new");
-    expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).not.toBeNull();
+    expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).toBeNull();
   });
 
   it("★★ a signed-out one-shot for the same question keeps its own opener (never two openers)", async () => {
@@ -145,6 +158,7 @@ describe("TUTOR-Q-1 · Quick Practice's ask opens the tutor on the question", ()
     expect(opener(r)).toHaveLength(1);
     expect(opener(r)[0].content).toContain('You chose "x = 2"');
     expect(sessionStorage.getItem(SIGNED_OUT_ASK_KEY)).toBeNull();
+    expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).toBeNull(); // skipped one-shot is deleted
   });
 
   it("a one-shot for another question is not used", async () => {

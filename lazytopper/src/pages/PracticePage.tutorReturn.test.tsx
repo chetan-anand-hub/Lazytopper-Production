@@ -66,14 +66,27 @@ import { PRACTICE_RETURN_KEY, PRACTICE_RETURN_TTL_MS } from "../lib/practice/pra
 import { PRACTICE_ASK_KEY } from "./tutor/practiceTutorAsk";
 import { ensureBankChapters } from "../data/bankChapters/loader";
 import { practiceTopicLabel } from "../components/practice/cbqAvailability";
+import { buildChapterServedPool } from "../components/practice/practiceQuestionBuilder";
+import { resolveCorrectOptionIndex } from "../lib/objectiveScoring";
+import type { PracticeQuestion } from "../data/predictionDataService";
 
 const SLUG = "real-numbers";
 const START = `/practice/10/maths?source=practice&topic=${SLUG}`;
 const scrolled: string[] = [];
 
+const pool = new Map<string, PracticeQuestion>();
 beforeAll(async () => {
   await ensureBankChapters([practiceTopicLabel("Maths", SLUG)]);
+  for (const q of buildChapterServedPool({ subjectKey: "Maths", topicKey: practiceTopicLabel("Maths", SLUG) })) pool.set(String(q.id), q);
 }, 120000);
+
+/** The option index the CARD treats as right for this question (same resolver the card uses). */
+function correctIndexOf(id: string, optionCount: number): number {
+  const q = pool.get(id) as (PracticeQuestion & { correctOption?: string }) | undefined;
+  const opts = Array.isArray(q?.options) ? (q!.options as unknown[]).map(String) : [];
+  expect(opts.length, `options of ${id}`).toBe(optionCount);
+  return resolveCorrectOptionIndex(q!.correctOption, q!.answer, opts);
+}
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -154,11 +167,31 @@ function pickOnMcqCards(cards: HTMLElement[], picks: number[]): Record<string, n
 }
 
 /** Build a set, answer two MCQs, open the steps on the first, ask the tutor about it. */
-async function askFromAFreshSet() {
+async function askFromAFreshSet(opts: { askSecond?: boolean; rightOnFirst?: boolean } = {}) {
   const cards = await arriveBoardMix();
+  return askFrom(cards, opts);
+}
+
+/** Answers two MCQs (first right/wrong per `rightOnFirst`, the other the opposite), asks about one. */
+async function askFrom(cards: HTMLElement[], opts: { askSecond?: boolean; rightOnFirst?: boolean } = {}) {
   const savedIds = idsOf(cards);
-  const picks = pickOnMcqCards(cards, [0, 1]);
-  const askedId = Object.keys(picks)[0];
+  const picks: Record<string, number> = {};
+  let n = 0;
+  for (const card of cards) {
+    if (n >= 2) break;
+    const options = card.querySelectorAll<HTMLButtonElement>("button[aria-pressed]");
+    if (options.length < 2) continue;
+    const id = card.getAttribute("data-question-id") ?? "";
+    const right = correctIndexOf(id, options.length);
+    expect(right, `a resolvable right option for ${id}`).toBeGreaterThanOrEqual(0);
+    const wantRight = n === 0 ? opts.rightOnFirst !== false : opts.rightOnFirst === false;
+    const oi = wantRight ? right : (right + 1) % options.length;
+    fireEvent.click(options[oi]);
+    picks[id] = oi;
+    n += 1;
+  }
+  expect(n, "the Board mix holds at least two MCQs").toBe(2);
+  const askedId = Object.keys(picks)[opts.askSecond ? 1 : 0];
   const askedCard = cards.find((c) => c.getAttribute("data-question-id") === askedId)!;
   fireEvent.click(within(askedCard).getByTestId("practice-mentor-cta"));
   await within(askedCard).findByText(STEP_TEXT, undefined, { timeout: 20000 });
@@ -190,8 +223,21 @@ describe("TUTOR-Q-1 · Ask the tutor, then back, returns to the SAME set", () =>
     expect(ask.qNumber).toBe(savedIds.indexOf(askedId) + 1);
     expect(typeof ask.pick).toBe("string");
     expect(typeof ask.correct).toBe("boolean");
-    expect(Object.keys(ask).sort()).toEqual(["at", "correct", "pick", "q", "qNumber"]);
-    expect(picks[askedId]).toBe(0);
+    expect(Object.keys(ask).sort()).toEqual(["at", "correct", "owner", "pick", "q", "qNumber"]);
+  }, 300000);
+
+  it("★★ the stored verdict equals the card's: a RIGHT pick is correct=true, a WRONG pick is correct=false", async () => {
+    for (const askSecond of [false, true]) {
+      cleanup();
+      const { askedId, picks } = await askFromAFreshSet({ askSecond, rightOnFirst: true });
+      const ask = JSON.parse(sessionStorage.getItem(PRACTICE_ASK_KEY)!);
+      const q = pool.get(askedId) as PracticeQuestion & { correctOption?: string };
+      const opts = (q.options as unknown[]).map(String);
+      const right = resolveCorrectOptionIndex(q.correctOption, q.answer, opts);
+      expect(ask.correct, `asked ${askedId} (${askSecond ? "second, wrong" : "first, right"})`).toBe(picks[askedId] === right);
+      expect(ask.correct).toBe(!askSecond);
+      expect(ask.pick).toBe(opts[picks[askedId]]);
+    }
   }, 300000);
 
   it("★★ the tutor's back arrow: same ids in the same order, picks and open steps back, question scrolled to, nothing re-recorded", async () => {
@@ -260,5 +306,42 @@ describe("TUTOR-Q-1 · Ask the tutor, then back, returns to the SAME set", () =>
     expect(cards.length).toBeGreaterThan(0);
     await waitFor(() => expect(recordServed).toHaveBeenCalled());
     expect(sessionStorage.getItem(PRACTICE_RETURN_KEY)).toBeNull();
+  }, 300000);
+
+  it("★★ ACCOUNTS: student A asks, student B signs in on the same tab and opens the same URL -> nothing of A's is restored and it is removed", async () => {
+    auth.user = { uid: "student-a", isLocalSession: false, email: "a@example.com" };
+    await askFromAFreshSet();
+    auth.user = { uid: "student-b", isLocalSession: false, email: "b@example.com" };
+    fireEvent.click(screen.getByText("tutor back arrow"));
+    await screen.findByRole("button", { name: /Board mix/i }, { timeout: 60000 });
+    expect(screen.queryAllByTestId("practice-question-card")).toHaveLength(0);
+    expect(sessionStorage.getItem(PRACTICE_RETURN_KEY)).toBeNull();
+    expect(JSON.stringify(Object.fromEntries(Object.entries(sessionStorage)))).not.toContain("student-a");
+  }, 300000);
+
+  it("★★ ACCOUNTS: A asks and A comes back -> restored; the stored owner is an opaque tag, not the uid", async () => {
+    auth.user = { uid: "student-a", isLocalSession: false, email: "a@example.com" };
+    const s = await askFromAFreshSet();
+    expect(sessionStorage.getItem(PRACTICE_RETURN_KEY)).not.toContain("student-a");
+    fireEvent.click(screen.getByText("tutor back arrow"));
+    expectRestored(await settledCards(), s);
+  }, 300000);
+
+  it("★★ FRESH SETS: set1 -> Refresh -> set2 -> tutor -> back (set2) -> Refresh -> set3 shares NO id with set1 or set2", async () => {
+    const set1Cards = await arriveBoardMix();
+    const set1 = idsOf(set1Cards);
+    fireEvent.click(screen.getByRole("button", { name: /^Refresh set$/i }));
+    await waitFor(() => expect(idsOf(screen.getAllByTestId("practice-question-card"))).not.toEqual(set1), { timeout: 60000 });
+    const set2Cards = await settledCards();
+    const s2 = await askFrom(set2Cards);
+    expect(s2.savedIds.filter((id) => set1.includes(id)), "set2 vs set1").toEqual([]);
+    vi.setSystemTime(new Date(Date.now() + 60_000)); // time passes before the student comes back
+    fireEvent.click(screen.getByText("tutor back arrow"));
+    expectRestored(await settledCards(), s2);
+    fireEvent.click(screen.getByRole("button", { name: /^Refresh set$/i }));
+    await waitFor(() => expect(idsOf(screen.getAllByTestId("practice-question-card"))).not.toEqual(s2.savedIds), { timeout: 60000 });
+    const set3 = idsOf(await settledCards());
+    expect(set3.filter((id) => set1.includes(id)), "set3 vs set1").toEqual([]);
+    expect(set3.filter((id) => s2.savedIds.includes(id)), "set3 vs set2").toEqual([]);
   }, 300000);
 });

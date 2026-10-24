@@ -13,6 +13,28 @@
 // saved. Never the uid, never a photo, never a score. Nothing here grades, records or calls the network.
 
 export const PRACTICE_RETURN_KEY = "lazytopper.practiceReturn.v1";
+
+/** An opaque per-account tag (an 8-hex FNV-1a hash of the uid; "signed-out" when there is none). Stored
+ *  with the practice return snapshot and the tutor one-shot so one account's entry is never read by another
+ *  account on the same tab. It is not the uid and cannot be reversed to it. */
+export function practiceOwnerTag(uid: string | null | undefined): string {
+  if (!uid) return "signed-out";
+  let h = 0x811c9dc5;
+  for (let i = 0; i < uid.length; i += 1) {
+    h ^= uid.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return `u-${h.toString(16).padStart(8, "0")}`;
+}
+
+/** True when a snapshot is waiting (so the route can hold the page until auth has resolved). */
+export function hasPracticeReturn(): boolean {
+  try {
+    return sessionStorage.getItem(PRACTICE_RETURN_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
 /** A snapshot older than this is stale (the student wandered off) and is dropped unread. */
 export const PRACTICE_RETURN_TTL_MS = 60 * 60 * 1000;
 const MAX_IDS = 200;
@@ -31,6 +53,10 @@ export interface PracticeReturnFilters {
 }
 
 export interface PracticeReturnSnapshot {
+  /** `practiceOwnerTag` of the account that saved it. */
+  owner: string;
+  /** `start_here_graded` had already fired for this set (it fires at most once per set). */
+  startHereGraded: boolean;
   /** The exact practice URL (`pathname + search`) the set was on. */
   url: string;
   at: number;
@@ -94,7 +120,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v =
 /** Read-only validation: the snapshot, only if it is well-formed, fresh and for exactly `url`. An expired,
  *  malformed or other-URL snapshot is REMOVED and null is returned. A valid one is NOT removed here (the
  *  page deletes it once the restored set is on screen), so a render that runs twice reads it twice. */
-export function peekPracticeReturn(url: string, now: number = Date.now()): PracticeReturnSnapshot | null {
+export function peekPracticeReturn(url: string, owner: string, now: number = Date.now()): PracticeReturnSnapshot | null {
   let raw: string | null = null;
   try {
     raw = sessionStorage.getItem(PRACTICE_RETURN_KEY);
@@ -115,6 +141,7 @@ export function peekPracticeReturn(url: string, now: number = Date.now()): Pract
     now - parsed.at > PRACTICE_RETURN_TTL_MS ||
     parsed.at - now > 60_000 ||
     parsed.url !== url ||
+    parsed.owner !== owner ||
     typeof parsed.startedAt !== "number" ||
     !Number.isFinite(parsed.startedAt) ||
     !Array.isArray(parsed.ids) ||
@@ -175,6 +202,8 @@ export function peekPracticeReturn(url: string, now: number = Date.now()): Pract
   }
   return {
     url: parsed.url,
+    owner: parsed.owner as string,
+    startHereGraded: parsed.startHereGraded === true,
     at: parsed.at,
     startedAt: parsed.startedAt,
     scorecardDismissed: parsed.scorecardDismissed === true,

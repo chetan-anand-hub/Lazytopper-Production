@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { practiceOwnerTag } from "../../lib/practice/practiceReturnSnapshot";
 import {
   PRACTICE_ASK_KEY,
+  discardPracticeTutorAsk,
   PRACTICE_ASK_TTL_MS,
   composePracticeAskOpener,
   stashPracticeTutorAsk,
@@ -15,42 +17,43 @@ import { STUDENT_DATA_MAP } from "../../services/studentDataMap";
 // for the same `q`, and the opener never contradicts the verdict.
 
 const T0 = 1_760_000_000_000;
+const OWN = practiceOwnerTag("uid-a");
 beforeEach(() => sessionStorage.clear());
 
 describe("the one-shot", () => {
   it("★★ stash -> take for the same q returns it once, then it is gone", () => {
-    stashPracticeTutorAsk({ q: "rn-07", qNumber: 3, pick: "x = 2", correct: false }, T0);
-    expect(takePracticeTutorAsk("rn-07", T0 + 1000)).toEqual({ q: "rn-07", qNumber: 3, pick: "x = 2", correct: false, at: T0 });
-    expect(takePracticeTutorAsk("rn-07", T0 + 2000)).toBeNull();
+    stashPracticeTutorAsk({ owner: OWN, q: "rn-07", qNumber: 3, pick: "x = 2", correct: false }, T0);
+    expect(takePracticeTutorAsk("rn-07", OWN, T0 + 1000)).toEqual({ q: "rn-07", qNumber: 3, pick: "x = 2", correct: false, owner: OWN, at: T0 });
+    expect(takePracticeTutorAsk("rn-07", OWN, T0 + 2000)).toBeNull();
     expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).toBeNull();
   });
 
   it("★ a different question does not consume it (it waits for its own hop)", () => {
-    stashPracticeTutorAsk({ q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0);
-    expect(takePracticeTutorAsk("rn-09", T0)).toBeNull();
+    stashPracticeTutorAsk({ owner: OWN, q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0);
+    expect(takePracticeTutorAsk("rn-09", OWN, T0)).toBeNull();
     expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).not.toBeNull();
-    expect(takePracticeTutorAsk("rn-07", T0)?.pick).toBe("A");
+    expect(takePracticeTutorAsk("rn-07", OWN, T0)?.pick).toBe("A");
   });
 
   it("★ a stale, future-dated or malformed one-shot is dropped, never used", () => {
-    stashPracticeTutorAsk({ q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0);
-    expect(takePracticeTutorAsk("rn-07", T0 + PRACTICE_ASK_TTL_MS + 1)).toBeNull();
+    stashPracticeTutorAsk({ owner: OWN, q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0);
+    expect(takePracticeTutorAsk("rn-07", OWN, T0 + PRACTICE_ASK_TTL_MS + 1)).toBeNull();
     expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).toBeNull();
-    stashPracticeTutorAsk({ q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0 + 10 * 60_000);
-    expect(takePracticeTutorAsk("rn-07", T0)).toBeNull();
+    stashPracticeTutorAsk({ owner: OWN, q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0 + 10 * 60_000);
+    expect(takePracticeTutorAsk("rn-07", OWN, T0)).toBeNull();
     sessionStorage.setItem(PRACTICE_ASK_KEY, "{not json");
-    expect(takePracticeTutorAsk("rn-07", T0)).toBeNull();
+    expect(takePracticeTutorAsk("rn-07", OWN, T0)).toBeNull();
     expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).toBeNull();
   });
 
   it("★★ a pick without a known verdict is never stored (the tutor must not guess right or wrong)", () => {
-    stashPracticeTutorAsk({ q: "rn-07", qNumber: 3, pick: "A", correct: null }, T0);
-    expect(takePracticeTutorAsk("rn-07", T0)).toEqual({ q: "rn-07", qNumber: 3, pick: null, correct: null, at: T0 });
+    stashPracticeTutorAsk({ owner: OWN, q: "rn-07", qNumber: 3, pick: "A", correct: null }, T0);
+    expect(takePracticeTutorAsk("rn-07", OWN, T0)).toEqual({ q: "rn-07", qNumber: 3, pick: null, correct: null, owner: OWN, at: T0 });
   });
 
-  it("★★ it holds only the id, position, pick, verdict and time - never a uid or working", () => {
-    stashPracticeTutorAsk({ q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0);
-    expect(Object.keys(JSON.parse(sessionStorage.getItem(PRACTICE_ASK_KEY)!)).sort()).toEqual(["at", "correct", "pick", "q", "qNumber"]);
+  it("★★ it holds only the id, position, pick, verdict and time - never the uid or working", () => {
+    stashPracticeTutorAsk({ owner: OWN, q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0);
+    expect(Object.keys(JSON.parse(sessionStorage.getItem(PRACTICE_ASK_KEY)!)).sort()).toEqual(["at", "correct", "owner", "pick", "q", "qNumber"]);
   });
 
   it("★★ the key is registered in the student data map", () => {
@@ -62,9 +65,28 @@ describe("the one-shot", () => {
   it("★★ the signed-out one-shot is a different key and is unaffected either way", () => {
     expect(PRACTICE_ASK_KEY).not.toBe(SIGNED_OUT_ASK_KEY);
     stashSignedOutAsk({ q: "q-3", qNumber: 3, pick: "x" }, T0);
-    stashPracticeTutorAsk({ q: "q-3", qNumber: 3, pick: "x", correct: false }, T0);
-    expect(takePracticeTutorAsk("q-3", T0)?.correct).toBe(false);
+    stashPracticeTutorAsk({ owner: OWN, q: "q-3", qNumber: 3, pick: "x", correct: false }, T0);
+    expect(takePracticeTutorAsk("q-3", OWN, T0)?.correct).toBe(false);
     expect(takeSignedOutAsk("q-3", T0)).toEqual({ q: "q-3", qNumber: 3, pick: "x", at: T0 });
+  });
+});
+
+describe("ownership", () => {
+  it("★★ another account's one-shot on the same tab is dropped unread and removed", () => {
+    stashPracticeTutorAsk({ owner: practiceOwnerTag("uid-a"), q: "rn-07", qNumber: 3, pick: "A", correct: true }, T0);
+    expect(takePracticeTutorAsk("rn-07", practiceOwnerTag("uid-b"), T0)).toBeNull();
+    expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).toBeNull();
+  });
+  it("the stored owner is the opaque tag, never the uid", () => {
+    stashPracticeTutorAsk({ owner: practiceOwnerTag("uid-a"), q: "rn-07", qNumber: 3 }, T0);
+    expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).not.toContain("uid-a");
+  });
+  it("discard removes only a one-shot for that question", () => {
+    stashPracticeTutorAsk({ owner: OWN, q: "rn-07", qNumber: 3 }, T0);
+    discardPracticeTutorAsk("rn-09");
+    expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).not.toBeNull();
+    discardPracticeTutorAsk("rn-07");
+    expect(sessionStorage.getItem(PRACTICE_ASK_KEY)).toBeNull();
   });
 });
 
@@ -77,7 +99,7 @@ describe("the tutor URL carries the question id", () => {
 });
 
 describe("composePracticeAskOpener", () => {
-  const base = { q: "rn-07", qNumber: 3, at: T0 };
+  const base = { q: "rn-07", qNumber: 3, owner: OWN, at: T0 };
   const text = "Find the HCF of 96 and 404.";
 
   it("★★ right pick: says it is right, names the question and the pick, never 'wrong'", () => {

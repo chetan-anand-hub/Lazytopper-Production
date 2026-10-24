@@ -767,10 +767,12 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "TUTOR-Q-1: plus, in THIS TAB's sessionStorage, `lazytopper.tutorPracticeAsk.v1` (the Quick " +
       "Practice question the student tapped Ask the tutor on: its bank question id, its position in " +
       "the set, and, if they answered it, the option text they picked and whether it was right; never " +
-      "the uid, never their typed working; written on that tap, read and deleted once by the tutor " +
-      "for that question, where it becomes the opening line of their own tutor thread; dropped unread " +
-      "after an hour) and `lazytopper.practiceReturn.v1` (written on the same tap so the tutor's back " +
-      "arrow, or the browser back button, returns to the SAME set: the practice page's URL, the " +
+      "the uid, never their typed working; plus an opaque owner tag, an 8-hex hash of the uid that " +
+      "cannot be reversed to it, so another account on the same tab drops it unread; written on that " +
+      "tap, read and deleted once by the tutor for that question, where it becomes the opening line " +
+      "of their own tutor thread; dropped unread after an hour) and `lazytopper.practiceReturn.v1` (written on the same tap so the tutor's back " +
+      "arrow, or the browser back button, returns to the SAME set: the practice page's URL, the same " +
+      "opaque owner tag (another account on the same tab never reads it; it is removed), the " +
       "set's bank question ids in order, the filters that built it, the MCQ picks and their right/wrong " +
       "verdicts, which questions had solution steps open with the step solutions the page had " +
       "already loaded, the question they were on, and any TYPED working they had saved - never a " +
