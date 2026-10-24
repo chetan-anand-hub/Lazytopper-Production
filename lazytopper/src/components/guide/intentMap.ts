@@ -13,14 +13,18 @@
  *                utm_content (GUIDE-IQ-1).
  *   4. Papers  — landing contains sample-paper / mock, or utm_content contains sample / mock /
  *                preboard → full mock, then important questions.
- *   5. Check & Improve surface → "Check one answer" first.
- *   6. Default → "5 quick questions" first.
+ *   5. Check & Improve — the page is the Check & Improve surface, OR the visit's first landing
+ *                was /check-improve (the free-check ad; LOGIN-HOME-1, any surface) →
+ *                "Check one answer" first.
+ *   6. Default → "5 quick questions" first on the Practice hub; on HOME (surface "home")
+ *                "Check one answer" first, then "5 quick questions" (LOGIN-HOME-1, owner 24 Oct
+ *                2026: Byte exists to make new students try Check & Improve, see its value, buy).
  * Subject (important questions, tutor, full mock): the chapter's subject, else the subject the
  * landing path names (a segment equal to maths / science, any case), else Start-here's
  * subject hint, else Maths.
  * GUIDE-OPTS-1 (owner, 22 Oct 2026) — each intent leads with up to five options, in this order:
  *   default / Check & Improve: quick, check_one, worksheet, chapter_test, important
- *                              (Check & Improve puts check_one first)
+ *                              (Check & Improve and Home put check_one first: check_one, quick, …)
  *   chapter:   quick (that chapter), chapter_test (that chapter), important, notes, worksheet
  *   important: important, chapter_test, quick, check_one, worksheet
  *   papers:    full_mock, chapter_test, important, worksheet, check_one
@@ -169,7 +173,7 @@ function classify(input: IntentInput, deps: IntentDeps): { intent: GuideIntent; 
   ) {
     return { intent: "papers", chapter: null };
   }
-  if (input.surface === "check_improve") return { intent: "check_improve", chapter: null };
+  if (input.surface === "check_improve" || /^\/check-improve\/?$/.test(landing)) return { intent: "check_improve", chapter: null };
   return { intent: "default", chapter: null };
 }
 
@@ -286,7 +290,9 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
             ? ["full_mock", "chapter_test", "important", "worksheet", "check_one"]
             : intent === "check_improve"
               ? ["check_one", "quick", "worksheet", "chapter_test", "important"]
-              : ["quick", "check_one", "worksheet", "chapter_test", "important"];
+              : input.surface === "home"
+                ? ["check_one", "quick", "worksheet", "chapter_test", "important"]
+                : ["quick", "check_one", "worksheet", "chapter_test", "important"];
   const fill: GuideOptionId[] = ["quick", "check_one", "worksheet", "chapter_test", "cbq", "important", "notes", "trends", "tutor"];
 
   const options: GuideOption[] = [];

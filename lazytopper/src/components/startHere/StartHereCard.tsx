@@ -44,6 +44,8 @@ import {
   focusAllowed,
   recordFocusNotNow,
   START_HERE_FOCUS_CLOSED_KEY,
+  clearCheckOneHandover,
+  peekCheckOneHandover,
   isDismissedThisSession,
   readSubjectHint,
   startHerePracticePath,
@@ -268,11 +270,18 @@ export default function StartHereCard({ uid, focus = false, inProgress = false, 
   const state = useStartHere(uid);
   // ACTIVATION-2 A: the takeover on THIS page was closed → the inline card stands down here too.
   // GUIDE-1 (review F2): which way it closed — after "Check one answer" no corner chip either.
-  const [hiddenHere, setHiddenHere] = useState<null | "closed" | "check_one">(null);
+  // LOGIN-HOME-1: Byte on another page already took the student here via "Check one answer": for
+  // THIS arrival mount only, stand down exactly as after choosing it on this page. Read once at
+  // mount (state), deleted in an effect (idempotent under StrictMode); a later visit is as today.
+  const [handedOver] = useState<boolean>(() => rest.surface === "check_improve" && peekCheckOneHandover());
+  useEffect(() => {
+    if (rest.surface === "check_improve") clearCheckOneHandover();
+  }, [rest.surface]);
+  const [hiddenHere, setHiddenHere] = useState<null | "closed" | "check_one">(handedOver ? "check_one" : null);
   const inlineState = hiddenHere ? { ...state, visible: false, chipSuppressed: hiddenHere === "check_one" } : state;
   return (
     <>
-      {focus && !inProgress && uid ? (
+      {focus && !inProgress && uid && !handedOver ? (
         <StartHereFocusView
           uid={uid}
           surface={rest.surface}

@@ -697,6 +697,13 @@ describe("studentDataMap — erasure architecture facts", () => {
   });
 });
 
+describe("studentDataMap — LOGIN-HOME-1 check-one handover key", () => {
+  it("★ lazytopper.checkOneHandover is listed under the existing local-storage entry (sessionStorage, never the uid)", () => {
+    const local = STUDENT_DATA_MAP.find((l) => l.id === "local-storage");
+    expect(local!.holds).toContain("`lazytopper.checkOneHandover`");
+  });
+});
+
 describe("studentDataMap — FOLLOWUPS-2 F2 Start-here shown dedupe key", () => {
   it("★ lazytopper.startHereShown.<surface> is listed under the existing local-storage entry (sessionStorage, never the uid)", () => {
     const local = STUDENT_DATA_MAP.find((l) => l.id === "local-storage");

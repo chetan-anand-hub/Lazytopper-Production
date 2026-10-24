@@ -21,6 +21,7 @@ import { prefersReducedMotion, type Pose } from "./rig";
 import type { ChapterRef, GuideOption, GuideOptionId, GuidePlan } from "./intentMap";
 import type { StartHereFocusSurface, StartHereSurface } from "../../analytics/analytics";
 import { guidePreviewActive, trackGuideEvent } from "./guideVariant";
+import { markCheckOneHandover } from "../startHere/startHereModel";
 import type { ZiggyReaction } from "./ziggyModel";
 import type { ScoreGuidePlan } from "./scoreGuideModel";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "./moments/mascotsToast";
@@ -223,6 +224,15 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, ren
       return;
     }
     const path = o.action.path;
+    if (o.action.kind === "check_one") {
+      // LOGIN-HOME-1: "Check one answer" chosen on a page with no question box (Home) opens
+      // Check & Improve after the cheer. Leave a one-shot, this-tab "handed over" note: Check &
+      // Improve's Start-here reads and deletes it on that one arrival and does not ask again.
+      // Nothing is dismissed here and Byte is NOT closed early (onDone would unmount him and
+      // cancel the pending navigation): a student who backs out keeps Byte; the route change
+      // unmounts the full-screen guide / sheet.
+      markCheckOneHandover();
+    }
     say(GUIDE_COPY.cheerGo(o.title), "cheer");
     const go = () => {
       // GUIDE-OPTS-1: the hub reads ?ct=1 only on mount, so the chapter chooser opens the same way.

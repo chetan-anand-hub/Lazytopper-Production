@@ -184,6 +184,41 @@ export const START_HERE_FOCUS_NOT_NOW_PREFIX = "lazytopper.startHereFocusNotNow.
 export const START_HERE_FOCUS_CLOSED_KEY = "lazytopper.startHereFocusClosed";
 export const START_HERE_FOCUS_MAX_NOT_NOW = 2;
 
+/**
+ * LOGIN-HOME-1 — a one-shot "handed over to Check & Improve" signal. sessionStorage
+ * `lazytopper.checkOneHandover`: the constant "1", written in THIS tab when Byte's "Check one
+ * answer" is tapped on a page with no question box of its own (Home). Check & Improve's Start-here
+ * card reads it on that ONE arrival (it stands down, as after choosing the option on that page)
+ * and deletes it. Never the uid; never sent anywhere. A student who taps and then backs out keeps
+ * Byte everywhere: nothing here dismisses anything.
+ */
+export const CHECK_ONE_HANDOVER_KEY = "lazytopper.checkOneHandover";
+
+export function markCheckOneHandover(): void {
+  try {
+    window.sessionStorage.setItem(CHECK_ONE_HANDOVER_KEY, "1");
+  } catch {
+    /* blocked storage: Check & Improve may offer Byte once */
+  }
+}
+
+/** True when a handover is waiting. Does not consume it (see clearCheckOneHandover). */
+export function peekCheckOneHandover(): boolean {
+  try {
+    return window.sessionStorage.getItem(CHECK_ONE_HANDOVER_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function clearCheckOneHandover(): void {
+  try {
+    window.sessionStorage.removeItem(CHECK_ONE_HANDOVER_KEY);
+  } catch {
+    /* blocked storage */
+  }
+}
+
 export function focusNotNowCount(uid: string): number {
   try {
     const n = Number(window.localStorage.getItem(START_HERE_FOCUS_NOT_NOW_PREFIX + uid));

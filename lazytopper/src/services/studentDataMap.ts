@@ -759,6 +759,10 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "FOLLOWUPS-2 F2: plus, in THIS TAB's sessionStorage, `lazytopper.startHereShown.<surface>` " +
       "(the single character 1 once the Start-here card or focused surface was shown on that page " +
       "this visit, so the shown event is counted once per tab; never the uid, never sent anywhere). " +
+      "LOGIN-HOME-1: plus, in THIS TAB's sessionStorage, `lazytopper.checkOneHandover` (the " +
+      "single character 1, written when Byte's Check one answer opens Check & Improve from another " +
+      "page, read and deleted once on that arrival so Byte does not ask again; never the uid, never " +
+      "sent anywhere). " +
       " TUTOR-FIX-2 T12: plus, in THIS TAB's sessionStorage, `lazytopper.tutorSignupAsk.v1` (a " +
       "signed-out visitor's Quick Practice question id, its position and the option they picked, " +
       "stored only when they choose Sign up on a scorecard's tutor prompt; never the uid; read " +
