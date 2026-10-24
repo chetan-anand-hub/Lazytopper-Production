@@ -9,8 +9,9 @@
  * one assertion that matters is not "AccountDataControls works" — its own suite covers
  * that — but "AccountDataControls IS ON THE PAGE A STUDENT ALREADY VISITS".
  *
- * ★ AccountDataControls is deliberately NOT mocked here. Mocking it would make this
- * file assert that a stub renders, which is the silent no-op version of this test.
+ * SETTINGS-1 (24 Oct 2026): the controls moved from /me into the avatar menu's Settings
+ * window. This file now pins that /me no longer carries them; where they ARE reachable is
+ * pinned in components/account/SettingsModal.test.tsx. The route half below is unchanged.
  *
  * ★ The routing half of reachability cannot be proven from here (App.tsx is globally
  * FORBIDDEN and untouched by this lane), so it is pinned by the route-shape assertion
@@ -106,43 +107,26 @@ beforeEach(() => {
   mockIsDesktop = false;
 });
 
-describe("DPDP controls are reachable on /me", () => {
-  it("★★ a signed-in student sees BOTH rights on the page — download and delete", async () => {
-    renderPage();
-
-    expect(await screen.findByRole("button", { name: /^download$/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /delete my account/i })).toBeTruthy();
-    expect(screen.getByRole("region", { name: /your data and your account/i })).toBeTruthy();
-  });
-
-  it("★ renders at MOBILE width too — where most students are", async () => {
+describe("SETTINGS-1 · DPDP controls moved OFF /me (owner ruling 24 Oct 2026)", () => {
+  // Their new home is SettingsModal, opened from the avatar menu; reachability from
+  // there is pinned in components/account/SettingsModal.test.tsx and the two menu tests.
+  it("★★ a signed-in student's /me shows NEITHER download nor delete, at mobile width", async () => {
     mockIsDesktop = false;
     renderPage();
-    expect(await screen.findByRole("button", { name: /delete my account/i })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^download$/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /delete my account/i })).toBeNull();
+    expect(screen.queryByRole("region", { name: /your data and your account/i })).toBeNull();
+    expect(screen.queryByTestId("mascots-setting")).toBeNull();
   });
 
-  it("★ renders at DESKTOP width too", async () => {
+  it("★ ... and at DESKTOP width", async () => {
     mockIsDesktop = true;
-    renderPage();
-    expect(await screen.findByRole("button", { name: /delete my account/i })).toBeTruthy();
-  });
-
-  it("★ CONTROL: the query really depends on the section being rendered", async () => {
-    // If AccountDataControls were removed from the page, the assertions above must
-    // fail rather than find some other button. Prove the name is not matched by the
-    // rest of the page: a signed-OUT student gets the locked hero and NO controls.
-    mockUser = null;
     renderPage();
     expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /delete my account/i })).toBeNull();
     expect(screen.queryByRole("region", { name: /your data and your account/i })).toBeNull();
-  });
-
-  it("★ does NOT throw when the auth mock omits logout", async () => {
-    // The failure mode this guards: `const { logout } = useAuth(); logout()` throws on
-    // a partial mock, and would have error-paged the whole /me route.
-    renderPage();
-    expect(await screen.findByRole("button", { name: /delete my account/i })).toBeTruthy();
+    expect(screen.queryByTestId("mascots-setting")).toBeNull();
   });
 });
 

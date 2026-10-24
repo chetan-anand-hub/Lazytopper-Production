@@ -97,7 +97,7 @@ describe("PART 0 · the Start-here Byte card", () => {
     expect(screen.queryByTestId("byte-guide-inline")).toBeNull();
     expect(screen.queryByTestId("blob-byte")).toBeNull();
     expect(screen.getByTestId("start-here-card")).toBeTruthy();
-    expect(screen.getByTestId("mascots-toast").textContent).toContain("Mascots hidden. Turn them back on in Me.");
+    expect(screen.getByTestId("mascots-toast").textContent).toContain("Mascots hidden. Turn them back on in Settings.");
     expect(calls("mascots_hidden")).toEqual([["mascots_hidden", {}]]);
 
     fireEvent.click(screen.getByTestId("mascots-undo"));
@@ -136,10 +136,10 @@ describe("PART 0 · the MI voice row", () => {
   });
 });
 
-describe("PART 0 · the way back on /me", () => {
+describe("PART 0 · the way back in Settings", () => {
   it("★★ guide arm: a switch, on; tap → hidden everywhere; tap again → shown", async () => {
     render(<MascotsSetting uid="u1" />);
-    // REVIEW F5: one switch under a "Mascots" heading on /me (the nav's "Me"), not a "Settings" page
+    // REVIEW F5: one switch under a "Mascots" heading (mounted inside SettingsModal)
     expect(screen.getByRole("heading", { name: "Mascots" })).toBeTruthy();
     expect(screen.queryByText("Settings")).toBeNull();
     const sw = screen.getByTestId("mascots-switch");

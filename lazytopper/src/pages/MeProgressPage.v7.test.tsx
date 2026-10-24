@@ -6,7 +6,7 @@
  * covers only what ME-2 adds, and it is written so that each mutation in the lane
  * brief has a NAMED assertion that catches it:
  *
- *   M1 remove <AccountDataControls />        -> "the DPDP section is LAST among sections"
+ *   M1 (retired by SETTINGS-1)               -> J now pins the DPDP section is NOT on Me
  *   M2 slugify / lower-case the concept param -> "the concept param is the boardEssentials
  *                                                 name VERBATIM" (+ its slug CONTROL)
  *   M3 mix a Maths row into Science           -> MeProgressPage.test.tsx describe 5
@@ -748,32 +748,24 @@ describe("I · the first-run example", () => {
 
 /* ══════════════ J · the DPDP section survives the rebuild (mutation M1) ══════════════ */
 
-describe("J · <AccountDataControls /> is present and LAST", () => {
-  it("★★ the DPDP section is the LAST section on the page", async () => {
+describe("J · the DPDP section moved to Settings (SETTINGS-1)", () => {
+  it("★★ Me renders no 'Your data' section and no mascots card", async () => {
     const { container } = renderPage();
     await screen.findByTestId("me-hero-bar");
-
-    const dpdp = container.querySelector(
-      'section[aria-label="Your data and your account"]',
-    ) as HTMLElement | null;
-    expect(dpdp).not.toBeNull();
-
-    const sections = Array.from(container.querySelectorAll("section"));
-    const last = sections[sections.length - 1];
-    // Last among sections — either the DPDP section itself or something inside it.
-    expect(dpdp === last || dpdp!.contains(last)).toBe(true);
+    expect(container.querySelector('section[aria-label="Your data and your account"]')).toBeNull();
+    expect(container.querySelector('[data-testid="mascots-setting"]')).toBeNull();
   });
 
-  it("★★ it is present in the FIRST-RUN state too — rights do not depend on having data", async () => {
+  it("★★ ... in the FIRST-RUN state too", async () => {
     mockGetWindowedProgress.mockResolvedValue(windowed());
     mockGetMistakeLogs.mockResolvedValue([]);
     renderPage();
     await screen.findByTestId("me-first-run");
-    expect(screen.getByRole("button", { name: /delete my account/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^download$/i })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /delete my account/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^download$/i })).toBeNull();
   });
 
-  it("★ CONTROL: the query depends on the section rendering — signed out, it is gone", async () => {
+  it("★ CONTROL: signed out, the controls are still absent", async () => {
     mockUser = null;
     renderPage();
     expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
