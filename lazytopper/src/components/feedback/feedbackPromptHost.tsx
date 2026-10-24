@@ -30,6 +30,7 @@ import { trackFeedbackEvent } from "../../analytics/analytics";
 import { loadLocalSessionRecords } from "../../services/sessionRecords";
 import { WRITTEN_GRADED_SURFACES, cloudHasWrittenGraded } from "../guide/moments/writtenGradedCloud";
 import { anyMascotHost } from "../guide/mascotPresence";
+import { isSidebarMascot } from "./feedbackMascots";
 import { mascotsHidden } from "../guide/mascotsMute";
 import { FeedbackPrompt } from "./FeedbackPrompt";
 import { feedbackMayAppear, noteFeedbackShown } from "./feedbackBudget";
@@ -55,7 +56,7 @@ export interface FeedbackRequest {
 }
 
 let shownThisLoad = false;
-let mounted: { root: Root; el: HTMLElement } | null = null;
+let mounted: { root: Root; el: HTMLElement; owner: object | null; handedOff: boolean } | null = null;
 
 /**
  * FEEDBACK-2 — "never twice in one browser session". A this-tab flag (sessionStorage, registered in
@@ -134,6 +135,15 @@ function unmount(): void {
   }
 }
 
+/**
+ * FEEDBACK-2 — the card dies with the scorecard that asked: that scorecard unmounted (or the route changed).
+ * A card that has been handed off (it is naming where to tap on the page the scorecard opened) is left to
+ * close itself.
+ */
+export function dismissFeedbackPromptFor(owner: object): void {
+  if (mounted && mounted.owner === owner && !mounted.handedOff) unmount();
+}
+
 /** Render the card for `moment`. Exported for tests; callers use requestFeedbackPrompt. */
 export function renderFeedbackPrompt(
   moment: FeedbackMoment,
@@ -144,8 +154,8 @@ export function renderFeedbackPrompt(
   el.setAttribute("data-lt-feedback-host", moment);
   document.body.appendChild(el);
   const root = createRoot(el);
-  mounted = { root, el };
   const flow = opts.flow ?? null;
+  mounted = { root, el, owner: flow?.owner ?? null, handedOff: false };
   root.render(
     <FeedbackPrompt
       moment={moment}
@@ -169,6 +179,10 @@ export function renderFeedbackPrompt(
         return ok;
       }}
       onDone={unmount}
+      onHandOff={() => {
+        // The card is staying a moment past its scorecard (it is naming where to tap): do not remove it with that scorecard.
+        if (mounted && mounted.root === root) mounted.handedOff = true;
+      }}
       onZiggyShown={opts.onZiggyShown}
     />,
   );
@@ -210,9 +224,13 @@ export async function requestFeedbackPrompt(moment: FeedbackMoment, req: Feedbac
     if (graded) {
       const hidden = mascotsHidden();
       if (!hidden && !feedbackMayAppear()) return false;
-      withZiggy = !hidden && !anyMascotHost(() => true);
+      // Another mascot on screen (the scorecard's own Ziggy / Byte) -> a plain card, which is better than not
+      // asking. The sidebar's always-on voice row does not count.
+      withZiggy = !hidden && !anyMascotHost((el) => !isSidebarMascot(el));
       if (req.graded) flow = { ...req.graded, writtenGradedEver: await writtenGradedEver(uid) };
       if (blocked()) return false; // re-check after the second await
+      // The scorecard that asked may have been closed (or left) while the written-answer check ran.
+      if (req.graded?.isAlive && !req.graded.isAlive()) return false;
     }
 
     if (!claimFeedbackMoment(deviceStore(), uid, moment, nowMs, req.trialKey ?? null)) return false;

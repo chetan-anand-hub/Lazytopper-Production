@@ -18,14 +18,17 @@
  *   load lazily and may arrive after this card) - one character on screen at a time (COMPANION-1,
  *   guide/mascotPresence.ts). The H3 budget is told only when he is actually drawn (`onZiggyShown`).
  * ★ NO `style={{}}`: a `<style>` block and class names. Targets >= 44 px. On a phone (< 1024 px) it is
- *   a bottom sheet of at most 50% of the screen height and scrolls inside itself, so it never covers
- *   the scorecard's own buttons; on desktop a bottom-right panel.
+ *   drawn IN FLOW at the end of the scorecard sheet (the scorecard's `data-lt-feedback-slot`, below its
+ *   buttons) so it can never cover them; with no slot it falls back to a fixed bottom sheet of at most 50%
+ *   of the screen. On desktop a bottom-right panel.
  *
  * Presentational: it reports `onAnswer` / `onDismiss` / `onNext` / `onSaveNote`; the host decides what
  * those record. It never reads or writes storage and never calls analytics itself.
  */
 import { Suspense, lazy, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { anyMascotHost, mascotHostsVersion, subscribeMascotHosts } from "../guide/mascotPresence";
+import { isSidebarMascot } from "./feedbackMascots";
 import {
   FIRST_GRADED_ANSWERS,
   FIRST_GRADED_COPY,
@@ -170,6 +173,21 @@ const GRADED_CARD_CSS = `
   @media (min-width: 1024px) {
     .lt-fbg { left: auto; right: 24px; bottom: 24px; margin: 0; width: 400px; max-height: calc(100vh - 48px); }
   }
+  /* Below 1440 px the card sits IN FLOW in the scorecard's slot, below its buttons: it can never cover them (the scorecard is centred, so a bottom-right panel would reach its second button between 1024 and ~1390 px). Declared AFTER the desktop rule so it wins. */
+  .lt-fbg--flow {
+    position: static;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    border: none;
+    border-top: 1px solid rgba(73, 98, 127, 0.22);
+    border-radius: 0;
+    box-shadow: none;
+    max-height: none;
+    overflow: visible;
+    padding: 14px 20px 18px;
+    animation: none;
+  }
   @media (prefers-reduced-motion: no-preference) {
     .lt-fbg { animation: lt-fbg-in 160ms ease-out; }
     @keyframes lt-fbg-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -185,6 +203,15 @@ type Step =
   | { t: "why" }
   | { t: "note"; noteKind: "marks" | "other"; title: string; hint: string }
   | { t: "thanks"; text: string };
+
+const PHONE_QUERY = "(max-width: 1439px)";
+function phoneNow(): boolean {
+  try {
+    return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(PHONE_QUERY).matches;
+  } catch {
+    return false;
+  }
+}
 
 export interface GradedFeedbackCardProps {
   moment: GradedMoment;
@@ -202,15 +229,20 @@ export interface GradedFeedbackCardProps {
   onDone: () => void;
   /** Ziggy was actually drawn (once): the host tells the mascot budget. Never called for a plain card. */
   onZiggyShown?: () => void;
+  /** The card is naming where to tap on the page the scorecard opened, so it outlives that scorecard briefly. */
+  onHandOff?: () => void;
 }
 
-export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss, onNext, onSaveNote, onDone, onZiggyShown }: GradedFeedbackCardProps) {
+export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss, onNext, onSaveNote, onDone, onZiggyShown, onHandOff }: GradedFeedbackCardProps) {
   const [step, setStep] = useState<Step>({ t: "ask" });
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const settled = useRef(false);
   const lastCode = useRef<FirstGradedAnswer | null>(null);
+  const noteKindRef = useRef<"marks" | "other" | null>(null);
+  const [phone, setPhone] = useState(phoneNow);
+  const [floating, setFloating] = useState(false);
   const root = useRef<HTMLDivElement | null>(null);
   const stepKey = step.t === "next" ? `next:${step.answer}` : step.t;
 
@@ -225,6 +257,16 @@ export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Narrower than 1440 px -> in flow; a wide desktop -> the bottom-right panel. Follows a resize / rotation.
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia(PHONE_QUERY);
+    const on = () => setPhone(mq.matches);
+    on();
+    mq.addEventListener?.("change", on);
+    return () => mq.removeEventListener?.("change", on);
   }, []);
 
   // A thank-you closes itself.
@@ -255,7 +297,8 @@ export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss
     onDismiss();
     onDone();
   }
-  escRef.current = step.t === "ask" ? dismiss : onDone;
+  // Esc in the note form goes BACK to the question list and keeps what was typed; elsewhere it closes.
+  escRef.current = step.t === "ask" ? dismiss : step.t === "note" ? () => setStep({ t: "why" }) : onDone;
 
   function answer(code: FirstGradedAnswer) {
     if (lastCode.current !== code) onAnswer(code);
@@ -282,8 +325,16 @@ export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss
     if (!ctx) return;
     const out = notReallyOutcome(reason, ctx);
     if (out.kind === "go") tap(out.button.action, out.button.run);
-    else if (out.kind === "note") {
-      setText("");
+    else if (out.kind === "missed") {
+      // Quick Practice, a missed MCQ: open that question (its own "Report issue" form) and say where to tap.
+      // The scorecard goes away with this tap, so the card is handed off and floats for its few seconds.
+      onHandOff?.();
+      setFloating(true);
+      setStep({ t: "thanks", text: out.line });
+      out.run();
+    } else if (out.kind === "note") {
+      if (noteKindRef.current !== out.noteKind) setText(""); // coming Back to the same box keeps what was typed
+      noteKindRef.current = out.noteKind;
       setFailed(false);
       setStep({ t: "note", noteKind: out.noteKind, title: out.title, hint: out.hint });
     } else onDone();
@@ -308,7 +359,7 @@ export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss
 
   // One character on screen at a time: Ziggy steps aside while a mascot that is NOT his own is drawn.
   useSyncExternalStore(subscribeMascotHosts, mascotHostsVersion, mascotHostsVersion);
-  const othersPresent = anyMascotHost((el) => !root.current?.contains(el));
+  const othersPresent = anyMascotHost((el) => !root.current?.contains(el) && !isSidebarMascot(el));
   const showZiggy = withZiggy && !othersPresent && step.t !== "note";
   const ziggyNoted = useRef(false);
   useEffect(() => {
@@ -485,10 +536,13 @@ export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss
     );
   }
 
-  return (
+  const slot = phone && !floating ? ctx?.getSlot?.() ?? null : null;
+  const inFlow = !!slot && slot.isConnected;
+
+  const card = (
     <div
       ref={root}
-      className="lt-fbg"
+      className={`lt-fbg${inFlow ? " lt-fbg--flow" : ""}`}
       role="dialog"
       aria-modal="false"
       aria-labelledby={step.t === "thanks" ? undefined : "lt-fbg-title"}
@@ -500,6 +554,7 @@ export function GradedFeedbackCard({ moment, ctx, withZiggy, onAnswer, onDismiss
       {body}
     </div>
   );
+  return inFlow && slot ? createPortal(card, slot) : card;
 }
 
 export default GradedFeedbackCard;

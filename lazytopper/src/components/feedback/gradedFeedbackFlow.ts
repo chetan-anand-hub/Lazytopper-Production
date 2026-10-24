@@ -67,12 +67,13 @@ export const GRADED_FEEDBACK_COPY = {
     title: "Tell us more",
     marksTitle: "Marks felt wrong",
     marksHint: "Which question, and what did you expect? It helps us look at it.",
-    otherHint: "What should we fix or add? Only the LazyTopper team reads this.",
+    otherHint: "What should we fix or add? It is saved to your account.",
+    missedLine: "Tap Report issue under the question.",
     label: "Your note (optional)",
     send: "Send",
     skip: "Skip",
     sending: "Sending…",
-    saved: "Thank you. We read every note.",
+    saved: "Thank you. Your note is saved.",
     failed: "That did not save. Check your connection and try Send again.",
     counter: "{n} of {max}",
   },
@@ -99,8 +100,23 @@ export interface GradedFeedbackContextInput {
   subject: SubjectSeg | null;
   topicKey: string | null;
   chapter: string | null;
-  /** The difficulty the set was drawn at, when the page's URL says (`?difficulty=`). Null: mixed / unknown. */
+  /**
+   * The set's REAL difficulty, when the host knows it (Quick Practice hands over the committed filter
+   * through `guideTarget.difficulty`). Null: mixed / unknown (Chapter Test, Full Mock, Worksheet, Check &
+   * Improve) — then "harder" means Hard and "easier" means Easy.
+   */
   difficulty: DifficultyStep | null;
+  /**
+   * Quick Practice with a missed MCQ only: the scorecard's own in-page way to the first missed question
+   * (`ScorecardVariant.onShowMissed`), where the question's "Report issue" form lives. Null elsewhere.
+   */
+  showMissed: (() => void) | null;
+  /** Who asked (the scorecard's ask component). The card is removed when this owner goes away. */
+  owner?: object;
+  /** Is the asking scorecard still mounted? Checked before the card is drawn. Omitted: assume yes. */
+  isAlive?: () => boolean;
+  /** The scorecard's in-flow slot (below its buttons) for phone widths. Null / omitted: float. */
+  getSlot?: () => HTMLElement | null;
   /** The host's own "Ask the tutor" hop for the FIRST question that lost marks, when it has one. */
   firstWrongTutor: (() => void) | null;
   /** The chapter's tutor path (returnTo = this page), for when there is no question-level hop. Null: no chapter. */
@@ -171,11 +187,20 @@ export function firstWrongTutorHop(variant: Pick<ScorecardVariant, "wrongAnswers
   return null;
 }
 
+function stepOrNull(d: unknown): DifficultyStep | null {
+  return d === "Easy" || d === "Medium" || d === "Hard" ? d : null;
+}
+
 export function buildGradedFeedbackContextInput(args: {
-  variant: Pick<ScorecardVariant, "surface" | "guideTarget" | "wrongAnswers" | "gradedAnswers">;
+  variant: Pick<ScorecardVariant, "surface" | "guideTarget" | "wrongAnswers" | "gradedAnswers"> & {
+    onShowMissed?: (() => void) | null;
+  };
   navigate: (to: string) => void;
   pathname: string;
   search: string;
+  owner?: object;
+  isAlive?: () => boolean;
+  getSlot?: () => HTMLElement | null;
 }): GradedFeedbackContextInput {
   const { variant } = args;
   const chapter = chapterFromGuideTarget(variant.guideTarget?.to);
@@ -187,7 +212,11 @@ export function buildGradedFeedbackContextInput(args: {
     subject: chapter ? chapter.subject : null,
     topicKey: chapter ? chapter.topicKey : null,
     chapter: chapter && name ? name : null,
-    difficulty: difficultyFromSearch(args.search),
+    difficulty: stepOrNull(variant.guideTarget?.difficulty),
+    showMissed: typeof variant.onShowMissed === "function" ? variant.onShowMissed : null,
+    owner: args.owner,
+    isAlive: args.isAlive,
+    getSlot: args.getSlot,
     firstWrongTutor: firstWrongTutorHop(variant),
     chapterTutorTo: chapter
       ? buildTutorPath({
@@ -295,7 +324,8 @@ function tutorButton(ctx: GradedFeedbackContext): GradedButton | null {
 function writtenButton(ctx: GradedFeedbackContext): GradedButton | null {
   // Only when this account has NEVER had a written answer graded (false). Unknown (null) shows nothing,
   // and Check & Improve itself would point where the student already is.
-  if (ctx.writtenGradedEver !== false || ctx.surface === "check-improve") return null;
+  // Quick Practice never sends a student to Check & Improve (owner ruling 23 Oct 2026).
+  if (ctx.writtenGradedEver !== false || ctx.surface === "check-improve" || ctx.surface === "quick-practice") return null;
   return {
     id: "written",
     label: GRADED_FEEDBACK_COPY.button.written,
@@ -371,13 +401,17 @@ export const NOT_REALLY_REASONS: ReadonlyArray<{ id: NotReallyReason; label: str
 export type NotReallyOutcome =
   | { kind: "go"; button: GradedButton }
   | { kind: "note"; noteKind: "marks" | "other"; title: string; hint: string }
+  /** Quick Practice, a missed MCQ: open that question (its "Report issue" form) and say where to tap. */
+  | { kind: "missed"; line: string; run: () => void }
   | { kind: "none" };
 
 /**
  * Where each "Not really" choice leads.
  *   - Explanation unclear -> the tutor (first wrong question, else the chapter). No tutor available -> a note.
- *   - Marks felt wrong    -> the "Tell us more" box labelled "Marks felt wrong". (No scorecard surface has a
- *     report-a-question flow reachable from the card, so the spec's fallback applies on every surface.)
+ *   - Marks felt wrong    -> Quick Practice with a missed MCQ: the scorecard's own `onShowMissed` opens that
+ *     question, where the existing "Report issue" form lives (PracticeQuestionCard.tsx), and one plain line says
+ *     "Tap Report issue under the question." (owner ruling, #1342 review). Every other surface (and Quick
+ *     Practice with nothing missed): the "Tell us more" box labelled "Marks felt wrong".
  *   - Wrong chapter       -> the Practice hub chapter picker.
  *   - Something else      -> the plain "Tell us more" box.
  */
@@ -389,6 +423,9 @@ export function notReallyOutcome(reason: NotReallyReason, ctx: GradedFeedbackCon
     return { kind: "note", noteKind: "other", title: L.note.title, hint: L.note.otherHint };
   }
   if (reason === "marks") {
+    if (ctx.surface === "quick-practice" && ctx.showMissed) {
+      return { kind: "missed", line: L.note.missedLine, run: ctx.showMissed };
+    }
     return { kind: "note", noteKind: "marks", title: L.note.marksTitle, hint: L.note.marksHint };
   }
   if (reason === "chapter") {

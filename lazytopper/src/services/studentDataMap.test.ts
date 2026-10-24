@@ -712,3 +712,12 @@ describe("studentDataMap — FOLLOWUPS-2 F2 Start-here shown dedupe key", () => 
     expect(STUDENT_DATA_MAP.filter((l) => l.kind === "local-storage")).toHaveLength(1);
   });
 });
+
+describe("studentDataMap — FEEDBACK-2 repeat-ask keys", () => {
+  it("★ the session flag and the `a` timestamp are described under the local-storage entry", () => {
+    const local = STUDENT_DATA_MAP.find((l) => l.id === "local-storage");
+    expect(local!.holds).toContain("`lazytopper.feedbackGradedAsked`");
+    expect(local!.holds).toContain("`a`");
+    expect(STUDENT_DATA_MAP.filter((l) => l.kind === "local-storage")).toHaveLength(1);
+  });
+});

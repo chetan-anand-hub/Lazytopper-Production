@@ -201,6 +201,8 @@ export interface FeedbackPromptProps {
   onSaveNote?: (kind: "marks" | "other", text: string) => Promise<boolean>;
   /** FEEDBACK-2 (graded moments only) — Ziggy was actually drawn (the host tells the mascot budget). */
   onZiggyShown?: () => void;
+  /** FEEDBACK-2 (graded moments only) — the card is naming where to tap on the page the scorecard opened. */
+  onHandOff?: () => void;
 }
 
 export function FeedbackPrompt(props: FeedbackPromptProps) {
@@ -216,6 +218,7 @@ export function FeedbackPrompt(props: FeedbackPromptProps) {
         onSaveNote={(k, t) => (props.onSaveNote ? props.onSaveNote(k, t) : Promise.resolve(false))}
         onDone={props.onDone}
         onZiggyShown={props.onZiggyShown}
+        onHandOff={props.onHandOff}
       />
     );
   }

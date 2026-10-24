@@ -29,11 +29,12 @@ import {
 function ctx(over: Partial<GradedFeedbackContext> = {}): GradedFeedbackContext {
   return {
     navigate: vi.fn(),
-    surface: "quick-practice",
+    surface: "chapter-test",
     subject: "maths",
     topicKey: "real-numbers",
     chapter: "Real Numbers",
     difficulty: null,
+    showMissed: null,
     firstWrongTutor: null,
     chapterTutorTo: "/tutor/10/Maths/real-numbers?source=scorecard&returnTo=%2Fpractice%2F10%2Fmaths",
     returnTo: "/practice/10/maths",
@@ -59,9 +60,15 @@ describe("FEEDBACK-2 · Yes", () => {
     expect(labels(ctx({ surface: "check-improve" }), "yes")).toEqual(["5 more on Real Numbers"]);
   });
 
+  it("Quick Practice never offers Check a written answer (owner ruling 23 Oct), whatever the history says", () => {
+    expect(labels(ctx({ surface: "quick-practice", writtenGradedEver: false }), "yes")).toEqual(["5 more on Real Numbers"]);
+    expect(labels(ctx({ surface: "worksheet", writtenGradedEver: false }), "yes")).toEqual(["5 more on Real Numbers", "Check a written answer"]);
+  });
+
   it("no single chapter -> Choose a chapter (the hub), never a random chapter", () => {
     const c = ctx({ subject: null, topicKey: null, chapter: null, chapterTutorTo: null });
     expect(labels(c, "yes")).toEqual(["Choose a chapter", "Check a written answer"]);
+    expect(labels({ ...c, surface: "quick-practice" }, "yes")).toEqual(["Choose a chapter"]);
     expect(tos(c, "yes")[0]).toBe(PRACTICE_HUB_PATH);
     expect(nextStepFor("yes", c).buttons[0].action).toBe("picker");
   });
@@ -150,6 +157,17 @@ describe("FEEDBACK-2 · Not really -> what was missing", () => {
     expect(b.kind === "go" && b.button.to).toBe(ctx().chapterTutorTo);
     expect(notReallyOutcome("unclear", ctx({ chapterTutorTo: null })).kind).toBe("note");
   });
+  it("Quick Practice with a missed MCQ: Marks felt wrong opens that question (its Report issue form) and names where to tap", () => {
+    const run = vi.fn();
+    const out = notReallyOutcome("marks", ctx({ surface: "quick-practice", showMissed: run }));
+    expect(out).toMatchObject({ kind: "missed", line: "Tap Report issue under the question." });
+    if (out.kind === "missed") out.run();
+    expect(run).toHaveBeenCalledTimes(1);
+    // nothing missed on Quick Practice, or any other surface: the pre-labelled note
+    expect(notReallyOutcome("marks", ctx({ surface: "quick-practice", showMissed: null }))).toMatchObject({ kind: "note", noteKind: "marks" });
+    expect(notReallyOutcome("marks", ctx({ surface: "worksheet", showMissed: run }))).toMatchObject({ kind: "note", noteKind: "marks" });
+  });
+
   it("marks -> the 'Marks felt wrong' note; chapter -> the Practice hub picker; something else -> the plain note", () => {
     const m = notReallyOutcome("marks", ctx());
     expect(m).toMatchObject({ kind: "note", noteKind: "marks", title: "Marks felt wrong" });
@@ -218,7 +236,29 @@ describe("FEEDBACK-2 · the context built from the scorecard's variant", () => {
     expect(chapterFromGuideTarget(null)).toBeNull();
   });
 
-  it("difficulty comes only from the page's own ?difficulty=", () => {
+  it("the set's REAL difficulty comes from the host's guide target, never from the URL", () => {
+    const v = (difficulty: unknown) => ({
+      surface: "quick-practice" as const,
+      guideTarget: { to: "/practice/10/maths?topic=real-numbers&weakMode=1", chapter: "Real Numbers", difficulty } as never,
+    });
+    expect(buildGradedFeedbackContextInput({ ...base, variant: v("Medium") }).difficulty).toBe("Medium");
+    expect(buildGradedFeedbackContextInput({ ...base, variant: v(null) }).difficulty).toBeNull();
+    expect(buildGradedFeedbackContextInput({ ...base, variant: v("everything") }).difficulty).toBeNull();
+    // base.search says ?difficulty=Easy: ignored.
+    expect(buildGradedFeedbackContextInput({ ...base, variant: { surface: "worksheet", guideTarget: null } }).difficulty).toBeNull();
+  });
+
+  it("an Easy set + Too hard offers NO easier button; a Medium set + Too easy goes to Hard; Hard + Too easy goes to HOTS", () => {
+    expect(nextStepFor("too_hard", ctx({ difficulty: "Easy" })).buttons.map((b) => b.id)).toEqual(["tutor"]);
+    expect(nextStepFor("too_easy", ctx({ difficulty: "Medium" })).buttons.map((b) => b.to)).toEqual([
+      "/practice/10/maths?topic=real-numbers&count=5&difficulty=Hard",
+    ]);
+    expect(nextStepFor("too_easy", ctx({ difficulty: "Hard" })).buttons.map((b) => b.to)).toEqual([
+      "/practice/10/maths?topic=real-numbers&count=5&difficulty=Hard&style=hots",
+    ]);
+  });
+
+  it("difficultyFromSearch (kept for callers that read a URL)", () => {
     expect(difficultyFromSearch("?difficulty=Hard")).toBe("Hard");
     expect(difficultyFromSearch("?difficulty=easy")).toBe("Easy");
     expect(difficultyFromSearch("?difficulty=All")).toBeNull();
@@ -231,7 +271,7 @@ describe("FEEDBACK-2 · the context built from the scorecard's variant", () => {
       ...base,
       variant: { surface: "quick-practice", guideTarget: { to: "/practice/10/maths?topic=real-numbers&weakMode=1", chapter: "Real Numbers" } },
     });
-    expect(out).toMatchObject({ surface: "quick-practice", subject: "maths", topicKey: "real-numbers", chapter: "Real Numbers", difficulty: "Easy" });
+    expect(out).toMatchObject({ surface: "quick-practice", subject: "maths", topicKey: "real-numbers", chapter: "Real Numbers", difficulty: null, showMissed: null });
     expect(out.navigate).toBeTypeOf("function");
     expect(out.chapterTutorTo).toBe(
       `/tutor/10/Maths/real-numbers?source=scorecard&returnTo=${encodeURIComponent("/practice/10/maths?topic=real-numbers&difficulty=Easy")}`,

@@ -90,6 +90,7 @@ function flowInput(over: Partial<GradedFeedbackContextInput> = {}): GradedFeedba
     topicKey: "real-numbers",
     chapter: "Real Numbers",
     difficulty: null,
+    showMissed: null,
     firstWrongTutor: null,
     chapterTutorTo: "/tutor/10/Maths/real-numbers?source=scorecard&returnTo=%2Fpractice%2F10%2Fmaths",
     returnTo: "/practice/10/maths",
@@ -280,7 +281,7 @@ describe("FEEDBACK-2 · 'Check a written answer' only for a student who never ha
   it("never written (the server says so) -> offered; written on this device -> not offered, without a network call", async () => {
     seedFirst("u1", "quick-practice");
     await act(async () => {
-      expect(await requestFeedbackPrompt("first_graded", { uid: "u1", graded: flowInput() })).toBe(true);
+      expect(await requestFeedbackPrompt("first_graded", { uid: "u1", graded: flowInput({ surface: "chapter-test" }) })).toBe(true);
     });
     await tap("feedback-opt-yes");
     expect(screen.getByTestId("feedback-go-written")).toBeInTheDocument();
@@ -301,7 +302,7 @@ describe("FEEDBACK-2 · 'Check a written answer' only for a student who never ha
     cloudWritten.fn.mockResolvedValue(null);
     seedFirst("u1");
     await act(async () => {
-      expect(await requestFeedbackPrompt("first_graded", { uid: "u1", graded: flowInput() })).toBe(true);
+      expect(await requestFeedbackPrompt("first_graded", { uid: "u1", graded: flowInput({ surface: "chapter-test" }) })).toBe(true);
     });
     await tap("feedback-opt-yes");
     expect(screen.queryByTestId("feedback-go-written")).toBeNull();
@@ -352,7 +353,7 @@ describe("FEEDBACK-2 · through the real scorecard and the real router", () => {
     title: "Session scorecard",
     subtitle: "now",
     score: { kind: "marks", awarded: 6, total: 10 },
-    guideTarget: { to: "/practice/10/maths?topic=real-numbers&weakMode=1", chapter: "Real Numbers" },
+    guideTarget: { to: "/practice/10/maths?topic=real-numbers&weakMode=1", chapter: "Real Numbers", difficulty: "Easy" },
     actions: [],
   } as unknown as ScorecardVariant;
 
@@ -386,6 +387,7 @@ describe("FEEDBACK-2 · through the real scorecard and the real router", () => {
     await tap("feedback-opt-too_easy");
     await tap("feedback-go-harder");
     expect(screen.getByTestId("probe").textContent).toBe("/practice/10/maths?topic=real-numbers&count=5&difficulty=Medium");
+    // (the set was Easy, so one step up is Medium)
     expect(window.location.href).toBe(before);
     expect(card()).toBeNull();
   });
@@ -410,5 +412,129 @@ describe("FEEDBACK-2 · through the real scorecard and the real router", () => {
     act(() => __resetFeedbackHostForTests());
     await mountScorecard({ ask: true });
     expect(card()).not.toBeNull();
+  });
+});
+
+describe("FEEDBACK-2 · the card dies with the scorecard that asked", () => {
+  const variant = {
+    surface: "quick-practice",
+    title: "Session scorecard",
+    subtitle: "now",
+    score: { kind: "marks", awarded: 6, total: 10 },
+    guideTarget: { to: "/practice/10/maths?topic=real-numbers&weakMode=1", chapter: "Real Numbers", difficulty: "Medium" },
+    actions: [],
+  } as unknown as ScorecardVariant;
+
+  function Probe() {
+    const l = useLocation();
+    return <div data-testid="probe">{`${l.pathname}${l.search}`}</div>;
+  }
+  function Page({ open, onGo }: { open: boolean; onGo?: () => void }) {
+    return (
+      <MemoryRouter initialEntries={["/practice/10/maths?topic=real-numbers"]}>
+        <Probe />
+        {open && <ResultsScorecard variant={variant} onClose={() => {}} askFirstFeedback />}
+        <button type="button" data-testid="leave" onClick={onGo} />
+      </MemoryRouter>
+    );
+  }
+  const tick = (ms: number) =>
+    act(async () => {
+      await vi.advanceTimersByTimeAsync(ms);
+    });
+
+  it("closing the scorecard removes the card", async () => {
+    auth.currentUser = { uid: "u1" };
+    seedLater("u1");
+    vi.useFakeTimers();
+    const view = render(<Page open />);
+    await tick(FIRST_GRADED_DELAY_MS + 1400);
+    expect(card()).not.toBeNull();
+    view.rerender(<Page open={false} />);
+    await tick(10);
+    expect(card()).toBeNull();
+  });
+
+  it("a slow written-answer check that finishes AFTER the scorecard closed shows nothing (and spends nothing)", async () => {
+    auth.currentUser = { uid: "u1" };
+    seedLater("u1");
+    let release: (v: boolean | null) => void = () => {};
+    cloudWritten.fn.mockReturnValue(new Promise<boolean | null>((r) => (release = r)));
+    vi.useFakeTimers();
+    const view = render(<Page open />);
+    await tick(FIRST_GRADED_DELAY_MS + 50); // asked; waiting on the server read
+    expect(card()).toBeNull();
+    view.rerender(<Page open={false} />);
+    await tick(10);
+    await act(async () => {
+      release(false);
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(card()).toBeNull();
+    // the ask was not used up: the device record has no repeat-ask stamp
+    const rec = JSON.parse(window.localStorage.getItem(feedbackStorageKey("u1")) ?? "{}");
+    expect(rec.a).toBeUndefined();
+  });
+
+  it("leaving through the scorecard's own route change leaves no card on the next page", async () => {
+    auth.currentUser = { uid: "u1" };
+    seedLater("u1");
+    vi.useFakeTimers();
+    function Leaver() {
+      return (
+        <MemoryRouter initialEntries={["/practice/10/maths?topic=real-numbers"]}>
+          <Probe />
+          <ResultsScorecard variant={variant} onClose={() => {}} askFirstFeedback />
+          <Nav />
+        </MemoryRouter>
+      );
+    }
+    // A sibling that navigates WITHOUT unmounting the scorecard: only the route change should remove the card.
+    const { useNavigate } = await import("react-router-dom");
+    function Nav() {
+      const nav = useNavigate();
+      return <button type="button" data-testid="leave" onClick={() => nav("/home")} />;
+    }
+    render(<Leaver />);
+    await tick(FIRST_GRADED_DELAY_MS + 1400);
+    expect(card()).not.toBeNull();
+    act(() => void fireEvent.click(screen.getByTestId("leave")));
+    await tick(10);
+    expect(screen.getByTestId("probe").textContent).toBe("/home");
+    expect(card()).toBeNull();
+  });
+
+  it("a button that navigates leaves no card behind on the destination", async () => {
+    auth.currentUser = { uid: "u1" };
+    seedLater("u1");
+    vi.useFakeTimers();
+    render(<Page open />);
+    await tick(FIRST_GRADED_DELAY_MS + 1400);
+    await tap("feedback-opt-too_easy");
+    await tap("feedback-go-harder");
+    await tick(3000);
+    expect(card()).toBeNull();
+  });
+
+  it("the always-on sidebar voice row does not turn the card plain; a real mascot in the page does", async () => {
+    const row = document.createElement("div");
+    row.className = "lt-mi-voice";
+    const host = document.createElement("div");
+    row.appendChild(host);
+    document.body.appendChild(row);
+    act(() => noteMascotHost(host, true));
+    seedLater("u1");
+    expect(await ask("u1")).toBe(true);
+    expect(card()!.getAttribute("data-ziggy")).toBe("1");
+    cleanup();
+    act(() => __resetFeedbackHostForTests());
+    seedLater("u2");
+    const other = document.createElement("div");
+    document.body.appendChild(other);
+    act(() => noteMascotHost(other, true));
+    expect(await ask("u2")).toBe(true);
+    expect(card()!.getAttribute("data-ziggy")).toBe("0");
+    row.remove();
+    other.remove();
   });
 });

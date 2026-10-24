@@ -21,7 +21,8 @@ afterEach(() => {
 function makeCtx(over: Partial<GradedFeedbackContext> = {}): GradedFeedbackContext {
   return {
     navigate: vi.fn(),
-    surface: "quick-practice",
+    surface: "worksheet",
+    showMissed: null,
     subject: "maths",
     topicKey: "real-numbers",
     chapter: "Real Numbers",
@@ -265,7 +266,7 @@ describe("FEEDBACK-2 card · step 3 ('Not really')", () => {
       fireEvent.click(screen.getByTestId("feedback-note-send"));
     });
     expect(a.onSaveNote).toHaveBeenCalledWith("other", "The second step was confusing");
-    expect(screen.getByTestId("feedback-thanks").textContent).toBe("Thank you. We read every note.");
+    expect(screen.getByTestId("feedback-thanks").textContent).toBe("Thank you. Your note is saved.");
     // nothing about the words reached the answer / next-step callbacks
     expect(JSON.stringify([a.onAnswer.mock.calls, a.onNext.mock.calls, a.onDismiss.mock.calls])).not.toContain("confusing");
   });
@@ -314,5 +315,98 @@ describe("FEEDBACK-2 card · phone and desktop layout (CSS pinned)", () => {
       expect(block, cls).toBe(true);
     }
     expect(css).toMatch(/\.lt-fbg__x \{[^}]*width: 44px;[^}]*height: 44px/);
+  });
+});
+
+describe("FEEDBACK-2 card · review fixes", () => {
+  it("Escape in the note form goes Back to the question list and KEEPS what was typed", () => {
+    const a = setup();
+    tap("feedback-opt-not_really");
+    tap("feedback-why-other");
+    fireEvent.change(screen.getByTestId("feedback-note-text"), { target: { value: "half a thought" } });
+    fireEvent.keyDown(document.body, { key: "Escape" });
+    expect(screen.getByTestId("feedback-line").textContent).toBe("What was missing?");
+    expect(a.onDone).not.toHaveBeenCalled();
+    tap("feedback-why-other");
+    expect((screen.getByTestId("feedback-note-text") as HTMLTextAreaElement).value).toBe("half a thought");
+    // a DIFFERENT box starts empty
+    fireEvent.keyDown(document.body, { key: "Escape" });
+    tap("feedback-why-marks");
+    expect((screen.getByTestId("feedback-note-text") as HTMLTextAreaElement).value).toBe("");
+  });
+
+  it("Quick Practice with a missed MCQ: Marks felt wrong opens that question, names where to tap, and hands the card off", () => {
+    const showMissed = vi.fn();
+    const onHandOff = vi.fn();
+    const flow = makeCtx({ surface: "quick-practice", showMissed });
+    render(
+      <FeedbackPrompt
+        moment="after_graded"
+        flow={flow}
+        withZiggy={false}
+        onAnswer={vi.fn()}
+        onDismiss={vi.fn()}
+        onDone={vi.fn()}
+        onNext={vi.fn()}
+        onSaveNote={vi.fn()}
+        onHandOff={onHandOff}
+      />,
+    );
+    tap("feedback-opt-not_really");
+    tap("feedback-why-marks");
+    expect(showMissed).toHaveBeenCalledTimes(1);
+    expect(onHandOff).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("feedback-thanks").textContent).toBe("Tap Report issue under the question.");
+    expect(screen.queryByTestId("feedback-note-text")).toBeNull();
+  });
+
+  it("on a phone the card is drawn IN FLOW inside the scorecard's slot, not fixed over its buttons", () => {
+    const slot = document.createElement("div");
+    document.body.appendChild(slot);
+    const mm = vi.fn().mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    const prev = window.matchMedia;
+    window.matchMedia = mm as never;
+    try {
+      setup({ flow: makeCtx({ getSlot: () => slot }) });
+      const card = screen.getByTestId("feedback-prompt");
+      expect(slot.contains(card)).toBe(true);
+      expect(card.className).toContain("lt-fbg--flow");
+    } finally {
+      window.matchMedia = prev;
+      slot.remove();
+    }
+  });
+
+  it("on desktop (or with no slot) the card floats in its own panel", () => {
+    const slot = document.createElement("div");
+    document.body.appendChild(slot);
+    const mm = vi.fn().mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    const prev = window.matchMedia;
+    window.matchMedia = mm as never;
+    try {
+      setup({ flow: makeCtx({ getSlot: () => slot }) });
+      expect(slot.contains(screen.getByTestId("feedback-prompt"))).toBe(false);
+      expect(screen.getByTestId("feedback-prompt").className).not.toContain("lt-fbg--flow");
+    } finally {
+      window.matchMedia = prev;
+      slot.remove();
+    }
+  });
+
+  it("the sidebar's always-on voice row does not count as another mascot (Ziggy stays); a real one still sends him away", () => {
+    const side = document.createElement("div");
+    const row = document.createElement("div");
+    row.className = "lt-mi-voice";
+    row.appendChild(side);
+    document.body.appendChild(row);
+    act(() => noteMascotHost(side, true));
+    setup();
+    expect(screen.getByTestId("feedback-prompt").getAttribute("data-ziggy")).toBe("1");
+    const other = document.createElement("div");
+    document.body.appendChild(other);
+    act(() => noteMascotHost(other, true));
+    expect(screen.getByTestId("feedback-prompt").getAttribute("data-ziggy")).toBe("0");
+    row.remove();
+    other.remove();
   });
 });

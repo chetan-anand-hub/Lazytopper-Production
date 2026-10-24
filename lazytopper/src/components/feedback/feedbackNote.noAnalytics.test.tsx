@@ -109,6 +109,7 @@ describe("FEEDBACK-2 · the note's words never leave the account", () => {
             topicKey: "real-numbers",
             chapter: "Real Numbers",
             difficulty: null,
+            showMissed: null,
             firstWrongTutor: null,
             chapterTutorTo: null,
             returnTo: "/practice/10/maths",
