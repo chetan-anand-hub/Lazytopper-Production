@@ -169,12 +169,44 @@ describe("GUIDE-1 · intent map rules", () => {
     expect(ids(input({ surface: "check_improve", utmContent: "cbq_short" }))[0]).toBe("cbq");
   });
 
-  it("rule 6 — default: 5 quick questions first, Byte's hello line, and NO notes (no chapter known)", () => {
-    const p = buildGuidePlan(input(), deps);
+  it("rule 6 — Practice hub default: 5 quick questions first, Byte's hello line, and NO notes (no chapter known)", () => {
+    const p = buildGuidePlan(input({ surface: "practice_hub" }), deps);
     expect(p.intent).toBe("default");
     expect(p.line).toBe("Hey! I'm Byte. What do you want to do today?");
     expect(p.options.map((o) => o.id)).toEqual(["quick", "check_one", "worksheet", "chapter_test", "important"]);
     expect(p.options.map((o) => o.id)).not.toContain("notes");
+  });
+
+  it("LOGIN-HOME-1 rule 3 — on HOME the default intent leads with Check one answer, then 5 quick questions; the intent and line are unchanged", () => {
+    const p = buildGuidePlan(input({ surface: "home" }), deps);
+    expect(p.intent).toBe("default");
+    expect(p.line).toBe(GUIDE_LINES.default);
+    expect(p.options.map((o) => o.id)).toEqual(["check_one", "quick", "worksheet", "chapter_test", "important"]);
+    expect(p.options[0].action).toEqual({ kind: "check_one", path: "/check-improve" });
+  });
+
+  it("LOGIN-HOME-1 rule 3 — the Practice hub default is UNCHANGED: 5 quick questions first", () => {
+    expect(ids(input({ surface: "practice_hub" }))).toEqual(["quick", "check_one", "worksheet", "chapter_test", "important"]);
+  });
+
+  it("LOGIN-HOME-1 rule 4 — a first landing on /check-improve gives the check_improve intent on ANY surface", () => {
+    for (const surface of ["home", "practice_hub", "check_improve"] as const) {
+      const p = buildGuidePlan(input({ surface, landing: "/check-improve" }), deps);
+      expect(p.intent, surface).toBe("check_improve");
+      expect(p.options[0].id, surface).toBe("check_one");
+      expect(p.line).toBe(GUIDE_LINES.default);
+    }
+    expect(ids(input({ surface: "practice_hub", landing: "/check-improve" }))).toEqual(["check_one", "quick", "worksheet", "chapter_test", "important"]);
+  });
+
+  it("LOGIN-HOME-1 — landing/ad intents still win on HOME: CBQ, chapter, important, papers", () => {
+    expect(buildGuidePlan(input({ utmContent: "cbq_short" }), deps).options[0].id).toBe("cbq");
+    expect(ids(input({ landing: "/notes/electricity" }))).toEqual(["quick", "chapter_test", "important", "notes", "worksheet"]);
+    expect(ids(input({ landing: "/highly-probable/10/Maths" }))).toEqual(["important", "chapter_test", "quick", "check_one", "worksheet"]);
+    expect(ids(input({ utmContent: "sample_maths" }))).toEqual(["full_mock", "chapter_test", "important", "worksheet", "check_one"]);
+    // and they win over a /check-improve landing too
+    expect(buildGuidePlan(input({ landing: "/check-improve", utmContent: "cbq_short" }), deps).intent).toBe("cbq");
+    expect(buildGuidePlan(input({ landing: "/check-improve", utmContent: "mock" }), deps).intent).toBe("papers");
   });
 
   it("at most 5 options, never a repeat, the first always defined", () => {
@@ -188,11 +220,11 @@ describe("GUIDE-1 · intent map rules", () => {
 
   it("★ an option whose route does not exist is DROPPED (never a link to a missing page) and the next fills its slot", () => {
     const noWorksheets: IntentDeps = { ...deps, routeExists: (p) => p !== "/practice/worksheets" && knownGuideRoute(p) };
-    const o = ids(input(), noWorksheets);
+    const o = ids(input({ surface: "practice_hub" }), noWorksheets);
     expect(o).not.toContain("worksheet");
     expect(o).toEqual(["quick", "check_one", "chapter_test", "important", "cbq"]); // cbq is next in the fill
     const nothing: IntentDeps = { ...deps, routeExists: () => false };
-    expect(ids(input(), nothing)).toEqual(["quick"]); // the in-card ready state needs no route
+    expect(ids(input({ surface: "practice_hub" }), nothing)).toEqual(["quick"]); // the in-card ready state needs no route
     expect(ids(input({ utmContent: "mock" }), nothing)).toEqual(["quick"]);
   });
 
@@ -210,13 +242,14 @@ describe("GUIDE-1 · intent map rules", () => {
     // Drop enough routes that the fill reaches Tutor: worksheets, both hub choosers, trends.
     const gone = new Set(["/practice/worksheets", "/practice-hub?ct=1", "/practice-hub?cbq=1", "/exam-trends"]);
     const thin = (tutorOpens: boolean): IntentDeps => ({ ...deps, tutorOpens, routeExists: (p) => !gone.has(p) && knownGuideRoute(p) });
-    expect(ids(input(), thin(true))).toEqual(["quick", "check_one", "important", "tutor"]);
-    expect(ids(input(), thin(false))).not.toContain("tutor");
-    expect(ids(input(), { chapterBySlug: deps.chapterBySlug, routeExists: (p) => !gone.has(p) && knownGuideRoute(p) })).not.toContain("tutor");
+    expect(ids(input({ surface: "practice_hub" }), thin(true))).toEqual(["quick", "check_one", "important", "tutor"]);
+    expect(ids(input({ surface: "practice_hub" }), thin(false))).not.toContain("tutor");
+    expect(ids(input({ surface: "practice_hub" }), { chapterBySlug: deps.chapterBySlug, routeExists: (p) => !gone.has(p) && knownGuideRoute(p) })).not.toContain("tutor");
   });
 
   it("GUIDE-OPTS-1 — each intent's first five options, in the owner's order", () => {
-    expect(ids(input())).toEqual(["quick", "check_one", "worksheet", "chapter_test", "important"]);
+    expect(ids(input({ surface: "practice_hub" }))).toEqual(["quick", "check_one", "worksheet", "chapter_test", "important"]);
+    expect(ids(input())).toEqual(["check_one", "quick", "worksheet", "chapter_test", "important"]); // Home (LOGIN-HOME-1)
     expect(ids(input({ surface: "check_improve" }))).toEqual(["check_one", "quick", "worksheet", "chapter_test", "important"]);
     expect(ids(input({ landing: "/notes/electricity" }))).toEqual(["quick", "chapter_test", "important", "notes", "worksheet"]);
     expect(ids(input({ landing: "/highly-probable/10/Maths" }))).toEqual(["important", "chapter_test", "quick", "check_one", "worksheet"]);
@@ -226,7 +259,7 @@ describe("GUIDE-1 · intent map rules", () => {
 
   it("GUIDE-OPTS-1 — CBQ practice and Exam trends stay reachable through the fill", () => {
     const noCt: IntentDeps = { ...deps, routeExists: (p) => p !== "/practice-hub?ct=1" && p !== "/practice/worksheets" && knownGuideRoute(p) };
-    expect(ids(input(), noCt)).toEqual(["quick", "check_one", "important", "cbq", "trends"]);
+    expect(ids(input({ surface: "practice_hub" }), noCt)).toEqual(["quick", "check_one", "important", "cbq", "trends"]);
   });
 
   it("GUIDE-OPTS-1 — a known chapter: Chapter Test opens THAT chapter's test (the Topic Hub topicKey = desktop slug)", () => {
