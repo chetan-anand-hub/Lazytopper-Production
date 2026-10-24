@@ -23,6 +23,40 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-24 (daily, part 4) - #1347 CI-SOFT-1, #1348 CI-SOFT-1b (2 product merges after #1346, 24 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `8f8b0a5a`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from the GitHub REST API and the squash commits while writing; **[docs-builder-curl]** were fetched from www with `curl` while writing; **[coordinator]** come from the cofounder's message and the lane spec.
+
+### [FU-CIDEMO-SIGNEDIN-LIVE]
+**[coordinator]**: the signed-in, zero-graded path of the sample card (audience: signed in, no graded check yet) was not live-checked; the cofounder's live check was signed out. It needs a new account. The audience hook has a test (`ciDemo.audienceHook.test.tsx`, named in the `#1347` stat [git/gh]); the live round-trip is what is unproven.
+
+### [FU-CIDEMO-IOS-KEYBOARD]
+**[coordinator]**: "Check my own answer" focuses the answer box inside the tap (`flushSync`, `#1348`), which is the pattern that raises the keyboard on iOS Safari, but it was not verified on a real iPhone. Owner live check: tap it on an iPhone and see the keyboard rise.
+
+### [FU-CIDEMO-MEASURE]
+**[coordinator]**: add `ci_demo_shown | pick | result | check_own | another | close` to the admin funnel read, then read them after about one week against the first real check, the trial and the paid conversion. Baseline 24 Oct: 1 real check / 57 sign-ups. The names are in the server allowlist (`studentActivity.cjs`) and `activityDetailModel.ts` [git/gh]; whether the admin funnel page itself shows them was not read.
+
+### [FU-CIDEMO-SUMMARY-HALF-STEP]
+**[coordinator]** raised it; **[git/gh]** re-read on trunk `8f8b0a5a`: the margin mark "half of 1" path (`marginMark` in `lazytopper/src/components/ciDemo/ciDemoChunk.tsx:76-80` renders `${formatMarks(awarded)} of ${formatMarks(max)}` for a partial step) IS exercised by sample data: `CHEMRXN-006`'s first step is `max: 1, awarded: 0.5` (`ciDemoSamples.ts:223-224`). So no sample is missing it and the data question is CLOSED here. RESIDUAL, still open under this ID: no test asserts the rendered chem margin text; `ciDemo.component.test.tsx:100-106` asserts `circ` margins only (the "zero" and "full half" forms). Add one assertion that the chem result's first margin reads a half of 1.
+
+### [FU-CIDEMO-AUTOCLOSE-TEST]
+**[coordinator]**: the real-result auto-close path that sets `closedHere` (a real graded result closes the card for the tab, review S1) has no test. Add one that renders a real result and expects the card gone and the tab key set.
+
+### [FU-CIDEMO-CSS-HYGIENE-TEST]
+**[coordinator]**: the unused-class test added in `#1348` matches by substring and scans only two files, so a class named inside a longer name, or used from a third file, can hide an unused rule. Match whole class tokens and scan every file that can carry a `ci-demo` class.
+
+### [FU-CIDEMO-CLOSED-TAB-SCOPE]
+**[coordinator]** (accepted trade-off, recorded): closing the signed-out card suppresses the full-screen Start-here for the rest of that tab, including after a sign-up in the same tab. Chosen so a student who dismissed the card is not shown a full-screen Byte on the same page. Revisit only if the measure shows new sign-ups missing the Byte.
+
+### [FU-SKILL-BOOTSTRAP-PRIVATE]
+**[coordinator]**: STILL OPEN (carried; no earlier heading was found in `handoff/` when this block was written, so it is defined here per standing rule 1). The repo is public at writing (`private: false` [git/gh]; the owner said "git is public" at 19:52 IST) and the cofounder SKILL bootstrap reads it anonymously (codeload / raw). If the repo is ever made private again, the bootstrap, the project instructions' codeload links, Vercel and CI integrations need authenticated access first.
+
+### Owner live checks owed (no new ID minted)
+`#1347`: (1) a brand-new sign-up from the ad URL on a phone -> the sample card, not the full-screen Byte; (2) iPhone: "Check my own answer" raises the keyboard (`[FU-CIDEMO-IOS-KEYBOARD]`). The earlier `[FU-OWNER-LIVE-1024-CHECKS]` and the part 2 / part 3 owner checks stand.
+
+### Carried
+The part 3 follow-ups (`[FU-NUDGE-HOST-ZIGGY-TEST]`, `[FU-NUDGE-STALE-COMMENT]`, `[FU-VIEWPORT-FIT-COVER]`, `[FU-NUDGE-LANDSCAPE]`, `[FU-PKG-DUP-MATRIX-KEY]`) and everything earlier stay open as written.
+
 ## 2026-10-24 (daily, part 3) - #1345 (1 product merge after #1344, 24 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `01376a2c`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from the GitHub REST API and the squash commit while writing; **[docs-builder-curl]** were fetched from www with `curl` while writing; **[coordinator]** come from the cofounder's message (measurements, follow-ups, the owner's 16:23 IST ruling).
