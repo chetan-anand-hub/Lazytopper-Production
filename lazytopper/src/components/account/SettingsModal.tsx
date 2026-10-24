@@ -14,6 +14,8 @@
  * carries a transform. A modal rendered in place would lose its viewport geometry and sit
  * under the BottomNav. Same defect and same fix as AccountDataControls / LinkSignInMethodModal.
  *
+ * Loaded lazily by both menus (React.lazy) so it stays out of the entry chunk.
+ *
  * ★ ONE MODAL AT A TIME. "Sign-in methods" hands over to the existing LinkSignInMethodModal
  * (owned by the menu): this window closes first, the linking modal then opens.
  *
@@ -65,6 +67,17 @@ export default function SettingsModal({
       if (target && target.isConnected) target.focus();
     };
   }, [open, returnFocusRef]);
+
+  // Lock page scroll behind the window; restore the previous value on close (same pattern
+  // as NoteModal / NcertPageModal).
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
   // Esc closes (unless the delete-confirmation dialog is on top: that one is Esc-less and
   // modal, and closing Settings underneath it would strand it). Tab is trapped here.

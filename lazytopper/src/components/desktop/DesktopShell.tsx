@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useRef, useState, type ReactNode } from "react";
 import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
-import SettingsModal from "../account/SettingsModal";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -9,6 +8,10 @@ import { TutorPickerModal } from "../../lib/desktop/homeDestinations";
 import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
 import PendingBell from "../home/PendingBell";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
+
+// SETTINGS-1: lazy so the Settings window (data controls, mascots, their CSS) stays out of the
+// entry chunk (PERF-3 budget). Mounted only while open.
+const SettingsModal = lazy(() => import("../account/SettingsModal"));
 
 /**
  * DesktopShell — locked desktop AppShell parity build (Desktop Phase 1).
@@ -781,15 +784,19 @@ export function DesktopShell({ children }: DesktopShellProps) {
           containing block for `position: fixed` descendants. A modal rendered
           inside the account dropdown would lose its full-viewport geometry and
           have its z-index trapped beneath the header. Renders null while closed. */}
-      <SettingsModal
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        onOpenSignInMethods={() => {
-          setSettingsOpen(false);
-          setLinkOpen(true);
-        }}
-        returnFocusRef={avatarButtonRef}
-      />
+      {settingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsModal
+            open={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
+            onOpenSignInMethods={() => {
+              setSettingsOpen(false);
+              setLinkOpen(true);
+            }}
+            returnFocusRef={avatarButtonRef}
+          />
+        </Suspense>
+      )}
       <LinkSignInMethodModal open={linkOpen} onClose={() => setLinkOpen(false)} />
     </div>
   );

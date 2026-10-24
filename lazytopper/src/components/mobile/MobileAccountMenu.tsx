@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { Suspense, lazy, useEffect, useRef, useState, type CSSProperties } from "react";
 import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
-import SettingsModal from "../account/SettingsModal";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { deriveAccountStatus } from "../../utils/accountStatus";
+
+// SETTINGS-1: lazy so the Settings window (data controls, mascots, their CSS) stays out of the
+// entry chunk (PERF-3 budget). Mounted only while open.
+const SettingsModal = lazy(() => import("../account/SettingsModal"));
 
 /**
  * MobileAccountMenu — the mobile responsive VIEW of the desktop account dropdown.
@@ -269,15 +272,19 @@ export function MobileAccountMenu() {
           </div>
         )}
       </div>
-      <SettingsModal
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        onOpenSignInMethods={() => {
-          setSettingsOpen(false);
-          setLinkOpen(true);
-        }}
-        returnFocusRef={avatarRef}
-      />
+      {settingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsModal
+            open={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
+            onOpenSignInMethods={() => {
+              setSettingsOpen(false);
+              setLinkOpen(true);
+            }}
+            returnFocusRef={avatarRef}
+          />
+        </Suspense>
+      )}
       <LinkSignInMethodModal open={linkOpen} onClose={() => setLinkOpen(false)} />
     </div>
   );

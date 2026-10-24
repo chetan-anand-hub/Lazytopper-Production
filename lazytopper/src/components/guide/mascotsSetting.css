@@ -1,4 +1,4 @@
-/* MOMENTS-1 PART 0 — the mascots switch on /me. Soft white card, navy ink, green "on" (CLAUDE.md §5). */
+/* MOMENTS-1 PART 0 — the mascots switch (inside the Settings window). Soft white card, navy ink, green "on" (CLAUDE.md §5). */
 .lt-mascots-set { box-sizing: border-box; margin: 16px 0; padding: 14px 16px; border-radius: 14px; background: #fff;
   border: 1px solid #dde2ee; color: #14213d; }
 .lt-mascots-set__h { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
@@ -14,3 +14,5 @@
 .lt-mascots-set__sw.is-on .lt-mascots-set__knob { transform: translateX(22px); }
 .lt-mascots-set__sw:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .lt-mascots-set__sw, .lt-mascots-set__knob { transition: none; } }
+/* SETTINGS-1: the switch looks 30px tall; an invisible pseudo-element makes the tap target 46px. */
+.lt-mascots-set__sw::before { content: ""; position: absolute; left: 0; right: 0; top: -8px; bottom: -8px; }

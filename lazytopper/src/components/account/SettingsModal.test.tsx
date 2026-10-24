@@ -135,6 +135,15 @@ describe("SettingsModal", () => {
     avatar.remove();
   });
 
+  it("locks page scroll while open and restores it on close", () => {
+    document.body.style.overflow = "auto";
+    const view = mount();
+    expect(document.body.style.overflow).toBe("hidden");
+    view.unmount();
+    expect(document.body.style.overflow).toBe("auto");
+    document.body.style.overflow = "";
+  });
+
   it("Tab wraps inside the dialog", () => {
     mount();
     const dialog = screen.getByRole("dialog", { name: "Settings" });

@@ -83,18 +83,19 @@ describe("MobileAccountMenu account dropdown — SETTINGS-1 · one Settings entr
     expect(menu.textContent).not.toMatch(/subscription/i);
   });
 
-  it("Settings closes the menu and opens the Settings window", () => {
+  it("Settings closes the menu and opens the Settings window", async () => {
     signInAndOpenMenu();
     fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
     expect(screen.queryByRole("menu", { name: "Account menu" })).toBeNull();
-    expect(screen.getByRole("dialog", { name: "Settings" })).toBeTruthy();
+    expect(await screen.findByRole("dialog", { name: "Settings" })).toBeTruthy();
   });
 
-  it("Settings -> Sign-in methods swaps to the existing linking modal (one modal at a time)", () => {
+  it("Settings -> Sign-in methods swaps to the existing linking modal (one modal at a time)", async () => {
     signInAndOpenMenu();
     // the real modal reads providerIds off the auth user
     (authState.user as unknown as { providerIds: string[] }).providerIds = ["google.com"];
     fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
+    await screen.findByRole("dialog", { name: "Settings" });
     fireEvent.click(screen.getAllByRole("button", { name: "Sign-in methods" })[0]);
     expect(screen.queryByRole("dialog", { name: "Settings" })).toBeNull();
     expect(screen.getByRole("dialog", { name: "Sign-in methods" })).toBeTruthy();
