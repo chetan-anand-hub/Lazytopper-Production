@@ -5,8 +5,9 @@
  * `GET /api/account/export` were merged (#638) and drafted (#645) as authenticated
  * routes with NO CALLER. A student could not download their data and could not delete
  * their account, because nothing in the product asked. This renders inside
- * MeProgressPage at `/me`, which is routed under `RequireAuth` and reachable from the
- * mobile BottomNav profile icon and the desktop header avatar.
+ * `SettingsModal` (components/account/SettingsModal.tsx), opened from the avatar menu
+ * on phone and desktop (SETTINGS-1, 24 Oct 2026 - it used to sit at the foot of the
+ * Me page). Every signed-in surface carries that avatar menu.
  *
  * ★★ THE CONFIRMATION IS PROPORTIONATE TO AN IRREVERSIBLE ACT ON A MINOR'S ACCOUNT.
  * Three separate things gate it, because a 15-year-old on a phone can tap a button by

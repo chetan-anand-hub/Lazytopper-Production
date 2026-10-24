@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
+// SETTINGS-1: lazy slot (retry + failure boundary) keeps the Settings window out of the entry chunk.
+import SettingsModalSlot from "../account/SettingsModalSlot";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { deriveAccountStatus } from "../../utils/accountStatus";
+
 
 /**
  * MobileAccountMenu — the mobile responsive VIEW of the desktop account dropdown.
@@ -58,6 +61,9 @@ export function MobileAccountMenu() {
   // Pinned by MobileAccountMenu.persistedSession.test.tsx, which drives the
   // null → user transition through the real AuthProvider.
   const [linkOpen, setLinkOpen] = useState(false);
+  // SETTINGS-1: hook sits ABOVE the early return for the same #310 reason as `linkOpen`.
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const avatarRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -119,6 +125,7 @@ export function MobileAccountMenu() {
       <div ref={menuRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
         <button
           type="button"
+          ref={avatarRef}
           onClick={() => setOpen((v) => !v)}
           title={identityLabel}
           aria-label="Open account menu"
@@ -206,27 +213,19 @@ export function MobileAccountMenu() {
               >
                 Me / Progress
               </button>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={goManage}
-                style={menuItemStyle("var(--mob-fg)", 600)}
-              >
-                Manage your pass
-              </button>
-              {/* Quiet entry point. Linking is OPTIONAL - this opens a modal and
-                  never gates anything. Closes the dropdown first so the modal is
-                  not rendered underneath an open menu. */}
+              {/* SETTINGS-1: pass, sign-in methods, mascots and "Your data" live in ONE
+                  Settings window, identical on phone and desktop. Closes the dropdown
+                  first so the modal is not rendered under an open menu. */}
               <button
                 type="button"
                 role="menuitem"
                 onClick={() => {
                   setOpen(false);
-                  setLinkOpen(true);
+                  setSettingsOpen(true);
                 }}
                 style={menuItemStyle("var(--mob-fg)", 600)}
               >
-                Sign-in methods
+                Settings
               </button>
               <button
                 type="button"
@@ -272,6 +271,17 @@ export function MobileAccountMenu() {
           </div>
         )}
       </div>
+      {settingsOpen && (
+        <SettingsModalSlot
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          onOpenSignInMethods={() => {
+            setSettingsOpen(false);
+            setLinkOpen(true);
+          }}
+          returnFocusRef={avatarRef}
+        />
+      )}
       <LinkSignInMethodModal open={linkOpen} onClose={() => setLinkOpen(false)} />
     </div>
   );

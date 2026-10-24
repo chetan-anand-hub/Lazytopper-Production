@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
+// SETTINGS-1: lazy slot (retry + failure boundary) keeps the Settings window out of the entry chunk.
+import SettingsModalSlot from "../account/SettingsModalSlot";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -8,6 +10,7 @@ import { TutorPickerModal } from "../../lib/desktop/homeDestinations";
 import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
 import PendingBell from "../home/PendingBell";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
+
 
 /**
  * DesktopShell — locked desktop AppShell parity build (Desktop Phase 1).
@@ -228,9 +231,11 @@ export function DesktopShell({ children }: DesktopShellProps) {
   const location = useLocation();
   const [accountOpen, setAccountOpen] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
   const [ncertOpen, setNcertOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
+  const avatarButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const initials = user
     ? (user.displayName || user.email || "S").charAt(0).toUpperCase()
@@ -548,6 +553,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
                 <div ref={accountMenuRef} style={{ position: "relative" }}>
                   <button
                     type="button"
+                    ref={avatarButtonRef}
                     onClick={() => setAccountOpen((open) => !open)}
                     title={identityLabel}
                     aria-label="Open account menu"
@@ -633,12 +639,15 @@ export function DesktopShell({ children }: DesktopShellProps) {
                         >
                           Me / Progress
                         </button>
+                        {/* SETTINGS-1: pass, sign-in methods, mascots and "Your data" live in
+                            ONE Settings window, identical on phone and desktop. Closes the
+                            dropdown first so the modal is not rendered under an open menu. */}
                         <button
                           type="button"
                           role="menuitem"
                           onClick={() => {
                             setAccountOpen(false);
-                            navigate(manageSubscriptionUrl);
+                            setSettingsOpen(true);
                           }}
                           style={{
                             textAlign: "left",
@@ -651,30 +660,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
                             cursor: "pointer",
                           }}
                         >
-                          Manage your pass
-                        </button>
-                        {/* Quiet entry point. Linking is OPTIONAL - this opens a
-                            modal and never gates anything. Closes the dropdown
-                            first so the modal is not rendered under an open menu. */}
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            setAccountOpen(false);
-                            setLinkOpen(true);
-                          }}
-                          style={{
-                            textAlign: "left",
-                            background: "transparent",
-                            border: "none",
-                            borderRadius: 6,
-                            padding: "9px 8px",
-                            color: SURFACE_TEXT,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Sign-in methods
+                          Settings
                         </button>
                         <button
                           type="button"
@@ -792,6 +778,18 @@ export function DesktopShell({ children }: DesktopShellProps) {
           stacking / containing-block reason as TutorPickerModal. Renders null while closed. */}
       <NcertChapterPicker open={ncertOpen} onClose={() => setNcertOpen(false)} />
 
+      {/* SETTINGS-1: the Settings window, same shell-root mounting reason as below. */}
+      {settingsOpen && (
+        <SettingsModalSlot
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          onOpenSignInMethods={() => {
+            setSettingsOpen(false);
+            setLinkOpen(true);
+          }}
+          returnFocusRef={avatarButtonRef}
+        />
+      )}
       {/* Mounted at the SHELL ROOT for the same reason TutorPickerModal is: the
           header creates a stacking context AND, via backdrop-filter, is a
           containing block for `position: fixed` descendants. A modal rendered
