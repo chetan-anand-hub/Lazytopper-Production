@@ -802,6 +802,28 @@ export type NamedAnalyticsEvent =
   | "feedback_first_graded_yes"
   | "feedback_first_graded_not_really"
   | "feedback_first_graded_too_hard"
+  // FEEDBACK-2 — "Was this useful?" leads somewhere: the new answer, the repeat ask, and what was tapped next.
+  | "feedback_first_graded_too_easy"
+  | "feedback_shown_after_graded"
+  | "feedback_dismissed_after_graded"
+  | "feedback_after_graded_yes"
+  | "feedback_after_graded_too_easy"
+  | "feedback_after_graded_not_really"
+  | "feedback_after_graded_too_hard"
+  | "feedback_first_graded_next_more"
+  | "feedback_first_graded_next_harder"
+  | "feedback_first_graded_next_easier"
+  | "feedback_first_graded_next_tutor"
+  | "feedback_first_graded_next_written"
+  | "feedback_first_graded_next_picker"
+  | "feedback_first_graded_next_note_saved"
+  | "feedback_after_graded_next_more"
+  | "feedback_after_graded_next_harder"
+  | "feedback_after_graded_next_easier"
+  | "feedback_after_graded_next_tutor"
+  | "feedback_after_graded_next_written"
+  | "feedback_after_graded_next_picker"
+  | "feedback_after_graded_next_note_saved"
   // GUIDE-1 — the Byte-guide A/B: which arm this account is in, once per account per device.
   // The arm itself is a vendor param only (the first-party store keeps names, never values)
   | "guide_variant_assigned"
@@ -1502,7 +1524,9 @@ export function trackParentReportViewed(kind: ParentResultKind): void {
 
 /** FEEDBACK-1 — the two moments the "help us improve" prompt can appear at, plus
  *  FIRST-FEEDBACK-1's `first_graded` ("Was this useful?" after the first graded result). */
-export type FeedbackPromptMoment = "paywall" | "trial_end" | "first_graded";
+export type FeedbackPromptMoment = "paywall" | "trial_end" | "first_graded" | "after_graded";
+/** FEEDBACK-2 — what a student did AFTER answering "Was this useful?": a button's NAME, never text. */
+export type FeedbackPromptNextAction = "more" | "harder" | "easier" | "tutor" | "written" | "picker" | "note_saved";
 /** FEEDBACK-1 — the six one-tap reason codes, plus FIRST-FEEDBACK-1's three answers. */
 export type FeedbackPromptReason =
   | "not_tried"
@@ -1512,10 +1536,25 @@ export type FeedbackPromptReason =
   | "boards_far"
   | "other"
   | "yes"
+  | "too_easy"
   | "not_really"
   | "too_hard";
 
-const FEEDBACK_MOMENT_SET: ReadonlySet<string> = new Set<FeedbackPromptMoment>(["paywall", "trial_end", "first_graded"]);
+const FEEDBACK_MOMENT_SET: ReadonlySet<string> = new Set<FeedbackPromptMoment>([
+  "paywall",
+  "trial_end",
+  "first_graded",
+  "after_graded",
+]);
+const FEEDBACK_NEXT_ACTION_SET: ReadonlySet<string> = new Set<FeedbackPromptNextAction>([
+  "more",
+  "harder",
+  "easier",
+  "tutor",
+  "written",
+  "picker",
+  "note_saved",
+]);
 const FEEDBACK_REASON_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>([
   "not_tried",
   "ask_parents",
@@ -1525,7 +1564,7 @@ const FEEDBACK_REASON_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>([
   "other",
 ]);
 /** FIRST-FEEDBACK-1 — `first_graded` takes ONLY these; the other moments ONLY the six above. */
-const FIRST_GRADED_ANSWER_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>(["yes", "not_really", "too_hard"]);
+const FIRST_GRADED_ANSWER_SET: ReadonlySet<string> = new Set<FeedbackPromptReason>(["yes", "too_easy", "not_really", "too_hard"]);
 
 /**
  * FEEDBACK-1 (owner ruling 18 Oct 2026) — the "help us improve" prompt was shown,
@@ -1542,28 +1581,41 @@ const FIRST_GRADED_ANSWER_SET: ReadonlySet<string> = new Set<FeedbackPromptReaso
  * does not match. Free text never reaches a vendor, and the activity store takes none.
  */
 export function trackFeedbackEvent(
-  kind: "shown" | "dismissed" | "reason" | "call_tap",
+  kind: "shown" | "dismissed" | "reason" | "call_tap" | "next",
   moment: FeedbackPromptMoment,
   reason?: FeedbackPromptReason,
+  action?: FeedbackPromptNextAction,
 ): void {
   try {
     if (!FEEDBACK_MOMENT_SET.has(moment)) return;
-    const answers = moment === "first_graded" ? FIRST_GRADED_ANSWER_SET : FEEDBACK_REASON_SET;
+    const graded = moment === "first_graded" || moment === "after_graded";
+    const answers = graded ? FIRST_GRADED_ANSWER_SET : FEEDBACK_REASON_SET;
     if (kind === "reason" && (!reason || !answers.has(reason))) return;
     // FIRST-FEEDBACK-1 — "Was this useful?" has no call offer, so it has no call_tap name.
-    if (kind === "call_tap" && moment === "first_graded") return;
-    const data: Record<string, string> = kind === "reason" && reason ? { moment, reason } : { moment };
+    if (kind === "call_tap" && graded) return;
+    // FEEDBACK-2 — `next` exists only for "Was this useful?" and takes a closed action NAME (no text).
+    if (kind === "next" && (!graded || !action || !FEEDBACK_NEXT_ACTION_SET.has(action))) return;
+    const data: Record<string, string> =
+      kind === "reason" && reason ? { moment, reason } : kind === "next" && action ? { moment, action } : { moment };
     // `call_tap`: the student tapped the 5-minute feedback-call offer. Vendors get
     // `feedback_call_tap` + `{ moment }`; first-party gets `feedback_call_tap_<moment>`.
     const vendorName =
       kind === "call_tap"
         ? "feedback_call_tap"
-        : kind === "reason"
-          ? "feedback_reason"
-          : kind === "shown"
-            ? "feedback_shown"
-            : "feedback_dismissed";
-    const activityName = (kind === "reason" ? `feedback_${moment}_${reason}` : `feedback_${kind}_${moment}`) as NamedAnalyticsEvent;
+        : kind === "next"
+          ? "feedback_next"
+          : kind === "reason"
+            ? "feedback_reason"
+            : kind === "shown"
+              ? "feedback_shown"
+              : "feedback_dismissed";
+    const activityName = (
+      kind === "reason"
+        ? `feedback_${moment}_${reason}`
+        : kind === "next"
+          ? `feedback_${moment}_next_${action}`
+          : `feedback_${kind}_${moment}`
+    ) as NamedAnalyticsEvent;
     send("event", { name: vendorName, data }, { ga4: data }, activityName);
   } catch {
     /* analytics must never break the page */

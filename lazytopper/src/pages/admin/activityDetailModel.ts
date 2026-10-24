@@ -13,11 +13,13 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import type { ActivityFeedItem } from "./studentsAdminModel";
 import {
   FEEDBACK_MOMENTS,
+  FEEDBACK_NEXT_ACTIONS,
   FEEDBACK_REASONS,
   FIRST_GRADED_ANSWERS,
-  FIRST_GRADED_MOMENT,
+  GRADED_MOMENTS,
   feedbackActivityName,
   type FeedbackMoment,
+  type FeedbackNextAction,
   type FeedbackReason,
 } from "../../components/feedback/feedbackPromptModel";
 import { guideVariantFor } from "../../components/guide/guideVariant";
@@ -90,6 +92,18 @@ export const FEEDBACK_MOMENT_LABELS: Record<FeedbackMoment, string> = {
   paywall: "after closing an upgrade screen",
   trial_end: "after the trial ended",
   first_graded: "after the first graded result",
+  after_graded: "after a later graded result",
+};
+
+/** FEEDBACK-2 — what a student did next, in the owner's words (names only; the note's words are never here). */
+export const FEEDBACK_NEXT_LABELS: Record<FeedbackNextAction, string> = {
+  more: "Tapped “5 more” practice questions",
+  harder: "Tapped “Try 5 harder ones”",
+  easier: "Tapped “Try 5 easier ones”",
+  tutor: "Tapped “Ask the tutor about it”",
+  written: "Tapped “Check a written answer”",
+  picker: "Went to choose a chapter",
+  note_saved: "Sent a “Tell us more” note (the words are private to their account)",
 };
 
 /** FEEDBACK-1 — each reason code -> the exact words the student tapped (one source: the prompt's own list). */
@@ -178,12 +192,16 @@ function feedbackEventLabels(): Record<string, string> {
       out[feedbackActivityName("reason", m, r.code)] = `Feedback (${FEEDBACK_MOMENT_LABELS[m]}): “${r.label}”`;
     }
   }
-  // FIRST-FEEDBACK-1 — "Was this useful?" (no call offer, so no call-tap label).
-  const g = FIRST_GRADED_MOMENT;
-  out[feedbackActivityName("shown", g)] = `Was asked “Was this useful?” (${FEEDBACK_MOMENT_LABELS[g]})`;
-  out[feedbackActivityName("dismissed", g)] = `Closed “Was this useful?” without answering (${FEEDBACK_MOMENT_LABELS[g]})`;
-  for (const a of FIRST_GRADED_ANSWERS) {
-    out[feedbackActivityName("reason", g, a.code)] = `Feedback (${FEEDBACK_MOMENT_LABELS[g]}): “${a.label}”`;
+  // FIRST-FEEDBACK-1 / FEEDBACK-2 — "Was this useful?" (no call offer, so no call-tap label).
+  for (const g of GRADED_MOMENTS) {
+    out[feedbackActivityName("shown", g)] = `Was asked “Was this useful?” (${FEEDBACK_MOMENT_LABELS[g]})`;
+    out[feedbackActivityName("dismissed", g)] = `Closed “Was this useful?” without answering (${FEEDBACK_MOMENT_LABELS[g]})`;
+    for (const a of FIRST_GRADED_ANSWERS) {
+      out[feedbackActivityName("reason", g, a.code)] = `Feedback (${FEEDBACK_MOMENT_LABELS[g]}): “${a.label}”`;
+    }
+    for (const act of FEEDBACK_NEXT_ACTIONS) {
+      out[feedbackActivityName("next", g, undefined, act)] = `After “Was this useful?” (${FEEDBACK_MOMENT_LABELS[g]}): ${FEEDBACK_NEXT_LABELS[act]}`;
+    }
   }
   return out;
 }
@@ -199,7 +217,7 @@ export interface FeedbackAnswerRow {
 
 // FIRST-FEEDBACK-1 — widened: first_graded pairs ONLY with its three answers.
 const FEEDBACK_REASON_NAME =
-  /^feedback_(?:(paywall|trial_end)_(not_tried|ask_parents|price|not_enough_help|boards_far|other)|(first_graded)_(yes|not_really|too_hard))$/;
+  /^feedback_(?:(paywall|trial_end)_(not_tried|ask_parents|price|not_enough_help|boards_far|other)|(first_graded|after_graded)_(yes|too_easy|not_really|too_hard))$/;
 
 /**
  * FEEDBACK-1 — every answer this student gave, newest day first, read from the day

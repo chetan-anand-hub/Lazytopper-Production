@@ -182,6 +182,7 @@ function realSeed(uid = UID) {
     [`sessionRecords/${uid}/worksheetPapers/w1`]: {},
     [`practiceInsights/${uid}`]: {},
     [`practiceInsights/${uid}/attempts/at1`]: {},
+    [`practiceInsights/${uid}/feedbackNotes/n1`]: {},
     [`mockScoreHistory/${uid}`]: {},
     [`mockScoreHistory/${uid}/entries/e1`]: {},
     [`weakAreaSummary/${uid}`]: {},
@@ -473,6 +474,7 @@ test('★ subcollections are deleted EXPLICITLY, by their own child path', async
     `sessionRecords/${UID}/chapterTestPapers/c1`,
     `sessionRecords/${UID}/worksheetPapers/w1`,
     `practiceInsights/${UID}/attempts/at1`,
+    `practiceInsights/${UID}/feedbackNotes/n1`,
     `mockScoreHistory/${UID}/entries/e1`,
     `tutorSessions/${UID}/topics/electricity`,
   ];

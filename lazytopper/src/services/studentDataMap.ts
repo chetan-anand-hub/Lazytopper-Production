@@ -297,6 +297,21 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     exportable: true,
   },
   {
+    // FEEDBACK-2 (owner ruling 24 Oct 2026) - the optional "Tell us more" note after "Was this useful?".
+    // Written ONLY by components/feedback/feedbackNotes.ts, under the student's own practiceInsights doc
+    // (firestore.rules: owner read/write on practiceInsights/{uid}/**). Never sent to analytics.
+    id: "practiceInsights.feedbackNotes",
+    kind: "firestore-subcollection",
+    parentId: "practiceInsights",
+    path: "practiceInsights/{uid}/feedbackNotes/{noteId}",
+    holds:
+      "★ The optional free-text note a student typed after \"Was this useful?\" (text up to 500 " +
+      "characters), which surface and chapter it was about, the app version and when it was sent. " +
+      "Free text: the student's own words. Never sent to analytics or the activity log.",
+    mechanism: "browser-sdk",
+    exportable: true,
+  },
+  {
     id: "mockScoreHistory",
     kind: "firestore-collection",
     path: "mockScoreHistory/{uid}",

@@ -515,6 +515,7 @@ describe("studentDataMap — per-location properties", () => {
     "sessionRecords.worksheetPapers",
     "practiceInsights",
     "practiceInsights.attempts",
+    "practiceInsights.feedbackNotes",
     "mockScoreHistory",
     "mockScoreHistory.entries",
     "weakAreaSummary",

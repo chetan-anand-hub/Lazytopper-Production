@@ -31,11 +31,26 @@ export type ImproveMoment = "paywall" | "trial_end";
  * on the device. It has its own three answers and no call offer, so it is kept apart from
  * FEEDBACK_MOMENTS (which every "help us improve" list iterates, byte-unchanged).
  */
-export type FeedbackMoment = ImproveMoment | "first_graded";
+export type FeedbackMoment = ImproveMoment | GradedMoment;
 
 export const FEEDBACK_MOMENTS: readonly ImproveMoment[] = ["paywall", "trial_end"] as const;
 
 export const FIRST_GRADED_MOMENT = "first_graded" as const;
+
+/**
+ * FEEDBACK-2 (owner rulings 24 Oct 2026) — "Was this useful?" is asked again after later graded
+ * results as the moment `after_graded` (at most once per 7 days per student per device, never twice
+ * in one browser session). It is the SAME question and the SAME four answers as `first_graded`; only
+ * the "when" rule and the event names differ. Both are kept out of FEEDBACK_MOMENTS, like the first.
+ */
+export const AFTER_GRADED_MOMENT = "after_graded" as const;
+export type GradedMoment = typeof FIRST_GRADED_MOMENT | typeof AFTER_GRADED_MOMENT;
+export const GRADED_MOMENTS: readonly GradedMoment[] = [FIRST_GRADED_MOMENT, AFTER_GRADED_MOMENT] as const;
+
+/** True for the two "Was this useful?" moments (the four-answer card that leads somewhere). */
+export function isGradedMoment(moment: FeedbackMoment | undefined | null): moment is GradedMoment {
+  return moment === FIRST_GRADED_MOMENT || moment === AFTER_GRADED_MOMENT;
+}
 
 export type ImproveReason =
   | "not_tried"
@@ -45,8 +60,8 @@ export type ImproveReason =
   | "boards_far"
   | "other";
 
-/** FIRST-FEEDBACK-1 — the three one-tap answers to "Was this useful?". */
-export type FirstGradedAnswer = "yes" | "not_really" | "too_hard";
+/** FIRST-FEEDBACK-1 — the one-tap answers to "Was this useful?" (FEEDBACK-2 adds `too_easy`). */
+export type FirstGradedAnswer = "yes" | "too_easy" | "too_hard" | "not_really";
 
 export type FeedbackReason = ImproveReason | FirstGradedAnswer;
 
@@ -69,11 +84,13 @@ export const FEEDBACK_COPY = {
   thanks: "Thank you — this really helps us.",
 } as const;
 
-/** FIRST-FEEDBACK-1 — exact copy per the owner's spec. In the order the student sees them. */
+/** FIRST-FEEDBACK-1 — exact copy per the owner's spec; FEEDBACK-2 (24 Oct 2026) order and the new
+ *  "Too easy". In the order the student sees them. */
 export const FIRST_GRADED_ANSWERS: ReadonlyArray<{ code: FirstGradedAnswer; label: string }> = [
   { code: "yes", label: "Yes" },
-  { code: "not_really", label: "Not really" },
+  { code: "too_easy", label: "Too easy" },
   { code: "too_hard", label: "Too hard" },
+  { code: "not_really", label: "Not really" },
 ];
 
 export const FIRST_GRADED_COPY = {
@@ -82,14 +99,23 @@ export const FIRST_GRADED_COPY = {
   thanks: "Thank you — this really helps us.",
 } as const;
 
-/** The answers a moment offers: the three for `first_graded`, the six otherwise. */
+/** The answers a moment offers: the four for the graded moments, the six otherwise. */
 export function feedbackReasonsFor(moment: FeedbackMoment): ReadonlyArray<{ code: FeedbackReason; label: string }> {
-  return moment === FIRST_GRADED_MOMENT ? FIRST_GRADED_ANSWERS : FEEDBACK_REASONS;
+  return isGradedMoment(moment) ? FIRST_GRADED_ANSWERS : FEEDBACK_REASONS;
 }
 
 /* ── Event names ─────────────────────────────────────────────────────────────── */
 
-export type FeedbackEventKind = "shown" | "dismissed" | "reason" | "call_tap";
+export type FeedbackEventKind = "shown" | "dismissed" | "reason" | "call_tap" | "next";
+
+/**
+ * FEEDBACK-2 — what the student did AFTER answering "Was this useful?": which button they tapped
+ * (`more` / `harder` / `easier` / `tutor` / `written` / `picker`) or that they sent the optional note
+ * (`note_saved`). NAMES ONLY: the note's words never leave the student's own account (see
+ * feedbackNotes.ts) and never reach a vendor or the activity log.
+ */
+export const FEEDBACK_NEXT_ACTIONS = ["more", "harder", "easier", "tutor", "written", "picker", "note_saved"] as const;
+export type FeedbackNextAction = (typeof FEEDBACK_NEXT_ACTIONS)[number];
 
 /**
  * The FIRST-PARTY activity name. Moment and reason are inside the name because the
@@ -98,8 +124,15 @@ export type FeedbackEventKind = "shown" | "dismissed" | "reason" | "call_tap";
  *   reason                   -> `feedback_paywall_price`, `feedback_trial_end_ask_parents`
  * Every one of these is in the allow-lists (activityClient.ts + studentActivity.cjs).
  */
-export function feedbackActivityName(kind: FeedbackEventKind, moment: FeedbackMoment, reason?: FeedbackReason): string {
+export function feedbackActivityName(
+  kind: FeedbackEventKind,
+  moment: FeedbackMoment,
+  reason?: FeedbackReason,
+  action?: FeedbackNextAction,
+): string {
   if (kind === "reason") return `feedback_${moment}_${reason ?? "other"}`;
+  // FEEDBACK-2: `feedback_first_graded_next_harder`, `feedback_after_graded_next_note_saved`, ...
+  if (kind === "next") return `feedback_${moment}_next_${action ?? "more"}`;
   return `feedback_${kind}_${moment}`;
 }
 
@@ -112,14 +145,22 @@ export function allFeedbackActivityNames(): string[] {
   // FIRST-FEEDBACK-1 — appended after the 18, so the existing order is unchanged. No call tap.
   out.push(feedbackActivityName("shown", FIRST_GRADED_MOMENT), feedbackActivityName("dismissed", FIRST_GRADED_MOMENT));
   for (const a of FIRST_GRADED_ANSWERS) out.push(feedbackActivityName("reason", FIRST_GRADED_MOMENT, a.code));
+  // FEEDBACK-2 — appended: the repeat ask's own shown / dismissed / four answers, then what a student
+  // did next after either graded ask. Names only.
+  out.push(feedbackActivityName("shown", AFTER_GRADED_MOMENT), feedbackActivityName("dismissed", AFTER_GRADED_MOMENT));
+  for (const a of FIRST_GRADED_ANSWERS) out.push(feedbackActivityName("reason", AFTER_GRADED_MOMENT, a.code));
+  for (const m of GRADED_MOMENTS) {
+    for (const act of FEEDBACK_NEXT_ACTIONS) out.push(feedbackActivityName("next", m, undefined, act));
+  }
   return out;
 }
 
 /** The vendor (GA4 / Vercel) name: generic, with `{ moment, reason }` as data. */
 export function feedbackVendorName(
   kind: FeedbackEventKind,
-): "feedback_shown" | "feedback_dismissed" | "feedback_reason" | "feedback_call_tap" {
+): "feedback_shown" | "feedback_dismissed" | "feedback_reason" | "feedback_call_tap" | "feedback_next" {
   if (kind === "call_tap") return "feedback_call_tap";
+  if (kind === "next") return "feedback_next";
   return kind === "reason" ? "feedback_reason" : kind === "shown" ? "feedback_shown" : "feedback_dismissed";
 }
 
@@ -222,20 +263,24 @@ export function firstResultState(
 /* ── Once-per-moment rule ────────────────────────────────────────────────────── */
 
 export const PAYWALL_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+/** FEEDBACK-2 — "Was this useful?" is asked again at most once per student per device per 7 days. */
+export const AFTER_GRADED_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 export const QUIET_PERIOD_MS = 24 * 60 * 60 * 1000;
 
 /**
  * The device record, one per student: `lazytopper.feedbackAsk.<uid>` (registered in
  * studentDataMap.ts). `p` = when the paywall prompt was last shown, `t` = the trial
  * (its start timestamp) whose end was already asked about, `l` = when ANY prompt was last
- * shown. FIRST-FEEDBACK-1 adds `g` = when "Was this useful?" was shown (once ever). No
- * answer, no reason, nothing else.
+ * shown. FIRST-FEEDBACK-1 adds `g` = when "Was this useful?" was shown (once ever).
+ * FEEDBACK-2 adds `a` = when "Was this useful?" was last asked AGAIN (moment `after_graded`).
+ * No answer, no reason, nothing else.
  */
 export interface FeedbackRecord {
   p?: number;
   t?: string;
   l?: number;
   g?: number;
+  a?: number;
 }
 
 export const FEEDBACK_STORAGE_PREFIX = "lazytopper.feedbackAsk.";
@@ -255,6 +300,7 @@ export function parseFeedbackRecord(raw: string | null): FeedbackRecord {
     if (typeof o.t === "string" && o.t) out.t = o.t;
     if (typeof o.l === "number" && Number.isFinite(o.l)) out.l = o.l;
     if (typeof o.g === "number" && Number.isFinite(o.g)) out.g = o.g;
+    if (typeof o.a === "number" && Number.isFinite(o.a)) out.a = o.a;
     return out;
   } catch {
     return {};
@@ -280,6 +326,13 @@ export function shouldShowFeedback(
   trialKey?: string | null,
 ): boolean {
   if (moment === FIRST_GRADED_MOMENT) return typeof record.g !== "number";
+  if (moment === AFTER_GRADED_MOMENT) {
+    // FEEDBACK-2: 7 days after the LATEST "Was this useful?" of either kind (the first ask or a repeat).
+    // Like `first_graded` it is exempt from, and invisible to, the 24-hour gap between the two
+    // "help us improve" moments. A time in the future (a wrong clock) counts as "just asked".
+    const last = Math.max(typeof record.g === "number" ? record.g : -Infinity, typeof record.a === "number" ? record.a : -Infinity);
+    return last === -Infinity || nowMs - last >= AFTER_GRADED_COOLDOWN_MS;
+  }
   const since = (t: number | undefined) => (typeof t === "number" ? nowMs - t : Infinity);
   if (since(record.l) < QUIET_PERIOD_MS) return false;
   if (moment === "paywall") return since(record.p) >= PAYWALL_COOLDOWN_MS;
@@ -298,6 +351,7 @@ export function markFeedbackShown(
   // does not touch the shared last-prompt time `l`, so it never holds back the paywall or
   // trial-end prompt; those two moments write exactly what they wrote before.
   if (moment === FIRST_GRADED_MOMENT) return { ...record, g: nowMs };
+  if (moment === AFTER_GRADED_MOMENT) return { ...record, a: nowMs };
   const next: FeedbackRecord = { ...record, l: nowMs };
   if (moment === "paywall") next.p = nowMs;
   else if (trialKey) next.t = trialKey;
@@ -330,7 +384,9 @@ export function claimFeedbackMoment(
     store.setItem(key, JSON.stringify(markFeedbackShown(record, moment, nowMs, trialKey)));
     // Read back: a store that silently drops writes would let the prompt repeat.
     const check = parseFeedbackRecord(store.getItem(key));
-    return moment === FIRST_GRADED_MOMENT ? check.g === nowMs : check.l === nowMs;
+    if (moment === FIRST_GRADED_MOMENT) return check.g === nowMs;
+    if (moment === AFTER_GRADED_MOMENT) return check.a === nowMs;
+    return check.l === nowMs;
   } catch {
     return false;
   }

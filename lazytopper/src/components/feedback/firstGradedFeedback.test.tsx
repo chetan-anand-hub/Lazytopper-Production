@@ -167,14 +167,16 @@ describe("FIRST-FEEDBACK-1 · names, copy, allow-lists, admin labels", () => {
     expect(feedbackActivityName("shown", "first_graded")).toBe("feedback_shown_first_graded");
     expect(feedbackActivityName("reason", "first_graded", "not_really")).toBe("feedback_first_graded_not_really");
     const names = allFeedbackActivityNames();
-    expect(names.slice(18)).toEqual(FIVE_NAMES);
+    // FEEDBACK-2 added "Too easy" and reordered the answers; the five names are all still there, in the allow-list.
+    for (const n of FIVE_NAMES) expect(names).toContain(n);
+    expect(names.slice(18, 20)).toEqual(["feedback_shown_first_graded", "feedback_dismissed_first_graded"]);
     for (const n of FIVE_NAMES) expect(ACTIVITY_EVENTS as readonly string[]).toContain(n);
     expect(ACTIVITY_EVENTS as readonly string[]).not.toContain("feedback_call_tap_first_graded");
   });
 
-  it("exact copy: 'Was this useful?' and Yes / Not really / Too hard; the other moments keep their six", () => {
+  it("exact copy: 'Was this useful?' and Yes / Too easy / Too hard / Not really (FEEDBACK-2); the other moments keep their six", () => {
     expect(FIRST_GRADED_COPY.title).toBe("Was this useful?");
-    expect(FIRST_GRADED_ANSWERS.map((a) => a.label)).toEqual(["Yes", "Not really", "Too hard"]);
+    expect(FIRST_GRADED_ANSWERS.map((a) => a.label)).toEqual(["Yes", "Too easy", "Too hard", "Not really"]);
     expect(feedbackReasonsFor("first_graded")).toBe(FIRST_GRADED_ANSWERS);
     expect(feedbackReasonsFor("paywall")).toBe(FEEDBACK_REASONS);
   });
@@ -204,10 +206,10 @@ describe("FIRST-FEEDBACK-1 · the card", () => {
     return { onAnswer, onDismiss, onDone };
   }
 
-  it("shows the question and three answers — no WhatsApp offer, no subtitle, no text box", () => {
+  it("shows the question and four answers — no WhatsApp offer, no subtitle, no text box", () => {
     renderFirst();
     expect(screen.getByText("Was this useful?")).toBeInTheDocument();
-    for (const l of ["Yes", "Not really", "Too hard"]) expect(screen.getByRole("button", { name: l })).toBeInTheDocument();
+    for (const l of ["Yes", "Too easy", "Too hard", "Not really"]) expect(screen.getByRole("button", { name: l })).toBeInTheDocument();
     expect(screen.queryByTestId("feedback-call")).toBeNull();
     expect(screen.queryByText(FEEDBACK_COPY.subtitle)).toBeNull();
     expect(screen.queryByRole("textbox")).toBeNull();

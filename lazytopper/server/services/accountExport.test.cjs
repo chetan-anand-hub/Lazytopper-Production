@@ -166,6 +166,8 @@ function realSeed(uid = UID) {
     [`sessionRecords/${uid}/worksheetPapers/w1`]: {},
     [`practiceInsights/${uid}`]: {},
     [`practiceInsights/${uid}/attempts/at1`]: { correct: false },
+    // FEEDBACK-2: the optional "Tell us more" note is student data, exported with the account.
+    [`practiceInsights/${uid}/feedbackNotes/n1`]: { text: 'a note', kind: 'other' },
     [`mockScoreHistory/${uid}`]: {},
     [`mockScoreHistory/${uid}/entries/e1`]: { score: 61 },
     [`weakAreaSummary/${uid}`]: {},
