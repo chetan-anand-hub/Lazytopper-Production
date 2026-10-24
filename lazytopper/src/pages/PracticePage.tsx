@@ -620,6 +620,7 @@ import {
   buildPracticeQuestionsWithAiTopup,
   buildCbqPracticePool,
   buildChapterServedPool,
+  buildExactFocusPool,
   normaliseSubject,
   parseDifficultyChoice,
   parsePositiveInt,
@@ -663,6 +664,13 @@ import {
 } from "../components/practice/fullSubjectPractice";
 import { buildTutorPath } from "./tutor/tutorPath";
 import { signedOutTutorPath, stashSignedOutAsk } from "./tutor/signedOutScorecardAsk";
+import { stashPracticeTutorAsk } from "./tutor/practiceTutorAsk";
+import {
+  clearPracticeReturn,
+  peekPracticeReturn,
+  savePracticeReturn,
+  type PracticeReturnSnapshot,
+} from "../lib/practice/practiceReturnSnapshot";
 import TutorSignupPrompt from "../components/auth/TutorSignupPrompt";
 import { bankChaptersFor, ensureBankChapters, getBankRows } from "../data/bankChapters/loader";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
@@ -1111,7 +1119,21 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   const [committedMarksRange, setCommittedMarksRange] = useState<MarksRange | null>(
     () => conceptMarksRange
   );
-  const [isBuilt, setIsBuilt] = useState<boolean>(false);
+  // TUTOR-Q-1 — a snapshot saved just before this student was handed to the tutor, for exactly THIS url
+  // (read, never consumed here: it is deleted once the restored set is on screen, so a render that runs
+  // twice reads it twice). Never in the tutor overlay. When present the page opens BUILT, on the saved ids.
+  const [restoreSnap] = useState<PracticeReturnSnapshot | null>(() =>
+    overlay ? null : peekPracticeReturn(location.pathname + location.search),
+  );
+  // The ids the build rebuilds the set from; cleared by `regenerateQuestions` (every rebuild trigger).
+  const restoreIdsRef = useRef<string[] | null>(restoreSnap ? restoreSnap.ids : null);
+  // The saved picks / steps / working are put back ONCE, however many times the build effect re-runs.
+  const restoreAppliedRef = useRef<boolean>(false);
+  // The set on screen IS the restored one (so it is displayed as given, and is not re-recorded as served).
+  const [restoredActive, setRestoredActive] = useState<boolean>(false);
+  const [restoreScrollId, setRestoreScrollId] = useState<string | null>(null);
+  const restoreScrolledRef = useRef<boolean>(false);
+  const [isBuilt, setIsBuilt] = useState<boolean>(() => restoreSnap !== null);
   // GUIDE-FILTER-1 (#1302 review) — the dropped-filter line, kept after the fallback reset it (see
   // `presetFallbackNote`); cleared when the student builds or edits filters themselves.
   const [droppedFilterLine, setDroppedFilterLine] = useState<string | null>(null);
@@ -1138,7 +1160,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // it both varies the draw and (at finish) makes the record id idempotent within the
   // visit while distinct across visits. Never re-read — a changing value would
   // reshuffle the set under the student mid-session.
-  const [sessionStartedAt] = useState<number>(() => Date.now());
+  // TUTOR-Q-1: a set restored after the tutor CONTINUES its visit (same start), so the session record it
+  // may write is the same idempotent document as before - never a second record for one set.
+  const [sessionStartedAt] = useState<number>(() => restoreSnap?.startedAt ?? Date.now());
   // The COMMITTED filters that decide WHICH questions this set contains. Change any of
   // them and it is a different set → a different session identity → a different draw.
   // `pending*` is deliberately absent (it hasn't been applied yet), as are nav/display
@@ -1267,6 +1291,25 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
       presetParam,
     );
     if (arrivedTargeted) {
+      setIsBuilt(true);
+    }
+    // TUTOR-Q-1 — coming back from the tutor: the filters that built the saved set go back, after (and
+    // over) the URL defaults above, so "Edit filters" and the set's labels are the ones the student had.
+    if (restoreSnap) {
+      const f = restoreSnap.filters;
+      setPendingMarks(f.marks);
+      setPendingStyle(f.style);
+      setPendingSource(f.source);
+      setPendingDifficulty(f.difficulty);
+      setPendingMarksRange(f.range);
+      setCommittedMarks(f.marks);
+      setCommittedStyle(f.style);
+      setCommittedSource(f.source);
+      setCommittedDifficulty(f.difficulty);
+      setCommittedMarksRange(f.range);
+      setQuestionCount(f.count);
+      setCommittedCount(f.count);
+      setDifficulty(parseDifficultyChoice(f.engineDifficulty) ?? "All");
       setIsBuilt(true);
     }
     didInitFromUrlRef.current = true;
@@ -1422,6 +1465,9 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
     if (!isBuilt || !questions || questions.length === 0) {
       return { available: 0, displayed: [] as PracticeQuestion[] };
     }
+    // TUTOR-Q-1 — a set restored after the tutor is shown exactly as saved (the ids, in their order):
+    // no filter pass, no seen-last reorder, no rotation.
+    if (restoredActive) return { available: questions.length, displayed: questions };
     // The engine deliberately over-fetches when a marks/section filter (or an
     // exact concept range) is active so the random-sample bias toward the
     // Easy/Section-A bucket doesn't starve other sections. We narrow client-side
@@ -1444,7 +1490,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
       exact ? undefined : poolHintTiers,
       exact ? undefined : seenRank,
     );
-  }, [questions, poolHeadSize, poolHintTiers, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, seenRank, rotationOffset, strictFocus, focusBankIds, questionCount]);
+  }, [restoredActive, questions, poolHeadSize, poolHintTiers, isBuilt, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, committedCount, seenQuestionIds, seenRank, rotationOffset, strictFocus, focusBankIds, questionCount]);
 
   const filteredQuestions = committedPoolSelection.displayed;
 
@@ -1725,6 +1771,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
     const sig = ids.join("|");
     if (recordedServedRef.current === sig) return;
     recordedServedRef.current = sig;
+    // TUTOR-Q-1 — a set restored after the tutor was recorded as served when it was first built.
+    if (restoredActive) return;
     const at = Date.now();
     const byChapter = new Map<string, string[]>();
     if (freshTopics.length === 1) {
@@ -1741,7 +1789,20 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
     for (const [chapter, chIds] of byChapter) {
       recordServed({ uid: freshUid, isLocalSession: freshLocal, chapter, ids: chIds, at });
     }
-  }, [setSettled, filteredQuestions, freshTopics, freshUid, freshLocal]);
+  }, [setSettled, filteredQuestions, freshTopics, freshUid, freshLocal, restoredActive]);
+
+  // TUTOR-Q-1 — after a restore, bring the question the student was on into view once it has rendered.
+  useEffect(() => {
+    if (!restoreScrollId || !setSettled || restoreScrolledRef.current) return;
+    restoreScrolledRef.current = true; // once
+    const target = restoreScrollId;
+    window.requestAnimationFrame(() => {
+      const card = Array.from(document.querySelectorAll<HTMLElement>("[data-question-id]")).find(
+        (el) => el.getAttribute("data-question-id") === target,
+      );
+      if (card && typeof card.scrollIntoView === "function") card.scrollIntoView({ block: "center" });
+    });
+  }, [restoreScrollId, setSettled]);
 
   // ── Hand a question's concept to the TUTOR (2026-07-15) ────────────────────
   // Replaces QP's own ConceptTeachDrawer mount ("Revise this topic") and the inline
@@ -1754,22 +1815,76 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   // tutor already threads `concept` into its opener, so it starts knowing what they
   // were working on. OFFER-NEVER-AUTO — this only ever fires on the student's tap.
   //
-  // `questionId` is NOT carried: buildTutorPath has no such param, and adding one is
-  // the TUTOR LANE's change ([FU-TUTOR-QUESTION-CONTEXT]). The concept is the useful
-  // 90% and needs nothing from them.
+  //
+  // TUTOR-Q-1 — the tutor now opens ON THIS QUESTION, and back returns to THIS SET.
+  //  · `questionId` rides the URL as `q` (an id, never text). The question's number, the option the
+  //    student picked (text) and whether the card marked it right go in a this-tab one-shot the tutor
+  //    reads once (tutor/practiceTutorAsk.ts). Their typed working is never in it.
+  //  · a return snapshot (lib/practice/practiceReturnSnapshot.ts) lets the page rebuild this exact set
+  //    when the student comes back to this URL. Not saved once the session is finished / in review /
+  //    batch-graded: that state cannot be rebuilt here, so a return there is a fresh set as before.
   const askTutorAboutQuestion = useCallback((q: PracticeQuestion) => {
     const here = location.pathname + location.search;
+    const qId = String(q.id);
+    const ids = filteredQuestions.map((row) => String(row.id));
+    const at = ids.indexOf(qId);
+    const opts = Array.isArray(q.options) ? q.options.map(String) : [];
+    const picked = mcqSelections[qId];
+    const verdict = mcqResults[qId];
+    stashPracticeTutorAsk({
+      q: qId,
+      qNumber: at >= 0 ? at + 1 : null,
+      pick: typeof picked === "number" && opts[picked] ? opts[picked] : null,
+      correct: verdict === "correct" ? true : verdict === "wrong" ? false : null,
+    });
+    if (!reviewMode && !sessionFinished && !batchResult && ids.length > 0) {
+      const working: Record<string, { textAnswer: string }> = {};
+      for (const [id, w] of Object.entries(savedAnswers)) {
+        if (w.kind === "typed" && w.textAnswer && w.textAnswer.trim()) working[id] = { textAnswer: w.textAnswer };
+      }
+      const openWithSteps = ids.filter((id) => expandedAnswers[id] && practiceSolutionData[id]);
+      savePracticeReturn({
+        url: here,
+        at: Date.now(),
+        startedAt: sessionStartedAt,
+        scorecardDismissed,
+        ids,
+        filters: {
+          marks: committedMarks,
+          style: committedStyle,
+          source: committedSource,
+          difficulty: committedDifficulty,
+          engineDifficulty: difficulty,
+          count: committedCount,
+          range: committedMarksRange ? { min: committedMarksRange.min, max: committedMarksRange.max } : null,
+        },
+        picks: mcqSelections,
+        results: mcqResults,
+        open: openWithSteps,
+        solutions: Object.fromEntries(openWithSteps.map((id) => [id, practiceSolutionData[id]])),
+        active: qId,
+        working,
+      });
+    } else {
+      clearPracticeReturn(); // an older snapshot must not resurrect a stale set
+    }
     navigate(
       buildTutorPath({
         subject: subjectKey,
         topicKey: q.topicKey || canonicalTopicKey || topicParam,
         grade: String(grade),
         concept: q.subtopic || conceptFocusLabel || undefined,
+        questionId: qId,
         source: "practice",
         returnTo: here,
       }),
     );
-  }, [navigate, location.pathname, location.search, subjectKey, canonicalTopicKey, topicParam, grade, conceptFocusLabel]);
+  }, [
+    navigate, location.pathname, location.search, subjectKey, canonicalTopicKey, topicParam, grade, conceptFocusLabel,
+    filteredQuestions, mcqSelections, mcqResults, reviewMode, sessionFinished, batchResult, savedAnswers, expandedAnswers,
+    practiceSolutionData, committedMarks, committedStyle, committedSource, committedDifficulty, difficulty, committedCount,
+    committedMarksRange, sessionStartedAt, scorecardDismissed,
+  ]);
 
   const strategyTopicSeed = useMemo(() => {
     const explicitFromState = navState.topicKey;
@@ -1962,6 +2077,7 @@ const packTopicKey = useMemo(() => {
   // section is left in the set's scope. Otherwise the line says only how many are repeats.
   const repeatsLine = useMemo(() => {
     if (!setSettled || filteredQuestions.length === 0) return null;
+    if (restoredActive) return null; // the same set the student was already on, not a new draw of repeats
     if (isExactFocusSet(strictFocus, focusBankIds, questionCount, committedMarks, committedMarksRange)) return null;
     const repeats = filteredQuestions.filter((q) => freshTier(freshness, String(q.id)) > 0);
     if (repeats.length === 0) return null;
@@ -1984,7 +2100,7 @@ const packTopicKey = useMemo(() => {
           ? "other"
           : "section";
     return repeatsNote(repeats.length, scopeKind, filteredQuestions.length);
-  }, [setSettled, filteredQuestions, freshness, strictFocus, focusBankIds, questionCount, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, cbqMode, questions, chipServedPool]);
+  }, [setSettled, restoredActive, filteredQuestions, freshness, strictFocus, focusBankIds, questionCount, committedMarks, committedStyle, committedSource, committedDifficulty, committedMarksRange, cbqMode, questions, chipServedPool]);
 
   const filterChipCounts = useMemo<ChipCounts | null>(() => {
     if (!chipServedPool || isBuilt) return null;
@@ -2118,6 +2234,58 @@ const packTopicKey = useMemo(() => {
           throw loadErr;
         }
         if (cancelled) return;
+
+        // TUTOR-Q-1 — coming back from the tutor: rebuild the set the student left from its saved ids, in
+        // order, through the EXISTING exact-ids path (buildExactFocusPool, the one a strict focus list
+        // uses). No draw, no rotation, no seen-set, no served record: this is not a new set. An id the pool
+        // no longer holds is skipped (never replaced); if none resolve it is an ordinary visit.
+        const restoreIds = restoreIdsRef.current;
+        if (restoreIds) {
+          const byId = new Map<string, PracticeQuestion>();
+          for (const label of isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]) {
+            for (const row of buildExactFocusPool(label, restoreIds)) {
+              if (!byId.has(String(row.id))) byId.set(String(row.id), row);
+            }
+          }
+          const rows = restoreIds.map((id) => byId.get(id)).filter((r): r is PracticeQuestion => !!r);
+          if (rows.length > 0) {
+            if (cancelled) return;
+            setQuestions(rows);
+            setPoolHeadSize(undefined);
+            setPoolHintTiers(undefined);
+            setPoolHintConcept(undefined);
+            setRestoredActive(true);
+            if (restoreSnap && !restoreAppliedRef.current) {
+              restoreAppliedRef.current = true;
+              const here = new Set(rows.map((r) => String(r.id)));
+              const keep = <T,>(m: Record<string, T>): Record<string, T> =>
+                Object.fromEntries(Object.entries(m).filter(([id]) => here.has(id)));
+              setMcqSelections(keep(restoreSnap.picks));
+              setMcqResults(keep(restoreSnap.results));
+              const solutions = keep(restoreSnap.solutions) as Record<string, StepSolutionResponse>;
+              setPracticeSolutionData(solutions);
+              setExpandedAnswers(Object.fromEntries(restoreSnap.open.filter((id) => here.has(id)).map((id) => [id, true])));
+              setSavedAnswers(
+                Object.fromEntries(
+                  Object.entries(keep(restoreSnap.working)).map(([id, w]) => [
+                    id,
+                    { imageBase64: null, imageMimeType: null, textAnswer: w.textAnswer, kind: "typed" as const },
+                  ]),
+                ),
+              );
+              const active = restoreSnap.active && here.has(restoreSnap.active) ? restoreSnap.active : null;
+              if (active) {
+                setActiveQuestionId(active);
+                setRestoreScrollId(active);
+              }
+              if (restoreSnap.scorecardDismissed) setScorecardDismissed(true);
+              clearPracticeReturn(); // taken once
+            }
+            return;
+          }
+          restoreIdsRef.current = null; // nothing resolved: an ordinary visit from here on
+          clearPracticeReturn();
+        }
 
         // FRESH-SET-QP — what this draw must move past: the index state (earlier visits + the sets
         // this visit has folded in) unioned with the DEVICE copy read now, so an auto-built first set
@@ -2565,6 +2733,9 @@ const packTopicKey = useMemo(() => {
   }, [topicParam, subjectKey]);
 
   const regenerateQuestions = () => {
+    // TUTOR-Q-1 — a real rebuild (Build / preset / fresh set / Refresh) ends the restored set.
+    restoreIdsRef.current = null;
+    setRestoredActive(false);
     // FRESH-SET-QP — the set the student just had is SERVED; the next draw moves past it. This is
     // also what fixes "Edit filters → Build new set" with unchanged filters (Defect C): the dead
     // `previousQuestionKeys` exclusion below is cleared by the build effect before it is ever read
