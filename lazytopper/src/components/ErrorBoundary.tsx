@@ -1,4 +1,5 @@
 import { Component, type ReactNode, type ErrorInfo } from "react";
+import { recoverFromChunkError } from "../lib/chunkReload";
 
 interface Props {
   children: ReactNode;
@@ -10,6 +11,8 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  /** ASSET-RELOAD-1: a lost chunk is being recovered by one automatic reload. */
+  recovering?: boolean;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -24,18 +27,24 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("[ErrorBoundary]", error, errorInfo);
+    // ASSET-RELOAD-1 (B): every lazy route/component that exhausts importWithRetry throws a
+    // chunk-load error to the nearest boundary. Reload once (guarded) before any error screen.
+    if (recoverFromChunkError(error)) this.setState({ recovering: true });
     this.props.onError?.(error, errorInfo);
   }
 
   handleReload = () => {
     if (this.props.level === "section") {
-      this.setState({ hasError: false, error: null });
+      this.setState({ hasError: false, error: null, recovering: false });
     } else {
       window.location.reload();
     }
   };
 
   render() {
+    if (this.state.hasError && this.state.recovering) {
+      return <p role="status">Updating LazyTopper…</p>;
+    }
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
 

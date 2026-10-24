@@ -279,6 +279,8 @@ describe("SOFT404-1 — everything except the shell rules is exactly as it was",
         source: "/assets/:path(.*)",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      // ASSET-RELOAD-1 (C): the 404 sentinel a missing asset is rewritten to is never cached.
+      { source: "/__asset-not-found__", headers: [{ key: "Cache-Control", value: "no-store" }] },
     ]);
   });
 });

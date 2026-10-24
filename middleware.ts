@@ -173,8 +173,11 @@ export function isDocumentRequest(request: Request): boolean {
   if (EXCLUDED_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return false;
   // A browser says what it is fetching; honour it when present. (curl and some crawlers
   // send no Sec-Fetch-Dest — for them the path decides.)
+  // ASSET-RELOAD-1 (A): an IFRAME / FRAME page load is a page load too. Before, only
+  // `document` refreshed the pin, so a page loaded in a frame came from the new deployment
+  // while the cookie still pinned /assets to the old one -> its new hashes 404'd.
   const dest = request.headers.get("sec-fetch-dest");
-  if (dest && dest !== "document") return false;
+  if (dest && dest !== "document" && dest !== "iframe" && dest !== "frame") return false;
   // /robots.txt, /sitemap.xml, /og-image.png ... are files, not pages.
   const lastSegment = pathname.slice(pathname.lastIndexOf("/") + 1);
   if (/\.[a-z0-9]+$/i.test(lastSegment) && !/\.html?$/i.test(lastSegment)) return false;

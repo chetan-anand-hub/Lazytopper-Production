@@ -111,6 +111,42 @@
         console.warn("[preload-net] rendering without a stylesheet. " + message);
       });
     </script>
+    <!-- ASSET-RELOAD-NET. If the app's entry script (a module under /assets/) fails to load,
+         the page is blank and no React error boundary exists yet. Reload ONCE: re-fetch the
+         script with cache "reload" (overwrites a cached 404), then location.reload(). At most
+         one automatic reload per tab per 60 s (sessionStorage key shared with
+         src/lib/chunkReload.ts); storage unavailable -> no reload. Resource errors do not
+         bubble, so this listens in the capture phase and reacts ONLY to module scripts under
+         this origin's /assets/. ⚠ Keep ABOVE the module script.
+         src/config/preloadNet.guard.test.ts pins it. -->
+    <script>
+      window.addEventListener("error", function (event) {
+        var t = event.target;
+        if (!t || t.tagName !== "SCRIPT" || t.type !== "module") return;
+        var src = t.src || "";
+        if (src.indexOf(window.location.origin + "/assets/") !== 0) return;
+        try {
+          var now = Date.now();
+          var last = Number(window.sessionStorage.getItem("lazytopper.chunkReloadAt"));
+          if (isFinite(last) && last > 0 && now - last >= 0 && now - last < 60000) return;
+          window.sessionStorage.setItem("lazytopper.chunkReloadAt", String(now));
+        } catch (storageError) {
+          return;
+        }
+        var done = false;
+        function go() {
+          if (done) return;
+          done = true;
+          window.location.reload();
+        }
+        window.setTimeout(go, 3000);
+        try {
+          window.fetch(src, { cache: "reload" }).then(go, go);
+        } catch (fetchError) {
+          go();
+        }
+      }, true);
+    </script>
     <!-- VERCEL WEB ANALYTICS. Cookieless, no npm dependency, and no new data processor:
          Vercel already serves every request here. Page views are answered by
          src/analytics/, NOT by this script.
