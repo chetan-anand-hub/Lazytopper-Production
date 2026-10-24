@@ -1,3 +1,14 @@
+## 2026-10-24 (daily, part 3) - #1345 (1 product merge after #1344, 24 Oct IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The owner ruling relayed by the cofounder **[coordinator]**, with the lane's own reasoning where the PR body or squash message on trunk records it **[git/gh]**. Where no reason was given, none is invented.
+
+| decision | what it says | the reason |
+|---|---|---|
+| owner, 24 Oct 2026 16:23 IST **[coordinator]**: **the repo goes PRIVATE once all PRs merge; a handoff to the next cofounder session is prepared** | OWNER-DIRECTED, not yet done at writing (the API read `private: false`). The cofounder flips visibility after this docs PR merges; the docs builder does not. Supersedes the 23 Oct "repo PUBLIC" ruling (DECISION_LOG 2026-10-23 and the 2026-10-24 daily section) from that point on | no reason was given in the message |
+| owner, 24 Oct 2026 16:00 IST (ruling 9, part 2) **[coordinator]**, built in `#1345` [git/gh]: **the "help us improve" card stays at the bottom, with a slide-up + Ziggy** | pinned at the bottom (bottom-right on desktop); 250 ms slide-up, none under `prefers-reduced-motion`; a silent 48 px "happy" Ziggy only when the mascot budget grants a companion slot, nothing else on screen and mascots not hidden, else the plain card exactly; copy and rules unchanged | the owner's ruling; the PR body: the budget limits the character, not the question |
+| `#1345` [git/gh]: **Ziggy requests a COMPANION-priority slot, not scorecard priority** | kind `feedback:nudge` (`useNudgeAppearance`); the slot is spent only when his drawing commits and released on unmount | the PR body states "companion priority" and no further reason; the FEEDBACK-2 card, by comparison, uses SCORECARD priority (`#1342` body) |
+| `#1345` [git/gh]: **a compact layout under 400 px wide or 700 px tall** | tighter padding, reasons in two columns with taps >= 44 px, Ziggy 36 px, bottom clears `env(safe-area-inset-bottom)`; copy unchanged | the first commit's measurement: the plain card scrolled inside at 320x568 and 360x640 (683 / 542 and 634 / 614); the second commit fixes it (squash message); 320x568 is now 451 / 451 [coordinator] |
+
 ## 2026-10-24 (daily, part 2) - #1337 - #1343 (7 product merges after #1336, all on 24 Oct IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner rulings (24 Oct afternoon, binding) and the cofounder rulings relayed in the cofounder's handoff note **[coordinator]**, with the lane's own reasoning where a PR body on trunk records it **[git/gh]**. Where no reason was given, none is invented.

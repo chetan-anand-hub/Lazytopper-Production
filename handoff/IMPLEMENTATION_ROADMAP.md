@@ -1,3 +1,10 @@
+## 2026-10-24 (daily, part 3) - FEEDBACK-NUDGE-1 (`#1345`) - MERGED
+
+- DONE. `#1345` (`01376a2c`): FEEDBACK-NUDGE-1 - the paywall / trial-end "help us improve" card slides up, gets a silent Ziggy when the mascot budget allows, and uses a compact layout under 400 px wide or 700 px tall. Moved from IN FLIGHT (part 2 block) to merged. NEXT: owner live check (close the upgrade sheet on a real phone), `[FU-NUDGE-HOST-ZIGGY-TEST]`, `[FU-VIEWPORT-FIT-COVER]`, `[FU-NUDGE-LANDSCAPE]`, `[FU-NUDGE-STALE-COMMENT]`.
+- OPEN. `[FU-PKG-DUP-MATRIX-KEY]`: `lazytopper/package.json` carries two `"test:matrix:all"` keys.
+- IN FLIGHT: no product PR open at writing [git/gh] (only the report-only audits `#960`, `#963`). OWNER-DIRECTED NEXT [coordinator]: repo to PRIVATE once all PRs merge (16:23 IST ruling), then the next-cofounder-session handoff.
+- OPEN. The 2026-10-24 (daily, part 3) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-24 (daily, part 2) - STEPS-CLEAN-1 (`#1337`), SETTINGS-1 (`#1339`), LOGIN-HOME-1 (`#1338`), TUTOR-Q-1 (`#1340`), TAPS-1 (`#1343`), MOMENTS-3 (`#1341`), FEEDBACK-2 (`#1342`) - MERGED
 
 - DONE. `#1337` (`5bac0044`): STEPS-CLEAN-1 - the generic Examiner notes / Exam tip are gone from Show steps. NEXT: nothing beyond the owner's live look.
