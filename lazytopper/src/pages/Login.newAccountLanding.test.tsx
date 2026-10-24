@@ -1,7 +1,7 @@
 /**
- * ACTIVATION-2 C — a NEW account with no explicit redirect lands on /check-improve (the ads
- * promise "check your answer"); a returning login still lands on "/", and an explicit
- * `?redirect=` / `state.from` always wins. The "new" signal is the one the sign_up event uses
+ * LOGIN-HOME-1 (owner, 24 Oct 2026; supersedes ACTIVATION-2 C) — a NEW account whose target is the
+ * default Home or the Me page lands on HOME (Byte offers "Check one answer" there); any other
+ * target wins; a returning login goes back where it came from, /me included. The "new" signal is the one the sign_up event uses
  * (AuthContext: trackSignUpIfNew's isNewUser gate, and the email create call).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -41,6 +41,7 @@ import {
   NEW_ACCOUNT_LANDING_PATH,
   NEW_ACCOUNT_LANDING_TTL_MS,
   markNewAccountLanding,
+  isMeTarget,
   markNewAccountLandingIfNew,
   takeNewAccountLanding,
 } from "../services/newAccountLanding";
@@ -61,6 +62,9 @@ function renderDoorAt(entry: string | { pathname: string; state: unknown }) {
         <Route path="/login" element={<Login />} />
         <Route path="/check-improve" element={<div>LANDED ON CHECK AND IMPROVE</div>} />
         <Route path="/practice-hub" element={<div>LANDED ON PRACTICE HUB</div>} />
+        <Route path="/me" element={<div>LANDED ON ME</div>} />
+        <Route path="/profile" element={<div>LANDED ON PROFILE</div>} />
+        <Route path="/practice/:grade/:subject" element={<div>LANDED ON PRACTICE SET</div>} />
         <Route path="/" element={<div>LANDED ON HOME</div>} />
       </Routes>
     </MemoryRouter>,
@@ -74,47 +78,51 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-describe("ACTIVATION-2 C · where a sign-in lands", () => {
-  it("★★ a NEW account with no redirect lands on Check & Improve", async () => {
-    markNewAccountLandingIfNew({ isNew: true } as never);
-    authState.user = GOOGLE_USER;
-    renderDoorAt("/login");
-    expect(await screen.findByText("LANDED ON CHECK AND IMPROVE")).toBeTruthy();
-    expect(NEW_ACCOUNT_LANDING_PATH).toBe("/check-improve");
+describe("LOGIN-HOME-1 · where a sign-in lands", () => {
+  it("the new-account landing is Home", () => {
+    expect(NEW_ACCOUNT_LANDING_PATH).toBe("/");
   });
 
-  it("★★ a RETURNING login (isNewUser false) with no redirect still lands on home", async () => {
-    markNewAccountLandingIfNew({ isNew: false } as never);
+  it.each([
+    ["no target", "/login"],
+    ["redirect=/", "/login?reason=login&redirect=%2F"],
+    ["redirect=/browse", "/login?redirect=%2Fbrowse"],
+    ["redirect=/me", "/login?redirect=%2Fme"],
+    ["redirect=/me?x=1", "/login?redirect=%2Fme%3Fx%3D1"],
+    ["redirect=/profile", "/login?redirect=%2Fprofile"],
+  ])("★★ a NEW account with %s lands on Home", async (_n, entry) => {
+    markNewAccountLandingIfNew({ isNew: true } as never);
     authState.user = GOOGLE_USER;
-    renderDoorAt("/login");
+    renderDoorAt(entry);
     expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
   });
 
-  it("★★ an explicit ?redirect= wins over the new-account landing", async () => {
+  it("★★ a NEW account whose state.from is /me?x=1 (RequireAuth keeps the query) lands on Home", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt({ pathname: "/login", state: { from: "/me?x=1" } });
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+  });
+
+  it("★★ a NEW account with a practice-set target lands THERE (no work lost)", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2Fpractice%2F10%2FMaths%3Ftopic%3Dx");
+    expect(await screen.findByText("LANDED ON PRACTICE SET")).toBeTruthy();
+  });
+
+  it("★★ an explicit ?redirect= to another page wins over the new-account landing", async () => {
     markNewAccountLanding();
     authState.user = GOOGLE_USER;
     renderDoorAt("/login?redirect=%2Fpractice-hub");
     expect(await screen.findByText("LANDED ON PRACTICE HUB")).toBeTruthy();
   });
 
-  it("★★ a NEW account whose ?redirect= is only the default Home (%2F, as Welcome / the shell pass it) lands on Check & Improve", async () => {
+  it("★ a NEW account coming from the free check (/check-improve) goes back to it", async () => {
     markNewAccountLanding();
     authState.user = GOOGLE_USER;
-    renderDoorAt("/login?reason=login&redirect=%2F");
+    renderDoorAt("/login?redirect=%2Fcheck-improve");
     expect(await screen.findByText("LANDED ON CHECK AND IMPROVE")).toBeTruthy();
-  });
-
-  it("★ a NEW account from the mobile Home (/browse) lands on Check & Improve too", async () => {
-    markNewAccountLanding();
-    authState.user = GOOGLE_USER;
-    renderDoorAt("/login?redirect=%2Fbrowse");
-    expect(await screen.findByText("LANDED ON CHECK AND IMPROVE")).toBeTruthy();
-  });
-
-  it("★★ CONTROL: a RETURNING login with redirect=%2F still lands on home", async () => {
-    authState.user = GOOGLE_USER;
-    renderDoorAt("/login?reason=login&redirect=%2F");
-    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
   });
 
   it("★ state.from wins too", async () => {
@@ -122,6 +130,49 @@ describe("ACTIVATION-2 C · where a sign-in lands", () => {
     authState.user = GOOGLE_USER;
     renderDoorAt({ pathname: "/login", state: { from: "/practice-hub" } });
     expect(await screen.findByText("LANDED ON PRACTICE HUB")).toBeTruthy();
+  });
+
+  it("★★ a RETURNING login with /me returns to /me", async () => {
+    markNewAccountLandingIfNew({ isNew: false } as never);
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2Fme");
+    expect(await screen.findByText("LANDED ON ME")).toBeTruthy();
+  });
+
+  it("★★ a RETURNING login with state.from /me?x=1 returns to /me", async () => {
+    authState.user = GOOGLE_USER;
+    renderDoorAt({ pathname: "/login", state: { from: "/me?x=1" } });
+    expect(await screen.findByText("LANDED ON ME")).toBeTruthy();
+  });
+
+  it("★★ a RETURNING login with no target lands on home; so does redirect=%2F", async () => {
+    markNewAccountLandingIfNew({ isNew: false } as never);
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login");
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+    cleanup();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?reason=login&redirect=%2F");
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+  });
+
+  it("★★ an external ?redirect= is still rejected (a new account lands on Home, a returning one too)", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=https%3A%2F%2Fevil.example%2Fme");
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+    cleanup();
+    takeNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2F%2Fevil.example");
+    expect(await screen.findByText("LANDED ON HOME")).toBeTruthy();
+  });
+});
+
+describe("LOGIN-HOME-1 · the Me-target matcher", () => {
+  it("matches /me and /profile with or without query / hash / trailing slash, and nothing else", () => {
+    for (const t of ["/me", "/me?x=1", "/me#a", "/me/", "/profile", "/profile?tab=2"]) expect(isMeTarget(t), t).toBe(true);
+    for (const t of ["/menu", "/me/settings", "/profile-x", "/practice/me", "", null, undefined]) expect(isMeTarget(t), String(t)).toBe(false);
   });
 });
 
