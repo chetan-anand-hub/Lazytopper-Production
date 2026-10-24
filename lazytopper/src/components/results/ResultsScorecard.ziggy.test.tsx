@@ -73,7 +73,7 @@ describe("GUIDE-1 · Ziggy on the first scorecard", () => {
     await show(5);
     const s = await screen.findByTestId("ziggy-strip");
     expect(s.getAttribute("data-band")).toBe("full");
-    expect(screen.getByTestId("ziggy-line").textContent).toBe("Full marks! Did you see that?!");
+    expect(screen.getByTestId("ziggy-line").textContent).toBe("Full marks! Did you see that?");
     const card = document.querySelector(".lt-sc__card")!;
     expect(card.contains(s)).toBe(true);
     const big = card.querySelector(".lt-sc__big")!;

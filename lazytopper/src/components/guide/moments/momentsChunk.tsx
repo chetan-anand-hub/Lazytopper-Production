@@ -40,12 +40,12 @@ export const MOMENT_COPY = {
   m5ByteMcq: "Checking your answers, like a CBSE examiner.",
   m6Ziggy: "Hmm. Even I can't read that one.",
   m6Byte: "Flat page, good light, whole answer in the photo. Try again?",
-  m8Safe: "Oops, the connection dropped. Your answer is safe.",
-  m8: "Oops, the connection dropped.",
+  m8Safe: "Sorry, the connection dropped. Your answer is safe.",
+  m8: "Sorry, the connection dropped. Please try again.",
   m9: "Someone sent you this! Check one answer free. No sign-up.",
   m10: "Got it right? See which step loses marks. First check free.",
   m10Cta: "Check my answer",
-  m11: "Nice! Now write one answer in your notebook, snap a photo, and I'll show where marks slip — step by step, the way a CBSE examiner marks it.",
+  m11: "Nice! Write one answer in your notebook and snap a photo. I'll mark it step by step.",
   m11Cta: "Check a written answer",
   close: "Close Byte",
   adminPreview: "Admin preview",
@@ -64,11 +64,11 @@ export const MOMENT_SCRIPTS = {
   m5: {
     written: [
       { kind: "ziggy", pose: "nervous", line: MOMENT_COPY.m5Ziggy },
-      { kind: "byte", pose: "think", line: MOMENT_COPY.m5Byte },
+      { kind: "byte", pose: "marking", line: MOMENT_COPY.m5Byte },
     ],
     mcq: [
       { kind: "ziggy", pose: "nervous", line: MOMENT_COPY.m5Ziggy },
-      { kind: "byte", pose: "think", line: MOMENT_COPY.m5ByteMcq },
+      { kind: "byte", pose: "marking", line: MOMENT_COPY.m5ByteMcq },
     ],
   },
   m6: {
@@ -78,8 +78,9 @@ export const MOMENT_SCRIPTS = {
     ],
   },
   m8: {
-    safe: [{ kind: "ziggy", pose: "sad", line: MOMENT_COPY.m8Safe }],
-    plain: [{ kind: "ziggy", pose: "sad", line: MOMENT_COPY.m8 }],
+    // MOMENTS-3: byte_sorry. Ziggy is sad only about his OWN result (guide), so a dropped connection is Byte's apology.
+    safe: [{ kind: "byte", pose: "sorry", line: MOMENT_COPY.m8Safe }],
+    plain: [{ kind: "byte", pose: "sorry", line: MOMENT_COPY.m8 }],
   },
   m9: {
     shared: [{ kind: "byte", pose: "hello", line: MOMENT_COPY.m9 }],

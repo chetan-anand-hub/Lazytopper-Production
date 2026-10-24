@@ -79,8 +79,8 @@ describe("MOMENTS-1 · every moment's exact line, guide arm only", () => {
     [{ moment: "m3", step: "ziggy" }, "ziggy", "excited", "Yes! 1 of 5. Next one."],
     [{ moment: "m4", step: "type" }, "byte", "explain", "Write every step. CBSE gives marks for each one."],
     [{ moment: "m4", step: "upload" }, "byte", "explain", "Flat page, good light, whole answer in the photo."],
-    [{ moment: "m8", step: "safe" }, "ziggy", "sad", "Oops, the connection dropped. Your answer is safe."],
-    [{ moment: "m8", step: "plain" }, "ziggy", "sad", "Oops, the connection dropped."],
+    [{ moment: "m8", step: "safe" }, "byte", "sorry", "Sorry, the connection dropped. Your answer is safe."],
+    [{ moment: "m8", step: "plain" }, "byte", "sorry", "Sorry, the connection dropped. Please try again."],
     [{ moment: "m9", step: "shared" }, "byte", "hello", "Someone sent you this! Check one answer free. No sign-up."],
   ];
 
@@ -122,8 +122,8 @@ describe("MOMENTS-1 · every moment's exact line, guide arm only", () => {
 
 describe("MOMENTS-1 · two speakers, ONE spot: Ziggy first, then Byte replaces him", () => {
   const TWO: Array<[GuideMomentProps, string, string, string, string]> = [
-    [{ moment: "m5", step: "written" }, "nervous", "Fingers crossed…", "think", "Marking it step by step, like a CBSE examiner."],
-    [{ moment: "m5", step: "mcq" }, "nervous", "Fingers crossed…", "think", "Checking your answers, like a CBSE examiner."],
+    [{ moment: "m5", step: "written" }, "nervous", "Fingers crossed…", "marking", "Marking it step by step, like a CBSE examiner."],
+    [{ moment: "m5", step: "mcq" }, "nervous", "Fingers crossed…", "marking", "Checking your answers, like a CBSE examiner."],
     [{ moment: "m6", step: "unread" }, "confused", "Hmm. Even I can't read that one.", "explain", "Flat page, good light, whole answer in the photo. Try again?"],
   ];
   for (const [props, zPose, zLine, bPose, bLine] of TWO) {
@@ -171,7 +171,7 @@ describe("MOMENTS-1 M11 · the written-answer nudge (the moment itself)", () => 
     const m = await screen.findByTestId("guide-moment-m11");
     expect(m.getAttribute("data-pose")).toBe("cheer");
     expect(line()).toBe(
-      "Nice! Now write one answer in your notebook, snap a photo, and I'll show where marks slip — step by step, the way a CBSE examiner marks it.",
+      "Nice! Write one answer in your notebook and snap a photo. I'll mark it step by step.",
     );
     const cta = screen.getByTestId("guide-moment-m11-cta");
     expect(cta.textContent).toBe("Check a written answer");

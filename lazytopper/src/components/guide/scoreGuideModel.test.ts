@@ -382,3 +382,43 @@ describe("GUIDE-SCORE-1 · surface names", () => {
     expect(scoreGuideSurface(base({ surface: "quick-practice" }))).toBe("quick_practice");
   });
 });
+
+describe("MOMENTS-3 · two-beat reactions from the emotion map (existing poses only)", () => {
+  it("★ low result: Ziggy opens `down`, then turns determined / detective in the same moment", () => {
+    for (const l of SCORE_GUIDE_LINES.ziggy.low) {
+      expect(l.from).toBe("down");
+      expect(["determined", "detective", "relieved"]).toContain(l.pose);
+    }
+    const p = scoreGuidePlan(base({ score: { kind: "marks", awarded: 6, total: 20, gradedCount: 4, totalQuestions: 4 } }))!;
+    expect(p.ziggy.from).toBe("down");
+    expect(scoreGuidePlan(base({ score: { kind: "marks", awarded: 18, total: 20, gradedCount: 4, totalQuestions: 4 } }))!.ziggy.from).toBeUndefined();
+  });
+
+  it("★ great result with nothing to fix: Ziggy's happy dance, then Byte cheers with ONE stretch tip", () => {
+    const p = scoreGuidePlan(base({ score: { kind: "marks", awarded: 19, total: 20, gradedCount: 4, totalQuestions: 4 } }))!;
+    expect(["excited", "cheer", "proud"]).toContain(p.ziggy.pose);
+    expect(p.byteStep).toBe("clean");
+    expect(["cheer", "stretch"]).toContain(p.byte.pose);
+    expect(p.byte.text).toMatch(/stretch|shoulders/i);
+  });
+
+  it("★ questions left blank (and nothing else typed): Ziggy hides, Byte says the formula earns marks", () => {
+    const p = scoreGuidePlan(base({ marksLost: marks({ unattempted: 4 }) }))!;
+    expect(p.byteStep).toBe("blank");
+    expect(p.ziggy.pose).toBe("hide");
+    expect(p.byte.text).toMatch(/formula earns marks/);
+    expect(p.cta).not.toBeNull();
+  });
+
+  it("blanks beside a LARGER typed loss keep Byte's MI next step (today's behaviour)", () => {
+    const p = scoreGuidePlan(base({ marksLost: marks({ calculation: 3, unattempted: 5 }) }))!;
+    expect(p.byteStep).toBe("calculation");
+    expect(p.ziggy.pose).not.toBe("hide");
+  });
+
+  it("no blanks → never the hiding pose", () => {
+    const p = scoreGuidePlan(base({ marksLost: marks({ calculation: 3 }) }))!;
+    expect(p.byteStep).toBe("calculation");
+    expect(p.ziggy.pose).not.toBe("hide");
+  });
+});

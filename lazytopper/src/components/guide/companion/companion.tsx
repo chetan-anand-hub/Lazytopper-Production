@@ -39,6 +39,8 @@ import {
   companionScoreMoment,
   countdownDue,
   daysToBoards,
+  examWeekDays,
+  examWeekDue,
   istDayIndex,
   isLateNightQuietPath,
   lateNightDue,
@@ -59,6 +61,8 @@ import {
 } from "./companionModel";
 import type { BreatheCardProps, CompanionCardProps } from "./companionChunk";
 import { canShowScene, markSceneShown } from "../sceneGuard";
+import { APPEARANCE_PRIORITY, NoteShown, shownThisSession, useAppearance } from "../mascotBudget";
+import { registerPreTestMoment, type PreTestMomentProps } from "../pages/preTestSlot";
 
 type Chunk = typeof import("./companionChunk");
 const load = (): Promise<Chunk> => import("./companionChunk");
@@ -87,7 +91,7 @@ function useOtherMascot(): boolean {
  * while it holds it, no focused guide is open, and no other mascot is on the page. `stacked`
  * (admin preview on Home only) lets the owner see it under Start-here's Byte.
  */
-function Staged({ id, priority, stacked, children }: { id: string; priority: number; stacked?: boolean; children: ReactNode }) {
+function Staged({ id, priority, stacked, budgeted = true, children }: { id: string; priority: number; stacked?: boolean; budgeted?: boolean; children: ReactNode }) {
   const holder = useSyncExternalStore(subscribeStage, stageHolder, () => null);
   const focus = useSyncExternalStore(subscribeGuideFocus, guideFocusOpen, () => false);
   const other = useOtherMascot();
@@ -95,9 +99,21 @@ function Staged({ id, priority, stacked, children }: { id: string; priority: num
     claimStage(id, priority);
     return () => releaseStage(id);
   }, [id, priority]);
-  if (holder !== id) return null;
-  if (!stacked && (focus || other)) return null;
-  return <Suspense fallback={null}>{children}</Suspense>;
+  const wantsDraw = holder === id && (stacked || (!focus && !other));
+  // MOMENTS-3 — the director: a companion card is an UNPROMPTED appearance (at most 3 a session).
+  // The late-night note outranks everything; the others are the lowest class. A card whose caller
+  // already holds the appearance (the scorecard's duet) passes `budgeted={false}`.
+  const kind = `companion:${id}`;
+  const cls = id === "lateNight" ? APPEARANCE_PRIORITY.lateNight : APPEARANCE_PRIORITY.companion;
+  const allowed = useAppearance(budgeted && wantsDraw ? kind : null, cls);
+  if (!wantsDraw) return null;
+  if (budgeted && !allowed) return null;
+  return (
+    <Suspense fallback={null}>
+      {children}
+      {budgeted ? <NoteShown kind={kind} /> : null}
+    </Suspense>
+  );
 }
 
 function safeAttempts(): PracticeAttempt[] {
@@ -119,7 +135,7 @@ export interface CompanionHomeProps {
   returnTo?: "/" | "/browse";
 }
 
-type HomeShow = HomePick | { moment: "countdown"; days: number };
+type HomeShow = HomePick | { moment: "countdown"; days: number } | { moment: "examWeek"; days: number };
 
 export function CompanionHome({ uid, startHereUp, returnTo = "/" }: CompanionHomeProps) {
   const hidden = useMascotsHidden();
@@ -168,13 +184,23 @@ function CompanionHomeInner({ uid, returnTo, preview }: { uid: string; returnTo:
     }
     // 8 — weekly, and ONLY from an OFFICIAL date (the server's CBSE read or an admin-confirmed date);
     // the read is kept for the IST day, so Home never refetches it on every mount.
-    if (!countdownDue({ now, lastCountdownAt: marks.c })) return undefined;
+    const cached = cachedExamDate(marks, now);
+    // MOMENTS-3: a cached read also lets the exam-week check run (it never triggers a fetch on its own).
+    if (!countdownDue({ now, lastCountdownAt: marks.c }) && !cached) return undefined;
     const applyDate = (date: string, src: "official" | "predicted") => {
+      // Never an invented date: only an OFFICIAL one (the server's CBSE read or an admin-confirmed date).
       if (!live || src !== "official") return;
-      const days = daysToBoards(Date.now(), date);
+      const at = Date.now();
+      // ziggy_examday: the week of the exam (0–6 IST days before it), once per exam week.
+      const week = examWeekDays(at, date);
+      if (week !== null && examWeekDue({ now: at, lastAt: marks.e ?? null })) {
+        setShow({ moment: "examWeek", days: week });
+        return;
+      }
+      if (!countdownDue({ now: at, lastCountdownAt: marks.c })) return;
+      const days = daysToBoards(at, date);
       if (days !== null) setShow({ moment: "countdown", days });
     };
-    const cached = cachedExamDate(marks, now);
     if (cached) {
       applyDate(cached.date, cached.src);
       return undefined;
@@ -201,6 +227,7 @@ function CompanionHomeInner({ uid, returnTo, preview }: { uid: string; returnTo:
     if (show.moment === "milestone") writeMarks(uid, { m: Array.from(new Set([...readMarks(uid).m, ...show.mark])) });
     else if (show.moment === "welcomeBack") writeMarks(uid, { wb: show.ref });
     else if (show.moment === "rhythm") writeMarks(uid, { r: at });
+    else if (show.moment === "examWeek") writeMarks(uid, { e: at });
     else writeMarks(uid, { c: at });
   };
   if (show.moment === "milestone" && scene) {
@@ -329,6 +356,8 @@ function CompanionNight() {
 /* ── 1 & 3 — for GUIDE-SCORE-1 to mount on the scorecard ──────────────────────────────────────── */
 
 export interface CompanionScoreSlotProps {
+  /** MOMENTS-3: false when the caller already holds the appearance (the scorecard guide). Default true. */
+  budgeted?: boolean;
   uid: string | null | undefined;
   /** This result's whole percentage (companionModel.scorePct over the scorecard's own marks). */
   pct: number | null;
@@ -340,7 +369,7 @@ export interface CompanionScoreSlotProps {
   busy?: boolean;
 }
 
-export function CompanionScoreSlot({ uid, pct, previousPct, fixTo, busy }: CompanionScoreSlotProps) {
+export function CompanionScoreSlot({ uid, pct, previousPct, fixTo, busy, budgeted = true }: CompanionScoreSlotProps) {
   const hidden = useMascotsHidden();
   const [closed, setClosed] = useState(false);
   // Comfort and the high five play as a short duet SCENE when the shared guard allows one (decided
@@ -352,7 +381,7 @@ export function CompanionScoreSlot({ uid, pct, previousPct, fixTo, busy }: Compa
   const id: CompanionMomentId = m.moment;
   if (scene) {
     return (
-      <Staged id={`score-${id}`} priority={COMPANION_PRIORITY[id]}>
+      <Staged id={`score-${id}`} priority={COMPANION_PRIORITY[id]} budgeted={budgeted}>
         <LazyDuetCard
           moment={m.moment}
           vars={m.moment === "improve" ? { from: m.from, to: m.to } : undefined}
@@ -364,7 +393,7 @@ export function CompanionScoreSlot({ uid, pct, previousPct, fixTo, busy }: Compa
     );
   }
   return (
-    <Staged id={`score-${id}`} priority={COMPANION_PRIORITY[id]}>
+    <Staged id={`score-${id}`} priority={COMPANION_PRIORITY[id]} budgeted={budgeted}>
       {m.moment === "improve" ? (
         <LazyCompanionCard moment="improve" vars={{ from: m.from, to: m.to }} onClose={() => setClosed(true)} />
       ) : (
@@ -385,7 +414,9 @@ export interface CompanionBreatheProps {
 export function CompanionBreathe({ uid, onDone }: CompanionBreatheProps) {
   const hidden = useMascotsHidden();
   const [done, setDone] = useState(false);
-  if (hidden || done || !inGuideArm(uid)) return null;
+  // MOMENTS-3: once per session — decided at mount, so finishing it never makes it vanish mid-way.
+  const [again] = useState(() => shownThisSession(`companion:breathe`));
+  if (hidden || done || again || !inGuideArm(uid)) return null;
   const finish: BreatheCardProps["onDone"] = () => {
     setDone(true);
     onDone?.();
@@ -396,3 +427,16 @@ export function CompanionBreathe({ uid, onDone }: CompanionBreatheProps) {
     </Staged>
   );
 }
+
+/**
+ * MOMENTS-3 — the pre-test breathe, through the reserved slot (pages/preTestSlot.tsx): Chapter Test and
+ * Full Mock ENTRY screens only (the slot is rendered before the Start row, never during a test). It is
+ * optional (Skip), steps aside by itself after 10 s, never blocks, delays or changes Start, and shows
+ * once per session; the director counts it. No page was edited: the slot is filled from here.
+ */
+function PreTestBreathe(_props: PreTestMomentProps) {
+  const uid = useSignedInUid();
+  if (!guideAbActive() || !uid) return null;
+  return <CompanionBreathe uid={uid} />;
+}
+registerPreTestMoment(PreTestBreathe);

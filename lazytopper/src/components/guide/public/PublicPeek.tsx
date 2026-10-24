@@ -14,6 +14,7 @@ import { trackGuidePublicArmAssigned, trackGuidePublicShown, type GuideVariant }
 import { desktopTopicBySlug } from "../../../lib/desktop/topics";
 import { guideAbActive, guideArmReportsOn, resolveGuideVariant } from "../guideVariant";
 import { useMascotsHidden } from "../mascotsMute";
+import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "../mascotBudget";
 import {
   ARTICLE_SELECTOR,
   VisibleClock,
@@ -194,9 +195,13 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eligible, page]);
 
-  if (!shown || !chapter || mascotsHidden) return null;
+  // MOMENTS-3 — signed-out peeks count too: the SAME session budget as every other unprompted appearance.
+  const peekKind = `public-peek:${page}`;
+  const allowed = useAppearance(shown && chapter && !mascotsHidden ? peekKind : null, APPEARANCE_PRIORITY.explainer);
+  if (!shown || !chapter || mascotsHidden || !allowed) return null;
   return (
     <Suspense fallback={null}>
+      <NoteShown kind={peekKind} />
       <LazyPeekView
         page={page}
         chapter={chapter}

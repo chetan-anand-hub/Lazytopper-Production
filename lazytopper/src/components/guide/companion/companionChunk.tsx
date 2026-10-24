@@ -22,7 +22,7 @@ import BlobCharacter from "../BlobCharacter";
 import { DUET_SCENES, prefersReducedMotion, type DuetScene, type Pose } from "../rig";
 import { guidePreviewActive, trackGuideEvent } from "../guideVariant";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "../moments/mascotsToast";
-import { BREATHE_TOTAL_MS, COMPANION_EVENT_ID, type CompanionMomentId, type MilestoneId } from "./companionModel";
+import { BREATHE_TOTAL_MS, COMPANION_EVENT_ID, festivalPropsNow, type CompanionMomentId, type MilestoneId } from "./companionModel";
 import "../guide.css";
 import "../moments/moments.css";
 import "./companion.css";
@@ -37,7 +37,7 @@ export const COMPANION_COPY = {
   lowScoreCta: "Fix one thing",
   breathe: "Breathe in… and out. You've prepared for this.",
   breatheSkip: "Skip",
-  improveZiggy: "Up from {from}% to {to}%! High five!",
+  improveZiggy: "Up from {from}% to {to}%. High five!",
   improveByte: "Same chapter, better marks. That's real progress.",
   milestoneFirstWritten: "Your first written answer, checked! Badge earned.",
   milestoneFirstChapterTest: "First Chapter Test done! Badge earned.",
@@ -46,9 +46,12 @@ export const COMPANION_COPY = {
   milestoneAnswers50: "50 answers checked! Proper topper energy.",
   welcomeBack: "Welcome back! 5 quick questions to warm up?",
   welcomeBackCta: "Warm up: 5 questions",
+  lateNightYawn: "Yawn… my eyes keep closing.",
   lateNight: "It's late — sleep helps memory. Stop here and come back fresh?",
   rhythm: "{days} days this week — nice rhythm!",
   countdown: "{days} days to your boards. Chalo, one chapter at a time.",
+  examWeek: "Exam week! Revise lightly, rest well, and trust your preparation.",
+  examDay: "Exam day! Take one slow breath. You've prepared for this.",
   close: "Close",
   adminPreview: "Admin preview",
 } as const;
@@ -76,7 +79,7 @@ export function fillLine(line: string, vars: Readonly<Record<string, number>> = 
 }
 
 /** Each moment's script (solo beats). A two-beat script is Ziggy first, then Byte in the same slot. */
-export function companionBeats(moment: CompanionMomentId, opts: { milestone?: MilestoneId } = {}): CompanionBeat[] {
+export function companionBeats(moment: CompanionMomentId, opts: { milestone?: MilestoneId; days?: number } = {}): CompanionBeat[] {
   switch (moment) {
     case "lowScore":
       return [{ kind: "byte", pose: "comfort", line: COMPANION_COPY.lowScore }];
@@ -92,7 +95,14 @@ export function companionBeats(moment: CompanionMomentId, opts: { milestone?: Mi
     case "welcomeBack":
       return [{ kind: "ziggy", pose: "study", line: COMPANION_COPY.welcomeBack }];
     case "lateNight":
-      return [{ kind: "byte", pose: "moon", line: COMPANION_COPY.lateNight }];
+      // MOMENTS-3: Ziggy yawns first, then Byte's moon line (one at a time, never a scene).
+      return [
+        { kind: "ziggy", pose: "yawn", line: COMPANION_COPY.lateNightYawn },
+        { kind: "byte", pose: "moon", line: COMPANION_COPY.lateNight },
+      ];
+    case "examWeek":
+      // Only reached with an OFFICIAL exam date (companion.tsx); `days` 0 = the day itself.
+      return [{ kind: "ziggy", pose: "examday", line: opts.days === 0 ? COMPANION_COPY.examDay : COMPANION_COPY.examWeek }];
     case "rhythm":
       return [{ kind: "ziggy", pose: "streak", line: COMPANION_COPY.rhythm }];
     case "countdown":
@@ -148,7 +158,9 @@ export const COMPANION_CTA_LABEL: Partial<Record<CompanionMomentId, string>> = {
 };
 
 export function CompanionCard({ moment, milestone, vars, ctaTo, fixed, onShown, trackShown = true, onClose }: CompanionCardProps) {
-  const beats = companionBeats(moment, { milestone });
+  const beats = companionBeats(moment, { milestone, days: vars?.days });
+  // MOMENTS-3 — Diwali props (5–10 Nov 2026 IST) on Home-door cards; never the late-night note or breathe.
+  const [festival] = useState(() => (fixed || moment === "breathe" ? undefined : festivalPropsNow()));
   const reduce = useRef(prefersReducedMotion());
   const [index, setIndex] = useState(() => (reduce.current ? Math.max(0, beats.length - 1) : 0));
   const [preview] = useState(() => guidePreviewActive());
@@ -188,7 +200,7 @@ export function CompanionCard({ moment, milestone, vars, ctaTo, fixed, onShown, 
       aria-label={beat.kind === "byte" ? "Byte" : "Ziggy"}
     >
       {/* key: one character at a time; the second beat REPLACES the first in this same slot. */}
-      <BlobCharacter key={beat.kind} kind={beat.kind} pose={beat.pose} className="lt-mom__char lt-cmp__char" still={reduce.current || undefined} />
+      <BlobCharacter key={beat.kind} kind={beat.kind} pose={beat.pose} className="lt-mom__char lt-cmp__char" still={reduce.current || undefined} extraProps={festival} />
       <div className="lt-mom__bub">
         {preview ? (
           <span className="lt-mom__admin" data-testid="guide-admin-preview">
@@ -260,6 +272,7 @@ export function DuetCard({ moment, milestone, vars, ctaTo, onShown, onClose }: D
   const zig = scene.ziggy as readonly Pose[];
   const [zi, setZi] = useState(() => (reduce.current ? zig.length - 1 : 0));
   const [preview] = useState(() => guidePreviewActive());
+  const [festival] = useState(() => festivalPropsNow());
   const shownRef = useRef(onShown);
   const line = fillLine(duetLine(moment, milestone), vars);
   const missing = /\{\w+\}/.test(line);
@@ -292,7 +305,7 @@ export function DuetCard({ moment, milestone, vars, ctaTo, onShown, onClose }: D
       aria-label="Byte and Ziggy"
     >
       <div className="lt-cmp-duet__pair">
-        <BlobCharacter kind="byte" pose={scene.byte} className="lt-mom__char lt-cmp__char lt-cmp-duet__byte" still={reduce.current || undefined} />
+        <BlobCharacter kind="byte" pose={scene.byte} className="lt-mom__char lt-cmp__char lt-cmp-duet__byte" still={reduce.current || undefined} extraProps={festival} />
         <BlobCharacter kind="ziggy" pose={zig[zi]} className="lt-mom__char lt-cmp__char lt-cmp-duet__ziggy" still={reduce.current || undefined} />
       </div>
       <div className="lt-mom__bub">

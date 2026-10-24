@@ -33,6 +33,7 @@ import { guideAbActive, guidePreviewActive, resolveGuideVariant, trackGuideEvent
 import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "../moments/mascotsToast";
 import { M7_COPY, m7DialogLine, m7Lines } from "./m7Copy";
+import { APPEARANCE_PRIORITY, NoteShown, releaseAppearance, requestAppearance, useAppearance } from "../mascotBudget";
 import type { PageGuideId, PageGuidePopProps, PageGuideStep } from "./pageGuidesChunk";
 import "./pageGuidesDoor.css";
 
@@ -185,20 +186,37 @@ export function PageGuide({ id, step, uid, placement = "inline", bare = false }:
   const who = uid === undefined ? own : uid;
   const audience = who !== undefined && inGuideArm(who);
   const [open, setOpen] = useState(false);
+  // MOMENTS-3 — true only while the card opened BY ITSELF (unprompted: it spends the session budget).
+  // A tap on "?" is prompted: never counted, never refused.
+  const [byItself, setByItself] = useState(false);
   const claimed = useRef(false);
   const doorRef = useRef<HTMLButtonElement | null>(null);
+  const autoKind = `pageguide:${id}.${step}`;
 
-  // First visit on this device: opens ONCE by itself (no claim while the mascots are hidden).
+  // First visit on this device: opens ONCE by itself (no claim while the mascots are hidden). The
+  // director is asked BEFORE the device marker is spent, so a refused open is offered again later.
   useEffect(() => {
     if (!audience || claimed.current || mascotsHidden()) return;
     claimed.current = true;
-    if (claimFirstVisit(id, step)) setOpen(true);
-  }, [audience, id, step, hidden]);
+    if (!requestAppearance(autoKind, APPEARANCE_PRIORITY.explainer)) return;
+    if (claimFirstVisit(id, step)) {
+      setByItself(true);
+      setOpen(true);
+    } else {
+      releaseAppearance(autoKind);
+    }
+  }, [audience, id, step, hidden, autoKind]);
+  // Hand the reservation back when the door goes away (noteShown has already spent it if it drew).
+  useEffect(() => {
+    if (!byItself) return undefined;
+    return () => releaseAppearance(autoKind);
+  }, [byItself, autoKind]);
 
   if (!audience || hidden) return null;
 
   const close = () => {
     setOpen(false);
+    setByItself(false);
     doorRef.current?.focus();
   };
 
@@ -214,9 +232,11 @@ export function PageGuide({ id, step, uid, placement = "inline", bare = false }:
         onClick={() => {
           if (open) {
             setOpen(false);
+            setByItself(false);
             return;
           }
           trackGuideEvent("guide_moment_click", { moment: id as GuideMomentId });
+          setByItself(false);
           setOpen(true);
         }}
       >
@@ -225,6 +245,7 @@ export function PageGuide({ id, step, uid, placement = "inline", bare = false }:
       {open ? (
         <Suspense fallback={null}>
           <LazyPageGuidePop {...({ id, step, bare, onClose: close } as PageGuidePopProps)} />
+          {byItself ? <NoteShown kind={autoKind} /> : null}
         </Suspense>
       ) : null}
     </span>
@@ -261,7 +282,11 @@ export function LimitByte({ limit, when, variant = "inline" }: LimitByteProps) {
   // Since GUIDE-ALL-1 the arm no longer depends on WHICH account (only on a test seam / admin preview
   // / dev override), so while the uid is still being read the arm is resolved for "a signed-in
   // account" — an admin "Show control" preview never flashes Byte; a resolved signed-out → nothing.
-  const out = !active || !inGuideArm(uid === undefined ? PENDING_SIGNED_IN : uid);
+  const armOut = !active || !inGuideArm(uid === undefined ? PENDING_SIGNED_IN : uid);
+  // MOMENTS-3 — the limit panel's Byte is an unprompted appearance (a first-time explainer); the panel's own
+  // words stand when the session's budget is spent.
+  const allowed = useAppearance(armOut ? null : "limit-byte", APPEARANCE_PRIORITY.explainer);
+  const out = armOut || !allowed;
   const [preview] = useState(() => guidePreviewActive());
 
   // guide_moment_shown — once per refusal shown (a NEW limit object is a new refusal).
@@ -289,6 +314,7 @@ export function LimitByte({ limit, when, variant = "inline" }: LimitByteProps) {
       <span className="lt-pg-m7__box" aria-hidden="true">
         <Suspense fallback={null}>
           <LazyM7Character />
+          <NoteShown kind="limit-byte" />
         </Suspense>
       </span>
       <div className="lt-pg-m7__bub">

@@ -25,6 +25,9 @@ import { markCheckOneHandover } from "../startHere/startHereModel";
 import type { ZiggyReaction } from "./ziggyModel";
 import type { ScoreGuidePlan } from "./scoreGuideModel";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "./moments/mascotsToast";
+import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "./mascotBudget";
+import { festivalPropsNow } from "./companion/companionModel";
+import { noteAhaShown } from "./ahaModel";
 
 /* ── small glyphs (24×24, currentColor) ─────────────────────────────────────────────── */
 
@@ -345,26 +348,35 @@ export interface GuideChipProps {
 
 /** Portalled to <body>: a transformed ancestor would otherwise trap `position: fixed`. */
 export function GuideChip({ onOpen, onHide }: GuideChipProps) {
+  // MOMENTS-3 — the wave (and "Need me? Tap!") is an UNPROMPTED appearance and spends the session's
+  // budget; the chip itself stays as the student's own door to Byte, resting, once the budget is spent.
+  const waves = useAppearance("chip-wave", APPEARANCE_PRIORITY.companion);
   const [pose, setPose] = useState<Pose>("hello");
   const [ping, setPing] = useState(true);
   useEffect(() => {
+    if (!waves) {
+      setPose("idle");
+      setPing(false);
+      return undefined;
+    }
     // Waves ONCE, then rests.
     const t = setTimeout(() => {
       setPose("idle");
       setPing(false);
     }, 2200);
     return () => clearTimeout(t);
-  }, []);
+  }, [waves]);
   if (typeof document === "undefined") return null;
   return createPortal(
     <div className="lt-guide-chip" data-testid="guide-chip">
-      {ping ? (
+      {waves ? <NoteShown kind="chip-wave" /> : null}
+      {ping && waves ? (
         <p className="lt-guide-chip__ping" aria-hidden="true">
           {GUIDE_COPY.chipPing}
         </p>
       ) : null}
       <button type="button" className="lt-guide-chip__open" aria-label={GUIDE_COPY.chipOpen} data-testid="guide-chip-open" onClick={onOpen}>
-        <BlobCharacter kind="byte" pose={pose} className="lt-guide-chip__byte" />
+        <BlobCharacter kind="byte" pose={waves ? pose : "idle"} className="lt-guide-chip__byte" />
       </button>
       <button type="button" className="lt-guide-chip__x" aria-label={GUIDE_COPY.chipClose} data-testid="guide-chip-close" onClick={onHide}>
         ✕
@@ -378,6 +390,8 @@ export function GuideChip({ onOpen, onHide }: GuideChipProps) {
 
 /** How long Ziggy's reaction holds before Byte replaces him in the same spot (MOMENTS-1's beat). */
 export const SCORE_GUIDE_BEAT_MS = 2000;
+/** MOMENTS-3: how long Ziggy stays `down` before turning determined, inside his beat (< SCORE_GUIDE_BEAT_MS). */
+export const SCORE_GUIDE_TURN_MS = 1000;
 
 export interface ScoreGuideBeatsProps {
   plan: ScoreGuidePlan;
@@ -413,27 +427,38 @@ export function ScoreGuideBeats({ plan, startAt = "ziggy" }: ScoreGuideBeatsProp
   const reduce = useRef(prefersReducedMotion());
   const [beat, setBeat] = useState<"ziggy" | "byte">(() => (reduce.current || startAt === "byte" ? "byte" : "ziggy"));
   const [preview] = useState(() => guidePreviewActive());
+  // MOMENTS-3 — two-beat reaction: Ziggy opens in `plan.ziggy.from` (down), then settles in his pose.
+  const [turned, setTurned] = useState(() => reduce.current || !plan.ziggy.from);
+  // MOMENTS-3 — Diwali (5–10 Nov 2026, IST): the diya and rangoli beside the character; else nothing.
+  const [festival] = useState(() => festivalPropsNow());
   useEffect(() => {
     trackGuideEvent("guide_moment_shown", { moment: "score", surface: plan.surface, situation: plan.situation });
+    if (plan.aha) noteAhaShown(plan.aha, Date.now());
     if (reduce.current || startAt === "byte") return;
     const t = setTimeout(() => setBeat("byte"), SCORE_GUIDE_BEAT_MS);
     return () => clearTimeout(t);
     // Once per mount: the plan is fixed for this result.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+    if (turned) return;
+    const t = setTimeout(() => setTurned(true), SCORE_GUIDE_TURN_MS);
+    return () => clearTimeout(t);
+  }, [turned]);
   const line = beat === "ziggy" ? plan.ziggy : plan.byte;
+  const pose: Pose = beat === "ziggy" && !turned && plan.ziggy.from ? plan.ziggy.from : line.pose;
   return (
     <div
       className={`lt-scg lt-scg--${beat}${preview ? " lt-scg--preview" : ""}`}
       data-testid="score-guide"
       data-kind={beat}
-      data-pose={line.pose}
+      data-pose={pose}
       data-situation={plan.situation}
       data-step={plan.byteStep}
       role="group"
       aria-label={beat === "byte" ? "Byte" : "Ziggy"}
     >
-      <BlobCharacter key={beat} kind={beat} pose={line.pose} className="lt-scg__char" still={reduce.current || undefined} />
+      <BlobCharacter key={beat} kind={beat} pose={pose} className="lt-scg__char" still={reduce.current || undefined} extraProps={festival} />
       <div className="lt-scg__bub">
         {preview ? <AdminPreviewPill className="lt-scg__admin" /> : null}
         <p className="lt-scg__say" aria-live="polite" data-testid="score-guide-line">

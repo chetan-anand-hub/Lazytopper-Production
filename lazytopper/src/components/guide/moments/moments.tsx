@@ -30,6 +30,7 @@ import { useWrittenGraded } from "./writtenGraded";
 import { useHoldStage } from "../scoreGuideStage";
 import { copyArmToIntent, ensurePublicArm, previewArm, previewOn } from "../public/publicPeekModel";
 import type { GuideMomentProps, SolutionsPeekProps } from "./momentsChunk";
+import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "../mascotBudget";
 
 export type { GuideMomentId };
 
@@ -73,11 +74,25 @@ export type GuideMomentSlotProps = GuideMomentProps & { show: boolean };
  */
 export function GuideMomentSlot(props: GuideMomentSlotProps) {
   const hidden = useMascotsHidden();
-  if (!props.show || hidden) return null;
+  // MOMENTS-3 — the director: a moment is an UNPROMPTED appearance (at most 3 per session).
+  const kind = momentKind(props.moment);
+  const allowed = useAppearance(props.show && !hidden ? kind : null, APPEARANCE_PRIORITY.explainer);
+  if (!props.show || hidden || !allowed) return null;
+  return <MomentDraw {...props} kind={kind} />;
+}
+
+/** The budget kind of a moment (a step change, e.g. M3's swap, is the same appearance). */
+export function momentKind(moment: string): string {
+  return `moment:${moment}`;
+}
+
+/** Draws the moment (no budget decision of its own) and spends the slot once it is on screen. */
+function MomentDraw(props: GuideMomentSlotProps & { kind: string }) {
   const which = { moment: props.moment, step: props.step, onCta: props.onCta } as GuideMomentProps;
   return (
     <Suspense fallback={null}>
       <LazyGuideMoment {...which} />
+      <NoteShown kind={props.kind} />
     </Suspense>
   );
 }
@@ -134,10 +149,14 @@ export function M11Nudge({
     // claimed once per mount
   }, [eligible, uid, written, claimed, hidden]);
   const show = eligible && written === "none" && claimed;
+  // MOMENTS-3 — the director decides FIRST: a refused nudge draws nothing and must not take the
+  // scorecard's stage either.
+  const allowed = useAppearance(show && !hidden ? momentKind("m11") : null, APPEARANCE_PRIORITY.explainer);
+  const draws = show && !hidden && allowed;
   // GUIDE-SCORE-1 — while Byte's nudge shows, it owns the scorecard: the scorecard's own
   // character slot yields (never two characters on screen at once).
-  useHoldStage("m11", show && !hidden);
-  return <GuideMomentSlot show={show} moment="m11" step="nudge" onCta={onOpenWorking} />;
+  useHoldStage("m11", draws);
+  return draws ? <MomentDraw show moment="m11" step="nudge" onCta={onOpenWorking} kind={momentKind("m11")} /> : null;
 }
 
 /* ── M6 — "We couldn't read any answers" ──────────────────────────────────────────────────── */
@@ -268,10 +287,12 @@ export function SolutionsMoment({ freeCheckOn }: { freeCheckOn: boolean }) {
   const show = usePublicMomentAudience(matched && freeCheckOn);
   const hidden = useMascotsHidden();
   const [closed, setClosed] = useState(false);
-  if (!show || hidden || closed) return null;
+  const allowed = useAppearance(show && !hidden && !closed ? momentKind("m10") : null, APPEARANCE_PRIORITY.explainer);
+  if (!show || hidden || closed || !allowed) return null;
   return (
     <Suspense fallback={null}>
       <LazySolutionsPeek onClose={() => setClosed(true)} />
+      <NoteShown kind={momentKind("m10")} />
     </Suspense>
   );
 }

@@ -34,6 +34,7 @@ import { guidePlanFor } from "../guide/guideInputs";
 import type { ChapterRef } from "../guide/intentMap";
 import { LazyByteGuide, LazyGuideChip } from "../guide/lazyGuide";
 import { useMascotsHidden } from "../guide/mascotsMute";
+import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "../guide/mascotBudget";
 import {
   START_HERE_COPY,
   START_HERE_ONE_TAP_COPY,
@@ -351,6 +352,9 @@ export function StartHereView({
   // MOMENTS-1 PART 0 — "Hide mascots" on this device: the guide arm SEES today's card (the plain
   // content). The arm itself, and every event below, is unchanged (the A/B stays clean).
   const mascotsHidden = useMascotsHidden();
+  // MOMENTS-3 — Byte's inline card is ONE unprompted appearance (shared with the focused shell: "starthere").
+  // Budget spent → the plain Start-here card below stands in; the chip (a door, not a card) is untouched.
+  const byteAllowed = useAppearance(arm === "guide" && !mascotsHidden && visible ? "starthere" : null, APPEARANCE_PRIORITY.explainer);
 
   useEffect(() => {
     if (!visible || shownRef.current) return;
@@ -361,7 +365,7 @@ export function StartHereView({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount, as before
   }, [visible, surface]);
 
-  if (arm === "guide" && !mascotsHidden) {
+  if (arm === "guide" && !mascotsHidden && (byteAllowed || !visible)) {
     return (
       <GuideInlineArm
         surface={surface}
@@ -448,6 +452,7 @@ function GuideInlineArm({
           onCheckOne={checkOneAnswer}
           spaced={spaced}
         />
+        <NoteShown kind="starthere" />
       </Suspense>
     );
   }
@@ -1144,7 +1149,9 @@ function StartHereFocusDialog({
   // GUIDE-1 — while Byte is open in this shell, the corner chip waits.
   // MOMENTS-1 PART 0 — hidden mascots: the guide arm sees today's shell (its events stay the arm's).
   const mascotsHidden = useMascotsHidden();
-  const guideArm = arm === "guide" && !mascotsHidden;
+  // MOMENTS-3 — the focused Byte and the inline Byte are the SAME appearance ("starthere"): one slot.
+  const byteAllowed = useAppearance(arm === "guide" && !mascotsHidden ? "starthere" : null, APPEARANCE_PRIORITY.explainer);
+  const guideArm = arm === "guide" && !mascotsHidden && byteAllowed;
   useEffect(() => {
     if (!guideArm) return;
     setGuideFocusOpen(true);
@@ -1281,6 +1288,7 @@ function StartHereFocusDialog({
                   : undefined
               }
             />
+            <NoteShown kind="starthere" />
           </Suspense>
         </div>
       </div>,
