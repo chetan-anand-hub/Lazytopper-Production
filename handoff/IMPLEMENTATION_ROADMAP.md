@@ -1,3 +1,12 @@
+## 2026-10-24 (daily, part 5) - LLMS-PAY-1 (`#1350`), SETTINGS-USAGE-1 (`#1351`), PRIVACY-DPDP-1 (`#1352`) - MERGED
+
+- DONE. `#1350` (`a1f1e4a5`): LLMS-PAY-1 - `llms.txt` states online payment is live (Razorpay), prices and no auto-renew. NEXT: nothing owed; watch that AI assistants stop quoting the old `/pricing`.
+- DONE. `#1351` (`e17338b1`): SETTINGS-USAGE-1 - fair use "Your limits" moved from Me / Progress into Settings; "See usage" opens Settings via `settingsDoor.ts`; old `/me#usage` opens Settings once. NEXT: `[FU-MIVOICE-FLAKY]` (a CI flake seen on this PR).
+- DONE. `#1352` (`ee798974`): PRIVACY-DPDP-1 - privacy policy and `llms.txt` state the self-serve download / delete and how submitted answers are handled; no provider named in student-facing copy; pricing links the marking guide. NEXT: `[FU-PRIVACY-PHOTO-RETENTION]`, `[FU-REVIEWS-REAL]`.
+- PARKED. ACCURACY-1 (human-vs-LazyTopper marking accuracy study) until the owner has about 30 human-marked answers (`[FU-ACCURACY-1]`) [coordinator].
+- IN FLIGHT: no product PR open at writing [git/gh] (only the report-only audits `#960`, `#963`). HELD: sending ad sign-ups to Home.
+- OPEN. The 2026-10-24 (daily, part 5) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-24 (daily, part 4) - CI-SOFT-1 (`#1347`), CI-SOFT-1b (`#1348`) - MERGED
 
 - DONE. `#1347` (`8f910775`): CI-SOFT-1 - on `/check-improve`, an ad-arrival visitor who has not checked an answer picks one of three real CBSE board questions and watches a labelled sample answer get marked step by step; no grader or AI call. NEXT: owner live checks (new sign-up from the ad URL on a phone; iPhone keyboard), then MEASURE after about a week (`[FU-CIDEMO-MEASURE]`).

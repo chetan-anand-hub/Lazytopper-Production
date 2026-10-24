@@ -1,3 +1,17 @@
+## 2026-10-24 (daily, part 5) - AFTER #1350 - #1351 - #1352 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. `#1352` merged at 25 Oct 01:23 IST, after midnight, and is recorded here as part 5 of the 24 Oct working day.)* Facts marked **[git/gh]** were re-read from the GitHub REST API and the squash commits while writing; **[docs-builder-curl]** were fetched from www with `curl` while writing; **[coordinator]** come from the cofounder's message and the lane spec.
+
+- **Done [git/gh]:** `#1350` LLMS-PAY-1 at 24 Oct 22:47 IST (squash `a1f1e4a5`), `#1351` SETTINGS-USAGE-1 at 23:46 IST (`e17338b1`), `#1352` PRIVACY-DPDP-1 at 25 Oct 01:23 IST (`ee798974`, trunk). `/version.json` = `ee798974dea97d655306c2f97f6c8c95916ed100` when re-read for this commit, so all three are in the served website build [docs-builder-curl].
+- **No product PR is open at writing [git/gh]** (only the report-only audits `#960`, `#963`, both draft).
+- **PARKED [coordinator]:** ACCURACY-1 (publish a human-vs-LazyTopper marking accuracy study) waits for about 30 answers marked by the owner or a teacher (`[FU-ACCURACY-1]`). Do not start it without them; a study on invented marks would be fake data.
+- **Owner-side asks [coordinator]:** (1) confirm how long a phone-uploaded answer photo is kept before account deletion and whether that is bounded; if bounded, the privacy page should say so (`[FU-PRIVACY-PHOTO-RETENTION]`, the code does not state it); (2) when a student answers "Yes" on "Was this useful?", ask for a genuine public review, never a seeded one (`[FU-REVIEWS-REAL]`).
+- **Engineering follow-up [coordinator]:** `MistakeIntelCard.miVoice.test.tsx` failed once in a CI shard and passed on re-run: find the order or timing dependence (`[FU-MIVOICE-FLAKY]`).
+- **Owner live checks OWED [coordinator]:** unchanged from part 4 and none new; the cofounder live-checked `#1351` and `#1352` at 320-1280.
+- **Held, unchanged [coordinator]:** sending ad sign-ups to Home stays HELD. The repo reads public [git/gh]; do not flip it without a fresh owner word (`[FU-SKILL-BOOTSTRAP-PRIVATE]` still open).
+- **Follow-ups found:** `[FU-MIVOICE-FLAKY]`, `[FU-ACCURACY-1]`, `[FU-PRIVACY-PHOTO-RETENTION]`, `[FU-REVIEWS-REAL]`: the 2026-10-24 (daily, part 5) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`. The queues in the part 4 and earlier blocks are unchanged.
+- **Process:** the next handoff is ONE docs PR at the end of the next day with merges (CLAUDE.md section 10). Every product change must work at every screen size (owner ruling 23:36 IST).
+
 ## 2026-10-24 (daily, part 4) - AFTER #1347 - #1348 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. It supersedes the part 3 line "No product PR is open at writing": `#1347` and `#1348` merged after it.)* Facts marked **[git/gh]** were re-read from the GitHub REST API and the squash commits while writing; **[docs-builder-curl]** were fetched from www with `curl` while writing; **[coordinator]** come from the cofounder's message and the lane spec.

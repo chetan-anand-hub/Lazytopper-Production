@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-24 (daily, part 5) - #1350 LLMS-PAY-1, #1351 SETTINGS-USAGE-1, #1352 PRIVACY-DPDP-1 (3 product merges after #1349, 24 Oct IST; #1352 at 25 Oct 01:23 IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `ee798974`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from the GitHub REST API and the squash commits while writing; **[docs-builder-curl]** were fetched from www with `curl` while writing; **[coordinator]** come from the cofounder's message and the lane spec.
+
+### [FU-MIVOICE-FLAKY]
+**[coordinator]**: `MistakeIntelCard.miVoice.test.tsx` failed once in a CI shard on `#1351` ("untyped -> ziggy bag": expected 1, got 0) and passed on re-run with no code change. The `#1351` diff does not touch that test or its component [git/gh: the changed-file list of `e17338b1` contains neither]. Find the order or timing dependence (shared mascot-budget state between tests is a guess, not a finding) and make it deterministic. Until then a red `vitest` shard on that file is a re-run, not a regression, but re-run only once and read the failure each time.
+
+### [FU-ACCURACY-1]
+**[coordinator]**: publish a human-vs-LazyTopper marking accuracy study. PARKED: it needs about 30 answers marked by the owner or a teacher, which do not exist yet. Doctrine: no fake data; a study built on invented or self-marked answers must not be published. Revisit when the owner has the human-marked answers.
+
+### [FU-PRIVACY-PHOTO-RETENTION]
+**[coordinator]** raised it; **[git/gh]** the privacy page says phone-uploaded answer photos "are deleted when you delete your account" (`lazytopper/src/pages/LegalPage.tsx:294`) and says nothing on how long they are kept before that; the claim that the code states no retention bound is the coordinator's and was not re-derived by this builder. Confirm with the code and the storage settings how long a photo lives before account deletion; if it is bounded, state the bound on the privacy page, `llms.txt` and the Settings delete disclosure; if it is not bounded, say that honestly.
+
+### [FU-REVIEWS-REAL]
+**[coordinator]**: ask students who answer "Yes" on "Was this useful?" for a genuine public review. Never seeded (doctrine: no fake data). Open for the owner: where reviews would be collected and who asks.
+
 ## 2026-10-24 (daily, part 4) - #1347 CI-SOFT-1, #1348 CI-SOFT-1b (2 product merges after #1346, 24 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `8f8b0a5a`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from the GitHub REST API and the squash commits while writing; **[docs-builder-curl]** were fetched from www with `curl` while writing; **[coordinator]** come from the cofounder's message and the lane spec.
