@@ -1077,6 +1077,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   const qFileInputRef = useRef<HTMLInputElement>(null);
   /** ACTIVATION-2 A — the question card, so Start here's "Check one answer" can bring it in. */
   const questionCardRef = useRef<HTMLElement | null>(null);
+  /** CI-SOFT-1b — the answer card, so "Check my own answer" focuses THIS page instance's answer box. */
+  const answerCardRef = useRef<HTMLElement | null>(null);
 
   // ── ACTIVATION-2 D — "Try a board question" (a REAL bank question; nothing spent on fill) ──
   const [boardSource, setBoardSource] = useState<{ id: string; text: string; label: string } | null>(null);
@@ -1690,7 +1692,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setTab("type");
       ciDemo.close();
     });
-    const box = document.querySelector<HTMLTextAreaElement>('textarea[aria-label="Type your answer"]');
+    const box = answerCardRef.current?.querySelector<HTMLTextAreaElement>('textarea[aria-label="Type your answer"]');
     box?.focus({ preventScroll: true });
     box?.scrollIntoView?.({ behavior: "smooth", block: "center" });
   }
@@ -2726,7 +2728,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             uid={user?.uid ?? null}
             surface="check_improve"
             returnTo="/check-improve"
-            focus
+            // CI-SOFT-1b: a student who has just closed the sample card is not met at once by a
+            // full-screen Byte; the inline Start-here card may still show. Untouched where the card never showed.
+            focus={!ciDemo.closedHere}
             inProgress={ciInProgress}
             checkOneAnswer={focusQuestionBox}
           />
@@ -3226,6 +3230,7 @@ const DesktopCheckImprovePageInner: React.FC<{
               work, or type it). Same fluid basis as the question, so the two share
               the row evenly and wrap together. */}
           <section
+            ref={answerCardRef}
             onPaste={(e) => handleCardPaste(e, "answer")}
             style={{
               ...cardStyle,

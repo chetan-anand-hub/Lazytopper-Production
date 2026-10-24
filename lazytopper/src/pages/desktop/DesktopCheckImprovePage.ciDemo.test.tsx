@@ -245,4 +245,50 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     fireEvent.click(screen.getByTestId("ci-demo-close"));
     await waitFor(() => expect(screen.queryByTestId("guide-moment-m4")).not.toBeNull(), { timeout: 5000 });
   });
+
+  it("★ CI-SOFT-1b: after × the inline Start-here card returns but its full-screen Byte does NOT open (this tab)", async () => {
+    adArrival();
+    render(page());
+    fireEvent.click(await screen.findByTestId("ci-demo-close"));
+    expect(await screen.findByTestId("start-here-card")).toBeInTheDocument();
+    await settle();
+    await settle();
+    expect(screen.queryByTestId("start-here-focus")).toBeNull();
+  });
+
+  it("★ CI-SOFT-1b: a reload of the tab after × keeps it (the closed key), still no full-screen Byte", async () => {
+    adArrival();
+    window.sessionStorage.setItem(CI_DEMO_CLOSED_KEY, "1");
+    render(page());
+    expect(await screen.findByTestId("start-here-card")).toBeInTheDocument();
+    await settle();
+    expect(screen.queryByTestId("start-here-focus")).toBeNull();
+  });
+
+  it("★ CI-SOFT-1b CONTROL: where the card never showed (no ad arrival) the focus surface opens exactly as today", async () => {
+    window.sessionStorage.setItem("lazytopper.guideIntent", JSON.stringify({ landing: "/notes", utm_content: null, utm_campaign: null }));
+    render(page());
+    expect(await screen.findByTestId("start-here-focus")).toBeInTheDocument();
+  });
+
+  it("★ CI-SOFT-1b: 'Check my own answer' focuses THIS page's answer box, not another one in the document", async () => {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    adArrival();
+    const decoy = document.createElement("textarea");
+    decoy.setAttribute("aria-label", "Type your answer");
+    document.body.prepend(decoy);
+    try {
+      render(page());
+      fireEvent.click(await screen.findByTestId("ci-demo-tile-circ"));
+      fireEvent.click(await screen.findByTestId("ci-demo-check-own"));
+      await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
+      const mine = screen.getAllByLabelText("Type your answer").find((el) => el !== decoy);
+      expect(mine).toBeDefined();
+      expect(document.activeElement).toBe(mine);
+      expect(document.activeElement).not.toBe(decoy);
+    } finally {
+      decoy.remove();
+    }
+  });
 });
