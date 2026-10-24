@@ -15,7 +15,8 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { requestOpenSettings } from "../account/settingsDoor";
 import { fetchUsageMe, type UsageSnapshot } from "../../services/usageClient";
 import {
   dismissKey,
@@ -84,6 +85,7 @@ export interface UsageWarningProps {
 export default function UsageWarning({ scope, snapshot, selfRead = false, refreshKey, nowMs }: UsageWarningProps) {
   const snap = useWarningSnapshot(snapshot, selfRead, refreshKey);
   const [hiddenKey, setHiddenKey] = useState<string | null>(null);
+  const navigate = useNavigate();
   // Dark (no enforced snapshot) → nothing, and not even a clock read.
   if (!snap) return null;
   const now = nowMs ?? Date.now();
@@ -97,9 +99,24 @@ export default function UsageWarning({ scope, snapshot, selfRead = false, refres
   return (
     <div className="lt-usage-warn" role="status" data-testid="usage-warning" data-level={warning.level}>
       <p className="lt-usage-warn__text">{warningBannerCopy(warning, now)}</p>
-      <Link to={link.to} className="lt-usage-warn__link" data-testid="usage-warning-link">
-        {link.label}
-      </Link>
+      {"to" in link ? (
+        <Link to={link.to} className="lt-usage-warn__link" data-testid="usage-warning-link">
+          {link.label}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          className="lt-usage-warn__link"
+          data-testid="usage-warning-link"
+          onClick={() => {
+            // No shell took the request (no avatar menu on this screen): the old address still
+            // lands on Me / Progress, which opens Settings at the limits itself.
+            if (!requestOpenSettings("usage")) navigate("/me#usage");
+          }}
+        >
+          {link.label}
+        </button>
+      )}
       <button
         type="button"
         className="lt-usage-warn__close"

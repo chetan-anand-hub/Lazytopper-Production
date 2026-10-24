@@ -179,7 +179,11 @@ describe("FAIR-USE-WARN-1 · the banner is mounted on every surface", () => {
     render(page());
     const banner = await screen.findByTestId("usage-warning", {}, { timeout: 30000 });
     expect(banner.textContent).toContain(BANNER);
-    expect(screen.getByTestId("usage-warning-link").getAttribute("href")).toBe("/me#usage");
+    // SETTINGS-USAGE-1: "See usage" is a button that opens Settings at the limits, not a /me link.
+    const link = screen.getByTestId("usage-warning-link");
+    expect(link.tagName).toBe("BUTTON");
+    expect(link.getAttribute("href")).toBeNull();
+    expect(link.textContent).toBe("See usage");
   }, 60000);
 
   it.each(SURFACES)("★ %s DARK: enforced:false → no banner", async (_name, page) => {

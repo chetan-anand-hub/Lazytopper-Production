@@ -2,9 +2,10 @@
  * SettingsModal (SETTINGS-1) — the ONE Settings window, opened from the avatar menu on
  * phone (MobileAccountMenu) and desktop (DesktopShell). Same component, same words.
  *
- * Sections, in order: Your pass · Sign-in methods · Mascots · Your data.
- * Me / Progress now shows only progress; the pass, linking, mascots switch and the DPDP
- * controls (download / delete) all live here. Their behaviour is unchanged: this file
+ * Sections, in order: Your pass · Your limits (fair use; only when the server enforces it) ·
+ * Sign-in methods · Mascots · Your data.
+ * Me / Progress now shows only progress; the pass, fair-use limits, linking, mascots switch and
+ * the DPDP controls (download / delete) all live here. Their behaviour is unchanged: this file
  * only decides WHERE they are mounted. `MascotsSetting` and `AccountDataControls` are
  * reused as-is (the latter portals its own delete-confirmation dialog to document.body,
  * above this modal at z-index 9999, so it keeps working from inside this one).
@@ -28,7 +29,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { deriveAccountStatus } from "../../utils/accountStatus";
 import MascotsSetting from "../guide/MascotsSetting";
+import UsageCard from "../usage/UsageCard";
 import AccountDataControls from "./AccountDataControls";
+import type { SettingsSection } from "./settingsDoor";
 
 export interface SettingsModalProps {
   open: boolean;
@@ -37,6 +40,8 @@ export interface SettingsModalProps {
   onOpenSignInMethods: () => void;
   /** The avatar button; focus returns here on close. */
   returnFocusRef?: RefObject<HTMLElement | null>;
+  /** "usage": scroll the limits card into view once it has rendered ("See usage"). */
+  section?: SettingsSection;
 }
 
 const FOCUSABLE =
@@ -47,6 +52,7 @@ export default function SettingsModal({
   onClose,
   onOpenSignInMethods,
   returnFocusRef,
+  section,
 }: SettingsModalProps) {
   const { user } = useAuth();
   const { tier, isTrialActive, isTrialExpired, daysLeftInTrial } = useSubscription();
@@ -171,6 +177,10 @@ export default function SettingsModal({
               Manage your pass
             </button>
           </section>
+
+          {/* SETTINGS-USAGE-1: fair use lives here, not on Me / Progress. Renders nothing at all
+              (no card, no heading) unless the server says it is enforced for a trial/premium pass. */}
+          <UsageCard variant="settings" autoScroll={section === "usage"} />
 
           <section className="lt-set__card" aria-labelledby={`${titleId}-signin`}>
             <h3 className="lt-set__h" id={`${titleId}-signin`}>

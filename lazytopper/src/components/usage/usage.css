@@ -97,6 +97,26 @@
 .lt-usage__bar::-webkit-progress-value { background: var(--lt-usage-green); border-radius: 999px; }
 .lt-usage__bar::-moz-progress-bar { background: var(--lt-usage-green); border-radius: 999px; }
 
+/* SETTINGS-USAGE-1 — the card inside the Settings window: same container as its neighbours
+   (.lt-set__card in SettingsModal), so the inner card drops its own frame. */
+.lt-usage-settings {
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #dde2ee;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lt-usage-settings .lt-usage--card { padding: 0; border: 0; background: transparent; font-family: inherit; }
+.lt-usage-settings .lt-usage__lead { font-weight: 800; overflow-wrap: anywhere; }
+.lt-usage-settings .lt-usage__row-name,
+.lt-usage-settings .lt-usage__row-value { overflow-wrap: anywhere; min-width: 0; }
+.lt-usage-settings .lt-usage-always { margin: 0; }
+
 /* TRIAL-PAPER-1 — the note under a trial paper graded only up to today's checks. */
 .lt-usage--paper { max-width: none; margin: 16px 0 0; }
 .lt-usage__notgraded {
@@ -150,6 +170,15 @@
   text-decoration: underline;
   text-underline-offset: 2px;
   white-space: nowrap;
+}
+button.lt-usage-warn__link {
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 .lt-usage-warn__close {
   display: inline-flex;
