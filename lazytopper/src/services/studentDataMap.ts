@@ -885,10 +885,10 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
   {
     id: "third-party.gemini",
     kind: "third-party",
-    path: "https://generativelanguage.googleapis.com/v1beta/models/",
+    path: "AI language model (LLM) provider — outside LazyTopper",
     holds:
       "★ Every answer sent for grading or tutoring — including uploaded handwriting " +
-      "images — leaves the product to Google's Gemini API.",
+      "images — leaves the product to the AI language model (LLM) provider we use.",
     mechanism: "third-party-unreachable",
     exportable: false,
     notes:
@@ -899,7 +899,7 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
   {
     id: "third-party.email-provider",
     kind: "third-party",
-    path: "https://api.resend.com/emails",
+    path: "Email provider — outside LazyTopper",
     holds:
       "★ TRIAL-END-1 — only when the owner switches the trial-ending email on: the student's " +
       "sign-in email address and the text of that one service email (when their trial ends and " +

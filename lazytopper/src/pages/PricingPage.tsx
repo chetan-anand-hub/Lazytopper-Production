@@ -341,7 +341,7 @@ const PRICING_CSS = `
   }
 
   .lt-pricing-mark-guide a {
-    padding: 12px 0;
+    padding: 14px 0;
     font-weight: 700;
   }
 
