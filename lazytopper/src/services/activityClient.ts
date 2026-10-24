@@ -174,6 +174,13 @@ export const ACTIVITY_EVENTS = [
   "parent_report_shared",
   // SHARE-CARD-1 — the student shared a scorecard image (any surface, size, channel). Additive.
   "scorecard_share",
+  // CI-SOFT-1 — the Check & Improve sample-marking card. Names only. Additive.
+  "ci_demo_shown",
+  "ci_demo_pick",
+  "ci_demo_result",
+  "ci_demo_check_own",
+  "ci_demo_another",
+  "ci_demo_close",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 
