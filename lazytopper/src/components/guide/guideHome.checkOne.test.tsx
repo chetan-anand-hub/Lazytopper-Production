@@ -1,6 +1,7 @@
+import { useRef } from "react";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, useLocation } from "react-router-dom";
+import { render, cleanup, fireEvent, screen, waitFor, act } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 
 const { cloudHas, localRows, onboarding, assigned, bank, auth } = vi.hoisted(() => ({
@@ -16,7 +17,7 @@ vi.mock("../../analytics/analytics", () => ({ trackOnboardingEvent: onboarding, 
 vi.mock("../startHere/startHereBank", () => bank);
 vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
-import { StartHereFocusView, StartHereView, useStartHere } from "../startHere/StartHereCard";
+import StartHereCard, { StartHereFocusView, StartHereView, useStartHere } from "../startHere/StartHereCard";
 import { resetZeroGradedCacheForTests } from "../startHere/zeroGraded";
 import { __resetGuideVariantSentForTests, __setGuideAbForTests } from "./guideVariant";
 
@@ -38,6 +39,28 @@ function HomeHarness({ uid }: { uid: string }) {
       <StartHereView surface="home" returnTo="/" state={s} />
       <StartHereFocusView uid={uid} surface="home" returnTo="/" state={s} />
     </>
+  );
+}
+
+/** Check & Improve as the page mounts Byte: the full-screen focus guide + inline guide + chip, with a question box. */
+function CheckImproveStub({ uid }: { uid: string }) {
+  const boxRef = useRef<HTMLTextAreaElement | null>(null);
+  return (
+    <>
+      <StartHereCard uid={uid} surface="check_improve" returnTo="/check-improve" focus checkOneAnswer={() => boxRef.current?.focus()} />
+      <textarea ref={boxRef} aria-label="Type the question" />
+    </>
+  );
+}
+function HomeToCheckImprove({ uid }: { uid: string }) {
+  return (
+    <MemoryRouter initialEntries={["/"]}>
+      <Probe />
+      <Routes>
+        <Route path="/check-improve" element={<CheckImproveStub uid={uid} />} />
+        <Route path="*" element={<HomeHarness uid={uid} />} />
+      </Routes>
+    </MemoryRouter>
   );
 }
 
@@ -74,5 +97,23 @@ describe("LOGIN-HOME-1 · Byte on Home", () => {
     expect(screen.getAllByTestId("guide-opt-quick")[0].getAttribute("data-rank")).toBe("2");
     fireEvent.click(first);
     await waitFor(() => expect(location).toBe("/check-improve"));
+  });
+
+  it("★★ review F1 — after the tap, Check & Improve opens with NO second Byte (no dialog, no inline guide, no chip, no second shown event) and its question box is reachable", async () => {
+    render(<HomeToCheckImprove uid="u1" />);
+    const first = (await screen.findAllByTestId("guide-opt-check_one"))[0];
+    await waitFor(() => expect(onboarding.mock.calls.filter((c) => c[0] === "guide_shown").length).toBeGreaterThan(0));
+    const shownOnHome = onboarding.mock.calls.filter((c) => c[0] === "guide_shown").length;
+    fireEvent.click(first);
+    await waitFor(() => expect(location).toBe("/check-improve"));
+    expect(await screen.findByLabelText("Type the question")).toBeTruthy();
+    await act(async () => new Promise((r) => setTimeout(r, 50)));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.queryByTestId("start-here-focus")).toBeNull();
+    expect(screen.queryByTestId("byte-guide-inline")).toBeNull();
+    expect(screen.queryByTestId("guide-chip")).toBeNull();
+    expect(screen.queryAllByTestId("guide-opt-check_one")).toHaveLength(0);
+    expect(onboarding.mock.calls.filter((c) => c[0] === "guide_shown").length).toBe(shownOnHome);
+    expect(window.sessionStorage.getItem("lazytopper.startHereFocusClosed")).toBe("1");
   });
 });

@@ -20,7 +20,8 @@ import BlobCharacter from "./BlobCharacter";
 import { prefersReducedMotion, type Pose } from "./rig";
 import type { ChapterRef, GuideOption, GuideOptionId, GuidePlan } from "./intentMap";
 import type { StartHereFocusSurface, StartHereSurface } from "../../analytics/analytics";
-import { guidePreviewActive, trackGuideEvent } from "./guideVariant";
+import { closeGuideChipForTab, guidePreviewActive, trackGuideEvent } from "./guideVariant";
+import { START_HERE_FOCUS_CLOSED_KEY, dismissForSession } from "../startHere/startHereModel";
 import type { ZiggyReaction } from "./ziggyModel";
 import type { ScoreGuidePlan } from "./scoreGuideModel";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "./moments/mascotsToast";
@@ -223,6 +224,21 @@ export function ByteGuide({ mode, page, eventSurface, plan, onClose, onDone, ren
       return;
     }
     const path = o.action.path;
+    if (o.action.kind === "check_one") {
+      // LOGIN-HOME-1: "Check one answer" chosen on a page that has no question box (Home) opens
+      // Check & Improve. The student already chose it, so Check & Improve must NOT open its own
+      // full-screen Byte, inline Byte or corner chip and ask again: close all three for this
+      // tab with the EXISTING session keys (no new storage), exactly as choosing it ON that
+      // page does (StartHereCard: focus-closed key + hiddenHere "check_one").
+      try {
+        window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, "1");
+      } catch {
+        /* blocked storage: the page may still offer Byte once */
+      }
+      dismissForSession();
+      closeGuideChipForTab();
+      onDone?.(); // a choice, not a dismissal (the Home focus view closes without a "Not now")
+    }
     say(GUIDE_COPY.cheerGo(o.title), "cheer");
     const go = () => {
       // GUIDE-OPTS-1: the hub reads ?ct=1 only on mount, so the chapter chooser opens the same way.

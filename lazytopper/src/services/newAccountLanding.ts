@@ -56,7 +56,7 @@ export function isDefaultHomeTarget(target: string | null | undefined): boolean 
 /** The Me page, with or without a query string / hash (RequireAuth keeps the query in `state.from`). */
 const ME_PATHS: ReadonlySet<string> = new Set(["/me", "/profile"]);
 export function isMeTarget(target: string | null | undefined): boolean {
-  const path = String(target ?? "").trim().split(/[?#]/)[0].replace(/\/+$/, "");
+  const path = String(target ?? "").trim().split(/[?#]/)[0].replace(/\/+$/, "").toLowerCase();
   return ME_PATHS.has(path);
 }
 

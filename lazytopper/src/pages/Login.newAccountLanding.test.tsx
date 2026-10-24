@@ -62,6 +62,8 @@ function renderDoorAt(entry: string | { pathname: string; state: unknown }) {
         <Route path="/login" element={<Login />} />
         <Route path="/check-improve" element={<div>LANDED ON CHECK AND IMPROVE</div>} />
         <Route path="/practice-hub" element={<div>LANDED ON PRACTICE HUB</div>} />
+        <Route path="/pricing" element={<div>LANDED ON PRICING</div>} />
+        <Route path="/mex" element={<div>LANDED ON MEX</div>} />
         <Route path="/me" element={<div>LANDED ON ME</div>} />
         <Route path="/profile" element={<div>LANDED ON PROFILE</div>} />
         <Route path="/practice/:grade/:subject" element={<div>LANDED ON PRACTICE SET</div>} />
@@ -118,6 +120,18 @@ describe("LOGIN-HOME-1 · where a sign-in lands", () => {
     expect(await screen.findByText("LANDED ON PRACTICE HUB")).toBeTruthy();
   });
 
+  it("★★ a NEW account with /pricing keeps /pricing; a literal /mex keeps /mex (not read as /me)", async () => {
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2Fpricing");
+    expect(await screen.findByText("LANDED ON PRICING")).toBeTruthy();
+    cleanup();
+    markNewAccountLanding();
+    authState.user = GOOGLE_USER;
+    renderDoorAt("/login?redirect=%2Fmex");
+    expect(await screen.findByText("LANDED ON MEX")).toBeTruthy();
+  });
+
   it("★ a NEW account coming from the free check (/check-improve) goes back to it", async () => {
     markNewAccountLanding();
     authState.user = GOOGLE_USER;
@@ -171,8 +185,8 @@ describe("LOGIN-HOME-1 · where a sign-in lands", () => {
 
 describe("LOGIN-HOME-1 · the Me-target matcher", () => {
   it("matches /me and /profile with or without query / hash / trailing slash, and nothing else", () => {
-    for (const t of ["/me", "/me?x=1", "/me#a", "/me/", "/profile", "/profile?tab=2"]) expect(isMeTarget(t), t).toBe(true);
-    for (const t of ["/menu", "/me/settings", "/profile-x", "/practice/me", "", null, undefined]) expect(isMeTarget(t), String(t)).toBe(false);
+    for (const t of ["/me", "/me?x=1", "/me#a", "/me/", "/ME", "/Me?x=1", "/profile", "/Profile", "/profile?tab=2"]) expect(isMeTarget(t), t).toBe(true);
+    for (const t of ["/menu", "/mex", "/me/settings", "/profile-x", "/practice/me", "", null, undefined]) expect(isMeTarget(t), String(t)).toBe(false);
   });
 });
 
