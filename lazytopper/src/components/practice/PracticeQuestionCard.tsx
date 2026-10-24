@@ -954,8 +954,14 @@ export function PracticeQuestionCard({
                   type="button"
                   onClick={() => onAskTutor(q)}
                   style={{
-                    marginTop: 10,
-                    padding: 0,
+                    marginTop: 0,
+                    padding: "13px 0",
+                    minHeight: 44,
+                    boxSizing: "border-box",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    textAlign: "left",
+                    maxWidth: "100%",
                     border: "none",
                     background: "transparent",
                     color: PRIMARY_GREEN_FG,

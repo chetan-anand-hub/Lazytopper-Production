@@ -128,3 +128,16 @@ describe("DesktopShell account dropdown — SETTINGS-1 · one Settings entry" , 
     expect(document.body.style.overflow).not.toBe("hidden");
   });
 });
+
+describe("account menu items - TAPS-1 tap target", () => {
+  it("Me / Progress, Settings and Log out are each at least 44 px tall", () => {
+    signInAndOpenMenu();
+    for (const name of ["Me / Progress", "Settings", "Log out"]) {
+      const item = screen.getByRole("menuitem", { name });
+      expect(item.style.minHeight).toBe("44px");
+      expect(item.style.boxSizing).toBe("border-box");
+      expect(item.style.display).toBe("flex");
+      expect(item.style.alignItems).toBe("center");
+    }
+  });
+});

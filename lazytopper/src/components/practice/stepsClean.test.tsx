@@ -85,4 +85,16 @@ describe("STEPS-CLEAN-1", () => {
     expect(btn.textContent).not.toContain("\\u2192");
     expect(btn.textContent).toBe("Ask the tutor about this concept →");
   });
+
+  // TAPS-1: the link keeps its underlined look but its hit area is >= 44 px tall.
+  it("(d) tutor link hit area is at least 44 px tall (minHeight + vertical padding)", () => {
+    paint();
+    const btn = screen.getByRole("button", { name: /Ask the tutor about this concept/ });
+    expect(btn.style.minHeight).toBe("44px");
+    expect(btn.style.boxSizing).toBe("border-box");
+    expect(btn.style.display).toBe("inline-flex");
+    expect(btn.style.alignItems).toBe("center");
+    expect(btn.style.textDecoration).toContain("underline");
+    expect(btn.style.maxWidth).toBe("100%");
+  });
 });
