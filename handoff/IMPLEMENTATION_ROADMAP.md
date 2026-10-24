@@ -1,4 +1,4 @@
-## 2026-10-24 (daily, part 2) - STEPS-CLEAN-1 (`#1337`), SETTINGS-1 (`#1339`), LOGIN-HOME-1 (`#1338`), TUTOR-Q-1 (`#1340`), TAPS-1 (`#1343`), MOMENTS-3 (`#1341`) - MERGED
+## 2026-10-24 (daily, part 2) - STEPS-CLEAN-1 (`#1337`), SETTINGS-1 (`#1339`), LOGIN-HOME-1 (`#1338`), TUTOR-Q-1 (`#1340`), TAPS-1 (`#1343`), MOMENTS-3 (`#1341`), FEEDBACK-2 (`#1342`) - MERGED
 
 - DONE. `#1337` (`5bac0044`): STEPS-CLEAN-1 - the generic Examiner notes / Exam tip are gone from Show steps. NEXT: nothing beyond the owner's live look.
 - DONE. `#1339` (`fc137f70`): SETTINGS-1 - one Settings window, same on phone and desktop; Me shows only progress. NEXT: owner live check (Settings -> Delete my account shows its confirm step; do not delete).
@@ -6,7 +6,8 @@
 - DONE. `#1340` (`47572313`): TUTOR-Q-1 - Ask the tutor opens on that question; back returns to the same set. NEXT: nothing open beyond the PR body's live note.
 - DONE. `#1343` (`a837c85d`): TAPS-1 - 44 px taps. NEXT: none.
 - DONE. `#1341` (`3c86696a`): MOMENTS-3 - mascot session budget, new emotions, Breathe before Chapter Test / Full Mock, H1-H4 sweep. Closes `[FU-MOMENTS-3-EMOTIONS]` and `[FU-COMPANION-BREATHE-MOUNT]`. NEXT: `[FU-BREATHE-FONT-SCALE]`.
-- IN FLIGHT [git/gh]: `#1342` FEEDBACK-2 (draft, open at writing, not merged): Ziggy's "Was this useful?" with a real next step per answer. Railway before Vercel. NEXT: fresh review round 2, merge, owner live check (first Quick Practice set on a new account), `[FU-FEEDBACK-NOTES-READER]`, `[FU-CI-ONE-FEEDBACK-BATCH]`.
+- DONE. `#1342` (`f897f020`): FEEDBACK-2 - Ziggy's "Was this useful?" after a live graded scorecard with a real next step per answer; private "Tell us more" note. Railway deploys with the merge. NEXT: owner live check (first Quick Practice set on a new account, 390 px and desktop), `[FU-FEEDBACK-NOTES-READER]`, `[FU-CI-ONE-FEEDBACK-BATCH]`.
+- IN FLIGHT [coordinator]: FEEDBACK-NUDGE-1 (owner ruling 24 Oct 16:00 IST): the "help us improve" card stays at the bottom and gets a slide-up + Ziggy. No PR at writing.
 - OPEN. The 2026-10-24 (daily, part 2) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; the engineering queue from 23 Oct (WS-LINK-1, HOTS content review, 55 duplicate groups, 11 re-files, source-paper recovery, Decision D, TOPUP-1 part 2, founding-price notices, spend dashboard, ops automation, trial emails) is unchanged by this block.
 
 ## 2026-10-24 (daily) - MI-CARELESS-1 (`#1321`), MI-CARELESS-2 (`#1324`), BANK-RESIDUE-1 (`#1325`), GUIDE-SCORE-2 (`#1322`), MI-CONSISTENCY-1 (`#1326`), MI-CARD-UID-1 (`#1333`), CT-RELOAD-1 (`#1332`), FRESH-SET-QP (`#1330`), FRESH-SET-TESTS (`#1327`), QP-WORKING-AFTER-1 (`#1328`), SERVED-TYPES-1 (`#1335`), CT-RESUME-2 (`#1334`), MCQ-EXTRACT-1 (`#1323`), MCQ-TYPE-2 (`#1331`) - MERGED
