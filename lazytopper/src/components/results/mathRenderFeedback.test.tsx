@@ -3,8 +3,7 @@
  *
  * The step fields (description / studentWork / teacherAnnotation / correctedWorking) already
  * went through <MathText>; the feedback strings around them (scorecard verdict and "where the
- * mark went", the examiner note on the printed sheets, the practice card's examiner notes and
- * exam tip) were printed raw, so `x^2` showed as `x^2` and `\(\sqrt{169}\)` as its source.
+ * mark went", the examiner note on the printed sheets, the practice card's notes, since removed) were printed raw, so `x^2` showed as `x^2` and `\(\sqrt{169}\)` as its source.
  *
  * Each case mounts the REAL component. KaTeX is loaded up front (`loadKatex`) so MathText
  * renders synchronously, exactly as it does on a page that has already fetched the chunk.
@@ -19,7 +18,6 @@
  */
 import { describe, it, expect, vi, beforeAll, afterEach } from "vitest";
 import { cleanup, render } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: null }) }));
 vi.mock("../../hooks/useSubscription", () => ({
@@ -42,10 +40,8 @@ import type { ScorecardGradedAnswer, ScorecardVariant } from "./scorecardVariant
 import { loadKatex } from "../question/MathText";
 import { WorksheetGradedPrintDoc } from "../worksheet/WorksheetGradedPrintDoc";
 import { CheckImproveGradedPrintDoc } from "../checkimprove/CheckImproveGradedPrintDoc";
-import { PracticeQuestionCard } from "../practice/PracticeQuestionCard";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
-import type { StepSolutionResponse, WorksheetGradeResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
-import type { PracticeQuestion } from "../../data/predictionDataService";
+import type { WorksheetGradeResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
 
 // Realistic grader feedback carrying maths in the forms MathText renders.
 const VERDICT = "Correct method: x^2 - 5x + 6 = 0 factorises, but one root was dropped.";
@@ -197,69 +193,5 @@ describe("CheckImproveGradedPrintDoc — teacherNote", () => {
     a.unmount();
     const b = paintCi(undefined);
     expect(b.container.querySelector(".lt-cigp__note")).toBeNull();
-  });
-});
-
-// ── PracticeQuestionCard (Quick Practice / Practice) — examiner notes and exam tip ──
-const PQ = {
-  id: "Q1", marks: 3, section: "C", difficulty: "Medium",
-  questionText: "Solve x^2 - 5x + 6 = 0.", solutionSteps: ["Factorise."], finalAnswer: "2, 3",
-  subject: "Maths", topicKey: "quadratic-equations",
-} as unknown as PracticeQuestion;
-
-function paintCard(commonMistakes: string[], examTip: string | undefined) {
-  const solutionData = {
-    totalMarks: 3,
-    steps: [{ stepNumber: 1, description: "Factorise.", working: "(x - 2)(x - 3) = 0", marks: 3 }],
-    commonMistakes,
-    examTip,
-  } as unknown as StepSolutionResponse;
-  return render(
-    <MemoryRouter>
-      <PracticeQuestionCard
-        q={PQ} idx={0} subjectKey="Maths" topicLabel="Quadratic Equations"
-        isOpen solutionLoading={false} solutionError={undefined} solutionData={solutionData}
-        mcqSelection={undefined} mcqResult={undefined}
-        onSetActiveQuestion={() => {}} onToggleAnswer={() => {}} onMcqSelect={() => {}} onMcqResult={() => {}}
-        stepsLocked={false}
-      />
-    </MemoryRouter>,
-  );
-}
-
-/** The card styles these blocks inline (no class hook), so find them by their own labels:
- *  the exam tip is the div holding <strong>Exam tip:</strong>; the examiner notes are the
- *  parent of the div reading exactly "Examiner notes". */
-function blockStartingWith(root: HTMLElement, label: string): Element | null {
-  if (label === "Exam tip:") {
-    const strong = Array.from(root.querySelectorAll("strong")).find((s) => s.textContent === "Exam tip:");
-    return strong?.parentElement ?? null;
-  }
-  const head = Array.from(root.querySelectorAll("div")).find((d) => d.textContent === label);
-  return head?.parentElement ?? null;
-}
-
-describe("PracticeQuestionCard — Examiner notes and Exam tip", () => {
-  it("renders maths in each examiner-note bullet and in the exam tip", () => {
-    const { container } = paintCard([NOTE, VERDICT], LOST);
-    const tip = blockStartingWith(container, "Exam tip:");
-    expectRendered(tip);
-    expect(tip!.textContent).toMatch(/^Exam tip: /);
-    const notes = blockStartingWith(container, "Examiner notes");
-    expectRendered(notes);
-    // Both bullets still carry their bullet glyph.
-    expect((notes!.textContent ?? "").split("•").length - 1).toBe(2);
-  });
-
-  it("CONTROL — prose bullets and tip unchanged; empty lists / no tip render nothing", () => {
-    const a = paintCard([PROSE], PROSE);
-    const tip = blockStartingWith(a.container, "Exam tip:");
-    expect(tip!.textContent).toBe(`Exam tip: ${PROSE}`);
-    expect(tip!.querySelectorAll(".katex")).toHaveLength(0);
-    expect(blockStartingWith(a.container, "Examiner notes")!.textContent).toBe(`Examiner notes• ${PROSE}`);
-    a.unmount();
-    const b = paintCard([], undefined);
-    expect(b.container.textContent).not.toContain("Exam tip:");
-    expect(b.container.textContent).not.toContain("Examiner notes");
   });
 });

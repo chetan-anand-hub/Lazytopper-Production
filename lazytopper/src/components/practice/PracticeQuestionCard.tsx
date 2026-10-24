@@ -937,31 +937,6 @@ export function PracticeQuestionCard({
                 );
               })}
 
-              {solutionData.commonMistakes && solutionData.commonMistakes.length > 0 && (
-                <div style={{
-                  marginTop: 8, padding: "8px 10px",
-                  background: CARD_BG, borderRadius: 10, border: `1px solid ${BORDER}`,
-                }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: TEXT_MUTED, marginBottom: 4 }}>
-                    Examiner notes
-                  </div>
-                  {solutionData.commonMistakes.map((m, i) => (
-                    <div key={i} style={{ fontSize: "0.75rem", color: TEXT_MUTED, marginBottom: 2 }}>
-                      {"\u2022"} <MathText text={m} />
-                    </div>
-                  ))}
-                </div>
-              )}
-              {solutionData.examTip && (
-                <div style={{
-                  marginTop: 8, padding: "8px 10px",
-                  background: CARD_BG, borderRadius: 10, border: `1px solid ${BORDER}`,
-                  fontSize: "0.75rem", color: TEXT_MUTED,
-                }}>
-                  <strong>Exam tip:</strong> <MathText text={solutionData.examTip} />
-                </div>
-              )}
-
               {/* \u2500\u2500 ONE contextual Tutor link (2026-07-15) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
                   Replaces "Revise this topic" (a Topic Hub duplicate) and "Visual help"
                   (a Topic Hub / ConceptSpine duplicate).
@@ -991,7 +966,7 @@ export function PracticeQuestionCard({
                     textUnderlineOffset: 3,
                   }}
                 >
-                  Ask the tutor about this concept \u2192
+                  Ask the tutor about this concept {"\u2192"}
                 </button>
               )}
             </div>
