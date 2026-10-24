@@ -33,7 +33,6 @@ import { anyMascotHost } from "../guide/mascotPresence";
 import { isSidebarMascot } from "./feedbackMascots";
 import { mascotsHidden } from "../guide/mascotsMute";
 import { FeedbackPrompt } from "./FeedbackPrompt";
-import { saveFeedbackNote } from "./feedbackNotes";
 import {
   FIRST_GRADED_MOMENT,
   AFTER_GRADED_MOMENT,
@@ -166,14 +165,21 @@ export function renderFeedbackPrompt(
       onNext={(action) => trackFeedbackEvent("next", moment, undefined, action)}
       onSaveNote={async (kind, text) => {
         // The words go to the student's own account and NOWHERE else; only the NAME is counted.
-        const ok = await saveFeedbackNote({
+        // (PERF-3: loaded only now - the notes writer and the Firestore bridge are not in the entry.)
+        let ok = false;
+        try {
+          const { saveFeedbackNote } = await import("./feedbackNotes");
+          ok = await saveFeedbackNote({
           uid: opts.uid ?? "",
           text,
           kind,
           surface: flow?.surface ?? "unknown",
           topicKey: flow?.topicKey ?? null,
           moment,
-        });
+          });
+        } catch {
+          ok = false;
+        }
         if (ok) trackFeedbackEvent("next", moment, undefined, "note_saved");
         return ok;
       }}
@@ -202,6 +208,8 @@ export async function requestFeedbackPrompt(moment: FeedbackMoment, req: Feedbac
       (shownThisLoad && !graded) ||
       (moment === AFTER_GRADED_MOMENT && gradedAskedThisSession());
     if (blocked()) return false;
+    // The address the ask started on: a slow check must not draw a card on a page the student has left.
+    const startedAt = req.graded?.getAddress?.();
     const uid = req.uid ?? (await currentStudentUid());
     if (!uid) return false;
     if (blocked()) return false; // re-check after the await
@@ -228,6 +236,7 @@ export async function requestFeedbackPrompt(moment: FeedbackMoment, req: Feedbac
       if (blocked()) return false; // re-check after the second await
       // The scorecard that asked may have been closed (or left) while the written-answer check ran.
       if (req.graded?.isAlive && !req.graded.isAlive()) return false;
+      if (req.graded?.getAddress && req.graded.getAddress() !== startedAt) return false;
     }
 
     if (!claimFeedbackMoment(deviceStore(), uid, moment, nowMs, req.trialKey ?? null)) return false;

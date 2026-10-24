@@ -115,6 +115,8 @@ export interface GradedFeedbackContextInput {
   owner?: object;
   /** Is the asking scorecard still mounted? Checked before the card is drawn. Omitted: assume yes. */
   isAlive?: () => boolean;
+  /** The page address (path + search) right now. The host compares it with where the ask started. */
+  getAddress?: () => string;
   /** The scorecard's in-flow slot (below its buttons) for phone widths. Null / omitted: float. */
   getSlot?: () => HTMLElement | null;
   /** The host's own "Ask the tutor" hop for the FIRST question that lost marks, when it has one. */
@@ -200,6 +202,7 @@ export function buildGradedFeedbackContextInput(args: {
   search: string;
   owner?: object;
   isAlive?: () => boolean;
+  getAddress?: () => string;
   getSlot?: () => HTMLElement | null;
 }): GradedFeedbackContextInput {
   const { variant } = args;
@@ -216,6 +219,7 @@ export function buildGradedFeedbackContextInput(args: {
     showMissed: typeof variant.onShowMissed === "function" ? variant.onShowMissed : null,
     owner: args.owner,
     isAlive: args.isAlive,
+    getAddress: args.getAddress,
     getSlot: args.getSlot,
     firstWrongTutor: firstWrongTutorHop(variant),
     chapterTutorTo: chapter

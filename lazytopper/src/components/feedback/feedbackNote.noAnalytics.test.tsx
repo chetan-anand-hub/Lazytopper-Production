@@ -16,6 +16,14 @@ vi.mock("../guide/moments/writtenGradedCloud", async (orig) => ({
 
 import { __resetFeedbackHostForTests, requestFeedbackPrompt } from "./feedbackPromptHost";
 
+// PERF-3: the graded card is a lazy chunk in production; these suites test the card itself, so it loads
+// synchronously here (FeedbackPrompt.lazy.test.tsx pins the real lazy path and the failed-chunk guard).
+vi.mock("../../lib/lazyWithRetry", async () => {
+  const m = await import("./GradedFeedbackCard");
+  return { lazyWithRetry: () => m.default };
+});
+
+
 /**
  * FEEDBACK-2 — THE OWNER'S RULE, END TO END: free text never reaches analytics. This drives the real
  * card and the REAL analytics module (only the first-party hand-off is a spy) and listens on every

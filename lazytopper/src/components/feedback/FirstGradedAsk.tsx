@@ -22,9 +22,11 @@ type AskInput = Pick<FirstGradedInput, "ask" | "deferred" | "allPending" | "scor
  * The card belongs to THIS scorecard: it checks the scorecard is still mounted before it is drawn
  * (`isAlive`), and is removed when the scorecard unmounts or the route changes (`owner`).
  */
-function useAsker(slotRef: RefObject<HTMLElement | null> | undefined, pathname: string) {
+function useAsker(slotRef: RefObject<HTMLElement | null> | undefined, pathname: string, address: string) {
   const owner = useRef<object>({});
   const alive = useRef(true);
+  const at = useRef(address);
+  at.current = address;
   useEffect(() => {
     alive.current = true;
     return () => {
@@ -37,6 +39,7 @@ function useAsker(slotRef: RefObject<HTMLElement | null> | undefined, pathname: 
   return {
     owner: owner.current,
     isAlive: () => alive.current,
+    getAddress: () => at.current,
     getSlot: () => slotRef?.current ?? null,
   };
 }
@@ -44,7 +47,7 @@ function useAsker(slotRef: RefObject<HTMLElement | null> | undefined, pathname: 
 function WithRouter({ input, variant, slotRef }: { input: AskInput; variant: ScorecardVariant; slotRef?: RefObject<HTMLElement | null> }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const asker = useAsker(slotRef, location.pathname);
+  const asker = useAsker(slotRef, location.pathname, `${location.pathname}${location.search}`);
   useFirstGradedFeedback({
     ...input,
     context: buildGradedFeedbackContextInput({

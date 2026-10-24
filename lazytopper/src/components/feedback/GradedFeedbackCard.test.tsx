@@ -7,6 +7,14 @@ import { GRADED_THANKS_MS } from "./GradedFeedbackCard";
 import type { GradedFeedbackContext } from "./gradedFeedbackFlow";
 import { __resetMascotHostsForTests, noteMascotHost } from "../guide/mascotPresence";
 
+// PERF-3: the graded card is a lazy chunk in production; these suites test the card itself, so it loads
+// synchronously here (FeedbackPrompt.lazy.test.tsx pins the real lazy path and the failed-chunk guard).
+vi.mock("../../lib/lazyWithRetry", async () => {
+  const m = await import("./GradedFeedbackCard");
+  return { lazyWithRetry: () => m.default };
+});
+
+
 /**
  * FEEDBACK-2 — the card. Every answer -> its buttons; every button -> the router's navigate with the
  * exact URL; Back / Close / Escape never lose the student; the note is a plain form and its words go

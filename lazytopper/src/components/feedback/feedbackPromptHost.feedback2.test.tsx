@@ -44,6 +44,14 @@ import ResultsScorecard from "../results/ResultsScorecard";
 import type { ScorecardVariant } from "../results/scorecardVariants";
 import type { GradedFeedbackContextInput } from "./gradedFeedbackFlow";
 
+// PERF-3: the graded card is a lazy chunk in production; these suites test the card itself, so it loads
+// synchronously here (FeedbackPrompt.lazy.test.tsx pins the real lazy path and the failed-chunk guard).
+vi.mock("../../lib/lazyWithRetry", async () => {
+  const m = await import("./GradedFeedbackCard");
+  return { lazyWithRetry: () => m.default };
+});
+
+
 /**
  * FEEDBACK-2 — the host: the repeat ask, the once-per-7-days / once-per-session rules, the H3 budget,
  * hidden mascots, "never lost" navigation through the ROUTER, and the note that goes nowhere but the
@@ -522,6 +530,34 @@ describe("FEEDBACK-2 · the card dies with the scorecard that asked", () => {
     // the ask was not used up: the device record has no repeat-ask stamp
     const rec = JSON.parse(window.localStorage.getItem(feedbackStorageKey("u1")) ?? "{}");
     expect(rec.a).toBeUndefined();
+  });
+
+  it("a slow written-answer check that finishes after the address CHANGED (scorecard still mounted) shows nothing", async () => {
+    auth.currentUser = { uid: "u1" };
+    seedLater("u1");
+    let release: (v: boolean | null) => void = () => {};
+    cloudWritten.fn.mockReturnValue(new Promise<boolean | null>((r) => (release = r)));
+    vi.useFakeTimers();
+    const { useNavigate } = await import("react-router-dom");
+    function Nav() {
+      const nav = useNavigate();
+      return <button type="button" data-testid="leave" onClick={() => nav("/practice/10/maths?topic=other")} />;
+    }
+    render(
+      <MemoryRouter initialEntries={["/practice/10/maths?topic=real-numbers"]}>
+        <Probe />
+        <ResultsScorecard variant={variant} onClose={() => {}} askFirstFeedback />
+        <Nav />
+      </MemoryRouter>,
+    );
+    await tick(FIRST_GRADED_DELAY_MS + 50); // asked; waiting on the server read
+    act(() => void fireEvent.click(screen.getByTestId("leave"))); // same scorecard, new address
+    await tick(10);
+    await act(async () => {
+      release(false);
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(card()).toBeNull();
   });
 
   it("leaving through the scorecard's own route change leaves no card on the next page", async () => {

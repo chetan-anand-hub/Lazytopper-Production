@@ -17,10 +17,11 @@
  *   drawn he steps aside the instant ANOTHER mascot appears (the scorecard's own Ziggy / Byte, which
  *   load lazily and may arrive after this card) - one character on screen at a time (COMPANION-1,
  *   guide/mascotPresence.ts). The H3 budget (feedbackBudget.ts) reserves a slot, and spends it only when he is actually drawn.
- * ★ NO `style={{}}`: a `<style>` block and class names. Targets >= 44 px. On a phone (< 1024 px) it is
- *   drawn IN FLOW at the end of the scorecard sheet (the scorecard's `data-lt-feedback-slot`, below its
- *   buttons) so it can never cover them; with no slot it falls back to a fixed bottom sheet of at most 50%
- *   of the screen. On desktop a bottom-right panel.
+ * ★ NO `style={{}}`: a `<style>` block and class names. Targets >= 44 px. Below 1440 px it is drawn IN
+ *   FLOW at the end of the scorecard sheet (the scorecard's `data-lt-feedback-slot`, below its buttons) so
+ *   it can never cover them; with no slot it falls back to the fixed panel. From 1440 px up (and with no
+ *   slot) a fixed bottom-right panel; on a phone that fallback is a bottom sheet of at most 50% of the screen.
+ * ★ PERF-3: this module is its own chunk, loaded by FeedbackPrompt only when a graded card is shown.
  *
  * Presentational: it reports `onAnswer` / `onDismiss` / `onNext` / `onSaveNote`; the host decides what
  * those record. It never reads or writes storage and never calls analytics itself.

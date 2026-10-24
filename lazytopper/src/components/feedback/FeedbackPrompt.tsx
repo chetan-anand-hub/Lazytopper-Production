@@ -17,7 +17,8 @@
  * "Was this useful?" with Ziggy, four one-tap answers, and a next step that leads somewhere
  * (GradedFeedbackCard.tsx). Every other moment is byte-unchanged.
  */
-import { useEffect, useRef, useState } from "react";
+import { Component, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { WHATSAPP_URL } from "../../config/socialProfiles";
 import {
   FEEDBACK_CALL_COPY,
@@ -30,7 +31,6 @@ import {
   type FeedbackReason,
   type FirstGradedAnswer,
 } from "./feedbackPromptModel";
-import { GradedFeedbackCard } from "./GradedFeedbackCard";
 import type { GradedFeedbackContext } from "./gradedFeedbackFlow";
 
 const FEEDBACK_PROMPT_CSS = `
@@ -203,20 +203,44 @@ export interface FeedbackPromptProps {
   onHandOff?: () => void;
 }
 
+/**
+ * PERF-3: the graded card (its copy, flow and CSS) is its own chunk, loaded only when a graded
+ * "Was this useful?" is actually shown - this module is in the entry (the paywall prompt uses it).
+ */
+const GradedFeedbackCard = lazyWithRetry(() => import("./GradedFeedbackCard"));
+
+/** A chunk that will not load shows NOTHING (never a crash): the host is told so it can clean up. */
+export class CardChunkGuard extends Component<{ children: ReactNode; onFail: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onFail();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
 export function FeedbackPrompt(props: FeedbackPromptProps) {
   if (isGradedMoment(props.moment)) {
     return (
-      <GradedFeedbackCard
-        moment={props.moment}
-        ctx={props.flow ?? null}
-        withZiggy={props.withZiggy !== false}
-        onAnswer={(code: FirstGradedAnswer) => props.onAnswer(code)}
-        onDismiss={props.onDismiss}
-        onNext={(a) => props.onNext?.(a)}
-        onSaveNote={(k, t) => (props.onSaveNote ? props.onSaveNote(k, t) : Promise.resolve(false))}
-        onDone={props.onDone}
-        onHandOff={props.onHandOff}
-      />
+      <CardChunkGuard onFail={props.onDone}>
+        <Suspense fallback={null}>
+          <GradedFeedbackCard
+            moment={props.moment}
+            ctx={props.flow ?? null}
+            withZiggy={props.withZiggy !== false}
+            onAnswer={(code: FirstGradedAnswer) => props.onAnswer(code)}
+            onDismiss={props.onDismiss}
+            onNext={(a) => props.onNext?.(a)}
+            onSaveNote={(k, t) => (props.onSaveNote ? props.onSaveNote(k, t) : Promise.resolve(false))}
+            onDone={props.onDone}
+            onHandOff={props.onHandOff}
+          />
+        </Suspense>
+      </CardChunkGuard>
     );
   }
   return <ImproveFeedbackPrompt {...props} />;

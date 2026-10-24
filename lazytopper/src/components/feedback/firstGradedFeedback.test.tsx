@@ -21,6 +21,14 @@ import { FIRST_GRADED_DELAY_MS, isFirstGradedEligible } from "./useFirstGradedFe
 import { ACTIVITY_EVENTS } from "../../services/activityClient";
 import { activityEventLabel, feedbackAnswers } from "../../pages/admin/activityDetailModel";
 
+// PERF-3: the graded card is a lazy chunk in production; these suites test the card itself, so it loads
+// synchronously here (FeedbackPrompt.lazy.test.tsx pins the real lazy path and the failed-chunk guard).
+vi.mock("../../lib/lazyWithRetry", async () => {
+  const m = await import("./GradedFeedbackCard");
+  return { lazyWithRetry: () => m.default };
+});
+
+
 /**
  * FIRST-FEEDBACK-1 — "Was this useful?" after the first graded result. Every "not shown"
  * assertion is paired with a control that IS shown, so a rule that always says no fails.
