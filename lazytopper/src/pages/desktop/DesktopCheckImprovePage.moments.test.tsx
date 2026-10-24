@@ -5,7 +5,7 @@
  *   M5  first session, while the grader works: Ziggy (nervous) "Fingers crossed…", then Byte (think)
  *       in his place. Display only: the grade call is made exactly as before.
  *   M6  "We couldn't read any answers": Ziggy (confused), then Byte (explain), inside the scorecard.
- *   M8  a dropped connection: Ziggy (sad) "Oops, the connection dropped. Your answer is safe." —
+ *   M8  a dropped connection: Byte (sorry) "Sorry, the connection dropped. Your answer is safe." —
  *       and it IS safe: the typed answer is still in the box and Retry re-sends exactly it.
  *   M9  the signed-out free check opened from a shared link (public device arm).
  *   Every moment is ABSENT in the control arm.
@@ -263,7 +263,7 @@ describe("MOMENTS-1 M5 · the grading wait (first session)", () => {
     expect(moment("m5")!.getAttribute("data-pose")).toBe("nervous");
     await waitFor(() => expect(lineOf("m5")).toBe("Marking it step by step, like a CBSE examiner."), { timeout: 4000 });
     expect(moment("m5")!.getAttribute("data-kind")).toBe("byte");
-    expect(moment("m5")!.getAttribute("data-pose")).toBe("think");
+    expect(moment("m5")!.getAttribute("data-pose")).toBe("marking");
     // display only: ONE grade call, carrying the student's typed answer and nothing new
     expect(H.checkSolutionImage).toHaveBeenCalledTimes(1);
     expect(H.checkSolutionImage.mock.calls[0][0]).toMatchObject({ textAnswer: ANSWER, marks: 3 });
@@ -290,9 +290,9 @@ describe("MOMENTS-1 M8 · a dropped connection", () => {
     await readQuestion();
     typeAnswer(ANSWER);
     await clickGrade();
-    await waitFor(() => expect(lineOf("m8")).toBe("Oops, the connection dropped. Your answer is safe."));
-    expect(moment("m8")!.getAttribute("data-kind")).toBe("ziggy");
-    expect(moment("m8")!.getAttribute("data-pose")).toBe("sad");
+    await waitFor(() => expect(lineOf("m8")).toBe("Sorry, the connection dropped. Your answer is safe."));
+    expect(moment("m8")!.getAttribute("data-kind")).toBe("byte");
+    expect(moment("m8")!.getAttribute("data-pose")).toBe("sorry");
     expect((screen.getByLabelText("Type your answer") as HTMLTextAreaElement).value).toBe(ANSWER);
     await clickGrade(); // "Retry grading"
     await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(2));
@@ -318,7 +318,7 @@ describe("MOMENTS-1 M8 · a dropped connection", () => {
     await clickGrade();
     await screen.findByText(/the connection dropped/);
     expect(moment("m8")).toBeNull();
-    expect(screen.queryByText("Oops, the connection dropped. Your answer is safe.")).toBeNull();
+    expect(screen.queryByText("Sorry, the connection dropped. Your answer is safe.")).toBeNull();
   });
 });
 

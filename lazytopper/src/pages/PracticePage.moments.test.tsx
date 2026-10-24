@@ -4,7 +4,7 @@
 //       "Tap the answer you think is right. No typing."; after the FIRST tap, Ziggy (excited)
 //       "Yes! 1 of 5. Next one." in the same spot ONLY when that tap was correct; a wrong first
 //       tap → Byte just goes. The MCQ is graded by the card exactly as before (display only).
-//   M8  the set fails to load on the bank chunk → Ziggy (sad) "Oops, the connection dropped." —
+//   M8  the set fails to load on the bank chunk → Byte (sorry) "Sorry, the connection dropped. Please try again." —
 //       never "Your answer is safe" here (no answer exists yet). Guide arm only.
 //   FIX a real "Retry" under a failed load re-runs it, for EVERY student (both arms).
 //
@@ -112,7 +112,7 @@ function mkMcq(n: number): PQ {
 const FIVE = [1, 2, 3, 4, 5].map(mkMcq);
 const BYTE_LINE = "Tap the answer you think is right. No typing.";
 const ZIGGY_LINE = "Yes! 1 of 5. Next one.";
-const M8_LINE = "Oops, the connection dropped.";
+const M8_LINE = "Sorry, the connection dropped. Please try again.";
 /** ONE build of a single-topic set asks the builder once per blueprint section (A–E). */
 const CALLS_PER_BUILD = 5;
 
@@ -396,14 +396,14 @@ describe("MOMENTS-1 · a set that fails to load: Retry (everyone) + M8 (guide ar
     }
   });
 
-  it("★★ the bank chunk does not arrive: guide arm → Ziggy 'Oops, the connection dropped.' (no 'answer is safe'); Retry loads the set", async () => {
+  it("★★ the bank chunk does not arrive: guide arm → Byte 'Sorry, the connection dropped. Please try again.' (no 'answer is safe'); Retry loads the set", async () => {
     failBank.on = true;
     mockBuild.mockResolvedValue(FIVE);
     mount();
     await waitFor(() => expect(screen.getByTestId("guide-moment-m8")).toBeTruthy(), { timeout: 30000 });
     expect(momentLine()).toBe(M8_LINE);
-    expect(screen.getByTestId("guide-moment-m8").getAttribute("data-kind")).toBe("ziggy");
-    expect(screen.getByTestId("guide-moment-m8").getAttribute("data-pose")).toBe("sad");
+    expect(screen.getByTestId("guide-moment-m8").getAttribute("data-kind")).toBe("byte");
+    expect(screen.getByTestId("guide-moment-m8").getAttribute("data-pose")).toBe("sorry");
     expect(screen.queryByText(/Your answer is safe/)).toBeNull();
     failBank.on = false;
     fireEvent.click(screen.getByTestId("qp-load-retry"));

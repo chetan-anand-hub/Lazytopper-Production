@@ -23,7 +23,7 @@ describe("GUIDE-1 · Ziggy's band (real Quick Practice scorecard data)", () => {
     const r = ziggyReactionFor(qp(5))!;
     expect(r.band).toBe("full");
     expect(r.pose).toBe("excited");
-    expect(r.line).toBe("Full marks! Did you see that?!");
+    expect(r.line).toBe("Full marks! Did you see that?");
   });
 
   it("≥ 50% → determined, with the scorecard's own numbers", () => {

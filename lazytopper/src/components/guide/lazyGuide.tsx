@@ -3,7 +3,7 @@
  * the same dynamic import, so Vite emits ONE `guideChunk-<hash>.js` that is fetched only when
  * Byte or Ziggy is about to render. A failed chunk load renders nothing (never breaks a page).
  */
-import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
 import { CompanionScoreSlot } from "./companion/companion";
 import { COMPANION_CHAR_CLASS, COMPANION_PRIORITY, otherMascotOnScreen, stageHolder } from "./companion/companionModel";
 import { anyMascotHost, mascotHostsVersion, subscribeMascotHosts } from "./mascotPresence";
@@ -21,9 +21,11 @@ import {
   trackGuideEvent,
 } from "./guideVariant";
 import { ziggyReactionFor, type ZiggyReaction } from "./ziggyModel";
-import { scoreGuidePlan, type ScoreGuidePlan, type ScoreScene } from "./scoreGuideModel";
+import { scoreGuidePlan, scoreGuideSeed, type ScoreGuidePlan, type ScoreScene } from "./scoreGuideModel";
 import { mascotsHidden as mascotsHiddenNow, useMascotsHidden } from "./mascotsMute";
 import { useHoldStage, useStageHeld } from "./scoreGuideStage";
+import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "./mascotBudget";
+import { currentAha } from "./ahaModel";
 
 type Chunk = typeof import("./guideChunk");
 const load = (): Promise<Chunk> => import("./guideChunk");
@@ -176,6 +178,7 @@ function CompanionScene({ plan, uid }: ScoreSceneProps) {
       // "Fix one thing": Byte's own next-step route (an internal path), never a guess.
       fixTo={plan.cta?.to ?? null}
       busy={false} // a scorecard: the test or question is over
+      budgeted={false} // MOMENTS-3: the scorecard guide above already holds this result's one appearance
     />
   );
 }
@@ -287,13 +290,20 @@ function SceneWatch({ watch, onDecline, onEnd, children }: { watch: boolean; onD
 export function ScorecardGuide({ variant, ask, hostOwnsUnreadAllPending }: ScorecardGuideProps) {
   const mascotsHidden = useMascotsHidden();
   const m11OnStage = useStageHeld("m11");
-  const plan: ScoreGuidePlan | null = scoreGuidePlan(variant, { hostOwnsUnreadAllPending });
+  // MOMENTS-3 — Ziggy's "aha": a repeated mistake type stopped (real records only; null = nothing).
+  const aha = useMemo(() => (mascotsHidden || variant.deferred ? null : currentAha(variant.parentResultRef)), [mascotsHidden, variant.deferred, variant.parentResultRef]);
+  const plan: ScoreGuidePlan | null = scoreGuidePlan(variant, { hostOwnsUnreadAllPending, aha });
   const score = variant.score;
   const firstEligible =
     guideAbActive() && isFirstGradedEligible({ ask, deferred: variant.deferred, allPending: !!variant.allPending, score });
   // Decided synchronously, before the first paint.
-  const willDraw =
+  const wantsDraw =
     guideAbActive() && !variant.deferred && !mascotsHidden && (plan !== null || firstEligible) && scorecardArmIsGuide();
+  // MOMENTS-3 — the director: this scorecard's guide is ONE unprompted appearance (at most 3 a session).
+  // While M11's Byte owns the card it asks for nothing (it holds its own appearance).
+  const budgetKind = `score:${scoreGuideSeed(variant)}`;
+  const allowed = useAppearance(wantsDraw && !m11OnStage ? budgetKind : null, APPEARANCE_PRIORITY.scorecard);
+  const willDraw = wantsDraw && (!!allowed || m11OnStage);
   const planKey = plan ? `${plan.seed}|${plan.situation}|${plan.byteStep}|${plan.ziggy.text}|${plan.cta?.to ?? ""}` : "";
   // A scene candidate (a scene that can show now — read only) starts "deciding": the reserved slot
   // stays empty and the default sequence is NOT mounted (so it reports nothing) until the scene is
@@ -372,10 +382,12 @@ export function ScorecardGuide({ variant, ask, hostOwnsUnreadAllPending }: Score
       {mode.kind === "first" ? (
         <Suspense fallback={null}>
           <LazyZiggyStrip reaction={mode.reaction} onLoadFail={onLoadFail} />
+          {allowed ? <NoteShown kind={allowed} /> : null}
         </Suspense>
       ) : mode.kind === "every" && plan ? (
         <Suspense fallback={null}>
           <LazyScoreGuideBeats key={`${planKey}|${mode.startAt}`} plan={plan} startAt={mode.startAt} onLoadFail={onLoadFail} />
+          {allowed ? <NoteShown kind={allowed} /> : null}
         </Suspense>
       ) : mode.kind === "scene" && plan ? (
         <SceneWatch
@@ -385,6 +397,7 @@ export function ScorecardGuide({ variant, ask, hostOwnsUnreadAllPending }: Score
         >
           <Suspense fallback={null}>
             <sceneRegistration.Scene plan={plan} scene={mode.scene} uid={mode.uid} />
+            {allowed ? <NoteShown kind={allowed} /> : null}
           </Suspense>
         </SceneWatch>
       ) : null}

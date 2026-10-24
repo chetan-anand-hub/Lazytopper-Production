@@ -26,18 +26,20 @@ export type CompanionMomentId =
   | "welcomeBack"
   | "lateNight"
   | "rhythm"
-  | "countdown";
+  | "countdown"
+  | "examWeek";
 
 /** The `moment` each one reports in guide_moment_shown / guide_moment_click. */
 export const COMPANION_EVENT_ID: Record<CompanionMomentId, GuideMomentId> = {
   lowScore: "c_low_score",
-  breathe: "c_breathe",
+  breathe: "c_breathe_test", // MOMENTS-3: the pre-test Breathe reports under its own id
   improve: "c_improve",
   milestone: "c_milestone",
   welcomeBack: "c_welcome_back",
   lateNight: "c_late_night",
   rhythm: "c_rhythm",
   countdown: "c_countdown",
+  examWeek: "c_exam_week", // MOMENTS-3: its own id, so the countdown metric is untouched
 };
 
 /** When two qualify at once, the higher shows and the other waits (wellbeing first). */
@@ -50,6 +52,7 @@ export const COMPANION_PRIORITY: Record<CompanionMomentId, number> = {
   welcomeBack: 60,
   rhythm: 40,
   countdown: 20,
+  examWeek: 65,
 };
 
 /* ── the thresholds (pinned by companionModel.test.ts at their boundaries) ───────────────────── */
@@ -342,15 +345,36 @@ export function rhythmDue(a: { now: number; days: number; lastRhythmAt: number |
 
 /* ── 8 — the board countdown (an OFFICIAL date only) ─────────────────────────────────────────── */
 
+/** Whole IST days from `now` to the IST calendar date `iso` (YYYY-MM-DD); null if malformed (0 or negative once it is today / past). */
+function daysUntil(now: number, iso: string): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  const target = m ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : NaN;
+  return Number.isFinite(target) ? Math.floor(target / DAY_MS) - istDayIndex(now) : null;
+}
+
 /** Whole IST days from `now` to the IST calendar date `iso` (YYYY-MM-DD); null if past or malformed. */
 export function daysToBoards(now: number, iso: string): number | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
-  if (!m) return null;
-  const target = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  if (!Number.isFinite(target)) return null;
-  const days = Math.floor(target / DAY_MS) - istDayIndex(now);
-  return days > 0 ? days : null;
+  const d = daysUntil(now, iso);
+  return d !== null && d > 0 ? d : null;
 }
+
+/**
+ * MOMENTS-3 - ziggy_examday. The IST days from `now` to the exam date `iso` (YYYY-MM-DD), 0 on the
+ * day itself, when that is 0-6 (the week of the exam); null otherwise or when the date is malformed.
+ * The caller passes ONLY an OFFICIAL date (a predicted one never reaches this).
+ */
+export const EXAM_WEEK_DAYS = 7;
+export function examWeekDays(now: number, iso: string): number | null {
+  const d = daysUntil(now, iso);
+  return d !== null && d >= 0 && d < EXAM_WEEK_DAYS ? d : null;
+}
+
+export function examWeekDue(a: { now: number; lastAt: number | null }): boolean {
+  return a.lastAt === null || a.now - a.lastAt >= WEEK_MS;
+}
+
+/* ── MOMENTS-3 — Diwali props (festival window, IST) ──────────────────────────────────────────── */
+
 
 export function countdownDue(a: { now: number; lastCountdownAt: number | null }): boolean {
   return a.lastCountdownAt === null || a.now - a.lastCountdownAt >= WEEK_MS;
@@ -418,6 +442,10 @@ export interface CompanionMarks {
   h?: number | null;
   /** today's exam-date read, kept for the IST day so Home never refetches it on every mount */
   x?: ExamDateCache | null;
+  /** MOMENTS-3: when the exam-week moment last showed */
+  e?: number | null;
+  /** MOMENTS-3: when Ziggy's "aha" last showed, per mistake type (once per type per week) */
+  a?: Partial<Record<"conceptual" | "calculation" | "silly" | "presentation", number>>;
 }
 
 export interface ExamDateCache {
@@ -427,7 +455,16 @@ export interface ExamDateCache {
   src: "official" | "predicted";
 }
 
-const EMPTY: CompanionMarks = { m: [], wb: null, r: null, c: null, n: null, s: null, h: null, x: null };
+const EMPTY: CompanionMarks = { m: [], wb: null, r: null, c: null, n: null, s: null, h: null, x: null, e: null, a: {} };
+
+function ahaMarksOf(v: unknown): NonNullable<CompanionMarks["a"]> {
+  const out: NonNullable<CompanionMarks["a"]> = {};
+  for (const t of ["conceptual", "calculation", "silly", "presentation"] as const) {
+    const n = (v as Record<string, unknown> | null)?.[t];
+    if (typeof n === "number" && Number.isFinite(n)) out[t] = n;
+  }
+  return out;
+}
 
 function examCacheOf(v: unknown): ExamDateCache | null {
   if (!v || typeof v !== "object") return null;
@@ -455,7 +492,7 @@ export function readMarks(uid: string): CompanionMarks {
       const v = JSON.parse(raw) as Record<string, unknown> | null;
       if (v && typeof v === "object") {
         const m = Array.isArray(v.m) ? (v.m.filter((x) => (MILESTONES as readonly unknown[]).includes(x)) as MilestoneId[]) : [];
-        return { m, wb: num(v.wb), r: num(v.r), c: num(v.c), n: num(v.n), s: num(v.s), h: num(v.h), x: examCacheOf(v.x) };
+        return { m, wb: num(v.wb), r: num(v.r), c: num(v.c), n: num(v.n), s: num(v.s), h: num(v.h), x: examCacheOf(v.x), e: num(v.e), a: ahaMarksOf(v.a) };
       }
     }
   } catch {

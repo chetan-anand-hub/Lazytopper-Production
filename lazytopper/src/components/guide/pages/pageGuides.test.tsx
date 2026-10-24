@@ -39,6 +39,7 @@ import { isNextMidnight, m7DialogLine } from "./m7Copy";
 import { inGuideArm as momentsInGuideArm } from "../moments/moments";
 import { __removeMascotsToastForTests } from "../moments/mascotsToast";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, hideMascots } from "../mascotsMute";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, noteShown, requestAppearance } from "../mascotBudget";
 import { GUIDE_PREVIEW_KEY, __setGuideAbForTests, guideFocusOpen } from "../guideVariant";
 import type { LimitState } from "../../usage/fairUseGate";
 import { readFileSync } from "node:fs";
@@ -570,5 +571,38 @@ describe("GUIDE-PAGES-FLAKE-1 · dismissal and tap targets", () => {
     expect(popCss).toMatch(/@media \(pointer: coarse\), \(max-width: 1023px\)\s*\{\s*\.lt-pg-pop__ok\s*\{\s*min-height:\s*44px;\s*\}\s*\.lt-pg__hide\s*\{\s*min-height:\s*44px;/);
     // 32px circle + 8px ring each side = 48px tap area, with no layout change
     expect(doorCss).toMatch(/\.lt-pg-door__q::after\s*\{[^}]*inset:\s*-8px/);
+  });
+});
+
+describe("MOMENTS-3 · the director and the page helpers", () => {
+  afterEach(() => {
+    __resetMascotBudgetForTests();
+  });
+
+  it("★★ budget spent: the first-visit card does NOT open, the device marker stays UNSPENT, and the '?' still opens it (prompted)", async () => {
+    __setMascotBudgetForTests(true);
+    for (const k of ["x1", "x2", "x3"]) {
+      requestAppearance(k, 200);
+      noteShown(k);
+    }
+    const d = DOORS[0];
+    render(<Door {...d} />);
+    const q = await screen.findByTestId(`page-guide-${d.id}-help`);
+    await act(async () => {});
+    expect(screen.queryByTestId(`page-guide-pop-${d.id}`)).toBeNull();
+    expect(window.localStorage.getItem(`${PAGE_GUIDE_SEEN_PREFIX}${d.id}.${d.step}`)).toBeNull();
+    fireEvent.click(q);
+    expect(await screen.findByTestId(`page-guide-pop-${d.id}`)).toBeTruthy();
+    // prompted: still only the three earlier appearances on the books
+    expect(JSON.parse(window.sessionStorage.getItem("lazytopper.mascotBudget") ?? "{}").shown).toEqual(["x1", "x2", "x3"]);
+  });
+
+  it("★★ a free slot: it opens by itself, spends the marker and the session records it", async () => {
+    __setMascotBudgetForTests(true);
+    const d = DOORS[0];
+    render(<Door {...d} />);
+    await screen.findByTestId(`page-guide-pop-${d.id}`);
+    expect(window.localStorage.getItem(`${PAGE_GUIDE_SEEN_PREFIX}${d.id}.${d.step}`)).toBe("1");
+    await waitFor(() => expect(JSON.parse(window.sessionStorage.getItem("lazytopper.mascotBudget") ?? "{}").shown).toEqual([`pageguide:${d.id}.${d.step}`]));
   });
 });

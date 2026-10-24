@@ -36,6 +36,7 @@ import {
   __setGuideAbForTests,
 } from "../guide/guideVariant";
 import { GUIDE_LINES } from "../guide/intentMap";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, noteShown, requestAppearance } from "../guide/mascotBudget";
 
 /**
  * GUIDE-1 §3B — Byte in place of Start-here (guide arm), today's card in the control arm.
@@ -421,5 +422,31 @@ describe("GUIDE-1 · the focused surface (guide arm)", () => {
     await waitFor(() => expect(calls("guide_shown")).toHaveLength(2));
     expect(calls("guide_shown").map((c) => c[1].surface).sort()).toEqual(["home", "home_focus"]);
     expect(assigned).not.toHaveBeenCalled(); // GUIDE-ALL-1: no arm report
+  });
+});
+
+describe("MOMENTS-3 · the director and Start-here", () => {
+  afterEach(() => {
+    __resetMascotBudgetForTests();
+  });
+
+  it("★★ budget spent (3 unprompted shown) → the PLAIN Start-here card stands in; no Byte, no guide event", async () => {
+    __setMascotBudgetForTests(true);
+    for (const k of ["x1", "x2", "x3"]) {
+      requestAppearance(k, 200);
+      noteShown(k);
+    }
+    __setGuideAbForTests(true, "guide");
+    mount();
+    expect(await screen.findByTestId("start-here-card")).toBeTruthy();
+    expect(screen.queryByTestId("byte-guide-inline")).toBeNull();
+  });
+
+  it("★★ a free slot → Byte, and the card counts as ONE appearance ('starthere')", async () => {
+    __setMascotBudgetForTests(true);
+    __setGuideAbForTests(true, "guide");
+    mount();
+    expect(await screen.findByTestId("byte-guide-inline")).toBeTruthy();
+    await waitFor(() => expect(JSON.parse(window.sessionStorage.getItem("lazytopper.mascotBudget") ?? "{}").shown).toEqual(["starthere"]));
   });
 });

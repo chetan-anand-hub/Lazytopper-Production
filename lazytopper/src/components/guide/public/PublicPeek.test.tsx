@@ -17,6 +17,7 @@ vi.mock("../../startHere/startHereBank", () => ({ pickStartHereSet: async () => 
 
 import PublicPeek from "./PublicPeek";
 import { __setGuideAbForTests, setGuidePreview } from "../guideVariant";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, noteShown, requestAppearance } from "../mascotBudget";
 import { GUIDE_PUBLIC_ARM_KEY, PEEK_DWELL_MS, __resetPeekUsedForTests, __resetPublicArmForTests } from "./publicPeekModel";
 import { GUIDE_INTENT_KEY } from "../../../analytics/visitSource";
 
@@ -396,5 +397,34 @@ describe("GUIDE-PUBLIC-1 · PublicPeek", () => {
     await reachTrigger();
     await new Promise((r) => setTimeout(r, 50));
     expect(shown()).toEqual([]);
+  });
+});
+
+describe("MOMENTS-3 · the director and the signed-out peek", () => {
+  afterEach(() => {
+    __resetMascotBudgetForTests();
+  });
+
+  it("★★ budget spent → no peek and no guide_public_shown; a free slot → the peek, counted as 'public-peek:notes'", async () => {
+    __setMascotBudgetForTests(true);
+    for (const k of ["x1", "x2", "x3"]) {
+      requestAppearance(k, 200);
+      noteShown(k);
+    }
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    mount();
+    await reachTrigger();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(document.querySelector("[data-testid='public-peek']")).toBeNull();
+    expect(shown()).toEqual([]);
+  });
+
+  it("★★ a free slot → the peek shows and the session records it", async () => {
+    __setMascotBudgetForTests(true);
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    mount();
+    await reachTrigger();
+    await screen.findByTestId("public-peek", undefined, SLOW);
+    await vi.waitFor(() => expect(JSON.parse(window.sessionStorage.getItem("lazytopper.mascotBudget") ?? "{}").shown).toEqual(["public-peek:notes"]));
   });
 });

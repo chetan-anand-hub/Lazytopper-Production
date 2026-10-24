@@ -862,6 +862,11 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "GUIDE-FILTER-1: plus localStorage `lazytopper.filterHelpSeen` " +
       "(the single character 1 once the Quick Practice filter explainer opened by itself on this " +
       "device, so it opens on its own only once; a DEVICE flag, never the uid). " +
+      "MOMENTS-3: plus, in THIS TAB's sessionStorage, `lazytopper.mascotBudget` (the names of the " +
+      "at most three moments Byte and Ziggy already showed on their own this session, so they stop " +
+      "after three; moment names such as moment:m5 or a result code, never the uid, never a mark); " +
+      "and two more fields inside `lazytopper.companion.<tag>` above: when the exam-week moment last " +
+      "showed and when Ziggy's \"aha\" last showed for each mistake type (so each rests for a week). " +
       "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,

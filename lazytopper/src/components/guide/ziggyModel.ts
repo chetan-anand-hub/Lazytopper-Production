@@ -7,7 +7,7 @@
  * no checkable number (no total, no checked MCQ) gets NO reaction — Ziggy stays away rather
  * than guess.
  *
- *   full marks → excited     "Full marks! Did you see that?!"
+ *   full marks → excited     "Full marks! Did you see that?"
  *   ≥ 50%      → determined  "<got> out of <total>. <lost> to fix. I've got this."
  *   < 50%      → sad (melts) "Oh no... <got> out of <total>." → after ~2.5 s → determined
  *                            "Okay. Let's fix them one by one."
@@ -45,7 +45,7 @@ export function ziggyReactionFor(score: ScorecardScore): ZiggyReaction | null {
     total = score.mcqAnswered;
     unit = "count";
   }
-  if (got >= total) return { band: "full", pose: "excited", line: "Full marks! Did you see that?!" };
+  if (got >= total) return { band: "full", pose: "excited", line: "Full marks! Did you see that?" };
   const lost = total - got;
   if (got / total >= 0.5) {
     const toFix = unit === "marks" ? `${n(lost)} mark${lost === 1 ? "" : "s"} to fix` : `${n(lost)} to fix`;

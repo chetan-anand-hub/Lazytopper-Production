@@ -60,6 +60,7 @@ import {
   type ChipCounts,
 } from "../../practice/practiceFilters";
 import { __resetMascotsForTests, hideMascots } from "../mascotsMute";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, requestAppearance } from "../mascotBudget";
 import { __setGuideAbForTests, GUIDE_PREVIEW_KEY } from "../guideVariant";
 import { __removeMascotsToastForTests } from "../moments/mascotsToast";
 import type { PracticeQuestion } from "../../../data/predictionDataService";
@@ -304,6 +305,31 @@ describe("GUIDE-FILTER-1 · the explainer opens once per device, then on demand"
     render(<Panel />);
     await act(async () => {});
     expect(screen.queryByTestId("filter-help-panel")).toBeNull();
+  });
+
+  it("★ a device that has ALREADY seen the help reserves nothing from the session budget", async () => {
+    __resetMascotBudgetForTests();
+    __setMascotBudgetForTests(true);
+    try {
+      window.localStorage.setItem(FILTER_HELP_SEEN_KEY, "1");
+      render(<Panel />);
+      await act(async () => {});
+      expect(screen.queryByTestId("filter-help-panel")).toBeNull();
+      // all three slots are still free for other doors
+      expect(requestAppearance("a#1", 100)).toBe(true);
+      expect(requestAppearance("b#1", 100)).toBe(true);
+      expect(requestAppearance("c#1", 100)).toBe(true);
+    } finally {
+      __resetMascotBudgetForTests();
+    }
+  });
+
+  it("★ Hide mascots + a first visit: the plain explainer STILL opens by itself (the budget limits the character, not the words)", async () => {
+    hideMascots();
+    render(<Panel />);
+    const p = await screen.findByTestId("filter-help-panel");
+    expect(p.getAttribute("data-character")).toBe("none");
+    expect(window.localStorage.getItem(FILTER_HELP_SEEN_KEY)).toBe("1");
   });
 
   it("the explainer lists every filter value and the combining line", async () => {

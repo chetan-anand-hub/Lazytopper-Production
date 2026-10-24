@@ -32,6 +32,7 @@ import { formatScoreNumber } from "../results/scoreNumber";
 import { countWithUnit, marksWithUnit } from "../../lib/mistakeDisplay";
 import { companionScoreMoment, scorePct } from "./companion/companionModel";
 import type { ScoreGuideMomentSituation, ScoreGuideMomentSurface } from "../../analytics/analytics";
+import { ahaLines, type AhaFact, type AhaType } from "./ahaModel";
 
 /** The situations a scorecard can be in (the analytics `situation`). */
 export type ScoreSituation = ScoreGuideMomentSituation;
@@ -51,13 +52,17 @@ export type ByteStep =
   | "objectiveWrong"
   | "pending"
   | "allPending"
-  | "awaitingSheet";
+  | "awaitingSheet"
+  | "blank";
 
-export type ZiggySet = "great" | "mixed" | "low" | "improved" | "allPending" | "awaitingSheet";
+export type ZiggySet = "great" | "mixed" | "low" | "improved" | "allPending" | "awaitingSheet" | "blank";
 
 export interface GuideLine {
   pose: Pose;
   text: string;
+  /** MOMENTS-3 (two-beat reaction): the pose Ziggy opens with, before settling into `pose` in the same
+   *  moment (low result: `down` → determined). Reduced motion shows `pose` only. */
+  from?: Pose;
 }
 
 /**
@@ -77,10 +82,11 @@ export const SCORE_GUIDE_LINES = {
       { pose: "happy", text: "{got} out of {total}. Good base, and the missing marks are fixable." },
       { pose: "determined", text: "Nice effort: {got} out of {total}. Let's go after the rest together." },
     ],
+    // MOMENTS-3: Ziggy opens `down` and turns determined in the same moment (sad only about his own result).
     low: [
-      { pose: "determined", text: "{got} out of {total} this time. Now we know exactly where to start." },
-      { pose: "detective", text: "Tough one: {got} out of {total}. Every lost mark is a clue for next time." },
-      { pose: "determined", text: "{got} out of {total}. Hard papers teach the most. We'll fix it step by step." },
+      { from: "down", pose: "determined", text: "{got} out of {total} this time. Now we know exactly where to start." },
+      { from: "down", pose: "detective", text: "Tough one: {got} out of {total}. Every lost mark is a clue for next time." },
+      { from: "down", pose: "determined", text: "{got} out of {total}. Hard papers teach the most. We'll fix it step by step." },
     ],
     improved: [
       // {prev}: "your last mock" on Full Mock, "your last test on this chapter" on Chapter Test (an
@@ -95,6 +101,11 @@ export const SCORE_GUIDE_LINES = {
     awaitingSheet: [
       { pose: "happy", text: "Objective part done! Your written answers will complete the picture." },
       { pose: "determined", text: "That's the objective part scored. Your written answers come next." },
+    ],
+    // MOMENTS-3: answers left blank — Ziggy hides, then Byte says the formula earns marks.
+    blank: [
+      { pose: "hide", text: "Some questions stayed blank this time. I hide from those too." },
+      { pose: "hide", text: "A few blanks this time. I skip the scary ones too." },
     ],
   },
   byte: {
@@ -114,9 +125,14 @@ export const SCORE_GUIDE_LINES = {
       { pose: "technique", text: "{lead}: Presentation, {loss}. Write units, labels and a clear final answer, the way CBSE marks it." },
       { pose: "explain", text: "{lead}: Presentation ({loss}). Add units, labels and a neat final line every time." },
     ],
+    // MOMENTS-3 (great result): Byte cheers, plus one stretch tip.
     clean: [
-      { pose: "cheer", text: "No mistake pattern to fix here. Keep it fresh with another set." },
-      { pose: "wink", text: "Nothing stood out to fix. Try a fresh set and stretch yourself a little." },
+      { pose: "cheer", text: "No mistake pattern to fix here. Stand up and stretch, then try a fresh set." },
+      { pose: "stretch", text: "Nothing stood out to fix. Roll your shoulders, then try a fresh set." },
+    ],
+    blank: [
+      { pose: "explain", text: "On written questions, even the formula earns marks. Have a go at every one." },
+      { pose: "point", text: "Even a written formula earns marks. Next time, write something for every question." },
     ],
     untyped: [
       { pose: "explain", text: "Practise a fresh set, then check one written answer. I'll show which step earns each mark." },
@@ -198,6 +214,9 @@ export interface ScoreGuidePlan {
   pct: number | null;
   /** The previous same-total result's whole percentage, from the card's own ▲ line, or null. */
   previousPct: number | null;
+  /** MOMENTS-3: set when Ziggy's "aha" + Byte's nod replace this plan's two lines (a repeated
+   *  mistake type stopped). The host marks it shown (once per type per week). Null otherwise. */
+  aha: AhaType | null;
 }
 
 export type ScoreScene = "comfort" | "improvement";
@@ -206,6 +225,8 @@ export interface ScoreGuideOptions {
   /** The host draws its own "couldn't read any answers" moment (MOMENTS-1 M6) inside the
    *  all-pending block: Byte & Ziggy are already there, so this slot stays empty for it. */
   hostOwnsUnreadAllPending?: boolean;
+  /** MOMENTS-3: an established "repeated mistake type stopped" fact (./ahaModel.ahaFor), or null. */
+  aha?: AhaFact | null;
 }
 
 /**
@@ -312,6 +333,15 @@ function printedBiggestLoss(v: ScorecardVariant): { type: MiType; text: string; 
   return null;
 }
 
+/** "Not attempted" is the largest lost-marks row the card PRINTS in "Where your marks went" (a tie counts). */
+function printedBlankDominant(v: ScorecardVariant): boolean {
+  if (!v.marksLost || !(v.marksLost.lost > 0)) return false;
+  const by = v.marksLost.byType;
+  const blank = Number(by.unattempted) || 0;
+  if (!(blank > 0)) return false;
+  return LOST_ROWS.every((k) => k === "unattempted" || !((Number(by[k]) || 0) > blank));
+}
+
 /** The card's own printed improvement ("▲ 9 marks vs …" on Full Mock, "▲ 4 marks since your last
  *  … test" on Chapter Test): the number as printed, when it went UP. */
 function printedImprovement(v: ScorecardVariant): { text: string; marks: number } | null {
@@ -388,7 +418,7 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     if (opts.hostOwnsUnreadAllPending && v.allPending.title === UNREAD_ALL_TITLE) return null;
     const z = pick(L.ziggy.allPending, hz);
     const b = pick(L.byte.allPending, hb);
-    return { situation: "all-pending", surface, seed, ziggy: { ...z }, byte: { ...b }, byteStep: "allPending", cta: null, scene: null, pct: null, previousPct: null };
+    return { situation: "all-pending", surface, seed, ziggy: { ...z }, byte: { ...b }, byteStep: "allPending", cta: null, scene: null, pct: null, previousPct: null, aha: null };
   }
 
   // Objective part scored, written sheet awaited: nothing about mistakes is known yet, so no
@@ -396,7 +426,7 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
   if (v.awaitingSheet) {
     const z = pick(L.ziggy.awaitingSheet, hz);
     const b = pick(L.byte.awaitingSheet, hb);
-    return { situation: "awaiting-sheet", surface, seed, ziggy: { ...z }, byte: { ...b }, byteStep: "awaitingSheet", cta: null, scene: null, pct: null, previousPct: null };
+    return { situation: "awaiting-sheet", surface, seed, ziggy: { ...z }, byte: { ...b }, byteStep: "awaitingSheet", cta: null, scene: null, pct: null, previousPct: null, aha: null };
   }
 
   const s = v.score;
@@ -429,7 +459,9 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     // The truth rule holds for the seam too: a literal digit (a number not from a placeholder) is refused.
     if (comfort && (typeof comfort.text !== "string" || /\d/.test(comfort.text))) comfort = null;
   }
-  const z: GuideLine = comfort ?? (delta ? pick(L.ziggy.improved, hz) : pick(L.ziggy[band], hz));
+  // Only when blanks are the WHOLE typed story: a paper that also lost marks to a typed mistake keeps Byte's MI next step.
+  const blankDominant = !delta && !isObjectiveOnly(v) && printedUnread(v) === 0 && printedBlankDominant(v) && printedBiggestLoss(v) === null;
+  const z: GuideLine = comfort ?? (delta ? pick(L.ziggy.improved, hz) : blankDominant ? pick(L.ziggy.blank, hz) : pick(L.ziggy[band], hz));
   if (delta) {
     vals.delta = delta.text;
     // A delta is read only on Full Mock and Chapter Test (printedDelta).
@@ -464,6 +496,9 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
       // passes one, is honoured; the Quick Practice host passes none (the line looks forward).
       cta = typeof v.onAddWorking === "function" ? { label: L.cta.addWorking, action: v.onAddWorking } : practise;
     }
+  } else if (blankDominant) {
+    byteStep = "blank";
+    cta = practise;
   } else if (biggest) {
     byteStep = biggest.type;
     vals.loss = biggest.text;
@@ -474,12 +509,16 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     cta = practise;
   }
   const b = pick(L.byte[byteStep], hb);
+  // MOMENTS-3: a repeated mistake type stopped (only on a plain result: a scene or a delta keeps its own beat).
+  const ahaFact = !scene && !delta && !objectiveOnly && unread === 0 && opts.aha ? opts.aha : null;
+  const ahaText = ahaFact ? ahaLines(ahaFact) : null;
   return {
     situation,
     surface,
     seed,
-    ziggy: { pose: z.pose, text: fill(z.text, vals) },
-    byte: { pose: b.pose, text: fill(b.text, vals) },
+    ziggy: ahaText ? { pose: "aha", text: ahaText.ziggy } : { pose: z.pose, text: fill(z.text, vals), ...(z.from ? { from: z.from } : {}) },
+    byte: ahaText ? { pose: "cheer", text: ahaText.byte } : { pose: b.pose, text: fill(b.text, vals) },
+    aha: ahaFact ? ahaFact.type : null,
     byteStep,
     cta,
     scene,

@@ -50,3 +50,6 @@
   .lt-mom__bub { animation: none !important; }
 }
 @media print { .lt-mom, .lt-mom-peek { display: none; } }
+
+/* MOMENTS-3 - a refused moment's information, as plain text (no mascot). */
+.lt-mom-plain { margin: 4px 0 12px; color: #14213d; font-size: 14.5px; line-height: 1.35; font-weight: 700; }

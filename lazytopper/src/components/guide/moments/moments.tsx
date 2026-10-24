@@ -30,6 +30,7 @@ import { useWrittenGraded } from "./writtenGraded";
 import { useHoldStage } from "../scoreGuideStage";
 import { copyArmToIntent, ensurePublicArm, previewArm, previewOn } from "../public/publicPeekModel";
 import type { GuideMomentProps, SolutionsPeekProps } from "./momentsChunk";
+import { APPEARANCE_PRIORITY, NoteShown, newOccurrence, useAppearance } from "../mascotBudget";
 
 export type { GuideMomentId };
 
@@ -73,11 +74,42 @@ export type GuideMomentSlotProps = GuideMomentProps & { show: boolean };
  */
 export function GuideMomentSlot(props: GuideMomentSlotProps) {
   const hidden = useMascotsHidden();
+  // MOMENTS-3 — the director: a moment is an UNPROMPTED appearance (at most 3 per session).
+  const kind = momentKind(props.moment);
+  // A host keeps the slot mounted and toggles `show`: each false -> true is a NEW occurrence (so a
+  // second grading counts again). Derived state, so a StrictMode double render still counts once.
+  const [gen, setGen] = useState(() => ({ n: newOccurrence(), on: props.show }));
+  if (gen.on !== props.show) setGen({ n: props.show ? newOccurrence() : gen.n, on: props.show });
+  const allowed = useAppearance(props.show && !hidden ? kind : null, APPEARANCE_PRIORITY.explainer, String(gen.n));
   if (!props.show || hidden) return null;
+  // Refused: no mascot - but a line that carries needed information still shows, as plain text.
+  if (!allowed) return PLAIN_MOMENTS.has(props.moment) ? <PlainDraw moment={props.moment} step={props.step} /> : null;
+  return <MomentDraw {...props} kind={allowed} />;
+}
+
+/** The moments whose line carries information the student needs (waiting, unreadable, dropped connection). */
+const PLAIN_MOMENTS: ReadonlySet<string> = new Set(["m5", "m6", "m8"]);
+const LazyPlainMoment = lazyPart((m) => m.PlainMoment);
+function PlainDraw(p: { moment: string; step: string }) {
+  return (
+    <Suspense fallback={null}>
+      <LazyPlainMoment moment={p.moment as never} step={p.step as never} />
+    </Suspense>
+  );
+}
+
+/** The budget kind of a moment (a step change, e.g. M3's swap, is the same appearance). */
+export function momentKind(moment: string): string {
+  return `moment:${moment}`;
+}
+
+/** Draws the moment (no budget decision of its own) and spends the slot once it is on screen. */
+function MomentDraw(props: GuideMomentSlotProps & { kind: string }) {
   const which = { moment: props.moment, step: props.step, onCta: props.onCta } as GuideMomentProps;
   return (
     <Suspense fallback={null}>
       <LazyGuideMoment {...which} />
+      <NoteShown kind={props.kind} />
     </Suspense>
   );
 }
@@ -134,10 +166,14 @@ export function M11Nudge({
     // claimed once per mount
   }, [eligible, uid, written, claimed, hidden]);
   const show = eligible && written === "none" && claimed;
+  // MOMENTS-3 — the director decides FIRST: a refused nudge draws nothing and must not take the
+  // scorecard's stage either.
+  const allowed = useAppearance(show && !hidden ? momentKind("m11") : null, APPEARANCE_PRIORITY.explainer);
+  const draws = show && !hidden && !!allowed;
   // GUIDE-SCORE-1 — while Byte's nudge shows, it owns the scorecard: the scorecard's own
   // character slot yields (never two characters on screen at once).
-  useHoldStage("m11", show && !hidden);
-  return <GuideMomentSlot show={show} moment="m11" step="nudge" onCta={onOpenWorking} />;
+  useHoldStage("m11", draws);
+  return allowed && draws ? <MomentDraw show moment="m11" step="nudge" onCta={onOpenWorking} kind={allowed} /> : null;
 }
 
 /* ── M6 — "We couldn't read any answers" ──────────────────────────────────────────────────── */
@@ -268,10 +304,12 @@ export function SolutionsMoment({ freeCheckOn }: { freeCheckOn: boolean }) {
   const show = usePublicMomentAudience(matched && freeCheckOn);
   const hidden = useMascotsHidden();
   const [closed, setClosed] = useState(false);
-  if (!show || hidden || closed) return null;
+  const allowed = useAppearance(show && !hidden && !closed ? momentKind("m10") : null, APPEARANCE_PRIORITY.explainer);
+  if (!show || hidden || closed || !allowed) return null;
   return (
     <Suspense fallback={null}>
       <LazySolutionsPeek onClose={() => setClosed(true)} />
+      <NoteShown kind={allowed} />
     </Suspense>
   );
 }

@@ -9,7 +9,9 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup, act, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState as useStateReact } from "react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { setMatchMediaMatches } from "../../../test/setup";
 
 const h = vi.hoisted(() => ({
@@ -36,6 +38,7 @@ vi.mock("../../../services/cbseExamDate", () => ({
     return { studentClass: "10", ...h.exam };
   }),
 }));
+vi.mock("../../../context/AuthContext", () => ({ useAuth: () => ({ user: h.user }) }));
 vi.mock("../../../services/firebaseClient", () => ({
   authClient: {
     currentUser: null,
@@ -46,9 +49,9 @@ vi.mock("../../../services/firebaseClient", () => ({
   },
 }));
 
-import { CompanionHome, CompanionNightDoor, CompanionScoreSlot } from "./companion";
-import { BEAT_MS, COMPANION_COPY, MILESTONE_COPY } from "./companionChunk";
-import { COMPANION_KEY_PREFIX, COMPANION_SESSION_KEY, __resetCompanionForTests, readMarks } from "./companionModel";
+import { CompanionHome, CompanionNightDoor, CompanionScoreSlot, PreTestBreathe, PAGE_GUIDE_SEEN as PAGE_GUIDE_SEEN_PREFIX } from "./companion";
+import { BEAT_MS, BreatheCard, COMPANION_COPY, MILESTONE_COPY } from "./companionChunk";
+import { BREATHE_TOTAL_MS, COMPANION_KEY_PREFIX, COMPANION_SESSION_KEY, __resetCompanionForTests, readMarks } from "./companionModel";
 import { __resetSceneGuardForTests } from "../sceneGuard";
 import { GUIDE_PREVIEW_KEY, __setGuideAbForTests, guideAccountTag } from "../guideVariant";
 import { __resetMascotsForTests, hideMascots } from "../mascotsMute";
@@ -113,7 +116,7 @@ describe("§D · THE ONE COPY TABLE", () => {
   it("the controller's lines, word for word", () => {
     expect(COMPANION_COPY.lowScore).toBe("Tough one. Let's fix just one thing first.");
     expect(COMPANION_COPY.breathe).toBe("Breathe in… and out. You've prepared for this.");
-    expect(COMPANION_COPY.improveZiggy).toBe("Up from {from}% to {to}%! High five!");
+    expect(COMPANION_COPY.improveZiggy).toBe("Up from {from}% to {to}%. High five!");
     expect(COMPANION_COPY.welcomeBack).toBe("Welcome back! 5 quick questions to warm up?");
     expect(COMPANION_COPY.lateNight).toBe("It's late — sleep helps memory. Stop here and come back fresh?");
     expect(COMPANION_COPY.rhythm).toBe("{days} days this week — nice rhythm!");
@@ -135,7 +138,7 @@ describe("1 & 3 · the scorecard pieces (exported for GUIDE-SCORE-1)", () => {
     const m = await screen.findByTestId("guide-companion-improve");
     expect(m.getAttribute("data-kind")).toBe("ziggy");
     expect(m.getAttribute("data-pose")).toBe("highfive");
-    expect(screen.getByTestId("guide-companion-line").textContent).toBe("Up from 48% to 62%! High five!");
+    expect(screen.getByTestId("guide-companion-line").textContent).toBe("Up from 48% to 62%. High five!");
     expect(hosts()).toBe(1);
     await waitFor(() => expect(screen.getByTestId("guide-companion-improve").getAttribute("data-kind")).toBe("byte"), { timeout: BEAT_MS + 1500 });
     expect(screen.getByTestId("guide-companion-improve").getAttribute("data-pose")).toBe("highfiveL");
@@ -361,8 +364,14 @@ describe("6 · late night, on any signed-in page (mounted by the app-wide Comman
     vi.setSystemTime(night);
     seed("u1", night, 40 * MIN);
     palette();
-    const m = await screen.findByTestId("guide-companion-lateNight");
-    expect(m.getAttribute("data-pose")).toBe("moon");
+    // MOMENTS-3: Ziggy yawns first (ziggy_yawn), then Byte's moon line replaces him in the same slot.
+    const first = await screen.findByTestId("guide-companion-lateNight");
+    expect(first.getAttribute("data-pose")).toBe("yawn");
+    expect(first.getAttribute("data-kind")).toBe("ziggy");
+    expect(screen.getByTestId("guide-companion-line").textContent).toBe(COMPANION_COPY.lateNightYawn);
+    await waitFor(() => expect(screen.getByTestId("guide-companion-lateNight").getAttribute("data-pose")).toBe("moon"), { timeout: BEAT_MS + 2000 });
+    const m = screen.getByTestId("guide-companion-lateNight");
+    expect(m.getAttribute("data-kind")).toBe("byte");
     expect(m.className).toContain("lt-cmp--fixed");
     expect(screen.getByTestId("guide-companion-line").textContent).toBe(COMPANION_COPY.lateNight);
     fireEvent.click(screen.getByTestId("guide-companion-close"));
@@ -470,5 +479,271 @@ describe("6 · late night, on any signed-in page (mounted by the app-wide Comman
     const again = palette();
     await settle();
     expect(again.container.innerHTML).toBe("");
+  });
+});
+
+/* ── MOMENTS-3 ─────────────────────────────────────────────────────────────────────────────────── */
+
+import { examWeekDays, examWeekDue } from "./companionModel";
+import { __setFestivalForTests, festivalPropsAt, inFestivalWindow } from "./festival";
+import { PreTestSlot, registerPreTestMoment } from "../pages/preTestSlot";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, shownThisSession, unpromptedShownCount } from "../mascotBudget";
+
+describe("MOMENTS-3 · ziggy_examday — ONLY from an official date, the week of the exam", () => {
+  it("the window is 0–6 IST days before the date (the day itself included); never a past or far date", () => {
+    const d = (day: number) => ist(2027, 2, day, 12, 0);
+    expect(examWeekDays(d(17), "2027-02-17")).toBe(0);
+    expect(examWeekDays(d(11), "2027-02-17")).toBe(6);
+    expect(examWeekDays(d(10), "2027-02-17")).toBeNull(); // 7 days out: not yet
+    expect(examWeekDays(d(18), "2027-02-17")).toBeNull(); // after
+    expect(examWeekDays(d(11), "garbage")).toBeNull();
+    expect(examWeekDue({ now: 10 * 86_400_000, lastAt: null })).toBe(true);
+    expect(examWeekDue({ now: 10 * 86_400_000, lastAt: 5 * 86_400_000 })).toBe(false);
+  });
+
+  it("★ official date, 4 days out → ziggy_examday once; the marker is spent; no second time", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const now = ist(2027, 2, 13, 18, 0);
+    vi.setSystemTime(now);
+    h.attempts = [{ timestamp: now - 20 * 86_400_000, mode: "mcq" }];
+    h.exam = { examDate: "2027-02-17", source: "official" };
+    render(<Home />);
+    const m = await screen.findByTestId("guide-companion-examWeek");
+    expect(m.getAttribute("data-kind")).toBe("ziggy");
+    expect(m.getAttribute("data-pose")).toBe("examday");
+    expect(screen.getByTestId("guide-companion-line").textContent).toBe(COMPANION_COPY.examWeek);
+    expect(readMarks("u1").e).toBe(now);
+    cleanup();
+    __resetCompanionForTests();
+    render(<Home />);
+    await settle();
+    expect(screen.queryByTestId("guide-companion-examWeek")).toBeNull();
+  });
+
+  it("★ NO official date (predicted, or none at all) → the moment never shows, whatever the week", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const now = ist(2027, 2, 15, 18, 0);
+    vi.setSystemTime(now);
+    h.attempts = [{ timestamp: now - 20 * 86_400_000, mode: "mcq" }];
+    h.exam = { examDate: "2027-02-17", source: "predicted" };
+    render(<Home />);
+    await settle();
+    expect(screen.queryByTestId("guide-companion-examWeek")).toBeNull();
+    expect(screen.queryByTestId("guide-companion-countdown")).toBeNull();
+  });
+
+  it("an official date more than a week away → the countdown, not the exam-week moment", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const now = ist(2027, 2, 1, 18, 0);
+    vi.setSystemTime(now);
+    h.attempts = [{ timestamp: now - 20 * 86_400_000, mode: "mcq" }];
+    h.exam = { examDate: "2027-02-17", source: "official" };
+    render(<Home />);
+    await screen.findByTestId("guide-companion-countdown");
+    expect(screen.queryByTestId("guide-companion-examWeek")).toBeNull();
+  });
+
+  it("exam day itself says its own line", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const now = ist(2027, 2, 17, 7, 0);
+    vi.setSystemTime(now);
+    h.attempts = [{ timestamp: now - 20 * 86_400_000, mode: "mcq" }];
+    h.exam = { examDate: "2027-02-17", source: "official" };
+    render(<Home />);
+    await screen.findByTestId("guide-companion-examWeek");
+    expect(screen.getByTestId("guide-companion-line").textContent).toBe(COMPANION_COPY.examDay);
+  });
+});
+
+describe("MOMENTS-3 · Diwali props — 5–10 Nov 2026 IST inclusive, nothing outside", () => {
+  afterEach(() => {
+    __setFestivalForTests(null);
+  });
+  it("the window edges (IST), through the clock seam", () => {
+    expect(inFestivalWindow(ist(2026, 11, 4, 23, 59))).toBe(false);
+    expect(inFestivalWindow(ist(2026, 11, 5, 0, 0))).toBe(true);
+    expect(inFestivalWindow(ist(2026, 11, 8, 12, 0))).toBe(true);
+    expect(inFestivalWindow(ist(2026, 11, 10, 23, 59))).toBe(true);
+    expect(inFestivalWindow(ist(2026, 11, 11, 0, 0))).toBe(false);
+    expect(inFestivalWindow(ist(2027, 11, 8, 12, 0))).toBe(false); // the next year is not Diwali 2026
+    expect(festivalPropsAt(ist(2026, 11, 8, 12, 0))).toEqual(["diya", "rangoli"]);
+    expect(festivalPropsAt(ist(2026, 10, 24, 12, 0))).toBeUndefined();
+  });
+
+  it("★ a Home card wears the diya and rangoli inside the window, and NOTHING outside it", async () => {
+    __setFestivalForTests(true);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const now = ist(2026, 11, 8, 18, 0);
+    vi.setSystemTime(now);
+    h.records = [graded("worksheet", now - 4 * 86_400_000, "triangles")];
+    h.attempts = [{ timestamp: now - 4 * 86_400_000, mode: "mcq" }];
+    render(<Home />);
+    await screen.findByTestId("guide-companion-welcomeBack");
+    expect(document.querySelectorAll(".lt-gr-diya").length).toBe(1);
+    expect(document.querySelectorAll(".lt-gr-rangoli").length).toBe(1);
+    cleanup();
+    __resetCompanionForTests();
+    window.localStorage.clear();
+    vi.setSystemTime(ist(2026, 11, 20, 18, 0));
+    h.records = [graded("worksheet", ist(2026, 11, 16, 18, 0), "triangles")];
+    h.attempts = [{ timestamp: ist(2026, 11, 16, 18, 0), mode: "mcq" }];
+    render(<Home />);
+    await screen.findByTestId("guide-companion-welcomeBack");
+    expect(document.querySelectorAll(".lt-gr-diya").length).toBe(0);
+    expect(document.querySelectorAll(".lt-gr-rangoli").length).toBe(0);
+  });
+});
+
+describe("MOMENTS-3 · Breathe before a test (through the reserved pre-test slot)", () => {
+  beforeEach(() => {
+    __resetMascotBudgetForTests();
+    __setMascotBudgetForTests(true);
+    window.localStorage.setItem(`${PAGE_GUIDE_SEEN_PREFIX}ct_entry.page`, "1");
+    window.localStorage.setItem(`${PAGE_GUIDE_SEEN_PREFIX}fm_entry.page`, "1");
+    registerPreTestMoment(PreTestBreathe);
+  });
+  afterEach(() => {
+    __resetMascotBudgetForTests();
+    window.sessionStorage.clear();
+  });
+
+  /** The slot beside a Start button, exactly as ChapterTestPage / FullMockPage render it. */
+  function Entry({ surface = "chapter_test" as "chapter_test" | "full_mock", path = "/chapter-test/10/maths/real-numbers" }) {
+    const [started, setStarted] = useStateReact(false);
+    return (
+      <MemoryRouter initialEntries={[path]}>
+        <PreTestSlot surface={surface} />
+        <button type="button" data-testid="start" onClick={() => setStarted(true)}>
+          Start the test →
+        </button>
+        {started ? <span data-testid="started" /> : null}
+      </MemoryRouter>
+    );
+  }
+
+  it("★ the companion module fills the slot: byte_breathe shows IN FLOW above Start; Start is never blocked", async () => {
+    render(<Entry />);
+    // eligibility is synchronous: the slot (its height reserved) is there on the FIRST render, before the chunk loads
+    const slot = screen.getByTestId("guide-pretest-slot");
+    expect(slot.compareDocumentPosition(screen.getByTestId("start")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const card = await screen.findByTestId("guide-companion-breathe");
+    expect(slot.contains(card)).toBe(true); // in normal flow, inside the reserved slot
+    expect(card.getAttribute("data-pose")).toBe("breathe");
+    expect(screen.getByTestId("guide-companion-skip")).toBeTruthy();
+    expect((screen.getByTestId("start") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("start"));
+    expect(screen.getByTestId("started")).toBeTruthy();
+    expect(screen.queryByTestId("guide-companion-breathe")).not.toBeNull(); // it does not delay or hide anything either
+  });
+
+  it("the reserved height lives in the EAGER stylesheet; the card is not absolutely positioned", () => {
+    const door = readFileSync(resolve(process.cwd(), "src/components/guide/companion/companionDoor.css"), "utf8");
+    const chunk = readFileSync(resolve(process.cwd(), "src/components/guide/companion/companion.css"), "utf8");
+    // the reserve follows the slot's own width (container query); the base is the TALLEST (never short)
+    expect(door).toMatch(/\.lt-cmp-pretest\s*\{[^}]*container-type:\s*inline-size/);
+    expect(door).toMatch(/\.lt-cmp-pretest__in\s*\{[^}]*min-height:\s*216px/);
+    expect(door).toMatch(/@container \(min-width: 370px\)\s*\{\s*\.lt-cmp-pretest__in\s*\{\s*min-height:\s*104px/);
+    expect(chunk + door).not.toMatch(/lt-cmp-pretest[^{]*\{[^}]*position:\s*absolute/);
+  });
+
+  it("★ Skip closes it (the only way it collapses); once per session (a second entry screen shows nothing); the budget counted it", async () => {
+    const first = render(<Entry />);
+    await screen.findByTestId("guide-companion-breathe");
+    expect(unpromptedShownCount()).toBe(1);
+    expect(shownThisSession("companion:breathe")).toBe(true);
+    fireEvent.click(screen.getByTestId("guide-companion-skip"));
+    expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    first.unmount();
+    render(<Entry surface="full_mock" path="/full-mock/10/maths" />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+  });
+
+  it("★ after the ten seconds the card does NOT leave by itself: Skip turns into Done, and only a tap collapses it", () => {
+    vi.useFakeTimers();
+    try {
+      const done = vi.fn();
+      render(<BreatheCard onDone={done} />);
+      expect(screen.getByTestId("guide-companion-skip").textContent).toBe("Skip");
+      act(() => {
+        vi.advanceTimersByTime(BREATHE_TOTAL_MS + 500);
+      });
+      expect(done).not.toHaveBeenCalled();
+      expect(screen.getByTestId("guide-companion-skip").textContent).toBe("Done");
+      fireEvent.click(screen.getByTestId("guide-companion-skip"));
+      expect(done).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("hidden mascots, the control arm, and a spent budget -> nothing (not even a reserved gap)", async () => {
+    hideMascots();
+    const a = render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    a.unmount();
+    __resetMascotsForTests();
+    __setGuideAbForTests(true, "control");
+    const b = render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    b.unmount();
+    __setGuideAbForTests(true, "guide");
+    window.sessionStorage.setItem("lazytopper.mascotBudget", JSON.stringify({ v: 1, shown: ["a", "b", "c"] }));
+    render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
+  });
+
+  it("★ the RESUME screen (a saved test in progress) shows nothing: Chapter Test and Full Mock", async () => {
+    window.sessionStorage.setItem(
+      "lazytopper.ct.progress.CT-1",
+      JSON.stringify({ route: "/chapter-test/10/maths/real-numbers", paper: { questions: [{ qNumber: 1 }] } }),
+    );
+    const a = render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    a.unmount();
+    window.localStorage.setItem(
+      "lazytopper.fm.session.v1.u1.FM-1",
+      JSON.stringify({ phase: "taking", subject: "Maths", paper: { questions: [{ qNumber: 1 }] } }),
+    );
+    render(<Entry surface="full_mock" path="/full-mock/10/maths" />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+  });
+
+  it("the page's own first-visit helper owns the first visit (one character at a time): no breathe until it has opened once", async () => {
+    window.localStorage.removeItem(`${PAGE_GUIDE_SEEN_PREFIX}ct_entry.page`);
+    render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+  });
+
+  it("★ eligibility is decided ONCE at mount: the helper marker appearing later never inserts the card above Start", async () => {
+    window.localStorage.removeItem(`${PAGE_GUIDE_SEEN_PREFIX}ct_entry.page`);
+    const view = render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    window.localStorage.setItem(`${PAGE_GUIDE_SEEN_PREFIX}ct_entry.page`, "1"); // the helper opened meanwhile
+    view.rerender(<Entry />);
+    fireEvent.click(screen.getByTestId("start")); // any later re-render of the page
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
+  });
+
+  it("the stylesheet-free door mirrors pages/pageGuides PAGE_GUIDE_SEEN_PREFIX", async () => {
+    const m = await import("../pages/pageGuides");
+    expect(m.PAGE_GUIDE_SEEN_PREFIX).toBe(PAGE_GUIDE_SEEN_PREFIX);
+  });
+
+  it("the slot renders nothing when no moment is registered (the pages stay byte-for-byte)", () => {
+    registerPreTestMoment(null);
+    const { container } = render(<PreTestSlot surface="full_mock" />);
+    expect(container.innerHTML).toBe("");
   });
 });
