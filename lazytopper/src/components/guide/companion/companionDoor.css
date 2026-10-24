@@ -1,0 +1,8 @@
+/* MOMENTS-3 - Breathe before a test: the EAGER half (the door's few rules; the card's own styles travel with
+   companionChunk). The slot sits ABOVE the Start row, so the card is IN FLOW and its height is reserved
+   from the first paint while the chunk loads: Start never moves under a finger. The card never covers a
+   control, and it collapses only on the student's own Skip / Done tap. */
+.lt-cmp-pretest { box-sizing: border-box; min-height: var(--lt-breathe-h, 120px); margin: 4px 0 8px; }
+.lt-cmp-pretest > .lt-cmp--breathe { margin: 0; }
+@media (min-width: 640px) { .lt-cmp-pretest { --lt-breathe-h: 92px; } }
+@media print { .lt-cmp-pretest { display: none; } }

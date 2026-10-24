@@ -9,7 +9,8 @@ import { describe, expect, it } from "vitest";
 import { COMPANION_COPY, MILESTONE_COPY } from "./companion/companionChunk";
 import { MOMENT_COPY } from "./moments/momentsChunk";
 import { SCORE_GUIDE_LINES } from "./scoreGuideModel";
-import { AHA_COPY, AHA_NAME } from "./ahaModel";
+import { AHA_COPY } from "./ahaModel";
+import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import { GUIDE_COPY } from "./guideChunk";
 import { ENTRY_COPY, TRENDS_COPY } from "./pages/pageGuidesChunk";
 import { M7_COPY } from "./pages/m7Copy";
@@ -68,7 +69,7 @@ describe("copy lint — every character line obeys the guide", () => {
     ["moments", lines(MOMENT_COPY, UI)],
     ["guide", lines(GUIDE_COPY, UI).filter((l) => !/^Great pick! Opening/.test(l))],
     ["scorecard", lines(SCORE_GUIDE_LINES.ziggy).concat(lines(SCORE_GUIDE_LINES.byte)).map((l) => l.replace(/\{lead\}/g, "Biggest loss").replace(/\{loss\}/g, "2 marks"))],
-    ["aha", [AHA_COPY.ziggy.replace("{name}", AHA_NAME.calculation), AHA_COPY.byte]],
+    ["aha", [AHA_COPY.ziggy.replace("{name}", MISTAKE_TYPE_LABEL.calculation), AHA_COPY.byte]],
     ["entry", lines(ENTRY_COPY)],
     ["trends", [TRENDS_COPY.intro, TRENDS_COPY.tip, ...TRENDS_COPY.items.map((i) => i.line)]],
     ["m7", lines(M7_COPY.trialHit).concat([M7_COPY.resetMidnight, M7_COPY.resetAt.replace("{when}", "9 pm"), M7_COPY.still, M7_COPY.dialogDone.replace("{n}", "5"), M7_COPY.dialogDoneOne, M7_COPY.dialogDoneUnknown, M7_COPY.premiumHit.replace("{window}", "daily")])],

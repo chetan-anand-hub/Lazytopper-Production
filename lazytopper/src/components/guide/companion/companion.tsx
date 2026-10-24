@@ -25,6 +25,8 @@
  */
 import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
+import { isResumingSavedPaper } from "../../../lib/papers/resumablePaper";
 import { loadLocalSessionRecords } from "../../../services/sessionRecords";
 import { getAttempts, type PracticeAttempt } from "../../../services/practiceInsights";
 import { useZeroGraded } from "../../startHere/zeroGraded";
@@ -61,6 +63,7 @@ import {
 } from "./companionModel";
 import type { BreatheCardProps, CompanionCardProps } from "./companionChunk";
 import { canShowScene, markSceneShown } from "../sceneGuard";
+import "./companionDoor.css";
 import { APPEARANCE_PRIORITY, NoteShown, shownThisSession, useAppearance } from "../mascotBudget";
 import { registerPreTestMoment, type PreTestMomentProps } from "../pages/preTestSlot";
 
@@ -95,23 +98,22 @@ function Staged({ id, priority, stacked, budgeted = true, children }: { id: stri
   const holder = useSyncExternalStore(subscribeStage, stageHolder, () => null);
   const focus = useSyncExternalStore(subscribeGuideFocus, guideFocusOpen, () => false);
   const other = useOtherMascot();
+  const exempt = !budgeted || id === "lateNight";
   useEffect(() => {
     claimStage(id, priority);
     return () => releaseStage(id);
   }, [id, priority]);
   const wantsDraw = holder === id && (stacked || (!focus && !other));
-  // MOMENTS-3 — the director: a companion card is an UNPROMPTED appearance (at most 3 a session).
-  // The late-night note outranks everything; the others are the lowest class. A card whose caller
-  // already holds the appearance (the scorecard's duet) passes `budgeted={false}`.
-  const kind = `companion:${id}`;
-  const cls = id === "lateNight" ? APPEARANCE_PRIORITY.lateNight : APPEARANCE_PRIORITY.companion;
-  const allowed = useAppearance(budgeted && wantsDraw ? kind : null, cls);
-  if (!wantsDraw) return null;
-  if (budgeted && !allowed) return null;
+  // MOMENTS-3 - the director: a companion card is an UNPROMPTED appearance (at most 3 a session).
+  // EXEMPT: the late-night wellbeing note (Ziggy's yawn + Byte's moon) is never counted or refused -
+  // safety first, and it is already once per night. A card whose caller already holds the appearance
+  // (the scorecard's duet) passes `budgeted={false}`.
+  const allowed = useAppearance(!exempt && wantsDraw ? `companion:${id}` : null, APPEARANCE_PRIORITY.companion);
+  if (!wantsDraw || (!exempt && !allowed)) return null;
   return (
     <Suspense fallback={null}>
       {children}
-      {budgeted ? <NoteShown kind={kind} /> : null}
+      {allowed ? <NoteShown kind={allowed} /> : null}
     </Suspense>
   );
 }
@@ -414,36 +416,52 @@ export interface CompanionBreatheProps {
 export function CompanionBreathe({ uid, onDone }: CompanionBreatheProps) {
   const hidden = useMascotsHidden();
   const [done, setDone] = useState(false);
-  // MOMENTS-3: once per session — decided at mount, so finishing it never makes it vanish mid-way.
-  const [again] = useState(() => shownThisSession(`companion:breathe`));
-  if (hidden || done || again || !inGuideArm(uid)) return null;
+  // Once per session - decided at mount, so finishing it never makes it vanish mid-way.
+  const [again] = useState(() => shownThisSession("companion:breathe"));
+  const key = useAppearance(!hidden && !done && !again && inGuideArm(uid) ? "companion:breathe" : null, APPEARANCE_PRIORITY.companion);
+  if (!key) return null;
   const finish: BreatheCardProps["onDone"] = () => {
     setDone(true);
     onDone?.();
   };
+  // IN FLOW, and its height is reserved from the first paint (companionDoor.css), so the Start row below
+  // never moves while the chunk loads; the card collapses only on the student's own Skip / Done tap.
   return (
-    <Staged id="breathe" priority={COMPANION_PRIORITY.breathe}>
-      <LazyBreatheCard onDone={finish} />
-    </Staged>
+    <div className="lt-cmp-pretest" data-testid="guide-pretest-slot">
+      <Suspense fallback={null}>
+        <LazyBreatheCard onDone={finish} />
+        <NoteShown kind={key} />
+      </Suspense>
+    </div>
   );
 }
 
 /**
- * MOMENTS-3 — the pre-test breathe, through the reserved slot (pages/preTestSlot.tsx): Chapter Test and
+ * MOMENTS-3 - the pre-test breathe, through the reserved slot (pages/preTestSlot.tsx): Chapter Test and
  * Full Mock ENTRY screens only (the slot is rendered before the Start row, never during a test). It is
- * optional (Skip), steps aside by itself after 10 s, never blocks, delays or changes Start, and shows
- * once per session; the director counts it. No page was edited: the slot is filled from here.
- * LAYOUT: the card is overlaid on a zero-height anchor, so nothing below it ever shifts.
+ * optional (Skip), never blocks, delays or changes Start, shows once per session, and the director counts it.
+ * Eligibility is decided SYNCHRONOUSLY from what is already in memory (auth context uid, the session
+ * flag, hidden mascots, the saved-test signal), never after an async read. It stays out of the way of:
+ *   - a RESUME screen (a saved test in progress: lib/papers/resumablePaper isResumingSavedPaper);
+ *   - the page's own first-visit helper (one character at a time: the helper owns the first visit).
  */
-function PreTestBreathe(_props: PreTestMomentProps) {
-  const uid = useSignedInUid();
-  if (!guideAbActive() || !uid) return null;
-  // A zero-height anchor: the card floats up over the space ABOVE the Start row (companion.css
-  // .lt-cmp-pretest), so Start never moves under a student's finger, whenever the card arrives or leaves.
-  return (
-    <div className="lt-cmp-pretest" data-testid="guide-pretest-anchor">
-      <CompanionBreathe uid={uid} />
-    </div>
-  );
+export function PreTestBreathe({ surface }: PreTestMomentProps) {
+  const { user } = useAuth();
+  const { pathname } = useLocation();
+  const uid = user?.uid || null;
+  if (!uid || !guideAbActive() || isResumingSavedPaper(pathname, uid) || firstVisitHelperPending(surface)) return null;
+  return <CompanionBreathe uid={uid} />;
+}
+
+/** The page helper for this entry screen has not auto-opened on this device yet: it owns the first visit. */
+/** pages/pageGuides.tsx PAGE_GUIDE_SEEN_PREFIX (not imported: that door is not in the entry chunk; a test pins the two equal). */
+export const PAGE_GUIDE_SEEN = "lazytopper.pageGuideSeen.";
+
+function firstVisitHelperPending(surface: PreTestMomentProps["surface"]): boolean {
+  try {
+    return window.localStorage.getItem(`${PAGE_GUIDE_SEEN}${surface === "full_mock" ? "fm_entry" : "ct_entry"}.page`) !== "1";
+  } catch {
+    return false;
+  }
 }
 registerPreTestMoment(PreTestBreathe);

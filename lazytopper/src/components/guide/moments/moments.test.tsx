@@ -36,6 +36,7 @@ import { BEAT_MS, MOMENT_COPY } from "./momentsChunk";
 import { MASCOTS_TOAST_COPY, __removeMascotsToastForTests } from "./mascotsToast";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, mascotsHidden } from "../mascotsMute";
 import { __setGuideAbForTests } from "../guideVariant";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, noteShown, requestAppearance } from "../mascotBudget";
 import { GUIDE_PUBLIC_ARM_KEY, __resetPublicArmForTests } from "../public/publicPeekModel";
 import { allPendingMessage } from "../../results/scorecardVariants";
 import { VISIT_SOURCE_KEY } from "../../../analytics/visitSource";
@@ -332,5 +333,58 @@ describe("GUIDE-SCORE-2 · moments copy on objective targets", () => {
   });
   it("★ M11's owner copy promises step marking — which is exactly why it is suppressed on tap-only cards", () => {
     expect(MOMENT_COPY.m11).toMatch(STEP_PROMISE);
+  });
+});
+
+describe("MOMENTS-3 - the budget limits the CHARACTER, never the information", () => {
+  afterEach(() => {
+    __resetMascotBudgetForTests();
+  });
+  const spend = () => {
+    __setMascotBudgetForTests(true);
+    for (const k of ["x1", "x2", "x3"]) {
+      requestAppearance(k, 200);
+      noteShown(k);
+    }
+  };
+
+  it("★★ budget spent: m8 (dropped connection) still tells the student, as a plain line - no mascot, no event", async () => {
+    spend();
+    render(<Slot uid="u1" moment="m8" step="safe" />);
+    const plain = await screen.findByTestId("guide-moment-m8-plain");
+    expect(plain.textContent).toBe(MOMENT_COPY.m8Safe);
+    expect(screen.queryByTestId("guide-moment-m8")).toBeNull();
+    expect(screen.queryByTestId("mascots-hide")).toBeNull();
+    expect(document.querySelector("[data-testid='guide-moment-m8-plain'] svg")).toBeNull();
+    expect(momentCalls()).toEqual([]);
+  });
+
+  it("★★ budget spent: m5 (waiting) and m6 (unreadable) keep their information as plain lines; m4 (an explainer) stays silent", async () => {
+    spend();
+    render(<Slot uid="u1" moment="m5" step="written" />);
+    expect((await screen.findByTestId("guide-moment-m5-plain")).textContent).toBe(MOMENT_COPY.m5Byte);
+    cleanup();
+    render(<Slot uid="u1" moment="m6" step="unread" />);
+    expect((await screen.findByTestId("guide-moment-m6-plain")).textContent).toBe(MOMENT_COPY.m6Byte);
+    cleanup();
+    render(<Slot uid="u1" moment="m4" step="type" />);
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m4")).toBeNull();
+    expect(document.querySelector("[class*='lt-mom-plain']")).toBeNull();
+  });
+
+  it("a free slot: the character draws (and no plain line is shown)", async () => {
+    __setMascotBudgetForTests(true);
+    render(<Slot uid="u1" moment="m8" step="safe" />);
+    expect(await screen.findByTestId("guide-moment-m8")).toBeTruthy();
+    expect(screen.queryByTestId("guide-moment-m8-plain")).toBeNull();
+  });
+
+  it("hidden mascots: nothing at all (the plain line is the budget's fallback, not a way around Hide)", async () => {
+    window.localStorage.setItem(MASCOTS_HIDDEN_KEY, "1");
+    __setMascotBudgetForTests(true);
+    render(<Slot uid="u1" moment="m8" step="safe" />);
+    await act(async () => {});
+    expect(screen.queryByTestId("guide-moment-m8-plain")).toBeNull();
   });
 });

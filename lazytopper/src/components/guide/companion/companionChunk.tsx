@@ -38,6 +38,7 @@ export const COMPANION_COPY = {
   lowScoreCta: "Fix one thing",
   breathe: "Breathe in… and out. You've prepared for this.",
   breatheSkip: "Skip",
+  breatheDone: "Done",
   improveZiggy: "Up from {from}% to {to}%. High five!",
   improveByte: "Same chapter, better marks. That's real progress.",
   milestoneFirstWritten: "Your first written answer, checked! Badge earned.",
@@ -344,7 +345,8 @@ export function DuetCard({ moment, milestone, vars, ctaTo, onShown, onClose }: D
 /* ── 2 — breathe before a Chapter Test / Full Mock ─────────────────────────────────────────────── */
 
 export interface BreatheCardProps {
-  /** Skipped, or the 10 seconds ended. The test is never waiting on this. */
+  /** The student's own Skip / Done tap. The test is never waiting on this, and nothing collapses the card
+   *  but this tap (a card that left by itself would move the Start button under a finger). */
   onDone: () => void;
 }
 
@@ -353,10 +355,12 @@ export function BreatheCard({ onDone }: BreatheCardProps) {
   const [preview] = useState(() => guidePreviewActive());
   const done = useRef(onDone);
   done.current = onDone;
+  const [ended, setEnded] = useState(false);
   useBodyFlag();
   useEffect(() => {
     trackGuideEvent("guide_moment_shown", { moment: COMPANION_EVENT_ID.breathe });
-    const t = setTimeout(() => done.current(), BREATHE_TOTAL_MS);
+    // After the ten seconds the button turns from "Skip" into "Done"; the card stays until it is tapped.
+    const t = setTimeout(() => setEnded(true), BREATHE_TOTAL_MS);
     return () => clearTimeout(t);
   }, []);
   return (
@@ -373,7 +377,7 @@ export function BreatheCard({ onDone }: BreatheCardProps) {
         </p>
         <div className="lt-cmp__acts">
           <button type="button" className="lt-cmp__close" data-testid="guide-companion-skip" onClick={() => done.current()}>
-            {COMPANION_COPY.breatheSkip}
+            {ended ? COMPANION_COPY.breatheDone : COMPANION_COPY.breatheSkip}
           </button>
           <button type="button" className="lt-mom__hide" data-testid="mascots-hide" onClick={hideMascotsWithUndo}>
             {MASCOTS_TOAST_COPY.hide}

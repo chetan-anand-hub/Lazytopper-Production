@@ -230,7 +230,8 @@ describe("GUIDE-PAGES-1 · Chapter Test / Full Mock / Worksheet entry pages", ()
   }, 60000);
 
   it("COMPANION-1's reserved pre-test slot: empty today; a registered moment renders; both pages mount it right above the start row", () => {
-    // empty today: no node, no space
+    // empty until a moment is registered (the companion module registers its Breathe on import: take it out first)
+    registerPreTestMoment(null);
     const v = render(<PreTestSlot surface="chapter_test" />);
     expect(v.container.innerHTML).toBe("");
     v.unmount();

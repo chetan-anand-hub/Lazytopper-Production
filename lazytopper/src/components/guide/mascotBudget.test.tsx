@@ -2,6 +2,8 @@
  * MOMENTS-3 A — the director: at most three UNPROMPTED appearances per session.
  */
 import { act, cleanup, render, screen } from "@testing-library/react";
+import { StrictMode } from "react";
+import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   APPEARANCE_PRIORITY as P,
@@ -45,14 +47,18 @@ function show(kind: string, priority: number = P.explainer): boolean {
 
 describe("the pure decision", () => {
   it("grants while a slot is free, refuses the 4th", () => {
-    const base = { holds: new Map<string, number>() };
-    expect(decideAppearance({ ...base, shown: ["a", "b"] }, "c", 1).grant).toBe(true);
-    expect(decideAppearance({ ...base, shown: ["a", "b", "c"] }, "d", 999).grant).toBe(false);
+    const holds = new Map<string, number>();
+    expect(decideAppearance({ shown: 2, holds }, "c", 1).grant).toBe(true);
+    expect(decideAppearance({ shown: 3, holds }, "d", 999).grant).toBe(false);
   });
   it("a higher priority takes the lowest unrendered reservation; an equal one does not", () => {
     const holds = new Map([["low", 100], ["mid", 200]]);
-    expect(decideAppearance({ shown: ["x"], holds }, "late", 400)).toEqual({ grant: true, evict: "low" });
-    expect(decideAppearance({ shown: ["x"], holds }, "same", 100)).toEqual({ grant: false, evict: null });
+    expect(decideAppearance({ shown: 1, holds }, "late", 400)).toEqual({ grant: true, evict: "low" });
+    expect(decideAppearance({ shown: 1, holds }, "same", 100)).toEqual({ grant: false, evict: null });
+  });
+  it("the same occurrence (known / already holding) is granted even when full", () => {
+    expect(decideAppearance({ shown: 3, holds: new Map(), known: true }, "a", 1).grant).toBe(true);
+    expect(decideAppearance({ shown: 2, holds: new Map([["a", 1], ["b", 1]]) }, "a", 1).grant).toBe(true);
   });
 });
 
@@ -73,7 +79,7 @@ describe("the budget", () => {
     expect(requestAppearance("companion:home-rhythm", P.companion)).toBe(false);
   });
 
-  it("an appearance that already showed is the SAME appearance (a remount is not a 4th)", () => {
+  it("the SAME occurrence key that already showed continues (a re-render / StrictMode double mount is not a 4th)", () => {
     show("a");
     show("b");
     show("c");
@@ -159,10 +165,10 @@ describe("the budget", () => {
 
 describe("useAppearance / NoteShown", () => {
   function Door({ kind, priority = P.explainer }: { kind: string; priority?: number }) {
-    const ok = useAppearance(kind, priority);
-    return ok ? (
+    const key = useAppearance(kind, priority);
+    return key ? (
       <div data-testid={`door-${kind}`}>
-        <NoteShown kind={kind} />
+        <NoteShown kind={key} />
       </div>
     ) : null;
   }
@@ -186,8 +192,8 @@ describe("useAppearance / NoteShown", () => {
     show("x", P.explainer);
     show("y", P.explainer);
     function Low() {
-      const ok = useAppearance("low", P.companion);
-      return ok ? <div data-testid="low" /> : null; // reserves but never notes shown
+      const key = useAppearance("low", P.companion);
+      return key ? <div data-testid="low" /> : null; // reserves but never notes shown
     }
     const { rerender } = render(<Low />);
     expect(screen.queryByTestId("low")).not.toBeNull();
@@ -206,5 +212,83 @@ describe("useAppearance / NoteShown", () => {
     expect(screen.queryByTestId("door-a")).not.toBeNull();
     act(() => hideMascots());
     expect(screen.queryByTestId("door-a")).toBeNull();
+  });
+});
+
+describe("MOMENTS-3 review rulings: occurrences, held slots, the probe", () => {
+  function Door({ kind, priority = P.explainer, onShown }: { kind: string; priority?: number; onShown?: (k: string) => void }) {
+    const key = useAppearance(kind, priority);
+    return key ? (
+      <div data-testid={`door-${kind}`}>
+        <Shown k={key} onShown={onShown} />
+        <NoteShown kind={key} />
+      </div>
+    ) : null;
+  }
+  function Shown({ k, onShown }: { k: string; onShown?: (k: string) => void }) {
+    useEffect(() => {
+      onShown?.(k);
+    }, [k, onShown]);
+    return null;
+  }
+
+  it("noteShown spends only a slot the key HOLDS (a refused / never-requested key spends nothing)", () => {
+    show("a");
+    show("b");
+    show("c");
+    expect(requestAppearance("late", P.explainer)).toBe(false);
+    noteShown("late");
+    noteShown("never-requested");
+    expect(unpromptedShownCount()).toBe(3);
+    expect(JSON.parse(window.sessionStorage.getItem(MASCOT_BUDGET_KEY)!).shown).toEqual(["a", "b", "c"]);
+  });
+
+  it("★ a kind that already showed gets NO free re-show: a second mount (a new occurrence) is counted", () => {
+    const { unmount } = render(<Door kind="moment:m5" />);
+    expect(unpromptedShownCount()).toBe(1);
+    unmount();
+    render(<Door kind="moment:m5" />); // m5 on a second grading
+    expect(unpromptedShownCount()).toBe(2);
+    expect(JSON.parse(window.sessionStorage.getItem(MASCOT_BUDGET_KEY)!).shown).toEqual(["moment:m5", "moment:m5"]);
+  });
+
+  it("★ the SAME occurrence is de-duplicated: a re-render and StrictMode's double mount count once", () => {
+    const { rerender } = render(
+      <StrictMode>
+        <Door kind="moment:m3" />
+      </StrictMode>,
+    );
+    rerender(
+      <StrictMode>
+        <Door kind="moment:m3" />
+      </StrictMode>,
+    );
+    expect(screen.queryByTestId("door-moment:m3")).not.toBeNull();
+    expect(unpromptedShownCount()).toBe(1);
+  });
+
+  it("★★ THE PROBE: 4 companion doors + 1 scorecard door in ONE commit -> the scorecard shown, only 2 companions, no 'shown' effect for a refused or evicted door", () => {
+    const shown: string[] = [];
+    const onShown = (k: string) => shown.push(k);
+    render(
+      <>
+        <Door kind="companion:c1" priority={P.companion} onShown={onShown} />
+        <Door kind="companion:c2" priority={P.companion} onShown={onShown} />
+        <Door kind="companion:c3" priority={P.companion} onShown={onShown} />
+        <Door kind="companion:c4" priority={P.companion} onShown={onShown} />
+        <Door kind="score:WS-1" priority={P.scorecard} onShown={onShown} />
+      </>,
+    );
+    expect(screen.queryByTestId("door-score:WS-1")).not.toBeNull();
+    const companions = ["c1", "c2", "c3", "c4"].filter((c) => screen.queryByTestId(`door-companion:${c}`));
+    expect(companions).toHaveLength(2);
+    expect(unpromptedShownCount()).toBe(3);
+    // every 'shown' effect that ran belongs to a door that is on screen and was counted
+    expect(shown.map((k) => k.split("#")[0]).sort()).toEqual(
+      ["score:WS-1", ...companions.map((c) => `companion:${c}`)].sort(),
+    );
+    expect(JSON.parse(window.sessionStorage.getItem(MASCOT_BUDGET_KEY)!).shown.sort()).toEqual(
+      ["score:WS-1", ...companions.map((c) => `companion:${c}`)].sort(),
+    );
   });
 });

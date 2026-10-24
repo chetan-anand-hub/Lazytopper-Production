@@ -351,15 +351,18 @@ export function GuideChip({ onOpen, onHide }: GuideChipProps) {
   // MOMENTS-3 — the wave (and "Need me? Tap!") is an UNPROMPTED appearance and spends the session's
   // budget; the chip itself stays as the student's own door to Byte, resting, once the budget is spent.
   const waves = useAppearance("chip-wave", APPEARANCE_PRIORITY.companion);
-  const [pose, setPose] = useState<Pose>("hello");
-  const [ping, setPing] = useState(true);
+  const [pose, setPose] = useState<Pose>("idle");
+  const [ping, setPing] = useState(false);
   useEffect(() => {
     if (!waves) {
       setPose("idle");
       setPing(false);
       return undefined;
     }
-    // Waves ONCE, then rests.
+    // Waves ONCE, then rests. (The reservation is confirmed a beat after the first render, so the
+    // wave starts here, not in the initial state.)
+    setPose("hello");
+    setPing(true);
     const t = setTimeout(() => {
       setPose("idle");
       setPing(false);
@@ -369,7 +372,7 @@ export function GuideChip({ onOpen, onHide }: GuideChipProps) {
   if (typeof document === "undefined") return null;
   return createPortal(
     <div className="lt-guide-chip" data-testid="guide-chip">
-      {waves ? <NoteShown kind="chip-wave" /> : null}
+      {waves ? <NoteShown kind={waves} /> : null}
       {ping && waves ? (
         <p className="lt-guide-chip__ping" aria-hidden="true">
           {GUIDE_COPY.chipPing}
@@ -425,7 +428,7 @@ function GuideCtaLink({ to, label }: { to: string; label: string }) {
  */
 export function ScoreGuideBeats({ plan, startAt = "ziggy" }: ScoreGuideBeatsProps) {
   const reduce = useRef(prefersReducedMotion());
-  const [beat, setBeat] = useState<"ziggy" | "byte">(() => (reduce.current || startAt === "byte" ? "byte" : "ziggy"));
+  const [beat, setBeat] = useState<"ziggy" | "byte">(() => ((reduce.current && !plan.aha) || startAt === "byte" ? "byte" : "ziggy"));
   const [preview] = useState(() => guidePreviewActive());
   // MOMENTS-3 — two-beat reaction: Ziggy opens in `plan.ziggy.from` (down), then settles in his pose.
   const [turned, setTurned] = useState(() => reduce.current || !plan.ziggy.from);
@@ -448,6 +451,8 @@ export function ScoreGuideBeats({ plan, startAt = "ziggy" }: ScoreGuideBeatsProp
     const t = setTimeout(() => setTurned(true), SCORE_GUIDE_TURN_MS);
     return () => clearTimeout(t);
   }, [turned]);
+  // Reduced motion + an aha: nothing animates, so Ziggy's line and Byte's nod are read together (still pose).
+  const both = reduce.current && !!plan.aha && beat === "ziggy";
   const line = beat === "ziggy" ? plan.ziggy : plan.byte;
   const pose: Pose = beat === "ziggy" && !turned && plan.ziggy.from ? plan.ziggy.from : line.pose;
   return (
@@ -465,7 +470,7 @@ export function ScoreGuideBeats({ plan, startAt = "ziggy" }: ScoreGuideBeatsProp
       <div className="lt-scg__bub">
         {preview ? <AdminPreviewPill className="lt-scg__admin" /> : null}
         <p className="lt-scg__say" aria-live="polite" data-testid="score-guide-line">
-          {line.text}
+          {both ? `${plan.ziggy.text} ${plan.byte.text}` : line.text}
         </p>
         <div className="lt-scg__acts">
         {beat === "byte" && plan.cta?.action ? (

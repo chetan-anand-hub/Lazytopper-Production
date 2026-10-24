@@ -53,6 +53,10 @@ import {
   type StartHereQType,
 } from "./startHereModel";
 
+/** MOMENTS-3: the inline and the focused Byte are ONE appearance per page load (one budget key). */
+const SH_OCC = "page";
+const SH_KEY = `starthere#${SH_OCC}`;
+
 /**
  * StartHereCard — START-HERE-1. A brand-new student's ONE graded result in about two minutes.
  *
@@ -354,7 +358,7 @@ export function StartHereView({
   const mascotsHidden = useMascotsHidden();
   // MOMENTS-3 — Byte's inline card is ONE unprompted appearance (shared with the focused shell: "starthere").
   // Budget spent → the plain Start-here card below stands in; the chip (a door, not a card) is untouched.
-  const byteAllowed = useAppearance(arm === "guide" && !mascotsHidden && visible ? "starthere" : null, APPEARANCE_PRIORITY.explainer);
+  const byteAllowed = useAppearance(arm === "guide" && !mascotsHidden && visible ? "starthere" : null, APPEARANCE_PRIORITY.explainer, SH_OCC);
 
   useEffect(() => {
     if (!visible || shownRef.current) return;
@@ -452,7 +456,7 @@ function GuideInlineArm({
           onCheckOne={checkOneAnswer}
           spaced={spaced}
         />
-        <NoteShown kind="starthere" />
+        <NoteShown kind={SH_KEY} />
       </Suspense>
     );
   }
@@ -1150,7 +1154,7 @@ function StartHereFocusDialog({
   // MOMENTS-1 PART 0 — hidden mascots: the guide arm sees today's shell (its events stay the arm's).
   const mascotsHidden = useMascotsHidden();
   // MOMENTS-3 — the focused Byte and the inline Byte are the SAME appearance ("starthere"): one slot.
-  const byteAllowed = useAppearance(arm === "guide" && !mascotsHidden ? "starthere" : null, APPEARANCE_PRIORITY.explainer);
+  const byteAllowed = useAppearance(arm === "guide" && !mascotsHidden ? "starthere" : null, APPEARANCE_PRIORITY.explainer, SH_OCC);
   const guideArm = arm === "guide" && !mascotsHidden && byteAllowed;
   useEffect(() => {
     if (!guideArm) return;
@@ -1288,7 +1292,7 @@ function StartHereFocusDialog({
                   : undefined
               }
             />
-            <NoteShown kind="starthere" />
+            <NoteShown kind={SH_KEY} />
           </Suspense>
         </div>
       </div>,

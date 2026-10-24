@@ -77,8 +77,21 @@ export function GuideMomentSlot(props: GuideMomentSlotProps) {
   // MOMENTS-3 — the director: a moment is an UNPROMPTED appearance (at most 3 per session).
   const kind = momentKind(props.moment);
   const allowed = useAppearance(props.show && !hidden ? kind : null, APPEARANCE_PRIORITY.explainer);
-  if (!props.show || hidden || !allowed) return null;
-  return <MomentDraw {...props} kind={kind} />;
+  if (!props.show || hidden) return null;
+  // Refused: no mascot - but a line that carries needed information still shows, as plain text.
+  if (!allowed) return PLAIN_MOMENTS.has(props.moment) ? <PlainDraw moment={props.moment} step={props.step} /> : null;
+  return <MomentDraw {...props} kind={allowed} />;
+}
+
+/** The moments whose line carries information the student needs (waiting, unreadable, dropped connection). */
+const PLAIN_MOMENTS: ReadonlySet<string> = new Set(["m5", "m6", "m8"]);
+const LazyPlainMoment = lazyPart((m) => m.PlainMoment);
+function PlainDraw(p: { moment: string; step: string }) {
+  return (
+    <Suspense fallback={null}>
+      <LazyPlainMoment moment={p.moment as never} step={p.step as never} />
+    </Suspense>
+  );
 }
 
 /** The budget kind of a moment (a step change, e.g. M3's swap, is the same appearance). */
@@ -152,11 +165,11 @@ export function M11Nudge({
   // MOMENTS-3 — the director decides FIRST: a refused nudge draws nothing and must not take the
   // scorecard's stage either.
   const allowed = useAppearance(show && !hidden ? momentKind("m11") : null, APPEARANCE_PRIORITY.explainer);
-  const draws = show && !hidden && allowed;
+  const draws = show && !hidden && !!allowed;
   // GUIDE-SCORE-1 — while Byte's nudge shows, it owns the scorecard: the scorecard's own
   // character slot yields (never two characters on screen at once).
   useHoldStage("m11", draws);
-  return draws ? <MomentDraw show moment="m11" step="nudge" onCta={onOpenWorking} kind={momentKind("m11")} /> : null;
+  return allowed && draws ? <MomentDraw show moment="m11" step="nudge" onCta={onOpenWorking} kind={allowed} /> : null;
 }
 
 /* ── M6 — "We couldn't read any answers" ──────────────────────────────────────────────────── */
@@ -292,7 +305,7 @@ export function SolutionsMoment({ freeCheckOn }: { freeCheckOn: boolean }) {
   return (
     <Suspense fallback={null}>
       <LazySolutionsPeek onClose={() => setClosed(true)} />
-      <NoteShown kind={momentKind("m10")} />
+      <NoteShown kind={allowed} />
     </Suspense>
   );
 }

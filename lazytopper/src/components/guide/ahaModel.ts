@@ -18,8 +18,9 @@
  *   - this type has not been celebrated in the last 7 days (marks `a`, ./companion/companionModel).
  */
 import type { SessionRecord, SessionSurface } from "../../services/sessionRecords";
-import { sessionRecordSubjects } from "../../services/sessionRecords";
-import { loadLocalSessionRecords } from "../../services/sessionRecords";
+import { loadLocalSessionRecords, sessionRecordSubjects } from "../../services/sessionRecords";
+import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
+import { guidePreviewActive } from "./guideVariant";
 import { getActiveProgressUser } from "../../services/studentProgressStore";
 import { WEEK_MS, marksFor, readMarks, writeMarks } from "./companion/companionModel";
 
@@ -35,16 +36,9 @@ export const AHA_MIN_MARKS = 5;
 export const AHA_LOOKBACK = 5;
 export const AHA_MIN_PRIOR = 2;
 
-export const AHA_NAME: Record<AhaType, string> = {
-  conceptual: "concept gaps",
-  calculation: "calculation slips",
-  silly: "silly slips",
-  presentation: "presentation slips",
-};
-
-/** The two lines (Ziggy, then Byte). `{name}` is AHA_NAME[type]; no digits. */
+/** The two lines (Ziggy, then Byte). `{name}` is the display label from lib/mistakeDisplay (MISTAKE_TYPE_LABEL, the one display module - guard G4); no digits. */
 export const AHA_COPY = {
-  ziggy: "Aha! No {name} this time. They were in your earlier results.",
+  ziggy: "Aha! No {name} this time. It showed up in your earlier results.",
   byte: "That's a real change. Keep checking each step the same way.",
 } as const;
 
@@ -88,15 +82,21 @@ export function ahaFor(a: {
 }
 
 export function ahaLines(f: AhaFact): { ziggy: string; byte: string } {
-  return { ziggy: AHA_COPY.ziggy.replace("{name}", AHA_NAME[f.type]), byte: AHA_COPY.byte };
+  return { ziggy: AHA_COPY.ziggy.replace("{name}", MISTAKE_TYPE_LABEL[f.type]), byte: AHA_COPY.byte };
 }
 
-/** The fact for the result on screen, read from this device's records for the active account (null if unknowable). */
-export function currentAha(resultId: string | null | undefined, now: number): AhaFact | null {
+/**
+ * The fact for the result on screen, read from this device's records for the active account (null if
+ * unknowable). The clock is read ONLY once there are enough records to matter, so a scorecard with no
+ * history never touches it (and no unrelated test becomes clock-sensitive).
+ */
+export function currentAha(resultId: string | null | undefined): AhaFact | null {
   try {
     const uid = getActiveProgressUser();
     if (!uid || !resultId) return null;
-    return ahaFor({ records: loadLocalSessionRecords(uid), resultId, now, lastShown: marksFor(uid).a });
+    const records = loadLocalSessionRecords(uid);
+    if (records.length <= AHA_MIN_PRIOR) return null;
+    return ahaFor({ records, resultId, now: Date.now(), lastShown: marksFor(uid).a });
   } catch {
     return null;
   }
@@ -104,6 +104,7 @@ export function currentAha(resultId: string | null | undefined, now: number): Ah
 
 /** The aha was DRAWN: this type rests for a week (companion marks; skipped under an admin preview). */
 export function noteAhaShown(type: AhaType, now: number): void {
+  if (guidePreviewActive()) return; // an admin preview never marks the student's week
   try {
     const uid = getActiveProgressUser();
     if (!uid) return;

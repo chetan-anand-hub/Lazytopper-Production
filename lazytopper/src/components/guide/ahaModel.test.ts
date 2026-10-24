@@ -2,9 +2,10 @@
  * MOMENTS-3 — Ziggy's aha: shows on its TRUE trigger (a repeated mistake type stops, on real records),
  * never otherwise. Fabricated or insufficient data → nothing.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { SessionRecord } from "../../services/sessionRecords";
-import { AHA_COPY, AHA_NAME, ahaFor, ahaLines } from "./ahaModel";
+import { AHA_COPY, ahaFor, ahaLines } from "./ahaModel";
+import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import { scoreGuidePlan } from "./scoreGuideModel";
 import type { ScorecardVariant } from "../results/scorecardVariants";
 
@@ -93,7 +94,7 @@ describe("ahaFor — the true trigger", () => {
 describe("ahaLines + the scorecard plan", () => {
   it("the lines name the type and carry no digit", () => {
     const l = ahaLines({ type: "calculation" });
-    expect(l.ziggy).toBe(AHA_COPY.ziggy.replace("{name}", AHA_NAME.calculation));
+    expect(l.ziggy).toBe(AHA_COPY.ziggy.replace("{name}", MISTAKE_TYPE_LABEL.calculation));
     expect(l.ziggy + l.byte).not.toMatch(/\d/);
   });
 
@@ -112,7 +113,7 @@ describe("ahaLines + the scorecard plan", () => {
     const p = scoreGuidePlan(variant, { aha: { type: "silly" } })!;
     expect(p.aha).toBe("silly");
     expect(p.ziggy.pose).toBe("aha");
-    expect(p.ziggy.text).toContain("silly slips");
+    expect(p.ziggy.text).toContain("Silly slip");
     expect(p.byte.pose).toBe("cheer");
   });
 
@@ -136,5 +137,38 @@ describe("MOMENTS-3 · PERF-3 and analytics hygiene", () => {
     expect(COMPANION_EVENT_ID.examWeek).toBe("c_exam_week");
     expect(COMPANION_EVENT_ID.breathe).toBe("c_breathe_test");
     expect(COMPANION_EVENT_ID.examWeek).not.toBe(COMPANION_EVENT_ID.countdown);
+  });
+});
+
+describe("MOMENTS-3 review nits - the clock seam, the preview, reduced motion", () => {
+  it("★ currentAha never reads the clock when there is no history (so no unrelated suite becomes clock-sensitive)", async () => {
+    const { currentAha } = await import("./ahaModel");
+    const spy = vi.spyOn(Date, "now");
+    try {
+      expect(currentAha("WS-1")).toBeNull(); // no active progress user in this suite
+      expect(currentAha(null)).toBeNull();
+      expect(spy).not.toHaveBeenCalled();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("noteAhaShown does not mark the student's week under an admin preview", async () => {
+    window.localStorage.setItem("lazytopper.guidePreview", JSON.stringify({ arm: "guide", until: NOW + 7 * DAY }));
+    const m = await import("./ahaModel");
+    const store = await import("../../services/studentProgressStore");
+    const before = JSON.stringify(Object.entries(window.localStorage));
+    vi.spyOn(store, "getActiveProgressUser").mockReturnValue("u1");
+    m.noteAhaShown("silly", Date.now());
+    expect(JSON.stringify(Object.entries(window.localStorage))).toBe(before);
+    vi.restoreAllMocks();
+    window.localStorage.clear();
+  });
+
+  it("the Ziggy line uses the display module's label and stays within the word and '!' limits", () => {
+    const l = ahaLines({ type: "calculation" });
+    expect(l.ziggy).toBe("Aha! No Calculation slip this time. It showed up in your earlier results.");
+    expect(l.ziggy.split(/\s+/).length).toBeLessThanOrEqual(18);
+    expect((l.ziggy.match(/!/g) ?? []).length).toBe(1);
   });
 });

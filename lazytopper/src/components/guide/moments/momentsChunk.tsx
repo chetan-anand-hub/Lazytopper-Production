@@ -119,6 +119,23 @@ function beatsFor(moment: ScriptedMoment, step: string): readonly Beat[] {
   return byStep[step] ?? [];
 }
 
+/**
+ * MOMENTS-3 - the budget limits the CHARACTER, never the information. When the session's three
+ * unprompted appearances are spent, a moment whose line carries what the student needs (m5 waiting,
+ * m6 unreadable paper, m8 dropped connection) shows that line as plain text: no mascot, no bubble,
+ * no Hide button, nothing counted.
+ */
+export function PlainMoment({ moment, step }: GuideMomentProps) {
+  const beats = beatsFor(moment, step);
+  const beat = beats[beats.length - 1];
+  if (!beat) return null;
+  return (
+    <p className="lt-mom-plain" data-testid={`guide-moment-${moment}-plain`} data-step={step} role="status">
+      {beat.line}
+    </p>
+  );
+}
+
 /** The "Hide mascots" button every bubble carries. */
 function HideButton() {
   return (

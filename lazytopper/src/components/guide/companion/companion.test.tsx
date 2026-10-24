@@ -10,6 +10,8 @@ import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from "vite
 import { render, screen, cleanup, act, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter, useNavigate } from "react-router-dom";
 import { useEffect, useState as useStateReact } from "react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { setMatchMediaMatches } from "../../../test/setup";
 
 const h = vi.hoisted(() => ({
@@ -36,6 +38,7 @@ vi.mock("../../../services/cbseExamDate", () => ({
     return { studentClass: "10", ...h.exam };
   }),
 }));
+vi.mock("../../../context/AuthContext", () => ({ useAuth: () => ({ user: h.user }) }));
 vi.mock("../../../services/firebaseClient", () => ({
   authClient: {
     currentUser: null,
@@ -46,9 +49,9 @@ vi.mock("../../../services/firebaseClient", () => ({
   },
 }));
 
-import { CompanionHome, CompanionNightDoor, CompanionScoreSlot } from "./companion";
-import { BEAT_MS, COMPANION_COPY, MILESTONE_COPY } from "./companionChunk";
-import { COMPANION_KEY_PREFIX, COMPANION_SESSION_KEY, __resetCompanionForTests, readMarks } from "./companionModel";
+import { CompanionHome, CompanionNightDoor, CompanionScoreSlot, PreTestBreathe, PAGE_GUIDE_SEEN as PAGE_GUIDE_SEEN_PREFIX } from "./companion";
+import { BEAT_MS, BreatheCard, COMPANION_COPY, MILESTONE_COPY } from "./companionChunk";
+import { BREATHE_TOTAL_MS, COMPANION_KEY_PREFIX, COMPANION_SESSION_KEY, __resetCompanionForTests, readMarks } from "./companionModel";
 import { __resetSceneGuardForTests } from "../sceneGuard";
 import { GUIDE_PREVIEW_KEY, __setGuideAbForTests, guideAccountTag } from "../guideVariant";
 import { __resetMascotsForTests, hideMascots } from "../mascotsMute";
@@ -482,7 +485,7 @@ describe("6 · late night, on any signed-in page (mounted by the app-wide Comman
 /* ── MOMENTS-3 ─────────────────────────────────────────────────────────────────────────────────── */
 
 import { examWeekDays, examWeekDue } from "./companionModel";
-import { festivalPropsAt, inFestivalWindow } from "./festival";
+import { __setFestivalForTests, festivalPropsAt, inFestivalWindow } from "./festival";
 import { PreTestSlot, registerPreTestMoment } from "../pages/preTestSlot";
 import { __resetMascotBudgetForTests, __setMascotBudgetForTests, shownThisSession, unpromptedShownCount } from "../mascotBudget";
 
@@ -553,6 +556,9 @@ describe("MOMENTS-3 · ziggy_examday — ONLY from an official date, the week of
 });
 
 describe("MOMENTS-3 · Diwali props — 5–10 Nov 2026 IST inclusive, nothing outside", () => {
+  afterEach(() => {
+    __setFestivalForTests(null);
+  });
   it("the window edges (IST), through the clock seam", () => {
     expect(inFestivalWindow(ist(2026, 11, 4, 23, 59))).toBe(false);
     expect(inFestivalWindow(ist(2026, 11, 5, 0, 0))).toBe(true);
@@ -565,6 +571,7 @@ describe("MOMENTS-3 · Diwali props — 5–10 Nov 2026 IST inclusive, nothing o
   });
 
   it("★ a Home card wears the diya and rangoli inside the window, and NOTHING outside it", async () => {
+    __setFestivalForTests(true);
     vi.useFakeTimers({ toFake: ["Date"] });
     const now = ist(2026, 11, 8, 18, 0);
     vi.setSystemTime(now);
@@ -591,16 +598,20 @@ describe("MOMENTS-3 · Breathe before a test (through the reserved pre-test slot
   beforeEach(() => {
     __resetMascotBudgetForTests();
     __setMascotBudgetForTests(true);
+    window.localStorage.setItem(`${PAGE_GUIDE_SEEN_PREFIX}ct_entry.page`, "1");
+    window.localStorage.setItem(`${PAGE_GUIDE_SEEN_PREFIX}fm_entry.page`, "1");
+    registerPreTestMoment(PreTestBreathe);
   });
   afterEach(() => {
     __resetMascotBudgetForTests();
+    window.sessionStorage.clear();
   });
 
   /** The slot beside a Start button, exactly as ChapterTestPage / FullMockPage render it. */
-  function Entry({ surface = "chapter_test" as "chapter_test" | "full_mock" }) {
+  function Entry({ surface = "chapter_test" as "chapter_test" | "full_mock", path = "/chapter-test/10/maths/real-numbers" }) {
     const [started, setStarted] = useStateReact(false);
     return (
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[path]}>
         <PreTestSlot surface={surface} />
         <button type="button" data-testid="start" onClick={() => setStarted(true)}>
           Start the test →
@@ -610,48 +621,108 @@ describe("MOMENTS-3 · Breathe before a test (through the reserved pre-test slot
     );
   }
 
-  it("★ the companion module fills the slot: byte_breathe shows on the entry screen; Start is never blocked", async () => {
+  it("★ the companion module fills the slot: byte_breathe shows IN FLOW above Start; Start is never blocked", async () => {
     render(<Entry />);
+    // eligibility is synchronous: the slot (its height reserved) is there on the FIRST render, before the chunk loads
+    const slot = screen.getByTestId("guide-pretest-slot");
+    expect(slot.compareDocumentPosition(screen.getByTestId("start")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const card = await screen.findByTestId("guide-companion-breathe");
+    expect(slot.contains(card)).toBe(true); // in normal flow, inside the reserved slot
     expect(card.getAttribute("data-pose")).toBe("breathe");
     expect(screen.getByTestId("guide-companion-skip")).toBeTruthy();
-    // Start works while the card is up: the card has no overlay, no pointer trap, nothing disabled.
     expect((screen.getByTestId("start") as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(screen.getByTestId("start"));
     expect(screen.getByTestId("started")).toBeTruthy();
     expect(screen.queryByTestId("guide-companion-breathe")).not.toBeNull(); // it does not delay or hide anything either
   });
 
-  it("★ Skip closes it; once per session (a second entry screen shows nothing); the budget counted it", async () => {
+  it("the reserved height lives in the EAGER stylesheet; the card is not absolutely positioned", () => {
+    const door = readFileSync(resolve(process.cwd(), "src/components/guide/companion/companionDoor.css"), "utf8");
+    const chunk = readFileSync(resolve(process.cwd(), "src/components/guide/companion/companion.css"), "utf8");
+    expect(door).toMatch(/\.lt-cmp-pretest\s*\{[^}]*min-height:\s*var\(--lt-breathe-h/);
+    expect(chunk + door).not.toMatch(/lt-cmp-pretest[^{]*\{[^}]*position:\s*absolute/);
+  });
+
+  it("★ Skip closes it (the only way it collapses); once per session (a second entry screen shows nothing); the budget counted it", async () => {
     const first = render(<Entry />);
     await screen.findByTestId("guide-companion-breathe");
     expect(unpromptedShownCount()).toBe(1);
     expect(shownThisSession("companion:breathe")).toBe(true);
     fireEvent.click(screen.getByTestId("guide-companion-skip"));
     expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
     first.unmount();
-    render(<Entry surface="full_mock" />);
+    render(<Entry surface="full_mock" path="/full-mock/10/maths" />);
     await settle();
-    expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
   });
 
-  it("hidden mascots, the control arm, and a spent budget → nothing", async () => {
+  it("★ after the ten seconds the card does NOT leave by itself: Skip turns into Done, and only a tap collapses it", () => {
+    vi.useFakeTimers();
+    try {
+      const done = vi.fn();
+      render(<BreatheCard onDone={done} />);
+      expect(screen.getByTestId("guide-companion-skip").textContent).toBe("Skip");
+      act(() => {
+        vi.advanceTimersByTime(BREATHE_TOTAL_MS + 500);
+      });
+      expect(done).not.toHaveBeenCalled();
+      expect(screen.getByTestId("guide-companion-skip").textContent).toBe("Done");
+      fireEvent.click(screen.getByTestId("guide-companion-skip"));
+      expect(done).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("hidden mascots, the control arm, and a spent budget -> nothing (not even a reserved gap)", async () => {
     hideMascots();
     const a = render(<Entry />);
     await settle();
-    expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
     a.unmount();
     __resetMascotsForTests();
     __setGuideAbForTests(true, "control");
     const b = render(<Entry />);
     await settle();
-    expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
     b.unmount();
     __setGuideAbForTests(true, "guide");
     window.sessionStorage.setItem("lazytopper.mascotBudget", JSON.stringify({ v: 1, shown: ["a", "b", "c"] }));
     render(<Entry />);
     await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
     expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
+  });
+
+  it("★ the RESUME screen (a saved test in progress) shows nothing: Chapter Test and Full Mock", async () => {
+    window.sessionStorage.setItem(
+      "lazytopper.ct.progress.CT-1",
+      JSON.stringify({ route: "/chapter-test/10/maths/real-numbers", paper: { questions: [{ qNumber: 1 }] } }),
+    );
+    const a = render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    a.unmount();
+    window.localStorage.setItem(
+      "lazytopper.fm.session.v1.u1.FM-1",
+      JSON.stringify({ phase: "taking", subject: "Maths", paper: { questions: [{ qNumber: 1 }] } }),
+    );
+    render(<Entry surface="full_mock" path="/full-mock/10/maths" />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+  });
+
+  it("the page's own first-visit helper owns the first visit (one character at a time): no breathe until it has opened once", async () => {
+    window.localStorage.removeItem(`${PAGE_GUIDE_SEEN_PREFIX}ct_entry.page`);
+    render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+  });
+
+  it("the stylesheet-free door mirrors pages/pageGuides PAGE_GUIDE_SEEN_PREFIX", async () => {
+    const m = await import("../pages/pageGuides");
+    expect(m.PAGE_GUIDE_SEEN_PREFIX).toBe(PAGE_GUIDE_SEEN_PREFIX);
   });
 
   it("the slot renders nothing when no moment is registered (the pages stay byte-for-byte)", () => {

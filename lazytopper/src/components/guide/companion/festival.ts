@@ -27,7 +27,19 @@ export function festivalPropsAt(now: number): readonly Prop[] | undefined {
   return inFestivalWindow(now) ? FESTIVAL_PROP_IDS : undefined;
 }
 
-/** The ONE clock read for festival props in render paths (tests pin it with fake timers). */
+/**
+ * Test seam (the same convention as the guide itself, the budget and the filter help's auto-open): the
+ * clock read below is OFF under Vitest unless a suite switches it on, so the many scorecard suites that
+ * render a character do not become clock-sensitive for a feature that only exists 5-10 Nov 2026.
+ * Production and preview builds are never in test mode.
+ */
+let festivalForTests: boolean | null = null;
+export function __setFestivalForTests(on: boolean | null): void {
+  festivalForTests = on;
+}
+
+/** The ONE clock read for festival props in render paths (tests pin it with fake timers + the seam above). */
 export function festivalPropsNow(): readonly Prop[] | undefined {
+  if (!(festivalForTests ?? import.meta.env.MODE !== "test")) return undefined;
   return festivalPropsAt(Date.now());
 }

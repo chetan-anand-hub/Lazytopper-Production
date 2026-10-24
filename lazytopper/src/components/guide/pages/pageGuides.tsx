@@ -33,7 +33,17 @@ import { guideAbActive, guidePreviewActive, resolveGuideVariant, trackGuideEvent
 import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "../moments/mascotsToast";
 import { M7_COPY, m7DialogLine, m7Lines } from "./m7Copy";
-import { APPEARANCE_PRIORITY, NoteShown, releaseAppearance, requestAppearance, useAppearance } from "../mascotBudget";
+import {
+  APPEARANCE_PRIORITY,
+  NoteShown,
+  appearanceHeld,
+  budgetVersion,
+  newOccurrence,
+  releaseAppearance,
+  requestAppearance,
+  subscribeBudget,
+  useAppearance,
+} from "../mascotBudget";
 import type { PageGuideId, PageGuidePopProps, PageGuideStep } from "./pageGuidesChunk";
 import "./pageGuidesDoor.css";
 
@@ -191,7 +201,9 @@ export function PageGuide({ id, step, uid, placement = "inline", bare = false }:
   const [byItself, setByItself] = useState(false);
   const claimed = useRef(false);
   const doorRef = useRef<HTMLButtonElement | null>(null);
-  const autoKind = `pageguide:${id}.${step}`;
+  const [occurrence] = useState(newOccurrence); // one occurrence per mount (re-renders and StrictMode keep it)
+  const autoKind = `pageguide:${id}.${step}#${occurrence}`;
+  useSyncExternalStore(subscribeBudget, budgetVersion, () => 0);
 
   // First visit on this device: opens ONCE by itself (no claim while the mascots are hidden). The
   // director is asked BEFORE the device marker is spent, so a refused open is offered again later.
@@ -242,7 +254,7 @@ export function PageGuide({ id, step, uid, placement = "inline", bare = false }:
       >
         ?
       </button>
-      {open ? (
+      {open && (!byItself || appearanceHeld(autoKind)) ? (
         <Suspense fallback={null}>
           <LazyPageGuidePop {...({ id, step, bare, onClose: close } as PageGuidePopProps)} />
           {byItself ? <NoteShown kind={autoKind} /> : null}
@@ -286,13 +298,13 @@ export function LimitByte({ limit, when, variant = "inline" }: LimitByteProps) {
   // MOMENTS-3 — the limit panel's Byte is an unprompted appearance (a first-time explainer); the panel's own
   // words stand when the session's budget is spent.
   const allowed = useAppearance(armOut ? null : "limit-byte", APPEARANCE_PRIORITY.explainer);
-  const out = armOut || !allowed;
+  const out = armOut; // refused -> the same lines, as plain text with no character (the budget limits the mascot, not the information)
   const [preview] = useState(() => guidePreviewActive());
 
   // guide_moment_shown — once per refusal shown (a NEW limit object is a new refusal).
   useEffect(() => {
-    if (!out) trackGuideEvent("guide_moment_shown", { moment: "m7" });
-  }, [limit, out]);
+    if (!out && allowed) trackGuideEvent("guide_moment_shown", { moment: "m7" });
+  }, [limit, out, allowed]);
 
   if (out) return null;
   const lines = m7Lines(limit, when);
@@ -311,12 +323,14 @@ export function LimitByte({ limit, when, variant = "inline" }: LimitByteProps) {
       role="group"
       aria-label="Byte"
     >
-      <span className="lt-pg-m7__box" aria-hidden="true">
-        <Suspense fallback={null}>
-          <LazyM7Character />
-          <NoteShown kind="limit-byte" />
-        </Suspense>
-      </span>
+      {allowed ? (
+        <span className="lt-pg-m7__box" aria-hidden="true">
+          <Suspense fallback={null}>
+            <LazyM7Character />
+            <NoteShown kind={allowed} />
+          </Suspense>
+        </span>
+      ) : null}
       <div className="lt-pg-m7__bub">
         {preview ? (
           <span className="lt-pg-m7__admin" data-testid="guide-admin-preview">
