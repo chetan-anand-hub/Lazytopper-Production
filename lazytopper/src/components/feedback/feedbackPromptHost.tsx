@@ -225,7 +225,9 @@ export async function requestFeedbackPrompt(moment: FeedbackMoment, req: Feedbac
     // Otherwise the H3 budget (feedbackBudget.ts) decides whether the card may appear AT ALL, and it is
     // asked BEFORE the device record is claimed so a "no" costs the student nothing. Another mascot
     // already on screen (Ziggy's own scorecard reaction): the card is plain, and not counted either.
-    let withZiggy = false;
+    // FEEDBACK-NUDGE-1: the paywall / trial-end card may ask for Ziggy too; the card itself checks the budget,
+    // hidden mascots and any other mascot on screen, and draws him only if all allow it.
+    let withZiggy = true;
     let flow: GradedFeedbackContext | null = null;
     if (graded) {
       const hidden = mascotsHidden();

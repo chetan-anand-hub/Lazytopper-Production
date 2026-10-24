@@ -17,9 +17,12 @@
  * "Was this useful?" with Ziggy, four one-tap answers, and a next step that leads somewhere
  * (GradedFeedbackCard.tsx). Every other moment is byte-unchanged.
  */
-import { Component, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { Component, Suspense, lazy, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { WHATSAPP_URL } from "../../config/socialProfiles";
+import { anyMascotHost, mascotHostsVersion, subscribeMascotHosts } from "../guide/mascotPresence";
+import { FeedbackShownNote, useNudgeAppearance } from "./feedbackBudget";
+import { isSidebarMascot } from "./feedbackMascots";
 import {
   FEEDBACK_CALL_COPY,
   FEEDBACK_COPY,
@@ -33,12 +36,14 @@ import {
 } from "./feedbackPromptModel";
 import type { GradedFeedbackContext } from "./gradedFeedbackFlow";
 
+// FEEDBACK-NUDGE-1: `.lt-fb--rise` is a short slide-up so the card is noticed; the class is only added when the
+// device has not asked for less motion (and the keyframes sit under no-preference as well).
 const FEEDBACK_PROMPT_CSS = `
   .lt-fb {
     position: fixed;
     left: 12px;
     right: 12px;
-    bottom: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: 9000;
     max-width: 420px;
     margin: 0 auto;
@@ -49,14 +54,22 @@ const FEEDBACK_PROMPT_CSS = `
     border-radius: 16px;
     box-shadow: 0 10px 32px rgba(9, 22, 40, 0.22);
     padding: 14px 14px 12px;
-    max-height: calc(100vh - 24px);
+    max-height: calc(100vh - 24px - env(safe-area-inset-bottom, 0px));
     overflow-y: auto;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .lt-fb--rise { animation: lt-fb-rise 250ms ease-out both; }
+    @keyframes lt-fb-rise {
+      from { transform: translateY(calc(100% + 24px)); opacity: 0; }
+    }
   }
   .lt-fb__head {
     display: flex;
     align-items: flex-start;
     gap: 8px;
   }
+  .lt-fb__head--z { align-items: center; }
+  .lt-fb .lt-fbg__z { width: 48px; height: 48px; flex: none; }
   .lt-fb__title {
     flex: 1;
     margin: 0;
@@ -174,10 +187,34 @@ const FEEDBACK_PROMPT_CSS = `
     outline: 2px solid var(--lt-green, #16b96a);
     outline-offset: 2px;
   }
+  @media (max-width: 400px), (max-height: 700px) {
+    .lt-fb { padding: 10px 10px 2px; }
+    .lt-fb__title { font-size: 0.9rem; line-height: 1.25; }
+    .lt-fb__sub { margin: 0 0 6px; font-size: 0.78rem; }
+    .lt-fb__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .lt-fb__opt { padding: 5px 8px; font-size: 0.8rem; line-height: 1.2; }
+    .lt-fb__call { margin-top: 6px; padding: 7px 10px; }
+    .lt-fb__call-offer { font-size: 0.8rem; line-height: 1.25; }
+    .lt-fb__call-note { margin: 1px 0 6px; font-size: 0.74rem; }
+    .lt-fb__no { margin-top: 0; }
+    .lt-fb .lt-fbg__z { width: 36px; height: 36px; }
+  }
   @media (min-width: 1024px) {
-    .lt-fb { left: auto; right: 24px; bottom: 24px; margin: 0; width: 400px; }
+    .lt-fb { left: auto; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); margin: 0; width: 400px; }
   }
 `;
+
+/** Ziggy's drawing (its own small chunk, shared with the graded card). Decorative; never speaks. */
+const FeedbackZiggy = lazy(() => import("./FeedbackZiggy"));
+
+/** FEEDBACK-NUDGE-1: slide in only when the device has not asked for reduced motion (no matchMedia -> no motion). */
+function motionAllowed(): boolean {
+  try {
+    return typeof window !== "undefined" && typeof window.matchMedia === "function" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+}
 
 /** How long the thank-you stays before the card closes itself. A constant, never random. */
 export const FEEDBACK_THANKS_MS = 2600;
@@ -246,8 +283,22 @@ export function FeedbackPrompt(props: FeedbackPromptProps) {
   return <ImproveFeedbackPrompt {...props} />;
 }
 
-function ImproveFeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap }: FeedbackPromptProps) {
+const noop = () => {};
+
+function ImproveFeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap, withZiggy }: FeedbackPromptProps) {
   const [answered, setAnswered] = useState(false);
+  const [rise] = useState(motionAllowed);
+  const root = useRef<HTMLDivElement | null>(null);
+
+  // Ziggy beside the question: an unprompted, companion-priority appearance. Only while the question is up, only
+  // when the host asked for him (the paywall / trial-end moments) and no other mascot is on screen (one at a time),
+  // and drawn only once the H3 budget has CONFIRMED a slot. The slot is spent when his drawing commits and is given
+  // back on unmount. No slot / hidden mascots -> today's plain card.
+  useSyncExternalStore(subscribeMascotHosts, mascotHostsVersion, mascotHostsVersion);
+  const othersPresent = anyMascotHost((el) => !root.current?.contains(el) && !isSidebarMascot(el));
+  const wantsZiggy = withZiggy === true && !answered && !othersPresent;
+  const budgetKey = useNudgeAppearance(wantsZiggy);
+  const showZiggy = wantsZiggy && budgetKey !== null;
   const settled = useRef(false);
 
   // Escape closes it, exactly like "No thanks" — but only while the question is up.
@@ -285,7 +336,8 @@ function ImproveFeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap }: Feedb
 
   return (
     <div
-      className="lt-fb"
+      ref={root}
+      className={`lt-fb${rise ? " lt-fb--rise" : ""}`}
       role="dialog"
       aria-modal="false"
       aria-labelledby="lt-fb-title"
@@ -303,7 +355,15 @@ function ImproveFeedbackPrompt({ onAnswer, onDismiss, onDone, onCallTap }: Feedb
         </div>
       ) : (
         <>
-          <div className="lt-fb__head">
+          <div className={`lt-fb__head${showZiggy ? " lt-fb__head--z" : ""}`}>
+            {showZiggy && (
+              <CardChunkGuard onFail={noop}>
+                <Suspense fallback={<span className="lt-fbg__z" aria-hidden="true" />}>
+                  <FeedbackZiggy />
+                  <FeedbackShownNote kind={budgetKey} />
+                </Suspense>
+              </CardChunkGuard>
+            )}
             <h2 className="lt-fb__title" id="lt-fb-title">
               {FEEDBACK_COPY.title}
             </h2>
