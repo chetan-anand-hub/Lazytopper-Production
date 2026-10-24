@@ -127,9 +127,11 @@ export function warningBannerCopy(w: UsageWarningState, nowMs: number): string {
   return when ? `${lead} It resets at ${when}.` : lead;
 }
 
-/** PURE. The banner's link: Premium → the usage card on Me; trial → pricing. */
-export function warningLink(w: UsageWarningState): { label: string; to: string } {
-  return w.tier === "premium" ? { label: "See usage", to: "/me#usage" } : { label: "Upgrade", to: "/pricing" };
+/** PURE. The banner's action: Premium → open Settings at "Your limits" (SETTINGS-USAGE-1; it was
+ *  a link to /me#usage, which still works once for old bookmarks); trial → a link to pricing. */
+export type WarningLink = { label: string; to: string } | { label: string; opens: "settings-usage" };
+export function warningLink(w: UsageWarningState): WarningLink {
+  return w.tier === "premium" ? { label: "See usage", opens: "settings-usage" } : { label: "Upgrade", to: "/pricing" };
 }
 
 /** PURE. The muted note under an AI action. */

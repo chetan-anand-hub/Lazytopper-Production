@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
 // SETTINGS-1: lazy slot (retry + failure boundary) keeps the Settings window out of the entry chunk.
 import SettingsModalSlot from "../account/SettingsModalSlot";
+import { subscribeSettingsRequest, type SettingsSection } from "../account/settingsDoor";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -232,10 +233,26 @@ export function DesktopShell({ children }: DesktopShellProps) {
   const [accountOpen, setAccountOpen] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // SETTINGS-USAGE-1: which section a door request asked for, and where focus returns on close.
+  const [settingsSection, setSettingsSection] = useState<SettingsSection | undefined>(undefined);
+  const settingsReturnRef = useRef<HTMLElement | null>(null);
   const [tutorOpen, setTutorOpen] = useState(false);
   const [ncertOpen, setNcertOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
   const avatarButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  // SETTINGS-USAGE-1: a page asked for Settings ("See usage", an old /me#usage link) through the
+  // eager door. Signed out there is no Settings window, so the request is ignored.
+  const signedIn = !!user;
+  useEffect(() => {
+    if (!signedIn) return;
+    return subscribeSettingsRequest((req) => {
+      settingsReturnRef.current = req.opener ?? avatarButtonRef.current;
+      setSettingsSection(req.section);
+      setAccountOpen(false);
+      setSettingsOpen(true);
+    });
+  }, [signedIn]);
 
   const initials = user
     ? (user.displayName || user.email || "S").charAt(0).toUpperCase()
@@ -651,6 +668,8 @@ export function DesktopShell({ children }: DesktopShellProps) {
                           role="menuitem"
                           onClick={() => {
                             setAccountOpen(false);
+                            settingsReturnRef.current = avatarButtonRef.current;
+                            setSettingsSection(undefined);
                             setSettingsOpen(true);
                           }}
                           style={{
@@ -799,7 +818,8 @@ export function DesktopShell({ children }: DesktopShellProps) {
             setSettingsOpen(false);
             setLinkOpen(true);
           }}
-          returnFocusRef={avatarButtonRef}
+          returnFocusRef={settingsReturnRef}
+          section={settingsSection}
         />
       )}
       {/* Mounted at the SHELL ROOT for the same reason TutorPickerModal is: the

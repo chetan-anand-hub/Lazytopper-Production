@@ -267,6 +267,7 @@
     "src/analytics/analytics.vendor.test.ts",
     "src/analytics/indexHtml.guard.test.ts",
     "src/components/account/AccountDataControls.test.tsx",
+    "src/components/account/settingsUsage.test.tsx",
     "src/components/auth/MockViewGate.dailyTiers.test.tsx",
     "src/components/auth/MockViewGate.resume.test.tsx",
     "src/components/auth/PracticeLimitGate.openAccess.test.tsx",

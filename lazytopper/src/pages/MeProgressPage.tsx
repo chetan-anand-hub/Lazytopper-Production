@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { useSubscription } from "../hooks/useSubscription";
@@ -69,9 +69,8 @@ import {
 } from "../lib/desktop/navigation";
 import { conceptSetClick, type ConceptSetContext } from "../lib/desktop/conceptSetPath";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
-// FAIR-USE-UI-1 (UI4) - the student's fair-use limits. Renders NOTHING unless
-// /api/usage/me says `enforced: true`, so the page is unchanged while enforcement is off.
-import UsageCard from "../components/usage/UsageCard";
+// SETTINGS-USAGE-1: the fair-use card moved to Settings; an old /me#usage link opens it there.
+import { requestOpenSettings } from "../components/account/settingsDoor";
 import ShareWithParentsButton from "../components/parentReport/ShareWithParentsButton";
 
 /**
@@ -472,6 +471,24 @@ const MarksWord = ({ value }: { value: number }) => (
 
 export default function MeProgressPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // SETTINGS-USAGE-1: old "See usage" links (/me#usage) open Settings at the limits ONCE, then the
+  // hash is cleared so back / refresh does not reopen it.
+  const usageHashHandled = useRef(false);
+  useEffect(() => {
+    if (location.hash !== "#usage") {
+      usageHashHandled.current = false;
+      return;
+    }
+    if (usageHashHandled.current) return;
+    usageHashHandled.current = true;
+    requestOpenSettings("usage");
+    try {
+      window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}`);
+    } catch {
+      /* history unavailable: the once-guard above still prevents a second open */
+    }
+  }, [location.hash, location.pathname, location.search]);
   const isDesktop = useIsDesktop();
   const { user, loading } = useAuth();
   const { isPremium } = useSubscription();
@@ -1346,8 +1363,8 @@ export default function MeProgressPage() {
 
       {/* SETTINGS-1 (owner ruling 24 Oct 2026): this page shows only progress. The
           mascots switch and the DPDP controls (download my data / delete my account)
-          moved to Settings in the avatar menu (components/account/SettingsModal.tsx). */}
-      <UsageCard />
+          moved to Settings in the avatar menu (components/account/SettingsModal.tsx), and
+          so did the fair-use "Your limits" card (SETTINGS-USAGE-1). */}
 
       <p className="lt-me__footer">
         Every number here comes from your saved attempts and graded answers. An empty card

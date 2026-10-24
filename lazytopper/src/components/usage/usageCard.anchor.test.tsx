@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 /**
- * "See usage" (/me#usage) lands ON the usage card: the card carries id="usage" in both tiers, and once it has
- * rendered with the hash present it scrolls itself into view. No hash -> no scroll.
+ * SETTINGS-USAGE-1: "See usage" lands ON the usage card inside Settings. The card carries id="usage" in both
+ * tiers; with `autoScroll` (Settings opened at the limits) it scrolls itself into view once rendered. Without
+ * it nothing scrolls — a stray #usage in the URL no longer matters (Me / Progress turns the old /me#usage link
+ * into a Settings request and clears the hash).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
@@ -27,17 +29,16 @@ describe("usage card anchor", () => {
     expect(screen.getByTestId("usage-card").id).toBe("usage");
   });
 
-  it("with #usage in the URL the rendered card scrolls into view; without it, nothing scrolls", async () => {
+  it("with autoScroll the rendered card scrolls into view once; without it, nothing scrolls (even with #usage in the URL)", async () => {
     const scroll = vi.fn();
     Element.prototype.scrollIntoView = scroll;
     vi.spyOn(usageClient, "fetchUsageMe").mockResolvedValue(premium);
-    window.location.hash = "#usage";
-    render(<UsageCard />);
+    render(<UsageCard variant="settings" autoScroll />);
     await waitFor(() => expect(scroll).toHaveBeenCalledTimes(1));
     cleanup();
     scroll.mockClear();
-    window.location.hash = "";
-    render(<UsageCard />);
+    window.location.hash = "#usage";
+    render(<UsageCard variant="settings" />);
     await screen.findByTestId("usage-card");
     expect(scroll).not.toHaveBeenCalled();
   });

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
 // SETTINGS-1: lazy slot (retry + failure boundary) keeps the Settings window out of the entry chunk.
 import SettingsModalSlot from "../account/SettingsModalSlot";
+import { subscribeSettingsRequest, type SettingsSection } from "../account/settingsDoor";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -63,8 +64,24 @@ export function MobileAccountMenu() {
   const [linkOpen, setLinkOpen] = useState(false);
   // SETTINGS-1: hook sits ABOVE the early return for the same #310 reason as `linkOpen`.
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // SETTINGS-USAGE-1: which section a door request asked for, and where focus returns on close.
+  const [settingsSection, setSettingsSection] = useState<SettingsSection | undefined>(undefined);
+  const settingsReturnRef = useRef<HTMLElement | null>(null);
   const avatarRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
+  // SETTINGS-USAGE-1: a page asked for Settings ("See usage", an old /me#usage link) through the
+  // eager door. Signed out there is no Settings window, so the request is ignored.
+  const signedIn = !!user;
+  useEffect(() => {
+    if (!signedIn) return;
+    return subscribeSettingsRequest((req) => {
+      settingsReturnRef.current = req.opener ?? avatarRef.current;
+      setSettingsSection(req.section);
+      setOpen(false);
+      setSettingsOpen(true);
+    });
+  }, [signedIn]);
 
   useEffect(() => {
     if (!open) return;
@@ -221,6 +238,8 @@ export function MobileAccountMenu() {
                 role="menuitem"
                 onClick={() => {
                   setOpen(false);
+                  settingsReturnRef.current = avatarRef.current;
+                  setSettingsSection(undefined);
                   setSettingsOpen(true);
                 }}
                 style={menuItemStyle("var(--mob-fg)", 600)}
@@ -279,7 +298,8 @@ export function MobileAccountMenu() {
             setSettingsOpen(false);
             setLinkOpen(true);
           }}
-          returnFocusRef={avatarRef}
+          returnFocusRef={settingsReturnRef}
+          section={settingsSection}
         />
       )}
       <LinkSignInMethodModal open={linkOpen} onClose={() => setLinkOpen(false)} />

@@ -91,7 +91,13 @@ vi.mock("../context/AuthContext", () => ({
   useAuth: () => ({ user: mockUser, loading: false, mistakeLogsHydrated: true }),
 }));
 
+vi.mock("../services/usageClient", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../services/usageClient")>()),
+  fetchUsageMe: vi.fn(async () => ({ enforced: true, tier: "premium", premium: null })),
+}));
+
 import MeProgressPage from "./MeProgressPage";
+import { __resetSettingsDoorForTests, subscribeSettingsRequest } from "../components/account/settingsDoor";
 
 function renderPage() {
   return render(
@@ -127,6 +133,46 @@ describe("SETTINGS-1 · DPDP controls moved OFF /me (owner ruling 24 Oct 2026)",
     expect(screen.queryByRole("button", { name: /delete my account/i })).toBeNull();
     expect(screen.queryByRole("region", { name: /your data and your account/i })).toBeNull();
     expect(screen.queryByTestId("mascots-setting")).toBeNull();
+  });
+});
+
+describe("SETTINGS-USAGE-1 · fair use moved OFF /me", () => {
+  it("★★ even for an enforced premium student, /me carries no limits card", async () => {
+    renderPage();
+    expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(screen.queryByTestId("usage-card")).toBeNull();
+    expect(screen.queryByTestId("usage-always-works")).toBeNull();
+  });
+
+  it("★★ an old /me#usage link opens Settings at the limits ONCE and clears the hash", async () => {
+    __resetSettingsDoorForTests();
+    const asked = vi.fn();
+    subscribeSettingsRequest(asked);
+    const replace = vi.spyOn(window.history, "replaceState");
+    const { unmount } = render(
+      <MemoryRouter initialEntries={["/me#usage"]}>
+        <MeProgressPage />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
+    expect(asked).toHaveBeenCalledTimes(1);
+    expect(asked.mock.calls[0][0].section).toBe("usage");
+    expect(replace).toHaveBeenCalledTimes(1);
+    expect(String(replace.mock.calls[0][2])).not.toContain("#");
+    unmount();
+    replace.mockRestore();
+    __resetSettingsDoorForTests();
+  });
+
+  it("★ a plain /me visit asks for nothing", async () => {
+    __resetSettingsDoorForTests();
+    const asked = vi.fn();
+    subscribeSettingsRequest(asked);
+    renderPage();
+    expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
+    expect(asked).not.toHaveBeenCalled();
+    __resetSettingsDoorForTests();
   });
 });
 
