@@ -281,3 +281,31 @@ describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
     expect(BASIC_FREE_LABELS.some((l) => /free check|answer check/i.test(l))).toBe(false);
   });
 });
+
+// PRIVACY-DPDP-1 (owner item, 24 Oct 2026) — the Premium card links the public marking guide.
+// Sentence written out here, NOT imported, so drift turns this red. Real <a href> for crawlers; >= 44px tap area.
+const MARK_GUIDE_SENTENCE =
+  "Wondering how answers are marked? See how CBSE examiners mark Class 10 answers, with worked examples from past board papers.";
+
+describe("PRICING marking-guide link", () => {
+  it("sits directly after the Premium features list, with the owner's sentence and a real link", () => {
+    const host = pricingDom("1");
+    const p = host.querySelector<HTMLElement>("p.lt-pricing-mark-guide");
+    expect(p).not.toBeNull();
+    expect(p!.textContent).toBe(MARK_GUIDE_SENTENCE);
+    const list = host.querySelector('ul[aria-label="Premium plan features"]');
+    expect(list?.nextElementSibling).toBe(p);
+    const a = p!.querySelector("a");
+    expect(a?.getAttribute("href")).toBe("/check-your-answer");
+    expect(a?.textContent).toBe("See how CBSE examiners mark Class 10 answers");
+  });
+
+  it("renders once, and its link keeps 14px of vertical padding (>= 44px tap area)", () => {
+    expect(pricingDom("1").querySelectorAll(".lt-pricing-mark-guide")).toHaveLength(1);
+    const src = readFileSync(resolve(__dirname, "PricingPage.tsx"), "utf8");
+    const rule = /\.lt-pricing-mark-guide a \{([^}]*)\}/.exec(src);
+    expect(rule, "the link rule").not.toBeNull();
+    expect(rule![1]).toMatch(/padding:\s*14px 0/);
+    expect(rule![1]).not.toMatch(/display:\s*block/);
+  });
+});

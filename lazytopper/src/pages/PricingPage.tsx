@@ -332,6 +332,19 @@ const PRICING_CSS = `
     font-weight: 800;
   }
 
+  .lt-pricing-mark-guide {
+    margin: 12px 0 0;
+    color: var(--lt-ink);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .lt-pricing-mark-guide a {
+    padding: 14px 0;
+    font-weight: 700;
+  }
+
   .lt-pricing-features {
     list-style: none;
     margin: 0;
@@ -1531,6 +1544,7 @@ function PricingPlansPage() {
                   <PlanRow key={item.id} item={item} />
                 ))}
               </ul>
+              <p className="lt-pricing-mark-guide">Wondering how answers are marked? <Link to="/check-your-answer">See how CBSE examiners mark Class 10 answers</Link>, with worked examples from past board papers.</p>
               <div className="lt-pricing-card-end">
                 {showTrialFootnote && <p className="lt-pricing-card-foot">{PREMIUM_FOOTNOTE}</p>}
                 {/* L2 — the P17 trial states, below the tiles. */}

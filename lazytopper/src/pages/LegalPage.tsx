@@ -268,7 +268,7 @@ type PageDef = {
 const PAGES: Record<LegalSlug, PageDef> = {
   privacy: {
     title: "Privacy Policy",
-    updated: "Last updated: April 2026",
+    updated: "Last updated: October 2026",
     body: (
       <>
         <h2>Information We Collect</h2>
@@ -277,6 +277,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
           <li>Email address or phone number (for authentication)</li>
           <li>Display name (optional)</li>
           <li>Learning progress data (questions attempted, scores, mastery levels)</li>
+          <li>Answers you submit for checking or explanation — typed text, or photos of your handwritten working</li>
         </ul>
         <h2>How We Use Your Data</h2>
         <ul>
@@ -289,15 +290,17 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <p>We use Google Analytics, Google Ads and Meta (Facebook) to understand how LazyTopper is used, to measure our advertising, and to show our ads to people who have visited. They use cookies. We remove private links from the page addresses they receive.</p>
         <h2>Data Storage</h2>
         <p>Your data is stored securely using Firebase (Google Cloud Platform). Learning progress is stored locally on your device and optionally synced to the cloud for cross-device access.</p>
+        <h2>Answers you submit</h2>
+        <p>When you ask LazyTopper to check an answer or explain a topic, that answer (your typed text or the photo of your working) is sent to the AI language model (LLM) provider we use to read and mark it. Copies held by that provider are kept under its own rules, not ours; deleting your LazyTopper account does not reach them, and we cannot delete them for you. Any photos of handwritten answers you uploaded from your phone are deleted when you delete your account.</p>
         <h2>Third-Party Services</h2>
         <p>We use Firebase Authentication (Google) for secure sign-in. Our free answer check is protected by Google reCAPTCHA Enterprise, which sends device and interaction signals to Google to tell students from automated bots; Google's Privacy Policy and Terms of Service apply. We do not sell your data to any third party.</p>
         <h2>Your Rights</h2>
-        <p>You can request deletion of your account and all associated data by contacting us. A parent or guardian may also write to us to review, export or delete their child's data.</p>
+        <p>You can download a copy of your data, or delete your account and all associated data, yourself at any time: open Settings from your profile (avatar) menu and go to Your data. Before anything is deleted, we show you exactly what will be removed and what we cannot delete. Deletion removes your account and sign-in details, every practice, worksheet and mock attempt and the answers you typed, your mistake history, weak areas, progress and streaks, and any photos of handwritten answers you uploaded from your phone. A parent or guardian may also write to us to review, export or delete their child's data.</p>
       </>
     ),
     contact: (
       <p>
-        For privacy questions or to request account deletion, email <MailLink />
+        For privacy questions, or if you need help with your data, email <MailLink />
       </p>
     ),
   },

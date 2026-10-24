@@ -212,12 +212,13 @@ describe("3 · the third-party retention disclosure", () => {
     await user.click(screen.getByRole("button", { name: /delete my account/i }));
     const text = screen.getByRole("dialog").textContent ?? "";
 
-    expect(text, "must NAME the third party").toMatch(/Google/);
-    expect(text, "must NAME the service").toMatch(/Gemini/i);
+    // Owner ruling 24 Oct 2026: the provider is NOT named in student-facing copy.
+    expect(text, "must say it is an AI language model provider").toMatch(/AI language model \(LLM\) provider/);
+    expect(text, "must NOT name Google or Gemini").not.toMatch(/Google|Gemini/i);
     expect(text, "must say the data LEFT the product").toMatch(/was sent to/i);
     expect(text, "must say deletion does NOT reach it").toMatch(/does not reach them/i);
     expect(text, "must admit WE cannot delete it").toMatch(/we cannot delete them/i);
-    expect(text, "must say whose rules govern it").toMatch(/Google's rules, not ours/i);
+    expect(text, "must say whose rules govern it").toMatch(/that provider under its own rules, not ours/i);
   });
 
   it("★ the disclosure is NOT rendered as an error — it is a true fact, not a malfunction", async () => {
@@ -229,7 +230,7 @@ describe("3 · the third-party retention disclosure", () => {
 
     const dialog = screen.getByRole("dialog");
     const host = Array.from(dialog.querySelectorAll("p")).find((p) =>
-      (p.textContent ?? "").includes("Google's Gemini AI")
+      (p.textContent ?? "").includes("AI language model (LLM) provider")
     );
     expect(host, "the disclosure paragraph was not found").toBeTruthy();
     expect(host!.className).toContain("lt-acct__disclosurebody");
