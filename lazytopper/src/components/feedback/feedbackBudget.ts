@@ -25,3 +25,16 @@ export function useFeedbackAppearance(wanted: boolean): string | null {
 }
 
 export const FeedbackShownNote = NoteShown;
+
+/**
+ * FEEDBACK-NUDGE-1 - the paywall / trial-end "help us improve" card. Ziggy beside its question is an
+ * UNPROMPTED appearance at COMPANION priority (below a scorecard, below a first-time explainer): the
+ * student closed a window, they did not ask for him. Same rules as above: the budget limits the
+ * CHARACTER, never the question - no slot left, mascots hidden or another mascot on screen -> today's
+ * plain card, exactly.
+ */
+export const FEEDBACK_NUDGE_KIND = "feedback:nudge";
+
+export function useNudgeAppearance(wanted: boolean): string | null {
+  return useAppearance(wanted ? FEEDBACK_NUDGE_KIND : null, APPEARANCE_PRIORITY.companion);
+}
