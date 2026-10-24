@@ -2078,61 +2078,6 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                       </div>
                                     ))}
 
-                                    {!isObjective && solution.commonMistakes &&
-                                      solution.commonMistakes.length > 0 && (
-                                        <div
-                                          style={{
-                                            marginTop: 8,
-                                            padding: "8px 10px",
-                                            background: "#ffffff",
-                                            borderRadius: 10,
-                                            border: "1px solid hsl(220, 18%, 90%)",
-                                          }}
-                                        >
-                                          <div
-                                            style={{
-                                              fontSize: "0.75rem",
-                                              fontWeight: 700,
-                                              color: "hsl(220, 15%, 42%)",
-                                              marginBottom: 4,
-                                            }}
-                                          >
-                                            Examiner notes
-                                          </div>
-                                          {solution.commonMistakes.map(
-                                            (m, i) => (
-                                              <div
-                                                key={i}
-                                                style={{
-                                                  fontSize: "0.75rem",
-                                                  color: "hsl(220, 15%, 42%)",
-                                                  marginBottom: 2,
-                                                }}
-                                              >
-                                                • <MathText text={m} />
-                                              </div>
-                                            )
-                                          )}
-                                        </div>
-                                      )}
-
-                                    {!isObjective && solution.examTip && (
-                                      <div
-                                        style={{
-                                          marginTop: 8,
-                                          padding: "8px 10px",
-                                          background: "#ffffff",
-                                          borderRadius: 10,
-                                          border: "1px solid hsl(220, 18%, 90%)",
-                                          fontSize: "0.75rem",
-                                          color: "hsl(220, 15%, 42%)",
-                                        }}
-                                      >
-                                        <strong>Marking note:</strong>{" "}
-                                        <MathText text={solution.examTip} />
-                                      </div>
-                                    )}
-
                                     <button
                                       onClick={() => handleOpenTopicHubFromBucket(bucket)}
                                       style={{

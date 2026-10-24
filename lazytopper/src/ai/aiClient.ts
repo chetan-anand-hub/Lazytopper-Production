@@ -593,12 +593,6 @@ function buildLocalSolution(
   return {
     totalMarks,
     steps,
-    commonMistakes: isObjective
-      ? ["Not reading all options before marking — similar-sounding options trap you"]
-      : ["Skipping intermediate working steps — board examiners award marks for method, not just the final answer"],
-    examTip: isObjective
-      ? "For MCQs: read all 4 options first, eliminate obviously wrong ones, then pick. No negative marking in CBSE — never leave blank."
-      : "Write each step on a new line. Method marks are awarded even if the final answer has a calculation error.",
   };
 }
 
