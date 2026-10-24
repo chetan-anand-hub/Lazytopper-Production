@@ -12,8 +12,9 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
 const authState = vi.hoisted(() => ({ logout: vi.fn(async () => {}) }));
+let noUser = false;
 vi.mock("../../context/AuthContext", () => ({
-  useAuth: () => ({ user: { uid: "u-settings", displayName: "Asha" }, logout: authState.logout }),
+  useAuth: () => ({ user: noUser ? null : { uid: "u-settings", displayName: "Asha" }, logout: authState.logout }),
 }));
 vi.mock("../../hooks/useSubscription", () => ({
   useSubscription: () => ({
@@ -141,6 +142,15 @@ describe("SettingsModal", () => {
     expect(document.body.style.overflow).toBe("hidden");
     view.unmount();
     expect(document.body.style.overflow).toBe("auto");
+    document.body.style.overflow = "";
+  });
+
+  it("does not leave the body locked when there is no signed-in user", () => {
+    document.body.style.overflow = "auto";
+    noUser = true;
+    mount();
+    expect(document.body.style.overflow).toBe("auto");
+    noUser = false;
     document.body.style.overflow = "";
   });
 

@@ -70,14 +70,15 @@ export default function SettingsModal({
 
   // Lock page scroll behind the window; restore the previous value on close (same pattern
   // as NoteModal / NcertPageModal).
+  const shown = open && !!user; // the component renders null without a user
   useEffect(() => {
-    if (!open) return;
+    if (!shown) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
     };
-  }, [open]);
+  }, [shown]);
 
   // Esc closes (unless the delete-confirmation dialog is on top: that one is Esc-less and
   // modal, and closing Settings underneath it would strand it). Tab is trapped here.

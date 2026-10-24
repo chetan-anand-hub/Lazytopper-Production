@@ -1,5 +1,7 @@
-import { Suspense, lazy, useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import LinkSignInMethodModal from "../auth/LinkSignInMethodModal";
+// SETTINGS-1: lazy slot (retry + failure boundary) keeps the Settings window out of the entry chunk.
+import SettingsModalSlot from "../account/SettingsModalSlot";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -9,9 +11,6 @@ import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
 import PendingBell from "../home/PendingBell";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
 
-// SETTINGS-1: lazy so the Settings window (data controls, mascots, their CSS) stays out of the
-// entry chunk (PERF-3 budget). Mounted only while open.
-const SettingsModal = lazy(() => import("../account/SettingsModal"));
 
 /**
  * DesktopShell — locked desktop AppShell parity build (Desktop Phase 1).
@@ -779,24 +778,23 @@ export function DesktopShell({ children }: DesktopShellProps) {
           stacking / containing-block reason as TutorPickerModal. Renders null while closed. */}
       <NcertChapterPicker open={ncertOpen} onClose={() => setNcertOpen(false)} />
 
+      {/* SETTINGS-1: the Settings window, same shell-root mounting reason as below. */}
+      {settingsOpen && (
+        <SettingsModalSlot
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          onOpenSignInMethods={() => {
+            setSettingsOpen(false);
+            setLinkOpen(true);
+          }}
+          returnFocusRef={avatarButtonRef}
+        />
+      )}
       {/* Mounted at the SHELL ROOT for the same reason TutorPickerModal is: the
           header creates a stacking context AND, via backdrop-filter, is a
           containing block for `position: fixed` descendants. A modal rendered
           inside the account dropdown would lose its full-viewport geometry and
           have its z-index trapped beneath the header. Renders null while closed. */}
-      {settingsOpen && (
-        <Suspense fallback={null}>
-          <SettingsModal
-            open={settingsOpen}
-            onClose={() => setSettingsOpen(false)}
-            onOpenSignInMethods={() => {
-              setSettingsOpen(false);
-              setLinkOpen(true);
-            }}
-            returnFocusRef={avatarButtonRef}
-          />
-        </Suspense>
-      )}
       <LinkSignInMethodModal open={linkOpen} onClose={() => setLinkOpen(false)} />
     </div>
   );
