@@ -31,7 +31,7 @@ import { loadLocalSessionRecords } from "../../../services/sessionRecords";
 import { getAttempts, type PracticeAttempt } from "../../../services/practiceInsights";
 import { useZeroGraded } from "../../startHere/zeroGraded";
 import { guideAbActive, guideFocusOpen, guidePreviewActive, resolveGuideVariant, subscribeGuideFocus } from "../guideVariant";
-import { useMascotsHidden } from "../mascotsMute";
+import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
 import { mascotHostsVersion, subscribeMascotHosts } from "../mascotPresence";
 import {
   COMPANION_PRIORITY,
@@ -418,7 +418,8 @@ export function CompanionBreathe({ uid, onDone }: CompanionBreatheProps) {
   const [done, setDone] = useState(false);
   // Once per session - decided at mount, so finishing it never makes it vanish mid-way.
   const [again] = useState(() => shownThisSession("companion:breathe"));
-  const key = useAppearance(!hidden && !done && !again && inGuideArm(uid) ? "companion:breathe" : null, APPEARANCE_PRIORITY.companion);
+  const [hiddenAtMount] = useState(() => mascotsHidden());
+  const key = useAppearance(!hidden && !hiddenAtMount && !done && !again && inGuideArm(uid) ? "companion:breathe" : null, APPEARANCE_PRIORITY.companion);
   if (!key) return null;
   const finish: BreatheCardProps["onDone"] = () => {
     setDone(true);
@@ -428,10 +429,12 @@ export function CompanionBreathe({ uid, onDone }: CompanionBreatheProps) {
   // never moves while the chunk loads; the card collapses only on the student's own Skip / Done tap.
   return (
     <div className="lt-cmp-pretest" data-testid="guide-pretest-slot">
-      <Suspense fallback={null}>
-        <LazyBreatheCard onDone={finish} />
-        <NoteShown kind={key} />
-      </Suspense>
+      <div className="lt-cmp-pretest__in">
+        <Suspense fallback={null}>
+          <LazyBreatheCard onDone={finish} />
+          <NoteShown kind={key} />
+        </Suspense>
+      </div>
     </div>
   );
 }
@@ -449,7 +452,10 @@ export function PreTestBreathe({ surface }: PreTestMomentProps) {
   const { user } = useAuth();
   const { pathname } = useLocation();
   const uid = user?.uid || null;
-  if (!uid || !guideAbActive() || isResumingSavedPaper(pathname, uid) || firstVisitHelperPending(surface)) return null;
+  // Decided ONCE, at mount: a later re-render (a marker written, the session resolving) must never insert
+  // the card above Start. It can only stay eligible or stay out; it never flips to true afterwards.
+  const [eligible] = useState(() => !!uid && guideAbActive() && !isResumingSavedPaper(pathname, uid) && !firstVisitHelperPending(surface));
+  if (!eligible || !uid) return null;
   return <CompanionBreathe uid={uid} />;
 }
 

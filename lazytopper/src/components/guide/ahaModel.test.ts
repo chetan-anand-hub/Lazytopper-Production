@@ -154,7 +154,7 @@ describe("MOMENTS-3 review nits - the clock seam, the preview, reduced motion", 
   });
 
   it("noteAhaShown does not mark the student's week under an admin preview", async () => {
-    window.localStorage.setItem("lazytopper.guidePreview", JSON.stringify({ arm: "guide", until: NOW + 7 * DAY }));
+    window.localStorage.setItem("lazytopper.guidePreview", JSON.stringify({ arm: "guide", until: Date.now() + 7 * DAY }));
     const m = await import("./ahaModel");
     const store = await import("../../services/studentProgressStore");
     const before = JSON.stringify(Object.entries(window.localStorage));

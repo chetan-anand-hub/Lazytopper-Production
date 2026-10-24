@@ -243,6 +243,17 @@ describe("MOMENTS-3 review rulings: occurrences, held slots, the probe", () => {
     expect(JSON.parse(window.sessionStorage.getItem(MASCOT_BUDGET_KEY)!).shown).toEqual(["a", "b", "c"]);
   });
 
+  it("★ BELOW the cap: a door that never reserved spends nothing (fails if noteShown loses its hold check)", () => {
+    expect(requestAppearance("held#1", P.explainer)).toBe(true);
+    noteShown("held#1"); // the door that reserved: one slot
+    noteShown("never-reserved#1"); // a door that skipped the reservation: nothing
+    expect(unpromptedShownCount()).toBe(1);
+    expect(JSON.parse(window.sessionStorage.getItem(MASCOT_BUDGET_KEY)!).shown).toEqual(["held"]);
+    expect(requestAppearance("next#1", P.explainer)).toBe(true); // 2 slots remain, not 1
+    expect(requestAppearance("next2#1", P.explainer)).toBe(true);
+    expect(requestAppearance("next3#1", P.explainer)).toBe(false);
+  });
+
   it("★ a kind that already showed gets NO free re-show: a second mount (a new occurrence) is counted", () => {
     const { unmount } = render(<Door kind="moment:m5" />);
     expect(unpromptedShownCount()).toBe(1);

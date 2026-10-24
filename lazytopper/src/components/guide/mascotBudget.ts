@@ -24,7 +24,9 @@
  *                 Intelligence card itself, not a moment;
  *               - Mummy on the parent pages: a different audience (parents), not the student;
  *               - SaveNudge in FinishGate: the owner-designed (23 Oct) reaction to the student's
- *                 OWN tap, so it is a prompted appearance in every sense.
+ *                 OWN tap, so it is a prompted appearance in every sense;
+ *               - FilterEmptyZiggy (filterHelp.tsx): a reaction to the student's OWN filter tap
+ *                 (cofounder ruling, MOMENTS-3 re-review): the student asked for that result.
  *   NOT EXEMPT  the filter help's automatic first-visit open (filterHelp.tsx claimFilterHelpAutoOpen):
  *               refused -> it stays closed (marker unspent) until "?" is tapped.
  *
@@ -33,6 +35,10 @@
  *   showed does NOT get free re-shows. Only the SAME occurrence is de-duplicated (a re-render, or
  *   React StrictMode's double mount, keep their occurrence id). m5 on a second grading is a new
  *   occurrence and is counted again.
+ *
+ *   START-HERE is counted ONCE PER PAGE LOAD (one key, `starthere#page`): its inline and focused Byte
+ *   are one appearance. Accepted by the cofounder: it is the pinned onboarding card for brand-new
+ *   students, so a re-mount within the same page load is deliberately not a new appearance.
  *
  * -- THE API (FEEDBACK-2 and any later lane call exactly this) ----------------------------------
  *   An appearance KEY is `<kind>#<occurrence>` (the part before `#` is the kind, e.g. "moment:m5",

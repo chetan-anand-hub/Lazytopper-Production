@@ -48,7 +48,7 @@ export const COMPANION_COPY = {
   milestoneAnswers50: "50 answers checked! Proper topper energy.",
   welcomeBack: "Welcome back! 5 quick questions to warm up?",
   welcomeBackCta: "Warm up: 5 questions",
-  lateNightYawn: "Yawn… my eyes keep closing.",
+  lateNightYawn: "Yawn… it's getting late.",
   lateNight: "It's late — sleep helps memory. Stop here and come back fresh?",
   rhythm: "{days} days this week — nice rhythm!",
   countdown: "{days} days to your boards. Chalo, one chapter at a time.",

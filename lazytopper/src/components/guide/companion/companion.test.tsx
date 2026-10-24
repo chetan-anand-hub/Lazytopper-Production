@@ -639,7 +639,10 @@ describe("MOMENTS-3 · Breathe before a test (through the reserved pre-test slot
   it("the reserved height lives in the EAGER stylesheet; the card is not absolutely positioned", () => {
     const door = readFileSync(resolve(process.cwd(), "src/components/guide/companion/companionDoor.css"), "utf8");
     const chunk = readFileSync(resolve(process.cwd(), "src/components/guide/companion/companion.css"), "utf8");
-    expect(door).toMatch(/\.lt-cmp-pretest\s*\{[^}]*min-height:\s*var\(--lt-breathe-h/);
+    // the reserve follows the slot's own width (container query); the base is the TALLEST (never short)
+    expect(door).toMatch(/\.lt-cmp-pretest\s*\{[^}]*container-type:\s*inline-size/);
+    expect(door).toMatch(/\.lt-cmp-pretest__in\s*\{[^}]*min-height:\s*216px/);
+    expect(door).toMatch(/@container \(min-width: 370px\)\s*\{\s*\.lt-cmp-pretest__in\s*\{\s*min-height:\s*104px/);
     expect(chunk + door).not.toMatch(/lt-cmp-pretest[^{]*\{[^}]*position:\s*absolute/);
   });
 
@@ -718,6 +721,19 @@ describe("MOMENTS-3 · Breathe before a test (through the reserved pre-test slot
     render(<Entry />);
     await settle();
     expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+  });
+
+  it("★ eligibility is decided ONCE at mount: the helper marker appearing later never inserts the card above Start", async () => {
+    window.localStorage.removeItem(`${PAGE_GUIDE_SEEN_PREFIX}ct_entry.page`);
+    const view = render(<Entry />);
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    window.localStorage.setItem(`${PAGE_GUIDE_SEEN_PREFIX}ct_entry.page`, "1"); // the helper opened meanwhile
+    view.rerender(<Entry />);
+    fireEvent.click(screen.getByTestId("start")); // any later re-render of the page
+    await settle();
+    expect(screen.queryByTestId("guide-pretest-slot")).toBeNull();
+    expect(screen.queryByTestId("guide-companion-breathe")).toBeNull();
   });
 
   it("the stylesheet-free door mirrors pages/pageGuides PAGE_GUIDE_SEEN_PREFIX", async () => {

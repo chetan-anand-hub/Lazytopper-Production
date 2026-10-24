@@ -30,7 +30,7 @@ import { useWrittenGraded } from "./writtenGraded";
 import { useHoldStage } from "../scoreGuideStage";
 import { copyArmToIntent, ensurePublicArm, previewArm, previewOn } from "../public/publicPeekModel";
 import type { GuideMomentProps, SolutionsPeekProps } from "./momentsChunk";
-import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "../mascotBudget";
+import { APPEARANCE_PRIORITY, NoteShown, newOccurrence, useAppearance } from "../mascotBudget";
 
 export type { GuideMomentId };
 
@@ -76,7 +76,11 @@ export function GuideMomentSlot(props: GuideMomentSlotProps) {
   const hidden = useMascotsHidden();
   // MOMENTS-3 — the director: a moment is an UNPROMPTED appearance (at most 3 per session).
   const kind = momentKind(props.moment);
-  const allowed = useAppearance(props.show && !hidden ? kind : null, APPEARANCE_PRIORITY.explainer);
+  // A host keeps the slot mounted and toggles `show`: each false -> true is a NEW occurrence (so a
+  // second grading counts again). Derived state, so a StrictMode double render still counts once.
+  const [gen, setGen] = useState(() => ({ n: newOccurrence(), on: props.show }));
+  if (gen.on !== props.show) setGen({ n: props.show ? newOccurrence() : gen.n, on: props.show });
+  const allowed = useAppearance(props.show && !hidden ? kind : null, APPEARANCE_PRIORITY.explainer, String(gen.n));
   if (!props.show || hidden) return null;
   // Refused: no mascot - but a line that carries needed information still shows, as plain text.
   if (!allowed) return PLAIN_MOMENTS.has(props.moment) ? <PlainDraw moment={props.moment} step={props.step} /> : null;

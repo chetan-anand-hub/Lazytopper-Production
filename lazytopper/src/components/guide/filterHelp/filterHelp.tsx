@@ -26,10 +26,10 @@
  * so the open lands at once. The empty-state Ziggy's row is reserved at its final height on the
  * first render (who sees him is known synchronously), so nothing moves when the chunk arrives.
  */
-import { lazy, Suspense, type ComponentType } from "react";
+import { lazy, Suspense, useEffect, type ComponentType } from "react";
 import { guidePreviewActive, resolveGuideVariant, trackGuideEvent } from "../guideVariant";
-import { APPEARANCE_PRIORITY, NoteShown, newOccurrence, requestAppearance } from "../mascotBudget";
-import { useMascotsHidden } from "../mascotsMute";
+import { APPEARANCE_PRIORITY, NoteShown, newOccurrence, releaseAppearance, requestAppearance } from "../mascotBudget";
+import { mascotsHidden, useMascotsHidden } from "../mascotsMute";
 import type { FilterGroup } from "./filterHelpTypes";
 import type { FilterHelpPanelProps } from "./filterHelpChunk";
 import "./filterHelpEager.css";
@@ -90,14 +90,26 @@ export function claimFilterHelpAutoOpen(): boolean {
   if (!autoOpenActive()) return false;
   if (guidePreviewActive()) return true;
   if (seenThisLoad) return false;
-  // MOMENTS-3: NOT exempt from the session budget. Refused -> it stays closed (the marker unspent,
-  // so it is offered again on a later visit) until the student taps "?".
-  const key = `filter-help#${newOccurrence()}`;
-  if (!requestAppearance(key, APPEARANCE_PRIORITY.explainer)) return false;
-  autoKey = key;
+  // "Seen" is checked BEFORE anything is reserved: a device that has seen the help never takes a slot.
+  try {
+    if (window.localStorage.getItem(FILTER_HELP_SEEN_KEY) === "1") {
+      seenThisLoad = true;
+      return false;
+    }
+  } catch {
+    /* blocked storage: this page load only */
+  }
+  // Hidden mascots: the budget limits the CHARACTER, not the information - the plain explainer still
+  // opens on the first visit, as it always did. Nothing is reserved (a hidden mascot counts nothing).
+  if (!mascotsHidden()) {
+    // MOMENTS-3: NOT exempt from the session budget. Refused -> it stays closed (the marker unspent,
+    // so it is offered again on a later visit) until the student taps "?".
+    const key = `filter-help#${newOccurrence()}`;
+    if (!requestAppearance(key, APPEARANCE_PRIORITY.explainer)) return false;
+    autoKey = key;
+  }
   seenThisLoad = true;
   try {
-    if (window.localStorage.getItem(FILTER_HELP_SEEN_KEY) === "1") return false;
     window.localStorage.setItem(FILTER_HELP_SEEN_KEY, "1");
   } catch {
     /* blocked storage: this page load only */
@@ -131,6 +143,13 @@ export type FilterHelpDoorProps = Omit<FilterHelpPanelProps, "withCharacter"> & 
  */
 export function FilterHelpDoor({ uid, ...rest }: FilterHelpDoorProps) {
   const withCharacter = useFilterGuideCharacter(uid);
+  // A reservation whose drawing never came (the door closed first) gives its slot back.
+  useEffect(() => {
+    const k = autoKey;
+    return () => {
+      if (k) releaseAppearance(k);
+    };
+  }, []);
   return (
     <div className="lt-fh-anchor">
       <Suspense fallback={null}>

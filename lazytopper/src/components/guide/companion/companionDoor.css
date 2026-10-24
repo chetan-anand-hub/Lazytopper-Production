@@ -1,8 +1,15 @@
 /* MOMENTS-3 - Breathe before a test: the EAGER half (the door's few rules; the card's own styles travel with
    companionChunk). The slot sits ABOVE the Start row, so the card is IN FLOW and its height is reserved
    from the first paint while the chunk loads: Start never moves under a finger. The card never covers a
-   control, and it collapses only on the student's own Skip / Done tap. */
-.lt-cmp-pretest { box-sizing: border-box; min-height: var(--lt-breathe-h, 120px); margin: 4px 0 8px; }
-.lt-cmp-pretest > .lt-cmp--breathe { margin: 0; }
-@media (min-width: 640px) { .lt-cmp-pretest { --lt-breathe-h: 92px; } }
+   control, and it collapses only on the student's own Skip / Done tap.
+   The reserve follows the SLOT's own width (a container query - the card sits in padded panels, so the
+   viewport is the wrong ruler). Measured loaded-card heights (Chromium, Arial and the wider DejaVu Sans):
+   ~188-213 px under ~280 px wide, ~133 to 285-330, ~115 to 345, ~96 above. A browser without container
+   queries keeps the tallest reserve (safe, never short). */
+.lt-cmp-pretest { container-type: inline-size; margin: 4px 0 8px; }
+.lt-cmp-pretest__in { box-sizing: border-box; min-height: 216px; }
+.lt-cmp-pretest__in > .lt-cmp--breathe { margin: 0; }
+@container (min-width: 285px) { .lt-cmp-pretest__in { min-height: 140px; } }
+@container (min-width: 330px) { .lt-cmp-pretest__in { min-height: 124px; } }
+@container (min-width: 370px) { .lt-cmp-pretest__in { min-height: 104px; } }
 @media print { .lt-cmp-pretest { display: none; } }

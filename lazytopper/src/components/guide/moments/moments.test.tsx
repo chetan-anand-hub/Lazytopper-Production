@@ -10,6 +10,7 @@
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup, act, fireEvent, waitFor } from "@testing-library/react";
+import { StrictMode } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../../test/setup";
 
@@ -36,7 +37,7 @@ import { BEAT_MS, MOMENT_COPY } from "./momentsChunk";
 import { MASCOTS_TOAST_COPY, __removeMascotsToastForTests } from "./mascotsToast";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, mascotsHidden } from "../mascotsMute";
 import { __setGuideAbForTests } from "../guideVariant";
-import { __resetMascotBudgetForTests, __setMascotBudgetForTests, noteShown, requestAppearance } from "../mascotBudget";
+import { __resetMascotBudgetForTests, __setMascotBudgetForTests, noteShown, requestAppearance, unpromptedShownCount } from "../mascotBudget";
 import { GUIDE_PUBLIC_ARM_KEY, __resetPublicArmForTests } from "../public/publicPeekModel";
 import { allPendingMessage } from "../../results/scorecardVariants";
 import { VISIT_SOURCE_KEY } from "../../../analytics/visitSource";
@@ -378,6 +379,40 @@ describe("MOMENTS-3 - the budget limits the CHARACTER, never the information", (
     render(<Slot uid="u1" moment="m8" step="safe" />);
     expect(await screen.findByTestId("guide-moment-m8")).toBeTruthy();
     expect(screen.queryByTestId("guide-moment-m8-plain")).toBeNull();
+  });
+
+  it("★★ the host keeps the slot MOUNTED and toggles show: each false -> true is a NEW occurrence (count 2, not a free re-show)", async () => {
+    __setMascotBudgetForTests(true);
+    const toggled = (on: boolean) => (
+      <MemoryRouter>
+        <GuideMomentSlot show={on} moment="m8" step="safe" />
+      </MemoryRouter>
+    );
+    const v = render(toggled(true));
+    await screen.findByTestId("guide-moment-m8");
+    expect(unpromptedShownCount()).toBe(1);
+    v.rerender(toggled(false));
+    expect(screen.queryByTestId("guide-moment-m8")).toBeNull();
+    v.rerender(toggled(true));
+    await screen.findByTestId("guide-moment-m8");
+    expect(unpromptedShownCount()).toBe(2);
+    v.rerender(toggled(true)); // a plain re-render of the same occurrence is not a new one
+    await act(async () => {});
+    expect(unpromptedShownCount()).toBe(2);
+  });
+
+  it("a StrictMode double mount counts ONCE", async () => {
+    __setMascotBudgetForTests(true);
+    render(
+      <StrictMode>
+        <MemoryRouter>
+          <GuideMomentSlot show moment="m8" step="safe" />
+        </MemoryRouter>
+      </StrictMode>,
+    );
+    await screen.findByTestId("guide-moment-m8");
+    await act(async () => {});
+    expect(unpromptedShownCount()).toBe(1);
   });
 
   it("hidden mascots: nothing at all (the plain line is the budget's fallback, not a way around Hide)", async () => {
