@@ -116,6 +116,20 @@ describe("K1 — nothing else gets a cookie", () => {
     }
   });
 
+  it("ASSET-RELOAD-1 (A): an iframe / frame page load refreshes the pin; image/script/empty still do not", () => {
+    for (const dest of ["document", "iframe", "frame"]) {
+      expect(cookieOf(run("/pricing", ON, { headers: { "sec-fetch-dest": dest } })), dest).toBe(EXPECTED);
+      expect(isDocumentRequest(req("/pricing", { headers: { "sec-fetch-dest": dest } })), dest).toBe(true);
+    }
+    for (const dest of ["image", "script", "empty", "style", "worker", "embed", "object"]) {
+      expect(run("/pricing", ON, { headers: { "sec-fetch-dest": dest } }), dest).toBeUndefined();
+    }
+  });
+
+  it("an iframe request for an asset path is still never pinned", () => {
+    expect(run("/assets/x.js", ON, { headers: { "sec-fetch-dest": "iframe" } })).toBeUndefined();
+  });
+
   it("a POST -> none", () => {
     expect(run("/pricing", ON, { method: "POST", body: "x" })).toBeUndefined();
   });

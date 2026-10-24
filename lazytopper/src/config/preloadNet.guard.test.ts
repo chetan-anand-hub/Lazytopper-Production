@@ -47,6 +47,11 @@ export function moduleScriptIndex(html: string): number {
 
 const html = readFileSync(INDEX_HTML, "utf8");
 
+/** The ASSET-RELOAD-1 entry-script net: an inline script reloading on a failed /assets module script. */
+function isAssetReloadNet(body: string): boolean {
+  return /addEventListener\(\s*["']error["']/.test(body) && body.includes("lazytopper.chunkReloadAt");
+}
+
 describe("preload net — a dropped stylesheet does not kill the page", () => {
   const nets = preloadNetScripts(html);
   const net = nets[0];
@@ -95,7 +100,53 @@ describe("preload net — a dropped stylesheet does not kill the page", () => {
 
   it("adds no global error or unhandledrejection handler", () => {
     for (const s of inlineClassicScripts(html)) {
+      // ASSET-RELOAD-1: the one sanctioned capture-phase `error` listener is pinned below.
+      if (isAssetReloadNet(s.body)) continue;
       expect(s.body).not.toMatch(/["']unhandledrejection["']|["']error["']\s*,|window\.onerror/);
     }
+  });
+});
+
+describe("ASSET-RELOAD-1 — a failed entry script reloads once instead of leaving a blank page", () => {
+  const nets = inlineClassicScripts(html).filter((s) => isAssetReloadNet(s.body));
+  const net = nets[0];
+
+  it("exists exactly once, inside <head>, BEFORE the module script", () => {
+    expect(nets.length).toBe(1);
+    expect(net!.index).toBeLessThan(moduleScriptIndex(html));
+    expect(net!.index).toBeLessThan(html.indexOf("</head>"));
+  });
+
+  it("listens in the capture phase (resource errors do not bubble)", () => {
+    expect(net!.body).toMatch(/\},\s*true\s*\)\s*;/);
+  });
+
+  it("reacts only to module scripts under this origin's /assets/", () => {
+    expect(net!.body).toMatch(/tagName\s*!==\s*"SCRIPT"/);
+    expect(net!.body).toMatch(/type\s*!==\s*"module"/);
+    expect(net!.body).toContain('window.location.origin + "/assets/"');
+  });
+
+  it("is guarded: one reload per 60 s via sessionStorage, no reload when storage throws", () => {
+    expect(net!.body).toContain("60000");
+    expect(net!.body).toMatch(/catch\s*\(\w+\)\s*\{\s*return;/);
+  });
+
+  it("overwrites the cached response with cache: reload, then reloads", () => {
+    expect(net!.body).toMatch(/fetch\(urls\[j\],\s*\{\s*cache:\s*"reload"/);
+    expect(net!.body).toContain("window.location.reload()");
+  });
+
+  it("also re-fetches failed /assets/ resource-timing entries, capped at 10, same-origin only", () => {
+    expect(net!.body).toContain('getEntriesByType("resource")');
+    expect(net!.body).toMatch(/urls\.length\s*<\s*10/);
+    expect(net!.body).toContain("responseStatus");
+    expect(net!.body).toContain('window.location.origin + "/assets/"');
+  });
+
+  it("uses the same storage key and window as src/lib/chunkReload.ts", () => {
+    const ts = readFileSync(resolve(ROOT, "src/lib/chunkReload.ts"), "utf8");
+    expect(ts).toContain('CHUNK_RELOAD_KEY = "lazytopper.chunkReloadAt"');
+    expect(ts).toContain("CHUNK_RELOAD_WINDOW_MS = 60_000");
   });
 });
