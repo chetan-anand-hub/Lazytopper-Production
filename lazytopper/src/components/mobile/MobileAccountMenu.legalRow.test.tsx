@@ -74,12 +74,29 @@ describe("MobileAccountMenu — legal row (Lane C)", () => {
   });
 });
 
-describe("MobileAccountMenu account dropdown — COPY-2 · K2 passes, not subscriptions", () => {
-  it("labels the manage entry 'Manage your pass', word for word", () => {
+describe("MobileAccountMenu account dropdown — SETTINGS-1 · one Settings entry" , () => {
+  it("lists exactly Me / Progress, Settings, Log out, in that order", () => {
     signInAndOpenMenu();
     const menu = screen.getByRole("menu", { name: "Account menu" });
-    const item = screen.getByRole("menuitem", { name: "Manage your pass" });
-    expect(item.closest("[role='menu']")).toBe(menu);
+    const names = Array.from(menu.querySelectorAll("[role='menuitem']")).map((n) => n.textContent);
+    expect(names).toEqual(["Me / Progress", "Settings", "Log out"]);
     expect(menu.textContent).not.toMatch(/subscription/i);
+  });
+
+  it("Settings closes the menu and opens the Settings window", () => {
+    signInAndOpenMenu();
+    fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
+    expect(screen.queryByRole("menu", { name: "Account menu" })).toBeNull();
+    expect(screen.getByRole("dialog", { name: "Settings" })).toBeTruthy();
+  });
+
+  it("Settings -> Sign-in methods swaps to the existing linking modal (one modal at a time)", () => {
+    signInAndOpenMenu();
+    // the real modal reads providerIds off the auth user
+    (authState.user as unknown as { providerIds: string[] }).providerIds = ["google.com"];
+    fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "Sign-in methods" })[0]);
+    expect(screen.queryByRole("dialog", { name: "Settings" })).toBeNull();
+    expect(screen.getByRole("dialog", { name: "Sign-in methods" })).toBeTruthy();
   });
 });

@@ -1,6 +1,5 @@
 /**
- * MOMENTS-1 PART 0 — the "turn them back on" control for "Hide mascots", on /me (the account page:
- * /settings was retired, SETTINGS-1). One switch, this device only (../guide/mascotsMute.ts).
+ * MOMENTS-1 PART 0 — the "turn them back on" control for "Hide mascots", in Settings (the avatar menu's Settings window, components/account/SettingsModal.tsx; SETTINGS-1). One switch, this device only (../guide/mascotsMute.ts).
  *
  * Shown to a GUIDE-arm student, or to anyone whose mascots are hidden on this device (a device that
  * hid them from a signed-out moment still needs the way back). The control arm with nothing hidden

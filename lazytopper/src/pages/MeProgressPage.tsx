@@ -69,12 +69,6 @@ import {
 } from "../lib/desktop/navigation";
 import { conceptSetClick, type ConceptSetContext } from "../lib/desktop/conceptSetPath";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
-// DPDP (SETTINGS-1). /me is the account surface - /settings was retired and /profile
-// redirects here - so the student's export and erasure rights live on the one routed
-// page a signed-in student can already reach from the nav.
-import AccountDataControls from "../components/account/AccountDataControls";
-// MOMENTS-1 PART 0 — the "Hide mascots" way back (guide arm, or mascots hidden on this device).
-import MascotsSetting from "../components/guide/MascotsSetting";
 // FAIR-USE-UI-1 (UI4) - the student's fair-use limits. Renders NOTHING unless
 // /api/usage/me says `enforced: true`, so the page is unchanged while enforcement is off.
 import UsageCard from "../components/usage/UsageCard";
@@ -1350,16 +1344,10 @@ export default function MeProgressPage() {
         </>
       )}
 
-      {/* ---- DPDP: download my data / delete my account (SETTINGS-1) ----
-          Last section on the page by design: it is a rarely-used, irreversible control
-          and must not sit above the student's work. It renders in EVERY signed-in
-          state, first-run included - a student's export and erasure rights do not
-          depend on how much work they have done. */}
+      {/* SETTINGS-1 (owner ruling 24 Oct 2026): this page shows only progress. The
+          mascots switch and the DPDP controls (download my data / delete my account)
+          moved to Settings in the avatar menu (components/account/SettingsModal.tsx). */}
       <UsageCard />
-
-      <MascotsSetting uid={user?.uid ?? null} />
-
-      <AccountDataControls />
 
       <p className="lt-me__footer">
         Every number here comes from your saved attempts and graded answers. An empty card

@@ -200,7 +200,7 @@ describe("MOMENTS-1 PART 0 · Hide mascots from a moment's bubble", () => {
     expect(window.localStorage.getItem(MASCOTS_HIDDEN_KEY)).toBe("1");
     expect(screen.queryByTestId("guide-moment-m4")).toBeNull();
     const toast = screen.getByTestId("mascots-toast");
-    expect(toast.textContent).toContain("Mascots hidden. Turn them back on in Me.");
+    expect(toast.textContent).toContain("Mascots hidden. Turn them back on in Settings.");
     expect(onboarding.mock.calls.filter((c) => c[0] === "mascots_hidden")).toEqual([["mascots_hidden", {}]]);
 
     fireEvent.click(screen.getByTestId("mascots-undo"));
