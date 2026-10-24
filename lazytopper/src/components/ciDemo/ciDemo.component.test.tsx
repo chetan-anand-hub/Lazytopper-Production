@@ -341,3 +341,22 @@ describe("CI-SOFT-1 card — N4: nothing to replay under reduced motion", () => 
     expect(screen.getByTestId("ci-demo-again")).toBeInTheDocument();
   });
 });
+
+describe("CI-SOFT-1b — stylesheet hygiene", () => {
+  const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const sources = ["ciDemoChunk.tsx", "CiDemoCard.tsx"].map((f) => readFileSync(resolve(__dirname, f), "utf8")).join("\n");
+  // classes built as `ci-demo--${name}` / `ci-demo__tag--${type}` in the chunk
+  const dynamic = [/^ci-demo--(pick|mark|result)$/, /^ci-demo__tag--(conceptual|presentation|calculation|silly)$/];
+
+  it("every ci-demo class in ciDemo.css is used by an element", () => {
+    const classes = [...new Set([...css.matchAll(/\.(ci-demo[A-Za-z0-9_-]*)/g)].map((m) => m[1]))];
+    const unused = classes.filter((c) => !sources.includes(c) && !dynamic.some((re) => re.test(c)));
+    expect(unused).toEqual([]);
+  });
+
+  it("the placeholder at 768-1023 stays a little under the measured PICK card (390 px)", () => {
+    const door = readFileSync(resolve(__dirname, "ciDemoDoor.css"), "utf8");
+    expect(door).toMatch(/min-width: 768px\)[\s\S]*?min-height: 390px/);
+    expect(door).not.toMatch(/410px/);
+  });
+});

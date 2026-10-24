@@ -92,6 +92,15 @@ export function readCiDemoClosed(): boolean {
   }
 }
 
+/** Strict read: true ONLY when the key says closed (unreadable storage is false here, unlike readCiDemoClosed). */
+export function readCiDemoWasClosed(): boolean {
+  try {
+    return window.sessionStorage.getItem(CI_DEMO_CLOSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export function markCiDemoClosed(): void {
   try {
     window.sessionStorage.setItem(CI_DEMO_CLOSED_KEY, "1");
@@ -118,18 +127,21 @@ export interface CiDemoAudienceArgs {
 }
 
 /**
- * `show`: render the card (and NOT Start-here). `close`: the student closed it, or used "Check my own
+ * `show`: render the card (and NOT Start-here). `closedHere`: it was closed in this tab. `close`: the student closed it, or used "Check my own
  * answer" — it stays shut for this tab. The signed-in read is the Start-here card's own
  * (`useZeroGraded(uid, { serverOnly: true })`, shared per uid: no second request), asked ONLY for an ad
  * arrival (anyone else can never see the card). A real result / grade closes the card for the tab, for
  * good: the zero-graded answer is memoised and would otherwise let the latch bring it back.
  */
-export function useCiDemoAudience(args: CiDemoAudienceArgs): { show: boolean; close: () => void } {
+export function useCiDemoAudience(args: CiDemoAudienceArgs): { show: boolean; close: () => void; closedHere: boolean } {
   const visit = readVisitLanding();
   const adArrival = isCiAdArrival(visit);
   const zeroGraded = useZeroGraded(args.overlay || !adArrival ? null : args.uid, { serverOnly: true });
   const [closed, setClosed] = useState<boolean>(() => readCiDemoClosed());
   const [open, setOpen] = useState(false);
+  // The card was shown and closed in this tab (key or in-memory close): the page uses it to keep the
+  // full-screen Start-here Byte from meeting a student who has just dismissed the card.
+  const [closedHere, setClosedHere] = useState<boolean>(() => readCiDemoWasClosed());
   const who: CiDemoAudienceInput["who"] = args.uid
     ? { kind: "signedIn", zeroGraded }
     : { kind: "signedOut", freeMode: args.freeMode, freeCheckUsed: args.freeMode ? hasUsedFreeCheck() : false };
@@ -138,7 +150,10 @@ export function useCiDemoAudience(args: CiDemoAudienceArgs): { show: boolean; cl
   // Derived-state latch: once the card has shown it stays through typing, until closed.
   if (show !== open && (show || closed)) setOpen(show);
   // A real result ends it for this tab (derived state: no effect-driven setState).
-  if (args.resultSeen && open && !closed) setClosed(true);
+  if (args.resultSeen && open && !closed) {
+    setClosed(true);
+    setClosedHere(true);
+  }
   // The tab remembers it (a ref, not state: a render-phase update above can re-render before this commits).
   const wasShown = useRef(false);
   useEffect(() => {
@@ -148,7 +163,8 @@ export function useCiDemoAudience(args: CiDemoAudienceArgs): { show: boolean; cl
   const close = () => {
     markCiDemoClosed();
     setClosed(true);
+    setClosedHere(true);
     setOpen(false);
   };
-  return { show, close };
+  return { show, close, closedHere };
 }
