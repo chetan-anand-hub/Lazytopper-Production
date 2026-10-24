@@ -1,0 +1,22 @@
+/* CI-SOFT-1 — the placeholder the eager door shows while the card's lazy chunk loads, so the page
+   below does not jump when the card arrives. The door is mounted only once the audience is KNOWN to
+   be true, so no space is ever reserved for a visitor who will not see the card. Heights are the PICK
+   card's, per breakpoint (measured at 390 / 768 / 1280); deliberately a little under, never over. */
+.ci-demo-ph {
+  box-sizing: border-box;
+  margin: 0 12px 16px;
+  min-height: 450px;
+  border-radius: 18px;
+  background: #15233a;
+}
+@media (min-width: 768px) {
+  .ci-demo-ph {
+    margin: 0 0 16px;
+    min-height: 410px;
+  }
+}
+@media (min-width: 1024px) {
+  .ci-demo-ph {
+    min-height: 235px;
+  }
+}

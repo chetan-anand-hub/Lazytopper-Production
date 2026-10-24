@@ -2,6 +2,24 @@
    Loaded only by the lazy chunk. Navy + soft white + green: the product's calm cockpit grammar.
    Mobile first: 320 / 360 / 390 single column; >= 768 result in two columns; >= 1024 pick tiles in
    three columns and mark + result side by side. Every tap target is >= 44 px; nothing scrolls sideways. */
+/* Kalam (OFL), latin 400 + 700, self-hosted in public/fonts/kalam/ (licence beside it): no third-party
+   request. Declared here, so it is fetched only with this card's lazy chunk. The maths symbols the
+   latin subset lacks fall through to the system fonts in --ci-hand. */
+@font-face {
+  font-family: "Kalam";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/kalam/kalam-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Kalam";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/kalam/kalam-latin-700-normal.woff2") format("woff2");
+}
+
 .ci-demo {
   --ci-navy: #15233a;
   --ci-ink: #15233a;
@@ -179,6 +197,23 @@
   gap: 12px;
   min-width: 0;
 }
+.ci-demo__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 40px;
+}
+.ci-demo__qref {
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.ci-demo__cols {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
 .ci-demo__paperCol {
   display: flex;
   flex-direction: column;
@@ -187,7 +222,6 @@
 }
 .ci-demo__chip {
   align-self: flex-start;
-  max-width: calc(100% - 44px);
   padding: 5px 9px;
   border-radius: 9px;
   background: #fff4d6;
@@ -293,8 +327,8 @@
   line-height: 1.35;
   color: #c9d1dc;
 }
-.ci-demo__steps,
-.ci-demo__groups {
+.ci-demo .ci-demo__steps,
+.ci-demo .ci-demo__groups {
   padding: 2px 16px;
   border: 1px solid var(--ci-line);
   border-radius: 16px;
@@ -347,10 +381,10 @@
   line-height: 1.4;
   color: #2d3748;
 }
-.ci-demo__groups {
+.ci-demo .ci-demo__groups {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   padding: 14px 16px;
 }
 .ci-demo__ghead {
@@ -434,7 +468,8 @@
   cursor: pointer;
 }
 
-/* phone RESULT is its own screen: the scorecard alone (the paper is on the tablet+ layouts) */
+/* phone RESULT is its own screen: the scorecard alone (the paper is on the tablet+ layouts). The ONLY
+   rule that hides anything: the label and the question reference live in .ci-demo__head, a sibling. */
 .ci-demo--result .ci-demo__paperCol {
   display: none;
 }
@@ -444,11 +479,7 @@
     margin: 0 0 16px;
     padding: 18px;
   }
-  /* keep the scorecard clear of the corner × */
-  .ci-demo__score {
-    margin-top: 30px;
-  }
-  .ci-demo--result .ci-demo__sample {
+  .ci-demo--result .ci-demo__cols {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
@@ -471,8 +502,8 @@
   .ci-demo__tiles {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .ci-demo--mark .ci-demo__sample,
-  .ci-demo--result .ci-demo__sample {
+  .ci-demo--mark .ci-demo__cols,
+  .ci-demo--result .ci-demo__cols {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 28px;

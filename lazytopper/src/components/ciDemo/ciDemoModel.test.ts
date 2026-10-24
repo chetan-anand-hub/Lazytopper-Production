@@ -5,6 +5,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CI_DEMO_CLOSED_KEY,
+  CI_DEMO_ORDER,
   ciDemoAudience,
   isCiAdArrival,
   markCiDemoClosed,
@@ -13,7 +14,6 @@ import {
   trioFor,
   type CiDemoAudienceInput,
 } from "./ciDemoModel";
-import { CI_DEMO_ORDER } from "./ciDemoSamples";
 
 const base: CiDemoAudienceInput = {
   overlay: false,

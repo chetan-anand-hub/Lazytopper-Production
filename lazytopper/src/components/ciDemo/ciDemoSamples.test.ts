@@ -3,16 +3,17 @@
  * The questions are read from the bank files AS TEXT (like pages/CheckYourAnswerPage.test.tsx) so a
  * bank edit fails here, never in front of a student; the samples module itself imports no bank.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { CI_DEMO_ORDER } from "./ciDemoModel";
 import { STORED_MISTAKE_TYPES, MISTAKE_GROUPS } from "../../lib/mistakeDisplay";
 import {
   CI_DEMO_COPY,
-  CI_DEMO_ORDER,
   CI_DEMO_SAMPLES,
   CI_DEMO_STEP_MS,
   formatMarks,
+  sampleLabel,
   sampleMarksLost,
   sampleTotal,
 } from "./ciDemoSamples";
@@ -48,6 +49,14 @@ describe("CI-SOFT-1 samples — the six", () => {
         expect(match).not.toBeNull();
         expect(JSON.parse(`"${(match as RegExpMatchArray)[1]}"`)).toBe(s.questionText);
         expect(row).toContain(`marks: ${s.marks}`);
+        expect(row).toContain(`topicKey: "${s.topicKey}"`);
+      });
+
+      it("N5: the summary names the computed total", () => {
+        const total = sampleTotal(s);
+        const said = total === 1.5 ? "One and a half out of 2" : total === 1 ? "1 out of 2" : "";
+        expect(said, `unexpected total ${total}`).not.toBe("");
+        expect(s.summary.startsWith(said), s.summary).toBe(true);
       });
 
       it("marks add up: Σmax = marks, 0 ≤ awarded ≤ max, total = Σawarded", () => {
@@ -120,5 +129,49 @@ describe("CI-SOFT-1 samples — the six", () => {
     const src = readFileSync(resolve(LAZYTOPPER, "src/components/ciDemo/ciDemoSamples.ts"), "utf8");
     const imports = [...src.matchAll(/from\s+"([^"]+)"/g)].map((m) => m[1]);
     for (const i of imports) expect(i).not.toMatch(/data\/|questionBank|bankFix/);
+  });
+});
+
+describe("CI-SOFT-1 board-source label (N1)", () => {
+  it("uses the full chapter names 'Try a board question' uses", () => {
+    expect(sampleLabel(CI_DEMO_SAMPLES.chem)).toBe("CBSE board question (2025) · Chemical Reactions & Equations");
+    expect(sampleLabel(CI_DEMO_SAMPLES.light)).toBe("CBSE board question (2024) · Light - Reflection & Refraction");
+    for (const s of all) expect(sampleLabel(s)).toMatch(/^CBSE board question \(\d{4}\) · \S/);
+  });
+});
+
+describe("CI-SOFT-1 chunk boundary and fonts (S3, FONT)", () => {
+  const dir = resolve(LAZYTOPPER, "src/components/ciDemo");
+  const sources = readdirSync(dir).filter((f) => !/\.test\./.test(f));
+
+  it("ciDemoSamples (all samples and copy) is imported ONLY by the lazy chunk", () => {
+    const importers = readdirSync(resolve(LAZYTOPPER, "src"), { recursive: true, encoding: "utf8" })
+      .map(String)
+      .filter((f) => /\.(ts|tsx)$/.test(f) && !/\.test\./.test(f))
+      .filter((f) => /from\s+"[^"]*ciDemoSamples"/.test(readFileSync(resolve(LAZYTOPPER, "src", f), "utf8")))
+      .map((f) => f.replace(/\\/g, "/"));
+    expect(importers.sort()).toEqual(["components/ciDemo/ciDemoChunk.tsx"]);
+  });
+
+  it("the eager half (model, door) never imports the samples, even as a type", () => {
+    for (const f of ["ciDemoModel.ts", "CiDemoCard.tsx"]) {
+      expect(readFileSync(resolve(dir, f), "utf8"), f).not.toMatch(/from\s+"[^"]*ciDemoSamples"/);
+    }
+  });
+
+  it("no third-party request: no googleapis / gstatic anywhere in the card's sources", () => {
+    expect(sources.length).toBeGreaterThan(4);
+    for (const f of sources) expect(readFileSync(resolve(dir, f), "utf8"), f).not.toMatch(/googleapis|gstatic/i);
+  });
+
+  it("Kalam 400 + 700 and its OFL licence ship from public/fonts/kalam/, declared in ciDemo.css", () => {
+    const css = readFileSync(resolve(dir, "ciDemo.css"), "utf8");
+    for (const w of ["400", "700"]) {
+      expect(existsSync(resolve(LAZYTOPPER, `public/fonts/kalam/kalam-latin-${w}-normal.woff2`))).toBe(true);
+      expect(css).toContain(`/fonts/kalam/kalam-latin-${w}-normal.woff2`);
+    }
+    expect(css).toMatch(/font-display:\s*swap/);
+    const licence = readFileSync(resolve(LAZYTOPPER, "public/fonts/kalam/Kalam-OFL.txt"), "utf8");
+    expect(licence).toMatch(/SIL Open Font License/);
   });
 });

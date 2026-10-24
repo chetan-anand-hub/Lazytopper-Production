@@ -20,8 +20,12 @@
  * of Byte's (the personality guide bans it there).
  */
 import { zeroMarksLost, type MarksLostByType, type StoredMistakeType } from "../../lib/mistakeDisplay";
+import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import type { CiDemoKey } from "./ciDemoModel";
 
-export type CiDemoKey = "circ" | "polyConcept" | "elec" | "chem" | "polySilly" | "light";
+// CiDemoKey and CI_DEMO_ORDER live in ./ciDemoModel (the eager half) so that THIS file, with every
+// sample and line of copy, is imported only by the lazy chunk and by tests.
+export type { CiDemoKey };
 
 export interface CiDemoStep {
   /** The scheme point, as shown on the result. */
@@ -47,6 +51,8 @@ export interface CiDemoSample {
   bankFile: string;
   subject: "Maths" | "Science";
   chapter: string;
+  /** The bank row's topicKey (tested against the bank file); names the board-source label like "Try a board question". */
+  topicKey: string;
   marks: number;
   year: number;
   /** "CBSE 2024 · 30/5/1 · Q21(a)" */
@@ -65,9 +71,6 @@ export interface CiDemoSample {
   takeaway: string;
 }
 
-/** The order "Mark another question" walks. */
-export const CI_DEMO_ORDER: readonly CiDemoKey[] = ["circ", "polyConcept", "elec", "chem", "polySilly", "light"];
-
 export const CI_DEMO_SAMPLES: Readonly<Record<CiDemoKey, CiDemoSample>> = {
   circ: {
     key: "circ",
@@ -75,6 +78,7 @@ export const CI_DEMO_SAMPLES: Readonly<Record<CiDemoKey, CiDemoSample>> = {
     bankFile: "maths/circles.pyq2024.ts",
     subject: "Maths",
     chapter: "Circles",
+    topicKey: "circles",
     marks: 2,
     year: 2024,
     paper: "CBSE 2024 · 30/5/1 · Q21(a)",
@@ -121,6 +125,7 @@ export const CI_DEMO_SAMPLES: Readonly<Record<CiDemoKey, CiDemoSample>> = {
     bankFile: "maths/polynomials.pyq2024.ts",
     subject: "Maths",
     chapter: "Polynomials",
+    topicKey: "polynomials",
     marks: 2,
     year: 2024,
     paper: "CBSE 2024 · 30/5/2 · Q21",
@@ -160,6 +165,7 @@ export const CI_DEMO_SAMPLES: Readonly<Record<CiDemoKey, CiDemoSample>> = {
     bankFile: "science/electricity.pyq2025.ts",
     subject: "Science",
     chapter: "Electricity",
+    topicKey: "electricity",
     marks: 2,
     year: 2025,
     paper: "CBSE 2025 · 31/3/2 · Q26",
@@ -203,6 +209,7 @@ export const CI_DEMO_SAMPLES: Readonly<Record<CiDemoKey, CiDemoSample>> = {
     bankFile: "science/chemicalReactions.pyq2025.ts",
     subject: "Science",
     chapter: "Chemical reactions",
+    topicKey: "chemical-reactions-and-equations",
     marks: 2,
     year: 2025,
     paper: "CBSE 2025 · 31/1/3 · Q26",
@@ -238,6 +245,7 @@ export const CI_DEMO_SAMPLES: Readonly<Record<CiDemoKey, CiDemoSample>> = {
     bankFile: "maths/polynomials.pyq2024.ts",
     subject: "Maths",
     chapter: "Polynomials",
+    topicKey: "polynomials",
     marks: 2,
     year: 2024,
     paper: "CBSE 2024 · 30/5/1 · Q23",
@@ -266,6 +274,7 @@ export const CI_DEMO_SAMPLES: Readonly<Record<CiDemoKey, CiDemoSample>> = {
     bankFile: "science/lightReflection.pyq2024.ts",
     subject: "Science",
     chapter: "Light",
+    topicKey: "light-reflection-and-refraction",
     marks: 2,
     year: 2024,
     paper: "CBSE 2024 · 31/5/3 · Q25",
@@ -322,8 +331,10 @@ export function formatMarks(n: number): string {
 /** One red-pen step every 1.8 s. */
 export const CI_DEMO_STEP_MS = 1800;
 
+/** The board-source line, in the words "Try a board question" uses (boardQuestionPick.boardTryLabel), with the same full chapter names. */
 export function sampleLabel(s: CiDemoSample): string {
-  return `CBSE board question (${s.year}) · ${s.chapter}`;
+  const chapter = desktopTopicBySlug(s.topicKey)?.name;
+  return `CBSE board question (${s.year})${chapter ? ` · ${chapter}` : ""}`;
 }
 
 /**

@@ -6,6 +6,8 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { setMatchMediaMatches } from "../../test/setup";
 
 const H = vi.hoisted(() => ({ track: vi.fn() }));
@@ -15,7 +17,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 });
 
 import CiDemoChunk from "./ciDemoChunk";
-import { CI_DEMO_COPY, CI_DEMO_SAMPLES } from "./ciDemoSamples";
+import { CI_DEMO_COPY, CI_DEMO_SAMPLES, sampleLabel } from "./ciDemoSamples";
 import { __resetMascotBudgetForTests, __setMascotBudgetForTests } from "../guide/mascotBudget";
 import { __resetMascotsForTests, hideMascots } from "../guide/mascotsMute";
 
@@ -168,7 +170,8 @@ describe("CI-SOFT-1 card — RESULT", () => {
     expect(steps).toContain("Calculation slip");
     // The real scorecard block, heading and group wording included.
     const groups = screen.getByTestId("ci-demo-groups").textContent as string;
-    expect(groups).toContain("Where your marks went");
+    expect(groups).toContain("Where the marks went"); // N2: our heading — it is a sample, not theirs
+    expect(groups).not.toContain("Where your marks went");
     expect(groups).toContain("Marks to gain — the quickest wins");
     expect(groups).toContain("Marks to gain — you already know this");
     expect(groups).toContain(s.takeaway);
@@ -208,7 +211,7 @@ describe("CI-SOFT-1 card — RESULT", () => {
     expect(onCheckOwn).toHaveBeenCalledWith({
       bankId: s.bankId,
       text: `${s.questionText} [2]`,
-      label: "CBSE board question (2024) · Circles",
+      label: sampleLabel(s),
     });
     expect(names()).toContain("ci_demo_check_own");
   });
@@ -273,5 +276,68 @@ describe("CI-SOFT-1 card — reduced motion, wide layout, mascots", () => {
     await act(async () => {});
     expect(screen.getByTestId("ci-demo-byte").getAttribute("data-drawn")).toBe("0");
     expect(line()).toBe(CI_DEMO_COPY.l1);
+  });
+});
+
+describe("CI-SOFT-1 card — B1: a sample is never presented as the student's own grade", () => {
+  const wide = () => setMatchMediaMatches((q) => q.includes("min-width: 1024px"));
+
+  function checkResultHead() {
+    const s = CI_DEMO_SAMPLES.circ;
+    expect(view()).toBe("result");
+    const chip = screen.getByTestId("ci-demo-label");
+    expect(chip.textContent).toBe(CI_DEMO_COPY.l3);
+    expect(screen.getByTestId("ci-demo-qref").textContent).toBe(`Q (${s.marks} marks, ${s.paper})`);
+    // ...and neither sits inside the paper column that phones hide on the result.
+    expect(chip.closest('[data-testid="ci-demo-paper-col"]')).toBeNull();
+    expect(screen.getByTestId("ci-demo-qref").closest('[data-testid="ci-demo-paper-col"]')).toBeNull();
+    expect(screen.getByTestId("ci-demo-head").contains(chip)).toBe(true);
+  }
+
+  it("★ RESULT on a phone: L3 and the one-line question reference are on screen", () => {
+    card();
+    fireEvent.click(screen.getByTestId("ci-demo-tile-circ"));
+    fireEvent.click(screen.getByTestId("ci-demo-skip"));
+    checkResultHead();
+  });
+
+  it("★ RESULT at desktop width (mark and result are one layout): the same head", async () => {
+    wide();
+    card({ stepMs: 5 });
+    fireEvent.click(screen.getByTestId("ci-demo-tile-circ"));
+    await waitFor(() => expect(view()).toBe("result"), { timeout: 2000 });
+    checkResultHead();
+  });
+
+  it("★ the only rule that hides anything is the paper column's: the head can never be hidden by the CSS", () => {
+    const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    const hidden = [...css.matchAll(/([^{}]+)\{[^{}]*display:\s*none[^{}]*\}/g)].map((m) => m[1].trim());
+    expect(hidden).toEqual([".ci-demo--result .ci-demo__paperCol"]);
+  });
+});
+
+describe("CI-SOFT-1 card — N4: nothing to replay under reduced motion", () => {
+  it("phone: no 'Watch again' on the final frame or the result", () => {
+    setMatchMediaMatches((q) => q.includes("prefers-reduced-motion"));
+    card();
+    fireEvent.click(screen.getByTestId("ci-demo-tile-circ"));
+    expect(screen.queryByTestId("ci-demo-again")).toBeNull();
+    fireEvent.click(screen.getByTestId("ci-demo-see-result"));
+    expect(view()).toBe("result");
+    expect(screen.queryByTestId("ci-demo-again")).toBeNull();
+  });
+
+  it("desktop width: the result has no 'Watch again' either", () => {
+    setMatchMediaMatches((q) => q.includes("prefers-reduced-motion") || q.includes("min-width: 1024px"));
+    card();
+    fireEvent.click(screen.getByTestId("ci-demo-tile-circ"));
+    expect(view()).toBe("result");
+    expect(screen.queryByTestId("ci-demo-again")).toBeNull();
+  });
+
+  it("control: with motion, Watch again is there", () => {
+    card();
+    fireEvent.click(screen.getByTestId("ci-demo-tile-circ"));
+    expect(screen.getByTestId("ci-demo-again")).toBeInTheDocument();
   });
 });

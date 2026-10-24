@@ -10,7 +10,8 @@
  *          the takeaway, Byte, and the two ways on.
  *
  * DISPLAY ONLY. The six marked answers (./ciDemoSamples.ts) are FIXED data animated in the browser:
- * no grader call, no AI call, nothing sent but analytics names. prefers-reduced-motion → the final
+ * no grader call, no AI call, nothing sent but analytics names. The handwriting font (Kalam) is self-hosted
+ * (public/fonts/kalam/, declared in ciDemo.css): no request leaves this origin. prefers-reduced-motion → the final
  * frame at once, no timer. ONE Byte, drawn only when the mascot budget grants it.
  */
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -34,20 +35,6 @@ import { nextSampleKey, readCiDemoSubjectHint, trioFor } from "./ciDemoModel";
 import "./ciDemo.css";
 
 const LazyByte = lazy(() => import("../guide/BlobCharacter"));
-
-const FONT_LINK_ID = "ci-demo-handwriting-font";
-function ensureHandwritingFont(): void {
-  try {
-    if (document.getElementById(FONT_LINK_ID)) return;
-    const link = document.createElement("link");
-    link.id = FONT_LINK_ID;
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap";
-    document.head.appendChild(link);
-  } catch {
-    /* no DOM access: the system handwriting fallback in the CSS stack is used */
-  }
-}
 
 /** What the sample was filled into the page's question box as (the page does the fill). */
 export interface CiDemoOwnPick {
@@ -100,7 +87,6 @@ export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOu
   const wide = useWide();
 
   useEffect(() => {
-    ensureHandwritingFont();
     trackNamedEvent("ci_demo_shown");
   }, []);
 
@@ -242,9 +228,11 @@ export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOu
               Skip to result
             </button>
           )}
-          <button type="button" className="ci-demo__link" data-testid="ci-demo-again" onClick={watchAgain}>
-            Watch again
-          </button>
+          {reduced ? null : (
+            <button type="button" className="ci-demo__link" data-testid="ci-demo-again" onClick={watchAgain}>
+              Watch again
+            </button>
+          )}
         </div>
       ) : null}
 
@@ -257,9 +245,11 @@ export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOu
           <button type="button" className="ci-demo__btn ci-demo__btn--ghost" data-testid="ci-demo-another" onClick={another}>
             Mark another question
           </button>
-          <button type="button" className="ci-demo__link" data-testid="ci-demo-again" onClick={watchAgain}>
-            Watch again
-          </button>
+          {reduced ? null : (
+            <button type="button" className="ci-demo__link" data-testid="ci-demo-again" onClick={watchAgain}>
+              Watch again
+            </button>
+          )}
         </div>
       ) : null}
     </section>
@@ -306,16 +296,19 @@ function SampleView({ sample, shown, resultView, wide }: { sample: CiDemoSample;
 
   return (
     <div className="ci-demo__sample">
-      <div className="ci-demo__paperCol" data-testid="ci-demo-paper-col">
+      {/* The label and the question reference sit OUTSIDE the paper column, which phones hide on the
+          result: the sample is never presented as the student's own grade, at any width. */}
+      <div className="ci-demo__head" data-testid="ci-demo-head">
         <p className="ci-demo__chip" data-testid="ci-demo-label">
           {CI_DEMO_COPY.l3}
         </p>
-        <p className="ci-demo__q">
-          <b>
-            Q ({sample.marks} marks, {sample.paper}).
-          </b>{" "}
-          {sample.questionText}
+        <p className="ci-demo__qref" data-testid="ci-demo-qref">
+          Q ({sample.marks} marks, {sample.paper})
         </p>
+      </div>
+      <div className="ci-demo__cols">
+      <div className="ci-demo__paperCol" data-testid="ci-demo-paper-col">
+        <p className="ci-demo__q">{sample.questionText}</p>
         <div className="ci-demo__paper" data-testid="ci-demo-paper">
           {sample.lines.map((text, i) => {
             const mark = revealed.find((st) => st.line === i);
@@ -370,12 +363,14 @@ function SampleView({ sample, shown, resultView, wide }: { sample: CiDemoSample;
             })}
           </ul>
           <section className="ci-demo__groups" data-testid="ci-demo-groups">
-            {/* The product's own block (same words as a live scorecard); heading = MARKS_HEADING. */}
-            <MarksLostLines marks={sampleMarksLost(sample)} />
+            {/* The product's own block (the same group words as a live scorecard) under OUR heading: this is a sample, not theirs. */}
+            <b className="ci-demo__ghead">Where the marks went</b>
+            <MarksLostLines marks={sampleMarksLost(sample)} heading={false} />
             <p className="ci-demo__take">{sample.takeaway}</p>
           </section>
         </div>
       ) : null}
+      </div>
     </div>
   );
 }

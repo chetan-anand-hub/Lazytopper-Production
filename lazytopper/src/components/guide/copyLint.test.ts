@@ -21,7 +21,8 @@ import { SAVE_NUDGE_COPY, WRONG_TAP_COPY } from "./saveNudge/saveNudge";
 import { MI_VOICE_COPY } from "./mi/miVoiceModel";
 import { MUMMY_COPY } from "./mummy/mummyModel";
 import { ziggyReactionFor } from "./ziggyModel";
-import { CI_DEMO_COPY, CI_DEMO_ORDER, CI_DEMO_SAMPLES } from "../ciDemo/ciDemoSamples";
+import { CI_DEMO_COPY, CI_DEMO_SAMPLES } from "../ciDemo/ciDemoSamples";
+import { CI_DEMO_ORDER } from "../ciDemo/ciDemoModel";
 
 export const HINGLISH = ["chalo", "yaar", "bas", "josh", "ek", "arre", "accha", "achha", "theek", "mast", "bahut", "jaldi", "chal", "bilkul", "chalega"];
 const SELLING = /\b(premium(?!'s)|upgrade|unlock|discount|offer|buy|pay now|subscribe|limited time|hurry)\b/i;

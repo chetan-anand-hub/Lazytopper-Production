@@ -1502,7 +1502,13 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   // CI-SOFT-1 — the sample-marking card for an ad arrival who has not checked an answer yet. While it
   // shows, Start-here is not rendered (one Byte per screen); once closed, Start-here comes back.
-  const ciDemo = useCiDemoAudience({ overlay: !!overlay, uid: ciMomentUid, freeMode: isFreeMode, inProgress: ciInProgress });
+  const ciDemo = useCiDemoAudience({
+    overlay: !!overlay,
+    uid: ciMomentUid,
+    freeMode: isFreeMode,
+    inProgress: ciInProgress,
+    resultSeen: ciShownResultHere || status !== "idle",
+  });
 
   // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
   const [downloading, setDownloading] = useState(false);
@@ -2742,7 +2748,8 @@ const DesktopCheckImprovePageInner: React.FC<{
         />
         {/* MOMENTS-1 M9 — the signed-out free check (no sign-up by construction: free mode
             renders only for a signed-out visitor) opened from a shared link. */}
-        <GuideMomentSlot show={ciSharedMoment} moment="m9" step="shared" />
+        {/* CI-SOFT-1: one Byte per screen: the shared-link moment waits while the sample card shows. */}
+        <GuideMomentSlot show={ciSharedMoment && !ciDemo.show} moment="m9" step="shared" />
 
         {/* C&I PR-1 — "Your checked papers": the overlay history panel (spec §6
             volume rule) + the read-only stored-scorecard reopen. Fixed-inset
@@ -3272,7 +3279,8 @@ const DesktopCheckImprovePageInner: React.FC<{
               </div>
 
               {/* MOMENTS-1 M4 — first session: Byte's one line for the selected answer tab. */}
-              <GuideMomentSlot show={ciFirstMoments} moment="m4" step={tab === "upload" ? "upload" : "type"} />
+              {/* CI-SOFT-1: one Byte per screen: the answer-step moment waits while the sample card shows. */}
+              <GuideMomentSlot show={ciFirstMoments && !ciDemo.show} moment="m4" step={tab === "upload" ? "upload" : "type"} />
 
               {tab === "upload" ? (
                 <div>

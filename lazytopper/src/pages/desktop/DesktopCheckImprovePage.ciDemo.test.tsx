@@ -65,12 +65,15 @@ import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
 import { resetZeroGradedCacheForTests } from "../../components/startHere/zeroGraded";
 import { CI_DEMO_CLOSED_KEY } from "../../components/ciDemo/ciDemoModel";
 import { CI_DEMO_SAMPLES } from "../../components/ciDemo/ciDemoSamples";
+import { __setGuideAbForTests } from "../../components/guide/guideVariant";
+import { __resetMascotsForTests } from "../../components/guide/mascotsMute";
+import { GUIDE_PUBLIC_ARM_KEY, __resetPublicArmForTests } from "../../components/guide/public/publicPeekModel";
 
 const SIGNED_IN = { uid: "ci-new", email: null, phoneNumber: "+919000000000", displayName: null };
 
-function page() {
+function page(entry = "/check-improve") {
   return (
-    <MemoryRouter initialEntries={["/check-improve"]}>
+    <MemoryRouter initialEntries={[entry]}>
       <Routes>
         <Route path="/check-improve" element={<DesktopCheckImprovePage />} />
         <Route path="*" element={null} />
@@ -92,6 +95,8 @@ beforeEach(() => {
   window.localStorage.clear();
   window.sessionStorage.clear();
   resetZeroGradedCacheForTests();
+  __resetPublicArmForTests();
+  __resetMascotsForTests();
   H.auth = { user: SIGNED_IN, loading: false };
   H.local = [];
   H.cloudHas.mockReset().mockResolvedValue(false);
@@ -109,6 +114,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
   setMatchMediaMatches(false);
+  __setGuideAbForTests(null);
 });
 
 describe("CI-SOFT-1 · the card on /check-improve", () => {
@@ -192,5 +198,51 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     expect(H.track.mock.calls.map((c) => c[0])).toEqual(
       expect.arrayContaining(["ci_demo_shown", "ci_demo_pick", "ci_demo_result", "ci_demo_check_own"]),
     );
+  });
+
+  it("★ S2: the shared-link moment (M9, a second Byte) does not show while the card shows; shared-link visitors stay in the audience", async () => {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    __setGuideAbForTests(true, "guide");
+    window.localStorage.setItem(GUIDE_PUBLIC_ARM_KEY, "guide");
+    adArrival();
+    render(page("/check-improve?utm_source=parent_share&utm_medium=whatsapp"));
+    expect(await screen.findByTestId("ci-demo")).toBeInTheDocument();
+    await settle();
+    await settle();
+    expect(screen.queryByTestId("guide-moment-m9")).toBeNull();
+    // once the card is closed the shared-link moment is exactly what it was before this lane
+    fireEvent.click(screen.getByTestId("ci-demo-close"));
+    await waitFor(() => expect(screen.queryByTestId("guide-moment-m9")).not.toBeNull(), { timeout: 5000 });
+  });
+
+  it("★ S4: while the chunk loads, a placeholder holds the card's place (and only for a visitor who will see the card)", async () => {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    adArrival();
+    render(page());
+    // a signed-out free visitor is in the audience from the first render: the placeholder (or the card) is there at once.
+    expect(screen.queryByTestId("ci-demo-placeholder") ?? screen.queryByTestId("ci-demo")).not.toBeNull();
+    expect(await screen.findByTestId("ci-demo")).toBeInTheDocument();
+    expect(screen.queryByTestId("ci-demo-placeholder")).toBeNull();
+  });
+
+  it("★ S4 control: a visitor outside the audience gets no placeholder", async () => {
+    window.sessionStorage.setItem("lazytopper.guideIntent", JSON.stringify({ landing: "/notes", utm_content: null, utm_campaign: null }));
+    render(page());
+    await settle();
+    expect(screen.queryByTestId("ci-demo-placeholder")).toBeNull();
+  });
+
+  it("★ S2b: the answer-step moment (M4, a second Byte) waits while the card shows, and returns once it is closed", async () => {
+    __setGuideAbForTests(true, "guide");
+    adArrival();
+    render(page());
+    expect(await screen.findByTestId("ci-demo")).toBeInTheDocument();
+    await settle();
+    await settle();
+    expect(screen.queryByTestId("guide-moment-m4")).toBeNull();
+    fireEvent.click(screen.getByTestId("ci-demo-close"));
+    await waitFor(() => expect(screen.queryByTestId("guide-moment-m4")).not.toBeNull(), { timeout: 5000 });
   });
 });

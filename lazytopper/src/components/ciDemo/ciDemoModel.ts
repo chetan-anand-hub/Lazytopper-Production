@@ -15,13 +15,17 @@
  *
  * DISPLAY ONLY: nothing here reads or changes a grade, a mark, a prompt or a mistake type.
  */
-import { useCallback, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { readVisitLanding } from "../guide/guideInputs";
 import { hasUsedFreeCheck } from "../../services/freeCheckClient";
 import { useZeroGraded, type ZeroGraded } from "../startHere/zeroGraded";
 import { readSubjectHint } from "../startHere/startHereModel";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
-import { CI_DEMO_ORDER, type CiDemoKey } from "./ciDemoSamples";
+
+export type CiDemoKey = "circ" | "polyConcept" | "elec" | "chem" | "polySilly" | "light";
+
+/** The order "Mark another question" walks. (Here, not in ciDemoSamples: that file ships only in the lazy chunk.) */
+export const CI_DEMO_ORDER: readonly CiDemoKey[] = ["circ", "polyConcept", "elec", "chem", "polySilly", "light"];
 
 /** THIS TAB's sessionStorage: "1" once the card was closed (or used for "Check my own answer"). */
 export const CI_DEMO_CLOSED_KEY = "lazytopper.ciDemoClosed";
@@ -109,28 +113,42 @@ export interface CiDemoAudienceArgs {
   /** Signed out and the free-check flag is on. */
   freeMode: boolean;
   inProgress: boolean;
+  /** This page has shown a real result, or a real grade has started: the card is done for this tab. */
+  resultSeen: boolean;
 }
 
 /**
  * `show`: render the card (and NOT Start-here). `close`: the student closed it, or used "Check my own
  * answer" — it stays shut for this tab. The signed-in read is the Start-here card's own
- * (`useZeroGraded(uid, { serverOnly: true })`, shared per uid: no second request).
+ * (`useZeroGraded(uid, { serverOnly: true })`, shared per uid: no second request), asked ONLY for an ad
+ * arrival (anyone else can never see the card). A real result / grade closes the card for the tab, for
+ * good: the zero-graded answer is memoised and would otherwise let the latch bring it back.
  */
 export function useCiDemoAudience(args: CiDemoAudienceArgs): { show: boolean; close: () => void } {
-  const zeroGraded = useZeroGraded(args.overlay ? null : args.uid, { serverOnly: true });
+  const visit = readVisitLanding();
+  const adArrival = isCiAdArrival(visit);
+  const zeroGraded = useZeroGraded(args.overlay || !adArrival ? null : args.uid, { serverOnly: true });
   const [closed, setClosed] = useState<boolean>(() => readCiDemoClosed());
   const [open, setOpen] = useState(false);
   const who: CiDemoAudienceInput["who"] = args.uid
     ? { kind: "signedIn", zeroGraded }
     : { kind: "signedOut", freeMode: args.freeMode, freeCheckUsed: args.freeMode ? hasUsedFreeCheck() : false };
-  const base = { overlay: args.overlay, visit: readVisitLanding(), closed, who };
-  const show = ciDemoAudience({ ...base, inProgress: args.inProgress, alreadyOpen: open });
+  const done = closed || args.resultSeen;
+  const show = ciDemoAudience({ overlay: args.overlay, visit, closed: done, who, inProgress: args.inProgress, alreadyOpen: open });
   // Derived-state latch: once the card has shown it stays through typing, until closed.
   if (show !== open && (show || closed)) setOpen(show);
-  const close = useCallback(() => {
+  // A real result ends it for this tab (derived state: no effect-driven setState).
+  if (args.resultSeen && open && !closed) setClosed(true);
+  // The tab remembers it (a ref, not state: a render-phase update above can re-render before this commits).
+  const wasShown = useRef(false);
+  useEffect(() => {
+    if (show) wasShown.current = true;
+    else if (args.resultSeen && wasShown.current) markCiDemoClosed();
+  }, [show, args.resultSeen]);
+  const close = () => {
     markCiDemoClosed();
     setClosed(true);
     setOpen(false);
-  }, []);
+  };
   return { show, close };
 }
