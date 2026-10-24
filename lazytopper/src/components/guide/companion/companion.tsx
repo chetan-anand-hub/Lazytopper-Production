@@ -433,10 +433,17 @@ export function CompanionBreathe({ uid, onDone }: CompanionBreatheProps) {
  * Full Mock ENTRY screens only (the slot is rendered before the Start row, never during a test). It is
  * optional (Skip), steps aside by itself after 10 s, never blocks, delays or changes Start, and shows
  * once per session; the director counts it. No page was edited: the slot is filled from here.
+ * LAYOUT: the card is overlaid on a zero-height anchor, so nothing below it ever shifts.
  */
 function PreTestBreathe(_props: PreTestMomentProps) {
   const uid = useSignedInUid();
   if (!guideAbActive() || !uid) return null;
-  return <CompanionBreathe uid={uid} />;
+  // A zero-height anchor: the card floats up over the space ABOVE the Start row (companion.css
+  // .lt-cmp-pretest), so Start never moves under a student's finger, whenever the card arrives or leaves.
+  return (
+    <div className="lt-cmp-pretest" data-testid="guide-pretest-anchor">
+      <CompanionBreathe uid={uid} />
+    </div>
+  );
 }
 registerPreTestMoment(PreTestBreathe);

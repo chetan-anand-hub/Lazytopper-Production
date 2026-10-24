@@ -481,7 +481,8 @@ describe("6 · late night, on any signed-in page (mounted by the app-wide Comman
 
 /* ── MOMENTS-3 ─────────────────────────────────────────────────────────────────────────────────── */
 
-import { examWeekDays, examWeekDue, festivalPropsAt, inFestivalWindow } from "./companionModel";
+import { examWeekDays, examWeekDue } from "./companionModel";
+import { festivalPropsAt, inFestivalWindow } from "./festival";
 import { PreTestSlot, registerPreTestMoment } from "../pages/preTestSlot";
 import { __resetMascotBudgetForTests, __setMascotBudgetForTests, shownThisSession, unpromptedShownCount } from "../mascotBudget";
 

@@ -123,3 +123,18 @@ describe("ahaLines + the scorecard plan", () => {
     expect(p.aha).toBeNull();
   });
 });
+
+describe("MOMENTS-3 · PERF-3 and analytics hygiene", () => {
+  it("the festival ids the (eager) model uses are exactly the rig's FESTIVAL_PROPS", async () => {
+    const { FESTIVAL_PROPS } = await import("./rigProps");
+    const { festivalPropsAt } = await import("./companion/festival");
+    expect(festivalPropsAt(Date.UTC(2026, 10, 8, 6))).toEqual(FESTIVAL_PROPS);
+  });
+
+  it("the new emotions report under their OWN ids, never an older moment's", async () => {
+    const { COMPANION_EVENT_ID } = await import("./companion/companionModel");
+    expect(COMPANION_EVENT_ID.examWeek).toBe("c_exam_week");
+    expect(COMPANION_EVENT_ID.breathe).toBe("c_breathe_test");
+    expect(COMPANION_EVENT_ID.examWeek).not.toBe(COMPANION_EVENT_ID.countdown);
+  });
+});

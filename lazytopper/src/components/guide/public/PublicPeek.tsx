@@ -14,7 +14,7 @@ import { trackGuidePublicArmAssigned, trackGuidePublicShown, type GuideVariant }
 import { desktopTopicBySlug } from "../../../lib/desktop/topics";
 import { guideAbActive, guideArmReportsOn, resolveGuideVariant } from "../guideVariant";
 import { useMascotsHidden } from "../mascotsMute";
-import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "../mascotBudget";
+import { APPEARANCE_PRIORITY, NoteShown, useAppearance, wouldGrant } from "../mascotBudget";
 import {
   ARTICLE_SELECTOR,
   VisibleClock,
@@ -154,6 +154,8 @@ export default function PublicPeek({ page, chapterSlug }: PublicPeekProps) {
       }
       if (!arm) return;
       markPeekUsedInTab(page);
+      // MOMENTS-3: the session budget is spent -> the peek will not draw, so nothing is reported as shown.
+      if (arm === "guide" && !wouldGrant(`public-peek:${page}`, APPEARANCE_PRIORITY.explainer)) return;
       if (!uid && !quiet) copyArmToIntent(arm);
       if (!quiet) {
         // GUIDE-ALL-1 (22 Oct 2026): the A/B ended — the device arm is no longer reported.

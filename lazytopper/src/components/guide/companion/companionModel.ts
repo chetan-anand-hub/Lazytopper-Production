@@ -17,7 +17,6 @@ import type { GuideMomentId } from "../../../analytics/analytics";
 import type { SessionRecord } from "../../../services/sessionRecords";
 import { guideAccountTag, guidePreviewActive } from "../guideVariant";
 import { anyMascotHost } from "../mascotPresence";
-import { FESTIVAL_PROPS, type Prop } from "../rigProps";
 
 export type CompanionMomentId =
   | "lowScore"
@@ -33,16 +32,14 @@ export type CompanionMomentId =
 /** The `moment` each one reports in guide_moment_shown / guide_moment_click. */
 export const COMPANION_EVENT_ID: Record<CompanionMomentId, GuideMomentId> = {
   lowScore: "c_low_score",
-  breathe: "c_breathe",
+  breathe: "c_breathe_test", // MOMENTS-3: the pre-test Breathe reports under its own id
   improve: "c_improve",
   milestone: "c_milestone",
   welcomeBack: "c_welcome_back",
   lateNight: "c_late_night",
   rhythm: "c_rhythm",
   countdown: "c_countdown",
-  // MOMENTS-3: the exam-week moment is the countdown's last-week form; it reports under the same id
-  // (analytics.ts is outside this lane, so no new GuideMomentId was added).
-  examWeek: "c_countdown",
+  examWeek: "c_exam_week", // MOMENTS-3: its own id, so the countdown metric is untouched
 };
 
 /** When two qualify at once, the higher shows and the other waits (wellbeing first). */
@@ -348,60 +345,36 @@ export function rhythmDue(a: { now: number; days: number; lastRhythmAt: number |
 
 /* ── 8 — the board countdown (an OFFICIAL date only) ─────────────────────────────────────────── */
 
+/** Whole IST days from `now` to the IST calendar date `iso` (YYYY-MM-DD); null if malformed (0 or negative once it is today / past). */
+function daysUntil(now: number, iso: string): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  const target = m ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : NaN;
+  return Number.isFinite(target) ? Math.floor(target / DAY_MS) - istDayIndex(now) : null;
+}
+
 /** Whole IST days from `now` to the IST calendar date `iso` (YYYY-MM-DD); null if past or malformed. */
 export function daysToBoards(now: number, iso: string): number | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
-  if (!m) return null;
-  const target = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  if (!Number.isFinite(target)) return null;
-  const days = Math.floor(target / DAY_MS) - istDayIndex(now);
-  return days > 0 ? days : null;
+  const d = daysUntil(now, iso);
+  return d !== null && d > 0 ? d : null;
 }
 
 /**
- * MOMENTS-3 — ziggy_examday. The IST days from `now` to the exam date `iso` (YYYY-MM-DD), 0 on the
- * day itself, when that is 0–6 (the week of the exam); null otherwise or when the date is malformed.
+ * MOMENTS-3 - ziggy_examday. The IST days from `now` to the exam date `iso` (YYYY-MM-DD), 0 on the
+ * day itself, when that is 0-6 (the week of the exam); null otherwise or when the date is malformed.
  * The caller passes ONLY an OFFICIAL date (a predicted one never reaches this).
  */
 export const EXAM_WEEK_DAYS = 7;
 export function examWeekDays(now: number, iso: string): number | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
-  if (!m) return null;
-  const target = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  if (!Number.isFinite(target)) return null;
-  const days = Math.floor(target / DAY_MS) - istDayIndex(now);
-  return days >= 0 && days < EXAM_WEEK_DAYS ? days : null;
+  const d = daysUntil(now, iso);
+  return d !== null && d >= 0 && d < EXAM_WEEK_DAYS ? d : null;
 }
 
-/** Once per exam week: not when it already showed within the last 7 days. */
 export function examWeekDue(a: { now: number; lastAt: number | null }): boolean {
   return a.lastAt === null || a.now - a.lastAt >= WEEK_MS;
 }
 
 /* ── MOMENTS-3 — Diwali props (festival window, IST) ──────────────────────────────────────────── */
 
-/**
- * Diwali 2026 falls on Sunday 8 November 2026 (Lakshmi Puja day). Sources read 24 Oct 2026:
- * https://haindavam.org/festivals/diwali/2026-11-08 · https://www.bankbazaar.com/indian-holiday/lakshmi-puja-holiday.html
- * The festival window is 5–10 Nov 2026 INCLUSIVE, by the Indian calendar day (IST).
- */
-export const DIWALI_WINDOW = { startUtcDay: Date.UTC(2026, 10, 5), endUtcDay: Date.UTC(2026, 10, 10) } as const;
-
-/** True when the IST day containing `now` is 5–10 Nov 2026. Pure: the caller supplies the clock. */
-export function inFestivalWindow(now: number): boolean {
-  const day = istDayIndex(now);
-  return day >= Math.floor(DIWALI_WINDOW.startUtcDay / DAY_MS) && day <= Math.floor(DIWALI_WINDOW.endUtcDay / DAY_MS);
-}
-
-/** The props a character wears at `now`: the diya + rangoli in the window, otherwise NOTHING (undefined). */
-export function festivalPropsAt(now: number): readonly Prop[] | undefined {
-  return inFestivalWindow(now) ? FESTIVAL_PROPS : undefined;
-}
-
-/** The ONE clock read for festival props in render paths (tests pin it with fake timers). */
-export function festivalPropsNow(): readonly Prop[] | undefined {
-  return festivalPropsAt(Date.now());
-}
 
 export function countdownDue(a: { now: number; lastCountdownAt: number | null }): boolean {
   return a.lastCountdownAt === null || a.now - a.lastCountdownAt >= WEEK_MS;
@@ -486,10 +459,8 @@ const EMPTY: CompanionMarks = { m: [], wb: null, r: null, c: null, n: null, s: n
 
 function ahaMarksOf(v: unknown): NonNullable<CompanionMarks["a"]> {
   const out: NonNullable<CompanionMarks["a"]> = {};
-  if (!v || typeof v !== "object") return out;
-  const o = v as Record<string, unknown>;
   for (const t of ["conceptual", "calculation", "silly", "presentation"] as const) {
-    const n = o[t];
+    const n = (v as Record<string, unknown> | null)?.[t];
     if (typeof n === "number" && Number.isFinite(n)) out[t] = n;
   }
   return out;

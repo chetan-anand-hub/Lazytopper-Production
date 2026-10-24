@@ -26,7 +26,7 @@ import type { ZiggyReaction } from "./ziggyModel";
 import type { ScoreGuidePlan } from "./scoreGuideModel";
 import { MASCOTS_TOAST_COPY, hideMascotsWithUndo } from "./moments/mascotsToast";
 import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "./mascotBudget";
-import { festivalPropsNow } from "./companion/companionModel";
+import { festivalPropsNow } from "./companion/festival";
 import { noteAhaShown } from "./ahaModel";
 
 /* ── small glyphs (24×24, currentColor) ─────────────────────────────────────────────── */
@@ -433,7 +433,10 @@ export function ScoreGuideBeats({ plan, startAt = "ziggy" }: ScoreGuideBeatsProp
   const [festival] = useState(() => festivalPropsNow());
   useEffect(() => {
     trackGuideEvent("guide_moment_shown", { moment: "score", surface: plan.surface, situation: plan.situation });
-    if (plan.aha) noteAhaShown(plan.aha, Date.now());
+    if (plan.aha) {
+      noteAhaShown(plan.aha, Date.now());
+      trackGuideEvent("guide_moment_shown", { moment: "aha" });
+    }
     if (reduce.current || startAt === "byte") return;
     const t = setTimeout(() => setBeat("byte"), SCORE_GUIDE_BEAT_MS);
     return () => clearTimeout(t);

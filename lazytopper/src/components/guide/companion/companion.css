@@ -14,6 +14,13 @@
   margin: 0; max-width: min(420px, calc(100vw - 84px)); }
 @media (min-width: 1024px) { .lt-cmp--fixed { left: 284px; bottom: 16px; } }
 
+/* MOMENTS-3 - Breathe before a test. The slot sits ABOVE the Start row, so the card must not take space:
+   a zero-height anchor and the card floated up over the content above it. Start never moves, whether the
+   card arrives late (auth, chunk) or leaves (Skip, 10 s). Display only; the card never covers Start. */
+.lt-cmp-pretest { position: relative; height: 0; margin: 0; padding: 0; z-index: 5; }
+.lt-cmp-pretest > .lt-cmp--breathe { position: absolute; left: 0; right: 0; max-width: 560px; bottom: 8px; margin: 0; box-sizing: border-box;
+  background: #fff; border: 2px solid #14213d; border-radius: 14px; padding: 8px 10px; box-shadow: 0 10px 26px -14px hsla(222, 47%, 20%, .5); }
+
 /* A DUET scene: Byte left, Ziggy right, overlapping by 22% of a character's width (44 of the rig's
    200 viewBox units) so Byte's hand lands on Ziggy's shoulder / their high five meets in the middle.
    Byte is painted above Ziggy so his hand shows on the shoulder. */

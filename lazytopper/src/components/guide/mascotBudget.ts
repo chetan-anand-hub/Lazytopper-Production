@@ -55,7 +55,7 @@
  *
  * Display only: nothing here reads or changes a grade, a mark, a prompt or a mistake type.
  */
-import { createElement, useEffect, useLayoutEffect, useSyncExternalStore, type ReactElement } from "react";
+import { useEffect, useLayoutEffect, useSyncExternalStore, type ReactElement } from "react";
 import { guidePreviewActive } from "./guideVariant";
 import { mascotsHidden, useMascotsHidden } from "./mascotsMute";
 
@@ -76,12 +76,10 @@ export type AppearanceClass = keyof typeof APPEARANCE_PRIORITY;
 
 /* ── state ─────────────────────────────────────────────────────────────────────────────────── */
 
-interface Hold {
-  priority: number;
-  refs: number;
-}
-
-const holds = new Map<string, Hold>();
+// PERF-3: this file rides in the ENTRY chunk (every door asks it first), so it is kept small:
+// two maps (kind -> priority, kind -> holders), no copies, no per-call allocation.
+const holds = new Map<string, number>();
+const refs = new Map<string, number>();
 let memoryShown: string[] | null = null;
 let testOverride: boolean | null = null;
 let version = 0;
@@ -97,24 +95,16 @@ export function __setMascotBudgetForTests(on: boolean | null): void {
   testOverride = on;
 }
 
-function budgetOn(): boolean {
-  if (testOverride !== null) return testOverride;
-  return import.meta.env.MODE !== "test";
-}
-
 /** The admin preview and a switched-off budget grant everything and count nothing. */
 function bypass(): boolean {
-  return !budgetOn() || guidePreviewActive();
+  return !(testOverride ?? import.meta.env.MODE !== "test") || guidePreviewActive();
 }
 
 function readShown(): string[] {
   if (memoryShown) return memoryShown;
   try {
-    const raw = window.sessionStorage.getItem(MASCOT_BUDGET_KEY);
-    const v = raw ? (JSON.parse(raw) as { v?: unknown; shown?: unknown } | null) : null;
-    if (v && v.v === 1 && Array.isArray(v.shown)) {
-      return v.shown.filter((k): k is string => typeof k === "string" && k.length > 0 && k.length <= 80).slice(0, MAX_UNPROMPTED_PER_SESSION);
-    }
+    const v = JSON.parse(window.sessionStorage.getItem(MASCOT_BUDGET_KEY) || "null");
+    if (v?.v === 1 && Array.isArray(v.shown)) return v.shown.filter((k: unknown) => typeof k === "string").slice(0, MAX_UNPROMPTED_PER_SESSION);
   } catch {
     /* blocked or malformed: nothing shown yet */
   }
@@ -139,10 +129,10 @@ export function decideAppearance(
   priority: number,
 ): { grant: boolean; evict: string | null } {
   const max = state.max ?? MAX_UNPROMPTED_PER_SESSION;
-  if (state.shown.includes(kind)) return { grant: true, evict: null };
-  if (state.holds.has(kind)) return { grant: true, evict: null };
+  const yes = { grant: true, evict: null };
+  if (state.shown.includes(kind) || state.holds.has(kind)) return yes;
   if (state.shown.length >= max) return { grant: false, evict: null };
-  if (state.shown.length + state.holds.size < max) return { grant: true, evict: null };
+  if (state.shown.length + state.holds.size < max) return yes;
   // Full, but some slots are only RESERVED: a strictly higher priority takes the lowest one.
   let lowest: string | null = null;
   let lowestP = Infinity;
@@ -152,38 +142,31 @@ export function decideAppearance(
       lowestP = p;
     }
   }
-  if (lowest !== null && priority > lowestP) return { grant: true, evict: lowest };
-  return { grant: false, evict: null };
+  return lowest !== null && priority > lowestP ? { grant: true, evict: lowest } : { grant: false, evict: null };
 }
 
-function snapshotHolds(): Map<string, number> {
-  const m = new Map<string, number>();
-  for (const [k, h] of holds) m.set(k, h.priority);
-  return m;
-}
+const decide = (kind: string, priority: number) => decideAppearance({ shown: readShown(), holds }, kind, priority);
 
 /* ── the API ───────────────────────────────────────────────────────────────────────────────── */
 
-/** Would a request for `kind` be granted right now? Read only — nothing is reserved. */
+/** Would a request for `kind` be granted right now? Read only - nothing is reserved. */
 export function wouldGrant(kind: string, priority: number): boolean {
-  if (mascotsHidden()) return false;
-  if (bypass()) return true;
-  return decideAppearance({ shown: readShown(), holds: snapshotHolds() }, kind, priority).grant;
+  return !mascotsHidden() && (bypass() || decide(kind, priority).grant);
 }
 
 /** Reserve a slot for an UNPROMPTED appearance of `kind`. See the file header. */
 export function requestAppearance(kind: string, priority: number): boolean {
   if (mascotsHidden()) return false;
   if (bypass()) return true;
-  const d = decideAppearance({ shown: readShown(), holds: snapshotHolds() }, kind, priority);
+  const d = decide(kind, priority);
   if (!d.grant) return false;
-  if (d.evict) holds.delete(d.evict);
-  const cur = holds.get(kind);
-  if (cur) {
-    cur.refs += 1;
-    cur.priority = Math.max(cur.priority, priority);
-  } else if (!readShown().includes(kind)) {
-    holds.set(kind, { priority, refs: 1 });
+  if (d.evict) {
+    holds.delete(d.evict);
+    refs.delete(d.evict);
+  }
+  if (!readShown().includes(kind)) {
+    holds.set(kind, Math.max(holds.get(kind) ?? 0, priority));
+    refs.set(kind, (refs.get(kind) ?? 0) + 1);
   }
   emit();
   return true;
@@ -195,30 +178,30 @@ export function noteShown(kind: string): void {
   const shown = readShown();
   if (shown.includes(kind)) return;
   holds.delete(kind);
+  refs.delete(kind);
   if (shown.length < MAX_UNPROMPTED_PER_SESSION) writeShown([...shown, kind]);
   emit();
 }
 
 /** A reservation that will not be drawn (the door unmounted) gives its slot back. */
 export function releaseAppearance(kind: string): void {
-  const cur = holds.get(kind);
-  if (!cur) return;
-  cur.refs -= 1;
-  if (cur.refs <= 0) holds.delete(kind);
+  const n = refs.get(kind);
+  if (n === undefined) return;
+  if (n <= 1) {
+    refs.delete(kind);
+    holds.delete(kind);
+  } else refs.set(kind, n - 1);
   emit();
 }
 
 /** Reserved or already shown (always true under a bypass, always false while mascots are hidden). */
 export function appearanceHeld(kind: string): boolean {
-  if (mascotsHidden()) return false;
-  if (bypass()) return true;
-  return holds.has(kind) || readShown().includes(kind);
+  return !mascotsHidden() && (bypass() || holds.has(kind) || readShown().includes(kind));
 }
 
 /** Did `kind` already appear this session? (Always false under a bypass: a preview replays.) */
 export function shownThisSession(kind: string): boolean {
-  if (bypass()) return false;
-  return readShown().includes(kind);
+  return !bypass() && readShown().includes(kind);
 }
 
 /** How many unprompted appearances this session has already shown. */
@@ -263,13 +246,9 @@ export function NoteShown({ kind }: { kind: string }): ReactElement | null {
   return null;
 }
 
-/** Convenience for non-JSX modules. */
-export function noteShownElement(kind: string): ReactElement {
-  return createElement(NoteShown, { kind });
-}
-
 export function __resetMascotBudgetForTests(): void {
   holds.clear();
+  refs.clear();
   memoryShown = null;
   testOverride = null;
   try {

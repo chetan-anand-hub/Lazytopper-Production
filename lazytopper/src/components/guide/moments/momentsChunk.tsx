@@ -138,6 +138,9 @@ export function GuideMoment({ moment, step, onCta }: GuideMomentProps) {
   // guide_moment_shown — once per mount of this moment (a step change, e.g. M3's swap, is the same moment).
   useEffect(() => {
     trackGuideEvent("guide_moment_shown", { moment });
+    // MOMENTS-3: the new pose also reports under its own id (m5 / m8 keep reporting, unchanged).
+    if (moment === "m5") trackGuideEvent("guide_moment_shown", { moment: "byte_marking" });
+    if (moment === "m8") trackGuideEvent("guide_moment_shown", { moment: "byte_sorry" });
   }, [moment]);
 
   // A new step restarts its script.
