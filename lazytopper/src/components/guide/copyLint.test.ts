@@ -21,6 +21,7 @@ import { SAVE_NUDGE_COPY, WRONG_TAP_COPY } from "./saveNudge/saveNudge";
 import { MI_VOICE_COPY } from "./mi/miVoiceModel";
 import { MUMMY_COPY } from "./mummy/mummyModel";
 import { ziggyReactionFor } from "./ziggyModel";
+import { CI_DEMO_COPY, CI_DEMO_ORDER, CI_DEMO_SAMPLES } from "../ciDemo/ciDemoSamples";
 
 export const HINGLISH = ["chalo", "yaar", "bas", "josh", "ek", "arre", "accha", "achha", "theek", "mast", "bahut", "jaldi", "chal", "bilkul", "chalega"];
 const SELLING = /\b(premium(?!'s)|upgrade|unlock|discount|offer|buy|pay now|subscribe|limited time|hurry)\b/i;
@@ -79,6 +80,17 @@ describe("copy lint — every character line obeys the guide", () => {
     ["save nudge", [SAVE_NUDGE_COPY.ziggy, SAVE_NUDGE_COPY.plain, WRONG_TAP_COPY.ziggy]],
     ["mi voice", [MI_VOICE_COPY.noData, MI_VOICE_COPY.thin, MI_VOICE_COPY.untyped("2", 2), MI_VOICE_COPY.careless("2 marks"), MI_VOICE_COPY.knowledge("2 marks"), MI_VOICE_COPY.technique("2 marks")]],
     ["mummy", [MUMMY_COPY.tapLine]],
+    // CI-SOFT-1 — the sample-marking card: its fixed lines, and every step line and summary Byte says.
+    [
+      "ci demo (CI-SOFT-1)",
+      [
+        CI_DEMO_COPY.l1,
+        CI_DEMO_COPY.l2,
+        CI_DEMO_COPY.l4,
+        CI_DEMO_COPY.l9,
+        ...CI_DEMO_ORDER.flatMap((k) => [...CI_DEMO_SAMPLES[k].steps.map((st) => st.say), CI_DEMO_SAMPLES[k].summary]),
+      ],
+    ],
     [
       "Byte's option lines (intentMap point:)",
       Array.from(readFileSync("src/components/guide/intentMap.ts", "utf8").matchAll(/point: "([^"]+)"/g)).map((m) => m[1]),

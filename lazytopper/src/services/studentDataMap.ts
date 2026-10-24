@@ -867,6 +867,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "after three; moment names such as moment:m5 or a result code, never the uid, never a mark); " +
       "and two more fields inside `lazytopper.companion.<tag>` above: when the exam-week moment last " +
       "showed and when Ziggy's \"aha\" last showed for each mistake type (so each rests for a week). " +
+      "CI-SOFT-1: plus, in THIS TAB's sessionStorage, `lazytopper.ciDemoClosed` (the single character " +
+      "1 once the sample-marking card on Check & Improve was closed, so it does not return this " +
+      "session; never the uid, never a mark). " +
       "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
