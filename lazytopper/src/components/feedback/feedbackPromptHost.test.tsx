@@ -17,6 +17,14 @@ import { FIRST_GRADED_DELAY_MS } from "./useFirstGradedFeedback";
 import ResultsScorecard from "../results/ResultsScorecard";
 import type { ScorecardVariant } from "../results/scorecardVariants";
 
+// PERF-3: the graded card is a lazy chunk in production; these suites test the card itself, so it loads
+// synchronously here (FeedbackPrompt.lazy.test.tsx pins the real lazy path and the failed-chunk guard).
+vi.mock("../../lib/lazyWithRetry", async () => {
+  const m = await import("./GradedFeedbackCard");
+  return { lazyWithRetry: () => m.default };
+});
+
+
 /**
  * FEEDBACK-1 — the host: signed-in students only, once per page load, once per moment
  * (recorded before render), fail closed, and the exact events each action records.

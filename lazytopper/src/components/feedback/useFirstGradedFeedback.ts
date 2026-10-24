@@ -12,13 +12,17 @@
  * never random) so the student sees their score before the card appears. The card has
  * no scrim and closes with one tap.
  *
- * ★ ONCE EVER, SIGNED-IN ONLY. The host resolves the uid from Firebase Auth (signed-out /
+ * FEEDBACK-2: the same trigger asks again after LATER graded results (`after_graded`, at most once per
+ * 7 days and once per session), and hands the card a context so every answer leads to a real page.
+ *
+ * ★ ONCE EVER, SIGNED-IN ONLY (the first ask). The host resolves the uid from Firebase Auth (signed-out /
  * anonymous -> nothing) and `claimFeedbackMoment` records `first_graded` on the device
  * BEFORE the card renders, so it is never asked twice for that student on that device.
  */
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { ScorecardScore } from "../results/scorecardVariants";
 import { notifyFirstGradedResult } from "./feedbackPromptHost";
+import type { GradedFeedbackContextInput } from "./gradedFeedbackFlow";
 
 /** The pause between the scorecard appearing and the question appearing. */
 export const FIRST_GRADED_DELAY_MS = 1500;
@@ -30,6 +34,12 @@ export interface FirstGradedInput {
   deferred: boolean | undefined;
   allPending: boolean;
   score: ScorecardScore;
+  /**
+   * FEEDBACK-2 — what the card needs to lead the student somewhere (the router's navigate, the result's
+   * chapter, the host's tutor hop). Built by the scorecard INSIDE the router; omitted -> the card still
+   * asks, and an answer just says thanks.
+   */
+  context?: GradedFeedbackContextInput | null;
 }
 
 /**
@@ -46,9 +56,13 @@ export function isFirstGradedEligible(input: FirstGradedInput): boolean {
 
 export function useFirstGradedFeedback(input: FirstGradedInput): void {
   const eligible = isFirstGradedEligible(input);
+  // The latest context at the moment the timer fires (the effect itself depends only on eligibility,
+  // exactly as before, so a re-render never restarts the pause).
+  const contextRef = useRef<GradedFeedbackContextInput | null | undefined>(input.context);
+  contextRef.current = input.context;
   useEffect(() => {
     if (!eligible) return;
-    const t = setTimeout(notifyFirstGradedResult, FIRST_GRADED_DELAY_MS);
+    const t = setTimeout(() => notifyFirstGradedResult(contextRef.current ?? null), FIRST_GRADED_DELAY_MS);
     return () => clearTimeout(t);
   }, [eligible]);
 }

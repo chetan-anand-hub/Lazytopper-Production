@@ -122,4 +122,51 @@ describe("FEEDBACK-1 · trackFeedbackEvent payloads", () => {
     expect(vercel).toEqual([]);
     expect(recordActivity).not.toHaveBeenCalled();
   });
+
+  it("FEEDBACK-2: the new answer and the repeat ask record their names; vendors get generic names + closed codes", () => {
+    trackFeedbackEvent("shown", "after_graded");
+    trackFeedbackEvent("reason", "after_graded", "too_easy");
+    trackFeedbackEvent("reason", "first_graded", "too_easy");
+    trackFeedbackEvent("dismissed", "after_graded");
+    expect(recordActivity.mock.calls.map((c) => c[1])).toEqual([
+      { name: "feedback_shown_after_graded" },
+      { name: "feedback_after_graded_too_easy" },
+      { name: "feedback_first_graded_too_easy" },
+      { name: "feedback_dismissed_after_graded" },
+    ]);
+    expect(vercel[1][1]).toEqual({ name: "feedback_reason", data: { moment: "after_graded", reason: "too_easy" } });
+    // control: Too easy belongs to the graded moments only
+    recordActivity.mockClear();
+    trackFeedbackEvent("reason", "paywall", "too_easy");
+    trackFeedbackEvent("call_tap", "after_graded");
+    expect(recordActivity).not.toHaveBeenCalled();
+  });
+
+  it("FEEDBACK-2 next: a closed action NAME only — vendors get feedback_next + { moment, action }, first-party the composed name, Meta nothing", () => {
+    trackFeedbackEvent("next", "after_graded", undefined, "harder");
+    trackFeedbackEvent("next", "first_graded", undefined, "note_saved");
+    expect(vercel).toEqual([
+      ["event", { name: "feedback_next", data: { moment: "after_graded", action: "harder" } }],
+      ["event", { name: "feedback_next", data: { moment: "first_graded", action: "note_saved" } }],
+    ]);
+    const [, name, params] = ga4Events()[0];
+    expect(name).toBe("feedback_next");
+    expect(Object.keys(params).filter((k) => !ADDRESS_KEYS.includes(k)).sort()).toEqual(["action", "moment"]);
+    expect(recordActivity.mock.calls.map((c) => c[1])).toEqual([
+      { name: "feedback_after_graded_next_harder" },
+      { name: "feedback_first_graded_next_note_saved" },
+    ]);
+    expect(meta).toEqual([]);
+  });
+
+  it("★ FEEDBACK-2: the note's words cannot ride a next event — a non-name action, a missing action and a non-graded moment are all DROPPED", () => {
+    const words = "my note: the marks were wrong, call 9876543210" as unknown as "more";
+    trackFeedbackEvent("next", "after_graded", undefined, words);
+    trackFeedbackEvent("next", "after_graded");
+    trackFeedbackEvent("next", "paywall", undefined, "more");
+    trackFeedbackEvent("next", "after_graded", words as unknown as FeedbackPromptReason, "more");
+    expect(vercel.filter((v) => (v[1] as { name: string }).name === "feedback_next")).toHaveLength(1); // the last, valid one
+    expect(JSON.stringify([vercel, ga4, recordActivity.mock.calls])).not.toContain("9876543210");
+    expect(JSON.stringify(vercel)).toContain('"action":"more"');
+  });
 });

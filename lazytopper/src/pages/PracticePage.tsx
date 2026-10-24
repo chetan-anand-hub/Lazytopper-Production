@@ -4487,7 +4487,10 @@ const packTopicKey = useMemo(() => {
   // GUIDE-SCORE-1 — Byte's link: this ONE chapter's weak-pattern practice (a multi-topic set → the
   // Quick Practice hub). And, on a tap-only card with missed MCQs, the in-page way back to them:
   // the set in review (the existing "Back to this set"), scrolled to the first missed question.
-  const qpGuideTarget = multiTopics.length > 0 ? null : singleChapterPracticeTarget(String(subjectKey), [topicK], () => topicLabel);
+  const qpBaseTarget = multiTopics.length > 0 ? null : singleChapterPracticeTarget(String(subjectKey), [topicK], () => topicLabel);
+  // FEEDBACK-2 - the set's REAL difficulty (the committed filter, else the preset), for "Was this useful?".
+  const qpStep = (d: string): "Easy" | "Medium" | "Hard" | null => (d === "Easy" || d === "Medium" || d === "Hard" ? d : null);
+  const qpGuideTarget = qpBaseTarget ? { ...qpBaseTarget, difficulty: qpStep(committedDifficulty) ?? qpStep(difficulty) } : null;
   const firstMissedId =
     filteredQuestions.map((q) => String(q.id)).find((id) => mcqResults[id] === "wrong" && !reviewMcqIds[id]) ?? null;
   // QP-WORKING-AFTER-1 (owner ruling 23:11 "B") — back to the set (review: the existing "Back to

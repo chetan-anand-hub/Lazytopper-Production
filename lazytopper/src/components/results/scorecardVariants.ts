@@ -357,6 +357,9 @@ export interface ScorecardVariant {
 export interface ScorecardGuideTarget {
   to: string;
   chapter?: string | null;
+  /** FEEDBACK-2 — the set's REAL difficulty (Quick Practice's committed filter) when it is one step; the
+   *  "Was this useful?" card steps from it. Absent / null: mixed or unknown. Display and navigation only. */
+  difficulty?: "Easy" | "Medium" | "Hard" | null;
 }
 
 /** GUIDE-SCORE-1 — a host attaches its own practice route to a built variant (null → unchanged,
