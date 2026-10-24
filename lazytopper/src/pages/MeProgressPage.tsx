@@ -483,12 +483,10 @@ export default function MeProgressPage() {
     if (usageHashHandled.current) return;
     usageHashHandled.current = true;
     requestOpenSettings("usage");
-    try {
-      window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}`);
-    } catch {
-      /* history unavailable: the once-guard above still prevents a second open */
-    }
-  }, [location.hash, location.pathname, location.search]);
+    // Clear the hash THROUGH THE ROUTER (not raw history): a remount (resize across the desktop
+    // breakpoint swaps the shell) and router-built links must no longer see #usage.
+    navigate({ pathname: location.pathname, search: location.search }, { replace: true, state: location.state });
+  }, [location.hash, location.pathname, location.search, location.state, navigate]);
   const isDesktop = useIsDesktop();
   const { user, loading } = useAuth();
   const { isPremium } = useSubscription();

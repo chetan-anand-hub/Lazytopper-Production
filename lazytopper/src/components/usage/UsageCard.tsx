@@ -33,14 +33,27 @@ function leftWord(n: number) {
   return `${n} left`;
 }
 
-export function UsageCardView({ snapshot, nowMs = Date.now() }: { snapshot: UsageSnapshot | null; nowMs?: number }) {
+export function UsageCardView({
+  snapshot,
+  nowMs = Date.now(),
+  inSettings = false,
+}: {
+  snapshot: UsageSnapshot | null;
+  nowMs?: number;
+  /** Inside the Settings window: the title is an h3 with the neighbours' class. */
+  inSettings?: boolean;
+}) {
   if (!snapshot || snapshot.enforced !== true) return null;
   if (snapshot.tier !== "trial" && snapshot.tier !== "premium") return null;
 
   const heading = (
     <>
       <div className="lt-usage__eyebrow">Fair use</div>
-      <p className="lt-usage__lead">Your limits</p>
+      {inSettings ? (
+        <h3 className="lt-usage__lead lt-set__h">Your limits</h3>
+      ) : (
+        <p className="lt-usage__lead">Your limits</p>
+      )}
     </>
   );
 
@@ -148,7 +161,7 @@ export default function UsageCard({ variant = "page", autoScroll = false }: Usag
   // FAIR-USE-WARN-1 §2.5 — under the card (only when the card shows): what a limit never touches.
   const body = (
     <>
-      <UsageCardView snapshot={snapshot} />
+      <UsageCardView snapshot={snapshot} inSettings={variant === "settings"} />
       {snapshot && (snapshot.tier === "trial" || snapshot.tier === "premium") ? (
         <p className="lt-usage-always" data-testid="usage-always-works">Practice, MCQs, CBQs, notes, Topic Hub and saved solutions always work, even at 100%.</p>
       ) : null}

@@ -9,6 +9,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
 const authState = vi.hoisted(() => ({
@@ -40,7 +41,17 @@ const premium = {
   tier: "premium",
   premium: { fiveHourPct: 10, dayPct: 80, weekPct: 10, thirtyDayPct: null, resets: { fiveHour: null, day: null, week: null, thirtyDay: null } },
 } as unknown as UsageSnapshot;
-const trial = { enforced: true, tier: "trial", trial: null } as unknown as UsageSnapshot;
+const trial = {
+  enforced: true,
+  tier: "trial",
+  trial: {
+    checksLeftToday: 3,
+    chapterTestsLeftToday: 1,
+    mocksLeft: 1,
+    worksheetsLeft: 2,
+    resets: { checks: null, chapterTests: null, mocks: null, worksheets: null },
+  },
+} as unknown as UsageSnapshot;
 
 let scroll: ReturnType<typeof vi.fn>;
 beforeEach(() => {
@@ -76,6 +87,19 @@ describe("SettingsModal · Your limits", () => {
     expect(card.compareDocumentPosition(signIn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(card.closest(".lt-usage-settings")).toBeTruthy();
     expect(screen.getByTestId("usage-always-works")).toBeTruthy();
+    // the title is a heading in the neighbours' style
+    expect(screen.getByRole("heading", { name: "Your limits" }).className).toContain("lt-set__h");
+  });
+
+  it("trial: the real rows render inside Settings", async () => {
+    usage.snap = trial;
+    modal();
+    await screen.findByTestId("usage-card");
+    expect(screen.getByTestId("usage-row-checks").textContent).toContain("3 left");
+    expect(screen.getByTestId("usage-row-chapter-test").textContent).toContain("1 left");
+    expect(screen.getByTestId("usage-row-mock").textContent).toContain("1 left");
+    expect(screen.getByTestId("usage-row-worksheet").textContent).toContain("2 left");
+    expect(screen.queryByTestId("usage-empty")).toBeNull();
   });
 
   it.each([
@@ -140,11 +164,39 @@ describe("See usage → Settings at the limits", () => {
         <DesktopShell>{seeUsage()}</DesktopShell>
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByTestId("usage-warning-link"));
+    const btn = screen.getByTestId("usage-warning-link");
+    btn.focus();
+    fireEvent.click(btn);
     expect(await screen.findByRole("dialog", { name: "Settings" })).toBeTruthy();
     await screen.findByTestId("usage-card");
     await waitFor(() => expect(scroll).toHaveBeenCalled());
     expect(screen.getAllByRole("dialog", { name: "Settings" })).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Close settings" }));
+    await waitFor(() => expect(document.activeElement).toBe(btn));
+  });
+
+  it("if the requesting button is gone at close time, focus falls back to the avatar", async () => {
+    function Host() {
+      const [show, setShow] = useState(true);
+      return (
+        <>
+          {show ? <div onClick={() => setShow(false)}>{seeUsage()}</div> : null}
+          <MobileAccountMenu />
+        </>
+      );
+    }
+    render(
+      <MemoryRouter>
+        <Host />
+      </MemoryRouter>,
+    );
+    const btn = screen.getByTestId("usage-warning-link");
+    btn.focus();
+    fireEvent.click(btn); // opens Settings and (via the wrapper's click) removes the button
+    await screen.findByRole("dialog", { name: "Settings" });
+    expect(btn.isConnected).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Close settings" }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Open account menu" })));
   });
 
   it("with no shell mounted the button falls back to /me#usage instead of doing nothing", () => {

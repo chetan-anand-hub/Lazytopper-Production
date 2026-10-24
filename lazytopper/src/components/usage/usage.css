@@ -111,7 +111,7 @@
   flex-direction: column;
   gap: 10px;
 }
-.lt-usage-settings .lt-usage--card { padding: 0; border: 0; background: transparent; }
+.lt-usage-settings .lt-usage--card { padding: 0; border: 0; background: transparent; font-family: inherit; }
 .lt-usage-settings .lt-usage__lead { font-weight: 800; overflow-wrap: anywhere; }
 .lt-usage-settings .lt-usage__row-name,
 .lt-usage-settings .lt-usage__row-value { overflow-wrap: anywhere; min-width: 0; }

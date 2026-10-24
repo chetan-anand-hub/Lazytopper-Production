@@ -235,7 +235,14 @@ export function DesktopShell({ children }: DesktopShellProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   // SETTINGS-USAGE-1: which section a door request asked for, and where focus returns on close.
   const [settingsSection, setSettingsSection] = useState<SettingsSection | undefined>(undefined);
-  const settingsReturnRef = useRef<HTMLElement | null>(null);
+  const settingsOpenerRef = useRef<HTMLElement | null>(null);
+  // Evaluated at CLOSE time: the element that asked if it is still on the page, else the avatar.
+  const settingsReturnRef = useRef({
+    get current(): HTMLElement | null {
+      const el = settingsOpenerRef.current;
+      return el && el.isConnected ? el : avatarButtonRef.current;
+    },
+  }).current;
   const [tutorOpen, setTutorOpen] = useState(false);
   const [ncertOpen, setNcertOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
@@ -247,8 +254,9 @@ export function DesktopShell({ children }: DesktopShellProps) {
   useEffect(() => {
     if (!signedIn) return;
     return subscribeSettingsRequest((req) => {
-      settingsReturnRef.current = req.opener ?? avatarButtonRef.current;
+      settingsOpenerRef.current = req.opener;
       setSettingsSection(req.section);
+      setLinkOpen(false); // one modal at a time
       setAccountOpen(false);
       setSettingsOpen(true);
     });
@@ -668,7 +676,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
                           role="menuitem"
                           onClick={() => {
                             setAccountOpen(false);
-                            settingsReturnRef.current = avatarButtonRef.current;
+                            settingsOpenerRef.current = null;
                             setSettingsSection(undefined);
                             setSettingsOpen(true);
                           }}

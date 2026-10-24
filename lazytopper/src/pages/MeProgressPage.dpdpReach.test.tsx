@@ -18,8 +18,9 @@
  * at the bottom, which reads the real App.tsx source.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { useState } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -99,6 +100,11 @@ vi.mock("../services/usageClient", async (importOriginal) => ({
 import MeProgressPage from "./MeProgressPage";
 import { __resetSettingsDoorForTests, subscribeSettingsRequest } from "../components/account/settingsDoor";
 
+function HashProbe() {
+  const l = useLocation();
+  return <div data-testid="hash">{`${l.pathname}|${l.hash}`}</div>;
+}
+
 function renderPage() {
   return render(
     <MemoryRouter>
@@ -145,23 +151,50 @@ describe("SETTINGS-USAGE-1 · fair use moved OFF /me", () => {
     expect(screen.queryByTestId("usage-always-works")).toBeNull();
   });
 
-  it("★★ an old /me#usage link opens Settings at the limits ONCE and clears the hash", async () => {
+  it("★★ an old /me#usage link opens Settings at the limits ONCE and clears the hash THROUGH THE ROUTER", async () => {
     __resetSettingsDoorForTests();
     const asked = vi.fn();
     subscribeSettingsRequest(asked);
-    const replace = vi.spyOn(window.history, "replaceState");
     const { unmount } = render(
       <MemoryRouter initialEntries={["/me#usage"]}>
         <MeProgressPage />
+        <HashProbe />
       </MemoryRouter>,
     );
     expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
     expect(asked).toHaveBeenCalledTimes(1);
     expect(asked.mock.calls[0][0].section).toBe("usage");
-    expect(replace).toHaveBeenCalledTimes(1);
-    expect(String(replace.mock.calls[0][2])).not.toContain("#");
+    // the router itself no longer carries #usage (so links built from it do not either)
+    await waitFor(() => expect(screen.getByTestId("hash").textContent).toBe("/me|"));
     unmount();
-    replace.mockRestore();
+    __resetSettingsDoorForTests();
+  });
+
+  it("★★ a REMOUNT after the clear (shell swap at the 1024 px breakpoint) does NOT reopen Settings", async () => {
+    __resetSettingsDoorForTests();
+    const asked = vi.fn();
+    subscribeSettingsRequest(asked);
+    function Swap() {
+      const [desktop, setDesktop] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setDesktop(true)}>swap</button>
+          {desktop ? <div data-testid="desktop-wrap"><MeProgressPage /></div> : <section><MeProgressPage /></section>}
+        </>
+      );
+    }
+    render(
+      <MemoryRouter initialEntries={["/me#usage"]}>
+        <Swap />
+        <HashProbe />
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(asked).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getByTestId("hash").textContent).toBe("/me|"));
+    fireEvent.click(screen.getByText("swap"));
+    expect(await screen.findByTestId("desktop-wrap")).toBeTruthy();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(asked).toHaveBeenCalledTimes(1);
     __resetSettingsDoorForTests();
   });
 
