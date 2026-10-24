@@ -43,7 +43,7 @@ const FEEDBACK_PROMPT_CSS = `
     position: fixed;
     left: 12px;
     right: 12px;
-    bottom: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: 9000;
     max-width: 420px;
     margin: 0 auto;
@@ -54,7 +54,7 @@ const FEEDBACK_PROMPT_CSS = `
     border-radius: 16px;
     box-shadow: 0 10px 32px rgba(9, 22, 40, 0.22);
     padding: 14px 14px 12px;
-    max-height: calc(100vh - 24px);
+    max-height: calc(100vh - 24px - env(safe-area-inset-bottom, 0px));
     overflow-y: auto;
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -187,8 +187,20 @@ const FEEDBACK_PROMPT_CSS = `
     outline: 2px solid var(--lt-green, #16b96a);
     outline-offset: 2px;
   }
+  @media (max-width: 400px), (max-height: 700px) {
+    .lt-fb { padding: 10px 10px 2px; }
+    .lt-fb__title { font-size: 0.9rem; line-height: 1.25; }
+    .lt-fb__sub { margin: 0 0 6px; font-size: 0.78rem; }
+    .lt-fb__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .lt-fb__opt { padding: 5px 8px; font-size: 0.8rem; line-height: 1.2; }
+    .lt-fb__call { margin-top: 6px; padding: 7px 10px; }
+    .lt-fb__call-offer { font-size: 0.8rem; line-height: 1.25; }
+    .lt-fb__call-note { margin: 1px 0 6px; font-size: 0.74rem; }
+    .lt-fb__no { margin-top: 0; }
+    .lt-fb .lt-fbg__z { width: 36px; height: 36px; }
+  }
   @media (min-width: 1024px) {
-    .lt-fb { left: auto; right: 24px; bottom: 24px; margin: 0; width: 400px; }
+    .lt-fb { left: auto; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); margin: 0; width: 400px; }
   }
 `;
 

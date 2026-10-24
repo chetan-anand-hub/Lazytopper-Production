@@ -132,6 +132,26 @@ describe("FEEDBACK-NUDGE-1 - Ziggy beside the question", () => {
   });
 });
 
+describe("FEEDBACK-NUDGE-1 - fits without scrolling (measured in a real browser; the CSS is pinned here)", () => {
+  it("compact layout on short / narrow screens keeps every tap >= 44 px and the reasons in two columns", () => {
+    renderCard();
+    const css = (card().querySelector("style") as HTMLStyleElement).textContent ?? "";
+    const m = css.match(/@media \(max-width: 400px\), \(max-height: 700px\) \{([\s\S]*?)\n  \}\n/);
+    expect(m).not.toBeNull();
+    expect(m![1]).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
+    expect(m![1]).toContain("width: 36px");
+    expect(css).toMatch(/\.lt-fb__opt \{[^}]*min-height: 44px/);
+    expect(m![1]).not.toMatch(/min-height/); // nothing in the compact block lowers a tap target
+  });
+
+  it("the card's own bottom clears the iOS home indicator", () => {
+    renderCard();
+    const css = (card().querySelector("style") as HTMLStyleElement).textContent ?? "";
+    expect(css).toContain("bottom: calc(12px + env(safe-area-inset-bottom, 0px))");
+    expect(css).toContain("max-height: calc(100vh - 24px - env(safe-area-inset-bottom, 0px))");
+  });
+});
+
 describe("FEEDBACK-NUDGE-1 - nothing else moved", () => {
   it("copy is byte-identical", () => {
     renderCard();
