@@ -768,6 +768,20 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "stored only when they choose Sign up on a scorecard's tutor prompt; never the uid; read " +
       "and deleted once by the tutor for that question after sign-up, where it becomes the " +
       "opening line of that student's own tutor thread; dropped unread after an hour). " +
+      "TUTOR-Q-1: plus, in THIS TAB's sessionStorage, `lazytopper.tutorPracticeAsk.v1` (the Quick " +
+      "Practice question the student tapped Ask the tutor on: its bank question id, its position in " +
+      "the set, and, if they answered it, the option text they picked and whether it was right; never " +
+      "the uid, never their typed working; plus an opaque owner tag, an 8-hex hash of the uid that " +
+      "cannot be reversed to it, so another account on the same tab drops it unread; written on that " +
+      "tap, read and deleted once by the tutor for that question, where it becomes the opening line " +
+      "of their own tutor thread; dropped unread after an hour) and `lazytopper.practiceReturn.v1` (written on the same tap so the tutor's back " +
+      "arrow, or the browser back button, returns to the SAME set: the practice page's URL, the same " +
+      "opaque owner tag (another account on the same tab never reads it; it is removed), the " +
+      "set's bank question ids in order, the filters that built it, the MCQ picks and their right/wrong " +
+      "verdicts, which questions had solution steps open with the step solutions the page had " +
+      "already loaded, the question they were on, and any TYPED working they had saved - never a " +
+      "photo, never the uid; read and deleted once when the practice page reopens at that same URL, " +
+      "dropped unread after an hour or on any other URL; never sent anywhere). " +
       "TRIAL-END-1: plus localStorage `lazytopper.trialEndBannerHidden.<uid>` (the IST date, " +
       "YYYY-MM-DD, on which the student tapped Not today on the trial-ending banner, so it stays " +
       "hidden until the next day; dismissal state only, never trial state, never sent anywhere) " +

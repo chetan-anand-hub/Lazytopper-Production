@@ -49,6 +49,13 @@ import {
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
 import { composeSignedOutAskOpener, takeSignedOutAsk, type SignedOutAsk } from "./signedOutScorecardAsk";
+import {
+  composePracticeAskOpener,
+  discardPracticeTutorAsk,
+  takePracticeTutorAsk,
+  type PracticeTutorAsk,
+} from "./practiceTutorAsk";
+import { practiceOwnerTag } from "../../lib/practice/practiceReturnSnapshot";
 import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
 import { renderableFiguresForTopic } from "./tutorFigures";
@@ -494,6 +501,63 @@ export function useTutorSession({
       signedOutAskRef.current = null;
       returnedWorkRef.current = buildScorecardReturnedWork(questionText, null);
       const opener = composeSignedOutAskOpener(ask, topicLabel, questionText);
+      updatePending(null);
+      setMessages((prev) => {
+        if (prev.some((m) => m.kind === "return-result" && m.content === opener.text)) return prev;
+        const next: TutorTurn[] = [...prev, { role: "tutor", content: opener.text, kind: "return-result" }];
+        persist(next, null);
+        return next;
+      });
+      setReturnFollow(opener.follow);
+    })();
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, fromRecordId, fromQuestionId, topicKey]);
+
+  // TUTOR-Q-1 — arrived from Quick Practice's "Ask the tutor about this concept" with `q` and NO `from`:
+  // the page wrote a THIS-TAB one-shot (practiceTutorAsk.ts) holding the question id, its number in the
+  // set and, if the student answered an MCQ, their pick (option text) and whether it was right. Taken
+  // ONCE for this `q` (a ref keeps it across a StrictMode effect re-run), the bank text becomes the
+  // one-shot returnedWork and ONE opener turn names the question and the pick. The scorecard (`from`)
+  // path and the signed-out path are left alone; no one-shot -> the normal tutor, unchanged.
+  // The one-shot carries an opaque owner tag: another account's tap on this tab is dropped unread.
+  // If another path owns this `q` (a `from=` hop, or a signed-out one-shot for it), the practice
+  // one-shot is DELETED unread, so a later topicKey change cannot turn it into a second opener.
+  const practiceAskRef = useRef<{ q: string; ask: PracticeTutorAsk | null } | null>(null);
+  useEffect(() => {
+    if (!uid || !fromQuestionId) return;
+    // Another path handles this hop: the scorecard record path (`from=`), or a signed-out one-shot for the
+    // same question (both can exist only if one tab stashed a signed-out ask and a practice ask for the
+    // same question; the other path wins). Either way the practice one-shot is deleted unread.
+    if (fromRecordId || signedOutAskRef.current) {
+      discardPracticeTutorAsk(fromQuestionId);
+      practiceAskRef.current = { q: fromQuestionId, ask: null };
+      return;
+    }
+    if (!practiceAskRef.current || practiceAskRef.current.q !== fromQuestionId) {
+      practiceAskRef.current = { q: fromQuestionId, ask: takePracticeTutorAsk(fromQuestionId, practiceOwnerTag(uid)) };
+    }
+    const ask = practiceAskRef.current.ask;
+    if (!ask) return;
+    let live = true;
+    void (async () => {
+      let questionText = "";
+      try {
+        await ensureBankChapters([topicKey]);
+        const row = selectBankQuestions({
+          subject: subject === "maths" ? "Maths" : subject === "science" ? "Science" : undefined,
+          topicKeys: [topicKey],
+        }).find((q) => String((q as { id?: unknown }).id ?? "") === ask.q);
+        questionText = row ? String(row.questionText || "") : "";
+      } catch {
+        /* no bank text: the opener still names the question number (and the pick) */
+      }
+      if (!live) return;
+      if (practiceAskRef.current) practiceAskRef.current.ask = null;
+      returnedWorkRef.current = buildScorecardReturnedWork(questionText, null);
+      const opener = composePracticeAskOpener(ask, topicLabel, questionText);
       updatePending(null);
       setMessages((prev) => {
         if (prev.some((m) => m.kind === "return-result" && m.content === opener.text)) return prev;
