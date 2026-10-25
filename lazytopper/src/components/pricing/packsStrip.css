@@ -1,15 +1,20 @@
-/* PacksStrip — scoped under .lt-pstrip. Mobile-first; 2x2 on a phone, one row from 640px. */
-.lt-pstrip { max-width: 1040px; margin: 24px auto 0; padding: 18px 16px; background: #fff; border: 1px solid #dde5ef; border-radius: 16px; font-family: Inter, system-ui, sans-serif; color: #0f2038; box-sizing: border-box; }
-.lt-pstrip *, .lt-pstrip { box-sizing: border-box; }
-.lt-pstrip__title { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
-.lt-pstrip__sub { margin: 4px 0 0; font-size: 14px; color: #4d647e; }
-.lt-pstrip__list { list-style: none; margin: 14px 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.lt-pstrip__item { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border: 1px solid #dde5ef; border-radius: 12px; background: #f4f7fb; min-width: 0; }
-.lt-pstrip__name { font-size: 13px; font-weight: 700; color: #06663a; }
-.lt-pstrip__price { font-family: Fraunces, Georgia, serif; font-size: 22px; font-weight: 600; }
-.lt-pstrip__what { font-size: 12.5px; color: #4d647e; }
-.lt-pstrip__link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: #06663a; text-decoration: none; }
-.lt-pstrip__link:hover { text-decoration: underline; }
-@media (min-width: 640px) {
-  .lt-pstrip__list { grid-template-columns: repeat(4, 1fr); }
+/* PacksStrip - scoped under .lt-packoffer. A real offer section: 2x2 tiles on a phone, one row from 720px. */
+.lt-packoffer { max-width: 1040px; margin: 32px auto 0; padding: 22px 16px; background: #fff; border: 1px solid #dbe2ea; border-radius: 20px; font-family: Inter, system-ui, sans-serif; color: #0f1b2d; box-sizing: border-box; box-shadow: 0 6px 24px rgba(15, 27, 45, 0.06); }
+.lt-packoffer *, .lt-packoffer { box-sizing: border-box; }
+.lt-packoffer__title { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+.lt-packoffer__sub { margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: #2f3e55; }
+.lt-packoffer__list { list-style: none; margin: 18px 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lt-packoffer__item { display: flex; flex-direction: column; gap: 4px; padding: 14px; border: 1px solid #c5cfdb; border-radius: 14px; background: #f6f8fb; min-width: 0; }
+.lt-packoffer__item--best { border: 2px solid #3fbf82; padding: 13px; background: #fff; }
+.lt-packoffer__name { font-size: 16px; font-weight: 700; color: #136b43; line-height: 1.25; }
+.lt-packoffer__price { font-family: Fraunces, Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1.1; }
+.lt-packoffer__what { font-size: 15px; line-height: 1.4; color: #2f3e55; }
+.lt-packoffer__link { display: flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 22px; border: 2px solid #15233a; border-radius: 14px; background: #fff; color: #15233a; font-size: 17px; font-weight: 700; text-decoration: none; }
+.lt-packoffer__link:hover { background: #15233a; color: #fff; }
+.lt-packoffer__link:focus-visible { outline: 3px solid #136b43; outline-offset: 2px; }
+@media (min-width: 720px) {
+  .lt-packoffer { padding: 28px 28px 26px; }
+  .lt-packoffer__title { font-size: 30px; }
+  .lt-packoffer__list { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .lt-packoffer__link { display: inline-flex; min-width: 260px; }
 }

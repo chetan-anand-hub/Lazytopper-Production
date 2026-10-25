@@ -325,7 +325,10 @@ function AnswerBlock({ q, section, renderSolutionFigure }: { q: PersistedWorkshe
             // the question is a single step. A step that works out to 0 marks gets no chip.
             const splitOk = !isObjective && marks > 1 ? true : steps.length === 1;
             const share = stepMarks[si];
-            const chip = authored ? markLabel(parseMarkValue(authored[1])) : hasOwnMark || !splitOk || !(share > 0) ? "" : markLabel(share);
+            // PACKS-UX-1: a 1-mark objective row whose steps carry no prefix shows ONE "1 mark" chip for the whole solution
+            // (CBSE: 0 or 1 on the answer), on its first step.
+            const wholeChip = marks === 1 && (isObjective || section === "A") && !steps.some((x) => /\[\s*[\d\u00bd]/.test(x));
+            const chip = wholeChip ? (si === 0 ? markLabel(1) : "") : authored ? markLabel(parseMarkValue(authored[1])) : hasOwnMark || !splitOk || !(share > 0) ? "" : markLabel(share);
             return (
               <div key={si} className="lt-wsp__step">
                 {chip ? <span className="lt-wsp__chip">{chip}</span> : <span className="lt-wsp__chip lt-wsp__chip--none" />}

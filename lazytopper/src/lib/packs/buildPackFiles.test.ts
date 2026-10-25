@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { buildPackFiles, groupPackFiles, type BuildContext, type PackFile } from "./buildPackFiles";
-import { chapterPackRows, countChapterQuestions, groupBySection, isExcludedFromPacks, loadChapter, splitIntoParts, MAX_QUESTIONS_PER_DOC } from "./packContent";
+import { chapterPackRows, countChapterQuestions, groupBySection, isExcludedFromPacks, isStepMarked, loadChapter, splitIntoParts, MAX_QUESTIONS_PER_DOC } from "./packContent";
 import { PACK_CHAPTER_SLUGS, chaptersOfSubject, type OwnedPack } from "../../services/packs";
 import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
 
@@ -44,7 +44,7 @@ describe("chapter pack contents", () => {
     expect(excludedSeen).toBe(2);
   });
 
-  it("rows are in board order: section A..E, then id", async () => {
+  it("rows are in board order: section A..E, then step-marked before the rest, then id", async () => {
     await loadChapter("real-numbers");
     const rows = chapterPackRows("real-numbers");
     expect(rows.length).toBeGreaterThan(0);
@@ -53,7 +53,7 @@ describe("chapter pack contents", () => {
       const a = order.indexOf(rows[i - 1].section);
       const b = order.indexOf(rows[i].section);
       expect(a <= b, `${rows[i - 1].id} before ${rows[i].id}`).toBe(true);
-      if (a === b) expect(rows[i - 1].id < rows[i].id).toBe(true);
+      if (a === b && isStepMarked(rows[i - 1]) === isStepMarked(rows[i])) expect(rows[i - 1].id < rows[i].id).toBe(true);
     }
   });
 });
@@ -169,20 +169,20 @@ describe("no licensee email, no PDF", () => {
 });
 
 describe("buildPackFiles — mock, subject, bundle", () => {
-  it("a mock pack is 5 papers, each with a key", async () => {
+  it("a mock pack is 8 papers, each with a key", async () => {
     const pack = owned("pack_mock:maths");
     const files = await buildPackFiles(ref(pack), ctx([pack]));
-    expect(files).toHaveLength(10);
+    expect(files).toHaveLength(16);
     expect(files.map((f) => f.label).slice(0, 2)).toEqual(["Mock 1 · Questions", "Mock 1 · Answer key"]);
     expect(groupPackFiles(files).map((g) => g.group)).toEqual(["Maths mock papers"]);
   });
 
-  it("5 mock papers (paper + key) are built for EACH subject from the real bank", async () => {
+  it("8 mock papers (paper + key) are built for EACH subject from the real bank", async () => {
     for (const subject of ["maths", "science"] as const) {
       const pack = owned(`pack_mock:${subject}`);
       const files = await buildPackFiles(ref(pack), ctx([pack]));
-      expect(files, subject).toHaveLength(10);
-      for (let n = 1; n <= 5; n += 1) {
+      expect(files, subject).toHaveLength(16);
+      for (let n = 1; n <= 8; n += 1) {
         expect(files.map((f) => f.label), `${subject} mock ${n}`).toEqual(expect.arrayContaining([`Mock ${n} · Questions`, `Mock ${n} · Answer key`]));
       }
     }
@@ -194,7 +194,7 @@ describe("buildPackFiles — mock, subject, bundle", () => {
     const groups = groupPackFiles(files).map((g) => g.group);
     expect(groups).toHaveLength(14);
     expect(groups[13]).toBe("Science mock papers");
-    expect(files.some((f) => f.label.startsWith("Mock 5"))).toBe(true);
+    expect(files.some((f) => f.label.startsWith("Mock 8"))).toBe(true);
     // chapters the pack covers carry the SUBJECT pack's order on their files
     const bundle = owned("pack_bundle:all");
     const bundleFiles = await buildPackFiles(ref(bundle), ctx([bundle]));
