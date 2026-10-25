@@ -15,6 +15,9 @@
  * Packs never touch the weekly download limit: nothing here calls the limited-download guard.
  */
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
+import type { AuthUser } from "../../context/AuthContext";
+import { registerPackPaper, type PackPaperReg } from "./packPaperRecord";
+import { packPaperCode } from "./packPaperCode";
 import {
   chaptersOfSubject,
   hasLicenseeEmail,
@@ -55,6 +58,8 @@ type ExportFn = (ws: PersistedWorksheet, mode: "questions" | "answers", code?: s
 export interface PackFile {
   id: string;
   label: string;
+  /** The paper code printed on the PDF (paper-shaped files only; never on a question-bank section file). */
+  code?: string;
   /** The group the file is listed under (a chapter name, or "Mock papers"). */
   group: string;
   filename: string;
@@ -71,6 +76,11 @@ export interface BuildContext {
   licensee: PackLicensee;
   /** Everything the student owns — the licensed-order reference is the pack that covers each file. */
   owned: readonly OwnedPack[];
+  /**
+   * The signed-in student. Paper-shaped files (Chapter Tests, Worksheet, Full Mocks) are registered as
+   * "waiting for your answers" under their pack code once downloaded (PACKS-GRADE-1). Absent → no card.
+   */
+  user?: AuthUser | null;
   /** Test seam: replaces the lazy import of the PDF exporter. */
   exportPdf?: ExportFn;
   /** Test seam: the clock, read only when a PDF is built (never while listing files). */
@@ -113,12 +123,15 @@ interface DocSpec {
   mode: "questions" | "answers";
   orderRef: string;
   cover: NonNullable<ExportOpts["cover"]>;
+  /** Paper-shaped files only: the pack code + how the existing download path registers it. */
+  paper?: Omit<PackPaperReg, "paper">;
 }
 
 function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
   return {
     id: spec.id,
     label: spec.label,
+    code: spec.paper?.code,
     group: spec.group,
     filename: spec.filename,
     build: async () => {
@@ -126,11 +139,14 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       if (!hasLicenseeEmail(ctx.licensee)) throw new Error("licensee_unavailable");
       const exportPdf = ctx.exportPdf ?? (await defaultExport());
       const ws = { ...spec.ws(), createdAt: (ctx.nowIso ?? (() => new Date().toISOString()))() };
-      await exportPdf(ws, spec.mode, undefined, {
+      await exportPdf(ws, spec.mode, spec.paper?.code, {
         licensee: { name: ctx.licensee.name, email: ctx.licensee.email, orderId: spec.orderRef },
         cover: spec.cover,
         filename: spec.filename,
       });
+      // PACKS-GRADE-1: the PDF is out; now the EXISTING download path files the paper under its printed
+      // code so the student can upload answers. Best-effort: it never blocks or fails the download.
+      if (spec.paper) await registerPackPaper(ctx.user, { ...spec.paper, paper: ws });
       ctx.onDownload?.(sku);
     },
   };
@@ -215,7 +231,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
 
   // 2. Chapter Test 1 and 2, drawn by the app's own blueprint with a pack seed.
   for (const n of [1, 2]) {
-    const seed = hashSeed(`${packId}:${slug}:ct${n}`);
+    const seed = hashSeed(`pack-paper:${slug}:ct${n}`);
     const drawn = drawChapterTest({
       subject,
       topicKey: slug,
@@ -227,6 +243,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
     });
     if (!drawn.enoughQuestions) continue;
     const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, rows) };
+    const ctCode = packPaperCode({ kind: n === 1 ? "ct1" : "ct2", chapter: slug });
     for (const [mode, modeLabel, modeFile] of MODES) {
       files.push(
         makeFile(
@@ -238,6 +255,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
             ws: () => paper,
             mode,
             orderRef,
+            paper: { kind: "chapter-test", code: ctCode, name: paper.name ?? paper.title, subject, topicKey: slug },
             cover: cover(`CHAPTER TEST ${n}`, paper.title, paper.questions.length, paper.totalMarks),
           },
           sku,
@@ -248,11 +266,12 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   }
 
   // 3. Worksheet (paper + key).
-  const wsRows = drawPackWorksheetRows(rows, hashSeed(`${packId}:${slug}:ws1`));
+  const wsRows = drawPackWorksheetRows(rows, hashSeed(`pack-paper:${slug}:ws1`));
   if (wsRows.length > 0) {
     const questions = wsRows.map((q, i) => toWorksheetQuestion(q, i + 1, name));
     const marks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
     const title = `${name} · Worksheet`;
+    const wsCode = packPaperCode({ kind: "ws", chapter: slug });
     for (const [mode, modeLabel, modeFile] of MODES) {
       files.push(
         makeFile(
@@ -264,6 +283,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
             ws: () => worksheetOf({ id: `pack-${slug}-worksheet`, title, subject, sectionFilter: "A-E", questions }),
             mode,
             orderRef,
+            paper: { kind: "worksheet", code: wsCode, name: title, subject, topicKey: slug },
             cover: cover("WORKSHEET", title, questions.length, marks),
           },
           sku,
@@ -287,10 +307,10 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
     const drawn = drawFullMock({
       subject: bankSubject,
       worksheetId: `pack-mock-${subject}-${n}`,
-      code: `PACK-${subject.toUpperCase()}-${n}`,
+      code: packPaperCode({ kind: "mock", subject, n }),
       name,
       createdAt: DRAW_STAMP,
-      seed: hashSeed(`${packId}:mock${n}`),
+      seed: hashSeed(`pack-paper:mock:${subject}:${n}`),
     });
     if (!drawn.enoughQuestions) continue;
     const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, mockRows) };
@@ -305,6 +325,7 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
             ws: () => paper,
             mode,
             orderRef,
+            paper: { kind: "full-mock", code: packPaperCode({ kind: "mock", subject, n }), name, subject: bankSubject, topicKey: "" },
             cover: {
               kicker: `FULL MOCK · ${bankSubject.toUpperCase()}`,
               title: name,
