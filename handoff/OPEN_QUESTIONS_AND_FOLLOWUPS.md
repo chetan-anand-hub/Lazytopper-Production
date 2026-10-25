@@ -23,9 +23,9 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-10-25 (daily) - #1354 - #1363 (11 product merges after #1353, 25 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+## 2026-10-25 (daily) - #1354 - #1366 (12 product merges after #1353, 25 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
-*Readings are at trunk `b8852551`. Earlier dated entries are left as written (standing rule 3).* All items below come from the cofounder session **[coordinator]** (`FOLLOWUPS_2026-10-25.md` and the session handoff); this builder re-derived none of the code facts.
+*Readings are at trunk `c9ca2744`. Earlier dated entries are left as written (standing rule 3).* All items below come from the cofounder session **[coordinator]** (`FOLLOWUPS_2026-10-25.md` and the session handoff); this builder re-derived none of the code facts.
 
 ### [FU-PDF-REDESIGN-1]
 Owner, 25 Oct 11:22 IST: redesign and rebrand every generated PDF: worksheets and answer keys, chapter tests, Quick Practice sets, full mocks (and their keys / graded sheets). Do it BEFORE the PDF packs launch so packs ship in the new design (mock-up first).
@@ -38,6 +38,9 @@ Rs 99 = 10 answer checks till boards, shown only on Basic limit walls, credited 
 
 ### [FU-LIMITS-CI-OVERSHOOT]
 The Check & Improve limit can overshoot by one under concurrent requests. Accepted by the owner for now.
+
+### [FU-LIMITS-LIVE-OWED]
+**[coordinator]**, after `#1366` (squash `c9ca2744`, which made the client limit hooks skip only paid Premium so trial and Basic ask the server). Live-verified 25 Oct on Quick Practice only (owner's new-cohort trial account, desktop 1280). STILL OWED: (1) a real-phone check of the wall; (2) a Basic (post-trial) account to check the locked per-answer breakdown; (3) a Check & Improve and a worksheet grading limit live (server tests cover them, no live round-trip yet). Per CLAUDE.md section 4a, a lane that verifies one surface is PARTIAL, not PASS.
 
 ### [FU-LIMITS-SURFACE-SPOOF]
 The surface header on grade-worksheet is client-supplied; derive it from the payload so a client cannot pick a cheaper bucket.
