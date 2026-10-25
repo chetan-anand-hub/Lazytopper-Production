@@ -118,6 +118,12 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "What the free tier includes, what Premium adds, and how passes work. " +
       "CBSE Class 10 Maths and Science prep.",
   },
+  "/packs": {
+    title: "CBSE Class 10 PDF Packs — Chapter, Mock and Bundle | LazyTopper",
+    description:
+      "One-time PDF packs for CBSE Class 10 Maths and Science: chapters from ₹49, " +
+      "full mocks, subject packs and a board bundle, with worked solutions.",
+  },
   "/exam-trends": {
     title: "CBSE Class 10 Exam Trends — Chapter Weightage | LazyTopper",
     description:
@@ -245,6 +251,7 @@ export interface RouteChunkEntry {
 export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/", exact: true, modules: [] },
   { prefix: "/pricing", exact: true, modules: ["PricingPage"] },
+  { prefix: "/packs", exact: true, modules: ["PacksPage"] },
   { prefix: "/exam-trends", exact: true, modules: ["ExamTrendsRanked"] },
   { prefix: "/practice-hub", exact: true, modules: ["DesktopPracticePage"] },
   { prefix: "/cbse/class-10", exact: true, modules: ["Cbse2027Page"] },

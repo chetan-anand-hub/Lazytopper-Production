@@ -268,7 +268,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
    * every member must have an AUTHORED spec — advertising a note URL that renders
    * "Notes not found" would be a soft 404 at HTTP 200.
    */
-  it("★ advertises 94 URLs: the 65 before, /contact (CONTACT-INDEX-1) and 28 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2 + 6 NCERT pages unlocked by the SOLUTIONS-3 renumbering)", () => {
+  it("★ advertises 95 URLs: the 66 before (incl. /packs, PACKS-LEGAL-1), /contact (CONTACT-INDEX-1) and 28 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2 + 6 NCERT pages unlocked by the SOLUTIONS-3 renumbering)", () => {
     const paths = sitemapPaths();
     const registry = allDesktopTopics();
     const notes = paths.filter((p) => p.startsWith("/notes/"));
@@ -283,8 +283,9 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // SOLUTIONS-3 PR-B: + /ncert-solutions/ real-numbers, pair-of-linear-equations, areas-related-to-circles,
     // surface-areas-and-volumes, statistics, probability (renumbered NCERT references, re-verified).
     expect(solutionsPaths().length, "published solutions pages").toBe(28);
-    expect(paths.length, "the owner-ruled advertised count").toBe(66 + solutionsPaths().length);
-    expect(paths.length).toBe(94);
+    expect(paths.length, "the owner-ruled advertised count").toBe(67 + solutionsPaths().length);
+    expect(paths.length).toBe(95);
+    expect(paths).toContain("/packs");
 
     for (const path of notes) {
       const slug = path.slice("/notes/".length);

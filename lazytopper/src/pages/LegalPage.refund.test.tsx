@@ -21,7 +21,8 @@ import { STATIC_PAGE_HEADS, escapeAttr, escapeText } from "../../scripts/seo/wri
 afterEach(cleanup);
 
 const TITLE = "Cancellation & Refund Policy";
-const UPDATED = "Last updated: September 2026";
+// PACKS-LEGAL-1 (25 Oct 2026): the PDF Packs section was added, so the date moved.
+const UPDATED = "Last updated: October 2026";
 
 /** The owner's sections, in order, word for word. */
 const SECTIONS: Array<[string, string]> = [
@@ -41,6 +42,12 @@ const SECTIONS: Array<[string, string]> = [
   [
     "Till-Boards Plan",
     "A one-time payment covering Premium until your first board exam. It is not refunded once paid.",
+  ],
+  [
+    // PACKS-LEGAL-1 (owner, 25 Oct 2026): a pack is a digital download, not refunded once paid.
+    // The section's second paragraph (the Board Pass credit) is pinned in PACKS_CREDIT below.
+    "PDF Packs",
+    "A PDF pack is a digital download. It is not refunded once paid, because the files are available to you straight away. If a file will not download or open, email us and we will fix it or send it to you.",
   ],
   [
     // OR-P7 (owner, 2026-09-26): no "charged after cancelling" — a pass is never cancelled.
@@ -86,7 +93,7 @@ describe("OR-P4 — the refund page, as rendered", () => {
     expect(flat(card.querySelector(".lt-legal-updated")?.textContent)).toBe(UPDATED);
   });
 
-  it("renders exactly the owner's five sections, in order, word for word", () => {
+  it("renders exactly the owner's six sections, in order, word for word", () => {
     const card = renderRefund();
     const headings = Array.from(card.querySelectorAll("h2")).map((h) => flat(h.textContent));
     expect(headings).toEqual(SECTIONS.map(([h]) => h));
@@ -94,6 +101,14 @@ describe("OR-P4 — the refund page, as rendered", () => {
       const h2 = Array.from(card.querySelectorAll("h2")).find((h) => flat(h.textContent) === heading);
       expect(flat(h2?.nextElementSibling?.textContent), heading).toBe(text);
     }
+  });
+
+  it("PACKS-LEGAL-1 — the PDF Packs section also carries the 7-day Board Pass credit sentence", () => {
+    const card = renderRefund();
+    const h2 = Array.from(card.querySelectorAll("h2")).find((h) => flat(h.textContent) === "PDF Packs");
+    expect(flat(h2?.nextElementSibling?.nextElementSibling?.textContent)).toBe(
+      "If you buy the Board Pass within 7 days of buying a pack, the pack's price is taken off the Board Pass price.",
+    );
   });
 
   it("keeps the existing contact email text (How to Contact Us)", () => {
