@@ -12,18 +12,44 @@ import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import { UpgradeSheet, formatTrialEnded, labelForFeature } from "./UpgradeSheet";
 import { getPremiumFeatureList, getFeatureGate, canAccessFeature } from "../../services/featureGates";
+import { PREMIUM_PLUS } from "../../config/pricingCompare";
+import TutorErrorView from "../../pages/tutor/TutorErrorView";
+import { boardPassOffer } from "../pricing/boardPassOffer";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { monthlyInline } from "../../config/pricing";
 
 // PRICING-1 — the sheet reads the student's own founding flag; the hook is stubbed so these tests
 // need no auth provider, and each test sets what the "student" is.
-const subState = vi.hoisted(() => ({ foundingMember: undefined as boolean | undefined }));
-vi.mock("../../hooks/useSubscription", () => ({
-  useSubscription: () => ({ status: { foundingMember: subState.foundingMember } }),
+const subState = vi.hoisted(() => ({
+  foundingMember: undefined as boolean | undefined,
+  tier: "free" as string,
+  trialStartDate: null as string | null,
+  hydrated: true,
+  uid: "u1" as string,
 }));
+vi.mock("../../hooks/useSubscription", () => ({
+  useSubscription: () => ({
+    hydrated: subState.hydrated,
+    status: { foundingMember: subState.foundingMember, tier: subState.tier, trialStartDate: subState.trialStartDate },
+  }),
+}));
+vi.mock("../../context/AuthContext", () => ({
+  useAuth: () => ({ user: subState.uid ? { uid: subState.uid } : null, loading: false }),
+}));
+const trialSvc = vi.hoisted(() => ({ activateTrial: vi.fn() }));
+vi.mock("../../services/subscriptionService", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/subscriptionService")>();
+  return { ...actual, activateTrial: trialSvc.activateTrial };
+});
 
 afterEach(() => {
   cleanup();
   subState.foundingMember = undefined;
+  subState.tier = "free";
+  subState.trialStartDate = null;
+  subState.hydrated = true;
+  subState.uid = "u1";
+  trialSvc.activateTrial.mockClear();
 });
 
 function renderSheet(props: Partial<React.ComponentProps<typeof UpgradeSheet>> = {}) {
@@ -45,13 +71,19 @@ describe("UpgradeSheet — every feature it sells is premium AND shipped", () =>
    * ASSERTION 12. MUTATION: flip any `shipped: false` back to shipped (or drop the
    * `shipped !== false` clause from getPremiumFeatureList) ⇒ RED here.
    */
-  it("names ONLY features whose requiredTier is premium in featureGates", () => {
+  it("sells exactly the benefit list /pricing shows for Premium (one shared source)", () => {
     renderSheet();
-    for (const f of getPremiumFeatureList()) {
-      expect(getFeatureGate(f.id).requiredTier).toBe("premium");
-      expect(screen.getByText(f.label)).toBeInTheDocument();
-    }
+    for (const item of PREMIUM_PLUS) expect(screen.getByText(item.label)).toBeInTheDocument();
+    expect(document.querySelectorAll(".lt-upsheet__list li")).toHaveLength(PREMIUM_PLUS.length);
   });
+
+  it.each(["Unlimited Mock Tests", "Exam Simulation", "Chapter Hub (AI Tutor)", "Weak Area Practice"])(
+    "the dated gate-table label %s is gone from the sheet",
+    (old) => {
+      renderSheet();
+      expect(screen.queryByText(old)).toBeNull();
+    },
+  );
 
   /**
    * ★★ THE ONE THE OWNER FOUND LIVE. The old modal sold five surfaces the product
@@ -70,9 +102,9 @@ describe("UpgradeSheet — every feature it sells is premium AND shipped", () =>
   });
 
   /** CONTROL for the five negatives above — the query finds a label that IS sold. */
-  it("CONTROL — the same query DOES find a live premium feature", () => {
+  it("CONTROL — the same query DOES find a live benefit", () => {
     renderSheet();
-    expect(screen.getByText("Exam Simulation")).toBeInTheDocument();
+    expect(screen.getByText("Your AI tutor that knows your chapters, your mistakes, your pace")).toBeInTheDocument();
   });
 
   /** The list is not empty; a sheet selling nothing would pass every negative. */
@@ -360,5 +392,126 @@ describe("labelForFeature", () => {
     expect(labelForFeature("some_new_code")).toBe("This");
     expect(labelForFeature(undefined)).toBe("This");
     expect(labelForFeature("some_new_code")).not.toContain("_");
+  });
+});
+
+describe("ASK-COPY-1: title and trial-first lead", () => {
+  it("a Basic student keeps the true statement", () => {
+    subState.trialStartDate = "2026-10-01T00:00:00.000Z";
+    renderSheet({ featureLabel: "The AI tutor" });
+    expect(screen.getByRole("heading", { name: "The AI tutor is a Premium feature" })).toBeInTheDocument();
+  });
+
+  it("a TRIAL student is not told it is a Premium feature - the title names what the pass keeps", () => {
+    subState.tier = "trial";
+    subState.trialStartDate = "2026-10-20T00:00:00.000Z";
+    renderSheet({ featureLabel: "Your full marks breakdown" });
+    expect(screen.getByRole("heading", { name: "Keep your full marks breakdown after your free week" })).toBeInTheDocument();
+    expect(screen.queryByText(/is a Premium feature/)).toBeNull();
+    expect(screen.getByTestId("upgrade-sheet")).toHaveAttribute("aria-label", "Keep your full marks breakdown after your free week");
+  });
+
+  it("an eligible account (never had a trial) sees the trial FIRST, Board Pass second; the tap starts it once and closes", () => {
+    const { onClose } = renderSheet();
+    const trial = screen.getByTestId("start-trial-cta");
+    expect(trial).toHaveTextContent("Start your free 7-day trial");
+    expect(trial.compareDocumentPosition(screen.getByTestId("upgrade-sheet-board-pass")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(trialSvc.activateTrial).not.toHaveBeenCalled(); // never on mount
+    fireEvent.click(trial);
+    fireEvent.click(trial);
+    expect(trialSvc.activateTrial).toHaveBeenCalledTimes(1);
+    expect(trialSvc.activateTrial).toHaveBeenCalledWith("u1");
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("not offered while the record is unknown (not hydrated), to a used/running trial, or to Premium", () => {
+    subState.hydrated = false;
+    renderSheet();
+    expect(screen.queryByTestId("start-trial-cta")).toBeNull();
+    cleanup();
+    subState.hydrated = true;
+    subState.trialStartDate = "2026-10-01T00:00:00.000Z";
+    renderSheet();
+    expect(screen.queryByTestId("start-trial-cta")).toBeNull();
+    cleanup();
+    subState.trialStartDate = null;
+    subState.tier = "premium";
+    renderSheet();
+    expect(screen.queryByTestId("start-trial-cta")).toBeNull();
+  });
+
+  it("a signed-out visitor leads with the trial, and the tap goes to sign-in (never starts anything)", () => {
+    subState.uid = "";
+    render(
+      <MemoryRouter initialEntries={["/practice?topic=light"]}>
+        <UpgradeSheet featureLabel="Checking your answer" onClose={() => {}} />
+        <LocationProbe />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByTestId("start-trial-cta"));
+    expect(trialSvc.activateTrial).not.toHaveBeenCalled();
+    expect(screen.getByTestId("loc")).toHaveTextContent("/login?reason=start-trial&redirect=");
+  });
+});
+
+/* ASK-COPY-1 - the tutor's 402 card (its actions are this sheet). Lives here, with the sheet's
+   mocks, because it reads the same clock for the Board Pass price. */
+describe("ASK-COPY-1: tutor 402 card", () => {
+  const PREMIUM = { kind: "premium" as const, message: "server words that must not replace the approved copy" };
+  function showCard() {
+    const onRetry = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/tutor?q=1"]}>
+        <TutorErrorView state={PREMIUM} onRetry={onRetry} selfHref="/tutor?q=1" />
+      </MemoryRouter>,
+    );
+    return onRetry;
+  }
+
+  it("Basic: title and body are the approved words, price computed from the Board Pass quote", () => {
+    subState.trialStartDate = "2026-10-01T00:00:00.000Z";
+    showCard();
+    const price = boardPassOffer(new Date(), predictCbseExamDate("10")).priceDisplay;
+    expect(price).toMatch(/^₹/);
+    expect(screen.getByText("Want to know why you lost this mark?")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        `The tutor walks you through this exact question, step by step. It comes with the Board Pass: ${price} once, till your boards.`,
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/part of Premium/)).toBeNull();
+    expect(screen.queryByText(/server words/)).toBeNull();
+    expect(screen.queryByTestId("start-trial-cta")).toBeNull(); // had a trial: never a second
+  });
+
+  it("Basic: the action is the shared UpgradeSheet", () => {
+    subState.trialStartDate = "2026-10-01T00:00:00.000Z";
+    showCard();
+    expect(screen.queryByTestId("upgrade-sheet")).toBeNull();
+    fireEvent.click(screen.getByTestId("tutor-see-board-pass"));
+    expect(screen.getByTestId("upgrade-sheet")).toBeInTheDocument();
+    expect(screen.getByTestId("upgrade-sheet-board-pass")).toBeInTheDocument();
+  });
+
+  it("trial-eligible: leads with the free week before the Board Pass, starts it only on the tap, then asks again", () => {
+    const onRetry = showCard();
+    const trial = screen.getByTestId("start-trial-cta");
+    expect(trial).toHaveTextContent("Start your free 7-day trial");
+    expect(trial.compareDocumentPosition(screen.getByTestId("tutor-see-board-pass")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(trialSvc.activateTrial).not.toHaveBeenCalled();
+    fireEvent.click(trial);
+    expect(trialSvc.activateTrial).toHaveBeenCalledWith("u1");
+    expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it("no trial offer before the record is known, or to a Premium account", () => {
+    subState.hydrated = false;
+    showCard();
+    expect(screen.queryByTestId("start-trial-cta")).toBeNull();
+    cleanup();
+    subState.hydrated = true;
+    subState.tier = "premium";
+    showCard();
+    expect(screen.queryByTestId("start-trial-cta")).toBeNull();
   });
 });

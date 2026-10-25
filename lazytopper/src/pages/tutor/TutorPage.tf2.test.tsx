@@ -214,14 +214,13 @@ describe("T7 · typed error states", () => {
     H.state = { messages: [u("hi")], status: "error", error: "x", errorState };
     render(tree("/tutor/10/maths/trigonometry"));
   };
-  it("premium_required → an upgrade card to the existing pricing entry, no Try again", () => {
+  it("premium_required → the Board Pass card (ASK-COPY-1), its action the shared sheet, no Try again", () => {
     withError({ kind: "premium", message: "The tutor is part of Premium." });
     const card = screen.getByTestId("tutor-error-premium");
-    expect(card.textContent).toContain("The tutor is part of Premium.");
-    const link = screen.getByRole("link", { name: "See Premium" });
-    expect(link.getAttribute("href")).toBe(
-      `/pricing?source=upgrade-sheet&returnTo=${encodeURIComponent("/tutor/10/maths/trigonometry")}`,
-    );
+    expect(card.textContent).toContain("Want to know why you lost this mark?");
+    expect(card.textContent).toContain("It comes with the Board Pass:");
+    expect(card.textContent).not.toContain("part of Premium");
+    expect(screen.getByRole("button", { name: "See the Board Pass" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
   });
   it("trial_limit / usage_limit → 'You've used today's tutor messages. Back …', no Try again", () => {

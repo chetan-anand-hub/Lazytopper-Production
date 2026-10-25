@@ -199,7 +199,7 @@ export function composeTutorEntry(input: {
 export function tutorGateNote(isSignedIn: boolean): string {
   return isSignedIn
     ? `Premium · part of the 7-day trial — ${TRIAL_WORDING.shortFragment}`
-    : "Log in to open your tutor. We'll bring you straight back to this chapter.";
+    : "Sign up free — 7 days of the tutor and step marking. We'll bring you straight back to this chapter.";
 }
 
 // ── PRIMARY ACTION CARDS (4) — SPEC §2, journey order ───────────
