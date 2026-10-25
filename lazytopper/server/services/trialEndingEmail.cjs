@@ -50,6 +50,10 @@ const TRIAL_EMAILS_COLLECTION = 'trialEmails';
  * is listed in studentDataMap NON_STUDENT_COLLECTIONS (the `freeCheckDaily` precedent).
  */
 const TRIAL_EMAIL_DAILY_COLLECTION = 'trialEmailDaily';
+/** EMAIL-ONEADAY-1: read (never written) here - the nudge ledger's `lastClaimMs` is the other emailer's clock. */
+const NUDGE_LEDGER_COLLECTION = 'nudgeEmails';
+/** At most ONE email a day from LazyTopper to a student, across the trial and nudge emailers. */
+const ONE_A_DAY_MS = 24 * 60 * 60 * 1000;
 /** Review finding 4 — skip reasons that cannot change during a 7-day trial: never looked up again. */
 const PERMANENT_SKIP_REASONS = new Set(['no-email', 'not-an-email-sign-in']);
 /** An unverified address may be verified later: re-checked at most this often. */
@@ -437,18 +441,24 @@ function createTrialEndingEmailer(deps = {}) {
    * the IST day's counter; writes the claim and count+1 only if nobody holds the row and the day
    * is under the cap. Firestore retries a transaction whose reads changed underneath it, so two
    * instances can neither both claim one student nor both take the last slot of the day.
-   * Returns 'claimed' | 'claimed-elsewhere' | 'opted-out' | 'daily-cap'.
+   * EMAIL-ONEADAY-1: the same transaction reads the nudge ledger; a nudge claimed within 24 h means
+   * 'spaced' - nothing is written, so the student stays a candidate and a later hourly run sends.
+   * Returns 'claimed' | 'claimed-elsewhere' | 'opted-out' | 'spaced' | 'daily-cap'.
    */
   async function claimWithinCap(ledgerRef, decision, dayKey, nowMs) {
     const dailyRef = adminFirestore.collection(TRIAL_EMAIL_DAILY_COLLECTION).doc(dayKey);
+    const nudgeRef = adminFirestore.collection(NUDGE_LEDGER_COLLECTION).doc(ledgerRef.id);
     return adminFirestore.runTransaction(async (tx) => {
       const l = await tx.get(ledgerRef);
+      const n = await tx.get(nudgeRef);
       const d = await tx.get(dailyRef);
       if (l.exists) {
         const data = l.data() || {};
         if (data.optedOut) return 'opted-out';
         if (!isDueSkipMarker(data, nowMs)) return 'claimed-elsewhere';
       }
+      const lastNudge = n.exists ? (n.data() || {}).lastClaimMs : null;
+      if (typeof lastNudge === 'number' && nowMs - lastNudge < ONE_A_DAY_MS) return 'spaced';
       const raw = d.exists ? (d.data() || {}).count : 0;
       const count = typeof raw === 'number' && raw > 0 ? raw : 0;
       if (count >= config.dailyCap) return 'daily-cap';

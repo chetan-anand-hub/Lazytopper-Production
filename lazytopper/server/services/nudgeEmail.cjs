@@ -523,6 +523,9 @@ function createNudgeEmailer(deps = {}) {
       const row = l.exists ? l.data() || {} : {};
       if (row[kind]) return 'claimed-elsewhere';
       if (typeof row.lastClaimMs === 'number' && nowMs - row.lastClaimMs < SPACING_MS) return 'spaced';
+      // EMAIL-ONEADAY-1: a trial-ending email claimed or sent within 24 h, read INSIDE the transaction.
+      const trialRecent = trialEmailRecentMs(t.exists ? t.data() || {} : null);
+      if (trialRecent !== null && nowMs - trialRecent < SPACING_MS) return 'spaced';
       const raw = d.exists ? (d.data() || {}).count : 0;
       const count = typeof raw === 'number' && raw > 0 ? raw : 0;
       if (count >= config.dailyCap) return 'daily-cap';
