@@ -173,6 +173,7 @@ const EVENT_LABELS: Record<string, string> = {
   ci_demo_another: "Tapped Mark another question after a sample",
   ci_demo_close: "Closed the sample-marking card",
   engaged_10min: "Stayed 10 minutes (in one day)",
+  engaged_5min: "Stayed 5 minutes (in one day)",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */
