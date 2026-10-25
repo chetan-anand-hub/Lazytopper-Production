@@ -198,20 +198,73 @@ describe("existing gates", () => {
     expect(fired()).toHaveLength(0);
   });
 
-  it("sends nothing from an /admin page, and does not spend the day", () => {
+  it("never credits time on an /admin page: admin browsing cannot count toward the conversion", () => {
     setLocation("/admin/students");
     trackPageview("/admin/students");
-    run(12);
+    run(30);
     expect(fired()).toHaveLength(0);
+    const stored = JSON.parse(window.localStorage.getItem(ENGAGED10_KEY) || "{}");
+    expect(stored.ms ?? 0).toBe(0);
     setLocation("/check-improve");
-    run(1);
-    expect(fired()).toHaveLength(1); // the minutes were kept; the first allowed tick sends
+    run(5);
+    expect(fired()).toHaveLength(0); // only the 5 real minutes so far
+    run(6);
+    expect(fired()).toHaveLength(1);
+  });
+
+  it("never credits time in an automated context", () => {
+    Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: true });
+    trackPageview("/check-improve");
+    run(15);
+    const stored = JSON.parse(window.localStorage.getItem(ENGAGED10_KEY) || "{}");
+    expect(stored.ms ?? 0).toBe(0);
+  });
+});
+
+describe("reloads cannot buy idle time", () => {
+  it("an untouched page reloaded again and again earns no further minutes", () => {
+    trackPageview("/check-improve");
+    run(1); // one touched minute, then the visitor walks away
+    for (let i = 0; i < 6; i++) {
+      newDocument();
+      run(4, false);
+    }
+    expect(fired()).toHaveLength(0);
+    const stored = JSON.parse(window.localStorage.getItem(ENGAGED10_KEY) || "{}");
+    expect(stored.ms).toBeLessThan(ENGAGED10_MS);
+    expect(stored.ms).toBeLessThanOrEqual(ENGAGED10_IDLE_MS + MIN + 15_000);
+  });
+});
+
+describe("a tab left open past IST midnight", () => {
+  it("fires for the new day in the same document", () => {
+    trackPageview("/check-improve");
+    run(11);
+    expect(fired()).toHaveLength(1);
+    calendarOffset += 13 * 60 * MIN; // 00:30 IST the next day, same document
+    run(11);
+    expect(fired()).toHaveLength(2);
+    run(30);
+    expect(fired()).toHaveLength(2);
   });
 });
 
 describe("destinations and allowlists", () => {
   it("goes to Meta as the custom event Engaged10Min", () => {
     expect(META_EVENTS.engaged_10min).toEqual(["trackCustom", "Engaged10Min"]);
+  });
+
+  it("goes to GA4 as gtag('event', 'engaged_10min') with only the redacted address, and to Vercel as a bare name", () => {
+    const gtag = vi.fn();
+    (window as unknown as { gtag?: unknown }).gtag = gtag;
+    trackPageview("/check-improve");
+    run(11);
+    delete (window as unknown as { gtag?: unknown }).gtag;
+    const calls = gtag.mock.calls.filter((c) => c[0] === "event" && c[1] === "engaged_10min");
+    expect(calls).toHaveLength(1);
+    expect(Object.keys(calls[0][2] as object).sort()).toEqual(["page_location", "page_referrer"]);
+    expect(fired()).toHaveLength(1);
+    expect(fired()[0]).toEqual({ kind: "event", payload: { name: "engaged_10min" } });
   });
 
   it("is handed to the first-party activity log as a bare name", () => {

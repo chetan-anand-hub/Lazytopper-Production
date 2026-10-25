@@ -633,7 +633,7 @@ export function trackPageview(path: string): void {
   try {
     if (analyticsEnabled()) {
       startEngagedVisitWatch(trackEngagedVisit);
-      startEngaged10Watch(trackEngaged10Min);
+      startEngaged10Watch(trackEngaged10Min, engaged10Allowed);
     }
   } catch {
     /* analytics must never break the page */
@@ -664,6 +664,15 @@ export function trackEngagedVisit(trigger: EngagedVisitTrigger): boolean {
   }
 }
 
+/** ENGAGE10-1 — the gate for both counting and sending: not an automated context, not an /admin page. */
+export function engaged10Allowed(): boolean {
+  try {
+    return analyticsEnabled() && !ADMIN_PATH.test(routerPathOf(window.location.pathname));
+  } catch {
+    return false;
+  }
+}
+
 /**
  * ENGAGE10-1 — `engaged_10min`, sent by the watch in engaged10.ts at most once per browser per IST
  * day. A bare name (no data, no path, no id) to GA4, Vercel, Meta (custom `Engaged10Min`, see
@@ -673,8 +682,7 @@ export function trackEngagedVisit(trigger: EngagedVisitTrigger): boolean {
  */
 export function trackEngaged10Min(): boolean {
   try {
-    if (!analyticsEnabled()) return false;
-    if (ADMIN_PATH.test(routerPathOf(window.location.pathname))) return false;
+    if (!engaged10Allowed()) return false;
     trackNamedEvent("engaged_10min");
     return true;
   } catch {

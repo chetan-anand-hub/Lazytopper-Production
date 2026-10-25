@@ -14,9 +14,15 @@
  *
  * ACROSS ROUTES / RELOADS / TABS: the running total is kept per IST day in localStorage
  * (`ENGAGED10_KEY`), so a reload or a second tab of the same day carries on from it. Each tick
- * ADDS its own visible slice to the stored total (read-modify-write), so two simultaneously
- * visible tabs both credit: that is real attention on LazyTopper, and the event is still capped
- * at once per day. Storage unavailable (private window, blocked, throwing): the total is held in
+ * ADDS its own visible slice to the stored total (read-modify-write; written back every 15 s and
+ * whenever the tab is hidden or the event fires), so two simultaneously visible tabs both credit:
+ * that is real attention on LazyTopper, and the event is still capped at once per day.
+ * The LAST-ACTIVITY time is stored in the same record and a reload does not refresh it, so
+ * reloading an untouched page cannot buy another 5 idle minutes. The page load counts as
+ * activity only for the first record of an IST day.
+ * Time is credited only where the fire gate allows it (not in an automated context, not on an
+ * /admin path): admin browsing can never count toward the conversion. After the event has been
+ * sent the watch keeps running, so a tab left open past IST midnight can fire for the new day. Storage unavailable (private window, blocked, throwing): the total is held in
  * memory for this document only, and the once-per-day flag likewise.
  *
  * Signed-in AND signed-out visitors: Google Ads optimises on the visitor, so nothing here asks who.
@@ -32,21 +38,26 @@
 export const ENGAGED10_MS = 10 * 60_000;
 export const ENGAGED10_TICK_MS = 5_000;
 export const ENGAGED10_IDLE_MS = 5 * 60_000;
+export const ENGAGED10_WRITE_MS = 15_000;
 export const ENGAGED10_KEY = "lazytopper.engaged10";
 
 type Fire = () => boolean;
-type Stored = { day: string; ms: number; sent: boolean };
+type Allowed = () => boolean;
+type Stored = { day: string; ms: number; sent: boolean; act: number };
 
 const LISTEN: AddEventListenerOptions = { capture: true, passive: true };
 const IST_OFFSET_MS = 330 * 60_000;
+const ACTIVITY_EVENTS = ["pointerdown", "pointermove", "keydown", "scroll", "touchstart"];
+const EMPTY: Stored = { day: "", ms: 0, sent: false, act: 0 };
 
 let started = false;
-let done = false;
 let fire: Fire | null = null;
+let allowed: Allowed | null = null;
 let interval: ReturnType<typeof setInterval> | null = null;
 let lastTick: number | null = null;
-let lastActivity = 0;
-let mem: Stored = { day: "", ms: 0, sent: false };
+let memAct = 0; // wall-clock ms of the last interaction seen by THIS document (0 = none yet)
+let mem: Stored = { ...EMPTY };
+let pending = 0; // credited ms not yet written to storage
 
 function isVisible(): boolean {
   try {
@@ -65,31 +76,101 @@ function monoNow(): number {
   }
 }
 
-/** The IST calendar day, `YYYY-MM-DD`. */
-function istDay(): string {
-  return new Date(Date.now() + IST_OFFSET_MS).toISOString().slice(0, 10);
+function istDay(wall: number): string {
+  return new Date(wall + IST_OFFSET_MS).toISOString().slice(0, 10);
 }
 
 function readStored(): Stored | null {
   try {
     const raw = window.localStorage.getItem(ENGAGED10_KEY);
-    if (!raw) return { day: "", ms: 0, sent: false };
+    if (!raw) return { ...EMPTY };
     const v = JSON.parse(raw) as Partial<Stored> | null;
-    if (!v || typeof v.day !== "string" || typeof v.ms !== "number" || !(v.ms >= 0)) {
-      return { day: "", ms: 0, sent: false };
-    }
-    return { day: v.day, ms: v.ms, sent: v.sent === true };
+    if (!v || typeof v.day !== "string" || typeof v.ms !== "number" || !(v.ms >= 0)) return { ...EMPTY };
+    return { day: v.day, ms: v.ms, sent: v.sent === true, act: typeof v.act === "number" && v.act > 0 ? v.act : 0 };
   } catch {
     return null; // storage unavailable
   }
 }
 
-function writeStored(s: Stored): void {
+function writeStored(rec: Stored): void {
   try {
-    window.localStorage.setItem(ENGAGED10_KEY, JSON.stringify(s));
+    window.localStorage.setItem(ENGAGED10_KEY, JSON.stringify(rec));
   } catch {
     /* storage unavailable: the in-memory copy carries this document */
   }
+}
+
+function gateAllows(): boolean {
+  try {
+    return !allowed || allowed() === true;
+  } catch {
+    return false;
+  }
+}
+
+/** Today's record: storage when readable, else this document's memory; a new IST day starts empty. */
+function current(day: string): { rec: Stored; fromMemory: boolean } {
+  const stored = readStored();
+  const base = stored === null ? mem : stored;
+  const rec = base.day === day ? { ...base } : { ...EMPTY, day };
+  if (mem.day === day && mem.sent) rec.sent = true;
+  if (mem.day === day && mem.act > rec.act) rec.act = mem.act;
+  return { rec, fromMemory: stored === null };
+}
+
+/**
+ * Credit one visible slice, if the gate allows and the visitor is not idle. `flush` forces the
+ * write-back (tab hidden). Nothing here throws into the page.
+ */
+function credit(slice: number, flush: boolean): void {
+  if (!gateAllows()) return; // admin / automated: never counted, not even toward a later fire
+  const wall = Date.now();
+  const day = istDay(wall);
+  const { rec, fromMemory } = current(day);
+  if (rec.sent) {
+    mem = rec;
+    pending = 0;
+    return;
+  }
+  let act = Math.max(rec.act, memAct);
+  if (act === 0) act = wall; // the first record of an IST day: the page load is the first activity
+  if (wall - act > ENGAGED10_IDLE_MS) {
+    rec.act = act;
+    mem = rec;
+    return;
+  }
+  rec.act = act;
+  // Memory already holds the unwritten slices; storage does not.
+  rec.ms += slice + (fromMemory ? 0 : pending);
+  pending += slice;
+  if (rec.ms >= ENGAGED10_MS) {
+    let sent = false;
+    try {
+      sent = !!fire && fire() === true;
+    } catch {
+      sent = false;
+    }
+    if (sent) rec.sent = true;
+    flush = true;
+  }
+  mem = rec;
+  if (flush || pending >= ENGAGED10_WRITE_MS) {
+    writeStored(rec);
+    pending = 0;
+  }
+}
+
+function onTick(): void {
+  const now = monoNow();
+  if (!isVisible()) {
+    lastTick = null;
+    return;
+  }
+  const since = lastTick === null ? 0 : now - lastTick;
+  lastTick = now;
+  // A throttled or frozen timer must not mint time: one slice is at most two ticks.
+  const slice = Math.min(Math.max(0, since), ENGAGED10_TICK_MS * 2);
+  if (slice > 0) credit(slice, false);
 }
 
 function clearTicker(): void {
@@ -99,109 +180,59 @@ function clearTicker(): void {
   }
 }
 
-function credit(slice: number): void {
-  const day = istDay();
-  const stored = readStored();
-  let cur: Stored;
-  if (stored === null) {
-    cur = mem.day === day ? mem : { day, ms: 0, sent: false };
-  } else {
-    cur = stored.day === day ? stored : { day, ms: 0, sent: false };
-    // A stored record can be older than this document's memory only if storage was cleared mid-day.
-    if (mem.day === day && mem.sent) cur.sent = true;
-  }
-  if (cur.sent) {
-    mem = cur;
-    stop();
-    return;
-  }
-  cur = { day, ms: cur.ms + slice, sent: false };
-  if (cur.ms >= ENGAGED10_MS) {
-    let sent = false;
-    try {
-      sent = !!fire && fire() === true;
-    } catch {
-      sent = false;
-    }
-    if (sent) cur.sent = true;
-  }
-  mem = cur;
-  writeStored(cur);
-  if (cur.sent) stop();
-}
-
-function onTick(): void {
-  if (done) return;
-  const now = monoNow();
-  if (!isVisible()) {
-    lastTick = null;
-    return;
-  }
-  const since = lastTick === null ? 0 : now - lastTick;
-  lastTick = now;
-  // Idle: no credit once the visitor has been inactive past the grace; resumes on interaction.
-  if (now - lastActivity > ENGAGED10_IDLE_MS) return;
-  // A throttled or frozen timer must not mint time: one slice is at most two ticks.
-  const slice = Math.min(Math.max(0, since), ENGAGED10_TICK_MS * 2);
-  if (slice > 0) credit(slice);
-}
-
 function startTicker(): void {
-  if (interval !== null || done) return;
+  if (interval !== null) return;
   lastTick = monoNow();
   interval = setInterval(onTick, ENGAGED10_TICK_MS);
 }
 
 function onVisibility(): void {
-  if (done) return;
   if (isVisible()) {
     startTicker();
-  } else {
-    // Close the slice that ran up to the moment the tab was hidden, then stop.
-    if (lastTick !== null) {
-      const now = monoNow();
-      if (now - lastActivity <= ENGAGED10_IDLE_MS) {
-        const slice = Math.min(Math.max(0, now - lastTick), ENGAGED10_TICK_MS);
-        if (slice > 0) credit(slice);
-      }
-    }
-    lastTick = null;
-    clearTicker();
+    return;
   }
+  // Close the slice that ran up to the moment the tab was hidden, write it, and stop.
+  if (lastTick !== null) {
+    const slice = Math.min(Math.max(0, monoNow() - lastTick), ENGAGED10_TICK_MS);
+    if (slice > 0) credit(slice, true);
+    else if (pending > 0) {
+      writeStored(mem);
+      pending = 0;
+    }
+  }
+  lastTick = null;
+  clearTicker();
 }
 
 function onActivity(): void {
-  lastActivity = monoNow();
+  try {
+    memAct = Date.now();
+  } catch {
+    /* analytics must never break the page */
+  }
 }
 
 function removeListeners(): void {
   try {
-    for (const ev of ["pointerdown", "pointermove", "keydown", "scroll", "touchstart"]) {
-      window.removeEventListener(ev, onActivity, LISTEN);
-    }
+    for (const ev of ACTIVITY_EVENTS) window.removeEventListener(ev, onActivity, LISTEN);
     document.removeEventListener("visibilitychange", onVisibility);
   } catch {
     /* analytics must never break the page */
   }
 }
 
-function stop(): void {
-  done = true;
-  clearTicker();
-  removeListeners();
-}
-
-/** Start watching, ONCE per document. Later calls (every route change) are no-ops. */
-export function startEngaged10Watch(fireFn: Fire): void {
+/**
+ * Start watching, ONCE per document. Later calls (every route change) are no-ops.
+ * `allowedFn` is the fire gate (analytics.ts): checked before any time is credited.
+ */
+export function startEngaged10Watch(fireFn: Fire, allowedFn?: Allowed): void {
   if (started) return;
   if (typeof window === "undefined" || typeof document === "undefined") return;
   started = true;
   fire = fireFn;
+  allowed = allowedFn ?? null;
   try {
-    lastActivity = monoNow(); // loading the page counts as the first activity
-    for (const ev of ["pointerdown", "pointermove", "keydown", "scroll", "touchstart"]) {
-      window.addEventListener(ev, onActivity, LISTEN);
-    }
+    for (const ev of ACTIVITY_EVENTS) window.addEventListener(ev, onActivity, LISTEN);
     document.addEventListener("visibilitychange", onVisibility);
     if (isVisible()) startTicker();
   } catch {
@@ -214,9 +245,10 @@ export function __resetEngaged10ForTests(): void {
   clearTicker();
   removeListeners();
   started = false;
-  done = false;
   fire = null;
+  allowed = null;
   lastTick = null;
-  lastActivity = 0;
-  mem = { day: "", ms: 0, sent: false };
+  memAct = 0;
+  mem = { ...EMPTY };
+  pending = 0;
 }
