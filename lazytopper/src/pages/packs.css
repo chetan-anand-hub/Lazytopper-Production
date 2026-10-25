@@ -75,7 +75,7 @@
 .lt-packs__btn:disabled { background: #c8d3df; color: #4a5a6e; cursor: not-allowed; }
 .lt-packs__btn--ghost { background: #fff; color: var(--pk-gt); border: 1px solid var(--pk-g); width: auto; min-width: 120px; }
 .lt-packs__btn--small { width: auto; min-height: 44px; min-width: 112px; font-size: 14px; }
-.lt-packs__link { background: none; border: 0; padding: 0; font: inherit; color: var(--pk-gt); text-decoration: underline; cursor: pointer; min-height: 32px; }
+.lt-packs__link { display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; padding: 0 8px; font: inherit; color: var(--pk-gt); text-decoration: underline; cursor: pointer; min-height: 44px; }
 .lt-packs__note { margin: 10px 0 0; font-size: 13.5px; color: var(--pk-ink2); }
 .lt-packs__note--ok { color: var(--pk-gt); font-weight: 600; }
 .lt-packs__note--bad { color: var(--pk-bad); }

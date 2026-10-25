@@ -55,6 +55,7 @@ import {
   type PlanItem,
 } from "../config/pricingCompare";
 import { isPaymentsClientEnabled } from "../services/checkout";
+import { isPacksClientEnabled } from "../services/packs";
 import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
 
@@ -1372,7 +1373,7 @@ function PricingPlansPage() {
     navigate(path);
   };
   const [showPacksStrip, setShowPacksStrip] = useState(false);
-  useEffect(() => setShowPacksStrip(true), []);
+  useEffect(() => setShowPacksStrip(isPacksClientEnabled()), []);
   const [waitlistContact, setWaitlistContact] = useState("");
   const [waitlistBoard, setWaitlistBoard] = useState("");
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);

@@ -244,13 +244,14 @@ describe("fetchMyPacks", () => {
         ok: true,
         status: 200,
         json: async () => ({
-          packs: [{ packId: "pack_chapter:triangles", sku: "pack_chapter", target: "triangles", pricePaidInr: 49, paidAt: 5 }, { nope: 1 }],
+          packs: [{ packId: "pack_chapter:triangles", sku: "pack_chapter", target: "triangles", pricePaidInr: 49, paidAt: 5, orderId: "order_ABC" }, { nope: 1 }],
           licensee: { name: "Asha", email: "a@b.in" },
         }),
       } as Response;
     });
     const mine = await mod.fetchMyPacks();
     expect(mine.packs).toHaveLength(1);
+    expect(mine.packs[0].orderId).toBe("order_ABC");
     expect(mine.licensee).toEqual({ name: "Asha", email: "a@b.in" });
     vi.doUnmock("./firebaseClient");
     void fetchMyPacks;

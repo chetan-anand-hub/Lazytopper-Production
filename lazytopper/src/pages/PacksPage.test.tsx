@@ -23,8 +23,11 @@ vi.mock("../services/packs", async (orig) => {
     buyPack: vi.fn(async () => ({ status: "dismissed" })),
   };
 });
+const loads = vi.hoisted(() => ({ n: 0 }));
 vi.mock("../lib/packs/packContent", () => ({
-  loadChapter: async () => undefined,
+  loadChapter: async () => {
+    loads.n += 1;
+  },
   countChapterQuestions: (slug: string) => (slug === "real-numbers" ? 120 : 100),
 }));
 vi.mock("../lib/packs/buildPackFiles", () => ({
@@ -51,6 +54,7 @@ beforeEach(() => {
   flag.on = false;
   flag.mine = { packs: [], licensee: { name: "Asha", email: "a@b.in" } };
   events.names.length = 0;
+  loads.n = 0;
 });
 afterEach(() => cleanup());
 
@@ -75,6 +79,15 @@ describe("PacksPage", () => {
       expect(b.disabled).toBe(true);
       expect(b.textContent).toBe("Opens soon");
     }
+  });
+
+  it("never loads the bank for a visitor who does not touch a picker; the first interaction loads it", async () => {
+    page();
+    await new Promise((r) => setTimeout(r, 700));
+    expect(loads.n).toBe(0);
+    expect(document.body.textContent).not.toMatch(/\d,\d{3}\s*questions/);
+    fireEvent.click(screen.getAllByRole("radio", { name: "Science" })[0]);
+    await waitFor(() => expect(loads.n).toBeGreaterThan(0));
   });
 
   it("shows the exact question count of the chosen chapter once the bank is read (no hardcoded counts)", async () => {

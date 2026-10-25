@@ -177,6 +177,17 @@ describe("buildPackFiles — mock, subject, bundle", () => {
     expect(groupPackFiles(files).map((g) => g.group)).toEqual(["Maths mock papers"]);
   });
 
+  it("5 mock papers (paper + key) are built for EACH subject from the real bank", async () => {
+    for (const subject of ["maths", "science"] as const) {
+      const pack = owned(`pack_mock:${subject}`);
+      const files = await buildPackFiles(ref(pack), ctx([pack]));
+      expect(files, subject).toHaveLength(10);
+      for (let n = 1; n <= 5; n += 1) {
+        expect(files.map((f) => f.label), `${subject} mock ${n}`).toEqual(expect.arrayContaining([`Mock ${n} · Questions`, `Mock ${n} · Answer key`]));
+      }
+    }
+  }, 120_000);
+
   it("a subject pack is its 13 chapters (grouped) plus its mocks; the bundle is both subjects", async () => {
     const pack = owned("pack_subject:science");
     const files = await buildPackFiles(ref(pack), ctx([pack]));

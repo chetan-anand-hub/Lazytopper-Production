@@ -53,9 +53,9 @@ export const FIRESTORE_MARKERS = ["firestore.googleapis.com", "webchannel"];
  *  (`pnpm run build`, 2026-10-18, after the re-review round: the chunk-URL retry, and
  *  adaptivePracticeEngine's raw SDK imports routed through the facade). Before PERF-3 the same
  *  measure read 414195. Re-measure and update when the entry legitimately changes.
- *  2026-10-25 PACKS-CLIENT-1: +~0.5 KB for the /packs route, activity events and Meta map (owner revenue priority);
+ *  2026-10-25 PACKS-CLIENT-1: +446 B gz (272,950 -> 273,396, flag ON) for the /packs route, activity events and Meta map (owner revenue priority);
  *  reduction lane [FU-PERF3-BUDGET] queued. */
-export const MEASURED_ENTRY_GZ = 248684;
+export const MEASURED_ENTRY_GZ = 248679;
 export const ENTRY_GZ_BUDGET = Math.floor(MEASURED_ENTRY_GZ * 1.1);
 
 /** Resolve the build output the way the sibling build scripts do (applyPrerendered.resolveOutDir). */

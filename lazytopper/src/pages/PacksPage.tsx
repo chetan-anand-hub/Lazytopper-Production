@@ -65,32 +65,41 @@ function paidDate(ms: number): string {
 
 type Counts = Record<string, number>;
 
-/** Exact per-chapter question counts from the bank, MINUS the figure exclusions. Loaded after first paint. */
-function useChapterCounts(): Counts | null {
-  const [counts, setCounts] = useState<Counts | null>(null);
+/**
+ * Exact per-chapter question counts from the bank, MINUS the figure exclusions. NOTHING is loaded until the
+ * visitor touches a picker (`request`): a visitor who only reads the page never fetches the bank. A chapter is
+ * counted first when it is the one picked; the rest follow so subject and bundle totals can appear.
+ */
+function useChapterCounts(): { counts: Counts; request: (first?: string) => void } {
+  const [counts, setCounts] = useState<Counts>({});
+  const started = useRef<Set<string>>(new Set());
+  const alive = useRef(true);
   useEffect(() => {
-    let cancelled = false;
-    const run = async () => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  const request = useCallback((first?: string) => {
+    const order = first ? [first, ...PACK_CHAPTER_SLUGS.filter((s) => s !== first)] : [...PACK_CHAPTER_SLUGS];
+    const todo = order.filter((s) => !started.current.has(s));
+    if (todo.length === 0) return;
+    todo.forEach((s) => started.current.add(s));
+    void (async () => {
       try {
         const content = await import("../lib/packs/packContent");
-        const next: Counts = {};
-        for (const slug of PACK_CHAPTER_SLUGS) {
+        for (const slug of todo) {
           await content.loadChapter(slug);
-          next[slug] = content.countChapterQuestions(slug);
-          if (cancelled) return;
+          if (!alive.current) return;
+          const n = content.countChapterQuestions(slug);
+          setCounts((c) => ({ ...c, [slug]: n }));
         }
-        if (!cancelled) setCounts(next);
       } catch {
         /* honest: no count is shown rather than a guessed one */
       }
-    };
-    const timer = window.setTimeout(() => void run(), 400);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
+    })();
   }, []);
-  return counts;
+  return { counts, request };
 }
 
 const nf = (n: number): string => n.toLocaleString("en-IN");
@@ -104,7 +113,7 @@ export default function PacksPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const enabled = isPacksClientEnabled();
-  const counts = useChapterCounts();
+  const { counts, request: requestCounts } = useChapterCounts();
 
   const [mine, setMine] = useState<MyPacks | null>(null);
   const [mineError, setMineError] = useState<false | "failed" | "details">(false);
@@ -148,11 +157,17 @@ export default function PacksPage() {
 
   const subjectTotal = useCallback(
     (s: PackSubject): number | null => {
-      if (!counts) return null;
-      return chaptersOfSubject(s).reduce((sum, slug) => sum + (counts[slug] ?? 0), 0);
+      const list = chaptersOfSubject(s);
+      if (!list.every((slug) => counts[slug] !== undefined)) return null;
+      return list.reduce((sum, slug) => sum + counts[slug], 0);
     },
     [counts],
   );
+
+  function onSubject(next: PackSubject) {
+    setSubject(next);
+    requestCounts();
+  }
 
   async function handleBuy(sku: PackSku, target: string | undefined) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
@@ -215,7 +230,7 @@ export default function PacksPage() {
     }
   }
 
-  const chapterCount = chapter && counts ? counts[chapter] : null;
+  const chapterCount = chapter && counts[chapter] !== undefined ? counts[chapter] : null;
   const mathsTotal = subjectTotal("maths");
   const scienceTotal = subjectTotal("science");
   const bundleTotal = mathsTotal !== null && scienceTotal !== null ? mathsTotal + scienceTotal : null;
@@ -304,7 +319,10 @@ export default function PacksPage() {
               <h3>Chapter Pack</h3>
               <p className="lt-packs__price">{packPriceLabel("pack_chapter")}</p>
               <label className="lt-packs__label" htmlFor="packs-chapter">Pick a chapter</label>
-              <select id="packs-chapter" className="lt-packs__select" value={chapter} onChange={(e) => setChapter(e.target.value)}>
+              <select id="packs-chapter" className="lt-packs__select" value={chapter} onChange={(e) => {
+                  setChapter(e.target.value);
+                  if (e.target.value) requestCounts(e.target.value);
+                }}>
                 <option value="">Choose a chapter…</option>
                 {(["maths", "science"] as const).map((s) => (
                   <optgroup key={s} label={subjectLabel(s)}>
@@ -316,10 +334,8 @@ export default function PacksPage() {
               </select>
               <ul className="lt-packs__list">
                 <li>
-                  {chapterReady
-                    ? chapterCount !== null
-                      ? <><b>{nf(chapterCount)}</b> questions, each with a worked solution</>
-                      : "Counting the questions…"
+                  {chapterCount !== null
+                    ? <><b>{nf(chapterCount)}</b> questions, each with a worked solution</>
                     : "Every question of the chapter, with worked solutions"}
                 </li>
                 <li>Section-wise question sheets and answer keys</li>
@@ -332,7 +348,7 @@ export default function PacksPage() {
               <p className="lt-packs__tag">Board-pattern papers</p>
               <h3>Mock Pack</h3>
               <p className="lt-packs__price">{packPriceLabel("pack_mock")}</p>
-              <SubjectToggle value={subject} onChange={setSubject} idPrefix="mock" />
+              <SubjectToggle value={subject} onChange={onSubject} idPrefix="mock" />
               <ul className="lt-packs__list">
                 <li><b>5</b> full {subjectLabel(subject)} papers, 80 marks each</li>
                 <li>Section A to E, as in the board paper</li>
@@ -345,7 +361,7 @@ export default function PacksPage() {
               <p className="lt-packs__tag">Whole subject</p>
               <h3>Subject Pack</h3>
               <p className="lt-packs__price">{packPriceLabel("pack_subject")}</p>
-              <SubjectToggle value={subject} onChange={setSubject} idPrefix="subject" />
+              <SubjectToggle value={subject} onChange={onSubject} idPrefix="subject" />
               <ul className="lt-packs__list">
                 <li>
                   All <b>{chaptersOfSubject(subject).length}</b> {subjectLabel(subject)} chapters
