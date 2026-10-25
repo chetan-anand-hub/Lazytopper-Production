@@ -306,6 +306,8 @@ describe("studentDataMap — drift guard", () => {
     // (deny-all catch-all). It IS student data (a doc per uid) - in the map, erased and exported.
     // Its day counter `nudgeEmailDaily` is uid-free and exempt, like `trialEmailDaily`.
     //
+    // ★ `packEntitlements` JOINED this set with PACKS-SERVER-1: server-only (Admin SDK), written by a verified
+    // payment, deny-all catch-all, student data (erased + exported through this map).
     // ★ `usageCredits` JOINED this set with TOPUP-1. Written only by server/services/usageCredit.cjs
     // through the Admin SDK; no client reads or writes it, so it is undeclared on purpose (deny-all
     // catch-all). It IS student data (uid-keyed balance + grants) - in the map, erased and exported.
@@ -320,7 +322,7 @@ describe("studentDataMap — drift guard", () => {
     // server/services/opsReport.cjs through the Admin SDK; no client reads or writes it, so it is
     // undeclared on purpose (deny-all catch-all; firestore.rules is NOT edited). Uid-free and
     // exempt (NON_STUDENT_COLLECTIONS), like `trialEmailDaily`.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "nudgeEmailDaily", "nudgeEmails", "opsReports", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "nudgeEmailDaily", "nudgeEmails", "opsReports", "packEntitlements", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
