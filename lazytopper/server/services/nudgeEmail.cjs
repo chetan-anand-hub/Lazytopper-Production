@@ -12,6 +12,14 @@
  *                            pointer to the Plans page, where the existing "forward link to
  *                            parents" action lives. Behind its OWN flag NUDGE_FOUNDING_EMAIL_ENABLED (default off) and dark until payments + parent pay are live.
  *
+ *   EMAIL-CONCIERGE-1 (owner ruling 25 Oct 2026, the founder's hand-sent notes, automated; templates in
+ *   nudgeConciergeTemplates.cjs), each at most ONCE per student ever, behind NUDGE_CONCIERGE_ENABLED (default off):
+ *   founder_checkin  not paying, active in the last 14 days, and >= 15 active minutes OR >= 2 graded OR the Plans
+ *                    page opened >= 2 times: thanks, one honest question, a free 10-minute call.
+ *   checkout_help    a plan order created 2-48 h ago and still unpaid: did payment go wrong, or the price?
+ *   Both need a reply-to (NUDGE_EMAIL_REPLY_TO) - without one they are skipped and logged. They share the daily
+ *   cap with the rest; checkout_help is served first. Never premium, admin (ADMIN_FIREBASE_UIDS) or @lazytopper.com.
+ *
  * ★ OFF BY DEFAULT. Nothing is scheduled unless NUDGE_EMAIL_ENABLED is set. Enabled, it is a DRY
  *   RUN (logs who WOULD be emailed, writes nothing, sends nothing) until NUDGE_EMAIL_DRY_RUN=0 AND
  *   RESEND_API_KEY, a sender (NUDGE_EMAIL_FROM, else OPS_REPORT_FROM, else TRIAL_EMAIL_FROM; it must be on mail.lazytopper.com) and the >= 32-character
@@ -74,6 +82,7 @@ const {
 } = require('./trialEndingEmail.cjs');
 const { deriveEffectiveTier, isServerPinnedStart } = require('./entitlement.cjs');
 const pricing = require('./passPricing.cjs');
+const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
 
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
 /** One doc per IST day holding ONLY a count (uid-free; listed in studentDataMap NON_STUDENT_COLLECTIONS). */
@@ -84,6 +93,19 @@ const ACTIVITY_COLLECTION = 'activityLog';
 const ACTIVITY_SEGMENTS = Object.freeze({ days: 'activityDays' });
 
 const KINDS = Object.freeze(['d1', 'd3', 'founding']);
+/** EMAIL-CONCIERGE-1: the two founder-note kinds. Own flag, own queries; checkout_help is served first. */
+const CONCIERGE_KINDS = Object.freeze(['checkout_help', 'founder_checkin']);
+const ALL_KINDS = Object.freeze([...KINDS, ...CONCIERGE_KINDS]);
+const PAY_ORDERS_COLLECTION = 'payOrders';
+/** checkout_help: an order created 2-48 h ago and still not paid. */
+const CHECKOUT_MIN_MS = 2 * HOUR_MS;
+const CHECKOUT_MAX_MS = 48 * HOUR_MS;
+const CAP_CHECKOUT = 500;
+const CAP_CHECKIN = 1000;
+/** founder_checkin: active within this long, and at least one engagement signal. */
+const CHECKIN_ACTIVE_WITHIN_MS = 14 * DAY_MS;
+const CHECKIN_MIN_PRICING_OPENS = 2;
+const CHECKIN_INTERNAL_EMAIL_DOMAINS = Object.freeze(['lazytopper.com']);
 
 const D1_MIN_MS = 20 * HOUR_MS;
 const D1_MAX_MS = 30 * HOUR_MS;
@@ -164,6 +186,10 @@ function resolveNudgeConfig(env = process.env) {
     paymentsLive: isOnFlag(e.PAYMENTS_ENABLED) && isOnFlag(e.PARENT_PAY_ENABLED),
     // Email 3 has its OWN switch, default OFF, independent of NUDGE_EMAIL_ENABLED (owner decides separately).
     foundingEnabled: isOnFlag(e.NUDGE_FOUNDING_EMAIL_ENABLED),
+    // EMAIL-CONCIERGE-1: the founder-note emails have their OWN switch, default OFF, on top of NUDGE_EMAIL_ENABLED.
+    conciergeEnabled: isOnFlag(e.NUDGE_CONCIERGE_ENABLED),
+    // Never emailed: the admin allowlist (the same ADMIN_FIREBASE_UIDS the admin pages use).
+    adminUids: new Set(str(e.ADMIN_FIREBASE_UIDS).split(',').map((x) => x.trim()).filter(Boolean)),
   };
 }
 
@@ -234,6 +260,44 @@ function lastActiveMs(days, records) {
     if (t !== null && (last === null || t > last)) last = t;
   }
   return last;
+}
+
+/** How many times the Plans page was opened: per day the larger of the section count and the feed hits. PURE. */
+function pricingOpenCount(days) {
+  let n = 0;
+  for (const d of Array.isArray(days) ? days : []) {
+    if (!d) continue;
+    const s = d.sections && typeof d.sections === 'object' && typeof d.sections.pricing === 'number' ? d.sections.pricing : 0;
+    const feed = Array.isArray(d.feed) ? d.feed.filter((e) => e && e.k === 'page' && e.n === 'pricing').length : 0;
+    n += Math.max(s, feed);
+  }
+  return n;
+}
+
+/** Is this a LazyTopper/admin account (never sent a founder note)? PURE. */
+function isInternalAccount(uid, email, adminUids) {
+  if (adminUids && typeof adminUids.has === 'function' && adminUids.has(uid)) return true;
+  const at = String(email || '').lastIndexOf('@');
+  if (at < 0) return false;
+  const domain = String(email).slice(at + 1).toLowerCase();
+  return CHECKIN_INTERNAL_EMAIL_DOMAINS.some((d) => domain === d || domain.endsWith(`.${d}`));
+}
+
+/**
+ * founder_checkin: not paying (the caller drops premium), active in the last 14 days, and one of
+ * >= 15 active minutes, >= 2 graded items, >= 2 Plans-page opens. PURE. Returns { ok, facts } or { ok:false, reason }.
+ */
+function isCheckinDue({ counts, days, records, nowMs }) {
+  if (!counts) return { ok: false, reason: 'records-unavailable' };
+  const last = lastActiveMs(days, records);
+  if (last === null || nowMs - last > CHECKIN_ACTIVE_WITHIN_MS) return { ok: false, reason: 'inactive' };
+  const activeMinutes = activeMinutesFromDays(days);
+  const pricingOpens = pricingOpenCount(days);
+  const graded = totalGraded(counts);
+  if (activeMinutes >= ENGAGED_ACTIVE_MINUTES || graded >= ENGAGED_GRADED || pricingOpens >= CHECKIN_MIN_PRICING_OPENS) {
+    return { ok: true, facts: { checks: counts.checks, tests: counts.tests, practiceSets: counts.practiceSets, activeMinutes, pricingOpens } };
+  }
+  return { ok: false, reason: 'not-engaged' };
 }
 
 const totalGraded = (c) => c.checks + c.tests + c.practiceSets;
@@ -480,7 +544,7 @@ function createNudgeEmailer(deps = {}) {
       if (!row[kind] || row[kind].status !== 'claimed') return false;
       delete row[kind];
       let last = null;
-      for (const k of KINDS) {
+      for (const k of ALL_KINDS) {
         const c = row[k] && typeof row[k].claimedMs === 'number' ? row[k].claimedMs : null;
         if (c !== null && (last === null || c > last)) last = c;
       }
@@ -513,9 +577,228 @@ function createNudgeEmailer(deps = {}) {
     }
   }
 
+  /**
+   * EMAIL-CONCIERGE-1: the founder's two personal notes, sent automatically (at most ONCE per student,
+   * ever) on the same claim / cap / opt-out / spacing rails. checkout_help candidates come first, so when
+   * the shared daily cap binds they win. Returns true when the daily cap is full (the caller stops).
+   */
+  async function runConcierge({ summary, skip, nowMs, day }) {
+    if (!config.conciergeEnabled) return false;
+    if (!config.replyTo) {
+      // Their whole point is that the founder gets the reply: with no reply-to they do not run.
+      log('[nudge-email] concierge skipped: no reply-to');
+      return false;
+    }
+    const candidates = []; // { uid, kind, sub, order }
+
+    // checkout_help: an order created 2-48 h ago, none of this student's orders in that window paid.
+    try {
+      const qs = await adminFirestore
+        .collection(PAY_ORDERS_COLLECTION)
+        .where('createdAt', '>=', timestampFromMillis(nowMs - CHECKOUT_MAX_MS))
+        .where('createdAt', '<', timestampFromMillis(nowMs - CHECKOUT_MIN_MS))
+        .orderBy('createdAt', 'desc')
+        .limit(CAP_CHECKOUT)
+        .get();
+      const byUid = new Map();
+      for (const d of qs.docs) {
+        const o = d.data() || {};
+        if (typeof o.uid !== 'string' || !o.uid) continue;
+        const e = byUid.get(o.uid) || { paid: false, order: null };
+        if (o.status === 'paid') e.paid = true;
+        // The student's OWN plan order only: not a top-up, and not an order a parent started.
+        else if (!e.order && !pricing.isTopupProduct(o.passType) && !o.parentLinkId && !o.payer) e.order = o;
+        byUid.set(o.uid, e);
+      }
+      for (const [uid, e] of byUid) {
+        if (e.paid) skip('checkout-paid');
+        else if (e.order) candidates.push({ uid, kind: 'checkout_help', order: e.order });
+      }
+    } catch {
+      skip('checkout-orders-unavailable');
+    }
+
+    // founder_checkin: the recent signups; activity and engagement are checked per student below.
+    try {
+      const qs = await adminFirestore
+        .collection(SUBSCRIPTIONS_COLLECTION)
+        .where('trialStartDate', '>=', timestampFromMillis(nowMs - COHORT_MAX_AGE_MS))
+        .where('trialStartDate', '<', timestampFromMillis(nowMs + 1))
+        .orderBy('trialStartDate', 'desc')
+        .limit(CAP_CHECKIN)
+        .get();
+      for (const d of qs.docs) candidates.push({ uid: d.id, kind: 'founder_checkin', sub: d.data() || {} });
+    } catch {
+      skip('checkin-cohort-unavailable');
+    }
+
+    const seen = new Set();
+    const dead = new Set(); // student-level stops (premium, internal, opted out, no usable address): not tried again as the other kind
+    for (const c of candidates) {
+      const { uid, kind } = c;
+      if (seen.has(uid) || dead.has(uid)) continue; // one note per student per run; checkout_help came first
+      summary.candidates += 1;
+      let sub = c.sub;
+      if (!sub) {
+        try {
+          const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+          sub = snap.exists ? snap.data() || {} : {};
+        } catch {
+          skip('subscription-unavailable');
+          continue;
+        }
+      }
+      if (deriveEffectiveTier(sub, nowMs).tier === 'premium') {
+        dead.add(uid);
+        skip('premium');
+        continue;
+      }
+      if (config.adminUids.has(uid)) {
+        dead.add(uid);
+        skip('internal');
+        continue;
+      }
+      const ledgerSnap = await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).get();
+      const ledger = ledgerSnap.exists ? ledgerSnap.data() || {} : {};
+      if (ledger[kind]) {
+        skip('already-sent');
+        continue;
+      }
+      if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
+        skip(`marked-${ledger.skip.reason || 'skipped'}`);
+        continue;
+      }
+      const check = ledger.check && typeof ledger.check === 'object' ? ledger.check : {};
+      if (typeof check[kind] === 'number' && check[kind] > nowMs) {
+        skip('not-yet');
+        continue;
+      }
+      const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+      const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
+      if (trialRow.optedOut) {
+        dead.add(uid);
+        skip('opted-out');
+        continue;
+      }
+      if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
+        skip('spaced');
+        continue;
+      }
+      const trialRecent = trialEmailRecentMs(trialRow);
+      if ((trialRecent !== null && nowMs - trialRecent < SPACING_MS) || decideCandidate(sub, nowMs).ok) {
+        skip('trial-email-covers');
+        continue;
+      }
+
+      let facts = null;
+      let counts = null;
+      if (kind === 'founder_checkin') {
+        const startMs = msOf(sub.trialStartDate);
+        const records = startMs === null ? null : await readRecords(uid, startMs);
+        counts = records ? countTrialActivity(records, startMs) : null;
+        const days = await readDays(uid);
+        if (days === null) {
+          skip('activity-unavailable');
+          continue;
+        }
+        const due = isCheckinDue({ counts, days, records, nowMs });
+        if (!due.ok) {
+          skip(`${kind}-${due.reason}`);
+          if (config.mode === 'send') await writeCheckMarker(uid, { [kind]: nowMs + (due.reason === 'records-unavailable' ? HOUR_MS : RECHECK_MS) });
+          continue;
+        }
+        facts = due.facts;
+      }
+
+      let user = null;
+      try {
+        user = await firebaseAdmin.auth().getUser(uid);
+      } catch {
+        skip('no-account');
+        continue;
+      }
+      const who = emailEligibility(user);
+      if (!who.ok) {
+        dead.add(uid);
+        skip(who.reason);
+        if (config.mode === 'send' && (PERMANENT_SKIP_REASONS.has(who.reason) || who.reason === 'email-unverified')) {
+          await writeSkipMarker(uid, who.reason, nowMs);
+        }
+        continue;
+      }
+      if (isInternalAccount(uid, who.email, config.adminUids)) {
+        dead.add(uid);
+        skip('internal');
+        continue;
+      }
+      seen.add(uid);
+
+      if (config.mode !== 'send') {
+        summary.wouldSend += 1;
+        summary.byKind[kind] += 1;
+        const key = `${uid}:${kind}`;
+        if (!dryRunLogged.has(key)) {
+          dryRunLogged.add(key);
+          log(`[nudge-email] dry-run: would email kind=${kind} uid=${uid} to=${maskEmail(who.email)}`);
+        }
+        continue;
+      }
+
+      let claim;
+      try {
+        claim = await claimWithinCap(uid, kind, day, nowMs);
+      } catch (e) {
+        skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
+        continue;
+      }
+      if (claim !== 'claimed') {
+        skip(claim);
+        if (claim === 'daily-cap') return true;
+        continue;
+      }
+
+      const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
+      const message = buildConciergeEmail(kind, { facts, order: c.order, unsubscribeUrl });
+      const result = fetchImpl
+        ? await sendViaResend({
+            fetchImpl,
+            apiKey: config.apiKey,
+            from: config.from,
+            replyTo: config.replyTo,
+            to: who.email,
+            subject: message.subject,
+            text: message.text,
+            html: message.html,
+            unsubscribeUrl,
+            idempotencyKey: `nudge-${kind}-${uid}`,
+            category: `nudge_${kind}`,
+          })
+        : { ok: false, retryable: false, code: 'no-fetch' };
+      try {
+        const ref = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
+        if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
+        else if (result.retryable) await releaseClaim(uid, kind, day);
+        else await ref.set({ [kind]: { status: 'failed', failedAt: serverTimestamp(), error: result.code } }, { merge: true });
+      } catch {
+        /* the claim stays: at most once */
+      }
+      if (result.ok) {
+        summary.sent += 1;
+        summary.byKind[kind] += 1;
+        bump(`nudge_email_sent_${kind}`);
+        log(`[nudge-email] nudge_email_sent kind=${kind} uid=${uid}`);
+      } else {
+        summary.failed += 1;
+        bump(`nudge_email_failed_${kind}`);
+        log(`[nudge-email] send failed kind=${kind} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
+      }
+    }
+    return false;
+  }
+
   /** One pass. Never throws; returns a summary (also logged). */
   async function runOnce() {
-    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0 } };
+    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0 } };
     const skip = (reason) => {
       summary.skipped[reason] = (summary.skipped[reason] || 0) + 1;
     };
@@ -725,6 +1008,7 @@ function createNudgeEmailer(deps = {}) {
           log(`[nudge-email] send failed kind=${kind} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
         }
       }
+      await runConcierge({ summary, skip, nowMs, day });
       if (foundingGate) log(`[nudge-email] founding email not running: ${foundingGate}`);
       log(`[nudge-email] run mode=${summary.mode} candidates=${summary.candidates} wouldSend=${summary.wouldSend} sent=${summary.sent} failed=${summary.failed} byKind=${JSON.stringify(summary.byKind)} skipped=${JSON.stringify(summary.skipped)}`);
       return { ...summary, ran: true };
@@ -775,4 +1059,8 @@ module.exports = {
   FOUNDING_FROM_MS,
   FOUNDING_UNTIL_MS,
   IDLE_GAP_MS,
+  CONCIERGE_KINDS,
+  isCheckinDue,
+  isInternalAccount,
+  pricingOpenCount,
 };
