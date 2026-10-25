@@ -427,6 +427,11 @@ const gradingJobsRoutes = createGradingJobsRoutes({ sendJson, verifiedCaller, gr
 // server.listen below; its unsubscribe route is matched in handleRequest. See the module.
 const { createTrialEndingEmailer, TRIAL_EMAIL_UNSUBSCRIBE_PATH } = require('./services/trialEndingEmail.cjs');
 const trialEndingEmailer = createTrialEndingEmailer({ adminFirestore, firebaseAdmin, telemetry });
+// EMAIL-NUDGE-1: the study-led nudge sequence (first check / come back / founding price) on the
+// same rails and the same unsubscribe. OFF unless NUDGE_EMAIL_ENABLED; a DRY RUN until
+// NUDGE_EMAIL_DRY_RUN=0 and the Resend key/sender/unsubscribe secret are all set. Armed below.
+const { createNudgeEmailer } = require('./services/nudgeEmail.cjs');
+const nudgeEmailer = createNudgeEmailer({ adminFirestore, firebaseAdmin, telemetry });
 // OPS-REPORT-1: the owner's daily health email at 08:00 IST. OFF unless OPS_REPORT_ENABLED; a DRY
 // RUN until OPS_REPORT_DRY_RUN=0 with RESEND_API_KEY + sender + OPS_REPORT_TO. Armed in
 // server.listen below; its admin send-now route is matched in handleRequest. See the module.
@@ -949,6 +954,8 @@ server.listen(config.PORT, () => {
 
   // TRIAL-END-1 — prints its mode (OFF / DRY RUN / SENDING) and arms nothing when OFF.
   trialEndingEmailer.schedule();
+  // EMAIL-NUDGE-1 — prints its mode and arms nothing when OFF.
+  nudgeEmailer.schedule();
   // OPS-REPORT-1 — prints its mode and arms nothing when OFF.
   opsReporter.schedule();
 

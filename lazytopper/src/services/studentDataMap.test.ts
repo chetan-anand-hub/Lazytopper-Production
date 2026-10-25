@@ -218,7 +218,7 @@ describe("studentDataMap — drift guard", () => {
     // Exact (toEqual), so adding a name here is a deliberate, reviewed edit.
     // TRIAL-END-1 (review finding 1): `trialEmailDaily` — one counter per IST day, no uid.
     // OPS-REPORT-1: `opsReports` - the daily health email's send claim, one per IST day, no uid.
-    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily", "trialEmailDaily", "opsReports"]);
+    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports"]);
     // An exempt name must never ALSO be a student-data location.
     const mapped = new Set(firestoreCollectionNames());
     expect(NON_STUDENT_COLLECTIONS.filter((c) => mapped.has(c))).toEqual([]);
@@ -300,6 +300,12 @@ describe("studentDataMap — drift guard", () => {
     // per uid) - in the map, erased and exported, not exempted. Its day counter
     // `trialEmailDaily` (review finding 1) is uid-free and exempt, like `freeCheckDaily`.
     //
+    // ★ `nudgeEmails` JOINED this set with EMAIL-NUDGE-1. Written only by
+    // server/services/nudgeEmail.cjs through the Admin SDK (a transactional claim per email, then
+    // the outcome or a skip marker); no client reads or writes it, so it is undeclared on purpose
+    // (deny-all catch-all). It IS student data (a doc per uid) - in the map, erased and exported.
+    // Its day counter `nudgeEmailDaily` is uid-free and exempt, like `trialEmailDaily`.
+    //
     // ★ `usageCredits` JOINED this set with TOPUP-1. Written only by server/services/usageCredit.cjs
     // through the Admin SDK; no client reads or writes it, so it is undeclared on purpose (deny-all
     // catch-all). It IS student data (uid-keyed balance + grants) - in the map, erased and exported.
@@ -314,7 +320,7 @@ describe("studentDataMap — drift guard", () => {
     // server/services/opsReport.cjs through the Admin SDK; no client reads or writes it, so it is
     // undeclared on purpose (deny-all catch-all; firestore.rules is NOT edited). Uid-free and
     // exempt (NON_STUDENT_COLLECTIONS), like `trialEmailDaily`.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "opsReports", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "nudgeEmailDaily", "nudgeEmails", "opsReports", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -544,6 +550,7 @@ describe("studentDataMap — per-location properties", () => {
     "third-party.gemini",
     // TRIAL-END-1 — the trial-ending email's ledger and the provider that delivers it.
     "trialEmails",
+    "nudgeEmails",
     "third-party.email-provider",
   ] as const;
 

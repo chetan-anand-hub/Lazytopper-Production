@@ -693,6 +693,28 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "deny-all catch-all. Erased with the account and included in the export.",
   },
 
+  // ── Firestore: the nudge-email ledger (server-only, EMAIL-NUDGE-1) ───────────────
+  {
+    id: "nudgeEmails",
+    kind: "firestore-collection",
+    path: "nudgeEmails/{uid}",
+    holds:
+      "Which of the three study-nudge emails (first check, come back, founding price) were " +
+      "sent to this student: for each, its state (claimed, sent or failed), when, and the email " +
+      "provider's message id; plus when the last one was claimed, and — if the account cannot " +
+      "be emailed — a skip marker with the reason (no email address, not an email sign-in, or an " +
+      "unverified address) and when to look again. Opting out is recorded on `trialEmails`, " +
+      "once for all emails. Never the email address or the email's text.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ Written ONLY by server/services/nudgeEmail.cjs through the Admin SDK: a transactional " +
+      "claim BEFORE sending (so a restart or a second instance can never send an email twice), " +
+      "then the outcome, or a skip marker. Off unless the owner sets NUDGE_EMAIL_ENABLED. NOT " +
+      "declared in firestore.rules — browsers fall through to the deny-all catch-all. Erased with " +
+      "the account and included in the export.",
+  },
+
   // ── Firestore: stored grading results for retries (server-only, LOW-END-1 R4) ──────
   {
     id: "gradingResults",
@@ -954,6 +976,12 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
  *     student. Written only by `server/services/trialEndingEmail.cjs` through the Admin SDK; no
  *     client rule matches it, so browsers are denied by the catch-all.
  *
+ *   - `nudgeEmailDaily` (EMAIL-NUDGE-1): one document per IST day, id = the day key, holding ONLY
+ *     `count` (how many nudge emails were claimed that day, for the durable daily cap), the day
+ *     key and a timestamp. No uid, no address, nothing joinable to a student. Written only by
+ *     `server/services/nudgeEmail.cjs` through the Admin SDK; no client rule matches it, so
+ *     browsers are denied by the catch-all.
+ *
  *   - `opsReports` (OPS-REPORT-1): one document per IST day, id = the day key, holding ONLY
  *     the day keys, a send status (`claimed` / `sent` / `released` / `failed`), timestamps and
  *     the provider's message id — the claim that keeps the owner's daily health email to one
@@ -966,7 +994,7 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
  * of the kind above. A collection that could hold anything about a student goes in the
  * map, never here. ErasureMechanism and erasure/export behaviour are unchanged by it.
  */
-export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "opsReports"]);
+export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports"]);
 
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */
 export function adminOnlyLocations(): readonly StudentDataLocation[] {

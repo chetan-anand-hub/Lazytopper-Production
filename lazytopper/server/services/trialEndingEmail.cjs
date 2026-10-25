@@ -342,7 +342,7 @@ function unsubscribeUrlFor(appUrl, uid, secret) {
  * One POST to Resend's REST API (no SDK, no new dependency). `retryable` is true ONLY when the
  * email certainly did not go out or the provider's Idempotency-Key makes a retry safe.
  */
-async function sendViaResend({ fetchImpl, apiKey, from, replyTo, to, subject, text, html, unsubscribeUrl, idempotencyKey }) {
+async function sendViaResend({ fetchImpl, apiKey, from, replyTo, to, subject, text, html, unsubscribeUrl, idempotencyKey, category }) {
   try {
     const body = {
       from,
@@ -354,7 +354,7 @@ async function sendViaResend({ fetchImpl, apiKey, from, replyTo, to, subject, te
         'List-Unsubscribe': `<${unsubscribeUrl}>`,
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
       },
-      tags: [{ name: 'category', value: 'trial_ending' }],
+      tags: [{ name: 'category', value: typeof category === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(category) ? category : 'trial_ending' }],
     };
     if (replyTo) body.reply_to = replyTo;
     const res = await fetchImpl(RESEND_ENDPOINT, {
@@ -705,7 +705,7 @@ function createTrialEndingEmailer(deps = {}) {
           res,
           200,
           'Unsubscribe',
-          '<h1 style="font-size:20px">Stop trial emails from LazyTopper?</h1>' +
+          '<h1 style="font-size:20px">Stop study and trial reminder emails from LazyTopper?</h1>' +
             `<form method="post" action="${escapeHtml(action)}"><button type="submit" style="min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#1f9d63;color:#fff;font-size:15px;font-weight:700">Unsubscribe</button></form>`,
         );
       }
@@ -728,7 +728,7 @@ function createTrialEndingEmailer(deps = {}) {
       } else {
         return sendHtml(res, 503, 'Try again later', '<p>We could not record that right now. Please try the link again later.</p>');
       }
-      return sendHtml(res, 200, 'Unsubscribed', "<h1 style=\"font-size:20px\">You're unsubscribed.</h1><p>We won't send you trial emails.</p>");
+      return sendHtml(res, 200, 'Unsubscribed', "<h1 style=\"font-size:20px\">You're unsubscribed.</h1><p>We won't send you study or trial reminder emails. Sign-in and account emails still arrive.</p>");
     } catch {
       return sendHtml(res, 500, 'Try again later', '<p>We could not record that right now. Please try the link again later.</p>');
     }
@@ -765,4 +765,21 @@ module.exports = {
   DEFAULT_DAILY_CAP,
   FIRST_RUN_DELAY_MS,
   MIN_UNSUBSCRIBE_SECRET_LENGTH,
+  // EMAIL-NUDGE-1 — shared helpers, exported additively so the nudge sender reuses (never
+  // copies) the trial email's rails.
+  isOnFlag,
+  isOffFlag,
+  clampInt,
+  normaliseAppUrl,
+  escapeHtml,
+  plural,
+  isAlreadyExists,
+  SUBSCRIPTIONS_COLLECTION,
+  SESSION_RECORDS_COLLECTION,
+  SESSION_RECORDS_SEGMENTS,
+  PERMANENT_SKIP_REASONS,
+  IST_OFFSET_MS,
+  MINUTE_MS,
+  HOUR_MS,
+  DAY_MS,
 };
