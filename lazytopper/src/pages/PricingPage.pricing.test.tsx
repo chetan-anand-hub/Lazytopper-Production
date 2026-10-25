@@ -1,4 +1,13 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
+
+// PRICING-1 — the founding offer closes on 1 Dec 2026 (IST), and `config/pricing.ts` decides it
+// ONCE, when it first loads. This suite asserts the offer-OPEN rendering, so it loads the module
+// at a pinned instant (Date only, restored right after the imports) and passes at any real or
+// shifted clock. The closed rendering is pinned explicitly where it is asserted.
+vi.hoisted(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+});
+
 import { render, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -17,6 +26,8 @@ import {
   TILL_BOARDS_LINE,
 } from "../config/pricing";
 import { stripAuthChrome, countResidualAuthNodes } from "../../scripts/seo/captureStaticBodies";
+
+vi.useRealTimers();
 
 /**
  * PricingPage — published price + packaging pins (Lane H-2, rewritten by PRICING-TB-1).
@@ -515,7 +526,7 @@ describe("PricingPage — R6 FAQ copy", () => {
 
   it("keeps the Basic plan at ₹0 / forever", () => {
     const { inner } = renderPricing();
-    const basic = inner.querySelectorAll(".lt-pricing-card")[0];
+    const basic = inner.querySelector(".lt-pricing-card--basic")!;
 
     expect(flat(basic.querySelector(".lt-pricing-amount"))).toBe("₹0");
     expect(flat(basic.querySelector(".lt-pricing-period"))).toBe("/ forever");
@@ -526,7 +537,7 @@ describe("PricingPage — R6 FAQ copy", () => {
   // "limited" out of them for good.
   it("the Basic description and the 'Is Basic really free?' answer, word for word", () => {
     const { inner } = renderPricing();
-    const basic = inner.querySelectorAll(".lt-pricing-card")[0];
+    const basic = inner.querySelector(".lt-pricing-card--basic")!;
     expect(flat(basic.querySelector(".lt-pricing-plan-desc"))).toBe(
       "For browsing, revising and practising on your own.",
     );
@@ -593,10 +604,49 @@ describe("PricingPage — PRICING-LIGHT-1 · L4 the Premium card (owner ruling, 
   });
 });
 
+describe("PricingPage — PRICING-1 · Premium highlighted, Basic's restrictions stated", () => {
+  it("the Premium card is the recommended one: badge, and the highlight class is on Premium only", () => {
+    const { inner, premium } = renderPricing();
+    expect(flat(premium.querySelector(".lt-pricing-badge"))).toBe("Recommended");
+    const basic = inner.querySelector(".lt-pricing-card--basic")!;
+    expect(basic.querySelector(".lt-pricing-badge")).toBeNull();
+    // The accent border + ring is in the shipped CSS for the Premium card, not Basic.
+    expect(SHIPPED_CSS_NO_COMMENTS).toMatch(/\.lt-pricing-card--premium \{[^}]*border: 3px solid var\(--lt-green-deep\)/);
+    expect(SHIPPED_CSS_NO_COMMENTS).not.toMatch(/\.lt-pricing-card--basic \{[^}]*green-deep/);
+  });
+
+  it("Basic stays present and honest: the includes list, then 'Not on Basic:' with crosses, then the footnote", () => {
+    const { inner } = renderPricing();
+    const basic = inner.querySelector(".lt-pricing-card--basic")!;
+    const heads = Array.from(basic.querySelectorAll(".lt-pricing-list-head")).map(h => flat(h));
+    expect(heads).toEqual(["Basic includes:", "Not on Basic:"]);
+    const rows = Array.from(basic.querySelectorAll('ul[aria-label="What Basic does not include"] li')).map(li => flat(li));
+    expect(rows).toEqual([
+      "✕Chapter tests, full mocks and worksheets are not graded",
+      "✕No handwritten answer checking",
+      "✕No step marks the way a board examiner gives them",
+      "✕No AI tutor",
+      "✕No Mistake Intelligence — why you lose marks",
+      "✕No new questions like the one you got wrong",
+    ]);
+    // Cards stay in DOM order Premium, Basic; each limit appears AFTER the includes list.
+    const list = basic.querySelector('ul[aria-label="Basic plan features"]')!;
+    const limits = basic.querySelector('ul[aria-label="What Basic does not include"]')!;
+    expect(list.compareDocumentPosition(limits) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("the Premium card carries the real end date beside the founding badge, in plain words", () => {
+    const { premium } = renderPricing();
+    expect(flat(premium.querySelector('[data-testid="pricing-founding-until"]'))).toBe(
+      "Founding price until 30 November. From 1 December, Premium is ₹999 for a month.",
+    );
+  });
+});
+
 describe("PricingPage — PRICING-LIGHT-1 · L4 the Basic card", () => {
   it("signed out, free check OFF in this build: the five rows, in order, then the footnote", () => {
     const { inner } = renderPricing();
-    const basic = inner.querySelectorAll(".lt-pricing-card")[0];
+    const basic = inner.querySelector(".lt-pricing-card--basic")!;
     expect(flat(basic.querySelector(".lt-pricing-list-head"))).toBe("Basic includes:");
     const rows = Array.from(basic.querySelectorAll('ul[aria-label="Basic plan features"] li')).map(li => flat(li));
     expect(rows).toEqual([
@@ -614,8 +664,8 @@ describe("PricingPage — PRICING-LIGHT-1 · L4 the Basic card", () => {
   it("answer checking stays EXCLUDED from Basic: the table's Basic column shows a dash for step marks and grading", () => {
     const { inner } = renderPricing();
     const table = tableModel(inner);
-    expect(table.rowsByLabel["Step marks, CBSE keywords and units, the way examiners mark"]).toEqual(["—", "✓"]);
-    expect(table.rowsByLabel["Chapter tests, mocks and worksheets graded"]).toEqual(["—", "✓"]);
+    expect(table.rowsByLabel["Step marks, CBSE keywords and units, the way examiners mark"]).toEqual(["✓", "—"]);
+    expect(table.rowsByLabel["Chapter tests, mocks and worksheets graded"]).toEqual(["✓", "—"]);
   });
 });
 
@@ -659,50 +709,50 @@ const L4_TABLE = [
       // Owner ruling on #1190: no unbacked "Limited" — P20 found no enforced free limit.
       ["Practice sets with model answers", "✓", "✓"],
       ["Worksheets built from your chosen topics", "✓", "✓"],
-      ["New questions like the one you got wrong", "—", "✓"],
+      ["New questions like the one you got wrong", "✓", "—"],
     ],
   },
   {
     title: "Tests & papers",
     rows: [
-      ["Open or download chapter tests and full mocks", "3 a day (1 signed out)", "✓ Unlimited"],
-      ["Chapter tests, mocks and worksheets graded", "—", "✓"],
+      ["Open or download chapter tests and full mocks", "✓ Unlimited", "3 a day (1 signed out)"],
+      ["Chapter tests, mocks and worksheets graded", "✓", "—"],
     ],
   },
   {
     title: "Answer checking",
     rows: [
       // "First check free" only while the signed-out free check is on; this build has it off.
-      ["Photograph your handwritten answer and get it marked", "—", "✓"],
-      ["Step marks, CBSE keywords and units, the way examiners mark", "—", "✓"],
-      ["Read questions straight from your photo", "—", "✓"],
+      ["Photograph your handwritten answer and get it marked", "✓", "—"],
+      ["Step marks, CBSE keywords and units, the way examiners mark", "✓", "—"],
+      ["Read questions straight from your photo", "✓", "—"],
     ],
   },
   {
     title: "Coaching",
     rows: [
-      ["AI tutor that knows your chapters and mistakes", "—", "✓"],
-      ["Mistake Intelligence — why you lose marks", "—", "✓"],
-      ["Progress and what to fix next", "Basic insights", "✓ Full"],
+      ["AI tutor that knows your chapters and mistakes", "✓", "—"],
+      ["Mistake Intelligence — why you lose marks", "✓", "—"],
+      ["Progress and what to fix next", "✓ Full", "Basic insights"],
     ],
   },
   {
     title: "Limits",
-    rows: [["Fair use", "—", "Usage bars · reset every 5 hours, day and week"]],
+    rows: [["Fair use", "Usage bars · reset every 5 hours, day and week", "—"]],
   },
 ];
 
 describe("PricingPage — PRICING-LIGHT-1 · L4 Compare plans", () => {
-  it("headers are What you get | Basic · ₹0 | Premium · from <the founding monthly price>, in that order", () => {
+  it("headers are What you get | Premium · from <the founding monthly price> | Basic · ₹0, in that order (PRICING-1)", () => {
     const { inner } = renderPricing();
     expect(tableModel(inner).headers).toEqual([
       "What you get",
-      `Basic · ${PRICE_FREE_DISPLAY}`,
       `Premium · from ${PRICE_MONTHLY_FOUNDING_DISPLAY}`,
+      `Basic · ${PRICE_FREE_DISPLAY}`,
     ]);
   });
 
-  it("every section and row, word for word, Basic column then Premium column", () => {
+  it("every section and row, word for word, Premium column then Basic column (PRICING-1)", () => {
     const { inner } = renderPricing();
     expect(tableModel(inner).sections).toEqual(L4_TABLE);
   });
@@ -733,11 +783,11 @@ describe("PricingPage — PRICING-LIGHT-1 · L4 Compare plans", () => {
 
 /* ── PRICING-LIGHT-1 · L2 order and structure ───────────────────────────────── */
 
-describe("PricingPage — PRICING-LIGHT-1 · L2 Basic left, Premium right", () => {
-  it("Basic renders BEFORE Premium in DOM order (left on desktop, first when stacked)", () => {
+describe("PricingPage — PRICING-1 · Premium left and first, Basic right", () => {
+  it("Premium renders BEFORE Basic in DOM order (left on desktop, first when stacked)", () => {
     const { inner } = renderPricing();
     const cards = Array.from(inner.querySelectorAll(".lt-pricing-cards > .lt-pricing-card"));
-    expect(cards.map(c => flat(c.querySelector(".lt-pricing-plan-label")))).toEqual(["Basic", "Premium"]);
+    expect(cards.map(c => flat(c.querySelector(".lt-pricing-plan-label")))).toEqual(["Premium", "Basic"]);
     expect(cards[0].compareDocumentPosition(cards[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     // Nothing reorders them visually: no `order` on a card or the grid, in any rule.
     for (const sel of [".lt-pricing-card", ".lt-pricing-card--premium", ".lt-pricing-card--basic", ".lt-pricing-cards"]) {
@@ -861,6 +911,7 @@ describe("PricingPage — COPY-2 · K5 the founding chip and lock note follow th
     const premium = await renderWithOffer(false);
     expect(premium.querySelector(".lt-pricing-founding-flag")).toBeNull();
     expect(premium.querySelector(".lt-pricing-founding-note")).toBeNull();
+    expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull();
     const card = flat(premium);
     expect(card).not.toContain("Your founding price stays locked for every pass you buy.");
     expect(card).not.toContain("Founding member offer");

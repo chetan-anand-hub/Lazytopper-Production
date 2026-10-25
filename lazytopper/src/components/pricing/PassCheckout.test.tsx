@@ -1,4 +1,13 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+
+// PRICING-1 — the founding offer closes on 1 Dec 2026 (IST), and `config/pricing.ts` decides it
+// ONCE, when it first loads. This suite asserts the offer-OPEN rendering, so it loads the module
+// at a pinned instant (Date only, restored right after the imports) and passes at any real or
+// shifted clock. The closed rendering is pinned explicitly where it is asserted.
+vi.hoisted(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+});
+
 import { render, cleanup, fireEvent, screen, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -47,6 +56,8 @@ import {
   type BuyOutcome,
   type RazorpayConstructor,
 } from "../../services/checkout";
+
+vi.useRealTimers();
 
 const MANUAL_PARAGRAPH =
   '<p class="lt-pricing-plan-desc">Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically.</p>';

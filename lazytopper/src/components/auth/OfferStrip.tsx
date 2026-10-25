@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import {
   FOUNDING_LABEL,
+  FOUNDING_OFFER_LAST_DAY_LABEL,
   FOUNDING_OFFER_OPEN,
   PERIOD_MONTHLY_LABEL,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
@@ -367,7 +368,7 @@ export default function OfferStrip({
             </span>
             {" "}
             <s className="lt-offer-strip-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
-            {", locked for every pass you buy."}
+            {`, locked for every pass you buy. Offer ends ${FOUNDING_OFFER_LAST_DAY_LABEL}.`}
           </p>
         </>
       ) : (

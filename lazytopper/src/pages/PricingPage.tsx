@@ -15,6 +15,7 @@ import {
   FOUNDING_LOCK_COPY,
   FOUNDING_OFFER_BADGE,
   FOUNDING_OFFER_OPEN,
+  FOUNDING_OFFER_UNTIL_COPY,
   PERIOD_FREE_LABEL,
   PERIOD_MONTHLY_LABEL,
   PRICE_FREE_DISPLAY,
@@ -35,6 +36,8 @@ import {
   BASIC_FOOTNOTE,
   BASIC_INCLUDES,
   BASIC_INCLUDES_HEAD,
+  BASIC_LIMITS_HEAD,
+  basicLimits,
   COMPARE_BASIC_HEADER,
   COMPARE_FEATURE_HEADER,
   COMPARE_TITLE,
@@ -236,10 +239,12 @@ const PRICING_CSS = `
     gap: 18px;
   }
 
+  /* PRICING-1 — the recommended plan: green accent border plus an outer ring, so it
+     reads as the highlighted card on a phone (first) and on desktop (left). */
   .lt-pricing-card--premium {
     background: var(--lt-mint);
-    border: 2px solid var(--lt-mint-line);
-    box-shadow: 0 22px 48px rgba(11, 27, 58, 0.16);
+    border: 3px solid var(--lt-green-deep);
+    box-shadow: 0 0 0 4px var(--lt-mint-line), 0 22px 48px rgba(11, 27, 58, 0.16);
   }
 
   .lt-pricing-badge {
@@ -367,6 +372,27 @@ const PRICING_CSS = `
   .lt-pricing-feature-icon {
     color: var(--lt-green-deep);
     font-weight: 800;
+  }
+
+  /* PRICING-1 — Basic's restrictions: a cross, muted ink (not an alarm colour). */
+  .lt-pricing-list-head--limits {
+    margin-top: 10px;
+  }
+
+  .lt-pricing-feature--no .lt-pricing-feature-icon {
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pricing-feature--no {
+    color: var(--lt-ink-2);
+  }
+
+  .lt-pricing-founding-until {
+    margin: 0;
+    color: var(--lt-ink);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.45;
   }
 
   .lt-pricing-feature a {
@@ -984,7 +1010,7 @@ const PRICING_CSS = `
     }
   }
 
-  /* Phones and small tablets — Basic first, then Premium. */
+  /* Phones and small tablets — Premium first, then Basic. */
   @media (max-width: 760px) {
     .lt-pricing-band {
       padding: 24px 16px 120px;
@@ -1247,7 +1273,7 @@ function trialEndsOn(trialStartDate: string | null): string | null {
 }
 
 /** One row of a plan card's list: a tick, then the label (with its optional internal link). */
-function PlanRow({ item, testId }: { item: PlanItem; testId?: string }) {
+function PlanRow({ item, testId, negative = false }: { item: PlanItem; testId?: string; negative?: boolean }) {
   let body: ReactNode = item.label;
   if (item.link) {
     const at = item.label.indexOf(item.link.text);
@@ -1262,8 +1288,8 @@ function PlanRow({ item, testId }: { item: PlanItem; testId?: string }) {
     }
   }
   return (
-    <li className="lt-pricing-feature" data-testid={testId}>
-      <span className="lt-pricing-feature-icon" aria-hidden="true">✓</span>
+    <li className={negative ? "lt-pricing-feature lt-pricing-feature--no" : "lt-pricing-feature"} data-testid={testId}>
+      <span className="lt-pricing-feature-icon" aria-hidden="true">{negative ? "✕" : "✓"}</span>
       <span>{body}</span>
     </li>
   );
@@ -1463,41 +1489,13 @@ function PricingPlansPage() {
         </div>
 
         <div className="lt-pricing-body">
-          {/* L2 — Basic LEFT, Premium RIGHT; stacked, Basic first (DOM order). The cards
+          {/* PRICING-1 (owner, 25 Oct 2026) — Premium LEFT and highlighted, Basic RIGHT; stacked,
+              Premium first (DOM order, so the reading order matches what is seen). The cards
               are <div>s, never <section>s: the prerender strip removes a whole <section>
               around any /login link, and a card must never be collateral. */}
           <div className="lt-pricing-cards">
-            <div className="lt-pricing-card lt-pricing-card--basic">
-              <div className="lt-pricing-plan-label">Basic</div>
-              <div className="lt-pricing-price">
-                <span className="lt-pricing-amount">{PRICE_FREE_DISPLAY}</span>
-                <span className="lt-pricing-period">{PERIOD_FREE_LABEL}</span>
-              </div>
-              <p className="lt-pricing-plan-desc">For browsing, revising and practising on your own.</p>
-              <button
-                type="button"
-                className="lt-pricing-cta lt-pricing-cta--secondary"
-                onClick={() => toLogin(withSigninRedirect("/login", carriedRedirect))}
-              >
-                Start free
-              </button>
-              <div className="lt-pricing-list-head">{BASIC_INCLUDES_HEAD}</div>
-              <ul className="lt-pricing-features" aria-label="Basic plan features">
-                {BASIC_INCLUDES.filter(item => showFreeCheck || !item.onlyWithFreeCheck).map(item => (
-                  <PlanRow
-                    key={item.id}
-                    item={item}
-                    testId={item.onlyWithFreeCheck ? "pricing-free-check-line" : undefined}
-                  />
-                ))}
-              </ul>
-              <div className="lt-pricing-card-end">
-                <p className="lt-pricing-card-foot">{BASIC_FOOTNOTE}</p>
-              </div>
-            </div>
-
             <div className="lt-pricing-card lt-pricing-card--premium">
-              <span className="lt-pricing-badge">Most Popular</span>
+              <span className="lt-pricing-badge">Recommended</span>
               <div className="lt-pricing-premium-top">
                 <div className="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div>
                 {FOUNDING_OFFER_OPEN && (
@@ -1538,6 +1536,11 @@ function PricingPlansPage() {
               {FOUNDING_OFFER_OPEN && (
                 <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
               )}
+              {FOUNDING_OFFER_OPEN && (
+                <p className="lt-pricing-founding-until" data-testid="pricing-founding-until">
+                  {FOUNDING_OFFER_UNTIL_COPY}
+                </p>
+              )}
               <div className="lt-pricing-list-head">{PREMIUM_PLUS_HEAD}</div>
               <ul className="lt-pricing-features" aria-label="Premium plan features">
                 {PREMIUM_PLUS.map(item => (
@@ -1560,6 +1563,41 @@ function PricingPlansPage() {
                 )}
               </div>
             </div>
+
+            <div className="lt-pricing-card lt-pricing-card--basic">
+              <div className="lt-pricing-plan-label">Basic</div>
+              <div className="lt-pricing-price">
+                <span className="lt-pricing-amount">{PRICE_FREE_DISPLAY}</span>
+                <span className="lt-pricing-period">{PERIOD_FREE_LABEL}</span>
+              </div>
+              <p className="lt-pricing-plan-desc">For browsing, revising and practising on your own.</p>
+              <button
+                type="button"
+                className="lt-pricing-cta lt-pricing-cta--secondary"
+                onClick={() => toLogin(withSigninRedirect("/login", carriedRedirect))}
+              >
+                Start free
+              </button>
+              <div className="lt-pricing-list-head">{BASIC_INCLUDES_HEAD}</div>
+              <ul className="lt-pricing-features" aria-label="Basic plan features">
+                {BASIC_INCLUDES.filter(item => showFreeCheck || !item.onlyWithFreeCheck).map(item => (
+                  <PlanRow
+                    key={item.id}
+                    item={item}
+                    testId={item.onlyWithFreeCheck ? "pricing-free-check-line" : undefined}
+                  />
+                ))}
+              </ul>
+              <div className="lt-pricing-list-head lt-pricing-list-head--limits">{BASIC_LIMITS_HEAD}</div>
+              <ul className="lt-pricing-features lt-pricing-features--limits" aria-label="What Basic does not include">
+                {basicLimits({ freeCheck: showFreeCheck }).map(item => (
+                  <PlanRow key={item.id} item={item} negative />
+                ))}
+              </ul>
+              <div className="lt-pricing-card-end">
+                <p className="lt-pricing-card-foot">{BASIC_FOOTNOTE}</p>
+              </div>
+            </div>
           </div>
 
           <section className="lt-pricing-compare" aria-labelledby="lt-pricing-compare-title">
@@ -1574,10 +1612,10 @@ function PricingPlansPage() {
                 <thead>
                   <tr>
                     <th scope="col" className="lt-pricing-compare-col-feature">{COMPARE_FEATURE_HEADER}</th>
-                    <th scope="col" className="lt-pricing-compare-col-basic">{COMPARE_BASIC_HEADER}</th>
                     <th scope="col" className="lt-pricing-compare-col-premium">
                       {comparePremiumHeader(FOUNDING_OFFER_OPEN)}
                     </th>
+                    <th scope="col" className="lt-pricing-compare-col-basic">{COMPARE_BASIC_HEADER}</th>
                   </tr>
                 </thead>
                 {sections.map(section => (
@@ -1588,8 +1626,8 @@ function PricingPlansPage() {
                     {section.rows.map(row => (
                       <tr key={row.label} className="lt-pricing-compare-row">
                         <th scope="row">{row.label}</th>
-                        <CompareCellView cell={row.basic} plan="basic" />
                         <CompareCellView cell={row.premium} plan="premium" />
+                        <CompareCellView cell={row.basic} plan="basic" />
                       </tr>
                     ))}
                   </tbody>

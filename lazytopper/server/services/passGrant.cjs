@@ -124,11 +124,12 @@ function validateInput(input) {
 
 /**
  * PURE. Given the stored document and a validated request, decide what to write.
- * `foundingOfferOpen` is a DEPENDENCY, never request input — it defaults to the shipped
- * flag and exists so the closed-offer state can be tested without editing pricing.
+ * `foundingOfferOpen` is a DEPENDENCY, never request input — it defaults to the calendar
+ * (`pricing.foundingOfferOpen(nowMs)`, closed from 00:00 IST 1 Dec 2026 —
+ * PRICING-1) and exists so the closed-offer state can be tested without editing pricing.
  * Returns { replay: true } when this payment was already applied, else { fields }.
  */
-function computeGrant(stored, { passType, paymentRef, nowMs }, { foundingOfferOpen = pricing.FOUNDING_OFFER_OPEN } = {}) {
+function computeGrant(stored, { passType, paymentRef, nowMs }, { foundingOfferOpen = pricing.foundingOfferOpen(nowMs) } = {}) {
   const current = stored && typeof stored === 'object' ? stored : {};
 
   if (current.lastPaymentRef === paymentRef) return { replay: true };

@@ -128,7 +128,7 @@ describe("offer OPEN", () => {
     // pinned as a literal so a constant drift cannot silently reword it.
     const body = strip.querySelector(".lt-offer-strip-body");
     expect(flat(body)).toBe(
-      "Founding member: ₹599 for a month ₹999, locked for every pass you buy.",
+      "Founding member: ₹599 for a month ₹999, locked for every pass you buy. Offer ends 30 November.",
     );
     // ...and the ₹999 inside it is the struck element, not a live second price.
     expect(body?.querySelector("s")).toBe(struck);
@@ -245,8 +245,16 @@ describe("the flag as it actually ships", () => {
     // So this one renders the module UNMOCKED. Closing the cohort is therefore a
     // deliberate two-file change — the constant and this line — which is the
     // right amount of friction for a published price claim.
+    // PRICING-1: the flag is now the CALENDAR's answer (open until the end of 30 Nov 2026,
+    // IST), so "as it ships" is read at a pinned instant, not at whatever the clock says.
     vi.resetModules();
-    const { FOUNDING_OFFER_OPEN } = await import("../../config/pricing");
+    vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+    let FOUNDING_OFFER_OPEN: boolean;
+    try {
+      ({ FOUNDING_OFFER_OPEN } = await import("../../config/pricing"));
+    } finally {
+      vi.useRealTimers();
+    }
     expect(FOUNDING_OFFER_OPEN).toBe(true);
 
     const { default: OfferStrip } = await import("./OfferStrip");
@@ -256,6 +264,27 @@ describe("the flag as it actually ships", () => {
       </MemoryRouter>,
     );
     expect(screen.getByTestId("lt-offer-founding-badge")).toHaveTextContent(FOUNDING_LABEL);
+  });
+
+  it("PRICING-1: from 00:00 IST on 1 Dec 2026 the module loads CLOSED and the strip drops the founding badge", async () => {
+    vi.resetModules();
+    vi.useFakeTimers({ now: new Date("2026-12-01T00:00:00+05:30"), toFake: ["Date"] });
+    let mod: typeof import("../../config/pricing");
+    try {
+      mod = await import("../../config/pricing");
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(mod.FOUNDING_OFFER_OPEN).toBe(false);
+    expect(mod.MONTHLY_INLINE).toBe(`${mod.PRICE_MONTHLY_LIST_DISPLAY} ${mod.PERIOD_MONTHLY_LABEL}`);
+    const { default: OfferStrip } = await import("./OfferStrip");
+    render(
+      <MemoryRouter>
+        <OfferStrip />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByTestId("lt-offer-founding-badge")).toBeNull();
+    expect(screen.queryByText(/Offer ends/)).toBeNull();
   });
 });
 

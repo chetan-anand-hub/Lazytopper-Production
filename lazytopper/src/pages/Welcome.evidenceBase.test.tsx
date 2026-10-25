@@ -1,4 +1,13 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
+
+// PRICING-1 — the founding offer closes on 1 Dec 2026 (IST), and `config/pricing.ts` decides it
+// ONCE, when it first loads. This suite asserts the offer-OPEN rendering, so it loads the module
+// at a pinned instant (Date only, restored right after the imports) and passes at any real or
+// shifted clock. The closed rendering is pinned explicitly where it is asserted.
+vi.hoisted(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+});
+
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -11,6 +20,8 @@ import {
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
 } from "../config/pricing";
+
+vi.useRealTimers();
 
 
 /**

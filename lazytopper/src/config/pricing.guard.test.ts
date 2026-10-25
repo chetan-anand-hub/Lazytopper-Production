@@ -1,5 +1,14 @@
 // @vitest-environment node
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+// PRICING-1 — the founding offer closes on 1 Dec 2026 (IST), and `config/pricing.ts` decides it
+// ONCE, when it first loads. This suite asserts the offer-OPEN rendering, so it loads the module
+// at a pinned instant (Date only, restored right after the imports) and passes at any real or
+// shifted clock. The closed rendering is pinned explicitly where it is asserted.
+vi.hoisted(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+});
+
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, relative, sep } from "node:path";
 
@@ -10,6 +19,8 @@ import {
   PRICE_MONTHLY_LIST_INR,
   formatInr,
 } from "./pricing";
+
+vi.useRealTimers();
 
 /**
  * GUARD — no price literal may live outside src/config/pricing.ts.
@@ -478,5 +489,59 @@ describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
     expect(readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8")).toContain(
       '<span class="lt-pricing-period">for a month</span>',
     );
+  });
+});
+
+/**
+ * PRICING-1 (owner, 25 Oct 2026): "the founding price ends on last day of November 2026,
+ * december will start with 999/month". The flag's VALUE comes from the calendar; these pin the
+ * instant, the boolean-ness (never a seat count), and that the upgrade-prompt price follows it.
+ */
+describe("PRICING-1 — the founding offer is date-driven", () => {
+  it("is open through 23:59:59 IST on 30 Nov 2026 and closed from 00:00:00 IST on 1 Dec", async () => {
+    const m = await import("./pricing");
+    expect(m.foundingOfferOpen(new Date("2026-10-25T06:30:00Z"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-11-30T23:59:59+05:30"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-11-30T23:59:59.999+05:30"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-12-01T00:00:00+05:30"))).toBe(false);
+    expect(m.foundingOfferOpen(new Date("2027-01-01T00:00:00+05:30"))).toBe(false);
+    // IST, not UTC: 18:30Z on 30 Nov is already 1 Dec in India.
+    expect(m.foundingOfferOpen(new Date("2026-11-30T18:29:59Z"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-11-30T18:30:00Z"))).toBe(false);
+    expect(m.FOUNDING_OFFER_CLOSES_AT_ISO).toBe("2026-12-01T00:00:00+05:30");
+    expect(m.FOUNDING_OFFER_LAST_DAY_LABEL).toBe("30 November");
+  });
+
+  it("stays a BOOLEAN — never a seat count", async () => {
+    const m = await import("./pricing");
+    expect(typeof m.FOUNDING_OFFER_OPEN).toBe("boolean");
+    expect(typeof m.foundingOfferOpen(new Date())).toBe("boolean");
+  });
+
+  it("the end-date copy is plain words: the real date, the list price, no timer", async () => {
+    const m = await import("./pricing");
+    expect(m.FOUNDING_OFFER_UNTIL_COPY).toBe(
+      `Founding price until 30 November. From 1 December, Premium is ${m.PRICE_MONTHLY_LIST_DISPLAY} for a month.`,
+    );
+    expect(m.FOUNDING_OFFER_UNTIL_COPY).not.toMatch(/countdown|left|hurry|only|last chance|\d+ (days|hours)/i);
+  });
+
+  it("the upgrade-prompt price (MONTHLY_INLINE) follows the offer: founding while open, list once closed", async () => {
+    for (const [now, display] of [
+      ["2026-10-25T06:30:00Z", "founding"],
+      ["2026-12-01T00:00:00+05:30", "list"],
+    ] as const) {
+      vi.resetModules();
+      vi.useFakeTimers({ now: new Date(now), toFake: ["Date"] });
+      let m: typeof import("./pricing");
+      try {
+        m = await import("./pricing");
+      } finally {
+        vi.useRealTimers();
+      }
+      const expected = display === "founding" ? m.PRICE_MONTHLY_FOUNDING_DISPLAY : m.PRICE_MONTHLY_LIST_DISPLAY;
+      expect(m.FOUNDING_OFFER_OPEN).toBe(display === "founding");
+      expect(m.MONTHLY_INLINE).toBe(`${expected} for a month`);
+    }
   });
 });

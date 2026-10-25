@@ -2,7 +2,6 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 
 import {
-  FOUNDING_OFFER_OPEN,
   PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_INR,
   TILL_BOARDS_INLINE,
@@ -126,11 +125,13 @@ describe("tillBoardsQuote — the rules behind the table", () => {
     expect(tillBoardsQuote(new Date("nonsense"), BOARD, true)).toBeNull();
   });
 
-  it("defaults to the SHIPPED founding flag when the caller passes none", () => {
-    const shipped = tillBoardsQuote(istNoon("2026-09-26"), BOARD)!;
-    expect(shipped.monthlyInr).toBe(
-      FOUNDING_OFFER_OPEN ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR,
-    );
+  it("defaults to the founding offer AS OF the instant it is given (PRICING-1: closes 00:00 IST on 1 Dec 2026)", () => {
+    const open = tillBoardsQuote(istNoon("2026-09-26"), BOARD)!;
+    expect(open.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
+    const lastSecond = tillBoardsQuote(new Date("2026-11-30T23:59:59+05:30"), BOARD)!;
+    expect(lastSecond.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
+    const firstSecond = tillBoardsQuote(new Date("2026-12-01T00:00:00+05:30"), BOARD)!;
+    expect(firstSecond.monthlyInr).toBe(PRICE_MONTHLY_LIST_INR);
   });
 });
 

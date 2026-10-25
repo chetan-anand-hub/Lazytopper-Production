@@ -105,6 +105,30 @@ export const BASIC_INCLUDES: readonly PlanItem[] = [
 
 export const BASIC_FOOTNOTE = "Written answers on tests and mocks are not checked on Basic.";
 
+/**
+ * PRICING-1 — what Basic does NOT include, stated plainly on the Basic card. Every line is
+ * a row the compare table marks "not included" for Basic TODAY (pricingCompare.test.ts
+ * ties the two together). Limits being designed in LIMITS-1 are NOT advertised here; that
+ * lane changes this copy when it enforces them.
+ */
+export const BASIC_LIMITS_HEAD = "Not on Basic:";
+
+export function basicLimits({ freeCheck }: { freeCheck: boolean }): readonly PlanItem[] {
+  return [
+    { id: "graded", label: "Chapter tests, full mocks and worksheets are not graded" },
+    {
+      id: "check",
+      label: freeCheck
+        ? "Answer checking stops after your first free check"
+        : "No handwritten answer checking",
+    },
+    { id: "steps", label: "No step marks the way a board examiner gives them" },
+    { id: "tutor", label: "No AI tutor" },
+    { id: "mi", label: "No Mistake Intelligence — why you lose marks" },
+    { id: "similar", label: "No new questions like the one you got wrong" },
+  ];
+}
+
 export const PREMIUM_PLUS_HEAD = "Everything in Basic, plus:";
 
 export const PREMIUM_PLUS: readonly PlanItem[] = [
