@@ -54,6 +54,7 @@ function deepMerge(a, b) {
 }
 function makeDb() {
   const docs = new Map();
+  const queries = [];
   let writes = 0;
   function docRef(path) {
     return {
@@ -73,12 +74,14 @@ function makeDb() {
       collection: (name) => collRef(`${path}/${name}`),
     };
   }
-  function collRef(path, filters = [], lim = Infinity) {
+  function collRef(path, filters = [], lim = Infinity, order = null) {
     return {
       doc: (id) => docRef(`${path}/${id}`),
-      where: (field, op, value) => collRef(path, [...filters, { field, op, value }], lim),
-      limit: (n) => collRef(path, filters, n),
+      where: (field, op, value) => collRef(path, [...filters, { field, op, value }], lim, order),
+      limit: (n) => collRef(path, filters, n, order),
+      orderBy: (field, dir) => collRef(path, filters, lim, { field, dir }),
       async get() {
+        queries.push({ path, filters: filters.map((f) => `${f.field}${f.op}`), lim, order: order && order.field });
         const out = [];
         for (const [p, data] of docs) {
           const rest = p.slice(path.length + 1);
@@ -89,10 +92,12 @@ function makeDb() {
             const b = typeof value === 'number' ? value : msOf(value);
             if (a === null || b === null) return false;
             if (op === '>=') return a >= b;
+            if (op === '<') return a < b;
             throw new Error(`op ${op}`);
           });
-          if (ok) out.push({ id: rest, data: () => ({ ...data }) });
+          if (ok) out.push({ id: rest, data: () => ({ ...data }), _k: order ? (msOf(data[order.field]) ?? data[order.field]) : 0 });
         }
+        if (order) out.sort((x, y) => (order.dir === 'desc' ? y._k - x._k : x._k - y._k));
         return { docs: out.slice(0, lim) };
       },
     };
@@ -112,7 +117,7 @@ function makeDb() {
     chain = run.catch(() => {});
     return run;
   }
-  return { docs, collection: (n) => collRef(n), runTransaction, writes: () => writes };
+  return { docs, queries, collection: (n) => collRef(n), runTransaction, writes: () => writes };
 }
 function makeAdmin(users) {
   return {
@@ -407,6 +412,95 @@ test('founding has its OWN flag: off by default even when the sequence is live',
   const e = createNudgeEmailer({ config: resolveNudgeConfig({ ...ENV_SEND, PAYMENTS_ENABLED: '1', PARENT_PAY_ENABLED: '1' }), adminFirestore: s.db, firebaseAdmin: makeAdmin({ u1: gUser() }), fetchImpl: async () => { throw new Error('no'); }, now: () => NOW_NOV, log: () => {} });
   const r = await e.runOnce();
   assert.equal(r.sent + r.wouldSend, 0);
+});
+
+test('queries: one narrow range per window, newest first, capped; a D1 student is not starved by old signups', async () => {
+  const subs = { fresh: sub(NOW - 25 * HOUR) };
+  const users = { fresh: gUser('f@gmail.com') };
+  for (let i = 0; i < 40; i += 1) subs[`old${i}`] = sub(NOW - 20 * DAY - i * HOUR); // outside D1/D3 windows
+  const s = setup({ subs, users });
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 1);
+  assert.equal(r.candidates, 1); // only the window rows were read, never the 20-day-old ones
+  const subQs = s.db.queries.filter((q) => q.path === 'subscriptions');
+  assert.equal(subQs.length, 2); // d1 + d3 only: founding is not in its window
+  for (const q of subQs) {
+    assert.deepEqual(q.filters, ['trialStartDate>=', 'trialStartDate<']);
+    assert.equal(q.order, 'trialStartDate');
+    assert.ok(q.lim <= 1000);
+  }
+});
+
+test('queries: the founding window adds the 45-day query only when its flags are on, and the log names the real gate', async () => {
+  const mk = (env) => {
+    const s = setup({ now: NOW_NOV, subs: {} });
+    const e = createNudgeEmailer({ config: resolveNudgeConfig(env), adminFirestore: s.db, firebaseAdmin: makeAdmin({}), fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({}) }), now: () => NOW_NOV, log: (l) => s.logs.push(l) });
+    return { s, e };
+  };
+  let { s, e } = mk(ENV_SEND);
+  await e.runOnce();
+  assert.equal(s.db.queries.filter((q) => q.path === 'subscriptions').length, 2);
+  assert.ok(s.logs.some((l) => l.includes('founding email not running: founding-flag-off')));
+  ({ s, e } = mk({ ...ENV_SEND, NUDGE_FOUNDING_EMAIL_ENABLED: '1' }));
+  await e.runOnce();
+  assert.ok(s.logs.some((l) => l.includes('founding email not running: payments-not-live')));
+  ({ s, e } = mk({ ...ENV_SEND, NUDGE_FOUNDING_EMAIL_ENABLED: '1', PAYMENTS_ENABLED: '1', PARENT_PAY_ENABLED: '1' }));
+  await e.runOnce();
+  assert.equal(s.db.queries.filter((q) => q.path === 'subscriptions').length, 3);
+  assert.ok(!s.logs.some((l) => l.includes('founding email not running')));
+});
+
+test('look-again marker: a not-due student is not re-read on the next hourly run, and is re-checked once it passes', async () => {
+  const s = setup({ subs: { u1: sub(NOW - 8 * DAY) } });
+  day(s.db, 'u1', '2026-10-26', { firstSeenMs: NOW - 2 * HOUR, lastSeenMs: NOW - 2 * HOUR });
+  rec(s.db, 'u1', 'r1', NOW - 2 * HOUR);
+  const r1 = await s.make().runOnce();
+  assert.equal(r1.sent, 0);
+  assert.equal(r1.skipped['d3-recently-active'], 1);
+  const marker = s.db.docs.get('nudgeEmails/u1').check.d3;
+  assert.equal(marker, NOW - 2 * HOUR + 48 * HOUR);
+  const before = s.db.queries.filter((q) => q.path.startsWith('sessionRecords') || q.path.startsWith('activityLog')).length;
+  const r2 = await s.make().runOnce();
+  assert.equal(r2.skipped['not-yet'], 1);
+  assert.equal(s.db.queries.filter((q) => q.path.startsWith('sessionRecords') || q.path.startsWith('activityLog')).length, before);
+  // once the marker has passed (47 h later) the student is quiet for 49 h and gets the email
+  const later = createNudgeEmailer({
+    config: resolveNudgeConfig(ENV_SEND), adminFirestore: s.db, firebaseAdmin: makeAdmin({ u1: gUser() }),
+    fetchImpl: async () => { s.calls.push(1); return { ok: true, status: 200, json: async () => ({ id: 'm' }) }; },
+    now: () => marker + HOUR, log: () => {},
+  });
+  const r3 = await later.runOnce();
+  assert.equal(r3.sent, 1);
+  // a dry run writes no marker
+  const dry = setup({ env: { NUDGE_EMAIL_ENABLED: '1' }, subs: { u1: sub(NOW - 8 * DAY) } });
+  day(dry.db, 'u1', '2026-10-26', { firstSeenMs: NOW - 2 * HOUR, lastSeenMs: NOW - 2 * HOUR });
+  await dry.make().runOnce();
+  assert.equal(dry.db.writes(), 0);
+});
+
+test('only the last 14 activity days are read', async () => {
+  const s = setup({ subs: { u1: sub(NOW - 5 * DAY) } });
+  for (let i = 0; i < 30; i += 1) day(s.db, 'u1', `d${i}`, { firstSeenMs: NOW - (60 - i) * DAY, lastSeenMs: NOW - (60 - i) * DAY });
+  rec(s.db, 'u1', 'r1', NOW - 4 * DAY);
+  await s.make().runOnce();
+  const q = s.db.queries.find((x) => x.path === 'activityLog/u1/activityDays');
+  assert.equal(q.lim, 14);
+  assert.equal(q.order, 'firstSeenMs');
+});
+
+test('spacing is enforced INSIDE the claim transaction too (a nudge claimed after the early read)', async () => {
+  const s = setup({ subs: { u1: sub(NOW - 25 * HOUR) } });
+  const orig = s.db.collection;
+  let n = 0;
+  s.db.collection = (name) => {
+    const c = orig(name);
+    if (name !== NUDGE_EMAILS_COLLECTION) return c;
+    return { ...c, doc: (id) => { const d = c.doc(id); return { ...d, get: async () => { n += 1; const r = await d.get(); if (n === 1) s.db.docs.set('nudgeEmails/u1', { lastClaimMs: NOW - HOUR, d3: { status: 'claimed', claimedMs: NOW - HOUR } }); return r; } }; } };
+  };
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 0);
+  assert.equal(r.skipped.spaced, 1);
+  assert.equal(s.calls.length, 0);
 });
 
 test('a student with records unreadable is skipped, never emailed on an invented zero', async () => {

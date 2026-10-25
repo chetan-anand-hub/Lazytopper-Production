@@ -705,7 +705,7 @@ function createTrialEndingEmailer(deps = {}) {
           res,
           200,
           'Unsubscribe',
-          '<h1 style="font-size:20px">Stop emails from LazyTopper?</h1>' +
+          '<h1 style="font-size:20px">Stop study and trial reminder emails from LazyTopper?</h1>' +
             `<form method="post" action="${escapeHtml(action)}"><button type="submit" style="min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#1f9d63;color:#fff;font-size:15px;font-weight:700">Unsubscribe</button></form>`,
         );
       }
@@ -728,7 +728,7 @@ function createTrialEndingEmailer(deps = {}) {
       } else {
         return sendHtml(res, 503, 'Try again later', '<p>We could not record that right now. Please try the link again later.</p>');
       }
-      return sendHtml(res, 200, 'Unsubscribed', "<h1 style=\"font-size:20px\">You're unsubscribed.</h1><p>We won't send you these emails.</p>");
+      return sendHtml(res, 200, 'Unsubscribed', "<h1 style=\"font-size:20px\">You're unsubscribed.</h1><p>We won't send you study or trial reminder emails. Sign-in and account emails still arrive.</p>");
     } catch {
       return sendHtml(res, 500, 'Try again later', '<p>We could not record that right now. Please try the link again later.</p>');
     }

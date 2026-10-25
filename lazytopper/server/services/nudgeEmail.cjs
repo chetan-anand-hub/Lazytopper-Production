@@ -90,9 +90,16 @@ const D1_MAX_MS = 30 * HOUR_MS;
 const D3_MIN_AGE_MS = 3 * DAY_MS;
 const D3_MAX_AGE_MS = 14 * DAY_MS;
 const D3_INACTIVE_MS = 48 * HOUR_MS;
-/** Only accounts that signed up within this long are ever looked at (one single-field range query). */
+/** The founding email reaches accounts that signed up within this long (owner decision for later; email is off by default). */
 const COHORT_MAX_AGE_MS = 45 * DAY_MS;
-const MAX_COHORT = 1000;
+/** Per-query caps (newest signups first, so the freshest students are never starved by old ones). */
+const CAP_D1 = 500;
+const CAP_D3 = 500;
+const CAP_FOUNDING = 1000;
+/** Only the most recent activity days are read (D3 looks back <= 14 d; founding engagement uses these too). */
+const RECENT_DAYS = 14;
+/** A student who is not due yet is looked at again after this long (marker in the nudgeEmails doc). */
+const RECHECK_MS = 6 * HOUR_MS;
 const SPACING_MS = 24 * HOUR_MS;
 const IDLE_GAP_MS = 5 * MINUTE_MS;
 const ENGAGED_ACTIVE_MINUTES = 15;
@@ -262,6 +269,22 @@ function isKindDue(kind, facts) {
   return { ok: false, reason: 'unknown-kind' };
 }
 
+/**
+ * When should a student who is NOT due for `kind` be looked at again? PURE. Never earlier than the
+ * next hour; a kind that can no longer become due waits out its own window.
+ */
+function recheckAtMs(kind, reason, facts, startMs) {
+  const { nowMs, days, records } = facts;
+  let at = nowMs + RECHECK_MS;
+  if (reason === 'records-unavailable') at = nowMs + HOUR_MS;
+  else if (kind === 'd1' && reason === 'already-graded') at = startMs + D1_MAX_MS;
+  else if (kind === 'd3' && reason === 'recently-active') {
+    const last = lastActiveMs(days, records);
+    if (last !== null) at = Math.max(nowMs + HOUR_MS, last + D3_INACTIVE_MS);
+  }
+  return at;
+}
+
 /** "Founding price: ₹599 a month until 30 Nov; from 1 Dec it is ₹999." Prices from the pricing mirror. PURE. */
 function foundingPriceLine() {
   const lastDay = new Date(Date.parse(`${FOUNDING_LAST_DAY_IST}T00:00:00.000+05:30`));
@@ -293,7 +316,7 @@ function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl }) {
   if (kind === 'd1') {
     subject = 'Check one answer and see where the marks go';
     paras.push({ t: 'Hi,' });
-    paras.push({ t: 'You made your LazyTopper account yesterday. Here is one small thing to try: take an answer you wrote for a board-style question and check it. LazyTopper shows where the marks went, step by step, and what kind of mistake it was. It is free.' });
+    paras.push({ t: 'You made your LazyTopper account a day ago. Here is one small thing to try: take an answer you wrote for a board-style question and check it. LazyTopper shows where the marks went, step by step, and what kind of mistake it was. It is free.' });
     paras.push({ t: 'Check an answer', links: [{ label: 'Check an answer', url: checkUrl }] });
     paras.push({ t: 'No pen and paper nearby? Quick Practice works from your phone.', links: [{ label: 'Open Quick Practice', url: practiceUrl }] });
   } else if (kind === 'd3') {
@@ -396,7 +419,13 @@ function createNudgeEmailer(deps = {}) {
   }
   async function readDays(uid) {
     try {
-      const snap = await adminFirestore.collection(ACTIVITY_COLLECTION).doc(uid).collection(ACTIVITY_SEGMENTS.days).get();
+      const snap = await adminFirestore
+        .collection(ACTIVITY_COLLECTION)
+        .doc(uid)
+        .collection(ACTIVITY_SEGMENTS.days)
+        .orderBy('firstSeenMs', 'desc')
+        .limit(RECENT_DAYS)
+        .get();
       return snap.docs.map((d) => d.data());
     } catch {
       return null;
@@ -429,6 +458,7 @@ function createNudgeEmailer(deps = {}) {
       if (t.exists && (t.data() || {}).optedOut) return 'opted-out';
       const row = l.exists ? l.data() || {} : {};
       if (row[kind]) return 'claimed-elsewhere';
+      if (typeof row.lastClaimMs === 'number' && nowMs - row.lastClaimMs < SPACING_MS) return 'spaced';
       const raw = d.exists ? (d.data() || {}).count : 0;
       const count = typeof raw === 'number' && raw > 0 ? raw : 0;
       if (count >= config.dailyCap) return 'daily-cap';
@@ -463,6 +493,15 @@ function createNudgeEmailer(deps = {}) {
     });
   }
 
+  /** Merge "look again after" times (per kind) into the ledger. Never written in a dry run. */
+  async function writeCheckMarker(uid, times) {
+    try {
+      await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).set({ check: times }, { merge: true });
+    } catch {
+      /* a missing marker only costs a re-read next hour */
+    }
+  }
+
   async function writeSkipMarker(uid, reason, nowMs) {
     try {
       await adminFirestore
@@ -490,13 +529,34 @@ function createNudgeEmailer(deps = {}) {
     try {
       const nowMs = now();
       const day = istDayKeyOf(nowMs);
-      const snap = await adminFirestore
-        .collection(SUBSCRIPTIONS_COLLECTION)
-        .where('trialStartDate', '>=', timestampFromMillis(nowMs - COHORT_MAX_AGE_MS))
-        .limit(MAX_COHORT)
-        .get();
+      // Why the founding email is not running (named in the run log), or null when it is.
+      const foundingInWindow = nowMs >= FOUNDING_FROM_MS && nowMs < FOUNDING_UNTIL_MS;
+      let foundingGate = null;
+      if (foundingInWindow) {
+        if (!config.foundingEnabled) foundingGate = 'founding-flag-off';
+        else if (!config.paymentsLive) foundingGate = 'payments-not-live';
+        else if (!pricing.FOUNDING_OFFER_OPEN) foundingGate = 'founding-offer-closed';
+      }
+      const allowFounding = foundingInWindow && foundingGate === null;
+      // ONE narrow single-field range query per window (the trialEndingEmail pattern), newest first.
+      const ranges = [
+        { loMs: nowMs - D1_MAX_MS, hiMs: nowMs - D1_MIN_MS, cap: CAP_D1 },
+        { loMs: nowMs - D3_MAX_AGE_MS, hiMs: nowMs - D3_MIN_AGE_MS, cap: CAP_D3 },
+      ];
+      if (allowFounding) ranges.push({ loMs: nowMs - COHORT_MAX_AGE_MS, hiMs: nowMs + 1, cap: CAP_FOUNDING });
+      const cohort = new Map();
+      for (const r of ranges) {
+        const qs = await adminFirestore
+          .collection(SUBSCRIPTIONS_COLLECTION)
+          .where('trialStartDate', '>=', timestampFromMillis(r.loMs))
+          .where('trialStartDate', '<', timestampFromMillis(r.hiMs))
+          .orderBy('trialStartDate', 'desc')
+          .limit(r.cap)
+          .get();
+        for (const d of qs.docs) if (!cohort.has(d.id)) cohort.set(d.id, d);
+      }
 
-      for (const doc of snap.docs) {
+      for (const doc of cohort.values()) {
         summary.candidates += 1;
         const uid = doc.id;
         const sub = doc.data() || {};
@@ -512,27 +572,14 @@ function createNudgeEmailer(deps = {}) {
           skip('premium');
           continue;
         }
-        let kinds = kindsInWindow(ageMs, nowMs);
+        let kinds = kindsInWindow(ageMs, nowMs).filter((k) => k !== 'founding' || allowFounding);
         if (kinds.length === 0) {
           skip('no-window');
-          continue;
-        }
-        if (!config.foundingEnabled) kinds = kinds.filter((k) => k !== 'founding');
-        if (!config.paymentsLive) kinds = kinds.filter((k) => k !== 'founding');
-        if (!pricing.FOUNDING_OFFER_OPEN) kinds = kinds.filter((k) => k !== 'founding');
-        if (kinds.length === 0) {
-          skip('payments-not-live');
           continue;
         }
 
         const ledgerSnap = await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).get();
         const ledger = ledgerSnap.exists ? ledgerSnap.data() || {} : {};
-        const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
-        const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
-        if (trialRow.optedOut) {
-          skip('opted-out');
-          continue;
-        }
         if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
           skip(`marked-${ledger.skip.reason || 'skipped'}`);
           continue;
@@ -542,7 +589,21 @@ function createNudgeEmailer(deps = {}) {
           skip('already-sent');
           continue;
         }
-        // Spacing: one nudge per 24 h, and none beside the trial-ending email (sent, or about to be).
+        // "Look again after": a kind that was not due is not re-evaluated until its marker passes.
+        const check = ledger.check && typeof ledger.check === 'object' ? ledger.check : {};
+        kinds = kinds.filter((k) => !(typeof check[k] === 'number' && check[k] > nowMs));
+        if (kinds.length === 0) {
+          skip('not-yet');
+          continue;
+        }
+        const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+        const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
+        if (trialRow.optedOut) {
+          skip('opted-out');
+          continue;
+        }
+        // Spacing: one nudge per 24 h (re-checked INSIDE the claim transaction), and none beside the
+        // trial-ending email (sent, or about to be).
         if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
           skip('spaced');
           continue;
@@ -564,6 +625,7 @@ function createNudgeEmailer(deps = {}) {
         const facts = { counts, days, records, nowMs, ageMs };
         let kind = null;
         let lastReason = 'not-due';
+        const notDue = {};
         for (const k of KINDS) {
           if (!kinds.includes(k)) continue;
           const due = isKindDue(k, facts);
@@ -572,9 +634,12 @@ function createNudgeEmailer(deps = {}) {
             break;
           }
           lastReason = `${k}-${due.reason}`;
+          notDue[k] = recheckAtMs(k, due.reason, facts, startMs);
         }
         if (!kind) {
           skip(lastReason);
+          // Remember when to look again so the next hourly runs do not re-read this student.
+          if (config.mode === 'send' && Object.keys(notDue).length) await writeCheckMarker(uid, notDue);
           continue;
         }
 
@@ -660,6 +725,7 @@ function createNudgeEmailer(deps = {}) {
           log(`[nudge-email] send failed kind=${kind} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
         }
       }
+      if (foundingGate) log(`[nudge-email] founding email not running: ${foundingGate}`);
       log(`[nudge-email] run mode=${summary.mode} candidates=${summary.candidates} wouldSend=${summary.wouldSend} sent=${summary.sent} failed=${summary.failed} byKind=${JSON.stringify(summary.byKind)} skipped=${JSON.stringify(summary.skipped)}`);
       return { ...summary, ran: true };
     } catch (e) {
@@ -697,6 +763,7 @@ module.exports = {
   describeNudgeConfig,
   kindsInWindow,
   isKindDue,
+  recheckAtMs,
   activeMinutesFromDays,
   openedPricing,
   foundingPriceLine,

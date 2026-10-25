@@ -194,6 +194,9 @@ function realSeed(uid = UID) {
     [`tutorSessions/${uid}`]: {},
     [`tutorSessions/${uid}/topics/electricity`]: {},
     [`subscriptions/${uid}`]: {},
+    // TRIAL-END-1 / EMAIL-NUDGE-1: the two email ledgers (server-only; the opt-out lives on trialEmails).
+    [`trialEmails/${uid}`]: { status: 'sent', optedOut: true },
+    [`nudgeEmails/${uid}`]: { d1: { status: 'sent' }, lastClaimMs: 1 },
     // RAZORPAY-1 · Z9: one record per applied pass payment — erased with the account.
     [`subscriptions/${uid}/payments/pay_A`]: { passType: 'month', pricePaidInr: 599 },
     // RAZORPAY-1 · Z7: FIELD-KEYED, and KEPT on erasure with uid -> "erased".
@@ -557,6 +560,22 @@ test('★ SOURCE-1: erasure deletes signupSources/{uid}, and only that one', asy
   assert.equal(store.docs.has(`signupSources/${UID}`), false, 'the source is still readable after erasure');
   assert.equal(byId(result, 'signupSources').status, STATUS.DELETED);
   assert.equal(store.docs.has(`signupSources/${OTHER}`), true, "another student's source was touched");
+});
+
+/* EMAIL-NUDGE-1 / TRIAL-END-1 — the email ledgers are server-only docs keyed on the uid.
+   MUTATION: drop the `nudgeEmails` (or `trialEmails`) entry from studentDataMap.ts => RED. */
+test('★ EMAIL-NUDGE-1: erasure deletes trialEmails/{uid} and nudgeEmails/{uid}, and only those', async () => {
+  const seed = realSeed();
+  seed[`nudgeEmails/${OTHER}`] = { d1: { status: 'sent' } };
+  seed[`trialEmails/${OTHER}`] = { status: 'sent' };
+  const { service, store } = makeService({ seed, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+  for (const c of ['trialEmails', 'nudgeEmails']) {
+    assert.ok(store.deleted.includes(`${c}/${UID}`), `${c} was never targeted`);
+    assert.equal(store.docs.has(`${c}/${UID}`), false, `${c} still readable after erasure`);
+    assert.equal(byId(result, c).status, STATUS.DELETED);
+    assert.equal(store.docs.has(`${c}/${OTHER}`), true, `another student's ${c} was touched`);
+  }
 });
 
 test('SOURCE-1: an account with no source document (before the lane) erases cleanly as notFound', async () => {
