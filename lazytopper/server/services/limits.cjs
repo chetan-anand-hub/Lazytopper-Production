@@ -312,7 +312,11 @@ function setLimitsDeferred(res, ref) {
 }
 function limitsDeferredOf(res) {
   const d = res && (typeof res === 'object' || typeof res === 'function') ? res[LIMITS_DEFERRED] : undefined;
-  return d && typeof d === 'object' ? { uid: d.uid, bucket: d.bucket, id: d.id, createdMs: d.createdMs } : null;
+  return d && typeof d === 'object' ? {
+    uid: d.uid, bucket: d.bucket, id: d.id,
+    // Firestore rejects a nested undefined (a free/Basic account has no createdMs): omit the key.
+    ...(Number.isFinite(d.createdMs) ? { createdMs: d.createdMs } : {}),
+  } : null;
 }
 
 /**
@@ -746,7 +750,11 @@ function createLimits(deps = {}) {
     return db.runTransaction(async (tx) => {
       const ref = stateRef(db, uid);
       const state = readState(await tx.get(ref));
-      const held = bucketOf(state, bucket).filter((e) => !(e.p === 1 && nowMs - e.at > RESERVATION_TTL_MS));
+      const all = bucketOf(state, bucket);
+      const isStale = (e) => e.p === 1 && nowMs - e.at > RESERVATION_TTL_MS;
+      const held = all.filter((e) => !isStale(e));
+      // A pruned reservation that held the student's one free grade gives it back (a lost job must not burn it).
+      if (all.some((e) => isStale(e) && e.free === true)) unmarkFirstFree(state, bucket);
       const ffUsed = firstFreeOf(state, bucket);
       let entries;
       let free;

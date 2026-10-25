@@ -589,3 +589,25 @@ test('source pins: PR-2 routes are registered, preflighted and the gate runs bef
   const lim = fs.readFileSync(path.join(__dirname, 'limits.cjs'), 'utf8');
   assert.ok(!/Math\.random/.test(lim));
 });
+
+test('GRADE · DEFERRED reference for a free (Basic) account holds no undefined value (Firestore rejects nested undefined)', async () => {
+  const r = rig({ tier: 'free' });
+  const g = await gate(r, { surface: 'worksheet', idem: 'u1', status: 202, charged: 0 });
+  const ref = limitsDeferredOf(g.res);
+  assert.ok(ref && ref.bucket === 'gr:worksheet');
+  for (const [k, v] of Object.entries(ref)) assert.notEqual(v, undefined, `${k} is undefined`);
+  assert.equal('createdMs' in ref, false, 'the key is omitted, not set to undefined');
+});
+
+test('GRADE · a free reservation pruned at 30 min gives the one free grade back (a lost job does not burn it)', async () => {
+  const r = rig({ tier: 'free' });
+  const first = await gate(r, { surface: 'worksheet', idem: 'lost', status: 202, charged: 0 });
+  assert.equal(first.verdict.bypassEntitlement, true);
+  assert.deepEqual((await gate(r, { surface: 'worksheet', idem: 'again' })).verdict, {}, 'held: no second free');
+  r.clock.now += 31 * 60 * 1000; // the job is lost; its reservation lapses
+  const retry = await gate(r, { surface: 'worksheet', idem: 'retry' });
+  assert.equal(retry.verdict.bypassEntitlement, true, 'the free grade is back');
+  const doc = [...r.f.docs.values()][0];
+  assert.equal(doc.firstFree.grade.worksheet, true);
+  assert.equal(doc.gr.worksheet.length, 1, 'only the new reservation remains');
+});
