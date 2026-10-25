@@ -193,7 +193,7 @@ const TOPUP_PRODUCTS = Object.freeze({
  * a pack credits its base amount and no offer text exists anywhere. The owner plans +25% near the boards
  * (around December) as a one-constant change in a later small PR - never an env var set by an agent.
  * `TOPUP_BONUS_ENDS_ISO` is an optional last day (IST, "YYYY-MM-DD") after which the bonus stops by itself.
- * It is NOT tied to FOUNDING_OFFER_OPEN: the founding price is a different thing and is untouched here.
+ * It is NOT tied to the founding offer: the founding price is a different thing and is untouched here.
  * When on (e.g. +25%): 49 -> 25 + 6, 149 -> 80 + 20 (the bonus is floored to a whole rupee), recorded
  * SEPARATELY from the base. Owner 22 Oct 2026: NO bonus at launch - the percent stays 0.
  */

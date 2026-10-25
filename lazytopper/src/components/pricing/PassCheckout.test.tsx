@@ -44,6 +44,7 @@ import {
   buyPass,
   CHECKOUT_SCRIPT_URL,
   PAYMENT_FAILED_COPY,
+  ORDER_EXPIRED_COPY,
   resetCheckoutScriptForTests,
   type BuyOutcome,
   type RazorpayConstructor,
@@ -201,6 +202,29 @@ function view(overrides: Partial<Parameters<typeof PassCheckoutView>[0]> = {}) {
   render(<PassCheckoutView {...props} />);
   return props;
 }
+
+describe("PRICING-1 · an expired order", () => {
+  it("an 'expired' outcome shows 'This order expired — start again.', not the failure or pending copy, and the buttons stay", async () => {
+    view({ onBuy: vi.fn(async () => ({ status: "expired" as const })) });
+    fireEvent.click(screen.getByRole("button", { name: monthButtonLabel(true) }));
+    const note = await screen.findByTestId("pass-checkout-expired");
+    expect(note.textContent).toBe(ORDER_EXPIRED_COPY);
+    expect(screen.queryByTestId("pass-checkout-failed")).toBeNull();
+    expect(screen.queryByTestId("pass-checkout-checking")).toBeNull();
+    expect((screen.getByRole("button", { name: monthButtonLabel(true) }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("a poll that answers 'expired' ends the checking state with the same message", async () => {
+    view({
+      onBuy: vi.fn(async () => ({ status: "pending" as const, orderId: "order_E" })),
+      onCheckStatus: vi.fn(async () => ({ state: "expired" as const })),
+      pollDelaysMs: [0],
+    });
+    fireEvent.click(screen.getByRole("button", { name: monthButtonLabel(true) }));
+    expect((await screen.findByTestId("pass-checkout-expired")).textContent).toBe(ORDER_EXPIRED_COPY);
+    expect(screen.queryByTestId("pass-checkout-confirming")).toBeNull();
+  });
+});
 
 describe("Z6 · after the purchase", () => {
   it("success shows 'Premium is active until <date>' from the SERVER grant's passEnd", async () => {

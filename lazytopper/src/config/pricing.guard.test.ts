@@ -503,10 +503,24 @@ describe("PRICING-1 — the founding offer is date-driven", () => {
     expect(m.FOUNDING_OFFER_LAST_DAY_LABEL).toBe("30 November");
   });
 
-  it("stays a BOOLEAN — never a seat count", async () => {
-    const m = await import("./pricing");
-    expect(typeof m.FOUNDING_OFFER_OPEN).toBe("boolean");
-    expect(typeof m.foundingOfferOpen(new Date())).toBe("boolean");
+  it("stays a BOOLEAN — never a seat count; the frozen constant is gone", async () => {
+    const m = (await import("./pricing")) as Record<string, unknown>;
+    expect("FOUNDING_OFFER_OPEN" in m).toBe(false);
+    expect(typeof (m.foundingOfferOpen as (d: Date) => boolean)(new Date())).toBe("boolean");
+  });
+
+  it("no non-test source under src/ or server/ reads a frozen founding constant (display follows the date)", () => {
+    const hits: string[] = [];
+    const roots = [SRC_ROOT, join(process.cwd(), "server")];
+    for (const root of roots) {
+      for (const abs of walkAll(root, (e) => /\.(ts|tsx|cjs|mjs|js)$/.test(e) && !/\.test\./.test(e))) {
+        if (abs.includes(`${sep}node_modules${sep}`)) continue;
+        const rel = relative(process.cwd(), abs).split(sep).join("/");
+        if (rel.startsWith("src/data/")) continue;
+        if (/\bFOUNDING_OFFER_OPEN\b/.test(readFileSync(abs, "utf8"))) hits.push(rel);
+      }
+    }
+    expect(hits, `a frozen founding constant is read by: ${hits.join(", ")} — use foundingOfferOpen(Date.now()) / foundingRateApplies`).toEqual([]);
   });
 
   it("the end-date copy is plain words: the real date, the list price, no timer", async () => {

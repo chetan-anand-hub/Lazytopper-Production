@@ -1275,3 +1275,30 @@ test('PRICING-1 · money already CAPTURED is never stranded: a stale founding or
   assert.equal(stored.pricePaidInr, 599);
   assert.equal(stored.foundingMember, true);
 });
+
+test('PRICING-1 · status: a stale AUTHORIZED item does not hide a CAPTURED one later on the same order — it confirms; expired only when nothing else is confirmed', async (t) => {
+  let clock = LAST_SECOND;
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const created = await createOrder(srv);
+  clock = PAST_GRACE;
+  srv.rzp.pay(created.orderId, { id: 'pay_stale_auth', status: 'authorized' });
+  srv.rzp.pay(created.orderId, { id: 'pay_later_captured' });
+  const st = await askStatus(srv, created.orderId);
+  assert.equal(st.status, 200, JSON.stringify(st.json));
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 599, 'granted at the order price');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.includes('/capture')).length, 0, 'the stale authorization was never captured');
+});
+
+test('PRICING-1 · an EXISTING founder is never refused: a late authorized founding order is captured and granted', async (t) => {
+  let clock = LAST_SECOND;
+  const db = memoryFirestore({ 'subscriptions/u1': { tier: 'free', foundingMember: true } });
+  const srv = await startRoutes({ db, now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const created = await createOrder(srv);
+  clock = PAST_GRACE;
+  const p = srv.rzp.pay(created.orderId, { status: 'authorized' });
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 599);
+});

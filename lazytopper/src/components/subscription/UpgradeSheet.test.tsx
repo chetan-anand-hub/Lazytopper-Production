@@ -14,7 +14,17 @@ import { UpgradeSheet, formatTrialEnded, labelForFeature } from "./UpgradeSheet"
 import { getPremiumFeatureList, getFeatureGate, canAccessFeature } from "../../services/featureGates";
 import { monthlyInline } from "../../config/pricing";
 
-afterEach(() => cleanup());
+// PRICING-1 — the sheet reads the student's own founding flag; the hook is stubbed so these tests
+// need no auth provider, and each test sets what the "student" is.
+const subState = vi.hoisted(() => ({ foundingMember: undefined as boolean | undefined }));
+vi.mock("../../hooks/useSubscription", () => ({
+  useSubscription: () => ({ status: { foundingMember: subState.foundingMember } }),
+}));
+
+afterEach(() => {
+  cleanup();
+  subState.foundingMember = undefined;
+});
 
 function renderSheet(props: Partial<React.ComponentProps<typeof UpgradeSheet>> = {}) {
   const onClose = vi.fn();
@@ -188,6 +198,18 @@ describe("UpgradeSheet — copy, price and treatment", () => {
     expect(screen.getByText(/Premium — \u20B9599 for a month/)).toBeInTheDocument();
     cleanup();
     vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
+    renderSheet();
+    expect(screen.getByText(/Premium — \u20B9999 for a month/)).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("PRICING-1 — after the close a FOUNDER is quoted their locked rate, a non-founder the list rate", () => {
+    vi.useFakeTimers({ now: new Date("2026-12-05T10:00:00+05:30"), toFake: ["Date"] });
+    subState.foundingMember = true;
+    renderSheet();
+    expect(screen.getByText(/Premium — \u20B9599 for a month/)).toBeInTheDocument();
+    cleanup();
+    subState.foundingMember = false;
     renderSheet();
     expect(screen.getByText(/Premium — \u20B9999 for a month/)).toBeInTheDocument();
     vi.useRealTimers();

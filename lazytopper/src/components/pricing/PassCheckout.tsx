@@ -42,6 +42,7 @@ import {
   PAY_PENDING_TTL_MS,
   PAYMENT_CHECKING_COPY,
   PAYMENT_FAILED_COPY,
+  ORDER_EXPIRED_COPY,
   PAYMENT_STILL_CONFIRMING_COPY,
   premiumActiveUntilCopy,
   premiumAlreadyActiveCopy,
@@ -130,6 +131,8 @@ export function PassCheckoutView({
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
+  /** PRICING-1 — the server refused the order as expired: "start again", never the pending copy. */
+  const [expired, setExpired] = useState(false);
   /** PAY-RECOVER-1 — "checking" while polls run; "confirming" once they ran out still pending. */
   const [recovery, setRecovery] = useState<null | "checking" | "confirming">(null);
   const pendingRef = useRef<{ orderId: string; details: CheckoutDetails; attemptId: string; paymentId?: string } | null>(null);
@@ -204,6 +207,14 @@ export function PassCheckoutView({
         settlePaid(result);
         return;
       }
+      if (result.state === "expired") {
+        pendingRef.current = null;
+        pollRun.current += 1;
+        clearHold();
+        setRecovery(null);
+        setExpired(true);
+        return;
+      }
     }
     setRecovery("confirming");
   }
@@ -216,6 +227,7 @@ export function PassCheckoutView({
     }
     setBusy(passType);
     setFailed(false);
+    setExpired(false);
     setRecovery(null);
     pendingRef.current = null;
     clearHold();
@@ -258,6 +270,8 @@ export function PassCheckoutView({
       await pollStatus(pollDelaysMs);
     } else if (outcome.status === "failed") {
       setFailed(true);
+    } else if (outcome.status === "expired") {
+      setExpired(true);
     }
   }
 
@@ -302,6 +316,11 @@ export function PassCheckoutView({
       {failed && !recovery && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="alert" data-testid="pass-checkout-failed">
           {PAYMENT_FAILED_COPY}
+        </p>
+      )}
+      {expired && !recovery && (
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="alert" data-testid="pass-checkout-expired">
+          {ORDER_EXPIRED_COPY}
         </p>
       )}
       {recovery === "checking" && (

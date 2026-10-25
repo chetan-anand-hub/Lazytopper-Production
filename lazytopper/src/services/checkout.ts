@@ -25,6 +25,17 @@ export const PAY_VERIFY_ENDPOINT = "/api/pay/verify";
 /** PAY-STATUS-1 — "is my payment through?" for the caller's OWN order (auth required). */
 export const PAY_STATUS_ENDPOINT = "/api/pay/status";
 
+/** PRICING-1 — the server refused an order whose founding offer closed more than a day ago (`order_expired`). */
+export const ORDER_EXPIRED_COPY = "This order expired — start again.";
+
+/** Thrown by `postJson` for the server's `order_expired` refusal, so callers can tell it from a transient failure. */
+export class PayOrderExpiredError extends Error {
+  constructor() {
+    super("order_expired");
+    this.name = "PayOrderExpiredError";
+  }
+}
+
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";
 
@@ -168,6 +179,7 @@ async function postJson(url: string, body: unknown): Promise<Record<string, unkn
   } catch {
     parsed = null;
   }
+  if (!res.ok && parsed && parsed.reason === "order_expired") throw new PayOrderExpiredError();
   if (!res.ok || !parsed || parsed.ok !== true) throw new Error(`request failed: ${res.status}`);
   return parsed;
 }
@@ -203,6 +215,8 @@ export type BuyOutcome =
       amountInr?: number;
     }
   | { status: "dismissed" }
+  /** PRICING-1 — the server refused the order as expired (before capture): nothing was taken; start again. */
+  | { status: "expired" }
   /**
    * PAY-RECOVER-1 — Razorpay's handler returned a SIGNED success but the server's verify
    * errored (network, timeout, 5xx, a rejection). The money may well have left the account,
@@ -256,7 +270,11 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
     let passEnd: string;
     try {
       ({ passEnd } = await deps.verify(success));
-    } catch {
+    } catch (verifyError) {
+      if (verifyError instanceof PayOrderExpiredError) {
+        clearPayPending(order.orderId);
+        return { status: "expired" };
+      }
       // PAY-RECOVER-1 — past this line Razorpay has SIGNED a success: whatever the verify
       // error, the honest state is "still checking", never "didn't go through".
       return { status: "pending", orderId: order.orderId, ...(paymentId !== undefined ? { paymentId } : {}) };
@@ -376,6 +394,8 @@ export function clearPayPending(orderId?: string): void {
 export type PayStatusResult =
   | { state: "paid"; passEnd: string; paymentId?: string; amountInr?: number }
   | { state: "pending" }
+  /** PRICING-1 — the server refused the order as expired; it will never be paid. */
+  | { state: "expired" }
   /** Razorpay unreachable, the request failed, or this tab's status budget is spent. */
   | { state: "unknown" };
 
@@ -458,7 +478,11 @@ export async function checkPayStatus(orderId: string, deps: PayStatusDeps = DEFA
   let json: Record<string, unknown>;
   try {
     json = await deps.post(PAY_STATUS_ENDPOINT, { orderId });
-  } catch {
+  } catch (statusError) {
+    if (statusError instanceof PayOrderExpiredError) {
+      clearPayPending(orderId);
+      return { state: "expired" };
+    }
     return { state: "unknown" };
   }
   if (json.state === "paid" && typeof json.passEnd === "string" && json.passEnd) {

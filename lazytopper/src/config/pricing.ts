@@ -53,7 +53,7 @@ export const PRICE_FREE_INR = 0;
 /** Regular published price — what new members pay once the founding offer closes. */
 export const PRICE_MONTHLY_LIST_INR = 999;
 
-/** Founding-member price — while `FOUNDING_OFFER_OPEN`. */
+/** Founding-member price — while `foundingOfferOpen(now)`. */
 export const PRICE_MONTHLY_FOUNDING_INR = 599;
 
 // NOTE (PRICING-TB-1): there is deliberately NO fixed board-year price any more.
@@ -142,14 +142,6 @@ export function foundingOfferOpen(now: Date | number = Date.now()): boolean {
 export function foundingRateApplies(now: Date | number, founder?: boolean | null): boolean {
   return founder === true || foundingOfferOpen(now);
 }
-
-/**
- * @deprecated Frozen at `true`; it no longer follows the date. Kept ONLY because
- * `src/pages/Welcome.tsx` (forbidden to this lane, CLAUDE.md §4) still imports it. Welcome
- * must switch to `foundingOfferOpen(Date.now())` BEFORE 1 Dec 2026 or the landing keeps
- * quoting the founding price after the offer closes. Nothing else may read it.
- */
-export const FOUNDING_OFFER_OPEN = true;
 
 /**
  * Till boards pays this fraction of the monthly total — i.e. 20% off. Owner
@@ -243,7 +235,7 @@ export const FOUNDING_OFFER_BADGE = `${FOUNDING_LABEL} offer`;
 /**
  * PRICING-1: the real end date, beside the badge. Plain words, a calendar date, no
  * timer. After the close nothing renders it (the badge and this line are gated on
- * `FOUNDING_OFFER_OPEN`).
+ * `foundingOfferOpen(Date.now())`).
  */
 export const FOUNDING_OFFER_UNTIL_COPY = `Founding price until ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}, Premium is ${PRICE_MONTHLY_LIST_DISPLAY} for a month.`;
 

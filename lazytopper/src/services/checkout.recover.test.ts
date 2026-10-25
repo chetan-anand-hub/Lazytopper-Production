@@ -34,6 +34,8 @@ import {
   PAYMENT_FAILED_COPY,
   PAYMENT_STILL_CONFIRMING_COPY,
   onPaySettled,
+  ORDER_EXPIRED_COPY,
+  PayOrderExpiredError,
   readPayPending,
   resetPayStatusBudgetForTests,
   statusChecksLeft,
@@ -271,5 +273,27 @@ describe("checkPayStatus", () => {
     expect(new Set(keys)).toEqual(new Set([PAY_PENDING_KEY]));
     expect(localStorage.length).toBe(0);
     for (const call of setItem.mock.calls) expect(String(call[1])).not.toMatch(/tier|trial|passEnd|premium/i);
+  });
+});
+
+describe("PRICING-1 · order_expired is its own outcome, never pending", () => {
+  it("copy: 'This order expired — start again.'", () => {
+    expect(ORDER_EXPIRED_COPY).toBe("This order expired \u2014 start again.");
+  });
+
+  it("the server's 400 { reason: 'order_expired' } becomes PayOrderExpiredError, other failures stay plain errors", async () => {
+    const mk = (status: number, body: unknown) => vi.fn(async () => new Response(JSON.stringify(body), { status }));
+    vi.stubGlobal("fetch", mk(400, { ok: false, error: "payment_rejected", reason: "order_expired" }));
+    expect(await checkPayStatus("order_X")).toEqual({ state: "expired" });
+    resetPayStatusBudgetForTests();
+    vi.stubGlobal("fetch", mk(400, { ok: false, error: "payment_rejected", reason: "amount_mismatch" }));
+    expect(await checkPayStatus("order_X")).toEqual({ state: "unknown" });
+  });
+
+  it("buyPass: a verify refused as expired -> { status: 'expired' } (marker cleared); any other verify error stays pending", async () => {
+    const rz = razorpay("pay");
+    const expiredVerify = vi.fn(async () => { throw new PayOrderExpiredError(); });
+    expect(await buyPass("month", { createOrder: async () => ORDER, loadScript: async () => rz, verify: expiredVerify })).toEqual({ status: "expired" });
+    expect(readPayPending()).toBeNull();
   });
 });

@@ -268,14 +268,33 @@ function createParentPayRoutes(deps = {}) {
     return { ok: !!res.ok, status: res.status, json };
   }
 
+
+  /**
+   * PRICING-1 — true only for a STALE founding order whose buyer is NOT already a founder. An existing
+   * founder pays the founding rate on every order anyway (foundingMember is sticky), so their late
+   * authorization is captured normally. A failed read counts as "not a founder": refuse, never capture blind.
+   */
+  async function refuseStaleFoundingOrder(order) {
+    if (!isStaleFoundingOrder(order, now())) return false;
+    try {
+      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(order.uid).get();
+      const stored = snap && snap.exists ? snap.data() || {} : {};
+      if (stored.foundingMember === true) return false;
+    } catch (_e) {
+      /* fall through to refuse */
+    }
+    return true;
+  }
+
   /** Same as payments.cjs fetchCapturedPayment: Razorpay's record, captured for the STORED amount. */
   async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed' };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
-      // PRICING-1 — see payments.cjs: a stale founding order is never captured (the authorization lapses).
-      if (isStaleFoundingOrder(order, now())) return { error: 'order_expired' };
+      // PRICING-1 — see payments.cjs (manual-capture path only; a captured payment is always honoured,
+      // an existing founder is never refused): a stale founding order is not captured, the authorization lapses.
+      if (await refuseStaleFoundingOrder(order)) return { error: 'order_expired' };
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, { amount: amountPaise, currency: CURRENCY });
       if (captured.ok && captured.json) {
         payment = captured.json;

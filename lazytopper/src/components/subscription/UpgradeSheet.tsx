@@ -27,9 +27,9 @@
  *     [FU-GATE-COPY-STILL-READS-AS-ERROR]
  *
  * ★ PRICE. Every figure comes from `monthlyInline()` in `config/pricing.ts`, read at render
- * (PRICING-1: it follows the founding offer's DATE). Never a literal — a typed "₹599" becomes
- * silently wrong on 1 Dec 2026. (It takes no subscription, so a founder who has lapsed is
- * quoted the list price here; the Pricing page and checkout quote them their locked rate.) `pricing.guard.test.ts` forbids a price literal under `src/`.
+ * (PRICING-1: it follows the founding offer's DATE, and the student's own `foundingMember` flag, so a
+ * lapsed founder is quoted their locked rate). Never a literal — a typed "₹599" becomes silently
+ * wrong on 1 Dec 2026. `pricing.guard.test.ts` forbids a price literal under `src/`.
  *
  * ★ NO `style={{}}`. Styling is a `<style>` block plus class names, following
  * `OfferStrip.tsx` — the in-repo precedent for a self-contained styled component.
@@ -46,7 +46,8 @@ import { useCallback, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { getPremiumFeatureList } from "../../services/featureGates";
-import { monthlyInline } from "../../config/pricing";
+import { foundingRateApplies, monthlyInline } from "../../config/pricing";
+import { useSubscription } from "../../hooks/useSubscription";
 import PaywallActions from "../pricing/PaywallActions";
 
 export interface UpgradeSheetProps {
@@ -181,6 +182,8 @@ const UPGRADE_SHEET_CSS = `
 `;
 
 export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeSheetProps) {
+  // PRICING-1 — a lapsed founder still pays the founding rate, so the quote follows their record.
+  const { status: subscription } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -248,7 +251,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
 
         <div className="lt-upsheet__offer">
           {/* ★ From pricing.ts. Never a literal. */}
-          <p className="lt-upsheet__price">Premium — {monthlyInline()} · everything unlocked</p>
+          <p className="lt-upsheet__price">Premium — {monthlyInline(foundingRateApplies(Date.now(), subscription?.foundingMember))} · everything unlocked</p>
           <ul className="lt-upsheet__list">
             {premiumFeatures.map((f) => (
               <li key={f.id}>

@@ -395,16 +395,35 @@ function createPaymentRoutes(deps = {}) {
    * The payment as Razorpay reports it, captured if it was only authorized.
    * Returns { payment } or { error: reason, upstream: bool }.
    */
+  /**
+   * PRICING-1 — true only for a STALE founding order whose buyer is NOT already a founder. An existing
+   * founder pays the founding rate on every order anyway (foundingMember is sticky), so their late
+   * authorization is captured normally. A failed read counts as "not a founder": refuse, never capture blind.
+   */
+  async function refuseStaleFoundingOrder(order) {
+    if (!isStaleFoundingOrder(order, now())) return false;
+    try {
+      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(order.uid).get();
+      const stored = snap && snap.exists ? snap.data() || {} : {};
+      if (stored.foundingMember === true) return false;
+    } catch (_e) {
+      /* fall through to refuse */
+    }
+    return true;
+  }
+
   async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed', upstream: true };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
-      // PRICING-1 — a founding order paid 24 h+ after the offer closed is NOT captured: the
-      // authorization simply lapses and Razorpay releases it, so no money is taken for a pass we
-      // refuse. (An already-CAPTURED payment never reaches here — it is granted at the order's
-      // price, because refusing after the money moved would leave a payment with no pass.)
-      if (isStaleFoundingOrder(order, now())) return { error: 'order_expired', upstream: false };
+      // PRICING-1 — MANUAL-CAPTURE PATH ONLY. Orders are created WITHOUT payment_capture, so the Razorpay
+      // account setting applies (auto-capture is Razorpay's default). Auto-capture: a stale founding order
+      // that is captured is honoured at its order price (599) — a captured payment ALWAYS grants (verify,
+      // status and the webhook), so money is never stranded. Only a payment still merely AUTHORIZED, 24 h+
+      // after the close, for a buyer who is not already a founder, is refused here BEFORE capture: the
+      // authorization lapses and Razorpay releases it, so no money is taken for a pass we refuse.
+      if (await refuseStaleFoundingOrder(order)) return { error: 'order_expired', upstream: false };
       // Capture for the STORED amount — the only amount this server ever charges.
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, {
         amount: amountPaise,
@@ -605,6 +624,7 @@ function createPaymentRoutes(deps = {}) {
   async function findConfirmedPayment(keys, orderId, amountPaise, order) {
     const listed = await razorpay(keys, 'GET', `/orders/${orderId}/payments`);
     if (!listed.ok || !listed.json || !Array.isArray(listed.json.items)) return { upstream: 'list_failed' };
+    let sawExpired = false;
     for (const item of listed.json.items) {
       if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) continue;
       // Never capture a payment that is not this order's, in INR, for the stored amount.
@@ -612,7 +632,8 @@ function createPaymentRoutes(deps = {}) {
       let payment = item;
       if (item.status === 'authorized') {
         const result = await fetchCapturedPayment(keys, item.id, amountPaise, order);
-        if (result.error === 'order_expired') return { expired: true };
+        // A stale authorized item must not hide a captured one later on the order: keep looking.
+        if (result.error === 'order_expired') { sawExpired = true; continue; }
         if (result.error) return { upstream: result.error };
         payment = result.payment;
         if (payment.id !== undefined && payment.id !== item.id) continue;
@@ -621,7 +642,7 @@ function createPaymentRoutes(deps = {}) {
       }
       if (!paymentMismatch(payment, { orderId, amountPaise })) return { payment: { ...payment, id: item.id } };
     }
-    return { none: true };
+    return sawExpired ? { expired: true } : { none: true };
   }
 
   /* ── PAY-STATUS-1 · POST /api/pay/status ────────────────────────────────── */

@@ -51,7 +51,7 @@ afterEach(() => {
 });
 
 /**
- * Re-import the module graph with `FOUNDING_OFFER_OPEN` forced.
+ * Re-import the module graph with the clock pinned inside or outside the founding window.
  *
  * A partial mock over `importActual` — never a hand-written price table — so the
  * prices under test are the REAL published ones. A stubbed price would make
