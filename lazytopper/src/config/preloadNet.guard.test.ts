@@ -147,7 +147,10 @@ describe("ASSET-RELOAD-1 — a failed entry script reloads once instead of leavi
   it("re-pins /assets via a sandboxed iframe BEFORE the re-fetches (a stale pin would re-store the 404)", () => {
     const body = net!.body;
     expect(body).toMatch(/setAttribute\(\s*"sandbox"\s*,\s*""\s*\)/);
-    expect(body).toContain('frame.src = "/__shell.html"');
+    expect(body).toContain('frame.src = "/__pin.html"');
+    expect(body).toContain('setAttribute("aria-hidden", "true")');
+    expect(body).toContain("frame.tabIndex = -1");
+    expect(body).toContain("removeChild(frame)");
     expect(body.indexOf("frame.src")).toBeGreaterThan(body.indexOf("function refetch"));
     expect(body).toMatch(/frame\.onload\s*=\s*frame\.onerror\s*=\s*refetch/);
   });

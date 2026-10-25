@@ -42,7 +42,7 @@ describe("recoverFromChunkError", () => {
     const { reload, fetchFn, d } = deps(storage);
     expect(recoverFromChunkError(chunkError(), d)).toBe(true);
     await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
-    expect(fetchFn.mock.calls.map((c) => c[0])).toEqual([URL_, `${URL_}?retry=1&v=${LOAD_ID}`, `${URL_}?retry=2&v=${LOAD_ID}`]);
+    expect(fetchFn.mock.calls.map((c) => c[0])).toEqual([URL_]); // not this load's own ?retry&v URLs
     for (const call of fetchFn.mock.calls) expect(call[1]).toEqual({ cache: "reload" });
     expect(storage.data[CHUNK_RELOAD_KEY]).toBe("1000000");
     await new Promise((r) => setTimeout(r, 80)); // the timeout fallback must not reload twice
@@ -169,10 +169,11 @@ describe("urlsToRefresh / recoverFromChunkError with failed entries", () => {
     expect(urlsToRefresh(webkit())).toEqual([]);
   });
 
-  it("error URL and its retry variants come first, failed entries are appended without duplicates, total capped", () => {
+  it("the plain error URL comes first, failed entries are appended without duplicates, total capped; no ?retry&v URLs", () => {
     const failed = Array.from({ length: 20 }, (_, i) => (i === 0 ? URL_ : A(`f-${i}.js`)));
     const urls = urlsToRefresh(chunkError(), failed);
-    expect(urls.slice(0, 3)).toEqual([URL_, `${URL_}?retry=1&v=${LOAD_ID}`, `${URL_}?retry=2&v=${LOAD_ID}`]);
+    expect(urls[0]).toBe(URL_);
+    expect(urls.some((u) => u.includes("retry="))).toBe(false);
     expect(urls.length).toBe(MAX_REFRESH_URLS);
     expect(new Set(urls).size).toBe(urls.length);
   });
@@ -223,7 +224,7 @@ describe("ASSET-RELOAD-1b — the pin is refreshed BEFORE the cache-overwrite fe
     recoverFromChunkError(chunkError(), { storage: memoryStorage(), now: () => 1, reload, fetchFn, refreshPin, timeoutMs: 500 });
     await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
     expect(order.slice(0, 2)).toEqual(["pin-start", "pin-done"]);
-    expect(order.filter((o) => o === "fetch").length).toBe(3);
+    expect(order.filter((o) => o === "fetch").length).toBe(1);
     expect(order[order.length - 1]).toBe("reload");
   });
 

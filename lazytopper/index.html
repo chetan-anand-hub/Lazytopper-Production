@@ -152,7 +152,11 @@
                 e.transferSize === 0 && e.decodedBodySize === 0 && e.encodedBodySize === 0 && /\.(js|css)$/.test(n.split("?")[0])) urls.push(n);
           }
         } catch (timingError) {}
+        var frame;
         function refetch() {
+          try {
+            if (frame) frame.parentNode.removeChild(frame);
+          } catch (removeError) {}
           var left = urls.length;
           function one() {
             left -= 1;
@@ -169,11 +173,13 @@
         // Re-pin /assets to this deployment first (an iframe document load refreshes the
         // cookie), so the re-fetches below do not hit the OLD deployment and re-store a 404.
         try {
-          var frame = document.createElement("iframe");
+          frame = document.createElement("iframe");
           frame.setAttribute("sandbox", "");
+          frame.setAttribute("aria-hidden", "true");
+          frame.tabIndex = -1;
           frame.hidden = true;
           frame.onload = frame.onerror = refetch;
-          frame.src = "/__shell.html";
+          frame.src = "/__pin.html";
           document.documentElement.appendChild(frame);
         } catch (frameError) {
           refetch();

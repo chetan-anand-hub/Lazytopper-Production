@@ -1,4 +1,4 @@
-import { isChunkLoadError, failedModuleUrl, RETRY_DELAYS_MS, retryUrl } from "./lazyWithRetry";
+import { isChunkLoadError, failedModuleUrl } from "./lazyWithRetry";
 
 /**
  * ASSET-RELOAD-1 (B) — recover from a lost chunk by reloading ONCE, instead of showing
@@ -28,8 +28,13 @@ export const CHUNK_RELOAD_WINDOW_MS = 60_000;
 /** How long the cache-overwrite fetches may hold the reload back. */
 export const CACHE_REFRESH_TIMEOUT_MS = 5000;
 
-/** A tiny static document the pin-refresh iframe loads (any document request re-pins). */
-export const PIN_REFRESH_PATH = "/__shell.html";
+/**
+ * A tiny static document (public/__pin.html: no subresources, noindex) the pin-refresh iframe
+ * loads. Any document request re-pins; this one has nothing else to wait for, so it settles fast
+ * even on a slow phone. The middleware matcher includes it and `isDocumentRequest` accepts it
+ * (a `.html` path, `Sec-Fetch-Dest: iframe`) - pinned in vercelMiddleware.test.ts.
+ */
+export const PIN_REFRESH_PATH = "/__pin.html";
 
 /**
  * ASSET-RELOAD-1b — re-pin /assets to THIS deployment before re-fetching. The re-fetches below
@@ -186,17 +191,15 @@ export function claimChunkReload(storage: StorageLike | null, now: number): bool
 }
 
 /**
- * What to re-fetch before reloading: the failed chunk's URL and its `?retry=<n>` variants (when
- * the engine names the URL), then every failed same-origin /assets/ entry in `failed`.
- * De-duplicated, capped at MAX_REFRESH_URLS.
+ * What to re-fetch before reloading: the failed chunk's plain URL (when the engine names it),
+ * then every failed same-origin /assets/ entry in `failed`. This load's own `?retry&v` URLs are
+ * not included: their nonce is never used again after the reload. De-duplicated, capped at
+ * MAX_REFRESH_URLS.
  */
 export function urlsToRefresh(error: unknown, failed: ReadonlyArray<string> = []): string[] {
   const urls: string[] = [];
   const url = failedModuleUrl(error);
-  if (url !== null) {
-    urls.push(url);
-    for (let attempt = 1; attempt <= RETRY_DELAYS_MS.length; attempt += 1) urls.push(retryUrl(url, attempt));
-  }
+  if (url !== null) urls.push(url);
   for (const u of failed) if (!urls.includes(u)) urls.push(u);
   return urls.slice(0, MAX_REFRESH_URLS);
 }

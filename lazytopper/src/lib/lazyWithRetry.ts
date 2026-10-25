@@ -86,6 +86,11 @@ export function failedModuleUrl(error: unknown): string | null {
  * `importWithRetry` never reaches the network and the page errors anyway (measured on prod).
  * Adding `v=<loadId>` makes every page load's retry URLs new cache keys. Not random: it is
  * deterministic within a load and needs no clock read of its own.
+ *
+ * Without `performance.timeOrigin` (a very old browser) the nonce is the constant "0", which is
+ * the pre-1b behaviour: `?retry=<n>&v=0` is the same URL on every load. That is acceptable
+ * because the automatic reload plus the pin refresh in chunkReload.ts still heal the common
+ * case, and every browser that has dynamic `import()` also has `performance.timeOrigin`.
  */
 export const LOAD_ID: string = (() => {
   try {
