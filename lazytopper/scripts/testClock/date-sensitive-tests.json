@@ -276,6 +276,7 @@
     "src/ai/gradingTransport.test.ts",
     "src/ai/paidCallHeaders.test.ts",
     "src/ai/tutorClient.test.ts",
+    "src/analytics/analytics.engaged10.test.ts",
     "src/analytics/analytics.engagedVisit.test.ts",
     "src/analytics/analytics.firstGraded.test.ts",
     "src/analytics/analytics.ga4.test.ts",
