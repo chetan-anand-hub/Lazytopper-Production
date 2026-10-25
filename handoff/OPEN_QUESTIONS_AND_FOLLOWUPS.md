@@ -23,6 +23,67 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-25 (daily, part 2) - #1367 - #1378 (12 product merges after #1366, 25 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `962a4ccc`. Earlier dated entries are left as written (standing rule 3).* All items below come from the cofounder session **[coordinator]** (`HANDOFF_COFOUNDER_SESSION_2026-10-25_NIGHT.md`); this builder re-derived none of the code facts.
+
+### [FU-PDF-PACKS-1] and [FU-PDF-REDESIGN-1]
+Built and live. Packs: `#1367`, `#1372`, `#1371`, `#1373`, `#1374`, `#1375`, `#1376`, `#1377`, `#1378`, `#1368`; flags on about 21:10 IST on 25 Oct; first purchase (owner test) succeeded. Redesign: `#1369` (branded template, buyer watermark). The remaining work is below. The Maths + Science Bundle is the owner's name for what the earlier entry called the Board Bundle.
+
+### [FU-TUTOR-PREMIUM-CARD-COPY], [FU-UPGRADE-SHEET-TRIAL-TITLE], [FU-UPGRADE-LINE-MCQ-COPY] and [FU-TRIAL-CTA-ON-ASK]
+All four built in one PR, `#1370` (ASK-COPY-1, merged 25 Oct 16:33 IST). Still owed: a live look at the new copy on a signed-out visitor, a trial-eligible account and a Basic account.
+
+### [FU-PACKS-LIVE-OWED]
+Owed checks for packs, none yet done: (1) the owner opens one downloaded PDF and confirms his name and email are printed on the pages (the session could not open the local PDF); (2) a live grading round trip of a pack paper (upload for a `PK-` code through the existing grader); (3) a pack owner's download-limit wall and chip, to see the exemption (`#1376`) live; (4) a real phone at 360px for `/packs` and the pop-up. Per CLAUDE.md section 4a a grading path verified on fewer than two surfaces is PARTIAL.
+
+### [FU-PACKS-ADS-DAY1]
+Day-1 health check of the Search campaign: ads approved, or a disapproval (misrepresentation, trademark "IIT")? Impressions and clicks per ad group; the search terms report (add negatives, promote converting terms to exact match); did the owner's Rs 49 test arrive as a GA4 `purchase` and an Ads conversion within 24-48 h (it showed "Awaiting conversions")? Judge after 7 days by the rule in the DECISION_LOG.
+
+### [FU-PACKS-GSC-REINDEX]
+After `#1378` is live, request indexing of `/packs` in Search Console (the h1 changed to "Every question. Worked solutions."). Bing gets it through IndexNow. Also still open from the index run: `notes/real-numbers` is "Discovered, not indexed" (Request Indexing was done 25 Oct); `topic-hub/statistics` returned an API 500 in the index-status run though manual inspection says indexed.
+
+### [FU-PACKS-SITELINK-QUERY]
+`PacksPage` should read `?mock=` and use `readPacksQuery` from `packEntry.ts` (the owner's `?chapter=` already works). The ad sitelinks use `?pack=chapter|mock|subject|bundle` and `?view=sample`; today they land at the top of `/packs`. Wiring them to open the right pop-up is a cheap conversion win.
+
+### [FU-PACKS-FOUNDER-LINE]
+A founder line on `/packs` and `/pricing`, "Made by an IITian (IIT Kanpur)", to back the ad claim. If wanted in `llms.txt`, add "built by an IITian (IIT Kanpur)" in the same copy lane. Never imply IIT endorsement.
+
+### [FU-STEPMARK-REMAINING-1875]
+About 1,875 B-E bank rows still lack step marks. Step-mark them, then flip the copy back to "every question step-marked" across the ads, `/packs` and the creatives (the variant copy is ready). Until then the ranking puts step-marked questions first and the copy says "worked solutions" (`#1378`). Grep the whole claim family when flipping: the claim hid in PackDialog, ledes and alt text, not only the h1.
+
+### [FU-PACKS-BASIC-241-MOCK]
+A Basic (241) mock pack. Today the Mock Pack is Maths Standard (041) only.
+
+### [FU-PACKS-PHASE2-MOCK]
+A Phase-2 mock pack, planned for April 2027.
+
+### [FU-PACKS-MISSING-FIGURES]
+About 4 figures are still missing from pack questions; find and add them (never ship an answer-less figure question).
+
+### [FU-PACKS-PASS-DIFFERENTIATION]
+A line on `/pricing` that says how the Board Pass differs from a pack, so the packs strip does not blur the lead offer.
+
+### [FU-CHECKOUT-HELP-PACK-PAID-FLAG]
+From the `#1367` review (finding F2): the `checkout_help` email's "paid" flag for pack orders was flagged; it needs checking that pack orders are handled correctly (what counts as "paid" for a pack order). Not yet investigated.
+
+### [FU-PACKS-CREATIVES-IIT]
+The marketing creatives (artifact "Ad images for the PDF packs": chapter 1080x1080, important-qs 1080x1350, mock 1200x628, bundle story 1080x1920; HTML source `creatives.html`) are for social and YouTube, where text is allowed. The owner was asked whether to add "Made by an IITian" to them; no answer yet.
+
+### [FU-PERF3-BUDGET]
+Update: `#1377` bumped the PERF-3 `MEASURED_ENTRY_GZ` from 248860 to 249110; the budget was bumped three times this session. A reduction lane is now owed before any more eager code; lazy-load new UI with `import()` and measure with feature flags ON as well as OFF.
+
+### [FU-ADS-SWITCHOVER]
+Update: the Search side of the switch-over was built differently from the earlier plan: a separate packs campaign, Purchases-only, Rs 500/day (see the DECISION_LOG). `engaged_5min` as a primary conversion for the YouTube side, and the Meta parents test, remain open and need the owner's OK at each step.
+
+### [FU-INDEXNOW-RESTAMP-CHURN]
+Still unverified. `search-ping.yml` ran on 25 Oct (IndexNow HTTP 200 for 26 URLs, Search Console sitemap submit 204) The 26 URLs sent may include URLs whose content did not really change; this has not been compared.
+
+### [FU-SKILL-BOOTSTRAP-PRIVATE] and [FU-RESEND-PAID-PLAN]
+Both stay open. The repo was public during this session: the owner switches it back to private (Settings, Danger Zone, Change visibility). Resend: the owner buys Pro after testing effectiveness; check usage at every session start.
+
+### [FU-PACKS-OWNER-REMINDERS]
+Owner reminders: make the repo private; Resend Pro when needed; the GA4 limits-activity check on 26 Oct; the YouTube spend decision is his (left at Rs 3,500/day).
+
 ## 2026-10-25 (daily) - #1354 - #1366 (12 product merges after #1353, 25 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `c9ca2744`. Earlier dated entries are left as written (standing rule 3).* All items below come from the cofounder session **[coordinator]** (`FOLLOWUPS_2026-10-25.md` and the session handoff); this builder re-derived none of the code facts.
