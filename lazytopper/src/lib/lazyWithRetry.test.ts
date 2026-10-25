@@ -10,6 +10,7 @@ import {
   isChunkLoadError,
   lazyWithRetry,
   retryUrl,
+  LOAD_ID,
 } from "./lazyWithRetry";
 
 /**
@@ -59,8 +60,8 @@ describe("isChunkLoadError / failedModuleUrl — the P10 messages and nothing el
   });
 
   it("strips an earlier retry parameter so attempt numbers never stack", () => {
-    expect(failedModuleUrl(chromiumError(`${CHUNK_URL}?retry=1`))).toBe(CHUNK_URL);
-    expect(retryUrl(CHUNK_URL, 2)).toBe(`${CHUNK_URL}?retry=2`);
+    expect(failedModuleUrl(chromiumError(`${CHUNK_URL}?retry=1&v=${LOAD_ID}`))).toBe(CHUNK_URL);
+    expect(retryUrl(CHUNK_URL, 2)).toBe(`${CHUNK_URL}?retry=2&v=${LOAD_ID}`);
   });
 });
 
@@ -75,7 +76,7 @@ describe("importWithRetry (K2)", () => {
     expect(factory).toHaveBeenCalledTimes(1);
     expect(importUrl).toHaveBeenCalledTimes(1);
     const requested = importUrl.mock.calls[0][0];
-    expect(requested).toBe(`${CHUNK_URL}?retry=1`);
+    expect(requested).toBe(`${CHUNK_URL}?retry=1&v=${LOAD_ID}`);
     // ★ the retry must NOT be the URL that already failed — the browser caches that failure.
     expect(requested).not.toBe(CHUNK_URL);
     expect(new URL(requested).searchParams.get("retry")).toBe("1");
@@ -88,7 +89,7 @@ describe("importWithRetry (K2)", () => {
     await expect(
       importWithRetry(() => Promise.reject(firefoxError()), { importUrl, sleep }),
     ).resolves.toBe(pageModule);
-    expect(importUrl).toHaveBeenCalledWith(`${CHUNK_URL}?retry=1`);
+    expect(importUrl).toHaveBeenCalledWith(`${CHUNK_URL}?retry=1&v=${LOAD_ID}`);
   });
 
   it("non-chunk error -> rethrown at once, no retry, no wait", async () => {
@@ -115,8 +116,8 @@ describe("importWithRetry (K2)", () => {
     );
     expect(factory).toHaveBeenCalledTimes(1);
     expect(importUrl.mock.calls.map((call) => call[0])).toEqual([
-      `${CHUNK_URL}?retry=1`,
-      `${CHUNK_URL}?retry=2`,
+      `${CHUNK_URL}?retry=1&v=${LOAD_ID}`,
+      `${CHUNK_URL}?retry=2&v=${LOAD_ID}`,
     ]);
     expect(sleeps).toEqual([...RETRY_DELAYS_MS]);
     expect(RETRY_DELAYS_MS).toEqual([300, 1000]);
@@ -202,5 +203,36 @@ describe("wiring — App.tsx's lazy routes actually go through lazyWithRetry", (
   it("every lazy route in App.tsx is a `lazy(() => import(...))` call (31 at CHUNK-RESILIENCE-1)", () => {
     const calls = appSource.match(/\blazy\(\s*\(\)\s*=>\s*import\(/g) ?? [];
     expect(calls.length).toBeGreaterThanOrEqual(31);
+  });
+});
+
+describe("ASSET-RELOAD-1b — retry URLs carry a per-load nonce", () => {
+  it("retryUrl adds retry=<n>&v=<loadId>; a different load id is a different URL", () => {
+    const u = new URL(retryUrl(CHUNK_URL, 1, "abc"));
+    expect(u.searchParams.get("retry")).toBe("1");
+    expect(u.searchParams.get("v")).toBe("abc");
+    expect(retryUrl(CHUNK_URL, 1, "abc")).not.toBe(retryUrl(CHUNK_URL, 1, "abd"));
+    expect(retryUrl(CHUNK_URL, 1)).toBe(`${CHUNK_URL}?retry=1&v=${LOAD_ID}`);
+    expect(LOAD_ID).toMatch(/^[0-9a-z]+$/);
+  });
+
+  it("failedModuleUrl strips BOTH retry and v (and keeps unrelated params)", () => {
+    expect(failedModuleUrl(chromiumError(retryUrl(CHUNK_URL, 2, "zzz")))).toBe(CHUNK_URL);
+    expect(failedModuleUrl(chromiumError(`${CHUNK_URL}?x=1&retry=2&v=zzz`))).toBe(`${CHUNK_URL}?x=1`);
+  });
+
+  it("cached-404 simulation: plain URL and nonce-less ?retry=1/2 fail, the nonce URL succeeds -> resolves", async () => {
+    const cached404 = new Set([CHUNK_URL, `${CHUNK_URL}?retry=1`, `${CHUNK_URL}?retry=2`]);
+    const seen: string[] = [];
+    const importUrl = vi.fn(async (url: string) => {
+      seen.push(url);
+      if (cached404.has(url)) throw chromiumError(url);
+      return pageModule;
+    });
+    const { sleep } = harness();
+    await expect(
+      importWithRetry(() => Promise.reject(chromiumError()), { importUrl, sleep }),
+    ).resolves.toBe(pageModule);
+    expect(seen).toEqual([`${CHUNK_URL}?retry=1&v=${LOAD_ID}`]);
   });
 });

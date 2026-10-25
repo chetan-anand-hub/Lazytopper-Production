@@ -1,4 +1,4 @@
-import { isChunkLoadError } from "./lazyWithRetry";
+import { isChunkLoadError, LOAD_ID } from "./lazyWithRetry";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CHUNK_RELOAD_KEY,
@@ -14,7 +14,7 @@ import {
 
 /** ASSET-RELOAD-1 (B) — one guarded automatic reload before any error screen. */
 const URL_ = "https://www.lazytopper.com/assets/PricingPage-BvCbdRTL.js";
-const chunkError = () => new TypeError(`Failed to fetch dynamically imported module: ${URL_}?retry=2`);
+const chunkError = () => new TypeError(`Failed to fetch dynamically imported module: ${URL_}?retry=2&v=${LOAD_ID}`);
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const data = { ...initial };
@@ -39,7 +39,7 @@ describe("recoverFromChunkError", () => {
     const { reload, fetchFn, d } = deps(storage);
     expect(recoverFromChunkError(chunkError(), d)).toBe(true);
     await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
-    expect(fetchFn.mock.calls.map((c) => c[0])).toEqual([URL_, `${URL_}?retry=1`, `${URL_}?retry=2`]);
+    expect(fetchFn.mock.calls.map((c) => c[0])).toEqual([URL_, `${URL_}?retry=1&v=${LOAD_ID}`, `${URL_}?retry=2&v=${LOAD_ID}`]);
     for (const call of fetchFn.mock.calls) expect(call[1]).toEqual({ cache: "reload" });
     expect(storage.data[CHUNK_RELOAD_KEY]).toBe("1000000");
     await new Promise((r) => setTimeout(r, 80)); // the timeout fallback must not reload twice
@@ -169,7 +169,7 @@ describe("urlsToRefresh / recoverFromChunkError with failed entries", () => {
   it("error URL and its retry variants come first, failed entries are appended without duplicates, total capped", () => {
     const failed = Array.from({ length: 20 }, (_, i) => (i === 0 ? URL_ : A(`f-${i}.js`)));
     const urls = urlsToRefresh(chunkError(), failed);
-    expect(urls.slice(0, 3)).toEqual([URL_, `${URL_}?retry=1`, `${URL_}?retry=2`]);
+    expect(urls.slice(0, 3)).toEqual([URL_, `${URL_}?retry=1&v=${LOAD_ID}`, `${URL_}?retry=2&v=${LOAD_ID}`]);
     expect(urls.length).toBe(MAX_REFRESH_URLS);
     expect(new Set(urls).size).toBe(urls.length);
   });

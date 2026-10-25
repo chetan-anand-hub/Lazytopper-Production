@@ -6,6 +6,8 @@
 // disabled, nothing loaded; and an existing caller's own error path receives the failure.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { LOAD_ID } from "../lib/lazyWithRetry";
+
 vi.unmock("./firestoreSdk");
 
 const H = vi.hoisted(() => {
@@ -184,7 +186,7 @@ describe("firestoreSdk — the on-demand Firestore facade (PERF-3)", () => {
     const a = sdk.withFirestore(() => order.push("A"));
     const b = sdk.withFirestore(() => order.push("B"));
     await Promise.all([a, b]);
-    expect(calls).toEqual(["primary", `${CHUNK}?retry=1`]);
+    expect(calls).toEqual(["primary", `${CHUNK}?retry=1&v=${LOAD_ID}`]);
     expect(calls).not.toContain(CHUNK); // never re-tries the cached URL itself
     expect(order).toEqual(["A", "B"]); // order kept across the retry
     expect(H.initCalls).toHaveLength(1);
@@ -198,13 +200,13 @@ describe("firestoreSdk — the on-demand Firestore facade (PERF-3)", () => {
     const first = sdk.getFirestore();
     const firstError = await first.then(() => null, (e: unknown) => e);
     expect(failureText(firstError)).toContain("Failed to fetch dynamically imported module");
-    expect(calls).toEqual(["primary", `${CHUNK}?retry=1`, `${CHUNK}?retry=2`]);
+    expect(calls).toEqual(["primary", `${CHUNK}?retry=1&v=${LOAD_ID}`, `${CHUNK}?retry=2&v=${LOAD_ID}`]);
     expect(H.initCalls).toHaveLength(0);
 
     // Network back. The next call must NOT replay the plain import or retry=1/2 (all cached).
     const handle = await sdk.getFirestore();
     expect(handle.db).toEqual({ __db: 1 });
-    expect(calls.slice(3)).toEqual([`${CHUNK}?retry=3`]);
+    expect(calls.slice(3)).toEqual([`${CHUNK}?retry=3&v=${LOAD_ID}`]);
     expect(calls.filter((c) => c === "primary")).toHaveLength(1);
     expect(H.initCalls).toHaveLength(1);
     // ...and the instance is kept: no further loads.
