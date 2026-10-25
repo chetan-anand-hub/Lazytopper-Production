@@ -198,6 +198,11 @@ export const ACTIVITY_EVENTS = [
   "engaged_10min",
   // ENGAGE5-1 — five visible minutes in one IST day. Additive.
   "engaged_5min",
+  // PACKS-CLIENT-1 — the printable PDF packs: page seen, checkout opened, a verified purchase, a file downloaded. Names only.
+  "pack_view",
+  "pack_checkout",
+  "pack_purchase",
+  "pack_download",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

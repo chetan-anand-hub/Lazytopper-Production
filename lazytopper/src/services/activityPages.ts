@@ -84,6 +84,7 @@ export const ACTIVITY_STATIC_PAGES = [
   "browse",
   "intent",
   "pricing",
+  "packs",
   "cbse/class-10",
   "teacher",
   "onboarding",
@@ -175,6 +176,7 @@ export function pageNameOf(routerPath: string): string | null {
     case "browse":
     case "intent":
     case "pricing":
+    case "packs":
     case "teacher":
     case "onboarding":
     case "exam-simulation":

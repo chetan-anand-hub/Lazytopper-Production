@@ -483,6 +483,9 @@ export const META_EVENTS: Readonly<
   engaged_10min: ["trackCustom", "Engaged10Min"],
   // ENGAGE5-1 — five visible minutes in one IST day; the name only, no parameter.
   engaged_5min: ["trackCustom", "Engaged5Min"],
+  // PACKS-CLIENT-1 — a verified pack purchase is its OWN custom Meta event (never the standard Purchase,
+  // which stays the Premium pass), so a Rs 49 pack cannot skew the ad optimiser's Purchase signal.
+  pack_purchase: ["trackCustom", "PackPurchase"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
@@ -904,7 +907,14 @@ export type NamedAnalyticsEvent =
   // ENGAGE10-1 — ten visible minutes in one IST day, once per browser per day, bare name.
   | "engaged_10min"
   // ENGAGE5-1 — five visible minutes in one IST day, once per browser per day, bare name.
-  | "engaged_5min";
+  | "engaged_5min"
+  // PACKS-CLIENT-1 — the printable PDF packs (/packs). Bare names in the first-party log, sent by
+  // trackPackEvent / trackPackCheckout / trackPackPurchase below. `pack_purchase` fires ONLY from the
+  // server-verified paid branch.
+  | "pack_view"
+  | "pack_checkout"
+  | "pack_purchase"
+  | "pack_download";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1476,6 +1486,20 @@ export function trackDownload(kind: DownloadKind, outcome: DownloadOutcome): voi
     /* analytics must never break the page */
   }
 }
+
+/**
+ * PACKS-CLIENT-1 — the pack events' senders live in src/lib/packs/packAnalytics.ts (lazy: the entry chunk has
+ * almost no headroom, PERF-3). They reuse these private primitives through this one export list.
+ */
+export {
+  CHECKOUT_CURRENCY,
+  isAdminHit as packIsAdminHit,
+  purchaseSentMemory,
+  readPurchaseSent,
+  rememberPurchaseSent,
+  send as sendAnalyticsHit,
+  sendToGa4 as sendGa4Hit,
+};
 
 /**
  * ASK-FIX-1 — the trial-ended screen. `shown` and `basic` are counted here; the Pay and parent

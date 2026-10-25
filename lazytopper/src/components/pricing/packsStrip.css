@@ -1,0 +1,15 @@
+/* PacksStrip — scoped under .lt-pstrip. Mobile-first; 2x2 on a phone, one row from 640px. */
+.lt-pstrip { max-width: 1040px; margin: 24px auto 0; padding: 18px 16px; background: #fff; border: 1px solid #dde5ef; border-radius: 16px; font-family: Inter, system-ui, sans-serif; color: #0f2038; box-sizing: border-box; }
+.lt-pstrip *, .lt-pstrip { box-sizing: border-box; }
+.lt-pstrip__title { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+.lt-pstrip__sub { margin: 4px 0 0; font-size: 14px; color: #4d647e; }
+.lt-pstrip__list { list-style: none; margin: 14px 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lt-pstrip__item { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border: 1px solid #dde5ef; border-radius: 12px; background: #f4f7fb; min-width: 0; }
+.lt-pstrip__name { font-size: 13px; font-weight: 700; color: #06663a; }
+.lt-pstrip__price { font-family: Fraunces, Georgia, serif; font-size: 22px; font-weight: 600; }
+.lt-pstrip__what { font-size: 12.5px; color: #4d647e; }
+.lt-pstrip__link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: #06663a; text-decoration: none; }
+.lt-pstrip__link:hover { text-decoration: underline; }
+@media (min-width: 640px) {
+  .lt-pstrip__list { grid-template-columns: repeat(4, 1fr); }
+}
