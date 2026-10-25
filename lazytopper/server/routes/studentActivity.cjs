@@ -191,6 +191,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'ci_demo_check_own',
   'ci_demo_another',
   'ci_demo_close',
+  // ENGAGE10-1 - ten visible minutes in one IST day. Additive only.
+  'engaged_10min',
 ]);
 
 /**
