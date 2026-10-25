@@ -2,7 +2,6 @@ import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
 import { recordActivity } from "../services/activityClient";
 import { rememberVisitSourceOnce } from "./visitSource";
 import { startEngagedVisitWatch, type EngagedVisitTrigger } from "./engagedVisit";
-import { startEngaged10Watch } from "./engaged10";
 
 /**
  * THE ONE ANALYTICS ENTRY POINT. Nothing else initialises a vendor, and nothing else
@@ -235,7 +234,7 @@ interface VendorParams {
  * the owner's ordinary browsing from that device reaches GA4 as `traffic_type:
  * "internal"` — GA4's internal-traffic filter can then drop it, once the owner says so.
  */
-const ADMIN_PATH = /^\/admin(?:\/|$)/;
+export const ADMIN_PATH = /^\/admin(?:\/|$)/;
 export const INTERNAL_DEVICE_KEY = "lazytopper.internal";
 
 function isAdminHit(kind: "pageview" | "event", payload: Record<string, unknown>): boolean {
@@ -633,7 +632,7 @@ export function trackPageview(path: string): void {
   try {
     if (analyticsEnabled()) {
       startEngagedVisitWatch(trackEngagedVisit);
-      startEngaged10Watch(trackEngaged10Min, engaged10Allowed);
+      startEngaged10();
     }
   } catch {
     /* analytics must never break the page */
@@ -664,29 +663,33 @@ export function trackEngagedVisit(trigger: EngagedVisitTrigger): boolean {
   }
 }
 
-/** ENGAGE10-1 — the gate for both counting and sending: not an automated context, not an /admin page. */
-export function engaged10Allowed(): boolean {
-  try {
-    return analyticsEnabled() && !ADMIN_PATH.test(routerPathOf(window.location.pathname));
-  } catch {
-    return false;
-  }
-}
-
 /**
- * ENGAGE10-1 — `engaged_10min`, sent by the watch in engaged10.ts at most once per browser per IST
- * day. A bare name (no data, no path, no id) to GA4, Vercel, Meta (custom `Engaged10Min`, see
- * META_EVENTS) and the first-party activity log (signed-in students only; it is in
- * `NamedAnalyticsEvent` and both allowlists). Returns whether it was sent: false in an automated
- * context or on an /admin page, so the watch keeps its minutes and tries again later.
+ * ENGAGE10-1 — the `engaged_10min` watcher lives in engaged10.ts and is LOADED LATE (about 2 s
+ * after the first page view, on idle) so it stays out of the eager entry chunk (PERF-3 budget).
+ * It needs nothing from the first seconds of a visit: it counts minutes. A failed import is
+ * swallowed; the cached promise makes every later page view an idempotent re-start.
  */
-export function trackEngaged10Min(): boolean {
+type Engaged10Mod = typeof import("./engaged10");
+let engaged10Mod: Promise<Engaged10Mod | null> | null = null;
+
+function startEngaged10(): void {
   try {
-    if (!engaged10Allowed()) return false;
-    trackNamedEvent("engaged_10min");
-    return true;
+    engaged10Mod ??= new Promise<Engaged10Mod | null>((resolve) => {
+      const go = () => {
+        try {
+          import("./engaged10").then(resolve, () => resolve(null));
+        } catch {
+          resolve(null);
+        }
+      };
+      const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void })
+        .requestIdleCallback;
+      if (typeof ric === "function") ric(go, { timeout: 2000 });
+      else setTimeout(go, 2000);
+    });
+    engaged10Mod.then((m) => m?.startEngaged10Watch()).catch(() => undefined);
   } catch {
-    return false;
+    /* analytics must never break the page */
   }
 }
 

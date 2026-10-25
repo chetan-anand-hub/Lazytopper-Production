@@ -27,22 +27,23 @@
  *
  * Signed-in AND signed-out visitors: Google Ads optimises on the visitor, so nothing here asks who.
  *
- * This module only WATCHES and holds no vendor. `fire` is handed in by analytics.ts
- * (`trackEngaged10Min`), which applies the existing gates (automated context, /admin) and reports
- * whether it sent; a refused fire does not use up the day. The calendar is read only when a tick
+ * This module holds no vendor: it sends through analytics.ts (`trackNamedEvent`) and applies the
+ * existing gates (automated context, /admin) before counting and before sending; a refused fire
+ * does not use up the day. It is loaded by dynamic import from analytics.ts (~2 s after the first
+ * page view) so it stays out of the eager entry chunk. The calendar is read only when a tick
  * credits time (never at start-up), so a page view alone is not a clock reader.
  *
  * Its own visibility listener, not engagedVisit's: that watcher deletes its listeners the moment
  * it fires (10 s in), long before 10 minutes. Never throws.
  */
+import { ADMIN_PATH, analyticsEnabled, routerPathOf, trackNamedEvent } from "./analytics";
+
 export const ENGAGED10_MS = 10 * 60_000;
 export const ENGAGED10_TICK_MS = 5_000;
 export const ENGAGED10_IDLE_MS = 5 * 60_000;
 export const ENGAGED10_WRITE_MS = 15_000;
 export const ENGAGED10_KEY = "lazytopper.engaged10";
 
-type Fire = () => boolean;
-type Allowed = () => boolean;
 type Stored = { day: string; ms: number; sent: boolean; act: number };
 
 const LISTEN: AddEventListenerOptions = { capture: true, passive: true };
@@ -51,8 +52,6 @@ const ACTIVITY_EVENTS = ["pointerdown", "pointermove", "keydown", "scroll", "tou
 const EMPTY: Stored = { day: "", ms: 0, sent: false, act: 0 };
 
 let started = false;
-let fire: Fire | null = null;
-let allowed: Allowed | null = null;
 let interval: ReturnType<typeof setInterval> | null = null;
 let lastTick: number | null = null;
 let memAct = 0; // wall-clock ms of the last interaction seen by THIS document (0 = none yet)
@@ -100,9 +99,25 @@ function writeStored(rec: Stored): void {
   }
 }
 
-function gateAllows(): boolean {
+/** The gate for both counting and sending: not an automated context, not an /admin page. */
+export function engaged10Allowed(): boolean {
   try {
-    return !allowed || allowed() === true;
+    return analyticsEnabled() && !ADMIN_PATH.test(routerPathOf(window.location.pathname));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * `engaged_10min`: a bare name to GA4, Vercel, Meta (custom `Engaged10Min`, see META_EVENTS) and
+ * the first-party activity log (signed-in students only). Returns whether it was sent: false in
+ * an automated context or on an /admin page, so the watch keeps its minutes.
+ */
+export function trackEngaged10Min(): boolean {
+  try {
+    if (!engaged10Allowed()) return false;
+    trackNamedEvent("engaged_10min");
+    return true;
   } catch {
     return false;
   }
@@ -123,7 +138,7 @@ function current(day: string): { rec: Stored; fromMemory: boolean } {
  * write-back (tab hidden). Nothing here throws into the page.
  */
 function credit(slice: number, flush: boolean): void {
-  if (!gateAllows()) return; // admin / automated: never counted, not even toward a later fire
+  if (!engaged10Allowed()) return; // admin / automated: never counted, not even toward a later fire
   const wall = Date.now();
   const day = istDay(wall);
   const { rec, fromMemory } = current(day);
@@ -146,7 +161,7 @@ function credit(slice: number, flush: boolean): void {
   if (rec.ms >= ENGAGED10_MS) {
     let sent = false;
     try {
-      sent = !!fire && fire() === true;
+      sent = trackEngaged10Min();
     } catch {
       sent = false;
     }
@@ -221,16 +236,11 @@ function removeListeners(): void {
   }
 }
 
-/**
- * Start watching, ONCE per document. Later calls (every route change) are no-ops.
- * `allowedFn` is the fire gate (analytics.ts): checked before any time is credited.
- */
-export function startEngaged10Watch(fireFn: Fire, allowedFn?: Allowed): void {
+/** Start watching, ONCE per document. Later calls (every route change) are no-ops. */
+export function startEngaged10Watch(): void {
   if (started) return;
   if (typeof window === "undefined" || typeof document === "undefined") return;
   started = true;
-  fire = fireFn;
-  allowed = allowedFn ?? null;
   try {
     for (const ev of ACTIVITY_EVENTS) window.addEventListener(ev, onActivity, LISTEN);
     document.addEventListener("visibilitychange", onVisibility);
@@ -245,8 +255,6 @@ export function __resetEngaged10ForTests(): void {
   clearTicker();
   removeListeners();
   started = false;
-  fire = null;
-  allowed = null;
   lastTick = null;
   memAct = 0;
   mem = { ...EMPTY };

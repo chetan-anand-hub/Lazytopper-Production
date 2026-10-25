@@ -39,10 +39,15 @@ function run(minutes: number, interact = true): void {
 }
 const fired = () => sent.filter((s) => s.kind === "event" && s.payload.name === "engaged_10min");
 /** A fresh document in the same browser: module state forgotten, localStorage kept. */
-function newDocument(): void {
+async function newDocument(): Promise<void> {
   __resetEngaged10ForTests();
   __resetEngagedVisitForTests();
-  trackPageview("/check-improve");
+  await open("/check-improve");
+}
+/** A page view, then the ~2 s idle delay and the dynamic import of the lazy watcher. */
+async function open(path: string): Promise<void> {
+  trackPageview(path);
+  await vi.advanceTimersByTimeAsync(2_000);
 }
 
 beforeEach(() => {
@@ -75,8 +80,8 @@ afterEach(() => {
 });
 
 describe("engaged_10min thresholds", () => {
-  it("does not fire before 10 visible minutes, fires once at 10, never again that day", () => {
-    trackPageview("/check-improve");
+  it("does not fire before 10 visible minutes, fires once at 10, never again that day", async () => {
+    await open("/check-improve");
     run(9);
     expect(fired()).toHaveLength(0);
     run(2);
@@ -86,16 +91,16 @@ describe("engaged_10min thresholds", () => {
     expect(fired()[0].payload).toEqual({ name: "engaged_10min" }); // a bare name, no data
   });
 
-  it("keeps counting across route changes (later page views never re-arm or reset it)", () => {
-    trackPageview("/check-improve");
+  it("keeps counting across route changes (later page views never re-arm or reset it)", async () => {
+    await open("/check-improve");
     run(5);
-    trackPageview("/practice-hub");
+    await open("/practice-hub");
     run(6);
     expect(fired()).toHaveLength(1);
   });
 
-  it("does not count hidden time", () => {
-    trackPageview("/check-improve");
+  it("does not count hidden time", async () => {
+    await open("/check-improve");
     run(4);
     setVisible("hidden");
     run(60, false);
@@ -107,25 +112,25 @@ describe("engaged_10min thresholds", () => {
     expect(fired()).toHaveLength(1);
   });
 
-  it("a tab that is never visible earns nothing", () => {
+  it("a tab that is never visible earns nothing", async () => {
     visibility = "hidden";
-    trackPageview("/check-improve");
+    await open("/check-improve");
     vi.advanceTimersByTime(ENGAGED10_MS * 3);
     expect(fired()).toHaveLength(0);
   });
 });
 
 describe("idle rule", () => {
-  it("stops crediting after 5 minutes with no interaction, so an idle visible tab never reaches 10", () => {
-    trackPageview("/check-improve");
+  it("stops crediting after 5 minutes with no interaction, so an idle visible tab never reaches 10", async () => {
+    await open("/check-improve");
     run(180, false); // three hours, never touched
     expect(fired()).toHaveLength(0);
     const stored = JSON.parse(window.localStorage.getItem(ENGAGED10_KEY) || "{}");
     expect(stored.ms).toBeLessThanOrEqual(ENGAGED10_IDLE_MS + 10_000);
   });
 
-  it("resumes on the next interaction", () => {
-    trackPageview("/check-improve");
+  it("resumes on the next interaction", async () => {
+    await open("/check-improve");
     run(8, false); // 5 credited, then idle
     expect(fired()).toHaveLength(0);
     run(6); // touched again: 6 more credited minutes -> past 10
@@ -134,53 +139,53 @@ describe("idle rule", () => {
 });
 
 describe("once per IST day, across reloads", () => {
-  it("carries the total over a page reload and fires once", () => {
-    trackPageview("/check-improve");
+  it("carries the total over a page reload and fires once", async () => {
+    await open("/check-improve");
     run(6);
-    newDocument(); // reload
+    await newDocument(); // reload
     run(5);
     expect(fired()).toHaveLength(1);
   });
 
-  it("does not fire again on a reload the same day", () => {
-    trackPageview("/check-improve");
+  it("does not fire again on a reload the same day", async () => {
+    await open("/check-improve");
     run(11);
     expect(fired()).toHaveLength(1);
-    newDocument();
+    await newDocument();
     run(20);
     expect(fired()).toHaveLength(1);
   });
 
-  it("a new IST day starts from zero and can fire again", () => {
-    trackPageview("/check-improve");
+  it("a new IST day starts from zero and can fire again", async () => {
+    await open("/check-improve");
     run(11);
     expect(fired()).toHaveLength(1);
     // 11:30 IST + 13 h = 00:30 IST the next day.
     calendarOffset += 13 * 60 * MIN;
-    newDocument();
+    await newDocument();
     run(5);
     expect(fired()).toHaveLength(1);
     run(6);
     expect(fired()).toHaveLength(2);
   });
 
-  it("ignores a corrupt stored value", () => {
+  it("ignores a corrupt stored value", async () => {
     window.localStorage.setItem(ENGAGED10_KEY, "{not json");
-    trackPageview("/check-improve");
+    await open("/check-improve");
     run(11);
     expect(fired()).toHaveLength(1);
   });
 });
 
 describe("storage unavailable", () => {
-  it("falls back to this document's total and still fires once", () => {
+  it("falls back to this document's total and still fires once", async () => {
     vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
       throw new Error("blocked");
     });
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("blocked");
     });
-    trackPageview("/check-improve");
+    await open("/check-improve");
     run(9);
     expect(fired()).toHaveLength(0);
     run(3);
@@ -191,16 +196,16 @@ describe("storage unavailable", () => {
 });
 
 describe("existing gates", () => {
-  it("sends nothing in an automated context", () => {
+  it("sends nothing in an automated context", async () => {
     Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: true });
-    trackPageview("/check-improve");
+    await open("/check-improve");
     run(15);
     expect(fired()).toHaveLength(0);
   });
 
-  it("never credits time on an /admin page: admin browsing cannot count toward the conversion", () => {
+  it("never credits time on an /admin page: admin browsing cannot count toward the conversion", async () => {
     setLocation("/admin/students");
-    trackPageview("/admin/students");
+    await open("/admin/students");
     run(30);
     expect(fired()).toHaveLength(0);
     const stored = JSON.parse(window.localStorage.getItem(ENGAGED10_KEY) || "{}");
@@ -212,9 +217,9 @@ describe("existing gates", () => {
     expect(fired()).toHaveLength(1);
   });
 
-  it("never credits time in an automated context", () => {
+  it("never credits time in an automated context", async () => {
     Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: true });
-    trackPageview("/check-improve");
+    await open("/check-improve");
     run(15);
     const stored = JSON.parse(window.localStorage.getItem(ENGAGED10_KEY) || "{}");
     expect(stored.ms ?? 0).toBe(0);
@@ -222,11 +227,11 @@ describe("existing gates", () => {
 });
 
 describe("reloads cannot buy idle time", () => {
-  it("an untouched page reloaded again and again earns no further minutes", () => {
-    trackPageview("/check-improve");
+  it("an untouched page reloaded again and again earns no further minutes", async () => {
+    await open("/check-improve");
     run(1); // one touched minute, then the visitor walks away
     for (let i = 0; i < 6; i++) {
-      newDocument();
+      await newDocument();
       run(4, false);
     }
     expect(fired()).toHaveLength(0);
@@ -237,8 +242,8 @@ describe("reloads cannot buy idle time", () => {
 });
 
 describe("a tab left open past IST midnight", () => {
-  it("fires for the new day in the same document", () => {
-    trackPageview("/check-improve");
+  it("fires for the new day in the same document", async () => {
+    await open("/check-improve");
     run(11);
     expect(fired()).toHaveLength(1);
     calendarOffset += 13 * 60 * MIN; // 00:30 IST the next day, same document
@@ -250,14 +255,14 @@ describe("a tab left open past IST midnight", () => {
 });
 
 describe("destinations and allowlists", () => {
-  it("goes to Meta as the custom event Engaged10Min", () => {
+  it("goes to Meta as the custom event Engaged10Min", async () => {
     expect(META_EVENTS.engaged_10min).toEqual(["trackCustom", "Engaged10Min"]);
   });
 
-  it("goes to GA4 as gtag('event', 'engaged_10min') with only the redacted address, and to Vercel as a bare name", () => {
+  it("goes to GA4 as gtag('event', 'engaged_10min') with only the redacted address, and to Vercel as a bare name", async () => {
     const gtag = vi.fn();
     (window as unknown as { gtag?: unknown }).gtag = gtag;
-    trackPageview("/check-improve");
+    await open("/check-improve");
     run(11);
     delete (window as unknown as { gtag?: unknown }).gtag;
     const calls = gtag.mock.calls.filter((c) => c[0] === "event" && c[1] === "engaged_10min");
@@ -267,8 +272,8 @@ describe("destinations and allowlists", () => {
     expect(fired()[0]).toEqual({ kind: "event", payload: { name: "engaged_10min" } });
   });
 
-  it("is handed to the first-party activity log as a bare name", () => {
-    trackPageview("/check-improve");
+  it("is handed to the first-party activity log as a bare name", async () => {
+    await open("/check-improve");
     run(11);
     expect(recordActivity).toHaveBeenCalledWith("event", { name: "engaged_10min" });
   });
