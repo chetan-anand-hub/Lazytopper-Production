@@ -113,7 +113,7 @@ describe("(b) notes", () => {
       const card = await screen.findByTestId("note-pack-link", {}, { timeout: 8000 });
       expect(container.querySelectorAll('[data-testid="note-pack-link"]').length, slug).toBe(1);
       expect(card.querySelector("a")!.getAttribute("href")).toBe(`/packs?chapter=${slug}`);
-      expect(card.textContent).toContain("Step-marked answers · ₹49 · yours to keep");
+      expect(card.textContent).toContain("Worked solutions · ₹49 · yours to keep");
       expect(card.textContent).toContain("See the Chapter Pack");
       const foot = container.querySelector(".lt-note__footnote")!;
       expect(card.compareDocumentPosition(foot) & Node.DOCUMENT_POSITION_FOLLOWING, slug).toBeTruthy();

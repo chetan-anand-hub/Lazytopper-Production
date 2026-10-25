@@ -30,7 +30,7 @@ export interface PackDialogProps {
 }
 
 const TITLES: Record<PackSku, { name: string; line: string }> = {
-  pack_chapter: { name: "Chapter Pack", line: "Every question of a chapter with a step-marked key" },
+  pack_chapter: { name: "Chapter Pack", line: "Every question of a chapter, with worked solutions" },
   pack_mock: { name: "Mock Pack", line: "8 full papers, 80 marks each, with keys" },
   pack_subject: { name: "Subject Pack", line: "Every chapter of a subject plus its 8 mocks" },
   pack_bundle: { name: "Maths + Science Bundle", line: "All 27 chapters and 16 mock papers" },
@@ -40,7 +40,7 @@ const IMG_BASE = "/packs";
 const SLIDES: ReadonlyArray<{ file: string; alt: string; num: string; bold: string; rest: string }> = [
   { file: "pack-cover", alt: "The PDF cover page with the buyer's name", num: "2", bold: "Your cover", rest: ", your name on every page" },
   { file: "pack-questions", alt: "A question page in board order", num: "3", bold: "Questions", rest: ", board order, A to E" },
-  { file: "pack-answer-key", alt: "An answer-key page with the marks for every step", num: "4", bold: "Answer key", rest: ", marks for every step" },
+  { file: "pack-answer-key", alt: "An answer-key page with worked solutions", num: "4", bold: "Answer key", rest: " with worked solutions" },
 ];
 const SLIDE_COUNT = SLIDES.length + 1;
 

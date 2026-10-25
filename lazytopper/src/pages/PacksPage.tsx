@@ -340,10 +340,10 @@ export default function PacksPage() {
         <div className="lt-packs__w lt-packs__herogrid">
           <div className="lt-packs__copy">
             <p className="lt-packs__kicker">PDF packs · CBSE Board Exam 2027</p>
-            <h1 id="packs-h1">Every question. Marked step by step.</h1>
+            <h1 id="packs-h1">Every question. Worked solutions.</h1>
             <p className="lt-packs__lede">
-              <span className="lt-packs__lede--long">Printable Class 10 Maths and Science question banks. Solve with a pen, then check each step against the marks an examiner gives.</span>
-              <span className="lt-packs__lede--short">Print, solve with a pen, check every step. Tap a pack to see inside.</span>
+              <span className="lt-packs__lede--long">Printable Class 10 Maths and Science question banks. Solve with a pen, then check your work against the worked solutions.</span>
+              <span className="lt-packs__lede--short">Print, solve with a pen, check against worked solutions. Tap a pack to see inside.</span>
             </p>
             <p className="lt-packs__terms lt-packs__terms--hero">One-time payment · never renews · {REDOWNLOAD_SHORT}</p>
           </div>
@@ -379,7 +379,7 @@ export default function PacksPage() {
             <details>
               <summary>What&rsquo;s inside a pack?</summary>
               <p>
-                For each chapter: its questions grouped by CBSE section (A to E) with a matching answer key that shows the marks for every step, two chapter
+                For each chapter: its questions grouped by CBSE section (A to E) with a matching answer key with worked solutions, two chapter
                 tests and one worksheet (each with a key). Mock packs are eight full 80-mark papers per subject with keys. A few questions that depend on a
                 diagram we can&rsquo;t print cleanly are left out, so every page can be solved on paper.
               </p>
@@ -444,7 +444,7 @@ export default function PacksPage() {
 }
 
 const TILES: ReadonlyArray<{ sku: PackSku; id: string; kicker: string; name: string; lineLong: string; lineShort: string; best?: boolean }> = [
-  { sku: "pack_chapter", id: "chapter", kicker: "One chapter", name: "Chapter Pack", lineLong: "Every question of a chapter with a step-marked key", lineShort: "Every question + step-marked key" },
+  { sku: "pack_chapter", id: "chapter", kicker: "One chapter", name: "Chapter Pack", lineLong: "Every question of a chapter, with worked solutions", lineShort: "Every question + worked solutions" },
   { sku: "pack_mock", id: "mock", kicker: "Board papers", name: "Mock Pack", lineLong: "8 full papers, 80 marks each, with keys", lineShort: "8 full papers, 80 marks" },
   { sku: "pack_subject", id: "subject", kicker: "Whole subject", name: "Subject Pack", lineLong: "Every chapter of a subject plus its 8 mocks", lineShort: "All chapters + 8 mocks" },
   { sku: "pack_bundle", id: "bundle", kicker: "Best value", name: BUNDLE_NAME, lineLong: "All 27 chapters and 16 mock papers", lineShort: "All 27 chapters + 16 mocks", best: true },
