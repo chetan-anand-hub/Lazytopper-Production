@@ -88,6 +88,7 @@ function makeDb() {
           if (!p.startsWith(`${path}/`) || rest.includes('/')) continue;
           const ok = filters.every(({ field, op, value }) => {
             const raw = data[field];
+            if (op === '==') return raw === value;
             const a = typeof raw === 'number' ? raw : msOf(raw);
             const b = typeof value === 'number' ? value : msOf(value);
             if (a === null || b === null) return false;
@@ -787,4 +788,43 @@ test('concierge copy: no urgency words, no image, no price in founder_checkin, z
   assert.doesNotMatch(none.text, /You have (done|spent)/);
   assert.match(buildConciergeEmail('checkout_help', { unsubscribeUrl: unsub, order: { passType: 'till_boards', amountPaise: 99900 } }).text, /till-boards plan \(₹999\)/);
   assert.doesNotMatch(buildConciergeEmail('checkout_help', { unsubscribeUrl: unsub }).text, /₹/);
+});
+
+test('checkout_help: a LATER order paid under 2 h ago (outside the 2-48 h query) means no email', async () => {
+  const s = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  order(s.db, 'old', 'u1', 5 * HOUR); // unpaid, the candidate
+  order(s.db, 'new', 'u1', 90 * MIN, { status: 'paid' }); // newer, paid, not in the 2-48 h window
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 0);
+  assert.equal(s.calls.length, 0);
+  assert.equal(r.skipped['paid-since'], 1);
+  assert.equal(s.db.docs.get('nudgeEmails/u1'), undefined);
+  // the same for a captured one, and for a payment that made the student Premium
+  const c = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  order(c.db, 'old', 'u1', 5 * HOUR);
+  order(c.db, 'new', 'u1', 30 * MIN, { status: 'captured' });
+  assert.equal((await c.make().runOnce()).sent, 0);
+  // an older paid order does not block a newer unpaid candidate
+  const o = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  order(o.db, 'older', 'u1', 40 * HOUR, { status: 'paid' });
+  order(o.db, 'cand', 'u1', 5 * HOUR);
+  assert.equal((await o.make().runOnce()).skipped['checkout-paid'], 1); // paid in window: still no email
+});
+
+test('shared daily cap binds: checkout_help is served BEFORE a d1 student (and before founder_checkin)', async () => {
+  const s = setup({
+    env: { ...ENV_C, NUDGE_EMAIL_DAILY_CAP: '1' },
+    subs: { chk: sub(OLD), d1: sub(NOW - 25 * HOUR), cin: sub(OLD) },
+    users: { chk: gUser('chk@gmail.com'), d1: gUser('d1@gmail.com'), cin: gUser('cin@gmail.com') },
+  });
+  rec(s.db, 'cin', 'r1', NOW - DAY); rec(s.db, 'cin', 'r2', NOW - DAY + 1);
+  day(s.db, 'cin', '2026-10-26', { lastSeenMs: NOW - HOUR });
+  order(s.db, 'o1', 'chk', 5 * HOUR);
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 1);
+  assert.deepEqual(sent(s)[0].to, ['chk@gmail.com']);
+  assert.equal(r.byKind.checkout_help, 1);
+  assert.equal(r.byKind.d1, 0);
+  assert.equal(r.byKind.founder_checkin, 0);
+  assert.equal(s.db.docs.get(`${NUDGE_EMAIL_DAILY_COLLECTION}/2026-10-27`).count, 1);
 });

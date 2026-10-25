@@ -578,21 +578,43 @@ function createNudgeEmailer(deps = {}) {
   }
 
   /**
+   * Re-read just before a checkout_help claim: is the student Premium now, or is any of their orders NEWER
+   * than the candidate order paid/captured? Returns a skip reason or null. A failed read skips (never emails blind).
+   */
+  async function paidSince(uid, candidateOrder, nowMs) {
+    try {
+      const subSnap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+      const fresh = subSnap.exists ? subSnap.data() || {} : {};
+      if (deriveEffectiveTier(fresh, nowMs).tier === 'premium') return 'premium-now';
+      const since = msOf(candidateOrder && candidateOrder.createdAt);
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).where('uid', '==', uid).get();
+      for (const d of snap.docs) {
+        const o = d.data() || {};
+        const at = msOf(o.createdAt);
+        if ((o.status === 'paid' || o.status === 'captured') && (since === null || at === null || at > since)) return 'paid-since';
+      }
+      return null;
+    } catch {
+      return 'recheck-unavailable';
+    }
+  }
+
+  /**
    * EMAIL-CONCIERGE-1: the founder's two personal notes, sent automatically (at most ONCE per student,
    * ever) on the same claim / cap / opt-out / spacing rails. checkout_help candidates come first, so when
    * the shared daily cap binds they win. Returns true when the daily cap is full (the caller stops).
    */
-  async function runConcierge({ summary, skip, nowMs, day }) {
+  async function runConcierge({ summary, skip, nowMs, day, phase, state }) {
     if (!config.conciergeEnabled) return false;
     if (!config.replyTo) {
       // Their whole point is that the founder gets the reply: with no reply-to they do not run.
-      log('[nudge-email] concierge skipped: no reply-to');
+      if (phase === 'checkout_help') log('[nudge-email] concierge skipped: no reply-to');
       return false;
     }
     const candidates = []; // { uid, kind, sub, order }
 
     // checkout_help: an order created 2-48 h ago, none of this student's orders in that window paid.
-    try {
+    if (phase === 'checkout_help') try {
       const qs = await adminFirestore
         .collection(PAY_ORDERS_COLLECTION)
         .where('createdAt', '>=', timestampFromMillis(nowMs - CHECKOUT_MAX_MS))
@@ -619,7 +641,7 @@ function createNudgeEmailer(deps = {}) {
     }
 
     // founder_checkin: the recent signups; activity and engagement are checked per student below.
-    try {
+    if (phase === 'founder_checkin') try {
       const qs = await adminFirestore
         .collection(SUBSCRIPTIONS_COLLECTION)
         .where('trialStartDate', '>=', timestampFromMillis(nowMs - COHORT_MAX_AGE_MS))
@@ -632,13 +654,18 @@ function createNudgeEmailer(deps = {}) {
       skip('checkin-cohort-unavailable');
     }
 
-    const seen = new Set();
-    const dead = new Set(); // student-level stops (premium, internal, opted out, no usable address): not tried again as the other kind
+    const { seen, dead } = state;
+    // (shared across the two phases of one run)  // student-level stops (premium, internal, opted out, no usable address): not tried again as the other kind
     for (const c of candidates) {
       const { uid, kind } = c;
       if (seen.has(uid) || dead.has(uid)) continue; // one note per student per run; checkout_help came first
       summary.candidates += 1;
       let sub = c.sub;
+      // Same rule as the d1/d3 loop: the signup moment is the SERVER-PINNED trial start.
+      if (kind === 'founder_checkin' && !isServerPinnedStart(sub.trialStartDate)) {
+        skip('start-not-server-pinned');
+        continue;
+      }
       if (!sub) {
         try {
           const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
@@ -730,6 +757,16 @@ function createNudgeEmailer(deps = {}) {
         dead.add(uid);
         skip('internal');
         continue;
+      }
+      // checkout_help, last look before the claim: a payment that landed after the early reads (a newer
+      // order paid/captured, or Premium now) means no email.
+      if (kind === 'checkout_help') {
+        const late = await paidSince(uid, c.order, nowMs);
+        if (late) {
+          dead.add(uid);
+          skip(late);
+          continue;
+        }
       }
       seen.add(uid);
 
@@ -827,6 +864,10 @@ function createNudgeEmailer(deps = {}) {
         { loMs: nowMs - D3_MAX_AGE_MS, hiMs: nowMs - D3_MIN_AGE_MS, cap: CAP_D3 },
       ];
       if (allowFounding) ranges.push({ loMs: nowMs - COHORT_MAX_AGE_MS, hiMs: nowMs + 1, cap: CAP_FOUNDING });
+      // EMAIL-CONCIERGE-1: checkout_help runs FIRST so the shared daily cap serves it before d1/d3/founding;
+      // founder_checkin runs after them.
+      const conciergeState = { seen: new Set(), dead: new Set() };
+      await runConcierge({ summary, skip, nowMs, day, phase: 'checkout_help', state: conciergeState });
       const cohort = new Map();
       for (const r of ranges) {
         const qs = await adminFirestore
@@ -1008,7 +1049,7 @@ function createNudgeEmailer(deps = {}) {
           log(`[nudge-email] send failed kind=${kind} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
         }
       }
-      await runConcierge({ summary, skip, nowMs, day });
+      await runConcierge({ summary, skip, nowMs, day, phase: 'founder_checkin', state: conciergeState });
       if (foundingGate) log(`[nudge-email] founding email not running: ${foundingGate}`);
       log(`[nudge-email] run mode=${summary.mode} candidates=${summary.candidates} wouldSend=${summary.wouldSend} sent=${summary.sent} failed=${summary.failed} byKind=${JSON.stringify(summary.byKind)} skipped=${JSON.stringify(summary.skipped)}`);
       return { ...summary, ran: true };
