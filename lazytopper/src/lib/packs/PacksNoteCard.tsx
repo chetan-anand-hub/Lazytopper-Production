@@ -9,7 +9,7 @@ export default function PacksNoteCard({ topicKey, title }: { topicKey: string; t
   return (
     <aside className="lt-note__pack" data-testid="note-pack-link" aria-label="Chapter Pack">
       <h3 className="lt-note__pack-title">{`Practise every ${name} question on paper`}</h3>
-      <p className="lt-note__pack-sub">{`Step-marked answers · ₹${CHAPTER_PACK_PRICE_INR} · yours to keep`}</p>
+      <p className="lt-note__pack-sub">{`Worked solutions · ₹${CHAPTER_PACK_PRICE_INR} · yours to keep`}</p>
       <Link className="lt-note__pack-btn" to={packsHref({ chapter: topicKey })} onClick={() => firePackEntryClick("notes")}>
         See the Chapter Pack
       </Link>

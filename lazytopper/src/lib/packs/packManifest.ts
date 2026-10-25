@@ -58,9 +58,9 @@ export interface PackManifest {
 
 const CHAPTER_ITEMS: readonly PackManifestItem[] = [
   { label: "Question sheets, Sections A to E", detail: "Every question of the chapter in board order, each section with its answer key", withKey: true },
-  { label: "Chapter Test 1", detail: "A full test drawn from the chapter, with a step-marked key", withKey: true },
-  { label: "Chapter Test 2", detail: "A second test with different questions, with a step-marked key", withKey: true },
-  { label: "Worksheet", detail: "Mixed practice from all sections, with a step-marked key", withKey: true },
+  { label: "Chapter Test 1", detail: "A full test drawn from the chapter, with a worked-solution key", withKey: true },
+  { label: "Chapter Test 2", detail: "A second test with different questions, with a worked-solution key", withKey: true },
+  { label: "Worksheet", detail: "Mixed practice from all sections, with a worked-solution key", withKey: true },
 ];
 /** Of the chapter's items, those that are papers (tests + worksheet). */
 const CHAPTER_PAPERS = 3;
@@ -76,7 +76,7 @@ function mockGroup(subject: PackSubject): PackManifestGroup {
     heading: `${name} mock papers`,
     items: Array.from({ length: MOCKS_PER_SUBJECT }, (_, i) => ({
       label: `Mock paper ${i + 1}`,
-      detail: `${name} full board pattern${pattern}, 80 marks, with a step-marked key`,
+      detail: `${name} full board pattern${pattern}, 80 marks, with a worked-solution key`,
       withKey: true,
     })),
   };
@@ -156,14 +156,14 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
     case "pack_chapter":
       return [
         { label: "Question sheets, Sections A to E", value: questions !== null ? `${nf(questions)} questions` : "A\u2013E" },
-        { label: "Step-marked answer keys", value: "A\u2013E" },
+        { label: "Answer keys with worked solutions", value: "A\u2013E" },
         { label: "Chapter tests + keys", value: "2" },
         { label: "Worksheet + key", value: "1" },
       ];
     case "pack_mock":
       return [
         { label: "Full board-pattern papers", value: String(MOCKS_PER_SUBJECT) },
-        { label: "Step-marked answer keys", value: String(MOCKS_PER_SUBJECT) },
+        { label: "Answer keys with worked solutions", value: String(MOCKS_PER_SUBJECT) },
         { label: "Marks per paper", value: "80" },
         ...(subject === "maths" ? [{ label: "Maths level", value: MATHS_MOCK_PATTERN }] : []),
       ];

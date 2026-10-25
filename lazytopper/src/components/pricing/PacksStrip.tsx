@@ -11,7 +11,7 @@ import "./packsStrip.css";
  * server charges.
  */
 const ITEMS: ReadonlyArray<{ sku: PackSku; name: string; what: string; best?: boolean }> = [
-  { sku: "pack_chapter", name: "Chapter Pack", what: "Every question of 1 chapter, with a step-marked key" },
+  { sku: "pack_chapter", name: "Chapter Pack", what: "Every question of 1 chapter, with worked solutions" },
   { sku: "pack_mock", name: "Mock Pack", what: `${MOCKS_PER_SUBJECT} full board-pattern papers` },
   { sku: "pack_subject", name: "Subject Pack", what: "Every chapter of a subject + its mocks" },
   { sku: "pack_bundle", name: BUNDLE_NAME, what: `All ${ALL_NCERT_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks`, best: true },
@@ -28,7 +28,7 @@ export default function PacksStrip() {
     <section className="lt-packoffer" aria-labelledby="lt-packoffer-h" data-testid="pricing-packs-strip">
       <div className="lt-packoffer__head">
         <h2 className="lt-packoffer__title" id="lt-packoffer-h">Prefer printed practice? PDF packs from &#8377;{FROM_PRICE}</h2>
-        <p className="lt-packoffer__sub">Every question with an answer key that shows the marks for every step. One-time payment, never renews.</p>
+        <p className="lt-packoffer__sub">Every question with an answer key with worked solutions. One-time payment, never renews.</p>
       </div>
       <ul className="lt-packoffer__list">
         {ITEMS.map((i) => (

@@ -63,7 +63,7 @@ describe("PacksPage", () => {
 
   it("renders the v3 hero, four pack tiles with prices, the short FAQ and the refund link signed out; no My packs; fires pack_view", () => {
     page();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Every question. Marked step by step.");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Every question. Worked solutions.");
     for (const id of ["chapter", "mock", "subject", "bundle"]) expect(screen.getByTestId(`packs-card-${id}`)).toBeTruthy();
     const text = document.body.textContent ?? "";
     for (const price of ["₹49", "₹99", "₹199", "₹299"]) expect(text).toContain(price);
