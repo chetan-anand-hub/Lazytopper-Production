@@ -45,6 +45,7 @@ const P8_PAGES = [
   "legal/terms.html",
   "ncert-class-10.html",
   "pricing.html",
+  "packs.html", // PACKS-LEGAL-1 — /packs renders the public footer, now prerendered
   // SOLUTIONS-1/2: every published solutions page carries the public footer (derived, not hand-listed).
   ...solutionsPaths().map((p) => `${p.slice(1)}.html`),
 ];
