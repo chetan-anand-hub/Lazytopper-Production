@@ -148,7 +148,7 @@ describe("the client and server allowlists cannot drift", () => {
     const src = readFileSync(path.join(HERE, "..", "analytics", "analytics.ts"), "utf8");
     const union = /export type NamedAnalyticsEvent =([\s\S]*?);/.exec(src);
     expect(union, "NamedAnalyticsEvent union not found in analytics.ts").not.toBeNull();
-    const named = [...union![1].matchAll(/"([a-z_]+)"/g)].map((m) => m[1]);
+    const named = [...union![1].matchAll(/"([a-z0-9_]+)"/g)].map((m) => m[1]);
     const literal = [...src.matchAll(/send\("event", \{ name: "([a-z_]+)" \}\)/g)].map((m) => m[1]);
     expect(named.length).toBeGreaterThan(0);
     expect(literal).toEqual(["sign_up"]);

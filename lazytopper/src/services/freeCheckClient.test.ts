@@ -33,7 +33,7 @@ import {
   withSigninRedirect,
   type PendingSingleFreeCheck,
 } from "./freeCheckClient";
-import { MONTHLY_INLINE } from "../config/pricing";
+import { monthlyInline } from "../config/pricing";
 
 const SINGLE: PendingSingleFreeCheck = {
   v: 1,
@@ -242,17 +242,17 @@ describe("refusal reason → copy (the spec's lines, verbatim)", () => {
   it("the other spec lines are verbatim", () => {
     expect(FREE_CHECK_COPY.afterResult).toBe("Sign up free to save this and build your mistake pattern.");
     // SIGNUP-NUDGE-1 (owner spec §2 S1/S2, word for word). TRIAL-ON-SIGNUP-1b (owner
-    // addendum, wave B-6): the trial line is the shared general line, price = MONTHLY_INLINE.
+    // addendum, wave B-6): the trial line is the shared general line, price = monthlyInline().
     expect(FREE_CHECK_COPY.usedTitle).toBe("Your free check is done ✅");
     expect(FREE_CHECK_COPY.usedChecked).toBe("Your answer was checked like a CBSE examiner.");
     expect(FREE_CHECK_COPY.usedBody).toBe("Sign up in one tap to keep this result and keep checking answers.");
     expect(FREE_CHECK_COPY.usedTrial).toBe(
-      `Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ${MONTHLY_INLINE}.`,
+      `Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`,
     );
     expect(FREE_CHECK_COPY.keepThis).toBe("Sign up free to keep this");
     expect(FREE_CHECK_COPY.offerTitle).toBe("Your answer is saved.");
     expect(FREE_CHECK_COPY.offerBody("2 October 2026")).toBe(
-      `Try Premium free for 7 days — no card needed. Ends 2 October 2026. After that, keep free Basic or upgrade to Premium at ${MONTHLY_INLINE}.`,
+      `Try Premium free for 7 days — no card needed. Ends 2 October 2026. After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`,
     );
     expect(FREE_CHECK_COPY.offerPattern).toBe("Every answer you check helps build your mistake pattern.");
     expect(FREE_CHECK_COPY.offerStart).toBe("Start my free trial");

@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
-import { MONTHLY_INLINE } from "../../config/pricing";
+import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 
@@ -17,8 +17,10 @@ import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumableP
  * generator is worth capping, and a signed-in student is worth more allowance than an
  * anonymous one. Downloading the paper you just opened is part of that free view:
  * `exportWorksheetPdf` is html2canvas + jsPDF, entirely client-side, no network call and
- * no cost. Nothing here gates a download, and a spent daily allowance must never block
- * the download of a paper already on screen.
+ * no cost. Nothing HERE gates a download, and a spent daily allowance still never blocks
+ * the download of a paper already on screen. LIMITS-1 (owner ruling 25 Oct 2026) adds a
+ * SEPARATE, server-side weekly download limit (hooks/useLimitedDownload, dark until
+ * VITE_LIMITS_ENABLED + LIMITS_ENFORCE): it counts downloads, not opens, and is not this gate.
  *
  * ★ EVERY COUNTER HERE IS CLIENT-SIDE, DELIBERATELY. Counting on the server would mean
  * authenticating a request for free content, which is precisely the wall this lane
@@ -150,7 +152,7 @@ function dailyLimitFor(signedIn: boolean): number {
 
 export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { isPremium, isTrialExpired } = useSubscription();
+  const { isPremium, isTrialExpired, status } = useSubscription();
   const location = useLocation();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
@@ -316,7 +318,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Free accounts open {SIGNED_IN_DAILY_MOCK_LIMIT} papers a day.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Get full mock tests with Premium at {MONTHLY_INLINE}.
+          Get full mock tests with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.
         </p>
         <button
           type="button"

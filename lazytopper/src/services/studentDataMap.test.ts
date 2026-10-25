@@ -369,7 +369,7 @@ describe("studentDataMap — the AI usage ledger is STUDENT data (METER-1, M4)",
     expect(days!.mechanism).toBe("admin-sdk-required");
     expect(NON_STUDENT_COLLECTIONS).not.toContain("usageLedger");
     expect(firestoreCollectionNames()).toContain("usageLedger");
-    expect(subcollectionsOf("usageLedger").map((l) => l.id)).toEqual(["usageLedger.days"]);
+    expect(subcollectionsOf("usageLedger").map((l) => l.id)).toEqual(["usageLedger.days", "usageLedger.limits"]);
   });
 
   it("★ CONTROL: the source scan really finds the ledger's collection (the writer is live)", () => {
@@ -538,6 +538,7 @@ describe("studentDataMap — per-location properties", () => {
     "payOrders",
     "usageLedger",
     "usageLedger.days",
+    "usageLedger.limits",
     "activityLog",
     "activityLog.activityDays",
     "gradingResults",

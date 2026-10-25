@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
-import TrialEndScreen from "../trial/TrialEndScreen";
-import TrialCountdownBar from "../trial/TrialCountdownBar";
+import TrialAsk from "../trial/TrialAsk";
 
 const TRIAL_DAYS = 7;
 
@@ -15,8 +14,7 @@ const TRIAL_DAYS = 7;
 export function TrialBanner() {
   return (
     <>
-      <TrialEndScreen />
-      <TrialCountdownBar />
+      <TrialAsk />
       <LegacyTrialBanner />
     </>
   );

@@ -158,6 +158,10 @@ const EVENT_LABELS: Record<string, string> = {
   paywall_action_pay: "Tapped Pay on a paywall",
   paywall_action_qr: "Tapped Share QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",
+  // LIMITS-1 — paper downloads and the weekly download limit.
+  download_start: "Started a paper download",
+  download_blocked: "Was stopped by the weekly download limit",
+  download_wall_shown: "Saw the download limit screen",
   parent_report_shared: "Shared a result link with parents",
   // SHARE-CARD-1 — any surface, size (story / square) or channel (sheet, WhatsApp, Instagram, download).
   scorecard_share: "Shared a scorecard image",
@@ -168,6 +172,7 @@ const EVENT_LABELS: Record<string, string> = {
   ci_demo_check_own: "Tapped Check my own answer after a sample",
   ci_demo_another: "Tapped Mark another question after a sample",
   ci_demo_close: "Closed the sample-marking card",
+  engaged_10min: "Stayed 10 minutes (in one day)",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

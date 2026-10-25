@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+
 import { render, cleanup, fireEvent, screen, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -43,10 +44,19 @@ import {
   buyPass,
   CHECKOUT_SCRIPT_URL,
   PAYMENT_FAILED_COPY,
+  ORDER_EXPIRED_COPY,
   resetCheckoutScriptForTests,
   type BuyOutcome,
   type RazorpayConstructor,
 } from "../../services/checkout";
+
+// PRICING-1 — the founding offer is read from the CALENDAR at render. These suites assert the
+// offer-OPEN page, so they run at a pinned instant (Date only; a test's own fake timers layer on
+// top) and pass at any real or shifted clock. The closed page is pinned explicitly where asserted.
+beforeEach(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+});
+
 
 const MANUAL_PARAGRAPH =
   '<p class="lt-pricing-plan-desc">Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically.</p>';
@@ -192,6 +202,29 @@ function view(overrides: Partial<Parameters<typeof PassCheckoutView>[0]> = {}) {
   render(<PassCheckoutView {...props} />);
   return props;
 }
+
+describe("PRICING-1 · an expired order", () => {
+  it("an 'expired' outcome shows 'This order expired — start again.', not the failure or pending copy, and the buttons stay", async () => {
+    view({ onBuy: vi.fn(async () => ({ status: "expired" as const })) });
+    fireEvent.click(screen.getByRole("button", { name: monthButtonLabel(true) }));
+    const note = await screen.findByTestId("pass-checkout-expired");
+    expect(note.textContent).toBe(ORDER_EXPIRED_COPY);
+    expect(screen.queryByTestId("pass-checkout-failed")).toBeNull();
+    expect(screen.queryByTestId("pass-checkout-checking")).toBeNull();
+    expect((screen.getByRole("button", { name: monthButtonLabel(true) }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("a poll that answers 'expired' ends the checking state with the same message", async () => {
+    view({
+      onBuy: vi.fn(async () => ({ status: "pending" as const, orderId: "order_E" })),
+      onCheckStatus: vi.fn(async () => ({ state: "expired" as const })),
+      pollDelaysMs: [0],
+    });
+    fireEvent.click(screen.getByRole("button", { name: monthButtonLabel(true) }));
+    expect((await screen.findByTestId("pass-checkout-expired")).textContent).toBe(ORDER_EXPIRED_COPY);
+    expect(screen.queryByTestId("pass-checkout-confirming")).toBeNull();
+  });
+});
 
 describe("Z6 · after the purchase", () => {
   it("success shows 'Premium is active until <date>' from the SERVER grant's passEnd", async () => {
@@ -409,15 +442,15 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
 
   it("the page's CSS places every one of those classes (and makes the wrapper display: contents)", () => {
     expect(baseBlock(".lt-pricing-checkout")).toMatch(/display:\s*contents/);
-    expect(baseBlock(".lt-pricing-pay--month")).toMatch(/grid-column:\s*1;[\s\S]*grid-row:\s*3/);
-    expect(baseBlock(".lt-pricing-pay--boards")).toMatch(/grid-column:\s*2;[\s\S]*grid-row:\s*3/);
+    expect(baseBlock(".lt-pricing-pay--month")).toMatch(/grid-column:\s*2;[\s\S]*grid-row:\s*3/);
+    expect(baseBlock(".lt-pricing-pay--boards")).toMatch(/grid-column:\s*1;[\s\S]*grid-row:\s*3/);
     expect(baseBlock(".lt-pricing-checkout-note--top")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*1/);
     expect(baseBlock(".lt-pricing-checkout-note--bottom")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*4/);
     // CONTROL — the reader finds nothing for a class the page does not style.
     expect(baseBlock(".lt-pricing-no-such-class")).toBe("");
   });
 
-  it("on the page (payments ON) the buy area sits INSIDE the tile grid, Month tile before Till tile", () => {
+  it("on the page (payments ON) the buy area sits INSIDE the tile grid, Board Pass tile first", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     render(
       <MemoryRouter initialEntries={["/pricing"]}>
@@ -436,7 +469,7 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
             ? "month-pay"
             : "boards-pay",
     );
-    expect(order).toEqual(["month-tile", "boards-tile", "month-pay", "boards-pay"]);
+    expect(order).toEqual(["boards-tile", "month-tile", "boards-pay", "month-pay"]);
     expect(grid!.querySelector(":scope > .lt-pricing-plan-desc")).toBeNull();
   });
 });

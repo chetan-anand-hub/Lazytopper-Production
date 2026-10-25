@@ -557,6 +557,26 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "Student data: erased with the account and included in the export.",
   },
 
+  {
+    id: "usageLedger.limits",
+    kind: "firestore-subcollection",
+    parentId: "usageLedger",
+    path: "usageLedger/{uid}/limits/{docId}",
+    holds:
+      "How many paper downloads this student has used in the last 7 days (a time and a " +
+      "short code per download, never the paper itself), whether their first free download " +
+      "is spent, and the date the account was created. Numbers and times only.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★ LIMITS-1. server/services/limits.cjs, ONE document `state`, Admin SDK only, written " +
+      "in a transaction when a student asks to download a paper. NOT declared in firestore.rules: " +
+      "no client reads or writes it, so browsers fall through to the deny-all catch-all. " +
+      "Student data: erased with the account and included in the export. Written from the first paper " +
+      "download once VITE_LIMITS_ENABLED is on (even while LIMITS_ENFORCE is off, so the counts are honest " +
+      "before the switch is flipped); empty until then.",
+  },
+
   // ── Firestore: extra-usage credit (server-only, TOPUP-1; dark until TOPUP_ENABLED) ───────────
   {
     id: "usageCredits",

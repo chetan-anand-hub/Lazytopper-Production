@@ -234,7 +234,7 @@ interface VendorParams {
  * the owner's ordinary browsing from that device reaches GA4 as `traffic_type:
  * "internal"` — GA4's internal-traffic filter can then drop it, once the owner says so.
  */
-const ADMIN_PATH = /^\/admin(?:\/|$)/;
+export const ADMIN_PATH = /^\/admin(?:\/|$)/;
 export const INTERNAL_DEVICE_KEY = "lazytopper.internal";
 
 function isAdminHit(kind: "pageview" | "event", payload: Record<string, unknown>): boolean {
@@ -479,6 +479,8 @@ export const META_EVENTS: Readonly<
   purchase: ["track", "Purchase"],
   // MEASURE-1 B — a custom event (Meta has no standard "activated"); the name only, no surface.
   first_graded: ["trackCustom", "FirstGraded"],
+  // ENGAGE10-1 — ten visible minutes in one IST day; the name only, no parameter.
+  engaged_10min: ["trackCustom", "Engaged10Min"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
@@ -628,7 +630,10 @@ export function trackPageview(path: string): void {
   // module's one per-load entry point; idempotent, so later route changes never re-arm it).
   // Not in an automated context: the prerender capture must not even be watched.
   try {
-    if (analyticsEnabled()) startEngagedVisitWatch(trackEngagedVisit);
+    if (analyticsEnabled()) {
+      startEngagedVisitWatch(trackEngagedVisit);
+      startEngaged10();
+    }
   } catch {
     /* analytics must never break the page */
   }
@@ -655,6 +660,36 @@ export function trackEngagedVisit(trigger: EngagedVisitTrigger): boolean {
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * ENGAGE10-1 — the `engaged_10min` watcher lives in engaged10.ts and is LOADED LATE (about 2 s
+ * after the first page view, on idle) so it stays out of the eager entry chunk (PERF-3 budget).
+ * It needs nothing from the first seconds of a visit: it counts minutes. A failed import is
+ * swallowed; the cached promise makes every later page view an idempotent re-start.
+ */
+type Engaged10Mod = typeof import("./engaged10");
+let engaged10Mod: Promise<Engaged10Mod | null> | null = null;
+
+function startEngaged10(): void {
+  try {
+    engaged10Mod ??= new Promise<Engaged10Mod | null>((resolve) => {
+      const go = () => {
+        try {
+          import("./engaged10").then(resolve, () => resolve(null));
+        } catch {
+          resolve(null);
+        }
+      };
+      const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void })
+        .requestIdleCallback;
+      if (typeof ric === "function") ric(go, { timeout: 2000 });
+      else setTimeout(go, 2000);
+    });
+    engaged10Mod.then((m) => m?.startEngaged10Watch()).catch(() => undefined);
+  } catch {
+    /* analytics must never break the page */
   }
 }
 
@@ -840,6 +875,11 @@ export type NamedAnalyticsEvent =
   | "paywall_action_pay"
   | "paywall_action_qr"
   | "paywall_action_forward"
+  // LIMITS-1 — a paper PDF started, was refused by the weekly download limit, or the wall showed.
+  // Names only (no paper id, no kind in the first-party log). Sent by trackDownload
+  | "download_start"
+  | "download_blocked"
+  | "download_wall_shown"
   // PARENT-REPORT-1 — the student shared a link to ONE result with a parent. The vendors get
   // `parent_report_shared { kind, method }`, the first-party log the bare name. Sent by
   // trackParentReportShared
@@ -854,7 +894,9 @@ export type NamedAnalyticsEvent =
   | "ci_demo_result"
   | "ci_demo_check_own"
   | "ci_demo_another"
-  | "ci_demo_close";
+  | "ci_demo_close"
+  // ENGAGE10-1 — ten visible minutes in one IST day, once per browser per day, bare name.
+  | "engaged_10min";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
@@ -1374,7 +1416,11 @@ export type PaywallSurface =
   | "tutor"
   | "trial_paper"
   | "more_like_this"
-  | "trial_end";
+  | "trial_end"
+  // LIMITS-1 — the walls at the weekly download limit and (PR-2) the grading limit / locked scorecard.
+  | "download_limit"
+  | "grade_limit"
+  | "scorecard_lock";
 
 const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",
@@ -1395,6 +1441,29 @@ export function trackPaywallAction(action: PaywallAction, surface: PaywallSurfac
     send("event", { name: "paywall_action", data }, { ga4: data }, PAYWALL_ACTIVITY_NAME[action]);
     // ASK-FIX-1 — the trial-ended screen also counts its own taps under its own names.
     if (surface === "trial_end") trackNamedEvent(action === "pay" ? "trial_end_screen_pay" : "trial_end_screen_parent");
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/** LIMITS-1 — what happened at a counted download: it started, was refused, or the wall showed. */
+export type DownloadOutcome = "start" | "blocked" | "wall_shown";
+export type DownloadKind = "worksheet" | "chapter-test" | "full-mock" | "practice-set";
+
+const DOWNLOAD_ACTIVITY_NAME: Record<DownloadOutcome, NamedAnalyticsEvent> = {
+  start: "download_start",
+  blocked: "download_blocked",
+  wall_shown: "download_wall_shown",
+};
+
+/**
+ * LIMITS-1 — `download_<outcome> { kind }`. The vendors get the paper kind; the first-party log
+ * keeps the bare name (it stores names only). Never a paper id, never a count.
+ */
+export function trackDownload(kind: DownloadKind, outcome: DownloadOutcome): void {
+  try {
+    const data = { kind, outcome };
+    send("event", { name: "download", data }, { ga4: data }, DOWNLOAD_ACTIVITY_NAME[outcome]);
   } catch {
     /* analytics must never break the page */
   }

@@ -610,6 +610,8 @@ import EmailVerifyReminder from "../components/auth/EmailVerifyReminder";
 import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
 import { useAuth } from "../context/AuthContext";
+import { useLimitedDownload } from "../hooks/useLimitedDownload";
+import { practiceSetPaperKey } from "../services/limitsClient";
 import {
   type SubjectKey,
   type DifficultyChoice,
@@ -2899,7 +2901,11 @@ const packTopicKey = useMemo(() => {
     setElapsedSeconds(0);
   }, [regenerationKey]);
 
+  // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED).
+  const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const handleDownloadWorksheet = async () => {
+    // The guard ignores a second tap while it is asking (its own in-flight latch), so a double tap is a no-op.
+    if (!(await guardDownload("practice-set", () => practiceSetPaperKey(filteredQuestions.map((q) => String(q.id)))))) return;
     const scope = uiMarksToSectionScope(committedMarks);
     await downloadWorksheet({
       topicLabel: topicLabel || topicParam,
@@ -5120,6 +5126,8 @@ const packTopicKey = useMemo(() => {
 {/* \u2605\u2605 \u00a74b \u00b7 THE 402 REACHES THE STUDENT. GATE-2's sheet \u2014 the SAME component
     SolutionChecker opens \u2014 mounted ONLY while blocked (it calls router hooks). Nothing
     red, no error code, and everything scored for free is still on screen behind it. */}
+{downloadWall}
+
 {premiumBlock && (
   <UpgradeSheet
     featureLabel={labelForFeature(premiumBlock.feature)}

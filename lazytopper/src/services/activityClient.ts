@@ -177,6 +177,10 @@ export const ACTIVITY_EVENTS = [
   "paywall_action_pay",
   "paywall_action_qr",
   "paywall_action_forward",
+  // LIMITS-1 — a paper PDF was started / refused by the weekly download limit / the wall was shown. Names only. Additive.
+  "download_start",
+  "download_blocked",
+  "download_wall_shown",
   // PARENT-REPORT-1 — the student shared a link to one result with a parent. Additive.
   "parent_report_shared",
   // SHARE-CARD-1 — the student shared a scorecard image (any surface, size, channel). Additive.
@@ -188,6 +192,8 @@ export const ACTIVITY_EVENTS = [
   "ci_demo_check_own",
   "ci_demo_another",
   "ci_demo_close",
+  // ENGAGE10-1 — ten visible minutes in one IST day. Additive.
+  "engaged_10min",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

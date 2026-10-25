@@ -48,7 +48,7 @@
  */
 
 const crypto = require('node:crypto');
-const { grantPass, computeGrant, describePass, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
+const { grantPass, computeGrant, describePass, isStaleFoundingOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter } = require('../services/rateLimiter.cjs');
 // TOPUP-1 (DARK): the extra-usage packs. Everything below is behind PAYMENTS_ENABLED AND TOPUP_ENABLED.
 const { TOPUP_PRODUCTS, isTopupProduct } = require('../services/passPricing.cjs');
@@ -395,11 +395,35 @@ function createPaymentRoutes(deps = {}) {
    * The payment as Razorpay reports it, captured if it was only authorized.
    * Returns { payment } or { error: reason, upstream: bool }.
    */
-  async function fetchCapturedPayment(keys, paymentId, amountPaise) {
+  /**
+   * PRICING-1 — true only for a STALE founding order whose buyer is NOT already a founder. An existing
+   * founder pays the founding rate on every order anyway (foundingMember is sticky), so their late
+   * authorization is captured normally. A failed read counts as "not a founder": refuse, never capture blind.
+   */
+  async function refuseStaleFoundingOrder(order) {
+    if (!isStaleFoundingOrder(order, now())) return false;
+    try {
+      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(order.uid).get();
+      const stored = snap && snap.exists ? snap.data() || {} : {};
+      if (stored.foundingMember === true) return false;
+    } catch (_e) {
+      /* fall through to refuse */
+    }
+    return true;
+  }
+
+  async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed', upstream: true };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
+      // PRICING-1 — MANUAL-CAPTURE PATH ONLY. Orders are created WITHOUT payment_capture, so the Razorpay
+      // account setting applies (auto-capture is Razorpay's default). Auto-capture: a stale founding order
+      // that is captured is honoured at its order price (599) — a captured payment ALWAYS grants (verify,
+      // status and the webhook), so money is never stranded. Only a payment still merely AUTHORIZED, 24 h+
+      // after the close, for a buyer who is not already a founder, is refused here BEFORE capture: the
+      // authorization lapses and Razorpay releases it, so no money is taken for a pass we refuse.
+      if (await refuseStaleFoundingOrder(order)) return { error: 'order_expired', upstream: false };
       // Capture for the STORED amount — the only amount this server ever charges.
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, {
         amount: amountPaise,
@@ -455,12 +479,13 @@ function createPaymentRoutes(deps = {}) {
     // 3. What Razorpay says was actually paid.
     let result;
     try {
-      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise);
+      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order);
     } catch (e) {
       emit('payments.verify.razorpay_unreachable');
       console.error('[pay/verify] razorpay unreachable:', e && e.message);
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
+    if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
     if (result.error) {
       emit(`payments.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });
@@ -596,16 +621,19 @@ function createPaymentRoutes(deps = {}) {
    * capturing an authorized one for the STORED amount first (P4). Returns
    * { payment } | { none: true } | { upstream: reason }. Throws if Razorpay is unreachable.
    */
-  async function findConfirmedPayment(keys, orderId, amountPaise) {
+  async function findConfirmedPayment(keys, orderId, amountPaise, order) {
     const listed = await razorpay(keys, 'GET', `/orders/${orderId}/payments`);
     if (!listed.ok || !listed.json || !Array.isArray(listed.json.items)) return { upstream: 'list_failed' };
+    let sawExpired = false;
     for (const item of listed.json.items) {
       if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) continue;
       // Never capture a payment that is not this order's, in INR, for the stored amount.
       if (paymentIdentityMismatch(item, { orderId, amountPaise })) continue;
       let payment = item;
       if (item.status === 'authorized') {
-        const result = await fetchCapturedPayment(keys, item.id, amountPaise);
+        const result = await fetchCapturedPayment(keys, item.id, amountPaise, order);
+        // A stale authorized item must not hide a captured one later on the order: keep looking.
+        if (result.error === 'order_expired') { sawExpired = true; continue; }
         if (result.error) return { upstream: result.error };
         payment = result.payment;
         if (payment.id !== undefined && payment.id !== item.id) continue;
@@ -614,7 +642,7 @@ function createPaymentRoutes(deps = {}) {
       }
       if (!paymentMismatch(payment, { orderId, amountPaise })) return { payment: { ...payment, id: item.id } };
     }
-    return { none: true };
+    return sawExpired ? { expired: true } : { none: true };
   }
 
   /* ── PAY-STATUS-1 · POST /api/pay/status ────────────────────────────────── */
@@ -683,13 +711,14 @@ function createPaymentRoutes(deps = {}) {
     // 2. Created: ask Razorpay what was actually paid against this order.
     let found;
     try {
-      found = await findConfirmedPayment(keys, orderId, order.amountPaise);
+      found = await findConfirmedPayment(keys, orderId, order.amountPaise, order);
     } catch (e) {
       emit('payments.status.razorpay_unreachable');
       emit('payments.status.unknown');
       console.error('[pay/status] razorpay unreachable:', e && e.message);
       return sendJson(res, 200, { ok: true, state: 'unknown' });
     }
+    if (found.expired) return reject(res, 'status', 'order_expired');
     if (found.upstream) {
       emit(`payments.status.${found.upstream}`);
       emit('payments.status.unknown');

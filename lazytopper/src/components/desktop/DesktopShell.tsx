@@ -10,8 +10,7 @@ import { MistakeIntelCard } from "./MistakeIntelCard";
 import { TutorPickerModal } from "../../lib/desktop/homeDestinations";
 import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
 import PendingBell from "../home/PendingBell";
-import TrialEndScreen from "../trial/TrialEndScreen";
-import TrialCountdownBar from "../trial/TrialCountdownBar";
+import TrialAsk from "../trial/TrialAsk";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
 
 
@@ -797,8 +796,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
           }}
         >
           {/* ASK-FIX-1 - the trial-ended screen and day-4 countdown bar, on every shell page (owner ruling 25 Oct 2026). */}
-          <TrialEndScreen />
-          <TrialCountdownBar />
+          <TrialAsk />
           {children}
         </main>
       </div>

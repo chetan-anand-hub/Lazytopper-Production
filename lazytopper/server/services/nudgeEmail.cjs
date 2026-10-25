@@ -535,7 +535,7 @@ function createNudgeEmailer(deps = {}) {
       if (foundingInWindow) {
         if (!config.foundingEnabled) foundingGate = 'founding-flag-off';
         else if (!config.paymentsLive) foundingGate = 'payments-not-live';
-        else if (!pricing.FOUNDING_OFFER_OPEN) foundingGate = 'founding-offer-closed';
+        else if (!pricing.foundingOfferOpen(nowMs)) foundingGate = 'founding-offer-closed';
       }
       const allowFounding = foundingInWindow && foundingGate === null;
       // ONE narrow single-field range query per window (the trialEndingEmail pattern), newest first.

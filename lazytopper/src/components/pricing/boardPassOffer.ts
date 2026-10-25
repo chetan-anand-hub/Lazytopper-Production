@@ -9,7 +9,7 @@
  * says so by omission: `priceDisplay` is null and the caller shows no figure rather than a guess.
  */
 import {
-  FOUNDING_OFFER_OPEN,
+  foundingOfferOpen,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
   tillBoardsQuote,
@@ -29,8 +29,8 @@ export interface BoardPassOffer {
 }
 
 export function boardPassOffer(now: Date, boardIso: string): BoardPassOffer {
-  const quote = tillBoardsQuote(now, boardIso, FOUNDING_OFFER_OPEN);
-  const monthly = FOUNDING_OFFER_OPEN ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY;
+  const quote = tillBoardsQuote(now, boardIso, foundingOfferOpen(now));
+  const monthly = foundingOfferOpen(now) ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY;
   return {
     title: "Board Pass",
     priceDisplay: quote ? quote.priceDisplay : null,

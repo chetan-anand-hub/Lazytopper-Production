@@ -180,7 +180,9 @@ export const FREE_CHECK_COPY = {
   /** S1b — shown when no result is waiting on this device (none, expired, or unreadable). */
   usedChecked: "Your answer was checked like a CBSE examiner.",
   usedBody: "Sign up in one tap to keep this result and keep checking answers.",
-  usedTrial: TRIAL_WORDING.generalLine,
+  get usedTrial(): string {
+    return TRIAL_WORDING.generalLine;
+  },
   /** S2 — the sign-in link label on the free result's top bar. */
   keepThis: "Sign up free to keep this",
   /** R3 / R5 — `ceiling_reached` and `budget`. */
