@@ -98,6 +98,7 @@ import {
   storedChapterTestScorecardVariant,
 } from "../components/results/scorecardBankLenses";
 import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
+import { useDetailLock } from "../components/results/useDetailLock";
 // FOLLOWUPS-1 B — the scorecard's tutor hop + the tutor's return to THIS saved scorecard.
 import {
   chapterTestDeltaLine,
@@ -849,8 +850,15 @@ export default function ChapterTestPage() {
       setDownloading(false);
     }
   }, [paper, nomen, downloading, guardDownload]);
+  // LIMITS-1 PR-2 — the graded sheet is the per-answer detail: the SAME server lock as the scorecard
+  // (same kind + key) decides whether this page may print it. "open" when the flag is off.
+  const gradedSheetOpen =
+    useDetailLock(
+      fullResponse && nomen ? { kind: "chapter-test", resultKey: nomen.code } : undefined,
+      Boolean(fullResponse && fullResponse.gradedCount > 0),
+    ) === "open";
   const downloadGraded = useCallback(async () => {
-    if (!paper || !nomen || !fullResponse || downloading) return;
+    if (!paper || !nomen || !fullResponse || downloading || !gradedSheetOpen) return;
     setDownloading(true);
     try {
       await exportGradedWorksheetPdf({
@@ -865,7 +873,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, fullResponse, downloading]);
+  }, [paper, nomen, fullResponse, downloading, gradedSheetOpen]);
 
   // GUIDE-SCORE-1 — ONE practice route for this chapter: the menu's "Practise the marks you
   // lost" and Byte's link on the scorecard both go here.
@@ -1060,6 +1068,7 @@ export default function ChapterTestPage() {
       {/* Read-only re-open scorecard (from a history card), any phase. */}
       {reopen && (
         <ResultsScorecard
+          limitKey={{ kind: "chapter-test", resultKey: reopen.record.id }} // LIMITS-1 PR-2 — stored re-open
           variant={withPaperTutorAsks(withGuideTarget(storedChapterTestScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
@@ -1503,6 +1512,7 @@ export default function ChapterTestPage() {
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
                   </button>
+                  {gradedSheetOpen && (
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1511,6 +1521,7 @@ export default function ChapterTestPage() {
                   >
                     {downloading ? "Preparing…" : "↓ Graded sheet"}
                   </button>
+                  )}
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1578,6 +1589,7 @@ export default function ChapterTestPage() {
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+              limitKey={{ kind: "chapter-test", resultKey: nomen.code }} // LIMITS-1 PR-2 — Chapter Test surface
               variant={withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,

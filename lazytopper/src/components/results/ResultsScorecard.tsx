@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
 import { MathText } from "../question/MathText";
@@ -26,6 +26,7 @@ import FirstGradedAsk from "../feedback/FirstGradedAsk";
 import ScorecardUpgradeLine from "./ScorecardUpgradeLine";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
+import { useDetailLock, type DetailLimitKey } from "./useDetailLock";
 import type {
   ScorecardAllPending,
   ScorecardVariant,
@@ -78,9 +79,23 @@ interface ResultsScorecardProps {
    *  renders nothing otherwise, or with the mascots hidden). Absent on every other caller, so their
    *  scorecards are unchanged. Display only: no score, mark or action is touched. */
   allPendingSlot?: (allPending: ScorecardAllPending) => ReactNode;
+  /** LIMITS-1 PR-2 — identifies this RESULT to the server so a Basic student's answer-by-answer
+   *  breakdown (wrong answers + graded sheet) can be locked after the first of each kind. Absent
+   *  on every caller that is not a graded result; with the limits flag off it does nothing. */
+  limitKey?: DetailLimitKey;
   /** ASK-FIX-1 — set by a history RE-OPEN of a stored result: the upgrade line may still show, but its
    *  "shown" event is not counted (it would inflate the funnel with old results). */
   reopened?: boolean;
+}
+
+// The locked card is its own lazy chunk (PERF-3 entry budget); it loads only when a lock shows.
+const LockedDetail = lazy(() => import("./LockedDetail"));
+
+/** "11 of 20" / "7 of 10" from the card's own numbers, for the locked-detail card. */
+function scoreLine(score: ScorecardScore): string {
+  return score.kind === "marks"
+    ? `${formatScoreNumber(score.awarded)} of ${formatScoreNumber(score.total)}`
+    : `${score.mcqCorrect} of ${score.mcqAnswered}`;
 }
 
 /** The score hero + descriptor — marks (worksheet/tests) or attempts (quick practice). */
@@ -588,10 +603,14 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
-export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot, reopened }: ResultsScorecardProps) {
+export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot, limitKey, reopened }: ResultsScorecardProps) {
   // FEEDBACK-2 - the in-flow slot BELOW the buttons where "Was this useful?" sits on a phone, so it can
   // never cover the scorecard's own buttons. Empty (and hidden) unless the card is portaled into it.
   const feedbackSlotRef = useRef<HTMLDivElement | null>(null);
+  // LIMITS-1 PR-2 — open / pending / locked, decided by the server. "open" whenever the flag is off.
+  const hasAnswerDetail = Boolean(variant.wrongAnswers?.length || variant.gradedAnswers?.length);
+  const detailLock = useDetailLock(limitKey, hasAnswerDetail && !variant.deferred);
+  const detailLocked = detailLock === "locked";
   // Close on Escape — modal etiquette without a modal library.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -604,6 +623,8 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
   // Guard: a deferred (chapter-test / full-mock) config seam is never rendered live.
   if (variant.deferred) return null;
 
+  // A locked card also drops the actions that open or print the graded sheet (the same detail).
+  const shownActions = detailLocked ? variant.actions.filter((a) => !a.detail) : variant.actions;
   const allPending = variant.allPending;
   const ariaLabel = variant.surface === "worksheet" ? "Worksheet scorecard" : "Session scorecard";
 
@@ -743,11 +764,19 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
               ) : variant.marksLost ? null : (
                 variant.fourType && <FourTypeBlock ft={variant.fourType} />
               )}
-              {variant.wrongAnswers && variant.wrongAnswers.length > 0 && (
+              {/* LIMITS-1 PR-2 — the per-answer breakdown. The mistake-type summary above (MI) and the
+                  score stay open; only the answer-by-answer detail is held back for Basic, and the
+                  server's word is awaited first so a locked card never flashes its detail. */}
+              {detailLock === "open" && variant.wrongAnswers && variant.wrongAnswers.length > 0 && (
                 <WrongAnswersBlock answers={variant.wrongAnswers} />
               )}
-              {variant.gradedAnswers && variant.gradedAnswers.length > 0 && (
+              {detailLock === "open" && variant.gradedAnswers && variant.gradedAnswers.length > 0 && (
                 <GradedSheetBlock answers={variant.gradedAnswers} />
+              )}
+              {detailLocked && (
+                <Suspense fallback={null}>
+                  <LockedDetail scoreLine={scoreLine(variant.score)} />
+                </Suspense>
               )}
               {/* ASK-FIX-1 - one calm upgrade line for non-Premium students, from this result's own marks. */}
               <ScorecardUpgradeLine variant={variant} countShown={!reopened} />
@@ -759,7 +788,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
           <div className="lt-sc__menu">
             {variant.actionsHeading && <div className="lt-sc__what">{variant.actionsHeading}</div>}
             <div className="lt-sc__menulist">
-              {variant.actions.map((a, i) => (
+              {shownActions.map((a, i) => (
                 <button
                   key={`${a.label}-${i}`}
                   type="button"
@@ -776,7 +805,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
           </div>
         ) : (
           <div className="lt-sc__actions">
-            {variant.actions.map((a, i) => (
+            {shownActions.map((a, i) => (
               <button
                 key={`${a.label}-${i}`}
                 type="button"

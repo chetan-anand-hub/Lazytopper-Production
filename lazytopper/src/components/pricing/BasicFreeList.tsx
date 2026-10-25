@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { monthlyInline } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 
@@ -121,7 +122,15 @@ const BASIC_FREE_CSS = `
 `;
 
 /** "Free on Basic:" + the included Basic rows, for every Premium lock. */
+// LIMITS-1 PR-2 — with the limits ON, the "papers" row states the real weekly download (numbers from
+// limitsConfig). That copy is a LAZY chunk, so the entry carries none of it whichever way the flag is
+// set (PERF-3). Same case-insensitive parsing as every other reader of the flag.
+
 export function BasicFreeList() {
+  const [papers, setPapers] = useState("");
+  useEffect(() => {
+    /^(1|true|on|yes)$/i.test(import.meta.env.VITE_LIMITS_ENABLED) && import("../../config/limitsPlanCopy").then(m => setPapers(m.basicPapersRow()));
+  }, []);
   return (
     <div className="lt-basic-free" data-testid="basic-free-list">
       <style>{BASIC_FREE_CSS}</style>
@@ -130,7 +139,7 @@ export function BasicFreeList() {
         {BASIC_FREE_LABELS.map(label => (
           <li key={label} className="lt-basic-free__item">
             <span className="lt-basic-free__tick" aria-hidden="true">✓</span>
-            {label}
+            {papers && label.startsWith("Open or") ? papers : label}
           </li>
         ))}
       </ul>

@@ -134,6 +134,7 @@ import {
   deriveStoredFullMockChapterLens,
 } from "../components/results/scorecardBankLenses";
 import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
+import { useDetailLock } from "../components/results/useDetailLock";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { formatScoreNumber } from "../components/results/scoreNumber";
@@ -1122,9 +1123,16 @@ export default function FullMockPage() {
       setDownloading(false);
     }
   }, [paperForExport, codeForExport, downloading, guardDownload]);
+  // LIMITS-1 PR-2 — the graded sheet is the per-answer detail: the SAME server lock as the scorecard
+  // (same kind + key) decides whether this page may print it. "open" when the flag is off.
+  const gradedSheetOpen =
+    useDetailLock(
+      fullResponse && activeMock ? { kind: "full-mock", resultKey: activeMock.code } : undefined,
+      Boolean(fullResponse && fullResponse.gradedCount > 0),
+    ) === "open";
   const downloadGraded = useCallback(async () => {
     const a = activeRef.current;
-    if (!a || !fullResponse || downloading) return;
+    if (!a || !fullResponse || downloading || !gradedSheetOpen) return;
     setDownloading(true);
     try {
       await exportGradedWorksheetPdf({
@@ -1139,7 +1147,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [fullResponse, downloading]);
+  }, [fullResponse, downloading, gradedSheetOpen]);
 
   // ── Scorecard inputs (delta honest-or-silent · §8b focus line) ───────────────
   const deltaLine = useMemo(() => {
@@ -1215,6 +1223,7 @@ export default function FullMockPage() {
       {/* Read-only re-open scorecard (history card / cross-device pending). */}
       {reopen && (
         <ResultsScorecard
+          limitKey={{ kind: "full-mock", resultKey: reopen.record.id }} // LIMITS-1 PR-2 — stored re-open
           variant={withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
@@ -1784,6 +1793,7 @@ export default function FullMockPage() {
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
                   </button>
+                  {gradedSheetOpen && (
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1792,6 +1802,7 @@ export default function FullMockPage() {
                   >
                     {downloading ? "Preparing…" : "⤓ Graded sheet"}
                   </button>
+                  )}
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1840,6 +1851,7 @@ export default function FullMockPage() {
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+              limitKey={{ kind: "full-mock", resultKey: activeMock.code }} // LIMITS-1 PR-2 — Full Mock surface
               variant={withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,

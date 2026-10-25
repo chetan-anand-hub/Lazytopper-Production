@@ -11,24 +11,29 @@ import { useCallback, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
-import { blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
+import { blockedPracticeCopy, blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
 import "./limits.css";
 
 export type DownloadWallVariant = "blocked" | "signed_out" | "offline";
 
 export interface DownloadLimitWallProps {
   variant: DownloadWallVariant;
+  /** "practice" = the daily graded Quick Practice limit (LIMITS-1 PR-2). Default: the download limit. */
+  flavor?: "download" | "practice";
   resetAt?: string | null;
   /** The server's tier for this refusal: a trial student reads trial wording. */
   tier?: string | null;
   onClose: () => void;
 }
 
-export default function DownloadLimitWall({ variant, resetAt = null, tier = null, onClose }: DownloadLimitWallProps) {
+export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, onClose }: DownloadLimitWallProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const ref = useRef<HTMLDivElement>(null);
-  const copy = variant === "blocked" ? blockedWallCopy(resetAt, Date.now(), tier) : variant === "signed_out" ? SIGNED_OUT_WALL : OFFLINE_WALL;
+  const copy =
+    variant === "blocked"
+      ? (flavor === "practice" ? blockedPracticeCopy : blockedWallCopy)(resetAt, Date.now(), tier)
+      : variant === "signed_out" ? SIGNED_OUT_WALL : OFFLINE_WALL;
   const offer = variant === "blocked" ? wallOfferLines(new Date()) : null;
   const here = `${location.pathname}${location.search}`;
 
@@ -74,7 +79,7 @@ export default function DownloadLimitWall({ variant, resetAt = null, tier = null
     };
   }, [dismiss]);
 
-  const goPlans = () => navigate(`/pricing?source=download-limit&returnTo=${encodeURIComponent(here)}`);
+  const goPlans = () => navigate(`/pricing?source=${flavor === "practice" ? "grade-limit" : "download-limit"}&returnTo=${encodeURIComponent(here)}`);
 
   return (
     <div className="lt-limit-scrim" onClick={dismiss} data-testid="download-wall-scrim">
@@ -88,6 +93,7 @@ export default function DownloadLimitWall({ variant, resetAt = null, tier = null
         onClick={(e) => e.stopPropagation()}
         data-testid="download-wall"
         data-variant={variant}
+        data-flavor={flavor}
       >
         <div className="lt-limit-grip" aria-hidden="true" />
         <h2 className="lt-limit-title">{copy.title}</h2>
@@ -102,7 +108,7 @@ export default function DownloadLimitWall({ variant, resetAt = null, tier = null
         <div className="lt-limit-acts">
           {variant === "blocked" && (
             <PaywallActions
-              surface="download_limit"
+              surface={flavor === "practice" ? "grade_limit" : "download_limit"}
               onPay={goPlans}
               fallback={
                 <button type="button" className="lt-limit-btn lt-limit-btn--primary" onClick={goPlans}>

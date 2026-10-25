@@ -32,6 +32,16 @@ import {
   PRICE_MONTHLY_LIST_DISPLAY,
 } from "./pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
+import {
+  BASIC_FIRST_GRADED_LINE,
+  BASIC_RESULT_LINE,
+  basicDownloadCell,
+  basicDownloadLine,
+  basicQuickPracticeCell,
+  basicQuickPracticeLine,
+  limitsCopyOn,
+  trialLimitsSentence,
+} from "./limitsPlanCopy";
 
 /* ── The trial's fair-use allowances (mirror of the server defaults) ─────────── */
 
@@ -61,7 +71,16 @@ function count(n: number, one: string, many: string): string {
 export const FAIR_USE_TITLE = "Fair use, shown not hidden";
 
 /** The fair-use box sentence, composed from the allowances (a parameter so a test can feed a fixture). */
-export function fairUseCopy(limits: TrialFairUse = TRIAL_FAIR_USE): string {
+export function fairUseCopy(limits: TrialFairUse = TRIAL_FAIR_USE, limitsOn: boolean = limitsCopyOn()): string {
+  if (limitsOn) {
+    // LIMITS-1 PR-2 — the trial's graded and download allowances are the limits config's; only the
+    // tutor allowance is still the fair-use one. Same sentences, real numbers.
+    return (
+      "Premium has generous fair-use limits so the service stays fast for everyone. " +
+      "Your usage bars show what is left and when each one resets — every 5 hours, every day and every week. " +
+      `The 7-day trial includes ${trialLimitsSentence()}; and each day, ${count(limits.tutorMessagesPerDay, "tutor message", "tutor messages")}.`
+    );
+  }
   return (
     "Premium has generous fair-use limits so the service stays fast for everyone. " +
     "Your usage bars show what is left and when each one resets — every 5 hours, every day and every week. " +
@@ -86,14 +105,29 @@ export interface PlanItem {
 
 export const BASIC_INCLUDES_HEAD = "Basic includes:";
 
-export const BASIC_INCLUDES: readonly PlanItem[] = [
+/** The "papers" row: today's wording, or (limits on) opens and the weekly download, separately. */
+function papersLabel(limitsOn: boolean): string {
+  return limitsOn
+    ? `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")}`
+    : `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out)`;
+}
+
+export function basicIncludes(limitsOn: boolean): readonly PlanItem[] {
+  return [
   { id: "trends", label: "Exam Trends — chapters ranked from ten years of papers" },
   { id: "notes", label: "Notes, formulae, NCERT books and solutions" },
   { id: "practice", label: "Practice sets and worksheet generation" },
   {
     id: "papers",
-    label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out)`,
+    label: papersLabel(limitsOn),
   },
+  ...(limitsOn
+    ? [
+        { id: "qp-graded", label: basicQuickPracticeLine() },
+        { id: "first-graded", label: BASIC_FIRST_GRADED_LINE },
+        { id: "result", label: BASIC_RESULT_LINE },
+      ]
+    : []),
   {
     id: "free-check",
     label: "Your first answer check free",
@@ -101,7 +135,10 @@ export const BASIC_INCLUDES: readonly PlanItem[] = [
     link: { text: "answer check", to: "/check-improve" },
   },
   { id: "insights", label: "Basic topic insights" },
-];
+  ];
+}
+
+export const BASIC_INCLUDES: readonly PlanItem[] = basicIncludes(limitsCopyOn());
 
 export const BASIC_FOOTNOTE = "Written answers on tests and mocks are not checked on Basic.";
 
@@ -113,9 +150,14 @@ export const BASIC_FOOTNOTE = "Written answers on tests and mocks are not checke
  */
 export const BASIC_LIMITS_HEAD = "Not on Basic:";
 
-export function basicLimits({ freeCheck }: { freeCheck: boolean }): readonly PlanItem[] {
+export function basicLimits({ freeCheck, limitsOn = limitsCopyOn() }: { freeCheck: boolean; limitsOn?: boolean }): readonly PlanItem[] {
   return [
-    { id: "graded", label: "Chapter tests, full mocks and worksheets are not graded" },
+    {
+      id: "graded",
+      label: limitsOn
+        ? "After your first free grade, chapter tests, full mocks and worksheets are not graded"
+        : "Chapter tests, full mocks and worksheets are not graded",
+    },
     {
       id: "check",
       label: freeCheck
@@ -124,7 +166,12 @@ export function basicLimits({ freeCheck }: { freeCheck: boolean }): readonly Pla
     },
     { id: "steps", label: "No step marks the way a board examiner gives them" },
     { id: "tutor", label: "No AI tutor" },
-    { id: "mi", label: "No Mistake Intelligence — why you lose marks" },
+    {
+      id: "mi",
+      label: limitsOn
+        ? "No answer-by-answer Mistake Intelligence breakdown after your first of each kind"
+        : "No Mistake Intelligence — why you lose marks",
+    },
     { id: "similar", label: "No new questions like the one you got wrong" },
   ];
 }
@@ -188,7 +235,7 @@ const yesNote = (note: string): CompareCell => ({ kind: "yes", note });
  * card's free-check row: when the signed-out free answer check is not on for this
  * visitor, Basic's answer-checking cell is a dash, never a promise they cannot use.
  */
-export function compareSections({ freeCheck }: { freeCheck: boolean }): readonly CompareSection[] {
+export function compareSections({ freeCheck, limitsOn = limitsCopyOn() }: { freeCheck: boolean; limitsOn?: boolean }): readonly CompareSection[] {
   return [
     {
       title: "Study",
@@ -209,12 +256,28 @@ export function compareSections({ freeCheck }: { freeCheck: boolean }): readonly
     {
       title: "Tests & papers",
       rows: [
+        limitsOn
+          ? {
+              label: "Open chapter tests and full mocks",
+              basic: text(`${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`),
+              premium: yesNote("Unlimited"),
+            }
+          : {
+              label: "Open or download chapter tests and full mocks",
+              basic: text(`${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`),
+              premium: yesNote("Unlimited"),
+            },
+        ...(limitsOn
+          ? [
+              { label: "Download papers", basic: text(basicDownloadCell()), premium: yesNote("Unlimited") },
+              { label: "Graded Quick Practice sets", basic: text(basicQuickPracticeCell()), premium: yesNote("Unlimited") },
+            ]
+          : []),
         {
-          label: "Open or download chapter tests and full mocks",
-          basic: text(`${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`),
-          premium: yesNote("Unlimited"),
+          label: "Chapter tests, mocks and worksheets graded",
+          basic: limitsOn ? text("First of each free") : NO,
+          premium: YES,
         },
-        { label: "Chapter tests, mocks and worksheets graded", basic: NO, premium: YES },
       ],
     },
     {
@@ -233,7 +296,11 @@ export function compareSections({ freeCheck }: { freeCheck: boolean }): readonly
       title: "Coaching",
       rows: [
         { label: "AI tutor that knows your chapters and mistakes", basic: NO, premium: YES },
-        { label: "Mistake Intelligence — why you lose marks", basic: NO, premium: YES },
+        {
+          label: "Mistake Intelligence — why you lose marks",
+          basic: limitsOn ? text("Summary free; answer-by-answer breakdown Premium") : NO,
+          premium: YES,
+        },
         { label: "Progress and what to fix next", basic: text("Basic insights"), premium: yesNote("Full") },
       ],
     },

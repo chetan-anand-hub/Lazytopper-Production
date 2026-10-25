@@ -434,6 +434,7 @@
     "src/data/predictionCore.pastboardyear.test.ts",
     "src/data/predictionCore.source.test.ts",
     "src/hooks/useFreeCheckReturn.test.tsx",
+    "src/hooks/useQpGate.test.tsx",
     "src/hooks/useSubscription.autotrial.test.ts",
     "src/hooks/useSubscription.emitter.test.ts",
     "src/hooks/useSubscription.recover.test.ts",

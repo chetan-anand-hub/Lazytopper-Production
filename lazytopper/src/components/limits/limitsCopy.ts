@@ -58,6 +58,18 @@ export function blockedWallCopy(resetAt: string | null, nowMs: number = Date.now
   };
 }
 
+/** The wall at the daily graded Quick Practice limit. Every day/time comes from the server. */
+export function blockedPracticeCopy(resetAt: string | null, nowMs: number = Date.now(), tier: string | null = null): DownloadWallCopy {
+  const when = resetAt ? formatResetIst(resetAt, nowMs) : "";
+  return {
+    title: tier === "trial" ? "You've used today's graded practice sets" : "That was today's free practice set",
+    body:
+      (when ? `Your next graded set opens ${when}. ` : "") +
+      "Every question and solution is still here to read. Premium gives you unlimited graded practice sets and the full step-by-step breakdown.",
+    keep: "Keep reading the set",
+  };
+}
+
 export const SIGNED_OUT_WALL: DownloadWallCopy = {
   title: "Sign up — your first download is free",
   body: "Make a free account and download your first paper on us. You can keep reading every question and solution here.",

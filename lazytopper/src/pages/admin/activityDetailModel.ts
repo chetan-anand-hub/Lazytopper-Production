@@ -162,6 +162,8 @@ const EVENT_LABELS: Record<string, string> = {
   download_start: "Started a paper download",
   download_blocked: "Was stopped by the weekly download limit",
   download_wall_shown: "Saw the download limit screen",
+  grade_blocked: "Was stopped by the daily graded-practice limit",
+  scorecard_lock_shown: "Saw the locked answer-by-answer breakdown",
   parent_report_shared: "Shared a result link with parents",
   // SHARE-CARD-1 — any surface, size (story / square) or channel (sheet, WhatsApp, Instagram, download).
   scorecard_share: "Shared a scorecard image",

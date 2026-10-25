@@ -35,6 +35,8 @@ const { chooseNonce, fence } = require('../grading/fence.cjs');
 const jobsLib = require('../grading/jobs.cjs');
 const timingLib = require('../grading/timing.cjs');
 const { gradingAttemptOf, deferredCommitOf } = require('../services/fairUse.cjs');
+const { limitsDeferredOf } = require('../services/limits.cjs');
+const withLimitsDeferred = (fair, lim) => (lim ? { ...(fair || {}), uid: (fair && fair.uid) || lim.uid, limits: lim } : fair);
 const { redactErrorDetails } = require('../services/httpUtils.cjs');
 // The most text-layer characters handed to the detect prompt (a typed paper is ~2–4k).
 const MAX_TEXT_LAYER_CHARS = 20000;
@@ -943,7 +945,8 @@ function createCheckSolutionRoute(deps) {
           total: questions.length,
           meta: questions.map((q) => ({ qNumber: q.qNumber, totalMarks: q.marks })),
           // D12: what the fair-use `finish` hooks would have committed — settled once, at the end.
-          deferred: deferredCommitOf(res),
+          // LIMITS-1: the per-kind grading reservation rides along, so the job's end confirms or releases it.
+          deferred: withLimitsDeferred(deferredCommitOf(res), limitsDeferredOf(res)),
           // The job's wall deadline runs from when it STARTS running (queue time excluded), read on
           // THIS route's clock — the clock the grading core measures every deadline on.
           run: (onPartSettled) => gradeStructuredSet({

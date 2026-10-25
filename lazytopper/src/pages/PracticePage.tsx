@@ -611,6 +611,7 @@ import FairUseConfirm from "../components/usage/FairUseConfirm";
 import { useFairUse } from "../components/usage/useFairUse";
 import { useAuth } from "../context/AuthContext";
 import { useLimitedDownload } from "../hooks/useLimitedDownload";
+import { useQpGate } from "../hooks/useQpGate";
 import { practiceSetPaperKey } from "../services/limitsClient";
 import {
   type SubjectKey,
@@ -3088,6 +3089,10 @@ const packTopicKey = useMemo(() => {
     filteredQuestions.length > 0 && sessionStats.attemptedInSet >= filteredQuestions.length;
   const showScorecard =
     (sessionFinished || allDone) && filteredQuestions.length > 0 && !scorecardDismissed;
+  // LIMITS-1 PR-2 — "one graded set a day". The set key is the displayed question ids; the same
+  // set within the IST day is the same spend. Off (flag unset) -> always "open", nothing changes.
+  const qpSetKey = practiceSetPaperKey(committedPoolSelection.displayed.map((q) => q.id));
+  const qpGate = useQpGate(showScorecard, qpSetKey);
 
   // Optional runner countdown tick (§2.3). Runs 1/s only while the runner is open, the
   // timer is on, and the session isn't finished. Functional guard stops the tick at the
@@ -3475,6 +3480,8 @@ const packTopicKey = useMemo(() => {
   // closed tab writes nothing, by design.
   useEffect(() => {
     if (!showScorecard) return;
+    // LIMITS-1 PR-2 — a set that is not today's allowed graded set is not saved as a session record.
+    if (qpGate.status !== "open") return;
     const displayed = committedPoolSelection.displayed;
     if (displayed.length === 0) return;
     // ★ WAIT FOR THE SESSION'S OUTCOME TO BE FINAL. With answers awaiting the batch, the
@@ -3555,7 +3562,7 @@ const packTopicKey = useMemo(() => {
     authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
     filterSignature, sessionIdentityAt, isMultiTopic, isFullSubject, multiTopics,
     batchResult, batchSelection.batch.length, scoredBatchEntries, reviewSavedIds, reviewMcqIds,
-    sessionAnswers,
+    sessionAnswers, qpGate.status,
   ]);
 
   // ── START-HERE-1 ────────────────────────────────────────────────────────────────────
@@ -4487,7 +4494,7 @@ const packTopicKey = useMemo(() => {
         )}
 
 {(() => {
-  if (!showScorecard) return null;
+  if (!showScorecard || qpGate.status !== "open") return null;
   const topicK = canonicalTopicKey || topicParam;
   const back = { state: { back: location.pathname + location.search, backLabel: "Back to practice" } };
   // GUIDE-SCORE-1 — Byte's link: this ONE chapter's weak-pattern practice (a multi-topic set → the
@@ -4733,6 +4740,7 @@ const packTopicKey = useMemo(() => {
     return (
       <ResultsScorecard
         askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+        limitKey={{ kind: "quick-practice", resultKey: qpSetKey }} // LIMITS-1 PR-2 — Quick Practice (graded batch)
         variant={withGuideTarget(gradedVariant, qpGuideTarget)}
         onClose={closeScorecard}
         // QP-UPLOAD-LATER — written questions with nothing checked can be uploaded later.
@@ -4953,6 +4961,7 @@ const packTopicKey = useMemo(() => {
   return (
     <ResultsScorecard
       askFirstFeedback={!overlay && !isGuest} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+      limitKey={{ kind: "quick-practice", resultKey: qpSetKey }} // LIMITS-1 PR-2 — Quick Practice (taps only)
       variant={tapOnlyVariant}
       onClose={closeScorecard}
       hideShare={isGuest} // SHARE-SCORE-1 — no "Share my score" on a signed-out guest's scorecard
@@ -5084,6 +5093,7 @@ const packTopicKey = useMemo(() => {
       });
   return (
     <ResultsScorecard
+      limitKey={{ kind: "quick-practice", resultKey: practiceSetPaperKey(record.questionIds) }} // LIMITS-1 PR-2 — stored re-open
       reopened
       variant={withGuideTarget(reopenVariant, singleChapterPracticeTarget(recSubject, record.topicKeys || []))}
       onClose={close}
@@ -5127,6 +5137,7 @@ const packTopicKey = useMemo(() => {
     SolutionChecker opens \u2014 mounted ONLY while blocked (it calls router hooks). Nothing
     red, no error code, and everything scored for free is still on screen behind it. */}
 {downloadWall}
+{qpGate.wall}
 
 {premiumBlock && (
   <UpgradeSheet
