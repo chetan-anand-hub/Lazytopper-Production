@@ -11,6 +11,7 @@
  * than importing the limits client, which pulls in the auth and network layer.
  */
 import { LIMITS_CONFIG as C } from "./limitsConfig";
+import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
 
 /** Read as a LITERAL `import.meta.env.VITE_…` so Vite and Vitest both rewrite it. */
 export function limitsCopyOn(): boolean {
@@ -52,3 +53,7 @@ export function trialLimitsSentence(): string {
 /** Compare-table cells. */
 export const basicDownloadCell = (): string => `${C.basic.downloadsPerWeek} a week (first free)`;
 export const basicQuickPracticeCell = (): string => `${C.basic.quickPracticeGradedPerDay} a day (first free)`;
+
+/** The Basic list's "papers" row with the limits on. BasicFreeList loads this module lazily (PERF-3). */
+export const basicPapersRow = (): string =>
+  `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")} — written answers are checked only for your first of each kind`;

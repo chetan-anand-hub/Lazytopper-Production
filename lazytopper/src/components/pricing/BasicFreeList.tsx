@@ -1,6 +1,6 @@
+import { useEffect, useState } from "react";
 import { monthlyInline } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
-import { basicDownloadLine } from "../../config/limitsPlanCopy";
 
 /**
  * TRIAL-ON-SIGNUP-1 · T4 — the Basic (free) plan's feature list, ONE source.
@@ -53,12 +53,6 @@ export const TRIAL_WORDING = {
   seePlans: "See plans →",
 } as const;
 
-const LIMITS_COPY_ON =
-  import.meta.env.VITE_LIMITS_ENABLED === "1" ||
-  import.meta.env.VITE_LIMITS_ENABLED === "true" ||
-  import.meta.env.VITE_LIMITS_ENABLED === "on" ||
-  import.meta.env.VITE_LIMITS_ENABLED === "yes";
-
 export const FREE_FEATURES = [
   { label: "Browse Home, Exam Trends, and topic surfaces", included: true },
   { label: "Practice picker and limited practice", included: true },
@@ -71,13 +65,7 @@ export const FREE_FEATURES = [
   // D114 (owner ruling, 12 Oct 2026): wording only. The limit is a per-day OPEN/DOWNLOAD
   // allowance for chapter tests AND full mocks; the answers are not checked on Basic.
   {
-    // LIMITS-1 PR-2 — with the limits on, downloads are weekly (numbers from limitsConfig), opens stay daily.
-    // The flag is compared as LITERALS on purpose: Vite replaces `import.meta.env.VITE_LIMITS_ENABLED` with a
-    // constant, so with the limits off this whole branch (and its imports) is dropped from the ENTRY chunk
-    // (PERF-3 budget). Lower-case 1 / true / on / yes enable it, like every other reader of the flag.
-    label: LIMITS_COPY_ON
-      ? `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")} — written answers are checked only for your first of each kind`
-      : `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
+    label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
     included: true,
   },
   { label: "Richer Me / Progress recommendations", included: false },
@@ -134,7 +122,15 @@ const BASIC_FREE_CSS = `
 `;
 
 /** "Free on Basic:" + the included Basic rows, for every Premium lock. */
+// LIMITS-1 PR-2 — with the limits ON, the "papers" row states the real weekly download (numbers from
+// limitsConfig). That copy is a LAZY chunk, so the entry carries none of it whichever way the flag is
+// set (PERF-3). Same case-insensitive parsing as every other reader of the flag.
+
 export function BasicFreeList() {
+  const [papers, setPapers] = useState("");
+  useEffect(() => {
+    /^(1|true|on|yes)$/i.test(import.meta.env.VITE_LIMITS_ENABLED) && import("../../config/limitsPlanCopy").then(m => setPapers(m.basicPapersRow()));
+  }, []);
   return (
     <div className="lt-basic-free" data-testid="basic-free-list">
       <style>{BASIC_FREE_CSS}</style>
@@ -143,7 +139,7 @@ export function BasicFreeList() {
         {BASIC_FREE_LABELS.map(label => (
           <li key={label} className="lt-basic-free__item">
             <span className="lt-basic-free__tick" aria-hidden="true">✓</span>
-            {label}
+            {papers && label.startsWith("Open or") ? papers : label}
           </li>
         ))}
       </ul>
