@@ -169,6 +169,43 @@ test('PRICING-1 · default offer: ₹599 at 23:59:59 IST on 30 Nov 2026, ₹999 
   assert.equal(db.read(KEY('u9')).foundingMember, false);
 });
 
+test('PRICING-1 · grantPass records the ORDER\'s offer and amount: created 23:59:59 IST 30 Nov, paid 00:00:01 IST 1 Dec -> founding, 599', async () => {
+  const created = new Date('2026-11-30T23:59:59+05:30');
+  const paidAt = Date.parse('2026-12-01T00:00:01+05:30');
+  const db = memoryFirestore({ 'payOrders/order_1': { uid: 'u1', passType: 'month', amountPaise: 59900, offerKey: 'founding', createdAt: created, status: 'created' } });
+  await grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_1', now: paidAt }, { firestore: db, payOrderId: 'order_1' });
+  const stored = db.read(KEY('u1'));
+  assert.equal(stored.pricePaidInr, 599);
+  assert.equal(stored.offerKey, 'founding');
+  assert.equal(stored.foundingMember, true);
+  assert.equal(db.read(PAY_KEY('u1', 'pay_1')).pricePaidInr, 599);
+  // CONTROL: the same payment time with NO order falls to the calendar -> list price.
+  const db2 = memoryFirestore();
+  await grantPass({ uid: 'u2', passType: 'month', paymentRef: 'pay_2', now: paidAt }, { firestore: db2 });
+  assert.equal(db2.read(KEY('u2')).pricePaidInr, 999);
+  assert.equal(db2.read(KEY('u2')).foundingMember, false);
+});
+
+test('PRICING-1 · a till-boards order records the amount it CHARGED even if the table has moved since', async () => {
+  const db = memoryFirestore({ 'payOrders/order_1': { uid: 'u1', passType: 'till_boards', amountPaise: 239600, offerKey: 'founding', createdAt: new Date('2026-11-30T12:00:00+05:30'), status: 'created' } });
+  await grantPass({ uid: 'u1', passType: 'till_boards', paymentRef: 'pay_1', now: Date.parse('2026-12-01T00:00:01+05:30') }, { firestore: db, payOrderId: 'order_1' });
+  assert.equal(db.read(KEY('u1')).pricePaidInr, 2396);
+  assert.equal(db.read(KEY('u1')).offerKey, 'founding');
+});
+
+test('PRICING-1 · isStaleFoundingOrder: only a founding order made BEFORE the close and paid 24 h+ after it', () => {
+  const { isStaleFoundingOrder } = require('./passGrant.cjs');
+  const before = new Date('2026-11-30T23:59:59+05:30');
+  const after = new Date('2026-12-01T00:00:01+05:30');
+  const at = (iso) => Date.parse(iso);
+  assert.equal(isStaleFoundingOrder({ offerKey: 'founding', createdAt: before }, at('2026-12-01T23:59:59+05:30')), false, 'inside the grace');
+  assert.equal(isStaleFoundingOrder({ offerKey: 'founding', createdAt: before }, at('2026-12-02T00:00:00+05:30')), true, 'grace over');
+  assert.equal(isStaleFoundingOrder({ offerKey: 'founding', createdAt: after }, at('2026-12-09T00:00:00+05:30')), false, 'a founder re-buying after the close');
+  assert.equal(isStaleFoundingOrder({ offerKey: 'regular', createdAt: before }, at('2026-12-09T00:00:00+05:30')), false);
+  assert.equal(isStaleFoundingOrder({ offerKey: 'founding' }, at('2026-12-09T00:00:00+05:30')), false, 'no createdAt: never refuse a payment on a guess');
+  assert.equal(isStaleFoundingOrder(null, at('2026-12-09T00:00:00+05:30')), false);
+});
+
 test('R6 · foundingMember is STICKY: offer closed, a founding member still pays ₹599', async () => {
   const db = memoryFirestore({ [KEY('u1')]: { tier: 'free', plan: 'none', foundingMember: true, lastPaymentRef: 'old' } });
   await grantPass(

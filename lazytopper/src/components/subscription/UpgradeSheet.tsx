@@ -26,10 +26,10 @@
  *     on this path is error-red; the treatment is the offer strip's green.
  *     [FU-GATE-COPY-STILL-READS-AS-ERROR]
  *
- * ★ PRICE. Every figure comes from `MONTHLY_INLINE` in `config/pricing.ts`. Never a
- * literal — `MONTHLY_INLINE` is hard-bound to the founding rate while the cohort is
- * open, so a typed "₹599" becomes silently wrong the day `FOUNDING_OFFER_OPEN`
- * flips. `pricing.guard.test.ts` forbids a price literal under `src/`.
+ * ★ PRICE. Every figure comes from `monthlyInline()` in `config/pricing.ts`, read at render
+ * (PRICING-1: it follows the founding offer's DATE). Never a literal — a typed "₹599" becomes
+ * silently wrong on 1 Dec 2026. (It takes no subscription, so a founder who has lapsed is
+ * quoted the list price here; the Pricing page and checkout quote them their locked rate.) `pricing.guard.test.ts` forbids a price literal under `src/`.
  *
  * ★ NO `style={{}}`. Styling is a `<style>` block plus class names, following
  * `OfferStrip.tsx` — the in-repo precedent for a self-contained styled component.
@@ -46,7 +46,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { getPremiumFeatureList } from "../../services/featureGates";
-import { MONTHLY_INLINE } from "../../config/pricing";
+import { monthlyInline } from "../../config/pricing";
 import PaywallActions from "../pricing/PaywallActions";
 
 export interface UpgradeSheetProps {
@@ -248,7 +248,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
 
         <div className="lt-upsheet__offer">
           {/* ★ From pricing.ts. Never a literal. */}
-          <p className="lt-upsheet__price">Premium — {MONTHLY_INLINE} · everything unlocked</p>
+          <p className="lt-upsheet__price">Premium — {monthlyInline()} · everything unlocked</p>
           <ul className="lt-upsheet__list">
             {premiumFeatures.map((f) => (
               <li key={f.id}>

@@ -1,26 +1,16 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from "vitest";
 
-// PRICING-1 — the founding offer closes on 1 Dec 2026 (IST), and `config/pricing.ts` decides it
-// ONCE, when it first loads. This suite asserts the offer-OPEN rendering, so it loads the module
-// at a pinned instant (Date only, restored right after the imports) and passes at any real or
-// shifted clock. The closed rendering is pinned explicitly where it is asserted.
-vi.hoisted(() => {
-  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
-});
-
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, relative, sep } from "node:path";
 
 import * as pricing from "./pricing";
 import {
-  MONTHLY_INLINE,
+  monthlyInline,
   PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_INR,
   formatInr,
 } from "./pricing";
-
-vi.useRealTimers();
 
 /**
  * GUARD — no price literal may live outside src/config/pricing.ts.
@@ -245,8 +235,8 @@ describe("pricing module — the derivation holds", () => {
     // open the only honest number there is the one actually charged today. This
     // pins the binding so that a tier rename cannot silently repoint the gates
     // at the list price without a test going red.
-    expect(MONTHLY_INLINE).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
-    expect(MONTHLY_INLINE).not.toContain(String(PRICE_MONTHLY_LIST_INR));
+    expect(monthlyInline(true)).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
+    expect(monthlyInline(true)).not.toContain(String(PRICE_MONTHLY_LIST_INR));
   });
 
   it("formats with Indian digit grouping and no ICU dependency", () => {
@@ -460,17 +450,18 @@ describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
     expect(hits).toEqual([]);
     // CONTROL — the namespace read is live and reaches the composed constants.
     expect(pricing.PERIOD_MONTHLY_LABEL).toBe("for a month");
-    expect(MONTHLY_INLINE).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
-    expect(strings.map(([n]) => n)).toEqual(expect.arrayContaining(["PERIOD_MONTHLY_LABEL", "MONTHLY_INLINE"]));
+    expect(monthlyInline(true)).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
+    expect(SLASH_MONTH.test(monthlyInline(false))).toBe(false);
+    expect(strings.map(([n]) => n)).toEqual(expect.arrayContaining(["PERIOD_MONTHLY_LABEL", "FOUNDING_OFFER_UNTIL_COPY"]));
   });
 
   it("the two gates read '… with Premium at ₹599 for a month.' — never 'for ₹599 for a month'", () => {
-    // MONTHLY_INLINE now ends "for a month", so "Premium for {MONTHLY_INLINE}" would
+    // monthlyInline() ends "for a month", so "Premium for {monthlyInline(" would
     // render "Premium for ₹599 for a month." The one-word grammar fix is "at".
     for (const rel of ["src/components/auth/MockViewGate.tsx", "src/components/auth/PracticeLimitGate.tsx"]) {
       const src = readFileSync(resolve(process.cwd(), rel), "utf8");
-      expect(src, rel).toContain("with Premium at {MONTHLY_INLINE}.");
-      expect(src, rel).not.toContain("Premium for {MONTHLY_INLINE}");
+      expect(src, rel).toContain("with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.");
+      expect(src, rel).not.toContain("Premium for {monthlyInline(");
     }
   });
 
@@ -526,22 +517,30 @@ describe("PRICING-1 — the founding offer is date-driven", () => {
     expect(m.FOUNDING_OFFER_UNTIL_COPY).not.toMatch(/countdown|left|hurry|only|last chance|\d+ (days|hours)/i);
   });
 
-  it("the upgrade-prompt price (MONTHLY_INLINE) follows the offer: founding while open, list once closed", async () => {
-    for (const [now, display] of [
-      ["2026-10-25T06:30:00Z", "founding"],
-      ["2026-12-01T00:00:00+05:30", "list"],
-    ] as const) {
-      vi.resetModules();
-      vi.useFakeTimers({ now: new Date(now), toFake: ["Date"] });
-      let m: typeof import("./pricing");
-      try {
-        m = await import("./pricing");
-      } finally {
-        vi.useRealTimers();
-      }
-      const expected = display === "founding" ? m.PRICE_MONTHLY_FOUNDING_DISPLAY : m.PRICE_MONTHLY_LIST_DISPLAY;
-      expect(m.FOUNDING_OFFER_OPEN).toBe(display === "founding");
-      expect(m.MONTHLY_INLINE).toBe(`${expected} for a month`);
-    }
+  it("the upgrade-prompt price (monthlyInline) follows the offer's DATE and a founder's own rate — no module-load clock read", async () => {
+    const m = await import("./pricing");
+    const open = new Date("2026-10-25T06:30:00Z");
+    const closed = new Date("2026-12-01T00:00:00+05:30");
+    expect(m.monthlyInline(m.foundingRateApplies(open, false))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
+    expect(m.monthlyInline(m.foundingRateApplies(closed, false))).toBe(`${m.PRICE_MONTHLY_LIST_DISPLAY} for a month`);
+    // A founder keeps the founding rate after the close; a non-founder does not.
+    expect(m.monthlyInline(m.foundingRateApplies(closed, true))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
+    expect(m.monthlyInline(m.foundingRateApplies(closed, undefined))).toBe(`${m.PRICE_MONTHLY_LIST_DISPLAY} for a month`);
+  });
+
+  it("the founding last-day and list-from labels are DERIVED from the closing instant (they cannot drift)", async () => {
+    const m = await import("./pricing");
+    expect(m.FOUNDING_OFFER_CLOSES_AT_ISO).toBe("2026-12-01T00:00:00+05:30");
+    expect(m.FOUNDING_OFFER_LAST_DAY_LABEL).toBe("30 November");
+    expect(m.FOUNDING_OFFER_LIST_FROM_LABEL).toBe("1 December");
+    // The source holds no second typed copy of either date.
+    const src = readFileSync(resolve(process.cwd(), "src/config/pricing.ts"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    expect(src).not.toMatch(/["`']30 November["`']|["`']1 December["`']/);
+  });
+
+  it("no module in config/pricing.ts reads the clock when it loads (a clock read at import made ~90 test files date-sensitive)", () => {
+    const src = readFileSync(resolve(process.cwd(), "src/config/pricing.ts"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const topLevel = src.split("\n").filter((l) => /^(export )?(const|let) /.test(l));
+    expect(topLevel.filter((l) => /new Date\(\)|Date\.now\(\)/.test(l))).toEqual([]);
   });
 });

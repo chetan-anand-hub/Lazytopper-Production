@@ -48,7 +48,7 @@
  */
 
 const crypto = require('node:crypto');
-const { grantPass, computeGrant, describePass, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
+const { grantPass, computeGrant, describePass, isStaleFoundingOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter } = require('../services/rateLimiter.cjs');
 // TOPUP-1 (DARK): the extra-usage packs. Everything below is behind PAYMENTS_ENABLED AND TOPUP_ENABLED.
 const { TOPUP_PRODUCTS, isTopupProduct } = require('../services/passPricing.cjs');
@@ -395,11 +395,16 @@ function createPaymentRoutes(deps = {}) {
    * The payment as Razorpay reports it, captured if it was only authorized.
    * Returns { payment } or { error: reason, upstream: bool }.
    */
-  async function fetchCapturedPayment(keys, paymentId, amountPaise) {
+  async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed', upstream: true };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
+      // PRICING-1 — a founding order paid 24 h+ after the offer closed is NOT captured: the
+      // authorization simply lapses and Razorpay releases it, so no money is taken for a pass we
+      // refuse. (An already-CAPTURED payment never reaches here — it is granted at the order's
+      // price, because refusing after the money moved would leave a payment with no pass.)
+      if (isStaleFoundingOrder(order, now())) return { error: 'order_expired', upstream: false };
       // Capture for the STORED amount — the only amount this server ever charges.
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, {
         amount: amountPaise,
@@ -455,12 +460,13 @@ function createPaymentRoutes(deps = {}) {
     // 3. What Razorpay says was actually paid.
     let result;
     try {
-      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise);
+      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order);
     } catch (e) {
       emit('payments.verify.razorpay_unreachable');
       console.error('[pay/verify] razorpay unreachable:', e && e.message);
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
+    if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
     if (result.error) {
       emit(`payments.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });
@@ -596,7 +602,7 @@ function createPaymentRoutes(deps = {}) {
    * capturing an authorized one for the STORED amount first (P4). Returns
    * { payment } | { none: true } | { upstream: reason }. Throws if Razorpay is unreachable.
    */
-  async function findConfirmedPayment(keys, orderId, amountPaise) {
+  async function findConfirmedPayment(keys, orderId, amountPaise, order) {
     const listed = await razorpay(keys, 'GET', `/orders/${orderId}/payments`);
     if (!listed.ok || !listed.json || !Array.isArray(listed.json.items)) return { upstream: 'list_failed' };
     for (const item of listed.json.items) {
@@ -605,7 +611,8 @@ function createPaymentRoutes(deps = {}) {
       if (paymentIdentityMismatch(item, { orderId, amountPaise })) continue;
       let payment = item;
       if (item.status === 'authorized') {
-        const result = await fetchCapturedPayment(keys, item.id, amountPaise);
+        const result = await fetchCapturedPayment(keys, item.id, amountPaise, order);
+        if (result.error === 'order_expired') return { expired: true };
         if (result.error) return { upstream: result.error };
         payment = result.payment;
         if (payment.id !== undefined && payment.id !== item.id) continue;
@@ -683,13 +690,14 @@ function createPaymentRoutes(deps = {}) {
     // 2. Created: ask Razorpay what was actually paid against this order.
     let found;
     try {
-      found = await findConfirmedPayment(keys, orderId, order.amountPaise);
+      found = await findConfirmedPayment(keys, orderId, order.amountPaise, order);
     } catch (e) {
       emit('payments.status.razorpay_unreachable');
       emit('payments.status.unknown');
       console.error('[pay/status] razorpay unreachable:', e && e.message);
       return sendJson(res, 200, { ok: true, state: 'unknown' });
     }
+    if (found.expired) return reject(res, 'status', 'order_expired');
     if (found.upstream) {
       emit(`payments.status.${found.upstream}`);
       emit('payments.status.unknown');

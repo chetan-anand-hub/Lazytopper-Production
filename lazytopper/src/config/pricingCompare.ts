@@ -26,7 +26,7 @@
  * Keep this module import-light: the pricing page is a public, prerendered route.
  */
 import {
-  FOUNDING_OFFER_OPEN,
+  foundingOfferOpen,
   PRICE_FREE_DISPLAY,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
@@ -154,7 +154,7 @@ export const COMPARE_FEATURE_HEADER = "What you get";
 export const COMPARE_BASIC_HEADER = `Basic · ${PRICE_FREE_DISPLAY}`;
 
 /** "Premium · from ₹599" — follows the founding switch, so it is never a stale figure. */
-export function comparePremiumHeader(offerOpen: boolean = FOUNDING_OFFER_OPEN): string {
+export function comparePremiumHeader(offerOpen: boolean = foundingOfferOpen(Date.now())): string {
   return `Premium · from ${offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY}`;
 }
 

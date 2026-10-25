@@ -1,13 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 
-// PRICING-1 — the founding offer closes on 1 Dec 2026 (IST), and `config/pricing.ts` decides it
-// ONCE, when it first loads. This suite asserts the offer-OPEN rendering, so it loads the module
-// at a pinned instant (Date only, restored right after the imports) and passes at any real or
-// shifted clock. The closed rendering is pinned explicitly where it is asserted.
-vi.hoisted(() => {
-  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
-});
-
 import { render, cleanup, fireEvent, screen, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -57,7 +49,13 @@ import {
   type RazorpayConstructor,
 } from "../../services/checkout";
 
-vi.useRealTimers();
+// PRICING-1 — the founding offer is read from the CALENDAR at render. These suites assert the
+// offer-OPEN page, so they run at a pinned instant (Date only; a test's own fake timers layer on
+// top) and pass at any real or shifted clock. The closed page is pinned explicitly where asserted.
+beforeEach(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+});
+
 
 const MANUAL_PARAGRAPH =
   '<p class="lt-pricing-plan-desc">Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically.</p>';
@@ -420,15 +418,15 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
 
   it("the page's CSS places every one of those classes (and makes the wrapper display: contents)", () => {
     expect(baseBlock(".lt-pricing-checkout")).toMatch(/display:\s*contents/);
-    expect(baseBlock(".lt-pricing-pay--month")).toMatch(/grid-column:\s*1;[\s\S]*grid-row:\s*3/);
-    expect(baseBlock(".lt-pricing-pay--boards")).toMatch(/grid-column:\s*2;[\s\S]*grid-row:\s*3/);
+    expect(baseBlock(".lt-pricing-pay--month")).toMatch(/grid-column:\s*2;[\s\S]*grid-row:\s*3/);
+    expect(baseBlock(".lt-pricing-pay--boards")).toMatch(/grid-column:\s*1;[\s\S]*grid-row:\s*3/);
     expect(baseBlock(".lt-pricing-checkout-note--top")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*1/);
     expect(baseBlock(".lt-pricing-checkout-note--bottom")).toMatch(/grid-column:\s*1 \/ -1;[\s\S]*grid-row:\s*4/);
     // CONTROL — the reader finds nothing for a class the page does not style.
     expect(baseBlock(".lt-pricing-no-such-class")).toBe("");
   });
 
-  it("on the page (payments ON) the buy area sits INSIDE the tile grid, Month tile before Till tile", () => {
+  it("on the page (payments ON) the buy area sits INSIDE the tile grid, Board Pass tile first", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     render(
       <MemoryRouter initialEntries={["/pricing"]}>
@@ -447,7 +445,7 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
             ? "month-pay"
             : "boards-pay",
     );
-    expect(order).toEqual(["month-tile", "boards-tile", "month-pay", "boards-pay"]);
+    expect(order).toEqual(["boards-tile", "month-tile", "boards-pay", "month-pay"]);
     expect(grid!.querySelector(":scope > .lt-pricing-plan-desc")).toBeNull();
   });
 });

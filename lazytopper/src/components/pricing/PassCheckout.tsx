@@ -19,7 +19,7 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { hydrateSubscriptionFromCloud } from "../../services/subscriptionService";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import {
-  FOUNDING_OFFER_OPEN,
+  foundingRateApplies,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_DISPLAY,
@@ -285,19 +285,19 @@ export function PassCheckoutView({
       )}
       <button
         type="button"
-        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
-        disabled={busy !== null || recovery !== null}
-        onClick={() => void handleBuy("month")}
-      >
-        {monthButtonLabel(offerOpen)}
-      </button>
-      <button
-        type="button"
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
         disabled={busy !== null || recovery !== null}
         onClick={() => void handleBuy("till_boards")}
       >
         {TILL_BOARDS_BUTTON_LABEL}
+      </button>
+      <button
+        type="button"
+        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
+        disabled={busy !== null || recovery !== null}
+        onClick={() => void handleBuy("month")}
+      >
+        {monthButtonLabel(offerOpen)}
       </button>
       {failed && !recovery && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="alert" data-testid="pass-checkout-failed">
@@ -337,7 +337,7 @@ function PassCheckoutConnected() {
   return (
     <PassCheckoutView
       signedIn={Boolean(uid)}
-      offerOpen={FOUNDING_OFFER_OPEN}
+      offerOpen={foundingRateApplies(Date.now(), status.foundingMember)}
       activePassEnd={activePassEnd}
       onSignIn={() => navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH))}
       onBuy={async (passType) => {

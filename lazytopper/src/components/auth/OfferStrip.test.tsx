@@ -7,7 +7,7 @@ import { resolve } from "node:path";
 import {
   FOUNDING_LABEL,
   FOUNDING_OFFER_BADGE,
-  MONTHLY_INLINE,
+  monthlyInline,
   PERIOD_MONTHLY_LABEL,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
@@ -45,6 +45,7 @@ vi.mock("../../services/referralService", () => ({ creditPendingReferral: vi.fn(
 
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   vi.doUnmock("../../config/pricing");
   vi.resetModules();
 });
@@ -58,21 +59,12 @@ afterEach(() => {
  */
 async function loadWithOffer(open: boolean) {
   vi.resetModules();
-  vi.doMock("../../config/pricing", async () => {
-    const actual =
-      await vi.importActual<typeof import("../../config/pricing")>("../../config/pricing");
-    // TRIAL-ON-SIGNUP-1b — the after-trial line now quotes MONTHLY_INLINE, which
-    // config/pricing.ts binds to the FOUNDING rate and says "must move to
-    // PRICE_MONTHLY_LIST_DISPLAY" when the cohort closes. A CLOSED render therefore
-    // models that documented two-line switch (flag + MONTHLY_INLINE), still from the
-    // REAL published figures — never a hand-written price.
-    return open
-      ? { ...actual, FOUNDING_OFFER_OPEN: open }
-      : {
-          ...actual,
-          FOUNDING_OFFER_OPEN: open,
-          MONTHLY_INLINE: `${actual.PRICE_MONTHLY_LIST_DISPLAY} ${actual.PERIOD_MONTHLY_LABEL}`,
-        };
+  // PRICING-1 — the offer is the CALENDAR's answer, read at render. Pin "now" (Date only) to a
+  // real instant on the wanted side of the close: 25 Oct 2026 is open, 5 Dec 2026 is closed. The
+  // prices are the REAL published ones, never a stub.
+  vi.useFakeTimers({
+    now: new Date(open ? "2026-10-25T06:30:00.000Z" : "2026-12-05T10:00:00+05:30"),
+    toFake: ["Date"],
   });
   const { default: OfferStrip } = await import("./OfferStrip");
   const { default: Login } = await import("../../pages/Login");
@@ -235,28 +227,10 @@ describe("offer CLOSED", () => {
 // 2b · The SHIPPED state — the one no mock can vouch for
 // ---------------------------------------------------------------------------
 
-describe("the flag as it actually ships", () => {
-  it("ships with the founding offer OPEN", async () => {
-    // Everything above forces `FOUNDING_OFFER_OPEN` through a partial mock, which
-    // proves the component READS the flag but says nothing about its value. A
-    // silent flip of the constant would leave all fourteen of those assertions
-    // green while the live sign-in page stopped mentioning the founding rate.
-    //
-    // So this one renders the module UNMOCKED. Closing the cohort is therefore a
-    // deliberate two-file change — the constant and this line — which is the
-    // right amount of friction for a published price claim.
-    // PRICING-1: the flag is now the CALENDAR's answer (open until the end of 30 Nov 2026,
-    // IST), so "as it ships" is read at a pinned instant, not at whatever the clock says.
+describe("the offer as it actually ships (PRICING-1: date-driven)", () => {
+  it("is OPEN through 23:59:59 IST on 30 Nov 2026: founding badge, price and end date", async () => {
     vi.resetModules();
-    vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
-    let FOUNDING_OFFER_OPEN: boolean;
-    try {
-      ({ FOUNDING_OFFER_OPEN } = await import("../../config/pricing"));
-    } finally {
-      vi.useRealTimers();
-    }
-    expect(FOUNDING_OFFER_OPEN).toBe(true);
-
+    vi.useFakeTimers({ now: new Date("2026-11-30T23:59:59+05:30"), toFake: ["Date"] });
     const { default: OfferStrip } = await import("./OfferStrip");
     render(
       <MemoryRouter>
@@ -264,20 +238,14 @@ describe("the flag as it actually ships", () => {
       </MemoryRouter>,
     );
     expect(screen.getByTestId("lt-offer-founding-badge")).toHaveTextContent(FOUNDING_LABEL);
+    expect(flat(screen.getByTestId("lt-offer-strip"))).toContain("Offer ends 30 November.");
   });
 
-  it("PRICING-1: from 00:00 IST on 1 Dec 2026 the module loads CLOSED and the strip drops the founding badge", async () => {
+  it("is CLOSED from 00:00:00 IST on 1 Dec 2026: no founding badge, no end date, the after-trial line at the list price", async () => {
     vi.resetModules();
     vi.useFakeTimers({ now: new Date("2026-12-01T00:00:00+05:30"), toFake: ["Date"] });
-    let mod: typeof import("../../config/pricing");
-    try {
-      mod = await import("../../config/pricing");
-    } finally {
-      vi.useRealTimers();
-    }
-    expect(mod.FOUNDING_OFFER_OPEN).toBe(false);
-    expect(mod.MONTHLY_INLINE).toBe(`${mod.PRICE_MONTHLY_LIST_DISPLAY} ${mod.PERIOD_MONTHLY_LABEL}`);
     const { default: OfferStrip } = await import("./OfferStrip");
+    const pricing = await import("../../config/pricing");
     render(
       <MemoryRouter>
         <OfferStrip />
@@ -285,6 +253,7 @@ describe("the flag as it actually ships", () => {
     );
     expect(screen.queryByTestId("lt-offer-founding-badge")).toBeNull();
     expect(screen.queryByText(/Offer ends/)).toBeNull();
+    expect(flat(screen.getByTestId("lt-offer-strip"))).toContain(`Premium at ${pricing.PRICE_MONTHLY_LIST_DISPLAY} for a month.`);
   });
 });
 
@@ -402,7 +371,7 @@ describe("the after-trial line", () => {
     // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6): the shared general line, word for word,
     // its price imported from config/pricing (MONTHLY_INLINE), never typed.
     expect(flat(panel)).toBe(
-      `Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ${MONTHLY_INLINE}.`,
+      `Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`,
     );
     expect(flat(panel).toLowerCase()).not.toContain("then paid");
     expect(flat(panel).toLowerCase()).not.toContain("upgrade anytime");
@@ -497,7 +466,7 @@ describe("mounted on the auth surface", () => {
     // the price a student pays after the trial (MONTHLY_INLINE), so that is the ONE
     // figure the mirror may carry: no badge, no struck list price, nothing else.
     expect([...new Set(flat(mobile).match(/₹[\d,]+/g))]).toEqual([
-      MONTHLY_INLINE.match(/₹[\d,]+/)![0],
+      monthlyInline().match(/₹[\d,]+/)![0],
     ]);
     expect(mobile.querySelector("s")).toBeNull();
     expect(within(mobile).queryByTestId("lt-offer-founding-badge")).toBeNull();

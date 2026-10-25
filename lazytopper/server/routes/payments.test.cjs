@@ -164,7 +164,7 @@ function fakeRazorpay() {
 }
 
 /* ── the routes behind a real HTTP server, so bodies arrive as real bytes ────────── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), now = () => NOW, telemetry, topupBonus } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), now = () => NOW, telemetry, topupBonus, calendarOffer = false } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const tele = telemetry || { increment: (e) => events.push(e) };
@@ -176,7 +176,8 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
   };
   const routes = createPaymentRoutes({
     sendJson, verifiedCaller, adminFirestore: db, telemetry: tele, env, fetchImpl: rzp.fetchImpl, now,
-    foundingOfferOpen: true,
+    // PRICING-1: `calendarOffer` leaves the offer to the injected clock (the production path).
+    ...(calendarOffer ? {} : { foundingOfferOpen: true }),
     ...(topupBonus ? { topupBonus } : {}),
   });
   const server = http.createServer((req, res) => {
@@ -1189,4 +1190,88 @@ test('TOPUP · the pack table is the owner\'s 22 Oct decision: 49 -> 25 and 149 
     { topup_49: { priceInr: 49, creditInr: 25 }, topup_149: { priceInr: 149, creditInr: 80 } },
   );
   assert.equal(pricing.TOPUP_BONUS_PERCENT, 0);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PRICING-1 — the founding offer closes at 00:00 IST on 1 Dec 2026
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const LAST_SECOND = Date.parse('2026-11-30T23:59:59+05:30');
+const AFTER_CLOSE = Date.parse('2026-12-01T00:00:01+05:30');
+const PAST_GRACE = Date.parse('2026-12-02T00:00:01+05:30');
+
+test('PRICING-1 · an order made at 23:59:59 IST on 30 Nov and PAID at 00:00:01 IST on 1 Dec is charged AND recorded as founding (599, foundingMember)', async (t) => {
+  let clock = LAST_SECOND;
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const created = await createOrder(srv);
+  assert.equal(created.amountPaise, 59900, 'the order was priced at the founding rate');
+  clock = AFTER_CLOSE;
+  const p = srv.rzp.pay(created.orderId);
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  const stored = srv.db.read('subscriptions/u1');
+  assert.equal(stored.pricePaidInr, 599, 'recorded what was charged');
+  assert.equal(stored.offerKey, 'founding');
+  assert.equal(stored.foundingMember, true);
+  assert.equal(srv.db.read(`subscriptions/u1/payments/${p.id}`).pricePaidInr, 599);
+});
+
+test('PRICING-1 · an order made after the close is charged and recorded at the list price (999, not founding)', async (t) => {
+  const srv = await startRoutes({ now: () => AFTER_CLOSE, calendarOffer: true });
+  t.after(srv.close);
+  const created = await createOrder(srv);
+  assert.equal(created.amountPaise, 99900);
+  const p = srv.rzp.pay(created.orderId);
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  const stored = srv.db.read('subscriptions/u1');
+  assert.equal(stored.pricePaidInr, 999);
+  assert.equal(stored.offerKey, 'regular');
+  assert.equal(stored.foundingMember, false);
+});
+
+test('PRICING-1 · a founding order whose payment is only AUTHORIZED 24 h+ after the close is NOT captured and NOT granted (the authorization lapses, no money taken)', async (t) => {
+  let clock = LAST_SECOND;
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const created = await createOrder(srv);
+  clock = PAST_GRACE;
+  const p = srv.rzp.pay(created.orderId, { status: 'authorized' });
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 400, JSON.stringify(r.json));
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.includes('/capture')).length, 0, 'a stale founding order was captured');
+  assert.equal(srv.db.read('subscriptions/u1'), undefined, 'a pass was granted for a refused order');
+  // The status path refuses the same way and also captures nothing.
+  const st = await askStatus(srv, created.orderId);
+  assert.equal(st.json.reason, 'order_expired');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.includes('/capture')).length, 0);
+});
+
+test('PRICING-1 · within the 24 h grace an authorized founding order is still captured and granted at 599', async (t) => {
+  let clock = LAST_SECOND;
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const created = await createOrder(srv);
+  clock = Date.parse('2026-12-01T23:59:00+05:30');
+  const p = srv.rzp.pay(created.orderId, { status: 'authorized' });
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 599);
+});
+
+test('PRICING-1 · money already CAPTURED is never stranded: a stale founding order that Razorpay captured is granted at its own price', async (t) => {
+  let clock = LAST_SECOND;
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const created = await createOrder(srv);
+  clock = PAST_GRACE;
+  const p = srv.rzp.pay(created.orderId); // captured (auto-capture) before we ever saw it
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  const stored = srv.db.read('subscriptions/u1');
+  assert.equal(stored.tier, 'premium');
+  assert.equal(stored.pricePaidInr, 599);
+  assert.equal(stored.foundingMember, true);
 });

@@ -14,7 +14,8 @@ import {
 import {
   FOUNDING_LOCK_COPY,
   FOUNDING_OFFER_BADGE,
-  FOUNDING_OFFER_OPEN,
+  foundingOfferOpen,
+  foundingRateApplies,
   FOUNDING_OFFER_UNTIL_COPY,
   PERIOD_FREE_LABEL,
   PERIOD_MONTHLY_LABEL,
@@ -22,6 +23,7 @@ import {
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
   TILL_BOARDS_LINE,
+  BOARD_PASS_NAME,
   TILL_BOARDS_SAVING_PERCENT,
   TUITION_ANCHOR,
   tillBoardsQuote,
@@ -480,7 +482,7 @@ const PRICING_CSS = `
      behind its head + button rows. */
   .lt-pricing-passes {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     grid-template-rows: auto auto auto auto;
     column-gap: 12px;
   }
@@ -494,16 +496,18 @@ const PRICING_CSS = `
     background: var(--lt-surface);
   }
 
-  .lt-pricing-pass-bg--month {
+  /* PRICING-1 (owner, 25 Oct 2026) — the Board Pass LEADS: first, wider, bordered in the
+     brand green; the Month pass is the quieter option beside it. */
+  .lt-pricing-pass-bg--boards {
     grid-column: 1;
     grid-row: 2 / 4;
-    border: 1px solid var(--lt-tile-line);
+    border: 2px solid var(--lt-green-deep);
   }
 
-  .lt-pricing-pass-bg--boards {
+  .lt-pricing-pass-bg--month {
     grid-column: 2;
     grid-row: 2 / 4;
-    border: 2px solid var(--lt-green-deep);
+    border: 1px solid var(--lt-tile-line);
   }
 
   .lt-pricing-pass {
@@ -515,14 +519,22 @@ const PRICING_CSS = `
     gap: 6px;
   }
 
-  .lt-pricing-pass--month {
+  .lt-pricing-pass--boards {
     grid-column: 1;
     grid-row: 2;
   }
 
-  .lt-pricing-pass--boards {
+  .lt-pricing-pass--month {
     grid-column: 2;
     grid-row: 2;
+  }
+
+  .lt-pricing-pass--boards .lt-pricing-tillboards-amount {
+    font-size: 3rem;
+  }
+
+  .lt-pricing-pass--month .lt-pricing-amount {
+    font-size: 1.9rem;
   }
 
   .lt-pricing-pass-name {
@@ -563,18 +575,18 @@ const PRICING_CSS = `
     padding: 12px 10px;
   }
 
-  .lt-pricing-pay--month {
+  .lt-pricing-pay--boards {
     grid-column: 1;
     grid-row: 3;
     color: var(--lt-on-dark);
-    background: var(--lt-ink);
+    background: var(--lt-green-deep);
   }
 
-  .lt-pricing-pay--boards {
+  .lt-pricing-pay--month {
     grid-column: 2;
     grid-row: 3;
     color: var(--lt-on-dark);
-    background: var(--lt-green-deep);
+    background: var(--lt-ink);
   }
 
   .lt-pricing-checkout-note {
@@ -968,27 +980,27 @@ const PRICING_CSS = `
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: auto auto auto 14px auto auto auto;
     }
-    .lt-pricing-pass-bg--month {
+    .lt-pricing-pass-bg--boards {
       grid-column: 1;
       grid-row: 2 / 4;
     }
-    .lt-pricing-pass-bg--boards {
+    .lt-pricing-pass-bg--month {
       grid-column: 1;
       grid-row: 5 / 7;
     }
-    .lt-pricing-pass--month {
+    .lt-pricing-pass--boards {
       grid-column: 1;
       grid-row: 2;
     }
-    .lt-pricing-pass--boards {
+    .lt-pricing-pass--month {
       grid-column: 1;
       grid-row: 5;
     }
-    .lt-pricing-pay--month {
+    .lt-pricing-pay--boards {
       grid-column: 1;
       grid-row: 3;
     }
-    .lt-pricing-pay--boards {
+    .lt-pricing-pay--month {
       grid-column: 1;
       grid-row: 6;
     }
@@ -1372,6 +1384,13 @@ function PricingPlansPage() {
   // it is what gates trial_start.
   const { user, loading: authLoading } = useAuth();
   const subscription = useSubscription();
+  // PRICING-1 — read at RENDER, never at module load. `offerOpen`: the offer is on sale to new
+  // buyers (badge, end date). `foundingRate`: the price THIS visitor is charged — founding while
+  // the offer is open, or for life for a student who already holds it (server-sticky flag), so a
+  // founder is never shown a price or a lock promise that differs from what the server charges.
+  const nowMs = Date.now();
+  const offerOpen = foundingOfferOpen(nowMs);
+  const foundingRate = foundingRateApplies(nowMs, subscription.status.foundingMember);
   const [trialStartedHere, setTrialStartedHere] = useState(false);
   const trialStartFired = useRef(false);
   const trialEligible =
@@ -1498,7 +1517,7 @@ function PricingPlansPage() {
               <span className="lt-pricing-badge">Recommended</span>
               <div className="lt-pricing-premium-top">
                 <div className="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div>
-                {FOUNDING_OFFER_OPEN && (
+                {offerOpen && (
                   <p className="lt-pricing-founding-flag">
                     {FOUNDING_OFFER_BADGE}
                   </p>
@@ -1512,16 +1531,16 @@ function PricingPlansPage() {
               {/* PAYWALL-PAY-1 — a tap on either pass's Pay button is the "pay" paywall action
                   (capture phase, so PassCheckout is untouched; a disabled button fires nothing). */}
               <div className="lt-pricing-passes" data-testid="pricing-passes" onClickCapture={trackPricingPayTap}>
-                <div className="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true" />
                 <div className="lt-pricing-pass-bg lt-pricing-pass-bg--boards" aria-hidden="true" />
+                <div className="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true" />
+                <div className="lt-pricing-pass lt-pricing-pass--boards">
+                  <div className="lt-pricing-pass-name">{BOARD_PASS_NAME}</div>
+                  <TillBoardsOffer offerOpen={foundingRate} />
+                </div>
                 <div className="lt-pricing-pass lt-pricing-pass--month">
                   <div className="lt-pricing-pass-name">Month pass</div>
-                  <PremiumPriceHead offerOpen={FOUNDING_OFFER_OPEN} />
+                  <PremiumPriceHead offerOpen={foundingRate} />
                   <p className="lt-pricing-price-alt">{TUITION_ANCHOR}</p>
-                </div>
-                <div className="lt-pricing-pass lt-pricing-pass--boards">
-                  <div className="lt-pricing-pass-name">Till your boards</div>
-                  <TillBoardsOffer offerOpen={FOUNDING_OFFER_OPEN} />
                 </div>
                 {paymentsOn ? (
                   <PassCheckout />
@@ -1533,10 +1552,10 @@ function PricingPlansPage() {
                 )}
               </div>
 
-              {FOUNDING_OFFER_OPEN && (
+              {foundingRate && (
                 <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
               )}
-              {FOUNDING_OFFER_OPEN && (
+              {offerOpen && (
                 <p className="lt-pricing-founding-until" data-testid="pricing-founding-until">
                   {FOUNDING_OFFER_UNTIL_COPY}
                 </p>
@@ -1613,7 +1632,7 @@ function PricingPlansPage() {
                   <tr>
                     <th scope="col" className="lt-pricing-compare-col-feature">{COMPARE_FEATURE_HEADER}</th>
                     <th scope="col" className="lt-pricing-compare-col-premium">
-                      {comparePremiumHeader(FOUNDING_OFFER_OPEN)}
+                      {comparePremiumHeader(foundingRate)}
                     </th>
                     <th scope="col" className="lt-pricing-compare-col-basic">{COMPARE_BASIC_HEADER}</th>
                   </tr>

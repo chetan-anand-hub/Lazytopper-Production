@@ -1,12 +1,4 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-
-// PRICING-1 — the founding offer closes on 1 Dec 2026 (IST), and `config/pricing.ts` decides it
-// ONCE, when it first loads. This suite asserts the offer-OPEN rendering, so it loads the module
-// at a pinned instant (Date only, restored right after the imports) and passes at any real or
-// shifted clock. The closed rendering is pinned explicitly where it is asserted.
-vi.hoisted(() => {
-  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
-});
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 
 import { render, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -27,7 +19,13 @@ import {
 } from "../config/pricing";
 import { stripAuthChrome, countResidualAuthNodes } from "../../scripts/seo/captureStaticBodies";
 
-vi.useRealTimers();
+// PRICING-1 — the founding offer is read from the CALENDAR at render. These suites assert the
+// offer-OPEN page, so they run at a pinned instant (Date only; a test's own fake timers layer on
+// top) and pass at any real or shifted clock. The closed page is pinned explicitly where asserted.
+beforeEach(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+});
+
 
 /**
  * PricingPage — published price + packaging pins (Lane H-2, rewritten by PRICING-TB-1).
@@ -795,12 +793,12 @@ describe("PricingPage — PRICING-1 · Premium left and first, Basic right", () 
     }
   });
 
-  it("the Premium card holds the two pass tiles, Month first, and the trial action BELOW them", () => {
+  it("the Premium card holds the two pass tiles, Board Pass first, and the trial action BELOW them", () => {
     const { premium } = renderPricing();
     const passes = premium.querySelector('[data-testid="pricing-passes"]');
     expect(passes).not.toBeNull();
     const names = Array.from(passes!.querySelectorAll(".lt-pricing-pass-name")).map(n => flat(n));
-    expect(names).toEqual(["Month pass", "Till your boards"]);
+    expect(names).toEqual(["Board Pass", "Month pass"]);
     const trial = premium.querySelector(".lt-pricing-trial-slot");
     expect(trial).not.toBeNull();
     expect(passes!.compareDocumentPosition(trial!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -882,20 +880,19 @@ describe("PricingPage — honest manual-activation notice (test 4)", () => {
 });
 
 // ─── COPY-2 · K5 (owner, 2026-09-27) ───────────────────────────────────────────
-// The founding chip and the lock note render ONLY while FOUNDING_OFFER_OPEN is true.
-// A partial mock over importActual, so every other figure is the real published one.
+// The founding chip and the end date render ONLY while the offer is open (PRICING-1: by date).
+// Real published figures throughout; nothing is mocked.
 describe("PricingPage — COPY-2 · K5 the founding chip and lock note follow the offer", () => {
   afterEach(() => {
-    vi.doUnmock("../config/pricing");
-    vi.resetModules();
+    vi.useRealTimers();
   });
 
   async function renderWithOffer(open: boolean) {
-    vi.resetModules();
-    vi.doMock("../config/pricing", async () => {
-      const actual = await vi.importActual<typeof import("../config/pricing")>("../config/pricing");
-      return { ...actual, FOUNDING_OFFER_OPEN: open };
-    });
+    // PRICING-1: the offer is the calendar's answer at render. Pin Date to a real instant on
+    // the wanted side of the close (25 Oct 2026 open; 00:00 IST 1 Dec 2026 closed).
+    // (A fake clock is already installed by this file's beforeEach, so MOVE it; a second
+    // useFakeTimers would be a silent no-op.)
+    vi.setSystemTime(new Date(open ? "2026-10-25T06:30:00.000Z" : "2026-12-01T00:00:00+05:30"));
     const { default: Page } = await import("./PricingPage");
     const { container } = render(
       <MemoryRouter>

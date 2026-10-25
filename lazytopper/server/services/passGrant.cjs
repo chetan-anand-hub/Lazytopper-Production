@@ -251,7 +251,27 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
       markOrderPaid();
       return { replayed: true, pass: describePass(request.uid, stored) };
     }
-    const decision = computeGrant(stored, request, { foundingOfferOpen });
+    // PRICING-1 — the ORDER is the record of what was offered and charged. An order created at
+    // 23:59 on 30 Nov and paid at 00:01 on 1 Dec was priced as a founding order and charged the
+    // founding amount; the grant must record exactly that, not re-derive the offer from the
+    // payment time. (An order without an `offerKey` — older ones, tests — falls back to the
+    // dependency/calendar.)
+    const orderOffer =
+      order && (order.offerKey === 'founding' || order.offerKey === 'regular') ? order.offerKey === 'founding' : undefined;
+    const decision = computeGrant(stored, request, {
+      foundingOfferOpen: orderOffer !== undefined ? orderOffer : foundingOfferOpen,
+    });
+    // ...and the price recorded is the amount the order charged. A disagreement with the table
+    // (a till-boards order that crossed a month boundary, a price change between order and
+    // payment) must NEVER strand a payment Razorpay has already captured, so it is logged, not
+    // thrown: the student paid the order's amount and that is what is recorded.
+    if (!decision.replay && order && Number.isInteger(order.amountPaise) && order.amountPaise > 0 && order.amountPaise % 100 === 0) {
+      const chargedInr = order.amountPaise / 100;
+      if (chargedInr !== decision.fields.pricePaidInr) {
+        console.error('[passGrant] order amount differs from the price table:', orderId, chargedInr, decision.fields.pricePaidInr);
+      }
+      decision.fields.pricePaidInr = chargedInr;
+    }
     if (decision.replay) {
       markOrderPaid();
       return { replayed: true, pass: describePass(request.uid, stored) };
@@ -267,7 +287,25 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
   });
 }
 
+/** A founding order stays payable this long after the offer closes (PRICING-1). */
+const FOUNDING_ORDER_GRACE_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * PRICING-1 — has a FOUNDING order outlived the offer by more than the grace window? True only
+ * for an order that was priced while the offer was open (created before the close) and is
+ * being paid 24 h or more after it. An order created after the close (a founder re-buying at
+ * their locked rate) is never stale.
+ */
+function isStaleFoundingOrder(order, nowMs) {
+  if (!order || order.offerKey !== 'founding') return false;
+  const createdMs = toMillis(order.createdAt);
+  if (createdMs === null) return false;
+  return createdMs < pricing.FOUNDING_OFFER_CLOSES_AT_MS && nowMs >= pricing.FOUNDING_OFFER_CLOSES_AT_MS + FOUNDING_ORDER_GRACE_MS;
+}
+
 module.exports = {
+  isStaleFoundingOrder,
+  FOUNDING_ORDER_GRACE_MS,
   grantPass,
   computeGrant,
   describePass,

@@ -88,7 +88,7 @@ describe("tillBoardsQuote — the rules behind the table", () => {
     expect(TILL_BOARDS_PAY_FRACTION).toBe(0.8);
     expect(TILL_BOARDS_SAVING_PERCENT).toBe(20);
     expect(TILL_BOARDS_SAVING_LABEL).toBe("save 20%");
-    expect(TILL_BOARDS_LINE).toBe("Or pay once till your boards — 20% off.");
+    expect(TILL_BOARDS_LINE).toBe("One payment, till your board exam — 20% off paying monthly.");
     expect(TILL_BOARDS_INLINE).toBe("or pay once till boards — 20% off");
   });
 
