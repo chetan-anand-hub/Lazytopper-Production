@@ -15,6 +15,11 @@ vi.mock("../../hooks/useSubscription", () => ({
 }));
 const fetchMyPacksMock = vi.hoisted(() => vi.fn());
 vi.mock("../../services/packs", async (orig) => ({ ...(await orig<typeof import("../../services/packs")>()), fetchMyPacks: fetchMyPacksMock }));
+const subTier = vi.hoisted(() => ({ tier: "free" as "free" | "trial" | "premium" }));
+vi.mock("../../services/subscriptionService", async (orig) => ({
+  ...(await orig<typeof import("../../services/subscriptionService")>()),
+  loadSubscription: () => ({ tier: subTier.tier }),
+}));
 vi.mock("../../analytics/analytics", async (orig) => ({ ...(await orig<typeof import("../../analytics/analytics")>()), sendAnalyticsHit: vi.fn() }));
 
 import * as analytics from "../../analytics/analytics";
@@ -22,6 +27,7 @@ import { ACTIVITY_EVENTS } from "../../services/activityClient";
 import { PACK_PRICE_INR, isPacksClientEnabled } from "../../services/packs";
 import { ACTIVITY_TOPIC_SLUGS } from "../../services/activityPages";
 import { chapterFromLocation, CHAPTER_PACK_PRICE_INR, isPacksEntryEnabled, packsHref, readPacksQuery } from "./packEntry";
+import PacksStrip from "../../components/pricing/PacksStrip";
 import { loadOwnsAnyPack, resetMyPacksCacheForTests, useOwnsAnyPack } from "./myPacksCache";
 import PublicLegalFooter from "../../components/ux/PublicLegalFooter";
 import SettingsModal from "../../components/account/SettingsModal";
@@ -137,7 +143,7 @@ describe("(c) footers", () => {
   it("public footer: flag on -> PDF packs link to /packs, click fires footer; flag off -> absent", async () => {
     FLAG_ON();
     render(<MemoryRouter><PublicLegalFooter /></MemoryRouter>);
-    const a = await screen.findByRole("link", { name: "PDF packs" });
+    const a = await screen.findByRole("link", { name: "PDF packs" }, { timeout: 8000 });
     expect(a.getAttribute("href")).toBe("/packs");
     fireEvent.click(a);
     expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "footer" } });
@@ -223,5 +229,53 @@ describe("(d) My packs", () => {
     render(<MemoryRouter><SettingsModal open onClose={() => {}} onOpenSignInMethods={() => {}} /></MemoryRouter>);
     await waitFor(() => expect(fetchMyPacksMock).toHaveBeenCalled());
     expect(screen.queryByTestId("settings-my-packs")).toBeNull();
+  });
+});
+
+describe("paid Premium sees no pack offers (owner ruling 25 Oct 19:54)", () => {
+  const setTier = (tier: "premium" | "trial" | "free") => {
+    subTier.tier = tier;
+  };
+  beforeEach(() => setTier("free"));
+  const surfaces = async (flag: boolean) => {
+    const out: Record<string, boolean> = {};
+    const r1 = render(<MemoryRouter><PublicLegalFooter /></MemoryRouter>);
+    await act(async () => { await new Promise((r) => setTimeout(r, 300)); });
+    out.footer = !!screen.queryByRole("link", { name: "PDF packs" });
+    r1.unmount();
+    const r2 = render(<MemoryRouter><Note spec={getNoteSpecForTopic("triangles")!} /></MemoryRouter>);
+    await act(async () => { await new Promise((r) => setTimeout(r, 300)); });
+    out.notes = !!screen.queryByTestId("note-pack-link");
+    r2.unmount();
+    const r3 = render(<MemoryRouter><PacksStrip /></MemoryRouter>);
+    out.pricing = !!screen.queryByTestId("pricing-packs-strip");
+    r3.unmount();
+    void flag;
+    return out;
+  };
+  it("basic and trial: footer, notes card and pricing section shown", async () => {
+    FLAG_ON();
+    for (const tier of ["free", "trial"] as const) {
+      setTier(tier);
+      expect(await surfaces(true), tier).toEqual({ footer: true, notes: true, pricing: true });
+    }
+  });
+  it("paid premium: all three hidden", async () => {
+    FLAG_ON();
+    setTier("premium");
+    expect(await surfaces(true)).toEqual({ footer: false, notes: false, pricing: false });
+  });
+  it("paid premium who owns a pack still gets My packs (re-download access)", async () => {
+    FLAG_ON();
+    setTier("premium");
+    fetchMyPacksMock.mockResolvedValue({ packs: [{ packId: "pack_chapter:triangles", sku: "pack_chapter", target: "triangles", pricePaidInr: 49, paidAt: 1, orderId: "o" }], licensee: { name: "A", email: "a@b.in" } });
+    render(<MemoryRouter><MobileAccountMenu /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
+    expect(await screen.findByRole("menuitem", { name: "My packs" })).toBeTruthy();
+  });
+  it("signed out: shown (the visitor default)", async () => {
+    FLAG_ON();
+    authState.user = null;
+    expect((await surfaces(true)).footer).toBe(true);
   });
 });

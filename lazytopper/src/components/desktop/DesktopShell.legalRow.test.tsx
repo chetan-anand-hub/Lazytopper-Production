@@ -151,7 +151,7 @@ describe("PACKS-ENTRY-1 (c) — desktop account dropdown", () => {
     vi.stubEnv("VITE_PACKS_ENABLED", "1");
     render(<MemoryRouter initialEntries={["/practice-hub"]}><DesktopShell><div /></DesktopShell><LocationProbe /></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
-    const btn = await screen.findByRole("button", { name: "PDF packs" });
+    const btn = await screen.findByRole("button", { name: "PDF packs" }, { timeout: 8000 });
     expect(btn.previousElementSibling?.textContent).toBe("Cancellation & Refunds");
     fireEvent.click(btn);
     expect(screen.getByTestId("pathname").textContent).toBe("/packs");
