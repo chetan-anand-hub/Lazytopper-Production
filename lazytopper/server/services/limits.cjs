@@ -45,6 +45,7 @@
 
 const crypto = require('node:crypto');
 const { LIMITS_CONFIG } = require('./limitsConfig.cjs');
+const { chargeableCountOf } = require('../grading/charge.cjs');
 
 const USAGE_LEDGER_COLLECTION = 'usageLedger';
 // An object member (not a bare constant) on purpose, like usageLedger.cjs LEDGER_SEGMENTS: this is a
@@ -77,8 +78,13 @@ const DOWNLOAD_KINDS = new Set(['worksheet', 'chapter-test', 'full-mock', 'pract
 /** The five surfaces whose scorecard detail can be locked (and whose graded result is a "kind"). */
 const DETAIL_KINDS = new Set(['check-improve', 'worksheet', 'chapter-test', 'full-mock', 'quick-practice']);
 /** LLM-graded kinds the grading gate meters. Quick Practice is metered by the QP mint, not here. */
-const GRADE_KINDS = new Set(['check-improve', 'worksheet', 'chapter-test', 'full-mock']);
+const GRADE_KINDS = new Set(['check-improve', 'worksheet', 'chapter-test', 'full-mock', 'quick-practice']);
+/** GRADE_KINDS that live in a `gr:<kind>` weekly bucket (Quick Practice spends the daily `qp` bucket instead). */
+const GR_BUCKET_KINDS = [...GRADE_KINDS].filter((k) => k !== 'quick-practice');
+/** A grading reservation not confirmed or released within this long is dropped (a crash must not hold a slot forever). */
+const RESERVATION_TTL_MS = 30 * 60 * 1000;
 const TRIAL_GRADE_LIMIT_KEY = Object.freeze({
+  'quick-practice': 'quickPracticeGradedPerDay',
   'check-improve': 'checkImprovePerWeek',
   worksheet: 'worksheetGradedPerWeek',
   'chapter-test': 'chapterTestGradedPerWeek',
@@ -218,7 +224,7 @@ function cleanEntries(list) {
   return Array.isArray(list)
     ? list
         .filter((e) => e && typeof e === 'object' && Number.isFinite(e.at) && typeof e.id === 'string')
-        .map((e) => ({ at: e.at, id: e.id, free: e.free === true }))
+        .map((e) => ({ at: e.at, id: e.id, free: e.free === true, ...(e.p === 1 ? { p: 1 } : {}), ...(e.g === 1 ? { g: 1 } : {}) }))
     : [];
 }
 
@@ -229,7 +235,7 @@ function readState(snap) {
   const ff = d.firstFree && typeof d.firstFree === 'object' ? d.firstFree : {};
   const grade = {};
   const gr = {};
-  for (const kind of GRADE_KINDS) {
+  for (const kind of GR_BUCKET_KINDS) {
     gr[kind] = cleanEntries(d.gr && d.gr[kind]);
     if (ff.grade && ff.grade[kind] === true) grade[kind] = true;
   }
@@ -250,7 +256,7 @@ function readState(snap) {
 /** The ONE document shape every mutation writes back whole (a partial set would drop the rest). */
 function serializeState(state, nowMs, cohortMs) {
   const gr = {};
-  for (const kind of GRADE_KINDS) if (state.gr[kind] && state.gr[kind].length) gr[kind] = state.gr[kind];
+  for (const kind of GR_BUCKET_KINDS) if (state.gr[kind] && state.gr[kind].length) gr[kind] = state.gr[kind];
   return {
     cohortMs: cohortMs !== undefined && cohortMs !== null ? cohortMs : state.cohortMs,
     dl: state.dl,
@@ -283,12 +289,30 @@ function markFirstFree(state, bucket) {
   else if (bucket === 'qp') state.firstFree.qp = true;
   else state.firstFree.grade[bucket.slice(3)] = true;
 }
+function unmarkFirstFree(state, bucket) {
+  if (bucket === 'dl') state.firstFree.download = false;
+  else if (bucket === 'qp') state.firstFree.qp = false;
+  else delete state.firstFree.grade[bucket.slice(3)];
+}
 function windowOf(bucket) {
   return bucket === 'qp' ? { kind: 'istDay' } : { kind: 'rolling', ms: WINDOW_MS };
 }
 
 function hashKey(scope, key) {
   return crypto.createHash('sha256').update(`${scope}|${key}`).digest('hex').slice(0, 24);
+}
+
+/** The reservation a grading request took, as plain data a background job can persist (see settleDeferred). */
+const LIMITS_DEFERRED = Symbol.for('lazytopper.limits.deferred');
+function setLimitsDeferred(res, ref) {
+  if (!res || (typeof res !== 'object' && typeof res !== 'function')) return;
+  try {
+    Object.defineProperty(res, LIMITS_DEFERRED, { value: ref, enumerable: false, configurable: true, writable: true });
+  } catch { /* a frozen test double */ }
+}
+function limitsDeferredOf(res) {
+  const d = res && (typeof res === 'object' || typeof res === 'function') ? res[LIMITS_DEFERRED] : undefined;
+  return d && typeof d === 'object' ? { uid: d.uid, bucket: d.bucket, id: d.id, createdMs: d.createdMs } : null;
 }
 
 /**
@@ -517,13 +541,30 @@ function createLimits(deps = {}) {
    * ONE transaction: decide on `bucket`, and write the entry unless it is a refusal-while-enforced
    * or a reuse. `markFree` records the first-free flag even when the entry is a reuse of nothing.
    */
-  async function spendIn(db, uid, { bucket, id, limit, createdMs, enforced, nowMs }) {
+  async function spendIn(db, uid, { bucket, id, limit, createdMs, enforced, nowMs, claimGrade }) {
     return db.runTransaction(async (tx) => {
       const ref = stateRef(db, uid);
       const state = readState(await tx.get(ref));
+      let list = bucketOf(state, bucket);
+      let claimed = false;
+      if (claimGrade && !list.some((e) => e.id === id)) {
+        // A written-answer grade of this set already spent the allowance (grading runs BEFORE the scorecard):
+        // adopt that entry as this set's spend instead of charging the set twice.
+        const start = istDayStartMs(nowMs);
+        const g = list.find((e) => e.g === 1 && e.p !== 1 && e.at >= start);
+        if (g) {
+          list = list.map((e) => (e === g ? { at: e.at, id, free: e.free } : e));
+          claimed = true;
+        }
+      }
       const decision = decideCounted({
-        metered: true, limit, entries: bucketOf(state, bucket), firstFreeUsed: firstFreeOf(state, bucket), id, nowMs, window: windowOf(bucket),
+        metered: true, limit, entries: list, firstFreeUsed: firstFreeOf(state, bucket), id, nowMs, window: windowOf(bucket),
       });
+      if (claimed) {
+        setBucket(state, bucket, list);
+        tx.set(ref, serializeState(state, nowMs, createdMs));
+        return { decision, wrote: true };
+      }
       if (decision.kind === 'reused' || (decision.kind === 'refused' && enforced)) return { decision, wrote: false };
       const entries = decision.entries.concat([{ at: nowMs, id: decision.id, free: decision.free }]).sort((a, b) => a.at - b.at).slice(-MAX_ENTRIES);
       setBucket(state, bucket, entries);
@@ -560,7 +601,7 @@ function createLimits(deps = {}) {
     if (!db || typeof db.runTransaction !== 'function') return failOpen(res, plan, enforced);
     let outcome;
     try {
-      outcome = await spendIn(db, uid, { bucket: 'qp', id: hashKey('qp', paperKey), limit, createdMs: info.createdMs, enforced, nowMs: now() });
+      outcome = await spendIn(db, uid, { bucket: 'qp', id: hashKey('qp', paperKey), limit, createdMs: info.createdMs, enforced, nowMs: now(), claimGrade: true });
     } catch {
       return failOpen(res, plan, enforced);
     }
@@ -643,8 +684,11 @@ function createLimits(deps = {}) {
       if (!isEnforced(env) || !uid) return none;
       if (reqPath !== CHECK_SOLUTION_PATH && reqPath !== GRADE_WORKSHEET_PATH) return none;
       const raw = String((req && req.headers && req.headers['x-lazytopper-surface']) || '').trim().toLowerCase();
+      // /api/check-solution is ONE single-question check: whatever surface a client claims, it is metered as
+      // Check & Improve (the real Quick Practice client sends the header here from SolutionChecker, per
+      // question, which is not a graded SET; the QP allowance is spent by the set's grade-worksheet call or
+      // its scorecard mint). An unknown surface on grade-worksheet is Check & Improve, as fair use counts it.
       const kind = reqPath === CHECK_SOLUTION_PATH ? 'check-improve' : (GRADE_KINDS.has(raw) ? raw : 'check-improve');
-      if (reqPath === CHECK_SOLUTION_PATH && raw === 'quick-practice') return none;
       const info = await tierInfo(uid, req);
       if (!info || !info.metered) return none;
       const db = ledgerDb();
@@ -652,42 +696,125 @@ function createLimits(deps = {}) {
         emit('limits.fail_open');
         return none;
       }
-      const bucket = `gr:${kind}`;
-      const nowMs = now();
+      const bucket = kind === 'quick-practice' ? 'qp' : `gr:${kind}`;
       const passKey = typeof opts.paperKeyOf === 'function' ? opts.paperKeyOf(req, kind) : null;
       const idemKey = String((req.headers && req.headers['idempotency-key']) || '').trim();
       const id = hashKey(`grade|${kind}`, passKey || idemKey || crypto.randomUUID());
-      const state = readState(await stateRef(db, uid).get());
-      const firstFreeUsed = firstFreeOf(state, bucket);
+      const limit = info.tier === 'free' ? 1 : resolveGradeLimit(kind);
 
-      let limit;
-      if (info.tier === 'free') {
-        if (firstFreeUsed) return none; // the ordinary 402 follows
-        limit = 1;
-      } else {
-        limit = resolveGradeLimit(kind);
-        const d = decideCounted({ metered: true, limit, entries: bucketOf(state, bucket), firstFreeUsed, id, nowMs, window: windowOf(bucket) });
-        if (d.kind === 'refused') {
-          emit('limits.grade.refused');
-          sendJson(res, 409, {
-            error: 'trial_limit', source: 'limits', tier: 'trial', surface: kind, window: '7d', limit, used: d.used, remaining: 0, resetAt: d.resetAt,
-          });
-          return { refused: true };
-        }
+      // ONE transaction: read the bucket, decide and RESERVE the slot. Parallel requests (different
+      // idempotency keys) serialise on the document, so the cap cannot be passed.
+      const r = await reserveGrade(db, uid, { bucket, id, limit, tier: info.tier, createdMs: info.createdMs, nowMs: now() });
+      if (r.kind === 'none') return none; // Basic, first free already used: the ordinary 402 follows
+      if (r.kind === 'refused') {
+        emit('limits.grade.refused');
+        sendJson(res, 409, {
+          error: 'trial_limit', source: 'limits', tier: 'trial', surface: kind, window: kind === 'quick-practice' ? '1d' : '7d', limit,
+          used: r.used, remaining: 0, resetAt: r.resetAt,
+        });
+        return { refused: true };
       }
-      const record = () => {
-        spendIn(db, uid, { bucket, id, limit, createdMs: info.createdMs, enforced: false, nowMs: now() }).then(
-          () => emit('limits.grade.recorded'),
-          () => emit('limits.fail_open'),
-        );
-      };
-      res.once('finish', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) record();
-      });
+      if (r.kind === 'reserved') {
+        const ref = { uid, bucket, id, createdMs: info.createdMs };
+        setLimitsDeferred(res, ref);
+        let settled = false;
+        const settle = (ok) => {
+          if (settled) return;
+          settled = true;
+          (ok ? confirmGrade(db, uid, ref) : releaseGrade(db, uid, ref)).then(
+            () => emit(ok ? 'limits.grade.recorded' : 'limits.grade.released'),
+            () => emit('limits.fail_open'),
+          );
+        };
+        res.once('finish', () => {
+          // 202 = a background job: the job settles the reservation when it ends (see settleDeferred).
+          if (res.statusCode === 202) { settled = true; return; }
+          // Charge only a served grade that read at least one question; everything else gives the slot back.
+          settle(res.statusCode >= 200 && res.statusCode < 300 && chargeableCountOf(res) !== 0);
+        });
+        res.once('close', () => { if (!res.writableFinished) settle(false); });
+      }
       return info.tier === 'free' ? { bypassEntitlement: true } : none;
     } catch {
       emit('limits.fail_open');
       return none;
+    }
+  }
+
+  /** The decision + the reservation in ONE transaction. */
+  function reserveGrade(db, uid, { bucket, id, limit, tier, createdMs, nowMs }) {
+    return db.runTransaction(async (tx) => {
+      const ref = stateRef(db, uid);
+      const state = readState(await tx.get(ref));
+      const held = bucketOf(state, bucket).filter((e) => !(e.p === 1 && nowMs - e.at > RESERVATION_TTL_MS));
+      const ffUsed = firstFreeOf(state, bucket);
+      let entries;
+      let free;
+      if (tier === 'free') {
+        if (ffUsed) return { kind: 'none' };
+        entries = held;
+        free = true;
+      } else {
+        const d = decideCounted({ metered: true, limit, entries: held, firstFreeUsed: ffUsed, id, nowMs, window: windowOf(bucket) });
+        if (d.kind === 'refused') return { kind: 'refused', used: d.used, resetAt: d.resetAt };
+        if (d.kind === 'reused') return { kind: 'reused' };
+        entries = d.entries;
+        free = d.free;
+      }
+      const entry = { at: nowMs, id, free, p: 1, ...(bucket === 'qp' ? { g: 1 } : {}) };
+      setBucket(state, bucket, entries.concat([entry]).sort((x, y) => x.at - y.at).slice(-MAX_ENTRIES));
+      markFirstFree(state, bucket);
+      tx.set(ref, serializeState(state, nowMs, createdMs));
+      return { kind: 'reserved', free };
+    });
+  }
+
+  /** A graded result was delivered: the reservation becomes a plain spend (re-added if its TTL lapsed). */
+  function confirmGrade(db, uid, { bucket, id, createdMs }) {
+    return db.runTransaction(async (tx) => {
+      const ref = stateRef(db, uid);
+      const state = readState(await tx.get(ref));
+      const list = bucketOf(state, bucket);
+      const hit = list.find((e) => e.id === id);
+      const next = hit
+        ? list.map((e) => (e === hit ? { at: e.at, id: e.id, free: e.free, ...(e.g === 1 ? { g: 1 } : {}) } : e))
+        : list.concat([{ at: now(), id, free: false, ...(bucket === 'qp' ? { g: 1 } : {}) }]);
+      setBucket(state, bucket, next.slice(-MAX_ENTRIES));
+      tx.set(ref, serializeState(state, now(), createdMs));
+    });
+  }
+
+  /** Nothing was delivered (error, refusal downstream, every question unreadable): give the slot back. */
+  function releaseGrade(db, uid, { bucket, id, createdMs }) {
+    return db.runTransaction(async (tx) => {
+      const ref = stateRef(db, uid);
+      const state = readState(await tx.get(ref));
+      const list = bucketOf(state, bucket);
+      const hit = list.find((e) => e.id === id && e.p === 1);
+      if (!hit) return;
+      setBucket(state, bucket, list.filter((e) => e !== hit));
+      if (hit.free) unmarkFirstFree(state, bucket);
+      tx.set(ref, serializeState(state, now(), createdMs));
+    });
+  }
+
+  /**
+   * A background grading job ended (grading/jobs.cjs commitDeferred): confirm the reservation when at
+   * least one question was graded, release it otherwise. Never throws.
+   */
+  function settleDeferred(deferred, graded) {
+    try {
+      const ref = deferred && typeof deferred === 'object' ? deferred.limits : null;
+      if (!ref || typeof ref.uid !== 'string' || typeof ref.bucket !== 'string' || typeof ref.id !== 'string') return;
+      const db = ledgerDb();
+      if (!db || typeof db.runTransaction !== 'function') return;
+      const ok = Math.floor(Number(graded) || 0) > 0;
+      (ok ? confirmGrade(db, ref.uid, ref) : releaseGrade(db, ref.uid, ref)).then(
+        () => emit(ok ? 'limits.grade.recorded' : 'limits.grade.released'),
+        () => emit('limits.fail_open'),
+      );
+    } catch {
+      emit('limits.fail_open');
     }
   }
 
@@ -704,7 +831,7 @@ function createLimits(deps = {}) {
     };
     const qpLimit = info.tier === 'free' ? LIMITS_CONFIG.basic.quickPracticeGradedPerDay : LIMITS_CONFIG.trial.quickPracticeGradedPerDay;
     const grade = {};
-    for (const kind of GRADE_KINDS) {
+    for (const kind of GR_BUCKET_KINDS) {
       grade[kind] = info.tier === 'free'
         ? { limit: 0, used: 0, remaining: 0, firstFreeAvailable: !firstFreeOf(state, `gr:${kind}`), resetAt: null }
         : counter(`gr:${kind}`, resolveGradeLimit(kind));
@@ -757,11 +884,12 @@ function createLimits(deps = {}) {
     }
   }
 
-  return { handleDownloadMint, handleLimitsMe, handleQpMint, handleDetailClaim, gradingGate };
+  return { handleDownloadMint, handleLimitsMe, handleQpMint, handleDetailClaim, gradingGate, settleDeferred };
 }
 
 module.exports = {
   createLimits,
+  limitsDeferredOf,
   decideDownload,
   entryId,
   isEnforced,

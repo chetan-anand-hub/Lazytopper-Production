@@ -237,7 +237,10 @@ const { createGradingJobs, JOB_POLL_PATH_RE } = require('./grading/jobs.cjs');
 const { createGradingJobsRoutes } = require('./routes/gradingJobs.cjs');
 const gradingJobs = createGradingJobs({
   telemetry,
-  commitDeferred: (deferred, graded) => fairUse.commitDeferred(deferred, graded),
+  commitDeferred: (deferred, graded) => {
+    limits.settleDeferred(deferred, graded); // LIMITS-1: confirm or release the per-kind reservation
+    return fairUse.commitDeferred(deferred, graded);
+  },
 });
 
 const geminiClientModule = createGeminiClient({

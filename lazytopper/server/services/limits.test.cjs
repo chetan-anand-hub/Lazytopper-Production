@@ -15,7 +15,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { EventEmitter } = require('node:events');
-const { createLimits, decideDownload, decideCounted, istDayStartMs, entryId, TRIAL_COHORT_START_MS, WINDOW_MS } = require('./limits.cjs');
+const { setChargeableCount } = require('../grading/charge.cjs');
+const { createLimits, limitsDeferredOf, decideDownload, decideCounted, istDayStartMs, entryId, TRIAL_COHORT_START_MS, WINDOW_MS } = require('./limits.cjs');
 
 const DAY = 86400000;
 const NOW = Date.UTC(2026, 10, 2, 6, 0, 0); // 2 Nov 2026 11:30 IST
@@ -266,17 +267,18 @@ async function post(r, method, body) {
 const qp = (r, n) => post(r, 'handleQpMint', { paperKey: `qp-${n}` });
 const detail = (r, kind, key) => post(r, 'handleDetailClaim', { kind, resultKey: key });
 
-async function gate(r, { path = '/api/grade-worksheet', surface, idem, status = 200 } = {}) {
+async function gate(r, { path = '/api/grade-worksheet', surface, idem, status = 200, charged } = {}) {
   const headers = {};
   if (surface) headers['x-lazytopper-surface'] = surface;
   if (idem) headers['idempotency-key'] = idem;
   const res = new EventEmitter();
   res.statusCode = status;
   const verdict = await r.l.gradingGate({ headers }, res, path, 'stu-1');
+  if (charged !== undefined) setChargeableCount(res, charged);
   res.emit('finish');
   await new Promise((resolve) => setImmediate(resolve));
   await new Promise((resolve) => setImmediate(resolve));
-  return { verdict, sent: res.sent };
+  return { verdict, sent: res.sent, res };
 }
 
 test('pure: IST day starts at 18:30Z, resets at the next IST midnight', () => {
@@ -393,10 +395,129 @@ test('GRADE · a forged surface header can claim one free grade per kind and not
   assert.deepEqual((await gate(r, { surface: 'worksheet' })).verdict, {});
 });
 
-test('GRADE · quick-practice grading is not metered here (the QP mint does that)', async () => {
+test('GRADE · /api/check-solution is Check & Improve whatever surface header a client sends (never unmetered)', async () => {
   const r = rig();
-  assert.deepEqual((await gate(r, { path: '/api/check-solution', surface: 'quick-practice' })).verdict, {});
-  assert.equal(r.f.docs.size, 0);
+  const a = await gate(r, { path: '/api/check-solution', surface: 'quick-practice' });
+  assert.equal(a.verdict.bypassEntitlement, true, 'it spends the one free Check & Improve');
+  assert.deepEqual((await gate(r, { path: '/api/check-solution', surface: 'quick-practice' })).verdict, {}, 'and then the ordinary 402');
+  const doc = [...r.f.docs.values()][0];
+  assert.equal(doc.firstFree.grade['check-improve'], true);
+  assert.ok(!doc.firstFree.qp, 'the QP bucket is untouched');
+});
+
+test('GRADE · an unknown surface on grade-worksheet is metered as Check & Improve, never none', async () => {
+  const r = rig();
+  assert.equal((await gate(r, { surface: 'zzz' })).verdict.bypassEntitlement, true);
+  assert.equal([...r.f.docs.values()][0].firstFree.grade['check-improve'], true);
+  assert.deepEqual((await gate(r, { surface: 'zzz' })).verdict, {});
+});
+
+test('GRADE · quick-practice on grade-worksheet spends the QUICK PRACTICE bucket (Basic first free, then the 402)', async () => {
+  const r = rig();
+  assert.equal((await gate(r, { surface: 'quick-practice' })).verdict.bypassEntitlement, true);
+  assert.deepEqual((await gate(r, { surface: 'quick-practice' })).verdict, {});
+  const doc = [...r.f.docs.values()][0];
+  assert.equal(doc.firstFree.qp, true);
+  assert.equal(doc.qp.length, 1);
+  assert.ok(!doc.firstFree.grade['check-improve'] && !doc.gr['check-improve'], 'Check & Improve is untouched');
+});
+
+test('GRADE · trial quick-practice: first free + 3 per IST day on the qp bucket, then 409 with a 1d window', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  for (let i = 0; i < 4; i += 1) { assert.deepEqual((await gate(r, { surface: 'quick-practice', idem: `q${i}` })).verdict, {}); r.clock.now += 10; }
+  const c = await gate(r, { surface: 'quick-practice', idem: 'q4' });
+  assert.equal(c.verdict.refused, true);
+  assert.equal(c.sent.status, 409); assert.equal(c.sent.body.window, '1d'); assert.equal(c.sent.body.limit, 3);
+  assert.equal(c.sent.body.resetAt, new Date(istDayStartMs(NOW) + DAY).toISOString());
+  assert.deepEqual((await gate(r, { surface: 'worksheet', idem: 'w' })).verdict, {}, 'worksheet bucket is separate');
+});
+
+test('GRADE · a graded Quick Practice set is charged ONCE: the scorecard mint adopts the grade entry', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  await gate(r, { surface: 'quick-practice', idem: 'g1' }); r.clock.now += 10;
+  const m = await qp(r, 'set-1');
+  assert.equal(m.status, 200);
+  assert.equal(m.body.reused, true, 'adopted, not charged twice');
+  assert.equal([...r.f.docs.values()][0].qp.length, 1);
+  const m2 = await qp(r, 'set-2'); // a tap-only set is a fresh spend
+  assert.equal(m2.body.reused, false);
+  assert.equal([...r.f.docs.values()][0].qp.length, 2);
+});
+
+test('GRADE · RESERVE: N parallel requests at cap-1 with different keys admit exactly ONE', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  await gate(r, { surface: 'worksheet', idem: 'free' }); r.clock.now += 10; // the first free; one counted slot is left
+  const calls = await Promise.all(Array.from({ length: 8 }, async (_, i) => {
+    const res = new EventEmitter(); res.statusCode = 200;
+    const verdict = await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'worksheet', 'idempotency-key': `p${i}` } }, res, '/api/grade-worksheet', 'stu-1');
+    return { verdict, res };
+  }));
+  assert.equal(calls.filter((c) => c.verdict.refused).length, 7);
+  assert.equal(calls.filter((c) => !c.verdict.refused).length, 1);
+});
+
+test('GRADE · RESERVE: Basic first free is claimed by ONE of N parallel requests', async () => {
+  const r = rig();
+  const calls = await Promise.all(Array.from({ length: 6 }, async (_, i) => {
+    const res = new EventEmitter(); res.statusCode = 200;
+    return r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'full-mock', 'idempotency-key': `b${i}` } }, res, '/api/grade-worksheet', 'stu-1');
+  }));
+  assert.equal(calls.filter((v) => v.bypassEntitlement).length, 1);
+});
+
+test('GRADE · CHARGE ON SUCCESS: a 5xx, or a 200 where every question was unreadable, releases the slot (and the free flag)', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  await gate(r, { surface: 'worksheet', idem: 'a', status: 500 });
+  await gate(r, { surface: 'worksheet', idem: 'b', charged: 0 });
+  let doc = [...r.f.docs.values()][0];
+  assert.equal((doc.gr.worksheet || []).length, 0, 'nothing is held');
+  assert.ok(!doc.firstFree.grade.worksheet, 'the first free is back');
+  const ok = await gate(r, { surface: 'worksheet', idem: 'c', charged: 3 });
+  assert.deepEqual(ok.verdict, {});
+  doc = [...r.f.docs.values()][0];
+  assert.equal(doc.gr.worksheet.length, 1);
+  assert.ok(!doc.gr.worksheet[0].p, 'confirmed: no longer pending');
+  assert.equal(doc.firstFree.grade.worksheet, true);
+});
+
+test('GRADE · ASYNC JOB: the 202 keeps the reservation; the job end confirms (graded>0) or releases (graded 0)', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  const j1 = await gate(r, { surface: 'worksheet', idem: 'j1', status: 202, charged: 0 });
+  let doc = [...r.f.docs.values()][0];
+  assert.equal(doc.gr.worksheet.length, 1); assert.equal(doc.gr.worksheet[0].p, 1, 'still pending after the 202');
+  const ref = limitsDeferredOf(j1.res);
+  assert.equal(ref.bucket, 'gr:worksheet');
+  r.l.settleDeferred({ uid: 'stu-1', limits: ref }, 2);
+  await new Promise((x) => setTimeout(x, 30));
+  doc = [...r.f.docs.values()][0];
+  assert.equal(doc.gr.worksheet.length, 1); assert.ok(!doc.gr.worksheet[0].p, 'confirmed at the job end');
+
+  const j2 = await gate(r, { surface: 'chapter-test', idem: 'j2', status: 202, charged: 0 });
+  r.l.settleDeferred({ uid: 'stu-1', limits: limitsDeferredOf(j2.res) }, 0);
+  await new Promise((x) => setTimeout(x, 30));
+  doc = [...r.f.docs.values()][0];
+  assert.equal((doc.gr['chapter-test'] || []).length, 0, 'nothing read -> released');
+  assert.ok(!doc.firstFree.grade['chapter-test']);
+});
+
+test('GRADE · a reservation that is never settled expires after 30 minutes', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  const res = new EventEmitter(); res.statusCode = 200;
+  await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'worksheet', 'idempotency-key': 'x' } }, res, '/api/grade-worksheet', 'stu-1');
+  r.clock.now += 31 * 60 * 1000;
+  await gate(r, { surface: 'worksheet', idem: 'y' });
+  const doc = [...r.f.docs.values()][0];
+  assert.ok(!doc.gr.worksheet.some((e) => e.id !== undefined && e.p === 1 && e.at === NOW), 'the stale reservation is gone');
+});
+
+test('source pins: the grade reservation is ONE transaction, settled on finish, and the job end settles it', () => {
+  const src = fs.readFileSync(path.join(__dirname, 'limits.cjs'), 'utf8');
+  assert.match(src, /function reserveGrade[\s\S]*db\.runTransaction/);
+  assert.doesNotMatch(src, /await stateRef\(db, uid\)\.get\(\)\);\s*const firstFreeUsed/);
+  const idx = fs.readFileSync(path.join(__dirname, '..', 'index.cjs'), 'utf8');
+  assert.match(idx, /limits\.settleDeferred\(deferred, graded\)/);
+  const cs = fs.readFileSync(path.join(__dirname, '..', 'routes', 'checkSolution.cjs'), 'utf8');
+  assert.match(cs, /withLimitsDeferred\(deferredCommitOf\(res\), limitsDeferredOf\(res\)\)/);
 });
 
 test('GRADE · trial cohort: first free + 1 per 7 days for worksheet / chapter-test / full-mock, then 409 trial_limit', async () => {
