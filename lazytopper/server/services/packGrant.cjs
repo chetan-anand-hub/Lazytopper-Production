@@ -40,6 +40,7 @@ function publicPack(p) {
     target: p.target,
     pricePaidInr: p.pricePaidInr,
     paidAt: p.paidAt,
+    orderId: p.orderId,
   };
 }
 
@@ -100,7 +101,7 @@ async function grantPack(input) {
         duplicate: marker.duplicate === true,
         pack: existing
           ? publicPack(existing)
-          : { packId: markerPackId, sku, target, pricePaidInr: priceInr, paidAt: nowMs },
+          : { packId: markerPackId, sku, target, pricePaidInr: priceInr, paidAt: nowMs, orderId },
       };
     }
 
@@ -147,6 +148,7 @@ async function listPacks(db, uid) {
       target: p.target,
       pricePaidInr: p.pricePaidInr,
       paidAt: p.paidAt,
+      orderId: p.orderId,
     });
   }
   out.sort((a, b) => (Number(a.paidAt) || 0) - (Number(b.paidAt) || 0) || (a.packId < b.packId ? -1 : 1));

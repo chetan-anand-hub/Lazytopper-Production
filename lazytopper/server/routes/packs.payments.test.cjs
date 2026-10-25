@@ -581,10 +581,10 @@ test('GET /api/packs/mine: lists only the caller\'s packs, public fields only, e
   const r = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('u1') });
   assert.equal(r.status, 200);
   assert.deepEqual(r.json.packs, [
-    { packId: 'pack_mock:maths', sku: 'pack_mock', target: 'maths', pricePaidInr: 99, paidAt: 1000 },
-    { packId: 'pack_chapter:circles', sku: 'pack_chapter', target: 'circles', pricePaidInr: 49, paidAt: 2000 },
+    { packId: 'pack_mock:maths', sku: 'pack_mock', target: 'maths', pricePaidInr: 99, paidAt: 1000, orderId: 'o_seed' },
+    { packId: 'pack_chapter:circles', sku: 'pack_chapter', target: 'circles', pricePaidInr: 49, paidAt: 2000, orderId: 'o_seed' },
   ]);
   assert.deepEqual(r.json.licensee, { name: '', email: 'asha@example.com' });
   assert.equal(JSON.stringify(r.json).includes('paymentRef'), false);
-  assert.equal(JSON.stringify(r.json).includes('o_seed'), false);
+  assert.equal(JSON.stringify(r.json).includes('p_seed'), false, 'the payment reference stays server-side');
 });
