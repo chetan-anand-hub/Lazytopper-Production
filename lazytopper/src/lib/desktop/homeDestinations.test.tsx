@@ -178,7 +178,7 @@ describe("TutorPickerModal — the rendered pop-card", () => {
   it("shows the state-dependent gate note with frozen trial framing", () => {
     renderPicker(false);
     expect(screen.getByTestId("tutor-picker-gate-note")).toHaveTextContent(
-      /Log in to open your tutor\..*straight back to this chapter/i,
+      /Sign up free — 7 days of the tutor and step marking\..*straight back to this chapter/i,
     );
     cleanup();
 
@@ -196,7 +196,7 @@ describe("TutorPickerModal — the rendered pop-card", () => {
 
   it("tutorGateNote never promises anything but the frozen framing", () => {
     expect(tutorGateNote(true)).not.toMatch(/then paid/i);
-    expect(tutorGateNote(false)).toMatch(/Log in to open your tutor/);
+    expect(tutorGateNote(false)).toMatch(/Sign up free — 7 days of the tutor and step marking/);
   });
 
   it("renders nothing when closed", () => {
@@ -242,5 +242,14 @@ describe("PRIMARY_CARDS — SPEC §2 inventory", () => {
     expect(tutor?.kind).toBe("tutor");
     // A `to` here would mean the card navigates somewhere without a chapter.
     expect(tutor && "to" in tutor).toBe(false);
+  });
+});
+
+describe("ASK-COPY-1: the signed-out tutor gate leads with the free week", () => {
+  it("says 'Sign up free', never 'Log in to open your tutor', and still promises the return trip", () => {
+    expect(tutorGateNote(false)).toBe(
+      "Sign up free — 7 days of the tutor and step marking. We'll bring you straight back to this chapter.",
+    );
+    expect(tutorGateNote(false)).not.toMatch(/Log in to open your tutor/);
   });
 });
