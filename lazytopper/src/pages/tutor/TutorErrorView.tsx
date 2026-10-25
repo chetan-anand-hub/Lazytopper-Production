@@ -3,13 +3,51 @@
  * can be tested without mounting the whole page. Behaviour unchanged apart from the
  * PaywallActions swap (payments dark: the old link, byte for byte).
  */
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { backAtLine, limitHeadline, type TutorErrorState } from "./tutorErrorState";
 import PaywallActions from "../../components/pricing/PaywallActions";
+import UpgradeSheet from "../../components/subscription/UpgradeSheet";
+import TrialStartButton from "../../components/pricing/TrialStartButton";
+import { boardPassOffer } from "../../components/pricing/boardPassOffer";
+import { isTrialEligible, useOptionalUid } from "../../components/pricing/trialCta";
+import { useSubscription } from "../../hooks/useSubscription";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
+
+/**
+ * ASK-COPY-1 - the tutor's 402 card, owner-approved wording (25 Oct 2026, FU-TUTOR-PREMIUM-CARD-COPY).
+ * The price is computed by the same helper /pricing's Board Pass uses (config/pricing tillBoardsQuote
+ * via boardPassOffer), never typed; when it cannot be quoted the card says "the Board Pass, till your
+ * boards" with no figure rather than a guess. The actions are the shared UpgradeSheet (Board Pass
+ * first, Pay, Send to parent). A student who can still start the free week sees that first
+ * (explicit tap only); on success the question is asked again.
+ */
+function PremiumCard({ selfHref, onRetry }: { selfHref: string; onRetry: () => void }) {
+  const { status, hydrated } = useSubscription();
+  const uid = useOptionalUid();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const price = boardPassOffer(new Date(), predictCbseExamDate("10")).priceDisplay;
+  const eligible = Boolean(uid) && isTrialEligible(hydrated, status);
+  return (
+    <div className="lt-tutor__upgrade" role="status" data-testid="tutor-error-premium">
+      <p className="lt-tutor__upgrade-h">Want to know why you lost this mark?</p>
+      <p className="lt-tutor__upgrade-p">
+        {`The tutor walks you through this exact question, step by step. It comes with the Board Pass: ${
+          price ? `${price} once, ` : ""
+        }till your boards.`}
+      </p>
+      {eligible && <TrialStartButton uid={uid} returnTo={selfHref} className="lt-tutor__action" onStarted={onRetry} />}
+      <button type="button" className="lt-tutor__action" data-testid="tutor-see-board-pass" onClick={() => setSheetOpen(true)}>
+        See the Board Pass
+      </button>
+      {sheetOpen && <UpgradeSheet featureLabel="The AI tutor" onClose={() => setSheetOpen(false)} />}
+    </div>
+  );
+}
 
 /**
  * TUTOR-FIX-2 T7 — one typed failure, rendered as what it is:
- *   premium  → an upgrade card to the EXISTING pricing entry (UpgradeSheet's own URL), no retry;
+ *   premium  → the Board Pass card (ASK-COPY-1; its actions are the shared UpgradeSheet), no retry;
  *   limit    → "You've used today's tutor messages. Back at <IST time>" / "Back tomorrow.", no retry;
  *   busy     → the same family ("very busy today", back at …), + "See plans" when the server said so;
  *   offline  → a connection line + "Try again";
@@ -18,25 +56,7 @@ import PaywallActions from "../../components/pricing/PaywallActions";
  */
 export default function TutorErrorView({ state, onRetry, selfHref }: { state: TutorErrorState; onRetry: () => void; selfHref: string }) {
   const pricingHref = `/pricing?source=upgrade-sheet&returnTo=${encodeURIComponent(selfHref)}`;
-  if (state.kind === "premium") {
-    return (
-      <div className="lt-tutor__upgrade" role="status" data-testid="tutor-error-premium">
-        <p className="lt-tutor__upgrade-h">The tutor is part of Premium</p>
-        <p className="lt-tutor__upgrade-p">{state.message}</p>
-        {/* PAYWALL-PAY-1 — Pay / Share QR code / Forward link to parents; payments dark:
-            "See Premium", unchanged. */}
-        <PaywallActions
-          surface="tutor"
-          payTo={pricingHref}
-          fallback={
-            <Link to={pricingHref} className="lt-tutor__action">
-              See Premium
-            </Link>
-          }
-        />
-      </div>
-    );
-  }
+  if (state.kind === "premium") return <PremiumCard selfHref={selfHref} onRetry={onRetry} />;
   if (state.kind === "limit" || state.kind === "busy") {
     return (
       <div className="lt-tutor__limit" role="status" data-testid={`tutor-error-${state.kind}`}>

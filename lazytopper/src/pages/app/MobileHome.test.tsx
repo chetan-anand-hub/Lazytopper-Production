@@ -154,7 +154,7 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
     expect(picker).toBeInTheDocument();
     // Signed out — the footer must promise the return trip, not premium.
     expect(screen.getByTestId("tutor-picker-gate-note")).toHaveTextContent(
-      /Log in to open your tutor/i,
+      /Sign up free — 7 days of the tutor and step marking/i,
     );
   });
 

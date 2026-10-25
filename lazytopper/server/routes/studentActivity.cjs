@@ -204,6 +204,11 @@ const ACTIVITY_EVENTS = Object.freeze([
   'engaged_10min',
   // ENGAGE5-1 - five visible minutes in one IST day. Additive only.
   'engaged_5min',
+  // PACKS-CLIENT-1 - the printable PDF packs: page seen, checkout opened, a verified purchase, a file downloaded. Names only.
+  'pack_view',
+  'pack_checkout',
+  'pack_purchase',
+  'pack_download',
 ]);
 
 /**
@@ -258,6 +263,7 @@ const ACTIVITY_STATIC_PAGES = Object.freeze([
   'browse',
   'intent',
   'pricing',
+  'packs',
   'cbse/class-10',
   'teacher',
   'onboarding',

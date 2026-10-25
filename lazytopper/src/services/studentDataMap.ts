@@ -613,6 +613,51 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "Student data: erased with the account and included in the export.",
   },
 
+  // ── Firestore: PDF pack entitlements (server-only, PACKS-SERVER-1; dark until PACKS_ENABLED) ──
+  {
+    id: "packEntitlements",
+    kind: "firestore-collection",
+    path: "packEntitlements/{uid}",
+    holds:
+      "The one-time PDF packs this student has bought (a chapter, a mock set, a subject or the " +
+      "bundle): which pack, what they paid, when, and the order and payment it came from. " +
+      "Lives in the packs and grants subcollections; this parent document only holds a last-updated time.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★ server/services/packGrant.cjs, Admin SDK only. NOT declared in firestore.rules: no client " +
+      "reads or writes it, so browsers fall through to the deny-all catch-all; the student reads " +
+      "their packs through GET /api/packs/mine. Written only by a verified Razorpay payment " +
+      "(idempotent on the payment id). Student data: erased with the account and included in the " +
+      "export. Empty until the owner switches packs on.",
+  },
+  {
+    id: "packEntitlements.packs",
+    kind: "firestore-subcollection",
+    parentId: "packEntitlements",
+    path: "packEntitlements/{uid}/packs/{packId}",
+    holds:
+      "One record per pack owned: its id, kind and target, the price paid, when it was paid, " +
+      "and the order and payment reference.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes: "★ Doc id = packId (sku:target). Student data: erased with the account and included in the export.",
+  },
+  {
+    id: "packEntitlements.grants",
+    kind: "firestore-subcollection",
+    parentId: "packEntitlements",
+    path: "packEntitlements/{uid}/grants/{paymentId}",
+    holds:
+      "One record per pack payment: which pack it bought, the order and when. It is also the " +
+      "idempotency record: a payment already here is never granted twice.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★ Doc id = the Razorpay payment id. Same accounting character as the payments ledger. " +
+      "Student data: erased with the account and included in the export.",
+  },
+
   // ── Firestore: per-student activity log (server-only, STUDENT-ACTIVITY-1) ──────────
   {
     id: "activityLog",

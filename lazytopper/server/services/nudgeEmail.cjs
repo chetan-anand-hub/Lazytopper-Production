@@ -82,6 +82,7 @@ const {
 } = require('./trialEndingEmail.cjs');
 const { deriveEffectiveTier, isServerPinnedStart } = require('./entitlement.cjs');
 const pricing = require('./passPricing.cjs');
+const { isPackProduct } = require('./packProducts.cjs');
 const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
 
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
@@ -631,8 +632,9 @@ function createNudgeEmailer(deps = {}) {
         if (typeof o.uid !== 'string' || !o.uid) continue;
         const e = byUid.get(o.uid) || { paid: false, order: null };
         if (o.status === 'paid') e.paid = true;
-        // The student's OWN plan order only: not a top-up, and not an order a parent started.
-        else if (!e.order && !pricing.isTopupProduct(o.passType) && !o.parentLinkId && !o.payer) e.order = o;
+        // The student's OWN plan order only: not a top-up, not a PDF pack (PACKS-SERVER-1: the email is
+        // framed around a plan), and not an order a parent started.
+        else if (!e.order && !pricing.isTopupProduct(o.passType) && !isPackProduct(o.passType) && !o.parentLinkId && !o.payer) e.order = o;
         byUid.set(o.uid, e);
       }
       for (const [uid, e] of byUid) {

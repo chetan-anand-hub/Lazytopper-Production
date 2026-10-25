@@ -203,6 +203,7 @@ const { runWithRequestContext, bindRequestUid } = require('./services/usageLedge
 // RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
 // off, all three routes answer this file's own 404. Keys only from env; see the module.
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, PAY_STATUS_PATH } = require('./routes/payments.cjs');
+const { createPackRoutes, PACKS_MINE_PATH } = require('./routes/packs.cjs'); // PACKS-SERVER-1
 // ASK-PARENTS-PAY-1: a parent pays for their child from a link the child sends. DARK unless
 // BOTH PAYMENTS_ENABLED and PARENT_PAY_ENABLED are on; the uid comes only from the link.
 const {
@@ -406,6 +407,19 @@ const accountExportRoutes = createAccountExportRoutes({
 });
 
 const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry });
+// PACKS-SERVER-1: the packs a verified student owns. Not behind PACKS_ENABLED (owned packs stay downloadable).
+const packRoutes = createPackRoutes({
+  sendJson,
+  verifiedCaller,
+  adminFirestore,
+  telemetry,
+  // The licensee printed on every page: the server's own auth record for the VERIFIED uid - never a request value.
+  getLicensee: async (uid) => {
+    if (!firebaseAdmin) return { name: '', email: '' };
+    const record = await firebaseAdmin.auth().getUser(uid);
+    return { name: (record && record.displayName) || '', email: (record && record.email) || '' };
+  },
+});
 const parentPayRoutes = createParentPayRoutes({
   sendJson,
   verifiedCaller,
@@ -476,6 +490,8 @@ async function handleRequest(req, res) {
       // credentialed GET is preflighted exactly like the POST above. Without this
       // entry the download request never leaves the browser.
       reqPath === ACCOUNT_EXPORT_PATH ||
+      // PACKS-SERVER-1: a credentialed GET, preflighted for the same reason.
+      reqPath === PACKS_MINE_PATH ||
       // FAIR-USE-1 (U5): a credentialed GET, preflighted for the same reason.
       reqPath === USAGE_ME_PATH ||
       // FAIR-USE-2 (F1): the paper-pass mint — a credentialed POST.
@@ -699,6 +715,7 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === PAY_VERIFY_PATH) return paymentRoutes.handleVerify(req, res);
   if (req.method === 'POST' && reqPath === PAY_WEBHOOK_PATH) return paymentRoutes.handleWebhook(req, res);
   if (req.method === 'POST' && reqPath === PAY_STATUS_PATH) return paymentRoutes.handleStatus(req, res); // PAY-STATUS-1
+  if (req.method === 'GET' && reqPath === PACKS_MINE_PATH) return packRoutes.handleMine(req, res); // PACKS-SERVER-1
   // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
   if (req.method === 'POST' && reqPath === PARENT_LINK_PATH) return parentPayRoutes.handleMintLink(req, res);
   if (req.method === 'POST' && reqPath === PARENT_VIEW_PATH) return parentPayRoutes.handleView(req, res);
