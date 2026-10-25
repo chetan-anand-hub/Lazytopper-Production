@@ -119,10 +119,9 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "CBSE Class 10 Maths and Science prep.",
   },
   "/packs": {
-    title: "Every chapter. Every question. Marked step by step. | CBSE Class 10 PDF Packs | LazyTopper",
+    title: "Every question. Marked step by step. | CBSE Class 10 PDF Packs | LazyTopper",
     description:
-      "Printable CBSE Class 10 Maths and Science PDF packs for Board Exam 2027: all 27 chapters, " +
-      "8 full mock papers per subject and an answer key that shows the marks for every step. From ₹49, one-time.",
+      "Printable CBSE Class 10 Maths & Science question banks with step-marked answer keys. Chapter packs from ₹49, mock papers, one-time payment.",
   },
   "/exam-trends": {
     title: "CBSE Class 10 Exam Trends — Chapter Weightage | LazyTopper",
