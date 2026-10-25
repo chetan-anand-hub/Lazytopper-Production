@@ -11,13 +11,22 @@
  */
 import {
   PACK_CHAPTER_SLUGS,
+  PACK_PRICE_INR,
   PACK_SUBJECTS,
   chaptersOfSubject,
   subjectLabel,
   type PackSku,
   type PackSubject,
 } from "../../services/packs";
-import { BUNDLE_NAME, MATHS_MOCK_PATTERN, MOCKS_PER_SUBJECT, packChapterLabel } from "./packLabels";
+import {
+  ALL_NCERT_CHAPTERS,
+  BUNDLE_NAME,
+  MATHS_MOCK_PATTERN,
+  MATHS_NCERT_CHAPTERS,
+  MOCKS_PER_SUBJECT,
+  SCIENCE_NCERT_CHAPTERS,
+  packChapterLabel,
+} from "./packLabels";
 
 export interface PackManifestItem {
   /** Display name, e.g. "Chapter Test 1". */
@@ -112,5 +121,68 @@ export function packManifest(sku: PackSku, target?: string): PackManifest {
         papers: PACK_CHAPTER_SLUGS.length * CHAPTER_PAPERS + MOCKS_PER_SUBJECT * PACK_SUBJECTS.length,
       };
     }
+  }
+}
+
+/**
+ * What a Subject Pack saves against buying its chapter packs and its mock pack singly:
+ * (chapter packs in the subject x chapter price + mock price) - subject price. Maths has 13 chapter packs (Trigonometry
+ * is one pack covering Ch 8 + 9), so it is 13 x 49 + 99 - 199 = 537, the same as Science.
+ */
+export function subjectSaving(subject: PackSubject): number {
+  return chaptersOfSubject(subject).length * PACK_PRICE_INR.pack_chapter + PACK_PRICE_INR.pack_mock - PACK_PRICE_INR.pack_subject;
+}
+
+/** The Bundle against two Subject Packs. */
+export function bundleSavingBase(): number {
+  return PACK_PRICE_INR.pack_subject * PACK_SUBJECTS.length;
+}
+
+export interface PackSummaryRow {
+  label: string;
+  value: string;
+}
+
+const rupees = (n: number): string => `\u20b9${n}`;
+
+/**
+ * The short "What you get" rows of the pop-up: a label and a value, in the order the owner approved. `questions` is the exact
+ * question count when the bank has been read (lazy), otherwise null and the row shows the sections instead of a made-up number.
+ */
+export function packSummaryRows(sku: PackSku, target?: string, questions: number | null = null): PackSummaryRow[] {
+  const subject: PackSubject = target === "science" ? "science" : "maths";
+  const nf = (n: number): string => n.toLocaleString("en-IN");
+  switch (sku) {
+    case "pack_chapter":
+      return [
+        { label: "Question sheets, Sections A to E", value: questions !== null ? `${nf(questions)} questions` : "A\u2013E" },
+        { label: "Step-marked answer keys", value: "A\u2013E" },
+        { label: "Chapter tests + keys", value: "2" },
+        { label: "Worksheet + key", value: "1" },
+      ];
+    case "pack_mock":
+      return [
+        { label: "Full board-pattern papers", value: String(MOCKS_PER_SUBJECT) },
+        { label: "Step-marked answer keys", value: String(MOCKS_PER_SUBJECT) },
+        { label: "Marks per paper", value: "80" },
+        ...(subject === "maths" ? [{ label: "Maths level", value: MATHS_MOCK_PATTERN }] : []),
+      ];
+    case "pack_subject": {
+      const ncert = subject === "maths" ? MATHS_NCERT_CHAPTERS : SCIENCE_NCERT_CHAPTERS;
+      return [
+        { label: `Chapter packs (${ncert} NCERT chapters)`, value: String(chaptersOfSubject(subject).length) },
+        ...(questions !== null ? [{ label: "Questions", value: nf(questions) }] : []),
+        { label: "Mock papers + keys", value: String(MOCKS_PER_SUBJECT) },
+        { label: "You save", value: rupees(subjectSaving(subject)) },
+      ];
+    }
+    case "pack_bundle":
+      return [
+        { label: "Chapter packs, both subjects", value: String(PACK_CHAPTER_SLUGS.length) },
+        { label: "NCERT chapters covered", value: String(ALL_NCERT_CHAPTERS) },
+        ...(questions !== null ? [{ label: "Questions", value: nf(questions) }] : []),
+        { label: "Mock papers + keys", value: String(MOCKS_PER_SUBJECT * PACK_SUBJECTS.length) },
+        { label: `Instead of 2 \u00d7 ${rupees(PACK_PRICE_INR.pack_subject)}`, value: rupees(bundleSavingBase()) },
+      ];
   }
 }

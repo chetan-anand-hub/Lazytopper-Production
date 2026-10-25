@@ -22,6 +22,8 @@ export const MATHS_MOCK_PATTERN = "Standard (041)";
 /** Owned packs stay downloadable until this date (copy only; My packs keeps working regardless of flags). */
 export const REDOWNLOAD_UNTIL = "31 May 2027";
 export const REDOWNLOAD_COPY = `Download again any time until ${REDOWNLOAD_UNTIL}`;
+/** The one-line terms under the tiles: "One-time payment · never renews · <this>". */
+export const REDOWNLOAD_SHORT = `download again till ${REDOWNLOAD_UNTIL}`;
 
 const LABEL_OVERRIDES: Readonly<Record<string, string>> = {
   trigonometry: "Trigonometry (Ch 8 + Ch 9)",

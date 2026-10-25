@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { packManifest } from "./packManifest";
+import { bundleSavingBase, packManifest, packSummaryRows, subjectSaving } from "./packManifest";
 import { PACK_CHAPTER_SLUGS } from "../../services/packs";
 
 describe("packManifest", () => {
@@ -37,5 +37,20 @@ describe("packManifest", () => {
     expect(m.mockPapers).toBe(16);
     expect(m.groups).toHaveLength(PACK_CHAPTER_SLUGS.length + 2);
     expect(m.papers).toBe(26 * 3 + 16);
+  });
+
+  it("savings are computed from the chapter-pack count, not typed: 13 x 49 + 99 - 199 = 537 for both subjects; the bundle's base is 2 x 199", () => {
+    expect(subjectSaving("maths")).toBe(537);
+    expect(subjectSaving("science")).toBe(537);
+    expect(bundleSavingBase()).toBe(398);
+  });
+  it("summary rows follow the approved pop-up: counts shown only when known, Standard (041) for Maths only", () => {
+    expect(packSummaryRows("pack_chapter", "real-numbers")[0].value).toBe("A\u2013E");
+    expect(packSummaryRows("pack_chapter", "real-numbers", 120)[0].value).toMatch(/120 questions/);
+    expect(packSummaryRows("pack_mock", "maths").map((r) => r.value)).toEqual(["8", "8", "80", "Standard (041)"]);
+    expect(packSummaryRows("pack_mock", "science")).toHaveLength(3);
+    expect(packSummaryRows("pack_subject", "maths").map((r) => r.value)).toEqual(["13", "8", "\u20b9537"]);
+    expect(packSummaryRows("pack_subject", "science", 1234).some((r) => r.label === "Questions" && r.value === "1,234")).toBe(true);
+    expect(packSummaryRows("pack_bundle").map((r) => r.value)).toEqual(["26", "27", "16", "\u20b9398"]);
   });
 });

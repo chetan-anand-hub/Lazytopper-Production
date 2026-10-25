@@ -173,7 +173,7 @@ describe("PendingPapersStrip — one compact row", () => {
     expect(screen.queryByTestId("pending-papers-see-all")).toBeNull();
   });
 
-  it("PACKS-UX-1: pack papers (PK-…) collapse into ONE expandable row; CONTROL: one pack paper stays a normal row", () => {
+  it("PACKS-UX-1: pack papers (PK-…) collapse into ONE expandable row; CONTROL: one pack paper stays a normal row", async () => {
     seedRecords([
       rec({ id: "WS-M-TRI-01", gradedAt: T0 + 9 }),
       ...[1, 2, 3, 4, 5].map((n) => rec({ id: `PK-M-FULL-M${n}`, surface: "full-mock", title: `Maths Full Mock ${n}`, gradedAt: T0 + n })),
@@ -181,7 +181,7 @@ describe("PendingPapersStrip — one compact row", () => {
     renderStrip();
     fireEvent.click(screen.getByTestId("pending-strip-toggle"));
     expect(screen.getAllByTestId("pending-paper-row")).toHaveLength(1);
-    expect(screen.getByTestId("pending-pack-group-label").textContent).toBe("5 pack papers waiting for your answers");
+    expect((await screen.findByTestId("pending-pack-group-label")).textContent).toBe("5 pack papers waiting for your answers");
     expect(screen.queryByText("PK-M-FULL-M3")).toBeNull();
     fireEvent.click(screen.getByTestId("pending-pack-group-toggle"));
     expect(screen.getAllByTestId("pending-paper-row")).toHaveLength(6);
