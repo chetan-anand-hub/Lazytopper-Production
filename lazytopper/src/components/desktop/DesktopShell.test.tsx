@@ -250,7 +250,7 @@ describe("DesktopShell rail — the Tutor entry (PR-B2)", () => {
     // signed-in would go straight to /tutor. Asserting the rendered gate note
     // proves the prop arrived without reaching into the picker's internals.
     expect(screen.getByTestId("tutor-picker-gate-note")).toHaveTextContent(
-      /Log in to open your tutor/i,
+      /Sign up free — 7 days of the tutor and step marking/i,
     );
   });
 
@@ -261,7 +261,7 @@ describe("DesktopShell rail — the Tutor entry (PR-B2)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Tutor" }));
 
     const note = screen.getByTestId("tutor-picker-gate-note");
-    expect(note).not.toHaveTextContent(/Log in to open your tutor/i);
+    expect(note).not.toHaveTextContent(/Sign up free — 7 days of the tutor and step marking/i);
     expect(note).toHaveTextContent(/7-day trial/i);
     // TRIAL-ON-SIGNUP-1b — the price on the shell's picker is monthlyInline().
     expect(note.textContent).toContain(`then free Basic, or Premium at ${monthlyInline()}.`);

@@ -216,15 +216,25 @@ const tutor = (state: typeof TUTOR_PREMIUM | typeof TUTOR_BUSY_PLANS) => (
   <TutorErrorView state={state} onRetry={vi.fn()} selfHref="/tutor?q=1" />
 );
 
-describe("tutor (TutorErrorView): the server-side Premium card and the busy-with-plans line", () => {
-  it.each([
-    ["Premium card", TUTOR_PREMIUM],
-    ["busy, server said plans", TUTOR_BUSY_PLANS],
-  ])("%s, switched on: the three; Pay keeps the tutor's own plans URL", async (_l, state) => {
+describe("tutor (TutorErrorView): the Board Pass card (its actions are the shared UpgradeSheet) and the busy-with-plans line", () => {
+  it("Premium card, switched on: 'See the Board Pass' opens the sheet, which carries the three", async () => {
     flags(true);
-    at(tutor(state));
+    at(tutor(TUTOR_PREMIUM));
+    expect(screen.queryByTestId("paywall-pay")).toBeNull();
+    fireEvent.click(screen.getByTestId("tutor-see-board-pass"));
     await expectThree();
-    expect(screen.queryByText("See Premium")).toBeNull();
+    expect(screen.queryByText("See plans")).toBeNull();
+    fireEvent.click(screen.getByTestId("paywall-pay"));
+    expect(track.mock.calls).toEqual([["pay", "upgrade_sheet"]]);
+    expect(screen.getByTestId("where")).toHaveTextContent(
+      `/pricing?source=upgrade-sheet&returnTo=${encodeURIComponent("/tutor?q=1")}`,
+    );
+  });
+
+  it("busy, server said plans, switched on: the three; Pay keeps the tutor's own plans URL", async () => {
+    flags(true);
+    at(tutor(TUTOR_BUSY_PLANS));
+    await expectThree();
     expect(screen.queryByText("See plans")).toBeNull();
     expect(screen.getByTestId("paywall-pay")).toHaveAttribute(
       "href",
@@ -234,13 +244,18 @@ describe("tutor (TutorErrorView): the server-side Premium card and the busy-with
     expect(track.mock.calls).toEqual([["pay", "tutor"]]);
   });
 
-  it.each([
-    ["Premium card", TUTOR_PREMIUM, "See Premium"],
-    ["busy, server said plans", TUTOR_BUSY_PLANS, "See plans"],
-  ])("CONTROL — %s, payments dark: '%s', nothing new", (_l, state, label) => {
+  it("CONTROL - Premium card, payments dark: the sheet's own 'See plans', nothing new", () => {
     flags(false);
-    at(tutor(state));
-    expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
+    at(tutor(TUTOR_PREMIUM));
+    fireEvent.click(screen.getByTestId("tutor-see-board-pass"));
+    expect(screen.getByRole("button", { name: "See plans" })).toBeInTheDocument();
+    expectNone();
+  });
+
+  it("CONTROL - busy, payments dark: 'See plans', nothing new", () => {
+    flags(false);
+    at(tutor(TUTOR_BUSY_PLANS));
+    expect(screen.getByRole("link", { name: "See plans" })).toBeInTheDocument();
     expectNone();
   });
 

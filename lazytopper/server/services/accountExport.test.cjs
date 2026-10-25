@@ -196,6 +196,10 @@ function realSeed(uid = UID) {
     // TOPUP-1: the student's extra-usage credit and its per-payment grant record (server-only; dark until TOPUP_ENABLED).
     [`usageCredits/${uid}`]: { balanceMicroInr: 25000000, boughtMicroInr: 25000000, spentMicroInr: 0 },
     [`usageCredits/${uid}/grants/pay_T1`]: { productKey: 'topup_49', priceInr: 49, creditMicroInr: 25000000, baseMicroInr: 25000000, bonusMicroInr: 0, grantedAt: '2026-09-27T06:30:00.000Z' },
+    // PACKS-SERVER-1: the student's bought PDF packs and their per-payment grant record (server-only; dark until PACKS_ENABLED).
+    [`packEntitlements/${uid}`]: { updatedAt: '2026-10-27T06:30:00.000Z' },
+    [`packEntitlements/${uid}/packs/pack_chapter:triangles`]: { packId: 'pack_chapter:triangles', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: 1790490600000, orderId: 'order_P1', paymentRef: 'pay_P1', creditedToPass: false },
+    [`packEntitlements/${uid}/grants/pay_P1`]: { paymentRef: 'pay_P1', packId: 'pack_chapter:triangles', orderId: 'order_P1', grantedAt: '2026-10-27T06:30:00.000Z' },
     // METER-1. The parent is seeded only so the map-driven "every location carries data"
     // test has a row to find; production never writes it (see the phantom-parent test).
     [`usageLedger/${uid}`]: {},
