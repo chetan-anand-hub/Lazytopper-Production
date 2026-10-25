@@ -95,7 +95,7 @@ describe("PHASE2-DATE-1 — phase 2 is 15 May of the board cycle; rolls over aft
       expect(at(now, () => predictCbsePhase2Date(cls))).toBe(expected);
       expect(at(now, () => predictCbsePhase2End(cls))).toBe(`${year}-06-01`);
     }
-    // the no-argument form (the module-load CBSE_PHASE2_DATE uses it)
+    // the no-argument form
     expect(at(now, () => predictCbsePhase2Date())).toBe(expected);
   });
 
@@ -129,19 +129,6 @@ describe("PHASE2-DATE-1 — phase 2 is 15 May of the board cycle; rolls over aft
     expect(at(now, () => predictCbseExamDate("10"))).toBe("2027-02-17");
     expect(at(now, () => predictCbsePhase2Date())).toBe("2027-05-15");
     expect(at(now, () => predictCbsePhase2End())).toBe("2027-06-01");
-  });
-
-  it("CBSE_PHASE2_DATE / CBSE_PHASE2_END — module-load values follow the predictor at load time", async () => {
-    vi.useFakeTimers({ toFake: ["Date"] });
-    vi.setSystemTime(istNoon("2026-09-28"));
-    try {
-      vi.resetModules();
-      const fresh = await import("../services/cbseExamDate");
-      expect(fresh.CBSE_PHASE2_DATE).toBe("2027-05-15");
-      expect(fresh.CBSE_PHASE2_END).toBe("2027-06-01");
-    } finally {
-      vi.useRealTimers();
-    }
   });
 
   it("rollover — 18 Feb and 1 Mar keep this year's 15 May (was next year's under a board-day rollover)", () => {
