@@ -212,6 +212,8 @@ function realSeed(uid = UID) {
     'parentReports/sha-report-b': { uid, firstName: 'Aarav', subject: 'science', awarded: 3, total: 5 },
     'parentReports/sha-report-z': { uid: OTHER, firstName: 'Zoya', subject: 'maths', awarded: 9, total: 10 },
     // METER-1: production writes ONLY the day documents; the parent stays missing.
+    // LIMITS-1: the download-limits state document (Admin SDK only).
+    [`usageLedger/${uid}/limits/state`]: { dl: [{ at: 1, id: 'abc', free: true }], firstFree: { download: true } },
     [`usageLedger/${uid}/days/2026-09-27`]: { calls: 1, costMicroInr: 246400 },
     // ★ FIELD-KEYED. The doc id is sha256(uploadToken); the student is a `uid` FIELD.
     'qrUploadSlots/sha-aaa': { uid, storagePath: `qr-uploads/${uid}/sha-aaa.jpg` },
@@ -514,6 +516,21 @@ test('★ METER-1: erasure deletes the usage ledger — every day, under a paren
   assert.equal(byId(result, 'usageLedger').status, STATUS.NOT_FOUND);
   // Another student's ledger is untouched.
   assert.equal(store.docs.has(`usageLedger/${OTHER}/days/2026-09-27`), true);
+});
+
+/* LIMITS-1 — the download-limits state is erased with the account.
+   MUTATION: drop the `usageLedger.limits` entry from studentDataMap.ts => RED. */
+test('★ LIMITS-1: erasure deletes usageLedger/{uid}/limits/state; another student\'s survives', async () => {
+  const seed = {
+    [`usageLedger/${UID}/limits/state`]: { dl: [{ at: 1, id: 'abc', free: true }], firstFree: { download: true } },
+    [`usageLedger/${OTHER}/limits/state`]: { dl: [] },
+  };
+  const { service, store } = makeService({ seed, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+  assert.ok(store.deleted.includes(`usageLedger/${UID}/limits/state`));
+  assert.equal(store.docs.has(`usageLedger/${UID}/limits/state`), false);
+  assert.equal(byId(result, 'usageLedger.limits').status, STATUS.DELETED);
+  assert.equal(store.docs.has(`usageLedger/${OTHER}/limits/state`), true);
 });
 
 /* STUDENT-ACTIVITY-1 (R3, controller decision D5) — the activity log is erased with the

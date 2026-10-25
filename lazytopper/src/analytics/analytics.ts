@@ -868,6 +868,11 @@ export type NamedAnalyticsEvent =
   | "paywall_action_pay"
   | "paywall_action_qr"
   | "paywall_action_forward"
+  // LIMITS-1 — a paper PDF started, was refused by the weekly download limit, or the wall showed.
+  // Names only (no paper id, no kind in the first-party log). Sent by trackDownload
+  | "download_start"
+  | "download_blocked"
+  | "download_wall_shown"
   // PARENT-REPORT-1 — the student shared a link to ONE result with a parent. The vendors get
   // `parent_report_shared { kind, method }`, the first-party log the bare name. Sent by
   // trackParentReportShared
@@ -1403,7 +1408,11 @@ export type PaywallSurface =
   | "pricing"
   | "tutor"
   | "trial_paper"
-  | "more_like_this";
+  | "more_like_this"
+  // LIMITS-1 — the walls at the weekly download limit and (PR-2) the grading limit / locked scorecard.
+  | "download_limit"
+  | "grade_limit"
+  | "scorecard_lock";
 
 const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",
@@ -1422,6 +1431,29 @@ export function trackPaywallAction(action: PaywallAction, surface: PaywallSurfac
   try {
     const data = { action, surface };
     send("event", { name: "paywall_action", data }, { ga4: data }, PAYWALL_ACTIVITY_NAME[action]);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/** LIMITS-1 — what happened at a counted download: it started, was refused, or the wall showed. */
+export type DownloadOutcome = "start" | "blocked" | "wall_shown";
+export type DownloadKind = "worksheet" | "chapter-test" | "full-mock" | "practice-set";
+
+const DOWNLOAD_ACTIVITY_NAME: Record<DownloadOutcome, NamedAnalyticsEvent> = {
+  start: "download_start",
+  blocked: "download_blocked",
+  wall_shown: "download_wall_shown",
+};
+
+/**
+ * LIMITS-1 — `download_<outcome> { kind }`. The vendors get the paper kind; the first-party log
+ * keeps the bare name (it stores names only). Never a paper id, never a count.
+ */
+export function trackDownload(kind: DownloadKind, outcome: DownloadOutcome): void {
+  try {
+    const data = { kind, outcome };
+    send("event", { name: "download", data }, { ga4: data }, DOWNLOAD_ACTIVITY_NAME[outcome]);
   } catch {
     /* analytics must never break the page */
   }

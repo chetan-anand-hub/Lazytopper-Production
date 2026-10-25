@@ -199,6 +199,8 @@ function realSeed(uid = UID) {
     // METER-1. The parent is seeded only so the map-driven "every location carries data"
     // test has a row to find; production never writes it (see the phantom-parent test).
     [`usageLedger/${uid}`]: {},
+    // LIMITS-1: the download-limits state document (Admin SDK only).
+    [`usageLedger/${uid}/limits/state`]: { dl: [{ at: 1, id: 'abc', free: true }], firstFree: { download: true } },
     [`usageLedger/${uid}/days/2026-09-27`]: {
       calls: 3, promptTokens: 4200, outputTokens: 610, thoughtsTokens: 2900, costMicroInr: 883520,
     },
@@ -810,6 +812,22 @@ test('★ METER-1: the usage ledger is exported — day records under a parent t
     !JSON.stringify(result).includes(OTHER),
     "another student's ledger leaked into this export"
   );
+});
+
+/* LIMITS-1 — the download-limits state is student data, so it is IN the export, this student's only.
+   MUTATION: drop the `usageLedger.limits` entry from studentDataMap.ts => RED. */
+test('★ LIMITS-1: usageLedger/{uid}/limits/state is exported, and another student\'s is not', async () => {
+  const seed = {
+    [`usageLedger/${UID}/limits/state`]: { dl: [{ at: 1, id: 'abc', free: true }], firstFree: { download: true } },
+    [`usageLedger/${OTHER}/limits/state`]: { dl: [{ at: 2, id: 'zzz', free: false }] },
+  };
+  const { service } = makeService({ seed, files: [], users: {} });
+  const result = await service.exportAccount(UID);
+  const row = byId(result, 'usageLedger.limits');
+  assert.ok(row, 'usageLedger.limits is missing from the export entirely');
+  assert.equal(row.status, EXPORT_STATUS.EXPORTED);
+  assert.deepEqual(row.records.map((r) => r.path), [`usageLedger/${UID}/limits/state`]);
+  assert.ok(!JSON.stringify(result).includes('zzz'), "another student's limits state leaked");
 });
 
 test('the auth account is exported, and an absent one is EMPTY rather than a failure', async () => {

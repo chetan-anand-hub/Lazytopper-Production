@@ -152,6 +152,10 @@ const EVENT_LABELS: Record<string, string> = {
   paywall_action_pay: "Tapped Pay on a paywall",
   paywall_action_qr: "Tapped Share QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",
+  // LIMITS-1 — paper downloads and the weekly download limit.
+  download_start: "Started a paper download",
+  download_blocked: "Was stopped by the weekly download limit",
+  download_wall_shown: "Saw the download limit screen",
   parent_report_shared: "Shared a result link with parents",
   // SHARE-CARD-1 — any surface, size (story / square) or channel (sheet, WhatsApp, Instagram, download).
   scorecard_share: "Shared a scorecard image",

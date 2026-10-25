@@ -4,6 +4,8 @@ import { useAuth } from "../../context/AuthContext";
 import { RequirePremium } from "../auth/RequireAuth";
 import { PageGuide } from "../guide/pages/pageGuides";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
+import { useLimitedDownload } from "../../hooks/useLimitedDownload";
+import LimitChip from "../limits/LimitChip";
 import type { LTSubjectKey } from "../../data/predictionTypes";
 import type { DifficultyChoice } from "../../data/predictionDataService";
 import { sectionScopeLabel } from "../practice/worksheetGenerator";
@@ -328,6 +330,8 @@ function WorksheetGeneratorInner() {
    *  re-opened from history: unknown), so the ready card can repeat the preview's "only N available" line. */
   const [askedCount, setAskedCount] = useState<number | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its answer key share one key.
+  const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const [downloading, setDownloading] = useState<"questions" | "answers" | null>(null);
 
   // History (FIX B) + pending banner (FIX C) state.
@@ -826,7 +830,11 @@ function WorksheetGeneratorInner() {
   async function runDownload(kind: "questions" | "answers") {
     if (!generated || downloading) return;
     setDownloadError(null);
-    setDownloading(kind);
+    setDownloading(kind); // busy BEFORE the guard: it can take a moment, and a second tap must do nothing
+    if (!(await guardDownload("worksheet", generated.worksheetId))) {
+      setDownloading(null);
+      return;
+    }
     try {
       // Mint (once) the DURABLE session code and print it on the sheet, so each
       // solved worksheet carries the same ID it will later be graded under.
@@ -1489,7 +1497,9 @@ function WorksheetGeneratorInner() {
                 <span className="lt-ws__dld">Step-by-step solutions with CBSE mark weights. Open after you attempt.</span>
               </button>
             </div>
+            <LimitChip />
             {downloadError && <div className="lt-ws__note lt-ws__note--err" role="alert">{downloadError}</div>}
+            {downloadWall}
           </section>
 
           {/* ── The entitlement boundary (AUTH-GATE-MOVE-1) ──────────────────

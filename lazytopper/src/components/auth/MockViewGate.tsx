@@ -17,8 +17,10 @@ import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumableP
  * generator is worth capping, and a signed-in student is worth more allowance than an
  * anonymous one. Downloading the paper you just opened is part of that free view:
  * `exportWorksheetPdf` is html2canvas + jsPDF, entirely client-side, no network call and
- * no cost. Nothing here gates a download, and a spent daily allowance must never block
- * the download of a paper already on screen.
+ * no cost. Nothing HERE gates a download, and a spent daily allowance still never blocks
+ * the download of a paper already on screen. LIMITS-1 (owner ruling 25 Oct 2026) adds a
+ * SEPARATE, server-side weekly download limit (hooks/useLimitedDownload, dark until
+ * VITE_LIMITS_ENABLED + LIMITS_ENFORCE): it counts downloads, not opens, and is not this gate.
  *
  * ★ EVERY COUNTER HERE IS CLIENT-SIDE, DELIBERATELY. Counting on the server would mean
  * authenticating a request for free content, which is precisely the wall this lane
