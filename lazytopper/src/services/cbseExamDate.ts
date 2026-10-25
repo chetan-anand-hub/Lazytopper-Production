@@ -152,14 +152,6 @@ export function predictCbsePhase2End(_studentClass: "10" | "12" = "10"): string 
   return `${phase2CycleYear()}-${PHASE2_END_MONTH_DAY}`;
 }
 
-/**
- * Module-load snapshots, kept for existing importers. They are evaluated once per page
- * load; code that must stay right in a tab left open across a board day should call
- * `predictCbsePhase2Date()` / read `cbseDates.*.phase2` instead.
- */
-export const CBSE_PHASE2_DATE = predictCbsePhase2Date();
-export const CBSE_PHASE2_END = predictCbsePhase2End();
-
 export function daysLeftFromIsoDate(isoDate: string): number {
   const today = new Date();
   const target = new Date(`${isoDate}T00:00:00`);

@@ -23,12 +23,18 @@ export interface TrialEndFeedbackInput {
   isTrialExpired: boolean | undefined;
   isPremium: boolean | undefined;
   trialStartDate: string | null | undefined;
+  /**
+   * ASK-FIX-1 — true while the trial-ended screen has yet to be shown (or is on screen): the
+   * screen makes the ask first and this card follows "Continue with Basic". Omitted = no hold.
+   */
+  deferToScreen?: boolean;
 }
 
 /** Pure: should Home ask about the trial ending? Pinned by useTrialEndFeedback.test.ts. */
 export function trialEndFeedbackKey(input: TrialEndFeedbackInput): string | null {
   if (!input.uid || input.hydrated !== true) return null;
   if (input.isTrialExpired !== true || input.isPremium === true) return null;
+  if (input.deferToScreen === true) return null;
   return typeof input.trialStartDate === "string" && input.trialStartDate ? input.trialStartDate : null;
 }
 

@@ -2,10 +2,25 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
+import TrialAsk from "../trial/TrialAsk";
 
 const TRIAL_DAYS = 7;
 
+/**
+ * ASK-FIX-1 — the app-wide trial slot (App.tsx mounts this on every non-desktop main page). It now
+ * hosts the trial-ended screen and the one-line countdown bar (trial day 4 on); the older strip
+ * below keeps trial days 1-3 and the red "Trial ended" bar.
+ */
 export function TrialBanner() {
+  return (
+    <>
+      <TrialAsk />
+      <LegacyTrialBanner />
+    </>
+  );
+}
+
+function LegacyTrialBanner() {
   const { user } = useAuth();
   const { isTrialExpired, daysLeftInTrial, tier } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -18,6 +33,8 @@ export function TrialBanner() {
   if (dismissed && !isTrialExpired && daysLeftInTrial > 2) return null;
 
   const currentDay = isTrialActive ? TRIAL_DAYS - daysLeftInTrial + 1 : TRIAL_DAYS;
+  // ASK-FIX-1 - from trial day 4 the countdown bar speaks (it has the Board Pass and a real link).
+  if (isTrialActive && currentDay >= 4) return null;
   const progress = currentDay / TRIAL_DAYS;
 
   if (isTrialExpired) {

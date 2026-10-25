@@ -808,6 +808,13 @@ export type NamedAnalyticsEvent =
   // day) and a tap on one of its actions (a two-value cta, never an id or a count).
   | "trial_banner_shown"
   | "trial_banner_click"
+  // ASK-FIX-1 — the trial-end screen (first visit after the trial) and the scorecard's upgrade line. Names only.
+  | "trial_end_screen_shown"
+  | "trial_end_screen_pay"
+  | "trial_end_screen_parent"
+  | "trial_end_screen_basic"
+  | "scorecard_upgrade_shown"
+  | "scorecard_upgrade_click"
   // FEEDBACK-1 — the "help us improve" prompt, FIRST-PARTY names only (moment and reason are
   // inside the name because the activity store keeps names only). Sent by trackFeedbackEvent,
   // which gives the vendors the generic feedback_shown / feedback_dismissed / feedback_reason
@@ -1409,6 +1416,7 @@ export type PaywallSurface =
   | "tutor"
   | "trial_paper"
   | "more_like_this"
+  | "trial_end"
   // LIMITS-1 — the walls at the weekly download limit and (PR-2) the grading limit / locked scorecard.
   | "download_limit"
   | "grade_limit"
@@ -1431,6 +1439,8 @@ export function trackPaywallAction(action: PaywallAction, surface: PaywallSurfac
   try {
     const data = { action, surface };
     send("event", { name: "paywall_action", data }, { ga4: data }, PAYWALL_ACTIVITY_NAME[action]);
+    // ASK-FIX-1 — the trial-ended screen also counts its own taps under its own names.
+    if (surface === "trial_end") trackNamedEvent(action === "pay" ? "trial_end_screen_pay" : "trial_end_screen_parent");
   } catch {
     /* analytics must never break the page */
   }
@@ -1457,6 +1467,20 @@ export function trackDownload(kind: DownloadKind, outcome: DownloadOutcome): voi
   } catch {
     /* analytics must never break the page */
   }
+}
+
+/**
+ * ASK-FIX-1 — the trial-ended screen. `shown` and `basic` are counted here; the Pay and parent
+ * taps are counted by `trackPaywallAction(…, "trial_end")` (PaywallActions already calls it).
+ * Bare names only: no uid, no counts, no price.
+ */
+export function trackTrialEndScreen(kind: "shown" | "basic"): void {
+  trackNamedEvent(kind === "shown" ? "trial_end_screen_shown" : "trial_end_screen_basic");
+}
+
+/** ASK-FIX-1 — the scorecard's upgrade line: shown once per scorecard, and a tap on it. Bare names only. */
+export function trackScorecardUpgrade(kind: "shown" | "click"): void {
+  trackNamedEvent(kind === "shown" ? "scorecard_upgrade_shown" : "scorecard_upgrade_click");
 }
 
 /**

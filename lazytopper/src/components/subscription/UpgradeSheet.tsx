@@ -49,6 +49,8 @@ import { getPremiumFeatureList } from "../../services/featureGates";
 import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { useSubscription } from "../../hooks/useSubscription";
 import PaywallActions from "../pricing/PaywallActions";
+import { boardPassOffer } from "../pricing/boardPassOffer";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
 
 export interface UpgradeSheetProps {
   /** What the student was trying to do, in their words. Names the blocked feature. */
@@ -222,6 +224,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
   };
 
   const trialLine = formatTrialEnded(trialEndedAt);
+  const offer = boardPassOffer(new Date(), predictCbseExamDate("10"));
 
   return (
     <div
@@ -251,7 +254,12 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
 
         <div className="lt-upsheet__offer">
           {/* ★ From pricing.ts. Never a literal. */}
-          <p className="lt-upsheet__price">Premium — {monthlyInline(foundingRateApplies(Date.now(), subscription?.foundingMember))} · everything unlocked</p>
+          {/* ASK-FIX-1 - the Board Pass leads; the monthly pass is the second option. */}
+          <p className="lt-upsheet__price" data-testid="upgrade-sheet-board-pass">
+            {offer.title}
+            {offer.priceDisplay ? ` ${offer.priceDisplay}` : ""} — {offer.detail}
+          </p>
+          <p className="lt-upsheet__price">Or Premium — {monthlyInline(foundingRateApplies(Date.now(), subscription?.foundingMember))} · everything unlocked</p>
           <ul className="lt-upsheet__list">
             {premiumFeatures.map((f) => (
               <li key={f.id}>

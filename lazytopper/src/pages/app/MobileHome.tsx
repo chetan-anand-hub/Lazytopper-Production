@@ -29,6 +29,7 @@ import PendingBell from "../../components/home/PendingBell";
 import ShareWithParentsButton from "../../components/parentReport/ShareWithParentsButton";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
 import { TrialEndBannerView, useTrialEndBanner } from "../../components/trial/TrialEndBanner";
+import { feedbackShouldDeferToScreen } from "../../components/trial/trialEndScreenModel";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
 import {
   BORDER,
@@ -435,6 +436,8 @@ export default function MobileHome() {
     isTrialExpired,
     isPremium,
     trialStartDate: subStatus?.trialStartDate,
+    // ASK-FIX-1 — the trial-ended screen asks first; this card follows it.
+    deferToScreen: feedbackShouldDeferToScreen(user?.uid, subStatus?.trialStartDate ?? null),
   });
   const isSignedIn = !!user;
   // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same memoised read as
