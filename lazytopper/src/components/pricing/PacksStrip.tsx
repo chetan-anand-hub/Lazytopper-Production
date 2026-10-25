@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, type PackSku } from "../../services/packs";
 import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
+import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import "./packsStrip.css";
 
 /**
@@ -20,6 +21,9 @@ const ITEMS: ReadonlyArray<{ sku: PackSku; name: string; what: string; best?: bo
 const FROM_PRICE = Math.min(...ITEMS.map((i) => PACK_PRICE_INR[i.sku]));
 
 export default function PacksStrip() {
+  // Owner ruling 25 Oct: a student who has BOUGHT Premium is shown no pack offers (cached read; signed out / not yet hydrated -> shown).
+  const paid = usePaidPremium();
+  if (paid) return null;
   return (
     <section className="lt-packoffer" aria-labelledby="lt-packoffer-h" data-testid="pricing-packs-strip">
       <div className="lt-packoffer__head">

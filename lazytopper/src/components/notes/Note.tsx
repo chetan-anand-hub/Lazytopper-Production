@@ -29,6 +29,7 @@ import { NoteFigureLightbox } from "./NoteFigureLightbox";
 import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncertFileCode";
 import { ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -467,6 +468,12 @@ const NOTE_CSS = `
   cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--lt-note-green-deep);
   padding: 8px 0; list-style-position: inside;
 }
+.lt-note__pack { margin: 20px 0 0; padding: 16px; border: 1px solid #cfe6d9; border-radius: 14px; background: #eef8f2; text-align: left; }
+.lt-note__pack-title { margin: 0 0 4px; font-family: var(--font-display); font-size: 17px; line-height: 1.3; font-weight: 700; color: var(--lt-note-navy, #0b1f3a); }
+.lt-note__pack-sub { margin: 0 0 12px; font-size: 14px; line-height: 1.4; color: #2a3b52; }
+.lt-note__pack-btn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 48px; padding: 12px 20px; border: 2px solid hsl(152, 55%, 32%); border-radius: 10px; background: #fff; color: hsl(152, 60%, 20%); font-size: 16px; font-weight: 700; text-decoration: none; }
+.lt-note__pack-btn:hover, .lt-note__pack-btn:focus-visible { background: hsl(152, 55%, 94%); }
+@media (max-width: 560px) { .lt-note__pack-btn { width: 100%; } }
 .lt-note__footnote {
   text-align: center; font-size: 12px; color: var(--lt-note-ink-faint);
   font-style: italic; margin: 16px 0 2px;
@@ -1805,6 +1812,9 @@ export function Note({ spec, initialTab }: NoteProps) {
         </section>
         </details>
       )}
+
+      {/* PACKS-ENTRY-1 (b) — the Chapter Pack card at the end of the note (lazy; flag off: nothing). */}
+      <PacksEntry kind="note-card" topicKey={meta.topic_key} title={meta.title} />
 
       <p className="lt-note__footnote">
         <NoteRichText text={meta.title} /> · spec-rendered note · <NoteRichText text={meta.source_edition} />
