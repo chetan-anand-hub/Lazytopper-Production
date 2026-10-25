@@ -340,6 +340,7 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
             kind: reopen.surface,
             resultKey: reopen.surface === "quick-practice" ? practiceSetPaperKey(reopen.questionIds) : reopen.id,
           }}
+          reopened
           variant={storedWorksheetScorecardVariant(reopen, {
             gradedDateLabel: formatDate(reopen.gradedAt),
             onDone: closeReopen,

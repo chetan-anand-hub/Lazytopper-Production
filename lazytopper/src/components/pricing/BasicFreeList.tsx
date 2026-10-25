@@ -1,6 +1,6 @@
 import { monthlyInline } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
-import { basicDownloadLine, limitsCopyOn } from "../../config/limitsPlanCopy";
+import { basicDownloadLine } from "../../config/limitsPlanCopy";
 
 /**
  * TRIAL-ON-SIGNUP-1 · T4 — the Basic (free) plan's feature list, ONE source.
@@ -53,6 +53,12 @@ export const TRIAL_WORDING = {
   seePlans: "See plans →",
 } as const;
 
+const LIMITS_COPY_ON =
+  import.meta.env.VITE_LIMITS_ENABLED === "1" ||
+  import.meta.env.VITE_LIMITS_ENABLED === "true" ||
+  import.meta.env.VITE_LIMITS_ENABLED === "on" ||
+  import.meta.env.VITE_LIMITS_ENABLED === "yes";
+
 export const FREE_FEATURES = [
   { label: "Browse Home, Exam Trends, and topic surfaces", included: true },
   { label: "Practice picker and limited practice", included: true },
@@ -66,7 +72,10 @@ export const FREE_FEATURES = [
   // allowance for chapter tests AND full mocks; the answers are not checked on Basic.
   {
     // LIMITS-1 PR-2 — with the limits on, downloads are weekly (numbers from limitsConfig), opens stay daily.
-    label: limitsCopyOn()
+    // The flag is compared as LITERALS on purpose: Vite replaces `import.meta.env.VITE_LIMITS_ENABLED` with a
+    // constant, so with the limits off this whole branch (and its imports) is dropped from the ENTRY chunk
+    // (PERF-3 budget). Lower-case 1 / true / on / yes enable it, like every other reader of the flag.
+    label: LIMITS_COPY_ON
       ? `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")} — written answers are checked only for your first of each kind`
       : `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
     included: true,

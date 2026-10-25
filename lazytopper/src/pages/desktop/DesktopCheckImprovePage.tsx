@@ -2782,6 +2782,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         {reopen && (
           <ResultsScorecard
             limitKey={{ kind: "check-improve", resultKey: reopen.id }} // LIMITS-1 PR-2 — stored re-open
+            reopened
             variant={storedCheckImproveScorecardVariant(reopen, {
               gradedDateLabel: new Date(reopen.gradedAt).toLocaleDateString("en-GB", {
                 day: "numeric",

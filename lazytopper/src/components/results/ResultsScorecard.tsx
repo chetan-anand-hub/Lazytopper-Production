@@ -23,6 +23,7 @@ import ShareScoreButton from "./share/ShareScoreButton";
 import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import FirstGradedAsk from "../feedback/FirstGradedAsk";
+import ScorecardUpgradeLine from "./ScorecardUpgradeLine";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
 import { useDetailLock, type DetailLimitKey } from "./useDetailLock";
@@ -82,6 +83,9 @@ interface ResultsScorecardProps {
    *  breakdown (wrong answers + graded sheet) can be locked after the first of each kind. Absent
    *  on every caller that is not a graded result; with the limits flag off it does nothing. */
   limitKey?: DetailLimitKey;
+  /** ASK-FIX-1 — set by a history RE-OPEN of a stored result: the upgrade line may still show, but its
+   *  "shown" event is not counted (it would inflate the funnel with old results). */
+  reopened?: boolean;
 }
 
 // The locked card is its own lazy chunk (PERF-3 entry budget); it loads only when a lock shows.
@@ -599,7 +603,7 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
-export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot, limitKey }: ResultsScorecardProps) {
+export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot, limitKey, reopened }: ResultsScorecardProps) {
   // FEEDBACK-2 - the in-flow slot BELOW the buttons where "Was this useful?" sits on a phone, so it can
   // never cover the scorecard's own buttons. Empty (and hidden) unless the card is portaled into it.
   const feedbackSlotRef = useRef<HTMLDivElement | null>(null);
@@ -774,6 +778,8 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                   <LockedDetail scoreLine={scoreLine(variant.score)} />
                 </Suspense>
               )}
+              {/* ASK-FIX-1 - one calm upgrade line for non-Premium students, from this result's own marks. */}
+              <ScorecardUpgradeLine variant={variant} countShown={!reopened} />
             </>
           )}
         </div>

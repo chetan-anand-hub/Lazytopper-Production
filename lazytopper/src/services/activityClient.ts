@@ -115,6 +115,13 @@ export const ACTIVITY_EVENTS = [
   // TRIAL-END-1 — the trial-ending Home banner. Additive.
   "trial_banner_shown",
   "trial_banner_click",
+  // ASK-FIX-1 — the trial-end screen and the scorecard upgrade line. Additive.
+  "trial_end_screen_shown",
+  "trial_end_screen_pay",
+  "trial_end_screen_parent",
+  "trial_end_screen_basic",
+  "scorecard_upgrade_shown",
+  "scorecard_upgrade_click",
   // FEEDBACK-1 — the "help us improve" prompt: shown / dismissed per moment, and the one-tap
   // reason per moment. Names only, never text. Additive.
   "feedback_shown_paywall",

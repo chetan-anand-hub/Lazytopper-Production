@@ -5094,6 +5094,7 @@ const packTopicKey = useMemo(() => {
   return (
     <ResultsScorecard
       limitKey={{ kind: "quick-practice", resultKey: practiceSetPaperKey(record.questionIds) }} // LIMITS-1 PR-2 — stored re-open
+      reopened
       variant={withGuideTarget(reopenVariant, singleChapterPracticeTarget(recSubject, record.topicKeys || []))}
       onClose={close}
       // QP-UPLOAD-LATER — this set still has written questions waiting.

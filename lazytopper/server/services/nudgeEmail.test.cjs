@@ -88,6 +88,7 @@ function makeDb() {
           if (!p.startsWith(`${path}/`) || rest.includes('/')) continue;
           const ok = filters.every(({ field, op, value }) => {
             const raw = data[field];
+            if (op === '==') return raw === value;
             const a = typeof raw === 'number' ? raw : msOf(raw);
             const b = typeof value === 'number' ? value : msOf(value);
             if (a === null || b === null) return false;
@@ -560,4 +561,299 @@ test('schedule() when enabled arms one first run and one interval, both unref()d
   const t = e.schedule();
   assert.ok(t.first && t.every);
   assert.ok(timers.every((x) => x.unrefd));
+});
+
+// ── EMAIL-CONCIERGE-1: founder_checkin + checkout_help ──────────────────────────────────────────
+const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
+const { isCheckinDue, isInternalAccount, pricingOpenCount } = require('./nudgeEmail.cjs');
+
+const ENV_C = { ...ENV_SEND, NUDGE_CONCIERGE_ENABLED: '1', NUDGE_EMAIL_REPLY_TO: 'founder@example.com' };
+const OLD = NOW - 20 * DAY; // signed up 20 d ago: outside the D1/D3 windows
+const busyFeed = (startMs) => Array.from({ length: 16 }, (_, i) => ({ t: startMs + i * MIN, k: 'page', n: 'home' }));
+const order = (db, id, uid, ageMs, extra = {}) =>
+  db.docs.set(`payOrders/${id}`, { uid, passType: 'month', amountPaise: 59900, status: 'created', createdAt: ts(NOW - ageMs), ...extra });
+const sent = (s) => s.calls.map((c) => c.body);
+
+test('concierge: its own flag, default OFF - nothing read or sent, even with the sequence live', async () => {
+  assert.equal(resolveNudgeConfig(ENV_SEND).conciergeEnabled, false);
+  const s = setup({ env: { ...ENV_SEND, NUDGE_EMAIL_REPLY_TO: 'founder@example.com' }, subs: { u1: sub(OLD) } });
+  day(s.db, 'u1', '2026-10-26', { lastSeenMs: NOW - HOUR, feed: busyFeed(NOW - 2 * HOUR) });
+  order(s.db, 'o1', 'u1', 5 * HOUR);
+  const r = await s.make().runOnce();
+  assert.equal(r.sent + r.wouldSend, 0);
+  assert.equal(s.calls.length, 0);
+  assert.equal(s.db.queries.filter((q) => q.path === 'payOrders').length, 0);
+  assert.equal(s.db.queries.filter((q) => q.path === 'subscriptions').length, 2); // d1 + d3 only
+});
+
+test('concierge: no reply-to -> both kinds skipped and the reason is logged; nothing sent', async () => {
+  const s = setup({ env: { ...ENV_SEND, NUDGE_CONCIERGE_ENABLED: '1' }, subs: { u1: sub(OLD) } });
+  day(s.db, 'u1', '2026-10-26', { lastSeenMs: NOW - HOUR, feed: busyFeed(NOW - 2 * HOUR) });
+  order(s.db, 'o1', 'u1', 5 * HOUR);
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 0);
+  assert.equal(s.calls.length, 0);
+  assert.ok(s.logs.includes('[nudge-email] concierge skipped: no reply-to'));
+  assert.equal(s.db.queries.filter((q) => q.path === 'payOrders').length, 0);
+});
+
+test('founder_checkin rule: 15 active minutes OR 2 graded OR 2 pricing opens; 14-day activity; pure checks', () => {
+  const zero = { checks: 0, tests: 0, practiceSets: 0 };
+  const recent = { lastSeenMs: NOW - DAY };
+  const f = (over) => ({ counts: zero, days: [recent], records: [], nowMs: NOW, ...over });
+  assert.equal(isCheckinDue(f()).reason, 'not-engaged');
+  assert.equal(isCheckinDue(f({ counts: { ...zero, checks: 1 } })).reason, 'not-engaged');
+  assert.equal(isCheckinDue(f({ counts: { ...zero, checks: 2 } })).ok, true);
+  assert.equal(isCheckinDue(f({ counts: { ...zero, checks: 1, practiceSets: 1 } })).ok, true);
+  assert.equal(isCheckinDue(f({ days: [{ ...recent, feed: busyFeed(NOW - 3 * HOUR) }] })).ok, true); // 15 min
+  assert.equal(isCheckinDue(f({ days: [{ ...recent, feed: busyFeed(NOW - 3 * HOUR).slice(0, 15) }] })).reason, 'not-engaged'); // 14 min
+  assert.equal(isCheckinDue(f({ days: [{ ...recent, sections: { pricing: 2 } }] })).ok, true);
+  assert.equal(isCheckinDue(f({ days: [{ ...recent, sections: { pricing: 1 } }] })).reason, 'not-engaged');
+  assert.equal(isCheckinDue(f({ counts: { ...zero, checks: 5 }, days: [{ lastSeenMs: NOW - 15 * DAY }] })).reason, 'inactive');
+  assert.equal(isCheckinDue(f({ counts: { ...zero, checks: 5 }, days: [] })).reason, 'inactive');
+  assert.equal(isCheckinDue(f({ counts: null })).reason, 'records-unavailable');
+  assert.equal(pricingOpenCount([{ sections: { pricing: 1 }, feed: [{ t: 1, k: 'page', n: 'pricing' }, { t: 2, k: 'page', n: 'pricing' }] }]), 2);
+  assert.equal(isInternalAccount('x', 'a@lazytopper.com', new Set()), true);
+  assert.equal(isInternalAccount('x', 'a@gmail.com', new Set(['x'])), true);
+  assert.equal(isInternalAccount('x', 'a@notlazytopper.com', new Set()), false);
+});
+
+test('founder_checkin sends ONCE EVER with the real counts, a Reply-To, no price; a restart never resends', async () => {
+  const s = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  rec(s.db, 'u1', 'r1', NOW - 3 * DAY);
+  rec(s.db, 'u1', 'r2', NOW - 2 * DAY, 'quick-practice');
+  rec(s.db, 'u1', 'r3', NOW - 2 * DAY + 1, 'quick-practice');
+  day(s.db, 'u1', '2026-10-26', { lastSeenMs: NOW - 5 * HOUR });
+  const r1 = await s.make().runOnce();
+  assert.equal(r1.byKind.founder_checkin, 1);
+  assert.equal(s.calls.length, 1);
+  const b = sent(s)[0];
+  assert.equal(b.subject, "A quick question from LazyTopper's founder");
+  assert.equal(b.reply_to, 'founder@example.com');
+  assert.deepEqual(b.to, ['s@gmail.com']);
+  assert.deepEqual(b.tags, [{ name: 'category', value: 'nudge_founder_checkin' }]);
+  assert.match(b.text, /1 answer check, 2 practice sets/);
+  assert.match(b.text, /free 10-minute call with you and a parent/);
+  assert.match(b.text, /Just reply to this email/);
+  assert.match(b.text, /— Chetan, founder, LazyTopper/);
+  assert.match(b.text, /Unsubscribe: /);
+  assert.doesNotMatch(b.text + b.html, /₹|\bRs\b|price|premium|<img/i);
+  assert.equal(s.db.docs.get('nudgeEmails/u1').founder_checkin.status, 'sent');
+  assert.equal(s.calls[0].init.headers['Idempotency-Key'], 'nudge-founder_checkin-u1');
+  // 2 days later, a new instance: still active, but it is never sent twice
+  const later = setup({ env: ENV_C, now: NOW + 2 * DAY, subs: { u1: sub(OLD) } });
+  later.db.docs = s.db.docs;
+  rec(later.db, 'u1', 'r4', NOW + DAY);
+  assert.equal((await later.make().runOnce()).byKind.founder_checkin, 0);
+  assert.equal(later.calls.length, 0);
+});
+
+test('founder_checkin does not go to: premium, internal, inactive > 14 d, under-engaged, already-sent', async () => {
+  const subs = {
+    prem: sub(OLD, { tier: 'premium', premiumSince: ts(NOW - DAY) }),
+    internal: sub(OLD),
+    admin: sub(OLD),
+    stale: sub(OLD),
+    thin: sub(OLD),
+    done: sub(OLD),
+  };
+  const users = { prem: gUser('p@gmail.com'), internal: gUser('me@lazytopper.com'), admin: gUser('ad@gmail.com'), stale: gUser('st@gmail.com'), thin: gUser('th@gmail.com'), done: gUser('dn@gmail.com') };
+  const s = setup({ env: { ...ENV_C, ADMIN_FIREBASE_UIDS: 'x, admin' }, subs, users });
+  for (const uid of Object.keys(subs)) {
+    rec(s.db, uid, `${uid}1`, NOW - 3 * DAY);
+    rec(s.db, uid, `${uid}2`, NOW - 3 * DAY + 1);
+    day(s.db, uid, '2026-10-26', { lastSeenMs: NOW - 5 * HOUR });
+  }
+  s.db.docs.delete('sessionRecords/thin/records/thin2'); // one graded item only
+  s.db.docs.set('activityLog/stale/activityDays/2026-10-26', { lastSeenMs: NOW - 15 * DAY });
+  s.db.docs.delete('sessionRecords/stale/records/stale1');
+  s.db.docs.delete('sessionRecords/stale/records/stale2');
+  rec(s.db, 'stale', 'old1', NOW - 16 * DAY); rec(s.db, 'stale', 'old2', NOW - 16 * DAY + 1);
+  s.db.docs.set('nudgeEmails/done', { founder_checkin: { status: 'sent', claimedMs: NOW - 5 * DAY } });
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 0);
+  assert.equal(s.calls.length, 0);
+  assert.equal(r.skipped.premium, 1);
+  assert.equal(r.skipped.internal, 2);
+  assert.equal(r.skipped['already-sent'], 1);
+  assert.equal(r.skipped['founder_checkin-inactive'], 1);
+  assert.equal(r.skipped['founder_checkin-not-engaged'], 1);
+});
+
+test('concierge dry run: logs who would be emailed (masked), sends nothing, writes nothing', async () => {
+  const s = setup({ env: { NUDGE_EMAIL_ENABLED: '1', NUDGE_CONCIERGE_ENABLED: '1', NUDGE_EMAIL_REPLY_TO: 'founder@example.com' }, subs: { u1: sub(OLD), u2: sub(OLD) }, users: { u1: gUser(), u2: gUser('t@gmail.com') } });
+  rec(s.db, 'u1', 'r1', NOW - DAY); rec(s.db, 'u1', 'r2', NOW - DAY + 1);
+  day(s.db, 'u1', '2026-10-26', { lastSeenMs: NOW - HOUR });
+  order(s.db, 'o2', 'u2', 6 * HOUR, { uid: 'u2' });
+  const before = s.db.writes();
+  const r = await s.make().runOnce();
+  assert.equal(r.wouldSend, 2);
+  assert.equal(r.byKind.founder_checkin, 1);
+  assert.equal(r.byKind.checkout_help, 1);
+  assert.equal(s.calls.length, 0);
+  assert.equal(s.db.writes(), before);
+  assert.ok(s.logs.some((l) => l.includes('would email kind=checkout_help') && l.includes('t***@gmail.com')));
+});
+
+test('checkout_help: order 2-48 h old and unpaid -> one email with the real plan and price, once ever', async () => {
+  const s = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  order(s.db, 'o1', 'u1', 5 * HOUR);
+  const r1 = await s.make().runOnce();
+  assert.equal(r1.byKind.checkout_help, 1);
+  const b = sent(s)[0];
+  assert.equal(b.subject, 'Did something go wrong at payment?');
+  assert.equal(b.reply_to, 'founder@example.com');
+  assert.match(b.text, /the monthly plan \(₹599\)/);
+  assert.match(b.text, /was it the price/i);
+  assert.match(b.text, /10-minute call/);
+  assert.match(b.text, /— Chetan, founder, LazyTopper/);
+  assert.doesNotMatch(b.html, /<img/);
+  assert.equal(s.db.docs.get('nudgeEmails/u1').checkout_help.status, 'sent');
+  const again = setup({ env: ENV_C, now: NOW + 2 * DAY, subs: { u1: sub(OLD) } });
+  again.db.docs = s.db.docs;
+  order(again.db, 'o9', 'u1', 5 * HOUR + 0);
+  again.db.docs.set('payOrders/o9', { uid: 'u1', passType: 'month', amountPaise: 59900, status: 'created', createdAt: ts(NOW + 2 * DAY - 5 * HOUR) });
+  assert.equal((await again.make().runOnce()).byKind.checkout_help, 0);
+  assert.equal(again.calls.length, 0);
+});
+
+test('checkout_help does not go to: paid within the window, too new, too old, top-ups, parent orders, premium, internal', async () => {
+  const subs = {};
+  const users = {};
+  for (const u of ['paid', 'fresh', 'ancient', 'topup', 'parent', 'prem', 'staff']) { subs[u] = sub(OLD); users[u] = gUser(`${u}@gmail.com`); }
+  subs.prem = sub(OLD, { tier: 'premium', premiumSince: ts(NOW - DAY) });
+  users.staff = gUser('boss@lazytopper.com');
+  const s = setup({ env: ENV_C, subs, users });
+  order(s.db, 'a1', 'paid', 6 * HOUR);
+  order(s.db, 'a2', 'paid', 5 * HOUR, { status: 'paid' });
+  order(s.db, 'b1', 'fresh', HOUR + 59 * MIN);
+  order(s.db, 'c1', 'ancient', 48 * HOUR + MIN);
+  order(s.db, 'd1', 'topup', 5 * HOUR, { passType: 'topup_49', amountPaise: 4900 });
+  order(s.db, 'e1', 'parent', 5 * HOUR, { parentLinkId: 'L1', payer: 'parent' });
+  order(s.db, 'f1', 'prem', 5 * HOUR);
+  order(s.db, 'g1', 'staff', 5 * HOUR);
+  const r = await s.make().runOnce();
+  assert.equal(r.byKind.checkout_help, 0);
+  assert.equal(s.calls.length, 0);
+  assert.equal(r.skipped['checkout-paid'], 1);
+  assert.equal(r.skipped.premium, 1);
+  assert.equal(r.skipped.internal, 1);
+});
+
+test('shared daily cap: when it binds, checkout_help is served before founder_checkin', async () => {
+  const s = setup({ env: { ...ENV_C, NUDGE_EMAIL_DAILY_CAP: '1' }, subs: { chk: sub(OLD), cin: sub(OLD) }, users: { chk: gUser('chk@gmail.com'), cin: gUser('cin@gmail.com') } });
+  rec(s.db, 'cin', 'r1', NOW - DAY); rec(s.db, 'cin', 'r2', NOW - DAY + 1);
+  day(s.db, 'cin', '2026-10-26', { lastSeenMs: NOW - HOUR });
+  order(s.db, 'o1', 'chk', 5 * HOUR);
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 1);
+  assert.equal(r.byKind.checkout_help, 1);
+  assert.equal(r.byKind.founder_checkin, 0);
+  assert.deepEqual(sent(s)[0].to, ['chk@gmail.com']);
+});
+
+test('concierge: the shared unsubscribe stops it; a retryable failure releases the claim (still once at most)', async () => {
+  const s = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  order(s.db, 'o1', 'u1', 5 * HOUR);
+  s.db.docs.set(`${TRIAL_EMAILS_COLLECTION}/u1`, { optedOut: true });
+  assert.equal((await s.make().runOnce()).sent, 0);
+  let status = 429;
+  const f = setup({ env: ENV_C, subs: { u1: sub(OLD) }, fetchImpl: async () => ({ ok: false, status }) });
+  order(f.db, 'o1', 'u1', 5 * HOUR);
+  assert.equal((await f.make().runOnce()).failed, 1);
+  assert.equal(f.db.docs.get('nudgeEmails/u1').checkout_help, undefined);
+  assert.equal(f.db.docs.get(`${NUDGE_EMAIL_DAILY_COLLECTION}/2026-10-27`).count, 0);
+  status = 400;
+  await f.make().runOnce();
+  assert.equal(f.db.docs.get('nudgeEmails/u1').checkout_help.status, 'failed');
+});
+
+test('concierge copy: no urgency words, no image, no price in founder_checkin, zero activity is not invented', () => {
+  const unsub = 'https://www.lazytopper.com/api/trial-email/unsubscribe?t=abc';
+  const cases = [
+    ['founder_checkin', { facts: { checks: 2, tests: 0, practiceSets: 0, activeMinutes: 20.4, pricingOpens: 3 } }],
+    ['founder_checkin', { facts: { checks: 0, tests: 0, practiceSets: 0, activeMinutes: 0, pricingOpens: 2 } }],
+    ['checkout_help', { order: { passType: 'till_boards', amountPaise: 99900 } }],
+    ['checkout_help', {}],
+  ];
+  for (const [kind, extra] of cases) {
+    const m = buildConciergeEmail(kind, { unsubscribeUrl: unsub, ...extra });
+    for (const part of [m.subject, m.text, m.html.replace(/<[^>]+>/g, ' ')]) assert.doesNotMatch(part, URGENCY, `${kind}: ${part.slice(0, 60)}`);
+    assert.ok(m.text.includes(`Unsubscribe: ${unsub}`) && m.html.includes(unsub));
+    assert.doesNotMatch(m.html, /<img|pixel|utm_|track/i);
+  }
+  const some = buildConciergeEmail('founder_checkin', { unsubscribeUrl: unsub, facts: { checks: 2, tests: 0, practiceSets: 0, activeMinutes: 20.4 } });
+  assert.match(some.text, /You have done 2 answer checks and spent about 20 minutes on it\./);
+  const none = buildConciergeEmail('founder_checkin', { unsubscribeUrl: unsub, facts: { checks: 0, tests: 0, practiceSets: 0, activeMinutes: 0 } });
+  assert.doesNotMatch(none.text, /You have (done|spent)/);
+  assert.match(buildConciergeEmail('checkout_help', { unsubscribeUrl: unsub, order: { passType: 'till_boards', amountPaise: 99900 } }).text, /till-boards plan \(₹999\)/);
+  assert.doesNotMatch(buildConciergeEmail('checkout_help', { unsubscribeUrl: unsub }).text, /₹/);
+});
+
+test('checkout_help: a LATER order paid under 2 h ago (outside the 2-48 h query) means no email', async () => {
+  const s = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  order(s.db, 'old', 'u1', 5 * HOUR); // unpaid, the candidate
+  order(s.db, 'new', 'u1', 90 * MIN, { status: 'paid' }); // newer, paid, not in the 2-48 h window
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 0);
+  assert.equal(s.calls.length, 0);
+  assert.equal(r.skipped['paid-since'], 1);
+  assert.equal(s.db.docs.get('nudgeEmails/u1'), undefined);
+  // the same for a captured one, and for a payment that made the student Premium
+  const c = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  order(c.db, 'old', 'u1', 5 * HOUR);
+  order(c.db, 'new', 'u1', 30 * MIN, { status: 'captured' });
+  assert.equal((await c.make().runOnce()).sent, 0);
+  // an older paid order does not block a newer unpaid candidate
+  const o = setup({ env: ENV_C, subs: { u1: sub(OLD) } });
+  order(o.db, 'older', 'u1', 40 * HOUR, { status: 'paid' });
+  order(o.db, 'cand', 'u1', 5 * HOUR);
+  assert.equal((await o.make().runOnce()).skipped['checkout-paid'], 1); // paid in window: still no email
+});
+
+test('shared daily cap binds: checkout_help is served BEFORE a d1 student (and before founder_checkin)', async () => {
+  const s = setup({
+    env: { ...ENV_C, NUDGE_EMAIL_DAILY_CAP: '1' },
+    subs: { chk: sub(OLD), d1: sub(NOW - 25 * HOUR), cin: sub(OLD) },
+    users: { chk: gUser('chk@gmail.com'), d1: gUser('d1@gmail.com'), cin: gUser('cin@gmail.com') },
+  });
+  rec(s.db, 'cin', 'r1', NOW - DAY); rec(s.db, 'cin', 'r2', NOW - DAY + 1);
+  day(s.db, 'cin', '2026-10-26', { lastSeenMs: NOW - HOUR });
+  order(s.db, 'o1', 'chk', 5 * HOUR);
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 1);
+  assert.deepEqual(sent(s)[0].to, ['chk@gmail.com']);
+  assert.equal(r.byKind.checkout_help, 1);
+  assert.equal(r.byKind.d1, 0);
+  assert.equal(r.byKind.founder_checkin, 0);
+  assert.equal(s.db.docs.get(`${NUDGE_EMAIL_DAILY_COLLECTION}/2026-10-27`).count, 1);
+});
+
+// ── EMAIL-ONEADAY-1: the trial-ledger recency check is INSIDE the claim transaction ──────────────
+
+test('ONEADAY: a trial-ending email claimed after the early reads but before the claim blocks the nudge (spaced), sent or claimed', async () => {
+  for (const row of [{ status: 'claimed', claimedAt: ts(NOW) }, { status: 'sent', sentAt: ts(NOW - 23 * HOUR) }]) {
+    const s = setup({ subs: { u1: sub(NOW - 25 * HOUR) } });
+    const origCollection = s.db.collection;
+    let reads = 0;
+    s.db.collection = (n) => {
+      const c = origCollection(n);
+      if (n !== TRIAL_EMAILS_COLLECTION) return c;
+      return { ...c, doc: (id) => { const d = c.doc(id); return { ...d, get: async () => { reads += 1; const out = await d.get(); if (reads === 1) s.db.docs.set(`${TRIAL_EMAILS_COLLECTION}/${id}`, row); return out; } }; } };
+    };
+    const r = await s.make().runOnce();
+    assert.equal(r.sent, 0, JSON.stringify(row));
+    assert.equal(r.skipped.spaced, 1, JSON.stringify(row));
+    assert.equal(s.calls.length, 0);
+    assert.equal(s.db.docs.get('nudgeEmails/u1'), undefined); // no claim, no cap slot
+    assert.equal(s.db.docs.get(`${NUDGE_EMAIL_DAILY_COLLECTION}/2026-10-27`), undefined);
+  }
+});
+
+test('ONEADAY: a trial email older than 24 h does not block a nudge; the nudge ledger stays what the trial emailer reads', async () => {
+  const s = setup({ subs: { u1: sub(NOW - 25 * HOUR) } });
+  s.db.docs.set(`${TRIAL_EMAILS_COLLECTION}/u1`, { status: 'sent', sentAt: ts(NOW - 25 * HOUR) });
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 1);
+  assert.equal(typeof s.db.docs.get('nudgeEmails/u1').lastClaimMs, 'number'); // what the trial emailer's transaction reads
 });
