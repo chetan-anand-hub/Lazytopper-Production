@@ -13,7 +13,8 @@ import { ensureBankChapters, ensureBankSubject, getBankRowsForSubject } from "..
 import { selectBankQuestions } from "../../data/bankQuery";
 import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { needsMissingFigure } from "../figureSafe";
-import { desktopTopicBySlug } from "../desktop/topics";
+import { packChapterLabel } from "./packLabels";
+import type { ServedAt } from "../freshSet/servedHistory";
 import { mulberry32, seededShuffle } from "../../utils/balancedMockDraw";
 import type { PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { subjectLabel, subjectOfChapter, type PackSubject } from "../../services/packs";
@@ -32,7 +33,7 @@ export function hashSeed(s: string): number {
 }
 
 export function chapterName(slug: string): string {
-  return desktopTopicBySlug(slug)?.name ?? slug;
+  return packChapterLabel(slug);
 }
 
 export function bankSubjectOf(slug: string): "Maths" | "Science" {
@@ -62,12 +63,78 @@ const sectionRank = (s: string): number => {
   return i < 0 ? 99 : i;
 };
 
-/** The chapter's pack rows, board order. The chapter must be loaded (`loadChapter`). */
+/* ── step-marked ranking (PACKS-UX-1, owner ruling 7) ──────────────────────────────────────────────────────── */
+
+const MARK_NUM = String.raw`(\d+(?:\.\d+)?\s*\u00bd?|\u00bd|\d+\s*/\s*2)`;
+const LEADING_MARK = new RegExp(String.raw`^\s*\[\s*${MARK_NUM}\s*marks?\s*\]`, "i");
+const TRAILING_MARK = new RegExp(String.raw`\s\[\s*${MARK_NUM}\s*(?:marks?)?\s*\]\s*$`, "i");
+
+function markValue(raw: string): number {
+  const t = raw.replace(/\s+/g, "");
+  if (t === "\u00bd" || t === "1/2") return 0.5;
+  if (t.endsWith("\u00bd")) return Number(t.slice(0, -1)) + 0.5;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+/**
+ * True when the question has FULL step marks: every solution step carries its own `[N mark]` mark and they sum to
+ * `marks`. A 1-mark objective question (MCQ / Assertion-Reason, i.e. Section A) counts as step-marked: CBSE scores it
+ * 0 or 1 on the answer alone, and the key shows one "1 mark" chip for the whole solution.
+ */
+export function isStepMarked(q: { marks: number | string; options?: readonly string[]; solutionSteps?: readonly string[] }): boolean {
+  const marks = Number(q.marks) || 0;
+  if (marks === 1 && Array.isArray(q.options) && q.options.length >= 2) return true;
+  const steps = Array.isArray(q.solutionSteps) ? q.solutionSteps.filter(Boolean) : [];
+  if (steps.length === 0 || marks <= 0) return false;
+  let sum = 0;
+  for (const st of steps) {
+    const m = LEADING_MARK.exec(st) ?? TRAILING_MARK.exec(st);
+    if (!m) return false;
+    const v = markValue(m[1]);
+    if (!Number.isFinite(v)) return false;
+    sum += v;
+  }
+  return Math.abs(sum - marks) < 1e-9;
+}
+
+/** Stable partition: step-marked rows first, the rest after, each keeping its relative order. */
+export function stepMarkedFirst<T extends { marks: number | string; options?: readonly string[]; solutionSteps?: readonly string[] }>(rows: readonly T[]): T[] {
+  return [...rows.filter((q) => isStepMarked(q)), ...rows.filter((q) => !isStepMarked(q))];
+}
+
+/** servedAt value of a row that is NOT step-marked: the oldest rank, so it is drawn only when a slot cannot be filled. */
+export const NOT_STEP_MARKED_AT = 1;
+/** servedAt base for a question already used in an earlier paper of the same pack (later paper, larger value). */
+export const USED_IN_PAPER_AT = 1_000_000;
+
+/**
+ * The `servedAt` map the app's own tests/mocks draws take (FRESH-SET-TESTS): rows that are not step-marked rank behind
+ * the step-marked ones, and rows used in earlier papers of the pack (`usedIds`, in paper order) rank behind both. The
+ * blueprints draw never-served rows first and take served ones only where a slot cannot otherwise be filled.
+ */
+export function packServedAt(
+  rows: ReadonlyArray<{ id: string; marks: number | string; options?: readonly string[]; solutionSteps?: readonly string[] }>,
+  usedIds: ReadonlyArray<ReadonlySet<string>> = [],
+): ServedAt {
+  const m = new Map<string, number>();
+  for (const q of rows) if (!isStepMarked(q)) m.set(q.id, NOT_STEP_MARKED_AT);
+  usedIds.forEach((ids, i) => ids.forEach((id) => m.set(id, USED_IN_PAPER_AT + i)));
+  return m;
+}
+
+/**
+ * The chapter's pack rows, board order: sections A..E, and WITHIN a section the step-marked questions first, then the
+ * rest (each tier by id). The chapter must be loaded (`loadChapter`).
+ */
 export function chapterPackRows(slug: string): CanonicalQuestion[] {
   const rows = selectBankQuestions({ subject: bankSubjectOf(slug), topicKeys: [slug] }).filter(
     (q) => !isExcludedFromPacks(q) && sectionRank(q.section) < 99,
   );
-  return [...rows].sort((a, b) => sectionRank(a.section) - sectionRank(b.section) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const tier = (q: CanonicalQuestion): number => (isStepMarked(q) ? 0 : 1);
+  return [...rows].sort(
+    (a, b) => sectionRank(a.section) - sectionRank(b.section) || tier(a) - tier(b) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+  );
 }
 
 export function groupBySection(rows: readonly CanonicalQuestion[]): Array<[PackSection, CanonicalQuestion[]]> {
@@ -146,7 +213,8 @@ export const WORKSHEET_SECTION_TAKE: Readonly<Record<PackSection, number>> = { A
 export function drawPackWorksheetRows(rows: readonly CanonicalQuestion[], seed: number): CanonicalQuestion[] {
   const out: CanonicalQuestion[] = [];
   for (const [sec, list] of groupBySection(rows)) {
-    const shuffled = seededShuffle(list, mulberry32(seed ^ hashSeed(`ws:${sec}`)));
+    // Step-marked questions are taken first; the others only when the section has too few (a stable partition after the seeded shuffle).
+    const shuffled = stepMarkedFirst(seededShuffle(list, mulberry32(seed ^ hashSeed(`ws:${sec}`))));
     out.push(...shuffled.slice(0, WORKSHEET_SECTION_TAKE[sec]).sort((a, b) => (a.id < b.id ? -1 : 1)));
   }
   return out;

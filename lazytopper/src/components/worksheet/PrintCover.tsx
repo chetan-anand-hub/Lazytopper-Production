@@ -1,4 +1,5 @@
 import { BRAND_MARK_SRC } from "../../config/brandMark";
+import { REDOWNLOAD_COPY } from "../../lib/packs/packLabels";
 
 /** The CBSE Class 10 board exam this edition is for (the 2026-27 session sits its boards in 2027). There is no synchronous
  *  helper for this: services/cbseExamDate.ts is a network fetch. Bump it when the next session's packs are issued. */
@@ -81,6 +82,7 @@ export function PrintCover({ kicker, title, subtitle, stats, licenseeLine, editi
         <div className="lt-cover__lic">
           <div className="lt-cover__licl">{licenseeLine}</div>
           <div>For your personal study only. Please do not share or resell this file.</div>
+          <div>{REDOWNLOAD_COPY}.</div>
         </div>
       )}
       <div className="lt-cover__foot">

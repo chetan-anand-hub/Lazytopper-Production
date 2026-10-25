@@ -161,8 +161,16 @@ describe("WorksheetPrintDoc - PDF-REBRAND-1: source tag, chips, key box", () => 
     expect(texts[1]).toBe("LCM = 60");
     expect(texts[2]).toContain("a[1]");
   });
-  it("an objective question's steps get no split chips (0-or-full on the answer alone)", () => {
+  it("a 1-mark objective question with unprefixed steps shows ONE '1 mark' chip for the whole solution (0-or-full on the answer)", () => {
     const { container } = render(<WorksheetPrintDoc ws={withQ({ marks: 1, options: ["1", "2"], solutionSteps: ["a", "b", "c"], finalAnswer: "(a) 1" })} kind="answers" />);
+    expect(Array.from(container.querySelectorAll(".lt-wsp__chip")).map((c) => c.textContent).filter(Boolean)).toEqual(["1 mark"]);
+  });
+  it("a 1-mark objective question whose step carries its own prefix keeps that chip alone", () => {
+    const { container } = render(<WorksheetPrintDoc ws={withQ({ marks: 1, options: ["1", "2"], solutionSteps: ["[1 mark] a", "b"], finalAnswer: "(a) 1" })} kind="answers" />);
+    expect(Array.from(container.querySelectorAll(".lt-wsp__chip")).map((c) => c.textContent).filter(Boolean)).toEqual(["1 mark"]);
+  });
+  it("a multi-mark objective-style row gets no split chips", () => {
+    const { container } = render(<WorksheetPrintDoc ws={withQ({ marks: 2, section: "B", options: ["1", "2"], solutionSteps: ["a", "b", "c"], finalAnswer: "(a) 1" })} kind="answers" />);
     expect(Array.from(container.querySelectorAll(".lt-wsp__chip")).every((c) => (c.textContent ?? "") === "")).toBe(true);
   });
   it("a key WITH a paper code asks 'Want an examiner to mark this?', names the Home strip and prints the code; no check URL", () => {

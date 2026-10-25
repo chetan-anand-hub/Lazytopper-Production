@@ -7,7 +7,7 @@
  *
  *   chapter  per non-empty section A..E: questions + answer key (a document over 60 questions is split into
  *            "Part k of n"), Chapter Test 1 and 2 (paper + key), Worksheet (paper + key)
- *   mock     5 full board-pattern papers (paper + key each)
+ *   mock     8 full board-pattern papers per subject (paper + key each)
  *   subject  the union of its 13 chapters + that subject's mocks, grouped by chapter
  *   bundle   both subjects
  *
@@ -30,7 +30,7 @@ import {
   type PackSubject,
 } from "../../services/packs";
 import { drawChapterTest } from "../../components/chaptertest/chapterTestBlueprint";
-import { drawFullMock } from "../../components/fullmock/fullMockBlueprint";
+import { buildUnionPool, drawFullMock, fullMockChapterWeights } from "../../components/fullmock/fullMockBlueprint";
 import {
   bankSubjectName,
   bankSubjectOf,
@@ -41,11 +41,13 @@ import {
   hashSeed,
   loadChapter,
   loadSubjectBank,
+  packServedAt,
   splitIntoParts,
   subjectBankRows,
   toWorksheetQuestion,
   withProvenance,
 } from "./packContent";
+import { MATHS_MOCK_PATTERN, MOCKS_PER_SUBJECT } from "./packLabels";
 
 /** The 4th argument of `exportWorksheetPdf` (PACKS contract §5; PDF-REBRAND-1 adds it). */
 export type ExportOpts = {
@@ -230,6 +232,8 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   }
 
   // 2. Chapter Test 1 and 2, drawn by the app's own blueprint with a pack seed.
+  // Step-marked questions first; Chapter Test 2 also steers clear of the questions Chapter Test 1 used.
+  const ctUsed: Array<Set<string>> = [];
   for (const n of [1, 2]) {
     const seed = hashSeed(`pack-paper:${slug}:ct${n}`);
     const drawn = drawChapterTest({
@@ -240,8 +244,10 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
       name: `${name} · Chapter Test ${n}`,
       createdAt: DRAW_STAMP,
       seed,
+      servedAt: packServedAt(rows, ctUsed),
     });
     if (!drawn.enoughQuestions) continue;
+    ctUsed.push(new Set(drawn.paper.questions.map((q) => q.id)));
     const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, rows) };
     const ctCode = packPaperCode({ kind: n === 1 ? "ct1" : "ct2", chapter: slug });
     for (const [mode, modeLabel, modeFile] of MODES) {
@@ -295,14 +301,18 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   return files;
 }
 
-/** The 5 full board-pattern papers (paper + key each) of a subject. Loads the subject's bank first. */
-export async function mockFiles(subject: PackSubject, packId: string, sku: PackSku, ctx: BuildContext, fallback?: OwnedPack): Promise<PackFile[]> {
-  await loadSubjectBank(subject);
+/**
+ * The pack's mock papers for a subject, drawn with the app's own Full Mock blueprint: `MOCKS_PER_SUBJECT` papers, each seeded
+ * by its number (`pack-paper:mock:<subject>:<n>`). Step-marked questions are preferred, and each paper steers clear of the
+ * questions the earlier papers used, so the overlap between papers is as small as the bank allows.
+ */
+export function drawPackMocks(subject: PackSubject): Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> {
   const bankSubject = bankSubjectName(subject);
-  const orderRef = coveringRef(ctx.owned, "mocks", subject, fallback);
-  const files: PackFile[] = [];
-  const mockRows = subjectBankRows(subject);
-  for (let n = 1; n <= 5; n += 1) {
+  const slugSet = new Set(fullMockChapterWeights(bankSubject).map((c) => c.slug));
+  const unionPool = buildUnionPool(bankSubject, slugSet);
+  const used: Array<Set<string>> = [];
+  const out: Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> = [];
+  for (let n = 1; n <= MOCKS_PER_SUBJECT; n += 1) {
     const name = `${bankSubject} Full Mock ${n}`;
     const drawn = drawFullMock({
       subject: bankSubject,
@@ -311,8 +321,24 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
       name,
       createdAt: DRAW_STAMP,
       seed: hashSeed(`pack-paper:mock:${subject}:${n}`),
+      servedAt: packServedAt(unionPool, used),
     });
     if (!drawn.enoughQuestions) continue;
+    used.push(new Set(drawn.paper.questions.map((q) => q.id)));
+    out.push({ n, drawn, name });
+  }
+  return out;
+}
+
+/** The full board-pattern papers (paper + key each) of a subject. Loads the subject's bank first. */
+export async function mockFiles(subject: PackSubject, packId: string, sku: PackSku, ctx: BuildContext, fallback?: OwnedPack): Promise<PackFile[]> {
+  await loadSubjectBank(subject);
+  const bankSubject = bankSubjectName(subject);
+  const orderRef = coveringRef(ctx.owned, "mocks", subject, fallback);
+  const files: PackFile[] = [];
+  const mockRows = subjectBankRows(subject);
+  const pattern = subject === "maths" ? ` · ${MATHS_MOCK_PATTERN}` : "";
+  for (const { n, drawn, name } of drawPackMocks(subject)) {
     const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, mockRows) };
     for (const [mode, modeLabel, modeFile] of MODES) {
       files.push(
@@ -329,7 +355,7 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
             cover: {
               kicker: `FULL MOCK · ${bankSubject.toUpperCase()}`,
               title: name,
-              subtitle: "Class 10 CBSE board pattern · 80 marks · with worked solutions",
+              subtitle: `Class 10 CBSE board pattern${pattern} · 80 marks · with worked solutions`,
               stats: [
                 { value: String(paper.questions.length), label: "questions" },
                 { value: String(paper.totalMarks), label: "marks" },

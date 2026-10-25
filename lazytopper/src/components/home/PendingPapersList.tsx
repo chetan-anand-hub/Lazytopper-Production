@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import { Link } from "react-router-dom";
 import type { PendingPlacement } from "../../analytics/analytics";
 import { PENDING_SURFACE_LABEL, type PendingPaper } from "./pendingPapers";
 import { trackPendingUploadTap } from "./usePendingPapers";
 import { formatSavedDay, PENDING_LIST_MAX_ROWS } from "./pendingPapersUi";
+
+const PendingPackGroup = lazy(() => import("./PendingPackGroup"));
 
 /**
  * HOME-PENDING-1 — the pending-papers list both the Home action strip (expanded) and the header
@@ -22,12 +24,21 @@ export function PendingPapersList({
   onNavigate?: () => void;
 }) {
   const [all, setAll] = useState(false);
-  const count = papers.length;
-  const visible = all ? papers : papers.slice(0, PENDING_LIST_MAX_ROWS);
+  // PACKS-UX-1: two or more pack papers ("PK-") collapse into one lazy row, shown first.
+  const pk = papers.filter((p) => p.code.startsWith("PK-"));
+  const rows: Array<PendingPaper | null> = pk.length > 1 ? [null, ...papers.filter((p) => !pk.includes(p))] : papers;
+  const count = rows.length;
+  const visible = all ? rows : rows.slice(0, PENDING_LIST_MAX_ROWS);
   return (
     <div className="lt-pl" data-testid={`pending-list-${placement}`}>
       <ul className="lt-pl-list">
         {visible.map((p) => {
+          if (!p)
+            return (
+              <Suspense key="pack-group" fallback={null}>
+                <PendingPackGroup papers={pk} placement={placement} onNavigate={onNavigate} />
+              </Suspense>
+            );
           const day = formatSavedDay(p.savedAt);
           return (
             <li key={`${p.surface}::${p.code}`} className="lt-pl-row" data-testid="pending-paper-row" data-surface={p.surface}>

@@ -239,7 +239,7 @@ export function packDescription(sku: PackSku, target: string | undefined, chapte
     case "pack_subject":
       return `Subject Pack · ${target ? subjectLabel(target as PackSubject) : "all chapters"}`;
     case "pack_bundle":
-      return "Complete Bundle · Maths + Science";
+      return "Maths + Science Bundle";
   }
 }
 

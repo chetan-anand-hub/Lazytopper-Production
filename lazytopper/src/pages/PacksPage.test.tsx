@@ -38,9 +38,9 @@ vi.mock("../lib/packs/buildPackFiles", () => ({
 import PacksPage from "./PacksPage";
 import * as packs from "../services/packs";
 
-function page() {
+function page(url = "/packs") {
   return render(
-    <MemoryRouter initialEntries={["/packs"]}>
+    <MemoryRouter initialEntries={[url]}>
       <Routes>
         <Route path="/packs" element={<PacksPage />} />
         <Route path="/login" element={<div>LOGIN</div>} />
@@ -59,51 +59,134 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("PacksPage", () => {
-  it("renders the hero, the four SKUs with prices, the FAQ and the refund link signed out; fires pack_view", () => {
+  const tap = (id: string) => fireEvent.click(screen.getByTestId(`packs-card-${id}`));
+
+  it("renders the v3 hero, four pack tiles with prices, the short FAQ and the refund link signed out; no My packs; fires pack_view", () => {
     page();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toMatch(/Printable chapter-wise question banks with worked solutions/);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Every question. Marked step by step.");
     for (const id of ["chapter", "mock", "subject", "bundle"]) expect(screen.getByTestId(`packs-card-${id}`)).toBeTruthy();
     const text = document.body.textContent ?? "";
     for (const price of ["₹49", "₹99", "₹199", "₹299"]) expect(text).toContain(price);
-    expect(text).toMatch(/One-time payment/);
-    expect(text).toMatch(/credited to the Board Pass if you upgrade within 7 days/);
+    expect(text).toContain("One-time payment · never renews · download again till 31 May 2027");
+    expect(text).toContain("The Board Pass adds what a PDF can");
+    expect(text).toContain("Maths + Science");
+    expect(text).not.toMatch(/Complete Bundle|\b26 chapters|Stray/);
     expect(screen.getByRole("link", { name: /refund policy/i }).getAttribute("href")).toBe("/legal/refund");
     expect(screen.queryByTestId("packs-mine")).toBeNull();
+    expect(screen.queryByRole("dialog")).toBeNull();
     expect(events.names).toContain("pack_view");
   });
 
-  it("with the flag off every buy button is disabled and says Opens soon", () => {
+  it("tapping a tile opens an accessible dialog with the four slides in order; Esc closes it and focus returns to the tile", async () => {
     page();
-    for (const sku of ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle"]) {
+    const tile = screen.getByTestId("packs-card-mock");
+    tile.focus();
+    fireEvent.click(tile);
+    const dlg = await screen.findByRole("dialog");
+    expect(dlg.getAttribute("aria-modal")).toBe("true");
+    expect(dlg.getAttribute("aria-labelledby")).toBeTruthy();
+    expect(document.documentElement.classList.contains("lt-pkd-lock")).toBe(true);
+    const slides = Array.from(dlg.querySelectorAll(".lt-pkd__slide"));
+    expect(slides).toHaveLength(4);
+    expect(slides[0].textContent).toContain("What you get");
+    expect(slides[0].textContent).toContain("Standard (041)");
+    expect(slides.slice(1).map((s) => s.querySelector("img")?.getAttribute("src"))).toEqual([
+      "/packs/pack-cover-480.webp",
+      "/packs/pack-questions-480.webp",
+      "/packs/pack-answer-key-480.webp",
+    ]);
+    expect(slides[1].querySelector("img")?.getAttribute("srcset")).toContain("827w");
+    expect(slides[1].querySelector("img")?.getAttribute("width")).toBe("827");
+    fireEvent.keyDown(dlg, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(document.documentElement.classList.contains("lt-pkd-lock")).toBe(false);
+    expect(document.activeElement).toBe(tile);
+  });
+
+  it("the ✕ button closes the dialog; Tab wraps inside it", async () => {
+    page();
+    tap("bundle");
+    const dlg = await screen.findByRole("dialog");
+    const focusables = Array.from(dlg.querySelectorAll<HTMLElement>("button:not([disabled]), select, summary, [tabindex]:not([tabindex='-1'])"));
+    const last = focusables[focusables.length - 1];
+    last.focus();
+    fireEvent.keyDown(last, { key: "Tab" });
+    expect(dlg.contains(document.activeElement)).toBe(true);
+    fireEvent.click(screen.getByTestId("pack-dialog-close"));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
+  it("with the flag off every pop-up buy button is disabled and says Opens soon", async () => {
+    page();
+    for (const [id, sku] of [["chapter", "pack_chapter"], ["mock", "pack_mock"], ["subject", "pack_subject"], ["bundle", "pack_bundle"]]) {
+      tap(id);
+      await screen.findByRole("dialog");
       const b = screen.getByTestId(`packs-buy-${sku}`) as HTMLButtonElement;
       expect(b.disabled).toBe(true);
       expect(b.textContent).toBe("Opens soon");
+      fireEvent.click(screen.getByTestId("pack-dialog-close"));
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     }
   });
 
-  it("never loads the bank for a visitor who does not touch a picker; the first interaction loads it", async () => {
+  it("never loads the bank for a visitor who does not open a pack; the first tile tap loads it", async () => {
     page();
     await new Promise((r) => setTimeout(r, 700));
     expect(loads.n).toBe(0);
     expect(document.body.textContent).not.toMatch(/\d,\d{3}\s*questions/);
-    fireEvent.click(screen.getAllByRole("radio", { name: "Science" })[0]);
+    tap("subject");
     await waitFor(() => expect(loads.n).toBeGreaterThan(0));
   });
 
-  it("shows the exact question count of the chosen chapter once the bank is read (no hardcoded counts)", async () => {
+  it("Chapter Pack: buy waits for a chapter; the exact question count of the chosen chapter appears once the bank is read", async () => {
     flag.on = true;
     page();
-    const select = screen.getByLabelText("Pick a chapter") as HTMLSelectElement;
-    expect((screen.getByTestId("packs-buy-pack_chapter") as HTMLButtonElement).disabled).toBe(true); // no chapter yet
-    fireEvent.change(select, { target: { value: "real-numbers" } });
-    await waitFor(() => expect(screen.getByTestId("packs-card-chapter").textContent).toMatch(/120\s*questions/));
-    expect((screen.getByTestId("packs-buy-pack_chapter") as HTMLButtonElement).disabled).toBe(false);
+    tap("chapter");
+    const b = () => screen.getByTestId("packs-buy-pack_chapter") as HTMLButtonElement;
+    expect(b().disabled).toBe(true);
+    expect(b().textContent).toBe("Choose a chapter first");
+    fireEvent.change(screen.getByLabelText("Pick your chapter"), { target: { value: "real-numbers" } });
+    await waitFor(() => expect(screen.getByTestId("pack-slides").textContent).toMatch(/120 questions/));
+    expect(b().disabled).toBe(false);
+    expect(b().textContent).toBe("Sign in to buy · ₹49");
+  });
+
+  it("Trigonometry is labelled with both chapters in the picker", async () => {
+    page();
+    tap("chapter");
+    await screen.findByRole("dialog");
+    expect(screen.getByRole("option", { name: "Trigonometry (Ch 8 + Ch 9) · Maths" })).toBeTruthy();
+  });
+
+  it("Subject Pack shows the saving computed from the chapter-pack count (₹537) and the chapter list; the toggle switches subject", async () => {
+    page();
+    tap("subject");
+    const dlg = await screen.findByRole("dialog");
+    expect(dlg.textContent).toContain("₹537");
+    expect(dlg.textContent).toContain("Chapters included (13)");
+    fireEvent.click(screen.getByRole("radio", { name: "Science" }));
+    expect(screen.getByRole("radio", { name: "Science" }).getAttribute("aria-checked")).toBe("true");
+    expect((screen.getByTestId("packs-buy-pack_subject") as HTMLButtonElement).textContent).toBe("Opens soon");
+  });
+
+  it("?chapter=<slug> preselects the chapter and opens the Chapter Pack pop-up; an unknown slug or no param opens nothing", async () => {
+    page("/packs?chapter=triangles");
+    const dlg = await screen.findByRole("dialog");
+    expect(dlg.textContent).toContain("Chapter Pack");
+    expect((screen.getByLabelText("Pick your chapter") as HTMLSelectElement).value).toBe("triangles");
+    cleanup();
+    page("/packs?chapter=not-a-chapter");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    cleanup();
+    page("/packs");
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("signed out, a buy asks to sign in and goes to /login with a return to /packs", async () => {
     flag.on = true;
     page();
-    const b = screen.getByTestId("packs-buy-pack_bundle");
+    tap("bundle");
+    const b = await screen.findByTestId("packs-buy-pack_bundle");
     expect(b.textContent).toMatch(/Sign in to buy/);
     fireEvent.click(b);
     await waitFor(() => expect(screen.getByText("LOGIN")).toBeTruthy());
@@ -113,8 +196,8 @@ describe("PacksPage", () => {
     flag.on = true;
     auth.user = { uid: "u1" };
     page();
-    await waitFor(() => expect(screen.getByTestId("packs-mine")).toBeTruthy());
-    fireEvent.click(screen.getByTestId("packs-buy-pack_bundle"));
+    tap("bundle");
+    fireEvent.click(await screen.findByTestId("packs-buy-pack_bundle"));
     await waitFor(() => expect(events.names).toContain("pack_checkout"));
     expect(packs.buyPack).toHaveBeenCalledWith("pack_bundle", undefined, expect.anything());
     expect(screen.queryByRole("alert")).toBeNull();
@@ -151,7 +234,7 @@ describe("PacksPage", () => {
     expect(screen.queryByRole("button", { name: "Show files" })).toBeNull();
   });
 
-  it("an already-owned SKU shows 'You own this' and is disabled", async () => {
+  it("an already-owned SKU shows 'You own this' and is disabled in the pop-up", async () => {
     flag.on = true;
     auth.user = { uid: "u1" };
     flag.mine = {
@@ -159,8 +242,21 @@ describe("PacksPage", () => {
       licensee: { name: "", email: "" },
     };
     page();
+    await waitFor(() => expect(screen.getByTestId("packs-mine")).toBeTruthy());
+    expect(screen.getByTestId("packs-mine").getAttribute("id")).toBe("my-packs");
+    tap("bundle");
     await waitFor(() => expect((screen.getByTestId("packs-buy-pack_bundle") as HTMLButtonElement).textContent).toBe("You own this"));
     expect((screen.getByTestId("packs-buy-pack_bundle") as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByTestId("packs-buy-pack_mock") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("pack-dialog-close"));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    tap("mock");
+    await waitFor(() => expect((screen.getByTestId("packs-buy-pack_mock") as HTMLButtonElement).disabled).toBe(true));
+  });
+
+  it("signed in with nothing owned shows no My packs section at all", async () => {
+    auth.user = { uid: "u1" };
+    page();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByTestId("packs-mine")).toBeNull();
   });
 });
