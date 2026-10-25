@@ -2,6 +2,7 @@ import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
 import { recordActivity } from "../services/activityClient";
 import { rememberVisitSourceOnce } from "./visitSource";
 import { startEngagedVisitWatch, type EngagedVisitTrigger } from "./engagedVisit";
+import { startEngaged10Watch } from "./engaged10";
 
 /**
  * THE ONE ANALYTICS ENTRY POINT. Nothing else initialises a vendor, and nothing else
@@ -479,6 +480,8 @@ export const META_EVENTS: Readonly<
   purchase: ["track", "Purchase"],
   // MEASURE-1 B — a custom event (Meta has no standard "activated"); the name only, no surface.
   first_graded: ["trackCustom", "FirstGraded"],
+  // ENGAGE10-1 — ten visible minutes in one IST day; the name only, no parameter.
+  engaged_10min: ["trackCustom", "Engaged10Min"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
@@ -628,7 +631,10 @@ export function trackPageview(path: string): void {
   // module's one per-load entry point; idempotent, so later route changes never re-arm it).
   // Not in an automated context: the prerender capture must not even be watched.
   try {
-    if (analyticsEnabled()) startEngagedVisitWatch(trackEngagedVisit);
+    if (analyticsEnabled()) {
+      startEngagedVisitWatch(trackEngagedVisit);
+      startEngaged10Watch(trackEngaged10Min);
+    }
   } catch {
     /* analytics must never break the page */
   }
@@ -652,6 +658,24 @@ export function trackEngagedVisit(trigger: EngagedVisitTrigger): boolean {
     if (ADMIN_PATH.test(routerPath)) return false;
     const data = { trigger, path: normalisePath(routerPath) };
     send("event", { name: "engaged_visit", data }, { ga4: data });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * ENGAGE10-1 — `engaged_10min`, sent by the watch in engaged10.ts at most once per browser per IST
+ * day. A bare name (no data, no path, no id) to GA4, Vercel, Meta (custom `Engaged10Min`, see
+ * META_EVENTS) and the first-party activity log (signed-in students only; it is in
+ * `NamedAnalyticsEvent` and both allowlists). Returns whether it was sent: false in an automated
+ * context or on an /admin page, so the watch keeps its minutes and tries again later.
+ */
+export function trackEngaged10Min(): boolean {
+  try {
+    if (!analyticsEnabled()) return false;
+    if (ADMIN_PATH.test(routerPathOf(window.location.pathname))) return false;
+    trackNamedEvent("engaged_10min");
     return true;
   } catch {
     return false;
@@ -847,7 +871,9 @@ export type NamedAnalyticsEvent =
   | "ci_demo_result"
   | "ci_demo_check_own"
   | "ci_demo_another"
-  | "ci_demo_close";
+  | "ci_demo_close"
+  // ENGAGE10-1 — ten visible minutes in one IST day, once per browser per day, bare name.
+  | "engaged_10min";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
