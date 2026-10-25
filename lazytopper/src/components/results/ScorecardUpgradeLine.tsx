@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useAuth } from "../../context/AuthContext";
-import { useSubscription } from "../../hooks/useSubscription";
+import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../../services/subscriptionService";
 import { trackScorecardUpgrade } from "../../analytics/analytics";
 import UpgradeSheet from "../subscription/UpgradeSheet";
 import { formatScoreNumber } from "./scoreNumber";
@@ -78,11 +78,29 @@ function useOptionalUid(): string {
   }
 }
 
-function Line({ text, countShown }: { text: string; countShown: boolean }) {
-  const sub = useSubscription();
+/**
+ * The student's entitlement for the ask, WITHOUT a Firestore read of its own: this device's cached
+ * record, then whatever the app's shared hydration reports (onSubscriptionHydrated). The old
+ * useSubscription() here hydrated from the cloud on every scorecard mount - a duplicate read per
+ * result (it broke the Chapter Test pending-upload "exactly one snapshot lookup" pin). It only
+ * decides whether to SHOW an ask, never what is unlocked; the server still gates every feature.
+ */
+function useCachedTier(uid: string): SubscriptionStatus["tier"] {
+  const [tier, setTier] = useState<SubscriptionStatus["tier"]>(() => loadSubscription(uid).tier);
+  useEffect(() => {
+    setTier(loadSubscription(uid).tier);
+    return onSubscriptionHydrated((hydratedFor, cloud) => {
+      if (hydratedFor === uid) setTier(cloud.tier);
+    });
+  }, [uid]);
+  return tier;
+}
+
+function Line({ text, countShown, uid }: { text: string; countShown: boolean; uid: string }) {
+  const tier = useCachedTier(uid);
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
-  const show = sub.hydrated && sub.tier !== "premium";
+  const show = tier !== "premium";
   useEffect(() => {
     // A history re-open of an old result shows the line but is not counted as a fresh "shown".
     if (show && countShown) trackScorecardUpgrade("shown");
@@ -111,5 +129,5 @@ export default function ScorecardUpgradeLine({ variant, countShown = true }: { v
   const uid = useOptionalUid();
   const copy = scorecardUpgradeCopy(variant);
   if (!uid || !copy) return null;
-  return <Line text={copy.text} countShown={countShown} />;
+  return <Line text={copy.text} countShown={countShown} uid={uid} />;
 }

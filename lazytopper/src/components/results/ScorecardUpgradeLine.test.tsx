@@ -8,6 +8,14 @@ vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user,
 vi.mock("../../hooks/useSubscription", () => ({
   useSubscription: () => ({ hydrated: auth.hydrated, tier: auth.tier, isTrialExpired: false, isTrialActive: auth.tier === "trial", daysLeftInTrial: 3, status: {} }),
 }));
+vi.mock("../../services/subscriptionService", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/subscriptionService")>();
+  return {
+    ...actual,
+    loadSubscription: () => ({ tier: auth.tier, plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null }),
+    onSubscriptionHydrated: () => () => {},
+  };
+});
 vi.mock("../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../analytics/analytics")>();
   return { ...actual, trackScorecardUpgrade: vi.fn(), trackPaywallAction: vi.fn() };
