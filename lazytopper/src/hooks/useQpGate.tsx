@@ -14,13 +14,14 @@
  * ★ DARK = UNCHANGED. VITE_LIMITS_ENABLED is a BUILD-TIME constant, so which implementation runs
  * never changes while a page is mounted (the hook order is stable). Off, `status` is always
  * "open" and no context, effect or request is touched.
- * ★ FAILS OPEN on every uncertainty (signed out, premium, offline, slow or failed server).
+ * ★ FAILS OPEN on every uncertainty (signed out, paid premium, offline, slow or failed server).
  */
 import { useEffect, useState, type ReactNode } from "react";
 import DownloadLimitWall from "../components/limits/DownloadLimitWall";
 import { useAuth } from "../context/AuthContext";
 import { trackNamedEvent } from "../analytics/analytics";
 import { isLimitsClientEnabled, mintQp } from "../services/limitsClient";
+import { isPaidPremium } from "../services/subscriptionService";
 import { useSubscription } from "./useSubscription";
 
 export type QpGateStatus = "open" | "pending" | "blocked";
@@ -46,9 +47,10 @@ interface Answer {
 
 function useQpGateLive(active: boolean, setKey: string): QpGate {
   const { user } = useAuth();
-  const { isPremium } = useSubscription();
+  const { status } = useSubscription();
+  const paid = isPaidPremium(status);
   const uid = user?.uid ?? "";
-  const skip = !active || !setKey || isPremium || !uid;
+  const skip = !active || !setKey || paid || !uid;
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [wallClosedFor, setWallClosedFor] = useState<string>("");
 

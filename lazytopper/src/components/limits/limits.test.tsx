@@ -16,8 +16,8 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 });
 const authState: { user: { uid: string } | null } = { user: { uid: "stu-1" } };
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: authState.user, loading: false }) }));
-const subState = { isPremium: false, touched: 0 };
-vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => { subState.touched += 1; return { isPremium: subState.isPremium }; } }));
+const subState = { isPremium: false, tier: "free", touched: 0 };
+vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => { subState.touched += 1; const tier = subState.isPremium ? "premium" : subState.tier; return { isPremium: tier === "premium" || tier === "trial", status: { tier } }; } }));
 vi.mock("../../ai/paidCallHeaders", () => ({
   paidJsonHeaders: async () => (authState.user ? { "Content-Type": "application/json", "X-Lazytopper-Uid": authState.user.uid, Authorization: "Bearer t" } : { "Content-Type": "application/json" }),
 }));
@@ -47,6 +47,7 @@ function jsonRes(status: number, body: unknown): Response {
 beforeEach(() => {
   authState.user = { uid: "stu-1" };
   subState.isPremium = false;
+  subState.tier = "free";
   subState.touched = 0;
   resetLimitsSummaryForTests();
   track.mockClear();
@@ -204,6 +205,42 @@ describe("LimitChip", () => {
   });
 });
 
+describe("LimitChip: trial students are metered by the server's word", () => {
+  const counters = (o: Record<string, unknown>) => ({ metered: true, limit: 2, used: 0, remaining: 2, firstFreeAvailable: false, resetAt: null, ...o });
+  it("trial: asks the server and shows the chip; paid premium asks nothing", async () => {
+    vi.stubEnv("VITE_LIMITS_ENABLED", "1");
+    subState.tier = "trial";
+    const f = vi.fn().mockResolvedValue(jsonRes(200, { tier: "trial", enforced: true, download: counters({ used: 1, remaining: 1 }), qp: null, detailLocked: false }));
+    vi.stubGlobal("fetch", f);
+    render(<LimitChip />);
+    expect((await screen.findByTestId("limit-chip")).textContent).toBe("1 of 2 downloads left this week");
+    expect(f).toHaveBeenCalledTimes(1);
+    cleanup();
+    resetLimitsSummaryForTests();
+    f.mockClear();
+    subState.tier = "premium";
+    expect(render(<LimitChip />).container.textContent).toBe("");
+    expect(f).not.toHaveBeenCalled();
+  });
+  it("trial, server says not metered: no chip", async () => {
+    vi.stubEnv("VITE_LIMITS_ENABLED", "1");
+    subState.tier = "trial";
+    const f = vi.fn().mockResolvedValue(jsonRes(200, { tier: "trial", enforced: true, download: counters({ metered: false, limit: null, remaining: null }), qp: null, detailLocked: false }));
+    vi.stubGlobal("fetch", f);
+    const { container } = render(<LimitChip />);
+    await waitFor(() => expect(f).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 20));
+    expect(container.textContent).toBe("");
+  });
+  it("flag off: nothing rendered, no request, for a trial account", async () => {
+    subState.tier = "trial";
+    const f = vi.fn();
+    vi.stubGlobal("fetch", f);
+    expect(render(<LimitChip />).container.textContent).toBe("");
+    expect(f).not.toHaveBeenCalled();
+  });
+});
+
 describe("useLimitedDownload.guard", () => {
   const wrapper = ({ children }: { children: React.ReactNode }) => <MemoryRouter>{children}</MemoryRouter>;
   it("dark: true, no request, and the subscription / auth hooks are never touched", async () => {
@@ -236,6 +273,38 @@ describe("useLimitedDownload.guard", () => {
     await act(async () => { ok = await result.current.guard("full-mock", () => "fm-1"); });
     expect(ok).toBe(true);
     expect(track).toHaveBeenCalledWith("full-mock", "start");
+  });
+  it("live trial: the server is asked; not metered -> true, no wall; at the limit -> false + wall; paid premium -> no request; flag off -> no request", async () => {
+    vi.stubEnv("VITE_LIMITS_ENABLED", "1");
+    subState.tier = "trial";
+    const f = vi.fn();
+    vi.stubGlobal("fetch", f);
+    const { result } = renderHook(() => useLimitedDownload(), { wrapper });
+    f.mockResolvedValueOnce(jsonRes(200, { ok: true, counted: false, free: false, metered: false }));
+    f.mockResolvedValue(jsonRes(200, { ok: true, tier: "trial", enforced: true, download: null }));
+    let ok = false;
+    await act(async () => { ok = await result.current.guard("worksheet", "w-pre"); });
+    expect(ok).toBe(true);
+    expect(f.mock.calls.filter((c) => String(c[0]).endsWith("/limits/download")).length).toBe(1);
+    expect(result.current.wall).toBeNull();
+    f.mockResolvedValueOnce(jsonRes(409, { error: "download_limit", resetAt: "2026-11-07T10:40:00Z", limit: 2, tier: "trial" }));
+    await act(async () => { ok = await result.current.guard("worksheet", "w-over"); });
+    expect(ok).toBe(false);
+    expect(result.current.wall).not.toBeNull();
+    cleanup();
+    f.mockClear();
+    subState.tier = "premium";
+    const paid = renderHook(() => useLimitedDownload(), { wrapper });
+    await act(async () => { ok = await paid.result.current.guard("worksheet", "w-paid"); });
+    expect(ok).toBe(true);
+    expect(f).not.toHaveBeenCalled();
+    cleanup();
+    vi.stubEnv("VITE_LIMITS_ENABLED", "");
+    subState.tier = "trial";
+    const dark = renderHook(() => useLimitedDownload(), { wrapper });
+    await act(async () => { ok = await dark.result.current.guard("worksheet", "w-dark"); });
+    expect(ok).toBe(true);
+    expect(f).not.toHaveBeenCalled();
   });
   it("live: a second tap while the first is asking is ignored (one request)", async () => {
     vi.stubEnv("VITE_LIMITS_ENABLED", "1");
