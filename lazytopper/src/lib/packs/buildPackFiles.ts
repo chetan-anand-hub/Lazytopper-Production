@@ -39,7 +39,9 @@ import {
   loadChapter,
   loadSubjectBank,
   splitIntoParts,
+  subjectBankRows,
   toWorksheetQuestion,
+  withProvenance,
 } from "./packContent";
 
 /** The 4th argument of `exportWorksheetPdf` (PACKS contract §5; PDF-REBRAND-1 adds it). */
@@ -224,7 +226,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
       seed,
     });
     if (!drawn.enoughQuestions) continue;
-    const paper = drawn.paper;
+    const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, rows) };
     for (const [mode, modeLabel, modeFile] of MODES) {
       files.push(
         makeFile(
@@ -279,6 +281,7 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
   const bankSubject = bankSubjectName(subject);
   const orderRef = coveringRef(ctx.owned, "mocks", subject, fallback);
   const files: PackFile[] = [];
+  const mockRows = subjectBankRows(subject);
   for (let n = 1; n <= 5; n += 1) {
     const name = `${bankSubject} Full Mock ${n}`;
     const drawn = drawFullMock({
@@ -290,7 +293,7 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
       seed: hashSeed(`${packId}:mock${n}`),
     });
     if (!drawn.enoughQuestions) continue;
-    const paper = drawn.paper;
+    const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, mockRows) };
     for (const [mode, modeLabel, modeFile] of MODES) {
       files.push(
         makeFile(

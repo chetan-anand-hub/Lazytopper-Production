@@ -268,7 +268,7 @@ export default function PacksPage() {
             after you try. Print it, solve it with a pen, check it. Plus two chapter tests and a worksheet per chapter, and full
             board-pattern mock papers.
           </p>
-          <p className="lt-packs__lede lt-packs__lede--small">One-time payment · no subscription · price credited to the Board Pass if you upgrade within 7 days.</p>
+          <p className="lt-packs__lede lt-packs__lede--small">One-time payment · never renews · price credited to the Board Pass if you upgrade within 7 days.</p>
         </div>
       </header>
 
@@ -404,8 +404,8 @@ export default function PacksPage() {
             <p>Packs are for your own use. Each PDF carries your name and email on every page, so please don&rsquo;t share the files.</p>
           </details>
           <details>
-            <summary>Is it a subscription?</summary>
-            <p>No. It is a one-time payment. If you take the Board Pass within 7 days, the pack price is credited against it.</p>
+            <summary>Does it renew?</summary>
+            <p>Never. It is a one-time payment and nothing is charged again. If you take the Board Pass within 7 days, the pack price is credited against it.</p>
           </details>
           <details>
             <summary>What about refunds?</summary>

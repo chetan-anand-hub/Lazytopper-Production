@@ -138,6 +138,24 @@ describe("buildPackFiles — chapter", () => {
   });
 });
 
+describe("provenance", () => {
+  it("carries pyqYear / pyqSet / sourceOverride from the bank row onto pack questions", async () => {
+    await loadChapter("real-numbers");
+    const rows = chapterPackRows("real-numbers");
+    const withYear = rows.find((r) => r.pyqYear);
+    expect(withYear, "the chapter has a PYQ row").toBeTruthy();
+    const pack = owned("pack_chapter:real-numbers");
+    const seen: Array<{ id: string; pyqYear?: string }> = [];
+    const exportPdf = vi.fn(async (ws: { questions: Array<{ id: string; pyqYear?: string }> }) => {
+      seen.push(...ws.questions);
+      return "x";
+    });
+    const files = await buildPackFiles(ref(pack), ctx([pack], { exportPdf: exportPdf as never }));
+    for (const f of files.filter((x) => x.label.startsWith("Section"))) await f.build();
+    expect(seen.find((q) => q.id === withYear!.id)?.pyqYear).toBe(withYear!.pyqYear);
+  });
+});
+
 describe("no licensee email, no PDF", () => {
   it("build() throws before the exporter is ever called", async () => {
     const pack = owned("pack_chapter:triangles");

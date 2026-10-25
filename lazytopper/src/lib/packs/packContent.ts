@@ -9,7 +9,7 @@
  * `needsMissingFigure` (publishability Rule 5, with its reviewed false-positive allowlist), so a pack never
  * disagrees with the Worksheet / Chapter Test / Full Mock about what is printable.
  */
-import { ensureBankChapters, ensureBankSubject } from "../../data/bankChapters/loader";
+import { ensureBankChapters, ensureBankSubject, getBankRowsForSubject } from "../../data/bankChapters/loader";
 import { selectBankQuestions } from "../../data/bankQuery";
 import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { needsMissingFigure } from "../figureSafe";
@@ -89,7 +89,14 @@ export function splitIntoParts<T>(list: readonly T[], max: number = MAX_QUESTION
   return parts;
 }
 
-export function toWorksheetQuestion(q: CanonicalQuestion, qNumber: number, topicLabel: string): PersistedWorksheetQuestion {
+/** A pack question row: the worksheet row plus the provenance fields the print doc's source tag reads when present. */
+export type PackWorksheetQuestion = PersistedWorksheetQuestion & {
+  pyqYear?: string;
+  pyqSet?: string;
+  sourceOverride?: string;
+};
+
+export function toWorksheetQuestion(q: CanonicalQuestion, qNumber: number, topicLabel: string): PackWorksheetQuestion {
   return {
     qNumber,
     id: q.id,
@@ -103,7 +110,30 @@ export function toWorksheetQuestion(q: CanonicalQuestion, qNumber: number, topic
     solutionSteps: q.solutionSteps,
     finalAnswer: q.finalAnswer,
     answer: q.answer,
+    ...(q.pyqYear !== undefined ? { pyqYear: q.pyqYear } : {}),
+    ...(q.pyqSet !== undefined ? { pyqSet: q.pyqSet } : {}),
+    ...(q.sourceOverride !== undefined ? { sourceOverride: String(q.sourceOverride) } : {}),
   };
+}
+
+/** Carry pyqYear / pyqSet / sourceOverride from the bank rows (matched by id) onto a drawn paper's questions. */
+export function withProvenance<T extends PersistedWorksheetQuestion>(questions: readonly T[], rows: readonly CanonicalQuestion[]): Array<T & PackWorksheetQuestion> {
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  return questions.map((q) => {
+    const r = byId.get(q.id);
+    if (!r) return q;
+    return {
+      ...q,
+      ...(r.pyqYear !== undefined ? { pyqYear: r.pyqYear } : {}),
+      ...(r.pyqSet !== undefined ? { pyqSet: r.pyqSet } : {}),
+      ...(r.sourceOverride !== undefined ? { sourceOverride: String(r.sourceOverride) } : {}),
+    };
+  });
+}
+
+/** Every bank row of a subject (for provenance lookups). The subject must be loaded (`loadSubjectBank`). */
+export function subjectBankRows(subject: PackSubject): CanonicalQuestion[] {
+  return getBankRowsForSubject(bankSubjectName(subject));
 }
 
 /** Per-section caps of the pack Worksheet. */

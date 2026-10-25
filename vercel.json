@@ -66,6 +66,10 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(packs/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(cbse/class-10/?)",
       "destination": "/__shell.html"
     },

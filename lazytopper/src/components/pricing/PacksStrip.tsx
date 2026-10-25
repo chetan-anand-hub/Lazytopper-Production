@@ -18,7 +18,7 @@ export default function PacksStrip() {
     <section className="lt-pstrip" aria-label="PDF packs" data-testid="pricing-packs-strip">
       <div className="lt-pstrip__head">
         <h2 className="lt-pstrip__title">Just want printable question banks?</h2>
-        <p className="lt-pstrip__sub">PDF packs with worked solutions. One-time payment, no subscription.</p>
+        <p className="lt-pstrip__sub">PDF packs with worked solutions. One-time payment, never renews.</p>
       </div>
       <ul className="lt-pstrip__list">
         {ITEMS.map((i) => (
