@@ -641,6 +641,7 @@ describe("Per-grade consumers: scorecards, worksheet panel, share card", () => {
       {
         "actions": [
           {
+            "detail": true,
             "disabled": false,
             "label": "Read your graded worksheet",
             "tone": "ghost",
@@ -648,6 +649,7 @@ describe("Per-grade consumers: scorecards, worksheet panel, share card", () => {
           {
             "busy": false,
             "busyLabel": "Preparing PDF…",
+            "detail": true,
             "disabled": false,
             "label": "Download graded sheet",
             "tone": "primary",
