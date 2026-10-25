@@ -1,4 +1,4 @@
-## 2026-10-25 (daily) - #1354 - #1363 (11 product merges after #1353): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+## 2026-10-25 (daily) - #1354 - #1366 (12 product merges after #1353): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner rulings of 25 Oct (binding) relayed by the cofounder **[coordinator]**, with the reason given where the session handoff records one **[coordinator]**; where none was given, none is invented. Scope discovered for the limits is logged here and in the SURFACE_TRACKER block (those rows read Settling).
 
@@ -10,6 +10,7 @@
 | Basic limits: QP graded 1 per day, downloads 1 per 7 days (first ever free), breakdown locked, Me/Progress MI open | `#1359`, `#1363` | owner: "create a feeling of restriction"; MI summary stays visible because it is the product's soul (CLAUDE.md section 5) |
 | A paper plus its key = ONE download; notes free; signed-out get no downloads; QP per-tap right/wrong visible; partial objective-only CT / FM scorecards unlocked | `#1359`, `#1363` | consistency with Quick Practice; no reason beyond that recorded |
 | Trial stays at sign-up for everyone (Option A); offer "start trial" only where trial-eligible; never a second trial | `[FU-TRIAL-CTA-ON-ASK]` | doctrine allows trial at sign-up or by explicit tap, never on mount |
+| **Client limit hooks skip only paid Premium; the server decides trial metering** | `#1366` (`c9ca2744`): the Quick Practice gate, download guard and LimitChip use the new `isPaidPremium` | found live on 25 Oct with the flags on: `isPremiumAccess` counts trial as premium, so the hooks skipped TRIAL students and never asked the server; trial and Basic must ask the server, which holds the limits |
 | Limits switched ON 25 Oct after a fresh independent review | Railway `LIMITS_ENFORCE=1`, Vercel `VITE_LIMITS_ENABLED=1`, redeploy | the first review of `#1363` found 3 real money bugs and the re-review a crash: always review afresh before enabling anything that gates money or access |
 | Trial-ending email ON (cap 60/day), nudge ON (cap 30/day), concierge ON | Railway flags, owner-approved | most trials expire unused (checks=0, tests=0, practice=0); Resend free plan 100/day fits 60 + 30 |
 | At most one email a day per student, never duplicated | `#1364` (decided inside the transaction) | so the three emailers cannot stack on one student |
