@@ -48,6 +48,7 @@ import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { getPremiumFeatureList } from "../../services/featureGates";
 import { MONTHLY_INLINE } from "../../config/pricing";
 import PaywallActions from "../pricing/PaywallActions";
+import { boardPassOffer } from "../pricing/boardPassOffer";
 
 export interface UpgradeSheetProps {
   /** What the student was trying to do, in their words. Names the blocked feature. */
@@ -219,6 +220,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
   };
 
   const trialLine = formatTrialEnded(trialEndedAt);
+  const offer = boardPassOffer(new Date());
 
   return (
     <div
@@ -248,7 +250,12 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
 
         <div className="lt-upsheet__offer">
           {/* ★ From pricing.ts. Never a literal. */}
-          <p className="lt-upsheet__price">Premium — {MONTHLY_INLINE} · everything unlocked</p>
+          {/* ASK-FIX-1 - the Board Pass leads; the monthly pass is the second option. */}
+          <p className="lt-upsheet__price" data-testid="upgrade-sheet-board-pass">
+            {offer.title}
+            {offer.priceDisplay ? ` ${offer.priceDisplay}` : ""} — {offer.detail}
+          </p>
+          <p className="lt-upsheet__price">Or Premium — {MONTHLY_INLINE} · everything unlocked</p>
           <ul className="lt-upsheet__list">
             {premiumFeatures.map((f) => (
               <li key={f.id}>

@@ -143,6 +143,12 @@ const EVENT_LABELS: Record<string, string> = {
   tutor_first_message: "Sent a first tutor message",
   trial_banner_shown: "Saw the trial-ending banner",
   trial_banner_click: "Tapped the trial-ending banner",
+  trial_end_screen_shown: "Saw the trial-ended screen",
+  trial_end_screen_pay: "Tapped Pay on the trial-ended screen",
+  trial_end_screen_parent: "Sent the trial-ended offer to a parent",
+  trial_end_screen_basic: "Chose Basic on the trial-ended screen",
+  scorecard_upgrade_shown: "Saw the upgrade line on a scorecard",
+  scorecard_upgrade_click: "Tapped the upgrade line on a scorecard",
   // FEEDBACK-1 — the "help us improve" prompt (shown / dismissed / answered), built below.
   ...feedbackEventLabels(),
   // GUIDE-1 — the stored name carries no arm (names only); guideTestGroupLabel(uid) derives it.

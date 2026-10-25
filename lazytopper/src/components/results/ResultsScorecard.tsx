@@ -23,6 +23,7 @@ import ShareScoreButton from "./share/ShareScoreButton";
 import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import FirstGradedAsk from "../feedback/FirstGradedAsk";
+import ScorecardUpgradeLine from "./ScorecardUpgradeLine";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
 import type {
@@ -745,6 +746,8 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
               {variant.gradedAnswers && variant.gradedAnswers.length > 0 && (
                 <GradedSheetBlock answers={variant.gradedAnswers} />
               )}
+              {/* ASK-FIX-1 - one calm upgrade line for non-Premium students, from this result's own marks. */}
+              <ScorecardUpgradeLine variant={variant} />
             </>
           )}
         </div>

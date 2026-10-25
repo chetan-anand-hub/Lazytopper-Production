@@ -33,6 +33,8 @@ const CLOCK_SKEW_TOLERANCE_MS = 5 * 60 * 1000;
 
 /** The first trial day (IST calendar) the banner appears on. */
 export const TRIAL_BANNER_FIRST_DAY = 5;
+/** ASK-FIX-1 - the one-line countdown bar (every main page) starts a day earlier, on trial day 4. */
+export const TRIAL_BAR_FIRST_DAY = 4;
 
 export interface TrialBannerTiming {
   /** 1-based IST calendar day of the trial (5, 6, 7, or 8 on the final morning). */
@@ -49,7 +51,11 @@ export interface TrialBannerTiming {
  * When — if at all — the banner applies at `nowMs`. `null` means "say nothing": no start,
  * an unparseable or future start, a trial that has not reached day 5, or one already ended.
  */
-export function trialBannerTiming(trialStartIso: string | null | undefined, nowMs: number): TrialBannerTiming | null {
+export function trialBannerTiming(
+  trialStartIso: string | null | undefined,
+  nowMs: number,
+  firstDay: number = TRIAL_BANNER_FIRST_DAY,
+): TrialBannerTiming | null {
   if (!trialStartIso) return null;
   const raw = Date.parse(trialStartIso);
   if (!Number.isFinite(raw) || !Number.isFinite(nowMs)) return null;
@@ -58,7 +64,7 @@ export function trialBannerTiming(trialStartIso: string | null | undefined, nowM
   const endMs = startMs + TRIAL_DAYS * DAY_MS;
   if (nowMs >= endMs) return null;
   const dayOfTrial = Math.round((istDayStartMs(nowMs) - istDayStartMs(startMs)) / DAY_MS) + 1;
-  if (dayOfTrial < TRIAL_BANNER_FIRST_DAY) return null;
+  if (dayOfTrial < firstDay) return null;
   const daysLeft = Math.round((istDayStartMs(endMs) - istDayStartMs(nowMs)) / DAY_MS);
   return { dayOfTrial, daysLeft, endMs, startMs };
 }
