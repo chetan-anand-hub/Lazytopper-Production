@@ -49,6 +49,7 @@ import { getPremiumFeatureList } from "../../services/featureGates";
 import { MONTHLY_INLINE } from "../../config/pricing";
 import PaywallActions from "../pricing/PaywallActions";
 import { boardPassOffer } from "../pricing/boardPassOffer";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
 
 export interface UpgradeSheetProps {
   /** What the student was trying to do, in their words. Names the blocked feature. */
@@ -220,7 +221,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
   };
 
   const trialLine = formatTrialEnded(trialEndedAt);
-  const offer = boardPassOffer(new Date());
+  const offer = boardPassOffer(new Date(), predictCbseExamDate("10"));
 
   return (
     <div

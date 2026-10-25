@@ -78,6 +78,9 @@ interface ResultsScorecardProps {
    *  renders nothing otherwise, or with the mascots hidden). Absent on every other caller, so their
    *  scorecards are unchanged. Display only: no score, mark or action is touched. */
   allPendingSlot?: (allPending: ScorecardAllPending) => ReactNode;
+  /** ASK-FIX-1 — set by a history RE-OPEN of a stored result: the upgrade line may still show, but its
+   *  "shown" event is not counted (it would inflate the funnel with old results). */
+  reopened?: boolean;
 }
 
 /** The score hero + descriptor — marks (worksheet/tests) or attempts (quick practice). */
@@ -585,7 +588,7 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
-export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot }: ResultsScorecardProps) {
+export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot, reopened }: ResultsScorecardProps) {
   // FEEDBACK-2 - the in-flow slot BELOW the buttons where "Was this useful?" sits on a phone, so it can
   // never cover the scorecard's own buttons. Empty (and hidden) unless the card is portaled into it.
   const feedbackSlotRef = useRef<HTMLDivElement | null>(null);
@@ -747,7 +750,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 <GradedSheetBlock answers={variant.gradedAnswers} />
               )}
               {/* ASK-FIX-1 - one calm upgrade line for non-Premium students, from this result's own marks. */}
-              <ScorecardUpgradeLine variant={variant} />
+              <ScorecardUpgradeLine variant={variant} countShown={!reopened} />
             </>
           )}
         </div>

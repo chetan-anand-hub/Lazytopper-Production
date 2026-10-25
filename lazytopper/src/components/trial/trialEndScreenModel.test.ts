@@ -11,7 +11,7 @@ import {
 } from "./trialEndScreenModel";
 import { trialEndFeedbackKey } from "../feedback/useTrialEndFeedback";
 
-const base = { uid: "u", hydrated: true, isTrialExpired: true, isPremium: false, trialStartDate: "2026-06-01T04:30:00.000Z", pathname: "/browse" };
+const base = { plan: "trial_7day", uid: "u", hydrated: true, isTrialExpired: true, isPremium: false, trialStartDate: "2026-06-01T04:30:00.000Z", pathname: "/browse" };
 
 beforeEach(() => {
   localStorage.clear();
@@ -27,6 +27,10 @@ describe("trialEndScreenKey", () => {
     expect(trialEndScreenKey({ ...base, isPremium: true })).toBeNull();
     expect(trialEndScreenKey({ ...base, trialStartDate: null })).toBeNull();
     expect(trialEndScreenKey({ ...base, pathname: "/pricing" })).toBeNull();
+    expect(trialEndScreenKey({ ...base, plan: "pass_month" })).toBeNull(); // a paid pass that ran out
+    expect(trialEndScreenKey({ ...base, premiumSince: "2026-06-02T00:00:00Z" })).toBeNull();
+    expect(trialEndScreenKey({ ...base, passEnd: "2026-07-02T00:00:00Z" })).toBeNull();
+    expect(trialEndScreenKey({ ...base, plan: undefined })).toBeNull();
     expect(trialEndScreenPathAllowed("/admin/students")).toBe(false);
     expect(trialEndScreenPathAllowed("/practice")).toBe(true);
   });

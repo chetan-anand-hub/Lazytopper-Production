@@ -36,19 +36,19 @@ afterEach(cleanup);
 describe("scorecardUpgradeCopy", () => {
   it("names the real marks lost, singular-aware", () => {
     expect(scorecardUpgradeCopy(variantFor("worksheet", marks(7, 10)))?.text).toBe(
-      "You lost 3 marks here. See exactly where and why with the Board Pass →",
+      "You lost 3 marks here. Unlock step-by-step marks on every answer and unlimited checks with the Board Pass →",
     );
     expect(scorecardUpgradeCopy(variantFor("worksheet", marks(9, 10)))?.text).toContain("You lost 1 mark here.");
     expect(scorecardUpgradeCopy(variantFor("worksheet", marks(8.5, 10)))?.text).toContain("You lost 1.5 marks here.");
   });
   it("full marks gets the full-marks line", () => {
     expect(scorecardUpgradeCopy(variantFor("check-improve", marks(5, 5)))?.text).toBe(
-      "Full marks — keep the streak going with unlimited checks →",
+      "Full marks! Keep going with unlimited checks — Board Pass →",
     );
   });
   it("no number when marks are unknown: attempts score, ungraded questions, awaited sheet", () => {
     const attempts = variantFor("quick-practice", { kind: "attempts", attempted: 3, ofN: 5, mcqAnswered: 3, mcqCorrect: 2 });
-    expect(scorecardUpgradeCopy(attempts)?.text).toBe("See exactly where your marks go, and why, with the Board Pass →");
+    expect(scorecardUpgradeCopy(attempts)?.text).toBe("Unlock step-by-step marks on every answer — Board Pass →");
     const pending = { ...variantFor("worksheet", marks(4, 10)), pending: { count: 1, worksheetTotalMarks: 10 } } as ScorecardVariant;
     expect(scorecardUpgradeCopy(pending)?.text).not.toMatch(/\d/);
     const awaiting = { ...variantFor("chapter-test", marks(4, 10)), awaitingSheet: true } as ScorecardVariant;
@@ -67,11 +67,17 @@ describe("the shell renders it on every grading surface (one call site: ResultsS
       : marks(6, 10);
     render(<MemoryRouter><ResultsScorecard variant={variantFor(surface, score)} onClose={() => {}} /></MemoryRouter>);
     const line = screen.getByTestId("scorecard-upgrade-line");
-    expect(line).toHaveTextContent(surface === "quick-practice" ? "See exactly where your marks go" : "You lost 4 marks here.");
+    expect(line).toHaveTextContent(surface === "quick-practice" ? "Unlock step-by-step marks on every answer" : "You lost 4 marks here.");
     expect(track).toHaveBeenCalledWith("shown");
     fireEvent.click(line);
     expect(track).toHaveBeenCalledWith("click");
     expect(screen.getByTestId("upgrade-sheet-board-pass")).toHaveTextContent("Board Pass");
+  });
+
+  it("a history re-open shows the line but does not count 'shown'", () => {
+    render(<MemoryRouter><ResultsScorecard reopened variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+    expect(screen.getByTestId("scorecard-upgrade-line")).toBeInTheDocument();
+    expect(track).not.toHaveBeenCalledWith("shown");
   });
 
   it("a trial student sees it; a Premium student, a signed-out visitor and a bare render do not", () => {

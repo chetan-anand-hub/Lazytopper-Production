@@ -11,9 +11,9 @@ import type { ScorecardVariant } from "./scorecardVariants";
  * ScorecardUpgradeLine — ASK-FIX-1. One calm line under a graded result, for a student who is not
  * on a paid Premium pass (trial and Basic), tied to the REAL result:
  *
- *   marks lost > 0      "You lost {N} marks here. See exactly where and why with the Board Pass →"
- *   nothing lost        "Full marks - keep the streak going with unlimited checks →"
- *   marks not known     "See exactly where your marks go, and why, with the Board Pass →"
+ *   marks lost > 0      "You lost {N} marks here. Unlock step-by-step marks on every answer and unlimited checks with the Board Pass →"
+ *   nothing lost        "Full marks! Keep going with unlimited checks — Board Pass →"
+ *   marks not known     "Unlock step-by-step marks on every answer — Board Pass →"
  *
  * "Not known" is every attempts-style score (Quick Practice has no marks total), any paper with an
  * ungraded question or an awaited sheet (a number there would be wrong), and an all-pending card
@@ -23,6 +23,9 @@ import type { ScorecardVariant } from "./scorecardVariants";
  * Rendered by the ONE <ResultsScorecard> shell, so it reaches all six grading surfaces: Check &
  * Improve (single and multi-question), Worksheet, Chapter Test, Full Mock and Quick Practice.
  */
+
+export const FULL_MARKS_COPY = "Full marks! Keep going with unlimited checks — Board Pass →";
+export const UNKNOWN_COPY = "Unlock step-by-step marks on every answer — Board Pass →";
 
 export type ScorecardUpgradeCopy = { text: string };
 
@@ -44,13 +47,13 @@ export function scorecardUpgradeCopy(
     Number.isFinite(score.total) &&
     score.total > 0;
   if (!known || score.kind !== "marks") {
-    return { text: "See exactly where your marks go, and why, with the Board Pass →" };
+    return { text: UNKNOWN_COPY };
   }
   const lost = Math.max(0, Math.round((score.total - score.awarded) * 100) / 100);
   if (lost > 0) {
-    return { text: `You lost ${formatScoreNumber(lost)} ${marksWord(lost)} here. See exactly where and why with the Board Pass →` };
+    return { text: `You lost ${formatScoreNumber(lost)} ${marksWord(lost)} here. Unlock step-by-step marks on every answer and unlimited checks with the Board Pass →` };
   }
-  return { text: "Full marks — keep the streak going with unlimited checks →" };
+  return { text: FULL_MARKS_COPY };
 }
 
 const LINE_CSS = `
@@ -75,14 +78,15 @@ function useOptionalUid(): string {
   }
 }
 
-function Line({ text }: { text: string }) {
+function Line({ text, countShown }: { text: string; countShown: boolean }) {
   const sub = useSubscription();
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
   const show = sub.hydrated && sub.tier !== "premium";
   useEffect(() => {
-    if (show) trackScorecardUpgrade("shown");
-  }, [show]);
+    // A history re-open of an old result shows the line but is not counted as a fresh "shown".
+    if (show && countShown) trackScorecardUpgrade("shown");
+  }, [show, countShown]);
   if (!show) return null;
   return (
     <>
@@ -103,9 +107,9 @@ function Line({ text }: { text: string }) {
   );
 }
 
-export default function ScorecardUpgradeLine({ variant }: { variant: ScorecardVariant }) {
+export default function ScorecardUpgradeLine({ variant, countShown = true }: { variant: ScorecardVariant; countShown?: boolean }) {
   const uid = useOptionalUid();
   const copy = scorecardUpgradeCopy(variant);
   if (!uid || !copy) return null;
-  return <Line text={copy.text} />;
+  return <Line text={copy.text} countShown={countShown} />;
 }

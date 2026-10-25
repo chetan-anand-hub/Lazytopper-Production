@@ -6,10 +6,10 @@ import { resolve } from "node:path";
 
 describe("boardPassOffer", () => {
   it("leads with the Board Pass, priced from config, monthly second", () => {
-    const o = boardPassOffer(new Date("2026-10-26T06:00:00Z"));
+    const o = boardPassOffer(new Date("2026-10-26T06:00:00Z"), "2027-02-17");
     expect(o.title).toBe("Board Pass");
     expect(o.priceDisplay).toMatch(/^₹/);
-    expect(o.detail).toMatch(/^Pay once till your boards \(/);
+    expect(o.detail).toMatch(/^Pay once till your boards \(Feb 2027\)/);
     expect(o.monthlyLine).toMatch(/^₹\d+ for a month$/);
     expect(boardPassShortLine(o)).toBe(`Board Pass ${o.priceDisplay} till boards`);
   });

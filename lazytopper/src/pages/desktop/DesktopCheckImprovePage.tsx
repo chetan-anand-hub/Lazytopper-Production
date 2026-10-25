@@ -2771,6 +2771,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         )}
         {reopen && (
           <ResultsScorecard
+            reopened
             variant={storedCheckImproveScorecardVariant(reopen, {
               gradedDateLabel: new Date(reopen.gradedAt).toLocaleDateString("en-GB", {
                 day: "numeric",

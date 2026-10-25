@@ -5078,6 +5078,7 @@ const packTopicKey = useMemo(() => {
       });
   return (
     <ResultsScorecard
+      reopened
       variant={withGuideTarget(reopenVariant, singleChapterPracticeTarget(recSubject, record.topicKeys || []))}
       onClose={close}
       // QP-UPLOAD-LATER — this set still has written questions waiting.

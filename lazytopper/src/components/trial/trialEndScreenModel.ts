@@ -19,19 +19,22 @@
  * premium state (CLAUDE.md §7).
  */
 import { trialEndFeedbackKey, type TrialEndFeedbackInput } from "../feedback/useTrialEndFeedback";
+import { trialAskRouteAllowed } from "./trialAskRoutes";
 import type { TrialActivityCounts } from "./trialEndBannerModel";
 
 export const TRIAL_END_SCREEN_KEY_PREFIX = "lazytopper.trialEndScreen.";
 
-/** Routes that never show the screen: the student is already on the offer, signing in, or in admin. */
-const EXCLUDED_PREFIXES = ["/pricing", "/login", "/welcome", "/admin"] as const;
-
+/** Routes that never show the screen: ONE shared list (./trialAskRoutes.ts), also read by the countdown bar. */
 export function trialEndScreenPathAllowed(pathname: string): boolean {
-  return !EXCLUDED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  return trialAskRouteAllowed(pathname);
 }
 
 export interface TrialEndScreenInput extends TrialEndFeedbackInput {
   pathname: string;
+  /** The subscription's plan. Only a plan that was the 7-day TRIAL has "a free week" to end. */
+  plan?: string | null;
+  premiumSince?: string | null;
+  passEnd?: string | null;
 }
 
 /**
@@ -41,6 +44,9 @@ export interface TrialEndScreenInput extends TrialEndFeedbackInput {
  */
 export function trialEndScreenKey(input: TrialEndScreenInput): string | null {
   if (!trialEndScreenPathAllowed(input.pathname)) return null;
+  // A student whose PAID pass ran out (a pass plan, or a premiumSince / passEnd on record) did not
+  // just finish a free week: never tell them so.
+  if (input.plan !== "trial_7day" || input.premiumSince || input.passEnd) return null;
   return trialEndFeedbackKey(input);
 }
 

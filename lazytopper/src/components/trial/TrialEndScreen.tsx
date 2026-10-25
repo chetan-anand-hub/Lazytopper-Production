@@ -8,6 +8,8 @@ import { trackPaywallAction, trackTrialEndScreen } from "../../analytics/analyti
 import { requestFeedbackPrompt } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
 import { boardPassOffer, type BoardPassOffer } from "../pricing/boardPassOffer";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
+import { safeSigninRedirect } from "../../services/freeCheckClient";
 import { countTrialActivity, type TrialActivityCounts } from "./trialEndBannerModel";
 import {
   markTrialEndScreenShownThisLoad,
@@ -95,8 +97,33 @@ export function TrialEndScreenView({ offer, activityLine, onBasic, actions }: Tr
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     ref.current?.focus();
+  }, []);
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onBasic();
+      if (e.key === "Escape") {
+        onBasic();
+        return;
+      }
+      // Focus trap: Tab and Shift+Tab cycle inside the dialog.
+      if (e.key !== "Tab" || !ref.current) return;
+      const items = Array.from(
+        ref.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])'),
+      );
+      if (items.length === 0) {
+        e.preventDefault();
+        ref.current.focus();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === ref.current)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -133,6 +160,44 @@ export function TrialEndScreenView({ offer, activityLine, onBasic, actions }: Tr
   );
 }
 
+/**
+ * While the screen is open: the page behind does not scroll, and the phone's back button closes it
+ * (it is "Continue with Basic"), via one history entry of our own that is removed again on a normal close.
+ */
+function DialogBehaviour({ onBack }: { onBack: () => void }) {
+  const backRef = useRef(onBack);
+  backRef.current = onBack;
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    let pushed = false;
+    try {
+      window.history.pushState({ ltTrialEndScreen: true }, "");
+      pushed = true;
+    } catch {
+      /* no history access: the buttons still close it */
+    }
+    const onPop = () => {
+      pushed = false; // the browser already removed our entry
+      backRef.current();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      document.body.style.overflow = prevOverflow;
+      if (pushed) {
+        try {
+          const state = window.history.state as { ltTrialEndScreen?: boolean } | null;
+          if (state && state.ltTrialEndScreen) window.history.back();
+        } catch {
+          /* leave it */
+        }
+      }
+    };
+  }, []);
+  return null;
+}
+
 async function countsWithin(uid: string, startMs: number): Promise<TrialActivityCounts | null> {
   try {
     const records = await Promise.race([
@@ -148,7 +213,7 @@ async function countsWithin(uid: string, startMs: number): Promise<TrialActivity
 export default function TrialEndScreen() {
   const { user } = useAuth();
   const sub = useSubscription();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const uid = user && !user.isLocalSession ? user.uid : null;
   const key = trialEndScreenKey({
     uid,
@@ -156,6 +221,9 @@ export default function TrialEndScreen() {
     isTrialExpired: sub.isTrialExpired,
     isPremium: sub.isPremium,
     trialStartDate: sub.status?.trialStartDate,
+    plan: sub.status?.plan,
+    premiumSince: sub.status?.premiumSince,
+    passEnd: sub.status?.passEnd,
     pathname,
   });
   const [shown, setShown] = useState<{ key: string; line: string | null } | null>(null);
@@ -182,6 +250,9 @@ export default function TrialEndScreen() {
 
   if (!uid || !key || !shown || shown.key !== key) return null;
 
+  const returnTo = safeSigninRedirect(`${pathname}${search}`);
+  const payHref = returnTo ? `${PRICING_HREF}&returnTo=${encodeURIComponent(returnTo)}` : PRICING_HREF;
+
   const close = () => {
     trackTrialEndScreen("basic");
     setShown(null);
@@ -190,17 +261,19 @@ export default function TrialEndScreen() {
   };
 
   return (
-    <TrialEndScreenView
-      offer={boardPassOffer(new Date())}
+    <>
+      <DialogBehaviour onBack={close} />
+      <TrialEndScreenView
+      offer={boardPassOffer(new Date(), predictCbseExamDate("10"))}
       activityLine={shown.line}
       onBasic={close}
       actions={
         <PaywallActions
           surface="trial_end"
-          payTo={PRICING_HREF}
+          payTo={payHref}
           fallback={
             <Link
-              to={PRICING_HREF}
+              to={payHref}
               className="lt-tes__pay"
               onClick={() => trackPaywallAction("pay", "trial_end")}
             >
@@ -210,5 +283,6 @@ export default function TrialEndScreen() {
         />
       }
     />
+    </>
   );
 }

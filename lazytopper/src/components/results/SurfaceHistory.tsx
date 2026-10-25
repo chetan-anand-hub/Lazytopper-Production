@@ -333,6 +333,7 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
 
       {reopen && (
         <ResultsScorecard
+          reopened
           variant={storedWorksheetScorecardVariant(reopen, {
             gradedDateLabel: formatDate(reopen.gradedAt),
             onDone: closeReopen,

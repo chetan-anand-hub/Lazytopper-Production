@@ -5,6 +5,8 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { trackTrialBannerClick, trackTrialBannerShown } from "../../analytics/analytics";
 import { boardPassOffer, boardPassShortLine } from "../pricing/boardPassOffer";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
+import { trialAskRouteAllowed } from "./trialAskRoutes";
 import { TRIAL_BANNER_FIRST_DAY, TRIAL_BAR_FIRST_DAY, istDayKeyOf, trialBannerTiming } from "./trialEndBannerModel";
 
 /**
@@ -51,7 +53,7 @@ export function trialCountdownText(daysLeft: number, planLine: string): string {
  */
 export function trialCountdownRouteAllowed(pathname: string, dayOfTrial: number): boolean {
   if ((pathname === "/" || pathname === "/browse") && dayOfTrial >= TRIAL_BANNER_FIRST_DAY) return false;
-  return !["/pricing", "/login", "/welcome", "/admin"].some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  return trialAskRouteAllowed(pathname);
 }
 
 const BAR_CSS = `
@@ -93,7 +95,7 @@ export default function TrialCountdownBar() {
   }, [visible, dayKey]);
 
   if (!visible || !timing || !uid) return null;
-  const text = trialCountdownText(timing.daysLeft, boardPassShortLine(boardPassOffer(new Date(nowMs))));
+  const text = trialCountdownText(timing.daysLeft, boardPassShortLine(boardPassOffer(new Date(nowMs), predictCbseExamDate("10"))));
 
   return (
     <div className="lt-tcb" data-testid="trial-countdown-bar" role="region" aria-label="Your free week">

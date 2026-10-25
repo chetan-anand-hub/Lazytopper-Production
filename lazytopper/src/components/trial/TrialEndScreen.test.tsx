@@ -28,6 +28,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 import TrialEndScreen from "./TrialEndScreen";
 import TrialCountdownBar, { trialCountdownRouteAllowed, trialCountdownText } from "./TrialCountdownBar";
 import { __resetTrialEndScreenForTests, readTrialEndScreen } from "./trialEndScreenModel";
+import { trialAskRouteAllowed } from "./trialAskRoutes";
 import * as svc from "../../services/subscriptionService";
 import * as records from "../../services/sessionRecords";
 import * as analytics from "../../analytics/analytics";
@@ -46,7 +47,7 @@ const ist = (y: number, mo: number, d: number, h = 0, mi = 0) => Date.UTC(y, mo 
 const START = ist(2026, 6, 1, 10, 0);
 const status = (tier: "trial" | "free" | "premium"): SubscriptionStatus => ({
   tier,
-  plan: tier === "trial" ? "trial_7day" : "free",
+  plan: tier === "premium" ? "premium_monthly" : "trial_7day", // an expired trial keeps its trial plan
   trialStartDate: new Date(START).toISOString(),
   trialEndDate: null,
   premiumSince: null,
@@ -90,7 +91,7 @@ describe("TrialEndScreen", () => {
     expect(screen.getByTestId("trial-end-screen-monthly")).toHaveTextContent(/^Or .* for a month$/);
     expect(lead.compareDocumentPosition(screen.getByTestId("trial-end-screen-monthly")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole("button", { name: "Continue with Basic" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "See plans" })).toHaveAttribute("href", "/pricing?source=trial-end");
+    expect(screen.getByRole("link", { name: "See plans" })).toHaveAttribute("href", "/pricing?source=trial-end&returnTo=" + encodeURIComponent("/check-improve"));
     expect(trackScreen).toHaveBeenCalledWith("shown");
     expect(readTrialEndScreen("u1")?.k).toBe(new Date(START).toISOString());
     expect(feedback).not.toHaveBeenCalled(); // the feedback card waits for "Continue with Basic"
@@ -135,6 +136,50 @@ describe("TrialEndScreen", () => {
     await waitFor(() => expect(hydrate).toHaveBeenCalled());
     await Promise.resolve();
     expect(screen.queryByTestId("trial-end-screen")).toBeNull();
+  });
+
+  it("never tells a student whose PAID pass ran out that their free week is over", async () => {
+    hydrate.mockResolvedValue({ ...status("free"), plan: "pass_month", premiumSince: new Date(START).toISOString(), passEnd: new Date(START + 30 * 24 * HOUR).toISOString() } as unknown as SubscriptionStatus);
+    renderAt("/browse");
+    await waitFor(() => expect(hydrate).toHaveBeenCalled());
+    await Promise.resolve();
+    expect(screen.queryByTestId("trial-end-screen")).toBeNull();
+  });
+
+  it.each(["/chapter-test/10/Maths/x", "/full-mock", "/tutor/abc", "/legal/privacy", "/sign-up", "/contact", "/for-parents", "/u/x"])(
+    "never covers %s",
+    async (path) => {
+      hydrate.mockResolvedValue(status("free"));
+      renderAt(path);
+      await waitFor(() => expect(hydrate).toHaveBeenCalled());
+      await Promise.resolve();
+      expect(screen.queryByTestId("trial-end-screen")).toBeNull();
+      expect(trialAskRouteAllowed(path)).toBe(false);
+    },
+  );
+
+  it("Pay carries a safe returnTo to the current page", async () => {
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/practice?x=1");
+    const pay = await screen.findByRole("link", { name: "See plans" });
+    expect(pay).toHaveAttribute("href", "/pricing?source=trial-end&returnTo=" + encodeURIComponent("/practice?x=1"));
+  });
+
+  it("locks page scroll while open, traps Tab inside the dialog, and closes on the back button", async () => {
+    hydrate.mockResolvedValue(status("free"));
+    renderAt("/browse");
+    await screen.findByTestId("trial-end-screen");
+    expect(document.body.style.overflow).toBe("hidden");
+    const basic = screen.getByRole("button", { name: "Continue with Basic" });
+    basic.focus();
+    fireEvent.keyDown(document, { key: "Tab" }); // last control -> wraps to the first
+    expect(document.activeElement).toBe(screen.getByRole("link", { name: "See plans" }));
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true }); // first -> wraps to last
+    expect(document.activeElement).toBe(basic);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    await waitFor(() => expect(screen.queryByTestId("trial-end-screen")).toBeNull());
+    expect(document.body.style.overflow).toBe("");
+    expect(trackScreen).toHaveBeenCalledWith("basic");
   });
 
   it("never shows signed out, or on /pricing", async () => {
@@ -201,5 +246,8 @@ describe("TrialCountdownBar", () => {
     expect(trialCountdownRouteAllowed("/", 6)).toBe(false);
     expect(trialCountdownRouteAllowed("/practice", 6)).toBe(true);
     expect(trialCountdownRouteAllowed("/pricing", 6)).toBe(false);
+    for (const p of ["/chapter-test/10/Maths/x", "/full-mock", "/tutor", "/legal/terms", "/sign-up", "/contact", "/for-parents"]) {
+      expect(trialCountdownRouteAllowed(p, 4)).toBe(false);
+    }
   });
 });
