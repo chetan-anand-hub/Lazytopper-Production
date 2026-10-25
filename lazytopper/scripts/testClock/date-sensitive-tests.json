@@ -442,6 +442,7 @@
     "src/lib/figureSafe.surfaces.test.ts",
     "src/lib/freshSet/freshSet.realBank.test.ts",
     "src/lib/mi/miCardSummary.test.ts",
+    "src/lib/packs/packPaperRecord.test.ts",
     "src/pages/Cbse2027Page.guard.test.tsx",
     "src/pages/ChapterTestFullMock.hiddenUntilSubmit.test.tsx",
     "src/pages/ChapterTestPage.await1.test.tsx",
