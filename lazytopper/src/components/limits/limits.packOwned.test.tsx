@@ -22,6 +22,7 @@ vi.mock("../../ai/paidCallHeaders", () => ({
 
 import * as analytics from "../../analytics/analytics";
 import { useLimitedDownload } from "../../hooks/useLimitedDownload";
+import { worksheetCover } from "../worksheet/WorksheetGenerator";
 import { mintDownload, resetLimitsSummaryForTests } from "../../services/limitsClient";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -88,5 +89,14 @@ describe("★ call sites pass coverage", () => {
     expect(src("components/worksheet/WorksheetGenerator.tsx")).toMatch(/guardDownload\("worksheet", generated\.worksheetId, worksheetCover\(generated\.questions\)\)/);
     expect(src("pages/ChapterTestPage.tsx").match(/guardDownload\("chapter-test", paper\.worksheetId, chapterCover\(topicKey\)\)/g)?.length).toBe(2);
     expect(src("pages/FullMockPage.tsx").match(/guardDownload\("full-mock", paperForExport\.worksheetId, \{ subject: sessionSubject \}\)/g)?.length).toBe(2);
+  });
+});
+
+describe("worksheetCover (F1)", () => {
+  it("resolves every question's chapter; any unresolvable key (or no questions) sends no cover", () => {
+    expect(worksheetCover([{ topicKey: "triangles" }, { topicKey: "triangles" }, { topicKey: "circles" }])?.chapters.sort()).toEqual(["circles", "triangles"]);
+    expect(worksheetCover([{ topicKey: "triangles" }, { topicKey: "" }])).toBeUndefined();
+    expect(worksheetCover([{ topicKey: "triangles" }, { topicKey: "   " }])).toBeUndefined();
+    expect(worksheetCover([])).toBeUndefined();
   });
 });

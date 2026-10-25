@@ -193,7 +193,10 @@ interface EntryContext {
  * PACKS-LIMIT-1 — the chapters the GENERATED paper actually draws from (canonical slugs), sent with the
  * download mint so a paper wholly inside owned chapter packs is not counted. Empty -> no cover (counted as today).
  */
-function worksheetCover(questions: Array<{ topicKey: string }>): { chapters: string[] } | undefined {
+export function worksheetCover(questions: Array<{ topicKey: string }>): { chapters: string[] } | undefined {
+  if (questions.length === 0) return undefined;
+  // resolveCanonicalSlugSet silently DROPS an unresolvable key, which would overstate coverage: any miss -> no cover.
+  if (questions.some((q) => !resolveCanonicalSlug(q.topicKey))) return undefined;
   const chapters = Array.from(resolveCanonicalSlugSet(questions.map((q) => q.topicKey)));
   return chapters.length > 0 && chapters.length <= 26 ? { chapters } : undefined;
 }
