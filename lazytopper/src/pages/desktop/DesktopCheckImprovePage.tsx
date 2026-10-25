@@ -114,6 +114,8 @@ import {
   toSessionSubject,
 } from "../../services/checkImproveGradeService";
 import ResultsScorecard from "../../components/results/ResultsScorecard";
+import LockedDetailLazy from "../../components/results/LockedDetailLazy";
+import { useDetailLock } from "../../components/results/useDetailLock";
 import { StepAnnotation } from "../../components/results/StepAnnotation";
 import {
   checkImproveScorecardVariant,
@@ -1288,6 +1290,14 @@ const DesktopCheckImprovePageInner: React.FC<{
   // The whole-paper grade result + its session code (CI-{S}-{TOPIC}-{NN}).
   const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
   const [ciCode, setCiCode] = useState<string | null>(null);
+  // LIMITS-1 PR-2 — the SAME server lock as the scorecard (same kind + key), applied to this page's own
+  // per-question detail, so closing the scorecard does not reveal what it withheld. "open" when the flag is off.
+  const ciDetailLock = useDetailLock(
+    ciCode ? { kind: "check-improve", resultKey: ciCode } : undefined,
+    Boolean(wsResult ? wsResult.results.some(isGradedQuestion) : result && result.annotatedSteps.length > 0),
+  );
+  const ciLockOpen = ciDetailLock === "open";
+  const ciLockLocked = ciDetailLock === "locked";
 
   // ── C&I PR-1: SessionSurface plumbing state (additive — around the flows above) ──
   // The durable nomenclature's friendly name (minted with ciCode, frozen together).
@@ -3784,6 +3794,8 @@ const DesktopCheckImprovePageInner: React.FC<{
           )}
         </div>
 
+        {ciLockOpen && (
+          <>
         {/* PART B — graded-solution actions: download the branded PDF + read the
             same branded sheet on screen (mirrors the worksheet, shares the export). */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
@@ -3808,7 +3820,11 @@ const DesktopCheckImprovePageInner: React.FC<{
           </div>
         )}
 
+          </>
+        )}
+
         {/* Per-question list — marks + honest pending + mistake grouping + per-step working. */}
+        {ciLockOpen ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
           {ws.results.map((g, qi) => {
             const m = g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
@@ -3952,6 +3968,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             );
           })}
         </div>
+        ) : ciLockLocked ? (
+          <LockedDetailLazy scoreLine={`${ws.gradedMarksAwarded} of ${ws.gradedMarksTotal}`} />
+        ) : null}
 
         {saveStatus === "save-failed" && (
           <div style={{ fontSize: 12.5, color: DANGER_FG, marginTop: 14 }}>
@@ -4169,6 +4188,8 @@ const DesktopCheckImprovePageInner: React.FC<{
             </div>
           </div>
 
+          {ciLockOpen ? (
+            <>
           {/* PART B — graded-solution actions: download the branded PDF + read the
               same branded sheet on screen (shares the worksheet export core). */}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -4239,6 +4260,10 @@ const DesktopCheckImprovePageInner: React.FC<{
               </p>
             </div>
           )}
+            </>
+          ) : ciLockLocked ? (
+            <LockedDetailLazy scoreLine={`${marksAwarded} of ${totalMarks}`} />
+          ) : null}
         </div>
 
         {/* RIGHT — mistake summary + save status + next actions */}

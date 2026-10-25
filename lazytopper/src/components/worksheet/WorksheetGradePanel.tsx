@@ -6,6 +6,8 @@ import { getWorksheetGrade, listStoredWorksheetsLite } from "../../services/work
 import { worksheetNomenclature } from "./worksheetModel";
 import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
 import ResultsScorecard from "../results/ResultsScorecard";
+import LockedDetailLazy from "../results/LockedDetailLazy";
+import { useDetailLock } from "../results/useDetailLock";
 import {
   singleChapterPracticeTarget,
   withGuideTarget,
@@ -303,6 +305,14 @@ export default function WorksheetGradePanel({
   }, [ws, outcome?.sessionCode, outcome?.sessionName]);
 
   // Group the per-question results into collapsible sections (tap-to-reveal §A4).
+  // LIMITS-1 PR-2 — the SAME server lock as the scorecard (same kind + key) on this panel's own
+  // per-question results and graded-sheet download, so closing the scorecard reveals nothing it
+  // withheld. The score stays visible. "open" when the flag is off.
+  const detailLock = useDetailLock(
+    response?.ok ? { kind: "worksheet", resultKey: nomen.code } : undefined,
+    Boolean(response?.ok && response.results.some(isGradedQuestion)),
+  );
+  const detailOpen = detailLock === "open";
   const sections = useMemo(() => {
     if (!response) return [] as Array<{ sec: string; label: string; rows: WorksheetQuestionGrade[] }>;
     const secOf = new Map(ws.questions.map((q) => [q.qNumber, String(q.section || "").toUpperCase()]));
@@ -678,7 +688,11 @@ export default function WorksheetGradePanel({
             <div className="lt-wg__summary"><MathText text={response.summary ?? ""} /></div>
           )}
 
-          {/* Tap-to-reveal per-section question list */}
+          {/* Tap-to-reveal per-section question list (LIMITS-1 PR-2: held back while the breakdown is locked) */}
+          {detailLock === "locked" && (
+            <LockedDetailLazy scoreLine={`${response.gradedMarksAwarded} of ${response.gradedMarksTotal}`} />
+          )}
+          {detailOpen && (
           <div className="lt-wg__seclist">
             {sections.map(({ sec, label, rows }) => {
               const open = !!openSecs[sec];
@@ -705,12 +719,15 @@ export default function WorksheetGradePanel({
               );
             })}
           </div>
+          )}
 
           {/* Action row — Download (primary) + Practise (ghost) */}
           <div className="lt-wg__actions">
+            {detailOpen && (
             <button type="button" className="lt-wg__act lt-wg__act--primary" onClick={handleDownload} disabled={downloading}>
               {downloading ? "Preparing PDF…" : "↓ Download graded sheet (PDF)"}
             </button>
+            )}
             <button type="button" className="lt-wg__act lt-wg__act--ghost" onClick={handlePractise}>
               Practise this topic
             </button>

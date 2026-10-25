@@ -242,6 +242,36 @@ describe("every host mount passes limitKey (the six surfaces, by call site)", ()
   });
 });
 
+describe("host page BODIES obey the same lock (outside the scorecard)", () => {
+  it("Worksheet panel: per-question list + graded-sheet download", () => {
+    const t = src("components/worksheet/WorksheetGradePanel.tsx");
+    expect(t).toMatch(/useDetailLock\(\s*response\?\.ok \? \{ kind: "worksheet", resultKey: nomen\.code \}/);
+    expect(t).toMatch(/\{detailOpen && \(\s*<div className="lt-wg__seclist">/);
+    expect(t).toMatch(/\{detailOpen && \(\s*<button type="button" className="lt-wg__act lt-wg__act--primary" onClick=\{handleDownload\}/);
+    expect(t).toContain("LockedDetailLazy");
+  });
+  it("Check & Improve: multi-question list + read/print, single-question steps + examiner note + read/print", () => {
+    const t = src("pages/desktop/DesktopCheckImprovePage.tsx");
+    expect(t).toMatch(/useDetailLock\(\s*ciCode \? \{ kind: "check-improve", resultKey: ciCode \}/);
+    expect((t.match(/\{ciLockOpen \? \(/g) || []).length).toBe(2); // multi list, single detail
+    expect((t.match(/\{ciLockOpen && \(/g) || []).length).toBe(1); // multi actions + read-on-screen
+    expect((t.match(/<LockedDetailLazy/g) || []).length).toBe(2);
+  });
+  it("Chapter Test and Full Mock: the page's own graded-sheet print button + handler", () => {
+    for (const [f, kind] of [["pages/ChapterTestPage.tsx", "chapter-test"], ["pages/FullMockPage.tsx", "full-mock"]] as const) {
+      const t = src(f);
+      expect(t).toMatch(new RegExp(`useDetailLock\\(\\s*fullResponse && \\w+ \\? \\{ kind: "${kind}"`));
+      expect(t).toMatch(/\{gradedSheetOpen && \(\s*<button/);
+      expect(t).toMatch(/downloading \|\| !gradedSheetOpen\) return;/);
+    }
+  });
+  it("the lock UI in host bodies is the lazy door, never the eager component", () => {
+    for (const f of ["components/worksheet/WorksheetGradePanel.tsx", "pages/desktop/DesktopCheckImprovePage.tsx"]) {
+      expect(src(f)).not.toMatch(/from "\.\.\/results\/LockedDetail"|from "\.\.\/\.\.\/components\/results\/LockedDetail"/);
+    }
+  });
+});
+
 describe("source pins", () => {
   it("the locked card is a lazy chunk (entry budget) and the lock only withholds per-answer detail", () => {
     const t = src("components/results/ResultsScorecard.tsx");
