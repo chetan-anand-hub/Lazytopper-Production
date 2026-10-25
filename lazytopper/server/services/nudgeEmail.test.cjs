@@ -828,3 +828,32 @@ test('shared daily cap binds: checkout_help is served BEFORE a d1 student (and b
   assert.equal(r.byKind.founder_checkin, 0);
   assert.equal(s.db.docs.get(`${NUDGE_EMAIL_DAILY_COLLECTION}/2026-10-27`).count, 1);
 });
+
+// ── EMAIL-ONEADAY-1: the trial-ledger recency check is INSIDE the claim transaction ──────────────
+
+test('ONEADAY: a trial-ending email claimed after the early reads but before the claim blocks the nudge (spaced), sent or claimed', async () => {
+  for (const row of [{ status: 'claimed', claimedAt: ts(NOW) }, { status: 'sent', sentAt: ts(NOW - 23 * HOUR) }]) {
+    const s = setup({ subs: { u1: sub(NOW - 25 * HOUR) } });
+    const origCollection = s.db.collection;
+    let reads = 0;
+    s.db.collection = (n) => {
+      const c = origCollection(n);
+      if (n !== TRIAL_EMAILS_COLLECTION) return c;
+      return { ...c, doc: (id) => { const d = c.doc(id); return { ...d, get: async () => { reads += 1; const out = await d.get(); if (reads === 1) s.db.docs.set(`${TRIAL_EMAILS_COLLECTION}/${id}`, row); return out; } }; } };
+    };
+    const r = await s.make().runOnce();
+    assert.equal(r.sent, 0, JSON.stringify(row));
+    assert.equal(r.skipped.spaced, 1, JSON.stringify(row));
+    assert.equal(s.calls.length, 0);
+    assert.equal(s.db.docs.get('nudgeEmails/u1'), undefined); // no claim, no cap slot
+    assert.equal(s.db.docs.get(`${NUDGE_EMAIL_DAILY_COLLECTION}/2026-10-27`), undefined);
+  }
+});
+
+test('ONEADAY: a trial email older than 24 h does not block a nudge; the nudge ledger stays what the trial emailer reads', async () => {
+  const s = setup({ subs: { u1: sub(NOW - 25 * HOUR) } });
+  s.db.docs.set(`${TRIAL_EMAILS_COLLECTION}/u1`, { status: 'sent', sentAt: ts(NOW - 25 * HOUR) });
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 1);
+  assert.equal(typeof s.db.docs.get('nudgeEmails/u1').lastClaimMs, 'number'); // what the trial emailer's transaction reads
+});

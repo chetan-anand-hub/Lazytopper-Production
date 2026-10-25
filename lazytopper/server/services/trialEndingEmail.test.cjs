@@ -652,3 +652,51 @@ test('RE-REVIEW: a skip marker is MERGED — an opt-out recorded while the accou
   assert.equal(row.status, 'skipped');
   assert.equal(row.optedOut, true, 'the opt-out must survive the marker write');
 });
+
+// ── EMAIL-ONEADAY-1: at most one email a day across the trial and nudge emailers ───────────────
+
+test('ONEADAY: a nudge claimed within 24 h defers the trial email (not lost): a later hourly run sends it', async () => {
+  const s = setup();
+  s.db.docs.set('nudgeEmails/u1', { lastClaimMs: NOW - 23 * HOUR, d3: { status: 'sent', claimedMs: NOW - 23 * HOUR } });
+  const r1 = await s.emailer.runOnce();
+  assert.equal(r1.sent, 0);
+  assert.equal(r1.skipped.spaced, 1);
+  assert.equal(s.fetchCalls.length, 0);
+  assert.equal(s.db.docs.get(`${TRIAL_EMAILS_COLLECTION}/u1`), undefined); // nothing claimed: still a candidate
+  assert.equal(s.db.docs.get('trialEmailDaily/2030-06-15'), undefined); // no cap slot taken
+  // two hours later the nudge is 25 h old and the trial still ends in 34 h
+  const later = setup({ db: s.db, subs: {}, now: () => NOW + 2 * HOUR });
+  const r2 = await later.emailer.runOnce();
+  assert.equal(r2.sent, 1);
+  assert.equal(later.fetchCalls.length, 1);
+  assert.equal(s.db.docs.get(`${TRIAL_EMAILS_COLLECTION}/u1`).status, 'sent');
+});
+
+test('ONEADAY: a nudge exactly 24 h old, or none at all, does not defer the trial email', async () => {
+  const a = setup();
+  a.db.docs.set('nudgeEmails/u1', { lastClaimMs: NOW - 24 * HOUR });
+  assert.equal((await a.emailer.runOnce()).sent, 1);
+  const b = setup();
+  b.db.docs.set('nudgeEmails/u1', { d1: { status: 'failed' } }); // no lastClaimMs
+  assert.equal((await b.emailer.runOnce()).sent, 1);
+});
+
+test('ONEADAY: a nudge claimed AFTER the early reads but before the claim still defers the trial email (read inside the transaction)', async () => {
+  const s = setup();
+  const origCollection = s.db.collection;
+  s.db.collection = (n) => {
+    const c = origCollection(n);
+    if (n !== TRIAL_EMAILS_COLLECTION) return c;
+    return {
+      ...c,
+      doc: (id) => {
+        const d = c.doc(id);
+        return { ...d, get: async () => { const out = await d.get(); s.db.docs.set(`nudgeEmails/${id}`, { lastClaimMs: NOW }); return out; } };
+      },
+    };
+  };
+  const r = await s.emailer.runOnce();
+  assert.equal(r.sent, 0);
+  assert.equal(r.skipped.spaced, 1);
+  assert.equal(s.fetchCalls.length, 0);
+});
