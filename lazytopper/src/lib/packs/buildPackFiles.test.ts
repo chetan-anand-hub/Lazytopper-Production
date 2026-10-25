@@ -129,7 +129,7 @@ describe("buildPackFiles — chapter", () => {
     expect(exportPdf).toHaveBeenCalledTimes(1);
     const [ws, mode, code, opts] = exportPdf.mock.calls[0] as unknown as [{ createdAt: string; title: string }, string, unknown, Record<string, unknown>];
     expect(mode).toBe("answers");
-    expect(code).toBeUndefined();
+    expect(code).toBe("PK-M-TRI-WS"); // PACKS-GRADE-1: paper-shaped files print their pack code
     expect(ws.createdAt).toBe("2026-10-27T00:00:00.000Z");
     expect(opts.licensee).toEqual({ name: "Asha Rao", email: "asha@example.in", orderId: "order_CH" });
     expect(opts.filename).toBe(f.filename);

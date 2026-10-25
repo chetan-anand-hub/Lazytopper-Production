@@ -463,6 +463,7 @@ type FilesState =
   | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; build: () => Promise<void> }> }> };
 
 function OwnedPackCard({ pack, mine }: { pack: OwnedPack; mine: MyPacks }) {
+  const { user } = useAuth();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
   const [busyId, setBusyId] = useState<string | null>(null);
   const [failedId, setFailedId] = useState<string | null>(null);
@@ -481,6 +482,7 @@ function OwnedPackCard({ pack, mine }: { pack: OwnedPack; mine: MyPacks }) {
         {
           licensee: mine.licensee,
           owned: mine.packs,
+          user,
           onDownload: (sku) => trackPackEvent("pack_download", sku),
         },
       );
