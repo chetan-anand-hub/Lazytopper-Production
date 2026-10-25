@@ -25,6 +25,7 @@ describe("PrintCover", () => {
   it("shows the licensee box only when a line is given", () => {
     const line = "Licensed to A · a@b.in · Order o1 — personal use only";
     expect(render(<PrintCover {...base} licenseeLine={line} />).container.textContent).toContain(line);
+    expect(render(<PrintCover {...base} licenseeLine={line} />).container.textContent).toContain("Download again any time until 31 May 2027");
     cleanup();
     expect(render(<PrintCover {...base} />).container.querySelector(".lt-cover__lic")).toBeNull();
   });

@@ -1,0 +1,323 @@
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../services/packs";
+import { packChapterLabel } from "../lib/packs/packLabels";
+import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
+import "./packsDialog.css";
+
+/**
+ * PackDialog - the pop-up a pack tile opens (PACKS-UX-1, approved mock-up v3). LAZY: PacksPage imports it with `import()` on the
+ * first tile tap, so neither it nor its images are part of the first paint.
+ *
+ * A bottom sheet on a phone (< 640px) and a centred dialog on desktop. Slides, in the owner's order: 1 What you get, 2 the PDF
+ * cover, 3 a question page, 4 an answer-key page. Under the slides: the chapter picker (Chapter) or the Maths/Science toggle
+ * (Mock, Subject), then the ONE buy button, which the page passes in so it stays wired to the existing buy flow.
+ *
+ * a11y: role="dialog" + aria-modal, focus moves in and is trapped, Esc and the close button close it, the page behind does not
+ * scroll, focus returns to the tile, and on a phone the Back button closes it (one history entry, only when it is pushed).
+ */
+
+export interface PackDialogProps {
+  sku: PackSku;
+  chapter: string;
+  subject: PackSubject;
+  onChapter: (slug: string) => void;
+  onSubject: (s: PackSubject) => void;
+  /** Exact question count for what the pop-up shows (chapter / subject / bundle), or null while unknown. */
+  questions: number | null;
+  /** The buy button (and its status notes), owned by the page. */
+  buy: ReactNode;
+  onClose: () => void;
+}
+
+const TITLES: Record<PackSku, { name: string; line: string }> = {
+  pack_chapter: { name: "Chapter Pack", line: "Every question of a chapter with a step-marked key" },
+  pack_mock: { name: "Mock Pack", line: "8 full papers, 80 marks each, with keys" },
+  pack_subject: { name: "Subject Pack", line: "Every chapter of a subject plus its 8 mocks" },
+  pack_bundle: { name: "Maths + Science Bundle", line: "All 27 chapters and 16 mock papers" },
+};
+
+const IMG_BASE = "/packs";
+const SLIDES: ReadonlyArray<{ file: string; alt: string; num: string; bold: string; rest: string }> = [
+  { file: "pack-cover", alt: "The PDF cover page with the buyer's name", num: "2", bold: "Your cover", rest: ", your name on every page" },
+  { file: "pack-questions", alt: "A question page in board order", num: "3", bold: "Questions", rest: ", board order, A to E" },
+  { file: "pack-answer-key", alt: "An answer-key page with the marks for every step", num: "4", bold: "Answer key", rest: ", marks for every step" },
+];
+const SLIDE_COUNT = SLIDES.length + 1;
+
+const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+
+export default function PackDialog(props: PackDialogProps) {
+  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose } = props;
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [slide, setSlide] = useState(0);
+  const pushed = useRef(false);
+  const closedRef = useRef(false);
+
+  const finish = useCallback(() => {
+    if (closedRef.current) return;
+    closedRef.current = true;
+    onClose();
+  }, [onClose]);
+
+  // Close: if we pushed a history entry (phone), go back one step and let popstate finish; otherwise finish now.
+  const requestClose = useCallback(() => {
+    if (pushed.current) {
+      pushed.current = false;
+      try {
+        window.history.back();
+      } catch {
+        finish();
+      }
+      // popstate normally calls finish; this is the safety net if it never fires.
+      window.setTimeout(finish, 400);
+    } else {
+      finish();
+    }
+  }, [finish]);
+
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    document.documentElement.classList.add("lt-pkd-lock");
+    let phone = false;
+    try {
+      phone = window.matchMedia("(max-width: 639px)").matches;
+    } catch {
+      phone = false;
+    }
+    if (phone) {
+      try {
+        if (!window.history.state?.ltPackDialog) window.history.pushState({ ...(window.history.state ?? {}), ltPackDialog: true }, "");
+        pushed.current = true;
+      } catch {
+        pushed.current = false;
+      }
+    }
+    const onPop = () => {
+      pushed.current = false;
+      finish();
+    };
+    window.addEventListener("popstate", onPop);
+    dialogRef.current?.focus();
+    return () => {
+      const stillPushed = pushed.current;
+      window.removeEventListener("popstate", onPop);
+      // The page closed the dialog itself (e.g. after a payment) while its history entry is live: drop the entry, unless the
+      // dialog was only re-mounted (React StrictMode in development).
+      if (stillPushed) {
+        window.setTimeout(() => {
+          if (!document.querySelector('[data-testid="pack-dialog"]') && window.history.state?.ltPackDialog) {
+            try {
+              window.history.back();
+            } catch {
+              /* nothing to undo */
+            }
+          }
+        }, 0);
+      }
+      document.documentElement.classList.remove("lt-pkd-lock");
+      if (opener && typeof opener.focus === "function" && document.contains(opener)) opener.focus();
+    };
+  }, [finish]);
+
+  function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      requestClose();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const root = dialogRef.current;
+    if (!root) return;
+    const nodes = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((n) => n.offsetParent !== null || n === document.activeElement);
+    if (nodes.length === 0) {
+      e.preventDefault();
+      root.focus();
+      return;
+    }
+    const first = nodes[0];
+    const last = nodes[nodes.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey && (active === first || active === root)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function slideEls(): HTMLElement[] {
+    return Array.from(trackRef.current?.querySelectorAll<HTMLElement>(".lt-pkd__slide") ?? []);
+  }
+  function goTo(i: number) {
+    const track = trackRef.current;
+    const els = slideEls();
+    const target = els[Math.max(0, Math.min(els.length - 1, i))];
+    if (!track || !target) return;
+    track.scrollTo?.({ left: target.offsetLeft - track.offsetLeft, behavior: "smooth" });
+    setSlide(Math.max(0, Math.min(els.length - 1, i)));
+  }
+  function onScroll() {
+    const track = trackRef.current;
+    if (!track) return;
+    const els = slideEls();
+    const x = track.scrollLeft + track.offsetLeft;
+    let best = 0;
+    let bestD = Infinity;
+    els.forEach((el, i) => {
+      const d = Math.abs(el.offsetLeft - x);
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    });
+    setSlide(best);
+  }
+  function onTrackKey(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      goTo(slide + 1);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      goTo(slide - 1);
+    }
+  }
+
+  const t = TITLES[sku];
+  const rows = packSummaryRows(sku, sku === "pack_chapter" ? chapter : subject, questions);
+  const manifest = packManifest(sku, sku === "pack_chapter" ? chapter : subject);
+  const chapterGroups = manifest.groups.filter((g) => g.chapter);
+
+  return (
+    <div className="lt-pkd" onMouseDown={(e) => e.target === e.currentTarget && requestClose()}>
+      <div
+        className="lt-pkd__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        ref={dialogRef}
+        onKeyDown={onKeyDown}
+        data-testid="pack-dialog"
+      >
+        <span className="lt-pkd__grab" aria-hidden="true" />
+        <div className="lt-pkd__head">
+          <div>
+            <h2 id={titleId} className="lt-pkd__title">
+              {t.name}
+              <span className="lt-pkd__price"> · {packPriceLabel(sku)}</span>
+            </h2>
+            <p className="lt-pkd__line">{t.line}</p>
+          </div>
+          <button type="button" className="lt-pkd__x" aria-label="Close" onClick={requestClose} data-testid="pack-dialog-close">
+            <span aria-hidden="true">✕</span>
+          </button>
+        </div>
+
+        <div className="lt-pkd__stage">
+          <button type="button" className="lt-pkd__nav" aria-label="Previous" onClick={() => goTo(slide - 1)} disabled={slide === 0}>
+            <span aria-hidden="true">‹</span>
+          </button>
+          <div
+            className="lt-pkd__track"
+            ref={trackRef}
+            onScroll={onScroll}
+            onKeyDown={onTrackKey}
+            tabIndex={0}
+            role="group"
+            aria-roledescription="carousel"
+            aria-label="Inside the pack. Swipe or use the arrow keys."
+            data-testid="pack-slides"
+          >
+            <section className="lt-pkd__slide lt-pkd__slide--list" aria-label="1 of 4: What you get">
+              <h3 className="lt-pkd__h3"><span className="lt-pkd__num">1 · </span>What you get</h3>
+              <ul className="lt-pkd__rows">
+                {rows.map((r) => (
+                  <li key={r.label}>
+                    <span>{r.label}</span>
+                    <b>{r.value}</b>
+                  </li>
+                ))}
+              </ul>
+              {chapterGroups.length > 1 && (
+                <details className="lt-pkd__chapters">
+                  <summary>Chapters included ({chapterGroups.length})</summary>
+                  <ul>
+                    {chapterGroups.map((g) => (
+                      <li key={g.chapter}>{g.heading}</li>
+                    ))}
+                  </ul>
+                  <p>Each chapter: question sheets A to E, 2 chapter tests and a worksheet, all with keys.</p>
+                </details>
+              )}
+            </section>
+            {SLIDES.map((s, i) => (
+              <figure key={s.file} className="lt-pkd__slide lt-pkd__fig" aria-label={`${i + 2} of 4`}>
+                <img
+                  src={`${IMG_BASE}/${s.file}-480.webp`}
+                  srcSet={`${IMG_BASE}/${s.file}-480.webp 480w, ${IMG_BASE}/${s.file}-827.webp 827w`}
+                  sizes="270px"
+                  width={827}
+                  height={1170}
+                  alt={s.alt}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+                <figcaption>
+                  <b><span className="lt-pkd__num">{s.num} · </span>{s.bold}</b>
+                  {s.rest}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <button type="button" className="lt-pkd__nav" aria-label="Next" onClick={() => goTo(slide + 1)} disabled={slide === SLIDE_COUNT - 1}>
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+        <div className="lt-pkd__dots" aria-hidden="true">
+          {Array.from({ length: SLIDE_COUNT }, (_, i) => (
+            <span key={i} className={i === slide ? "is-on" : undefined} />
+          ))}
+        </div>
+        <p className="lt-pkd__sr" role="status">{`Slide ${slide + 1} of ${SLIDE_COUNT}`}</p>
+
+        <div className="lt-pkd__foot">
+          <div className="lt-pkd__pick">
+            {sku === "pack_chapter" && (
+              <label className="lt-pkd__label">
+                Pick your chapter
+                <select className="lt-pkd__select" value={chapter} onChange={(e) => onChapter(e.target.value)} data-testid="pack-chapter-select">
+                  <option value="">Choose a chapter…</option>
+                  {PACK_CHAPTER_SLUGS.map((slug) => (
+                    <option key={slug} value={slug}>{`${packChapterLabel(slug)} · ${subjectLabel(subjectOfChapter(slug) ?? "maths")}`}</option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {(sku === "pack_mock" || sku === "pack_subject") && (
+              <div className="lt-pkd__seg" role="radiogroup" aria-label="Subject">
+                {(["maths", "science"] as const).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    role="radio"
+                    aria-checked={subject === s}
+                    className={subject === s ? "is-on" : undefined}
+                    onClick={() => onSubject(s)}
+                  >
+                    {subjectLabel(s)}
+                  </button>
+                ))}
+              </div>
+            )}
+            {sku === "pack_bundle" && <p className="lt-pkd__plain">Both subjects, everything included.</p>}
+          </div>
+          <div className="lt-pkd__buy">{buy}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

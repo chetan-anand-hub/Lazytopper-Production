@@ -54,8 +54,9 @@ export const FIRESTORE_MARKERS = ["firestore.googleapis.com", "webchannel"];
  *  adaptivePracticeEngine's raw SDK imports routed through the facade). Before PERF-3 the same
  *  measure read 414195. Re-measure and update when the entry legitimately changes.
  *  2026-10-25 PACKS-CLIENT-1: +446 B gz (272,950 -> 273,396, flag ON) for the /packs route, activity events and Meta map (owner revenue priority);
- *  reduction lane [FU-PERF3-BUDGET] queued. */
-export const MEASURED_ENTRY_GZ = 248679;
+ *  reduction lane [FU-PERF3-BUDGET] queued.
+ *  2026-10-25 PACKS-UX-1: +~125 B (grouped pack pending row on Home + packs labels); reduction lane [FU-PERF3-BUDGET] queued. */
+export const MEASURED_ENTRY_GZ = 248860;
 export const ENTRY_GZ_BUDGET = Math.floor(MEASURED_ENTRY_GZ * 1.1);
 
 /** Resolve the build output the way the sibling build scripts do (applyPrerendered.resolveOutDir). */
