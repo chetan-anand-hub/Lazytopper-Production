@@ -174,6 +174,8 @@ export const ACTIVITY_EVENTS = [
   "download_start",
   "download_blocked",
   "download_wall_shown",
+  "grade_blocked",
+  "scorecard_lock_shown",
   // PARENT-REPORT-1 — the student shared a link to one result with a parent. Additive.
   "parent_report_shared",
   // SHARE-CARD-1 — the student shared a scorecard image (any surface, size, channel). Additive.

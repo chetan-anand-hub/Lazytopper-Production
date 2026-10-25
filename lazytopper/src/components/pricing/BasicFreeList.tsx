@@ -1,5 +1,6 @@
 import { monthlyInline } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
+import { basicDownloadLine, limitsCopyOn } from "../../config/limitsPlanCopy";
 
 /**
  * TRIAL-ON-SIGNUP-1 · T4 — the Basic (free) plan's feature list, ONE source.
@@ -64,7 +65,10 @@ export const FREE_FEATURES = [
   // D114 (owner ruling, 12 Oct 2026): wording only. The limit is a per-day OPEN/DOWNLOAD
   // allowance for chapter tests AND full mocks; the answers are not checked on Basic.
   {
-    label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
+    // LIMITS-1 PR-2 — with the limits on, downloads are weekly (numbers from limitsConfig), opens stay daily.
+    label: limitsCopyOn()
+      ? `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")} — written answers are checked only for your first of each kind`
+      : `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
     included: true,
   },
   { label: "Richer Me / Progress recommendations", included: false },

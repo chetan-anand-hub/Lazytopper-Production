@@ -215,8 +215,15 @@ const { createParentReportRoutes, PARENT_REPORT_LINK_PATH, PARENT_REPORT_VIEW_PA
 // premium exemption from the 80% vision shed (U4), and GET /api/usage/me. Refusals are
 // DARK unless FAIR_USE_ENFORCE=1 (U8). cachedReadJson lets a grade-worksheet body that
 // fair use had to read (to count its questions) reach the handler as the same parse.
-const { createLimits, USAGE_LIMITS_PATH, USAGE_LIMITS_DOWNLOAD_PATH } = require('./services/limits.cjs');
+const {
+  createLimits,
+  USAGE_LIMITS_PATH,
+  USAGE_LIMITS_DOWNLOAD_PATH,
+  USAGE_LIMITS_QP_PATH,
+  USAGE_LIMITS_DETAIL_PATH,
+} = require('./services/limits.cjs');
 const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH, createGradingIdempotency, GRADING_IN_PROGRESS_BODY } = require('./services/fairUse.cjs');
+const fairUseModule = require('./services/fairUse.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -473,6 +480,8 @@ async function handleRequest(req, res) {
       // LIMITS-1: the counters (credentialed GET) and the download mint (credentialed POST).
       reqPath === USAGE_LIMITS_PATH ||
       reqPath === USAGE_LIMITS_DOWNLOAD_PATH ||
+      reqPath === USAGE_LIMITS_QP_PATH ||
+      reqPath === USAGE_LIMITS_DETAIL_PATH ||
       // GRADING-JOBS-1 J1: the job poll — a credentialed GET, preflighted like the export.
       JOB_POLL_PATH_RE.test(reqPath) ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
@@ -582,7 +591,21 @@ async function handleRequest(req, res) {
     //
     // An ADMITTED free check bypasses this gate and only it; entitlement.cjs is
     // byte-identical, so every non-free-check caller is decided exactly as before.
-    if (!freeCheckAdmitted && await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid, verification)) return;
+    // LIMITS-1 PR-2: the per-kind graded limits. A no-op unless LIMITS_ENFORCE=1. It may refuse a
+    // trial student over a kind's weekly cap (409), or let a Basic student's first free grade of a
+    // kind past the 402 ONCE. Everyone else is decided exactly as before.
+    const limitsVerdict = freeCheckAdmitted || !verifiedUid
+      ? {}
+      : await limits.gradingGate(req, res, reqPath, verifiedUid, {
+          paperKeyOf: (r, surface) => {
+            const pass = fairUseModule.verifyPaperPass(r.headers[fairUseModule.PAPER_HEADER], {
+              uid: verifiedUid, surface, nowMs: Date.now(), secret: process.env[fairUseModule.PAPER_SECRET_ENV],
+            });
+            return pass ? pass.paperKey : null;
+          },
+        });
+    if (limitsVerdict.refused) return;
+    if (!freeCheckAdmitted && !limitsVerdict.bypassEntitlement && await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid, verification)) return;
 
     // METER-1 (M1): charge this request's model calls to the VERIFIED uid — the one the
     // limiter was handed above — and to nobody for a free check. Records only.
@@ -617,6 +640,12 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === USAGE_LIMITS_DOWNLOAD_PATH) {
     return limits.handleDownloadMint(req, res);
+  }
+  if (req.method === 'POST' && reqPath === USAGE_LIMITS_QP_PATH) {
+    return limits.handleQpMint(req, res);
+  }
+  if (req.method === 'POST' && reqPath === USAGE_LIMITS_DETAIL_PATH) {
+    return limits.handleDetailClaim(req, res);
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;

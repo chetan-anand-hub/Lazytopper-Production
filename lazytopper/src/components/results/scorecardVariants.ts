@@ -92,6 +92,9 @@ export interface ScorecardAction {
   busyLabel?: string;
   /** A tiny leading tag for the stacked what-next menu (e.g. "New", "Test"). */
   tag?: string;
+  /** LIMITS-1 PR-2 — opens or prints the graded sheet (the per-answer detail). Hidden when the
+   *  server has locked this result's breakdown. Absent on every other action. */
+  detail?: boolean;
 }
 
 /** Worksheet pending strip — honest, never folded into a 0. */
@@ -487,9 +490,10 @@ export function worksheetScorecardVariant(input: WorksheetVariantInput): Scoreca
     pending: allPending ? null : pendingStrip(response),
     allPending: allPending ? allPendingMessage(response) : null,
     actions: [
-      { label: "Read your graded worksheet", tone: "ghost", onClick: onRead, disabled: allPending },
+      { label: "Read your graded worksheet", tone: "ghost", onClick: onRead, disabled: allPending, detail: true },
       {
         label: "Download graded sheet",
+        detail: true,
         tone: "primary",
         onClick: onDownload,
         disabled: allPending || downloading,
@@ -630,6 +634,7 @@ function withQuickPracticeDownload(
   const busy = downloading === true;
   const row: ScorecardAction = {
     label: QUICK_PRACTICE_DOWNLOAD_GRADED_LABEL,
+    detail: true,
     tag: "Graded",
     tone: "secondary",
     onClick: onDownloadGraded,
@@ -1047,6 +1052,7 @@ export function storedWorksheetScorecardVariant(
   if (onDownload) {
     actions.push({
       label: "Download graded sheet",
+      detail: true,
       tone: "primary",
       onClick: onDownload,
       disabled: downloading,
@@ -1502,6 +1508,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
   const menu: ScorecardAction[] = [
     {
       label: "Read my graded answer sheet",
+      detail: true,
       tag: "Sheet",
       tone: "primary",
       onClick: input.onReadSheet ?? (() => {}),
@@ -1516,6 +1523,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     },
     {
       label: "Download graded answer sheet (PDF)",
+      detail: true,
       tag: "Graded",
       tone: "secondary",
       onClick: input.onDownloadGraded ?? (() => {}),
@@ -1853,6 +1861,7 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
       : []),
     {
       label: "Read my graded answer sheet",
+      detail: true,
       tag: "Sheet",
       tone: "primary",
       onClick: input.onReadSheet,
@@ -1869,6 +1878,7 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
   if (input.onDownloadGraded) {
     menu.push({
       label: "Download graded solution (PDF)",
+      detail: true,
       tag: "Graded",
       tone: "secondary",
       onClick: input.onDownloadGraded,
@@ -2039,6 +2049,7 @@ export function storedQuickPracticeScorecardVariant(
   if (onDownload) {
     actions.push({
       label: "Download graded answer sheet (PDF)",
+      detail: true,
       tone: "primary",
       onClick: onDownload,
       disabled: downloading,

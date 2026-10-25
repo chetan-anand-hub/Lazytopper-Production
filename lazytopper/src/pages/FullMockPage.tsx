@@ -1215,6 +1215,7 @@ export default function FullMockPage() {
       {/* Read-only re-open scorecard (history card / cross-device pending). */}
       {reopen && (
         <ResultsScorecard
+          limitKey={{ kind: "full-mock", resultKey: reopen.record.id }} // LIMITS-1 PR-2 — stored re-open
           variant={withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
@@ -1840,6 +1841,7 @@ export default function FullMockPage() {
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+              limitKey={{ kind: "full-mock", resultKey: activeMock.code }} // LIMITS-1 PR-2 — Full Mock surface
               variant={withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,

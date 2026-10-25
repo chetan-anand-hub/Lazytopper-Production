@@ -873,6 +873,10 @@ export type NamedAnalyticsEvent =
   | "download_start"
   | "download_blocked"
   | "download_wall_shown"
+  // LIMITS-1 PR-2 — a graded Quick Practice set was refused by the daily limit, or a Basic student saw
+  // the locked per-answer breakdown. Names only.
+  | "grade_blocked"
+  | "scorecard_lock_shown"
   // PARENT-REPORT-1 — the student shared a link to ONE result with a parent. The vendors get
   // `parent_report_shared { kind, method }`, the first-party log the bare name. Sent by
   // trackParentReportShared

@@ -578,6 +578,7 @@ export default function WorksheetGradePanel({
       {response && response.ok && scorecardOpen && (
         <ResultsScorecard
           askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+          limitKey={{ kind: "worksheet", resultKey: nomen.code }} // LIMITS-1 PR-2 — Worksheet surface
           variant={withPaperTutorAsks(
             withGuideTarget(
               worksheetScorecardVariant({

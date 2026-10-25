@@ -2771,6 +2771,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         )}
         {reopen && (
           <ResultsScorecard
+            limitKey={{ kind: "check-improve", resultKey: reopen.id }} // LIMITS-1 PR-2 — stored re-open
             variant={storedCheckImproveScorecardVariant(reopen, {
               gradedDateLabel: new Date(reopen.gradedAt).toLocaleDateString("en-GB", {
                 day: "numeric",
@@ -3709,6 +3710,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         {scorecardOpen && confirmed && ciCode && (
           <ResultsScorecard
             askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+            limitKey={{ kind: "check-improve", resultKey: ciCode }} // LIMITS-1 PR-2 — multi-question upload
             // MOMENTS-1 M6 — "We couldn't read any answers": Ziggy, then Byte (guide arm, every time).
             allPendingSlot={(ap) => <GuideMomentSlot show={ciProblemMoments && isUnreadAllPending(ap)} moment="m6" step="unread" />}
             variant={withGuideTarget(checkImproveScorecardVariant({
@@ -4075,6 +4077,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       {scorecardOpen && ciCode && (
         <ResultsScorecard
           askFirstFeedback={!overlay} // FIRST-FEEDBACK-1 — live, just-graded scorecard only
+          limitKey={{ kind: "check-improve", resultKey: ciCode }} // LIMITS-1 PR-2 — single question
           // MOMENTS-1 M6 — "We couldn't read any answers": Ziggy, then Byte (guide arm, every time).
           allPendingSlot={(ap) => <GuideMomentSlot show={ciProblemMoments && isUnreadAllPending(ap)} moment="m6" step="unread" />}
           variant={withGuideTarget(checkImproveScorecardVariant({

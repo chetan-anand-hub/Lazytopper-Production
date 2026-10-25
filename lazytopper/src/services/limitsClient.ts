@@ -18,6 +18,8 @@ import { paidJsonHeaders } from "../ai/paidCallHeaders";
 
 export const LIMITS_ENDPOINT = "/api/usage/limits";
 export const LIMITS_DOWNLOAD_ENDPOINT = "/api/usage/limits/download";
+export const LIMITS_QP_ENDPOINT = "/api/usage/limits/qp";
+export const LIMITS_DETAIL_ENDPOINT = "/api/usage/limits/detail";
 /** The mint is abandoned (and the download allowed) after this long. */
 export const MINT_TIMEOUT_MS = 4000;
 
@@ -48,6 +50,10 @@ export interface LimitsSummary {
   tier: string | null;
   enforced: boolean;
   download: DownloadCounters | null;
+  /** Quick Practice graded sets today (IST). Null while unknown. */
+  qp: DownloadCounters | null;
+  /** Basic only: the scorecard's per-answer breakdown is locked after the first of each kind. */
+  detailLocked: boolean;
 }
 
 export type MintResult =
@@ -126,6 +132,70 @@ export async function mintDownload(kind: DownloadKind, paperKey: string, signedI
   };
 }
 
+type PostResult =
+  | { kind: "off" | "signed_out" | "offline" | "open" }
+  | { kind: "reply"; status: number; body: Record<string, unknown> };
+
+/** One credentialed POST with the 4 s fail-open timeout. Never throws. */
+async function postLimits(endpoint: string, payload: Record<string, unknown>, signedIn: boolean): Promise<PostResult> {
+  if (!isLimitsClientEnabled()) return { kind: "off" };
+  if (!signedIn) return { kind: "signed_out" };
+  let headers: Record<string, string>;
+  try {
+    headers = await paidJsonHeaders();
+  } catch {
+    return { kind: "open" };
+  }
+  if (!headers["X-Lazytopper-Uid"]) return { kind: "signed_out" };
+  const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timer = setTimeout(() => ctl?.abort(), MINT_TIMEOUT_MS);
+  try {
+    const res = await fetch(endpoint, { method: "POST", headers, body: JSON.stringify(payload), ...(ctl ? { signal: ctl.signal } : {}) });
+    let body: Record<string, unknown> = {};
+    try {
+      const parsed: unknown = JSON.parse(await res.text());
+      if (parsed && typeof parsed === "object") body = parsed as Record<string, unknown>;
+    } catch {
+      /* unreadable -> treated as open by the caller */
+    }
+    return { kind: "reply", status: res.status, body };
+  } catch {
+    return ctl?.signal.aborted ? { kind: "open" } : isOffline() ? { kind: "offline" } : { kind: "open" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export type QpGateResult =
+  | { status: "off" | "signed_out" | "offline" | "open" }
+  | { status: "ok"; counted: boolean; free: boolean }
+  | { status: "blocked"; resetAt: string | null; limit: number | null; tier: string | null };
+
+/** Ask the server for ONE graded Quick Practice set (idempotent per paperKey within the IST day). */
+export async function mintQp(paperKey: string, signedIn: boolean): Promise<QpGateResult> {
+  const r = await postLimits(LIMITS_QP_ENDPOINT, { paperKey }, signedIn);
+  if (r.kind !== "reply") return { status: r.kind };
+  if (r.status === 409 && r.body.error === "qp_limit") {
+    return { status: "blocked", resetAt: str(r.body.resetAt), limit: num(r.body.limit), tier: str(r.body.tier) };
+  }
+  if (r.status < 200 || r.status >= 300) return { status: "open" };
+  void refreshLimitsSummary();
+  return { status: "ok", counted: r.body.counted === true, free: r.body.free === true };
+}
+
+/** The five surfaces whose scorecard detail the server can lock. */
+export type DetailKind = "check-improve" | "worksheet" | "chapter-test" | "full-mock" | "quick-practice";
+
+/**
+ * Is this result's per-answer breakdown open? true on EVERY uncertainty (off, signed out,
+ * offline, a slow or failed server): the lock needs a positive "locked" from the server.
+ */
+export async function claimDetail(kind: DetailKind, resultKey: string, signedIn: boolean): Promise<boolean> {
+  const r = await postLimits(LIMITS_DETAIL_ENDPOINT, { kind, resultKey }, signedIn);
+  if (r.kind !== "reply" || r.status < 200 || r.status >= 300) return true;
+  return r.body.unlocked !== false;
+}
+
 /* ── The counters the chip reads: one shared copy, refreshed after each mint ── */
 
 let cached: LimitsSummary | null = null;
@@ -177,6 +247,8 @@ export function refreshLimitsSummary(): Promise<void> {
         tier: str(body.tier),
         enforced: body.enforced === true,
         download: parseDownload(body.download),
+        qp: parseDownload(body.qp),
+        detailLocked: body.detailLocked === true,
       };
       listeners.forEach((fn) => fn());
     } catch {

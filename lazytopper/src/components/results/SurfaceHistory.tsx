@@ -13,6 +13,7 @@ import {
 import { getWorksheetSession, getWorksheetGrade } from "../../services/worksheetSessionStore";
 import { exportGradedWorksheetPdf } from "../worksheet/worksheetPdfExport";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
+import { practiceSetPaperKey } from "../../services/limitsClient";
 import ResultsScorecard from "./ResultsScorecard";
 import { storedWorksheetScorecardVariant } from "./scorecardVariants";
 import {
@@ -333,6 +334,12 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly, on
 
       {reopen && (
         <ResultsScorecard
+          // LIMITS-1 PR-2 — a stored re-open obeys the same server lock as the live card; the free
+          // first-of-kind stays open (same key as when it was graded), the rest stay locked.
+          limitKey={{
+            kind: reopen.surface,
+            resultKey: reopen.surface === "quick-practice" ? practiceSetPaperKey(reopen.questionIds) : reopen.id,
+          }}
           variant={storedWorksheetScorecardVariant(reopen, {
             gradedDateLabel: formatDate(reopen.gradedAt),
             onDone: closeReopen,
