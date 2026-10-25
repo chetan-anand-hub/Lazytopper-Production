@@ -1,11 +1,12 @@
 /**
  * LimitChip — LIMITS-1: "1 of 2 downloads left this week", beside a download button.
- * Renders nothing while VITE_LIMITS_ENABLED is off, for Premium, or when the server has not
+ * Renders nothing while VITE_LIMITS_ENABLED is off, for paid Premium, or when the server has not
  * told us a metered count. Signed-out visitors see the sign-up invitation.
  */
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
+import { isPaidPremium } from "../../services/subscriptionService";
 import {
   getLimitsSummary,
   isLimitsClientEnabled,
@@ -24,19 +25,20 @@ export default function LimitChip() {
 function LimitChipLive() {
   const enabled = true;
   const { user } = useAuth();
-  const { isPremium } = useSubscription();
+  const { status } = useSubscription();
+  const paid = isPaidPremium(status);
   const uid = user?.uid || "";
   const [summary, setSummary] = useState<LimitsSummary | null>(getLimitsSummary());
 
   useEffect(() => {
-    if (!enabled || !uid || isPremium) return undefined;
+    if (!enabled || !uid || paid) return undefined;
     setSummary(getLimitsSummary());
     const off = subscribeLimitsSummary(() => setSummary(getLimitsSummary()));
     void refreshLimitsSummary();
     return off;
-  }, [enabled, uid, isPremium]);
+  }, [enabled, uid, paid]);
 
-  if (!enabled || isPremium) return null;
+  if (!enabled || paid) return null;
   const text = uid ? chipText(summary?.tier ?? null, summary?.download ?? null) : SIGNED_OUT_CHIP;
   if (!text) return null;
   const spent = Boolean(uid) && summary?.download?.remaining === 0 && !summary?.download?.firstFreeAvailable;

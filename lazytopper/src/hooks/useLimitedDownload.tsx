@@ -20,6 +20,7 @@ import DownloadLimitWall, { type DownloadWallVariant } from "../components/limit
 import { useAuth } from "../context/AuthContext";
 import { trackDownload, type DownloadKind } from "../analytics/analytics";
 import { isLimitsClientEnabled, mintDownload } from "../services/limitsClient";
+import { isPaidPremium } from "../services/subscriptionService";
 import { useSubscription } from "./useSubscription";
 
 interface WallState {
@@ -46,14 +47,15 @@ function useLimitedDownloadOff(): LimitedDownload {
 
 function useLimitedDownloadLive(): LimitedDownload {
   const { user } = useAuth();
-  const { isPremium } = useSubscription();
+  const { status } = useSubscription();
+  const paid = isPaidPremium(status);
   const signedIn = Boolean(user?.uid);
   const [wallState, setWallState] = useState<WallState | null>(null);
   const inFlight = useRef(false);
 
   const guard = useCallback(
     async (kind: DownloadKind, paperKey: PaperKeySource): Promise<boolean> => {
-      if (isPremium) return true;
+      if (paid) return true; // PAID premium only: trial and Basic ask the server, which decides
       if (inFlight.current) return false; // a second tap while the first is asking
       inFlight.current = true;
       try {
@@ -82,7 +84,7 @@ function useLimitedDownloadLive(): LimitedDownload {
         inFlight.current = false;
       }
     },
-    [isPremium, signedIn],
+    [paid, signedIn],
   );
 
   const close = useCallback(() => setWallState(null), []);

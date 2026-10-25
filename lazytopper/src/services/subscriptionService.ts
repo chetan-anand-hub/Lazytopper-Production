@@ -484,3 +484,11 @@ export function getDaysLeftInTrial(status: SubscriptionStatus): number {
 export function isPremiumAccess(status: SubscriptionStatus): boolean {
   return status.tier === "premium" || status.tier === "trial";
 }
+
+/**
+ * PAID Premium only (a verified Razorpay pass or an admin grant). A trial is NOT paid: LIMITS-1
+ * meters new-cohort trial students, so the limits client must ask the server for them.
+ */
+export function isPaidPremium(status: SubscriptionStatus | null | undefined): boolean {
+  return status?.tier === "premium";
+}

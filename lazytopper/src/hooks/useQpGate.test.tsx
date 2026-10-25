@@ -18,11 +18,12 @@ vi.mock("../analytics/analytics", async (importOriginal) => {
 });
 const authState: { user: { uid: string } | null } = { user: { uid: "stu-1" } };
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: authState.user, loading: false }) }));
-const subState = { isPremium: false, touched: 0 };
+const subState = { isPremium: false, tier: "free", touched: 0 };
 vi.mock("./useSubscription", () => ({
   useSubscription: () => {
     subState.touched += 1;
-    return { isPremium: subState.isPremium };
+    const tier = subState.isPremium ? "premium" : subState.tier;
+    return { isPremium: tier === "premium" || tier === "trial", status: { tier } };
   },
 }));
 vi.mock("../ai/paidCallHeaders", () => ({
@@ -64,6 +65,7 @@ async function mountGate(active: boolean, flag: "1" | "") {
 beforeEach(() => {
   authState.user = { uid: "stu-1" };
   subState.isPremium = false;
+  subState.tier = "free";
   subState.touched = 0;
   trackNamed.mockClear();
   resetLimitsSummaryForTests();
@@ -178,6 +180,44 @@ describe("useQpGate", () => {
     expect(f).not.toHaveBeenCalled();
   });
 
+  it("trial: the server is asked (isPremiumAccess is true for trial but is NOT the skip)", async () => {
+    subState.tier = "trial";
+    const f = vi.fn().mockResolvedValue(jsonRes(200, { ok: true, counted: true, free: true }));
+    vi.stubGlobal("fetch", f);
+    await mountGate(true, "1");
+    expect(screen.getByTestId("status").textContent).toBe("pending");
+    await waitFor(() => expect(screen.getByTestId("status").textContent).toBe("open"));
+    expect(f.mock.calls[0][0]).toBe("/api/usage/limits/qp");
+  });
+
+  it("trial, server says not metered (pre-cohort): open, no wall", async () => {
+    subState.tier = "trial";
+    const f = vi.fn().mockResolvedValue(jsonRes(200, { ok: true, counted: false, free: false, metered: false }));
+    vi.stubGlobal("fetch", f);
+    await mountGate(true, "1");
+    await waitFor(() => expect(screen.getByTestId("status").textContent).toBe("open"));
+    expect(f.mock.calls.filter((c) => String(c[0]).endsWith("/limits/qp"))).toHaveLength(1);
+    expect(screen.queryByTestId("download-wall")).toBeNull();
+  });
+
+  it("trial at its limit: blocked with the trial wall", async () => {
+    subState.tier = "trial";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonRes(409, { error: "qp_limit", resetAt: "2026-11-02T18:30:00Z", limit: 3, tier: "trial" })));
+    await mountGate(true, "1");
+    const wall = await screen.findByTestId("download-wall");
+    expect(wall.textContent).toContain("You've used today's graded practice sets");
+    expect(screen.getByTestId("status").textContent).toBe("blocked");
+  });
+
+  it("paid premium: no request, open", async () => {
+    subState.tier = "premium";
+    const f = vi.fn();
+    vi.stubGlobal("fetch", f);
+    await mountGate(true, "1");
+    expect(screen.getByTestId("status").textContent).toBe("open");
+    expect(f).not.toHaveBeenCalled();
+  });
+
   it("DARK: flag off is always open, no request, no subscription touched", async () => {
     const f = vi.fn();
     vi.stubGlobal("fetch", f);
@@ -185,6 +225,11 @@ describe("useQpGate", () => {
     expect(screen.getByTestId("status").textContent).toBe("open");
     expect(f).not.toHaveBeenCalled();
     expect(subState.touched).toBe(0);
+    cleanup();
+    subState.tier = "trial";
+    await mountGate(true, "");
+    expect(screen.getByTestId("status").textContent).toBe("open");
+    expect(f).not.toHaveBeenCalled();
   });
 });
 
