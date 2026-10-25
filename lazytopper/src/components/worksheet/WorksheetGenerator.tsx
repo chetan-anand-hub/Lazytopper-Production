@@ -189,6 +189,18 @@ interface EntryContext {
   hasContext: boolean;
 }
 
+/**
+ * PACKS-LIMIT-1 — the chapters the GENERATED paper actually draws from (canonical slugs), sent with the
+ * download mint so a paper wholly inside owned chapter packs is not counted. Empty -> no cover (counted as today).
+ */
+export function worksheetCover(questions: Array<{ topicKey: string }>): { chapters: string[] } | undefined {
+  if (questions.length === 0) return undefined;
+  // resolveCanonicalSlugSet silently DROPS an unresolvable key, which would overstate coverage: any miss -> no cover.
+  if (questions.some((q) => !resolveCanonicalSlug(q.topicKey))) return undefined;
+  const chapters = Array.from(resolveCanonicalSlugSet(questions.map((q) => q.topicKey)));
+  return chapters.length > 0 && chapters.length <= 26 ? { chapters } : undefined;
+}
+
 /** PAPER-REBUILD-1 — the generator's topic label for a key (the same catalogue `labelFor` reads). */
 function labelForTopic(subject: string, key: string): string {
   return getTopics(subject === "science" ? "Science" : "Maths", "All").find((t) => t.key === key)?.label ?? key;
@@ -831,7 +843,7 @@ function WorksheetGeneratorInner() {
     if (!generated || downloading) return;
     setDownloadError(null);
     setDownloading(kind); // busy BEFORE the guard: it can take a moment, and a second tap must do nothing
-    if (!(await guardDownload("worksheet", generated.worksheetId))) {
+    if (!(await guardDownload("worksheet", generated.worksheetId, worksheetCover(generated.questions)))) {
       setDownloading(null);
       return;
     }

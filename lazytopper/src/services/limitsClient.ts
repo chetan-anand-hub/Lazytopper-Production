@@ -56,12 +56,22 @@ export interface LimitsSummary {
   detailLocked: boolean;
 }
 
+/**
+ * PACKS-LIMIT-1: what a paper covers, sent with the mint so the server can skip counting a paper made
+ * wholly of chapters (or a mock subject) the student owns a pack for. Optional and additive.
+ * `chapters` = canonical topics.ts slugs; `subject` = "maths" | "science" (Full Mock).
+ */
+export interface DownloadCover {
+  chapters?: string[];
+  subject?: "maths" | "science";
+}
+
 export type MintResult =
   | { status: "off" }
   | { status: "signed_out" }
   | { status: "offline" }
   | { status: "open" }
-  | { status: "ok"; counted: boolean; free: boolean; remaining: number | null; limit: number | null; resetAt: string | null }
+  | { status: "ok"; counted: boolean; free: boolean; remaining: number | null; limit: number | null; resetAt: string | null; packOwned?: boolean }
   | { status: "blocked"; resetAt: string | null; limit: number | null; tier: string | null };
 
 function isOffline(): boolean {
@@ -83,7 +93,7 @@ function str(v: unknown): string | null {
  * Ask the server for ONE counted download. `signedIn` comes from the caller's auth context so
  * a signed-out visitor makes no request. Never throws.
  */
-export async function mintDownload(kind: DownloadKind, paperKey: string, signedIn: boolean): Promise<MintResult> {
+export async function mintDownload(kind: DownloadKind, paperKey: string, signedIn: boolean, cover?: DownloadCover): Promise<MintResult> {
   if (!isLimitsClientEnabled()) return { status: "off" };
   if (!signedIn) return { status: "signed_out" };
   let headers: Record<string, string>;
@@ -103,7 +113,7 @@ export async function mintDownload(kind: DownloadKind, paperKey: string, signedI
     res = await fetch(LIMITS_DOWNLOAD_ENDPOINT, {
       method: "POST",
       headers,
-      body: JSON.stringify({ kind, paperKey }),
+      body: JSON.stringify(cover ? { kind, paperKey, cover } : { kind, paperKey }),
       ...(ctl ? { signal: ctl.signal } : {}),
     });
     try {
@@ -121,6 +131,10 @@ export async function mintDownload(kind: DownloadKind, paperKey: string, signedI
     return { status: "blocked", resetAt: str(body.resetAt), limit: num(body.limit), tier: str(body.tier) };
   }
   if (!res.ok) return { status: "open" };
+  // A pack-owned download changed no counter: nothing for the chip to refresh.
+  if (body.packOwned === true) {
+    return { status: "ok", counted: false, free: false, remaining: null, limit: num(body.limit), resetAt: null, packOwned: true };
+  }
   void refreshLimitsSummary();
   return {
     status: "ok",

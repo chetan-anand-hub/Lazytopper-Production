@@ -16,7 +16,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { EventEmitter } = require('node:events');
 const { setChargeableCount } = require('../grading/charge.cjs');
-const { createLimits, limitsDeferredOf, decideDownload, decideCounted, istDayStartMs, entryId, TRIAL_COHORT_START_MS, WINDOW_MS } = require('./limits.cjs');
+const { createLimits, parseCover, limitsDeferredOf, decideDownload, decideCounted, istDayStartMs, entryId, TRIAL_COHORT_START_MS, WINDOW_MS } = require('./limits.cjs');
 
 const DAY = 86400000;
 const NOW = Date.UTC(2026, 10, 2, 6, 0, 0); // 2 Nov 2026 11:30 IST
@@ -57,7 +57,7 @@ function fakeFirestore({ failTx = false } = {}) {
   return { db, docs };
 }
 
-function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 * DAY, failTx = false, unauth = false } = {}) {
+function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 * DAY, failTx = false, unauth = false, listPacks } = {}) {
   const clock = { now: NOW };
   const f = fakeFirestore({ failTx });
   const counters = {};
@@ -73,6 +73,7 @@ function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 
     readJson: async (req) => req.__body || {},
     sendJson: (res, status, body) => { sent.push({ status, body }); res.sent = { status, body }; },
     verifiedCaller: { resolveVerifiedUid: async () => (unauth ? '' : 'stu-1') },
+    ...(listPacks ? { listPacks } : {}),
   });
   return { l, f, clock, counters, creationReads: () => creationReads };
 }
@@ -610,4 +611,143 @@ test('GRADE · a free reservation pruned at 30 min gives the one free grade back
   const doc = [...r.f.docs.values()][0];
   assert.equal(doc.firstFree.grade.worksheet, true);
   assert.equal(doc.gr.worksheet.length, 1, 'only the new reservation remains');
+});
+
+
+// ---------------------------------------------------------------- PACKS-LIMIT-1
+// MUTATIONS: (a) drop the `cover &&` ownership branch in handleDownloadMint -> the "owned chapter" test goes RED;
+// (b) let ownsCover rethrow instead of returning false -> the "packs read throws" test goes RED;
+// (c) write the ledger before the pack branch -> the "ledger untouched" assertions go RED.
+const P = (...ids) => async () => ids.map((packId) => ({ packId }));
+const ledgerWrites = (r) => [...r.f.docs.keys()].length;
+
+test('PACKS-LIMIT-1: owned chapter -> packOwned, not counted, ledger untouched (even past the limit)', async () => {
+  const r = rig({ listPacks: P('pack_chapter:triangles') });
+  await mint(r, paper(1)); r.clock.now += 1000; await mint(r, paper(2)); // allowance spent
+  const before = JSON.stringify([...r.f.docs]);
+  for (const kind of ['worksheet', 'chapter-test']) {
+    const a = await mint(r, { kind, paperKey: `own-${kind}`, cover: { chapters: ['triangles'] } });
+    assert.equal(a.status, 200);
+    assert.deepEqual([a.body.ok, a.body.counted, a.body.free, a.body.reused, a.body.packOwned], [true, false, false, false, true]);
+    assert.deepEqual([a.body.used, a.body.remaining, a.body.resetAt], [null, null, null]);
+  }
+  assert.equal(JSON.stringify([...r.f.docs]), before, 'no ledger write for a pack-owned download');
+  assert.equal(r.counters['limits.download.pack_owned'], 2);
+  assert.equal((await mint(r, paper(3))).status, 409, 'an uncovered paper is still refused');
+});
+
+test('PACKS-LIMIT-1: first-free is not consumed by a pack-owned download', async () => {
+  const r = rig({ listPacks: P('pack_bundle:all') });
+  await mint(r, { kind: 'worksheet', paperKey: 'a', cover: { chapters: ['heredity'] } });
+  assert.equal(ledgerWrites(r), 0);
+  const b = await mint(r, paper(1));
+  assert.equal(b.body.free, true);
+});
+
+test('PACKS-LIMIT-1: subject and bundle packs cover their chapters; another subject does not', async () => {
+  const sub = rig({ listPacks: P('pack_subject:maths') });
+  assert.equal((await mint(sub, { kind: 'worksheet', paperKey: 'a', cover: { chapters: ['triangles', 'circles'] } })).body.packOwned, true);
+  assert.equal((await mint(sub, { kind: 'worksheet', paperKey: 'b', cover: { chapters: ['electricity'] } })).body.packOwned, undefined);
+  const bun = rig({ listPacks: P('pack_bundle:all') });
+  assert.equal((await mint(bun, { kind: 'chapter-test', paperKey: 'a', cover: { chapters: ['electricity'] } })).body.packOwned, true);
+});
+
+test('PACKS-LIMIT-1: mocks owned via pack_mock / pack_subject / bundle, per subject; a chapter pack does not own mocks', async () => {
+  for (const [id, subject, owned] of [
+    ['pack_mock:maths', 'maths', true], ['pack_mock:maths', 'science', false],
+    ['pack_subject:science', 'science', true], ['pack_bundle:all', 'maths', true], ['pack_chapter:triangles', 'maths', false],
+  ]) {
+    const r = rig({ listPacks: P(id) });
+    const a = await mint(r, { kind: 'full-mock', paperKey: 'm', cover: { subject } });
+    assert.equal(a.body.packOwned === true, owned, `${id} / ${subject}`);
+    assert.equal(ledgerWrites(r) === 0, owned);
+  }
+});
+
+test('PACKS-LIMIT-1: a mock needs cover.subject; a chapter paper needs cover.chapters (kind decides)', async () => {
+  const r = rig({ listPacks: P('pack_bundle:all') });
+  assert.equal((await mint(r, { kind: 'full-mock', paperKey: 'a', cover: { chapters: ['triangles'] } })).body.packOwned, undefined);
+  assert.equal((await mint(r, { kind: 'worksheet', paperKey: 'b', cover: { subject: 'maths' } })).body.packOwned, undefined);
+});
+
+test('PACKS-LIMIT-1: multi-chapter worksheet is free only when EVERY chapter is owned', async () => {
+  const r = rig({ listPacks: P('pack_chapter:triangles', 'pack_chapter:circles') });
+  const all = await mint(r, { kind: 'worksheet', paperKey: 'a', cover: { chapters: ['triangles', 'circles', 'triangles'] } });
+  assert.equal(all.body.packOwned, true);
+  const some = await mint(r, { kind: 'worksheet', paperKey: 'b', cover: { chapters: ['triangles', 'statistics'] } });
+  assert.equal(some.status, 200); assert.equal(some.body.packOwned, undefined); assert.equal(some.body.free, true);
+});
+
+test('PACKS-LIMIT-1: practice-set ignores cover and counts as today', async () => {
+  const r = rig({ listPacks: P('pack_bundle:all') });
+  const a = await mint(r, { kind: 'practice-set', paperKey: 'p', cover: { chapters: ['triangles'], subject: 'maths' } });
+  assert.equal(a.body.packOwned, undefined); assert.equal(a.body.free, true); assert.equal(ledgerWrites(r), 1);
+});
+
+test('PACKS-LIMIT-1: bad cover is ignored and counted as today (and the packs are not even read)', async () => {
+  const bad = [
+    'triangles', [], 7, { chapters: 'triangles' }, { chapters: [] }, { chapters: ['nope'] }, { chapters: ['triangles', 5] },
+    { chapters: Array(27).fill('triangles') }, { subject: 'history' }, { subject: ['maths'] }, { chapters: ['triangles'], extra: 1 },
+    {}, { chapters: ['__proto__'] }, { chapters: ['constructor'] },
+  ];
+  for (const cover of bad) {
+    let reads = 0;
+    const r = rig({ listPacks: async () => { reads += 1; return [{ packId: 'pack_bundle:all' }]; } });
+    const a = await mint(r, { kind: 'worksheet', paperKey: 'x', cover });
+    assert.equal(a.status, 200, JSON.stringify(cover));
+    assert.equal(a.body.packOwned, undefined, JSON.stringify(cover));
+    assert.equal(a.body.free, true, JSON.stringify(cover));
+    assert.equal(reads, 0, JSON.stringify(cover));
+    assert.equal(ledgerWrites(r), 1, JSON.stringify(cover));
+  }
+  assert.equal(parseCover({ chapters: ['triangles'] }).chapters[0], 'triangles');
+  assert.equal(parseCover(undefined), null);
+});
+
+test('PACKS-LIMIT-1: a packs read that throws, rejects or hangs counts as today - no 500, no refusal, no fail-open change', async () => {
+  for (const listPacks of [
+    async () => { throw new Error('firestore down'); },
+    () => { throw new Error('sync throw'); },
+    async () => 'not-an-array-but-ok',
+    async () => null,
+  ]) {
+    const r = rig({ listPacks });
+    const a = await mint(r, { kind: 'worksheet', paperKey: 'a', cover: { chapters: ['triangles'] } });
+    assert.equal(a.status, 200); assert.equal(a.body.packOwned, undefined); assert.equal(a.body.failOpen, undefined);
+    assert.equal(a.body.free, true); assert.equal(ledgerWrites(r), 1);
+    r.clock.now += 1000;
+    await mint(r, paper(2));
+    r.clock.now += 1000;
+    assert.equal((await mint(r, { kind: 'worksheet', paperKey: 'c', cover: { chapters: ['triangles'] } })).status, 409, 'still counted and refused as today');
+  }
+  // hang: the lookup is abandoned after its timeout and the request is counted normally
+  const r = rig({ listPacks: () => new Promise(() => {}) });
+  const t0 = Date.now();
+  const a = await mint(r, { kind: 'worksheet', paperKey: 'h', cover: { chapters: ['triangles'] } });
+  assert.equal(a.status, 200); assert.equal(a.body.free, true); assert.equal(a.body.packOwned, undefined);
+  assert.ok(Date.now() - t0 < 4000);
+});
+
+test('PACKS-LIMIT-1: default packs read with no Firestore is "not owned", not a crash', async () => {
+  const clock = { now: NOW }; const f = fakeFirestore(); const out = {};
+  const l = createLimits({
+    tierOf: async () => 'free', getCreationMs: async () => NOW - 30 * DAY, resolveFirestore: () => ({ db: f.db }),
+    env: { LIMITS_ENFORCE: '1' }, now: () => clock.now, readJson: async (req) => req.__body,
+    sendJson: (res, status, body) => { res.sent = { status, body }; }, verifiedCaller: { resolveVerifiedUid: async () => 'stu-1' },
+  });
+  await l.handleDownloadMint({ headers: {}, __body: { kind: 'worksheet', paperKey: 'a', cover: { chapters: ['triangles'] } } }, out);
+  assert.equal(out.sent.status, 200); assert.equal(out.sent.body.packOwned, undefined); assert.equal(out.sent.body.free, true);
+});
+
+test('PACKS-LIMIT-1: unmetered (Premium) is unchanged and never reads packs', async () => {
+  let reads = 0;
+  const r = rig({ tier: 'premium', listPacks: async () => { reads += 1; return []; } });
+  const a = await mint(r, { kind: 'worksheet', paperKey: 'a', cover: { chapters: ['triangles'] } });
+  assert.equal(a.body.packOwned, undefined); assert.equal(a.body.limit, null); assert.equal(reads, 0); assert.equal(ledgerWrites(r), 0);
+});
+
+test('PACKS-LIMIT-1: dark (not enforced) pack-owned also writes nothing', async () => {
+  const r = rig({ env: {}, listPacks: P('pack_chapter:triangles') });
+  const a = await mint(r, { kind: 'chapter-test', paperKey: 'a', cover: { chapters: ['triangles'] } });
+  assert.equal(a.body.packOwned, true); assert.equal(a.body.enforced, false); assert.equal(ledgerWrites(r), 0);
 });

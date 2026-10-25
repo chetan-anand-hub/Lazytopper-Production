@@ -951,7 +951,7 @@ export default function FullMockPage() {
       return;
     }
     setDownloading(true); // busy BEFORE the guard: it can take a moment, and a second tap must do nothing
-    if (!(await guardDownload("full-mock", paperForExport.worksheetId))) {
+    if (!(await guardDownload("full-mock", paperForExport.worksheetId, { subject: sessionSubject }))) {
       setDownloading(false);
       return;
     }
@@ -1111,7 +1111,7 @@ export default function FullMockPage() {
   const downloadSolution = useCallback(async () => {
     if (!paperForExport || downloading) return;
     setDownloading(true);
-    if (!(await guardDownload("full-mock", paperForExport.worksheetId))) {
+    if (!(await guardDownload("full-mock", paperForExport.worksheetId, { subject: sessionSubject }))) {
       setDownloading(false);
       return;
     }
