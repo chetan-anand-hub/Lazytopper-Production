@@ -20,6 +20,10 @@ export function papersWaitingLabel(count: number): string {
   return `${count} paper${count === 1 ? "" : "s"} waiting for your answers`;
 }
 
+export function packPapersWaitingLabel(count: number): string {
+  return `${count} pack paper${count === 1 ? "" : "s"} waiting for your answers`;
+}
+
 /** Shared CSS for the strip, the list and the bell (class names only, §7: no inline styles). */
 export const PENDING_CSS = `
   .lt-pstrip, .lt-pstrip *, .lt-pbell, .lt-pbell * { box-sizing: border-box; }
@@ -62,6 +66,13 @@ export const PENDING_CSS = `
   .lt-pl-all { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px;
     border: 0; border-top: 1px solid hsl(215, 25%, 91%); background: transparent; color: hsl(222, 47%, 24%);
     font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  .lt-pl-row--group { display: block; }
+  .lt-pl-pack { display: flex; align-items: center; gap: 10px; padding: 8px 0; min-width: 0; }
+  .lt-pl-pack-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px;
+    padding: 0 12px; border-radius: 10px; border: 1px solid hsl(38, 60%, 78%); background: #fff;
+    color: hsl(222, 47%, 24%); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .lt-pl-pack-toggle:focus-visible { outline: 2px solid hsl(222, 47%, 24%); outline-offset: 2px; }
+  .lt-pl-sub { list-style: none; margin: 0 0 4px; padding: 0 0 0 10px; border-left: 3px solid hsl(38, 60%, 82%); }
   .lt-pbell { position: relative; display: inline-flex; }
   .lt-pbell-btn { position: relative; width: 44px; height: 44px; display: grid; place-items: center;
     border-radius: 10px; background: transparent; border: none; color: hsl(220, 15%, 45%); cursor: pointer; padding: 0; }
@@ -86,5 +97,8 @@ export const PENDING_CSS = `
     .lt-pl-row { flex-wrap: wrap; gap: 6px; }
     .lt-pl-main { flex-basis: 100%; }
     .lt-pl-go { width: 100%; }
+    .lt-pl-pack { flex-wrap: wrap; gap: 6px; }
+    .lt-pl-pack .lt-pl-main { flex-basis: 100%; }
+    .lt-pl-pack-toggle { width: 100%; }
   }
 `;

@@ -32,7 +32,7 @@ import {
   type PackSku,
   type PackSubject,
 } from "../services/packs";
-import { desktopTopicBySlug } from "../lib/desktop/topics";
+import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MATHS_NCERT_CHAPTERS, MOCKS_PER_SUBJECT, REDOWNLOAD_COPY, SCIENCE_NCERT_CHAPTERS, packChapterLabel } from "../lib/packs/packLabels";
 import "./packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -40,7 +40,7 @@ export const PACKS_RETURN_PATH = "/packs";
 
 const POLL_DELAYS_MS: readonly number[] = [0, 3_000, 10_000, 30_000];
 
-const chapterLabel = (slug: string): string => desktopTopicBySlug(slug)?.name ?? slug;
+const chapterLabel = packChapterLabel;
 
 /** "Chapter Pack · Real Numbers" etc. — the title of an owned pack. */
 export function ownedPackTitle(p: Pick<OwnedPack, "sku" | "target">): string {
@@ -52,7 +52,7 @@ export function ownedPackTitle(p: Pick<OwnedPack, "sku" | "target">): string {
     case "pack_subject":
       return `Subject Pack · ${p.target === "science" ? "Science" : "Maths"}`;
     case "pack_bundle":
-      return "Complete Bundle · Maths + Science";
+      return BUNDLE_NAME;
     default:
       return "PDF pack";
   }
@@ -350,7 +350,7 @@ export default function PacksPage() {
               <p className="lt-packs__price">{packPriceLabel("pack_mock")}</p>
               <SubjectToggle value={subject} onChange={onSubject} idPrefix="mock" />
               <ul className="lt-packs__list">
-                <li><b>5</b> full {subjectLabel(subject)} papers, 80 marks each</li>
+                <li><b>{MOCKS_PER_SUBJECT}</b> full {subjectLabel(subject)} papers, 80 marks each</li>
                 <li>Section A to E, as in the board paper</li>
                 <li>An answer key with worked solutions for each paper</li>
               </ul>
@@ -364,26 +364,26 @@ export default function PacksPage() {
               <SubjectToggle value={subject} onChange={onSubject} idPrefix="subject" />
               <ul className="lt-packs__list">
                 <li>
-                  All <b>{chaptersOfSubject(subject).length}</b> {subjectLabel(subject)} chapters
+                  All <b>{subject === "maths" ? MATHS_NCERT_CHAPTERS : SCIENCE_NCERT_CHAPTERS}</b> {subjectLabel(subject)} chapters
                   {selectedSubjectTotal !== null && <> &mdash; <b>{nf(selectedSubjectTotal)}</b> questions</>}
                 </li>
                 <li>Chapter tests and worksheets for every chapter</li>
-                <li>Plus the 5 {subjectLabel(subject)} mock papers</li>
+                <li>Plus the {MOCKS_PER_SUBJECT} {subjectLabel(subject)} mock papers</li>
               </ul>
               {buyArea("pack_subject", subject, true)}
             </article>
 
             <article className="lt-packs__card" data-testid="packs-card-bundle">
               <p className="lt-packs__tag">Everything</p>
-              <h3>Complete Bundle</h3>
+              <h3>{BUNDLE_NAME}</h3>
               <p className="lt-packs__price">{packPriceLabel("pack_bundle")}</p>
               <ul className="lt-packs__list">
                 <li>
-                  Maths and Science: <b>26</b> chapters
+                  Maths 14, Science 13: all <b>{ALL_NCERT_CHAPTERS}</b> chapters
                   {bundleTotal !== null && <> &mdash; <b>{nf(bundleTotal)}</b> questions</>}
                 </li>
                 <li>All chapter tests and worksheets</li>
-                <li>All <b>10</b> mock papers, with keys</li>
+                <li>All <b>{BUNDLE_MOCKS}</b> mock papers, with keys</li>
               </ul>
               {buyArea("pack_bundle", undefined, true)}
             </article>
@@ -407,13 +407,13 @@ export default function PacksPage() {
             <summary>What&rsquo;s inside a pack?</summary>
             <p>
               For each chapter: the chapter&rsquo;s questions grouped by CBSE section (A to E) with a matching answer key, two chapter
-              tests and one worksheet (each with a key). Mock packs are five full 80-mark papers with keys. Every question has a worked
+              tests and one worksheet (each with a key). Mock packs are eight full 80-mark papers per subject with keys. Every question has a worked
               solution.
             </p>
           </details>
           <details>
             <summary>Can I download again later?</summary>
-            <p>Yes. Sign in and open My packs on this page &mdash; download any file, any time, as often as you like.</p>
+            <p>Yes. {REDOWNLOAD_COPY}: sign in and open My packs on this page, then download any file as often as you like.</p>
           </details>
           <details>
             <summary>Whose copy is it?</summary>

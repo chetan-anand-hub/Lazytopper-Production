@@ -168,6 +168,37 @@ export function mergePendingPapers(...lists: PendingPaper[][]): PendingPaper[] {
   return Array.from(byKey.values()).sort((a, b) => b.savedAt - a.savedAt);
 }
 
+/** Pack papers (PACKS-GRADE-1) print codes that start with this prefix. */
+export const PACK_PAPER_PREFIX = "PK-";
+
+export function isPackPaper(p: Pick<PendingPaper, "code">): boolean {
+  return p.code.startsWith(PACK_PAPER_PREFIX);
+}
+
+/** Two or more pack papers collapse into one row; a lone pack paper is listed like any other. */
+export const PACK_GROUP_MIN = 2;
+
+export type PendingRow = { kind: "paper"; paper: PendingPaper } | { kind: "packs"; papers: PendingPaper[] };
+
+/**
+ * PURE. The rows the list shows: every non-pack paper, and ONE grouped row for the pack papers (placed where the
+ * newest pack paper would sit), so a bundle buyer is not flooded. Order is the input order (newest first).
+ */
+export function groupPendingRows(papers: readonly PendingPaper[]): PendingRow[] {
+  const packs = papers.filter(isPackPaper);
+  if (packs.length < PACK_GROUP_MIN) return papers.map((paper) => ({ kind: "paper" as const, paper }));
+  const rows: PendingRow[] = [];
+  let placed = false;
+  for (const paper of papers) {
+    if (!isPackPaper(paper)) rows.push({ kind: "paper", paper });
+    else if (!placed) {
+      rows.push({ kind: "packs", papers: packs });
+      placed = true;
+    }
+  }
+  return rows;
+}
+
 // ── Reads ─────────────────────────────────────────────────────────────────────
 
 /** A real, cloud-backed account (signed-in only — a local / browse session has no papers). */

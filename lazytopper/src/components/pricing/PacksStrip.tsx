@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, type PackSku } from "../../services/packs";
+import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 import "./packsStrip.css";
 
 /**
@@ -8,9 +9,9 @@ import "./packsStrip.css";
  */
 const ITEMS: ReadonlyArray<{ sku: PackSku; name: string; what: string }> = [
   { sku: "pack_chapter", name: "Chapter", what: "1 chapter" },
-  { sku: "pack_mock", name: "Mocks", what: "5 papers" },
-  { sku: "pack_subject", name: "Subject", what: "13 chapters + mocks" },
-  { sku: "pack_bundle", name: "Bundle", what: "Maths + Science" },
+  { sku: "pack_mock", name: "Mocks", what: `${MOCKS_PER_SUBJECT} papers` },
+  { sku: "pack_subject", name: "Subject", what: "Every chapter + mocks" },
+  { sku: "pack_bundle", name: BUNDLE_NAME, what: `All ${ALL_NCERT_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks` },
 ];
 
 export default function PacksStrip() {

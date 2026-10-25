@@ -173,6 +173,27 @@ describe("PendingPapersStrip — one compact row", () => {
     expect(screen.queryByTestId("pending-papers-see-all")).toBeNull();
   });
 
+  it("PACKS-UX-1: pack papers (PK-…) collapse into ONE expandable row; CONTROL: one pack paper stays a normal row", () => {
+    seedRecords([
+      rec({ id: "WS-M-TRI-01", gradedAt: T0 + 9 }),
+      ...[1, 2, 3, 4, 5].map((n) => rec({ id: `PK-M-FULL-M${n}`, surface: "full-mock", title: `Maths Full Mock ${n}`, gradedAt: T0 + n })),
+    ]);
+    renderStrip();
+    fireEvent.click(screen.getByTestId("pending-strip-toggle"));
+    expect(screen.getAllByTestId("pending-paper-row")).toHaveLength(1);
+    expect(screen.getByTestId("pending-pack-group-label").textContent).toBe("5 pack papers waiting for your answers");
+    expect(screen.queryByText("PK-M-FULL-M3")).toBeNull();
+    fireEvent.click(screen.getByTestId("pending-pack-group-toggle"));
+    expect(screen.getAllByTestId("pending-paper-row")).toHaveLength(6);
+    expect(screen.getByText("PK-M-FULL-M3")).toBeTruthy();
+    cleanup();
+    seedRecords([rec({ id: "PK-M-FULL-M1", surface: "full-mock", title: "Maths Full Mock 1", gradedAt: T0 })]);
+    renderStrip();
+    fireEvent.click(screen.getByTestId("pending-strip-toggle"));
+    expect(screen.queryByTestId("pending-pack-group")).toBeNull();
+    expect(screen.getAllByTestId("pending-paper-row")).toHaveLength(1);
+  });
+
   it("★ AWAIT-1 (#1218): a DOWNLOADED Chapter Test / Full Mock (pending-upload, 0 of 0 marks) is listed with its deep link", () => {
     seedRecords([
       rec({ id: "CT-M-TRI-03", surface: "chapter-test", title: "Trigonometry · Test #3", marksTotal: 0, gradedAt: T0 + 2 }),
