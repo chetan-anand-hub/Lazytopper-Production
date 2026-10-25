@@ -1,3 +1,31 @@
+## 2026-10-25 (daily) - #1354 - #1363 (11 product merges after #1353): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The owner rulings of 25 Oct (binding) relayed by the cofounder **[coordinator]**, with the reason given where the session handoff records one **[coordinator]**; where none was given, none is invented. Scope discovered for the limits is logged here and in the SURFACE_TRACKER block (those rows read Settling).
+
+| decision | what it says | the reason |
+|---|---|---|
+| Board Pass is the lead offer; founding Rs 599 ends 30 Nov, Rs 999 from 1 Dec; **no money-back guarantee** | built as `#1356` (price date decided server-side; the grant takes offer and amount from the order) | measured: 0 payments ever in 30 days; the ask was almost never shown; decided server-side so the client cannot fake the date |
+| Trial metering only for accounts created on or after 25 Oct 00:00 IST | `#1363` | no reason recorded beyond the ruling; it leaves earlier accounts' terms unchanged |
+| Trial limits: C&I 5 per 7 days, QP graded 3 per day, worksheet / chapter test / full mock 1 per 7 days each, downloads 2 per 7 days, first use of each kind free | `#1359`, `#1363` | the ruling; the first free use keeps the first experience unmetered |
+| Basic limits: QP graded 1 per day, downloads 1 per 7 days (first ever free), breakdown locked, Me/Progress MI open | `#1359`, `#1363` | owner: "create a feeling of restriction"; MI summary stays visible because it is the product's soul (CLAUDE.md section 5) |
+| A paper plus its key = ONE download; notes free; signed-out get no downloads; QP per-tap right/wrong visible; partial objective-only CT / FM scorecards unlocked | `#1359`, `#1363` | consistency with Quick Practice; no reason beyond that recorded |
+| Trial stays at sign-up for everyone (Option A); offer "start trial" only where trial-eligible; never a second trial | `[FU-TRIAL-CTA-ON-ASK]` | doctrine allows trial at sign-up or by explicit tap, never on mount |
+| Limits switched ON 25 Oct after a fresh independent review | Railway `LIMITS_ENFORCE=1`, Vercel `VITE_LIMITS_ENABLED=1`, redeploy | the first review of `#1363` found 3 real money bugs and the re-review a crash: always review afresh before enabling anything that gates money or access |
+| Trial-ending email ON (cap 60/day), nudge ON (cap 30/day), concierge ON | Railway flags, owner-approved | most trials expire unused (checks=0, tests=0, practice=0); Resend free plan 100/day fits 60 + 30 |
+| At most one email a day per student, never duplicated | `#1364` (decided inside the transaction) | so the three emailers cannot stack on one student |
+| The owner buys Resend's paid plan when needed | `[FU-RESEND-PAID-PLAN]` | the free plan is a hard cap; check usage each session |
+| `engaged_*` becomes the ads primary conversion, `engaged_5min` first, with Maximise conversions | `#1358`, `#1361`; switch-over pending | Pallabi's review: more volume to optimise on; time on site predicts buying (students with 15+ minutes open /pricing 53% of the time) |
+| Budgets YouTube about Rs 1,500/day, Search about Rs 1,200/day, Meta parents test Rs 500/day for 7 days; 8 Nov kill rule | `[FU-ADS-SWITCHOVER]` | ads had optimised for cheap sign-ups (YouTube Shorts, 97% of Demand Gen spend); parents, the payers, were not addressed |
+| Ad copy "under Rs 2,000, founding price ends 30 Nov" | Pallabi's review, accepted | the Board Pass price is computed, so a fixed figure would go stale |
+| Parent test runs as "see a sample marked answer" pointing to /for-parents | accepted | the WhatsApp walkthrough needs WhatsApp Business |
+| PDF packs on sale by 27 Oct at the latest; all repo questions, no tagging; /pricing must show the packs; PDF rebrand first | `[FU-PDF-PACKS-1]`, `[FU-PDF-REDESIGN-1]` | owner: "it has to start soon"; packs ship in the new design |
+| Rs 99 answer-check pack only on Basic walls, after the limits | `[FU-PACK-99-1]` | credited to the Board Pass within 7 days |
+| Tutor Premium card wording approved | `[FU-TUTOR-PREMIUM-CARD-COPY]` | owner approved at 12:05 IST |
+| MCQs score 0 or full on the answer; the scorecard shows the worked solution; the mistake type needs uploaded working that never changes the mark | `[FU-UPGRADE-LINE-MCQ-COPY]` | CLAUDE.md objective invariant |
+| Keep the repo private and work through granted access (public only during a session); no agent handles secrets; never touch `C:\Projects\Lazytopper-Production` | standing | public-repo risk raised in Pallabi's review; the old April API key was already rotated by the owner |
+| Every product change must work on desktop, mobile and all sizes | standing | restates the 24 Oct 23:36 IST ruling |
+| Live checks use real tabs or Playwright, never iframes on www | process | iframes loaded cached 404s for /assets under a stale pin and caused the owner's blank page (fixed by `#1354`/`#1355`) |
+
 ## 2026-10-24 (daily, part 5) - #1350 - #1351 - #1352 (3 product merges after #1349, 24 Oct IST; #1352 at 25 Oct 01:23 IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner rulings (24 Oct evening, binding) relayed by the cofounder **[coordinator]**, with the lane's own reasoning where the squash message on trunk records it **[git/gh]**. Where no reason was given, none is invented.

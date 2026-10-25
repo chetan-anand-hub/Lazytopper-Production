@@ -23,6 +23,61 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-25 (daily) - #1354 - #1363 (11 product merges after #1353, 25 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `b8852551`. Earlier dated entries are left as written (standing rule 3).* All items below come from the cofounder session **[coordinator]** (`FOLLOWUPS_2026-10-25.md` and the session handoff); this builder re-derived none of the code facts.
+
+### [FU-PDF-REDESIGN-1]
+Owner, 25 Oct 11:22 IST: redesign and rebrand every generated PDF: worksheets and answer keys, chapter tests, Quick Practice sets, full mocks (and their keys / graded sheets). Do it BEFORE the PDF packs launch so packs ship in the new design (mock-up first).
+
+### [FU-PDF-PACKS-1]
+PDF packs (owner ruling 25 Oct): on sale by 27 Oct at the latest; all repo questions and solutions included; no tagging; chapter / worksheet / chapter-test / full-mock bundles with solutions, SKUs Chapter Rs 49, Full Mock Rs 99, Subject Rs 199, Board Bundle Rs 299; watermarked; pack price credited to Premium within 7 days. Measure solution coverage first. Not started. (The follow-up file said "December launch"; the later 25 Oct ruling in the session handoff is 27 Oct, and it governs.)
+
+### [FU-PACK-99-1]
+Rs 99 = 10 answer checks till boards, shown only on Basic limit walls, credited to the Board Pass within 7 days. After the limits have run a few days.
+
+### [FU-LIMITS-CI-OVERSHOOT]
+The Check & Improve limit can overshoot by one under concurrent requests. Accepted by the owner for now.
+
+### [FU-LIMITS-SURFACE-SPOOF]
+The surface header on grade-worksheet is client-supplied; derive it from the payload so a client cannot pick a cheaper bucket.
+
+### [FU-PERF3-BUDGET]
+The PERF-3 entry chunk is at about 12 B headroom after `#1363` (273,067 gz budget). Plan a real reduction lane before any more eager code; lazy-load new UI with `import()`.
+
+### [FU-UPGRADE-SHEET-TRIAL-TITLE]
+Live check 25 Oct (trial account): tapping the scorecard upgrade line opens UpgradeSheet titled "Your full marks breakdown is a Premium feature", which is untrue for a TRIAL student. The title should name what the pass adds (what is kept after the trial). The feature list ("Unlimited Mock Tests / Exam Simulation / Chapter Hub (AI Tutor) / Weak Area Practice") is dated: align with /pricing.
+
+### [FU-UPGRADE-LINE-MCQ-COPY]
+On Quick Practice (MCQ, scored 0 or full) the line says "Unlock step-by-step marks on every answer", but MCQs have no step marks (CLAUDE.md objective invariant). Owner-approved copy: "You lost {N} marks here. Upload your working to find out if it was a slip or a concept gap - unlimited checks with the Board Pass".
+
+### [FU-TUTOR-PREMIUM-CARD-COPY]
+Owner approved wording 25 Oct 12:05. Basic student on the tutor's 402 card: title "Want to know why you lost this mark?"; body "The tutor walks you through this exact question, step by step. It comes with the Board Pass: Rs {price} once, till your boards." (price from `tillBoardsQuote`, never typed); actions = the shared UpgradeSheet (Board Pass first, Pay, Send to parent). Bundle with the two items above and `[FU-TRIAL-CTA-ON-ASK]` in ONE lane.
+
+### [FU-TRIAL-CTA-ON-ASK]
+Where the student is trial-ELIGIBLE (never had a trial: a signed-out visitor, or a pre-30-Sep account that never started one), the tutor card, upgrade sheet and scorecard upgrade line lead with "Start your free 7-day trial" (explicit tap, never on mount), Board Pass second. Signed-out: "Sign up free - 7 days of the tutor and step marking" instead of "Log in to open your tutor". Never offer a second trial. Reuse `startTrial` / FREE-CHECK R9 eligibility (server decides). Measure how many signed-in accounts are trial-eligible first (admin API); probably few.
+
+### [FU-PRICING-RETURNTO]
+`PricingPage` should read `returnTo` (so a wall sends the student back after paying).
+
+### [FU-NUDGE-FOUNDING-REACH]
+Nudge founding 45-day reach: how far the founding hot-list email reaches inside the 45-day window; decide before turning its own flag on.
+
+### [FU-CBSE-EXAMDATE-CLOCK]
+`cbseExamDate` has more module-level clock reads (CLOCK_GUARD: `CBSE_PHASE2_DATE` was fixed this session; the rest remain). Remove them rather than adding manifest entries.
+
+### [FU-SKILL-BOOTSTRAP-PRIVATE]
+Still open: keep the repo private and work through granted access (public only during a session). Not carried out at writing.
+
+### [FU-PRIVACY-PHOTO-RETENTION] and [FU-REVIEWS-REAL]
+Both stay open as recorded in the 2026-10-24 (daily, part 5) section; no change today. Also open from the handoff: Shorts comment analysis.
+
+### [FU-RESEND-PAID-PLAN]
+Resend is on the free plan (100/day; 60 trial + 30 nudge fits). Check Resend usage at every session start and tell the owner to buy the paid plan when it is needed; the owner buys it.
+
+### [FU-ADS-SWITCHOVER]
+Ads switch-over, each step needs the owner's OK: `engaged_5min` as a key event and primary conversion (`engaged_10min` secondary), Maximise conversions, budgets YouTube about Rs 1,500/day and Search about Rs 1,200/day, Meta parents test Rs 500/day for 7 days with UTMs `utm_source=meta&utm_medium=paid_social&utm_campaign=parents_<angle>&utm_content=<ad>`. 8 Nov kill rule: more than Rs 1,500 per checkout started, or 0 checkouts, pause all paid ads.
+
 ## 2026-10-24 (daily, part 5) - #1350 LLMS-PAY-1, #1351 SETTINGS-USAGE-1, #1352 PRIVACY-DPDP-1 (3 product merges after #1349, 24 Oct IST; #1352 at 25 Oct 01:23 IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `ee798974`. Earlier dated entries are left as written (standing rule 3).* Facts marked **[git/gh]** were re-read from the GitHub REST API and the squash commits while writing; **[docs-builder-curl]** were fetched from www with `curl` while writing; **[coordinator]** come from the cofounder's message and the lane spec.
