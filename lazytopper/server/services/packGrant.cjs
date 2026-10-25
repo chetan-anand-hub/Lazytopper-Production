@@ -1,6 +1,7 @@
 'use strict';
 // PACKS-SERVER-1 - grant a PDF pack for a verified Razorpay payment. Server-only; Admin SDK only.
 //
+//     packEntitlements/{uid}                     { updatedAt }  (so export / erase can walk to the subcollections)
 //     packEntitlements/{uid}/packs/{packId}      { packId, sku, target, pricePaidInr, paidAt (ms), orderId,
 //                                                  paymentRef, creditedToPass: false }
 //     packEntitlements/{uid}/grants/{paymentRef} replay marker { paymentRef, packId, orderId, grantedAt }
@@ -107,6 +108,8 @@ async function grantPack(input) {
     const packSnap = await tx.get(packRef);
     const held = packSnap && packSnap.exists ? packSnap.data() || {} : null;
 
+    // The parent document exists so the account export / erase (which walk the map) find the student's packs.
+    tx.set(userRef, { updatedAt: new Date(nowMs) }, { merge: true });
     tx.set(grantRef, { paymentRef, packId, orderId, grantedAt: new Date(nowMs) });
     markOrderPaid();
     if (held) {

@@ -388,10 +388,10 @@ test('IDEMPOTENT: verify, webhook, status and a retry all firing -> one entitlem
   assert.equal(e.json.state, 'paid');
   assert.equal(e.json.kind, 'pack');
   assert.equal('passEnd' in e.json, false);
-  assert.deepEqual(srv.db.keys('packEntitlements/').sort(), [`packEntitlements/u1/grants/${p.id}`, 'packEntitlements/u1/packs/pack_subject:maths'].sort());
+  assert.deepEqual(srv.db.keys('packEntitlements/').sort(), ['packEntitlements/u1', `packEntitlements/u1/grants/${p.id}`, 'packEntitlements/u1/packs/pack_subject:maths'].sort());
   assert.equal(srv.db.version('packEntitlements/u1/packs/pack_subject:maths'), 1, 'the entitlement was written exactly once');
   assert.equal(srv.db.version(`packEntitlements/u1/grants/${p.id}`), 1, 'the marker was written exactly once');
-  assert.equal(srv.db.stats.writes.filter((k) => k.startsWith('packEntitlements/')).length, 2);
+  assert.equal(srv.db.stats.writes.filter((k) => k.startsWith('packEntitlements/')).length, 3, 'parent + marker + entitlement, once each');
 });
 
 test('status reconcile grants a pack from a Razorpay-confirmed payment (never from the request)', async (t) => {
