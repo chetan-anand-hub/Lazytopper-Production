@@ -18,6 +18,7 @@ vi.mock("./chunkReload", async () => {
         now: () => NOW,
         reload,
         fetchFn: async () => ({}),
+        refreshPin: async () => undefined,
         timeoutMs: 20,
       }),
   };
