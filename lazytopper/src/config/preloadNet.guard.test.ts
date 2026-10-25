@@ -144,6 +144,17 @@ describe("ASSET-RELOAD-1 — a failed entry script reloads once instead of leavi
     expect(net!.body).toContain('window.location.origin + "/assets/"');
   });
 
+  it("re-pins /assets via a sandboxed iframe BEFORE the re-fetches (a stale pin would re-store the 404)", () => {
+    const body = net!.body;
+    expect(body).toMatch(/setAttribute\(\s*"sandbox"\s*,\s*""\s*\)/);
+    expect(body).toContain('frame.src = "/__pin.html"');
+    expect(body).toContain('setAttribute("aria-hidden", "true")');
+    expect(body).toContain("frame.tabIndex = -1");
+    expect(body).toContain("removeChild(frame)");
+    expect(body.indexOf("frame.src")).toBeGreaterThan(body.indexOf("function refetch"));
+    expect(body).toMatch(/frame\.onload\s*=\s*frame\.onerror\s*=\s*refetch/);
+  });
+
   it("uses the same storage key and window as src/lib/chunkReload.ts", () => {
     const ts = readFileSync(resolve(ROOT, "src/lib/chunkReload.ts"), "utf8");
     expect(ts).toContain('CHUNK_RELOAD_KEY = "lazytopper.chunkReloadAt"');

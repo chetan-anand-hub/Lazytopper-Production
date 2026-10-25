@@ -61,7 +61,7 @@ export function isChunkLoadError(error: unknown): boolean {
 
 /**
  * The failed module's URL, when the engine puts it in the message (Chromium, Firefox),
- * with any `retry` parameter from an earlier attempt removed. `null` when absent (WebKit).
+ * with the `retry` and `v` parameters of an earlier attempt removed. `null` when absent (WebKit).
  */
 export function failedModuleUrl(error: unknown): string | null {
   if (!isChunkLoadError(error)) return null;
@@ -70,16 +70,42 @@ export function failedModuleUrl(error: unknown): string | null {
   try {
     const url = new URL(match[1]);
     url.searchParams.delete("retry");
+    url.searchParams.delete("v");
     return url.toString();
   } catch {
     return null;
   }
 }
 
-/** `url` with `retry=<attempt>` set — a module-map key the failed import never used. */
-export function retryUrl(url: string, attempt: number): string {
+/**
+ * ASSET-RELOAD-1b — a per-document-load id (this load's `performance.timeOrigin`, base 36).
+ *
+ * WHY. `?retry=<n>` alone is the SAME URL on every page load. A retry that 404s under a stale
+ * deployment pin is stored by the browser for a year (`immutable`); after the one automatic
+ * reload the pin is fresh, but `?retry=1` and `?retry=2` are already cached 404s, so
+ * `importWithRetry` never reaches the network and the page errors anyway (measured on prod).
+ * Adding `v=<loadId>` makes every page load's retry URLs new cache keys. Not random: it is
+ * deterministic within a load and needs no clock read of its own.
+ *
+ * Without `performance.timeOrigin` (a very old browser) the nonce is the constant "0", which is
+ * the pre-1b behaviour: `?retry=<n>&v=0` is the same URL on every load. That is acceptable
+ * because the automatic reload plus the pin refresh in chunkReload.ts still heal the common
+ * case, and every browser that has dynamic `import()` also has `performance.timeOrigin`.
+ */
+export const LOAD_ID: string = (() => {
+  try {
+    const origin = typeof performance !== "undefined" ? performance.timeOrigin : 0;
+    return Math.round(Number.isFinite(origin) ? origin : 0).toString(36);
+  } catch {
+    return "0";
+  }
+})();
+
+/** `url` with `retry=<attempt>&v=<loadId>` set — a cache/module-map key no earlier load or attempt used. */
+export function retryUrl(url: string, attempt: number, loadId: string = LOAD_ID): string {
   const next = new URL(url);
   next.searchParams.set("retry", String(attempt));
+  next.searchParams.set("v", loadId);
   return next.toString();
 }
 

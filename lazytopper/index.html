@@ -139,7 +139,7 @@
           done = true;
           window.location.reload();
         }
-        window.setTimeout(go, 3000);
+        window.setTimeout(go, 5000);
         var urls = [src];
         try {
           var pre = window.location.origin + "/assets/";
@@ -152,17 +152,37 @@
                 e.transferSize === 0 && e.decodedBodySize === 0 && e.encodedBodySize === 0 && /\.(js|css)$/.test(n.split("?")[0])) urls.push(n);
           }
         } catch (timingError) {}
-        var left = urls.length;
-        function one() {
-          left -= 1;
-          if (left <= 0) go();
-        }
-        for (var j = 0; j < urls.length; j++) {
+        var frame;
+        function refetch() {
           try {
-            window.fetch(urls[j], { cache: "reload" }).then(one, one);
-          } catch (fetchError) {
-            one();
+            if (frame) frame.parentNode.removeChild(frame);
+          } catch (removeError) {}
+          var left = urls.length;
+          function one() {
+            left -= 1;
+            if (left <= 0) go();
           }
+          for (var j = 0; j < urls.length; j++) {
+            try {
+              window.fetch(urls[j], { cache: "reload" }).then(one, one);
+            } catch (fetchError) {
+              one();
+            }
+          }
+        }
+        // Re-pin /assets to this deployment first (an iframe document load refreshes the
+        // cookie), so the re-fetches below do not hit the OLD deployment and re-store a 404.
+        try {
+          frame = document.createElement("iframe");
+          frame.setAttribute("sandbox", "");
+          frame.setAttribute("aria-hidden", "true");
+          frame.tabIndex = -1;
+          frame.hidden = true;
+          frame.onload = frame.onerror = refetch;
+          frame.src = "/__pin.html";
+          document.documentElement.appendChild(frame);
+        } catch (frameError) {
+          refetch();
         }
       }, true);
     </script>

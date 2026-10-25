@@ -1,4 +1,4 @@
-import { isChunkLoadError } from "./lazyWithRetry";
+import { isChunkLoadError, LOAD_ID } from "./lazyWithRetry";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CHUNK_RELOAD_KEY,
@@ -7,6 +7,8 @@ import {
   collectFailedAssetUrls,
   isChunkReloadPending,
   MAX_REFRESH_URLS,
+  PIN_REFRESH_PATH,
+  refreshPinViaFrame,
   resetChunkReloadPending,
   recoverFromChunkError,
   urlsToRefresh,
@@ -14,7 +16,7 @@ import {
 
 /** ASSET-RELOAD-1 (B) — one guarded automatic reload before any error screen. */
 const URL_ = "https://www.lazytopper.com/assets/PricingPage-BvCbdRTL.js";
-const chunkError = () => new TypeError(`Failed to fetch dynamically imported module: ${URL_}?retry=2`);
+const chunkError = () => new TypeError(`Failed to fetch dynamically imported module: ${URL_}?retry=2&v=${LOAD_ID}`);
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const data = { ...initial };
@@ -30,7 +32,8 @@ function memoryStorage(initial: Record<string, string> = {}) {
 function deps(storage: ReturnType<typeof memoryStorage> | null, now = 1_000_000) {
   const reload = vi.fn();
   const fetchFn = vi.fn(async (_url: string, _init: { cache: "reload" }) => ({ status: 200 }));
-  return { reload, fetchFn, d: { storage, now: () => now, reload, fetchFn, timeoutMs: 50 } };
+  const refreshPin = vi.fn(async () => undefined);
+  return { reload, fetchFn, refreshPin, d: { storage, now: () => now, reload, fetchFn, refreshPin, timeoutMs: 50 } };
 }
 
 describe("recoverFromChunkError", () => {
@@ -39,7 +42,7 @@ describe("recoverFromChunkError", () => {
     const { reload, fetchFn, d } = deps(storage);
     expect(recoverFromChunkError(chunkError(), d)).toBe(true);
     await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
-    expect(fetchFn.mock.calls.map((c) => c[0])).toEqual([URL_, `${URL_}?retry=1`, `${URL_}?retry=2`]);
+    expect(fetchFn.mock.calls.map((c) => c[0])).toEqual([URL_]); // not this load's own ?retry&v URLs
     for (const call of fetchFn.mock.calls) expect(call[1]).toEqual({ cache: "reload" });
     expect(storage.data[CHUNK_RELOAD_KEY]).toBe("1000000");
     await new Promise((r) => setTimeout(r, 80)); // the timeout fallback must not reload twice
@@ -87,7 +90,7 @@ describe("recoverFromChunkError", () => {
   it("failing or hanging fetches do not stop the reload (timeout cap)", async () => {
     const reload = vi.fn();
     const fetchFn = vi.fn((_url: string, _init: { cache: "reload" }) => new Promise<never>(() => undefined));
-    recoverFromChunkError(chunkError(), { storage: memoryStorage(), now: () => 9, reload, fetchFn, timeoutMs: 30 });
+    recoverFromChunkError(chunkError(), { storage: memoryStorage(), now: () => 9, reload, fetchFn, refreshPin: async () => undefined, timeoutMs: 30 });
     await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
   });
 
@@ -166,10 +169,11 @@ describe("urlsToRefresh / recoverFromChunkError with failed entries", () => {
     expect(urlsToRefresh(webkit())).toEqual([]);
   });
 
-  it("error URL and its retry variants come first, failed entries are appended without duplicates, total capped", () => {
+  it("the plain error URL comes first, failed entries are appended without duplicates, total capped; no ?retry&v URLs", () => {
     const failed = Array.from({ length: 20 }, (_, i) => (i === 0 ? URL_ : A(`f-${i}.js`)));
     const urls = urlsToRefresh(chunkError(), failed);
-    expect(urls.slice(0, 3)).toEqual([URL_, `${URL_}?retry=1`, `${URL_}?retry=2`]);
+    expect(urls[0]).toBe(URL_);
+    expect(urls.some((u) => u.includes("retry="))).toBe(false);
     expect(urls.length).toBe(MAX_REFRESH_URLS);
     expect(new Set(urls).size).toBe(urls.length);
   });
@@ -201,5 +205,47 @@ describe("reloadPending: a second boundary on the same page", () => {
   it("a non-chunk error is still false while a reload is pending", () => {
     recoverFromChunkError(chunkError(), deps(memoryStorage()).d);
     expect(recoverFromChunkError(new Error("render bug"), deps(memoryStorage()).d)).toBe(false);
+  });
+});
+
+describe("ASSET-RELOAD-1b — the pin is refreshed BEFORE the cache-overwrite fetches", () => {
+  it("refreshPin runs and settles first; then the fetches; then one reload", async () => {
+    const order: string[] = [];
+    const reload = vi.fn(() => order.push("reload"));
+    const fetchFn = vi.fn(async (_u: string, _i: { cache: "reload" }) => {
+      order.push("fetch");
+      return {};
+    });
+    const refreshPin = async () => {
+      order.push("pin-start");
+      await new Promise((r) => setTimeout(r, 10));
+      order.push("pin-done");
+    };
+    recoverFromChunkError(chunkError(), { storage: memoryStorage(), now: () => 1, reload, fetchFn, refreshPin, timeoutMs: 500 });
+    await vi.waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+    expect(order.slice(0, 2)).toEqual(["pin-start", "pin-done"]);
+    expect(order.filter((o) => o === "fetch").length).toBe(1);
+    expect(order[order.length - 1]).toBe("reload");
+  });
+
+  it("a pin refresh that rejects or never settles does not block the reload", async () => {
+    const r1 = vi.fn();
+    recoverFromChunkError(chunkError(), { storage: memoryStorage(), now: () => 1, reload: r1, fetchFn: async () => ({}), refreshPin: () => Promise.reject(new Error("x")), timeoutMs: 30 });
+    await vi.waitFor(() => expect(r1).toHaveBeenCalledTimes(1));
+    resetChunkReloadPending();
+    const r2 = vi.fn();
+    recoverFromChunkError(chunkError(), { storage: memoryStorage(), now: () => 1, reload: r2, fetchFn: async () => ({}), refreshPin: () => new Promise<void>(() => undefined), timeoutMs: 30 });
+    await vi.waitFor(() => expect(r2).toHaveBeenCalledTimes(1));
+  });
+
+  it("refreshPinViaFrame appends a sandboxed iframe at the shell path and resolves when it loads", async () => {
+    const done = refreshPinViaFrame();
+    const frame = document.querySelector("iframe")!;
+    expect(frame.getAttribute("sandbox")).toBe("");
+    expect(frame.getAttribute("src")).toBe(PIN_REFRESH_PATH);
+    expect(frame.getAttribute("style")).toBeNull();
+    frame.dispatchEvent(new Event("load"));
+    await done;
+    expect(document.querySelector("iframe")).toBeNull();
   });
 });

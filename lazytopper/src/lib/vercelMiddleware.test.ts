@@ -11,6 +11,7 @@ import middleware, {
   serveRequest,
   type PinEnv,
 } from "../../../middleware";
+import { PIN_REFRESH_PATH } from "./chunkReload";
 import { desktopVariantFile } from "../../scripts/seo/applyPrerendered";
 import { sitemapPaths } from "../config/sitemapUrls";
 
@@ -124,6 +125,16 @@ describe("K1 — nothing else gets a cookie", () => {
     for (const dest of ["image", "script", "empty", "style", "worker", "embed", "object"]) {
       expect(run("/pricing", ON, { headers: { "sec-fetch-dest": dest } }), dest).toBeUndefined();
     }
+  });
+
+  it("ASSET-RELOAD-1b: the pin-refresh iframe document /__pin.html is invoked by the matcher and pinned", () => {
+    expect(PIN_REFRESH_PATH).toBe("/__pin.html");
+    const matcher = new RegExp(`^${config.matcher[0]}$`);
+    expect(matcher.test(PIN_REFRESH_PATH)).toBe(true);
+    const iframe = { headers: { "sec-fetch-dest": "iframe" } };
+    expect(isDocumentRequest(req(PIN_REFRESH_PATH, iframe))).toBe(true);
+    expect(cookieOf(run(PIN_REFRESH_PATH, ON, iframe))).toBe(EXPECTED);
+    expect(cookieOf(run(PIN_REFRESH_PATH, ON))).toBe(EXPECTED); // and without the header (curl)
   });
 
   it("an iframe request for an asset path is still never pinned", () => {

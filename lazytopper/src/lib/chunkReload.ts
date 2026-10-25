@@ -1,4 +1,4 @@
-import { isChunkLoadError, failedModuleUrl, RETRY_DELAYS_MS, retryUrl } from "./lazyWithRetry";
+import { isChunkLoadError, failedModuleUrl } from "./lazyWithRetry";
 
 /**
  * ASSET-RELOAD-1 (B) — recover from a lost chunk by reloading ONCE, instead of showing
@@ -26,7 +26,49 @@ export const CHUNK_RELOAD_KEY = "lazytopper.chunkReloadAt";
 export const CHUNK_RELOAD_WINDOW_MS = 60_000;
 
 /** How long the cache-overwrite fetches may hold the reload back. */
-export const CACHE_REFRESH_TIMEOUT_MS = 3000;
+export const CACHE_REFRESH_TIMEOUT_MS = 5000;
+
+/**
+ * A tiny static document (public/__pin.html: no subresources, noindex) the pin-refresh iframe
+ * loads. Any document request re-pins; this one has nothing else to wait for, so it settles fast
+ * even on a slow phone. The middleware matcher includes it and `isDocumentRequest` accepts it
+ * (a `.html` path, `Sec-Fetch-Dest: iframe`) - pinned in vercelMiddleware.test.ts.
+ */
+export const PIN_REFRESH_PATH = "/__pin.html";
+
+/**
+ * ASSET-RELOAD-1b — re-pin /assets to THIS deployment before re-fetching. The re-fetches below
+ * carry the `__vdpl` cookie, which in the failing case still names the OLD deployment, so they
+ * would 404 again and re-store the cached 404. A document request refreshes the cookie
+ * (middleware, `Path=/assets`), and an iframe load counts as one (ASSET-RELOAD-1 A). The frame
+ * is sandboxed with no permissions (no scripts run in it) and removed once loaded. Resolves
+ * on load, on error, or immediately if the DOM is unusable; never rejects.
+ */
+export function refreshPinViaFrame(): Promise<void> {
+  return new Promise((resolve) => {
+    try {
+      const frame = document.createElement("iframe");
+      frame.setAttribute("sandbox", "");
+      frame.setAttribute("aria-hidden", "true");
+      frame.tabIndex = -1;
+      frame.hidden = true;
+      const finish = () => {
+        try {
+          frame.remove();
+        } catch {
+          // already gone
+        }
+        resolve();
+      };
+      frame.addEventListener("load", finish);
+      frame.addEventListener("error", finish);
+      frame.src = PIN_REFRESH_PATH;
+      document.documentElement.appendChild(frame);
+    } catch {
+      resolve();
+    }
+  });
+}
 
 /** At most this many URLs are re-fetched before a reload (error URL first, then failed entries). */
 export const MAX_REFRESH_URLS = 10;
@@ -116,6 +158,8 @@ export interface ChunkReloadDeps {
   reload?: () => void;
   /** Cap on the cache-overwrite fetches. */
   timeoutMs?: number;
+  /** Refreshes the deployment pin before the re-fetches. Default: refreshPinViaFrame. */
+  refreshPin?: () => Promise<void>;
   /** Resource-timing entries (default: performance.getEntriesByType("resource")). */
   entries?: () => ReadonlyArray<ResourceEntryLike>;
   origin?: string;
@@ -147,17 +191,15 @@ export function claimChunkReload(storage: StorageLike | null, now: number): bool
 }
 
 /**
- * What to re-fetch before reloading: the failed chunk's URL and its `?retry=<n>` variants (when
- * the engine names the URL), then every failed same-origin /assets/ entry in `failed`.
- * De-duplicated, capped at MAX_REFRESH_URLS.
+ * What to re-fetch before reloading: the failed chunk's plain URL (when the engine names it),
+ * then every failed same-origin /assets/ entry in `failed`. This load's own `?retry&v` URLs are
+ * not included: their nonce is never used again after the reload. De-duplicated, capped at
+ * MAX_REFRESH_URLS.
  */
 export function urlsToRefresh(error: unknown, failed: ReadonlyArray<string> = []): string[] {
   const urls: string[] = [];
   const url = failedModuleUrl(error);
-  if (url !== null) {
-    urls.push(url);
-    for (let attempt = 1; attempt <= RETRY_DELAYS_MS.length; attempt += 1) urls.push(retryUrl(url, attempt));
-  }
+  if (url !== null) urls.push(url);
   for (const u of failed) if (!urls.includes(u)) urls.push(u);
   return urls.slice(0, MAX_REFRESH_URLS);
 }
@@ -194,17 +236,25 @@ export function recoverFromChunkError(error: unknown, deps: ChunkReloadDeps = {}
     };
     setTimeout(go, timeoutMs);
     const failed = collectFailedAssetUrls((deps.entries ?? defaultEntries)(), deps.origin ?? defaultOrigin());
-    const settled = urlsToRefresh(error, failed).map((url) => {
-      try {
-        return Promise.resolve(fetchFn(url, { cache: "reload" })).then(
-          () => undefined,
-          () => undefined,
-        );
-      } catch {
-        return Promise.resolve();
-      }
-    });
-    void Promise.all(settled).then(go);
+    const urls = urlsToRefresh(error, failed);
+    const refreshPin = deps.refreshPin ?? refreshPinViaFrame;
+    const swallow = () => undefined;
+    // Pin first (so the re-fetches go to THIS deployment), then overwrite the cached 404s.
+    void Promise.resolve()
+      .then(refreshPin)
+      .then(swallow, swallow)
+      .then(() =>
+        Promise.all(
+          urls.map((url) => {
+            try {
+              return Promise.resolve(fetchFn(url, { cache: "reload" })).then(swallow, swallow);
+            } catch {
+              return Promise.resolve();
+            }
+          }),
+        ),
+      )
+      .then(go);
     return true;
   } catch {
     return false;
