@@ -12,9 +12,19 @@ import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import { UpgradeSheet, formatTrialEnded, labelForFeature } from "./UpgradeSheet";
 import { getPremiumFeatureList, getFeatureGate, canAccessFeature } from "../../services/featureGates";
-import { MONTHLY_INLINE } from "../../config/pricing";
+import { monthlyInline } from "../../config/pricing";
 
-afterEach(() => cleanup());
+// PRICING-1 — the sheet reads the student's own founding flag; the hook is stubbed so these tests
+// need no auth provider, and each test sets what the "student" is.
+const subState = vi.hoisted(() => ({ foundingMember: undefined as boolean | undefined }));
+vi.mock("../../hooks/useSubscription", () => ({
+  useSubscription: () => ({ status: { foundingMember: subState.foundingMember } }),
+}));
+
+afterEach(() => {
+  cleanup();
+  subState.foundingMember = undefined;
+});
 
 function renderSheet(props: Partial<React.ComponentProps<typeof UpgradeSheet>> = {}) {
   const onClose = vi.fn();
@@ -177,9 +187,32 @@ describe("UpgradeSheet — copy, price and treatment", () => {
   /** ASSERTION 10. MUTATION: type the price as "₹599/month" ⇒ RED when the founding flag flips. */
   it("renders the price from pricing.ts, never a literal", () => {
     renderSheet();
-    expect(screen.getByText(new RegExp(MONTHLY_INLINE.replace("₹", "\\u20B9")))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(monthlyInline().replace("₹", "\\u20B9")))).toBeInTheDocument();
     // The source carries no rupee literal of its own.
-    expect(MONTHLY_INLINE).toContain("₹");
+    expect(monthlyInline()).toContain("₹");
+  });
+
+  it("PRICING-1 — the price follows the founding offer's date: founding while open, list from 00:00 IST 1 Dec 2026", () => {
+    vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00Z"), toFake: ["Date"] });
+    renderSheet();
+    expect(screen.getByText(/Premium — \u20B9599 for a month/)).toBeInTheDocument();
+    cleanup();
+    vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
+    renderSheet();
+    expect(screen.getByText(/Premium — \u20B9999 for a month/)).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("PRICING-1 — after the close a FOUNDER is quoted their locked rate, a non-founder the list rate", () => {
+    vi.useFakeTimers({ now: new Date("2026-12-05T10:00:00+05:30"), toFake: ["Date"] });
+    subState.foundingMember = true;
+    renderSheet();
+    expect(screen.getByText(/Premium — \u20B9599 for a month/)).toBeInTheDocument();
+    cleanup();
+    subState.foundingMember = false;
+    renderSheet();
+    expect(screen.getByText(/Premium — \u20B9999 for a month/)).toBeInTheDocument();
+    vi.useRealTimers();
   });
 
   it("names the feature that was blocked, not one string for every surface", () => {

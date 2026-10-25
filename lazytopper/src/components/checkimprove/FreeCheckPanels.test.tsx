@@ -32,7 +32,7 @@ import {
   recordFreeCheckSuccess,
   type PendingSingleFreeCheck,
 } from "../../services/freeCheckClient";
-import { MONTHLY_INLINE } from "../../config/pricing";
+import { monthlyInline } from "../../config/pricing";
 
 beforeEach(() => {
   track.mockReset();
@@ -183,7 +183,7 @@ describe("R9 — the trial offer starts NOTHING until tapped", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("Your answer is saved.");
     expect(text).toContain(
-      `Try Premium free for 7 days — no card needed. Ends 2 October 2026. After that, keep free Basic or upgrade to Premium at ${MONTHLY_INLINE}.`,
+      `Try Premium free for 7 days — no card needed. Ends 2 October 2026. After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`,
     );
     expect(text).not.toMatch(/upgrade anytime/i);
     expect(text).toContain("Every answer you check helps build your mistake pattern.");

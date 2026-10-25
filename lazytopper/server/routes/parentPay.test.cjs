@@ -654,6 +654,24 @@ test('V · an AUTHORIZED payment is captured for the STORED amount, then granted
   assert.equal(cap.body.amount, 59900);
 });
 
+test('PRICING-1 · V · a founding order only AUTHORIZED 24 h+ after the close is not captured and not granted; a CAPTURED one still is', async (t) => {
+  const srv = await startRoutes({ clock: { t: Date.parse('2026-11-30T23:59:00+05:30') } });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const { json: o } = await parentOrder(srv, token);
+  const auth = srv.rzp.pay(o.orderId, { id: 'pay_auth', status: 'authorized' });
+  srv.clock.t = Date.parse('2026-12-02T00:00:01+05:30');
+  const r = await parentVerify(srv, token, o.orderId, auth.id);
+  assert.equal(r.status, 400, r.text);
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0, 'a stale founding order was captured');
+  assert.equal(srv.db.read('subscriptions/child1'), undefined);
+  const done = srv.rzp.pay(o.orderId, { id: 'pay_done' });
+  const ok = await parentVerify(srv, token, o.orderId, done.id);
+  assert.equal(ok.status, 200, ok.text);
+  assert.equal(srv.db.read('subscriptions/child1').pricePaidInr, 599);
+});
+
 test('V · a payment captured after the link EXPIRED, for an order made while it was live, is still honoured', async (t) => {
   const srv = await startRoutes();
   t.after(srv.close);

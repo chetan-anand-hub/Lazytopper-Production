@@ -53,7 +53,7 @@ export const PRICE_FREE_INR = 0;
 /** Regular published price — what new members pay once the founding offer closes. */
 export const PRICE_MONTHLY_LIST_INR = 999;
 
-/** Founding-member price — while `FOUNDING_OFFER_OPEN`. */
+/** Founding-member price — while `foundingOfferOpen(now)`. */
 export const PRICE_MONTHLY_FOUNDING_INR = 599;
 
 // NOTE (PRICING-TB-1): there is deliberately NO fixed board-year price any more.
@@ -66,11 +66,50 @@ export const PRICE_MONTHLY_FOUNDING_INR = 599;
 // NOTE (PARENTS-CTA-1, owner ruling 2026-10-19): there is deliberately NO seat
 // count any more. `FOUNDING_COHORT_SIZE` and the visible "First N
 // students." line it fed were removed: the badge now reads "Founding member offer" and no
-// surface publishes a number of seats. Closing the offer stays a MANUAL owner
-// operation (flip `FOUNDING_OFFER_OPEN`) — nothing in the product counts
-// subscribers. See [FU-PRICING-FOUNDING-COHORT]. Do not reintroduce a seat number
+// surface publishes a number of seats. Closing the offer is now DATE-DRIVEN (PRICING-1, 30 Nov 2026) — nothing in the
+// product counts subscribers. See [FU-PRICING-FOUNDING-COHORT]. Do not reintroduce a seat number
 // in copy without an owner ruling: a number the product cannot enforce is a
 // published promise it cannot keep.
+
+/**
+ * The first instant the founding offer is CLOSED: 00:00 on 1 December 2026, IST
+ * (owner ruling, PRICING-1, 25 Oct 2026: "the founding price ends on last day of
+ * November 2026, december will start with 999/month"). A fixed UTC+05:30 offset,
+ * not the host's zone — a student's device clock zone must not move the switch.
+ * The server mirrors this instant in `server/services/passPricing.cjs`, and
+ * `passPricing.parity.test.ts` proves the two agree.
+ */
+export const FOUNDING_OFFER_CLOSES_AT_ISO = "2026-12-01T00:00:00+05:30";
+export const FOUNDING_OFFER_CLOSES_AT_MS = Date.parse(FOUNDING_OFFER_CLOSES_AT_ISO);
+
+/**
+ * The last day the founding price is charged, as copy ("30 November"). DERIVED from
+ * `FOUNDING_OFFER_CLOSES_AT_ISO` (the day before the closing instant, in IST), so the date a
+ * student reads and the instant the offer closes cannot drift apart. A real date, never a countdown.
+ */
+export const FOUNDING_OFFER_LAST_DAY_LABEL = (() => {
+  const lastDay = new Date(FOUNDING_OFFER_CLOSES_AT_MS - 1 + 5.5 * 3_600_000);
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+  return `${lastDay.getUTCDate()} ${months[lastDay.getUTCMonth()]}`;
+})();
+/** The first day of the list price, as copy ("1 December"). Derived the same way. */
+export const FOUNDING_OFFER_LIST_FROM_LABEL = (() => {
+  const first = new Date(FOUNDING_OFFER_CLOSES_AT_MS + 5.5 * 3_600_000);
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+  return `${first.getUTCDate()} ${months[first.getUTCMonth()]}`;
+})();
+
+/** Is the founding offer open at the instant `now`? PURE: the clock is an argument. */
+export function foundingOfferOpen(now: Date | number = Date.now()): boolean {
+  const ms = now instanceof Date ? now.getTime() : now;
+  return Number.isFinite(ms) && ms < FOUNDING_OFFER_CLOSES_AT_MS;
+}
 
 /**
  * Is the founding offer still open?
@@ -89,17 +128,20 @@ export const PRICE_MONTHLY_FOUNDING_INR = 599;
  * "nobody is buying" — worse than silence — and a hand-tuned one is fabrication.
  * Do not widen this to a count, and do not add a sibling that could become one.
  *
- * Owner-edited, deliberately: a build-time constant cannot fail at runtime, and
- * closing the cohort is already a manual operation ([FU-PRICING-FOUNDING-COHORT]
- * — nothing in the product counts subscribers). A Firestore-backed toggle is a
- * later change, not this one.
+ * PRICING-1 (owner, 25 Oct 2026): the offer's state now comes from the CALENDAR — open until
+ * 23:59:59 IST on 30 Nov 2026 — through the pure `foundingOfferOpen(now)` above. NO module
+ * in this file reads the clock when it loads: a component asks at RENDER time
+ * (`foundingOfferOpen(Date.now())`), so a tab left open across the midnight is right on its
+ * next render and nothing is baked into a bundle or a test import. The SERVER, which decides
+ * what is charged, re-reads its own clock on every order and grant, and an order keeps the
+ * offer it was priced with (grantPass reads `order.offerKey`).
  *
- * ⚠ FLIPPING THIS TO `false` IS NOT THE WHOLE SWITCH. `MONTHLY_INLINE` below is
- * bound to the FOUNDING rate and is NOT derived from this flag — the two gates
- * that render it would keep quoting a closed price. See the warning on that
- * constant.
+ * A student who already holds the founding rate (`foundingMember` on their subscription) keeps
+ * it: use `foundingRateApplies(now, founder)` for any label that quotes THEIR price.
  */
-export const FOUNDING_OFFER_OPEN = true;
+export function foundingRateApplies(now: Date | number, founder?: boolean | null): boolean {
+  return founder === true || foundingOfferOpen(now);
+}
 
 /**
  * Till boards pays this fraction of the monthly total — i.e. 20% off. Owner
@@ -148,17 +190,15 @@ export const PERIOD_MONTHLY_LABEL = "for a month";
 /**
  * Compact inline form for upgrade prompts: "₹599 for a month" (OR-P6: never "/month").
  *
- * Bound to the FOUNDING rate on purpose. This string is rendered at the moment
- * of upgrade intent (the practice-limit gate and the mock-view gate), where the
- * only honest number is the one the student would actually be charged today —
- * and while the cohort is open, that is the founding rate.
- *
- * ⚠ WHEN THE FOUNDING COHORT CLOSES this must move to
- * `PRICE_MONTHLY_LIST_DISPLAY`, or both gates will quote a price that is no
- * longer available. Those two files import nothing else from this module, so
- * this one line is the entire switch. See [FU-PRICING-FOUNDING-COHORT].
+ * Rendered at the moment of upgrade intent (the practice-limit gate, the mock-view gate, the
+ * upgrade sheet, the trial lines), where the only honest number is the one the student would
+ * actually be charged. PRICING-1: a FUNCTION of the offer state, evaluated at render — never a
+ * module constant — so 1 Dec 2026 moves every surface to the list price with no edit and no
+ * module-load clock read. Pass `foundingRateApplies(Date.now(), founder)`.
  */
-export const MONTHLY_INLINE = `${PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`;
+export function monthlyInline(foundingRate: boolean = foundingOfferOpen(Date.now())): string {
+  return `${foundingRate ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY} for a month`;
+}
 
 /**
  * Till-boards copy that carries NO rupee figure. These are the only till-boards
@@ -166,7 +206,9 @@ export const MONTHLY_INLINE = `${PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`;
  * FAQ): the figures themselves depend on today's date, so they exist only after
  * the page mounts in a browser. See `tillBoardsQuote()`.
  */
-export const TILL_BOARDS_LINE = `Or pay once till your boards — ${TILL_BOARDS_SAVING_PERCENT}% off.`;
+export const BOARD_PASS_NAME = "Board Pass";
+/** PRICING-1 (owner, 25 Oct 2026) — the Board Pass LEADS; this line states it first, number-free except the saving. */
+export const TILL_BOARDS_LINE = `One payment, till your board exam — ${TILL_BOARDS_SAVING_PERCENT}% off paying monthly.`;
 export const TILL_BOARDS_INLINE = `or pay once till boards — ${TILL_BOARDS_SAVING_PERCENT}% off`;
 export const TILL_BOARDS_SAVING_LABEL = `save ${TILL_BOARDS_SAVING_PERCENT}%`;
 
@@ -190,6 +232,12 @@ export const FOUNDING_LOCK_COPY = "Your founding price stays locked for every pa
  * `FOUNDING_COHORT_COPY` (a "First N students." seat line).
  */
 export const FOUNDING_OFFER_BADGE = `${FOUNDING_LABEL} offer`;
+/**
+ * PRICING-1: the real end date, beside the badge. Plain words, a calendar date, no
+ * timer. After the close nothing renders it (the badge and this line are gated on
+ * `foundingOfferOpen(Date.now())`).
+ */
+export const FOUNDING_OFFER_UNTIL_COPY = `Founding price until ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}, Premium is ${PRICE_MONTHLY_LIST_DISPLAY} for a month.`;
 
 // NOTE: there is deliberately no `FOUNDING_REGULAR_PRICE_COPY` constant. A first
 // draft exported one and nothing ever consumed it — the "Regular price ⟨x⟩" line
@@ -323,14 +371,14 @@ export interface TillBoardsQuote {
  * landing countdown uses — so the two surfaces cannot disagree about when the
  * boards are.
  *
- * `foundingOpen` defaults to the shipped flag; it is a parameter so the closed
+ * `foundingOpen` defaults to the calendar at `now` (`foundingOfferOpen(now)`, the same rule the server mirrors); it is a parameter so the closed
  * state can be tested without mocking this module (nothing may `vi.mock`
  * src/config — see gradingLimits.guard.test.ts).
  */
 export function tillBoardsQuote(
   now: Date,
   boardIso: string,
-  foundingOpen: boolean = FOUNDING_OFFER_OPEN,
+  foundingOpen: boolean = foundingOfferOpen(now),
 ): TillBoardsQuote | null {
   const board = parseIsoDate(boardIso);
   if (!board || Number.isNaN(now.getTime())) return null;

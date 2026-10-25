@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
+  BOARD_PASS_NAME,
   FOUNDING_LABEL,
-  FOUNDING_OFFER_OPEN,
+  foundingOfferOpen,
   PRICE_FREE_DISPLAY,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
+  TILL_BOARDS_LINE,
 } from "../config/pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 
@@ -347,6 +349,8 @@ const CSS = `
 .lt-landing-plan .per{font-size:12.5px;font-weight:600}
 .lt-landing-plan.pay .pp{color:var(--gd)}
 .lt-landing-plan .was{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink3)}
+.lt-landing-plan .bp{font-size:14px;color:var(--ink);margin:0 0 8px}
+.lt-landing-plan.pay .bp b{color:var(--gd)}
 .lt-landing-plan .fl{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--gd);margin:0 0 4px}
 .lt-landing-plan .pd{font-size:13.4px;color:var(--ink2);margin:0}
 .lt-landing-plan .go{font-size:12.3px;font-weight:700;color:var(--gd);margin:7px 0 0}
@@ -414,7 +418,9 @@ const CSS = `
  * The paid card's head — name, price, founding line. ★ TAKES THE OFFER STATE AS A
  * PROP so a test can render both states WITHOUT mocking src/config: the repo forbids
  * `vi.mock` of anything under config/ (gradingLimits.guard.test.ts), and a flag
- * flipped by mock would be exactly that. Welcome passes `FOUNDING_OFFER_OPEN`.
+ * flipped by mock would be exactly that. Welcome passes `foundingOfferOpen(Date.now())`
+ * (PRICING-1, owner-approved 25 Oct 2026: the landing follows the offer's DATE, so the price
+ * switches to the list rate at 00:00 IST on 1 Dec 2026 with no deploy).
  * While the offer is open the founding price leads with the list price struck
  * beside it; when it closes, the list price stands alone. Constants only.
  */
@@ -426,6 +432,15 @@ export function PaidPlanHead({ offerOpen }: { offerOpen: boolean }) {
     <>
       <div className="pt">
         <span className="pn">WITH MARKING</span>
+      </div>
+      {/* PRICING-1 (owner-approved 25 Oct 2026) — the Board Pass LEADS: one payment, till the board exam.
+          Number-free here on purpose (its figure is clock-derived; /pricing shows it). The monthly
+          price follows, secondary. */}
+      <p className="bp" data-testid="landing-board-pass">
+        <b>{BOARD_PASS_NAME}</b> &mdash; {TILL_BOARDS_LINE}
+      </p>
+      <div className="pt">
+        <span className="pn">OR BY THE MONTH</span>
         {offerOpen ? (
           <span className="pp" data-testid="landing-paid-price">
             {PRICE_MONTHLY_FOUNDING_DISPLAY}
@@ -447,7 +462,10 @@ export default function Welcome() {
   const { pathname } = useLocation();
 
   /**
-   * ★ THE ONLY CLOCK READS IN THIS MODULE, AND THEY ARE OUTSIDE THE RENDER PATH:
+   * ★ PRICING-1 EXCEPTION: the plans card reads `foundingOfferOpen(Date.now())` at render, so the price
+   * follows the offer's date (owner-approved). Nothing else below is clock-derived at render.
+   *
+   * ★ THE ONLY OTHER CLOCK READS IN THIS MODULE, AND THEY ARE OUTSIDE THE RENDER PATH:
    * `new Date()` and `predictCbseExamDate()` (which reads the clock internally),
    * both called inside the effect below and nowhere else.
    * §2.7: no clock read may reach server-rendered markup. The first render
@@ -755,7 +773,7 @@ export default function Welcome() {
                 set final pricing: the founding rate, closable at will, then the
                 list rate after. Showing only the list rate while the founding offer
                 is open hid the deal a student would actually get. So the card now
-                reads `FOUNDING_OFFER_OPEN`: while it is true, the founding price
+                reads `foundingOfferOpen(Date.now())`: while it is true, the founding price
                 leads and the list price is struck through beside it (the same
                 pattern as OfferStrip and /pricing), so the saving is legible; when
                 it is false, the list price stands alone. Still constants, never a
@@ -771,7 +789,7 @@ export default function Welcome() {
               <p className="go">See what&apos;s included &rarr;</p>
             </Link>
             <Link className="lt-landing-plan pay" to="/pricing">
-              <PaidPlanHead offerOpen={FOUNDING_OFFER_OPEN} />
+              <PaidPlanHead offerOpen={foundingOfferOpen(Date.now())} />
               {/* ⚠ "Unlimited" REMOVED, NOT ABANDONED (LANDING-FOLLOWUP-1, owner
                   ruling). The rate limiter has a product-wide daily ceiling
                   (rateLimiter.cjs GLOBAL_DAILY_HARD_CALLS) at which grading is shed,

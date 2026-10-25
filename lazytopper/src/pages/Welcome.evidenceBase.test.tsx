@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -7,10 +7,22 @@ import { MemoryRouter } from "react-router-dom";
 
 import Welcome, { PaidPlanHead } from "./Welcome";
 import {
-  FOUNDING_OFFER_OPEN,
+  BOARD_PASS_NAME,
+  foundingOfferOpen,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
+  TILL_BOARDS_LINE,
 } from "../config/pricing";
+
+// PRICING-1 — the landing's plans card follows the founding offer's DATE at render. These
+// suites assert the offer-OPEN page, so they run at a pinned instant (Date only) and pass at any
+// real or shifted clock; the closed page is pinned explicitly where asserted.
+beforeEach(() => {
+  vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
+});
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 
 /**
@@ -144,10 +156,29 @@ describe("Welcome — the price is read from the pricing config, never typed", (
    * `FOUNDING_OFFER_OPEN`, and this test asserts BOTH states against the imported
    * constants — never a literal, so the landing cannot silently disagree with /pricing.
    */
-  it("★ the flag is really open in the config today — the precondition for the next test", () => {
+  it("★ the offer is really open at the pinned instant — the precondition for the next test", () => {
     // Without this, "shows the founding price" could pass in a world where the offer
     // had closed and the assertions below were exercising the wrong branch.
-    expect(FOUNDING_OFFER_OPEN).toBe(true);
+    expect(foundingOfferOpen(Date.now())).toBe(true);
+  });
+
+  it("PRICING-1 — from 00:00 IST 1 Dec 2026 the landing itself shows the list price alone (no deploy)", () => {
+    vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
+    renderWelcome();
+    const price = screen.getByTestId("landing-paid-price");
+    expect(price).toHaveTextContent(PRICE_MONTHLY_LIST_DISPLAY);
+    expect(price).not.toHaveTextContent(PRICE_MONTHLY_FOUNDING_DISPLAY);
+    expect(price.querySelector("s")).toBeNull();
+  });
+
+  it("PRICING-1 — the Board Pass LEADS the paid card: it comes before the monthly price, number-free", () => {
+    const { container } = renderWelcome();
+    const pass = screen.getByTestId("landing-board-pass");
+    expect(pass.textContent).toBe(`${BOARD_PASS_NAME} \u2014 ${TILL_BOARDS_LINE}`);
+    expect(pass.textContent).not.toMatch(/\u20B9/);
+    const price = screen.getByTestId("landing-paid-price");
+    expect(pass.compareDocumentPosition(price) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(container.querySelector(".lt-landing-plan.pay")).toContainElement(pass);
   });
 
   it("while the founding offer is open, shows the founding price with the list price struck", () => {
@@ -178,12 +209,12 @@ describe("Welcome — the price is read from the pricing config, never typed", (
     expect(screen.getByText(/Founding member/)).toBeInTheDocument();
   });
 
-  it("★ Welcome wires the REAL flag into the head — not a literal true", () => {
+  it("★ Welcome wires the DATE-driven offer into the head — not a literal true", () => {
     // The render above proves the head reacts to the prop; this proves the page
-    // feeds it the config constant, so closing the offer in pricing.ts moves the page.
+    // feeds it the calendar's answer, so the page moves on 1 Dec with no deploy.
     const HERE = dirname(fileURLToPath(import.meta.url));
     const src = readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
-    expect(src).toContain("<PaidPlanHead offerOpen={FOUNDING_OFFER_OPEN} />");
+    expect(src).toContain("<PaidPlanHead offerOpen={foundingOfferOpen(Date.now())} />");
   });
 
   it("★ CONTROL — the prototype's 1,999 figure is NOT on the page", () => {
