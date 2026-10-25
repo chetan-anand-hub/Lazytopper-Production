@@ -216,6 +216,7 @@ function realSeed(uid = UID) {
     },
     // TRIAL-END-1 — the one trial-ending email's ledger (server-only).
     [`trialEmails/${uid}`]: { trialStartMs: 1790000000000, trialEndsAtMs: 1790604800000, status: 'sent', providerMessageId: 'msg_1' },
+    [`nudgeEmails/${uid}`]: { d1: { status: 'sent', providerMessageId: 'msg_2' }, lastClaimMs: 1790000000000 },
     // LOW-END-1 R4. The parent is seeded only so the map-driven test has a row to find;
     // production writes only the attempt documents (a stored grade, kept 24 h).
     [`gradingResults/${uid}`]: {},
