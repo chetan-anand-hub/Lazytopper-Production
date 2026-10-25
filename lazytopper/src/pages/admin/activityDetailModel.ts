@@ -30,6 +30,7 @@ const STATIC_PAGE_LABELS: Record<string, string> = {
   browse: "Home (browse)",
   intent: "Getting started",
   pricing: "Pricing",
+  packs: "PDF packs page",
   "cbse/class-10": "CBSE Class 10 page",
   teacher: "Teacher dashboard",
   onboarding: "Onboarding",

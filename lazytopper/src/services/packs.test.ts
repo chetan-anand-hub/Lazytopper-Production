@@ -189,7 +189,7 @@ describe("checkout.ts pack variants", () => {
       { status: 200, json: { ok: true, orderId: "o1", keyId: "k", amountPaise: 4900 } },
       { status: 409, json: { error: "already_owned" } },
       { status: 200, json: { ok: true, kind: "pack", packId: "pack_mock:maths", sku: "pack_mock", target: "maths" } },
-      { status: 200, json: { ok: true, passEnd: "2027-01-01T00:00:00Z" } },
+      { status: 200, json: { ok: true, passEnd: "pass-end-token" } },
     ];
     vi.stubGlobal("fetch", async (url: string, init: { body: string }) => {
       calls.push({ url, body: JSON.parse(init.body) });
@@ -211,7 +211,7 @@ describe("checkout.ts pack variants", () => {
     checkout.resetPayStatusBudgetForTests();
     const ok = await checkout.checkPackPayStatus("o9", { post: async () => ({ ok: true, state: "paid", kind: "pack", packId: "pack_bundle:all", sku: "pack_bundle", target: "all", paymentId: "p", amountInr: 299 }) });
     expect(ok).toEqual({ state: "paid", grant: { packId: "pack_bundle:all", sku: "pack_bundle", target: "all" }, paymentId: "p", amountInr: 299 });
-    const pass = await checkout.checkPackPayStatus("o10", { post: async () => ({ ok: true, state: "paid", passEnd: "2027-01-01" }) });
+    const pass = await checkout.checkPackPayStatus("o10", { post: async () => ({ ok: true, state: "paid", passEnd: "pass-end-token" }) });
     expect(pass).toEqual({ state: "unknown" });
     expect(await checkout.checkPackPayStatus("o11", { post: async () => ({ ok: true, state: "pending" }) })).toEqual({ state: "pending" });
   });
