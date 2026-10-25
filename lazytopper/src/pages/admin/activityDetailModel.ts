@@ -182,6 +182,8 @@ const EVENT_LABELS: Record<string, string> = {
   pack_checkout: "Opened checkout for a PDF pack",
   pack_purchase: "Bought a PDF pack",
   pack_download: "Downloaded a PDF from a pack",
+  // PACKS-ENTRY-1
+  pack_entry_click: "Tapped a PDF packs link",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

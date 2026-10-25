@@ -203,6 +203,8 @@ export const ACTIVITY_EVENTS = [
   "pack_checkout",
   "pack_purchase",
   "pack_download",
+  // PACKS-ENTRY-1 — a tap on a small PDF-packs link beside an ask. Name only.
+  "pack_entry_click",
 ] as const;
 export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 

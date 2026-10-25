@@ -31,6 +31,7 @@ import { deriveAccountStatus } from "../../utils/accountStatus";
 import MascotsSetting from "../guide/MascotsSetting";
 import UsageCard from "../usage/UsageCard";
 import AccountDataControls from "./AccountDataControls";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import type { SettingsSection } from "./settingsDoor";
 
 export interface SettingsModalProps {
@@ -178,6 +179,9 @@ export default function SettingsModal({
             </button>
           </section>
 
+          {/* PACKS-ENTRY-1 (d) — only for a student who owns a pack; looked up once per session, only while Settings is open. */}
+          <PacksEntry kind="settings-row" uid={user.uid} headingId={`${titleId}-packs`} onClose={onClose} />
+
           {/* SETTINGS-USAGE-1: fair use lives here, not on Me / Progress. Renders nothing at all
               (no card, no heading) unless the server says it is enforced for a trial/premium pass. */}
           <UsageCard variant="settings" autoScroll={section === "usage"} />
@@ -278,6 +282,9 @@ const SETTINGS_CSS = `
 .lt-set__status { border: 1px solid; border-radius: 8px; padding: 8px 10px; font-size: 12.5px; font-weight: 700; }
 .lt-set__statusdetail { margin-top: 2px; font-weight: 500; color: #56627e; }
 .lt-set__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   min-height: 44px;
   padding: 10px 14px;
   border-radius: 10px;

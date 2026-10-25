@@ -1,0 +1,227 @@
+/**
+ * PACKS-ENTRY-1 — the entry links (the download wall's are in components/limits/limits.test.tsx: it reads the clock) to /packs, the query contract, and the one-request-per-session reader.
+ * MUTATIONS: drop the flag check in any entry -> that entry's "flag off" test RED; put the pack link before the
+ * Board Pass actions -> "ordered after" RED; make loadOwnsAnyPack skip the cache -> "one request" RED.
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { MemoryRouter, useLocation } from "react-router-dom";
+
+const authState = vi.hoisted(() => ({ user: null as null | { uid: string; displayName?: string; email?: string }, logout: vi.fn(async () => {}) }));
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: authState.user, logout: authState.logout }) }));
+vi.mock("../../hooks/useSubscription", () => ({
+  useSubscription: () => ({ tier: "free", isTrialActive: false, isPremium: false, isTrialExpired: false, daysLeftInTrial: 0 }),
+}));
+const fetchMyPacksMock = vi.hoisted(() => vi.fn());
+vi.mock("../../services/packs", async (orig) => ({ ...(await orig<typeof import("../../services/packs")>()), fetchMyPacks: fetchMyPacksMock }));
+vi.mock("../../analytics/analytics", async (orig) => ({ ...(await orig<typeof import("../../analytics/analytics")>()), sendAnalyticsHit: vi.fn() }));
+
+import * as analytics from "../../analytics/analytics";
+import { ACTIVITY_EVENTS } from "../../services/activityClient";
+import { PACK_PRICE_INR, isPacksClientEnabled } from "../../services/packs";
+import { ACTIVITY_TOPIC_SLUGS } from "../../services/activityPages";
+import { chapterFromLocation, CHAPTER_PACK_PRICE_INR, isPacksEntryEnabled, packsHref, readPacksQuery } from "./packEntry";
+import { loadOwnsAnyPack, resetMyPacksCacheForTests, useOwnsAnyPack } from "./myPacksCache";
+import PublicLegalFooter from "../../components/ux/PublicLegalFooter";
+import SettingsModal from "../../components/account/SettingsModal";
+import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
+import { Note } from "../../components/notes/Note";
+import { ensureAllNoteSpecs, getNoteSpecForTopic } from "../../components/notes/noteSpecRegistry";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+await ensureAllNoteSpecs();
+const track = analytics.sendAnalyticsHit as unknown as ReturnType<typeof vi.fn>;
+const FLAG_ON = () => vi.stubEnv("VITE_PACKS_ENABLED", "1");
+const FLAG_OFF = () => vi.stubEnv("VITE_PACKS_ENABLED", "");
+
+beforeEach(() => {
+  authState.user = { uid: "u1", displayName: "Asha", email: "a@b.in" };
+  fetchMyPacksMock.mockReset();
+  resetMyPacksCacheForTests();
+  track.mockClear();
+});
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+});
+
+function Where() {
+  const l = useLocation();
+  return <div data-testid="where">{`${l.pathname}${l.search}${l.hash}`}</div>;
+}
+
+describe("packEntry helpers", () => {
+  it("packsHref: chapter, hash, and unknown slugs dropped", () => {
+    expect(packsHref()).toBe("/packs");
+    expect(packsHref({ chapter: "triangles" })).toBe("/packs?chapter=triangles");
+    expect(packsHref({ chapter: "not-a-chapter" })).toBe("/packs");
+    expect(packsHref({ chapter: null, hash: "my-packs" })).toBe("/packs#my-packs");
+    expect(packsHref({ mock: "science" })).toBe("/packs?mock=science");
+    expect(packsHref({ mock: "history" as never })).toBe("/packs");
+    expect(packsHref({ chapter: "circles", mock: "maths" })).toBe("/packs?chapter=circles");
+  });
+  it("readPacksQuery round-trips every slug and refuses junk / repeated values", () => {
+    for (const s of ACTIVITY_TOPIC_SLUGS) expect(readPacksQuery(new URL(packsHref({ chapter: s }), "http://x").search)).toEqual({ chapter: s, mock: null });
+    expect(readPacksQuery("")).toEqual({ chapter: null, mock: null });
+    expect(readPacksQuery("?mock=maths")).toEqual({ chapter: null, mock: "maths" });
+    expect(readPacksQuery("?mock=art")).toEqual({ chapter: null, mock: null });
+    expect(readPacksQuery("?chapter=drop-table")).toEqual({ chapter: null, mock: null });
+    expect(readPacksQuery("?chapter=triangles&chapter=circles")).toEqual({ chapter: null, mock: null });
+  });
+  it("chapterFromLocation reads a slug from the path or a topic query, else null", () => {
+    expect(chapterFromLocation("/notes/triangles")).toBe("triangles");
+    expect(chapterFromLocation("/practice/10/maths", "?topic=circles&x=1")).toBe("circles");
+    expect(chapterFromLocation("/me", "")).toBeNull();
+  });
+  it("the price copy and the flag agree with the pack catalogue / isPacksClientEnabled", () => {
+    expect(CHAPTER_PACK_PRICE_INR).toBe(PACK_PRICE_INR.pack_chapter);
+    for (const v of ["1", "", "0", "true"]) {
+      vi.stubEnv("VITE_PACKS_ENABLED", v);
+      expect(isPacksEntryEnabled()).toBe(isPacksClientEnabled());
+    }
+    expect(isPacksEntryEnabled()).toBe(false);
+  });
+  it("pack_entry_click is in the client list, the server list and the admin labels", () => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    expect(ACTIVITY_EVENTS).toContain("pack_entry_click");
+    expect(readFileSync(path.resolve(here, "../../../server/routes/studentActivity.cjs"), "utf8")).toContain("'pack_entry_click'");
+    expect(readFileSync(path.resolve(here, "../../pages/admin/activityDetailModel.ts"), "utf8")).toContain("pack_entry_click:");
+  });
+});
+
+describe("(b) notes", () => {
+  const mount = (slug: string) =>
+    render(
+      <MemoryRouter>
+        <Note spec={getNoteSpecForTopic(slug)!} />
+      </MemoryRouter>,
+    );
+  it("flag on: a card after the note content and before the footnote, for every chapter note; trigonometry names both chapters; click fires notes", async () => {
+    FLAG_ON();
+    for (const slug of ACTIVITY_TOPIC_SLUGS) {
+      if (!getNoteSpecForTopic(slug)) continue;
+      const { container, unmount } = mount(slug);
+      const card = await screen.findByTestId("note-pack-link", {}, { timeout: 8000 });
+      expect(container.querySelectorAll('[data-testid="note-pack-link"]').length, slug).toBe(1);
+      expect(card.querySelector("a")!.getAttribute("href")).toBe(`/packs?chapter=${slug}`);
+      expect(card.textContent).toContain("Step-marked answers · ₹49 · yours to keep");
+      expect(card.textContent).toContain("See the Chapter Pack");
+      const foot = container.querySelector(".lt-note__footnote")!;
+      expect(card.compareDocumentPosition(foot) & Node.DOCUMENT_POSITION_FOLLOWING, slug).toBeTruthy();
+      unmount();
+    }
+    mount("trigonometry");
+    expect((await screen.findByTestId("note-pack-link", {}, { timeout: 8000 })).textContent).toContain("Practise every Trigonometry (Ch 8 + Ch 9) question on paper");
+    cleanup();
+    mount("triangles");
+    const card = await screen.findByTestId("note-pack-link", {}, { timeout: 8000 });
+    expect(card.textContent).toContain("Practise every Triangles question on paper");
+    fireEvent.click(card.querySelector("a")!);
+    expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "notes" } });
+  });
+  it("flag off: nothing in the markup, and the server render (prerender) is unchanged", async () => {
+    FLAG_OFF();
+    const { container } = mount("triangles");
+    await act(async () => {});
+    expect(container.querySelector('[data-testid="note-pack-link"]')).toBeNull();
+    cleanup();
+    const ssr = renderToStaticMarkup(<MemoryRouter><Note spec={getNoteSpecForTopic("triangles")!} /></MemoryRouter>);
+    expect(ssr).not.toMatch(/href="\/packs[?#"]/);
+  });
+});
+
+describe("(c) footers", () => {
+  it("public footer: flag on -> PDF packs link to /packs, click fires footer; flag off -> absent", async () => {
+    FLAG_ON();
+    render(<MemoryRouter><PublicLegalFooter /></MemoryRouter>);
+    const a = await screen.findByRole("link", { name: "PDF packs" });
+    expect(a.getAttribute("href")).toBe("/packs");
+    fireEvent.click(a);
+    expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "footer" } });
+    cleanup();
+    FLAG_OFF();
+    render(<MemoryRouter><PublicLegalFooter /></MemoryRouter>);
+    await act(async () => {});
+    expect(screen.queryByRole("link", { name: "PDF packs" })).toBeNull();
+  });
+});
+
+describe("(d) My packs", () => {
+  const owned = { packs: [{ packId: "pack_chapter:triangles", sku: "pack_chapter", target: "triangles", pricePaidInr: 49, paidAt: 1, orderId: "o" }], licensee: { name: "A", email: "a@b.in" } };
+  it("cached reader: one request per session however many opens; no request when the flag is off; failure is retried, not cached", async () => {
+    FLAG_ON();
+    fetchMyPacksMock.mockResolvedValue(owned);
+    const [a, b] = await Promise.all([loadOwnsAnyPack("u1"), loadOwnsAnyPack("u1")]);
+    expect([a, b]).toEqual([true, true]);
+    expect(await loadOwnsAnyPack("u1")).toBe(true);
+    expect(fetchMyPacksMock).toHaveBeenCalledTimes(1);
+    resetMyPacksCacheForTests();
+    fetchMyPacksMock.mockReset();
+    fetchMyPacksMock.mockRejectedValueOnce(new Error("x")).mockResolvedValueOnce({ packs: [], licensee: { name: "", email: "" } });
+    expect(await loadOwnsAnyPack("u2")).toBeNull();
+    expect(await loadOwnsAnyPack("u2")).toBe(false);
+    expect(await loadOwnsAnyPack("u2")).toBe(false);
+    expect(fetchMyPacksMock).toHaveBeenCalledTimes(2);
+    resetMyPacksCacheForTests();
+    fetchMyPacksMock.mockReset();
+    FLAG_OFF();
+    expect(await loadOwnsAnyPack("u3")).toBe(false);
+    expect(fetchMyPacksMock).not.toHaveBeenCalled();
+  });
+  it("the hook does nothing until active", async () => {
+    FLAG_ON();
+    fetchMyPacksMock.mockResolvedValue(owned);
+    const { result, rerender } = renderHook(({ active }) => useOwnsAnyPack("u1", active), { initialProps: { active: false } });
+    await act(async () => {});
+    expect(fetchMyPacksMock).not.toHaveBeenCalled();
+    expect(result.current).toBe(false);
+    rerender({ active: true });
+    await waitFor(() => expect(result.current).toBe(true));
+    expect(fetchMyPacksMock).toHaveBeenCalledTimes(1);
+  });
+  it("mobile menu: row only when a pack is owned, lazily on open; click goes to /packs#my-packs and fires account", async () => {
+    FLAG_ON();
+    fetchMyPacksMock.mockResolvedValue(owned);
+    render(<MemoryRouter initialEntries={["/me"]}><MobileAccountMenu /><Where /></MemoryRouter>);
+    expect(fetchMyPacksMock).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
+    const item = await screen.findByRole("menuitem", { name: "My packs" });
+    fireEvent.click(item);
+    expect(screen.getByTestId("where").textContent).toBe("/packs#my-packs");
+    expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "account" } });
+    cleanup();
+    resetMyPacksCacheForTests();
+    fetchMyPacksMock.mockResolvedValue({ packs: [], licensee: { name: "", email: "" } });
+    render(<MemoryRouter initialEntries={["/me"]}><MobileAccountMenu /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
+    await waitFor(() => expect(fetchMyPacksMock).toHaveBeenCalled());
+    expect(screen.queryByRole("menuitem", { name: "My packs" })).toBeNull();
+    cleanup();
+    resetMyPacksCacheForTests();
+    FLAG_OFF();
+    fetchMyPacksMock.mockClear();
+    render(<MemoryRouter initialEntries={["/me"]}><MobileAccountMenu /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
+    expect(screen.queryByRole("menuitem", { name: "My packs" })).toBeNull();
+    expect(fetchMyPacksMock).not.toHaveBeenCalled();
+  });
+  it("settings: My packs row only when owned; click closes, goes to /packs#my-packs, fires account", async () => {
+    FLAG_ON();
+    fetchMyPacksMock.mockResolvedValue(owned);
+    const onClose = vi.fn();
+    render(<MemoryRouter initialEntries={["/me"]}><SettingsModal open onClose={onClose} onOpenSignInMethods={() => {}} /><Where /></MemoryRouter>);
+    fireEvent.click(await screen.findByRole("button", { name: "My packs" }));
+    expect(onClose).toHaveBeenCalled();
+    expect(screen.getByTestId("where").textContent).toBe("/packs#my-packs");
+    expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "account" } });
+    cleanup();
+    resetMyPacksCacheForTests();
+    fetchMyPacksMock.mockResolvedValue({ packs: [], licensee: { name: "", email: "" } });
+    render(<MemoryRouter><SettingsModal open onClose={() => {}} onOpenSignInMethods={() => {}} /></MemoryRouter>);
+    await waitFor(() => expect(fetchMyPacksMock).toHaveBeenCalled());
+    expect(screen.queryByTestId("settings-my-packs")).toBeNull();
+  });
+});

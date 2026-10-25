@@ -209,6 +209,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'pack_checkout',
   'pack_purchase',
   'pack_download',
+  // PACKS-ENTRY-1 - a tap on a small PDF-packs link beside an ask. Name only.
+  'pack_entry_click',
 ]);
 
 /**

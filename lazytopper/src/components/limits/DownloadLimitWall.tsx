@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { blockedPracticeCopy, blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
 import "./limits.css";
 
@@ -23,10 +24,12 @@ export interface DownloadLimitWallProps {
   resetAt?: string | null;
   /** The server's tier for this refusal: a trial student reads trial wording. */
   tier?: string | null;
+  /** PACKS-ENTRY-1: the chapter of the paper, when the caller knows it. Else it is read from the page address, else /packs. */
+  chapter?: string | null;
   onClose: () => void;
 }
 
-export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, onClose }: DownloadLimitWallProps) {
+export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, chapter = null, onClose }: DownloadLimitWallProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const ref = useRef<HTMLDivElement>(null);
@@ -36,6 +39,8 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
       : variant === "signed_out" ? SIGNED_OUT_WALL : OFFLINE_WALL;
   const offer = variant === "blocked" ? wallOfferLines(new Date()) : null;
   const here = `${location.pathname}${location.search}`;
+  // PACKS-ENTRY-1 (a): a quiet second line under the Board Pass actions, only for the download wall.
+  const showPackLink = variant === "blocked" && flavor === "download";
 
   const dismiss = useCallback(() => {
     onClose();
@@ -126,6 +131,7 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
             {copy.keep}
           </button>
         </div>
+        {showPackLink && <PacksEntry kind="wall" chapter={chapter} light={tier === "trial"} />}
       </div>
     </div>
   );

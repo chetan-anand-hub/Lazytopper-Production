@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 vi.mock("../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../analytics/analytics")>();
-  return { ...actual, trackDownload: vi.fn(), trackPaywallAction: vi.fn() };
+  return { ...actual, trackDownload: vi.fn(), trackPaywallAction: vi.fn(), sendAnalyticsHit: vi.fn() };
 });
 const authState: { user: { uid: string } | null } = { user: { uid: "stu-1" } };
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: authState.user, loading: false }) }));
@@ -357,3 +357,69 @@ describe("★ every counted download site calls the guard (MOUNT != LIVE)", () =
     }
   });
 });
+
+describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
+  const FLAG_ON = () => vi.stubEnv("VITE_PACKS_ENABLED", "1");
+  const FLAG_OFF = () => vi.stubEnv("VITE_PACKS_ENABLED", "");
+  const packTrack = analytics.sendAnalyticsHit as unknown as ReturnType<typeof vi.fn>;
+  beforeEach(() => packTrack.mockClear());
+  const wall = (props: Partial<React.ComponentProps<typeof DownloadLimitWall>> = {}, at = "/notes/triangles") =>
+    render(
+      <MemoryRouter initialEntries={[at]}>
+        <DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} {...props} />
+      </MemoryRouter>,
+    );
+  it("flag on: Board Pass actions first, then the secondary pack button for the chapter; click fires download_wall", async () => {
+    FLAG_ON();
+    wall();
+    const link = await screen.findByRole("link", { name: "Get the whole chapter on paper — Chapter Pack ₹49" });
+    expect(link.getAttribute("href")).toBe("/packs?chapter=triangles");
+    const acts = document.querySelector(".lt-limit-acts")!;
+    const line = await screen.findByTestId("wall-pack-link");
+    expect(acts.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(link.className).toContain("lt-limit-btn--pack");
+    expect(link.className).not.toContain("lt-limit-btn--primary");
+    fireEvent.click(link);
+    expect(packTrack).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "download_wall" } });
+  });
+  it("chapter unknown -> plain /packs; explicit chapter prop wins", async () => {
+    FLAG_ON();
+    wall({}, "/practice-hub");
+    expect((await screen.findByRole("link", { name: /whole chapter on paper/ })).getAttribute("href")).toBe("/packs");
+    cleanup();
+    wall({ chapter: "circles" }, "/practice-hub");
+    expect((await screen.findByRole("link", { name: /whole chapter on paper/ })).getAttribute("href")).toBe("/packs?chapter=circles");
+  });
+  it("Full Mock wall -> /packs?mock=<subject>; a multi-topic page -> plain /packs; the trial wall gets the lighter text-button", async () => {
+    FLAG_ON();
+    wall({}, "/practice/10/maths/full-mock");
+    expect((await screen.findByRole("link", { name: /whole chapter on paper/ })).getAttribute("href")).toBe("/packs?mock=maths");
+    cleanup();
+    wall({}, "/worksheet");
+    expect((await screen.findByRole("link", { name: /whole chapter on paper/ })).getAttribute("href")).toBe("/packs");
+    cleanup();
+    wall({ tier: "trial" }, "/notes/triangles");
+    await screen.findByRole("link", { name: /whole chapter on paper/ });
+    expect(screen.getByTestId("wall-pack-link").className).toContain("lt-limit-pack--light");
+    cleanup();
+    wall({ tier: "free" }, "/notes/triangles");
+    await screen.findByRole("link", { name: /whole chapter on paper/ });
+    expect(screen.getByTestId("wall-pack-link").className).not.toContain("--light");
+  });
+  it("flag off, signed-out and practice variants: absent", async () => {
+    FLAG_OFF();
+    wall();
+    await act(async () => {});
+    expect(screen.queryByTestId("wall-pack-link")).toBeNull();
+    cleanup();
+    FLAG_ON();
+    wall({ variant: "signed_out" });
+    await act(async () => {});
+    expect(screen.queryByTestId("wall-pack-link")).toBeNull();
+    cleanup();
+    wall({ flavor: "practice" });
+    await act(async () => {});
+    expect(screen.queryByTestId("wall-pack-link")).toBeNull();
+  });
+});
+

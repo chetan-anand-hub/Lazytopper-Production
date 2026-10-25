@@ -69,6 +69,12 @@
   text-decoration: none;
   cursor: pointer;
 }
+/* PACKS-ENTRY-1: the pack button is a real secondary action, always after (and outlined, never filled like) the Board Pass actions. */
+.lt-limit-pack { margin: 8px 0 0; }
+.lt-limit-btn--pack { min-height: 48px; font-size: 16px; font-weight: 700; line-height: 1.25; text-align: center; color: hsl(152, 55%, 22%); background: transparent; border: 2px solid hsl(152, 55%, 38%); }
+/* Trial wall: the same link as a quiet text button; the Premium copy stays the prominent thing. */
+.lt-limit-pack--light .lt-limit-btn--pack { min-height: 44px; width: auto; margin: 0 auto; padding: 8px 12px; font-size: 14px; font-weight: 600; border: 0; background: transparent; text-decoration: underline; text-underline-offset: 2px; }
+.lt-limit-pack--light { text-align: center; }
 .lt-limit-btn--primary { color: #06210f; background: hsl(152, 55%, 45%); }
 .lt-limit-btn--ghost { color: #15233a; background: transparent; border: 1px solid #dfe5ee; }
 
@@ -85,4 +91,5 @@
   :root:not([data-theme="light"]) .lt-limit-sheet { background: #17233a; color: #e8eef8; }
   :root:not([data-theme="light"]) .lt-limit-body { color: #9fb0c8; }
   :root:not([data-theme="light"]) .lt-limit-btn--ghost { color: #e8eef8; border-color: #2a3955; }
+  :root:not([data-theme="light"]) .lt-limit-btn--pack { color: hsl(152, 55%, 62%); border-color: hsl(152, 45%, 45%); }
 }

@@ -12,6 +12,7 @@ import { NcertChapterPicker } from "../ncert/NcertChapterPicker";
 import PendingBell from "../home/PendingBell";
 import TrialAsk from "../trial/TrialAsk";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
 
 
 /**
@@ -759,6 +760,8 @@ export function DesktopShell({ children }: DesktopShellProps) {
                               {label}
                             </button>
                           ))}
+                          {/* PACKS-ENTRY-1 (c): the one footer link, same pattern as its neighbours. Flag off: absent. */}
+                          <PacksEntry kind="footer-menu" onDone={() => setAccountOpen(false)} />
                         </div>
                       </div>
                     </div>

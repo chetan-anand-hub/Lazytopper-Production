@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { FOOTER_SOCIAL } from "../../config/socialProfiles";
 import { LEGAL_ENTITY_NAME } from "../../config/legalEntity";
 import { withParentFlag } from "../../lib/parentReturn";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
 
 /**
  * PublicLegalFooter — a slim, persistent legal row for the SIGNED-OUT public
@@ -124,6 +125,8 @@ export default function PublicLegalFooter({ className, fromParents = false }: { 
       <Link to={to("/check-your-answer")}>How CBSE marks answers</Link>
       {/* PARENTS-1 — the parent landing page, same crawl-path reason as the guide above. */}
       <Link to="/for-parents">For parents</Link>
+      {/* PACKS-ENTRY-1 (c) — a quiet link to the PDF packs, beside the legal links (this footer has no Pricing link). Flag off: absent. */}
+      <PacksEntry kind="footer-link" href={to("/packs")} />
       {LEGAL_LINKS.map(({ label, slug }) => (
         <Link key={slug} to={to(`/legal/${slug}`)}>
           {label}

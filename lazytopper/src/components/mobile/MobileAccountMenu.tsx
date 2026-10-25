@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { deriveAccountStatus } from "../../utils/accountStatus";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
 
 
 /**
@@ -238,6 +239,10 @@ export function MobileAccountMenu() {
               >
                 Me / Progress
               </button>
+              {/* PACKS-ENTRY-1 (d) — only for a student who owns a pack. */}
+              {open && (
+                <PacksEntry kind="account-row" uid={user.uid} onDone={() => setOpen(false)} />
+              )}
               {/* SETTINGS-1: pass, sign-in methods, mascots and "Your data" live in ONE
                   Settings window, identical on phone and desktop. Closes the dropdown
                   first so the modal is not rendered under an open menu. */}

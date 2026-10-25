@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { act, render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
 /**
@@ -28,10 +28,12 @@ vi.mock("../../hooks/useSubscription", () => ({
     daysLeftInTrial: 0,
   }),
 }));
+vi.mock("../../analytics/analytics", async (orig) => ({ ...(await orig<typeof import("../../analytics/analytics")>()), sendAnalyticsHit: vi.fn() }));
 vi.mock("./MistakeIntelCard", () => ({
   MistakeIntelCard: () => <div data-testid="mistake-intel-card" />,
 }));
 
+import * as analytics from "../../analytics/analytics";
 import { DesktopShell } from "./DesktopShell";
 
 afterEach(() => {
@@ -140,4 +142,26 @@ describe("account menu items - TAPS-1 tap target", () => {
       expect(item.style.alignItems).toBe("center");
     }
   });
+});
+
+describe("PACKS-ENTRY-1 (c) — desktop account dropdown", () => {
+  const packTrack = analytics.sendAnalyticsHit as unknown as ReturnType<typeof vi.fn>;
+  it("PDF packs sits with the legal links; click navigates to /packs and fires footer; flag off -> absent", async () => {
+    authState.user = { uid: "test-uid", displayName: "Asha Rao", email: "asha@example.com" };
+    vi.stubEnv("VITE_PACKS_ENABLED", "1");
+    render(<MemoryRouter initialEntries={["/practice-hub"]}><DesktopShell><div /></DesktopShell><LocationProbe /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
+    const btn = await screen.findByRole("button", { name: "PDF packs" });
+    expect(btn.previousElementSibling?.textContent).toBe("Cancellation & Refunds");
+    fireEvent.click(btn);
+    expect(screen.getByTestId("pathname").textContent).toBe("/packs");
+    expect(packTrack).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "footer" } });
+    cleanup();
+    vi.stubEnv("VITE_PACKS_ENABLED", "");
+    render(<MemoryRouter initialEntries={["/practice-hub"]}><DesktopShell><div /></DesktopShell></MemoryRouter>);
+    fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
+    await act(async () => {});
+    expect(screen.queryByRole("button", { name: "PDF packs" })).toBeNull();
+  });
+  afterEach(() => vi.unstubAllEnvs());
 });
