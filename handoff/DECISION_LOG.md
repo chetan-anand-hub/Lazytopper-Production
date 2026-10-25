@@ -1,3 +1,28 @@
+## 2026-10-25 (daily, part 2) - #1367 - #1378 (12 product merges after #1366): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. The owner rulings of the 25 Oct afternoon and night (binding) relayed by the cofounder **[coordinator]** (`HANDOFF_COFOUNDER_SESSION_2026-10-25_NIGHT.md`), with the reason given where the handoff records one; where none was given, none is invented. Earlier dated blocks stand as written: where this block renames or narrows an earlier ruling, the earlier text is superseded here, not edited.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **No "every question step-marked" claim anywhere, in ads or on `/packs`, until step marks reach 100%.** Use "worked solution for every question" and "answer keys with step marks" | `#1378`; about 1,875 B-E bank rows still lack step marks (`[FU-STEPMARK-REMAINING-1875]`); the strong-claim variant is ready to swap in at 100% | owner ruling 21:2x (no further reason recorded). The PDF cover line "Step marks shown the way CBSE examiners award them" is unchanged (17:19 ruling) |
+| Step-wise solutions for the remaining questions come later; until then those questions rank lower in packs | `#1374` (step-marked questions ranked first) | owner, 17:29 (no further reason recorded) |
+| Section A 1-mark objective questions in packs show one "1 mark" chip and score 0 or full | `#1374` | the objective invariant (CLAUDE.md section 13): an MCQ scores on the answer alone |
+| Name: **"Maths + Science Bundle"** (not "Board Bundle") | `#1371`, `#1374`; supersedes "Board Bundle" in the earlier 25 Oct blocks | owner ruling; no further reason recorded |
+| Entry points: Board Pass / Premium always first and the pack second, visible but not loud | `#1377` | no reason recorded beyond the ruling |
+| Paid Premium users never see pack offers | `#1377` (PacksStrip hidden for PAID Premium) | no reason recorded beyond the ruling |
+| Pack owners' chapter downloads do not count against the limits | `#1376`; the server fails closed to "count as today" | no reason recorded beyond the ruling; by design the server fails closed to "count as today" when ownership cannot be read |
+| Mock pack = Maths Standard (041); a Basic (241) mock pack and a Phase-2 mock pack come later (April 2027) | `[FU-PACKS-BASIC-241-MOCK]`, `[FU-PACKS-PHASE2-MOCK]` | owner ruling; no reason recorded |
+| Each pack paper has its own code and goes to its own grader path (same limits; the first of each kind is free); the grader is not changed | `#1373` | owner ruling (no further reason recorded); consistent with CLAUDE.md section 4a, one grading behaviour |
+| Wording is always "Made by an IITian" or "Made by an IITian (IIT Kanpur)"; never imply IIT endorsement | `[FU-PACKS-FOUNDER-LINE]` | the owner is an IITian (IIT Kanpur, 2000 batch): "once you graduate an IIT you are always an IITian". The ads claim needs the site to carry it too |
+| Google Ads goal for the packs campaign is Purchases only; budget Rs 500/day; the owner added Rs 15,000 to Google Ads; the YouTube budget is NOT lowered | the "Search | PDF Packs" campaign | owner, 21:22 (the YouTube decision is the owner's); no further reason recorded |
+| Judge the Search campaign after 7 days: Rs 500 or less per pack sold raises it to Rs 1,000/day; Rs 3,500 spent with 0 sales pauses it and `/packs` is looked at first; the 8 Nov kill rule still applies | `[FU-PACKS-ADS-DAY1]` | owner rule as recorded in the session handoff; no further reason recorded |
+| Ad targeting: Search Network only (Display and Search Partners off), AI Max OFF, 15 places by "Presence" (the top 14 states by share of CBSE schools, about 83%, plus Chandigarh), English and Hindi; "previous year question paper" (33K), educart / oswaal brand terms and "online test series" deliberately excluded | the campaign settings | searchers of free official papers will not buy; the product is printed PDFs, not an online test series; AI Max is kept off so Google does not customise the text or expand the Final URL. CBSE publishes no state-wise Class 10 student counts, so school share is the proxy |
+| Packs switched ON: Railway `PACKS_ENABLED=1`, Vercel `VITE_PACKS_ENABLED=1`, production redeploy; rollback = remove both and redeploy Vercel; paid packs stay downloadable either way | ops, owner-approved about 21:10 IST | `/api/packs/mine` is not behind the flag, so a rollback never locks a buyer out of what they paid for |
+| The owner buys Resend Pro after testing effectiveness; the trial and nudge caps keep sends under 100/day | `[FU-RESEND-PAID-PLAN]` | the free plan is a hard cap |
+| Pack purchase is the paid conversion: GA4 `purchase` with value, imported to Ads as Primary; the "Set up Google tag" screen was deliberately skipped | `packAnalytics.ts`, ops | merging the Ads tag into the site tag is not needed for a GA4-imported conversion |
+| Keep the repo private: owner switches it back; the next session tries `add_repo` (push) first and asks the owner to make it public only if that fails | `[FU-SKILL-BOOTSTRAP-PRIVATE]` | the repo was public during this session |
+
+
 ## 2026-10-25 (daily) - #1354 - #1366 (12 product merges after #1353): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. The owner rulings of 25 Oct (binding) relayed by the cofounder **[coordinator]**, with the reason given where the session handoff records one **[coordinator]**; where none was given, none is invented. Scope discovered for the limits is logged here and in the SURFACE_TRACKER block (those rows read Settling).

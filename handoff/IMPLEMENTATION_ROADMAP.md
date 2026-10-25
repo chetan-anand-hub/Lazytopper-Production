@@ -1,3 +1,18 @@
+## 2026-10-25 (daily, part 2) - PACKS-SERVER-1 (`#1367`), -1b (`#1372`), ASK-COPY-1 (`#1370`), PACKS-CLIENT-1 (`#1371`), PDF-REBRAND-1 (`#1369`), PACKS-LEGAL-1 (`#1368`), PACKS-GRADE-1 (`#1373`), PACKS-UX-1 (`#1374`), PACKS-SAMPLES-1 (`#1375`), PACKS-LIMIT-1 (`#1376`), PACKS-ENTRY-1 (`#1377`), COPY-PACKS-HONEST-1 (`#1378`) - MERGED
+
+- DONE. `#1367` (`bfc37bc1`), `#1372` (`58ebf2d8`): PACKS-SERVER-1 / 1b - pack orders, `grantPack`, `/api/packs/mine`. NEXT: `[FU-CHECKOUT-HELP-PACK-PAID-FLAG]`.
+- DONE. `#1371` (`0d8c31ad`), `#1374` (`1ebdf778`), `#1375` (`635197c5`): the `/packs` page, PacksStrip on `/pricing`, checkout, My packs, the v3 redesign and real sample pages. NEXT: `[FU-PACKS-SITELINK-QUERY]`, `[FU-PACKS-FOUNDER-LINE]`.
+- DONE. `#1369` (`f106d340`): PDF-REBRAND-1 (`[FU-PDF-REDESIGN-1]`) - branded print template, buyer watermark. NEXT: the owner opens one PDF and confirms the watermark (`[FU-PACKS-LIVE-OWED]`).
+- DONE. `#1368` (`2322c873`): terms, refund wording, `llms.txt`, sitemap. NEXT: nothing owed; `[FU-PACKS-FOUNDER-LINE]` may add one `llms.txt` phrase.
+- DONE. `#1373` (`ee7dd81d`), `#1376` (`fa49368d`): pack paper codes with the existing grader; owned packs lift the download limit for their chapters. NEXT: a live grading round trip of a pack paper (`[FU-PACKS-LIVE-OWED]`).
+- DONE. `#1377` (`d7503800`): entry points (wall line, notes end-card, footer, account menus; Board Pass first). NEXT: watch `pack_entry_click`.
+- DONE. `#1378` (`962a4ccc`, trunk): COPY-PACKS-HONEST-1 - "worked solutions" wording until step marks reach 100%. NEXT: `[FU-STEPMARK-REMAINING-1875]`, then flip the copy back.
+- DONE. `#1370` (`0b5d4c5c`): ASK-COPY-1 - the four ask-copy items (`[FU-TUTOR-PREMIUM-CARD-COPY]`, `[FU-UPGRADE-SHEET-TRIAL-TITLE]`, `[FU-UPGRADE-LINE-MCQ-COPY]`, `[FU-TRIAL-CTA-ON-ASK]`). NEXT: live-check the new copy on a signed-out visitor and a Basic account.
+- DONE (ops). Packs switched on (Railway `PACKS_ENABLED=1`, Vercel `VITE_PACKS_ENABLED=1`); first purchase succeeded; Search campaign "Search | PDF Packs" enabled; 94 of 95 URLs indexed in Google, 95 submitted to Bing. NEXT: day-1 ads health check, then judge after 7 days.
+- NEXT (main job). Watch the first pack sales and the ads; then the sitelink wiring, the founder line, and the step marks for the remaining about 1,875 rows. Later: Basic (241) mock pack, Phase-2 mock pack (April 2027), the Rs 99 answer-check pack (`[FU-PACK-99-1]`).
+- IN FLIGHT: none known at writing beyond this docs PR [git/gh]. HELD: repo to PRIVATE (owner).
+- OPEN. The 2026-10-25 (daily, part 2) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-25 (daily) - ASSET-RELOAD-1 (`#1354`), -1b (`#1355`), EMAIL-NUDGE-1 (`#1357`), PRICING-1 (`#1356`), ENGAGE10-1 (`#1358`), LIMITS-1 PR-1 (`#1359`), EMAIL-CONCIERGE-1 (`#1362`), EMAIL-ONEADAY-1 (`#1364`), ASK-FIX-1 (`#1360`), ENGAGE5-1 (`#1361`), LIMITS-1 PR-2 (`#1363`), LIMITS-1 fix (`#1366`) - MERGED
 
 - DONE. `#1354` (`3f0fff74`), `#1355` (`742c8dde`): ASSET-RELOAD-1 / 1b - one automatic reload instead of a blank page after a deploy. NEXT: nothing owed.

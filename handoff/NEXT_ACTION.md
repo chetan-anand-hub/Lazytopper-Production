@@ -1,3 +1,21 @@
+## 2026-10-25 (daily, part 2) - AFTER #1367 - #1370 - #1372 - #1371 - #1369 - #1368 - #1373 - #1374 - #1375 - #1376 - #1377 - #1378 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The NEXT list in the 2026-10-25 (daily) block is superseded by this one for items 1 and 2: the packs and the ask-copy lane are built.)* Trunk at writing: **`962a4ccc`** (`962a4ccc5f49fcd290531159cdf6d7966de91af6`, = `#1378`) [git/gh]. Facts marked **[coordinator]** come from the session handoff `HANDOFF_COFOUNDER_SESSION_2026-10-25_NIGHT.md`.
+
+- **Done [git/gh]:** twelve product PRs, `#1367` to `#1378` (table in the CURRENT_STATE 2026-10-25 part 2 block). PDF packs are live (flags on, first purchase succeeded); the four ask-copy items are built (`#1370`).
+- **NEXT, in order [coordinator]:**
+  1. **Confirm `#1378` is live:** the `/packs` h1 should read "Every question. Worked solutions." Then request indexing of `/packs` in Search Console (Bing gets it through IndexNow).
+  2. **Ads health check, day 1:** ads approved or any disapproval (misrepresentation, trademark "IIT")? Impressions and clicks per ad group; the search terms report (add negatives, promote converting terms to exact match); did the owner's Rs 49 test conversion arrive in GA4 and Ads within 24-48 h?
+  3. **Watch the first pack sales:** admin activity (`pack_entry_click`, `begin_checkout` for a pack, `purchase`), the Razorpay dashboard, replies at support@lazytopper.com. Judge the Search campaign after 7 days (Rs 500 or less per pack sold: raise to Rs 1,000/day; Rs 3,500 spent with 0 sales: pause and look at `/packs` first; the 8 Nov kill rule stands).
+  4. **Cheap conversion win:** wire the ad sitelinks (`?pack=chapter|mock|subject|bundle`, `?view=sample`, `?mock=`) so they open the right pop-up (`[FU-PACKS-SITELINK-QUERY]`).
+  5. **Founder line** "Made by an IITian (IIT Kanpur)" on `/packs` and `/pricing` to back the ad claim (`[FU-PACKS-FOUNDER-LINE]`).
+  6. **Step-mark the remaining about 1,875 B-E bank rows**, then flip the copy back to "every question step-marked" across ads, `/packs` and creatives (the variant is ready) (`[FU-STEPMARK-REMAINING-1875]`).
+  7. Later: Basic (241) mock pack (`[FU-PACKS-BASIC-241-MOCK]`), Phase-2 mock pack in April 2027 (`[FU-PACKS-PHASE2-MOCK]`), the about 4 missing figures (`[FU-PACKS-MISSING-FIGURES]`), the PERF-3 reduction lane (`[FU-PERF3-BUDGET]`), the pass-differentiation line on `/pricing` (`[FU-PACKS-PASS-DIFFERENTIATION]`), `[FU-CHECKOUT-HELP-PACK-PAID-FLAG]`, and the Rs 99 answer-check pack (`[FU-PACK-99-1]`, after the limits and packs settle).
+- **Owner-side [coordinator]:** make the repo private; open one downloaded PDF and confirm the name + email watermark; buy Resend Pro when needed (check at every session start); the GA4 limits-activity check on 26 Oct; the YouTube spend decision is his (left at Rs 3,500/day); answer whether "Made by an IITian" goes on the social creatives. The checks listed as OWED in earlier blocks stand (`[FU-LIMITS-LIVE-OWED]`).
+- **Standing for builders [coordinator]:** Search ad images must be clean product shots (Google rejects text or price overlays); keep selling lines in headlines. Copy claims hide in many places: grep the whole claim family (PackDialog, ledes, alt text), not only the listed lines. Never imply IIT endorsement. Every product change must work on desktop, mobile and all sizes; always a fresh independent review before switching on anything that gates money or access.
+- **Follow-ups found:** the 2026-10-25 (daily, part 2) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Process:** the next handoff is ONE docs PR at the end of the next day with merges (CLAUDE.md section 10).
+
 ## 2026-10-25 (daily) - AFTER #1354 - #1355 - #1357 - #1356 - #1358 - #1359 - #1362 - #1364 - #1360 - #1361 - #1363 - #1366 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them.)* Trunk at writing: **`c9ca2744`** (`c9ca2744b8b0836dcb9fd23ff336df8b1d3f35ca`, = `#1366`) [git/gh]. Facts marked **[coordinator]** come from the session handoff `HANDOFF_COFOUNDER_SESSION_2026-10-25_PM.md` and `FOLLOWUPS_2026-10-25.md`.
