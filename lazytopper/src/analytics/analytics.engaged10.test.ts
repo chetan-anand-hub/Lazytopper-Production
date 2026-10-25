@@ -7,7 +7,7 @@ vi.mock("../services/activityClient", async (importOriginal) => ({
 }));
 
 import { META_EVENTS, trackPageview } from "./analytics";
-import { ENGAGED10_IDLE_MS, ENGAGED10_KEY, ENGAGED10_MS, __resetEngaged10ForTests } from "./engaged10";
+import { ENGAGED10_IDLE_MS, ENGAGED10_KEY, ENGAGED10_MS, ENGAGED5_MS, __resetEngaged10ForTests } from "./engaged10";
 import { __resetEngagedVisitForTests } from "./engagedVisit";
 import { ACTIVITY_EVENTS, recordActivity } from "../services/activityClient";
 
@@ -286,5 +286,109 @@ describe("destinations and allowlists", () => {
     };
     const server = mod.ACTIVITY_EVENTS ?? mod.default?.ACTIVITY_EVENTS;
     expect(server).toContain("engaged_10min");
+  });
+});
+
+// ENGAGE5-1 — `engaged_5min`, the 5-minute sibling in the same watcher.
+const fired5 = () => sent.filter((s) => s.kind === "event" && s.payload.name === "engaged_5min");
+
+describe("engaged_5min (ENGAGE5-1)", () => {
+  it("fires once at 5 active minutes, never again that day, and 10 still fires at 10", async () => {
+    await open("/check-improve");
+    run(4);
+    expect(fired5()).toHaveLength(0);
+    run(2);
+    expect(fired5()).toHaveLength(1);
+    expect(fired5()[0].payload).toEqual({ name: "engaged_5min" });
+    expect(fired()).toHaveLength(0); // firing 5 never blocks or fires 10
+    run(3);
+    expect(fired()).toHaveLength(0);
+    run(3);
+    expect(fired()).toHaveLength(1);
+    run(30);
+    expect(fired5()).toHaveLength(1);
+    expect(fired()).toHaveLength(1);
+    expect(ENGAGED5_MS).toBe(5 * MIN);
+  });
+
+  it("does not count idle gaps: an untouched tab never reaches 5 beyond the idle grace", async () => {
+    await open("/check-improve");
+    run(1);
+    run(60, false);
+    const stored = JSON.parse(window.localStorage.getItem(ENGAGED10_KEY) || "{}");
+    expect(stored.ms).toBeLessThanOrEqual(ENGAGED10_IDLE_MS + MIN + 15_000);
+    expect(fired()).toHaveLength(0);
+  });
+
+  it("does not count hidden time", async () => {
+    await open("/check-improve");
+    run(3);
+    setVisible("hidden");
+    run(60, false);
+    expect(fired5()).toHaveLength(0);
+    setVisible("visible");
+    run(1);
+    expect(fired5()).toHaveLength(0);
+    run(2);
+    expect(fired5()).toHaveLength(1);
+  });
+
+  it("is once per IST day, and a reload the same day does not re-fire it", async () => {
+    await open("/check-improve");
+    run(6);
+    expect(fired5()).toHaveLength(1);
+    await newDocument();
+    run(10);
+    expect(fired5()).toHaveLength(1);
+    calendarOffset += 13 * 60 * MIN;
+    await newDocument();
+    run(6);
+    expect(fired5()).toHaveLength(2);
+  });
+
+  it("sends nothing for an automated context or an /admin page", async () => {
+    setLocation("/admin/students");
+    await open("/admin/students");
+    run(30);
+    expect(fired5()).toHaveLength(0);
+    setLocation("/check-improve");
+    Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: true });
+    run(15);
+    expect(fired5()).toHaveLength(0);
+  });
+
+  it("handles an old-format stored state (no sent5): carries on, fires 5 once, does not re-fire 10", async () => {
+    const now = BASE_MS;
+    window.localStorage.setItem(ENGAGED10_KEY, JSON.stringify({ day: new Date(now + 330 * MIN).toISOString().slice(0, 10), ms: 3 * MIN, sent: false, act: now }));
+    await open("/check-improve");
+    run(3);
+    expect(fired5()).toHaveLength(1);
+    expect(fired()).toHaveLength(0);
+  });
+
+  it("an old record whose 10 already fired does not send 5 late and does not re-fire 10", async () => {
+    const now = BASE_MS;
+    window.localStorage.setItem(ENGAGED10_KEY, JSON.stringify({ day: new Date(now + 330 * MIN).toISOString().slice(0, 10), ms: 11 * MIN, sent: true, act: now }));
+    await open("/check-improve");
+    run(20);
+    expect(fired5()).toHaveLength(0);
+    expect(fired()).toHaveLength(0);
+  });
+
+  it("goes to Meta as Engaged5Min, GA4, and the allowlists", async () => {
+    expect(META_EVENTS.engaged_5min).toEqual(["trackCustom", "Engaged5Min"]);
+    expect(ACTIVITY_EVENTS as readonly string[]).toContain("engaged_5min");
+    const mod = (await import("../../server/routes/studentActivity.cjs")) as unknown as {
+      default?: { ACTIVITY_EVENTS?: readonly string[] };
+      ACTIVITY_EVENTS?: readonly string[];
+    };
+    expect(mod.ACTIVITY_EVENTS ?? mod.default?.ACTIVITY_EVENTS).toContain("engaged_5min");
+    const gtag = vi.fn();
+    (window as unknown as { gtag?: unknown }).gtag = gtag;
+    await open("/check-improve");
+    run(6);
+    delete (window as unknown as { gtag?: unknown }).gtag;
+    expect(gtag.mock.calls.filter((c) => c[0] === "event" && c[1] === "engaged_5min")).toHaveLength(1);
+    expect(recordActivity).toHaveBeenCalledWith("event", { name: "engaged_5min" });
   });
 });

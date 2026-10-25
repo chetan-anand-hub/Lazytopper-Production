@@ -38,18 +38,20 @@
  */
 import { ADMIN_PATH, analyticsEnabled, routerPathOf, trackNamedEvent } from "./analytics";
 
+/** ENGAGE5-1: the 5-minute sibling signal, same watcher; its own once-per-day flag (`sent5`). */
+export const ENGAGED5_MS = 5 * 60_000;
 export const ENGAGED10_MS = 10 * 60_000;
 export const ENGAGED10_TICK_MS = 5_000;
 export const ENGAGED10_IDLE_MS = 5 * 60_000;
 export const ENGAGED10_WRITE_MS = 15_000;
 export const ENGAGED10_KEY = "lazytopper.engaged10";
 
-type Stored = { day: string; ms: number; sent: boolean; act: number };
+type Stored = { day: string; ms: number; sent: boolean; sent5: boolean; act: number };
 
 const LISTEN: AddEventListenerOptions = { capture: true, passive: true };
 const IST_OFFSET_MS = 330 * 60_000;
 const ACTIVITY_EVENTS = ["pointerdown", "pointermove", "keydown", "scroll", "touchstart"];
-const EMPTY: Stored = { day: "", ms: 0, sent: false, act: 0 };
+const EMPTY: Stored = { day: "", ms: 0, sent: false, sent5: false, act: 0 };
 
 let started = false;
 let interval: ReturnType<typeof setInterval> | null = null;
@@ -85,7 +87,10 @@ function readStored(): Stored | null {
     if (!raw) return { ...EMPTY };
     const v = JSON.parse(raw) as Partial<Stored> | null;
     if (!v || typeof v.day !== "string" || typeof v.ms !== "number" || !(v.ms >= 0)) return { ...EMPTY };
-    return { day: v.day, ms: v.ms, sent: v.sent === true, act: typeof v.act === "number" && v.act > 0 ? v.act : 0 };
+    const sent = v.sent === true;
+    // An old record has no `sent5`: if its 10 already fired, 5 minutes were long passed, so 5 is not sent late.
+    const sent5 = v.sent5 === true || sent;
+    return { day: v.day, ms: v.ms, sent, sent5, act: typeof v.act === "number" && v.act > 0 ? v.act : 0 };
   } catch {
     return null; // storage unavailable
   }
@@ -123,12 +128,28 @@ export function trackEngaged10Min(): boolean {
   }
 }
 
+/**
+ * `engaged_5min` (ENGAGE5-1): the same path as `engaged_10min`, same gate, a bare name to GA4,
+ * Vercel, Meta (custom `Engaged5Min`) and the first-party activity log. False when refused.
+ */
+export function trackEngaged5Min(): boolean {
+  try {
+    if (!engaged10Allowed()) return false;
+    trackNamedEvent("engaged_5min");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Today's record: storage when readable, else this document's memory; a new IST day starts empty. */
 function current(day: string): { rec: Stored; fromMemory: boolean } {
   const stored = readStored();
   const base = stored === null ? mem : stored;
   const rec = base.day === day ? { ...base } : { ...EMPTY, day };
   if (mem.day === day && mem.sent) rec.sent = true;
+  if (mem.day === day && mem.sent5) rec.sent5 = true;
+  if (rec.sent) rec.sent5 = true;
   if (mem.day === day && mem.act > rec.act) rec.act = mem.act;
   return { rec, fromMemory: stored === null };
 }
@@ -142,7 +163,7 @@ function credit(slice: number, flush: boolean): void {
   const wall = Date.now();
   const day = istDay(wall);
   const { rec, fromMemory } = current(day);
-  if (rec.sent) {
+  if (rec.sent && rec.sent5) {
     mem = rec;
     pending = 0;
     return;
@@ -158,7 +179,17 @@ function credit(slice: number, flush: boolean): void {
   // Memory already holds the unwritten slices; storage does not.
   rec.ms += slice + (fromMemory ? 0 : pending);
   pending += slice;
-  if (rec.ms >= ENGAGED10_MS) {
+  if (rec.ms >= ENGAGED5_MS && !rec.sent5) {
+    let sent5 = false;
+    try {
+      sent5 = trackEngaged5Min();
+    } catch {
+      sent5 = false;
+    }
+    if (sent5) rec.sent5 = true;
+    flush = true;
+  }
+  if (rec.ms >= ENGAGED10_MS && !rec.sent) {
     let sent = false;
     try {
       sent = trackEngaged10Min();

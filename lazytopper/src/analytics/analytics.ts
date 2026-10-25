@@ -481,6 +481,8 @@ export const META_EVENTS: Readonly<
   first_graded: ["trackCustom", "FirstGraded"],
   // ENGAGE10-1 — ten visible minutes in one IST day; the name only, no parameter.
   engaged_10min: ["trackCustom", "Engaged10Min"],
+  // ENGAGE5-1 — five visible minutes in one IST day; the name only, no parameter.
+  engaged_5min: ["trackCustom", "Engaged5Min"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
@@ -900,7 +902,9 @@ export type NamedAnalyticsEvent =
   | "ci_demo_another"
   | "ci_demo_close"
   // ENGAGE10-1 — ten visible minutes in one IST day, once per browser per day, bare name.
-  | "engaged_10min";
+  | "engaged_10min"
+  // ENGAGE5-1 — five visible minutes in one IST day, once per browser per day, bare name.
+  | "engaged_5min";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });

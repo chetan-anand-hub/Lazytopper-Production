@@ -224,8 +224,8 @@ describe("Meta — before the library loads", () => {
 });
 
 describe("Meta — named events", () => {
-  it("maps exactly the PR-1 events plus TRACK-2's two checkout events plus MEASURE-1's first_graded plus ENGAGE10-1's engaged_10min", () => {
-    expect(Object.keys(META_EVENTS).sort()).toEqual(["begin_checkout", "engaged_10min", "first_graded", "purchase", "sign_up", "trial_start"]);
+  it("maps exactly the PR-1 events plus TRACK-2's two checkout events plus MEASURE-1's first_graded plus ENGAGE10-1's engaged_10min plus ENGAGE5-1's engaged_5min", () => {
+    expect(Object.keys(META_EVENTS).sort()).toEqual(["begin_checkout", "engaged_10min", "engaged_5min", "first_graded", "purchase", "sign_up", "trial_start"]);
     expect(META_EVENTS.first_graded).toEqual(["trackCustom", "FirstGraded"]);
   });
 
