@@ -46,6 +46,7 @@
 const crypto = require('node:crypto');
 const { LIMITS_CONFIG } = require('./limitsConfig.cjs');
 const { chargeableCountOf } = require('../grading/charge.cjs');
+const { PACK_CHAPTERS, PACK_SUBJECTS, ownsChapter, ownsMocks } = require('./packProducts.cjs');
 
 const USAGE_LEDGER_COLLECTION = 'usageLedger';
 // An object member (not a bare constant) on purpose, like usageLedger.cjs LEDGER_SEGMENTS: this is a
@@ -65,6 +66,46 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const WINDOW_MS = 7 * DAY_MS;
 const PAPER_KEY_MAX = 200;
 const MINT_MAX_BYTES = 4 * 1024;
+// PACKS-LIMIT-1: the owned-pack lookup never holds a student's download hostage.
+const PACKS_READ_TIMEOUT_MS = 1500;
+const COVER_MAX_CHAPTERS = 26;
+
+/**
+ * PACKS-LIMIT-1: strict validation of the optional `cover` a client sends with a mint.
+ * Returns `{ chapters, subject }` (either may be null) or null when ANYTHING is off - an unknown
+ * key, a non-array, an unknown slug, more than 26 chapters, a subject outside the enum. A null
+ * result means "ignore the cover and count as today".
+ */
+function parseCover(raw) {
+  if (raw === undefined || raw === null) return null;
+  if (typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const keys = Object.keys(raw);
+  if (keys.length === 0 || keys.some((k) => k !== 'chapters' && k !== 'subject')) return null;
+  let chapters = null;
+  let subject = null;
+  if (raw.chapters !== undefined) {
+    if (!Array.isArray(raw.chapters) || raw.chapters.length === 0 || raw.chapters.length > COVER_MAX_CHAPTERS) return null;
+    for (const c of raw.chapters) {
+      if (typeof c !== 'string' || !Object.prototype.hasOwnProperty.call(PACK_CHAPTERS, c)) return null;
+    }
+    chapters = Array.from(new Set(raw.chapters));
+  }
+  if (raw.subject !== undefined) {
+    if (typeof raw.subject !== 'string' || !PACK_SUBJECTS.includes(raw.subject)) return null;
+    subject = raw.subject;
+  }
+  return { chapters, subject };
+}
+
+/** Pure: is this paper wholly covered by what the student owns? (contract section 3, owner ruling 25 Oct) */
+function coverIsOwned(kind, cover, packs) {
+  if (!cover) return false;
+  if (kind === 'full-mock') return cover.subject !== null && ownsMocks(packs, cover.subject);
+  if (kind === 'chapter-test' || kind === 'worksheet') {
+    return cover.chapters !== null && cover.chapters.every((slug) => ownsChapter(packs, slug));
+  }
+  return false; // practice-set is not a pack product
+}
 /** Hard bound on stored entries: a runaway client cannot grow the document. */
 const MAX_ENTRIES = 60;
 
@@ -324,6 +365,7 @@ function limitsDeferredOf(res) {
  * @param deps.tierOf          (uid, req) => Promise<tier|null> — overrides the tier read (tests).
  * @param deps.getCreationMs   (uid) => Promise<ms|null> — overrides the Auth creationTime read (tests).
  * @param deps.resolveFirestore () => ({ db } | null) — the ledger Firestore (tests).
+ * @param deps.listPacks       (uid) => Promise<pack[]> — overrides the owned-packs read (tests).
  */
 function createLimits(deps = {}) {
   const {
@@ -351,6 +393,14 @@ function createLimits(deps = {}) {
     });
     tierOf = async (uid, req) => (await tiers.resolve(uid, req)).tier;
   }
+
+  // PACKS-LIMIT-1: the student's owned packs (server/services/packGrant.cjs), injectable for tests.
+  const readPacks = typeof deps.listPacks === 'function'
+    ? deps.listPacks
+    : async (uid) => {
+        if (!adminFirestore) throw new Error('no_firestore');
+        return require('./packGrant.cjs').listPacks(adminFirestore, uid);
+      };
 
   function emit(event) {
     try {
@@ -431,6 +481,23 @@ function createLimits(deps = {}) {
     return { ...info, limit: info.tier === 'free' ? limits.basicDownloadsPerWeek : limits.trialDownloadsPerWeek };
   }
 
+  /** Never throws: any failure (no Firestore, a read error, a slow read) is "not owned". */
+  async function ownsCover(uid, kind, cover) {
+    let timer = null;
+    try {
+      const packs = await Promise.race([
+        Promise.resolve().then(() => readPacks(uid)),
+        new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('packs_timeout')), PACKS_READ_TIMEOUT_MS); }),
+      ]);
+      return coverIsOwned(kind, cover, packs);
+    } catch {
+      emit('limits.download.pack_read_failed');
+      return false;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
   function sendOk(res, plan, decision, enforced, reused) {
     return sendJson(res, 200, {
       ok: true,
@@ -485,6 +552,17 @@ function createLimits(deps = {}) {
       emit('limits.download.unmetered');
       return sendJson(res, 200, {
         ok: true, counted: false, free: false, reused: false, enforced, limit: null, used: null, remaining: null, resetAt: null,
+      });
+    }
+
+    // PACKS-LIMIT-1: a paper wholly covered by packs the student owns is not a counted download.
+    // Runs BEFORE the ledger transaction and writes nothing. A bad cover or a failed / slow packs
+    // read changes nothing: the request falls through to today's counting (never a refusal, never a 500).
+    const cover = kind !== 'practice-set' ? parseCover(body.cover) : null;
+    if (cover && (await ownsCover(uid, kind, cover))) {
+      emit('limits.download.pack_owned');
+      return sendJson(res, 200, {
+        ok: true, counted: false, free: false, reused: false, packOwned: true, enforced, limit: plan.limit, used: null, remaining: null, resetAt: null,
       });
     }
 
@@ -899,6 +977,8 @@ module.exports = {
   createLimits,
   limitsDeferredOf,
   decideDownload,
+  parseCover,
+  coverIsOwned,
   entryId,
   isEnforced,
   resolveLimits,

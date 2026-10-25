@@ -194,6 +194,12 @@ function readChapterTestJobContext(raw: unknown): ChapterTestJobContext | null {
   return c as ChapterTestJobContext;
 }
 
+/** PACKS-LIMIT-1 — the chapter a Chapter Test covers, as a canonical slug, for the download mint. */
+function chapterCover(topicKey: string): { chapters: string[] } | undefined {
+  const slug = resolveCanonicalSlug(topicKey);
+  return slug ? { chapters: [slug] } : undefined;
+}
+
 export default function ChapterTestPage() {
   const params = useParams<"grade" | "subject" | "topicKey">();
   const [sp] = useSearchParams();
@@ -729,7 +735,7 @@ export default function ChapterTestPage() {
       return;
     }
     setDownloading(true); // busy BEFORE the guard: it can take a moment, and a second tap must do nothing
-    if (!(await guardDownload("chapter-test", paper.worksheetId))) {
+    if (!(await guardDownload("chapter-test", paper.worksheetId, chapterCover(topicKey)))) {
       setDownloading(false);
       return;
     }
@@ -838,7 +844,7 @@ export default function ChapterTestPage() {
   const downloadSolution = useCallback(async () => {
     if (!paper || !nomen || downloading) return;
     setDownloading(true);
-    if (!(await guardDownload("chapter-test", paper.worksheetId))) {
+    if (!(await guardDownload("chapter-test", paper.worksheetId, chapterCover(topicKey)))) {
       setDownloading(false);
       return;
     }
