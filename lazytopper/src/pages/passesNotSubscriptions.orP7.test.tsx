@@ -59,9 +59,10 @@ describe("OR-P7 — the owner's strings, word for word", () => {
     expect(text).not.toMatch(/cancel your subscription/i);
   });
 
-  it("COPY-2 · K1: the Terms payment heading reads 'Passes & Payment'", () => {
+  it("COPY-2 · K1: the Terms payment heading reads 'Passes, Packs & Payment' (PACKS-LEGAL-1)", () => {
     const headings = [...renderTerms().querySelectorAll("h2")].map((h) => flat(h.textContent));
-    expect(headings).toContain("Passes & Payment");
+    expect(headings).toContain("Passes, Packs & Payment");
+    expect(headings).not.toContain("Passes & Payment");
     expect(headings).not.toContain("Subscription & Payment");
   });
 

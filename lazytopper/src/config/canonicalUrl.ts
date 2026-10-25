@@ -78,6 +78,8 @@ export function appBasename(): string {
 export const SELF_CANONICAL_EXACT: readonly string[] = [
   "/",
   "/pricing",
+  // PACKS-LEGAL-1 (owner ruling, 25 Oct 2026) — the PDF packs page (route added by PACKS-CLIENT-1).
+  "/packs",
   "/exam-trends",
   "/practice-hub",
   "/cbse/class-10",

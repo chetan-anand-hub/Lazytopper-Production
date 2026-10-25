@@ -111,13 +111,13 @@ describe("LEGAL-ENTITY-1 L3 — the Terms", () => {
     expect(flat(c.querySelector(".lt-legal-updated")?.textContent)).toBe("Last updated: October 2026");
   });
 
-  it("Privacy says October 2026 (DPDP-1); Refund's date is unchanged", () => {
+  it("Privacy says October 2026 (DPDP-1); Refund says October 2026 (PACKS-LEGAL-1)", () => {
     expect(flat(renderLegal("privacy").querySelector(".lt-legal-updated")?.textContent)).toBe(
       "Last updated: October 2026",
     );
     cleanup();
     expect(flat(renderLegal("refund").querySelector(".lt-legal-updated")?.textContent)).toBe(
-      "Last updated: September 2026",
+      "Last updated: October 2026",
     );
   });
 });
