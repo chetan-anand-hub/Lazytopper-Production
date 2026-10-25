@@ -80,6 +80,8 @@ import {
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
 import { useSubscription } from "../hooks/useSubscription";
+import { useLimitedDownload } from "../hooks/useLimitedDownload";
+import LimitChip from "../components/limits/LimitChip";
 import {
   attemptsLogged,
   freshnessLine,
@@ -938,6 +940,8 @@ export default function FullMockPage() {
   const paperForExport = activeMock?.paper ?? draw?.paper ?? null;
   const codeForExport = activeMock?.code ?? nomen?.code;
   const nameForExport = activeMock?.name ?? nomen?.name;
+  // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
+  const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const downloadPaper = useCallback(async () => {
     if (!paperForExport || downloading) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
@@ -945,6 +949,7 @@ export default function FullMockPage() {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
+    if (!(await guardDownload("full-mock", paperForExport.worksheetId))) return;
     setDownloading(true);
     try {
       await exportWorksheetPdf(paperForExport, "questions", codeForExport);
@@ -1002,7 +1007,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1101,6 +1106,7 @@ export default function FullMockPage() {
   );
   const downloadSolution = useCallback(async () => {
     if (!paperForExport || downloading) return;
+    if (!(await guardDownload("full-mock", paperForExport.worksheetId))) return;
     setDownloading(true);
     try {
       await exportWorksheetPdf(paperForExport, "answers", codeForExport);
@@ -1109,7 +1115,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, downloading]);
+  }, [paperForExport, codeForExport, downloading, guardDownload]);
   const downloadGraded = useCallback(async () => {
     const a = activeRef.current;
     if (!a || !fullResponse || downloading) return;
@@ -1193,6 +1199,7 @@ export default function FullMockPage() {
       <style>{CT_CSS}</style>
       <style>{FM_CSS}</style>
       <UsageWarning scope="full-mock" snapshot={fairUse.snapshot} />
+      {downloadWall}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
           {paperNotice}
@@ -1416,6 +1423,7 @@ export default function FullMockPage() {
                       >
                         {downloading ? "Preparing…" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
                       </button>
+                      <LimitChip />
                     </div>
 
                     {downloadedNote && (

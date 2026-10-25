@@ -1,0 +1,80 @@
+/* LIMITS-1 — chip and wall. Deep navy, soft white, green accent; calm, never red.
+   Bottom sheet under 1024px, centred card at or above it. 44px tap targets. */
+.lt-limit-chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: hsl(152, 60%, 22%);
+  background: hsl(152, 55%, 94%);
+}
+.lt-limit-chip--warn { color: #a05a00; background: #fff4e0; }
+
+.lt-limit-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(21, 35, 58, 0.55);
+}
+.lt-limit-sheet {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 440px;
+  max-height: 88vh;
+  overflow-y: auto;
+  display: grid;
+  gap: 12px;
+  padding: 18px 20px 22px;
+  border-radius: 20px 20px 0 0;
+  background: #fff;
+  color: #15233a;
+  box-shadow: 0 -8px 32px rgba(21, 35, 58, 0.18);
+}
+.lt-limit-sheet:focus { outline: none; }
+.lt-limit-grip { width: 40px; height: 4px; margin: 0 auto 2px; border-radius: 999px; background: rgba(73, 98, 127, 0.28); }
+.lt-limit-title { margin: 0; font-family: var(--font-display, Fraunces, Georgia, serif); font-size: 1.25rem; line-height: 1.3; }
+.lt-limit-body { margin: 0; color: #5b6b82; font-size: 0.95rem; line-height: 1.5; }
+.lt-limit-founding {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: hsl(152, 60%, 22%);
+  background: hsl(152, 55%, 94%);
+}
+.lt-limit-acts { display: grid; gap: 8px; }
+.lt-limit-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  font: 600 14px/1.2 Inter, system-ui, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+.lt-limit-btn--primary { color: #06210f; background: hsl(152, 55%, 45%); }
+.lt-limit-btn--ghost { color: #15233a; background: transparent; border: 1px solid #dfe5ee; }
+
+@media (min-width: 1024px) {
+  .lt-limit-scrim { align-items: center; }
+  .lt-limit-sheet { border-radius: 18px; max-width: 480px; }
+  .lt-limit-grip { display: none; }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .lt-limit-sheet { background: #17233a; color: #e8eef8; }
+  :root:not([data-theme="light"]) .lt-limit-body { color: #9fb0c8; }
+  :root:not([data-theme="light"]) .lt-limit-btn--ghost { color: #e8eef8; border-color: #2a3955; }
+}

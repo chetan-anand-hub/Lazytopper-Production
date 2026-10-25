@@ -1,4 +1,5 @@
 
+import LimitChip from "../limits/LimitChip";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { WORKSHEET_MAX_QUESTIONS } from "./worksheetGenerator";
@@ -367,6 +368,7 @@ export function PracticeControls({
                 : "Download PDF"}
             </button>
           )}
+          {hasQuestions && <LimitChip />}
           {onRegenerate && hasQuestions && (
             <button
               type="button"

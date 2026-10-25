@@ -55,6 +55,8 @@ import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { CT_PROGRESS_PREFIX, paperRouteKey } from "../lib/papers/resumablePaper";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
 import { useSubscription } from "../hooks/useSubscription";
+import { useLimitedDownload } from "../hooks/useLimitedDownload";
+import LimitChip from "../components/limits/LimitChip";
 import {
   attemptsLogged,
   freshnessLine,
@@ -337,6 +339,8 @@ export default function ChapterTestPage() {
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
+  const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   // AWAIT-1-PAPERS — the paper just downloaded (the confirmation card) and a downloaded paper
   // re-opened for its Section A picks.
   const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
@@ -723,6 +727,7 @@ export default function ChapterTestPage() {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
+    if (!(await guardDownload("chapter-test", paper.worksheetId))) return;
     setDownloading(true);
     try {
       await exportWorksheetPdf(paper, "questions", nomen.code);
@@ -763,7 +768,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium, guardDownload]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -828,6 +833,7 @@ export default function ChapterTestPage() {
   );
   const downloadSolution = useCallback(async () => {
     if (!paper || !nomen || downloading) return;
+    if (!(await guardDownload("chapter-test", paper.worksheetId))) return;
     setDownloading(true);
     try {
       await exportWorksheetPdf(paper, "answers", nomen.code);
@@ -836,7 +842,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading]);
+  }, [paper, nomen, downloading, guardDownload]);
   const downloadGraded = useCallback(async () => {
     if (!paper || !nomen || !fullResponse || downloading) return;
     setDownloading(true);
@@ -1038,6 +1044,7 @@ export default function ChapterTestPage() {
     <div className="lt-ct">
       <style>{CT_CSS}</style>
       <UsageWarning scope="chapter-test" snapshot={fairUse.snapshot} />
+      {downloadWall}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
           {paperNotice}
@@ -1211,6 +1218,7 @@ export default function ChapterTestPage() {
                       >
                         {downloading ? "Preparing…" : "↓ Download this test (PDF)"}
                       </button>
+                      <LimitChip />
                     </div>
                     {limitNotice && (
                       <div className="lt-ct__honest" role="alert" data-testid="ct-limit-notice">

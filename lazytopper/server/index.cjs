@@ -215,6 +215,7 @@ const { createParentReportRoutes, PARENT_REPORT_LINK_PATH, PARENT_REPORT_VIEW_PA
 // premium exemption from the 80% vision shed (U4), and GET /api/usage/me. Refusals are
 // DARK unless FAIR_USE_ENFORCE=1 (U8). cachedReadJson lets a grade-worksheet body that
 // fair use had to read (to count its questions) reach the handler as the same parse.
+const { createLimits, USAGE_LIMITS_PATH, USAGE_LIMITS_DOWNLOAD_PATH } = require('./services/limits.cjs');
 const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH, createGradingIdempotency, GRADING_IN_PROGRESS_BODY } = require('./services/fairUse.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
@@ -355,6 +356,8 @@ const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
 // AUTHGATE-2: firebaseAdmin is passed for appCheck() only (requireVerifiedCallerOrAppCheck).
 const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson });
 const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
+// LIMITS-1: download limits (dark until LIMITS_ENFORCE=1). See services/limits.cjs.
+const limits = createLimits({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
 // LOW-END-1 R4: a retried grade (same verified uid + Idempotency-Key, 24 h) is answered
 // from its stored result — never graded or charged twice. See fairUse.cjs.
 const gradingIdempotency = createGradingIdempotency({ telemetry, corsOrigin: config.CORS_ORIGIN });
@@ -462,6 +465,9 @@ async function handleRequest(req, res) {
       reqPath === USAGE_ME_PATH ||
       // FAIR-USE-2 (F1): the paper-pass mint — a credentialed POST.
       reqPath === USAGE_PAPER_PATH ||
+      // LIMITS-1: the counters (credentialed GET) and the download mint (credentialed POST).
+      reqPath === USAGE_LIMITS_PATH ||
+      reqPath === USAGE_LIMITS_DOWNLOAD_PATH ||
       // GRADING-JOBS-1 J1: the job poll — a credentialed GET, preflighted like the export.
       JOB_POLL_PATH_RE.test(reqPath) ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
@@ -598,6 +604,14 @@ async function handleRequest(req, res) {
   // FAIR_USE_PAPER_SECRET is unset — the client then grades without a pass.
   if (req.method === 'POST' && reqPath === USAGE_PAPER_PATH) {
     return fairUse.handlePaperPass(req, res);
+  }
+
+  // LIMITS-1: the caller's own download counters, and the download mint.
+  if (req.method === 'GET' && reqPath === USAGE_LIMITS_PATH) {
+    return limits.handleLimitsMe(req, res);
+  }
+  if (req.method === 'POST' && reqPath === USAGE_LIMITS_DOWNLOAD_PATH) {
+    return limits.handleDownloadMint(req, res);
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;

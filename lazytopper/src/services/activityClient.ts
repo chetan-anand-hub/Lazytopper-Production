@@ -170,6 +170,10 @@ export const ACTIVITY_EVENTS = [
   "paywall_action_pay",
   "paywall_action_qr",
   "paywall_action_forward",
+  // LIMITS-1 — a paper PDF was started / refused by the weekly download limit / the wall was shown. Names only. Additive.
+  "download_start",
+  "download_blocked",
+  "download_wall_shown",
   // PARENT-REPORT-1 — the student shared a link to one result with a parent. Additive.
   "parent_report_shared",
   // SHARE-CARD-1 — the student shared a scorecard image (any surface, size, channel). Additive.

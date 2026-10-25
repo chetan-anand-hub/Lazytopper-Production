@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
+import { useLimitedDownload } from "../../hooks/useLimitedDownload";
+import LimitChip from "../../components/limits/LimitChip";
+import { practiceSetPaperKey } from "../../services/limitsClient";
 import {
   downloadWorksheet,
   sectionScopeLabel,
@@ -16,9 +19,12 @@ export default function WorksheetReady() {
   const opts: WorksheetOptions | undefined = (location.state as { opts?: WorksheetOptions })?.opts;
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED).
+  const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
 
   async function handleDownload() {
     if (!opts) return;
+    if (!(await guardDownload("practice-set", practiceSetPaperKey(opts.questions.map((q) => String(q.id)))))) return;
     setDownloadError(null);
     setDownloading(true);
     try {
@@ -138,6 +144,8 @@ export default function WorksheetReady() {
             </>
           )}
         </button>
+        <LimitChip />
+        {downloadWall}
 
         <button
           onClick={() => navigate(`/practice/10/${subject}`)}

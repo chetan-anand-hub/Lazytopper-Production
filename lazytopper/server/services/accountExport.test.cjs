@@ -199,6 +199,8 @@ function realSeed(uid = UID) {
     // METER-1. The parent is seeded only so the map-driven "every location carries data"
     // test has a row to find; production never writes it (see the phantom-parent test).
     [`usageLedger/${uid}`]: {},
+    // LIMITS-1: the download-limits state document (Admin SDK only).
+    [`usageLedger/${uid}/limits/state`]: { dl: [{ at: 1, id: 'abc', free: true }], firstFree: { download: true } },
     [`usageLedger/${uid}/days/2026-09-27`]: {
       calls: 3, promptTokens: 4200, outputTokens: 610, thoughtsTokens: 2900, costMicroInr: 883520,
     },
