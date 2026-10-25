@@ -176,6 +176,11 @@ const EVENT_LABELS: Record<string, string> = {
   ci_demo_close: "Closed the sample-marking card",
   engaged_10min: "Stayed 10 minutes (in one day)",
   engaged_5min: "Stayed 5 minutes (in one day)",
+  // PACKS-CLIENT-1 — the printable PDF packs.
+  pack_view: "Opened the PDF packs page",
+  pack_checkout: "Opened checkout for a PDF pack",
+  pack_purchase: "Bought a PDF pack",
+  pack_download: "Downloaded a PDF from a pack",
 };
 
 /* ── GUIDE-1 — the Byte-guide A/B ──────────────────────────────────────────── */

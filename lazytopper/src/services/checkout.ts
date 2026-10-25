@@ -36,6 +36,17 @@ export class PayOrderExpiredError extends Error {
   }
 }
 
+/**
+ * PACKS-CLIENT-1 — the server refused a pack order because everything it would grant is already owned
+ * (HTTP 409 `{ error: "already_owned" }`). Thrown by `postJson`, so a pass flow can never see it.
+ */
+export class PayAlreadyOwnedError extends Error {
+  constructor() {
+    super("already_owned");
+    this.name = "PayAlreadyOwnedError";
+  }
+}
+
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";
 
@@ -158,7 +169,7 @@ export function resetCheckoutScriptForTests(): void {
   scriptPromise = null;
 }
 
-async function authHeaders(): Promise<Record<string, string>> {
+export async function authHeaders(): Promise<Record<string, string>> {
   const { authClient } = await import("./firebaseClient");
   const current = authClient?.currentUser ?? null;
   if (!current) throw new Error("signed-out");
@@ -180,6 +191,7 @@ async function postJson(url: string, body: unknown): Promise<Record<string, unkn
     parsed = null;
   }
   if (!res.ok && parsed && parsed.reason === "order_expired") throw new PayOrderExpiredError();
+  if (res.status === 409 && parsed && parsed.error === "already_owned") throw new PayAlreadyOwnedError();
   if (!res.ok || !parsed || parsed.ok !== true) throw new Error(`request failed: ${res.status}`);
   return parsed;
 }
@@ -203,6 +215,79 @@ export async function verifyPayment(success: RazorpaySuccess): Promise<{ passEnd
   });
   if (typeof json.passEnd !== "string") throw new Error("verified without a passEnd");
   return { passEnd: json.passEnd };
+}
+
+/* ── PACKS-CLIENT-1 · the PDF-pack variants of order / verify / status ────────────
+ * Same endpoints, same server-verified rule: a pack is shown as owned ONLY from the server's
+ * `kind: "pack"` response. Pass behaviour above is untouched (createPayOrder / verifyPayment
+ * still require a pass type and a `passEnd`).
+ */
+
+/** The pack the server confirmed (PACKS contract §1: `{ ok, kind: "pack", packId, sku, target }`). */
+export interface PackGrant {
+  packId: string;
+  sku: string;
+  target: string;
+}
+
+function readPackGrant(json: Record<string, unknown>): PackGrant | null {
+  if (json.kind !== "pack") return null;
+  const { packId, sku, target } = json;
+  if (typeof packId !== "string" || !packId || typeof sku !== "string" || !sku) return null;
+  return { packId, sku, target: typeof target === "string" ? target : "" };
+}
+
+/** The server prices and creates a pack order. Only the sku and (where the sku has one) the target are sent. */
+export async function createPackOrder(sku: string, packTarget?: string): Promise<PayOrder> {
+  const json = await postJson(PAY_ORDER_ENDPOINT, {
+    passType: sku,
+    ...(packTarget !== undefined ? { packTarget } : {}),
+  });
+  const { orderId, keyId, amountPaise } = json;
+  if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
+    throw new Error("malformed order");
+  }
+  return { orderId, keyId, amountPaise };
+}
+
+/** The server verifies and grants a pack. A pass-shaped response (or none) is an error, never a grant. */
+export async function verifyPackPayment(success: RazorpaySuccess): Promise<PackGrant> {
+  const json = await postJson(PAY_VERIFY_ENDPOINT, {
+    orderId: success.razorpay_order_id,
+    paymentId: success.razorpay_payment_id,
+    signature: success.razorpay_signature,
+  });
+  const grant = readPackGrant(json);
+  if (!grant) throw new Error("verified without a pack grant");
+  return grant;
+}
+
+export type PackStatusResult =
+  | { state: "paid"; grant: PackGrant; paymentId?: string; amountInr?: number }
+  | { state: "pending" }
+  | { state: "expired" }
+  | { state: "unknown" };
+
+/**
+ * "Is my pack payment through?" for the caller's OWN order. Spends one of the order's status calls
+ * (the same per-tab cap as passes). Never throws.
+ */
+export async function checkPackPayStatus(orderId: string, deps: PayStatusDeps = DEFAULT_STATUS_DEPS): Promise<PackStatusResult> {
+  if (!orderId || !takeStatusCheck(orderId)) return { state: "unknown" };
+  let json: Record<string, unknown>;
+  try {
+    json = await deps.post(PAY_STATUS_ENDPOINT, { orderId });
+  } catch (statusError) {
+    return statusError instanceof PayOrderExpiredError ? { state: "expired" } : { state: "unknown" };
+  }
+  if (json.state === "paid") {
+    const grant = readPackGrant(json);
+    if (!grant) return { state: "unknown" };
+    const paymentId = typeof json.paymentId === "string" && json.paymentId ? json.paymentId : undefined;
+    const amountInr = typeof json.amountInr === "number" && Number.isFinite(json.amountInr) && json.amountInr > 0 ? json.amountInr : undefined;
+    return { state: "paid", grant, ...(paymentId !== undefined ? { paymentId } : {}), ...(amountInr !== undefined ? { amountInr } : {}) };
+  }
+  return json.state === "pending" ? { state: "pending" } : { state: "unknown" };
 }
 
 export type BuyOutcome =

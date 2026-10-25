@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { lazyWithRetry as lazy } from "../lib/lazyWithRetry";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -56,6 +57,10 @@ import {
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
+
+// PACKS-CLIENT-1 — the PDF packs strip is below the fold: its own chunk, mounted after first paint so the
+// prerendered /pricing is unchanged. A failed chunk renders nothing.
+const PacksStrip = lazy(() => import("../components/pricing/PacksStrip").then((m): { default: ComponentType } => m).catch((): { default: ComponentType } => ({ default: () => null })));
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -1366,6 +1371,8 @@ function PricingPlansPage() {
     if (carriedRedirect) markFreeCheckSigninIntent();
     navigate(path);
   };
+  const [showPacksStrip, setShowPacksStrip] = useState(false);
+  useEffect(() => setShowPacksStrip(true), []);
   const [waitlistContact, setWaitlistContact] = useState("");
   const [waitlistBoard, setWaitlistBoard] = useState("");
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
@@ -1618,6 +1625,12 @@ function PricingPlansPage() {
               </div>
             </div>
           </div>
+
+          {showPacksStrip && (
+            <Suspense fallback={null}>
+              <PacksStrip />
+            </Suspense>
+          )}
 
           <section className="lt-pricing-compare" aria-labelledby="lt-pricing-compare-title">
             <h2 className="lt-pricing-compare-title" id="lt-pricing-compare-title">{COMPARE_TITLE}</h2>

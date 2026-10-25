@@ -62,6 +62,7 @@ const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
 import { BRAND_MARK_SRC } from "./config/brandMark";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
+const PacksPage = lazy(() => import("./pages/PacksPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 const ForParentsPage = lazy(() => import("./pages/ForParentsPage"));
@@ -1016,6 +1017,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
+          <Route path="/packs" element={withRouteSuspense(<PacksPage />)} />
           {/* CBSE 2027 — a PUBLIC, signed-out page: official CBSE papers, unit marks,
               the two-exam timeline and the trap cards. ONE component at every width,
               responsive by CSS alone (no useIsDesktop) — the ConceptSpine pattern,
