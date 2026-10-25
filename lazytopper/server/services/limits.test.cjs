@@ -126,6 +126,27 @@ test('idempotent: same paperKey within 24 h spends nothing (paper + solutions = 
   assert.equal(b.body.counted, true);
 });
 
+test('a paper on day 1 and its key on day 5 are ONE spend; a different paper still counts', async () => {
+  const r = rig();
+  await mint(r, paper(0)); r.clock.now += 1000;            // burn the free one
+  const day1 = await mint(r, paper(1));
+  assert.equal(day1.body.counted, true);
+  r.clock.now += 4 * DAY;
+  const day5 = await mint(r, { kind: 'worksheet', paperKey: 'paper-1' });
+  assert.equal(day5.status, 200); assert.equal(day5.body.reused, true);
+  const other = await mint(r, paper(2));
+  assert.equal(other.status, 409);
+  const key = [...r.f.docs.keys()][0];
+  assert.equal(r.f.docs.get(key).dl.filter((e) => !e.free).length, 1);
+});
+
+test('409 names the tier so the client can word it', async () => {
+  const r = rig({ tier: 'trial', created: NOW - 3 * DAY });
+  let last;
+  for (let i = 0; i < 4; i += 1) { last = await mint(r, paper(i)); r.clock.now += 1; }
+  assert.equal(last.status, 409); assert.equal(last.body.tier, 'trial');
+});
+
 test('stored entries hold a hash, never the paper id', async () => {
   const r = rig();
   await mint(r, { kind: 'worksheet', paperKey: 'SECRET-PAPER-ID' });

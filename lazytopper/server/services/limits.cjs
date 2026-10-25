@@ -31,7 +31,7 @@
  *     fairUse.cjs). It lives under the usageLedger tree, written ONLY by the Admin SDK, so
  *     firestore.rules is untouched (its deny-all catch-all already covers it); it is mapped in
  *     studentDataMap.ts so export and erasure walk it.
- *   ★ IDEMPOTENT: re-minting the same paperKey within 24 h spends nothing (a double tap, a
+ *   ★ IDEMPOTENT: re-minting the same paperKey while it is still in the 7-day window spends nothing (a double tap, a
  *     failed PDF build, the solutions of the same paper). Entries hold a HASH of the paperKey.
  *   ★ SWITCH: refusals happen ONLY when env LIMITS_ENFORCE=1. Otherwise the request is served,
  *     the honest count still moves, and the would-be refusal is counted as
@@ -57,8 +57,6 @@ const USAGE_LIMITS_DOWNLOAD_PATH = '/api/usage/limits/download';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WINDOW_MS = 7 * DAY_MS;
-/** A re-mint of the same paper inside this window spends nothing. */
-const IDEMPOTENT_MS = DAY_MS;
 const PAPER_KEY_MAX = 200;
 const MINT_MAX_BYTES = 4 * 1024;
 /** Hard bound on stored entries: a runaway client cannot grow the document. */
@@ -121,7 +119,9 @@ function decideDownload({ metered, limit, entries, firstFreeUsed, paperKey, nowM
   const live = (Array.isArray(entries) ? entries : []).filter(
     (e) => e && Number.isFinite(e.at) && e.at <= nowMs + 5 * 60 * 1000 && nowMs - e.at < WINDOW_MS,
   );
-  const prior = live.find((e) => e.id === id && nowMs - e.at < IDEMPOTENT_MS);
+  // A paper and its answer key are ONE download: any re-mint of the same paper inside the live
+  // 7-day window (paper on day 1, key on day 5) is a reuse and spends nothing.
+  const prior = live.find((e) => e.id === id);
   const counted = live.filter((e) => !e.free);
   const used = counted.length;
   const oldestCounted = counted.reduce((min, e) => (min === null || e.at < min ? e.at : min), null);
@@ -397,6 +397,7 @@ function createLimits(deps = {}) {
       emit('limits.download.refused');
       return sendJson(res, 409, {
         error: 'download_limit',
+        tier: plan.tier,
         window: '7d',
         limit: plan.limit,
         used: decision.used,
@@ -462,7 +463,6 @@ module.exports = {
   USAGE_LIMITS_DOWNLOAD_PATH,
   TRIAL_COHORT_START_MS,
   WINDOW_MS,
-  IDEMPOTENT_MS,
   DOWNLOAD_KINDS,
   DEFAULTS,
 };

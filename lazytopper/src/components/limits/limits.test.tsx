@@ -16,8 +16,8 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 });
 const authState: { user: { uid: string } | null } = { user: { uid: "stu-1" } };
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: authState.user, loading: false }) }));
-const subState = { isPremium: false };
-vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => ({ isPremium: subState.isPremium }) }));
+const subState = { isPremium: false, touched: 0 };
+vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => { subState.touched += 1; return { isPremium: subState.isPremium }; } }));
 vi.mock("../../ai/paidCallHeaders", () => ({
   paidJsonHeaders: async () => (authState.user ? { "Content-Type": "application/json", "X-Lazytopper-Uid": authState.user.uid, Authorization: "Bearer t" } : { "Content-Type": "application/json" }),
 }));
@@ -26,6 +26,7 @@ import * as analytics from "../../analytics/analytics";
 import { useLimitedDownload } from "../../hooks/useLimitedDownload";
 import {
   getLimitsSummary,
+  MINT_TIMEOUT_MS,
   mintDownload,
   practiceSetPaperKey,
   refreshLimitsSummary,
@@ -46,6 +47,7 @@ function jsonRes(status: number, body: unknown): Response {
 beforeEach(() => {
   authState.user = { uid: "stu-1" };
   subState.isPremium = false;
+  subState.touched = 0;
   resetLimitsSummaryForTests();
   track.mockClear();
 });
@@ -98,7 +100,7 @@ describe("limitsClient", () => {
     expect((await mintDownload("worksheet", "k", true)).status).toBe("ok");
     await waitFor(() => expect(getLimitsSummary()?.download?.remaining).toBe(0));
     f.mockResolvedValueOnce(jsonRes(409, { error: "download_limit", resetAt: "2026-11-09T06:00:00Z", limit: 1 }));
-    expect(await mintDownload("worksheet", "k2", true)).toEqual({ status: "blocked", resetAt: "2026-11-09T06:00:00Z", limit: 1 });
+    expect(await mintDownload("worksheet", "k2", true)).toEqual({ status: "blocked", resetAt: "2026-11-09T06:00:00Z", limit: 1, tier: null });
     f.mockResolvedValueOnce(jsonRes(500, {}));
     expect((await mintDownload("worksheet", "k3", true)).status).toBe("open");
     f.mockRejectedValueOnce(new Error("net"));
@@ -106,6 +108,20 @@ describe("limitsClient", () => {
     vi.stubGlobal("navigator", { onLine: false });
     f.mockRejectedValueOnce(new Error("net"));
     expect((await mintDownload("worksheet", "k5", true)).status).toBe("offline");
+  });
+  it("a hung server is abandoned after the timeout and the download is allowed (fail open)", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.stubEnv("VITE_LIMITS_ENABLED", "1");
+      vi.stubGlobal("fetch", (_u: string, init?: { signal?: AbortSignal }) => new Promise((_res, rej) => {
+        init?.signal?.addEventListener("abort", () => rej(new Error("aborted")));
+      }));
+      const p = mintDownload("worksheet", "k", true);
+      await vi.advanceTimersByTimeAsync(MINT_TIMEOUT_MS + 10);
+      expect(await p).toEqual({ status: "open" });
+    } finally {
+      vi.useRealTimers();
+    }
   });
   it("practiceSetPaperKey is stable and order-free", () => {
     expect(practiceSetPaperKey(["b", "a", 3])).toBe(practiceSetPaperKey([3, "a", "b"]));
@@ -129,6 +145,23 @@ describe("DownloadLimitWall", () => {
     expect(screen.getByRole("dialog").textContent).toContain("Sign up — your first download is free");
     expect(screen.getByRole("link", { name: "Sign up free" }).getAttribute("href")).toMatch(/^\/login\?redirect=/);
   });
+  it("a trial student never reads Basic wording", () => {
+    wrap(<DownloadLimitWall variant="blocked" resetAt="2026-11-07T10:40:00Z" tier="trial" onClose={() => {}} />);
+    const text = screen.getByRole("dialog").textContent || "";
+    expect(text).not.toMatch(/Basic|free download/i);
+    expect(screen.getByRole("button", { name: "Maybe later" })).toBeTruthy();
+  });
+  it("focus is trapped: Tab from the last control wraps to the first, Shift+Tab back", () => {
+    wrap(<DownloadLimitWall variant="blocked" onClose={() => {}} />);
+    const buttons = screen.getAllByRole("button");
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    last.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(document.activeElement).toBe(first);
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(last);
+  });
   it("offline variant is calm", () => {
     wrap(<DownloadLimitWall variant="offline" onClose={() => {}} />);
     expect(screen.getByRole("dialog").textContent).toContain("Connect to download");
@@ -150,32 +183,55 @@ describe("LimitChip", () => {
 });
 
 describe("useLimitedDownload.guard", () => {
-  it("flag off or premium: true with no request; blocked: false + wall + analytics; fail open: true", async () => {
+  const wrapper = ({ children }: { children: React.ReactNode }) => <MemoryRouter>{children}</MemoryRouter>;
+  it("dark: true, no request, and the subscription / auth hooks are never touched", async () => {
     const f = vi.fn();
     vi.stubGlobal("fetch", f);
-    const { result, rerender } = renderHook(() => useLimitedDownload(), { wrapper: ({ children }) => <MemoryRouter>{children}</MemoryRouter> });
-    expect(await result.current.guard("worksheet", "k")).toBe(true);
+    subState.touched = 0;
+    const { result } = renderHook(() => useLimitedDownload(), { wrapper });
+    expect(await result.current.guard("worksheet", () => { throw new Error("key must not be computed when dark"); })).toBe(true);
     expect(f).not.toHaveBeenCalled();
-
+    expect(subState.touched).toBe(0);
+    expect(result.current.wall).toBeNull();
+  });
+  it("live: blocked -> false + wall + analytics; 503 and a hung server fail open; ok -> start", async () => {
     vi.stubEnv("VITE_LIMITS_ENABLED", "1");
-    f.mockResolvedValueOnce(jsonRes(409, { error: "download_limit", resetAt: "2026-11-07T10:40:00Z", limit: 1 }));
+    const f = vi.fn();
+    vi.stubGlobal("fetch", f);
+    const { result } = renderHook(() => useLimitedDownload(), { wrapper });
+    f.mockResolvedValueOnce(jsonRes(409, { error: "download_limit", resetAt: "2026-11-07T10:40:00Z", limit: 2, tier: "trial" }));
     let ok = true;
     await act(async () => { ok = await result.current.guard("chapter-test", "ct-1"); });
-    rerender();
     expect(ok).toBe(false);
     expect(track).toHaveBeenCalledWith("chapter-test", "blocked");
     expect(track).toHaveBeenCalledWith("chapter-test", "wall_shown");
     expect(result.current.wall).not.toBeNull();
-
     f.mockResolvedValueOnce(jsonRes(503, {}));
     await act(async () => { ok = await result.current.guard("chapter-test", "ct-2"); });
     expect(ok).toBe(true);
-
     f.mockResolvedValueOnce(jsonRes(200, { ok: true, counted: true, free: false, remaining: 0, limit: 1, resetAt: null }));
     f.mockResolvedValue(jsonRes(200, { ok: true, tier: "free", enforced: true, download: null }));
-    await act(async () => { ok = await result.current.guard("full-mock", "fm-1"); });
+    await act(async () => { ok = await result.current.guard("full-mock", () => "fm-1"); });
     expect(ok).toBe(true);
     expect(track).toHaveBeenCalledWith("full-mock", "start");
+  });
+  it("live: a second tap while the first is asking is ignored (one request)", async () => {
+    vi.stubEnv("VITE_LIMITS_ENABLED", "1");
+    const f = vi.fn();
+    vi.stubGlobal("fetch", f);
+    let release: (r: Response) => void = () => {};
+    f.mockReturnValueOnce(new Promise<Response>((res) => { release = res; }));
+    f.mockResolvedValue(jsonRes(200, { ok: true, tier: "free", enforced: true, download: null }));
+    const { result } = renderHook(() => useLimitedDownload(), { wrapper });
+    let first!: Promise<boolean>;
+    let second = true;
+    await act(async () => {
+      first = result.current.guard("worksheet", "w1");
+      second = await result.current.guard("worksheet", "w1");
+    });
+    expect(second).toBe(false);
+    await act(async () => { release(jsonRes(200, { ok: true, counted: false, free: true, remaining: 1, limit: 1, resetAt: null })); await first; });
+    expect(f.mock.calls.filter((c) => String(c[0]).endsWith("/limits/download")).length).toBe(1);
   });
 });
 

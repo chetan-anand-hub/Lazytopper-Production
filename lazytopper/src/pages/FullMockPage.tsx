@@ -949,8 +949,11 @@ export default function FullMockPage() {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
-    if (!(await guardDownload("full-mock", paperForExport.worksheetId))) return;
-    setDownloading(true);
+    setDownloading(true); // busy BEFORE the guard: it can take a moment, and a second tap must do nothing
+    if (!(await guardDownload("full-mock", paperForExport.worksheetId))) {
+      setDownloading(false);
+      return;
+    }
     try {
       await exportWorksheetPdf(paperForExport, "questions", codeForExport);
       recordServed(servedOwnerId, {
@@ -1106,8 +1109,11 @@ export default function FullMockPage() {
   );
   const downloadSolution = useCallback(async () => {
     if (!paperForExport || downloading) return;
-    if (!(await guardDownload("full-mock", paperForExport.worksheetId))) return;
     setDownloading(true);
+    if (!(await guardDownload("full-mock", paperForExport.worksheetId))) {
+      setDownloading(false);
+      return;
+    }
     try {
       await exportWorksheetPdf(paperForExport, "answers", codeForExport);
     } catch {

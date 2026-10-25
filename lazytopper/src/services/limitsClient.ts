@@ -18,6 +18,8 @@ import { paidJsonHeaders } from "../ai/paidCallHeaders";
 
 export const LIMITS_ENDPOINT = "/api/usage/limits";
 export const LIMITS_DOWNLOAD_ENDPOINT = "/api/usage/limits/download";
+/** The mint is abandoned (and the download allowed) after this long. */
+export const MINT_TIMEOUT_MS = 4000;
 
 /** Read as a LITERAL `import.meta.env.VITE_…` so Vite and Vitest both rewrite it. */
 function readFlag(): string {
@@ -54,7 +56,7 @@ export type MintResult =
   | { status: "offline" }
   | { status: "open" }
   | { status: "ok"; counted: boolean; free: boolean; remaining: number | null; limit: number | null; resetAt: string | null }
-  | { status: "blocked"; resetAt: string | null; limit: number | null };
+  | { status: "blocked"; resetAt: string | null; limit: number | null; tier: string | null };
 
 function isOffline(): boolean {
   try {
@@ -85,21 +87,32 @@ export async function mintDownload(kind: DownloadKind, paperKey: string, signedI
     return { status: "open" };
   }
   if (!headers["X-Lazytopper-Uid"]) return { status: "signed_out" };
+  // A slow server must never hold a student's PDF hostage: after MINT_TIMEOUT_MS the mint is
+  // abandoned and the download goes ahead (fail open, same doctrine as a 5xx).
+  const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timer = setTimeout(() => ctl?.abort(), MINT_TIMEOUT_MS);
   let res: Response;
-  try {
-    res = await fetch(LIMITS_DOWNLOAD_ENDPOINT, { method: "POST", headers, body: JSON.stringify({ kind, paperKey }) });
-  } catch {
-    return isOffline() ? { status: "offline" } : { status: "open" };
-  }
   let body: Record<string, unknown> = {};
   try {
-    const parsed: unknown = JSON.parse(await res.text());
-    if (parsed && typeof parsed === "object") body = parsed as Record<string, unknown>;
+    res = await fetch(LIMITS_DOWNLOAD_ENDPOINT, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ kind, paperKey }),
+      ...(ctl ? { signal: ctl.signal } : {}),
+    });
+    try {
+      const parsed: unknown = JSON.parse(await res.text());
+      if (parsed && typeof parsed === "object") body = parsed as Record<string, unknown>;
+    } catch {
+      /* an unreadable body is a fail-open below */
+    }
   } catch {
-    /* an unreadable body is a fail-open below */
+    return ctl?.signal.aborted ? { status: "open" } : isOffline() ? { status: "offline" } : { status: "open" };
+  } finally {
+    clearTimeout(timer);
   }
   if (res.status === 409 && body.error === "download_limit") {
-    return { status: "blocked", resetAt: str(body.resetAt), limit: num(body.limit) };
+    return { status: "blocked", resetAt: str(body.resetAt), limit: num(body.limit), tier: str(body.tier) };
   }
   if (!res.ok) return { status: "open" };
   void refreshLimitsSummary();

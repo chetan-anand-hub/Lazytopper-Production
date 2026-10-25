@@ -727,8 +727,11 @@ export default function ChapterTestPage() {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
-    if (!(await guardDownload("chapter-test", paper.worksheetId))) return;
-    setDownloading(true);
+    setDownloading(true); // busy BEFORE the guard: it can take a moment, and a second tap must do nothing
+    if (!(await guardDownload("chapter-test", paper.worksheetId))) {
+      setDownloading(false);
+      return;
+    }
     try {
       await exportWorksheetPdf(paper, "questions", nomen.code);
       markServed(paper);
@@ -833,8 +836,11 @@ export default function ChapterTestPage() {
   );
   const downloadSolution = useCallback(async () => {
     if (!paper || !nomen || downloading) return;
-    if (!(await guardDownload("chapter-test", paper.worksheetId))) return;
     setDownloading(true);
+    if (!(await guardDownload("chapter-test", paper.worksheetId))) {
+      setDownloading(false);
+      return;
+    }
     try {
       await exportWorksheetPdf(paper, "answers", nomen.code);
     } catch {

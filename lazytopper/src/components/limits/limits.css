@@ -72,6 +72,10 @@
   .lt-limit-scrim { align-items: center; }
   .lt-limit-sheet { border-radius: 18px; max-width: 480px; }
   .lt-limit-grip { display: none; }
+  /* The mock-up's two-column actions: Pay | Send to parent, then the keep button full width. */
+  .lt-limit-acts { grid-template-columns: 1fr; }
+  .lt-limit-sheet .lt-paywall-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .lt-limit-sheet .lt-paywall-actions > :not(.lt-paywall-pay):not(.lt-paywall-parent) { grid-column: 1 / -1; }
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .lt-limit-sheet { background: #17233a; color: #e8eef8; }

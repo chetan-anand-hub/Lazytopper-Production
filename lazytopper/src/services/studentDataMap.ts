@@ -572,8 +572,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "★ LIMITS-1. server/services/limits.cjs, ONE document `state`, Admin SDK only, written " +
       "in a transaction when a student asks to download a paper. NOT declared in firestore.rules: " +
       "no client reads or writes it, so browsers fall through to the deny-all catch-all. " +
-      "Student data: erased with the account and included in the export. Empty until the owner " +
-      "switches LIMITS_ENFORCE on and a student downloads.",
+      "Student data: erased with the account and included in the export. Written from the first paper " +
+      "download once VITE_LIMITS_ENABLED is on (even while LIMITS_ENFORCE is off, so the counts are honest " +
+      "before the switch is flipped); empty until then.",
   },
 
   // ── Firestore: extra-usage credit (server-only, TOPUP-1; dark until TOPUP_ENABLED) ───────────

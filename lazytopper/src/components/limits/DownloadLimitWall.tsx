@@ -20,14 +20,16 @@ export type DownloadWallVariant = "blocked" | "signed_out" | "offline";
 export interface DownloadLimitWallProps {
   variant: DownloadWallVariant;
   resetAt?: string | null;
+  /** The server's tier for this refusal: a trial student reads trial wording. */
+  tier?: string | null;
   onClose: () => void;
 }
 
-export default function DownloadLimitWall({ variant, resetAt = null, onClose }: DownloadLimitWallProps) {
+export default function DownloadLimitWall({ variant, resetAt = null, tier = null, onClose }: DownloadLimitWallProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const ref = useRef<HTMLDivElement>(null);
-  const copy = variant === "blocked" ? blockedWallCopy(resetAt) : variant === "signed_out" ? SIGNED_OUT_WALL : OFFLINE_WALL;
+  const copy = variant === "blocked" ? blockedWallCopy(resetAt, Date.now(), tier) : variant === "signed_out" ? SIGNED_OUT_WALL : OFFLINE_WALL;
   const here = `${location.pathname}${location.search}`;
 
   const dismiss = useCallback(() => {
@@ -35,13 +37,41 @@ export default function DownloadLimitWall({ variant, resetAt = null, onClose }: 
     if (variant === "blocked") notifyPaywallDismissed();
   }, [onClose, variant]);
 
+  // aria-modal means focus must stay inside: Tab / Shift+Tab cycle within the sheet, Escape closes,
+  // and focus returns to whatever opened the wall.
   useEffect(() => {
+    const opener = typeof document !== "undefined" ? (document.activeElement as HTMLElement | null) : null;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dismiss();
+      if (e.key === "Escape") {
+        dismiss();
+        return;
+      }
+      if (e.key !== "Tab" || !ref.current) return;
+      const items = Array.from(ref.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+      if (items.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === ref.current)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      } else if (!ref.current.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
     ref.current?.focus();
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      if (opener && typeof opener.focus === "function") opener.focus();
+    };
   }, [dismiss]);
 
   const goPlans = () => navigate(`/pricing?source=download-limit&returnTo=${encodeURIComponent(here)}`);

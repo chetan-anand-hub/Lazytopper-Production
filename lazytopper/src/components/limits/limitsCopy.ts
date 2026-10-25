@@ -28,8 +28,18 @@ export interface DownloadWallCopy {
   keep: string;
 }
 
-export function blockedWallCopy(resetAt: string | null, nowMs: number = Date.now()): DownloadWallCopy {
+export function blockedWallCopy(resetAt: string | null, nowMs: number = Date.now(), tier: string | null = null): DownloadWallCopy {
   const when = resetAt ? formatResetIst(resetAt, nowMs) : "";
+  // A trial student has had more than one download; "Basic" and "the free download" would be wrong for them.
+  if (tier === "trial") {
+    return {
+      title: "You've used this week's downloads",
+      body:
+        (when ? `Your next download opens ${when}. ` : "") +
+        "Premium gives you unlimited downloads, graded practice sets and the full step-by-step breakdown.",
+      keep: "Maybe later",
+    };
+  }
   return {
     title: "You've used this week's free download",
     body:

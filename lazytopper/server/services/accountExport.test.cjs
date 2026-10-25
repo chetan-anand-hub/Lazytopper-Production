@@ -813,6 +813,22 @@ test('★ METER-1: the usage ledger is exported — day records under a parent t
   );
 });
 
+/* LIMITS-1 — the download-limits state is student data, so it is IN the export, this student's only.
+   MUTATION: drop the `usageLedger.limits` entry from studentDataMap.ts => RED. */
+test('★ LIMITS-1: usageLedger/{uid}/limits/state is exported, and another student\'s is not', async () => {
+  const seed = {
+    [`usageLedger/${UID}/limits/state`]: { dl: [{ at: 1, id: 'abc', free: true }], firstFree: { download: true } },
+    [`usageLedger/${OTHER}/limits/state`]: { dl: [{ at: 2, id: 'zzz', free: false }] },
+  };
+  const { service } = makeService({ seed, files: [], users: {} });
+  const result = await service.exportAccount(UID);
+  const row = byId(result, 'usageLedger.limits');
+  assert.ok(row, 'usageLedger.limits is missing from the export entirely');
+  assert.equal(row.status, EXPORT_STATUS.EXPORTED);
+  assert.deepEqual(row.records.map((r) => r.path), [`usageLedger/${UID}/limits/state`]);
+  assert.ok(!JSON.stringify(result).includes('zzz'), "another student's limits state leaked");
+});
+
 test('the auth account is exported, and an absent one is EMPTY rather than a failure', async () => {
   const present = await makeService().service.exportAccount(UID);
   const row = byId(present, 'auth-account');

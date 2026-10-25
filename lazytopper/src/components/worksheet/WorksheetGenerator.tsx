@@ -829,9 +829,12 @@ function WorksheetGeneratorInner() {
 
   async function runDownload(kind: "questions" | "answers") {
     if (!generated || downloading) return;
-    if (!(await guardDownload("worksheet", generated.worksheetId))) return;
     setDownloadError(null);
-    setDownloading(kind);
+    setDownloading(kind); // busy BEFORE the guard: it can take a moment, and a second tap must do nothing
+    if (!(await guardDownload("worksheet", generated.worksheetId))) {
+      setDownloading(null);
+      return;
+    }
     try {
       // Mint (once) the DURABLE session code and print it on the sheet, so each
       // solved worksheet carries the same ID it will later be graded under.

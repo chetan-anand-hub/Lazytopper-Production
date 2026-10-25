@@ -24,9 +24,12 @@ export default function WorksheetReady() {
 
   async function handleDownload() {
     if (!opts) return;
-    if (!(await guardDownload("practice-set", practiceSetPaperKey(opts.questions.map((q) => String(q.id)))))) return;
     setDownloadError(null);
-    setDownloading(true);
+    setDownloading(true); // busy BEFORE the guard
+    if (!(await guardDownload("practice-set", () => practiceSetPaperKey(opts.questions.map((q) => String(q.id)))))) {
+      setDownloading(false);
+      return;
+    }
     try {
       await downloadWorksheet(opts);
     } catch {

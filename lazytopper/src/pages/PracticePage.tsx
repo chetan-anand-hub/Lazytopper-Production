@@ -2904,7 +2904,8 @@ const packTopicKey = useMemo(() => {
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED).
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const handleDownloadWorksheet = async () => {
-    if (!(await guardDownload("practice-set", practiceSetPaperKey(filteredQuestions.map((q) => String(q.id)))))) return;
+    // The guard ignores a second tap while it is asking (its own in-flight latch), so a double tap is a no-op.
+    if (!(await guardDownload("practice-set", () => practiceSetPaperKey(filteredQuestions.map((q) => String(q.id)))))) return;
     const scope = uiMarksToSectionScope(committedMarks);
     await downloadWorksheet({
       topicLabel: topicLabel || topicParam,
