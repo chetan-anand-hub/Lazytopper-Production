@@ -1,11 +1,12 @@
 // @vitest-environment node
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, relative, sep } from "node:path";
 
 import * as pricing from "./pricing";
 import {
-  MONTHLY_INLINE,
+  monthlyInline,
   PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_INR,
   formatInr,
@@ -234,8 +235,8 @@ describe("pricing module — the derivation holds", () => {
     // open the only honest number there is the one actually charged today. This
     // pins the binding so that a tier rename cannot silently repoint the gates
     // at the list price without a test going red.
-    expect(MONTHLY_INLINE).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
-    expect(MONTHLY_INLINE).not.toContain(String(PRICE_MONTHLY_LIST_INR));
+    expect(monthlyInline(true)).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
+    expect(monthlyInline(true)).not.toContain(String(PRICE_MONTHLY_LIST_INR));
   });
 
   it("formats with Indian digit grouping and no ICU dependency", () => {
@@ -449,17 +450,18 @@ describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
     expect(hits).toEqual([]);
     // CONTROL — the namespace read is live and reaches the composed constants.
     expect(pricing.PERIOD_MONTHLY_LABEL).toBe("for a month");
-    expect(MONTHLY_INLINE).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
-    expect(strings.map(([n]) => n)).toEqual(expect.arrayContaining(["PERIOD_MONTHLY_LABEL", "MONTHLY_INLINE"]));
+    expect(monthlyInline(true)).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
+    expect(SLASH_MONTH.test(monthlyInline(false))).toBe(false);
+    expect(strings.map(([n]) => n)).toEqual(expect.arrayContaining(["PERIOD_MONTHLY_LABEL", "FOUNDING_OFFER_UNTIL_COPY"]));
   });
 
   it("the two gates read '… with Premium at ₹599 for a month.' — never 'for ₹599 for a month'", () => {
-    // MONTHLY_INLINE now ends "for a month", so "Premium for {MONTHLY_INLINE}" would
+    // monthlyInline() ends "for a month", so "Premium for {monthlyInline(" would
     // render "Premium for ₹599 for a month." The one-word grammar fix is "at".
     for (const rel of ["src/components/auth/MockViewGate.tsx", "src/components/auth/PracticeLimitGate.tsx"]) {
       const src = readFileSync(resolve(process.cwd(), rel), "utf8");
-      expect(src, rel).toContain("with Premium at {MONTHLY_INLINE}.");
-      expect(src, rel).not.toContain("Premium for {MONTHLY_INLINE}");
+      expect(src, rel).toContain("with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.");
+      expect(src, rel).not.toContain("Premium for {monthlyInline(");
     }
   });
 
@@ -478,5 +480,81 @@ describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
     expect(readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8")).toContain(
       '<span class="lt-pricing-period">for a month</span>',
     );
+  });
+});
+
+/**
+ * PRICING-1 (owner, 25 Oct 2026): "the founding price ends on last day of November 2026,
+ * december will start with 999/month". The flag's VALUE comes from the calendar; these pin the
+ * instant, the boolean-ness (never a seat count), and that the upgrade-prompt price follows it.
+ */
+describe("PRICING-1 — the founding offer is date-driven", () => {
+  it("is open through 23:59:59 IST on 30 Nov 2026 and closed from 00:00:00 IST on 1 Dec", async () => {
+    const m = await import("./pricing");
+    expect(m.foundingOfferOpen(new Date("2026-10-25T06:30:00Z"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-11-30T23:59:59+05:30"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-11-30T23:59:59.999+05:30"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-12-01T00:00:00+05:30"))).toBe(false);
+    expect(m.foundingOfferOpen(new Date("2027-01-01T00:00:00+05:30"))).toBe(false);
+    // IST, not UTC: 18:30Z on 30 Nov is already 1 Dec in India.
+    expect(m.foundingOfferOpen(new Date("2026-11-30T18:29:59Z"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-11-30T18:30:00Z"))).toBe(false);
+    expect(m.FOUNDING_OFFER_CLOSES_AT_ISO).toBe("2026-12-01T00:00:00+05:30");
+    expect(m.FOUNDING_OFFER_LAST_DAY_LABEL).toBe("30 November");
+  });
+
+  it("stays a BOOLEAN — never a seat count; the frozen constant is gone", async () => {
+    const m = (await import("./pricing")) as Record<string, unknown>;
+    expect("FOUNDING_OFFER_OPEN" in m).toBe(false);
+    expect(typeof (m.foundingOfferOpen as (d: Date) => boolean)(new Date())).toBe("boolean");
+  });
+
+  it("no non-test source under src/ or server/ reads a frozen founding constant (display follows the date)", () => {
+    const hits: string[] = [];
+    const roots = [SRC_ROOT, join(process.cwd(), "server")];
+    for (const root of roots) {
+      for (const abs of walkAll(root, (e) => /\.(ts|tsx|cjs|mjs|js)$/.test(e) && !/\.test\./.test(e))) {
+        if (abs.includes(`${sep}node_modules${sep}`)) continue;
+        const rel = relative(process.cwd(), abs).split(sep).join("/");
+        if (rel.startsWith("src/data/")) continue;
+        if (/\bFOUNDING_OFFER_OPEN\b/.test(readFileSync(abs, "utf8"))) hits.push(rel);
+      }
+    }
+    expect(hits, `a frozen founding constant is read by: ${hits.join(", ")} — use foundingOfferOpen(Date.now()) / foundingRateApplies`).toEqual([]);
+  });
+
+  it("the end-date copy is plain words: the real date, the list price, no timer", async () => {
+    const m = await import("./pricing");
+    expect(m.FOUNDING_OFFER_UNTIL_COPY).toBe(
+      `Founding price until 30 November. From 1 December, Premium is ${m.PRICE_MONTHLY_LIST_DISPLAY} for a month.`,
+    );
+    expect(m.FOUNDING_OFFER_UNTIL_COPY).not.toMatch(/countdown|left|hurry|only|last chance|\d+ (days|hours)/i);
+  });
+
+  it("the upgrade-prompt price (monthlyInline) follows the offer's DATE and a founder's own rate — no module-load clock read", async () => {
+    const m = await import("./pricing");
+    const open = new Date("2026-10-25T06:30:00Z");
+    const closed = new Date("2026-12-01T00:00:00+05:30");
+    expect(m.monthlyInline(m.foundingRateApplies(open, false))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
+    expect(m.monthlyInline(m.foundingRateApplies(closed, false))).toBe(`${m.PRICE_MONTHLY_LIST_DISPLAY} for a month`);
+    // A founder keeps the founding rate after the close; a non-founder does not.
+    expect(m.monthlyInline(m.foundingRateApplies(closed, true))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
+    expect(m.monthlyInline(m.foundingRateApplies(closed, undefined))).toBe(`${m.PRICE_MONTHLY_LIST_DISPLAY} for a month`);
+  });
+
+  it("the founding last-day and list-from labels are DERIVED from the closing instant (they cannot drift)", async () => {
+    const m = await import("./pricing");
+    expect(m.FOUNDING_OFFER_CLOSES_AT_ISO).toBe("2026-12-01T00:00:00+05:30");
+    expect(m.FOUNDING_OFFER_LAST_DAY_LABEL).toBe("30 November");
+    expect(m.FOUNDING_OFFER_LIST_FROM_LABEL).toBe("1 December");
+    // The source holds no second typed copy of either date.
+    const src = readFileSync(resolve(process.cwd(), "src/config/pricing.ts"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    expect(src).not.toMatch(/["`']30 November["`']|["`']1 December["`']/);
+  });
+
+  it("no module in config/pricing.ts reads the clock when it loads (a clock read at import made ~90 test files date-sensitive)", () => {
+    const src = readFileSync(resolve(process.cwd(), "src/config/pricing.ts"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+    const topLevel = src.split("\n").filter((l) => /^(export )?(const|let) /.test(l));
+    expect(topLevel.filter((l) => /new Date\(\)|Date\.now\(\)/.test(l))).toEqual([]);
   });
 });

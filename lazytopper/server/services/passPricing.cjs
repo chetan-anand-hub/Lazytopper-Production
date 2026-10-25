@@ -2,7 +2,7 @@
 //
 // ★ WHY A MIRROR AND NOT AN IMPORT. The source of truth is TypeScript ESM:
 //   `src/config/pricing.ts`          PRICE_MONTHLY_FOUNDING_INR, PRICE_MONTHLY_LIST_INR,
-//                                    FOUNDING_OFFER_OPEN, TILL_BOARDS_PAY_FRACTION,
+//                                    FOUNDING_OFFER_CLOSES_AT_ISO, foundingOfferOpen(), TILL_BOARDS_PAY_FRACTION,
 //                                    tillBoardsQuote()
 //   `src/services/cbseExamDate.ts`   predictCbseExamDate()
 // `predictCbseExamDate` reads the clock itself (`new Date()`), so the server cannot ask
@@ -25,8 +25,19 @@
 const PRICE_MONTHLY_LIST_INR = 999;
 /** Mirror of pricing.ts PRICE_MONTHLY_FOUNDING_INR. */
 const PRICE_MONTHLY_FOUNDING_INR = 599;
-/** Mirror of pricing.ts FOUNDING_OFFER_OPEN. */
-const FOUNDING_OFFER_OPEN = true;
+/**
+ * Mirror of pricing.ts FOUNDING_OFFER_CLOSES_AT_ISO (PRICING-1): the first instant the
+ * founding offer is CLOSED — 00:00 on 1 Dec 2026 IST. The SERVER decides what is charged,
+ * so it evaluates this against its OWN clock (`foundingOfferOpen(nowMs)`), per request.
+ */
+const FOUNDING_OFFER_CLOSES_AT_ISO = '2026-12-01T00:00:00+05:30';
+const FOUNDING_OFFER_CLOSES_AT_MS = Date.parse(FOUNDING_OFFER_CLOSES_AT_ISO);
+
+/** Mirror of pricing.ts foundingOfferOpen(now). PURE: the instant is an argument. */
+function foundingOfferOpen(now) {
+  const ms = now instanceof Date ? now.getTime() : now;
+  return typeof ms === 'number' && Number.isFinite(ms) && ms < FOUNDING_OFFER_CLOSES_AT_MS;
+}
 /** Mirror of pricing.ts TILL_BOARDS_PAY_FRACTION. */
 const TILL_BOARDS_PAY_FRACTION = 0.8;
 /** Mirror of pricing.ts TILL_BOARDS_MAX_MONTHS. */
@@ -115,8 +126,9 @@ function monthlyInrFor(foundingOpen) {
  * Mirror of pricing.ts `tillBoardsQuote(now, boardIso, foundingOpen)` — the numeric
  * half only (display strings are the client's business). Null for an unparseable date.
  */
-function tillBoardsQuote(now, boardIso, foundingOpen = FOUNDING_OFFER_OPEN) {
+function tillBoardsQuote(now, boardIso, foundingOpen) {
   const nowMs = toMs(now);
+  if (foundingOpen === undefined) foundingOpen = foundingOfferOpen(nowMs);
   const board = parseIsoDate(boardIso);
   if (!board || !Number.isFinite(nowMs)) return null;
   const today = istCalendarDate(nowMs);
@@ -181,7 +193,7 @@ const TOPUP_PRODUCTS = Object.freeze({
  * a pack credits its base amount and no offer text exists anywhere. The owner plans +25% near the boards
  * (around December) as a one-constant change in a later small PR - never an env var set by an agent.
  * `TOPUP_BONUS_ENDS_ISO` is an optional last day (IST, "YYYY-MM-DD") after which the bonus stops by itself.
- * It is NOT tied to FOUNDING_OFFER_OPEN: the founding price is a different thing and is untouched here.
+ * It is NOT tied to the founding offer: the founding price is a different thing and is untouched here.
  * When on (e.g. +25%): 49 -> 25 + 6, 149 -> 80 + 20 (the bonus is floored to a whole rupee), recorded
  * SEPARATELY from the base. Owner 22 Oct 2026: NO bonus at launch - the percent stays 0.
  */
@@ -317,7 +329,9 @@ module.exports = {
   isTopupProduct,
   PRICE_MONTHLY_LIST_INR,
   PRICE_MONTHLY_FOUNDING_INR,
-  FOUNDING_OFFER_OPEN,
+  FOUNDING_OFFER_CLOSES_AT_ISO,
+  FOUNDING_OFFER_CLOSES_AT_MS,
+  foundingOfferOpen,
   TILL_BOARDS_PAY_FRACTION,
   TILL_BOARDS_MAX_MONTHS,
   IST_OFFSET_MS,

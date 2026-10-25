@@ -13,6 +13,8 @@ import {
   BASIC_FOOTNOTE,
   BASIC_INCLUDES,
   BASIC_INCLUDES_HEAD,
+  BASIC_LIMITS_HEAD,
+  basicLimits,
   COMPARE_BASIC_HEADER,
   COMPARE_FEATURE_HEADER,
   COMPARE_TITLE,
@@ -230,5 +232,37 @@ describe("Owner ruling — 'Limited' on Basic only when backed by a constant", (
     expect(unbackedLimited(["Limited to 10 a day"], backed)).toEqual([]);
     // ...but not when the rendered text does not match that template.
     expect(unbackedLimited(["Limited practice, 10 a day"], backed)).toHaveLength(1);
+  });
+});
+
+describe("PRICING-1 · what Basic does not include is stated, and it is TRUE today", () => {
+  it("every line on the Basic card's restriction list has a 'not included' Basic cell in the compare table", () => {
+    const table = compareSections({ freeCheck: false });
+    const basicNo = (label: string) => table.flatMap(s => s.rows).find(r => r.label === label)?.basic.kind === "no";
+    // restriction id -> the table row that backs it
+    const backing: Record<string, string> = {
+      graded: "Chapter tests, mocks and worksheets graded",
+      check: "Photograph your handwritten answer and get it marked",
+      steps: "Step marks, CBSE keywords and units, the way examiners mark",
+      tutor: "AI tutor that knows your chapters and mistakes",
+      mi: "Mistake Intelligence — why you lose marks",
+      similar: "New questions like the one you got wrong",
+    };
+    const ids = basicLimits({ freeCheck: false }).map(i => i.id);
+    expect(ids).toEqual(Object.keys(backing));
+    for (const [id, label] of Object.entries(backing)) expect(basicNo(label), `${id} -> ${label}`).toBe(true);
+  });
+
+  it("with the first free check on, the answer-checking line says it stops after that one check", () => {
+    const on = basicLimits({ freeCheck: true }).find(i => i.id === "check")!.label;
+    const off = basicLimits({ freeCheck: false }).find(i => i.id === "check")!.label;
+    expect(on).toBe("Answer checking stops after your first free check");
+    expect(off).toBe("No handwritten answer checking");
+  });
+
+  it("does not advertise limits that are not enforced today", () => {
+    const all = basicLimits({ freeCheck: true }).map(i => i.label).join(" | ");
+    expect(all).not.toMatch(/\d/); // no invented quota figure
+    expect(BASIC_LIMITS_HEAD).toBe("Not on Basic:");
   });
 });

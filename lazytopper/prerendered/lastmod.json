@@ -1,7 +1,7 @@
 {
   "/": {
-    "sha256": "3ac5337cdf7f88fdbb4f234905168258b08c7889be2daaf5d4974fea1abbb1f4",
-    "lastmod": "2026-10-18"
+    "sha256": "7f2e8eccdc44ef2ad819fc4659708a090401d7f7bbee4caf32bb35db2fe2f0bf",
+    "lastmod": "2026-10-25"
   },
   "/cbse/class-10": {
     "sha256": "3bba40b2b73afd4303134e86025345b8788b8505386e86f2643641984514aed8",
@@ -268,8 +268,8 @@
     "lastmod": "2026-10-20"
   },
   "/pricing": {
-    "sha256": "a2471d4a70a36035fbd829e228fd7379444392504508895b8d162e0159cede76",
-    "lastmod": "2026-10-24"
+    "sha256": "93246e15ec41844eb14f28fea7a34fabfec06ae91801f875d6ab60da1a559550",
+    "lastmod": "2026-10-25"
   },
   "/topic-hub/acids-bases-and-salts": {
     "sha256": "4ed689f4b9376c1ccf0573417bd044535a237043309dead0d8f30afb95c3d662",

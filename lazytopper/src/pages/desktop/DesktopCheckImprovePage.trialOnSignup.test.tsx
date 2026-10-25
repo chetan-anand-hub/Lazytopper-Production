@@ -58,7 +58,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 
 import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
 import { BASIC_FREE_LABELS, FREE_FEATURES } from "../../components/pricing/BasicFreeList";
-import { MONTHLY_INLINE } from "../../config/pricing";
+import { monthlyInline } from "../../config/pricing";
 
 const NEW_USER = { uid: "u-new", email: "n@example.com", phoneNumber: null, displayName: "N" };
 const OLD_USER = { uid: "u-old", email: "o@example.com", phoneNumber: null, displayName: "O" };
@@ -128,8 +128,8 @@ describe("T2 — a NEW account: the confirmation replaces the offer", () => {
     const box = screen.getByTestId("free-check-trial-confirmation");
     expect(screen.getByRole("heading", { name: "Your 7-day trial is on ✅" })).toBeInTheDocument();
     expect(box.textContent).toContain(
-      // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6), word for word; price = MONTHLY_INLINE.
-      `Ends ${EXPECTED_END}. No card, nothing to cancel. After that, keep free Basic or upgrade to Premium at ${MONTHLY_INLINE}.`,
+      // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6), word for word; price = monthlyInline().
+      `Ends ${EXPECTED_END}. No card, nothing to cancel. After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`,
     );
     // "See plans →" goes to /pricing (router Link — the app's basename adds /app/).
     expect(screen.getByRole("link", { name: "See plans →" }).getAttribute("href")).toBe("/pricing");
