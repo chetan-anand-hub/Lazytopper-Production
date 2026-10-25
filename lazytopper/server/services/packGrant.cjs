@@ -82,9 +82,9 @@ async function grantPack(input) {
       throw new PackGrantInputError('payment order amount does not match the pack price');
     }
 
-    const markOrderPaid = () => {
+    const markOrderPaid = (extra) => {
       if (order.status !== 'paid') {
-        tx.set(orderRef, { status: 'paid', paymentId: paymentRef, paidAt: new Date(nowMs) }, { merge: true });
+        tx.set(orderRef, { status: 'paid', paymentId: paymentRef, paidAt: new Date(nowMs), ...(extra || {}) }, { merge: true });
       }
     };
 
@@ -97,7 +97,7 @@ async function grantPack(input) {
       const existing = existingSnap && existingSnap.exists ? existingSnap.data() || {} : null;
       return {
         replayed: true,
-        duplicate: false,
+        duplicate: marker.duplicate === true,
         pack: existing
           ? publicPack(existing)
           : { packId: markerPackId, sku, target, pricePaidInr: priceInr, paidAt: nowMs },
@@ -110,8 +110,11 @@ async function grantPack(input) {
 
     // The parent document exists so the account export / erase (which walk the map) find the student's packs.
     tx.set(userRef, { updatedAt: new Date(nowMs) }, { merge: true });
-    tx.set(grantRef, { paymentRef, packId, orderId, grantedAt: new Date(nowMs) });
-    markOrderPaid();
+    // A payment for a pack the student already holds is real money: flag it on BOTH records (same
+    // transaction) so refund candidates can be queried: grants where duplicate == true, payOrders likewise.
+    const isDuplicate = !!held;
+    tx.set(grantRef, { paymentRef, packId, orderId, grantedAt: new Date(nowMs), ...(isDuplicate ? { duplicate: true } : {}) });
+    markOrderPaid(isDuplicate ? { duplicate: true } : undefined);
     if (held) {
       // Already owned through an earlier payment: keep that entitlement, record this payment for refund.
       return { replayed: false, duplicate: true, pack: publicPack(held) };

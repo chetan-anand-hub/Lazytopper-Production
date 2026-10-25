@@ -28,6 +28,20 @@ function createPackRoutes(deps = {}) {
       emit('packs.mine.unavailable');
       return sendJson(res, 503, { ok: false, error: 'Packs are unavailable right now.' });
     }
+    // The licensee is printed on every page of every PDF: without a real email there is nothing safe to
+    // print, so refuse (503) rather than hand back blanks. Checked first; nothing about the packs is sent.
+    let licensee = null;
+    try {
+      const got = typeof getLicensee === 'function' ? await getLicensee(uid) : null;
+      const email = got && typeof got.email === 'string' ? got.email.trim() : '';
+      if (email) licensee = { name: typeof got.name === 'string' ? got.name : '', email };
+    } catch {
+      /* falls through to licensee_unavailable */
+    }
+    if (!licensee) {
+      emit('packs.mine.licensee_unavailable');
+      return sendJson(res, 503, { ok: false, error: 'licensee_unavailable' });
+    }
     let packs;
     try {
       packs = await listPacks(adminFirestore, uid);
@@ -35,16 +49,6 @@ function createPackRoutes(deps = {}) {
       emit('packs.mine.read_failed');
       console.error('[packs/mine] read failed:', e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Could not read your packs.' });
-    }
-    let licensee = { name: '', email: '' };
-    try {
-      const got = typeof getLicensee === 'function' ? await getLicensee(uid) : null;
-      licensee = {
-        name: got && typeof got.name === 'string' ? got.name : '',
-        email: got && typeof got.email === 'string' ? got.email : '',
-      };
-    } catch {
-      emit('packs.mine.licensee_failed');
     }
     return sendJson(res, 200, { packs, licensee });
   }

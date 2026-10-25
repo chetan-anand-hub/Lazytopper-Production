@@ -498,6 +498,14 @@ test('two DIFFERENT payments for the same pack (two tabs): both recorded, the fi
   assert.equal(srv.db.read(`payOrders/${o2.orderId}`).status, 'paid');
   assert.ok(srv.events.includes('payments.verify.pack_duplicate_payment'));
   assert.equal(srv.db.keys('packEntitlements/u1/packs/').length, 1);
+  // F3: refund candidates are findable on both records, and only the duplicate carries the flag.
+  assert.equal(srv.db.read(`packEntitlements/u1/grants/${p2.id}`).duplicate, true);
+  assert.equal(srv.db.read(`payOrders/${o2.orderId}`).duplicate, true);
+  assert.equal(srv.db.read(`packEntitlements/u1/grants/${p1.id}`).duplicate, undefined);
+  assert.equal(srv.db.read(`payOrders/${o1.orderId}`).duplicate, undefined);
+  const again = await verify(srv, 'u1', o2.orderId, p2.id);
+  assert.equal(again.json.replayed, true);
+  assert.equal(srv.db.read(`payOrders/${o2.orderId}`).duplicate, true, 'a replay keeps the flag');
 });
 
 test('grantPack direct: refuses another account\'s order, a non-pack order, a missing order', async () => {
@@ -528,6 +536,18 @@ test('the pass flow is untouched: a month order still grants a pass and answers 
   assert.equal(srv.db.keys('packEntitlements/').length, 0);
 });
 
+test('GET /api/packs/mine: licensee lookup throws (or no email) -> 503 licensee_unavailable, packs NOT sent', async (t) => {
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_bundle', 'all');
+  const srv = await start({ db, throwLicensee: true });
+  t.after(srv.close);
+  const r = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('u1') });
+  assert.equal(r.status, 503);
+  assert.deepEqual(r.json, { ok: false, error: 'licensee_unavailable' });
+  assert.equal(r.text.includes('pack_bundle'), false);
+  assert.ok(srv.events.includes('packs.mine.licensee_unavailable'));
+});
+
 /* ── GET /api/packs/mine ─────────────────────────────────────────────────────── */
 test('GET /api/packs/mine: 401 without a verified uid', async (t) => {
   const srv = await start();
@@ -545,17 +565,18 @@ test('GET /api/packs/mine: [] when none, licensee from the server record of the 
   assert.equal(r.status, 200);
   assert.deepEqual(r.json, { packs: [], licensee: { name: 'Asha Rao', email: 'asha@example.com' } });
   const blank = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('u9') });
-  assert.deepEqual(blank.json, { packs: [], licensee: { name: '', email: '' } });
+  assert.equal(blank.status, 503, 'no email on record -> no licensee -> refuse');
+  assert.deepEqual(blank.json, { ok: false, error: 'licensee_unavailable' });
 });
 
-test('GET /api/packs/mine: lists only the caller\'s packs, public fields only, even with PACKS_ENABLED off; licensee failure -> blanks', async (t) => {
+test('GET /api/packs/mine: lists only the caller\'s packs, public fields only, even with PACKS_ENABLED off', async (t) => {
   const db = memoryFirestore();
   seedPack(db, 'u1', 'pack_chapter', 'circles', { paidAt: 2000, pricePaidInr: 49 });
   seedPack(db, 'u1', 'pack_mock', 'maths', { paidAt: 1000, pricePaidInr: 99 });
   seedPack(db, 'u2', 'pack_bundle', 'all', { paidAt: 1500 });
   const env = { ...ENV_ON };
   delete env.PACKS_ENABLED;
-  const srv = await start({ db, env, throwLicensee: true });
+  const srv = await start({ db, env, licensees: { u1: { name: '', email: 'asha@example.com' } } });
   t.after(srv.close);
   const r = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('u1') });
   assert.equal(r.status, 200);
@@ -563,7 +584,7 @@ test('GET /api/packs/mine: lists only the caller\'s packs, public fields only, e
     { packId: 'pack_mock:maths', sku: 'pack_mock', target: 'maths', pricePaidInr: 99, paidAt: 1000 },
     { packId: 'pack_chapter:circles', sku: 'pack_chapter', target: 'circles', pricePaidInr: 49, paidAt: 2000 },
   ]);
-  assert.deepEqual(r.json.licensee, { name: '', email: '' });
+  assert.deepEqual(r.json.licensee, { name: '', email: 'asha@example.com' });
   assert.equal(JSON.stringify(r.json).includes('paymentRef'), false);
   assert.equal(JSON.stringify(r.json).includes('o_seed'), false);
 });
