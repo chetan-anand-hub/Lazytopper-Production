@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
-import { PrintCover } from "./PrintCover";
+import { PrintCover, BOARD_EXAM_YEAR } from "./PrintCover";
 
 afterEach(cleanup);
 
@@ -13,6 +13,14 @@ describe("PrintCover", () => {
     const t = container.textContent ?? "";
     for (const s of ["Maths · Chapter Pack", "Real Numbers", "Every question, in board order.", "37", "questions, sections A to E", "chapter tests", "worksheet", "Edition 25 Oct 2026"]) expect(t).toContain(s);
     expect(container.querySelectorAll(".lt-cover__stat")).toHaveLength(3);
+  });
+  it("the top-right kicker names the board exam year and the bullets use the approved copy", () => {
+    const t = render(<PrintCover {...base} />).container.textContent ?? "";
+    expect(t).toContain(`For CBSE Board Exam ${BOARD_EXAM_YEAR}`);
+    expect(t).toContain("Step marks shown the way CBSE examiners award them");
+    expect(t).not.toContain("award them, where");
+    expect(t).toContain("Get your test answers marked in the LazyTopper app");
+    expect(t).not.toContain("2026-27");
   });
   it("shows the licensee box only when a line is given", () => {
     const line = "Licensed to A · a@b.in · Order o1 — personal use only";

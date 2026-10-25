@@ -93,7 +93,7 @@ type SourcedQuestion = PersistedWorksheetQuestion & {
   sourceOverride?: string;
 };
 
-/** "CBSE 2023 · Set 1" for a past-board row; "CBSE 2023" when the set is unknown; "" for a row with no year or whose
+/** "Asked in CBSE Board 2023 · Set 1" for a past-board row; "Asked in CBSE Board 2023" when the set is unknown; "" for a row with no year or whose
  *  source could not be confirmed (`sourceOverride: "others"`) - never an invented source. */
 export function sourceTagFor(q: PersistedWorksheetQuestion): string {
   const s = q as SourcedQuestion;
@@ -101,7 +101,7 @@ export function sourceTagFor(q: PersistedWorksheetQuestion): string {
   const year = String(s.pyqYear ?? "").trim();
   if (!year) return "";
   const set = String(s.pyqSet ?? "").trim();
-  return set ? `CBSE ${year} \u00b7 Set ${set}` : `CBSE ${year}`;
+  return set ? `Asked in CBSE Board ${year} \u00b7 Set ${set}` : `Asked in CBSE Board ${year}`;
 }
 
 /** The mark an authored step already carries, as the bank writes it: a leading "[1 mark]" or a trailing "[1]", "[1 mark]",
@@ -235,10 +235,13 @@ export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, waterm
         {isAnswers && (
           <div className="lt-wsp__cta">
             <div className="lt-wsp__ctatext">
-              <div className="lt-wsp__ctah">Wrote your own answer? Get it marked step by step.</div>
-              <div className="lt-wsp__ctas">Photo your working at lazytopper.com and see exactly where the marks went.</div>
+              <div className="lt-wsp__ctah">{code ? "Want an examiner to mark this?" : "Self-check done?"}</div>
+              <div className="lt-wsp__ctas">
+                {code
+                  ? `Upload your answers in the LazyTopper app \u2014 your first one is free. Find it on Home under \u201cPapers waiting for your answers\u201d. Paper code: ${code}`
+                  : "Each pack has chapter tests too \u2014 take one and get it marked in the LazyTopper app. Your first one is free."}
+              </div>
             </div>
-            <div className="lt-wsp__ctabtn">lazytopper.com/check-improve</div>
           </div>
         )}
       </div>
@@ -436,8 +439,6 @@ const PRINT_CSS = `
 .lt-wsp__ctatext { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .lt-wsp__ctah { font-weight: 600; font-size: 17px; }
 .lt-wsp__ctas { font-size: 15px; color: #e9eef5; }
-.lt-wsp__ctabtn { flex-shrink: 0; padding: 9px 14px; border-radius: 8px; background: var(--p-accent); color: var(--p-navy);
-  font-weight: 600; font-size: 15px; }
 `;
 
 export default WorksheetPrintDoc;

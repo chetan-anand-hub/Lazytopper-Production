@@ -54,9 +54,9 @@ describe("WorksheetPrintDoc — real math symbols (FIX 1)", () => {
     const text = container.textContent || "";
     expect(text.toLowerCase()).toContain("answer key");
     expect(text).toContain("√");
-    // The closing "Wrote your own answer?" box is real copy with a question mark; every other "?" would be a placeholder.
+    // The closing box ("Self-check done?" without a paper code) is real copy with a question mark; every other "?" would be a placeholder.
     const cta = container.querySelector(".lt-wsp__cta")?.textContent ?? "";
-    expect(cta).toContain("Wrote your own answer?");
+    expect(cta).toContain("Self-check done?");
     expect(text.replace(cta, "")).not.toContain("?");
   });
 });
@@ -135,10 +135,10 @@ describe("WorksheetPrintDoc - PDF-REBRAND-1: source tag, chips, key box", () => 
   const tag = (ws: PersistedWorksheet) => render(<WorksheetPrintDoc ws={ws} kind="questions" />).container.querySelector(".lt-wsp__src")?.textContent ?? null;
 
   it("a past-board row shows 'CBSE <year> · Set <set>'", () => {
-    expect(tag(withQ({ pyqYear: "2023", pyqSet: "1" }))).toBe("CBSE 2023 · Set 1");
+    expect(tag(withQ({ pyqYear: "2023", pyqSet: "1" }))).toBe("Asked in CBSE Board 2023 · Set 1");
   });
   it("a row with a year but no set shows 'CBSE <year>' only", () => {
-    expect(tag(withQ({ pyqYear: "2024" }))).toBe("CBSE 2024");
+    expect(tag(withQ({ pyqYear: "2024" }))).toBe("Asked in CBSE Board 2024");
   });
   it("a sourceOverride 'others' row shows NO tag, even with a year; a row with no year shows none", () => {
     expect(tag(withQ({ pyqYear: "2023", pyqSet: "2", sourceOverride: "others" }))).toBeNull();
@@ -165,10 +165,22 @@ describe("WorksheetPrintDoc - PDF-REBRAND-1: source tag, chips, key box", () => 
     const { container } = render(<WorksheetPrintDoc ws={withQ({ marks: 1, options: ["1", "2"], solutionSteps: ["a", "b", "c"], finalAnswer: "(a) 1" })} kind="answers" />);
     expect(Array.from(container.querySelectorAll(".lt-wsp__chip")).every((c) => (c.textContent ?? "") === "")).toBe(true);
   });
-  it("every answer key ends with the 'Wrote your own answer?' box; a question paper does not", () => {
-    expect(render(<WorksheetPrintDoc ws={makeWs(2)} kind="answers" />).container.textContent).toContain("Wrote your own answer? Get it marked step by step.");
+  it("a key WITH a paper code asks 'Want an examiner to mark this?', names the Home strip and prints the code; no check URL", () => {
+    const { container } = render(<WorksheetPrintDoc ws={makeWs(2)} kind="answers" code="WS-M-RN-01" />);
+    const t = container.querySelector(".lt-wsp__cta")?.textContent ?? "";
+    expect(t).toContain("Want an examiner to mark this?");
+    expect(t).toContain("your first one is free");
+    expect(t).toContain("Papers waiting for your answers");
+    expect(t).toContain("Paper code: WS-M-RN-01");
+    expect(t).not.toMatch(/check-improve|check-your-answer|lazytopper\.com\//);
+  });
+  it("a key WITHOUT a code (pack question-bank key) asks 'Self-check done?' and points at the chapter tests; a question paper has no box", () => {
+    const t = render(<WorksheetPrintDoc ws={makeWs(2)} kind="answers" />).container.querySelector(".lt-wsp__cta")?.textContent ?? "";
+    expect(t).toContain("Self-check done?");
+    expect(t).toContain("Each pack has chapter tests too");
+    expect(t).not.toContain("Paper code");
     cleanup();
-    expect(render(<WorksheetPrintDoc ws={makeWs(2)} kind="questions" />).container.querySelector(".lt-wsp__cta")).toBeNull();
+    expect(render(<WorksheetPrintDoc ws={makeWs(2)} kind="questions" code="WS-1" />).container.querySelector(".lt-wsp__cta")).toBeNull();
   });
   it("watermark=false removes the tiled watermark; the default keeps it", () => {
     expect(render(<WorksheetPrintDoc ws={makeWs(1)} kind="questions" watermark={false} />).container.querySelector(".lt-wsp__wm")).toBeNull();

@@ -1,5 +1,9 @@
 import { BRAND_MARK_SRC } from "../../config/brandMark";
 
+/** The CBSE Class 10 board exam this edition is for (the 2026-27 session sits its boards in 2027). There is no synchronous
+ *  helper for this: services/cbseExamDate.ts is a network fetch. Bump it when the next session's packs are issued. */
+export const BOARD_EXAM_YEAR = 2027;
+
 // The owner's real brand assets (public/brand/): the fingerprint and the script wordmark.
 const BRAND_FINGERPRINT_SRC = BRAND_MARK_SRC.replace(/[^/]+$/, "lazytopper-fingerprint-mark.png");
 const BRAND_WORDMARK_SRC = BRAND_MARK_SRC.replace(/[^/]+$/, "lazytopper-wordmark.png");
@@ -42,7 +46,7 @@ export function PrintCover({ kicker, title, subtitle, stats, licenseeLine, editi
       <style>{COVER_CSS}</style>
       <div className="lt-cover__bar" />
       <div className="lt-cover__panel">
-        <div className="lt-cover__board">CBSE Class 10 &middot; 2026-27</div>
+        <div className="lt-cover__board">For CBSE Board Exam {BOARD_EXAM_YEAR}</div>
         <img className="lt-cover__fp" src={BRAND_FINGERPRINT_SRC} alt="" aria-hidden="true" />
         <img className="lt-cover__wmk" src={BRAND_WORDMARK_SRC} alt="LazyTopper" />
       </div>
@@ -68,7 +72,7 @@ export function PrintCover({ kicker, title, subtitle, stats, licenseeLine, editi
       <ul className="lt-cover__points">
         <li>Past board questions are tagged with their year and set</li>
         <li>Step marks shown the way CBSE examiners award them</li>
-        <li>Check any answer you write at lazytopper.com</li>
+        <li>Get your test answers marked in the LazyTopper app</li>
       </ul>
 
       <div className="lt-cover__fill" />
