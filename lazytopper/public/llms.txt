@@ -15,6 +15,7 @@ Key facts:
   - Every result shows your score and your Mistake Intelligence summary; the answer-by-answer breakdown is Premium after your first of each kind
 - The 7-day trial includes 5 answer checks a week, 3 graded Quick Practice sets a day, 2 paper downloads a week, and 1 graded worksheet, 1 graded chapter test and 1 graded full mock a week — the first of each is free.
 - Paying for Premium: online payment is live. Premium is bought on the Pricing page and paid in Razorpay's secure checkout (UPI, card or netbanking), and Premium turns on straight away. Passes: the Board Pass leads, one payment that covers Premium until the student's first board exam, at 20% less than paying monthly; or a Month pass at the founding-member price of ₹599 for a month, offered until 30 November 2026 (from 1 December 2026 the price is ₹999 for a month; a student who bought at the founding price keeps that rate on every pass they buy). Passes are one-time payments, never renew automatically, and are non-refundable except for billing errors (see the Cancellation and refund policy).
+- PDF packs: one-time purchases of downloadable PDFs that never renew. Chapter pack ₹49 (any one chapter), Full Mock pack ₹99 (5 full board-pattern mocks for one subject), Subject pack ₹199 (all 13 chapters of one subject plus its mock pack), Board Bundle ₹299 (both subjects). Every question comes with a worked solution, every file is watermarked with the buyer's name and email, and a pack's price is credited to the Board Pass if bought within 7 days. Packs are not refunded once paid (see the Cancellation and refund policy).
 - Student data and privacy: a student can download their data or delete their account themselves at any time (Settings → Your data); deletion removes their account, attempts, mistake history and any answer photos uploaded from their phone. Answers submitted for checking are read by an AI language model (LLM) provider. Full details are in the Privacy policy.
 - Important Questions: chapter-wise important questions written by LazyTopper in CBSE question shapes, chosen by its prediction model from ten years of CBSE paper trends and the 2026-27 syllabus. A strong guide, not the actual paper: LazyTopper does not claim to know the questions of any upcoming exam.
 - LazyTopper is an independent platform and is not affiliated with CBSE.
@@ -58,6 +59,7 @@ Key facts:
 - [Class 10 Maths Important Questions](https://www.lazytopper.com/highly-probable/10/Maths): chapter-wise important questions for the 2027 boards
 - [Class 10 Science Important Questions](https://www.lazytopper.com/highly-probable/10/Science): chapter-wise important questions for the 2027 boards
 - [Pricing](https://www.lazytopper.com/pricing): what the free plan includes, what Premium adds, and secure online payment through Razorpay (UPI, card or netbanking)
+- [PDF packs](https://www.lazytopper.com/packs): one-time chapter, mock, subject and bundle PDF packs, with a worked solution for every question
 
 ## Class 10 Maths chapters
 - [Real Numbers notes](https://www.lazytopper.com/notes/real-numbers): chapter notes, key formulas and competency-based questions

@@ -36,12 +36,12 @@
     "lastmod": "2026-10-24"
   },
   "/legal/refund": {
-    "sha256": "95e7f328e89ddf32349e1e6ebbed0ebbacbc68a1aa6b9a385339fc7c15cdd7a1",
-    "lastmod": "2026-10-19"
+    "sha256": "9578d08acae3e1ca62d872760b0cfb08c9ced6fb6eaa75e1f811a2c8abdf5200",
+    "lastmod": "2026-10-25"
   },
   "/legal/terms": {
-    "sha256": "d965765dd1797c18126c21d62a77e42581d8ffe289b5d4867187dfd57923dec1",
-    "lastmod": "2026-10-19"
+    "sha256": "974d788b892a5d999e43d5e876fa1935381ba215780dc3715ceb253917d922e2",
+    "lastmod": "2026-10-25"
   },
   "/ncert-class-10": {
     "sha256": "7d362f8533adb007deff204da73d181ce2c50513fa562ff32273cdef8a6aee71",
@@ -262,6 +262,10 @@
   "/notes/trigonometry": {
     "sha256": "9bf5a430e89ccf515ddb189b019d04a0f9df0104374320d8230f6df65beb0a02",
     "lastmod": "2026-10-20"
+  },
+  "/packs": {
+    "sha256": "73b9fdc170d44f6d1e455f7d85fdb1a1ee109add3d834a5affd63c078ecddd0b",
+    "lastmod": "2026-10-25"
   },
   "/practice-hub": {
     "sha256": "0ccbc94c4da5b15a4a6646c4a471ab1c221bf6c1709965ecebb9c33183572e2e",

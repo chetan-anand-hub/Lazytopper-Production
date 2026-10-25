@@ -318,8 +318,9 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <p>LazyTopper provides data-driven predictions based on historical CBSE patterns. These are not guaranteed exam questions. We do not guarantee any specific exam results or scores.</p>
         <h2>User Accounts</h2>
         <p>You are responsible for maintaining the confidentiality of your account. You must be at least 13 years old to use LazyTopper. If you are under 18, you must have your parent or guardian's permission to use LazyTopper. By creating an account, you confirm that you have it.</p>
-        <h2>Passes &amp; Payment</h2>
+        <h2>Passes, Packs &amp; Payment</h2>
         <p>Free tier features are available without payment. Premium features require a pass at the listed prices. Passes are one-time payments and do not renew automatically.</p>
+        <p>PDF packs are one-time purchases of downloadable PDFs for your own personal study. Each file is stamped with the name and email of the buyer, and must not be shared or resold.</p>
         <h2>Intellectual Property</h2>
         <p>All content, including prediction algorithms, question banks, and AI-generated explanations, is the property of LazyTopper.</p>
       </>
@@ -337,7 +338,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
     // "How to Contact Us" is the page's shared contact block below — its email
     // text is unchanged.
     title: "Cancellation & Refund Policy",
-    updated: "Last updated: September 2026",
+    updated: "Last updated: October 2026",
     body: (
       <>
         <h2>Payments are non-refundable</h2>
@@ -348,6 +349,9 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <p>A month pass gives you Premium for one month from the day you pay. It does not renew automatically, and it is not refunded once paid.</p>
         <h2>Till-Boards Plan</h2>
         <p>A one-time payment covering Premium until your first board exam. It is not refunded once paid.</p>
+        <h2>PDF Packs</h2>
+        <p>A PDF pack is a digital download. It is not refunded once paid, because the files are available to you straight away. If a file will not download or open, email us and we will fix it or send it to you.</p>
+        <p>If you buy the Board Pass within 7 days of buying a pack, the pack's price is taken off the Board Pass price.</p>
         <h2>Billing Errors</h2>
         <p>If you were charged twice or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.</p>
       </>
