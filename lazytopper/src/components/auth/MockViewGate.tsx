@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
-import { MONTHLY_INLINE } from "../../config/pricing";
+import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 
@@ -152,7 +152,7 @@ function dailyLimitFor(signedIn: boolean): number {
 
 export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { isPremium, isTrialExpired } = useSubscription();
+  const { isPremium, isTrialExpired, status } = useSubscription();
   const location = useLocation();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
@@ -318,7 +318,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Free accounts open {SIGNED_IN_DAILY_MOCK_LIMIT} papers a day.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Get full mock tests with Premium at {MONTHLY_INLINE}.
+          Get full mock tests with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.
         </p>
         <button
           type="button"

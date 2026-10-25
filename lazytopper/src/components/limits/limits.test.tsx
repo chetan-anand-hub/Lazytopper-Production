@@ -34,7 +34,7 @@ import {
 } from "../../services/limitsClient";
 import DownloadLimitWall from "./DownloadLimitWall";
 import LimitChip from "./LimitChip";
-import { blockedWallCopy, chipText, FIRST_FREE_CHIP, SIGNED_OUT_CHIP } from "./limitsCopy";
+import { blockedWallCopy, chipText, FIRST_FREE_CHIP, SIGNED_OUT_CHIP, wallOfferLines } from "./limitsCopy";
 
 const track = analytics.trackDownload as unknown as ReturnType<typeof vi.fn>;
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -73,6 +73,28 @@ describe("copy: numbers come from the server", () => {
     expect(c.title).toBe("You've used this week's free download");
     expect(c.body).toContain("Your next free download opens 4:10 pm on Sat 7 Nov.");
     expect(`${c.title} ${c.body}`).not.toMatch(/₹|seat|left only|hurry|expires in/i);
+  });
+});
+
+describe("wall offer: Board Pass leads, monthly second, founding line is date-driven", () => {
+  it("open: Board Pass first, monthly second, founding line with the derived last day", () => {
+    const o = wallOfferLines(new Date("2026-11-02T06:00:00Z"));
+    expect(o.boardPass).toMatch(/^Board Pass ₹[\d,]+ till your boards \(.+\) · save 20%$/);
+    expect(o.monthly).toBe("₹599 for a month");
+    expect(o.founding).toBe("Founding price ₹599 a month until 30 November.");
+  });
+  it("closes at 00:00 IST on 1 Dec: the founding line disappears and the monthly price is the list price", () => {
+    expect(wallOfferLines(new Date("2026-11-30T18:29:59Z")).founding).not.toBeNull();
+    const closed = wallOfferLines(new Date("2026-11-30T18:30:00Z"));
+    expect(closed.founding).toBeNull();
+    expect(closed.monthly).toBe("₹999 for a month");
+    expect(closed.boardPass).toMatch(/^Board Pass /);
+  });
+  it("rendered wall: Board Pass line before the monthly line", () => {
+    render(<MemoryRouter><DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} /></MemoryRouter>);
+    const lines = Array.from(screen.getByTestId("wall-offer").querySelectorAll("p")).map((p) => p.textContent || "");
+    expect(lines[0]).toMatch(/^Board Pass/);
+    expect(lines[1]).toMatch(/for a month$/);
   });
 });
 

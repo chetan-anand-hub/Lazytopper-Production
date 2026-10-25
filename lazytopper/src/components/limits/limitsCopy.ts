@@ -5,6 +5,15 @@
  */
 import { formatResetIst } from "../usage/fairUseGate";
 import type { DownloadCounters } from "../../services/limitsClient";
+import {
+  BOARD_PASS_NAME,
+  FOUNDING_OFFER_LAST_DAY_LABEL,
+  PRICE_MONTHLY_FOUNDING_DISPLAY,
+  foundingOfferOpen,
+  monthlyInline,
+  tillBoardsQuote,
+} from "../../config/pricing";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
 
 export const SIGNED_OUT_CHIP = "Sign up — your first download is free";
 export const FIRST_FREE_CHIP = "Your first download is free.";
@@ -60,3 +69,27 @@ export const OFFLINE_WALL: DownloadWallCopy = {
   body: "We need a connection to start your download. Try again once you are back online. Your paper is still here.",
   keep: "OK",
 };
+
+export interface WallOfferLines {
+  /** The Board Pass, which LEADS (PRICING-1): "Board Pass ₹… till your boards (Mar 2027) · save 20%". Null when no quote. */
+  boardPass: string | null;
+  /** The monthly price, second: "₹599 for a month" (founding) or the list price once the offer has closed. */
+  monthly: string;
+  /** "Founding price ₹599 a month until 30 November." Only while the offer is open; null after the close. */
+  founding: string | null;
+}
+
+/**
+ * The wall's offer, from the SAME pricing helpers /pricing uses: no price, date or percentage is
+ * typed here. PURE: the clock is an argument, so a test pins any day and the line disappears on
+ * the day the founding offer closes.
+ */
+export function wallOfferLines(now: Date): WallOfferLines {
+  const open = foundingOfferOpen(now);
+  const quote = tillBoardsQuote(now, predictCbseExamDate("10"), open);
+  return {
+    boardPass: quote ? `${BOARD_PASS_NAME} ${quote.priceDisplay} ${quote.untilLabel} · ${quote.savingLabel}` : null,
+    monthly: monthlyInline(open),
+    founding: open ? `Founding price ${PRICE_MONTHLY_FOUNDING_DISPLAY} a month until ${FOUNDING_OFFER_LAST_DAY_LABEL}.` : null,
+  };
+}

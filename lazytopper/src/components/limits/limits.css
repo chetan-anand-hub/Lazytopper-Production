@@ -42,6 +42,10 @@
 .lt-limit-grip { width: 40px; height: 4px; margin: 0 auto 2px; border-radius: 999px; background: rgba(73, 98, 127, 0.28); }
 .lt-limit-title { margin: 0; font-family: var(--font-display, Fraunces, Georgia, serif); font-size: 1.25rem; line-height: 1.3; }
 .lt-limit-body { margin: 0; color: #5b6b82; font-size: 0.95rem; line-height: 1.5; }
+.lt-limit-offer { display: grid; gap: 6px; }
+.lt-limit-offer p { margin: 0; }
+.lt-limit-offer__lead { font-weight: 700; font-size: 0.95rem; }
+.lt-limit-offer__line { color: #5b6b82; font-size: 0.9rem; }
 .lt-limit-founding {
   margin: 0;
   padding: 8px 10px;

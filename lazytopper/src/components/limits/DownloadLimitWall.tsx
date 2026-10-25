@@ -9,10 +9,9 @@
  */
 import { useCallback, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FOUNDING_OFFER_OPEN, PRICE_MONTHLY_FOUNDING_DISPLAY } from "../../config/pricing";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
-import { blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL } from "./limitsCopy";
+import { blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
 import "./limits.css";
 
 export type DownloadWallVariant = "blocked" | "signed_out" | "offline";
@@ -30,6 +29,7 @@ export default function DownloadLimitWall({ variant, resetAt = null, tier = null
   const location = useLocation();
   const ref = useRef<HTMLDivElement>(null);
   const copy = variant === "blocked" ? blockedWallCopy(resetAt, Date.now(), tier) : variant === "signed_out" ? SIGNED_OUT_WALL : OFFLINE_WALL;
+  const offer = variant === "blocked" ? wallOfferLines(new Date()) : null;
   const here = `${location.pathname}${location.search}`;
 
   const dismiss = useCallback(() => {
@@ -92,8 +92,12 @@ export default function DownloadLimitWall({ variant, resetAt = null, tier = null
         <div className="lt-limit-grip" aria-hidden="true" />
         <h2 className="lt-limit-title">{copy.title}</h2>
         <p className="lt-limit-body">{copy.body}</p>
-        {variant === "blocked" && FOUNDING_OFFER_OPEN && (
-          <p className="lt-limit-founding">Founding price {PRICE_MONTHLY_FOUNDING_DISPLAY} a month.</p>
+        {offer && (
+          <div className="lt-limit-offer" data-testid="wall-offer">
+            {offer.boardPass && <p className="lt-limit-offer__lead">{offer.boardPass}</p>}
+            <p className="lt-limit-offer__line">{offer.monthly}</p>
+            {offer.founding && <p className="lt-limit-founding">{offer.founding}</p>}
+          </div>
         )}
         <div className="lt-limit-acts">
           {variant === "blocked" && (

@@ -235,7 +235,7 @@ describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
     const row = Array.from(pricingDom("").querySelectorAll(".lt-pricing-compare-row")).find(
       tr => tr.querySelector("th")?.textContent === "Photograph your handwritten answer and get it marked",
     );
-    const cell = row?.querySelectorAll("td")[0]?.cloneNode(true) as Element | undefined;
+    const cell = row?.querySelectorAll("td")[1]?.cloneNode(true) as Element | undefined;
     cell?.querySelectorAll(".lt-pricing-sr").forEach(n => n.remove());
     return cell?.textContent ?? "(missing)";
   }

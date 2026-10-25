@@ -18,7 +18,9 @@ import { createRequire } from "node:module";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
-  FOUNDING_OFFER_OPEN,
+  FOUNDING_OFFER_CLOSES_AT_ISO,
+  FOUNDING_OFFER_CLOSES_AT_MS,
+  foundingOfferOpen,
   PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_INR,
   TILL_BOARDS_PAY_FRACTION,
@@ -31,7 +33,9 @@ const require = createRequire(import.meta.url);
 const server = require("../../server/services/passPricing.cjs") as {
   PRICE_MONTHLY_FOUNDING_INR: number;
   PRICE_MONTHLY_LIST_INR: number;
-  FOUNDING_OFFER_OPEN: boolean;
+  FOUNDING_OFFER_CLOSES_AT_ISO: string;
+  FOUNDING_OFFER_CLOSES_AT_MS: number;
+  foundingOfferOpen: (now: Date | number) => boolean;
   TILL_BOARDS_PAY_FRACTION: number;
   predictBoardDateIso: (now: Date | number) => string | null;
   tillBoardsQuote: (
@@ -79,8 +83,49 @@ describe("P16 — server pass pricing mirrors pricing.ts exactly", () => {
   it("the four owner constants are identical", () => {
     expect(server.PRICE_MONTHLY_FOUNDING_INR).toBe(PRICE_MONTHLY_FOUNDING_INR);
     expect(server.PRICE_MONTHLY_LIST_INR).toBe(PRICE_MONTHLY_LIST_INR);
-    expect(server.FOUNDING_OFFER_OPEN).toBe(FOUNDING_OFFER_OPEN);
+    expect(server.FOUNDING_OFFER_CLOSES_AT_ISO).toBe(FOUNDING_OFFER_CLOSES_AT_ISO);
+    expect(server.FOUNDING_OFFER_CLOSES_AT_MS).toBe(FOUNDING_OFFER_CLOSES_AT_MS);
     expect(server.TILL_BOARDS_PAY_FRACTION).toBe(TILL_BOARDS_PAY_FRACTION);
+  });
+
+  // PRICING-1 — the founding offer closes at 00:00 IST on 1 Dec 2026 (owner: "december will
+  // start with 999/month"). Client and server must flip at the SAME instant.
+  it("PRICING-1 · the founding offer: open at 23:59:59 IST on 30 Nov 2026, closed at 00:00:00 IST on 1 Dec, on BOTH sides", () => {
+    const lastSecond = new Date("2026-11-30T23:59:59+05:30");
+    const firstSecond = new Date("2026-12-01T00:00:00+05:30");
+    const justBefore = new Date(firstSecond.getTime() - 1);
+    expect(foundingOfferOpen(lastSecond)).toBe(true);
+    expect(foundingOfferOpen(justBefore)).toBe(true);
+    expect(foundingOfferOpen(firstSecond)).toBe(false);
+    expect(server.foundingOfferOpen(lastSecond)).toBe(true);
+    expect(server.foundingOfferOpen(justBefore)).toBe(true);
+    expect(server.foundingOfferOpen(firstSecond)).toBe(false);
+    // Whole-millisecond agreement across the boundary and a spread either side.
+    for (const offsetMs of [-86_400_000, -1000, -1, 0, 1, 1000, 86_400_000]) {
+      const at = FOUNDING_OFFER_CLOSES_AT_MS + offsetMs;
+      expect(server.foundingOfferOpen(at), `offset ${offsetMs}`).toBe(foundingOfferOpen(at));
+    }
+    expect(foundingOfferOpen(Number.NaN)).toBe(false);
+    expect(server.foundingOfferOpen(Number.NaN)).toBe(false);
+  });
+
+  it("PRICING-1 · the default offer in tillBoardsQuote follows the instant it is given, on both sides", () => {
+    const board = "2027-02-17";
+    const before = new Date("2026-11-30T23:59:59+05:30");
+    const after = new Date("2026-12-01T00:00:00+05:30");
+    for (const now of [before, after]) {
+      const c = tillBoardsQuote(now, board)!;
+      expect(server.tillBoardsQuote(now, board)).toEqual({
+        monthsLeft: c.monthsLeft,
+        monthlyInr: c.monthlyInr,
+        fullInr: c.fullInr,
+        priceInr: c.priceInr,
+      });
+    }
+    expect(tillBoardsQuote(before, board)!.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
+    expect(tillBoardsQuote(after, board)!.monthlyInr).toBe(PRICE_MONTHLY_LIST_INR);
+    expect(server.tillBoardsQuote(before, board)!.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
+    expect(server.tillBoardsQuote(after, board)!.monthlyInr).toBe(PRICE_MONTHLY_LIST_INR);
   });
 
   it(`covers at least 12 dated cases (has ${DATES.length})`, () => {

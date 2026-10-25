@@ -1,7 +1,8 @@
 import { Link, useSearchParams } from "react-router-dom";
 import {
   FOUNDING_LABEL,
-  FOUNDING_OFFER_OPEN,
+  FOUNDING_OFFER_LAST_DAY_LABEL,
+  foundingOfferOpen,
   PERIOD_MONTHLY_LABEL,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
@@ -40,9 +41,8 @@ import { TRIAL_WORDING } from "../pricing/BasicFreeList";
  * deleted — the strip line already says "locked for every pass you buy" when the
  * offer is open, and the promise is false when it is closed.
  *
- * The offer state is a single build-time boolean (`FOUNDING_OFFER_OPEN`). A
- * Firestore-backed toggle is a later change; a constant the owner edits cannot
- * fail at runtime, which is the right trade for a line on the sign-in page.
+ * The offer state is the calendar's answer, read at render (`foundingOfferOpen(Date.now())`):
+ * open until 23:59:59 IST on 30 Nov 2026 (PRICING-1).
  */
 
 /**
@@ -60,7 +60,8 @@ import { TRIAL_WORDING } from "../pricing/BasicFreeList";
  * drift apart.
  */
 export const AFTER_TRIAL_LEAD = TRIAL_WORDING.tryLine;
-export const AFTER_TRIAL_REST = ` ${TRIAL_WORDING.afterLine}`;
+/** A FUNCTION (PRICING-1): the after-trial price follows the founding offer's date, read at render. */
+export const afterTrialRest = (): string => ` ${TRIAL_WORDING.afterLine}`;
 
 const OFFER_STRIP_CSS = `
   .lt-offer-strip {
@@ -285,7 +286,7 @@ export function AfterTrialLine({ variant }: { variant: "panel" | "mobile" }) {
       data-testid={`lt-after-trial-${variant}`}
     >
       <strong>{AFTER_TRIAL_LEAD}</strong>
-      {AFTER_TRIAL_REST}
+      {afterTrialRest()}
     </p>
   );
 }
@@ -350,7 +351,7 @@ export default function OfferStrip({
 
       <AfterTrialLine variant="panel" />
 
-      {FOUNDING_OFFER_OPEN ? (
+      {foundingOfferOpen(Date.now()) ? (
         <>
           <p className="lt-offer-strip-body">
             <span className="lt-offer-strip-badge" data-testid="lt-offer-founding-badge">
@@ -367,7 +368,7 @@ export default function OfferStrip({
             </span>
             {" "}
             <s className="lt-offer-strip-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
-            {", locked for every pass you buy."}
+            {`, locked for every pass you buy. Offer ends ${FOUNDING_OFFER_LAST_DAY_LABEL}.`}
           </p>
         </>
       ) : (

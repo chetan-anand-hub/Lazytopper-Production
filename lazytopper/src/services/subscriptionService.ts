@@ -44,6 +44,13 @@ export interface SubscriptionStatus {
    * that build a status literal need not name it.
    */
   passEnd?: string | null;
+  /**
+   * PRICING-1 — the STICKY founding-rate flag, written only by the server's grant. DISPLAY ONLY:
+   * it picks which price a label quotes; the server decides what is charged. Present only when
+   * true, so every status literal and equality check that predates it is unchanged. Never
+   * written back (saveCloud builds its own payload).
+   */
+  foundingMember?: boolean;
 }
 
 const STORAGE_KEY = "lazytopper.subscription.v1";
@@ -326,6 +333,7 @@ async function loadCloud(uid: string): Promise<CloudResult> {
       // closed, exactly as the server does.
       passEnd:
         raw.passEnd === undefined || raw.passEnd === null ? null : (toIso(raw.passEnd) ?? "unreadable"),
+      ...(raw.foundingMember === true ? { foundingMember: true } : {}),
     };
     return { kind: "found", data, startIsServerPinned };
   } catch {

@@ -1,4 +1,4 @@
-import { MONTHLY_INLINE } from "../../config/pricing";
+import { monthlyInline } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 
 /**
@@ -20,7 +20,7 @@ import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/
  * "never pay", so every trial line now names what happens after the trial: keep free Basic,
  * or upgrade to Premium at its real price.
  *
- * The price is `MONTHLY_INLINE`, IMPORTED from config/pricing.ts — never typed here (no
+ * The price is `monthlyInline()`, IMPORTED from config/pricing.ts — never typed here (no
  * rupee figure, never a slash-month form: OR-P6). Every surface that states the trial
  * (the free-check panels, the sign-in strip, the Premium lock, the Home tutor card) builds
  * its line from these fields, so the price and the wording cannot drift between them.
@@ -30,17 +30,24 @@ import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/
  * freeCheckClient (node-safe) can both import it. Never import a component from here.
  */
 const TRIAL_TRY_LINE = "Try Premium free for 7 days — no card needed.";
-const TRIAL_AFTER_LINE = `After that, keep free Basic or upgrade to Premium at ${MONTHLY_INLINE}.`;
+/** PRICING-1: built at ACCESS time (the price follows the founding offer's date), never at module load. */
+const trialAfterLine = () => `After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`;
 
 export const TRIAL_WORDING = {
   /** First sentence of the general line. */
   tryLine: TRIAL_TRY_LINE,
   /** Second sentence of the general line; also closes the T2 confirmation. */
-  afterLine: TRIAL_AFTER_LINE,
+  get afterLine() {
+    return trialAfterLine();
+  },
   /** The general line (where a full sentence fits). */
-  generalLine: `${TRIAL_TRY_LINE} ${TRIAL_AFTER_LINE}`,
+  get generalLine() {
+    return `${TRIAL_TRY_LINE} ${trialAfterLine()}`;
+  },
   /** The short fragment, for a surface where a full sentence does not fit. */
-  shortFragment: `then free Basic, or Premium at ${MONTHLY_INLINE}.`,
+  get shortFragment() {
+    return `then free Basic, or Premium at ${monthlyInline()}.`;
+  },
   /** The link label to /pricing, wherever the UI is clickable. */
   seePlans: "See plans →",
 } as const;

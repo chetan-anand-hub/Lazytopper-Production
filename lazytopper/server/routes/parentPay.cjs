@@ -66,7 +66,7 @@ const {
   PAY_ORDERS_COLLECTION,
   RAZORPAY_API_BASE,
 } = require('./payments.cjs');
-const { grantPass, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
+const { grantPass, isStaleFoundingOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const pricing = require('../services/passPricing.cjs');
 
@@ -268,12 +268,33 @@ function createParentPayRoutes(deps = {}) {
     return { ok: !!res.ok, status: res.status, json };
   }
 
+
+  /**
+   * PRICING-1 — true only for a STALE founding order whose buyer is NOT already a founder. An existing
+   * founder pays the founding rate on every order anyway (foundingMember is sticky), so their late
+   * authorization is captured normally. A failed read counts as "not a founder": refuse, never capture blind.
+   */
+  async function refuseStaleFoundingOrder(order) {
+    if (!isStaleFoundingOrder(order, now())) return false;
+    try {
+      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(order.uid).get();
+      const stored = snap && snap.exists ? snap.data() || {} : {};
+      if (stored.foundingMember === true) return false;
+    } catch (_e) {
+      /* fall through to refuse */
+    }
+    return true;
+  }
+
   /** Same as payments.cjs fetchCapturedPayment: Razorpay's record, captured for the STORED amount. */
-  async function fetchCapturedPayment(keys, paymentId, amountPaise) {
+  async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed' };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
+      // PRICING-1 — see payments.cjs (manual-capture path only; a captured payment is always honoured,
+      // an existing founder is never refused): a stale founding order is not captured, the authorization lapses.
+      if (await refuseStaleFoundingOrder(order)) return { error: 'order_expired' };
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, { amount: amountPaise, currency: CURRENCY });
       if (captured.ok && captured.json) {
         payment = captured.json;
@@ -612,12 +633,13 @@ function createParentPayRoutes(deps = {}) {
     // 3. What Razorpay says was actually paid.
     let result;
     try {
-      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise);
+      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order);
     } catch (e) {
       emit('payments.parent.verify.razorpay_unreachable');
       console.error('[pay/parent/verify] razorpay unreachable:', e && e.message);
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
+    if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
     if (result.error) {
       emit(`payments.parent.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });
