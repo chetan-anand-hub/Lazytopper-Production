@@ -1,3 +1,17 @@
+## 2026-10-25 (daily) - ASSET-RELOAD-1 (`#1354`), -1b (`#1355`), EMAIL-NUDGE-1 (`#1357`), PRICING-1 (`#1356`), ENGAGE10-1 (`#1358`), LIMITS-1 PR-1 (`#1359`), EMAIL-CONCIERGE-1 (`#1362`), EMAIL-ONEADAY-1 (`#1364`), ASK-FIX-1 (`#1360`), ENGAGE5-1 (`#1361`), LIMITS-1 PR-2 (`#1363`), LIMITS-1 fix (`#1366`) - MERGED
+
+- DONE. `#1354` (`3f0fff74`), `#1355` (`742c8dde`): ASSET-RELOAD-1 / 1b - one automatic reload instead of a blank page after a deploy. NEXT: nothing owed.
+- DONE. `#1357` (`fcbf7f51`): EMAIL-NUDGE-1 - day-1 and day-3 emails live (cap 30/day); hot-list email OFF on its own flag. NEXT: watch Resend counts (`[FU-NUDGE-FOUNDING-REACH]`).
+- DONE. `#1356` (`436f1a8c`): PRICING-1 - Board Pass leads; founding Rs 599 until 30 Nov, Rs 999 from 1 Dec, server-decided. NEXT: `[FU-PRICING-RETURNTO]`.
+- DONE. `#1358` (`3ca3be67`), `#1361` (`34866e72`): ENGAGE10-1 / ENGAGE5-1 - `engaged_10min` and `engaged_5min` to GA4, Vercel, Meta and the admin log. NEXT: ads switch-over (owner OK at each step).
+- DONE. `#1359` (`104d8719`), `#1363` (`b8852551`): LIMITS-1 PR-1 / PR-2 - download and graded-set limits, locked breakdown; switched ON 25 Oct. NEXT: watch the first days; `[FU-LIMITS-SURFACE-SPOOF]`, `[FU-PERF3-BUDGET]`.
+- DONE. `#1366` (`c9ca2744`, trunk): LIMITS-1 fix - the client limit hooks skip only paid Premium (`isPaidPremium`), so trial and Basic ask the server; found live with the flags on. NEXT: `[FU-LIMITS-LIVE-OWED]` (real-phone wall, a Basic account, a Check & Improve / worksheet limit live).
+- DONE. `#1362` (`e88dbff2`), `#1364` (`ab201b1d`): concierge emails (ON) and one email a day per student. NEXT: replies at support@lazytopper.com.
+- DONE. `#1360` (`f03d4c2d`): ASK-FIX-1 - trial-ended screen, countdown bar, scorecard upgrade line; live-verified on two surfaces. NEXT: the ask-copy lane (four `FU-` items, one PR).
+- NEXT (main job). PDF packs on sale by 27 Oct (`[FU-PDF-PACKS-1]`, `[FU-PDF-REDESIGN-1]`), then Rs 99 pack (`[FU-PACK-99-1]`).
+- IN FLIGHT: none known at writing beyond this docs PR [git/gh]. HELD: repo to PRIVATE once tasks are over.
+- OPEN. The 2026-10-25 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-24 (daily, part 5) - LLMS-PAY-1 (`#1350`), SETTINGS-USAGE-1 (`#1351`), PRIVACY-DPDP-1 (`#1352`) - MERGED
 
 - DONE. `#1350` (`a1f1e4a5`): LLMS-PAY-1 - `llms.txt` states online payment is live (Razorpay), prices and no auto-renew. NEXT: nothing owed; watch that AI assistants stop quoting the old `/pricing`.
