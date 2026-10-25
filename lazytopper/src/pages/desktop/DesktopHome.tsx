@@ -29,6 +29,7 @@ import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
 import { usePendingPapers } from "../../components/home/usePendingPapers";
 import { TrialEndBannerView, useTrialEndBanner } from "../../components/trial/TrialEndBanner";
+import { feedbackShouldDeferToScreen } from "../../components/trial/trialEndScreenModel";
 import { CompanionHome } from "../../components/guide/companion/companion";
 
 
@@ -286,6 +287,8 @@ export default function DesktopHome() {
     isTrialExpired: sub?.isTrialExpired,
     isPremium: sub?.isPremium,
     trialStartDate: sub?.status?.trialStartDate,
+    // ASK-FIX-1 — the trial-ended screen asks first; this card follows it.
+    deferToScreen: feedbackShouldDeferToScreen(user?.uid, sub?.status?.trialStartDate ?? null),
   });
   const isSignedIn = !!user;
   // HOME-PENDING-1 — papers waiting for answers (signed-in only; the same read as the header
