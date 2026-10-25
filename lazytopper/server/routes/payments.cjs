@@ -54,6 +54,9 @@ const { createRateLimiter } = require('../services/rateLimiter.cjs');
 const { TOPUP_PRODUCTS, isTopupProduct } = require('../services/passPricing.cjs');
 const { grantTopup, TopupInputError, isTopupFlagOn } = require('../services/usageCredit.cjs');
 const { deriveEffectiveTier } = require('../services/entitlement.cjs');
+// PACKS-SERVER-1 (DARK): one-time PDF packs. Behind PAYMENTS_ENABLED AND PACKS_ENABLED=1.
+const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor, isAlreadyOwned } = require('../services/packProducts.cjs');
+const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 
 const PAY_ORDER_PATH = '/api/pay/order';
 const PAY_VERIFY_PATH = '/api/pay/verify';
@@ -319,17 +322,47 @@ function createPaymentRoutes(deps = {}) {
     if (!body) return undefined;
     const passType = body.passType;
     const isTopup = isTopupProduct(passType);
+    // PACKS-SERVER-1 dark proof: with PACKS_ENABLED off a pack key is NOT a pack - it falls through to the
+    // unknown-passType 400 below, byte for byte what any unknown key gets.
+    const isPack = isPackProduct(passType) && packsEnabled(env);
     // TOPUP-1 dark proof: with TOPUP_ENABLED unset a top-up key is answered exactly like an unknown route.
     if (isTopup && !topupEnabled()) return sendJson(res, 404, NOT_FOUND_BODY);
-    if (!isTopup && !Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
+    if (!isTopup && !isPack && !Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
       return sendJson(res, 400, { ok: false, error: 'passType must be "month" or "till_boards"' });
     }
 
     let quote;
+    let packTarget = null;
+    if (isPack) {
+      // ★★ The target is validated, the amount is the SERVER table's (never the body's), and a pack the
+      // student already owns is refused BEFORE any Razorpay order exists (no charge for nothing).
+      packTarget = validateTarget(passType, body.packTarget);
+      if (packTarget === null) {
+        emit('payments.order.pack_bad_target');
+        return sendJson(res, 400, { ok: false, error: 'invalid_pack_target' });
+      }
+      try {
+        const owned = await listPacks(adminFirestore, uid);
+        if (isAlreadyOwned(owned, passType, packTarget)) {
+          emit('payments.order.pack_already_owned');
+          return sendJson(res, 409, { ok: false, error: 'already_owned' });
+        }
+      } catch (e) {
+        // Fail CLOSED: without the ownership read we cannot promise the student is not paying twice.
+        emit('payments.order.pack_owned_read_failed');
+        console.error('[pay/order] pack ownership read failed:', e && e.message);
+        return sendJson(res, 500, { ok: false, error: 'Could not price this pack.' });
+      }
+      const packPrice = PACK_PRODUCTS[passType].priceInr;
+      quote = { pricePaidInr: packPrice, amountPaise: packPrice * 100, offerKey: null };
+    }
     try {
-      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+      // A pack needs no subscription read: its price does not depend on the student's plan.
+      const snap = isPack ? null : await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
       const stored = snap && snap.exists ? snap.data() || {} : {};
-      if (isTopup) {
+      if (isPack) {
+        // quote already fixed above from the server table
+      } else if (isTopup) {
         // Premium only (a trial or free student at a limit sees "Upgrade"). The tier is the SERVER's own
         // derivation from the stored subscription; the amount is ALWAYS the server table, never the body's.
         if (deriveEffectiveTier(stored, now()).tier !== 'premium') {
@@ -352,7 +385,7 @@ function createPaymentRoutes(deps = {}) {
       created = await razorpay(keys, 'POST', '/orders', {
         amount: quote.amountPaise,
         currency: CURRENCY,
-        notes: { uid, passType, ...(quote.offerKey ? { offerKey: quote.offerKey } : {}) },
+        notes: { uid, passType, ...(isPack ? { packTarget } : {}), ...(quote.offerKey ? { offerKey: quote.offerKey } : {}) },
       });
     } catch (e) {
       emit('payments.order.razorpay_unreachable');
@@ -377,6 +410,7 @@ function createPaymentRoutes(deps = {}) {
         uid,
         passType,
         amountPaise: quote.amountPaise,
+        ...(isPack ? { packTarget } : {}),
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -509,6 +543,24 @@ function createPaymentRoutes(deps = {}) {
    * handleOrder wrote. Verify, webhook and status all arrive here after the SAME Z4 checks.
    */
   async function grantAndRespond(res, scope, { uid, passType, paymentId, orderId }, extra) {
+    if (isPackProduct(passType)) {
+      // PACKS-SERVER-1: a paid pack is always granted, even if PACKS_ENABLED was switched off after the order
+      // was made. It NEVER reaches grantPass / grantTopup (no passEnd, no Premium, no credit). The sku, target
+      // and price are re-read from the STORED order inside the grant transaction.
+      try {
+        const granted = await grantPack({ db: adminFirestore, uid, order: { orderId }, paymentRef: paymentId, nowMs: now() });
+        emit(granted.replayed ? `payments.${scope}.pack_replayed` : `payments.${scope}.pack_granted`);
+        if (granted.duplicate) emit(`payments.${scope}.pack_duplicate_payment`);
+        if (extra && extra.counter) emit(extra.counter);
+        const body = { ok: true, kind: 'pack', packId: granted.pack.packId, sku: granted.pack.sku, target: granted.pack.target, replayed: granted.replayed };
+        return sendJson(res, 200, extra && extra.body ? { ...body, ...extra.body } : body);
+      } catch (e) {
+        if (e instanceof PackGrantInputError) return reject(res, scope, 'grant_refused');
+        emit(`payments.${scope}.grant_failed`);
+        console.error(`[pay/${scope}] pack grant failed:`, e && e.message);
+        return sendJson(res, 500, { ok: false, error: 'Pack grant failed' });
+      }
+    }
     if (isTopupProduct(passType)) {
       // A paid top-up is always credited, even if TOPUP_ENABLED was switched off after the order was made.
       try {
@@ -677,6 +729,20 @@ function createPaymentRoutes(deps = {}) {
 
     // 1. Already paid (verify, webhook or an earlier status call): report it, write nothing.
     if (order.status === 'paid') {
+      // PACKS-SERVER-1: a paid pack order reports the pack, never a pass (no passEnd).
+      if (isPackProduct(order.passType)) {
+        emit('payments.status.paid');
+        return sendJson(res, 200, {
+          ok: true,
+          state: 'paid',
+          kind: 'pack',
+          packId: packIdFor(order.passType, order.packTarget),
+          sku: order.passType,
+          target: validateTarget(order.passType, order.packTarget),
+          paymentId: typeof order.paymentId === 'string' ? order.paymentId : null,
+          amountInr,
+        });
+      }
       // TOPUP-1: a paid top-up order has no pass to report (a top-up never extends Premium).
       if (isTopupProduct(order.passType)) {
         emit('payments.status.paid');

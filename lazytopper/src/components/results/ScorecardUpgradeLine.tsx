@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../../services/subscriptionService";
 import { trackScorecardUpgrade } from "../../analytics/analytics";
 import UpgradeSheet from "../subscription/UpgradeSheet";
+import { START_TRIAL_LABEL } from "../pricing/trialCta";
 import { formatScoreNumber } from "./scoreNumber";
 import type { ScorecardVariant } from "./scorecardVariants";
 
@@ -33,12 +34,24 @@ function marksWord(n: number): string {
   return n === 1 ? "mark" : "marks";
 }
 
+/** The owner-approved Quick Practice (objective) line, word for word. */
+export function mcqLostCopy(lost: number): string {
+  return `You lost ${formatScoreNumber(lost)} ${marksWord(lost)} here. Upload your working to find out if it was a slip or a concept gap — unlimited checks with the Board Pass →`;
+}
+
 /** The line's words for this scorecard, or null when it must say nothing. Pure. */
 export function scorecardUpgradeCopy(
-  variant: Pick<ScorecardVariant, "score" | "pending" | "allPending" | "awaitingSheet" | "deferred">,
+  variant: Pick<ScorecardVariant, "surface" | "score" | "pending" | "allPending" | "awaitingSheet" | "deferred">,
 ): ScorecardUpgradeCopy | null {
   if (variant.deferred || variant.allPending) return null;
   const score = variant.score;
+  // ASK-COPY-1 [FU-UPGRADE-LINE-MCQ-COPY] - Quick Practice MCQs are scored 0 or full on the answer
+  // alone (CLAUDE.md objective invariant): there are no step marks to unlock. N is the MCQs checked
+  // minus the MCQs right, one mark each - the scorecard's own counts, never invented.
+  if (variant.surface === "quick-practice" && score.kind === "attempts") {
+    const lostMcq = Math.max(0, score.mcqAnswered - score.mcqCorrect);
+    if (lostMcq > 0) return { text: mcqLostCopy(lostMcq) };
+  }
   const known =
     score.kind === "marks" &&
     !variant.pending &&
@@ -85,22 +98,27 @@ function useOptionalUid(): string {
  * result (it broke the Chapter Test pending-upload "exactly one snapshot lookup" pin). It only
  * decides whether to SHOW an ask, never what is unlocked; the server still gates every feature.
  */
-function useCachedTier(uid: string): SubscriptionStatus["tier"] {
-  const [tier, setTier] = useState<SubscriptionStatus["tier"]>(() => loadSubscription(uid).tier);
+function useCachedStatus(uid: string): [SubscriptionStatus, () => void] {
+  const [status, setStatus] = useState<SubscriptionStatus>(() => loadSubscription(uid));
   useEffect(() => {
-    setTier(loadSubscription(uid).tier);
+    setStatus(loadSubscription(uid));
     return onSubscriptionHydrated((hydratedFor, cloud) => {
-      if (hydratedFor === uid) setTier(cloud.tier);
+      if (hydratedFor === uid) setStatus(cloud);
     });
   }, [uid]);
-  return tier;
+  return [status, () => setStatus(loadSubscription(uid))];
 }
 
 function Line({ text, countShown, uid }: { text: string; countShown: boolean; uid: string }) {
-  const tier = useCachedTier(uid);
+  const [status, refresh] = useCachedStatus(uid);
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
-  const show = tier !== "premium";
+  const show = status.tier !== "premium";
+  // [FU-TRIAL-CTA-ON-ASK] - an account that never had a trial leads with the free week. This line
+  // reads the cache only (no cloud read of its own), so the lead OPENS the sheet, whose button is
+  // the one that starts the trial - and only once the record is known there. A tap never starts
+  // it here, and a trial student (trialStartDate set) is never offered a second one.
+  const trialLead = show && !status.trialStartDate;
   useEffect(() => {
     // A history re-open of an old result shows the line but is not counted as a fresh "shown".
     if (show && countShown) trackScorecardUpgrade("shown");
@@ -109,6 +127,19 @@ function Line({ text, countShown, uid }: { text: string; countShown: boolean; ui
   return (
     <>
       <style>{LINE_CSS}</style>
+      {trialLead ? (
+        <button
+          type="button"
+          className="lt-sc__up"
+          data-testid="scorecard-trial-lead"
+          onClick={() => {
+            trackScorecardUpgrade("click");
+            setOpen(true);
+          }}
+        >
+          {`${START_TRIAL_LABEL} →`}
+        </button>
+      ) : null}
       <button
         type="button"
         className="lt-sc__up"
@@ -120,7 +151,13 @@ function Line({ text, countShown, uid }: { text: string; countShown: boolean; ui
       >
         {text}
       </button>
-      {open ? <UpgradeSheet featureLabel="Your full marks breakdown" onClose={() => setOpen(false)} /> : null}
+      {open ? <UpgradeSheet
+          featureLabel="Your full marks breakdown"
+          onClose={() => {
+            setOpen(false);
+            refresh(); // a trial started from the sheet is on this device's record now
+          }}
+        /> : null}
     </>
   );
 }

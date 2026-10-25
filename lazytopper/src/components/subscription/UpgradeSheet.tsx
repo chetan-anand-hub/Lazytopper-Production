@@ -45,12 +45,14 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
-import { getPremiumFeatureList } from "../../services/featureGates";
+import { PREMIUM_PLUS } from "../../config/pricingCompare";
 import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { useSubscription } from "../../hooks/useSubscription";
 import PaywallActions from "../pricing/PaywallActions";
 import { boardPassOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
+import TrialStartButton from "../pricing/TrialStartButton";
+import { isTrialEligible, lowerFirst, useOptionalUid } from "../pricing/trialCta";
 
 export interface UpgradeSheetProps {
   /** What the student was trying to do, in their words. Names the blocked feature. */
@@ -185,7 +187,8 @@ const UPGRADE_SHEET_CSS = `
 
 export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeSheetProps) {
   // PRICING-1 — a lapsed founder still pays the founding rate, so the quote follows their record.
-  const { status: subscription } = useSubscription();
+  const { status: subscription, hydrated } = useSubscription();
+  const uid = useOptionalUid();
   const navigate = useNavigate();
   const location = useLocation();
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -213,10 +216,17 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
     sheetRef.current?.focus();
   }, []);
 
-  // ★ Read, never restate. The list is whatever `featureGates.ts` currently says is
-  // both premium AND shipped. A retired surface cannot appear here without first
-  // being un-retired in the gate table, which is the point.
-  const premiumFeatures = getPremiumFeatureList();
+  // ASK-COPY-1 - the benefit list is the one /pricing shows for Premium (config/pricingCompare's
+  // PREMIUM_PLUS), read here and never copied: the sheet can no longer drift from the pricing page,
+  // and the old gate-table labels (Unlimited Mock Tests, Exam Simulation, ...) are gone from it.
+  const premiumFeatures = PREMIUM_PLUS;
+  // A TRIAL student has the feature today, so the title names what the pass KEEPS after the free
+  // week; everyone else keeps the true "<feature> is a Premium feature".
+  const onTrial = Boolean(uid) && subscription?.tier === "trial";
+  const title = onTrial ? `Keep ${lowerFirst(featureLabel)} after your free week` : `${featureLabel} is a Premium feature`;
+  // [FU-TRIAL-CTA-ON-ASK] - a signed-out visitor, or an account that never had a trial. The record
+  // must be known (hydrated) for an account; the server still decides.
+  const trialEligible = !uid || isTrialEligible(hydrated, subscription);
 
   const handleSeePlans = () => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
@@ -237,7 +247,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
         className="lt-upsheet"
         role="dialog"
         aria-modal="true"
-        aria-label={`${featureLabel} is a Premium feature`}
+        aria-label={title}
         tabIndex={-1}
         ref={sheetRef}
         onClick={(e) => e.stopPropagation()}
@@ -247,7 +257,17 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
 
         {/* ★ Names the feature the student was actually blocked on — passed in by the
             caller, never one hardcoded string for every surface. */}
-        <h2 className="lt-upsheet__title">{featureLabel} is a Premium feature</h2>
+        <h2 className="lt-upsheet__title">{title}</h2>
+
+        {/* ASK-COPY-1 - the free week leads where it can still be started; the Board Pass is second. */}
+        {trialEligible && (
+          <TrialStartButton
+            uid={uid}
+            returnTo={`${location.pathname}${location.search}${location.hash}`}
+            className="lt-upsheet__cta"
+            onStarted={onClose}
+          />
+        )}
 
         {/* ★ Only when the server told us. No date is better than a guessed one. */}
         {trialLine && <p className="lt-upsheet__trial">{trialLine}</p>}
