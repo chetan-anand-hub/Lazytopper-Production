@@ -26,6 +26,7 @@ import {
   CheckImproveGradedPrintDoc,
   type CheckImproveGradedPrintDocProps,
 } from "../checkimprove/CheckImproveGradedPrintDoc";
+import { BRAND_MARK_SRC } from "../../config/brandMark";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 
@@ -116,7 +117,7 @@ export async function svgsToImages(host: HTMLElement): Promise<void> {
  *  document's own (.lt-wsp__*) plus the shared figure class (.lt-pfig__fig). A sheet with none of them (the Check & Improve graded
  *  sheet) has no atoms and is cut exactly as before; a graded worksheet / test sheet that has figures gets those figures kept whole.
  *  A heading is glued to the first line after it so it is never stranded at the foot of a page. */
-const ATOM_SELECTOR = ".lt-wsp__qtext, .lt-wsp__opts li, .lt-wsp__step, .lt-wsp__final, .lt-wsp__solhead, .lt-wsp__sechead, .lt-wsp__instr, .lt-wsp__titlerow, .lt-pfig__fig";
+const ATOM_SELECTOR = ".lt-wsp__qtext, .lt-wsp__opts li, .lt-wsp__step, .lt-wsp__final, .lt-wsp__solhead, .lt-wsp__sechead, .lt-wsp__instr, .lt-wsp__titlerow, .lt-wsp__src, .lt-wsp__cta, .lt-pfig__fig";
 
 export function collectPrintAtoms(host: HTMLElement): Span[] {
   const top0 = host.getBoundingClientRect().top;
@@ -138,7 +139,10 @@ export function collectPrintAtoms(host: HTMLElement): Span[] {
 async function waitForRenderReady(): Promise<void> {
   // Fonts (Inter / Fraunces / KaTeX) must be loaded so symbols rasterise crisply.
   try {
-    const fonts = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
+    const fonts = (document as Document & { fonts?: { ready?: Promise<unknown>; load?: (spec: string) => Promise<unknown> } }).fonts;
+    const loadable = fonts as { load?: (spec: string) => Promise<unknown> } | undefined;
+    // Ask for the faces the print docs use: `fonts.ready` alone only waits for faces already requested.
+    if (loadable?.load) await Promise.all([loadable.load('600 28px "Fraunces"'), loadable.load('400 16px "Inter"')].map((p) => p.catch(() => undefined)));
     if (fonts?.ready) await fonts.ready;
   } catch {
     /* fonts API unavailable — proceed */
@@ -149,55 +153,196 @@ async function waitForRenderReady(): Promise<void> {
   });
 }
 
-function drawFooter(pdf: Doc, page: number, total: number): void {
-  const pageW = 210;
-  const pageH = 297;
-  const marginX = 12;
-  pdf.setDrawColor(216, 216, 216);
-  pdf.setLineWidth(0.2);
-  pdf.line(marginX, pageH - 12, pageW - marginX, pageH - 12);
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8);
-  pdf.setTextColor(85, 85, 85);
-  pdf.text(`Page ${page} of ${total}`, marginX, pageH - 8);
-  pdf.text("LazyTopper · lazytopper.com · © LazyTopper", pageW - marginX, pageH - 8, { align: "right" });
+/** What a caller may ask of the PDF (PACKS contract section 5). Existing callers pass nothing. */
+export interface WorksheetPdfOptions {
+  /** The buyer: printed in every page footer and on the cover; the tiled watermark is then not drawn. */
+  licensee?: { name: string; email: string; orderId: string };
+  /** A navy cover page, page 1 of the file. */
+  cover?: { kicker: string; title: string; subtitle: string; stats: Array<{ value: string; label: string }> };
+  /** Overrides the default saved file name. */
+  filename?: string;
 }
 
-/**
- * Shared core: render a React element into a DETACHED offscreen host containing
- * ONLY that element, rasterise it, paginate across A4 with a crisp jsPDF footer,
- * and save as `filename`. Every worksheet PDF (questions / answer-key / graded
- * sheet) goes through this one path — no per-variant PDF mechanism.
- */
-async function renderElementToPdf(element: ReactElement, filename: string): Promise<string> {
-  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-    import("html2canvas"),
-    import("jspdf"),
-  ]);
+interface CoreOptions extends WorksheetPdfOptions {
+  /** Printed on the cover as "Edition <date>": the sheet's own date, so the export never reads the clock. */
+  edition?: string;
+  /** Right-hand text of the running header drawn on every page after the first body page. */
+  runningHeader?: string;
+}
 
-  // 1. Detached offscreen host containing ONLY the print doc.
+const BRAND_WORDMARK_SRC = BRAND_MARK_SRC.replace(/[^/]+$/, "lazytopper-wordmark.png");
+
+/** The fingerprint tile and the script wordmark as data URLs for the jsPDF running header; null if they cannot be fetched
+ *  (the header then falls back to the plain word). Never blocks the PDF. */
+async function loadBrandDataUrls(): Promise<{ tile: string; wordmark: string } | null> {
+  const toUrl = async (src: string): Promise<string> => {
+    const res = await fetch(src);
+    if (!res.ok) throw new Error("brand asset");
+    const blob = await res.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = () => reject(new Error("read"));
+      r.readAsDataURL(blob);
+    });
+  };
+  try {
+    const [tile, wordmark] = await Promise.all([toUrl(BRAND_MARK_SRC), toUrl(BRAND_WORDMARK_SRC)]);
+    return { tile, wordmark };
+  } catch {
+    return null;
+  }
+}
+
+const PAGE_W = 210;
+const PAGE_H = 297;
+const MARGIN_X = 12;
+const MARGIN_TOP = 15;
+const FOOTER_H = 19;
+const ACCENT_RGB: [number, number, number] = [63, 191, 130];
+const NAVY_RGB: [number, number, number] = [21, 35, 58];
+const MUTED_RGB: [number, number, number] = [58, 74, 96];
+
+/** jsPDF's built-in fonts hold Latin-1 only; anything else would print as garbage, so it is left out of the PDF line. */
+function latin1(text: string): string {
+  return text.replace(/[^\u0020-\u007e\u00a0-\u00ff]/g, "").replace(/\s+/g, " ").trim();
+}
+
+/** "Licensed to <name> - <email> - Order <id> - personal use only". `ascii` keeps only what the PDF font can print. */
+export function licenseeLine(l: { name: string; email: string; orderId: string }, ascii = false): string {
+  const clean = (v: string) => (ascii ? latin1(String(v ?? "")) : String(v ?? "").trim());
+  const parts = [clean(l.name), clean(l.email)].filter(Boolean);
+  const who = parts.join(" \u00b7 ");
+  return `Licensed to ${who ? `${who} \u00b7 ` : ""}Order ${clean(l.orderId)} \u2014 personal use only`;
+}
+
+/** Fit the licensee line on one footer row: shrink 9pt down to 7pt, then shorten the name, then the e-mail. */
+function fitLicensee(pdf: Doc, l: { name: string; email: string; orderId: string }, maxW: number): { text: string; size: number } {
+  const measure = (t: string, size: number): number => {
+    pdf.setFontSize(size);
+    return typeof pdf.getTextWidth === "function" ? pdf.getTextWidth(t) : 0;
+  };
+  const base = { name: latin1(l.name), email: latin1(l.email), orderId: latin1(l.orderId) };
+  const shorten = (v: string, drop: number): string => (drop <= 0 ? v : `${v.slice(0, Math.max(1, v.length - drop))}...`);
+  // drop characters from the name first (down to one), then from the e-mail; the order id is never cut
+  for (let drop = 0; drop <= base.name.length + base.email.length; drop += 1) {
+    const nameDrop = Math.min(drop, Math.max(0, base.name.length - 1));
+    const emailDrop = drop - nameDrop;
+    const text = licenseeLine({ name: shorten(base.name, nameDrop), email: shorten(base.email, emailDrop), orderId: base.orderId }, true);
+    for (let size = 10; size >= 9; size -= 0.5) {
+      if (measure(text, size) <= maxW) return { text, size };
+    }
+  }
+  return { text: licenseeLine({ name: "", email: "", orderId: base.orderId }, true), size: 9 };
+}
+
+/** Per-page chrome the raster does not carry: green top rule, running header (after the first body page) and footer. */
+function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, opts: CoreOptions, brand: { tile: string; wordmark: string } | null): void {
+  const innerW = PAGE_W - MARGIN_X * 2;
+  pdf.setFillColor(...ACCENT_RGB);
+  pdf.rect(0, 0, PAGE_W, 1.6, "F");
+
+  if (bodyIndex > 0) {
+    if (brand) {
+      pdf.addImage(brand.tile, "PNG", MARGIN_X, 3.6, 6.4, 6.4);
+      pdf.addImage(brand.wordmark, "PNG", MARGIN_X + 8, 3.9, 21, 6);
+    } else {
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(11);
+      pdf.setTextColor(...NAVY_RGB);
+      pdf.text("LazyTopper", MARGIN_X, 8.5);
+    }
+    if (opts.runningHeader) {
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      pdf.setTextColor(...MUTED_RGB);
+      let h = latin1(opts.runningHeader);
+      if (typeof pdf.getTextWidth === "function") {
+        while (h.length > 4 && pdf.getTextWidth(h) > innerW - 44) h = `${h.slice(0, h.length - 4)}...`;
+      }
+      pdf.text(h, PAGE_W - MARGIN_X, 8.5, { align: "right" });
+    }
+    pdf.setDrawColor(216, 222, 230);
+    pdf.setLineWidth(0.2);
+    pdf.line(MARGIN_X, 11.5, PAGE_W - MARGIN_X, 11.5);
+  }
+
+  pdf.setDrawColor(216, 222, 230);
+  pdf.setLineWidth(0.2);
+  pdf.line(MARGIN_X, PAGE_H - 17, PAGE_W - MARGIN_X, PAGE_H - 17);
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(...MUTED_RGB);
+  if (opts.licensee) {
+    const fit = fitLicensee(pdf, opts.licensee, innerW);
+    pdf.setFontSize(fit.size);
+    pdf.text(fit.text, MARGIN_X, PAGE_H - 12.5);
+    pdf.setFontSize(10);
+    pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 6.5);
+    pdf.text("lazytopper.com", PAGE_W - MARGIN_X, PAGE_H - 6.5, { align: "right" });
+  } else {
+    pdf.setFontSize(10);
+    pdf.text(`Page ${page} of ${total}`, MARGIN_X, PAGE_H - 10);
+    pdf.text("LazyTopper \u00b7 lazytopper.com \u00b7 \u00a9 LazyTopper", PAGE_W - MARGIN_X, PAGE_H - 10, { align: "right" });
+  }
+}
+
+/** A detached offscreen host that holds ONLY the element handed in; always cleaned up. */
+async function withHost<T>(width: number, element: ReactElement, run: (host: HTMLElement) => Promise<T>): Promise<T> {
   const host = document.createElement("div");
   host.setAttribute("aria-hidden", "true");
   host.style.position = "fixed";
   host.style.left = "-100000px";
   host.style.top = "0";
-  host.style.width = `${HOST_WIDTH}px`;
+  host.style.width = `${width}px`;
   host.style.background = "#ffffff";
   host.style.zIndex = "-1";
   host.style.pointerEvents = "none";
   document.body.appendChild(host);
-
   const root = createRoot(host);
   try {
     // LOW-END-1 (owner ruling 2): MathText fetches KaTeX on demand, and this capture runs
-    // only ~2 frames after rendering — so the export ALWAYS waits for KaTeX first. Without
+    // only ~2 frames after rendering - so the export ALWAYS waits for KaTeX first. Without
     // it a PDF could rasterise MathText's plain-text stand-in instead of the maths.
     await loadKatex();
     root.render(element);
     await waitForRenderReady();
     await waitForImages(host);
     await svgsToImages(host);
+    return await run(host);
+  } finally {
+    root.unmount();
+    if (host.parentNode) host.parentNode.removeChild(host);
+  }
+}
 
+/**
+ * Shared core: render a React element into a DETACHED offscreen host containing
+ * ONLY that element, rasterise it, paginate across A4 with crisp jsPDF page chrome,
+ * and save as `filename`. Every worksheet PDF (questions / answer-key / graded
+ * sheet) goes through this one path - no per-variant PDF mechanism.
+ */
+async function renderElementToPdf(element: ReactElement, filename: string, opts: CoreOptions = {}): Promise<string> {
+  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+    import("html2canvas"),
+    import("jspdf"),
+  ]);
+
+  // The cover (PDF-REBRAND-1) is its own full-bleed page; loaded only when asked for.
+  let coverJpeg: string | null = null;
+  if (opts.cover) {
+    const { PrintCover, COVER_W } = await import("./PrintCover");
+    const cover = opts.cover;
+    coverJpeg = await withHost(COVER_W, createElement(PrintCover, {
+      ...cover,
+      licenseeLine: opts.licensee ? licenseeLine(opts.licensee) : undefined,
+      edition: opts.edition,
+    }), async (coverHost) => {
+      const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+      return c.toDataURL("image/jpeg", 0.95);
+    });
+  }
+
+  return withHost(HOST_WIDTH, element, async (host) => {
     // Where a page may be cut, measured now (the laid-out DOM) and converted to canvas pixels after the capture.
     const atomsCss = collectPrintAtoms(host);
     const hostH = host.getBoundingClientRect().height;
@@ -210,15 +355,10 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
       windowWidth: HOST_WIDTH,
     });
 
-    // 2. Paginate the tall raster across A4, leaving room for a crisp jsPDF footer.
+    // 2. Paginate the tall raster across A4, leaving room for the crisp jsPDF page chrome.
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const pageW = 210;
-    const pageH = 297;
-    const marginX = 12;
-    const marginTop = 10;
-    const footerH = 14;
-    const imgW = pageW - marginX * 2;
-    const usableH = pageH - marginTop - footerH;
+    const imgW = PAGE_W - MARGIN_X * 2;
+    const usableH = PAGE_H - MARGIN_TOP - FOOTER_H;
     const pxPerMm = canvas.width / imgW || 1;
     const sliceHpx = Math.max(1, Math.floor(usableH * pxPerMm));
     const yScale = hostH > 0 ? canvas.height / hostH : 1;
@@ -227,9 +367,14 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
       canvas.height,
       sliceHpx,
     );
-    const totalPages = Math.max(1, slices.length);
+    const bodyPages = Math.max(1, slices.length);
+    const offset = coverJpeg ? 1 : 0;
+    const totalPages = bodyPages + offset;
 
-    for (let page = 0; page < totalPages; page += 1) {
+    const brand = totalPages > 1 ? await loadBrandDataUrls() : null;
+    if (coverJpeg) pdf.addImage(coverJpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+
+    for (let page = 0; page < bodyPages; page += 1) {
       // integer page edges taken from ONE rounding of each cut, so a page never drops or repeats a canvas pixel
       const yPx = page === 0 ? 0 : Math.round(slices[page].y);
       const nextY = page + 1 < slices.length ? Math.round(slices[page + 1].y) : canvas.height;
@@ -243,17 +388,20 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
         sctx.fillRect(0, 0, slice.width, slice.height);
         sctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
       }
-      if (page > 0) pdf.addPage();
-      pdf.addImage(slice.toDataURL("image/jpeg", 0.95), "JPEG", marginX, marginTop, imgW, hPx / pxPerMm);
-      drawFooter(pdf, page + 1, totalPages);
+      if (page > 0 || coverJpeg) pdf.addPage();
+      pdf.addImage(slice.toDataURL("image/jpeg", 0.95), "JPEG", MARGIN_X, MARGIN_TOP, imgW, hPx / pxPerMm);
+      drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand);
     }
 
     pdf.save(filename);
     return filename;
-  } finally {
-    root.unmount();
-    if (host.parentNode) host.parentNode.removeChild(host);
-  }
+  });
+}
+
+/** "20 Jun 2026" from the sheet's ISO date; "" when it is missing or unreadable. */
+function editionOf(iso: string): string {
+  const d = new Date(iso);
+  return Number.isFinite(d.getTime()) ? d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
 }
 
 /** The diagrams registry loads only when a PDF with solutions is actually produced. */
@@ -273,11 +421,16 @@ export async function exportWorksheetPdf(
   ws: PersistedWorksheet,
   kind: "questions" | "answers",
   code?: string,
+  opts?: WorksheetPdfOptions,
 ): Promise<string> {
   const suffix = kind === "answers" ? "answer-key" : "questions";
-  const filename = `lazytopper-${slug(ws.title)}-${codeToken(code)}${suffix}.pdf`;
+  const filename = opts?.filename || `lazytopper-${slug(ws.title)}-${codeToken(code)}${suffix}.pdf`;
   const renderSolutionFigure = kind === "answers" ? await loadSolutionFigureRenderer() : undefined;
-  return renderElementToPdf(createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure }), filename);
+  return renderElementToPdf(
+    createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee }),
+    filename,
+    { ...opts, edition: editionOf(ws.createdAt), runningHeader: `${ws.subject} \u00b7 ${ws.title} \u00b7 ${kind === "answers" ? "Answer key" : "Questions"}` },
+  );
 }
 
 /**
@@ -304,6 +457,7 @@ export async function exportGradedWorksheetPdf(args: {
       ...(kindLabel ? { kindLabel } : {}),
     }),
     filename,
+    { runningHeader: `${ws.subject} \u00b7 ${name || ws.title} \u00b7 Graded sheet` },
   );
 }
 
@@ -319,5 +473,7 @@ export async function exportGradedCheckImprovePdf(
   props: CheckImproveGradedPrintDocProps,
 ): Promise<string> {
   const filename = `lazytopper-${slug(props.name || props.code || "check-improve")}-graded.pdf`;
-  return renderElementToPdf(createElement(CheckImproveGradedPrintDoc, props), filename);
+  return renderElementToPdf(createElement(CheckImproveGradedPrintDoc, props), filename, {
+    runningHeader: `Check & Improve \u00b7 ${props.name || props.code || "Graded sheet"}`,
+  });
 }
