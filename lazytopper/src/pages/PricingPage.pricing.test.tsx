@@ -268,6 +268,13 @@ const CONTRAST_PAIRS: ContrastPair[] = [
 ];
 
 describe("PricingPage — R1 the monthly headline", () => {
+  it("shows the founder badge in the header, under the subtitle", () => {
+    const { container } = renderPricing();
+    const badge = container.querySelector('.lt-pricing-header [data-testid="founder-badge"]');
+    expect(badge?.textContent).toBe("Made by an IITian (IIT Kanpur)");
+    expect(badge?.previousElementSibling?.className).toBe("lt-pricing-subtitle");
+  });
+
   it("founding OPEN (as shipped): ₹599 for a month, with ₹999 struck beside it", () => {
     const { premium } = renderPricing();
     const head = premium.querySelector('[data-testid="pricing-monthly-price"]');

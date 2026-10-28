@@ -1,6 +1,6 @@
 # LazyTopper
 
-> LazyTopper is a CBSE Class 10 board-exam preparation web app for Maths and Science, for students in India. Students check their written answers step by step, the way a CBSE examiner marks them, and practise with chapter notes, competency-based questions and chapter-wise exam trends drawn from ten years of CBSE board papers.
+> LazyTopper is a CBSE Class 10 board-exam preparation web app for Maths and Science, for students in India. Students check their written answers step by step, the way a CBSE examiner marks them, and practise with chapter notes, competency-based questions and chapter-wise exam trends drawn from ten years of CBSE board papers. LazyTopper is made by an IITian (IIT Kanpur).
 
 Key facts:
 - Audience: students preparing for the CBSE Class 10 board exam (2026-27 session, boards in 2027), and their parents.
