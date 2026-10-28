@@ -1,0 +1,45 @@
+import { useEffect } from "react";
+import "./inAppSigninBanner.css";
+import { trackOnboardingEvent } from "../../analytics/analytics";
+import { inAppBrowser, type InAppBrowser } from "../../utils/inAppBrowser";
+import { chromeIntentUrl, isAndroidUserAgent, isIosUserAgent } from "../../utils/inAppBrowserLinks";
+
+/**
+ * INAPP-SIGNIN-1 — a calm note above the Google button when the page is open inside
+ * Instagram, Facebook or another app's browser, where Google sign-in is refused. Google is
+ * not hidden (it works in some apps); the student is told what to do instead.
+ */
+const APP_NAME: Record<InAppBrowser, string> = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+  "other-webview": "this app",
+};
+
+export default function InAppSignin() {
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const app = inAppBrowser(ua);
+  useEffect(() => {
+    if (app) trackOnboardingEvent("inapp_signin_banner_shown", { app });
+  }, [app]);
+  if (!app) return null;
+
+  const href = typeof window !== "undefined" ? window.location.href : "";
+  const android = isAndroidUserAgent(ua);
+  const ios = !android && isIosUserAgent(ua);
+  const intent = android ? chromeIntentUrl(href) : null;
+  const name = APP_NAME[app];
+
+  return (
+    <div className="lt-inapp lt-inapp-banner" role="note" data-testid="inapp-signin-banner">
+      <p className="lt-inapp-text">
+        Google sign-in doesn't work inside {name}.{" "}
+        {ios ? "Tap ⋯ → Open in Safari, or use your phone number below." : "Tap ⋯ → Open in browser, or use your phone number below."}
+      </p>
+      {intent ? (
+        <a className="lt-inapp-btn" href={intent}>
+          Open in Chrome
+        </a>
+      ) : null}
+    </div>
+  );
+}

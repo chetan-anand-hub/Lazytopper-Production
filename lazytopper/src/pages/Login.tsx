@@ -1,4 +1,4 @@
-import { type CSSProperties, type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth, type AuthUser } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -12,6 +12,9 @@ import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 import { NEW_ACCOUNT_LANDING_PATH, newAccountGoesHome, takeNewAccountLanding } from "../services/newAccountLanding";
 import { BRAND_MARK_SRC } from "../config/brandMark";
+
+// INAPP-SIGNIN-1 — the UA check, the note and its CSS all live in this lazy chunk.
+const InAppSignin = lazy(() => import("../components/auth/InAppSigninBanner"));
 
 type LocationState = { from?: string };
 
@@ -2127,6 +2130,11 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   New here? Just continue — your account is created automatically.
                 </p>
 
+                <div className="lt-doors">
+                <Suspense fallback={null}>
+                  <InAppSignin />
+                </Suspense>
+
                 <button
                   type="button"
                   className="lt-google"
@@ -2173,6 +2181,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   </span>
                   Continue with email
                 </button>
+                </div>
 
                 {error ? (
                   <p className="lt-login-error" role="alert">
