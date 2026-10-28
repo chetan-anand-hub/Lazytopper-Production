@@ -6,6 +6,7 @@ import { UpgradeModal } from "../UpgradeModal";
 import PaywallActions from "../pricing/PaywallActions";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
+import BoardPassLine from "../pricing/BoardPassLine";
 import { isSafeInternalPath } from "../../utils/safeInternalPath";
 
 /** START-HERE-1 — the lock line for a student who came from a scorecard's tutor button. */
@@ -96,13 +97,15 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
             : <>{featureLabel || "This feature"} is part of Premium.</>}
           {neverTrialled ? (
             <>
-              <br />Try everything free for 7 days.
+              <br />Try Premium free for 7 days.
             </>
           ) : null}
         </p>
         {/* TRIAL-ON-SIGNUP-1 · T4 — under the lock's message: what stays free on Basic,
             from the one list Pricing renders. */}
         <BasicFreeList />
+        {/* FIRST-OFFER-1 - the Board Pass with its real price, above the trial lead and the pay actions. */}
+        <BoardPassLine />
         {neverTrialled ? (
           <>
             <button

@@ -14,6 +14,7 @@ import {
   PRICE_MONTHLY_LIST_DISPLAY,
   tillBoardsQuote,
 } from "../../config/pricing";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
 
 export interface BoardPassOffer {
   /** The lead offer's name. */
@@ -43,4 +44,14 @@ export function boardPassOffer(now: Date, boardIso: string): BoardPassOffer {
 /** "Board Pass ₹… till boards" - the one-line form for the countdown bar. */
 export function boardPassShortLine(offer: BoardPassOffer): string {
   return offer.priceDisplay ? `Board Pass ${offer.priceDisplay} till boards` : "Board Pass, pay once till boards";
+}
+
+/** The Board Pass price for today ("₹…"), or null when it cannot be quoted. Reads the clock: call it at render. */
+export function boardPassPriceNow(now: Date = new Date()): string | null {
+  return boardPassOffer(now, predictCbseExamDate("10")).priceDisplay;
+}
+
+/** FIRST-OFFER-1 - "Board Pass ₹… →": the one CTA label every wall and banner uses; no figure when none can be quoted. */
+export function boardPassCtaLabel(price: string | null = boardPassPriceNow()): string {
+  return price ? `Board Pass ${price} →` : "Board Pass →";
 }

@@ -82,7 +82,7 @@ afterEach(() => {
 });
 
 describe("TrialEndBanner — who sees it", () => {
-  it("day 6 of an active trial: headline with the real end, real counts, See plans", async () => {
+  it("day 6 of an active trial: headline with the real end, real counts, Board Pass", async () => {
     setNow(ist(2026, 6, 6, 12));
     hydrate.mockResolvedValue(trial());
     readRecords.mockResolvedValue([rec("a", "check-improve", START + HOUR), rec("b", "worksheet", START + 2 * HOUR)]);
@@ -91,7 +91,7 @@ describe("TrialEndBanner — who sees it", () => {
       "Your Premium trial ends in 2 days, on Mon 8 Jun at 10:00 am.",
     );
     expect(screen.getByTestId("trial-end-banner-activity")).toHaveTextContent("In your trial so far: 1 answer check · 1 test taken.");
-    const plans = screen.getByRole("link", { name: "See plans" });
+    const plans = screen.getByRole("link", { name: /^Board Pass/ });
     expect(plans).toHaveAttribute("href", "/pricing");
     expect(screen.queryByRole("link", { name: "Check an answer" })).toBeNull();
     expect(screen.queryByRole("checkbox")).toBeNull(); // nothing pre-ticked, nothing to tick
@@ -218,7 +218,7 @@ describe("TrialEndBanner — once-per-IST-day dismissal and analytics", () => {
     hydrate.mockResolvedValue(trial());
     readRecords.mockResolvedValue([rec("q", "quick-practice", START + DAY)]);
     renderBanner();
-    fireEvent.click(await screen.findByRole("link", { name: "See plans" }));
+    fireEvent.click(await screen.findByRole("link", { name: /^Board Pass/ }));
     expect(trackClick).toHaveBeenCalledWith("plans");
   });
 });

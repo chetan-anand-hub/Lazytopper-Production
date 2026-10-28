@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
+import { boardPassCtaLabel } from "../pricing/boardPassOffer";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getSessionRecordsFromCloud } from "../../services/sessionRecords";
 import { trackTrialBannerClick, trackTrialBannerShown } from "../../analytics/analytics";
@@ -217,7 +218,7 @@ export function TrialEndBannerView({ model, spaced = false }: { model: TrialEndB
             className={`lt-trial-banner__cta ${activity.zero ? "lt-trial-banner__cta--secondary" : "lt-trial-banner__cta--primary"}`}
             onClick={() => trackTrialBannerClick("plans")}
           >
-            See plans
+            {boardPassCtaLabel()}
           </Link>
         </div>
       </div>
