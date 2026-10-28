@@ -56,7 +56,7 @@ import { getActiveProgressUser } from "./studentProgressStore";
 // the question bank on first load. Every number is unchanged: the same function runs.
 import { conceptEvidenceKey, normalizeSection, type BankConcept, type ConceptRowRef } from "./progressBankShape";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
-import { isBoardChapterKey } from "../config/syllabus2026-27";
+import { isBoardChapterKey } from "../config/syllabusUnits2026-27";
 import {
   MISTAKE_TYPE_LABEL,
   isGradedQuestion,

@@ -1065,6 +1065,8 @@ export interface OnboardingEventParams {
   start_here_start: { subject: string; chapter: string; qtype: string; mode?: "one_tap" | "picker" };
   start_here_graded: { subject: string; correct: number; total: number };
   start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface; variant?: StartHereVariant };
+  /** ACTIVATION-1 — "Try one board question now (2 min)" tapped: coarse slugs only, no id, no text. */
+  activation_card_click: { subject: string; chapter: string; qtype: string };
   /** HOME-PENDING-1 — the pending-answers list was shown (once per tab per placement: the Home
    *  strip rendered / the header bell's popover opened), with the number waiting. No code, no id. */
   pending_card_shown: { count: number; placement: PendingPlacement };
@@ -1093,7 +1095,7 @@ function onboardingData(params: Record<string, unknown>): Record<string, string 
 
 export function trackOnboardingEvent<E extends OnboardingEvent>(name: E, params: OnboardingEventParams[E]): void {
   // PREVIEW-1 (guide section below): an admin preview session adds nothing to the Start-here funnel.
-  if (String(name).startsWith("start_here_") && guidePreviewOnDevice()) return;
+  if ((String(name).startsWith("start_here_") || name === "activation_card_click") && guidePreviewOnDevice()) return;
   try {
     const data = onboardingData(params as unknown as Record<string, unknown>);
     send("event", { name, data }, { ga4: data });

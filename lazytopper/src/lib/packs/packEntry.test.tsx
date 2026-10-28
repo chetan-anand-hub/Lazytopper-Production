@@ -26,6 +26,7 @@ import * as analytics from "../../analytics/analytics";
 import { ACTIVITY_EVENTS } from "../../services/activityClient";
 import { PACK_PRICE_INR, isPacksClientEnabled } from "../../services/packs";
 import { ACTIVITY_TOPIC_SLUGS } from "../../services/activityPages";
+import { MOCK_PACK_PRICE_INR, packOfferFor } from "./packOffer";
 import { chapterFromLocation, CHAPTER_PACK_PRICE_INR, isPacksEntryEnabled, packsHref, readPacksQuery } from "./packEntry";
 import PacksStrip from "../../components/pricing/PacksStrip";
 import { loadOwnsAnyPack, resetMyPacksCacheForTests, useOwnsAnyPack } from "./myPacksCache";
@@ -102,6 +103,7 @@ describe("packEntry helpers", () => {
   });
   it("the price copy and the flag agree with the pack catalogue / isPacksClientEnabled", () => {
     expect(CHAPTER_PACK_PRICE_INR).toBe(PACK_PRICE_INR.pack_chapter);
+    expect(MOCK_PACK_PRICE_INR).toBe(PACK_PRICE_INR.pack_mock);
     for (const v of ["1", "", "0", "true"]) {
       vi.stubEnv("VITE_PACKS_ENABLED", v);
       expect(isPacksEntryEnabled()).toBe(isPacksClientEnabled());
@@ -295,5 +297,20 @@ describe("paid Premium sees no pack offers (owner ruling 25 Oct 19:54)", () => {
     FLAG_ON();
     authState.user = null;
     expect((await surfaces(true)).footer).toBe(true);
+  });
+});
+
+describe("PACK-LINKS-1 packOfferFor", () => {
+  it("one chapter -> Chapter Pack; a subject alone -> Mock Pack; anything else -> plain /packs", () => {
+    expect(packOfferFor({ chapters: ["triangles"] })).toEqual({ label: "Chapter Pack ₹49 →", priceLabel: "₹49", href: "/packs?chapter=triangles" });
+    expect(packOfferFor({ subject: "maths", kind: "mock" })).toEqual({ label: "Mock Pack ₹99 →", priceLabel: "₹99", href: "/packs?mock=maths" });
+    expect(packOfferFor({ chapters: [], subject: "science" }).href).toBe("/packs?mock=science");
+    expect(packOfferFor({ chapters: ["triangles", "circles"] }).href).toBe("/packs");
+    expect(packOfferFor({ chapters: ["not-a-chapter"] }).label).toBe("PDF packs from ₹49 →");
+    expect(packOfferFor().href).toBe("/packs");
+  });
+  it("kind decides when both a chapter and a subject are given", () => {
+    expect(packOfferFor({ chapters: ["triangles"], subject: "maths", kind: "mock" }).href).toBe("/packs?mock=maths");
+    expect(packOfferFor({ chapters: ["triangles"], subject: "maths", kind: "chapter" }).href).toBe("/packs?chapter=triangles");
   });
 });

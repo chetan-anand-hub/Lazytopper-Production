@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { lazy, Suspense, useState, useEffect, useRef, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
-import { UpgradeModal } from "../UpgradeModal";
-import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 
@@ -150,11 +148,20 @@ function dailyLimitFor(signedIn: boolean): number {
   return signedIn ? SIGNED_IN_DAILY_MOCK_LIMIT : ANON_DAILY_MOCK_LIMIT;
 }
 
+/** PACK-LINKS-1: the ask on the cap walls, in its own lazy chunk (the gate is eager; the Board Pass quote and pack link are not). */
+const PaperCapAskLazy = lazy(() => import("./PaperCapAsk"));
+function PaperCapAsk({ returnTo }: { returnTo: string }) {
+  return (
+    <Suspense fallback={null}>
+      <PaperCapAskLazy returnTo={returnTo} />
+    </Suspense>
+  );
+}
+
 export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { isPremium, isTrialExpired, status } = useSubscription();
+  const { isPremium, isTrialExpired } = useSubscription();
   const location = useLocation();
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [ready, setReady] = useState(false);
   const incrementedRef = useRef(false);
@@ -257,25 +264,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
             </div>
           ))}
         </div>
-        <div>
-          <button
-            type="button"
-            onClick={() => setShowUpgrade(true)}
-            style={{
-              border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-              padding: "14px 28px", background: "#58cc02", color: "var(--text)",
-              fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-              textTransform: "uppercase",
-            }}
-          >
-            Upgrade to Premium
-          </button>
-        </div>
-        <UpgradeModal
-          open={showUpgrade}
-          onClose={() => setShowUpgrade(false)}
-          featureLabel="Premium Mock Tests"
-        />
+        <PaperCapAsk returnTo={`${location.pathname}${location.search}`} />
       </div>
     );
   }
@@ -317,26 +306,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
           Free accounts open {SIGNED_IN_DAILY_MOCK_LIMIT} papers a day.
         </p>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Get full mock tests with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.
-        </p>
-        <button
-          type="button"
-          onClick={() => setShowUpgrade(true)}
-          style={{
-            border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-            padding: "14px 28px", background: "#58cc02", color: "var(--text)",
-            fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-            textTransform: "uppercase",
-          }}
-        >
-          Unlock Premium mocks
-        </button>
-        <UpgradeModal
-          open={showUpgrade}
-          onClose={() => setShowUpgrade(false)}
-          featureLabel="Premium Mock Tests"
-        />
+        <PaperCapAsk returnTo={`${location.pathname}${location.search}`} />
       </div>
     );
   }
