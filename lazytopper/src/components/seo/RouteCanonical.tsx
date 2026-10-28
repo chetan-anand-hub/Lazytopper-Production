@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { appBasename, canonicalFor } from "../../config/canonicalUrl";
+import { useScrollTopOnRouteChange } from "../../hooks/useScrollTopOnRouteChange";
 
 /**
  * ROUTE CANONICAL — writes this page's own address into the document head.
@@ -26,6 +27,9 @@ import { appBasename, canonicalFor } from "../../config/canonicalUrl";
  */
 export default function RouteCanonical({ basename }: { basename?: string }): null {
   const { pathname } = useLocation();
+  // SCROLL-TOP-1 — this is the one component mounted once at the router root outside the
+  // forbidden shell files, so the route-change scroll reset rides here (it renders nothing).
+  useScrollTopOnRouteChange();
 
   useEffect(() => {
     // ONE string. Both tags below are written from this and nothing else.

@@ -82,6 +82,7 @@ import WorksheetPendingBanner from "./WorksheetPendingBanner";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import UsageWarning from "../usage/UsageWarning";
 import { useFairUse } from "../usage/useFairUse";
+import { useScrollTopOnChange } from "../../hooks/useScrollTopOnRouteChange";
 
 /**
  * WorksheetGenerator — the ONE responsive worksheet builder. Redesigned to the
@@ -334,6 +335,7 @@ function WorksheetGeneratorInner() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<View>("build");
+  useScrollTopOnChange(view); // SCROLL-TOP-1 — each phase/view opens at the top
   const [drawNonce, setDrawNonce] = useState(0); // bumped by Shuffle to redraw the candidate
   // FRESH-SET-TESTS — bumped when a sheet is generated, so the next draw sees it as served.
   const [servedNonce, setServedNonce] = useState(0);

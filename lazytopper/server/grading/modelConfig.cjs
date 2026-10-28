@@ -50,12 +50,20 @@ function resolveGradingModel(env = process.env) {
   return { model, thinkingBudget, mode, lightModel };
 }
 
-/** A provider error that means "this model is not available to this key", not a bad request. */
+/** A 400 that rejects the THINKING CONFIG (budget / thinkingConfig), not the model. */
+function isThinkingRejected(err) {
+  const status = Number(err && (err.status || err.statusCode));
+  return status === 400 && /thinking|budget/i.test(String((err && err.message) || ''));
+}
+
+/** A provider error that means "this model is not available to this key", not a bad request.
+ *  A rejected thinking cap is NOT this: it must never swap the grading model. */
 function isModelUnavailable(err) {
   const status = Number(err && (err.status || err.statusCode));
   if (status === 403 || status === 404) return true;
   if (status === 400) {
-    return /model|thinking|budget|not found|not supported|unsupported|no longer available|permission|not available/i.test(String((err && err.message) || ''));
+    if (isThinkingRejected(err)) return false;
+    return /model|not found|not supported|unsupported|no longer available|permission|not available/i.test(String((err && err.message) || ''));
   }
   return false;
 }
@@ -68,4 +76,5 @@ module.exports = {
   GRADING_FALLBACK_MODEL,
   resolveGradingModel,
   isModelUnavailable,
+  isThinkingRejected,
 };
