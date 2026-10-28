@@ -36,6 +36,7 @@ const { chooseNonce } = require('./fence.cjs');
 const { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY } = require('./schema.cjs');
 const { normaliseQuestionResult, inventoryStable } = require('./postprocess.cjs');
 const timingLib = require('./timing.cjs');
+const gradeTimingLib = require('./gradeTiming.cjs');
 const { isChargeable } = require('./charge.cjs');
 // A17 owner ruling 5: every grading model call is metered in proportion to the CHARGEABLE share of
 // the questions it graded (services/usageLedger.cjs meter groups).
@@ -71,6 +72,10 @@ const {
 
 const SINGLE_MAX_OUTPUT_TOKENS = 16000;
 const SET_MAX_OUTPUT_TOKENS = 32000;
+// GRADE-SPEED-1: the cap for a retry that follows a MAX_TOKENS cut-off: 16000 -> 24000 (single), 32000 -> 48000
+// (set), never above the ceiling (the model's own output limit is higher; this is a cost guard).
+const RETRY_MAX_OUTPUT_TOKENS_FACTOR = 1.5;
+const RETRY_MAX_OUTPUT_TOKENS_CEILING = 48000;
 const FALLBACK_COUNTER = 'grading.model_fallback';
 const THINKING_REJECTED_COUNTER = 'grading.thinking_cap_rejected';
 const PROOF_RE = /\b(prove|proof|show that|hence show|verify that|justify)\b/i;
@@ -267,6 +272,13 @@ function createGradingCore(deps) {
 
   const finishReasonOf = (r) => (r && r.raw && r.raw.candidates && r.raw.candidates[0] && r.raw.candidates[0].finishReason) || null;
 
+  /** GRADE-SPEED-1: one timing row per model call into the request's sink (numbers only). */
+  function recordAttempt(c, attempt, outcome) {
+    const sink = c.timingSink;
+    if (!sink || !Array.isArray(sink.attempts)) return;
+    try { sink.attempts.push(gradeTimingLib.attemptRow(attempt, outcome, attempt > 1 ? c.retryReason : null)); } catch { /* telemetry only */ }
+  }
+
   /**
    * ONE model call for one chunk (prompt → model → parse). Never throws: a provider error or a
    * blown budget comes back as { error }. The call carries its explicit per-call timeout and
@@ -289,7 +301,9 @@ function createGradingCore(deps) {
     const inventory = transport === 'document' && !autoDetect;
     const genConfig = {
       temperature: 0,
-      maxOutputTokens: single ? SINGLE_MAX_OUTPUT_TOKENS : SET_MAX_OUTPUT_TOKENS,
+      // GRADE-SPEED-1: the FIRST attempt always uses the base cap; only a retry after a reply the token
+      // cap cut off (c.maxOutputTokens, set by gradeChunk) raises it.
+      maxOutputTokens: Number.isFinite(c.maxOutputTokens) ? c.maxOutputTokens : single ? SINGLE_MAX_OUTPUT_TOKENS : SET_MAX_OUTPUT_TOKENS,
       responseMimeType: 'application/json',
       responseSchema: autoDetect ? GRADING_RESPONSE_SCHEMA_AUTODETECT : inventory ? GRADING_RESPONSE_SCHEMA_INVENTORY : GRADING_RESPONSE_SCHEMA,
       // TELEMETRY hints only — geminiClient's buildBody reads a closed key set, so neither
@@ -315,9 +329,13 @@ function createGradingCore(deps) {
           'len:', reply && reply.text ? reply.text.length : 0,
           'tail:', reply && reply.text ? reply.text.slice(-200) : '(empty)');
       }
-      return { reply, model: used, parsed, results, inventory: inventory && results ? pageInventoryOf(parsed) : null, ms: now() - t0 };
+      const ms = now() - t0;
+      const outcome = { reply, model: used, parsed, results, inventory: inventory && results ? pageInventoryOf(parsed) : null, ms, finishReason: finishReasonOf(reply) };
+      recordAttempt(c, attempt, outcome);
+      return outcome;
     } catch (err) {
       const timedOut = timingLib.isTimeoutError(err);
+      recordAttempt(c, attempt, { ms: now() - t0, error: err, timedOut });
       console.warn(label + ' chunk ' + chunkKey + ' attempt ' + attempt + ' failed after ' + (now() - t0) + ' ms (' +
         (timedOut ? 'timeout' : 'HTTP ' + ((err && (err.status || err.statusCode)) || '?')) + ').');
       return { error: err, model, timedOut, ms: now() - t0 };
@@ -331,11 +349,12 @@ function createGradingCore(deps) {
       const nums = new Set(qs.map((q) => Number(q.qNumber)));
       return new Map([...ctx.uploadByNumber].filter(([n]) => nums.has(n)));
     };
-    const run = (qs, attempt, timeoutMs, deadlineAt = ctx.callDeadlineAt) => attemptChunk({
+    const run = (qs, attempt, timeoutMs, deadlineAt = ctx.callDeadlineAt, extra = null) => attemptChunk({
       model: chunk.model, questions: qs, uploadByNumber: uploadsFor(qs), document: ctx.document, subject: chunk.subject,
       single: ctx.single, autoDetect: ctx.autoDetect, label: ctx.label, attempt, timeoutMs, deadlineAt,
       others: ctx.document ? Math.max(0, ctx.total - qs.length) : 0, chunkKey: keyOf(qs),
       nonce: ctx.nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
+      timingSink: ctx.timingSink, ...(extra || {}),
     });
     const left0 = ctx.callDeadlineAt - now();
     if (left0 <= 0) return [{ questions: chunk.questions, attempt: { error: deadlineError(0), model: chunk.model, timedOut: true } }];
@@ -364,7 +383,7 @@ function createGradingCore(deps) {
       const partsR = chunk.questions.length > 1 ? chunk.questions.map((q) => [q]) : [chunk.questions];
       console.warn(ctx.label + ' chunk ' + keyOf(chunk.questions) + ' timed out — retrying once as ' + partsR.length +
         ' single-question call(s) within ' + Math.round(leftR) + ' ms (abort retry).');
-      const retriedR = await Promise.all(partsR.map((qs) => run(qs, 2, leftR, retryDeadlineAt)));
+      const retriedR = await Promise.all(partsR.map((qs) => run(qs, 2, leftR, retryDeadlineAt, { retryReason: gradeTimingLib.retryReasonOf(first) })));
       return partsR.map((qs, i) => ({ questions: qs, attempt: retriedR[i] }));
     }
     const left = jobCap ? jobCap(ctx.callDeadlineAt - now()) : ctx.callDeadlineAt - now();
@@ -373,7 +392,15 @@ function createGradingCore(deps) {
     const parts = split ? chunk.questions.map((q) => [q]) : [chunk.questions];
     console.warn(ctx.label + ' chunk ' + keyOf(chunk.questions) + ' ' + (first.error ? (first.timedOut ? 'timed out' : 'failed') : 'unparseable') +
       ' — retrying once' + (split ? ' as ' + parts.length + ' single-question calls' : '') + ' within ' + Math.round(left) + ' ms.');
-    const retried = await Promise.all(parts.map((qs) => run(qs, 2, left)));
+    // GRADE-SPEED-1: a reply the token cap cut off (finishReason MAX_TOKENS, so unparseable) is retried with a
+    // LARGER cap — resending the identical request would be cut off at the same place. Only this retry
+    // changes; the first attempt, the prompt, the model, the thinking config and the temperature do not.
+    const retryExtra = { retryReason: gradeTimingLib.retryReasonOf(first) };
+    if (!first.error && first.finishReason === 'MAX_TOKENS') {
+      const base = ctx.single ? SINGLE_MAX_OUTPUT_TOKENS : SET_MAX_OUTPUT_TOKENS;
+      retryExtra.maxOutputTokens = Math.min(RETRY_MAX_OUTPUT_TOKENS_CEILING, Math.round(base * RETRY_MAX_OUTPUT_TOKENS_FACTOR));
+    }
+    const retried = await Promise.all(parts.map((qs) => run(qs, 2, left, undefined, retryExtra)));
     return parts.map((qs, i) => ({ questions: qs, attempt: retried[i] }));
   }
 
@@ -421,6 +448,7 @@ function createGradingCore(deps) {
     // the generation finishes in the background for the next request.
     // A17 ruling 5: every model call this request makes, with the questions it is for.
     const meters = [];
+    const timingSink = input.timingSink && typeof input.timingSink === 'object' ? input.timingSink : null;
     if (solutionCache && !autoDetect) {
       const keyless = questions.filter((q) => (!Array.isArray(q.solutionSteps) || q.solutionSteps.length === 0) && !isObjective(q) && q.objective !== true);
       if (keyless.length > 0) {
@@ -444,11 +472,13 @@ function createGradingCore(deps) {
           }
         }));
         const budget = Math.min(startedAt + timing.cacheBudgetMs, callDeadlineAt) - now();
+        const cacheT0 = now();
         try {
           await withinBudget(hooks, budget);
         } catch {
           console.warn(label + ' solution-cache pre-phase reached its ' + timing.cacheBudgetMs + ' ms budget — grading continues; schemes still being generated are not waited for.');
         }
+        if (timingSink) timingSink.cacheMs = now() - cacheT0;
         // Only what arrived IN TIME is used — a late scheme can never change a prompt mid-grade.
         for (const [q, steps] of [...arrived]) {
           q.solutionSteps = steps;
@@ -546,7 +576,7 @@ function createGradingCore(deps) {
     }
 
     const ctx = {
-      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters, job, startedAt,
+      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters, job, startedAt, timingSink,
       // D31: request-level, so all chunks share them (see attemptChunk).
       nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce),
       paperHasAnyTyped: questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0),

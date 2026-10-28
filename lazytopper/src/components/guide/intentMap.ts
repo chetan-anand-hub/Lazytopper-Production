@@ -196,7 +196,8 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
         return {
           id,
           title: "Check one answer",
-          sub: "Type or photograph it · see where marks slip",
+          // BYTE-TRYONE-1: on Home the tap launches one real written board question (typed).
+          sub: input.surface === "home" && input.subjectHint !== "Maths" ? "Answer one real board question · about 2 min" : "Type or photograph it · see where marks slip",
           point: "Show me one answer. I'll show you where marks slip.",
           action: { kind: "check_one", path: "/check-improve" },
         };

@@ -102,11 +102,64 @@ describe("LOGIN-HOME-1 · Byte on Home", () => {
         <HomeHarness uid="u1" />
       </MemoryRouter>,
     );
-    const first = (await screen.findAllByTestId("guide-opt-check_one"))[0];
+    const first = (await screen.findAllByTestId("guide-opt-check_one", {}, { timeout: 5000 }))[0];
     expect(first.getAttribute("data-rank")).toBe("1");
     expect(screen.getAllByTestId("guide-opt-quick")[0].getAttribute("data-rank")).toBe("2");
+    // BYTE-TRYONE-1: the sub-line tells the truth about what the tap now does on Home.
+    expect(first.textContent).toContain("Answer one real board question");
+    expect(first.textContent).not.toContain("Type or photograph");
+    fireEvent.click(first);
+    // ...it launches ONE real written board question, not an empty Check & Improve.
+    await waitFor(() => expect(location).toContain("/practice"));
+    expect(location).toContain("qt=written");
+    expect(location).toContain("count=1");
+    expect(location).not.toBe("/check-improve");
+    expect(bank.pickStartHereSet).toHaveBeenCalledWith(expect.objectContaining({ subject: "Science", qtype: "written" }));
+    const clicks = onboarding.mock.calls.filter((c) => c[0] === "activation_card_click");
+    expect(clicks).toHaveLength(1);
+    expect(clicks[0][1]).toMatchObject({ qtype: "written", via: "byte" });
+    expect(window.sessionStorage.getItem(CHECK_ONE_HANDOVER_KEY)).toBeNull();
+  });
+
+  it("CONTROL: when no question can be lined up, the tap falls back to today's /check-improve route", async () => {
+    bank.pickStartHereSet.mockResolvedValue([]);
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Probe />
+        <HomeHarness uid="u1" />
+      </MemoryRouter>,
+    );
+    fireEvent.click((await screen.findAllByTestId("guide-opt-check_one"))[0]);
+    await waitFor(() => expect(location).toBe("/check-improve"));
+    expect(onboarding.mock.calls.filter((c) => c[0] === "activation_card_click")).toHaveLength(0);
+    expect(window.sessionStorage.getItem(CHECK_ONE_HANDOVER_KEY)).not.toBeNull();
+  });
+
+  it("CONTROL: a launch that throws also falls back to /check-improve", async () => {
+    bank.pickStartHereSet.mockRejectedValue(new Error("offline"));
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Probe />
+        <HomeHarness uid="u1" />
+      </MemoryRouter>,
+    );
+    fireEvent.click((await screen.findAllByTestId("guide-opt-check_one"))[0]);
+    await waitFor(() => expect(location).toBe("/check-improve"));
+  });
+
+  it("CONTROL: a Maths-hinted student keeps today's route and the old sub-line (typed Maths is not offered)", async () => {
+    window.sessionStorage.setItem("lazytopper.startHereSubject", "Maths");
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Probe />
+        <HomeHarness uid="u1" />
+      </MemoryRouter>,
+    );
+    const first = (await screen.findAllByTestId("guide-opt-check_one"))[0];
+    expect(first.textContent).toContain("Type or photograph it");
     fireEvent.click(first);
     await waitFor(() => expect(location).toBe("/check-improve"));
+    expect(bank.pickStartHereSet).not.toHaveBeenCalled();
   });
 
   const shownCount = () => onboarding.mock.calls.filter((c) => c[0] === "guide_shown").length;
@@ -121,14 +174,15 @@ describe("LOGIN-HOME-1 · Byte on Home", () => {
   };
 
   it("★★ FULL-SCREEN guide on Home (motion not reduced): the tap still navigates after the cheer, and Check & Improve opens with NO second Byte and no extra shown event", async () => {
+    bank.pickStartHereSet.mockResolvedValue([]); // BYTE-TRYONE-1: no question to launch -> the /check-improve handover path under test
     render(<HomeToCheckImprove uid="u1" />);
     const focus = await screen.findByTestId("start-here-focus");
     const tap = within(focus).getByTestId("guide-opt-check_one");
     await waitFor(() => expect(shownCount()).toBeGreaterThan(0));
     const shownOnHome = shownCount();
     fireEvent.click(tap);
-    expect(window.sessionStorage.getItem(CHECK_ONE_HANDOVER_KEY)).not.toBeNull();
-    expect(location).toBe("/"); // the cheer is still running: Byte was NOT closed early
+    // Fallback (no question to launch): the handover note is left, then Check & Improve opens.
+    await waitFor(() => expect(window.sessionStorage.getItem(CHECK_ONE_HANDOVER_KEY)).not.toBeNull());
     await waitFor(() => expect(location).toBe("/check-improve"), { timeout: 2000 });
     await expectNoByteAsking();
     expect(shownCount()).toBe(shownOnHome);
@@ -139,6 +193,7 @@ describe("LOGIN-HOME-1 · Byte on Home", () => {
   });
 
   it("★★ the CHIP's reopened sheet (motion not reduced): the tap navigates, and Check & Improve opens with no second Byte", async () => {
+    bank.pickStartHereSet.mockResolvedValue([]); // BYTE-TRYONE-1: no question to launch -> the /check-improve handover path under test
     window.sessionStorage.setItem(START_HERE_FOCUS_CLOSED_KEY, "1");
     window.sessionStorage.setItem(START_HERE_DISMISSED_KEY, "1");
     render(<HomeToCheckImprove uid="u1" />);
@@ -150,6 +205,7 @@ describe("LOGIN-HOME-1 · Byte on Home", () => {
   });
 
   it("★★ backing out keeps Byte: Home shows him again (inline), and a later plain visit to Check & Improve in the same tab behaves as today", async () => {
+    bank.pickStartHereSet.mockResolvedValue([]); // BYTE-TRYONE-1: no question to launch -> the /check-improve handover path under test
     render(<HomeToCheckImprove uid="u1" />);
     fireEvent.click(within(await screen.findByTestId("start-here-focus")).getByTestId("guide-opt-check_one"));
     await waitFor(() => expect(location).toBe("/check-improve"), { timeout: 2000 });

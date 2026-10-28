@@ -47,6 +47,7 @@ import {
   recordFocusNotNow,
   START_HERE_FOCUS_CLOSED_KEY,
   clearCheckOneHandover,
+  markCheckOneHandover,
   peekCheckOneHandover,
   isDismissedThisSession,
   readSubjectHint,
@@ -422,6 +423,13 @@ function GuideInlineArm({
   checkOneAnswer?: () => void;
 }) {
   const plan = useMemo(() => guidePlanFor(surface, state.uid), [surface, state.uid]);
+  // BYTE-TRYONE-1: Home passes no question box -> Byte's "Check one answer" launches the typed try-one.
+  const navigate = useNavigate();
+  const homeTryOne = useMemo(
+    () => (surface === "home" && !checkOneAnswer ? byteTryOneLauncher(navigate, returnTo) : null),
+    [surface, checkOneAnswer, navigate, returnTo],
+  );
+  const checkOne = checkOneAnswer ?? homeTryOne ?? undefined;
   const focusOpen = useSyncExternalStore(subscribeGuideFocus, guideFocusOpen, () => false);
   const [chipClosed, setChipClosed] = useState<boolean>(() => isGuideChipClosed());
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -456,7 +464,7 @@ function GuideInlineArm({
           onClose={closeInline}
           renderQuick={quickRenderer("start-here", returnTo, closeInline)}
           momentOk={state.momentsConfirmed}
-          onCheckOne={checkOneAnswer}
+          onCheckOne={checkOne}
           spaced={spaced}
         />
         <NoteShown kind={SH_KEY} />
@@ -481,11 +489,11 @@ function GuideInlineArm({
           renderQuick={quickRenderer("start-here", returnTo, closeSheet)}
           momentOk={state.momentsConfirmed}
           onCheckOne={
-            checkOneAnswer
+            checkOne
               ? () => {
                   closeSheet();
                   setCheckedOneHere(true);
-                  checkOneAnswer();
+                  checkOne();
                 }
               : undefined
           }
@@ -571,6 +579,76 @@ export function tryOneTarget(prefer: ChapterRef | null = null): OneTapTarget | n
   }
   const first = desktopTopicsBySubject(WRITTEN_SUBJECT).find((t) => offeredIn(WRITTEN_SUBJECT, t.slug, "written"));
   return first ? { subject: WRITTEN_SUBJECT, slug: first.slug, name: first.name } : null;
+}
+
+/**
+ * The ONE launch of a Start-here set (the panel's Start / one-tap / "Try one board question now"
+ * and Byte's Home "Check one answer" all go through it). D3: the bank is reached HERE and nowhere
+ * earlier. Returns false (nothing navigated) when the set is short or anything throws.
+ * `via: "byte"` marks a launch Byte made, on the activation event only.
+ */
+export async function launchStartHereSet(args: {
+  navigate: (to: string) => void;
+  subject: DesktopSubject;
+  chapter: string;
+  qtype: StartHereQType;
+  returnTo: string;
+  mode: "one_tap" | "picker";
+  lead?: boolean;
+  via?: "byte";
+}): Promise<boolean> {
+  const { navigate: go, subject: s, chapter: ch, qtype: t, returnTo, mode, lead = false, via } = args;
+  try {
+    const bank = await import("./startHereBank");
+    const ids = await bank.pickStartHereSet({ subject: s, chapter: ch, qtype: t, rotation: Date.now() });
+    if (ids.length < startHereSetSize(t)) return false;
+    if (lead) {
+      trackOnboardingEvent("activation_card_click", {
+        subject: analyticsSubject(s),
+        chapter: ch,
+        qtype: t,
+        ...(via ? { via } : {}),
+      });
+    }
+    trackOnboardingEvent("start_here_start", { subject: analyticsSubject(s), chapter: ch, qtype: t, mode });
+    go(startHerePracticePath({ subject: s, chapter: ch, ids, qtype: t, returnTo }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * BYTE-TRYONE-1 — Home has no question box, so Byte's "Check one answer" launches ACTIVATION-1's
+ * "Try one board question now" (one real written board question) instead of opening an empty
+ * Check & Improve. Null when no chapter can host the written question (today's /check-improve
+ * route then stands); the returned launcher falls back to that route if the launch fails.
+ */
+export function byteTryOneLauncher(
+  navigate: (to: string) => void,
+  returnTo: string,
+  prefer: ChapterRef | null = null,
+): (() => void) | null {
+  // Same rule as the card's lead button: typed Maths is not offered (owner ruling 16 Oct).
+  if (readSubjectHint() === "Maths") return null;
+  const target = tryOneTarget(prefer);
+  if (!target) return null;
+  return () => {
+    void launchStartHereSet({
+      navigate,
+      subject: target.subject,
+      chapter: target.slug,
+      qtype: "written",
+      returnTo,
+      mode: "one_tap",
+      lead: true,
+      via: "byte",
+    }).then((ok) => {
+      if (ok) return;
+      markCheckOneHandover();
+      navigate("/check-improve");
+    });
+  };
 }
 
 /* ── SHW-2 — the SEGMENTED CONTROL (owner ruling, 16 Oct) ────────────────────────────────
@@ -801,20 +879,8 @@ function StartHerePanel({
     setBusy(lead ? "try_one" : mode === "picker" ? "picker" : s);
     setFailed(false);
     setFailedTryOne(false);
-    try {
-      // D3: the bank is reached HERE, on Start, and nowhere earlier.
-      const bank = await import("./startHereBank");
-      const ids = await bank.pickStartHereSet({ subject: s, chapter: ch, qtype: t, rotation: Date.now() });
-      if (ids.length < startHereSetSize(t)) {
-        setFailed(true);
-        setFailedTryOne(lead);
-        setBusy(null);
-        return;
-      }
-      if (lead) trackOnboardingEvent("activation_card_click", { subject: analyticsSubject(s), chapter: ch, qtype: t });
-      trackOnboardingEvent("start_here_start", { subject: analyticsSubject(s), chapter: ch, qtype: t, mode });
-      navigate(startHerePracticePath({ subject: s, chapter: ch, ids, qtype: t, returnTo }));
-    } catch {
+    const ok = await launchStartHereSet({ navigate, subject: s, chapter: ch, qtype: t, returnTo, mode, lead });
+    if (!ok) {
       setFailed(true);
       setFailedTryOne(lead);
       setBusy(null);
@@ -1098,6 +1164,12 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
   const eligible = state.visible && !!uid && !closed;
   // The device memory is read only once the audience rule says yes.
   const allowed = useMemo(() => (eligible ? focusAllowed(uid) : false), [eligible, uid]);
+  // BYTE-TRYONE-1: the full-screen / overlay Byte on Home has no question box either.
+  const navigate = useNavigate();
+  const homeTryOne = useMemo(
+    () => (surface === "home" && !checkOneAnswer ? byteTryOneLauncher(navigate, returnTo) : null),
+    [surface, checkOneAnswer, navigate, returnTo],
+  );
   if (!eligible || !allowed) return null;
   const checkOne = !!checkOneAnswer;
   // GUIDE-1 — the arm (null: split off -> today's surface exactly).
@@ -1107,6 +1179,7 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
       surface={surface}
       returnTo={returnTo}
       checkOne={checkOne}
+      byteTryOne={homeTryOne ?? undefined}
       arm={arm}
       uid={uid}
       momentOk={state.momentsConfirmed}
@@ -1159,6 +1232,7 @@ function StartHereFocusDialog({
   onNotNow,
   checkOne = false,
   onCheckOne,
+  byteTryOne,
   onDone,
   arm = null,
   uid = null,
@@ -1170,6 +1244,8 @@ function StartHereFocusDialog({
   /** ACTIVATION-2 A — lead with "Check one answer" (Check & Improve only). */
   checkOne?: boolean;
   onCheckOne?: () => void;
+  /** BYTE-TRYONE-1 — Home: Byte's "Check one answer" launches the typed try-one question. */
+  byteTryOne?: () => void;
   /** GUIDE-1 (review F1) — a positive choice closed Byte: no event, no count. */
   onDone?: () => void;
   /** GUIDE-1 — the A/B arm (null = split off); "guide" puts Byte in this shell. */
@@ -1337,7 +1413,7 @@ function StartHereFocusDialog({
                       releasedRef.current = true;
                       onCheckOne();
                     }
-                  : undefined
+                  : byteTryOne
               }
             />
             <NoteShown kind={SH_KEY} />

@@ -158,6 +158,7 @@ const { createTutorRoute } = require('./routes/tutor.cjs');
 // thresholds alert the owner and let the request through; only the hard ceilings
 // and the global circuit breaker return 429.
 const { createRateLimiter } = require('./services/rateLimiter.cjs');
+const internalWarmupLib = require('./services/internalWarmup.cjs');
 // Turns those caps from ADVISORY into ENFORCED. The limiter keyed its buckets on
 // the spoofable X-Lazytopper-Uid header; since #552 every paid client call also
 // carries `Authorization: Bearer <id token>`, so the uid can come from a
@@ -532,6 +533,8 @@ async function handleRequest(req, res) {
   // `check` returns allowed:true for every non-paid path, so progress sync,
   // share tokens, the QR handoff and /health are untouched at any volume.
   if (req.method === 'POST') {
+    // GRADE-SPEED-1: when the server pipeline began (the grade-timing line's preMs is measured from it).
+    req.__ltEnteredAtMs = Date.now();
     // The ID token is verified HERE, at the edge, rather than inside check():
     // verification is async and network-adjacent, while the limiter is a
     // synchronous pure function with 27 tests calling check() directly. Keeping
@@ -571,6 +574,15 @@ async function handleRequest(req, res) {
     if (idempotent && idempotent.replay) return gradingIdempotency.replay(res, idempotent.replay);
     if (idempotent && idempotent.busy) return sendJson(res, 503, GRADING_IN_PROGRESS_BODY);
 
+    // GRADE-SPEED-1 (4): the deploy-time cache warm-up (services/internalWarmup.cjs) proves itself with a
+    // per-process secret over loopback and skips ONLY the HTTP limiter below (counted against nobody).
+    const internalWarmup = internalWarmupLib.isInternalWarmupRequest(req, reqPath);
+
+    // GRADE-SPEED-1 (2): start the fair-use TIER read now (read-only). It runs while the strictly ordered
+    // steps below (free check, limiter, limits reservation, entitlement) proceed, and fairUse awaits the same
+    // promise later. No refusal, counter or reservation moves; the order of refusals is untouched.
+    fairUse.warmTier(verifiedUid, req, reqPath);
+
     // ── Free check (FREE-CHECK-1a) ───────────────────────────────────────────
     // Decided HERE, between verification and the limiter, because R6 must reach
     // the limiter: an admitted free check must not charge the shared per-IP
@@ -589,14 +601,14 @@ async function handleRequest(req, res) {
     // pays nothing for it; a non-premium caller gets exactly the previous call.
     // FU-GLOBAL-SHED: the tier is now read for EVERY paid class at or past the 80% line (was
     // vision-only), because a verified premium caller also rides the margin above the hard ceiling.
-    const premiumShedExempt = !freeCheckAdmitted && rateLimiter.needsTierRead(reqPath)
+    const premiumShedExempt = !internalWarmup && !freeCheckAdmitted && rateLimiter.needsTierRead(reqPath)
       && await fairUse.isPremium(verifiedUid, req);
 
-    const verdict = freeCheckAdmitted
+    const verdict = internalWarmupLib.verdictFor(internalWarmup, () => (freeCheckAdmitted
       ? rateLimiter.check(req, reqPath, verifiedUid, { freeCheck: true })
       : premiumShedExempt
         ? rateLimiter.check(req, reqPath, verifiedUid, { premium: true })
-        : rateLimiter.check(req, reqPath, verifiedUid, { tokenRejected, signedOut: aiCaller.signedOut });
+        : rateLimiter.check(req, reqPath, verifiedUid, { tokenRejected, signedOut: aiCaller.signedOut })));
     if (!verdict.allowed) {
       return sendJson(res, verdict.status, verdict.body);
     }
