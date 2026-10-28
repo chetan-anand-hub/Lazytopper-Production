@@ -594,6 +594,7 @@ import {
   withScorecardReviewParam,
 } from "./tutor/tutorRoundTrip";
 import { resolveCorrectOptionIndex } from "../lib/objectiveScoring";
+import { resetAppScroll, scrollStartIntoView } from "../lib/scroll/scrollToStart";
 import {
   START_HERE_SRC,
   analyticsSubject,
@@ -1538,6 +1539,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
 
   const handleEditFilters = useCallback(() => {
     setIsBuilt(false);
+    resetAppScroll(); // SCROLL-TOP-1 — the filter drawer is at the top; the student clicked from the toolbar/foot
     setDroppedFilterLine(null); // GUIDE-FILTER-1: the student now picks the filters themselves.
     // "Edit filters" always opens the FULL advanced filter (pre-filled from committed),
     // never the preset picker — even for a set that was built from a preset. The student
@@ -2787,7 +2789,19 @@ const packTopicKey = useMemo(() => {
   //
   // Plain function (like `applyPreset` / `onBuildSet`) so it closes over the CURRENT
   // render's `filteredQuestions` and `regenerateQuestions`.
+  // SCROLL-TOP-1 — a build / refresh swaps the set IN PLACE (same route), so nothing navigates and
+  // the shell's <main> keeps its old scrollTop: the student landed at "Finish session". A user-
+  // driven build bumps the tick; the effect below then brings the set header into view, once.
+  const setStartRef = useRef<HTMLElement | null>(null);
+  const [buildScrollTick, setBuildScrollTick] = useState<number>(0);
+  useEffect(() => {
+    if (buildScrollTick === 0) return;
+    const id = window.requestAnimationFrame(() => scrollStartIntoView(setStartRef.current));
+    return () => window.cancelAnimationFrame(id);
+  }, [buildScrollTick]);
+
   const buildFreshSet = () => {
+    setBuildScrollTick((n) => n + 1);
     // FRESH-SET-QP — the set on screen joins the index as SERVED (via `regenerateQuestions` →
     // `foldShownIntoFreshness`); make sure it is the set on screen now, even before it settled.
     if (filteredQuestions.length > 0) lastShownRef.current = filteredQuestions.map((q) => String(q.id));
@@ -2871,6 +2885,7 @@ const packTopicKey = useMemo(() => {
     setCommittedCount(f.count);
     setDifficulty(f.engineDifficulty);
     setIsBuilt(true);
+    setBuildScrollTick((n) => n + 1); // SCROLL-TOP-1
     pushBuiltHistoryEntry(); // built set becomes a history entry → back returns to the chooser
     regenerateQuestions();
   };
@@ -4241,6 +4256,7 @@ const packTopicKey = useMemo(() => {
             setCommittedMarksRange(pendingMarksRange);
             setCommittedCount(questionCount);
             setIsBuilt(true);
+            setBuildScrollTick((n) => n + 1); // SCROLL-TOP-1
             pushBuiltHistoryEntry(); // built set becomes a history entry → back returns to the entry
             regenerateQuestions();
           }}
@@ -4285,6 +4301,7 @@ const packTopicKey = useMemo(() => {
 
         {isBuilt && (
         <section
+          ref={setStartRef}
           style={{
             display: "flex",
             justifyContent: "space-between",
