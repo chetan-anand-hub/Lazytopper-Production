@@ -1,9 +1,9 @@
 // ASK-FIX-1 - the scorecard's upgrade line: real marks only, never for Premium, on all six surfaces.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-const auth = vi.hoisted(() => ({ user: { uid: "u1" } as { uid: string } | null, tier: "free" as string, hydrated: true, trialStart: null as string | null }));
+const auth = vi.hoisted(() => ({ user: { uid: "u1" } as { uid: string } | null, tier: "free" as string, hydrated: true, trialStart: null as string | null, listeners: [] as Array<(uid: string, s: unknown) => void> }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 vi.mock("../../hooks/useSubscription", () => ({
   useSubscription: () => ({ hydrated: auth.hydrated, tier: auth.tier, isTrialExpired: false, isTrialActive: auth.tier === "trial", daysLeftInTrial: 3, status: {} }),
@@ -13,7 +13,12 @@ vi.mock("../../services/subscriptionService", async (importOriginal) => {
   return {
     ...actual,
     loadSubscription: () => ({ tier: auth.tier, plan: "none", trialStartDate: auth.trialStart, trialEndDate: null, premiumSince: null }),
-    onSubscriptionHydrated: () => () => {},
+    onSubscriptionHydrated: (l: (uid: string, s: unknown) => void) => {
+      auth.listeners.push(l);
+      return () => {
+        auth.listeners = auth.listeners.filter((x) => x !== l);
+      };
+    },
   };
 });
 vi.mock("../../analytics/analytics", async (importOriginal) => {
@@ -39,6 +44,7 @@ beforeEach(() => {
   auth.tier = "free";
   auth.hydrated = true;
   auth.trialStart = null;
+  auth.listeners = [];
   track.mockClear();
 });
 afterEach(cleanup);
@@ -158,20 +164,50 @@ describe("FIRST-OFFER-1: the first-result offer names the Board Pass price, then
       expect(scorecardUpgradeCopy(variantFor(surface, score), "₹1,234")?.text).not.toMatch(/unlimited/i);
     }
   });
-  it("renders the real price and a Chapter Pack line to plain /packs when the chapter is unknown", () => {
+  it("renders the real price and a pack line to plain /packs when the chapter is unknown (Basic, trial ended)", () => {
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
     render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
     const price = boardPassPriceNow();
     expect(price).toMatch(/^₹/);
     expect(screen.getByTestId("scorecard-upgrade-line")).toHaveTextContent(`Board Pass ${price} →`);
     const pack = screen.getByTestId("scorecard-pack-line");
-    expect(pack).toHaveTextContent("or start with a ₹49 Chapter Pack →");
+    expect(pack).toHaveTextContent("Prefer practising on paper? PDF packs from ₹49 — printed, with answer keys →");
     expect(pack).toHaveAttribute("href", "/packs");
     expect(screen.getByTestId("scorecard-upgrade-line").compareDocumentPosition(pack) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
   it("deep-links the chapter the result names", () => {
+    auth.trialStart = "2026-01-01T00:00:00.000Z";
     const v = { ...variantFor("quick-practice", marks(6, 10)), guideTarget: { to: "/practice/quick/triangles?weakMode=1" } } as ScorecardVariant;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
     expect(screen.getByTestId("scorecard-pack-line")).toHaveAttribute("href", "/packs?chapter=triangles");
+    expect(screen.getByTestId("scorecard-pack-line")).toHaveTextContent("Prefer practising on paper? Chapter Pack ₹49 — printed questions with answer keys →");
+  });
+  it("PACK-BASIC-ONLY-1: the pack line shows ONLY to Basic (trial ended, or never trialled and hydrated)", () => {
+    const mount = () => render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
+    // trial active -> hidden (the Board Pass line is the control that the card rendered)
+    auth.tier = "trial";
+    auth.trialStart = "2026-10-27T00:00:00.000Z";
+    mount();
+    expect(screen.getByTestId("scorecard-upgrade-line")).toBeInTheDocument();
+    expect(screen.queryByTestId("scorecard-pack-line")).toBeNull();
+    cleanup();
+    // Basic, trial ended -> shown
+    auth.tier = "free";
+    mount();
+    expect(screen.getByTestId("scorecard-pack-line")).toBeInTheDocument();
+    cleanup();
+    // never-trialled Basic: hidden until the cloud has answered, then shown
+    auth.trialStart = null;
+    mount();
+    expect(screen.queryByTestId("scorecard-pack-line")).toBeNull();
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "free", trialStartDate: null })));
+    expect(screen.getByTestId("scorecard-pack-line")).toBeInTheDocument();
+    cleanup();
+    // a trial student whose cache was empty is never shown it, even after the cloud answers
+    auth.listeners = [];
+    mount();
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "trial", trialStartDate: "2026-10-27T00:00:00.000Z" })));
+    expect(screen.queryByTestId("scorecard-pack-line")).toBeNull();
   });
   it("paid Premium sees neither line", () => {
     auth.tier = "premium";

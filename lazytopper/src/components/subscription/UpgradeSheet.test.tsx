@@ -562,8 +562,25 @@ describe("UpgradeSheet pack line", () => {
     const bpEl = screen.getByTestId("upgrade-sheet-board-pass");
     const packEl = screen.getByTestId("upgrade-sheet-pack");
     expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packEl.textContent).toContain("Prefer printed practice? Mock Pack ₹99 →");
+    expect(packEl.textContent).toContain("Prefer practising on paper? Mock Pack ₹99 — printed papers with answer keys →");
     expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/packs?mock=maths");
+  });
+  it("PACK-BASIC-ONLY-1: shown to Basic (trial ended or never trialled), hidden for an active trial and when unhydrated", () => {
+    for (const [tier, trialStartDate, hydrated, shown] of [
+      ["free", "2026-01-01T00:00:00.000Z", true, true],
+      ["free", null, true, true],
+      ["trial", "2026-10-27T00:00:00.000Z", true, false],
+      ["premium", null, true, false],
+      ["free", null, false, false],
+    ] as const) {
+      subState.tier = tier;
+      subState.trialStartDate = trialStartDate;
+      subState.hydrated = hydrated;
+      mount(pack);
+      expect(screen.getByTestId("upgrade-sheet-board-pass")).toBeInTheDocument(); // control: the sheet rendered
+      expect(screen.queryByTestId("upgrade-sheet-pack") !== null, `${tier}/${trialStartDate}/${hydrated}`).toBe(shown);
+      cleanup();
+    }
   });
   it("shows no pack line without a pack, or to paid Premium", () => {
     mount(null);
@@ -586,13 +603,14 @@ describe("FairUseLimitPanel on a trial paper refusal", () => {
       </MemoryRouter>,
     );
 
-  it("names the Board Pass price first, then the pack", () => {
+  it("PACK-BASIC-ONLY-1: a trial student sees the Board Pass price and NO pack line", () => {
     mount(limit, pack);
-    const bpEl = screen.getByTestId("fair-use-board-pass");
-    expect(bpEl.textContent).toContain(bp());
-    const packEl = screen.getByTestId("fair-use-pack-line");
-    expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/packs?chapter=triangles");
+    expect(screen.getByTestId("fair-use-board-pass").textContent).toContain(bp()); // control: the panel rendered
+    expect(screen.queryByTestId("fair-use-pack-line")).toBeNull();
+  });
+  it("PACK-BASIC-ONLY-1: also hidden in the trial daily-checks dialog", () => {
+    mount({ tier: "trial", scope: "checks", resetAt: "2026-10-29T00:00:00.000Z", window: "day", allowance: 3 }, pack);
+    expect(screen.queryByTestId("fair-use-pack-line")).toBeNull();
   });
   it("a premium fair-use refusal shows neither", () => {
     mount({ tier: "premium", scope: "chapter-test", resetAt: null, window: "day" }, pack);

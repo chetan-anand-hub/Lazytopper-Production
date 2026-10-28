@@ -48,7 +48,7 @@ import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { PREMIUM_PLUS } from "../../config/pricingCompare";
 import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { useSubscription } from "../../hooks/useSubscription";
-import { isPaidPremium } from "../../services/subscriptionService";
+import { showPackLine, packLineTextFor } from "../limits/packLine";
 import PaywallActions from "../pricing/PaywallActions";
 import { boardPassOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
@@ -315,14 +315,10 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: Upgr
           }
         />
 
-        {/* PAPER-WALLS-1 - the pack is the SECOND, smaller line; never for a student who has paid. */}
-        {pack && !isPaidPremium(subscription) && (
+        {/* PAPER-WALLS-1 - the pack is the SECOND, smaller line; PACK-BASIC-ONLY-1: Basic students only (never a trial or paid student). */}
+        {pack && uid && showPackLine(subscription, hydrated) && (
           <p className="lt-upsheet__pack" data-testid="upgrade-sheet-pack">
-            Prefer printed practice?{" "}
-            <Link to={pack.href}>
-              {pack.label}
-              {pack.priceLabel ? ` ${pack.priceLabel}` : ""} →
-            </Link>
+            <Link to={pack.href}>{packLineTextFor(pack)}</Link>
           </p>
         )}
 
