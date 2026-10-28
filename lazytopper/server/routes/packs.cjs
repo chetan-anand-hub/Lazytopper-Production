@@ -7,11 +7,15 @@
 // uid (deps.getLicensee) - never from a header, query or body.
 
 const { listPacks } = require('../services/packGrant.cjs');
+const { boardPassCreditFor } = require('../services/packCredit.cjs');
+const { quotePass } = require('./payments.cjs');
 
 const PACKS_MINE_PATH = '/api/packs/mine';
+/** The subscription document the Board Pass quote is read from (same collection passGrant writes). */
+const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 
 function createPackRoutes(deps = {}) {
-  const { sendJson, verifiedCaller, adminFirestore, getLicensee, telemetry } = deps;
+  const { sendJson, verifiedCaller, adminFirestore, getLicensee, telemetry, now = () => Date.now(), foundingOfferOpen } = deps;
 
   function emit(event) {
     try {
@@ -50,7 +54,25 @@ function createPackRoutes(deps = {}) {
       console.error('[packs/mine] read failed:', e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Could not read your packs.' });
     }
-    return sendJson(res, 200, { packs, licensee });
+    // PACK-CREDIT-1: what the student's recent packs take off a Board Pass right now, and what the server says
+    // the student would then pay (payInr = the server's Board Pass quote less the credit). READ ONLY. A failed
+    // or doubtful read is credit 0 (the packs themselves are still returned). The order route decides the
+    // amount actually charged, again, with the same rule.
+    let boardPassCredit = { creditInr: 0, expiresAtMs: null, payInr: null };
+    try {
+      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+      const stored = snap && snap.exists ? snap.data() || {} : {};
+      const nowMs = now();
+      const quote = quotePass(stored, 'till_boards', nowMs, { foundingOfferOpen });
+      const credit = await boardPassCreditFor(adminFirestore, uid, 'till_boards', quote.pricePaidInr, nowMs);
+      if (credit.readFailed) emit('packs.mine.credit_read_failed');
+      if (credit.creditInr > 0) {
+        boardPassCredit = { creditInr: credit.creditInr, expiresAtMs: credit.expiresAtMs, payInr: quote.pricePaidInr - credit.creditInr };
+      }
+    } catch {
+      emit('packs.mine.credit_read_failed');
+    }
+    return sendJson(res, 200, { packs, licensee, boardPassCredit });
   }
 
   return { handleMine };
