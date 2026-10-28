@@ -418,7 +418,7 @@ const ruleText: RowRule = {
   id: "G3-TEXT",
   // Every OUT / FORMATIVE item of the typed reference (its `out` / `formative` lists and whole
   // OUT / FORMATIVE chapters), read through referenceItems(); the export starts here.
-  cite: `${CONFIG_FILE}:123`,
+  cite: `${CONFIG_FILE}:126`,
   citeQuote: "export const SYLLABUS_2026_27 = {",
   run: (row, ctx) => {
     const byKey = new Map<string, { matched: string; fields: string[]; text: string }>();
@@ -481,7 +481,7 @@ function questionText(row: ServedRow): string {
 
 const ruleHdAngle: RowRule = {
   id: "G4-HD-ANGLE",
-  cite: `${CONFIG_FILE}:706`,
+  cite: `${CONFIG_FILE}:638`,
   citeQuote: "Angles of elevation / depression should be only 30°, 45°, and 60°.",
   run: (row) => {
     const q = questionText(row);
@@ -517,7 +517,7 @@ const MORE_THAN_TWO = /\b(?:three|3|four|4)\s+(?:right[- ]angled\s+|right\s+)?(?
 
 const ruleHdTriangles: RowRule = {
   id: "G4-HD-TRIANGLES",
-  cite: `${CONFIG_FILE}:701`,
+  cite: `${CONFIG_FILE}:633`,
   citeQuote: "Problems should not involve more than two right triangles.",
   run: (row) => {
     const q = questionText(row);
@@ -542,7 +542,7 @@ const SEGMENT_NEUTRAL = new Set([180, 360]);
 
 const ruleSegmentAngle: RowRule = {
   id: "G4-SEGMENT-ANGLE",
-  cite: `${CONFIG_FILE}:758`,
+  cite: `${CONFIG_FILE}:690`,
   citeQuote: "problems should be restricted to central angle of 60°, 90° and 120° only",
   run: (row) => {
     if (row.chapter !== undefined && row.chapter !== "areas-related-to-circles") return [];
@@ -563,7 +563,7 @@ const BIMODAL = /\b(?:bi-?modal|tri-?modal|multi-?modal)\b|\btwo\s+modes\b|\bmor
 
 const ruleBimodal: RowRule = {
   id: "G4-BIMODAL",
-  cite: `${CONFIG_FILE}:844`,
+  cite: `${CONFIG_FILE}:776`,
   citeQuote: "bimodal situation to be avoided",
   run: (row) => {
     // Statistics only ("two modes of asexual reproduction" is Biology: PYQ-S-REPR-004).
@@ -619,7 +619,7 @@ export function givenSurd(text: string, n: string): boolean {
 
 const ruleR1: RowRule = {
   id: "G4-R1-IRRATIONAL",
-  cite: `${CONFIG_FILE}:281`,
+  cite: `${CONFIG_FILE}:213`,
   citeQuote: "prove √15 irrational",
   run: (row) => {
     if (row.chapter !== undefined && row.chapter !== "real-numbers") return [];
