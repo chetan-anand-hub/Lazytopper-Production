@@ -16,7 +16,7 @@ const H = vi.hoisted(() => ({
 vi.mock("../hooks/useSubscription", () => ({ useSubscription: () => H.sub }));
 
 import { UpgradeModal } from "./UpgradeModal";
-import { getPremiumFeatureList } from "../services/featureGates";
+import { PREMIUM_PLUS } from "../config/pricingCompare";
 import { BASIC_FREE_LABELS } from "./pricing/BasicFreeList";
 
 function mount(onClose = vi.fn()) {
@@ -71,12 +71,12 @@ describe("F3 — the shared Basic list, under the Premium list", () => {
     for (const label of BASIC_FREE_LABELS) expect(within(list).getByText(label)).toBeInTheDocument();
   });
 
-  it("the Premium list is unchanged and comes BEFORE the Basic list", () => {
+  it("the Premium list is the upgrade sheet's PREMIUM_PLUS and comes BEFORE the Basic list", () => {
     const { container } = mount();
     const premiumHeading = screen.getByText("Premium includes:");
     const premiumList = premiumHeading.nextElementSibling as HTMLElement;
     const rows = Array.from(premiumList.querySelectorAll("li")).map((li) => li.textContent);
-    expect(rows).toEqual(getPremiumFeatureList().map((f) => `✓${f.label}`));
+    expect(rows).toEqual(PREMIUM_PLUS.map((f) => `✓${f.label}`));
     const basic = screen.getByTestId("basic-free-list");
     expect(premiumList.compareDocumentPosition(basic) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     // and the Basic list sits before the plan button

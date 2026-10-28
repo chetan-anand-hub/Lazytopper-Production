@@ -9,6 +9,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PaywallActions from "../pricing/PaywallActions";
+import { boardPassPriceNow } from "../pricing/boardPassOffer";
 import { trackNamedEvent } from "../../analytics/analytics";
 import "./LockedDetail.css";
 
@@ -26,6 +27,8 @@ export default function LockedDetail({ scoreLine }: LockedDetailProps) {
     trackNamedEvent("scorecard_lock_shown");
   }, []);
 
+  const price = boardPassPriceNow();
+  const unlockLabel = price ? `Unlock with Board Pass ${price}` : "Unlock with Board Pass";
   const goPlans = () => navigate(`/pricing?source=scorecard-lock&returnTo=${encodeURIComponent(here)}`);
 
   return (
@@ -41,7 +44,7 @@ export default function LockedDetail({ scoreLine }: LockedDetailProps) {
           onPay={goPlans}
           fallback={
             <button type="button" className="lt-lockd__btn lt-lockd__btn--primary" onClick={goPlans}>
-              Unlock with Premium
+              {unlockLabel}
             </button>
           }
         />

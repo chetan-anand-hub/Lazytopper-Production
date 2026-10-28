@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import TrialAsk from "../trial/TrialAsk";
+import { boardPassCtaLabel } from "../pricing/boardPassOffer";
 
 const TRIAL_DAYS = 7;
 
@@ -68,7 +69,7 @@ function LegacyTrialBanner() {
               whiteSpace: "nowrap",
             }}
           >
-            Choose plan
+            {boardPassCtaLabel()}
           </button>
         </div>
         <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} featureLabel="Full Access" />
@@ -152,7 +153,7 @@ function LegacyTrialBanner() {
               whiteSpace: "nowrap", opacity: 0.9,
             }}
           >
-            Choose plan
+            {boardPassCtaLabel()}
           </button>
         ) : (
           <button
@@ -165,7 +166,7 @@ function LegacyTrialBanner() {
               textDecoration: "underline", textUnderlineOffset: 2,
             }}
           >
-            Choose plan
+            {boardPassCtaLabel()}
           </button>
         )}
 

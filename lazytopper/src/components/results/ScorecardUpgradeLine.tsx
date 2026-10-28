@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { Link, useInRouterContext } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../../services/subscriptionService";
 import { trackScorecardUpgrade } from "../../analytics/analytics";
 import UpgradeSheet from "../subscription/UpgradeSheet";
 import { START_TRIAL_LABEL } from "../pricing/trialCta";
+import { boardPassCtaLabel, boardPassPriceNow } from "../pricing/boardPassOffer";
+import { CHAPTER_PACK_PRICE_INR, chapterFromLocation, packsHref } from "../../lib/packs/packEntry";
 import { formatScoreNumber } from "./scoreNumber";
 import type { ScorecardVariant } from "./scorecardVariants";
 
@@ -12,9 +15,10 @@ import type { ScorecardVariant } from "./scorecardVariants";
  * ScorecardUpgradeLine — ASK-FIX-1. One calm line under a graded result, for a student who is not
  * on a paid Premium pass (trial and Basic), tied to the REAL result:
  *
- *   marks lost > 0      "You lost {N} marks here. Unlock step-by-step marks on every answer and unlimited checks with the Board Pass →"
- *   nothing lost        "Full marks! Keep going with unlimited checks — Board Pass →"
- *   marks not known     "Unlock step-by-step marks on every answer — Board Pass →"
+ *   marks lost > 0      "You lost {N} marks here. Get every answer marked like this till your boards — Board Pass ₹{price} →"
+ *   nothing lost        "Full marks! Keep every answer marked like this till your boards — Board Pass ₹{price} →"
+ *   marks not known     "Get every answer marked like this till your boards — Board Pass ₹{price} →"
+ * and a quiet second line, "or start with a ₹49 Chapter Pack →" (FIRST-OFFER-1; /packs?chapter=<slug> when known).
  *
  * "Not known" is every attempts-style score (Quick Practice has no marks total), any paper with an
  * ungraded question or an awaited sheet (a number there would be wrong), and an all-pending card
@@ -25,8 +29,7 @@ import type { ScorecardVariant } from "./scorecardVariants";
  * Improve (single and multi-question), Worksheet, Chapter Test, Full Mock and Quick Practice.
  */
 
-export const FULL_MARKS_COPY = "Full marks! Keep going with unlimited checks — Board Pass →";
-export const UNKNOWN_COPY = "Unlock step-by-step marks on every answer — Board Pass →";
+const TILL_BOARDS = "marked like this till your boards";
 
 export type ScorecardUpgradeCopy = { text: string };
 
@@ -35,14 +38,16 @@ function marksWord(n: number): string {
 }
 
 /** The owner-approved Quick Practice (objective) line, word for word. */
-export function mcqLostCopy(lost: number): string {
-  return `You lost ${formatScoreNumber(lost)} ${marksWord(lost)} here. Upload your working to find out if it was a slip or a concept gap — unlimited checks with the Board Pass →`;
+export function mcqLostCopy(lost: number, price: string | null = null): string {
+  return `You lost ${formatScoreNumber(lost)} ${marksWord(lost)} here. Upload your working to find out if it was a slip or a concept gap — ${boardPassCtaLabel(price)}`;
 }
 
 /** The line's words for this scorecard, or null when it must say nothing. Pure. */
 export function scorecardUpgradeCopy(
   variant: Pick<ScorecardVariant, "surface" | "score" | "pending" | "allPending" | "awaitingSheet" | "deferred">,
+  price: string | null = null,
 ): ScorecardUpgradeCopy | null {
+  const cta = boardPassCtaLabel(price);
   if (variant.deferred || variant.allPending) return null;
   const score = variant.score;
   // ASK-COPY-1 [FU-UPGRADE-LINE-MCQ-COPY] - Quick Practice MCQs are scored 0 or full on the answer
@@ -50,7 +55,7 @@ export function scorecardUpgradeCopy(
   // minus the MCQs right, one mark each - the scorecard's own counts, never invented.
   if (variant.surface === "quick-practice" && score.kind === "attempts") {
     const lostMcq = Math.max(0, score.mcqAnswered - score.mcqCorrect);
-    if (lostMcq > 0) return { text: mcqLostCopy(lostMcq) };
+    if (lostMcq > 0) return { text: mcqLostCopy(lostMcq, price) };
   }
   const known =
     score.kind === "marks" &&
@@ -60,13 +65,13 @@ export function scorecardUpgradeCopy(
     Number.isFinite(score.total) &&
     score.total > 0;
   if (!known || score.kind !== "marks") {
-    return { text: UNKNOWN_COPY };
+    return { text: `Get every answer ${TILL_BOARDS} — ${cta}` };
   }
   const lost = Math.max(0, Math.round((score.total - score.awarded) * 100) / 100);
   if (lost > 0) {
-    return { text: `You lost ${formatScoreNumber(lost)} ${marksWord(lost)} here. Unlock step-by-step marks on every answer and unlimited checks with the Board Pass →` };
+    return { text: `You lost ${formatScoreNumber(lost)} ${marksWord(lost)} here. Get every answer ${TILL_BOARDS} — ${cta}` };
   }
-  return { text: FULL_MARKS_COPY };
+  return { text: `Full marks! Keep every answer ${TILL_BOARDS} — ${cta}` };
 }
 
 const LINE_CSS = `
@@ -77,7 +82,12 @@ const LINE_CSS = `
   background: rgba(22, 185, 106, 0.08); color: inherit;
   font: inherit; font-size: 0.88rem; font-weight: 600; line-height: 1.4;
 }
-.lt-sc__up:focus-visible { outline: 2px solid rgba(22, 185, 106, 0.8); outline-offset: 2px; }
+.lt-sc__up--pack {
+  display: block; margin: 6px 0 0; padding: 6px 4px; min-height: 44px; box-sizing: border-box;
+  font-size: 0.8rem; font-weight: 500; opacity: 0.85; color: inherit; text-decoration: underline;
+  text-underline-offset: 3px; overflow-wrap: anywhere;
+}
+.lt-sc__up:focus-visible, .lt-sc__up--pack:focus-visible { outline: 2px solid rgba(22, 185, 106, 0.8); outline-offset: 2px; }
 `;
 
 /** The signed-in uid, or "" when there is no AuthProvider (a bare scorecard render). */
@@ -109,8 +119,14 @@ function useCachedStatus(uid: string): [SubscriptionStatus, () => void] {
   return [status, () => setStatus(loadSubscription(uid))];
 }
 
-function Line({ text, countShown, uid }: { text: string; countShown: boolean; uid: string }) {
+function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countShown: boolean; uid: string }) {
+  const copy = scorecardUpgradeCopy(variant, boardPassPriceNow());
+  const text = copy ? copy.text : "";
+  // FIRST-OFFER-1 - the Chapter Pack deep link: only a chapter the result itself names (its practice route); else plain /packs.
+  const packHref = packsHref({ chapter: variant.guideTarget ? chapterFromLocation(variant.guideTarget.to.split("?")[0], variant.guideTarget.to.split("?")[1] ?? "") : null });
   const [status, refresh] = useCachedStatus(uid);
+  // A scorecard can render outside the router (PDF/report renders, bare tests): fall back to a plain link.
+  const inRouter = useInRouterContext();
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
   const show = status.tier !== "premium";
@@ -151,6 +167,15 @@ function Line({ text, countShown, uid }: { text: string; countShown: boolean; ui
       >
         {text}
       </button>
+      {inRouter ? (
+        <Link className="lt-sc__up--pack" to={packHref} data-testid="scorecard-pack-line">
+        {`or start with a ₹${CHAPTER_PACK_PRICE_INR} Chapter Pack →`}
+      </Link>
+      ) : (
+        <a className="lt-sc__up--pack" href={packHref} data-testid="scorecard-pack-line">
+        {`or start with a ₹${CHAPTER_PACK_PRICE_INR} Chapter Pack →`}
+      </a>
+      )}
       {open ? <UpgradeSheet
           featureLabel="Your full marks breakdown"
           onClose={() => {
@@ -166,5 +191,5 @@ export default function ScorecardUpgradeLine({ variant, countShown = true }: { v
   const uid = useOptionalUid();
   const copy = scorecardUpgradeCopy(variant);
   if (!uid || !copy) return null;
-  return <Line text={copy.text} countShown={countShown} uid={uid} />;
+  return <Line variant={variant} countShown={countShown} uid={uid} />;
 }

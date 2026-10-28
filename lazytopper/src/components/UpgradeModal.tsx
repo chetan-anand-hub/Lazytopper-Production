@@ -1,4 +1,5 @@
-import { getPremiumFeatureList } from "../services/featureGates";
+import { PREMIUM_PLUS } from "../config/pricingCompare";
+import BoardPassLine from "./pricing/BoardPassLine";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BasicFreeList } from "./pricing/BasicFreeList";
@@ -64,7 +65,8 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
   const { isTrialExpired, daysLeftInTrial, isTrialActive, tier } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
-  const premiumFeatures = getPremiumFeatureList();
+  // FIRST-OFFER-1 - the list /pricing and the upgrade sheet show (PREMIUM_PLUS), not the stale gate table.
+  const premiumFeatures = PREMIUM_PLUS;
 
   if (!open) return null;
 
@@ -167,6 +169,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
         </div>
 
         <style>{UPGRADE_CSS}</style>
+        <BoardPassLine tone="dark" />
         <div className="lt-upgrade__basic">
           <BasicFreeList />
         </div>

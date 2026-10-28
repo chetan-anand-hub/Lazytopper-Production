@@ -10,6 +10,7 @@
 import { Link } from "react-router-dom";
 import { PLANS_PATH } from "./FairUseLimitPanel";
 import PaywallActions from "../pricing/PaywallActions";
+import BoardPassLine from "../pricing/BoardPassLine";
 import { trialPaperNoteCopy, type TrialPaperCut } from "./fairUseGate";
 import "./usage.css";
 
@@ -39,6 +40,7 @@ export default function TrialPaperNote({
         ))}
       </ul>
       <p className="lt-usage__body">{copy.upgrade}</p>
+      <BoardPassLine testId="trial-paper-board-pass" />
       <div className="lt-usage__actions">
         {/* PAYWALL-PAY-1 — Pay / Share QR code / Forward link to parents; payments dark:
             "See plans", unchanged. */}
