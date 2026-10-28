@@ -34,6 +34,7 @@ const { chooseNonce, fence } = require('../grading/fence.cjs');
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this same URL (opt-in, switch-gated).
 const jobsLib = require('../grading/jobs.cjs');
 const timingLib = require('../grading/timing.cjs');
+const gradeTimingLib = require('../grading/gradeTiming.cjs');
 const { gradingAttemptOf, deferredCommitOf } = require('../services/fairUse.cjs');
 const { limitsDeferredOf } = require('../services/limits.cjs');
 const withLimitsDeferred = (fair, lim) => (lim ? { ...(fair || {}), uid: (fair && fair.uid) || lim.uid, limits: lim } : fair);
@@ -334,7 +335,11 @@ function createCheckSolutionRoute(deps) {
         textAnswer: hasImage ? '' : textAnswer,
         pickedOption: '',
       };
+      // GRADE-SPEED-1: one [grade-timing] line when this response finishes (armed only for a request that
+      // reaches the grader, so a 400 logs nothing).
+      const gradeTiming = gradeTimingLib.armGradeTiming({ req, res, route: '/api/check-solution', startedAt, now: nowMs });
       const graded = await core.gradeSet({
+        timingSink: gradeTiming.sink,
         questions: [one],
         uploads: hasImage ? [{ qNumber: 1, imageBase64, imageMimeType }] : [],
         document: null,
@@ -795,7 +800,7 @@ function createCheckSolutionRoute(deps) {
   // Returns { ok, results, summary, modelUsed } where results is one normalised entry per
   // known question (graded OR couldNotRead) — or { ok:false } on a reply that could not be
   // used, or { gradingUnavailable:true } with no provider (the caller owns the HTTP status).
-  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt, jobTiming, onPartSettled }) {
+  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt, jobTiming, onPartSettled, timingSink }) {
     // STUB-503 · GRADING PATH: signalled with a flag the caller turns into the 503, kept
     // DISTINCT from `{ ok: false }` (an unparseable model reply keeps its 200 copy).
     if (isStubMode()) {
@@ -813,7 +818,22 @@ function createCheckSolutionRoute(deps) {
       // J1: a background job only (absent on the synchronous path — the core is then unchanged).
       ...(jobTiming ? { jobTiming } : {}),
       ...(onPartSettled ? { onPartSettled } : {}),
+      ...(timingSink ? { timingSink } : {}),
     });
+  }
+
+  /** GRADE-SPEED-1: a background job's grade, with its own [grade-timing] line (mode "job") when it ends. */
+  async function runTimedJob(req, grade) {
+    const jobStartedAt = nowMs();
+    const sink = gradeTimingLib.createTimingSink();
+    try {
+      return await grade(sink, jobStartedAt);
+    } finally {
+      try {
+        const surface = req && req.headers ? String(req.headers['x-lazytopper-surface'] || '').trim().toLowerCase() : '';
+        console.log(gradeTimingLib.formatGradeTimingLine({ route: '/api/grade-worksheet', mode: 'job', surface, preMs: null, sink, totalMs: nowMs() - jobStartedAt }));
+      } catch { /* a log line never fails a grade */ }
+    }
   }
 
   // HTTP handler. Thin wrapper: validates the request + the ONE uploaded document / the
@@ -949,13 +969,13 @@ function createCheckSolutionRoute(deps) {
           deferred: withLimitsDeferred(deferredCommitOf(res), limitsDeferredOf(res)),
           // The job's wall deadline runs from when it STARTS running (queue time excluded), read on
           // THIS route's clock — the clock the grading core measures every deadline on.
-          run: (onPartSettled) => gradeStructuredSet({
+          run: (onPartSettled) => runTimedJob(req, (timingSink, jobStartedAt) => gradeStructuredSet({
             questions, imageBase64, imageMimeType, subject, uploads, acceptsV2,
-            startedAt: nowMs(), onPartSettled,
+            startedAt: jobStartedAt, onPartSettled, timingSink,
             // The job budget (timing.cjs). `deps.jobTimingFor` is an EVAL/TEST seam only: the golden
             // 0-call job case replays stored replies, so it grades with the synchronous chunk plan.
             jobTiming: typeof deps.jobTimingFor === 'function' ? deps.jobTimingFor(questions.length) : timingLib.jobTiming(),
-          }),
+          })),
           finish: (graded) => jobOutcome(graded, { worksheetId, acceptsV2 }),
         });
         if (job.ok) {
@@ -975,7 +995,9 @@ function createCheckSolutionRoute(deps) {
     }
 
     try {
-      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt });
+      // GRADE-SPEED-1: one [grade-timing] line when this response finishes.
+      const gradeTiming = gradeTimingLib.armGradeTiming({ req, res, route: '/api/grade-worksheet', startedAt, now: nowMs });
+      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt, timingSink: gradeTiming.sink });
       // STUB-503 — checked BEFORE `!graded.ok`: "we couldn't read this" and "we cannot grade
       // at all right now" are different truths.
       if (graded.gradingUnavailable) {
