@@ -1213,8 +1213,8 @@ test('§MODEL.2b two CONCURRENT first requests that both hit the unavailable mod
   assert.equal(warns.filter((w) => w.includes('[grading] model strong-model unavailable')).length, 1);
 });
 
-test('§MODEL.3 a 403, and a 400 naming the thinking budget, also fall back; a plain 400 and a 500 do NOT', async () => {
-  for (const err of [unavailable(403, 'permission denied'), unavailable(400, 'thinking budget is not supported for this model')]) {
+test('§MODEL.3 a 403 and a 400 naming the model also fall back; a plain 400 and a 500 do NOT', async () => {
+  for (const err of [unavailable(403, 'permission denied'), unavailable(400, 'models/strong-model is not supported for generateContent')]) {
     const h = harness({ reply: ({ model }) => (model === 'strong-model' ? err : REPLY(R(1, [S()]))), deps: STRONG });
     await quietWarn(() => h.single(single()));
     assert.equal(h.counters.length, 1, err.message);
@@ -1231,6 +1231,40 @@ test('§MODEL.3 a 403, and a 400 naming the thinking budget, also fall back; a p
   }
   assert.equal(isModelUnavailable({ status: 404 }), true);
   assert.equal(isModelUnavailable({ status: 400, message: 'contents must not be empty' }), false);
+});
+
+test('§MODEL.3b a 400 rejecting the thinking cap retries the SAME model without it, counted, logged once, NEVER falls back, later calls omit the cap', async () => {
+  const h = harness({ reply: ({ genConfig }) => (genConfig.thinkingConfig ? unavailable(400, 'thinking budget is not supported for this model') : REPLY(R(1, [S()]))), deps: STRONG });
+  const warns = await quietWarn(async () => {
+    const out = await h.single(single()); // handleCheckSolution -> core.callModel
+    assert.equal(out.body.ok, true);
+    assert.deepEqual(h.calls.map((c) => c.model), ['strong-model', 'strong-model']);
+    assert.deepEqual(h.calls[0].genConfig.thinkingConfig, { thinkingBudget: 2048 });
+    assert.equal(h.calls[1].genConfig.thinkingConfig, undefined);
+    assert.equal(h.headers['X-Grading-Model'], 'strong-model');
+    assert.deepEqual(h.counters, [['grading.thinking_cap_rejected', 1]]);
+    await h.sheet(sheet([sq(1)])); // gradeStructuredSet -> core.callModel
+    assert.deepEqual(h.calls.map((c) => c.model), ['strong-model', 'strong-model', 'strong-model']);
+    assert.equal(h.calls[2].genConfig.thinkingConfig, undefined, 'the rejected cap is not sent again');
+    assert.deepEqual(h.counters, [['grading.thinking_cap_rejected', 1]], 'no fallback counter, no second rejection');
+    assert.equal(h.headers['X-Grading-Model'], 'strong-model');
+  });
+  assert.equal(warns.filter((w) => w.includes('thinking cap')).length, 1);
+  assert.equal(warns.filter((w) => w.includes('unavailable')).length, 0);
+  assert.equal(isModelUnavailable({ status: 400, message: 'Unsupported thinkingConfig' }), false);
+  // CONTROL: a real model-unavailable 404 still falls back exactly as before (see §MODEL.2).
+  const c = harness({ reply: ({ model }) => (model === 'strong-model' ? unavailable(404, 'models/strong-model is not found') : REPLY(R(1, [S()]))), deps: STRONG });
+  await quietWarn(() => c.single(single()));
+  assert.deepEqual(c.calls.map((x) => x.model), ['strong-model', 'gemini-2.5-flash']);
+  assert.deepEqual(c.counters, [['grading.model_fallback', 1]]);
+});
+
+test('§MODEL.3c with NO budget set nothing changes: no thinkingConfig key on the wire and no counters', async () => {
+  const h = harness({ replies: [REPLY(R(1, [S()]))], deps: { GRADING_MODEL: 'strong-model' } });
+  await h.single(single());
+  assert.equal(h.calls[0].genConfig.thinkingConfig, undefined);
+  assert.equal('thinkingConfig' in h.calls[0].genConfig, false);
+  assert.deepEqual(h.counters, []);
 });
 
 test('§MODEL.4 resolveGradingModel reads the environment and falls back to the code defaults', () => {
