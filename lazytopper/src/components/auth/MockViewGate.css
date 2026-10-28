@@ -1,0 +1,6 @@
+/* PACK-LINKS-1: the ask on the paper-open cap walls (MockViewGate). Board Pass first, month pass second, pack last and quiet. */
+.lt-mvg-ask { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 420px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; }
+.lt-mvg-cta { display: block; width: 100%; box-sizing: border-box; padding: 14px 20px; border-radius: 16px; border-bottom: 4px solid #46a302; background: #58cc02; color: var(--text); font-size: 1rem; font-weight: 800; text-align: center; text-decoration: none; overflow-wrap: anywhere; }
+.lt-mvg-detail { margin: 0; color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
+.lt-mvg-month { color: var(--text); font-size: 0.9rem; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; min-height: 44px; display: inline-flex; align-items: center; }
+.lt-mvg-ask .lt-limit-pack { width: 100%; }

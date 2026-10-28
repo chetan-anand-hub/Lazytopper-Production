@@ -455,14 +455,16 @@ describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
     expect(strings.map(([n]) => n)).toEqual(expect.arrayContaining(["PERIOD_MONTHLY_LABEL", "FOUNDING_OFFER_UNTIL_COPY"]));
   });
 
-  it("the two gates read '… with Premium at ₹599 for a month.' — never 'for ₹599 for a month'", () => {
+  it("the gates read '… with Premium at ₹599 for a month.' — never 'for ₹599 for a month'", () => {
     // monthlyInline() ends "for a month", so "Premium for {monthlyInline(" would
     // render "Premium for ₹599 for a month." The one-word grammar fix is "at".
-    for (const rel of ["src/components/auth/MockViewGate.tsx", "src/components/auth/PracticeLimitGate.tsx"]) {
-      const src = readFileSync(resolve(process.cwd(), rel), "utf8");
-      expect(src, rel).toContain("with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.");
-      expect(src, rel).not.toContain("Premium for {monthlyInline(");
-    }
+    const practice = readFileSync(resolve(process.cwd(), "src/components/auth/PracticeLimitGate.tsx"), "utf8");
+    expect(practice).toContain("with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.");
+    expect(practice).not.toContain("Premium for {monthlyInline(");
+    // PACK-LINKS-1: the mock gate is Board-Pass-first; its month-pass line is boardPassOffer's "₹599 for a month".
+    const mocks = readFileSync(resolve(process.cwd(), "src/components/auth/MockViewGate.tsx"), "utf8");
+    expect(readFileSync(resolve(process.cwd(), "src/components/auth/PaperCapAsk.tsx"), "utf8")).toContain("Or {offer.monthlyLine}");
+    expect(mocks).not.toContain("Premium for {monthlyInline(");
   });
 
   it("the lock note is the owner's wording, and no longer says 'subscribed'", () => {
