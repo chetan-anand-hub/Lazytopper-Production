@@ -914,7 +914,12 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // Hinglish (a clause or more is), and all exam-technique deductions of an answer are capped at 1 (½ on a
 // 1-mark answer). Rule TEXT only.
 //   PREVIOUS bba8045764c14b359a0d4186578a1e826bd6b910ba2c965f8bbb620b1cea447c
-const NO_UPLOADS_CONTENTS_SHA256 = '72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8';
+// MISTAKE-CALC-1 (2026-10-28; 72113f2d… → below): CLAUDE.md §13's tell-tale joins the "conceptual"
+// definition (a student whose other steps prove they know the method did not misunderstand it) and
+// "calculation" names a right product multiplied out wrongly (LCM = 2^5 × 3 × 101 as 9690). Rule TEXT
+// only, in rules.cjs MISTAKE_TAXONOMY_PROMPT; every transport moved together.
+//   PREVIOUS 72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8
+const NO_UPLOADS_CONTENTS_SHA256 = '3bcace4cac5be54f425be1be509188954751537ad407a3c2e0e361f8e44d375a';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

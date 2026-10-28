@@ -48,6 +48,14 @@ function expectationFor(caseId, G, locators, probesTruth) {
       mistakeType: e.mistakeType ?? null, wrongStepLocator: null, departureKind: null, departureReturns: false, illegible: false, declineAcceptable: false,
       subject: a.resolved.subject };
   }
+  const live = (G.live || []).find((x) => x.caseId === caseId);
+  if (live) {
+    // MISTAKE-CALC-1: LIVE-DERIVED cases (truth/live-cases.json), scored as A17 rows, reported apart.
+    const e = live.expected;
+    return { kind: 'live', ruling: live.ruling, a17: e, totalMarks: e.totalMarks, maxMarks: live.resolved.marks, objective: false, wrongStep: null,
+      mistakeType: e.mistakeType ?? null, wrongStepLocator: null, departureKind: null, departureReturns: false, illegible: false, declineAcceptable: false,
+      subject: live.resolved.subject };
+  }
   if (caseId.startsWith('GS-MM-')) {
     const [base, qPart] = caseId.split('.Q');
     const m = G.mismatch.find((x) => x.caseId === base);
@@ -238,7 +246,7 @@ function makeRow(item, caseId, result, ctx) {
   row.commentsJudge = row.judge && !row.judge.stale && typeof row.judge.commentsTrue === 'boolean' ? row.judge.commentsTrue : undefined;
   row.commentsAll = row.commentsDet === undefined ? undefined : (row.commentsDet && (row.commentsJudge === undefined ? true : row.commentsJudge));
   row.consistent = row.status === 'graded' ? row.consistencyFailures.length === 0 : undefined;
-  if (exp.kind === 'a17') {
+  if (exp.kind === 'a17' || exp.kind === 'live') {
     // A17: the row passes only when EVERY stated expectation holds (marks, type, the one unit
     // comment, the not-attempted state, what was charged and what the premium meter recorded).
     const e = exp.a17;
@@ -504,6 +512,9 @@ function score(input) {
   // A17 owner rulings (GRADING-JOBS-1 J0): null ("na") where the replayed run holds no A17 job.
   const a17Rows = rows.filter((r) => r.kind === 'a17');
   result.a17 = { ...rate(a17Rows, 'a17Pass'), rows: a17Rows.map((r) => ({ caseId: r.caseId, entry: r.entry, run: r.run, status: r.status, awarded: r.awarded, expected: r.expectedTotal, fails: r.a17Fails })) };
+  // MISTAKE-CALC-1: LIVE-DERIVED cases (truth/live-cases.json); null ("na") where the run holds none.
+  const liveRows = rows.filter((r) => r.kind === 'live');
+  result.live = { ...rate(liveRows, 'a17Pass'), rows: liveRows.map((r) => ({ caseId: r.caseId, entry: r.entry, run: r.run, status: r.status, awarded: r.awarded, expected: r.expectedTotal, fails: r.a17Fails })) };
 
   // chapter (detect) — stored detect outputs replayed through handleDetectQuestion
   const det = [];
@@ -678,6 +689,8 @@ function headline(res) {
     detect_dup_numbers: res.detectPaper ? res.detectPaper.dupT2.pct : null,
     // A17 owner rulings 1-5 (truth/rulings-a17.json)
     a17_rulings: res.a17 ? res.a17.pct : null,
+    // MISTAKE-CALC-1: live-derived cases (truth/live-cases.json)
+    live_cases: res.live ? res.live.pct : null,
   };
 }
 

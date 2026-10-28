@@ -256,6 +256,20 @@ function buildPlan(opts = {}) {
     }
   }
 
+  // ── MISTAKE-CALC-1: LIVE-DERIVED cases (truth/live-cases.json), the A17 request shapes ─────────
+  for (const a of G.live || []) {
+    const r = a.resolved;
+    if (a.entries.includes('single')) {
+      push({ jobKey: 'S.LIVE.' + a.caseId, entry: 'single', handler: 'handleCheckSolution', surface: 'LIVE-SINGLE', caseIds: [a.caseId], qNumbers: { [a.caseId]: 1 },
+        request: { question: r.questionText, subject: r.subject, topic: r.topic, marks: r.marks, textAnswer: r.answer.text } });
+    }
+    if (a.entries.includes('set')) {
+      push({ jobKey: 'W.LIVE.' + a.caseId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'LIVE-SET', caseIds: [a.caseId], qNumbers: { [a.caseId]: 1 },
+        request: { worksheetId: 'golden-live-' + a.caseId, subject: r.subject,
+          questions: [{ qNumber: 1, marks: r.marks, questionText: r.questionText, topic: r.topic, topicLabel: r.topic, textAnswer: r.answer.text }] } });
+    }
+  }
+
   // ── P0 (GRADER-CORE-1 PR-2): one answer page for a four-question Chapter-Test-shaped set ─
   for (const s of P0_SETS) {
     const qNumbers = {};

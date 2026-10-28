@@ -526,3 +526,26 @@ test('§11d ★ g-mcq-habit-1 accepts exactly the 0-mark habit type on a RIGHT o
   assert.ok(habitViolations(delta.filter((d) => d[0][0] !== 'mistakeSummary'), body).some((v) => /summary moved 0 but steps gained 1/.test(v)), 'a step type with no summary count is refused');
   assert.ok(habitViolations(delta.concat([[['annotatedSteps', 2, 'mistakeType'], null, 'silly'], [['mistakeSummary', 'silly'], 0, 1]]), body).some((v) => /2 steps gained a type/.test(v)), 'two habit types on one question are refused');
 });
+
+test('§LIVE MISTAKE-CALC-1 — the live-derived case resolves, is planned on BOTH entry points, and its `live_cases` check can pass AND fail', () => {
+  const G = require('./lib/data.cjs').load();
+  const { buildPlan } = require('./lib/planner.cjs');
+  const { score, headline } = require('./lib/score.cjs');
+  assert.deepStrictEqual(G.live.map((c) => c.caseId), ['GS-M-LCM-final-slip']);
+  const c = G.live[0];
+  assert.strictEqual(c.label, 'LIVE');
+  assert.deepStrictEqual([c.resolved.marks, c.expected.totalMarks, c.expected.mistakeType], [3, 2.5, 'calculation']);
+  assert.ok(c.resolved.answer.text.includes('LCM = 2^5 x 3 x 101 = 9690'), 'the live answer is kept byte for byte');
+  const jobs = buildPlan({ filter: (k) => k.endsWith('.LIVE.GS-M-LCM-final-slip') });
+  assert.deepStrictEqual(jobs.map((j) => [j.jobKey, j.handler]).sort(), [
+    ['S.LIVE.GS-M-LCM-final-slip', 'handleCheckSolution'],
+    ['W.LIVE.GS-M-LCM-final-slip', 'handleGradeWorksheet'],
+  ]);
+  const step = (aw, type) => ({ stepNumber: 1, description: 'd', studentWork: 'w', status: aw > 0 ? 'partial' : 'incorrect', marksAwarded: aw, marksDeducted: 3 - aw, teacherAnnotation: '', mistakeType: type, correctedWorking: null });
+  const single = jobs.find((j) => j.entry === 'single');
+  const run = (aw, type) => headline(score({ items: [{ job: single, run: 1, record: { calls: [], wallMs: 1 },
+    rep: { httpStatus: 200, charged: 1, meteredShare: 1, body: { ok: true, totalMarks: 3, marksAwarded: aw, annotatedSteps: [step(aw, type)], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, [type]: 1 } } } }], detectItems: [] })).live_cases;
+  assert.strictEqual(run(2.5, 'calculation'), 100, 'the ruled grade passes');
+  assert.strictEqual(run(2, 'conceptual'), 0, 'CONTROL: the live defect (2/3, conceptual) fails');
+  assert.strictEqual(run(2.5, 'conceptual'), 0, 'CONTROL: the right mark with the wrong type still fails');
+});

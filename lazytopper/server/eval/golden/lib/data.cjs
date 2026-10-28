@@ -181,6 +181,10 @@ function load() {
   const mismatch = resolveMismatch(readJson('truth/mismatch.json'), { itemsById, casesById, detect, nameBySlug });
   // A17 owner rulings (GRADING-JOBS-1 J0): truth/rulings-a17.json, composed on golden questions.
   const a17 = resolveA17(readJson('truth/rulings-a17.json'), { itemsById, casesById, detect, nameBySlug });
+  // MISTAKE-CALC-1 (2026-10-28): LIVE-DERIVED cases (truth/live-cases.json) — a defect a student met on
+  // the deployed product, its question and typed answer kept as written. Graded and scored exactly as an
+  // A17 case (both entry points, every stated expectation must hold), reported apart as `live_cases`.
+  const live = resolveLive(readJson('truth/live-cases.json'));
 
   // GRADER-CORE-1 PR-2 · the four CONTROLLER TEST PAPERS (owner addendum 2026-10-05). SYNTHETIC
   // answer sheets (font-rendered handwriting) for CBSE published questions, every value point
@@ -223,7 +227,7 @@ function load() {
   // A17: owner rulings that change a PAPER case's truth (truth/repins.json, guarded by the old value).
   for (const r of applyRepins(paperCaseById, repins, { paper: true })) appliedRepins.push(r);
 
-  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, a17, papers, paperCaseById, dupPaper, owner2, GOLDEN_DIR };
+  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, a17, live, papers, paperCaseById, dupPaper, owner2, GOLDEN_DIR };
   return _cache;
 }
 
@@ -247,6 +251,25 @@ function resolveA17(raw, ctx) {
         questionText: composeQuestion(item), subject: item.subject, marks: Number(item.question.marks),
         topic: d ? d.topicName : (ctx.nameBySlug[item.chapterTrue.appTopicKey] || item.chapterTrue.name),
         objective: false, itemId: item.id, answer: { mode: 'typed', text },
+      },
+    };
+  });
+}
+
+// LIVE-DERIVED cases (truth/live-cases.json): the question is stated INLINE (it need not be a golden
+// item), the typed answer is the student's own text. Same resolved shape as an A17 case.
+function resolveLive(raw) {
+  return raw.cases.map((c) => {
+    const q = c.question || {};
+    for (const k of ['text', 'subject', 'marks', 'topic']) if (q[k] == null || String(q[k]).trim() === '') throw new Error('live: case ' + c.caseId + ' question has no ' + k);
+    const text = c.answer && c.answer.text;
+    if (!String(text || '').trim()) throw new Error('live: case ' + c.caseId + ' has no answer text');
+    if (!Array.isArray(c.entries) || !c.entries.length) throw new Error('live: case ' + c.caseId + ' names no entry point');
+    return {
+      ...c, label: raw.label,
+      resolved: {
+        questionText: String(q.text), subject: q.subject, marks: Number(q.marks), topic: q.topic,
+        objective: false, itemId: null, answer: { mode: 'typed', text },
       },
     };
   });

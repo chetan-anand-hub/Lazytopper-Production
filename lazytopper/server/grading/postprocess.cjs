@@ -26,7 +26,7 @@ const {
   applyObjectiveMistakeGuard,
 } = require('../routes/objectiveScoring.cjs');
 const R = require('./rules.cjs');
-const { falseEqualities, compareFinalAnswer, fudgedFactorisation } = require('./verify.cjs');
+const { falseEqualities, compareFinalAnswer, fudgedFactorisation, normaliseExpr, evaluate } = require('./verify.cjs');
 
 const TYPES = R.MISTAKE_TYPES;
 const VALID_TYPES = new Set(TYPES);
@@ -689,6 +689,37 @@ function acceptedDepartures(steps) {
   return out.sort((a, b) => a.index - b.index);
 }
 
+/**
+ * MISTAKE-CALC-1 · does the model's correctedWorking keep the student's LEFT-HAND expression of a
+ * false equality (`bad`, from verify.falseEqualities) and change ONLY its value? True when some
+ * equality in the corrected text has that same expression (typography aside: "x" / "×", "2⁵" /
+ * "2^5", spacing) followed, on that line, by a side equal to the expression's TRUE value. A
+ * corrected line that changes the expression itself (another formula, other factors) is not a
+ * value-only correction, and the model's type stands.
+ */
+function correctsValueOnly(corrected, bad) {
+  const text = String(corrected == null ? '' : corrected);
+  if (!text.trim() || !bad || !Number.isFinite(bad.leftValue)) return false;
+  const key = (e) => normaliseExpr(e).replace(/\s+/g, '').replace(/\^\((\d+)\)/g, '^$1');
+  const want = key(bad.left);
+  if (!want) return false;
+  for (const clause of text.split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i)) {
+    const sides = clause.split(/=|≈/);
+    for (let k = 0; k + 1 < sides.length; k += 1) {
+      if (key(sides[k]) !== want) continue;
+      for (let m = k + 1; m < sides.length; m += 1) {
+        const raw = sides[m].trim().replace(/\s*[A-Za-zµΩ°][A-Za-zµΩ°²³/]*\s*$/, '');
+        const v = evaluate(normaliseExpr(raw));
+        if (v === null) continue;
+        const dec = /\.(\d+)\s*$/.exec(raw);
+        const tol = Math.max(1e-9 * Math.max(1, Math.abs(bad.leftValue)), dec ? 0.5 * Math.pow(10, -dec[1].length) : 0);
+        if (Math.abs(v - bad.leftValue) <= tol) return true;
+      }
+    }
+  }
+  return false;
+}
+
 /* ── the step ledger ───────────────────────────────────────────────────────── */
 
 function normaliseSteps(rawSteps) {
@@ -1062,6 +1093,28 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       s._flagged = true;
     });
     if (arithmeticFlags > 0) noFullMarks = true;
+    // MISTAKE-CALC-1 (§13 ruler, live 28 Oct 2026: "LCM = 2^5 x 3 x 101 = 9690" typed conceptual).
+    // A CHARGED step the model typed "conceptual" whose OWN quoted work holds a false equality, and
+    // whose correctedWorking keeps the student's left-hand expression and changes only its value,
+    // is PERFORMED wrongly — the method on that very line is the right one — so it is
+    // "calculation". The marks stand (the model already charged the step); only the type moves,
+    // and so the ECF pass below then credits the lines carried forward from the wrong value.
+    // Never a departure, an objective item (this block is subjective only), a zeroed step or a
+    // step with no student text.
+    steps.forEach((s, i) => {
+      if (zeroedBy.has(i) || s.isDeparture === true || s.mistakeType !== 'conceptual') return;
+      if (['withdrawn', 'unattempted', 'missing'].includes(s.status)) return;
+      if (!String(s.studentWork || '').trim()) return;
+      if (!(s.marksAwarded < s._available || s.marksDeducted > 0)) return;
+      const bad = falseEqualities(s.studentWork, { quoted: true, source: q.textAnswer })
+        .find((b) => correctsValueOnly(s.correctedWorking, b));
+      if (!bad) return;
+      s.mistakeType = 'calculation';
+      arithmeticWrong.push(bad);
+      const note = 'Check the arithmetic here: ' + bad.left + ' is not ' + bad.right + '.';
+      s.teacherAnnotation = (s.marksAwarded > 0 ? '½ ' : '× ') + note;
+      s._flagged = true;
+    });
     // PR-2b: the model ticked the LATER steps of that part believing the flagged value was right
     // ("✓ Correct values of outer and inner radii" over R = 4.5 from 1232/308 = 8, GS-MM-05.Q4).
     // They stay credited (ECF), but a tick that calls a carried wrong value "correct" is not left

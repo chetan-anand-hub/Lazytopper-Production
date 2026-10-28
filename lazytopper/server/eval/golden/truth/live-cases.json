@@ -1,0 +1,37 @@
+{
+ "_about": "LIVE-DERIVED golden cases (MISTAKE-CALC-1, 2026-10-28): a grading defect met on the DEPLOYED product, kept as a standing case. The question and the typed answer are the ones graded live, byte for byte (mathematics only: no name, no account, no PII). Graded through BOTH entry points with the live request shapes CI-SINGLE (/api/check-solution) and the typed set (/api/grade-worksheet), exactly as an A17 case (lib/planner.cjs S.LIVE.* / W.LIVE.*), and scored by lib/score.cjs as `live_cases` (a row passes only when EVERY stated expectation holds: marks, mistake type, charged, metered share). No stored model response exists for these cases until a live run records one (the zero-call gate replays only the jobs a stored run holds).",
+ "label": "LIVE",
+ "cases": [
+  {
+   "caseId": "GS-M-LCM-final-slip",
+   "ruling": "7",
+   "source": "Live new-student audit, 28 Oct 2026 (~11:00 IST), Check & Improve single, typed answer. Graded 2/3 with the lost mark typed conceptual (the defect).",
+   "question": {
+    "text": "Find the HCF of 96 and 404 by the prime factorisation method. Hence, find their LCM.",
+    "subject": "Maths",
+    "marks": 3,
+    "topic": "Real Numbers"
+   },
+   "answer": {
+    "text": "96 = 2 x 2 x 2 x 2 x 2 x 3 = 2^5 x 3\n404 = 2 x 2 x 101 = 2^2 x 101\nHCF = 2^2 = 4\nLCM = 2^5 x 3 x 101 = 9690\nSo HCF = 4 and LCM = 9690"
+   },
+   "entries": [
+    "single",
+    "set"
+   ],
+   "expected": {
+    "totalMarks": 2.5,
+    "mistakeType": "calculation",
+    "charged": true,
+    "meteredShare": 1
+   },
+   "valuePoints": [
+    "96 = 2^5 × 3 (½)",
+    "404 = 2^2 × 101 (½)",
+    "HCF = 2^2 = 4 (1)",
+    "LCM = 2^5 × 3 × 101 (method ½) = 9696 (value ½)"
+   ],
+   "why": "Both factorisations, the HCF and the LCM's factors (highest powers 2^5 × 3 × 101) are right: the student knows the method. Only the multiplication is wrong (2^5 × 3 × 101 = 9696, written 9690). CLAUDE.md §13 / owner ruling (7): PERFORMED wrongly = calculation; tell-tale: the student's other steps prove they know the method, so it is NOT conceptual. The slip costs the value point ONCE (½); the closing line 'So HCF = 4 and LCM = 9690' restates the carried value and earns nothing extra nor loses anything again (ECF, CBSE 'penalized only once'): 2.5/3."
+  }
+ ]
+}

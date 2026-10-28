@@ -2448,3 +2448,98 @@ test('§MCQ-EXTRACT-1.7 previous positives still read as the letter when they st
   for (const r of await fbBoth(['(a) (x+1)(x-2)'], { options: ['(x+1)(x-2)', '(x-1)(x+2)', '(x+1)(x+2)', '(x-1)(x-2)'], answer: '(x+1)(x-2)' }))
     assert.deepEqual([r.marksAwarded, r.objectiveResolved], [1, true]);
 });
+
+/* ══ §MC · MISTAKE-CALC-1 — a wrong VALUE from a right METHOD is "calculation" (CLAUDE.md §13) ══
+   Live 28 Oct 2026, C&I single, typed: HCF/LCM of 96 and 404, "LCM = 2^5 x 3 x 101 = 9690"
+   (2^5 × 3 × 101 = 9696). The model typed the LCM line "conceptual", so the restating line below
+   it got no ECF and the student lost a whole mark to a "concept" they had shown they know.
+   One post-processing path → the same fixture is driven through /api/check-solution (C&I single)
+   AND /api/grade-worksheet (typed set = Worksheet / Chapter Test / Full Mock / Quick Practice
+   typed; one document + page inventory = C&I multi). */
+
+const LCM_QT = 'Find the HCF of 96 and 404 by the prime factorisation method. Hence, find their LCM.';
+const LCM_TYPED = [
+  '96 = 2 x 2 x 2 x 2 x 2 x 3 = 2^5 x 3',
+  '404 = 2 x 2 x 101 = 2^2 x 101',
+  'HCF = 2^2 = 4',
+  'LCM = 2^5 x 3 x 101 = 9690',
+  'So HCF = 4 and LCM = 9690',
+].join('\n');
+// What the model returned: 2/3, the LCM line typed "conceptual", the restating line charged untyped.
+const LCM_STEPS = (o = {}) => [
+  S({ description: 'Prime factorises 96', studentWork: '96 = 2 x 2 x 2 x 2 x 2 x 3 = 2^5 x 3', marksAwarded: 0.5 }),
+  S({ description: 'Prime factorises 404', studentWork: '404 = 2 x 2 x 101 = 2^2 x 101', marksAwarded: 0.5 }),
+  S({ description: 'HCF from the lowest powers', studentWork: 'HCF = 2^2 = 4', marksAwarded: 1 }),
+  S({ description: 'LCM from the highest powers', studentWork: 'LCM = 2^5 x 3 x 101 = 9690', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5,
+    mistakeType: 'conceptual', teacherAnnotation: '× You have not understood how the LCM is formed.', correctedWorking: 'LCM = 2^5 × 3 × 101 = 9696', ...(o.s3 || {}) }),
+  S({ description: 'States HCF and LCM', studentWork: 'So HCF = 4 and LCM = 9690', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5, teacherAnnotation: '× LCM is wrong.', ...(o.s4 || {}) }),
+];
+const LCM_REPLY = (o) => REPLY(R(1, LCM_STEPS(o), { finalAnswerCorrect: false, teacherNote: 'HCF is right; the LCM is wrong.' }));
+const lcmSingle = async (o) => (await harness({ replies: [LCM_REPLY(o)] })
+  .single(single({ question: LCM_QT, topic: 'Real Numbers', textAnswer: LCM_TYPED, acceptsV2: true }))).body;
+const lcmSq = (o = {}) => sq(1, { questionText: LCM_QT, topic: 'Real Numbers', topicLabel: 'Real Numbers', textAnswer: LCM_TYPED, ...o });
+const lcmTypedSet = async (o) => (await harness({ replies: [LCM_REPLY(o)] }).sheet(sheet([lcmSq()], { acceptsV2: true }))).body.results[0];
+const lcmDoc = async (o) => (await harness({ replies: [WITH_INV(INV([1, '96 = 2 x 2 x 2 x 2 x 2 x 3 = 2^5 x 3']), R(1, LCM_STEPS(o), { finalAnswerCorrect: false }))] })
+  .sheet(sheet([lcmSq({ textAnswer: '' })], { ...DOC, acceptsV2: true }))).body.results[0];
+
+test('§MC.1 ★ live 28 Oct: the LCM line (right factors, 9690 for 9696) is "calculation", the restating line earns ECF — 2.5/3 on BOTH entry points', async () => {
+  for (const [label, grade] of [['C&I single /check-solution', lcmSingle], ['typed set /grade-worksheet', lcmTypedSet]]) {
+    const r = await grade();
+    assert.equal(r.marksAwarded, 2.5, label);
+    assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), [null, null, null, 'calculation', null], label);
+    assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [0.5, 0.5, 1, 0, 0.5], label + ': the slip is charged ONCE; the carried line is restored');
+    assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), calculation: 0.5 }, label);
+    assert.equal(r.annotatedSteps[3].teacherAnnotation, '× Check the arithmetic here: 2^5 x 3 x 101 is not 9690.', label + ': no "not understood" left on a right method');
+    assert.match(r.teacherNote, /2\^5 x 3 x 101 is not 9690/, label + ': the note says what the check found');
+  }
+});
+
+test('§MC.2 the same retype on the C&I multi path (one document, page inventory) — the step quote is the only text', async () => {
+  const r = await lcmDoc();
+  assert.equal(r.annotatedSteps[3].mistakeType, 'calculation');
+  assert.equal(r.marksAwarded, 2.5);
+  assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), calculation: 0.5 });
+});
+
+test('§MC.3 CONTROLS: the model\'s "conceptual" STANDS when the evidence is not a value-only slip', async () => {
+  const conceptualStands = async (label, o, grade = lcmSingle) => {
+    const r = await grade(o);
+    assert.equal(r.annotatedSteps[3].mistakeType, 'conceptual', label);
+    assert.equal(r.marksAwarded, 2, label + ': no ECF behind a misconception');
+    assert.ok(!(r.marksLostByType.calculation > 0), label);
+  };
+  // wrong FORMULA, true arithmetic (lowest powers for the LCM): nothing is false, the method is
+  await conceptualStands('wrong method, right arithmetic', { s3: { studentWork: 'LCM = 2^2 x 3 x 101 = 1212', correctedWorking: 'LCM = 2^5 × 3 × 101 = 9696' } });
+  // false arithmetic, but the correction changes the EXPRESSION (other powers) — not value-only
+  await conceptualStands('correction changes the expression', { s3: { studentWork: 'LCM = 2^2 x 3 x 101 = 1200', correctedWorking: 'LCM = 2^5 × 3 × 101 = 9696' } });
+  // no correctedWorking: no evidence the expression was right
+  await conceptualStands('no corrected working', { s3: { correctedWorking: null } }, lcmTypedSet);
+  // a DEPARTURE keeps its type, whatever its arithmetic
+  const dep = await lcmSingle({ s3: { isDeparture: true, departureKind: 'invalid-method' } });
+  assert.equal(dep.annotatedSteps[3].mistakeType, 'conceptual', 'a departure is never retyped');
+  assert.equal(dep.annotatedSteps[4].marksAwarded, 0, 'and still zeroes the work below it');
+  // a step with NO student text is never retyped
+  const blank = await lcmTypedSet({ s3: { studentWork: '' } });
+  assert.notEqual(blank.annotatedSteps[3].mistakeType, 'calculation');
+  // CONTROL of the CONTROL: the live fixture, unchanged, IS retyped (so the guards above are what held)
+  assert.equal((await lcmSingle()).annotatedSteps[3].mistakeType, 'calculation');
+});
+
+test('§MC.4 CONTROL: an OBJECTIVE question is never retyped — 0 or full on the option, its working read only for the type', async () => {
+  const work = 'Answer: (c) since 3 x 4 = 13';
+  const h = harness({ replies: [REPLY(R(1, [S({ studentWork: work, status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual', correctedWorking: '3 x 4 = 12' })]))] });
+  const r = (await h.sheet(sheet([LETTER_MCQ({ qNumber: 1, textAnswer: work, pickedOption: 'Coincident' })], { acceptsV2: true }))).body.results[0];
+  assert.equal(r.marksAwarded, 0);
+  assert.equal(r.annotatedSteps[0].mistakeType, 'conceptual');
+  assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 1 });
+});
+
+test('§MC.5 ONE rulebook: the §13 tell-tale reaches the model on BOTH entry points', async () => {
+  const h = harness({ replies: [LCM_REPLY()] });
+  await h.single(single({ question: LCM_QT, textAnswer: LCM_TYPED }));
+  await h.sheet(sheet([lcmSq()]));
+  for (const i of [0, 1]) {
+    assert.ok(h.prompt(i).includes('TELL-TALE: if the student\'s later or other steps prove they know the method'), 'call ' + i);
+    assert.ok(h.prompt(i).includes('a product of the RIGHT factors multiplied out wrongly'), 'call ' + i);
+  }
+});
