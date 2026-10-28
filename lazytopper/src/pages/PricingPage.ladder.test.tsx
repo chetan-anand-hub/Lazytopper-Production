@@ -91,9 +91,14 @@ describe("PricingPage - ladder layout", () => {
 describe("PacksStrip - the ladder", () => {
   const renderStrip = (props: { creditLive?: boolean } = {}) => render(<MemoryRouter><PacksStrip {...props} /></MemoryRouter>);
 
-  it("ships with the credit line OFF (PACK_CREDIT_LIVE is false)", () => {
-    expect(PACK_CREDIT_LIVE).toBe(false);
+  it("ships with the credit line ON (PACK_CREDIT_LIVE is true: PACK-CREDIT-1 is on trunk)", () => {
+    expect(PACK_CREDIT_LIVE).toBe(true);
     renderStrip();
+    expect(flat(screen.getByTestId("pricing-pack-credit"))).toBe(PACK_CREDIT_LINE);
+  });
+
+  it("credit line OFF (creditLive=false): the line is not rendered", () => {
+    renderStrip({ creditLive: false });
     expect(screen.queryByTestId("pricing-pack-credit")).toBeNull();
     expect(screen.queryByText(PACK_CREDIT_LINE)).toBeNull();
   });

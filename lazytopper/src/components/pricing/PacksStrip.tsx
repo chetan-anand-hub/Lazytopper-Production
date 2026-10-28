@@ -6,11 +6,11 @@ import type { PacksQueryPack } from "../../lib/packs/packEntry";
 import "./packsStrip.css";
 
 /**
- * PRICING-LADDER-1 - flipped by the coordinator once PACK-CREDIT-1 (the server credit that takes a pack's price off the Board Pass when it
- * is bought within 7 days) ships. While false, the ladder line is NOT rendered: the page must never promise a credit the server does not
- * give. PacksStrip takes a `creditLive` prop that defaults to this constant, so a test renders both states without mocking the module.
+ * PRICING-LADDER-1 - flipped to true once PACK-CREDIT-1 (the server credit that takes a pack's price off the Board Pass when it
+ * is bought within 7 days) ships - it merged on trunk (48baf3c6), so this is true. If it is ever false the ladder line is NOT rendered: the
+ * page must never promise a credit the server does not give. PacksStrip takes a `creditLive` prop that defaults to this constant, so a test renders both states without mocking the module.
  */
-export const PACK_CREDIT_LIVE = false;
+export const PACK_CREDIT_LIVE = true;
 
 /** The ladder line, word for word (owner design, 28 Oct 2026). */
 export const PACK_CREDIT_LINE = "Take the Board Pass within 7 days and the pack price comes off.";

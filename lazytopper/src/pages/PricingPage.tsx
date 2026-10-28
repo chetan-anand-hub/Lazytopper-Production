@@ -637,6 +637,28 @@ const PRICING_CSS = `
     margin-top: 14px;
   }
 
+  /* PACK-CREDIT-1 x PRICING-LADDER-1 — the pack-credit note belongs to the Board Pass: it sits inside the
+     Board Pass tile's box, under its button, as a quiet mint line (it is never shown with another notice). */
+  .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--boards,
+  .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--month {
+    grid-row: 2 / 5;
+  }
+
+  .lt-pricing-passes .lt-pack-credit-note {
+    grid-column: 1;
+    grid-row: 4;
+    align-self: start;
+    margin: 0 16px 16px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--lt-mint);
+    border: 1px solid var(--lt-tile-line);
+    color: var(--lt-green-deep);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
   /* Till boards — one payment until the first board paper. The number-free
      line is static; the figures are written only after mount and are stripped
      from the prerendered capture by their data-testid. The slot keeps their
@@ -1177,6 +1199,28 @@ const PRICING_CSS = `
     }
     .lt-pricing-tillboards-slot {
       min-height: 6.2rem;
+    }
+    /* With the pack-credit note: it takes row 4 inside the Board Pass box, the Month pass moves down. */
+    .lt-pricing-passes:has(.lt-pack-credit-note) {
+      grid-template-rows: auto auto auto auto 14px auto auto;
+    }
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--boards {
+      grid-column: 1;
+      grid-row: 2 / 5;
+    }
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--month {
+      grid-column: 1;
+      grid-row: 6 / 8;
+    }
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass--month {
+      grid-row: 6;
+    }
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pay--month {
+      grid-row: 7;
+    }
+    .lt-pricing-passes .lt-pack-credit-note {
+      grid-column: 1;
+      grid-row: 4;
     }
   }
 
