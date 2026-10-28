@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
@@ -7,7 +8,29 @@ import MummyJourney from "../components/guide/mummy/MummyJourney";
 import MummyCheckNudge from "../components/guide/mummy/MummyCheckNudge";
 import { trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
 import { withParentFlag } from "../lib/parentReturn";
+import FounderBadge from "../components/brand/FounderBadge";
+import {
+  BOARD_PASS_NAME,
+  FOUNDING_OFFER_LAST_DAY_LABEL,
+  foundingOfferOpen,
+  formatInr,
+  PRICE_MONTHLY_FOUNDING_INR,
+  PRICE_MONTHLY_LIST_INR,
+  tillBoardsQuote,
+} from "../config/pricing";
+import { WHATSAPP_URL } from "../config/socialProfiles";
+import { predictCbseExamDate } from "../services/cbseExamDate";
 import "./forParents.css";
+
+/**
+ * ★ PARENTS-PAY-1 (owner ruling 28 Oct 2026, 07:51 IST) SUPERSEDES the "no price figure" rulings above:
+ * the page now shows the price and how a parent pays for the child. The figures come from
+ * `config/pricing.ts` (`tillBoardsQuote`, the monthly constants) and are computed AFTER MOUNT, as
+ * `TillBoardsOffer` on /pricing does, so the prerendered HTML carries no rupee figure that could
+ * go stale; the number-free steps are static. A parent cannot start a payment without the child's
+ * account: the server prices the order from the child's record (`ParentPayPanel`), so there is NO
+ * checkout here, only the true flow and the WhatsApp contact for help.
+ */
 
 /**
  * ForParentsPage — `/for-parents` (PARENTS-1): the public page a PARENT lands on from an
@@ -137,6 +160,91 @@ function ShareButton({ placement }: { placement: ParentSharePlacement }) {
   );
 }
 
+
+const DAY_MS = 86_400_000;
+const IST_OFFSET_MS = 330 * 60_000;
+
+/** Whole calendar days from today (IST) to the ISO board date; null when the date is unusable. */
+function daysToBoards(now: Date, boardIso: string): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(boardIso);
+  if (!m || Number.isNaN(now.getTime())) return null;
+  const ist = new Date(now.getTime() + IST_OFFSET_MS);
+  const today = Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), ist.getUTCDate());
+  const board = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const days = Math.round((board - today) / DAY_MS);
+  return days >= 1 ? days : null;
+}
+
+export interface ParentPriceModel {
+  boardPassDisplay: string;
+  /** "≈ ₹N a day till the boards", or null when the date or price cannot be trusted. */
+  perDayLine: string | null;
+  untilLabel: string;
+  monthDisplay: string;
+  /** "Founding price until 30 November", only while the offer is open. */
+  foundingLine: string | null;
+}
+
+/** PURE: the clock and the board date are arguments. Null when the Board Pass cannot be quoted. */
+export function parentPriceModel(now: Date, boardIso: string): ParentPriceModel | null {
+  const open = foundingOfferOpen(now);
+  const quote = tillBoardsQuote(now, boardIso, open);
+  if (!quote) return null;
+  const days = daysToBoards(now, boardIso);
+  const perDay = days ? Math.ceil(quote.priceInr / days) : NaN;
+  return {
+    boardPassDisplay: quote.priceDisplay,
+    perDayLine: Number.isFinite(perDay) && perDay > 0 ? `≈ ${formatInr(perDay)} a day till the boards` : null,
+    untilLabel: quote.untilLabel,
+    monthDisplay: formatInr(open ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR),
+    foundingLine: open ? `Founding price until ${FOUNDING_OFFER_LAST_DAY_LABEL}` : null,
+  };
+}
+
+export const PAY_HELP_LABEL = "Pay for my child";
+export const PAY_HELP_HREF = `${WHATSAPP_URL}?text=${encodeURIComponent(
+  "Hi, I am a parent. I would like to pay for my child LazyTopper Board Pass. Can you help?",
+)}`;
+
+/** PARENTS-PAY-1 — the price and the real way a parent pays. Figures arrive after mount (see above). */
+function ParentPriceSection() {
+  const [model, setModel] = useState<ParentPriceModel | null>(null);
+  useEffect(() => {
+    setModel(parentPriceModel(new Date(), predictCbseExamDate("10")));
+  }, []);
+  return (
+    <section aria-labelledby="fp-price" className="lt-fp__price" data-testid="fp-price">
+      <h2 id="fp-price">What it costs, and how to pay</h2>
+      {/* The slot is always rendered so the figures' arrival shifts nothing. */}
+      <div className="lt-fp__price-slot">
+        {model && (
+          <div data-testid="fp-price-figures">
+            <p className="lt-fp__price-main">
+              <span className="lt-fp__price-name">{BOARD_PASS_NAME}</span>
+              <span className="lt-fp__price-amt">{model.boardPassDisplay}</span>
+              <span className="lt-fp__price-once">one-time, {model.untilLabel}</span>
+            </p>
+            {model.perDayLine && <p className="lt-fp__price-day">{model.perDayLine}</p>}
+            <p className="lt-fp__price-alt">Or the Month pass: {model.monthDisplay} for a month.</p>
+            {model.foundingLine && <p className="lt-fp__price-alt">{model.foundingLine}.</p>}
+          </div>
+        )}
+      </div>
+      <FounderBadge tone="light" />
+      <h3>How to pay for your child</h3>
+      <ol className="lt-fp__price-steps" data-testid="fp-pay-steps">
+        <li>Your child opens LazyTopper on their phone, goes to the price page and taps “Share QR code” or “Forward link to parents”.</li>
+        <li>You get a secure link on WhatsApp. It works once and expires in 72 hours.</li>
+        <li>Open it and pay on Razorpay. You need no account and no password; the pass goes to your child’s account.</li>
+      </ol>
+      <a className="lt-fp__cta lt-fp__cta--pay" href={PAY_HELP_HREF} target="_blank" rel="noopener noreferrer" data-testid="fp-pay-help">
+        {PAY_HELP_LABEL}
+      </a>
+      <p className="lt-fp__price-note">This opens WhatsApp so we can help. There is no payment on this page.</p>
+    </section>
+  );
+}
+
 export default function ForParentsPage() {
   return (
     <main className="lt-fp" data-testid="for-parents-page">
@@ -177,6 +285,8 @@ export default function ForParentsPage() {
             ))}
           </ul>
         </section>
+
+        <ParentPriceSection />
 
         <section aria-labelledby="fp-routine">
           <h2 id="fp-routine">A routine that fits</h2>

@@ -1,6 +1,7 @@
 import type { DesktopStream, DesktopSubject } from "./navigation";
 import { getRuntimeTopicCandidates } from "../../data/syllabus/topicAliasMap";
-import { SYLLABUS_2026_27, type SyllabusSubject } from "../../config/syllabus2026-27";
+import type { SyllabusSubject } from "../../config/syllabus2026-27";
+import { SYLLABUS_UNITS } from "../../config/syllabusUnits2026-27";
 
 export type DesktopTrendTier = "high" | "medium" | "low";
 
@@ -282,7 +283,7 @@ export function deriveChapterMarks(
   shareBySlug: ReadonlyMap<string, number>,
 ): Map<string, number> {
   const out = new Map<string, number>();
-  for (const unit of SYLLABUS_2026_27[subject].units) {
+  for (const unit of SYLLABUS_UNITS[subject]) {
     const shares = unit.chapters.map((slug) => Math.max(0, shareBySlug.get(slug) ?? 0));
     const total = shares.reduce((a, b) => a + b, 0);
     const exact = shares.map((s) =>

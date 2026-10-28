@@ -239,7 +239,7 @@ describe("OR-P3 — no 'unlimited' claim in student-facing copy", () => {
     const mocks = studentFacingStrings(
       readSourceFile(resolvePath(process.cwd(), "src/components/auth/MockViewGate.tsx"), "utf8"),
     );
-    expect(mocks).toContain("Premium Mock Tests");
+    expect(mocks.some((s) => s.includes("Your Free Trial Has Ended"))).toBe(true);
     expect(mocks).toContain("Full mock tests, marked like the board exam");
   });
 });

@@ -17,7 +17,7 @@
 // PURE: no React, no I/O. Questions arrive already fetched (real bank rows; withheld rows
 // are never in the served bank), so nothing here can invent a question.
 
-import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabus2026-27";
+import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
 import type { PracticeQuestion } from "../../data/predictionDataService";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { COMPETENCY_FLOOR, isCompetencyQuestion, type PerTopicPool } from "./multiTopicPractice";

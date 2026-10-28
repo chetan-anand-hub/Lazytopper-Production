@@ -300,3 +300,78 @@
     display: inline-flex;
   }
 }
+
+/* PARENTS-PAY-1 — the price and how a parent pays. Figures arrive after mount; the slot holds their height. */
+.lt-fp .lt-fp__price {
+  background: var(--fp-card);
+  border: 1px solid var(--fp-line);
+  border-radius: 16px;
+  box-shadow: var(--fp-sh);
+  padding: 20px 16px;
+}
+.lt-fp__price-slot {
+  min-height: 132px;
+  margin: 8px 0 4px;
+}
+.lt-fp__price-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0;
+}
+.lt-fp__price-name {
+  font-weight: 700;
+}
+.lt-fp__price-amt {
+  font-family: var(--fp-serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--fp-gt);
+}
+.lt-fp__price-once {
+  color: var(--fp-ink2);
+  font-size: 14px;
+}
+.lt-fp .lt-fp__price-day {
+  margin: 2px 0 8px;
+  font-weight: 600;
+}
+.lt-fp .lt-fp__price-alt {
+  margin: 0 0 4px;
+  color: var(--fp-ink2);
+}
+.lt-fp__price h3 {
+  font-size: 18px;
+  margin: 14px 0 8px;
+}
+.lt-fp__price-steps {
+  margin: 0 0 14px;
+  padding-left: 20px;
+  color: var(--fp-ink2);
+}
+.lt-fp__price-steps li {
+  margin-bottom: 6px;
+}
+.lt-fp .lt-fp__price .lt-founder-badge {
+  margin: 10px 0 0;
+}
+.lt-fp .lt-fp__cta--pay {
+  width: 100%;
+}
+.lt-fp .lt-fp__price-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--fp-ink3);
+}
+@media (min-width: 760px) {
+  .lt-fp .lt-fp__price {
+    padding: 24px 26px;
+  }
+  .lt-fp__price-slot {
+    min-height: 104px;
+  }
+  .lt-fp .lt-fp__cta--pay {
+    width: auto;
+  }
+}

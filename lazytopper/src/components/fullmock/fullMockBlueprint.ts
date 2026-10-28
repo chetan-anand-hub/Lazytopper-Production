@@ -51,7 +51,7 @@ import {
   sciencePredictedQuestions,
   type SciencePredictedQuestion,
 } from "../../data/predictedQuestionsScience";
-import { SYLLABUS_2026_27, chapterUnit } from "../../config/syllabus2026-27";
+import { SYLLABUS_UNITS, chapterUnit } from "../../config/syllabusUnits2026-27";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
@@ -245,7 +245,7 @@ const syllabusSubject = (subject: FMSubject): "maths" | "science" => (subject ==
 export function fullMockChapterWeights(subject: FMSubject): FMChapterWeight[] {
   const out: FMChapterWeight[] = [];
   const seen = new Set<string>();
-  for (const unit of SYLLABUS_2026_27[syllabusSubject(subject)].units) {
+  for (const unit of SYLLABUS_UNITS[syllabusSubject(subject)]) {
     for (const key of unit.chapters) {
       const candidate = resolveCanonicalSlug(key);
       const meta = candidate ? desktopTopicBySlug(candidate) : undefined;
@@ -265,7 +265,7 @@ export function fullMockChapterWeights(subject: FMSubject): FMChapterWeight[] {
 
 /** The subject's CBSE units with their marks, in CBSE order (the one reference). */
 export function fullMockUnits(subject: FMSubject): Array<{ unit: string; name: string; marks: number }> {
-  return SYLLABUS_2026_27[syllabusSubject(subject)].units.map((u) => ({
+  return SYLLABUS_UNITS[syllabusSubject(subject)].map((u) => ({
     unit: u.unit,
     name: u.name,
     marks: u.marks,
