@@ -1,20 +1,34 @@
-/* PacksStrip - scoped under .lt-packoffer. A real offer section: 2x2 tiles on a phone, one row from 720px. */
-.lt-packoffer { max-width: 1040px; margin: 32px auto 0; padding: 22px 16px; background: #fff; border: 1px solid #dbe2ea; border-radius: 20px; font-family: Inter, system-ui, sans-serif; color: #0f1b2d; box-sizing: border-box; box-shadow: 0 6px 24px rgba(15, 27, 45, 0.06); }
+/* PacksStrip - the ladder to Premium (PRICING-LADDER-1). Scoped under .lt-packoffer. Deliberately quieter than the Premium card: a flat
+   white panel with a hairline border and no shadow, so the packs read as the visible second step and never out-shout the Board Pass.
+   Tiles: 2x2 on a phone, one row of four from 720px. Every tile is a link (min 44px target). */
+.lt-packoffer { max-width: 1040px; width: 100%; margin: 0 auto; padding: 22px 16px 20px; background: #fff; border: 1px solid #dbe2ea; border-radius: 20px; font-family: Inter, system-ui, sans-serif; color: #0f1b2d; box-sizing: border-box; }
 .lt-packoffer *, .lt-packoffer { box-sizing: border-box; }
-.lt-packoffer__title { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
-.lt-packoffer__sub { margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: #2f3e55; }
-.lt-packoffer__list { list-style: none; margin: 18px 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.lt-packoffer__item { display: flex; flex-direction: column; gap: 4px; padding: 14px; border: 1px solid #c5cfdb; border-radius: 14px; background: #f6f8fb; min-width: 0; }
-.lt-packoffer__item--best { border: 2px solid #3fbf82; padding: 13px; background: #fff; }
-.lt-packoffer__name { font-size: 16px; font-weight: 700; color: #136b43; line-height: 1.25; }
-.lt-packoffer__price { font-family: Fraunces, Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1.1; }
-.lt-packoffer__what { font-size: 15px; line-height: 1.4; color: #2f3e55; }
-.lt-packoffer__link { display: flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 22px; border: 2px solid #15233a; border-radius: 14px; background: #fff; color: #15233a; font-size: 17px; font-weight: 700; text-decoration: none; }
+.lt-packoffer__title { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 21px; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; color: #15233a; overflow-wrap: anywhere; }
+.lt-packoffer__sub { margin: 6px 0 0; font-size: 15px; line-height: 1.45; color: #3d4c63; }
+.lt-packoffer__list { list-style: none; margin: 16px 0 14px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.lt-packoffer__cell { display: flex; min-width: 0; }
+.lt-packoffer__item { display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; padding: 14px 13px; border: 1px solid #d3dbe6; border-radius: 14px; background: #f7f9fc; color: inherit; text-decoration: none; transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease; }
+.lt-packoffer__item:hover { background: #fff; border-color: hsl(152, 55%, 45%); transform: translateY(-1px); }
+.lt-packoffer__item:focus-visible { outline: 3px solid #0e7c47; outline-offset: 2px; }
+.lt-packoffer__item--best { background: #fff; border-color: hsl(152, 55%, 45%); }
+.lt-packoffer__name { font-size: 15px; font-weight: 700; color: #0e6a3e; line-height: 1.25; }
+.lt-packoffer__price { font-family: Fraunces, Georgia, serif; font-size: 26px; font-weight: 700; line-height: 1.1; color: #15233a; }
+.lt-packoffer__what { font-size: 14px; line-height: 1.4; color: #3d4c63; overflow-wrap: anywhere; }
+.lt-packoffer__foot { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.lt-packoffer__credit { margin: 0; padding: 10px 14px; border-radius: 12px; background: #eef8f2; border: 1px solid #cfe8da; color: #0b5a35; font-size: 15px; font-weight: 600; line-height: 1.4; text-align: center; }
+.lt-packoffer__link { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 1.5px solid #15233a; border-radius: 12px; background: #fff; color: #15233a; font-size: 16px; font-weight: 700; text-decoration: none; }
 .lt-packoffer__link:hover { background: #15233a; color: #fff; }
-.lt-packoffer__link:focus-visible { outline: 3px solid #136b43; outline-offset: 2px; }
+.lt-packoffer__link:focus-visible { outline: 3px solid #0e7c47; outline-offset: 2px; }
 @media (min-width: 720px) {
-  .lt-packoffer { padding: 28px 28px 26px; }
-  .lt-packoffer__title { font-size: 30px; }
-  .lt-packoffer__list { grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  .lt-packoffer__link { display: inline-flex; min-width: 260px; }
+  .lt-packoffer { padding: 26px 28px 24px; }
+  .lt-packoffer__title { font-size: 26px; }
+  .lt-packoffer__sub { font-size: 16px; }
+  .lt-packoffer__list { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .lt-packoffer__foot { flex-direction: row; align-items: center; justify-content: space-between; gap: 18px; }
+  .lt-packoffer__credit { text-align: left; flex: 1 1 auto; }
+  .lt-packoffer__link { display: inline-flex; flex: 0 0 auto; min-width: 220px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lt-packoffer__item { transition: none; }
+  .lt-packoffer__item:hover { transform: none; }
 }
