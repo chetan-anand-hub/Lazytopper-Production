@@ -16,7 +16,6 @@ const mount = (entry: string) => {
     </MemoryRouter>,
   );
 };
-const flushFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
 afterEach(() => {
   cleanup();
@@ -30,20 +29,48 @@ describe("PacksStrip anchor", () => {
     mount("/pricing");
     expect(screen.getByTestId("pricing-packs-strip")).toHaveAttribute("id", "packs");
   });
-  it("scrolls itself into view (nearest, so the Board Pass above stays on screen) when the hash is #packs", async () => {
-    mount("/pricing#packs");
-    await flushFrame();
-    expect(scrollIntoView).toHaveBeenCalledTimes(1);
-    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+  it("scrolls the strip's TOP to the viewport top on mount, then re-asserts after layout settles", () => {
+    vi.useFakeTimers();
+    try {
+      mount("/pricing#packs");
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" });
+      const afterMount = scrollIntoView.mock.calls.length;
+      vi.advanceTimersByTime(50);
+      expect(scrollIntoView.mock.calls.length).toBeGreaterThan(afterMount);
+      const afterFrames = scrollIntoView.mock.calls.length;
+      vi.advanceTimersByTime(300);
+      expect(scrollIntoView.mock.calls.length).toBeGreaterThan(afterFrames);
+      const after300 = scrollIntoView.mock.calls.length;
+      vi.advanceTimersByTime(700);
+      expect(scrollIntoView.mock.calls.length).toBeGreaterThan(after300);
+      const done = scrollIntoView.mock.calls.length;
+      vi.advanceTimersByTime(5000);
+      expect(scrollIntoView.mock.calls.length).toBe(done);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it.each(["wheel", "touchstart", "keydown"])("stops re-asserting as soon as the student sends %s", (type) => {
+    vi.useFakeTimers();
+    try {
+      mount("/pricing#packs");
+      vi.advanceTimersByTime(50);
+      const before = scrollIntoView.mock.calls.length;
+      window.dispatchEvent(new Event(type));
+      vi.advanceTimersByTime(5000);
+      expect(scrollIntoView.mock.calls.length).toBe(before);
+    } finally {
+      vi.useRealTimers();
+    }
   });
   it("CONTROL: does not scroll without the hash, or for paid Premium", async () => {
     mount("/pricing");
-    await flushFrame();
+    await new Promise((r) => setTimeout(r, 1000));
     expect(scrollIntoView).not.toHaveBeenCalled();
     cleanup();
     paid.value = true;
     mount("/pricing#packs");
-    await flushFrame();
+    await new Promise((r) => setTimeout(r, 1000));
     expect(scrollIntoView).not.toHaveBeenCalled();
   });
 });

@@ -372,6 +372,7 @@
     "src/components/practice/surfaceReachability.guard.test.ts",
     "src/components/pricing/BasicFreeList.test.tsx",
     "src/components/pricing/BoardPassLine.test.tsx",
+    "src/components/pricing/PacksStrip.hash.test.tsx",
     "src/components/pricing/PassCheckout.recover.test.tsx",
     "src/components/pricing/PassCheckout.test.tsx",
     "src/components/pricing/PassCheckout.track2.test.tsx",
