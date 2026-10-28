@@ -19,6 +19,9 @@ import {
   objectiveQuestions,
   subjectiveQuestions,
   chapterTestSectionFor,
+  blueprintRowArithmetic,
+  describeChapterTestPaper,
+  uniformMarksOf,
 } from "./chapterTestBlueprint";
 
 const draw = (seed: number) =>
@@ -194,5 +197,46 @@ describe("chapterTestSectionFor — the SURFACE-1 band + bar (1-mark VSA in, mis
     expect(chapterTestSectionFor({ ...keyed, id: "SYN-MCQ-BAD-2", answer: "A. 3 × 5 × 17 1" })).toBeNull();
     // An MCQ with an EMPTY key is likewise excluded, never guessed at.
     expect(chapterTestSectionFor({ ...keyed, id: "SYN-MCQ-NOKEY", answer: "" })).toBeNull();
+  });
+});
+
+describe("COPY-FIXES-2 — the start-screen row arithmetic never multiplies by the nominal marks", () => {
+  it("uniform rows print n × m = total", () => {
+    expect(uniformMarksOf([{ marks: 3 }, { marks: 3 }, { marks: 3 }])).toBe(3);
+    expect(blueprintRowArithmetic({ actualCount: 3, actualMarks: 9, uniformMarks: 3 })).toBe("3 × 3 = 9");
+  });
+
+  it("a mixed Section D row (a 3-mark and a 5-mark, total 8) is NOT printed as 2 × 5 = 8", () => {
+    expect(uniformMarksOf([{ marks: 3 }, { marks: 5 }])).toBeNull();
+    const line = blueprintRowArithmetic({ actualCount: 2, actualMarks: 8, uniformMarks: null });
+    expect(line).toBe("2 questions · 8 marks");
+    // CONTROL — the pre-fix formula (nominal marksEach = 5) produced the false product.
+    expect(`${2} × ${5} = ${8}`).toBe("2 × 5 = 8");
+    expect(line).not.toContain("×");
+  });
+
+  it("a saved paper with mixed Section D marks carries uniformMarks null; uniform rows carry the value", () => {
+    const q = (section: string, marks: number, id: string) =>
+      ({ id, section, marks, questionText: id, topicKey: "real-numbers" }) as never;
+    const facts = describeChapterTestPaper({
+      subject: "Maths",
+      questions: [q("C", 3, "c1"), q("C", 3, "c2"), q("D", 3, "d1"), q("D", 5, "d2")],
+    } as never);
+    const row = (s: string) => facts.blueprint.find((r) => r.section === s)!;
+    expect(row("C").uniformMarks).toBe(3);
+    expect(blueprintRowArithmetic(row("C"))).toBe("2 × 3 = 6");
+    expect(row("D").uniformMarks).toBeNull();
+    expect(blueprintRowArithmetic(row("D"))).toBe("2 questions · 8 marks");
+    expect(row("A").uniformMarks).toBeNull(); // empty row: the page shows "none available yet"
+  });
+
+  it("every row of a real draw prints a line that is arithmetically true", () => {
+    const d = draw(11);
+    for (const row of d.blueprint.filter((r) => r.actualCount > 0)) {
+      const line = blueprintRowArithmetic(row);
+      const m = line.match(/^(\d+) × (\d+) = (\d+)$/);
+      if (m) expect(Number(m[1]) * Number(m[2])).toBe(Number(m[3]));
+      else expect(line).toMatch(/^\d+ questions? · \d+ marks$/);
+    }
   });
 });

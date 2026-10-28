@@ -297,6 +297,27 @@ export function remainderOf(heroLost: number, rows: ViewRow[]): number {
 }
 
 /**
+ * COPY-FIXES-2 — WHY marks are not traced to a row, said truthfully. `matchedLost` is the marks
+ * lost on answers that DID match a bank row (read model `lostMatched`); the part of it the listed
+ * rows do not cover is "too few answers yet", and only the rest of the remainder is "no bank match".
+ * No matched figure (an older read) keeps the original line: it claims nothing new.
+ */
+export function remainderNote(remainder: number, rows: ViewRow[], matchedLost: number | undefined, noun: string): string {
+  const NO_MATCH = "These count in the total above. They come from answers we could not match to a bank question.";
+  if (typeof matchedLost !== "number") return NO_MATCH;
+  const listed = rows.reduce((total, r) => total + r.lost, 0);
+  const tooFew = Math.min(remainder, Math.max(0, round1(matchedLost - listed)));
+  if (tooFew <= 0.05) return NO_MATCH;
+  if (remainder - tooFew <= 0.05) {
+    return `Not enough answers yet to name ${noun} \u2014 keep practising and it will appear.`;
+  }
+  return (
+    `Some of these come from answers we could not match to a bank question; the rest do not yet ` +
+    `have enough answers to name ${noun} \u2014 keep practising and they will appear.`
+  );
+}
+
+/**
  * The `?concept=` value for a Topic Hub arrival, or null.
  *
  * `BoardConcept` is `{name, oneLineUse, marks}` - it has NO key field, so a concept's
@@ -814,6 +835,12 @@ export default function MeProgressPage() {
   const remainder = remainderOf(heroLost, activeRows);
   const remainderNoun =
     slicer === "concepts" ? "a concept" : slicer === "sections" ? "a section" : "a chapter";
+  const remainderNoteText = remainderNote(
+    remainder,
+    activeRows,
+    data?.lostMatched?.[slicer === "concepts" ? "concepts" : slicer === "sections" ? "sections" : "chapters"],
+    remainderNoun,
+  );
 
   const visibleChapters = showAllChapters ? chapters : chapters.slice(0, START_HERE_VISIBLE);
 
@@ -1261,7 +1288,7 @@ export default function MeProgressPage() {
                       />
                     </li>
                   ))}
-                  <RemainderRow marks={remainder} noun={remainderNoun} />
+                  <RemainderRow marks={remainder} noun={remainderNoun} note={remainderNoteText} />
                 </ul>
               ) : slicer === "sections" ? (
                 <ul className="lt-me__rows" data-testid="me-view-sections">
@@ -1283,7 +1310,7 @@ export default function MeProgressPage() {
                       />
                     </li>
                   ))}
-                  <RemainderRow marks={remainder} noun={remainderNoun} />
+                  <RemainderRow marks={remainder} noun={remainderNoun} note={remainderNoteText} />
                 </ul>
               ) : (
                 <ul className="lt-me__rows" data-testid="me-view-chapters">
@@ -1351,7 +1378,7 @@ export default function MeProgressPage() {
                         </li>
                       );
                     })}
-                  <RemainderRow marks={remainder} noun={remainderNoun} />
+                  <RemainderRow marks={remainder} noun={remainderNoun} note={remainderNoteText} />
                 </ul>
               )}
             </div>
@@ -1399,7 +1426,7 @@ export default function MeProgressPage() {
  * remainder - a zero remainder row would be noise, and a negative one is impossible
  * because every view is a partition of the same graded stream.
  */
-function RemainderRow({ marks, noun }: { marks: number; noun: string }) {
+function RemainderRow({ marks, noun, note }: { marks: number; noun: string; note: string }) {
   if (marks <= 0) return null;
   return (
     <li className="lt-me__row lt-me__row--rest" data-testid="me-remainder">
@@ -1407,8 +1434,7 @@ function RemainderRow({ marks, noun }: { marks: number; noun: string }) {
         <MarksWord value={marks} /> not yet traced to {noun}
       </span>
       <span className="lt-me__row-note">
-        These count in the total above. They come from answers we could not match to a
-        bank question.
+        {note}
       </span>
     </li>
   );
@@ -1435,6 +1461,9 @@ function JourneyLine({ rung }: { rung: RungTrend | null }) {
   ) {
     return null;
   }
+  // COPY-FIXES-2 — a "keeping more/less of what you attempt" claim needs work from at least two
+  // different days; two attempts minutes apart are one sitting, not a trend (no premature insight).
+  if (typeof rung?.activeDays === "number" && rung.activeDays < 2) return null;
   const rising = nowScored / nowAvailable > beforeScored / beforeAvailable;
   const level = nowScored / nowAvailable === beforeScored / beforeAvailable;
   return (

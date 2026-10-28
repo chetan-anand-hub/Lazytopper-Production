@@ -238,6 +238,9 @@ export interface ProgressTrend {
    *  relative to the window (isShortSpan), the consumer labels the trend honestly
    *  as short-term rather than claiming the whole window. */
   spanDays: number;
+  /** COPY-FIXES-2 — distinct IST calendar days the used points fall on (≥1). Optional only so a
+   *  hand-built trend stays valid; every real trend carries it (it is spread from SplitTrend). */
+  activeDays?: number;
   /** RAW MARKS across the whole measurable window (both halves) — the denomination
    *  the Me/Progress page speaks in ("N marks on the table", "51 secured"). Always
    *  present: every ProgressTrend is produced by spreading a SplitTrend. */
@@ -333,6 +336,8 @@ interface SplitTrend {
   sampleBefore: number;
   sampleNow: number;
   spanDays: number;
+  /** COPY-FIXES-2 — distinct IST calendar days the used points fall on (≥1). */
+  activeDays: number;
   marksScored: number;
   marksAvailable: number;
   marksScoredBefore: number;
@@ -373,6 +378,7 @@ function splitTrendOf(points: MarkPoint[]): SplitTrend | null {
     sampleBefore: before.sample,
     sampleNow: later.sample,
     spanDays,
+    activeDays: new Set(usable.map((p) => istDayStartMs(p.ts))).size,
     // Raw marks, carried alongside the percentages (never replacing them). The
     // whole-window totals are the sum of the two halves BY CONSTRUCTION: `usable`
     // is filtered to available>0 and then split with no remainder, so
@@ -519,6 +525,8 @@ export interface RungTrend {
   /** Days between the first and last point this rung actually used (≥1) — the honest
    *  span for the short-term-trend label (see isShortSpan). */
   spanDays: number;
+  /** COPY-FIXES-2 — distinct IST calendar days the rung's points fall on (marks rungs only). */
+  activeDays?: number;
   /** RAW MARKS across the whole measurable window for this rung — what the
    *  Me/Progress page renders ("7 of 12 lost", the 80-mark bar). Percentages stay
    *  in before/now; these do not replace them.
@@ -657,6 +665,10 @@ export interface WindowedProgress {
   /** ME-CONCEPT-1 — won-back / mistake-resolution evidence for the read model (absent on an
    *  empty read). Not a figure; never rendered. */
   conceptEvidence?: ConceptEvidence;
+  /** COPY-FIXES-2 — marks lost on answers that matched a bank concept / section / chapter, whether
+   *  or not that row has enough answers yet to be listed. Me's "not yet traced" row reads it to say
+   *  "too few answers yet" only when that is the reason. Absent on an empty read. Not a figure. */
+  lostMatched?: { concepts: number; sections: number; chapters: number };
   /** MI-CONSISTENCY-1 — the wrong objective picks behind `marksWrongObjective`, one per graded
    *  point, with the question id it was recorded under ("" when the attempt carried none), per
    *  paper. Lets the MI card count a pick as a "wrong MCQ tap" only when no TYPED mistake entry
@@ -1016,10 +1028,18 @@ function buildConceptSectionRungs(
   conceptForQuestionId: BankLookup,
   rowOf: ConceptRowOf,
   topicFilter?: string,
-): { concepts: ConceptRung[]; sections: RungTrend[]; evidence: ConceptEvidence } {
+): {
+  concepts: ConceptRung[];
+  sections: RungTrend[];
+  evidence: ConceptEvidence;
+  /** COPY-FIXES-2 — marks lost on answers that DID match a bank concept / section row (whether or
+   *  not the row has enough answers to show). Lets Me tell "too few answers yet" from "no bank match". */
+  lostMatched: { concepts: number; sections: number };
+} {
   const conceptPts = new Map<string, { ref: ConceptRowRef; chapters: Set<string>; pts: MarkPoint[] }>();
   const sectionPts = new Map<string, MarkPoint[]>();
   const evidence: ConceptEvidence = { bankIdBySessionQid: {}, fullyCorrect: {} };
+  const lostMatched = { concepts: 0, sections: 0 };
 
   const add = (
     c: BankConcept,
@@ -1034,7 +1054,9 @@ function buildConceptSectionRungs(
     // into a per-topic view. Canonical compare on BOTH sides (one vocabulary).
     if (topicFilter && canonicalKey(c.topicKey) !== topicFilter) return;
     const ref = rowOf(c);
+    const lostHere = Math.max(0, Number(available) - Number(scored));
     if (ref) {
+      lostMatched.concepts += lostHere;
       const g = conceptPts.get(ref.key) ?? { ref, chapters: new Set<string>(), pts: [] };
       g.chapters.add(canonicalKey(ref.chapter) || ref.chapter);
       g.pts.push({ ts, scored, available });
@@ -1046,6 +1068,7 @@ function buildConceptSectionRungs(
     }
     const sec = normalizeSection(c.section);
     if (sec) {
+      lostMatched.sections += lostHere;
       const arr = sectionPts.get(sec) ?? [];
       arr.push({ ts, scored, available });
       sectionPts.set(sec, arr);
@@ -1113,7 +1136,7 @@ function buildConceptSectionRungs(
   }
   sections.sort((a, b) => a.key.localeCompare(b.key));
 
-  return { concepts, sections, evidence };
+  return { concepts, sections, evidence, lostMatched };
 }
 
 /** Four-type mistake COMPOSITION share (%) before→now, from the IDEMPOTENT
@@ -1304,7 +1327,7 @@ export async function getWindowedProgress(
     conceptNeeded,
   );
   const unified = buildUnifiedGradedPoints(winAttempts, winRecords, payloads, bankLookup, topicFilter);
-  const { concepts, sections, evidence } = buildConceptSectionRungs(
+  const { concepts, sections, evidence, lostMatched } = buildConceptSectionRungs(
     winAttempts,
     winRecords,
     payloads,
@@ -1329,6 +1352,11 @@ export async function getWindowedProgress(
     topics: buildTopicRung(unified),
     concepts,
     conceptEvidence: evidence,
+    lostMatched: {
+      concepts: lostMatched.concepts,
+      sections: lostMatched.sections,
+      chapters: unified.reduce((sum, p) => (p.topicKey ? sum + Math.max(0, p.available - p.scored) : sum), 0),
+    },
     ...wrongObjectiveEvidenceOf(unified),
     sections,
     mistakeTypes: buildMistakeTypeRung(winRecords),

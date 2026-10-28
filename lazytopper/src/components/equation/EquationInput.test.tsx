@@ -1,6 +1,8 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
 import { useState } from "react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { EquationInput } from "./EquationInput";
 
 // EquationInput is a DROP-IN controlled textarea + math palette. These tests pin the
@@ -55,6 +57,21 @@ describe("EquationInput", () => {
     cleanup();
     const math = render(<Harness initial="Area = x^2" />);
     expect(math.queryByText("Preview")).not.toBeNull();
+  });
+
+  it("COPY-FIXES-2 — the preview keeps the student's line breaks (text intact + pre-wrap in the CSS)", () => {
+    const typed = "96 = 2^5 x 3\n404 = 2^2 x 101\nHCF = 2^2 = 4";
+    const view = render(<Harness initial={typed} />);
+    const body = view.container.querySelector(".lt-eq__preview-body");
+    expect(body, "the preview body renders").not.toBeNull();
+    expect(body!.textContent!.split("\n")).toHaveLength(3); // the three lines reach the DOM as lines ...
+    // ... and the rule that stops the browser collapsing them is on the preview body.
+    // CONTROL — without `white-space: pre-wrap` the three lines would render as one.
+    const css = readFileSync(resolve(process.cwd(), "src/components/equation/equation.css"), "utf8");
+    const rule = css.match(/\.lt-eq__preview-body\s*\{([^}]*)\}/);
+    expect(rule, "the .lt-eq__preview-body rule exists").not.toBeNull();
+    expect(rule![1]).toMatch(/white-space:\s*pre-wrap/);
+    expect(rule![1]).toMatch(/word-break:\s*break-word/); // long lines still wrap at 320px
   });
 
   it("FIX B — wraps the SELECTED base: selecting x then tapping squared yields x^2", () => {

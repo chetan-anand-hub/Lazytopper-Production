@@ -170,8 +170,29 @@ const UNLIMITED = /unlimited/i;
 const PRICING_COMPARE = "src/config/pricingCompare.ts";
 const OWNER_RULED_UNLIMITED = new Set([
   "Unlimited chapter tests and mocks to open or download",
-  "Unlimited",
 ]);
+
+/**
+ * The bare "Unlimited" cell is owner-ruled ONLY on a row about OPENING papers (DECISION_LOG,
+ * 15 Oct). Download and graded-Quick-Practice rows say "Included". So a bare "Unlimited" is
+ * allowed only when the nearest `label:` at or above it starts with "Open".
+ */
+function bareUnlimitedOffOpenRows(source: string): string[] {
+  const lines = source.split("\n");
+  const bad: string[] = [];
+  lines.forEach((line, i) => {
+    if (!/["']Unlimited["']/.test(line)) return;
+    for (let j = i; j >= 0 && j >= i - 6; j--) {
+      const m = lines[j].match(/label:\s*["'`]([^"'`]*)/);
+      if (m) {
+        if (!/^Open\b/.test(m[1])) bad.push(`${m[1]} -> ${line.trim()}`);
+        return;
+      }
+    }
+    bad.push(`(no label) -> ${line.trim()}`);
+  });
+  return bad;
+}
 
 function unlimitedHits(): string[] {
   const authDir = resolvePath(process.cwd(), "src/components/auth");
@@ -184,11 +205,15 @@ function unlimitedHits(): string[] {
   ];
   const hits: string[] = [];
   for (const file of files) {
-    const allowed = file === resolvePath(process.cwd(), PRICING_COMPARE) ? OWNER_RULED_UNLIMITED : new Set<string>();
+    const isCompare = file === resolvePath(process.cwd(), PRICING_COMPARE);
+    const allowed = isCompare ? OWNER_RULED_UNLIMITED : new Set<string>();
     for (const text of studentFacingStrings(readSourceFile(file, "utf8"))) {
+      // The bare "Unlimited" cell is judged by its ROW (bareUnlimitedOffOpenRows, below), not by its text.
+      if (isCompare && text.trim() === "Unlimited") continue;
       if (UNLIMITED.test(text) && !allowed.has(text.trim())) hits.push(`${file}: ${JSON.stringify(text.trim())}`);
     }
   }
+  hits.push(...bareUnlimitedOffOpenRows(readSourceFile(resolvePath(process.cwd(), PRICING_COMPARE), "utf8")));
   return hits;
 }
 
@@ -219,7 +244,7 @@ describe("OR-P3 — no 'unlimited' claim in student-facing copy", () => {
     const compareSource = readSourceFile(resolvePath(process.cwd(), PRICING_COMPARE), "utf8");
     const found = studentFacingStrings(compareSource).filter((s) => UNLIMITED.test(s)).map((s) => s.trim());
     // CONTROL — the scan really reads the file and sees both owner-ruled strings.
-    expect(new Set(found)).toEqual(OWNER_RULED_UNLIMITED);
+    expect(new Set(found)).toEqual(new Set([...OWNER_RULED_UNLIMITED, "Unlimited"]));
     const { PREMIUM_PLUS, compareSections } = await import("../../config/pricingCompare");
     expect(PREMIUM_PLUS.filter((i) => UNLIMITED.test(i.label)).map((i) => i.label)).toEqual([
       "Unlimited chapter tests and mocks to open or download",
@@ -229,6 +254,17 @@ describe("OR-P3 — no 'unlimited' claim in student-facing copy", () => {
       .filter((r) => JSON.stringify([r.basic, r.premium]).match(UNLIMITED))
       .map((r) => r.label);
     expect(unlimitedRows).toEqual(["Open or download chapter tests and full mocks"]);
+  });
+
+  it("COPY-FIXES-2 — bare 'Unlimited' is allowed only on an Open... row; the old download / graded-QP cells fail", () => {
+    const compareSource = readSourceFile(resolvePath(process.cwd(), PRICING_COMPARE), "utf8");
+    expect(bareUnlimitedOffOpenRows(compareSource)).toEqual([]);
+    // CONTROL — the pre-fix cells (Unlimited on Download papers / Graded Quick Practice) are caught.
+    const oldDownload = '{ label: "Download papers", basic: text(x), premium: yesNote("Unlimited") },';
+    const oldGraded = '{ label: "Graded Quick Practice sets", basic: text(x), premium: yesNote("Unlimited") },';
+    expect(bareUnlimitedOffOpenRows(oldDownload)).toHaveLength(1);
+    expect(bareUnlimitedOffOpenRows(oldGraded)).toHaveLength(1);
+    expect(bareUnlimitedOffOpenRows(compareSource.replace('yesNote("Included") },\n              { label: "Graded', 'yesNote("Unlimited") },\n              { label: "Graded'))).toHaveLength(1);
   });
 
   it("CONTROL — the scan reaches the files OR-P3 reworded", () => {

@@ -46,6 +46,7 @@ import {
 import {
   drawChapterTest,
   describeChapterTestPaper,
+  blueprintRowArithmetic,
   type ChapterTestPaperFacts,
   objectiveQuestions,
   subjectiveQuestions,
@@ -1186,7 +1187,7 @@ export default function ChapterTestPage() {
                           </span>
                           <span className="lt-ct__bp-meta">
                             {row.actualCount > 0
-                              ? `${row.actualCount} × ${row.marksEach} = ${row.actualMarks} · ${
+                              ? `${blueprintRowArithmetic(row)} · ${
                                   row.autoGraded ? "scored instantly" : "write & upload"
                                 }`
                               : "none available yet"}

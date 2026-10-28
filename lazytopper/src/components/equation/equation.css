@@ -152,6 +152,8 @@
   color: var(--lt-eq-ink);
   line-height: 1.6;
   word-break: break-word;
+  /* COPY-FIXES-2: the student's own line breaks survive in the preview (as on the results page). */
+  white-space: pre-wrap;
 }
 
 /* ── 360px: full-width keys, larger tap targets, roomier drawer ── */
