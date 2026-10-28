@@ -1,12 +1,7 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { lazy, Suspense, useState, useEffect, useRef, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
-import { PacksEntry } from "../../lib/packs/packEntryLazy";
-import { boardPassOffer, boardPassShortLine } from "../pricing/boardPassOffer";
-import { predictCbseExamDate } from "../../services/cbseExamDate";
-import "../limits/limits.css";
-import "./MockViewGate.css";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 
@@ -153,25 +148,13 @@ function dailyLimitFor(signedIn: boolean): number {
   return signedIn ? SIGNED_IN_DAILY_MOCK_LIMIT : ANON_DAILY_MOCK_LIMIT;
 }
 
-/**
- * PACK-LINKS-1: the ask on the two paper-open cap walls. The Board Pass leads (real price from
- * config/pricing.ts via boardPassOffer), a month pass is second, and the matching pack (Mock Pack on a
- * Full Mock, Chapter Pack on a Chapter Test, plain /packs elsewhere) is the quiet last line.
- */
+/** PACK-LINKS-1: the ask on the cap walls, in its own lazy chunk (the gate is eager; the Board Pass quote and pack link are not). */
+const PaperCapAskLazy = lazy(() => import("./PaperCapAsk"));
 function PaperCapAsk({ returnTo }: { returnTo: string }) {
-  const offer = boardPassOffer(new Date(), predictCbseExamDate("10"));
-  const pricing = (source: string) => `/pricing?source=${source}&returnTo=${encodeURIComponent(returnTo)}`;
   return (
-    <div className="lt-mvg-ask" data-testid="paper-cap-ask">
-      <Link className="lt-mvg-cta" to={pricing("paper-cap")} data-testid="paper-cap-boardpass">
-        {boardPassShortLine(offer)}
-      </Link>
-      <p className="lt-mvg-detail">{offer.detail}</p>
-      <Link className="lt-mvg-month" to={pricing("paper-cap-month")} data-testid="paper-cap-month">
-        Or {offer.monthlyLine}
-      </Link>
-      <PacksEntry kind="wall" chapter={null} light />
-    </div>
+    <Suspense fallback={null}>
+      <PaperCapAskLazy returnTo={returnTo} />
+    </Suspense>
   );
 }
 

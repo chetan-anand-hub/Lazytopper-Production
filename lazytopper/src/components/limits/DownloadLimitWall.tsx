@@ -12,7 +12,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
-import { WallCoverContext } from "../../lib/packs/packEntry";
+import { WallCoverContext } from "../../lib/packs/wallCover";
 import type { DownloadCover } from "../../services/limitsClient";
 import { blockedPracticeCopy, blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
 import "./limits.css";
@@ -45,7 +45,6 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
   const here = `${location.pathname}${location.search}`;
   // PACKS-ENTRY-1 (a): a quiet second line under the Board Pass actions, only for the download wall.
   const showPackLink = variant === "blocked" && flavor === "download";
-  const wallCover = cover ? { chapters: cover.chapters ?? [], subject: cover.subject ?? null } : null;
 
   const dismiss = useCallback(() => {
     onClose();
@@ -137,7 +136,7 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
           </button>
         </div>
         {showPackLink && (
-          <WallCoverContext.Provider value={wallCover}>
+          <WallCoverContext.Provider value={cover ?? null}>
             <PacksEntry kind="wall" chapter={chapter} light={tier === "trial"} />
           </WallCoverContext.Provider>
         )}
