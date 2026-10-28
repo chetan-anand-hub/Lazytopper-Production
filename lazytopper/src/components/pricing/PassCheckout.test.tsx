@@ -484,17 +484,17 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
 
 /* ── PACK-CREDIT-1 · the credit line (every number is the SERVER's) ───────────────── */
 describe("PACK-CREDIT-1 · the Board Pass credit line", () => {
-  const CREDIT = { creditInr: 49, expiresAtMs: Date.parse("2026-11-01T10:00:00.000Z"), payInr: 550 };
-  const LINE = "Your pack credit: ₹49 off — Board Pass ₹550 for you, till 1 November 2026";
+  const CREDIT = { creditInr: 49, expiresAtMs: Date.parse("2026-11-01T15:50:00.000Z"), payInr: 550 };
+  const LINE = "Your pack credit: ₹49 off — Board Pass ₹550 for you, till 1 Nov, 9:20 pm IST";
 
   it("signed in with a credit: shows the owner's line, the price straight from the server, the date in IST", () => {
     view({ signedIn: true, packCredit: CREDIT });
     expect(screen.getByTestId("pass-checkout-pack-credit").textContent).toBe(LINE);
   });
 
-  it("the date is the IST calendar day (a late-evening UTC instant rolls to the next IST day)", () => {
+  it("the deadline is IST to the minute (a late-evening UTC instant rolls to the next IST day)", () => {
     view({ signedIn: true, packCredit: { ...CREDIT, expiresAtMs: Date.parse("2026-11-01T19:00:00.000Z") } });
-    expect(screen.getByTestId("pass-checkout-pack-credit").textContent).toContain("till 2 November 2026");
+    expect(screen.getByTestId("pass-checkout-pack-credit").textContent).toContain("till 2 Nov, 12:30 am IST");
   });
 
   it("hidden when there is no credit, when signed out, and while a Premium pass is active", () => {
@@ -518,7 +518,7 @@ describe("PACK-CREDIT-1 · the Board Pass credit line", () => {
 describe("PACK-CREDIT-1 · the connected buy area shows the SERVER's credit", () => {
   it("signed in: the credit line comes from /api/packs/mine; signed out: it is never asked for", async () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
-    mockMine.credit = { creditInr: 49, expiresAtMs: Date.parse("2026-11-01T10:00:00.000Z"), payInr: 550 };
+    mockMine.credit = { creditInr: 49, expiresAtMs: Date.parse("2026-11-01T15:50:00.000Z"), payInr: 550 };
     mockAuth.user = null;
     const out = render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
     expect(screen.queryByTestId("pass-checkout-pack-credit")).toBeNull();
@@ -526,7 +526,7 @@ describe("PACK-CREDIT-1 · the connected buy area shows the SERVER's credit", ()
     mockAuth.user = { uid: "u1" };
     render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
     const line = await screen.findByTestId("pass-checkout-pack-credit");
-    expect(line.textContent).toBe("Your pack credit: ₹49 off — Board Pass ₹550 for you, till 1 November 2026");
+    expect(line.textContent).toBe("Your pack credit: ₹49 off — Board Pass ₹550 for you, till 1 Nov, 9:20 pm IST");
   });
 
   it("an active Premium pass hides it", async () => {

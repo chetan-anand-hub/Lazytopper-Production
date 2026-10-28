@@ -78,9 +78,30 @@ export const CHECK_AGAIN_LABEL = "Check again";
  * credit, the price the student then pays, and the day the credit lapses. The browser subtracts nothing.
  */
 export function packCreditLine(credit: BoardPassCredit): string | null {
-  const till = formatPassDate(new Date(credit.expiresAtMs).toISOString());
+  const till = formatCreditDeadline(credit.expiresAtMs);
   if (!till) return null;
   return `Your pack credit: ₹${credit.creditInr} off — Board Pass ₹${credit.payInr} for you, till ${till}`;
+}
+
+/** "1 Nov, 9:20 pm IST" — the exact instant the credit lapses, in IST. */
+function formatCreditDeadline(ms: number): string | null {
+  if (!Number.isFinite(ms)) return null;
+  const parts = new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  }).formatToParts(new Date(ms));
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const day = get("day");
+  const month = get("month");
+  const hour = get("hour");
+  const minute = get("minute");
+  const period = get("dayPeriod").toLowerCase();
+  if (!day || !month || !hour || !minute || !period) return null;
+  return `${day} ${month}, ${hour}:${minute} ${period} IST`;
 }
 
 /**
