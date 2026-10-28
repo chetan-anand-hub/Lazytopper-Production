@@ -74,6 +74,8 @@ describe("PacksPage", () => {
     expect(screen.getByRole("link", { name: /refund policy/i }).getAttribute("href")).toBe("/legal/refund");
     expect(screen.queryByTestId("packs-mine")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByTestId("founder-badge").textContent).toBe("Made by an IITian (IIT Kanpur)");
+    expect(screen.getByTestId("founder-badge").closest(".lt-packs__copy")).not.toBeNull();
     expect(events.names).toContain("pack_view");
   });
 

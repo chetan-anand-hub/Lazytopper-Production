@@ -58,6 +58,7 @@ import { isPaymentsClientEnabled } from "../services/checkout";
 import { isPacksClientEnabled } from "../services/packs";
 import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
+import FounderBadge from "../components/brand/FounderBadge";
 
 // PACKS-CLIENT-1 — the PDF packs strip is below the fold: its own chunk, mounted after first paint so the
 // prerendered /pricing is unchanged. A failed chunk renders nothing.
@@ -1511,6 +1512,8 @@ function PricingPlansPage() {
               <p className="lt-pricing-subtitle">
                 {paymentsOn ? PRICING_SUBTITLE_PAYMENTS_ON : PRICING_SUBTITLE_PAYMENTS_OFF}
               </p>
+              {/* The pricing band is navy, so the badge uses the dark-background tone. */}
+              <FounderBadge tone="dark" />
             </section>
           </div>
         </div>
