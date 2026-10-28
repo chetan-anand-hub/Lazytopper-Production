@@ -290,6 +290,7 @@
     "src/analytics/analytics.trialBanner.test.ts",
     "src/analytics/analytics.vendor.test.ts",
     "src/analytics/indexHtml.guard.test.ts",
+    "src/analytics/speedInsights.test.ts",
     "src/components/account/AccountDataControls.test.tsx",
     "src/components/account/settingsUsage.test.tsx",
     "src/components/auth/MockViewGate.dailyTiers.test.tsx",
