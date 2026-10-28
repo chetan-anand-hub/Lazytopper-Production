@@ -40,9 +40,22 @@ export const START_HERE_ONE_TAP_COPY = {
  * the ready state has none on screen, so its note points at the Change control instead.
  */
 export const START_HERE_FAIL_COPY = {
+  /** ACTIVATION-1: the "Try one board question" launch could not line up its question. */
+  tryOne: "We couldn't line up a board question just now. Tap 'Change chapter or question type' to pick another.",
   picker: "We couldn't line up five questions for that chapter just now. Try another chapter.",
   pickerWritten: "We couldn't line up a written question for that chapter just now. Try another chapter.",
   ready: "We couldn't line up five questions for that chapter just now. Tap 'Change chapter or question type' to pick another.",
+} as const;
+
+/**
+ * ACTIVATION-1 — the ready state's lead button: ONE typed Science board question, graded by the
+ * existing written path (uses 1 of today's checks, as the picker's "Written" type says).
+ */
+export const START_HERE_TRY_ONE_COPY = {
+  label: "Try one board question now (2 min)",
+  getting: "Getting your question…",
+  /** The ready state's headline while this button leads it (the other states keep START_HERE_COPY.body). */
+  headline: "Answer one real board question and see exactly where your marks slip.",
 } as const;
 
 export type StartHereQType = "mcq" | "ar" | "written";
