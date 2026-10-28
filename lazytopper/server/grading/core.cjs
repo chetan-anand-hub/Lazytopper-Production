@@ -66,12 +66,13 @@ function pageInventoryOf(parsed) {
   return seen.size > 0 ? seen : null;
 }
 const {
-  DEFAULT_GRADING_MODEL, DEFAULT_GRADING_LIGHT_MODEL, GRADING_FALLBACK_MODEL, isModelUnavailable,
+  DEFAULT_GRADING_MODEL, DEFAULT_GRADING_LIGHT_MODEL, GRADING_FALLBACK_MODEL, isModelUnavailable, isThinkingRejected,
 } = require('./modelConfig.cjs');
 
 const SINGLE_MAX_OUTPUT_TOKENS = 16000;
 const SET_MAX_OUTPUT_TOKENS = 32000;
 const FALLBACK_COUNTER = 'grading.model_fallback';
+const THINKING_REJECTED_COUNTER = 'grading.thinking_cap_rejected';
 const PROOF_RE = /\b(prove|proof|show that|hence show|verify that|justify)\b/i;
 
 /** The pick an objective answer ALREADY carries without reading a photo: the option chosen in
@@ -173,6 +174,8 @@ function createGradingCore(deps) {
   const lightModel = String(GRADING_LIGHT_MODEL || DEFAULT_GRADING_LIGHT_MODEL);
   // Per core instance = per server process (one route instance per process).
   const fallback = { active: false, logged: false };
+  // A rejected thinking cap (HTTP 400 naming thinking/budget): per process, stop sending it.
+  const thinkingCap = { rejected: false, logged: false };
 
   function deadlineError(ms) {
     const e = new Error('Grading time budget reached after ' + Math.max(0, Math.round(ms)) + 'ms');
@@ -198,12 +201,23 @@ function createGradingCore(deps) {
     const useFallback = strong && fallback.active && chosenModel !== GRADING_FALLBACK_MODEL;
     const sendModel = useFallback ? GRADING_FALLBACK_MODEL : model;
     const cfg = { ...genConfig };
-    if (strong && !useFallback && chosenThinking !== null) cfg.thinkingConfig = { thinkingBudget: chosenThinking };
+    if (strong && !useFallback && chosenThinking !== null && !thinkingCap.rejected) cfg.thinkingConfig = { thinkingBudget: chosenThinking };
     if (useFallback) telemetry.increment(FALLBACK_COUNTER, 1);
     try {
       const reply = await callGemini(sendModel, contents, cfg);
       return { reply, model: sendModel };
     } catch (err) {
+      // A rejected thinking CAP is not an unavailable MODEL: retry the same call once on the
+      // SAME model without the cap, remember it for the process, never touch `fallback`.
+      if (cfg.thinkingConfig && isThinkingRejected(err)) {
+        thinkingCap.rejected = true;
+        if (!thinkingCap.logged) {
+          thinkingCap.logged = true;
+          console.warn('[grading] thinking cap ' + chosenThinking + ' rejected by ' + sendModel + ' (HTTP 400) — grading continues on the same model without it for the rest of this process; counted as ' + THINKING_REJECTED_COUNTER + '.');
+        }
+        telemetry.increment(THINKING_REJECTED_COUNTER, 1);
+        return callModel(model, contents, genConfig); // cap now omitted; fallback logic still applies
+      }
       if (strong && !useFallback && chosenModel !== GRADING_FALLBACK_MODEL && isModelUnavailable(err)) {
         fallback.active = true;
         if (!fallback.logged) {
@@ -665,5 +679,5 @@ function createGradingCore(deps) {
 
 module.exports = {
   createGradingCore, knownPick, pageInventoryOf, planChunks, subjectModeOf,
-  SINGLE_MAX_OUTPUT_TOKENS, SET_MAX_OUTPUT_TOKENS, FALLBACK_COUNTER,
+  SINGLE_MAX_OUTPUT_TOKENS, SET_MAX_OUTPUT_TOKENS, FALLBACK_COUNTER, THINKING_REJECTED_COUNTER,
 };
