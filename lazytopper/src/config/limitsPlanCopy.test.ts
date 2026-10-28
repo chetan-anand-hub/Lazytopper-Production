@@ -12,7 +12,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { LIMITS_CONFIG as C } from "./limitsConfig";
 import {
-  BASIC_FIRST_GRADED_LINE,
   BASIC_RESULT_LINE,
   basicDownloadCell,
   basicDownloadLine,
@@ -43,7 +42,7 @@ describe("the lines are built from limitsConfig", () => {
     expect(src.match(/["'`][^"'`\n]*\d[^"'`\n]*["'`]/g) || []).toEqual([]);
   });
   it("no rupee, countdown or seat count", () => {
-    const all = [basicDownloadLine(), basicQuickPracticeLine(), BASIC_FIRST_GRADED_LINE, BASIC_RESULT_LINE, trialLimitsSentence()].join(" ");
+    const all = [basicDownloadLine(), basicQuickPracticeLine(), BASIC_RESULT_LINE, trialLimitsSentence()].join(" ");
     expect(all).not.toMatch(/₹|seat|hurry|expires|Gemini|Google/i);
   });
 });
@@ -53,7 +52,7 @@ describe("flag ON: /pricing says the real limits and drops the claim that is no 
     const labels = basicIncludes(true).map((i) => i.label).join(" | ");
     expect(labels).toContain(basicDownloadLine().replace(/^Download/, "download"));
     expect(labels).toContain(basicQuickPracticeLine());
-    expect(labels).toContain(BASIC_FIRST_GRADED_LINE);
+    expect(labels).not.toMatch(/first (graded|of each)/i);
     expect(labels).toContain(BASIC_RESULT_LINE);
     expect(labels).not.toMatch(/Open or download/);
     const lim = basicLimits({ freeCheck: false, limitsOn: true }).map((i) => i.label).join(" | ");
@@ -64,7 +63,7 @@ describe("flag ON: /pricing says the real limits and drops the claim that is no 
     expect(dl?.basic).toEqual({ kind: "text", text: basicDownloadCell() });
     expect(rows.find((r) => r.label === "Graded Quick Practice sets")?.basic).toEqual({ kind: "text", text: basicQuickPracticeCell() });
     expect(rows.find((r) => r.label === "Open or download chapter tests and full mocks")).toBeUndefined();
-    expect(rows.find((r) => r.label === "Chapter tests, mocks and worksheets graded")?.basic).toEqual({ kind: "text", text: "First of each free" });
+    expect(rows.find((r) => r.label === "Chapter tests, mocks and worksheets graded")?.basic).toEqual({ kind: "no" });
   });
   it("the fair-use box carries the trial's real numbers", () => {
     const on = fairUseCopy(undefined, true);
@@ -77,7 +76,6 @@ describe("flag OFF: /pricing is exactly what it was (the limits are not enforced
   it("wording unchanged", () => {
     const labels = basicIncludes(false).map((i) => i.label).join(" | ");
     expect(labels).toMatch(/Open or download \d+ chapter tests or mocks a day/);
-    expect(labels).not.toContain(BASIC_FIRST_GRADED_LINE);
     expect(compareSections({ freeCheck: false, limitsOn: false }).flatMap((s) => s.rows).some((r) => r.label === "Download papers")).toBe(false);
     expect(fairUseCopy(undefined, false)).not.toContain(trialLimitsSentence());
     expect(limitsCopyOn()).toBe(false);
@@ -100,8 +98,31 @@ describe("public/llms.txt states the same limits (a static file, kept in step by
   it("every line is the config-built one", () => {
     expect(llms).toContain(basicDownloadLine());
     expect(llms).toContain(basicQuickPracticeLine());
-    expect(llms).toContain(BASIC_FIRST_GRADED_LINE);
+    expect(llms).not.toMatch(/first graded|first of each kind/i);
     expect(llms).toContain(BASIC_RESULT_LINE);
     expect(llms).toContain(`The 7-day trial includes ${trialLimitsSentence()}.`);
+  });
+});
+
+describe("BASIC-COPY-1: 'first of each graded kind free' is a TRIAL rule, never a Basic promise", () => {
+  const FIRST = /first (graded|of each)/i;
+  it("CONTROL: the regex fires on the old Basic sentences", () => {
+    expect(FIRST.test("Your first graded worksheet, chapter test, full mock and answer check are free")).toBe(true);
+    expect(FIRST.test("the answer-by-answer breakdown is Premium after your first of each kind")).toBe(true);
+    expect(FIRST.test("First of each free")).toBe(true);
+  });
+  it("no Basic-facing string in limitsPlanCopy / pricingCompare matches it (limits on and off)", () => {
+    for (const on of [true, false]) {
+      const strings = [
+        ...basicIncludes(on).map((i) => i.label),
+        ...basicLimits({ freeCheck: true, limitsOn: on }).map((i) => i.label),
+        ...compareSections({ freeCheck: true, limitsOn: on }).flatMap((s) => s.rows.map((r) => JSON.stringify(r.basic))),
+        basicDownloadLine(), basicQuickPracticeLine(), basicDownloadCell(), basicQuickPracticeCell(), BASIC_RESULT_LINE,
+      ];
+      for (const t of strings) expect(t).not.toMatch(FIRST);
+    }
+  });
+  it("the trial sentence keeps its true 'the first of each is free'", () => {
+    expect(trialLimitsSentence()).toContain("the first of each is free");
   });
 });

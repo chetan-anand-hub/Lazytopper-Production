@@ -33,7 +33,6 @@ import {
 } from "./pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
 import {
-  BASIC_FIRST_GRADED_LINE,
   BASIC_RESULT_LINE,
   basicDownloadCell,
   basicDownloadLine,
@@ -124,7 +123,6 @@ export function basicIncludes(limitsOn: boolean): readonly PlanItem[] {
   ...(limitsOn
     ? [
         { id: "qp-graded", label: basicQuickPracticeLine() },
-        { id: "first-graded", label: BASIC_FIRST_GRADED_LINE },
         { id: "result", label: BASIC_RESULT_LINE },
       ]
     : []),
@@ -154,9 +152,7 @@ export function basicLimits({ freeCheck, limitsOn = limitsCopyOn() }: { freeChec
   return [
     {
       id: "graded",
-      label: limitsOn
-        ? "After your first free grade, chapter tests, full mocks and worksheets are not graded"
-        : "Chapter tests, full mocks and worksheets are not graded",
+      label: "Chapter tests, full mocks and worksheets are not graded",
     },
     {
       id: "check",
@@ -169,7 +165,7 @@ export function basicLimits({ freeCheck, limitsOn = limitsCopyOn() }: { freeChec
     {
       id: "mi",
       label: limitsOn
-        ? "No answer-by-answer Mistake Intelligence breakdown after your first of each kind"
+        ? "No answer-by-answer Mistake Intelligence breakdown"
         : "No Mistake Intelligence — why you lose marks",
     },
     { id: "similar", label: "No new questions like the one you got wrong" },
@@ -275,7 +271,7 @@ export function compareSections({ freeCheck, limitsOn = limitsCopyOn() }: { free
           : []),
         {
           label: "Chapter tests, mocks and worksheets graded",
-          basic: limitsOn ? text("First of each free") : NO,
+          basic: NO,
           premium: YES,
         },
       ],
