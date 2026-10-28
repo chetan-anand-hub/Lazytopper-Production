@@ -30,6 +30,8 @@ export default function RouteAnalytics(): null {
     if (lastPath.current === pathname) return;
     lastPath.current = pathname;
     trackPageview(pathname);
+    // SPEED-1: all logic lives in the lazy chunk (PERF-3 entry budget).
+    import("./speedInsights").then((m) => m.startSpeedInsights()).catch(() => {});
   }, [pathname]);
 
   return null;

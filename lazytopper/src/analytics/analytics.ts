@@ -1791,3 +1791,13 @@ export function trackSignUpIfNew(credential: UserCredential): void {
     /* a signup count is never worth a failed login */
   }
 }
+
+/* ------------------------------------------------------------------------- *
+ * INAPP-SIGNIN-1 — the Login page showed its "Google sign-in doesn't work in this app" note.
+ * Same onboarding sender; `app` is a coarse label (instagram / facebook / other-webview) and
+ * nothing else rides along.
+ * ------------------------------------------------------------------------- */
+
+export interface OnboardingEventParams {
+  inapp_signin_banner_shown: { app: "instagram" | "facebook" | "other-webview" };
+}
