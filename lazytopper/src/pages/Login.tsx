@@ -12,10 +12,9 @@ import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 import { NEW_ACCOUNT_LANDING_PATH, newAccountGoesHome, takeNewAccountLanding } from "../services/newAccountLanding";
 import { BRAND_MARK_SRC } from "../config/brandMark";
-import { inAppBrowser } from "../utils/inAppBrowser";
 
-// INAPP-SIGNIN-1 — the note and its CSS load only when the UA check says we are inside an app.
-const InAppSigninBanner = lazy(() => import("../components/auth/InAppSigninBanner"));
+// INAPP-SIGNIN-1 — the UA check, the note and its CSS all live in this lazy chunk.
+const InAppSignin = lazy(() => import("../components/auth/InAppSigninBanner"));
 
 type LocationState = { from?: string };
 
@@ -1522,9 +1521,6 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   }, [location.state, searchParams]);
 
   const [step, setStep] = useState<DoorStep>("choose");
-  // INAPP-SIGNIN-1 — inside Instagram / Facebook / another app's browser Google refuses sign-in.
-  const inAppUa = typeof navigator !== "undefined" ? navigator.userAgent : "";
-  const inApp = useMemo(() => inAppBrowser(inAppUa), [inAppUa]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -2134,16 +2130,10 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   New here? Just continue — your account is created automatically.
                 </p>
 
-                <div className={inApp ? "lt-doors lt-doors--inapp" : "lt-doors"}>
-                {inApp ? (
-                  <Suspense fallback={null}>
-                    <InAppSigninBanner
-                      app={inApp}
-                      userAgent={inAppUa}
-                      href={typeof window !== "undefined" ? window.location.href : ""}
-                    />
-                  </Suspense>
-                ) : null}
+                <div className="lt-doors">
+                <Suspense fallback={null}>
+                  <InAppSignin />
+                </Suspense>
 
                 <button
                   type="button"

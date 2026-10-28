@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -88,10 +90,8 @@ describe("Login in an in-app browser", () => {
     const chrome = screen.getByRole("link", { name: "Open in Chrome" });
     expect(chrome.getAttribute("href")).toMatch(/^intent:\/\/.+#Intent;scheme=http/);
     expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
-    expect(screen.getByTestId("inapp-signin-banner").parentElement?.className).toContain("lt-doors--inapp");
     await waitFor(() => expect(track).toHaveBeenCalledWith("inapp_signin_banner_shown", { app: "instagram" }));
-    // the reorder class is toggled in Login itself, before the lazy chunk loads
-    expect(document.querySelector(".lt-doors--inapp")).not.toBeNull();
+    expect(document.querySelector(".lt-doors .lt-inapp-banner")).not.toBeNull();
   });
 
   it("iOS Instagram: Safari instruction, no Chrome button", async () => {
@@ -107,4 +107,10 @@ describe("Login in an in-app browser", () => {
     expect(track).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
   });
+});
+
+it("the in-app reorder rule is keyed on the banner (:has)", () => {
+  const css = readFileSync(resolve(process.cwd(), "src/components/auth/inAppSigninBanner.css"), "utf8");
+  expect(css).toContain(".lt-doors:has(.lt-inapp-banner) .lt-method");
+  expect(css).toContain(".lt-doors:has(.lt-inapp-banner) .lt-google");
 });

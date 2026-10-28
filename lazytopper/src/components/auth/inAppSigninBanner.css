@@ -29,6 +29,6 @@
 
 
 /* phone and email lead, Google follows (applies once this chunk has loaded) */
-.lt-doors--inapp { display: flex; flex-direction: column; }
-.lt-doors--inapp .lt-method { order: 1; }
-.lt-doors--inapp .lt-google { order: 2; margin-top: 9px; }
+.lt-doors:has(.lt-inapp-banner) { display: flex; flex-direction: column; }
+.lt-doors:has(.lt-inapp-banner) .lt-method { order: 1; }
+.lt-doors:has(.lt-inapp-banner) .lt-google { order: 2; margin-top: 9px; }
