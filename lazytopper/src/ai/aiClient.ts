@@ -462,7 +462,10 @@ async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text
         "trial_limit",
         typeof details.remaining === "number" && Number.isFinite(details.remaining) ? details.remaining : null,
         details.resetAt || null,
-        null,
+        // PAPER-WALLS-1: keep the window when the server names one (a 7-day trial limit says "this week").
+        typeof details.window === "string" && FAIR_USE_WINDOWS.has(details.window)
+          ? (details.window as FairUseLimitWindow)
+          : null,
       );
     }
     if (res.status === 429 && details?.error === "usage_limit") {

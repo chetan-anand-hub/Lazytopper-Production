@@ -43,11 +43,12 @@
  */
 
 import { useCallback, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { PREMIUM_PLUS } from "../../config/pricingCompare";
 import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { useSubscription } from "../../hooks/useSubscription";
+import { isPaidPremium } from "../../services/subscriptionService";
 import PaywallActions from "../pricing/PaywallActions";
 import { boardPassOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
@@ -62,6 +63,11 @@ export interface UpgradeSheetProps {
    * a guessed date on a payment surface is worse than no date at all.
    */
   trialEndedAt?: string | null;
+  /**
+   * PAPER-WALLS-1 (optional): the matching PDF pack, shown as a quiet SECOND line under the Board Pass actions.
+   * Hidden for paid Premium. Absent -> the sheet is exactly as before.
+   */
+  pack?: { label: string; priceLabel: string; href: string } | null;
   /** "Keep using Basic", the backdrop, Escape, and the close control all land here. */
   onClose: () => void;
 }
@@ -164,6 +170,13 @@ const UPGRADE_SHEET_CSS = `
     border: 1.5px solid rgba(73, 98, 127, 0.35);
     color: var(--lt-ink, #0f2743);
   }
+  .lt-upsheet__pack {
+    margin: -4px 0 12px;
+    font-size: 0.8rem;
+    color: var(--lt-muted, #49627f);
+    text-align: center;
+  }
+  .lt-upsheet__pack a { color: var(--lt-ink, #0f2743); font-weight: 700; }
   .lt-upsheet__keep {
     border-radius: 14px;
     padding: 12px 14px;
@@ -185,7 +198,7 @@ const UPGRADE_SHEET_CSS = `
   }
 `;
 
-export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeSheetProps) {
+export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: UpgradeSheetProps) {
   // PRICING-1 — a lapsed founder still pays the founding rate, so the quote follows their record.
   const { status: subscription, hydrated } = useSubscription();
   const uid = useOptionalUid();
@@ -301,6 +314,17 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, onClose }: UpgradeShe
             </button>
           }
         />
+
+        {/* PAPER-WALLS-1 - the pack is the SECOND, smaller line; never for a student who has paid. */}
+        {pack && !isPaidPremium(subscription) && (
+          <p className="lt-upsheet__pack" data-testid="upgrade-sheet-pack">
+            Prefer printed practice?{" "}
+            <Link to={pack.href}>
+              {pack.label}
+              {pack.priceLabel ? ` ${pack.priceLabel}` : ""} →
+            </Link>
+          </p>
+        )}
 
         {/* ★ NAME WHAT BASIC KEEPS, not what Premium withholds. And "Nothing you've
             done is locked" stays — a student's real fear at a paywall is losing
