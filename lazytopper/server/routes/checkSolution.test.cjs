@@ -919,7 +919,9 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // "calculation" names a right product multiplied out wrongly (LCM = 2^5 × 3 × 101 as 9690). Rule TEXT
 // only, in rules.cjs MISTAKE_TAXONOMY_PROMPT; every transport moved together.
 //   PREVIOUS 72113f2d90063636c746fa78d8baa10fba07ee936b5857dd6fa1aba7d0dca2a8
-const NO_UPLOADS_CONTENTS_SHA256 = '3bcace4cac5be54f425be1be509188954751537ad407a3c2e0e361f8e44d375a';
+// Review F3 (same lane, 3bcace4c… → below): the tell-tale is CLAUDE.md §13's sentence VERBATIM.
+//   PREVIOUS 3bcace4cac5be54f425be1be509188954751537ad407a3c2e0e361f8e44d375a
+const NO_UPLOADS_CONTENTS_SHA256 = '5c8228e8c2c610097a41111b2d46a8054436f73317052e20dfbff8dcf1887a0b';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

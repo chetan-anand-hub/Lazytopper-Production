@@ -75,6 +75,9 @@ function isRealQuestionText(q) {
  *  not a citation. */
 const INJECTION_CITE = /\b(head examiner|examiner(?:'s|s)? (?:panel|instruction|instructions|override|note)|examiner panel)\b|\bgrading (?:rules )?(?:update|override)\b|\bas (?:per|instructed by) (?:the )?(?:examiner|instruction|instructions|note|panel|system|paper)\b|\binstructions? (?:printed|given|written) (?:on|in) (?:this|the) (?:paper|answer|question|work|page)\b|\bignore (?:all )?previous\b|\bverified as fully correct\b|\baward(?:ed)? full marks as\b|\boverride verified\b/i;
 
+/** MISTAKE-CALC-1 (F4) · a note sentence claiming a misunderstanding of the METHOD. */
+const CONCEPT_CLAIM = /(?:\bnot|\bnever|n't)\s+(?:yet\s+)?(?:understood|understand|grasped|know)\b|\bmisunderst(?:ood|and(?:ing)?)\b|\bmisconception\b|\bconceptual(?:ly)?\b|\bconcept (?:is|was|seems|appears) (?:unclear|wrong|missing|confused)\b|\b(?:revise|revisit|review) the (?:concept|method)\b|\bwrong (?:method|formula|concept|approach)\b/i;
+
 /** C3 · internal machinery a student must never be told about (golden T09). */
 const LEAK_SENTENCE = /marking scheme (?:had|has|contained|contains|is|was) (?:an )?(?:error|wrong|garbled|incorrect)|stored (?:marking )?scheme|question text (?:was|is|appears|seems) (?:garbled|corrupt|incomplete)|derived rubric|my derivation|the provided (?:marking )?scheme/i;
 
@@ -690,34 +693,47 @@ function acceptedDepartures(steps) {
 }
 
 /**
- * MISTAKE-CALC-1 · does the model's correctedWorking keep the student's LEFT-HAND expression of a
- * false equality (`bad`, from verify.falseEqualities) and change ONLY its value? True when some
- * equality in the corrected text has that same expression (typography aside: "x" / "×", "2⁵" /
- * "2^5", spacing) followed, on that line, by a side equal to the expression's TRUE value. A
- * corrected line that changes the expression itself (another formula, other factors) is not a
- * value-only correction, and the model's type stands.
+ * MISTAKE-CALC-1 · is a false equality (`bad`, from verify.falseEqualities) a VALUE-ONLY slip that
+ * the model's correctedWorking confirms? All four must hold, or the model's type stands:
+ *  (1) the student's RIGHT side is a bare number (a unit may follow): "= 3 + 4", "= 9 + 16",
+ *      "= √25" are a rewritten EXPRESSION — a wrong identity — never a mere value (review F1);
+ *  (2) the wrong value is NOT what a known misreading of the student's own expression gives:
+ *      a power read as a product (2^3 × 3 → 2 × 3 × 3 = 18) or brackets dropped
+ *      ((−3)^2 → −3^2 = −9) — those are misconceptions, not slips;
+ *  (3) the corrected text keeps the student's left-hand expression (typography aside: "x" / "×",
+ *      "2⁵" / "2^5", spacing) in some equality;
+ *  (4) the FINAL value of the corrected text equals the TRUE value of the student's own
+ *      expression — a correction that ends on another quantity ("… LCM = 2^5 × 3 × 101 = 9696"
+ *      after "2^2 × 3 × 101 = 1212"; "But R = V/I = 6 Ω") says the METHOD was wrong (review F2).
  */
 function correctsValueOnly(corrected, bad) {
   const text = String(corrected == null ? '' : corrected);
-  if (!text.trim() || !bad || !Number.isFinite(bad.leftValue)) return false;
+  if (!text.trim() || !bad || !Number.isFinite(bad.leftValue) || !Number.isFinite(bad.rightValue)) return false;
+  const stripUnit = (side) => String(side || '').trim().replace(/\s*[A-Za-zµΩ°][A-Za-zµΩ°²³/]*\s*$/, '').trim();
+  // (1)
+  if (!/^[-−]?\s*\d+(?:\.\d+)?$/.test(stripUnit(bad.right))) return false;
+  // (2)
+  const tolOf = (raw, target) => {
+    const dec = /\.(\d+)\s*$/.exec(raw);
+    return Math.max(1e-9 * Math.max(1, Math.abs(target)), dec ? 0.5 * Math.pow(10, -dec[1].length) : 0);
+  };
+  const leftNorm = normaliseExpr(bad.left);
+  for (const misread of [leftNorm.replace(/\^/g, '*'), leftNorm.replace(/[()]/g, '')]) {
+    if (misread === leftNorm) continue;
+    const v = evaluate(misread);
+    if (v !== null && Math.abs(v - bad.rightValue) <= 1e-9 * Math.max(1, Math.abs(bad.rightValue))) return false;
+  }
+  // (3)
   const key = (e) => normaliseExpr(e).replace(/\s+/g, '').replace(/\^\((\d+)\)/g, '^$1');
   const want = key(bad.left);
   if (!want) return false;
-  for (const clause of text.split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i)) {
-    const sides = clause.split(/=|≈/);
-    for (let k = 0; k + 1 < sides.length; k += 1) {
-      if (key(sides[k]) !== want) continue;
-      for (let m = k + 1; m < sides.length; m += 1) {
-        const raw = sides[m].trim().replace(/\s*[A-Za-zµΩ°][A-Za-zµΩ°²³/]*\s*$/, '');
-        const v = evaluate(normaliseExpr(raw));
-        if (v === null) continue;
-        const dec = /\.(\d+)\s*$/.exec(raw);
-        const tol = Math.max(1e-9 * Math.max(1, Math.abs(bad.leftValue)), dec ? 0.5 * Math.pow(10, -dec[1].length) : 0);
-        if (Math.abs(v - bad.leftValue) <= tol) return true;
-      }
-    }
-  }
-  return false;
+  const clauses = text.split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b|\bbut\b/i).filter((c) => /[=≈]/.test(c));
+  if (!clauses.some((c) => c.split(/=|≈/).slice(0, -1).some((side) => key(side) === want))) return false;
+  // (4)
+  const lastSides = clauses[clauses.length - 1].split(/=|≈/);
+  const finalRaw = stripUnit(lastSides[lastSides.length - 1]);
+  const finalValue = evaluate(normaliseExpr(finalRaw));
+  return finalValue !== null && Math.abs(finalValue - bad.leftValue) <= tolOf(finalRaw, bad.leftValue);
 }
 
 /* ── the step ledger ───────────────────────────────────────────────────────── */
@@ -1025,6 +1041,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // the model wrote for a grade the checks then lowered is reconciled at stage 8.
   const modelAwardedSum = half(steps.reduce((a, s) => a + (Number(s.marksAwarded) || 0), 0));
   const arithmeticWrong = [];
+  let retypedToCalc = 0; // MISTAKE-CALC-1: conceptual → calculation retypes (the note is made true at stage 8)
   let fudged = null;
   let fudgedZeroed = 0;
   if (!questionIsObjective) {
@@ -1099,10 +1116,11 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     // is PERFORMED wrongly — the method on that very line is the right one — so it is
     // "calculation". The marks stand (the model already charged the step); only the type moves,
     // and so the ECF pass below then credits the lines carried forward from the wrong value.
-    // Never a departure, an objective item (this block is subjective only), a zeroed step or a
-    // step with no student text.
+    // Never a departure, an objective item (this block is subjective only), a zeroed step, a step
+    // with no student text, or a step the model gave full marks (the arithmetic pass above charges
+    // that one itself and keeps the model's type; a retype needs the model's OWN charge).
     steps.forEach((s, i) => {
-      if (zeroedBy.has(i) || s.isDeparture === true || s.mistakeType !== 'conceptual') return;
+      if (zeroedBy.has(i) || s._flagged || s.isDeparture === true || s.mistakeType !== 'conceptual') return;
       if (['withdrawn', 'unattempted', 'missing'].includes(s.status)) return;
       if (!String(s.studentWork || '').trim()) return;
       if (!(s.marksAwarded < s._available || s.marksDeducted > 0)) return;
@@ -1114,6 +1132,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       const note = 'Check the arithmetic here: ' + bad.left + ' is not ' + bad.right + '.';
       s.teacherAnnotation = (s.marksAwarded > 0 ? '½ ' : '× ') + note;
       s._flagged = true;
+      retypedToCalc += 1;
     });
     // PR-2b: the model ticked the LATER steps of that part believing the flagged value was right
     // ("✓ Correct values of outer and inner radii" over R = 4.5 from 1232/308 = 8, GS-MM-05.Q4).
@@ -1335,6 +1354,10 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // GS-MM-05.Q4; "every step … executed flawlessly" over "50 − 16 = 36", CP02-Q08). If the model
   // thought the answer was worth FULL marks, its note is replaced by what the check found;
   // otherwise the finding is added to it.
+  // MISTAKE-CALC-1 (review F4): once a step is retyped calculation, a note sentence that tells the
+  // student they MISUNDERSTOOD the method ("you have not understood how the LCM is formed")
+  // contradicts the step's "check the arithmetic" — that sentence goes; the finding is added below.
+  if (retypedToCalc > 0) note = scrubSentences(note, CONCEPT_CLAIM);
   {
     const found = [];
     if (arithmeticWrong.length) found.push('Check the arithmetic in your working: ' + arithmeticWrong[0].left + ' is not ' + arithmeticWrong[0].right + '.');

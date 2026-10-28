@@ -2508,9 +2508,7 @@ test('§MC.3 CONTROLS: the model\'s "conceptual" STANDS when the evidence is not
     assert.equal(r.marksAwarded, 2, label + ': no ECF behind a misconception');
     assert.ok(!(r.marksLostByType.calculation > 0), label);
   };
-  // wrong FORMULA, true arithmetic (lowest powers for the LCM): nothing is false, the method is
-  await conceptualStands('wrong method, right arithmetic', { s3: { studentWork: 'LCM = 2^2 x 3 x 101 = 1212', correctedWorking: 'LCM = 2^5 × 3 × 101 = 9696' } });
-  // false arithmetic, but the correction changes the EXPRESSION (other powers) — not value-only
+  // false arithmetic, but the correction changes the EXPRESSION (other powers) — guard (3)
   await conceptualStands('correction changes the expression', { s3: { studentWork: 'LCM = 2^2 x 3 x 101 = 1200', correctedWorking: 'LCM = 2^5 × 3 × 101 = 9696' } });
   // no correctedWorking: no evidence the expression was right
   await conceptualStands('no corrected working', { s3: { correctedWorking: null } }, lcmTypedSet);
@@ -2518,11 +2516,74 @@ test('§MC.3 CONTROLS: the model\'s "conceptual" STANDS when the evidence is not
   const dep = await lcmSingle({ s3: { isDeparture: true, departureKind: 'invalid-method' } });
   assert.equal(dep.annotatedSteps[3].mistakeType, 'conceptual', 'a departure is never retyped');
   assert.equal(dep.annotatedSteps[4].marksAwarded, 0, 'and still zeroes the work below it');
-  // a step with NO student text is never retyped
-  const blank = await lcmTypedSet({ s3: { studentWork: '' } });
-  assert.notEqual(blank.annotatedSteps[3].mistakeType, 'calculation');
+  // review: a step the MODEL gave FULL marks (typed conceptual) is not retyped — the arithmetic pass
+  // charges it itself and keeps the model's type
+  for (const grade of [lcmSingle, lcmTypedSet]) {
+    const full = await grade({ s3: { status: 'correct', marksAwarded: 0.5, marksDeducted: 0 } });
+    assert.equal(full.annotatedSteps[3].mistakeType, 'conceptual', 'a full-marks step typed conceptual is not retyped');
+    assert.equal(full.annotatedSteps[3].marksAwarded, 0, 'the arithmetic pass charged it');
+  }
   // CONTROL of the CONTROL: the live fixture, unchanged, IS retyped (so the guards above are what held)
   assert.equal((await lcmSingle()).annotatedSteps[3].mistakeType, 'calculation');
+});
+
+// Review F1/F2 · one slip line between a correct line and a line that restates its value. Retyped →
+// the restating line earns ECF (2/3); conceptual stands → it does not (1/3). Both entry points.
+const slipGrade = async ([l0, l1, l2], cw) => {
+  const steps = [
+    S({ description: 'Sets up', studentWork: l0, marksAwarded: 1 }),
+    S({ description: 'Works it out', studentWork: l1, status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual', correctedWorking: cw }),
+    S({ description: 'States the answer', studentWork: l2, status: 'incorrect', marksAwarded: 0, marksDeducted: 1 }),
+  ];
+  const typed = [l0, l1, l2].join('\n');
+  const reply = () => REPLY(R(1, steps.map((x) => ({ ...x })), { finalAnswerCorrect: false, teacherNote: 'Note.' }));
+  const a = (await harness({ replies: [reply()] }).single(single({ question: 'Evaluate.', textAnswer: typed, acceptsV2: true }))).body;
+  const b = (await harness({ replies: [reply()] }).sheet(sheet([sq(1, { questionText: 'Evaluate.', textAnswer: typed })], { acceptsV2: true }))).body.results[0];
+  return [a, b].map((r) => ({ type: r.annotatedSteps[1].mistakeType, marks: r.marksAwarded }));
+};
+const ADVERSARIAL = [
+  // [label, typed lines, correctedWorking, retyped?]
+  ['√ of a sum read as a sum of roots (F1)', ['a = 3, b = 4', 'c = √(9 + 16) = 3 + 4 = 7', 'So c = 7'], 'c = √(9 + 16) = √25 = 5', false],
+  ['(a + b)^2 = a^2 + b^2 (F1)', ['a + b = 3 + 4', '(3 + 4)^2 = 9 + 16 = 25', 'So the square is 25'], '(3 + 4)^2 = 7^2 = 49', false],
+  ['a power read as a product (F1)', ['n = 2^3 x 3', 'n = 2^3 x 3 = 18', 'So n = 18'], 'n = 2^3 × 3 = 24', false],
+  ['brackets dropped on a negative base', ['x = -3', 'x^2 = (-3)^2 = -9', 'So x^2 = -9'], 'x^2 = (-3)^2 = 9', false],
+  ['two-line correction ends on ANOTHER expression (F2, Maths)', ['96 = 2^5 x 3, 404 = 2^2 x 101', 'LCM = 2^2 x 3 x 101 = 1200', 'So LCM = 1200'], '2^2 × 3 × 101 = 1212\nLCM = 2^5 × 3 × 101 = 9696', false],
+  ['two-line correction ends on ANOTHER formula (F2, Science)', ['V = 12 V, I = 2 A', 'R = V x I = 12 x 2 = 25 Ω', 'So R = 25 Ω'], '12 × 2 = 24\nBut R = V/I = 12/2 = 6 Ω', false],
+  ['POSITIVE: a product of the right numbers multiplied out wrongly', ['V = 12 V, I = 2 A', 'P = V x I = 12 x 2 = 25 W', 'So P = 25 W'], 'P = V × I = 12 × 2 = 24 W', true],
+];
+
+test('§MC.6 ★ review F1/F2 — wrong IDENTITIES and corrections that change the method stay conceptual (no ECF); a value-only slip is retyped — both entry points', async () => {
+  for (const [label, lines, cw, retyped] of ADVERSARIAL) {
+    for (const r of await slipGrade(lines, cw)) {
+      assert.equal(r.type, retyped ? 'calculation' : 'conceptual', label);
+      assert.equal(r.marks, retyped ? 2 : 1, label + (retyped ? ': ECF credits the restating line' : ': NO ECF after a conceptual error (GS-SUP-01)'));
+    }
+  }
+});
+
+test('§MC.7 review: ECF after a retype never crosses PARTS', async () => {
+  const parts = { s4: { part: '(ii)' } };
+  const steps = LCM_STEPS(parts).map((x, i) => (i < 4 ? { ...x, part: '(i)' } : x));
+  for (const grade of [
+    async () => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: false }))] }).single(single({ question: LCM_QT, textAnswer: LCM_TYPED, acceptsV2: true }))).body,
+    async () => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: false }))] }).sheet(sheet([lcmSq()], { acceptsV2: true }))).body.results[0],
+  ]) {
+    const r = await grade();
+    assert.equal(r.annotatedSteps[3].mistakeType, 'calculation', 'the retype itself still happens in part (i)');
+    assert.deepEqual([r.annotatedSteps[4].marksAwarded, r.marksAwarded], [0, 2], 'the part (ii) line earns no ECF from a part (i) slip');
+  }
+});
+
+test('§MC.8 review F4: after a retype, a note sentence claiming a misunderstanding is removed; without a retype it stays', async () => {
+  const CLAIM = 'You have not understood how the LCM is formed.';
+  const note = 'HCF is right. ' + CLAIM;
+  const run = async (o) => (await harness({ replies: [REPLY(R(1, LCM_STEPS(o), { finalAnswerCorrect: false, teacherNote: note }))] })
+    .single(single({ question: LCM_QT, textAnswer: LCM_TYPED, acceptsV2: true }))).body.teacherNote;
+  const after = await run();
+  assert.ok(!after.includes(CLAIM), 'the false conceptual claim is gone: ' + after);
+  assert.ok(after.startsWith('HCF is right.') && /2\^5 x 3 x 101 is not 9690/.test(after), 'the rest stays and the arithmetic finding is added: ' + after);
+  // CONTROL: the model's type stands (no corrected working) → its note stands too
+  assert.ok((await run({ s3: { correctedWorking: null } })).includes(CLAIM));
 });
 
 test('§MC.4 CONTROL: an OBJECTIVE question is never retyped — 0 or full on the option, its working read only for the type', async () => {
@@ -2539,7 +2600,7 @@ test('§MC.5 ONE rulebook: the §13 tell-tale reaches the model on BOTH entry po
   await h.single(single({ question: LCM_QT, textAnswer: LCM_TYPED }));
   await h.sheet(sheet([lcmSq()]));
   for (const i of [0, 1]) {
-    assert.ok(h.prompt(i).includes('TELL-TALE: if the student\'s later or other steps prove they know the method'), 'call ' + i);
+    assert.ok(h.prompt(i).includes('Tell-tale: if the student\'s later steps prove they know the method, it is NOT conceptual.'), 'call ' + i + ': CLAUDE.md §13 wording, verbatim');
     assert.ok(h.prompt(i).includes('a product of the RIGHT factors multiplied out wrongly'), 'call ' + i);
   }
 });
