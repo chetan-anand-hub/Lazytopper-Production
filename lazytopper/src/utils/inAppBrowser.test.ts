@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { chromeIntentUrl, inAppBrowser, isAndroidUserAgent, isIosUserAgent } from "./inAppBrowser";
+import { inAppBrowser } from "./inAppBrowser";
+import { chromeIntentUrl, isAndroidUserAgent, isIosUserAgent } from "./inAppBrowserLinks";
 
 const UA = {
   instagramAndroid:

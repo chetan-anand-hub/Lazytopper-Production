@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 /**
@@ -81,18 +81,22 @@ afterEach(() => {
 });
 
 describe("Login in an in-app browser", () => {
-  it("Android Instagram: banner, Open in Chrome, phone first, event with app only", () => {
+  it("Android Instagram: banner, Open in Chrome, phone first, event with app only", async () => {
     mount(IG_ANDROID);
+    await screen.findByTestId("inapp-signin-banner");
     expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("doesn't work inside Instagram");
     const chrome = screen.getByRole("link", { name: "Open in Chrome" });
     expect(chrome.getAttribute("href")).toMatch(/^intent:\/\/.+#Intent;scheme=http/);
     expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
     expect(screen.getByTestId("inapp-signin-banner").parentElement?.className).toContain("lt-doors--inapp");
-    expect(track).toHaveBeenCalledWith("inapp_signin_banner_shown", { app: "instagram" });
+    await waitFor(() => expect(track).toHaveBeenCalledWith("inapp_signin_banner_shown", { app: "instagram" }));
+    // the reorder class is toggled in Login itself, before the lazy chunk loads
+    expect(document.querySelector(".lt-doors--inapp")).not.toBeNull();
   });
 
-  it("iOS Instagram: Safari instruction, no Chrome button", () => {
+  it("iOS Instagram: Safari instruction, no Chrome button", async () => {
     mount(IG_IOS);
+    await screen.findByTestId("inapp-signin-banner");
     expect(screen.getByTestId("inapp-signin-banner").textContent).toContain("Open in Safari");
     expect(screen.queryByRole("link", { name: "Open in Chrome" })).toBeNull();
   });

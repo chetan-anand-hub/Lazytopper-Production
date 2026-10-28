@@ -1,11 +1,8 @@
 import { useEffect } from "react";
+import "./inAppSigninBanner.css";
 import { trackOnboardingEvent } from "../../analytics/analytics";
-import {
-  chromeIntentUrl,
-  isAndroidUserAgent,
-  isIosUserAgent,
-  type InAppBrowser,
-} from "../../utils/inAppBrowser";
+import type { InAppBrowser } from "../../utils/inAppBrowser";
+import { chromeIntentUrl, isAndroidUserAgent, isIosUserAgent } from "../../utils/inAppBrowserLinks";
 
 /**
  * INAPP-SIGNIN-1 — a calm note above the Google button when the page is open inside

@@ -1,4 +1,4 @@
-import { type CSSProperties, type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth, type AuthUser } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -12,8 +12,10 @@ import { creditPendingReferral } from "../services/referralService";
 import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 import { NEW_ACCOUNT_LANDING_PATH, newAccountGoesHome, takeNewAccountLanding } from "../services/newAccountLanding";
 import { BRAND_MARK_SRC } from "../config/brandMark";
-import InAppSigninBanner from "../components/auth/InAppSigninBanner";
 import { inAppBrowser } from "../utils/inAppBrowser";
+
+// INAPP-SIGNIN-1 — the note and its CSS load only when the UA check says we are inside an app.
+const InAppSigninBanner = lazy(() => import("../components/auth/InAppSigninBanner"));
 
 type LocationState = { from?: string };
 
@@ -331,40 +333,6 @@ const LOGIN_CSS = `
      things claiming to be the primary action. A green-tinted border plus a
      stronger shadow is enough to lead without shouting — the background stays
      white, which Google's brand guidance requires anyway. */
-  /* INAPP-SIGNIN-1 — in an app's browser the phone and email doors lead and Google follows. */
-  .lt-doors--inapp { display: flex; flex-direction: column; }
-  .lt-doors--inapp .lt-inapp { order: 0; }
-  .lt-doors--inapp .lt-method { order: 1; }
-  .lt-doors--inapp .lt-google { order: 2; margin-top: 9px; }
-  .lt-inapp {
-    margin: 0 0 12px;
-    padding: 11px 13px;
-    border: 1px solid #f3d9a4;
-    border-radius: 12px;
-    background: #fffaf0;
-    color: #4a3b12;
-    font-size: 0.85rem;
-    line-height: 1.45;
-  }
-  .lt-inapp-text { margin: 0; overflow-wrap: anywhere; }
-  .lt-inapp-btn {
-    display: inline-block;
-    margin-top: 9px;
-    padding: 9px 14px;
-    border-radius: 10px;
-    background: #0b1f3a;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 0.85rem;
-    text-decoration: none;
-  }
-  .lt-login-page[data-login-theme="dark"] .lt-inapp {
-    background: rgba(255, 214, 120, 0.1);
-    border-color: rgba(255, 214, 120, 0.3);
-    color: #f4e6bf;
-  }
-  .lt-login-page[data-login-theme="dark"] .lt-inapp-btn { background: #ffffff; color: #0b1f3a; }
-
   .lt-google {
     width: 100%;
     display: flex;
@@ -2168,11 +2136,13 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
 
                 <div className={inApp ? "lt-doors lt-doors--inapp" : "lt-doors"}>
                 {inApp ? (
-                  <InAppSigninBanner
-                    app={inApp}
-                    userAgent={inAppUa}
-                    href={typeof window !== "undefined" ? window.location.href : ""}
-                  />
+                  <Suspense fallback={null}>
+                    <InAppSigninBanner
+                      app={inApp}
+                      userAgent={inAppUa}
+                      href={typeof window !== "undefined" ? window.location.href : ""}
+                    />
+                  </Suspense>
                 ) : null}
 
                 <button
