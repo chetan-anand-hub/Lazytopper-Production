@@ -78,6 +78,36 @@ const INJECTION_CITE = /\b(head examiner|examiner(?:'s|s)? (?:panel|instruction|
 /** MISTAKE-CALC-1 (F4) · a note sentence claiming a misunderstanding of the METHOD. */
 const CONCEPT_CLAIM = /(?:\bnot|\bnever|n't)\s+(?:yet\s+)?(?:understood|understand|grasped|know)\b|\bmisunderst(?:ood|and(?:ing)?)\b|\bmisconception\b|\bconceptual(?:ly)?\b|\bconcept (?:is|was|seems|appears) (?:unclear|wrong|missing|confused)\b|\b(?:revise|revisit|review) the (?:concept|method)\b|\bwrong (?:method|formula|concept|approach)\b/i;
 
+/** MISTAKE-CALC-1 (review F6) · does a note sentence speak about a RETYPED step? It names another
+ *  part (one with no retyped step) → no. It names the retyped step's part, its wrong value, its
+ *  expression, or a name written on its line ("LCM") that no step still typed conceptual uses →
+ *  yes. Otherwise yes only when nothing in the answer is still typed conceptual (the claim then
+ *  has no other subject). */
+const NAME_STOP = new Set(['so', 'and', 'the', 'then', 'hence', 'therefore', 'thus', 'is', 'are', 'of', 'by', 'we', 'get', 'now', 'here', 'from', 'to', 'in', 'on', 'at', 'as', 'it', 'or', 'its', 'be', 'let']);
+function retypedClaim(sentence, retyped, steps) {
+  const compact = (t) => String(t || '').toLowerCase().replace(/[\s×·*]+/g, '').replace(/x(?=\d)/g, '');
+  const namesPart = (label) => {
+    const k = partKey(label);
+    if (!k) return false;
+    const esc = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp('\\(\\s*' + esc + '\\s*\\)|\\bpart\\s+\\(?' + esc + '\\b', 'i').test(sentence);
+  };
+  const retypedParts = new Set(retyped.map((r) => partKey(r.step.part)));
+  const otherLabels = [...new Set(steps.map((s) => s.part).filter((p) => p != null && partKey(p) && !retypedParts.has(partKey(p))))];
+  if (otherLabels.some(namesPart)) return false;
+  const stillConceptual = steps.filter((s) => s.mistakeType === 'conceptual');
+  const otherWords = new Set(stillConceptual.flatMap((s) => (String(s.studentWork || '').match(/[A-Za-z]{2,}/g) || []).map((w) => w.toLowerCase())));
+  for (const { step, bad } of retyped) {
+    if (step.part != null && namesPart(step.part)) return true;
+    const wrong = String(bad.right || '').trim().replace(/\s*[A-Za-zµΩ°][A-Za-zµΩ°²³/]*\s*$/, '');
+    if (wrong && new RegExp('(^|[^\\d.])' + wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\d.])').test(sentence)) return true;
+    if (compact(bad.left) && compact(sentence).includes(compact(bad.left))) return true;
+    const names = (String(step.studentWork || '').match(/[A-Za-z]{2,}/g) || []).map((w) => w.toLowerCase()).filter((w) => !NAME_STOP.has(w) && !otherWords.has(w));
+    if (names.some((w) => new RegExp('\\b' + w + '\\b', 'i').test(sentence))) return true;
+  }
+  return stillConceptual.length === 0;
+}
+
 /** C3 · internal machinery a student must never be told about (golden T09). */
 const LEAK_SENTENCE = /marking scheme (?:had|has|contained|contains|is|was) (?:an )?(?:error|wrong|garbled|incorrect)|stored (?:marking )?scheme|question text (?:was|is|appears|seems) (?:garbled|corrupt|incomplete)|derived rubric|my derivation|the provided (?:marking )?scheme/i;
 
@@ -697,9 +727,11 @@ function acceptedDepartures(steps) {
  * the model's correctedWorking confirms? All four must hold, or the model's type stands:
  *  (1) the student's RIGHT side is a bare number (a unit may follow): "= 3 + 4", "= 9 + 16",
  *      "= √25" are a rewritten EXPRESSION — a wrong identity — never a mere value (review F1);
- *  (2) the wrong value is NOT what a known misreading of the student's own expression gives:
- *      a power read as a product (2^3 × 3 → 2 × 3 × 3 = 18) or brackets dropped
- *      ((−3)^2 → −3^2 = −9) — those are misconceptions, not slips;
+ *  (2) the wrong value is NOT what a known misreading of the student's own expression gives
+ *      (misreadingValues): a power read as a product (2^3 × 3 → 18), brackets dropped
+ *      ((−3)^2 → −9) or added (−2^2 → (−2)^2 = 4), √(a ± b) read as √a ± √b (√(9 + 16) → 7),
+ *      (a ± b)^n read as a^n ± b^n ((3 + 4)^2 → 25), √x read as x/2 (√16 → 8) — those are
+ *      misconceptions, not slips (review F5). A lost sign ("−(−3) = −3") stays calculation (§13);
  *  (3) the corrected text keeps the student's left-hand expression (typography aside: "x" / "×",
  *      "2⁵" / "2^5", spacing) in some equality;
  *  (4) the FINAL value of the corrected text equals the TRUE value of the student's own
@@ -717,11 +749,20 @@ function correctsValueOnly(corrected, bad) {
     const dec = /\.(\d+)\s*$/.exec(raw);
     return Math.max(1e-9 * Math.max(1, Math.abs(target)), dec ? 0.5 * Math.pow(10, -dec[1].length) : 0);
   };
-  const leftNorm = normaliseExpr(bad.left);
-  for (const misread of [leftNorm.replace(/\^/g, '*'), leftNorm.replace(/[()]/g, '')]) {
-    if (misread === leftNorm) continue;
-    const v = evaluate(misread);
-    if (v !== null && Math.abs(v - bad.rightValue) <= 1e-9 * Math.max(1, Math.abs(bad.rightValue))) return false;
+  // (review F5) the values a known MISCONCEPTION gives for the student's expression (the parser's
+  // ASCII grammar: √ is "r", × is "*"); each rewrite is one textbook misreading.
+  const MISREADINGS = [
+    (e) => e.replace(/\^/g, '*'),                                                       // a^n read as a × n
+    (e) => e.replace(/[()]/g, ''),                                                       // (−a)^n read as −a^n
+    (e) => e.replace(/(^|[^\d.)])-(\d+(?:\.\d+)?)\^/g, '$1(-$2)^'),                        // −a^n read as (−a)^n
+    (e) => e.replace(/r\(([^()+\-]+)([+-])([^()+\-]+)\)/g, 'r($1)$2r($3)'),                 // √(a ± b) read as √a ± √b
+    (e) => e.replace(/\(([^()+\-]+)([+-])([^()+\-]+)\)\^(\(\d+\)|\d+)/g, '($1)^$4$2($3)^$4'), // (a ± b)^n read as a^n ± b^n
+    (e) => e.replace(/r\(?(\d+(?:\.\d+)?)\)?/g, '($1/2)'),                                  // √x read as x/2
+  ];
+  const leftCompact = normaliseExpr(bad.left).replace(/\s+/g, '');
+  const misreadingValues = MISREADINGS.map((rw) => rw(leftCompact)).filter((m) => m !== leftCompact).map((m) => evaluate(m)).filter((v) => v !== null);
+  for (const v of misreadingValues) {
+    if (Math.abs(v - bad.rightValue) <= 1e-9 * Math.max(1, Math.abs(bad.rightValue))) return false;
   }
   // (3)
   const key = (e) => normaliseExpr(e).replace(/\s+/g, '').replace(/\^\((\d+)\)/g, '^$1');
@@ -1041,7 +1082,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // the model wrote for a grade the checks then lowered is reconciled at stage 8.
   const modelAwardedSum = half(steps.reduce((a, s) => a + (Number(s.marksAwarded) || 0), 0));
   const arithmeticWrong = [];
-  let retypedToCalc = 0; // MISTAKE-CALC-1: conceptual → calculation retypes (the note is made true at stage 8)
+  const retyped = []; // MISTAKE-CALC-1: conceptual → calculation retypes { step, bad } (the note is made true at stage 8)
   let fudged = null;
   let fudgedZeroed = 0;
   if (!questionIsObjective) {
@@ -1132,7 +1173,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       const note = 'Check the arithmetic here: ' + bad.left + ' is not ' + bad.right + '.';
       s.teacherAnnotation = (s.marksAwarded > 0 ? '½ ' : '× ') + note;
       s._flagged = true;
-      retypedToCalc += 1;
+      retyped.push({ step: s, bad });
     });
     // PR-2b: the model ticked the LATER steps of that part believing the flagged value was right
     // ("✓ Correct values of outer and inner radii" over R = 4.5 from 1232/308 = 8, GS-MM-05.Q4).
@@ -1354,10 +1395,15 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // GS-MM-05.Q4; "every step … executed flawlessly" over "50 − 16 = 36", CP02-Q08). If the model
   // thought the answer was worth FULL marks, its note is replaced by what the check found;
   // otherwise the finding is added to it.
-  // MISTAKE-CALC-1 (review F4): once a step is retyped calculation, a note sentence that tells the
-  // student they MISUNDERSTOOD the method ("you have not understood how the LCM is formed")
-  // contradicts the step's "check the arithmetic" — that sentence goes; the finding is added below.
-  if (retypedToCalc > 0) note = scrubSentences(note, CONCEPT_CLAIM);
+  // MISTAKE-CALC-1 (review F4/F6): once a step is retyped calculation, a note sentence that tells the
+  // student they MISUNDERSTOOD the method OF THAT STEP ("you have not understood how the LCM is
+  // formed") contradicts its "check the arithmetic" — that sentence goes; the finding is added below.
+  // A claim about ANOTHER step that is still conceptual ("In (ii) you used the wrong formula for the
+  // area") is true and stays (retypedClaim).
+  if (retyped.length) {
+    const pieces = String(note || '').trim().split(/(?<=[.!?])\s+/);
+    note = pieces.filter((p) => !(CONCEPT_CLAIM.test(p) && retypedClaim(p, retyped, steps))).join(' ').trim();
+  }
   {
     const found = [];
     if (arithmeticWrong.length) found.push('Check the arithmetic in your working: ' + arithmeticWrong[0].left + ' is not ' + arithmeticWrong[0].right + '.');

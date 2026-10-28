@@ -2549,6 +2549,12 @@ const ADVERSARIAL = [
   ['brackets dropped on a negative base', ['x = -3', 'x^2 = (-3)^2 = -9', 'So x^2 = -9'], 'x^2 = (-3)^2 = 9', false],
   ['two-line correction ends on ANOTHER expression (F2, Maths)', ['96 = 2^5 x 3, 404 = 2^2 x 101', 'LCM = 2^2 x 3 x 101 = 1200', 'So LCM = 1200'], '2^2 × 3 × 101 = 1212\nLCM = 2^5 × 3 × 101 = 9696', false],
   ['two-line correction ends on ANOTHER formula (F2, Science)', ['V = 12 V, I = 2 A', 'R = V x I = 12 x 2 = 25 Ω', 'So R = 25 Ω'], '12 × 2 = 24\nBut R = V/I = 12/2 = 6 Ω', false],
+  // review F5: the misreadings that give the student's value exactly
+  ['√(a + b) read as √a + √b, bare value (F5)', ['a = 9, b = 16', 'c = √(9 + 16) = 7', 'So c = 7'], 'c = √(9 + 16) = √25 = 5', false],
+  ['(a + b)^n read as a^n + b^n, bare value (F5)', ['a + b = 3 + 4', 's = (3 + 4)^2 = 25', 'So s = 25'], 's = (3 + 4)^2 = 7^2 = 49', false],
+  ['−a^n read as (−a)^n (F5)', ['y = -2^2', 'y = -2^2 = 4', 'So y = 4'], 'y = -2^2 = -4', false],
+  ['√x read as x/2 (F5)', ['r^2 = 16', 'r = √16 = 8', 'So r = 8'], 'r = √16 = 4', false],
+  ['POSITIVE: a sign lost is calculation (§13), not a misreading', ['d = 5 - (-3)', 'd = 5 - (-3) = 2', 'So d = 2'], 'd = 5 - (-3) = 8', true],
   ['POSITIVE: a product of the right numbers multiplied out wrongly', ['V = 12 V, I = 2 A', 'P = V x I = 12 x 2 = 25 W', 'So P = 25 W'], 'P = V × I = 12 × 2 = 24 W', true],
 ];
 
@@ -2571,6 +2577,26 @@ test('§MC.7 review: ECF after a retype never crosses PARTS', async () => {
     const r = await grade();
     assert.equal(r.annotatedSteps[3].mistakeType, 'calculation', 'the retype itself still happens in part (i)');
     assert.deepEqual([r.annotatedSteps[4].marksAwarded, r.marksAwarded], [0, 2], 'the part (ii) line earns no ECF from a part (i) slip');
+  }
+});
+
+test('§MC.9 review F6: the note scrub touches only claims about the RETYPED step — a claim about another part that stays conceptual survives', async () => {
+  const steps = [
+    ...LCM_STEPS().map((x) => ({ ...x, part: '(i)' })),
+    S({ part: '(ii)', description: 'Area of the rectangle', studentWork: 'Area = 2 x (4 + 6) = 20', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual' }),
+  ];
+  const LCM_CLAIM = 'You have not understood how the LCM is formed.';
+  const OTHER = 'In (ii) you used the wrong formula for the area.';
+  const typed = LCM_TYPED + '\nArea = 2 x (4 + 6) = 20';
+  const reply = () => REPLY(R(1, steps.map((x) => ({ ...x })), { finalAnswerCorrect: false, teacherNote: 'HCF is right. ' + LCM_CLAIM + ' ' + OTHER }));
+  for (const r of [
+    (await harness({ replies: [reply()] }).single(single({ question: LCM_QT, marks: 4, textAnswer: typed, acceptsV2: true }))).body,
+    (await harness({ replies: [reply()] }).sheet(sheet([lcmSq({ marks: 4, textAnswer: typed })], { acceptsV2: true }))).body.results[0],
+  ]) {
+    assert.equal(r.annotatedSteps[3].mistakeType, 'calculation', 'part (i) LCM line retyped');
+    assert.equal(r.annotatedSteps[5].mistakeType, 'conceptual', 'part (ii) stays conceptual');
+    assert.ok(!r.teacherNote.includes(LCM_CLAIM), 'the claim about the retyped step goes: ' + r.teacherNote);
+    assert.ok(r.teacherNote.includes(OTHER), 'the claim about part (ii) survives: ' + r.teacherNote);
   }
 });
 
