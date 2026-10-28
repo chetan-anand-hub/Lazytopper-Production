@@ -12,6 +12,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import { WallCoverContext } from "../../lib/packs/packEntry";
+import type { DownloadCover } from "../../services/limitsClient";
 import { blockedPracticeCopy, blockedWallCopy, OFFLINE_WALL, SIGNED_OUT_WALL, wallOfferLines } from "./limitsCopy";
 import "./limits.css";
 
@@ -26,10 +28,12 @@ export interface DownloadLimitWallProps {
   tier?: string | null;
   /** PACKS-ENTRY-1: the chapter of the paper, when the caller knows it. Else it is read from the page address, else /packs. */
   chapter?: string | null;
+  /** PACK-LINKS-1: the cover the paper's guard() resolved (chapters / subject). When given, the pack link is built from it, not from the page address. */
+  cover?: DownloadCover;
   onClose: () => void;
 }
 
-export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, chapter = null, onClose }: DownloadLimitWallProps) {
+export default function DownloadLimitWall({ variant, flavor = "download", resetAt = null, tier = null, chapter = null, cover, onClose }: DownloadLimitWallProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const ref = useRef<HTMLDivElement>(null);
@@ -41,6 +45,7 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
   const here = `${location.pathname}${location.search}`;
   // PACKS-ENTRY-1 (a): a quiet second line under the Board Pass actions, only for the download wall.
   const showPackLink = variant === "blocked" && flavor === "download";
+  const wallCover = cover ? { chapters: cover.chapters ?? [], subject: cover.subject ?? null } : null;
 
   const dismiss = useCallback(() => {
     onClose();
@@ -131,7 +136,11 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
             {copy.keep}
           </button>
         </div>
-        {showPackLink && <PacksEntry kind="wall" chapter={chapter} light={tier === "trial"} />}
+        {showPackLink && (
+          <WallCoverContext.Provider value={wallCover}>
+            <PacksEntry kind="wall" chapter={chapter} light={tier === "trial"} />
+          </WallCoverContext.Provider>
+        )}
       </div>
     </div>
   );

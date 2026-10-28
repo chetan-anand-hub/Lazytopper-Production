@@ -2,8 +2,11 @@ import { useState, useEffect, useRef, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
-import { UpgradeModal } from "../UpgradeModal";
-import { foundingRateApplies, monthlyInline } from "../../config/pricing";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import { boardPassOffer, boardPassShortLine } from "../pricing/boardPassOffer";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
+import "../limits/limits.css";
+import "./MockViewGate.css";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 
@@ -150,11 +153,32 @@ function dailyLimitFor(signedIn: boolean): number {
   return signedIn ? SIGNED_IN_DAILY_MOCK_LIMIT : ANON_DAILY_MOCK_LIMIT;
 }
 
+/**
+ * PACK-LINKS-1: the ask on the two paper-open cap walls. The Board Pass leads (real price from
+ * config/pricing.ts via boardPassOffer), a month pass is second, and the matching pack (Mock Pack on a
+ * Full Mock, Chapter Pack on a Chapter Test, plain /packs elsewhere) is the quiet last line.
+ */
+function PaperCapAsk({ returnTo }: { returnTo: string }) {
+  const offer = boardPassOffer(new Date(), predictCbseExamDate("10"));
+  const pricing = (source: string) => `/pricing?source=${source}&returnTo=${encodeURIComponent(returnTo)}`;
+  return (
+    <div className="lt-mvg-ask" data-testid="paper-cap-ask">
+      <Link className="lt-mvg-cta" to={pricing("paper-cap")} data-testid="paper-cap-boardpass">
+        {boardPassShortLine(offer)}
+      </Link>
+      <p className="lt-mvg-detail">{offer.detail}</p>
+      <Link className="lt-mvg-month" to={pricing("paper-cap-month")} data-testid="paper-cap-month">
+        Or {offer.monthlyLine}
+      </Link>
+      <PacksEntry kind="wall" chapter={null} light />
+    </div>
+  );
+}
+
 export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { isPremium, isTrialExpired, status } = useSubscription();
+  const { isPremium, isTrialExpired } = useSubscription();
   const location = useLocation();
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [ready, setReady] = useState(false);
   const incrementedRef = useRef(false);
@@ -257,25 +281,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
             </div>
           ))}
         </div>
-        <div>
-          <button
-            type="button"
-            onClick={() => setShowUpgrade(true)}
-            style={{
-              border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-              padding: "14px 28px", background: "#58cc02", color: "var(--text)",
-              fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-              textTransform: "uppercase",
-            }}
-          >
-            Upgrade to Premium
-          </button>
-        </div>
-        <UpgradeModal
-          open={showUpgrade}
-          onClose={() => setShowUpgrade(false)}
-          featureLabel="Premium Mock Tests"
-        />
+        <PaperCapAsk returnTo={`${location.pathname}${location.search}`} />
       </div>
     );
   }
@@ -317,26 +323,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
           Free accounts open {SIGNED_IN_DAILY_MOCK_LIMIT} papers a day.
         </p>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Get full mock tests with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.
-        </p>
-        <button
-          type="button"
-          onClick={() => setShowUpgrade(true)}
-          style={{
-            border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-            padding: "14px 28px", background: "#58cc02", color: "var(--text)",
-            fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-            textTransform: "uppercase",
-          }}
-        >
-          Unlock Premium mocks
-        </button>
-        <UpgradeModal
-          open={showUpgrade}
-          onClose={() => setShowUpgrade(false)}
-          featureLabel="Premium Mock Tests"
-        />
+        <PaperCapAsk returnTo={`${location.pathname}${location.search}`} />
       </div>
     );
   }

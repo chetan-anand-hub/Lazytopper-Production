@@ -28,6 +28,7 @@ interface WallState {
   resetAt: string | null;
   tier: string | null;
   kind: DownloadKind;
+  cover?: DownloadCover;
 }
 
 export type PaperKeySource = string | (() => string);
@@ -68,14 +69,14 @@ function useLimitedDownloadLive(): LimitedDownload {
           case "blocked":
             trackDownload(kind, "blocked");
             trackDownload(kind, "wall_shown");
-            setWallState({ variant: "blocked", resetAt: result.resetAt, tier: result.tier, kind });
+            setWallState({ variant: "blocked", resetAt: result.resetAt, tier: result.tier, kind, cover });
             return false;
           case "signed_out":
             trackDownload(kind, "wall_shown");
-            setWallState({ variant: "signed_out", resetAt: null, tier: null, kind });
+            setWallState({ variant: "signed_out", resetAt: null, tier: null, kind, cover });
             return false;
           case "offline":
-            setWallState({ variant: "offline", resetAt: null, tier: null, kind });
+            setWallState({ variant: "offline", resetAt: null, tier: null, kind, cover });
             return false;
           default:
             return true;
@@ -89,7 +90,7 @@ function useLimitedDownloadLive(): LimitedDownload {
 
   const close = useCallback(() => setWallState(null), []);
   const wall = wallState ? (
-    <DownloadLimitWall variant={wallState.variant} resetAt={wallState.resetAt} tier={wallState.tier} onClose={close} />
+    <DownloadLimitWall variant={wallState.variant} resetAt={wallState.resetAt} tier={wallState.tier} cover={wallState.cover} onClose={close} />
   ) : null;
 
   return { guard, wall };

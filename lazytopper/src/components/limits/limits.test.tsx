@@ -372,7 +372,7 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
   it("flag on: Board Pass actions first, then the secondary pack button for the chapter; click fires download_wall", async () => {
     FLAG_ON();
     wall();
-    const link = await screen.findByRole("link", { name: "Get the whole chapter on paper — Chapter Pack ₹49" });
+    const link = await screen.findByRole("link", { name: "Chapter Pack ₹49 →" });
     expect(link.getAttribute("href")).toBe("/packs?chapter=triangles");
     const acts = document.querySelector(".lt-limit-acts")!;
     const line = await screen.findByTestId("wall-pack-link");
@@ -385,26 +385,38 @@ describe("PACKS-ENTRY-1 (a) — download-limit wall pack link", () => {
   it("chapter unknown -> plain /packs; explicit chapter prop wins", async () => {
     FLAG_ON();
     wall({}, "/practice-hub");
-    expect((await screen.findByRole("link", { name: /whole chapter on paper/ })).getAttribute("href")).toBe("/packs");
+    expect((await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ })).getAttribute("href")).toBe("/packs");
     cleanup();
     wall({ chapter: "circles" }, "/practice-hub");
-    expect((await screen.findByRole("link", { name: /whole chapter on paper/ })).getAttribute("href")).toBe("/packs?chapter=circles");
+    expect((await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ })).getAttribute("href")).toBe("/packs?chapter=circles");
   });
   it("Full Mock wall -> /packs?mock=<subject>; a multi-topic page -> plain /packs; the trial wall gets the lighter text-button", async () => {
     FLAG_ON();
     wall({}, "/practice/10/maths/full-mock");
-    expect((await screen.findByRole("link", { name: /whole chapter on paper/ })).getAttribute("href")).toBe("/packs?mock=maths");
+    expect((await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ })).getAttribute("href")).toBe("/packs?mock=maths");
     cleanup();
     wall({}, "/worksheet");
-    expect((await screen.findByRole("link", { name: /whole chapter on paper/ })).getAttribute("href")).toBe("/packs");
+    expect((await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ })).getAttribute("href")).toBe("/packs");
     cleanup();
     wall({ tier: "trial" }, "/notes/triangles");
-    await screen.findByRole("link", { name: /whole chapter on paper/ });
+    await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ });
     expect(screen.getByTestId("wall-pack-link").className).toContain("lt-limit-pack--light");
     cleanup();
     wall({ tier: "free" }, "/notes/triangles");
-    await screen.findByRole("link", { name: /whole chapter on paper/ });
+    await screen.findByRole("link", { name: /Pack ₹\d+ →|PDF packs from/ });
     expect(screen.getByTestId("wall-pack-link").className).not.toContain("--light");
+  });
+  it("PACK-LINKS-1: the guard's cover decides the pack link, not the page address", async () => {
+    FLAG_ON();
+    wall({ cover: { chapters: ["circles"] } }, "/worksheet");
+    const a = await screen.findByRole("link", { name: "Chapter Pack ₹49 →" });
+    expect(a.getAttribute("href")).toBe("/packs?chapter=circles");
+    cleanup();
+    wall({ cover: { subject: "science" } }, "/practice-hub");
+    expect((await screen.findByRole("link", { name: "Mock Pack ₹99 →" })).getAttribute("href")).toBe("/packs?mock=science");
+    cleanup();
+    wall({ cover: { chapters: ["circles", "triangles"] } }, "/notes/triangles");
+    expect((await screen.findByRole("link", { name: "PDF packs from ₹49 →" })).getAttribute("href")).toBe("/packs");
   });
   it("flag off, signed-out and practice variants: absent", async () => {
     FLAG_OFF();

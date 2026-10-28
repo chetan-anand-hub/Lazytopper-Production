@@ -20,6 +20,7 @@
  *   other params (utm_*) are ignored.
  *   /packs#my-packs         the student's owned packs
  */
+import { createContext } from "react";
 import { sendAnalyticsHit } from "../../analytics/analytics";
 import { ACTIVITY_TOPIC_SLUGS } from "../../services/activityPages";
 import { isPacksEntryEnabled } from "./packEntryLazy";
@@ -29,6 +30,9 @@ export type PackEntrySource = "download_wall" | "notes" | "footer" | "account";
 
 /** Display price of one Chapter Pack, copy only (the server charges its own amount; a test pins this to the catalogue). */
 export const CHAPTER_PACK_PRICE_INR = 49;
+
+/** Display price of one Mock Pack, copy only (pinned to the catalogue by a test, like the chapter price). */
+export const MOCK_PACK_PRICE_INR = 99;
 
 export { isPacksEntryEnabled };
 
@@ -55,6 +59,42 @@ export function packsHref(opts: PacksHrefOptions = {}): string {
       : "";
   return `/packs${query}${opts.hash ? `#${opts.hash}` : ""}`;
 }
+
+export interface PackOffer {
+  /** "Chapter Pack ₹49 →", "Mock Pack ₹99 →" or "PDF packs from ₹49 →". */
+  label: string;
+  /** The price in the label: "₹49" / "₹99". */
+  priceLabel: string;
+  /** The deep link: /packs?chapter=<slug>, /packs?mock=<subject>, or plain /packs. */
+  href: string;
+}
+
+/**
+ * The pack a wall should offer for the paper it refused (PACK-LINKS-1). PURE. One valid chapter -> that
+ * Chapter Pack; a subject with no single chapter (a Full Mock) -> that subject's Mock Pack; anything else
+ * (several chapters, unknown, nothing) -> the plain /packs. `kind: "mock"` prefers the subject, any other
+ * kind prefers the chapter, when both are given.
+ */
+export function packOfferFor(opts: { chapters?: readonly string[] | null; subject?: PackSubjectName | null; kind?: "mock" | "chapter" | null } = {}): PackOffer {
+  const one = opts.chapters && opts.chapters.length === 1 && isPackChapterSlug(opts.chapters[0]) ? opts.chapters[0] : null;
+  const subject = opts.subject === "maths" || opts.subject === "science" ? opts.subject : null;
+  if (subject && (opts.kind === "mock" || (!one && !opts.chapters?.length))) {
+    return { label: `Mock Pack ₹${MOCK_PACK_PRICE_INR} →`, priceLabel: `₹${MOCK_PACK_PRICE_INR}`, href: packsHref({ mock: subject }) };
+  }
+  if (one) return { label: `Chapter Pack ₹${CHAPTER_PACK_PRICE_INR} →`, priceLabel: `₹${CHAPTER_PACK_PRICE_INR}`, href: packsHref({ chapter: one }) };
+  return { label: `PDF packs from ₹${CHAPTER_PACK_PRICE_INR} →`, priceLabel: `₹${CHAPTER_PACK_PRICE_INR}`, href: "/packs" };
+}
+
+/**
+ * The cover (chapters / subject) of the paper a download wall refused. The wall provides it, PacksWallButton
+ * (several lazy layers below) reads it, so PacksEntryPoint's props stay as they are. null = not provided: the
+ * button then reads the page address as before.
+ */
+export interface WallCover {
+  chapters: readonly string[];
+  subject: PackSubjectName | null;
+}
+export const WallCoverContext = createContext<WallCover | null>(null);
 
 export type PacksQueryPack = "chapter" | "mock" | "subject" | "bundle";
 
