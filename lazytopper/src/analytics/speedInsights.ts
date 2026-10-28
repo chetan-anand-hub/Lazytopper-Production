@@ -35,7 +35,7 @@ export function scrubSpeedEvent<T extends { url: string; route?: string }>(event
   }
 }
 
-export function startSpeedInsights(routerPath: string): void {
+export function startSpeedInsights(routerPath: string = routerPathOf(window.location.pathname)): void {
   if (started || !analyticsEnabled() || speedInsightsBlocked(routerPath)) return;
   started = true;
   const load = () => {
