@@ -27,6 +27,13 @@ const mockSub = vi.hoisted(() => ({
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => mockAuth }));
 vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => mockSub }));
 vi.mock("../../services/subscriptionService", () => ({ hydrateSubscriptionFromCloud: vi.fn(async () => ({})) }));
+// PACK-CREDIT-1: the connected buy area reads the server's pack credit; these suites supply it directly so the
+// only network call under test is the order.
+const mockMine = vi.hoisted(() => ({ credit: null as null | { creditInr: number; expiresAtMs: number; payInr: number } }));
+vi.mock("../../services/packs", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../services/packs")>()),
+  fetchMyPacks: vi.fn(async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: mockMine.credit })),
+}));
 vi.mock("../../services/firebaseClient", () => ({
   authClient: { currentUser: { getIdToken: async () => "id-token" } },
   firestoreDb: null,
@@ -66,6 +73,7 @@ function checkoutScripts(): HTMLScriptElement[] {
 }
 
 beforeEach(() => {
+  mockMine.credit = null;
   mockAuth.user = null;
   mockSub.status = { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: null };
   mockSub.hydrated = true;
@@ -471,5 +479,73 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
     );
     expect(order).toEqual(["boards-tile", "month-tile", "boards-pay", "month-pay"]);
     expect(grid!.querySelector(":scope > .lt-pricing-plan-desc")).toBeNull();
+  });
+});
+
+/* ── PACK-CREDIT-1 · the credit line (every number is the SERVER's) ───────────────── */
+describe("PACK-CREDIT-1 · the Board Pass credit line", () => {
+  const CREDIT = { creditInr: 49, expiresAtMs: Date.parse("2026-11-01T10:00:00.000Z"), payInr: 550 };
+  const LINE = "Your pack credit: ₹49 off — Board Pass ₹550 for you, till 1 November 2026";
+
+  it("signed in with a credit: shows the owner's line, the price straight from the server, the date in IST", () => {
+    view({ signedIn: true, packCredit: CREDIT });
+    expect(screen.getByTestId("pass-checkout-pack-credit").textContent).toBe(LINE);
+  });
+
+  it("the date is the IST calendar day (a late-evening UTC instant rolls to the next IST day)", () => {
+    view({ signedIn: true, packCredit: { ...CREDIT, expiresAtMs: Date.parse("2026-11-01T19:00:00.000Z") } });
+    expect(screen.getByTestId("pass-checkout-pack-credit").textContent).toContain("till 2 November 2026");
+  });
+
+  it("hidden when there is no credit, when signed out, and while a Premium pass is active", () => {
+    view({ signedIn: true, packCredit: null });
+    expect(screen.queryByTestId("pass-checkout-pack-credit")).toBeNull();
+    cleanup();
+    view({ signedIn: false, packCredit: CREDIT });
+    expect(screen.queryByTestId("pass-checkout-pack-credit")).toBeNull();
+    cleanup();
+    view({ signedIn: true, packCredit: CREDIT, activePassEnd: "2027-03-01T00:00:00.000Z" });
+    expect(screen.queryByTestId("pass-checkout-pack-credit")).toBeNull();
+  });
+
+  it("the Board Pass button is unchanged and the credit line is one paragraph with no inline style", () => {
+    view({ signedIn: true, packCredit: CREDIT });
+    expect(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL })).toBeTruthy();
+    expect(screen.getByTestId("pass-checkout-pack-credit").getAttribute("style")).toBeNull();
+  });
+});
+
+describe("PACK-CREDIT-1 · the connected buy area shows the SERVER's credit", () => {
+  it("signed in: the credit line comes from /api/packs/mine; signed out: it is never asked for", async () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    mockMine.credit = { creditInr: 49, expiresAtMs: Date.parse("2026-11-01T10:00:00.000Z"), payInr: 550 };
+    mockAuth.user = null;
+    const out = render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
+    expect(screen.queryByTestId("pass-checkout-pack-credit")).toBeNull();
+    out.unmount();
+    mockAuth.user = { uid: "u1" };
+    render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
+    const line = await screen.findByTestId("pass-checkout-pack-credit");
+    expect(line.textContent).toBe("Your pack credit: ₹49 off — Board Pass ₹550 for you, till 1 November 2026");
+  });
+
+  it("an active Premium pass hides it", async () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    mockMine.credit = { creditInr: 49, expiresAtMs: Date.parse("2026-11-01T10:00:00.000Z"), payInr: 550 };
+    mockAuth.user = { uid: "u1" };
+    mockSub.status = { ...mockSub.status, tier: "premium", passEnd: "2027-03-01T00:00:00.000Z" };
+    render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
+    await screen.findByTestId("pass-checkout-already-active");
+    expect(screen.queryByTestId("pass-checkout-pack-credit")).toBeNull();
+  });
+});
+
+describe("PACK-CREDIT-1 · readBoardPassCredit trusts only sane server numbers", () => {
+  it("anything doubtful is no credit", async () => {
+    const { readBoardPassCredit } = await import("../../services/packs");
+    expect(readBoardPassCredit({ creditInr: 49, expiresAtMs: 1, payInr: 550 })).toEqual({ creditInr: 49, expiresAtMs: 1, payInr: 550 });
+    for (const bad of [null, undefined, 7, "x", {}, { creditInr: 0, expiresAtMs: 1, payInr: 550 }, { creditInr: 49, expiresAtMs: 1, payInr: null }, { creditInr: 49, expiresAtMs: "1", payInr: 550 }, { creditInr: 49.5, expiresAtMs: 1, payInr: 550 }, { creditInr: 49, expiresAtMs: 1, payInr: 0 }]) {
+      expect(readBoardPassCredit(bad), JSON.stringify(bad)).toBeNull();
+    }
   });
 });
