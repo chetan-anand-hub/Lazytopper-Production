@@ -712,8 +712,9 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; foun
   const pBefore = pp.tillBoardsQuote(before, pp.predictBoardDateIso(before)).priceInr;
   const pAfter = pp.tillBoardsQuote(after, pp.predictBoardDateIso(after)).priceInr;
   assert.notEqual(pBefore, pAfter);
-  assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore} till your boards: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
-  assert.ok(closed.text.includes(`₹${pAfter} till your boards`));
+  assert.ok(open.text.includes('₹1,917 till') && /₹2,398 till/.test(closed.text));
+  assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore.toLocaleString('en-IN')} till your boards: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
+  assert.ok(closed.text.includes(`₹${pAfter.toLocaleString('en-IN')} till your boards`));
   assert.ok(open.text.includes('Founding price ends 30 November.'));
   assert.ok(!closed.text.includes('Founding price'));
   assert.ok(!closed.html.includes('Founding price'));

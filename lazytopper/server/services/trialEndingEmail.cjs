@@ -272,7 +272,7 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs 
   const packsUrl = `${appUrl}/packs?${utm('packs')}`;
   // Board Pass price at the SEND time, from the server pricing mirror (never a literal).
   const quote = passPricing.tillBoardsQuote(nowMs, passPricing.predictBoardDateIso(nowMs));
-  const ctaLabel = quote ? `Get the Board Pass - ₹${quote.priceInr} till your boards` : 'Get the Board Pass';
+  const ctaLabel = quote ? `Get the Board Pass - ₹${quote.priceInr.toLocaleString('en-IN')} till your boards` : 'Get the Board Pass';
   let foundingLine = null;
   if (passPricing.foundingOfferOpen(nowMs)) {
     const last = new Date(passPricing.FOUNDING_OFFER_CLOSES_AT_MS - 1 + passPricing.IST_OFFSET_MS);
