@@ -1066,7 +1066,7 @@ export interface OnboardingEventParams {
   start_here_graded: { subject: string; correct: number; total: number };
   start_here_dismissed: { surface: StartHereSurface | StartHereFocusSurface; variant?: StartHereVariant };
   /** ACTIVATION-1 — "Try one board question now (2 min)" tapped: coarse slugs only, no id, no text. */
-  activation_card_click: { subject: string; chapter: string; qtype: string };
+  activation_card_click: { subject: string; chapter: string; qtype: string; via?: "byte" };
   /** HOME-PENDING-1 — the pending-answers list was shown (once per tab per placement: the Home
    *  strip rendered / the header bell's popover opened), with the number waiting. No code, no id. */
   pending_card_shown: { count: number; placement: PendingPlacement };
