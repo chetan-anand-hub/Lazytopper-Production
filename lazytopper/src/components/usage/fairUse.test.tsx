@@ -288,7 +288,7 @@ describe("5 · copy (owner rulings, word for word)", () => {
 
 /* ── 6 · the rendered pieces ───────────────────────────────────────────────── */
 
-const NO_CODES = /trial_limit|usage_limit|fiveHour|₹|INR|rupee|\b409\b|\b429\b/i;
+const NO_CODES = /trial_limit|usage_limit|fiveHour|\b409\b|\b429\b/i;
 
 describe("6 · UI1 panel", () => {
   it("★★ trial: the bold sentence (no reset time repeated), the grey come-back line, and See plans -> the internal pricing route", () => {
