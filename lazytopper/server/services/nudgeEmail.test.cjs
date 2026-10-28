@@ -528,7 +528,9 @@ test('copy: study-led, no urgency words, no name, no tracking, unsubscribe in ev
     for (const part of [m.subject, m.text, m.html.replace(/<[^>]+>/g, ' ')]) assert.doesNotMatch(part, URGENCY, `${kind}: ${part.slice(0, 60)}`);
     assert.ok(m.text.includes(`Unsubscribe: ${unsub}`), kind);
     assert.ok(m.html.includes(unsub), kind);
-    assert.doesNotMatch(m.html, /<img|pixel|utm_|track/i, kind);
+    assert.doesNotMatch(m.html, /<img|pixel|track/i, kind);
+    // SELL-1: UTM tags are allowed only on the PDF-packs link.
+    for (const h of m.html.match(/href="[^"]*utm_[^"]*"/g) || []) assert.match(h, /\/packs\?/, kind);
     assert.match(m.text, /^Hi,\n/, kind);
     assert.ok(m.text.includes('https://www.lazytopper.com/'), kind);
   }
@@ -856,4 +858,17 @@ test('ONEADAY: a trial email older than 24 h does not block a nudge; the nudge l
   const r = await s.make().runOnce();
   assert.equal(r.sent, 1);
   assert.equal(typeof s.db.docs.get('nudgeEmails/u1').lastClaimMs, 'number'); // what the trial emailer's transaction reads
+});
+
+test('SELL-1: d1 and d3 end with one packs line, UTM only, no student data in the link; founding kind unchanged', () => {
+  const base = { appUrl: 'https://www.lazytopper.com', unsubscribeUrl: 'https://x/u?t=tok' };
+  const d1 = buildNudgeEmail('d1', base);
+  const d3 = buildNudgeEmail('d3', { ...base, counts: { checks: 0, tests: 0, practiceSets: 0 } });
+  for (const [m, c] of [[d1, 'nudge_d1'], [d3, 'nudge_d3']]) {
+    const url = `https://www.lazytopper.com/packs?utm_source=email&utm_medium=email&utm_campaign=${c}&utm_content=packs`;
+    assert.ok(m.text.includes(`Want printed practice? Chapter packs from ₹49 → lazytopper.com/packs: ${url}`));
+    assert.ok(m.html.includes(url.replace(/&/g, '&amp;')));
+    assert.ok(!/uid|email=/.test(url));
+  }
+  assert.ok(!buildNudgeEmail('founding', base).text.includes('packs'));
 });
