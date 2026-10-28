@@ -12,6 +12,12 @@
  *
  * Query contract for /packs (PacksPage adopts it; the coordinator wires it after both lanes merge):
  *   /packs?chapter=<slug>   preselect that chapter and open the Chapter Pack pop-up
+ *   /packs?mock=maths|science   open the Mock Pack pop-up on that subject
+ *   /packs?pack=chapter|mock|subject|bundle   open that pack's pop-up (Google Ads sitelinks)
+ *   /packs?subject=maths|science   the subject for a mock / subject pop-up opened by ?pack=
+ *   /packs?view=sample   open on the PDF cover slide (alone: the Chapter Pack pop-up)
+ *   Order: chapter, then mock, then pack, then view=sample. Unknown or repeated values count as absent;
+ *   other params (utm_*) are ignored.
  *   /packs#my-packs         the student's owned packs
  */
 import { sendAnalyticsHit } from "../../analytics/analytics";
@@ -50,28 +56,45 @@ export function packsHref(opts: PacksHrefOptions = {}): string {
   return `/packs${query}${opts.hash ? `#${opts.hash}` : ""}`;
 }
 
+export type PacksQueryPack = "chapter" | "mock" | "subject" | "bundle";
+
 export interface PacksQuery {
   /** A valid chapter slug, or null. */
   chapter: string | null;
   /** "maths" | "science", or null. */
   mock: PackSubjectName | null;
+  /** Which pack pop-up a sitelink asks for, or null. */
+  pack: PacksQueryPack | null;
+  /** "maths" | "science" for a mock / subject pop-up, or null. */
+  subject: PackSubjectName | null;
+  /** "sample" = open on the PDF cover slide, or null. */
+  view: "sample" | null;
+}
+
+/** The single value of a param, or null when it is absent or repeated. */
+function onlyOne(q: URLSearchParams, key: string): string | null {
+  const all = q.getAll(key);
+  return all.length === 1 ? all[0] : null;
 }
 
 /** Reads `location.search`. Never trusts it: an unknown or repeated value is treated as absent. */
 export function readPacksQuery(search: string): PacksQuery {
-  let chapter: string | null = null;
-  let mock: PackSubjectName | null = null;
+  const out: PacksQuery = { chapter: null, mock: null, pack: null, subject: null, view: null };
   try {
     const q = new URLSearchParams(search);
-    const c = q.getAll("chapter");
-    if (c.length === 1 && isPackChapterSlug(c[0])) chapter = c[0];
-    const m = q.getAll("mock");
-    if (m.length === 1 && (m[0] === "maths" || m[0] === "science")) mock = m[0];
+    const c = onlyOne(q, "chapter");
+    if (isPackChapterSlug(c)) out.chapter = c;
+    const m = onlyOne(q, "mock");
+    if (m === "maths" || m === "science") out.mock = m;
+    const p = onlyOne(q, "pack");
+    if (p === "chapter" || p === "mock" || p === "subject" || p === "bundle") out.pack = p;
+    const s = onlyOne(q, "subject");
+    if (s === "maths" || s === "science") out.subject = s;
+    if (onlyOne(q, "view") === "sample") out.view = "sample";
   } catch {
-    chapter = null;
-    mock = null;
+    return { chapter: null, mock: null, pack: null, subject: null, view: null };
   }
-  return { chapter, mock };
+  return out;
 }
 
 /**

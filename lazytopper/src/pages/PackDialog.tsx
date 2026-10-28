@@ -27,6 +27,8 @@ export interface PackDialogProps {
   /** The buy button (and its status notes), owned by the page. */
   buy: ReactNode;
   onClose: () => void;
+  /** Slide to open on (0..3), applied once on mount. Default 0. */
+  initialSlide?: number;
 }
 
 const TITLES: Record<PackSku, { name: string; line: string }> = {
@@ -47,11 +49,12 @@ const SLIDE_COUNT = SLIDES.length + 1;
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
 export default function PackDialog(props: PackDialogProps) {
-  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose } = props;
+  const { sku, chapter, subject, onChapter, onSubject, questions, buy, onClose, initialSlide } = props;
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
-  const [slide, setSlide] = useState(0);
+  const startSlide = Math.max(0, Math.min(SLIDE_COUNT - 1, Number.isInteger(initialSlide) ? (initialSlide as number) : 0));
+  const [slide, setSlide] = useState(startSlide);
   const pushed = useRef(false);
   const closedRef = useRef(false);
 
@@ -147,6 +150,16 @@ export default function PackDialog(props: PackDialogProps) {
       first.focus();
     }
   }
+
+  // Once after mount: put the track on the requested slide (scroll-snap on a phone, the same on desktop).
+  useEffect(() => {
+    if (startSlide === 0) return;
+    const track = trackRef.current;
+    const target = Array.from(track?.querySelectorAll<HTMLElement>(".lt-pkd__slide") ?? [])[startSlide];
+    if (!track || !target) return;
+    track.scrollTo?.({ left: target.offsetLeft - track.offsetLeft, behavior: "auto" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function slideEls(): HTMLElement[] {
     return Array.from(trackRef.current?.querySelectorAll<HTMLElement>(".lt-pkd__slide") ?? []);
