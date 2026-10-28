@@ -1,0 +1,52 @@
+/* StickyPassBar (PRICING-LADDER-1) - phone only. Pinned to the foot of the screen above the home indicator (safe-area inset).
+   z-index 17: under the WhatsApp button (18) and everything modal. The WhatsApp button sits 84px above the bottom edge on a phone
+   (whatsAppFab.css), the bar is ~56px tall, so the two never overlap: the bar is full width, the button floats clear above it. */
+.lt-stickybar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 17;
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid #dbe2ea;
+  box-shadow: 0 -8px 24px rgba(11, 27, 58, 0.1);
+  font-family: Inter, system-ui, sans-serif;
+  animation: lt-stickybar-in 220ms ease-out;
+}
+.lt-stickybar__btn {
+  appearance: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 8px 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #15233a;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.lt-stickybar__btn:focus-visible { outline: 3px solid #0e7c47; outline-offset: 2px; }
+.lt-stickybar__label { font-weight: 600; min-width: 0; }
+.lt-stickybar__price { font-family: Fraunces, Georgia, serif; font-size: 1.2rem; font-weight: 800; margin-left: 4px; }
+.lt-stickybar__go {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 9px;
+  background: #0e7c47;
+  color: #fff;
+  font-weight: 800;
+}
+@keyframes lt-stickybar-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@media (min-width: 768px) { .lt-stickybar { display: none; } }
+@media (prefers-reduced-motion: reduce) { .lt-stickybar { animation: none; } }
+@media print { .lt-stickybar { display: none; } }
