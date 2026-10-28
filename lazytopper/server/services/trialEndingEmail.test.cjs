@@ -700,3 +700,28 @@ test('ONEADAY: a nudge claimed AFTER the early reads but before the claim still 
   assert.equal(r.skipped.spaced, 1);
   assert.equal(s.fetchCalls.length, 0);
 });
+
+test('SELL-1: Board Pass CTA price comes from passPricing at the send time; founding line only while open; UTM links; no student data in URLs', () => {
+  const pp = require('./passPricing.cjs');
+  const endMs = Date.parse('2026-11-12T18:30:00.000Z');
+  const args = { trialEndsAtMs: endMs, counts: null, appUrl: 'https://www.lazytopper.com', unsubscribeUrl: 'https://x/u?t=tok' };
+  const before = Date.parse('2026-11-10T04:30:00.000Z'); // founding open
+  const after = Date.parse('2026-12-02T04:30:00.000Z'); // founding closed
+  const open = buildTrialEmail({ ...args, nowMs: before });
+  const closed = buildTrialEmail({ ...args, nowMs: after });
+  const pBefore = pp.tillBoardsQuote(before, pp.predictBoardDateIso(before)).priceInr;
+  const pAfter = pp.tillBoardsQuote(after, pp.predictBoardDateIso(after)).priceInr;
+  assert.notEqual(pBefore, pAfter);
+  assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore} till your boards: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
+  assert.ok(closed.text.includes(`₹${pAfter} till your boards`));
+  assert.ok(open.text.includes('Founding price ends 30 November.'));
+  assert.ok(!closed.text.includes('Founding price'));
+  assert.ok(!closed.html.includes('Founding price'));
+  for (const m of [open, closed]) {
+    assert.ok(m.text.includes('Prefer printed practice? PDF packs from ₹49: https://www.lazytopper.com/packs?utm_source=email&utm_medium=email&utm_campaign=trial_ending&utm_content=packs'));
+    assert.ok(!m.text.includes('See plans'));
+    const urls = (m.text.match(/https:\/\/www\.lazytopper\.com\S*/g) || []).filter((u) => /pricing|packs/.test(u));
+    assert.equal(urls.length, 2);
+    for (const u of urls) assert.ok(!/uid|email=|@/.test(u));
+  }
+});
