@@ -29,21 +29,47 @@ const ITEMS: ReadonlyArray<{ sku: PackSku; query: PacksQueryPack; name: string; 
   { sku: "pack_bundle", query: "bundle", name: BUNDLE_NAME, what: `All ${ALL_NCERT_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks`, best: true },
 ];
 
+/** Student input that ends the re-assert: we never fight a deliberate scroll. */
+const USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
+
 /** The lowest pack price, for the sub line ("from ₹49"). */
 const FROM_PRICE = Math.min(...ITEMS.map((i) => PACK_PRICE_INR[i.sku]));
 
 export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLive?: boolean } = {}) {
   // Owner ruling 25 Oct: a student who has BOUGHT Premium (cached read; signed out / not yet hydrated -> shown) is shown no pack offers.
   const paid = usePaidPremium();
-  // PACK-BASIC-ONLY-1 - the walls link to /pricing#packs. This strip mounts after first paint (lazy), so the
-  // browser's own hash scroll has already missed it: scroll it into view ourselves, minimally ("nearest"), so the
-  // Board Pass card just above stays on screen.
+  // PACK-BASIC-ONLY-1 / PACK-ANCHOR-FIX-1 - the walls link to /pricing#packs. This strip mounts after first paint (lazy), so the
+  // browser's own hash scroll has already missed it, and content above it (Premium card, founding offer, other lazy parts) can still
+  // grow after our first scroll and push it below the fold. So: scroll the strip's TOP to the top of the viewport on mount, then
+  // re-assert on the next frames and after ~300 ms / ~900 ms, and stop the moment the student scrolls, touches or presses a key.
   const { hash } = useLocation();
   const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
     if (hash !== "#packs" || paid) return undefined;
-    const id = window.requestAnimationFrame(() => ref.current?.scrollIntoView?.({ block: "nearest" }));
-    return () => window.cancelAnimationFrame(id);
+    let stopped = false;
+    const timers: number[] = [];
+    const frames: number[] = [];
+    const assert = () => {
+      if (!stopped) ref.current?.scrollIntoView?.({ block: "start" });
+    };
+    const stop = () => {
+      stopped = true;
+      timers.forEach((t) => window.clearTimeout(t));
+      frames.forEach((f) => window.cancelAnimationFrame(f));
+      USER_EVENTS.forEach((e) => window.removeEventListener(e, stop));
+    };
+    USER_EVENTS.forEach((e) => window.addEventListener(e, stop, { passive: true }));
+    assert();
+    frames.push(
+      window.requestAnimationFrame(() => {
+        assert();
+        frames.push(window.requestAnimationFrame(assert));
+      }),
+    );
+    timers.push(window.setTimeout(assert, 300), window.setTimeout(assert, 900));
+    // The last re-assert also ends the watch.
+    timers.push(window.setTimeout(stop, 950));
+    return stop;
   }, [hash, paid]);
   if (paid) return null;
   return (

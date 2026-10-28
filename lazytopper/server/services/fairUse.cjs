@@ -1030,13 +1030,39 @@ function createFairUse(deps = {}) {
     }
   }
 
-  async function tierFor(uid, req) {
+  async function readTier(uid, req) {
     try {
       const tier = await tierOf(uid, req);
       return typeof tier === 'string' ? tier : null;
     } catch {
       return null;
     }
+  }
+
+  /**
+   * GRADE-SPEED-1 · the tier read, optionally STARTED EARLY. index.cjs calls warmTier() right after the
+   * idempotency claim, so this read overlaps the limiter / limits reservation / entitlement reads that
+   * must stay strictly in order; tierFor() below then awaits the SAME promise instead of starting a
+   * second read. Read-only: no counter, reservation or response. The memo lives only as long as the
+   * request object (WeakMap); a request nobody warmed reads exactly as before.
+   */
+  const warmedTier = new WeakMap();
+  function warmTier(verifiedUid, req, reqPath) {
+    try {
+      const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
+      if (!uid || !req || typeof req !== 'object' || warmedTier.has(req)) return;
+      const graded = Object.prototype.hasOwnProperty.call(SURFACES_BY_PATH, reqPath) || Object.prototype.hasOwnProperty.call(AI_ROUTES, reqPath);
+      if (!graded) return;
+      warmedTier.set(req, { uid, promise: readTier(uid, req) });
+    } catch {
+      /* a warm-up never fails a request */
+    }
+  }
+
+  async function tierFor(uid, req) {
+    const warm = req && typeof req === 'object' ? warmedTier.get(req) : undefined;
+    if (warm && warm.uid === uid) return warm.promise;
+    return readTier(uid, req);
   }
 
   /**
@@ -1541,7 +1567,7 @@ function createFairUse(deps = {}) {
     }
   }
 
-  return { applyToRequest, handleUsageMe, handlePaperPass, isPremium, markPaperGraded, commitDeferred };
+  return { applyToRequest, handleUsageMe, handlePaperPass, isPremium, markPaperGraded, commitDeferred, warmTier };
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1709,7 +1735,10 @@ function createGradingIdempotency(deps = {}) {
           // record by this same claim is carried over — never wiped by the store. A record with no
           // `job` (every synchronous grade) is written exactly as before.
           const job = mine && data.job && typeof data.job === 'object' ? data.job : null;
-          tx.set(ref, { state: 'done', claimId, status, body, completedAtMs: nowMs, expiresAtMs, expiresAt: new Date(expiresAtMs), ...(job ? { job } : {}) });
+          // GRADE-SPEED-1: keep the claim's start time on the finished record (never overwrite it) so the
+          // duration completedAtMs - claimedAtMs is recoverable. Absent when the record is not ours.
+          const claimedAtMs = mine && Number.isFinite(Number(data.claimedAtMs)) ? Number(data.claimedAtMs) : null;
+          tx.set(ref, { state: 'done', claimId, status, body, ...(claimedAtMs !== null ? { claimedAtMs } : {}), completedAtMs: nowMs, expiresAtMs, expiresAt: new Date(expiresAtMs), ...(job ? { job } : {}) });
           return 'stored';
         }
         if (mine) {
