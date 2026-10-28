@@ -59,6 +59,7 @@ import { isPacksClientEnabled } from "../services/packs";
 import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
 import FounderBadge from "../components/brand/FounderBadge";
+import StickyPassBar from "../components/pricing/StickyPassBar";
 
 // PACKS-CLIENT-1 — the PDF packs strip is below the fold: its own chunk, mounted after first paint so the
 // prerendered /pricing is unchanged. A failed chunk renders nothing.
@@ -228,11 +229,12 @@ const PRICING_CSS = `
     gap: 56px;
   }
 
-  .lt-pricing-cards {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-    align-items: stretch;
+  /* PRICING-LADDER-1 — one column on every width: Premium, then the packs, then Basic. */
+  .lt-pricing-ladder {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-width: 0;
   }
 
   .lt-pricing-card {
@@ -254,6 +256,26 @@ const PRICING_CSS = `
     background: var(--lt-mint);
     border: 3px solid var(--lt-green-deep);
     box-shadow: 0 0 0 4px var(--lt-mint-line), 0 22px 48px rgba(11, 27, 58, 0.16);
+  }
+
+  /* PRICING-LADDER-1 — the Premium card's body: one column (passes, trial, then what Premium adds);
+     two columns from 1024px. min-width: 0 on both so long copy never widens the page. */
+  .lt-pricing-premium-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .lt-pricing-premium-main,
+  .lt-pricing-premium-side {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .lt-pricing-premium-side .lt-pricing-mark-guide {
+    margin: 0;
   }
 
   .lt-pricing-badge {
@@ -615,6 +637,28 @@ const PRICING_CSS = `
     margin-top: 14px;
   }
 
+  /* PACK-CREDIT-1 x PRICING-LADDER-1 — the pack-credit note belongs to the Board Pass: it sits inside the
+     Board Pass tile's box, under its button, as a quiet mint line (it is never shown with another notice). */
+  .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--boards,
+  .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--month {
+    grid-row: 2 / 5;
+  }
+
+  .lt-pricing-passes .lt-pack-credit-note {
+    grid-column: 1;
+    grid-row: 4;
+    align-self: start;
+    margin: 0 16px 16px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--lt-mint);
+    border: 1px solid var(--lt-tile-line);
+    color: var(--lt-green-deep);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
   /* Till boards — one payment until the first board paper. The number-free
      line is static; the figures are written only after mount and are stripped
      from the prerendered capture by their data-testid. The slot keeps their
@@ -626,7 +670,7 @@ const PRICING_CSS = `
   }
 
   .lt-pricing-tillboards-slot {
-    min-height: 5.6rem;
+    min-height: 7.4rem;
   }
 
   .lt-pricing-tillboards-line {
@@ -660,6 +704,15 @@ const PRICING_CSS = `
     line-height: 1.45;
   }
 
+  /* PRICING-LADDER-1 — the honest daily anchor, quiet and green, directly under the price. */
+  .lt-pricing-tillboards-perday {
+    margin: 6px 0 0;
+    color: var(--lt-green-deep);
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+
   .lt-pricing-save-tag {
     position: absolute;
     top: -11px;
@@ -672,6 +725,103 @@ const PRICING_CSS = `
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+
+  /* ── Basic: the slim, quiet last step (PRICING-LADDER-1) ────────────────── */
+  .lt-pricing-card--basic {
+    padding: 22px 24px;
+    gap: 14px;
+    box-shadow: none;
+    background: var(--lt-surface);
+  }
+
+  .lt-pricing-basic-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+  }
+
+  .lt-pricing-basic-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .lt-pricing-basic-head {
+    margin: 0;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+    font-size: 1.25rem;
+    line-height: 1.25;
+    font-weight: 700;
+    color: var(--lt-ink);
+  }
+
+  .lt-pricing-basic-copy .lt-pricing-plan-desc {
+    font-size: 0.95rem;
+  }
+
+  .lt-pricing-basic-price .lt-pricing-amount {
+    font-size: 2rem;
+  }
+
+  .lt-pricing-basic-cta {
+    width: 100%;
+  }
+
+  .lt-pricing-basic-more {
+    border-top: 1px solid var(--lt-row-line);
+    padding-top: 4px;
+  }
+
+  .lt-pricing-basic-summary {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--lt-green-deep);
+    font-size: 0.95rem;
+    font-weight: 800;
+    list-style: none;
+  }
+
+  .lt-pricing-basic-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lt-pricing-basic-summary::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    margin-left: 10px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 160ms ease;
+  }
+
+  .lt-pricing-basic-more[open] > .lt-pricing-basic-summary::after {
+    transform: rotate(-135deg);
+  }
+
+  .lt-pricing-basic-body {
+    padding: 8px 0 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lt-pricing-basic-body .lt-pricing-list-head {
+    margin-top: 0;
+  }
+
+  .lt-pricing-basic-body .lt-pricing-list-head--limits {
+    margin-top: 6px;
+  }
+
+  .lt-pricing-basic-body .lt-pricing-card-foot {
+    margin-top: 4px;
   }
 
   /* ── Compare plans ──────────────────────────────────────────────────────── */
@@ -980,9 +1130,41 @@ const PRICING_CSS = `
     line-height: 1.5;
   }
 
-  /* The pass tiles stack when the Premium card is narrow: side-by-side cards on a
-     tablet, and every phone. */
-  @media (min-width: 761px) and (max-width: 1023px), (max-width: 560px) {
+  /* PRICING-LADDER-1 — tablet and up: Basic becomes one slim row (copy | price | button). */
+  @media (min-width: 640px) {
+    .lt-pricing-basic-row {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 24px;
+    }
+    .lt-pricing-basic-cta {
+      width: auto;
+      min-width: 160px;
+    }
+  }
+
+  /* PRICING-LADDER-1 — desktop: the Premium card is two columns across the full content width. */
+  @media (min-width: 1024px) {
+    .lt-pricing-premium-grid {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 40px;
+    }
+    .lt-pricing-premium-main {
+      flex: 1 1 0;
+    }
+    .lt-pricing-premium-side {
+      flex: 1 1 0;
+      padding-left: 40px;
+      border-left: 1px solid var(--lt-tile-line);
+    }
+    .lt-pricing-card--premium {
+      padding: 36px 40px;
+    }
+  }
+
+  /* The pass tiles stack on a phone. (The Premium card is full width at every width now, so the
+     old 761-1023px stacking is gone: side by side fits from 561px.) */
+  @media (max-width: 560px) {
     .lt-pricing-passes {
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: auto auto auto 14px auto auto auto;
@@ -1016,7 +1198,29 @@ const PRICING_CSS = `
       grid-row: 7;
     }
     .lt-pricing-tillboards-slot {
-      min-height: 4.4rem;
+      min-height: 6.2rem;
+    }
+    /* With the pack-credit note: it takes row 4 inside the Board Pass box, the Month pass moves down. */
+    .lt-pricing-passes:has(.lt-pack-credit-note) {
+      grid-template-rows: auto auto auto auto 14px auto auto;
+    }
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--boards {
+      grid-column: 1;
+      grid-row: 2 / 5;
+    }
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--month {
+      grid-column: 1;
+      grid-row: 6 / 8;
+    }
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass--month {
+      grid-row: 6;
+    }
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pay--month {
+      grid-row: 7;
+    }
+    .lt-pricing-passes .lt-pack-credit-note {
+      grid-column: 1;
+      grid-row: 4;
     }
   }
 
@@ -1044,10 +1248,6 @@ const PRICING_CSS = `
       margin-top: -92px;
       padding: 0 16px 72px;
       gap: 40px;
-    }
-    .lt-pricing-cards {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 28px;
     }
     .lt-pricing-compare-title {
       font-size: 1.6rem;
@@ -1209,6 +1409,24 @@ export function PremiumPriceHead({ offerOpen }: { offerOpen: boolean }) {
 }
 
 /**
+ * PRICING-LADDER-1 - the honest daily anchor under the Board Pass price: "≈ ₹N a day till your boards".
+ * N = ceil(the CURRENT Board Pass price / whole days from today (IST) to the predicted board date). Pure: the clock and the board date are
+ * arguments, and the price is the SAME `tillBoardsQuote` figure the card shows. Returns null - and the line is not rendered - when the
+ * date is unparseable, no day is left, or the result is not finite. It sits inside the figures node, so it is never in the prerender.
+ */
+export function boardPassPerDay(now: Date, boardIso: string, priceInr: number): number | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(boardIso);
+  if (!match || Number.isNaN(now.getTime()) || !Number.isFinite(priceInr)) return null;
+  const ist = new Date(now.getTime() + 5.5 * 3_600_000);
+  const todayUtc = Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), ist.getUTCDate());
+  const boardUtc = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const days = Math.round((boardUtc - todayUtc) / 86_400_000);
+  if (!Number.isFinite(days) || days < 1) return null;
+  const perDay = Math.ceil(priceInr / days);
+  return Number.isFinite(perDay) && perDay > 0 ? perDay : null;
+}
+
+/**
  * PRICING-TB-1 · R3/R4 — the till-boards offer.
  *
  * ★ THE FIRST RENDER CARRIES NO FIGURE. The number-free line is static; the
@@ -1230,8 +1448,13 @@ export function PremiumPriceHead({ offerOpen }: { offerOpen: boolean }) {
  */
 export function TillBoardsOffer({ offerOpen }: { offerOpen: boolean }) {
   const [quote, setQuote] = useState<TillBoardsQuote | null>(null);
+  const [perDay, setPerDay] = useState<number | null>(null);
   useEffect(() => {
-    setQuote(tillBoardsQuote(new Date(), predictCbseExamDate("10"), offerOpen));
+    const now = new Date();
+    const boardIso = predictCbseExamDate("10");
+    const q = tillBoardsQuote(now, boardIso, offerOpen);
+    setQuote(q);
+    setPerDay(q ? boardPassPerDay(now, boardIso, q.priceInr) : null);
   }, [offerOpen]);
 
   return (
@@ -1252,6 +1475,11 @@ export function TillBoardsOffer({ offerOpen }: { offerOpen: boolean }) {
               {" · "}
               <span className="lt-pricing-tillboards-until">{quote.untilLabel}</span>
             </p>
+            {perDay !== null && (
+              <p className="lt-pricing-tillboards-perday" data-testid="till-boards-per-day">
+                &asymp; &#8377;{perDay} a day till your boards
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -1523,118 +1751,141 @@ function PricingPlansPage() {
               Premium first (DOM order, so the reading order matches what is seen). The cards
               are <div>s, never <section>s: the prerender strip removes a whole <section>
               around any /login link, and a card must never be collateral. */}
-          <div className="lt-pricing-cards">
-            <div className="lt-pricing-card lt-pricing-card--premium">
+          <div className="lt-pricing-ladder">
+            <div className="lt-pricing-card lt-pricing-card--premium" id="lt-premium-card">
               <span className="lt-pricing-badge">Recommended</span>
-              <div className="lt-pricing-premium-top">
-                <div className="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div>
-                {offerOpen && (
-                  <p className="lt-pricing-founding-flag">
-                    {FOUNDING_OFFER_BADGE}
-                  </p>
-                )}
-              </div>
-
-              {/* The two pass tiles. Payments on: PassCheckout's buttons and notices are
-                  placed into the tiles by class (P23). Payments dark (VITE_PAYMENTS_ENABLED
-                  unset): the tiles carry the prices only, and the exact manual-activation
-                  paragraph (RAZORPAY-1 · P7) stands where the Pay buttons would be. */}
-              {/* PAYWALL-PAY-1 — a tap on either pass's Pay button is the "pay" paywall action
-                  (capture phase, so PassCheckout is untouched; a disabled button fires nothing). */}
-              <div className="lt-pricing-passes" data-testid="pricing-passes" onClickCapture={trackPricingPayTap}>
-                <div className="lt-pricing-pass-bg lt-pricing-pass-bg--boards" aria-hidden="true" />
-                <div className="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true" />
-                <div className="lt-pricing-pass lt-pricing-pass--boards">
-                  <div className="lt-pricing-pass-name">{BOARD_PASS_NAME}</div>
-                  <TillBoardsOffer offerOpen={foundingRate} />
-                </div>
-                <div className="lt-pricing-pass lt-pricing-pass--month">
-                  <div className="lt-pricing-pass-name">Month pass</div>
-                  <PremiumPriceHead offerOpen={foundingRate} />
-                  <p className="lt-pricing-price-alt">{TUITION_ANCHOR}</p>
-                </div>
-                {paymentsOn ? (
-                  <PassCheckout />
-                ) : (
-                  <p className="lt-pricing-plan-desc">
-                    Manual activation during beta. Payment checkout coming soon.
-                    Premium is not activated automatically.
-                  </p>
-                )}
-              </div>
-
-              {foundingRate && (
-                <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
-              )}
-              {offerOpen && (
-                <p className="lt-pricing-founding-until" data-testid="pricing-founding-until">
-                  {FOUNDING_OFFER_UNTIL_COPY}
-                </p>
-              )}
-              <div className="lt-pricing-list-head">{PREMIUM_PLUS_HEAD}</div>
-              <ul className="lt-pricing-features" aria-label="Premium plan features">
-                {PREMIUM_PLUS.map(item => (
-                  <PlanRow key={item.id} item={item} />
-                ))}
-              </ul>
-              <p className="lt-pricing-mark-guide">Wondering how answers are marked? <Link to="/check-your-answer">See how CBSE examiners mark Class 10 answers</Link>, with worked examples from past board papers.</p>
-              <div className="lt-pricing-card-end">
-                {showTrialFootnote && <p className="lt-pricing-card-foot">{PREMIUM_FOOTNOTE}</p>}
-                {/* L2 — the P17 trial states, below the tiles. */}
-                <div className="lt-pricing-trial-slot">{premiumTrialAction}</div>
-                {/* ASK-PARENTS-PAY-1 / PAYWALL-PAY-1 — a signed-in student on a trial or Basic
-                    (never Premium) can send a parent the pay link: "Share QR code" and
-                    "Forward link to parents". "Pay" is the pass tiles' own Pay buttons above.
-                    Renders nothing while parent pay is dark. */}
-                {user && subscription.hydrated && subscription.status.tier !== "premium" && paymentsOn && isParentPayClientEnabled() && (
-                  <div className="lt-parent-share" data-testid="pricing-parent-share">
-                    <PaywallActions surface="pricing" />
+              {/* PRICING-LADDER-1 — one column on a phone: the passes, then the trial, then the founding
+                  notes, the feature list and the examiner link (DOM order = reading order). From 1024px
+                  the same two blocks sit side by side: the passes and the trial on the left, what
+                  Premium adds on the right. */}
+              <div className="lt-pricing-premium-grid">
+                <div className="lt-pricing-premium-main">
+                  <div className="lt-pricing-premium-top">
+                    <div className="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div>
+                    {offerOpen && (
+                      <p className="lt-pricing-founding-flag">
+                        {FOUNDING_OFFER_BADGE}
+                      </p>
+                    )}
                   </div>
-                )}
+
+                  {/* The two pass tiles. Payments on: PassCheckout's buttons and notices are
+                      placed into the tiles by class (P23). Payments dark (VITE_PAYMENTS_ENABLED
+                      unset): the tiles carry the prices only, and the exact manual-activation
+                      paragraph (RAZORPAY-1 · P7) stands where the Pay buttons would be. */}
+                  {/* PAYWALL-PAY-1 — a tap on either pass's Pay button is the "pay" paywall action
+                      (capture phase, so PassCheckout is untouched; a disabled button fires nothing). */}
+                  <div className="lt-pricing-passes" data-testid="pricing-passes" onClickCapture={trackPricingPayTap}>
+                    <div className="lt-pricing-pass-bg lt-pricing-pass-bg--boards" aria-hidden="true" />
+                    <div className="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true" />
+                    <div className="lt-pricing-pass lt-pricing-pass--boards">
+                      <div className="lt-pricing-pass-name">{BOARD_PASS_NAME}</div>
+                      <TillBoardsOffer offerOpen={foundingRate} />
+                    </div>
+                    <div className="lt-pricing-pass lt-pricing-pass--month">
+                      <div className="lt-pricing-pass-name">Month pass</div>
+                      <PremiumPriceHead offerOpen={foundingRate} />
+                      <p className="lt-pricing-price-alt">{TUITION_ANCHOR}</p>
+                    </div>
+                    {paymentsOn ? (
+                      <PassCheckout />
+                    ) : (
+                      <p className="lt-pricing-plan-desc">
+                        Manual activation during beta. Payment checkout coming soon.
+                        Premium is not activated automatically.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="lt-pricing-card-end">
+                    {showTrialFootnote && <p className="lt-pricing-card-foot">{PREMIUM_FOOTNOTE}</p>}
+                    {/* L2 — the P17 trial states, directly below the tiles. */}
+                    <div className="lt-pricing-trial-slot">{premiumTrialAction}</div>
+                    {/* ASK-PARENTS-PAY-1 / PAYWALL-PAY-1 — a signed-in student on a trial or Basic
+                        (never Premium) can send a parent the pay link: "Share QR code" and
+                        "Forward link to parents". "Pay" is the pass tiles' own Pay buttons above.
+                        Renders nothing while parent pay is dark. */}
+                    {user && subscription.hydrated && subscription.status.tier !== "premium" && paymentsOn && isParentPayClientEnabled() && (
+                      <div className="lt-parent-share" data-testid="pricing-parent-share">
+                        <PaywallActions surface="pricing" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="lt-pricing-premium-side">
+                  {foundingRate && (
+                    <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
+                  )}
+                  {offerOpen && (
+                    <p className="lt-pricing-founding-until" data-testid="pricing-founding-until">
+                      {FOUNDING_OFFER_UNTIL_COPY}
+                    </p>
+                  )}
+                  <div className="lt-pricing-list-head">{PREMIUM_PLUS_HEAD}</div>
+                  <ul className="lt-pricing-features" aria-label="Premium plan features">
+                    {PREMIUM_PLUS.map(item => (
+                      <PlanRow key={item.id} item={item} />
+                    ))}
+                  </ul>
+                  <p className="lt-pricing-mark-guide">Wondering how answers are marked? <Link to="/check-your-answer">See how CBSE examiners mark Class 10 answers</Link>, with worked examples from past board papers.</p>
+                </div>
               </div>
             </div>
 
+            {/* PRICING-LADDER-1 — the packs are the LADDER to Premium: directly after the Premium card,
+                before Basic. Mounted after first paint (lazy), so the prerendered page is unchanged. */}
+            {showPacksStrip && (
+              <Suspense fallback={null}>
+                <PacksStrip />
+              </Suspense>
+            )}
+
+            {/* PRICING-LADDER-1 — Basic is the quiet last step: a slim row, with every include and
+                every limit folded (not removed) inside the <details>, closed by default. */}
             <div className="lt-pricing-card lt-pricing-card--basic">
-              <div className="lt-pricing-plan-label">Basic</div>
-              <div className="lt-pricing-price">
-                <span className="lt-pricing-amount">{PRICE_FREE_DISPLAY}</span>
-                <span className="lt-pricing-period">{PERIOD_FREE_LABEL}</span>
+              <div className="lt-pricing-basic-row">
+                <div className="lt-pricing-basic-copy">
+                  <div className="lt-pricing-plan-label">Basic</div>
+                  <p className="lt-pricing-basic-head">Just browsing? Basic is free forever</p>
+                  <p className="lt-pricing-plan-desc">For browsing, revising and practising on your own.</p>
+                </div>
+                <div className="lt-pricing-price lt-pricing-basic-price">
+                  <span className="lt-pricing-amount">{PRICE_FREE_DISPLAY}</span>
+                  <span className="lt-pricing-period">{PERIOD_FREE_LABEL}</span>
+                </div>
+                <button
+                  type="button"
+                  className="lt-pricing-cta lt-pricing-cta--secondary lt-pricing-basic-cta"
+                  onClick={() => toLogin(withSigninRedirect("/login", carriedRedirect))}
+                >
+                  Start free
+                </button>
               </div>
-              <p className="lt-pricing-plan-desc">For browsing, revising and practising on your own.</p>
-              <button
-                type="button"
-                className="lt-pricing-cta lt-pricing-cta--secondary"
-                onClick={() => toLogin(withSigninRedirect("/login", carriedRedirect))}
-              >
-                Start free
-              </button>
-              <div className="lt-pricing-list-head">{BASIC_INCLUDES_HEAD}</div>
-              <ul className="lt-pricing-features" aria-label="Basic plan features">
-                {BASIC_INCLUDES.filter(item => showFreeCheck || !item.onlyWithFreeCheck).map(item => (
-                  <PlanRow
-                    key={item.id}
-                    item={item}
-                    testId={item.onlyWithFreeCheck ? "pricing-free-check-line" : undefined}
-                  />
-                ))}
-              </ul>
-              <div className="lt-pricing-list-head lt-pricing-list-head--limits">{BASIC_LIMITS_HEAD}</div>
-              <ul className="lt-pricing-features lt-pricing-features--limits" aria-label="What Basic does not include">
-                {basicLimits({ freeCheck: showFreeCheck }).map(item => (
-                  <PlanRow key={item.id} item={item} negative />
-                ))}
-              </ul>
-              <div className="lt-pricing-card-end">
-                <p className="lt-pricing-card-foot">{BASIC_FOOTNOTE}</p>
-              </div>
+              <details className="lt-pricing-basic-more" data-testid="pricing-basic-details">
+                <summary className="lt-pricing-basic-summary">See what's free, and what's not</summary>
+                <div className="lt-pricing-basic-body">
+                  <div className="lt-pricing-list-head">{BASIC_INCLUDES_HEAD}</div>
+                  <ul className="lt-pricing-features" aria-label="Basic plan features">
+                    {BASIC_INCLUDES.filter(item => showFreeCheck || !item.onlyWithFreeCheck).map(item => (
+                      <PlanRow
+                        key={item.id}
+                        item={item}
+                        testId={item.onlyWithFreeCheck ? "pricing-free-check-line" : undefined}
+                      />
+                    ))}
+                  </ul>
+                  <div className="lt-pricing-list-head lt-pricing-list-head--limits">{BASIC_LIMITS_HEAD}</div>
+                  <ul className="lt-pricing-features lt-pricing-features--limits" aria-label="What Basic does not include">
+                    {basicLimits({ freeCheck: showFreeCheck }).map(item => (
+                      <PlanRow key={item.id} item={item} negative />
+                    ))}
+                  </ul>
+                  <p className="lt-pricing-card-foot">{BASIC_FOOTNOTE}</p>
+                </div>
+              </details>
             </div>
           </div>
-
-          {showPacksStrip && (
-            <Suspense fallback={null}>
-              <PacksStrip />
-            </Suspense>
-          )}
 
           <section className="lt-pricing-compare" aria-labelledby="lt-pricing-compare-title">
             <h2 className="lt-pricing-compare-title" id="lt-pricing-compare-title">{COMPARE_TITLE}</h2>
@@ -1754,6 +2005,17 @@ function PricingPlansPage() {
           </section>
         </div>
       </div>
+
+      {/* PRICING-LADDER-1 — phone-only shortcut to the Board Pass, mounted after hydration (never prerendered),
+          only with payments on, never for a student who has already BOUGHT Premium. */}
+      {paymentsOn && (
+        <StickyPassBar
+          watchTestId="pricing-passes"
+          targetId="lt-premium-card"
+          foundingRate={foundingRate}
+          hidden={subscription.status.tier === "premium"}
+        />
+      )}
 
       {/* [FU-LEGAL-FOOTER-LINK] — /pricing is a public route with the global navbar
           suppressed (isPublicLandingRoute), so it had no route to the policies. A
