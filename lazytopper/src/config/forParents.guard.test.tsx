@@ -116,8 +116,8 @@ const FORBIDDEN: ReadonlyArray<[string, RegExp]> = [
   ["guaranteed", /guarantee/i],
   ["leaked", /leak/i],
   ["free mocks checked", /free mocks? checked/i],
-  ["a price (rupee sign)", /₹/],
-  ["a price (Rs / INR)", /\b(?:Rs\.?|INR)\s?\d/i],
+  // PARENTS-PAY-1 (owner ruling 28 Oct 2026) supersedes the 12–13 Oct "no price figure" rule:
+  // the page now shows the Board Pass price from config/pricing.ts. Source literals stay banned (below).
   ["ref=parent", /ref=parent/i],
   ["a sign-up or login link", /href="[^"]*\/(?:sign-up|login)\b/i],
   ["a sign-up button", /\b(?:sign up|signup|create (?:an )?account|register)\b/i],
@@ -226,6 +226,9 @@ describe("PARENTS-1 (b) — the page has the H1, both share buttons, the video a
       expect(hrefs.every((h) => h.startsWith("https://wa.me/?text=") && h.includes("utm_source%3Dparent_share")), rel).toBe(true);
       expect(mediaProblems(pre), rel).toEqual([]);
       expect(copyProblems(pre), rel).toEqual([]);
+      // PARENTS-PAY-1 — the frozen HTML carries the Board Pass price block (figure from config, not asserted here).
+      expect(pre, rel).toContain("Board Pass");
+      expect(pre, rel).toMatch(/₹[\d,]+/);
       // PARENTS-CTA-1 — the free-check links and the pricing link are in the frozen HTML too.
       // MOMENTS-1 M11b — a fourth, beside Mummy's "one written answer" line (the same URL).
       expect(freeCheckHrefs(pre), rel).toEqual([FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF, FREE_CHECK_HREF]);
@@ -280,8 +283,6 @@ describe("PARENTS-1 (c) — the forbidden copy, ref=parent, a price and a sign-u
       guaranteed: "<p>Guaranteed marks</p>",
       leaked: "<p>leaked paper</p>",
       "free mocks checked": "<p>free mocks checked</p>",
-      "a price (rupee sign)": "<p>₹499</p>",
-      "a price (Rs / INR)": "<p>Rs. 499</p>",
       "ref=parent": '<a href="/check-improve?ref=parent">x</a>',
       "a sign-up or login link": '<a href="/sign-up">x</a>',
       "a sign-up button": "<button>Sign up</button>",
@@ -318,7 +319,7 @@ describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /p
     }
   });
 
-  it("the cost answer keeps its true copy and links 'See pricing' to /pricing — still with no price figure", () => {
+  it("the cost answer keeps its true copy and links 'See pricing' to /pricing", () => {
     expect(pricingHrefs(html)).toEqual([PRICING_HREF]);
     const cost = html.slice(html.indexOf("<summary>What does it cost?</summary>"));
     const answer = cost.slice(0, cost.indexOf("</details>"));
@@ -453,7 +454,7 @@ describe("PARENTS-NAV-1 (g) — a visible price link, and every link leads back"
     expect(rule).not.toMatch(/border:/); // no outline: quieter than the free-check link
   });
 
-  it("still NO price figure, no 'Ask', no seat count or deadline on the page", () => {
+  it("no 'Ask', no seat count or deadline on the page (a price IS shown since PARENTS-PAY-1)", () => {
     expect(copyProblems(html)).toEqual([]);
     const words = html.replace(/<[^>]+>/g, " ");
     expect(words).not.toMatch(/\bAsk\b/);
