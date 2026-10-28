@@ -17,6 +17,9 @@ import TutorErrorView from "../../pages/tutor/TutorErrorView";
 import { boardPassOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { monthlyInline } from "../../config/pricing";
+import FairUseLimitPanel from "../usage/FairUseLimitPanel";
+import { limitCopy, limitFromRefusal, type LimitState } from "../usage/fairUseGate";
+import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine } from "../limits/limitsCopy";
 
 // PRICING-1 — the sheet reads the student's own founding flag; the hook is stubbed so these tests
 // need no auth provider, and each test sets what the "student" is.
@@ -44,6 +47,7 @@ vi.mock("../../services/subscriptionService", async (importOriginal) => {
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllEnvs();
   subState.foundingMember = undefined;
   subState.tier = "free";
   subState.trialStartDate = null;
@@ -513,5 +517,103 @@ describe("ASK-COPY-1: tutor 402 card", () => {
     subState.tier = "premium";
     showCard();
     expect(screen.queryByTestId("start-trial-cta")).toBeNull();
+  });
+});
+
+/* ══ PAPER-WALLS-1 ══ */
+const on = () => vi.stubEnv("VITE_PACKS_ENABLED", "1");
+const bp = () => {
+  const o = boardPassOffer(new Date(), predictCbseExamDate("10"));
+  return `${o.title}${o.priceDisplay ? ` ${o.priceDisplay}` : ""}`;
+};
+
+describe("paperPackLine", () => {
+  it("picks the right pack and href", () => {
+    on();
+    expect(paperPackLine("chapter-test", { chapters: ["triangles"] })).toMatchObject({ label: "Chapter Pack", priceLabel: "₹49", href: "/packs?chapter=triangles" });
+    expect(paperPackLine("worksheet", { chapters: ["triangles", "triangles"] })?.href).toBe("/packs?chapter=triangles");
+    expect(paperPackLine("full-mock", { subject: "science" })).toMatchObject({ label: "Mock Pack", priceLabel: "₹99", href: "/packs?mock=science" });
+    expect(paperPackLine("worksheet", { chapters: ["triangles", "electricity"] })).toMatchObject({ label: "PDF packs", priceLabel: "", href: "/packs" });
+    expect(paperPackLine("full-mock", {})?.href).toBe("/packs");
+  });
+  it("is null while the pack links are off", () => {
+    vi.stubEnv("VITE_PACKS_ENABLED", "");
+    expect(paperPackLine("chapter-test", { chapters: ["triangles"] })).toBeNull();
+  });
+  it("reads refusals by name", () => {
+    expect(isPremiumRequiredRefusal({ name: "PremiumRequiredError" })).toBe(true);
+    expect(isPremiumRequiredRefusal(new Error("x"))).toBe(false);
+    expect(isTrialLimitRefusal({ name: "FairUseLimitError", kind: "trial_limit" })).toBe(true);
+    expect(isTrialLimitRefusal({ name: "FairUseLimitError", kind: "usage_limit" })).toBe(false);
+  });
+});
+
+describe("UpgradeSheet pack line", () => {
+  const pack = { label: "Mock Pack", priceLabel: "₹99", href: "/packs?mock=maths" };
+  const mount = (p?: typeof pack | null) =>
+    render(
+      <MemoryRouter>
+        <UpgradeSheet featureLabel="Grading your full mock" pack={p} onClose={() => {}} />
+      </MemoryRouter>,
+    );
+
+  it("shows the Board Pass first and the pack link second", () => {
+    mount(pack);
+    const bpEl = screen.getByTestId("upgrade-sheet-board-pass");
+    const packEl = screen.getByTestId("upgrade-sheet-pack");
+    expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(packEl.textContent).toContain("Prefer printed practice? Mock Pack ₹99 →");
+    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/packs?mock=maths");
+  });
+  it("shows no pack line without a pack, or to paid Premium", () => {
+    mount(null);
+    expect(screen.queryByTestId("upgrade-sheet-pack")).toBeNull();
+    cleanup();
+    subState.tier = "premium";
+    mount(pack);
+    expect(screen.queryByTestId("upgrade-sheet-pack")).toBeNull();
+    expect(screen.getByTestId("upgrade-sheet-board-pass")).toBeInTheDocument(); // the control: the sheet did render
+  });
+});
+
+describe("FairUseLimitPanel on a trial paper refusal", () => {
+  const limit: LimitState = { tier: "trial", scope: "chapter-test", resetAt: null, window: null, allowance: 1 };
+  const pack = { label: "Chapter Pack", priceLabel: "₹49", href: "/packs?chapter=triangles" };
+  const mount = (l: LimitState, p: typeof pack | null) =>
+    render(
+      <MemoryRouter>
+        <FairUseLimitPanel limit={l} pack={p} />
+      </MemoryRouter>,
+    );
+
+  it("names the Board Pass price first, then the pack", () => {
+    mount(limit, pack);
+    const bpEl = screen.getByTestId("fair-use-board-pass");
+    expect(bpEl.textContent).toContain(bp());
+    const packEl = screen.getByTestId("fair-use-pack-line");
+    expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/packs?chapter=triangles");
+  });
+  it("a premium fair-use refusal shows neither", () => {
+    mount({ tier: "premium", scope: "chapter-test", resetAt: null, window: "day" }, pack);
+    expect(screen.getByTestId("fair-use-limit-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("fair-use-board-pass")).toBeNull();
+    expect(screen.queryByTestId("fair-use-pack-line")).toBeNull();
+  });
+});
+
+describe("7-day trial refusal copy", () => {
+  it("says this week, not today, when the server named the week window", () => {
+    const week: LimitState = { tier: "trial", scope: "checks", resetAt: null, window: "week", allowance: 5 };
+    const c = limitCopy(week);
+    expect(c.lead).toContain("this week's");
+    expect(c.lead).not.toContain("today");
+    expect(c.tail).toBe("Premium removes the weekly limit.");
+    expect(limitCopy({ ...week, window: null }).lead).toContain("today's"); // control
+  });
+  it("limitFromRefusal carries the window for a trial refusal", () => {
+    const snap = { tier: "trial", enforced: true, trial: null } as never;
+    const out = limitFromRefusal({ kind: "trial_limit", remaining: null, resetAt: null, window: "week" }, snap, "worksheet");
+    expect(out?.window).toBe("week");
   });
 });

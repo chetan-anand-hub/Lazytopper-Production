@@ -151,6 +151,8 @@ import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
 import { gradingErrorMessage } from "../ai/gradingTransport";
+import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
+import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine } from "../components/limits/limitsCopy";
 import { resumableJob, type GradingJobInterruptedError } from "../ai/gradingJobs";
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
@@ -397,6 +399,9 @@ export default function FullMockPage() {
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
+  // PAPER-WALLS-1: the upgrade sheet (Board Pass first, the Mock Pack second) for a Basic 402 / spent trial allowance.
+  const [paperWall, setPaperWall] = useState(false);
+  const paperPack = useMemo(() => paperPackLine("full-mock", { subject: sessionSubject }), [sessionSubject]);
   const [downloading, setDownloading] = useState(false);
   // AWAIT-1-PAPERS — the paper just downloaded (the confirmation card), a downloaded paper
   // re-opened for its Section A picks, and whether the ACTIVE mock was sat on paper: a
@@ -711,7 +716,16 @@ export default function FullMockPage() {
         // J2 §6: an interrupted background grade keeps its marked rows and offers the rest back.
         if (jobUi.captureInterrupted(err)) return;
         // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
+        // PAPER-WALLS-1: a Basic 402 is the upgrade sheet, never red text.
+        if (isPremiumRequiredRefusal(err)) {
+          setPaperWall(true);
+          return;
+        }
         if (await fairUse.handleRefusal(err)) return;
+        if (isTrialLimitRefusal(err)) {
+          setPaperWall(true);
+          return;
+        }
         // LOW-END-1 R2: never a raw platform message ("Failed to fetch") — a plain sentence.
         setGradeError(gradingErrorMessage(err, "We couldn't grade your answers just now. Your answers are still here — please try again."));
       } finally {
@@ -1423,7 +1437,8 @@ export default function FullMockPage() {
                       scopeName={subject}
                     />
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} pack={paperPack} /> : null}
+
                     {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
                     <PreTestSlot surface="full_mock" />
                     <div className="lt-ct__startrow">
@@ -1749,7 +1764,11 @@ export default function FullMockPage() {
             <span className="lt-ct__pagetitle">Mock · Result</span>
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} pack={paperPack} /> : null}
+          {paperWall && (
+            <UpgradeSheet featureLabel="Grading your full mock" pack={paperPack} onClose={() => setPaperWall(false)} />
+          )}
+
           {resultsPhase === "partial" && (
             <GradingJobRows
               progress={jobUi.progress}

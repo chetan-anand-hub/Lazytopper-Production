@@ -39,6 +39,7 @@ import {
   START_HERE_COPY,
   START_HERE_ONE_TAP_COPY,
   START_HERE_FAIL_COPY,
+  START_HERE_TRY_ONE_COPY,
   analyticsSubject,
   startHereSetSize,
   dismissForSession,
@@ -131,6 +132,8 @@ const CSS = `
     background: hsl(152, 55%, 45%); color: #fff; border: 0; border-radius: 10px; padding: 11px 22px;
     font-size: 14px; font-weight: 700; cursor: pointer; min-height: 44px; box-sizing: border-box; }
   .lt-shc .lt-shc-go:hover { background: hsl(152, 57%, 40%); }
+  .lt-shc .lt-shc-go--alt { background: transparent; border: 1px solid rgba(255,255,255,0.45); }
+  .lt-shc .lt-shc-go--alt:hover { background: rgba(255,255,255,0.1); }
   .lt-shc .lt-shc-go:disabled { opacity: 0.55; cursor: default; }
   .lt-shc .lt-shc-later { background: none; border: 0; color: rgba(255,255,255,0.78); font-size: 13.5px;
     font-weight: 600; text-decoration: underline; cursor: pointer; padding: 6px 2px; }
@@ -554,6 +557,22 @@ export function oneTapTarget(subject: DesktopSubject): OneTapTarget | null {
   return { subject, slug: first.slug, name: first.name };
 }
 
+/**
+ * ACTIVATION-1 — the chapter "Try one board question now" launches: the first Science chapter
+ * (the picker's own order) that can host the ONE written question; `prefer` (Byte's chapter) wins
+ * when it is a Science chapter with one. Null -> the button is not offered (e.g. a Maths-only
+ * context: typed Maths is not offered, owner ruling 16 Oct).
+ */
+export function tryOneTarget(prefer: ChapterRef | null = null): OneTapTarget | null {
+  if (prefer) {
+    return prefer.subject === WRITTEN_SUBJECT && offeredIn(prefer.subject, prefer.slug, "written")
+      ? { subject: prefer.subject, slug: prefer.slug, name: prefer.name }
+      : null;
+  }
+  const first = desktopTopicsBySubject(WRITTEN_SUBJECT).find((t) => offeredIn(WRITTEN_SUBJECT, t.slug, "written"));
+  return first ? { subject: WRITTEN_SUBJECT, slug: first.slug, name: first.name } : null;
+}
+
 /* ── SHW-2 — the SEGMENTED CONTROL (owner ruling, 16 Oct) ────────────────────────────────
  * The subject and type choices used to be pills whose selected state was the Start button's
  * green, so students read them as CTAs and tapped them expecting something to happen. Each
@@ -709,8 +728,10 @@ function StartHerePanel({
   // D1: "Quick 5: tap the answer" is the default type.
   const [qtype, setQtype] = useState<StartHereQType>("mcq");
   // Which launch is fetching: the picker's go, or one subject's one-tap button.
-  const [busy, setBusy] = useState<null | "picker" | DesktopSubject>(null);
+  const [busy, setBusy] = useState<null | "picker" | "try_one" | DesktopSubject>(null);
   const [failed, setFailed] = useState(false);
+  // ACTIVATION-1: the failed launch was the "Try one board question" one (its own note).
+  const [failedTryOne, setFailedTryOne] = useState(false);
   // START-HERE-ONE-TAP-1: false = the READY state (one button per subject); true = the full picker.
   const [picking, setPicking] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -729,6 +750,8 @@ function StartHerePanel({
     return (hint ? [hint] : (["Maths", "Science"] as const)).map(oneTapTarget).filter((t): t is OneTapTarget => !!t);
   }, [hint, preferChapter]);
   const preferred = !!preferChapter && readyTargets.length === 1 && readyTargets[0].slug === preferChapter.slug;
+  // ACTIVATION-1: the lead button. Not for a Maths-hinted student (typed Maths is not offered).
+  const tryOne = useMemo(() => (hint === "Maths" ? null : tryOneTarget(preferChapter)), [hint, preferChapter]);
   // Nothing can launch in one tap (no ready chapter) -> the picker, as before.
   const showPicker = picking || readyTargets.length === 0;
 
@@ -772,23 +795,28 @@ function StartHerePanel({
     ch: string,
     t: StartHereQType,
     mode: "one_tap" | "picker",
+    lead = false,
   ): Promise<void> => {
     if (isBusy) return;
-    setBusy(mode === "picker" ? "picker" : s);
+    setBusy(lead ? "try_one" : mode === "picker" ? "picker" : s);
     setFailed(false);
+    setFailedTryOne(false);
     try {
       // D3: the bank is reached HERE, on Start, and nowhere earlier.
       const bank = await import("./startHereBank");
       const ids = await bank.pickStartHereSet({ subject: s, chapter: ch, qtype: t, rotation: Date.now() });
       if (ids.length < startHereSetSize(t)) {
         setFailed(true);
+        setFailedTryOne(lead);
         setBusy(null);
         return;
       }
+      if (lead) trackOnboardingEvent("activation_card_click", { subject: analyticsSubject(s), chapter: ch, qtype: t });
       trackOnboardingEvent("start_here_start", { subject: analyticsSubject(s), chapter: ch, qtype: t, mode });
       navigate(startHerePracticePath({ subject: s, chapter: ch, ids, qtype: t, returnTo }));
     } catch {
       setFailed(true);
+      setFailedTryOne(lead);
       setBusy(null);
     }
   };
@@ -806,6 +834,14 @@ function StartHerePanel({
     void launch(target.subject, target.slug, "mcq", "one_tap");
   };
 
+  const onTryOne = () => {
+    if (!tryOne) return;
+    setSubject(tryOne.subject);
+    setChapter("");
+    setQtype("mcq");
+    void launch(tryOne.subject, tryOne.slug, "written", "one_tap", true);
+  };
+
   const oneTapLabel = (target: OneTapTarget): string =>
     hint || preferred
       ? `${START_HERE_ONE_TAP_COPY.hinted} · ${target.name}`
@@ -815,7 +851,7 @@ function StartHerePanel({
     <div ref={panelRef}>
       <p className="lt-shc-k">{START_HERE_COPY.kicker}</p>
       <h2 className="lt-shc-h" id={headingId}>
-        {START_HERE_COPY.body}
+        {open && !showPicker && tryOne ? START_HERE_TRY_ONE_COPY.headline : START_HERE_COPY.body}
       </h2>
       {!open ? (
         <div className="lt-shc-ctas">
@@ -839,11 +875,23 @@ function StartHerePanel({
           {/* START-HERE-ONE-TAP-1 — the READY state: each button launches at once (P8 path). */}
           {/* ONE live region for the ready buttons' "Getting your 5 questions…" state. */}
           <div className="lt-shc-ready" data-testid={tid("ready")} aria-live="polite">
+            {tryOne && (
+              <button
+                type="button"
+                className="lt-shc-go"
+                data-testid={tid("try-one")}
+                data-chapter={tryOne.slug}
+                disabled={isBusy}
+                onClick={onTryOne}
+              >
+                {busy === "try_one" ? START_HERE_TRY_ONE_COPY.getting : START_HERE_TRY_ONE_COPY.label}
+              </button>
+            )}
             {readyTargets.map((target) => (
               <button
                 key={target.subject}
                 type="button"
-                className="lt-shc-go"
+                className={tryOne ? "lt-shc-go lt-shc-go--alt" : "lt-shc-go"}
                 data-testid={tid(`one-tap-${target.subject.toLowerCase()}`)}
                 data-chapter={target.slug}
                 disabled={isBusy}
@@ -855,7 +903,7 @@ function StartHerePanel({
           </div>
           {failed && (
             <p className="lt-shc-note" role="alert">
-              {START_HERE_FAIL_COPY.ready}
+              {failedTryOne ? START_HERE_FAIL_COPY.tryOne : START_HERE_FAIL_COPY.ready}
             </p>
           )}
           <div className="lt-shc-ctas">
