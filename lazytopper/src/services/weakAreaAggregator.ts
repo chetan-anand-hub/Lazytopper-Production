@@ -8,7 +8,7 @@
 import { loadInsights, type PracticeAttempt } from "./practiceInsights";
 import { loadWrongAnswerLog, type WrongAnswerEntry } from "./adaptivePracticeEngine";
 import { loadTopicMasterySnapshot, type TopicHubNodeMasteryState } from "./topicHubMastery";
-import { BOARD_CHAPTER_KEYS, chapterUnit } from "../config/syllabus2026-27";
+import { BOARD_CHAPTER_KEYS, chapterUnit } from "../config/syllabusUnits2026-27";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { getMockTopicScores } from "./mockScoreHistory";
