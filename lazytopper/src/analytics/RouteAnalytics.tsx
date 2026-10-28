@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { trackPageview } from "./analytics";
+import { routerPathOf, trackPageview } from "./analytics";
+import { startSpeedInsights } from "./speedInsights";
 
 /**
  * ★ THIS IS THE WHOLE OF "WHICH PAGES ARE THEY USING".
@@ -30,6 +31,7 @@ export default function RouteAnalytics(): null {
     if (lastPath.current === pathname) return;
     lastPath.current = pathname;
     trackPageview(pathname);
+    startSpeedInsights(routerPathOf(window.location.pathname));
   }, [pathname]);
 
   return null;
