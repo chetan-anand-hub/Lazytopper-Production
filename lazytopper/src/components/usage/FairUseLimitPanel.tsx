@@ -21,6 +21,10 @@ import { formatResetIst, limitCopy, trialComeBackLine, type LimitState } from ".
 // PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Share QR code / Forward link
 // to parents ("Pay" goes to the same plans page). Payments dark: "See plans", unchanged.
 import PaywallActions from "../pricing/PaywallActions";
+// PAPER-WALLS-1 - the Board Pass line (price from config/pricing.ts) leads; a matching pack is the smaller second line.
+import { boardPassOffer } from "../pricing/boardPassOffer";
+import { predictCbseExamDate } from "../../services/cbseExamDate";
+import type { PaperPackLine } from "../limits/limitsCopy";
 // GUIDE-PAGES-1 M7 — Byte explains the limit from this panel's own data (display only; words
 // render with the panel, only his drawing is lazy; nothing with "Hide mascots"). The actions are unchanged.
 import { LimitByte } from "../guide/pages/pageGuides";
@@ -32,17 +36,39 @@ const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1
 
 /** 32e: only a trial student at today's answer-check limit, with a reset time to name. */
 function isTrialDailyChecks(limit: LimitState, when: string): boolean {
-  return limit.tier === "trial" && limit.scope === "checks" && when !== "";
+  // PAPER-WALLS-1: a 7-day (week) refusal is not "today's" - it keeps the inline panel, whose copy says "this week".
+  return limit.tier === "trial" && limit.scope === "checks" && when !== "" && limit.window !== "week";
+}
+
+/** The Board Pass price line of a trial refusal. Price and detail come from pricing.ts, never typed here. */
+function boardPassLine(): string {
+  const offer = boardPassOffer(new Date(), predictCbseExamDate("10"));
+  return `${offer.title}${offer.priceDisplay ? ` ${offer.priceDisplay}` : ""} — ${offer.detail}`;
+}
+
+function PackLine({ pack }: { pack: PaperPackLine }) {
+  return (
+    <p className="lt-usage__body" data-testid="fair-use-pack-line">
+      Prefer printed practice?{" "}
+      <Link to={pack.href}>
+        {pack.label}
+        {pack.priceLabel ? ` ${pack.priceLabel}` : ""} →
+      </Link>
+    </p>
+  );
 }
 
 export default function FairUseLimitPanel({
   limit,
   onDismiss,
   dismissLabel = "OK",
+  pack = null,
 }: {
   limit: LimitState;
   onDismiss?: () => void;
   dismissLabel?: string;
+  /** PAPER-WALLS-1 (optional): the matching pack, shown second and only to a trial student (copy.showPlans). */
+  pack?: PaperPackLine | null;
 }) {
   const copy = limitCopy(limit);
   const when = limit.resetAt ? formatResetIst(limit.resetAt) : "";
@@ -84,6 +110,11 @@ export default function FairUseLimitPanel({
         <div className="lt-usage__eyebrow">Fair use</div>
         {lead}
         <LimitByte limit={limit} when={when} />
+        {copy.showPlans ? (
+          <p className="lt-usage__body" data-testid="fair-use-board-pass">
+            {boardPassLine()}
+          </p>
+        ) : null}
         {copy.showPlans || onDismiss ? (
           <div className="lt-usage__actions">
             {copy.showPlans ? (
@@ -104,6 +135,7 @@ export default function FairUseLimitPanel({
             ) : null}
           </div>
         ) : null}
+        {copy.showPlans && pack ? <PackLine pack={pack} /> : null}
       </section>
     );
   }
@@ -161,6 +193,9 @@ export default function FairUseLimitPanel({
         <p className="lt-usage__body" data-testid="fair-use-come-back">
           {trialComeBackLine(limit.resetAt ?? "", when, limit.allowance)}
         </p>
+        <p className="lt-usage__body" data-testid="fair-use-board-pass">
+          {boardPassLine()}
+        </p>
         <div className="lt-usage__actions">
           <PaywallActions
             surface="usage_limit"
@@ -180,6 +215,7 @@ export default function FairUseLimitPanel({
             {onDismiss ? dismissLabel : "Close"}
           </button>
         </div>
+        {pack ? <PackLine pack={pack} /> : null}
         {/* GUIDE-PAGES-1 M7 — AFTER the actions, so Pay / Share QR code / Forward link / Close stay
             exactly where they were; no "still works" here (the line above already says it). */}
         <LimitByte limit={limit} when={when} variant="dialog" />

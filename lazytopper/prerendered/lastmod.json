@@ -8,20 +8,20 @@
     "lastmod": "2026-10-17"
   },
   "/check-your-answer": {
-    "sha256": "b484027918aab4dd348bd9cc9b3863745fbac21971b41b42187923b1928c16d4",
-    "lastmod": "2026-10-19"
+    "sha256": "f276d1c4182d702b19ebec980c66ab42703bb108d56bd312cd8f655dddce45c7",
+    "lastmod": "2026-10-28"
   },
   "/contact": {
-    "sha256": "e80eab63ac1693e51cf8d31a46ab955a9e1630ac9d4810655694600ddc5f0cc9",
-    "lastmod": "2026-10-19"
+    "sha256": "635972579f1b76a4d55b4470ebdf5260e138d85faa51baf2710dba73227e50e8",
+    "lastmod": "2026-10-28"
   },
   "/exam-trends": {
     "sha256": "15305c58d5b0410b1de9a0aa58675f997bb36221feaaae50bdd95be48456f44a",
     "lastmod": "2026-10-20"
   },
   "/for-parents": {
-    "sha256": "d0a286b40de3dc924e62e9cf1ea3178c57f6f1b2b372577e02ff1d9359f7235d",
-    "lastmod": "2026-10-22"
+    "sha256": "8ca68eadec9313ff4c71f6b1f2dfaf2129c65445089c51ddd72ab3a7f957a23e",
+    "lastmod": "2026-10-28"
   },
   "/highly-probable/10/Maths": {
     "sha256": "6d2b94ef895ada71da730c0823b7c3c71f4c9522276bb01386529fffd2de98a4",
@@ -32,16 +32,16 @@
     "lastmod": "2026-10-23"
   },
   "/legal/privacy": {
-    "sha256": "5c7cf826ec4e79097253b32cc50e4581ff3c8c094c02c4ada99e59f0d18b3843",
-    "lastmod": "2026-10-24"
+    "sha256": "65b47a2bf36b97a6bde159f4d3cb43d16e2ad336b4694c85514089fe3fbca264",
+    "lastmod": "2026-10-28"
   },
   "/legal/refund": {
-    "sha256": "9578d08acae3e1ca62d872760b0cfb08c9ced6fb6eaa75e1f811a2c8abdf5200",
-    "lastmod": "2026-10-25"
+    "sha256": "5ecdb067f4e2de91a427d350d99c72a40e7fe05702748661abf2ec6ac107b088",
+    "lastmod": "2026-10-28"
   },
   "/legal/terms": {
-    "sha256": "974d788b892a5d999e43d5e876fa1935381ba215780dc3715ceb253917d922e2",
-    "lastmod": "2026-10-25"
+    "sha256": "c1f9d5cfee4d463e3f2b9496ff597edca7d8e5fbf31d0c4585b924f09bcb13b0",
+    "lastmod": "2026-10-28"
   },
   "/ncert-class-10": {
     "sha256": "7d362f8533adb007deff204da73d181ce2c50513fa562ff32273cdef8a6aee71",
@@ -264,7 +264,7 @@
     "lastmod": "2026-10-25"
   },
   "/packs": {
-    "sha256": "9cf777cfdbe959e0bf1c6ac2ee2ac4b97ddb19b69a8300762199c797c92ffc41",
+    "sha256": "b2812681cbeb956aaa075cb8adcdfe2fc45b596d260fcb12b69afc5198285df7",
     "lastmod": "2026-10-28"
   },
   "/practice-hub": {
@@ -272,7 +272,7 @@
     "lastmod": "2026-10-20"
   },
   "/pricing": {
-    "sha256": "17ac3edae1bf0e5c00ba8edcd3f91b5174e8d60f6cdcfd593717acc344cd90b7",
+    "sha256": "f65931cf020b6192006a1c76eab3d6d9bcdbd94df084e536cce6f137b50d6a6b",
     "lastmod": "2026-10-28"
   },
   "/topic-hub/acids-bases-and-salts": {

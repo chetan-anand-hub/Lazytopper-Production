@@ -40,6 +40,7 @@
  */
 
 const crypto = require('crypto');
+const passPricing = require('./passPricing.cjs');
 const { deriveEffectiveTier, isServerPinnedStart, TRIAL_MS } = require('./entitlement.cjs');
 
 const TRIAL_EMAILS_COLLECTION = 'trialEmails';
@@ -167,6 +168,7 @@ function formatIstTime(ms) {
   const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
   return `${h12}:${String(ist.getUTCMinutes()).padStart(2, '0')} ${h24 < 12 ? 'am' : 'pm'}`;
 }
+const FULL_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function formatIstDate(ms) {
   const ist = new Date(ms + IST_OFFSET_MS);
   return `${DAYS[ist.getUTCDay()]} ${ist.getUTCDate()} ${MONTHS[ist.getUTCMonth()]}`;
@@ -261,11 +263,22 @@ function escapeHtml(s) {
  * The email. PURE. `counts` may be null (the records read failed): the activity line is then
  * left OUT rather than replaced by an invented zero.
  */
-function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl }) {
+function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs = Date.now() }) {
   const when = `${formatIstDate(trialEndsAtMs)} at ${formatIstTime(trialEndsAtMs)} (IST)`;
   const subject = `Your LazyTopper trial ends on ${formatIstDate(trialEndsAtMs)}`;
   const activity = counts ? trialActivityLine(counts) : null;
-  const plansUrl = `${appUrl}/pricing`;
+  const utm = (content) => `utm_source=email&utm_medium=email&utm_campaign=trial_ending${content ? `&utm_content=${content}` : ''}`;
+  const plansUrl = `${appUrl}/pricing?${utm('')}`;
+  const packsUrl = `${appUrl}/packs?${utm('packs')}`;
+  // Board Pass price at the SEND time, from the server pricing mirror (never a literal).
+  const quote = passPricing.tillBoardsQuote(nowMs, passPricing.predictBoardDateIso(nowMs));
+  const ctaLabel = quote ? `Get the Board Pass - ₹${quote.priceInr.toLocaleString('en-IN')} till your boards` : 'Get the Board Pass';
+  let foundingLine = null;
+  if (passPricing.foundingOfferOpen(nowMs)) {
+    const last = new Date(passPricing.FOUNDING_OFFER_CLOSES_AT_MS - 1 + passPricing.IST_OFFSET_MS);
+    foundingLine = `Founding price ends ${last.getUTCDate()} ${FULL_MONTHS[last.getUTCMonth()]}.`;
+  }
+  const packsLabel = 'Prefer printed practice? PDF packs from ₹49';
   const checkUrl = `${appUrl}/check-improve`;
   const lines = [
     'Hi,',
@@ -281,7 +294,9 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl }) {
   lines.push(
     "After it ends, the free features stay free. Premium features need a pass. Nothing is charged automatically - you don't need to do anything.",
     '',
-    `See plans: ${plansUrl}`,
+    `${ctaLabel}: ${plansUrl}`,
+    ...(foundingLine ? [foundingLine] : []),
+    `${packsLabel}: ${packsUrl}`,
     `Open LazyTopper: ${appUrl}/`,
     '',
     "You're getting this one email because you started a trial with this address. We won't email you again about it.",
@@ -300,7 +315,9 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl }) {
     p(`This is a service note about your LazyTopper account: your 7-day Premium trial ends on <strong>${escapeHtml(when)}</strong>.`),
     activity ? p(escapeHtml(activity.text) + (activity.zero ? ` ${a(checkUrl, 'Check an answer')}` : '')) : '',
     p("After it ends, the free features stay free. Premium features need a pass. Nothing is charged automatically - you don't need to do anything."),
-    p(`${a(plansUrl, 'See plans')} &nbsp;·&nbsp; ${a(`${appUrl}/`, 'Open LazyTopper')}`),
+    p(a(plansUrl, ctaLabel) + (foundingLine ? ` ${escapeHtml(foundingLine)}` : '')),
+    p(a(packsUrl, packsLabel)),
+    p(a(`${appUrl}/`, 'Open LazyTopper')),
     `<p style="margin:18px 0 0;font-size:12px;line-height:1.5;color:#5b6b7c">You're getting this one email because you started a trial with this address. We won't email you again about it. ${a(unsubscribeUrl, 'Unsubscribe')}</p>`,
     '</div></body></html>',
   ].join('');
@@ -611,7 +628,7 @@ function createTrialEndingEmailer(deps = {}) {
         }
 
         const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
-        const message = buildTrialEmail({ trialEndsAtMs: decision.trialEndsAtMs, counts, appUrl: config.appUrl, unsubscribeUrl });
+        const message = buildTrialEmail({ trialEndsAtMs: decision.trialEndsAtMs, counts, appUrl: config.appUrl, unsubscribeUrl, nowMs });
         const result = fetchImpl
           ? await sendViaResend({
               fetchImpl,
