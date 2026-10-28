@@ -157,6 +157,7 @@ import { resumableJob, type GradingJobInterruptedError } from "../ai/gradingJobs
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
+import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -314,6 +315,7 @@ export default function FullMockPage() {
 
   // ── Test-taking state ────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>("setup");
+  useScrollTopOnChange(phase); // SCROLL-TOP-1 — each phase/view opens at the top
   const [activeMock, setActiveMock] = useState<ActiveMock | null>(null);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [flags, setFlags] = useState<Set<number>>(new Set());
