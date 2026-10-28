@@ -96,7 +96,13 @@ async function callStepSolutionEndpoint(q) {
 
   const res = await fetch(`${GATEWAY_URL}/api/step-solution`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    // GRADE-SPEED-1 (4): proves this is the api-server's own warm-up child (server/services/internalWarmup.cjs),
+    // so the gateway's HTTP rate limiter does not count it against the anonymous or global daily budget.
+    // Absent when run by hand (no WARMUP_INTERNAL_KEY): then it is limited like any caller.
+    headers: {
+      'Content-Type': 'application/json',
+      ...(process.env.WARMUP_INTERNAL_KEY ? { 'x-lt-internal-warmup': process.env.WARMUP_INTERNAL_KEY } : {}),
+    },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(90_000),
   });

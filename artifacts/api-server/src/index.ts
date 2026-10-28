@@ -1,4 +1,5 @@
 import { spawn, type ChildProcess } from "child_process";
+import { randomBytes } from "crypto";
 import fs from "fs";
 import http from "http";
 import net from "net";
@@ -22,6 +23,13 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const GATEWAY_PORT = process.env["GATEWAY_PORT"] || "3001";
+
+// GRADE-SPEED-1 (4): a per-process secret shared ONLY with the two children this process spawns (the gateway
+// and the cache warm-up), so the gateway can recognise its own warm-up and keep it out of the HTTP rate
+// limiter (lazytopper/server/services/internalWarmup.cjs). Never logged. An operator-set value is kept.
+if (!process.env["WARMUP_INTERNAL_KEY"]) {
+  process.env["WARMUP_INTERNAL_KEY"] = randomBytes(32).toString("hex");
+}
 
 // GRACEFUL-DEPLOY: SIGTERM is drained, not ignored, and it is forwarded to the gateway child.
 // See ./lib/gracefulShutdown.ts.
