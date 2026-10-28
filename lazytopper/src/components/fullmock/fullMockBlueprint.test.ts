@@ -11,6 +11,7 @@ import "../../test/preloadBankChapters";
 import {
   FM_BLUEPRINT,
   allocateUnitSlots,
+  blueprintRowArithmetic,
   buildUnionPool,
   drawFullMock,
   fullMockChapterWeights,
@@ -192,5 +193,26 @@ describe("drawFullMock", () => {
       expect(q.marks).toBe(MARKS_BY_SECTION[q.section]);
       expect(q.subject).toBe("Science");
     }
+  });
+});
+
+describe("COPY-FIXES-2 — Full Mock start-screen row arithmetic is true", () => {
+  it("every row of a real draw prints either a true n × m = total or the mixed wording", () => {
+    const d = drawFullMock({ subject: "Maths", worksheetId: "fm-ar", code: "FM-M-02", name: "n", seed: 11 });
+    for (const row of d.blueprint.filter((r) => r.actualCount > 0)) {
+      const rows = d.paper.questions.filter((q) => q.section === row.section);
+      const same = rows.every((q) => q.marks === rows[0].marks);
+      expect(row.uniformMarks).toBe(same ? rows[0].marks : null);
+      const line = blueprintRowArithmetic(row);
+      const m = line.match(/^(\d+) × (\d+) = (\d+)$/);
+      if (m) expect(Number(m[1]) * Number(m[2])).toBe(Number(m[3]));
+      else expect(line).toMatch(/^\d+ questions? · \d+ marks$/);
+    }
+  });
+
+  it("a mixed row (3 + 5 marks, total 8) is not printed as the nominal 2 × 5 = 8", () => {
+    expect(blueprintRowArithmetic({ actualCount: 2, actualMarks: 8, uniformMarks: null })).toBe("2 questions · 8 marks");
+    // CONTROL — a uniform row still prints the product.
+    expect(blueprintRowArithmetic({ actualCount: 4, actualMarks: 20, uniformMarks: 5 })).toBe("4 × 5 = 20");
   });
 });

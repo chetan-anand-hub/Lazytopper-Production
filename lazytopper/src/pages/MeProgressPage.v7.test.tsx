@@ -343,6 +343,33 @@ describe("B · every deeper view adds up to the hero total", () => {
     expect(rest).toHaveTextContent(/count in the total above/i);
   });
 
+  it("COPY-FIXES-2 · the remainder says 'not enough answers yet' when the marks DID match a bank concept", async () => {
+    // 12 marks are unlisted, and 12 more lost marks sit on concepts too thin to list: all matched.
+    mockGetWindowedProgress.mockResolvedValue({ ...RECONCILE, lostMatched: { concepts: 30, sections: 20, chapters: 18 } });
+    renderPage();
+    const rest = within(await screen.findByTestId("me-view-concepts")).getByTestId("me-remainder");
+    expect(rest).toHaveTextContent(
+      "Not enough answers yet to name a concept \u2014 keep practising and it will appear.",
+    );
+    expect(rest).not.toHaveTextContent(/could not match/i);
+  });
+
+  it("COPY-FIXES-2 · CONTROL — no bank match for the unlisted marks keeps the old line", async () => {
+    mockGetWindowedProgress.mockResolvedValue({ ...RECONCILE, lostMatched: { concepts: 18, sections: 20, chapters: 18 } });
+    renderPage();
+    const rest = within(await screen.findByTestId("me-view-concepts")).getByTestId("me-remainder");
+    expect(rest).toHaveTextContent(/answers we could not match to a bank question/i);
+    expect(rest).not.toHaveTextContent(/not enough answers yet/i);
+  });
+
+  it("COPY-FIXES-2 · part matched, part not: both reasons are stated, neither overclaimed", async () => {
+    mockGetWindowedProgress.mockResolvedValue({ ...RECONCILE, lostMatched: { concepts: 24, sections: 20, chapters: 18 } });
+    renderPage();
+    const rest = within(await screen.findByTestId("me-view-concepts")).getByTestId("me-remainder");
+    expect(rest).toHaveTextContent(/Some of these come from answers we could not match to a bank question/i);
+    expect(rest).toHaveTextContent(/the rest do not yet have enough answers to name a concept/i);
+  });
+
   it("★ CONTROL: the remainder row is ABSENT when a view accounts for everything", async () => {
     mockGetWindowedProgress.mockResolvedValue(
       windowed({
@@ -358,6 +385,27 @@ describe("B · every deeper view adds up to the hero total", () => {
     const view = await screen.findByTestId("me-view-concepts");
     expect(within(view).queryByTestId("me-remainder")).toBeNull();
     expect(viewTotal(view)).toBe(HERO_LOST);
+  });
+});
+
+describe("COPY-FIXES-2 · the journey line needs work from at least two different days", () => {
+  const withDays = (activeDays?: number) =>
+    windowed({
+      subjects: [{ ...marks("maths", "Maths", 100, 70), ...(activeDays === undefined ? {} : { activeDays }) }],
+    });
+
+  it("two attempts minutes apart (activeDays 1): no trend sentence at all", async () => {
+    mockGetWindowedProgress.mockResolvedValue(withDays(1));
+    renderPage();
+    await screen.findByRole("heading", { level: 1 });
+    expect(screen.queryByTestId("me-journey")).toBeNull();
+    expect(screen.queryByText(/keeping more of what you attempt/i)).toBeNull();
+  });
+
+  it("CONTROL — the same marks over two days render the sentence", async () => {
+    mockGetWindowedProgress.mockResolvedValue(withDays(2));
+    renderPage();
+    expect(await screen.findByTestId("me-journey")).toHaveTextContent(/keeping more of what you attempt/i);
   });
 });
 

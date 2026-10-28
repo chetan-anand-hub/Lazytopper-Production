@@ -71,6 +71,7 @@ import PaperDownloadedNote from "../components/papers/PaperDownloadedNote";
 import SectionAPicker from "../components/papers/SectionAPicker";
 import {
   FM_DURATION_MS,
+  blueprintRowArithmetic,
   drawFullMock,
   fullMockObjectiveQuestions,
   fullMockSubjectiveQuestions,
@@ -1388,7 +1389,7 @@ export default function FullMockPage() {
                           </span>
                           <span className="lt-ct__bp-meta">
                             {row.actualCount > 0
-                              ? `${row.actualCount} × ${row.marksEach} = ${row.actualMarks} · ${
+                              ? `${blueprintRowArithmetic(row)} · ${
                                   row.autoGraded ? "instant" : "upload"
                                 }`
                               : "none available yet"}

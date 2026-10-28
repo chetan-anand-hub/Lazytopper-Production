@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { monthlyInline } from "../../config/pricing";
+import { boardPassPriceNow } from "./boardPassOffer";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 
 /**
@@ -45,9 +46,17 @@ export const TRIAL_WORDING = {
   get generalLine() {
     return `${TRIAL_TRY_LINE} ${trialAfterLine()}`;
   },
-  /** The short fragment, for a surface where a full sentence does not fit. */
+  /**
+   * The short fragment, for a surface where a full sentence does not fit. COPY-FIXES-2: the
+   * Board Pass leads every offer (DECISION_LOG), so it names the till-boards price; with no
+   * quote (an unparseable board date) it falls back to the monthly line rather than guess.
+   * boardPassOffer imports only config/pricing + cbseExamDate (both import-free).
+   */
   get shortFragment() {
-    return `then free Basic, or Premium at ${monthlyInline()}.`;
+    const boardPass = boardPassPriceNow();
+    return boardPass
+      ? `then free Basic, or the Board Pass at ${boardPass} till your boards.`
+      : `then free Basic, or Premium at ${monthlyInline()}.`;
   },
   /** The link label to /pricing, wherever the UI is clickable. */
   seePlans: "See plans →",

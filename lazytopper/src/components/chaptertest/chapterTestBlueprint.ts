@@ -151,6 +151,27 @@ export interface CTBlueprintRow extends CTSectionSpec {
    *  bank is thin for this topic; never padded with fabricated items). */
   actualCount: number;
   actualMarks: number;
+  /** COPY-FIXES-2: the marks every drawn row carries when they are ALL equal, else null
+   *  (`marksEach` is only the nominal board figure; B and D admit a band). */
+  uniformMarks: number | null;
+}
+
+/** The marks shared by every row, or null when they differ (or there are none). */
+export function uniformMarksOf(rows: ReadonlyArray<{ marks?: unknown }>): number | null {
+  if (rows.length === 0) return null;
+  const first = Number(rows[0].marks) || 0;
+  return rows.every((q) => (Number(q.marks) || 0) === first) ? first : null;
+}
+
+/**
+ * COPY-FIXES-2 — the start-screen blueprint line. "n × m = total" is printed only when every
+ * drawn row really has m marks; a mixed row says "n questions · total marks" instead of
+ * multiplying by the nominal figure (which printed "2 × 5 = 8").
+ */
+export function blueprintRowArithmetic(row: Pick<CTBlueprintRow, "actualCount" | "actualMarks" | "uniformMarks">): string {
+  return row.uniformMarks !== null
+    ? `${row.actualCount} × ${row.uniformMarks} = ${row.actualMarks}`
+    : `${row.actualCount} ${row.actualCount === 1 ? "question" : "questions"} · ${row.actualMarks} marks`;
 }
 
 export interface DrawnChapterTest {
@@ -319,6 +340,7 @@ export function drawChapterTest(args: {
       ...spec,
       actualCount: rows.length,
       actualMarks: rows.reduce((s, q) => s + (Number(q.marks) || 0), 0),
+      uniformMarks: uniformMarksOf(rows),
     };
   });
   const objectiveCount = questions.filter((q) => q.section === "A").length;
@@ -388,6 +410,7 @@ export function describeChapterTestPaper(paper: PersistedWorksheet): ChapterTest
       ...spec,
       actualCount: rows.length,
       actualMarks: rows.reduce((sum, q) => sum + (Number(q.marks) || 0), 0),
+      uniformMarks: uniformMarksOf(rows),
     };
   });
   const share = cbqShareOf(

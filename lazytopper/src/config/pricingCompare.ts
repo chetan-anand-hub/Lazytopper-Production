@@ -265,8 +265,8 @@ export function compareSections({ freeCheck, limitsOn = limitsCopyOn() }: { free
             },
         ...(limitsOn
           ? [
-              { label: "Download papers", basic: text(basicDownloadCell()), premium: yesNote("Unlimited") },
-              { label: "Graded Quick Practice sets", basic: text(basicQuickPracticeCell()), premium: yesNote("Unlimited") },
+              { label: "Download papers", basic: text(basicDownloadCell()), premium: yesNote("Included") },
+              { label: "Graded Quick Practice sets", basic: text(basicQuickPracticeCell()), premium: yesNote("Included") },
             ]
           : []),
         {

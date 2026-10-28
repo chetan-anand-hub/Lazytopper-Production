@@ -457,3 +457,34 @@ describe("not-graded questions — notGraded never a 0 on a concept or a section
     expect([section!.marksScored, section!.marksAvailable]).toEqual([19, 27]);
   });
 });
+
+describe("COPY-FIXES-2 — activeDays and lostMatched", () => {
+  it("six attempts minutes apart on ONE day: the rung is built but activeDays is 1; across days it is the day count", async () => {
+    CLOUD_ATTEMPTS = [1, 2, 3, 4, 5, 6].map((n) =>
+      attempt({ id: `m${n}`, questionId: `b${n}`, marksScored: n % 2, marksAvailable: 4, timestamp: NOW - (7 - n) * 60 * 1000 }),
+    );
+    const sameDay = (await getWindowedProgress("u1", "month", undefined, NOW)).subjects[0];
+    expect(sameDay.activeDays).toBe(1);
+
+    seedSixAttempts(); // CONTROL — the same shape spread over six different days
+    const spread = (await getWindowedProgress("u1", "month", undefined, NOW)).subjects[0];
+    expect(spread.activeDays).toBe(6);
+  });
+
+  it("lostMatched counts lost marks on bank-matched answers even when the concept has too few answers to list", async () => {
+    BANK = {
+      b1: { topicKey: "real-numbers", subtopic: "Prime factorisation", section: "C" } as BankConcept,
+      b9: { topicKey: "real-numbers", subtopic: "Prime factorisation", section: "C" } as BankConcept,
+    };
+    CLOUD_ATTEMPTS = [
+      attempt({ id: "k1", questionId: "b1", marksScored: 1, marksAvailable: 4, timestamp: NOW - DAY }),
+      attempt({ id: "k2", questionId: "b9", marksScored: 3, marksAvailable: 4, timestamp: NOW - 2 * DAY }),
+      attempt({ id: "k3", questionId: "no-bank", marksScored: 0, marksAvailable: 4, timestamp: NOW - 3 * DAY }),
+    ];
+    const wp = await getWindowedProgress("u1", "month", undefined, NOW);
+    expect(wp.concepts).toEqual([]); // 2 answers: below the 3-per-half threshold, so not listed
+    expect(wp.lostMatched?.concepts).toBe(4); // 3 + 1 lost on the two matched answers
+    expect(wp.lostMatched?.sections).toBe(4);
+    expect(wp.lostMatched?.chapters).toBe(8); // CONTROL — the unmatched answer's 4 marks count only here (topic known)
+  });
+});

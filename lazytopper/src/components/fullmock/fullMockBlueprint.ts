@@ -42,6 +42,9 @@
 // renderers + grader run byte-unchanged. Its code/name carry the FULL-MOCK
 // identity (FM-…), never WS-/CT-.
 
+// COPY-FIXES-2 — ONE rule for the start-screen row arithmetic, shared with the Chapter Test.
+import { blueprintRowArithmetic, uniformMarksOf } from "../chaptertest/chapterTestBlueprint";
+export { blueprintRowArithmetic };
 import type { CanonicalQuestion } from "../../data/predictionTypes";
 // BANK-SPLIT-1 PR-2 (L4): the subject's rows come from the per-chapter cache. FullMockPage
 // awaits ensureBankSubject(subject) before it draws; reading an unloaded chapter throws.
@@ -109,6 +112,8 @@ export interface FMBlueprintRow extends FMSectionSpec {
   /** Honest — may be < target when the union pool is thin; never padded. */
   actualCount: number;
   actualMarks: number;
+  /** COPY-FIXES-2: the marks every drawn row carries when all equal, else null (marksEach is nominal). */
+  uniformMarks: number | null;
 }
 
 /** One board chapter of the paper — canonical slugs only. */
@@ -686,6 +691,7 @@ export function drawFullMock(args: {
       ...spec,
       actualCount: rows.length,
       actualMarks: rows.reduce((s, q) => s + (Number(q.marks) || 0), 0),
+      uniformMarks: uniformMarksOf(rows),
     };
   });
   const objectiveCount = questions.filter((q) => q.section === "A").length;

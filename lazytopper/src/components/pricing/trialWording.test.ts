@@ -17,6 +17,7 @@ import { resolve } from "node:path";
 import { TRIAL_WORDING } from "./BasicFreeList";
 import { FREE_CHECK_COPY } from "../../services/freeCheckClient";
 import { AFTER_TRIAL_LEAD, afterTrialRest } from "../auth/OfferStrip";
+import { boardPassPriceNow } from "./boardPassOffer";
 import { tutorGateNote } from "../../lib/desktop/homeDestinations";
 import { monthlyInline } from "../../config/pricing";
 
@@ -33,7 +34,7 @@ describe("TRIAL_WORDING — owner addendum, word for word, price from MONTHLY_IN
     expect(TRIAL_WORDING.generalLine).toBe(
       `Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`,
     );
-    expect(TRIAL_WORDING.shortFragment).toBe(`then free Basic, or Premium at ${monthlyInline()}.`);
+    expect(TRIAL_WORDING.shortFragment).toBe(`then free Basic, or the Board Pass at ${boardPassPriceNow()} till your boards.`);
     expect(TRIAL_WORDING.seePlans).toBe("See plans →");
   });
 
@@ -50,7 +51,7 @@ describe("TRIAL_WORDING — owner addendum, word for word, price from MONTHLY_IN
     expect(`${AFTER_TRIAL_LEAD}${afterTrialRest()}`).toBe(TRIAL_WORDING.generalLine);
     // Home tutor card (homeDestinations) — the short fragment.
     expect(tutorGateNote(true)).toBe(
-      `Premium · part of the 7-day trial — then free Basic, or Premium at ${monthlyInline()}.`,
+      `Premium · part of the 7-day trial — then free Basic, or the Board Pass at ${boardPassPriceNow()} till your boards.`,
     );
   });
 
@@ -61,12 +62,32 @@ describe("TRIAL_WORDING — owner addendum, word for word, price from MONTHLY_IN
     expect(start, "the shared constant's first line was found").toBeGreaterThan(-1);
     expect(end, "the shared constant's last line was found").toBeGreaterThan(start);
     const block = src.slice(start, end);
-    // Both price-bearing lines (the after line and the short fragment) interpolate it.
+    // The after line and the short fragment's no-quote fallback interpolate it; the fragment's
+    // lead price comes from boardPassPriceNow() (COPY-FIXES-2).
     expect(block.match(/\$\{monthlyInline\(\)\}/g)).toHaveLength(2);
+    expect(block).toMatch(/boardPassPriceNow\(\)/);
     expect(block).not.toMatch(/₹|\d{2,}/); // no figure typed: the only digit is the "7" of 7 days
     expect(block).not.toMatch(/\/\s*month/i);
-    expect(block).not.toMatch(/\bpass(es)?\b/i);
+    // COPY-FIXES-2: "the Board Pass" is the lead offer's own name; any OTHER "pass" is still banned.
+    expect(block.replace(/Board Pass/g, "")).not.toMatch(/\bpass(es)?\b/i);
     expect(block).not.toMatch(/upgrade anytime/i);
+  });
+});
+
+describe("COPY-FIXES-2 — the Board Pass leads the short fragment; no quote falls back to the monthly line", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("no till-boards quote (board date already past): the monthly fragment, never a blank price", () => {
+    // After the 2027 board date predictCbseExamDate rolls to the next session, so force the
+    // no-quote path by faking a quote of null through the module.
+    vi.resetModules();
+    vi.doMock("./boardPassOffer", () => ({ boardPassPriceNow: () => null }));
+    return import("./BasicFreeList").then(({ TRIAL_WORDING: W }) => {
+      expect(W.shortFragment).toBe(`then free Basic, or Premium at ${monthlyInline()}.`);
+      vi.doUnmock("./boardPassOffer");
+    });
   });
 });
 
@@ -78,13 +99,21 @@ describe("PRICING-1 — the trial wording follows the founding offer's date, rea
   it("open (25 Oct 2026): the after-trial price is the founding rate", () => {
     vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00Z"), toFake: ["Date"] });
     expect(TRIAL_WORDING.afterLine).toBe("After that, keep free Basic or upgrade to Premium at \u20B9599 for a month.");
-    expect(TRIAL_WORDING.shortFragment).toBe("then free Basic, or Premium at \u20B9599 for a month.");
+    expect(TRIAL_WORDING.shortFragment).toBe(
+      `then free Basic, or the Board Pass at ${boardPassPriceNow()} till your boards.`,
+    );
+    expect(TRIAL_WORDING.shortFragment).toMatch(/^then free Basic, or the Board Pass at \u20B9[\d,]+ till your boards\.$/);
   });
 
   it("closed (00:00 IST 1 Dec 2026): the same module, already loaded, now quotes the list rate", () => {
     vi.useFakeTimers({ now: new Date("2026-12-01T00:00:00+05:30"), toFake: ["Date"] });
     expect(TRIAL_WORDING.afterLine).toBe("After that, keep free Basic or upgrade to Premium at \u20B9999 for a month.");
     expect(TRIAL_WORDING.generalLine).toContain("\u20B9999 for a month.");
-    expect(TRIAL_WORDING.shortFragment).toBe("then free Basic, or Premium at \u20B9999 for a month.");
+    expect(TRIAL_WORDING.shortFragment).toMatch(/^then free Basic, or the Board Pass at \u20B9[\d,]+ till your boards\.$/);
+    // CONTROL — the fragment follows the founding switch (the quote differs open vs closed).
+    vi.setSystemTime(new Date("2026-10-25T06:30:00Z"));
+    const open = TRIAL_WORDING.shortFragment;
+    vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
+    expect(TRIAL_WORDING.shortFragment).not.toBe(open);
   });
 });
