@@ -42,6 +42,9 @@ import { useFairUse } from "../usage/useFairUse";
 import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../upload/PageTray";
 import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
+import { UpgradeSheet } from "../subscription/UpgradeSheet";
+import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine } from "../limits/limitsCopy";
+import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../../ai/gradingJobs";
 import GradingJobRows from "../grading/GradingJobRows";
 import { useGradingJob } from "../grading/useGradingJob";
@@ -249,6 +252,12 @@ export default function WorksheetGradePanel({
   // LOW-END-1 R2: Uploading NN% -> Sent ✓ -> Grading… -> Done (or offline).
   const [stage, setStage] = useState<GradingStage | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // PAPER-WALLS-1: the upgrade sheet (Board Pass first, a pack second) for a Basic 402 / spent trial allowance.
+  const [paperWall, setPaperWall] = useState(false);
+  const paperPack = useMemo(
+    () => paperPackLine("worksheet", { chapters: ws.questions.map((q) => resolveCanonicalSlug(q.topicKey) || "") }),
+    [ws.questions],
+  );
   const [outcome, setOutcome] = useState<WorksheetGradeOutcome | null>(null);
   const [fromCache, setFromCache] = useState(false);
   // PR-A: the auto scorecard popup + the tap-to-reveal sheet state.
@@ -450,7 +459,18 @@ export default function WorksheetGradePanel({
         return;
       }
       // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
+      // PAPER-WALLS-1: a Basic 402 is the upgrade sheet, never red text.
+      if (isPremiumRequiredRefusal(err)) {
+        setStage(null);
+        setPaperWall(true);
+        return;
+      }
       if (await fairUse.handleRefusal(err)) return;
+      if (isTrialLimitRefusal(err)) {
+        setStage(null);
+        setPaperWall(true);
+        return;
+      }
       // LOW-END-1 R2: never the raw message ("Failed to fetch") — a plain sentence.
       setStage(null);
       setError(gradingErrorMessage(err, "We couldn’t grade your worksheet just now. Your file is still here — please try again."));
@@ -576,7 +596,8 @@ export default function WorksheetGradePanel({
             busy={grading}
           />
           {error && <div className="lt-wg__err" role="alert">{error}</div>}
-          {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
+          {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} pack={paperPack} /> : null}
+          {paperWall && <UpgradeSheet featureLabel="Grading your worksheet" pack={paperPack} onClose={() => setPaperWall(false)} />}
           <p className="lt-wg__tip">
             Tip: a clear, upright scan of each page grades best. If a page is blurry we’ll tell you which question to re-upload — we never guess a mark.
           </p>
