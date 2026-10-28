@@ -8,7 +8,7 @@ import { MemoryRouter } from "react-router-dom";
 // MUMMY-1 (f): the first-party activity log is not this suite's subject (the share-click test sends a real event).
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
-import ForParentsPage, { CBSE_PAGE_TO, FREE_CHECK_TO, PARENT_SHARE_HREF, PRICING_LABEL, PRICING_TO } from "../pages/ForParentsPage";
+import ForParentsPage, { CBSE_PAGE_TO, PAY_HELP_HREF, FREE_CHECK_TO, PARENT_SHARE_HREF, PRICING_LABEL, PRICING_TO } from "../pages/ForParentsPage";
 import { FOOTER_SOCIAL } from "./socialProfiles";
 import { GUIDE_PREVIEW_KEY, GUIDE_PREVIEW_MS } from "../components/guide/guideVariant";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
@@ -493,7 +493,7 @@ describe("PARENTS-NAV-1 review — every link on the live page leads back (DOM g
    * Walks EVERY <a> the mounted page renders (router <Link>s render <a href>), so a new link added
    * anywhere on /for-parents — a tile, an FAQ answer, an action, the footer — is caught without
    * this list having to name it. Exempt: the footer's self-link, the WhatsApp share links and the
-   * social profile links (external). Everything else must carry from=for_parents.
+   * social profile links and PARENTS-PAY-1's WhatsApp help link (external). Everything else must carry from=for_parents.
    */
   function classify(anchors: HTMLAnchorElement[]) {
     const social = new Set(FOOTER_SOCIAL.map((s) => s.href));
@@ -502,7 +502,7 @@ describe("PARENTS-NAV-1 review — every link on the live page leads back (DOM g
     const other: string[] = [];
     for (const a of anchors) {
       const href = a.getAttribute("href") ?? "";
-      if (href === "/for-parents" || href === PARENT_SHARE_HREF || social.has(href)) exempt.push(href);
+      if (href === "/for-parents" || href === PARENT_SHARE_HREF || href === PAY_HELP_HREF || social.has(href)) exempt.push(href);
       else if (href.startsWith("/") && !href.startsWith("//")) internal.push(href);
       else other.push(href);
     }
