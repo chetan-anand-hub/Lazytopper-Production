@@ -171,43 +171,45 @@ describe("FIRST-OFFER-1: the first-result offer names the Board Pass price, then
     expect(price).toMatch(/^₹/);
     expect(screen.getByTestId("scorecard-upgrade-line")).toHaveTextContent(`Board Pass ${price} →`);
     const pack = screen.getByTestId("scorecard-pack-line");
-    expect(pack).toHaveTextContent("Prefer practising on paper? PDF packs from ₹49 — printed, with answer keys →");
-    expect(pack).toHaveAttribute("href", "/packs");
+    expect(pack).toHaveTextContent("Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →");
+    expect(pack).toHaveAttribute("href", "/pricing#packs");
     expect(screen.getByTestId("scorecard-upgrade-line").compareDocumentPosition(pack) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
   it("deep-links the chapter the result names", () => {
     auth.trialStart = "2026-01-01T00:00:00.000Z";
     const v = { ...variantFor("quick-practice", marks(6, 10)), guideTarget: { to: "/practice/quick/triangles?weakMode=1" } } as ScorecardVariant;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
-    expect(screen.getByTestId("scorecard-pack-line")).toHaveAttribute("href", "/packs?chapter=triangles");
-    expect(screen.getByTestId("scorecard-pack-line")).toHaveTextContent("Prefer practising on paper? Chapter Pack ₹49 — printed questions with answer keys →");
+    expect(screen.getByTestId("scorecard-pack-line")).toHaveAttribute("href", "/pricing#packs"); // no per-chapter deep link any more
+    expect(screen.getByTestId("scorecard-pack-line")).toHaveTextContent("Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →");
   });
-  it("PACK-BASIC-ONLY-1: the pack line shows ONLY to Basic (trial ended, or never trialled and hydrated)", () => {
+  it("PACK-BASIC-ONLY-1: the pack line shows to every non-paid student, and not before the status is known", () => {
     const mount = () => render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
-    // trial active -> hidden (the Board Pass line is the control that the card rendered)
+    const packShown = () => screen.queryByTestId("scorecard-pack-line") !== null;
+    // trial (any day) -> shown; the Board Pass line is the control that the card rendered
     auth.tier = "trial";
     auth.trialStart = "2026-10-27T00:00:00.000Z";
     mount();
     expect(screen.getByTestId("scorecard-upgrade-line")).toBeInTheDocument();
-    expect(screen.queryByTestId("scorecard-pack-line")).toBeNull();
+    expect(packShown()).toBe(true);
     cleanup();
     // Basic, trial ended -> shown
     auth.tier = "free";
     mount();
-    expect(screen.getByTestId("scorecard-pack-line")).toBeInTheDocument();
+    expect(packShown()).toBe(true);
     cleanup();
-    // never-trialled Basic: hidden until the cloud has answered, then shown
+    // never-trialled Basic: hidden until the cloud has answered (no flash for a paid student), then shown
     auth.trialStart = null;
     mount();
-    expect(screen.queryByTestId("scorecard-pack-line")).toBeNull();
+    expect(packShown()).toBe(false);
     act(() => auth.listeners.forEach((l) => l("u1", { tier: "free", trialStartDate: null })));
-    expect(screen.getByTestId("scorecard-pack-line")).toBeInTheDocument();
+    expect(packShown()).toBe(true);
     cleanup();
-    // a trial student whose cache was empty is never shown it, even after the cloud answers
+    // an unhydrated cache that turns out to be paid never showed it
     auth.listeners = [];
     mount();
-    act(() => auth.listeners.forEach((l) => l("u1", { tier: "trial", trialStartDate: "2026-10-27T00:00:00.000Z" })));
-    expect(screen.queryByTestId("scorecard-pack-line")).toBeNull();
+    expect(packShown()).toBe(false);
+    act(() => auth.listeners.forEach((l) => l("u1", { tier: "premium", trialStartDate: null })));
+    expect(packShown()).toBe(false);
   });
   it("paid Premium sees neither line", () => {
     auth.tier = "premium";

@@ -7,8 +7,7 @@ import { trackScorecardUpgrade } from "../../analytics/analytics";
 import UpgradeSheet from "../subscription/UpgradeSheet";
 import { START_TRIAL_LABEL } from "../pricing/trialCta";
 import { boardPassCtaLabel, boardPassPriceNow } from "../pricing/boardPassOffer";
-import { CHAPTER_PACK_PRICE_INR, chapterFromLocation, packsHref } from "../../lib/packs/packEntry";
-import { packLineText, showPackLine } from "../limits/packLine";
+import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine";
 import { formatScoreNumber } from "./scoreNumber";
 import type { ScorecardVariant } from "./scorecardVariants";
 
@@ -19,8 +18,8 @@ import type { ScorecardVariant } from "./scorecardVariants";
  *   marks lost > 0      "You lost {N} marks here. Get every answer marked like this till your boards — Board Pass ₹{price} →"
  *   nothing lost        "Full marks! Keep every answer marked like this till your boards — Board Pass ₹{price} →"
  *   marks not known     "Get every answer marked like this till your boards — Board Pass ₹{price} →"
- * and, for a BASIC student only (PACK-BASIC-ONLY-1; never a trial or paid student), a quiet second line
- * "Prefer practising on paper? Chapter Pack ₹49 — printed questions with answer keys →" (/packs?chapter=<slug> when known).
+ * and, for any non-paid student (PACK-BASIC-ONLY-1; never paid Premium), a quiet second line
+ * "Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →" (to /pricing#packs).
  *
  * "Not known" is every attempts-style score (Quick Practice has no marks total), any paper with an
  * ungraded question or an awaited sheet (a number there would be wrong), and an all-pending card
@@ -123,10 +122,10 @@ function useCachedStatus(uid: string): [SubscriptionStatus, () => void, boolean]
       }
     });
   }, [uid]);
-  // PACK-BASIC-ONLY-1: a Basic record is KNOWN once the cloud has answered, or when the cache itself
-  // shows an ended trial (a trial start on a free tier). Otherwise an empty cache could be a trial
-  // student not hydrated yet, so the pack line waits (the Board Pass stays the only signal).
-  const known = heard || Boolean(status.trialStartDate);
+  // PACK-BASIC-ONLY-1: the record is KNOWN once the cloud has answered, or when the cache itself holds a
+  // non-default record (a trial tier, or a trial start on a free tier). An empty default cache could still
+  // be a paid student not hydrated yet, so the pack line waits (no flash for a paid student).
+  const known = heard || status.tier !== "free" || Boolean(status.trialStartDate);
   return [status, () => setStatus(loadSubscription(uid)), known];
 }
 
@@ -134,9 +133,8 @@ function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countSh
   const copy = scorecardUpgradeCopy(variant, boardPassPriceNow());
   const text = copy ? copy.text : "";
   // FIRST-OFFER-1 - the Chapter Pack deep link: only a chapter the result itself names (its practice route); else plain /packs.
-  const packChapter = variant.guideTarget ? chapterFromLocation(variant.guideTarget.to.split("?")[0], variant.guideTarget.to.split("?")[1] ?? "") : null;
-  const packHref = packsHref({ chapter: packChapter });
-  const packText = packLineText(packChapter ? "chapter" : "general", `₹${CHAPTER_PACK_PRICE_INR}`);
+  const packHref = PACK_LINE_HREF;
+  const packText = PACK_LINE_TEXT;
   const [status, refresh, statusKnown] = useCachedStatus(uid);
   // A scorecard can render outside the router (PDF/report renders, bare tests): fall back to a plain link.
   const inRouter = useInRouterContext();

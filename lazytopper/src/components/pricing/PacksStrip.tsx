@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, type PackSku } from "../../services/packs";
 import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
@@ -34,9 +35,19 @@ const FROM_PRICE = Math.min(...ITEMS.map((i) => PACK_PRICE_INR[i.sku]));
 export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLive?: boolean } = {}) {
   // Owner ruling 25 Oct: a student who has BOUGHT Premium (cached read; signed out / not yet hydrated -> shown) is shown no pack offers.
   const paid = usePaidPremium();
+  // PACK-BASIC-ONLY-1 - the walls link to /pricing#packs. This strip mounts after first paint (lazy), so the
+  // browser's own hash scroll has already missed it: scroll it into view ourselves, minimally ("nearest"), so the
+  // Board Pass card just above stays on screen.
+  const { hash } = useLocation();
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (hash !== "#packs" || paid) return undefined;
+    const id = window.requestAnimationFrame(() => ref.current?.scrollIntoView?.({ block: "nearest" }));
+    return () => window.cancelAnimationFrame(id);
+  }, [hash, paid]);
   if (paid) return null;
   return (
-    <section className="lt-packoffer" aria-labelledby="lt-packoffer-h" data-testid="pricing-packs-strip">
+    <section id="packs" ref={ref} className="lt-packoffer" aria-labelledby="lt-packoffer-h" data-testid="pricing-packs-strip">
       <div className="lt-packoffer__head">
         <h2 className="lt-packoffer__title" id="lt-packoffer-h">Not ready for Premium yet? Start with a PDF pack</h2>
         <p className="lt-packoffer__sub">Printed practice from &#8377;{FROM_PRICE} &middot; one-time &middot; never renews</p>
