@@ -66,6 +66,7 @@ describe("ACTIVATION-1 · Try one board question now", () => {
     await openReady();
     const ready = screen.getByTestId("start-here-ready");
     expect(ready.firstElementChild).toBe(screen.getByTestId("start-here-try-one"));
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Answer one real board question and see exactly where your marks slip.");
     expect(screen.getByTestId("start-here-try-one").textContent).toBe("Try one board question now (2 min)");
     expect(screen.getByTestId("start-here-try-one").getAttribute("data-chapter")).toBe("electricity");
   });

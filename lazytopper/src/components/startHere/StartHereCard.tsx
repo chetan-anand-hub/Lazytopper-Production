@@ -851,7 +851,7 @@ function StartHerePanel({
     <div ref={panelRef}>
       <p className="lt-shc-k">{START_HERE_COPY.kicker}</p>
       <h2 className="lt-shc-h" id={headingId}>
-        {START_HERE_COPY.body}
+        {open && !showPicker && tryOne ? START_HERE_TRY_ONE_COPY.headline : START_HERE_COPY.body}
       </h2>
       {!open ? (
         <div className="lt-shc-ctas">

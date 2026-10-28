@@ -54,6 +54,8 @@ export const START_HERE_FAIL_COPY = {
 export const START_HERE_TRY_ONE_COPY = {
   label: "Try one board question now (2 min)",
   getting: "Getting your question…",
+  /** The ready state's headline while this button leads it (the other states keep START_HERE_COPY.body). */
+  headline: "Answer one real board question and see exactly where your marks slip.",
 } as const;
 
 export type StartHereQType = "mcq" | "ar" | "written";
