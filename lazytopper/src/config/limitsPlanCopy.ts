@@ -33,11 +33,8 @@ export const basicDownloadLine = (): string =>
 export const basicQuickPracticeLine = (): string =>
   `${n(C.basic.quickPracticeGradedPerDay, "graded Quick Practice set", "graded Quick Practice sets")} a day — your first is free`;
 
-export const BASIC_FIRST_GRADED_LINE =
-  "Your first graded worksheet, chapter test, full mock and answer check are free";
-
 export const BASIC_RESULT_LINE =
-  "Every result shows your score and your Mistake Intelligence summary; the answer-by-answer breakdown is Premium after your first of each kind";
+  "Every result shows your score and your Mistake Intelligence summary; the answer-by-answer breakdown is Premium";
 
 /** The trial's allowances in one sentence. */
 export function trialLimitsSentence(): string {
@@ -56,4 +53,4 @@ export const basicQuickPracticeCell = (): string => `${C.basic.quickPracticeGrad
 
 /** The Basic list's "papers" row with the limits on. BasicFreeList loads this module lazily (PERF-3). */
 export const basicPapersRow = (): string =>
-  `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")} — written answers are checked only for your first of each kind`;
+  `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")} — written answers on tests and mocks are not checked on Basic`;
