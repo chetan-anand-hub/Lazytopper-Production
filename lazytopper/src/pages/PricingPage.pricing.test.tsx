@@ -789,13 +789,13 @@ describe("PricingPage — PRICING-LIGHT-1 · L4 Compare plans", () => {
 /* ── PRICING-LIGHT-1 · L2 order and structure ───────────────────────────────── */
 
 describe("PricingPage — PRICING-1 · Premium left and first, Basic right", () => {
-  it("Premium renders BEFORE Basic in DOM order (left on desktop, first when stacked)", () => {
+  it("Premium renders BEFORE Basic in DOM order (PRICING-LADDER-1: the packs ladder sits between them, so both cards are children of .lt-pricing-ladder)", () => {
     const { inner } = renderPricing();
-    const cards = Array.from(inner.querySelectorAll(".lt-pricing-cards > .lt-pricing-card"));
+    const cards = Array.from(inner.querySelectorAll(".lt-pricing-ladder > .lt-pricing-card"));
     expect(cards.map(c => flat(c.querySelector(".lt-pricing-plan-label")))).toEqual(["Premium", "Basic"]);
     expect(cards[0].compareDocumentPosition(cards[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    // Nothing reorders them visually: no `order` on a card or the grid, in any rule.
-    for (const sel of [".lt-pricing-card", ".lt-pricing-card--premium", ".lt-pricing-card--basic", ".lt-pricing-cards"]) {
+    // Nothing reorders them visually: no `order` on a card or the ladder, in any rule.
+    for (const sel of [".lt-pricing-card", ".lt-pricing-card--premium", ".lt-pricing-card--basic", ".lt-pricing-ladder"]) {
       expect(SHIPPED_CSS_NO_COMMENTS).not.toMatch(new RegExp(`\\${sel} \\{[^}]*\\border:`));
     }
   });

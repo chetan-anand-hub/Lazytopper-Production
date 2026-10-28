@@ -133,7 +133,7 @@ async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(
   };
   const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now: () => NOW, foundingOfferOpen: true });
   const packs = createPackRoutes({
-    sendJson, verifiedCaller, adminFirestore: db, telemetry,
+    sendJson, verifiedCaller, adminFirestore: db, telemetry, now: () => NOW, foundingOfferOpen: true,
     getLicensee: async (uid) => { if (throwLicensee) throw new Error('auth down'); return licensees[uid] || { name: '', email: '' }; },
   });
   const server = http.createServer((req, res) => {
@@ -563,7 +563,7 @@ test('GET /api/packs/mine: [] when none, licensee from the server record of the 
   t.after(srv.close);
   const r = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('u1') });
   assert.equal(r.status, 200);
-  assert.deepEqual(r.json, { packs: [], licensee: { name: 'Asha Rao', email: 'asha@example.com' } });
+  assert.deepEqual(r.json, { packs: [], licensee: { name: 'Asha Rao', email: 'asha@example.com' }, boardPassCredit: { creditInr: 0, expiresAtMs: null, payInr: null } });
   const blank = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('u9') });
   assert.equal(blank.status, 503, 'no email on record -> no licensee -> refuse');
   assert.deepEqual(blank.json, { ok: false, error: 'licensee_unavailable' });
@@ -587,4 +587,224 @@ test('GET /api/packs/mine: lists only the caller\'s packs, public fields only, e
   assert.deepEqual(r.json.licensee, { name: '', email: 'asha@example.com' });
   assert.equal(JSON.stringify(r.json).includes('paymentRef'), false);
   assert.equal(JSON.stringify(r.json).includes('p_seed'), false, 'the payment reference stays server-side');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PACK-CREDIT-1 - a Board Pass bought within 7 days of a pack is credited the pack price.
+   MONEY: each test names a way the credit is NOT given, or a payment is NOT rejected / stranded.
+   ══════════════════════════════════════════════════════════════════════════════ */
+const WEEK = 7 * 24 * 60 * 60 * 1000;
+const orderAmount = async (srv, uid, passType = 'till_boards') => (await orderOk(srv, uid, passType)).amountPaise;
+async function fullBoardPrice(t) {
+  const srv = await start();
+  t.after(srv.close);
+  return orderAmount(srv, 'nobody');
+}
+
+test('CREDIT · a Board Pass order for a student with a fresh Rs 49 pack is created at the price LESS Rs 49; notes + stored order carry it', async (t) => {
+  const full = await fullBoardPrice(t);
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const r = await orderOk(srv, 'u1', 'till_boards');
+  assert.equal(r.amountPaise, full - 4900);
+  const created = srv.rzp.calls.filter((c) => c.url.endsWith('/orders') && c.method === 'POST').pop();
+  assert.equal(created.body.amount, full - 4900, 'Razorpay is asked for the CREDITED amount');
+  assert.equal(created.body.notes.packCreditInr, '49');
+  assert.equal(created.body.notes.packCreditIds, 'pack_chapter:triangles');
+  const stored = srv.db.read(`payOrders/${r.orderId}`);
+  assert.equal(stored.amountPaise, full - 4900);
+  assert.equal(stored.packCreditInr, 49);
+  assert.equal(stored.packCreditIds, 'pack_chapter:triangles');
+  assert.ok(srv.events.includes('payments.order.pack_credit_applied'));
+  // creating the order does NOT spend the credit: only the grant does
+  assert.equal(srv.db.read('packEntitlements/u1/packs/pack_chapter:triangles').creditedToPass, false);
+});
+
+test('CREDIT · NOT given: month pass, a pack older than 7 days (7d + 1ms), an already-credited pack, someone else\'s pack, a body-supplied credit', async (t) => {
+  const full = await fullBoardPrice(t);
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  seedPack(db, 'old', 'pack_chapter', 'circles', { pricePaidInr: 49, paidAt: NOW - WEEK - 1 });
+  seedPack(db, 'spent', 'pack_chapter', 'circles', { pricePaidInr: 49, paidAt: NOW - 1000, creditedToPass: true });
+  seedPack(db, 'edge', 'pack_chapter', 'circles', { pricePaidInr: 49, paidAt: NOW - WEEK });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const month = await orderAmount(srv, 'u1', 'month');
+  const monthNoPack = await orderAmount(srv, 'nobody', 'month');
+  assert.equal(month, monthNoPack, 'a month pass earns no credit');
+  assert.equal(await orderAmount(srv, 'old'), full, '7 days + 1 ms is out');
+  assert.equal(await orderAmount(srv, 'spent'), full, 'a credited pack is spent');
+  assert.equal(await orderAmount(srv, 'u2'), full, 'another student\'s pack is not mine');
+  assert.equal(await orderAmount(srv, 'edge'), full - 4900, 'exactly 7 days is still in');
+  const forged = await order(srv, 'nobody', 'till_boards', { packCreditInr: 9999, packCreditIds: 'pack_chapter:triangles', amountPaise: 100 });
+  assert.equal(forged.status, 200);
+  assert.equal(forged.json.amountPaise, full, 'the credit never comes from the request');
+});
+
+test('CREDIT · FAIL CLOSED: an unreadable pack list gives credit 0, the purchase still goes through at full price, and it is counted', async (t) => {
+  const full = await fullBoardPrice(t);
+  const real = memoryFirestore();
+  seedPack(real, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  const db = {
+    ...real,
+    collection: (name) =>
+      name === 'packEntitlements'
+        ? { doc: () => ({ collection: () => ({ get: async () => { throw new Error('firestore down'); } }) }) }
+        : real.collection(name),
+  };
+  const srv = await start({ db });
+  t.after(srv.close);
+  const r = await orderOk(srv, 'u1', 'till_boards');
+  assert.equal(r.amountPaise, full);
+  assert.equal(srv.db.read(`payOrders/${r.orderId}`).packCreditInr, undefined);
+  assert.ok(srv.events.includes('payments.order.pack_credit_read_failed'));
+});
+
+test('CREDIT · the amount never drops below Rs 1: a pack total larger than the price is capped (whole packs only)', async (t) => {
+  const db = memoryFirestore();
+  for (let i = 0; i < 20; i += 1) seedPack(db, 'rich', 'pack_chapter', `ch${i}`, { pricePaidInr: 299, paidAt: NOW - 1000 - i });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const r = await orderOk(srv, 'rich', 'till_boards');
+  assert.ok(r.amountPaise >= 100, `amount ${r.amountPaise} must stay at least Rs 1`);
+  const ids = srv.db.read(`payOrders/${r.orderId}`).packCreditIds.split(',');
+  assert.ok(ids.length < 20);
+  const created = srv.rzp.calls.filter((c) => c.url.endsWith('/orders') && c.method === 'POST').pop();
+  assert.ok(created.body.notes.packCreditIds === undefined || created.body.notes.packCreditIds.length <= 256);
+});
+
+test('CREDIT · A CREDITED ORDER IS NOT REJECTED AS A MISMATCH: verify grants, records the AMOUNT PAID, marks the packs credited, and a replay changes nothing', async (t) => {
+  const full = await fullBoardPrice(t);
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  seedPack(db, 'u1', 'pack_mock', 'maths', { pricePaidInr: 99, paidAt: NOW - 2000 });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const o = await orderOk(srv, 'u1', 'till_boards');
+  const p = srv.rzp.pay(o.orderId);
+  assert.equal(p.amount, full - 14800);
+  const v = await verify(srv, 'u1', o.orderId, p.id);
+  assert.equal(v.status, 200, JSON.stringify(v.json));
+  assert.equal(v.json.pass.passType, 'till_boards');
+  assert.equal(v.json.pass.pricePaidInr, (full - 14800) / 100, 'the subscription records what was actually paid');
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, (full - 14800) / 100);
+  for (const id of ['pack_chapter:triangles', 'pack_mock:maths']) {
+    const pk = srv.db.read(`packEntitlements/u1/packs/${id}`);
+    assert.equal(pk.creditedToPass, true, id);
+    assert.equal(pk.creditedOrderId, o.orderId, id);
+  }
+  const stored = srv.db.read(`payOrders/${o.orderId}`);
+  assert.equal(stored.status, 'paid');
+  assert.equal(stored.packCreditConflict, undefined);
+  assert.ok(srv.events.includes('payments.verify.pack_credit_marked'));
+  assert.ok(!srv.events.some((e) => e.includes('pack_credit_conflict')));
+  assert.ok(!srv.events.some((e) => e.includes('amount_mismatch')));
+  // replay: nothing is written twice
+  const before = srv.db.version('packEntitlements/u1/packs/pack_mock:maths');
+  const again = await verify(srv, 'u1', o.orderId, p.id);
+  assert.equal(again.status, 200);
+  assert.equal(again.json.replayed, true);
+  assert.equal(srv.db.version('packEntitlements/u1/packs/pack_mock:maths'), before);
+  // the credit is SPENT: the next Board Pass order has none
+  assert.equal(await orderAmount(srv, 'u1', 'till_boards'), full);
+});
+
+test('CREDIT · paying the FULL price for a credited order is refused (the stored credited amount is what is enforced)', async (t) => {
+  const full = await fullBoardPrice(t);
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const o = await orderOk(srv, 'u1', 'till_boards');
+  const p = srv.rzp.pay(o.orderId, { amount: full });
+  const v = await verify(srv, 'u1', o.orderId, p.id);
+  assert.equal(v.status, 400);
+  assert.equal(v.json.reason, 'amount_mismatch');
+  assert.equal(srv.db.read('subscriptions/u1'), undefined);
+  assert.equal(srv.db.read('packEntitlements/u1/packs/pack_chapter:triangles').creditedToPass, false);
+});
+
+test('CREDIT · the webhook and /status grant a credited order the same way (one grant, packs marked once)', async (t) => {
+  const full = await fullBoardPrice(t);
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  seedPack(db, 'u2', 'pack_chapter', 'circles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const o1 = await orderOk(srv, 'u1', 'till_boards');
+  const p1 = srv.rzp.pay(o1.orderId);
+  const w = await webhook(srv, p1);
+  assert.equal(w.status, 200, JSON.stringify(w.json));
+  assert.equal(srv.db.read('packEntitlements/u1/packs/pack_chapter:triangles').creditedToPass, true);
+  const o2 = await orderOk(srv, 'u2', 'till_boards');
+  srv.rzp.pay(o2.orderId);
+  const s = await status(srv, 'u2', o2.orderId);
+  assert.equal(s.status, 200, JSON.stringify(s.json));
+  assert.equal(srv.db.read('packEntitlements/u2/packs/pack_chapter:circles').creditedToPass, true);
+  assert.equal(srv.db.read('subscriptions/u2').pricePaidInr, (full - 4900) / 100);
+});
+
+test('CREDIT · CONFLICT: two orders created on the same pack, both paid -> both passes granted for what was paid; the second is flagged packCreditConflict, counted, never thrown', async (t) => {
+  const full = await fullBoardPrice(t);
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const a = await orderOk(srv, 'u1', 'till_boards');
+  const b = await orderOk(srv, 'u1', 'till_boards');
+  assert.equal(a.amountPaise, full - 4900);
+  assert.equal(b.amountPaise, full - 4900, 'both were quoted before either was paid');
+  const pa = srv.rzp.pay(a.orderId);
+  const pb = srv.rzp.pay(b.orderId);
+  const va = await verify(srv, 'u1', a.orderId, pa.id);
+  assert.equal(va.status, 200, JSON.stringify(va.json));
+  const vb = await verify(srv, 'u1', b.orderId, pb.id);
+  assert.equal(vb.status, 200, 'the money is real: the second pass is granted too');
+  assert.equal(vb.json.replayed, false);
+  assert.equal(srv.db.read(`payOrders/${a.orderId}`).packCreditConflict, undefined);
+  assert.equal(srv.db.read(`payOrders/${b.orderId}`).packCreditConflict, true);
+  assert.equal(srv.db.read(`payOrders/${b.orderId}`).status, 'paid');
+  assert.equal(srv.db.read('packEntitlements/u1/packs/pack_chapter:triangles').creditedOrderId, a.orderId, 'the first order keeps the credit');
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, (full - 4900) / 100);
+  assert.ok(srv.events.includes('payments.verify.pack_credit_conflict'));
+});
+
+test('CREDIT · a pack that vanished between order and payment is a conflict, not a failure: pass granted, order flagged', async (t) => {
+  const full = await fullBoardPrice(t);
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 1000 });
+  const srv = await start({ db });
+  t.after(srv.close);
+  const o = await orderOk(srv, 'u1', 'till_boards');
+  srv.db.docs.delete('packEntitlements/u1/packs/pack_chapter:triangles');
+  const p = srv.rzp.pay(o.orderId);
+  const v = await verify(srv, 'u1', o.orderId, p.id);
+  assert.equal(v.status, 200, JSON.stringify(v.json));
+  assert.equal(srv.db.read(`payOrders/${o.orderId}`).packCreditConflict, true);
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, (full - 4900) / 100);
+});
+
+test('CREDIT · a Board Pass order with NO credit is exactly today\'s order (no new notes or fields)', async (t) => {
+  const srv = await start();
+  t.after(srv.close);
+  const o = await orderOk(srv, 'u1', 'till_boards');
+  const created = srv.rzp.calls.filter((c) => c.url.endsWith('/orders') && c.method === 'POST').pop();
+  assert.deepEqual(Object.keys(created.body.notes).sort(), ['offerKey', 'passType', 'uid']);
+  assert.deepEqual(Object.keys(srv.db.read(`payOrders/${o.orderId}`)).sort(), ['amountPaise', 'createdAt', 'offerKey', 'passType', 'status', 'uid']);
+});
+
+test('CREDIT · GET /api/packs/mine reports boardPassCredit { creditInr, expiresAtMs, payInr } from the server; read only', async (t) => {
+  const full = await fullBoardPrice(t);
+  const db = memoryFirestore();
+  seedPack(db, 'u1', 'pack_chapter', 'triangles', { pricePaidInr: 49, paidAt: NOW - 3000 });
+  seedPack(db, 'u1', 'pack_mock', 'maths', { pricePaidInr: 99, paidAt: NOW - WEEK - 1 });
+  const srv = await start({ db, licensees: { u1: { name: '', email: 'a@example.com' } } });
+  t.after(srv.close);
+  const writes = srv.db.stats.writes.length;
+  const r = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('u1') });
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.json.boardPassCredit, { creditInr: 49, expiresAtMs: NOW - 3000 + WEEK, payInr: (full - 4900) / 100 });
+  assert.equal(srv.db.stats.writes.length, writes, 'no write');
 });

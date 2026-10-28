@@ -58,7 +58,9 @@ describe("32e · trial daily-checks limit → a dialog", () => {
     expect(dialog.textContent).not.toMatch(/12:00 am|They reset at/);
     // the upgrade link is kept, internal, never /app/
     expect(screen.getByTestId("fair-use-see-plans").getAttribute("href")).toBe("/pricing");
-    expect(dialog.textContent).not.toMatch(/₹|INR|rupee|trial_limit|usage_limit/i);
+    expect(dialog.textContent).not.toMatch(/trial_limit|usage_limit/i);
+    // PAPER-WALLS-1: the Board Pass line (with its price) now leads the actions; the price is the one from pricing.ts.
+    expect(screen.getByTestId("fair-use-board-pass").textContent).toMatch(/^Board Pass/);
   });
 
   it("the copy function: midnight IST says 'after midnight'; any other reset keeps the exact time; unknown allowance omits the number", () => {

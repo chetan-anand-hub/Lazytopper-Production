@@ -513,6 +513,7 @@
     "src/pages/PracticePage.workingAfter.test.tsx",
     "src/pages/PricingPage.backnav.test.tsx",
     "src/pages/PricingPage.founderAfterClose.test.tsx",
+    "src/pages/PricingPage.ladder.test.tsx",
     "src/pages/PricingPage.parentPay.test.tsx",
     "src/pages/PricingPage.paycopy.test.tsx",
     "src/pages/PricingPage.pricing.test.tsx",

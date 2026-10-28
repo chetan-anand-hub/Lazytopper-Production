@@ -32,6 +32,10 @@
 // order can never disagree. Only idempotency changed here — price and dates did not.
 
 const pricing = require('./passPricing.cjs');
+// PACK-CREDIT-1: the Board Pass order may carry a pack credit; the packs it names are marked credited in the
+// grant transaction. Only the collection / segment names are taken from packGrant.
+const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
+const { parseCreditIds, BOARD_PASS_TYPE } = require('./packCredit.cjs');
 
 const FIRESTORE_COLLECTION = 'subscriptions';
 /**
@@ -232,6 +236,17 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
     const paymentSnap = await tx.get(paymentDocRef);
     const orderSnap = orderRef ? await tx.get(orderRef) : null;
     const stored = snap && snap.exists ? snap.data() || {} : {};
+    // PACK-CREDIT-1: the packs this Board Pass order was credited with. The list comes from the STORED order
+    // (written only by the order routes), never from a caller. Read here, before any write.
+    const creditIds =
+      orderSnap && orderSnap.exists && request.passType === BOARD_PASS_TYPE && Number((orderSnap.data() || {}).packCreditInr) > 0
+        ? parseCreditIds((orderSnap.data() || {}).packCreditIds)
+        : [];
+    const packRefs = creditIds.map((id) =>
+      firestore.collection(ENTITLEMENTS_COLLECTION).doc(request.uid).collection(PACK_SEGMENTS.packs).doc(id),
+    );
+    const packSnaps = [];
+    for (const r of packRefs) packSnaps.push(await tx.get(r));
 
     let order = null;
     if (orderRef) {
@@ -240,9 +255,9 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
       if (order.uid !== request.uid) throw new PassGrantInputError('payment order belongs to another account');
     }
     // created -> paid, in THIS transaction. An order already paid is never rewritten.
-    const markOrderPaid = () => {
+    const markOrderPaid = (extra) => {
       if (order && order.status !== 'paid') {
-        tx.set(orderRef, { status: 'paid', paymentId: request.paymentRef, paidAt: new Date(request.nowMs) }, { merge: true });
+        tx.set(orderRef, { status: 'paid', paymentId: request.paymentRef, paidAt: new Date(request.nowMs), ...(extra || {}) }, { merge: true });
       }
     };
 
@@ -267,7 +282,9 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
     // thrown: the student paid the order's amount and that is what is recorded.
     if (!decision.replay && order && Number.isInteger(order.amountPaise) && order.amountPaise > 0 && order.amountPaise % 100 === 0) {
       const chargedInr = order.amountPaise / 100;
-      if (chargedInr !== decision.fields.pricePaidInr) {
+      // A credited Board Pass is expected to be charged the table price LESS its recorded credit.
+      const expectedInr = decision.fields.pricePaidInr - (Number.isInteger(order.packCreditInr) && order.packCreditInr > 0 ? order.packCreditInr : 0);
+      if (chargedInr !== expectedInr) {
         console.error('[passGrant] order amount differs from the price table:', orderId, chargedInr, decision.fields.pricePaidInr);
       }
       decision.fields.pricePaidInr = chargedInr;
@@ -282,8 +299,47 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
       pricePaidInr: decision.fields.pricePaidInr,
       grantedAt: new Date(request.nowMs),
     });
-    markOrderPaid();
-    return { replayed: false, pass: describePass(request.uid, { ...stored, ...decision.fields }) };
+
+    // PACK-CREDIT-1 — mark exactly the packs this order was credited with, in THIS transaction. The money
+    // was really paid, so the pass is granted whatever we find here: a pack that is missing, already credited
+    // by a different order (two orders raced), or whose price disagrees with the recorded credit is a
+    // CONFLICT - flagged on the order and surfaced to the route for a counter, never thrown.
+    let packCredit = null;
+    let orderExtra;
+    if (creditIds.length > 0) {
+      let conflict = false;
+      let sumInr = 0;
+      const marked = [];
+      creditIds.forEach((id, idx) => {
+        const ps = packSnaps[idx];
+        const pk = ps && ps.exists ? ps.data() || {} : null;
+        if (!pk) {
+          conflict = true;
+          return;
+        }
+        sumInr += Number.isInteger(pk.pricePaidInr) ? pk.pricePaidInr : 0;
+        if (pk.creditedToPass === true && pk.creditedOrderId !== orderId) {
+          conflict = true; // already spent against a different order
+          return;
+        }
+        marked.push(id);
+        tx.set(
+          packRefs[idx],
+          { creditedToPass: true, creditedOrderId: orderId, creditedAt: new Date(request.nowMs) },
+          { merge: true },
+        );
+      });
+      if (sumInr !== order.packCreditInr) conflict = true;
+      packCredit = { conflict, markedIds: marked, creditInr: order.packCreditInr };
+      if (conflict) orderExtra = { packCreditConflict: true };
+    }
+    markOrderPaid(orderExtra);
+    if (orderExtra && order.status === 'paid') tx.set(orderRef, orderExtra, { merge: true });
+    return {
+      replayed: false,
+      pass: describePass(request.uid, { ...stored, ...decision.fields }),
+      ...(packCredit ? { packCredit } : {}),
+    };
   });
 }
 

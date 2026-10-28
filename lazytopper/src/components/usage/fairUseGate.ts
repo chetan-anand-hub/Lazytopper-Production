@@ -138,10 +138,14 @@ export function limitCopy(limit: LimitState): LimitCopy {
   if (SELF_CONTAINED_TRIAL_COPY.has(limit.scope)) {
     return { lead: trialUsedLine(limit.scope, limit.allowance), resetPrefix: null, tail: null, showPlans: true };
   }
+  // PAPER-WALLS-1: the server named a 7-day window -> "this week's", never "today's" (and "weekly", not "daily").
+  const weekly = limit.window === "week";
+  const lead = trialUsedLine(limit.scope, limit.allowance);
+  const tail = TRIAL_PREMIUM_LINE[limit.scope];
   return {
-    lead: trialUsedLine(limit.scope, limit.allowance),
+    lead: weekly ? lead.replace("today's", "this week's") : lead,
     resetPrefix: limit.resetAt ? (limit.scope === "checks" ? "They reset at" : "It resets at") : null,
-    tail: TRIAL_PREMIUM_LINE[limit.scope],
+    tail: weekly ? tail.replace("daily", "weekly") : tail,
     showPlans: true,
   };
 }
@@ -286,7 +290,8 @@ export function limitFromRefusal(
   if (!tier) return null;
   if (tier === "trial") {
     const st = trialScopeState(snapshot, scope);
-    return { tier, scope, resetAt: info.resetAt ?? st?.resetAt ?? null, window: null, allowance: st?.allowance ?? null };
+    // PAPER-WALLS-1: carry the server's window (a 7-day refusal says "this week"); null when it sent none.
+    return { tier, scope, resetAt: info.resetAt ?? st?.resetAt ?? null, window: info.window ?? null, allowance: st?.allowance ?? null };
   }
   const window = info.window ?? fullPremiumWindow(snapshot);
   if (!window) return null; // cannot name the window honestly -> existing error path

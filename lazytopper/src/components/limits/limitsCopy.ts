@@ -14,6 +14,8 @@ import {
   tillBoardsQuote,
 } from "../../config/pricing";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
+import { isPackChapterSlug, isPacksEntryEnabled, packsHref } from "../../lib/packs/packEntry";
+import { packPriceLabel } from "../../services/packs";
 
 export const SIGNED_OUT_CHIP = "Sign up — your first download is free";
 export const FIRST_FREE_CHIP = "Your first download is free.";
@@ -104,4 +106,50 @@ export function wallOfferLines(now: Date): WallOfferLines {
     monthly: monthlyInline(open),
     founding: open ? `Founding price ${PRICE_MONTHLY_FOUNDING_DISPLAY} a month until ${FOUNDING_OFFER_LAST_DAY_LABEL}.` : null,
   };
+}
+
+/* ── PAPER-WALLS-1: the second, smaller pack line under a paper's Board Pass offer ─────────────── */
+
+export interface PaperPackLine {
+  /** "Chapter Pack" | "Mock Pack" | "PDF packs". */
+  label: string;
+  /** "₹49" | "₹99", or "" for the plain /packs link (no price named). */
+  priceLabel: string;
+  href: string;
+}
+
+/**
+ * PURE. The pack that matches a refused paper: a chapter test or worksheet with exactly ONE chapter ->
+ * that Chapter Pack; a full mock of a known subject -> that subject's Mock Pack; anything else -> plain
+ * /packs. Prices are the catalogue's display prices (services/packs), never typed here. Null when the pack
+ * entry links are switched off, so no wall points at a page that is dark.
+ */
+export function paperPackLine(
+  scope: "chapter-test" | "full-mock" | "worksheet",
+  opts: { chapters?: readonly string[]; subject?: string | null } = {},
+): PaperPackLine | null {
+  if (!isPacksEntryEnabled()) return null;
+  if (scope !== "full-mock") {
+    const unique = Array.from(new Set(opts.chapters ?? []));
+    if (unique.length === 1 && isPackChapterSlug(unique[0])) {
+      return { label: "Chapter Pack", priceLabel: packPriceLabel("pack_chapter"), href: packsHref({ chapter: unique[0] }) };
+    }
+  } else {
+    const subject = (opts.subject ?? "").toLowerCase();
+    if (subject === "maths" || subject === "science") {
+      return { label: "Mock Pack", priceLabel: packPriceLabel("pack_mock"), href: packsHref({ mock: subject }) };
+    }
+  }
+  return { label: "PDF packs", priceLabel: "", href: packsHref() };
+}
+
+/** Read by NAME, never instanceof: several suites mock aiClient whole. A Basic 402 on a paper. */
+export function isPremiumRequiredRefusal(err: unknown): boolean {
+  return !!err && typeof err === "object" && (err as { name?: unknown }).name === "PremiumRequiredError";
+}
+
+/** A trial student's spent allowance (409 trial_limit) that the calm panel could not show (no enforced read). */
+export function isTrialLimitRefusal(err: unknown): boolean {
+  const e = err as { name?: unknown; kind?: unknown } | null;
+  return !!e && typeof e === "object" && e.name === "FairUseLimitError" && e.kind === "trial_limit";
 }
