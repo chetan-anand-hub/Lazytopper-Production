@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import FounderBadge from "../components/brand/FounderBadge";
 import { withSigninRedirect } from "../services/freeCheckClient";
 import { newCheckoutAttemptId } from "../analytics/analytics";
 import { trackPackCheckout, trackPackEvent, trackPackPurchase } from "../lib/packs/packAnalytics";
@@ -340,6 +341,7 @@ export default function PacksPage() {
         <div className="lt-packs__w lt-packs__herogrid">
           <div className="lt-packs__copy">
             <p className="lt-packs__kicker">PDF packs · CBSE Board Exam 2027</p>
+            <FounderBadge tone="dark" />
             <h1 id="packs-h1">Every question. Worked solutions.</h1>
             <p className="lt-packs__lede">
               <span className="lt-packs__lede--long">Printable Class 10 Maths and Science question banks. Solve with a pen, then check your work against the worked solutions.</span>
