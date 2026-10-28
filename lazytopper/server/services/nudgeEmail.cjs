@@ -368,6 +368,12 @@ function activityLine(counts) {
   return { text: `So far: ${parts.join(' · ')}.`, zero: false };
 }
 
+/** One short PDF-packs line for the d1 / d3 nudges. UTM only; no uid, email or other student data in the URL. */
+function packsPara(appUrl, campaign) {
+  const label = 'Want printed practice? Chapter packs from ₹49 → lazytopper.com/packs';
+  return { t: label, links: [{ label, url: `${appUrl}/packs?utm_source=email&utm_medium=email&utm_campaign=${campaign}&utm_content=packs` }] };
+}
+
 /**
  * The email for one kind. PURE. Plain HTML + text, no name, no tracking, an unsubscribe link,
  * no urgency words. `counts` is required for d3.
@@ -384,6 +390,7 @@ function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl }) {
     paras.push({ t: 'You made your LazyTopper account a day ago. Here is one small thing to try: take an answer you wrote for a board-style question and check it. LazyTopper shows where the marks went, step by step, and what kind of mistake it was. It is free.' });
     paras.push({ t: 'Check an answer', links: [{ label: 'Check an answer', url: checkUrl }] });
     paras.push({ t: 'No pen and paper nearby? Quick Practice works from your phone.', links: [{ label: 'Open Quick Practice', url: practiceUrl }] });
+    paras.push(packsPara(appUrl, 'nudge_d1'));
   } else if (kind === 'd3') {
     subject = 'Where you left off on LazyTopper';
     const a = activityLine(counts || { checks: 0, tests: 0, practiceSets: 0 });
@@ -394,6 +401,7 @@ function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl }) {
     } else {
       paras.push({ t: 'One next step: a short practice set on a topic you worked on, to see if the same mistake comes back.', links: [{ label: 'Open Practice', url: practiceUrl }] });
     }
+    paras.push(packsPara(appUrl, 'nudge_d3'));
   } else {
     subject = 'A note for you and your parents about LazyTopper plans';
     paras.push({ t: 'Hi,' });
