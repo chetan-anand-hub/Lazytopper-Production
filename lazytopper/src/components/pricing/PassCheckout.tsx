@@ -27,6 +27,7 @@ import {
   tillBoardsQuote,
 } from "../../config/pricing";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
+import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import {
   newCheckoutAttemptId,
   trackBeginCheckout,
@@ -73,6 +74,37 @@ export const PAY_STATUS_POLL_DELAYS_MS: readonly number[] = [0, 3_000, 10_000, 3
 export const CHECK_AGAIN_LABEL = "Check again";
 
 /**
+ * PACK-CREDIT-1 - the Board Pass credit line. Every number is the SERVER's (`/api/packs/mine`): the
+ * credit, the price the student then pays, and the day the credit lapses. The browser subtracts nothing.
+ */
+export function packCreditLine(credit: BoardPassCredit): string | null {
+  const till = formatCreditDeadline(credit.expiresAtMs);
+  if (!till) return null;
+  return `Your pack credit: ₹${credit.creditInr} off — Board Pass ₹${credit.payInr} for you, till ${till}`;
+}
+
+/** "1 Nov, 9:20 pm IST" — the exact instant the credit lapses, in IST. */
+function formatCreditDeadline(ms: number): string | null {
+  if (!Number.isFinite(ms)) return null;
+  const parts = new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  }).formatToParts(new Date(ms));
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const day = get("day");
+  const month = get("month");
+  const hour = get("hour");
+  const minute = get("minute");
+  const period = get("dayPeriod").toLowerCase();
+  if (!day || !month || !hour || !minute || !period) return null;
+  return `${day} ${month}, ${hour}:${minute} ${period} IST`;
+}
+
+/**
  * TRACK-2 — what the checkout events say was bought. The price is the SAME pricing-module
  * quote the server charges (month: the founding or list price; till boards: tillBoardsQuote
  * for today and the predicted board date). If the quote is unavailable the event carries no
@@ -107,6 +139,8 @@ export interface PassCheckoutViewProps {
    * offered again.
    */
   pendingHoldMs?: number;
+  /** PACK-CREDIT-1 - the server's Board Pass credit for this student, or null. Hidden when signed out or Premium is active. */
+  packCredit?: BoardPassCredit | null;
 }
 
 /**
@@ -127,6 +161,7 @@ export function PassCheckoutView({
   onCheckStatus = checkPayStatus,
   pollDelaysMs = PAY_STATUS_POLL_DELAYS_MS,
   pendingHoldMs = PAY_PENDING_TTL_MS,
+  packCredit = null,
 }: PassCheckoutViewProps) {
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntil] = useState<string | null>(null);
@@ -290,6 +325,10 @@ export function PassCheckoutView({
     );
   }
 
+  // PACK-CREDIT-1: signed in, no running Premium, nothing else in the notice slot (they share one grid row).
+  const creditLine =
+    signedIn && !activeLabel && packCredit && !failed && !expired && !recovery ? packCreditLine(packCredit) : null;
+
   return (
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
       {activeLabel && (
@@ -313,6 +352,11 @@ export function PassCheckoutView({
       >
         {monthButtonLabel(offerOpen)}
       </button>
+      {creditLine && (
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom lt-pack-credit-note" data-testid="pass-checkout-pack-credit">
+          {creditLine}
+        </p>
+      )}
       {failed && !recovery && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" role="alert" data-testid="pass-checkout-failed">
           {PAYMENT_FAILED_COPY}
@@ -347,6 +391,22 @@ function PassCheckoutConnected() {
   const { status, hydrated } = useSubscription();
   const uid = user?.uid ?? "";
 
+  // PACK-CREDIT-1: the server's credit for this student. A failed read is simply no credit line.
+  const [packCredit, setPackCredit] = useState<BoardPassCredit | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setPackCredit(null);
+    if (!uid) return undefined;
+    fetchMyPacks()
+      .then((mine) => {
+        if (!cancelled) setPackCredit(mine.boardPassCredit);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [uid]);
+
   const passEndMs = status.passEnd ? Date.parse(status.passEnd) : NaN;
   const activePassEnd =
     hydrated && status.tier === "premium" && Number.isFinite(passEndMs) && passEndMs > Date.now()
@@ -358,6 +418,7 @@ function PassCheckoutConnected() {
       signedIn={Boolean(uid)}
       offerOpen={foundingRateApplies(Date.now(), status.foundingMember)}
       activePassEnd={activePassEnd}
+      packCredit={packCredit}
       onSignIn={() => navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH))}
       onBuy={async (passType) => {
         const outcome = await buyPass(passType);

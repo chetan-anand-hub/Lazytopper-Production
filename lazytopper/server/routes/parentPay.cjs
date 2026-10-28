@@ -69,6 +69,8 @@ const {
 const { grantPass, isStaleFoundingOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const pricing = require('../services/passPricing.cjs');
+// PACK-CREDIT-1: the child's recent pack purchases credit a Board Pass order made through a parent link too.
+const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
 
 const PARENT_LINK_PATH = '/api/pay/parent-link';
 const PARENT_VIEW_PATH = '/api/pay/parent/view';
@@ -543,12 +545,26 @@ function createParentPayRoutes(deps = {}) {
     const { linkId, ref, link } = resolved;
     const uid = link.uid;
 
+    // PACK-CREDIT-1 - same rule and same helper as payments.cjs handleOrder, for the CHILD's uid (never the
+    // parent's). A failed read is credit 0; it never blocks the order.
+    let packCreditInr = 0;
+    let packCreditIds = '';
+    if (passType === 'till_boards') {
+      const credit = await boardPassCreditFor(adminFirestore, uid, passType, quote.pricePaidInr, now());
+      if (credit.readFailed) emit('payments.parent.order.pack_credit_read_failed');
+      const applied = applyCreditToQuote(quote, credit);
+      quote = applied.quote;
+      packCreditInr = applied.packCreditInr;
+      packCreditIds = applied.packCreditIds;
+      if (packCreditInr > 0) emit('payments.parent.order.pack_credit_applied');
+    }
+
     let created;
     try {
       created = await razorpay(keys, 'POST', '/orders', {
         amount: quote.amountPaise,
         currency: CURRENCY,
-        notes: { uid, passType, offerKey: quote.offerKey, payer: PARENT_PAYER },
+        notes: { uid, passType, offerKey: quote.offerKey, payer: PARENT_PAYER, ...creditNotes(packCreditInr, packCreditIds) },
       });
     } catch (e) {
       emit('payments.parent.order.razorpay_unreachable');
@@ -575,6 +591,7 @@ function createParentPayRoutes(deps = {}) {
         uid,
         passType,
         amountPaise: quote.amountPaise,
+        ...creditOrderFields(packCreditInr, packCreditIds),
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -666,6 +683,10 @@ function createParentPayRoutes(deps = {}) {
       return sendJson(res, 500, { ok: false, error: 'Pass grant failed' });
     }
     emit(granted.replayed ? 'payments.parent.verify.replayed' : 'payments.parent.verify.granted');
+    if (granted.packCredit) {
+      emit('payments.parent.verify.pack_credit_marked');
+      if (granted.packCredit.conflict) emit('payments.parent.verify.pack_credit_conflict');
+    }
 
     // 5. The link is spent. Not part of the grant: if this write fails the link still
     //    refuses new orders, because order creation re-reads its orders' status.

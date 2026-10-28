@@ -124,9 +124,32 @@ export interface PackLicensee {
   email: string;
 }
 
+/**
+ * PACK-CREDIT-1 - what the student's recent packs take off a Board Pass, as the SERVER computed it
+ * (`/api/packs/mine`). `payInr` is the server's Board Pass quote less the credit. Display only: the
+ * order route decides the amount actually charged. null when there is no credit.
+ */
+export interface BoardPassCredit {
+  creditInr: number;
+  expiresAtMs: number;
+  payInr: number;
+}
+
 export interface MyPacks {
   packs: OwnedPack[];
   licensee: PackLicensee;
+  boardPassCredit: BoardPassCredit | null;
+}
+
+/** A credit only when every field is a sane server number; anything else is no credit. */
+export function readBoardPassCredit(raw: unknown): BoardPassCredit | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as { creditInr?: unknown; expiresAtMs?: unknown; payInr?: unknown };
+  const { creditInr, expiresAtMs, payInr } = r;
+  if (typeof creditInr !== "number" || !Number.isInteger(creditInr) || creditInr <= 0) return null;
+  if (typeof payInr !== "number" || !Number.isInteger(payInr) || payInr <= 0) return null;
+  if (typeof expiresAtMs !== "number" || !Number.isFinite(expiresAtMs)) return null;
+  return { creditInr, expiresAtMs, payInr };
 }
 
 type PackRef = string | { packId: string };
@@ -218,13 +241,13 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown } };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown }; boardPassCredit?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
     email: typeof json.licensee?.email === "string" ? json.licensee.email : "",
   };
-  return { packs, licensee };
+  return { packs, licensee, boardPassCredit: readBoardPassCredit(json.boardPassCredit) };
 }
 
 /* ── buying ─────────────────────────────────────────────────────────────────── */
