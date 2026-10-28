@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useInRouterContext } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../../services/subscriptionService";
@@ -125,6 +125,8 @@ function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countSh
   // FIRST-OFFER-1 - the Chapter Pack deep link: only a chapter the result itself names (its practice route); else plain /packs.
   const packHref = packsHref({ chapter: variant.guideTarget ? chapterFromLocation(variant.guideTarget.to.split("?")[0], variant.guideTarget.to.split("?")[1] ?? "") : null });
   const [status, refresh] = useCachedStatus(uid);
+  // A scorecard can render outside the router (PDF/report renders, bare tests): fall back to a plain link.
+  const inRouter = useInRouterContext();
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
   const show = status.tier !== "premium";
@@ -165,9 +167,15 @@ function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countSh
       >
         {text}
       </button>
-      <Link className="lt-sc__up--pack" to={packHref} data-testid="scorecard-pack-line">
+      {inRouter ? (
+        <Link className="lt-sc__up--pack" to={packHref} data-testid="scorecard-pack-line">
         {`or start with a ₹${CHAPTER_PACK_PRICE_INR} Chapter Pack →`}
       </Link>
+      ) : (
+        <a className="lt-sc__up--pack" href={packHref} data-testid="scorecard-pack-line">
+        {`or start with a ₹${CHAPTER_PACK_PRICE_INR} Chapter Pack →`}
+      </a>
+      )}
       {open ? <UpgradeSheet
           featureLabel="Your full marks breakdown"
           onClose={() => {
