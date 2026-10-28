@@ -90,6 +90,25 @@ describe("route-change hook", () => {
   it("skips when navigation state asks to preserve scroll", () => {
     expect(run("/b", { preserveScroll: true }).scrollTop).toBe(2000);
   });
+  it("PUSH resets; POP (Back) does not", () => {
+    function BackThenProbe() {
+      const nav = useNavigate();
+      useEffect(() => { nav("/b"); }, [nav]);
+      return null;
+    }
+    function Back({ go }: { go: boolean }) {
+      const nav = useNavigate();
+      useEffect(() => { if (go) nav(-1); }, [go, nav]);
+      return null;
+    }
+    document.body.innerHTML = `<main id="m"></main>`;
+    const main = document.getElementById("m") as HTMLElement;
+    const { rerender } = render(<MemoryRouter initialEntries={["/a"]}><Probe /><BackThenProbe /><Back go={false} /></MemoryRouter>);
+    expect(main.scrollTop).toBe(0); // PUSH /a -> /b reset (CONTROL: PUSH still resets)
+    main.scrollTop = 1500;
+    rerender(<MemoryRouter initialEntries={["/a"]}><Probe /><BackThenProbe /><Back go={true} /></MemoryRouter>);
+    expect(main.scrollTop).toBe(1500); // POP /b -> /a leaves it
+  });
   it("CONTROL: does nothing on first render", () => {
     expect(run("").scrollTop).toBe(2000);
   });
