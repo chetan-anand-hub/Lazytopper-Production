@@ -1,3 +1,20 @@
+## 2026-10-28 (daily) - AFTER #1381 - #1382 - #1384 - #1383 - #1385 - #1388 - #1390 - #1389 - #1386 - #1393 - #1387 - #1391 - #1392 - #1394 - #1395 - #1396 - #1397 - #1398 - #1401 - #1400 - #1402 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them. The NEXT list of the 2026-10-25 (daily, part 2) block is superseded by this one for items 4 and 5 (sitelinks and founder line are built).)* Trunk at writing: **`93880249`** (`938802497face3404f1cfe1ca131c63391ec722f`, = `#1402`) [git/gh]. Facts marked **[coordinator]** come from the coordinator's dispatch spec.
+
+- **Done [git/gh]:** twenty-one product PRs (table in the CURRENT_STATE 2026-10-28 block). Open: `#1399` MISTAKE-CALC-1 (draft).
+- **NEXT, in order [coordinator]:**
+  1. **Read the thinking-cap result** (clean rerun running unattended since 12:32 IST 28 Oct on the owner's laptop; output `C:\Users\Chetan\lt-ledger\compare2.md`, log `run-full2.log`, ledgers `TC2.*.jsonl`; check the ledgers have no 429 and that the judge finished before trusting it). Ship rule: a cap passes only if EVERY quality metric is at least min(T0a, T0b) and the invariants match; otherwise ship nothing. Original wording: **Finish the thinking-cap smaller test** (today x2, cap 2048; coordinator on the owner's laptop in `C:\Users\Chetan\lt-eval`, never the project folder), read `compare.md`, decide. Ship the LOWEST passing cap via `modelConfig` `DEFAULT_GRADING_THINKING_BUDGET` only with zero grading-quality loss, uniform product-wide ("grading has to be CBSE-examiner-like, no compromise"), then a two-surface live verify.
+  2. **Merge `#1399` MISTAKE-CALC-1** after its golden case `GS-M-LCM-final-slip` passes in the paid live golden run and a live verify on Check & Improve single plus a Worksheet / Quick Practice typed answer (two surfaces, one on the path the defect was not reported on, per CLAUDE.md section 4a; one surface is PARTIAL).
+  3. **Read Speed Insights and the `[grade-timing]` lines** after a day of traffic (`[FU-SPEED-INSIGHTS-READ]`, `[FU-GRADING-CHUNK-45S-ABORTS]`).
+  4. **Owner purchase test** of PACK-CREDIT-1: a real Rs 49 pack, then the Board Pass inside 7 days (`[FU-PACK-CREDIT-LIVE-TEST]`); only then consider turning `PACK_CREDIT_LIVE` on.
+  5. The follow-ups in the 2026-10-28 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Owner ruling reminder [coordinator]:** "there is no next or this week, we have to do all of this" - the limits/walls plan A/B/C is built now; D separately.
+- **Ads [coordinator]:** make a horizontal (16:9) and a square (1:1) cut of each live Short (Navratri, Message 01, CBQ + PreBoards, CBQ 3-Step) and add them to the same ads; that is the only thing Google still lists for "Excellent" (`[FU-ADS-VIDEO-FORMATS]`). Check `engaged_5min` records conversions in Ads within 48 h (`[FU-ENGAGED5-IMPORT-CHECK]`).
+- **Owner-side [coordinator]:** make the repo private after the session; Ads balance top-up, pause Meta until in-app sign-in is measured (`[FU-OWNER-ADS]`); the checks listed as OWED in earlier blocks stand.
+- **Standing for builders [coordinator]:** establish the cause before the fix; grep the whole claim family when changing copy; any grading-behaviour lane enumerates all six surfaces and live-verifies two.
+- **Follow-ups found:** the 2026-10-28 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-25 (daily, part 2) - AFTER #1367 - #1370 - #1372 - #1371 - #1369 - #1368 - #1373 - #1374 - #1375 - #1376 - #1377 - #1378 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The NEXT list in the 2026-10-25 (daily) block is superseded by this one for items 1 and 2: the packs and the ask-copy lane are built.)* Trunk at writing: **`962a4ccc`** (`962a4ccc5f49fcd290531159cdf6d7966de91af6`, = `#1378`) [git/gh]. Facts marked **[coordinator]** come from the session handoff `HANDOFF_COFOUNDER_SESSION_2026-10-25_NIGHT.md`.

@@ -23,6 +23,61 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-28 (daily) - #1381 - #1402 (21 product merges, 28 Oct IST; `#1399` open) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `93880249`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator's dispatch spec **[coordinator]** and the PR bodies **[git/gh]**; this builder re-derived none of the code facts.
+
+### Closed by today's merges
+`[FU-PACKS-SITELINK-QUERY]` is closed by `#1382` (PACKS-SITELINKS-1) and `[FU-PACKS-FOUNDER-LINE]` by `#1381` (FOUNDER-IITIAN-1). `[FU-PACKS-CREATIVES-IIT]` (the badge on the social creatives) stays with the owner.
+
+### [FU-MISTAKE-CALC-SQRT-PRODUCT-AS-SUM]
+Evidence [coordinator]: sqrt(16 x 9) = 25 (the product read as a sum) is still retyped to `calculation` by `#1399` MISTAKE-CALC-1. Owner / coordinator decide whether to add that misreading to the rule or leave it.
+**CLOSED 28 Oct [owner ruling]:** leave it. `calculation` is correct ("it is either silly slip or calculation error"); see DECISION_LOG 2026-10-28.
+
+### [FU-GOLDEN-NO-FINAL-VALUE-SLIP-CASE]
+Evidence [coordinator + git/gh]: the golden set had no case for a slip in the last computed value. `#1399` adds `GS-M-LCM-final-slip` (live_cases, expected 2.5/3, calculation); it has not run in the paid live golden run yet.
+
+### [FU-GRADING-CHUNK-45S-ABORTS]
+Evidence [coordinator]: live eval on 28 Oct, about 1 in 6 multi-question (worksheet / test / mock) chunk calls hit the 45 s first-attempt timeout (`GRADING_CHUNK_TIMEOUT_MS`) with uncapped thinking, then retried, so papers were slower. The thinking-cap test measures whether a cap removes them. Also ONE `INVALID_ARGUMENT` 400 on a worksheet call: investigate (not yet explained).
+
+### [FU-WARMUP-ENTITLEMENT-402]
+Evidence [coordinator]: the deploy warm-up's model-generation calls still meet the anonymous entitlement 402. `#1397` stopped the HTTP limiter hitting them but deliberately did NOT bypass entitlement; the spend is unbudgeted.
+
+### [FU-PRERENDER-FORPARENTS-PRICE-AFTER-30NOV]
+Evidence [coordinator]: the `/for-parents` prerender freezes Rs 1,917 (the Board Pass price on 28 Oct); re-capture it after the founding price ends on 30 Nov (the Board Pass price changes 17 Nov and 1 Dec per the 25 Oct block). `#1389` renders prices after mount, so only the frozen HTML is stale.
+
+### [FU-BASIC-SERVER-FIRST-FREE]
+Evidence [git/gh `#1394` body]: the server still grades a Basic student's first chapter test / full mock (`limits.cjs`, "first free then 402") and the breakdown-lock comment in `limitsClient.ts` says "after the first of each kind". Copy now under-promises. Owner chose to leave it (every account gets a trial at sign-up); aligning the server would be a limit change needing a ruling.
+
+### [FU-PACK-CREDIT-LIVE-TEST]
+Owed: the owner's purchase test of `#1384` PACK-CREDIT-1 (a real Rs 49 pack, then the Board Pass inside 7 days; check the Razorpay amount, the PassCheckout credit line, `creditedToPass:true`). Not live-verified. Owner follow-ups named in the PR body: F3 credit fixed at order time; F5 a refunded pack keeps its discount; F4 extra reads on signed-in `/pricing`. The `/pricing` credit line stays behind `PACK_CREDIT_LIVE = false` until this passes.
+
+### [FU-ME-TOPICS-THRESHOLD]
+Question [coordinator]: the Me/Progress topic list needs at least 6 graded questions per chapter; confirm that is the intended threshold (`#1402` changed the trend rule and the remainder wording, not this threshold).
+
+### [FU-TUTOR-BARE-ROUTE]
+Evidence [coordinator]: `/tutor` typed directly is a 404 (no route; nothing links to it). Optional redirect.
+
+### [FU-OWNER-ADS]
+Owner actions outstanding [coordinator]: Search v2 budget Rs 1,200 (re-auth), Ads balance top-up, YouTube goal to `engaged_5min`, pause Meta until in-app sign-in (`#1391`) is measured, make the repo private after the session.
+Update 28 Oct afternoon [coordinator, read live in Google Ads]: Search v2 budget Rs 1,200/day DONE; YouTube goal `engaged_5min` DONE. Still open: Ads balance top-up (the account shows "prepaid funds are low"), pause Meta, repo private.
+
+### [FU-ADS-VIDEO-FORMATS]
+All four live YouTube Shorts ads are "Average" with every text slot filled; Google's ad-strength tooltip lists only "Add at least 1 horizontal video" and "Add at least 1 square video". Make a 16:9 and a 1:1 cut of each Short and add them to the same ads. Text alone cannot reach "Excellent".
+
+### [FU-ENGAGED5-IMPORT-CHECK]
+The YouTube campaign's Engagements goal uses `www.lazytopper.com (web) engaged_5min`, shown as inactive ("No recent conversions") on 28 Oct right after the switch. Confirm within 48 h that it records conversions; if it stays at 0, check the GA4 key-event import before the bidding starves.
+
+### [FU-THINKCAP-RESULT-READ]
+The clean thinking-cap rerun (TC2.T0a / TC2.T0b / TC2.T2048, concurrency 4, trial commit `f4527123`) was still running at writing. Read `C:\Users\Chetan\lt-ledger\compare2.md`, confirm the ledgers carry no 429 and the judge finished, apply the ship rule (NEXT_ACTION item 1), then merge or hold `#1399` on its golden case `GS-M-LCM-final-slip`.
+
+
+### [FU-SPEED-INSIGHTS-READ]
+Speed Insights (`#1387`) and the `[grade-timing]` lines (`#1397`) are live: read p50 / p95 after a day of traffic, and the Railway `[grade-timing]` lines, then decide on speed work. `#1397`'s own body says a Railway log read after deploy is needed.
+
+### [FU-LIVE-CHECKS-28OCT]
+Live checks the PR bodies say are still to do (`#1382` and `#1401` were live-checked by the coordinator on 28 Oct and are done): `#1382` at phone widths; `#1401` on desktop and phone; `#1397` the `[grade-timing]` read; `#1395` / `#1388` a Basic account; `#1396` the `/pricing#packs` landing after in-app navigation on a real device. `#1399` needs the paid golden run and a two-surface live verify before merge (CLAUDE.md section 4a: one surface is PARTIAL).
+
 ## 2026-10-25 (daily, part 2) - #1367 - #1378 (12 product merges after #1366, 25 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `962a4ccc`. Earlier dated entries are left as written (standing rule 3).* All items below come from the cofounder session **[coordinator]** (`HANDOFF_COFOUNDER_SESSION_2026-10-25_NIGHT.md`); this builder re-derived none of the code facts.

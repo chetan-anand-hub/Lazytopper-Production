@@ -1,3 +1,20 @@
+## 2026-10-28 (daily) - FOUNDER-IITIAN-1 (`#1381`), PACKS-SITELINKS-1 (`#1382`), PACK-CREDIT-1 (`#1384`), PRICING-LADDER-1 (`#1383`), EMAILS-SELL-1 (`#1385`), PAPER-WALLS-1 (`#1388`), ACTIVATION-1 (`#1390`), PARENTS-PAY-1 (`#1389`), PACK-LINKS-1 (`#1386`), ENTRY-DIET-1 (`#1393`), SPEED-1 (`#1387`), INAPP-SIGNIN-1 (`#1391`), FIRST-OFFER-1 (`#1392`), BASIC-COPY-1 (`#1394`), PACK-BASIC-ONLY-1 (`#1395`), PACKS-ANCHOR-FIX-1 (`#1396`), GRADE-SPEED-1 (`#1397`), BYTE-TRYONE-1 (`#1398`), SCROLL-TOP-1 (`#1401`), THINK-FALLBACK-SAFE-1 (`#1400`), COPY-FIXES-2 (`#1402`) - MERGED
+
+- DONE. `#1381` (`14c9ce53`): FOUNDER-IITIAN-1 - founder badge on `/pricing` and `/packs`. Closes `[FU-PACKS-FOUNDER-LINE]`. NEXT: whether the badge goes on the social creatives (`[FU-PACKS-CREATIVES-IIT]`, owner).
+- DONE. `#1382` (`a143bb07`): PACKS-SITELINKS-1 - ad sitelinks open the right pack pop-up. Closes `[FU-PACKS-SITELINK-QUERY]`. NEXT: a live check at phone widths.
+- DONE. `#1384` (`48baf3c6`), `#1383` (`d9166f85`): PACK-CREDIT-1 (money lane) and PRICING-LADDER-1 (the `PACK_CREDIT_LIVE` flag is still false in the PR). NEXT: `[FU-PACK-CREDIT-LIVE-TEST]` (owner purchase test), then the flag.
+- DONE. `#1385` (`3ea04f44`): EMAILS-SELL-1 - real price in the trial-ending email. NEXT: watch Resend counts.
+- DONE. `#1388` (`5cabc50b`), `#1386` (`b2eae79c`), `#1395` (`d0735dd7`), `#1396` (`a0d1ae17`), `#1392` (`920611c5`), `#1394` (`c6205ceb`): the offer ladder on walls, scorecards and `/pricing#packs`. NEXT: a live look on a trial and a Basic account.
+- DONE. `#1390` (`500a82e8`), `#1398` (`a52b7534`): ACTIVATION-1 and BYTE-TRYONE-1 - one typed board question from Home and from Byte. NEXT: read the `activation_card_click` funnel.
+- DONE. `#1389` (`ee1e14f3`): PARENTS-PAY-1 - price and child-pay flow on `/for-parents`. NEXT: `[FU-PRERENDER-FORPARENTS-PRICE-AFTER-30NOV]`.
+- DONE. `#1391` (`51f0280f`): INAPP-SIGNIN-1. NEXT: measure `inapp_signin_banner_shown` and sign-ups from Instagram/Facebook before un-pausing Meta.
+- DONE. `#1393` (`8e29bc45`), `#1387` (`4b4f886d`): ENTRY-DIET-1 and SPEED-1. NEXT: read Speed Insights p50/p95 after a day (`[FU-SPEED-INSIGHTS-READ]`).
+- DONE. `#1397` (`2526d712`), `#1400` (`e6193082`): GRADE-SPEED-1 and THINK-FALLBACK-SAFE-1. NEXT: read `[grade-timing]`; finish the thinking-cap test.
+- DONE. `#1401` (`e8e31abf`), `#1402` (`93880249`, trunk): SCROLL-TOP-1 and COPY-FIXES-2. NEXT: live-check scroll on desktop and phone.
+- IN FLIGHT: `#1399` MISTAKE-CALC-1 (draft, grading, held for the paid golden run and a two-surface live verify) [coordinator]. HELD: repo to PRIVATE (owner).
+- NEXT (main job): the order in `NEXT_ACTION.md` (2026-10-28 (daily)).
+- OPEN. The 2026-10-28 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-10-25 (daily, part 2) - PACKS-SERVER-1 (`#1367`), -1b (`#1372`), ASK-COPY-1 (`#1370`), PACKS-CLIENT-1 (`#1371`), PDF-REBRAND-1 (`#1369`), PACKS-LEGAL-1 (`#1368`), PACKS-GRADE-1 (`#1373`), PACKS-UX-1 (`#1374`), PACKS-SAMPLES-1 (`#1375`), PACKS-LIMIT-1 (`#1376`), PACKS-ENTRY-1 (`#1377`), COPY-PACKS-HONEST-1 (`#1378`) - MERGED
 
 - DONE. `#1367` (`bfc37bc1`), `#1372` (`58ebf2d8`): PACKS-SERVER-1 / 1b - pack orders, `grantPack`, `/api/packs/mine`. NEXT: `[FU-CHECKOUT-HELP-PACK-PAID-FLAG]`.
