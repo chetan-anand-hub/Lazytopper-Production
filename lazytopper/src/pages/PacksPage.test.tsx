@@ -184,6 +184,46 @@ describe("PacksPage", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
+  it("sitelink URLs open the matching pop-up (utm_* ignored); view=sample lands on slide 2 of 4", async () => {
+    const utm = "&utm_source=google&utm_term=cbse%20pdf";
+    const cases: Array<[string, string, string | null]> = [
+      [`/packs?pack=chapter${utm}`, "Chapter Pack", null],
+      [`/packs?pack=mock${utm}`, "Mock Pack", "maths"],
+      [`/packs?pack=mock&subject=science${utm}`, "Mock Pack", "science"],
+      [`/packs?pack=subject&subject=science`, "Subject Pack", "science"],
+      [`/packs?pack=bundle${utm}`, "Maths + Science Bundle", null],
+      [`/packs?view=sample${utm}`, "Chapter Pack", null],
+      [`/packs?mock=science`, "Mock Pack", "science"],
+    ];
+    for (const [url, title, subj] of cases) {
+      page(url);
+      const dlg = await screen.findByRole("dialog");
+      expect(dlg.textContent).toContain(title);
+      if (subj) expect(dlg.textContent).toContain(subj === "science" ? "Science" : "Maths");
+      expect(dlg.textContent).toContain(url.includes("view=sample") ? "Slide 2 of 4" : "Slide 1 of 4");
+      cleanup();
+    }
+    page("/packs?pack=bundle&view=sample");
+    expect((await screen.findByRole("dialog")).textContent).toContain("Slide 2 of 4");
+  });
+
+  it("invalid sitelink params open nothing; closing the pop-up keeps it closed", async () => {
+    for (const url of ["/packs?pack=nope", "/packs?pack=mock&pack=bundle", "/packs?view=full", "/packs?subject=science", "/packs?utm_source=google"]) {
+      page(url);
+      expect(screen.queryByRole("dialog")).toBeNull();
+      cleanup();
+    }
+    page("/packs?pack=bundle&view=sample");
+    await screen.findByRole("dialog");
+    fireEvent.click(screen.getByTestId("pack-dialog-close"));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    // a later tile tap opens on slide 1 again, not the entry slide
+    fireEvent.click(screen.getByTestId("packs-card-bundle"));
+    expect((await screen.findByRole("dialog")).textContent).toContain("Slide 1 of 4");
+  });
+
   it("signed out, a buy asks to sign in and goes to /login with a return to /packs", async () => {
     flag.on = true;
     page();

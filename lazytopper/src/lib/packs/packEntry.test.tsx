@@ -59,6 +59,7 @@ function Where() {
   return <div data-testid="where">{`${l.pathname}${l.search}${l.hash}`}</div>;
 }
 
+const NONE = { chapter: null, mock: null, pack: null, subject: null, view: null };
 describe("packEntry helpers", () => {
   it("packsHref: chapter, hash, and unknown slugs dropped", () => {
     expect(packsHref()).toBe("/packs");
@@ -69,13 +70,30 @@ describe("packEntry helpers", () => {
     expect(packsHref({ mock: "history" as never })).toBe("/packs");
     expect(packsHref({ chapter: "circles", mock: "maths" })).toBe("/packs?chapter=circles");
   });
+  it("readPacksQuery reads pack / subject / view, ignores utm_*, and treats junk or repeats as absent", () => {
+      for (const p of ["chapter", "mock", "subject", "bundle"]) expect(readPacksQuery(`?pack=${p}`)).toEqual({ ...NONE, pack: p });
+    expect(readPacksQuery("?pack=other")).toEqual(NONE);
+    expect(readPacksQuery("?pack=mock&pack=bundle")).toEqual(NONE);
+    expect(readPacksQuery("?subject=science")).toEqual({ ...NONE, subject: "science" });
+    expect(readPacksQuery("?subject=art")).toEqual(NONE);
+    expect(readPacksQuery("?subject=maths&subject=science")).toEqual(NONE);
+    expect(readPacksQuery("?view=sample")).toEqual({ ...NONE, view: "sample" });
+    expect(readPacksQuery("?view=full")).toEqual(NONE);
+    expect(readPacksQuery("?view=sample&view=sample")).toEqual(NONE);
+    expect(readPacksQuery("?utm_source=google&utm_term=cbse&pack=subject&subject=maths&view=sample&utm_campaign=x")).toEqual({
+      ...NONE,
+      pack: "subject",
+      subject: "maths",
+      view: "sample",
+    });
+  });
   it("readPacksQuery round-trips every slug and refuses junk / repeated values", () => {
-    for (const s of ACTIVITY_TOPIC_SLUGS) expect(readPacksQuery(new URL(packsHref({ chapter: s }), "http://x").search)).toEqual({ chapter: s, mock: null });
-    expect(readPacksQuery("")).toEqual({ chapter: null, mock: null });
-    expect(readPacksQuery("?mock=maths")).toEqual({ chapter: null, mock: "maths" });
-    expect(readPacksQuery("?mock=art")).toEqual({ chapter: null, mock: null });
-    expect(readPacksQuery("?chapter=drop-table")).toEqual({ chapter: null, mock: null });
-    expect(readPacksQuery("?chapter=triangles&chapter=circles")).toEqual({ chapter: null, mock: null });
+    for (const s of ACTIVITY_TOPIC_SLUGS) expect(readPacksQuery(new URL(packsHref({ chapter: s }), "http://x").search)).toEqual({ chapter: s, mock: null, pack: null, subject: null, view: null });
+    expect(readPacksQuery("")).toEqual({ ...NONE });
+    expect(readPacksQuery("?mock=maths")).toEqual({ ...NONE, mock: "maths" });
+    expect(readPacksQuery("?mock=art")).toEqual({ ...NONE });
+    expect(readPacksQuery("?chapter=drop-table")).toEqual({ ...NONE });
+    expect(readPacksQuery("?chapter=triangles&chapter=circles")).toEqual({ ...NONE });
   });
   it("chapterFromLocation reads a slug from the path or a topic query, else null", () => {
     expect(chapterFromLocation("/notes/triangles")).toBe("triangles");

@@ -34,6 +34,7 @@ import {
   type PackSubject,
 } from "../services/packs";
 import { BUNDLE_NAME, REDOWNLOAD_COPY, REDOWNLOAD_SHORT, packChapterLabel } from "../lib/packs/packLabels";
+import { readPacksQuery } from "../lib/packs/packEntry";
 import "./packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -122,6 +123,7 @@ export default function PacksPage() {
   const [chapter, setChapter] = useState("");
   const [subject, setSubject] = useState<PackSubject>("maths");
   const [openSku, setOpenSku] = useState<PackSku | null>(null);
+  const [entrySlide, setEntrySlide] = useState(0);
   const [buy, setBuy] = useState<BuyState>({ key: "", phase: "idle" });
   const mounted = useRef(true);
   const myPacksRef = useRef<HTMLElement | null>(null);
@@ -176,22 +178,43 @@ export default function PacksPage() {
     if (slug) requestCounts(slug);
   }
   function openPack(sku: PackSku) {
+    setEntrySlide(0);
     setOpenSku(sku);
     requestCounts(sku === "pack_chapter" && chapter ? chapter : undefined);
   }
-  const closePack = useCallback(() => setOpenSku(null), []);
+  const closePack = useCallback(() => {
+    setOpenSku(null);
+    setEntrySlide(0);
+  }, []);
 
-  // `/packs?chapter=<slug>` preselects that chapter and opens the Chapter Pack pop-up, once, and only when the param is a real
-  // chapter. (A shared src/lib/packs/packEntry.ts with the same contract is coming from another lane; this local parser is replaced then.)
+  // Entry links (packEntry.ts contract): ?chapter= / ?mock= / ?pack= (+ ?subject=) / ?view=sample open the matching pop-up, once.
+  // utm_* and unknown values are ignored; closing never re-opens it.
   const entryDone = useRef(false);
   useEffect(() => {
     if (entryDone.current) return;
-    const slug = new URLSearchParams(location.search).get("chapter");
-    if (!slug || !PACK_CHAPTER_SLUGS.includes(slug)) return;
+    const q = readPacksQuery(location.search);
+    let sku: PackSku | null = null;
+    let chosenChapter = "";
+    let chosenSubject: PackSubject | null = null;
+    if (q.chapter && PACK_CHAPTER_SLUGS.includes(q.chapter)) {
+      sku = "pack_chapter";
+      chosenChapter = q.chapter;
+    } else if (q.mock) {
+      sku = "pack_mock";
+      chosenSubject = q.mock;
+    } else if (q.pack) {
+      sku = (`pack_${q.pack}`) as PackSku;
+      if (q.pack === "mock" || q.pack === "subject") chosenSubject = q.subject;
+    } else if (q.view === "sample") {
+      sku = "pack_chapter";
+    }
+    if (!sku) return;
     entryDone.current = true;
-    setChapter(slug);
-    setOpenSku("pack_chapter");
-    requestCounts(slug);
+    if (chosenChapter) setChapter(chosenChapter);
+    if (chosenSubject) setSubject(chosenSubject);
+    setEntrySlide(q.view === "sample" ? 1 : 0);
+    setOpenSku(sku);
+    requestCounts(chosenChapter || undefined);
   }, [location.search, requestCounts]);
 
   // `#my-packs` scrolls to the My packs section once it exists.
@@ -437,6 +460,7 @@ export default function PacksPage() {
               questions={dialogQuestions}
               buy={buyArea(openSku, dialogTarget, openSku !== "pack_chapter" || Boolean(chapter))}
               onClose={closePack}
+              initialSlide={entrySlide}
             />
           </Suspense>,
           document.body,
