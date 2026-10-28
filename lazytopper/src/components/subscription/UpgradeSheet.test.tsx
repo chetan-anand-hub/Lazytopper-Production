@@ -42,7 +42,10 @@ vi.mock("../../context/AuthContext", () => ({
 const trialSvc = vi.hoisted(() => ({ activateTrial: vi.fn() }));
 vi.mock("../../services/subscriptionService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/subscriptionService")>();
-  return { ...actual, activateTrial: trialSvc.activateTrial };
+  return {
+    ...actual,
+    activateTrial: trialSvc.activateTrial,
+  };
 });
 
 afterEach(() => {
@@ -562,8 +565,25 @@ describe("UpgradeSheet pack line", () => {
     const bpEl = screen.getByTestId("upgrade-sheet-board-pass");
     const packEl = screen.getByTestId("upgrade-sheet-pack");
     expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packEl.textContent).toContain("Prefer printed practice? Mock Pack ₹99 →");
-    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/packs?mock=maths");
+    expect(packEl.textContent).toContain("Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →");
+    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/pricing#packs");
+  });
+  it("PACK-BASIC-ONLY-1: shown to Basic and trial students; hidden for paid Premium and when unhydrated", () => {
+    for (const [tier, trialStartDate, hydrated, shown] of [
+      ["free", "2026-01-01T00:00:00.000Z", true, true],
+      ["free", null, true, true],
+      ["trial", "2026-10-27T00:00:00.000Z", true, true],
+      ["premium", null, true, false],
+      ["free", null, false, false],
+    ] as const) {
+      subState.tier = tier;
+      subState.trialStartDate = trialStartDate;
+      subState.hydrated = hydrated;
+      mount(pack);
+      expect(screen.getByTestId("upgrade-sheet-board-pass")).toBeInTheDocument(); // control: the sheet rendered
+      expect(screen.queryByTestId("upgrade-sheet-pack") !== null, `${tier}/${trialStartDate}/${hydrated}`).toBe(shown);
+      cleanup();
+    }
   });
   it("shows no pack line without a pack, or to paid Premium", () => {
     mount(null);
@@ -586,13 +606,18 @@ describe("FairUseLimitPanel on a trial paper refusal", () => {
       </MemoryRouter>,
     );
 
-  it("names the Board Pass price first, then the pack", () => {
+  it("PACK-BASIC-ONLY-1: a trial refusal shows the Board Pass first, then the pack line with the new wording", () => {
     mount(limit, pack);
     const bpEl = screen.getByTestId("fair-use-board-pass");
     expect(bpEl.textContent).toContain(bp());
     const packEl = screen.getByTestId("fair-use-pack-line");
     expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/packs?chapter=triangles");
+    expect(packEl.textContent).toContain("Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →");
+    expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/pricing#packs");
+  });
+  it("PACK-BASIC-ONLY-1: also shown in the trial daily-checks dialog", () => {
+    mount({ tier: "trial", scope: "checks", resetAt: "2026-10-29T00:00:00.000Z", window: "day", allowance: 3 }, pack);
+    expect(screen.getByTestId("fair-use-pack-line")).toBeInTheDocument();
   });
   it("a premium fair-use refusal shows neither", () => {
     mount({ tier: "premium", scope: "chapter-test", resetAt: null, window: "day" }, pack);

@@ -7,7 +7,7 @@ import { trackScorecardUpgrade } from "../../analytics/analytics";
 import UpgradeSheet from "../subscription/UpgradeSheet";
 import { START_TRIAL_LABEL } from "../pricing/trialCta";
 import { boardPassCtaLabel, boardPassPriceNow } from "../pricing/boardPassOffer";
-import { CHAPTER_PACK_PRICE_INR, chapterFromLocation, packsHref } from "../../lib/packs/packEntry";
+import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine";
 import { formatScoreNumber } from "./scoreNumber";
 import type { ScorecardVariant } from "./scorecardVariants";
 
@@ -18,7 +18,8 @@ import type { ScorecardVariant } from "./scorecardVariants";
  *   marks lost > 0      "You lost {N} marks here. Get every answer marked like this till your boards — Board Pass ₹{price} →"
  *   nothing lost        "Full marks! Keep every answer marked like this till your boards — Board Pass ₹{price} →"
  *   marks not known     "Get every answer marked like this till your boards — Board Pass ₹{price} →"
- * and a quiet second line, "or start with a ₹49 Chapter Pack →" (FIRST-OFFER-1; /packs?chapter=<slug> when known).
+ * and, for any non-paid student (PACK-BASIC-ONLY-1; never paid Premium), a quiet second line
+ * "Not ready for the Board Pass yet? Try our PDF packs from ₹49 — printed questions with answer keys, no marking →" (to /pricing#packs).
  *
  * "Not known" is every attempts-style score (Quick Practice has no marks total), any paper with an
  * ungraded question or an awaited sheet (a number there would be wrong), and an all-pending card
@@ -108,23 +109,33 @@ function useOptionalUid(): string {
  * result (it broke the Chapter Test pending-upload "exactly one snapshot lookup" pin). It only
  * decides whether to SHOW an ask, never what is unlocked; the server still gates every feature.
  */
-function useCachedStatus(uid: string): [SubscriptionStatus, () => void] {
+function useCachedStatus(uid: string): [SubscriptionStatus, () => void, boolean] {
   const [status, setStatus] = useState<SubscriptionStatus>(() => loadSubscription(uid));
+  const [heard, setHeard] = useState(false);
   useEffect(() => {
     setStatus(loadSubscription(uid));
+    setHeard(false);
     return onSubscriptionHydrated((hydratedFor, cloud) => {
-      if (hydratedFor === uid) setStatus(cloud);
+      if (hydratedFor === uid) {
+        setStatus(cloud);
+        setHeard(true);
+      }
     });
   }, [uid]);
-  return [status, () => setStatus(loadSubscription(uid))];
+  // PACK-BASIC-ONLY-1: the record is KNOWN once the cloud has answered, or when the cache itself holds a
+  // non-default record (a trial tier, or a trial start on a free tier). An empty default cache could still
+  // be a paid student not hydrated yet, so the pack line waits (no flash for a paid student).
+  const known = heard || status.tier !== "free" || Boolean(status.trialStartDate);
+  return [status, () => setStatus(loadSubscription(uid)), known];
 }
 
 function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countShown: boolean; uid: string }) {
   const copy = scorecardUpgradeCopy(variant, boardPassPriceNow());
   const text = copy ? copy.text : "";
   // FIRST-OFFER-1 - the Chapter Pack deep link: only a chapter the result itself names (its practice route); else plain /packs.
-  const packHref = packsHref({ chapter: variant.guideTarget ? chapterFromLocation(variant.guideTarget.to.split("?")[0], variant.guideTarget.to.split("?")[1] ?? "") : null });
-  const [status, refresh] = useCachedStatus(uid);
+  const packHref = PACK_LINE_HREF;
+  const packText = PACK_LINE_TEXT;
+  const [status, refresh, statusKnown] = useCachedStatus(uid);
   // A scorecard can render outside the router (PDF/report renders, bare tests): fall back to a plain link.
   const inRouter = useInRouterContext();
   const [open, setOpen] = useState(false);
@@ -167,15 +178,17 @@ function Line({ variant, countShown, uid }: { variant: ScorecardVariant; countSh
       >
         {text}
       </button>
-      {inRouter ? (
-        <Link className="lt-sc__up--pack" to={packHref} data-testid="scorecard-pack-line">
-        {`or start with a ₹${CHAPTER_PACK_PRICE_INR} Chapter Pack →`}
-      </Link>
-      ) : (
-        <a className="lt-sc__up--pack" href={packHref} data-testid="scorecard-pack-line">
-        {`or start with a ₹${CHAPTER_PACK_PRICE_INR} Chapter Pack →`}
-      </a>
-      )}
+      {showPackLine(status, statusKnown) ? (
+        inRouter ? (
+          <Link className="lt-sc__up--pack" to={packHref} data-testid="scorecard-pack-line">
+            {packText}
+          </Link>
+        ) : (
+          <a className="lt-sc__up--pack" href={packHref} data-testid="scorecard-pack-line">
+            {packText}
+          </a>
+        )
+      ) : null}
       {open ? <UpgradeSheet
           featureLabel="Your full marks breakdown"
           onClose={() => {

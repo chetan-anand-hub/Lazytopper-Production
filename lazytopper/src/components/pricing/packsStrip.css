@@ -1,7 +1,7 @@
 /* PacksStrip - the ladder to Premium (PRICING-LADDER-1). Scoped under .lt-packoffer. Deliberately quieter than the Premium card: a flat
    white panel with a hairline border and no shadow, so the packs read as the visible second step and never out-shout the Board Pass.
    Tiles: 2x2 on a phone, one row of four from 720px. Every tile is a link (min 44px target). */
-.lt-packoffer { max-width: 1040px; width: 100%; margin: 0 auto; padding: 22px 16px 20px; background: #fff; border: 1px solid #dbe2ea; border-radius: 20px; font-family: Inter, system-ui, sans-serif; color: #0f1b2d; box-sizing: border-box; }
+.lt-packoffer { scroll-margin-top: 16px; max-width: 1040px; width: 100%; margin: 0 auto; padding: 22px 16px 20px; background: #fff; border: 1px solid #dbe2ea; border-radius: 20px; font-family: Inter, system-ui, sans-serif; color: #0f1b2d; box-sizing: border-box; }
 .lt-packoffer *, .lt-packoffer { box-sizing: border-box; }
 .lt-packoffer__title { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 21px; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; color: #15233a; overflow-wrap: anywhere; }
 .lt-packoffer__sub { margin: 6px 0 0; font-size: 15px; line-height: 1.45; color: #3d4c63; }
