@@ -114,7 +114,7 @@
     "test:server:fair-use-all-ai": "node --test server/services/fairUse.allAi.test.cjs",
     "test:server:fair-use-30day": "node --test server/services/fairUse.thirtyDay.test.cjs",
     "test:server:payments": "node --test server/routes/payments.test.cjs",
-    "test:server:packs": "node --test server/routes/packs.payments.test.cjs server/services/packProducts.test.cjs",
+    "test:server:packs": "node --test server/routes/packs.payments.test.cjs server/services/packProducts.test.cjs server/services/packCredit.test.cjs",
     "test:server:packs-nudge": "node --test server/services/nudgeEmail.packs.test.cjs",
     "test:server:parent-pay": "node --test server/routes/parentPay.test.cjs",
     "test:server:parent-report": "node --test server/routes/parentReport.test.cjs",

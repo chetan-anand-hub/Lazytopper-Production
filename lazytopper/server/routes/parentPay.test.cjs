@@ -77,7 +77,19 @@ function memoryFirestore(seed = {}) {
   function ref(key) {
     return {
       key,
-      collection: (sub) => ({ doc: (id) => ref(`${key}/${sub}/${id}`) }),
+      collection: (sub) => ({
+        doc: (id) => ref(`${key}/${sub}/${id}`),
+        // PACK-CREDIT-1: the pack list read (packEntitlements/{uid}/packs).
+        async get() {
+          await yieldNow();
+          const prefix = `${key}/${sub}/`;
+          const out = [];
+          for (const [k, e] of docs) {
+            if (k.startsWith(prefix) && !k.slice(prefix.length).includes('/')) out.push({ id: k.slice(prefix.length), data: () => ({ ...e.data }) });
+          }
+          return { docs: out };
+        },
+      }),
       async get() { await yieldNow(); return snapOf(docs.get(key)); },
       async set(data, opts) { await yieldNow(); write(key, data, opts); },
     };
@@ -409,6 +421,101 @@ test('O · till-boards is priced from the CHILD\'s subscription (a founding chil
   const r = await parentOrder(srv, token, 'till_boards');
   assert.equal(r.status, 200, r.text);
   assert.equal(r.json.amountPaise, 239600);
+});
+
+const seedChildPack = (db, uid, packId, extra = {}) =>
+  db.docs.set(`packEntitlements/${uid}/packs/${packId}`, { data: { packId, sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: NOW - 1000, orderId: 'o_seed', paymentRef: 'p_seed', creditedToPass: false, ...extra }, version: 1 });
+
+test('PACK-CREDIT-1 · O · a Board Pass order made through a parent link is credited with the CHILD\'s recent pack, in Razorpay, the notes and the stored order', async (t) => {
+  const plain = await startRoutes();
+  t.after(plain.close);
+  const { token: t0 } = await mint(plain);
+  const full = (await parentOrder(plain, t0, 'till_boards')).json.amountPaise;
+
+  const db = memoryFirestore();
+  seedChildPack(db, 'child1', 'pack_chapter:triangles');
+  const srv = await startRoutes({ db });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const r = await parentOrder(srv, token, 'till_boards', { packCreditInr: 9999, amountPaise: 100 }, asUid('parentOwnAccount'));
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.amountPaise, full - 4900);
+  const sent = srv.rzp.calls.find((c) => c.method === 'POST' && c.url.endsWith('/v1/orders'));
+  assert.equal(sent.body.amount, full - 4900);
+  assert.equal(sent.body.notes.packCreditInr, '49');
+  assert.equal(sent.body.notes.packCreditIds, 'pack_chapter:triangles');
+  assert.equal(sent.body.notes.uid, 'child1');
+  const stored = srv.db.read(`payOrders/${r.json.orderId}`);
+  assert.equal(stored.amountPaise, full - 4900);
+  assert.equal(stored.packCreditInr, 49);
+  assert.equal(stored.packCreditIds, 'pack_chapter:triangles');
+  assert.ok(srv.events.includes('payments.parent.order.pack_credit_applied'));
+});
+
+test('PACK-CREDIT-1 · O · parent path: month pass no credit; the PARENT\'s own uid is never read for packs; an unreadable list is credit 0 and the order still goes through', async (t) => {
+  const db = memoryFirestore();
+  seedChildPack(db, 'child1', 'pack_chapter:triangles');
+  seedChildPack(db, 'parentOwnAccount', 'pack_chapter:circles');
+  const srv = await startRoutes({ db });
+  t.after(srv.close);
+  const m = await mint(srv);
+  const month = await parentOrder(srv, m.token, 'month', {}, asUid('parentOwnAccount'));
+  assert.equal(month.json.amountPaise, 59900, 'a month pass earns no credit');
+  const sentMonth = srv.rzp.calls.filter((c) => c.method === 'POST').pop();
+  assert.equal(sentMonth.body.notes.packCreditInr, undefined);
+
+  const real = memoryFirestore();
+  seedChildPack(real, 'child1', 'pack_chapter:triangles');
+  const broken = {
+    ...real,
+    collection: (name) =>
+      name === 'packEntitlements'
+        ? { doc: () => ({ collection: () => ({ get: async () => { throw new Error('firestore down'); } }) }) }
+        : real.collection(name),
+  };
+  const srv2 = await startRoutes({ db: broken });
+  t.after(srv2.close);
+  const m2 = await mint(srv2);
+  const r = await parentOrder(srv2, m2.token, 'till_boards');
+  assert.equal(r.status, 200, r.text);
+  const plain = await startRoutes();
+  t.after(plain.close);
+  const m3 = await mint(plain);
+  assert.equal(r.json.amountPaise, (await parentOrder(plain, m3.token, 'till_boards')).json.amountPaise, 'fail closed: full price');
+  assert.ok(srv2.events.includes('payments.parent.order.pack_credit_read_failed'));
+});
+
+test('PACK-CREDIT-1 · V · a credited parent order is verified against the CREDITED amount, granted to the child, packs marked credited', async (t) => {
+  const db = memoryFirestore();
+  seedChildPack(db, 'child1', 'pack_chapter:triangles');
+  const srv = await startRoutes({ db });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const { json: o } = await parentOrder(srv, token, 'till_boards');
+  const p = srv.rzp.pay(o.orderId);
+  const r = await parentVerify(srv, token, o.orderId, p.id, asUid('parentOwnAccount'));
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.amountPaise, o.amountPaise);
+  const sub = srv.db.read('subscriptions/child1');
+  assert.equal(sub.passType, 'till_boards');
+  assert.equal(sub.pricePaidInr, o.amountPaise / 100, 'records what was paid');
+  const pk = srv.db.read('packEntitlements/child1/packs/pack_chapter:triangles');
+  assert.equal(pk.creditedToPass, true);
+  assert.equal(pk.creditedOrderId, o.orderId);
+  assert.equal(srv.db.read(`payOrders/${o.orderId}`).packCreditConflict, undefined);
+  assert.ok(srv.events.includes('payments.parent.verify.pack_credit_marked'));
+  // a payment for the FULL price against the credited order would have been refused:
+  const db2 = memoryFirestore();
+  seedChildPack(db2, 'child1', 'pack_chapter:triangles');
+  const srv2 = await startRoutes({ db: db2 });
+  t.after(srv2.close);
+  const m2 = await mint(srv2);
+  const { json: o2 } = await parentOrder(srv2, m2.token, 'till_boards');
+  const bad = srv2.rzp.pay(o2.orderId, { amount: o2.amountPaise + 4900 });
+  const rr = await parentVerify(srv2, m2.token, o2.orderId, bad.id);
+  assert.equal(rr.status, 400);
+  assert.equal(rr.json.reason, 'amount_mismatch');
+  assert.equal(srv2.db.read('subscriptions/child1'), undefined);
 });
 
 test('O · an unknown passType is refused before Razorpay is called', async (t) => {

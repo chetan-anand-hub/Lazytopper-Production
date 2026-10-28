@@ -57,6 +57,8 @@ const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 // PACKS-SERVER-1 (DARK): one-time PDF packs. Behind PAYMENTS_ENABLED AND PACKS_ENABLED=1.
 const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor, isAlreadyOwned } = require('../services/packProducts.cjs');
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
+// PACK-CREDIT-1: a Board Pass order is credited with the student's recent pack purchases.
+const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
 
 const PAY_ORDER_PATH = '/api/pay/order';
 const PAY_VERIFY_PATH = '/api/pay/verify';
@@ -380,12 +382,34 @@ function createPaymentRoutes(deps = {}) {
       return sendJson(res, 500, { ok: false, error: 'Could not price this pass.' });
     }
 
+    // PACK-CREDIT-1 - a Board Pass is credited with the packs bought in the last 7 days. The credit is the
+    // server's own sum over the student's stored packs; a failed read is credit 0 (fail CLOSED) and never
+    // blocks the purchase. The credited amount is what Razorpay is asked for and what the order stores, so
+    // every later amount check (verify / webhook / status) compares against it.
+    let packCreditInr = 0;
+    let packCreditIds = '';
+    if (!isPack && !isTopup && passType === 'till_boards') {
+      const credit = await boardPassCreditFor(adminFirestore, uid, passType, quote.pricePaidInr, now());
+      if (credit.readFailed) emit('payments.order.pack_credit_read_failed');
+      const applied = applyCreditToQuote(quote, credit);
+      quote = applied.quote;
+      packCreditInr = applied.packCreditInr;
+      packCreditIds = applied.packCreditIds;
+      if (packCreditInr > 0) emit('payments.order.pack_credit_applied');
+    }
+
     let created;
     try {
       created = await razorpay(keys, 'POST', '/orders', {
         amount: quote.amountPaise,
         currency: CURRENCY,
-        notes: { uid, passType, ...(isPack ? { packTarget } : {}), ...(quote.offerKey ? { offerKey: quote.offerKey } : {}) },
+        notes: {
+          uid,
+          passType,
+          ...(isPack ? { packTarget } : {}),
+          ...(quote.offerKey ? { offerKey: quote.offerKey } : {}),
+          ...creditNotes(packCreditInr, packCreditIds),
+        },
       });
     } catch (e) {
       emit('payments.order.razorpay_unreachable');
@@ -411,6 +435,7 @@ function createPaymentRoutes(deps = {}) {
         passType,
         amountPaise: quote.amountPaise,
         ...(isPack ? { packTarget } : {}),
+        ...creditOrderFields(packCreditInr, packCreditIds),
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -585,6 +610,10 @@ function createPaymentRoutes(deps = {}) {
         { firestore: adminFirestore, payOrderId: orderId, foundingOfferOpen },
       );
       emit(granted.replayed ? `payments.${scope}.replayed` : `payments.${scope}.granted`);
+      if (granted.packCredit) {
+        emit(`payments.${scope}.pack_credit_marked`);
+        if (granted.packCredit.conflict) emit(`payments.${scope}.pack_credit_conflict`);
+      }
       if (extra && extra.counter) emit(extra.counter);
       const body = {
         ok: true,
