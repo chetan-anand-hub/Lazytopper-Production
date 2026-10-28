@@ -16,6 +16,9 @@
 | Founder wording "Made by an IITian (IIT Kanpur)", never "alumnus", no endorsement implied; badge on `/pricing` and `/packs` | `#1381` | owner ruling 25 Oct, re-confirmed 28 Oct; backs the Google Ads headline and callout on the two landing pages |
 | A pack bought in the 7 days before a Board Pass is credited against it (money lane, held for the owner's OK before merge) | `#1384`; the credit line on `/pricing` stays off until the live test | owner ruling 25 Oct; promised on `/packs` and the "Board Pass" sitelink but never applied until now |
 | Establish the cause first, then correct | the new-student audit on a fresh owner-created trial account | owner, 28 Oct |
+| Google Ads, owner-approved: Search v2 budget Rs 1,200/day; YouTube campaign goal `engaged_5min`; use the IITian tag in ad text wherever it helps; make ad strength Excellent | done 28 Oct afternoon in Google Ads (no repo change) | more conversion volume for the YouTube bidder (`engaged_5min` beside `engaged_10min`, `#1361`); "Made by an IITian" is the strongest trust line and is now backed on `/pricing` and `/packs` (`#1381`) |
+| Two AI Studio projects, never mixed: "Lazytopper" (production) is for the product, "LazyTopper Eval" for testing; Eval monthly cap Rs 30,000, production cap Rs 12,000 | owner-set in AI Studio, 28 Oct | owner: "production is for product, and eval is for our testing"; you pay only for what is used, so the cap is a ceiling, not a spend |
+| A slip like sqrt(16x9) = 25 (x read as +) is `calculation`, not conceptual | `#1399` keeps it as calculation; closes the question in `[FU-MISTAKE-CALC-SQRT-PRODUCT-AS-SUM]` | owner: "it is either silly slip or calculation error"; the student knew to take the root, the operation was performed wrongly (CLAUDE.md section 13) |
 
 ## 2026-10-25 (daily, part 2) - #1367 - #1378 (12 product merges after #1366): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 

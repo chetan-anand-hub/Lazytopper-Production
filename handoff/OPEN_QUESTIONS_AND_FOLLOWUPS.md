@@ -32,6 +32,7 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ### [FU-MISTAKE-CALC-SQRT-PRODUCT-AS-SUM]
 Evidence [coordinator]: sqrt(16 x 9) = 25 (the product read as a sum) is still retyped to `calculation` by `#1399` MISTAKE-CALC-1. Owner / coordinator decide whether to add that misreading to the rule or leave it.
+**CLOSED 28 Oct [owner ruling]:** leave it. `calculation` is correct ("it is either silly slip or calculation error"); see DECISION_LOG 2026-10-28.
 
 ### [FU-GOLDEN-NO-FINAL-VALUE-SLIP-CASE]
 Evidence [coordinator + git/gh]: the golden set had no case for a slip in the last computed value. `#1399` adds `GS-M-LCM-final-slip` (live_cases, expected 2.5/3, calculation); it has not run in the paid live golden run yet.
@@ -59,12 +60,23 @@ Evidence [coordinator]: `/tutor` typed directly is a 404 (no route; nothing link
 
 ### [FU-OWNER-ADS]
 Owner actions outstanding [coordinator]: Search v2 budget Rs 1,200 (re-auth), Ads balance top-up, YouTube goal to `engaged_5min`, pause Meta until in-app sign-in (`#1391`) is measured, make the repo private after the session.
+Update 28 Oct afternoon [coordinator, read live in Google Ads]: Search v2 budget Rs 1,200/day DONE; YouTube goal `engaged_5min` DONE. Still open: Ads balance top-up (the account shows "prepaid funds are low"), pause Meta, repo private.
+
+### [FU-ADS-VIDEO-FORMATS]
+All four live YouTube Shorts ads are "Average" with every text slot filled; Google's ad-strength tooltip lists only "Add at least 1 horizontal video" and "Add at least 1 square video". Make a 16:9 and a 1:1 cut of each Short and add them to the same ads. Text alone cannot reach "Excellent".
+
+### [FU-ENGAGED5-IMPORT-CHECK]
+The YouTube campaign's Engagements goal uses `www.lazytopper.com (web) engaged_5min`, shown as inactive ("No recent conversions") on 28 Oct right after the switch. Confirm within 48 h that it records conversions; if it stays at 0, check the GA4 key-event import before the bidding starves.
+
+### [FU-THINKCAP-RESULT-READ]
+The clean thinking-cap rerun (TC2.T0a / TC2.T0b / TC2.T2048, concurrency 4, trial commit `f4527123`) was still running at writing. Read `C:\Users\Chetan\lt-ledger\compare2.md`, confirm the ledgers carry no 429 and the judge finished, apply the ship rule (NEXT_ACTION item 1), then merge or hold `#1399` on its golden case `GS-M-LCM-final-slip`.
+
 
 ### [FU-SPEED-INSIGHTS-READ]
 Speed Insights (`#1387`) and the `[grade-timing]` lines (`#1397`) are live: read p50 / p95 after a day of traffic, and the Railway `[grade-timing]` lines, then decide on speed work. `#1397`'s own body says a Railway log read after deploy is needed.
 
 ### [FU-LIVE-CHECKS-28OCT]
-Live checks the PR bodies say are still to do: `#1382` at phone widths; `#1401` on desktop and phone; `#1397` the `[grade-timing]` read; `#1395` / `#1388` a Basic account; `#1396` the `/pricing#packs` landing after in-app navigation on a real device. `#1399` needs the paid golden run and a two-surface live verify before merge (CLAUDE.md section 4a: one surface is PARTIAL).
+Live checks the PR bodies say are still to do (`#1382` and `#1401` were live-checked by the coordinator on 28 Oct and are done): `#1382` at phone widths; `#1401` on desktop and phone; `#1397` the `[grade-timing]` read; `#1395` / `#1388` a Basic account; `#1396` the `/pricing#packs` landing after in-app navigation on a real device. `#1399` needs the paid golden run and a two-surface live verify before merge (CLAUDE.md section 4a: one surface is PARTIAL).
 
 ## 2026-10-25 (daily, part 2) - #1367 - #1378 (12 product merges after #1366, 25 Oct IST) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
