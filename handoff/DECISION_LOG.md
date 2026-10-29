@@ -1,3 +1,13 @@
+## 2026-10-30 (daily add-on to #1416) - #1417 - #1418 (2 product merges): DECISIONS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Builder lanes; no owner ruling was relayed for these two PRs, and none is invented. Earlier dated blocks stand as written.
+
+| decision | what it says | the reason |
+|---|---|---|
+| The tutor's progress figure is read as marks SCORED, higher is better | `#1417` | per the PR: a live test showed the earlier wording read as losing marks. |
+| Hinglish is detected on the server, not left to the picker | `#1417` | per the PR: Devanagari or 2+ distinct Hinglish tokens set the directive whatever the picker says. |
+| Trend labels are written in kind words ("slipping a bit lately") | `#1418` | per the PR: the model echoes the label it is given, and "worsening" came through in the live test. |
+
 ## 2026-10-29 (daily, part 2) - #1409 - #1410 - #1411 - #1412 - #1413 - #1414 - #1415 (7 product merges after the morning docs PR): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 29 Oct 2026 (IST) relayed by the cofounder **[coordinator]** (dispatch spec), with the reason where one was given; where none was given, none is invented. Earlier dated blocks stand as written.

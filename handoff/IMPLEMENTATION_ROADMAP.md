@@ -1,3 +1,9 @@
+## 2026-10-30 (daily add-on to #1416) - #1417 - #1418 - TUTOR-MIND-2 (`#1417`), TUTOR-MIND-3 (`#1418`) - MERGED
+
+- DONE. `#1417` (`c6f33387`): TUTOR-MIND-2 - scored wording, deterministic Hinglish, history hygiene, human tone, bold. NEXT: `[FU-TUTOR-HINGLISH-DETECTOR-TOKENS]`.
+- DONE. `#1418` (`d6180717`, trunk): TUTOR-MIND-3 - kind trend labels. Live student test passed. NEXT: `[FU-TUTOR-CHAPTER-WEIGHTAGE]`.
+- IN FLIGHT: `#1399` MISTAKE-CALC-1 (draft, HELD; baseline not run).
+
 ## 2026-10-29 (daily, part 2) - PARENTS-PACKS-1 (`#1409`), PRERENDER-PRICE-GUARD-1 (`#1410`), PARENTS-PACKS-2 (`#1411`), PACKS-BUY-RESUME-1 (`#1412`), PARENTS-PACKS-3 (`#1413`), PRICING-ONE-1 (`#1414`), TUTOR-MIND-1 (`#1415`) - MERGED
 
 - DONE. `#1409` (`639de3c8`), `#1411` (`1424688b`), `#1413` (`177f4740`): packs on `/for-parents`, from one section to hero link, band and all-packs section. NEXT: `[FU-PARENTS-PAID-HIDDEN]`, a phone-width look.

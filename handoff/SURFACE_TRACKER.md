@@ -1,3 +1,9 @@
+> **2026-10-30 (daily add-on to #1416) - #1417 - #1418 (CLAUDE.md section 10).** Scope: the Tutor only. No mark, mistake type, departure rule, objective clamp or grading prompt rule changed.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Tutor | progress read as marks scored, deterministic Hinglish, history hygiene, human tone, `**bold**` rendering, `from=` opener stores the pick (`#1417`); kind trend labels (`#1418`) | live per merge; live student test passed on the owner's Premium account, 30 Oct 00:30-02:00 IST [coordinator] | `[FU-TUTOR-HINGLISH-DETECTOR-TOKENS]`, `[FU-TUTOR-CHAPTER-WEIGHTAGE]` |
+
 > **2026-10-29 (daily, part 2) - #1409 - #1410 - #1411 - #1412 - #1413 - #1414 - #1415 (CLAUDE.md section 10, once a day).** Scope: `/for-parents`, `/pricing`, `/packs`, the pack price links on every surface, the Tutor, and the prerender price guard. No mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Facts marked **[git/gh]** were re-read from the PR records; **[coordinator]** come from the dispatch spec. Written at trunk `d04bb1e8` (= `#1415`). The rows below ADD to the 2026-10-29 (daily) block.
 
 | surface | what moved (PR) | state | owed |
