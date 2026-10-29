@@ -203,7 +203,8 @@ describe("StudentsAdminPage — list", () => {
     expect(cells[5].textContent).toBe("—No data before 2 Oct 2026");
     expect(cells[6].textContent).toBe("—No data before 6 Jul 2026");
     expect(cells[7].textContent).toBe("2since 6 Jul 2026");
-    expect(cells[8].textContent).toBe("— (no data before 2 Oct 2026)");
+    expect(cells[8].textContent).toBe("—"); // GUIDE-QP-1: practice-answers column (a payload without the field shows "—")
+    expect(cells[9].textContent).toBe("— (no data before 2 Oct 2026)");
     expect(coveredCount(0, "full", "2026-10-02").text).toBe("0"); // a FULL-coverage zero is a real zero
   });
 

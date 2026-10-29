@@ -13,10 +13,15 @@
  *                utm_content (GUIDE-IQ-1).
  *   4. Papers  — landing contains sample-paper / mock, or utm_content contains sample / mock /
  *                preboard → full mock, then important questions.
- *   5. Check & Improve — the page is the Check & Improve surface, OR the visit's first landing
+ *   5. Packs   — utm_campaign or utm_content contains "pack", or the landing path starts with
+ *                /packs or /pricing (GUIDE-QP-1) → the printable PDF packs first.
+ *   6. Quick   — utm_content contains "quick" / "mcq" / "tap", or the landing carried ?quick=1
+ *                (GUIDE-QP-1; ladder: zero-effort tap practice first, then Check & Improve) →
+ *                "5 quick questions" first.
+ *   7. Check & Improve — the page is the Check & Improve surface, OR the visit's first landing
  *                was /check-improve (the free-check ad; LOGIN-HOME-1, any surface) →
  *                "Check one answer" first.
- *   6. Default → "5 quick questions" first on the Practice hub; on HOME (surface "home")
+ *   8. Default → "5 quick questions" first on the Practice hub; on HOME (surface "home")
  *                "Check one answer" first, then "5 quick questions" (LOGIN-HOME-1, owner 24 Oct
  *                2026: Byte exists to make new students try Check & Improve, see its value, buy).
  * Subject (important questions, tutor, full mock): the chapter's subject, else the subject the
@@ -29,6 +34,8 @@
  *   important: important, chapter_test, quick, check_one, worksheet
  *   papers:    full_mock, chapter_test, important, worksheet, check_one
  *   cbq:       cbq, quick, check_one, chapter_test, worksheet
+ *   packs:     packs, cbq, quick, chapter_test, check_one
+ *   quick:     quick, cbq, check_one, chapter_test, worksheet
  * Any slot left (an option dropped because its route is missing, or it does not apply) fills
  * from: 5 quick questions, Check one answer, Worksheet, Chapter Test, CBQ practice,
  * Important questions, Notes, Exam trends, Tutor — only options whose route EXISTS
@@ -41,7 +48,7 @@
 
 export type GuideSubject = "Maths" | "Science";
 export type GuideSurface = "home" | "practice_hub" | "check_improve";
-export type GuideIntent = "cbq" | "chapter" | "important" | "papers" | "check_improve" | "default";
+export type GuideIntent = "cbq" | "chapter" | "important" | "papers" | "packs" | "quick" | "check_improve" | "default";
 
 export type GuideOptionId =
   | "quick"
@@ -53,7 +60,8 @@ export type GuideOptionId =
   | "tutor"
   | "full_mock"
   | "chapter_test"
-  | "worksheet";
+  | "worksheet"
+  | "packs";
 
 export interface IntentInput {
   /** The landing PATH of this visit (no query), when this tab still knows it. */
@@ -62,6 +70,8 @@ export interface IntentInput {
   utmCampaign: string | null;
   /** The landing carried ?cbq=1 (Start-here's subject hint is derived from exactly that). */
   cbqLanding: boolean;
+  /** GUIDE-QP-1 — the landing carried ?quick=1 (read from the current URL; optional). */
+  quickLanding?: boolean;
   /** Start-here's subject hint (Maths / Science), or null. */
   subjectHint: GuideSubject | null;
   surface: GuideSurface;
@@ -102,10 +112,12 @@ export const GUIDE_MAX_OPTIONS = 5;
 
 export const GUIDE_LINES = {
   default: "Hey! I'm Byte. What do you want to do today?",
-  cbq: "Came from the CBQ Short? Start here:",
+  cbq: "Here for CBQs? Start here:",
   chapter: (name: string) => `Doing ${name}? These will help:`,
   important: "Important questions? Start here:",
   papers: "Sample paper prep? Try these:",
+  packs: "Looking for printable packs? Start here:",
+  quick: "Want a quick win? Tap through a few:",
 } as const;
 
 /**
@@ -128,6 +140,7 @@ export const GUIDE_ROUTES: ReadonlyArray<{ pattern: RegExp; route: string }> = [
     pattern: /^\/practice-hub\?ct=1$/,
     route: "/practice-hub (App.tsx:1255; ?ct=1 opens ChapterTestPicker, DesktopPracticePage.tsx:1711)",
   },
+  { pattern: /^\/packs$/, route: "/packs (App.tsx:1007; GUIDE-QP-1)" },
   { pattern: /^\/practice\/worksheets$/, route: "/practice/worksheets (App.tsx:1269; the one responsive WorksheetGenerator)" },
 ];
 
@@ -160,6 +173,7 @@ export function subjectFromLanding(landing: string | null): GuideSubject | null 
 function classify(input: IntentInput, deps: IntentDeps): { intent: GuideIntent; chapter: ChapterRef | null } {
   const content = lower(input.utmContent);
   const landing = lower(input.landing);
+  const campaign = lower(input.utmCampaign);
   if (content.includes("cbq") || input.cbqLanding) return { intent: "cbq", chapter: null };
   const slug = chapterSlugFromLanding(input.landing);
   const chapter = slug ? deps.chapterBySlug(slug) : null;
@@ -172,6 +186,16 @@ function classify(input: IntentInput, deps: IntentDeps): { intent: GuideIntent; 
     ["sample", "mock", "preboard"].some((k) => content.includes(k))
   ) {
     return { intent: "papers", chapter: null };
+  }
+  if (
+    campaign.includes("pack") ||
+    content.includes("pack") ||
+    /^\/(packs|pricing)(\/|$)/.test(landing)
+  ) {
+    return { intent: "packs", chapter: null };
+  }
+  if (["quick", "mcq", "tap"].some((k) => content.includes(k)) || input.quickLanding === true) {
+    return { intent: "quick", chapter: null };
   }
   if (input.surface === "check_improve" || /^\/check-improve\/?$/.test(landing)) return { intent: "check_improve", chapter: null };
   return { intent: "default", chapter: null };
@@ -208,6 +232,14 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           sub: "Competency-based questions, chapter-wise",
           point: "Competency-based questions are a big part of the board paper. Practise here.",
           action: { kind: "route", path: "/practice-hub?cbq=1" },
+        };
+      case "packs":
+        return {
+          id,
+          title: "Printable PDF packs",
+          sub: "Chapter, mock and subject packs to print and write on",
+          point: "Print it, write on paper like the real exam.",
+          action: { kind: "route", path: "/packs" },
         };
       case "important":
         return {
@@ -283,7 +315,11 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
   const lead: GuideOptionId[] =
     intent === "cbq"
       ? ["cbq", "quick", "check_one", "chapter_test", "worksheet"]
-      : intent === "chapter"
+      : intent === "packs"
+        ? ["packs", "cbq", "quick", "chapter_test", "check_one"]
+        : intent === "quick"
+          ? ["quick", "cbq", "check_one", "chapter_test", "worksheet"]
+          : intent === "chapter"
         ? ["quick", "chapter_test", "important", "notes", "worksheet"]
         : intent === "important"
           ? ["important", "chapter_test", "quick", "check_one", "worksheet"]
@@ -317,6 +353,10 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           ? GUIDE_LINES.important
           : intent === "papers"
             ? GUIDE_LINES.papers
-            : GUIDE_LINES.default;
+            : intent === "packs"
+              ? GUIDE_LINES.packs
+              : intent === "quick"
+                ? GUIDE_LINES.quick
+                : GUIDE_LINES.default;
   return { intent, line, options };
 }

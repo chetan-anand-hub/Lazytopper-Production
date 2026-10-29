@@ -38,6 +38,8 @@ export interface StudentRow {
   activity: { source: string; coverage: Coverage; daysActive: number | null; lastActiveMs: number | null };
   answerChecks: { source: string; coverage: Coverage; count: number | null };
   testsTaken: { source: string; coverage: Coverage; count: number | null };
+  /** GUIDE-QP-1 — Quick Practice answers (practiceAttempts); optional so older payloads still parse. */
+  quickPractice?: { source: string; coverage: Coverage; count: number | null };
   /**
    * COST-1 — AI cost over the last 30 IST days from the usage ledger (the meter at list
    * prices). `costInr` null = no ledger day in the window (not recorded) or a failed read
@@ -149,6 +151,8 @@ export interface SummaryResponse {
   studentsMeasured: number;
   trialStarts: { count: number; unknown: number; source: string };
   activeStudents: { count: number; unknown: number; source: string; since: string };
+  /** GUIDE-QP-1 — students (signed up inside practiceAttempts coverage) with >= 1 Quick Practice answer. */
+  triedQuickPractice?: { tried: number; eligible: number; unknown: number; source: string; since: string };
   returnedDay2: { returned: number; eligible: number; unknown: number; source: string; since: string };
   returnedWithin7Days: { returned: number; eligible: number; unknown: number; source: string; since: string };
   sources: Sources;
@@ -211,7 +215,7 @@ export type ReadState = "complete" | "truncated" | "unavailable";
 export interface DetailResponse {
   ok: true;
   generatedAtMs: number;
-  student: Omit<StudentRow, "activity" | "answerChecks" | "testsTaken">;
+  student: Omit<StudentRow, "activity" | "answerChecks" | "testsTaken" | "quickPractice">;
   timeline: TimelineDay[];
   sources: Sources;
   reads: Record<"activityLog" | "usageLedger" | "sessionRecords" | "practiceAttempts" | "mockEntries" | "payments" | "subscription", ReadState>;
