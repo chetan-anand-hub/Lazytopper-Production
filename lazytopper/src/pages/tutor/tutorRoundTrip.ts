@@ -695,6 +695,22 @@ export const positionalQuestionId = (qNumber: number): string => `qn:${qNumber}`
 /** The reframed opener for ONE question the student asked the tutor about. Marks come from
  *  the stored result; a quoted step is the grader's own annotation (`shortAnnotation`
  *  truncates, never rewords). A bare MCQ click has no steps, so it is NOT dressed up. */
+/**
+ * TUTOR-MIND-2 (F6) — the pick the scorecard opener QUOTES, with its verdict, so the persisted
+ * opener meta matches the opener text exactly: only a graded question that lost marks and whose
+ * stored payload carries the picked option. Lost marks on a tap answer mean the pick was wrong.
+ * Anything else -> null (the opener names no pick, so none is stored).
+ */
+export function scorecardPickOf(result: WorksheetQuestionGrade | null): { pick: string; correct: false } | null {
+  const g = result && isGradedQuestion(result) ? result : null;
+  if (!g) return null;
+  const total = Number(g.totalMarks) || 0;
+  const lost = Math.max(0, total - (Number(g.marksAwarded) || 0));
+  const stored = (g as { pickedOption?: unknown }).pickedOption;
+  const pick = typeof stored === "string" ? stored.trim() : "";
+  return total > 0 && lost > 0 && pick ? { pick, correct: false } : null;
+}
+
 export function composeScorecardQuestionOpener(
   qNumber: number,
   result: WorksheetQuestionGrade | null,

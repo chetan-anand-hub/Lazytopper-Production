@@ -25,6 +25,7 @@ import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { FORMATIVE_ONLY_TOPICS, isBoardChapterKey } from "../../config/syllabus2026-27";
 import { MathText } from "../../components/question/MathText";
+import { TutorText } from "./TutorText";
 // LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
 import "../../components/question/katexEager";
 import NcertPageModal, { type NcertPageRef } from "../../components/notes/NcertPageModal";
@@ -489,7 +490,7 @@ function TutorSession() {
                   key={i}
                   className={m.kind === "return-result" ? "lt-tutor__t lt-tutor__t--return" : "lt-tutor__t"}
                 >
-                  <MathText text={m.content} />
+                  <TutorText text={m.content} />
                   {/* TUTOR-FIX-2 T3 — the LATEST cut-off reply carries a "Continue" button (a
                       normal message); an older one keeps only the honest note. */}
                   {m.truncated && (

@@ -43,6 +43,7 @@ import {
   matchReturningPracticeRecord,
   RETURNED_WORK_DIGEST_ENABLED,
   buildScorecardReturnedWork,
+  scorecardPickOf,
   composeScorecardQuestionOpener,
   findScorecardQuestion,
   recordBelongsToUid,
@@ -458,10 +459,11 @@ export function useTutorSession({
         if (!live) return;
         returnedWorkRef.current = buildScorecardReturnedWork(questionText, hit.result);
         const opener = composeScorecardQuestionOpener(hit.qNumber, hit.result, recordLabel(record));
+        const pickMeta = scorecardPickOf(hit.result);
         updatePending(null);
         setMessages((prev) => {
           if (prev.some((m) => m.kind === "return-result" && m.content === opener.text)) return prev;
-          const next: TutorTurn[] = [...prev, returnResultTurn(opener.text, returnMetaOf(fromQuestionId))];
+          const next: TutorTurn[] = [...prev, returnResultTurn(opener.text, returnMetaOf(fromQuestionId, pickMeta?.pick, pickMeta ? pickMeta.correct : null))];
           persist(next, null);
           return next;
         });

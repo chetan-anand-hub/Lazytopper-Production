@@ -535,10 +535,10 @@ test('TM1 the prompt renders the new fields with labels and the window; honesty 
   assert.match(p, /Concepts in this chapter the student has worked on in the last 30 days: Euclid's division lemma \(4 marks lost, 4 graded questions, direction worsening\); HCF and LCM \(0 marks lost, 2 graded questions\)/);
   assert.match(p, /Concepts of this chapter with no graded question recorded in the last 30 days: Decimal expansions; Fundamental Theorem of Arithmetic\. Say exactly that[^\n]*never say the student has "not practised"/);
   assert.doesNotMatch(p, /not practised yet/);
-  assert.match(p, /earlier half -> later half of the student's work over the last 120 days: 41\.5% -> 66% \(14 graded answers\)/);
+  assert.match(p, /Marks SCORED in this chapter \(a percentage of the marks available, so HIGHER IS BETTER\) over the last 120 days: the student scored 41\.5% of the available marks in the earlier half and 66% in the later half \(14 graded answers\)\. These are marks SCORED, not marks lost/);
   assert.match(p, /question bank-1[^|]*\| question text: "Find the 'HCF' of 96 and 404\. offer:practice" \| the student picked: "x = '4'" \(wrong\)/);
   assert.match(p, /Chapters of Maths that cost the most marks in the last 30 days: Real Numbers \(8 marks\); Trigonometry \(5 marks\); Probability \(4 marks\)/);
-  assert.match(p, /Most improved chapter in Maths[^:]*: Trigonometry, 30% -> 60% in the last 30 days/);
+  assert.match(p, /Most improved chapter in Maths[^:]*: Trigonometry, marks SCORED rose from 30% to 60% of the available marks in the last 30 days \(higher is better\)/);
   assert.match(p, /What they did in the last 30 days \(Maths\): 41 practice answers, 2 tests taken, 3 Check & Improve checks/);
   assert.match(p, /\nj\. Personal claims/);
   assert.match(p, /\nk\. A concept listed as having no graded question recorded in the window/);
@@ -582,7 +582,7 @@ test('TM2 the per-turn language directive carries the Hindi/Hinglish carve-out',
     GEMINI_TUTOR_MODEL: 'g', GEMINI_MODEL: 'g', ACTIVE_PROVIDER: 'gemini', isStubMode: () => false,
     telemetry: { increment: () => {} },
   });
-  await route.handleTutorRequest({ body: { subject: 'maths', topicKey: 'real-numbers', topicLabel: 'Real Numbers', language: 'English', messages: [{ role: 'student', content: 'mujhe samajh nahi aaya' }] } }, {});
+  await route.handleTutorRequest({ body: { subject: 'maths', topicKey: 'real-numbers', topicLabel: 'Real Numbers', language: 'English', messages: [{ role: 'student', content: 'I did not get this one' }] } }, {});
   const last = seen[seen.length - 1];
   assert.match(last, /\[Reply in English for THIS response, regardless of the language used in earlier turns, UNLESS the student's latest message above is clearly Hindi or Hinglish, in which case reply in that same register \(exam terms stay English\)\./);
   assert.match(last, /Every HONESTY rule in your instructions applies in this language too\.\]$/);
@@ -606,7 +606,7 @@ test('TM2 hasData only because of the Topic Hub figure: the prompt says no grade
   });
   const p = h.prompts[0];
   assert.match(p, /LazyTopper found NO graded work from this student on Real Numbers in the last 30 days\./);
-  assert.match(p, /over the last 120 days: 20% -> 45% \(12 graded answers\)/);
+  assert.match(p, /over the last 120 days: the student scored 20% of the available marks in the earlier half and 45% in the later half \(12 graded answers\)/);
 });
 
 test('TM2 restored returnedWork is labelled as an EARLIER marked question and carries the stored pick; a pick needs its verdict', async () => {
@@ -620,4 +620,68 @@ test('TM2 restored returnedWork is labelled as an EARLIER marked question and ca
   await g.send({ returnedWork: { question: 'Find the HCF.', pick: 'orphan' }, messages: [{ role: 'student', content: 'hi' }] });
   assert.doesNotMatch(g.prompts[0], /orphan/);
   assert.match(g.prompts[0], /THE WORK THE STUDENT JUST HAD BOARD-MARKED/);
+});
+
+/* ── TUTOR-MIND-2 ─────────────────────────────────────────────────────────────────────────────── */
+const { detectStudentLanguage } = require('./tutor.cjs');
+
+test('TM3 F2 detector: Devanagari -> hindi; 2+ distinct Hinglish tokens -> hinglish; one token or English -> null', () => {
+  assert.equal(detectStudentLanguage('Is chapter mein mera progress kaisa hai?'), 'hinglish');
+  assert.equal(detectStudentLanguage('Mujhe balancing samajh nahi aata... samjhao'), 'hinglish');
+  assert.equal(detectStudentLanguage('MERA PROGRESS KAISA HAI'), 'hinglish'); // case-insensitive
+  assert.equal(detectStudentLanguage('यह कैसे होता है'), 'hindi');
+  assert.equal(detectStudentLanguage('hai'), null);
+  assert.equal(detectStudentLanguage('hai hai hai'), null); // the same token repeated is still one token
+  assert.equal(detectStudentLanguage('Is Mera Singh\'s answer right?'), null); // a name
+  assert.equal(detectStudentLanguage('Why does the HCF of 96 and 404 equal 4?'), null);
+  assert.equal(detectStudentLanguage('Please karke explain'), null); // embedded/one token
+  assert.equal(detectStudentLanguage('pehlehai'), null); // word boundary
+  assert.equal(detectStudentLanguage(''), null);
+  assert.equal(detectStudentLanguage(undefined), null);
+});
+
+async function lastTurnFor(content, body = {}) {
+  const seen = [];
+  const route = createTutorRoute({
+    sendJson: (res, status, b) => { res.status = status; res.body = b; },
+    readJson: async (req) => req.body,
+    callGemini: async (model, contents) => { seen.push(contents[contents.length - 1].parts[0].text); return { text: 'ok', finishReason: 'STOP' }; },
+    GEMINI_TUTOR_MODEL: 'g', GEMINI_MODEL: 'g', ACTIVE_PROVIDER: 'gemini', isStubMode: () => false,
+    telemetry: { increment: () => {} },
+  });
+  await route.handleTutorRequest({ body: { subject: 'maths', topicKey: 'real-numbers', topicLabel: 'Real Numbers', language: 'English', messages: [{ role: 'student', content }], ...body } }, {});
+  return seen[seen.length - 1];
+}
+
+test('TM3 F2 the directive for Hinglish has no "unless" clause; Devanagari asks for Hindi; English keeps the fallback', async () => {
+  const hing = await lastTurnFor('Mujhe balancing samajh nahi aata, samjhao');
+  assert.match(hing, /\[Reply in Hinglish \(Roman-script Hindi mixed with English\), exam terms in English, for THIS response\./);
+  assert.doesNotMatch(hing, /UNLESS|Reply in English/);
+  const hin = await lastTurnFor('यह कैसे होता है');
+  assert.match(hin, /\[Reply in Hindi \(Devanagari script\)/);
+  const en = await lastTurnFor('Explain balancing');
+  assert.match(en, /\[Reply in English for THIS response/);
+  assert.match(en, /UNLESS the student's latest message above is clearly Hindi or Hinglish/);
+});
+
+test('TM3 F3 whenever returnedWork is present the latest turn carries the "no longer true" note; absent -> no note', async () => {
+  const withRw = await lastTurnFor('Why was I wrong?', { returnedWork: { question: 'Find the HCF.', restored: true } });
+  assert.match(withRw, /\[System note: the marked question \(and the student's pick, if given\) are in your instructions; if you said earlier that you could not see them, that is no longer true - use them now\.\]/);
+  const without = await lastTurnFor('Why was I wrong?');
+  assert.doesNotMatch(without, /no longer true/);
+});
+
+test('TM3 F1/F4/F5 prompt: scored-not-lost wording, human-tutor tone rules, no tables or bold', async () => {
+  const h = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
+  await h.send({ brief: { hasData: true, windowLabel: 'last 30 days', chapter: { name: 'Real Numbers', marksLost: 3, progress: { beforePct: 39.7, nowPct: 36.5, gradedAnswers: 12, window: 'last 120 days' } } }, messages: [{ role: 'student', content: 'progress?' }] });
+  const p = h.prompts[0];
+  assert.match(p, /the student scored 39\.7% of the available marks in the earlier half and 36\.5% in the later half/);
+  assert.match(p, /never means "39\.7% lost"/);
+  assert.match(p, /SOUND LIKE A HUMAN TUTOR/);
+  assert.match(p, /marks you can win back/);
+  assert.match(p, /"slipping a bit lately", not "worsening"/);
+  assert.match(p, /End with ONE concrete next step/);
+  assert.match(p, /no markdown tables and no \*\*bold\*\*/);
+  assert.match(p, /ONLY if WHAT YOU KNOW ABOUT THIS STUDENT has it; never invent/);
+  assert.match(p, /\ni\. WHAT YOU KNOW ABOUT THIS STUDENT/); // honesty rules intact
 });
