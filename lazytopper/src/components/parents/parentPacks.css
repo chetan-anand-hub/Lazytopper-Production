@@ -1,0 +1,25 @@
+.lt-fp .lt-fpk { margin-bottom: 38px; }
+.lt-fpk__list { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+.lt-fpk__item {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: baseline;
+  background: var(--fp-card); border: 1px solid var(--fp-line); border-radius: 12px; padding: 12px 14px;
+}
+.lt-fpk__name { font-weight: 600; color: var(--fp-ink); display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.lt-fpk__chip {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px;
+  background: #f6e7b4; color: #6b4a00;
+}
+.lt-fpk__what { grid-column: 1; color: var(--fp-ink2); font-size: 14px; }
+.lt-fpk__price { grid-column: 2; grid-row: 1 / span 2; font-weight: 600; color: var(--fp-ink); min-width: 3ch; text-align: right; }
+.lt-fpk__actions { display: flex; flex-direction: column; gap: 10px; }
+.lt-fp .lt-fpk__btn {
+  display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 20px;
+  border-radius: 12px; font-weight: 600; font-size: 15px; text-decoration: none;
+}
+.lt-fp .lt-fpk__btn--primary { background: var(--fp-g); color: #fff; }
+.lt-fp .lt-fpk__btn--primary:hover { background: var(--fp-gt); }
+.lt-fp .lt-fpk__btn--ghost { border: 1.5px solid var(--fp-line); color: var(--fp-ink); background: transparent; }
+@media (min-width: 640px) {
+  .lt-fpk__actions { flex-direction: row; }
+  .lt-fp .lt-fpk__btn { display: inline-flex; }
+}

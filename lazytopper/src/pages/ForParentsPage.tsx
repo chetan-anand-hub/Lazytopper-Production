@@ -20,6 +20,7 @@ import {
 } from "../config/pricing";
 import { WHATSAPP_URL } from "../config/socialProfiles";
 import { predictCbseExamDate } from "../services/cbseExamDate";
+import ParentPacksSection from "../components/parents/ParentPacksSection";
 import "./forParents.css";
 
 /**
@@ -287,6 +288,8 @@ export default function ForParentsPage() {
         </section>
 
         <ParentPriceSection />
+
+        <ParentPacksSection />
 
         <section aria-labelledby="fp-routine">
           <h2 id="fp-routine">A routine that fits</h2>
