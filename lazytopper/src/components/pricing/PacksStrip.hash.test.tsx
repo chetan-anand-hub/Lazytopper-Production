@@ -64,7 +64,7 @@ describe("PacksStrip anchor", () => {
       vi.useRealTimers();
     }
   });
-  it("CONTROL: does not scroll without the hash; scrolls for paid Premium too (uniform page); #cbq scrolls the CBQ band", async () => {
+  it("CONTROL: does not scroll without the hash; scrolls for paid Premium too (uniform page); #cbq scrolls the wrapper above the CBQ band", async () => {
     mount("/pricing");
     await new Promise((r) => setTimeout(r, 1000));
     expect(scrollIntoView).not.toHaveBeenCalled();
@@ -78,6 +78,6 @@ describe("PacksStrip anchor", () => {
     mount("/pricing#cbq");
     await new Promise((r) => setTimeout(r, 1000));
     expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" });
-    expect(scrollIntoView.mock.contexts.every((el) => (el as HTMLElement).id === "cbq")).toBe(true);
+    expect(scrollIntoView.mock.contexts.every((el) => (el as HTMLElement).id === "pricing-packs-top")).toBe(true);
   });
 });

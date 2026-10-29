@@ -189,11 +189,16 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const [entrySlide, setEntrySlide] = useState(0);
   const [buy, setBuy] = useState<BuyState>({ key: "", phase: "idle" });
   const mounted = useRef(true);
+  const viewSent = useRef(false);
   const myPacksRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     mounted.current = true;
-    if (!embedded) trackPackEvent("pack_view");
+    // PRICING-ONE-1: the same pack_view event on both pages, told apart by `surface`; once per mount (a ref survives StrictMode's re-run).
+    if (!viewSent.current) {
+      viewSent.current = true;
+      trackPackEvent("pack_view", undefined, embedded ? "pricing" : "packs");
+    }
     return () => {
       mounted.current = false;
     };

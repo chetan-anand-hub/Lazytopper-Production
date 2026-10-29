@@ -55,6 +55,13 @@ describe("pack analytics", () => {
     expect(names()).toEqual(["pack_view", "pack_download"]);
   });
 
+  it("pack_view carries the surface (pricing / packs) as data, like sku; no surface -> no data", () => {
+    trackPackEvent("pack_view", undefined, "pricing");
+    trackPackEvent("pack_view", undefined, "packs");
+    trackPackEvent("pack_view");
+    expect(names()).toEqual(["pack_view", "pack_view", "pack_view"]);
+  });
+
   it("pack_checkout: first-party pack_checkout, GA4 begin_checkout with the sku as item, and no Meta hit", () => {
     trackPackCheckout({ sku: "pack_chapter", itemName: "Chapter Pack · Real Numbers", valueInr: 49 });
     expect(names()).toEqual(["pack_checkout"]);

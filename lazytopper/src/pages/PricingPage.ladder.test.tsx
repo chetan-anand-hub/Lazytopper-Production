@@ -58,6 +58,18 @@ describe("PricingPage - ladder layout", () => {
     expect(line!.closest('[data-testid="till-boards-figures"]')).not.toBeNull();
   });
 
+  it("PRICING-ONE-1: from=for_parents (with #packs or #cbq) shows the back-to-parents link near the top; not without it", () => {
+    for (const hash of ["#packs", "#cbq"]) {
+      sessionStorage.clear();
+      const { unmount } = render(<MemoryRouter initialEntries={[`/pricing?from=for_parents${hash}`]}><PricingPage /></MemoryRouter>);
+      expect(screen.getByTestId("parent-return").getAttribute("href")).toBe("/for-parents");
+      unmount();
+    }
+    sessionStorage.clear();
+    render(<MemoryRouter initialEntries={["/pricing#packs"]}><PricingPage /></MemoryRouter>);
+    expect(screen.queryByTestId("parent-return")).toBeNull();
+  });
+
   it("Basic is folded, not removed: a closed <details> holding every include and limit", () => {
     const { container } = renderPage();
     const details = container.querySelector('details[data-testid="pricing-basic-details"]') as HTMLDetailsElement;

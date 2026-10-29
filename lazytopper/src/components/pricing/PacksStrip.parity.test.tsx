@@ -16,7 +16,8 @@ vi.mock("../../services/subscriptionService", async (orig) => ({
   loadSubscription: () => ({ tier: sub.tier }),
 }));
 vi.mock("../../analytics/analytics", () => ({ newCheckoutAttemptId: () => "lt_attempt" }));
-vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackCheckout: () => undefined, trackPackPurchase: () => undefined, trackPackEvent: () => undefined }));
+const trackEvent = vi.hoisted(() => vi.fn());
+vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackCheckout: () => undefined, trackPackPurchase: () => undefined, trackPackEvent: trackEvent }));
 const buyPack = vi.hoisted(() => vi.fn(async (..._a: unknown[]) => ({ status: "dismissed" })));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
@@ -52,6 +53,7 @@ beforeEach(() => {
   auth.user = null;
   sub.tier = "free";
   buyPack.mockClear();
+  trackEvent.mockClear();
 });
 afterEach(() => cleanup());
 
@@ -103,5 +105,35 @@ describe("/pricing packs - the same for every account", () => {
     await waitFor(() => expect(buyPack).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/pricing"));
     expect(buyPack.mock.calls[0][0]).toBe("pack_bundle");
+  });
+
+  it("PRICING-ONE-1: pack_view fires once on the pricing section with surface: pricing, and never twice on a re-render", () => {
+    const { rerender } = strip();
+    expect(trackEvent.mock.calls.filter((c) => c[0] === "pack_view")).toEqual([["pack_view", undefined, "pricing"]]);
+    rerender(
+      <MemoryRouter initialEntries={["/pricing"]}>
+        <Where />
+        <Routes>
+          <Route path="/pricing" element={<PacksStrip />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(trackEvent.mock.calls.filter((c) => c[0] === "pack_view")).toHaveLength(1);
+  });
+
+  it.each(["#packs", "#cbq", ""])("from=for_parents%s: a back link to /for-parents sits at the top of the packs and inside the packs section; absent otherwise", (hash) => {
+    const { container, unmount } = strip(`/pricing?from=for_parents${hash}`);
+    const top = screen.getByTestId("parent-return-cbq");
+    const inside = screen.getByTestId("parent-return-packs");
+    expect(top.getAttribute("href")).toBe("/for-parents");
+    expect(inside.getAttribute("href")).toBe("/for-parents");
+    expect(top.textContent).toContain("Back to parents page");
+    expect(container.querySelector("#packs")!.contains(inside)).toBe(true);
+    expect(container.querySelector("#pricing-packs-top")!.contains(top)).toBe(true);
+    unmount();
+    sessionStorage.clear();
+    strip(`/pricing${hash}`);
+    expect(screen.queryByTestId("parent-return-cbq")).toBeNull();
+    expect(screen.queryByTestId("parent-return-packs")).toBeNull();
   });
 });

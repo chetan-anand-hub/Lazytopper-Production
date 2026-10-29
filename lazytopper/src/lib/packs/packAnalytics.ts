@@ -55,10 +55,15 @@ function sendGa4Only(name: string, params: Record<string, unknown>): void {
   }
 }
 
-/** `pack_view` (page opened) and `pack_download` (a file saved). `sku` is the pack kind, never an id. */
-export function trackPackEvent(name: "pack_view" | "pack_download", sku?: PackSkuName): void {
+/** Where a `pack_view` happened (PRICING-ONE-1): the /packs page or the packs section of /pricing. */
+export type PackViewSurface = "packs" | "pricing";
+
+/** `pack_view` (page opened) and `pack_download` (a file saved). `sku` is the pack kind, never an id. `surface` (pack_view only) says which page. */
+export function trackPackEvent(name: "pack_view" | "pack_download", sku?: PackSkuName, surface?: PackViewSurface): void {
   try {
-    sendAnalyticsHit("event", { name, ...(sku ? { data: { sku } } : {}) }, sku ? { ga4: { sku } } : {});
+    const data: Record<string, string> = { ...(sku ? { sku } : {}), ...(surface ? { surface } : {}) };
+    const has = Object.keys(data).length > 0;
+    sendAnalyticsHit("event", { name, ...(has ? { data } : {}) }, has ? { ga4: data } : {});
   } catch {
     /* analytics must never break the page */
   }
