@@ -1,3 +1,16 @@
+## 2026-10-29 (daily, part 2) - #1409 - #1410 - #1411 - #1412 - #1413 - #1414 - #1415 (7 product merges after the morning docs PR): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 29 Oct 2026 (IST) relayed by the cofounder **[coordinator]** (dispatch spec), with the reason where one was given; where none was given, none is invented. Earlier dated blocks stand as written.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Packs are sold SEPARATELY, including to paid Premium | `#1414`; the paid-Premium hiding removed on `/pricing` only (promo cards elsewhere unchanged) | no reason was given in the dispatch spec, and none is invented here. What the PR shows: paid Premium sees the CBQ band and packs on `/pricing` and can buy them. |
+| ONE `/pricing` page for every account type, with every price link pointing to it | `#1414` | no reason was given in the dispatch spec. What the PR shows: the same shop (`PacksShop`) serves `/pricing` and `/packs`, and the links were repointed so there is one place to buy; `/packs` stays only as the ad landing and `#my-packs`. |
+| The tutor MAY quote the same before-to-now progress figures as Topic Hub / Me, at concept granularity. **Supersedes A-17 ruling 6** [coordinator names the ruling; this builder did not locate its original text on the board] | `#1415` (`chapter.progress` uses the same read and window as Topic Hub, via `TOPIC_HUB_TREND_WINDOW`) | no reason was given in the dispatch spec. What the PR shows: parity with Topic Hub (same read, same window). The honesty rules still bind: no figure without an existing derivation, the weakness gate is respected, thin data names nothing. |
+| MARKET ALL PACKS on `/for-parents` (owner, 29 Oct 20:12 IST per the PR body), not only CBQ | `#1413` (after `#1409`, `#1411`) | no reason was given in the dispatch spec. What the PR shows: the hero link, band and section now cover Chapter, Mock, Subject, Bundle and both CBQ packs. |
+| A snapshot price guard in CI (a builder lane, not an owner ruling) | `#1410` | per the PR: pins prerendered prices to the live price so a stale snapshot fails loudly (the 30 Nov Board Pass price change is the case the pinned-clock test proves). |
+| A signed-out Buy resumes into checkout after sign-in, params whitelisted and stripped first, payment started once (a builder lane) | `#1412` | per the PR: no extra tap after sign-in, and back / reload must not re-open payment. |
+
 ## 2026-10-29 (daily) - #1405 - #1406 - #1407 (3 product merges, 29 Oct IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 29 Oct 2026 (IST) relayed by the cofounder **[coordinator]** (dispatch spec), with the reason where one was given; where none was given, none is invented. Earlier dated blocks stand as written.

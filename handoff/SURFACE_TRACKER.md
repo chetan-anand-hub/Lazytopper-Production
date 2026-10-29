@@ -1,3 +1,14 @@
+> **2026-10-29 (daily, part 2) - #1409 - #1410 - #1411 - #1412 - #1413 - #1414 - #1415 (CLAUDE.md section 10, once a day).** Scope: `/for-parents`, `/pricing`, `/packs`, the pack price links on every surface, the Tutor, and the prerender price guard. No mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Facts marked **[git/gh]** were re-read from the PR records; **[coordinator]** come from the dispatch spec. Written at trunk `d04bb1e8` (= `#1415`). The rows below ADD to the 2026-10-29 (daily) block.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/for-parents` | packs section (`#1409`), hero link and band, section moved before the video (`#1411`), all packs not only CBQ (`#1413`); links now to `/pricing` (`#1414`) | live per merge [coordinator]; prices render after mount; hidden for paid Premium | `[FU-PARENTS-PAID-HIDDEN]`; phone-width look |
+| Pricing (`/pricing`) | the shop is embedded: CBQ band and four pack tiles open the shared pop-up for every account including paid Premium; `?buy=&t=` resume (`#1414`) | live per merge | owner purchase test; `[FU-PACKVIEW-SURFACE]` |
+| `/packs` | same shop via `PacksShop`; signed-out Buy resumes after sign-in (`#1412`, `#1414`); stays the ad landing | live per merge | owner live-verify of the resume |
+| Pack price links (Practice, walls, footer, Byte, promo card) | repointed to `/pricing#packs` (`#1414`) | live per merge | none new |
+| Tutor | knows worked concepts, untouched concepts, before-to-now progress, recent mistakes with bank stems; Hinglish mirroring (`#1415`) | live per merge; the six live checks of the PR body are owed | `[FU-TUTOR-PICK-HISTORY]`, `[FU-TUTOR-PAPER-STEMS]`, `[FU-TUTOR-CONCEPT-LASTSEEN]` |
+| Prerender snapshots | price guard over both variants (`#1410`); `for-parents` and `packs` recaptured (`#1409`, `#1414`) | CI-enforced | `[FU-PRERENDER-FORPARENTS-PRICE-AFTER-30NOV]` |
+
 > **2026-10-29 (daily) - #1405 - #1406 - #1407 (CLAUDE.md section 10, once a day).** Scope: `/packs`, `/pricing` (CBQ band), the Practice hub, Quick Practice results, Home, `/check-improve`, the Byte guide, and the admin Students page. No mark, mistake type, departure rule, objective clamp or prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Facts marked **[git/gh]** were re-read from the PR records; **[coordinator]** come from the dispatch spec. Written at trunk `001dcea5` (= `#1407`). The rows below ADD to the 2026-10-28 block.
 
 | surface | what moved (PR) | state | owed |

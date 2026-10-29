@@ -1,3 +1,19 @@
+## 2026-10-29 (daily, part 2) - AFTER #1409 - #1410 - #1411 - #1412 - #1413 - #1414 - #1415 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them.)* Trunk at writing: **`d04bb1e8`** (`d04bb1e8fe1995301ea796d1a5cd5b78f0ebee0a`, = `#1415`) [git/gh]. Facts marked **[coordinator]** come from the coordinator's dispatch spec.
+
+- **Done [git/gh]:** seven product PRs (table in the CURRENT_STATE 2026-10-29 (daily, part 2) block). Open: `#1399` MISTAKE-CALC-1 (draft, HELD).
+- **NEXT, in order [coordinator]:**
+  1. **Owner live-verify of the money path:** from `/pricing`, signed out, tap a pack, Buy, sign in, checkout opens once; then paid Premium on `/pricing` sees the packs and can buy (`#1412`, `#1414`).
+  2. **Owner live-verify of the tutor** (`#1415`), the six checks in the PR body; in particular "Am I improving here?" must match Topic Hub's before-to-now.
+  3. **Funnel baselines shift from 30 Oct:** `pack_view` now carries `surface` pricing or packs (`[FU-PACKVIEW-SURFACE]`); read the pack funnel by surface, not against the old totals.
+  4. The ads from earlier blocks (budgets, `[FU-ADS-BUDGET-CLICKS-29OCT]`) and the thinking-cap read stand unchanged; item list in the 2026-10-29 (daily) block.
+  5. **MISTAKE-CALC-1 `#1399`:** trunk baseline, golden case, then a two-surface live verify (CLAUDE.md section 4a) before any merge.
+  6. Owner purchase test of PACK-CREDIT-1 (`[FU-PACK-CREDIT-LIVE-TEST]`) is still open; it can now be done from `/pricing`.
+  7. The follow-ups in the 2026-10-29 (daily, part 2) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Standing for builders [coordinator]:** a price or pack link goes to `/pricing#packs`; `/packs` stays only as the ad landing and `#my-packs`. The tutor brief carries only figures that Topic Hub or Me also show.
+- **Doc-only note:** this PR touches only `handoff/`.
+
 ## 2026-10-29 (daily) - AFTER #1405 - #1406 - #1407 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them.)* Trunk at writing: **`001dcea5`** (`001dcea59d6ae7dbe865ffdbbede9b96ac40c918`, = `#1407`) [git/gh]. Facts marked **[coordinator]** come from the coordinator's dispatch spec.

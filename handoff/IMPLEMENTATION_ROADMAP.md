@@ -1,3 +1,12 @@
+## 2026-10-29 (daily, part 2) - PARENTS-PACKS-1 (`#1409`), PRERENDER-PRICE-GUARD-1 (`#1410`), PARENTS-PACKS-2 (`#1411`), PACKS-BUY-RESUME-1 (`#1412`), PARENTS-PACKS-3 (`#1413`), PRICING-ONE-1 (`#1414`), TUTOR-MIND-1 (`#1415`) - MERGED
+
+- DONE. `#1409` (`639de3c8`), `#1411` (`1424688b`), `#1413` (`177f4740`): packs on `/for-parents`, from one section to hero link, band and all-packs section. NEXT: `[FU-PARENTS-PAID-HIDDEN]`, a phone-width look.
+- DONE. `#1410` (`d3384cd9`): snapshot price guard. NEXT: `[FU-PRERENDER-FORPARENTS-PRICE-AFTER-30NOV]` (the guard now fails when the Board Pass price moves past the snapshot).
+- DONE. `#1412` (`2da4343e`): signed-out Buy resumes into checkout. NEXT: owner live-verify of the money path.
+- DONE. `#1414` (`69695e13`): PRICING-ONE-1 - one `/pricing` for every account; the shop is `PacksShop`. NEXT: `[FU-PACKVIEW-SURFACE]`; owner purchase from `/pricing`.
+- DONE. `#1415` (`d04bb1e8`, trunk): TUTOR-MIND-1. NEXT: `[FU-TUTOR-PICK-HISTORY]`, `[FU-TUTOR-PAPER-STEMS]`, `[FU-TUTOR-CONCEPT-LASTSEEN]`; owner live-verify of the six tutor checks.
+- IN FLIGHT: `#1399` MISTAKE-CALC-1 (draft, HELD; baseline not run).
+
 ## 2026-10-29 (daily) - GUIDE-QP-1 (`#1405`), PACKS-VISIBLE-1 (`#1406`), CBQ-PACK-1 (`#1407`) - MERGED
 
 - DONE. `#1405` (`e4d6c329`): GUIDE-QP-1 - Byte packs rule and quick-practice intents; admin Students practice-answers column and card. NEXT: read the new admin column after a day; `[FU-QUICK-PARAM-SIGNUP]`.
