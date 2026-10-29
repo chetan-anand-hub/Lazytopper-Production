@@ -32,6 +32,7 @@ import {
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
 import { ChapterTestPicker, CT_HUB_PARAM } from "../../components/practice/ChapterTestPicker";
 import StartHereCard from "../../components/startHere/StartHereCard";
+import PackPromo from "../../components/packs/PackPromoLazy";
 import SurfaceHistory from "../../components/results/SurfaceHistory";
 import { buildQuickPracticeReviewHref } from "../tutor/tutorRoundTrip";
 import { appendFullSubjectScope } from "../../components/practice/fullSubjectPractice";
@@ -3139,6 +3140,9 @@ export default function DesktopPracticePage() {
                 onOpen={(r) => navigate(buildQuickPracticeReviewHref(r))}
               />
             ) : null}
+
+            {/* PACKS-VISIBLE-1 - the printable PDF packs, below the options; Board Pass stays first. */}
+            <PackPromo surface="practice_hub" />
           </div>
 
           {/* ───────────────────── ASIDE COLUMN ───────────────────── */}

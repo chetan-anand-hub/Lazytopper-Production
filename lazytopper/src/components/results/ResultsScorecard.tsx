@@ -24,6 +24,7 @@ import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import FirstGradedAsk from "../feedback/FirstGradedAsk";
 import ScorecardUpgradeLine from "./ScorecardUpgradeLine";
+import PackPromo from "../packs/PackPromoLazy";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
 import { useDetailLock, type DetailLimitKey } from "./useDetailLock";
@@ -780,6 +781,8 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
               )}
               {/* ASK-FIX-1 - one calm upgrade line for non-Premium students, from this result's own marks. */}
               <ScorecardUpgradeLine variant={variant} countShown={!reopened} />
+              {/* PACKS-VISIBLE-1 - Quick Practice results: the pack card sits BELOW the Board Pass line. */}
+              {variant.surface === "quick-practice" ? <PackPromo surface="quick_practice" /> : null}
             </>
           )}
         </div>

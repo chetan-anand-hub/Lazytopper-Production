@@ -18,6 +18,7 @@ import {
 import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
 import { useAuth } from "../../context/AuthContext";
+import PackPromo from "../../components/packs/PackPromoLazy";
 import { RequirePremium } from "../../components/auth/RequireAuth";
 import { EquationInput, EquationRender } from "../../components/equation";
 import { checkUploadFile, UPLOAD_LIMIT_SENTENCE } from "../../services/uploadLimits";
@@ -3666,6 +3667,8 @@ const DesktopCheckImprovePageInner: React.FC<{
             onCancel={() => setFairUseConfirm(null)}
           />
         ) : null}
+        {/* PACKS-VISIBLE-1 - below the check box and demo; never inside the tutor overlay. */}
+        {!overlay && <PackPromo surface="check_improve" />}
       </div>,
       "Board-style examiner grading",
     );
