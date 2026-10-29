@@ -24,6 +24,7 @@ import {
 import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
+import PackPromo from "../../components/packs/PackPromoLazy";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import CbseBanner from "../../components/cbse/CbseBanner";
 import PendingPapersStrip from "../../components/home/PendingPapersStrip";
@@ -469,6 +470,9 @@ export default function DesktopHome() {
 
         {/* PARENT-REPORT-1 — the weekly report card a student sends a parent (real account only). */}
         {realUid ? <ShareWithParentsButton placement="home" /> : null}
+
+        {/* PACKS-VISIBLE-1 - one card in the feed for a signed-in student (the card hides itself for paid Premium). */}
+        {realUid ? <PackPromo surface="home" /> : null}
 
         {/* ── Memory strip (honest — only when meaningful) ─────── */}
         {isSignedIn && meaningfulMemory && memory && (

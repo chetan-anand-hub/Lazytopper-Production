@@ -21,6 +21,7 @@ import { MiCardHost } from "../../components/mi/MiCardHost";
 import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
+import PackPromo from "../../components/packs/PackPromoLazy";
 import { StartHereFocusView, StartHereView, useStartHere } from "../../components/startHere/StartHereCard";
 import { CompanionHome } from "../../components/guide/companion/companion";
 import CbseBanner from "../../components/cbse/CbseBanner";
@@ -752,6 +753,9 @@ export default function MobileHome() {
             <ShareWithParentsButton placement="home" />
           </div>
         ) : null}
+
+        {/* PACKS-VISIBLE-1 - one card in the feed for a signed-in student (the card hides itself for paid Premium). */}
+        {isSignedIn ? <PackPromo surface="home" /> : null}
 
         {/* Returning / signed-in: resume strip (real memory only). AUTH-2-FU §4
             moves it BELOW the merged card — the heroes and the one next action
