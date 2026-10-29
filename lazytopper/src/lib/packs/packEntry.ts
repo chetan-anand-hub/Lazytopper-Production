@@ -10,7 +10,8 @@
  * ★ OWNER RULE 1: wherever a pack link sits next to an ask, the Premium / Board Pass option is first and
  * primary; the pack link is second and smaller. RULE 2: never a pop-up, never on mount.
  *
- * Query contract for /packs (PacksPage adopts it; the coordinator wires it after both lanes merge):
+ * Query contract for /packs AND /pricing (both render the shared shop, components/packs/PacksShop; PRICING-ONE-1 points every
+ * link at /pricing, ad landings stay on /packs):
  *   /packs?chapter=<slug>   preselect that chapter and open the Chapter Pack pop-up
  *   /packs?mock=maths|science   open the Mock Pack pop-up on that subject
  *   /packs?pack=chapter|mock|subject|bundle|cbq   open that pack's pop-up (Google Ads sitelinks)
@@ -53,7 +54,10 @@ export function packsHref(opts: PacksHrefOptions = {}): string {
     : opts.mock === "maths" || opts.mock === "science"
       ? `?mock=${opts.mock}`
       : "";
-  return `/packs${query}${opts.hash ? `#${opts.hash}` : ""}`;
+  // PRICING-ONE-1: every price/pack link leads to the ONE pricing page (the shop on /pricing honours the same query). "My packs" is
+  // ownership, not price, so it stays on /packs.
+  if (opts.hash) return `/packs${query}#${opts.hash}`;
+  return `/pricing${query}#packs`;
 }
 
 export type PacksQueryPack = "chapter" | "mock" | "subject" | "bundle" | "cbq";

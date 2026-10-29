@@ -84,9 +84,9 @@ export default function PackPromoCard({ surface }: { surface: PackPromoSurface }
         ))}
       </ul>
       {inRouter ? (
-        <Link className="lt-pp__btn" to="/packs" onClick={onTap} data-testid="pack-promo-cta">See the packs {"→"}</Link>
+        <Link className="lt-pp__btn" to="/pricing#packs" onClick={onTap} data-testid="pack-promo-cta">See the packs {"→"}</Link>
       ) : (
-        <a className="lt-pp__btn" href="/packs" onClick={onTap} data-testid="pack-promo-cta">See the packs {"→"}</a>
+        <a className="lt-pp__btn" href="/pricing#packs" onClick={onTap} data-testid="pack-promo-cta">See the packs {"→"}</a>
       )}
     </section>
   );

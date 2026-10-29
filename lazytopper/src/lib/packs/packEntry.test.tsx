@@ -63,13 +63,13 @@ function Where() {
 const NONE = { chapter: null, mock: null, pack: null, subject: null, view: null };
 describe("packEntry helpers", () => {
   it("packsHref: chapter, hash, and unknown slugs dropped", () => {
-    expect(packsHref()).toBe("/packs");
-    expect(packsHref({ chapter: "triangles" })).toBe("/packs?chapter=triangles");
-    expect(packsHref({ chapter: "not-a-chapter" })).toBe("/packs");
+    expect(packsHref()).toBe("/pricing#packs");
+    expect(packsHref({ chapter: "triangles" })).toBe("/pricing?chapter=triangles#packs");
+    expect(packsHref({ chapter: "not-a-chapter" })).toBe("/pricing#packs");
     expect(packsHref({ chapter: null, hash: "my-packs" })).toBe("/packs#my-packs");
-    expect(packsHref({ mock: "science" })).toBe("/packs?mock=science");
-    expect(packsHref({ mock: "history" as never })).toBe("/packs");
-    expect(packsHref({ chapter: "circles", mock: "maths" })).toBe("/packs?chapter=circles");
+    expect(packsHref({ mock: "science" })).toBe("/pricing?mock=science#packs");
+    expect(packsHref({ mock: "history" as never })).toBe("/pricing#packs");
+    expect(packsHref({ chapter: "circles", mock: "maths" })).toBe("/pricing?chapter=circles#packs");
   });
   it("readPacksQuery reads pack / subject / view, ignores utm_*, and treats junk or repeats as absent", () => {
       for (const p of ["chapter", "mock", "subject", "bundle"]) expect(readPacksQuery(`?pack=${p}`)).toEqual({ ...NONE, pack: p });
@@ -132,7 +132,7 @@ describe("(b) notes", () => {
       const { container, unmount } = mount(slug);
       const card = await screen.findByTestId("note-pack-link", {}, { timeout: 8000 });
       expect(container.querySelectorAll('[data-testid="note-pack-link"]').length, slug).toBe(1);
-      expect(card.querySelector("a")!.getAttribute("href")).toBe(`/packs?chapter=${slug}`);
+      expect(card.querySelector("a")!.getAttribute("href")).toBe(`/pricing?chapter=${slug}#packs`);
       expect(card.textContent).toContain("Worked solutions · ₹49 · yours to keep");
       expect(card.textContent).toContain("See the Chapter Pack");
       const foot = container.querySelector(".lt-note__footnote")!;
@@ -164,7 +164,7 @@ describe("(c) footers", () => {
     FLAG_ON();
     render(<MemoryRouter><PublicLegalFooter /></MemoryRouter>);
     const a = await screen.findByRole("link", { name: "PDF packs" }, { timeout: 8000 });
-    expect(a.getAttribute("href")).toBe("/packs");
+    expect(a.getAttribute("href")).toBe("/pricing#packs");
     fireEvent.click(a);
     expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "footer" } });
     cleanup();
@@ -280,10 +280,10 @@ describe("paid Premium sees no pack offers (owner ruling 25 Oct 19:54)", () => {
       expect(await surfaces(true), tier).toEqual({ footer: true, notes: true, pricing: true });
     }
   });
-  it("paid premium: all three hidden", async () => {
+  it("paid premium: footer and notes offers stay hidden; the /pricing packs section is uniform (PRICING-ONE-1) and shows", async () => {
     FLAG_ON();
     setTier("premium");
-    expect(await surfaces(true)).toEqual({ footer: false, notes: false, pricing: false });
+    expect(await surfaces(true)).toEqual({ footer: false, notes: false, pricing: true });
   });
   it("paid premium who owns a pack still gets My packs (re-download access)", async () => {
     FLAG_ON();
@@ -302,15 +302,15 @@ describe("paid Premium sees no pack offers (owner ruling 25 Oct 19:54)", () => {
 
 describe("PACK-LINKS-1 packOfferFor", () => {
   it("one chapter -> Chapter Pack; a subject alone -> Mock Pack; anything else -> plain /packs", () => {
-    expect(packOfferFor({ chapters: ["triangles"] })).toEqual({ label: "Chapter Pack ₹49 →", priceLabel: "₹49", href: "/packs?chapter=triangles" });
-    expect(packOfferFor({ subject: "maths", kind: "mock" })).toEqual({ label: "Mock Pack ₹99 →", priceLabel: "₹99", href: "/packs?mock=maths" });
-    expect(packOfferFor({ chapters: [], subject: "science" }).href).toBe("/packs?mock=science");
-    expect(packOfferFor({ chapters: ["triangles", "circles"] }).href).toBe("/packs");
+    expect(packOfferFor({ chapters: ["triangles"] })).toEqual({ label: "Chapter Pack ₹49 →", priceLabel: "₹49", href: "/pricing?chapter=triangles#packs" });
+    expect(packOfferFor({ subject: "maths", kind: "mock" })).toEqual({ label: "Mock Pack ₹99 →", priceLabel: "₹99", href: "/pricing?mock=maths#packs" });
+    expect(packOfferFor({ chapters: [], subject: "science" }).href).toBe("/pricing?mock=science#packs");
+    expect(packOfferFor({ chapters: ["triangles", "circles"] }).href).toBe("/pricing#packs");
     expect(packOfferFor({ chapters: ["not-a-chapter"] }).label).toBe("PDF packs from ₹49 →");
-    expect(packOfferFor().href).toBe("/packs");
+    expect(packOfferFor().href).toBe("/pricing#packs");
   });
   it("kind decides when both a chapter and a subject are given", () => {
-    expect(packOfferFor({ chapters: ["triangles"], subject: "maths", kind: "mock" }).href).toBe("/packs?mock=maths");
-    expect(packOfferFor({ chapters: ["triangles"], subject: "maths", kind: "chapter" }).href).toBe("/packs?chapter=triangles");
+    expect(packOfferFor({ chapters: ["triangles"], subject: "maths", kind: "mock" }).href).toBe("/pricing?mock=maths#packs");
+    expect(packOfferFor({ chapters: ["triangles"], subject: "maths", kind: "chapter" }).href).toBe("/pricing?chapter=triangles#packs");
   });
 });

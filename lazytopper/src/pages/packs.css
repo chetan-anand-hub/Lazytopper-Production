@@ -139,3 +139,6 @@
   .lt-packs__copy { grid-column: 1; grid-row: 1; }
   .lt-packs__tiles { grid-column: 2; grid-row: 1; }
 }
+
+/* PRICING-ONE-1: My packs / status line when the shop sits inside /pricing (no full-page chrome). */
+.lt-packs.lt-packs--embedded { min-height: 0; padding-bottom: 0; background: transparent; max-width: 1040px; margin: 0 auto; width: 100%; }

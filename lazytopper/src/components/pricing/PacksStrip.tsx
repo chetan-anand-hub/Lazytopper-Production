@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, type PackSku } from "../../services/packs";
 import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
+import PacksShop from "../packs/PacksShop";
+import ParentReturnLink from "../parents/ParentReturnLink";
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import type { PacksQueryPack } from "../../lib/packs/packEntry";
 import CbqBand from "./CbqBand";
@@ -18,10 +20,11 @@ export const PACK_CREDIT_LIVE = true;
 export const PACK_CREDIT_LINE = "Take the Board Pass within 7 days and the pack price comes off.";
 
 /**
- * PacksStrip - the PDF packs as the LADDER to Premium on /pricing (PACKS-CLIENT-1, PACKS-UX-1, rebuilt by PRICING-LADDER-1 on the owner's
- * ruling of 28 Oct 2026: Premium first, the packs second - visible, not loud - and Basic last). A quiet section directly after the Premium
- * card: a heading, the four packs as links into /packs (the `?pack=` query contract of packEntry.ts), and a secondary link to /packs.
- * Lazy-loaded by PricingPage (not needed on first paint). Prices are copy: the server charges.
+ * PacksStrip - the PDF packs on /pricing (PACKS-CLIENT-1, PACKS-UX-1, PRICING-LADDER-1: Premium first, the packs second - visible, not loud -
+ * and Basic last). PRICING-ONE-1 (owner rulings 29 Oct 2026): /pricing is the ONE pricing page, the same for every account - signed out,
+ * Basic, trial AND paid Premium all see the CBQ band and every pack - and a visitor BUYS here: each tile opens the shared pack pop-up
+ * (components/packs/PacksShop, the same code path as /packs), so nobody has to leave /pricing. Lazy-loaded by PricingPage.
+ * Prices are copy: the server charges.
  */
 const ITEMS: ReadonlyArray<{ sku: PackSku; query: PacksQueryPack; name: string; what: string; best?: boolean }> = [
   { sku: "pack_chapter", query: "chapter", name: "Chapter Pack", what: "Every question of 1 chapter, with worked solutions" },
@@ -37,21 +40,27 @@ const USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
 const FROM_PRICE = Math.min(...ITEMS.map((i) => PACK_PRICE_INR[i.sku]));
 
 export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLive?: boolean } = {}) {
-  // Owner ruling 25 Oct: a student who has BOUGHT Premium (cached read; signed out / not yet hydrated -> shown) is shown no pack offers.
-  const paid = usePaidPremium();
   // PACK-BASIC-ONLY-1 / PACK-ANCHOR-FIX-1 - the walls link to /pricing#packs. This strip mounts after first paint (lazy), so the
   // browser's own hash scroll has already missed it, and content above it (Premium card, founding offer, other lazy parts) can still
   // grow after our first scroll and push it below the fold. So: scroll the strip's TOP to the top of the viewport on mount, then
   // re-assert on the next frames and after ~300 ms / ~900 ms, and stop the moment the student scrolls, touches or presses a key.
+  // PRICING-ONE-1: the page is uniform; the ONLY thing a paid student does not see is the "take the Board Pass and the pack price comes off"
+  // line - they already have the Board Pass (cached read; signed out / not yet hydrated -> shown).
+  const paid = usePaidPremium();
   const { hash } = useLocation();
   const ref = useRef<HTMLElement | null>(null);
+  const topRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (hash !== "#packs" || paid) return undefined;
+    if (hash !== "#packs" && hash !== "#cbq") return undefined;
     let stopped = false;
     const timers: number[] = [];
     const frames: number[] = [];
     const assert = () => {
-      if (!stopped) ref.current?.scrollIntoView?.({ block: "start" });
+      if (stopped) return;
+      // #packs -> the strip's top; #cbq -> the CBQ band (both mount after first paint, hence the re-assert).
+      // (#cbq lands on the wrapper above the band so the "Back to parents page" link, when shown, stays in view.)
+      const el = hash === "#cbq" ? topRef.current : ref.current;
+      el?.scrollIntoView?.({ block: "start" });
     };
     const stop = () => {
       stopped = true;
@@ -71,44 +80,54 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
     // The last re-assert also ends the watch.
     timers.push(window.setTimeout(stop, 950));
     return stop;
-  }, [hash, paid]);
-  if (paid) return null;
+  }, [hash]);
   return (
-    <>
-    {/* CBQ-PACK-1: the CBQ band sits right after the Premium block and before the other packs. Paid Premium sees neither. */}
-    <CbqBand
-      headingId="pricing-cbq-h"
-      action={(s) => (
-        <Link to={`/packs?pack=cbq&subject=${s}`} className="lt-cbq__btn" data-testid={`pricing-cbq-${s}`}>
-          {`${s === "maths" ? "Maths" : "Science"} CBQ Pack · ${packPriceLabel("pack_cbq")}`}
-        </Link>
+    <PacksShop embedded returnPath="/pricing">
+      {({ openPack, openCbq }) => (
+        <>
+          {/* PRICING-ONE-1: a visitor who came from /for-parents (?from=for_parents) gets the way back here too, since #packs / #cbq land mid-page.
+              Renders nothing for anyone else (the wrapper is :empty -> display none). */}
+          <div id="pricing-packs-top" ref={topRef} className="lt-packoffer-top">
+            <ParentReturnLink testId="parent-return-cbq" />
+          </div>
+          {/* CBQ-PACK-1: the CBQ band sits right after the Premium block and before the other packs. PRICING-ONE-1: shown to EVERY account. */}
+          <CbqBand
+            headingId="pricing-cbq-h"
+            action={(s) => (
+              <button type="button" className="lt-cbq__btn" onClick={() => openCbq(s)} aria-haspopup="dialog" data-testid={`pricing-cbq-${s}`}>
+                {`${s === "maths" ? "Maths" : "Science"} CBQ Pack · ${packPriceLabel("pack_cbq")}`}
+              </button>
+            )}
+          />
+          <section id="packs" ref={ref} className="lt-packoffer" aria-labelledby="lt-packoffer-h" data-testid="pricing-packs-strip">
+            <ParentReturnLink testId="parent-return-packs" />
+            <div className="lt-packoffer__head">
+              <h2 className="lt-packoffer__title" id="lt-packoffer-h">PDF packs: printed practice, one-time</h2>
+              <p className="lt-packoffer__sub">From &#8377;{FROM_PRICE} &middot; one-time &middot; never renews &middot; buy any pack right here</p>
+            </div>
+            <ul className="lt-packoffer__list">
+              {ITEMS.map((i) => (
+                <li key={i.sku} className="lt-packoffer__cell" data-price={PACK_PRICE_INR[i.sku]}>
+                  <button
+                    type="button"
+                    onClick={() => openPack(i.sku)}
+                    aria-haspopup="dialog"
+                    className={i.best ? "lt-packoffer__item lt-packoffer__item--best" : "lt-packoffer__item"}
+                    data-pack={i.query}
+                  >
+                    <span className="lt-packoffer__name">{i.name}</span>
+                    <span className="lt-packoffer__price">{packPriceLabel(i.sku)}</span>
+                    <span className="lt-packoffer__what">{i.what}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="lt-packoffer__foot">
+              {creditLive && !paid && <p className="lt-packoffer__credit" data-testid="pricing-pack-credit">{PACK_CREDIT_LINE}</p>}
+            </div>
+          </section>
+        </>
       )}
-    />
-    <section id="packs" ref={ref} className="lt-packoffer" aria-labelledby="lt-packoffer-h" data-testid="pricing-packs-strip">
-      <div className="lt-packoffer__head">
-        <h2 className="lt-packoffer__title" id="lt-packoffer-h">Not ready for Premium yet? Start with a PDF pack</h2>
-        <p className="lt-packoffer__sub">Printed practice from &#8377;{FROM_PRICE} &middot; one-time &middot; never renews</p>
-      </div>
-      <ul className="lt-packoffer__list">
-        {ITEMS.map((i) => (
-          <li key={i.sku} className="lt-packoffer__cell" data-price={PACK_PRICE_INR[i.sku]}>
-            <Link
-              to={`/packs?pack=${i.query}`}
-              className={i.best ? "lt-packoffer__item lt-packoffer__item--best" : "lt-packoffer__item"}
-              data-pack={i.query}
-            >
-              <span className="lt-packoffer__name">{i.name}</span>
-              <span className="lt-packoffer__price">{packPriceLabel(i.sku)}</span>
-              <span className="lt-packoffer__what">{i.what}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <div className="lt-packoffer__foot">
-        {creditLive && <p className="lt-packoffer__credit" data-testid="pricing-pack-credit">{PACK_CREDIT_LINE}</p>}
-        <Link to="/packs" className="lt-packoffer__link">See all PDF packs</Link>
-      </div>
-    </section>
-    </>
+    </PacksShop>
   );
 }

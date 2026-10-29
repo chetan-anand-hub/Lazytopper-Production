@@ -321,12 +321,12 @@ describe("GUIDE-QP-1 · packs and quick intents", () => {
       expect(p.intent).toBe("packs");
       expect(p.line).toBe(GUIDE_LINES.packs);
       expect(p.options.map((o) => o.id)).toEqual(["packs", "cbq", "quick", "chapter_test", "check_one"]);
-      expect(p.options[0].action).toEqual({ kind: "route", path: "/packs" });
+      expect(p.options[0].action).toEqual({ kind: "route", path: "/pricing#packs" });
     }
   });
 
   it("packs — dropped when the /packs route is unknown, never a missing page", () => {
-    const p = buildGuidePlan(input({ landing: "/packs" }), { ...deps, routeExists: (x) => x !== "/packs" });
+    const p = buildGuidePlan(input({ landing: "/packs" }), { ...deps, routeExists: (x) => x !== "/pricing#packs" });
     expect(p.options.some((o) => o.id === "packs")).toBe(false);
   });
 
