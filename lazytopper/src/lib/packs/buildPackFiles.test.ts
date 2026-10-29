@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { buildPackFiles, groupPackFiles, type BuildContext, type PackFile } from "./buildPackFiles";
 import { CBQ_PACK_EXCLUDED_IDS, CBQ_MIN_CASE_CHARS, cbqPackRows, isCbqPackRow, chapterPackRows, countChapterQuestions, groupBySection, isExcludedFromPacks, isStepMarked, loadChapter, splitIntoParts, MAX_QUESTIONS_PER_DOC } from "./packContent";
 import { PACK_CHAPTER_SLUGS, chaptersOfSubject, type OwnedPack } from "../../services/packs";
+import { CBQ_CHAPTER_CLAIM, CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_SUBJECT_CLAIM } from "./packLabels";
 import { isCbq } from "../cbq/cbqClassification";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
@@ -206,6 +207,19 @@ describe("buildPackFiles — mock, subject, bundle", () => {
 });
 
 describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
+  it("the copy's claim holds on the real selection: each subject >= CBQ_MIN_PER_SUBJECT and every chapter >= CBQ_MIN_PER_CHAPTER", async () => {
+    for (const subject of ["maths", "science"] as const) {
+      let total = 0;
+      for (const slug of chaptersOfSubject(subject)) {
+        await loadChapter(slug);
+        const n = cbqPackRows(slug).length;
+        expect(n, `${slug} (claim: ${CBQ_CHAPTER_CLAIM})`).toBeGreaterThanOrEqual(CBQ_MIN_PER_CHAPTER);
+        total += n;
+      }
+      expect(total, `${subject} (claim: ${CBQ_SUBJECT_CLAIM})`).toBeGreaterThanOrEqual(CBQ_MIN_PER_SUBJECT);
+    }
+  }, 60000);
+
   it("selection: only served CBQs that are step-marked and figure-safe; real cases only; none of the owner's defect ids", async () => {
     for (const slug of ["real-numbers", "carbon-and-its-compounds", "our-environment", "arithmetic-progression"]) {
       await loadChapter(slug);

@@ -26,6 +26,7 @@ import {
   MOCKS_PER_SUBJECT,
   SCIENCE_NCERT_CHAPTERS,
   packChapterLabel,
+  CBQ_SUBJECT_CLAIM,
 } from "./packLabels";
 
 export interface PackManifestItem {
@@ -200,7 +201,7 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
     }
     case "pack_cbq":
       return [
-        { label: "Competency questions", value: questions !== null ? nf(questions) : "Every chapter" },
+        { label: "Competency questions", value: CBQ_SUBJECT_CLAIM },
         { label: "Chapters", value: String(chaptersOfSubject(subject).length) },
         { label: "Formats", value: "MCQ \u00b7 Assertion-Reason \u00b7 Case study \u00b7 Long answer" },
         { label: "Worked step-wise solutions", value: "Every question" },

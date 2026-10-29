@@ -36,7 +36,6 @@ import {
 } from "../services/packs";
 import { BUNDLE_NAME, REDOWNLOAD_COPY, REDOWNLOAD_SHORT, packChapterLabel } from "../lib/packs/packLabels";
 import { readPacksQuery } from "../lib/packs/packEntry";
-import { useCbqTotals } from "../lib/packs/useCbqTotals";
 import CbqBand from "../components/pricing/CbqBand";
 import "./packs.css";
 
@@ -127,8 +126,6 @@ export default function PacksPage() {
   const [mineError, setMineError] = useState<false | "failed" | "details">(false);
   const [chapter, setChapter] = useState("");
   const [subject, setSubject] = useState<PackSubject>("maths");
-  const [cbqWanted, setCbqWanted] = useState(false);
-  const cbqTotals = useCbqTotals(cbqWanted);
   const [openSku, setOpenSku] = useState<PackSku | null>(null);
   const [entrySlide, setEntrySlide] = useState(0);
   const [buy, setBuy] = useState<BuyState>({ key: "", phase: "idle" });
@@ -178,7 +175,6 @@ export default function PacksPage() {
 
   function onSubject(next: PackSubject) {
     setSubject(next);
-    setCbqWanted(true);
     requestCounts();
   }
   function onChapter(slug: string) {
@@ -188,7 +184,6 @@ export default function PacksPage() {
   function openPack(sku: PackSku) {
     setEntrySlide(0);
     setOpenSku(sku);
-    if (sku === "pack_cbq") setCbqWanted(true);
     requestCounts(sku === "pack_chapter" && chapter ? chapter : undefined);
   }
   const closePack = useCallback(() => {
@@ -219,7 +214,6 @@ export default function PacksPage() {
     }
     if (!sku) return;
     entryDone.current = true;
-    if (sku === "pack_cbq") setCbqWanted(true);
     if (chosenChapter) setChapter(chosenChapter);
     if (chosenSubject) setSubject(chosenSubject);
     setEntrySlide(q.view === "sample" ? 1 : 0);
@@ -340,7 +334,7 @@ export default function PacksPage() {
 
   const dialogTarget = openSku === "pack_chapter" ? chapter || undefined : openSku === "pack_mock" || openSku === "pack_subject" || openSku === "pack_cbq" ? subject : undefined;
   const dialogQuestions =
-    openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? cbqTotals[subject] : openSku === "pack_bundle" ? bundleTotal : null;
+    openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
   const showMine = Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
   const afterPay = buy.phase === "paid" || buy.phase === "checking" || buy.phase === "confirming";
 
@@ -390,8 +384,6 @@ export default function PacksPage() {
           <div className="lt-packs__cbqwrap">
             <CbqBand
               headingId="packs-cbq-h"
-              totals={cbqTotals}
-              onTouch={() => setCbqWanted(true)}
               action={(s) => (
                 <button type="button" className="lt-cbq__btn" onClick={() => { setSubject(s); openPack("pack_cbq"); }} aria-haspopup="dialog" data-testid={`packs-card-cbq-${s}`}>
                   {`${subjectLabel(s)} CBQ Pack · ${packPriceLabel("pack_cbq")}`}

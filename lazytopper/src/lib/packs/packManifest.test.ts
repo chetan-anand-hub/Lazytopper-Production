@@ -59,7 +59,6 @@ describe("packManifest", () => {
     expect(m.groups[0].heading).toBe("Start here");
     expect(m.groups).toHaveLength(14);
     expect(m.chapterPacks).toBe(13);
-    expect(packSummaryRows("pack_cbq", "maths")[0].value).toBe("Every chapter");
-    expect(packSummaryRows("pack_cbq", "maths", 1234)[0]).toEqual({ label: "Competency questions", value: "1,234" });
+    expect(packSummaryRows("pack_cbq", "maths")[0]).toEqual({ label: "Competency questions", value: "1,400+ CBQs" });
   });
 });

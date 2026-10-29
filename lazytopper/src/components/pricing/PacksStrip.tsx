@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, type PackSku } from "../../services/packs";
 import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import type { PacksQueryPack } from "../../lib/packs/packEntry";
 import CbqBand from "./CbqBand";
-import { useCbqTotals } from "../../lib/packs/useCbqTotals";
 import "./packsStrip.css";
 
 /**
@@ -73,16 +72,12 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
     timers.push(window.setTimeout(stop, 950));
     return stop;
   }, [hash, paid]);
-  const [cbqWanted, setCbqWanted] = useState(false);
-  const cbqTotals = useCbqTotals(cbqWanted && !paid);
   if (paid) return null;
   return (
     <>
     {/* CBQ-PACK-1: the CBQ band sits right after the Premium block and before the other packs. Paid Premium sees neither. */}
     <CbqBand
       headingId="pricing-cbq-h"
-      totals={cbqTotals}
-      onTouch={() => setCbqWanted(true)}
       action={(s) => (
         <Link to={`/packs?pack=cbq&subject=${s}`} className="lt-cbq__btn" data-testid={`pricing-cbq-${s}`}>
           {`${s === "maths" ? "Maths" : "Science"} CBQ Pack · ${packPriceLabel("pack_cbq")}`}

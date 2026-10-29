@@ -95,11 +95,10 @@ describe("PacksPage", () => {
     for (const line of ["13 chapters", "MCQ · Assertion-Reason · Case study · Long answer", "Your name on every page", "download till May 2027", "Made by an IITian (IIT Kanpur)"]) {
       expect(band.textContent, line).toContain(line);
     }
-    expect(band.textContent).toContain("Every competency question"); // no count, and no bank fetch, until the band is touched
+    // the claim is a static floor, visible without any interaction and without loading the bank
+    expect(screen.getByTestId("cbq-card-science").textContent).toContain("1,400+ CBQs · every chapter · every mark value 1–5 · step-wise solutions");
+    expect(band.textContent).toContain("100+ in every chapter");
     expect(loads.n).toBe(0);
-    fireEvent.pointerEnter(band);
-    // computed from the selection (13 chapters x 50 in this mock), never typed
-    await waitFor(() => expect(screen.getByTestId("cbq-card-science").textContent).toContain("650 CBQs · every chapter · every mark value 1–5 · step-wise solutions"), { timeout: 3000 });
     fireEvent.click(screen.getByTestId("packs-card-cbq-science"));
     const dlg = await screen.findByRole("dialog");
     expect(dlg.textContent).toContain("Science CBQ Pack");
