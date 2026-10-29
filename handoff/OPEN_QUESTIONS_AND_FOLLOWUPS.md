@@ -23,6 +23,28 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-29 (daily, part 2) - #1409 - #1410 - #1411 - #1412 - #1413 - #1414 - #1415 (7 product merges after the morning docs PR; `#1399` open) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `d04bb1e8`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator's dispatch spec and the PR bodies **[coordinator]**; this builder re-derived none of the code facts.
+
+### [FU-TUTOR-PICK-HISTORY]
+Evidence [coordinator; `#1415` PR body]: wrong MCQ taps are not stored on mistake entries (nor on attempts), so the option a student picked on a PAST mistake cannot reach the tutor. Only the Check and Improve / Quick Practice return opener knows the tap, and `#1415` carries it through `meta {q, pick?, correct?}`. Fixing it means storing the pick on the mistake entry; its own lane, and a persistence change.
+
+### [FU-TUTOR-PAPER-STEMS]
+Evidence [coordinator; `#1415` PR body]: paper question ids (`ws:/`, `ct:/`, `fm:/` prefixes) have no bank stem, so the tutor cannot quote the question for a mistake from a Worksheet, Chapter Test or Full Mock; it says it does not see the text. The brief's recent-mistake stems come only from bare bank ids.
+
+### [FU-TUTOR-CONCEPT-LASTSEEN]
+Evidence [coordinator; `#1415` PR body]: there is no per-concept last-seen date in the read model, so the brief omits `lastSeen` (and `sessionsThisWeek`, `lastActiveIST`) rather than invent it. Needs a read-model derivation first.
+
+### [FU-PACKVIEW-SURFACE]
+Evidence [coordinator]: the `pack_view` event now carries `surface` = `pricing` or `packs` (the shop is embedded in `/pricing` after `#1414`, which also adds an `embedded` mode with no `pack_view` hit of its own). The funnel baselines shift from 30 Oct: compare pack views by surface, and do not read a drop on `/packs` as lost interest. Not re-derived in code by this builder.
+
+### [FU-PARENTS-PAID-HIDDEN]
+Evidence [coordinator; `#1409`, `#1411`, `#1413` PR bodies]: paid Premium still does not see the packs section, hero link or band on `/for-parents`. That conflicts with the 29 Oct ruling that packs are sold separately even to paid Premium (the `/pricing` page shows them to paid Premium since `#1414`). Decide whether `/for-parents` should show them to a paid account too (a parent may be the payer for a child on Premium).
+
+### [FU-PRERENDER-FORPARENTS-PRICE-AFTER-30NOV] - UPDATE 29 Oct
+`#1410` added `prerenderPrice.guard.test.ts` (the PR asks this entry to mention it). With the pinned clock set to 2026-11-18 the for-parents Board Pass check fails against today's snapshot, so the guard turns the 30 Nov price change into a red CI instead of a silent stale price. Not guarded, by design: the "about Rs N a day" line and the Month pass on `pricing.html` / `index.html`. The real-snapshot test skips under `LT_TEST_CLOCK` jobs (2030 / IST-midnight); the mutation test always runs. The re-capture still has to be done through the capture-job artifact flow.
+
 ## 2026-10-29 (daily) - #1405 - #1406 - #1407 (3 product merges, 29 Oct IST; `#1399` open) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `001dcea5`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator's dispatch spec **[coordinator]**; this builder re-derived none of the code facts.
