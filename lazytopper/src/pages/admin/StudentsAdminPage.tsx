@@ -80,12 +80,12 @@ function SummaryCards({ state, periodLabel }: { state: SummaryState; periodLabel
         </div>
         {s.triedQuickPractice && (
           <div className="sa-card" data-testid="sa-tried-qp">
-            <span className="sa-card-label">Tried Quick Practice</span>
+            <span className="sa-card-label">Tried practice (tap or QP)</span>
             <span className="sa-card-value">
               {s.triedQuickPractice.eligible === 0 ? "—" : `${s.triedQuickPractice.tried} / ${s.triedQuickPractice.eligible}`}
             </span>
             <span className="sa-card-note">
-              of students who signed up on or after {formatDayKey(s.triedQuickPractice.since)} with at least one graded Quick Practice answer
+              of students who signed up on or after {formatDayKey(s.triedQuickPractice.since)} with at least one tapped or graded Quick Practice answer
             </span>
           </div>
         )}
@@ -454,7 +454,7 @@ export default function StudentsAdminPage() {
                         <th scope="col">Days active</th>
                         <th scope="col">C&amp;I sessions</th>
                         <th scope="col">Tests</th>
-                        <th scope="col">QP answers</th>
+                        <th scope="col">Practice answers (QP + taps)</th>
                         <th scope="col">Last active</th>
                         <th scope="col">AI cost (30 days, INR)</th>
                       </tr>
@@ -507,7 +507,7 @@ export default function StudentsAdminPage() {
                               since={list.data.sources.sessionRecords.since}
                             />
                           </td>
-                          <td data-label="QP answers">
+                          <td data-label="Practice answers (QP + taps)">
                             {row.quickPractice ? (
                               <Covered
                                 count={row.quickPractice.count}

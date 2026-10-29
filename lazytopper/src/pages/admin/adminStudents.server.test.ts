@@ -20,6 +20,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { PRACTICE_CARD_SURFACE } from "../../services/attemptDedupKey";
 import { fileURLToPath } from "node:url";
 
 const requireCjs = createRequire(import.meta.url);
@@ -28,6 +29,8 @@ const mod = requireCjs("../../../server/routes/adminStudents.cjs") as {
     handle: (req: FakeReq, res: FakeRes) => Promise<void>;
   };
   DATA_SOURCES: Record<string, { since: string }>;
+  QUICK_PRACTICE_SURFACE: string;
+  PRACTICE_CARD_SURFACE: string;
   PAGE_SIZE: number;
   istDayStartMs: (key: string) => number;
   addIstDays: (key: string, n: number) => string;
@@ -428,10 +431,11 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
         "sessionRecords/stu000/records/CT-1": { surface: "chapter-test", gradedAt: NOW - 3600_000 },
         "sessionRecords/stu000/records/FM-1": { surface: "full-mock", gradedAt: NOW - 3600_000 },
         "sessionRecords/stu000/records/WS-1": { surface: "worksheet", gradedAt: NOW - 3600_000 },
-        // GUIDE-QP-1: two Quick Practice answers + one non-QP attempt (must NOT count)
+        // GUIDE-QP-1: two Quick Practice answers + one non-QP attempt (other surfaces excluded below)
         "practiceInsights/stu000/attempts/stu000::quick-practice::sess1::q1": { timestamp: NOW },
         "practiceInsights/stu000/attempts/stu000::quick-practice::sess1::q2": { timestamp: NOW },
-        "practiceInsights/stu000/attempts/stu000::practice::::q9": { timestamp: NOW },
+        "practiceInsights/stu000/attempts/stu000::practice::::q9": { timestamp: NOW }, // a tapped MCQ card: counts
+        "practiceInsights/stu000/attempts/stu000::check-improve::s::q8": { timestamp: NOW }, // other surface: must NOT count
         "practiceInsights/veteran0001/attempts/veteran0001::quick-practice::s::q1": { timestamp: NOW },
       };
       return { now: NOW, users, store };
@@ -509,11 +513,16 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       expect(row.testsTaken).toEqual({ source: "sessionRecords", coverage: "full", count: 3 });
     });
 
-    it("★ GUIDE-QP-1: per-row Quick Practice answers count only quick-practice attempts; none is 0; old accounts are partial; read-only", async () => {
+    it("★ GUIDE-QP-1: the server's surface literals equal the client constants (cannot drift)", () => {
+      expect(mod.PRACTICE_CARD_SURFACE).toBe(PRACTICE_CARD_SURFACE);
+      expect(mod.QUICK_PRACTICE_SURFACE).toBe("quick-practice");
+    });
+
+    it("★ GUIDE-QP-1: per-row practice answers count quick-practice + tapped-card attempts only; none is 0; old accounts are partial; read-only", async () => {
       const w = buildRoutes(listWorld());
       const r = await w.get("/api/admin/students", "admin-token");
       const row = r.body.rows.find((x: { uid: string }) => x.uid === "stu000");
-      expect(row.quickPractice).toEqual({ source: "practiceAttempts", coverage: "full", count: 2 });
+      expect(row.quickPractice).toEqual({ source: "practiceAttempts", coverage: "full", count: 3 });
       const none = r.body.rows.find((x: { uid: string }) => x.uid === "stu001");
       expect(none.quickPractice).toEqual({ source: "practiceAttempts", coverage: "full", count: 0 });
       const p2 = await w.get("/api/admin/students?page=2", "admin-token");
@@ -609,7 +618,7 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
     it("★ GUIDE-QP-1: 'tried Quick Practice' counts only students inside practiceAttempts coverage", async () => {
       const world = summaryWorld();
       world.store["practiceInsights/ret0000001/attempts/ret0000001::quick-practice::s::q1"] = { timestamp: NOW };
-      world.store["practiceInsights/old0000001/attempts/old0000001::quick-practice::s::q1"] = { timestamp: NOW };
+      world.store["practiceInsights/old0000001/attempts/old0000001::practice::::q1"] = { timestamp: NOW }; // a tap counts
       const w = buildRoutes(world);
       const r = await w.get("/api/admin/students/summary?period=all", "admin-token");
       // old0000001 signed up 2026-09-01 (after 2026-07-01), so it is eligible too.

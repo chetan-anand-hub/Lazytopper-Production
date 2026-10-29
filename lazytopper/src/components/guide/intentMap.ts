@@ -112,7 +112,7 @@ export const GUIDE_MAX_OPTIONS = 5;
 
 export const GUIDE_LINES = {
   default: "Hey! I'm Byte. What do you want to do today?",
-  cbq: "Came from the CBQ Short? Start here:",
+  cbq: "Here for CBQs? Start here:",
   chapter: (name: string) => `Doing ${name}? These will help:`,
   important: "Important questions? Start here:",
   papers: "Sample paper prep? Try these:",

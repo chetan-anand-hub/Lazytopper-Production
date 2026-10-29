@@ -33,12 +33,12 @@
  *
  * ★ BOUNDED READS (worst case per request, Firestore document reads; a query that matches
  * nothing still bills 1, a count() bills 1 per 1000 index entries):
- *   list    : 50 rows x 7 = 350            (+ up to MAX_PLAN_SCAN = 1000 with a plan filter)
+ *   list    : 50 rows x 8 = 400            (+ up to MAX_PLAN_SCAN = 1000 with a plan filter)
  *             (the 6th is signupSources/{uid} — SOURCE-1, one getAll document read per row)
  *             + COST-1: up to 30 ledger day documents per row = at most 1500 more
  *             (fewer for a new account: its window starts on its sign-up day)
- *   summary : up to MAX_SUMMARY_STUDENTS = 500 subscriptions + 4 per eligible student
- *             (GUIDE-QP-1 adds one Quick Practice count) = at most 2500
+ *   summary : up to MAX_SUMMARY_STUDENTS = 500 subscriptions + 5 per eligible student
+ *             (GUIDE-QP-1 adds two practice-answer counts) = at most 3000
  *   ai-cost : COST-1, loaded on request: up to MAX_COST_STUDENTS = 500 subscriptions +
  *             500 x MAX_COST_DAYS (30) ledger day documents = at most 15,500; the response
  *             returns the exact count in `reads`
@@ -81,6 +81,9 @@ const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 const SESSION_RECORDS_COLLECTION = 'sessionRecords';
 const PRACTICE_INSIGHTS_COLLECTION = 'practiceInsights';
 const QUICK_PRACTICE_SURFACE = 'quick-practice';
+// Literal copy of PRACTICE_CARD_SURFACE (src/services/attemptDedupKey.ts): tapped MCQ answers on
+// PracticeQuestionCard. Pinned equal to the client constant in adminStudents.server.test.ts.
+const PRACTICE_CARD_SURFACE = 'practice';
 const MOCK_SCORE_HISTORY_COLLECTION = 'mockScoreHistory';
 const READ_SEGMENTS = Object.freeze({
   payments: 'payments',
@@ -534,26 +537,30 @@ function createAdminStudentsRoutes(deps = {}) {
     return db().collection(ACTIVITY_COLLECTION).doc(uid).collection(ACTIVITY_SEGMENTS.days);
   }
   /**
-   * GUIDE-QP-1 — Quick Practice answers of one student: practiceInsights/{uid}/attempts docs
-   * whose id starts "<uid>::quick-practice::" (recordAttempt's id = the submission identity,
-   * which leads with the grading surface). One count() query, bounded, names nothing. `null` =
+   * GUIDE-QP-1 — Practice answers of one student (graded Quick Practice + tapped MCQ cards): practiceInsights/{uid}/attempts docs
+   * whose id starts "<uid>::quick-practice::" or "<uid>::practice::" (recordAttempt's id = the submission identity,
+   * which leads with the grading surface). Two count() queries, bounded, names nothing. `null` =
    * unknown (a failed read or no FieldPath), never 0.
    */
-  function quickPracticeQuery(uid) {
+  function practiceAnswerQueries(uid) {
     const FieldPath = firebaseAdmin && firebaseAdmin.firestore && firebaseAdmin.firestore.FieldPath;
     if (!FieldPath || typeof FieldPath.documentId !== 'function') return null;
-    const prefix = `${uid}::${QUICK_PRACTICE_SURFACE}::`;
-    return db()
-      .collection(PRACTICE_INSIGHTS_COLLECTION)
-      .doc(uid)
-      .collection(READ_SEGMENTS.attempts)
-      .where(FieldPath.documentId(), '>=', prefix)
-      .where(FieldPath.documentId(), '<', `${prefix}\uf8ff`);
+    return [QUICK_PRACTICE_SURFACE, PRACTICE_CARD_SURFACE].map((surface) => {
+      const prefix = `${uid}::${surface}::`;
+      return db()
+        .collection(PRACTICE_INSIGHTS_COLLECTION)
+        .doc(uid)
+        .collection(READ_SEGMENTS.attempts)
+        .where(FieldPath.documentId(), '>=', prefix)
+        .where(FieldPath.documentId(), '<', `${prefix}\uf8ff`);
+    });
   }
   async function quickPracticeCount(uid) {
     try {
-      const q = quickPracticeQuery(uid);
-      return q ? await safeCount(q) : null;
+      const qs = practiceAnswerQueries(uid);
+      if (!qs) return null;
+      const counts = await Promise.all(qs.map((q) => safeCount(q)));
+      return counts.some((n) => n === null) ? null : counts.reduce((a, n) => a + n, 0);
     } catch {
       return null;
     }
@@ -1199,6 +1206,8 @@ module.exports = {
   MAX_COST_DAYS,
   MAX_COST_STUDENTS,
   DATA_SOURCES,
+  QUICK_PRACTICE_SURFACE,
+  PRACTICE_CARD_SURFACE,
   PAGE_SIZE,
   MAX_AUTH_PAGES,
   MAX_PLAN_SCAN,
