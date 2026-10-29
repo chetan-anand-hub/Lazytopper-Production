@@ -26,12 +26,14 @@ import {
   fetchMyPacks,
   isAlreadyOwned,
   isPacksClientEnabled,
+  isValidPackTarget,
   packDescription,
   packIdOf,
   packPriceLabel,
   type MyPacks,
   type OwnedPack,
   type PackSku,
+  PACK_SKUS,
   type PackSubject,
 } from "../services/packs";
 import { BUNDLE_NAME, REDOWNLOAD_COPY, REDOWNLOAD_SHORT, packChapterLabel } from "../lib/packs/packLabels";
@@ -41,6 +43,47 @@ import "./packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
 export const PACKS_RETURN_PATH = "/packs";
+
+/** The one-line promise under a signed-out Buy button. */
+export const PACK_SIGNIN_NOTE = "Quick sign-in (Google, 1 tap), then payment opens.";
+
+/** The single value of a query param, or null when absent or repeated. */
+function onlyOne(q: URLSearchParams, key: string): string | null {
+  const all = q.getAll(key);
+  return all.length === 1 ? all[0] : null;
+}
+
+/**
+ * PACKS-BUY-RESUME-1 — the sign-in return path for a signed-out Buy: `/packs?buy=<sku>&t=<target>` (+ `from` when the
+ * page was opened with a plain one). Internal path, no `scheme:` token, so Login's safe-redirect guard accepts it.
+ */
+export function packsResumePath(sku: PackSku, target: string | undefined, search: string): string {
+  const out = new URLSearchParams();
+  out.set("buy", sku);
+  if (target) out.set("t", target);
+  try {
+    const from = onlyOne(new URLSearchParams(search), "from");
+    if (from && /^[a-z0-9_-]{1,32}$/i.test(from)) out.set("from", from);
+  } catch {
+    /* no from */
+  }
+  return `${PACKS_RETURN_PATH}?${out.toString()}`;
+}
+
+/** Reads `?buy=&t=` and returns a whitelisted { sku, target }, or null (anything unknown, repeated or mistargeted). */
+export function readBuyResume(search: string): { sku: PackSku; target: string | undefined } | null {
+  try {
+    const q = new URLSearchParams(search);
+    const sku = onlyOne(q, "buy");
+    if (!sku || !(PACK_SKUS as readonly string[]).includes(sku)) return null;
+    const t = onlyOne(q, "t");
+    if (sku === "pack_bundle") return { sku: "pack_bundle", target: undefined };
+    if (!t || !isValidPackTarget(sku as PackSku, t)) return null;
+    return { sku: sku as PackSku, target: t };
+  } catch {
+    return null;
+  }
+}
 
 const PackDialog = lazy(() => import("./PackDialog"));
 
@@ -234,7 +277,7 @@ export default function PacksPage() {
   async function handleBuy(sku: PackSku, target: string | undefined) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
     if (!user) {
-      navigate(withSigninRedirect("/login", PACKS_RETURN_PATH));
+      navigate(withSigninRedirect("/login", packsResumePath(sku, target, location.search)));
       return;
     }
     const key = packIdOf(sku, target);
@@ -292,6 +335,33 @@ export default function PacksPage() {
     }
   }
 
+  // PACKS-BUY-RESUME-1: back from sign-in with ?buy=<sku>&t=<target>. Once the account, the flag and My packs are
+  // known: strip the params FIRST (reload/back never re-triggers), open that pack's pop-up and start checkout once.
+  // An owned pack goes through handleBuy's own owned phase (no order). If My packs failed to load we only open the
+  // pop-up: we never start a payment without knowing what the student already owns.
+  const resumeDone = useRef(false);
+  const handleBuyRef = useRef(handleBuy);
+  handleBuyRef.current = handleBuy;
+  useEffect(() => {
+    if (resumeDone.current || authLoading || !user || !enabled) return;
+    const want = readBuyResume(location.search);
+    if (!want) return;
+    if (mine === null && mineError === false) return; // My packs still loading
+    resumeDone.current = true;
+    const rest = new URLSearchParams(location.search);
+    rest.delete("buy");
+    rest.delete("t");
+    const search = rest.toString();
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
+    entryDone.current = true;
+    if (want.sku === "pack_chapter" && want.target) setChapter(want.target);
+    else if (want.target) setSubject(want.target as PackSubject);
+    setEntrySlide(0);
+    setOpenSku(want.sku);
+    requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
+    if (mine !== null) void handleBuyRef.current(want.sku, want.target);
+  }, [authLoading, user, enabled, mine, mineError, location.search, location.pathname, location.hash, navigate, requestCounts]);
+
   const mathsTotal = subjectTotal("maths");
   const scienceTotal = subjectTotal("science");
   const bundleTotal = mathsTotal !== null && scienceTotal !== null ? mathsTotal + scienceTotal : null;
@@ -312,7 +382,8 @@ export default function PacksPage() {
     else if (!ready) label = "Choose a chapter first";
     else if (isOwned) label = "You own this";
     else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
-    else if (!user && !authLoading) label = `Sign in to buy · ${packPriceLabel(sku)}`;
+    else if (!user && !authLoading) label = `Buy · ${packPriceLabel(sku)}`;
+    const showSigninNote = enabled && ready && !isOwned && !busy && !user && !authLoading;
     return (
       <>
         <button
@@ -324,6 +395,7 @@ export default function PacksPage() {
         >
           {label}
         </button>
+        {showSigninNote && <p className={`${prefix}__note`} data-testid="packs-signin-note">{PACK_SIGNIN_NOTE}</p>}
         {mine_ && buy.phase === "confirming" && <p className={`${prefix}__note`} role="status">{PACK_STILL_CONFIRMING_COPY}</p>}
         {mine_ && buy.phase === "failed" && <p className={`${prefix}__note ${prefix}__note--bad`} role="alert">{PACK_FAILED_COPY}</p>}
         {mine_ && buy.phase === "expired" && <p className={`${prefix}__note`} role="alert">{PACK_EXPIRED_COPY}</p>}
