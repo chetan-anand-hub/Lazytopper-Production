@@ -1067,8 +1067,8 @@ function demoQuestionDirective(demoQuestion) {
 // exact: 'worsening' still means the later half scored lower). The model echoes the labels it is
 // given, so the label itself is the tone fix (D-PROG-1: Progress frames MI as opportunity).
 function friendlyTrend(t) {
-  if (t === 'worsening') return 'slipping a bit lately (the later questions scored lower)';
-  if (t === 'improving') return 'getting better (the later questions scored higher)';
+  if (t === 'worsening') return 'slipping a bit lately, as the later questions scored lower';
+  if (t === 'improving') return 'getting better, as the later questions scored higher';
   if (t === 'stable') return 'holding steady';
   return String(t || '');
 }

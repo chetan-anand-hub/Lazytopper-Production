@@ -42,7 +42,7 @@ describe("T1 — the brief is rendered in full, with its window", () => {
     expect(p).toContain("- Biggest loss group among the marks with a recorded type: concept/knowledge gaps.");
     expect(p).toContain("- Concepts in this chapter where marks were lost: Fundamental Theorem of Arithmetic (6 marks).");
     expect(p).toContain("question LTG-M-RN-104, Chapter Test, 2 marks lost, careless slips, 2026-10-12");
-    expect(p).toContain("- Recent direction on this topic: slipping a bit lately (the later questions scored lower).");
+    expect(p).toContain("- Recent direction on this topic: slipping a bit lately, as the later questions scored lower.");
     expect(p).toContain("- Whole Maths subject (ALL chapters together, not just this one): 100.5 marks lost in the last 30 days.");
     expect(p).toMatch(/NOT IN THIS DATA: question text, the student's answers or working/);
   });
