@@ -81,4 +81,12 @@ describe("pack analytics", () => {
     trackPackPurchase({ sku: "pack_mock", itemName: "Mock Pack", valueInr: 99, transactionId: "" });
     expect(names()).toEqual([]);
   });
+
+  it("CBQ-PACK-1: pack_cbq purchase reports item_id pack_cbq and value 199 to GA4 and Meta", () => {
+    trackPackPurchase({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199, transactionId: "pay_cbq" });
+    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 199 }]]);
+    const p = gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase");
+    expect(p).toHaveLength(1);
+    expect(p[0][2]).toMatchObject({ transaction_id: "pay_cbq", currency: "INR", value: 199, items: [{ item_id: "pack_cbq", item_name: "Maths CBQ Pack" }] });
+  });
 });

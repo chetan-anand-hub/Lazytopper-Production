@@ -10,6 +10,7 @@
  *   mock     8 full board-pattern papers per subject (paper + key each)
  *   subject  the union of its 13 chapters + that subject's mocks, grouped by chapter
  *   bundle   both subjects
+ *   cbq      (CBQ-PACK-1) one subject's competency-based questions: a marking-rules page, then per chapter questions + key
  *
  * Every draw is seeded by `hashSeed(packId + ":" + index)` — same packId, same question ids, every time.
  * Packs never touch the weekly download limit: nothing here calls the limited-download guard.
@@ -34,6 +35,7 @@ import { buildUnionPool, drawFullMock, fullMockChapterWeights } from "../../comp
 import {
   bankSubjectName,
   bankSubjectOf,
+  cbqPackRows,
   chapterName,
   chapterPackRows,
   drawPackWorksheetRows,
@@ -103,10 +105,12 @@ async function defaultExport(): Promise<ExportFn> {
 }
 
 /** The pack that covers a chapter / the mocks, for the "Order <id>" line. Falls back to the pack being listed. */
-function coveringRef(owned: readonly OwnedPack[], kind: "chapter" | "mocks", key: string, fallback: OwnedPack | undefined): string {
+function coveringRef(owned: readonly OwnedPack[], kind: "chapter" | "mocks" | "cbq", key: string, fallback: OwnedPack | undefined): string {
   const subject: PackSubject | null = kind === "chapter" ? subjectOfChapter(key) : (key as PackSubject);
   const order: string[] =
-    kind === "chapter"
+    kind === "cbq"
+      ? [`pack_cbq:${key}`]
+      : kind === "chapter"
       ? [`pack_chapter:${key}`, `pack_subject:${subject}`, "pack_bundle:all"]
       : [`pack_mock:${key}`, `pack_subject:${key}`, "pack_bundle:all"];
   for (const id of order) {
@@ -371,6 +375,93 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
   return files;
 }
 
+/** The four rules of CBSE step marking, from CLAUDE.md §13 (official CBSE 2026-27 marking scheme). Printed on the pack's first page. */
+export const CBQ_MARKING_RULES: ReadonlyArray<{ value: string; label: string }> = [
+  { value: "Steps", label: "Every step earns its own mark, so show each step" },
+  { value: "\u00bd", label: "The correct formula alone earns half a mark" },
+  { value: "ECF", label: "Error carried forward: a slip early on does not cost the later steps" },
+  { value: "Unit", label: "A final answer without its SI unit loses half a mark" },
+];
+
+/**
+ * Board CBQ Pack, one subject (CBQ-PACK-1): a "How examiners mark a CBQ" first page, then per chapter one question document
+ * (grouped by section, within it by format) with its answer key of worked step-wise solutions. A chapter over 60 questions is
+ * split into "Part k of n". Loads every chapter of the subject first. Nothing here reads the clock or `Math.random`.
+ */
+export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSku, ctx: BuildContext, fallback?: OwnedPack): Promise<PackFile[]> {
+  const bankSubject = bankSubjectName(subject);
+  const kicker = bankSubject.toUpperCase();
+  const orderRef = coveringRef(ctx.owned, "cbq", subject, fallback);
+  const files: PackFile[] = [];
+  const slugs = chaptersOfSubject(subject);
+  for (const slug of slugs) await loadChapter(slug);
+
+  files.push(
+    makeFile(
+      {
+        id: `${packId}|intro`,
+        label: "How examiners mark a CBQ",
+        group: "Start here",
+        filename: `LazyTopper-${bankSubject}-CBQ-How-Examiners-Mark.pdf`,
+        ws: () => worksheetOf({ id: `pack-cbq-${subject}-intro`, title: "How examiners mark a CBQ", subject: bankSubject, sectionFilter: "Read first", questions: [] }),
+        mode: "questions",
+        orderRef,
+        cover: {
+          kicker: `${bankSubject.toUpperCase()} CBQ PACK`,
+          title: "How examiners mark a CBQ",
+          subtitle: "Competency-based questions are marked step by step in the CBSE 2026-27 scheme. Read this once before you start.",
+          stats: CBQ_MARKING_RULES.map((r) => ({ ...r })),
+        },
+      },
+      sku,
+      ctx,
+    ),
+  );
+
+  for (const slug of slugs) {
+    const name = chapterName(slug);
+    const rows = cbqPackRows(slug);
+    const parts = splitIntoParts(rows);
+    let offset = 0;
+    parts.forEach((part, pi) => {
+      const start = offset;
+      offset += part.length;
+      const partTag = parts.length > 1 ? ` (Part ${pi + 1} of ${parts.length})` : "";
+      const partFile = parts.length > 1 ? `-Part-${pi + 1}-of-${parts.length}` : "";
+      for (const [mode, modeLabel, modeFile] of MODES) {
+        const title = `${name} \u00b7 Board CBQs${partTag}`;
+        const questions = part.map((q, i) => toWorksheetQuestion(q, start + i + 1, name));
+        const marks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
+        files.push(
+          makeFile(
+            {
+              id: `${packId}|${slug}|cbq-${pi + 1}-${mode}`,
+              label: `${modeLabel}${partTag}`,
+              group: name,
+              filename: `LazyTopper-${fileSlug(name)}-CBQ${partFile}-${modeFile}.pdf`,
+              ws: () => worksheetOf({ id: `pack-cbq-${slug}-${pi + 1}`, title, subject: bankSubject, sectionFilter: "Competency-based", questions }),
+              mode,
+              orderRef,
+              cover: {
+                kicker: `${mode === "questions" ? `${kicker} CBQ PACK` : "CBQ ANSWER KEY"} \u00b7 ${kicker}`,
+                title,
+                subtitle: `${name} \u00b7 Class 10 CBSE \u00b7 competency-based, with worked step-wise solutions`,
+                stats: [
+                  { value: String(questions.length), label: questions.length === 1 ? "question" : "questions" },
+                  { value: String(marks), label: marks === 1 ? "mark" : "marks" },
+                ],
+              },
+            },
+            sku,
+            ctx,
+          ),
+        );
+      }
+    });
+  }
+  return files;
+}
+
 /**
  * The files of one owned pack. `packId` seeds every draw. For a subject / bundle pack the chapters come
  * first (grouped by chapter), then the mocks.
@@ -389,6 +480,8 @@ export async function buildPackFiles(pack: PackRef, ctx: BuildContext): Promise<
       out.push(...(await mockFiles(subject, pack.packId, pack.sku, ctx, owned)));
       return out;
     }
+    case "pack_cbq":
+      return cbqFiles(pack.target as PackSubject, pack.packId, pack.sku, ctx, owned);
     case "pack_bundle": {
       const out: PackFile[] = [];
       for (const slug of PACK_CHAPTER_SLUGS) out.push(...(await chapterFiles(slug, pack.packId, pack.sku, ctx, owned)));

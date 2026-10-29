@@ -26,6 +26,7 @@ import {
   MOCKS_PER_SUBJECT,
   SCIENCE_NCERT_CHAPTERS,
   packChapterLabel,
+  CBQ_SUBJECT_CLAIM,
 } from "./packLabels";
 
 export interface PackManifestItem {
@@ -69,6 +70,14 @@ function chapterGroup(slug: string): PackManifestGroup {
   return { heading: packChapterLabel(slug), chapter: slug, items: CHAPTER_ITEMS.map((i) => ({ ...i })) };
 }
 
+const CBQ_CHAPTER_ITEMS: readonly PackManifestItem[] = [
+  { label: "Competency-based questions", detail: "1- to 5-mark questions, MCQ to long answer, in board order, with marks shown on each question", withKey: true },
+];
+
+function cbqChapterGroup(slug: string): PackManifestGroup {
+  return { heading: packChapterLabel(slug), chapter: slug, items: CBQ_CHAPTER_ITEMS.map((i) => ({ ...i })) };
+}
+
 function mockGroup(subject: PackSubject): PackManifestGroup {
   const name = subjectLabel(subject);
   const pattern = subject === "maths" ? ` at ${MATHS_MOCK_PATTERN} level` : "";
@@ -108,6 +117,20 @@ export function packManifest(sku: PackSku, target?: string): PackManifest {
         chapterPacks: chapters.length,
         mockPapers: MOCKS_PER_SUBJECT,
         papers: chapters.length * CHAPTER_PAPERS + MOCKS_PER_SUBJECT,
+      };
+    }
+    case "pack_cbq": {
+      const subject: PackSubject = target === "science" ? "science" : "maths";
+      const chapters = chaptersOfSubject(subject);
+      return {
+        title: `${subjectLabel(subject)} CBQ Pack`,
+        groups: [
+          { heading: "Start here", items: [{ label: "How examiners mark a CBQ", detail: "Step marks, half marks, error carried forward and units: one page", withKey: false }] },
+          ...chapters.map(cbqChapterGroup),
+        ],
+        chapterPacks: chapters.length,
+        mockPapers: 0,
+        papers: 0,
       };
     }
     case "pack_bundle": {
@@ -176,6 +199,13 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
         { label: "You save", value: rupees(subjectSaving(subject)) },
       ];
     }
+    case "pack_cbq":
+      return [
+        { label: "Competency questions", value: CBQ_SUBJECT_CLAIM },
+        { label: "Chapters", value: String(chaptersOfSubject(subject).length) },
+        { label: "Formats", value: "MCQ \u00b7 Assertion-Reason \u00b7 Case study \u00b7 Long answer" },
+        { label: "Step-wise worked solutions", value: "With the answer key" },
+      ];
     case "pack_bundle":
       return [
         { label: "Chapter packs, both subjects", value: String(PACK_CHAPTER_SLUGS.length) },

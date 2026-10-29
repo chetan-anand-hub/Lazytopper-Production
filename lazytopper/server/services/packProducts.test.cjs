@@ -13,7 +13,7 @@ const own = (...ids) => ids.map((packId) => ({ packId }));
 test('prices and target kinds are the owner-confirmed table', () => {
   assert.deepEqual(
     Object.fromEntries(Object.entries(P.PACK_PRODUCTS).map(([k, v]) => [k, [v.priceInr, v.needsTarget]])),
-    { pack_chapter: [49, 'chapter'], pack_mock: [99, 'subject'], pack_subject: [199, 'subject'], pack_bundle: [299, null] },
+    { pack_chapter: [49, 'chapter'], pack_mock: [99, 'subject'], pack_subject: [199, 'subject'], pack_bundle: [299, null], pack_cbq: [199, 'subject'] },
   );
   assert.ok(Object.isFrozen(P.PACK_PRODUCTS) && Object.isFrozen(P.PACK_CHAPTERS));
 });
@@ -117,4 +117,25 @@ test('SLUG PARITY: PACK_CHAPTERS equals the 26 AUTHORED_TOPICS slugs + subjects 
   assert.deepEqual(found, { ...P.PACK_CHAPTERS });
   assert.equal(P.chaptersOf('maths').length, 13);
   assert.equal(P.chaptersOf('science').length, 13);
+});
+
+test('CBQ-PACK-1: pack_cbq is a separate product - not covered by the subject pack or bundle, and covers no chapters or mocks', () => {
+  assert.equal(P.validateTarget('pack_cbq', 'maths'), 'maths');
+  assert.equal(P.validateTarget('pack_cbq', 'triangles'), null);
+  assert.equal(P.validateTarget('pack_cbq', 'all'), null);
+  assert.equal(P.packIdFor('pack_cbq', 'science'), 'pack_cbq:science');
+  assert.deepEqual(P.parsePackId('pack_cbq:maths'), { sku: 'pack_cbq', target: 'maths' });
+  // the bundle and the subject pack do NOT own the CBQ pack
+  assert.equal(P.isAlreadyOwned(own('pack_bundle:all'), 'pack_cbq', 'maths'), false);
+  assert.equal(P.isAlreadyOwned(own('pack_subject:maths', 'pack_subject:science'), 'pack_cbq', 'science'), false);
+  assert.equal(P.ownsCbq(own('pack_bundle:all'), 'maths'), false);
+  // only itself, and only for its own subject
+  assert.equal(P.isAlreadyOwned(own('pack_cbq:maths'), 'pack_cbq', 'maths'), true);
+  assert.equal(P.isAlreadyOwned(own('pack_cbq:maths'), 'pack_cbq', 'science'), false);
+  // and it does not cover chapters, mocks, the subject pack or the bundle
+  const cbqBoth = own('pack_cbq:maths', 'pack_cbq:science');
+  assert.equal(P.ownsChapter(cbqBoth, 'triangles'), false);
+  assert.equal(P.ownsMocks(cbqBoth, 'maths'), false);
+  assert.equal(P.isAlreadyOwned(cbqBoth, 'pack_subject', 'maths'), false);
+  assert.equal(P.isAlreadyOwned(cbqBoth, 'pack_bundle'), false);
 });

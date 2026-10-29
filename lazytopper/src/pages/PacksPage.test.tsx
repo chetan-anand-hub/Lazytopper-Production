@@ -29,6 +29,7 @@ vi.mock("../lib/packs/packContent", () => ({
     loads.n += 1;
   },
   countChapterQuestions: (slug: string) => (slug === "real-numbers" ? 120 : 100),
+  countCbqPackQuestions: () => 50,
 }));
 vi.mock("../lib/packs/buildPackFiles", () => ({
   buildPackFiles: async () => [{ id: "f1", label: "Section A · Questions", group: "Triangles", filename: "x.pdf", build: async () => undefined }],
@@ -77,6 +78,38 @@ describe("PacksPage", () => {
     expect(screen.getByTestId("founder-badge").textContent).toBe("Made by an IITian (IIT Kanpur)");
     expect(screen.getByTestId("founder-badge").closest(".lt-packs__copy")).not.toBeNull();
     expect(events.names).toContain("pack_view");
+  });
+
+  it("CBQ-PACK-1: the CBQ band is in the hero with anchor #cbq: a Maths and a Science pack side by side, each Rs 199 with its own buy button, counts computed", async () => {
+    page("/packs#cbq");
+    const band = screen.getByTestId("cbq-band");
+    expect(band.id).toBe("cbq");
+    expect(band.closest(".lt-packs__hero")).not.toBeNull();
+    expect(band.textContent).toContain("NEW · CBQ");
+    expect(band.textContent).toContain("Half your board paper is competency-based.");
+    expect(band.textContent).toContain("Maths CBQ Pack");
+    expect(band.textContent).toContain("Science CBQ Pack");
+    expect(band.textContent).not.toMatch(/for both|both subjects/i);
+    expect(screen.getByTestId("cbq-card-maths").textContent).toContain("₹199");
+    expect(screen.getByTestId("cbq-card-science").textContent).toContain("₹199");
+    for (const line of ["13 chapters", "MCQ · Assertion-Reason · Case study · Long answer", "Your name on every page", "download till May 2027", "Made by an IITian (IIT Kanpur)"]) {
+      expect(band.textContent, line).toContain(line);
+    }
+    // the claim is a static floor, visible without any interaction and without loading the bank
+    expect(screen.getByTestId("cbq-card-science").textContent).toContain("1,400+ CBQs · every chapter · 1- to 5-mark questions · step-wise worked solutions");
+    expect(band.textContent).toContain("100+ in every chapter");
+    expect(loads.n).toBe(0);
+    fireEvent.click(screen.getByTestId("packs-card-cbq-science"));
+    const dlg = await screen.findByRole("dialog");
+    expect(dlg.textContent).toContain("Science CBQ Pack");
+    expect(dlg.textContent).toContain("₹199");
+    expect(screen.getByTestId("packs-buy-pack_cbq")).toBeTruthy();
+  });
+
+  it("CBQ-PACK-1: ?pack=cbq opens the CBQ pop-up", async () => {
+    page("/packs?pack=cbq&subject=science");
+    const dlg = await screen.findByRole("dialog");
+    expect(dlg.textContent).toContain("Science CBQ Pack");
   });
 
   it("tapping a tile opens an accessible dialog with the four slides in order; Esc closes it and focus returns to the tile", async () => {

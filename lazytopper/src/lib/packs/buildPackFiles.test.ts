@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { buildPackFiles, groupPackFiles, type BuildContext, type PackFile } from "./buildPackFiles";
-import { chapterPackRows, countChapterQuestions, groupBySection, isExcludedFromPacks, isStepMarked, loadChapter, splitIntoParts, MAX_QUESTIONS_PER_DOC } from "./packContent";
+import { CBQ_PACK_EXCLUDED_IDS, CBQ_MIN_CASE_CHARS, cbqPackRows, isCbqPackRow, chapterPackRows, countChapterQuestions, groupBySection, isExcludedFromPacks, isStepMarked, loadChapter, splitIntoParts, MAX_QUESTIONS_PER_DOC } from "./packContent";
 import { PACK_CHAPTER_SLUGS, chaptersOfSubject, type OwnedPack } from "../../services/packs";
+import { CBQ_CHAPTER_CLAIM, CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_SUBJECT_CLAIM } from "./packLabels";
+import { isCbq } from "../cbq/cbqClassification";
+import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
 import { getFiguresForQuestion } from "../../data/visualConceptRegistry";
 
 const owned = (packId: string, extra: Partial<OwnedPack> = {}): OwnedPack => {
@@ -201,4 +204,92 @@ describe("buildPackFiles — mock, subject, bundle", () => {
     expect(groupPackFiles(bundleFiles).map((g) => g.group)).toHaveLength(26 + 2);
     expect(PACK_CHAPTER_SLUGS).toHaveLength(26);
   }, 120_000);
+});
+
+describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
+  it("the copy's claim holds on the real selection: each subject >= CBQ_MIN_PER_SUBJECT and every chapter >= CBQ_MIN_PER_CHAPTER", async () => {
+    for (const subject of ["maths", "science"] as const) {
+      let total = 0;
+      for (const slug of chaptersOfSubject(subject)) {
+        await loadChapter(slug);
+        const n = cbqPackRows(slug).length;
+        expect(n, `${slug} (claim: ${CBQ_CHAPTER_CLAIM})`).toBeGreaterThanOrEqual(CBQ_MIN_PER_CHAPTER);
+        total += n;
+      }
+      expect(total, `${subject} (claim: ${CBQ_SUBJECT_CLAIM})`).toBeGreaterThanOrEqual(CBQ_MIN_PER_SUBJECT);
+    }
+  }, 60000);
+
+  it("selection: only served CBQs that are step-marked and figure-safe; real cases only; none of the owner's defect ids", async () => {
+    for (const slug of ["real-numbers", "carbon-and-its-compounds", "our-environment", "arithmetic-progression"]) {
+      await loadChapter(slug);
+      const rows = cbqPackRows(slug);
+      expect(rows.length, slug).toBeGreaterThan(0);
+      for (const q of rows) {
+        expect(isCbq(q), q.id).toBe(true);
+        expect(isStepMarked(q), q.id).toBe(true);
+        expect(isExcludedFromPacks(q), q.id).toBe(false);
+        expect(CBQ_PACK_EXCLUDED_IDS.has(q.id), q.id).toBe(false);
+        if (q.format === "Case-Based") expect(String(q.questionText).length, q.id).toBeGreaterThanOrEqual(CBQ_MIN_CASE_CHARS);
+      }
+    }
+  });
+
+  it("each excluded class is rejected by the predicate", () => {
+    const base = { id: "X-1", competencyVerified: true, section: "C", marks: 3, format: "Short", questionText: "Q", options: [], solutionSteps: ["[1 mark] a", "[1 mark] b", "[1 mark] c"] };
+    const row = (o: Record<string, unknown>) => ({ ...base, ...o }) as never;
+    expect(isCbqPackRow(row({}))).toBe(true);
+    expect(isCbqPackRow(row({ competencyVerified: undefined }))).toBe(false); // not a CBQ
+    expect(isCbqPackRow(row({ solutionSteps: ["a", "b", "c"] }))).toBe(false); // not step-marked
+    expect(isCbqPackRow(row({ solutionSteps: ["[1 mark] a", "[1 mark] b"] }))).toBe(false); // marks do not sum
+    expect(isCbqPackRow(row({ format: "Case-Based", questionText: "short" }))).toBe(false); // not a real case
+    expect(isCbqPackRow(row({ format: "Case-Based", questionText: "x".repeat(CBQ_MIN_CASE_CHARS) }))).toBe(true);
+    for (const id of CBQ_PACK_EXCLUDED_IDS) expect(isCbqPackRow(row({ id })), id).toBe(false);
+  });
+
+  it("the six defect ids are never sold in a CBQ pack; the reworded Carbon stem has no banned 'biogas'", () => {
+    expect([...CBQ_PACK_EXCLUDED_IDS].sort()).toEqual(["CBE-M-AP-B-003", "CBE-M-AP-C-001", "CBE-S-ENVI-E-002", "SQP-S-2023-HEYE-E-001", "SQP-S-2023-MNM-E-001", "SQP-S-2025-LGHT-038"]);
+    const carb = canonicalQuestionBank.find((q) => q.id === "LTG-S-CARB-213");
+    expect(carb).toBeTruthy();
+    expect(JSON.stringify(carb).toLowerCase()).not.toContain("biogas");
+    expect(carb!.questionText).toContain("methane (CH4)");
+  });
+
+  for (const subject of ["maths", "science"] as const) {
+    it(`builds a ${subject} CBQ pack: intro + per chapter questions and key, watermarked, no excluded id`, async () => {
+      const pack = owned(`pack_cbq:${subject}`, { pricePaidInr: 199 });
+      const seen: Array<{ file: string; mode: string; ids: string[]; licensee?: string }> = [];
+      const exportPdf = vi.fn(async (ws: { questions: Array<{ id: string }> }, mode: string, _c?: string, opts?: { filename?: string; licensee?: { orderId: string } }) => {
+        seen.push({ file: opts?.filename ?? "", mode, ids: ws.questions.map((q) => q.id), licensee: opts?.licensee?.orderId });
+        return "x";
+      });
+      const files = await buildPackFiles(ref(pack), ctx([pack], { exportPdf: exportPdf as never }));
+      const groups = groupPackFiles(files);
+      expect(groups[0].group).toBe("Start here");
+      expect(groups.slice(1).map((g) => g.group)).toEqual(chaptersOfSubject(subject).map((s) => groups.find((g) => g.files[0].id.includes(`|${s}|`))!.group));
+      expect(groups).toHaveLength(1 + chaptersOfSubject(subject).length);
+      expect(new Set(files.map((f) => f.filename)).size).toBe(files.length);
+      for (const f of files) await f.build();
+      const ids = new Set(seen.flatMap((s) => s.ids));
+      for (const id of CBQ_PACK_EXCLUDED_IDS) expect(ids.has(id), id).toBe(false);
+      for (const slug of chaptersOfSubject(subject)) {
+        await loadChapter(slug);
+        const rows = cbqPackRows(slug);
+        expect(rows.length, slug).toBeGreaterThan(0);
+        const qFiles = files.filter((f) => f.id.includes(`|${slug}|`) && f.label.startsWith("Questions"));
+        expect(qFiles.length, slug).toBe(splitIntoParts(rows).length);
+        const built = seen.filter((s) => qFiles.some((f) => f.filename === s.file)).flatMap((s) => s.ids);
+        expect(built, slug).toEqual(rows.map((r) => r.id));
+        expect(files.filter((f) => f.id.includes(`|${slug}|`) && f.label.startsWith("Answer key")).length, slug).toBe(qFiles.length);
+      }
+      // the licensed-order reference is the CBQ pack's own order
+      expect(seen.every((s) => s.licensee === "order_pack_cbq")).toBe(true);
+    });
+  }
+
+  it("refuses to build without a licensee email", async () => {
+    const pack = owned("pack_cbq:maths");
+    const files = await buildPackFiles(ref(pack), ctx([pack], { licensee: { name: "A", email: "" } }));
+    await expect(files[0].build()).rejects.toThrow("licensee_unavailable");
+  });
 });

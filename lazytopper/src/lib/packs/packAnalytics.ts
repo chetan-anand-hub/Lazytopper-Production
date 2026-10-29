@@ -24,7 +24,7 @@ import {
   sendGa4Hit,
 } from "../../analytics/analytics";
 
-export type PackSkuName = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle";
+export type PackSkuName = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq";
 
 export interface PackCheckoutDetails {
   sku: PackSkuName;

@@ -13,7 +13,7 @@
  * Query contract for /packs (PacksPage adopts it; the coordinator wires it after both lanes merge):
  *   /packs?chapter=<slug>   preselect that chapter and open the Chapter Pack pop-up
  *   /packs?mock=maths|science   open the Mock Pack pop-up on that subject
- *   /packs?pack=chapter|mock|subject|bundle   open that pack's pop-up (Google Ads sitelinks)
+ *   /packs?pack=chapter|mock|subject|bundle|cbq   open that pack's pop-up (Google Ads sitelinks)
  *   /packs?subject=maths|science   the subject for a mock / subject pop-up opened by ?pack=
  *   /packs?view=sample   open on the PDF cover slide (alone: the Chapter Pack pop-up)
  *   Order: chapter, then mock, then pack, then view=sample. Unknown or repeated values count as absent;
@@ -56,7 +56,7 @@ export function packsHref(opts: PacksHrefOptions = {}): string {
   return `/packs${query}${opts.hash ? `#${opts.hash}` : ""}`;
 }
 
-export type PacksQueryPack = "chapter" | "mock" | "subject" | "bundle";
+export type PacksQueryPack = "chapter" | "mock" | "subject" | "bundle" | "cbq";
 
 export interface PacksQuery {
   /** A valid chapter slug, or null. */
@@ -87,7 +87,7 @@ export function readPacksQuery(search: string): PacksQuery {
     const m = onlyOne(q, "mock");
     if (m === "maths" || m === "science") out.mock = m;
     const p = onlyOne(q, "pack");
-    if (p === "chapter" || p === "mock" || p === "subject" || p === "bundle") out.pack = p;
+    if (p === "chapter" || p === "mock" || p === "subject" || p === "bundle" || p === "cbq") out.pack = p;
     const s = onlyOne(q, "subject");
     if (s === "maths" || s === "science") out.subject = s;
     if (onlyOne(q, "view") === "sample") out.view = "sample";

@@ -19,6 +19,15 @@ export const BUNDLE_MOCKS = MOCKS_PER_SUBJECT * 2;
 /** Mock paper pattern shown for Maths (Standard, subject code 041). */
 export const MATHS_MOCK_PATTERN = "Standard (041)";
 
+/**
+ * CBQ-PACK-1: the floors the CBQ pack copy promises ("1,400+ CBQs", "100+ in every chapter"). The copy and the test that runs the
+ * real selection on the bank both read these, so the claim turns CI red if the bank ever drops below it.
+ */
+export const CBQ_MIN_PER_SUBJECT = 1400;
+export const CBQ_MIN_PER_CHAPTER = 100;
+export const CBQ_SUBJECT_CLAIM = `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ CBQs`;
+export const CBQ_CHAPTER_CLAIM = `${CBQ_MIN_PER_CHAPTER}+ in every chapter`;
+
 /** Owned packs stay downloadable until this date (copy only; My packs keeps working regardless of flags). */
 export const REDOWNLOAD_UNTIL = "31 May 2027";
 export const REDOWNLOAD_COPY = `Download again any time until ${REDOWNLOAD_UNTIL}`;

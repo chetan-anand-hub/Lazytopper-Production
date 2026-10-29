@@ -19,6 +19,7 @@ import {
   PACK_PAID_COPY,
   PACK_PRICE_INR,
   PACK_STILL_CONFIRMING_COPY,
+  subjectLabel,
   buyPack,
   chaptersOfSubject,
   checkPackOrder,
@@ -35,6 +36,7 @@ import {
 } from "../services/packs";
 import { BUNDLE_NAME, REDOWNLOAD_COPY, REDOWNLOAD_SHORT, packChapterLabel } from "../lib/packs/packLabels";
 import { readPacksQuery } from "../lib/packs/packEntry";
+import CbqBand from "../components/pricing/CbqBand";
 import "./packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -55,6 +57,8 @@ export function ownedPackTitle(p: Pick<OwnedPack, "sku" | "target">): string {
       return `Mock Pack · ${p.target === "science" ? "Science" : "Maths"}`;
     case "pack_subject":
       return `Subject Pack · ${p.target === "science" ? "Science" : "Maths"}`;
+    case "pack_cbq":
+      return `${p.target === "science" ? "Science" : "Maths"} CBQ Pack`;
     case "pack_bundle":
       return BUNDLE_NAME;
     default:
@@ -204,7 +208,7 @@ export default function PacksPage() {
       chosenSubject = q.mock;
     } else if (q.pack) {
       sku = (`pack_${q.pack}`) as PackSku;
-      if (q.pack === "mock" || q.pack === "subject") chosenSubject = q.subject;
+      if (q.pack === "mock" || q.pack === "subject" || q.pack === "cbq") chosenSubject = q.subject;
     } else if (q.view === "sample") {
       sku = "pack_chapter";
     }
@@ -216,6 +220,11 @@ export default function PacksPage() {
     setOpenSku(sku);
     requestCounts(chosenChapter || undefined);
   }, [location.search, requestCounts]);
+
+  // `#cbq` scrolls to the Board CBQ Pack card (ads link /packs#cbq).
+  useEffect(() => {
+    if (location.hash === "#cbq") document.getElementById("cbq")?.scrollIntoView?.({ block: "start" });
+  }, [location.hash]);
 
   // `#my-packs` scrolls to the My packs section once it exists.
   useEffect(() => {
@@ -323,9 +332,9 @@ export default function PacksPage() {
     );
   }
 
-  const dialogTarget = openSku === "pack_chapter" ? chapter || undefined : openSku === "pack_mock" || openSku === "pack_subject" ? subject : undefined;
+  const dialogTarget = openSku === "pack_chapter" ? chapter || undefined : openSku === "pack_mock" || openSku === "pack_subject" || openSku === "pack_cbq" ? subject : undefined;
   const dialogQuestions =
-    openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_bundle" ? bundleTotal : null;
+    openSku === "pack_chapter" ? (chapter ? counts[chapter] ?? null : null) : openSku === "pack_subject" ? subjectTotal(subject) : openSku === "pack_cbq" ? null : openSku === "pack_bundle" ? bundleTotal : null;
   const showMine = Boolean(user) && (mineError !== false || (mine !== null && mine.packs.length > 0));
   const afterPay = buy.phase === "paid" || buy.phase === "checking" || buy.phase === "confirming";
 
@@ -371,6 +380,16 @@ export default function PacksPage() {
               <span className="lt-packs__lede--short">Print, solve with a pen, check against worked solutions. Tap a pack to see inside.</span>
             </p>
             <p className="lt-packs__terms lt-packs__terms--hero">One-time payment · never renews · {REDOWNLOAD_SHORT}</p>
+          </div>
+          <div className="lt-packs__cbqwrap">
+            <CbqBand
+              headingId="packs-cbq-h"
+              action={(s) => (
+                <button type="button" className="lt-cbq__btn" onClick={() => { setSubject(s); openPack("pack_cbq"); }} aria-haspopup="dialog" data-testid={`packs-card-cbq-${s}`}>
+                  {`${subjectLabel(s)} CBQ Pack · ${packPriceLabel("pack_cbq")}`}
+                </button>
+              )}
+            />
           </div>
           <div className="lt-packs__tiles" role="list">
             {TILES.map((t) => (

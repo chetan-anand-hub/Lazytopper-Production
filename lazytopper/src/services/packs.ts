@@ -33,10 +33,10 @@ import {
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
-export type PackSku = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle";
+export type PackSku = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq";
 export type PackSubject = "maths" | "science";
 
-export const PACK_SKUS: readonly PackSku[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle"];
+export const PACK_SKUS: readonly PackSku[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"];
 export const PACK_SUBJECTS: readonly PackSubject[] = ["maths", "science"];
 
 /** The 26 chapter slugs: the first 13 are Maths, the next 13 Science (topics.ts order; a test pins it). */
@@ -62,6 +62,7 @@ export const PACK_PRICE_INR: Readonly<Record<PackSku, number>> = {
   pack_mock: 99,
   pack_subject: 199,
   pack_bundle: 299,
+  pack_cbq: 199,
 };
 
 export function packPriceLabel(sku: PackSku): string {
@@ -84,6 +85,7 @@ export function isValidPackTarget(sku: PackSku, target: string | undefined): boo
       return typeof target === "string" && PACK_CHAPTER_SLUGS.includes(target);
     case "pack_mock":
     case "pack_subject":
+    case "pack_cbq":
       return target === "maths" || target === "science";
     case "pack_bundle":
       return true;
@@ -172,6 +174,11 @@ export function ownsMocks(packs: readonly PackRef[], subject: PackSubject): bool
   return ids.has(`pack_mock:${subject}`) || ids.has(`pack_subject:${subject}`) || ids.has("pack_bundle:all");
 }
 
+/** CBQ-PACK-1: only `pack_cbq:<s>` itself; the Subject Pack and the Bundle do NOT include CBQs. */
+export function ownsCbq(packs: readonly PackRef[], subject: PackSubject): boolean {
+  return idSet(packs).has(`pack_cbq:${subject}`);
+}
+
 /** A request is `already_owned` when everything it would grant is already owned. */
 export function isAlreadyOwned(packs: readonly PackRef[], sku: PackSku, target?: string): boolean {
   switch (sku) {
@@ -185,6 +192,8 @@ export function isAlreadyOwned(packs: readonly PackRef[], sku: PackSku, target?:
         ownsMocks(packs, target) &&
         chaptersOfSubject(target).every((slug) => ownsChapter(packs, slug))
       );
+    case "pack_cbq":
+      return (target === "maths" || target === "science") && ownsCbq(packs, target);
     case "pack_bundle":
       return (
         PACK_SUBJECTS.every((s) => ownsMocks(packs, s)) && PACK_CHAPTER_SLUGS.every((slug) => ownsChapter(packs, slug))
@@ -261,6 +270,8 @@ export function packDescription(sku: PackSku, target: string | undefined, chapte
       return `Mock Pack · ${target ? subjectLabel(target as PackSubject) : "5 board mocks"}`;
     case "pack_subject":
       return `Subject Pack · ${target ? subjectLabel(target as PackSubject) : "all chapters"}`;
+    case "pack_cbq":
+      return target ? `${subjectLabel(target as PackSubject)} CBQ Pack` : "CBQ Pack";
     case "pack_bundle":
       return "Maths + Science Bundle";
   }

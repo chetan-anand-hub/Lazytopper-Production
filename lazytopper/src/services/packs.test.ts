@@ -7,6 +7,8 @@ import {
   fetchMyPacks,
   isAlreadyOwned,
   isPacksClientEnabled,
+  isValidPackTarget,
+  ownsCbq,
   ownsChapter,
   ownsMocks,
   packDescription,
@@ -15,6 +17,7 @@ import {
   type PackBuyDeps,
 } from "./packs";
 import { PayAlreadyOwnedError, PayOrderExpiredError, type RazorpaySuccess } from "./checkout";
+import { createRequire } from "node:module";
 import { allDesktopTopics } from "../lib/desktop/topics";
 
 afterEach(() => {
@@ -33,7 +36,7 @@ describe("catalogue", () => {
   });
 
   it("display prices are the contract table", () => {
-    expect(PACK_PRICE_INR).toEqual({ pack_chapter: 49, pack_mock: 99, pack_subject: 199, pack_bundle: 299 });
+    expect(PACK_PRICE_INR).toEqual({ pack_chapter: 49, pack_mock: 99, pack_subject: 199, pack_bundle: 299, pack_cbq: 199 });
   });
 
   it("packId is <sku>:<target>, the bundle is pack_bundle:all", () => {
@@ -255,5 +258,32 @@ describe("fetchMyPacks", () => {
     expect(mine.licensee).toEqual({ name: "Asha", email: "a@b.in" });
     vi.doUnmock("./firebaseClient");
     void fetchMyPacks;
+  });
+});
+
+describe("CBQ-PACK-1: the Board CBQ Pack (pack_cbq)", () => {
+  it("is Rs 199 on the client and on the server table, with a subject target", () => {
+    const server = createRequire(import.meta.url)("../../server/services/packProducts.cjs") as {
+      PACK_PRODUCTS: Record<string, { priceInr: number; needsTarget: string | null }>;
+    };
+    expect(PACK_PRICE_INR.pack_cbq).toBe(199);
+    expect(server.PACK_PRODUCTS.pack_cbq).toEqual({ priceInr: 199, needsTarget: "subject" });
+    for (const sku of Object.keys(PACK_PRICE_INR)) expect(server.PACK_PRODUCTS[sku].priceInr, sku).toBe(PACK_PRICE_INR[sku as keyof typeof PACK_PRICE_INR]);
+    expect(isValidPackTarget("pack_cbq", "maths")).toBe(true);
+    expect(isValidPackTarget("pack_cbq", "triangles")).toBe(false);
+    expect(packIdOf("pack_cbq", "science")).toBe("pack_cbq:science");
+    expect(packDescription("pack_cbq", "maths")).toBe("Maths CBQ Pack");
+  });
+  it("is a separate product: the subject pack and bundle do not own it, and it owns no chapters or mocks", () => {
+    expect(isAlreadyOwned(["pack_bundle:all"], "pack_cbq", "maths")).toBe(false);
+    expect(isAlreadyOwned(["pack_subject:science"], "pack_cbq", "science")).toBe(false);
+    expect(isAlreadyOwned(["pack_cbq:maths"], "pack_cbq", "maths")).toBe(true);
+    expect(isAlreadyOwned(["pack_cbq:maths"], "pack_cbq", "science")).toBe(false);
+    expect(ownsCbq(["pack_cbq:science"], "science")).toBe(true);
+    const both = ["pack_cbq:maths", "pack_cbq:science"];
+    expect(ownsChapter(both, "triangles")).toBe(false);
+    expect(ownsMocks(both, "maths")).toBe(false);
+    expect(isAlreadyOwned(both, "pack_subject", "maths")).toBe(false);
+    expect(isAlreadyOwned(both, "pack_bundle")).toBe(false);
   });
 });
