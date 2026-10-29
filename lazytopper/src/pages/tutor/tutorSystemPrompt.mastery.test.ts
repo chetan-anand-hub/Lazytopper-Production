@@ -16,7 +16,7 @@ describe("ruling 6 — no mastery line in the tutor prompt", () => {
     });
     expect(prompt).not.toMatch(/mastery on this topic/i);
     expect(prompt).not.toMatch(/about 0%/);
-    expect(prompt).toContain("- Recent direction on this topic: stable.");
+    expect(prompt).toContain("- Recent direction on this topic: holding steady.");
   });
 
   it("CONTROL — the real facts in the same brief are still written", () => {

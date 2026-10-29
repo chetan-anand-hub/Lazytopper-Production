@@ -127,7 +127,7 @@ describe("TF3 — briefs without unrecorded marks / old clients render as before
       [
         '- Window: recent graded work (the exact window was not stated — say "recently", never a number of days).',
         "- Sub-topics that have cost marks: Euclid.",
-        "- Recent direction on this topic: stable.",
+        "- Recent direction on this topic: holding steady.",
         "- Whole Maths subject (ALL chapters together, not just this one): 100.5 marks lost recently.",
         "- Most common mistake type across the whole subject: careless.",
       ].join("\n"),

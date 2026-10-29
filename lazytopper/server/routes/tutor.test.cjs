@@ -532,7 +532,7 @@ test('TM1 the prompt renders the new fields with labels and the window; honesty 
   const h = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
   await h.send({ brief: MIND_BRIEF, messages: [{ role: 'student', content: 'how am I doing?' }] });
   const p = h.prompts[0];
-  assert.match(p, /Concepts in this chapter the student has worked on in the last 30 days: Euclid's division lemma \(4 marks lost, 4 graded questions, direction worsening\); HCF and LCM \(0 marks lost, 2 graded questions\)/);
+  assert.match(p, /Concepts in this chapter the student has worked on in the last 30 days: Euclid's division lemma \(4 marks lost, 4 graded questions, slipping a bit lately \(the later questions scored lower\)\); HCF and LCM \(0 marks lost, 2 graded questions\)/);
   assert.match(p, /Concepts of this chapter with no graded question recorded in the last 30 days: Decimal expansions; Fundamental Theorem of Arithmetic\. Say exactly that[^\n]*never say the student has "not practised"/);
   assert.doesNotMatch(p, /not practised yet/);
   assert.match(p, /Marks SCORED in this chapter \(a percentage of the marks available, so HIGHER IS BETTER\) over the last 120 days: the student scored 41\.5% of the available marks in the earlier half and 66% in the later half \(14 graded answers\)\. These are marks SCORED, not marks lost/);
