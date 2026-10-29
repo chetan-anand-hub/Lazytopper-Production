@@ -520,8 +520,8 @@ describe("PARENTS-NAV-1 review — every link on the live page leads back (DOM g
     );
     const { internal, exempt, other } = classify([...container.querySelectorAll("a")]);
     // Not vacuous: 4 free-check (MOMENTS-1 M11b added Mummy's) + 3 tiles + 2 "See the price" + 3 FAQ
-    // + 7 footer = 19 internal links.
-    expect(internal.length).toBe(19);
+    // + 7 footer + 2 packs (PARENTS-PACKS-1) = 21 internal links.
+    expect(internal.length).toBe(21);
     expect(internal.filter((h) => !flagged(h))).toEqual([]);
     expect(exempt).toContain("/for-parents");
     expect(exempt.filter((h) => h === PARENT_SHARE_HREF).length).toBe(3);
