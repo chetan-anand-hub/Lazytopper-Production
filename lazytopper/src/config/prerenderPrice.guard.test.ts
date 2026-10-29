@@ -69,6 +69,9 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
     claimed.add(li.index! + li[0].indexOf(p[0]) + p[0].indexOf("₹"));
     found.push({ file, product: name, shown: `₹${p[1]}`, expected: PACK_BY_LABEL[name] ? packExp(name) : "(unknown pack label)" });
   }
+  // /for-parents hero link ("PDF question banks · from ₹49" = the cheapest pack, the Chapter Pack) and the band (PARENTS-PACKS-2/3).
+  take(new RegExp(`PDF question banks · from ${AMT}`), () => "Chapter Pack (hero 'from' price)", () => packExp("Chapter Pack"));
+  take(new RegExp(`<li>(${LABELS})(?:<span class="lt-fpk-band__new">NEW</span>)?<span class="lt-fpk-band__price" data-testid="fp-band-price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
   // /packs (PacksPage): tiles, CBQ cards, CBQ buttons, CBQ sentence + footer.
   take(new RegExp(`class="lt-packs__tname">(${LABELS})</span><span class="lt-packs__tprice">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
   take(new RegExp(`class="lt-cbq__name">(${LABELS})</h3><p class="lt-cbq__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
@@ -155,6 +158,13 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     expect(mismatchMessages(r.found)).toEqual([
       `x.html: snapshot shows ₹${PACK_PRICE_INR.pack_mock + 1} for Mock Pack, live price is ₹${PACK_PRICE_INR.pack_mock} — re-capture the prerender (capture job artifact flow)`,
     ]);
+  });
+
+  it("MUTATION PROOF: a changed band price and a changed hero 'from' price are caught", () => {
+    const html = `<a>PDF question banks · from ₹${PACK_PRICE_INR.pack_chapter + 1}</a><li>Mock Pack<span class="lt-fpk-band__price" data-testid="fp-band-price">₹${PACK_PRICE_INR.pack_mock + 1}</span></li>`;
+    const r = scanSnapshot("x.html", html, now, predictCbseExamDate("10"));
+    expect(r.unclaimed).toEqual([]);
+    expect(mismatchMessages(r.found)).toHaveLength(2);
   });
 
   it("founding vs list month constants are what the month line is built from", () => {
