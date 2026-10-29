@@ -25,10 +25,20 @@ export const TUTOR_ENDPOINT = `${API_BASE}/tutor`;
  *  persisted as anything but presentational chrome, and only meaningful on a tutor turn. */
 export type TutorOffer = "practice" | "check-improve";
 
+export interface TutorTurnMeta {
+  q: string;
+  pick?: string;
+  correct?: boolean;
+}
+
 export interface TutorTurn {
   role: "user" | "tutor";
   content: string;
   kind?: "message" | "away-cue" | "return-result";
+  /** TUTOR-MIND-1 (A) — on a "return-result" opener only: which OUR-bank question it was about, so a
+   *  reopened thread can rebuild its question context. Ids/option text from our bank; never free
+   *  student text. Never sent to the model as a turn field (the server rebuilds messages). */
+  meta?: TutorTurnMeta;
   /** Present on a tutor turn when the model earned a round-trip CTA (Fix 3). */
   offer?: TutorOffer;
   /** Stage 3 — the conceptKey of a curated diagram the model signalled for THIS turn's
@@ -80,7 +90,18 @@ export interface TutorBrief {
   /** TUTOR-FIX-2 (T2) — the opened chapter, chapter-scoped: the same numbers Me shows. */
   chapter?: TutorBriefChapter;
   /** TUTOR-FIX-2 (T2) — the subject (paper) total; `mistakes.marksLostRecent` stays for old servers. */
-  subject?: { marksLost?: number };
+  subject?: TutorBriefSubject;
+  /** TUTOR-MIND-1 (B5) — counts from the SAME activity read Me shows, over `windowLabel`. */
+  activity?: { questionsAnswered?: number; testsTaken?: number; checksDone?: number; tutorSessions?: number };
+}
+
+/** TUTOR-MIND-1 (B4) — the subject block: the paper total + the chapters Me ranks. */
+export interface TutorBriefSubject {
+  marksLost?: number;
+  /** Top 3 chapters by marks lost (Me's chapter list order). */
+  chapters?: Array<{ name: string; marksLost: number }>;
+  /** The chapter whose gated before→now rose the most (Me's chapter rungs). */
+  improved?: { name: string; beforePct: number; nowPct: number };
 }
 
 /** TUTOR-FIX-2 (T2) — the chapter block of the brief (BUILDER_R2 brief contract; all optional). */
@@ -89,10 +110,17 @@ export interface TutorBriefChapter {
   marksLost?: number;
   byGroup?: { knowledge?: number; careless?: number; examTechnique?: number; notAttempted?: number; unrecorded?: number };
   topGroup?: "knowledge" | "careless" | "examTechnique" | "notAttempted";
-  /** Max 3, in Me's chapter concept-row order (most marks lost first). */
-  concepts?: Array<{ name: string; marksLost: number }>;
-  /** Max 3 most recent graded questions with lost marks in the chapter. No student text. */
-  recent?: Array<{ id: string; marksLost: number; group?: string; surface: string; date?: string }>;
+  /** TUTOR-MIND-1 (B1) — up to 12 concepts with any graded activity, most marks lost first.
+   *  `attempts` = graded questions; `trend` only when both halves have work. */
+  concepts?: Array<{ name: string; marksLost: number; attempts?: number; trend?: "improving" | "worsening" | "stable" }>;
+  /** TUTOR-MIND-1 (B1) — Exam Trends concepts of this chapter with NO graded question in the window (names only). */
+  untouched?: string[];
+  /** TUTOR-MIND-1 (B2) — the Topic Hub's before→now figure for this chapter (same source, same numbers). */
+  progress?: { beforePct: number; nowPct: number; gradedAnswers: number; window: string };
+  /** TUTOR-MIND-1 (B3) — up to 5 newest graded questions with lost marks; `question` = OUR bank stem
+   *  (trimmed), only when the id resolves to a bank question. `pick`/`correct` are carried by the
+   *  wire contract for tap answers but no read derivation supplies them yet, so the client omits them. */
+  recent?: Array<{ id: string; marksLost: number; group?: string; surface: string; date?: string; question?: string; pick?: string; correct?: boolean }>;
 }
 
 export interface TutorRequest {

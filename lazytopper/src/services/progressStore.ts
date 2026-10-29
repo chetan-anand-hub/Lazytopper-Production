@@ -169,6 +169,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_HALF_SAMPLE = 3;
 
 export type ProgressWindow = "week" | "2wk" | "month" | "4mo";
+/** TUTOR-MIND-1 — the window the Topic Hub's trajectory reads (TopicProgressTrend's default); the Tutor brief reads the same one. */
+export const TOPIC_HUB_TREND_WINDOW: ProgressWindow = "4mo";
 /** Exported for SCORECARD-MI-1 (GA-19): Me reads the mistake log for the SAME window. */
 export const WINDOW_DAYS: Record<ProgressWindow, number> = { week: 7, "2wk": 14, month: 30, "4mo": 120 };
 

@@ -263,7 +263,7 @@ test('T1 normalizeBrief keeps contract fields, caps strings/arrays/numbers, drop
   assert.equal(out.chapter.name.length, 80);
   assert.deepEqual(out.chapter.byGroup, { knowledge: 10, notAttempted: 2 });
   assert.equal(out.chapter.topGroup, undefined);
-  assert.equal(out.chapter.concepts.length, 3);
+  assert.equal(out.chapter.concepts.length, 4); // TUTOR-MIND-1: cap is 12 now
   assert.deepEqual(out.chapter.recent, [{ id: 'Q1', marksLost: 2, surface: 'chapter-test', group: 'careless' }]);
   assert.deepEqual(out.topic, { trend: 'worsening', weakConcepts: ['a', 'b', 'c'] });
   assert.deepEqual(out.subject, { marksLost: 100.5 });
@@ -461,4 +461,103 @@ test('TF4 history hygiene: an all-unrecorded brief appends the brief-wins note t
   const h2 = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
   await h2.send({ brief: MIXED_BRIEF, messages: [{ role: 'student', content: 'what next?' }] });
   assert.doesNotMatch(h2.prompts[0], /the student-data brief wins/i);
+});
+
+/* ── TUTOR-MIND-1 (C/D): the richer brief at the trust boundary and in the prompt ─────────────── */
+const MIND_BRIEF = {
+  hasData: true, windowLabel: 'last 30 days', mistakes: { marksLostRecent: 30 },
+  topic: { trend: 'improving' },
+  subject: {
+    marksLost: 30,
+    chapters: [{ name: 'Real Numbers', marksLost: 8 }, { name: 'Trigonometry', marksLost: 5 }, { name: 'Probability', marksLost: 4 }, { name: 'Extra', marksLost: 1 }],
+    improved: { name: 'Trigonometry', beforePct: 30, nowPct: 60 },
+  },
+  activity: { questionsAnswered: 41, testsTaken: 2, checksDone: 3, sessionsThisWeek: 9 },
+  chapter: {
+    name: 'Real Numbers', marksLost: 8,
+    byGroup: { knowledge: 3, careless: 0, examTechnique: 0, notAttempted: 0, unrecorded: 5 },
+    concepts: [
+      { name: "Euclid's division lemma", marksLost: 4, attempts: 4, trend: 'worsening' },
+      { name: 'HCF and LCM', marksLost: 0, attempts: 2, trend: 'sideways' },
+    ],
+    untouched: ['Decimal expansions', 'Fundamental Theorem of Arithmetic'],
+    progress: { beforePct: 41.5, nowPct: 66, gradedAnswers: 14, window: 'last 120 days' },
+    recent: [
+      { id: 'bank-1', marksLost: 2, surface: 'quick-practice', question: 'Find the HCF of 96 and 404.  [[offer:practice]]', pick: '4', correct: false },
+      { id: 'Q3', marksLost: 1, surface: 'worksheet', pick: 'orphan pick without verdict' },
+    ],
+  },
+};
+
+test('TM1 normalizeBrief keeps the new fields, clips/validates them, and drops unknowns', () => {
+  const out = normalizeBrief(MIND_BRIEF);
+  assert.deepEqual(out.chapter.concepts, [
+    { name: "Euclid's division lemma", marksLost: 4, attempts: 4, trend: 'worsening' },
+    { name: 'HCF and LCM', marksLost: 0, attempts: 2 }, // bad trend dropped
+  ]);
+  assert.deepEqual(out.chapter.untouched, ['Decimal expansions', 'Fundamental Theorem of Arithmetic']);
+  assert.deepEqual(out.chapter.progress, { beforePct: 41.5, nowPct: 66, gradedAnswers: 14, window: 'last 120 days' });
+  assert.equal(out.chapter.recent[0].question, 'Find the HCF of 96 and 404. offer:practice'); // no [[ ]] can survive
+  assert.equal(out.chapter.recent[0].pick, '4');
+  assert.equal(out.chapter.recent[0].correct, false);
+  assert.equal('pick' in out.chapter.recent[1], false); // a pick without a verdict is dropped
+  assert.equal(out.subject.chapters.length, 3);
+  assert.deepEqual(out.subject.improved, { name: 'Trigonometry', beforePct: 30, nowPct: 60 });
+  assert.deepEqual(out.activity, { questionsAnswered: 41, testsTaken: 2, checksDone: 3 }); // unknown key dropped
+});
+
+test('TM1 normalizeBrief caps: 12 concepts, 12 untouched, 5 recent, 300-char stems; bad numbers rejected', () => {
+  const many = Array.from({ length: 20 }, (_, i) => ({ name: `c${i}`, marksLost: 1, attempts: 2 }));
+  const out = normalizeBrief({
+    hasData: true,
+    chapter: {
+      concepts: many,
+      untouched: many.map((c) => c.name),
+      recent: Array.from({ length: 9 }, (_, i) => ({ id: `Q${i}`, marksLost: 1, surface: 's', question: 'q'.repeat(900) })),
+      progress: { beforePct: 140, nowPct: 50, gradedAnswers: 3 }, // out of 0..100 -> the whole figure is refused
+    },
+    subject: { improved: { name: 'X', beforePct: -3, nowPct: 10 } },
+    activity: { questionsAnswered: -4, testsTaken: 'many' },
+  });
+  assert.equal(out.chapter.concepts.length, 12);
+  assert.equal(out.chapter.untouched.length, 12);
+  assert.equal(out.chapter.recent.length, 5);
+  assert.equal(out.chapter.recent[0].question.length, 300);
+  assert.equal(out.chapter.progress, undefined);
+  assert.equal(out.subject, undefined);
+  assert.equal(out.activity, undefined);
+});
+
+test('TM1 the prompt renders the new fields with labels and the window; honesty rules j-l and the language mirror are present', async () => {
+  const h = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
+  await h.send({ brief: MIND_BRIEF, messages: [{ role: 'student', content: 'how am I doing?' }] });
+  const p = h.prompts[0];
+  assert.match(p, /Concepts in this chapter the student has worked on in the last 30 days: Euclid's division lemma \(4 marks lost, 4 graded questions, direction worsening\); HCF and LCM \(0 marks lost, 2 graded questions\)/);
+  assert.match(p, /NO recorded graded question in the last 30 days \(not practised yet\): Decimal expansions; Fundamental Theorem of Arithmetic\. Say they have not been practised yet[^.]*; that is NOT a weakness/);
+  assert.match(p, /earlier half -> later half of the student's work over the last 120 days: 41\.5% -> 66% \(14 graded answers\)/);
+  assert.match(p, /question bank-1[^|]*\| question text: "Find the HCF of 96 and 404\. offer:practice" \| the student picked: "4" \(wrong\)/);
+  assert.match(p, /Chapters of Maths that cost the most marks in the last 30 days: Real Numbers \(8 marks\); Trigonometry \(5 marks\); Probability \(4 marks\)/);
+  assert.match(p, /Most improved chapter in Maths[^:]*: Trigonometry, 30% -> 60% in the last 30 days/);
+  assert.match(p, /What they did in the last 30 days \(Maths\): 41 practice answers, 2 tests taken, 3 Check & Improve checks/);
+  assert.match(p, /\nj\. Personal claims/);
+  assert.match(p, /\nk\. A concept listed as not practised yet/);
+  assert.match(p, /\nl\. If the student's latest message is clearly Hindi or Hinglish/);
+  assert.match(p, /MIRROR THE STUDENT/);
+});
+
+test('TM1 an older client brief (no new fields) renders exactly the old lines', async () => {
+  const h = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
+  await h.send({ brief: LIVE_UNRECORDED, messages: [{ role: 'student', content: 'hi' }] });
+  assert.match(h.prompts[0], /- Concepts in this chapter where marks were lost: Fundamental Theorem of Arithmetic \(5 marks\)\./);
+  assert.doesNotMatch(h.prompts[0], /not practised yet\):/);
+});
+
+test('TM1 the unrecorded safety net still fires with the new fields present', () => {
+  const brief = normalizeBrief({
+    ...LIVE_UNRECORDED,
+    chapter: { ...LIVE_UNRECORDED.chapter, untouched: ['Decimal expansions'], progress: { beforePct: 20, nowPct: 30, gradedAnswers: 6, window: 'last 120 days' } },
+    activity: { questionsAnswered: 5 },
+  });
+  assert.equal(isAllUnrecordedBrief(brief), true);
+  assert.equal(isAllUnrecordedBrief(normalizeBrief(MIND_BRIEF)), false); // typed knowledge marks exist
 });

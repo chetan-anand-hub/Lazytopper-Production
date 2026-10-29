@@ -23,6 +23,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
+  TOPIC_HUB_TREND_WINDOW,
   getTopicTrendFromCloud,
   isShortSpan,
   type ProgressWindow,
@@ -68,7 +69,7 @@ function deltaText(delta: number): string {
 
 export function TopicProgressTrend({
   topicKey,
-  window = "4mo",
+  window = TOPIC_HUB_TREND_WINDOW,
 }: TopicProgressTrendProps): React.ReactElement | null {
   const { user } = useAuth();
 

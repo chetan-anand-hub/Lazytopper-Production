@@ -1,5 +1,7 @@
 /**
- * A17 owner ruling 6 (GRADING-JOBS-1) + ME-ENGINE-1 PR-2 — the Tutor is never told an invented
+ * A17 owner ruling 6 (GRADING-JOBS-1) + ME-ENGINE-1 PR-2 — [TUTOR-MIND-1, 29 Oct 2026: ruling 6's "no per-concept
+ * percentage in the brief" is SUPERSEDED by the owner — the chapter block may carry the Topic Hub's before->now
+ * (`chapter.progress`); `topic`/`mistakes`/"mastery" stay exactly as pinned here] — the Tutor is never told an invented
  * mastery figure, and no per-concept PERCENTAGE either: the brief carries only fields that are
  * real, measured figures from the shared read model.
  *

@@ -601,7 +601,9 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `\nLANGUAGE\n` +
     `- Explain in ${lang}. BUT exam content stays in English: the NCERT definition to memorise and the ` +
     `answer the student must write stay in English (CBSE Class-10 Maths/Science is English-medium). Language ` +
-    `aids understanding; it never changes what they write in the exam.`
+    `aids understanding; it never changes what they write in the exam.\n` +
+    `- MIRROR THE STUDENT: if their latest message is clearly Hindi or Hinglish, reply in that register even when ` +
+    `the session language above is English (exam terms stay English). See honesty rule l.`
   );
 
   if (concept && String(concept).trim()) {
@@ -732,27 +734,69 @@ function briefBlock(brief, { chapter, subj } = {}) {
     facts.push(`- Biggest loss group in this chapter: ${GROUP_LABEL[ch.topGroup]}.`);
   }
   const concepts = Array.isArray(ch.concepts)
-    ? ch.concepts.filter((c) => c && str(c.name) && num(c.marksLost) !== null).slice(0, 3)
+    ? ch.concepts.filter((c) => c && str(c.name) && num(c.marksLost) !== null).slice(0, 12)
     : [];
-  if (concepts.length) {
+  if (concepts.length && !concepts.some((c) => num(c.attempts) !== null)) {
+    // An older client (no per-concept activity): the original wording, unchanged.
     facts.push(
-      `- Concepts in this chapter where marks were lost: ${concepts.map((c) => `${str(c.name)} (${marksText(num(c.marksLost))})`).join(', ')}. ` +
+      `- Concepts in this chapter where marks were lost: ${concepts.slice(0, 3).map((c) => `${str(c.name)} (${marksText(num(c.marksLost))})`).join(', ')}. ` +
       `A concept name says WHERE marks were lost, not WHY — it is not a mistake type and does not mean a concept/knowledge gap.`,
+    );
+  } else if (concepts.length) {
+    const row = (c) => {
+      const att = num(c.attempts);
+      const bits = [marksText(num(c.marksLost)) + ' lost'];
+      if (att !== null) bits.push(`${att} graded ${att === 1 ? 'question' : 'questions'}`);
+      if (c.trend === 'improving' || c.trend === 'worsening' || c.trend === 'stable') bits.push(`direction ${c.trend}`);
+      return `${str(c.name)} (${bits.join(', ')})`;
+    };
+    facts.push(
+      `- Concepts in this chapter the student has worked on ${inWindow}: ${concepts.map(row).join('; ')}. ` +
+      `A concept name says WHERE marks were lost (or that it was practised), not WHY — it is not a mistake type and ` +
+      `does not mean a concept/knowledge gap. "0 marks lost" means practised without losing marks there.`,
     );
   } else if (Array.isArray(topic.weakConcepts) && topic.weakConcepts.length) {
     facts.push(`- Sub-topics that have cost marks: ${topic.weakConcepts.slice(0, 3).map(str).filter(Boolean).join(', ')}.`);
   }
+  const untouched = Array.isArray(ch.untouched) ? ch.untouched.map(str).filter(Boolean).slice(0, 12) : [];
+  if (untouched.length) {
+    facts.push(
+      `- Concepts of this chapter with NO recorded graded question ${inWindow} (not practised yet): ${untouched.join('; ')}. ` +
+      `Say they have not been practised yet on LazyTopper; that is NOT a weakness and not a gap — never claim they are weak.`,
+    );
+  }
+  const prog = ch.progress && typeof ch.progress === 'object' ? ch.progress : null;
+  if (prog && num(prog.beforePct) !== null && num(prog.nowPct) !== null) {
+    const g = num(prog.gradedAnswers);
+    const pw = str(prog.window);
+    facts.push(
+      `- Marks in this chapter, earlier half -> later half of the student's work over the ${pw ? pw.replace(/^the\s+/i, '') : 'window shown on their Topic Hub'}: ` +
+      `${num(prog.beforePct)}% -> ${num(prog.nowPct)}%${g !== null ? ` (${g} graded answers)` : ''}. ` +
+      `This is the same figure the student sees on their Topic Hub. Quote it as given with its window; never round up, extend it to another window or call it mastery.`,
+    );
+  }
   const recent = Array.isArray(ch.recent)
-    ? ch.recent.filter((r) => r && str(r.id) && num(r.marksLost) !== null && str(r.surface)).slice(0, 3)
+    ? ch.recent.filter((r) => r && str(r.id) && num(r.marksLost) !== null && str(r.surface)).slice(0, 5)
     : [];
   if (recent.length) {
+    const withText = recent.some((r) => typeof r.question === 'string' && r.question.trim());
     const rows = recent.map((r) => {
       const bits = [`question ${str(r.id)}`, str(r.surface), `${marksText(num(r.marksLost))} lost`];
       if (r.group && GROUP_LABEL[r.group]) bits.push(GROUP_LABEL[r.group]);
       if (str(r.date)) bits.push(str(r.date));
-      return bits.join(', ');
+      let line = bits.join(', ');
+      const q = typeof r.question === 'string' ? r.question.trim().slice(0, 300) : '';
+      if (q) line += ` | question text: "${q}"`;
+      const pick = typeof r.pick === 'string' ? r.pick.trim().slice(0, 120) : '';
+      if (pick && typeof r.correct === 'boolean') line += ` | the student picked: "${pick}" (${r.correct ? 'right' : 'wrong'})`;
+      return line;
     });
-    facts.push(`- Most recent graded questions in this chapter (ids and marks only; you do NOT have their text or the student's answers): ${rows.join('; ')}.`);
+    facts.push(
+      `- Most recent graded questions in this chapter (newest first, each with marks lost): ${rows.join(' ;; ')}. ` +
+      (withText
+        ? `Where a question text is listed you may refer to that question by it; where none is listed you do NOT have its text. You do NOT have the student's written answers or working unless a pick is shown.`
+        : `Ids and marks only: you do NOT have their text or the student's answers.`),
+    );
   }
   if (topic.trend) {
     facts.push(`- Recent direction on this topic: ${str(topic.trend)}.`);
@@ -764,12 +808,35 @@ function briefBlock(brief, { chapter, subj } = {}) {
   if (mistakes.topType && !allUnrecorded) {
     facts.push(`- Most common mistake type across the whole subject: ${str(mistakes.topType)}.`);
   }
+  const subjChapters = b.subject && Array.isArray(b.subject.chapters)
+    ? b.subject.chapters.filter((c) => c && str(c.name) && num(c.marksLost) !== null).slice(0, 3)
+    : [];
+  if (subjChapters.length) {
+    facts.push(
+      `- Chapters of ${subjectName} that cost the most marks ${inWindow}: ` +
+      `${subjChapters.map((c) => `${str(c.name)} (${marksText(num(c.marksLost))})`).join('; ')}. Only these are known; other chapters are not covered here.`,
+    );
+  }
+  const imp = b.subject && b.subject.improved && typeof b.subject.improved === 'object' ? b.subject.improved : null;
+  if (imp && str(imp.name) && num(imp.beforePct) !== null && num(imp.nowPct) !== null) {
+    facts.push(`- Most improved chapter in ${subjectName} (same figure as their Progress page): ${str(imp.name)}, ${num(imp.beforePct)}% -> ${num(imp.nowPct)}% ${inWindow}.`);
+  }
+  const act = b.activity && typeof b.activity === 'object' ? b.activity : null;
+  if (act) {
+    const parts = [];
+    if (num(act.questionsAnswered) !== null) parts.push(`${num(act.questionsAnswered)} practice answers`);
+    if (num(act.testsTaken) !== null) parts.push(`${num(act.testsTaken)} tests taken`);
+    if (num(act.checksDone) !== null) parts.push(`${num(act.checksDone)} Check & Improve checks`);
+    if (num(act.tutorSessions) !== null) parts.push(`${num(act.tutorSessions)} tutor sessions`);
+    if (parts.length) facts.push(`- What they did ${inWindow} (${subjectName}): ${parts.join(', ')}.`);
+  }
 
   return (
     `\nWHAT YOU KNOW ABOUT THIS STUDENT (their graded work in LazyTopper)\n` +
     facts.join('\n') + `\n` +
     `NOT IN THIS DATA: question text, the student's answers or working, results outside this window, and any ` +
-    `chapter, concept, question or mark not listed above.\n` +
+    `chapter, concept, question or mark not listed above (the one exception: a question text or pick printed ` +
+    `against a listed question above).\n` +
     `HOW TO USE IT: when the student asks about their own mistakes, marks, weak areas or progress, answer ` +
     `DIRECTLY with these exact figures, say the window (e.g. "in the last 30 days"), and say what the data does ` +
     `not cover. Keep chapter figures and the whole-subject figure clearly apart. Otherwise use it quietly to ` +
@@ -818,7 +885,18 @@ function honestyBlock() {
     `i. WHAT YOU KNOW ABOUT THIS STUDENT (the student-data brief) in this system message is the only source of ` +
     `truth about the student's marks and mistake types. If anything said earlier in this conversation ` +
     `(including your own earlier replies) contradicts it, the brief wins — correct it plainly ("Correction: ` +
-    `those marks have no mistake type recorded") and never repeat the earlier claim.`
+    `those marks have no mistake type recorded") and never repeat the earlier claim.\n` +
+    // TUTOR-MIND-1
+    `j. Personal claims (marks, concepts, questions, picks, progress) come ONLY from WHAT YOU KNOW ABOUT THIS ` +
+    `STUDENT, THE WORK THE STUDENT JUST HAD BOARD-MARKED, or this chat. Quote a progress figure exactly as given ` +
+    `with its window; never extend it to another window, never invent one, never call it mastery.\n` +
+    `k. A concept listed as not practised yet has NO graded work: say it has not been practised yet — never call ` +
+    `it a weakness or a gap. Encourage only from real progress in the data (a higher "now" than "before", marks ` +
+    `won back); with no such data, encourage the effort, not a result. If a detail is not listed, say you do not ` +
+    `see it.\n` +
+    `l. If the student's latest message is clearly Hindi or Hinglish, reply in that same register (Hinglish in ` +
+    `Roman script unless they wrote Devanagari) even if the session language is English. Exam terms, definitions ` +
+    `and the answer to write stay in English (Teach-Contract §5). Rules a-k hold unchanged.`
   );
 }
 
