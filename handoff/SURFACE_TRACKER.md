@@ -1,3 +1,16 @@
+> **2026-10-29 (daily) - #1405 - #1406 - #1407 (CLAUDE.md section 10, once a day).** Scope: `/packs`, `/pricing` (CBQ band), the Practice hub, Quick Practice results, Home, `/check-improve`, the Byte guide, and the admin Students page. No mark, mistake type, departure rule, objective clamp or prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Facts marked **[git/gh]** were re-read from the PR records; **[coordinator]** come from the dispatch spec. Written at trunk `001dcea5` (= `#1407`). The rows below ADD to the 2026-10-28 block.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| `/packs` | CBQ hero at `#cbq`, Maths and Science CBQ Packs Rs 199 (`#1407`) | live per merge [coordinator] | `[FU-CBQ-BAND-PREMIUM-PACKS-PAGE]` (paid Premium still sees the hero); phone-width look |
+| Pricing (`/pricing`) | gold NEW-CBQ band after Premium, before other packs (`#1407`) | live per merge | band can flash before subscription hydrates (same FU) |
+| Practice hub | lazy PackPromoCard (`#1406`) | live per merge; signed-out, trial, Basic only | `[FU-PACK-PROMO-IMPRESSION-EVENT]` |
+| Home | PackPromoCard, desktop and mobile (`#1406`) | live per merge | same |
+| Check and Improve (`/check-improve`) | PackPromoCard (`#1406`); no grading change | live per merge | same |
+| Quick Practice results | promo card below the Board Pass line (`#1406`) | live per merge | same |
+| Admin Students | "Practice answers (QP + taps)" column, "Tried practice (tap or QP)" card (`#1405`) | live per merge | read after a day of traffic |
+| Byte guide | packs rule before Check and Improve, packs option to `/packs`, quick intents (`utm_content` quick/mcq/tap, `?quick=1`), "Here for CBQs? Start here:" (`#1405`) | live per merge | `[FU-QUICK-PARAM-SIGNUP]` |
+
 > **2026-10-28 (daily) - #1381 - #1382 - #1384 - #1383 - #1385 - #1388 - #1390 - #1389 - #1386 - #1393 - #1387 - #1391 - #1392 - #1394 - #1395 - #1396 - #1397 - #1398 - #1401 - #1400 - #1402 (CLAUDE.md section 10, once a day).** Scope: `/pricing`, `/packs`, `/for-parents`, Home (activation, Byte), Login (in-app browsers), every grading scorecard (Board Pass line, pack line), paper and download walls, Me/Progress, Chapter Test / Full Mock intros, Practice scroll, the tutor picker footnote and the trial-ending / nudge emails. No mark, mistake type, departure rule, objective clamp or prompt rule changed in a merged PR (`#1399`, which would, is open and not merged). No scope was discovered; no surface's Scope moved to Settling. Facts marked **[git/gh]** were re-read from the PR records; **[coordinator]** come from the dispatch spec. Written at trunk `93880249` (= `#1402`). The rows below ADD to the 2026-10-25 blocks; where a row there says "packs must appear here", "no pack offer on grading walls" or old pack-line copy, this block supersedes it.
 
 | surface | what moved (PR) | state | owed |
