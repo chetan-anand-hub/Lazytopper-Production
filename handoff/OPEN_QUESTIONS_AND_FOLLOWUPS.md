@@ -23,6 +23,43 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-29 (daily) - #1405 - #1406 - #1407 (3 product merges, 29 Oct IST; `#1399` open) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*Readings are at trunk `001dcea5`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator's dispatch spec **[coordinator]**; this builder re-derived none of the code facts.
+
+### [FU-GRADING-CHUNK-45S-ABORTS] - CORRECTED 29 Oct
+The 28 Oct entry below (about 1 in 6 chunk calls hit the 45 s timeout) is NOT a production finding. It came from the golden eval's SYNCHRONOUS path (`goldenLive.cjs`). Production papers run as background jobs (GRADING-JOBS-1 `#966` / `#979` / `#980` / `#1002` / `#1009` / `#1016`: 8-question chunks, 120 s per call, 180 s wall, abort re-split 180 / 270 s). Production speed is still to be measured from `[grade-timing]` job lines.
+
+### [FU-GRADING-JOBS-COUNTERS-NOT-EXPOSED]
+Evidence [coordinator]: `grading_jobs.*` counters are not exposed by `/api/admin/token-telemetry` on trunk (`adminTelemetry.cjs` reads closed counter sets only). The grader-health view (`?view=grader-health`) gives not-graded by reason per day. Decide whether to expose the counters.
+
+### [FU-CBQ-FRAGMENTS-WITHHOLD]
+Evidence [coordinator]: withhold `CBE-M-AP-B-003`, `CBE-M-AP-C-001` and `CBE-S-ENVI-E-002` (fragments). Doing so breaks 14 pinned guards, so it is its own lane. `SQP-S-2023-MNM-E-001`, `SQP-S-2023-HEYE-E-001` and `SQP-S-2025-LGHT-038` are multi-part, not fragments. All six are already excluded from the CBQ pack.
+
+### [FU-CBQ-BAND-PREMIUM-PACKS-PAGE]
+Evidence [coordinator]: paid Premium still sees the CBQ hero on `/packs`; and the `/pricing` CBQ band can flash before the subscription hydrates.
+
+### [FU-QUICK-PARAM-SIGNUP]
+Evidence [coordinator]: `?quick=1` does not survive sign-up; fixing it needs `visitSource.ts`.
+
+### [FU-PACK-PROMO-IMPRESSION-EVENT]
+Evidence [coordinator]: PackPromoCard has no impression event; only `pack_entry_click` with `from=promo_<surface>`. Add one to measure click-through.
+
+### [FU-CI-SLOW-RUNNERS-29OCT]
+Evidence [coordinator]: CI vitest timeouts and worker RPC timeouts on 29 Oct; the `ltGenerated.guard` CHAPTER TEST case hit its 120 s timeout against 32 s locally; the START-HERE-WRITTEN default waitFor was too tight (slack added in `#1405`).
+
+### [FU-MISTAKE-CALC-1-BASELINE]
+Evidence [coordinator]: `#1399` is still HELD; the trunk baseline was not run. Laptop scripts `lt-ledger/MC1.*` exist.
+
+### [FU-GOLDENJUDGE-PATCH-PORT]
+Still open [coordinator]; no new evidence on 29 Oct. See the earlier entries on this board.
+
+### [FU-ADS-VIDEO-FORMATS]
+Still open [coordinator]; see the entry below.
+
+### [FU-ADS-BUDGET-CLICKS-29OCT]
+Evidence [coordinator]: the owner approved YouTube Students to Rs 2,500/day and PDF Packs to Rs 1,500/day; the edits need the owner's "Confirm it's you" re-auth and had not been made at writing.
+
 ## 2026-10-28 (daily) - #1381 - #1402 (21 product merges, 28 Oct IST; `#1399` open) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `93880249`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator's dispatch spec **[coordinator]** and the PR bodies **[git/gh]**; this builder re-derived none of the code facts.

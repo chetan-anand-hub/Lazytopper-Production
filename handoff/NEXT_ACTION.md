@@ -1,3 +1,18 @@
+## 2026-10-29 (daily) - AFTER #1405 - #1406 - #1407 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
+
+*(The owner items of every block below stand unchanged, except where this block narrows them.)* Trunk at writing: **`001dcea5`** (`001dcea59d6ae7dbe865ffdbbede9b96ac40c918`, = `#1407`) [git/gh]. Facts marked **[coordinator]** come from the coordinator's dispatch spec.
+
+- **Done [git/gh]:** three product PRs (table in the CURRENT_STATE 2026-10-29 block). Open: `#1399` MISTAKE-CALC-1 (draft, HELD).
+- **NEXT, in order [coordinator]:**
+  1. **Owner clicks the ads budgets** (needs "Confirm it's you"): YouTube Students to Rs 2,500, PDF Packs to Rs 1,500.
+  2. **Read the thinking-cap result** (laptop ledgers in `C:\Users\Chetan\lt-ledger`) under the 28 Oct ship rule; ship nothing unless every quality metric is at least min(T0a, T0b).
+  3. **Measure production grading speed** from the `[grade-timing]` job lines (the 45 s abort finding was the eval's synchronous path, not production: `[FU-GRADING-CHUNK-45S-ABORTS]` CORRECTED).
+  4. **MISTAKE-CALC-1 `#1399`:** run the trunk baseline (`[FU-MISTAKE-CALC-1-BASELINE]`), then its golden case and a two-surface live verify (CLAUDE.md section 4a) before any merge.
+  5. **Owner purchase test** of PACK-CREDIT-1 (`[FU-PACK-CREDIT-LIVE-TEST]`) is still open.
+  6. The follow-ups in the 2026-10-29 (daily) section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Ad ladder [owner + data, coordinator]:** tap CBQ practice first, then Check and Improve (only 11 of 414 sign-ups graded a written answer). Ad images are product shots with no overlaid text.
+- **Doc-only note:** this PR touches only `handoff/`.
+
 ## 2026-10-28 (daily) - AFTER #1381 - #1382 - #1384 - #1383 - #1385 - #1388 - #1390 - #1389 - #1386 - #1393 - #1387 - #1391 - #1392 - #1394 - #1395 - #1396 - #1397 - #1398 - #1401 - #1400 - #1402 (written by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *(The owner items of every block below stand unchanged, except where this block narrows them. The NEXT list of the 2026-10-25 (daily, part 2) block is superseded by this one for items 4 and 5 (sitelinks and founder line are built).)* Trunk at writing: **`93880249`** (`938802497face3404f1cfe1ca131c63391ec722f`, = `#1402`) [git/gh]. Facts marked **[coordinator]** come from the coordinator's dispatch spec.

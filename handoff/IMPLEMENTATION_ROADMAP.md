@@ -1,3 +1,10 @@
+## 2026-10-29 (daily) - GUIDE-QP-1 (`#1405`), PACKS-VISIBLE-1 (`#1406`), CBQ-PACK-1 (`#1407`) - MERGED
+
+- DONE. `#1405` (`e4d6c329`): GUIDE-QP-1 - Byte packs rule and quick-practice intents; admin Students practice-answers column and card. NEXT: read the new admin column after a day; `[FU-QUICK-PARAM-SIGNUP]`.
+- DONE. `#1406` (`4f9fb10c`): PACKS-VISIBLE-1 - lazy PackPromoCard on the Practice hub, Quick Practice results, Home and `/check-improve`. NEXT: `[FU-PACK-PROMO-IMPRESSION-EVENT]` (no impression event yet).
+- DONE. `#1407` (`001dcea5`, trunk): CBQ-PACK-1 - Maths and Science CBQ Packs at Rs 199, `/pricing` band, `/packs#cbq`. NEXT: `[FU-CBQ-FRAGMENTS-WITHHOLD]`, `[FU-CBQ-BAND-PREMIUM-PACKS-PAGE]`.
+- IN FLIGHT: `#1399` MISTAKE-CALC-1 (draft, HELD; baseline not run).
+
 ## 2026-10-28 (daily) - FOUNDER-IITIAN-1 (`#1381`), PACKS-SITELINKS-1 (`#1382`), PACK-CREDIT-1 (`#1384`), PRICING-LADDER-1 (`#1383`), EMAILS-SELL-1 (`#1385`), PAPER-WALLS-1 (`#1388`), ACTIVATION-1 (`#1390`), PARENTS-PAY-1 (`#1389`), PACK-LINKS-1 (`#1386`), ENTRY-DIET-1 (`#1393`), SPEED-1 (`#1387`), INAPP-SIGNIN-1 (`#1391`), FIRST-OFFER-1 (`#1392`), BASIC-COPY-1 (`#1394`), PACK-BASIC-ONLY-1 (`#1395`), PACKS-ANCHOR-FIX-1 (`#1396`), GRADE-SPEED-1 (`#1397`), BYTE-TRYONE-1 (`#1398`), SCROLL-TOP-1 (`#1401`), THINK-FALLBACK-SAFE-1 (`#1400`), COPY-FIXES-2 (`#1402`) - MERGED
 
 - DONE. `#1381` (`14c9ce53`): FOUNDER-IITIAN-1 - founder badge on `/pricing` and `/packs`. Closes `[FU-PACKS-FOUNDER-LINE]`. NEXT: whether the badge goes on the social creatives (`[FU-PACKS-CREATIVES-IIT]`, owner).

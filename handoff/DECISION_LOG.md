@@ -1,3 +1,16 @@
+## 2026-10-29 (daily) - #1405 - #1406 - #1407 (3 product merges, 29 Oct IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 29 Oct 2026 (IST) relayed by the cofounder **[coordinator]** (dispatch spec), with the reason where one was given; where none was given, none is invented. Earlier dated blocks stand as written.
+
+| decision | what it says | the reason |
+|---|---|---|
+| CBQ pack is a SEPARATE SKU at Rs 199 per subject, not folded into the Subject Pack or Bundle | `#1407` | owner: demand for CBQs is high, so capitalise on it |
+| `/pricing` band order **Premium, CBQ, other packs, Basic** | `#1407` | owner ruling on placement |
+| Ad ladder: **tap CBQ practice first, then Check and Improve** | ads, `#1405` | owner and data: only 11 of 414 sign-ups graded a written answer, so a one-tap practice is the lower-friction first step |
+| Ad images are **product shots with no overlaid text** | ads | Google display best practice |
+| The repo was made **public** on 29 Oct | owner action | faster free CI. NOTE: project memory and the 28 Oct block record the owner wanting it private; this is recorded as a deliberate owner action, not a builder inference |
+| `[FU-GRADING-CHUNK-45S-ABORTS]` marked CORRECTED | docs | the 45 s timeout was the golden eval's synchronous path, not the production background-job path |
+
 ## 2026-10-28 (daily) - #1381 - #1382 - #1384 - #1383 - #1385 - #1388 - #1390 - #1389 - #1386 - #1393 - #1387 - #1391 - #1392 - #1394 - #1395 - #1396 - #1397 - #1398 - #1401 - #1400 - #1402 (21 product merges, 28 Oct IST): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 28 Oct 2026 (IST) relayed by the cofounder **[coordinator]** (dispatch spec), with the reason where one was given; where none was given, none is invented. Earlier dated blocks stand as written: where this block narrows or supersedes one, the earlier text is superseded here, not edited.
