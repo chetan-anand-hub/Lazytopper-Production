@@ -302,7 +302,7 @@ describe("PacksPage", () => {
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(buyMock.mock.calls[0][0]).toBe("pack_cbq");
     expect(buyMock.mock.calls[0][1]).toBe("maths");
-    expect(screen.getByTestId("where").textContent).toBe("/packs?from=ads_1#cbq");
+    await waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/packs?from=ads_1#cbq"));
     expect((await screen.findByRole("dialog")).textContent).toContain("Maths CBQ Pack");
     await new Promise((r) => setTimeout(r, 50));
     expect(buyMock).toHaveBeenCalledTimes(1);
