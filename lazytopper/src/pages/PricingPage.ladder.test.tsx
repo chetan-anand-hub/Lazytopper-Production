@@ -124,6 +124,7 @@ describe("PacksStrip - the ladder", () => {
     const { container } = renderStrip({ creditLive: true });
     expect(container.querySelector('[data-testid="pricing-packs-strip"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="cbq-band"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="pricing-pack-credit"]')).toBeNull(); // already has the Board Pass
   });
 });
 

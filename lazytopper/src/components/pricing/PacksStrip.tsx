@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, type PackSku } from "../../services/packs";
 import { ALL_NCERT_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 import PacksShop from "../packs/PacksShop";
+import { usePaidPremium } from "../../lib/packs/usePaidPremium";
 import type { PacksQueryPack } from "../../lib/packs/packEntry";
 import CbqBand from "./CbqBand";
 import "./packsStrip.css";
@@ -42,6 +43,9 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
   // browser's own hash scroll has already missed it, and content above it (Premium card, founding offer, other lazy parts) can still
   // grow after our first scroll and push it below the fold. So: scroll the strip's TOP to the top of the viewport on mount, then
   // re-assert on the next frames and after ~300 ms / ~900 ms, and stop the moment the student scrolls, touches or presses a key.
+  // PRICING-ONE-1: the page is uniform; the ONLY thing a paid student does not see is the "take the Board Pass and the pack price comes off"
+  // line - they already have the Board Pass (cached read; signed out / not yet hydrated -> shown).
+  const paid = usePaidPremium();
   const { hash } = useLocation();
   const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -110,7 +114,7 @@ export default function PacksStrip({ creditLive = PACK_CREDIT_LIVE }: { creditLi
               ))}
             </ul>
             <div className="lt-packoffer__foot">
-              {creditLive && <p className="lt-packoffer__credit" data-testid="pricing-pack-credit">{PACK_CREDIT_LINE}</p>}
+              {creditLive && !paid && <p className="lt-packoffer__credit" data-testid="pricing-pack-credit">{PACK_CREDIT_LINE}</p>}
             </div>
           </section>
         </>

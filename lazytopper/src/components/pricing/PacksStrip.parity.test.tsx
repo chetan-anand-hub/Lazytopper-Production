@@ -9,8 +9,12 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
-const paid = vi.hoisted(() => ({ value: false }));
-vi.mock("../../lib/packs/usePaidPremium", () => ({ usePaidPremium: () => paid.value }));
+// The REAL usePaidPremium runs; only the cached subscription it reads is mocked (tier per state).
+const sub = vi.hoisted(() => ({ tier: "free" as "free" | "trial" | "premium" }));
+vi.mock("../../services/subscriptionService", async (orig) => ({
+  ...(await orig<typeof import("../../services/subscriptionService")>()),
+  loadSubscription: () => ({ tier: sub.tier }),
+}));
 vi.mock("../../analytics/analytics", () => ({ newCheckoutAttemptId: () => "lt_attempt" }));
 vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackCheckout: () => undefined, trackPackPurchase: () => undefined, trackPackEvent: () => undefined }));
 const buyPack = vi.hoisted(() => vi.fn(async (..._a: unknown[]) => ({ status: "dismissed" })));
@@ -46,22 +50,22 @@ const strip = (url = "/pricing") =>
 
 beforeEach(() => {
   auth.user = null;
-  paid.value = false;
+  sub.tier = "free";
   buyPack.mockClear();
 });
 afterEach(() => cleanup());
 
-const STATES: ReadonlyArray<[string, { uid: string } | null, boolean]> = [
-  ["signed out", null, false],
-  ["Basic / free", { uid: "u1" }, false],
-  ["trial", { uid: "u2" }, false],
-  ["paid Premium", { uid: "u3" }, true],
+const STATES: ReadonlyArray<[string, { uid: string } | null, "free" | "trial" | "premium"]> = [
+  ["signed out", null, "free"],
+  ["Basic / free", { uid: "u1" }, "free"],
+  ["active trial", { uid: "u2" }, "trial"],
+  ["paid Premium", { uid: "u3" }, "premium"],
 ];
 
 describe("/pricing packs - the same for every account", () => {
-  it.each(STATES)("%s: CBQ band (Maths + Science) and all four pack tiles with their prices", (_n, user, isPaid) => {
+  it.each(STATES)("%s: CBQ band (Maths + Science) and all four pack tiles with their prices", (_n, user, tier) => {
     auth.user = user;
-    paid.value = isPaid;
+    sub.tier = tier;
     const { container } = strip();
     expect(screen.getByTestId("cbq-band")).toBeTruthy();
     expect(screen.getByTestId("pricing-cbq-maths").textContent).toContain("₹199");
@@ -71,6 +75,13 @@ describe("/pricing packs - the same for every account", () => {
     expect(Array.from(container.querySelectorAll(".lt-packoffer__cell")).map((c) => c.getAttribute("data-price"))).toEqual(["49", "99", "199", "299"]);
     expect(container.querySelector("#packs")).not.toBeNull();
     expect(container.querySelector("#cbq")).not.toBeNull();
+  });
+
+  it.each(STATES)("%s: the Board Pass credit line shows for everyone except paid Premium", (_n, user, tier) => {
+    auth.user = user;
+    sub.tier = tier;
+    strip();
+    expect(screen.queryByTestId("pricing-pack-credit") !== null).toBe(tier !== "premium");
   });
 
   it("a signed-out Buy returns to /pricing (not /packs) after sign-in, carrying ?buy=", async () => {
