@@ -320,6 +320,11 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
     expect({ maths, science }).toMatchInlineSnapshot(`
       {
         "maths": {
+          "activity": {
+            "checksDone": 0,
+            "questionsAnswered": 18,
+            "testsTaken": 0,
+          },
           "chapter": {
             "byGroup": {
               "careless": 0,
@@ -330,18 +335,32 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
             },
             "concepts": [
               {
+                "attempts": 10,
                 "marksLost": 11,
                 "name": "Fundamental Theorem of Arithmetic",
+                "trend": "improving",
+              },
+              {
+                "attempts": 4,
+                "marksLost": 6,
+                "name": "Irrationality Proofs",
               },
             ],
             "marksLost": 17,
             "name": "Real Numbers",
+            "progress": {
+              "beforePct": 25,
+              "gradedAnswers": 14,
+              "nowPct": 38.5,
+              "window": "last 9 days",
+            },
             "recent": [
               {
                 "date": "2026-10-20",
                 "group": "knowledge",
                 "id": "RN-E02",
                 "marksLost": 2,
+                "question": "The prime factorisation of 156 is:",
                 "surface": "unknown",
               },
               {
@@ -349,6 +368,7 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
                 "group": "knowledge",
                 "id": "RN-E03",
                 "marksLost": 2,
+                "question": "If HCF(a, b) = 2 and a × b = 1800, then LCM(a, b) is:",
                 "surface": "unknown",
               },
               {
@@ -356,6 +376,23 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
                 "group": "knowledge",
                 "id": "RN-E04",
                 "marksLost": 2,
+                "question": "Which of the following is NOT an irrational number?",
+                "surface": "unknown",
+              },
+              {
+                "date": "2026-10-13",
+                "group": "examTechnique",
+                "id": "RN-E05",
+                "marksLost": 2,
+                "question": "Which of the following is an irrational number?",
+                "surface": "unknown",
+              },
+              {
+                "date": "2026-10-11",
+                "group": "knowledge",
+                "id": "RN-E07",
+                "marksLost": 2,
+                "question": "The HCF of two consecutive even numbers is:",
                 "surface": "unknown",
               },
             ],
@@ -367,6 +404,17 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
             "topType": "knowledge gap",
           },
           "subject": {
+            "chapters": [
+              {
+                "marksLost": 17,
+                "name": "Real Numbers",
+              },
+            ],
+            "improved": {
+              "beforePct": 25,
+              "name": "Real Numbers",
+              "nowPct": 38.5,
+            },
             "marksLost": 25,
           },
           "topic": {
@@ -378,6 +426,11 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
           "windowLabel": "last 30 days",
         },
         "science": {
+          "activity": {
+            "checksDone": 0,
+            "questionsAnswered": 10,
+            "testsTaken": 1,
+          },
           "chapter": {
             "byGroup": {
               "careless": 2,
@@ -386,14 +439,33 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
               "notAttempted": 0,
               "unrecorded": 2,
             },
+            "concepts": [
+              {
+                "attempts": 5,
+                "marksLost": 5,
+                "name": "Mirror / Lens Formula & Ray Diagrams",
+              },
+              {
+                "attempts": 3,
+                "marksLost": 3,
+                "name": "Refraction through Glass Slab / Prism",
+              },
+            ],
             "marksLost": 8,
             "name": "Light - Reflection & Refraction",
+            "progress": {
+              "beforePct": 42.9,
+              "gradedAnswers": 8,
+              "nowPct": 42.9,
+              "window": "last 7 days",
+            },
             "recent": [
               {
                 "date": "2026-10-20",
                 "group": "knowledge",
                 "id": "LT-E01",
                 "marksLost": 1,
+                "question": "The angle of incidence is equal to the angle of reflection. This is the law of:",
                 "surface": "unknown",
               },
               {
@@ -401,6 +473,7 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
                 "group": "knowledge",
                 "id": "LT-E02",
                 "marksLost": 1,
+                "question": "A concave mirror is used in:",
                 "surface": "unknown",
               },
               {
@@ -408,6 +481,23 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
                 "group": "careless",
                 "id": "LT-E03",
                 "marksLost": 1,
+                "question": "The SI unit of power of a lens is:",
+                "surface": "unknown",
+              },
+              {
+                "date": "2026-10-16",
+                "group": "careless",
+                "id": "LT-E04",
+                "marksLost": 1,
+                "question": "The image formed by a plane mirror is:",
+                "surface": "unknown",
+              },
+              {
+                "date": "2026-10-14",
+                "group": "examTechnique",
+                "id": "LT-E05",
+                "marksLost": 1,
+                "question": "The refractive index of glass is approximately:",
                 "surface": "unknown",
               },
             ],
@@ -419,6 +509,16 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
             "topType": "careless",
           },
           "subject": {
+            "chapters": [
+              {
+                "marksLost": 8,
+                "name": "Light - Reflection & Refraction",
+              },
+              {
+                "marksLost": 5,
+                "name": "Chemical Reactions & Equations",
+              },
+            ],
             "marksLost": 13,
           },
           "topic": {

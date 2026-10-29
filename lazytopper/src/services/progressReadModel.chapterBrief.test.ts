@@ -176,11 +176,14 @@ describe("TUTOR-FIX-2 T2 — the brief is chapter-correct", () => {
 
   it("★ (3) Real Numbers — mistakes without a bank questionId still yield 'Fundamental Theorem of Arithmetic' with 6 marks (Me's row)", async () => {
     const rn = await brief("real-numbers");
-    expect(rn.chapter?.concepts).toEqual([{ name: "Fundamental Theorem of Arithmetic", marksLost: 6 }]);
+    // TUTOR-MIND-1 (B1): the row also carries the concept's graded-question count (the rung's own points).
+    expect(rn.chapter?.concepts).toEqual([{ name: "Fundamental Theorem of Arithmetic", marksLost: 6, attempts: expect.any(Number), ...(rn.chapter?.concepts?.[0]?.trend ? { trend: rn.chapter.concepts[0].trend } : {}) }]);
     expect(rn.topic.weakConcepts).toEqual(["Fundamental Theorem of Arithmetic"]);
     // == Me's open-chapter concept rows (Me's own read for an open chapter).
     const scoped = await readStudyModel(UID, { window: WINDOW, topicKey: "real-numbers", mistakes: false, nowMs: NOW });
-    expect(viewRowsFrom(scoped.progress.concepts).map((r) => ({ name: r.label, marksLost: r.lost }))).toEqual(rn.chapter?.concepts);
+    expect(viewRowsFrom(scoped.progress.concepts).map((r) => ({ name: r.label, marksLost: r.lost }))).toEqual(
+      rn.chapter?.concepts?.map((c) => ({ name: c.name, marksLost: c.marksLost })),
+    );
   });
 
   it("★ recent — up to 3 newest graded mistakes in the chapter: id, marks, group, surface, date; never the student's text", async () => {
@@ -203,7 +206,9 @@ describe("TUTOR-FIX-2 T2 — the brief is chapter-correct", () => {
     expect(H.attemptReads).toBe(1);
     H.attemptReads = 0;
     await brief("real-numbers");
-    expect(H.attemptReads).toBe(2);
+    // Subject read + the ONE chapter-scoped model read, plus (TUTOR-MIND-1 B2) the Topic Hub's own
+    // trend read for the chapter — a third attempts read, the Hub's, not a second model read.
+    expect(H.attemptReads).toBe(3);
   });
 
   it("below Me's gate (a thin student) → no naming fields, only what Me shows", async () => {
@@ -247,7 +252,7 @@ describe("TUTOR-FIX-2 integration — the client brief survives the server sanit
 
     const pRn = buildTutorSystemPrompt({ topicLabel: "Real Numbers", subject: "maths", brief: normalizeBrief(JSON.parse(JSON.stringify(rn))) });
     expect(pRn).toContain("- This chapter (Real Numbers): 6 marks lost in the last 30 days.");
-    expect(pRn).toContain("- Concepts in this chapter where marks were lost: Fundamental Theorem of Arithmetic (6 marks).");
+    expect(pRn).toMatch(/- Concepts in this chapter the student has worked on in the last 30 days: Fundamental Theorem of Arithmetic \(6 marks lost, \d+ graded questions?[^)]*\)\./);
     expect(pRn).not.toMatch(/student's own words/);
   });
 });

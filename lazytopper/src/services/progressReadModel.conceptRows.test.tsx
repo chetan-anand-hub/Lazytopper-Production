@@ -465,10 +465,15 @@ describe("ME-CONCEPT-1 · ONE gate (Me's): below it nothing is named; above it M
     // read Me makes, top 3 by lost marks, with their marks) — exactly what Me prints for the chapter.
     const brief = await assembleTutorBrief({ uid: UID, topicKey: RN, subject: "maths", window: "month", nowMs: NOW });
     const chapterModel = await readStudyModel(UID, { window: "month", subject: "maths", topicKey: RN, mistakes: false, tutor: false, nowMs: NOW });
-    expect(brief).toEqual(briefFromModel(m, RN, chapterModel));
+    // TUTOR-MIND-1: the assembled brief also carries handed-in extras and the raw-activity concept rows;
+    // the model-derived fields (topic, mistakes, subject, the chapter's marks and split) stay equal.
+    const core = briefFromModel(m, RN, chapterModel);
+    expect({ ...brief, chapter: undefined, activity: undefined }).toEqual({ ...core, chapter: undefined, activity: undefined });
+    expect(brief.chapter?.marksLost).toEqual(core.chapter?.marksLost);
+    expect(brief.chapter?.byGroup).toEqual(core.chapter?.byGroup);
     const meRows = viewRowsFrom((await readStudyModel(UID, { window: "month", topicKey: RN, mistakes: false, nowMs: NOW })).progress.concepts).slice(0, 3);
     expect(meRows.map((r) => r.label)).toEqual(expect.arrayContaining([IRR]));
     expect(brief.topic.weakConcepts).toEqual(meRows.map((r) => r.label));
-    expect(brief.chapter?.concepts).toEqual(meRows.map((r) => ({ name: r.label, marksLost: r.lost })));
+    expect((brief.chapter?.concepts ?? []).filter((c) => c.marksLost > 0).map((c) => ({ name: c.name, marksLost: c.marksLost }))).toEqual(meRows.map((r) => ({ name: r.label, marksLost: r.lost })));
   });
 });

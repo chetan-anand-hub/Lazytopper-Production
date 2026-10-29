@@ -130,7 +130,7 @@ import {
 } from "./progressReadModel";
 import MeProgressPage, { buildChapters, conceptMistakesNote, splitPaperMarks, viewRowsFrom } from "../pages/MeProgressPage";
 import { MistakeIntelCard, computeMiCardSummary } from "../components/desktop/MistakeIntelCard";
-import { assembleTutorBrief, briefFromModel } from "../pages/tutor/tutorContextBrief";
+import { assembleTutorBrief, briefFromModel, fitBriefSize } from "../pages/tutor/tutorContextBrief";
 import { mistakeGroupByKey } from "../lib/mistakeDisplay";
 import { zeroMarksLost } from "../lib/mistakeDisplay";
 import { loadExamConceptResolvers, type ExamConceptResolvers } from "./mistakeConcept";
@@ -416,7 +416,28 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
           // The read-model API, the same reads: the brief IS the model's figures (TUTOR-FIX-2 T2:
           // the subject read + the ONE chapter-scoped read).
           const chapterModel = await readStudyModel(UID, { window, subject, topicKey: chapter, mistakes: false, tutor: false, nowMs: NOW });
-          expect(brief).toEqual(briefFromModel(m, chapter, chapterModel));
+          // TUTOR-MIND-1: the brief ALSO carries three things the pure builder is HANDED rather than
+          // derives (the Topic Hub's before->now, the Exam Trends concept list, the bank stems). The
+          // pin rebuilds the expectation with exactly those handed in, so every OTHER field is still
+          // held equal to the model's own figures.
+          const { EXAM_TRENDS_CONCEPTS } = await import("../data/concepts/conceptLabelMap");
+          const stems = new Map<string, string>();
+          (m.mistakes.byChapter[chapter] ?? [])
+            .filter((e) => (Number(e.marksLost) || 0) > 0)
+            .slice(0, 5)
+            .forEach((e, i) => {
+              const q = brief.chapter?.recent?.[i]?.question;
+              if (q && e.questionId) stems.set(String(e.questionId).trim(), q);
+            });
+          expect(brief).toEqual(
+            fitBriefSize(
+              briefFromModel(m, chapter, chapterModel, {
+                ...(brief.chapter?.progress ? { progress: brief.chapter.progress } : {}),
+                examConcepts: (EXAM_TRENDS_CONCEPTS as Record<string, readonly string[]>)[chapter] ?? [],
+                questionTextById: stems,
+              }),
+            ),
+          );
           // == Me: "marks on the table" and the hero's biggest group, or nothing below Me's gate.
           if (split) {
             expect(brief.mistakes.marksLostRecent).toBe(split.lost);
@@ -459,7 +480,11 @@ describe("G3 — the Tutor brief joins the pin: Me == brief == the model, every 
             expect(brief.chapter?.concepts).toBeUndefined();
           } else {
             expect(brief.topic.weakConcepts ?? []).toEqual(meRows.map((r) => r.label));
-            expect(brief.chapter?.concepts ?? []).toEqual(meRows.map((r) => ({ name: r.label, marksLost: r.lost })));
+            // TUTOR-MIND-1 (B1): the brief now lists every WORKED concept (with attempts); the ones that lost
+            // marks are exactly Me's open-chapter rows, in Me's order.
+            expect((brief.chapter?.concepts ?? []).filter((c) => c.marksLost > 0).map((c) => ({ name: c.name, marksLost: c.marksLost }))).toEqual(
+              meRows.map((r) => ({ name: r.label, marksLost: r.lost })),
+            );
           }
           if (brief.topic.weakConcepts && meChapter) expect(meChapter.retryEntry).not.toBeNull();
         }

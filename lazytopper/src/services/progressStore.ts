@@ -169,6 +169,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_HALF_SAMPLE = 3;
 
 export type ProgressWindow = "week" | "2wk" | "month" | "4mo";
+/** TUTOR-MIND-1 — the window the Topic Hub's trajectory reads (TopicProgressTrend's default); the Tutor brief reads the same one. */
+export const TOPIC_HUB_TREND_WINDOW: ProgressWindow = "4mo";
 /** Exported for SCORECARD-MI-1 (GA-19): Me reads the mistake log for the SAME window. */
 export const WINDOW_DAYS: Record<ProgressWindow, number> = { week: 7, "2wk": 14, month: 30, "4mo": 120 };
 
@@ -644,6 +646,12 @@ export interface ConceptEvidence {
   bankIdBySessionQid: Record<string, string>;
   /** Fully-correct graded answers per concept row key. */
   fullyCorrect: Record<string, ConceptCorrectAnswer[]>;
+  /** TUTOR-MIND-1 — RAW graded points per concept evidence key (`conceptEvidenceKey`), counted in the
+   *  same pass as the rung but BEFORE its 6-point gate: a concept with 1-5 graded questions has no rung
+   *  yet but is not untouched. Optional: absent on an evidence object built before this field existed. */
+  gradedCount?: Record<string, number>;
+  /** TUTOR-MIND-1 — marks lost over those same raw points (same key). */
+  gradedLost?: Record<string, number>;
 }
 
 /** The ONE cross-device windowed aggregation, read at altitudes. Every array is
@@ -1038,7 +1046,7 @@ function buildConceptSectionRungs(
 } {
   const conceptPts = new Map<string, { ref: ConceptRowRef; chapters: Set<string>; pts: MarkPoint[] }>();
   const sectionPts = new Map<string, MarkPoint[]>();
-  const evidence: ConceptEvidence = { bankIdBySessionQid: {}, fullyCorrect: {} };
+  const evidence: ConceptEvidence = { bankIdBySessionQid: {}, fullyCorrect: {}, gradedCount: {}, gradedLost: {} };
   const lostMatched = { concepts: 0, sections: 0 };
 
   const add = (
@@ -1061,6 +1069,9 @@ function buildConceptSectionRungs(
       g.chapters.add(canonicalKey(ref.chapter) || ref.chapter);
       g.pts.push({ ts, scored, available });
       conceptPts.set(ref.key, g);
+      const evKey = conceptEvidenceKey(ref);
+      evidence.gradedCount![evKey] = (evidence.gradedCount![evKey] ?? 0) + 1;
+      evidence.gradedLost![evKey] = (evidence.gradedLost![evKey] ?? 0) + lostHere;
       // Won-back evidence: a FULLY correct graded answer (no mark lost).
       if (scored >= available) {
         (evidence.fullyCorrect[conceptEvidenceKey(ref)] ??= []).push({ ts, ...answer });

@@ -183,6 +183,13 @@ function normalizeReturnedWork(input) {
   }
   if (!question && !hasImageQuestion && steps.length === 0) return null;
   const out = {};
+  // TUTOR-MIND-1: a restored thread's earlier marked question + the stored tap (needs its verdict).
+  if (rw.restored === true) out.restored = true;
+  const pick = typeof rw.pick === 'string' ? rw.pick.replace(/\[\[|\]\]/g, '').replace(/["\u201c\u201d]/g, "'").replace(/\s+/g, ' ').trim().slice(0, 200) : '';
+  if (pick && typeof rw.pickCorrect === 'boolean') {
+    out.pick = pick;
+    out.pickCorrect = rw.pickCorrect;
+  }
   if (question) out.question = question;
   if (hasImageQuestion) out.hasImageQuestion = true;
   if (steps.length) out.steps = steps;
@@ -305,6 +312,21 @@ function briefStr(v) {
   if (typeof v !== 'string') return '';
   return v.replace(/\[\[|\]\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 80);
 }
+// TUTOR-MIND-1: longer free text (a bank question stem, an option text). Same hygiene as briefStr, own cap.
+function briefText(v, max) {
+  if (typeof v !== 'string') return '';
+  // Double quotes become single so a stem or pick can never close the quoted span it is rendered in.
+  return v.replace(/\[\[|\]\]/g, '').replace(/["\u201c\u201d]/g, "'").replace(/\s+/g, ' ').trim().slice(0, max);
+}
+const BRIEF_CONCEPT_TRENDS = Object.freeze(['improving', 'worsening', 'stable']);
+const BRIEF_MAX_CONCEPTS = 12;
+const BRIEF_MAX_RECENT = 5;
+function briefPct(v) {
+  return typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 100 ? Math.round(v * 10) / 10 : undefined;
+}
+function briefCount(v) {
+  return typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 100000 ? Math.round(v) : undefined;
+}
 function briefNum(v) {
   return typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1000 ? Math.round(v * 100) / 100 : undefined;
 }
@@ -360,10 +382,33 @@ function normalizeBrief(input) {
       for (const c of chIn.concepts) {
         const cname = c && briefStr(c.name);
         const cml = c && briefNum(c.marksLost);
-        if (cname && cml !== undefined) concepts.push({ name: cname, marksLost: cml });
-        if (concepts.length >= 3) break;
+        if (cname && cml !== undefined) {
+          const row = { name: cname, marksLost: cml };
+          const att = briefCount(c.attempts);
+          if (att !== undefined) row.attempts = att;
+          if (BRIEF_CONCEPT_TRENDS.includes(c.trend)) row.trend = c.trend;
+          concepts.push(row);
+        }
+        if (concepts.length >= BRIEF_MAX_CONCEPTS) break;
       }
       if (concepts.length) chapter.concepts = concepts;
+    }
+    if (Array.isArray(chIn.untouched)) {
+      const untouched = chIn.untouched.map(briefStr).filter(Boolean).slice(0, BRIEF_MAX_CONCEPTS);
+      if (untouched.length) chapter.untouched = untouched;
+    }
+    if (chIn.progress && typeof chIn.progress === 'object') {
+      const before = briefPct(chIn.progress.beforePct);
+      const now = briefPct(chIn.progress.nowPct);
+      const graded = briefCount(chIn.progress.gradedAnswers);
+      if (before !== undefined && now !== undefined) {
+        const progress = { beforePct: before, nowPct: now };
+        if (graded !== undefined) progress.gradedAnswers = graded;
+        // The window is a fixed phrase ("last 120 days"); anything else is dropped, not echoed.
+        const pw = briefStr(chIn.progress.window);
+        if (/^last \d{1,3} (days|months)$/.test(pw)) progress.window = pw;
+        chapter.progress = progress;
+      }
     }
     if (Array.isArray(chIn.recent)) {
       const recent = [];
@@ -376,8 +421,15 @@ function normalizeBrief(input) {
         if (BRIEF_GROUPS.includes(r.group)) row.group = r.group;
         const date = briefStr(r.date);
         if (date) row.date = date;
+        const question = briefText(r.question, 300);
+        if (question) row.question = question;
+        const pick = briefText(r.pick, 120);
+        if (pick && typeof r.correct === 'boolean') {
+          row.pick = pick;
+          row.correct = r.correct;
+        }
         recent.push(row);
-        if (recent.length >= 3) break;
+        if (recent.length >= BRIEF_MAX_RECENT) break;
       }
       if (recent.length) chapter.recent = recent;
     }
@@ -386,8 +438,36 @@ function normalizeBrief(input) {
 
   const subjIn = b.subject && typeof b.subject === 'object' ? b.subject : null;
   if (subjIn) {
+    const subject = {};
     const sml = briefNum(subjIn.marksLost);
-    if (sml !== undefined) out.subject = { marksLost: sml };
+    if (sml !== undefined) subject.marksLost = sml;
+    if (Array.isArray(subjIn.chapters)) {
+      const chapters = [];
+      for (const c of subjIn.chapters) {
+        const cname = c && briefStr(c.name);
+        const cml = c && briefNum(c.marksLost);
+        if (cname && cml !== undefined) chapters.push({ name: cname, marksLost: cml });
+        if (chapters.length >= 3) break;
+      }
+      if (chapters.length) subject.chapters = chapters;
+    }
+    if (subjIn.improved && typeof subjIn.improved === 'object') {
+      const iname = briefStr(subjIn.improved.name);
+      const ib = briefPct(subjIn.improved.beforePct);
+      const inow = briefPct(subjIn.improved.nowPct);
+      if (iname && ib !== undefined && inow !== undefined) subject.improved = { name: iname, beforePct: ib, nowPct: inow };
+    }
+    if (Object.keys(subject).length) out.subject = subject;
+  }
+
+  const actIn = b.activity && typeof b.activity === 'object' ? b.activity : null;
+  if (actIn) {
+    const activity = {};
+    for (const k of ['questionsAnswered', 'testsTaken', 'checksDone', 'tutorSessions']) {
+      const n = briefCount(actIn[k]);
+      if (n !== undefined) activity[k] = n;
+    }
+    if (Object.keys(activity).length) out.activity = activity;
   }
   return out;
 }
@@ -547,7 +627,10 @@ function createTutorRoute(deps) {
     if (language) {
       const lastUser = convo[convo.length - 1];
       lastUser.parts[0].text +=
-        `\n\n[Reply in ${language} for THIS response, regardless of the language used in earlier turns. ` +
+        `\n\n[Reply in ${language} for THIS response, regardless of the language used in earlier turns` +
+        // TUTOR-MIND-1 (D): the one carve-out - mirror a clearly Hindi/Hinglish student.
+        `, UNLESS the student's latest message above is clearly Hindi or Hinglish, in which case reply in that ` +
+        `same register (exam terms stay English). `+
         `Keep exam content — the NCERT definition to memorise and the answer to write — in English. ` +
         // TUTOR-FIX-2 T1 rule g: the language switch must never drop the honesty rules.
         `Every HONESTY rule in your instructions applies in this language too.]`;
