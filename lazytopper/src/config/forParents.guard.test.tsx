@@ -340,6 +340,18 @@ describe("PARENTS-CTA-1 (e) — 'Check one answer free' (hero + footer) and a /p
   });
 });
 
+describe("PARENTS-PACKS-2 - order: header, packs band, journey, price, packs, video, tiles", () => {
+  const html = renderedPage();
+  it("sections appear in the ruled order and the hero carries the packs link after the share button", () => {
+    const at = (m: string) => html.indexOf(m);
+    const order = ['data-testid="fp-packs-hero"', 'data-testid="fp-packs-band"', 'data-testid="mummy-journey"', 'data-testid="fp-price"', 'data-testid="fp-packs"', 'data-testid="testimonial-video"', 'aria-labelledby="fp-gets"', 'aria-labelledby="fp-routine"', 'aria-labelledby="fp-faq"', 'aria-labelledby="fp-send"'].map(at);
+    expect(order.every((n) => n >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    expect(at('data-testid="fp-share-hero"')).toBeLessThan(at('data-testid="fp-packs-hero"'));
+    expect(html).not.toMatch(/₹/);
+  });
+});
+
 describe("MUMMY-1 (f) — Mummy's journey sits between the hero and the video, and nothing else moved", () => {
   const html = renderedPage();
 
@@ -520,8 +532,8 @@ describe("PARENTS-NAV-1 review — every link on the live page leads back (DOM g
     );
     const { internal, exempt, other } = classify([...container.querySelectorAll("a")]);
     // Not vacuous: 4 free-check (MOMENTS-1 M11b added Mummy's) + 3 tiles + 2 "See the price" + 3 FAQ
-    // + 7 footer + 2 packs (PARENTS-PACKS-1) = 21 internal links.
-    expect(internal.length).toBe(21);
+    // + 7 footer + 2 packs (PARENTS-PACKS-1) + 2 (PARENTS-PACKS-2: hero link, band) = 23 internal links.
+    expect(internal.length).toBe(23);
     expect(internal.filter((h) => !flagged(h))).toEqual([]);
     expect(exempt).toContain("/for-parents");
     expect(exempt.filter((h) => h === PARENT_SHARE_HREF).length).toBe(3);

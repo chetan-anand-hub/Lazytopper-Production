@@ -23,3 +23,26 @@
   .lt-fpk__actions { flex-direction: row; }
   .lt-fp .lt-fpk__btn { display: inline-flex; }
 }
+
+/* PARENTS-PACKS-2 - hero action (outlined, green accent on navy) and the band under the hero. */
+.lt-fp .lt-fpk__hero-link {
+  display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 20px;
+  border-radius: 12px; border: 1.5px solid #5fd49a; background: transparent; color: #8ff0bd;
+  font-weight: 600; font-size: 15px; text-decoration: none; text-align: center;
+}
+.lt-fp .lt-fpk__hero-link:hover { background: rgba(95, 212, 154, 0.12); color: #fff; border-color: #8ff0bd; }
+.lt-fp .lt-fpk-band {
+  margin: 0 0 26px; padding: 14px; background: var(--fp-gw); border: 1px solid var(--fp-g); border-radius: 14px;
+  display: grid; gap: 10px;
+}
+.lt-fp .lt-fpk-band__h { margin: 0; font-size: clamp(17px, 4.6vw, 21px); line-height: 1.25; }
+.lt-fpk-band__chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.lt-fpk-band__chips li {
+  font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: #fff;
+  border: 1px solid var(--fp-line); color: var(--fp-ink);
+}
+@media (min-width: 640px) {
+  .lt-fp .lt-fpk-band { grid-template-columns: 1fr auto; align-items: center; gap: 10px 16px; }
+  .lt-fp .lt-fpk-band__h { grid-column: 1 / -1; }
+  .lt-fp .lt-fpk__hero-link { display: inline-flex; }
+}

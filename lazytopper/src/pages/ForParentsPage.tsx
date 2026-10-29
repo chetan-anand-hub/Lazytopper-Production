@@ -20,7 +20,7 @@ import {
 } from "../config/pricing";
 import { WHATSAPP_URL } from "../config/socialProfiles";
 import { predictCbseExamDate } from "../services/cbseExamDate";
-import ParentPacksSection from "../components/parents/ParentPacksSection";
+import ParentPacksSection, { ParentPacksBand, ParentPacksHeroLink } from "../components/parents/ParentPacksSection";
 import "./forParents.css";
 
 /**
@@ -259,6 +259,7 @@ export default function ForParentsPage() {
           </p>
           <div className="lt-fp__actions">
             <ShareButton placement="hero" />
+            <ParentPacksHeroLink />
             <FreeCheckLink placement="hero" />
             <PricingLink placement="hero" />
           </div>
@@ -266,8 +267,13 @@ export default function ForParentsPage() {
       </header>
 
       <div className="lt-fp__w lt-fp__body">
+        <ParentPacksBand />
         <MummyJourney actions={<><ShareButton placement="journey" /><FreeCheckLink placement="journey" /></>} />
         <MummyCheckNudge action={<FreeCheckLink placement="mummy_check" />} />
+        <ParentPriceSection />
+
+        <ParentPacksSection />
+
         <section aria-labelledby="fp-video">
           <TestimonialVideo
             headingId="fp-video"
@@ -286,10 +292,6 @@ export default function ForParentsPage() {
             ))}
           </ul>
         </section>
-
-        <ParentPriceSection />
-
-        <ParentPacksSection />
 
         <section aria-labelledby="fp-routine">
           <h2 id="fp-routine">A routine that fits</h2>
