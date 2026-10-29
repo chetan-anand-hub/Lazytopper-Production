@@ -1,6 +1,6 @@
 /**
  * PRICING-LADDER-1 - the ladder layout: daily anchor maths, Basic folded (not removed), the Premium card's mobile order, and the
- * packs ladder (links, the PACK_CREDIT_LIVE line in both states, hidden for paid Premium).
+ * packs ladder (tiles, the PACK_CREDIT_LIVE line in both states; PRICING-ONE-1: shown to paid Premium too).
  */
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
@@ -108,20 +108,22 @@ describe("PacksStrip - the ladder", () => {
     expect(flat(screen.getByTestId("pricing-pack-credit"))).toBe("Take the Board Pass within 7 days and the pack price comes off.");
   });
 
-  it("heading, sub, four tiles linking to /packs?pack=..., and See all PDF packs", () => {
+  it("heading, sub and four pack tiles that open the shared pop-up (buttons, not links into /packs)", () => {
     const { container } = renderStrip();
-    expect(flat(container.querySelector("#lt-packoffer-h"))).toBe("Not ready for Premium yet? Start with a PDF pack");
-    expect(flat(container.querySelector(".lt-packoffer__sub"))).toMatch(/^Printed practice from ₹49 · one-time · never renews$/);
-    const hrefs = Array.from(container.querySelectorAll("a.lt-packoffer__item")).map(a => a.getAttribute("href"));
-    expect(hrefs).toEqual(["/packs?pack=chapter", "/packs?pack=mock", "/packs?pack=subject", "/packs?pack=bundle"]);
-    expect(screen.getByRole("link", { name: "See all PDF packs" }).getAttribute("href")).toBe("/packs");
+    expect(flat(container.querySelector("#lt-packoffer-h"))).toBe("PDF packs: printed practice, one-time");
+    expect(flat(container.querySelector(".lt-packoffer__sub"))).toMatch(/^From ₹49 · one-time · never renews · buy any pack right here$/);
+    const tiles = Array.from(container.querySelectorAll("button.lt-packoffer__item")).map(a => a.getAttribute("data-pack"));
+    expect(tiles).toEqual(["chapter", "mock", "subject", "bundle"]);
+    expect(container.querySelectorAll("a.lt-packoffer__item")).toHaveLength(0);
+    expect(container.querySelector('a[href^="/packs"]')).toBeNull();
     expect(container.textContent).not.toMatch(/most popular|students? (have|bought)/i);
   });
 
-  it("renders nothing for a student who has BOUGHT Premium", () => {
+  it("PRICING-ONE-1: a student who has BOUGHT Premium sees the same strip (the page is uniform)", () => {
     paid.value = true;
     const { container } = renderStrip({ creditLive: true });
-    expect(container.firstChild).toBeNull();
+    expect(container.querySelector('[data-testid="pricing-packs-strip"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="cbq-band"]')).not.toBeNull();
   });
 });
 
@@ -167,14 +169,14 @@ describe("CBQ-PACK-1: the CBQ band on /pricing", () => {
     expect(flat(band)).toContain("Half your board paper is competency-based.");
     expect(flat(band)).toContain("NEW · CBQ");
     expect(flat(band)).not.toMatch(/for both|both subjects/i);
-    expect(screen.getByTestId("pricing-cbq-maths").getAttribute("href")).toBe("/packs?pack=cbq&subject=maths");
-    expect(screen.getByTestId("pricing-cbq-science").getAttribute("href")).toBe("/packs?pack=cbq&subject=science");
+    expect(screen.getByTestId("pricing-cbq-maths").tagName).toBe("BUTTON");
+    expect(screen.getByTestId("pricing-cbq-science").tagName).toBe("BUTTON");
     expect(flat(screen.getByTestId("pricing-cbq-maths"))).toBe("Maths CBQ Pack · ₹199");
     expect(container.querySelectorAll(".lt-packoffer__cell")).toHaveLength(4); // the other four packs are unchanged
   });
-  it("is hidden for paid Premium", () => {
+  it("PRICING-ONE-1: shown for paid Premium too", () => {
     paid.value = true;
     strip();
-    expect(screen.queryByTestId("cbq-band")).toBeNull();
+    expect(screen.getByTestId("cbq-band")).toBeTruthy();
   });
 });

@@ -10,16 +10,15 @@ import "./parentPacks.css";
  * ParentPacksSection - PARENTS-PACKS-1 (owner ruling 29 Oct 2026): /for-parents links to the printable PDF packs.
  * Placed right after the Board Pass answer (Board Pass stays first, packs second but visible). Paid Premium sees nothing
  * (same rule as PacksStrip). Prices come from the catalogue AFTER MOUNT, so the prerendered HTML carries no rupee figure.
- * Both links carry `from=for_parents` (the page's own return-link contract); `#cbq` still scrolls on /packs.
+ * Both links carry `from=for_parents` (the page's own return-link contract); `#cbq` scrolls on /pricing (PRICING-ONE-1).
  */
 export const PARENT_PACKS_HEADING = "Printable question banks: chapter, mock, CBQ and bundle packs";
 export const PARENT_PACKS_LINE =
   "PDF packs your child practises on paper, with worked solutions to check against. One-time payment, never renews. The Board Pass (Premium) includes everything online.";
 export const PARENT_BAND_HEADLINE = "Printable question banks for every need";
 export const HERO_LABEL = "PDF question banks";
-export const BAND_ANCHOR = "#packs";
-export const PACKS_CBQ_TO = "/packs?from=for_parents#cbq";
-export const PACKS_ALL_TO = "/packs?from=for_parents";
+export const PACKS_CBQ_TO = "/pricing?from=for_parents#cbq";
+export const PACKS_ALL_TO = "/pricing?from=for_parents#packs";
 
 const ITEMS: ReadonlyArray<{ sku: PackSku; name: string; what: string; cbq?: boolean }> = [
   { sku: "pack_cbq", name: "Maths CBQ Pack", what: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ competency questions`, cbq: true },
@@ -85,9 +84,9 @@ export function ParentPacksBand() {
           </li>
         ))}
       </ul>
-      <a className="lt-fpk__btn lt-fpk__btn--primary lt-fpk-band__btn" href={BAND_ANCHOR} data-testid="fp-packs-band-link">
+      <Link className="lt-fpk__btn lt-fpk__btn--primary lt-fpk-band__btn" to={PACKS_ALL_TO} data-testid="fp-packs-band-link" onClick={() => firePackEntryClick("for_parents")}>
         See all packs
-      </a>
+      </Link>
     </section>
   );
 }

@@ -126,7 +126,7 @@ export default function PublicLegalFooter({ className, fromParents = false }: { 
       {/* PARENTS-1 — the parent landing page, same crawl-path reason as the guide above. */}
       <Link to="/for-parents">For parents</Link>
       {/* PACKS-ENTRY-1 (c) — a quiet link to the PDF packs, beside the legal links (this footer has no Pricing link). Flag off: absent. */}
-      <PacksEntry kind="footer-link" href={to("/packs")} />
+      <PacksEntry kind="footer-link" href={to("/pricing#packs")} />
       {LEGAL_LINKS.map(({ label, slug }) => (
         <Link key={slug} to={to(`/legal/${slug}`)}>
           {label}

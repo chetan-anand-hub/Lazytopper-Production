@@ -32,3 +32,5 @@
   .lt-packoffer__item { transition: none; }
   .lt-packoffer__item:hover { transform: none; }
 }
+/* PRICING-ONE-1: a pack tile is a button (it opens the shared pop-up), so reset the button chrome. */
+button.lt-packoffer__item { font: inherit; text-align: left; cursor: pointer; min-height: 44px; margin: 0; -webkit-appearance: none; appearance: none; }

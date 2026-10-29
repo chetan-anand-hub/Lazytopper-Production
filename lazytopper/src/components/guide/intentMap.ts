@@ -141,6 +141,8 @@ export const GUIDE_ROUTES: ReadonlyArray<{ pattern: RegExp; route: string }> = [
     route: "/practice-hub (App.tsx:1255; ?ct=1 opens ChapterTestPicker, DesktopPracticePage.tsx:1711)",
   },
   { pattern: /^\/packs$/, route: "/packs (App.tsx:1007; GUIDE-QP-1)" },
+  // PRICING-ONE-1: the packs now live on the pricing page; /pricing#packs is the strip (an in-page anchor of the existing /pricing route).
+  { pattern: /^\/pricing#packs$/, route: "/pricing#packs (App.tsx /pricing; PacksStrip id=\"packs\")" },
   { pattern: /^\/practice\/worksheets$/, route: "/practice/worksheets (App.tsx:1269; the one responsive WorksheetGenerator)" },
 ];
 
@@ -239,7 +241,7 @@ export function buildGuidePlan(input: IntentInput, deps: IntentDeps): GuidePlan 
           title: "Printable PDF packs",
           sub: "Chapter, mock and subject packs to print and write on",
           point: "Print it, write on paper like the real exam.",
-          action: { kind: "route", path: "/packs" },
+          action: { kind: "route", path: "/pricing#packs" },
         };
       case "important":
         return {

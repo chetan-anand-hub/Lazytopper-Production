@@ -52,16 +52,16 @@ describe.each([
     expect(links[0].textContent).toMatch(/₹\d/);
     expect(links[0].getAttribute("href")).toMatch(/^\/pricing\?source=paper-cap&returnTo=/);
     expect(links[1].getAttribute("data-testid")).toBe("paper-cap-month");
-    expect(pack.getAttribute("href")).toBe("/packs?mock=maths");
+    expect(pack.getAttribute("href")).toBe("/pricing?mock=maths#packs");
     expect(links[links.length - 1]).toBe(pack);
   });
   it("Chapter Test -> Chapter Pack of that chapter; other route -> plain /packs", async () => {
     trialExpired = expired;
     await wallAt("/chapter-test/10/maths/triangles");
-    expect((await screen.findByRole("link", { name: "Chapter Pack ₹49 →" }, SLOW)).getAttribute("href")).toBe("/packs?chapter=triangles");
+    expect((await screen.findByRole("link", { name: "Chapter Pack ₹49 →" }, SLOW)).getAttribute("href")).toBe("/pricing?chapter=triangles#packs");
     cleanup();
     localStorage.clear();
     await wallAt("/mock-paper/some-paper");
-    expect((await screen.findByRole("link", { name: "PDF packs from ₹49 →" }, SLOW)).getAttribute("href")).toBe("/packs");
+    expect((await screen.findByRole("link", { name: "PDF packs from ₹49 →" }, SLOW)).getAttribute("href")).toBe("/pricing#packs");
   });
 });

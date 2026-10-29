@@ -29,5 +29,5 @@ export function packOfferFor(opts: { chapters?: readonly string[] | null; subjec
     return { label: `Mock Pack ₹${MOCK_PACK_PRICE_INR} →`, priceLabel: `₹${MOCK_PACK_PRICE_INR}`, href: packsHref({ mock: subject }) };
   }
   if (one) return { label: `Chapter Pack ₹${CHAPTER_PACK_PRICE_INR} →`, priceLabel: `₹${CHAPTER_PACK_PRICE_INR}`, href: packsHref({ chapter: one }) };
-  return { label: `PDF packs from ₹${CHAPTER_PACK_PRICE_INR} →`, priceLabel: `₹${CHAPTER_PACK_PRICE_INR}`, href: "/packs" };
+  return { label: `PDF packs from ₹${CHAPTER_PACK_PRICE_INR} →`, priceLabel: `₹${CHAPTER_PACK_PRICE_INR}`, href: "/pricing#packs" };
 }

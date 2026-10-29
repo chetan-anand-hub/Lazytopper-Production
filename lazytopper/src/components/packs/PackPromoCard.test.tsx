@@ -42,7 +42,7 @@ describe("PackPromoCard render", () => {
     auth.user = null;
     ui();
     expect(screen.getByTestId("pack-promo-card")).toBeTruthy();
-    expect(screen.getByTestId("pack-promo-cta").getAttribute("href")).toBe("/packs");
+    expect(screen.getByTestId("pack-promo-cta").getAttribute("href")).toBe("/pricing#packs");
   });
   it("shows for Basic, hides for Premium", () => {
     auth.user = { uid: "u1" };

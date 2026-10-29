@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
 const paid = vi.hoisted(() => ({ value: false }));
 vi.mock("../../lib/packs/usePaidPremium", () => ({ usePaidPremium: () => paid.value }));
 
@@ -63,7 +64,7 @@ describe("PacksStrip anchor", () => {
       vi.useRealTimers();
     }
   });
-  it("CONTROL: does not scroll without the hash, or for paid Premium", async () => {
+  it("CONTROL: does not scroll without the hash; scrolls for paid Premium too (uniform page); #cbq scrolls the CBQ band", async () => {
     mount("/pricing");
     await new Promise((r) => setTimeout(r, 1000));
     expect(scrollIntoView).not.toHaveBeenCalled();
@@ -71,6 +72,12 @@ describe("PacksStrip anchor", () => {
     paid.value = true;
     mount("/pricing#packs");
     await new Promise((r) => setTimeout(r, 1000));
-    expect(scrollIntoView).not.toHaveBeenCalled();
+    expect(scrollIntoView).toHaveBeenCalled();
+    cleanup();
+    scrollIntoView.mockClear();
+    mount("/pricing#cbq");
+    await new Promise((r) => setTimeout(r, 1000));
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" });
+    expect(scrollIntoView.mock.contexts.every((el) => (el as HTMLElement).id === "cbq")).toBe(true);
   });
 });

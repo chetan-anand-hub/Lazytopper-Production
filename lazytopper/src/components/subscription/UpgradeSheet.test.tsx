@@ -533,11 +533,11 @@ const bp = () => {
 describe("paperPackLine", () => {
   it("picks the right pack and href", () => {
     on();
-    expect(paperPackLine("chapter-test", { chapters: ["triangles"] })).toMatchObject({ label: "Chapter Pack", priceLabel: "₹49", href: "/packs?chapter=triangles" });
-    expect(paperPackLine("worksheet", { chapters: ["triangles", "triangles"] })?.href).toBe("/packs?chapter=triangles");
-    expect(paperPackLine("full-mock", { subject: "science" })).toMatchObject({ label: "Mock Pack", priceLabel: "₹99", href: "/packs?mock=science" });
-    expect(paperPackLine("worksheet", { chapters: ["triangles", "electricity"] })).toMatchObject({ label: "PDF packs", priceLabel: "", href: "/packs" });
-    expect(paperPackLine("full-mock", {})?.href).toBe("/packs");
+    expect(paperPackLine("chapter-test", { chapters: ["triangles"] })).toMatchObject({ label: "Chapter Pack", priceLabel: "₹49", href: "/pricing?chapter=triangles#packs" });
+    expect(paperPackLine("worksheet", { chapters: ["triangles", "triangles"] })?.href).toBe("/pricing?chapter=triangles#packs");
+    expect(paperPackLine("full-mock", { subject: "science" })).toMatchObject({ label: "Mock Pack", priceLabel: "₹99", href: "/pricing?mock=science#packs" });
+    expect(paperPackLine("worksheet", { chapters: ["triangles", "electricity"] })).toMatchObject({ label: "PDF packs", priceLabel: "", href: "/pricing#packs" });
+    expect(paperPackLine("full-mock", {})?.href).toBe("/pricing#packs");
   });
   it("is null while the pack links are off", () => {
     vi.stubEnv("VITE_PACKS_ENABLED", "");
@@ -552,7 +552,7 @@ describe("paperPackLine", () => {
 });
 
 describe("UpgradeSheet pack line", () => {
-  const pack = { label: "Mock Pack", priceLabel: "₹99", href: "/packs?mock=maths" };
+  const pack = { label: "Mock Pack", priceLabel: "₹99", href: "/pricing?mock=maths#packs" };
   const mount = (p?: typeof pack | null) =>
     render(
       <MemoryRouter>
@@ -598,7 +598,7 @@ describe("UpgradeSheet pack line", () => {
 
 describe("FairUseLimitPanel on a trial paper refusal", () => {
   const limit: LimitState = { tier: "trial", scope: "chapter-test", resetAt: null, window: null, allowance: 1 };
-  const pack = { label: "Chapter Pack", priceLabel: "₹49", href: "/packs?chapter=triangles" };
+  const pack = { label: "Chapter Pack", priceLabel: "₹49", href: "/pricing?chapter=triangles#packs" };
   const mount = (l: LimitState, p: typeof pack | null) =>
     render(
       <MemoryRouter>

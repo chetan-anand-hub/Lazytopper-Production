@@ -17,8 +17,8 @@ describe("PARENTS-PACKS-1", () => {
   it("static markup has the heading, both links and no rupee figure", () => {
     const html = renderToStaticMarkup(wrap());
     expect(html).toContain("Printable question banks: chapter, mock, CBQ and bundle packs");
-    expect(html).toContain('href="/packs?from=for_parents#cbq"');
-    expect(html).toContain('href="/packs?from=for_parents"');
+    expect(html).toContain('href="/pricing?from=for_parents#cbq"');
+    expect(html).toContain('href="/pricing?from=for_parents#packs"');
     expect(html).not.toMatch(/₹/);
     expect(html).toContain("1,400+ competency questions");
     expect(html).toContain("The Board Pass (Premium) includes everything online.");
@@ -38,8 +38,8 @@ describe("PARENTS-PACKS-1", () => {
     expect(html).not.toMatch(/₹/);
     expect(html).toContain("Printable question banks for every need");
     for (const n of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "Maths CBQ Pack", "Science CBQ Pack"]) expect(html).toContain(n);
-    expect(html).toContain('href="#packs"');
-    expect(html).toContain('href="/packs?from=for_parents"');
+    expect(html).not.toContain('href="#packs"');
+    expect(html).toContain('href="/pricing?from=for_parents#packs"');
     render(both);
     await act(async () => {});
     const hero = screen.getByTestId("fp-packs-hero");

@@ -154,7 +154,7 @@ describe("PACKS-ENTRY-1 (c) — desktop account dropdown", () => {
     const btn = await screen.findByRole("button", { name: "PDF packs" }, { timeout: 8000 });
     expect(btn.previousElementSibling?.textContent).toBe("Cancellation & Refunds");
     fireEvent.click(btn);
-    expect(screen.getByTestId("pathname").textContent).toBe("/packs");
+    expect(screen.getByTestId("pathname").textContent).toBe("/pricing");
     expect(packTrack).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "footer" } });
     cleanup();
     vi.stubEnv("VITE_PACKS_ENABLED", "");
