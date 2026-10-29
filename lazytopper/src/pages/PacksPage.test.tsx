@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
@@ -39,9 +39,15 @@ vi.mock("../lib/packs/buildPackFiles", () => ({
 import PacksPage from "./PacksPage";
 import * as packs from "../services/packs";
 
+function Where() {
+  const l = useLocation();
+  return <div data-testid="where">{l.pathname + l.search + l.hash}</div>;
+}
+
 function page(url = "/packs") {
   return render(
     <MemoryRouter initialEntries={[url]}>
+      <Where />
       <Routes>
         <Route path="/packs" element={<PacksPage />} />
         <Route path="/login" element={<div>LOGIN</div>} />
@@ -183,7 +189,7 @@ describe("PacksPage", () => {
     fireEvent.change(screen.getByLabelText("Pick your chapter"), { target: { value: "real-numbers" } });
     await waitFor(() => expect(screen.getByTestId("pack-slides").textContent).toMatch(/120 questions/));
     expect(b().disabled).toBe(false);
-    expect(b().textContent).toBe("Sign in to buy · ₹49");
+    expect(b().textContent).toBe("Buy · ₹49");
   });
 
   it("Trigonometry is labelled with both chapters in the picker", async () => {
@@ -262,9 +268,117 @@ describe("PacksPage", () => {
     page();
     tap("bundle");
     const b = await screen.findByTestId("packs-buy-pack_bundle");
-    expect(b.textContent).toMatch(/Sign in to buy/);
+    expect(b.textContent).toBe("Buy · ₹299");
+    expect(screen.getByTestId("packs-signin-note").textContent).toBe("Quick sign-in (Google, 1 tap), then payment opens.");
     fireEvent.click(b);
     await waitFor(() => expect(screen.getByText("LOGIN")).toBeTruthy());
+    expect(screen.getByTestId("where").textContent).toBe("/login?redirect=%2Fpacks%3Fbuy%3Dpack_bundle");
+  });
+
+  it("PACKS-BUY-RESUME-1: a signed-out Buy returns to /packs?buy=<sku>&t=<target> (from kept when plain); signed in shows no sign-in note", async () => {
+    flag.on = true;
+    page("/packs?pack=cbq&subject=maths&from=ads_1");
+    fireEvent.click(await screen.findByTestId("packs-buy-pack_cbq"));
+    await waitFor(() => expect(screen.getByText("LOGIN")).toBeTruthy());
+    expect(screen.getByTestId("where").textContent).toBe("/login?redirect=" + encodeURIComponent("/packs?buy=pack_cbq&t=maths&from=ads_1"));
+    cleanup();
+    page("/packs?pack=cbq&subject=maths&from=a%3Ab");
+    fireEvent.click(await screen.findByTestId("packs-buy-pack_cbq"));
+    await waitFor(() => expect(screen.getByText("LOGIN")).toBeTruthy());
+    expect(screen.getByTestId("where").textContent).toBe("/login?redirect=" + encodeURIComponent("/packs?buy=pack_cbq&t=maths"));
+    cleanup();
+    auth.user = { uid: "u1" };
+    page("/packs?pack=cbq&subject=maths");
+    await screen.findByTestId("packs-buy-pack_cbq");
+    expect(screen.queryByTestId("packs-signin-note")).toBeNull();
+  });
+
+  it("PACKS-BUY-RESUME-1: signed in, ?buy=pack_cbq&t=maths strips the params, opens the pop-up and calls buyPack exactly once", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    buyMock.mockClear();
+    page("/packs?buy=pack_cbq&t=maths&from=ads_1#cbq");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0][0]).toBe("pack_cbq");
+    expect(buyMock.mock.calls[0][1]).toBe("maths");
+    await waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/packs?from=ads_1#cbq"));
+    expect((await screen.findByRole("dialog")).textContent).toContain("Maths CBQ Pack");
+    await new Promise((r) => setTimeout(r, 50));
+    expect(buyMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("PACKS-BUY-RESUME-1: a chapter pack resumes with its chapter selected; the bundle needs no target", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    buyMock.mockClear();
+    page("/packs?buy=pack_chapter&t=real-numbers");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0][0]).toBe("pack_chapter");
+    expect(buyMock.mock.calls[0][1]).toBe("real-numbers");
+    await waitFor(() => expect((screen.getByLabelText("Pick your chapter") as HTMLSelectElement).value).toBe("real-numbers"));
+    cleanup();
+    buyMock.mockClear();
+    page("/packs?buy=pack_bundle");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0][0]).toBe("pack_bundle");
+    expect(buyMock.mock.calls[0][1]).toBeUndefined();
+  });
+
+  it("PACKS-BUY-RESUME-1: invalid or mistargeted ?buy= is ignored silently (no dialog, no buyPack); signed out and flag-off never buy", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    buyMock.mockClear();
+    for (const url of [
+      "/packs?buy=pack_nope&t=maths",
+      "/packs?buy=pack_cbq",
+      "/packs?buy=pack_cbq&t=history",
+      "/packs?buy=pack_chapter&t=maths",
+      "/packs?buy=pack_chapter&t=not-a-chapter",
+      "/packs?buy=pack_cbq&buy=pack_bundle&t=maths",
+      "/packs?buy=pack_cbq&t=maths&t=science",
+    ]) {
+      page(url);
+      await new Promise((r) => setTimeout(r, 40));
+      expect(screen.queryByRole("dialog"), url).toBeNull();
+      cleanup();
+    }
+    auth.user = null;
+    page("/packs?buy=pack_cbq&t=maths");
+    await new Promise((r) => setTimeout(r, 40));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    cleanup();
+    auth.user = { uid: "u1" };
+    flag.on = false;
+    page("/packs?buy=pack_cbq&t=maths");
+    await new Promise((r) => setTimeout(r, 40));
+    expect(buyMock).not.toHaveBeenCalled();
+  });
+
+  it("PACKS-BUY-RESUME-1: an already-owned pack opens the owned phase and starts no order; reload after the strip does not re-fire", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    flag.mine = {
+      packs: [{ packId: "pack_cbq:maths", sku: "pack_cbq", target: "maths", pricePaidInr: 199, paidAt: 1 }],
+      licensee: { name: "A", email: "a@b.in" },
+    };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    buyMock.mockClear();
+    page("/packs?buy=pack_cbq&t=maths");
+    const b = await screen.findByTestId("packs-buy-pack_cbq");
+    await waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/packs"));
+    await waitFor(() => expect(b.textContent).toBe("You own this"));
+    expect(screen.getByRole("dialog").textContent).toContain("already");
+    expect(buyMock).not.toHaveBeenCalled();
+    cleanup();
+    // "reload" lands on the stripped URL
+    flag.mine = { packs: [], licensee: { name: "A", email: "a@b.in" } };
+    page("/packs");
+    await new Promise((r) => setTimeout(r, 50));
+    expect(buyMock).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("signed in, a dismissed checkout fires pack_checkout and leaves no error", async () => {
