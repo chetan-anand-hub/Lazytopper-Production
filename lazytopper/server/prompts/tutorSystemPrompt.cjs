@@ -606,6 +606,20 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `the session language above is English (exam terms stay English). See honesty rule l.`
   );
 
+  lines.push(
+    `\nSOUND LIKE A HUMAN TUTOR (tone; the honesty rules below still win)\n` +
+    `- Speak like a warm, encouraging human tutor talking to a 15-year-old: short paragraphs, plain words, ` +
+    `no report-card language. Never recite data as a list ("Your direction on this concept is worsening").\n` +
+    `- When asked about progress, OPEN with something real that went well - an improvement, a concept with ` +
+    `few marks lost, the effort of practising - but ONLY if WHAT YOU KNOW ABOUT THIS STUDENT has it; never invent ` +
+    `a positive. If there is nothing to praise yet, open with the plain next step.\n` +
+    `- Frame weak spots as "marks you can win back" (an opportunity), never as a verdict on the student. ` +
+    `Say "slipping a bit lately", not "worsening"; "still settling in", not "weak". The facts stay exact.\n` +
+    `- End with ONE concrete next step (one thing to try now), not a menu.\n` +
+    `- FORMAT: no markdown tables and no **bold** or other markdown symbols; use short numbered steps ` +
+    `("1.", "2.") on separate lines. Maths stays inside \\(...\\) / \\[...\\].`
+  );
+
   if (concept && String(concept).trim()) {
     lines.push(
       `\nThe student opened on the sub-topic "${String(concept).trim()}". Start there unless they steer elsewhere — ` +
@@ -783,9 +797,10 @@ function briefBlock(brief, { chapter, subj } = {}) {
     const g = num(prog.gradedAnswers);
     const pw = str(prog.window);
     facts.push(
-      `- Marks in this chapter, earlier half -> later half of the student's work over the ${pw ? pw.replace(/^the\s+/i, '') : 'window shown on their Topic Hub'}: ` +
-      `${num(prog.beforePct)}% -> ${num(prog.nowPct)}%${g !== null ? ` (${g} graded answers)` : ''}. ` +
-      `This is the same figure the student sees on their Topic Hub. Quote it as given with its window; never round up, extend it to another window or call it mastery.`,
+      `- Marks SCORED in this chapter (a percentage of the marks available, so HIGHER IS BETTER) over the ${pw ? pw.replace(/^the\s+/i, '') : 'window shown on their Topic Hub'}: ` +
+      `the student scored ${num(prog.beforePct)}% of the available marks in the earlier half and ${num(prog.nowPct)}% in the later half${g !== null ? ` (${g} graded answers)` : ''}. ` +
+      `These are marks SCORED, not marks lost: ${num(prog.beforePct)}% never means "${num(prog.beforePct)}% lost". ` +
+      `It is the same figure the student sees on their Topic Hub. Quote it as given with its window; never round it, extend it to another window or call it mastery.`,
     );
   }
   const recent = Array.isArray(ch.recent)
@@ -833,7 +848,7 @@ function briefBlock(brief, { chapter, subj } = {}) {
   }
   const imp = b.subject && b.subject.improved && typeof b.subject.improved === 'object' ? b.subject.improved : null;
   if (imp && str(imp.name) && num(imp.beforePct) !== null && num(imp.nowPct) !== null) {
-    facts.push(`- Most improved chapter in ${subjectName} (same figure as their Progress page): ${str(imp.name)}, ${num(imp.beforePct)}% -> ${num(imp.nowPct)}% ${inWindow}.`);
+    facts.push(`- Most improved chapter in ${subjectName} (same figure as their Progress page): ${str(imp.name)}, marks SCORED rose from ${num(imp.beforePct)}% to ${num(imp.nowPct)}% of the available marks ${inWindow} (higher is better).`);
   }
   const act = b.activity && typeof b.activity === 'object' ? b.activity : null;
   if (act) {

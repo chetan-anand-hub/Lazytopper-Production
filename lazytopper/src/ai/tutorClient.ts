@@ -101,6 +101,7 @@ export interface TutorBriefSubject {
   /** Top 3 chapters by marks lost (Me's chapter list order). */
   chapters?: Array<{ name: string; marksLost: number }>;
   /** The chapter whose gated before→now rose the most (Me's chapter rungs). */
+  /** Marks SCORED (% of available), earlier half -> later half; higher is better. */
   improved?: { name: string; beforePct: number; nowPct: number };
 }
 
@@ -115,7 +116,9 @@ export interface TutorBriefChapter {
   concepts?: Array<{ name: string; marksLost: number; attempts?: number; trend?: "improving" | "worsening" | "stable" }>;
   /** TUTOR-MIND-1 (B1) — Exam Trends concepts of this chapter with NO graded question in the window (names only). */
   untouched?: string[];
-  /** TUTOR-MIND-1 (B2) — the Topic Hub's before→now figure for this chapter (same source, same numbers). */
+  /** TUTOR-MIND-1 (B2) — the Topic Hub's before→now figure for this chapter (same source, same numbers).
+   *  ★ These are marks SCORED as a % of the marks AVAILABLE (higher is better), not marks lost:
+   *  `beforePct` = the earlier half of the window, `nowPct` = the later half. The prompt says so (TUTOR-MIND-2). */
   progress?: { beforePct: number; nowPct: number; gradedAnswers: number; window: string };
   /** TUTOR-MIND-1 (B3) — up to 5 newest graded questions with lost marks; `question` = OUR bank stem
    *  (trimmed), only when the id resolves to a bank question. `pick`/`correct` are carried by the

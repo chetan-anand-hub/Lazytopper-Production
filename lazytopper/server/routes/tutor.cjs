@@ -506,6 +506,29 @@ function attributesMistakeType(text) {
   const t = typeof text === 'string' ? text : '';
   return splitSentences(t).some((sent) => TYPE_ATTRIBUTION_RE.test(sent) && !TYPE_NEGATION_RE.test(sent));
 }
+/* ── TUTOR-MIND-2 (F2): deterministic Hindi/Hinglish detection ─────────────────────────────────
+ * The prompt-level "mirror the student" carve-out was not enough: gemini answered English to clear
+ * Hinglish with the picker on English. So the SERVER decides, from the student's latest message:
+ * any Devanagari -> Hindi; two or more DISTINCT common Hinglish tokens (word-boundary, any case) ->
+ * Hinglish; otherwise null. One token alone ("hai", a name like "Mera") never triggers. */
+const DEVANAGARI_RE = /[\u0900-\u097F]/;
+const HINGLISH_TOKENS = Object.freeze([
+  'mein', 'mera', 'meri', 'mere', 'mujhe', 'mujhko', 'kya', 'kyun', 'kyu', 'kyon', 'kaise', 'kaisa', 'kaisi',
+  'kaunse', 'kaunsa', 'kaun', 'kahan', 'kab', 'kitne', 'kitna', 'kitni', 'hai', 'hain', 'tha', 'thi', 'nahi', 'nahin',
+  'samajh', 'samjha', 'samjhao', 'samjhaao', 'batao', 'bataiye', 'batao', 'kar', 'karke', 'karo', 'kare', 'karna',
+  'aur', 'abhi', 'galti', 'galtiyan', 'aata', 'aati', 'aate', 'chahiye', 'hota', 'hoti', 'yeh', 'woh',
+  'isme', 'isse', 'usme', 'lekin', 'bahut', 'thoda', 'sabse', 'pehle', 'phir', 'matlab', 'kuch',
+]);
+const HINGLISH_RE = new RegExp(`\\b(${HINGLISH_TOKENS.join('|')})\\b`, 'gi');
+
+function detectStudentLanguage(text) {
+  const t = typeof text === 'string' ? text : '';
+  if (DEVANAGARI_RE.test(t)) return 'hindi';
+  const seen = new Set();
+  for (const m of t.matchAll(HINGLISH_RE)) seen.add(m[1].toLowerCase());
+  return seen.size >= 2 ? 'hinglish' : null;
+}
+
 function isEnglishSession(language) {
   return !language || /^english$/i.test(String(language).trim());
 }
@@ -624,16 +647,37 @@ function createTutorRoute(deps) {
     // as the MOST-RECENT user-side content so it overrides the conversation's recent language
     // for THIS turn. Server-only: payload.messages (what the client persists/displays) is never
     // touched — this is a generation-time directive, not a chat message, so it never accumulates.
-    if (language) {
+    // TUTOR-MIND-2 (F2): a clearly Hindi/Hinglish latest message decides the language, whatever the
+    // picker says. Decided here, in code, not left to the model.
+    const studentLang = detectStudentLanguage(
+      (Array.isArray(payload.messages) ? payload.messages : []).filter((m) => m && typeof m.content === 'string' && m.content.trim()).slice(-1).map((m) => m.content)[0],
+    );
+    if (studentLang) {
+      convo[convo.length - 1].parts[0].text +=
+        studentLang === 'hindi'
+          ? `\n\n[Reply in Hindi (Devanagari script) mixed with English exam terms for THIS response. ` +
+            `Keep exam content - the NCERT definition to memorise and the answer to write - in English. ` +
+            `Every HONESTY rule in your instructions applies in this language too.]`
+          : `\n\n[Reply in Hinglish (Roman-script Hindi mixed with English), exam terms in English, for THIS response. ` +
+            `Keep exam content - the NCERT definition to memorise and the answer to write - in English. ` +
+            `Every HONESTY rule in your instructions applies in this language too.]`;
+    } else if (language) {
       const lastUser = convo[convo.length - 1];
       lastUser.parts[0].text +=
         `\n\n[Reply in ${language} for THIS response, regardless of the language used in earlier turns` +
-        // TUTOR-MIND-1 (D): the one carve-out - mirror a clearly Hindi/Hinglish student.
+        // TUTOR-MIND-1 (D): fallback carve-out for Hindi the detector did not catch.
         `, UNLESS the student's latest message above is clearly Hindi or Hinglish, in which case reply in that ` +
-        `same register (exam terms stay English). `+
+        `same register (exam terms stay English). ` +
         `Keep exam content — the NCERT definition to memorise and the answer to write — in English. ` +
         // TUTOR-FIX-2 T1 rule g: the language switch must never drop the honesty rules.
         `Every HONESTY rule in your instructions applies in this language too.]`;
+    }
+    // TUTOR-MIND-2 (F3): earlier tutor turns that said "I can't see the question" outweighed the
+    // restored context in the instructions. Whenever returnedWork is present, say so last.
+    if (returnedWork) {
+      convo[convo.length - 1].parts[0].text +=
+        `\n\n[System note: the marked question (and the student's pick, if given) are in your instructions; ` +
+        `if you said earlier that you could not see them, that is no longer true - use them now.]`;
     }
     // TUTOR-FIX-4 history hygiene: with an all-unrecorded brief, restate honesty rule i as the
     // MOST-RECENT content, so earlier (possibly wrong) tutor turns cannot outweigh the brief.
@@ -726,6 +770,7 @@ function createTutorRoute(deps) {
 }
 
 module.exports = {
+  detectStudentLanguage,
   createTutorRoute,
   TUTOR_CALL_CONFIG,
   coalesceTurns,
