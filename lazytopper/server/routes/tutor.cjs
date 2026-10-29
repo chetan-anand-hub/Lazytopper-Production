@@ -183,6 +183,13 @@ function normalizeReturnedWork(input) {
   }
   if (!question && !hasImageQuestion && steps.length === 0) return null;
   const out = {};
+  // TUTOR-MIND-1: a restored thread's earlier marked question + the stored tap (needs its verdict).
+  if (rw.restored === true) out.restored = true;
+  const pick = typeof rw.pick === 'string' ? rw.pick.replace(/\[\[|\]\]/g, '').replace(/["\u201c\u201d]/g, "'").replace(/\s+/g, ' ').trim().slice(0, 200) : '';
+  if (pick && typeof rw.pickCorrect === 'boolean') {
+    out.pick = pick;
+    out.pickCorrect = rw.pickCorrect;
+  }
   if (question) out.question = question;
   if (hasImageQuestion) out.hasImageQuestion = true;
   if (steps.length) out.steps = steps;
@@ -308,7 +315,8 @@ function briefStr(v) {
 // TUTOR-MIND-1: longer free text (a bank question stem, an option text). Same hygiene as briefStr, own cap.
 function briefText(v, max) {
   if (typeof v !== 'string') return '';
-  return v.replace(/\[\[|\]\]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
+  // Double quotes become single so a stem or pick can never close the quoted span it is rendered in.
+  return v.replace(/\[\[|\]\]/g, '').replace(/["\u201c\u201d]/g, "'").replace(/\s+/g, ' ').trim().slice(0, max);
 }
 const BRIEF_CONCEPT_TRENDS = Object.freeze(['improving', 'worsening', 'stable']);
 const BRIEF_MAX_CONCEPTS = 12;
@@ -396,8 +404,9 @@ function normalizeBrief(input) {
       if (before !== undefined && now !== undefined) {
         const progress = { beforePct: before, nowPct: now };
         if (graded !== undefined) progress.gradedAnswers = graded;
+        // The window is a fixed phrase ("last 120 days"); anything else is dropped, not echoed.
         const pw = briefStr(chIn.progress.window);
-        if (pw) progress.window = pw;
+        if (/^last \d{1,3} (days|months)$/.test(pw)) progress.window = pw;
         chapter.progress = progress;
       }
     }
@@ -618,7 +627,10 @@ function createTutorRoute(deps) {
     if (language) {
       const lastUser = convo[convo.length - 1];
       lastUser.parts[0].text +=
-        `\n\n[Reply in ${language} for THIS response, regardless of the language used in earlier turns. ` +
+        `\n\n[Reply in ${language} for THIS response, regardless of the language used in earlier turns` +
+        // TUTOR-MIND-1 (D): the one carve-out - mirror a clearly Hindi/Hinglish student.
+        `, UNLESS the student's latest message above is clearly Hindi or Hinglish, in which case reply in that ` +
+        `same register (exam terms stay English). `+
         `Keep exam content — the NCERT definition to memorise and the answer to write — in English. ` +
         // TUTOR-FIX-2 T1 rule g: the language switch must never drop the honesty rules.
         `Every HONESTY rule in your instructions applies in this language too.]`;

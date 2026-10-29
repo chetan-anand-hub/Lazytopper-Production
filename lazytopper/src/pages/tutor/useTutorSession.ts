@@ -58,7 +58,7 @@ import {
 import { practiceOwnerTag } from "../../lib/practice/practiceReturnSnapshot";
 import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
-import { latestReturnMeta, returnMetaOf, returnResultTurn } from "./tutorReturnMeta";
+import { latestReturnMeta, restoredReturnedWork, returnMetaOf, returnResultTurn } from "./tutorReturnMeta";
 import { renderableFiguresForTopic } from "./tutorFigures";
 // TUTOR-FIX-2 (S-C, tutor UI) — typed error states, the practice count, the returned record's
 // own chapter label, and the once-per-thread first-message event.
@@ -196,6 +196,9 @@ export function trackFirstTutorMessage(
 export function __resetFirstTutorMessageForTests(): void {
   firstMessageSent.clear();
 }
+
+/** TUTOR-MIND-1 — how long the first send waits for the brief before going without it. */
+const BRIEF_WAIT_MS = 2500;
 
 export function useTutorSession({
   user,
@@ -505,7 +508,7 @@ export function useTutorSession({
       updatePending(null);
       setMessages((prev) => {
         if (prev.some((m) => m.kind === "return-result" && m.content === opener.text)) return prev;
-        const next: TutorTurn[] = [...prev, returnResultTurn(opener.text, returnMetaOf(ask.q, ask.pick))];
+        const next: TutorTurn[] = [...prev, returnResultTurn(opener.text, returnMetaOf(ask.q, ask.pick, null))];
         persist(next, null);
         return next;
       });
@@ -580,6 +583,7 @@ export function useTutorSession({
   // and builder the opener paths use). It adds no turn (no second opener), runs once per id (a
   // StrictMode re-run finds the ref set / the id marked), and a later opener supersedes it. The
   // promise is held so the first send waits for it instead of racing the bank load.
+  const briefPromiseRef = useRef<Promise<void> | null>(null);
   const restoredForRef = useRef<string | null>(null);
   const restorePromiseRef = useRef<Promise<void> | null>(null);
   useEffect(() => {
@@ -600,7 +604,7 @@ export function useTutorSession({
         /* no bank text: the thread stays as it was */
       }
       if (!questionText || returnedWorkRef.current) return; // a live opener path got there first
-      returnedWorkRef.current = buildScorecardReturnedWork(questionText, null);
+      returnedWorkRef.current = restoredReturnedWork(buildScorecardReturnedWork(questionText, null), meta);
     })();
     restorePromiseRef.current = run;
     void run.finally(() => {
@@ -613,13 +617,15 @@ export function useTutorSession({
   useEffect(() => {
     if (!uid) return;
     let live = true;
-    assembleTutorBrief({ uid, topicKey, subject })
+    // TUTOR-MIND-1: the promise is kept so the first send can wait (briefly) for the brief.
+    const p = assembleTutorBrief({ uid, topicKey, subject })
       .then((b) => {
         if (live) briefRef.current = b;
       })
       .catch(() => {
         /* honest-or-silent */
       });
+    briefPromiseRef.current = p;
     return () => {
       live = false;
     };
@@ -637,6 +643,19 @@ export function useTutorSession({
         // chunk cannot load, the turn still goes out with no demo (the documented null path).
         // TUTOR-MIND-1 (A): a restored thread's question context is ready before the first send.
         await restorePromiseRef.current;
+        // TUTOR-MIND-1: the first send waits (briefly) for the brief; after the timeout it goes with
+        // whatever exists. A still-null brief reaches the server as null, which says "not available",
+        // never "no graded work".
+        if (briefPromiseRef.current && !briefRef.current) {
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          await Promise.race([
+            briefPromiseRef.current,
+            new Promise<void>((resolve) => {
+              timer = setTimeout(resolve, BRIEF_WAIT_MS);
+            }),
+          ]);
+          if (timer) clearTimeout(timer);
+        }
         const bankReady = await ensureBankChapters([topicKey]).then(
           () => true,
           () => false,

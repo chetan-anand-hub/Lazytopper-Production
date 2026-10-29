@@ -9,7 +9,7 @@
 // from that id through the same bank lookup. Ids and option text come from our bank, never free
 // student text; every length is bounded. Pure helpers only; no store, no write.
 
-import type { TutorTurn, TutorTurnMeta } from "../../ai/tutorClient";
+import type { TutorReturnedWork, TutorTurn, TutorTurnMeta } from "../../ai/tutorClient";
 
 export const MAX_META_Q = 120;
 export const MAX_META_PICK = 200;
@@ -23,7 +23,8 @@ export function returnMetaOf(
   const id = String(q ?? "").trim().slice(0, MAX_META_Q);
   if (!id) return undefined;
   const p = String(pick ?? "").replace(/\s+/g, " ").trim().slice(0, MAX_META_PICK);
-  return { q: id, ...(p ? { pick: p } : {}), ...(p && typeof correct === "boolean" ? { correct } : {}) };
+  // A pick is stored only WITH its verdict; a pick whose verdict is unknown is stored as neither.
+  return { q: id, ...(p && typeof correct === "boolean" ? { pick: p, correct } : {}) };
 }
 
 /** The meta of the NEWEST return-result turn, or null if that turn carries none (a newer opener
@@ -40,4 +41,15 @@ export function latestReturnMeta(messages: readonly TutorTurn[]): TutorTurnMeta 
 /** The opener turn as persisted: the text, the kind, and (when known) the question meta. */
 export function returnResultTurn(text: string, meta?: TutorTurnMeta): TutorTurn {
   return { role: "tutor", content: text, kind: "return-result", ...(meta ? { meta } : {}) };
+}
+
+/** The returnedWork a restored thread hands the model: the bank question plus the stored tap, flagged
+ *  `restored` so the prompt calls it an earlier marked question, never one "just" marked. */
+export function restoredReturnedWork(base: TutorReturnedWork | null, meta: TutorTurnMeta): TutorReturnedWork | null {
+  if (!base) return null;
+  return {
+    ...base,
+    restored: true,
+    ...(meta.pick && typeof meta.correct === "boolean" ? { pick: meta.pick, pickCorrect: meta.correct } : {}),
+  };
 }

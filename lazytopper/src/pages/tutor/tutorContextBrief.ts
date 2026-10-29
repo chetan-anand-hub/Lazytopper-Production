@@ -304,9 +304,8 @@ export function chapterBlockOf(
       const top = topLossGroup(split);
       if (top) chapter.topGroup = CONTRACT_GROUP[top];
     }
-    const worked = chapterConceptActivity(chapterModel);
+    const { worked, untouched } = chapterConceptActivity(model, chapterKey, chapterModel, extras.examConcepts);
     if (worked.length) chapter.concepts = worked;
-    const untouched = untouchedConcepts(chapterModel, extras.examConcepts);
     if (untouched.length) chapter.untouched = untouched;
     const recent = entries
       .filter((e) => (Number(e.marksLost) || 0) > 0)
@@ -326,8 +325,6 @@ export function chapterBlockOf(
 
 /* ─────────────────────── TUTOR-MIND-1 — concept depth, subject view, size ─────────────────────── */
 
-const normName = (n: string): string => n.replace(/\s+/g, " ").trim().toLowerCase();
-
 /** A rung's direction, the brief's one rule (±TREND_EPSILON) — only when both halves hold work. */
 function rungDirection(r: { delta: number; sampleBefore: number; sampleNow: number }): "improving" | "worsening" | "stable" | undefined {
   if (!(r.sampleBefore > 0 && r.sampleNow > 0)) return undefined;
@@ -335,32 +332,50 @@ function rungDirection(r: { delta: number; sampleBefore: number; sampleNow: numb
 }
 
 /**
- * B1 — EVERY concept row of the open chapter with graded work (Me's concept rungs, the same
- * chapter-scoped read), not only the ones that lost marks: marks lost, graded questions
- * (`sampleBefore + sampleNow`, the rung's own point counts), a direction when both halves hold work.
- * Most marks lost first, then most practised; capped. No per-concept percentage is sent.
+ * B1 — EVERY concept of the open chapter with ANY graded point or mistake, not only the rungs.
+ *
+ * A concept rung needs at least 6 graded points (marksTrend), so a concept with 1-5 graded questions
+ * has no rung yet — but it is not untouched. Touched / attempts / marks lost therefore come from the
+ * RAW graded points the read model counted in the same pass as the rung (`conceptEvidence.gradedCount`
+ * / `gradedLost`, before the gate) and from the live mistakes per concept (`mistakes.byConcept`).
+ * `attempts` = the raw count (the larger of the graded points, the rung's points and the live
+ * mistakes); `trend` only when a real rung exists with both halves holding work. No per-concept
+ * percentage is sent. Most marks lost first, then most practised; capped.
  */
-function chapterConceptActivity(chapterModel: StudyReadModel): NonNullable<TutorBriefChapter["concepts"]> {
+function chapterConceptActivity(
+  model: StudyReadModel,
+  chapterKey: string,
+  chapterModel: StudyReadModel,
+  examConcepts: readonly string[] | undefined,
+): { worked: NonNullable<TutorBriefChapter["concepts"]>; untouched: string[] } {
+  const ev = chapterModel.progress.conceptEvidence;
+  const rungs = new Map((chapterModel.progress.concepts ?? []).map((r) => [r.key, r]));
   const rows: NonNullable<TutorBriefChapter["concepts"]> = [];
-  for (const r of chapterModel.progress.concepts ?? []) {
-    const attempts = r.sampleBefore + r.sampleNow;
-    const lost = lostMarksOf(r);
-    if (attempts <= 0 || lost === null) continue;
-    const trend = rungDirection(r);
-    rows.push({ name: r.label || r.key, marksLost: lost, attempts, ...(trend ? { trend } : {}) });
+  const seen = new Set<string>();
+  const add = (key: string, name: string): boolean => {
+    if (seen.has(key)) return true;
+    const rung = rungs.get(key);
+    const graded = ev?.gradedCount?.[key] ?? 0;
+    const live = model.mistakes.byConcept[key]?.live ?? 0;
+    const attempts = Math.max(graded, live, rung ? rung.sampleBefore + rung.sampleNow : 0);
+    if (attempts <= 0) return false;
+    seen.add(key);
+    const rungLost = rung ? lostMarksOf(rung) : null;
+    const lost =
+      rungLost !== null
+        ? rungLost
+        : Math.max(0, Math.round((ev?.gradedLost?.[key] ?? model.mistakes.byConcept[key]?.marksLost ?? 0) * 10) / 10);
+    const trend = rung ? rungDirection(rung) : undefined;
+    rows.push({ name, marksLost: lost, attempts, ...(trend ? { trend } : {}) });
+    return true;
+  };
+  for (const r of chapterModel.progress.concepts ?? []) add(r.key, r.label || r.key);
+  const untouched: string[] = [];
+  for (const name of examConcepts ?? []) {
+    if (!add(`${chapterKey}|${name}`, name)) untouched.push(name);
   }
   rows.sort((a, b) => b.marksLost - a.marksLost || (b.attempts ?? 0) - (a.attempts ?? 0));
-  return rows.slice(0, MAX_CHAPTER_CONCEPTS);
-}
-
-/** B1 — the chapter's Exam Trends concepts that have no row with graded work (names only). */
-function untouchedConcepts(chapterModel: StudyReadModel, examConcepts: readonly string[] | undefined): string[] {
-  if (!examConcepts || examConcepts.length === 0) return [];
-  const touched = new Set<string>();
-  for (const r of chapterModel.progress.concepts ?? []) {
-    if (r.sampleBefore + r.sampleNow > 0) touched.add(normName(r.label || r.key));
-  }
-  return examConcepts.filter((n) => !touched.has(normName(n))).slice(0, MAX_CHAPTER_CONCEPTS);
+  return { worked: rows.slice(0, MAX_CHAPTER_CONCEPTS), untouched: untouched.slice(0, MAX_CHAPTER_CONCEPTS) };
 }
 
 /**
@@ -388,7 +403,7 @@ function subjectBlockOf(model: StudyReadModel): Pick<TutorBriefSubject, "chapter
  * the tail of the lists), never a figure. Pure; returns the same object, trimmed in place.
  */
 export function fitBriefSize(brief: TutorBrief, budget: number = BRIEF_BYTE_BUDGET): TutorBrief {
-  const size = (): number => JSON.stringify(brief).length;
+  const size = (): number => new TextEncoder().encode(JSON.stringify(brief)).length;
   const ch = brief.chapter;
   const steps: Array<() => void> = [
     () => ch?.recent?.forEach((r) => r.question && (r.question = r.question.slice(0, 160))),
@@ -436,7 +451,8 @@ async function topicHubProgress(
       beforePct: Math.max(0, Math.min(100, trend.before)),
       nowPct: Math.max(0, Math.min(100, trend.now)),
       gradedAnswers: trend.sampleBefore + trend.sampleNow,
-      window: short ? `last ${trend.spanDays} days (a short-term trend)` : windowLabelOf(TOPIC_HUB_TREND_WINDOW),
+      // A short practice span is said as its own span ("last 5 days"), never as the whole window.
+      window: short ? `last ${trend.spanDays} days` : windowLabelOf(TOPIC_HUB_TREND_WINDOW),
     };
   } catch {
     return undefined;
@@ -479,21 +495,23 @@ export async function assembleTutorBrief({
     // TUTOR-MIND-1 — the extras the pure builder cannot read itself; each degrades to "omitted".
     const extras: BriefExtras = {};
     if (chapterKey && chapterModel) {
-      const progress = await topicHubProgress(chapterKey, uid, nowMs);
-      if (progress) extras.progress = progress;
-      try {
-        const { EXAM_TRENDS_CONCEPTS } = await import("../../data/concepts/conceptLabelMap");
-        const names = (EXAM_TRENDS_CONCEPTS as Readonly<Record<string, readonly string[]>>)[chapterKey];
-        if (names) extras.examConcepts = names;
-      } catch {
-        /* no concept list: nothing is called untouched */
-      }
       const ids = (model.mistakes.byChapter[chapterKey] ?? [])
         .filter((e) => (Number(e.marksLost) || 0) > 0)
         .slice(0, MAX_RECENT)
         .map((e) => String(e.questionId ?? "").trim())
         .filter(Boolean);
-      extras.questionTextById = await bankStemsFor(chapterKey, ids);
+      // The three independent reads run together (the first send waits on this brief).
+      const [progress, names, stems] = await Promise.all([
+        topicHubProgress(chapterKey, uid, nowMs),
+        import("../../data/concepts/conceptLabelMap").then(
+          (m) => (m.EXAM_TRENDS_CONCEPTS as Readonly<Record<string, readonly string[]>>)[chapterKey],
+          () => undefined, // no concept list: nothing is called untouched
+        ),
+        bankStemsFor(chapterKey, ids),
+      ]);
+      if (progress) extras.progress = progress;
+      if (names) extras.examConcepts = names;
+      extras.questionTextById = stems;
     }
     return fitBriefSize(briefFromModel(model, chapterKey, chapterModel, extras));
   } catch {

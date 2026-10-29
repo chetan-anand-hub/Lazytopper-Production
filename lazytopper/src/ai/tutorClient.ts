@@ -176,6 +176,11 @@ export interface TutorReturnedWork {
   question?: string;
   hasImageQuestion?: boolean;
   steps?: { q: number; n: number; description: string; status: string }[];
+  /** TUTOR-MIND-1 — rebuilt from a RESTORED thread (an earlier marked question), not work the student
+   *  has just had marked. `pick`/`pickCorrect` are the stored tap (our option text + verdict). */
+  restored?: true;
+  pick?: string;
+  pickCorrect?: boolean;
 }
 
 export interface TutorReply {

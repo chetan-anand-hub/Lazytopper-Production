@@ -63,22 +63,35 @@ function subjectModel(o: { gated?: boolean } = {}): StudyReadModel {
         ],
       },
       wonBack: { count: 0, marks: 0 },
-      byConcept: {},
+      byConcept: { "real-numbers|Decimal expansions": { key: "real-numbers|Decimal expansions", label: "Decimal expansions", chapter: "real-numbers", examConcept: true, live: 1, marksLost: 2, wonBack: { count: 0, marks: 0 } } },
       complete: true,
     },
     activity: { practice: 41, answersChecked: 30, tests: { worksheets: 1, chapterTests: 1, fullMocks: 0, total: 2 }, checks: 3, tutor: { doubts: 0, sessions: 0, complete: true } },
   } as unknown as StudyReadModel;
 }
 
-const concept = (label: string, o: Record<string, unknown> = {}) => rung(`c:${label}`, label, { examConcept: true, ...o });
+const concept = (label: string, o: Record<string, unknown> = {}) => rung(`real-numbers|${label}`, label, { examConcept: true, ...o });
 function chapterModel(): StudyReadModel {
   return {
     progress: {
+      // Realistic rungs: a rung exists only with >= 6 graded points, both halves holding >= 3.
       concepts: [
-        concept("Euclid's division lemma", { marksAvailable: 6, marksScored: 2, sampleBefore: 2, sampleNow: 2, delta: -30 }), // lost 4, worsening
-        concept("Irrational numbers", { marksAvailable: 4, marksScored: 3, sampleBefore: 1, sampleNow: 3, delta: 25 }), // lost 1, improving
-        concept("HCF and LCM", { marksAvailable: 5, marksScored: 5, sampleBefore: 0, sampleNow: 2, delta: 0 }), // lost 0, practised, no direction
+        concept("Euclid's division lemma", { marksAvailable: 14, marksScored: 10, sampleBefore: 3, sampleNow: 4, delta: -30 }), // lost 4, worsening
+        concept("Irrational numbers", { marksAvailable: 14, marksScored: 13, sampleBefore: 4, sampleNow: 3, delta: 25 }), // lost 1, improving
+        concept("HCF and LCM", { marksAvailable: 12, marksScored: 12, sampleBefore: 3, sampleNow: 3, delta: 0 }), // lost 0, stable
       ],
+      // RAW graded points (counted before the rung's 6-point gate): "Decimal expansions" has 4 - no rung.
+      conceptEvidence: {
+        bankIdBySessionQid: {},
+        fullyCorrect: {},
+        gradedCount: {
+          "real-numbers|Euclid's division lemma": 7,
+          "real-numbers|Irrational numbers": 7,
+          "real-numbers|HCF and LCM": 6,
+          "real-numbers|Decimal expansions": 4,
+        },
+        gradedLost: { "real-numbers|Decimal expansions": 2 },
+      },
     },
   } as unknown as StudyReadModel;
 }
@@ -96,15 +109,30 @@ describe("TUTOR-MIND-1 · the richer brief", () => {
     questionTextById: STEMS,
   });
 
-  it("B1 — every worked concept (not 3) with attempts and direction; untouched are names only", () => {
+  it("B1 — every touched concept (rung or not) with the RAW attempts; direction only from a real rung; untouched = no graded point and no mistake", () => {
     expect(brief.chapter?.concepts).toEqual([
-      { name: "Euclid's division lemma", marksLost: 4, attempts: 4, trend: "worsening" },
-      { name: "Irrational numbers", marksLost: 1, attempts: 4, trend: "improving" },
-      { name: "HCF and LCM", marksLost: 0, attempts: 2 }, // one half empty -> no direction invented
+      { name: "Euclid's division lemma", marksLost: 4, attempts: 7, trend: "worsening" },
+      { name: "Decimal expansions", marksLost: 2, attempts: 4 }, // 4 graded points + a mistake: NO rung, so no direction
+      { name: "Irrational numbers", marksLost: 1, attempts: 7, trend: "improving" },
+      { name: "HCF and LCM", marksLost: 0, attempts: 6, trend: "stable" },
     ]);
-    expect(brief.chapter?.untouched).toEqual(["Fundamental Theorem of Arithmetic", "Decimal expansions"]);
+    expect(brief.chapter?.untouched).toEqual(["Fundamental Theorem of Arithmetic"]);
     // no per-concept percentage and no lastSeen (no existing derivation)
     expect(JSON.stringify(brief.chapter?.concepts)).not.toMatch(/pct|percent|lastSeen/i);
+  });
+
+  it("★ a concept with 4 graded points and a mistake is NOT untouched (mutation: derive touched from rungs only -> RED)", () => {
+    expect(brief.chapter?.untouched).not.toContain("Decimal expansions");
+    const row = brief.chapter!.concepts!.find((c) => c.name === "Decimal expansions")!;
+    expect(row.attempts).toBe(4);
+    expect(row.trend).toBeUndefined();
+    // and with only a mistake (no graded point counted) it is still touched
+    const m = subjectModel();
+    const cm = chapterModel();
+    (cm.progress.conceptEvidence as { gradedCount: Record<string, number> }).gradedCount = {};
+    const onlyMistake = briefFromModel(m, "real-numbers", cm, { examConcepts: EXAM }).chapter!;
+    expect(onlyMistake.untouched).not.toContain("Decimal expansions");
+    expect(onlyMistake.concepts?.find((c) => c.name === "Decimal expansions")?.attempts).toBe(1);
   });
 
   it("B2 — the Topic Hub's figure rides as given, with its own window; absent when the hub shows none", () => {
@@ -197,6 +225,20 @@ describe("TUTOR-MIND-1 · payload size", () => {
     expect(fitted.chapter?.marksLost).toBe(8);
     expect(fitted.chapter?.progress).toEqual(PROGRESS);
     expect(fitted.subject?.chapters).toHaveLength(3);
-    expect(fitted.chapter?.concepts).toHaveLength(3);
+    expect(fitted.chapter?.concepts).toHaveLength(4);
+  });
+});
+
+describe("TUTOR-MIND-1 · the budget counts UTF-8 bytes", () => {
+  it("★ a Hindi-heavy brief whose string length is under the budget but whose bytes are over is trimmed", () => {
+    const stem = "संख्या ".repeat(40); // ~280 chars, 3 bytes per Devanagari char
+    const make = () => briefFromModel(subjectModel(), "real-numbers", chapterModel(), { progress: PROGRESS, examConcepts: EXAM, questionTextById: new Map([["bank-1", stem], ["bank-2", stem], ["bank-3", stem], ["bank-4", stem]]) });
+    const b = make();
+    const chars = JSON.stringify(b).length;
+    const bytes = new TextEncoder().encode(JSON.stringify(b)).length;
+    expect(bytes).toBeGreaterThan(chars + 1000);
+    const budget = chars + 200; // above the char length, below the byte length
+    const fitted = fitBriefSize(make(), budget);
+    expect(new TextEncoder().encode(JSON.stringify(fitted)).length).toBeLessThanOrEqual(budget);
   });
 });

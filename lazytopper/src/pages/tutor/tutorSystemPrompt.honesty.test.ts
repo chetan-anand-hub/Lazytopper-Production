@@ -63,8 +63,15 @@ describe("T1 — the brief is rendered in full, with its window", () => {
     expect(p).not.toMatch(/You do NOT have reliable performance data/);
   });
 
-  it("no brief at all behaves like hasData false", () => {
-    expect(build()).toContain("I don't see graded work from you on Real Numbers recently yet");
+  it("an explicit hasData:false is the no-graded-work block", () => {
+    expect(build({ brief: { hasData: false, topic: {}, mistakes: {} } })).toContain("I don't see graded work from you on Real Numbers recently yet");
+  });
+
+  it("TUTOR-MIND-1: NO brief at all (not loaded) never claims the student has no graded work", () => {
+    const p = build();
+    expect(p).toContain("data did not load for this turn");
+    expect(p).not.toContain("NO graded work from this student");
+    expect(p).not.toContain("yet\", then offer a quick practice set");
   });
 });
 

@@ -83,6 +83,7 @@ describe("tutorReturnMeta (pure)", () => {
     expect(m.pick!.length).toBe(200);
     expect(m.correct).toBe(true);
     expect(returnMetaOf("q-1", null, true)).toEqual({ q: "q-1" }); // no pick -> no verdict
+    expect(returnMetaOf("q-1", "x = 2", null)).toEqual({ q: "q-1" }); // a pick without its verdict -> neither
   });
   it("only the NEWEST return-result decides; one without a question clears the older one", () => {
     const noQ: TutorTurn = { role: "tutor", content: "c&i", kind: "return-result" };
@@ -107,7 +108,13 @@ describe("TUTOR-MIND-1 (A) · the opener persists its question, a reload restore
     await settle();
     act(() => r.result.current.send("Why was I wrong?"));
     await waitFor(() => expect(callTutor).toHaveBeenCalled());
-    expect(callTutor.mock.calls[0][0].returnedWork).toEqual({ question: "Find the HCF of 96 and 404." });
+    // TUTOR-MIND-1 (7): the stored tap rides, and the context is flagged as restored (an EARLIER marked question).
+    expect(callTutor.mock.calls[0][0].returnedWork).toEqual({
+      question: "Find the HCF of 96 and 404.",
+      restored: true,
+      pick: "2",
+      pickCorrect: false,
+    });
     expect(openers(r)).toHaveLength(1);
   });
 
@@ -117,7 +124,7 @@ describe("TUTOR-MIND-1 (A) · the opener persists its question, a reload restore
     await waitFor(() => expect(r.result.current.messages).toHaveLength(1));
     act(() => r.result.current.send("Why was I wrong?")); // no settle: races the bank lookup
     await waitFor(() => expect(callTutor).toHaveBeenCalled());
-    expect(callTutor.mock.calls[0][0].returnedWork).toEqual({ question: "Find the HCF of 96 and 404." });
+    expect(callTutor.mock.calls[0][0].returnedWork).toMatchObject({ question: "Find the HCF of 96 and 404.", restored: true });
   });
 
   it("CONTROL — an old opener without meta restores nothing (returnedWork stays null)", async () => {

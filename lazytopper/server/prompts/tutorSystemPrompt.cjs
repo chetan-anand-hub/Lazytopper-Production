@@ -674,6 +674,17 @@ function briefBlock(brief, { chapter, subj } = {}) {
   const inWindow = windowLabel ? `in the ${windowLabel.replace(/^the\s+/i, '')}` : 'recently';
   const subjectName = subj || 'this subject';
 
+  if (!b) {
+    // TUTOR-MIND-1: NO brief reached the server (it was not ready, or an old client). That is not
+    // "the student has no graded work" - it is "this turn has no data" - so never say the former.
+    return (
+      `\nWHAT YOU KNOW ABOUT THIS STUDENT\n` +
+      `The student's LazyTopper data did not load for this turn. You know nothing about their past marks, ` +
+      `mistakes, weak areas or progress right now — do not mention any and do not invent any. Do NOT say they ` +
+      `have no graded work (you do not know that). If they ask about their marks or mistakes, say plainly ` +
+      `"I can't see your data right now — ask me again in a moment", and meanwhile help with the concept itself.`
+    );
+  }
   if (!hasData) {
     const where = chapterName ? ` on ${chapterName}` : '';
     return (
@@ -760,9 +771,11 @@ function briefBlock(brief, { chapter, subj } = {}) {
   }
   const untouched = Array.isArray(ch.untouched) ? ch.untouched.map(str).filter(Boolean).slice(0, 12) : [];
   if (untouched.length) {
+    const w = windowLabel ? windowLabel.replace(/^the\s+/i, '') : 'the window';
     facts.push(
-      `- Concepts of this chapter with NO recorded graded question ${inWindow} (not practised yet): ${untouched.join('; ')}. ` +
-      `Say they have not been practised yet on LazyTopper; that is NOT a weakness and not a gap — never claim they are weak.`,
+      `- Concepts of this chapter with no graded question recorded in the ${w}: ${untouched.join('; ')}. ` +
+      `Say exactly that - no graded question is recorded for them in the ${w}. It is NOT a weakness and not a gap, ` +
+      `and never say the student has "not practised" them (work outside LazyTopper's graded records is not visible).`,
     );
   }
   const prog = ch.progress && typeof ch.progress === 'object' ? ch.progress : null;
@@ -785,9 +798,10 @@ function briefBlock(brief, { chapter, subj } = {}) {
       if (r.group && GROUP_LABEL[r.group]) bits.push(GROUP_LABEL[r.group]);
       if (str(r.date)) bits.push(str(r.date));
       let line = bits.join(', ');
-      const q = typeof r.question === 'string' ? r.question.trim().slice(0, 300) : '';
+      const noQuote = (v) => String(v).replace(/["\u201c\u201d]/g, "'");
+      const q = typeof r.question === 'string' ? noQuote(r.question.trim().slice(0, 300)) : '';
       if (q) line += ` | question text: "${q}"`;
-      const pick = typeof r.pick === 'string' ? r.pick.trim().slice(0, 120) : '';
+      const pick = typeof r.pick === 'string' ? noQuote(r.pick.trim().slice(0, 120)) : '';
       if (pick && typeof r.correct === 'boolean') line += ` | the student picked: "${pick}" (${r.correct ? 'right' : 'wrong'})`;
       return line;
     });
@@ -829,6 +843,15 @@ function briefBlock(brief, { chapter, subj } = {}) {
     if (num(act.checksDone) !== null) parts.push(`${num(act.checksDone)} Check & Improve checks`);
     if (num(act.tutorSessions) !== null) parts.push(`${num(act.tutorSessions)} tutor sessions`);
     if (parts.length) facts.push(`- What they did ${inWindow} (${subjectName}): ${parts.join(', ')}.`);
+  }
+
+  // TUTOR-MIND-1: hasData can be true only because of the Topic Hub's longer-window progress figure.
+  // Then the 30-day window holds nothing, and the prompt must say so rather than let it read as "no data".
+  if (prog && chMarks === null && !concepts.length && !recent.length && !topic.trend &&
+      !(Array.isArray(topic.weakConcepts) && topic.weakConcepts.length) && subjectTotal === null) {
+    facts.splice(1, 0,
+      `- LazyTopper found NO graded work from this student${chapterName ? ` on ${chapterName}` : ''} ${inWindow}. ` +
+      `The only figure below is the progress over its own, longer window - quote it with that window and say nothing about ${inWindow}.`);
   }
 
   return (
@@ -890,8 +913,9 @@ function honestyBlock() {
     `j. Personal claims (marks, concepts, questions, picks, progress) come ONLY from WHAT YOU KNOW ABOUT THIS ` +
     `STUDENT, THE WORK THE STUDENT JUST HAD BOARD-MARKED, or this chat. Quote a progress figure exactly as given ` +
     `with its window; never extend it to another window, never invent one, never call it mastery.\n` +
-    `k. A concept listed as not practised yet has NO graded work: say it has not been practised yet — never call ` +
-    `it a weakness or a gap. Encourage only from real progress in the data (a higher "now" than "before", marks ` +
+    `k. A concept listed as having no graded question recorded in the window has NO graded record there: say ` +
+    `"no graded question is recorded for it in the <window>" — never call it a weakness or a gap, and never say ` +
+    `"not practised". Encourage only from real progress in the data (a higher "now" than "before", marks ` +
     `won back); with no such data, encourage the effort, not a result. If a detail is not listed, say you do not ` +
     `see it.\n` +
     `l. If the student's latest message is clearly Hindi or Hinglish, reply in that same register (Hinglish in ` +
@@ -1039,11 +1063,22 @@ function returnedWorkBlock(returnedWork) {
     : steps.length
       ? `which steps the board found correct or not on the question they uploaded`
       : `the work the board marked`;
-  const parts = [
-    `\nTHE WORK THE STUDENT JUST HAD BOARD-MARKED (context to teach from — nobody in the chat said this)`,
-    `The student has just come back from Check & Improve, where their answer was board-marked. Below is ` +
-      `${subject}. This is CONTEXT to help you teach the fix — the marks are FINAL and NOT yours to change.`,
-  ];
+  const restored = rw.restored === true;
+  const parts = restored
+    ? [
+        `\nAN EARLIER MARKED QUESTION FROM THIS SAVED CONVERSATION (context to teach from — nobody in the chat said this)`,
+        `The student is back in a conversation about a question they had marked EARLIER (not just now). Below is ` +
+          `${subject}. This is CONTEXT to help you teach — the marks are FINAL and NOT yours to change.`,
+      ]
+    : [
+        `\nTHE WORK THE STUDENT JUST HAD BOARD-MARKED (context to teach from — nobody in the chat said this)`,
+        `The student has just come back from Check & Improve, where their answer was board-marked. Below is ` +
+          `${subject}. This is CONTEXT to help you teach the fix — the marks are FINAL and NOT yours to change.`,
+      ];
+  const rwPick = typeof rw.pick === 'string' ? rw.pick.replace(/["\u201c\u201d]/g, "'").trim().slice(0, 200) : '';
+  if (rwPick && typeof rw.pickCorrect === 'boolean') {
+    parts.push(`- The option the student picked: '${rwPick}' (${rw.pickCorrect ? 'the right option' : 'not the right option'}).`);
+  }
 
   if (question) {
     parts.push(
