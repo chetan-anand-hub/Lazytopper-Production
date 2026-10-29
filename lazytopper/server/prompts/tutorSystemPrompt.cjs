@@ -772,7 +772,7 @@ function briefBlock(brief, { chapter, subj } = {}) {
       const att = num(c.attempts);
       const bits = [marksText(num(c.marksLost)) + ' lost'];
       if (att !== null) bits.push(`${att} graded ${att === 1 ? 'question' : 'questions'}`);
-      if (c.trend === 'improving' || c.trend === 'worsening' || c.trend === 'stable') bits.push(`direction ${c.trend}`);
+      if (c.trend === 'improving' || c.trend === 'worsening' || c.trend === 'stable') bits.push(friendlyTrend(c.trend));
       return `${str(c.name)} (${bits.join(', ')})`;
     };
     facts.push(
@@ -828,7 +828,7 @@ function briefBlock(brief, { chapter, subj } = {}) {
     );
   }
   if (topic.trend) {
-    facts.push(`- Recent direction on this topic: ${str(topic.trend)}.`);
+    facts.push(`- Recent direction on this topic: ${friendlyTrend(topic.trend)}.`);
   }
   const subjectTotal = num(b.subject && b.subject.marksLost) !== null ? num(b.subject.marksLost) : num(mistakes.marksLostRecent);
   if (subjectTotal !== null) {
@@ -1063,6 +1063,16 @@ function demoQuestionDirective(demoQuestion) {
  * is here, never re-grade, stay concise. The tutor never grades (D-TUT-8) — this is teaching
  * context, and the board's marks are final.
  */
+// TUTOR-MIND-3: the trend words the model sees are the words a kind tutor would say (the facts stay
+// exact: 'worsening' still means the later half scored lower). The model echoes the labels it is
+// given, so the label itself is the tone fix (D-PROG-1: Progress frames MI as opportunity).
+function friendlyTrend(t) {
+  if (t === 'worsening') return 'slipping a bit lately, as the later questions scored lower';
+  if (t === 'improving') return 'getting better, as the later questions scored higher';
+  if (t === 'stable') return 'holding steady';
+  return String(t || '');
+}
+
 function returnedWorkBlock(returnedWork) {
   const rw = returnedWork && typeof returnedWork === 'object' ? returnedWork : null;
   if (!rw) return '';
