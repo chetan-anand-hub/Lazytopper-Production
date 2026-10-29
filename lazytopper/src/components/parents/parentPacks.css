@@ -46,3 +46,6 @@
   .lt-fp .lt-fpk-band__h { grid-column: 1 / -1; }
   .lt-fp .lt-fpk__hero-link { display: inline-flex; }
 }
+.lt-fpk-band__new { margin-left: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; padding: 1px 6px; border-radius: 999px; background: #f6e7b4; color: #6b4a00; }
+.lt-fpk-band__price { margin-left: 6px; color: var(--fp-gt); min-width: 3ch; display: inline-block; }
+.lt-fp .lt-fpk-band__btn { display: flex; align-items: center; justify-content: center; min-height: 48px; }

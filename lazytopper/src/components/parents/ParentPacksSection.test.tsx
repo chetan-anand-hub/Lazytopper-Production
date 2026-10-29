@@ -16,46 +16,39 @@ const wrap = () => <MemoryRouter><ParentPacksSection /></MemoryRouter>;
 describe("PARENTS-PACKS-1", () => {
   it("static markup has the heading, both links and no rupee figure", () => {
     const html = renderToStaticMarkup(wrap());
-    expect(html).toContain("Printable question banks: CBQ packs");
+    expect(html).toContain("Printable question banks: chapter, mock, CBQ and bundle packs");
     expect(html).toContain('href="/packs?from=for_parents#cbq"');
     expect(html).toContain('href="/packs?from=for_parents"');
     expect(html).not.toMatch(/₹/);
     expect(html).toContain("1,400+ competency questions");
     expect(html).toContain("The Board Pass (Premium) includes everything online.");
   });
-  it("PARENTS-PACKS-2: heading carries the CBQ price after mount only", async () => {
-    expect(renderToStaticMarkup(wrap())).not.toMatch(/per subject/);
-    render(wrap());
-    await act(async () => {});
-    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Printable question banks: CBQ packs ₹199 per subject");
-  });
-  it("PARENTS-PACKS-2: hero link and band - no rupee in static markup, price after mount, event fired, hidden for paid", async () => {
-    const both = <MemoryRouter><ParentPacksHeroLink /><ParentPacksBand /></MemoryRouter>;
-    const html = renderToStaticMarkup(both);
-    expect(html).not.toMatch(/₹/);
-    expect(html).toContain("Question banks parents ask for: 1,400+ board CBQs per subject");
-    expect(html).toContain("Maths CBQ Pack");
-    expect(html).toContain("Science CBQ Pack");
-    expect(html.match(/href="\/packs\?from=for_parents#cbq"/g)?.length).toBe(2);
-    render(both);
-    await act(async () => {});
-    const hero = screen.getByTestId("fp-packs-hero");
-    expect(hero.textContent).toBe("CBQ question banks \u00b7 ₹199");
-    hero.click();
-    screen.getByTestId("fp-packs-band-link").click();
-    expect(fire).toHaveBeenCalledTimes(2);
-    expect(fire).toHaveBeenCalledWith("for_parents");
-    paidMock.paid = true;
-    expect(renderToStaticMarkup(both)).toBe("");
-  });
   it("after mount shows prices from the catalogue and fires pack_entry_click with for_parents", async () => {
     render(wrap());
     await act(async () => {});
-    expect(screen.getAllByTestId("fp-packs-price").map((e) => e.textContent)).toEqual(["₹199", "₹199", "₹99", "₹49", "₹299"]);
+    expect(screen.getAllByTestId("fp-packs-price").map((e) => e.textContent)).toEqual(["₹199", "₹199", "₹199", "₹99", "₹49", "₹299"]);
     expect((screen.getByTestId("fp-packs-cbq") as HTMLAnchorElement).getAttribute("href")).toBe(PACKS_CBQ_TO);
     expect((screen.getByTestId("fp-packs-all") as HTMLAnchorElement).getAttribute("href")).toBe(PACKS_ALL_TO);
     screen.getByTestId("fp-packs-cbq").click();
     expect(fire).toHaveBeenCalledWith("for_parents");
+  });
+  it("PARENTS-PACKS-3: hero link and band - no rupee in static markup, prices after mount, hidden for paid", async () => {
+    const both = <MemoryRouter><ParentPacksHeroLink /><ParentPacksBand /></MemoryRouter>;
+    const html = renderToStaticMarkup(both);
+    expect(html).not.toMatch(/₹/);
+    expect(html).toContain("Printable question banks for every need");
+    for (const n of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "Maths CBQ Pack", "Science CBQ Pack"]) expect(html).toContain(n);
+    expect(html).toContain('href="#packs"');
+    expect(html).toContain('href="/packs?from=for_parents"');
+    render(both);
+    await act(async () => {});
+    const hero = screen.getByTestId("fp-packs-hero");
+    expect(hero.textContent).toBe("PDF question banks \u00b7 from ₹49");
+    expect(screen.getAllByTestId("fp-band-price").map((e) => e.textContent)).toEqual(["₹49", "₹99", "₹199", "₹299", "₹199", "₹199"]);
+    hero.click();
+    expect(fire).toHaveBeenCalledWith("for_parents");
+    paidMock.paid = true;
+    expect(renderToStaticMarkup(both)).toBe("");
   });
   it("renders nothing for paid Premium", () => {
     paidMock.paid = true;
