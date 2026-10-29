@@ -53,4 +53,13 @@ describe("packManifest", () => {
     expect(packSummaryRows("pack_subject", "science", 1234).some((r) => r.label === "Questions" && r.value === "1,234")).toBe(true);
     expect(packSummaryRows("pack_bundle").map((r) => r.value)).toEqual(["26", "27", "16", "\u20b9398"]);
   });
+  it("a CBQ pack lists a marking-rules page and one group per chapter of the subject; the summary count is shown only when known", () => {
+    const m = packManifest("pack_cbq", "science");
+    expect(m.title).toBe("Science CBQ Pack");
+    expect(m.groups[0].heading).toBe("Start here");
+    expect(m.groups).toHaveLength(14);
+    expect(m.chapterPacks).toBe(13);
+    expect(packSummaryRows("pack_cbq", "maths")[0].value).toBe("Every chapter");
+    expect(packSummaryRows("pack_cbq", "maths", 1234)[0]).toEqual({ label: "Competency questions", value: "1,234" });
+  });
 });

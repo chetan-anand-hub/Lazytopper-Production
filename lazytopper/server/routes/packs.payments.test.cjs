@@ -191,6 +191,7 @@ const CASES = [
   ['pack_mock', { packTarget: 'maths' }, 9900, 'pack_mock:maths', 'maths'],
   ['pack_subject', { packTarget: 'science' }, 19900, 'pack_subject:science', 'science'],
   ['pack_bundle', {}, 29900, 'pack_bundle:all', 'all'],
+  ['pack_cbq', { packTarget: 'science' }, 19900, 'pack_cbq:science', 'science'],
 ];
 
 /* ── price is the server's ───────────────────────────────────────────────────── */

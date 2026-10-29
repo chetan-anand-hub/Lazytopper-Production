@@ -36,6 +36,7 @@ const TITLES: Record<PackSku, { name: string; line: string }> = {
   pack_mock: { name: "Mock Pack", line: "8 full papers, 80 marks each, with keys" },
   pack_subject: { name: "Subject Pack", line: "Every chapter of a subject plus its 8 mocks" },
   pack_bundle: { name: "Maths + Science Bundle", line: "All 27 chapters and 16 mock papers" },
+  pack_cbq: { name: "CBQ Pack", line: "Every competency-based question, with step-wise solutions" },
 };
 
 const IMG_BASE = "/packs";
@@ -198,7 +199,7 @@ export default function PackDialog(props: PackDialogProps) {
     }
   }
 
-  const t = TITLES[sku];
+  const t = sku === "pack_cbq" ? { ...TITLES[sku], name: `${subjectLabel(subject)} CBQ Pack` } : TITLES[sku];
   const rows = packSummaryRows(sku, sku === "pack_chapter" ? chapter : subject, questions);
   const manifest = packManifest(sku, sku === "pack_chapter" ? chapter : subject);
   const chapterGroups = manifest.groups.filter((g) => g.chapter);

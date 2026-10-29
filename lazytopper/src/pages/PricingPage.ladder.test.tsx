@@ -110,7 +110,7 @@ describe("PacksStrip - the ladder", () => {
 
   it("heading, sub, four tiles linking to /packs?pack=..., and See all PDF packs", () => {
     const { container } = renderStrip();
-    expect(flat(container.querySelector("h2"))).toBe("Not ready for Premium yet? Start with a PDF pack");
+    expect(flat(container.querySelector("#lt-packoffer-h"))).toBe("Not ready for Premium yet? Start with a PDF pack");
     expect(flat(container.querySelector(".lt-packoffer__sub"))).toMatch(/^Printed practice from ₹49 · one-time · never renews$/);
     const hrefs = Array.from(container.querySelectorAll("a.lt-packoffer__item")).map(a => a.getAttribute("href"));
     expect(hrefs).toEqual(["/packs?pack=chapter", "/packs?pack=mock", "/packs?pack=subject", "/packs?pack=bundle"]);
@@ -154,5 +154,27 @@ describe("StickyPassBar", () => {
     expect(container.querySelector('[data-testid="pricing-sticky-bar"]')).toBeNull();
     watched.remove();
     vi.unstubAllGlobals();
+  });
+});
+
+describe("CBQ-PACK-1: the CBQ band on /pricing", () => {
+  const strip = () => render(<MemoryRouter><PacksStrip /></MemoryRouter>);
+  it("sits before the other packs; a Maths and a Science button, each Rs 199, linking into the buy pop-up; no 'both'", () => {
+    const { container } = strip();
+    const band = screen.getByTestId("cbq-band");
+    const others = screen.getByTestId("pricing-packs-strip");
+    expect(band.compareDocumentPosition(others) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(flat(band)).toContain("Half your board paper is competency-based.");
+    expect(flat(band)).toContain("NEW · CBQ");
+    expect(flat(band)).not.toMatch(/for both|both subjects/i);
+    expect(screen.getByTestId("pricing-cbq-maths").getAttribute("href")).toBe("/packs?pack=cbq&subject=maths");
+    expect(screen.getByTestId("pricing-cbq-science").getAttribute("href")).toBe("/packs?pack=cbq&subject=science");
+    expect(flat(screen.getByTestId("pricing-cbq-maths"))).toBe("Maths CBQ Pack · ₹199");
+    expect(container.querySelectorAll(".lt-packoffer__cell")).toHaveLength(4); // the other four packs are unchanged
+  });
+  it("is hidden for paid Premium", () => {
+    paid.value = true;
+    strip();
+    expect(screen.queryByTestId("cbq-band")).toBeNull();
   });
 });

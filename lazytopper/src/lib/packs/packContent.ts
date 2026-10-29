@@ -13,6 +13,7 @@ import { ensureBankChapters, ensureBankSubject, getBankRowsForSubject } from "..
 import { selectBankQuestions } from "../../data/bankQuery";
 import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { needsMissingFigure } from "../figureSafe";
+import { isCbq } from "../cbq/cbqClassification";
 import { packChapterLabel } from "./packLabels";
 import type { ServedAt } from "../freshSet/servedHistory";
 import { mulberry32, seededShuffle } from "../../utils/balancedMockDraw";
@@ -223,4 +224,67 @@ export function drawPackWorksheetRows(rows: readonly CanonicalQuestion[], seed: 
 /** The exact number of questions in a chapter pack (page copy). The chapter must be loaded. */
 export function countChapterQuestions(slug: string): number {
   return chapterPackRows(slug).length;
+}
+
+
+/* ── Board CBQ Pack (CBQ-PACK-1) ──────────────────────────────────────────────────────────────────────────── */
+
+/** A Case-Based row whose stem is shorter than this is not a real case study (a lone sub-question). */
+export const CBQ_MIN_CASE_CHARS = 150;
+
+/**
+ * Rows the CBQ pack never prints even if they are served: the single-part case-study FRAGMENTS and multi-part cases whose shared
+ * table/figure is not in the row (owner list, 29 Oct 2026). They stay served elsewhere (withholding them from the whole bank
+ * cascades into many pinned guards: a separate lane); the CBQ pack simply never sells them.
+ */
+export const CBQ_PACK_EXCLUDED_IDS: ReadonlySet<string> = new Set([
+  "CBE-M-AP-B-003",
+  "CBE-M-AP-C-001",
+  "CBE-S-ENVI-E-002",
+  "SQP-S-2023-MNM-E-001",
+  "SQP-S-2023-HEYE-E-001",
+  "SQP-S-2025-LGHT-038",
+]);
+
+/** Printing order of the formats inside a section: objective first, case study and long answer last. */
+const CBQ_FORMAT_RANK: Readonly<Record<string, number>> = {
+  MCQ: 0,
+  "Assertion-Reasoning": 1,
+  VSA: 2,
+  Short: 3,
+  "Case-Based": 4,
+  Long: 5,
+};
+
+/** Is this served row sold in the CBQ pack? */
+export function isCbqPackRow(q: CanonicalQuestion): boolean {
+  if (!isCbq(q)) return false;
+  if (CBQ_PACK_EXCLUDED_IDS.has(q.id)) return false;
+  if (isExcludedFromPacks(q)) return false;
+  if (sectionRank(q.section) >= 99) return false;
+  if (!isStepMarked(q)) return false;
+  if (q.format === "Case-Based" && String(q.questionText ?? "").length < CBQ_MIN_CASE_CHARS) return false;
+  return true;
+}
+
+/**
+ * The CBQ pack rows of a chapter: every served competency-based row that has a figure-safe stem, full step marks and (for a
+ * case study) a real case; sections A..E, within a section by format (MCQ, Assertion-Reasoning, VSA, Short, Case-Based, Long),
+ * then marks, then id. The chapter must be loaded (`loadChapter`).
+ */
+export function cbqPackRows(slug: string): CanonicalQuestion[] {
+  const rows = selectBankQuestions({ subject: bankSubjectOf(slug), topicKeys: [slug] }).filter(isCbqPackRow);
+  const fmt = (q: CanonicalQuestion): number => CBQ_FORMAT_RANK[String(q.format)] ?? 9;
+  return [...rows].sort(
+    (a, b) =>
+      sectionRank(a.section) - sectionRank(b.section) ||
+      fmt(a) - fmt(b) ||
+      (Number(a.marks) || 0) - (Number(b.marks) || 0) ||
+      (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+  );
+}
+
+/** The exact number of CBQs the pack holds for a chapter (page copy). The chapter must be loaded. */
+export function countCbqPackQuestions(slug: string): number {
+  return cbqPackRows(slug).length;
 }

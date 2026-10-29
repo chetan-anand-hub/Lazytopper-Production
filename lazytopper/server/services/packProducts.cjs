@@ -14,6 +14,8 @@ const PACK_PRODUCTS = Object.freeze({
   pack_mock: Object.freeze({ priceInr: 99, needsTarget: 'subject' }),
   pack_subject: Object.freeze({ priceInr: 199, needsTarget: 'subject' }),
   pack_bundle: Object.freeze({ priceInr: 299, needsTarget: null }),
+  // CBQ-PACK-1: a SEPARATE product (not covered by, and not covering, subject/bundle).
+  pack_cbq: Object.freeze({ priceInr: 199, needsTarget: 'subject' }),
 });
 
 const PACK_SUBJECTS = Object.freeze(['maths', 'science']);
@@ -120,6 +122,12 @@ function ownsMocks(packs, subject) {
   return ids.has(`pack_mock:${subject}`) || ids.has(`pack_subject:${subject}`) || ids.has(`pack_bundle:${BUNDLE_TARGET}`);
 }
 
+/** CBQ-PACK-1. Only `pack_cbq:<subject>` itself owns it: neither the Subject Pack nor the Bundle include CBQs. */
+function ownsCbq(packs, subject) {
+  if (typeof subject !== 'string' || !PACK_SUBJECTS.includes(subject)) return false;
+  return idSet(packs).has(`pack_cbq:${subject}`);
+}
+
 /**
  * Contract §3: a request is already owned when EVERYTHING it would grant is already owned.
  *   chapter -> that chapter; mock -> that subject's mocks; subject -> its 13 chapters AND its mocks;
@@ -130,6 +138,7 @@ function isAlreadyOwned(packs, sku, target) {
   if (t === null) return false;
   if (sku === 'pack_chapter') return ownsChapter(packs, t);
   if (sku === 'pack_mock') return ownsMocks(packs, t);
+  if (sku === 'pack_cbq') return ownsCbq(packs, t);
   if (sku === 'pack_subject') return chaptersOf(t).every((slug) => ownsChapter(packs, slug)) && ownsMocks(packs, t);
   return Object.keys(PACK_CHAPTERS).every((slug) => ownsChapter(packs, slug)) && PACK_SUBJECTS.every((s) => ownsMocks(packs, s));
 }
@@ -147,5 +156,6 @@ module.exports = {
   parsePackId,
   ownsChapter,
   ownsMocks,
+  ownsCbq,
   isAlreadyOwned,
 };
