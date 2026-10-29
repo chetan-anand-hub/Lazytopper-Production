@@ -40,7 +40,14 @@ export function readVisitLanding(): { landing: string | null; utmCampaign: strin
 
 export function guideIntentInput(surface: GuideSurface): IntentInput {
   const hint = readSubjectHint();
-  return { ...readVisit(), subjectHint: hint, cbqLanding: hint === "Maths", surface };
+  let quickLanding = false;
+  try {
+    // GUIDE-QP-1: the stored landing is path-only, so ?quick=1 is read from the live URL.
+    quickLanding = new URLSearchParams(window.location.search).get("quick") === "1";
+  } catch {
+    quickLanding = false;
+  }
+  return { ...readVisit(), subjectHint: hint, cbqLanding: hint === "Maths", quickLanding, surface };
 }
 
 /**

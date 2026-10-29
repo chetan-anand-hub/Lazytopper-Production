@@ -428,6 +428,11 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
         "sessionRecords/stu000/records/CT-1": { surface: "chapter-test", gradedAt: NOW - 3600_000 },
         "sessionRecords/stu000/records/FM-1": { surface: "full-mock", gradedAt: NOW - 3600_000 },
         "sessionRecords/stu000/records/WS-1": { surface: "worksheet", gradedAt: NOW - 3600_000 },
+        // GUIDE-QP-1: two Quick Practice answers + one non-QP attempt (must NOT count)
+        "practiceInsights/stu000/attempts/stu000::quick-practice::sess1::q1": { timestamp: NOW },
+        "practiceInsights/stu000/attempts/stu000::quick-practice::sess1::q2": { timestamp: NOW },
+        "practiceInsights/stu000/attempts/stu000::practice::::q9": { timestamp: NOW },
+        "practiceInsights/veteran0001/attempts/veteran0001::quick-practice::s::q1": { timestamp: NOW },
       };
       return { now: NOW, users, store };
     }
@@ -502,6 +507,20 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       const row = r.body.rows.find((x: { uid: string }) => x.uid === "stu000");
       // CT-1 + FM-1 (no status: legacy) + CT-3 (partial) = 3; the two pending-upload papers are excluded.
       expect(row.testsTaken).toEqual({ source: "sessionRecords", coverage: "full", count: 3 });
+    });
+
+    it("★ GUIDE-QP-1: per-row Quick Practice answers count only quick-practice attempts; none is 0; old accounts are partial; read-only", async () => {
+      const w = buildRoutes(listWorld());
+      const r = await w.get("/api/admin/students", "admin-token");
+      const row = r.body.rows.find((x: { uid: string }) => x.uid === "stu000");
+      expect(row.quickPractice).toEqual({ source: "practiceAttempts", coverage: "full", count: 2 });
+      const none = r.body.rows.find((x: { uid: string }) => x.uid === "stu001");
+      expect(none.quickPractice).toEqual({ source: "practiceAttempts", coverage: "full", count: 0 });
+      const p2 = await w.get("/api/admin/students?page=2", "admin-token");
+      const vet = p2.body.rows.find((x: { uid: string }) => x.uid === "veteran0001");
+      expect(vet.quickPractice.coverage).toBe("partial");
+      expect(vet.quickPractice.count).toBe(1);
+      expect(w.fs.writes).toEqual([]);
     });
 
     it("★ SOURCE-1: each row carries the coarse source from signupSources/{uid}; a missing doc is null (an account from before the lane)", async () => {
@@ -585,6 +604,16 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       expect(r.body.activeStudents).toEqual({ count: 2, unknown: 0, source: "activityLog", since: "2026-10-02" });
       expect(r.body.returnedDay2).toEqual({ returned: 1, eligible: 3, unknown: 0, source: "activityLog", since: "2026-10-02" });
       expect(r.body.returnedWithin7Days).toEqual({ returned: 2, eligible: 3, unknown: 0, source: "activityLog", since: "2026-10-02" });
+    });
+
+    it("★ GUIDE-QP-1: 'tried Quick Practice' counts only students inside practiceAttempts coverage", async () => {
+      const world = summaryWorld();
+      world.store["practiceInsights/ret0000001/attempts/ret0000001::quick-practice::s::q1"] = { timestamp: NOW };
+      world.store["practiceInsights/old0000001/attempts/old0000001::quick-practice::s::q1"] = { timestamp: NOW };
+      const w = buildRoutes(world);
+      const r = await w.get("/api/admin/students/summary?period=all", "admin-token");
+      // old0000001 signed up 2026-09-01 (after 2026-07-01), so it is eligible too.
+      expect(r.body.triedQuickPractice).toEqual({ tried: 2, eligible: 5, unknown: 0, source: "practiceAttempts", since: "2026-07-01" });
     });
 
     it("the period applies to the cards too", async () => {

@@ -313,3 +313,38 @@ describe("GUIDE-1 · intent map rules", () => {
     expect([...seenIds]).toEqual(expect.arrayContaining(["chapter_test", "worksheet"]));
   });
 });
+
+describe("GUIDE-QP-1 · packs and quick intents", () => {
+  it("packs — campaign, content, or a /packs or /pricing landing leads with the packs option", () => {
+    for (const over of [{ utmCampaign: "packs_search" }, { utmContent: "pack_ad" }, { landing: "/packs" }, { landing: "/pricing" }]) {
+      const p = buildGuidePlan(input(over), deps);
+      expect(p.intent).toBe("packs");
+      expect(p.line).toBe(GUIDE_LINES.packs);
+      expect(p.options.map((o) => o.id)).toEqual(["packs", "cbq", "quick", "chapter_test", "check_one"]);
+      expect(p.options[0].action).toEqual({ kind: "route", path: "/packs" });
+    }
+  });
+
+  it("packs — dropped when the /packs route is unknown, never a missing page", () => {
+    const p = buildGuidePlan(input({ landing: "/packs" }), { ...deps, routeExists: (x) => x !== "/packs" });
+    expect(p.options.some((o) => o.id === "packs")).toBe(false);
+  });
+
+  it("quick — utm_content quick / mcq / tap or ?quick=1 leads with quick, then cbq, check_one, chapter_test, worksheet", () => {
+    for (const over of [{ utmContent: "quick_tap" }, { utmContent: "mcq" }, { utmContent: "tap" }, { quickLanding: true }]) {
+      const p = buildGuidePlan(input(over), deps);
+      expect(p.intent).toBe("quick");
+      expect(p.options.map((o) => o.id)).toEqual(["quick", "cbq", "check_one", "chapter_test", "worksheet"]);
+    }
+  });
+
+  it("precedence — CBQ, chapter, important and papers beat packs; packs beats quick; quick beats Check & Improve", () => {
+    expect(buildGuidePlan(input({ utmContent: "cbq_pack" }), deps).intent).toBe("cbq");
+    expect(buildGuidePlan(input({ landing: "/notes/trigonometry", utmCampaign: "packs" }), deps).intent).toBe("chapter");
+    expect(buildGuidePlan(input({ landing: "/highly-probable/10/Maths", utmCampaign: "packs" }), deps).intent).toBe("important");
+    expect(buildGuidePlan(input({ utmContent: "mock", utmCampaign: "packs" }), deps).intent).toBe("papers");
+    expect(buildGuidePlan(input({ utmCampaign: "packs", utmContent: "quick" }), deps).intent).toBe("packs");
+    expect(buildGuidePlan(input({ utmContent: "quick", landing: "/check-improve" }), deps).intent).toBe("quick");
+    expect(buildGuidePlan(input({ surface: "check_improve", quickLanding: true }), deps).intent).toBe("quick");
+  });
+});

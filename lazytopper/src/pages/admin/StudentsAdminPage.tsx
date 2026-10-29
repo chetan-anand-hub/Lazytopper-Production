@@ -78,6 +78,17 @@ function SummaryCards({ state, periodLabel }: { state: SummaryState; periodLabel
           <span className="sa-card-value">{s.activeStudents.count}</span>
           <span className="sa-card-note">≥ 1 graded answer check recorded since {since}</span>
         </div>
+        {s.triedQuickPractice && (
+          <div className="sa-card" data-testid="sa-tried-qp">
+            <span className="sa-card-label">Tried Quick Practice</span>
+            <span className="sa-card-value">
+              {s.triedQuickPractice.eligible === 0 ? "—" : `${s.triedQuickPractice.tried} / ${s.triedQuickPractice.eligible}`}
+            </span>
+            <span className="sa-card-note">
+              of students who signed up on or after {formatDayKey(s.triedQuickPractice.since)} with at least one graded Quick Practice answer
+            </span>
+          </div>
+        )}
         <div className="sa-card">
           <span className="sa-card-label">Returned on day 2</span>
           <span className="sa-card-value">{ratio(s.returnedDay2)}</span>
@@ -443,6 +454,7 @@ export default function StudentsAdminPage() {
                         <th scope="col">Days active</th>
                         <th scope="col">C&amp;I sessions</th>
                         <th scope="col">Tests</th>
+                        <th scope="col">QP answers</th>
                         <th scope="col">Last active</th>
                         <th scope="col">AI cost (30 days, INR)</th>
                       </tr>
@@ -494,6 +506,17 @@ export default function StudentsAdminPage() {
                               coverage={row.testsTaken.coverage}
                               since={list.data.sources.sessionRecords.since}
                             />
+                          </td>
+                          <td data-label="QP answers">
+                            {row.quickPractice ? (
+                              <Covered
+                                count={row.quickPractice.count}
+                                coverage={row.quickPractice.coverage}
+                                since={list.data.sources.practiceAttempts.since}
+                              />
+                            ) : (
+                              "—"
+                            )}
                           </td>
                           <td data-label="Last active">
                             {row.activity.lastActiveMs === null && row.activity.coverage === "partial"

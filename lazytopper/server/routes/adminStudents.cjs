@@ -33,12 +33,12 @@
  *
  * ★ BOUNDED READS (worst case per request, Firestore document reads; a query that matches
  * nothing still bills 1, a count() bills 1 per 1000 index entries):
- *   list    : 50 rows x 6 = 300            (+ up to MAX_PLAN_SCAN = 1000 with a plan filter)
+ *   list    : 50 rows x 7 = 350            (+ up to MAX_PLAN_SCAN = 1000 with a plan filter)
  *             (the 6th is signupSources/{uid} — SOURCE-1, one getAll document read per row)
  *             + COST-1: up to 30 ledger day documents per row = at most 1500 more
  *             (fewer for a new account: its window starts on its sign-up day)
- *   summary : up to MAX_SUMMARY_STUDENTS = 500 subscriptions + 3 per eligible student
- *             = at most 2000
+ *   summary : up to MAX_SUMMARY_STUDENTS = 500 subscriptions + 4 per eligible student
+ *             (GUIDE-QP-1 adds one Quick Practice count) = at most 2500
  *   ai-cost : COST-1, loaded on request: up to MAX_COST_STUDENTS = 500 subscriptions +
  *             500 x MAX_COST_DAYS (30) ledger day documents = at most 15,500; the response
  *             returns the exact count in `reads`
@@ -80,6 +80,7 @@ const ADMIN_STUDENTS_AI_COST_PATH = '/api/admin/students/ai-cost';
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 const SESSION_RECORDS_COLLECTION = 'sessionRecords';
 const PRACTICE_INSIGHTS_COLLECTION = 'practiceInsights';
+const QUICK_PRACTICE_SURFACE = 'quick-practice';
 const MOCK_SCORE_HISTORY_COLLECTION = 'mockScoreHistory';
 const READ_SEGMENTS = Object.freeze({
   payments: 'payments',
@@ -532,17 +533,43 @@ function createAdminStudentsRoutes(deps = {}) {
   function activityDays(uid) {
     return db().collection(ACTIVITY_COLLECTION).doc(uid).collection(ACTIVITY_SEGMENTS.days);
   }
+  /**
+   * GUIDE-QP-1 — Quick Practice answers of one student: practiceInsights/{uid}/attempts docs
+   * whose id starts "<uid>::quick-practice::" (recordAttempt's id = the submission identity,
+   * which leads with the grading surface). One count() query, bounded, names nothing. `null` =
+   * unknown (a failed read or no FieldPath), never 0.
+   */
+  function quickPracticeQuery(uid) {
+    const FieldPath = firebaseAdmin && firebaseAdmin.firestore && firebaseAdmin.firestore.FieldPath;
+    if (!FieldPath || typeof FieldPath.documentId !== 'function') return null;
+    const prefix = `${uid}::${QUICK_PRACTICE_SURFACE}::`;
+    return db()
+      .collection(PRACTICE_INSIGHTS_COLLECTION)
+      .doc(uid)
+      .collection(READ_SEGMENTS.attempts)
+      .where(FieldPath.documentId(), '>=', prefix)
+      .where(FieldPath.documentId(), '<', `${prefix}\uf8ff`);
+  }
+  async function quickPracticeCount(uid) {
+    try {
+      const q = quickPracticeQuery(uid);
+      return q ? await safeCount(q) : null;
+    } catch {
+      return null;
+    }
+  }
   function sessionRecords(uid) {
     return db().collection(SESSION_RECORDS_COLLECTION).doc(uid).collection(READ_SEGMENTS.records);
   }
 
   /** The four per-row numbers of the list, 6 reads (2 of them: pending-upload papers to subtract). */
   async function rowActivity(row) {
-    const [daysActive, lastDocs, checks, allTests, ...pendingTests] = await Promise.all([
+    const [daysActive, lastDocs, checks, allTests, qpAnswers, ...pendingTests] = await Promise.all([
       safeCount(activityDays(row.uid)),
       safeDocs(activityDays(row.uid).orderBy('lastSeenMs', 'desc').limit(1).select('lastSeenMs')),
       safeCount(sessionRecords(row.uid).where('surface', '==', CHECK_SURFACE)),
       safeCount(sessionRecords(row.uid).where('surface', 'in', [...TEST_SURFACES])),
+      quickPracticeCount(row.uid),
       // AWAIT-1-PAPERS: a downloaded paper writes a `pending-upload` record before anything is
       // answered; it is not a test taken. SUBTRACTED (equality-only counts, no composite index)
       // rather than filtered with `!=`, which would also drop legacy records that carry no status.
@@ -568,6 +595,7 @@ function createAdminStudentsRoutes(deps = {}) {
       },
       answerChecks: { source: 'sessionRecords', coverage: coverageFor('sessionRecords', row.createdMs), count: checks },
       testsTaken: { source: 'sessionRecords', coverage: coverageFor('sessionRecords', row.createdMs), count: tests },
+      quickPractice: { source: 'practiceAttempts', coverage: coverageFor('practiceAttempts', row.createdMs), count: qpAnswers },
     };
   }
 
@@ -797,6 +825,7 @@ function createAdminStudentsRoutes(deps = {}) {
 
     const active = { count: 0, unknown: 0 };
     const day2 = { returned: 0, eligible: 0, unknown: 0 };
+    const triedQp = { tried: 0, eligible: 0, unknown: 0 };
     const within7 = { returned: 0, eligible: 0, unknown: 0 };
 
     await Promise.all(
@@ -805,6 +834,18 @@ function createAdminStudentsRoutes(deps = {}) {
         const signupKey = istDayKey(r.createdMs);
         const nextKey = addIstDays(signupKey, 1);
         const tasks = [];
+
+        // GUIDE-QP-1: "tried Quick Practice" is measurable only for a student whose whole life
+        // is inside practiceAttempts coverage (signed up on/after 2026-07-01); others are not counted.
+        if (coverageFor('practiceAttempts', r.createdMs) === 'full') {
+          triedQp.eligible += 1;
+          tasks.push(
+            quickPracticeCount(r.uid).then((n) => {
+              if (n === null) triedQp.unknown += 1;
+              else if (n > 0) triedQp.tried += 1;
+            })
+          );
+        }
 
         tasks.push(
           safeCount(activityDays(r.uid).where(`events.${CHECK_GRADED_EVENT}`, '>', 0)).then((n) => {
@@ -850,6 +891,7 @@ function createAdminStudentsRoutes(deps = {}) {
       studentsMeasured: scanned.length,
       trialStarts: { count: trialStarts, unknown: subsUnknown, source: 'subscriptions' },
       activeStudents: { ...active, source: 'activityLog', since: activitySince },
+      triedQuickPractice: { ...triedQp, source: 'practiceAttempts', since: DATA_SOURCES.practiceAttempts.since },
       returnedDay2: { ...day2, source: 'activityLog', since: activitySince },
       returnedWithin7Days: { ...within7, source: 'activityLog', since: activitySince },
       sources: DATA_SOURCES,
