@@ -71,7 +71,7 @@ function chapterGroup(slug: string): PackManifestGroup {
 }
 
 const CBQ_CHAPTER_ITEMS: readonly PackManifestItem[] = [
-  { label: "Competency-based questions", detail: "Every mark value, MCQ to long answer, in board order, with marks shown on each question", withKey: true },
+  { label: "Competency-based questions", detail: "1- to 5-mark questions, MCQ to long answer, in board order, with marks shown on each question", withKey: true },
 ];
 
 function cbqChapterGroup(slug: string): PackManifestGroup {
@@ -204,7 +204,7 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
         { label: "Competency questions", value: CBQ_SUBJECT_CLAIM },
         { label: "Chapters", value: String(chaptersOfSubject(subject).length) },
         { label: "Formats", value: "MCQ \u00b7 Assertion-Reason \u00b7 Case study \u00b7 Long answer" },
-        { label: "Worked step-wise solutions", value: "Every question" },
+        { label: "Step-wise worked solutions", value: "With the answer key" },
       ];
     case "pack_bundle":
       return [

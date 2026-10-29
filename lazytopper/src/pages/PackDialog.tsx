@@ -36,7 +36,7 @@ const TITLES: Record<PackSku, { name: string; line: string }> = {
   pack_mock: { name: "Mock Pack", line: "8 full papers, 80 marks each, with keys" },
   pack_subject: { name: "Subject Pack", line: "Every chapter of a subject plus its 8 mocks" },
   pack_bundle: { name: "Maths + Science Bundle", line: "All 27 chapters and 16 mock papers" },
-  pack_cbq: { name: "CBQ Pack", line: "Every competency-based question, with step-wise solutions" },
+  pack_cbq: { name: "CBQ Pack", line: "Competency-based questions, with step-wise worked solutions" },
 };
 
 const IMG_BASE = "/packs";

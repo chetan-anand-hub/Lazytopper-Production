@@ -96,7 +96,7 @@ describe("PacksPage", () => {
       expect(band.textContent, line).toContain(line);
     }
     // the claim is a static floor, visible without any interaction and without loading the bank
-    expect(screen.getByTestId("cbq-card-science").textContent).toContain("1,400+ CBQs · every chapter · every mark value 1–5 · step-wise solutions");
+    expect(screen.getByTestId("cbq-card-science").textContent).toContain("1,400+ CBQs · every chapter · 1- to 5-mark questions · step-wise worked solutions");
     expect(band.textContent).toContain("100+ in every chapter");
     expect(loads.n).toBe(0);
     fireEvent.click(screen.getByTestId("packs-card-cbq-science"));

@@ -29,7 +29,7 @@ export default function CbqBand({ action, headingId }: CbqBandProps) {
     >
       <span className="lt-cbq__badge">NEW · CBQ</span>
       <h2 className="lt-cbq__title" id={headingId}>{CBQ_HEADLINE}</h2>
-      <p className="lt-cbq__sub">Every chapter, every mark value, step-wise solutions. Maths CBQ Pack {price} · Science CBQ Pack {price}.</p>
+      <p className="lt-cbq__sub">Every chapter, 1- to 5-mark questions, step-wise worked solutions. Maths CBQ Pack {price} · Science CBQ Pack {price}.</p>
       <div className="lt-cbq__grid">
         {(["maths", "science"] as const).map((s) => {
           return (
@@ -37,7 +37,7 @@ export default function CbqBand({ action, headingId }: CbqBandProps) {
               <h3 className="lt-cbq__name">{subjectLabel(s)} CBQ Pack</h3>
               <p className="lt-cbq__price">{price}</p>
               <p className="lt-cbq__count">
-                {CBQ_SUBJECT_CLAIM} · every chapter · every mark value 1–5 · step-wise solutions
+                {CBQ_SUBJECT_CLAIM} · every chapter · 1- to 5-mark questions · step-wise worked solutions
               </p>
               <ul className="lt-cbq__list">
                 <li>{chaptersOfSubject(s).length} chapters, {CBQ_CHAPTER_CLAIM}</li>
