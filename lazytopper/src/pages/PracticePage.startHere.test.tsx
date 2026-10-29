@@ -357,7 +357,8 @@ describe("START-HERE-WRITTEN · a one-question written Start-here set", () => {
     await screen.findByTestId("qp-saved-confirmation");
     finish();
     fireEvent.click(await screen.findByTestId("qp-grade-batch"));
-    await waitFor(() => expect(mockGrade).toHaveBeenCalledTimes(1));
+    // CI-load slack: the default 1 s waitFor timed out in a busy CI shard (29 Oct, #1405/#1406); locally ~2 s total.
+    await waitFor(() => expect(mockGrade).toHaveBeenCalledTimes(1), { timeout: 15000 });
     const [req, opts] = mockGrade.mock.calls[0] as unknown as [
       { questions: Array<{ qNumber: number; textAnswer?: string }>; uploads?: unknown[] },
       { surface?: string },
@@ -366,7 +367,7 @@ describe("START-HERE-WRITTEN · a one-question written Start-here set", () => {
     expect(req.questions).toHaveLength(1);
     expect(req.questions[0].textAnswer).toBe("V = 4 V, I = 2 A\nR = V / I\nR = 2 ohm");
     expect(req.uploads ?? []).toHaveLength(0);
-    await waitFor(() => expect(startHereCalls("start_here_graded")).toHaveLength(1));
+    await waitFor(() => expect(startHereCalls("start_here_graded")).toHaveLength(1), { timeout: 15000 });
     expect(startHereCalls("start_here_graded")[0][1]).toMatchObject({ subject: "science", total: 1 });
     // The existing written scorecard carries the tutor door on the question that lost marks.
     expect(await screen.findAllByTestId("sc-tutor-ask")).toHaveLength(1);
