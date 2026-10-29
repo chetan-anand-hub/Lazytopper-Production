@@ -23,6 +23,16 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-30 (daily add-on to #1416) - #1417 - #1418 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `d6180717`.* Items come from the coordinator's dispatch spec **[coordinator]**; this builder re-derived none of the code facts.
+
+### [FU-TUTOR-HINGLISH-DETECTOR-TOKENS]
+Evidence [coordinator; `#1417`]: the server detector needs Devanagari or 2+ distinct Hinglish tokens, so a one-word Hinglish message may still get an English reply. Fix is a wider token rule or a short-message carve-out, with the false-positive negatives kept.
+
+### [FU-TUTOR-CHAPTER-WEIGHTAGE]
+Evidence [coordinator; live student test, 30 Oct]: "which chapter first" was correct on the student's own numbers (Light 22, Chem Rxns 19.5, Electricity 15). Board weightage could inform it too; it is not in the brief today.
+
 ## 2026-10-29 (daily, part 2) - #1409 - #1410 - #1411 - #1412 - #1413 - #1414 - #1415 (7 product merges after the morning docs PR; `#1399` open) FOLLOW-UPS (recorded by the docs builder of the cofounder session under CLAUDE.md section 10)
 
 *Readings are at trunk `d04bb1e8`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator's dispatch spec and the PR bodies **[coordinator]**; this builder re-derived none of the code facts.
