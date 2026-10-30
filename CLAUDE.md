@@ -12,6 +12,7 @@
 - Working directory: `C:\Projects\Lazytopper-Production`
 - App source lives at: `lazytopper/src/`
 - Handoff docs live at: `handoff/`
+- **NAMING — The student-facing name of the /check-improve page is **Answer Checker** (subtitle 'CBSE step marking'), owner ruling 30 Oct 2026. 'Check & Improve' / 'C&I' is the OLD name: it survives only in code identifiers, file names (DesktopCheckImprovePage etc.), the URL /check-improve, analytics event names, historical eval fixtures and old comments — never use it in new user-visible copy, ads or docs.**
 
 ---
 
@@ -76,7 +77,7 @@ Globally forbidden across all PRs unless explicitly scoped:
 ## 4a. Grading-Behaviour Uniformity — Non-Negotiable
 
 The grader is ONE behaviour reached through SIX surfaces:
-  Check & Improve (single question) · Check & Improve (multi-question upload) ·
+  Answer Checker (single question; formerly Check & Improve) · Answer Checker (multi-question upload) ·
   Worksheet · Chapter Test · Full Mock · Quick Practice
 
 Two prompt-assembly paths serve them: the single-question path (`handleCheckSolution`)

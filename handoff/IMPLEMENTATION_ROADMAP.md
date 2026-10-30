@@ -1,3 +1,10 @@
+## 2026-10-30 (daily, part 2) - #1434 - #1438: ONE-MINUTE-1, HOME-LADDER-1, HOME-LADDER-1b, RENAME-SWEEP-1, RENAME-SERVER-1 - MERGED
+
+- DONE. `#1434` (`31e45a60`): one-minute ladder on the Answer Checker page. NEXT: `[FU-ONE-MIN-SIGNED-OUT-GRADE]`.
+- DONE. `#1435` (`98951258`, failed live-verify), `#1436` (`9a021844`): Home ladder start, arrival race fixed. NEXT: `[FU-HOME-LADDER-PHONE]`.
+- DONE. `#1437` (`f38cc351`), `#1438` (`8f201e3e`, trunk): rename to Answer Checker in the UI and the tutor. NEXT: `[FU-PREV-OFFERED-CHECK-RE-BOUNDARY]`.
+- IN FLIGHT: `RENAME-OPS-1` (ops report label). `#1399` MISTAKE-CALC-1 (draft, HELD).
+
 ## 2026-10-30 (daily) - PURCHASE-EVENT-1 (`#1425`), TUTOR-MIND-4 (`#1422`), LLMS-MARKETING-1 (`#1424`), TUTOR-UX-1 (`#1426`), PACK-FORMATS-1 (`#1423`), CBQ-SEO-1 (`#1427`), CI-GREEN-1 (`#1428`), CBQ-SEO-FIX-1 (`#1429`), PARENTS-PAID-PACKS-1 (`#1430`), CI-GREEN-2 (`#1432`), TUTOR-PAPER-STEMS-1 (`#1431`) - MERGED
 
 - DONE. `#1425` (`a0c5790e`): every verified pack payment is one GA4 `purchase`. NEXT: read GA4 revenue against captured payments.

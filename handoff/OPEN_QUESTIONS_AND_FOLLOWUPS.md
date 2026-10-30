@@ -23,6 +23,19 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-30 (daily, part 2) - #1434 - #1438 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `8f201e3e`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator **[coordinator]**; this builder re-derived none of the code facts.
+
+### [FU-ONE-MIN-SIGNED-OUT-GRADE]
+Evidence [coordinator; `#1434`]: the signed-out grade cannot be tested off-domain because App Check reCAPTCHA blocks it. Owner to check a signed-out ad arrival grade in an incognito window on the real domain.
+
+### [FU-HOME-LADDER-PHONE]
+Evidence [coordinator; `#1436`]: Home to ladder start passed live on desktop only; the browser window could not be resized. Check at phone width.
+
+### [FU-PREV-OFFERED-CHECK-RE-BOUNDARY]
+Evidence [coordinator; `#1438`, minor]: `PREV_OFFERED_CHECK_RE` has no `\b` word boundary on its "answer checker" alternative, so it can match inside a longer word.
+
 ## 2026-10-30 (daily) - #1422 - #1432 (11 product merges, 30 Oct IST; `#1399` open) FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `0b37b4b1`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator's dispatch spec and the PR bodies **[coordinator]**; this builder re-derived none of the code facts.
