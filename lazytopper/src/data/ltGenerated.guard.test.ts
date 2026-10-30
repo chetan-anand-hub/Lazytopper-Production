@@ -388,7 +388,11 @@ describe("GEN-THIN-1 · thin concepts reach ≥ 10 and the surfaces really draw 
       await yieldToEventLoop();
       const subject = GEN.find((q) => q.topicKey === slug)!.subject;
       let hits = 0;
-      for (let seed = 1; seed <= 40; seed++) {
+      // [FU-CI-GEN-THIN-1-TIMEOUT] The claim is "SOME seeded draw of this chapter holds a generated row"
+      // (hits > 0), so stop at the first one - exactly as the FULL MOCK case below does. Walking all 40 seeds
+      // after the first hit only counted hits nobody read: ~40 s locally, past the 120 s budget on a loaded CI
+      // runner. A chapter that never serves a generated row still walks all 40 seeds and fails as before.
+      for (let seed = 1; seed <= 40 && hits === 0; seed++) {
         const paper = drawChapterTest({ subject, topicKey: slug, topicLabel: slug, worksheetId: `gen-${seed}`, seed });
         if (JSON.stringify(paper).includes("LTG-")) hits++;
       }

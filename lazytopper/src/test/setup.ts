@@ -1,5 +1,13 @@
 import "@testing-library/jest-dom";
 import { afterEach, beforeEach, vi } from "vitest";
+import { configure } from "@testing-library/react";
+
+// [CI-GREEN-1] Suite-wide default for findBy*/waitFor (Testing Library's own default is 1000 ms). The FIRST
+// test of a file pays cold lazy-chunk imports, which exceeded 1 s on a loaded 4-worker CI runner:
+// PricingPage.parentPay ("Share QR code"), SolutionsPage.moments (Byte peek), MeProgressPage.v7:324 (hero h1).
+// It only lengthens the wait for something that should appear; a test that expects absence passes an explicit
+// `{ timeout: 1000 }` (meHomeSummary.sync, DesktopCheckImprovePage.gradingJobs) so its meaning is unchanged.
+configure({ asyncUtilTimeout: 5000 });
 
 /**
  * PERF-3 — THE FIRESTORE FACADE, AS EVERY EXISTING TEST ALREADY DESCRIBES IT.

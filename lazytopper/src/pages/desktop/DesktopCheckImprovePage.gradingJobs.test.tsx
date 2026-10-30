@@ -234,7 +234,7 @@ describe("J2 · C&I paper — resume after a reload", () => {
     render(page());
     await waitFor(() => expect(H.recordMistake).toHaveBeenCalledTimes(1));
     expect((H.recordMistake.mock.calls[0][2] as { submissionId: string }).submissionId).toBe("CI-M-REAL-07");
-    expect(await screen.findByRole("button", { name: "Grade the remaining 1 question" }).catch(() => null)).toBeNull(); // no photo after a reload
+    expect(await screen.findByRole("button", { name: "Grade the remaining 1 question" }, { timeout: 1000 }).catch(() => null)).toBeNull(); // no photo after a reload
     expect(screen.getByText("Upload your answers again to grade the remaining 1.")).toBeTruthy();
   });
 
