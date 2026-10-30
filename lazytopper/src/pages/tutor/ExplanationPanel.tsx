@@ -24,6 +24,7 @@
 
 import { useEffect, useState } from "react";
 import { buildNcertPdfUrl } from "../../components/notes/NcertPageModal";
+import { studentCaption } from "./tutorCaption";
 import type { ResolvedVisual, NcertPageRefData } from "./conceptVisualCatalogue";
 
 /** Student-facing chapter subject label. Deliberately local: NcertPageModal keeps its own
@@ -51,6 +52,9 @@ export default function ExplanationPanel({ visual, onClose, onOpenNcert }: Expla
   }, [visual.conceptLabel, visual.body.kind]);
 
   const { body } = visual;
+  // TUTOR-UX-1 (A): body.caption is the catalogue's curator rationale (conceptVisualCatalogue.ts:128);
+  // students see a clean figure reference + concept label instead, as both alt and figcaption.
+  const imageCaption = body.kind === "image" ? studentCaption(body.caption, visual.conceptLabel) : "";
 
   // The inline NCERT page: build the URL, then PROVE it loads before embedding it.
   const ncertUrl = body.kind === "ncert" ? buildNcertPdfUrl(body.page) : null;
@@ -100,8 +104,8 @@ export default function ExplanationPanel({ visual, onClose, onOpenNcert }: Expla
       <div className="lt-exp__body">
         {body.kind === "image" && (
           <figure className="lt-exp__fig">
-            <img className="lt-exp__img" src={body.url} alt={body.caption} loading="lazy" />
-            <figcaption className="lt-exp__cap">{body.caption}</figcaption>
+            <img className="lt-exp__img" src={body.url} alt={imageCaption} loading="lazy" />
+            <figcaption className="lt-exp__cap">{imageCaption}</figcaption>
             <div className="lt-exp__src">
               {body.source === "notes" ? "From your NCERT notes" : "From a real exam question"}
             </div>

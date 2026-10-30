@@ -13,7 +13,7 @@
 // light, green hsl(152,55%,45%), Fraunces + Inter. Two-panel scaffold; the
 // explanation panel stays a CLOSED Stage-3 placeholder.
 
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 // TUTOR-FIX-2 (S-C) — chapter-first cold entry, the deterministic offer rule, typed errors.
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
@@ -34,6 +34,8 @@ import TutorCheckImproveOverlay from "./TutorCheckImproveOverlay";
 import TutorQuickPracticeOverlay from "./TutorQuickPracticeOverlay";
 import { safeInternalReturnTo } from "./tutorPath";
 import ExplanationPanel from "./ExplanationPanel";
+import { arrivalDividerIndex, arrivalDividerText, starterChips } from "./conceptArrival";
+import type { TutorTurn } from "../../ai/tutorClient";
 import UsageWarning from "../../components/usage/UsageWarning";
 import {
   resolveConceptVisual,
@@ -234,7 +236,7 @@ function TutorSession() {
     errorState,
     pending,
     returnFollow,
-    send,
+    send: sendToTutor,
     retry,
     openCheckImproveOverlay,
     checkImproveOverlayOpen,
@@ -257,6 +259,35 @@ function TutorSession() {
     fromRecordId: searchParams.get("from") || undefined,
     fromQuestionId: questionId,
   });
+
+  // TUTOR-UX-1 (B) — arriving on a RESTORED thread with a `concept` param. Today the concept-aware
+  // opener shows only while messages.length === 0, so on an existing thread the new concept is
+  // visible only in the header. When the restored thread's last turn is not already about the
+  // concept we add a DISPLAY-ONLY divider (render state: never a message, never persisted, never
+  // sent to the model) and two starter chips that FILL the composer. Decided once, from the thread
+  // as restored; a student who has already sent something this visit never gets it (fresh-thread
+  // and no-concept paths are untouched). No automatic model call.
+  const studentSentRef = useRef(false);
+  const [arrivalIdx, setArrivalIdx] = useState<number | null>(null);
+  const [arrivalDecided, setArrivalDecided] = useState(false);
+  useEffect(() => {
+    if (arrivalDecided || messages.length === 0 || studentSentRef.current) return;
+    setArrivalDecided(true);
+    setArrivalIdx(arrivalDividerIndex({ concept, messages, pending }));
+  }, [arrivalDecided, messages, concept, pending]);
+  const send = (text: string) => {
+    studentSentRef.current = true;
+    sendToTutor(text);
+  };
+  const composerRef = useRef<HTMLInputElement | null>(null);
+  const arrivalDivider =
+    arrivalIdx !== null && concept ? (
+      <div className="lt-tutor__now" role="separator" data-testid="tutor-concept-divider">
+        <span>{arrivalDividerText(concept)}</span>
+      </div>
+    ) : null;
+  // Chips only while nothing has been added to the thread since arrival.
+  const showArrivalChips = arrivalIdx !== null && !!concept && messages.length === arrivalIdx && status === "idle";
 
   const streamRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -381,6 +412,65 @@ function TutorSession() {
   // TUTOR-FIX-2 T3 — "Continue" on a reply the model cut at its token limit: a normal message.
   const continueTurn = () => send("Please continue from where you stopped.");
 
+  // TUTOR-UX-1 — one thread turn (moved out of the JSX unchanged so the arrival divider can sit
+  // between two turns).
+  const renderTurn = (m: TutorTurn, i: number) => {
+      if (m.role === "user") {
+        return (
+          <div key={i} className="lt-tutor__s">
+            <span>
+              <MathText text={m.content} />
+            </span>
+          </div>
+        );
+      }
+      if (m.kind === "away-cue") {
+        // Fix 2 (de-dupe): while a holding banner is live it carries the same
+        // "holding your place" line — render exactly one, so suppress the away
+        // bubble here. Resolved round-trips (pending cleared) still show it as history.
+        if (pending) return null;
+        return (
+          <div key={i} className="lt-tutor__away">
+            <span aria-hidden="true">⏸</span> {m.content}
+          </div>
+        );
+      }
+      return (
+        <div
+          key={i}
+          className={m.kind === "return-result" ? "lt-tutor__t lt-tutor__t--return" : "lt-tutor__t"}
+        >
+          <TutorText text={m.content} />
+          {/* TUTOR-FIX-2 T3 — the LATEST cut-off reply carries a "Continue" button (a
+              normal message); an older one keeps only the honest note. */}
+          {m.truncated && (
+            <p className="lt-tutor__cutnote">
+              This answer was cut short.
+              {latestTutor?.index === i && status !== "sending" && (
+                <button
+                  type="button"
+                  className="lt-tutor__continue"
+                  data-testid="tutor-continue"
+                  onClick={continueTurn}
+                >
+                  Continue
+                </button>
+              )}
+            </p>
+          )}
+          {m.figure && (
+            <button
+              type="button"
+              className="lt-tutor__refchip"
+              onClick={() => m.figure && openFigure(m.figure)}
+            >
+              <span aria-hidden="true">&#128196;</span> See the diagram
+            </button>
+          )}
+        </div>
+      );
+  };
+
   return (
     <div className="lt-tutor" ref={rootRef}>
       <style>{TUTOR_CSS}</style>
@@ -464,62 +554,13 @@ function TutorSession() {
               </>
             )}
 
-            {messages.map((m, i) => {
-              if (m.role === "user") {
-                return (
-                  <div key={i} className="lt-tutor__s">
-                    <span>
-                      <MathText text={m.content} />
-                    </span>
-                  </div>
-                );
-              }
-              if (m.kind === "away-cue") {
-                // Fix 2 (de-dupe): while a holding banner is live it carries the same
-                // "holding your place" line — render exactly one, so suppress the away
-                // bubble here. Resolved round-trips (pending cleared) still show it as history.
-                if (pending) return null;
-                return (
-                  <div key={i} className="lt-tutor__away">
-                    <span aria-hidden="true">⏸</span> {m.content}
-                  </div>
-                );
-              }
-              return (
-                <div
-                  key={i}
-                  className={m.kind === "return-result" ? "lt-tutor__t lt-tutor__t--return" : "lt-tutor__t"}
-                >
-                  <TutorText text={m.content} />
-                  {/* TUTOR-FIX-2 T3 — the LATEST cut-off reply carries a "Continue" button (a
-                      normal message); an older one keeps only the honest note. */}
-                  {m.truncated && (
-                    <p className="lt-tutor__cutnote">
-                      This answer was cut short.
-                      {latestTutor?.index === i && status !== "sending" && (
-                        <button
-                          type="button"
-                          className="lt-tutor__continue"
-                          data-testid="tutor-continue"
-                          onClick={continueTurn}
-                        >
-                          Continue
-                        </button>
-                      )}
-                    </p>
-                  )}
-                  {m.figure && (
-                    <button
-                      type="button"
-                      className="lt-tutor__refchip"
-                      onClick={() => m.figure && openFigure(m.figure)}
-                    >
-                      <span aria-hidden="true">&#128196;</span> See the diagram
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+            {messages.map((m, i) => (
+              <Fragment key={i}>
+                {i === arrivalIdx ? arrivalDivider : null}
+                {renderTurn(m, i)}
+              </Fragment>
+            ))}
+            {arrivalIdx === messages.length ? arrivalDivider : null}
 
             {/* One-shot follow-up quick-reply after a reframed return-opener */}
             {returnFollow && !pending && (
@@ -578,6 +619,24 @@ function TutorSession() {
               when the latest turn earns an offer (model tag or the intent rule), the matching
               permanent control is marked as the offer (`--offered`) instead. */}
 
+          {showArrivalChips && concept && (
+            <div className="lt-tutor__starters" role="group" aria-label="Ways to start" data-testid="tutor-concept-starters">
+              {starterChips(concept).map((c) => (
+                <button
+                  key={c.text}
+                  type="button"
+                  className="lt-tutor__fork"
+                  onClick={() => {
+                    setDraft(c.text);
+                    composerRef.current?.focus();
+                  }}
+                >
+                  {c.text}
+                </button>
+              ))}
+            </div>
+          )}
+
           <form className="lt-tutor__composer" onSubmit={onSubmit}>
             {/* TUTOR-FIX-2 T11 — the two round trips, PERMANENT, next to the composer at every
                 width: they open the overlays directly, never waiting on the model's wording. */}
@@ -603,6 +662,7 @@ function TutorSession() {
             </div>
             <div className="lt-tutor__cbar">
               <input
+                ref={composerRef}
                 className="lt-tutor__input"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
@@ -813,6 +873,25 @@ const TUTOR_CSS = `
   margin: 2px 0 14px;
 }
 .lt-tutor__forks { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 14px; }
+.lt-tutor__now {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--lt-green-deep);
+}
+.lt-tutor__now::before,
+.lt-tutor__now::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--lt-green-line);
+}
+.lt-tutor__now span { max-width: 80%; text-align: center; overflow-wrap: anywhere; }
+.lt-tutor__starters { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 12px 0; }
 .lt-tutor__fork {
   font-family: var(--font-body, "Inter", system-ui, sans-serif);
   font-size: 13px;
