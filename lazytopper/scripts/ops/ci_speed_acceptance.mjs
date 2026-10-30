@@ -527,6 +527,18 @@ let WORKFLOW_SHARDS = 0; // set by w5 from the workflow's own matrix; w13/w14 pl
         /return ordered\.map\(/.test(read(path.join(HERE, "ci_vitest_sequencer.mjs"))),
       `${sample.length} files in, ${ordered.length} out, slowest first, deterministic; wired behind CI only`);
   }
+  // ★ CI-GREEN-1 [FU-CI-SHARD4-RPC-TIMEOUT]: the per-test yield is wired as a setup file and stays inert
+  //   to tests (real setImmediate captured at load, so fake timers cannot stall it; afterEach only).
+  {
+    const cfg = read(path.join(ANCHOR, "vitest.config.ts"));
+    const src = read(path.join(HERE, "ci_vitest_yield_setup.mjs"));
+    check("w22_per_test_event_loop_yield_is_wired_and_uses_the_real_setImmediate",
+      /setupFiles:\s*\[[^\]]*"\.\/scripts\/ops\/ci_vitest_yield_setup\.mjs"/.test(cfg) &&
+        /const realSetImmediate = globalThis\.setImmediate;/.test(src) &&
+        /afterEach\(\(\) => new Promise\(\(resolve\) => realSetImmediate\(resolve\)\)\);/.test(src) &&
+        !/\.(skip|only)\b|--exclude/.test(src),
+      "a worker reads onTaskUpdate's reply between tests, never skipping or reordering one");
+  }
   check("w16_a_stale_durations_table_never_drops_or_adds_a_file",
     exactCover([...all.slice(0, 20), "src/__new__.test.ts"], stale) && !stale.some((b) => b.files.includes("src/__deleted__.test.ts")));
 }

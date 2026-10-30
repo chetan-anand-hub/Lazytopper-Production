@@ -5,6 +5,7 @@
 // pyqOnly), exact mark bands per section, honest shortfalls (never padded),
 // deterministic draw per seed, no duplicate questions on a paper.
 
+import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import { describe, it, expect } from "vitest";
 // BANK-SPLIT-1 PR-2: this suite calls the bank's sync APIs directly, so it preloads every chapter.
 import "../../test/preloadBankChapters";
@@ -59,10 +60,16 @@ const propertySeeds = (n: number, salt: number) =>
 describe("F3 — Full Mock marks per CBSE unit", () => {
   it.each(["Maths", "Science"] as const)(
     "%s: every seed (fixed set + 40 property seeds) puts exactly CBSE's unit marks on the paper",
-    (subject) => {
+    async (subject) => {
       const key = subject === "Maths" ? "maths" : "science";
       const units = SYLLABUS_2026_27[key].units;
       for (const seed of [...FIXED_SEEDS, ...propertySeeds(40, subject === "Maths" ? 0x1f3 : 0x5c1)]) {
+        // [FU-CI-SHARD4-RPC-TIMEOUT] This loop is ~64 s of SYNCHRONOUS work on a CI runner (33 s Maths,
+        // 64.6 s Science in shard 4 of run 41016744399). The worker's `onTaskUpdate` RPC is sent when the
+        // test starts and birpc's fixed 60 s timer fires before the worker can read the reply, so the shard
+        // exits 1 with "[vitest-worker]: Timeout calling onTaskUpdate" after every test PASSED. Yield once
+        // per seed (same fix as ltGenerated.guard.test.ts, CI-VITEST-TIMEOUT-1); assertions unchanged.
+        await yieldToEventLoop();
         const d = drawFullMock({ subject, worksheetId: "fm-unit", code: "FM-U", name: "u", seed });
         const marksByUnit = new Map<string, number>();
         for (const q of d.paper.questions) {
