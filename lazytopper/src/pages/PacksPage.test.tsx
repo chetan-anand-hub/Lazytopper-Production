@@ -98,7 +98,7 @@ describe("PacksPage", () => {
     expect(band.textContent).not.toMatch(/for both|both subjects/i);
     expect(screen.getByTestId("cbq-card-maths").textContent).toContain("₹199");
     expect(screen.getByTestId("cbq-card-science").textContent).toContain("₹199");
-    for (const line of ["13 chapters", "MCQ · Assertion-Reason · Case study · Long answer", "Your name on every page", "download till May 2027", "Made by an IITian (IIT Kanpur)"]) {
+    for (const line of ["13 chapters", "MCQ · Assertion-Reason · Short answer · Case study · Long answer", "Your name on every page", "download till May 2027", "Made by an IITian (IIT Kanpur)"]) {
       expect(band.textContent, line).toContain(line);
     }
     // the claim is a static floor, visible without any interaction and without loading the bank

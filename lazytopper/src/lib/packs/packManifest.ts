@@ -203,7 +203,7 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
       return [
         { label: "Competency questions", value: CBQ_SUBJECT_CLAIM },
         { label: "Chapters", value: String(chaptersOfSubject(subject).length) },
-        { label: "Formats", value: "MCQ \u00b7 Assertion-Reason \u00b7 Case study \u00b7 Long answer" },
+        { label: "Formats", value: "MCQ \u00b7 Assertion-Reason \u00b7 Short answer \u00b7 Case study \u00b7 Long answer" },
         { label: "Step-wise worked solutions", value: "With the answer key" },
       ];
     case "pack_bundle":
