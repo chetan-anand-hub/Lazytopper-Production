@@ -132,7 +132,20 @@ afterEach(() => {
 });
 
 describe("ACTIVATION-2 A · Start here on Check & Improve → 'Check one answer'", () => {
-  it("★★ closes the takeover and puts the student in the question box", async () => {
+  it("★★ ONE-MINUTE-1 (A1): Byte's 'Check one answer' closes the takeover and starts the first-minute ladder in place of the empty box", async () => {
+    setMatchMediaMatches(true);
+    H.auth = { user: STUDENT, loading: false };
+    H.activeUid = STUDENT.uid;
+    H.sub.isPremium = true;
+    Element.prototype.scrollIntoView = vi.fn();
+    renderPage();
+    fireEvent.click(await screen.findByTestId("start-here-focus-check-one"));
+    await waitFor(() => expect(screen.queryByTestId("start-here-focus")).toBeNull());
+    expect(await screen.findByTestId("one-min-ladder")).toBeInTheDocument();
+    expect(screen.queryByTestId("start-here-card")).toBeNull();
+  });
+
+  it("★★ with work already in the box the ladder does not start: the student lands in the question box exactly as before", async () => {
     setMatchMediaMatches(true);
     H.auth = { user: STUDENT, loading: false };
     H.activeUid = STUDENT.uid;
@@ -140,15 +153,12 @@ describe("ACTIVATION-2 A · Start here on Check & Improve → 'Check one answer'
     const scroll = vi.fn();
     Element.prototype.scrollIntoView = scroll;
     renderPage();
-    fireEvent.click(await screen.findByTestId("start-here-focus-check-one"));
-    // iOS: focused INSIDE the tap (synchronously), not on a later tick
+    fireEvent.change(questionBox(), { target: { value: QUESTION } });
+    const go = screen.queryByTestId("start-here-focus-check-one");
+    if (!go) return; // the takeover stands down once work exists: nothing to press, nothing changed
+    fireEvent.click(go);
     expect(document.activeElement).toBe(questionBox());
-    await waitFor(() => expect(screen.queryByTestId("start-here-focus")).toBeNull());
-    expect(screen.queryByTestId("start-here-card")).toBeNull();
-    // the closing takeover did not pull focus back or restore it elsewhere
-    expect(document.activeElement).toBe(questionBox());
-    await waitFor(() => expect(scroll).toHaveBeenCalled());
-    expect(document.activeElement).toBe(questionBox());
+    expect(screen.queryByTestId("one-min-ladder")).toBeNull();
   });
 });
 

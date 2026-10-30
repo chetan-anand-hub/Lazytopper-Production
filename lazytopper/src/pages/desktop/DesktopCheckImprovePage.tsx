@@ -132,8 +132,12 @@ import EmailVerifyReminder from "../../components/auth/EmailVerifyReminder";
 import StartHereCard from "../../components/startHere/StartHereCard";
 // CI-SOFT-1 — "Pick a board question, watch it get marked": the eager door + the audience rule only.
 // Every line, sample and drawing is in the lazy ciDemoChunk. Display only: no grader / AI call.
-import CiDemoCard, { type CiDemoOwnPick } from "../../components/ciDemo/CiDemoCard";
+import CiDemoCard, { type CiDemoOwnPick, type CiDemoLadderPick, type LadderAnswer } from "../../components/ciDemo/CiDemoCard";
+import { secondsSinceLadderStart } from "../../components/ciDemo/ladderClock";
+import LadderPhotoCta from "../../components/ciDemo/LadderPhotoCta";
+import { recordLadderTap } from "../../components/ciDemo/ladderAttempt";
 import { useCiDemoAudience } from "../../components/ciDemo/ciDemoModel";
+import { buildSingleGradeRequest, seedConfirmedFromBank } from "../../components/ciDemo/ladderGradeRequest";
 import { typeFirstAnswerMode, useZeroGraded } from "../../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
 import {
@@ -167,7 +171,7 @@ import {
 import { wasTrialStartedAtSignUp } from "../../services/newAccountTrial";
 import { useSubscription } from "../../hooks/useSubscription";
 import { useFreeCheckReturn } from "../../hooks/useFreeCheckReturn";
-import { trackNamedEvent, trackOnboardingEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
+import { trackNamedEvent, trackOneMinute, trackOnboardingEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
 import { buildTutorPath } from "../tutor/tutorPath";
 import {
   SCORECARD_REVIEW_PARAM,
@@ -1060,7 +1064,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       // ACTIVATION-2 B — rightSlot: a signed-out visitor's compact "Sign up" (nothing when signed
       // in). The in-progress draft is flushed on the way out, and the free check's sign-in marker
       // is set exactly as its own sign-in links set it (OR-18).
-      <MobileShell title="Check & Improve" subtitle={subtitle} showNav rightSlot={ciMobileSignUp()}>
+      <MobileShell title="Answer Checker" subtitle={subtitle} showNav rightSlot={ciMobileSignUp()}>
         {body}
       </MobileShell>
     );
@@ -1642,6 +1646,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
 
   function clearDetection() {
+    // ONE-MINUTE-1: a new / edited question ends the ladder's typed step (no type_graded or photo CTA for an unrelated answer).
+    setLadderTyped(false);
     setDetected(null);
     setConfirmed(null);
     setEditing(false);
@@ -1706,6 +1712,60 @@ const DesktopCheckImprovePageInner: React.FC<{
     const box = answerCardRef.current?.querySelector<HTMLTextAreaElement>('textarea[aria-label="Type your answer"]');
     box?.focus({ preventScroll: true });
     box?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+  }
+
+  // ONE-MINUTE-1 step 2 (TYPE) — the ladder hands on a 2-mark board question. Like "Check my own answer" it fills
+  // the question, closes the card, puts the answer on Type and focuses the box inside the tap; UNLIKE it, the
+  // "Read the question" detect call is skipped: `confirmed` is seeded from the bank row's own marks / subject / chapter
+  // through the SAME builder the detect path uses (components/ciDemo/ladderGradeRequest.ts; its test asserts the grade
+  // request is identical). Nothing is graded until the student taps Check.
+  const [ladderTyped, setLadderTyped] = useState(false);
+  const ladderGradedSent = useRef(false);
+  // R4 — the typed answer was graded inside the ladder: one event, with the seconds since the ladder's tap step first showed.
+  useEffect(() => {
+    if (!ladderTyped || status !== "ready" || ladderGradedSent.current) return;
+    ladderGradedSent.current = true;
+    // Measured from the moment the ladder's tap step first showed (its own stopwatch), not from page load.
+    const sec = secondsSinceLadderStart();
+    trackOneMinute("one_min_type_graded", sec === null ? undefined : { seconds_since_ladder_start: sec });
+  }, [ladderTyped, status]);
+  function ciDemoLadderType(pick: CiDemoLadderPick) {
+    const cd = seedConfirmedFromBank({ ...pick.seed });
+    flushSync(() => {
+      setQuestionTab("type");
+      clearDetection();
+      setQuestion(pick.text);
+      setBoardSource({ id: pick.bankId, text: pick.text, label: pick.label });
+      setDetected(cd);
+      setConfirmed(cd);
+      ciAnswerTouchedRef.current = true;
+      setTab("type");
+      setLadderTyped(true);
+      ladderGradedSent.current = false;
+      ciDemo.close();
+    });
+    funnelRef.current = { attempt: { tab: "type", text: pick.text.trim(), image: null }, sent: new Set() };
+    trackFunnelStep("check_question_read");
+    const box = answerCardRef.current?.querySelector<HTMLTextAreaElement>('textarea[aria-label="Type your answer"]');
+    box?.focus({ preventScroll: true });
+    box?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+  }
+
+  // ONE-MINUTE-1 step 1 — the tap is a real MCQ attempt for a signed-in student (the Practice card's own door and
+  // identity, so "Tried practice" counts it once); nothing is persisted signed out. No mistake type: a tap has no working.
+  function ciLadderAnswered(a: LadderAnswer) {
+    recordLadderTap(user, a);
+  }
+
+  // ONE-MINUTE-1 step 3 (PHOTO) — after the typed result: the existing Upload tab, nothing new behind it.
+  function ciLadderPhoto() {
+    resetToInput();
+    flushSync(() => {
+      ciAnswerTouchedRef.current = true;
+      setTab("upload");
+      setLadderTyped(false);
+    });
+    answerCardRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
   }
 
   // ACTIVATION-2 A — Start here's "Check one answer": focus the question box SYNCHRONOUSLY, inside
@@ -2398,21 +2458,13 @@ const DesktopCheckImprovePageInner: React.FC<{
           ? { imageBase64, imageMimeType: imageMime }
           : { textAnswer: textAnswer.trim() };
 
-      const graded = await checkSolutionImage({
+      const graded = await checkSolutionImage(buildSingleGradeRequest({
         question: trimmedQuestion,
-        subject: confirmed.subject,
-        topic: confirmed.topicName,
-        marks: confirmed.marks,
-        // Keyless objective flag from the detect step — the grader clamps a ≤1-mark
-        // objective question to 0/full off the model's binary verdict (never a
-        // fraction). Omitted (non-objective) → grading is byte-identical to before.
-        ...(detectedQuestions?.[0]?.objective === true ? { objective: true } : {}),
-        // PR-2 (B9) — the detected answer key for an objective question (paid calls only).
-        ...(!freeCallOpts && detectedQuestions?.[0]?.objective === true && detectedQuestions?.[0]?.answer
-          ? { answer: detectedQuestions[0].answer }
-          : {}),
-        ...answerPart,
-      }, { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
+        confirmed,
+        firstDetected: detectedQuestions?.[0],
+        freeCall: Boolean(freeCallOpts),
+        answerPart,
+      }), { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
       if (!graded || graded.ok === false) {
         setErrorMessage(
           graded?.error
@@ -2732,6 +2784,10 @@ const DesktopCheckImprovePageInner: React.FC<{
             onCheckOwn={ciDemoCheckOwn}
             onJumpToOwn={focusQuestionBox}
             signedOut={!ciMomentUid}
+            uid={ciMomentUid}
+            ladderForced={ciDemo.ladderForced}
+            onLadderAnswered={ciLadderAnswered}
+            onLadderType={ciDemoLadderType}
           />
         )}
         {!overlay && !ciDemo.show && (
@@ -2743,7 +2799,11 @@ const DesktopCheckImprovePageInner: React.FC<{
             // full-screen Byte; the inline Start-here card may still show. Untouched where the card never showed.
             focus={!ciDemo.closedHere}
             inProgress={ciInProgress}
-            checkOneAnswer={focusQuestionBox}
+            // ONE-MINUTE-1 (A1): Byte's "Check one answer" starts the first-minute ladder when it can show
+            // (nothing typed yet, no result yet); otherwise today's behaviour, the question box.
+            checkOneAnswer={() => {
+              if (!ciDemo.startLadder()) focusQuestionBox();
+            }}
           />
         )}
         {/* No lede here — deleted at both widths (owner-decided). Every clause it
@@ -2753,7 +2813,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             spend effort happens. Dropping this "photo" plus the QR-delivery label
             below (the two remaining student-visible "photo"s) completes D4. */}
         <PageHeader
-          eyebrow="Check & Improve"
+          eyebrow="Answer Checker"
           title="Grade your answer, examiner-style"
           actions={
             <button type="button" style={buttonOutline} onClick={() => setPanelOpen(true)}>
@@ -3670,7 +3730,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         {/* PACKS-VISIBLE-1 - below the check box and demo; never inside the tutor overlay. */}
         {!overlay && <PackPromo surface="check_improve" />}
       </div>,
-      "Board-style examiner grading",
+      "CBSE step marking",
     );
   }
 
@@ -4123,6 +4183,8 @@ const DesktopCheckImprovePageInner: React.FC<{
           resultCtx.topicSlug
             ? { to: worksheetForTopicPath(resultCtx.subject, resultCtx.topicSlug), chapter: resultCtx.topicName }
             : null)}
+          // ONE-MINUTE-1 step 3: under the typed result, one line to the existing Upload tab.
+          belowScore={!overlay && ladderTyped ? <LadderPhotoCta onTap={ciLadderPhoto} /> : undefined}
           onClose={() => setScorecardOpen(false)}
         />
       )}

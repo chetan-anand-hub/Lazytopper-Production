@@ -39,6 +39,11 @@ export interface CiDemoAudienceInput {
   inProgress: boolean;
   /** The card is on screen right now. */
   alreadyOpen: boolean;
+  /**
+   * ONE-MINUTE-1 — Byte's "Check one answer" asked for the ladder (an explicit tap, not an arrival): the ad-arrival and
+   * closed-this-tab rules do not apply; the same students still qualify (signed out with the free check unspent, or signed in with ZERO graded results).
+   */
+  forced?: boolean;
   who:
     | { kind: "signedOut"; freeMode: boolean; freeCheckUsed: boolean }
     | { kind: "signedIn"; zeroGraded: ZeroGraded };
@@ -52,7 +57,9 @@ export function isCiAdArrival(visit: CiDemoAudienceInput["visit"]): boolean {
 
 /** Everything EXCEPT "nothing in progress" — what lets an already-open card stay open. */
 export function ciDemoEligible(i: Omit<CiDemoAudienceInput, "inProgress" | "alreadyOpen">): boolean {
-  if (i.overlay || i.closed || !isCiAdArrival(i.visit)) return false;
+  if (i.overlay) return false;
+  if (i.forced) return i.who.kind === "signedOut" ? i.who.freeMode && !i.who.freeCheckUsed : i.who.zeroGraded === "none";
+  if (i.closed || !isCiAdArrival(i.visit)) return false;
   return i.who.kind === "signedOut"
     ? i.who.freeMode && !i.who.freeCheckUsed
     : i.who.zeroGraded === "none";
@@ -133,10 +140,19 @@ export interface CiDemoAudienceArgs {
  * arrival (anyone else can never see the card). A real result / grade closes the card for the tab, for
  * good: the zero-graded answer is memoised and would otherwise let the latch bring it back.
  */
-export function useCiDemoAudience(args: CiDemoAudienceArgs): { show: boolean; close: () => void; closedHere: boolean } {
+export function useCiDemoAudience(args: CiDemoAudienceArgs): {
+  show: boolean;
+  close: () => void;
+  closedHere: boolean;
+  /** ONE-MINUTE-1: Byte's "Check one answer" starts the ladder. False (nothing changed) when it cannot show. */
+  startLadder: () => boolean;
+  /** The ladder was asked for by Byte (leads whatever the arrival). */
+  ladderForced: boolean;
+} {
   const visit = readVisitLanding();
   const adArrival = isCiAdArrival(visit);
-  const zeroGraded = useZeroGraded(args.overlay || !adArrival ? null : args.uid, { serverOnly: true });
+  const [forced, setForced] = useState(false);
+  const zeroGraded = useZeroGraded(args.overlay || !(adArrival || forced) ? null : args.uid, { serverOnly: true });
   const [closed, setClosed] = useState<boolean>(() => readCiDemoClosed());
   const [open, setOpen] = useState(false);
   // The card was shown and closed in this tab (key or in-memory close): the page uses it to keep the
@@ -145,8 +161,8 @@ export function useCiDemoAudience(args: CiDemoAudienceArgs): { show: boolean; cl
   const who: CiDemoAudienceInput["who"] = args.uid
     ? { kind: "signedIn", zeroGraded }
     : { kind: "signedOut", freeMode: args.freeMode, freeCheckUsed: args.freeMode ? hasUsedFreeCheck() : false };
-  const done = closed || args.resultSeen;
-  const show = ciDemoAudience({ overlay: args.overlay, visit, closed: done, who, inProgress: args.inProgress, alreadyOpen: open });
+  const done = (closed && !forced) || args.resultSeen;
+  const show = ciDemoAudience({ overlay: args.overlay, visit, closed: done, who, inProgress: args.inProgress, alreadyOpen: open, forced });
   // Derived-state latch: once the card has shown it stays through typing, until closed.
   if (show !== open && (show || closed)) setOpen(show);
   // A real result ends it for this tab (derived state: no effect-driven setState).
@@ -160,11 +176,18 @@ export function useCiDemoAudience(args: CiDemoAudienceArgs): { show: boolean; cl
     if (show) wasShown.current = true;
     else if (args.resultSeen && wasShown.current) markCiDemoClosed();
   }, [show, args.resultSeen]);
+  const startLadder = (): boolean => {
+    if (args.overlay || args.inProgress || args.resultSeen) return false;
+    if (!args.uid && !(args.freeMode && !hasUsedFreeCheck())) return false;
+    setForced(true);
+    return true;
+  };
   const close = () => {
     markCiDemoClosed();
+    setForced(false);
     setClosed(true);
     setClosedHere(true);
     setOpen(false);
   };
-  return { show, close, closedHere };
+  return { show, close, closedHere, startLadder, ladderForced: forced };
 }

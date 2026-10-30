@@ -32,6 +32,9 @@ import {
   type CiDemoSample,
 } from "./ciDemoSamples";
 import { nextSampleKey, readCiDemoSubjectHint, trioFor } from "./ciDemoModel";
+import { guidePlanFor } from "../guide/guideInputs";
+import OneMinuteLadder, { type LadderAnswer } from "./OneMinuteLadder";
+import type { OneMinuteStarter } from "./oneMinuteStarters";
 import "./ciDemo.css";
 
 const LazyByte = lazy(() => import("../guide/BlobCharacter"));
@@ -55,6 +58,19 @@ export interface CiDemoChunkProps {
   signedOut: boolean;
   /** Red-pen step length in ms (default 1.8 s). A seam for tests; the page never passes it. */
   stepMs?: number;
+  /** ONE-MINUTE-1 — the signed-in uid (null signed out): the intent map is asked with it, like Byte's own guide. */
+  uid?: string | null;
+  /** ONE-MINUTE-1 — Byte's "Check one answer" asked for the ladder: it leads whatever the arrival. */
+  ladderForced?: boolean;
+  /** ONE-MINUTE-1 step 1 — the tap was answered (the page records it as an MCQ attempt for a signed-in student). */
+  onLadderAnswered?: (a: LadderAnswer) => void;
+  /** ONE-MINUTE-1 step 2 — prefill the 2-mark question, seed its confirmed metadata, focus the Type box. */
+  onLadderType?: (pick: CiDemoLadderPick) => void;
+}
+
+/** A CI-SOFT-1 sample handed on to the Type step, with the bank row's own metadata the page seeds `confirmed` from. */
+export interface CiDemoLadderPick extends CiDemoOwnPick {
+  seed: { marks: number; subject: "Maths" | "Science"; topicKey: string; questionText: string };
 }
 
 type View = { name: "pick" } | { name: "mark"; key: CiDemoKey } | { name: "result"; key: CiDemoKey };
@@ -79,8 +95,24 @@ function marginMark(awarded: number, max: number): string {
   return `${formatMarks(awarded)} of ${formatMarks(max)}`;
 }
 
-export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS }: CiDemoChunkProps) {
+/**
+ * A2 — the ladder leads ONLY where the intent map already leads with "Check one answer" (Byte's own order for
+ * this arrival), or when Byte's "Check one answer" asked for it. A CBQ, chapter, packs, papers or quick arrival
+ * keeps today's sample picker. The map is read, never changed.
+ */
+function ladderLeads(uid: string | null | undefined, forced: boolean): boolean {
+  if (forced) return true;
+  try {
+    return guidePlanFor("check_improve", uid ?? null).options[0]?.id === "check_one";
+  } catch {
+    return false;
+  }
+}
+
+export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOut, stepMs = CI_DEMO_STEP_MS, uid = null, ladderForced = false, onLadderAnswered, onLadderType }: CiDemoChunkProps) {
   const [view, setView] = useState<View>({ name: "pick" });
+  const [ladderOn, setLadderOn] = useState<boolean>(() => ladderLeads(uid, ladderForced));
+  const [ladderSay, setLadderSay] = useState<{ line: string; mood: "tap" | "right" | "wrong" }>({ line: CI_DEMO_COPY.ladderHead, mood: "tap" });
   const [shown, setShown] = useState(0);
   const [reduced] = useState(() => prefersReducedMotion());
   const watched = useRef<Set<CiDemoKey>>(new Set());
@@ -161,22 +193,44 @@ export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOu
     });
   }
 
+  function goType(starter: OneMinuteStarter) {
+    const smp = CI_DEMO_SAMPLES[starter.nextKey];
+    const lp: CiDemoLadderPick = {
+      bankId: smp.bankId,
+      text: `${smp.questionText} [${smp.marks}]`,
+      label: sampleLabel(smp),
+      seed: { marks: smp.marks, subject: smp.subject, topicKey: smp.topicKey, questionText: smp.questionText },
+    };
+    if (onLadderType) onLadderType(lp);
+    else onCheckOwn(lp);
+  }
+
   function close() {
     trackNamedEvent("ci_demo_close");
     onClose();
   }
 
   // Byte's words for this moment.
-  let line: string = CI_DEMO_COPY.l1;
+  const onLadder = ladderOn && effective.name === "pick";
+  let line: string = onLadder ? ladderSay.line : CI_DEMO_COPY.l1;
   if (sample && effective.name === "mark") {
     line = shown === 0 ? CI_DEMO_COPY.l4 : shown <= stepCount ? sample.steps[shown - 1].say : sample.summary;
   } else if (effective.name === "result") {
     line = CI_DEMO_COPY.l9;
   }
-  const pose = effective.name === "mark" && !done ? "marking" : "idle";
+  const pose = effective.name === "mark" && !done ? "marking" : onLadder ? (ladderSay.mood === "right" ? "cheer" : ladderSay.mood === "wrong" ? "comfort" : "hello") : "idle";
 
   const body =
-    effective.name === "pick" || !sample ? (
+    effective.name === "pick" && ladderOn ? (
+      <OneMinuteLadder
+        hint={readCiDemoSubjectHint()}
+        onLine={(l, mood) => setLadderSay({ line: l, mood })}
+        onAnswered={(a) => onLadderAnswered?.(a)}
+        onNext={(st) => goType(st)}
+        onWatch={() => setLadderOn(false)}
+        onUnavailable={() => setLadderOn(false)}
+      />
+    ) : effective.name === "pick" || !sample ? (
       <PickView hint={readCiDemoSubjectHint()} onPick={pick} onJumpToOwn={onJumpToOwn} />
     ) : (
       <SampleView
@@ -213,7 +267,7 @@ export default function CiDemoChunk({ onClose, onCheckOwn, onJumpToOwn, signedOu
           <p className="ci-demo__line" aria-live="polite" data-testid="ci-demo-line">
             {line}
           </p>
-          {effective.name === "pick" ? <p className="ci-demo__sub">{CI_DEMO_COPY.l2}</p> : null}
+          {effective.name === "pick" && !ladderOn ? <p className="ci-demo__sub">{CI_DEMO_COPY.l2}</p> : null}
         </div>
       </div>
 

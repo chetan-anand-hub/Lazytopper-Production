@@ -13,7 +13,8 @@ import { lazy, Suspense, type ComponentType } from "react";
 import type { CiDemoChunkProps } from "./ciDemoChunk";
 import "./ciDemoDoor.css";
 
-export type { CiDemoOwnPick } from "./ciDemoChunk";
+export type { CiDemoOwnPick, CiDemoLadderPick } from "./ciDemoChunk";
+export type { LadderAnswer } from "./OneMinuteLadder";
 
 const Nothing: ComponentType<CiDemoChunkProps> = () => null;
 const LazyCiDemo = lazy(() =>

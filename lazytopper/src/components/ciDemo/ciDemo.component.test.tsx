@@ -37,6 +37,9 @@ async function until(text: string | undefined) {
 
 beforeEach(() => {
   window.sessionStorage.clear();
+  // ONE-MINUTE-1 (A2): the first-minute ladder leads only where Byte's intent map leads with "Check one answer".
+  // These tests pin the sample picker, so they arrive from a CBQ ad (the map leads with CBQ there: no ladder).
+  window.sessionStorage.setItem("lazytopper.guideIntent", JSON.stringify({ landing: "/check-improve", utm_content: "cbq_short" }));
   __resetMascotsForTests();
   __resetMascotBudgetForTests();
   H.track.mockReset();
@@ -344,7 +347,7 @@ describe("CI-SOFT-1 card — N4: nothing to replay under reduced motion", () => 
 
 describe("CI-SOFT-1b — stylesheet hygiene", () => {
   const css = readFileSync(resolve(__dirname, "ciDemo.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-  const sources = ["ciDemoChunk.tsx", "CiDemoCard.tsx"].map((f) => readFileSync(resolve(__dirname, f), "utf8")).join("\n");
+  const sources = ["ciDemoChunk.tsx", "CiDemoCard.tsx", "OneMinuteLadder.tsx"].map((f) => readFileSync(resolve(__dirname, f), "utf8")).join("\n");
   // classes built as `ci-demo--${name}` / `ci-demo__tag--${type}` in the chunk
   const dynamic = [/^ci-demo--(pick|mark|result)$/, /^ci-demo__tag--(conceptual|presentation|calculation|silly)$/];
 

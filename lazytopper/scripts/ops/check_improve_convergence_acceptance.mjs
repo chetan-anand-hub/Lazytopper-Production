@@ -502,7 +502,7 @@ check('§4.11 SHOW_DETECTION_META is still true (owner gate — not ours to flip
 
 // Chrome ownership — one header at mobile width, never two.
 check('CHROME: the page owns MobileShell at mobile width (ExamTrendsRanked convention)',
-  /<MobileShell title="Check & Improve"/.test(converged));
+  /<MobileShell title="Answer Checker"/.test(converged));
 check('CHROME: /check-improve stays in isMobileSelfChromedRoute (old brand bar stays suppressed)',
   /pathname === "\/check-improve" \|\|/.test(app));
 

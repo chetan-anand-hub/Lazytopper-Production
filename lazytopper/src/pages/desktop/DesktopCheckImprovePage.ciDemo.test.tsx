@@ -25,6 +25,8 @@ const H = vi.hoisted(() => ({
   local: [] as unknown[],
   cloudHas: vi.fn(),
   detectQuestion: vi.fn(),
+  recordAttempt: vi.fn(),
+  one: vi.fn(),
   checkSolutionImage: vi.fn(),
   gradeWorksheet: vi.fn(),
   track: vi.fn(),
@@ -44,7 +46,11 @@ vi.mock("../../ai/aiClient", async (importOriginal) => {
 });
 vi.mock("../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../analytics/analytics")>();
-  return { ...actual, trackNamedEvent: (...a: unknown[]) => H.track(...a) };
+  return { ...actual, trackNamedEvent: (...a: unknown[]) => H.track(...a), trackOneMinute: (...a: unknown[]) => H.one(...a) };
+});
+vi.mock("../../services/practiceInsights", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/practiceInsights")>();
+  return { ...actual, recordAttempt: (...a: unknown[]) => H.recordAttempt(...a) };
 });
 vi.mock("../../services/sessionRecords", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/sessionRecords")>();
@@ -69,6 +75,11 @@ import { __setGuideAbForTests } from "../../components/guide/guideVariant";
 import { __resetMascotsForTests } from "../../components/guide/mascotsMute";
 import { GUIDE_PUBLIC_ARM_KEY, __resetPublicArmForTests } from "../../components/guide/public/publicPeekModel";
 
+const GRADED = {
+  ok: true, totalMarks: 2, marksAwarded: 1, percentage: 50,
+  annotatedSteps: [{ stepNumber: 1, description: "Formula", studentWork: "w", status: "partial", marksAwarded: 1, marksDeducted: 1, teacherAnnotation: "x", mistakeType: "presentation", correctedWorking: null }],
+  mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 1 }, teacherNote: "ok",
+};
 const SIGNED_IN = { uid: "ci-new", email: null, phoneNumber: "+919000000000", displayName: null };
 
 function page(entry = "/check-improve") {
@@ -129,6 +140,53 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     expect(await screen.findByTestId("start-here-card")).toBeInTheDocument();
   });
 
+  it("★ ONE-MINUTE-1: a signed-in tap is recorded once as an MCQ attempt (0 or 1 of 1, the Practice card's identity); no mistake type", async () => {
+    adArrival();
+    render(page());
+    fireEvent.click(await screen.findByTestId("one-min-opt-0"));
+    await waitFor(() => expect(H.recordAttempt).toHaveBeenCalledTimes(1));
+    const [user, ctx] = H.recordAttempt.mock.calls[0] as [{ uid: string }, Record<string, unknown>];
+    expect(user.uid).toBe(SIGNED_IN.uid);
+    expect(ctx).toMatchObject({ mode: "mcq", marksAvailable: 1, surface: expect.any(String), questionId: expect.stringMatching(/^PYQ-/) });
+    expect([0, 1]).toContain(ctx.marksScored);
+    expect(ctx).not.toHaveProperty("grade");
+  });
+
+  async function ladderToTypedAnswer() {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    adArrival();
+    render(page());
+    fireEvent.click(await screen.findByTestId("one-min-opt-0"));
+    fireEvent.click(screen.getByTestId("one-min-next"));
+    await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
+    fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "Step 1 formula. Step 2 substitute. Step 3 answer 5 cm." } });
+  }
+
+  it("★ ONE-MINUTE-1: the typed grade fires one_min_type_graded once with seconds_since_ladder_start, and the photo CTA shows", async () => {
+    await ladderToTypedAnswer();
+    H.checkSolutionImage.mockResolvedValue(GRADED);
+    fireEvent.click(await screen.findByRole("button", { name: /^check|grade/i }));
+    expect(await screen.findByTestId("one-min-photo-cta")).toBeInTheDocument();
+    const graded = H.one.mock.calls.filter((c) => c[0] === "one_min_type_graded");
+    expect(graded).toHaveLength(1);
+    expect(Object.keys(graded[0][1] as object)).toEqual(["seconds_since_ladder_start"]);
+    expect(typeof (graded[0][1] as { seconds_since_ladder_start: number }).seconds_since_ladder_start).toBe("number");
+  });
+
+  it("★ ONE-MINUTE-1: editing the question after the typed step ends the ladder: no type_graded, no photo CTA for the unrelated answer", async () => {
+    await ladderToTypedAnswer();
+    fireEvent.change(screen.getByLabelText("Type the question"), { target: { value: "State Ohm's law and write its formula. [2]" } });
+    H.detectQuestion.mockResolvedValue({ ok: true, detectedMarks: 2, detectedSubject: "Science", detectedTopic: "electricity", marksSource: "stated", questions: [{ questionNumber: 1, questionText: "State Ohm's law and write its formula.", marks: 2, marksSource: "stated" }] });
+    fireEvent.click(await screen.findByRole("button", { name: /read the question/i }));
+    H.checkSolutionImage.mockResolvedValue(GRADED);
+    fireEvent.click(await screen.findByRole("button", { name: /^check|grade/i }));
+    await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalled());
+    await settle();
+    expect(H.one.mock.calls.filter((c) => c[0] === "one_min_type_graded")).toHaveLength(0);
+    expect(screen.queryByTestId("one-min-photo-cta")).toBeNull();
+  });
+
   it("★ CONTROL: no ad arrival (landed elsewhere, no campaign) → today's page, no card", async () => {
     window.sessionStorage.setItem("lazytopper.guideIntent", JSON.stringify({ landing: "/notes", utm_content: null, utm_campaign: null }));
     render(page());
@@ -182,6 +240,8 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
     adArrival();
     render(page());
+    // ONE-MINUTE-1: an ad arrival leads with the 1-tap ladder; the sample picker is its secondary link.
+    fireEvent.click(await screen.findByTestId("one-min-watch"));
     fireEvent.click(await screen.findByTestId("ci-demo-tile-circ"));
     // (this suite's matchMedia answers "yes" to everything: wide + reduced motion → the result at once)
     fireEvent.click(await screen.findByTestId("ci-demo-check-own"));
@@ -280,6 +340,7 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     document.body.prepend(decoy);
     try {
       render(page());
+      fireEvent.click(await screen.findByTestId("one-min-watch"));
       fireEvent.click(await screen.findByTestId("ci-demo-tile-circ"));
       fireEvent.click(await screen.findByTestId("ci-demo-check-own"));
       await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
@@ -290,5 +351,32 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     } finally {
       decoy.remove();
     }
+  });
+
+  it("★★ ONE-MINUTE-1: tap → '2-mark one' fills the question, seeds the confirmed read (NO detect call), Type tab, box focused; Check grades the seeded request", async () => {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    adArrival();
+    render(page());
+    fireEvent.click(await screen.findByTestId("one-min-opt-0"));
+    expect(screen.getByTestId("one-min-verdict")).toBeInTheDocument();
+    // signed out: the tap persists nothing
+    expect(H.recordAttempt.mock.calls.every((c) => !(c[0] as { uid?: string } | null)?.uid)).toBe(true); // the door only ever sees no user
+    fireEvent.click(screen.getByTestId("one-min-next"));
+    await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
+    const q = (screen.getByLabelText("Type the question") as HTMLTextAreaElement).value;
+    expect(q).toMatch(/\[2\]$/);
+    expect(document.activeElement).toBe(screen.getByLabelText("Type your answer"));
+    expect(H.detectQuestion).not.toHaveBeenCalled();
+    // the confirmed chip is already there (marks 2), so Check is reachable without "Read the question"
+    fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "Step 1 formula. Step 2 substitute. Step 3 answer 5 cm." } });
+    H.checkSolutionImage.mockReturnValue(new Promise(() => {})); // only the request is under test
+    fireEvent.click(await screen.findByRole("button", { name: /^check|grade/i }));
+    await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));
+    const sent = H.checkSolutionImage.mock.calls[0][0] as Record<string, unknown>;
+    expect(sent).toMatchObject({ question: q, marks: 2, textAnswer: expect.stringContaining("Step 1") });
+    expect(typeof sent.subject).toBe("string");
+    expect(String(sent.topic)).not.toBe("");
+    expect(H.detectQuestion).not.toHaveBeenCalled();
   });
 });
