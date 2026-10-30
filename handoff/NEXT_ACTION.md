@@ -1,3 +1,17 @@
+## 2026-10-30 (daily, part 2) - #1434 - #1438: ONE-MINUTE-1, HOME-LADDER-1, HOME-LADDER-1b, RENAME-SWEEP-1, RENAME-SERVER-1
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`8f201e3e`** [git].
+
+- **Done [coordinator]:** 5 product PRs (table in CURRENT_STATE). In flight: `RENAME-OPS-1`.
+- **NEXT [coordinator]:**
+  1. Owner checks a signed-out ad arrival grade in incognito (`[FU-ONE-MIN-SIGNED-OUT-GRADE]`).
+  2. Phone-width live check of the Home ladder (`[FU-HOME-LADDER-PHONE]`).
+  3. Mon 2 Nov Google Ads review: YouTube Students on Sign-ups at 1,500/day, Search v2 at 2,500/day, PDF Packs 122 keywords and 3 appealed ads (see DECISION_LOG).
+  4. `[FU-PREV-OFFERED-CHECK-RE-BOUNDARY]` (minor).
+  5. Earlier lists stand (`[FU-ACTIVATION-ONE-MINUTE]` is now built as the ladder; read its activation numbers after a few days).
+- **Naming for builders:** say "Answer Checker" in all new copy, ads and docs; "Check & Improve" is the old name (see CLAUDE.md section 1).
+- **Doc-only note:** this PR touches only `CLAUDE.md` and `handoff/`.
+
 ## 2026-10-30 (daily) - AFTER #1422 - #1432 (docs builder, CLAUDE.md section 10)
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`0b37b4b1`** (`0b37b4b1364fb248fd7cd42aaa5f4efa2b16ef50`, = `#1431`) [git/gh].

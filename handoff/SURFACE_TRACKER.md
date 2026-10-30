@@ -1,3 +1,13 @@
+> **2026-10-30 (daily, part 2) - #1434 - #1438 (CLAUDE.md section 10, once a day).** Scope: the Answer Checker page (`/check-improve`; old name Check & Improve), Home's Byte, the tutor wording, `llms.txt`. No mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Live results [coordinator].
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (/check-improve) - one-minute ladder | tap MCQ, typed 2-mark, photo CTA under the score; `one_min_*` events (`#1434`) | live; signed-in path live-verified on a fresh account | `[FU-ONE-MIN-SIGNED-OUT-GRADE]` |
+| Home - Byte "Check one answer" | goes to `/check-improve` and starts the ladder (`#1435`, retry window `#1436`) | live; desktop PASSED | `[FU-HOME-LADDER-PHONE]` |
+| Answer Checker name in the UI, `llms.txt`, prerendered snapshots | rename from Check & Improve (`#1437`) | live; sidebar and `/check-improve` verified | none |
+| Tutor | prompt and reply say Answer Checker; intents accept both names (`#1438`) | live per merge | `[FU-PREV-OFFERED-CHECK-RE-BOUNDARY]` |
+| Ops report label | `RENAME-OPS-1` | in flight, not merged | merge |
+
 > **2026-10-30 (daily) - #1422 - #1432 (CLAUDE.md section 10, once a day).** Scope: the Tutor, the new CBQ pages, `/for-parents`, the pack pop-up, GA4 purchase tracking, `llms.txt`, and CI (test-only). No mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Facts from PR records [git/gh]; live results [coordinator].
 
 | surface | what moved (PR) | state | owed |
@@ -54,7 +64,7 @@
 | Download wall and MockViewGate caps | matching pack link, Board Pass first (`#1386`) | live per merge | none new |
 | Me/Progress | trend needs points on 2 or more IST days; honest remainder row (`#1402`) | live per merge | `[FU-ME-TOPICS-THRESHOLD]` |
 | Chapter Test / Full Mock intros | "2 questions - 8 marks" for mixed rows (`#1402`) | live per merge | none |
-| Check & Improve (typed preview) | line breaks kept (`#1402`); grading unchanged | live per merge | none |
+| Answer Checker (/check-improve) (typed preview) | line breaks kept (`#1402`); grading unchanged | live per merge | none |
 | Practice (Quick Practice, Chapter Test, Full Mock, Worksheet starts) and every route push | land at the start; Back keeps place (`#1401`) | live per merge; PR says live check on desktop and phone needed | the live check |
 | Tutor picker and Premium lock footnote | Board Pass price, not "Premium at Rs 599 for a month" (`#1402`) | live per merge | none |
 | Emails (trial-ending, d1/d3 nudges) | real Board Pass price, founding deadline while open, packs line (`#1385`) | live per merge (server) | watch Resend counts |

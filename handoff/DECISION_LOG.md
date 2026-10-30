@@ -1,3 +1,16 @@
+## 2026-10-30 (daily, part 2) - #1434 - #1438: ADS/OPS DECISIONS AND NAMING (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner decisions of 30 Oct 2026 relayed by the cofounder **[coordinator]**, with the reason given.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Student-facing name is **Answer Checker** (subtitle "CBSE step marking") | `#1437`, `#1438`, CLAUDE.md section 1 | owner ruling, so future sessions are not confused. "Check & Improve" survives only in code identifiers, file names, the URL `/check-improve`, event names, eval fixtures and old comments. |
+| YouTube Students budget 2,500 to 1,500 per day, and its conversion goal switched back from Purchases to Sign-ups | ads change, 30 Oct | the Purchases goal starved delivery: about 25k impressions and 463 rupees spent on 30 Oct against about 185k and 3,400 typical, and there is no purchase history to learn from. |
+| Search v2 budget 1,800 to 2,500 per day | ads change, 30 Oct | owner decision; no further reason given in the dispatch spec, none invented. |
+| PDF Packs keywords 34 to 122 (CBQ, case-study, competency, pre-boards mock, question bank, test series, parents); its disapproved overlay images swapped | ads change, 30 Oct | wider intent coverage for the packs; the overlay images were disapproved. |
+| 3 PDF Packs ads appealed | ads change, 30 Oct | disapproved as "Enabling dishonest behaviour" by an automated review; the product is practice material. |
+| Search v2 collage images replaced by single-screen product shots | ads change, 30 Oct | owner decision; no further reason given, none invented. |
+
 ## 2026-10-30 (daily) - #1422 - #1432 (11 product merges): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 30 Oct 2026 (IST) relayed by the cofounder **[coordinator]** (dispatch spec), with the reason where one was given; where none was given, none is invented. Earlier dated blocks stand as written.

@@ -1,3 +1,19 @@
+## 2026-10-30 (daily, part 2) - #1434 - #1438: ONE-MINUTE-1, HOME-LADDER-1, HOME-LADDER-1b, RENAME-SWEEP-1, RENAME-SERVER-1 (trunk `8f201e3e`)
+
+**PROVENANCE.** *(Second daily handoff for 30 Oct, CLAUDE.md section 10. Covers the 5 product merges after the first daily docs PR `#1433`. Facts marked **[coordinator]** come from the dispatch spec and were not re-derived. No grading behaviour changed. `RENAME-OPS-1` (ops report label) is IN FLIGHT, not merged.)* Trunk at writing: **`8f201e3e`** (= `#1438`).
+
+| PR | merge SHA | what it changed [coordinator] |
+|---|---|---|
+| `#1434` ONE-MINUTE-1 | `31e45a60` | One-minute ladder on `/check-improve`: tap an MCQ, then a typed 2-mark answer, then a photo CTA under the score. Byte's "Check one answer" starts it for signed-in students with zero graded answers; signed-out ad arrivals see it in the CI-SOFT-1 card. `one_min_*` events added (vendor plus first-party allow-list). Live-verified on prod with a fresh account: tap 1/1, typed 2-mark graded 1.5/2 (unit missing, presentation 0.5), photo CTA opens upload. The signed-out grade cannot be tested off-domain (App Check reCAPTCHA). |
+| `#1435` HOME-LADDER-1 | `98951258` | Byte's "Check one answer" on Home goes to `/check-improve` and starts the ladder. **FAILED live-verify** (the old flow ran). |
+| `#1436` HOME-LADDER-1b | `9a021844` | Fixes the arrival race: the page retries `startLadder` for up to 5 s while auth and draft settle, and never focuses the question box meanwhile. PASSED live on desktop with a fresh account. Phone width not live-verified (window could not resize). |
+| `#1437` RENAME-SWEEP-1 | `f38cc351` | User-visible "Check & Improve" becomes "Answer Checker" across `lazytopper/src`, `llms.txt` and prerendered snapshots. Route `/check-improve`, event names, ids, CSS and file names unchanged. Live-verified: sidebar says "Answer Checker", 0 old-name hits on `/check-improve`. |
+| `#1438` RENAME-SERVER-1 | `8f201e3e` | Tutor system prompt and reply say "Answer Checker"; tutor intent regexes (server and client mirror) accept both names. Fresh reviewer HELD on one stale test; fixed, then green. |
+
+**Ads and ops decisions of the day** are in DECISION_LOG (YouTube Students budget and goal, Search v2 budget, PDF Packs keywords and appeals, Search v2 images).
+
+**Naming.** The student-facing name of the /check-improve page is **Answer Checker** (subtitle 'CBSE step marking'), owner ruling 30 Oct 2026. 'Check & Improve' / 'C&I' is the OLD name: it survives only in code identifiers, file names (DesktopCheckImprovePage etc.), the URL /check-improve, analytics event names, historical eval fixtures and old comments — never use it in new user-visible copy, ads or docs. Recorded in CLAUDE.md section 1 and CURRENT_STATE.
+
 ## 2026-10-30 (daily) - #1422 - #1432: purchases counted, CBQ pages live, CI flakes fixed, the tutor quotes paper mistakes (trunk `0b37b4b1`)
 
 **PROVENANCE.** *(Daily handoff for 30 Oct, CLAUDE.md section 10. Covers the 11 product merges after the add-on docs PR `#1419`. Written by the docs builder; PR title, merge SHA and merge time re-read over the GitHub REST API [git/gh], UTC converted to IST. Facts marked **[coordinator]** come from the dispatch spec and were not re-derived. No grading behaviour changed. The six morning PRs were admin-merged on CI flakes; none was admin-bypassed after `#1428`.)* Trunk at writing: **`0b37b4b1`** (`0b37b4b1364fb248fd7cd42aaa5f4efa2b16ef50`, = `#1431`).
