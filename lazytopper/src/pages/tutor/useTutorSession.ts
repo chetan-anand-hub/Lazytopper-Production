@@ -61,7 +61,7 @@ import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
 import { latestReturnMeta, restoredReturnedWork, returnMetaOf, returnResultTurn } from "./tutorReturnMeta";
 import { renderableFiguresForTopic } from "./tutorFigures";
-import { anchorTargetOf, buildAnchorQuestion } from "./tutorAnchorQuestion";
+import { anchorTargetOf, buildAnchorQuestion, returnedWorkForAnchor } from "./tutorAnchorQuestion";
 // TUTOR-FIX-2 (S-C, tutor UI) — typed error states, the practice count, the returned record's
 // own chapter label, and the once-per-thread first-message event.
 import { classifyTutorError, type TutorErrorState } from "./tutorErrorState";
@@ -697,7 +697,9 @@ export function useTutorSession({
           // The one-shot graded-work context from the last overlay close (build lane). A ref, so
           // it rides every turn while set without re-triggering runModel; null on any non-return
           // session. The server rebuilds it at the trust boundary before it reaches the prompt.
-          returnedWork: returnedWorkRef.current,
+          // TUTOR-KEY-TRUST-1: the newest context wins - a stale returnedWork about ANOTHER question is not sent
+          // alongside an anchor (the live defect: the tutor answered the older zinc question).
+          returnedWork: returnedWorkForAnchor(returnedWorkRef.current, anchorQuestion),
           anchorQuestion,
         });
         // ME-ENGINE-1 PR-2 (G8) — the doubt counts as Tutor ACTIVITY only once the Tutor has

@@ -11,7 +11,7 @@
 // Pure helpers only: no network, no write, no grading. The key is the bank's own; nothing here decides
 // whether an answer is right (the pick's verdict is the one the question card already computed).
 
-import type { TutorAnchorQuestion } from "../../ai/tutorClient";
+import type { TutorAnchorQuestion, TutorReturnedWork } from "../../ai/tutorClient";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
 
 const LETTERS = "ABCDEFGH";
@@ -27,9 +27,38 @@ export interface AnchorBankRow {
   correctOption?: unknown;
   solutionSteps?: unknown;
   finalAnswer?: unknown;
+  ncertRef?: unknown;
+  pyqYear?: unknown;
+  isPYQ?: unknown;
+  origin?: unknown;
+  sourceOverride?: unknown;
 }
 
 const str = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
+
+const OWN_SOURCE = "LazyTopper practice question";
+
+/** TUTOR-KEY-TRUST-1 - the source label of a bank row, from the tags the bank really carries (inspected across
+ *  the banks): `sourceOverride:"others"` / `origin:"lt-generated"` / `LTG-` ids are LazyTopper's own; a `pyqYear`
+ *  is a board paper; `ncertRef` "Exemplar Ex 1.1 Q2" / "NCERT Ex 1.1 Q2" / "Exercise Q3" / "In-text Q3" name the
+ *  textbook; "CBSE CFPQ ..." is the CBSE competency-focus set; ids with EXMPLR / NCERT cover rows without a ref.
+ *  Anything else (APQ, cbjesc* chapter practice, unknown) -> "LazyTopper practice question". */
+export function sourceLabelOf(row: AnchorBankRow | null | undefined): string {
+  if (!row) return OWN_SOURCE;
+  const id = str(row.id);
+  if (row.sourceOverride === "others" || row.origin === "lt-generated" || /^LTG-/i.test(id)) return OWN_SOURCE;
+  const year = str(row.pyqYear);
+  if (year) return `CBSE ${year} board paper`;
+  const ref = str(row.ncertRef).replace(/\s*\((?:MCQ|SA|LA|VSA|CBQ|Case)[^)]*\)\s*$/i, "").trim();
+  if (/^exemplar/i.test(ref)) return `NCERT ${ref}`;
+  if (/^ncert/i.test(ref)) return ref;
+  if (/^(exercise|in-text|example)\b/i.test(ref)) return `NCERT ${ref}`;
+  if (/^CBSE CFPQ/i.test(ref)) return "CBSE competency-focus practice question";
+  if (/^PYQ\b/i.test(ref) || row.isPYQ === true) return "CBSE board paper";
+  if (/exmplr|-exem\d*-/i.test(id)) return "NCERT Exemplar";
+  if (/ncert/i.test(id)) return "NCERT";
+  return OWN_SOURCE;
+}
 
 /** The anchor for a bank row, or null when the row has no question text (nothing honest to anchor on).
  *  `pick`/`correct` are the student's option text and the card's verdict; a pick without a verdict is
@@ -45,7 +74,7 @@ export function buildAnchorQuestion(
 
   const rawOptions = Array.isArray(row.options) ? row.options.map((o) => String(o ?? "").trim()).filter(Boolean) : [];
   const answer = str(row.answer) || str(row.finalAnswer);
-  const out: TutorAnchorQuestion = { id, questionText };
+  const out: TutorAnchorQuestion = { id, questionText, source: sourceLabelOf(row) };
   const format = str(row.format);
   if (format) out.format = format;
   if (typeof row.marks === "number" && row.marks > 0) out.marks = row.marks;
@@ -91,4 +120,23 @@ export function anchorTargetOf(
   }
   const id = String(urlQuestionId ?? "").trim();
   return id ? { id, pick: null, correct: null } : null;
+}
+
+const squash = (v: unknown): string => String(v ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+
+/** TUTOR-KEY-TRUST-1 - which returnedWork rides a turn that has (or lacks) a bank anchor. With NO anchor the
+ *  returnedWork is the current context (an Answer Checker return) and is kept. With an anchor it is kept ONLY
+ *  when it is about the SAME question (same stem); a stale one about another question is dropped, so the
+ *  newest context (URL q / newest opener) wins. */
+export function returnedWorkForAnchor(
+  rw: TutorReturnedWork | null | undefined,
+  anchor: TutorAnchorQuestion | null | undefined,
+): TutorReturnedWork | null {
+  if (!rw) return null;
+  if (!anchor) return rw;
+  const a = squash(anchor.questionText);
+  const r = squash(rw.question);
+  if (!r) return null; // an image-only / step-only return cannot be shown to be the anchored question
+  const head = (t: string) => t.slice(0, 80);
+  return a && (a.includes(head(r)) || r.includes(head(a))) ? rw : null;
 }

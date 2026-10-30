@@ -83,3 +83,15 @@ describe("anchorQuestionBlock", () => {
     expect(p).toContain("end with one question back to the student");
   });
 });
+
+describe("TUTOR-KEY-TRUST-1 item 0 · anchor + returnedWork together", () => {
+  const RW = { question: "Assertion: Zinc displaces copper. Reason: Zinc is more reactive.", restored: true };
+  it("★★ the anchor block is present, with the key, when returnedWork is also present, and states precedence", () => {
+    const p = build({ anchorQuestion: ANCHOR, returnedWork: RW });
+    expect(p).toContain("AN EARLIER MARKED QUESTION");
+    expect(p).toContain('THE OFFICIAL ANSWER KEY (CBSE/NCERT): option C - "(i) and (iii)"');
+    expect(p).toContain("questions about \"this question\" refer to THIS anchored question");
+    expect(p).toContain("never say you cannot see them");
+    expect(p.indexOf("THE QUESTION THE STUDENT OPENED")).toBeGreaterThan(p.indexOf("AN EARLIER MARKED QUESTION"));
+  });
+});
