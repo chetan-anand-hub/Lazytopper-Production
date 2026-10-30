@@ -1,3 +1,15 @@
+> **2026-10-30 (daily) - #1422 - #1432 (CLAUDE.md section 10, once a day).** Scope: the Tutor, the new CBQ pages, `/for-parents`, the pack pop-up, GA4 purchase tracking, `llms.txt`, and CI (test-only). No mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Facts from PR records [git/gh]; live results [coordinator].
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Tutor | NCERT honesty, one-word Hinglish, board weightage (`#1422`); clean caption and `Now on` divider (`#1426`); paper mistakes quoted via bank stem (`#1431`) | live per merge; live test PASSED 30 Oct about 13:40 IST on the owner's Premium account [coordinator] | `[FU-TUTOR-STEMS-E2E-TEST]`, `[FU-TUTOR-STEMS-SUBPART]` |
+| CBQ pages (`/cbq-class-10`, `/cbq-class-10/:slug`) | new hub plus 26 chapter pages (`#1427`); Premium, pack, free order, 13/26 counts, real 404 for an unknown slug (`#1429`) | live; hub INDEXED, 404 live-verified [coordinator] | `[FU-GSC-CHEM-REACTIONS-RETRY]`; 2 Nov ads landing-page comparison |
+| `/for-parents` | packs shown to paid Premium too (`#1430`) | live per merge | phone-width look (from earlier) |
+| Pack pop-up and pack copy | Formats row unclipped, "Short answer" added (`#1423`); Bundle "All 26 chapters" (`#1429`) | live per merge | none new |
+| GA4 purchase events | one `purchase` per verified pack payment, item price and quantity (`#1425`) | live per merge | read GA4 revenue against captured payments |
+| `llms.txt` | markets Premium, CBQ Packs, PDF packs (`#1424`); hub links (`#1429`) | live per merge | none new |
+| CI | flakes fixed (`#1428`, `#1432`); test-only | green on trunk | `[FU-ME-V7-VACUOUS-ABSENCE]` |
+
 > **2026-10-30 (daily add-on to #1416) - #1417 - #1418 (CLAUDE.md section 10).** Scope: the Tutor only. No mark, mistake type, departure rule, objective clamp or grading prompt rule changed.
 
 | surface | what moved (PR) | state | owed |

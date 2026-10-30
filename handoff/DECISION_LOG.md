@@ -1,3 +1,16 @@
+## 2026-10-30 (daily) - #1422 - #1432 (11 product merges): DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 30 Oct 2026 (IST) relayed by the cofounder **[coordinator]** (dispatch spec), with the reason where one was given; where none was given, none is invented. Earlier dated blocks stand as written.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Pack chapter sets are counted 13 Maths + 13 Science (Trigonometry's NCERT Ch 8+9 is one set); the Bundle says "All 26 chapters"; NCERT books stay 27 | `#1427`, `#1429` | honest copy: the code has 26 chapter slugs (`PACK_CHAPTER_SLUGS`), and 27 is true only for the NCERT books. |
+| CBQ hub and chapter pages order: Premium, then pack, then free | `#1429` (owner sales ruling, 30 Oct) | no reason beyond the sales ruling was given in the dispatch spec, and none is invented. |
+| An unknown `/cbq-class-10/<slug>` is a real 404, via a closed-set rewrite of the 26 registry slugs (`PARAM_CONSTRAINTS` in `routeRewrites.ts`) | `#1429` | the shell otherwise answered a soft 200 for any slug; live-verified 404 for `not-a-chapter` and 200 for `/circles`. |
+| Packs are visible to paid Premium on `/for-parents` | `#1430` (follows the owner 29 Oct one-`/pricing` ruling) | consistency with the 29 Oct ruling that packs are sold separately, even to paid Premium. |
+| Suite-wide `asyncUtilTimeout` 5000 ms (fail-fast tests keep 1000 ms) | `#1428` | one flake shape seen in 3 instances (tests waiting on data under CI load); a suite-wide wait fixes the shape instead of patching each test. |
+| No admin merges once CI is green | from `#1428` (owner goal) | trunk CI should be trusted; the six morning PRs were admin-merged on flakes, none after `#1428`. |
+
 ## 2026-10-30 (daily add-on to #1416) - #1417 - #1418 (2 product merges): DECISIONS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Builder lanes; no owner ruling was relayed for these two PRs, and none is invented. Earlier dated blocks stand as written.

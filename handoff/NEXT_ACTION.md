@@ -1,3 +1,19 @@
+## 2026-10-30 (daily) - AFTER #1422 - #1432 (docs builder, CLAUDE.md section 10)
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`0b37b4b1`** (`0b37b4b1364fb248fd7cd42aaa5f4efa2b16ef50`, = `#1431`) [git/gh].
+
+- **Done [git/gh]:** 11 product PRs (table in CURRENT_STATE). Open: `#1399` MISTAKE-CALC-1 (draft, HELD).
+- **NEXT, in order [coordinator]:**
+  1. **Mon 2 Nov Google Ads review:** compare landing pages of the new "CBQs - case study & competency" ad group and the older "CBQ packs - competency and case study" group (overlapping keywords).
+  2. **GSC:** retry indexing for chemical-reactions-and-equations (`[FU-GSC-CHEM-REACTIONS-RETRY]`); watch the CBQ hub and the chapters requested.
+  3. **Activation:** owner to choose the plan for `[FU-ACTIVATION-ONE-MINUTE]` (a YouTube sign-up should get one answer graded in the first minute). Baselines: 951 sign-ups, 14 active, day-2 return 11%.
+  4. **YouTube Demand Gen** is in a learning phase on the Purchases goal; read the traffic drop (636 per 24 h) with that in mind before changing budgets.
+  5. **MISTAKE-CALC-1 `#1399`:** trunk baseline, golden case, then a two-surface live verify (CLAUDE.md section 4a) before any merge.
+  6. The test follow-ups: `[FU-TUTOR-STEMS-E2E-TEST]`, `[FU-ME-V7-VACUOUS-ABSENCE]`, `[FU-TUTOR-STEMS-SUBPART]`, `[FU-ADMIN-FUNNEL-STALE]`.
+  7. Earlier lists (owner purchase test `[FU-PACK-CREDIT-LIVE-TEST]`, `[FU-TUTOR-HINGLISH-DETECTOR-TOKENS]`, `[FU-TUTOR-CHAPTER-WEIGHTAGE]`) stand.
+- **Standing for builders [coordinator]:** CI is green on trunk; do not admin-merge on a red run (owner goal, from `#1428`). The CBQ pages order is Premium, pack, free.
+- **Doc-only note:** this PR touches only `handoff/`.
+
 ## 2026-10-30 (daily add-on to #1416) - #1417 - #1418 - AFTER #1417 - #1418 (docs builder, CLAUDE.md section 10)
 
 *(Adds to the 2026-10-29 (daily, part 2) block below; its owner items stand, except that the tutor live-verify (item 2) was done: see below.)* Trunk at writing: **`d6180717`** (`d6180717636d36ebf53b1012f363d8e4ecd20c5d`, = `#1418`) [git/gh].

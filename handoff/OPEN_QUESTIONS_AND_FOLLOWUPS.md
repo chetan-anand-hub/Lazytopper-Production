@@ -23,6 +23,42 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-30 (daily) - #1422 - #1432 (11 product merges, 30 Oct IST; `#1399` open) FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `0b37b4b1`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator's dispatch spec and the PR bodies **[coordinator]**; this builder re-derived none of the code facts.
+
+### [FU-TUTOR-STEMS-E2E-TEST]
+Evidence [coordinator; `#1431` independent review, LOW]: no test builds the tutor evidence from a stored mistake record end to end; the tests cover `bankIdOfMistake` resolution and the brief separately.
+
+### [FU-TUTOR-STEMS-SUBPART]
+Evidence [coordinator; `#1431`]: sub-part ids such as `ws:..:q3#2` never resolve a stem. Decide whether a sub-part should quote the parent stem or stay honest-silent.
+
+### [FU-ME-V7-VACUOUS-ABSENCE]
+Evidence [coordinator; `#1432`]: `MeProgressPage.v7.test.tsx` near line 400 asserts an absence right after `findByRole` on the loading h1, so the absence check may be vacuous. Re-point it at the loaded heading like line 324.
+
+### [FU-ACTIVATION-ONE-MINUTE]
+Owner, 30 Oct [coordinator]: a YouTube sign-up should get one answer graded within the first minute. Evidence: 951 sign-ups all time, 14 active, 93 of 500 tried practice, day-2 return 11%. The plan is pending the owner's choice; nothing is built.
+
+### [FU-ADMIN-FUNNEL-STALE]
+Evidence [coordinator; Vercel/admin, 30 Oct]: the legacy `/admin/funnel` page shows Landing 0, which is misleading. Fix or retire the page.
+
+### [FU-GSC-CHEM-REACTIONS-RETRY]
+Evidence [coordinator; Search Console, 30 Oct]: the indexing request for chemical-reactions-and-equations was REJECTED by the live test although the page is 200 and indexable. Retry next session.
+
+### CLOSED on 30 Oct (each has its own entry here so the ID is defined; closing PR in brackets)
+### [FU-CI-SHARD4-RPC-TIMEOUT] - CLOSED
+`#1428`: vitest 3.2.7 birpc 60 s `onTaskUpdate` timeout; global per-test `setImmediate` yield plus a per-seed yield in `fullMockBlueprint` F3. Proof [coordinator]: run 41031358285 attempts 3 and 4 green.
+### [FU-CI-GEN-THIN-1-TIMEOUT] - CLOSED
+`#1428`: the scan stops at the first hit.
+### [FU-CI-PRICING-PARENTPAY-FLAKY] - CLOSED
+`#1428`: suite-wide `configure({asyncUtilTimeout:5000})` in `src/test/setup.ts`; fail-fast tests keep 1000 ms.
+### [FU-NIGHTLY-SKIPPED-1] - CLOSED
+`#1428`: the prerenderPrice guard is never skipped.
+### [FU-PARENTS-PAID-HIDDEN] - CLOSED
+`#1430`: the packs hero link, band and section on `/for-parents` show to paid Premium too. Entry in the 2026-10-29 (daily, part 2) section stands as history.
+### [FU-TUTOR-PAPER-STEMS] - CLOSED
+`#1431` (independent review PASS-WITH-FOLLOW-UP [coordinator]). Entry in the 2026-10-29 (daily, part 2) section stands as history; the follow-ups are the two `[FU-TUTOR-STEMS-*]` entries above.
+
 ## 2026-10-30 (daily add-on to #1416) - #1417 - #1418 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `d6180717`.* Items come from the coordinator's dispatch spec **[coordinator]**; this builder re-derived none of the code facts.
