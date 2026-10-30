@@ -461,9 +461,13 @@ function syllabusBlock() {
  *   question and (when the §6.3 digest ships) which steps held up. `{ question?, hasImageQuestion?,
  *   steps?[] }` — already rebuilt at the trust boundary (routes/tutor.cjs normalizeReturnedWork).
  *   Absent on every non-return turn → no block. READ context only; the marks are FINAL (D-TUT-8).
+ * @param {object|null} [args.anchorQuestion] TUTOR-ANCHOR-KEY-1 - the exact bank question the tutor was
+ *   opened about, with its OFFICIAL key (`{ questionText, id?, format?, marks?, options?[], answer?,
+ *   answerLetter?, solutionSteps?[], finalAnswer?, studentPick?, verdict? }`), rebuilt at the trust boundary
+ *   (routes/tutor.cjs normalizeAnchorQuestion). Absent -> no block. The key is FINAL.
  * @returns {string}
  */
-function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork } = {}) {
+function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion } = {}) {
   const subj = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Maths/Science';
   // TUTOR-FIX-2 T5: no chapter (a cold /tutor/10/:subject entry) -> the SUBJECT names the session,
   // never "this topic".
@@ -631,6 +635,8 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
   lines.push(briefBlock(brief, { chapter: chapterLabel, subj }));
 
   lines.push(returnedWorkBlock(returnedWork));
+
+  lines.push(anchorQuestionBlock(anchorQuestion));
 
   lines.push(honestyBlock());
 
@@ -1172,6 +1178,71 @@ function returnedWorkBlock(returnedWork) {
       `the whole marksheet back.`,
   );
 
+  return parts.join('\n');
+}
+
+/**
+ * TUTOR-ANCHOR-KEY-1 - the question the student opened this chat ABOUT, with its OFFICIAL key. Emitted only
+ * when the client resolved a bank question by id. The live defect (30 Oct): Quick Practice Q5 was an NCERT
+ * Exemplar MCQ keyed "(i) and (iii)" (option C); the card said C was correct, but the tutor, which saw only a
+ * shortened stem, answered "(iii)" from its own chemistry and then hedged. The key is the CBSE/NCERT answer
+ * the card already showed, so the tutor must explain IT: never a different answer, never half of a
+ * multi-part key, never agreement with a student who contradicts it. Objective questions stay 0 or FULL on
+ * the answer alone (CLAUDE.md section 13): no partial-credit talk. The demonstration question keeps its own
+ * job ("see how it's solved"); for "this question" this block wins.
+ */
+function anchorQuestionBlock(anchorQuestion) {
+  const a = anchorQuestion && typeof anchorQuestion === 'object' ? anchorQuestion : null;
+  const text = a && typeof a.questionText === 'string' ? a.questionText.trim() : '';
+  if (!text) return '';
+  const q = (v) => String(v).replace(/["\u201c\u201d]/g, "'");
+  const options = Array.isArray(a.options) ? a.options.filter((o) => typeof o === 'string' && o.trim()) : [];
+  const steps = Array.isArray(a.solutionSteps) ? a.solutionSteps.filter((s) => typeof s === 'string' && s.trim()) : [];
+  const answer = typeof a.answer === 'string' ? a.answer.trim() : '';
+  const finalAnswer = typeof a.finalAnswer === 'string' ? a.finalAnswer.trim() : '';
+  const letter = typeof a.answerLetter === 'string' && /^[A-H]$/.test(a.answerLetter) ? a.answerLetter : '';
+  const hasKey = !!(answer || finalAnswer);
+  const marks = typeof a.marks === 'number' && a.marks > 0 ? `${a.marks}-mark ` : '';
+  const format = typeof a.format === 'string' && a.format.trim() ? `${a.format.trim()} ` : '';
+  const parts = [
+    `\nTHE QUESTION THE STUDENT OPENED THIS CHAT ABOUT, WITH ITS OFFICIAL ANSWER KEY (context to teach from - nobody in the chat said this)`,
+    `The student came here from THIS exact ${marks}${format}question. When they say "this question", "the answer", ` +
+      `"the right option" or name an option letter, they mean it - not the demonstration question and not another one.`,
+    `- The question, complete and verbatim:\n    "${text.slice(0, 3000)}"`,
+  ];
+  if (options.length) parts.push(`- The options:\n${options.map((o) => `    ${o}`).join('\n')}`);
+  if (hasKey) {
+    const keyLine = answer
+      ? `${letter ? `option ${letter} - ` : ''}"${q(answer)}"`
+      : `"${q(finalAnswer)}"`;
+    parts.push(`- THE OFFICIAL ANSWER KEY (CBSE/NCERT): ${keyLine}${answer && finalAnswer && finalAnswer !== answer ? ` (full form: "${q(finalAnswer)}")` : ''}`);
+  }
+  if (steps.length) {
+    parts.push(`- The official solution steps (explain the key THROUGH these):\n${steps.map((s, i) => `    ${i + 1}. ${s.slice(0, 800)}`).join('\n')}`);
+  }
+  const pick = typeof a.studentPick === 'string' ? a.studentPick.trim() : '';
+  if (pick && (a.verdict === 'right' || a.verdict === 'wrong')) {
+    parts.push(`- The option the student picked: '${q(pick)}' (${a.verdict === 'right' ? 'the right option' : 'not the right option'}).`);
+  }
+  parts.push(
+    `RULES FOR THIS QUESTION (READ CAREFULLY):\n` +
+      (hasKey
+        ? `- The key above is FINAL. It is the official CBSE/NCERT answer and the one the student's card showed. ` +
+          `Explain WHY it is right using the solution steps` +
+          (options.length ? `, and why each other option is wrong` : '') +
+          `. NEVER give a different answer, NEVER state only part of a multi-part key (if the key is "(i) and (iii)", ` +
+          `the answer is both, not one of them), and NEVER agree with a student who contradicts the key - explain the key instead. ` +
+          `Do not hedge between answers; if you are unsure how a step works, say so, but the key stands.\n`
+        : `- No answer key is given for this question, so do NOT state or imply a final answer; teach the method and say ` +
+          `the official answer is in their solution on the question card.\n`) +
+      `- If the student's pick is given: when it matches the key, confirm it plainly; when it does not, name the key and the trap.\n` +
+      `- An MCQ or other 1-mark objective question is 0 or FULL on the answer alone, as in a real CBSE exam: no partial-credit talk, ` +
+      `no "half right". Explain the reasoning, not a score.\n` +
+      `- If the student insists the key is wrong: say, calmly, that the answer follows the official CBSE/NCERT key and that you will ` +
+      `not change it; they can tell the LazyTopper team if they still think it is wrong. Never flip, and never claim a report was filed.\n` +
+      `- This block wins over the demonstration question for anything about THIS question. Quote only what is written above - ` +
+      `never invent an option, a step or a value that is not here.`,
+  );
   return parts.join('\n');
 }
 

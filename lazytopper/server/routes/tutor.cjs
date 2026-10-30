@@ -196,6 +196,53 @@ function normalizeReturnedWork(input) {
   return out;
 }
 
+/**
+ * TUTOR-ANCHOR-KEY-1 - normalize the optional client-supplied `anchorQuestion` (the exact bank question the
+ * tutor was opened about, with its official key). REBUILT at the trust boundary like `normalizeReturnedWork`:
+ * whitelisted fields only, every one type-checked and length-capped, so nothing unvalidated reaches the
+ * prompt. A non-string where a string belongs is dropped (never coerced), `marks` must be a positive
+ * number, `verdict` is one of two words and is kept ONLY with a pick (and the pick only with a verdict).
+ * No usable `questionText` -> null (the prompt renders no block). The key is the client's bank lookup by
+ * id; the server does not decide right or wrong.
+ */
+const ANCHOR_CAPS = Object.freeze({ id: 120, text: 3000, option: 400, options: 8, answer: 400, step: 800, steps: 12, format: 40, pick: 400 });
+function cleanAnchorString(v, max) {
+  if (typeof v !== 'string') return '';
+  return v.replace(/\[\[|\]\]/g, '').replace(/\s+$/g, '').trim().slice(0, max);
+}
+function normalizeAnchorQuestion(input) {
+  const a = input && typeof input === 'object' && !Array.isArray(input) ? input : null;
+  if (!a) return null;
+  const questionText = cleanAnchorString(a.questionText, ANCHOR_CAPS.text);
+  if (!questionText) return null;
+  const out = { questionText };
+  const id = cleanAnchorString(a.id, ANCHOR_CAPS.id);
+  if (id) out.id = id;
+  const format = cleanAnchorString(a.format, ANCHOR_CAPS.format);
+  if (format) out.format = format;
+  if (typeof a.marks === 'number' && Number.isFinite(a.marks) && a.marks > 0 && a.marks <= 20) out.marks = a.marks;
+  if (Array.isArray(a.options)) {
+    const options = a.options.map((o) => cleanAnchorString(o, ANCHOR_CAPS.option)).filter(Boolean).slice(0, ANCHOR_CAPS.options);
+    if (options.length) out.options = options;
+  }
+  const answer = cleanAnchorString(a.answer, ANCHOR_CAPS.answer);
+  if (answer) out.answer = answer;
+  const letter = typeof a.answerLetter === 'string' ? a.answerLetter.trim().toUpperCase() : '';
+  if (/^[A-H]$/.test(letter)) out.answerLetter = letter;
+  if (Array.isArray(a.solutionSteps)) {
+    const steps = a.solutionSteps.map((s) => cleanAnchorString(s, ANCHOR_CAPS.step)).filter(Boolean).slice(0, ANCHOR_CAPS.steps);
+    if (steps.length) out.solutionSteps = steps;
+  }
+  const finalAnswer = cleanAnchorString(a.finalAnswer, ANCHOR_CAPS.answer);
+  if (finalAnswer) out.finalAnswer = finalAnswer;
+  const pick = cleanAnchorString(a.studentPick, ANCHOR_CAPS.pick);
+  if (pick && (a.verdict === 'right' || a.verdict === 'wrong')) {
+    out.studentPick = pick;
+    out.verdict = a.verdict;
+  }
+  return out;
+}
+
 /* ── TUTOR-FIX-2 T11: the offer safety net ─────────────────────────────────────
  * The "Get my answer marked" / "Practise this" buttons must not depend on the student's
  * wording reaching the model. detectOfferIntent is a PURE function of the student's LAST turn
@@ -626,6 +673,8 @@ function createTutorRoute(deps) {
     // absent or malformed, and the prompt then renders no block. The tutor never grades (D-TUT-8):
     // this is READ context to teach from, and the rails forbid re-judging the board's marks.
     const returnedWork = normalizeReturnedWork(payload.returnedWork);
+    // TUTOR-ANCHOR-KEY-1: the exact bank question (+ its official key) the tutor was opened about; every turn.
+    const anchorQuestion = normalizeAnchorQuestion(payload.anchorQuestion);
 
     // Map the conversation to Gemini turns (user | model), dropping empties and
     // capping both history length and per-turn size.
@@ -662,7 +711,7 @@ function createTutorRoute(deps) {
     }
 
     // An empty topicLabel lets the prompt name the subject and say no chapter was chosen (T5).
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork });
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
@@ -705,6 +754,13 @@ function createTutorRoute(deps) {
       convo[convo.length - 1].parts[0].text +=
         `\n\n[System note: the marked question (and the student's pick, if given) are in your instructions; ` +
         `if you said earlier that you could not see them, that is no longer true - use them now.]`;
+    }
+    // TUTOR-ANCHOR-KEY-1: earlier tutor turns that hedged or contradicted the key must not outweigh it.
+    if (anchorQuestion && (anchorQuestion.answer || anchorQuestion.finalAnswer)) {
+      convo[convo.length - 1].parts[0].text +=
+        `\n\n[System note: the question the student is asking about, and its OFFICIAL ANSWER KEY, are in your ` +
+        `instructions. The key is final: if you gave a different answer earlier in this chat, correct it plainly ` +
+        `now and explain the key.]`;
     }
     // TUTOR-FIX-4 history hygiene: with an all-unrecorded brief, restate honesty rule i as the
     // MOST-RECENT content, so earlier (possibly wrong) tutor turns cannot outweigh the brief.
@@ -806,6 +862,7 @@ module.exports = {
   normalizeDemoQuestion,
   normalizeFigures,
   normalizeReturnedWork,
+  normalizeAnchorQuestion,
   normalizeBrief,
   detectOfferIntent,
   mentionsDiagram,
