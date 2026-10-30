@@ -32,7 +32,7 @@ describe("PARENTS-PACKS-1", () => {
     screen.getByTestId("fp-packs-cbq").click();
     expect(fire).toHaveBeenCalledWith("for_parents");
   });
-  it("PARENTS-PACKS-3: hero link and band - no rupee in static markup, prices after mount, hidden for paid", async () => {
+  it("PARENTS-PACKS-3: hero link and band - no rupee in static markup, prices after mount, shown to paid too", async () => {
     const both = <MemoryRouter><ParentPacksHeroLink /><ParentPacksBand /></MemoryRouter>;
     const html = renderToStaticMarkup(both);
     expect(html).not.toMatch(/₹/);
@@ -48,10 +48,15 @@ describe("PARENTS-PACKS-1", () => {
     hero.click();
     expect(fire).toHaveBeenCalledWith("for_parents");
     paidMock.paid = true;
-    expect(renderToStaticMarkup(both)).toBe("");
+    const paidHtml = renderToStaticMarkup(both);
+    expect(paidHtml).toContain("Printable question banks for every need");
+    expect(paidHtml).toContain('data-testid="fp-packs-hero"');
   });
-  it("renders nothing for paid Premium", () => {
+  it("PARENTS-PAID-PACKS-1: the section renders for paid Premium and signed-out alike", () => {
+    const signedOut = renderToStaticMarkup(wrap());
     paidMock.paid = true;
-    expect(renderToStaticMarkup(wrap())).toBe("");
+    const paid = renderToStaticMarkup(wrap());
+    expect(paid).toContain('data-testid="fp-packs"');
+    expect(paid).toBe(signedOut);
   });
 });
