@@ -150,7 +150,8 @@ describe("CI-SOFT-1 chunk boundary and fonts (S3, FONT)", () => {
       .filter((f) => /\.(ts|tsx)$/.test(f) && !/\.test\./.test(f))
       .filter((f) => /from\s+"[^"]*ciDemoSamples"/.test(readFileSync(resolve(LAZYTOPPER, "src", f), "utf8")))
       .map((f) => f.replace(/\\/g, "/"));
-    expect(importers.sort()).toEqual(["components/ciDemo/ciDemoChunk.tsx"]);
+    // OneMinuteLadder.tsx is part of the same lazy chunk (imported only by ciDemoChunk.tsx).
+    expect(importers.sort()).toEqual(["components/ciDemo/OneMinuteLadder.tsx", "components/ciDemo/ciDemoChunk.tsx"]);
   });
 
   it("the eager half (model, door) never imports the samples, even as a type", () => {

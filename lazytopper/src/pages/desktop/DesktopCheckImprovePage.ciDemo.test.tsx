@@ -25,6 +25,7 @@ const H = vi.hoisted(() => ({
   local: [] as unknown[],
   cloudHas: vi.fn(),
   detectQuestion: vi.fn(),
+  recordAttempt: vi.fn(),
   checkSolutionImage: vi.fn(),
   gradeWorksheet: vi.fn(),
   track: vi.fn(),
@@ -45,6 +46,10 @@ vi.mock("../../ai/aiClient", async (importOriginal) => {
 vi.mock("../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../analytics/analytics")>();
   return { ...actual, trackNamedEvent: (...a: unknown[]) => H.track(...a) };
+});
+vi.mock("../../services/practiceInsights", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/practiceInsights")>();
+  return { ...actual, recordAttempt: (...a: unknown[]) => H.recordAttempt(...a) };
 });
 vi.mock("../../services/sessionRecords", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/sessionRecords")>();
@@ -129,6 +134,18 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     expect(await screen.findByTestId("start-here-card")).toBeInTheDocument();
   });
 
+  it("★ ONE-MINUTE-1: a signed-in tap is recorded once as an MCQ attempt (0 or 1 of 1, the Practice card's identity); no mistake type", async () => {
+    adArrival();
+    render(page());
+    fireEvent.click(await screen.findByTestId("one-min-opt-0"));
+    await waitFor(() => expect(H.recordAttempt).toHaveBeenCalledTimes(1));
+    const [user, ctx] = H.recordAttempt.mock.calls[0] as [{ uid: string }, Record<string, unknown>];
+    expect(user.uid).toBe(SIGNED_IN.uid);
+    expect(ctx).toMatchObject({ mode: "mcq", marksAvailable: 1, surface: expect.any(String), questionId: expect.stringMatching(/^PYQ-/) });
+    expect([0, 1]).toContain(ctx.marksScored);
+    expect(ctx).not.toHaveProperty("grade");
+  });
+
   it("★ CONTROL: no ad arrival (landed elsewhere, no campaign) → today's page, no card", async () => {
     window.sessionStorage.setItem("lazytopper.guideIntent", JSON.stringify({ landing: "/notes", utm_content: null, utm_campaign: null }));
     render(page());
@@ -182,6 +199,8 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
     adArrival();
     render(page());
+    // ONE-MINUTE-1: an ad arrival leads with the 1-tap ladder; the sample picker is its secondary link.
+    fireEvent.click(await screen.findByTestId("one-min-watch"));
     fireEvent.click(await screen.findByTestId("ci-demo-tile-circ"));
     // (this suite's matchMedia answers "yes" to everything: wide + reduced motion → the result at once)
     fireEvent.click(await screen.findByTestId("ci-demo-check-own"));
@@ -280,6 +299,7 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     document.body.prepend(decoy);
     try {
       render(page());
+      fireEvent.click(await screen.findByTestId("one-min-watch"));
       fireEvent.click(await screen.findByTestId("ci-demo-tile-circ"));
       fireEvent.click(await screen.findByTestId("ci-demo-check-own"));
       await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
@@ -290,5 +310,32 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     } finally {
       decoy.remove();
     }
+  });
+
+  it("★★ ONE-MINUTE-1: tap → '2-mark one' fills the question, seeds the confirmed read (NO detect call), Type tab, box focused; Check grades the seeded request", async () => {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    adArrival();
+    render(page());
+    fireEvent.click(await screen.findByTestId("one-min-opt-0"));
+    expect(screen.getByTestId("one-min-verdict")).toBeInTheDocument();
+    // signed out: the tap persists nothing
+    expect(H.recordAttempt.mock.calls.every((c) => !(c[0] as { uid?: string } | null)?.uid)).toBe(true); // the door only ever sees no user
+    fireEvent.click(screen.getByTestId("one-min-next"));
+    await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
+    const q = (screen.getByLabelText("Type the question") as HTMLTextAreaElement).value;
+    expect(q).toMatch(/\[2\]$/);
+    expect(document.activeElement).toBe(screen.getByLabelText("Type your answer"));
+    expect(H.detectQuestion).not.toHaveBeenCalled();
+    // the confirmed chip is already there (marks 2), so Check is reachable without "Read the question"
+    fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "Step 1 formula. Step 2 substitute. Step 3 answer 5 cm." } });
+    H.checkSolutionImage.mockReturnValue(new Promise(() => {})); // only the request is under test
+    fireEvent.click(await screen.findByRole("button", { name: /^check|grade/i }));
+    await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));
+    const sent = H.checkSolutionImage.mock.calls[0][0] as Record<string, unknown>;
+    expect(sent).toMatchObject({ question: q, marks: 2, textAnswer: expect.stringContaining("Step 1") });
+    expect(typeof sent.subject).toBe("string");
+    expect(String(sent.topic)).not.toBe("");
+    expect(H.detectQuestion).not.toHaveBeenCalled();
   });
 });

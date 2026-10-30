@@ -218,8 +218,10 @@ describe("R8 replay — a single-question result", () => {
     waitingWithIntent(SINGLE);
     H.activeUid = USER.uid;
     await replayPendingFreeCheck(USER);
-    expect(H.track).toHaveBeenCalledTimes(1);
     expect(H.track.mock.calls[0]).toEqual(["free_check_signup"]);
+    // ONE-MINUTE-1 R4: the converted free check also counts as a graded check, ONCE, so the admin "Active students" card sees it.
+    expect(H.track.mock.calls.slice(1)).toEqual([["check_graded"]]);
+    expect(H.track).toHaveBeenCalledTimes(2);
   });
 });
 

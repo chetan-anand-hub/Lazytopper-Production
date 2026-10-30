@@ -922,6 +922,22 @@ export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
 }
 
+/**
+ * ONE-MINUTE-1 R4 — the first-minute ladder's five measurement events. Vendors only (GA4 / Vercel), like
+ * `parent_report_viewed`: the names are deliberately NOT in `NamedAnalyticsEvent`, because a first-party name
+ * also needs the server allow-list (studentActivity.cjs, out of this lane's scope). `data` is flat and coarse:
+ * `{ correct }` on the tap, `{ seconds_since_landing }` on the typed grade. No question, answer, id or uid.
+ */
+export type OneMinuteEvent = "one_min_tap_shown" | "one_min_tap_answered" | "one_min_type_shown" | "one_min_type_graded" | "one_min_photo_cta";
+
+export function trackOneMinute(name: OneMinuteEvent, data?: { correct?: boolean; seconds_since_landing?: number }): void {
+  try {
+    send("event", data ? { name, data } : { name }, data ? { ga4: data } : {});
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 /* ------------------------------------------------------------------------- *
  * TRACK-2 §1.1 — THE CHECKOUT FUNNEL.
  *

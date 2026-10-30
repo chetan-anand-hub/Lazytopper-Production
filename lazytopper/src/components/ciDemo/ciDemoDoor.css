@@ -20,3 +20,29 @@
     min-height: 235px;
   }
 }
+
+/* ONE-MINUTE-1 step 3 — the "Snap your own answer" line under the typed result. */
+.ci-ladder-photo {
+  margin: 0 12px 12px;
+}
+.ci-ladder-photo__btn {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 2px solid #2f9e6b;
+  border-radius: 14px;
+  background: #fff;
+  color: #15233a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ci-ladder-photo__btn:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+@media (min-width: 768px) {
+  .ci-ladder-photo {
+    margin: 0 0 12px;
+  }
+}

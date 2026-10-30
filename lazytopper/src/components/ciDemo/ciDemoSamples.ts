@@ -314,6 +314,12 @@ export const CI_DEMO_COPY = {
   l3: "Sample answer · not yours · mistakes planted on purpose · written by LazyTopper",
   l4: "Here is a student-style answer. Watch the red pen.",
   l9: "Your own answer gets marked exactly like this. Want to try one?",
+  // ONE-MINUTE-1 — the first-minute ladder (tap, then type, then photo).
+  ladderHead: "Try one board question. 1 tap.",
+  ladderRight: "That is right. 1 out of 1.",
+  ladderWrong: "Not this time. 0 out of 1. Here is why.",
+  ladderNext: "Now a 2-mark one: type two lines, get step marks like a CBSE examiner",
+  ladderWatch: "Or watch me mark a board answer",
 } as const;
 
 export function sampleTotal(s: CiDemoSample): number {

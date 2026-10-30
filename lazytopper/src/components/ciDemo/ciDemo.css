@@ -499,3 +499,118 @@
     animation: none !important;
   }
 }
+
+/* ── ONE-MINUTE-1: the first-minute ladder (step 1, the 1-tap board MCQ) ───────────────────── */
+.ci-demo__ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.ci-demo__ladder--wait {
+  min-height: 220px;
+}
+.ci-demo__ladder-meta {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #9fb0c7;
+}
+.ci-demo__ladder-q {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+.ci-demo__opts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+.ci-demo__opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 2px solid var(--ci-line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ci-ink);
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.ci-demo__opt:hover:not(:disabled) {
+  border-color: var(--ci-green);
+}
+.ci-demo__opt:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+.ci-demo__opt:disabled {
+  cursor: default;
+}
+.ci-demo__opt-letter {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ci-soft);
+  font-size: 13px;
+  font-weight: 700;
+}
+.ci-demo__opt--right {
+  border-color: var(--ci-green);
+  background: #eaf7f0;
+}
+.ci-demo__opt--wrong {
+  border-color: var(--ci-red);
+  background: #fdecea;
+}
+.ci-demo__opt--dim {
+  opacity: 0.75;
+  background: #e8ecf2;
+}
+.ci-demo__verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ci-demo__verdict-mark {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+.ci-demo__verdict-mark--right {
+  color: #5ee0a0;
+}
+.ci-demo__verdict-mark--wrong {
+  color: #ff9d94;
+}
+.ci-demo__verdict-ans {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+.ci-demo__verdict-why {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #dbe3ef;
+}
+.ci-demo__ladder .ci-demo__link {
+  align-self: center;
+  color: #c9d1dc;
+}

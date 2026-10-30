@@ -264,6 +264,10 @@ export async function replayPendingFreeCheck(
     trackNamedEvent("free_check_signup");
     // G12 — nothing gradable was waiting: nothing was saved, and the page must not say it was.
     if (code === null) return { kind: "none" };
+    // ONE-MINUTE-1 R4 — a free check that converts is an ACTIVE student: record the same first-party `check_graded`
+    // a signed-in grade records. The grade itself ran signed out (nothing was recorded then); the replay is the first
+    // moment the student is signed in, and it runs once per claimed result, so this counts once.
+    trackNamedEvent("check_graded");
     return { kind: "saved", code };
   } catch (error) {
     console.warn("[freeCheckReplay] replay failed; the result stays on the device", error);
