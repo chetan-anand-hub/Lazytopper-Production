@@ -68,6 +68,16 @@ const ga4Events = (): unknown[][] => ga4.filter((e) => e[0] === "event");
 const month = { passType: "month" as const, itemName: "Premium pass for a month", valueInr: 599 };
 
 describe("TRACK-2 · checkout events", () => {
+  it("PURCHASE-EVENT-1: a Premium purchase is one GA4 hit with transaction_id, rupee value, INR and an item with price and quantity 1; the same id never fires twice", () => {
+    trackPurchase({ ...month, transactionId: "pay_pass_1" });
+    trackPurchase({ ...month, transactionId: "pay_pass_1" });
+    const hits = ga4Events().filter((e) => e[1] === "purchase");
+    expect(hits).toHaveLength(1);
+    const params = hits[0][2] as Record<string, unknown>;
+    expect(params).toMatchObject({ transaction_id: "pay_pass_1", currency: "INR", value: 599, items: [{ item_id: "month", item_name: month.itemName, price: 599, quantity: 1 }] });
+    expect(typeof params.value).toBe("number");
+  });
+
   it("begin_checkout reaches GA4 (ecommerce shape), Meta (InitiateCheckout) and Vercel", () => {
     trackBeginCheckout(month);
     const [, name, params] = ga4Events()[0] as [string, string, Record<string, unknown>];
