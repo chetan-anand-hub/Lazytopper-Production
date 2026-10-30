@@ -232,6 +232,39 @@ export function clearCheckOneHandover(): void {
   }
 }
 
+/**
+ * HOME-LADDER-1 — a second one-shot, this-tab note beside the handover: "start the one-minute
+ * ladder on arrival". sessionStorage `lazytopper.checkOneLadder` = "1", written ONLY by Home's Byte
+ * "Check one answer" for a signed-in student the server confirms has graded nothing yet (the same
+ * gate as ONE-MINUTE-1). Check & Improve's Start-here card reads it once at mount, deletes it, and
+ * asks the page to start the ladder through the SAME `startLadder` Byte uses there. Never the uid.
+ */
+export const CHECK_ONE_LADDER_KEY = "lazytopper.checkOneLadder";
+
+export function markCheckOneLadder(): void {
+  try {
+    window.sessionStorage.setItem(CHECK_ONE_LADDER_KEY, "1");
+  } catch {
+    /* blocked storage: Check & Improve simply opens as it does today */
+  }
+}
+
+export function peekCheckOneLadder(): boolean {
+  try {
+    return window.sessionStorage.getItem(CHECK_ONE_LADDER_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function clearCheckOneLadder(): void {
+  try {
+    window.sessionStorage.removeItem(CHECK_ONE_LADDER_KEY);
+  } catch {
+    /* blocked storage */
+  }
+}
+
 export function focusNotNowCount(uid: string): number {
   try {
     const n = Number(window.localStorage.getItem(START_HERE_FOCUS_NOT_NOW_PREFIX + uid));
