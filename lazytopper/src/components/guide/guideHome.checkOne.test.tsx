@@ -18,7 +18,7 @@ vi.mock("../startHere/startHereBank", () => bank);
 vi.mock("../../services/firebaseClient", () => ({ authClient: auth }));
 
 import StartHereCard, { StartHereFocusView, StartHereView, useStartHere } from "../startHere/StartHereCard";
-import { START_HERE_DISMISSED_KEY, START_HERE_FOCUS_CLOSED_KEY, CHECK_ONE_HANDOVER_KEY } from "../startHere/startHereModel";
+import { START_HERE_DISMISSED_KEY, START_HERE_FOCUS_CLOSED_KEY, CHECK_ONE_HANDOVER_KEY, CHECK_ONE_LADDER_KEY } from "../startHere/startHereModel";
 import { resetZeroGradedCacheForTests } from "../startHere/zeroGraded";
 import { __resetGuideVariantSentForTests, __setGuideAbForTests } from "./guideVariant";
 
@@ -109,16 +109,12 @@ describe("LOGIN-HOME-1 · Byte on Home", () => {
     expect(first.textContent).toContain("Answer one real board question");
     expect(first.textContent).not.toContain("Type or photograph");
     fireEvent.click(first);
-    // ...it launches ONE real written board question, not an empty Check & Improve.
-    await waitFor(() => expect(location).toContain("/practice"));
-    expect(location).toContain("qt=written");
-    expect(location).toContain("count=1");
-    expect(location).not.toBe("/check-improve");
-    expect(bank.pickStartHereSet).toHaveBeenCalledWith(expect.objectContaining({ subject: "Science", qtype: "written" }));
-    const clicks = onboarding.mock.calls.filter((c) => c[0] === "activation_card_click");
-    expect(clicks).toHaveLength(1);
-    expect(clicks[0][1]).toMatchObject({ qtype: "written", via: "byte" });
-    expect(window.sessionStorage.getItem(CHECK_ONE_HANDOVER_KEY)).toBeNull();
+    // HOME-LADDER-1: a signed-in student with nothing graded goes to Check & Improve, where the one-minute
+    // ladder starts (the old written try-one is now only for everyone else). No practice set is built.
+    await waitFor(() => expect(location).toBe("/check-improve"));
+    expect(window.sessionStorage.getItem(CHECK_ONE_LADDER_KEY)).toBe("1");
+    expect(bank.pickStartHereSet).not.toHaveBeenCalled();
+    expect(onboarding.mock.calls.filter((c) => c[0] === "activation_card_click")).toHaveLength(0);
   });
 
   it("CONTROL: when no question can be lined up, the tap falls back to today's /check-improve route", async () => {
@@ -181,8 +177,7 @@ describe("LOGIN-HOME-1 · Byte on Home", () => {
     await waitFor(() => expect(shownCount()).toBeGreaterThan(0));
     const shownOnHome = shownCount();
     fireEvent.click(tap);
-    // Fallback (no question to launch): the handover note is left, then Check & Improve opens.
-    await waitFor(() => expect(window.sessionStorage.getItem(CHECK_ONE_HANDOVER_KEY)).not.toBeNull());
+    // HOME-LADDER-1: the handover (and ladder) notes are left, then Check & Improve opens and consumes the handover.
     await waitFor(() => expect(location).toBe("/check-improve"), { timeout: 2000 });
     await expectNoByteAsking();
     expect(shownCount()).toBe(shownOnHome);

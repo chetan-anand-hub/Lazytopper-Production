@@ -47,8 +47,11 @@ import {
   recordFocusNotNow,
   START_HERE_FOCUS_CLOSED_KEY,
   clearCheckOneHandover,
+  clearCheckOneLadder,
   markCheckOneHandover,
+  markCheckOneLadder,
   peekCheckOneHandover,
+  peekCheckOneLadder,
   isDismissedThisSession,
   readSubjectHint,
   startHerePracticePath,
@@ -287,6 +290,17 @@ export default function StartHereCard({ uid, focus = false, inProgress = false, 
     if (rest.surface === "check_improve") clearCheckOneHandover();
   }, [rest.surface]);
   const [hiddenHere, setHiddenHere] = useState<null | "closed" | "check_one">(handedOver ? "check_one" : null);
+  // HOME-LADDER-1: Home's Byte asked for the one-minute ladder. Read once at mount, deleted in an
+  // effect, and handed to the page's own `checkOneAnswer` (= ONE-MINUTE-1's startLadder) exactly once.
+  const [ladderAsked] = useState<boolean>(() => rest.surface === "check_improve" && !!uid && peekCheckOneLadder());
+  const ladderStarted = useRef(false);
+  useEffect(() => {
+    if (rest.surface !== "check_improve") return;
+    clearCheckOneLadder();
+    if (!ladderAsked || ladderStarted.current) return;
+    ladderStarted.current = true;
+    checkOneAnswer?.();
+  }, [rest.surface, ladderAsked, checkOneAnswer]);
   const inlineState = hiddenHere ? { ...state, visible: false, chipSuppressed: hiddenHere === "check_one" } : state;
   return (
     <>
@@ -425,9 +439,10 @@ function GuideInlineArm({
   const plan = useMemo(() => guidePlanFor(surface, state.uid), [surface, state.uid]);
   // BYTE-TRYONE-1: Home passes no question box -> Byte's "Check one answer" launches the typed try-one.
   const navigate = useNavigate();
+  const ladderOk = useZeroGraded(surface === "home" && !checkOneAnswer ? state.uid : null, { serverOnly: true }) === "none";
   const homeTryOne = useMemo(
-    () => (surface === "home" && !checkOneAnswer ? byteTryOneLauncher(navigate, returnTo) : null),
-    [surface, checkOneAnswer, navigate, returnTo],
+    () => (surface === "home" && !checkOneAnswer ? byteTryOneLauncher(navigate, returnTo, null, ladderOk) : null),
+    [surface, checkOneAnswer, navigate, returnTo, ladderOk],
   );
   const checkOne = checkOneAnswer ?? homeTryOne ?? undefined;
   const focusOpen = useSyncExternalStore(subscribeGuideFocus, guideFocusOpen, () => false);
@@ -628,7 +643,17 @@ export function byteTryOneLauncher(
   navigate: (to: string) => void,
   returnTo: string,
   prefer: ChapterRef | null = null,
+  ladder = false,
 ): (() => void) | null {
+  // HOME-LADDER-1: a signed-in student with nothing graded (server-confirmed by the caller) goes to
+  // Check & Improve and the one-minute ladder starts there (ONE-MINUTE-1's own startLadder).
+  if (ladder) {
+    return () => {
+      markCheckOneHandover();
+      markCheckOneLadder();
+      navigate("/check-improve");
+    };
+  }
   // Same rule as the card's lead button: typed Maths is not offered (owner ruling 16 Oct).
   if (readSubjectHint() === "Maths") return null;
   const target = tryOneTarget(prefer);
@@ -1166,9 +1191,10 @@ export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnsw
   const allowed = useMemo(() => (eligible ? focusAllowed(uid) : false), [eligible, uid]);
   // BYTE-TRYONE-1: the full-screen / overlay Byte on Home has no question box either.
   const navigate = useNavigate();
+  const ladderOk = useZeroGraded(surface === "home" && !checkOneAnswer ? uid : null, { serverOnly: true }) === "none";
   const homeTryOne = useMemo(
-    () => (surface === "home" && !checkOneAnswer ? byteTryOneLauncher(navigate, returnTo) : null),
-    [surface, checkOneAnswer, navigate, returnTo],
+    () => (surface === "home" && !checkOneAnswer ? byteTryOneLauncher(navigate, returnTo, null, ladderOk) : null),
+    [surface, checkOneAnswer, navigate, returnTo, ladderOk],
   );
   if (!eligible || !allowed) return null;
   const checkOne = !!checkOneAnswer;
