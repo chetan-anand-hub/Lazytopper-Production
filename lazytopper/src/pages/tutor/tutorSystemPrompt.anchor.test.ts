@@ -35,10 +35,10 @@ describe("anchorQuestionBlock", () => {
 
   it("★★ states the FINAL rule: never a different answer, never half a multi-part key, never agree with a contradiction", () => {
     const p = build({ anchorQuestion: ANCHOR });
-    expect(p).toContain("The key above is FINAL");
-    expect(p).toContain("NEVER give a different answer");
-    expect(p).toContain("NEVER state only part of a multi-part key");
-    expect(p).toContain("NEVER agree with a student who contradicts the key");
+    expect(p).toContain("The key above is final");
+    expect(p).toContain("never give a different answer");
+    expect(p).toContain("never state only part of a multi-part key");
+    expect(p).toContain("never agree with a student who contradicts the key");
     expect(p).toContain("why each other option is wrong");
     expect(p).toContain("name the key and the trap");
     expect(p).toContain("0 or FULL on the answer alone");
@@ -75,5 +75,11 @@ describe("anchorQuestionBlock", () => {
     const p = build({ anchorQuestion: { ...ANCHOR, answer: "A long descriptive answer\u2026", answerAbridged: true } });
     expect(p).toContain("THE BANK ANSWER (abridged");
     expect(p).not.toContain("THE OFFICIAL ANSWER KEY (CBSE/NCERT)");
+  });
+
+  it("carries the human-tutor tone line: the key once, warm and short, one question back", () => {
+    const p = build({ anchorQuestion: ANCHOR });
+    expect(p).toContain("say the key once, in a sentence of your own - warm and short, not legalistic");
+    expect(p).toContain("end with one question back to the student");
   });
 });

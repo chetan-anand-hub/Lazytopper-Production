@@ -261,22 +261,39 @@ function normalizeAnchorQuestion(input) {
 
 /**
  * TUTOR-ANCHOR-KEY-1 - should the "the key is final, correct yourself" note ride the student's latest turn?
- * Only when a PREVIOUS tutor turn exists (there is something to correct) AND the latest message is about this
- * question's answer (an option letter / roman numeral, "answer", "correct", "right", "wrong", "option", "key",
- * "both", or one of the question's own options quoted) or disagrees with the key. An unrelated follow-up gets no
- * note (the FINAL-key system block still applies on every turn).
+ * ONLY when (a) an earlier TUTOR turn in this thread stated an answer that differs from the key - it named a
+ * different option letter as the answer, or (for a roman-numeral key such as "(i) and (iii)") left out part of
+ * the key - or (b) the student's latest message explicitly disputes the key. Bare words like "right", "correct",
+ * "key" or "answer" never trigger it: a tutor turn that gave the key correctly, or an unrelated follow-up,
+ * gets no note (the final-key system block still applies on every turn).
  */
-function anchorNoteApplies(studentLast, hasPreviousTutorTurn, anchorQuestion) {
-  if (!hasPreviousTutorTurn || !anchorQuestion || !(anchorQuestion.answer || anchorQuestion.finalAnswer)) return false;
-  const t = String(studentLast || '').toLowerCase();
-  if (!t.trim()) return false;
-  if (/\b(answers?|correct|incorrect|right|wrong|options?|key|both|mistake|two correct|not true|disagree)\b/.test(t)) return true;
-  if (/\(\s*(?:i{1,3}|iv|v|[a-d])\s*\)/.test(t) || /\b(?:ans|option|opt|choice)\.?\s*\(?[a-d]\b/.test(t)) return true;
-  for (const o of anchorQuestion.options || []) {
-    const text = String(o).replace(/^[A-H][.)]\s*/, '').toLowerCase().trim();
-    if (text.length >= 4 && t.includes(text)) return true;
+const ROMAN_IN_PARENS = /\(\s*(iv|v|i{1,3})\s*\)/gi;
+function romanSet(text) {
+  const out = new Set();
+  for (const m of String(text || '').matchAll(ROMAN_IN_PARENS)) out.add(m[1].toLowerCase());
+  return out;
+}
+const TUTOR_LETTER_CLAIM = /\b(?:(?:correct|right)\s+(?:answer|option)\s+(?:is|would be)|answer\s+(?:is|would be)|answer\s*[:=])\s*(?:option\s+)?\(?([a-d])\b/gi;
+function tutorTurnContradictsKey(text, anchorQuestion) {
+  const letter = anchorQuestion.answerLetter || '';
+  if (letter) {
+    for (const m of String(text || '').matchAll(TUTOR_LETTER_CLAIM)) {
+      if (m[1].toUpperCase() !== letter) return true;
+    }
+  }
+  const keyRomans = romanSet(anchorQuestion.answer || anchorQuestion.finalAnswer);
+  if (keyRomans.size > 0) {
+    const said = romanSet(text);
+    if (said.size > 0) for (const r of keyRomans) if (!said.has(r)) return true; // omitted part of the key
   }
   return false;
+}
+const STUDENT_DISPUTES_KEY =
+  /\b(wrong|incorrect|mistake|disagree|not (?:right|correct|true)|two (?:correct|right)|both (?:are |is )?(?:correct|right)|more than one|(?:answer|key) is wrong)\b/i;
+function anchorNoteApplies(studentLast, previousTutorTexts, anchorQuestion) {
+  if (!anchorQuestion || !(anchorQuestion.answer || anchorQuestion.finalAnswer)) return false;
+  if (STUDENT_DISPUTES_KEY.test(String(studentLast || ''))) return true;
+  return (Array.isArray(previousTutorTexts) ? previousTutorTexts : []).some((t) => tutorTurnContradictsKey(t, anchorQuestion));
 }
 
 /* ── TUTOR-FIX-2 T11: the offer safety net ─────────────────────────────────────
@@ -792,7 +809,7 @@ function createTutorRoute(deps) {
         `if you said earlier that you could not see them, that is no longer true - use them now.]`;
     }
     // TUTOR-ANCHOR-KEY-1: earlier tutor turns that hedged or contradicted the key must not outweigh it.
-    if (anchorNoteApplies(studentLast, convo.slice(0, -1).some((t) => t.role === 'model'), anchorQuestion)) {
+    if (anchorNoteApplies(studentLast, convo.slice(0, -1).filter((t) => t.role === 'model').map((t) => t.parts[0].text), anchorQuestion)) {
       convo[convo.length - 1].parts[0].text +=
         `\n\n[System note: the question the student is asking about, and its OFFICIAL ANSWER KEY, are in your ` +
         `instructions. The key is final: if you gave a different answer earlier in this chat, correct it plainly ` +

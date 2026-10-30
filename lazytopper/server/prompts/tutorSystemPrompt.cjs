@@ -1231,17 +1231,18 @@ function anchorQuestionBlock(anchorQuestion) {
     parts.push(`- The option the student picked: '${q(pick)}' (${a.verdict === 'right' ? 'the right option' : 'not the right option'}).`);
   }
   parts.push(
-    `RULES FOR THIS QUESTION (READ CAREFULLY):\n` +
+    `RULES FOR THIS QUESTION:\n` +
       (hasKey
-        ? `- The key above is FINAL. It is the official CBSE/NCERT answer and the one the student's card showed. ` +
+        ? `- The key above is final. It is the official CBSE/NCERT answer and the one the student's card showed. ` +
           `Explain WHY it is right using the solution steps` +
           (options.length ? `, and why each other option is wrong` : '') +
-          `. NEVER give a different answer, NEVER state only part of a multi-part key (if the key is "(i) and (iii)", ` +
-          `the answer is both, not one of them), and NEVER agree with a student who contradicts the key - explain the key instead. ` +
+          `. never give a different answer, never state only part of a multi-part key (if the key is "(i) and (iii)", ` +
+          `the answer is both, not one of them), and never agree with a student who contradicts the key - explain the key instead. ` +
           `Do not hedge between answers; if you are unsure how a step works, say so, but the key stands.\n`
         : `- No answer key is given for this question, so do NOT state or imply a final answer; teach the method and say ` +
           `the official answer is in their solution on the question card.\n`) +
       `- If the student's pick is given: when it matches the key, confirm it plainly; when it does not, name the key and the trap.\n` +
+      `- Tone: say the key once, in a sentence of your own - warm and short, not legalistic; don't repeat "official key" every turn; end with one question back to the student.\n` +
       `- An MCQ or other 1-mark objective question is 0 or FULL on the answer alone, as in a real CBSE exam: no partial-credit talk, ` +
       `no "half right". Explain the reasoning, not a score.\n` +
       `- If the student insists the key is wrong: say, calmly, that the answer follows the official CBSE/NCERT key and that you will ` +

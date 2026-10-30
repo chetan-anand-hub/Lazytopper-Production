@@ -832,7 +832,7 @@ test('★ the route puts the key and the FINAL rule in the system prompt, and th
   await route.handleTutorRequest({ body: body(ANCHOR_IN) }, {});
   await route.handleTutorRequest({ body: body(null) }, {});
   assert.match(seen[0], /THE OFFICIAL ANSWER KEY \(CBSE\/NCERT\): option C - \\"\(i\) and \(iii\)\\"/);
-  assert.match(seen[0], /The key above is FINAL/);
+  assert.match(seen[0], /The key above is final/);
   assert.match(seen[0], /OFFICIAL ANSWER KEY, are in your instructions/);
   assert.doesNotMatch(seen[1], /THE QUESTION THE STUDENT OPENED THIS CHAT ABOUT/);
   assert.doesNotMatch(seen[1], /OFFICIAL ANSWER KEY, are in your instructions/);
@@ -862,16 +862,20 @@ test('a key cut at 400 chars ends with an ellipsis and is flagged abridged; a sh
   assert.equal(normalizeAnchorQuestion({ questionText: 'q', answer: 'short' }).answerAbridged, undefined);
 });
 
-test('anchorNoteApplies: on the answer talk with a previous tutor turn, never on an unrelated follow-up or a first turn', () => {
-  for (const yes of ['there are two correct options', "what's the right answer then", 'is it (iii)?', 'I think option B', 'so (i) and (iii) both?', 'is (i) and (iv) correct']) {
-    assert.equal(anchorNoteApplies(yes, true, ANCHOR_IN), true, yes);
-  }
-  assert.equal(anchorNoteApplies('explain oxidation numbers', true, ANCHOR_IN), false);
-  assert.equal(anchorNoteApplies('what is a redox reaction', true, ANCHOR_IN), false);
-  assert.equal(anchorNoteApplies("what's the right answer then", false, ANCHOR_IN), false); // nothing earlier to correct
-  assert.equal(anchorNoteApplies('anything', true, null), false);
-  const noKey = { ...ANCHOR_IN, answer: undefined, finalAnswer: undefined };
-  assert.equal(anchorNoteApplies("what's the right answer", true, noKey), false);
+test('anchorNoteApplies: fires on a tutor turn that contradicted the key or a student dispute; not on "is that right?" or an unrelated follow-up', () => {
+  const wrong = ['It is (iii), the redox reaction.'];
+  const right = ['The answer is option C, (i) and (iii): it is both a displacement and a redox reaction.'];
+  // the ammonia transcript: tutor said "(iii)" only, student: two correct options
+  assert.equal(anchorNoteApplies('there are two correct options', wrong, ANCHOR_IN), true);
+  assert.equal(anchorNoteApplies("what's the right answer then", wrong, ANCHOR_IN), true); // wrong earlier answer alone fires it
+  assert.equal(anchorNoteApplies('ok', ['The correct answer is option B.'], ANCHOR_IN), true); // wrong letter
+  assert.equal(anchorNoteApplies('I think the key is wrong', right, ANCHOR_IN), true); // explicit dispute
+  assert.equal(anchorNoteApplies('is that right?', right, ANCHOR_IN), false);
+  assert.equal(anchorNoteApplies('is (iii) correct?', right, ANCHOR_IN), false);
+  assert.equal(anchorNoteApplies('explain oxidation numbers', right, ANCHOR_IN), false);
+  assert.equal(anchorNoteApplies('explain oxidation numbers', wrong.concat([]), { ...ANCHOR_IN, answer: undefined, finalAnswer: undefined }), false);
+  assert.equal(anchorNoteApplies("what's the right answer then", [], ANCHOR_IN), false); // nothing earlier, no dispute
+  assert.equal(anchorNoteApplies('anything', wrong, null), false);
 });
 
 test('★ the correction note rides only the answer-talk turn, not an unrelated follow-up', async () => {
@@ -882,13 +886,13 @@ test('★ the correction note rides only the answer-talk turn, not an unrelated 
     callGemini: async (model, contents) => { seen.push(JSON.stringify(contents)); return { text: 'ok', finishReason: 'STOP' }; },
     GEMINI_TUTOR_MODEL: 'gemini-2.5-flash', GEMINI_MODEL: 'gemini-2.5-flash', ACTIVE_PROVIDER: 'gemini', isStubMode: () => false,
   });
-  const ask = (last) => route.handleTutorRequest({ body: {
+  const ask = (last, tutorSaid) => route.handleTutorRequest({ body: {
     subject: 'science', topicKey: 'chemical-reactions-and-equations', topicLabel: 'Chemical Reactions and Equations', anchorQuestion: ANCHOR_IN,
-    messages: [{ role: 'student', content: 'hi' }, { role: 'tutor', content: 'It is (iii).' }, { role: 'student', content: last }],
+    messages: [{ role: 'student', content: 'hi' }, { role: 'tutor', content: tutorSaid }, { role: 'student', content: last }],
   } }, {});
-  await ask('there are two correct options');
-  await ask('explain oxidation numbers');
+  await ask('there are two correct options', 'It is (iii).');
+  await ask('explain oxidation numbers', 'The answer is option C, (i) and (iii).');
   assert.match(seen[0], /OFFICIAL ANSWER KEY, are in your instructions/);
   assert.doesNotMatch(seen[1], /OFFICIAL ANSWER KEY, are in your instructions/);
-  assert.match(seen[1], /The key above is FINAL/); // the system block still applies every turn
+  assert.match(seen[1], /The key above is final/); // the system block still applies every turn
 });
