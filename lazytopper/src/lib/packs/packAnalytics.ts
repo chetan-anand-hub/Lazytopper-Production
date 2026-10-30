@@ -33,6 +33,12 @@ export interface PackCheckoutDetails {
   valueInr: number | null;
 }
 
+/** The GA4 ecommerce item: sku, name, the rupee price when known, and quantity 1 (a pack is bought one at a time). */
+function packItem(d: PackCheckoutDetails): Record<string, unknown> {
+  const price = typeof d.valueInr === "number" && Number.isFinite(d.valueInr) && d.valueInr > 0 ? d.valueInr : null;
+  return { item_id: d.sku, item_name: d.itemName, ...(price === null ? {} : { price }), quantity: 1 };
+}
+
 function packMoney(d: PackCheckoutDetails): Record<string, unknown> {
   const value = typeof d.valueInr === "number" && Number.isFinite(d.valueInr) && d.valueInr > 0 ? d.valueInr : null;
   return value === null ? { currency: CHECKOUT_CURRENCY } : { currency: CHECKOUT_CURRENCY, value };
@@ -73,7 +79,7 @@ export function trackPackCheckout(details: PackCheckoutDetails): void {
   try {
     const money = packMoney(details);
     sendAnalyticsHit("event", { name: "pack_checkout", data: { ...money, sku: details.sku } }, { ga4: { ...money, sku: details.sku } });
-    sendGa4Only("begin_checkout", { ...money, items: [{ item_id: details.sku, item_name: details.itemName }] });
+    sendGa4Only("begin_checkout", { ...money, items: [packItem(details)] });
   } catch {
     /* analytics must never break the page */
   }
@@ -90,7 +96,7 @@ export function trackPackPurchase(details: PackCheckoutDetails & { transactionId
     sendGa4Only("purchase", {
       transaction_id: id,
       ...money,
-      items: [{ item_id: details.sku, item_name: details.itemName }],
+      items: [packItem(details)],
     });
   } catch {
     /* analytics must never break the page */

@@ -311,33 +311,37 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const attemptId = newCheckoutAttemptId();
     trackPackCheckout(details);
     const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
-    if (!mounted.current) return;
+    // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
+    // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
     if (outcome.status === "paid") {
       trackPackPurchase({ ...details, valueInr: outcome.amountInr ?? details.valueInr, transactionId: outcome.paymentId || attemptId });
+    }
+    if (!mounted.current && outcome.status !== "pending") return;
+    if (outcome.status === "paid") {
       setBuy({ key, phase: "paid" });
       await loadMine();
       myPacksRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
     } else if (outcome.status === "pending") {
-      setBuy({ key, phase: "checking" });
+      if (mounted.current) setBuy({ key, phase: "checking" });
       let settled = false;
       let elapsed = 0;
       for (const at of POLL_DELAYS_MS) {
         const wait = Math.max(0, at - elapsed);
         elapsed = Math.max(elapsed, at);
         if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-        if (!mounted.current) return;
+        // PURCHASE-EVENT-1: keep checking after an unmount too, so a payment the server confirms late is still counted once.
         const status = await checkPackOrder(outcome.orderId);
-        if (!mounted.current) return;
         if (status.state === "paid") {
           trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.paymentId || outcome.paymentId || attemptId });
           settled = true;
           break;
         }
         if (status.state === "expired") {
-          setBuy({ key, phase: "expired" });
+          if (mounted.current) setBuy({ key, phase: "expired" });
           return;
         }
       }
+      if (!mounted.current) return;
       if (settled) {
         setBuy({ key, phase: "paid" });
         await loadMine();

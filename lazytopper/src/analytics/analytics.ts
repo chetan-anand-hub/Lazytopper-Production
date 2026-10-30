@@ -960,7 +960,7 @@ function checkoutParams(d: CheckoutDetails): { vercel: Record<string, unknown>; 
   const payer: Record<string, unknown> = d.payer === "parent" ? { payer: "parent" } : {};
   return {
     vercel: { ...money, pass: d.passType, ...payer },
-    ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName }], ...payer },
+    ga4: { ...money, items: [{ item_id: d.passType, item_name: d.itemName, ...(value === null ? {} : { price: value }), quantity: 1 }], ...payer },
     meta: money,
   };
 }

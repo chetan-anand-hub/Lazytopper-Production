@@ -79,7 +79,7 @@ describe("pack analytics", () => {
     expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 299 }]]);
     const purchases = gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase");
     expect(purchases).toHaveLength(1);
-    expect(purchases[0][2]).toMatchObject({ transaction_id: "pay_1", currency: "INR", value: 299, items: [{ item_id: "pack_bundle" }] });
+    expect(purchases[0][2]).toMatchObject({ transaction_id: "pay_1", currency: "INR", value: 299, items: [{ item_id: "pack_bundle", price: 299, quantity: 1 }] });
     expect(ga4Names()).toContain("pack_purchase");
     expect(metaCalls.some((c) => c[1] === "Purchase")).toBe(false);
   });
