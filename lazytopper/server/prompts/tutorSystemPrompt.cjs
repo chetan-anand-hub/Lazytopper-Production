@@ -1044,7 +1044,9 @@ function figurePanelBlock(figures) {
     ncertPageDirective +
     `\nWHEN THE STUDENT ASKS TO SEE THE NCERT PAGE OR DIAGRAM ("show me the NCERT page", "show me with the NCERT ` +
     `diagram", "NCERT figure for this"): if a concept in the list above fits what they are asking about, emit ` +
-    `that concept's \`[[figure:<key>]]\` THIS turn (one tag, on its own line) and tell them it is in the panel. ` +
+    `that concept's \`[[figure:<key>]]\` THIS turn (one tag, on its own line). Say the real NCERT page is in the ` +
+    `panel ONLY if the key you chose is marked [real NCERT page available]; for a key without that marker, just ` +
+    `emit the tag and describe the diagram, with no claim about an NCERT page. ` +
     `★ NEVER say "I cannot show you the NCERT page" (or "I can only give you the wording") when a listed concept ` +
     `fits and is marked [real NCERT page available] — that is false, the app shows it.\n` +
     NCERT_NO_FIT_RULE

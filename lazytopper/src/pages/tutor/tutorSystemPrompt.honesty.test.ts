@@ -135,6 +135,12 @@ describe("TUTOR-MIND-4 - NCERT page honesty", () => {
     expect(p).toContain("- sign-convention-new-cartesian: Sign convention (New Cartesian) [real NCERT page available]");
   });
 
+  it("the NCERT-page claim is tied to the marker: only for a key marked [real NCERT page available]", () => {
+    const p = build({ figures: LIGHT });
+    expect(p).toMatch(/Say the real NCERT page is in the panel ONLY if the key you chose is marked \[real NCERT page available\]; for a key without that marker, just emit the tag and describe the diagram, with no claim about an NCERT page/);
+    expect(p).not.toMatch(/and tell them it is in the panel/);
+  });
+
   it("when nothing fits: never claims the app cannot show NCERT; plain 'no NCERT figure for this exact idea'; words only (no panel, button, page number)", () => {
     for (const p of [build({ figures: LIGHT }), build({ figures: [] }), build()]) {
       expect(p).toMatch(/IF NOTHING LISTED FITS[^]*never claim the app cannot show NCERT pages at all/);
