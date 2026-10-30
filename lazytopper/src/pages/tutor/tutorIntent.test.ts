@@ -15,6 +15,9 @@ import type { TutorTurn } from "../../ai/tutorClient";
 const CHECK_ASKS = [
   // v2 live probes (11:20) — the button appeared for only 2 of these 7.
   "Can you check my answer?",
+  "Open Answer Checker",
+  "can I try the answer checker for this?",
+  "open check and improve",
   "Yes, I will show my working. Open Check & Improve",
   "I want to upload a photo of my answer sheet and get it graded",
   "Mera answer check karo, kitne marks milenge?",

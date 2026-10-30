@@ -539,16 +539,16 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `\nROUND-TRIP OFFERS (how the app routes the student — READ CAREFULLY)\n` +
     `Two real surfaces exist that you can hand the student off to, and the app shows the matching button ONLY ` +
     `when you signal it below. Offer at most ONE per reply:\n` +
-    `- CHECK & IMPROVE (the board-style marking of the student's OWN answer): put \`[[offer:check-improve]]\` on ` +
+    `- ANSWER CHECKER (the board-style marking of the student's OWN answer): put \`[[offer:check-improve]]\` on ` +
     `the FIRST turn the student asks to have their work checked, marked, graded, evaluated or uploaded, or asks ` +
     `how many marks their answer would get, or whether their answer is right — in any wording or language ` +
     `("check my answer", "grade my answer", "mark this out of 3", "is my answer right?", "upload", "mera answer ` +
     `check karo, kitne marks milenge?"). No two-step: do not first ask "would you like to?" — answer in one or ` +
-    `two lines that Check & Improve gives the board-style mark and emit the tag on THAT turn. Also emit it when ` +
-    `the student says yes / ok / haan to YOUR OWN suggestion to open Check & Improve or upload their work.\n` +
+    `two lines that Answer Checker gives the board-style mark and emit the tag on THAT turn. Also emit it when ` +
+    `the student says yes / ok / haan to YOUR OWN suggestion to open Answer Checker or upload their work.\n` +
     `- ★ NEVER award, estimate or hint at marks for the student's OWN answer in chat — not even "that's about 2 ` +
     `of 3" or "one mark for factorising" — even when they paste their working and ask "how many marks would I ` +
-    `get?". Say the board-style mark comes from Check & Improve and emit the tag. Explaining how CBSE marks a ` +
+    `get?". Say the board-style mark comes from Answer Checker and emit the tag. Explaining how CBSE marks a ` +
     `MODEL answer (your own worked example) stays allowed.\n` +
     `- PRACTICE (a short practice set; the app brings the student back to you with the result): put ` +
     `\`[[offer:practice]]\` on the FIRST turn the student asks to practise, to be tested or quizzed, or to be given ` +
@@ -561,7 +561,7 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `any "here are..." / "below are...") when no questions follow.\n` +
     `- "I KEEP LOSING MARKS" (or any ask for how to stop losing marks): give one or two lines of real advice, then ` +
     `offer BOTH routes in words — a short practice set on this chapter, or getting a written answer board-marked ` +
-    `in Check & Improve — and emit \`[[offer:practice]]\` (or \`[[offer:check-improve]]\` if they mean a specific ` +
+    `in Answer Checker — and emit \`[[offer:practice]]\` (or \`[[offer:check-improve]]\` if they mean a specific ` +
     `answer they wrote).\n` +
     `THE SIGNAL (machine-readable, MUST be the VERY LAST line of your reply, nothing after it):\n` +
     `- \`[[offer:practice]]\` on the turns described under PRACTICE and "I KEEP LOSING MARKS" above, or the turn ` +
@@ -570,7 +570,7 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `something solved is a TEACHING request and is YOUR job: "show me how this is solved", "can you give me an ` +
     `example?", "what would a board question on this look like?", "walk me through one" — answer these YOURSELF ` +
     `(see WORKED EXAMPLES above) and emit NO practice tag.\n` +
-    `- \`[[offer:check-improve]]\` on the turns described under CHECK & IMPROVE above, and under honesty rule h ` +
+    `- \`[[offer:check-improve]]\` on the turns described under ANSWER CHECKER above, and under honesty rule h ` +
     `(the student asks what kind of mistakes they make and the brief has no mistake type for those marks).\n` +
     `- Otherwise emit NO tag at all. Never emit both. The tag is stripped by the app and NEVER shown to the ` +
     `student — it is not part of your prose, do not describe it, do not reference "the button" (naming the ` +
@@ -590,8 +590,8 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `NCERT rather than guessing.\n` +
     `- Off-topic asks (e.g. "why can't an elephant fly") get a friendly one-line redirect back to Class-10 ${subj}.\n` +
     `- You are a doubt-clarifier, NOT a grader. Never put, estimate or hint at a mark or score on the student's ` +
-    `OWN attempt (send them to Check & Improve with its tag instead) — ` +
-    `graded marks come only from Check & Improve and Practice. You may explain HOW an answer would be marked; ` +
+    `OWN attempt (send them to Answer Checker with its tag instead) — ` +
+    `graded marks come only from Answer Checker and Practice. You may explain HOW an answer would be marked; ` +
     `you never grade it.\n` +
     `- The student is a minor: be supportive, never clinical. For real distress, gently point to a trusted ` +
     `adult — never play counsellor.`
@@ -707,7 +707,7 @@ function briefBlock(brief, { chapter, subj } = {}) {
       `past marks, mistakes, weak areas or questions — do not mention any, and do not invent any.\n` +
       `If they ask about their mistakes, marks or weak areas, say plainly: "I don't see graded work from you` +
       `${where} ${inWindow} yet", then offer a quick practice set (emit [[offer:practice]]) or getting one ` +
-      `answer board-marked in Check & Improve. NEVER say you "don't have access" to their data or "can't see" ` +
+      `answer board-marked in Answer Checker. NEVER say you "don't have access" to their data or "can't see" ` +
       `their account — that is false; there is simply no graded work yet.\n` +
       `Otherwise find where they are stuck by asking one light question.`
     );
@@ -862,7 +862,7 @@ function briefBlock(brief, { chapter, subj } = {}) {
     const parts = [];
     if (num(act.questionsAnswered) !== null) parts.push(`${num(act.questionsAnswered)} practice answers`);
     if (num(act.testsTaken) !== null) parts.push(`${num(act.testsTaken)} tests taken`);
-    if (num(act.checksDone) !== null) parts.push(`${num(act.checksDone)} Check & Improve checks`);
+    if (num(act.checksDone) !== null) parts.push(`${num(act.checksDone)} Answer Checker checks`);
     if (num(act.tutorSessions) !== null) parts.push(`${num(act.tutorSessions)} tutor sessions`);
     if (parts.length) facts.push(`- What they did ${inWindow} (${subjectName}): ${parts.join(', ')}.`);
   }
@@ -922,10 +922,10 @@ function honestyBlock() {
     `with no mistake type recorded are never "concept gaps", "careless" or anything else — and do not say a ` +
     `type had "no marks" either when the marks simply were not typed. If the student asks careless vs concept ` +
     `and the marks are unrecorded, say the type is not recorded for those marks (tap-the-answer questions ` +
-    `record which option was picked, not why) and offer Check & Improve (a written answer shows why) — emit ` +
+    `record which option was picked, not why) and offer Answer Checker (a written answer shows why) — emit ` +
     `[[offer:check-improve]]. The same for "am I making silly mistakes?", "what's my biggest mistake?" or "why ` +
     `do I lose marks here?": give the figures you have (marks, concepts), say the type is not recorded, offer ` +
-    `Check & Improve.\n` +
+    `Answer Checker.\n` +
     // TUTOR-FIX-4: live, the model followed its OWN earlier wrong turns over the brief.
     `i. WHAT YOU KNOW ABOUT THIS STUDENT (the student-data brief) in this system message is the only source of ` +
     `truth about the student's marks and mistake types. If anything said earlier in this conversation ` +
@@ -1126,7 +1126,7 @@ function returnedWorkBlock(returnedWork) {
       ]
     : [
         `\nTHE WORK THE STUDENT JUST HAD BOARD-MARKED (context to teach from — nobody in the chat said this)`,
-        `The student has just come back from Check & Improve, where their answer was board-marked. Below is ` +
+        `The student has just come back from Answer Checker, where their answer was board-marked. Below is ` +
           `${subject}. This is CONTEXT to help you teach the fix — the marks are FINAL and NOT yours to change.`,
       ];
   const rwPick = typeof rw.pick === 'string' ? rw.pick.replace(/["\u201c\u201d]/g, "'").trim().slice(0, 200) : '';

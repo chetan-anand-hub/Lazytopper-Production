@@ -92,7 +92,7 @@ describe("T11 — offers on the first ask; the tutor never grades or quizzes in 
   it("check-improve on the first ask, and on a yes to the tutor's own offer", () => {
     expect(p).toMatch(/put `\[\[offer:check-improve\]\]` on the FIRST turn the student asks/);
     expect(p).toMatch(/No two-step/);
-    expect(p).toMatch(/says yes \/ ok \/ haan to YOUR OWN suggestion to open Check & Improve/);
+    expect(p).toMatch(/says yes \/ ok \/ haan to YOUR OWN suggestion to open Answer Checker/);
   });
   it("never awards or estimates marks for the student's own answer", () => {
     expect(p).toMatch(/NEVER award, estimate or hint at marks for the student's OWN answer/);
