@@ -6,7 +6,7 @@
  * gate (below it nothing names a weakness), and the size cap. No cloud, no clock.
  */
 import { describe, it, expect } from "vitest";
-import { BRIEF_BYTE_BUDGET, briefFromModel, fitBriefSize } from "./tutorContextBrief";
+import { BRIEF_BYTE_BUDGET, briefFromModel, fitBriefSize, recentBankIdsOf } from "./tutorContextBrief";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import type { StudyReadModel } from "../../services/progressReadModel";
 import type { MistakeLogEntry } from "../../services/mistakeLogService";
@@ -250,5 +250,42 @@ describe("TUTOR-MIND-1 · the budget counts UTF-8 bytes", () => {
     const budget = chars + 200; // above the char length, below the byte length
     const fitted = fitBriefSize(make(), budget);
     expect(new TextEncoder().encode(JSON.stringify(fitted)).length).toBeLessThanOrEqual(budget);
+  });
+});
+
+describe("TUTOR-PAPER-STEMS-1 · paper mistakes resolve to a bank stem only through aligned evidence", () => {
+  const STEM_MAP = new Map([["bank-1", "Bare stem."], ["bank-ws", "Worksheet stem."], ["bank-ct", "Test stem."], ["bank-fm", "Mock stem."]]);
+  const withEvidence = (qids: string[], map: Record<string, string>): StudyReadModel => {
+    const m = subjectModel();
+    m.mistakes.byChapter["real-numbers"] = qids.map((q, i) => entry(String(i), q, 1, i + 1));
+    (m.progress as unknown as { conceptEvidence: unknown }).conceptEvidence = { bankIdBySessionQid: map, fullyCorrect: {} };
+    return m;
+  };
+  const cases: Array<[string, string, Record<string, string>, string, string | undefined]> = [
+    ["bare bank id", "bank-1", {}, "Q-none", "Bare stem."],
+    ["ws: resolved", "ws:W1:q3", { "ws:W1:q3": "bank-ws" }, "Q3", "Worksheet stem."],
+    ["ct: resolved", "ct:C1:q7", { "ct:C1:q7": "bank-ct" }, "Q7", "Test stem."],
+    ["fm: resolved", "fm:F1:q12", { "fm:F1:q12": "bank-fm" }, "Q12", "Mock stem."],
+    ["ws: no evidence", "ws:W1:q3", {}, "Q3", undefined],
+    ["ci: free-typed", "ci:X:q1", {}, "Q1", undefined],
+    ["ci: even if map names it only for ws", "ci:X:q1", { "ws:X:q1": "bank-ws" }, "Q1", undefined],
+  ];
+  it.each(cases)("%s", (_n, qid, map, id, stem) => {
+    const m = withEvidence([qid], map);
+    const r = briefFromModel(m, "real-numbers", chapterModel(), { questionTextById: STEM_MAP }).chapter!.recent!;
+    expect(r).toHaveLength(1);
+    if (id !== "Q-none") expect(r[0].id).toBe(id);
+    expect(r[0].question).toBe(stem);
+    expect(r[0].surface).toBe("quick-practice");
+    expect(recentBankIdsOf(m, "real-numbers")).toEqual(stem ? [qid.includes(":") ? map[qid] : qid] : qid.includes(":") ? [] : [qid]);
+  });
+
+  it("budget: MAX_RECENT long paper stems still fit after fitBriefSize", () => {
+    const qids = [1, 2, 3, 4, 5].map((n) => `ct:C1:q${n}`);
+    const map = Object.fromEntries(qids.map((q, i) => [q, `b${i}`]));
+    const stems = new Map(qids.map((_q, i) => [`b${i}`, "z".repeat(400)]));
+    const b = briefFromModel(withEvidence(qids, map), "real-numbers", chapterModel(), { progress: PROGRESS, examConcepts: EXAM, questionTextById: stems });
+    expect(b.chapter!.recent!.every((x) => x.question?.length === 300)).toBe(true);
+    expect(new TextEncoder().encode(JSON.stringify(fitBriefSize(b))).length).toBeLessThan(BRIEF_BYTE_BUDGET);
   });
 });

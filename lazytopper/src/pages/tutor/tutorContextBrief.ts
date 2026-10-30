@@ -18,6 +18,9 @@
 // its raw label) — and only above Me's weakness gate (PR-2b), or nothing. Names only, no figure.
 
 //
+// TUTOR-PAPER-STEMS-1 — a Worksheet / Chapter Test / Full Mock mistake (`ws:/ct:/fm:` id) now carries
+// OUR bank stem too, when (and only when) the subject read's aligned evidence resolves it to a bank id.
+//
 // TUTOR-FIX-2 (T2) — THE CHAPTER-CORRECT BRIEF. The subject read above gave `marksLostRecent` =
 // the PAPER total (so Trigonometry and Real Numbers both said 100.5), and the weak concepts came
 // from mistake rows needing a bank questionId (so Real Numbers named nothing while Me listed
@@ -37,6 +40,7 @@
 
 import {
   ME_DEFAULT_WINDOW,
+  bankIdOfMistake,
   boardChapterKey,
   mistakeLossByGroup,
   readStudyModel,
@@ -46,7 +50,7 @@ import {
   type ReadWindow,
   type StudyReadModel,
 } from "../../services/progressReadModel";
-import { TOPIC_HUB_TREND_WINDOW, WINDOW_DAYS, getTopicTrendFromCloud, isShortSpan } from "../../services/progressStore";
+import { TOPIC_HUB_TREND_WINDOW, WINDOW_DAYS, getTopicTrendFromCloud, isShortSpan, type ConceptEvidence } from "../../services/progressStore";
 import { lostMarksOf, splitPaperMarks, viewRowsFrom } from "../../services/meSplit";
 import { istDayKey } from "../../services/tutorSessionStore";
 import type { MistakeLogEntry } from "../../services/mistakeLogService";
@@ -248,6 +252,7 @@ function recentOf(
   e: MistakeLogEntry,
   i: number,
   questionTextById?: ReadonlyMap<string, string>,
+  evidence?: ConceptEvidence,
 ): NonNullable<TutorBriefChapter["recent"]>[number] {
   const qid = String(e.questionId ?? "").trim();
   const synthetic = SYNTHETIC_QID.exec(qid);
@@ -259,8 +264,11 @@ function recentOf(
   const top = topLossGroup(split);
   const group = top ? CONTRACT_GROUP[top] : split.notAttempted > 0 ? "notAttempted" : undefined;
   const ts = Date.parse(String(e.timestamp ?? ""));
-  // TUTOR-MIND-1 (B3) — OUR bank stem, only for a bare bank id (a paper's synthetic id never resolves).
-  const stem = !synthetic && qid ? questionTextById?.get(qid) : undefined;
+  // TUTOR-MIND-1 (B3) + TUTOR-PAPER-STEMS-1 — OUR bank stem for the mistake's RESOLVED bank id: a bare
+  // bank id as is; a paper's synthetic id (`ws:/ct:/fm:`) only through the aligned record the read
+  // model already keeps (`bankIdOfMistake`). Unresolved (free-typed `ci:`, no evidence) -> no stem.
+  const bankId = bankIdOfMistake(e, evidence);
+  const stem = bankId ? questionTextById?.get(bankId) : undefined;
   const question = stem ? stem.replace(/\s+/g, " ").trim().slice(0, MAX_QUESTION_CHARS) : "";
   return {
     id,
@@ -310,7 +318,7 @@ export function chapterBlockOf(
     const recent = entries
       .filter((e) => (Number(e.marksLost) || 0) > 0)
       .slice(0, MAX_RECENT)
-      .map((e, i) => recentOf(e, i, extras.questionTextById));
+      .map((e, i) => recentOf(e, i, extras.questionTextById, model.progress.conceptEvidence));
     if (recent.length) chapter.recent = recent;
   }
   // TUTOR-MIND-1 (B2) — the Topic Hub's own before->now: not a weakness, so not under the naming gate.
@@ -426,6 +434,16 @@ export function fitBriefSize(brief: TutorBrief, budget: number = BRIEF_BYTE_BUDG
   return brief;
 }
 
+/** The bank ids of the chapter's recent mistakes (bare ids as is; paper ids through the subject read's evidence). */
+export function recentBankIdsOf(model: StudyReadModel, chapterKey: string): string[] {
+  const ids = (model.mistakes.byChapter[chapterKey] ?? [])
+    .filter((e) => (Number(e.marksLost) || 0) > 0)
+    .slice(0, MAX_RECENT)
+    .map((e) => bankIdOfMistake(e, model.progress.conceptEvidence) ?? "")
+    .filter(Boolean);
+  return [...new Set(ids)];
+}
+
 /** The chapter's OUR-bank stems by bare id (B3). Honest-or-silent: a failed load gives none. */
 async function bankStemsFor(chapterKey: string, ids: readonly string[]): Promise<Map<string, string>> {
   const out = new Map<string, string>();
@@ -501,11 +519,9 @@ export async function assembleTutorBrief({
     // TUTOR-MIND-1 — the extras the pure builder cannot read itself; each degrades to "omitted".
     const extras: BriefExtras = {};
     if (chapterKey && chapterModel) {
-      const ids = (model.mistakes.byChapter[chapterKey] ?? [])
-        .filter((e) => (Number(e.marksLost) || 0) > 0)
-        .slice(0, MAX_RECENT)
-        .map((e) => String(e.questionId ?? "").trim())
-        .filter(Boolean);
+      // TUTOR-PAPER-STEMS-1 — the subject read (the one that carries the mistakes) also carries the
+      // aligned paper evidence, so a worksheet / test / mock mistake resolves to its bank id here.
+      const ids = recentBankIdsOf(model, chapterKey);
       // The three independent reads run together (the first send waits on this brief).
       const [progress, names, stems] = await Promise.all([
         topicHubProgress(chapterKey, uid, nowMs),
