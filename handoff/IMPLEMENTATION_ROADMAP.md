@@ -1,3 +1,15 @@
+## 2026-10-30 (daily) - PURCHASE-EVENT-1 (`#1425`), TUTOR-MIND-4 (`#1422`), LLMS-MARKETING-1 (`#1424`), TUTOR-UX-1 (`#1426`), PACK-FORMATS-1 (`#1423`), CBQ-SEO-1 (`#1427`), CI-GREEN-1 (`#1428`), CBQ-SEO-FIX-1 (`#1429`), PARENTS-PAID-PACKS-1 (`#1430`), CI-GREEN-2 (`#1432`), TUTOR-PAPER-STEMS-1 (`#1431`) - MERGED
+
+- DONE. `#1425` (`a0c5790e`): every verified pack payment is one GA4 `purchase`. NEXT: read GA4 revenue against captured payments.
+- DONE. `#1422` (`38d92a61`), `#1426` (`9e961c9f`): tutor NCERT honesty, Hinglish, weightage; caption and arrival fixes. NEXT: `[FU-TUTOR-HINGLISH-DETECTOR-TOKENS]` stands.
+- DONE. `#1424` (`b63ccabe`): llms.txt markets Premium and packs. `#1423` (`f73dbce3`): pack formats row.
+- DONE. `#1427` (`f886d023`), `#1429` (`98913b8d`): CBQ hub and 26 chapter pages, Premium-first, real 404. NEXT: GSC indexing (`[FU-GSC-CHEM-REACTIONS-RETRY]`), the 2 Nov ads landing-page comparison.
+- DONE. `#1428` (`1e3758b5`), `#1432` (`3b9348cb`): CI flakes fixed. NEXT: `[FU-ME-V7-VACUOUS-ABSENCE]`.
+- DONE. `#1430` (`ce3bc72b`): closes `[FU-PARENTS-PAID-HIDDEN]`.
+- DONE. `#1431` (`0b37b4b1`, trunk): closes `[FU-TUTOR-PAPER-STEMS]`. NEXT: `[FU-TUTOR-STEMS-E2E-TEST]`, `[FU-TUTOR-STEMS-SUBPART]`.
+- NEXT (product): `[FU-ACTIVATION-ONE-MINUTE]` once the owner picks the plan.
+- IN FLIGHT: `#1399` MISTAKE-CALC-1 (draft, HELD; baseline not run).
+
 ## 2026-10-30 (daily add-on to #1416) - #1417 - #1418 - TUTOR-MIND-2 (`#1417`), TUTOR-MIND-3 (`#1418`) - MERGED
 
 - DONE. `#1417` (`c6f33387`): TUTOR-MIND-2 - scored wording, deterministic Hinglish, history hygiene, human tone, bold. NEXT: `[FU-TUTOR-HINGLISH-DETECTOR-TOKENS]`.
