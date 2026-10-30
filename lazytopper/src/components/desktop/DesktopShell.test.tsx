@@ -79,7 +79,7 @@ describe("DesktopShell rail — the six routed destinations (anti-regression)", 
       ["Exam Trends", "/exam-trends"],
       ["Practice", "/practice-hub"],
       ["NCERT Books", "/ncert-class-10"],
-      ["Check & Improve", "/check-improve"],
+      ["Answer Checker", "/check-improve"],
       ["Me / Progress", "/me"],
     ]);
   });

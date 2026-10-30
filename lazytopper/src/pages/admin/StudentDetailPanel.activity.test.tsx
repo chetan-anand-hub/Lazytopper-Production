@@ -88,12 +88,12 @@ describe("StudentDetailPanel — Pages visited + Activity (F3)", () => {
     expect(within(day).getByText("Activity")).toBeTruthy();
 
     const rows = within(within(day).getByTestId("sa-pages")).getAllByRole("row").slice(1);
-    expect(rows.map((r) => r.textContent)).toEqual(["Notes → Trigonometry3", "Check & Improve1"]);
+    expect(rows.map((r) => r.textContent)).toEqual(["Notes → Trigonometry3", "Answer Checker1"]);
 
     const items = within(within(day).getByTestId("sa-feed")).getAllByRole("listitem");
     expect(items.map((li) => li.textContent)).toEqual([
       "10:00 amOpened Notes → Trigonometry",
-      "10:02 amOpened Check & Improve",
+      "10:02 amOpened Answer Checker",
       "10:03 amChecked an answer",
     ]);
     expect(within(day).getByText(/Only the first 3 entries of this day are listed/)).toBeTruthy();

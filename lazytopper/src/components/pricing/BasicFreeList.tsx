@@ -67,7 +67,7 @@ export const FREE_FEATURES = [
   { label: "Practice picker and limited practice", included: true },
   { label: "Limited worksheet generation", included: true },
   { label: "Basic topic insights", included: true },
-  { label: "Solution Checker / Check & Improve", included: false },
+  { label: "Solution Checker / Answer Checker", included: false },
   { label: "Deep Mistake Intelligence", included: false },
   // FRICTION-FIX-1 · F2 (P7) — mock papers ARE free, within MockViewGate's daily limits,
   // which are imported (config/mockViewLimits.ts), never typed here.

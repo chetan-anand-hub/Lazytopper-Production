@@ -1050,7 +1050,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       // pinned bar carries the ✕; its handler is payload-aware off `scorecardOpen` (§4.1).
       <>
         <div style={overlayCloseBarStyle}>
-          <span style={overlayCloseEyebrowStyle}>Check &amp; Improve</span>
+          <span style={overlayCloseEyebrowStyle}>Answer Checker</span>
           <button
             type="button"
             style={overlayCloseButtonStyle}
@@ -1927,8 +1927,8 @@ const DesktopCheckImprovePageInner: React.FC<{
     const singleGraded = isGradedQuestion(result);
     return {
       code,
-      name: `${resultCtx.topicName || resultCtx.subject} · Check & Improve`,
-      metaLine: `Check & Improve · ${resultCtx.marks} mark${resultCtx.marks === 1 ? "" : "s"}`,
+      name: `${resultCtx.topicName || resultCtx.subject} · Answer Checker`,
+      metaLine: `Answer Checker · ${resultCtx.marks} mark${resultCtx.marks === 1 ? "" : "s"}`,
       questions: [
         {
           questionText: resultCtx.question,
@@ -1980,8 +1980,8 @@ const DesktopCheckImprovePageInner: React.FC<{
     const pm = paperMarksLost(ws.results);
     return {
       code,
-      name: `${ciPaperMixLabel(ws) || confirmed?.topicName || confirmed?.subject || "Check & Improve"} · Check & Improve paper`,
-      metaLine: `Check & Improve · ${ws.totalQuestions} question${ws.totalQuestions === 1 ? "" : "s"} · ${ws.worksheetTotalMarks} marks`,
+      name: `${ciPaperMixLabel(ws) || confirmed?.topicName || confirmed?.subject || "Answer Checker"} · Answer Checker paper`,
+      metaLine: `Answer Checker · ${ws.totalQuestions} question${ws.totalQuestions === 1 ? "" : "s"} · ${ws.worksheetTotalMarks} marks`,
       questions,
       gradedMarksAwarded: ws.gradedMarksAwarded,
       gradedMarksTotal: ws.gradedMarksTotal,
@@ -2317,7 +2317,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       const persistOutcome = persistCheckImproveSession({
         user,
         code: sessionCode,
-        title: mixLabel ? `${mixLabel} · ${sessionCode}` : sessionTitle ?? `Check & Improve · ${sessionCode}`,
+        title: mixLabel ? `${mixLabel} · ${sessionCode}` : sessionTitle ?? `Answer Checker · ${sessionCode}`,
         subject: sessionSubject,
         topicSlug: paperMixed ? "" : confirmed.topicSlug,
         topicSource,
@@ -2590,7 +2590,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       const persistOutcome = persistCheckImproveSession({
         user,
         code: sessionCode,
-        title: sessionTitle ?? `Check & Improve · ${sessionCode}`,
+        title: sessionTitle ?? `Answer Checker · ${sessionCode}`,
         subject: sessionSubject,
         topicSlug: confirmed.topicSlug,
         topicSource,
@@ -3786,7 +3786,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         <PageHeader
           showBack
           onBack={resetToInput}
-          eyebrow="Check & Improve · Graded paper"
+          eyebrow="Answer Checker · Graded paper"
           title={`${ciCode ?? "Graded paper"} · ${ws.gradedCount}/${paperCut ? paperCut.total : ws.totalQuestions} graded`}
           description="Examiner-style grading of your whole question paper. Any page we couldn't read is marked pending — it is never scored 0."
           actions={
@@ -4095,7 +4095,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         <PageHeader
           showBack
           onBack={resetToInput}
-          eyebrow="Check & Improve · Not graded"
+          eyebrow="Answer Checker · Not graded"
           title={`${resultCtx.topicName || resultCtx.subject} · ${
             resultCtx.question.length > 60 ? resultCtx.question.slice(0, 57) + "…" : resultCtx.question
           }`}
@@ -4152,7 +4152,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       <PageHeader
         showBack
         onBack={resetToInput}
-        eyebrow="Check & Improve · Graded result"
+        eyebrow="Answer Checker · Graded result"
         title={`${resultCtx.topicName || resultCtx.subject} · ${
           resultCtx.question.length > 60
             ? resultCtx.question.slice(0, 57) + "…"
@@ -4579,7 +4579,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             </div>
             <p style={{ margin: "12px 0 0", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
               All links route inside the production app and remember you came
-              from Check &amp; Improve.
+              from Answer Checker.
             </p>
           </div>
 
@@ -4643,7 +4643,7 @@ const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> 
   !overlay && isFreeCheckClientEnabled() ? (
     <FreeCheckCheckImprovePage />
   ) : (
-    <RequirePremium featureLabel="Check & Improve">
+    <RequirePremium featureLabel="Answer Checker">
       <DesktopCheckImprovePageInner overlay={overlay} />
     </RequirePremium>
   );
@@ -4689,7 +4689,7 @@ const FreeCheckCheckImprovePage: React.FC = () => {
   const [offerClosed, setOfferClosed] = useState(false);
 
   const gated = (
-    <RequirePremium featureLabel="Check & Improve">
+    <RequirePremium featureLabel="Answer Checker">
       <DesktopCheckImprovePageInner />
     </RequirePremium>
   );

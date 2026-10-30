@@ -40,7 +40,7 @@ describe("RequirePremium — provider-agnostic, and the overlay survives the wra
 
     const { container } = render(
       <MemoryRouter>
-        <RequirePremium featureLabel="Check & Improve">
+        <RequirePremium featureLabel="Answer Checker">
           <div>gated content</div>
         </RequirePremium>
       </MemoryRouter>,

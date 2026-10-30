@@ -105,7 +105,7 @@ describe("WorksheetGenerator — smart-default hero + honest MI toggle", () => {
     );
     const mi = getByTestId("mi-enrich-box");
     expect(mi.className).toContain("locked");
-    expect(mi.textContent).toMatch(/Check & Improve|grade a worksheet/i);
+    expect(mi.textContent).toMatch(/Answer Checker|grade a worksheet/i);
     expect(mi.querySelector('[role="switch"]')).toBeNull();
   });
 });

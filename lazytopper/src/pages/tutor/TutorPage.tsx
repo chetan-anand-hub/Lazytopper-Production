@@ -681,7 +681,7 @@ function TutorSession() {
               </button>
             </div>
             <div className="lt-tutor__foot">
-              CBSE Class-10 · NCERT-grounded · graded work stays in Check &amp; Improve / Practice
+              CBSE Class-10 · NCERT-grounded · graded work stays in Answer Checker / Practice
             </div>
           </form>
           </div>

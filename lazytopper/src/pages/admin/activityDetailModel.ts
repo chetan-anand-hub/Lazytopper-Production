@@ -41,7 +41,7 @@ const STATIC_PAGE_LABELS: Record<string, string> = {
   "practice/worksheets": "Worksheets",
   "practice/worksheets/ready": "Worksheets (ready)",
   "weak-area-practice": "Weak-area practice",
-  "check-improve": "Check & Improve",
+  "check-improve": "Answer Checker",
   "exam-trends": "Exam Trends",
   me: "Me / Progress",
   "mock-paper/other": "Mock paper",
@@ -169,7 +169,7 @@ const EVENT_LABELS: Record<string, string> = {
   // SHARE-CARD-1 — any surface, size (story / square) or channel (sheet, WhatsApp, Instagram, download).
   scorecard_share: "Shared a scorecard image",
   // CI-SOFT-1 — the Check & Improve "pick a board question, watch it get marked" card (display only).
-  ci_demo_shown: "Saw the sample-marking card on Check & Improve",
+  ci_demo_shown: "Saw the sample-marking card on Answer Checker",
   ci_demo_pick: "Picked a sample board question to watch marked",
   ci_demo_result: "Watched a sample answer get marked to the end",
   ci_demo_check_own: "Tapped Check my own answer after a sample",

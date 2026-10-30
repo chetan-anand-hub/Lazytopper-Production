@@ -422,7 +422,7 @@ export default function StudentsAdminPage() {
             <>
               <p className="sa-note">
                 Days active and last active are recorded since {formatDayKey(list.data.sources.activityLog.since)}. C&amp;I
-                sessions (one per checked Check &amp; Improve paper, however many questions it had) and tests taken (chapter tests + full mocks) are counted since{" "}
+                sessions (one per checked Answer Checker paper, however many questions it had) and tests taken (chapter tests + full mocks) are counted since{" "}
                 {formatDayKey(list.data.sources.sessionRecords.since)}. “—” means not recorded, not zero.
               </p>
               <p className="sa-note" data-testid="sa-cost-note">

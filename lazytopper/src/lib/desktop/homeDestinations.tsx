@@ -241,7 +241,7 @@ export const PRIMARY_CARDS: QuickCard[] = [
     icon: ClipboardCheckIcon,
     label: "Check my answer",
     sub: "Upload what you wrote and see where the marks went.",
-    go: "Check & Improve →",
+    go: "Answer Checker →",
     accent: "red",
   },
 ];

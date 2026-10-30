@@ -1150,7 +1150,7 @@ function WorksheetGeneratorInner() {
               //     whose graded history is all in the other subject (nothing to weight a
               //     {subject} worksheet toward yet).
               <p className="lt-ws__mi-hint">
-                Grade a {subject} worksheet or use Check &amp; Improve first — then this focuses the worksheet on the {subject} topics &amp; sections you&rsquo;ve lost the most marks on.
+                Grade a {subject} worksheet or use Answer Checker first — then this focuses the worksheet on the {subject} topics &amp; sections you&rsquo;ve lost the most marks on.
               </p>
             ) : !bank.ready && scope === "topic" ? (
               // BANK-SPLIT-1 PR-2: the section-skew signal reads the chapter's pool; until it

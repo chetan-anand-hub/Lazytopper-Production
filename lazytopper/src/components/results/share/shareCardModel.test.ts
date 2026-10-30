@@ -67,6 +67,7 @@ describe("shareContextOf - chapter/subject, never a code", () => {
   });
   it("a generic head falls back to the subtitle's topic (live C&I)", () => {
     expect(shareContextOf({ title: "Check & Improve paper", subtitle: "Triangles · CI-M-TR-01 · graded just now" })).toBe("Triangles");
+    expect(shareContextOf({ title: "Answer Checker paper", subtitle: "Triangles · CI-M-TR-01 · graded just now" })).toBe("Triangles");
   });
   it("generic everywhere -> null, and a code is never the context", () => {
     expect(shareContextOf({ title: "Session scorecard", subtitle: "Quick practice" })).toBeNull();

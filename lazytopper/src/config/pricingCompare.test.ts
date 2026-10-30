@@ -53,7 +53,7 @@ describe("L4 · the Premium card", () => {
   it("'Everything in Basic, plus:' then the six rows, in order, then the trial note", () => {
     expect(PREMIUM_PLUS_HEAD).toBe("Everything in Basic, plus:");
     expect(PREMIUM_PLUS.map((i) => i.label)).toEqual([
-      "Check & Improve — photograph your handwritten answer, marked step by step like a board examiner",
+      "Answer Checker — photograph your handwritten answer, marked step by step like a board examiner",
       "Chapter tests, full mocks and worksheets graded, not just downloaded",
       "Your AI tutor that knows your chapters, your mistakes, your pace",
       "Mistake Intelligence — why you lose marks, not just where",

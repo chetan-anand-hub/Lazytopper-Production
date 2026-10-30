@@ -1009,7 +1009,7 @@ describe("Per-grade consumers: scorecards, worksheet panel, share card", () => {
           "showMascots": true,
           "size": "story",
           "surface": "check-improve",
-          "surfaceLabel": "Check & Improve",
+          "surfaceLabel": "Answer Checker",
           "total": 3,
           "untypedMarks": 0,
           "ziggy": {
@@ -1463,7 +1463,7 @@ describe("Per-grade consumers: scorecards, worksheet panel, share card", () => {
           "showMascots": true,
           "size": "story",
           "surface": "check-improve",
-          "surfaceLabel": "Check & Improve",
+          "surfaceLabel": "Answer Checker",
           "total": 10,
           "untypedMarks": 2,
           "ziggy": {

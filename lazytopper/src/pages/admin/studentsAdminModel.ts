@@ -344,7 +344,7 @@ const SURFACE_LABELS: Record<string, string> = {
   worksheet: "Worksheet",
   "chapter-test": "Chapter test",
   "full-mock": "Full mock",
-  "check-improve": "Check & Improve",
+  "check-improve": "Answer Checker",
   "quick-practice": "Quick practice",
   other: "Session",
 };

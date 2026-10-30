@@ -34,7 +34,7 @@ const MODES = [
   },
   {
     key: "check",
-    title: "Check & Improve",
+    title: "Answer Checker",
     sub: "Upload answers · AI examiner grades",
     pill: "AI-powered",
     color: "hsl(280,60%,50%)",

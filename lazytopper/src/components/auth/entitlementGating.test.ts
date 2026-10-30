@@ -28,7 +28,7 @@ describe("entitlement gating is wired at the component, not the route", () => {
 
   // MUTATION: delete the <RequirePremium> wrapper from the C&I export ⇒ RED.
   it("Check & Improve's default export is wrapped in RequirePremium", () => {
-    expect(ci).toMatch(/<RequirePremium featureLabel="Check & Improve">/);
+    expect(ci).toMatch(/<RequirePremium featureLabel="Answer Checker">/);
     expect(ci).toMatch(/import \{ RequirePremium \} from "\.\.\/\.\.\/components\/auth\/RequireAuth"/);
     expect(ci).toMatch(/export default DesktopCheckImprovePage;/);
   });

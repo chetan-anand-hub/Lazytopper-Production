@@ -198,7 +198,7 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's K1 / K2 / K3, word for wo
  * - a build with the free check off does NOT see it;
  * - FREE_FEATURES / BASIC_FREE_LABELS are unchanged. Those are the "Free on Basic:" locks a
  *   signed-in free student sees, so the free check must never join them. The excluded
- *   "Solution Checker / Check & Improve" row stays;
+ *   "Solution Checker / Answer Checker" row stays;
  * - the payments-OFF copy is unchanged with the line present.
  */
 describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
@@ -269,7 +269,7 @@ describe("SEO-PAGES-1 (D) — the Basic card's free-check line", () => {
       { label: "Practice picker and limited practice", included: true },
       { label: "Limited worksheet generation", included: true },
       { label: "Basic topic insights", included: true },
-      { label: "Solution Checker / Check & Improve", included: false },
+      { label: "Solution Checker / Answer Checker", included: false },
       { label: "Deep Mistake Intelligence", included: false },
       {
         label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
