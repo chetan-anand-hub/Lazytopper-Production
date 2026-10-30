@@ -41,7 +41,7 @@ export default function CbqBand({ action, headingId }: CbqBandProps) {
               </p>
               <ul className="lt-cbq__list">
                 <li>{chaptersOfSubject(s).length} chapters, {CBQ_CHAPTER_CLAIM}</li>
-                <li>MCQ · Assertion-Reason · Case study · Long answer</li>
+                <li>MCQ · Assertion-Reason · Short answer · Case study · Long answer</li>
                 <li>Your name on every page</li>
               </ul>
               {action(s)}
