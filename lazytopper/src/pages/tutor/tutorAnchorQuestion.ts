@@ -70,7 +70,7 @@ export function buildAnchorQuestion(
 /** Which bank question (and which tap) the thread is about, from the thread itself and the tutor URL.
  *  The NEWEST return-result opener decides: it names its question in `meta` (and the student's tap), and
  *  an opener WITHOUT a question (e.g. a Check & Improve return) means the older question is stale, so
- *  nothing is anchored. With no opener at all, the URL's `q` (the hop that opened the tutor) is the
+ *  nothing is anchored. When the URL's `q` names a different question than that opener, the URL wins. With no opener at all, the URL's `q` (the hop that opened the tutor) is the
  *  question. `qn:<n>` ids (Answer Checker's own upload) are positional, hold no bank row, and so
  *  resolve to nothing downstream. */
 export function anchorTargetOf(
@@ -82,6 +82,10 @@ export function anchorTargetOf(
     if (m.kind !== "return-result") continue;
     const meta = m.meta;
     if (!meta || typeof meta.q !== "string" || !meta.q) return null;
+    // The URL names a DIFFERENT question than the opener (the student came back about B after A): the URL wins,
+    // and B is re-resolved from the bank (no row -> no anchor; A is never kept).
+    const urlId = String(urlQuestionId ?? "").trim();
+    if (urlId && urlId !== meta.q) return { id: urlId, pick: null, correct: null };
     const pick = typeof meta.pick === "string" && meta.pick && typeof meta.correct === "boolean" ? meta.pick : null;
     return { id: meta.q, pick, correct: pick === null ? null : (meta.correct as boolean) };
   }

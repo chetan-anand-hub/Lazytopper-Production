@@ -53,8 +53,12 @@ describe("anchorTargetOf", () => {
     expect(anchorTargetOf([], undefined)).toBeNull();
   });
   it("the newest opener decides: its meta (with the tap), or nothing when it names no question", () => {
-    expect(anchorTargetOf([opener({ q: "q-3", pick: "x", correct: false })], "q-9")).toEqual({ id: "q-3", pick: "x", correct: false });
+    expect(anchorTargetOf([opener({ q: "q-3", pick: "x", correct: false })], "q-3")).toEqual({ id: "q-3", pick: "x", correct: false });
+    expect(anchorTargetOf([opener({ q: "q-3", pick: "x", correct: false })], undefined)).toEqual({ id: "q-3", pick: "x", correct: false });
     expect(anchorTargetOf([opener({ q: "q-3" }), opener()], "q-3")).toBeNull();
+  });
+  it("★ the URL's q naming a DIFFERENT question than the newest opener wins (B, with no stale pick from A)", () => {
+    expect(anchorTargetOf([opener({ q: "q-3", pick: "x", correct: false })], "q-9")).toEqual({ id: "q-9", pick: null, correct: null });
   });
   it("a pick without a verdict is dropped", () => {
     expect(anchorTargetOf([opener({ q: "q-3", pick: "x" })], null)).toEqual({ id: "q-3", pick: null, correct: null });

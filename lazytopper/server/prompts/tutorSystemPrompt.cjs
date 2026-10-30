@@ -1202,23 +1202,29 @@ function anchorQuestionBlock(anchorQuestion) {
   const finalAnswer = typeof a.finalAnswer === 'string' ? a.finalAnswer.trim() : '';
   const letter = typeof a.answerLetter === 'string' && /^[A-H]$/.test(a.answerLetter) ? a.answerLetter : '';
   const hasKey = !!(answer || finalAnswer);
+  const abridged = a.answerAbridged === true;
   const marks = typeof a.marks === 'number' && a.marks > 0 ? `${a.marks}-mark ` : '';
   const format = typeof a.format === 'string' && a.format.trim() ? `${a.format.trim()} ` : '';
   const parts = [
     `\nTHE QUESTION THE STUDENT OPENED THIS CHAT ABOUT, WITH ITS OFFICIAL ANSWER KEY (context to teach from - nobody in the chat said this)`,
     `The student came here from THIS exact ${marks}${format}question. When they say "this question", "the answer", ` +
       `"the right option" or name an option letter, they mean it - not the demonstration question and not another one.`,
-    `- The question, complete and verbatim:\n    "${text.slice(0, 3000)}"`,
+    `- The question, complete and verbatim:\n    "${q(text.slice(0, 3000))}"`,
   ];
-  if (options.length) parts.push(`- The options:\n${options.map((o) => `    ${o}`).join('\n')}`);
+  if (options.length) parts.push(`- The options:\n${options.map((o) => `    ${q(o)}`).join('\n')}`);
   if (hasKey) {
     const keyLine = answer
       ? `${letter ? `option ${letter} - ` : ''}"${q(answer)}"`
       : `"${q(finalAnswer)}"`;
-    parts.push(`- THE OFFICIAL ANSWER KEY (CBSE/NCERT): ${keyLine}${answer && finalAnswer && finalAnswer !== answer ? ` (full form: "${q(finalAnswer)}")` : ''}`);
+    if (abridged) {
+      parts.push(
+        `- THE BANK ANSWER (abridged - the text below is cut short, so do NOT present it as the complete or verbatim key): ${keyLine}. ` +
+          `Teach from the solution steps and do not state a final answer beyond what is written here.`,
+      );
+    } else parts.push(`- THE OFFICIAL ANSWER KEY (CBSE/NCERT): ${keyLine}${answer && finalAnswer && finalAnswer !== answer ? ` (full form: "${q(finalAnswer)}")` : ''}`);
   }
   if (steps.length) {
-    parts.push(`- The official solution steps (explain the key THROUGH these):\n${steps.map((s, i) => `    ${i + 1}. ${s.slice(0, 800)}`).join('\n')}`);
+    parts.push(`- The official solution steps (explain the key THROUGH these):\n${steps.map((s, i) => `    ${i + 1}. ${q(s.slice(0, 800))}`).join('\n')}`);
   }
   const pick = typeof a.studentPick === 'string' ? a.studentPick.trim() : '';
   if (pick && (a.verdict === 'right' || a.verdict === 'wrong')) {

@@ -206,41 +206,77 @@ function normalizeReturnedWork(input) {
  * id; the server does not decide right or wrong.
  */
 const ANCHOR_CAPS = Object.freeze({ id: 120, text: 3000, option: 400, options: 8, answer: 400, step: 800, steps: 12, format: 40, pick: 400 });
-function cleanAnchorString(v, max) {
+// Single-line fields: every control char and run of whitespace (newlines included) collapses to one space.
+function cleanAnchorLine(v, max) {
+  if (typeof v !== 'string') return { text: '', cut: false };
+  const t = v.replace(/\[\[|\]\]/g, '').replace(/[\u0000-\u001F\u007F\u2028\u2029]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return { text: t.slice(0, max), cut: t.length > max };
+}
+// The stem may keep single newlines (the options of a stem-embedded list); control chars are stripped.
+function cleanAnchorStem(v, max) {
   if (typeof v !== 'string') return '';
-  return v.replace(/\[\[|\]\]/g, '').replace(/\s+$/g, '').trim().slice(0, max);
+  return v
+    .replace(/\[\[|\]\]/g, '')
+    .replace(/\r\n?/g, '\n')
+    .replace(/[\u0000-\u0009\u000B-\u001F\u007F\u2028\u2029]/g, ' ')
+    .replace(/[ \t]*\n[ \t]*/g, '\n')
+    .replace(/\n{2,}/g, '\n')
+    .trim()
+    .slice(0, max);
 }
 function normalizeAnchorQuestion(input) {
   const a = input && typeof input === 'object' && !Array.isArray(input) ? input : null;
   if (!a) return null;
-  const questionText = cleanAnchorString(a.questionText, ANCHOR_CAPS.text);
+  const questionText = cleanAnchorStem(a.questionText, ANCHOR_CAPS.text);
   if (!questionText) return null;
   const out = { questionText };
-  const id = cleanAnchorString(a.id, ANCHOR_CAPS.id);
+  const id = cleanAnchorLine(a.id, ANCHOR_CAPS.id).text;
   if (id) out.id = id;
-  const format = cleanAnchorString(a.format, ANCHOR_CAPS.format);
+  const format = cleanAnchorLine(a.format, ANCHOR_CAPS.format).text;
   if (format) out.format = format;
   if (typeof a.marks === 'number' && Number.isFinite(a.marks) && a.marks > 0 && a.marks <= 20) out.marks = a.marks;
   if (Array.isArray(a.options)) {
-    const options = a.options.map((o) => cleanAnchorString(o, ANCHOR_CAPS.option)).filter(Boolean).slice(0, ANCHOR_CAPS.options);
+    const options = a.options.map((o) => cleanAnchorLine(o, ANCHOR_CAPS.option).text).filter(Boolean).slice(0, ANCHOR_CAPS.options);
     if (options.length) out.options = options;
   }
-  const answer = cleanAnchorString(a.answer, ANCHOR_CAPS.answer);
-  if (answer) out.answer = answer;
+  // A key cut at the cap is marked abridged ("..." appended) so the prompt never calls cut text the verbatim key.
+  const answer = cleanAnchorLine(a.answer, ANCHOR_CAPS.answer);
+  const finalAnswer = cleanAnchorLine(a.finalAnswer, ANCHOR_CAPS.answer);
+  if (answer.text) out.answer = answer.cut ? `${answer.text}\u2026` : answer.text;
+  if (finalAnswer.text) out.finalAnswer = finalAnswer.cut ? `${finalAnswer.text}\u2026` : finalAnswer.text;
+  if ((answer.text && answer.cut) || (!answer.text && finalAnswer.cut)) out.answerAbridged = true;
   const letter = typeof a.answerLetter === 'string' ? a.answerLetter.trim().toUpperCase() : '';
   if (/^[A-H]$/.test(letter)) out.answerLetter = letter;
   if (Array.isArray(a.solutionSteps)) {
-    const steps = a.solutionSteps.map((s) => cleanAnchorString(s, ANCHOR_CAPS.step)).filter(Boolean).slice(0, ANCHOR_CAPS.steps);
+    const steps = a.solutionSteps.map((s) => cleanAnchorLine(s, ANCHOR_CAPS.step).text).filter(Boolean).slice(0, ANCHOR_CAPS.steps);
     if (steps.length) out.solutionSteps = steps;
   }
-  const finalAnswer = cleanAnchorString(a.finalAnswer, ANCHOR_CAPS.answer);
-  if (finalAnswer) out.finalAnswer = finalAnswer;
-  const pick = cleanAnchorString(a.studentPick, ANCHOR_CAPS.pick);
+  const pick = cleanAnchorLine(a.studentPick, ANCHOR_CAPS.pick).text;
   if (pick && (a.verdict === 'right' || a.verdict === 'wrong')) {
     out.studentPick = pick;
     out.verdict = a.verdict;
   }
   return out;
+}
+
+/**
+ * TUTOR-ANCHOR-KEY-1 - should the "the key is final, correct yourself" note ride the student's latest turn?
+ * Only when a PREVIOUS tutor turn exists (there is something to correct) AND the latest message is about this
+ * question's answer (an option letter / roman numeral, "answer", "correct", "right", "wrong", "option", "key",
+ * "both", or one of the question's own options quoted) or disagrees with the key. An unrelated follow-up gets no
+ * note (the FINAL-key system block still applies on every turn).
+ */
+function anchorNoteApplies(studentLast, hasPreviousTutorTurn, anchorQuestion) {
+  if (!hasPreviousTutorTurn || !anchorQuestion || !(anchorQuestion.answer || anchorQuestion.finalAnswer)) return false;
+  const t = String(studentLast || '').toLowerCase();
+  if (!t.trim()) return false;
+  if (/\b(answers?|correct|incorrect|right|wrong|options?|key|both|mistake|two correct|not true|disagree)\b/.test(t)) return true;
+  if (/\(\s*(?:i{1,3}|iv|v|[a-d])\s*\)/.test(t) || /\b(?:ans|option|opt|choice)\.?\s*\(?[a-d]\b/.test(t)) return true;
+  for (const o of anchorQuestion.options || []) {
+    const text = String(o).replace(/^[A-H][.)]\s*/, '').toLowerCase().trim();
+    if (text.length >= 4 && t.includes(text)) return true;
+  }
+  return false;
 }
 
 /* ── TUTOR-FIX-2 T11: the offer safety net ─────────────────────────────────────
@@ -756,7 +792,7 @@ function createTutorRoute(deps) {
         `if you said earlier that you could not see them, that is no longer true - use them now.]`;
     }
     // TUTOR-ANCHOR-KEY-1: earlier tutor turns that hedged or contradicted the key must not outweigh it.
-    if (anchorQuestion && (anchorQuestion.answer || anchorQuestion.finalAnswer)) {
+    if (anchorNoteApplies(studentLast, convo.slice(0, -1).some((t) => t.role === 'model'), anchorQuestion)) {
       convo[convo.length - 1].parts[0].text +=
         `\n\n[System note: the question the student is asking about, and its OFFICIAL ANSWER KEY, are in your ` +
         `instructions. The key is final: if you gave a different answer earlier in this chat, correct it plainly ` +
@@ -863,6 +899,7 @@ module.exports = {
   normalizeFigures,
   normalizeReturnedWork,
   normalizeAnchorQuestion,
+  anchorNoteApplies,
   normalizeBrief,
   detectOfferIntent,
   mentionsDiagram,

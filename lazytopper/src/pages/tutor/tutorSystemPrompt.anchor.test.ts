@@ -63,4 +63,17 @@ describe("anchorQuestionBlock", () => {
     expect(p).toContain("No answer key is given for this question");
     expect(p).not.toContain("THE OFFICIAL ANSWER KEY (CBSE/NCERT)");
   });
+
+  it("inner double quotes in the stem, options and steps are made single, like the key and the pick", () => {
+    const p = build({ anchorQuestion: { ...ANCHOR, questionText: 'Name the "best" option', options: ['A. "x" is it'], solutionSteps: ['Use "this" rule'] } });
+    expect(p).toContain('"Name the \'best\' option"');
+    expect(p).toContain("A. 'x' is it");
+    expect(p).toContain("1. Use 'this' rule");
+  });
+
+  it("★ an abridged key is called 'the bank answer (abridged)', never the verbatim official key", () => {
+    const p = build({ anchorQuestion: { ...ANCHOR, answer: "A long descriptive answer\u2026", answerAbridged: true } });
+    expect(p).toContain("THE BANK ANSWER (abridged");
+    expect(p).not.toContain("THE OFFICIAL ANSWER KEY (CBSE/NCERT)");
+  });
 });
