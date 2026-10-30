@@ -94,7 +94,7 @@ const WORST_CASE_READS =
 
 const SURFACES = Object.freeze(['check-improve', 'worksheet', 'chapter-test', 'full-mock', 'quick-practice']);
 const SURFACE_LABELS = Object.freeze({
-  'check-improve': 'Check & Improve',
+  'check-improve': 'Answer Checker',
   worksheet: 'Worksheet',
   'chapter-test': 'Chapter Test',
   'full-mock': 'Full Mock',
