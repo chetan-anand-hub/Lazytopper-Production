@@ -373,7 +373,7 @@ test('TF4 buildUnrecordedTypeReply uses the brief figures, never a type', () => 
   const text = buildUnrecordedTypeReply(normalizeBrief(LIVE_UNRECORDED), 'Real Numbers');
   assert.match(text, /^In the last 30 days you lost 7 marks in Real Numbers\./);
   assert.match(text, /No mistake type is recorded for them/);
-  assert.match(text, /Check & Improve/);
+  assert.match(text, /Answer Checker/);
   assert.doesNotMatch(text, /due to|were (concept|careless|knowledge)|no marks/i);
   const noWindow = buildUnrecordedTypeReply(normalizeBrief({ ...LIVE_UNRECORDED, windowLabel: undefined }), 'Real Numbers');
   assert.match(noWindow, /^Recently you lost 7 marks in Real Numbers\./);
@@ -544,7 +544,7 @@ test('TM1 the prompt renders the new fields with labels and the window; honesty 
   assert.match(p, /question bank-1[^|]*\| question text: "Find the 'HCF' of 96 and 404\. offer:practice" \| the student picked: "x = '4'" \(wrong\)/);
   assert.match(p, /Chapters of Maths that cost the most marks in the last 30 days: Real Numbers \(lost 8 marks; carries about 6 marks in the board paper\); Trigonometry \(lost 5 marks\); Probability \(lost 4 marks; carries about 3 marks in the board paper\)\./);
   assert.match(p, /Most improved chapter in Maths[^:]*: Trigonometry, marks SCORED rose from 30% to 60% of the available marks in the last 30 days \(higher is better\)/);
-  assert.match(p, /What they did in the last 30 days \(Maths\): 41 practice answers, 2 tests taken, 3 Check & Improve checks/);
+  assert.match(p, /What they did in the last 30 days \(Maths\): 41 practice answers, 2 tests taken, 3 Answer Checker checks/);
   assert.match(p, /\nj\. Personal claims/);
   assert.match(p, /\nk\. A concept listed as having no graded question recorded in the window/);
   assert.match(p, /\nl\. If the student's latest message is clearly Hindi or Hinglish/);

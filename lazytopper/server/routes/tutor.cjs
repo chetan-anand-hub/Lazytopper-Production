@@ -216,7 +216,7 @@ const OFFER_INTENT_TABLE = Object.freeze({
     { id: 'en-is-my-answer-right', re: /\b(is|was)\s+my\s+(answer|solution|working|method|attempt|proof)\s+(right|correct|wrong|ok|okay|fine)\b/i },
     { id: 'en-did-i-do-it-right', re: /\b(my|answer|solution|working)\b[^\n]{0,80}\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?|\b(is|was)\s+(this|that|it)\s+(right|correct)\s*\?[^\n]{0,80}\b(my|answer|solution|working)\b|\bdid\s+i\s+(do|get|solve)\s+(it|this|that)\s+(right|correctly)\b/i },
     { id: 'en-out-of', re: /\bmark\w*\b[^.?!\n]{0,30}\bout\s+of\s+\d+\b/i },
-    { id: 'en-open-check-improve', re: /\bcheck\s*(&|and)\s*improve\b/i },
+    { id: 'en-open-check-improve', re: /\b(?:answer\s*checker|check\s*(&|and)\s*improve)\b/i },
     { id: 'en-show-my-working', re: /\b(show|send)\s+(you\s+)?my\s+(working|answer|solution|attempt|work)\b/i },
     // Hinglish (Latin script)
     { id: 'hi-check-karo', re: /\bcheck\s*(karo|kar\s*do|kardo|kariye|kijiye|karna|karke|kr\s*do|kro|krdo)\b/i },
@@ -269,7 +269,7 @@ const OFFER_INTENT_TABLE = Object.freeze({
 /** A short bare agreement ("yes", "yes please", "haan", "ok let's do it", "हाँ"). */
 const AFFIRMATIVE_RE = /^\s*(yes|yeah|yep|yup|ya|ok|okay|sure|please|haan|haa|han|ha|ji|ji\s+haan|go\s+ahead|let'?s\s+do\s+(it|that)|do\s+it|definitely|of\s+course|हाँ|हां|जी|ठीक\s+है)\b[\s\S]{0,40}$/iu;
 /** The tutor's own previous turn offered Check & Improve. */
-const PREV_OFFERED_CHECK_RE = /check\s*(&|and)\s*improve|\bupload\b|\b(get|have)\s+(it|that|this|your\s+\w+(\s+\w+)?)\s+(board[-\s])?(marked|checked|graded)\b|\bboard-marked\b/i;
+const PREV_OFFERED_CHECK_RE = /answer\s*checker|check\s*(&|and)\s*improve|\bupload\b|\b(get|have)\s+(it|that|this|your\s+\w+(\s+\w+)?)\s+(board[-\s])?(marked|checked|graded)\b|\bboard-marked\b/i;
 /** The tutor's own previous turn offered practice. */
 const PREV_OFFERED_PRACTICE_RE = /\btry\s+(a\s+couple|a\s+few|some)\b|\b(a\s+couple|a\s+few|some)\s+(of\s+)?(questions?|problems?|sums)\s+(for\s+you\s+)?to\s+try\b|\bpracti[cs]e\s+(set|questions?|a\s+few|some|this|on)\b|\bquick\s+practice\b/i;
 
@@ -564,7 +564,7 @@ function buildUnrecordedTypeReply(brief, chapterFallback) {
   const when = brief && brief.windowLabel ? `In the ${brief.windowLabel.replace(/^the\s+/i, '')}` : 'Recently';
   return (
     `${when} you lost ${marks} in ${chapter}. No mistake type is recorded for them - those were tap-the-answer ` +
-    `questions, which record the option you picked, not why. A written answer checked in Check & Improve shows ` +
+    `questions, which record the option you picked, not why. A written answer checked in Answer Checker shows ` +
     `whether a slip was careless or a concept gap.`
   );
 }
