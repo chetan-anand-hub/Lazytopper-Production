@@ -44,6 +44,7 @@ const UID = "uid-parent-pay-1";
 const STORAGE_KEY = `lazytopper.subscription.v1:${UID}`;
 const DAY = 24 * 60 * 60 * 1000;
 const TOKEN = "Q".repeat(43);
+const LAZY_CHUNK_MS = 15_000;
 
 function status(over: Partial<SubscriptionStatus>): SubscriptionStatus {
   return { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null, ...over };
@@ -95,9 +96,12 @@ describe("PricingPage — Share QR code / Forward link to parents (PAYWALL-PAY-1
     authState.user = { uid: UID };
     cloudHolds(sub);
     await renderAt("/pricing");
-    expect(await screen.findByTestId("pricing-parent-share")).toBeInTheDocument();
-    // The actions are a lazy chunk (PAYWALL-PAY-1 follow-up): wait for it.
-    expect(await screen.findByRole("button", { name: "Share QR code" })).toBeInTheDocument();
+    expect(await screen.findByTestId("pricing-parent-share", {}, { timeout: LAZY_CHUNK_MS })).toBeInTheDocument();
+    // The actions are a lazy chunk (PAYWALL-PAY-1 follow-up): wait for it. [FU-CI-PRICING-PARENTPAY-FLAKY]
+    // findBy* defaults to 1000 ms, but the FIRST test of the file pays the cold dynamic-import transform of
+    // that chunk, which took >1 s on a loaded 4-worker CI runner (failed at 1959 ms, 30 Oct 2026). Same
+    // assertion, a wait budgeted for a cold import; a missing button still fails, just after the budget.
+    expect(await screen.findByRole("button", { name: "Share QR code" }, { timeout: LAZY_CHUNK_MS })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Forward link to parents" })).toBeInTheDocument();
     // "Pay" on /pricing is the pass tiles' own buttons — never a second, separate Pay.
     expect(screen.queryByTestId("paywall-pay")).toBeNull();

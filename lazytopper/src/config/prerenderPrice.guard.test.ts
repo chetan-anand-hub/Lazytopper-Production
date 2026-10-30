@@ -136,8 +136,14 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     expect(scan.unclaimed).toEqual([]);
   });
 
-  it.skipIf(SHIFTED)("every saved price equals the live price as of the clock", () => {
-    expect(mismatchMessages(scan.found)).toEqual([]);
+  // [FU-NIGHTLY-SKIPPED-1] Never skipped: the nightly refuses ANY skipped test, and `it.skipIf(SHIFTED)` made
+  // every shifted-clock leg report 1 skipped. Under a shifted clock the date-driven prices (Board Pass, Month
+  // pass) legitimately differ from the snapshot (that is what the 2026-11-18 MUTATION PROOF below pins), but
+  // pack and bundle prices do not move with the clock, so those are still asserted exactly. At the real clock
+  // (every PR run) the assertion is the full, unchanged one.
+  it("every saved price equals the live price as of the clock", () => {
+    const msgs = mismatchMessages(scan.found);
+    expect(SHIFTED ? msgs.filter((m) => /Pack|Bundle/.test(m)) : msgs).toEqual([]);
   });
 
   it("MUTATION PROOF: on 2026-11-18 the guard fails against today's snapshots (pinned clock)", () => {

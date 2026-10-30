@@ -162,7 +162,7 @@ async function renderMe(emptyTitle?: string): Promise<MeRendered> {
   }
   const title = container.querySelector(".lt-me__title")?.textContent ?? "";
   // Me settles on its paper (a second scoped read) — wait for the start-here list, when it has one.
-  const drill = emptyTitle !== undefined ? null : await screen.findByTestId("me-drill-topics").catch(() => null);
+  const drill = emptyTitle !== undefined ? null : await screen.findByTestId("me-drill-topics", {}, { timeout: 1000 }).catch(() => null);
   let firstChapter: MeRendered["firstChapter"] = null;
   if (drill) {
     const card = drill.querySelector("li")!;
