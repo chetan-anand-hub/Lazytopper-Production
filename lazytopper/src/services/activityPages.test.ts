@@ -102,6 +102,8 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   // SOLUTIONS-1 (G) — public solutions pages: not activity pages (their attempts travel as sol_* events).
   "/ncert-solutions/:chapter": [["/ncert-solutions/triangles", null]],
   "/ncert-exemplar/:chapter": [["/ncert-exemplar/triangles", null]],
+  "/cbq-class-10": [["/cbq-class-10", null]], // CBQ-SEO-1 — public CBQ hub: not an activity page
+  "/cbq-class-10/:chapterSlug": [["/cbq-class-10/circles", null]],
   "/admin/funnel": [["/admin/funnel", null]],
   // 2026-10-11 HARDEN-1 PR-2 (D81a): /admin/diagram-compare and /admin/diagram-quality removed
   // from App.tsx together with their pages.

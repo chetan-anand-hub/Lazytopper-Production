@@ -54,6 +54,7 @@ import {
 } from "./canonicalUrl";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { LEGAL_SLUGS } from "../pages/legalSlugs";
+import { cbqChapterSlugs } from "../components/cbq/cbqSeo";
 
 /**
  * The concrete members of each PARAMETERISED self-canonical family.
@@ -95,6 +96,9 @@ function membersOfParameterisedFamily(prefix: string): readonly string[] {
       // The same registry `DesktopNotesPage` resolves `:topicSlug` against; every
       // member has an authored note spec (guarded in sitemapUrls.guard.test.ts).
       return allDesktopTopics().map((topic) => topic.slug);
+    case "/cbq-class-10":
+      // CBQ-SEO-1 — the same chapter registry; every member renders sample CBQs from the question bank.
+      return cbqChapterSlugs();
     case "/legal":
       // The list `LegalPage`'s content table is compiler-keyed on.
       return LEGAL_SLUGS;

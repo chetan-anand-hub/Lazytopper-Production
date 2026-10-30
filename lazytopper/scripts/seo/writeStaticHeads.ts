@@ -64,6 +64,7 @@ import {
 import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { allDesktopTopics } from "../../src/lib/desktop/topics";
 import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
+import { cbqHeadForPath, cbqJsonLd } from "../../src/components/cbq/cbqSeo";
 import { testimonialVideoJsonLdFor } from "./testimonialVideoJsonLd";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -264,6 +265,9 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/legal/", exact: false, modules: ["LegalPage"] },
   { prefix: "/topic-hub/", exact: false, modules: ["DesktopTopicHubPage"] },
   { prefix: "/notes/", exact: false, modules: ["DesktopNotesPage"] },
+  // CBQ-SEO-1 — the hub is an exact path, the 26 chapter pages one prefix (both lazy routes in App.tsx).
+  { prefix: "/cbq-class-10", exact: true, modules: ["CbqHubPage"] },
+  { prefix: "/cbq-class-10/", exact: false, modules: ["CbqChapterPage"] },
 ];
 
 /** The route-chunk module names for one advertised path. THROWS for a path with no entry. */
@@ -302,6 +306,10 @@ export function escapeAttr(value: string): string {
 export function headForPath(path: string): PageHead | null {
   const staticHead = STATIC_PAGE_HEADS[path];
   if (staticHead) return staticHead;
+
+  // CBQ-SEO-1 — the CBQ hub and its chapter pages: strings built (and length-checked) by cbqSeo.ts.
+  const cbqHead = cbqHeadForPath(path);
+  if (cbqHead) return cbqHead;
 
   const topicPrefix = "/topic-hub/";
   if (path.startsWith(topicPrefix)) {
@@ -525,7 +533,7 @@ export function solutionsJsonLd(path: string, basename: string): Record<string, 
  */
 export function pageJsonLd(path: string, basename: string, hasHead: boolean): Record<string, unknown> | null {
   return (
-    (hasHead ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) : null) ??
+    (hasHead ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) ?? cbqJsonLd(path, basename) : null) ??
     testimonialVideoJsonLdFor(path, canonicalFor("/", basename))
   );
 }

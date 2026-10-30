@@ -30,6 +30,7 @@ import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncertFileCode";
 import { ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import { cbqChapterPath, cbqTopicBySlug } from "../cbq/cbqSeo";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -1757,6 +1758,12 @@ export function Note({ spec, initialTab }: NoteProps) {
               {i === 0 ? `Read NCERT Chapter ${r.chapter} on LazyTopper (${ncertCode})` : `Chapter ${r.chapter}`}
             </Link>
           ))}
+        </p>
+      )}
+      {/* CBQ-SEO-1 — one internal link from the chapter note to that chapter's public CBQ page (a chapter in the CBQ registry only). */}
+      {cbqTopicBySlug(meta.topic_key) && (
+        <p className="lt-note__ncert-read" data-testid="note-cbq-link">
+          <Link to={cbqChapterPath(meta.topic_key)}>CBQs for this chapter →</Link>
         </p>
       )}
       {ncertCode && (

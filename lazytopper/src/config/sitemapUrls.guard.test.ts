@@ -183,7 +183,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // it has no member registry for, so a new family added to the ruling turns
     // this red instead of vanishing from the sitemap. Pin the set it was written
     // against so "a new family appeared" is a failure someone must look at.
-    expect([...SELF_CANONICAL_ONE_SEGMENT].sort()).toEqual(["/legal", "/notes", "/topic-hub"]);
+    expect([...SELF_CANONICAL_ONE_SEGMENT].sort()).toEqual(["/cbq-class-10", "/legal", "/notes", "/topic-hub"]);
 
     // ★★ THE GAP IS CLOSED — OWNER RULING, 2026-09-09 (FOLLOWON-1), which retires
     // [FU-SITEMAP-LEGAL-PAGES-UNADVERTISED]. This assertion previously read
@@ -268,14 +268,14 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
    * every member must have an AUTHORED spec — advertising a note URL that renders
    * "Notes not found" would be a soft 404 at HTTP 200.
    */
-  it("★ advertises 95 URLs: the 66 before (incl. /packs, PACKS-LEGAL-1), /contact (CONTACT-INDEX-1) and 28 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2 + 6 NCERT pages unlocked by the SOLUTIONS-3 renumbering)", () => {
+  it("★ advertises 122 URLs (95 + the 27 CBQ-SEO-1 pages): the 66 before (incl. /packs, PACKS-LEGAL-1), /contact (CONTACT-INDEX-1) and 28 solutions pages (Triangles SOLUTIONS-1 + 20 SOLUTIONS-2 + 6 NCERT pages unlocked by the SOLUTIONS-3 renumbering)", () => {
     const paths = sitemapPaths();
     const registry = allDesktopTopics();
     const notes = paths.filter((p) => p.startsWith("/notes/"));
 
     expect(notes).toEqual(registry.map((t) => `/notes/${t.slug}`));
     expect(paths.length).toBe(
-      SELF_CANONICAL_EXACT.length + LEGAL_SLUGS.length + 2 * registry.length,
+      SELF_CANONICAL_EXACT.length + LEGAL_SLUGS.length + 3 * registry.length, // topic-hub + notes + CBQ-SEO-1 chapter pages
     );
     // SOLUTIONS-2 (owner 18 Oct 2026): the solutions pages are DERIVED from solutionsPaths(); the
     // count stays pinned so a silent change of the published set still fails here.
@@ -283,8 +283,8 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // SOLUTIONS-3 PR-B: + /ncert-solutions/ real-numbers, pair-of-linear-equations, areas-related-to-circles,
     // surface-areas-and-volumes, statistics, probability (renumbered NCERT references, re-verified).
     expect(solutionsPaths().length, "published solutions pages").toBe(28);
-    expect(paths.length, "the owner-ruled advertised count").toBe(67 + solutionsPaths().length);
-    expect(paths.length).toBe(95);
+    expect(paths.length, "the owner-ruled advertised count").toBe(94 + solutionsPaths().length); // 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters)
+    expect(paths.length).toBe(122);
     expect(paths).toContain("/packs");
 
     for (const path of notes) {

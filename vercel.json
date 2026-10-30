@@ -82,6 +82,14 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(cbq-class-10/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(cbq-class-10/[^/]+/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(contact/?)",
       "destination": "/__shell.html"
     },

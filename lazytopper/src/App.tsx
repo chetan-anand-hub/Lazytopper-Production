@@ -66,6 +66,9 @@ const PacksPage = lazy(() => import("./pages/PacksPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 const ForParentsPage = lazy(() => import("./pages/ForParentsPage"));
+// CBQ-SEO-1 — the public CBQ hub and per-chapter pages.
+const CbqHubPage = lazy(() => import("./pages/cbq/CbqHubPage"));
+const CbqChapterPage = lazy(() => import("./pages/cbq/CbqChapterPage"));
 // WA-CONTACT-1 — the /contact page and the floating WhatsApp button (decides its own routes).
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 // Mounted outside the ErrorBoundary, so a chunk that never loads renders nothing, never an error.
@@ -1014,6 +1017,9 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/cbse/class-10" element={withRouteSuspense(<Cbse2027Page />)} />
           <Route path="/check-your-answer" element={withRouteSuspense(<CheckYourAnswerPage />)} />
           <Route path="/for-parents" element={withRouteSuspense(<ForParentsPage />)} />
+          {/* CBQ-SEO-1 — public, signed-out readable; self-canonical (canonicalUrl.ts) and prerendered. */}
+          <Route path="/cbq-class-10" element={withRouteSuspense(<CbqHubPage />)} />
+          <Route path="/cbq-class-10/:chapterSlug" element={withRouteSuspense(<CbqChapterPage />)} />
           <Route path="/contact" element={withRouteSuspense(<ContactPage />)} />
           <Route path="/ncert-class-10" element={withRouteSuspense(<NcertBooksPage />)} />
           {/* SOLUTIONS-1 (G, D259-D261): one route family; the page serves the pilot chapters only. */}
