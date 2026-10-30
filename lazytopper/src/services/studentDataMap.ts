@@ -796,6 +796,27 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "action). Erased with the account and included in the export.",
   },
 
+  // ── Firestore: disputed answer-key reports (server-only, TUTOR-KEY-TRUST-1) ────────
+  {
+    id: "keyDisputeReports",
+    kind: "firestore-collection",
+    path: "keyDisputeReports/{reportId}",
+    holds:
+      "When the tutor saw a question's answer key disagree with its own working, or the student " +
+      "said a key looked wrong: which question, the key as it stood, a one-line reason, up to " +
+      "300 characters of the student's own message when they challenged the key (email addresses " +
+      "and long numbers removed), and the day. At most one per question per kind per day.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ FIELD-KEYED: a `uid` FIELD (the verified uid), not a document id, so export and erasure " +
+      "must QUERY `where('uid','==',uid)` (the payOrders pattern). Written ONLY by " +
+      "server/services/keyDisputes.cjs (called from the tutor route) through the Admin SDK; read " +
+      "and marked resolved by the admin 'Disputed answer keys' card. NOT declared in " +
+      "firestore.rules: browsers fall to the deny-all catch-all. Erased with the account and " +
+      "included in the export.",
+  },
+
   // ── Firestore: QR upload slots (server-only) ─────────────────────────────────────
   {
     id: "qrUploadSlots",

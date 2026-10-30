@@ -293,6 +293,11 @@ describe("studentDataMap — drift guard", () => {
     // link (it holds the child's uid), so it is undeclared on purpose (deny-all catch-all).
     // It IS student data (a `uid` field) — in the map, deleted on erasure and exported.
     //
+    // ★ `keyDisputeReports` JOINED this set with TUTOR-KEY-TRUST-1. Written only by
+    // server/services/keyDisputes.cjs through the Admin SDK (a field-keyed `uid` report, one per
+    // question/kind/day); no client reads or writes it (deny-all catch-all). It IS student data - in
+    // the map, erased and exported, not exempted.
+    //
     // ★ `trialEmails` JOINED this set with TRIAL-END-1. Written only by
     // server/services/trialEndingEmail.cjs through the Admin SDK (a transactional claim per
     // trial, then the outcome or a skip marker, and the unsubscribe opt-out); no client reads or
@@ -322,7 +327,7 @@ describe("studentDataMap — drift guard", () => {
     // server/services/opsReport.cjs through the Admin SDK; no client reads or writes it, so it is
     // undeclared on purpose (deny-all catch-all; firestore.rules is NOT edited). Uid-free and
     // exempt (NON_STUDENT_COLLECTIONS), like `trialEmailDaily`.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "nudgeEmailDaily", "nudgeEmails", "opsReports", "packEntitlements", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "keyDisputeReports", "nudgeEmailDaily", "nudgeEmails", "opsReports", "packEntitlements", "parentPayLinks", "parentReports", "payOrders", "qrUploadSlots", "signupSources", "trialEmailDaily", "trialEmails", "usageCredits", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -546,6 +551,7 @@ describe("studentDataMap — per-location properties", () => {
     "gradingResults",
     "gradingResults.attempts",
     "signupSources",
+    "keyDisputeReports",
     "qrUploadSlots",
     "storage.qr-uploads",
     "local-storage",

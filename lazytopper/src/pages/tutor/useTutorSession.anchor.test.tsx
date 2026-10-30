@@ -163,4 +163,23 @@ describe("TUTOR-ANCHOR-KEY-1 · the tutor request carries the exact question and
     await waitFor(() => expect(callTutor).toHaveBeenCalled());
     expect(lastRequest().anchorQuestion).toBeNull();
   });
+
+  it("★★ TUTOR-KEY-TRUST-1 item 0: a restored thread whose older opener is question A, with URL q = B: anchor B, NO stale returnedWork A", async () => {
+    const ZINC = { id: "AR-ZINC-1", subject: "Science", topicKey: "chemical-reactions-and-equations", questionText: "Assertion: Zinc displaces copper from copper sulphate solution. Reason: Zinc is more reactive than copper.", format: "MCQ", marks: 1, options: ["A", "B", "C", "D"], answer: "A" };
+    selectBank.mockImplementation(() => [ZINC, ROW]);
+    localThread.value = {
+      messages: [
+        { role: "tutor", content: "You were on the zinc question.", kind: "return-result", meta: { q: "AR-ZINC-1", pick: "A", correct: true } },
+        { role: "user", content: "ok" },
+        { role: "tutor", content: "Sure." },
+      ],
+      pending: null,
+    };
+    const r = render({ q: QID });
+    await settle();
+    act(() => r.result.current.send("what's the right answer for this question then"));
+    await waitFor(() => expect(callTutor).toHaveBeenCalled());
+    expect(lastRequest().anchorQuestion).toMatchObject({ id: QID, answer: "(i) and (iii)", answerLetter: "C" });
+    expect(lastRequest().returnedWork ?? null).toBeNull();
+  });
 });

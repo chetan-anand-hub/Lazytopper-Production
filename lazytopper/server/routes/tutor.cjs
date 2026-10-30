@@ -14,6 +14,8 @@
 'use strict';
 
 const { buildTutorSystemPrompt } = require('../prompts/tutorSystemPrompt.cjs');
+const { extractKeyFlagTag, detectKeyMismatch } = require('../services/keyTrust.cjs');
+const { recordKeyDispute } = require('../services/keyDisputes.cjs');
 // UPLOAD-READ-1 PR-B (D138): the tutor takes a student's image/PDF (validateMentorImagePayload), so it reads its body with the file-route cap.
 const { FILE_ROUTE_MAX_BODY_BYTES } = require('../mentorImageSupport.cjs');
 
@@ -232,6 +234,9 @@ function normalizeAnchorQuestion(input) {
   const out = { questionText };
   const id = cleanAnchorLine(a.id, ANCHOR_CAPS.id).text;
   if (id) out.id = id;
+  // TUTOR-KEY-TRUST-1: where the row came from ("NCERT Exemplar Ex 1.1 Q2"); a label only, never an instruction.
+  const source = cleanAnchorLine(a.source, 120).text;
+  if (source) out.source = source;
   const format = cleanAnchorLine(a.format, ANCHOR_CAPS.format).text;
   if (format) out.format = format;
   if (typeof a.marks === 'number' && Number.isFinite(a.marks) && a.marks > 0 && a.marks <= 20) out.marks = a.marks;
@@ -288,8 +293,30 @@ function tutorTurnContradictsKey(text, anchorQuestion) {
   }
   return false;
 }
-const STUDENT_DISPUTES_KEY =
-  /\b(wrong|incorrect|mistake|disagree|not (?:right|correct|true)|two (?:correct|right)|both (?:are |is )?(?:correct|right)|more than one|(?:answer|key) is wrong)\b/i;
+// TUTOR-KEY-TRUST-1: must say the KEY / ANSWER is wrong (or that more than one option is right) - "what's my mistake?"
+// and "where did I go wrong" are about the student's own work and never count.
+const STUDENT_DISPUTES_KEY = new RegExp(
+  '(?<!\\bmy\\s)\\b(?:' +
+    '(?:answer|key|solution)\\s+(?:is\\s+|looks\\s+|seems\\s+)?(?:wrong|incorrect|not\\s+(?:right|correct))' +
+    '|(?:wrong|incorrect)\\s+(?:answer|key)' +
+    '|disagree\\s+with\\s+(?:the\\s+)?(?:answer|key)' +
+    '|two\\s+(?:correct|right)|both\\s+(?:are\\s+|is\\s+)?(?:correct|right)|more\\s+than\\s+one\\s+(?:correct|right)' +
+    '|(?:option\\s+)?\\(?[a-d]\\)?\\s+(?:is\\s+)?also\\s+(?:correct|right)' +
+    '|should\\s+be\\s*(?:option\\s+)?\\(?[a-d]\\)?\\b' +
+  ')',
+  'i',
+);
+function studentDisputesKey(text) {
+  return STUDENT_DISPUTES_KEY.test(String(text || ''));
+}
+const squashText = (v) => String(v == null ? '' : v).toLowerCase().replace(/\s+/g, ' ').trim();
+function returnedWorkMatchesAnchor(rw, anchor) {
+  if (!rw || !anchor) return rw;
+  const r = squashText(rw.question);
+  const a = squashText(anchor.questionText);
+  if (!r) return null;
+  return a && (a.includes(r.slice(0, 80)) || r.includes(a.slice(0, 80))) ? rw : null;
+}
 function anchorNoteApplies(studentLast, previousTutorTexts, anchorQuestion) {
   if (!anchorQuestion || !(anchorQuestion.answer || anchorQuestion.finalAnswer)) return false;
   if (STUDENT_DISPUTES_KEY.test(String(studentLast || ''))) return true;
@@ -686,10 +713,50 @@ function createTutorRoute(deps) {
     GEMINI_MODEL,
     ACTIVE_PROVIDER,
     isStubMode,
+    resolveVerifiedUid,
+    adminFirestore,
+    firebaseAdmin,
   } = deps;
   const telemetry = deps.telemetry && typeof deps.telemetry.increment === 'function' ? deps.telemetry : defaultTelemetry();
 
   const MODEL = GEMINI_TUTOR_MODEL || GEMINI_MODEL;
+
+  // TUTOR-KEY-TRUST-1: signed-in callers only (the report is keyed by the verified uid); the row's own mismatch
+  // evidence, the model's hidden flag, and the student's own challenge each file one report per day.
+  const pendingLogs = new Set();
+  function track(p) {
+    pendingLogs.add(p);
+    p.finally(() => pendingLogs.delete(p));
+  }
+  async function resolveFlagUid(req, anchorQuestion) {
+    try {
+      if (!anchorQuestion || !anchorQuestion.id || !(anchorQuestion.answer || anchorQuestion.finalAnswer)) return '';
+      if (typeof resolveVerifiedUid !== 'function' || !adminFirestore) return '';
+      return String((await resolveVerifiedUid(req)) || '');
+    } catch {
+      return '';
+    }
+  }
+  async function logKeyDisputes({ uid, anchorQuestion, studentLast, modelFlag }) {
+    try {
+      if (!uid) return;
+      const base = {
+        questionId: anchorQuestion.id,
+        uid,
+        source: anchorQuestion.source || 'LazyTopper practice question',
+        keyAtTime: `${anchorQuestion.answerLetter ? `${anchorQuestion.answerLetter}: ` : ''}${anchorQuestion.answer || anchorQuestion.finalAnswer}`,
+        studentChallenge: studentDisputesKey(studentLast) ? studentLast : '',
+      };
+      const ctx = { firestore: adminFirestore, firebaseAdmin };
+      const evidence = detectKeyMismatch(anchorQuestion);
+      if (modelFlag) await recordKeyDispute(ctx, { ...base, kind: modelFlag.kind, reason: modelFlag.reason });
+      else if (evidence) await recordKeyDispute(ctx, { ...base, kind: 'mismatch', reason: evidence.reason });
+      if (modelFlag && modelFlag.kind !== 'mismatch' && evidence) await recordKeyDispute(ctx, { ...base, kind: 'mismatch', reason: evidence.reason });
+      if (studentDisputesKey(studentLast)) await recordKeyDispute(ctx, { ...base, kind: 'challenge', reason: 'The student disputed the key.' });
+    } catch (e) {
+      console.error('[tutor] key dispute log failed:', e && e.message);
+    }
+  }
 
   async function handleTutorRequest(req, res) {
     let payload;
@@ -725,9 +792,10 @@ function createTutorRoute(deps) {
     // eval-gated §6.3 digest). Additive + optional — rebuilt at the trust boundary; null when
     // absent or malformed, and the prompt then renders no block. The tutor never grades (D-TUT-8):
     // this is READ context to teach from, and the rails forbid re-judging the board's marks.
-    const returnedWork = normalizeReturnedWork(payload.returnedWork);
-    // TUTOR-ANCHOR-KEY-1: the exact bank question (+ its official key) the tutor was opened about; every turn.
     const anchorQuestion = normalizeAnchorQuestion(payload.anchorQuestion);
+    // TUTOR-KEY-TRUST-1 item 0 (belt and braces with the client): a returnedWork about ANOTHER question than the
+    // anchor is stale context and never reaches the prompt - the anchored question is what the student is on.
+    const returnedWork = returnedWorkMatchesAnchor(normalizeReturnedWork(payload.returnedWork), anchorQuestion);
 
     // Map the conversation to Gemini turns (user | model), dropping empties and
     // capping both history length and per-turn size.
@@ -764,7 +832,10 @@ function createTutorRoute(deps) {
     }
 
     // An empty topicLabel lets the prompt name the subject and say no chapter was chosen (T5).
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion });
+    // TUTOR-KEY-TRUST-1: the prompt may say "I've flagged it" ONLY when the server will really log (verified uid + a keyed anchor + Firestore).
+    const flagUid = await resolveFlagUid(req, anchorQuestion);
+    const canFlag = !!flagUid;
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
@@ -853,7 +924,9 @@ function createTutorRoute(deps) {
       // return it as a sibling `offer` field the UI gates ONE round-trip CTA on. Robust:
       // a missing/garbled tag yields offer:null (no CTA, never a crash). Runs on the model
       // OUTPUT only — orthogonal to the language-steering append (which edits the INPUT).
-      const offerOut = extractOfferTag(raw);
+      // TUTOR-KEY-TRUST-1: the hidden key-dispute flag is stripped FIRST, so it can never reach the client or the store.
+      const flagOut = extractKeyFlagTag(raw);
+      const offerOut = extractOfferTag(flagOut.text);
       // Stage 3: strip the figure sentinel too (same OUTPUT pass, order-independent — the
       // two tags are on their own lines). Validate against the curated set for this topic.
       const figureOut = extractFigureTag(offerOut.text, figureKeys);
@@ -889,6 +962,9 @@ function createTutorRoute(deps) {
       if (!text) {
         return sendJson(res, 502, { error: 'The tutor returned an empty reply. Please try again.' });
       }
+      // TUTOR-KEY-TRUST-1: log disputes (server-only write, at most one per question/uid/day/kind). Never blocks or fails the reply.
+      // Fire-and-forget: the reply never waits on the log (flushDisputeLogs lets tests await it).
+      track(logKeyDisputes({ uid: flagUid, anchorQuestion, studentLast, modelFlag: flagOut.keyFlag }));
       // TUTOR-FIX-1: honest cut-off signal — true only when the model stopped at its token limit.
       const truncated = Boolean(reply && reply.finishReason === 'MAX_TOKENS');
       // offerSource is additive ('model' | 'safety-net' | null); older clients ignore it.
@@ -902,7 +978,7 @@ function createTutorRoute(deps) {
     }
   }
 
-  return { handleTutorRequest };
+  return { handleTutorRequest, flushDisputeLogs: () => Promise.all([...pendingLogs]) };
 }
 
 module.exports = {
@@ -917,6 +993,7 @@ module.exports = {
   normalizeReturnedWork,
   normalizeAnchorQuestion,
   anchorNoteApplies,
+  studentDisputesKey,
   normalizeBrief,
   detectOfferIntent,
   mentionsDiagram,

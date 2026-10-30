@@ -203,10 +203,19 @@ check(
   /returnedWorkRef\.current = buildReturnedWork\(\{[\s\S]*?includeDigest: RETURNED_WORK_DIGEST_ENABLED,/.test(hook),
 );
 // The returnedWork context is passed to the model on the return turn (Piece 1 reaches the model).
+// TUTOR-KEY-TRUST-1 (item 0): it is still passed for a genuine Answer Checker return (no bank anchor) and for the
+// SAME question; it is dropped ONLY when a DIFFERENT anchored question supersedes it (returnedWorkForAnchor).
 check(
-  "RETURN: returnedWork is passed to callTutor (the question reaches the MODEL, not just the host)",
-  /returnedWork: returnedWorkRef\.current,/.test(hook),
+  "RETURN: returnedWork is passed to callTutor (the question reaches the MODEL, not just the host), unless a DIFFERENT anchored question supersedes it",
+  /returnedWork: returnedWorkForAnchor\(returnedWorkRef\.current, anchorQuestion\),/.test(hook),
 );
+{
+  const anchorSrc = readFileSync(new URL("../../src/pages/tutor/tutorAnchorQuestion.ts", import.meta.url), "utf8");
+  check(
+    "RETURN: with NO anchor the returnedWork is kept as-is (plain Answer Checker return), and a matching stem keeps it",
+    /if \(!rw\) return null;\s*if \(!anchor\) return rw;/.test(anchorSrc) && /\? rw : null;/.test(anchorSrc),
+  );
+}
 // The in-memory question is held (the seam), never persisted.
 check(
   "RETURN: the raw question is held in-memory (overlayQuestionRef), never persisted",

@@ -24,6 +24,7 @@
 // BOARD_PREP_SURFACES lists only lazytopper/src files; server/ is not scanned.)
 
 'use strict';
+const { detectKeyMismatch } = require('../services/keyTrust.cjs');
 
 // BEGIN GENERATED TUTOR_SYLLABUS_2026_27
 const TUTOR_SYLLABUS_2026_27 = {
@@ -467,7 +468,7 @@ function syllabusBlock() {
  *   (routes/tutor.cjs normalizeAnchorQuestion). Absent -> no block. The key is FINAL.
  * @returns {string}
  */
-function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion } = {}) {
+function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag } = {}) {
   const subj = subject === 'science' ? 'Science' : subject === 'maths' ? 'Maths' : 'Maths/Science';
   // TUTOR-FIX-2 T5: no chapter (a cold /tutor/10/:subject entry) -> the SUBJECT names the session,
   // never "this topic".
@@ -636,7 +637,7 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
 
   lines.push(returnedWorkBlock(returnedWork));
 
-  lines.push(anchorQuestionBlock(anchorQuestion));
+  lines.push(anchorQuestionBlock(anchorQuestion, canFlag === true));
 
   lines.push(honestyBlock());
 
@@ -1191,7 +1192,7 @@ function returnedWorkBlock(returnedWork) {
  * the answer alone (CLAUDE.md section 13): no partial-credit talk. The demonstration question keeps its own
  * job ("see how it's solved"); for "this question" this block wins.
  */
-function anchorQuestionBlock(anchorQuestion) {
+function anchorQuestionBlock(anchorQuestion, canFlag) {
   const a = anchorQuestion && typeof anchorQuestion === 'object' ? anchorQuestion : null;
   const text = a && typeof a.questionText === 'string' ? a.questionText.trim() : '';
   if (!text) return '';
@@ -1207,8 +1208,10 @@ function anchorQuestionBlock(anchorQuestion) {
   const format = typeof a.format === 'string' && a.format.trim() ? `${a.format.trim()} ` : '';
   const parts = [
     `\nTHE QUESTION THE STUDENT OPENED THIS CHAT ABOUT, WITH ITS OFFICIAL ANSWER KEY (context to teach from - nobody in the chat said this)`,
-    `The student came here from THIS exact ${marks}${format}question. When they say "this question", "the answer", ` +
-      `"the right option" or name an option letter, they mean it - not the demonstration question and not another one.`,
+    `The student came here from THIS exact ${marks}${format}question and is looking at it right now. When they say "this question", "the answer", ` +
+      `"the right option" or name an option letter, they mean it - not the demonstration question and not another one. ` +
+      `PRECEDENCE: if an "EARLIER MARKED QUESTION" or "WORK THE STUDENT JUST HAD BOARD-MARKED" block appears above, that is earlier context; ` +
+      `questions about "this question" refer to THIS anchored question. The question and its options are written below, so never say you cannot see them.`,
     `- The question, complete and verbatim:\n    "${q(text.slice(0, 3000))}"`,
   ];
   if (options.length) parts.push(`- The options:\n${options.map((o) => `    ${q(o)}`).join('\n')}`);
@@ -1223,12 +1226,22 @@ function anchorQuestionBlock(anchorQuestion) {
       );
     } else parts.push(`- THE OFFICIAL ANSWER KEY (CBSE/NCERT): ${keyLine}${answer && finalAnswer && finalAnswer !== answer ? ` (full form: "${q(finalAnswer)}")` : ''}`);
   }
+  const source = typeof a.source === 'string' ? a.source.trim() : '';
+  if (source) {
+    parts.push(`- Where this question comes from: ${q(source)}. You may name the source once when you explain the key ("this is NCERT Exemplar's answer"), only if it sounds natural.`);
+  }
   if (steps.length) {
     parts.push(`- The official solution steps (explain the key THROUGH these):\n${steps.map((s, i) => `    ${i + 1}. ${q(s.slice(0, 800))}`).join('\n')}`);
   }
   const pick = typeof a.studentPick === 'string' ? a.studentPick.trim() : '';
   if (pick && (a.verdict === 'right' || a.verdict === 'wrong')) {
     parts.push(`- The option the student picked: '${q(pick)}' (${a.verdict === 'right' ? 'the right option' : 'not the right option'}).`);
+  }
+  const mismatch = hasKey ? detectKeyMismatch(a) : null;
+  if (mismatch) {
+    parts.push(
+      `- ROW CHECK (computed from the row itself, not an opinion): ${mismatch.reason} The row contradicts itself, so the key may be mis-entered in our bank.`,
+    );
   }
   parts.push(
     `RULES FOR THIS QUESTION:\n` +
@@ -1245,8 +1258,24 @@ function anchorQuestionBlock(anchorQuestion) {
       `- Tone: say the key once, in a sentence of your own - warm and short, not legalistic; don't repeat "official key" every turn; end with one question back to the student.\n` +
       `- An MCQ or other 1-mark objective question is 0 or FULL on the answer alone, as in a real CBSE exam: no partial-credit talk, ` +
       `no "half right". Explain the reasoning, not a score.\n` +
-      `- If the student insists the key is wrong: say, calmly, that the answer follows the official CBSE/NCERT key and that you will ` +
-      `not change it; they can tell the LazyTopper team if they still think it is wrong. Never flip, and never claim a report was filed.\n` +
+      `- KEY TRUST (evidence, never opinion). You may say our key looks wrong ONLY when the ROW contradicts itself: the solution steps ` +
+      `or the final answer above arrive at a DIFFERENT option or value than the key, or the key names no option. ` +
+      (mismatch
+        ? `That is the case here (see ROW CHECK): say plainly, in your own words, that there is a mismatch in our key and show which option the working supports. ` +
+          (canFlag
+            ? `Say it has been flagged for the LazyTopper team. Put \`[[keyflag:mismatch:<what differs, at most 200 characters>]]\` on its own line.\n`
+            : `You cannot file a report from here: say they can tell the LazyTopper team about it, and never claim it was flagged or reported.\n`) +
+          `Do not insist the key is right.\n`
+        : `Nothing in this row contradicts itself, so the key stands: explain the bank answer using its steps. Never tell the student the board or NCERT is wrong, and never say ` +
+          `our key is wrong because of your own view. If YOUR OWN view differs from the key, or the student raises a point, acknowledge their point briefly and kindly, still explain the ` +
+          `bank answer` + (canFlag ? `, and put \`[[keyflag:opinion:<one line, at most 200 characters, on why you or the student differ>]]\` on its own line. ` : `. `) +
+          `If the student insists the key is wrong, say calmly that this answer follows the official key and you will not change it; they can tell the LazyTopper team if they still think it is wrong. ` +
+          `Never flip, and never claim a report was filed.\n`) +
+      (canFlag
+        ? `- If, while teaching, you find the steps and the key disagree even though no ROW CHECK is shown, treat it as a mismatch exactly as above and emit \`[[keyflag:mismatch:<reason>]]\`.\n` +
+          `- The keyflag tag is machine-readable: it goes on its own line just before any offer tag, is stripped by the app, and is NEVER shown, described or mentioned to the student. ` +
+          `Emit at most one. Otherwise emit none.\n`
+        : `- Emit no keyflag tag in this chat.\n`) +
       `- This block wins over the demonstration question for anything about THIS question. Quote only what is written above - ` +
       `never invent an option, a step or a value that is not here.`,
   );

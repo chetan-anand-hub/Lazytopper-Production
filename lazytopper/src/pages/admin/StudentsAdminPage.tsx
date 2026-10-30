@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import StudentDetailPanel from "./StudentDetailPanel";
 import GraderHealthCard from "./GraderHealthCard";
+import KeyDisputesCard from "./KeyDisputesCard";
 import AiCostSummaryCard, { useAiCostSummary } from "./AiCostSummaryCard";
 import {
   AI_COST_NOTE,
@@ -406,6 +407,9 @@ export default function StudentsAdminPage() {
 
           {/* HARDEN-1 PR-2: read-only, loads on request, only once the admin API has answered. */}
           {list.status === "ok" && <GraderHealthCard getToken={stableGetToken} />}
+
+          {/* TUTOR-KEY-TRUST-1: disputed answer keys, loads on request, admin API answered OK. */}
+          {list.status === "ok" && <KeyDisputesCard getToken={stableGetToken} />}
 
           {/* PREVIEW-1: only once the admin API has answered OK (never on 401/403/503). */}
           {list.status === "ok" && <GuidePreviewPanel />}

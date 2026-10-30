@@ -162,6 +162,9 @@ export interface TutorRequest {
  *  the on-screen opener only and never reaches model context. */
 export interface TutorAnchorQuestion {
   id: string;
+  /** TUTOR-KEY-TRUST-1 - where the row came from ("NCERT Exemplar Ex 1.1 Q2", "CBSE 2024 board paper", or
+   *  "LazyTopper practice question"). A label for the tutor to name once; it never changes the key. */
+  source?: string;
   questionText: string;
   format?: string;
   marks?: number;
