@@ -904,6 +904,12 @@ export type NamedAnalyticsEvent =
   | "ci_demo_check_own"
   | "ci_demo_another"
   | "ci_demo_close"
+  // ONE-MINUTE-1 - the first-minute ladder (tap, type, photo). Names only, first-party and vendors, via trackOneMinute.
+  | "one_min_tap_shown"
+  | "one_min_tap_answered"
+  | "one_min_type_shown"
+  | "one_min_type_graded"
+  | "one_min_photo_cta"
   // ENGAGE10-1 — ten visible minutes in one IST day, once per browser per day, bare name.
   | "engaged_10min"
   // ENGAGE5-1 — five visible minutes in one IST day, once per browser per day, bare name.
@@ -923,16 +929,19 @@ export function trackNamedEvent(name: NamedAnalyticsEvent): void {
 }
 
 /**
- * ONE-MINUTE-1 R4 — the first-minute ladder's five measurement events. Vendors only (GA4 / Vercel), like
- * `parent_report_viewed`: the names are deliberately NOT in `NamedAnalyticsEvent`, because a first-party name
- * also needs the server allow-list (studentActivity.cjs, out of this lane's scope). `data` is flat and coarse:
- * `{ correct }` on the tap, `{ seconds_since_landing }` on the typed grade. No question, answer, id or uid.
+ * ONE-MINUTE-1 R4 - the first-minute ladder's five measurement events. The vendors (GA4 / Vercel) get the name plus a flat,
+ * coarse `data`: `{ correct }` on the tap, `{ seconds_since_ladder_start }` on the typed grade (no question, answer, id or uid).
+ * The first-party activity log gets the BARE NAME only (all five are in `NamedAnalyticsEvent` and both allow-lists),
+ * and records it for a signed-in student only, like every other named event: a signed-out visitor stays vendor-only.
  */
-export type OneMinuteEvent = "one_min_tap_shown" | "one_min_tap_answered" | "one_min_type_shown" | "one_min_type_graded" | "one_min_photo_cta";
+export type OneMinuteEvent = Extract<
+  NamedAnalyticsEvent,
+  "one_min_tap_shown" | "one_min_tap_answered" | "one_min_type_shown" | "one_min_type_graded" | "one_min_photo_cta"
+>;
 
-export function trackOneMinute(name: OneMinuteEvent, data?: { correct?: boolean; seconds_since_landing?: number }): void {
+export function trackOneMinute(name: OneMinuteEvent, data?: { correct?: boolean; seconds_since_ladder_start?: number }): void {
   try {
-    send("event", data ? { name, data } : { name }, data ? { ga4: data } : {});
+    send("event", data ? { name, data } : { name }, data ? { ga4: data } : {}, name);
   } catch {
     /* analytics must never break the page */
   }

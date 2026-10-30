@@ -10,6 +10,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { trackOneMinute } from "../../analytics/analytics";
+import { markLadderStart } from "./ladderClock";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { correctIndex, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
@@ -98,6 +99,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
     if (!mcq) return;
     if (!shown.current) {
       shown.current = true;
+      markLadderStart();
       trackOneMinute("one_min_tap_shown");
     }
     if (picked === null) onLine(CI_DEMO_COPY.ladderHead, "tap");

@@ -88,6 +88,11 @@ describe("ONE-MINUTE-1 step 1 — TAP", () => {
     expect(ciDemoEligible({ ...base, forced: true })).toBe(true);
     expect(ciDemoEligible({ ...base, forced: true, who: { kind: "signedOut", freeMode: true, freeCheckUsed: true } })).toBe(false);
     expect(ciDemoEligible({ ...base, forced: true, overlay: true })).toBe(false);
+    // signed in: only a student with ZERO graded results (Byte's own audience), whatever the arrival
+    const inWho = (zeroGraded: "none" | "some" | "loading") => ({ kind: "signedIn", zeroGraded }) as const;
+    expect(ciDemoEligible({ ...base, forced: true, who: inWho("none") })).toBe(true);
+    expect(ciDemoEligible({ ...base, forced: true, who: inWho("some") })).toBe(false);
+    expect(ciDemoEligible({ ...base, forced: true, who: inWho("loading") })).toBe(false);
   });
 
   it("a tap gives an instant LOCAL verdict (no network): right = 1/1, wrong = 0/1 plus the right option and the row's own why", async () => {

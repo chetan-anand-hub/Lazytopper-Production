@@ -133,6 +133,7 @@ import StartHereCard from "../../components/startHere/StartHereCard";
 // CI-SOFT-1 — "Pick a board question, watch it get marked": the eager door + the audience rule only.
 // Every line, sample and drawing is in the lazy ciDemoChunk. Display only: no grader / AI call.
 import CiDemoCard, { type CiDemoOwnPick, type CiDemoLadderPick, type LadderAnswer } from "../../components/ciDemo/CiDemoCard";
+import { secondsSinceLadderStart } from "../../components/ciDemo/ladderClock";
 import LadderPhotoCta from "../../components/ciDemo/LadderPhotoCta";
 import { recordLadderTap } from "../../components/ciDemo/ladderAttempt";
 import { useCiDemoAudience } from "../../components/ciDemo/ciDemoModel";
@@ -1645,6 +1646,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
 
   function clearDetection() {
+    // ONE-MINUTE-1: a new / edited question ends the ladder's typed step (no type_graded or photo CTA for an unrelated answer).
+    setLadderTyped(false);
     setDetected(null);
     setConfirmed(null);
     setEditing(false);
@@ -1722,14 +1725,9 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     if (!ladderTyped || status !== "ready" || ladderGradedSent.current) return;
     ladderGradedSent.current = true;
-    // No landing timestamp exists; the ad arrival loads this page directly, so the tab's own clock IS the landing.
-    let sec: number | null = null;
-    try {
-      sec = Math.round(performance.now() / 1000);
-    } catch {
-      sec = null;
-    }
-    trackOneMinute("one_min_type_graded", sec === null ? undefined : { seconds_since_landing: sec });
+    // Measured from the moment the ladder's tap step first showed (its own stopwatch), not from page load.
+    const sec = secondsSinceLadderStart();
+    trackOneMinute("one_min_type_graded", sec === null ? undefined : { seconds_since_ladder_start: sec });
   }, [ladderTyped, status]);
   function ciDemoLadderType(pick: CiDemoLadderPick) {
     const cd = seedConfirmedFromBank({ ...pick.seed });
@@ -2807,9 +2805,6 @@ const DesktopCheckImprovePageInner: React.FC<{
               if (!ciDemo.startLadder()) focusQuestionBox();
             }}
           />
-        )}
-        {!overlay && ladderTyped && status === "ready" && !isMultiQuestion && (
-          <LadderPhotoCta onTap={ciLadderPhoto} />
         )}
         {/* No lede here — deleted at both widths (owner-decided). Every clause it
             carried already ships better elsewhere: "How it works" step 3 says the same
@@ -4188,6 +4183,8 @@ const DesktopCheckImprovePageInner: React.FC<{
           resultCtx.topicSlug
             ? { to: worksheetForTopicPath(resultCtx.subject, resultCtx.topicSlug), chapter: resultCtx.topicName }
             : null)}
+          // ONE-MINUTE-1 step 3: under the typed result, one line to the existing Upload tab.
+          belowScore={!overlay && ladderTyped ? <LadderPhotoCta onTap={ciLadderPhoto} /> : undefined}
           onClose={() => setScorecardOpen(false)}
         />
       )}

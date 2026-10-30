@@ -175,6 +175,11 @@ const EVENT_LABELS: Record<string, string> = {
   ci_demo_check_own: "Tapped Check my own answer after a sample",
   ci_demo_another: "Tapped Mark another question after a sample",
   ci_demo_close: "Closed the sample-marking card",
+  one_min_tap_shown: "Saw the 1-tap board question (first-minute ladder)",
+  one_min_tap_answered: "Tapped an answer on the 1-tap board question",
+  one_min_type_shown: "Moved on to the typed 2-mark question",
+  one_min_type_graded: "Got a typed 2-mark answer graded in the first-minute ladder",
+  one_min_photo_cta: "Was offered to snap an answer on paper",
   engaged_10min: "Stayed 10 minutes (in one day)",
   engaged_5min: "Stayed 5 minutes (in one day)",
   // PACKS-CLIENT-1 — the printable PDF packs.

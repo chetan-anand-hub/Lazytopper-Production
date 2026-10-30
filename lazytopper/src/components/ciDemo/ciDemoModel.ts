@@ -41,7 +41,7 @@ export interface CiDemoAudienceInput {
   alreadyOpen: boolean;
   /**
    * ONE-MINUTE-1 — Byte's "Check one answer" asked for the ladder (an explicit tap, not an arrival): the ad-arrival and
-   * closed-this-tab rules do not apply; the same students still qualify (signed out with the free check unspent, or signed in).
+   * closed-this-tab rules do not apply; the same students still qualify (signed out with the free check unspent, or signed in with ZERO graded results).
    */
   forced?: boolean;
   who:
@@ -58,7 +58,7 @@ export function isCiAdArrival(visit: CiDemoAudienceInput["visit"]): boolean {
 /** Everything EXCEPT "nothing in progress" — what lets an already-open card stay open. */
 export function ciDemoEligible(i: Omit<CiDemoAudienceInput, "inProgress" | "alreadyOpen">): boolean {
   if (i.overlay) return false;
-  if (i.forced) return i.who.kind === "signedOut" ? i.who.freeMode && !i.who.freeCheckUsed : true;
+  if (i.forced) return i.who.kind === "signedOut" ? i.who.freeMode && !i.who.freeCheckUsed : i.who.zeroGraded === "none";
   if (i.closed || !isCiAdArrival(i.visit)) return false;
   return i.who.kind === "signedOut"
     ? i.who.freeMode && !i.who.freeCheckUsed
