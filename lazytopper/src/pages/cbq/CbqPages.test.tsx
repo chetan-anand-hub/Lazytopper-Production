@@ -51,6 +51,7 @@ describe("CBQ-SEO-1 hub page", () => {
     const premium = screen.getByTestId("cbq-cta-premium");
     const pack = screen.getByTestId("cbq-cta-pack");
     expect(before(premium, pack)).toBe(true);
+    expect(before(pack, screen.getByTestId("cbq-practice-link")), "R1: Premium, then pack, then the free card").toBe(true);
     expect(premium.textContent).toContain("7 days");
     expect(premium.textContent).toContain("No card needed");
     expect(screen.getByTestId("cbq-cta-premium-link").getAttribute("href")).toBe("/pricing");
@@ -63,7 +64,7 @@ describe("CBQ-SEO-1 hub page", () => {
 });
 
 describe("CBQ-SEO-1 chapter page (real bank)", () => {
-  it("shows five real CBQs with a collapsed step-wise solution each, then practice, Premium, pack, notes and Topic Hub", async () => {
+  it("shows five real CBQs with a collapsed step-wise solution each, then Premium, pack, practice, notes and Topic Hub", async () => {
     mountChapter("circles");
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Circles CBQs — CBSE Class 10 (2027) with step-wise solutions");
     const list = await screen.findByTestId("cbq-samples", undefined, { timeout: 20_000 });
@@ -84,6 +85,7 @@ describe("CBQ-SEO-1 chapter page (real bank)", () => {
     const premium = screen.getByTestId("cbq-cta-premium");
     const pack = screen.getByTestId("cbq-cta-pack");
     expect(before(premium, pack)).toBe(true);
+    expect(before(pack, practice), "R1: Premium, then pack, then the free card").toBe(true);
     expect(pack.textContent).toContain(`Maths CBQ Pack ₹${PACK_PRICE_INR.pack_cbq}`);
     expect(screen.getByTestId("cbq-notes-link").getAttribute("href")).toBe("/notes/circles");
     expect(screen.getByTestId("cbq-topichub-link").getAttribute("href")).toBe("/topic-hub/circles");

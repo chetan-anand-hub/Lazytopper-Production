@@ -30,6 +30,8 @@
  * (`crawlerReachability.guard`) understands literal, `:p`, `:p*` and `:p(pattern)` only,
  * and the regex never contains a capturing group.
  */
+import { cbqChapterSlugs } from "../components/cbq/cbqSeo";
+
 
 /** Where every routed path is sent. Built by `applyPrerendered` as a clean copy of the shell. */
 export const SHELL_DESTINATION = "/__shell.html";
@@ -104,13 +106,23 @@ function segmentRegex(seg: string): string {
 }
 
 /**
+ * CBQ-SEO-FIX-1 — routes whose LAST `:param` is a closed set, not any one segment. An address
+ * outside the set matches no rewrite and gets `public/404.html` with HTTP 404 (not the shell with
+ * 200). `cbqChapterSlugs()` is the registry the page itself resolves against;
+ * `cbqRewrites.guard.test.ts` pins `vercel.json` to it both ways, so a new chapter cannot 404.
+ */
+export const PARAM_CONSTRAINTS: Record<string, readonly string[]> = {
+  "/cbq-class-10/:chapterSlug": cbqChapterSlugs(),
+};
+
+/**
  * The `vercel.json` `source` for one router path.
  *   "/"                 -> "/"                      (the root is a file; the literal documents it)
  *   "/pricing"          -> "/:path(pricing/?)"
  *   "/notes/:topicSlug" -> "/:path(notes/[^/]+/?)"
  *   "/login/*"          -> "/:path(login(?:/.*)?)"
  */
-export function sourceFor(pattern: string): string {
+export function sourceFor(pattern: string, constraints: Record<string, readonly string[]> = PARAM_CONSTRAINTS): string {
   if (!pattern.startsWith("/")) {
     throw new Error(`routeRewrites: router path must start with "/": ${pattern}`);
   }
@@ -124,7 +136,13 @@ export function sourceFor(pattern: string): string {
   if (segs.some((s) => s === "" || s.includes("*"))) {
     throw new Error(`routeRewrites: unsupported router path shape: ${pattern}`);
   }
-  const body = segs.map(segmentRegex).join("/");
+  const allowed = constraints[pattern];
+  const lastParam = segs[segs.length - 1];
+  const body = segs
+    .map((seg) =>
+      allowed && seg === lastParam && seg.startsWith(":") ? `(?:${allowed.map((v) => [...v].map(literalChar).join("")).join("|")})` : segmentRegex(seg),
+    )
+    .join("/");
   return `/:path(${body}${splat ? "(?:/.*)?" : "/?"})`;
 }
 
