@@ -118,21 +118,15 @@ describe("HOME-LADDER-1 · arrival on /check-improve", () => {
         </Routes>
       </MemoryRouter>,
     );
-  it("with the note: the page's checkOneAnswer (startLadder) runs ONCE and the note is consumed", async () => {
+  // HOME-LADDER-1b: the arrival is owned by DesktopCheckImprovePage (it retries startLadder until auth
+  // settles — see DesktopCheckImprovePage.ciDemo.test.tsx). The card must NOT fire checkOneAnswer once at
+  // mount any more: that one-shot fell through to focusing the question box on the live site.
+  it("with the note: the card leaves the arrival to the page (does not call checkOneAnswer)", async () => {
     window.sessionStorage.setItem(CHECK_ONE_LADDER_KEY, "1");
     const start = vi.fn();
-    const r = arrive(start);
+    arrive(start);
     await flush();
-    expect(start).toHaveBeenCalledTimes(1);
-    expect(window.sessionStorage.getItem(CHECK_ONE_LADDER_KEY)).toBeNull();
-    r.rerender(
-      <MemoryRouter initialEntries={["/check-improve"]}>
-        <Routes>
-          <Route path="*" element={<StartHereCard uid="u1" surface="check_improve" returnTo="/check-improve" focus checkOneAnswer={start} />} />
-        </Routes>
-      </MemoryRouter>,
-    );
-    expect(start).toHaveBeenCalledTimes(1);
+    expect(start).not.toHaveBeenCalled();
   });
   it("without the note: nothing is started", async () => {
     const start = vi.fn();

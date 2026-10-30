@@ -47,11 +47,9 @@ import {
   recordFocusNotNow,
   START_HERE_FOCUS_CLOSED_KEY,
   clearCheckOneHandover,
-  clearCheckOneLadder,
   markCheckOneHandover,
   markCheckOneLadder,
   peekCheckOneHandover,
-  peekCheckOneLadder,
   isDismissedThisSession,
   readSubjectHint,
   startHerePracticePath,
@@ -290,17 +288,6 @@ export default function StartHereCard({ uid, focus = false, inProgress = false, 
     if (rest.surface === "check_improve") clearCheckOneHandover();
   }, [rest.surface]);
   const [hiddenHere, setHiddenHere] = useState<null | "closed" | "check_one">(handedOver ? "check_one" : null);
-  // HOME-LADDER-1: Home's Byte asked for the one-minute ladder. Read once at mount, deleted in an
-  // effect, and handed to the page's own `checkOneAnswer` (= ONE-MINUTE-1's startLadder) exactly once.
-  const [ladderAsked] = useState<boolean>(() => rest.surface === "check_improve" && !!uid && peekCheckOneLadder());
-  const ladderStarted = useRef(false);
-  useEffect(() => {
-    if (rest.surface !== "check_improve") return;
-    clearCheckOneLadder();
-    if (!ladderAsked || ladderStarted.current) return;
-    ladderStarted.current = true;
-    checkOneAnswer?.();
-  }, [rest.surface, ladderAsked, checkOneAnswer]);
   const inlineState = hiddenHere ? { ...state, visible: false, chipSuppressed: hiddenHere === "check_one" } : state;
   return (
     <>
