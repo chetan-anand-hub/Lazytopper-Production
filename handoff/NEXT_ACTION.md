@@ -1,3 +1,14 @@
+## 2026-10-30 (daily, part 3) - #1439, #1441 - #1443
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`0606546a`** [git].
+
+- **Done [coordinator]:** 4 PRs (table in CURRENT_STATE). `RENAME-OPS-1` is no longer in flight.
+- **NEXT [coordinator]:**
+  1. Owner opens `/admin/students` and confirms the "Disputed answer keys" card shows the test challenge on `CHEM-EXMPLR-1-MCQ-002`, then resolves it (`[FU-KEYDISPUTE-ADMIN-CARD-LIVE]`).
+  2. Watch the key-dispute queue; each real report is a data fix.
+  3. Earlier lists stand (Mon 2 Nov Google Ads review, `[FU-ONE-MIN-SIGNED-OUT-GRADE]`, `[FU-HOME-LADDER-PHONE]`).
+- **Doc-only note:** this PR touches only `handoff/`.
+
 ## 2026-10-30 (daily, part 2) - #1434 - #1438: ONE-MINUTE-1, HOME-LADDER-1, HOME-LADDER-1b, RENAME-SWEEP-1, RENAME-SERVER-1
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`8f201e3e`** [git].

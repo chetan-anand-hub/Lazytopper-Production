@@ -1,3 +1,16 @@
+## 2026-10-30 (daily, part 3) - #1439, #1441 - #1443: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 30 Oct 2026 relayed by the cofounder **[coordinator]**, with the reason given.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Do NOT hide onboarding ("Your first 2 minutes" cards) from paid members; label the admin preview instead | `#1441`; the paid-hide draft was discarded unpushed. Admin preview stays per-browser. | owner + cofounder: a paid member with zero graded answers is the most at-risk customer and needs the first win; experienced students never see the cards. The cards the owner saw on his paid phone were the 7-day per-browser admin Guide preview, not a bug. |
+| The tutor carries the exact question and its answer key on every turn from every question-specific surface | `#1442` (`anchorQuestion`, `normalizeAnchorQuestion`, FINAL-key prompt block) | a student got a wrong tutor answer on `CHEM-EXMPLR-1-MCQ-002` because the hop sent only a 180-char stem. |
+| The tutor gives a correction note only when it earlier gave a different answer or the student disputes | `#1442` | avoids needless apologies; HUMAN-TUTOR tone. |
+| Bank keys are not assumed infallible: source label, EVIDENCE rule, flags, admin review queue | `#1443`, owner ruling 30 Oct 21:05 IST | answer keys can be wrong from transcription. The tutor may say a key looks wrong only when the row contradicts itself (`keyTrust.cjs`), so it does not cave to every student push-back. |
+| Key-dispute reports are stored in a root collection `keyDisputeReports` via Admin SDK, fire-and-forget, max 10 per uid per day, and included in STUDENT_DATA_MAP, erasure and export | `#1443` | DPDP coverage for personal data; the cap limits abuse and cost. No extra model call. |
+| Bank key audit run as report only, no repo change | audit of 11,313 rows | 0 mechanical key errors; the 80% of MCQ steps that do not state the key letter are covered at runtime by the flags. |
+
 ## 2026-10-30 (daily, part 2) - #1434 - #1438: ADS/OPS DECISIONS AND NAMING (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner decisions of 30 Oct 2026 relayed by the cofounder **[coordinator]**, with the reason given.
