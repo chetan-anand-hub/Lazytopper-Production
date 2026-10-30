@@ -32,6 +32,7 @@ import {
 } from "../guide/guideVariant";
 import { guidePlanFor } from "../guide/guideInputs";
 import type { ChapterRef } from "../guide/intentMap";
+import AdminPreviewBadge from "../guide/AdminPreviewBadge";
 import { LazyByteGuide, LazyGuideChip } from "../guide/lazyGuide";
 import { useMascotsHidden } from "../guide/mascotsMute";
 import { APPEARANCE_PRIORITY, NoteShown, useAppearance } from "../guide/mascotBudget";
@@ -399,6 +400,7 @@ export function StartHereView({
     <>
       <style>{CSS}</style>
       <section className={spaced ? "lt-shc lt-shc--spaced" : "lt-shc"} data-testid="start-here-card">
+        <AdminPreviewBadge />
         <StartHerePanel testIdPrefix="start-here" returnTo={returnTo} onNotNow={onNotNow} />
       </section>
     </>
@@ -1456,6 +1458,7 @@ function StartHereFocusDialog({
         aria-labelledby={headingId}
         tabIndex={-1}
       >
+        <AdminPreviewBadge />
         <button
           type="button"
           className="lt-shcf-x"

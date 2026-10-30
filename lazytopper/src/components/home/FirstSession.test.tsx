@@ -472,3 +472,19 @@ describe("8 · exactly ONE first-session / MI card, in ONE position", () => {
     expect(screen.queryByText(/^Signed in$/)).toBeNull();
   });
 });
+
+describe("PREVIEW-BADGE-1 · the First-session card carries the Admin preview pill under an admin preview only", () => {
+  it("preview on -> pill inside the card", async () => {
+    window.localStorage.setItem("lazytopper.guidePreview", JSON.stringify({ arm: "guide", until: 4_102_444_800_000 }));
+    renderIn(<FirstSession uid="test-uid" />);
+    const card = await screen.findByTestId("first-session-card");
+    expect(within(card).getByTestId("guide-admin-preview").textContent).toBe("Admin preview");
+    window.localStorage.removeItem("lazytopper.guidePreview");
+  });
+  it("no preview -> the card shows, no pill", async () => {
+    window.localStorage.removeItem("lazytopper.guidePreview");
+    renderIn(<FirstSession uid="test-uid" />);
+    await screen.findByTestId("first-session-card");
+    expect(screen.queryByTestId("guide-admin-preview")).toBeNull();
+  });
+});
