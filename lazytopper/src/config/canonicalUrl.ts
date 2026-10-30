@@ -104,6 +104,9 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   // `solutionsPaths()` (the light `solutionsPages.ts`, no ids): a chapter added there is
   // self-canonical, in the sitemap and in the prerender set with no edit here. Exact paths only.
   ...solutionsPaths(),
+  // CBQ-SEO-1 (owner authorization, 30 Oct 2026) — the CBQ hub: public, signed-out readable, indexable.
+  // Its 26 chapter pages are the `/cbq-class-10` one-segment family below.
+  "/cbq-class-10",
 ];
 
 /**
@@ -143,6 +146,8 @@ export const SELF_CANONICAL_ONE_SEGMENT: readonly string[] = [
   // SEO-NOTES-AND-LINKS-1 — `/notes/:topicSlug`, the chapter note on its own URL.
   // Renders for a signed-out visitor, exactly as the topic pages do.
   "/notes",
+  // CBQ-SEO-1 — `/cbq-class-10/:chapterSlug`, one page of real sample CBQs per chapter. Members: cbqChapterSlugs().
+  "/cbq-class-10",
 ];
 
 /** Drop any query string or hash, and any trailing slash except the root's. */

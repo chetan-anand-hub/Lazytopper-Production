@@ -1,0 +1,286 @@
+/*
+ * CBQ-SEO-1 — the public CBQ pages (/cbq-class-10 and /cbq-class-10/:chapterSlug). Mobile-first, responsive by
+ * CSS alone (320 / 360 / 390 / 768 / 1280). EVERY selector is scoped under `.lt-cbqs`: a stylesheet imported by a
+ * lazy route is global once loaded. House grammar: deep navy hero, soft white page, green accent, Fraunces + Inter
+ * (the same token values as `.lt-fp` on /for-parents, under this page's own names).
+ */
+.lt-cbqs {
+  --cq-bg: #f4f7fb;
+  --cq-card: #fff;
+  --cq-ink: #0f2038;
+  --cq-ink2: #4d647e;
+  --cq-line: #dde5ef;
+  --cq-g: #0b8f50;
+  --cq-gt: #06663a;
+  --cq-gw: #e6f4ec;
+  --cq-navy: #132c4d;
+  --cq-serif: Fraunces, Georgia, serif;
+  --cq-sans: Inter, system-ui, -apple-system, sans-serif;
+  --cq-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
+  display: block;
+  background: var(--cq-bg);
+  color: var(--cq-ink);
+  font-family: var(--cq-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-width: 0;
+}
+.lt-cbqs * {
+  box-sizing: border-box;
+}
+.lt-cbqs h1,
+.lt-cbqs h2,
+.lt-cbqs h3 {
+  font-family: var(--cq-serif);
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.lt-cbqs a {
+  color: var(--cq-gt);
+}
+.lt-cbqs :focus-visible {
+  outline: 2px solid var(--cq-g);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.lt-cbqs__w {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* HERO */
+.lt-cbqs__hero {
+  background: var(--cq-navy);
+  color: #eaf2fb;
+  padding: 22px 0 26px;
+}
+.lt-cbqs__crumbs {
+  font-size: 13px;
+  color: #b9d0e8;
+  margin: 0 0 14px;
+  overflow-wrap: anywhere;
+}
+.lt-cbqs__hero .lt-cbqs__crumbs a {
+  color: #cfe3f6;
+}
+.lt-cbqs__eyebrow {
+  font-size: 13px;
+  color: #8fb3d9;
+  margin: 0 0 10px;
+}
+.lt-cbqs__hero h1 {
+  font-size: clamp(25px, 6.6vw, 38px);
+  line-height: 1.15;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.lt-cbqs__sub {
+  color: #c4d8ec;
+  margin: 0;
+  max-width: 60ch;
+}
+
+/* BODY */
+.lt-cbqs__body {
+  padding-top: 22px;
+  padding-bottom: 28px;
+  display: grid;
+  gap: 24px;
+}
+.lt-cbqs__body h2 {
+  font-size: 22px;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+.lt-cbqs__body h3 {
+  font-size: 18px;
+  margin: 12px 0 8px;
+}
+.lt-cbqs__body p {
+  margin: 0 0 10px;
+}
+.lt-cbqs__packhead {
+  margin-bottom: 4px;
+}
+.lt-cbqs__note {
+  background: var(--cq-card);
+  border: 1px solid var(--cq-line);
+  border-radius: 12px;
+  padding: 14px;
+}
+.lt-cbqs__fine {
+  font-size: 13px;
+  color: var(--cq-ink2);
+}
+
+/* Chapter links (hub) */
+.lt-cbqs__chapters,
+.lt-cbqs__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.lt-cbqs__chapters a,
+.lt-cbqs__links a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  background: var(--cq-card);
+  border: 1px solid var(--cq-line);
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Sample questions */
+.lt-cbqs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.lt-cbqs__q {
+  background: var(--cq-card);
+  border: 1px solid var(--cq-line);
+  border-radius: 14px;
+  box-shadow: var(--cq-sh);
+  padding: 14px;
+  min-width: 0;
+}
+.lt-cbqs__qhead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.lt-cbqs__qnum {
+  font-weight: 700;
+  font-size: 14px;
+}
+.lt-cbqs__chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--cq-gw);
+  color: var(--cq-gt);
+}
+.lt-cbqs__chip--marks {
+  background: #eaf0f8;
+  color: var(--cq-navy);
+}
+.lt-cbqs__stem {
+  display: block;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.lt-cbqs__opts {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+.lt-cbqs__sol {
+  margin-top: 12px;
+  border-top: 1px dashed var(--cq-line);
+  padding-top: 10px;
+}
+.lt-cbqs__sol summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--cq-gt);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.lt-cbqs__steps {
+  margin: 6px 0 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+.lt-cbqs__final {
+  margin: 10px 0 0;
+  overflow-wrap: anywhere;
+}
+.lt-cbqs .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+/* Calls to action */
+.lt-cbqs__cta,
+.lt-cbqs__more {
+  background: var(--cq-card);
+  border: 1px solid var(--cq-line);
+  border-radius: 16px;
+  box-shadow: var(--cq-sh);
+  padding: 16px;
+}
+.lt-cbqs__cta--premium {
+  background: var(--cq-navy);
+  border-color: var(--cq-navy);
+  color: #eaf2fb;
+}
+.lt-cbqs__cta--premium h2 {
+  color: #fff;
+}
+.lt-cbqs__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #3fbf82;
+  color: #07210f;
+  font-weight: 800;
+  font-size: 17px;
+  text-align: center;
+  text-decoration: none;
+}
+.lt-cbqs .lt-cbqs__btn {
+  color: #07210f;
+}
+.lt-cbqs__btn--ghost,
+.lt-cbqs .lt-cbqs__btn--ghost {
+  background: var(--cq-gw);
+  color: var(--cq-gt);
+  border: 1px solid var(--cq-g);
+}
+.lt-cbqs .lt-cbq {
+  margin-top: 10px;
+}
+
+@media (min-width: 768px) {
+  .lt-cbqs__w {
+    padding: 0 24px;
+  }
+  .lt-cbqs__chapters,
+  .lt-cbqs__links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lt-cbqs__btn {
+    width: auto;
+    display: inline-flex;
+    padding: 10px 24px;
+  }
+  .lt-cbqs__hero {
+    padding: 30px 0 32px;
+  }
+}

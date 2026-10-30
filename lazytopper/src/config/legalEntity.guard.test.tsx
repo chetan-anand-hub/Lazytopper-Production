@@ -7,6 +7,7 @@
  * carries a legal page or the public footer ships the name in its static HTML.
  * Copy is the owner's, word for word.
  */
+import { cbqChapterSlugs } from "../components/cbq/cbqSeo";
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
@@ -48,6 +49,9 @@ const P8_PAGES = [
   "packs.html", // PACKS-LEGAL-1 — /packs renders the public footer, now prerendered
   // SOLUTIONS-1/2: every published solutions page carries the public footer (derived, not hand-listed).
   ...solutionsPaths().map((p) => `${p.slice(1)}.html`),
+  // CBQ-SEO-1: the CBQ hub and its chapter pages render the public footer (derived from the chapter registry, not hand-listed).
+  "cbq-class-10.html",
+  ...cbqChapterSlugs().map((slug) => `cbq-class-10/${slug}.html`),
 ];
 const P8_FILES = P8_PAGES.flatMap((p) => [p, `__desktop/${p}`]);
 

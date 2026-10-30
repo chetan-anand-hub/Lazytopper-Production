@@ -129,6 +129,35 @@ Key facts:
 - [Our Environment notes](https://www.lazytopper.com/notes/our-environment): chapter notes, key formulas and competency-based questions
 - [Our Environment chapter page](https://www.lazytopper.com/topic-hub/our-environment): exam weightage and what to practise
 
+## Class 10 CBQs by chapter
+- [Class 10 CBQs hub](https://www.lazytopper.com/cbq-class-10): competency-based questions (CBQs) for CBSE Class 10 Maths and Science 2027, with links to a page for every chapter
+- [Real Numbers CBQs](https://www.lazytopper.com/cbq-class-10/real-numbers): sample Maths competency-based questions on Real Numbers, each with its step-wise solution and marks
+- [Polynomials CBQs](https://www.lazytopper.com/cbq-class-10/polynomials): sample Maths competency-based questions on Polynomials, each with its step-wise solution and marks
+- [Pair of Linear Equations CBQs](https://www.lazytopper.com/cbq-class-10/pair-of-linear-equations): sample Maths competency-based questions on Pair of Linear Equations, each with its step-wise solution and marks
+- [Quadratic Equations CBQs](https://www.lazytopper.com/cbq-class-10/quadratic-equations): sample Maths competency-based questions on Quadratic Equations, each with its step-wise solution and marks
+- [Arithmetic Progression CBQs](https://www.lazytopper.com/cbq-class-10/arithmetic-progression): sample Maths competency-based questions on Arithmetic Progression, each with its step-wise solution and marks
+- [Triangles CBQs](https://www.lazytopper.com/cbq-class-10/triangles): sample Maths competency-based questions on Triangles, each with its step-wise solution and marks
+- [Coordinate Geometry CBQs](https://www.lazytopper.com/cbq-class-10/coordinate-geometry): sample Maths competency-based questions on Coordinate Geometry, each with its step-wise solution and marks
+- [Trigonometry CBQs](https://www.lazytopper.com/cbq-class-10/trigonometry): sample Maths competency-based questions on Trigonometry, each with its step-wise solution and marks
+- [Circles CBQs](https://www.lazytopper.com/cbq-class-10/circles): sample Maths competency-based questions on Circles, each with its step-wise solution and marks
+- [Areas Related to Circles CBQs](https://www.lazytopper.com/cbq-class-10/areas-related-to-circles): sample Maths competency-based questions on Areas Related to Circles, each with its step-wise solution and marks
+- [Surface Areas and Volumes CBQs](https://www.lazytopper.com/cbq-class-10/surface-areas-and-volumes): sample Maths competency-based questions on Surface Areas and Volumes, each with its step-wise solution and marks
+- [Statistics CBQs](https://www.lazytopper.com/cbq-class-10/statistics): sample Maths competency-based questions on Statistics, each with its step-wise solution and marks
+- [Probability CBQs](https://www.lazytopper.com/cbq-class-10/probability): sample Maths competency-based questions on Probability, each with its step-wise solution and marks
+- [Chemical Reactions & Equations CBQs](https://www.lazytopper.com/cbq-class-10/chemical-reactions-and-equations): sample Science competency-based questions on Chemical Reactions & Equations, each with its step-wise solution and marks
+- [Acids Bases & Salts CBQs](https://www.lazytopper.com/cbq-class-10/acids-bases-and-salts): sample Science competency-based questions on Acids Bases & Salts, each with its step-wise solution and marks
+- [Metals & Non-metals CBQs](https://www.lazytopper.com/cbq-class-10/metals-and-non-metals): sample Science competency-based questions on Metals & Non-metals, each with its step-wise solution and marks
+- [Carbon & its Compounds CBQs](https://www.lazytopper.com/cbq-class-10/carbon-and-its-compounds): sample Science competency-based questions on Carbon & its Compounds, each with its step-wise solution and marks
+- [Light - Reflection & Refraction CBQs](https://www.lazytopper.com/cbq-class-10/light-reflection-and-refraction): sample Science competency-based questions on Light - Reflection & Refraction, each with its step-wise solution and marks
+- [Human Eye & Colourful World CBQs](https://www.lazytopper.com/cbq-class-10/human-eye-and-colourful-world): sample Science competency-based questions on Human Eye & Colourful World, each with its step-wise solution and marks
+- [Electricity CBQs](https://www.lazytopper.com/cbq-class-10/electricity): sample Science competency-based questions on Electricity, each with its step-wise solution and marks
+- [Magnetic Effects of Electric Current CBQs](https://www.lazytopper.com/cbq-class-10/magnetic-effects-of-electric-current): sample Science competency-based questions on Magnetic Effects of Electric Current, each with its step-wise solution and marks
+- [Life Processes CBQs](https://www.lazytopper.com/cbq-class-10/life-processes): sample Science competency-based questions on Life Processes, each with its step-wise solution and marks
+- [Control & Coordination CBQs](https://www.lazytopper.com/cbq-class-10/control-and-coordination): sample Science competency-based questions on Control & Coordination, each with its step-wise solution and marks
+- [How do Organisms Reproduce CBQs](https://www.lazytopper.com/cbq-class-10/how-do-organisms-reproduce): sample Science competency-based questions on How do Organisms Reproduce, each with its step-wise solution and marks
+- [Heredity CBQs](https://www.lazytopper.com/cbq-class-10/heredity): sample Science competency-based questions on Heredity, each with its step-wise solution and marks
+- [Our Environment CBQs](https://www.lazytopper.com/cbq-class-10/our-environment): sample Science competency-based questions on Our Environment, each with its step-wise solution and marks
+
 ## Optional
 - [Contact](https://www.lazytopper.com/contact): message LazyTopper on WhatsApp with Class 10 doubts, questions or suggestions, or email support
 - [Privacy policy](https://www.lazytopper.com/legal/privacy)
