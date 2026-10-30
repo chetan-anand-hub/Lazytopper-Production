@@ -9,6 +9,7 @@ import ts from "typescript";
 import { generatedVercelJson } from "../../scripts/seo/writeVercelRewrites";
 import {
   SHELL_DESTINATION,
+  PARAM_CONSTRAINTS,
   parseRoutePaths,
   routerPatterns,
   shellRewrites,
@@ -71,6 +72,9 @@ const routerRoutes = (pathname: string): boolean =>
 
 /** A concrete URL path that the router pattern accepts. */
 function sample(pattern: string): string {
+  // A closed-set param (CBQ-SEO-FIX-1) needs a member of the set to be a routed sample.
+  const closed = PARAM_CONSTRAINTS[pattern];
+  if (closed) return pattern.replace(/:[A-Za-z]+/g, closed[0]);
   return pattern.replace(/:[A-Za-z]+/g, "sample-1").replace(/\*$/, "a/b");
 }
 
@@ -203,7 +207,12 @@ describe("SOFT404-1 — a request reaches the shell if and only if the router ro
   });
 
   it("★ EQUIVALENCE — agrees with React Router's matchPath on every corpus path (case, trailing slash, extra / missing segments)", () => {
+    // CBQ-SEO-FIX-1: the one intended divergence. The router accepts any /cbq-class-10/<x> (the page
+    // redirects an unknown slug to the hub client-side); Vercel serves the shell only for the 26
+    // registry slugs, so an unknown slug is a real HTTP 404. cbqRewrites.guard.test.ts pins the set.
+    const unknownCbqSlug = (p: string) => /^\/cbq-class-10\/[^/]+\/?$/.test(p) && !reachesShell(p) && routerRoutes(p);
     const disagreements = [...corpus]
+      .filter((p) => !unknownCbqSlug(p))
       .filter((p) => reachesShell(p) !== routerRoutes(p))
       .map((p) => `${p}  vercel=${reachesShell(p)} router=${routerRoutes(p)}`);
     expect(disagreements).toEqual([]);

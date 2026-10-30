@@ -43,6 +43,9 @@ export default function CbqChapterPage() {
           <CbqSampleList state={samples} />
         </section>
 
+        <CbqPremiumCta />
+        <CbqPackCta subject={subject} />
+
         <section className="lt-cbqs__more" aria-labelledby="cbqs-more">
           <h2 id="cbqs-more">Practise more {topic.name} CBQs free</h2>
           <p>Pick {topic.name} in the CBQ chooser and practise more competency-based questions.</p>
@@ -50,9 +53,6 @@ export default function CbqChapterPage() {
             Practise more {topic.name} CBQs free
           </Link>
         </section>
-
-        <CbqPremiumCta />
-        <CbqPackCta subject={subject} />
 
         <section aria-labelledby="cbqs-study">
           <h2 id="cbqs-study">Study {topic.name}</h2>

@@ -86,7 +86,7 @@
       "destination": "/__shell.html"
     },
     {
-      "source": "/:path(cbq-class-10/[^/]+/?)",
+      "source": "/:path(cbq-class-10/(?:real-numbers|polynomials|pair-of-linear-equations|quadratic-equations|arithmetic-progression|triangles|coordinate-geometry|trigonometry|circles|areas-related-to-circles|surface-areas-and-volumes|statistics|probability|chemical-reactions-and-equations|acids-bases-and-salts|metals-and-non-metals|carbon-and-its-compounds|light-reflection-and-refraction|human-eye-and-colourful-world|electricity|magnetic-effects-of-electric-current|life-processes|control-and-coordination|how-do-organisms-reproduce|heredity|our-environment)/?)",
       "destination": "/__shell.html"
     },
     {

@@ -77,7 +77,9 @@ describe("PacksPage", () => {
     expect(text).toContain("One-time payment · never renews · download again till 31 May 2027");
     expect(text).toContain("The Board Pass adds what a PDF can");
     expect(text).toContain("Maths + Science");
-    expect(text).not.toMatch(/Complete Bundle|\b26 chapters|Stray/);
+    expect(text).toContain("All 26 chapters");
+    expect(text).not.toMatch(/\b27 chapters/);
+    expect(text).not.toMatch(/Complete Bundle|Stray/);
     expect(screen.getByRole("link", { name: /refund policy/i }).getAttribute("href")).toBe("/legal/refund");
     expect(screen.queryByTestId("packs-mine")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
