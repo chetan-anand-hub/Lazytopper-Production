@@ -321,9 +321,11 @@ describe("B · every deeper view adds up to the hero total", () => {
     const user = userEvent.setup();
     renderPage();
     // The hero is the truth: 100 graded, 70 secured, 30 on the table.
-    expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent(
-      /30 marks on the table/i,
-    );
+    // CI-GREEN-2: wait for the LOADED hero. The h1 exists while loading ("Your journey"), so a bare
+    // findByRole resolved early and the text check raced the data load (run 41035286543, shard 3).
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /30 marks on the table/i }),
+    ).toHaveTextContent(/30 marks on the table/i);
 
     expect(viewTotal(screen.getByTestId("me-view-concepts"))).toBe(HERO_LOST);
 
