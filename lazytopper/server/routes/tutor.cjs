@@ -446,7 +446,13 @@ function normalizeBrief(input) {
       for (const c of subjIn.chapters) {
         const cname = c && briefStr(c.name);
         const cml = c && briefNum(c.marksLost);
-        if (cname && cml !== undefined) chapters.push({ name: cname, marksLost: cml });
+        if (cname && cml !== undefined) {
+          const row = { name: cname, marksLost: cml };
+          // TUTOR-MIND-4: approx. board marks of the chapter - an integer 0..30, dropped otherwise.
+          const bm = c.boardMarks;
+          if (typeof bm === 'number' && Number.isInteger(bm) && bm >= 0 && bm <= 30) row.boardMarks = bm;
+          chapters.push(row);
+        }
         if (chapters.length >= 3) break;
       }
       if (chapters.length) subject.chapters = chapters;
@@ -521,12 +527,29 @@ const HINGLISH_TOKENS = Object.freeze([
 ]);
 const HINGLISH_RE = new RegExp(`\\b(${HINGLISH_TOKENS.join('|')})\\b`, 'gi');
 
-function detectStudentLanguage(text) {
+// TUTOR-MIND-4 (D): a SHORT message (<= 3 words) with ONE strong Hinglish token counts. Conservative:
+// no token here is an English word ("so", "to", "hi", "main", "kar", "hai" are NOT in it).
+const STRONG_HINGLISH_TOKENS = Object.freeze([
+  'samjhao', 'samjha', 'batao', 'kyun', 'kaise', 'kya', 'nahi', 'haan', 'galti', 'mera', 'meri', 'mujhe',
+  'kaha', 'kahan', 'yaar', 'accha', 'theek',
+]);
+const STRONG_HINGLISH_RE = new RegExp(`\\b(${STRONG_HINGLISH_TOKENS.join('|')})\\b`, 'i');
+
+function detectStudentLanguage(text, previousStudentText) {
   const t = typeof text === 'string' ? text : '';
   if (DEVANAGARI_RE.test(t)) return 'hindi';
   const seen = new Set();
   for (const m of t.matchAll(HINGLISH_RE)) seen.add(m[1].toLowerCase());
-  return seen.size >= 2 ? 'hinglish' : null;
+  if (seen.size >= 2) return 'hinglish';
+  const words = t.trim().split(/\s+/).filter(Boolean);
+  if (words.length > 0 && words.length <= 3 && STRONG_HINGLISH_RE.test(t)) return 'hinglish';
+  // Thread continuity: a short message that is not itself Hinglish keeps Hinglish when the student's
+  // previous message in this thread was (decided by the same rules, without continuity).
+  if (words.length > 0 && words.length <= 3 && typeof previousStudentText === 'string' && previousStudentText) {
+    const prev = detectStudentLanguage(previousStudentText);
+    if (prev === 'hinglish') return 'hinglish';
+  }
+  return null;
 }
 
 function isEnglishSession(language) {
@@ -649,8 +672,12 @@ function createTutorRoute(deps) {
     // touched — this is a generation-time directive, not a chat message, so it never accumulates.
     // TUTOR-MIND-2 (F2): a clearly Hindi/Hinglish latest message decides the language, whatever the
     // picker says. Decided here, in code, not left to the model.
+    // TUTOR-MIND-4 (D): the payload already carries the earlier turns (`convo`), so the student's previous
+    // message is passed for thread continuity on a short follow-up.
+    const studentTurns = convo.filter((t) => t.role === 'user').map((t) => t.parts[0].text);
     const studentLang = detectStudentLanguage(
       (Array.isArray(payload.messages) ? payload.messages : []).filter((m) => m && typeof m.content === 'string' && m.content.trim()).slice(-1).map((m) => m.content)[0],
+      studentTurns.length >= 2 ? studentTurns[studentTurns.length - 2] : '',
     );
     if (studentLang) {
       convo[convo.length - 1].parts[0].text +=

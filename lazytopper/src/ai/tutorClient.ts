@@ -99,7 +99,7 @@ export interface TutorBrief {
 export interface TutorBriefSubject {
   marksLost?: number;
   /** Top 3 chapters by marks lost (Me's chapter list order). */
-  chapters?: Array<{ name: string; marksLost: number }>;
+  chapters?: Array<{ name: string; marksLost: number; /** TUTOR-MIND-4 - approx. marks the chapter carries in the board paper (topics.ts `weight`); absent when unknown. */ boardMarks?: number }>;
   /** The chapter whose gated before→now rose the most (Me's chapter rungs). */
   /** Marks SCORED (% of available), earlier half -> later half; higher is better. */
   improved?: { name: string; beforePct: number; nowPct: number };

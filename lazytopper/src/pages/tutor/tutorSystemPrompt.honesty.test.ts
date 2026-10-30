@@ -118,3 +118,62 @@ describe("T5 — a chapterless session is named by its subject", () => {
     expect(p).not.toContain("NO CHAPTER CHOSEN");
   });
 });
+
+// TUTOR-MIND-4 (C) - "I cannot show you the NCERT page directly" was false: the app shows it.
+describe("TUTOR-MIND-4 - NCERT page honesty", () => {
+  const LIGHT = [
+    { key: "sign-convention-new-cartesian", label: "Sign convention (New Cartesian)", hasNcertPage: true },
+    { key: "mirror-formula-and-magnification", label: "Mirror formula", hasNcertPage: true },
+  ];
+
+  it("with a listed concept: tells the model to emit the figure tag when asked to SEE the NCERT page, and bans the false refusal", () => {
+    const p = build({ figures: LIGHT });
+    expect(p).toMatch(/WHEN THE STUDENT ASKS TO SEE THE NCERT PAGE OR DIAGRAM/);
+    expect(p).toMatch(/emit that concept's `\[\[figure:<key>\]\]` THIS turn/);
+    expect(p).toMatch(/NEVER say "I cannot show you the NCERT page"/);
+    expect(p).toMatch(/marked \[real NCERT page available\]/);
+    expect(p).toContain("- sign-convention-new-cartesian: Sign convention (New Cartesian) [real NCERT page available]");
+  });
+
+  it("the NCERT-page claim is tied to the marker: only for a key marked [real NCERT page available]", () => {
+    const p = build({ figures: LIGHT });
+    expect(p).toMatch(/Say the real NCERT page is in the panel ONLY if the key you chose is marked \[real NCERT page available\]; for a key without that marker, just emit the tag and describe the diagram, with no claim about an NCERT page/);
+    expect(p).not.toMatch(/and tell them it is in the panel/);
+  });
+
+  it("when nothing fits: never claims the app cannot show NCERT; plain 'no NCERT figure for this exact idea'; words only (no panel, button, page number)", () => {
+    for (const p of [build({ figures: LIGHT }), build({ figures: [] }), build()]) {
+      expect(p).toMatch(/IF NOTHING LISTED FITS[^]*never claim the app cannot show NCERT pages at all/);
+      expect(p).toMatch(/no NCERT figure for this exact idea here/);
+      expect(p).toMatch(/Do not mention a panel or button, and do not name a page number, chapter number or link/);
+    }
+  });
+
+  it("the no-list prompt still forbids pointing at a diagram (rule f unchanged)", () => {
+    const p = build({ figures: [] });
+    expect(p).toMatch(/do NOT reference a side diagram/);
+    expect(p).toMatch(/Never mention a diagram, figure, picture, panel or "beside us" unless THIS SAME reply emits/);
+  });
+
+  it("no route/CTA to the NCERT reader is invented: the prompt names no NCERT-reader offer tag or link", () => {
+    const p = build({ figures: LIGHT });
+    expect(p).not.toMatch(/\[\[offer:ncert/);
+    expect(p).not.toMatch(/\/ncert-class-10/);
+  });
+});
+
+describe("TUTOR-MIND-4 (E) - board weightage in the chapter line", () => {
+  const brief = {
+    hasData: true,
+    windowLabel: "last 30 days",
+    mistakes: { marksLostRecent: 56.5 },
+    subject: { marksLost: 56.5, chapters: [{ name: "Light", marksLost: 22, boardMarks: 7 }, { name: "Electricity", marksLost: 15, boardMarks: 40 }, { name: "Chemical Reactions", marksLost: 19.5 }] },
+  };
+  it("renders 'lost N marks; carries about M marks in the board paper' only for a valid integer, and rule m is present", () => {
+    const p = build({ subject: "science", topicLabel: "Light", brief });
+    expect(p).toContain("Light (lost 22 marks; carries about 7 marks in the board paper)");
+    expect(p).toContain("Electricity (lost 15 marks)"); // 40 is out of range: dropped, not shown
+    expect(p).toContain("Chemical Reactions (lost 19.5 marks)");
+    expect(p).toMatch(/\nm\. "Which chapter first\?"/);
+  });
+});

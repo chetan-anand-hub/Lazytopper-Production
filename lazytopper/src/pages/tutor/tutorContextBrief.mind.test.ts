@@ -7,6 +7,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { BRIEF_BYTE_BUDGET, briefFromModel, fitBriefSize } from "./tutorContextBrief";
+import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import type { StudyReadModel } from "../../services/progressReadModel";
 import type { MistakeLogEntry } from "../../services/mistakeLogService";
 
@@ -158,10 +159,16 @@ describe("TUTOR-MIND-1 · the richer brief", () => {
 
   it("B4 — top 3 chapters by marks lost + the most-improved chapter, from the chapter rungs", () => {
     expect(brief.subject?.chapters).toEqual([
-      { name: "Real Numbers", marksLost: 8 },
-      { name: "Trigonometry", marksLost: 5 },
-      { name: "Probability", marksLost: 4 },
+      { name: "Real Numbers", marksLost: 8, boardMarks: desktopTopicBySlug("real-numbers")!.weight },
+      { name: "Trigonometry", marksLost: 5, boardMarks: desktopTopicBySlug("trigonometry")!.weight },
+      { name: "Probability", marksLost: 4, boardMarks: desktopTopicBySlug("probability")!.weight },
     ]);
+    // TUTOR-MIND-4 - the figure is the Topic Hub chip's own number (topics.ts weight), a small positive integer.
+    for (const c of brief.subject?.chapters ?? []) {
+      expect(Number.isInteger(c.boardMarks)).toBe(true);
+      expect(c.boardMarks).toBeGreaterThan(0);
+      expect(c.boardMarks).toBeLessThanOrEqual(30);
+    }
     expect(brief.subject?.improved).toEqual({ name: "Trigonometry", beforePct: 30, nowPct: 60 });
     expect(brief.subject?.marksLost).toBe(30);
   });
@@ -212,6 +219,9 @@ describe("TUTOR-MIND-1 · payload size", () => {
     expect(b.chapter?.concepts).toHaveLength(12); // the caps are the first line of defence
     expect(b.chapter?.untouched).toHaveLength(12);
     expect(JSON.stringify(b).length).toBeLessThan(BRIEF_BYTE_BUDGET);
+    // TUTOR-MIND-4: re-measured in UTF-8 bytes with boardMarks on all three top chapters.
+    expect(b.subject?.chapters?.every((c) => typeof c.boardMarks === "number")).toBe(true);
+    expect(new TextEncoder().encode(JSON.stringify(b)).length).toBeLessThan(BRIEF_BYTE_BUDGET);
   });
 
   it("★ the trimmer sheds stems, then list tails, never a figure (exercised with a tight budget)", () => {
