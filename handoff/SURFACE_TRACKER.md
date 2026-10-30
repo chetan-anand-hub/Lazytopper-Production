@@ -1,3 +1,15 @@
+> **2026-10-30 (daily, part 3) - #1439, #1441 - #1443 (CLAUDE.md section 10, once a day).** Scope: the Tutor (anchor and key trust), the admin Students page, the Start-here and First-session cards. The Answer Checker is unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Live results [coordinator].
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Tutor - question anchor | full stem, options, key, steps, pick and verdict sent on every turn from Quick Practice (card, scorecard, signed-out hop) and Worksheet / Chapter Test / Full Mock scorecard rows (`#1442`) | live; reviewed PASS-WITH-FOLLOW-UP | `[FU-KEYDISPUTE-QID-VALIDATION]` |
+| Tutor - key trust | source label, EVIDENCE rule, hidden keyflag stripped, stale `returnedWork` dropped (`#1443`) | live; verified on prod by the coordinator | `[FU-RETURNEDWORK-STEM-MATCH]` |
+| Admin - Disputed answer keys | card plus GET/resolve routes; reports in `keyDisputeReports` (`#1443`) | live per merge | `[FU-KEYDISPUTE-ADMIN-CARD-LIVE]` |
+| Start-here card, focus view, Home First-session card | "ADMIN PREVIEW" pill, desktop and mobile (`#1441`) | live per merge | none |
+| Ops report label | "Answer Checker" (`#1439`) | merged | none |
+| Answer Checker (/check-improve) | unchanged | - | none |
+
+
 > **2026-10-30 (daily, part 2) - #1434 - #1438 (CLAUDE.md section 10, once a day).** Scope: the Answer Checker page (`/check-improve`; old name Check & Improve), Home's Byte, the tutor wording, `llms.txt`. No mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Live results [coordinator].
 
 | surface | what moved (PR) | state | owed |

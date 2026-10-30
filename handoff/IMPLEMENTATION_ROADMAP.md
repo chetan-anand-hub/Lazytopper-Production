@@ -1,3 +1,11 @@
+## 2026-10-30 (daily, part 3) - #1439, #1441 - #1443: RENAME-OPS-1, PREVIEW-BADGE-1, TUTOR-ANCHOR-KEY-1, TUTOR-KEY-TRUST-1 - MERGED
+
+- DONE. `#1439` (`9f08735a`): ops report label. Was in flight; closed.
+- DONE. `#1441` (`d7553a6a`): Admin preview pill.
+- DONE. `#1442` (`731dac22`): tutor anchor question with key. NEXT: `[FU-KEYDISPUTE-QID-VALIDATION]`, `[FU-RETURNEDWORK-STEM-MATCH]`.
+- DONE. `#1443` (`0606546a`, trunk): key trust, dispute flags, admin queue. NEXT: `[FU-KEYDISPUTE-ADMIN-CARD-LIVE]`, `[FU-AUDIT-UNVERIFIABLE-KEYS]`.
+- Open: `#1399` MISTAKE-CALC-1 (draft, HELD).
+
 ## 2026-10-30 (daily, part 2) - #1434 - #1438: ONE-MINUTE-1, HOME-LADDER-1, HOME-LADDER-1b, RENAME-SWEEP-1, RENAME-SERVER-1 - MERGED
 
 - DONE. `#1434` (`31e45a60`): one-minute ladder on the Answer Checker page. NEXT: `[FU-ONE-MIN-SIGNED-OUT-GRADE]`.

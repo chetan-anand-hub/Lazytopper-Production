@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-30 (daily, part 3) - #1439, #1441 - #1443 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `0606546a`. Earlier dated entries are left as written (standing rule 3). The earlier follow-ups stay open.* Items come from the coordinator **[coordinator]**; this builder re-derived none of the code facts.
+
+### [FU-KEYDISPUTE-ADMIN-CARD-LIVE]
+Evidence [coordinator; `#1443`]: owner to open `/admin/students` and confirm the "Disputed answer keys" card shows the test challenge on `CHEM-EXMPLR-1-MCQ-002`, then resolve it.
+
+### [FU-KEYDISPUTE-QID-VALIDATION]
+Evidence [coordinator; `#1443`]: there is no server-side bank index to validate anchor question ids; only the per-uid cap limits junk reports.
+
+### [FU-RETURNEDWORK-STEM-MATCH]
+Evidence [coordinator; `#1443`]: the same-question match for `returnedWork` uses an 80-char stem head. OCR variants lose the marked work; very short stems match loosely.
+
+### [FU-AUDIT-UNVERIFIABLE-KEYS]
+Evidence [coordinator; bank key audit]: about 80% of MCQ solution steps do not state the key letter. Consider adding "Answer: (x)" to steps in a data lane.
+
 ## 2026-10-30 (daily, part 2) - #1434 - #1438 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `8f201e3e`. Earlier dated entries are left as written (standing rule 3).* Items come from the coordinator **[coordinator]**; this builder re-derived none of the code facts.
