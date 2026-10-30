@@ -130,6 +130,7 @@ import {
 import { clearCiDraft, saveCiDraft, sweepExpiredCiDraftImages, takeCiDraft } from "../../services/checkImproveDraft";
 import EmailVerifyReminder from "../../components/auth/EmailVerifyReminder";
 import StartHereCard from "../../components/startHere/StartHereCard";
+import { clearCheckOneLadder, peekCheckOneLadder } from "../../components/startHere/startHereModel";
 // CI-SOFT-1 — "Pick a board question, watch it get marked": the eager door + the audience rule only.
 // Every line, sample and drawing is in the lazy ciDemoChunk. Display only: no grader / AI call.
 import CiDemoCard, { type CiDemoOwnPick, type CiDemoLadderPick, type LadderAnswer } from "../../components/ciDemo/CiDemoCard";
@@ -933,6 +934,9 @@ function readCiPaperJobContext(raw: unknown): CiPaperJobContext | null {
   };
 }
 
+/** HOME-LADDER-1b: how long a Home-requested ladder waits for auth / eligibility to settle before giving up. */
+const LADDER_ARRIVAL_WAIT_MS = 5000;
+
 const DesktopCheckImprovePageInner: React.FC<{
   overlay?: CheckImproveOverlayProps;
   freeCheck?: FreeCheckInnerMode;
@@ -1526,6 +1530,25 @@ const DesktopCheckImprovePageInner: React.FC<{
     inProgress: ciInProgress,
     resultSeen: ciShownResultHere || status !== "idle",
   });
+
+  // HOME-LADDER-1b — Home's Byte left a one-shot "start the ladder" note. The page's inputs (auth, the
+  // zero-graded read) are not settled at mount, so `startLadder()` is RETRIED as they settle, for up to
+  // LADDER_ARRIVAL_WAIT_MS, and never falls through to focusing the question box meanwhile. On timeout the
+  // page is simply as today's handover arrival leaves it. Read once at mount; the key is deleted at once.
+  const [ladderPending, setLadderPending] = useState<boolean>(() => !overlay && peekCheckOneLadder());
+  useEffect(() => {
+    clearCheckOneLadder();
+    if (!ladderPending) return;
+    const t = setTimeout(() => setLadderPending(false), LADDER_ARRIVAL_WAIT_MS);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- armed once per mount
+  }, []);
+  useEffect(() => {
+    if (!ladderPending) return;
+    if (ciDemo.startLadder()) setLadderPending(false);
+    // startLadder is a fresh closure each render; re-try only when what it reads changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ladderPending, ciMomentUid, ciInProgress, ciShownResultHere, status, isFreeMode, overlay]);
 
   // ── PART B: graded-solution download + read-on-screen (both C&I paths) ──
   const [downloading, setDownloading] = useState(false);

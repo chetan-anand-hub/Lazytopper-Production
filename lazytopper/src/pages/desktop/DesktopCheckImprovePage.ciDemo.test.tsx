@@ -380,3 +380,31 @@ describe("CI-SOFT-1 · the card on /check-improve", () => {
     expect(H.detectQuestion).not.toHaveBeenCalled();
   });
 });
+
+describe("HOME-LADDER-1b · Home's ladder request survives auth arriving after first render", () => {
+  it("★ note set, user null -> uid later: the ladder starts (one_min_tap_shown) and the question box is NOT focused", async () => {
+    window.sessionStorage.setItem("lazytopper.checkOneHandover", "1");
+    window.sessionStorage.setItem("lazytopper.checkOneLadder", "1");
+    H.auth = { user: null, loading: true };
+    const view = render(page());
+    await settle();
+    expect(screen.queryByTestId("one-min-opt-0")).toBeNull();
+    // The gate shows while auth resolves: the page (and its note) are not mounted yet, nothing is consumed.
+    expect(window.sessionStorage.getItem("lazytopper.checkOneLadder")).toBe("1");
+    H.auth = { user: SIGNED_IN, loading: false };
+    view.rerender(page());
+    // On mount the page is still reading its draft (`inProgress`), so startLadder() is refused at first; it is retried.
+    await waitFor(() => expect(window.sessionStorage.getItem("lazytopper.checkOneLadder")).toBeNull());
+    expect(await screen.findByTestId("one-min-opt-0")).toBeInTheDocument();
+    expect(H.one.mock.calls.map((c) => c[0])).toContain("one_min_tap_shown");
+    const box = document.querySelector("textarea");
+    expect(box && document.activeElement === box).toBe(false);
+  });
+
+  it("no note: nothing starts on its own", async () => {
+    window.sessionStorage.setItem("lazytopper.checkOneHandover", "1");
+    render(page());
+    await settle();
+    expect(screen.queryByTestId("one-min-opt-0")).toBeNull();
+  });
+});
