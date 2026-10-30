@@ -393,7 +393,13 @@ function subjectBlockOf(model: StudyReadModel): Pick<TutorBriefSubject, "chapter
     .filter((r) => r.sampleBefore > 0 && r.sampleNow > 0 && r.delta > TREND_EPSILON)
     .sort((a, b) => b.delta - a.delta)[0];
   const out: Pick<TutorBriefSubject, "chapters" | "improved"> = {};
-  if (lost.length) out.chapters = lost.map((x) => ({ name: nameOf(x.r), marksLost: x.lost }));
+  // TUTOR-MIND-4 - the board weightage the Topic Hub chip prints ("approx. N marks", topics.ts `weight`),
+  // sent only when the registry has the chapter and the figure is a real positive integer.
+  const boardMarksOf = (r: { key: string }): { boardMarks?: number } => {
+    const w = desktopTopicForWeakAreaKey(r.key)?.weight;
+    return typeof w === "number" && Number.isInteger(w) && w > 0 && w <= 30 ? { boardMarks: w } : {};
+  };
+  if (lost.length) out.chapters = lost.map((x) => ({ name: nameOf(x.r), marksLost: x.lost, ...boardMarksOf(x.r) }));
   if (best) out.improved = { name: nameOf(best), beforePct: Math.round(best.before * 10) / 10, nowPct: Math.round(best.now * 10) / 10 };
   return out;
 }

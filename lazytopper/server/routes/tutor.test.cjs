@@ -469,7 +469,7 @@ const MIND_BRIEF = {
   topic: { trend: 'improving' },
   subject: {
     marksLost: 30,
-    chapters: [{ name: 'Real Numbers', marksLost: 8 }, { name: 'Trigonometry', marksLost: 5 }, { name: 'Probability', marksLost: 4 }, { name: 'Extra', marksLost: 1 }],
+    chapters: [{ name: 'Real Numbers', marksLost: 8, boardMarks: 6 }, { name: 'Trigonometry', marksLost: 5 }, { name: 'Probability', marksLost: 4, boardMarks: 3 }, { name: 'Extra', marksLost: 1 }],
     improved: { name: 'Trigonometry', beforePct: 30, nowPct: 60 },
   },
   activity: { questionsAnswered: 41, testsTaken: 2, checksDone: 3, sessionsThisWeek: 9 },
@@ -502,6 +502,11 @@ test('TM1 normalizeBrief keeps the new fields, clips/validates them, and drops u
   assert.equal(out.chapter.recent[0].correct, false);
   assert.equal('pick' in out.chapter.recent[1], false); // a pick without a verdict is dropped
   assert.equal(out.subject.chapters.length, 3);
+  assert.deepEqual(out.subject.chapters, [
+    { name: 'Real Numbers', marksLost: 8, boardMarks: 6 },
+    { name: 'Trigonometry', marksLost: 5 }, // no weightage sent: none invented
+    { name: 'Probability', marksLost: 4, boardMarks: 3 },
+  ]);
   assert.deepEqual(out.subject.improved, { name: 'Trigonometry', beforePct: 30, nowPct: 60 });
   assert.deepEqual(out.activity, { questionsAnswered: 41, testsTaken: 2, checksDone: 3 }); // unknown key dropped
 });
@@ -537,7 +542,7 @@ test('TM1 the prompt renders the new fields with labels and the window; honesty 
   assert.doesNotMatch(p, /not practised yet/);
   assert.match(p, /Marks SCORED in this chapter \(a percentage of the marks available, so HIGHER IS BETTER\) over the last 120 days: the student scored 41\.5% of the available marks in the earlier half and 66% in the later half \(14 graded answers\)\. These are marks SCORED, not marks lost/);
   assert.match(p, /question bank-1[^|]*\| question text: "Find the 'HCF' of 96 and 404\. offer:practice" \| the student picked: "x = '4'" \(wrong\)/);
-  assert.match(p, /Chapters of Maths that cost the most marks in the last 30 days: Real Numbers \(8 marks\); Trigonometry \(5 marks\); Probability \(4 marks\)/);
+  assert.match(p, /Chapters of Maths that cost the most marks in the last 30 days: Real Numbers \(lost 8 marks; carries about 6 marks in the board paper\); Trigonometry \(lost 5 marks\); Probability \(lost 4 marks; carries about 3 marks in the board paper\)\./);
   assert.match(p, /Most improved chapter in Maths[^:]*: Trigonometry, marks SCORED rose from 30% to 60% of the available marks in the last 30 days \(higher is better\)/);
   assert.match(p, /What they did in the last 30 days \(Maths\): 41 practice answers, 2 tests taken, 3 Check & Improve checks/);
   assert.match(p, /\nj\. Personal claims/);
@@ -684,4 +689,55 @@ test('TM3 F1/F4/F5 prompt: scored-not-lost wording, human-tutor tone rules, no t
   assert.match(p, /no markdown tables and no \*\*bold\*\*/);
   assert.match(p, /ONLY if WHAT YOU KNOW ABOUT THIS STUDENT has it; never invent/);
   assert.match(p, /\ni\. WHAT YOU KNOW ABOUT THIS STUDENT/); // honesty rules intact
+});
+
+/* ── TUTOR-MIND-4 ─────────────────────────────────────────────────────────────────────────────── */
+test('TM4 normalizeBrief boardMarks: integer 0..30 kept; float, out-of-range, string, NaN dropped', () => {
+  const mk = (bm) => normalizeBrief({ hasData: true, subject: { chapters: [{ name: 'Light', marksLost: 22, boardMarks: bm }] } }).subject.chapters[0];
+  assert.deepEqual(mk(7), { name: 'Light', marksLost: 22, boardMarks: 7 });
+  assert.equal(mk(0).boardMarks, 0);
+  assert.equal(mk(30).boardMarks, 30);
+  for (const bad of [7.5, 31, -1, '7', NaN, Infinity, null, undefined, {}]) assert.equal('boardMarks' in mk(bad), false, String(bad));
+});
+
+test('TM4 the prompt says both numbers per chapter, never a weightage for a chapter without one, and carries rule m', async () => {
+  const h = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
+  await h.send({
+    brief: { hasData: true, windowLabel: 'last 30 days', mistakes: { marksLostRecent: 56.5 },
+      subject: { marksLost: 56.5, chapters: [{ name: 'Light', marksLost: 22, boardMarks: 7 }, { name: 'Chemical Reactions', marksLost: 19.5 }] } },
+    messages: [{ role: 'student', content: 'which chapter should I do first?' }],
+  });
+  const p = h.prompts[0];
+  assert.match(p, /Light \(lost 22 marks; carries about 7 marks in the board paper\); Chemical Reactions \(lost 19\.5 marks\)\./);
+  assert.doesNotMatch(p, /Chemical Reactions \([^)]*board paper/);
+  assert.match(p, /\nm\. "Which chapter first\?" \/ "where should I start\?": weigh BOTH the marks lost AND the board weightage/);
+  assert.match(p, /never invent or guess one/);
+});
+
+test('TM4 detectStudentLanguage: short messages with one strong Hinglish token count; English collisions do not', () => {
+  for (const t of ['samjhao', 'kyun?', 'haan batao', 'Samjhao please', 'mujhe batao', 'theek hai']) assert.equal(detectStudentLanguage(t), 'hinglish', t);
+  for (const t of ['hi', 'ok', 'explain', 'main idea?', 'so', 'to', 'hai', 'kar', 'what is the main idea', 'Mera is a name', 'Is Mera Singh\'s answer right?']) assert.equal(detectStudentLanguage(t), null, t);
+  // one strong token in a LONG message still needs two distinct tokens
+  assert.equal(detectStudentLanguage('please explain why kyun this happens in refraction'), null);
+});
+
+test('TM4 thread continuity: a short non-Hinglish follow-up keeps Hinglish only after a Hinglish student turn', () => {
+  assert.equal(detectStudentLanguage('ok', 'mujhe refraction samjhao'), 'hinglish');
+  assert.equal(detectStudentLanguage('ok', 'samjhao'), 'hinglish');
+  assert.equal(detectStudentLanguage('ok', 'explain refraction'), null);
+  assert.equal(detectStudentLanguage('ok', ''), null);
+  assert.equal(detectStudentLanguage('ok', undefined), null);
+  // a long English message does not inherit it
+  assert.equal(detectStudentLanguage('please explain the laws of refraction again', 'mujhe samjhao'), null);
+  assert.equal(detectStudentLanguage('यह क्या है', 'hello'), 'hindi');
+});
+
+test('TM4 route: the earlier Hinglish student turn reaches the detector (short follow-up gets the Hinglish directive)', async () => {
+  const h = routeWith({ text: 'ok', finishReason: 'STOP' }, []);
+  await h.send({ messages: [
+    { role: 'student', content: 'mujhe refraction samjhao' },
+    { role: 'tutor', content: 'Sure.' },
+    { role: 'student', content: 'ok' },
+  ] });
+  assert.match(h.prompts[0], /Reply in Hinglish/);
 });

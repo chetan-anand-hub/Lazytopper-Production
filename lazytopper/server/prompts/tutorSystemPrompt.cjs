@@ -843,7 +843,14 @@ function briefBlock(brief, { chapter, subj } = {}) {
   if (subjChapters.length) {
     facts.push(
       `- Chapters of ${subjectName} that cost the most marks ${inWindow}: ` +
-      `${subjChapters.map((c) => `${str(c.name)} (${marksText(num(c.marksLost))})`).join('; ')}. Only these are known; other chapters are not covered here.`,
+      `${subjChapters.map((c) => {
+        // TUTOR-MIND-4: board weightage only when the brief carries a real integer for the chapter.
+        const bm = num(c.boardMarks);
+        const board = bm !== null && Number.isInteger(bm) && bm >= 0 && bm <= 30
+          ? `; carries about ${bm} ${bm === 1 ? 'mark' : 'marks'} in the board paper`
+          : '';
+        return `${str(c.name)} (lost ${marksText(num(c.marksLost))}${board})`;
+      }).join('; ')}. Only these are known; other chapters are not covered here.`,
     );
   }
   const imp = b.subject && b.subject.improved && typeof b.subject.improved === 'object' ? b.subject.improved : null;
@@ -935,9 +942,22 @@ function honestyBlock() {
     `see it.\n` +
     `l. If the student's latest message is clearly Hindi or Hinglish, reply in that same register (Hinglish in ` +
     `Roman script unless they wrote Devanagari) even if the session language is English. Exam terms, definitions ` +
-    `and the answer to write stay in English (Teach-Contract §5). Rules a-k hold unchanged.`
+    `and the answer to write stay in English (Teach-Contract §5). Rules a-k hold unchanged.\n` +
+    // TUTOR-MIND-4 (E)
+    `m. "Which chapter first?" / "where should I start?": weigh BOTH the marks lost AND the board weightage, ` +
+    `and say both numbers for each chapter you name ("lost 22 marks; carries about 7 marks in the board ` +
+    `paper"). Use only the chapters listed in the data, with only the figures listed. If a chapter has no ` +
+    `board-marks figure there, say you do not have its board weightage — never invent or guess one.`
   );
 }
+
+// TUTOR-MIND-4 (C): the honest answer when the student wants to SEE an NCERT page/figure and nothing listed fits.
+// There is no tag or button that opens the NCERT chapter reader from the chat, so this is words only.
+const NCERT_NO_FIT_RULE =
+  `IF NOTHING LISTED FITS what they want to see (or there is no list): never claim the app cannot show NCERT ` +
+  `pages at all. Say plainly that there is no NCERT figure for this exact idea here, then give the NCERT ` +
+  `wording in words and tell them to look at the same section in their NCERT textbook. Do not mention a panel ` +
+  `or button, and do not name a page number, chapter number or link.`;
 
 /**
  * Stage 3 — the visual-panel directive. Lists the concepts in this topic that have something real
@@ -981,7 +1001,8 @@ function figurePanelBlock(figures) {
     return (
       `\nVISUAL PANEL\n` +
       `No curated diagram is available here, so do NOT reference a side diagram or ` +
-      `"the figure beside us" — teach in words. Never invent or describe a diagram that is not shown.`
+      `"the figure beside us" — teach in words. Never invent or describe a diagram that is not shown.\n` +
+      NCERT_NO_FIT_RULE
     );
   }
   const items = list
@@ -1020,7 +1041,13 @@ function figurePanelBlock(figures) {
     `that is not in the list, and NEVER describe a figure you have not signalled — the app shows ` +
     `only the real curated asset for the key you emit. The tag is stripped and never shown; if you ` +
     `also emit an offer tag, put each on its own separate line (order does not matter to the app).` +
-    ncertPageDirective
+    ncertPageDirective +
+    `\nWHEN THE STUDENT ASKS TO SEE THE NCERT PAGE OR DIAGRAM ("show me the NCERT page", "show me with the NCERT ` +
+    `diagram", "NCERT figure for this"): if a concept in the list above fits what they are asking about, emit ` +
+    `that concept's \`[[figure:<key>]]\` THIS turn (one tag, on its own line) and tell them it is in the panel. ` +
+    `★ NEVER say "I cannot show you the NCERT page" (or "I can only give you the wording") when a listed concept ` +
+    `fits and is marked [real NCERT page available] — that is false, the app shows it.\n` +
+    NCERT_NO_FIT_RULE
   );
 }
 

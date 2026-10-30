@@ -406,6 +406,7 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
           "subject": {
             "chapters": [
               {
+                "boardMarks": 6,
                 "marksLost": 17,
                 "name": "Real Numbers",
               },
@@ -511,10 +512,12 @@ describe("Tutor brief (assembleTutorBrief — the tutor's MI context)", () => {
           "subject": {
             "chapters": [
               {
+                "boardMarks": 7,
                 "marksLost": 8,
                 "name": "Light - Reflection & Refraction",
               },
               {
+                "boardMarks": 6,
                 "marksLost": 5,
                 "name": "Chemical Reactions & Equations",
               },
