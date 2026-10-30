@@ -64,6 +64,8 @@
 }
 .lt-cbqs__hero .lt-cbqs__crumbs a {
   color: #cfe3f6;
+  display: inline-block;
+  padding: 10px 2px;
 }
 .lt-cbqs__eyebrow {
   font-size: 13px;

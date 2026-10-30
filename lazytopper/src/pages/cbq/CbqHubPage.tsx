@@ -67,14 +67,6 @@ export default function CbqHubPage() {
           ))}
         </section>
 
-        <section className="lt-cbqs__more" aria-labelledby="cbqs-practice">
-          <h2 id="cbqs-practice">Practise CBQs free</h2>
-          <p>Choose a chapter in the CBQ chooser and start practising.</p>
-          <Link className="lt-cbqs__btn lt-cbqs__btn--ghost" to={CBQ_PRACTICE_TO} data-testid="cbq-practice-link">
-            Practise CBQs free
-          </Link>
-        </section>
-
         <CbqPremiumCta />
 
         <section aria-labelledby="cbqs-packs" data-testid="cbq-cta-pack">
@@ -87,6 +79,15 @@ export default function CbqHubPage() {
               </Link>
             )}
           />
+        </section>
+
+
+        <section className="lt-cbqs__more" aria-labelledby="cbqs-practice">
+          <h2 id="cbqs-practice">Practise CBQs free</h2>
+          <p>Choose a chapter in the CBQ chooser and start practising.</p>
+          <Link className="lt-cbqs__btn lt-cbqs__btn--ghost" to={CBQ_PRACTICE_TO} data-testid="cbq-practice-link">
+            Practise CBQs free
+          </Link>
         </section>
 
         <p className="lt-cbqs__fine">LazyTopper is an independent platform and is not affiliated with CBSE.</p>

@@ -124,5 +124,5 @@ const TILES: ReadonlyArray<{ sku: PackSku; id: string; kicker: string; name: str
   { sku: "pack_chapter", id: "chapter", kicker: "One chapter", name: "Chapter Pack", lineLong: "Every question of a chapter, with worked solutions", lineShort: "Every question + worked solutions" },
   { sku: "pack_mock", id: "mock", kicker: "Board papers", name: "Mock Pack", lineLong: "8 full papers, 80 marks each, with keys", lineShort: "8 full papers, 80 marks" },
   { sku: "pack_subject", id: "subject", kicker: "Whole subject", name: "Subject Pack", lineLong: "Every chapter of a subject plus its 8 mocks", lineShort: "All chapters + 8 mocks" },
-  { sku: "pack_bundle", id: "bundle", kicker: "Best value", name: BUNDLE_NAME, lineLong: "All 27 chapters and 16 mock papers", lineShort: "All 27 chapters + 16 mocks", best: true },
+  { sku: "pack_bundle", id: "bundle", kicker: "Best value", name: BUNDLE_NAME, lineLong: "All 26 chapters and 16 mock papers", lineShort: "All 26 chapters + 16 mocks", best: true },
 ];
