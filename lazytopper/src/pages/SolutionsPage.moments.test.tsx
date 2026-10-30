@@ -21,6 +21,10 @@ import { __resetMascotsForTests, hideMascots } from "../components/guide/mascots
 import { FREE_CHECK_USED_KEY } from "../services/freeCheckClient";
 
 const ROW = "tri-n-ncert-6-sa-001"; // a typed row opted in for a value verdict; key "EC = 2 cm."
+// [CI-GREEN-1] waitFor defaults to 1000 ms; the peek is a lazily imported chunk and the first test of the
+// file pays its cold import, which exceeded 1 s on a loaded CI runner (run 41025742423 attempt 2). Same
+// assertion, a budget for a cold import; a peek that never mounts still fails after it.
+const PEEK_MS = 15_000;
 const LINE = "Got it right? See which step loses marks. First check free.";
 
 function mount() {
@@ -69,7 +73,7 @@ describe("MOMENTS-1 M10 · the NCERT solutions page", () => {
     expect(screen.queryByTestId("guide-moment-m10")).toBeNull();
     await check(view, "EC = 2 cm.");
     expect(await screen.findByText("✓ Your answer matches.")).toBeTruthy();
-    await waitFor(() => expect(screen.getByTestId("guide-moment-m10")).toBeTruthy());
+    await waitFor(() => expect(screen.getByTestId("guide-moment-m10")).toBeTruthy(), { timeout: PEEK_MS });
     expect(screen.getByTestId("guide-moment-m10").textContent).toContain(LINE);
     expect(screen.getByTestId("guide-moment-m10-cta").getAttribute("href")).toBe("/check-improve");
     expect(screen.getByTestId("mascots-hide")).toBeTruthy();
@@ -88,7 +92,7 @@ describe("MOMENTS-1 M10 · the NCERT solutions page", () => {
     const view = mount();
     await check(view, "EC = 2 cm.");
     await screen.findByText("✓ Your answer matches.");
-    await waitFor(() => expect(screen.getByTestId("guide-moment-m10")).toBeTruthy());
+    await waitFor(() => expect(screen.getByTestId("guide-moment-m10")).toBeTruthy(), { timeout: PEEK_MS });
     expect(window.localStorage.getItem(GUIDE_PUBLIC_ARM_KEY)).toBe("guide");
   });
 

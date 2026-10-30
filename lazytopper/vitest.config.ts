@@ -15,7 +15,7 @@ export default defineConfig({
     // clockRecorder (CI-SPEED-1 D39): in the NORMAL run, fails a test file whose repo code read
     // the clock while the file is missing from scripts/testClock/date-sensitive-tests.json - the
     // list the CI clock jobs run. Inactive under LT_TEST_CLOCK. See that file.
-    setupFiles: ["./src/test/setup.ts", "./scripts/testClock/clockRecorder.setup.mjs"],
+    setupFiles: ["./src/test/setup.ts", "./scripts/testClock/clockRecorder.setup.mjs", "./scripts/ops/ci_vitest_yield_setup.mjs"],
     include: ["src/**/*.test.{ts,tsx}"],
     // CI-SPEED-3: on CI (GitHub sets CI=true) start the slowest files first, by
     // scripts/ops/vitest-durations.json. ORDER ONLY: the same files run, each still
