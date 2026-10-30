@@ -196,6 +196,106 @@ function normalizeReturnedWork(input) {
   return out;
 }
 
+/**
+ * TUTOR-ANCHOR-KEY-1 - normalize the optional client-supplied `anchorQuestion` (the exact bank question the
+ * tutor was opened about, with its official key). REBUILT at the trust boundary like `normalizeReturnedWork`:
+ * whitelisted fields only, every one type-checked and length-capped, so nothing unvalidated reaches the
+ * prompt. A non-string where a string belongs is dropped (never coerced), `marks` must be a positive
+ * number, `verdict` is one of two words and is kept ONLY with a pick (and the pick only with a verdict).
+ * No usable `questionText` -> null (the prompt renders no block). The key is the client's bank lookup by
+ * id; the server does not decide right or wrong.
+ */
+const ANCHOR_CAPS = Object.freeze({ id: 120, text: 3000, option: 400, options: 8, answer: 400, step: 800, steps: 12, format: 40, pick: 400 });
+// Single-line fields: every control char and run of whitespace (newlines included) collapses to one space.
+function cleanAnchorLine(v, max) {
+  if (typeof v !== 'string') return { text: '', cut: false };
+  const t = v.replace(/\[\[|\]\]/g, '').replace(/[\u0000-\u001F\u007F\u2028\u2029]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return { text: t.slice(0, max), cut: t.length > max };
+}
+// The stem may keep single newlines (the options of a stem-embedded list); control chars are stripped.
+function cleanAnchorStem(v, max) {
+  if (typeof v !== 'string') return '';
+  return v
+    .replace(/\[\[|\]\]/g, '')
+    .replace(/\r\n?/g, '\n')
+    .replace(/[\u0000-\u0009\u000B-\u001F\u007F\u2028\u2029]/g, ' ')
+    .replace(/[ \t]*\n[ \t]*/g, '\n')
+    .replace(/\n{2,}/g, '\n')
+    .trim()
+    .slice(0, max);
+}
+function normalizeAnchorQuestion(input) {
+  const a = input && typeof input === 'object' && !Array.isArray(input) ? input : null;
+  if (!a) return null;
+  const questionText = cleanAnchorStem(a.questionText, ANCHOR_CAPS.text);
+  if (!questionText) return null;
+  const out = { questionText };
+  const id = cleanAnchorLine(a.id, ANCHOR_CAPS.id).text;
+  if (id) out.id = id;
+  const format = cleanAnchorLine(a.format, ANCHOR_CAPS.format).text;
+  if (format) out.format = format;
+  if (typeof a.marks === 'number' && Number.isFinite(a.marks) && a.marks > 0 && a.marks <= 20) out.marks = a.marks;
+  if (Array.isArray(a.options)) {
+    const options = a.options.map((o) => cleanAnchorLine(o, ANCHOR_CAPS.option).text).filter(Boolean).slice(0, ANCHOR_CAPS.options);
+    if (options.length) out.options = options;
+  }
+  // A key cut at the cap is marked abridged ("..." appended) so the prompt never calls cut text the verbatim key.
+  const answer = cleanAnchorLine(a.answer, ANCHOR_CAPS.answer);
+  const finalAnswer = cleanAnchorLine(a.finalAnswer, ANCHOR_CAPS.answer);
+  if (answer.text) out.answer = answer.cut ? `${answer.text}\u2026` : answer.text;
+  if (finalAnswer.text) out.finalAnswer = finalAnswer.cut ? `${finalAnswer.text}\u2026` : finalAnswer.text;
+  if ((answer.text && answer.cut) || (!answer.text && finalAnswer.cut)) out.answerAbridged = true;
+  const letter = typeof a.answerLetter === 'string' ? a.answerLetter.trim().toUpperCase() : '';
+  if (/^[A-H]$/.test(letter)) out.answerLetter = letter;
+  if (Array.isArray(a.solutionSteps)) {
+    const steps = a.solutionSteps.map((s) => cleanAnchorLine(s, ANCHOR_CAPS.step).text).filter(Boolean).slice(0, ANCHOR_CAPS.steps);
+    if (steps.length) out.solutionSteps = steps;
+  }
+  const pick = cleanAnchorLine(a.studentPick, ANCHOR_CAPS.pick).text;
+  if (pick && (a.verdict === 'right' || a.verdict === 'wrong')) {
+    out.studentPick = pick;
+    out.verdict = a.verdict;
+  }
+  return out;
+}
+
+/**
+ * TUTOR-ANCHOR-KEY-1 - should the "the key is final, correct yourself" note ride the student's latest turn?
+ * ONLY when (a) an earlier TUTOR turn in this thread stated an answer that differs from the key - it named a
+ * different option letter as the answer, or (for a roman-numeral key such as "(i) and (iii)") left out part of
+ * the key - or (b) the student's latest message explicitly disputes the key. Bare words like "right", "correct",
+ * "key" or "answer" never trigger it: a tutor turn that gave the key correctly, or an unrelated follow-up,
+ * gets no note (the final-key system block still applies on every turn).
+ */
+const ROMAN_IN_PARENS = /\(\s*(iv|v|i{1,3})\s*\)/gi;
+function romanSet(text) {
+  const out = new Set();
+  for (const m of String(text || '').matchAll(ROMAN_IN_PARENS)) out.add(m[1].toLowerCase());
+  return out;
+}
+const TUTOR_LETTER_CLAIM = /\b(?:(?:correct|right)\s+(?:answer|option)\s+(?:is|would be)|answer\s+(?:is|would be)|answer\s*[:=])\s*(?:option\s+)?\(?([a-d])\b/gi;
+function tutorTurnContradictsKey(text, anchorQuestion) {
+  const letter = anchorQuestion.answerLetter || '';
+  if (letter) {
+    for (const m of String(text || '').matchAll(TUTOR_LETTER_CLAIM)) {
+      if (m[1].toUpperCase() !== letter) return true;
+    }
+  }
+  const keyRomans = romanSet(anchorQuestion.answer || anchorQuestion.finalAnswer);
+  if (keyRomans.size > 0) {
+    const said = romanSet(text);
+    if (said.size > 0) for (const r of keyRomans) if (!said.has(r)) return true; // omitted part of the key
+  }
+  return false;
+}
+const STUDENT_DISPUTES_KEY =
+  /\b(wrong|incorrect|mistake|disagree|not (?:right|correct|true)|two (?:correct|right)|both (?:are |is )?(?:correct|right)|more than one|(?:answer|key) is wrong)\b/i;
+function anchorNoteApplies(studentLast, previousTutorTexts, anchorQuestion) {
+  if (!anchorQuestion || !(anchorQuestion.answer || anchorQuestion.finalAnswer)) return false;
+  if (STUDENT_DISPUTES_KEY.test(String(studentLast || ''))) return true;
+  return (Array.isArray(previousTutorTexts) ? previousTutorTexts : []).some((t) => tutorTurnContradictsKey(t, anchorQuestion));
+}
+
 /* ── TUTOR-FIX-2 T11: the offer safety net ─────────────────────────────────────
  * The "Get my answer marked" / "Practise this" buttons must not depend on the student's
  * wording reaching the model. detectOfferIntent is a PURE function of the student's LAST turn
@@ -626,6 +726,8 @@ function createTutorRoute(deps) {
     // absent or malformed, and the prompt then renders no block. The tutor never grades (D-TUT-8):
     // this is READ context to teach from, and the rails forbid re-judging the board's marks.
     const returnedWork = normalizeReturnedWork(payload.returnedWork);
+    // TUTOR-ANCHOR-KEY-1: the exact bank question (+ its official key) the tutor was opened about; every turn.
+    const anchorQuestion = normalizeAnchorQuestion(payload.anchorQuestion);
 
     // Map the conversation to Gemini turns (user | model), dropping empties and
     // capping both history length and per-turn size.
@@ -662,7 +764,7 @@ function createTutorRoute(deps) {
     }
 
     // An empty topicLabel lets the prompt name the subject and say no chapter was chosen (T5).
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork });
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
@@ -705,6 +807,13 @@ function createTutorRoute(deps) {
       convo[convo.length - 1].parts[0].text +=
         `\n\n[System note: the marked question (and the student's pick, if given) are in your instructions; ` +
         `if you said earlier that you could not see them, that is no longer true - use them now.]`;
+    }
+    // TUTOR-ANCHOR-KEY-1: earlier tutor turns that hedged or contradicted the key must not outweigh it.
+    if (anchorNoteApplies(studentLast, convo.slice(0, -1).filter((t) => t.role === 'model').map((t) => t.parts[0].text), anchorQuestion)) {
+      convo[convo.length - 1].parts[0].text +=
+        `\n\n[System note: the question the student is asking about, and its OFFICIAL ANSWER KEY, are in your ` +
+        `instructions. The key is final: if you gave a different answer earlier in this chat, correct it plainly ` +
+        `now and explain the key.]`;
     }
     // TUTOR-FIX-4 history hygiene: with an all-unrecorded brief, restate honesty rule i as the
     // MOST-RECENT content, so earlier (possibly wrong) tutor turns cannot outweigh the brief.
@@ -806,6 +915,8 @@ module.exports = {
   normalizeDemoQuestion,
   normalizeFigures,
   normalizeReturnedWork,
+  normalizeAnchorQuestion,
+  anchorNoteApplies,
   normalizeBrief,
   detectOfferIntent,
   mentionsDiagram,

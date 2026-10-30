@@ -150,6 +150,32 @@ export interface TutorRequest {
    *  the graded work). Absent on every non-return turn → the prompt renders nothing. One-shot;
    *  never persisted. The server rebuilds it at the trust boundary before it reaches the prompt. */
   returnedWork?: TutorReturnedWork | null;
+  /** TUTOR-ANCHOR-KEY-1 - the exact bank question the tutor was opened about, WITH its official key. It
+   *  rides EVERY turn of that thread (like returnedWork). Absent when the thread is not about a bank
+   *  question (cold entry, per-concept "Stuck?", Answer Checker's own upload). The server rebuilds it at
+   *  the trust boundary (normalizeAnchorQuestion) before it reaches the prompt. */
+  anchorQuestion?: TutorAnchorQuestion | null;
+}
+
+/** TUTOR-ANCHOR-KEY-1 - one bank question with its answer key, resolved on the client BY ID from the bank
+ *  (never typed by the student). `questionText` is the FULL stem: the 180-character shortening exists for
+ *  the on-screen opener only and never reaches model context. */
+export interface TutorAnchorQuestion {
+  id: string;
+  questionText: string;
+  format?: string;
+  marks?: number;
+  /** The options with their letters, e.g. "C. (i) and (iii)". */
+  options?: string[];
+  /** The bank's key as written, e.g. "(i) and (iii)". */
+  answer?: string;
+  /** The letter of the keyed option ("C"); only when the key resolves to exactly one option. */
+  answerLetter?: string;
+  solutionSteps?: string[];
+  finalAnswer?: string;
+  /** The option TEXT the student picked, and whether the card marked it right; both or neither. */
+  studentPick?: string;
+  verdict?: "right" | "wrong";
 }
 
 /** The minimal shape of a verified bank question passed for the demonstration (Fix 4). */

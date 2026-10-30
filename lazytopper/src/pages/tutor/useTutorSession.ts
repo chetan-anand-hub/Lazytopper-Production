@@ -15,7 +15,7 @@
 // computed here.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { callTutor, type TutorBrief, type TutorTurn, type TutorReturnedWork } from "../../ai/tutorClient";
+import { callTutor, type TutorBrief, type TutorTurn, type TutorReturnedWork, type TutorAnchorQuestion } from "../../ai/tutorClient";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { assembleTutorBrief } from "./tutorContextBrief";
 import type { AuthUser } from "../../context/AuthContext";
@@ -61,6 +61,7 @@ import { selectBankQuestions } from "../../data/bankQuery";
 import { ensureBankChapters } from "../../data/bankChapters/loader";
 import { latestReturnMeta, restoredReturnedWork, returnMetaOf, returnResultTurn } from "./tutorReturnMeta";
 import { renderableFiguresForTopic } from "./tutorFigures";
+import { anchorTargetOf, buildAnchorQuestion } from "./tutorAnchorQuestion";
 // TUTOR-FIX-2 (S-C, tutor UI) — typed error states, the practice count, the returned record's
 // own chapter label, and the once-per-thread first-message event.
 import { classifyTutorError, type TutorErrorState } from "./tutorErrorState";
@@ -663,6 +664,24 @@ export function useTutorSession({
           () => false,
         );
         const demoQuestion = bankReady ? selectTutorDemoQuestion({ subject, topicKey, concept }) : null;
+        // TUTOR-ANCHOR-KEY-1: the exact bank question this thread is about, with its official key. Resolved
+        // by id from the bank on EVERY turn (like returnedWork), so a restored thread keeps it; null when
+        // the thread is not about a bank question (the model then has no key to quote, as before).
+        let anchorQuestion: TutorAnchorQuestion | null = null;
+        if (bankReady) {
+          const target = anchorTargetOf(convo, fromQuestionId);
+          if (target) {
+            try {
+              const row = selectBankQuestions({
+                subject: subject === "maths" ? "Maths" : subject === "science" ? "Science" : undefined,
+                topicKeys: [topicKey],
+              }).find((q) => String((q as { id?: unknown }).id ?? "") === target.id);
+              anchorQuestion = buildAnchorQuestion(row, target.pick ? { pick: target.pick, correct: target.correct } : null);
+            } catch {
+              /* no bank row: the turn goes out without an anchor, as before */
+            }
+          }
+        }
         const res = await callTutor({
           uid: uid || "",
           topicKey,
@@ -679,6 +698,7 @@ export function useTutorSession({
           // it rides every turn while set without re-triggering runModel; null on any non-return
           // session. The server rebuilds it at the trust boundary before it reaches the prompt.
           returnedWork: returnedWorkRef.current,
+          anchorQuestion,
         });
         // ME-ENGINE-1 PR-2 (G8) — the doubt counts as Tutor ACTIVITY only once the Tutor has
         // ANSWERED it: one synced, timestamped event (metadata only — the text stays in the
@@ -716,7 +736,7 @@ export function useTutorSession({
         sendingRef.current = false;
       }
     },
-    [uid, user, topicKey, topicLabel, subject, concept, language, persist, figures],
+    [uid, user, topicKey, topicLabel, subject, concept, language, persist, figures, fromQuestionId],
   );
 
   const send = useCallback(
