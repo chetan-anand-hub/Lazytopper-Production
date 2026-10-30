@@ -187,6 +187,9 @@ function realSeed(uid = UID) {
     'payOrders/order_A': { uid, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'paid', paymentId: 'pay_A' },
     // Another student's order — must never appear in this student's export.
     'payOrders/order_Z': { uid: OTHER, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'created' },
+    // TUTOR-KEY-TRUST-1: FIELD-KEYED dispute reports.
+    'keyDisputeReports/u_2026-10-30_challenge_Q-1': { uid, questionId: 'Q-1', kind: 'challenge', reason: 'The student disputed the key.', studentChallenge: 'key is wrong' },
+    'keyDisputeReports/z_2026-10-30_opinion_Q-1': { uid: OTHER, questionId: 'Q-1', kind: 'opinion', reason: 'other student' },
     // ASK-PARENTS-PAY-1: FIELD-KEYED — the doc id is sha256(link token); the child is a `uid` FIELD.
     'parentPayLinks/sha-link-a': { uid, firstName: 'Aarav', status: 'paid', orderIds: ['order_A'] },
     'parentPayLinks/sha-link-z': { uid: OTHER, firstName: 'Zoya', status: 'open', orderIds: [] },
@@ -347,6 +350,19 @@ test('★★ RAZORPAY-1 Z7: payOrders is exported BY FIELD — only this student
   const pays = byId(result, 'subscriptions.payments');
   assert.equal(pays.status, EXPORT_STATUS.EXPORTED);
   assert.equal(pays.recordCount, 1);
+});
+
+test('★★ TUTOR-KEY-TRUST-1: keyDisputeReports are exported BY FIELD - only this student\'s', async () => {
+  const { service, store } = makeService();
+  const result = await service.exportAccount(UID);
+  const row = byId(result, 'keyDisputeReports');
+  assert.ok(row, 'keyDisputeReports is missing from the export');
+  assert.equal(row.status, EXPORT_STATUS.EXPORTED);
+  assert.equal(row.records.length, 1);
+  assert.equal(row.records[0].data.studentChallenge, 'key is wrong');
+  assert.ok(!JSON.stringify(result).includes('other student'));
+  const q = store.queriedByField.find((x) => x.collection === 'keyDisputeReports');
+  assert.ok(q && q.field === 'uid' && q.value === UID);
 });
 
 test('★ CONTROL: an entry added to a FIXTURE map is exported too (the list is not hardcoded)', async () => {

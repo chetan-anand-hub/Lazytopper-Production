@@ -293,8 +293,19 @@ function tutorTurnContradictsKey(text, anchorQuestion) {
   }
   return false;
 }
-const STUDENT_DISPUTES_KEY =
-  /\b(wrong|incorrect|mistake|disagree|not (?:right|correct|true)|two (?:correct|right)|both (?:are |is )?(?:correct|right)|more than one|(?:answer|key) is wrong)\b/i;
+// TUTOR-KEY-TRUST-1: must say the KEY / ANSWER is wrong (or that more than one option is right) - "what's my mistake?"
+// and "where did I go wrong" are about the student's own work and never count.
+const STUDENT_DISPUTES_KEY = new RegExp(
+  '(?<!\\bmy\\s)\\b(?:' +
+    '(?:answer|key|solution)\\s+(?:is\\s+|looks\\s+|seems\\s+)?(?:wrong|incorrect|not\\s+(?:right|correct))' +
+    '|(?:wrong|incorrect)\\s+(?:answer|key)' +
+    '|disagree\\s+with\\s+(?:the\\s+)?(?:answer|key)' +
+    '|two\\s+(?:correct|right)|both\\s+(?:are\\s+|is\\s+)?(?:correct|right)|more\\s+than\\s+one\\s+(?:correct|right)' +
+    '|(?:option\\s+)?\\(?[a-d]\\)?\\s+(?:is\\s+)?also\\s+(?:correct|right)' +
+    '|should\\s+be\\s*(?:option\\s+)?\\(?[a-d]\\)?\\b' +
+  ')',
+  'i',
+);
 function studentDisputesKey(text) {
   return STUDENT_DISPUTES_KEY.test(String(text || ''));
 }
@@ -712,11 +723,22 @@ function createTutorRoute(deps) {
 
   // TUTOR-KEY-TRUST-1: signed-in callers only (the report is keyed by the verified uid); the row's own mismatch
   // evidence, the model's hidden flag, and the student's own challenge each file one report per day.
-  async function logKeyDisputes(req, { anchorQuestion, studentLast, modelFlag }) {
+  const pendingLogs = new Set();
+  function track(p) {
+    pendingLogs.add(p);
+    p.finally(() => pendingLogs.delete(p));
+  }
+  async function resolveFlagUid(req, anchorQuestion) {
     try {
-      if (!anchorQuestion || !anchorQuestion.id || !(anchorQuestion.answer || anchorQuestion.finalAnswer)) return;
-      if (typeof resolveVerifiedUid !== 'function' || !adminFirestore) return;
-      const uid = await resolveVerifiedUid(req);
+      if (!anchorQuestion || !anchorQuestion.id || !(anchorQuestion.answer || anchorQuestion.finalAnswer)) return '';
+      if (typeof resolveVerifiedUid !== 'function' || !adminFirestore) return '';
+      return String((await resolveVerifiedUid(req)) || '');
+    } catch {
+      return '';
+    }
+  }
+  async function logKeyDisputes({ uid, anchorQuestion, studentLast, modelFlag }) {
+    try {
       if (!uid) return;
       const base = {
         questionId: anchorQuestion.id,
@@ -810,7 +832,10 @@ function createTutorRoute(deps) {
     }
 
     // An empty topicLabel lets the prompt name the subject and say no chapter was chosen (T5).
-    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion });
+    // TUTOR-KEY-TRUST-1: the prompt may say "I've flagged it" ONLY when the server will really log (verified uid + a keyed anchor + Firestore).
+    const flagUid = await resolveFlagUid(req, anchorQuestion);
+    const canFlag = !!flagUid;
+    const systemPrompt = buildTutorSystemPrompt({ topicLabel: chapterGiven, subject, concept, brief, language, demoQuestion, figures, returnedWork, anchorQuestion, canFlag });
 
     // Language stickiness (Stage-1 follow-up Fix 1). The leading system prompt's language
     // instruction loses weight against many recent turns in another language, so a selector
@@ -938,7 +963,8 @@ function createTutorRoute(deps) {
         return sendJson(res, 502, { error: 'The tutor returned an empty reply. Please try again.' });
       }
       // TUTOR-KEY-TRUST-1: log disputes (server-only write, at most one per question/uid/day/kind). Never blocks or fails the reply.
-      await logKeyDisputes(req, { anchorQuestion, studentLast, modelFlag: flagOut.keyFlag });
+      // Fire-and-forget: the reply never waits on the log (flushDisputeLogs lets tests await it).
+      track(logKeyDisputes({ uid: flagUid, anchorQuestion, studentLast, modelFlag: flagOut.keyFlag }));
       // TUTOR-FIX-1: honest cut-off signal — true only when the model stopped at its token limit.
       const truncated = Boolean(reply && reply.finishReason === 'MAX_TOKENS');
       // offerSource is additive ('model' | 'safety-net' | null); older clients ignore it.
@@ -952,7 +978,7 @@ function createTutorRoute(deps) {
     }
   }
 
-  return { handleTutorRequest };
+  return { handleTutorRequest, flushDisputeLogs: () => Promise.all([...pendingLogs]) };
 }
 
 module.exports = {

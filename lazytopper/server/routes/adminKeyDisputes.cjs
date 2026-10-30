@@ -6,18 +6,17 @@
  *   POST /api/admin/key-disputes/resolve {questionId, resolved}  -> { ok }  marks the summary resolved
  *
  * ADMIN-ONLY through the one shared gate (`requireAdmin`, ADMIN_FIREBASE_UIDS), run FIRST, before the body is
- * read. A missing gate is a 503, so it cannot fall open by being mounted wrong. Resolving only flips a flag on
- * the summary doc; fixing the key itself is a data lane. A newer report re-opens a resolved question.
+ * read. A missing gate is a 503, so it cannot fall open by being mounted wrong. Resolving marks the question's
+ * EXISTING reports resolved; fixing the key itself is a data lane. A newer report is unresolved, so it re-opens it.
  */
 const { fileHintOf } = require('../services/keyTrust.cjs');
 const { QID_RE } = require('../services/keyDisputes.cjs');
 
 const NO_STORE = Object.freeze({ 'Cache-Control': 'no-store' });
-const LIST_CAP = 300;
+const READ_CAP = 2000;
 const SHOWN_CAP = 100;
 
 const msOf = (v) => (v instanceof Date ? v.getTime() : v && typeof v.toMillis === 'function' ? v.toMillis() : typeof v === 'number' ? v : null);
-const n = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0);
 
 function createAdminKeyDisputesRoutes(deps = {}) {
   const { sendJson, sendJsonWithHeaders, readJson, adminFirestore, requireAdmin } = deps;
@@ -44,43 +43,34 @@ function createAdminKeyDisputesRoutes(deps = {}) {
   async function list(req, res) {
     if (!(await gate(req, res))) return;
     try {
-      const snap = await adminFirestore.collection('keyDisputes').limit(LIST_CAP).get();
-      const rows = [];
+      const snap = await adminFirestore.collection('keyDisputeReports').orderBy('at', 'desc').limit(READ_CAP).get();
+      const by = new Map();
       snap.forEach((d) => {
         const v = d.data() || {};
-        const c = v.counts && typeof v.counts === 'object' ? v.counts : {};
-        const counts = { mismatch: n(c.mismatch), opinion: n(c.opinion), challenge: n(c.challenge) };
-        rows.push({
-          questionId: d.id,
-          source: typeof v.source === 'string' ? v.source : '',
-          fileHint: typeof v.fileHint === 'string' && v.fileHint ? v.fileHint : fileHintOf(d.id),
-          counts,
-          total: counts.mismatch + counts.opinion + counts.challenge,
-          lastAtMs: msOf(v.lastAt),
-          resolved: v.resolved === true,
-        });
-      });
-      rows.sort((a, b) => b.counts.mismatch - a.counts.mismatch || b.total - a.total || (b.lastAtMs || 0) - (a.lastAtMs || 0));
-      const shown = rows.slice(0, SHOWN_CAP);
-      const items = [];
-      for (const r of shown) {
-        let latest = [];
-        let firstAtMs = null;
-        try {
-          const reports = adminFirestore.collection('keyDisputes').doc(r.questionId).collection('reports');
-          const recent = await reports.orderBy('at', 'desc').limit(3).get();
-          recent.forEach((d) => {
-            const v = d.data() || {};
-            latest.push({ kind: String(v.kind || ''), reason: String(v.reason || ''), studentChallenge: String(v.studentChallenge || ''), atMs: msOf(v.at) });
-          });
-          const oldest = await reports.orderBy('at', 'asc').limit(1).get();
-          oldest.forEach((d) => { firstAtMs = msOf((d.data() || {}).at); });
-        } catch {
-          latest = [];
+        const qid = typeof v.questionId === 'string' ? v.questionId : '';
+        if (!qid) return;
+        const kind = v.kind === 'mismatch' || v.kind === 'opinion' || v.kind === 'challenge' ? v.kind : null;
+        if (!kind) return;
+        let r = by.get(qid);
+        if (!r) {
+          r = { questionId: qid, source: '', fileHint: fileHintOf(qid), counts: { mismatch: 0, opinion: 0, challenge: 0 }, total: 0, lastAtMs: null, firstAtMs: null, resolved: true, latest: [] };
+          by.set(qid, r);
         }
-        items.push({ ...r, latest, firstAtMs });
-      }
-      return send(res, 200, { ok: true, items, truncated: rows.length > shown.length });
+        r.counts[kind] += 1;
+        r.total += 1;
+        if (!r.source && typeof v.source === 'string') r.source = v.source;
+        if (v.resolved !== true) r.resolved = false;
+        const at = msOf(v.at);
+        if (at !== null) {
+          if (r.lastAtMs === null || at > r.lastAtMs) r.lastAtMs = at;
+          if (r.firstAtMs === null || at < r.firstAtMs) r.firstAtMs = at;
+        }
+        r.latest.push({ kind, reason: String(v.reason || ''), studentChallenge: String(v.studentChallenge || ''), atMs: at });
+      });
+      const rows = [...by.values()];
+      for (const r of rows) r.latest = r.latest.sort((a, b) => (b.atMs || 0) - (a.atMs || 0)).slice(0, 3);
+      rows.sort((a, b) => b.counts.mismatch - a.counts.mismatch || b.total - a.total || (b.lastAtMs || 0) - (a.lastAtMs || 0));
+      return send(res, 200, { ok: true, items: rows.slice(0, SHOWN_CAP), truncated: rows.length > SHOWN_CAP || snap.size >= READ_CAP });
     } catch (e) {
       console.error('[key-disputes] list failed:', e && e.message);
       return send(res, 500, { ok: false, error: 'Could not read the disputed keys' });
@@ -97,11 +87,10 @@ function createAdminKeyDisputesRoutes(deps = {}) {
     if (!QID_RE.test(questionId)) return send(res, 400, { ok: false, error: 'Provide a valid questionId' });
     const resolved = b.resolved !== false;
     try {
-      await adminFirestore.collection('keyDisputes').doc(questionId).set(
-        resolved ? { resolved: true, resolvedAt: new Date(), resolvedBy: auth.uid } : { resolved: false },
-        { merge: true },
-      );
-      return send(res, 200, { ok: true, questionId, resolved });
+      const snap = await adminFirestore.collection('keyDisputeReports').where('questionId', '==', questionId).get();
+      const docs = snap && Array.isArray(snap.docs) ? snap.docs : [];
+      for (const d of docs) await d.ref.update(resolved ? { resolved: true, resolvedAt: new Date(), resolvedBy: auth.uid } : { resolved: false });
+      return send(res, 200, { ok: true, questionId, resolved, updated: docs.length });
     } catch (e) {
       console.error('[key-disputes] resolve failed:', e && e.message);
       return send(res, 500, { ok: false, error: 'Could not update the dispute' });

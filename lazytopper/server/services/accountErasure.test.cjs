@@ -204,6 +204,9 @@ function realSeed(uid = UID) {
     'payOrders/order_B': { uid, passType: 'till_boards', amountPaise: 239600, status: 'created' },
     // Another student's order — must survive untouched.
     'payOrders/order_Z': { uid: OTHER, passType: 'month', amountPaise: 59900, status: 'paid' },
+    // TUTOR-KEY-TRUST-1: FIELD-KEYED dispute reports - DELETED with the account.
+    'keyDisputeReports/u_2026-10-30_challenge_Q-1': { uid, questionId: 'Q-1', kind: 'challenge' },
+    'keyDisputeReports/z_2026-10-30_opinion_Q-1': { uid: OTHER, questionId: 'Q-1', kind: 'opinion' },
     // ASK-PARENTS-PAY-1: FIELD-KEYED pay links — DELETED with the account (not an accounting record).
     'parentPayLinks/sha-link-a': { uid, firstName: 'Aarav', status: 'paid', orderIds: ['order_A'] },
     'parentPayLinks/sha-link-z': { uid: OTHER, firstName: 'Zoya', status: 'open', orderIds: [] },
@@ -707,6 +710,18 @@ test('★★ Z7: payOrders are KEPT with uid -> "erased" — anonymised, never d
   assert.ok(!result.remaining.some((r) => r.id === 'payOrders'));
   assert.equal(result.ok, true);
   assert.equal(result.summary.documentsAnonymised, 2);
+});
+
+test('★★ TUTOR-KEY-TRUST-1: a student\'s keyDisputeReports are DELETED by the uid FIELD, never another student\'s', async () => {
+  const { service, store } = makeService();
+  const result = await service.eraseAccount(UID);
+  const row = byId(result, 'keyDisputeReports');
+  assert.equal(row.status, STATUS.DELETED);
+  assert.equal(row.deleted, 1);
+  assert.ok(!store.docs.has('keyDisputeReports/u_2026-10-30_challenge_Q-1'));
+  assert.ok(store.docs.has('keyDisputeReports/z_2026-10-30_opinion_Q-1'));
+  const q = store.queriedByField.find((x) => x.collection === 'keyDisputeReports');
+  assert.deepEqual({ field: q.field, value: q.value }, { field: 'uid', value: UID });
 });
 
 test('★★ ASK-PARENTS-PAY-1: parentPayLinks are DELETED by the uid FIELD — never another student’s, and the orders stay', async () => {

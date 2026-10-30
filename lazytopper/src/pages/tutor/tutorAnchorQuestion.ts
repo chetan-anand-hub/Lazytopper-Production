@@ -30,7 +30,6 @@ export interface AnchorBankRow {
   ncertRef?: unknown;
   pyqYear?: unknown;
   isPYQ?: unknown;
-  origin?: unknown;
   sourceOverride?: unknown;
 }
 
@@ -39,14 +38,14 @@ const str = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
 const OWN_SOURCE = "LazyTopper practice question";
 
 /** TUTOR-KEY-TRUST-1 - the source label of a bank row, from the tags the bank really carries (inspected across
- *  the banks): `sourceOverride:"others"` / `origin:"lt-generated"` / `LTG-` ids are LazyTopper's own; a `pyqYear`
+ *  the banks): `sourceOverride:"others"` / `LTG-` ids are LazyTopper's own; a `pyqYear`
  *  is a board paper; `ncertRef` "Exemplar Ex 1.1 Q2" / "NCERT Ex 1.1 Q2" / "Exercise Q3" / "In-text Q3" name the
  *  textbook; "CBSE CFPQ ..." is the CBSE competency-focus set; ids with EXMPLR / NCERT cover rows without a ref.
  *  Anything else (APQ, cbjesc* chapter practice, unknown) -> "LazyTopper practice question". */
 export function sourceLabelOf(row: AnchorBankRow | null | undefined): string {
   if (!row) return OWN_SOURCE;
   const id = str(row.id);
-  if (row.sourceOverride === "others" || row.origin === "lt-generated" || /^LTG-/i.test(id)) return OWN_SOURCE;
+  if (row.sourceOverride === "others" || /^LTG-/i.test(id)) return OWN_SOURCE;
   const year = str(row.pyqYear);
   if (year) return `CBSE ${year} board paper`;
   const ref = str(row.ncertRef).replace(/\s*\((?:MCQ|SA|LA|VSA|CBQ|Case)[^)]*\)\s*$/i, "").trim();

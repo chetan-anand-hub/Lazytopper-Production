@@ -8,47 +8,28 @@ const { createTutorRoute } = require('./tutor.cjs');
 const { extractKeyFlagTag, detectKeyMismatch } = require('../services/keyTrust.cjs');
 const { buildTutorSystemPrompt } = require('../prompts/tutorSystemPrompt.cjs');
 const { createAdminKeyDisputesRoutes } = require('./adminKeyDisputes.cjs');
+const { resetMemo } = require('../services/keyDisputes.cjs');
 
-// ---- a tiny Firestore fake: collections of docs, batch.create (fails if exists) + batch.set merge
+// ---- a tiny Firestore fake: root collections of docs; doc().create (fails if exists), update, collection().orderBy/where
 function fakeFirestore() {
   const docs = new Map();
-  const FieldValue = { increment: (n) => ({ __inc: n }) };
-  const merge = (cur, patch) => {
-    const out = { ...cur };
-    for (const [k, v] of Object.entries(patch)) {
-      if (v && v.__inc !== undefined) out[k] = (typeof out[k] === 'number' ? out[k] : 0) + v.__inc;
-      else if (v && typeof v === 'object' && !(v instanceof Date) && !Array.isArray(v)) out[k] = merge(out[k] || {}, v);
-      else out[k] = v;
-    }
-    return out;
-  };
-  const ref = (path) => ({
+  const docRef = (path) => ({
     path,
-    collection: (n) => coll(`${path}/${n}`),
+    create: async (v) => { if (docs.has(path)) { const e = new Error('exists'); e.code = 6; throw e; } docs.set(path, v); },
+    update: async (v) => { docs.set(path, { ...docs.get(path), ...v }); },
   });
-  const coll = (path) => ({
-    doc: (id) => ref(`${path}/${id}`),
-    limit: () => coll(path),
-    orderBy: (f, dir) => ({ limit: (k) => ({ get: async () => snap([...docs.entries()].filter(([p]) => p.startsWith(`${path}/`) && p.split('/').length === path.split('/').length + 1).map(([p, v]) => [p, v]).sort((a, b) => (dir === 'desc' ? 1 : -1) * (a[1][f] - b[1][f])).slice(0, k)) }) }),
-    get: async () => snap([...docs.entries()].filter(([p]) => p.startsWith(`${path}/`) && p.split('/').length === path.split('/').length + 1)),
+  const inColl = (name) => [...docs.entries()].filter(([p]) => p.startsWith(`${name}/`));
+  const snapOf = (entries) => ({
+    size: entries.length,
+    docs: entries.map(([p, v]) => ({ id: p.split('/').pop(), ref: docRef(p), data: () => v })),
+    forEach(fn) { this.docs.forEach(fn); },
   });
-  const snap = (entries) => ({ forEach: (fn) => entries.forEach(([p, v]) => fn({ id: p.split('/').pop(), data: () => v })) });
-  const fs = {
-    docs, FieldValue,
-    collection: (n) => coll(n),
-    batch: () => {
-      const ops = [];
-      return {
-        create: (r, v) => ops.push(() => { if (docs.has(r.path)) { const e = new Error('exists'); e.code = 6; throw e; } docs.set(r.path, v); }),
-        set: (r, v, o) => ops.push(() => docs.set(r.path, o && o.merge ? merge(docs.get(r.path) || {}, v) : v)),
-        commit: async () => { const snapshot = new Map(docs); try { ops.forEach((f) => f()); } catch (e) { docs.clear(); snapshot.forEach((v, k) => docs.set(k, v)); throw e; } },
-      };
-    },
-  };
-  // Doc .set for admin resolve
-  const origColl = fs.collection;
-  fs.collection = (n) => { const c = origColl(n); const d = c.doc; c.doc = (id) => { const r = d(id); r.set = async (v, o) => { docs.set(r.path, o && o.merge ? merge(docs.get(r.path) || {}, v) : v); }; return r; }; return c; };
-  return fs;
+  const coll = (name) => ({
+    doc: (id) => docRef(`${name}/${id}`),
+    orderBy: (f, dir) => ({ limit: (k) => ({ get: async () => snapOf(inColl(name).sort((a, b) => (dir === 'desc' ? -1 : 1) * (a[1][f] - b[1][f])).slice(0, k)) }) }),
+    where: (f, _op, val) => ({ get: async () => snapOf(inColl(name).filter(([, v]) => v[f] === val)) }),
+  });
+  return { docs, collection: coll };
 }
 
 const ANCHOR_OK = {
@@ -59,6 +40,7 @@ const ANCHOR_OK = {
 const ANCHOR_BAD = { ...ANCHOR_OK, id: 'X-MCQ-001', solutionSteps: ['Compare the options.', 'Hence the correct answer is B.'] };
 
 function harness({ reply, uid = 'u1' } = {}) {
+  resetMemo();
   const fs = fakeFirestore();
   const prompts = [];
   const route = createTutorRoute({
@@ -66,16 +48,17 @@ function harness({ reply, uid = 'u1' } = {}) {
     readJson: async (req) => req.body,
     callGemini: async (_m, contents) => { prompts.push(contents[0].parts[0].text); return { text: reply, finishReason: 'STOP' }; },
     GEMINI_TUTOR_MODEL: 'g', GEMINI_MODEL: 'g', ACTIVE_PROVIDER: 'gemini', isStubMode: () => false,
-    resolveVerifiedUid: async () => uid, adminFirestore: fs, firebaseAdmin: { firestore: { FieldValue: fs.FieldValue } },
+    resolveVerifiedUid: async () => uid, adminFirestore: fs,
   });
   const ask = async (content, anchorQuestion, extra = {}) => {
     const res = {};
     await route.handleTutorRequest({ body: { subject: 'science', topicKey: 'chemical-reactions-and-equations', topicLabel: 'Chem', anchorQuestion, messages: [{ role: 'student', content }], ...extra } }, res);
+    await route.flushDisputeLogs();
     return res;
   };
-  return { fs, ask, prompts };
+  return { fs, ask, prompts, route };
 }
-const reports = (fs) => [...fs.docs.entries()].filter(([p]) => p.includes('/reports/'));
+const reports = (fs) => [...fs.docs.entries()].filter(([p]) => p.startsWith('keyDisputeReports/'));
 
 test('sentinel: stripped from the reply, even malformed; never returned', async () => {
   const h = harness({ reply: 'The key is C because N is oxidised.\n[[keyflag:opinion:model thinks (iii)]]' });
@@ -97,7 +80,7 @@ test('opinion flag writes ONE report per question/uid/day; second same-day flag 
   assert.equal(r[0][1].kind, 'opinion');
   assert.equal(r[0][1].source, 'NCERT Exemplar Ex 1.1 Q2');
   assert.equal(r[0][1].uid, 'u1');
-  assert.equal(h.fs.docs.get('keyDisputes/CHEM-EXMPLR-1-MCQ-002').counts.opinion, 1);
+  assert.equal(r[0][0], `keyDisputeReports/u1_${r[0][1].day}_opinion_CHEM-EXMPLR-1-MCQ-002`);
 });
 
 test('student challenge is recorded once a day even when the model emits no flag; reply untouched', async () => {
@@ -176,19 +159,17 @@ test('admin route rejects a non-admin (403) on list and resolve, before touching
   assert.equal(c.status, 503);
 });
 
-test('admin list: counts by kind, sorted mismatch first, resolve flips the flag', async () => {
+test('admin list: counts by kind, sorted mismatch first; resolve marks reports resolved and a new report re-opens it', async () => {
   const h = harness({ reply: 'x\n[[keyflag:opinion:o]]' });
   await h.ask('the key is wrong', ANCHOR_OK); // opinion + challenge
-  const h2 = { fs: h.fs };
-  const bad = harness({ reply: 'mismatch' });
-  // write a mismatch on another question into the SAME store
-  const route = createTutorRoute({
+  const route2 = createTutorRoute({
     sendJson: (res, status, body) => { res.status = status; res.body = body; }, readJson: async (r) => r.body,
     callGemini: async () => ({ text: 'm', finishReason: 'STOP' }), GEMINI_TUTOR_MODEL: 'g', GEMINI_MODEL: 'g', ACTIVE_PROVIDER: 'g', isStubMode: () => false,
-    resolveVerifiedUid: async () => 'u2', adminFirestore: h2.fs, firebaseAdmin: { firestore: { FieldValue: h2.fs.FieldValue } },
+    resolveVerifiedUid: async () => 'u2', adminFirestore: h.fs,
   });
-  await route.handleTutorRequest({ body: { subject: 'science', topicKey: 't', anchorQuestion: ANCHOR_BAD, messages: [{ role: 'student', content: 'hi' }] } }, {});
-  const { route: admin } = adminHarness({ fs: h2.fs });
+  await route2.handleTutorRequest({ body: { subject: 'science', topicKey: 't', anchorQuestion: ANCHOR_BAD, messages: [{ role: 'student', content: 'hi' }] } }, {});
+  await route2.flushDisputeLogs();
+  const { route: admin } = adminHarness({ fs: h.fs });
   const res = {}; await admin.list({}, res);
   assert.equal(res.status, 200);
   assert.equal(res.body.items[0].questionId, 'X-MCQ-001');
@@ -198,5 +179,58 @@ test('admin list: counts by kind, sorted mismatch first, resolve flips the flag'
   assert.equal(ok.source, 'NCERT Exemplar Ex 1.1 Q2');
   const r = {}; await admin.resolve({ body: { questionId: 'X-MCQ-001' } }, r);
   assert.equal(r.status, 200);
-  assert.equal(h2.fs.docs.get('keyDisputes/X-MCQ-001').resolved, true);
+  const res2 = {}; await admin.list({}, res2);
+  assert.equal(res2.body.items.find((i) => i.questionId === 'X-MCQ-001').resolved, true);
+});
+
+test('review: no false mismatch on the four real rows the first cut mis-read', () => {
+  const row = (steps, letter) => ({ options: ['A. a', 'B. b', 'C. c', 'D. d'], answer: 'x', answerLetter: letter, solutionSteps: steps });
+  assert.equal(detectKeyMismatch(row(['Correct answer: C\u2099H\u2082\u2099\u208A\u2082'], 'A')), null); // CARB-E03
+  assert.equal(detectKeyMismatch(row(['Correct answer: C\u2082H\u2084'], 'B')), null); // CARB-E09
+  assert.equal(detectKeyMismatch(row(['Answer: A is false, R is true.'], 'D')), null); // PL2-R20
+  assert.equal(detectKeyMismatch(row(['Answer: A is false, R is true.'], 'D')), null); // 2026-TRI-P1-A-011
+  assert.ok(detectKeyMismatch(row(['Hence the correct answer is B.'], 'C')));
+});
+
+test('review: canFlag - the prompt claims "flagged" only when the server will really log', async () => {
+  const signedIn = harness({ reply: 'ok' });
+  await signedIn.ask('which?', ANCHOR_BAD);
+  assert.match(signedIn.prompts[0], /Say it has been flagged for the LazyTopper team/);
+  const anon = harness({ reply: 'ok', uid: '' });
+  await anon.ask('which?', ANCHOR_BAD);
+  assert.doesNotMatch(anon.prompts[0], /has been flagged/);
+  assert.match(anon.prompts[0], /never claim it was flagged or reported/);
+  assert.doesNotMatch(anon.prompts[0], /\[\[keyflag:/);
+});
+
+test('review: logging is fire-and-forget (the reply does not wait) and repeats short-circuit in memory', async () => {
+  const h = harness({ reply: 'C.\n[[keyflag:opinion:x]]' });
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const origColl = h.fs.collection;
+  h.fs.collection = (n) => { const c = origColl(n); const d = c.doc; c.doc = (id) => { const ref = d(id); const cr = ref.create; ref.create = async (v) => { await gate; return cr(v); }; return ref; }; return c; };
+  const res = {};
+  await h.route.handleTutorRequest({ body: { subject: 'science', topicKey: 't', anchorQuestion: ANCHOR_OK, messages: [{ role: 'student', content: 'why' }] } }, res);
+  assert.equal(res.status, 200); // replied while the write is still pending
+  assert.equal(reports(h.fs).length, 0);
+  release();
+  await h.route.flushDisputeLogs();
+  assert.equal(reports(h.fs).length, 1);
+  let creates = 0;
+  const c2 = h.fs.collection;
+  h.fs.collection = (n) => { const c = c2(n); const d = c.doc; c.doc = (id) => { const ref = d(id); const cr = ref.create; ref.create = async (v) => { creates += 1; return cr(v); }; return ref; }; return c; };
+  await h.ask('again', ANCHOR_OK);
+  assert.equal(creates, 0, 'a repeat the same day must not even reach Firestore');
+});
+
+test('review: a per-uid daily cap bounds the reports', async () => {
+  const h = harness({ reply: 'C.\n[[keyflag:opinion:x]]' });
+  for (let i = 0; i < 15; i += 1) await h.ask('why', { ...ANCHOR_OK, id: `Q-${i}` });
+  assert.equal(reports(h.fs).length, 10);
+});
+
+test('review: "what is my mistake" / "where did I go wrong" are NOT challenges; "the key is wrong" / "should be (b)" are', async () => {
+  const { studentDisputesKey } = require('./tutor.cjs');
+  for (const t of ["what's my mistake?", 'where did I go wrong', 'why is my answer incorrect', 'I made a silly mistake']) assert.equal(studentDisputesKey(t), false, t);
+  for (const t of ['the answer is wrong', 'key is wrong', 'there are two correct options', 'both are correct', 'option B is also correct', 'it should be (b)']) assert.equal(studentDisputesKey(t), true, t);
 });

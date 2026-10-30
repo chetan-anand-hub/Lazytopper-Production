@@ -91,7 +91,7 @@
     "test:tutor:qp-overlay": "node scripts/ops/quick_practice_overlay_additive_acceptance.mjs",
     "test:server:rate-limit": "node --test server/services/rateLimiter.test.cjs",
     "test:server:token-instrumentation": "node --test server/services/geminiClient.test.cjs",
-    "test:server:tutor": "node --test server/routes/tutor.test.cjs",
+    "test:server:tutor": "node --test server/routes/tutor.test.cjs server/routes/tutor.keytrust.test.cjs",
     "test:server:admin-telemetry": "node --test server/routes/adminTelemetry.test.cjs",
     "test:server:verified-caller": "node --test server/services/verifiedCaller.test.cjs",
     "test:server:check-solution": "node --test server/routes/checkSolution.test.cjs",

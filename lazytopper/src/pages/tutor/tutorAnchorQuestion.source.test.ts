@@ -9,7 +9,7 @@ describe("sourceLabelOf (real tag shapes from the banks)", () => {
     [{ id: "PYQ-S-2024-CTRL-001", ncertRef: "PYQ 31/4/1 Q7", pyqYear: "2024" }, "CBSE 2024 board paper"],
     [{ id: "CFPQ-S-CARB-001", ncertRef: "CBSE CFPQ Science Class 10 Ch.4 - x" }, "CBSE competency-focus practice question"],
     [{ id: "LTG-M-AP-001" }, "LazyTopper practice question"],
-    [{ id: "PYQ-M-1", pyqYear: "2023", origin: "lt-generated" }, "LazyTopper practice question"],
+    [{ id: "LTG-M-AP-002", pyqYear: "2023" }, "LazyTopper practice question"],
     [{ id: "PYQ-M-2", pyqYear: "2023", sourceOverride: "others" }, "LazyTopper practice question"],
     [{ id: "SCQ-S-CARB-020", ncertRef: "cbjesccq04 Q1" }, "LazyTopper practice question"],
     [{ id: "METAL-EXMPLR-1-MCQ-003" }, "NCERT Exemplar"],

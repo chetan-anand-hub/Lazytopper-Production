@@ -8,10 +8,13 @@
  * and the server can flag it. A bare disagreement from the model is an "opinion", logged but never voiced.
  */
 
-// Same shapes as tutor.cjs TUTOR_LETTER_CLAIM, plus the "option X is correct" word order. Letters a-d only.
+// A claimed option letter must stand ALONE: preceded by an answer/option marker and followed by end-of-text or
+// . , ; ) - never by a word, a formula, a subscript or "is" ("Answer: A is false, R is true" and
+// "Correct answer: C2H4" are NOT claims of option A / C). Letters a-d only.
+const CLAIM_END = '(?=\\s*(?:$|[.,;)]))';
 const LETTER_CLAIMS = [
-  /\b(?:(?:correct|right)\s+(?:answer|option|choice)\s+(?:is|would be)|answer\s+(?:is|would be)|answer\s*[:=])\s*(?:option\s+)?\(?([a-d])\b/gi,
-  /\b(?:option|choice)\s*\(?([a-d])\)?\s+(?:is|would be)\s+(?:the\s+)?(?:correct|right)\b/gi,
+  new RegExp('\\b(?:(?:correct|right)\\s+(?:answer|option|choice)\\s*(?:is|would be|:|=)|(?:answer|option|choice)\\s*(?:is|would be|:|=))\\s*(?:option\\s+)?\\(?([a-d])\\)?' + CLAIM_END, 'gi'),
+  /\b(?:option|choice)\s*\(?([a-d])\)?\s+is\s+(?:the\s+)?(?:correct|right)(?=\s*(?:$|[.,;)!]))/gi,
 ];
 const BARE_LETTER = /^\s*(?:option\s+)?\(?([a-d])\)?\s*[.)]?\s*$/i;
 const LETTERS = 'ABCDEFGH';
