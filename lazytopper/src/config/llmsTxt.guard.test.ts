@@ -4,6 +4,15 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { sitemapUrls } from "./sitemapUrls";
+import { CBQ_SUBJECT_CLAIM } from "../lib/packs/packLabels";
+import { PACK_PRICE_INR } from "../services/packs";
+import {
+  FOUNDING_OFFER_LAST_DAY_LABEL,
+  FOUNDING_OFFER_LIST_FROM_LABEL,
+  PRICE_MONTHLY_FOUNDING_INR,
+  PRICE_MONTHLY_LIST_INR,
+  TILL_BOARDS_SAVING_PERCENT,
+} from "./pricing";
 
 /**
  * GUARD — every URL `public/llms.txt` advertises is a URL the sitemap advertises.
@@ -48,6 +57,21 @@ function urlsFromLlms(): string[] {
   return [...txt.matchAll(/https?:\/\/[^\s<>")]+/gi)].map((m) => m[0].replace(/[.,]$/, ""));
 }
 
+/**
+ * LLMS-MARKETING-1 — the URLs as the SITEMAP sees them: a `#section` fragment (`/pricing#cbq`) is the same page as
+ * `/pricing`, so it is compared without the fragment. Only the fragment is dropped; host, path and case stay exact.
+ */
+function stripFragment(u: string): string {
+  const i = u.indexOf("#");
+  return i === -1 ? u : u.slice(0, i);
+}
+
+/** The markdown link targets - `[label](url)` - the curated list. Prose may repeat a URL; the list may not. */
+function linkTargetsFromLlms(): string[] {
+  const txt = readFileSync(LLMS_TXT, "utf8");
+  return [...txt.matchAll(/\]\((https?:\/\/[^\s<>")]+)\)/gi)].map((m) => m[1]);
+}
+
 describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => {
   const urls = urlsFromLlms();
   const sitemap = sitemapUrls(BASENAME);
@@ -66,13 +90,13 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
   });
 
   it("(b) every llms.txt URL is in the sitemap", () => {
-    const notInSitemap = urls.filter((u) => !inSitemap.has(u));
+    const notInSitemap = urls.filter((u) => !inSitemap.has(stripFragment(u)));
     expect(notInSitemap, `llms.txt advertises URLs the sitemap does not: ${notInSitemap.join(", ")}`).toEqual([]);
   });
 
   it("(c) no URL is listed twice", () => {
     const seen = new Set<string>();
-    const dupes = urls.filter((u) => (seen.has(u) ? true : (seen.add(u), false)));
+    const dupes = linkTargetsFromLlms().filter((u) => (seen.has(u) ? true : (seen.add(u), false)));
     expect(dupes, `llms.txt lists duplicate URLs: ${dupes.join(", ")}`).toEqual([]);
   });
 
@@ -85,8 +109,38 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
   // green, so an AI crawler would never be told about a page Google is. Together
   // with (b) and (c), this makes the two URL sets EQUAL.
   it("(e) every sitemap URL is in llms.txt", () => {
-    const inLlms = new Set(urls);
+    const inLlms = new Set(urls.map(stripFragment));
     const notInLlms = sitemap.filter((u) => !inLlms.has(u));
     expect(notInLlms, `the sitemap advertises URLs llms.txt does not list: ${notInLlms.join(", ")}`).toEqual([]);
+  });
+
+  // LLMS-MARKETING-1 (owner, 30 Oct 2026) - the file must market Premium first, then the CBQ Packs and the other packs.
+  it("(f) llms.txt offers Premium first, then the CBQ Packs, then the other packs, each linked to the Pricing page", () => {
+    const txt = readFileSync(LLMS_TXT, "utf8");
+    const premium = txt.indexOf("1. Premium");
+    const cbq = txt.indexOf("2. CBQ Packs");
+    const packs = txt.indexOf("3. Other PDF packs");
+    expect(premium, "no Premium offer line").toBeGreaterThan(-1);
+    expect(cbq, "no CBQ Packs offer line").toBeGreaterThan(premium);
+    expect(packs, "no other-packs offer line").toBeGreaterThan(cbq);
+    expect(txt).toContain("Details: https://www.lazytopper.com/pricing");
+    expect(txt).toContain("https://www.lazytopper.com/pricing#cbq");
+    expect(txt).toContain("https://www.lazytopper.com/pricing#packs");
+    expect(txt).toContain("Maths CBQ Pack ₹199");
+    expect(txt).toContain("Science CBQ Pack ₹199");
+  });
+
+  it("(g) the prices it quotes are the ones in code", () => {
+    const txt = readFileSync(LLMS_TXT, "utf8");
+    expect(txt).toContain(`${CBQ_SUBJECT_CLAIM.replace(" CBQs", "")} CBQs`);
+    expect(txt).toContain(`CBQ Pack ₹${PACK_PRICE_INR.pack_cbq}`);
+    expect(txt).toContain(`Chapter pack ₹${PACK_PRICE_INR.pack_chapter}`);
+    expect(txt).toContain(`Mock pack ₹${PACK_PRICE_INR.pack_mock}`);
+    expect(txt).toContain(`Subject pack ₹${PACK_PRICE_INR.pack_subject}`);
+    expect(txt).toContain(`Bundle ₹${PACK_PRICE_INR.pack_bundle}`);
+    expect(txt).toContain(`₹${PRICE_MONTHLY_FOUNDING_INR} for a month until ${FOUNDING_OFFER_LAST_DAY_LABEL} 2026`);
+    expect(txt).toContain(`₹${PRICE_MONTHLY_LIST_INR} for a month from ${FOUNDING_OFFER_LIST_FROM_LABEL} 2026`);
+    expect(txt).toContain(`${TILL_BOARDS_SAVING_PERCENT}% less than paying monthly`);
+    expect(txt).toContain("7-day Premium trial");
   });
 });
