@@ -357,7 +357,7 @@ const SOURCE_LABEL: Record<DesktopActionSource, string> = {
   trends: "Back to Exam Trends",
   topicHub: "Back to Topic Hub",
   worksheet: "Back to Worksheet",
-  check: "Back to Check & Improve",
+  check: "Back to Answer Checker",
   me: "Back to Me",
   "full-mock": "Back to Full Mock",
 };
@@ -1435,7 +1435,7 @@ function MistakeIntelligencePanel({
                 to={checkPath}
                 style={{ color: PRIMARY_GREEN_DARK, fontWeight: 600, textDecoration: "none" }}
               >
-                Check &amp; Improve
+                Answer Checker
               </Link>{" "}
               to unlock mistake-aware practice.
             </>
@@ -2473,7 +2473,7 @@ export default function DesktopPracticePage() {
                       title={
                         buckets.topRow
                           ? "Adds a mini-section that targets your top mistake bucket"
-                          : "Available after you save a graded answer in Check & Improve"
+                          : "Available after you save a graded answer in Answer Checker"
                       }
                     >
                       <input

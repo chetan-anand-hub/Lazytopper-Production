@@ -54,7 +54,7 @@ export const FX_OBJECTIVE_ONLY = base({
  *  the MI figures are over the GRADED questions only. */
 export const FX_PENDING = base({
   surface: "check-improve",
-  title: "Check & Improve paper",
+  title: "Answer Checker paper",
   subtitle: "Triangles · CI-M-TR-01 · graded just now",
   score: { kind: "marks", awarded: 6, total: 10, gradedCount: 3, totalQuestions: 5 },
   pending: { count: 2, worksheetTotalMarks: 17 },
@@ -101,7 +101,7 @@ export const FX_COUNT_ONLY = base({
 /** Check & Improve SINGLE question (the single-question path's variant). */
 export const FX_CI_SINGLE = base({
   surface: "check-improve",
-  title: "Check & Improve paper",
+  title: "Answer Checker paper",
   subtitle: "Quadratic Equations · CI-M-QE-01 · graded just now",
   score: { kind: "marks", awarded: 2, total: 3, gradedCount: 1, totalQuestions: 1 },
   fourType: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 },

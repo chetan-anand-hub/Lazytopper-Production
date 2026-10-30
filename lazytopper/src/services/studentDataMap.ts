@@ -839,7 +839,7 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     path: "localStorage['lazytopper.*']; sessionStorage['lazytopper.ci.draft.v1']; IndexedDB 'lazytopper.ciDraft'",
     holds:
       "★ Cached mistake logs, check results, attempt dedup keys, progress, streaks and " +
-      "auth state mirrored on the device. ACTIVATION-1: plus an in-progress Check & Improve " +
+      "auth state mirrored on the device. ACTIVATION-1: plus an in-progress Answer Checker " +
       "question and answer (text in sessionStorage, photos in IndexedDB) held for THIS TAB " +
       "only, for at most 30 minutes, across a sign-in — cleared on restore, on submit and on " +
       "expiry, and never sent to any server before the student submits. Plus, in THIS TAB's " +
@@ -862,7 +862,7 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "(the single character 1 once the Start-here card or focused surface was shown on that page " +
       "this visit, so the shown event is counted once per tab; never the uid, never sent anywhere). " +
       "LOGIN-HOME-1: plus, in THIS TAB's sessionStorage, `lazytopper.checkOneHandover` (the " +
-      "single character 1, written when Byte's Check one answer opens Check & Improve from another " +
+      "single character 1, written when Byte's Check one answer opens Answer Checker from another " +
       "page, read and deleted once on that arrival so Byte does not ask again; never the uid, never " +
       "sent anywhere). " +
       " TUTOR-FIX-2 T12: plus, in THIS TAB's sessionStorage, `lazytopper.tutorSignupAsk.v1` (a " +
@@ -955,7 +955,7 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "and two more fields inside `lazytopper.companion.<tag>` above: when the exam-week moment last " +
       "showed and when Ziggy's \"aha\" last showed for each mistake type (so each rests for a week). " +
       "CI-SOFT-1: plus, in THIS TAB's sessionStorage, `lazytopper.ciDemoClosed` (the single character " +
-      "1 once the sample-marking card on Check & Improve was closed, so it does not return this " +
+      "1 once the sample-marking card on Answer Checker was closed, so it does not return this " +
       "session; never the uid, never a mark). " +
       "None is ever sent anywhere.",
     mechanism: "client-local",

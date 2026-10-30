@@ -172,7 +172,7 @@ export default function CheckImproveHistoryPanel({
               <div className="lt-ct__honest">
                 <span>·</span>
                 <span>
-                  No checked papers yet — grade your first answer with Check &amp; Improve and it
+                  No checked papers yet — grade your first answer with Answer Checker and it
                   will show here.
                 </span>
               </div>

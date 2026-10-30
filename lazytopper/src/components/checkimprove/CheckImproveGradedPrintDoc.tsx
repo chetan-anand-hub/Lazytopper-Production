@@ -202,7 +202,7 @@ export function CheckImproveGradedPrintDoc({
           <img className="lt-cigp__logo" src={BRAND_MARK_SRC} alt="" aria-hidden="true" />
           <span>
             <span className="lt-cigp__nm">LazyTopper</span>
-            <span className="lt-cigp__tg">CBSE · CLASS 10 · CHECK &amp; IMPROVE</span>
+            <span className="lt-cigp__tg">CBSE · CLASS 10 · ANSWER CHECKER</span>
           </span>
         </div>
         <div className="lt-cigp__meta">

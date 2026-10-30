@@ -682,7 +682,7 @@ export default function DesktopHome() {
                     to={`/check-improve${HOME_QS_LEAD}`}
                     style={{ color: ACCENT, textDecoration: "underline" }}
                   >
-                    Check &amp; Improve
+                    Answer Checker
                   </Link>{" "}
                   to unlock mistake-aware suggestions.
                 </div>

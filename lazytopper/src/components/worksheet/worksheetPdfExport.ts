@@ -474,6 +474,6 @@ export async function exportGradedCheckImprovePdf(
 ): Promise<string> {
   const filename = `lazytopper-${slug(props.name || props.code || "check-improve")}-graded.pdf`;
   return renderElementToPdf(createElement(CheckImproveGradedPrintDoc, props), filename, {
-    runningHeader: `Check & Improve \u00b7 ${props.name || props.code || "Graded sheet"}`,
+    runningHeader: `Answer Checker \u00b7 ${props.name || props.code || "Graded sheet"}`,
   });
 }

@@ -246,7 +246,7 @@ export const LEARNING_SIGNAL_HONESTY_RULES: Record<
   },
   self_assessed: {
     kind: "self_assessed",
-    summary: "Learner self-rating. Lower confidence than Check & Improve.",
+    summary: "Learner self-rating. Lower confidence than Answer Checker.",
     countsAsMastery: false,
     countsAsMistakeEvidence: false,
     canBeLocalOnly: true,

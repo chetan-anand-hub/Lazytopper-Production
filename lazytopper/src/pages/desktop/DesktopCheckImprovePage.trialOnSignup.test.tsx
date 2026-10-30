@@ -212,7 +212,7 @@ describe("T4 / P10 — every lock a signed-in Basic student meets on Check & Imp
     // exactly the Pricing rows marked included, in Pricing's order
     expect(items).toEqual(FREE_FEATURES.filter((f) => f.included).map((f) => f.label));
     // the lock's current message is still there, above the list
-    expect(container.textContent).toContain("Check & Improve is part of Premium.");
+    expect(container.textContent).toContain("Answer Checker is part of Premium.");
   }
 
   for (const width of ["desktop", "mobile"] as const) {

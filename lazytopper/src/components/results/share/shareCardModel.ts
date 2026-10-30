@@ -113,7 +113,7 @@ const SURFACE_LABEL: Record<ScorecardSurface, string> = {
   "quick-practice": "Quick Practice",
   "chapter-test": "Chapter Test",
   "full-mock": "Full Mock",
-  "check-improve": "Check & Improve",
+  "check-improve": "Answer Checker",
 };
 
 /** How the share text names a scorecard that carries no chapter label. */
@@ -122,12 +122,13 @@ const SURFACE_PHRASE: Record<ScorecardSurface, string> = {
   "quick-practice": "Quick Practice",
   "chapter-test": "a chapter test",
   "full-mock": "a full mock",
-  "check-improve": "a Check & Improve paper",
+  "check-improve": "an Answer Checker paper",
 };
 
 /** Head labels that name a surface, not a chapter - never shown as the context. */
 const GENERIC_LABELS = new Set([
   "session scorecard",
+  "answer checker paper",
   "check & improve paper",
   "checked paper",
   "uploaded paper",
@@ -144,7 +145,7 @@ const CODE_TOKEN = /\b(?:WS|CT|FM|CI|QP|UNL)-[A-Z0-9]+(?:-[A-Z0-9]+)*/gi;
 /** The ONLY head whose subtitle may lend the chapter: the LIVE C&I builder's fixed title
  *  (scorecardVariants.ts:1798), whose subtitle leads with the topic. A saved / reopened
  *  record's subtitle leads with its CODE and is never read. */
-const LIVE_CI_TITLE = "check & improve paper";
+const LIVE_CI_TITLES = new Set(["answer checker paper", "check & improve paper"]);
 const MAX_CONTEXT = 60;
 
 function cleanSegment(raw: string): string | null {
@@ -167,7 +168,7 @@ function firstSegment(label: string | null | undefined): string | null {
 
 /**
  * The chapter/subject label: the head title's first segment ("Real Numbers · Test #2" ->
- * "Real Numbers"; "Maths · Mock #4" -> "Maths"). ONLY the live C&I head ("Check & Improve
+ * "Real Numbers"; "Maths · Mock #4" -> "Maths"). ONLY the live C&I head ("Answer Checker
  * paper") falls back to the subtitle's first segment, which that builder leads with the
  * topic; every other head (incl. a saved / reopened record, whose subtitle leads with its
  * code) never reads the subtitle. Codes are stripped; nothing left -> null (honest-or-silent).
@@ -175,7 +176,7 @@ function firstSegment(label: string | null | undefined): string | null {
 export function shareContextOf(variant: Pick<ScorecardVariant, "title" | "subtitle">): string | null {
   const fromTitle = firstSegment(variant.title);
   if (fromTitle) return fromTitle;
-  if ((variant.title ?? "").trim().toLowerCase() !== LIVE_CI_TITLE) return null;
+  if (!LIVE_CI_TITLES.has((variant.title ?? "").trim().toLowerCase())) return null;
   return firstSegment(variant.subtitle);
 }
 

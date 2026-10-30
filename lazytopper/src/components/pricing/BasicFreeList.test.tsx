@@ -70,7 +70,7 @@ describe("Pricing's Basic card reads the L4 list (signed out — the prerendered
 });
 
 describe("RequirePremium — 'Free on Basic:' under the current message, on every gated feature", () => {
-  for (const featureLabel of ["Check & Improve", "Ask the tutor", "Exam Simulation", undefined]) {
+  for (const featureLabel of ["Answer Checker", "Ask the tutor", "Exam Simulation", undefined]) {
     it(`${featureLabel ?? "(no label)"}: the message stays, the Basic list follows it`, () => {
       H.user = { uid: "u1" };
       const { container } = render(
@@ -98,7 +98,7 @@ describe("RequirePremium — 'Free on Basic:' under the current message, on ever
     H.sub.isPremium = true;
     render(
       <MemoryRouter>
-        <RequirePremium featureLabel="Check & Improve">
+        <RequirePremium featureLabel="Answer Checker">
           <div>premium content</div>
         </RequirePremium>
       </MemoryRouter>,

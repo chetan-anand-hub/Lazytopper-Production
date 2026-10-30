@@ -177,7 +177,7 @@ export const PREMIUM_PLUS_HEAD = "Everything in Basic, plus:";
 export const PREMIUM_PLUS: readonly PlanItem[] = [
   {
     id: "check-improve",
-    label: "Check & Improve — photograph your handwritten answer, marked step by step like a board examiner",
+    label: "Answer Checker — photograph your handwritten answer, marked step by step like a board examiner",
   },
   { id: "graded", label: "Chapter tests, full mocks and worksheets graded, not just downloaded" },
   { id: "tutor", label: "Your AI tutor that knows your chapters, your mistakes, your pace" },

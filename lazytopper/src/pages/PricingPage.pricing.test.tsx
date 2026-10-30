@@ -569,7 +569,7 @@ describe("PricingPage — PRICING-LIGHT-1 · L4 the Premium card (owner ruling, 
    * HEADING ("Everything in Basic, plus:"), and the rows say what Premium adds.
    */
   const PREMIUM_PLUS_ROWS = [
-    "Check & Improve — photograph your handwritten answer, marked step by step like a board examiner",
+    "Answer Checker — photograph your handwritten answer, marked step by step like a board examiner",
     "Chapter tests, full mocks and worksheets graded, not just downloaded",
     "Your AI tutor that knows your chapters, your mistakes, your pace",
     "Mistake Intelligence — why you lose marks, not just where",

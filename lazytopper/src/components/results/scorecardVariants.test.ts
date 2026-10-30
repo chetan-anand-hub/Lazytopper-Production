@@ -811,7 +811,7 @@ describe("checkImproveScorecardVariant", () => {
   it("builds the marks hero + four-type + pending strip + the honest saved subtitle", () => {
     const v = checkImproveScorecardVariant(base);
     expect(v.surface).toBe("check-improve");
-    expect(v.title).toBe("Check & Improve paper");
+    expect(v.title).toBe("Answer Checker paper");
     expect(v.subtitle).toBe(
       "Real Numbers · CI-M-REAL-03 · graded just now · saved to your progress",
     );

@@ -1832,7 +1832,7 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
     // (No session record is written for this state; the scorecard still says why.)
     return {
       surface: "check-improve",
-      title: "Check & Improve paper",
+      title: "Answer Checker paper",
       subtitle: `${head} · graded just now`,
       score: { kind: "marks", awarded: 0, total: 0 }, // not rendered — allPending below
       fourType: null,
@@ -1890,7 +1890,7 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
 
   return {
     surface: "check-improve",
-    title: "Check & Improve paper",
+    title: "Answer Checker paper",
     subtitle,
     score: {
       kind: "marks",

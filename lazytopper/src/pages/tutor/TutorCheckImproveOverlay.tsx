@@ -60,7 +60,7 @@ export default function TutorCheckImproveOverlay({ open, onClose }: TutorCheckIm
         className="lt-tutor-overlay__panel"
         role="dialog"
         aria-modal="true"
-        aria-label="Check & Improve"
+        aria-label="Answer Checker"
       >
         {/* The REAL page, overlay-mode. The optional `overlay` prop is the ONLY behavioural
             difference from a direct /check-improve visit; absent it is byte-identical. */}
