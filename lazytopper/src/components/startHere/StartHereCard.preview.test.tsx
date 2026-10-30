@@ -262,3 +262,47 @@ describe("PREVIEW-1 · Show control", () => {
     expect(onboarding).not.toHaveBeenCalled();
   });
 });
+
+describe("PREVIEW-BADGE-1 · the plain (control-arm) Start-here forms carry the Admin preview pill", () => {
+  function HomeBoth() {
+    const s = useStartHere("u1");
+    return (
+      <>
+        <StartHereView surface="home" returnTo="/" state={s} />
+        <StartHereFocusView uid="u1" surface="home" returnTo="/" state={s} />
+      </>
+    );
+  }
+  const home = () =>
+    render(
+      <MemoryRouter>
+        <HomeBoth />
+      </MemoryRouter>,
+    );
+
+  it("preview (control) on a graded account: the inline card AND the focus view show the pill", async () => {
+    preview("control");
+    graded();
+    home();
+    const card = await screen.findByTestId("start-here-card");
+    expect(card.querySelector("[data-testid='guide-admin-preview']")).toBeTruthy();
+    const focus = await screen.findByTestId("start-here-focus");
+    expect(focus.getAttribute("data-arm")).toBeNull();
+    expect(focus.querySelector("[data-testid='guide-admin-preview']")).toBeTruthy();
+  });
+  it("the same on a phone-sized screen (full-screen focus)", async () => {
+    setMatchMediaMatches(true);
+    preview("control");
+    graded();
+    home();
+    expect((await screen.findByTestId("start-here-focus")).querySelector("[data-testid='guide-admin-preview']")).toBeTruthy();
+    expect((await screen.findByTestId("start-here-card")).querySelector("[data-testid='guide-admin-preview']")).toBeTruthy();
+  });
+  it("no preview (control arm by the seam) on a zero-graded student: both forms show, NO pill", async () => {
+    __setGuideAbForTests(true, "control");
+    home();
+    expect(await screen.findByTestId("start-here-card")).toBeTruthy();
+    expect(await screen.findByTestId("start-here-focus")).toBeTruthy();
+    expect(screen.queryByTestId("guide-admin-preview")).toBeNull();
+  });
+});

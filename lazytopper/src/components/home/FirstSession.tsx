@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSessionRecordsFromCloud } from "../../services/sessionRecords";
+import AdminPreviewBadge from "../guide/AdminPreviewBadge";
 
 /**
  * FirstSession — the start card a student sees on Home when they have NO graded
@@ -236,6 +237,7 @@ export default function FirstSession({
         className={spaced ? "lt-first lt-first--spaced" : "lt-first"}
         data-testid="first-session-card"
       >
+        <AdminPreviewBadge />
         <p className="lt-first-k">First session</p>
         <h2 className="lt-first-h">
           Check one answer, and I&apos;ll know where you&apos;re losing marks.
