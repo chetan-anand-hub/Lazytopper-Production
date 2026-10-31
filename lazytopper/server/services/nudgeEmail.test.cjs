@@ -399,7 +399,8 @@ test('founding is dark until payments + parent pay are on, and in-window it send
   day(live.db, 'u1', '2026-11-01', { lastSeenMs: NOW_NOV - 10 * DAY, sections: { pricing: 1 } });
   const r = await live.make().runOnce();
   assert.equal(r.byKind.founding, 1);
-  assert.match(live.calls[0].body.text, /599 a month until 30 Nov\. From 1 Dec it is .999 a month\./);
+  assert.match(live.calls[0].body.text, /Board Pass: ₹1,917, one payment/);
+  assert.doesNotMatch(live.calls[0].body.text, /599|999/);
   assert.match(live.calls[0].body.text, /\/pricing/);
   assert.equal(live.db.docs.get('nudgeEmails/u1').founding.status, 'sent');
   assert.equal((await live.make().runOnce()).sent, 0);
@@ -552,8 +553,8 @@ test('copy: D3 says zero as zero and counts as counts; D1 offers Check & Improve
 test('the price line is read from the pricing mirror', () => {
   const p = require('./passPricing.cjs');
   const line = foundingPriceLine();
-  assert.ok(line.includes(`₹${p.PRICE_MONTHLY_FOUNDING_INR}`));
-  assert.ok(line.includes(`₹${p.PRICE_MONTHLY_LIST_INR}`));
+  assert.ok(line.includes('₹1,917') && p.TILL_BOARDS_FOUNDING_INR === 1917 && p.tillBoardsPriceInr(Date.now()) === (Date.now() < p.FOUNDING_OFFER_CLOSES_AT_MS ? 1917 : 2499));
+  assert.ok(!line.includes(String(p.PRICE_MONTHLY_FOUNDING_INR)) && !line.includes(String(p.PRICE_MONTHLY_LIST_INR)), 'a month price in the email');
 });
 
 test('schedule() when enabled arms one first run and one interval, both unref()d; off arms nothing', () => {
@@ -705,7 +706,8 @@ test('checkout_help: order 2-48 h old and unpaid -> one email with the real plan
   const b = sent(s)[0];
   assert.equal(b.subject, 'Did something go wrong at payment?');
   assert.equal(b.reply_to, 'founder@example.com');
-  assert.match(b.text, /the monthly plan \(₹599\)/);
+  assert.doesNotMatch(b.text, /599/);
+  assert.match(b.text, /started to pay for Premium/);
   assert.match(b.text, /was it the price/i);
   assert.match(b.text, /10-minute call/);
   assert.match(b.text, /— Chetan, founder, LazyTopper/);

@@ -379,13 +379,14 @@ function recheckAtMs(kind, reason, facts, startMs) {
   return at;
 }
 
-/** "Founding price: ₹599 a month until 30 Nov; from 1 Dec it is ₹999." Prices from the pricing mirror. PURE. */
+/**
+ * PRICE-FIXED-1: "Board Pass: ₹<today's price>, one payment till your boards." The price (founding, then after-founding) comes from the pricing mirror. The
+ * month pass is NOT quoted to anyone (owner ruling 31 Oct 2026: the monthly price is hidden throughout).
+ * Kept under its old export name so callers and the test seam do not move. PURE.
+ */
 function foundingPriceLine() {
-  const lastDay = new Date(Date.parse(`${FOUNDING_LAST_DAY_IST}T00:00:00.000+05:30`));
-  const lastLabel = formatIstDate(lastDay.getTime()).replace(/^\w{3} /, '');
-  const nextLabel = formatIstDate(FOUNDING_UNTIL_MS).replace(/^\w{3} /, '');
-  const rupee = (n) => `₹${n}`;
-  return `Founding price: ${rupee(pricing.PRICE_MONTHLY_FOUNDING_INR)} a month until ${lastLabel}. From ${nextLabel} it is ${rupee(pricing.PRICE_MONTHLY_LIST_INR)} a month.`;
+  const rupee = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
+  return `Board Pass: ${rupee(pricing.tillBoardsPriceInr(Date.now()))}, one payment, and you are covered till your boards.`;
 }
 
 function activityLine(counts) {

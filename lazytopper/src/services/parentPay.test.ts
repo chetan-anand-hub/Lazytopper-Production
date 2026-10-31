@@ -109,9 +109,10 @@ describe("the message — honest by construction", () => {
 
   it("quotes the prices it is GIVEN (the server's), and the link", () => {
     const text = buildAskParentMessage({ ...base, lang: "en", checkedCount: 12 });
-    expect(text).toContain("₹777 for a month");
+    // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price (even if the server sent one) is never quoted.
+    expect(text).not.toContain("₹777");
+    expect(text).not.toMatch(/for a month|599/);
     expect(text).toContain("₹3,108 once");
-    expect(text).not.toContain("₹599");
     expect(text).toContain(base.url);
     expect(text).toContain("step by step");
     expect(text).toContain("CBSE examiner");
@@ -130,14 +131,14 @@ describe("the message — honest by construction", () => {
   });
 
   it("a price the server could not quote is left out, never guessed", () => {
-    const text = buildAskParentMessage({ ...base, lang: "en", prices: { month: 599, till_boards: null }, checkedCount: null });
-    expect(text).toContain("Premium is ₹599 for a month.");
+    const text = buildAskParentMessage({ ...base, lang: "en", prices: { month: null, till_boards: null }, checkedCount: null });
+    expect(text).not.toMatch(/₹/);
     expect(text).not.toMatch(/till my boards/);
   });
 
   it("Hindi carries the same facts: prices, real count, link, validity", () => {
     const text = buildAskParentMessage({ ...base, lang: "hi", checkedCount: 5 });
-    expect(text).toContain("₹777");
+    expect(text).not.toContain("₹777");
     expect(text).toContain("₹3,108");
     expect(text).toContain("5 उत्तर");
     expect(text).toContain(base.url);

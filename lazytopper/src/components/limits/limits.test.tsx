@@ -77,25 +77,22 @@ describe("copy: numbers come from the server", () => {
   });
 });
 
-describe("wall offer: the month pass leads (CHECKOUT-1), Board Pass second, founding line is date-driven", () => {
-  it("open: the data carries the Board Pass and the monthly price, plus the founding line with the derived last day", () => {
-    const o = wallOfferLines(new Date("2026-11-02T06:00:00Z"));
-    expect(o.boardPass).toMatch(/^Board Pass ₹[\d,]+ till your boards \(.+\) · save 20%$/);
-    expect(o.monthly).toBe("₹599 for a month");
-    expect(o.founding).toBe("Founding price ₹599 a month until 30 November.");
+describe("wall offer: the Board Pass is the only plan named (PRICE-FIXED-1)", () => {
+  it("the data carries the Board Pass at its fixed price and nothing else - on both sides of the old founding close", () => {
+    for (const [at, price, label] of [["2026-11-02T06:00:00Z", "₹1,917", "Founding member offer"], ["2026-12-02T06:00:00Z", "₹2,499", null]] as const) {
+      const o = wallOfferLines(new Date(at));
+      expect(Object.keys(o)).toEqual(["boardPass", "foundingLabel"]);
+      expect(o.foundingLabel).toBe(label);
+      expect(o.boardPass).toMatch(new RegExp(`^Board Pass ${price} till your boards \\(.+\\)$`));
+      expect(o.boardPass).not.toMatch(/save|%|599|999|month/i);
+    }
   });
-  it("closes at 00:00 IST on 1 Dec: the founding line disappears and the monthly price is the list price", () => {
-    expect(wallOfferLines(new Date("2026-11-30T18:29:59Z")).founding).not.toBeNull();
-    const closed = wallOfferLines(new Date("2026-11-30T18:30:00Z"));
-    expect(closed.founding).toBeNull();
-    expect(closed.monthly).toBe("₹999 for a month");
-    expect(closed.boardPass).toMatch(/^Board Pass /);
-  });
-  it("rendered wall: the month line before the Board Pass line", () => {
+  it("rendered wall: one Board Pass line, no month line, no founding line", () => {
     render(<MemoryRouter><DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} /></MemoryRouter>);
     const lines = Array.from(screen.getByTestId("wall-offer").querySelectorAll("p")).map((p) => p.textContent || "");
-    expect(lines[0]).toMatch(/^Premium ₹\d+ for a month$/);
-    expect(lines[1]).toMatch(/^Or Board Pass ₹[\d,]+ till your boards/);
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatch(/^Founding member offer: Board Pass ₹1,917 till your boards/);
+    expect(screen.queryByTestId("wall-offer-month")).toBeNull();
   });
 });
 

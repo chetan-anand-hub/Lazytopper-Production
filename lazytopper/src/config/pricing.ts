@@ -144,12 +144,38 @@ export function foundingRateApplies(now: Date | number, founder?: boolean | null
 }
 
 /**
- * Till boards pays this fraction of the monthly total — i.e. 20% off. Owner
- * ruling, PRICING-TB-1 (2026-09-26). The percentage shown in copy is DERIVED
- * from this (`TILL_BOARDS_SAVING_PERCENT`), never typed beside it.
+ * PRICE-FIXED-1 (owner ruling, 31 Oct 2026; revised 21:12 IST): the Board Pass (`till_boards`) is a FIXED amount - it
+ * no longer shrinks month by month and is not a percentage of the monthly price. It is TILL_BOARDS_FOUNDING_INR until
+ * the founding deadline (`FOUNDING_OFFER_CLOSES_AT_ISO`) and TILL_BOARDS_AFTER_FOUNDING_INR from that instant on.
+ * The SERVER decides which applies from its own clock; the client only shows it. The server mirrors both constants in
+ * `server/services/passPricing.cjs`; `passPricing.parity.test.ts` proves they agree. (The after-founding price is
+ * PROVISIONAL: the owner may change it - this is the ONE constant, used everywhere.)
  */
-export const TILL_BOARDS_PAY_FRACTION = 0.8;
-export const TILL_BOARDS_SAVING_PERCENT = Math.round((1 - TILL_BOARDS_PAY_FRACTION) * 100);
+export const TILL_BOARDS_FOUNDING_INR = 1917;
+export const TILL_BOARDS_AFTER_FOUNDING_INR = 2499;
+/** The Board Pass price (rupees) at `now`. PURE: the clock is an argument. */
+export function tillBoardsPriceInr(now: Date | number = Date.now()): number {
+  return foundingOfferOpen(now) ? TILL_BOARDS_FOUNDING_INR : TILL_BOARDS_AFTER_FOUNDING_INR;
+}
+
+/**
+ * PRICE-FIXED-1 (owner ruling, 31 Oct 2026): from this instant the MONTH pass is no longer sold to an account that
+ * has never bought one ("from tomorrow, remove the option of per month"). A fixed UTC+05:30 instant. The SERVER
+ * enforces it on its own clock and from its own records; the client only decides what to SHOW.
+ */
+export const MONTH_PASS_RETIRED_AT_ISO = "2026-11-01T00:00:00+05:30";
+export const MONTH_PASS_RETIRED_AT_MS = Date.parse(MONTH_PASS_RETIRED_AT_ISO);
+
+/** Has the month pass been retired for new buyers at the instant `now`? PURE. */
+export function monthPassRetired(now: Date | number = Date.now()): boolean {
+  const ms = now instanceof Date ? now.getTime() : now;
+  return Number.isFinite(ms) && ms >= MONTH_PASS_RETIRED_AT_MS;
+}
+
+/** Mirror of the server rule: a prior month buyer always may; everyone else only before the retirement instant. */
+export function monthPassAvailable(now: Date | number, hasPriorMonthOrder: boolean): boolean {
+  return hasPriorMonthOrder === true || !monthPassRetired(now);
+}
 
 // ---------------------------------------------------------------------------
 // Display formatting
@@ -207,10 +233,34 @@ export function monthlyInline(foundingRate: boolean = foundingOfferOpen(Date.now
  * the page mounts in a browser. See `tillBoardsQuote()`.
  */
 export const BOARD_PASS_NAME = "Board Pass";
-/** PRICING-1 (owner, 25 Oct 2026) — the Board Pass LEADS; this line states it first, number-free except the saving. */
-export const TILL_BOARDS_LINE = `One payment, till your board exam — ${TILL_BOARDS_SAVING_PERCENT}% off paying monthly.`;
-export const TILL_BOARDS_INLINE = `or pay once till boards — ${TILL_BOARDS_SAVING_PERCENT}% off`;
-export const TILL_BOARDS_SAVING_LABEL = `save ${TILL_BOARDS_SAVING_PERCENT}%`;
+/** The Board Pass price at `now`, formatted ("₹1,917" until the founding deadline, then "₹2,499"). Read at RENDER time. */
+export function boardPassPriceDisplay(now: Date | number = Date.now()): string {
+  return formatInr(tillBoardsPriceInr(now));
+}
+/** "₹1,917 \u2014 one payment till your boards" - the ONE price line every surface shows (PRICE-FIXED-1). */
+export function boardPassPriceLine(now: Date | number = Date.now()): string {
+  return `${boardPassPriceDisplay(now)} \u2014 one payment till your boards`;
+}
+/**
+ * The founding label (owner, 21:20 IST 31 Oct 2026): before the deadline the Board Pass price is called, exactly,
+ * "Founding member offer" - ONE shared string (`FOUNDING_OFFER_BADGE`), so every surface says it the same way.
+ * From the deadline on it is null: the label disappears and the surface shows only the current price.
+ */
+export function boardPassFoundingLabel(now: Date | number = Date.now()): string | null {
+  return foundingOfferOpen(now) ? FOUNDING_OFFER_BADGE : null;
+}
+/**
+ * The one honest deadline line (owner, 21:12 + 21:20 IST 31 Oct 2026): no crossed-out price, no saving claim, no
+ * countdown. While the founding offer is open: "Founding member offer ends 30 November. From 1 December: ₹2,499."
+ * From the deadline on it is null.
+ */
+export function boardPassDeadlineLine(now: Date | number = Date.now()): string | null {
+  if (!foundingOfferOpen(now)) return null;
+  return `${FOUNDING_OFFER_BADGE} ends ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}: ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)}.`;
+}
+/** The Board Pass LEADS (PRICING-1). Number-free so it may sit in static markup; no "saving" claim against a monthly price (PRICE-FIXED-1). */
+export const TILL_BOARDS_LINE = "One payment, till your board exam.";
+export const TILL_BOARDS_INLINE = `or pay once till boards`;
 
 /**
  * Value anchor for the MONTHLY price. Owner-ruled: it still holds at
@@ -225,7 +275,7 @@ export const TUITION_ANCHOR = "less than one tuition session";
  * surface's copy while another keeps promising them.
  */
 export const FOUNDING_LABEL = "Founding member";
-export const FOUNDING_LOCK_COPY = "Your founding price stays locked for every pass you buy.";
+export const FOUNDING_LOCK_COPY = "Your founding month price stays locked for every month pass you buy.";
 /**
  * The founding badge, word for word (PARENTS-CTA-1, owner ruling 2026-10-19):
  * "Founding member offer" — NO seat count. Replaces the retired
@@ -345,20 +395,13 @@ function compareDates(a: CalendarDate, b: CalendarDate): number {
 const TILL_BOARDS_MAX_MONTHS = 36;
 
 export interface TillBoardsQuote {
-  /** Smallest k >= 1 with (today in IST) + k calendar months >= the board date. */
+  /** Smallest k >= 1 with (today in IST) + k calendar months >= the board date. Informational only. */
   monthsLeft: number;
-  /** The monthly rate the quote is built from (founding while open, else list). */
-  monthlyInr: number;
-  /** monthly × monthsLeft — shown struck through. */
-  fullInr: number;
-  /** Math.round(full × TILL_BOARDS_PAY_FRACTION) — the one-time price. */
+  /** The fixed one-time price (PRICE-FIXED-1) - the same on every date. */
   priceInr: number;
-  fullDisplay: string;
   priceDisplay: string;
   /** "till your boards (Feb 2027)" — the month and year of the board date. */
   untilLabel: string;
-  /** "save 20%". */
-  savingLabel: string;
 }
 
 /**
@@ -378,7 +421,8 @@ export interface TillBoardsQuote {
 export function tillBoardsQuote(
   now: Date,
   boardIso: string,
-  foundingOpen: boolean = foundingOfferOpen(now),
+  // PRICE-FIXED-1: accepted and IGNORED - the Board Pass price follows the DATE (the server's rule), never a flag.
+  _foundingOpen: boolean = foundingOfferOpen(now),
 ): TillBoardsQuote | null {
   const board = parseIsoDate(boardIso);
   if (!board || Number.isNaN(now.getTime())) return null;
@@ -394,17 +438,10 @@ export function tillBoardsQuote(
     monthsLeft += 1;
   }
 
-  const monthlyInr = foundingOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR;
-  const fullInr = monthlyInr * monthsLeft;
-  const priceInr = Math.round(fullInr * TILL_BOARDS_PAY_FRACTION);
   return {
     monthsLeft,
-    monthlyInr,
-    fullInr,
-    priceInr,
-    fullDisplay: formatInr(fullInr),
-    priceDisplay: formatInr(priceInr),
+    priceInr: tillBoardsPriceInr(now),
+    priceDisplay: boardPassPriceDisplay(now),
     untilLabel: `till your boards (${MONTH_SHORT[board.m]} ${board.y})`,
-    savingLabel: TILL_BOARDS_SAVING_LABEL,
   };
 }

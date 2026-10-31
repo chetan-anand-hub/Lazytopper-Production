@@ -17,20 +17,19 @@ const CLOSED = new Date("2026-12-05T10:00:00+05:30");
 const BOARDS = "2027-02-17";
 
 describe("PARENTS-PAY-1 — price and how to pay on /for-parents", () => {
-  it("derives the Board Pass, per-day and month figures from config (founding open)", () => {
+  it("derives the Board Pass and per-day figures from config; the model has NO month price or founding line (PRICE-FIXED-1)", () => {
     const m = parentPriceModel(OPEN, BOARDS)!;
-    const q = tillBoardsQuote(OPEN, BOARDS, true)!;
+    const q = tillBoardsQuote(OPEN, BOARDS)!;
     expect(m.boardPassDisplay).toBe(q.priceDisplay);
+    expect(m.boardPassDisplay).toBe("₹1,917");
     // 28 Oct 2026 -> 17 Feb 2027 = 112 days
     expect(m.perDayLine).toBe(`≈ ₹${Math.ceil(q.priceInr / 112)} a day till the boards`);
-    expect(m.monthDisplay).toBe("₹599");
-    expect(m.foundingLine).toBe("Founding price until 30 November");
+    expect(Object.keys(m).sort()).toEqual(["boardPassDisplay", "perDayLine", "untilLabel"]);
   });
 
-  it("shows the list month price and no founding line once the offer has closed", () => {
-    const m = parentPriceModel(CLOSED, BOARDS)!;
-    expect(m.monthDisplay).toBe("₹999");
-    expect(m.foundingLine).toBeNull();
+  it("the Board Pass price is ₹1,917 before the founding deadline and ₹2,499 from it", () => {
+    expect(parentPriceModel(OPEN, BOARDS)!.boardPassDisplay).toBe("₹1,917");
+    expect(parentPriceModel(CLOSED, BOARDS)!.boardPassDisplay).toBe("₹2,499");
   });
 
   it("hides the per-day line when the board date is unusable or past", () => {
@@ -49,7 +48,8 @@ describe("PARENTS-PAY-1 — price and how to pay on /for-parents", () => {
   it("after mount shows the figures; the button opens WhatsApp and is not a checkout", async () => {
     render(<MemoryRouter><ForParentsPage /></MemoryRouter>);
     await act(async () => {});
-    expect(screen.getByTestId("fp-price-figures").textContent).toMatch(/Board Pass\s*₹[\d,]+.*Month pass: ₹[\d,]+/);
+    expect(screen.getByTestId("fp-price-figures").textContent).toMatch(/Board Pass\s*₹1,917/);
+    expect(screen.getByTestId("fp-price-figures").textContent).not.toMatch(/Month pass|599|999|for a month|Founding/);
     const btn = screen.getByTestId("fp-pay-help") as HTMLAnchorElement;
     expect(btn.textContent).toBe("Pay for my child");
     expect(btn.href).toBe(PAY_HELP_HREF);

@@ -7,7 +7,7 @@ import "./MockViewGate.css";
 
 /**
  * PACK-LINKS-1: the ask on the two paper-open cap walls. The Board Pass leads (real price from
- * config/pricing.ts via boardPassOffer), a month pass is second, and the matching pack (Mock Pack on a
+ * config/pricing.ts via boardPassOffer; PRICE-FIXED-1: it is the only plan named), and the matching pack (Mock Pack on a
  * Full Mock, Chapter Pack on a Chapter Test, plain /packs elsewhere) is the quiet last line.
  */
 export default function PaperCapAsk({ returnTo }: { returnTo: string }) {
@@ -19,9 +19,6 @@ export default function PaperCapAsk({ returnTo }: { returnTo: string }) {
         {boardPassShortLine(offer)}
       </Link>
       <p className="lt-mvg-detail">{offer.detail}</p>
-      <Link className="lt-mvg-month" to={pricing("paper-cap-month")} data-testid="paper-cap-month">
-        Or {offer.monthlyLine}
-      </Link>
       <PacksEntry kind="wall" chapter={null} light />
     </div>
   );

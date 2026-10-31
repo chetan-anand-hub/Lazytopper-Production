@@ -76,17 +76,14 @@ describe("OR-P7 — the owner's strings, word for word", () => {
     expect(STATIC_PAGE_HEADS["/pricing"]?.description).toBe(PRICING_HEAD_DESCRIPTION);
   });
 
-  it("the landing card reads '… for a month' in both offer states, never '/mo'", () => {
-    for (const offerOpen of [true, false]) {
-      render(<PaidPlanHead offerOpen={offerOpen} />);
-      const price = screen.getByTestId("landing-paid-price");
-      const per = price.querySelector(".per");
-      expect(flat(per?.textContent), `offerOpen=${offerOpen}`).toBe("for a month");
-      // The span's leading space keeps the figure and the period apart ("₹599 for a month").
-      expect(price.textContent, `offerOpen=${offerOpen}`).toMatch(/\d for a month/);
-      expect(price.textContent, `offerOpen=${offerOpen}`).not.toMatch(SLASH_MONTH);
-      cleanup();
-    }
+  it("the landing card names only the Board Pass (the month pass is hidden), never '/mo'", () => {
+    render(<PaidPlanHead />);
+    const price = screen.getByTestId("landing-board-pass");
+    expect(flat(price.textContent)).toContain("Board Pass");
+    expect(price.textContent).toContain("₹1,917");
+    expect(price.textContent).not.toMatch(/599|999|for a month/);
+    expect(price.textContent).not.toMatch(SLASH_MONTH);
+    cleanup();
   });
 });
 

@@ -9,15 +9,7 @@ import MummyCheckNudge from "../components/guide/mummy/MummyCheckNudge";
 import { trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
 import { withParentFlag } from "../lib/parentReturn";
 import FounderBadge from "../components/brand/FounderBadge";
-import {
-  BOARD_PASS_NAME,
-  FOUNDING_OFFER_LAST_DAY_LABEL,
-  foundingOfferOpen,
-  formatInr,
-  PRICE_MONTHLY_FOUNDING_INR,
-  PRICE_MONTHLY_LIST_INR,
-  tillBoardsQuote,
-} from "../config/pricing";
+import { BOARD_PASS_NAME, formatInr, tillBoardsQuote } from "../config/pricing";
 import { WHATSAPP_URL } from "../config/socialProfiles";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import ParentPacksSection, { ParentPacksBand, ParentPacksHeroLink } from "../components/parents/ParentPacksSection";
@@ -26,7 +18,7 @@ import "./forParents.css";
 /**
  * ★ PARENTS-PAY-1 (owner ruling 28 Oct 2026, 07:51 IST) SUPERSEDES the "no price figure" rulings above:
  * the page now shows the price and how a parent pays for the child. The figures come from
- * `config/pricing.ts` (`tillBoardsQuote`, the monthly constants) and are computed AFTER MOUNT, as
+ * `config/pricing.ts` (`tillBoardsQuote`; PRICE-FIXED-1: no month price) and are computed AFTER MOUNT, as
  * `TillBoardsOffer` on /pricing does, so the prerendered HTML carries no rupee figure that could
  * go stale; the number-free steps are static. A parent cannot start a payment without the child's
  * account: the server prices the order from the child's record (`ParentPayPanel`), so there is NO
@@ -181,15 +173,12 @@ export interface ParentPriceModel {
   /** "≈ ₹N a day till the boards", or null when the date or price cannot be trusted. */
   perDayLine: string | null;
   untilLabel: string;
-  monthDisplay: string;
-  /** "Founding price until 30 November", only while the offer is open. */
-  foundingLine: string | null;
 }
 
 /** PURE: the clock and the board date are arguments. Null when the Board Pass cannot be quoted. */
 export function parentPriceModel(now: Date, boardIso: string): ParentPriceModel | null {
-  const open = foundingOfferOpen(now);
-  const quote = tillBoardsQuote(now, boardIso, open);
+  // PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass only, at its fixed price; the month price is hidden.
+  const quote = tillBoardsQuote(now, boardIso);
   if (!quote) return null;
   const days = daysToBoards(now, boardIso);
   const perDay = days ? Math.ceil(quote.priceInr / days) : NaN;
@@ -197,8 +186,6 @@ export function parentPriceModel(now: Date, boardIso: string): ParentPriceModel 
     boardPassDisplay: quote.priceDisplay,
     perDayLine: Number.isFinite(perDay) && perDay > 0 ? `≈ ${formatInr(perDay)} a day till the boards` : null,
     untilLabel: quote.untilLabel,
-    monthDisplay: formatInr(open ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR),
-    foundingLine: open ? `Founding price until ${FOUNDING_OFFER_LAST_DAY_LABEL}` : null,
   };
 }
 
@@ -226,8 +213,6 @@ function ParentPriceSection() {
               <span className="lt-fp__price-once">one-time, {model.untilLabel}</span>
             </p>
             {model.perDayLine && <p className="lt-fp__price-day">{model.perDayLine}</p>}
-            <p className="lt-fp__price-alt">Or the Month pass: {model.monthDisplay} for a month.</p>
-            {model.foundingLine && <p className="lt-fp__price-alt">{model.foundingLine}.</p>}
           </div>
         )}
       </div>

@@ -25,7 +25,7 @@ import {
   comparePremiumHeader,
   compareSections,
 } from "./pricingCompare";
-import { PRICE_FREE_DISPLAY, PRICE_MONTHLY_FOUNDING_DISPLAY, PRICE_MONTHLY_LIST_DISPLAY } from "./pricing";
+import { PRICE_FREE_DISPLAY } from "./pricing";
 
 describe("L4 · the Basic card", () => {
   it("'Basic includes:' then the six rows, in order", () => {
@@ -66,15 +66,13 @@ describe("L4 · the Premium card", () => {
 });
 
 describe("L4 · the compare table data", () => {
-  it("titles and headers; the Premium header follows the founding switch", () => {
+  it("titles and headers; the Premium header is the fixed Board Pass price (PRICE-FIXED-1)", () => {
     expect(COMPARE_TITLE).toBe("Compare plans");
     expect(FAIR_USE_TITLE).toBe("Fair use, shown not hidden");
     expect(COMPARE_FEATURE_HEADER).toBe("What you get");
     expect(COMPARE_BASIC_HEADER).toBe(`Basic · ${PRICE_FREE_DISPLAY}`);
-    expect(comparePremiumHeader(true)).toBe(`Premium · from ${PRICE_MONTHLY_FOUNDING_DISPLAY}`);
-    expect(comparePremiumHeader(false)).toBe(`Premium · from ${PRICE_MONTHLY_LIST_DISPLAY}`);
-    // CONTROL — the two states really differ.
-    expect(comparePremiumHeader(true)).not.toBe(comparePremiumHeader(false));
+    expect(comparePremiumHeader()).toBe("Premium · ₹1,917 till boards");
+    expect(comparePremiumHeader()).not.toMatch(/599|999|from/);
   });
 
   it("six sections, in order, with 3/3/2/3/3/1 rows", () => {

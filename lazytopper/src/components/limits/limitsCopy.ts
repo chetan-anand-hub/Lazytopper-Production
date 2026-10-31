@@ -7,10 +7,7 @@ import { formatResetIst } from "../usage/fairUseGate";
 import type { DownloadCounters } from "../../services/limitsClient";
 import {
   BOARD_PASS_NAME,
-  FOUNDING_OFFER_LAST_DAY_LABEL,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  foundingOfferOpen,
-  monthlyInline,
+  boardPassFoundingLabel,
   tillBoardsQuote,
 } from "../../config/pricing";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
@@ -85,12 +82,10 @@ export const OFFLINE_WALL: DownloadWallCopy = {
 };
 
 export interface WallOfferLines {
-  /** The Board Pass, the SECOND option since CHECKOUT-1 (31 Oct 2026; it led under PRICING-1): "Board Pass ₹… till your boards (Mar 2027) · save 20%". Null when no quote. */
+  /** The Board Pass - the ONLY plan named since PRICE-FIXED-1 (31 Oct 2026): "Board Pass ₹… till your boards (Mar 2027)". Null when no quote. */
   boardPass: string | null;
-  /** The monthly price, which LEADS since CHECKOUT-1: "₹599 for a month" (founding) or the list price once the offer has closed. */
-  monthly: string;
-  /** "Founding price ₹599 a month until 30 November." Only while the offer is open; null after the close. */
-  founding: string | null;
+  /** "Founding member offer" before the deadline, else null. */
+  foundingLabel: string | null;
 }
 
 /**
@@ -99,12 +94,10 @@ export interface WallOfferLines {
  * the day the founding offer closes.
  */
 export function wallOfferLines(now: Date): WallOfferLines {
-  const open = foundingOfferOpen(now);
-  const quote = tillBoardsQuote(now, predictCbseExamDate("10"), open);
+  const quote = tillBoardsQuote(now, predictCbseExamDate("10"));
   return {
-    boardPass: quote ? `${BOARD_PASS_NAME} ${quote.priceDisplay} ${quote.untilLabel} · ${quote.savingLabel}` : null,
-    monthly: monthlyInline(open),
-    founding: open ? `Founding price ${PRICE_MONTHLY_FOUNDING_DISPLAY} a month until ${FOUNDING_OFFER_LAST_DAY_LABEL}.` : null,
+    boardPass: quote ? `${BOARD_PASS_NAME} ${quote.priceDisplay} ${quote.untilLabel}` : null,
+    foundingLabel: boardPassFoundingLabel(now),
   };
 }
 

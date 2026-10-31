@@ -25,7 +25,7 @@ vi.mock("../../context/AuthContext", () => ({
   },
 }));
 
-import ParentReportCard, { ACTIVITY_EN, CARD_FOOTER, EMPTY_EN, EMPTY_HI, NOT_READY_EN } from "./ParentReportCard";
+import ParentReportCard, { ACTIVITY_EN, cardFooter, EMPTY_EN, EMPTY_HI, NOT_READY_EN } from "./ParentReportCard";
 import ParentReportModal from "./ParentReportModal";
 import ShareWithParentsButton from "./ShareWithParentsButton";
 import { PARENT_REPORT_LINK } from "./parentReportModel";
@@ -120,11 +120,12 @@ describe("ParentReportCard — honest states, no placeholder", () => {
     for (const s of ["17", "Concept gap", "कॉन्सेप्ट समझने में कमी", "Real Numbers", "12 – 18 Oct 2026", "My week in 20 seconds", "मेरा हफ़्ता, 20 सेकंड में", "Class 10 CBSE", "Where the marks went", "Marks to win back", "Fix first"]) {
       expect(html).toContain(s);
     }
-    expect(CARD_FOOTER).toBe("Month pass: less than one tuition session · lazytopper.com/pricing");
-    // PARENT-PAID-1: a paying student's card has no month-pass line.
+    expect(cardFooter()).toBe("Board Pass: ₹1,917 — one payment till your boards · lazytopper.com/pricing");
+    // PARENT-PAID-1: a paying student's card has no Board Pass line.
     const paidHtml = renderToStaticMarkup(<ParentReportCard report={PATTERN} paid />);
     expect(paidHtml).toContain("lazytopper.com · Made by an IITian (IIT Kanpur)");
-    expect(paidHtml).not.toContain("Month pass");
+    expect(paidHtml).not.toContain("Board Pass");
+    expect(html).not.toMatch(/Month pass|599/);
     expect(html).not.toMatch(PLACEHOLDER);
   });
 

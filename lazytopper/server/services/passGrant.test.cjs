@@ -154,7 +154,12 @@ test('PRICING-1 · default offer: ₹599 at 23:59:59 IST on 30 Nov 2026, ₹999 
     const closed = computeGrant({}, { passType, paymentRef: 'p_closed', nowMs: firstSecond });
     assert.equal(open.fields.offerKey, 'founding', passType);
     assert.equal(closed.fields.offerKey, 'regular', passType);
-    assert.ok(open.fields.pricePaidInr < closed.fields.pricePaidInr, `${passType}: list must cost more than founding`);
+    // PRICE-FIXED-1: both passes cost more after the close (Board Pass 1917 -> 2499, month 599 -> 999).
+    assert.ok(open.fields.pricePaidInr < closed.fields.pricePaidInr, `${passType}: after the close must cost more than founding`);
+    if (passType === 'till_boards') {
+      assert.equal(open.fields.pricePaidInr, 1917);
+      assert.equal(closed.fields.pricePaidInr, 2499);
+    }
   }
   assert.equal(computeGrant({}, { passType: 'month', paymentRef: 'a', nowMs: lastSecond }).fields.pricePaidInr, 599);
   assert.equal(computeGrant({}, { passType: 'month', paymentRef: 'b', nowMs: firstSecond }).fields.pricePaidInr, 999);
@@ -223,22 +228,22 @@ test('R6 · grant TILL-BOARDS at FOUNDING: tillBoardsQuote price, ends at the EN
   const now = istNoon('2026-09-27');
   await grantPass({ uid: 'u1', passType: 'till_boards', paymentRef: 'pay_1', now }, { firestore: db, foundingOfferOpen: true });
   const stored = db.read(KEY('u1'));
-  // The owner ruling's own table (pricing.tillBoards.test.ts): 2026-09-26/27 -> 5 months, ₹2,396.
-  assert.equal(stored.pricePaidInr, 2396);
+  // PRICE-FIXED-1: fixed ₹1,917 (it was ₹2,396 on 2026-09-27 under the old shrinking rule).
+  assert.equal(stored.pricePaidInr, 1917);
   assert.equal(stored.plan, 'pass_till_boards');
   assert.equal(stored.offerKey, 'founding');
   assert.equal(ms(stored.passStart), now);
   assert.equal(ms(stored.passEnd), istDayEnd('2027-02-17'));
 });
 
-test('R6 · grant TILL-BOARDS at REGULAR: 5 x ₹999 x 0.8 = ₹3,996', async () => {
+test('R6 · grant TILL-BOARDS with the offer flag closed on a pre-deadline date: the price follows the DATE (1,917), the offer key follows the flag', async () => {
   const db = memoryFirestore();
   await grantPass(
     { uid: 'u1', passType: 'till_boards', paymentRef: 'pay_1', now: istNoon('2026-09-27') },
     { firestore: db, foundingOfferOpen: false },
   );
   const stored = db.read(KEY('u1'));
-  assert.equal(stored.pricePaidInr, 3996);
+  assert.equal(stored.pricePaidInr, 1917);
   assert.equal(stored.offerKey, 'regular');
   assert.equal(stored.foundingMember, false);
 });

@@ -41,6 +41,7 @@ function view(onCheckStatus: (orderId: string) => Promise<PayStatusResult>, onBu
   return render(
     <PassCheckoutView
       signedIn
+      showMonth
       offerOpen
       activePassEnd={null}
       onSignIn={() => undefined}
@@ -141,6 +142,7 @@ describe("PAY-RECOVER-1 · PassCheckout pending", () => {
       const c = render(
         <PassCheckoutView
           signedIn
+          showMonth
           offerOpen
           activePassEnd={null}
           onSignIn={() => undefined}
@@ -195,6 +197,7 @@ describe("PAY-RECOVER-1 review fixes · the Pay buttons and the return-to-tab se
     render(
       <PassCheckoutView
         signedIn
+        showMonth
         offerOpen
         activePassEnd={null}
         onSignIn={() => undefined}

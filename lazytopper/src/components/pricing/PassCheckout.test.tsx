@@ -24,6 +24,14 @@ const mockSub = vi.hoisted(() => ({
   hydrated: true,
 }));
 
+// PRICE-FIXED-1: the month pass shows ONLY for an account the server says has a PAID month order. The hook is the
+// browser's only source of that answer, so the suites drive it directly (default: NOT a month buyer).
+const mockMonth = vi.hoisted(() => ({ buyer: false }));
+vi.mock("./useMonthPassAvailable", () => ({
+  useMonthPassAvailable: () => mockMonth.buyer,
+  fetchMonthPassAvailable: vi.fn(async () => mockMonth.buyer),
+  resetMonthPassAvailableForTests: () => undefined,
+}));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => mockAuth }));
 vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => mockSub }));
 vi.mock("../../services/subscriptionService", () => ({ hydrateSubscriptionFromCloud: vi.fn(async () => ({})) }));
@@ -43,7 +51,7 @@ vi.mock("../../services/firebaseClient", () => ({
 import PassCheckout, {
   PassCheckoutView,
   PASS_CHECKOUT_RETURN_PATH,
-  TILL_BOARDS_BUTTON_LABEL,
+  tillBoardsButtonLabel,
   monthButtonLabel,
 } from "./PassCheckout";
 import PricingPage from "../../pages/PricingPage";
@@ -61,6 +69,7 @@ import {
 // offer-OPEN page, so they run at a pinned instant (Date only; a test's own fake timers layer on
 // top) and pass at any real or shifted clock. The closed page is pinned explicitly where asserted.
 beforeEach(() => {
+  mockMonth.buyer = false;
   vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00.000Z"), toFake: ["Date"] });
 });
 
@@ -107,7 +116,7 @@ describe("Z1 · switch OFF (VITE_PAYMENTS_ENABLED unset)", () => {
     expect(html).toContain(MANUAL_PARAGRAPH);
     expect(html).not.toContain("pass-checkout");
     expect(html).not.toContain("for a month</button>");
-    expect(html).not.toContain(TILL_BOARDS_BUTTON_LABEL);
+    expect(html).not.toContain(tillBoardsButtonLabel());
     expect(html).not.toContain("checkout.razorpay.com");
   });
 
@@ -130,10 +139,23 @@ describe("Z1 · switch ON", () => {
       </MemoryRouter>,
     );
     expect(screen.getByTestId("pass-checkout")).toBeTruthy();
-    expect(screen.getByRole("button", { name: monthButtonLabel(true) })).toBeTruthy();
-    expect(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL })).toBeTruthy();
+    // PRICE-FIXED-1: not a month buyer -> the Board Pass button alone; the month pass is hidden.
+    expect(screen.queryByRole("button", { name: /for a month/i })).toBeNull();
+    expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
     expect(document.body.innerHTML).not.toContain("Manual activation during beta");
     expect(checkoutScripts()).toHaveLength(0);
+  });
+
+  it("a month BUYER's own pricing page still carries the month pass button (renewal)", () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    mockMonth.buyer = true;
+    render(
+      <MemoryRouter initialEntries={["/pricing"]}>
+        <PricingPage />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("button", { name: monthButtonLabel(true) })).toBeTruthy();
+    expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
   });
 });
 
@@ -143,7 +165,7 @@ describe("Z3 · the buy buttons", () => {
   it("labels: the monthly price from the pricing module; the till-boards line", () => {
     expect(monthButtonLabel(true)).toBe("Pay ₹599 for a month");
     expect(monthButtonLabel(false)).toBe("Pay ₹999 for a month");
-    expect(TILL_BOARDS_BUTTON_LABEL).toBe("Pay once till your boards");
+    expect(tillBoardsButtonLabel()).toBe("Pay ₹1,917 once till your boards");
   });
 
   it("signed OUT: a buy click goes to sign-in with a FIXED internal redirect, and buys nothing", async () => {
@@ -164,7 +186,7 @@ describe("Z3 · the buy buttons", () => {
         </Routes>
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByRole("button", { name: monthButtonLabel(true) }));
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
     await waitFor(() => expect(seen).toBe(`/login?redirect=${encodeURIComponent(PASS_CHECKOUT_RETURN_PATH)}`));
     expect(seen).not.toContain("evil");
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -186,7 +208,7 @@ describe("Z3 · the buy buttons", () => {
       </MemoryRouter>,
     );
     expect(checkoutScripts()).toHaveLength(0);
-    fireEvent.click(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL }));
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
     await waitFor(() => expect(checkoutScripts()).toHaveLength(1));
     await waitFor(() => expect(fetchSpy).toHaveBeenCalled());
     const [url, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit];
@@ -201,6 +223,7 @@ describe("Z3 · the buy buttons", () => {
 function view(overrides: Partial<Parameters<typeof PassCheckoutView>[0]> = {}) {
   const props = {
     signedIn: true,
+    showMonth: true,
     offerOpen: true,
     activePassEnd: null,
     onSignIn: vi.fn(),
@@ -263,7 +286,7 @@ describe("Z6 · after the purchase", () => {
   it("nothing claims Premium before the server says so (no optimistic success while paying)", async () => {
     let finish: (v: BuyOutcome) => void = () => {};
     view({ onBuy: vi.fn(() => new Promise<BuyOutcome>((r) => { finish = r; })) });
-    fireEvent.click(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL }));
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
     expect(document.body.textContent).not.toMatch(/Premium is active/);
     await act(async () => finish({ status: "paid", passEnd: "2027-02-17T18:29:59.999Z" }));
     expect(screen.getByTestId("pass-checkout-paid").textContent).toBe("Premium is active until 17 February 2027");
@@ -277,7 +300,7 @@ describe("Z10 · buying over an active pass", () => {
       "Premium is already active until 27 October 2026.",
     );
     expect(screen.getByRole("button", { name: monthButtonLabel(true) })).toBeTruthy();
-    expect(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL })).toBeTruthy();
+    expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
   });
 
   it("the connected component reads the notice ONLY from a hydrated, unexpired, server-written passEnd", () => {
@@ -414,7 +437,7 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
     let finish: (v: BuyOutcome) => void = () => {};
     view({ onBuy: vi.fn(() => new Promise<BuyOutcome>((r) => { finish = r; })) });
     const month = screen.getByRole("button", { name: monthButtonLabel(true) });
-    const boards = screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL });
+    const boards = screen.getByRole("button", { name: tillBoardsButtonLabel() });
     expect(month.className).toBe("lt-pricing-cta lt-pricing-pay lt-pricing-pay--month");
     expect(boards.className).toBe("lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards");
     expect(month.parentElement?.className).toBe("lt-pricing-checkout");
@@ -442,10 +465,10 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
 
   it("failed: the alert spans the row BELOW the tiles, and both buttons stay for a retry", async () => {
     view({ onBuy: vi.fn(async () => ({ status: "failed" as const })) });
-    fireEvent.click(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL }));
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
     const alert = await screen.findByTestId("pass-checkout-failed");
     expect(alert.className).toContain("lt-pricing-checkout-note--bottom");
-    expect(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL })).toBeTruthy();
+    expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
   });
 
   it("CHECKOUT-1: the month button (₹599 at the founding rate) is FIRST and the Board Pass ('till boards') button second", () => {
@@ -453,7 +476,7 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
     const buttons = screen.getAllByRole("button");
     expect(buttons[0].textContent).toBe(monthButtonLabel(true));
     expect(buttons[0].textContent).toMatch(/₹599/);
-    expect(buttons[1].textContent).toBe(TILL_BOARDS_BUTTON_LABEL);
+    expect(buttons[1].textContent).toBe(tillBoardsButtonLabel());
     expect(buttons[0].className).toContain("lt-pricing-pay--month");
   });
 
@@ -467,8 +490,25 @@ describe("PRICING-LIGHT-1 · P23 — the PassCheckout states in the tile layout"
     expect(baseBlock(".lt-pricing-no-such-class")).toBe("");
   });
 
-  it("on the page (payments ON) the buy area sits INSIDE the tile grid, Month pass tile first (CHECKOUT-1)", () => {
+  it("on the page (payments ON, NOT a month buyer) the grid holds the Board Pass tile and its button alone", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    render(
+      <MemoryRouter initialEntries={["/pricing"]}>
+        <PricingPage />
+      </MemoryRouter>,
+    );
+    const grid = document.querySelector('[data-testid="pricing-passes"]');
+    expect(grid).not.toBeNull();
+    const order = Array.from(grid!.querySelectorAll(".lt-pricing-pass, .lt-pricing-pay")).map((el) =>
+      el.classList.contains("lt-pricing-pass--boards") ? "boards-tile" : el.classList.contains("lt-pricing-pay--boards") ? "boards-pay" : "other",
+    );
+    expect(order).toEqual(["boards-tile", "boards-pay"]);
+    expect(grid!.querySelector(".lt-pricing-pass--month, .lt-pricing-pay--month")).toBeNull();
+  });
+
+  it("on the page (payments ON, a month BUYER) the buy area sits INSIDE the tile grid, Month pass tile first (CHECKOUT-1)", () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    mockMonth.buyer = true;
     render(
       <MemoryRouter initialEntries={["/pricing"]}>
         <PricingPage />
@@ -519,7 +559,7 @@ describe("PACK-CREDIT-1 · the Board Pass credit line", () => {
 
   it("the Board Pass button is unchanged and the credit line is one paragraph with no inline style", () => {
     view({ signedIn: true, packCredit: CREDIT });
-    expect(screen.getByRole("button", { name: TILL_BOARDS_BUTTON_LABEL })).toBeTruthy();
+    expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
     expect(screen.getByTestId("pass-checkout-pack-credit").getAttribute("style")).toBeNull();
   });
 });

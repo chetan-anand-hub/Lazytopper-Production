@@ -66,7 +66,8 @@ function buildConciergeEmail(kind, o) {
     paras.push('If it is easier to talk, I am happy to have a free 10-minute call with you and a parent. Just reply to this email.');
   } else {
     subject = 'Did something go wrong at payment?';
-    const hasPlan = order && (order.passType === 'month' || order.passType === 'till_boards') && Number.isInteger(order.amountPaise) && order.amountPaise > 0;
+    // PRICE-FIXED-1: a month order is never quoted (its price is hidden); only a Board Pass order names its amount.
+    const hasPlan = order && order.passType === 'till_boards' && Number.isInteger(order.amountPaise) && order.amountPaise > 0;
     paras.push("I'm Chetan, the founder of LazyTopper.");
     paras.push(
       hasPlan

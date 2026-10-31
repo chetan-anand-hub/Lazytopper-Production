@@ -48,7 +48,7 @@
  */
 
 const crypto = require('node:crypto');
-const { grantPass, computeGrant, describePass, isStaleFoundingOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
+const { grantPass, computeGrant, describePass, isStaleFoundingOrder, monthPassAvailableFor, hasPaidMonthOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter } = require('../services/rateLimiter.cjs');
 // TOPUP-1 (DARK): the extra-usage packs. Everything below is behind PAYMENTS_ENABLED AND TOPUP_ENABLED.
 const { TOPUP_PRODUCTS, isTopupProduct } = require('../services/passPricing.cjs');
@@ -374,6 +374,16 @@ function createPaymentRoutes(deps = {}) {
         const price = TOPUP_PRODUCTS[passType].priceInr;
         quote = { pricePaidInr: price, amountPaise: price * 100, offerKey: null };
       } else {
+        // PRICE-FIXED-1 - the month pass is no longer sold to an account that has never bought one, from
+        // 2026-11-01T00:00:00+05:30 (server clock). Derived from the server's own records, never the body.
+        if (passType === 'month' && !(await monthPassAvailableFor(adminFirestore, uid, now(), stored))) {
+          emit('payments.order.month_pass_retired');
+          return sendJson(res, 409, {
+            ok: false,
+            error: 'month_pass_retired',
+            message: 'The month pass is no longer on sale. Choose the Board Pass instead.',
+          });
+        }
         quote = quotePass(stored, passType, now(), { foundingOfferOpen });
       }
     } catch (e) {
@@ -735,6 +745,22 @@ function createPaymentRoutes(deps = {}) {
 
     const body = await readJsonBody(req, res);
     if (!body) return undefined;
+    // PRICE-FIXED-1 - `{ offer: true }` (no order id) asks what THIS student should be SHOWN: `monthPassAvailable`
+    // is true only for an account with a prior PAID month order (derived here, from the server's own records), on
+    // every date - the month price is hidden from everyone else from the moment this ships (owner, 31 Oct 2026).
+    // The ORDER gate is separate and stays at 2026-11-01T00:00:00+05:30. Nothing is written or granted.
+    if (body.offer === true && body.orderId === undefined) {
+      try {
+        const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+        const stored = snap && snap.exists ? snap.data() || {} : {};
+        const monthPassAvailable = await hasPaidMonthOrder(adminFirestore, uid, stored);
+        return sendJson(res, 200, { ok: true, state: 'offer', monthPassAvailable });
+      } catch (e) {
+        emit('payments.status.offer_read_failed');
+        console.error('[pay/status] offer read failed:', e && e.message);
+        return sendJson(res, 500, { ok: false, error: 'Could not read the offer.' });
+      }
+    }
     // Only the order id is read from the request — never an amount, a payment or a status.
     const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
     if (!ID_PATTERN.test(orderId)) return reject(res, 'status', 'malformed');

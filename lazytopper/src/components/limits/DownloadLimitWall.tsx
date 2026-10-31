@@ -109,10 +109,8 @@ export default function DownloadLimitWall({ variant, flavor = "download", resetA
         <p className="lt-limit-body">{copy.body}</p>
         {offer && (
           <div className="lt-limit-offer" data-testid="wall-offer">
-            {/* CHECKOUT-1 (31 Oct 2026): the month pass leads; the Board Pass is the second line, its price unchanged. */}
-            <p className="lt-limit-offer__lead" data-testid="wall-offer-month">Premium {offer.monthly}</p>
-            {offer.boardPass && <p className="lt-limit-offer__line" data-testid="wall-offer-boards">Or {offer.boardPass}</p>}
-            {offer.founding && <p className="lt-limit-founding">{offer.founding}</p>}
+            {/* PRICE-FIXED-1 (31 Oct 2026): the Board Pass is the only plan named; the month price is hidden. */}
+            {offer.boardPass && <p className="lt-limit-offer__lead" data-testid="wall-offer-boards">{offer.foundingLabel ? `${offer.foundingLabel}: ` : ""}{offer.boardPass}</p>}
           </div>
         )}
         <div className="lt-limit-acts">

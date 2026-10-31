@@ -42,7 +42,7 @@ describe.each([
   ["Basic cap wall", false],
   ["trial-ended wall", true],
 ])("%s", (_name, expired) => {
-  it("Board Pass price first, month pass second, Mock Pack link last on a Full Mock", async () => {
+  it("Board Pass price first (no month pass: hidden), Mock Pack link last on a Full Mock", async () => {
     trialExpired = expired;
     const ask = await wallAt("/full-mock/10/maths");
     const pack = await screen.findByRole("link", { name: "Mock Pack ₹99 →" }, SLOW);
@@ -51,7 +51,8 @@ describe.each([
     expect(links[0].textContent).toMatch(/^Board Pass/);
     expect(links[0].textContent).toMatch(/₹\d/);
     expect(links[0].getAttribute("href")).toMatch(/^\/pricing\?source=paper-cap&returnTo=/);
-    expect(links[1].getAttribute("data-testid")).toBe("paper-cap-month");
+    expect(ask.querySelector('[data-testid="paper-cap-month"]')).toBeNull();
+    expect(ask.textContent).not.toMatch(/599|999|for a month/);
     expect(pack.getAttribute("href")).toBe("/pricing?mock=maths#packs");
     expect(links[links.length - 1]).toBe(pack);
   });

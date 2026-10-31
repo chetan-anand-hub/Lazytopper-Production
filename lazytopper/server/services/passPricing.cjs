@@ -38,7 +38,41 @@ function foundingOfferOpen(now) {
   const ms = now instanceof Date ? now.getTime() : now;
   return typeof ms === 'number' && Number.isFinite(ms) && ms < FOUNDING_OFFER_CLOSES_AT_MS;
 }
-/** Mirror of pricing.ts TILL_BOARDS_PAY_FRACTION. */
+/**
+ * Mirror of pricing.ts TILL_BOARDS_FOUNDING_INR / TILL_BOARDS_AFTER_FOUNDING_INR (PRICE-FIXED-1, owner ruling
+ * 31 Oct 2026, revised 21:12 IST): the Board Pass is a FIXED amount - it does not shrink month by month.
+ * It is 1917 until the founding deadline (FOUNDING_OFFER_CLOSES_AT_ISO) and 2499 from that instant on.
+ * The SERVER picks which applies from ITS OWN clock; the client's date is never trusted.
+ * (2499 is provisional: the owner may change it - it is this ONE constant, used everywhere.)
+ */
+const TILL_BOARDS_FOUNDING_INR = 1917;
+const TILL_BOARDS_AFTER_FOUNDING_INR = 2499;
+/** The Board Pass price (rupees) at `now`: founding until the deadline, the after-founding price from it. */
+function tillBoardsPriceInr(now) {
+  return foundingOfferOpen(toMsLoose(now)) ? TILL_BOARDS_FOUNDING_INR : TILL_BOARDS_AFTER_FOUNDING_INR;
+}
+function toMsLoose(now) {
+  return now instanceof Date ? now.getTime() : now;
+}
+/**
+ * Mirror of pricing.ts MONTH_PASS_RETIRED_AT_ISO (PRICE-FIXED-1): from this instant the month pass is no
+ * longer sold to an account that has never bought one. The SERVER evaluates it against its OWN clock.
+ */
+const MONTH_PASS_RETIRED_AT_ISO = '2026-11-01T00:00:00+05:30';
+const MONTH_PASS_RETIRED_AT_MS = Date.parse(MONTH_PASS_RETIRED_AT_ISO);
+/** Mirror of pricing.ts monthPassRetired(now). PURE: the instant is an argument. */
+function monthPassRetired(now) {
+  const ms = now instanceof Date ? now.getTime() : now;
+  return typeof ms === 'number' && Number.isFinite(ms) && ms >= MONTH_PASS_RETIRED_AT_MS;
+}
+/** Mirror of pricing.ts monthPassAvailable(now, hasPriorMonthOrder). */
+function monthPassAvailable(now, hasPriorMonthOrder) {
+  return hasPriorMonthOrder === true || !monthPassRetired(now);
+}
+/**
+ * Mirror of pricing.ts TILL_BOARDS_PAY_FRACTION. RETIRED as a price rule by PRICE-FIXED-1: kept ONLY because
+ * the quote still reports the legacy monthly-times-months figure (`fullInr`) for the ops/admin readers.
+ */
 const TILL_BOARDS_PAY_FRACTION = 0.8;
 /** Mirror of pricing.ts TILL_BOARDS_MAX_MONTHS. */
 const TILL_BOARDS_MAX_MONTHS = 36;
@@ -143,8 +177,8 @@ function tillBoardsQuote(now, boardIso, foundingOpen) {
 
   const monthlyInr = monthlyInrFor(foundingOpen);
   const fullInr = monthlyInr * monthsLeft;
-  const priceInr = Math.round(fullInr * TILL_BOARDS_PAY_FRACTION);
-  return { monthsLeft, monthlyInr, fullInr, priceInr };
+  // PRICE-FIXED-1: the charged amount is the Board Pass price for the server's date (founding, then after-founding). It follows the DATE only: the founding-member stickiness is a month-pass lock.
+  return { monthsLeft, monthlyInr, fullInr, priceInr: tillBoardsPriceInr(nowMs) };
 }
 
 /**
@@ -333,6 +367,13 @@ module.exports = {
   FOUNDING_OFFER_CLOSES_AT_MS,
   foundingOfferOpen,
   TILL_BOARDS_PAY_FRACTION,
+  TILL_BOARDS_FOUNDING_INR,
+  TILL_BOARDS_AFTER_FOUNDING_INR,
+  tillBoardsPriceInr,
+  MONTH_PASS_RETIRED_AT_ISO,
+  MONTH_PASS_RETIRED_AT_MS,
+  monthPassRetired,
+  monthPassAvailable,
   TILL_BOARDS_MAX_MONTHS,
   IST_OFFSET_MS,
   predictBoardDateIso,

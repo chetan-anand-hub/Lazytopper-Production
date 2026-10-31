@@ -5,13 +5,11 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
-  FOUNDING_LABEL,
+  boardPassPriceDisplay,
+  boardPassPriceLine,
   FOUNDING_OFFER_BADGE,
-  monthlyInline,
-  PERIOD_MONTHLY_LABEL,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
-  TILL_BOARDS_INLINE,
 } from "../../config/pricing";
 
 /**
@@ -90,170 +88,42 @@ async function renderLogin(open: boolean) {
   );
 }
 
-/** Collapse whitespace so assertions do not depend on JSX line breaks. */
+/** Collapse whitespace so assertions do not depend on JSX line breaks. The <style> block is not copy. */
 function flat(el: Element | null | undefined): string {
-  return (el?.textContent ?? "").replace(/\s+/g, " ").trim();
+  if (!el) return "";
+  const clone = el.cloneNode(true) as Element;
+  clone.querySelectorAll("style").forEach((n) => n.remove());
+  return (clone.textContent ?? "").replace(/\s+/g, " ").trim();
 }
 
 // ---------------------------------------------------------------------------
-// 1 · Offer OPEN
+// 1 · PRICE-FIXED-1 (31 Oct 2026): the strip names the Board Pass ONLY, on every date
 // ---------------------------------------------------------------------------
 
-describe("offer OPEN", () => {
-  it("renders the founding price AND the struck-through list price", async () => {
+describe("the Board Pass line (the same on every date)", () => {
+  for (const [label, open] of [["before the old founding close", true], ["after the old founding close", false]] as const) {
+    it(`${label}: the Board Pass fixed price, no month price, no founding badge, nothing struck`, async () => {
+      const strip = await renderStrip(open);
+      const text = flat(strip);
+      expect(flat(strip.querySelector(".lt-offer-strip-body"))).toBe(
+        `Board Pass: ${open ? "₹1,917" : "₹2,499"} \u2014 one payment till your boards. Upgrade whenever you like.`,
+      );
+      expect([...new Set(text.match(/₹[\d,]+/g))]).toEqual([boardPassPriceDisplay()]);
+      expect(text).not.toMatch(/599|999|for a month|locked|20%|save/i);
+      // The Founding member offer label shows before the deadline only (owner, 21:20 IST 31 Oct 2026).
+      if (open) expect(screen.getByTestId("lt-offer-founding-label")).toHaveTextContent("Founding member offer");
+      else expect(screen.queryByTestId("lt-offer-founding-label")).toBeNull();
+      expect(screen.queryByTestId("lt-offer-founding-badge")).toBeNull();
+      expect(strip.querySelector("s"), "nothing is struck").toBeNull();
+      expect(strip.querySelector(".lt-offer-strip-note")).toBeNull();
+      // PARENTS-CTA-1 (owner, 2026-10-19): no seat-count sentence.
+      expect(text).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
+    });
+  }
+
+  it("CONTROL - the same queries find the Board Pass line (the absences above are about real copy)", async () => {
     const strip = await renderStrip(true);
-    const text = flat(strip);
-
-    expect(text).toContain(`${PRICE_MONTHLY_FOUNDING_DISPLAY} ${PERIOD_MONTHLY_LABEL}`);
-    expect(screen.getByTestId("lt-offer-founding-badge")).toHaveTextContent(FOUNDING_LABEL);
-
-    // The list price must be struck, and it must be the LIST price that is
-    // struck — not the founding one. `<s>` carries "not what you pay" natively;
-    // asserting the tag is what separates a real strike from a price merely
-    // printed twice.
-    const struck = strip.querySelector("s");
-    expect(struck, "the list price must render inside <s>").not.toBeNull();
-    expect(flat(struck)).toBe(PRICE_MONTHLY_LIST_DISPLAY);
-    expect(flat(struck)).not.toContain(PRICE_MONTHLY_FOUNDING_DISPLAY);
-
-    // PRICING-TB-1 · OR-P6 Decision 1(b) (owner): the founding line, word for word,
-    // pinned as a literal so a constant drift cannot silently reword it.
-    const body = strip.querySelector(".lt-offer-strip-body");
-    expect(flat(body)).toBe(
-      "Founding member: ₹599 for a month ₹999, locked for every pass you buy. Offer ends 30 November.",
-    );
-    // ...and the ₹999 inside it is the struck element, not a live second price.
-    expect(body?.querySelector("s")).toBe(struck);
-
-    // PARENTS-CTA-1 (owner, 2026-10-19): the seat-count sentence is GONE. No
-    // "First N students", no "200" anywhere in the strip.
-    expect(text).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
-    expect(text).not.toContain("200");
-  });
-
-  it("scopes the permanence claim to the student's own passes, never to published prices", async () => {
-    const strip = await renderStrip(true);
-    const text = flat(strip).toLowerCase();
-
-    // #548's finding: the board year moved ₹4,999 → ₹5,999 one day apart, so a
-    // claim about PUBLISHED prices is unsupportable. Same eight phrasings the
-    // pricing page is pinned against.
-    for (const overreach of [
-      "we do not raise anyone's price",
-      "we never raise anyone's price",
-      "we will never raise",
-      "price will never change",
-      "prices never change",
-      "price never rises",
-      "locked forever",
-      "lifetime price",
-    ]) {
-      expect(
-        text,
-        `overbroad price promise in the offer strip: "${overreach}"`,
-      ).not.toContain(overreach);
-    }
-
-    // CONTROL for the absence above: the scoped claim IS present, so this test
-    // is checking the wording rather than an empty string. (COPY-2 · K4: it now
-    // lives only in the strip line — the separate lock note was deleted.)
-    expect(text).toContain("locked for every pass you buy");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// COPY-2 · K4 (owner, 2026-09-27) — the lock promise is stated ONCE, and only
-// while the offer is open: the separate FOUNDING_LOCK_COPY note is deleted.
-// ---------------------------------------------------------------------------
-
-describe("COPY-2 · K4 the lock promise", () => {
-  const LOCK = "locked for every pass you buy";
-  const count = (text: string) => text.split(LOCK).length - 1;
-
-  it("offer OPEN: the strip says it exactly once, and has no separate lock note", async () => {
-    const strip = await renderStrip(true);
-    expect(count(flat(strip))).toBe(1);
-    expect(strip.querySelector(".lt-offer-strip-note")).toBeNull();
-  });
-
-  it("offer CLOSED: the strip says it zero times", async () => {
-    const strip = await renderStrip(false);
-    // CONTROL — the strip rendered real copy, so zero is a finding, not an empty node.
-    expect(flat(strip)).toContain(PRICE_MONTHLY_LIST_DISPLAY);
-    expect(count(flat(strip))).toBe(0);
-    expect(strip.querySelector(".lt-offer-strip-note")).toBeNull();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// 2 · Offer CLOSED
-// ---------------------------------------------------------------------------
-
-describe("offer CLOSED", () => {
-  it("renders the list prices and NO founding badge", async () => {
-    const strip = await renderStrip(false);
-    const text = flat(strip);
-
-    expect(text).toContain(`${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}`);
-    // PRICING-TB-1 (R6): the board-year figure is replaced by a NUMBER-FREE
-    // till-boards line — the owner's exact wording, pinned as a literal too so a
-    // drift in the shared constant cannot silently reword the sign-in page.
-    expect(text).toContain(TILL_BOARDS_INLINE);
-    expect(text).toContain(
-      `Premium is ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL} or pay once till boards — 20% off. Upgrade whenever you like.`,
-    );
-    for (const retired of ["₹5,999", "₹8,999", "₹1,189", "board year"]) {
-      expect(text, `retired board-year copy on the sign-in strip: ${retired}`).not.toContain(retired);
-    }
-    // The only figure left is the monthly list price (the body's, and — TRIAL-ON-SIGNUP-1b —
-    // the after-trial line's MONTHLY_INLINE, which the closure switch moves to the list rate).
-    expect([...new Set(text.match(/₹[\d,]+/g))]).toEqual([PRICE_MONTHLY_LIST_DISPLAY]);
-
-    expect(screen.queryByTestId("lt-offer-founding-badge")).toBeNull();
-    expect(text).not.toContain(PRICE_MONTHLY_FOUNDING_DISPLAY);
-    expect(strip.querySelector("s"), "nothing is struck once the offer closes").toBeNull();
-  });
-
-  it("CONTROL — the same queries DO find the badge and the strike when the offer is open", async () => {
-    // Without this, both absence assertions above would pass against a strip
-    // that renders nothing at all, or one whose testid was silently renamed.
-    const strip = await renderStrip(true);
-    expect(screen.queryByTestId("lt-offer-founding-badge")).not.toBeNull();
-    expect(strip.querySelector("s")).not.toBeNull();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// 2b · The SHIPPED state — the one no mock can vouch for
-// ---------------------------------------------------------------------------
-
-describe("the offer as it actually ships (PRICING-1: date-driven)", () => {
-  it("is OPEN through 23:59:59 IST on 30 Nov 2026: founding badge, price and end date", async () => {
-    vi.resetModules();
-    vi.useFakeTimers({ now: new Date("2026-11-30T23:59:59+05:30"), toFake: ["Date"] });
-    const { default: OfferStrip } = await import("./OfferStrip");
-    render(
-      <MemoryRouter>
-        <OfferStrip />
-      </MemoryRouter>,
-    );
-    expect(screen.getByTestId("lt-offer-founding-badge")).toHaveTextContent(FOUNDING_LABEL);
-    expect(flat(screen.getByTestId("lt-offer-strip"))).toContain("Offer ends 30 November.");
-  });
-
-  it("is CLOSED from 00:00:00 IST on 1 Dec 2026: no founding badge, no end date, the after-trial line at the list price", async () => {
-    vi.resetModules();
-    vi.useFakeTimers({ now: new Date("2026-12-01T00:00:00+05:30"), toFake: ["Date"] });
-    const { default: OfferStrip } = await import("./OfferStrip");
-    const pricing = await import("../../config/pricing");
-    render(
-      <MemoryRouter>
-        <OfferStrip />
-      </MemoryRouter>,
-    );
-    expect(screen.queryByTestId("lt-offer-founding-badge")).toBeNull();
-    expect(screen.queryByText(/Offer ends/)).toBeNull();
-    expect(flat(screen.getByTestId("lt-offer-strip"))).toContain(`Premium at ${pricing.PRICE_MONTHLY_LIST_DISPLAY} for a month.`);
+    expect(flat(strip)).toContain(boardPassPriceLine());
   });
 });
 
@@ -297,8 +167,7 @@ describe("no price literal lives in the component", () => {
     expect(source).not.toContain(PRICE_MONTHLY_LIST_DISPLAY);
 
     const strip = await renderStrip(true);
-    expect(flat(strip)).toContain(PRICE_MONTHLY_FOUNDING_DISPLAY);
-    expect(flat(strip)).toContain(PRICE_MONTHLY_LIST_DISPLAY);
+    expect(flat(strip)).toContain(boardPassPriceDisplay());
   });
 });
 
@@ -368,10 +237,10 @@ describe("the after-trial line", () => {
     await renderLogin(true);
 
     const panel = screen.getByTestId("lt-after-trial-panel");
-    // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6): the shared general line, word for word,
-    // its price imported from config/pricing (MONTHLY_INLINE), never typed.
+    // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6): the shared general line, word for word; PRICE-FIXED-1:
+    // it names the Board Pass, its figure imported from config/pricing, never typed.
     expect(flat(panel)).toBe(
-      `Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`,
+      `Try Premium free for 7 days — no card needed. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
     );
     expect(flat(panel).toLowerCase()).not.toContain("then paid");
     expect(flat(panel).toLowerCase()).not.toContain("upgrade anytime");
@@ -404,8 +273,8 @@ describe("mounted on the auth surface", () => {
     await renderLogin(true);
 
     const strip = screen.getByTestId("lt-offer-strip");
-    expect(within(strip).getByTestId("lt-offer-founding-badge")).toBeTruthy();
-    expect(flat(strip)).toContain(PRICE_MONTHLY_FOUNDING_DISPLAY);
+    expect(within(strip).queryByTestId("lt-offer-founding-badge")).toBeNull();
+    expect(flat(strip)).toContain(boardPassPriceDisplay());
 
     // "See plans" goes to the existing pricing page, not a modal.
     const link = within(strip).getByRole("link", { name: /see plans/i });
@@ -465,12 +334,10 @@ describe("mounted on the auth surface", () => {
     // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6) — the after-trial line now names
     // the price a student pays after the trial (MONTHLY_INLINE), so that is the ONE
     // figure the mirror may carry: no badge, no struck list price, nothing else.
-    expect([...new Set(flat(mobile).match(/₹[\d,]+/g))]).toEqual([
-      monthlyInline().match(/₹[\d,]+/)![0],
-    ]);
+    expect([...new Set(flat(mobile).match(/₹[\d,]+/g))]).toEqual([boardPassPriceDisplay()]);
     expect(mobile.querySelector("s")).toBeNull();
     expect(within(mobile).queryByTestId("lt-offer-founding-badge")).toBeNull();
-    // CONTROL — the full block DOES carry both, so the absences mean something.
+    // CONTROL — the full block carries a price too, so the absences mean something.
     expect(flat(screen.getByTestId("lt-offer-strip"))).toMatch(/₹/);
   });
 
@@ -478,7 +345,7 @@ describe("mounted on the auth surface", () => {
     await renderLogin(false);
 
     const strip = screen.getByTestId("lt-offer-strip");
-    expect(flat(strip)).toContain(TILL_BOARDS_INLINE);
+    expect(flat(strip)).toContain(boardPassPriceLine());
     expect(within(strip).queryByTestId("lt-offer-founding-badge")).toBeNull();
   });
 });

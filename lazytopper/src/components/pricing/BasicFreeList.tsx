@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { monthlyInline } from "../../config/pricing";
+import { boardPassPriceDisplay, boardPassPriceLine } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 
 /**
@@ -19,10 +19,10 @@ import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/
  * TRIAL-ON-SIGNUP-1b — THE after-trial wording, ONE source (owner addendum, wave B-6, word
  * for word). The owner found "…then free Basic, upgrade anytime. No card needed." read as
  * "never pay", so every trial line now names what happens after the trial: keep free Basic,
- * or upgrade to Premium at its real price.
+ * or get the Board Pass at its fixed price.
  *
- * The price is `monthlyInline()`, IMPORTED from config/pricing.ts — never typed here (no
- * rupee figure, never a slash-month form: OR-P6). Every surface that states the trial
+ * The price is the Board Pass's fixed price, IMPORTED from config/pricing.ts — never typed here
+ * (PRICE-FIXED-1: the month price is hidden throughout; never a slash-month form: OR-P6). Every surface that states the trial
  * (the free-check panels, the sign-in strip, the Premium lock, the Home tutor card) builds
  * its line from these fields, so the price and the wording cannot drift between them.
  *
@@ -32,7 +32,7 @@ import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/
  */
 const TRIAL_TRY_LINE = "Try Premium free for 7 days — no card needed.";
 /** PRICING-1: built at ACCESS time (the price follows the founding offer's date), never at module load. */
-const trialAfterLine = () => `After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`;
+const trialAfterLine = () => `After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`;
 
 export const TRIAL_WORDING = {
   /** First sentence of the general line. */
@@ -47,11 +47,11 @@ export const TRIAL_WORDING = {
   },
   /**
    * The short fragment, for a surface where a full sentence does not fit. CHECKOUT-1 (owner ruling,
-   * end of October) REVERSED COPY-FIXES-2: the monthly price now leads every offer, so this names the monthly
-   * price, which always exists. (The Board Pass is the second option wherever there is room for two.)
+   * end of October) was reversed again by PRICE-FIXED-1 (31 Oct 2026): the month price is hidden throughout, so
+   * this names the Board Pass's fixed price.
    */
   get shortFragment() {
-    return `then free Basic, or Premium at ${monthlyInline()}.`;
+    return `then free Basic, or the Board Pass ${boardPassPriceDisplay()} till boards.`;
   },
   /** The link label to /pricing, wherever the UI is clickable. */
   seePlans: "See plans →",

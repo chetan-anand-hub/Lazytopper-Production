@@ -1,5 +1,5 @@
-// PACKS-SERVER-1 - the EMAIL-CONCIERGE-1 checkout_help email is framed around a PLAN ("the monthly plan
-// (₹599)"); an abandoned PDF-pack order must never receive it.
+// PACKS-SERVER-1 - the EMAIL-CONCIERGE-1 checkout_help email is framed around a PLAN order (PRICE-FIXED-1: a month
+// order is named without a price); an abandoned PDF-pack order must never receive it.
 // Run: node --test lazytopper/server/services/nudgeEmail.packs.test.cjs
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -162,6 +162,7 @@ test('checkout_help skips an abandoned pack order (every sku), and still emails 
   const r = await s.make().runOnce();
   assert.equal(r.byKind.checkout_help, 1, 'only the plan order is emailed');
   assert.equal(s.calls.length, 1);
-  assert.match(s.calls[0].body.text, /the monthly plan/);
+  assert.match(s.calls[0].body.text, /started to pay for Premium/);
+  assert.doesNotMatch(s.calls[0].body.text, /599/);
   for (const u of ['pc', 'pm', 'ps', 'pb']) assert.equal((s.db.docs.get(`nudgeEmails/${u}`) || {}).checkout_help, undefined, u);
 });

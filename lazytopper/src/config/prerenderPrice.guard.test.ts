@@ -17,7 +17,7 @@ import { join, resolve, relative } from "node:path";
 import { parentPriceModel } from "../pages/ForParentsPage";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { PACK_PRICE_INR, type PackSku } from "../services/packs";
-import { PRICE_MONTHLY_FOUNDING_INR, PRICE_MONTHLY_LIST_INR, foundingOfferOpen, formatInr } from "./pricing";
+import { formatInr } from "./pricing";
 
 const ROOT = resolve(__dirname, "../../prerendered");
 
@@ -58,9 +58,8 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
     }
   };
   const packExp = (label: string) => formatInr(PACK_PRICE_INR[PACK_BY_LABEL[label]]);
-  // /for-parents Board Pass (ForParentsPage: <span class="lt-fp__price-amt">) and Month pass line.
+  // /for-parents Board Pass (ForParentsPage: <span class="lt-fp__price-amt">). PRICE-FIXED-1: there is no Month pass line.
   take(new RegExp(`class="lt-fp__price-amt">${AMT}`), () => "Board Pass", () => model?.boardPassDisplay ?? null);
-  take(new RegExp(`Or the Month pass: ${AMT} for a month`), () => "Month pass", () => model?.monthDisplay ?? null);
   // /for-parents packs (ParentPacksSection): name span, then the price span in the same <li>.
   for (const li of html.matchAll(/<li class="lt-fpk__item">([\s\S]*?)<\/li>/g)) {
     const name = /class="lt-fpk__name">([^<]+)/.exec(li[1])?.[1]?.trim() ?? "";
@@ -122,7 +121,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       const of = (f: string) => scan.found.filter((x) => x.file === `${dir}${f}`);
       const fp = of("for-parents.html").map((x) => x.product);
       expect(fp).toContain("Board Pass");
-      expect(fp).toContain("Month pass");
+      expect(fp).not.toContain("Month pass");
       for (const l of ["Maths CBQ Pack", "Science CBQ Pack", "Mock Pack", "Chapter Pack", "Maths + Science Bundle"]) expect(fp).toContain(l);
       expect(of("for-parents.html").length).toBeGreaterThanOrEqual(7);
       const pk = of("packs.html").map((x) => x.product);
@@ -146,16 +145,14 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     expect(SHIFTED ? msgs.filter((m) => /Pack|Bundle/.test(m)) : msgs).toEqual([]);
   });
 
-  it("MUTATION PROOF: on 2026-11-18 the guard fails against today's snapshots (pinned clock)", () => {
-    vi.useFakeTimers({ now: new Date("2026-11-18T10:00:00+05:30") });
-    const later = new Date();
-    const boardIso = predictCbseExamDate("10");
-    const r = scanAll(later, boardIso);
-    const msgs = mismatchMessages(r.found);
-    expect(msgs.some((m) => /for-parents\.html: snapshot shows ₹1,917 for Board Pass, live price is ₹\d/.test(m))).toBe(true);
-    expect(msgs.some((m) => m.includes("__desktop/for-parents.html"))).toBe(true);
-    // pack prices do not move with the clock, so they stay green
-    expect(msgs.some((m) => /Pack|Bundle/.test(m))).toBe(false);
+  it("MUTATION PROOF: a stale Board Pass price in a snapshot is caught (PRICE-FIXED-1: the live price no longer moves with the date)", () => {
+    const stale = `<p><span class="lt-fp__price-amt">₹2,396</span></p>`;
+    const r = scanSnapshot("for-parents.html", stale, now, predictCbseExamDate("10"));
+    expect(mismatchMessages(r.found)).toEqual([
+      "for-parents.html: snapshot shows ₹2,396 for Board Pass, live price is ₹1,917 — re-capture the prerender (capture job artifact flow)",
+    ]);
+    // ...and the live price is the same on a much later date.
+    expect(parentPriceModel(new Date("2026-11-18T10:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917");
   });
 
   it("MUTATION PROOF: a changed pack price is caught", () => {
@@ -173,8 +170,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     expect(mismatchMessages(r.found)).toHaveLength(2);
   });
 
-  it("founding vs list month constants are what the month line is built from", () => {
-    const month = formatInr(foundingOfferOpen(now) ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR);
-    expect(parentPriceModel(now, predictCbseExamDate("10"))?.monthDisplay).toBe(month);
+  it("no saved snapshot carries a month-pass line (the month price is hidden: PRICE-FIXED-1)", () => {
+    expect(scan.found.filter((f) => f.product === "Month pass")).toEqual([]);
   });
 });

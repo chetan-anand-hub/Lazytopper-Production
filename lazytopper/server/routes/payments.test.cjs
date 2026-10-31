@@ -72,10 +72,31 @@ function memoryFirestore(seed = {}) {
     const base = opts && opts.merge && prev ? prev.data : {};
     docs.set(key, { data: { ...base, ...data }, version: (prev ? prev.version : 0) + 1 });
   }
+  // PRICE-FIXED-1: equality-only queries (`where(...).where(...).limit(n).get()`) over a collection path.
+  function query(prefix, filters = [], max = Infinity) {
+    const api = {
+      where(field, op, value) {
+        assert.equal(op, '==', 'the fake supports == only');
+        return query(prefix, [...filters, [field, value]], max);
+      },
+      limit: (n) => query(prefix, filters, n),
+      async get() {
+        await yieldNow();
+        const rows = [];
+        for (const [k, e] of docs) {
+          if (!k.startsWith(`${prefix}/`) || k.slice(prefix.length + 1).includes('/')) continue;
+          if (filters.every(([f, v]) => e.data[f] === v)) rows.push({ id: k.slice(prefix.length + 1), data: () => ({ ...e.data }) });
+          if (rows.length >= max) break;
+        }
+        return { empty: rows.length === 0, size: rows.length, docs: rows };
+      },
+    };
+    return api;
+  }
   function ref(key) {
     return {
       key,
-      collection: (sub) => ({ doc: (id) => ref(`${key}/${sub}/${id}`) }),
+      collection: (sub) => ({ doc: (id) => ref(`${key}/${sub}/${id}`), ...query(`${key}/${sub}`) }),
       async get() { await yieldNow(); return snapOf(docs.get(key)); },
       async set(data, opts) { await yieldNow(); write(key, data, opts); },
     };
@@ -85,7 +106,7 @@ function memoryFirestore(seed = {}) {
     stats,
     read: (key) => (docs.get(key) ? { ...docs.get(key).data } : undefined),
     version: (key) => (docs.get(key) ? docs.get(key).version : 0),
-    collection: (name) => ({ doc: (id) => ref(`${name}/${id}`) }),
+    collection: (name) => ({ doc: (id) => ref(`${name}/${id}`), ...query(name) }),
     async runTransaction(fn) {
       for (let attempt = 0; attempt < 10; attempt += 1) {
         const seen = new Map();
@@ -302,9 +323,9 @@ test('Z2 · till-boards is priced by the same server rule as the grant (quotePas
   const srv = await startRoutes();
   t.after(srv.close);
   const out = await createOrder(srv, 'u1', 'till_boards');
-  // The owner ruling's own table: 2026-09-27 at founding -> ₹2,396.
-  assert.equal(out.amountPaise, 239600);
-  assert.equal(quotePass({}, 'till_boards', NOW, { foundingOfferOpen: true }).amountPaise, 239600);
+  // PRICE-FIXED-1: the Board Pass is a FIXED ₹1,917 (it was ₹2,396 on 2026-09-27 under the shrinking rule).
+  assert.equal(out.amountPaise, 191700);
+  assert.equal(quotePass({}, 'till_boards', NOW, { foundingOfferOpen: true }).amountPaise, 191700);
   // A stored lastPaymentRef can never turn a quote into a "replay".
   assert.equal(quotePass({ lastPaymentRef: 'quote' }, 'month', NOW, { foundingOfferOpen: true }).amountPaise, 59900);
 });
@@ -1196,13 +1217,16 @@ test('TOPUP · the pack table is the owner\'s 22 Oct decision: 49 -> 25 and 149 
    PRICING-1 — the founding offer closes at 00:00 IST on 1 Dec 2026
    ══════════════════════════════════════════════════════════════════════════ */
 
+// PRICE-FIXED-1: from 1 Nov 2026 only an account with a prior PAID month order may order a month pass, so every
+// month-order test dated in Nov/Dec seeds one (a founder / existing subscriber re-buying).
+const PRIOR_MONTH_BUYER = () => memoryFirestore({ 'subscriptions/u1/payments/pay_old_month': { passType: 'month', pricePaidInr: 599 } });
 const LAST_SECOND = Date.parse('2026-11-30T23:59:59+05:30');
 const AFTER_CLOSE = Date.parse('2026-12-01T00:00:01+05:30');
 const PAST_GRACE = Date.parse('2026-12-02T00:00:01+05:30');
 
 test('PRICING-1 · an order made at 23:59:59 IST on 30 Nov and PAID at 00:00:01 IST on 1 Dec is charged AND recorded as founding (599, foundingMember)', async (t) => {
   let clock = LAST_SECOND;
-  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
   assert.equal(created.amountPaise, 59900, 'the order was priced at the founding rate');
@@ -1218,7 +1242,7 @@ test('PRICING-1 · an order made at 23:59:59 IST on 30 Nov and PAID at 00:00:01 
 });
 
 test('PRICING-1 · an order made after the close is charged and recorded at the list price (999, not founding)', async (t) => {
-  const srv = await startRoutes({ now: () => AFTER_CLOSE, calendarOffer: true });
+  const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => AFTER_CLOSE, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
   assert.equal(created.amountPaise, 99900);
@@ -1233,7 +1257,7 @@ test('PRICING-1 · an order made after the close is charged and recorded at the 
 
 test('PRICING-1 · a founding order whose payment is only AUTHORIZED 24 h+ after the close is NOT captured and NOT granted (the authorization lapses, no money taken)', async (t) => {
   let clock = LAST_SECOND;
-  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
   clock = PAST_GRACE;
@@ -1251,7 +1275,7 @@ test('PRICING-1 · a founding order whose payment is only AUTHORIZED 24 h+ after
 
 test('PRICING-1 · within the 24 h grace an authorized founding order is still captured and granted at 599', async (t) => {
   let clock = LAST_SECOND;
-  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
   clock = Date.parse('2026-12-01T23:59:00+05:30');
@@ -1263,7 +1287,7 @@ test('PRICING-1 · within the 24 h grace an authorized founding order is still c
 
 test('PRICING-1 · money already CAPTURED is never stranded: a stale founding order that Razorpay captured is granted at its own price', async (t) => {
   let clock = LAST_SECOND;
-  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
   clock = PAST_GRACE;
@@ -1278,7 +1302,7 @@ test('PRICING-1 · money already CAPTURED is never stranded: a stale founding or
 
 test('PRICING-1 · status: a stale AUTHORIZED item does not hide a CAPTURED one later on the same order — it confirms; expired only when nothing else is confirmed', async (t) => {
   let clock = LAST_SECOND;
-  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
   clock = PAST_GRACE;
@@ -1292,7 +1316,7 @@ test('PRICING-1 · status: a stale AUTHORIZED item does not hide a CAPTURED one 
 
 test('PRICING-1 · an EXISTING founder is never refused: a late authorized founding order is captured and granted', async (t) => {
   let clock = LAST_SECOND;
-  const db = memoryFirestore({ 'subscriptions/u1': { tier: 'free', foundingMember: true } });
+  const db = memoryFirestore({ 'subscriptions/u1': { tier: 'free', foundingMember: true }, 'subscriptions/u1/payments/pay_old_month': { passType: 'month' } });
   const srv = await startRoutes({ db, now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
@@ -1301,4 +1325,341 @@ test('PRICING-1 · an EXISTING founder is never refused: a late authorized found
   const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 599);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PRICE-FIXED-1 - Board Pass fixed at 1,917; month pass retired for new buyers from 2026-11-01T00:00:00+05:30
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const RETIRE_MINUS_1S = Date.parse('2026-10-31T23:59:59+05:30');
+const RETIRE_AT = Date.parse('2026-11-01T00:00:00+05:30');
+
+test('PRICE-FIXED-1 · the retirement instant is exactly 2026-11-01T00:00:00+05:30 and the Board Pass constants are 1917 (founding) and 2499 (after)', () => {
+  assert.equal(pricing.MONTH_PASS_RETIRED_AT_ISO, '2026-11-01T00:00:00+05:30');
+  assert.equal(pricing.MONTH_PASS_RETIRED_AT_MS, RETIRE_AT);
+  assert.equal(pricing.TILL_BOARDS_FOUNDING_INR, 1917);
+  assert.equal(pricing.TILL_BOARDS_AFTER_FOUNDING_INR, 2499);
+  assert.equal(pricing.monthPassRetired(RETIRE_MINUS_1S), false);
+  assert.equal(pricing.monthPassRetired(RETIRE_AT), true);
+  assert.equal(pricing.monthPassAvailable(RETIRE_AT, true), true);
+  assert.equal(pricing.monthPassAvailable(RETIRE_AT, false), false);
+});
+
+test('PRICE-FIXED-1 · till_boards is 1917 until the founding deadline and 2499 from it: 31 Oct, 30 Nov 23:59:59 IST -> 1917; 1 Dec 00:00:00 IST, 2 Dec, 1 Feb -> 2499 (the SERVER clock decides)', async (t) => {
+  const cases = [
+    [Date.parse('2026-10-31T10:00:00+05:30'), 191700],
+    [Date.parse('2026-11-15T10:00:00+05:30'), 191700],
+    [Date.parse('2026-11-30T23:59:59+05:30'), 191700],
+    [Date.parse('2026-12-01T00:00:00+05:30'), 249900],
+    [Date.parse('2026-12-02T10:00:00+05:30'), 249900],
+    [Date.parse('2027-02-01T10:00:00+05:30'), 249900],
+  ];
+  for (const [nowMs, paise] of cases) {
+    const label = new Date(nowMs).toISOString();
+    assert.equal(quotePass({}, 'till_boards', nowMs).amountPaise, paise, `quote ${label}`);
+    const srv = await startRoutes({ now: () => nowMs, calendarOffer: true });
+    t.after(srv.close);
+    const out = await createOrder(srv, 'u_tb', 'till_boards');
+    assert.equal(out.amountPaise, paise, `order ${label}`);
+    const sent = srv.rzp.calls.find((c) => c.method === 'POST' && c.url.endsWith('/v1/orders'));
+    assert.equal(sent.body.amount, paise);
+  }
+});
+
+test('PRICE-FIXED-1 · the two Board Pass constants: 1917 founding, 2499 after (one constant each, server-decided)', () => {
+  assert.equal(pricing.TILL_BOARDS_FOUNDING_INR, 1917);
+  assert.equal(pricing.TILL_BOARDS_AFTER_FOUNDING_INR, 2499);
+  assert.equal(pricing.tillBoardsPriceInr(pricing.FOUNDING_OFFER_CLOSES_AT_MS - 1), 1917);
+  assert.equal(pricing.tillBoardsPriceInr(pricing.FOUNDING_OFFER_CLOSES_AT_MS), 2499);
+});
+
+test('PRICE-FIXED-1 · month order BEFORE the instant (23:59:59 IST 31 Oct) is still accepted for a never-month uid', async (t) => {
+  const srv = await startRoutes({ now: () => RETIRE_MINUS_1S, calendarOffer: true });
+  t.after(srv.close);
+  const out = await createOrder(srv, 'u_new', 'month');
+  assert.equal(out.amountPaise, 59900);
+});
+
+test('PRICE-FIXED-1 · month order AT/AFTER the instant is REFUSED (409 month_pass_retired) for a never-month uid; Razorpay is never called, nothing stored', async (t) => {
+  for (const at of [RETIRE_AT, istNoon('2026-11-15'), istNoon('2026-12-05')]) {
+    const srv = await startRoutes({ now: () => at, calendarOffer: true });
+    t.after(srv.close);
+    const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'month' }, headers: asUid('u_new') });
+    assert.equal(r.status, 409, JSON.stringify(r.json));
+    assert.equal(r.json.error, 'month_pass_retired');
+    assert.equal(srv.rzp.calls.length, 0, 'Razorpay was called for a refused month order');
+    assert.equal([...srv.db.docs.keys()].filter((k) => k.startsWith('payOrders/')).length, 0);
+    assert.ok(srv.events.includes('payments.order.month_pass_retired'));
+  }
+});
+
+test('PRICE-FIXED-1 · a client claim cannot open the gate: monthPassAvailable / hasPaidMonth / amount in the body are ignored after the instant', async (t) => {
+  const srv = await startRoutes({ now: () => istNoon('2026-11-10'), calendarOffer: true });
+  t.after(srv.close);
+  const r = await request(srv.port, PAY_ORDER_PATH, {
+    body: { passType: 'month', monthPassAvailable: true, hasPaidMonth: true, priorMonthOrder: true, amount: 1, amountPaise: 100 },
+    headers: asUid('u_new'),
+  });
+  assert.equal(r.status, 409);
+  assert.equal(r.json.error, 'month_pass_retired');
+});
+
+test('PRICE-FIXED-1 · after the instant a uid with a prior PAID month order may still order a month (ledger record, paid payOrder, or a stored month pass)', async (t) => {
+  const seeds = {
+    ledger: { 'subscriptions/u_b/payments/pay_x': { passType: 'month', pricePaidInr: 599 } },
+    paidOrder: { 'payOrders/order_old': { uid: 'u_b', passType: 'month', status: 'paid', amountPaise: 59900 } },
+    storedMonth: { 'subscriptions/u_b': { tier: 'premium', passType: 'month', passEnd: new Date(istNoon('2026-10-20')) } },
+  };
+  for (const [name, seed] of Object.entries(seeds)) {
+    const srv = await startRoutes({ db: memoryFirestore(seed), now: () => istNoon('2026-11-10'), calendarOffer: true });
+    t.after(srv.close);
+    const out = await createOrder(srv, 'u_b', 'month');
+    assert.equal(out.amountPaise, 59900, name);
+  }
+});
+
+test('PRICE-FIXED-1 · only a PAID MONTH order counts: an unpaid month order, another uid\'s month order, a till_boards payment and a pack do not open the gate', async (t) => {
+  const db = memoryFirestore({
+    'payOrders/o1': { uid: 'u_c', passType: 'month', status: 'created' },
+    'payOrders/o2': { uid: 'someone_else', passType: 'month', status: 'paid' },
+    'payOrders/o3': { uid: 'u_c', passType: 'till_boards', status: 'paid' },
+    'subscriptions/u_c/payments/p1': { passType: 'till_boards', pricePaidInr: 1917 },
+  });
+  const srv = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
+  t.after(srv.close);
+  const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'month' }, headers: asUid('u_c') });
+  assert.equal(r.status, 409);
+  // ...and the Board Pass is of course still sold to the same account.
+  const ok = await createOrder(srv, 'u_c', 'till_boards');
+  assert.equal(ok.amountPaise, 191700);
+});
+
+test('PRICE-FIXED-1 · a read failure while deriving the history FAILS CLOSED (no order, no Razorpay call)', async (t) => {
+  const db = memoryFirestore();
+  const realCollection = db.collection;
+  db.collection = (name) => {
+    const c = realCollection(name);
+    if (name === 'payOrders') return { ...c, where: () => { throw new Error('firestore down'); } };
+    return c;
+  };
+  const srv = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
+  t.after(srv.close);
+  const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'month' }, headers: asUid('u_new') });
+  assert.equal(r.status, 500);
+  assert.equal(srv.rzp.calls.length, 0);
+});
+
+test('PRICE-FIXED-1 · /api/pay/status {offer:true} reports the SERVER-derived monthPassAvailable (and writes nothing)', async (t) => {
+  // Shown to prior buyers ONLY, on every date (hidden from everyone else from the moment this ships), even
+  // though the ORDER gate does not close until the instant.
+  const before = await startRoutes({ now: () => RETIRE_MINUS_1S, calendarOffer: true });
+  t.after(before.close);
+  assert.equal((await request(before.port, PAY_STATUS_PATH, { body: { offer: true }, headers: asUid('u_new') })).json.monthPassAvailable, false);
+
+  const db = memoryFirestore({ 'subscriptions/u_b/payments/pay_x': { passType: 'month' } });
+  const after = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
+  t.after(after.close);
+  const neverBought = await request(after.port, PAY_STATUS_PATH, { body: { offer: true, monthPassAvailable: true }, headers: asUid('u_new') });
+  assert.equal(neverBought.status, 200);
+  assert.equal(neverBought.json.monthPassAvailable, false);
+  const buyer = await request(after.port, PAY_STATUS_PATH, { body: { offer: true }, headers: asUid('u_b') });
+  assert.equal(buyer.json.monthPassAvailable, true);
+  const signedOut = await request(after.port, PAY_STATUS_PATH, { body: { offer: true } });
+  assert.equal(signedOut.status, 401);
+  assert.equal(after.rzp.calls.length, 0);
+});
+
+test('PRICE-FIXED-1 · a month order CREATED before the instant and PAID after it is still granted (captured money is never stranded)', async (t) => {
+  let clock = RETIRE_MINUS_1S;
+  const srv = await startRoutes({ now: () => clock, calendarOffer: true });
+  t.after(srv.close);
+  const created = await createOrder(srv, 'u_late', 'month');
+  clock = istNoon('2026-11-02');
+  const p = srv.rzp.pay(created.orderId);
+  const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u_late') });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(srv.db.read('subscriptions/u_late').passType, 'month');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PRICE-FIXED-1 - EXISTING BUYERS ARE NOT AFFECTED (owner ruling 20:31 IST, 31 Oct 2026)
+   (1) a till_boards buyer keeps their pass, its end date and the grant/extension logic
+   (2) a month buyer keeps the month option at the existing price logic (founding lock) and can renew/extend
+   (3) admin grants and pack credit are unchanged
+   (4) no existing subscriptions/{uid} or payOrders doc is rewritten or migrated - no new write path
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const { grantPass, computeGrant } = require('../services/passGrant.cjs');
+const BOARD_END = Date.parse('2027-02-17T23:59:59.999+05:30');
+const snapshotDocs = (db) => JSON.stringify([...db.docs.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([k, e]) => [k, e.data, e.version]));
+
+/** An EXISTING till_boards buyer: a paid Board Pass at the old shrinking price (2,396), founding member. */
+const tillBoardsBuyerSeed = () => ({
+  'subscriptions/tb1': {
+    tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards',
+    passStart: new Date(istNoon('2026-09-27')), passEnd: new Date(BOARD_END),
+    pricePaidInr: 2396, offerKey: 'founding', foundingMember: true, lastPaymentRef: 'pay_tb_old',
+  },
+  'subscriptions/tb1/payments/pay_tb_old': { passType: 'till_boards', pricePaidInr: 2396, grantedAt: new Date(istNoon('2026-09-27')) },
+  'payOrders/order_tb_old': { uid: 'tb1', passType: 'till_boards', status: 'paid', amountPaise: 239600, offerKey: 'founding', paymentId: 'pay_tb_old' },
+});
+
+/** An EXISTING month buyer: a founding-rate month pass still running on 20 Nov. */
+const monthBuyerSeed = () => ({
+  'subscriptions/mb1': {
+    tier: 'premium', plan: 'pass_month', passType: 'month',
+    passStart: new Date(istNoon('2026-11-05')), passEnd: new Date(istNoon('2026-12-05')),
+    pricePaidInr: 599, offerKey: 'founding', foundingMember: true, lastPaymentRef: 'pay_mb_old',
+  },
+  'subscriptions/mb1/payments/pay_mb_old': { passType: 'month', pricePaidInr: 599, grantedAt: new Date(istNoon('2026-11-05')) },
+  'payOrders/order_mb_old': { uid: 'mb1', passType: 'month', status: 'paid', amountPaise: 59900, offerKey: 'founding', paymentId: 'pay_mb_old' },
+});
+
+test('EXISTING-BUYERS (1) · a till_boards buyer: their stored pass is byte-identical after the offer endpoint, a refused month order and a new Board Pass ORDER; the new order is the only write', async (t) => {
+  const db = memoryFirestore(tillBoardsBuyerSeed());
+  const srv = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
+  t.after(srv.close);
+  const before = snapshotDocs(db);
+
+  // The offer endpoint: not a month buyer -> month hidden. Writes nothing.
+  const offer = await request(srv.port, PAY_STATUS_PATH, { body: { offer: true }, headers: asUid('tb1') });
+  assert.equal(offer.json.monthPassAvailable, false);
+  // A month order is refused (never bought a month): writes nothing.
+  const refused = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'month' }, headers: asUid('tb1') });
+  assert.equal(refused.status, 409);
+  assert.equal(snapshotDocs(db), before, 'a read-only/refused call rewrote a stored document');
+
+  // A new Board Pass order: priced at the fixed 1917; the ONLY new document is the new payOrders order.
+  const ok = await createOrder(srv, 'tb1', 'till_boards');
+  assert.equal(ok.amountPaise, 191700);
+  const after = new Map(db.docs);
+  const added = [...after.keys()].filter((k) => !JSON.parse(before).some(([bk]) => bk === k));
+  assert.deepEqual(added, [`payOrders/${ok.orderId}`]);
+  for (const [k, data, version] of JSON.parse(before)) {
+    assert.equal(db.docs.get(k).version, version, `${k} was rewritten`);
+    assert.deepEqual(JSON.parse(JSON.stringify(db.docs.get(k).data)), data, `${k} changed`);
+  }
+});
+
+test('EXISTING-BUYERS (1) · a till_boards buyer keeps the SAME end date and stacking rule: re-granting never shortens a later passEnd, a replay changes nothing, and the paid order record is untouched', async () => {
+  const db = memoryFirestore(tillBoardsBuyerSeed());
+  const orderBefore = JSON.stringify(db.read('payOrders/order_tb_old'));
+  // Replay of the ORIGINAL payment: nothing is written.
+  const sameRef = await grantPass({ uid: 'tb1', passType: 'till_boards', paymentRef: 'pay_tb_old', now: istNoon('2026-11-10') }, { firestore: db });
+  assert.equal(sameRef.replayed, true);
+  assert.equal(ms(db.read('subscriptions/tb1').passEnd), BOARD_END);
+  assert.equal(db.read('subscriptions/tb1').pricePaidInr, 2396, 'the old price they paid was rewritten');
+  // An admin/owner extension beyond the board day is preserved by a later Board Pass grant (existing logic).
+  const extended = memoryFirestore({ ...tillBoardsBuyerSeed(), 'subscriptions/tb1': { ...tillBoardsBuyerSeed()['subscriptions/tb1'], passEnd: new Date(Date.parse('2027-04-30T23:59:59+05:30')) } });
+  await grantPass({ uid: 'tb1', passType: 'till_boards', paymentRef: 'pay_tb_new', now: istNoon('2026-11-10') }, { firestore: extended });
+  assert.equal(ms(extended.read('subscriptions/tb1').passEnd), Date.parse('2027-04-30T23:59:59+05:30'), 'a later passEnd was shortened');
+  assert.equal(extended.read('subscriptions/tb1').pricePaidInr, 1917);
+  assert.equal(JSON.stringify(db.read('payOrders/order_tb_old')), orderBefore);
+  // The pure rule is unchanged: a till_boards grant on an unexpired pass ends at max(stored end, board end).
+  const d = computeGrant(tillBoardsBuyerSeed()['subscriptions/tb1'], { passType: 'till_boards', paymentRef: 'p2', nowMs: istNoon('2026-12-20') });
+  assert.equal(ms(d.fields.passEnd), BOARD_END);
+  assert.equal(d.fields.foundingMember, true, 'the founding flag is sticky and was not cleared');
+});
+
+test('EXISTING-BUYERS (2) · a month buyer keeps the month option on every date, at the founding lock, and can renew: the offer says available, the order is priced as before, the grant stacks on the running pass', async (t) => {
+  for (const [day, expectPaise] of [['2026-11-20', 59900], ['2026-12-10', 59900]]) {
+    const db = memoryFirestore(monthBuyerSeed());
+    let clock = istNoon(day);
+    const srv = await startRoutes({ db, now: () => clock, calendarOffer: true });
+    t.after(srv.close);
+    const offer = await request(srv.port, PAY_STATUS_PATH, { body: { offer: true }, headers: asUid('mb1') });
+    assert.equal(offer.json.monthPassAvailable, true, `${day}: month hidden from a month buyer`);
+    // Existing price logic: the founding lock holds after the 1 Dec close (foundingMember is sticky).
+    const created = await createOrder(srv, 'mb1', 'month');
+    assert.equal(created.amountPaise, expectPaise, `${day}: month price for an existing founding buyer`);
+    // Renewal: pay, verify, the pass is extended.
+    const p = srv.rzp.pay(created.orderId);
+    const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('mb1') });
+    assert.equal(r.status, 200, JSON.stringify(r.json));
+    const sub = db.read('subscriptions/mb1');
+    assert.equal(sub.passType, 'month');
+    assert.equal(sub.pricePaidInr, 599);
+    assert.equal(sub.foundingMember, true);
+    if (day === '2026-11-20') {
+      // Still running on 20 Nov -> the new month stacks from the stored end (5 Dec -> 5 Jan).
+      assert.equal(ms(sub.passStart), istNoon('2026-12-05'));
+      assert.equal(ms(sub.passEnd), istNoon('2027-01-05'));
+    }
+    // The OLD paid order and ledger record are untouched.
+    assert.equal(db.read('payOrders/order_mb_old').status, 'paid');
+    assert.equal(db.read('payOrders/order_mb_old').amountPaise, 59900);
+    assert.equal(db.read('subscriptions/mb1/payments/pay_mb_old').pricePaidInr, 599);
+  }
+});
+
+test('EXISTING-BUYERS (2) · a month buyer who was NOT a founder keeps the list price logic (999 after 1 Dec) - the price rule itself is untouched', async (t) => {
+  const seed = monthBuyerSeed();
+  seed['subscriptions/mb1'] = { ...seed['subscriptions/mb1'], foundingMember: false, offerKey: 'regular', pricePaidInr: 999 };
+  const srv = await startRoutes({ db: memoryFirestore(seed), now: () => istNoon('2026-12-10'), calendarOffer: true });
+  t.after(srv.close);
+  assert.equal((await createOrder(srv, 'mb1', 'month')).amountPaise, 99900);
+});
+
+test('EXISTING-BUYERS (3) · admin grants are not gated: the owner can still grant a month or Board Pass to any uid after the instant, at the existing prices', async () => {
+  const db = memoryFirestore();
+  const month = await grantPass({ uid: 'newcomer', passType: 'month', paymentRef: 'admin_m1', now: istNoon('2026-11-10') }, { firestore: db });
+  assert.equal(month.replayed, false);
+  assert.equal(db.read('subscriptions/newcomer').pricePaidInr, 599, 'month grant price (founding open on 10 Nov)');
+  const boards = await grantPass({ uid: 'newcomer2', passType: 'till_boards', paymentRef: 'admin_t1', now: istNoon('2026-12-10') }, { firestore: db });
+  assert.equal(boards.replayed, false);
+  assert.equal(db.read('subscriptions/newcomer2').pricePaidInr, 2499, 'Board Pass grant price on 10 Dec (after the founding deadline)');
+  // ...and the route-level gate lives ONLY in the order routes, not in the grant path.
+  const grantSrc = fs.readFileSync(path.join(__dirname, '..', 'services', 'passGrant.cjs'), 'utf8');
+  const grantFn = grantSrc.slice(grantSrc.indexOf('async function grantPass('), grantSrc.indexOf('PRICE-FIXED-1 - has this account EVER'));
+  assert.ok(!/monthPassAvailableFor|hasPaidMonthOrder|monthPassRetired/.test(grantFn), 'grantPass consults the month gate');
+});
+
+test('EXISTING-BUYERS (3) · pack credit is unchanged: a Board Pass order is still credited with a pack bought in the last 7 days, now off the fixed 1917', async (t) => {
+  const db = memoryFirestore({
+    'packEntitlements/pc1/packs/pk1': { packId: 'pk1', sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: istNoon('2026-11-09'), creditedToPass: false },
+  });
+  const srv = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
+  t.after(srv.close);
+  const out = await createOrder(srv, 'pc1', 'till_boards');
+  assert.equal(out.amountPaise, (1917 - 49) * 100);
+  const stored = db.read(`payOrders/${out.orderId}`);
+  assert.equal(stored.packCreditInr, 49);
+  // The pack is NOT marked credited until the payment is granted (unchanged behaviour).
+  assert.equal(db.read('packEntitlements/pc1/packs/pk1').creditedToPass, false);
+  // And a month order earns no credit (unchanged), for a month buyer.
+  const mdb = memoryFirestore({ ...monthBuyerSeed(), 'packEntitlements/mb1/packs/pk2': { packId: 'pk2', sku: 'pack_chapter', target: 'x', pricePaidInr: 49, paidAt: istNoon('2026-11-19'), creditedToPass: false } });
+  const msrv = await startRoutes({ db: mdb, now: () => istNoon('2026-11-20'), calendarOffer: true });
+  t.after(msrv.close);
+  assert.equal((await createOrder(msrv, 'mb1', 'month')).amountPaise, 59900);
+});
+
+test('EXISTING-BUYERS (4) · NO new write path: the month-history helpers are read-only, and neither refused orders nor the offer endpoint change a single stored document', async (t) => {
+  const passGrantSrc = fs.readFileSync(path.join(__dirname, '..', 'services', 'passGrant.cjs'), 'utf8');
+  for (const fn of ['async function hasPaidMonthOrder(', 'async function monthPassAvailableFor(']) {
+    const start = passGrantSrc.indexOf(fn);
+    assert.ok(start > 0, fn);
+    const body = passGrantSrc.slice(start, passGrantSrc.indexOf('\n}\n', start));
+    assert.ok(!/\.(set|update|delete|create)\(|runTransaction|\.batch\(/.test(body), `${fn} writes`);
+  }
+  // Run every new read path against a populated database and compare the whole store before/after.
+  const db = memoryFirestore({ ...tillBoardsBuyerSeed(), ...monthBuyerSeed() });
+  const srv = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
+  t.after(srv.close);
+  const before = snapshotDocs(db);
+  for (const uid of ['tb1', 'mb1', 'nobody']) {
+    await request(srv.port, PAY_STATUS_PATH, { body: { offer: true }, headers: asUid(uid) });
+    await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'month' }, headers: { ...asUid(uid) } }).catch(() => undefined);
+  }
+  // mb1's month order above is accepted (creates ONE payOrders doc); nothing else may differ.
+  const afterKeys = [...db.docs.keys()];
+  const newKeys = afterKeys.filter((k) => !JSON.parse(before).some(([bk]) => bk === k));
+  assert.ok(newKeys.every((k) => k.startsWith('payOrders/order_T')), `unexpected new documents: ${newKeys}`);
+  for (const [k, data, version] of JSON.parse(before)) {
+    assert.equal(db.docs.get(k).version, version, `${k} was rewritten`);
+  }
+  // Source-level: the only code that WRITES subscriptions/{uid} is still grantPass (no migration, no backfill).
+  const paymentsSrc = fs.readFileSync(PAYMENTS_CJS, 'utf8');
+  assert.ok(!/collection\(SUBSCRIPTIONS_COLLECTION\)[^;]*\.(set|update)\(/.test(paymentsSrc), 'payments.cjs writes a subscription');
+  const parentSrc = fs.readFileSync(path.join(__dirname, 'parentPay.cjs'), 'utf8');
+  assert.ok(!/collection\(SUBSCRIPTIONS_COLLECTION\)[^;]*\.(set|update)\(/.test(parentSrc), 'parentPay.cjs writes a subscription');
 });

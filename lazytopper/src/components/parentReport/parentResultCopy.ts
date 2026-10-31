@@ -7,12 +7,7 @@
  * the Mummy lines and PARENT_RESULT_CTA_LABEL carry no price. PARENT-CARD-2 (owner, 31 Oct 2026) adds
  * the two pay buttons below - their prices come from config/pricing and the packs catalogue, never a literal.
  */
-import {
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
-  foundingOfferOpen,
-  formatInr,
-} from "../../config/pricing";
+import { boardPassPriceDisplay, formatInr } from "../../config/pricing";
 import { CHAPTER_PACK_PRICE_INR } from "../../lib/packs/packEntry";
 import type { ParentResultKind } from "./parentResultLink";
 
@@ -53,10 +48,9 @@ export function resultDateLabel(ms: number): string {
 export const PARENT_PRICING_HREF = "/pricing?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report";
 export const PARENT_PACKS_HREF = "/packs?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report";
 
-/** "Give Aarav full board prep — ₹599 for a month" (the code's own monthly wording; founding price until 30 Nov, then list). */
-export function parentPrimaryCtaLabel(firstName: string, now: number = Date.now()): string {
-  const price = foundingOfferOpen(now) ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY;
-  return `Give ${firstName || "your child"} full board prep \u2014 ${price} for a month`;
+/** "Give Aarav full board prep — ₹1,917 till boards" (PRICE-FIXED-1: the Board Pass, a fixed price; the month price is hidden). */
+export function parentPrimaryCtaLabel(firstName: string, _now: number = Date.now()): string {
+  return `Give ${firstName || "your child"} full board prep \u2014 ${boardPassPriceDisplay()} till boards`;
 }
 
 /** "Or one PDF pack, from ₹49" - the cheapest pack in the catalogue. */

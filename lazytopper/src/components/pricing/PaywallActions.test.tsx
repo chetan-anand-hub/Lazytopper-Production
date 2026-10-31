@@ -210,7 +210,8 @@ describe("Share QR code", () => {
     expect(arg.files[0].name).toBe(QR_FILENAME);
     expect(arg.files[0].type).toBe("image/png");
     expect(arg.text).toContain(LINK);
-    expect(arg.text).toContain("₹599 for a month");
+    expect(arg.text).toContain("₹2,396 once for everything till my boards");
+    expect(arg.text).not.toMatch(/for a month|599/);
     expect(screen.queryByTestId("parent-share-panel")).toBeNull();
     expect(track.mock.calls).toEqual([["qr", "lock"]]);
   });

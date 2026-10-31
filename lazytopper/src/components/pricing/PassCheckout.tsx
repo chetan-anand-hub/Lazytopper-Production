@@ -19,6 +19,7 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { hydrateSubscriptionFromCloud } from "../../services/subscriptionService";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import {
+  boardPassPriceDisplay,
   foundingRateApplies,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_FOUNDING_INR,
@@ -28,6 +29,7 @@ import {
 } from "../../config/pricing";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
+import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import {
   newCheckoutAttemptId,
   trackBeginCheckout,
@@ -60,7 +62,8 @@ export function monthButtonLabel(offerOpen: boolean): string {
   return `Pay ${offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY} for a month`;
 }
 
-export const TILL_BOARDS_BUTTON_LABEL = "Pay once till your boards";
+/** A function: the price follows the founding deadline, so the label is read at RENDER time. */
+export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPriceDisplay()} once till your boards`;
 
 /**
  * PAY-RECOVER-1 — when (ms after the pending outcome) the server is asked about the order.
@@ -125,6 +128,11 @@ function checkoutEventDetails(passType: PassType, offerOpen: boolean): CheckoutD
 export interface PassCheckoutViewProps {
   signedIn: boolean;
   offerOpen: boolean;
+  /**
+   * PRICE-FIXED-1: show the month button. TRUE ONLY for an account the server says already has a paid month order
+   * (they renew here). Default false: the month pass is hidden from everyone else.
+   */
+  showMonth?: boolean;
   /** The SERVER-written `passEnd` of a pass that is still running, else null. */
   activePassEnd: string | null;
   onSignIn: () => void;
@@ -146,8 +154,8 @@ export interface PassCheckoutViewProps {
 /**
  * Presentational half — every state the buy area can be in.
  *
- * CHECKOUT-1 (owner, 31 Oct 2026): the MONTH button is first and primary; "till boards" is the second option,
- * its price unchanged. Payment logic below is untouched; only the order and the styling class placement moved.
+ * PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass button is the only one, EXCEPT for a prior month buyer
+ * (`showMonth`), who also gets the month button to renew. Payment logic below is untouched.
  *
  * PRICING-LIGHT-1 (P23): class names only. PricingPage lays the buy area out as two pass
  * tiles by making `.lt-pricing-checkout` `display: contents` inside its tile grid; these
@@ -158,6 +166,7 @@ export interface PassCheckoutViewProps {
 export function PassCheckoutView({
   signedIn,
   offerOpen,
+  showMonth = false,
   activePassEnd,
   onSignIn,
   onBuy,
@@ -339,21 +348,23 @@ export function PassCheckoutView({
           {premiumAlreadyActiveCopy(activeLabel)}
         </p>
       )}
-      <button
-        type="button"
-        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
-        disabled={busy !== null || recovery !== null}
-        onClick={() => void handleBuy("month")}
-      >
-        {monthButtonLabel(offerOpen)}
-      </button>
+      {showMonth && (
+        <button
+          type="button"
+          className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
+          disabled={busy !== null || recovery !== null}
+          onClick={() => void handleBuy("month")}
+        >
+          {monthButtonLabel(offerOpen)}
+        </button>
+      )}
       <button
         type="button"
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
         disabled={busy !== null || recovery !== null}
         onClick={() => void handleBuy("till_boards")}
       >
-        {TILL_BOARDS_BUTTON_LABEL}
+        {tillBoardsButtonLabel()}
       </button>
       {creditLine && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom lt-pack-credit-note" data-testid="pass-checkout-pack-credit">
@@ -393,6 +404,7 @@ function PassCheckoutConnected() {
   const { user } = useAuth();
   const { status, hydrated } = useSubscription();
   const uid = user?.uid ?? "";
+  const showMonth = useMonthPassAvailable();
 
   // PACK-CREDIT-1: the server's credit for this student. A failed read is simply no credit line.
   const [packCredit, setPackCredit] = useState<BoardPassCredit | null>(null);
@@ -420,6 +432,7 @@ function PassCheckoutConnected() {
     <PassCheckoutView
       signedIn={Boolean(uid)}
       offerOpen={foundingRateApplies(Date.now(), status.foundingMember)}
+      showMonth={showMonth}
       activePassEnd={activePassEnd}
       packCredit={packCredit}
       onSignIn={() => navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH))}

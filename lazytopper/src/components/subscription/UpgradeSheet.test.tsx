@@ -16,7 +16,7 @@ import { PREMIUM_PLUS } from "../../config/pricingCompare";
 import TutorErrorView from "../../pages/tutor/TutorErrorView";
 import { boardPassOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
-import { monthlyInline } from "../../config/pricing";
+import { boardPassPriceDisplay } from "../../config/pricing";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { limitCopy, limitFromRefusal, type LimitState } from "../usage/fairUseGate";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal, paperPackLine } from "../limits/limitsCopy";
@@ -223,35 +223,30 @@ describe("UpgradeSheet — two exits, and only one of them navigates", () => {
    ══════════════════════════════════════════════════════════════════════════════ */
 
 describe("UpgradeSheet — copy, price and treatment", () => {
-  /** ASSERTION 10. MUTATION: type the price as "₹599/month" ⇒ RED when the founding flag flips. */
-  it("renders the price from pricing.ts, never a literal", () => {
+  /** ASSERTION 10. MUTATION: type the price as a literal in the component => the pricing guard goes RED. */
+  it("renders the Board Pass price from pricing.ts, never a literal - and no month price", () => {
     renderSheet();
-    expect(screen.getByText(new RegExp(monthlyInline().replace("₹", "\\u20B9")))).toBeInTheDocument();
-    // The source carries no rupee literal of its own.
-    expect(monthlyInline()).toContain("₹");
+    const sheet = screen.getByTestId("upgrade-sheet-board-pass");
+    expect(sheet.textContent).toContain(boardPassPriceDisplay());
+    expect(boardPassPriceDisplay()).toContain("\u20B9");
+    expect(document.querySelector(".lt-upsheet")?.textContent ?? "").not.toMatch(/599|999|for a month/);
   });
 
-  it("PRICING-1 — the price follows the founding offer's date: founding while open, list from 00:00 IST 1 Dec 2026", () => {
-    vi.useFakeTimers({ now: new Date("2026-10-25T06:30:00Z"), toFake: ["Date"] });
-    renderSheet();
-    expect(screen.getByText(/Premium — \u20B9599 for a month/)).toBeInTheDocument();
-    cleanup();
-    vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
-    renderSheet();
-    expect(screen.getByText(/Premium — \u20B9999 for a month/)).toBeInTheDocument();
-    vi.useRealTimers();
-  });
-
-  it("PRICING-1 — after the close a FOUNDER is quoted their locked rate, a non-founder the list rate", () => {
-    vi.useFakeTimers({ now: new Date("2026-12-05T10:00:00+05:30"), toFake: ["Date"] });
-    subState.foundingMember = true;
-    renderSheet();
-    expect(screen.getByText(/Premium — \u20B9599 for a month/)).toBeInTheDocument();
-    cleanup();
-    subState.foundingMember = false;
-    renderSheet();
-    expect(screen.getByText(/Premium — \u20B9999 for a month/)).toBeInTheDocument();
-    vi.useRealTimers();
+  it("PRICE-FIXED-1 - the Board Pass price follows the DATE (1,917 then 2,499), whatever the founding state", () => {
+    for (const [now, founding, price] of [
+      ["2026-10-25T06:30:00Z", undefined, "\u20B91,917"],
+      ["2026-12-01T00:00:00+05:30", undefined, "\u20B92,499"],
+      ["2026-12-05T10:00:00+05:30", true, "\u20B92,499"],
+      ["2026-12-05T10:00:00+05:30", false, "\u20B92,499"],
+    ] as const) {
+      vi.useFakeTimers({ now: new Date(now), toFake: ["Date"] });
+      subState.foundingMember = founding;
+      renderSheet();
+      expect(screen.getByTestId("upgrade-sheet-board-pass").textContent).toContain(price);
+      expect(document.querySelector(".lt-upsheet")?.textContent ?? "").not.toMatch(/599|999|for a month/);
+      cleanup();
+      vi.useRealTimers();
+    }
   });
 
   it("names the feature that was blocked, not one string for every surface", () => {
