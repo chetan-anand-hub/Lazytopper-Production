@@ -20,12 +20,12 @@ export const PACKS_CBQ_TO = "/pricing?from=for_parents#cbq";
 export const PACKS_ALL_TO = "/pricing?from=for_parents#packs";
 
 const ITEMS: ReadonlyArray<{ sku: PackSku; name: string; what: string; cbq?: boolean }> = [
-  { sku: "pack_cbq", name: "Maths CBQ Pack", what: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ competency questions`, cbq: true },
-  { sku: "pack_cbq", name: "Science CBQ Pack", what: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ competency questions`, cbq: true },
-  { sku: "pack_subject", name: "Subject Pack", what: "every chapter of a subject and its mocks" },
+  { sku: "pack_cbq", name: "Maths CBQ Pack", what: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ CBQs, about half the paper is competency-based`, cbq: true },
+  { sku: "pack_cbq", name: "Science CBQ Pack", what: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ CBQs, about half the paper is competency-based`, cbq: true },
+  { sku: "pack_subject", name: "Subject Pack", what: "every chapter of Maths or Science, chapter-wise question bank 2026-27" },
   { sku: "pack_mock", name: "Mock Pack", what: `${MOCKS_PER_SUBJECT} board-pattern papers` },
-  { sku: "pack_chapter", name: "Chapter Pack", what: "every question of one chapter" },
-  { sku: "pack_bundle", name: BUNDLE_NAME, what: "all chapters and the mocks" },
+  { sku: "pack_chapter", name: "Chapter Pack", what: "important questions for one chapter, with step-marking key" },
+  { sku: "pack_bundle", name: BUNDLE_NAME, what: "Maths + Science: every chapter + 8 mocks each, the whole year at one price" },
 ];
 
 function useMounted(): boolean {

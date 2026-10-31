@@ -20,7 +20,7 @@ describe("PARENTS-PACKS-1", () => {
     expect(html).toContain('href="/pricing?from=for_parents#cbq"');
     expect(html).toContain('href="/pricing?from=for_parents#packs"');
     expect(html).not.toMatch(/₹/);
-    expect(html).toContain("1,400+ competency questions");
+    expect(html).toContain("1,400+ CBQs");
     expect(html).toContain("The Board Pass (Premium) includes everything online.");
   });
   it("after mount shows prices from the catalogue and fires pack_entry_click with for_parents", async () => {

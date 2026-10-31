@@ -29,7 +29,7 @@ export default function CbqBand({ action, headingId }: CbqBandProps) {
     >
       <span className="lt-cbq__badge">NEW · CBQ</span>
       <h2 className="lt-cbq__title" id={headingId}>{CBQ_HEADLINE}</h2>
-      <p className="lt-cbq__sub">Every chapter, 1- to 5-mark questions, step-wise worked solutions. Maths CBQ Pack {price} · Science CBQ Pack {price}.</p>
+      <p className="lt-cbq__sub">About half your 2027 paper is competency-based. Curated CBQs, chapter-wise and topic-wise — MCQ, assertion-reason, short, case study and long answer, Sections A to E. Maths CBQ Pack {price} · Science CBQ Pack {price}.</p>
       <div className="lt-cbq__grid">
         {(["maths", "science"] as const).map((s) => {
           return (

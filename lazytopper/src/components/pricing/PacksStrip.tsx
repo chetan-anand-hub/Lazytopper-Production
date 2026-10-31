@@ -27,10 +27,10 @@ export const PACK_CREDIT_LINE = "Take the Board Pass within 7 days and the pack 
  * Prices are copy: the server charges.
  */
 const ITEMS: ReadonlyArray<{ sku: PackSku; query: PacksQueryPack; name: string; what: string; best?: boolean }> = [
-  { sku: "pack_chapter", query: "chapter", name: "Chapter Pack", what: "Every question of 1 chapter, with worked solutions" },
-  { sku: "pack_mock", query: "mock", name: "Mock Pack", what: `${MOCKS_PER_SUBJECT} full board-pattern papers` },
-  { sku: "pack_subject", query: "subject", name: "Subject Pack", what: "Every chapter of a subject + its mocks" },
-  { sku: "pack_bundle", query: "bundle", name: BUNDLE_NAME, what: `All ${ALL_NCERT_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks`, best: true },
+  { sku: "pack_chapter", query: "chapter", name: "Chapter Pack", what: "Important questions for one chapter, with CBSE step-marking key" },
+  { sku: "pack_mock", query: "mock", name: "Mock Pack", what: `${MOCKS_PER_SUBJECT} board-pattern mock papers for 2027, with step-marking keys` },
+  { sku: "pack_subject", query: "subject", name: "Subject Pack", what: "Every chapter of Maths or Science — chapter-wise question bank 2026-27" },
+  { sku: "pack_bundle", query: "bundle", name: BUNDLE_NAME, what: `Maths + Science: all ${ALL_NCERT_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks — the whole year at one price`, best: true },
 ];
 
 /** Student input that ends the re-assert: we never fight a deliberate scroll. */

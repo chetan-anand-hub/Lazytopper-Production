@@ -58,6 +58,9 @@ export default function PacksPage() {
               </button>
             ))}
           </div>
+          <p className="lt-packs__terms" data-testid="packs-bundle-cbq-note">
+            <a href="#cbq">Add the CBQ packs for the competency half &rarr;</a>
+          </p>
         </div>
       </section>
           </>
@@ -121,8 +124,8 @@ export default function PacksPage() {
 }
 
 const TILES: ReadonlyArray<{ sku: PackSku; id: string; kicker: string; name: string; lineLong: string; lineShort: string; best?: boolean }> = [
-  { sku: "pack_chapter", id: "chapter", kicker: "One chapter", name: "Chapter Pack", lineLong: "Every question of a chapter, with worked solutions", lineShort: "Every question + worked solutions" },
-  { sku: "pack_mock", id: "mock", kicker: "Board papers", name: "Mock Pack", lineLong: "8 full papers, 80 marks each, with keys", lineShort: "8 full papers, 80 marks" },
-  { sku: "pack_subject", id: "subject", kicker: "Whole subject", name: "Subject Pack", lineLong: "Every chapter of a subject plus its 8 mocks", lineShort: "All chapters + 8 mocks" },
-  { sku: "pack_bundle", id: "bundle", kicker: "Best value", name: BUNDLE_NAME, lineLong: "All 26 chapters and 16 mock papers", lineShort: "All 26 chapters + 16 mocks", best: true },
+  { sku: "pack_chapter", id: "chapter", kicker: "One chapter", name: "Chapter Pack", lineLong: "Important questions for one chapter, with CBSE step-marking key", lineShort: "Important questions + step-marking key" },
+  { sku: "pack_mock", id: "mock", kicker: "Board papers", name: "Mock Pack", lineLong: "8 board-pattern mock papers for 2027, with step-marking keys", lineShort: "8 board-pattern mocks for 2027 + keys" },
+  { sku: "pack_subject", id: "subject", kicker: "Whole subject", name: "Subject Pack", lineLong: "Every chapter of Maths or Science — chapter-wise question bank 2026-27", lineShort: "Every chapter, Maths or Science, 2026-27" },
+  { sku: "pack_bundle", id: "bundle", kicker: "Best value", name: BUNDLE_NAME, lineLong: "Maths + Science: all 26 chapters + 16 mocks — the whole year at one price", lineShort: "All 26 chapters + 16 mocks, one price", best: true },
 ];
