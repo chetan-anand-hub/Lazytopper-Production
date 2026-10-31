@@ -882,6 +882,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "FOLLOWUPS-2 F2: plus, in THIS TAB's sessionStorage, `lazytopper.startHereShown.<surface>` " +
       "(the single character 1 once the Start-here card or focused surface was shown on that page " +
       "this visit, so the shown event is counted once per tab; never the uid, never sent anywhere). " +
+      "HOME-LADDER-2: plus, in THIS TAB's sessionStorage, `lazytopper.ladderQuestion` (the ladder's " +
+      "graded 2-mark question and the answer typed against it, so they are not restored as a draft " +
+      "after sign-up; removed when Byte's ladder starts or when the tab closes). " +
       "LOGIN-HOME-1: plus, in THIS TAB's sessionStorage, `lazytopper.checkOneHandover` (the " +
       "single character 1, written when Byte's Check one answer opens Answer Checker from another " +
       "page, read and deleted once on that arrival so Byte does not ask again; never the uid, never " +

@@ -936,10 +936,34 @@ function readCiPaperJobContext(raw: unknown): CiPaperJobContext | null {
 
 /** HOME-LADDER-2: is this text one of the ladder's own 2-mark starter questions (never a student's own)? */
 const LADDER_QUESTION_KEY = "lazytopper.ladderQuestion";
-function isLadderSampleQuestion(text: string): boolean {
+/** The graded ladder pair (question AND typed answer), written when its grade arrives; this tab only. */
+function writeLadderMarker(q: string, a: string): void {
   try {
-    const t = text.trim();
-    return t !== "" && window.sessionStorage.getItem(LADDER_QUESTION_KEY) === t;
+    window.sessionStorage.setItem(LADDER_QUESTION_KEY, JSON.stringify({ q, a }));
+  } catch {
+    /* private mode: the graded-input guard still covers the common path */
+  }
+}
+function clearLadderMarker(): void {
+  try {
+    window.sessionStorage.removeItem(LADDER_QUESTION_KEY);
+  } catch {
+    /* nothing to clear */
+  }
+}
+/** Is the restored draft EXACTLY the graded ladder pair (and nothing a student added, no photos)? */
+function isGradedLadderPair(d: { fields: { question: string; textAnswer: string }; images: { qImageBase64: string | null; imageBase64: string | null } }): boolean {
+  try {
+    const raw = window.sessionStorage.getItem(LADDER_QUESTION_KEY);
+    if (!raw) return false;
+    const m = JSON.parse(raw) as { q?: string; a?: string };
+    return (
+      !!m.q &&
+      d.fields.question.trim() === m.q &&
+      d.fields.textAnswer.trim() === (m.a ?? "") &&
+      !d.images.imageBase64 &&
+      !d.images.qImageBase64
+    );
   } catch {
     return false;
   }
@@ -1242,9 +1266,10 @@ const DesktopCheckImprovePageInner: React.FC<{
     const graded = gradedInputRef.current;
     if (
       graded &&
-      question === graded.question &&
+      question.trim() === graded.question &&
       !imageBase64 &&
-      (textAnswer.trim() === "" || textAnswer === graded.textAnswer)
+      !qImageBase64 &&
+      (textAnswer.trim() === "" || textAnswer.trim() === graded.textAnswer)
     ) {
       // Already graded, nothing new typed against it: not a draft.
       pendingDraftSave.current = null;
@@ -1281,7 +1306,11 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     if (status !== "idle") {
       pendingDraftSave.current = null;
-      gradedInputRef.current = { question, textAnswer };
+      // Only a REAL grade makes the input "graded"; loading / error / refusals leave it an ordinary draft.
+      if (status === "ready") {
+        gradedInputRef.current = { question: question.trim(), textAnswer: textAnswer.trim() };
+        if (ladderTyped) writeLadderMarker(question.trim(), textAnswer.trim());
+      }
       clearCiDraft();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- snapshot taken when the status leaves idle
@@ -1303,7 +1332,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       if (cancelled) return;
       // HOME-LADDER-2 — Byte asked for the ladder and the draft is only the ladder's own starter question left
       // over from a signed-out ladder: drop it so it can never block the ladder (a student's OWN draft stays).
-      if (d && ladderPending && isLadderSampleQuestion(d.fields.question)) {
+      if (d && ladderPending && isGradedLadderPair(d)) {
         clearCiDraft();
         setCiDraftCheck("none");
         return;
@@ -1581,7 +1610,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   }, []);
   useEffect(() => {
     if (!ladderPending) return;
-    if (ciDemo.startLadder()) setLadderPending(false);
+    if (ciDemo.startLadder()) {
+      clearLadderMarker(); // the ladder has started from it
+      setLadderPending(false);
+    }
     // startLadder is a fresh closure each render; re-try only when what it reads changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ladderPending, ciMomentUid, ciInProgress, ciShownResultHere, status, isFreeMode, overlay]);
@@ -1789,11 +1821,6 @@ const DesktopCheckImprovePageInner: React.FC<{
     trackOneMinute("one_min_type_graded", sec === null ? undefined : { seconds_since_ladder_start: sec });
   }, [ladderTyped, status]);
   function ciDemoLadderType(pick: CiDemoLadderPick) {
-    try {
-      window.sessionStorage.setItem(LADDER_QUESTION_KEY, pick.text.trim()); // HOME-LADDER-2: this tab's ladder question
-    } catch {
-      /* private mode: the graded-input guard still covers the common path */
-    }
     const cd = seedConfirmedFromBank({ ...pick.seed });
     flushSync(() => {
       setQuestionTab("type");

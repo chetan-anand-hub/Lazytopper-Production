@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, waitFor, act, fireEvent } from "@testing-library/react";
 import { CI_DRAFT_KEY, __setCiDraftImageStoreForTests } from "../../services/checkImproveDraft";
+import { FreeCheckRefusedError } from "../../services/freeCheckClient";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 
@@ -156,6 +157,30 @@ describe("HOME-LADDER-2 · a ladder question already graded signed-out must not 
     expect(await screen.findByTestId("one-min-opt-0", {}, { timeout: 4000 })).toBeInTheDocument();
   });
 
+  it("★ a REFUSED (never graded) check keeps the typed work as a draft: refusal -> sign-up -> restored intact", async () => {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    adArrival();
+    render(page());
+    fireEvent.click(await screen.findByTestId("one-min-opt-0"));
+    fireEvent.click(screen.getByTestId("one-min-next"));
+    await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
+    const answer = "My own working: v = u + at, so 5 m/s.";
+    fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: answer } });
+    H.checkSolutionImage.mockRejectedValue(new FreeCheckRefusedError("ceiling_reached", "2026-09-26T18:30:00.000Z"));
+    fireEvent.click(await screen.findByRole("button", { name: /^check|grade/i }));
+    await waitFor(() => expect(document.body.textContent).toContain("all used up"));
+    await sleep(1200);
+    const raw = window.sessionStorage.getItem(CI_DRAFT_KEY);
+    expect(raw).not.toBeNull();
+    expect(JSON.parse(raw as string).textAnswer).toBe(answer);
+    expect(window.sessionStorage.getItem("lazytopper.ladderQuestion")).toBeNull();
+    cleanup();
+    H.auth = { user: SIGNED_IN, loading: false };
+    render(page());
+    await waitFor(() => expect((screen.getByLabelText("Type your answer") as HTMLTextAreaElement).value).toBe(answer));
+  });
+
   it("an UNGRADED typed draft still survives sign-in (ACTIVATION-1 handover)", async () => {
     H.auth = { user: null, loading: false };
     vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
@@ -170,7 +195,7 @@ describe("HOME-LADDER-2 · a ladder question already graded signed-out must not 
   });
 
   it("a leftover ladder-starter draft never blocks Byte's pending ladder", async () => {
-    window.sessionStorage.setItem("lazytopper.ladderQuestion", "Left-over ladder question");
+    window.sessionStorage.setItem("lazytopper.ladderQuestion", JSON.stringify({ q: "Left-over ladder question", a: "typed" }));
     // simulate an older build / race leaving the ladder's 2-mark starter question as a draft
     window.sessionStorage.setItem(CI_DRAFT_KEY, JSON.stringify({ v: 1, id: "x", savedAt: Date.now(), questionTab: "type", question: "Left-over ladder question", qImageMime: "", qImageName: "", tab: "type", textAnswer: "typed", imageMime: "", imageName: "", detected: null, confirmed: null, hasQImage: false, hasAnswerImage: false }));
     cleanup();
