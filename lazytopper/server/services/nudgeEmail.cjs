@@ -17,6 +17,10 @@
  *   founder_checkin  not paying, active in the last 14 days, and >= 15 active minutes OR >= 2 graded OR the Plans
  *                    page opened >= 2 times: thanks, one honest question, a free 10-minute call.
  *   checkout_help    a plan order created 2-48 h ago and still unpaid: did payment go wrong, or the price?
+ *   REACTIVATE-1 (owner ruling 31 Oct 2026): `comeback`, at most ONCE per student ever, behind NUDGE_COMEBACK_ENABLED (default off):
+ *   signed up 2-30 days ago with ZERO activity (no session record of any kind), not premium/admin/@lazytopper.com. One study offer:
+ *   5 board-style questions from one chapter, one button into a ready Quick Practice set. No price. Served LAST under the shared
+ *   daily cap (after checkout_help, d1, d3 and founder_checkin), newest sign-ups first. Every rule below applies unchanged.
  *   Both need a reply-to (NUDGE_EMAIL_REPLY_TO) - without one they are skipped and logged. They share the daily
  *   cap with the rest; checkout_help is served first. Never premium, admin (ADMIN_FIREBASE_UIDS) or @lazytopper.com.
  *
@@ -96,7 +100,26 @@ const ACTIVITY_SEGMENTS = Object.freeze({ days: 'activityDays' });
 const KINDS = Object.freeze(['d1', 'd3', 'founding']);
 /** EMAIL-CONCIERGE-1: the two founder-note kinds. Own flag, own queries; checkout_help is served first. */
 const CONCIERGE_KINDS = Object.freeze(['checkout_help', 'founder_checkin']);
-const ALL_KINDS = Object.freeze([...KINDS, ...CONCIERGE_KINDS]);
+/** REACTIVATE-1: the comeback kind has its own flag and its own pass (runComeback), served after everything else. */
+const COMEBACK_KIND = 'comeback';
+const ALL_KINDS = Object.freeze([...KINDS, ...CONCIERGE_KINDS, COMEBACK_KIND]);
+const COMEBACK_MIN_AGE_MS = 2 * DAY_MS;
+const COMEBACK_MAX_AGE_MS = 30 * DAY_MS;
+const CAP_COMEBACK = 1000;
+/** The two offers, alternated per student by a stable hash of the uid (no randomness). `topic` = the Quick Practice topic key. */
+const COMEBACK_CHAPTERS = Object.freeze([
+  Object.freeze({ subject: 'science', topic: 'electricity', label: 'Electricity' }),
+  Object.freeze({ subject: 'maths', topic: 'trigonometry', label: 'Trigonometry' }),
+]);
+function comebackChapterFor(uid) {
+  let h = 0;
+  for (const ch of String(uid || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return COMEBACK_CHAPTERS[h % COMEBACK_CHAPTERS.length];
+}
+/** The Quick Practice route that builds and starts a 5-question set on arrival (a topic param = targeted entry). UTM only. */
+function comebackPracticeUrl(appUrl, chapter) {
+  return `${appUrl}/practice/10/${chapter.subject}?topic=${encodeURIComponent(chapter.topic)}&count=5&utm_source=email&utm_medium=email&utm_campaign=nudge_comeback`;
+}
 const PAY_ORDERS_COLLECTION = 'payOrders';
 /** checkout_help: an order created 2-48 h ago and still not paid. */
 const CHECKOUT_MIN_MS = 2 * HOUR_MS;
@@ -189,6 +212,8 @@ function resolveNudgeConfig(env = process.env) {
     foundingEnabled: isOnFlag(e.NUDGE_FOUNDING_EMAIL_ENABLED),
     // EMAIL-CONCIERGE-1: the founder-note emails have their OWN switch, default OFF, on top of NUDGE_EMAIL_ENABLED.
     conciergeEnabled: isOnFlag(e.NUDGE_CONCIERGE_ENABLED),
+    // REACTIVATE-1: the comeback email has its OWN switch, default OFF, on top of NUDGE_EMAIL_ENABLED.
+    comebackEnabled: isOnFlag(e.NUDGE_COMEBACK_ENABLED),
     // Never emailed: the admin allowlist (the same ADMIN_FIREBASE_UIDS the admin pages use).
     adminUids: new Set(str(e.ADMIN_FIREBASE_UIDS).split(',').map((x) => x.trim()).filter(Boolean)),
   };
@@ -378,7 +403,7 @@ function packsPara(appUrl, campaign) {
  * The email for one kind. PURE. Plain HTML + text, no name, no tracking, an unsubscribe link,
  * no urgency words. `counts` is required for d3.
  */
-function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl }) {
+function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl, chapter }) {
   const checkUrl = `${appUrl}/check-improve`;
   const practiceUrl = `${appUrl}/practice-hub`;
   const plansUrl = `${appUrl}/pricing`;
@@ -402,6 +427,13 @@ function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl }) {
       paras.push({ t: 'One next step: a short practice set on a topic you worked on, to see if the same mistake comes back.', links: [{ label: 'Open Practice', url: practiceUrl }] });
     }
     paras.push(packsPara(appUrl, 'nudge_d3'));
+  } else if (kind === 'comeback') {
+    const ch = chapter || COMEBACK_CHAPTERS[0];
+    subject = '5 board-style questions, about 2 minutes';
+    paras.push({ t: 'Hi,' });
+    paras.push({ t: `Your LazyTopper account is ready. Here is a small way to start: 5 board-style questions from ${ch.label}, about 2 minutes. You tap your answers, so your phone is enough, and it is free.` });
+    paras.push({ t: 'Start the 5 questions', links: [{ label: 'Start the 5 questions', url: comebackPracticeUrl(appUrl, ch) }] });
+    paras.push({ t: 'Later, when you have written an answer on paper, Answer Checker shows where the marks went, step by step.' });
   } else {
     subject = 'A note for you and your parents about LazyTopper plans';
     paras.push({ t: 'Hi,' });
@@ -846,9 +878,175 @@ function createNudgeEmailer(deps = {}) {
     return false;
   }
 
+  /**
+   * REACTIVATE-1: the one "comeback" email for sign-ups 2-30 days old who never did anything. Same rails as the
+   * others (claim + durable cap + opt-out re-read in ONE transaction, 24 h spacing, trial-email overlap, verified
+   * email only, at most once ever). Newest sign-ups first; runs after every other kind so the cap serves them first.
+   * Returns true when the daily cap is full.
+   */
+  async function runComeback({ summary, skip, nowMs, day }) {
+    if (!config.comebackEnabled) return false;
+    const kind = COMEBACK_KIND;
+    let docs = [];
+    try {
+      const qs = await adminFirestore
+        .collection(SUBSCRIPTIONS_COLLECTION)
+        .where('trialStartDate', '>=', timestampFromMillis(nowMs - COMEBACK_MAX_AGE_MS))
+        .where('trialStartDate', '<', timestampFromMillis(nowMs - COMEBACK_MIN_AGE_MS))
+        .orderBy('trialStartDate', 'desc')
+        .limit(CAP_COMEBACK)
+        .get();
+      docs = qs.docs;
+    } catch {
+      skip('comeback-cohort-unavailable');
+      return false;
+    }
+    for (const doc of docs) {
+      const uid = doc.id;
+      const sub = doc.data() || {};
+      summary.candidates += 1;
+      if (!isServerPinnedStart(sub.trialStartDate)) {
+        skip('start-not-server-pinned');
+        continue;
+      }
+      const startMs = msOf(sub.trialStartDate);
+      if (deriveEffectiveTier(sub, nowMs).tier === 'premium') {
+        skip('premium');
+        continue;
+      }
+      if (config.adminUids.has(uid)) {
+        skip('internal');
+        continue;
+      }
+      const ledgerSnap = await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).get();
+      const ledger = ledgerSnap.exists ? ledgerSnap.data() || {} : {};
+      if (ledger[kind]) {
+        skip('already-sent');
+        continue;
+      }
+      if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
+        skip(`marked-${ledger.skip.reason || 'skipped'}`);
+        continue;
+      }
+      const check = ledger.check && typeof ledger.check === 'object' ? ledger.check : {};
+      if (typeof check[kind] === 'number' && check[kind] > nowMs) {
+        skip('not-yet');
+        continue;
+      }
+      const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+      const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
+      if (trialRow.optedOut) {
+        skip('opted-out');
+        continue;
+      }
+      if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
+        skip('spaced');
+        continue;
+      }
+      const trialRecent = trialEmailRecentMs(trialRow);
+      if ((trialRecent !== null && nowMs - trialRecent < SPACING_MS) || decideCandidate(sub, nowMs).ok) {
+        skip('trial-email-covers');
+        continue;
+      }
+      // ZERO activity: no session record of ANY status/surface, so nothing graded, tested or practised.
+      const records = await readRecords(uid, startMs);
+      const counts = records ? countTrialActivity(records, startMs) : null;
+      if (!records || !counts) {
+        skip('records-unavailable');
+        if (config.mode === 'send') await writeCheckMarker(uid, { [kind]: nowMs + HOUR_MS });
+        continue;
+      }
+      if (records.length > 0 || totalGraded(counts) > 0) {
+        skip('comeback-has-activity');
+        if (config.mode === 'send') await writeCheckMarker(uid, { [kind]: nowMs + COMEBACK_MAX_AGE_MS });
+        continue;
+      }
+      let user = null;
+      try {
+        user = await firebaseAdmin.auth().getUser(uid);
+      } catch {
+        skip('no-account');
+        continue;
+      }
+      const who = emailEligibility(user);
+      if (!who.ok) {
+        skip(who.reason);
+        if (config.mode === 'send' && (PERMANENT_SKIP_REASONS.has(who.reason) || who.reason === 'email-unverified')) {
+          await writeSkipMarker(uid, who.reason, nowMs);
+        }
+        continue;
+      }
+      if (isInternalAccount(uid, who.email, config.adminUids)) {
+        skip('internal');
+        continue;
+      }
+
+      if (config.mode !== 'send') {
+        summary.wouldSend += 1;
+        summary.byKind[kind] += 1;
+        const key = `${uid}:${kind}`;
+        if (!dryRunLogged.has(key)) {
+          dryRunLogged.add(key);
+          log(`[nudge-email] dry-run: would email kind=${kind} uid=${uid} to=${maskEmail(who.email)}`);
+        }
+        continue;
+      }
+
+      let claim;
+      try {
+        claim = await claimWithinCap(uid, kind, day, nowMs);
+      } catch (e) {
+        skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
+        continue;
+      }
+      if (claim !== 'claimed') {
+        skip(claim);
+        if (claim === 'daily-cap') return true;
+        continue;
+      }
+
+      const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
+      const message = buildNudgeEmail(kind, { appUrl: config.appUrl, unsubscribeUrl, chapter: comebackChapterFor(uid) });
+      const result = fetchImpl
+        ? await sendViaResend({
+            fetchImpl,
+            apiKey: config.apiKey,
+            from: config.from,
+            replyTo: config.replyTo,
+            to: who.email,
+            subject: message.subject,
+            text: message.text,
+            html: message.html,
+            unsubscribeUrl,
+            idempotencyKey: `nudge-${kind}-${uid}`,
+            category: `nudge_${kind}`,
+          })
+        : { ok: false, retryable: false, code: 'no-fetch' };
+      try {
+        const ref = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
+        if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
+        else if (result.retryable) await releaseClaim(uid, kind, day);
+        else await ref.set({ [kind]: { status: 'failed', failedAt: serverTimestamp(), error: result.code } }, { merge: true });
+      } catch {
+        /* the claim stays: at most once */
+      }
+      if (result.ok) {
+        summary.sent += 1;
+        summary.byKind[kind] += 1;
+        bump(`nudge_email_sent_${kind}`);
+        log(`[nudge-email] nudge_email_sent kind=${kind} uid=${uid}`);
+      } else {
+        summary.failed += 1;
+        bump(`nudge_email_failed_${kind}`);
+        log(`[nudge-email] send failed kind=${kind} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
+      }
+    }
+    return false;
+  }
+
   /** One pass. Never throws; returns a summary (also logged). */
   async function runOnce() {
-    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0 } };
+    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0 } };
     const skip = (reason) => {
       summary.skipped[reason] = (summary.skipped[reason] || 0) + 1;
     };
@@ -1062,7 +1260,8 @@ function createNudgeEmailer(deps = {}) {
           log(`[nudge-email] send failed kind=${kind} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
         }
       }
-      await runConcierge({ summary, skip, nowMs, day, phase: 'founder_checkin', state: conciergeState });
+      const capFull = await runConcierge({ summary, skip, nowMs, day, phase: 'founder_checkin', state: conciergeState });
+      if (!capFull) await runComeback({ summary, skip, nowMs, day });
       if (foundingGate) log(`[nudge-email] founding email not running: ${foundingGate}`);
       log(`[nudge-email] run mode=${summary.mode} candidates=${summary.candidates} wouldSend=${summary.wouldSend} sent=${summary.sent} failed=${summary.failed} byKind=${JSON.stringify(summary.byKind)} skipped=${JSON.stringify(summary.skipped)}`);
       return { ...summary, ran: true };
@@ -1114,6 +1313,9 @@ module.exports = {
   FOUNDING_UNTIL_MS,
   IDLE_GAP_MS,
   CONCIERGE_KINDS,
+  COMEBACK_KIND,
+  comebackChapterFor,
+  comebackPracticeUrl,
   isCheckinDue,
   isInternalAccount,
   pricingOpenCount,
