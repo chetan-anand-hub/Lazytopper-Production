@@ -10,7 +10,10 @@ import ForParentsPage, { PAY_HELP_HREF, parentPriceModel } from "../pages/ForPar
 import { FOUNDER_BADGE_TEXT } from "../components/brand/FounderBadge";
 import { tillBoardsQuote } from "./pricing";
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 const OPEN = new Date("2026-10-28T10:00:00+05:30");
 const CLOSED = new Date("2026-12-05T10:00:00+05:30");
@@ -46,6 +49,8 @@ describe("PARENTS-PAY-1 — price and how to pay on /for-parents", () => {
   });
 
   it("after mount shows the figures; the button opens WhatsApp and is not a checkout", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30")); // before the founding deadline: the Board Pass is 1,917
     render(<MemoryRouter><ForParentsPage /></MemoryRouter>);
     await act(async () => {});
     expect(screen.getByTestId("fp-price-figures").textContent).toMatch(/Board Pass\s*₹1,917/);

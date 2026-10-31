@@ -344,26 +344,19 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
 }
 
 /**
- * PRICE-FIXED-1 - has this account EVER bought a month pass? Derived ONLY on the server, from its own
- * records (never from a request field), and true when ANY of these holds:
- *   1. a `payOrders` document with this uid, passType "month" and status "paid" (a student's own checkout
- *      or a parent's pay-link order - both are stored against the CHILD's uid);
- *   2. a `subscriptions/{uid}/payments` ledger record with passType "month" (the grant transaction's own
- *      record; this also covers a pass the owner granted by hand before Razorpay was live);
- *   3. the stored subscription is itself a month pass (`passType` "month").
- * A read that fails THROWS: the caller refuses the order (fail closed) rather than guess either way, so
- * a paying month customer is never silently treated as new and a new account is never silently let in.
+ * PRICE-FIXED-1 - has this account EVER PAID for a month pass? Derived ONLY on the server, from its own
+ * records (never from a request field). True only when a `payOrders` document exists with this uid,
+ * passType "month" and status "paid" - the record a real, verified payment leaves (a student's own checkout
+ * or a parent's pay-link order, both stored against the CHILD's uid). An admin-granted month pass, a
+ * ledger record without a paid order and a stored month `passType` are NOT a purchase (owner, review of
+ * #1458: "a PAID month purchase"), so none of them keeps the month option open.
+ * A read that fails THROWS: the caller refuses the order (fail closed) rather than guess either way.
  * An erased account's orders carry uid "erased" and cannot match.
  */
-async function hasPaidMonthOrder(firestore, uid, storedSubscription) {
+async function hasPaidMonthOrder(firestore, uid) {
   if (!firestore || typeof firestore.collection !== 'function') throw new Error('firebase-admin Firestore is unavailable');
   const id = typeof uid === 'string' ? uid.trim() : '';
   if (!id || id.includes('/')) return false;
-  if (storedSubscription && typeof storedSubscription === 'object' && storedSubscription.passType === 'month') return true;
-  const ledger = await firestore
-    .collection(FIRESTORE_COLLECTION).doc(id).collection(PAYMENT_SEGMENTS.payments)
-    .where('passType', '==', 'month').limit(1).get();
-  if (ledger && ledger.empty === false) return true;
   const orders = await firestore
     .collection(PAYMENT_SEGMENTS.payOrders)
     .where('uid', '==', id).where('passType', '==', 'month').where('status', '==', 'paid').limit(1).get();
@@ -376,9 +369,9 @@ async function hasPaidMonthOrder(firestore, uid, storedSubscription) {
  * (A month order that was CREATED before the instant and is paid after it is still GRANTED: the money is
  * captured and grantPass never consults this - only the order routes do.)
  */
-async function monthPassAvailableFor(firestore, uid, nowMs, storedSubscription) {
+async function monthPassAvailableFor(firestore, uid, nowMs) {
   if (!pricing.monthPassRetired(nowMs)) return true;
-  return hasPaidMonthOrder(firestore, uid, storedSubscription);
+  return hasPaidMonthOrder(firestore, uid);
 }
 
 /** A founding order stays payable this long after the offer closes (PRICING-1). */

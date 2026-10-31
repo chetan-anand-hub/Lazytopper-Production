@@ -768,7 +768,7 @@ test('V · an AUTHORIZED payment is captured for the STORED amount, then granted
 
 test('PRICING-1 · V · a founding order only AUTHORIZED 24 h+ after the close is not captured and not granted; a CAPTURED one still is', async (t) => {
   // PRICE-FIXED-1: after 1 Nov a month order needs a prior paid month order on the CHILD's account.
-  const srv = await startRoutes({ db: memoryFirestore({ 'subscriptions/child1/payments/pay_old': { passType: 'month' } }), clock: { t: Date.parse('2026-11-30T23:59:00+05:30') } });
+  const srv = await startRoutes({ db: memoryFirestore({ 'payOrders/order_old_month': { uid: 'child1', passType: 'month', status: 'paid', amountPaise: 59900 } }), clock: { t: Date.parse('2026-11-30T23:59:00+05:30') } });
   t.after(srv.close);
   const { token } = await mint(srv);
   const { json: o } = await parentOrder(srv, token);

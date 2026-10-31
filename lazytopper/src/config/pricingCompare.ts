@@ -192,8 +192,8 @@ export const COMPARE_FEATURE_HEADER = "What you get";
 export const COMPARE_BASIC_HEADER = `Basic · ${PRICE_FREE_DISPLAY}`;
 
 /** "Premium · ₹1,917 till boards" - PRICE-FIXED-1: the Board Pass's fixed price; the month price is hidden. */
-export function comparePremiumHeader(): string {
-  return `Premium · ${boardPassPriceDisplay()} till boards`;
+export function comparePremiumHeader(now: Date | number = Date.now()): string {
+  return `Premium · ${boardPassPriceDisplay(now)} till boards`;
 }
 
 /**

@@ -335,7 +335,7 @@ function createParentPayRoutes(deps = {}) {
     // hides. The ORDER gate (monthPassAvailableFor, below) stays at the retirement instant. A failed read fails closed.
     let monthOffered = true;
     try {
-      monthOffered = await hasPaidMonthOrder(adminFirestore, uid, stored);
+      monthOffered = await hasPaidMonthOrder(adminFirestore, uid);
     } catch (_e) {
       monthOffered = false;
     }
@@ -547,7 +547,7 @@ function createParentPayRoutes(deps = {}) {
       const stored = await readSubscription(resolved.link.uid);
       if (coveredTillBoards(stored, now())) return linkRefused(res, 'order', COVERED_REASON);
       // PRICE-FIXED-1 - same gate as payments.cjs handleOrder, for the CHILD's uid (never the parent's).
-      if (passType === 'month' && !(await monthPassAvailableFor(adminFirestore, resolved.link.uid, now(), stored))) {
+      if (passType === 'month' && !(await monthPassAvailableFor(adminFirestore, resolved.link.uid, now()))) {
         emit('payments.parent.order.month_pass_retired');
         return sendJson(res, 409, {
           ok: false,

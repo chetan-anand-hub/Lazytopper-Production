@@ -53,6 +53,7 @@ beforeEach(() => {
   track.mockClear();
 });
 afterEach(() => {
+  vi.useRealTimers();
   cleanup();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
@@ -88,6 +89,8 @@ describe("wall offer: the Board Pass is the only plan named (PRICE-FIXED-1)", ()
     }
   });
   it("rendered wall: one Board Pass line, no month line, no founding line", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30")); // before the founding deadline: the Board Pass is 1,917
     render(<MemoryRouter><DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} /></MemoryRouter>);
     const lines = Array.from(screen.getByTestId("wall-offer").querySelectorAll("p")).map((p) => p.textContent || "");
     expect(lines).toHaveLength(1);

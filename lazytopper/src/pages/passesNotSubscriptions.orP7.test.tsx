@@ -13,7 +13,7 @@
  *      outside OR-P7's allowlist and is a tracked follow-up. The pin is scoped to what
  *      OR-P7 fixed: a NEW hit fails it; fixing a known one keeps it green.
  */
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -23,7 +23,10 @@ import LegalPage from "./LegalPage";
 import { PaidPlanHead } from "./Welcome";
 import { STATIC_PAGE_HEADS } from "../../scripts/seo/writeStaticHeads";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 function flat(text: string | null | undefined): string {
   return (text ?? "").replace(/\s+/g, " ").trim();
@@ -77,6 +80,8 @@ describe("OR-P7 — the owner's strings, word for word", () => {
   });
 
   it("the landing card names only the Board Pass (the month pass is hidden), never '/mo'", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30")); // before the founding deadline: the Board Pass is 1,917
     render(<PaidPlanHead />);
     const price = screen.getByTestId("landing-board-pass");
     expect(flat(price.textContent)).toContain("Board Pass");

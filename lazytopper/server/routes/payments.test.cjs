@@ -1219,7 +1219,7 @@ test('TOPUP · the pack table is the owner\'s 22 Oct decision: 49 -> 25 and 149 
 
 // PRICE-FIXED-1: from 1 Nov 2026 only an account with a prior PAID month order may order a month pass, so every
 // month-order test dated in Nov/Dec seeds one (a founder / existing subscriber re-buying).
-const PRIOR_MONTH_BUYER = () => memoryFirestore({ 'subscriptions/u1/payments/pay_old_month': { passType: 'month', pricePaidInr: 599 } });
+const PRIOR_MONTH_BUYER = () => memoryFirestore({ 'payOrders/order_old_month': { uid: 'u1', passType: 'month', status: 'paid', amountPaise: 59900 } });
 const LAST_SECOND = Date.parse('2026-11-30T23:59:59+05:30');
 const AFTER_CLOSE = Date.parse('2026-12-01T00:00:01+05:30');
 const PAST_GRACE = Date.parse('2026-12-02T00:00:01+05:30');
@@ -1316,7 +1316,7 @@ test('PRICING-1 · status: a stale AUTHORIZED item does not hide a CAPTURED one 
 
 test('PRICING-1 · an EXISTING founder is never refused: a late authorized founding order is captured and granted', async (t) => {
   let clock = LAST_SECOND;
-  const db = memoryFirestore({ 'subscriptions/u1': { tier: 'free', foundingMember: true }, 'subscriptions/u1/payments/pay_old_month': { passType: 'month' } });
+  const db = memoryFirestore({ 'subscriptions/u1': { tier: 'free', foundingMember: true }, 'payOrders/order_old_month': { uid: 'u1', passType: 'month', status: 'paid', amountPaise: 59900 } });
   const srv = await startRoutes({ db, now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
@@ -1404,19 +1404,40 @@ test('PRICE-FIXED-1 · a client claim cannot open the gate: monthPassAvailable /
   assert.equal(r.json.error, 'month_pass_retired');
 });
 
-test('PRICE-FIXED-1 · after the instant a uid with a prior PAID month order may still order a month (ledger record, paid payOrder, or a stored month pass)', async (t) => {
-  const seeds = {
-    ledger: { 'subscriptions/u_b/payments/pay_x': { passType: 'month', pricePaidInr: 599 } },
-    paidOrder: { 'payOrders/order_old': { uid: 'u_b', passType: 'month', status: 'paid', amountPaise: 59900 } },
-    storedMonth: { 'subscriptions/u_b': { tier: 'premium', passType: 'month', passEnd: new Date(istNoon('2026-10-20')) } },
-  };
-  for (const [name, seed] of Object.entries(seeds)) {
-    const srv = await startRoutes({ db: memoryFirestore(seed), now: () => istNoon('2026-11-10'), calendarOffer: true });
-    t.after(srv.close);
-    const out = await createOrder(srv, 'u_b', 'month');
-    assert.equal(out.amountPaise, 59900, name);
-  }
+test('PRICE-FIXED-1 · after the instant a uid with a prior PAID month order (payOrders status paid) may still order a month', async (t) => {
+  const srv = await startRoutes({
+    db: memoryFirestore({ 'payOrders/order_old': { uid: 'u_b', passType: 'month', status: 'paid', amountPaise: 59900 } }),
+    now: () => istNoon('2026-11-10'),
+    calendarOffer: true,
+  });
+  t.after(srv.close);
+  const out = await createOrder(srv, 'u_b', 'month');
+  assert.equal(out.amountPaise, 59900);
 });
+
+test('PRICE-FIXED-1 · an ADMIN-GRANTED month pass (stored month, ledger record, no paid order) is NOT a purchase: month is neither offered nor orderable after the instant', async (t) => {
+  const db = memoryFirestore({
+    'subscriptions/u_adm': { tier: 'premium', plan: 'pass_month', passType: 'month', passEnd: new Date(istNoon('2026-11-20')) },
+    'subscriptions/u_adm/payments/admin_m1': { passType: 'month', pricePaidInr: 599, grantedAt: new Date(istNoon('2026-10-20')) },
+    'payOrders/o_created': { uid: 'u_adm', passType: 'month', status: 'created', amountPaise: 59900 },
+  });
+  const srv = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
+  t.after(srv.close);
+  const offer = await request(srv.port, PAY_STATUS_PATH, { body: { offer: true }, headers: asUid('u_adm') });
+  assert.equal(offer.status, 200);
+  assert.equal(offer.json.monthPassAvailable, false);
+  const r = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'month' }, headers: asUid('u_adm') });
+  assert.equal(r.status, 409);
+  assert.equal(r.json.error, 'month_pass_retired');
+  assert.equal(srv.rzp.calls.length, 0, 'nothing reached Razorpay');
+  assert.ok(!hasPaidMonthOrderSourceMentions(), 'sanity');
+});
+function hasPaidMonthOrderSourceMentions() {
+  // The gate reads payOrders only: neither the stored passType nor the ledger may open it.
+  const src = fs.readFileSync(path.join(__dirname, '..', 'services', 'passGrant.cjs'), 'utf8');
+  const fn = src.slice(src.indexOf('async function hasPaidMonthOrder('), src.indexOf('async function monthPassAvailableFor('));
+  return /passType === 'month'|PAYMENT_SEGMENTS\.payments|\.payments/.test(fn.replace(/\/\*[\s\S]*?\*\//g, ''));
+}
 
 test('PRICE-FIXED-1 · only a PAID MONTH order counts: an unpaid month order, another uid\'s month order, a till_boards payment and a pack do not open the gate', async (t) => {
   const db = memoryFirestore({
@@ -1456,7 +1477,7 @@ test('PRICE-FIXED-1 · /api/pay/status {offer:true} reports the SERVER-derived m
   t.after(before.close);
   assert.equal((await request(before.port, PAY_STATUS_PATH, { body: { offer: true }, headers: asUid('u_new') })).json.monthPassAvailable, false);
 
-  const db = memoryFirestore({ 'subscriptions/u_b/payments/pay_x': { passType: 'month' } });
+  const db = memoryFirestore({ 'payOrders/order_old': { uid: 'u_b', passType: 'month', status: 'paid', amountPaise: 59900 } });
   const after = await startRoutes({ db, now: () => istNoon('2026-11-10'), calendarOffer: true });
   t.after(after.close);
   const neverBought = await request(after.port, PAY_STATUS_PATH, { body: { offer: true, monthPassAvailable: true }, headers: asUid('u_new') });

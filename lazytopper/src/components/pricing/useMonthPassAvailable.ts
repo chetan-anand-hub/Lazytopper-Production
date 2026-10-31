@@ -11,7 +11,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { authHeaders, isPaymentsClientEnabled, PAY_STATUS_ENDPOINT } from "../../services/checkout";
 
-let cached: { uid: string; value: boolean } | null = null;
+/** A FAILED answer (network error, 5xx, 429) is remembered this long, so a flaky server is not pinged on every mount. */
+export const MONTH_PASS_FAILURE_TTL_MS = 5 * 60 * 1000;
+let cached: { uid: string; value: boolean; until: number } | null = null;
 const inflight = new Map<string, Promise<boolean>>();
 
 /** TEST SEAM: forget the per-session answer. */
@@ -22,7 +24,7 @@ export function resetMonthPassAvailableForTests(): void {
 
 /** Ask the server. Never throws: any failure is `false`. */
 export async function fetchMonthPassAvailable(uid: string): Promise<boolean> {
-  if (cached && cached.uid === uid) return cached.value;
+  if (cached && cached.uid === uid && Date.now() < cached.until) return cached.value;
   const pending = inflight.get(uid);
   if (pending) return pending;
   const run = (async () => {
@@ -33,10 +35,13 @@ export async function fetchMonthPassAvailable(uid: string): Promise<boolean> {
         body: JSON.stringify({ offer: true }),
       });
       const json = (await res.json()) as { ok?: unknown; monthPassAvailable?: unknown };
-      const value = res.ok && json.ok === true && json.monthPassAvailable === true;
-      cached = { uid, value };
+      const answered = res.ok && json.ok === true && typeof json.monthPassAvailable === "boolean";
+      const value = answered && json.monthPassAvailable === true;
+      // A real answer lasts the session; a failed one (5xx, 429, malformed) is remembered for a few minutes.
+      cached = { uid, value, until: answered ? Number.POSITIVE_INFINITY : Date.now() + MONTH_PASS_FAILURE_TTL_MS };
       return value;
     } catch {
+      cached = { uid, value: false, until: Date.now() + MONTH_PASS_FAILURE_TTL_MS };
       return false;
     } finally {
       inflight.delete(uid);
@@ -49,7 +54,7 @@ export async function fetchMonthPassAvailable(uid: string): Promise<boolean> {
 export function useMonthPassAvailable(): boolean {
   const { user } = useAuth();
   const uid = user?.uid ?? "";
-  const [available, setAvailable] = useState<boolean>(() => (cached && cached.uid === uid ? cached.value : false));
+  const [available, setAvailable] = useState<boolean>(() => (cached && cached.uid === uid && Date.now() < cached.until ? cached.value : false));
   useEffect(() => {
     let cancelled = false;
     if (!uid || !isPaymentsClientEnabled()) {

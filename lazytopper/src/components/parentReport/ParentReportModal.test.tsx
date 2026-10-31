@@ -71,6 +71,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   trackParentReportShown.mockClear();
   trackParentReportShare.mockClear();
   authUser.current = null;
@@ -116,6 +117,8 @@ describe("ParentReportCard — honest states, no placeholder", () => {
   });
 
   it("pattern: the model's figures, the Hindi line, the price framing that already exists, and the link label", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-02T10:00:00+05:30")); // before the founding deadline: the Board Pass is 1,917
     const html = renderToStaticMarkup(<ParentReportCard report={PATTERN} />);
     for (const s of ["17", "Concept gap", "कॉन्सेप्ट समझने में कमी", "Real Numbers", "12 – 18 Oct 2026", "My week in 20 seconds", "मेरा हफ़्ता, 20 सेकंड में", "Class 10 CBSE", "Where the marks went", "Marks to win back", "Fix first"]) {
       expect(html).toContain(s);

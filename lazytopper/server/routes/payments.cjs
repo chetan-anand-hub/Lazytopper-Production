@@ -376,7 +376,7 @@ function createPaymentRoutes(deps = {}) {
       } else {
         // PRICE-FIXED-1 - the month pass is no longer sold to an account that has never bought one, from
         // 2026-11-01T00:00:00+05:30 (server clock). Derived from the server's own records, never the body.
-        if (passType === 'month' && !(await monthPassAvailableFor(adminFirestore, uid, now(), stored))) {
+        if (passType === 'month' && !(await monthPassAvailableFor(adminFirestore, uid, now()))) {
           emit('payments.order.month_pass_retired');
           return sendJson(res, 409, {
             ok: false,
@@ -753,7 +753,7 @@ function createPaymentRoutes(deps = {}) {
       try {
         const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
         const stored = snap && snap.exists ? snap.data() || {} : {};
-        const monthPassAvailable = await hasPaidMonthOrder(adminFirestore, uid, stored);
+        const monthPassAvailable = await hasPaidMonthOrder(adminFirestore, uid);
         return sendJson(res, 200, { ok: true, state: 'offer', monthPassAvailable });
       } catch (e) {
         emit('payments.status.offer_read_failed');

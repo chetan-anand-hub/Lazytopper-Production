@@ -147,12 +147,14 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
 
   it("MUTATION PROOF: a stale Board Pass price in a snapshot is caught (PRICE-FIXED-1: the live price no longer moves with the date)", () => {
     const stale = `<p><span class="lt-fp__price-amt">₹2,396</span></p>`;
-    const r = scanSnapshot("for-parents.html", stale, now, predictCbseExamDate("10"));
+    const pinned = new Date("2026-11-18T10:00:00+05:30");
+    const r = scanSnapshot("for-parents.html", stale, pinned, predictCbseExamDate("10"));
     expect(mismatchMessages(r.found)).toEqual([
       "for-parents.html: snapshot shows ₹2,396 for Board Pass, live price is ₹1,917 — re-capture the prerender (capture job artifact flow)",
     ]);
-    // ...and the live price is the same on a much later date.
-    expect(parentPriceModel(new Date("2026-11-18T10:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917");
+    // ...and the live price steps to 2,499 at the founding deadline.
+    expect(parentPriceModel(new Date("2026-11-30T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917");
+    expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹2,499");
   });
 
   it("MUTATION PROOF: a changed pack price is caught", () => {
