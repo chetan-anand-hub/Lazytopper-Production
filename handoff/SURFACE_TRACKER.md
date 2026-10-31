@@ -1,3 +1,18 @@
+> **2026-10-31 (daily) - #1445 - #1458 (CLAUDE.md section 10, once a day).** Scope: pricing and checkout, the parent page and report, the Answer Checker ladder (navigation and entry only), the tutor's dispute detection, the admin Students page, Exam Trends weightage, nudge emails. The Answer Checker's grading is unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Live results [coordinator].
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Pricing / checkout (/pricing, Welcome, /for-parents, pay routes) | Board Pass fixed Rs 1,917 to 30 Nov then Rs 2,499; month pass retired for new buyers from 1 Nov 00:00 IST; Rs 599/999 hidden (`#1458`); supersedes month-first order (`#1454`) | live 22:45 IST; month gate not yet observed | `[FU-PRICE-FIXED-AFTERCHECKS]` |
+| Checkout - ask a parent | "Ask a parent to pay" replaces forward link (`#1454`) | live | none |
+| Parent report PNG and page | redesign (`#1455`); paid student hides buy asks (`#1457`) | `#1455` live; `#1457` merged | `[FU-PARENT-PAID-LIVE]` |
+| Answer Checker one-minute ladder | mobile nav clearance (`#1446`), start after sign-up (`#1449`), "5 more like this" (`#1451`), Challenge a friend (`#1456`) | live per merge; friend challenge live signed-out | `[FU-FRIEND-CHALLENGE-SIGNED-IN-ARRIVAL]` |
+| Tutor | dispute detection broadened (`#1445`) | live per merge | none new |
+| Admin - Students | Purchases card (`#1447`, `#1448`), abandoned checkouts (`#1454`) | live, used 31 Oct | `[FU-PURCHASES-REFUNDED-SHOWN-PAID]` |
+| Exam Trends | weightage = CBSE 2026-27 unit marks (`#1453`) | live | `[FU-EXAM-TRENDS-MARKS-SPLIT-SOURCES]` |
+| Packs page | taglines and CBQ positioning (`#1452`) | live | none |
+| Nudge emails | comeback kind (`#1450`) | enabled on Railway | read first sends |
+
+
 > **2026-10-30 (daily, part 3) - #1439, #1441 - #1443 (CLAUDE.md section 10, once a day).** Scope: the Tutor (anchor and key trust), the admin Students page, the Start-here and First-session cards. The Answer Checker is unchanged: no mark, mistake type, departure rule, objective clamp or grading prompt rule changed. No scope was discovered; no surface's Scope moved to Settling. Live results [coordinator].
 
 | surface | what moved (PR) | state | owed |

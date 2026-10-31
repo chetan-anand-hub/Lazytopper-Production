@@ -1,3 +1,18 @@
+## 2026-10-31 (daily) - #1445 - #1458: TUTOR-CHALLENGE-1 ... PRICE-FIXED-1 - MERGED
+
+- DONE. `#1445` (`51f6e739`): tutor recognises a student disputing the key. NEXT: `[FU-KEYDISPUTE-QID-VALIDATION]`, `[FU-RETURNEDWORK-STEM-MATCH]` stand.
+- DONE. `#1446` (`e74abaa8`), `#1448` (`64be7e99`): mobile nav clearance; Purchases rows align.
+- DONE. `#1447` (`73de3556`): admin Purchases card. NEXT: `[FU-PURCHASES-REFUNDED-SHOWN-PAID]`.
+- DONE. `#1449` (`ac8260dc`), `#1451` (`a59d5aed`): Home ladder after sign-up; "5 more like this".
+- DONE. `#1450` (`5d9bc804`): comeback email behind `NUDGE_COMEBACK_ENABLED`. NEXT: read first sends in Railway logs.
+- DONE. `#1452` (`4b0bf2e6`), `#1453` (`5708ae0d`): pack copy; Exam Trends weightage = unit marks. NEXT: `[FU-EXAM-TRENDS-MARKS-SPLIT-SOURCES]`.
+- DONE. `#1454` (`17baf8c5`): ask-a-parent-to-pay and abandoned checkouts; its month-first ordering is superseded.
+- DONE. `#1455` (`a5b8594c`), `#1456` (`5e62903e`): parent card redesign; Challenge a friend. NEXT: `[FU-FRIEND-CHALLENGE-SIGNED-IN-ARRIVAL]`.
+- DONE. `#1457` (`cd66cf2a`): parent page of a paid student. NEXT: live-verify.
+- DONE. `#1458` (`ba213620`, trunk): Board Pass fixed at Rs 1,917 until 30 Nov then Rs 2,499; month pass retired for new buyers from 1 Nov 00:00 IST. NEXT: 1 Nov and 1 Dec after-checks.
+- NEXT (ads): price audit then discuss; Mon 2 Nov review (see NEXT_ACTION).
+- Open: `#1399` MISTAKE-CALC-1 (draft, HELD).
+
 ## 2026-10-30 (daily, part 3) - #1439, #1441 - #1443: RENAME-OPS-1, PREVIEW-BADGE-1, TUTOR-ANCHOR-KEY-1, TUTOR-KEY-TRUST-1 - MERGED
 
 - DONE. `#1439` (`9f08735a`): ops report label. Was in flight; closed.

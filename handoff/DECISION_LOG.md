@@ -1,3 +1,30 @@
+## 2026-10-31 (daily) - #1445 - #1458: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings of 31 Oct 2026 relayed by the cofounder **[coordinator]**, with the reason given.
+
+| decision | what it says | the reason |
+|---|---|---|
+| Monthly pass retired for new buyers from 2026-11-01 00:00 IST | `#1458`; server returns 409 `month_pass_retired` unless the uid has a `payOrders` doc with passType month and status paid; fails closed; both order routes | owner ruling 31 Oct 20:19-21:20: he no longer wants the price to fall month by month. |
+| Board Pass is a fixed price: Rs 1,917 "Founding member offer" until 2026-12-01 00:00 IST, then Rs 2,499 | `#1458`; decided server-side; constants mirrored with a parity test | owner ruling. The Rs 2,499 was the cofounder's recommendation (about the old Rs 999-based Rs 2,398, rounded up) and the owner accepted; provisional, one constant. |
+| This SUPERSEDES the CHECKOUT-1 (`#1454`) month-first ordering and the PRICING-1 (`#1356`) shrinking-price formula | `#1458` | the month pass no longer exists for new buyers, so month-first and the falling price have nothing to lead with. |
+| No crossed-out prices, no "save 20%", no "shrinks each month"; one honest deadline line only | `#1458` copy: "Founding member offer ends 30 November. From 1 December: Rs 2,499." | India's dark-pattern rules treat a fake reference price as misleading. |
+| Rs 599 and Rs 999 are invisible to anyone without a month purchase | `#1458`; `monthPassAvailable` from `/api/pay/status`; a guard test greps bundle, prerendered pages, `public/*.txt` and email templates | the browser must not decide; a grep test makes the rule hard to break. |
+| Existing buyers are unaffected | `#1458` | Board Pass holders keep pass and end date; month buyers keep the month option at their founding price and can renew; admin grants and pack credit unchanged. Today there are no active month buyers (the two Rs 599 orders of 14 Oct belong to a deleted account; 15 Oct was the owner's test). |
+| Discuss with the owner before ANY ads change | owner ruling 20:19 | the ads still carry Rs 599/month or falling-price copy; list read-only first. |
+| Cofounder may check and correct Railway settings himself | owner approval 08:33 | removes a round-trip; used to set `NUDGE_CONCIERGE_ENABLED` 0 to 1 and `NUDGE_COMEBACK_ENABLED=1`. |
+| IITian wording is exactly "Made by an IITian" or "Made by an IITian (IIT Kanpur)", never on clean Search images | owner ruling | consistent, honest claim; clean Search images stay clean. |
+| 3D product-shot ads launched on Search v2 and YouTube Demand Gen | owner 09:36 "Launch then today... make the ads excellent" | make the ads excellent for a sales day. |
+| Sell whichever sells (Premium or packs including CBQ) | earlier ruling stands; owner 22:35-23:10 "focus on selling our packs on Google including CBQ packs" | packs produced the day's sale. |
+| CBQ queries routed to PDF Packs by campaign negatives on Search v2 | ads change, 31 Oct | v2 won "cbq class 10" so the CBQ pack ad got 6 impressions in 7 days. |
+| Search v2 and PDF Packs run 6:00 AM to 12:00 AM IST only | ads change, 31 Oct | 0-5 am spent about Rs 845 a week for about 3 conversions. YouTube stays on all hours (still converts at 11 pm). |
+| Do not apply Google's auto-recommendations before the Monday review | ads standing | avoids unreviewed changes while the 31 Oct changes settle. |
+| Owner chose Resend Pro | 31 Oct | 80 reminders plus verify/trial emails is about the 100/day free limit. |
+| Exam Trends in ads quotes only Trigonometry about 12 and unit totals (Algebra 20, Geometry 15, Trig 12 = 47/80) | standing | `#1453` made weightage equal unit marks; avoid quoting per-chapter figures that disagree across sources. |
+| Exam Trends weightage fixed to CBSE 2026-27 unit marks | `#1453`, owner "fix it" | the chapter figures did not sum to the official unit marks. |
+| Month first plus "Ask a parent to pay" (`#1454`) | owner ruling 31 Oct, before the pricing change | 10 checkouts opened 15-30 Oct and 0 payment attempts. Month-first part later superseded. |
+| For an urgent money lane the builder runs only pricing files plus tsc locally; CI runs the full suite | method lesson | the full local `src` vitest took over 90 min. |
+
+
 ## 2026-10-30 (daily, part 3) - #1439, #1441 - #1443: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Rulings of 30 Oct 2026 relayed by the cofounder **[coordinator]**, with the reason given.

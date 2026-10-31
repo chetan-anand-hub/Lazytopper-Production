@@ -1,3 +1,22 @@
+## 2026-10-31 (daily) - #1445 - #1458
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ba213620`** [git].
+
+- **Done [git/gh]:** 14 product PRs (table in CURRENT_STATE), all CI-green. Pricing is now fixed (PRICE-FIXED-1).
+- **NEXT, in order [coordinator; handoff 6]:**
+  1. Owner: switch the repo to PRIVATE; delete branch `assets/ads-3d-31oct` (the proxy blocks branch deletion); top up Google Ads.
+  2. **PRICE-FIXED-1 after-checks:** on 1 Nov /pricing shows the founding offer only; a new account cannot buy month (409 `month_pass_retired`); an existing Board Pass holder's page is unchanged; at 1 Dec 00:00 IST the price becomes Rs 2,499 and the offer line disappears (date-dependent tests in the clock manifest).
+  3. Check the 31 Oct ads changes: CBQ pack ad impressions, schedule effect, ad strength after review.
+  4. **Ads price audit (read-only, then DISCUSS with the owner before ANY ads change):** every ad, sitelink, end card (Dussehra) or video description with Rs 599 / Rs 999 / "per month" / "save 20%" / the falling price, and the PDF Packs "Board Pass to /pricing" sitelink.
+  5. Resend: have the owner sign in with Google in Chrome, confirm the sending account, check bounces and daily volume, buy Pro.
+  6. Paid-but-inactive buyers: first-win nudge for `sh...`; a personal hello from support@ for `th...` (owner approves the text).
+  7. Live-verify `#1457` (parent page of a paid student).
+  8. **Mon 2 Nov ads review:** weekend numbers and 3D ads against the old ones; PDF Packs probation (Rs 5k/day spend against 1 Board Pass plus 1 bundle on 31 Oct); remove the paused "online test class 10 cbse" keyword; IITian in YouTube video descriptions; YouTube landing A/B (/check-improve against /practice-hub); GA4 purchase value fix; pending image reviews. Do not apply Google auto-recommendations before this review.
+  9. Ads not done on 31 Oct: PDF Packs sitelinks (account cap 20; no Rs 599 in any price); merge the duplicate CBQ ad groups keeping "competency based questions class 10" (about 14.8k/mo) on a pack ad; hour-by-hour GA4 visitors; YouTube CBQ campaign stays paused (ask the owner first).
+  10. Follow-ups in OPEN_QUESTIONS (this date); the 30 Oct lists stand.
+- **Standing for builders [coordinator]:** never touch `C:\Projects\Lazytopper-Production`; all work in the cloud container, delete container worktrees when done; desktop plus mobile at all sizes; honest copy; Rs 599 / Rs 999 invisible to anyone without a month purchase; Exam Trends in ads quotes only Trigonometry about 12 and unit totals (Algebra 20, Geometry 15, Trig 12 = 47/80); "Made by an IITian" or "Made by an IITian (IIT Kanpur)" only, never on clean Search images.
+- **Doc-only note:** this PR touches only `handoff/`.
+
 ## 2026-10-30 (daily, part 3) - #1439, #1441 - #1443
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`0606546a`** [git].
