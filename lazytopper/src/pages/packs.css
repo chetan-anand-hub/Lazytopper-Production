@@ -130,6 +130,14 @@
   .lt-packs__tiles { max-width: 640px; margin: 0 auto; }
 }
 
+/* Bundle -> CBQ cross-sell link under the tiles. */
+.lt-packs__cbqnote { padding: 10px 12px 0; text-align: center; }
+.lt-packs__cbqnote a { color: inherit; text-decoration: underline; }
+@media (min-width: 1024px) {
+  .lt-packs__cbqnote { padding: 14px 0 0; }
+  .lt-packs__cbqnote a { color: #6fe0a8; }
+}
+
 /* The CBQ band sits full-width at the top of the hero (CBQ-PACK-1). */
 .lt-packs__cbqwrap { padding: 0 12px; }
 .lt-packs__cbqwrap .lt-cbq { margin: 16px 0 0; }
@@ -137,7 +145,7 @@
   .lt-packs__cbqwrap { padding: 0; grid-column: 1 / -1; grid-row: 2; }
   .lt-packs__cbqwrap .lt-cbq { margin: 0; }
   .lt-packs__copy { grid-column: 1; grid-row: 1; }
-  .lt-packs__tiles { grid-column: 2; grid-row: 1; }
+  .lt-packs__shelf { grid-column: 2; grid-row: 1; }
 }
 
 /* PRICING-ONE-1: My packs / status line when the shop sits inside /pricing (no full-page chrome). */
