@@ -46,3 +46,11 @@
     margin: 0 0 12px;
   }
 }
+
+/* LADDER-NAV-1 — an element scrolled into view by useClearBottomNav stops above the fixed mobile BottomNav
+   (the app's own --mob-nav-height) and the home-indicator inset. The nav is mobile-only, so desktop is unchanged. */
+@media (max-width: 1023px) {
+  .ci-nav-clear {
+    scroll-margin-bottom: calc(var(--mob-nav-height, 60px) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+}
