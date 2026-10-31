@@ -572,6 +572,7 @@
     "src/pages/desktop/DesktopCheckImprovePage.freeCheck.test.tsx",
     "src/pages/desktop/DesktopCheckImprovePage.funnelEvents.test.tsx",
     "src/pages/desktop/DesktopCheckImprovePage.gradingJobs.test.tsx",
+    "src/pages/desktop/DesktopCheckImprovePage.homeLadder2.test.tsx",
     "src/pages/desktop/DesktopCheckImprovePage.moments.test.tsx",
     "src/pages/desktop/DesktopCheckImprovePage.signinIntent.test.tsx",
     "src/pages/desktop/DesktopCheckImprovePage.signupNudge.test.tsx",

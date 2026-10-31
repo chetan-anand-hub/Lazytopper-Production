@@ -934,6 +934,41 @@ function readCiPaperJobContext(raw: unknown): CiPaperJobContext | null {
   };
 }
 
+/** HOME-LADDER-2: is this text one of the ladder's own 2-mark starter questions (never a student's own)? */
+const LADDER_QUESTION_KEY = "lazytopper.ladderQuestion";
+/** The graded ladder pair (question AND typed answer), written when its grade arrives; this tab only. */
+function writeLadderMarker(q: string, a: string): void {
+  try {
+    window.sessionStorage.setItem(LADDER_QUESTION_KEY, JSON.stringify({ q, a }));
+  } catch {
+    /* private mode: the graded-input guard still covers the common path */
+  }
+}
+function clearLadderMarker(): void {
+  try {
+    window.sessionStorage.removeItem(LADDER_QUESTION_KEY);
+  } catch {
+    /* nothing to clear */
+  }
+}
+/** Is the restored draft EXACTLY the graded ladder pair (and nothing a student added, no photos)? */
+function isGradedLadderPair(d: { fields: { question: string; textAnswer: string }; images: { qImageBase64: string | null; imageBase64: string | null } }): boolean {
+  try {
+    const raw = window.sessionStorage.getItem(LADDER_QUESTION_KEY);
+    if (!raw) return false;
+    const m = JSON.parse(raw) as { q?: string; a?: string };
+    return (
+      !!m.q &&
+      d.fields.question.trim() === m.q &&
+      d.fields.textAnswer.trim() === (m.a ?? "") &&
+      !d.images.imageBase64 &&
+      !d.images.qImageBase64
+    );
+  } catch {
+    return false;
+  }
+}
+
 /** HOME-LADDER-1b: how long a Home-requested ladder waits for auth / eligibility to settle before giving up. */
 const LADDER_ARRIVAL_WAIT_MS = 5000;
 
@@ -1213,6 +1248,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   // anywhere. Multi-question uploads are not preserved (they clear the draft instead).
   const isMultiDetected = (detectedQuestions?.length ?? 0) > 1;
   const pendingDraftSave = useRef<(() => void) | null>(null);
+  // HOME-LADDER-2 — what the visitor already SUBMITTED. A graded question is finished, not "in progress":
+  // returning to the input view (the ladder's photo CTA, "check another") leaves it on screen, and it must
+  // not be autosaved as a draft and then restored after sign-up (it blocked Byte's ladder for a new account).
+  const gradedInputRef = useRef<{ question: string; textAnswer: string } | null>(null);
   useEffect(() => {
     // Every early return drops any queued flush: a stale snapshot must never be written back.
     if (user || funnelOff || status !== "idle") {
@@ -1220,6 +1259,19 @@ const DesktopCheckImprovePageInner: React.FC<{
       return;
     }
     if (isMultiDetected) {
+      pendingDraftSave.current = null;
+      clearCiDraft();
+      return;
+    }
+    const graded = gradedInputRef.current;
+    if (
+      graded &&
+      question.trim() === graded.question &&
+      !imageBase64 &&
+      !qImageBase64 &&
+      (textAnswer.trim() === "" || textAnswer.trim() === graded.textAnswer)
+    ) {
+      // Already graded, nothing new typed against it: not a draft.
       pendingDraftSave.current = null;
       clearCiDraft();
       return;
@@ -1254,8 +1306,14 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     if (status !== "idle") {
       pendingDraftSave.current = null;
+      // Only a REAL grade makes the input "graded"; loading / error / refusals leave it an ordinary draft.
+      if (status === "ready") {
+        gradedInputRef.current = { question: question.trim(), textAnswer: textAnswer.trim() };
+        if (ladderTyped) writeLadderMarker(question.trim(), textAnswer.trim());
+      }
       clearCiDraft();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- snapshot taken when the status leaves idle
   }, [status]);
   // A photo left by a tab that died mid-draft is swept on the next load once it has expired.
   useEffect(() => {
@@ -1272,6 +1330,13 @@ const DesktopCheckImprovePageInner: React.FC<{
       .catch(() => null)
       .then((d) => {
       if (cancelled) return;
+      // HOME-LADDER-2 — Byte asked for the ladder and the draft is only the ladder's own starter question left
+      // over from a signed-out ladder: drop it so it can never block the ladder (a student's OWN draft stays).
+      if (d && ladderPending && isGradedLadderPair(d)) {
+        clearCiDraft();
+        setCiDraftCheck("none");
+        return;
+      }
       setCiDraftCheck(d ? "restored" : "none");
       if (!d) return;
       pendingDraftSave.current = null;
@@ -1545,7 +1610,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   }, []);
   useEffect(() => {
     if (!ladderPending) return;
-    if (ciDemo.startLadder()) setLadderPending(false);
+    if (ciDemo.startLadder()) {
+      clearLadderMarker(); // the ladder has started from it
+      setLadderPending(false);
+    }
     // startLadder is a fresh closure each render; re-try only when what it reads changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ladderPending, ciMomentUid, ciInProgress, ciShownResultHere, status, isFreeMode, overlay]);

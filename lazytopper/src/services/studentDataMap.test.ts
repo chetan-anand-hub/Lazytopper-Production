@@ -721,6 +721,13 @@ describe("studentDataMap — LOGIN-HOME-1 check-one handover key", () => {
   });
 });
 
+describe("studentDataMap — HOME-LADDER-2 ladder marker key", () => {
+  it("★ lazytopper.ladderQuestion is listed under the existing local-storage entry (sessionStorage, this tab)", () => {
+    const local = STUDENT_DATA_MAP.find((l) => l.id === "local-storage");
+    expect(local!.holds).toContain("`lazytopper.ladderQuestion`");
+  });
+});
+
 describe("studentDataMap — FOLLOWUPS-2 F2 Start-here shown dedupe key", () => {
   it("★ lazytopper.startHereShown.<surface> is listed under the existing local-storage entry (sessionStorage, never the uid)", () => {
     const local = STUDENT_DATA_MAP.find((l) => l.id === "local-storage");
