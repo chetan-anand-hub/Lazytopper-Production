@@ -28,16 +28,7 @@ export default function PacksPage() {
             </p>
             <p className="lt-packs__terms lt-packs__terms--hero">One-time payment · never renews · {REDOWNLOAD_SHORT}</p>
           </div>
-          <div className="lt-packs__cbqwrap">
-            <CbqBand
-              headingId="packs-cbq-h"
-              action={(s) => (
-                <button type="button" className="lt-cbq__btn" onClick={() => openCbq(s)} aria-haspopup="dialog" data-testid={`packs-card-cbq-${s}`}>
-                  {`${subjectLabel(s)} CBQ Pack · ${packPriceLabel("pack_cbq")}`}
-                </button>
-              )}
-            />
-          </div>
+          <div className="lt-packs__shelf">
           <div className="lt-packs__tiles" role="list">
             {TILES.map((t) => (
               <button
@@ -61,6 +52,17 @@ export default function PacksPage() {
           <p className="lt-packs__terms lt-packs__cbqnote" data-testid="packs-bundle-cbq-note">
             <a href="#cbq">Add the CBQ packs for the competency half &rarr;</a>
           </p>
+          </div>
+          <div className="lt-packs__cbqwrap">
+            <CbqBand
+              headingId="packs-cbq-h"
+              action={(s) => (
+                <button type="button" className="lt-cbq__btn" onClick={() => openCbq(s)} aria-haspopup="dialog" data-testid={`packs-card-cbq-${s}`}>
+                  {`${subjectLabel(s)} CBQ Pack · ${packPriceLabel("pack_cbq")}`}
+                </button>
+              )}
+            />
+          </div>
         </div>
       </section>
           </>
