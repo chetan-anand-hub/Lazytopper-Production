@@ -4,6 +4,8 @@
  * where Byte's intent map leads with "Check one answer" (a check_improve arrival), not for a CBQ arrival.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { setMatchMediaMatches } from "../../test/setup";
 
@@ -170,5 +172,29 @@ describe("ONE-MINUTE-1 step 1 — TAP", () => {
     expect(screen.getByTestId("ci-demo-byte").getAttribute("data-drawn")).toBe("0");
     fireEvent.click(screen.getByTestId("one-min-opt-0"));
     await waitFor(() => expect(screen.getByTestId("one-min-verdict")).toBeInTheDocument());
+  });
+});
+
+describe("LADDER-NAV-1 — the verdict button is brought in once, clear of the BottomNav", () => {
+  it("after a tap the next-step block scrolls into view ONCE (nearest) and carries the nav-clear class; nothing before the tap", async () => {
+    const spy = vi.fn();
+    const orig = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = spy;
+    try {
+      arrive({ landing: "/check-improve" });
+      card();
+      await screen.findByTestId("one-min-ladder");
+      expect(spy).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByTestId("one-min-opt-0"));
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy.mock.calls[0][0]).toMatchObject({ block: "nearest" });
+      expect(screen.getByTestId("one-min-next").parentElement?.className).toContain("ci-nav-clear");
+    } finally {
+      Element.prototype.scrollIntoView = orig;
+    }
+  });
+  it("the nav-clear rule uses the app's own --mob-nav-height and the safe-area inset, mobile widths only", () => {
+    const css = readFileSync(resolve(__dirname, "ciDemoDoor.css"), "utf8");
+    expect(css).toMatch(/@media \(max-width: 1023px\)[\s\S]*\.ci-nav-clear[\s\S]*--mob-nav-height[\s\S]*safe-area-inset-bottom/);
   });
 });

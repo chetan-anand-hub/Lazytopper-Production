@@ -96,7 +96,7 @@ export default function KeyDisputesCard({ getToken }: { getToken: () => Promise<
       )}
       {state.status === "ok" && (
         <>
-          <label className="sa-muted">
+          <label className="sa-muted sa-check">
             <input type="checkbox" checked={showResolved} onChange={(e) => setShowResolved(e.target.checked)} /> Show resolved
           </label>
           {(() => {

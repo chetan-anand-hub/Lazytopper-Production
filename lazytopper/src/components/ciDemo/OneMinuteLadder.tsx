@@ -11,6 +11,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { trackOneMinute } from "../../analytics/analytics";
 import { markLadderStart } from "./ladderClock";
+import { useClearBottomNav } from "./useClearBottomNav";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
 import { correctIndex, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
@@ -77,6 +78,9 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
   const [mcq, setMcq] = useState<LoadedMcq | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
   const shown = useRef(false);
+  const verdictRef = useRef<HTMLDivElement>(null);
+  // LADDER-NAV-1: the verdict + "Now a 2-mark one" appear below the fold; bring them in once, clear of the BottomNav.
+  useClearBottomNav(verdictRef, picked !== null);
 
   useEffect(() => {
     let live = true;
@@ -174,7 +178,7 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
       </ul>
 
       {done ? (
-        <div className="ci-demo__verdict">
+        <div className="ci-demo__verdict ci-nav-clear" ref={verdictRef}>
           {mcq.why ? (
             <p className="ci-demo__verdict-why" data-testid="one-min-why">
               {mcq.why}
