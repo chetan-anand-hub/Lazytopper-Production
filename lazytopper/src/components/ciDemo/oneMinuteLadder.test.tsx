@@ -45,6 +45,23 @@ afterEach(() => {
   __resetMascotsForTests();
 });
 
+describe("FIVE-MORE-1 — 5 more like this under the tap verdict", () => {
+  it("shows only after the tap and hands the page the starter's subject and chapter", async () => {
+    const more = vi.fn();
+    arrive({ landing: "/check-improve", utm_campaign: "yt_students" });
+    card({ onLadderMore: more });
+    await screen.findByTestId("one-min-ladder");
+    expect(screen.queryByTestId("one-min-more")).toBeNull();
+    fireEvent.click(screen.getByTestId("one-min-opt-1"));
+    const btn = await screen.findByTestId("one-min-more");
+    expect(btn).toHaveTextContent("5 more like this");
+    fireEvent.click(btn);
+    expect(more).toHaveBeenCalledTimes(1);
+    expect(more.mock.calls[0][0].subject).toMatch(/^(Maths|Science)$/);
+    expect(more.mock.calls[0][0].chapter).toMatch(/^[a-z-]+$/);
+  });
+});
+
 describe("ONE-MINUTE-1 step 1 — TAP", () => {
   it("a check_improve arrival gets the ladder first: Byte's header, four big options, the watch link", async () => {
     arrive({ landing: "/check-improve", utm_campaign: "yt_students" });

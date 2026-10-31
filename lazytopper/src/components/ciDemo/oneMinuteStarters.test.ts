@@ -8,8 +8,10 @@ import { ensureBankChapters, bankChaptersFor, getBankRows, isAiGeneratedBankId }
 import { isGeneratedOrAuthoredRow, syllabusExclusion } from "../../lib/boardQuestions/selectionRule";
 import { needsFigureOrTable } from "../checkimprove/boardQuestionPick";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import { class10TopicRegistry } from "../../data/class10TopicRegistry";
+import { class10ScienceTopicTrendList } from "../../data/class10ScienceTopicTrends";
 import { CI_DEMO_SAMPLES } from "./ciDemoSamples";
-import { ONE_MINUTE_STARTERS, correctIndex, pickStarter, visitSeed, whyLine } from "./oneMinuteStarters";
+import { ONE_MINUTE_STARTERS, STARTER_WEIGHTAGE, correctIndex, pickStarter, visitSeed, whyLine } from "./oneMinuteStarters";
 
 type Row = Record<string, unknown>;
 
@@ -73,7 +75,10 @@ describe("ONE-MINUTE-1 pure rules", () => {
       expect(pickStarter("Maths", i).subject).toBe("Maths");
       expect(pickStarter("Science", i).subject).toBe("Science");
     }
-    expect(new Set(Array.from({ length: 6 }, (_, i) => pickStarter(null, i).bankId)).size).toBe(6);
+    // FIVE-MORE-1: the single lowest-weightage starter (Areas Related to Circles, 4%) is never offered.
+    const offered = new Set(Array.from({ length: 12 }, (_, i) => pickStarter(null, i).bankId));
+    expect(offered.size).toBe(5);
+    expect(offered.has("PYQ-M-2024-ARC-001")).toBe(false);
     expect(Number.isInteger(visitSeed())).toBe(true);
   });
   it("correctIndex needs exactly one match", () => {
@@ -87,5 +92,24 @@ describe("ONE-MINUTE-1 pure rules", () => {
     expect(whyLine(["[1 mark] Correct option: 7 — sodium chloride is neutral."])).toBe("Sodium chloride is neutral.");
     expect(whyLine(["[1 mark] θ/360° = 1/12 ⇒ θ = 30°. Correct option: (b) 30°."])).toBe("θ/360° = 1/12 ⇒ θ = 30°.");
     expect(whyLine(undefined)).toBe("");
+  });
+});
+
+describe("FIVE-MORE-1 starter weightage", () => {
+  it("every STARTER_WEIGHTAGE value equals its data source", () => {
+    const maths: Record<string, number> = {
+      "quadratic-equations": class10TopicRegistry.find((t) => t.topicKey === "Quadratic Equations")!.approxWeightagePercent,
+      probability: class10TopicRegistry.find((t) => t.topicKey === "Probability")!.approxWeightagePercent,
+      "areas-related-to-circles": class10TopicRegistry.find((t) => t.topicKey === "Areas Related to Circles")!.approxWeightagePercent,
+    };
+    const sci = (k: string) => class10ScienceTopicTrendList.find((t) => t.topicKey === k)!.weightagePercent;
+    const expected = {
+      ...maths,
+      "chemical-reactions-and-equations": sci("ChemicalReactions"),
+      "acids-bases-and-salts": sci("AcidsBasesSalts"),
+      "light-reflection-and-refraction": sci("Light"),
+    };
+    expect(STARTER_WEIGHTAGE).toEqual(expected);
+    for (const s of ONE_MINUTE_STARTERS) expect(STARTER_WEIGHTAGE[s.topicKey]).toBeGreaterThan(0);
   });
 });

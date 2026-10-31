@@ -13,6 +13,7 @@ import { trackOneMinute } from "../../analytics/analytics";
 import { markLadderStart } from "./ladderClock";
 import { useClearBottomNav } from "./useClearBottomNav";
 import { CI_DEMO_COPY } from "./ciDemoSamples";
+import { LADDER_MORE_COPY } from "./ladderMoreCopy";
 import { correctIndex, pickStarter, visitSeed, whyLine, type OneMinuteStarter } from "./oneMinuteStarters";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 
@@ -69,11 +70,13 @@ export interface OneMinuteLadderProps {
   onNext: (starter: OneMinuteStarter) => void;
   /** "Or watch me mark a board answer": the existing sample picker. */
   onWatch: () => void;
+  /** FIVE-MORE-1: "5 more like this" - a ready Quick Practice set for the same chapter (the page launches it). */
+  onMore?: (c: { subject: "Maths" | "Science"; chapter: string }) => void;
   /** The bank could not give a starter: let the card show its sample picker instead. */
   onUnavailable: () => void;
 }
 
-export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWatch, onUnavailable }: OneMinuteLadderProps) {
+export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWatch, onUnavailable, onMore }: OneMinuteLadderProps) {
   const starter = useMemo(() => pickStarter(hint, visitSeed()), [hint]);
   const [mcq, setMcq] = useState<LoadedMcq | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
@@ -195,6 +198,16 @@ export default function OneMinuteLadder({ hint, onLine, onAnswered, onNext, onWa
           >
             <span>{CI_DEMO_COPY.ladderNext}</span>
           </button>
+          {onMore ? (
+            <button
+              type="button"
+              className="ci-ladder-more__btn"
+              data-testid="one-min-more"
+              onClick={() => onMore({ subject: mcq.starter.subject, chapter: mcq.topicKey || mcq.starter.topicKey })}
+            >
+              {LADDER_MORE_COPY}
+            </button>
+          ) : null}
         </div>
       ) : null}
 

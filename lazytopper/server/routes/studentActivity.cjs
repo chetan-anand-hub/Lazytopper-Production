@@ -206,6 +206,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'one_min_type_shown',
   'one_min_type_graded',
   'one_min_photo_cta',
+  // FIVE-MORE-1 - "5 more like this" tap. Name only. Additive.
+  'one_min_more_practice',
   // ENGAGE10-1 - ten visible minutes in one IST day. Additive only.
   'engaged_10min',
   // ENGAGE5-1 - five visible minutes in one IST day. Additive only.

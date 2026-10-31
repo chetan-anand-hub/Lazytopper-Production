@@ -5,11 +5,12 @@
 import { useEffect, useRef } from "react";
 import { useClearBottomNav } from "./useClearBottomNav";
 import { trackOneMinute } from "../../analytics/analytics";
+import { LADDER_MORE_COPY } from "./ladderMoreCopy";
 import "./ciDemoDoor.css";
 
 export const LADDER_PHOTO_COPY = "Got it on paper? Snap your own answer";
 
-export default function LadderPhotoCta({ onTap }: { onTap: () => void }) {
+export default function LadderPhotoCta({ onTap, onMore }: { onTap: () => void; onMore?: () => void }) {
   useEffect(() => {
     trackOneMinute("one_min_photo_cta");
   }, []);
@@ -20,6 +21,11 @@ export default function LadderPhotoCta({ onTap }: { onTap: () => void }) {
       <button type="button" className="ci-ladder-photo__btn" data-testid="one-min-photo-cta" onClick={onTap}>
         {LADDER_PHOTO_COPY}
       </button>
+      {onMore ? (
+        <button type="button" className="ci-ladder-more__btn" data-testid="one-min-more-typed" onClick={onMore}>
+          {LADDER_MORE_COPY}
+        </button>
+      ) : null}
     </div>
   );
 }
