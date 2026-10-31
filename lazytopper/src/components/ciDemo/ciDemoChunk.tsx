@@ -33,6 +33,7 @@ import {
 } from "./ciDemoSamples";
 import { nextSampleKey, readCiDemoSubjectHint, trioFor } from "./ciDemoModel";
 import { guidePlanFor } from "../guide/guideInputs";
+import { parseChallengeId } from "./challengeModel";
 import OneMinuteLadder, { type LadderAnswer } from "./OneMinuteLadder";
 import type { OneMinuteStarter } from "./oneMinuteStarters";
 import "./ciDemo.css";
@@ -104,6 +105,13 @@ function marginMark(awarded: number, max: number): string {
  */
 function ladderLeads(uid: string | null | undefined, forced: boolean): boolean {
   if (forced) return true;
+  // FRIEND-CHALLENGE-1 - a friend's challenge link (a valid-shaped id) leads with the ladder; the ladder itself
+  // falls back to its normal starter when the id resolves to nothing.
+  try {
+    if (typeof window !== "undefined" && parseChallengeId(window.location.search)) return true;
+  } catch {
+    /* no param */
+  }
   try {
     return guidePlanFor("check_improve", uid ?? null).options[0]?.id === "check_one";
   } catch {
