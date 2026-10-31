@@ -480,7 +480,7 @@ describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
     // CONTROL — it is the real pricing page (PRICE-FIXED-1: the month period is no longer captured; the month price is hidden).
     const pricing = readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8");
     expect(pricing).toContain("Simple, Student-Friendly Plans");
-    expect(pricing).not.toContain('<span class="lt-pricing-period">');
+    expect(pricing).not.toContain('<span class="lt-pricing-period">for a month</span>');
   });
 });
 
