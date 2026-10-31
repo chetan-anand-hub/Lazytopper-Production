@@ -957,3 +957,20 @@ test('comeback: one button to a ready Quick Practice set; no price, name, tracki
   }
   assert.notEqual(comebackChapterFor('a').topic === comebackChapterFor('b').topic && comebackChapterFor('a').topic === comebackChapterFor('c').topic && comebackChapterFor('a').topic === comebackChapterFor('d').topic && comebackChapterFor('a').topic === comebackChapterFor('e').topic, true);
 });
+
+test('comeback: a tapped practice card (practiceInsights attempts, no session record) is activity', async () => {
+  const s = setup({ env: ENV_CB, users: { u1: gUser(), u2: gUser('t@gmail.com') }, subs: { u1: sub(NOW - 10 * DAY), u2: sub(NOW - 12 * DAY) } });
+  s.db.docs.set('practiceInsights/u1/attempts/a1', { qid: 'q1' });
+  const r = await s.make().runOnce();
+  assert.equal(r.byKind.comeback, 1);
+  assert.equal(s.calls.length, 1);
+  assert.equal(s.calls[0].body.to[0] || s.calls[0].body.to, 't@gmail.com');
+});
+
+test('comeback: waits 48 h after any other nudge (D1 day 1 is not followed by comeback day 2)', async () => {
+  const s = setup({ env: ENV_CB, subs: { u1: sub(NOW - 3 * DAY) } });
+  s.db.docs.set('nudgeEmails/u1', { d1: { status: 'sent' }, lastClaimMs: NOW - 30 * HOUR });
+  assert.equal((await s.make().runOnce()).byKind.comeback, 0);
+  s.db.docs.set('nudgeEmails/u1', { d1: { status: 'sent' }, lastClaimMs: NOW - 49 * HOUR });
+  assert.equal((await s.make().runOnce()).byKind.comeback, 1);
+});

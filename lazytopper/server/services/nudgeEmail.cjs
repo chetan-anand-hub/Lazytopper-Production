@@ -106,6 +106,7 @@ const ALL_KINDS = Object.freeze([...KINDS, ...CONCIERGE_KINDS, COMEBACK_KIND]);
 const COMEBACK_MIN_AGE_MS = 2 * DAY_MS;
 const COMEBACK_MAX_AGE_MS = 30 * DAY_MS;
 const CAP_COMEBACK = 1000;
+const COMEBACK_SPACING_MS = 48 * HOUR_MS;
 /** The two offers, alternated per student by a stable hash of the uid (no randomness). `topic` = the Quick Practice topic key. */
 const COMEBACK_CHAPTERS = Object.freeze([
   Object.freeze({ subject: 'science', topic: 'electricity', label: 'Electricity' }),
@@ -518,6 +519,15 @@ function createNudgeEmailer(deps = {}) {
         .where('gradedAt', '>=', sinceMs)
         .get();
       return snap.docs.map((d) => d.data());
+    } catch {
+      return null;
+    }
+  }
+  /** REACTIVATE-1: has the student tapped any practice card? (writes no session record). null = unreadable. */
+  async function hasPracticeAttempts(uid) {
+    try {
+      const snap = await adminFirestore.collection('practiceInsights').doc(uid).collection('attempts').limit(1).get();
+      return snap.docs.length > 0;
     } catch {
       return null;
     }
@@ -939,7 +949,9 @@ function createNudgeEmailer(deps = {}) {
         skip('opted-out');
         continue;
       }
-      if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
+      // Comeback waits 48 h after ANY other nudge (lastClaimMs is the latest claim of every kind), so D1 on
+      // day 1 is never followed by comeback on day 2.
+      if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < COMEBACK_SPACING_MS) {
         skip('spaced');
         continue;
       }
@@ -957,6 +969,16 @@ function createNudgeEmailer(deps = {}) {
         continue;
       }
       if (records.length > 0 || totalGraded(counts) > 0) {
+        skip('comeback-has-activity');
+        if (config.mode === 'send') await writeCheckMarker(uid, { [kind]: nowMs + COMEBACK_MAX_AGE_MS });
+        continue;
+      }
+      const tapped = await hasPracticeAttempts(uid);
+      if (tapped === null) {
+        skip('records-unavailable');
+        continue;
+      }
+      if (tapped) {
         skip('comeback-has-activity');
         if (config.mode === 'send') await writeCheckMarker(uid, { [kind]: nowMs + COMEBACK_MAX_AGE_MS });
         continue;
