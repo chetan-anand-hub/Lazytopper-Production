@@ -7,7 +7,7 @@ import { getSessionRecordsFromCloud } from "../../services/sessionRecords";
 import { trackPaywallAction, trackTrialEndScreen } from "../../analytics/analytics";
 import { requestFeedbackPrompt } from "../feedback/feedbackPromptHost";
 import PaywallActions from "../pricing/PaywallActions";
-import { boardPassOffer, type BoardPassOffer } from "../pricing/boardPassOffer";
+import { premiumOffer, type PremiumOffer } from "../pricing/boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { safeSigninRedirect } from "../../services/freeCheckClient";
 import { countTrialActivity, type TrialActivityCounts } from "./trialEndBannerModel";
@@ -22,7 +22,7 @@ import {
 /**
  * TrialEndScreen — ASK-FIX-1. "Your free week is over": on the first visit after the 7-day trial
  * has ended, a full-screen sheet on a phone / a centred card on desktop, with what the student
- * really did, the Board Pass as the lead offer, the monthly pass second, Pay + "Send to parent
+ * really did, the month pass as the lead offer (CHECKOUT-1, 31 Oct 2026 - it was the Board Pass), the Board Pass second, Pay + "Send to parent
  * to pay" (PaywallActions) and "Continue with Basic". The why-not-upgrading feedback card follows
  * "Continue with Basic" - it no longer fires on its own first.
  *
@@ -85,7 +85,7 @@ const SCREEN_CSS = `
 `;
 
 export interface TrialEndScreenViewProps {
-  offer: BoardPassOffer;
+  offer: PremiumOffer;
   /** One honest sentence about the free week, or null when the counts could not be read. */
   activityLine: string | null;
   onBasic: () => void;
@@ -139,15 +139,10 @@ export function TrialEndScreenView({ offer, activityLine, onBasic, actions }: Tr
         ) : null}
         <div className="lt-tes__lead" data-testid="trial-end-screen-lead">
           <p className="lt-tes__tag">{offer.title}</p>
-          {offer.priceDisplay ? (
-            <p className="lt-tes__price">
-              {offer.priceDisplay}
-              {offer.fullDisplay ? <span className="lt-tes__full">{offer.fullDisplay}</span> : null}
-            </p>
-          ) : null}
+          <p className="lt-tes__price">{offer.priceDisplay}</p>
           <p className="lt-tes__detail">{offer.detail}</p>
         </div>
-        <p className="lt-tes__second" data-testid="trial-end-screen-monthly">Or {offer.monthlyLine}</p>
+        <p className="lt-tes__second" data-testid="trial-end-screen-second">{offer.second}</p>
         <div className="lt-tes__actions">{actions}</div>
         <p className="lt-tes__keep">
           You keep <strong>Basic free, always</strong> - Exam Trends, the full question bank, Practice and your progress.
@@ -264,7 +259,7 @@ export default function TrialEndScreen() {
     <>
       <DialogBehaviour onBack={close} />
       <TrialEndScreenView
-      offer={boardPassOffer(new Date(), predictCbseExamDate("10"))}
+      offer={premiumOffer(new Date(), predictCbseExamDate("10"))}
       activityLine={shown.line}
       onBasic={close}
       actions={

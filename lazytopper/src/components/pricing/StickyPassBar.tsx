@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { BOARD_PASS_NAME, tillBoardsQuote } from "../../config/pricing";
-import { predictCbseExamDate } from "../../services/cbseExamDate";
+import { PRICE_MONTHLY_FOUNDING_DISPLAY, PRICE_MONTHLY_LIST_DISPLAY } from "../../config/pricing";
 import "./stickyPassBar.css";
 
 /**
  * StickyPassBar - PRICING-LADDER-1 (owner ruling 28 Oct 2026). On a phone, once the Premium card's pass tiles (and so the Pay buttons)
- * have scrolled out of view UPWARD, a slim bar at the foot of the screen keeps the lead offer in reach: "Board Pass ₹{price} · Get it".
+ * have scrolled out of view UPWARD, a slim bar at the foot of the screen keeps the lead offer in reach: "Premium ₹{price} for a month · Get it".
+ * CHECKOUT-1 (owner, 31 Oct 2026): the lead offer is the MONTH pass (it was the Board Pass); "till boards" is the second option on the card.
  * It hides again as soon as the tiles are visible, and it never exists at 768px and wider (CSS).
  *
  * - NOT a payment button: a tap only scrolls smoothly back to the Premium card (`targetId`), where the real Pay buttons are.
  * - MOUNT AFTER HYDRATION: the first render returns null and the bar only exists after an effect has run, so it is never in the prerendered
- *   HTML. The price is the page's own till-boards quote (the same `tillBoardsQuote` + `predictCbseExamDate("10")` the card uses), computed in
- *   that effect from the real clock; no price, no bar.
+ *   HTML. The price is the page's own month price (the same founding/list constants the card uses, picked by `foundingRate`), set in
+ *   that effect; no price, no bar.
  * - `hidden` (a student who has BOUGHT Premium) renders nothing at all.
  */
 export default function StickyPassBar({
@@ -32,8 +32,7 @@ export default function StickyPassBar({
   const [past, setPast] = useState(false);
 
   useEffect(() => {
-    const quote = tillBoardsQuote(new Date(), predictCbseExamDate("10"), foundingRate);
-    setPrice(quote ? quote.priceDisplay : null);
+    setPrice(foundingRate ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY);
   }, [foundingRate]);
 
   useEffect(() => {
@@ -60,10 +59,10 @@ export default function StickyPassBar({
   };
 
   return (
-    <div className="lt-stickybar" data-testid="pricing-sticky-bar" role="region" aria-label={`${BOARD_PASS_NAME} shortcut`}>
+    <div className="lt-stickybar" data-testid="pricing-sticky-bar" role="region" aria-label="Premium shortcut">
       <button type="button" className="lt-stickybar__btn" onClick={goToCard}>
         <span className="lt-stickybar__label">
-          {BOARD_PASS_NAME} <strong className="lt-stickybar__price">{price}</strong>
+          Premium <strong className="lt-stickybar__price">{price}</strong> for a month
         </span>
         {" "}
         <span className="lt-stickybar__go">Get it</span>

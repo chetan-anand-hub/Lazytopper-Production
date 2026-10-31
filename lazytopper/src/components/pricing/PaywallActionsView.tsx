@@ -16,7 +16,8 @@
  *                             /api/pay/parent-link) drawn as a QR PNG and shared as a FILE
  *                             (the phone's share sheet -> WhatsApp). Where the browser cannot
  *                             share files: the QR on screen, "Download QR" and a wa.me link.
- *   "Forward link to parents" the same link as TEXT (share sheet, else wa.me + copy link).
+ *   "Ask a parent to pay"     the same link as TEXT (share sheet, else wa.me + copy link). CHECKOUT-1
+ *                             (31 Oct 2026): this is the old "Forward link to parents", renamed; one tap.
  *
  * ★ THE WORDING IS THE RULING: never the word "Ask", never a half sign (U+00BD), always
  * "parents". The guard test `PaywallActions.test.tsx` scans the rendered text and the
@@ -49,7 +50,7 @@ import {
 import { generateQRDataUrl } from "../../services/referralService";
 import { downloadBlob, openWhatsAppLink, pickShareMethod, shareNative, type ShareNavigator } from "../results/share/shareScore";
 import { whatsAppShareUrl } from "../results/share/shareCardModel";
-import { FORWARD_LABEL, PAY_LABEL, QR_LABEL, type PaywallActionsLiveProps } from "./PaywallActions";
+import { ASK_PARENT_LABEL, PAY_LABEL, QR_LABEL, type PaywallActionsLiveProps } from "./PaywallActions";
 import "./parentShare.css";
 
 export const PARENT_SHARE_PRIVACY_NOTE =
@@ -193,7 +194,7 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, deps }: 
 
   async function handleForward(retry = false) {
     if (busy) return;
-    if (!retry) trackPaywallAction("forward", surface);
+    if (!retry) trackPaywallAction("ask", surface);
     setNotice(null);
     setBusy(true);
     try {
@@ -253,7 +254,7 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, deps }: 
             {QR_LABEL}
           </button>
           <button type="button" className="lt-paywall-parent" data-testid="paywall-forward" onClick={() => void handleForward()} disabled={busy}>
-            {FORWARD_LABEL}
+            {ASK_PARENT_LABEL}
           </button>
           {link.kind === "loading" && (
             <p className="lt-parent-share-note" role="status">

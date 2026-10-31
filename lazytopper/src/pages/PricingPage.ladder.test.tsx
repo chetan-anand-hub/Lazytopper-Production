@@ -145,7 +145,7 @@ describe("StickyPassBar", () => {
     const { container } = render(<StickyPassBar watchTestId="x" targetId="y" foundingRate hidden />);
     expect(container.firstChild).toBeNull();
   });
-  it("stays hidden until the watched element has scrolled out upward, then shows the Board Pass price and hides again", async () => {
+  it("stays hidden until the watched element has scrolled out upward, then shows the month price (CHECKOUT-1) and hides again", async () => {
     const callbacks: Array<(e: unknown[]) => void> = [];
     class FakeIO {
       constructor(cb: (e: unknown[]) => void) { callbacks.push(cb); }
@@ -162,7 +162,7 @@ describe("StickyPassBar", () => {
     act(() => callbacks[0]([{ isIntersecting: false, boundingClientRect: { bottom: -40 } }]));
     const bar = container.querySelector('[data-testid="pricing-sticky-bar"]');
     expect(bar).not.toBeNull();
-    expect(flat(bar)).toMatch(/^Board Pass ₹[\d,]+ Get it$/);
+    expect(flat(bar)).toMatch(/^Premium ₹[\d,]+ for a month Get it$/);
     act(() => callbacks[0]([{ isIntersecting: false, boundingClientRect: { bottom: 900 } }])); // below the fold: still hidden
     expect(container.querySelector('[data-testid="pricing-sticky-bar"]')).toBeNull();
     act(() => callbacks[0]([{ isIntersecting: true, boundingClientRect: { bottom: 300 } }]));

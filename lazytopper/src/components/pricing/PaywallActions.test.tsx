@@ -1,5 +1,5 @@
 /**
- * PAYWALL-PAY-1 — the three paywall actions: "Pay", "Share QR code", "Forward link to parents".
+ * PAYWALL-PAY-1 — the three paywall actions: "Pay", "Share QR code", "Ask a parent to pay".
  *
  * Labels exact; never "Ask" next to parents (rendered AND in every pay surface's source, with
  * a control that proves the scan bites); the switches gate each action; the QR goes out as a
@@ -90,6 +90,12 @@ function flags(payments: boolean, parent: boolean) {
 
 /** The owner's ruling, as one pattern: the word "ask" anywhere before "parent" on a line. */
 const ASK_PARENT = /\bask\b[^\n"'`]*parent/i;
+/**
+ * CHECKOUT-1 (owner, 31 Oct 2026, "agree with Proposed fix"): the ONE sanctioned exception to the 22 Oct ruling is the exact
+ * label "Ask a parent to pay" (the text-share action). Every other "Ask ... parent" is still refused.
+ */
+const SANCTIONED_ASK = "Ask a parent to pay";
+const withoutSanctioned = (text: string) => text.split(SANCTIONED_ASK).join("");
 
 beforeEach(() => {
   track.mockClear();
@@ -100,12 +106,12 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("labels — exactly the owner's three", () => {
-  it("Pay, Share QR code, Forward link to parents — in that order", () => {
+describe("labels — exactly the owner's three (CHECKOUT-1: the third is now Ask a parent to pay)", () => {
+  it("Pay, Share QR code, Ask a parent to pay — in that order", () => {
     view(deps());
     const names = screen.getAllByRole("button").map((b) => b.textContent);
-    expect(names).toEqual(["Pay", "Share QR code", "Forward link to parents"]);
-    expect([PAY_LABEL, QR_LABEL, FORWARD_LABEL]).toEqual(["Pay", "Share QR code", "Forward link to parents"]);
+    expect(names).toEqual(["Pay", "Share QR code", "Ask a parent to pay"]);
+    expect([PAY_LABEL, QR_LABEL, FORWARD_LABEL]).toEqual(["Pay", "Share QR code", "Ask a parent to pay"]);
   });
 });
 
@@ -250,7 +256,7 @@ describe("Share QR code", () => {
   });
 });
 
-describe("Forward link to parents", () => {
+describe("Ask a parent to pay", () => {
   it("share sheet: the message as TEXT (no file)", async () => {
     const share = vi.fn(async () => undefined);
     const d = deps({ nav: { share, canShare: () => true } });
@@ -260,7 +266,7 @@ describe("Forward link to parents", () => {
     expect(arg.files).toBeUndefined();
     expect(arg.text).toContain(LINK);
     expect(arg.text).toContain("I've had 4 answers checked");
-    expect(track.mock.calls).toEqual([["forward", "lock"]]);
+    expect(track.mock.calls).toEqual([["ask", "lock"]]);
   });
 
   it("no share sheet: the message shown, wa.me, and Copy link copies the LINK", async () => {
@@ -326,7 +332,7 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     await tap(QR_LABEL);
     seen.push(document.body.textContent || "");
     for (const text of seen) {
-      expect(text).not.toMatch(ASK_PARENT);
+      expect(withoutSanctioned(text)).not.toMatch(ASK_PARENT);
       expect(text).not.toContain("½");
     }
   });
@@ -362,7 +368,7 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
 
   it.each(PAY_SURFACES)("source: %s", (rel) => {
     const src = code(readFileSync(path.join(SRC, rel), "utf8"));
-    expect(src).not.toMatch(ASK_PARENT);
+    expect(withoutSanctioned(src)).not.toMatch(ASK_PARENT);
     expect(src).not.toContain("½");
   });
 
@@ -377,6 +383,9 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     // ...and is not fooled into flagging "ask the tutor" or a comment.
     expect(code('const t = "upgrade to ask the tutor";')).not.toMatch(ASK_PARENT);
     expect(code('// "Ask your parents to pay" was the old label\nconst x = 1;')).not.toMatch(ASK_PARENT);
+    // CHECKOUT-1: the sanctioned label passes; the old plural wording does not.
+    expect(withoutSanctioned(code('const L = "Ask a parent to pay";'))).not.toMatch(ASK_PARENT);
+    expect(withoutSanctioned(code('const L = "Ask your parents to pay";'))).toMatch(ASK_PARENT);
   });
 
   it("the prerendered pages carry no 'Ask ... parents' either", () => {
@@ -385,5 +394,21 @@ describe("★ never the word 'Ask' next to parents (owner ruling 22 Oct 2026)", 
     const html = files.filter((f) => String(f).endsWith(".html"));
     expect(html.length).toBeGreaterThan(0);
     for (const f of html) expect(readFileSync(path.join(dir, String(f)), "utf8")).not.toMatch(/\bask\b[^<]{0,40}parent/i);
+  });
+
+  it('CHECKOUT-1: one tap on "Ask a parent to pay" mints the existing link once and shares it as text (the ask event)', async () => {
+    const d = deps({ nav: { share: vi.fn(async () => undefined) } as never });
+    view(d);
+    await tap(FORWARD_LABEL);
+    expect(d.mint).toHaveBeenCalledTimes(1);
+    expect((d.nav as unknown as { share: ReturnType<typeof vi.fn> }).share).toHaveBeenCalledTimes(1);
+    expect(track.mock.calls).toEqual([["ask", "lock"]]);
+  });
+
+  it('CHECKOUT-1: without a native share sheet the same tap offers WhatsApp (wa.me) and Copy', async () => {
+    view(deps());
+    await tap(FORWARD_LABEL);
+    expect((screen.getByTestId("parent-share-whatsapp") as HTMLAnchorElement).href).toMatch(/^https:\/\/wa\.me\//);
+    expect(screen.getByRole("button", { name: "Copy link" })).toBeInTheDocument();
   });
 });

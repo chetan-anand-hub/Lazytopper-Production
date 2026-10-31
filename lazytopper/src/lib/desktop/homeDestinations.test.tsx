@@ -10,7 +10,7 @@ import {
   tutorGateNote,
 } from "./homeDestinations";
 import { desktopTopicsBySubject } from "./topics";
-import { boardPassPriceNow } from "../../components/pricing/boardPassOffer";
+import { monthlyInline } from "../../config/pricing";
 
 afterEach(cleanup);
 
@@ -185,9 +185,9 @@ describe("TutorPickerModal — the rendered pop-card", () => {
     renderPicker(true);
     const note = screen.getByTestId("tutor-picker-gate-note");
     expect(note).toHaveTextContent(/7-day trial — then free Basic/i);
-    // TRIAL-ON-SIGNUP-1b (owner addendum): the short fragment, Board Pass price from boardPassPriceNow().
+    // TRIAL-ON-SIGNUP-1b (owner addendum): the short fragment, CHECKOUT-1: the monthly price.
     expect(note.textContent).toBe(
-      `Premium · part of the 7-day trial — then free Basic, or the Board Pass at ${boardPassPriceNow()} till your boards.`,
+      `Premium · part of the 7-day trial — then free Basic, or Premium at ${monthlyInline()}.`,
     );
     expect(note.textContent).not.toMatch(/upgrade anytime/i);
     // Trial framing is frozen — never "then paid".
