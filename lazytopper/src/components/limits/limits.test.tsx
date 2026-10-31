@@ -77,8 +77,8 @@ describe("copy: numbers come from the server", () => {
   });
 });
 
-describe("wall offer: Board Pass leads, monthly second, founding line is date-driven", () => {
-  it("open: Board Pass first, monthly second, founding line with the derived last day", () => {
+describe("wall offer: the month pass leads (CHECKOUT-1), Board Pass second, founding line is date-driven", () => {
+  it("open: the data carries the Board Pass and the monthly price, plus the founding line with the derived last day", () => {
     const o = wallOfferLines(new Date("2026-11-02T06:00:00Z"));
     expect(o.boardPass).toMatch(/^Board Pass ₹[\d,]+ till your boards \(.+\) · save 20%$/);
     expect(o.monthly).toBe("₹599 for a month");
@@ -91,11 +91,11 @@ describe("wall offer: Board Pass leads, monthly second, founding line is date-dr
     expect(closed.monthly).toBe("₹999 for a month");
     expect(closed.boardPass).toMatch(/^Board Pass /);
   });
-  it("rendered wall: Board Pass line before the monthly line", () => {
+  it("rendered wall: the month line before the Board Pass line", () => {
     render(<MemoryRouter><DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} /></MemoryRouter>);
     const lines = Array.from(screen.getByTestId("wall-offer").querySelectorAll("p")).map((p) => p.textContent || "");
-    expect(lines[0]).toMatch(/^Board Pass/);
-    expect(lines[1]).toMatch(/for a month$/);
+    expect(lines[0]).toMatch(/^Premium ₹\d+ for a month$/);
+    expect(lines[1]).toMatch(/^Or Board Pass ₹[\d,]+ till your boards/);
   });
 });
 

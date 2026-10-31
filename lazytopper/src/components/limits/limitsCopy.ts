@@ -85,9 +85,9 @@ export const OFFLINE_WALL: DownloadWallCopy = {
 };
 
 export interface WallOfferLines {
-  /** The Board Pass, which LEADS (PRICING-1): "Board Pass ₹… till your boards (Mar 2027) · save 20%". Null when no quote. */
+  /** The Board Pass, the SECOND option since CHECKOUT-1 (31 Oct 2026; it led under PRICING-1): "Board Pass ₹… till your boards (Mar 2027) · save 20%". Null when no quote. */
   boardPass: string | null;
-  /** The monthly price, second: "₹599 for a month" (founding) or the list price once the offer has closed. */
+  /** The monthly price, which LEADS since CHECKOUT-1: "₹599 for a month" (founding) or the list price once the offer has closed. */
   monthly: string;
   /** "Founding price ₹599 a month until 30 November." Only while the offer is open; null after the close. */
   founding: string | null;

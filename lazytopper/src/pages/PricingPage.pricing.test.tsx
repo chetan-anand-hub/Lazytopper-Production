@@ -800,12 +800,12 @@ describe("PricingPage — PRICING-1 · Premium left and first, Basic right", () 
     }
   });
 
-  it("the Premium card holds the two pass tiles, Board Pass first, and the trial action BELOW them", () => {
+  it("the Premium card holds the two pass tiles, Month pass first (CHECKOUT-1), and the trial action BELOW them", () => {
     const { premium } = renderPricing();
     const passes = premium.querySelector('[data-testid="pricing-passes"]');
     expect(passes).not.toBeNull();
     const names = Array.from(passes!.querySelectorAll(".lt-pricing-pass-name")).map(n => flat(n));
-    expect(names).toEqual(["Board Pass", "Month pass"]);
+    expect(names).toEqual(["Month pass", "Board Pass"]);
     const trial = premium.querySelector(".lt-pricing-trial-slot");
     expect(trial).not.toBeNull();
     expect(passes!.compareDocumentPosition(trial!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -850,9 +850,9 @@ describe("PricingPage — PRICING-LIGHT-1 · L1 contrast (WCAG AA)", () => {
     });
   }
 
-  it("the Pay buttons paint the L1 tokens: Month pass navy #0b1b3a, Till boards deep green #0e7c47", () => {
-    expect(color(".lt-pricing-pay--month", "background")).toBe("#0b1b3a");
-    expect(color(".lt-pricing-pay--boards", "background")).toBe("#0e7c47");
+  it("the Pay buttons paint the L1 tokens: Month pass (the lead, CHECKOUT-1) deep green #0e7c47, Till boards navy #0b1b3a", () => {
+    expect(color(".lt-pricing-pay--month", "background")).toBe("#0e7c47");
+    expect(color(".lt-pricing-pay--boards", "background")).toBe("#0b1b3a");
     expect(color(".lt-pricing-pay--month", "color")).toBe("#ffffff");
     expect(color(".lt-pricing-pay--boards", "color")).toBe("#ffffff");
     // The pre-lane navy token is gone from the page's CSS entirely.

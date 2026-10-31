@@ -3,6 +3,9 @@
  * (status "paid" with a payment id, written only by the server-verified grant). Read-only; grants nothing.
  * Test purchases by admin accounts carry an "ADMIN / TEST" pill and are left out of the totals.
  *
+ * CHECKOUT-1: below the purchases, "Abandoned checkouts" lists orders opened but never paid (older than 30 minutes, last 30
+ * days, newest first). Read-only.
+ *
  * Loads on request, only once the admin API has answered OK (the parent decides). An unreadable list says so.
  */
 import { useState } from "react";
@@ -14,6 +17,20 @@ export const PURCHASES_URL = "/api/admin/purchases";
 export interface PurchaseItem {
   orderId: string;
   paidAtMs: number;
+  uid: string;
+  email: string | null;
+  name: string | null;
+  passType: string;
+  packTarget: string | null;
+  kind: "premium" | "pack" | "topup" | "other";
+  amountInr: number | null;
+  channel: "student" | "parent";
+  isAdminAccount: boolean;
+}
+/** CHECKOUT-1 - an order that was opened ("created") and never paid, older than 30 minutes. */
+export interface AbandonedItem {
+  orderId: string;
+  createdAtMs: number;
   uid: string;
   email: string | null;
   name: string | null;
@@ -38,6 +55,8 @@ export interface PurchasesResponse {
   items: PurchaseItem[];
   totals: { last7: WindowTotals; last30: WindowTotals; excludesAdminAccounts: boolean; complete: boolean };
   truncated?: boolean;
+  /** CHECKOUT-1: absent on an older server, null when that read failed. */
+  abandoned?: { items: AbandonedItem[]; truncated?: boolean } | null;
 }
 
 type State =
@@ -77,6 +96,46 @@ const inr = (n: number | null) => (n === null ? "—" : `₹${n.toLocaleString("
 const line = (w: WindowTotals) =>
   `Premium ${w.premium.count} (${inr(w.premium.inr)}) · Packs ${w.packs.count} (${inr(w.packs.inr)})` +
   (w.topups.count ? ` · Top-ups ${w.topups.count} (${inr(w.topups.inr)})` : "");
+
+export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["abandoned"] }) {
+  return (
+    <div className="pu-abandoned" data-testid="pu-abandoned">
+      <h3 className="gh-title">Abandoned checkouts</h3>
+      <p className="sa-muted gh-note">
+        Orders opened but never paid, older than 30 minutes, last 30 days, newest first. A student may have paid on a later order.
+      </p>
+      {abandoned == null ? (
+        <p className="sa-muted" data-testid="pu-abandoned-unavailable">
+          Abandoned checkouts could not be read.
+        </p>
+      ) : abandoned.items.length === 0 ? (
+        <p className="sa-empty" data-testid="pu-abandoned-empty">
+          No abandoned checkouts.
+        </p>
+      ) : (
+        <ul className="pu-list" data-testid="pu-abandoned-list">
+          {abandoned.items.map((a) => (
+            <li key={a.orderId} className="pu-row" data-testid={`pu-ab-row-${a.orderId}`}>
+              <span className="pu-date">{formatIstDateTime(a.createdAtMs)}</span>
+              <span className="pu-who">{a.email || a.name || a.uid}</span>
+              <span className="pu-product">{productLabel(a)}</span>
+              <span className="pu-amount">{inr(a.amountInr)}</span>
+              <span className="pu-channel sa-muted">{a.channel === "parent" ? "Parent pay link" : "Student checkout"}</span>
+              <span className="pu-flag">
+                {a.isAdminAccount && (
+                  <span className="pu-pill" data-testid={`pu-ab-admin-${a.orderId}`}>
+                    ADMIN / TEST
+                  </span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {abandoned?.truncated && <p className="sa-muted">Showing the latest 50 only.</p>}
+    </div>
+  );
+}
 
 export default function PurchasesCard({ getToken }: { getToken: () => Promise<string | null> }) {
   const [state, setState] = useState<State>({ status: "idle" });
@@ -145,6 +204,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
             </ul>
           )}
           {state.data.truncated && <p className="sa-muted">Showing the latest 100 only.</p>}
+          <AbandonedList abandoned={state.data.abandoned} />
         </>
       )}
     </section>

@@ -16,7 +16,14 @@ import { isParentPayClientEnabled } from "../../services/parentPay";
 
 export const PAY_LABEL = "Pay";
 export const QR_LABEL = "Share QR code";
-export const FORWARD_LABEL = "Forward link to parents";
+/**
+ * CHECKOUT-1 (owner, 31 Oct 2026): the text-share action is now "Ask a parent to pay" - one tap mints the
+ * existing parent-pay link and shares it (native share sheet, else WhatsApp wa.me, else copy). This replaces
+ * "Forward link to parents" and, for this one exact label, the 22 Oct "never the word Ask" ruling.
+ */
+export const ASK_PARENT_LABEL = "Ask a parent to pay";
+/** The earlier name of the same action, kept so older imports keep working. */
+export const FORWARD_LABEL = ASK_PARENT_LABEL;
 
 export interface PaywallActionsLiveProps {
   surface: PaywallSurface;
@@ -24,7 +31,7 @@ export interface PaywallActionsLiveProps {
   onPay?: () => void;
   /** "Pay" as an internal route link (no /app/ prefix — CLAUDE.md §7). */
   payTo?: string;
-  /** "Share QR code" and "Forward link to parents" (also needs a signed-in account). */
+  /** "Share QR code" and "Ask a parent to pay" (also needs a signed-in account). */
   showParent: boolean;
 }
 

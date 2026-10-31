@@ -146,6 +146,9 @@ export interface PassCheckoutViewProps {
 /**
  * Presentational half — every state the buy area can be in.
  *
+ * CHECKOUT-1 (owner, 31 Oct 2026): the MONTH button is first and primary; "till boards" is the second option,
+ * its price unchanged. Payment logic below is untouched; only the order and the styling class placement moved.
+ *
  * PRICING-LIGHT-1 (P23): class names only. PricingPage lays the buy area out as two pass
  * tiles by making `.lt-pricing-checkout` `display: contents` inside its tile grid; these
  * class names place each child. Month button -> Month pass tile; till-boards button ->
@@ -338,19 +341,19 @@ export function PassCheckoutView({
       )}
       <button
         type="button"
-        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
-        disabled={busy !== null || recovery !== null}
-        onClick={() => void handleBuy("till_boards")}
-      >
-        {TILL_BOARDS_BUTTON_LABEL}
-      </button>
-      <button
-        type="button"
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--month"
         disabled={busy !== null || recovery !== null}
         onClick={() => void handleBuy("month")}
       >
         {monthButtonLabel(offerOpen)}
+      </button>
+      <button
+        type="button"
+        className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
+        disabled={busy !== null || recovery !== null}
+        onClick={() => void handleBuy("till_boards")}
+      >
+        {TILL_BOARDS_BUTTON_LABEL}
       </button>
       {creditLine && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom lt-pack-credit-note" data-testid="pass-checkout-pack-credit">
