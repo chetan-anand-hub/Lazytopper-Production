@@ -141,6 +141,30 @@ describe("ParentResultPage — only the allowed fields", () => {
   });
 });
 
+describe("ParentResultPage — PARENT-PAID-1: no buy ask to the parent of a paying student", () => {
+  it("paid: both buy buttons are gone; one honest line and the 'how it works' link remain", async () => {
+    render(<ParentResultPage hash={HASH} view={viewOf(serverJson({ paid: true }))} drawFigure={false} />);
+    await screen.findByTestId("pr-title");
+    expect(screen.queryByTestId("pr-cta-primary")).toBeNull();
+    expect(screen.queryByTestId("pr-cta-secondary")).toBeNull();
+    expect(screen.queryByTestId("pr-trust")).toBeNull();
+    expect(screen.getByTestId("pr-paid").textContent).toBe("Aarav already has LazyTopper Premium.");
+    expect(screen.getByTestId("pr-cta").textContent).toBe("See how LazyTopper works");
+  });
+
+  it("not paid / old snapshot without the field: the buy buttons stay", async () => {
+    for (const json of [serverJson({ paid: false }), serverJson()]) {
+      const { unmount } = render(<ParentResultPage hash={HASH} view={viewOf(json)} drawFigure={false} />);
+      await screen.findByTestId("pr-title");
+      expect(screen.getByTestId("pr-cta-primary")).toBeTruthy();
+      expect(screen.getByTestId("pr-cta-secondary")).toBeTruthy();
+      expect(screen.queryByTestId("pr-paid")).toBeNull();
+      unmount();
+      cleanup();
+    }
+  });
+});
+
 describe("ParentResultPage — Mummy", () => {
   it("a written result: the owner's written line", async () => {
     render(<ParentResultPage hash={HASH} view={viewOf(serverJson({ kind: "written" }))} drawFigure={false} />);

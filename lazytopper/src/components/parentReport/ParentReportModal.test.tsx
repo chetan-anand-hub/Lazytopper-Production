@@ -15,6 +15,9 @@ const { trackParentReportShown, trackParentReportShare, authUser } = vi.hoisted(
   authUser: { current: null as null | { uid: string; displayName: string | null; isLocalSession?: boolean } },
 }));
 vi.mock("../../analytics/analytics", () => ({ trackParentReportShown, trackParentReportShare, trackParentReportShared: vi.fn() }));
+// PARENT-PAID-1: the modal reads the plan only to pick the PNG footer; tests choose the tier.
+const { subTier } = vi.hoisted(() => ({ subTier: { current: "free" } }));
+vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => ({ status: { tier: subTier.current } }) }));
 vi.mock("../../context/AuthContext", () => ({
   useAuth: () => {
     if (!authUser.current) throw new Error("useAuth must be used inside AuthProvider");
@@ -118,6 +121,10 @@ describe("ParentReportCard — honest states, no placeholder", () => {
       expect(html).toContain(s);
     }
     expect(CARD_FOOTER).toBe("Month pass: less than one tuition session · lazytopper.com/pricing");
+    // PARENT-PAID-1: a paying student's card has no month-pass line.
+    const paidHtml = renderToStaticMarkup(<ParentReportCard report={PATTERN} paid />);
+    expect(paidHtml).toContain("lazytopper.com · Made by an IITian (IIT Kanpur)");
+    expect(paidHtml).not.toContain("Month pass");
     expect(html).not.toMatch(PLACEHOLDER);
   });
 
@@ -135,12 +142,27 @@ describe("ParentReportCard — honest states, no placeholder", () => {
 });
 
 function renderModal(over: Partial<Parameters<typeof ParentReportModal>[0]> = {}) {
-  const renderPng = vi.fn(async (report: ParentReport) => new Blob([new Uint8Array([137, 80, 78, 71]), report.state], { type: "image/png" }));
+  const renderPng = vi.fn(async (report: ParentReport, _paid?: boolean) => new Blob([new Uint8Array([137, 80, 78, 71]), report.state], { type: "image/png" }));
   const read = vi.fn(async () => thinModel(1));
   const onClose = vi.fn();
   render(<ParentReportModal uid="u1" displayName={null} placement="me" onClose={onClose} read={read} render={renderPng} {...over} />);
   return { renderPng, read, onClose };
 }
+
+describe("ParentReportModal — PARENT-PAID-1 footer choice", () => {
+  it("draws the PNG with paid=true only for a paid-premium student (a trial is not paid)", async () => {
+    subTier.current = "premium";
+    const a = renderModal();
+    await waitFor(() => expect(a.renderPng).toHaveBeenCalled());
+    expect(a.renderPng.mock.calls[0][1]).toBe(true);
+    cleanup();
+    subTier.current = "trial";
+    const b = renderModal();
+    await waitFor(() => expect(b.renderPng).toHaveBeenCalled());
+    expect(b.renderPng.mock.calls[0][1]).toBe(false);
+    subTier.current = "free";
+  });
+});
 
 describe("ParentReportModal — analytics, share payload, name opt-in", () => {
   it("shows the PNG preview and fires parent_report_shown once with placement + state only", async () => {

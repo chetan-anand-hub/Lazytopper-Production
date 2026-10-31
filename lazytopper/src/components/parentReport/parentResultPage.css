@@ -77,6 +77,7 @@
 .lt-pr__cta--primary:hover { background: #35cf8d; }
 .lt-pr__cta--secondary { background: #fff; color: #0B1430; border: 2px solid #D7DEEE; padding: 12px; font-size: 14.5px; font-weight: 700; }
 .lt-pr__link { display: block; text-align: center; font-size: 13.5px; font-weight: 600; color: #145C3D; padding: 4px; }
+.lt-pr__paid { font-size: 15px; font-weight: 600; color: #0B1F3A; margin: 0; text-align: center; }
 .lt-pr__trust { font-size: 12px; color: #47526B; margin: 0; text-align: center; }
 .lt-pr__state { font-size: 15px; line-height: 1.5; margin: 12px 0 16px; }
 .lt-pr__foot { font-size: 12px; color: #47526B; margin: 0; text-align: center; }
