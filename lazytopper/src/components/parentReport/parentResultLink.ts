@@ -168,6 +168,8 @@ export interface ParentResultView {
   fourType: MistakeTypeCounts;
   slips: ParentResultSlip[];
   kind: ParentResultKind;
+  /** PARENT-PAID-1: the student is on a PAID pass (server-derived). Absent/false → buy buttons. */
+  paid: boolean;
 }
 
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : null);
@@ -219,6 +221,7 @@ export function readParentResultView(json: Record<string, unknown>): ParentResul
     fourType,
     slips,
     kind: json.kind === "objective" ? "objective" : "written",
+    paid: json.paid === true,
   };
 }
 

@@ -236,7 +236,7 @@ test('S · ★★ the snapshot holds ONLY the page fields (+ uid for erasure) �
   const { json } = await mint(srv);
   const doc = srv.db.read(`parentReports/${reportIdOf(json.token)}`);
   assert.deepEqual(Object.keys(doc).sort(), [
-    'awarded', 'chapters', 'createdAt', 'expiresAt', 'firstName', 'fourType', 'gradedAt', 'kind', 'marksLost', 'slips', 'subject', 'total', 'uid', 'v',
+    'awarded', 'chapters', 'createdAt', 'expiresAt', 'firstName', 'fourType', 'gradedAt', 'kind', 'marksLost', 'paid', 'slips', 'subject', 'total', 'uid', 'v',
   ]);
   assert.equal(doc.uid, 'child1');
   assert.equal(doc.firstName, 'Aarav', 'first name only — never the surname');
@@ -275,6 +275,45 @@ test('S · tap-only result → kind "objective"; no per-question payload → no 
   assert.deepEqual(doc.fourType, { conceptual: 1, calculation: 1, silly: 0, presentation: 1 });
 });
 
+/* ══ PAID — PARENT-PAID-1: the snapshot says whether the student is on a PAID pass ═══════ */
+
+const SUB_NOW = NOW;
+const paidCases = [
+  ['premium student → paid:true', { tier: 'premium', plan: 'premium_monthly' }, true],
+  ['premium pass still running → paid:true', { tier: 'premium', plan: 'premium_monthly', passEnd: { toDate: () => new Date(SUB_NOW + 86400000) } }, true],
+  ['premium pass ended → paid:false', { tier: 'premium', plan: 'premium_monthly', passEnd: { toDate: () => new Date(SUB_NOW - 86400000) } }, false],
+  ['trial student → paid:false', { tier: 'trial', plan: 'trial_7day', trialStartDate: new Date(SUB_NOW - 86400000) }, false],
+  ['free student → paid:false', { tier: 'free' }, false],
+];
+for (const [name, sub, expected] of paidCases) {
+  test(`PAID · ${name}`, async (t) => {
+    const db = memoryFirestore({ ...seeded(), 'subscriptions/child1': sub });
+    const srv = await startRoutes({ db });
+    t.after(srv.close);
+    const { json } = await mint(srv);
+    assert.equal(db.read(`parentReports/${reportIdOf(json.token)}`).paid, expected);
+    assert.equal((await view(srv, json.token)).json.paid, expected);
+  });
+}
+
+test('PAID · no subscription record → paid:false; a client-sent `paid` is ignored', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { json } = await mint(srv, 'child1', { resultId: RESULT_ID, paid: true });
+  assert.equal(srv.db.read(`parentReports/${reportIdOf(json.token)}`).paid, false);
+});
+
+test('PAID · an old snapshot without the field is viewed as not paid (the buy buttons stay)', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { json } = await mint(srv);
+  const key = `parentReports/${reportIdOf(json.token)}`;
+  const doc = srv.db.read(key);
+  delete doc.paid;
+  srv.db.docs.set(key, doc);
+  assert.equal((await view(srv, json.token)).json.paid, false);
+});
+
 /* ══ P — what the parent sees ═════════════════════════════════════════════════════ */
 
 test('P · ★★ view returns the page fields only — never the uid, an email or a phone', async (t) => {
@@ -284,7 +323,7 @@ test('P · ★★ view returns the page fields only — never the uid, an email 
   const r = await view(srv, json.token);
   assert.equal(r.status, 200, r.text);
   assert.deepEqual(Object.keys(r.json).sort(), [
-    'awarded', 'chapters', 'expiresAt', 'firstName', 'fourType', 'gradedAt', 'kind', 'marksLost', 'ok', 'slips', 'subject', 'total',
+    'awarded', 'chapters', 'expiresAt', 'firstName', 'fourType', 'gradedAt', 'kind', 'marksLost', 'ok', 'paid', 'slips', 'subject', 'total',
   ]);
   assert.ok(!r.text.includes('child1'));
   assert.ok(!r.text.includes('@'));

@@ -16,6 +16,9 @@ const { trackParentReportShown, trackParentReportShare, trackParentReportShared 
   trackParentReportShared: vi.fn(),
 }));
 vi.mock("../../analytics/analytics", () => ({ trackParentReportShown, trackParentReportShare, trackParentReportShared }));
+// PARENT-PAID-1: the modal reads the plan only to pick the PNG footer; tests choose the tier.
+const { subTier } = vi.hoisted(() => ({ subTier: { current: "free" } }));
+vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => ({ status: { tier: subTier.current } }) }));
 // The student's ID token for the real mint (mintParentResultLink imports this lazily).
 vi.mock("../../services/firebaseClient", () => ({
   authClient: { currentUser: { getIdToken: async () => "id-token" } },

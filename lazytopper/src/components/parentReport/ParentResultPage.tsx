@@ -41,6 +41,7 @@ import {
   PARENT_RESULT_CTA_LABEL,
   PARENT_TRUST_LINE,
   mummyLineFor,
+  parentPaidLine,
   parentPrimaryCtaLabel,
   parentSecondaryCtaLabel,
   resultDateLabel,
@@ -408,18 +409,28 @@ export default function ParentResultPage({ hash, view = viewParentResult, drawFi
           <SlipsBlock r={result} />
           <MummyMoment kind={result.kind} drawFigure={drawFigure} />
           <div className="lt-pr__ctas">
-            <a className="lt-pr__cta lt-pr__cta--primary" href={PARENT_PRICING_HREF} data-testid="pr-cta-primary">
-              {parentPrimaryCtaLabel(result.firstName)}
-            </a>
-            <a className="lt-pr__cta lt-pr__cta--secondary" href={PARENT_PACKS_HREF} data-testid="pr-cta-secondary">
-              {parentSecondaryCtaLabel()}
-            </a>
+            {result.paid ? (
+              <p className="lt-pr__paid" data-testid="pr-paid">
+                {parentPaidLine(result.firstName)}
+              </p>
+            ) : (
+              <>
+                <a className="lt-pr__cta lt-pr__cta--primary" href={PARENT_PRICING_HREF} data-testid="pr-cta-primary">
+                  {parentPrimaryCtaLabel(result.firstName)}
+                </a>
+                <a className="lt-pr__cta lt-pr__cta--secondary" href={PARENT_PACKS_HREF} data-testid="pr-cta-secondary">
+                  {parentSecondaryCtaLabel()}
+                </a>
+              </>
+            )}
             <a className="lt-pr__link" href={PARENT_RESULT_CTA_HREF} data-testid="pr-cta">
               {PARENT_RESULT_CTA_LABEL}
             </a>
-            <p className="lt-pr__trust" data-testid="pr-trust">
-              {PARENT_TRUST_LINE}
-            </p>
+            {!result.paid && (
+              <p className="lt-pr__trust" data-testid="pr-trust">
+                {PARENT_TRUST_LINE}
+              </p>
+            )}
           </div>
           <p className="lt-pr__foot">Shared from LazyTopper by your child. This page shows this one result only.</p>
         </div>

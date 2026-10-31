@@ -12,6 +12,8 @@ import {
   type MintedResultLink,
   type ParentResultKind,
 } from "./parentResultLink";
+import { useSubscription } from "../../hooks/useSubscription";
+import { isPaidPremium } from "../../services/subscriptionService";
 import { readStudyModel, type StudyReadModel } from "../../services/progressReadModel";
 import {
   downloadBlob,
@@ -58,7 +60,7 @@ export interface ParentReportModalProps {
   /** Test seam: the read (default: the shared read model). */
   read?: (uid: string) => Promise<StudyReadModel>;
   /** Test seam: the PNG renderer. */
-  render?: (report: ParentReport) => Promise<Blob>;
+  render?: (report: ParentReport, paid?: boolean) => Promise<Blob>;
   /** PARENT-REPORT-1 — the id of the ONE result this sheet was opened from (a scorecard). Absent
    *  (Me, Home) → no result link; the sheet is exactly as before. */
   resultRef?: string | null;
@@ -100,6 +102,8 @@ export default function ParentReportModal({
   resultRef = null,
   mintLink = mintParentResultLink,
 }: ParentReportModalProps) {
+  // PARENT-PAID-1: display only — picks the PNG's footer text; the server decides nothing from it.
+  const paid = isPaidPremium(useSubscription().status);
   const [link, setLink] = useState<LinkState>(resultRef ? { kind: "pending" } : { kind: "none" });
   // Set when the student shared while the link was still being made: that share went WITHOUT the
   // link, and a link that arrives later is dropped (never added to a later share of this sheet).
@@ -175,7 +179,7 @@ export default function ParentReportModal({
     if (!report) return;
     let alive = true;
     let url: string | null = null;
-    render(report)
+    render(report, paid)
       .then((blob) => {
         if (!alive) return;
         url = typeof URL !== "undefined" && typeof URL.createObjectURL === "function" ? URL.createObjectURL(blob) : null;
@@ -188,7 +192,7 @@ export default function ParentReportModal({
       alive = false;
       if (url && typeof URL.revokeObjectURL === "function") URL.revokeObjectURL(url);
     };
-  }, [report, render]);
+  }, [report, render, paid]);
 
   useEffect(() => {
     closeRef.current?.focus();

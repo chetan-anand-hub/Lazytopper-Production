@@ -68,3 +68,8 @@ export const PARENT_TRUST_LINE = "Secure payment via Razorpay \u00b7 Made by an 
 
 /** The page is read by the PARENT, so the shared student-facing "Where your marks went" is worded for them. */
 export const PARENT_MARKS_HEADING = "Where the marks went";
+
+/** PARENT-PAID-1: the parent of a PAID student is told, honestly, instead of being asked to buy. */
+export function parentPaidLine(firstName: string): string {
+  return `${firstName || "Your child"} already has LazyTopper Premium.`;
+}

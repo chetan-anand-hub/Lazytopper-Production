@@ -36,6 +36,8 @@ export const ACTIVITY_HI = "अंक क्यों कटे, यह बत�
 export const NOT_READY_EN = "The mistake pattern isn’t ready yet — the counts above are this week’s real totals.";
 export const NOT_READY_HI = "गलतियों का पैटर्न अभी तैयार नहीं है — ऊपर की संख्याएँ इस हफ़्ते की असली हैं।";
 export const CARD_FOOTER = `Month pass: ${TUITION_ANCHOR} · ${PARENT_REPORT_LINK_LABEL}`;
+/** PARENT-PAID-1: a paying student's card carries no month-pass line (display only). */
+export const CARD_FOOTER_PAID = "lazytopper.com · Made by an IITian (IIT Kanpur)";
 
 function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
@@ -56,7 +58,7 @@ function MarksBar({ rows, total }: { rows: ParentReport["typeRows"]; total: numb
   );
 }
 
-export default function ParentReportCard({ report }: { report: ParentReport }) {
+export default function ParentReportCard({ report, paid = false }: { report: ParentReport; paid?: boolean }) {
   const thin = report.state === "empty";
   const title = weekTitle(report.firstName, thin);
   const fixFirst = report.chapters[0] ?? null;
@@ -193,7 +195,7 @@ export default function ParentReportCard({ report }: { report: ParentReport }) {
         </div>
       )}
 
-      <div className="lt-prc__foot">{CARD_FOOTER}</div>
+      <div className="lt-prc__foot">{paid ? CARD_FOOTER_PAID : CARD_FOOTER}</div>
     </div>
   );
 }

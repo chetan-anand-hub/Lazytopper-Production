@@ -11,7 +11,7 @@ import type { ParentReport } from "./parentReportModel";
  */
 export const PARENT_REPORT_FILENAME = "lazytopper-weekly-report.png";
 
-export async function renderParentReportPng(report: ParentReport): Promise<Blob> {
+export async function renderParentReportPng(report: ParentReport, paid = false): Promise<Blob> {
   const { toBlob } = await import("html-to-image");
   const host = document.createElement("div");
   host.className = "lt-prc-stage";
@@ -19,7 +19,7 @@ export async function renderParentReportPng(report: ParentReport): Promise<Blob>
   document.body.appendChild(host);
   const root = createRoot(host);
   try {
-    flushSync(() => root.render(<ParentReportCard report={report} />));
+    flushSync(() => root.render(<ParentReportCard report={report} paid={paid} />));
     const fonts = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
     if (fonts?.ready) await fonts.ready;
     const node = host.querySelector<HTMLElement>(".lt-prc");

@@ -42,6 +42,7 @@
 
 const crypto = require('node:crypto');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
+const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 
 const PARENT_REPORT_LINK_PATH = '/api/parent-report/link';
 const PARENT_REPORT_VIEW_PATH = '/api/parent-report/view';
@@ -50,6 +51,8 @@ const PARENT_REPORT_VIEW_PATH = '/api/parent-report/view';
 const PARENT_REPORTS_COLLECTION = 'parentReports';
 /** The student's own records (already mapped). Read only, through the Admin SDK. */
 const SESSION_RECORDS_COLLECTION = 'sessionRecords';
+/** The student's plan record (already mapped). Read only, through the Admin SDK, to derive `paid`. */
+const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 // Subcollections, held as properties so the drift scanner (which reads every
 // `.collection(NAME)` as a TOP-LEVEL collection) does not see phantom `records` /
 // `perQuestion` collections — the studentActivity.cjs ACTIVITY_SEGMENTS pattern.
@@ -316,6 +319,8 @@ function viewOf(doc) {
       type: STORED_TYPES.includes(s.type) ? s.type : null,
     })),
     kind: doc.kind === 'objective' ? 'objective' : 'written',
+    // PARENT-PAID-1: true only for a paid pass; an old snapshot without the field is not paid.
+    paid: doc.paid === true,
     expiresAt: new Date(toMillis(doc.expiresAt)).toISOString(),
   };
 }
@@ -402,6 +407,22 @@ function createParentReportRoutes(deps = {}) {
     return { record, payload };
   }
 
+  /**
+   * PARENT-PAID-1 — is this student on a PAID pass right now? Derived SERVER-SIDE from the
+   * student's own subscription record with the entitlement gate's deriveEffectiveTier (the same
+   * helper the nudge emails use). A trial is NOT paid. Any read failure → false (the page then
+   * shows the buy buttons, as before).
+   */
+  async function isPaidStudent(uid) {
+    try {
+      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+      const data = snap && snap.exists ? snap.data() || null : null;
+      return !!data && deriveEffectiveTier(data, now()).tier === 'premium';
+    } catch {
+      return false;
+    }
+  }
+
   /* ── POST /api/parent-report/link — the signed-in student mints a link to ONE result ── */
   async function handleMintLink(req, res) {
     const uid = await verifiedCaller.resolveVerifiedUid(req);
@@ -438,6 +459,8 @@ function createParentReportRoutes(deps = {}) {
       firstName = '';
     }
 
+    const paid = await isPaidStudent(uid);
+
     const token = tokenFactory();
     if (!TOKEN_PATTERN.test(token)) return sendJson(res, 500, { ok: false, error: 'Could not create a link.' });
     const createdMs = now();
@@ -447,6 +470,7 @@ function createParentReportRoutes(deps = {}) {
         uid,
         firstName,
         ...snapshot,
+        paid,
         createdAt: new Date(createdMs),
         expiresAt: new Date(expiresMs),
       });
