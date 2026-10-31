@@ -872,3 +872,105 @@ test('SELL-1: d1 and d3 end with one packs line, UTM only, no student data in th
   }
   assert.ok(!buildNudgeEmail('founding', base).text.includes('packs'));
 });
+
+// ── REACTIVATE-1: the comeback email ──────────────────────────────────────────────────
+const { comebackChapterFor, comebackPracticeUrl } = require('./nudgeEmail.cjs');
+const ENV_CB = { ...ENV_SEND, NUDGE_COMEBACK_ENABLED: '1' };
+const cbSent = (s) => s.calls.filter((c) => c.body.tags ? JSON.stringify(c.body).includes('nudge_comeback') : /5 board-style/.test(c.body.subject));
+
+test('comeback: own flag, default off even when nudges are on', async () => {
+  assert.equal(resolveNudgeConfig(ENV_SEND).comebackEnabled, false);
+  assert.equal(resolveNudgeConfig(ENV_CB).comebackEnabled, true);
+  const s = setup({ env: ENV_SEND, subs: { u1: sub(NOW - 5 * DAY) } });
+  const r = await s.make().runOnce();
+  assert.equal(r.byKind.comeback, 0);
+  assert.equal(s.calls.length, 0);
+});
+
+test('comeback: eligibility - 2..30 days, zero activity, once ever, opted out, premium/admin/internal excluded', async () => {
+  const users = { in2: gUser('a@gmail.com'), in30: gUser('b@gmail.com'), young: gUser('c@gmail.com'), old: gUser('d@gmail.com'), busy: gUser('e@gmail.com'), out: gUser('f@gmail.com'), prem: gUser('g@gmail.com'), adm: gUser('h@gmail.com'), int: gUser('i@lazytopper.com'), done: gUser('j@gmail.com') };
+  const subs = {
+    in2: sub(NOW - 2 * DAY - MIN), in30: sub(NOW - 30 * DAY + HOUR), young: sub(NOW - 47 * HOUR), old: sub(NOW - 31 * DAY),
+    busy: sub(NOW - 6 * DAY), out: sub(NOW - 6 * DAY), prem: sub(NOW - 6 * DAY, { tier: 'premium', premiumSince: ts(NOW - DAY) }),
+    adm: sub(NOW - 6 * DAY), int: sub(NOW - 6 * DAY), done: sub(NOW - 6 * DAY),
+  };
+  const s = setup({ env: { ...ENV_CB, ADMIN_FIREBASE_UIDS: 'adm' }, users, subs });
+  rec(s.db, 'busy', 'r1', NOW - 5 * DAY, 'quick-practice');
+  s.db.docs.set('trialEmails/out', { optedOut: true });
+  s.db.docs.set('nudgeEmails/done', { comeback: { status: 'sent' } });
+  const r = await s.make().runOnce();
+  assert.equal(r.byKind.comeback, 2);
+  assert.equal(cbSent(s).length, 2);
+  assert.deepEqual(s.calls.map((c) => c.body.to[0] || c.body.to).sort(), ['a@gmail.com', 'b@gmail.com']);
+  // once ever: a second run sends nothing more
+  const before = s.calls.length;
+  await s.make().runOnce();
+  assert.equal(s.calls.length, before);
+});
+
+test('comeback: any session record (even not graded) means activity, no email', async () => {
+  const s = setup({ env: ENV_CB, subs: { u1: sub(NOW - 5 * DAY) } });
+  s.db.docs.set('sessionRecords/u1/records/p', { id: 'p', surface: 'quick-practice', gradedAt: NOW - 4 * DAY, status: 'partial' });
+  const r = await s.make().runOnce();
+  assert.equal(r.byKind.comeback, 0);
+  assert.equal(s.calls.length, 0);
+});
+
+test('comeback: dry run logs masked and writes nothing', async () => {
+  const s = setup({ env: { NUDGE_EMAIL_ENABLED: '1', NUDGE_COMEBACK_ENABLED: '1' }, subs: { u1: sub(NOW - 5 * DAY) } });
+  const r = await s.make().runOnce();
+  assert.equal(r.byKind.comeback, 1);
+  assert.equal(s.db.writes(), 0);
+  assert.equal(s.calls.length, 0);
+  assert.ok(s.logs.some((l) => l.includes('would email kind=comeback') && l.includes('s***@gmail.com')));
+});
+
+test('comeback: served last and newest first under the shared daily cap', async () => {
+  const users = { d1u: gUser('d1@gmail.com'), n1: gUser('n1@gmail.com'), n2: gUser('n2@gmail.com'), n3: gUser('n3@gmail.com') };
+  const subs = { d1u: sub(NOW - 25 * HOUR), n1: sub(NOW - 20 * DAY), n2: sub(NOW - 3 * DAY), n3: sub(NOW - 10 * DAY) };
+  const s = setup({ env: { ...ENV_CB, NUDGE_EMAIL_DAILY_CAP: '2' }, users, subs });
+  const r = await s.make().runOnce();
+  assert.equal(r.sent, 2);
+  assert.equal(r.byKind.d1, 1);
+  assert.equal(r.byKind.comeback, 1);
+  assert.equal(s.calls[0].body.subject, 'Check one answer and see where the marks go');
+  assert.equal(s.calls[1].body.to[0] || s.calls[1].body.to, 'n2@gmail.com'); // the newest sign-up
+  assert.equal(s.db.docs.get(`${NUDGE_EMAIL_DAILY_COLLECTION}/2026-10-27`).count, 2);
+});
+
+test('comeback: one button to a ready Quick Practice set; no price, name, tracking, urgency or invented numbers', () => {
+  const URG = /pay now|buy now|hurry|last chance|only|act now|!|expir|deadline|limited|ends soon|don't miss|miss out|running out|urgent|seats|countdown/i;
+  for (const uid of ['a', 'b', 'c', 'd', 'e']) {
+    const ch = comebackChapterFor(uid);
+    const m = buildNudgeEmail('comeback', { appUrl: 'https://lazytopper.com', unsubscribeUrl: 'https://lazytopper.com/u?t=x', chapter: ch });
+    const url = comebackPracticeUrl('https://lazytopper.com', ch);
+    assert.match(url, /^https:\/\/lazytopper\.com\/practice\/10\/(science\?topic=electricity|maths\?topic=trigonometry)&count=5&utm_source=email/);
+    assert.ok(m.text.includes(url));
+    assert.equal(m.html.match(/<a /g).length, 2); // the one button + unsubscribe
+    for (const part of [m.subject, m.text, m.html.replace(/<[^>]+>/g, ' ')]) {
+      assert.doesNotMatch(part, URG);
+      assert.doesNotMatch(part, /₹|price|premium|plan|Check & Improve/i);
+    }
+    assert.match(m.text, /Answer Checker/);
+    assert.doesNotMatch(m.html, /<img|pixel|track/i);
+    assert.deepEqual(m.text.match(/\d+/g).filter((n) => !['5', '2', '10'].includes(n) && !/^\d{4,}$/.test(n)), []);
+  }
+  assert.notEqual(comebackChapterFor('a').topic === comebackChapterFor('b').topic && comebackChapterFor('a').topic === comebackChapterFor('c').topic && comebackChapterFor('a').topic === comebackChapterFor('d').topic && comebackChapterFor('a').topic === comebackChapterFor('e').topic, true);
+});
+
+test('comeback: a tapped practice card (practiceInsights attempts, no session record) is activity', async () => {
+  const s = setup({ env: ENV_CB, users: { u1: gUser(), u2: gUser('t@gmail.com') }, subs: { u1: sub(NOW - 10 * DAY), u2: sub(NOW - 12 * DAY) } });
+  s.db.docs.set('practiceInsights/u1/attempts/a1', { qid: 'q1' });
+  const r = await s.make().runOnce();
+  assert.equal(r.byKind.comeback, 1);
+  assert.equal(s.calls.length, 1);
+  assert.equal(s.calls[0].body.to[0] || s.calls[0].body.to, 't@gmail.com');
+});
+
+test('comeback: waits 48 h after any other nudge (D1 day 1 is not followed by comeback day 2)', async () => {
+  const s = setup({ env: ENV_CB, subs: { u1: sub(NOW - 3 * DAY) } });
+  s.db.docs.set('nudgeEmails/u1', { d1: { status: 'sent' }, lastClaimMs: NOW - 30 * HOUR });
+  assert.equal((await s.make().runOnce()).byKind.comeback, 0);
+  s.db.docs.set('nudgeEmails/u1', { d1: { status: 'sent' }, lastClaimMs: NOW - 49 * HOUR });
+  assert.equal((await s.make().runOnce()).byKind.comeback, 1);
+});
