@@ -934,6 +934,17 @@ function readCiPaperJobContext(raw: unknown): CiPaperJobContext | null {
   };
 }
 
+/** HOME-LADDER-2: is this text one of the ladder's own 2-mark starter questions (never a student's own)? */
+const LADDER_QUESTION_KEY = "lazytopper.ladderQuestion";
+function isLadderSampleQuestion(text: string): boolean {
+  try {
+    const t = text.trim();
+    return t !== "" && window.sessionStorage.getItem(LADDER_QUESTION_KEY) === t;
+  } catch {
+    return false;
+  }
+}
+
 /** HOME-LADDER-1b: how long a Home-requested ladder waits for auth / eligibility to settle before giving up. */
 const LADDER_ARRIVAL_WAIT_MS = 5000;
 
@@ -1213,6 +1224,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   // anywhere. Multi-question uploads are not preserved (they clear the draft instead).
   const isMultiDetected = (detectedQuestions?.length ?? 0) > 1;
   const pendingDraftSave = useRef<(() => void) | null>(null);
+  // HOME-LADDER-2 — what the visitor already SUBMITTED. A graded question is finished, not "in progress":
+  // returning to the input view (the ladder's photo CTA, "check another") leaves it on screen, and it must
+  // not be autosaved as a draft and then restored after sign-up (it blocked Byte's ladder for a new account).
+  const gradedInputRef = useRef<{ question: string; textAnswer: string } | null>(null);
   useEffect(() => {
     // Every early return drops any queued flush: a stale snapshot must never be written back.
     if (user || funnelOff || status !== "idle") {
@@ -1220,6 +1235,18 @@ const DesktopCheckImprovePageInner: React.FC<{
       return;
     }
     if (isMultiDetected) {
+      pendingDraftSave.current = null;
+      clearCiDraft();
+      return;
+    }
+    const graded = gradedInputRef.current;
+    if (
+      graded &&
+      question === graded.question &&
+      !imageBase64 &&
+      (textAnswer.trim() === "" || textAnswer === graded.textAnswer)
+    ) {
+      // Already graded, nothing new typed against it: not a draft.
       pendingDraftSave.current = null;
       clearCiDraft();
       return;
@@ -1254,8 +1281,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   useEffect(() => {
     if (status !== "idle") {
       pendingDraftSave.current = null;
+      gradedInputRef.current = { question, textAnswer };
       clearCiDraft();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- snapshot taken when the status leaves idle
   }, [status]);
   // A photo left by a tab that died mid-draft is swept on the next load once it has expired.
   useEffect(() => {
@@ -1272,6 +1301,13 @@ const DesktopCheckImprovePageInner: React.FC<{
       .catch(() => null)
       .then((d) => {
       if (cancelled) return;
+      // HOME-LADDER-2 — Byte asked for the ladder and the draft is only the ladder's own starter question left
+      // over from a signed-out ladder: drop it so it can never block the ladder (a student's OWN draft stays).
+      if (d && ladderPending && isLadderSampleQuestion(d.fields.question)) {
+        clearCiDraft();
+        setCiDraftCheck("none");
+        return;
+      }
       setCiDraftCheck(d ? "restored" : "none");
       if (!d) return;
       pendingDraftSave.current = null;
@@ -1753,6 +1789,11 @@ const DesktopCheckImprovePageInner: React.FC<{
     trackOneMinute("one_min_type_graded", sec === null ? undefined : { seconds_since_ladder_start: sec });
   }, [ladderTyped, status]);
   function ciDemoLadderType(pick: CiDemoLadderPick) {
+    try {
+      window.sessionStorage.setItem(LADDER_QUESTION_KEY, pick.text.trim()); // HOME-LADDER-2: this tab's ladder question
+    } catch {
+      /* private mode: the graded-input guard still covers the common path */
+    }
     const cd = seedConfirmedFromBank({ ...pick.seed });
     flushSync(() => {
       setQuestionTab("type");
