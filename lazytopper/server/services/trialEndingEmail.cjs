@@ -273,11 +273,8 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs 
   // Board Pass price at the SEND time, from the server pricing mirror (never a literal).
   const quote = passPricing.tillBoardsQuote(nowMs, passPricing.predictBoardDateIso(nowMs));
   const ctaLabel = quote ? `Get the Board Pass - ₹${quote.priceInr.toLocaleString('en-IN')} till your boards` : 'Get the Board Pass';
-  let foundingLine = null;
-  if (passPricing.foundingOfferOpen(nowMs)) {
-    const last = new Date(passPricing.FOUNDING_OFFER_CLOSES_AT_MS - 1 + passPricing.IST_OFFSET_MS);
-    foundingLine = `Founding price ends ${last.getUTCDate()} ${FULL_MONTHS[last.getUTCMonth()]}.`;
-  }
+  // PRICE-FIXED-1: no founding/month line - the Board Pass is a fixed price and the month pass is not advertised.
+  const foundingLine = null;
   const packsLabel = 'Prefer printed practice? PDF packs from ₹49';
   const checkUrl = `${appUrl}/check-improve`;
   const lines = [

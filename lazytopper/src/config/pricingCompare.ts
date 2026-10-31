@@ -25,12 +25,7 @@
  *
  * Keep this module import-light: the pricing page is a public, prerendered route.
  */
-import {
-  foundingOfferOpen,
-  PRICE_FREE_DISPLAY,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
-} from "./pricing";
+import { boardPassPriceDisplay, PRICE_FREE_DISPLAY } from "./pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
 import {
   BASIC_RESULT_LINE,
@@ -196,9 +191,9 @@ export const COMPARE_TITLE = "Compare plans";
 export const COMPARE_FEATURE_HEADER = "What you get";
 export const COMPARE_BASIC_HEADER = `Basic · ${PRICE_FREE_DISPLAY}`;
 
-/** "Premium · from ₹599" — follows the founding switch, so it is never a stale figure. */
-export function comparePremiumHeader(offerOpen: boolean = foundingOfferOpen(Date.now())): string {
-  return `Premium · from ${offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY}`;
+/** "Premium · ₹1,917 till boards" - PRICE-FIXED-1: the Board Pass's fixed price; the month price is hidden. */
+export function comparePremiumHeader(now: Date | number = Date.now()): string {
+  return `Premium · ${boardPassPriceDisplay(now)} till boards`;
 }
 
 /**

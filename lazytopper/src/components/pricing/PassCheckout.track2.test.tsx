@@ -20,7 +20,7 @@ const PAID: BuyOutcome = { status: "paid", passEnd: "2027-01-01T00:00:00.000Z" }
 
 function view(onBuy: () => Promise<BuyOutcome>, offerOpen = true, activePassEnd: string | null = null) {
   return render(
-    <PassCheckoutView signedIn offerOpen={offerOpen} activePassEnd={activePassEnd} onSignIn={() => undefined} onBuy={onBuy} />,
+    <PassCheckoutView signedIn showMonth offerOpen={offerOpen} activePassEnd={activePassEnd} onSignIn={() => undefined} onBuy={onBuy} />,
   );
 }
 const tapMonth = (c: ReturnType<typeof view>) => fireEvent.click(c.getByRole("button", { name: /for a month/i }));
@@ -98,7 +98,7 @@ describe("TRACK-2 · PassCheckout events", () => {
   it("a signed-out tap goes to sign-in and fires neither event", () => {
     const onSignIn = vi.fn();
     const c = render(
-      <PassCheckoutView signedIn={false} offerOpen activePassEnd={null} onSignIn={onSignIn} onBuy={async () => PAID} />,
+      <PassCheckoutView signedIn={false} showMonth offerOpen activePassEnd={null} onSignIn={onSignIn} onBuy={async () => PAID} />,
     );
     fireEvent.click(c.getByRole("button", { name: /for a month/i }));
     expect(onSignIn).toHaveBeenCalled();

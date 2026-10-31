@@ -1,4 +1,4 @@
-import { TUITION_ANCHOR } from "../../config/pricing";
+import { boardPassPriceLine } from "../../config/pricing";
 import { marksWithUnit } from "../../lib/mistakeDisplay";
 import {
   MIN_ANSWERS_FOR_REPORT,
@@ -35,7 +35,8 @@ export const ACTIVITY_HI = "अंक क्यों कटे, यह बत�
 /** Activity card, reason "not-ready" (history incomplete / counts do not reconcile) — neutral. */
 export const NOT_READY_EN = "The mistake pattern isn’t ready yet — the counts above are this week’s real totals.";
 export const NOT_READY_HI = "गलतियों का पैटर्न अभी तैयार नहीं है — ऊपर की संख्याएँ इस हफ़्ते की असली हैं।";
-export const CARD_FOOTER = `Month pass: ${TUITION_ANCHOR} · ${PARENT_REPORT_LINK_LABEL}`;
+/** A function: the Board Pass price follows the founding deadline, so it is read at RENDER time. */
+export const cardFooter = (): string => `Board Pass: ${boardPassPriceLine()} · ${PARENT_REPORT_LINK_LABEL}`;
 /** PARENT-PAID-1: a paying student's card carries no month-pass line (display only). */
 export const CARD_FOOTER_PAID = "lazytopper.com · Made by an IITian (IIT Kanpur)";
 
@@ -195,7 +196,7 @@ export default function ParentReportCard({ report, paid = false }: { report: Par
         </div>
       )}
 
-      <div className="lt-prc__foot">{paid ? CARD_FOOTER_PAID : CARD_FOOTER}</div>
+      <div className="lt-prc__foot">{paid ? CARD_FOOTER_PAID : cardFooter()}</div>
     </div>
   );
 }

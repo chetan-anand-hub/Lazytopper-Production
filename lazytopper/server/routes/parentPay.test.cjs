@@ -74,11 +74,31 @@ function memoryFirestore(seed = {}) {
     const base = opts && opts.merge && prev ? prev.data : {};
     docs.set(key, { data: { ...base, ...data }, version: (prev ? prev.version : 0) + 1 });
   }
+  // PRICE-FIXED-1: chainable equality query over the documents directly under `prefix`.
+  function chain(prefix, depth, filters = [], max = Infinity) {
+    return {
+      where(field, op, value) {
+        assert.equal(op, '==');
+        return chain(prefix, depth, [...filters, [field, value]], max);
+      },
+      limit: (n) => chain(prefix, depth, filters, n),
+      async get() {
+        await yieldNow();
+        const out = [];
+        for (const [key, entry] of docs) {
+          if (!key.startsWith(`${prefix}/`) || key.slice(prefix.length + 1).includes('/')) continue;
+          if (filters.every(([f, v]) => entry.data[f] === v) && out.length < max) out.push({ id: key.slice(prefix.length + 1), data: () => ({ ...entry.data }) });
+        }
+        return { docs: out, empty: out.length === 0, size: out.length };
+      },
+    };
+  }
   function ref(key) {
     return {
       key,
       collection: (sub) => ({
         doc: (id) => ref(`${key}/${sub}/${id}`),
+        ...chain(`${key}/${sub}`, 3),
         // PACK-CREDIT-1: the pack list read (packEntitlements/{uid}/packs).
         async get() {
           await yieldNow();
@@ -100,23 +120,8 @@ function memoryFirestore(seed = {}) {
     keys: (prefix) => [...docs.keys()].filter((k) => k.startsWith(prefix)),
     collection: (name) => ({
       doc: (id) => ref(`${name}/${id}`),
-      // Equality query on a top-level collection (the only shape parentPay.cjs asks).
-      where: (field, op, value) => {
-        assert.equal(op, '==');
-        return {
-          async get() {
-            await yieldNow();
-            const out = [];
-            for (const [key, entry] of docs) {
-              const parts = key.split('/');
-              if (parts.length === 2 && parts[0] === name && entry.data[field] === value) {
-                out.push({ id: parts[1], data: () => ({ ...entry.data }) });
-              }
-            }
-            return { docs: out, empty: out.length === 0, size: out.length };
-          },
-        };
-      },
+      // Equality queries, chainable (`where().where().limit().get()`), on a top-level collection.
+      ...chain(name, 2),
     }),
     async runTransaction(fn) {
       for (let attempt = 0; attempt < 10; attempt += 1) {
@@ -324,7 +329,7 @@ test('L · the token is 256-bit, opaque, shown once, and stored ONLY as its SHA-
   assert.equal(link.status, 'open');
   assert.equal(ms(link.expiresAt) - ms(link.createdAt), LINK_TTL_MS);
   // The child's message is built from the SERVER price.
-  assert.deepEqual(out.prices, { month: 599, till_boards: 2396 });
+  assert.deepEqual(out.prices, { month: null, till_boards: 1917 });
   assert.equal(out.expiresAt, new Date(NOW + LINK_TTL_MS).toISOString());
   assert.ok(!('uid' in out));
 });
@@ -346,7 +351,7 @@ test('L · view: a live link shows the first name and the child\'s server prices
   assert.equal(r.status, 200, r.text);
   assert.deepEqual(Object.keys(r.json).sort(), ['expiresAt', 'firstName', 'ok', 'prices']);
   assert.equal(r.json.firstName, 'Aarav');
-  assert.deepEqual(r.json.prices, { month: 599, till_boards: 2396 });
+  assert.deepEqual(r.json.prices, { month: null, till_boards: 1917 });
   assert.ok(!r.text.includes('child1'), 'the uid reached the parent');
 });
 
@@ -420,7 +425,7 @@ test('O · till-boards is priced from the CHILD\'s subscription (a founding chil
   const { token } = await mint(srv);
   const r = await parentOrder(srv, token, 'till_boards');
   assert.equal(r.status, 200, r.text);
-  assert.equal(r.json.amountPaise, 239600);
+  assert.equal(r.json.amountPaise, 191700);
 });
 
 const seedChildPack = (db, uid, packId, extra = {}) =>
@@ -762,7 +767,8 @@ test('V · an AUTHORIZED payment is captured for the STORED amount, then granted
 });
 
 test('PRICING-1 · V · a founding order only AUTHORIZED 24 h+ after the close is not captured and not granted; a CAPTURED one still is', async (t) => {
-  const srv = await startRoutes({ clock: { t: Date.parse('2026-11-30T23:59:00+05:30') } });
+  // PRICE-FIXED-1: after 1 Nov a month order needs a prior paid month order on the CHILD's account.
+  const srv = await startRoutes({ db: memoryFirestore({ 'payOrders/order_old_month': { uid: 'child1', passType: 'month', status: 'paid', amountPaise: 59900 } }), clock: { t: Date.parse('2026-11-30T23:59:00+05:30') } });
   t.after(srv.close);
   const { token } = await mint(srv);
   const { json: o } = await parentOrder(srv, token);
@@ -928,4 +934,44 @@ test('REAL index.cjs · switched ON: mounted (signed-out mint -> 401, unknown to
   const view = await request(port, PARENT_VIEW_PATH, { body: { token: 'z'.repeat(43) } });
   assert.equal(view.status, 404, view.text);
   assert.equal(view.json.reason, 'invalid');
+});
+
+/* ── PRICE-FIXED-1 - the month pass is not sold through a parent link to a child who never bought one ─── */
+test('PRICE-FIXED-1 · parent link: a never-month child has month: null on EVERY date (before and after 2026-11-01T00:00:00+05:30)', async (t) => {
+  const before = await startRoutes({ clock: { t: Date.parse('2026-10-31T23:59:59+05:30') } });
+  t.after(before.close);
+  const a = await mint(before);
+  assert.deepEqual((await request(before.port, PARENT_VIEW_PATH, { body: { token: a.token } })).json.prices, { month: null, till_boards: 1917 });
+
+  const after = await startRoutes({ clock: { t: Date.parse('2026-11-01T00:00:00+05:30') } });
+  t.after(after.close);
+  const b = await mint(after);
+  assert.deepEqual(b.prices, { month: null, till_boards: 1917 });
+  const view = await request(after.port, PARENT_VIEW_PATH, { body: { token: b.token } });
+  assert.deepEqual(view.json.prices, { month: null, till_boards: 1917 });
+});
+
+test('PRICE-FIXED-1 · parent link: a month ORDER for a never-month child is refused (409) after the instant, nothing reaches Razorpay; the Board Pass still orders at 1917', async (t) => {
+  const srv = await startRoutes({ clock: { t: Date.parse('2026-11-12T10:00:00+05:30') } });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const refused = await parentOrder(srv, token, 'month');
+  assert.equal(refused.status, 409, refused.text);
+  assert.equal(refused.json.error, 'month_pass_retired');
+  assert.equal(srv.rzp.calls.length, 0);
+  const ok = await parentOrder(srv, token, 'till_boards');
+  assert.equal(ok.status, 200, ok.text);
+  assert.equal(ok.json.amountPaise, 191700);
+});
+
+test('PRICE-FIXED-1 · parent link: a child WITH a prior paid month order keeps the month price and order after the instant', async (t) => {
+  const db = memoryFirestore({ 'payOrders/o_old': { uid: 'child1', passType: 'month', status: 'paid', amountPaise: 59900 } });
+  const srv = await startRoutes({ db, clock: { t: Date.parse('2026-11-12T10:00:00+05:30') } });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const view = await request(srv.port, PARENT_VIEW_PATH, { body: { token } });
+  assert.equal(view.json.prices.month, 599);
+  const ok = await parentOrder(srv, token, 'month');
+  assert.equal(ok.status, 200, ok.text);
+  assert.equal(ok.json.amountPaise, 59900);
 });

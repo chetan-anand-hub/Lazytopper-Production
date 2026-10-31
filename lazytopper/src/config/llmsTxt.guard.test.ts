@@ -6,13 +6,7 @@ import { resolve } from "node:path";
 import { sitemapUrls } from "./sitemapUrls";
 import { CBQ_SUBJECT_CLAIM } from "../lib/packs/packLabels";
 import { PACK_PRICE_INR } from "../services/packs";
-import {
-  FOUNDING_OFFER_LAST_DAY_LABEL,
-  FOUNDING_OFFER_LIST_FROM_LABEL,
-  PRICE_MONTHLY_FOUNDING_INR,
-  PRICE_MONTHLY_LIST_INR,
-  TILL_BOARDS_SAVING_PERCENT,
-} from "./pricing";
+import { formatInr, PRICE_MONTHLY_FOUNDING_INR, PRICE_MONTHLY_LIST_INR, TILL_BOARDS_AFTER_FOUNDING_INR, TILL_BOARDS_FOUNDING_INR } from "./pricing";
 
 /**
  * GUARD — every URL `public/llms.txt` advertises is a URL the sitemap advertises.
@@ -138,9 +132,12 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
     expect(txt).toContain(`Mock pack ₹${PACK_PRICE_INR.pack_mock}`);
     expect(txt).toContain(`Subject pack ₹${PACK_PRICE_INR.pack_subject}`);
     expect(txt).toContain(`Bundle ₹${PACK_PRICE_INR.pack_bundle}`);
-    expect(txt).toContain(`₹${PRICE_MONTHLY_FOUNDING_INR} for a month until ${FOUNDING_OFFER_LAST_DAY_LABEL} 2026`);
-    expect(txt).toContain(`₹${PRICE_MONTHLY_LIST_INR} for a month from ${FOUNDING_OFFER_LIST_FROM_LABEL} 2026`);
-    expect(txt).toContain(`${TILL_BOARDS_SAVING_PERCENT}% less than paying monthly`);
+    // PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass is one fixed price and the month price is hidden.
+    expect(txt).toContain(`${formatInr(TILL_BOARDS_FOUNDING_INR)} as the Founding member offer until 30 November 2026`);
+    expect(txt).toContain(`${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} from 1 December 2026`);
+    expect(txt).not.toContain(String(PRICE_MONTHLY_FOUNDING_INR));
+    expect(txt).not.toContain(String(PRICE_MONTHLY_LIST_INR));
+    expect(txt).not.toMatch(/less than paying monthly|for a month/i);
     expect(txt).toContain("7-day Premium trial");
   });
 });

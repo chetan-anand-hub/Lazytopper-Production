@@ -129,14 +129,14 @@ import {
   type PendingMultiFreeCheck,
   type PendingSingleFreeCheck,
 } from "../../services/freeCheckClient";
-import { monthlyInline } from "../../config/pricing";
+import { boardPassPriceLine } from "../../config/pricing";
 
 /* ── the spec's copy, character for character (§2) ── */
 const HEADLINE = "Your free check is done ✅";
 const PLAIN = "Your answer was checked like a CBSE examiner.";
 const BODY = "Sign up in one tap to keep this result and keep checking answers.";
 // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6): the shared general line, price = monthlyInline().
-const TRIAL = `Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ${monthlyInline()}.`;
+const TRIAL = `Try Premium free for 7 days — no card needed. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`;
 const MAIN_BUTTON = "Sign up free";
 const BAR_CTA = "Sign up free to keep this";
 const S1D_LINK = "Not now? Practice CBQs free";

@@ -83,13 +83,12 @@ describe("PricingPage - ladder layout", () => {
     expect(flat(basic.querySelector("button.lt-pricing-cta"))).toBe("Start free");
   });
 
-  it("the Premium card reads passes -> trial -> founding note -> features -> examiner link", () => {
+  it("the Premium card reads passes -> trial -> features -> examiner link (PRICE-FIXED-1: no month founding note for a non-month buyer)", () => {
     const { container } = renderPage();
     const premium = container.querySelector(".lt-pricing-card--premium")!;
     const order = [
       '[data-testid="pricing-passes"]',
       ".lt-pricing-trial-slot",
-      '[data-testid="pricing-founding-until"]',
       'ul[aria-label="Premium plan features"]',
       ".lt-pricing-mark-guide",
     ].map(sel => premium.querySelector(sel)!);
@@ -142,7 +141,7 @@ describe("PacksStrip - the ladder", () => {
 
 describe("StickyPassBar", () => {
   it("renders nothing on the first render and for a paid student", () => {
-    const { container } = render(<StickyPassBar watchTestId="x" targetId="y" foundingRate hidden />);
+    const { container } = render(<StickyPassBar watchTestId="x" targetId="y" hidden />);
     expect(container.firstChild).toBeNull();
   });
   it("stays hidden until the watched element has scrolled out upward, then shows the month price (CHECKOUT-1) and hides again", async () => {
@@ -157,12 +156,12 @@ describe("StickyPassBar", () => {
     watched.setAttribute("data-testid", "pricing-passes");
     document.body.appendChild(watched);
     const { act } = await import("@testing-library/react");
-    const { container } = render(<StickyPassBar watchTestId="pricing-passes" targetId="y" foundingRate />);
+    const { container } = render(<StickyPassBar watchTestId="pricing-passes" targetId="y" />);
     expect(container.querySelector('[data-testid="pricing-sticky-bar"]')).toBeNull();
     act(() => callbacks[0]([{ isIntersecting: false, boundingClientRect: { bottom: -40 } }]));
     const bar = container.querySelector('[data-testid="pricing-sticky-bar"]');
     expect(bar).not.toBeNull();
-    expect(flat(bar)).toMatch(/^Premium ₹[\d,]+ for a month Get it$/);
+    expect(flat(bar)).toMatch(/^Board Pass ₹1,917 till boards Get it$/);
     act(() => callbacks[0]([{ isIntersecting: false, boundingClientRect: { bottom: 900 } }])); // below the fold: still hidden
     expect(container.querySelector('[data-testid="pricing-sticky-bar"]')).toBeNull();
     act(() => callbacks[0]([{ isIntersecting: true, boundingClientRect: { bottom: 300 } }]));

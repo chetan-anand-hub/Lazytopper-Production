@@ -1,13 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  FOUNDING_LABEL,
-  FOUNDING_OFFER_LAST_DAY_LABEL,
-  foundingOfferOpen,
-  PERIOD_MONTHLY_LABEL,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
-  TILL_BOARDS_INLINE,
-} from "../../config/pricing";
+import { boardPassFoundingLabel, boardPassPriceLine } from "../../config/pricing";
 import { safeSigninRedirect, withSigninRedirect } from "../../services/freeCheckClient";
 import { TRIAL_WORDING } from "../pricing/BasicFreeList";
 
@@ -333,7 +325,7 @@ export default function OfferStrip({
         <p className="lt-offer-strip-lead">7-day full trial, then free Basic</p>
         <AfterTrialLine variant="mobile" />
         <Link className="lt-offer-strip-link" to={pricingTo}>
-          {"See plans and founding-member price →"}
+          {"See plans →"}
         </Link>
       </div>
     );
@@ -351,38 +343,17 @@ export default function OfferStrip({
 
       <AfterTrialLine variant="panel" />
 
-      {foundingOfferOpen(Date.now()) ? (
-        <>
-          <p className="lt-offer-strip-body">
-            <span className="lt-offer-strip-badge" data-testid="lt-offer-founding-badge">
-              {FOUNDING_LABEL}
-            </span>
-            {/* PRICING-TB-1 · OR-P6 Decision 1(b) (owner, 2026-09-26), word for word:
-                "Founding member: <founding> for a month <list>, locked for every pass
-                you buy." — the list figure stays struck (R1). PARENTS-CTA-1 (owner,
-                2026-10-19) dropped the trailing seat-count sentence.
-                No figure is typed here: the price-literal pin scans this file. */}
-            {": "}
-            <span className="lt-offer-strip-price">
-              {`${PRICE_MONTHLY_FOUNDING_DISPLAY} ${PERIOD_MONTHLY_LABEL}`}
-            </span>
-            {" "}
-            <s className="lt-offer-strip-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
-            {`, locked for every pass you buy. Offer ends ${FOUNDING_OFFER_LAST_DAY_LABEL}.`}
-          </p>
-        </>
-      ) : (
-        <p className="lt-offer-strip-body">
-          {"Premium is "}
-          <span className="lt-offer-strip-price">
-            {`${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}`}
-          </span>
-          {/* PRICING-TB-1: the board-year figure is gone. The till-boards price
-              depends on today's date, so this strip names the offer with NO
-              figure — the amount is shown only on /pricing, after load. */}
-          {` ${TILL_BOARDS_INLINE}. Upgrade whenever you like.`}
+      {/* PRICE-FIXED-1 (31 Oct 2026): the Board Pass is the only plan named; the month price is hidden. */}
+      {boardPassFoundingLabel() ? (
+        <p className="lt-offer-strip-lead" data-testid="lt-offer-founding-label">
+          {boardPassFoundingLabel()}
         </p>
-      )}
+      ) : null}
+      <p className="lt-offer-strip-body">
+        {"Board Pass: "}
+        <span className="lt-offer-strip-price">{boardPassPriceLine()}</span>
+        {". Upgrade whenever you like."}
+      </p>
 
       <Link className="lt-offer-strip-link" to={pricingTo}>
         {"See plans →"}

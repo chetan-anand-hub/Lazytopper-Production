@@ -26,10 +26,8 @@
  *     on this path is error-red; the treatment is the offer strip's green.
  *     [FU-GATE-COPY-STILL-READS-AS-ERROR]
  *
- * ★ PRICE. Every figure comes from `monthlyInline()` in `config/pricing.ts`, read at render
- * (PRICING-1: it follows the founding offer's DATE, and the student's own `foundingMember` flag, so a
- * lapsed founder is quoted their locked rate). Never a literal — a typed "₹599" becomes silently
- * wrong on 1 Dec 2026. `pricing.guard.test.ts` forbids a price literal under `src/`.
+ * ★ PRICE. PRICE-FIXED-1: the sheet shows ONLY the Board Pass, whose fixed price comes from `premiumOffer()`
+ * (config/pricing.ts), never a literal. The month price is hidden throughout the product.
  *
  * ★ NO `style={{}}`. Styling is a `<style>` block plus class names, following
  * `OfferStrip.tsx` — the in-repo precedent for a self-contained styled component.
@@ -46,7 +44,6 @@ import { useCallback, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { PREMIUM_PLUS } from "../../config/pricingCompare";
-import { foundingRateApplies, monthlyInline } from "../../config/pricing";
 import { useSubscription } from "../../hooks/useSubscription";
 import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine";
 import PaywallActions from "../pricing/PaywallActions";
@@ -287,11 +284,13 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, onClose }: Upgr
 
         <div className="lt-upsheet__offer">
           {/* ★ From pricing.ts. Never a literal. */}
-          {/* CHECKOUT-1 (31 Oct 2026) - the month pass leads; the Board Pass is the second option, its price unchanged. */}
-          <p className="lt-upsheet__price" data-testid="upgrade-sheet-month-pass">
-            {offer.title} — {monthlyInline(foundingRateApplies(Date.now(), subscription?.foundingMember))} · everything unlocked
+          {/* PRICE-FIXED-1 (31 Oct 2026) - the Board Pass is the ONLY offer; the month price is hidden. */}
+          {offer.foundingLabel ? <p className="lt-upsheet__price" data-testid="upgrade-sheet-founding-label">{offer.foundingLabel}</p> : null}
+          <p className="lt-upsheet__price" data-testid="upgrade-sheet-board-pass">
+            {offer.title} — {offer.priceDisplay} · {offer.detail}
           </p>
-          <p className="lt-upsheet__price" data-testid="upgrade-sheet-board-pass">{offer.second}</p>
+          <p className="lt-upsheet__price">{offer.second}</p>
+          {offer.deadline ? <p className="lt-upsheet__price" data-testid="upgrade-sheet-deadline">{offer.deadline}</p> : null}
           <ul className="lt-upsheet__list">
             {premiumFeatures.map((f) => (
               <li key={f.id}>

@@ -701,7 +701,7 @@ test('ONEADAY: a nudge claimed AFTER the early reads but before the claim still 
   assert.equal(s.fetchCalls.length, 0);
 });
 
-test('SELL-1: Board Pass CTA price comes from passPricing at the send time; founding line only while open; UTM links; no student data in URLs', () => {
+test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no founding or month line; UTM links; no student data in URLs', () => {
   const pp = require('./passPricing.cjs');
   const endMs = Date.parse('2026-11-12T18:30:00.000Z');
   const args = { trialEndsAtMs: endMs, counts: null, appUrl: 'https://www.lazytopper.com', unsubscribeUrl: 'https://x/u?t=tok' };
@@ -711,11 +711,14 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; foun
   const closed = buildTrialEmail({ ...args, nowMs: after });
   const pBefore = pp.tillBoardsQuote(before, pp.predictBoardDateIso(before)).priceInr;
   const pAfter = pp.tillBoardsQuote(after, pp.predictBoardDateIso(after)).priceInr;
-  assert.notEqual(pBefore, pAfter);
-  assert.ok(open.text.includes('₹1,917 till') && /₹2,398 till/.test(closed.text));
+  // PRICE-FIXED-1: the Board Pass is ₹1,917 until the founding deadline and ₹2,499 from it; no founding / month line is sent.
+  assert.equal(pBefore, 1917);
+  assert.equal(pAfter, 2499);
+  assert.ok(open.text.includes('₹1,917 till') && closed.text.includes('₹2,499 till'));
   assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore.toLocaleString('en-IN')} till your boards: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
   assert.ok(closed.text.includes(`₹${pAfter.toLocaleString('en-IN')} till your boards`));
-  assert.ok(open.text.includes('Founding price ends 30 November.'));
+  assert.ok(!open.text.includes('Founding price') && !open.html.includes('Founding price'));
+  assert.ok(!/599|999/.test(open.text + open.html + closed.text + closed.html), 'a month price in the trial-ending email');
   assert.ok(!closed.text.includes('Founding price'));
   assert.ok(!closed.html.includes('Founding price'));
   for (const m of [open, closed]) {

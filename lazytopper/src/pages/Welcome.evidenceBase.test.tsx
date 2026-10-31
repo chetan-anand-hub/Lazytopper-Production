@@ -162,59 +162,36 @@ describe("Welcome — the price is read from the pricing config, never typed", (
     expect(foundingOfferOpen(Date.now())).toBe(true);
   });
 
-  it("PRICING-1 — from 00:00 IST 1 Dec 2026 the landing itself shows the list price alone (no deploy)", () => {
-    vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
-    renderWelcome();
-    const price = screen.getByTestId("landing-paid-price");
-    expect(price).toHaveTextContent(PRICE_MONTHLY_LIST_DISPLAY);
-    expect(price).not.toHaveTextContent(PRICE_MONTHLY_FOUNDING_DISPLAY);
-    expect(price.querySelector("s")).toBeNull();
-  });
-
-  it("PRICING-1 — the Board Pass LEADS the paid card: it comes before the monthly price, number-free", () => {
+  it("PRICE-FIXED-1 - the landing plan card names the Board Pass alone: no month price, no strike, no 599/999", () => {
     const { container } = renderWelcome();
     const pass = screen.getByTestId("landing-board-pass");
-    expect(pass.textContent).toBe(`${BOARD_PASS_NAME} \u2014 ${TILL_BOARDS_LINE}`);
-    expect(pass.textContent).not.toMatch(/\u20B9/);
-    const price = screen.getByTestId("landing-paid-price");
-    expect(pass.compareDocumentPosition(price) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(container.querySelector(".lt-landing-plan.pay")).toContainElement(pass);
+    expect(pass.textContent).toContain(BOARD_PASS_NAME);
+    expect(pass.textContent).toContain("₹1,917");
+    expect(screen.queryByTestId("landing-paid-price")).toBeNull();
+    const card = container.querySelector(".lt-landing-plan.pay");
+    expect(card).toContainElement(pass);
+    expect(card?.textContent).not.toMatch(/599|999|for a month/);
+    expect(card?.querySelector("s")).toBeNull();
   });
 
-  it("while the founding offer is open, shows the founding price with the list price struck", () => {
+  it("PRICE-FIXED-1 - before the deadline the card carries the Founding member offer label; from 00:00 IST 1 Dec the label is gone and the price is 2,499 (no deploy)", () => {
     renderWelcome();
-    const price = screen.getByTestId("landing-paid-price");
-    expect(price).toHaveTextContent(PRICE_MONTHLY_FOUNDING_DISPLAY);
-    // The list price is VISIBLE, so the saving is legible — and it is inside <s>.
-    expect(price.querySelector("s")).toHaveTextContent(PRICE_MONTHLY_LIST_DISPLAY);
-    // The founding price is the lead figure, not the struck one.
-    expect(price.firstChild?.textContent).toBe(PRICE_MONTHLY_FOUNDING_DISPLAY);
+    expect(screen.getByTestId("landing-founding-label")).toHaveTextContent("Founding member offer");
+    cleanup();
+    vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
+    renderWelcome();
+    expect(screen.queryByTestId("landing-founding-label")).toBeNull();
+    expect(screen.getByTestId("landing-board-pass").textContent).toContain("₹2,499");
+    expect(screen.getByTestId("landing-board-pass").textContent).not.toContain("₹1,917");
   });
 
-  it("★★ CONTROL — flip the offer off and the card shows the list price alone", () => {
-    // ⚠ NOT a vi.mock of config/pricing — the repo forbids mocking src/config
-    // (gradingLimits.guard.test.ts), and this file once did exactly that. The card
-    // head takes the offer state as a prop, so the flip is a plain render.
-    render(<PaidPlanHead offerOpen={false} />);
-    const price = screen.getByTestId("landing-paid-price");
-    expect(price).toHaveTextContent(PRICE_MONTHLY_LIST_DISPLAY);
-    expect(price).not.toHaveTextContent(PRICE_MONTHLY_FOUNDING_DISPLAY);
-    expect(price.querySelector("s")).toBeNull();
-    expect(screen.queryByText(/Founding member/)).toBeNull();
-  });
-
-  it("★ and the flag-on render of the same head is the founding state", () => {
-    render(<PaidPlanHead offerOpen={true} />);
-    expect(screen.getByTestId("landing-paid-price")).toHaveTextContent(PRICE_MONTHLY_FOUNDING_DISPLAY);
-    expect(screen.getByText(/Founding member/)).toBeInTheDocument();
-  });
-
-  it("★ Welcome wires the DATE-driven offer into the head — not a literal true", () => {
-    // The render above proves the head reacts to the prop; this proves the page
-    // feeds it the calendar's answer, so the page moves on 1 Dec with no deploy.
+  it("PaidPlanHead takes no props: the date (not a flag) decides what it shows", () => {
     const HERE = dirname(fileURLToPath(import.meta.url));
     const src = readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
-    expect(src).toContain("<PaidPlanHead offerOpen={foundingOfferOpen(Date.now())} />");
+    expect(src).toContain("<PaidPlanHead />");
+    expect(src).not.toContain("offerOpen");
+    render(<PaidPlanHead />);
+    expect(screen.getByTestId("landing-board-pass")).toBeInTheDocument();
   });
 
   it("★ CONTROL — the prototype's 1,999 figure is NOT on the page", () => {

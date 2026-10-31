@@ -13,8 +13,13 @@ import {
   withSigninRedirect,
 } from "../services/freeCheckClient";
 import {
+  boardPassDeadlineLine,
+  boardPassFoundingLabel,
+  formatInr,
   FOUNDING_LOCK_COPY,
   FOUNDING_OFFER_BADGE,
+  FOUNDING_OFFER_LIST_FROM_LABEL,
+  TILL_BOARDS_AFTER_FOUNDING_INR,
   foundingOfferOpen,
   foundingRateApplies,
   FOUNDING_OFFER_UNTIL_COPY,
@@ -25,7 +30,6 @@ import {
   PRICE_MONTHLY_LIST_DISPLAY,
   TILL_BOARDS_LINE,
   BOARD_PASS_NAME,
-  TILL_BOARDS_SAVING_PERCENT,
   TUITION_ANCHOR,
   tillBoardsQuote,
   type TillBoardsQuote,
@@ -60,6 +64,7 @@ import { isFreeCheckClientEnabled } from "../services/freeCheckClient";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
 import FounderBadge from "../components/brand/FounderBadge";
 import StickyPassBar from "../components/pricing/StickyPassBar";
+import { useMonthPassAvailable } from "../components/pricing/useMonthPassAvailable";
 
 // PACKS-CLIENT-1 — the PDF packs strip is below the fold: its own chunk, mounted after first paint so the
 // prerendered /pricing is unchanged. A failed chunk renders nothing.
@@ -706,6 +711,24 @@ const PRICING_CSS = `
     line-height: 1.45;
   }
 
+  .lt-pricing-tillboards-eyebrow {
+    margin: 0 0 4px;
+    color: var(--lt-green-deep);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* PRICE-FIXED-1 - the one honest deadline line: plain, no strike, no badge. */
+  .lt-pricing-tillboards-deadline {
+    margin: 6px 0 0;
+    color: var(--lt-ink-2);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
   /* PRICING-LADDER-1 — the honest daily anchor, quiet and green, directly under the price. */
   .lt-pricing-tillboards-perday {
     margin: 6px 0 0;
@@ -1281,6 +1304,36 @@ const PRICING_CSS = `
       width: 100%;
     }
   }
+  /* PRICE-FIXED-1 (owner, 31 Oct 2026) — the Board Pass is the ONLY pass on sale: one full-width tile. A prior
+     month buyer's page keeps the two-tile grid above. */
+  .lt-pricing-passes--single {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+  }
+  .lt-pricing-passes--single .lt-pricing-pass-bg--boards {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    border: 2px solid var(--lt-green-deep);
+  }
+  .lt-pricing-passes--single .lt-pricing-pass--boards {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .lt-pricing-passes--single .lt-pricing-pay--boards {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .lt-pricing-passes--single:has(.lt-pack-credit-note) .lt-pricing-pass-bg--boards {
+    grid-row: 2 / 5;
+  }
+  .lt-pricing-passes--single .lt-pack-credit-note {
+    grid-column: 1;
+    grid-row: 4;
+  }
+  .lt-pricing-passes--single .lt-pricing-checkout-note--bottom,
+  .lt-pricing-passes--single > .lt-pricing-plan-desc {
+    grid-row: 4;
+  }
 `;
 
 const FAQ_ITEMS = [
@@ -1290,34 +1343,16 @@ const FAQ_ITEMS = [
     a: "Yes. Basic is free forever: study, practise and open papers without paying. Checked answers, the AI tutor and Mistake Intelligence come with Premium.",
   },
   {
-    // PRICING-TB-1 (owner ruling): NO FIGURE HERE. The till-boards price
-    // depends on today's date, and this answer is in the prerendered page, so a
-    // number here would be baked at capture time and go stale the next month.
-    q: "Should I pay monthly or till my boards?",
-    a: `Till boards is one payment that covers every month until your first board paper, at ${TILL_BOARDS_SAVING_PERCENT}% less than paying monthly. The price shrinks each month as the boards get closer.`,
+    // PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass is one payment and the only plan on sale. NO FIGURE here:
+    // this answer is in the prerendered page (the price sits in the post-mount figures node instead).
+    q: "What is the Board Pass?",
+    a: "The Board Pass is one payment that covers you until your first board paper. There are no renewals and nothing is charged automatically.",
   },
   {
-    // The offer's honesty rests entirely on this answer, so it states the close
-    // condition and the lock in the same breath. If a future edit drops either
-    // half, the founding framing stops being true.
-    //
-    // ⚠ THE PROMISE IS SCOPED TO THE STUDENT'S OWN PASSES, deliberately.
-    // (PRICING-TB-1 · OR-P7, owner 2026-09-26: billing is one-time passes, so the
-    // lock is worded per pass, never "an active subscription".)
-    // An earlier draft said "we do not raise anyone's price". That is a claim
-    // about PUBLISHED prices, and it is broader than this product can support —
-    // a fixed board-year price moved between #539 and #548, one day apart
-    // (that plan was later retired by PRICING-TB-1).
-    // What can be supported without qualification is narrower and is the thing
-    // a founding member actually cares about: the price of your own passes never
-    // moves. Do not widen this back out. The broad version is
-    // precisely the sentence a student who saw an older published price would
-    // quote back.
-    //
-    // PARENTS-CTA-1 (owner ruling 2026-10-19): NO seat count and NO deadline in the
-    // question or the answer — the "first N students" wording was withdrawn.
+    // PRICE-FIXED-1 (owner, 21:12 IST 31 Oct 2026): the answer is the owner's, with both figures imported from the
+    // pricing config (never typed). It is true on every date, so it is safe in the prerendered page.
     q: "What happens when the founding offer ends?",
-    a: `When it ends, new members join at the regular price — ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}, or ${TILL_BOARDS_SAVING_PERCENT}% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought.`,
+    a: `From ${FOUNDING_OFFER_LIST_FROM_LABEL} the Board Pass is ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)}. A pass you have already bought is never re-priced.`,
   },
   {
     q: "Are there any usage limits?",
@@ -1443,35 +1478,48 @@ export function boardPassPerDay(now: Date, boardIso: string, priceInr: number): 
  * clock itself) — live in the effect, never at module scope, so nothing is
  * baked at build time either.
  */
-export function TillBoardsOffer({ offerOpen }: { offerOpen: boolean }) {
+export function TillBoardsOffer() {
   const [quote, setQuote] = useState<TillBoardsQuote | null>(null);
   const [perDay, setPerDay] = useState<number | null>(null);
+  const [deadline, setDeadline] = useState<string | null>(null);
+  const [foundingLabel, setFoundingLabel] = useState<string | null>(null);
   useEffect(() => {
     const now = new Date();
+    // The ONE honest deadline line (owner, 21:12 IST 31 Oct 2026): while the founding offer is open only.
+    setDeadline(boardPassDeadlineLine(now));
+    setFoundingLabel(boardPassFoundingLabel(now));
     const boardIso = predictCbseExamDate("10");
-    const q = tillBoardsQuote(now, boardIso, offerOpen);
+    const q = tillBoardsQuote(now, boardIso);
     setQuote(q);
     setPerDay(q ? boardPassPerDay(now, boardIso, q.priceInr) : null);
-  }, [offerOpen]);
+  }, []);
 
   return (
     <div className="lt-pricing-tillboards" data-testid="till-boards">
       {/* PRICING-LIGHT-1 — the slot is ALWAYS rendered and holds the figures' height, so
           their arrival after mount shifts nothing. The slot itself carries no figure;
-          the "save" tag is inside the figures node, so it is stripped with them. */}
+          PRICE-FIXED-1: the price is FIXED and there is no "save" claim against a monthly price. */}
       <div className="lt-pricing-tillboards-slot">
         {quote && (
           <div className="lt-pricing-tillboards-figures" data-testid="till-boards-figures">
-            <span className="lt-pricing-save-tag">{quote.savingLabel}</span>
+            {foundingLabel && (
+              <p className="lt-pricing-tillboards-eyebrow" data-testid="till-boards-founding-label">
+                {foundingLabel}
+              </p>
+            )}
             <p className="lt-pricing-tillboards-price">
               <span className="lt-pricing-tillboards-amount">{quote.priceDisplay}</span>
-              <s className="lt-pricing-was">{quote.fullDisplay}</s>
             </p>
             <p className="lt-pricing-tillboards-meta">
               <span className="lt-pricing-tillboards-once">one-time</span>
               {" · "}
               <span className="lt-pricing-tillboards-until">{quote.untilLabel}</span>
             </p>
+            {deadline && (
+              <p className="lt-pricing-tillboards-deadline" data-testid="till-boards-deadline">
+                {deadline}
+              </p>
+            )}
             {perDay !== null && (
               <p className="lt-pricing-tillboards-perday" data-testid="till-boards-per-day">
                 &asymp; &#8377;{perDay} a day till your boards
@@ -1623,7 +1671,11 @@ function PricingPlansPage() {
   // the offer is open, or for life for a student who already holds it (server-sticky flag), so a
   // founder is never shown a price or a lock promise that differs from what the server charges.
   const nowMs = Date.now();
-  const offerOpen = foundingOfferOpen(nowMs);
+  // PRICE-FIXED-1: `monthBuyer` is the SERVER's word that this account already has a paid month order. Only then
+  // does this page show the month pass (to renew), its founding badge/lock and the founding end date. Everyone
+  // else - signed out, new, or unanswered - sees the Board Pass alone.
+  const monthBuyer = useMonthPassAvailable();
+  const offerOpen = monthBuyer && foundingOfferOpen(nowMs);
   const foundingRate = foundingRateApplies(nowMs, subscription.status.foundingMember);
   const [trialStartedHere, setTrialStartedHere] = useState(false);
   const trialStartFired = useRef(false);
@@ -1772,17 +1824,23 @@ function PricingPlansPage() {
                       paragraph (RAZORPAY-1 · P7) stands where the Pay buttons would be. */}
                   {/* PAYWALL-PAY-1 — a tap on either pass's Pay button is the "pay" paywall action
                       (capture phase, so PassCheckout is untouched; a disabled button fires nothing). */}
-                  <div className="lt-pricing-passes" data-testid="pricing-passes" onClickCapture={trackPricingPayTap}>
+                  <div
+                    className={`lt-pricing-passes${monthBuyer ? "" : " lt-pricing-passes--single"}`}
+                    data-testid="pricing-passes"
+                    onClickCapture={trackPricingPayTap}
+                  >
                     <div className="lt-pricing-pass-bg lt-pricing-pass-bg--boards" aria-hidden="true" />
-                    <div className="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true" />
-                    <div className="lt-pricing-pass lt-pricing-pass--month">
-                      <div className="lt-pricing-pass-name">Month pass</div>
-                      <PremiumPriceHead offerOpen={foundingRate} />
-                      <p className="lt-pricing-price-alt">{TUITION_ANCHOR}</p>
-                    </div>
+                    {monthBuyer && <div className="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true" />}
+                    {monthBuyer && (
+                      <div className="lt-pricing-pass lt-pricing-pass--month">
+                        <div className="lt-pricing-pass-name">Month pass</div>
+                        <PremiumPriceHead offerOpen={foundingRate} />
+                        <p className="lt-pricing-price-alt">{TUITION_ANCHOR}</p>
+                      </div>
+                    )}
                     <div className="lt-pricing-pass lt-pricing-pass--boards">
                       <div className="lt-pricing-pass-name">{BOARD_PASS_NAME}</div>
-                      <TillBoardsOffer offerOpen={foundingRate} />
+                      <TillBoardsOffer />
                     </div>
                     {paymentsOn ? (
                       <PassCheckout />
@@ -1811,7 +1869,7 @@ function PricingPlansPage() {
                 </div>
 
                 <div className="lt-pricing-premium-side">
-                  {foundingRate && (
+                  {monthBuyer && foundingRate && (
                     <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
                   )}
                   {offerOpen && (
@@ -1897,7 +1955,7 @@ function PricingPlansPage() {
                   <tr>
                     <th scope="col" className="lt-pricing-compare-col-feature">{COMPARE_FEATURE_HEADER}</th>
                     <th scope="col" className="lt-pricing-compare-col-premium">
-                      {comparePremiumHeader(foundingRate)}
+                      {comparePremiumHeader()}
                     </th>
                     <th scope="col" className="lt-pricing-compare-col-basic">{COMPARE_BASIC_HEADER}</th>
                   </tr>
@@ -2009,7 +2067,6 @@ function PricingPlansPage() {
         <StickyPassBar
           watchTestId="pricing-passes"
           targetId="lt-premium-card"
-          foundingRate={foundingRate}
           hidden={subscription.status.tier === "premium"}
         />
       )}

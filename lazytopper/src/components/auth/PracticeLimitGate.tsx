@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getDailyPracticeCount, incrementDailyPracticeCount } from "../../services/featureGates";
 import { UpgradeModal } from "../UpgradeModal";
-import { foundingRateApplies, monthlyInline } from "../../config/pricing";
+import { boardPassPriceLine } from "../../config/pricing";
 
 const FREE_DAILY_LIMIT = 10;
 
@@ -25,7 +25,7 @@ export function usePracticeLimit() {
 
 export function PracticeLimitGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { isPremium, status } = useSubscription();
+  const { isPremium } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [questionsUsed, setQuestionsUsed] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
@@ -97,7 +97,7 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
           You've used your {FREE_DAILY_LIMIT} free questions for today.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Keep practising with Premium at {monthlyInline(foundingRateApplies(Date.now(), status.foundingMember))}.
+          Keep practising with the Board Pass: {boardPassPriceLine()}.
         </p>
         <button
           type="button"

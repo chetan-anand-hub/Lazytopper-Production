@@ -1,7 +1,7 @@
 {
   "/": {
-    "sha256": "7f2e8eccdc44ef2ad819fc4659708a090401d7f7bbee4caf32bb35db2fe2f0bf",
-    "lastmod": "2026-10-25"
+    "sha256": "ded263fb5d16299f1b13bcb1a1e13226651e5b5fbf95163bd0f68f526bcca4f6",
+    "lastmod": "2026-10-31"
   },
   "/cbq-class-10": {
     "sha256": "771639c9166472c3fc9db6e5d3d500d6184798548af95c80e61b9ae01d5a2ffa",
@@ -128,7 +128,7 @@
     "lastmod": "2026-10-20"
   },
   "/for-parents": {
-    "sha256": "3027d37ef541113b5624e67e0844092ee1975e8f79e270562b21e95604428d29",
+    "sha256": "47c83532a94d5ce9084b80ac47334d2342c4bee098f53124aa44154573901b19",
     "lastmod": "2026-10-31"
   },
   "/highly-probable/10/Maths": {
@@ -380,7 +380,7 @@
     "lastmod": "2026-10-30"
   },
   "/pricing": {
-    "sha256": "dcec06f42b8c9e6bc021049d8498f4123c4047f2ef6453616968de805b23a22a",
+    "sha256": "c8532d05ad1abfe6430b7af1f6bd88f5e823d256c3692b7579ca88806e615a93",
     "lastmod": "2026-10-31"
   },
   "/topic-hub/acids-bases-and-salts": {

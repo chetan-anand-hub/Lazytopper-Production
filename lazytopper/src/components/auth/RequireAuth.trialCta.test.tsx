@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { monthlyInline } from "../../config/pricing";
+import { boardPassPriceDisplay } from "../../config/pricing";
 
 // [FU-TRIAL-HAS-NO-ACTIVATION-PATH] — the premium paywall (RequirePremium) now carries the
 // ONLY client trial-activation path. These tests use the REAL useSubscription hook (only the
@@ -67,7 +67,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     renderGate();
     const cta = await screen.findByText("Start my free 7-day trial");
     // TRIAL-ON-SIGNUP-1b (owner addendum): the short fragment, CHECKOUT-1: the monthly price.
-    expect(screen.getByText(`then free Basic, or Premium at ${monthlyInline()}.`)).toBeInTheDocument();
+    expect(screen.getByText(`then free Basic, or the Board Pass ${boardPassPriceDisplay()} till boards.`)).toBeInTheDocument();
     expect(screen.queryByText(/upgrade anytime/i)).toBeNull();
     expect(activate).not.toHaveBeenCalled();
     // TRIAL-CTA-1: the handler acts only on this uid's HYDRATED record.

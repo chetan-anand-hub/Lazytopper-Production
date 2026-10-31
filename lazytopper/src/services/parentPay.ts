@@ -97,7 +97,6 @@ export interface AskParentMessageInput {
  */
 export function buildAskParentMessage({ lang, prices, checkedCount, url, days }: AskParentMessageInput): string {
   const n = typeof checkedCount === "number" && Number.isInteger(checkedCount) && checkedCount > 0 ? checkedCount : 0;
-  const month = typeof prices.month === "number" && prices.month > 0 ? formatInr(prices.month) : null;
   const boards = typeof prices.till_boards === "number" && prices.till_boards > 0 ? formatInr(prices.till_boards) : null;
 
   if (lang === "hi") {
@@ -105,9 +104,8 @@ export function buildAskParentMessage({ lang, prices, checkedCount, url, days }:
       "मम्मी/पापा, मैं CBSE कक्षा 10 बोर्ड की तैयारी के लिए LazyTopper इस्तेमाल करता/करती हूँ। यह मेरे लिखे उत्तरों को CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचता है और बताता है कि मेरे नंबर कहाँ कटते हैं।",
     ];
     if (n > 0) lines.push(`पिछले 30 दिनों में इस पर मेरे ${n} उत्तर जाँचे गए हैं।`);
-    if (month && boards) lines.push(`Premium एक महीने के लिए ${month} है, या बोर्ड परीक्षा तक के लिए एक बार ${boards}।`);
-    else if (month) lines.push(`Premium एक महीने के लिए ${month} है।`);
-    else if (boards) lines.push(`Premium बोर्ड परीक्षा तक के लिए एक बार ${boards} है।`);
+    // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price is hidden throughout.
+    if (boards) lines.push(`Premium बोर्ड परीक्षा तक के लिए एक बार ${boards} है।`);
     lines.push(
       "क्या आप इसका भुगतान कर देंगे? यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
     );
@@ -120,9 +118,8 @@ export function buildAskParentMessage({ lang, prices, checkedCount, url, days }:
     "Hi Mummy/Papa, I'm using LazyTopper for my CBSE Class 10 board prep. It checks my written answers step by step, the way a CBSE examiner marks them, and shows me exactly where I lose marks.",
   ];
   if (n > 0) lines.push(`I've had ${n} ${n === 1 ? "answer" : "answers"} checked on it in the last 30 days.`);
-  if (month && boards) lines.push(`Premium is ${month} for a month, or ${boards} once for everything till my boards.`);
-  else if (month) lines.push(`Premium is ${month} for a month.`);
-  else if (boards) lines.push(`Premium is ${boards} once for everything till my boards.`);
+  // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price is hidden throughout.
+  if (boards) lines.push(`Premium is ${boards} once for everything till my boards.`);
   lines.push("Could you pay for it? This link is only for my account — you don't need to sign up or share any password:");
   lines.push(url);
   lines.push(`(The link works for ${days} ${days === 1 ? "day" : "days"}.)`);

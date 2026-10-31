@@ -66,7 +66,7 @@ const {
   PAY_ORDERS_COLLECTION,
   RAZORPAY_API_BASE,
 } = require('./payments.cjs');
-const { grantPass, isStaleFoundingOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
+const { grantPass, isStaleFoundingOrder, monthPassAvailableFor, hasPaidMonthOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const pricing = require('../services/passPricing.cjs');
 // PACK-CREDIT-1: the child's recent pack purchases credit a Board Pass order made through a parent link too.
@@ -328,9 +328,22 @@ function createParentPayRoutes(deps = {}) {
   }
 
   /** The child's server prices right now, rupees. A pass that cannot be priced is null. */
-  function pricesFrom(stored) {
+  async function pricesFrom(stored, uid) {
     const prices = {};
+    // PRICE-FIXED-1 - a child who has never bought a month pass is NOT SHOWN one, on any date (owner, 31 Oct 2026:
+    // the month price is hidden throughout): its price is null, the same "cannot be priced" shape the client already
+    // hides. The ORDER gate (monthPassAvailableFor, below) stays at the retirement instant. A failed read fails closed.
+    let monthOffered = true;
+    try {
+      monthOffered = await hasPaidMonthOrder(adminFirestore, uid);
+    } catch (_e) {
+      monthOffered = false;
+    }
     for (const passType of Object.keys(PASS_TYPES)) {
+      if (passType === 'month' && !monthOffered) {
+        prices[passType] = null;
+        continue;
+      }
       try {
         prices[passType] = quotePass(stored, passType, now(), { foundingOfferOpen }).pricePaidInr;
       } catch {
@@ -341,7 +354,7 @@ function createParentPayRoutes(deps = {}) {
   }
 
   async function quotesFor(uid) {
-    return pricesFrom(await readSubscription(uid));
+    return pricesFrom(await readSubscription(uid), uid);
   }
 
   /** The link for a token, or a refusal reason. `requireOpen` = may it start a payment now. */
@@ -494,7 +507,7 @@ function createParentPayRoutes(deps = {}) {
       const stored = await readSubscription(resolved.link.uid);
       // Already covered till the boards (by the child, or through another link): nothing to sell.
       if (coveredTillBoards(stored, now())) return linkRefused(res, 'view', COVERED_REASON);
-      prices = pricesFrom(stored);
+      prices = await pricesFrom(stored, resolved.link.uid);
     } catch (e) {
       emit('payments.parent.view.failed');
       console.error('[pay/parent/view] failed:', e && e.message);
@@ -533,6 +546,15 @@ function createParentPayRoutes(deps = {}) {
       }
       const stored = await readSubscription(resolved.link.uid);
       if (coveredTillBoards(stored, now())) return linkRefused(res, 'order', COVERED_REASON);
+      // PRICE-FIXED-1 - same gate as payments.cjs handleOrder, for the CHILD's uid (never the parent's).
+      if (passType === 'month' && !(await monthPassAvailableFor(adminFirestore, resolved.link.uid, now()))) {
+        emit('payments.parent.order.month_pass_retired');
+        return sendJson(res, 409, {
+          ok: false,
+          error: 'month_pass_retired',
+          message: 'The month pass is no longer on sale. Choose the Board Pass instead.',
+        });
+      }
       quote = quotePass(stored, passType, now(), { foundingOfferOpen });
       await reserveOrderSlot(resolved.ref);
     } catch (e) {

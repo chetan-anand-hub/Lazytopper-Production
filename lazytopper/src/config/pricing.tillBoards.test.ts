@@ -2,29 +2,25 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 
 import {
-  PRICE_MONTHLY_FOUNDING_INR,
-  PRICE_MONTHLY_LIST_INR,
+  boardPassDeadlineLine,
+  boardPassFoundingLabel,
+  boardPassPriceDisplay,
+  boardPassPriceLine,
+  FOUNDING_OFFER_CLOSES_AT_MS,
+  TILL_BOARDS_AFTER_FOUNDING_INR,
+  TILL_BOARDS_FOUNDING_INR,
   TILL_BOARDS_INLINE,
   TILL_BOARDS_LINE,
-  TILL_BOARDS_PAY_FRACTION,
-  TILL_BOARDS_SAVING_LABEL,
-  TILL_BOARDS_SAVING_PERCENT,
   tillBoardsQuote,
 } from "./pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 
 /**
- * PRICING-TB-1 · R3 + R7 — the till-boards price, a PURE function of (now, boardIso).
+ * PRICE-FIXED-1 (owner ruling, 31 Oct 2026) - the Board Pass costs a FIXED price until the boards.
  *
- * Owner ruling (2026-09-26):
- *   today      = the calendar date in Asia/Kolkata
- *   monthsLeft = the smallest integer k >= 1 with today + k calendar months >= boardDate
- *   full       = monthly × monthsLeft   (monthly = founding while open, else list)
- *   price      = Math.round(full × 0.8)
- *
- * The five dated cases below are the ruling's own table, verbatim. Each `now` is
- * written as an explicit +05:30 instant so the IST calendar date is unambiguous
- * whatever time zone the test machine runs in.
+ * It replaces PRICING-TB-1's "monthly x months left x 0.8", whose price shrank month by month and moved with the
+ * founding offer. `tillBoardsQuote` keeps its signature (and the months-left / until-label it always carried),
+ * but the price is the one constant on every day and in both offer states.
  */
 
 const BOARD = "2027-02-17";
@@ -38,112 +34,106 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("tillBoardsQuote — the ruling's five dated cases (founding open)", () => {
+describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2,499 from it", () => {
+  it("the constants are 1,917 and 2,499 and are displayed as such", () => {
+    expect(TILL_BOARDS_FOUNDING_INR).toBe(1917);
+    expect(TILL_BOARDS_AFTER_FOUNDING_INR).toBe(2499);
+    expect(boardPassPriceDisplay(istNoon("2026-10-31"))).toBe("₹1,917");
+    expect(boardPassPriceDisplay(istNoon("2026-12-02"))).toBe("₹2,499");
+    expect(boardPassPriceLine(istNoon("2026-10-31"))).toBe("₹1,917 — one payment till your boards");
+    expect(boardPassPriceLine(istNoon("2026-12-02"))).toBe("₹2,499 — one payment till your boards");
+  });
+
   it.each([
-    { today: "2026-09-26", months: 5, price: "₹2,396", full: "₹2,995" },
-    { today: "2026-12-16", months: 3, price: "₹1,438", full: "₹1,797" },
-    { today: "2026-12-17", months: 2, price: "₹958", full: "₹1,198" },
-    { today: "2027-02-17", months: 1, price: "₹479", full: "₹599" },
-  ])("$today → $months months, $price, struck $full", ({ today, months, price, full }) => {
-    const quote = tillBoardsQuote(istNoon(today), BOARD, true);
-    expect(quote).not.toBeNull();
-    expect(quote!.monthsLeft).toBe(months);
-    expect(quote!.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
-    expect(quote!.priceDisplay).toBe(price);
-    expect(quote!.fullDisplay).toBe(full);
-    expect(quote!.untilLabel).toBe("till your boards (Feb 2027)");
-    expect(quote!.savingLabel).toBe("save 20%");
+    ["2026-10-31", 1917],
+    ["2026-11-15", 1917],
+    ["2026-12-02", 2499],
+    ["2027-02-01", 2499],
+    ["2027-02-17", 2499],
+  ])("%s -> %i, whatever the founding flag says (the date decides)", (today, price) => {
+    for (const founding of [true, false]) {
+      const quote = tillBoardsQuote(istNoon(today), BOARD, founding);
+      expect(quote).not.toBeNull();
+      expect(quote!.priceInr).toBe(price);
+      expect(quote!.untilLabel).toBe("till your boards (Feb 2027)");
+    }
   });
 
-  it("founding CLOSED on 2026-09-26 → ₹3,996, struck ₹4,995 (list rate)", () => {
-    const quote = tillBoardsQuote(istNoon("2026-09-26"), BOARD, false);
-    expect(quote).not.toBeNull();
-    expect(quote!.monthsLeft).toBe(5);
-    expect(quote!.monthlyInr).toBe(PRICE_MONTHLY_LIST_INR);
-    expect(quote!.priceDisplay).toBe("₹3,996");
-    expect(quote!.fullDisplay).toBe("₹4,995");
-  });
-});
-
-describe("tillBoardsQuote — the rules behind the table", () => {
-  it("price is Math.round(full × 0.8) and full is monthly × monthsLeft, on every day of a year", () => {
-    // Walk every calendar day from 2026-03-01 to the board date: the derivation
-    // must hold everywhere, not only on the five hand-picked dates.
+  it("every day from 1 Mar 2026 to the board date: one price before the deadline, one from it - it never shrinks", () => {
     const start = Date.UTC(2026, 2, 1);
     const end = Date.UTC(2027, 1, 17);
     let checked = 0;
     for (let t = start; t <= end; t += 86_400_000) {
       const iso = new Date(t).toISOString().slice(0, 10);
-      const q = tillBoardsQuote(istNoon(iso), BOARD, true)!;
-      expect(q.fullInr).toBe(q.monthlyInr * q.monthsLeft);
-      expect(q.priceInr).toBe(Math.round(q.fullInr * TILL_BOARDS_PAY_FRACTION));
-      expect(q.priceInr).toBeLessThan(q.fullInr);
-      expect(q.monthsLeft).toBeGreaterThanOrEqual(1);
+      const want = istNoon(iso).getTime() < FOUNDING_OFFER_CLOSES_AT_MS ? 1917 : 2499;
+      expect(tillBoardsQuote(istNoon(iso), BOARD)!.priceInr).toBe(want);
       checked += 1;
     }
     expect(checked).toBeGreaterThan(300);
   });
 
-  it("the saving is 20% and every copy string derives from the one fraction", () => {
-    expect(TILL_BOARDS_PAY_FRACTION).toBe(0.8);
-    expect(TILL_BOARDS_SAVING_PERCENT).toBe(20);
-    expect(TILL_BOARDS_SAVING_LABEL).toBe("save 20%");
-    expect(TILL_BOARDS_LINE).toBe("One payment, till your board exam — 20% off paying monthly.");
-    expect(TILL_BOARDS_INLINE).toBe("or pay once till boards — 20% off");
+  it("switches exactly at the founding deadline: 23:59:59 IST 30 Nov -> 1,917; 00:00:00 IST 1 Dec -> 2,499", () => {
+    expect(tillBoardsQuote(new Date("2026-11-30T23:59:59+05:30"), BOARD)!.priceInr).toBe(1917);
+    expect(tillBoardsQuote(new Date("2026-12-01T00:00:00+05:30"), BOARD)!.priceInr).toBe(2499);
   });
 
-  it("the number-free copy carries NO rupee figure", () => {
-    for (const copy of [TILL_BOARDS_LINE, TILL_BOARDS_INLINE, TILL_BOARDS_SAVING_LABEL]) {
-      expect(copy).not.toMatch(/₹/);
-    }
+  it("the founding label and the one deadline line exist before the deadline only, with no strike or saving claim", () => {
+    expect(boardPassFoundingLabel(new Date("2026-11-30T23:59:59+05:30"))).toBe("Founding member offer");
+    expect(boardPassDeadlineLine(new Date("2026-11-30T23:59:59+05:30"))).toBe(
+      "Founding member offer ends 30 November. From 1 December: ₹2,499.",
+    );
+    expect(boardPassFoundingLabel(new Date("2026-12-01T00:00:00+05:30"))).toBeNull();
+    expect(boardPassDeadlineLine(new Date("2026-12-01T00:00:00+05:30"))).toBeNull();
+    expect(boardPassDeadlineLine(new Date("2026-11-01T10:00:00+05:30"))).not.toMatch(/\b(save|off|shrinks?)\b|%/i);
   });
 
-  it("k is never 0 — on the day of the first paper the plan still covers one month", () => {
-    const q = tillBoardsQuote(istNoon(BOARD), BOARD, true)!;
-    expect(q.monthsLeft).toBe(1);
-    expect(q.fullInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
-    expect(q.priceInr).toBeGreaterThan(0);
-  });
-
-  it("uses the IST calendar date, not UTC: 16 Dec 20:00 UTC is already 17 Dec in India", () => {
-    // 2026-12-16T20:00Z = 2026-12-17 01:30 IST → the 17 Dec row (2 months).
-    expect(tillBoardsQuote(new Date("2026-12-16T20:00:00Z"), BOARD, true)!.monthsLeft).toBe(2);
-    // CONTROL — 18:00 UTC is 23:30 IST on the 16th → the 16 Dec row (3 months).
-    expect(tillBoardsQuote(new Date("2026-12-16T18:00:00Z"), BOARD, true)!.monthsLeft).toBe(3);
-  });
-
-  it("clamps a month-end day instead of rolling into the month after", () => {
-    // 31 Dec + 1 month = 31 Jan; + 2 months = 28 Feb (clamped) >= 17 Feb → 2.
-    expect(tillBoardsQuote(istNoon("2026-12-31"), BOARD, true)!.monthsLeft).toBe(2);
-    // 30 Nov + 3 months = 28 Feb (clamped from 30 Feb, never 2 Mar).
-    expect(tillBoardsQuote(istNoon("2026-11-30"), "2027-02-28", true)!.monthsLeft).toBe(3);
-  });
-
-  it("returns null for an unparseable board date rather than inventing a price", () => {
-    expect(tillBoardsQuote(istNoon("2026-09-26"), "not-a-date", true)).toBeNull();
-    expect(tillBoardsQuote(istNoon("2026-09-26"), "2027-02-30", true)).toBeNull();
-    expect(tillBoardsQuote(new Date("nonsense"), BOARD, true)).toBeNull();
-  });
-
-  it("defaults to the founding offer AS OF the instant it is given (PRICING-1: closes 00:00 IST on 1 Dec 2026)", () => {
-    const open = tillBoardsQuote(istNoon("2026-09-26"), BOARD)!;
-    expect(open.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
-    const lastSecond = tillBoardsQuote(new Date("2026-11-30T23:59:59+05:30"), BOARD)!;
-    expect(lastSecond.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
-    const firstSecond = tillBoardsQuote(new Date("2026-12-01T00:00:00+05:30"), BOARD)!;
-    expect(firstSecond.monthlyInr).toBe(PRICE_MONTHLY_LIST_INR);
+  it("the quote carries no saving claim, struck price or monthly figure", () => {
+    const q = tillBoardsQuote(istNoon("2026-10-31"), BOARD)! as unknown as Record<string, unknown>;
+    expect(Object.keys(q).sort()).toEqual(["monthsLeft", "priceDisplay", "priceInr", "untilLabel"]);
   });
 });
 
-describe("tillBoardsQuote — wired to the same board date as the landing countdown", () => {
-  it("on 2026-09-26 the predictor yields 2027-02-17 and the quote is ₹2,396 / ₹2,995", () => {
+describe("tillBoardsQuote - the rules that stay", () => {
+  it("k is never 0 - on the day of the first paper the plan still covers one month", () => {
+    const q = tillBoardsQuote(istNoon(BOARD), BOARD)!;
+    expect(q.monthsLeft).toBe(1);
+    expect(q.priceInr).toBe(2499);
+  });
+
+  it("uses the IST calendar date, not UTC: 16 Dec 20:00 UTC is already 17 Dec in India", () => {
+    expect(tillBoardsQuote(new Date("2026-12-16T20:00:00Z"), BOARD)!.monthsLeft).toBe(2);
+    expect(tillBoardsQuote(new Date("2026-12-16T18:00:00Z"), BOARD)!.monthsLeft).toBe(3);
+  });
+
+  it("clamps a month-end day instead of rolling into the month after", () => {
+    expect(tillBoardsQuote(istNoon("2026-12-31"), BOARD)!.monthsLeft).toBe(2);
+    expect(tillBoardsQuote(istNoon("2026-11-30"), "2027-02-28")!.monthsLeft).toBe(3);
+  });
+
+  it("returns null for an unparseable board date rather than inventing a price", () => {
+    expect(tillBoardsQuote(istNoon("2026-09-26"), "not-a-date")).toBeNull();
+    expect(tillBoardsQuote(istNoon("2026-09-26"), "2027-02-30")).toBeNull();
+    expect(tillBoardsQuote(new Date("nonsense"), BOARD)).toBeNull();
+  });
+});
+
+describe("the number-free copy", () => {
+  it("carries NO rupee figure and NO saving-versus-monthly claim", () => {
+    for (const copy of [TILL_BOARDS_LINE, TILL_BOARDS_INLINE]) {
+      expect(copy).not.toMatch(/₹/);
+      expect(copy).not.toMatch(/%|save|off paying|monthly/i);
+    }
+  });
+});
+
+describe("tillBoardsQuote - wired to the same board date as the landing countdown", () => {
+  it("on 2026-10-31 the predictor yields 2027-02-17 and the quote is ₹1,917", () => {
     vi.useFakeTimers();
-    vi.setSystemTime(istNoon("2026-09-26"));
+    vi.setSystemTime(istNoon("2026-10-31"));
     const boardIso = predictCbseExamDate("10");
     expect(boardIso).toBe("2027-02-17");
-    const q = tillBoardsQuote(new Date(), boardIso, true)!;
-    expect(q.priceDisplay).toBe("₹2,396");
-    expect(q.fullDisplay).toBe("₹2,995");
+    const q = tillBoardsQuote(new Date(), boardIso)!;
+    expect(q.priceDisplay).toBe("₹1,917");
     expect(q.untilLabel).toBe("till your boards (Feb 2027)");
   });
 });

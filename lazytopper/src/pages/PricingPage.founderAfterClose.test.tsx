@@ -22,6 +22,13 @@ const authState: { user: { uid: string } | null } = { user: null };
 vi.mock("../context/AuthContext", () => ({
   useAuth: () => ({ user: authState.user, loading: false }),
 }));
+// PRICE-FIXED-1: the month pass shows only for an account the server says has a PAID month order.
+const monthState = vi.hoisted(() => ({ buyer: true }));
+vi.mock("../components/pricing/useMonthPassAvailable", () => ({
+  useMonthPassAvailable: () => monthState.buyer,
+  fetchMonthPassAvailable: async () => monthState.buyer,
+  resetMonthPassAvailableForTests: () => undefined,
+}));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
 vi.mock("../services/subscriptionService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../services/subscriptionService")>();
@@ -66,6 +73,7 @@ async function renderAs(sub: SubscriptionStatus) {
 beforeEach(() => {
   localStorage.clear();
   authState.user = null;
+  monthState.buyer = true;
   hydrate.mockReset();
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
 });
@@ -75,7 +83,7 @@ afterEach(() => {
 });
 
 describe("PricingPage after 1 Dec 2026", () => {
-  it("a FOUNDING member sees the founding rate, the lock promise and a Pay button at that rate — what the server charges", async () => {
+  it("a FOUNDING month buyer sees the founding rate, the lock promise and a Pay button at that rate — what the server charges", async () => {
     const premium = await renderAs(status({ foundingMember: true }));
     expect(premium.querySelector('[data-testid="pricing-monthly-price"] .lt-pricing-amount')?.textContent).toBe(
       PRICE_MONTHLY_FOUNDING_DISPLAY,
@@ -87,7 +95,7 @@ describe("PricingPage after 1 Dec 2026", () => {
     expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull();
   });
 
-  it("a student WITHOUT the founding rate sees the list price, no lock promise, and a Pay button at the list price", async () => {
+  it("a month buyer WITHOUT the founding rate sees the list price, no lock promise, and a Pay button at the list price", async () => {
     const premium = await renderAs(status({}));
     expect(premium.querySelector('[data-testid="pricing-monthly-price"] .lt-pricing-amount')?.textContent).toBe(
       PRICE_MONTHLY_LIST_DISPLAY,
@@ -96,5 +104,17 @@ describe("PricingPage after 1 Dec 2026", () => {
     expect(await screen.findByRole("button", { name: `Pay ${PRICE_MONTHLY_LIST_DISPLAY} for a month` })).toBeInTheDocument();
     expect(premium.querySelector(".lt-pricing-founding-flag")).toBeNull();
     expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull();
+  });
+
+  it("PRICE-FIXED-1: a student who is NOT a month buyer sees only the Board Pass at the after-founding price: no month tile, no 599/999, no founding label", async () => {
+    monthState.buyer = false;
+    const premium = await renderAs(status({ foundingMember: true }));
+    expect(premium.querySelector('[data-testid="pricing-monthly-price"]')).toBeNull();
+    expect(premium.textContent).not.toMatch(/599|999|for a month/);
+    expect(premium.textContent).toContain("₹2,499");
+    expect(premium.querySelector('[data-testid="till-boards-founding-label"]')).toBeNull();
+    expect(premium.querySelector('[data-testid="till-boards-deadline"]')).toBeNull();
+    expect(await screen.findByRole("button", { name: "Pay ₹2,499 once till your boards" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /for a month/i })).toBeNull();
   });
 });

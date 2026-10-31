@@ -343,6 +343,37 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
   });
 }
 
+/**
+ * PRICE-FIXED-1 - has this account EVER PAID for a month pass? Derived ONLY on the server, from its own
+ * records (never from a request field). True only when a `payOrders` document exists with this uid,
+ * passType "month" and status "paid" - the record a real, verified payment leaves (a student's own checkout
+ * or a parent's pay-link order, both stored against the CHILD's uid). An admin-granted month pass, a
+ * ledger record without a paid order and a stored month `passType` are NOT a purchase (owner, review of
+ * #1458: "a PAID month purchase"), so none of them keeps the month option open.
+ * A read that fails THROWS: the caller refuses the order (fail closed) rather than guess either way.
+ * An erased account's orders carry uid "erased" and cannot match.
+ */
+async function hasPaidMonthOrder(firestore, uid) {
+  if (!firestore || typeof firestore.collection !== 'function') throw new Error('firebase-admin Firestore is unavailable');
+  const id = typeof uid === 'string' ? uid.trim() : '';
+  if (!id || id.includes('/')) return false;
+  const orders = await firestore
+    .collection(PAYMENT_SEGMENTS.payOrders)
+    .where('uid', '==', id).where('passType', '==', 'month').where('status', '==', 'paid').limit(1).get();
+  return !!orders && orders.empty === false;
+}
+
+/**
+ * PRICE-FIXED-1 - may this account be SOLD a month pass at `nowMs`? Before the retirement instant
+ * every account may; from it, only an account with a prior paid month order. Server clock, server data.
+ * (A month order that was CREATED before the instant and is paid after it is still GRANTED: the money is
+ * captured and grantPass never consults this - only the order routes do.)
+ */
+async function monthPassAvailableFor(firestore, uid, nowMs) {
+  if (!pricing.monthPassRetired(nowMs)) return true;
+  return hasPaidMonthOrder(firestore, uid);
+}
+
 /** A founding order stays payable this long after the offer closes (PRICING-1). */
 const FOUNDING_ORDER_GRACE_MS = 24 * 60 * 60 * 1000;
 
@@ -360,6 +391,8 @@ function isStaleFoundingOrder(order, nowMs) {
 }
 
 module.exports = {
+  hasPaidMonthOrder,
+  monthPassAvailableFor,
   isStaleFoundingOrder,
   FOUNDING_ORDER_GRACE_MS,
   grantPass,

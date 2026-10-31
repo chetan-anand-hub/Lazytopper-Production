@@ -138,11 +138,13 @@ export function TrialEndScreenView({ offer, activityLine, onBasic, actions }: Tr
           <p className="lt-tes__did" data-testid="trial-end-screen-activity">{activityLine}</p>
         ) : null}
         <div className="lt-tes__lead" data-testid="trial-end-screen-lead">
+          {offer.foundingLabel ? <p className="lt-tes__tag" data-testid="trial-end-screen-founding-label">{offer.foundingLabel}</p> : null}
           <p className="lt-tes__tag">{offer.title}</p>
           <p className="lt-tes__price">{offer.priceDisplay}</p>
           <p className="lt-tes__detail">{offer.detail}</p>
         </div>
         <p className="lt-tes__second" data-testid="trial-end-screen-second">{offer.second}</p>
+        {offer.deadline ? <p className="lt-tes__second" data-testid="trial-end-screen-deadline">{offer.deadline}</p> : null}
         <div className="lt-tes__actions">{actions}</div>
         <p className="lt-tes__keep">
           You keep <strong>Basic free, always</strong> - Exam Trends, the full question bank, Practice and your progress.

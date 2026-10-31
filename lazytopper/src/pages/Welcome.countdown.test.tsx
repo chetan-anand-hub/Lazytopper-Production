@@ -310,15 +310,14 @@ const WELCOME = () => readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
 
 describe("no clock read reaches the landing's render path", () => {
   it("★★ Welcome.tsx performs exactly ONE `new Date()`, and it is inside the effect", () => {
-    // PRICING-1 (owner-approved 25 Oct 2026): the plans card reads `foundingOfferOpen(Date.now())` at
-    // render so the price switches on 1 Dec with no deploy. That ONE `Date.now()` is the only render-path
-    // clock read allowed; the boards countdown (`new Date()`) stays inside the effect.
+    // PRICE-FIXED-1 (31 Oct 2026): the Board Pass price is fixed, so the plans card no longer reads the clock
+    // at render. The boards countdown (`new Date()`) stays inside the effect and is the only clock read.
     const code = stripComments(WELCOME());
-    expect(code.match(CLOCK_READ) ?? []).toEqual(["new Date()", "Date.now()"]);
-    expect(code.match(/foundingOfferOpen\(Date\.now\(\)\)/g) ?? []).toHaveLength(1);
+    expect(code.match(CLOCK_READ) ?? []).toEqual(["new Date()"]);
+    expect(code.match(/foundingOfferOpen/g) ?? []).toHaveLength(0);
     const { inside, outside } = sites(WELCOME(), CLOCK_READ);
     expect(inside).toHaveLength(1);
-    expect(outside).toHaveLength(1);
+    expect(outside).toHaveLength(0);
   });
 
   it("★★★ predictCbseExamDate is referenced ONLY inside a useEffect body", () => {

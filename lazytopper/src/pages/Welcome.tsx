@@ -1,15 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
-import {
-  BOARD_PASS_NAME,
-  FOUNDING_LABEL,
-  foundingOfferOpen,
-  PRICE_FREE_DISPLAY,
-  PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
-  TILL_BOARDS_LINE,
-} from "../config/pricing";
+import { BOARD_PASS_NAME, boardPassFoundingLabel, boardPassPriceLine, PRICE_FREE_DISPLAY } from "../config/pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 
 /**
@@ -415,45 +407,29 @@ const CSS = `
 `;
 
 /**
- * The paid card's head — name, price, founding line. ★ TAKES THE OFFER STATE AS A
- * PROP so a test can render both states WITHOUT mocking src/config: the repo forbids
- * `vi.mock` of anything under config/ (gradingLimits.guard.test.ts), and a flag
- * flipped by mock would be exactly that. Welcome passes `foundingOfferOpen(Date.now())`
- * (PRICING-1, owner-approved 25 Oct 2026: the landing follows the offer's DATE, so the price
- * switches to the list rate at 00:00 IST on 1 Dec 2026 with no deploy).
- * While the offer is open the founding price leads with the list price struck
- * beside it; when it closes, the list price stands alone. Constants only.
+ * The paid card's head - PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass only, at its fixed price. It takes no
+ * offer state any more: nothing on this card depends on the date or on the founding offer.
  */
 /** The mark's visible height: its mask fades it out between 70% and 96%. */
 const MARK_VISIBLE_FRACTION = 0.96;
 
-export function PaidPlanHead({ offerOpen }: { offerOpen: boolean }) {
+export function PaidPlanHead() {
   return (
     <>
       <div className="pt">
         <span className="pn">WITH MARKING</span>
       </div>
-      {/* PRICING-1 (owner-approved 25 Oct 2026) — the Board Pass LEADS: one payment, till the board exam.
-          Number-free here on purpose (its figure is clock-derived; /pricing shows it). The monthly
-          price follows, secondary. */}
+      {/* PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass is the ONLY plan shown - one fixed payment, till the
+          board exam. The month price is hidden throughout the product. The figure is a constant now (it no
+          longer depends on the date), imported, never typed. */}
+      {boardPassFoundingLabel() ? (
+        <p className="bp" data-testid="landing-founding-label">
+          {boardPassFoundingLabel()}
+        </p>
+      ) : null}
       <p className="bp" data-testid="landing-board-pass">
-        <b>{BOARD_PASS_NAME}</b> &mdash; {TILL_BOARDS_LINE}
+        <b>{BOARD_PASS_NAME}</b> &mdash; {boardPassPriceLine()}
       </p>
-      <div className="pt">
-        <span className="pn">OR BY THE MONTH</span>
-        {offerOpen ? (
-          <span className="pp" data-testid="landing-paid-price">
-            {PRICE_MONTHLY_FOUNDING_DISPLAY}
-            <span className="per"> for a month</span> <s className="was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
-          </span>
-        ) : (
-          <span className="pp" data-testid="landing-paid-price">
-            {PRICE_MONTHLY_LIST_DISPLAY}
-            <span className="per"> for a month</span>
-          </span>
-        )}
-      </div>
-      {offerOpen && <p className="fl">{FOUNDING_LABEL} price</p>}
     </>
   );
 }
@@ -462,8 +438,8 @@ export default function Welcome() {
   const { pathname } = useLocation();
 
   /**
-   * ★ PRICING-1 EXCEPTION: the plans card reads `foundingOfferOpen(Date.now())` at render, so the price
-   * follows the offer's date (owner-approved). Nothing else below is clock-derived at render.
+   * PRICE-FIXED-1: the plans card shows the Board Pass's fixed price (a constant). Nothing below is
+   * clock-derived at render.
    *
    * ★ THE ONLY OTHER CLOCK READS IN THIS MODULE, AND THEY ARE OUTSIDE THE RENDER PATH:
    * `new Date()` and `predictCbseExamDate()` (which reads the clock internally),
@@ -762,22 +738,8 @@ export default function Welcome() {
           </Link>
           <p className="lt-landing-hnote">Free to start. One-tap sign-up, no card.</p>
           <div className="lt-landing-plans" ref={plansRef}>
-            {/* ⚠ THE PRICE IS IMPORTED, NEVER TYPED. `pricing.guard.test.ts`
-                forbids a rupee literal in .ts/.tsx, and the prototype's own
-                header says the figure MUST match /app/pricing or stop. It did
-                not: the prototype shows Rs 1,999/mo, which appears nowhere in
-                `src/config/pricing.ts` (list 999, founding 599). Owner ruled the
-                LIST rate. Reading the constant means this card cannot drift from
-                the pricing page.
-                ★ SUPERSEDED — LANDING-FOLLOWUP-1, owner ruling. The owner has since
-                set final pricing: the founding rate, closable at will, then the
-                list rate after. Showing only the list rate while the founding offer
-                is open hid the deal a student would actually get. So the card now
-                reads `foundingOfferOpen(Date.now())`: while it is true, the founding price
-                leads and the list price is struck through beside it (the same
-                pattern as OfferStrip and /pricing), so the saving is legible; when
-                it is false, the list price stands alone. Still constants, never a
-                literal. */}
+            {/* The price is IMPORTED, never typed (`pricing.guard.test.ts`). PRICE-FIXED-1: the paid card shows the
+                Board Pass only, at its fixed price. */}
             <Link className="lt-landing-plan" to="/pricing">
               <div className="pt">
                 <span className="pn">FREE</span>
@@ -789,7 +751,7 @@ export default function Welcome() {
               <p className="go">See what&apos;s included &rarr;</p>
             </Link>
             <Link className="lt-landing-plan pay" to="/pricing">
-              <PaidPlanHead offerOpen={foundingOfferOpen(Date.now())} />
+              <PaidPlanHead />
               {/* ⚠ "Unlimited" REMOVED, NOT ABANDONED (LANDING-FOLLOWUP-1, owner
                   ruling). The rate limiter has a product-wide daily ceiling
                   (rateLimiter.cjs GLOBAL_DAILY_HARD_CALLS) at which grading is shed,
