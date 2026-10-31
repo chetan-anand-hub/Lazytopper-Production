@@ -82,7 +82,7 @@ export const OFFER_INTENT_TABLE: ReadonlyArray<OfferIntentRule> = [
 const AFFIRMATIVE_RE =
   /^\s*(yes|yeah|yep|yup|ya|ok|okay|sure|please|haan|haa|han|ha|ji|ji\s+haan|go\s+ahead|let'?s\s+do\s+(it|that)|do\s+it|definitely|of\s+course|हाँ|हां|जी|ठीक\s+है)\b[\s\S]{0,40}$/iu;
 const PREV_OFFERED_CHECK_RE =
-  /answer\s*checker|check\s*(&|and)\s*improve|\bupload\b|\b(get|have)\s+(it|that|this|your\s+\w+(\s+\w+)?)\s+(board[-\s])?(marked|checked|graded)\b|\bboard-marked\b/i;
+  /\banswer\s*checker\b|check\s*(&|and)\s*improve|\bupload\b|\b(get|have)\s+(it|that|this|your\s+\w+(\s+\w+)?)\s+(board[-\s])?(marked|checked|graded)\b|\bboard-marked\b/i;
 const PREV_OFFERED_PRACTICE_RE =
   /\btry\s+(a\s+couple|a\s+few|some)\b|\b(a\s+couple|a\s+few|some)\s+(of\s+)?(questions?|problems?|sums)\s+(for\s+you\s+)?to\s+try\b|\bpracti[cs]e\s+(set|questions?|a\s+few|some|this|on)\b|\bquick\s+practice\b/i;
 
