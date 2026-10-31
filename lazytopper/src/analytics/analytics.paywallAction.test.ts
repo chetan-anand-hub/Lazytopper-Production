@@ -75,6 +75,16 @@ describe("PAYWALL-PAY-1 · trackPaywallAction", () => {
     expect(meta).toEqual([]);
   });
 
+  it("CHECKOUT-1: ask -> one vendor event { action: 'ask', surface } and the first-party name ask_parent_pay, on both allowlists", () => {
+    trackPaywallAction("ask", "trial_end");
+    expect(vercel[0]).toEqual(["event", { name: "paywall_action", data: { action: "ask", surface: "trial_end" } }]);
+    expect(recordActivity).toHaveBeenCalledWith("event", { name: "ask_parent_pay" });
+    const requireCjs = createRequire(import.meta.url);
+    const server = requireCjs("../../server/routes/studentActivity.cjs") as { ACTIVITY_EVENTS: readonly string[] };
+    expect(ACTIVITY_EVENTS as readonly string[]).toContain("ask_parent_pay");
+    expect(server.ACTIVITY_EVENTS).toContain("ask_parent_pay");
+  });
+
   it("the three first-party names are on BOTH allowlists and have admin labels", () => {
     const requireCjs = createRequire(import.meta.url);
     const server = requireCjs("../../server/routes/studentActivity.cjs") as { ACTIVITY_EVENTS: readonly string[] };

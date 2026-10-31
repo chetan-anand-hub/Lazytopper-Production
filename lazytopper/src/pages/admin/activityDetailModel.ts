@@ -159,6 +159,7 @@ const EVENT_LABELS: Record<string, string> = {
   paywall_action_pay: "Tapped Pay on a paywall",
   paywall_action_qr: "Tapped Share QR code (for parents)",
   paywall_action_forward: "Tapped Forward link to parents",
+  ask_parent_pay: "Tapped Ask a parent to pay",
   // LIMITS-1 — paper downloads and the weekly download limit.
   download_start: "Started a paper download",
   download_blocked: "Was stopped by the weekly download limit",

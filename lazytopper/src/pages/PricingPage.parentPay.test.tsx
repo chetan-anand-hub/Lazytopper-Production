@@ -1,7 +1,7 @@
 /**
  * ASK-PARENTS-PAY-1 — where the two halves mount on /pricing.
  *
- *   "Share QR code" / "Forward link to parents" (PAYWALL-PAY-1): signed-in, hydrated, NOT
+ *   "Share QR code" / "Ask a parent to pay" (PAYWALL-PAY-1): signed-in, hydrated, NOT
  *   Premium (Basic or trial), flags on.
  *   The parent's page: `/pricing#pp=<token>` with flags on. Otherwise the plans page exactly
  *   as before — with the flags off a pay-link address is just /pricing.
@@ -87,7 +87,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("PricingPage — Share QR code / Forward link to parents (PAYWALL-PAY-1)", () => {
+describe("PricingPage — Share QR code / Ask a parent to pay (PAYWALL-PAY-1)", () => {
   it.each([
     ["Basic", FREE],
     ["trial", TRIAL],
@@ -102,7 +102,7 @@ describe("PricingPage — Share QR code / Forward link to parents (PAYWALL-PAY-1
     // that chunk, which took >1 s on a loaded 4-worker CI runner (failed at 1959 ms, 30 Oct 2026). Same
     // assertion, a wait budgeted for a cold import; a missing button still fails, just after the budget.
     expect(await screen.findByRole("button", { name: "Share QR code" }, { timeout: LAZY_CHUNK_MS })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Forward link to parents" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ask a parent to pay" })).toBeInTheDocument();
     // "Pay" on /pricing is the pass tiles' own buttons — never a second, separate Pay.
     expect(screen.queryByTestId("paywall-pay")).toBeNull();
     expect(screen.getAllByRole("button", { name: /^Pay / }).length).toBeGreaterThan(0);

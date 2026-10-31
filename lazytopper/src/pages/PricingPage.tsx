@@ -525,15 +525,17 @@ const PRICING_CSS = `
     background: var(--lt-surface);
   }
 
-  /* PRICING-1 (owner, 25 Oct 2026) — the Board Pass LEADS: first, wider, bordered in the
-     brand green; the Month pass is the quieter option beside it. */
-  .lt-pricing-pass-bg--boards {
+  /* CHECKOUT-1 (owner, 31 Oct 2026) — the MONTH pass LEADS: first, wider, bordered in the
+     brand green; "till boards" stays beside it as the quieter option, its price unchanged.
+     (This reverses PRICING-1 of 25 Oct, when the Board Pass led: ten checkouts opened on the
+     till-boards price and none was paid.) */
+  .lt-pricing-pass-bg--month {
     grid-column: 1;
     grid-row: 2 / 4;
     border: 2px solid var(--lt-green-deep);
   }
 
-  .lt-pricing-pass-bg--month {
+  .lt-pricing-pass-bg--boards {
     grid-column: 2;
     grid-row: 2 / 4;
     border: 1px solid var(--lt-tile-line);
@@ -548,22 +550,22 @@ const PRICING_CSS = `
     gap: 6px;
   }
 
-  .lt-pricing-pass--boards {
+  .lt-pricing-pass--month {
     grid-column: 1;
     grid-row: 2;
   }
 
-  .lt-pricing-pass--month {
+  .lt-pricing-pass--boards {
     grid-column: 2;
     grid-row: 2;
   }
 
   .lt-pricing-pass--boards .lt-pricing-tillboards-amount {
-    font-size: 3rem;
+    font-size: 1.9rem;
   }
 
   .lt-pricing-pass--month .lt-pricing-amount {
-    font-size: 1.9rem;
+    font-size: 3rem;
   }
 
   .lt-pricing-pass-name {
@@ -604,14 +606,14 @@ const PRICING_CSS = `
     padding: 12px 10px;
   }
 
-  .lt-pricing-pay--boards {
+  .lt-pricing-pay--month {
     grid-column: 1;
     grid-row: 3;
     color: var(--lt-on-dark);
     background: var(--lt-green-deep);
   }
 
-  .lt-pricing-pay--month {
+  .lt-pricing-pay--boards {
     grid-column: 2;
     grid-row: 3;
     color: var(--lt-on-dark);
@@ -645,7 +647,7 @@ const PRICING_CSS = `
   }
 
   .lt-pricing-passes .lt-pack-credit-note {
-    grid-column: 1;
+    grid-column: 2;
     grid-row: 4;
     align-self: start;
     margin: 0 16px 16px;
@@ -1169,27 +1171,27 @@ const PRICING_CSS = `
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: auto auto auto 14px auto auto auto;
     }
-    .lt-pricing-pass-bg--boards {
+    .lt-pricing-pass-bg--month {
       grid-column: 1;
       grid-row: 2 / 4;
     }
-    .lt-pricing-pass-bg--month {
+    .lt-pricing-pass-bg--boards {
       grid-column: 1;
       grid-row: 5 / 7;
     }
-    .lt-pricing-pass--boards {
+    .lt-pricing-pass--month {
       grid-column: 1;
       grid-row: 2;
     }
-    .lt-pricing-pass--month {
+    .lt-pricing-pass--boards {
       grid-column: 1;
       grid-row: 5;
     }
-    .lt-pricing-pay--boards {
+    .lt-pricing-pay--month {
       grid-column: 1;
       grid-row: 3;
     }
-    .lt-pricing-pay--month {
+    .lt-pricing-pay--boards {
       grid-column: 1;
       grid-row: 6;
     }
@@ -1200,27 +1202,22 @@ const PRICING_CSS = `
     .lt-pricing-tillboards-slot {
       min-height: 6.2rem;
     }
-    /* With the pack-credit note: it takes row 4 inside the Board Pass box, the Month pass moves down. */
+    /* With the pack-credit note: it belongs to the Board Pass, which is now the second tile, so it takes
+       the row under the Board Pass button, inside that tile's box. */
     .lt-pricing-passes:has(.lt-pack-credit-note) {
-      grid-template-rows: auto auto auto auto 14px auto auto;
-    }
-    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--boards {
-      grid-column: 1;
-      grid-row: 2 / 5;
+      grid-template-rows: auto auto auto 14px auto auto auto auto;
     }
     .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--month {
       grid-column: 1;
-      grid-row: 6 / 8;
+      grid-row: 2 / 4;
     }
-    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass--month {
-      grid-row: 6;
-    }
-    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pay--month {
-      grid-row: 7;
+    .lt-pricing-passes:has(.lt-pack-credit-note) .lt-pricing-pass-bg--boards {
+      grid-column: 1;
+      grid-row: 5 / 8;
     }
     .lt-pricing-passes .lt-pack-credit-note {
       grid-column: 1;
-      grid-row: 4;
+      grid-row: 7;
     }
   }
 
@@ -1778,14 +1775,14 @@ function PricingPlansPage() {
                   <div className="lt-pricing-passes" data-testid="pricing-passes" onClickCapture={trackPricingPayTap}>
                     <div className="lt-pricing-pass-bg lt-pricing-pass-bg--boards" aria-hidden="true" />
                     <div className="lt-pricing-pass-bg lt-pricing-pass-bg--month" aria-hidden="true" />
-                    <div className="lt-pricing-pass lt-pricing-pass--boards">
-                      <div className="lt-pricing-pass-name">{BOARD_PASS_NAME}</div>
-                      <TillBoardsOffer offerOpen={foundingRate} />
-                    </div>
                     <div className="lt-pricing-pass lt-pricing-pass--month">
                       <div className="lt-pricing-pass-name">Month pass</div>
                       <PremiumPriceHead offerOpen={foundingRate} />
                       <p className="lt-pricing-price-alt">{TUITION_ANCHOR}</p>
+                    </div>
+                    <div className="lt-pricing-pass lt-pricing-pass--boards">
+                      <div className="lt-pricing-pass-name">{BOARD_PASS_NAME}</div>
+                      <TillBoardsOffer offerOpen={foundingRate} />
                     </div>
                     {paymentsOn ? (
                       <PassCheckout />

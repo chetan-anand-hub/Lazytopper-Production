@@ -56,6 +56,11 @@ export const class10MathTopicTrends = {
     "Section E (Case-Based, 4 marks)": 12,
   } as Record<string, number>,
 
+  // WEIGHTAGE-1 (owner ruling 31 Oct 2026): weightagePercent is set so each UNIT sums to CBSE 2026-27 unit marks / 80
+  // (src/config/syllabusUnits2026-27.ts). Unit marks: Number Systems 6 (Real Numbers) - Algebra 20 (Polynomials,
+  // Pair of Linear Eqns, Quadratic, AP) - Coordinate Geometry 6 - Geometry 15 (Triangles, Circles) - Trigonometry 12
+  // (one entry here) - Mensuration 10 (Areas Related to Circles, Surface Areas and Volumes) - Statistics & Probability 11.
+  // Within a unit the pre-existing ratio is kept. Tiers are hand-set here, not derived from weight, so unchanged.
   topics: {
     "Real Numbers": {
       weightagePercent: 7.5,
@@ -69,7 +74,7 @@ export const class10MathTopicTrends = {
     },
 
     "Polynomials": {
-      weightagePercent: 3.85,
+      weightagePercent: 3.75,
       tier: "good-to-do" as TopicTier,
       summary:
         "Roots/zeroes, factor theorem, identities—frequently tested via quick MCQs/assertions and short items.",
@@ -81,7 +86,7 @@ export const class10MathTopicTrends = {
     },
 
     "Pair of Linear Equations": {
-      weightagePercent: 8.97,
+      weightagePercent: 8.75,
       tier: "high-roi" as TopicTier,
       summary:
         "Algebraic methods, consistency/nature of solutions, and word applications—high frequency across sections.",
@@ -93,7 +98,7 @@ export const class10MathTopicTrends = {
     },
 
     "Quadratic Equations": {
-      weightagePercent: 7.69,
+      weightagePercent: 7.5,
       tier: "high-roi" as TopicTier,
       summary:
         "Solution methods + discriminant/nature of roots + word problems—very common in Section A/C.",
@@ -105,7 +110,7 @@ export const class10MathTopicTrends = {
     },
 
     "Arithmetic Progression": {
-      weightagePercent: 5.13,
+      weightagePercent: 5.0,
       tier: "good-to-do" as TopicTier,
       summary:
         "Nth term, sum, and word applications—usually one MCQ + one short/medium item.",
@@ -117,7 +122,7 @@ export const class10MathTopicTrends = {
     },
 
     "Triangles": {
-      weightagePercent: 11.54,
+      weightagePercent: 12.98,
       tier: "must-crack" as TopicTier,
       summary:
         "Similarity criteria + BPT (the one proof CBSE asks for)—proof + application, frequently appears every paper.",
@@ -128,7 +133,7 @@ export const class10MathTopicTrends = {
     },
 
     "Coordinate Geometry": {
-      weightagePercent: 7.69,
+      weightagePercent: 7.5,
       tier: "high-roi" as TopicTier,
       summary:
         "Distance formula and section formula—direct scoring, recurring in Section A/B.",
@@ -139,7 +144,7 @@ export const class10MathTopicTrends = {
     },
 
     "Trigonometry": {
-      weightagePercent: 15.39,
+      weightagePercent: 15.0,
       tier: "must-crack" as TopicTier,
       summary:
         "Ratios/identities + heights & distances—high ROI; supports case-based real-life contexts.",
@@ -151,7 +156,7 @@ export const class10MathTopicTrends = {
     },
 
     "Circles": {
-      weightagePercent: 5.13,
+      weightagePercent: 5.77,
       tier: "good-to-do" as TopicTier,
       summary:
         "Tangent properties/theorems + short proofs/scenarios—typically short/medium items.",
@@ -163,7 +168,7 @@ export const class10MathTopicTrends = {
     },
 
     "Areas Related to Circles": {
-      weightagePercent: 5.13,
+      weightagePercent: 5.0,
       tier: "good-to-do" as TopicTier,
       summary:
         "Sector/segment and composite figures—usually direct application MCQ/shorts.",
@@ -174,7 +179,7 @@ export const class10MathTopicTrends = {
     },
 
     "Surface Areas and Volumes": {
-      weightagePercent: 7.69,
+      weightagePercent: 7.5,
       tier: "high-roi" as TopicTier,
       summary:
         "Standard solids + combination problems + unit conversions—often one medium/long calculation.",
@@ -187,7 +192,7 @@ export const class10MathTopicTrends = {
     },
 
     "Statistics": {
-      weightagePercent: 8.97,
+      weightagePercent: 8.75,
       tier: "high-roi" as TopicTier,
       summary:
         "Grouped data mean/median/mode—high-frequency, scoring chapter.",
@@ -199,7 +204,7 @@ export const class10MathTopicTrends = {
     },
 
     "Probability": {
-      weightagePercent: 5.13,
+      weightagePercent: 5.0,
       tier: "good-to-do" as TopicTier,
       summary:
         "Single-event probability + complements/combined scenarios—regular direct questions.",

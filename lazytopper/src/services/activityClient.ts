@@ -177,6 +177,8 @@ export const ACTIVITY_EVENTS = [
   "paywall_action_pay",
   "paywall_action_qr",
   "paywall_action_forward",
+  // CHECKOUT-1 - a tap on "Ask a parent to pay". Name only. Additive.
+  "ask_parent_pay",
   // LIMITS-1 — a paper PDF was started / refused by the weekly download limit / the wall was shown. Names only. Additive.
   "download_start",
   "download_blocked",

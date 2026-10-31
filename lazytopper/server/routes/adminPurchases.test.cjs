@@ -13,20 +13,30 @@ function fakeFirestore(orders) {
     get reads() { return reads; },
     collection(name) {
       assert.equal(name, 'payOrders');
-      return {
-        orderBy(field, dir) {
-          assert.equal(field, 'paidAt'); assert.equal(dir, 'desc');
+      const make = (field, filters) => ({
+        orderBy(f, dir) {
+          assert.equal(f, field); assert.equal(dir, 'desc');
           return {
             limit(n) {
               return {
                 async get() {
                   reads += 1;
-                  const docs = orders.filter((o) => o.data.paidAt !== undefined).sort((a, b) => b.data.paidAt - a.data.paidAt).slice(0, n);
+                  const docs = orders
+                    .filter((o) => o.data[field] !== undefined && filters.every((fn) => fn(o)))
+                    .sort((a, b) => b.data[field] - a.data[field]).slice(0, n);
                   return { size: docs.length, forEach: (fn) => docs.forEach((o) => fn({ id: o.id, data: () => o.data })) };
                 },
               };
             },
           };
+        },
+      });
+      return {
+        ...make('paidAt', []),
+        // CHECKOUT-1: the abandoned-checkout read is a createdAt range ordered by createdAt.
+        where(field, op, value) {
+          assert.equal(field, 'createdAt'); assert.equal(op, '>=');
+          return make('createdAt', [(o) => o.data.createdAt >= value]);
         },
       };
     },
@@ -116,4 +126,50 @@ test('profile lookup failure keeps the rows, with no email', async () => {
   const res = {}; await route.list({}, res);
   assert.equal(res.status, 200);
   assert.equal(res.body.items[0].email, null);
+});
+
+// ── CHECKOUT-1: abandoned checkouts ──────────────────────────────────────────────────────────────
+const created = (id, uid, passType, inr, ago, extra = {}) => ({ id, data: { uid, passType, amountPaise: inr * 100, status: 'created', createdAt: new Date(NOW - ago), ...extra } });
+const MIN = 60000;
+
+test('abandoned: only status created, older than 30 minutes, within 30 days; paid excluded; newest first', async () => {
+  const orders = [
+    created('old', 'u1', 'till_boards', 1917, 3 * DAY),
+    created('fresh', 'u2', 'month', 599, 10 * MIN),
+    created('edge', 'u3', 'month', 599, 30 * MIN),
+    created('ok', 'u4', 'month', 599, 31 * MIN),
+    created('ancient', 'u5', 'month', 599, 31 * DAY),
+    { id: 'paidOne', data: { uid: 'u6', passType: 'month', amountPaise: 59900, status: 'paid', paymentId: 'pay_x', paidAt: new Date(NOW - 2 * DAY), createdAt: new Date(NOW - 2 * DAY - MIN) } },
+    created('admin', 'admin1', 'pack_chapter', 49, 2 * DAY, { packTarget: 'triangles' }),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.abandoned.items.map((i) => i.orderId), ['ok', 'admin', 'old']);
+  const [ok, adm, old] = res.body.abandoned.items;
+  assert.equal(ok.email, 'u4@x.in'); assert.equal(ok.amountInr, 599); assert.equal(ok.passType, 'month');
+  assert.equal(adm.isAdminAccount, true); assert.equal(old.isAdminAccount, false);
+  assert.equal(old.amountInr, 1917);
+});
+
+test('abandoned: the admin gate refuses before the abandoned read too', async () => {
+  const { route, fs } = harness({ ok: false, orders: [created('o', 'u1', 'month', 599, DAY)] });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 403);
+  assert.equal(res.body.abandoned, undefined);
+  assert.equal(fs.reads, 0);
+});
+
+test('abandoned: a failed abandoned read keeps the purchases (abandoned is null)', async () => {
+  process.env.ADMIN_FIREBASE_UIDS = 'admin1';
+  const base = fakeFirestore([paid('o1', 'u1', 'month', 599, 10)]);
+  const fs = { collection: (n) => ({ ...base.collection(n), where() { throw new Error('index missing'); } }) };
+  const route = createAdminPurchasesRoutes({
+    sendJson: (res, s, b) => { res.status = s; res.body = b; },
+    adminFirestore: fs, firebaseAdmin: fakeAuth, now: () => NOW, requireAdmin: async () => ({ ok: true, uid: 'admin1' }),
+  });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  assert.equal(res.body.items.length, 1);
+  assert.equal(res.body.abandoned, null);
 });

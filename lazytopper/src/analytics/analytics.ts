@@ -880,6 +880,8 @@ export type NamedAnalyticsEvent =
   | "paywall_action_pay"
   | "paywall_action_qr"
   | "paywall_action_forward"
+  // CHECKOUT-1 - a tap on "Ask a parent to pay" (it replaced "Forward link to parents"). Name only.
+  | "ask_parent_pay"
   // LIMITS-1 — a paper PDF started, was refused by the weekly download limit, or the wall showed.
   // Names only (no paper id, no kind in the first-party log). Sent by trackDownload
   | "download_start"
@@ -1465,7 +1467,7 @@ export function trackWhatsAppContactTap(placement: WhatsAppContactPlacement): vo
 }
 
 /** PAYWALL-PAY-1 — which of the three paywall actions was tapped. */
-export type PaywallAction = "pay" | "qr" | "forward";
+export type PaywallAction = "pay" | "qr" | "forward" | "ask";
 /**
  * PAYWALL-PAY-1 — where it was tapped: the Premium lock screen (RequirePremium), the upgrade
  * popup (UpgradeModal), the upgrade sheet (UpgradeSheet), the fair-use limit panel, /pricing,
@@ -1492,6 +1494,8 @@ const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",
   qr: "paywall_action_qr",
   forward: "paywall_action_forward",
+  // CHECKOUT-1 - "Ask a parent to pay" (the text-share action; `forward` is its retired name, kept for stored rows).
+  ask: "ask_parent_pay",
 };
 
 /**

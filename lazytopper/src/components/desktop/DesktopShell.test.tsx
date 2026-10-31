@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { boardPassPriceNow } from "../pricing/boardPassOffer";
+import { monthlyInline } from "../../config/pricing";
 
 /**
  * DesktopShell — rail contents + header stacking contract (PR-B2).
@@ -263,8 +263,8 @@ describe("DesktopShell rail — the Tutor entry (PR-B2)", () => {
     const note = screen.getByTestId("tutor-picker-gate-note");
     expect(note).not.toHaveTextContent(/Sign up free — 7 days of the tutor and step marking/i);
     expect(note).toHaveTextContent(/7-day trial/i);
-    // TRIAL-ON-SIGNUP-1b — the picker names the Board Pass price (boardPassPriceNow()).
-    expect(note.textContent).toContain(`then free Basic, or the Board Pass at ${boardPassPriceNow()} till your boards.`);
+    // TRIAL-ON-SIGNUP-1b — the picker names the monthly price (CHECKOUT-1).
+    expect(note.textContent).toContain(`then free Basic, or Premium at ${monthlyInline()}.`);
   });
 });
 

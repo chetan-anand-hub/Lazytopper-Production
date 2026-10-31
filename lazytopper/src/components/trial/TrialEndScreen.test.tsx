@@ -79,17 +79,18 @@ afterEach(() => {
 });
 
 describe("TrialEndScreen", () => {
-  it("shows on the first visit after the end - on a page that is NOT Home - with real counts, Board Pass first", async () => {
+  it("shows on the first visit after the end - on a page that is NOT Home - with real counts, the month pass first (CHECKOUT-1)", async () => {
     hydrate.mockResolvedValue(status("free"));
     readRecords.mockResolvedValue([rec("a", "check-improve", START + HOUR), rec("old", "worksheet", START - HOUR)]);
     renderAt("/check-improve");
     expect(await screen.findByRole("heading", { name: "Your free week is over" })).toBeInTheDocument();
     expect(screen.getByTestId("trial-end-screen-activity")).toHaveTextContent("In your free week: 1 answer checked.");
     const lead = screen.getByTestId("trial-end-screen-lead");
-    expect(lead).toHaveTextContent("Board Pass");
-    expect(lead).toHaveTextContent("till your boards");
-    expect(screen.getByTestId("trial-end-screen-monthly")).toHaveTextContent(/^Or .* for a month$/);
-    expect(lead.compareDocumentPosition(screen.getByTestId("trial-end-screen-monthly")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(lead).toHaveTextContent("Premium");
+    expect(lead).toHaveTextContent(/₹599/);
+    expect(lead).toHaveTextContent("for a month");
+    expect(screen.getByTestId("trial-end-screen-second")).toHaveTextContent(/^Or Board Pass ₹[\d,]+ - pay once till your boards/);
+    expect(lead.compareDocumentPosition(screen.getByTestId("trial-end-screen-second")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole("button", { name: "Continue with Basic" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "See plans" })).toHaveAttribute("href", "/pricing?source=trial-end&returnTo=" + encodeURIComponent("/check-improve"));
     expect(trackScreen).toHaveBeenCalledWith("shown");
@@ -209,7 +210,7 @@ describe("TrialCountdownBar", () => {
     readRecords.mockReturnValue(new Promise(() => {})); // never resolves: must not matter
     renderAt("/practice", <TrialCountdownBar />);
     const bar = await screen.findByTestId("trial-countdown-bar");
-    expect(bar).toHaveTextContent("4 days left of your free week · Board Pass");
+    expect(bar).toHaveTextContent(/4 days left of your free week · Premium ₹599 for a month/);
     expect(screen.getByRole("link")).toHaveAttribute("href", "/pricing?source=trial-bar");
     expect(trackShown).toHaveBeenCalled();
   });
