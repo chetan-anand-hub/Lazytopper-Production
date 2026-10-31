@@ -58,7 +58,7 @@ export default function PacksPage() {
               </button>
             ))}
           </div>
-          <p className="lt-packs__terms" data-testid="packs-bundle-cbq-note">
+          <p className="lt-packs__terms lt-packs__cbqnote" data-testid="packs-bundle-cbq-note">
             <a href="#cbq">Add the CBQ packs for the competency half &rarr;</a>
           </p>
         </div>
