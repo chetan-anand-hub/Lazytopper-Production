@@ -18,7 +18,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ComponentType } from "react";
 import { trackParentReportViewed } from "../../analytics/analytics";
 import {
-  MARKS_HEADING,
   MISTAKES_BY_KIND_HEADING,
   NOT_ATTEMPTED,
   UNTYPED_MARKS_LABEL,
@@ -35,6 +34,7 @@ import { shouldDrawMummy } from "../guide/mummy/mummyModel";
 import type { MummyFigureProps } from "../guide/mummy/mummyChunk";
 import { useMascotsHidden } from "../guide/mascotsMute";
 import {
+  PARENT_MARKS_HEADING,
   PARENT_PACKS_HREF,
   PARENT_PRICING_HREF,
   PARENT_RESULT_CTA_HREF,
@@ -189,7 +189,7 @@ function MarksLostBlock({ r }: { r: ParentResultView }) {
     const m = r.marksLost;
     return (
       <section className="lt-pr__sec" data-testid="pr-marks">
-        <h2 className="lt-pr__h2">{MARKS_HEADING}</h2>
+        <h2 className="lt-pr__h2">{PARENT_MARKS_HEADING}</h2>
         <MarksBar m={m} />
         {marksGroupRows(m).map(({ group, marks, types }) => (
           <div key={group.key} className={`lt-pr__grp lt-pr__grp--${group.colorKey}`} data-group={group.key}>

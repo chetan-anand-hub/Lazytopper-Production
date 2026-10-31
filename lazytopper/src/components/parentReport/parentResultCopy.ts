@@ -65,3 +65,6 @@ export function parentSecondaryCtaLabel(): string {
 }
 
 export const PARENT_TRUST_LINE = "Secure payment via Razorpay \u00b7 Made by an IITian (IIT Kanpur)";
+
+/** The page is read by the PARENT, so the shared student-facing "Where your marks went" is worded for them. */
+export const PARENT_MARKS_HEADING = "Where the marks went";

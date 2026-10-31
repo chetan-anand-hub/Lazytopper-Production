@@ -20,7 +20,6 @@ import {
   PARENT_RESULT_CTA_LABEL,
 } from "./parentResultCopy";
 import { ParentResultError, readParentResultView } from "./parentResultLink";
-import { MARKS_HEADING } from "../../lib/mistakeDisplay";
 
 const TOKEN = "Q".repeat(43);
 const HASH = `#r=${TOKEN}`;
@@ -113,7 +112,8 @@ describe("ParentResultPage — only the allowed fields", () => {
     expect(screen.getByTestId("pr-meta").textContent).toContain("22 Oct 2026");
     expect(screen.getByTestId("pr-score").textContent).toContain("7");
     expect(screen.getByTestId("pr-score").textContent).toContain("/ 10 marks");
-    expect(html).toContain(MARKS_HEADING);
+    expect(html).toContain("Where the marks went");
+    expect(html).not.toContain("Where your marks went");
     expect(html).toContain("Concept gap");
     expect(html).toContain("Not attempted — not counted as a mistake");
     const slips = screen.getAllByTestId("pr-slip").map((n) => n.textContent);
