@@ -23,6 +23,42 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-31 (daily) - #1445 - #1458 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `ba213620`. Earlier dated entries are left as written (standing rule 3). Items come from the coordinator handoff of 31 Oct **[coordinator]**; this builder re-derived none of the code facts.*
+
+### [FU-PRICE-FIXED-AFTERCHECKS]
+Evidence [coordinator; `#1458`]: on 1 Nov /pricing must show the founding offer only; a new account must get 409 `month_pass_retired`; an existing Board Pass holder's page must be unchanged; at 1 Dec 00:00 IST the price must become Rs 2,499 and the offer line must disappear. The server month gate has not yet been observed. The Rs 2,499 is provisional (one constant).
+
+### [FU-ADS-PRICE-AUDIT]
+Evidence [coordinator; owner ruling 20:19]: ads still mention Rs 599/month or the falling price (Dussehra end card, sitelinks and headlines with prices, the PDF Packs "Board Pass to /pricing" sitelink, any "save 20%" copy). List read-only, then discuss with the owner; change nothing before that.
+
+### [FU-RESEND-SENDING-ACCOUNT]
+Evidence [coordinator]: the Resend login in Chrome is not the account sending reminders. Owner to sign in with Google, confirm, check bounces and daily volume, and buy Pro (decided 31 Oct; the free limit of 100/day is close).
+
+### [FU-PAID-INACTIVE-BUYERS]
+Evidence [coordinator]: `sh...` (paid Rs 1,917 on 31 Oct) has not used a feature, so needs a first-win nudge; `th...` (paid 14 Oct) never returned, so a personal hello from support@ (owner approves the text).
+
+### [FU-PARENT-PAID-LIVE]
+Evidence [coordinator; `#1457`]: not live-verified; open a parent page of a paid student and confirm the buy buttons are hidden and "<Name> already has LazyTopper Premium." shows.
+
+### [FU-FRIEND-CHALLENGE-SIGNED-IN-ARRIVAL]
+Evidence [coordinator; `#1456`]: only the signed-out arrival was checked live; check a signed-in arrival on `?challenge=<id>`.
+
+### [FU-EXAM-TRENDS-MARKS-SPLIT-SOURCES]
+Evidence [coordinator; `#1453`]: two marks-split sources for Exam Trends disagree (`class10MathTopicWeights.ts` has different numbers from the unit-marks data and was left unchanged).
+
+### [FU-PURCHASES-REFUNDED-SHOWN-PAID]
+Evidence [coordinator; `#1447`]: refunded orders still show as paid on the admin Purchases card.
+
+### [FU-ADS-PACKS-FOLLOWUPS]
+Evidence [coordinator; 31 Oct ads changes]: remove the paused keyword "online test class 10 cbse" Monday; add PDF Packs sitelinks within the account cap of 20 (no Rs 599); merge the duplicate CBQ ad groups keeping "competency based questions class 10" (about 14.8k/mo) on a pack ad; the "CBQs - case study & competency" ad is policy-limited (appeal pending); GA4 hour-by-hour visitors; GA4 purchase value fix; IITian in YouTube video descriptions; YouTube landing A/B; YouTube CBQ campaign stays paused.
+
+### [FU-OWNER-HOUSEKEEPING-31OCT]
+Evidence [coordinator]: owner switches the repo back to PRIVATE, deletes branch `assets/ads-3d-31oct` (images are also in his `Downloads\lt-3d-ads\`), and tops up Google Ads (balance Rs 48.8k, about 6 days at current spend).
+
+The carried queue from the 30 Oct handoff (section 5), `[FU-KEYDISPUTE-QID-VALIDATION]` and `[FU-RETURNEDWORK-STEM-MATCH]` stay open.
+
 ## 2026-10-30 (daily, part 3) - #1439, #1441 - #1443 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `0606546a`. Earlier dated entries are left as written (standing rule 3). The earlier follow-ups stay open.* Items come from the coordinator **[coordinator]**; this builder re-derived none of the code facts.
