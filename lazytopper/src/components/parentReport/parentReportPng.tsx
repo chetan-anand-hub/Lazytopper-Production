@@ -24,7 +24,7 @@ export async function renderParentReportPng(report: ParentReport): Promise<Blob>
     if (fonts?.ready) await fonts.ready;
     const node = host.querySelector<HTMLElement>(".lt-prc");
     if (!node) throw new Error("report card did not render");
-    const blob = await toBlob(node, { width: 1080, height: 1350, pixelRatio: 1, backgroundColor: "#15233a" });
+    const blob = await toBlob(node, { width: 1080, height: 1350, pixelRatio: 1, backgroundColor: "#F4F6FB" });
     if (!blob) throw new Error("report image is empty");
     return blob;
   } finally {

@@ -363,3 +363,13 @@ describe("PARENT-REPORT-1 · privacy", () => {
     expect([...u.searchParams.keys()].sort()).toEqual(["utm_campaign", "utm_medium", "utm_source"]);
   });
 });
+
+describe("PARENT-CARD-2 weekTitle", () => {
+  it("names the student only when a name is given; thin = the honest 'just started' line", async () => {
+    const { weekTitle } = await import("./parentReportModel");
+    expect(weekTitle("Aarav", false).en).toBe("Aarav’s week in 20 seconds");
+    expect(weekTitle(null, false).en).toBe("My week in 20 seconds");
+    expect(weekTitle("Aarav", true).en).toBe("Aarav has just started");
+    expect(weekTitle(null, true).en).toBe("I have just started");
+  });
+});

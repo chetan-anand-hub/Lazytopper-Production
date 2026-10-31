@@ -25,6 +25,7 @@ import {
   countWithUnit,
   groupRows,
   marksGroupRows,
+  marksLostTotal,
   marksWithUnit,
   mistakeTypeLabel,
   totalCount,
@@ -33,7 +34,17 @@ import { desktopTopicForWeakAreaKey } from "../../lib/desktop/topics";
 import { shouldDrawMummy } from "../guide/mummy/mummyModel";
 import type { MummyFigureProps } from "../guide/mummy/mummyChunk";
 import { useMascotsHidden } from "../guide/mascotsMute";
-import { PARENT_RESULT_CTA_HREF, PARENT_RESULT_CTA_LABEL, mummyLineFor, resultDateLabel } from "./parentResultCopy";
+import {
+  PARENT_PACKS_HREF,
+  PARENT_PRICING_HREF,
+  PARENT_RESULT_CTA_HREF,
+  PARENT_RESULT_CTA_LABEL,
+  PARENT_TRUST_LINE,
+  mummyLineFor,
+  parentPrimaryCtaLabel,
+  parentSecondaryCtaLabel,
+  resultDateLabel,
+} from "./parentResultCopy";
 import {
   ParentResultError,
   readParentResultToken,
@@ -149,12 +160,37 @@ function chapterNames(slugs: string[]): string[] {
   return out;
 }
 
+/** One stacked bar: SVG geometry attributes (no style objects). Segments are the marks lost, by group. */
+function MarksBar({ m }: { m: NonNullable<ParentResultView["marksLost"]> }) {
+  const total = marksLostTotal(m);
+  if (total <= 0) return null;
+  const parts: Array<{ cls: string; v: number }> = [
+    ...marksGroupRows(m).map(({ group, marks }) => ({ cls: group.colorKey, v: marks })),
+    { cls: "na", v: m.unattempted },
+    { cls: "untyped", v: m.untyped },
+  ];
+  let x = 0;
+  return (
+    <svg className="lt-pr__bar" viewBox="0 0 1000 40" preserveAspectRatio="none" aria-hidden="true" data-testid="pr-bar">
+      {parts
+        .filter((p) => p.v > 0)
+        .map((p) => {
+          const w = (p.v / total) * 1000;
+          const rect = <rect key={p.cls} className={`lt-pr__seg lt-pr__seg--${p.cls}`} x={x} y={0} width={w} height={40} />;
+          x += w;
+          return rect;
+        })}
+    </svg>
+  );
+}
+
 function MarksLostBlock({ r }: { r: ParentResultView }) {
   if (r.marksLost) {
     const m = r.marksLost;
     return (
       <section className="lt-pr__sec" data-testid="pr-marks">
         <h2 className="lt-pr__h2">{MARKS_HEADING}</h2>
+        <MarksBar m={m} />
         {marksGroupRows(m).map(({ group, marks, types }) => (
           <div key={group.key} className={`lt-pr__grp lt-pr__grp--${group.colorKey}`} data-group={group.key}>
             <div className="lt-pr__gh">{group.heading}</div>
@@ -289,7 +325,7 @@ export default function ParentResultPage({ hash, view = viewParentResult, drawFi
   }, []);
 
   const cta = (
-    <a className="lt-pr__cta" href={PARENT_RESULT_CTA_HREF} data-testid="pr-cta">
+    <a className="lt-pr__cta lt-pr__cta--primary" href={PARENT_RESULT_CTA_HREF} data-testid="pr-cta">
       {PARENT_RESULT_CTA_LABEL}
     </a>
   );
@@ -321,26 +357,72 @@ export default function ParentResultPage({ hash, view = viewParentResult, drawFi
   const chapters = chapterNames(result.chapters);
   const date = resultDateLabel(result.gradedAt);
   const meta = [subject, chapters.length ? chapters.join(", ") : null, date || null].filter(Boolean).join(" · ");
+  // Only figures the snapshot carries: a tile whose figure is missing is dropped, never shown as 0.
+  const toWinBack = result.marksLost ? marksLostTotal(result.marksLost) : 0;
+  const mistakesFound = !result.marksLost ? totalCount(result.fourType) : 0;
+  const fixFirst = chapters[0] ?? null;
 
   return (
     <main className="lt-pr" data-testid="parent-result-page" data-phase="ready">
-      <div className="lt-pr__card">
-        <div className="lt-pr__brand">LazyTopper</div>
-        <h1 className="lt-pr__h1" data-testid="pr-title">
-          {who} result
-        </h1>
-        <p className="lt-pr__meta" data-testid="pr-meta">
-          {meta}
-        </p>
-        <div className="lt-pr__score" data-testid="pr-score">
-          <span className="lt-pr__big">{result.awarded}</span>
-          <span className="lt-pr__of"> / {result.total} marks</span>
+      <div className="lt-pr__col">
+        <header className="lt-pr__band">
+          <div className="lt-pr__brandrow">
+            <span className="lt-pr__brand">LazyTopper</span>
+            <span className="lt-pr__class">Class 10 CBSE</span>
+          </div>
+          <h1 className="lt-pr__h1" data-testid="pr-title">
+            {who} result
+          </h1>
+          <p className="lt-pr__meta" data-testid="pr-meta">
+            {meta}
+          </p>
+        </header>
+
+        <div className="lt-pr__tiles">
+          <div className="lt-pr__tile" data-testid="pr-score">
+            <span className="lt-pr__big">{result.awarded}</span>
+            <span className="lt-pr__of"> / {result.total} marks</span>
+          </div>
+          {toWinBack > 0 && (
+            <div className="lt-pr__tile lt-pr__tile--lost" data-testid="pr-tile-winback">
+              <span className="lt-pr__big">{toWinBack}</span>
+              <span className="lt-pr__of"> marks to win back</span>
+            </div>
+          )}
+          {mistakesFound > 0 && (
+            <div className="lt-pr__tile lt-pr__tile--lost" data-testid="pr-tile-mistakes">
+              <span className="lt-pr__big">{mistakesFound}</span>
+              <span className="lt-pr__of"> {mistakesFound === 1 ? "mistake" : "mistakes"} found</span>
+            </div>
+          )}
         </div>
-        <MarksLostBlock r={result} />
-        <SlipsBlock r={result} />
-        <MummyMoment kind={result.kind} drawFigure={drawFigure} />
-        {cta}
-        <p className="lt-pr__foot">Shared from LazyTopper by your child. This page shows this one result only.</p>
+
+        <div className="lt-pr__body">
+          <MarksLostBlock r={result} />
+          {fixFirst && (
+            <section className="lt-pr__fix" data-testid="pr-fix-first">
+              <span className="lt-pr__fix-k">Fix first</span>
+              <span className="lt-pr__fix-v">{fixFirst}</span>
+            </section>
+          )}
+          <SlipsBlock r={result} />
+          <MummyMoment kind={result.kind} drawFigure={drawFigure} />
+          <div className="lt-pr__ctas">
+            <a className="lt-pr__cta lt-pr__cta--primary" href={PARENT_PRICING_HREF} data-testid="pr-cta-primary">
+              {parentPrimaryCtaLabel(result.firstName)}
+            </a>
+            <a className="lt-pr__cta lt-pr__cta--secondary" href={PARENT_PACKS_HREF} data-testid="pr-cta-secondary">
+              {parentSecondaryCtaLabel()}
+            </a>
+            <a className="lt-pr__link" href={PARENT_RESULT_CTA_HREF} data-testid="pr-cta">
+              {PARENT_RESULT_CTA_LABEL}
+            </a>
+            <p className="lt-pr__trust" data-testid="pr-trust">
+              {PARENT_TRUST_LINE}
+            </p>
+          </div>
+          <p className="lt-pr__foot">Shared from LazyTopper by your child. This page shows this one result only.</p>
+        </div>
       </div>
     </main>
   );

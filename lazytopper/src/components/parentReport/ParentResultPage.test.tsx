@@ -10,6 +10,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 const { trackParentReportViewed } = vi.hoisted(() => ({ trackParentReportViewed: vi.fn() }));
 vi.mock("../../analytics/analytics", () => ({ trackParentReportViewed }));
 
+import { parentPrimaryCtaLabel, parentSecondaryCtaLabel } from "./parentResultCopy";
 import ParentResultPage, { PARENT_RESULT_TAB_KEY } from "./ParentResultPage";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests } from "../guide/mascotsMute";
 import {
@@ -153,6 +154,20 @@ describe("ParentResultPage — Mummy", () => {
     );
     expect(MUMMY_LINE_OBJECTIVE).toBe(screen.getByTestId("pr-mummy-line").textContent);
     await waitFor(() => expect(trackParentReportViewed).toHaveBeenCalledWith("objective"));
+  });
+
+  it("PARENT-CARD-2: two pay buttons from the code's own prices, the trust line, and the old link kept", async () => {
+    render(<ParentResultPage hash={HASH} view={viewOf(serverJson())} drawFigure={false} />);
+    const primary = (await screen.findByTestId("pr-cta-primary")) as HTMLAnchorElement;
+    expect(primary.textContent).toBe(parentPrimaryCtaLabel("Aarav"));
+    expect(primary.textContent).toMatch(/^Give Aarav full board prep/);
+    expect(primary.getAttribute("href")).toMatch(/^\/pricing\?/);
+    const secondary = screen.getByTestId("pr-cta-secondary") as HTMLAnchorElement;
+    expect(secondary.textContent).toBe(parentSecondaryCtaLabel());
+    expect(secondary.getAttribute("href")).toMatch(/^\/packs\?/);
+    expect(screen.getByTestId("pr-trust").textContent).toBe("Secure payment via Razorpay \u00b7 Made by an IITian (IIT Kanpur)");
+    expect(screen.getByTestId("pr-bar")).toBeTruthy();
+    expect(screen.getByTestId("pr-fix-first").textContent).toContain("Quadratic Equations");
   });
 
   it("the copy never says 'Ask' and never shows a price", () => {

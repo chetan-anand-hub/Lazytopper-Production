@@ -3,9 +3,17 @@
  * decisions (which Mummy line, the date label). Tiny and bank-free: the page imports it;
  * Mummy's drawing code stays in the lazily loaded guide/mummy/mummyChunk.
  *
- * Copy rules (owner, 22 Oct 2026; pinned by ParentResultPage.test.tsx): never the word "Ask",
- * never a price, no "₹".
+ * Copy rules (owner, 22 Oct 2026; pinned by ParentResultPage.test.tsx): never the word "Ask";
+ * the Mummy lines and PARENT_RESULT_CTA_LABEL carry no price. PARENT-CARD-2 (owner, 31 Oct 2026) adds
+ * the two pay buttons below - their prices come from config/pricing and the packs catalogue, never a literal.
  */
+import {
+  PRICE_MONTHLY_FOUNDING_DISPLAY,
+  PRICE_MONTHLY_LIST_DISPLAY,
+  foundingOfferOpen,
+  formatInr,
+} from "../../config/pricing";
+import { CHAPTER_PACK_PRICE_INR } from "../../lib/packs/packEntry";
 import type { ParentResultKind } from "./parentResultLink";
 
 /**
@@ -40,3 +48,20 @@ export function resultDateLabel(ms: number): string {
     return "";
   }
 }
+
+/** PARENT-CARD-2 - the two pay buttons. Prices are read from the pricing config / packs catalogue at render. */
+export const PARENT_PRICING_HREF = "/pricing?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report";
+export const PARENT_PACKS_HREF = "/packs?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report";
+
+/** "Give Aarav full board prep — ₹599 for a month" (the code's own monthly wording; founding price until 30 Nov, then list). */
+export function parentPrimaryCtaLabel(firstName: string, now: number = Date.now()): string {
+  const price = foundingOfferOpen(now) ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY;
+  return `Give ${firstName || "your child"} full board prep \u2014 ${price} for a month`;
+}
+
+/** "Or one PDF pack, from ₹49" - the cheapest pack in the catalogue. */
+export function parentSecondaryCtaLabel(): string {
+  return `Or one PDF pack, from ${formatInr(CHAPTER_PACK_PRICE_INR)}`;
+}
+
+export const PARENT_TRUST_LINE = "Secure payment via Razorpay \u00b7 Made by an IITian (IIT Kanpur)";
